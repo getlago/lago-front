@@ -96,7 +96,7 @@ export type AssociatedSubscription = {
   plan: {
     id: string
     name: string
-    interval: string
+    interval?: string | null
     invoiceDisplayName?: string | null
   }
 }

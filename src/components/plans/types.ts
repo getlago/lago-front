@@ -44,6 +44,8 @@ export type LocalFixedChargeInput = Omit<FixedChargeInput, 'addOnId'> & {
   taxes?: TaxForTaxesSelectorSectionFragment[] | null
   // NOTE: used for display purpose, replaced by addOnId on save
   addOn: AddOnForFixedChargesSectionFragment
+  // NOTE: quote document only, never sent to the API
+  displayInQuoteDocument?: boolean
 }
 
 export type LocalUsageChargeInput = Omit<
@@ -58,6 +60,8 @@ export type LocalUsageChargeInput = Omit<
   filters?: LocalChargeFilterInput[]
   // NOTE: this is used for display purpose but will be replaced by taxCodes[] on save
   taxes?: TaxForTaxesSelectorSectionFragment[] | null
+  // NOTE: quote document only, never sent to the API
+  displayInQuoteDocument?: boolean
 }
 
 export type LocalUsageThresholdInput = UsageThresholdInput

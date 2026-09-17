@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql, WatchQueryFetchPolicy } from '@apollo/client'
 
 import { QuoteDetailItemFragment, useGetQuoteQuery } from '~/generated/graphql'
 
@@ -26,6 +26,14 @@ gql`
       status
       version
       createdAt
+    }
+    # Feeds the activity-logs tab, which asks for the whole quote → order form → order
+    # resource set in one query
+    orderForms {
+      id
+      order {
+        id
+      }
     }
     orderType
     createdAt
@@ -61,8 +69,7 @@ gql`
       status
       version
       currency
-      startDate
-      endDate
+      billingEntityId
       createdAt
       ...QuotePreviewVersion
     }
@@ -82,10 +89,14 @@ interface UseQuoteReturn {
   refetch: ReturnType<typeof useGetQuoteQuery>['refetch']
 }
 
-export const useQuote = (id?: string): UseQuoteReturn => {
+export const useQuote = (
+  id?: string,
+  options?: { fetchPolicy?: WatchQueryFetchPolicy },
+): UseQuoteReturn => {
   const { data, loading, error, refetch } = useGetQuoteQuery({
     variables: { id: id || '' },
     skip: !id,
+    ...(options?.fetchPolicy ? { fetchPolicy: options.fetchPolicy } : {}),
   })
 
   return {

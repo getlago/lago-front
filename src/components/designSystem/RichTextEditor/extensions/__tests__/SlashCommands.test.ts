@@ -1,7 +1,9 @@
 import { Editor } from '@tiptap/core'
+import { NodeSelection } from '@tiptap/pm/state'
 import StarterKit from '@tiptap/starter-kit'
 
-import { slashCommandDefinitions, SlashCommands } from '../SlashCommands'
+import { PricingBlockSchema } from '../PricingBlock.schema'
+import { insertPricingBlock, slashCommandDefinitions, SlashCommands } from '../SlashCommands'
 
 const mockDestroyPopup = jest.fn()
 const mockHidePopup = jest.fn()
@@ -790,10 +792,6 @@ describe('SlashCommands', () => {
           },
         }
 
-        // Create a fake NodeSelection-like object using the actual NodeSelection class
-        const { NodeSelection } = jest.requireActual('@tiptap/pm/state') as {
-          NodeSelection: { prototype: object }
-        }
         const fakeNodeSelection = Object.create(NodeSelection.prototype, {
           from: { value: 5 },
           node: { value: { nodeSize: 3 } },
@@ -1654,6 +1652,143 @@ describe('SlashCommands', () => {
         expect(creditsItem?.disabled).toBe(false)
 
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+  })
+})
+
+describe('insertPricingBlock', () => {
+  const buildMockEditor = (selection: unknown) => {
+    const runMock = jest.fn()
+    const chainMethods: Record<string, jest.Mock> = {}
+    const handler: ProxyHandler<Record<string, jest.Mock>> = {
+      get: (_target, prop: string) => {
+        if (prop === 'run') return runMock
+
+        if (!chainMethods[prop]) {
+          chainMethods[prop] = jest.fn().mockReturnValue(new Proxy({}, handler))
+        }
+
+        return chainMethods[prop]
+      },
+    }
+
+    const editor = {
+      chain: jest.fn().mockReturnValue(new Proxy({}, handler)),
+      commands: { setTextSelection: jest.fn() },
+      state: { selection, doc: { content: { size: 42 } } },
+    } as unknown as Editor
+
+    return { editor, chainMethods, runMock }
+  }
+
+  describe('GIVEN the helper is called from outside the editor', () => {
+    describe('WHEN it runs', () => {
+      it('THEN should open the pricing drawer with an onSave callback', () => {
+        const onPricingCommand = jest.fn()
+        const { editor } = buildMockEditor({})
+
+        insertPricingBlock(editor, onPricingCommand)
+
+        expect(onPricingCommand).toHaveBeenCalledWith({ onSave: expect.any(Function) })
+      })
+    })
+
+    describe('WHEN onSave is invoked', () => {
+      it('THEN should insert the pricingBlock node with the given attrs', () => {
+        const onPricingCommand = jest.fn()
+        const { editor, chainMethods, runMock } = buildMockEditor({})
+        const attrs = { pricingType: 'plan' as const, entityIds: ['plan-1'] }
+
+        insertPricingBlock(editor, onPricingCommand)
+        onPricingCommand.mock.calls[0][0].onSave(attrs, {})
+
+        expect(chainMethods['insertContent']).toHaveBeenCalledWith({
+          type: 'pricingBlock',
+          attrs,
+        })
+        expect(runMock).toHaveBeenCalled()
+      })
+
+      it('THEN should insert at the caret by default', () => {
+        const onPricingCommand = jest.fn()
+        const { editor, chainMethods } = buildMockEditor({})
+
+        insertPricingBlock(editor, onPricingCommand)
+        onPricingCommand.mock.calls[0][0].onSave({ pricingType: 'plan', entityIds: [] }, {})
+
+        expect(chainMethods['insertContentAt']).toBeUndefined()
+      })
+
+      it('THEN should append at the document size when asked for the end', () => {
+        const onPricingCommand = jest.fn()
+        const { editor, chainMethods } = buildMockEditor({})
+        const attrs = { pricingType: 'plan' as const, entityIds: [] }
+
+        insertPricingBlock(editor, onPricingCommand, { at: 'end' })
+        onPricingCommand.mock.calls[0][0].onSave(attrs, {})
+
+        expect(chainMethods['insertContentAt']).toHaveBeenCalledWith(42, {
+          type: 'pricingBlock',
+          attrs,
+        })
+      })
+    })
+
+    describe('WHEN the insert leaves a NodeSelection', () => {
+      // Without this the BlockToolbar overlay pops open on the freshly inserted block.
+      it('THEN should move the cursor past the inserted node', () => {
+        const onPricingCommand = jest.fn()
+        const nodeSelection = Object.create(NodeSelection.prototype, {
+          from: { value: 4 },
+          node: { value: { nodeSize: 1 } },
+        })
+        const { editor } = buildMockEditor(nodeSelection)
+
+        insertPricingBlock(editor, onPricingCommand)
+        onPricingCommand.mock.calls[0][0].onSave({ pricingType: 'plan', entityIds: [] }, {})
+
+        expect(editor.commands.setTextSelection).toHaveBeenCalledWith(5)
+      })
+    })
+
+    describe('WHEN the insert leaves a plain text selection', () => {
+      it('THEN should leave the selection untouched', () => {
+        const onPricingCommand = jest.fn()
+        const { editor } = buildMockEditor({ from: 4 })
+
+        insertPricingBlock(editor, onPricingCommand)
+        onPricingCommand.mock.calls[0][0].onSave({ pricingType: 'plan', entityIds: [] }, {})
+
+        expect(editor.commands.setTextSelection).not.toHaveBeenCalled()
+      })
+    })
+  })
+})
+
+describe('insertPricingBlock on a real editor', () => {
+  describe('GIVEN a document ending in a selectable atom', () => {
+    describe('WHEN the block is appended at the end', () => {
+      // `focus('end')` resolves to a NodeSelection over that trailing atom, and insertContent
+      // would replace it — the divider would be silently deleted and autosaved away.
+      it('THEN should keep the trailing node and insert after it', () => {
+        const editor = new Editor({
+          extensions: [StarterKit, PricingBlockSchema],
+          content: '<p>Intro</p><hr>',
+        })
+        const onPricingCommand = jest.fn()
+
+        insertPricingBlock(editor, onPricingCommand, { at: 'end' })
+        onPricingCommand.mock.calls[0][0].onSave({ pricingType: 'plan', entityIds: ['plan-1'] }, {})
+
+        expect(editor.getJSON().content?.map((node) => node.type)).toEqual([
+          'paragraph',
+          'horizontalRule',
+          'pricingBlock',
+          'paragraph',
+        ])
+
         editor.destroy()
       })
     })

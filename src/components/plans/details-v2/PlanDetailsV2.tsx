@@ -98,7 +98,7 @@ export const PlanDetailsV2 = ({
   const { data, loading } = useGetPlanForDetailsV2Query({
     variables: { planId },
     skip: !planId,
-    context: { silentError: [LagoApiError.NotFound] },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
 
   const fixedChargesRef = useRef<PlanDetailsV2FixedChargesSectionRef>(null)

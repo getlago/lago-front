@@ -1,7 +1,7 @@
-import { PaymentProvidersListForCustomerMainInfosQuery } from '~/generated/graphql'
+import { PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery } from '~/generated/graphql'
 
 export type LinkedPaymentProvider =
   | NonNullable<
-      PaymentProvidersListForCustomerMainInfosQuery['paymentProviders']
+      PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery['paymentProviders']
     >['collection'][number]
   | undefined

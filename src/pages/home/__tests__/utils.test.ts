@@ -81,6 +81,31 @@ describe('resolveRedirectTarget()', () => {
     })
   })
 
+  describe('GIVEN ssoRedirectPath is an off-origin value', () => {
+    it.each([
+      '//evil.com',
+      '/\\evil.com',
+      '\\/evil.com',
+      'https://evil.com',
+      'javascript:alert(1)//',
+    ])('THEN %s is ignored and the default branch wins', (ssoRedirectPath) => {
+      mockHasPermissions.mockReturnValueOnce(true) // analytics
+
+      const result = resolveRedirectTarget(baseInput({ ssoRedirectPath }))
+
+      expect(result).toEqual({ to: `/${SLUG}/analytics`, consumesSsoLs: true })
+    })
+
+    // Drained even when it is ignored, or the poisoned value replays on every load.
+    it('THEN the LS key is still drained when the user has no resolvable slug', () => {
+      const result = resolveRedirectTarget(
+        baseInput({ currentUser: undefined, ssoRedirectPath: '//evil.com' }),
+      )
+
+      expect(result).toEqual({ to: '/forbidden', consumesSsoLs: true })
+    })
+  })
+
   describe('GIVEN savedLocation has a slug belonging to the current user', () => {
     it('THEN returns it as a Location object (preserves any extra fields)', () => {
       const savedLocation = { pathname: `/${SLUG}/customers`, search: '?tab=overview', hash: '' }

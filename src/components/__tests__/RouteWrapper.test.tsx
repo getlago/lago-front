@@ -1,6 +1,6 @@
 import { configure, render, screen, waitFor } from '@testing-library/react'
 import { ReactNode } from 'react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 
 import { ERROR_FALLBACK_TEST_ID } from '~/components/ErrorFallback'
 import { RouteWrapper } from '~/components/RouteWrapper'
@@ -15,13 +15,19 @@ jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
   addToast: (...args: unknown[]) => mockAddToast(...args),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-}))
+jest.mock('react-router', () => {
+  const actual = jest.requireActual('react-router')
+
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  }
+})
 
 const mockSetMainRouterUrl = jest.fn()
 let mockMainRouterUrl = ''
+
+const mockUseDevtoolTabParam = jest.fn()
 
 jest.mock('~/hooks/useDeveloperTool', () => ({
   DEVTOOL_TAB_PARAMS: 'devtool-tab',
@@ -29,12 +35,7 @@ jest.mock('~/hooks/useDeveloperTool', () => ({
     mainRouterUrl: mockMainRouterUrl,
     setMainRouterUrl: mockSetMainRouterUrl,
   }),
-}))
-
-jest.mock('~/hooks/auth/useIsAuthenticated', () => ({
-  useIsAuthenticated: () => ({
-    isAuthenticated: true,
-  }),
+  useDevtoolTabParam: () => mockUseDevtoolTabParam(),
 }))
 
 jest.mock('~/hooks/core/useLocationHistory', () => ({
@@ -158,6 +159,24 @@ describe('RouteWrapper', () => {
             })
             expect(mockSetMainRouterUrl).toHaveBeenCalledWith('')
           })
+        })
+      })
+    })
+  })
+
+  describe('devtool-tab bridge', () => {
+    describe('GIVEN RouteWrapper is the single host inside the BrowserRouter', () => {
+      describe('WHEN it renders', () => {
+        // The bridge used to live in `useDeveloperTool`, so it ran in all 14 consumers
+        // and raced to consume the param.
+        it('THEN it should mount the devtool-tab bridge exactly once', () => {
+          render(
+            <MemoryRouter>
+              <RouteWrapper />
+            </MemoryRouter>,
+          )
+
+          expect(mockUseDevtoolTabParam).toHaveBeenCalledTimes(1)
         })
       })
     })

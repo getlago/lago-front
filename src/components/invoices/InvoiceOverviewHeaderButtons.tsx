@@ -15,6 +15,11 @@ import { MenuPopper } from '~/styles'
 
 const { disablePdfGeneration } = envGlobalVar()
 
+export const INVOICE_OVERVIEW_REFRESH_BUTTON_TEST_ID = 'invoice-overview-refresh-button'
+export const INVOICE_OVERVIEW_FINALIZE_BUTTON_TEST_ID = 'invoice-overview-finalize-button'
+export const INVOICE_OVERVIEW_RETRY_BUTTON_TEST_ID = 'invoice-overview-retry-button'
+export const INVOICE_OVERVIEW_DOWNLOAD_BUTTON_TEST_ID = 'invoice-overview-download-button'
+
 interface InvoiceOverviewHeaderButtonsProps {
   invoice: AllInvoiceDetailsForCustomerInvoiceDetailsFragment | null | undefined
   loading: boolean
@@ -23,7 +28,7 @@ interface InvoiceOverviewHeaderButtonsProps {
   loadingInvoiceDownload: boolean
   loadingInvoiceXmlDownload: boolean
   hasError: boolean
-  hasTaxProviderError: boolean
+  canRetryInvoice: boolean
   refreshInvoice: RefreshInvoiceMutationFn
   retryInvoice: RetryInvoiceMutationFn
   downloadInvoice: DownloadInvoiceItemMutationFn
@@ -40,7 +45,7 @@ export const InvoiceOverviewHeaderButtons = ({
   loadingInvoiceDownload,
   loadingInvoiceXmlDownload,
   hasError,
-  hasTaxProviderError,
+  canRetryInvoice,
   refreshInvoice,
   retryInvoice,
   downloadInvoice,
@@ -61,6 +66,7 @@ export const InvoiceOverviewHeaderButtons = ({
         <Button
           variant="quaternary"
           startIcon="reload"
+          data-test={INVOICE_OVERVIEW_REFRESH_BUTTON_TEST_ID}
           disabled={loading || loadingRefreshInvoice || isTaxStatusPending}
           onClick={async () => {
             await refreshInvoice()
@@ -70,6 +76,7 @@ export const InvoiceOverviewHeaderButtons = ({
         </Button>
         <Button
           variant="quaternary"
+          data-test={INVOICE_OVERVIEW_FINALIZE_BUTTON_TEST_ID}
           disabled={loading || isTaxStatusPending}
           onClick={() => {
             openFinalizeInvoiceDialog(invoice, goToPreviousRoute)
@@ -81,10 +88,11 @@ export const InvoiceOverviewHeaderButtons = ({
     )
   }
 
-  if (hasTaxProviderError) {
+  if (canRetryInvoice) {
     return (
       <Button
         variant="quaternary"
+        data-test={INVOICE_OVERVIEW_RETRY_BUTTON_TEST_ID}
         disabled={loading || loadingRetryInvoice || isTaxStatusPending}
         onClick={async () => {
           await retryInvoice()
@@ -99,6 +107,7 @@ export const InvoiceOverviewHeaderButtons = ({
     return (
       <Button
         variant="quaternary"
+        data-test={INVOICE_OVERVIEW_DOWNLOAD_BUTTON_TEST_ID}
         disabled={loadingInvoiceDownload || isTaxStatusPending}
         onClick={async () => {
           await downloadInvoice({

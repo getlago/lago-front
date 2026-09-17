@@ -6,6 +6,7 @@ import {
   Customer,
   CustomerForInvoiceDetailsFragment,
   ErrorCodesEnum,
+  InvoiceStatusTypeEnum,
   LagoApiError,
 } from '~/generated/graphql'
 import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
@@ -110,7 +111,6 @@ export const useInvoiceAuthorizations = ({
     integrationSyncable,
     integrationHubspotSyncable,
     regeneratedInvoiceId,
-    billingEntity,
   } = (invoice || {}) as AllInvoiceDetailsForCustomerInvoiceDetailsFragment
 
   const canRecordPayment = !!invoice && actions.canRecordPayment(invoice)
@@ -133,7 +133,7 @@ export const useInvoiceAuthorizations = ({
 
   const authorizations = useMemo((): InvoiceAuthorizations => {
     return {
-      canRetryInvoice: hasTaxProviderError,
+      canRetryInvoice: hasTaxProviderError && status === InvoiceStatusTypeEnum.Failed,
       canFinalizeInvoice: !hasTaxProviderError && canFinalize,
       canDownloadOnlyPdf:
         !hasTaxProviderError && !canFinalize && canDownload && !canDownloadXmlFile,
@@ -157,7 +157,7 @@ export const useInvoiceAuthorizations = ({
         hasActiveWallet,
       ),
       canSyncTaxIntegration: actions.canSyncTaxIntegration({ taxProviderVoidable }),
-      canResendEmail: actions.canResendEmail({ status, billingEntity }),
+      canResendEmail: actions.canResendEmail({ status }),
     }
   }, [
     hasTaxProviderError,
@@ -177,7 +177,6 @@ export const useInvoiceAuthorizations = ({
     invoiceType,
     hasActiveWallet,
     taxProviderVoidable,
-    billingEntity,
   ])
 
   return {

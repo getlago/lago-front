@@ -1,23 +1,51 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 
+import {
+  CATALOG_PLAN_DETAILS_ROUTE,
+  CATALOG_PLAN_DETAILS_SECTION_ROUTE,
+  CUSTOMERS_LIST_ROUTE,
+  PLAN_PRICING_ROUTE,
+} from '~/core/router'
+import { FeatureFlagEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
   MAIN_NAV_BILLING_SECTION_TEST_ID,
+  MAIN_NAV_CATALOG_SECTION_TEST_ID,
   MAIN_NAV_CONFIGURATION_SECTION_TEST_ID,
   MAIN_NAV_MENU_SECTIONS_TEST_ID,
   MAIN_NAV_REPORTS_SECTION_TEST_ID,
   MainNavMenuSections,
 } from '../MainNavMenuSections'
+import { MAIN_NAV_CUSTOMERS_TEST_ID } from '../mainNavTestIds'
+import { NavTab } from '../utils'
 
 const mockHasPermissions = jest.fn()
+const mockHasPermissionsOr = jest.fn()
 const mockHasFeatureFlag = jest.fn()
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
     hasPermissions: mockHasPermissions,
+    hasPermissionsOr: mockHasPermissionsOr,
   }),
 }))
+
+const mockVerticalMenuProps = jest.fn()
+
+// Renders the real VerticalMenu (so every existing DOM-based test below is unaffected) while
+// also capturing its `tabs` prop, since `match` never reaches the DOM.
+jest.mock('~/components/designSystem/VerticalMenu', () => {
+  const actual = jest.requireActual('~/components/designSystem/VerticalMenu')
+
+  return {
+    ...actual,
+    VerticalMenu: (props: Record<string, unknown>) => {
+      mockVerticalMenuProps(props)
+      return <actual.VerticalMenu {...props} />
+    },
+  }
+})
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
@@ -52,6 +80,7 @@ describe('MainNavMenuSections', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    mockHasPermissionsOr.mockReturnValue(true)
     mockHasFeatureFlag.mockReturnValue(true)
     mockIsPremium.mockReturnValue(true)
   })
@@ -61,6 +90,7 @@ describe('MainNavMenuSections', () => {
       expect(MAIN_NAV_MENU_SECTIONS_TEST_ID).toBe('main-nav-menu-sections')
       expect(MAIN_NAV_REPORTS_SECTION_TEST_ID).toBe('main-nav-reports-section')
       expect(MAIN_NAV_CONFIGURATION_SECTION_TEST_ID).toBe('main-nav-configuration-section')
+      expect(MAIN_NAV_CATALOG_SECTION_TEST_ID).toBe('main-nav-catalog-section')
       expect(MAIN_NAV_BILLING_SECTION_TEST_ID).toBe('main-nav-billing-section')
     })
 
@@ -69,6 +99,7 @@ describe('MainNavMenuSections', () => {
         MAIN_NAV_MENU_SECTIONS_TEST_ID,
         MAIN_NAV_REPORTS_SECTION_TEST_ID,
         MAIN_NAV_CONFIGURATION_SECTION_TEST_ID,
+        MAIN_NAV_CATALOG_SECTION_TEST_ID,
         MAIN_NAV_BILLING_SECTION_TEST_ID,
       ]
 
@@ -79,6 +110,15 @@ describe('MainNavMenuSections', () => {
   })
 
   describe('Component rendering', () => {
+    it('exposes a stable selector for the Customers navigation item', () => {
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.getByTestId(MAIN_NAV_CUSTOMERS_TEST_ID).closest('a')).toHaveAttribute(
+        'href',
+        CUSTOMERS_LIST_ROUTE,
+      )
+    })
+
     it('renders the menu sections container', () => {
       render(<MainNavMenuSections {...defaultProps} />)
 
@@ -115,6 +155,43 @@ describe('MainNavMenuSections', () => {
       render(<MainNavMenuSections {...defaultProps} />)
 
       expect(screen.queryByTestId(MAIN_NAV_REPORTS_SECTION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('renders the catalog section', () => {
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.getByTestId(MAIN_NAV_CATALOG_SECTION_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('renders the catalog section between configuration and billing', () => {
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      const container = screen.getByTestId(MAIN_NAV_MENU_SECTIONS_TEST_ID)
+      const order = [
+        MAIN_NAV_CONFIGURATION_SECTION_TEST_ID,
+        MAIN_NAV_CATALOG_SECTION_TEST_ID,
+        MAIN_NAV_BILLING_SECTION_TEST_ID,
+      ].map((id) => within(container).getByTestId(id))
+
+      expect(order[0].compareDocumentPosition(order[1])).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+      expect(order[1].compareDocumentPosition(order[2])).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    })
+  })
+
+  describe('Plans nav entry match array', () => {
+    it('matches the plans list route and both catalog-plan details routes', () => {
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      const allTabs = mockVerticalMenuProps.mock.calls.flatMap(
+        ([props]: [{ tabs: NavTab[] }]) => props.tabs,
+      )
+      const plansTab = allTabs.find((tab) => tab.link === PLAN_PRICING_ROUTE)
+
+      expect(plansTab?.match).toEqual([
+        PLAN_PRICING_ROUTE,
+        CATALOG_PLAN_DETAILS_ROUTE,
+        CATALOG_PLAN_DETAILS_SECTION_ROUTE,
+      ])
     })
   })
 
@@ -168,6 +245,7 @@ describe('MainNavMenuSections', () => {
 
     it('does not render any sections when all permissions are false', () => {
       mockHasPermissions.mockReturnValue(false)
+      mockHasPermissionsOr.mockReturnValue(false)
 
       render(<MainNavMenuSections {...defaultProps} />)
 
@@ -175,6 +253,7 @@ describe('MainNavMenuSections', () => {
       expect(screen.queryByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)).not.toBeInTheDocument()
       expect(screen.queryByTestId(MAIN_NAV_REPORTS_SECTION_TEST_ID)).not.toBeInTheDocument()
       expect(screen.queryByTestId(MAIN_NAV_CONFIGURATION_SECTION_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(MAIN_NAV_CATALOG_SECTION_TEST_ID)).not.toBeInTheDocument()
     })
 
     it('renders only sections with visible tabs', () => {
@@ -202,6 +281,33 @@ describe('MainNavMenuSections', () => {
       // Reports and configuration should be hidden
       expect(screen.queryByTestId(MAIN_NAV_REPORTS_SECTION_TEST_ID)).not.toBeInTheDocument()
       expect(screen.queryByTestId(MAIN_NAV_CONFIGURATION_SECTION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('does not render catalog section when all catalog tabs are hidden', () => {
+      mockHasPermissions.mockImplementation(
+        (permissions: string[]) => !permissions.includes('plansView'),
+      )
+      mockHasPermissionsOr.mockReturnValue(false)
+
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.queryByTestId(MAIN_NAV_CATALOG_SECTION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('does not render catalog section when the ProductCatalog feature flag is off', () => {
+      mockHasFeatureFlag.mockImplementation((flag: FeatureFlagEnum) => {
+        return flag !== FeatureFlagEnum.ProductCatalog
+      })
+
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.queryByTestId(MAIN_NAV_CATALOG_SECTION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('gates the catalog section on the ProductCatalog feature flag', () => {
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(mockHasFeatureFlag).toHaveBeenCalledWith(FeatureFlagEnum.ProductCatalog)
     })
   })
 

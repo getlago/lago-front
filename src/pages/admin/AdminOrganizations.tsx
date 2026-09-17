@@ -1,5 +1,5 @@
 import { gql, useLazyQuery } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'

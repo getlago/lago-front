@@ -4,14 +4,11 @@ import userEvent from '@testing-library/user-event'
 
 import { addToast } from '~/core/apolloClient'
 import { ERROR_404_ROUTE } from '~/core/router'
-import { initializeYup } from '~/formValidation/initializeYup'
 import { LagoApiError } from '~/generated/graphql'
 import * as useIsCustomerReadyForOverduePaymentModule from '~/hooks/useIsCustomerReadyForOverduePayment'
 import { render } from '~/test-utils'
 
 import CustomerRequestOverduePayment, { SUBMIT_PAYMENT_REQUEST_TEST_ID } from '../index'
-
-initializeYup()
 
 const mockNavigate = jest.fn()
 const mockGoBack = jest.fn()
@@ -46,8 +43,8 @@ jest.mock('~/hooks/core/useLocationHistory', () => ({
   }),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => ({ customerId: 'test-customer-id' }),
   useSearchParams: () => [mockSearchParams],
   generatePath: jest.fn((route: string, params: Record<string, string>) => {

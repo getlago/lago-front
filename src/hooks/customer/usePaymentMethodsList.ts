@@ -1,34 +1,41 @@
 import { gql } from '@apollo/client'
 
-import { PaymentMethodsQuery, usePaymentMethodsQuery } from '~/generated/graphql'
+import { PaymentMethodItemFragment, usePaymentMethodsQuery } from '~/generated/graphql'
 
+// Shared by the customer-wide query below and the connection-scoped one
+// (useConnectionPaymentMethodsList), so both sources produce the same row
+// shape and the table cells work against either
 gql`
+  fragment PaymentMethodItem on PaymentMethod {
+    id
+    isDefault
+    paymentProviderCode
+    paymentProviderCustomerId
+    paymentProviderType
+    paymentProviderName
+    providerMethodId
+    deletedAt
+    createdAt
+    details {
+      brand
+      expirationYear
+      expirationMonth
+      last4
+      type
+    }
+  }
+
   query PaymentMethods($externalCustomerId: ID!, $withDeleted: Boolean) {
     paymentMethods(externalCustomerId: $externalCustomerId, withDeleted: $withDeleted) {
       collection {
-        id
-        isDefault
-        paymentProviderCode
-        paymentProviderCustomerId
-        paymentProviderType
-        paymentProviderName
-        providerMethodId
-        deletedAt
-        createdAt
-        details {
-          brand
-          expirationYear
-          expirationMonth
-          last4
-          type
-        }
+        ...PaymentMethodItem
       }
     }
   }
 `
 
-export type PaymentMethodList = PaymentMethodsQuery['paymentMethods']['collection']
-export type PaymentMethodItem = PaymentMethodList[number]
+export type PaymentMethodItem = PaymentMethodItemFragment
+export type PaymentMethodList = PaymentMethodItem[]
 
 interface UsePaymentMethodsListReturn {
   loading: boolean

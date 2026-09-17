@@ -39,12 +39,11 @@ export default defineConfig({
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
-          'react-router-dom': 'ReactRouterDOM',
           '@mui/material': 'MaterialUI',
           '@mui/x-date-pickers': 'MaterialUIXDatePickers',
         },
       },
-      external: ['react', 'react-dom', 'react-router-dom', '@mui/material', '@mui/x-date-pickers'],
+      external: ['react', 'react-dom', '@mui/material', '@mui/x-date-pickers'],
     },
     cssCodeSplit: false,
   },

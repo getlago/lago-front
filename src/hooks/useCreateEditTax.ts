@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { TaxFormInput } from '~/components/taxes/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -75,7 +75,7 @@ export const useCreateEditTax: () => useCreateEditTaxReturn = () => {
   const navigate = useNavigate()
   const { taxId } = useParams()
   const { data, loading, error } = useGetSingleTaxQuery({
-    context: { silentError: LagoApiError.NotFound },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
     variables: { id: taxId as string },
     skip: !taxId,
   })

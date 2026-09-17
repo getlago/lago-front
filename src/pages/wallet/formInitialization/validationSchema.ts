@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { addPurchaseOrderNumberMaxLengthIssue } from '~/components/purchaseOrder/validation'
 import { dateErrorCodes } from '~/core/constants/form'
 import { zodMetadataSchema } from '~/formValidation/metadataSchema'
+import { addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
 import {
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
@@ -252,17 +253,20 @@ const addTargetOngoingBalanceIssue = ({ rule, ctx, rulePath }: RuleIssueArgs): v
 const addStartedAtIssue = ({ rule, ctx, rulePath }: RuleIssueArgs): void => {
   const { trigger, startedAt } = rule
 
-  if (
-    (!trigger || trigger === RecurringTransactionTriggerEnum.Interval) &&
-    !!startedAt &&
-    !DateTime.fromISO(startedAt).isValid
-  ) {
+  if (trigger && trigger !== RecurringTransactionTriggerEnum.Interval) return
+
+  if (!!startedAt && !DateTime.fromISO(startedAt).isValid) {
     ctx.addIssue({
       code: 'custom',
       message: dateErrorCodes.wrongFormat,
       path: rulePath('startedAt'),
     })
+
+    return
   }
+
+  // Unlike expirationAt below, startedAt has no future rule to reject a pre-1970 date.
+  addUnsupportedDateIssue(ctx, startedAt, rulePath('startedAt'))
 }
 
 /** transactionMetadata — key unique & <= 20 chars, value <= 100 chars. */

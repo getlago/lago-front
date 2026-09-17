@@ -8,7 +8,12 @@ import {
   CUSTOMER_INVOICE_VOID_ROUTE,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { CurrencyEnum, InvoiceStatusTypeEnum, InvoiceTaxStatusTypeEnum } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  InvoiceStatusTypeEnum,
+  InvoiceTaxStatusTypeEnum,
+  LagoApiError,
+} from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import CustomerInvoiceDetails from '../CustomerInvoiceDetails'
@@ -281,7 +286,7 @@ describe('CustomerInvoiceDetails', () => {
     mockUseIntegrationsListQuery.mockReturnValue({ data: null })
     Object.keys(mockMutationOptions).forEach((key) => delete mockMutationOptions[key])
 
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({
       customerId: 'customer-123',
@@ -476,6 +481,14 @@ describe('CustomerInvoiceDetails', () => {
         expect(capturedConfig?.tabs).toHaveLength(4)
       })
     })
+
+    describe('WHEN the component renders', () => {
+      it('THEN should not display the provisional tax rates alert', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(screen.queryByText('text_1787146693629wj3i1366ild')).not.toBeInTheDocument()
+      })
+    })
   })
 
   describe('GIVEN the invoice is in draft status', () => {
@@ -496,6 +509,33 @@ describe('CustomerInvoiceDetails', () => {
 
         // Draft: no payments, no credit notes → overview + activity logs
         expect(capturedConfig?.tabs).toHaveLength(2)
+      })
+    })
+
+    describe('WHEN the component renders', () => {
+      it('THEN should display the provisional tax rates alert', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(screen.getByText('text_1787146693629wj3i1366ild')).toBeInTheDocument()
+        expect(screen.getByText('text_1787146693629de7kvm201hi')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the customer has no tax provider', () => {
+      it('THEN should still display the provisional tax rates alert', () => {
+        mockUseGetInvoiceCustomerQuery.mockReturnValue({
+          data: {
+            customer: {
+              ...mockCustomerData.customer,
+              avalaraCustomer: null,
+            },
+          },
+          loading: false,
+        })
+
+        render(<CustomerInvoiceDetails />)
+
+        expect(screen.getByText('text_1787146693629wj3i1366ild')).toBeInTheDocument()
       })
     })
   })
@@ -946,6 +986,46 @@ describe('CustomerInvoiceDetails', () => {
         })
 
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      })
+    })
+
+    describe('WHEN retryInvoice is rejected with invalid_status', () => {
+      const invalidStatusError = {
+        graphQLErrors: [{ extensions: { code: LagoApiError.InvalidStatus, status: 405 } }],
+      }
+
+      it('THEN should silence the code so the global link reports neither a toast nor Sentry', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(mockMutationOptions.retryInvoice?.context?.silentErrorCodes).toContain(
+          LagoApiError.InvalidStatus,
+        )
+      })
+
+      it('THEN should show a single dedicated danger toast', async () => {
+        render(<CustomerInvoiceDetails />)
+
+        await mockMutationOptions.retryInvoice?.onError?.(invalidStatusError)
+
+        expect(addToast).toHaveBeenCalledTimes(1)
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      })
+
+      it('THEN should refetch the invoice so the stale retry action disappears', async () => {
+        const mockRefetch = jest.fn()
+
+        mockUseGetInvoiceDetailsQuery.mockReturnValue({
+          data: mockInvoiceData,
+          loading: false,
+          error: null,
+          refetch: mockRefetch,
+        })
+
+        render(<CustomerInvoiceDetails />)
+
+        await mockMutationOptions.retryInvoice?.onError?.(invalidStatusError)
+
+        expect(mockRefetch).toHaveBeenCalled()
       })
     })
 

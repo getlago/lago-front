@@ -46,8 +46,8 @@ interface SubscriptionPricingContentProps {
   validatePlanFormRef?: MutableRefObject<ValidatePlanForm | null>
   basePlanFormValuesRef: MutableRefObject<PlanFormInput | null>
   initialState?: SubscriptionPricingState | null
-  quoteDates?: { startDate?: string; endDate?: string }
   customer?: QuoteCustomer | null
+  netPaymentTerm?: number | null
   /** Currency used to display amounts — may be a customer/organization fallback. */
   currency?: CurrencyEnum | null
   /**
@@ -58,6 +58,11 @@ interface SubscriptionPricingContentProps {
   hasQuoteCurrency?: boolean
   billingItemPlan?: BillingItemPlan
   subscriptionId?: string
+  /**
+   * Subscription-amendment quote: the start date belongs to the amended subscription, so it
+   * is never displayed nor seeded here (LAGO-1814).
+   */
+  isAmendment?: boolean
 }
 
 export function SubscriptionPricingContent({
@@ -66,12 +71,13 @@ export function SubscriptionPricingContent({
   validatePlanFormRef,
   basePlanFormValuesRef,
   initialState,
-  quoteDates,
   customer,
+  netPaymentTerm,
   currency,
   hasQuoteCurrency,
   billingItemPlan,
   subscriptionId,
+  isAmendment = false,
 }: Readonly<SubscriptionPricingContentProps>) {
   const { translate } = useInternationalization()
 
@@ -85,14 +91,14 @@ export function SubscriptionPricingContent({
     variables: { limit: 100 },
   })
 
-  // Track the plan this drawer opened with. Once the user picks a *different*
-  // plan, stop forwarding billingItemPlan so usePlanFormSetup falls back to
-  // fetching the newly selected plan and resets prices to its defaults (LAGO-1602).
-  const originalBillingItemPlanId = useRef(billingItemPlan?.id)
+  // Track the plan this drawer opened with — either the saved billing item's plan or,
+  // on an amendment, the plan resolved from the subscription (recorded by the sync effect
+  // below). Once the user picks a *different* plan, stop forwarding both billingItemPlan
+  // and subscriptionId so usePlanFormSetup falls back to fetching the newly selected plan
+  // and resets prices to its defaults (LAGO-1602, LAGO-1822).
+  const originalPlanIdRef = useRef(billingItemPlan?.id)
   const userSwitchedPlan =
-    !!originalBillingItemPlanId.current &&
-    !!selectedPlanId &&
-    selectedPlanId !== originalBillingItemPlanId.current
+    !!originalPlanIdRef.current && !!selectedPlanId && selectedPlanId !== originalPlanIdRef.current
 
   // Set by the form's own onSubmit, which TanStack only calls once the form-level
   // `planFormSchema` passed — so it doubles as the validity signal.
@@ -102,6 +108,7 @@ export function SubscriptionPricingContent({
   const {
     form: planForm,
     plan: planData,
+    catalogPlan,
     formReady,
     resolvedPlanId,
     basePlanFormValues,
@@ -114,7 +121,7 @@ export function SubscriptionPricingContent({
     // its own currency and seeds the quote's on save.
     initialCurrency: hasQuoteCurrency ? (currency ?? undefined) : undefined,
     billingItemPlan: userSwitchedPlan ? undefined : billingItemPlan,
-    subscriptionId,
+    subscriptionId: userSwitchedPlan ? undefined : subscriptionId,
     onSubmit: () => {
       planFormValidRef.current = true
     },
@@ -135,33 +142,69 @@ export function SubscriptionPricingContent({
     }
   }, [planForm, validatePlanFormRef])
 
-  // Sync selectedPlanId from resolvedPlanId when billing items or subscription data arrives
+  // Sync selectedPlanId from resolvedPlanId when billing items or subscription data arrives.
+  // That first resolution is also the plan the drawer opened with, so record it as the
+  // baseline for userSwitchedPlan (the subscription path has no billingItemPlan to seed it).
   useEffect(() => {
-    if (resolvedPlanId && !selectedPlanId) {
-      setSelectedPlanId(resolvedPlanId)
-    }
-  }, [resolvedPlanId, selectedPlanId])
+    if (!resolvedPlanId || selectedPlanId) return
+
+    // The override child a subscription runs is never offered in the list — only catalog plans
+    // are — so selecting it would leave the ComboBox with a value it cannot label and it would
+    // render the raw id. `originalPlanIdRef` follows, so switching plan is still detected.
+    const selectableId = catalogPlan?.id ?? resolvedPlanId
+
+    originalPlanIdRef.current = selectableId
+    setSelectedPlanId(selectableId)
+  }, [resolvedPlanId, selectedPlanId, catalogPlan])
 
   // Quote-specific state
   const [subscriptionSettings, setSubscriptionSettings] = useState(() => {
-    if (initialState?.subscriptionSettings) return initialState.subscriptionSettings
-    if (billingItemSubscriptionSettings) return billingItemSubscriptionSettings
+    const getInitialSettings = () => {
+      if (initialState?.subscriptionSettings) return initialState.subscriptionSettings
+      if (billingItemSubscriptionSettings) return billingItemSubscriptionSettings
 
-    return {
-      ...DEFAULT_SUBSCRIPTION_SETTINGS,
-      startDate: quoteDates?.startDate ?? '',
-      endDate: quoteDates?.endDate ?? '',
+      return DEFAULT_SUBSCRIPTION_SETTINGS
     }
+
+    const settings = getInitialSettings()
+
+    // An amendment quote never carries a start date, whichever source seeded the settings.
+    if (isAmendment) return { ...settings, startDate: '' }
+
+    return settings
   })
   const [invoicingSettings, setInvoicingSettings] = useState(
     initialState?.invoicingSettings ?? billingItemInvoicingSettings ?? DEFAULT_INVOICING_SETTINGS,
   )
 
-  // Hook-based drawers for settings
-  const subscriptionSettingsDrawer = useSubscriptionSettingsDrawer(
-    (values) => setSubscriptionSettings(values),
-    !!subscriptionId,
+  // On an amendment the settings come from the subscription query, which resolves *after*
+  // mount — the lazy initializer above has already run with the defaults by then, so seed
+  // them once when they land. Skipped when a saved quote state or the user already owns them.
+  const subscriptionSettingsSeededRef = useRef(
+    !!initialState?.subscriptionSettings || !!billingItemSubscriptionSettings,
   )
+
+  useEffect(() => {
+    if (subscriptionSettingsSeededRef.current || !billingItemSubscriptionSettings) return
+
+    subscriptionSettingsSeededRef.current = true
+    setSubscriptionSettings(
+      // An amendment quote never carries a start date (it belongs to the subscription).
+      isAmendment
+        ? { ...billingItemSubscriptionSettings, startDate: '' }
+        : billingItemSubscriptionSettings,
+    )
+  }, [billingItemSubscriptionSettings, isAmendment])
+
+  // Hook-based drawers for settings
+  const subscriptionSettingsDrawer = useSubscriptionSettingsDrawer({
+    onSave: (values) => {
+      subscriptionSettingsSeededRef.current = true
+      setSubscriptionSettings(values)
+    },
+    isAmendment,
+    netPaymentTerm,
+  })
   const showInvoicingSection = Boolean(customer?.externalId || customer?.id)
   const planSettingsDrawer = useQuotePlanSettingsDrawer(planForm, {
     disableCurrencyInput: hasQuoteCurrency,
@@ -212,7 +255,7 @@ export function SubscriptionPricingContent({
     }
 
     stateRef.current = {
-      planId: planData?.id ?? selectedPlanId,
+      planId: billingItemPlan?.id ?? catalogPlan?.id ?? planData?.id ?? selectedPlanId,
       planCode: formCode,
       planName: formName,
       basePlanName,
@@ -226,6 +269,8 @@ export function SubscriptionPricingContent({
   }, [
     formReady,
     planData,
+    billingItemPlan,
+    catalogPlan,
     selectedPlanId,
     subscriptionSettings,
     invoicingSettings,
@@ -248,13 +293,15 @@ export function SubscriptionPricingContent({
     }))
 
     // Ensure the pre-selected plan is always present, even when it falls outside
-    // the current (searchable) result page, so its label still renders.
-    if (planData && !data.some((d) => d.value === planData.id)) {
-      data.unshift({ value: planData.id, label: `${planData.name} (${planData.code})` })
+    // the current (searchable) result page, so its label still renders. It has to be
+    // the catalog plan: on an amendment the subscription runs an override child plan,
+    // which is not listed on the Plans page and must never be offered here.
+    if (catalogPlan && !data.some((d) => d.value === catalogPlan.id)) {
+      data.unshift({ value: catalogPlan.id, label: `${catalogPlan.name} (${catalogPlan.code})` })
     }
 
     return data
-  }, [plansData, planData])
+  }, [plansData, catalogPlan])
 
   // Shared selector helpers for custom sections
   const buildEndContent = (showInterval = false) => (
@@ -299,6 +346,8 @@ export function SubscriptionPricingContent({
     currency: displayCurrency,
   })
 
+  const customerName = customer?.displayName || customer?.externalId || ''
+
   return (
     <CenteredPage.SubsectionWrapper>
       {/* 1. Plan selection */}
@@ -312,7 +361,7 @@ export function SubscriptionPricingContent({
         <CenteredPage.PageSection>
           <CenteredPage.PageSectionTitle
             title={translate('text_65118a52df984447c186940f', {
-              customerName: customer?.name,
+              customerName,
             })}
             description={translate('text_1781099100337s3ou7wd0l4z')}
           />
@@ -320,7 +369,7 @@ export function SubscriptionPricingContent({
             data={comboBoxData}
             loading={plansLoading}
             searchQuery={getPlans}
-            disabled={!!subscriptionId}
+            disabled={!!subscriptionId && !isAmendment}
             label={translate('text_17810991003371jgudmuzk6a')}
             placeholder={translate('text_1781099100337xeyy7omuzp8')}
             value={selectedPlanId}
@@ -386,6 +435,7 @@ export function SubscriptionPricingContent({
               form={planForm}
               alreadyExistingFixedChargesIds={planData?.fixedCharges?.map((c) => c.id) || []}
               isInSubscriptionForm
+              isInQuoteForm
               isEdition={false}
             />
 
@@ -393,6 +443,7 @@ export function SubscriptionPricingContent({
               form={planForm}
               alreadyExistingCharges={(planData?.charges ?? []) as LocalUsageChargeInput[]}
               isInSubscriptionForm
+              isInQuoteForm
               isEdition={false}
             />
 

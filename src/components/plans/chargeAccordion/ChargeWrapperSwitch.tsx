@@ -22,13 +22,12 @@ interface ChargeWrapperSwitchProps {
   currency: CurrencyEnum
   disabled?: boolean
   form: AnyFormApi
-  isEdition: boolean
-  localCharge: LocalFixedChargeInput | LocalUsageChargeInput
+  // Narrowed to what is read, so a caller owning no charge need not fake one.
+  localCharge: Pick<LocalFixedChargeInput | LocalUsageChargeInput, 'chargeModel'>
   propertyCursor: string
   onExpandCustomCharge?: (currentValue: string | undefined) => void
-  // When rendered for a charge filter sub-form, we hide PresentationGroupKeys —
-  // filters inherit them from the parent charge automatically.
-  isFilterForm?: boolean
+  // Off for surfaces that cannot own them: charge filters inherit them, rates have none.
+  showPresentationGroupKeys?: boolean
 }
 
 export const ChargeWrapperSwitch = memo(
@@ -41,7 +40,7 @@ export const ChargeWrapperSwitch = memo(
     localCharge,
     propertyCursor,
     onExpandCustomCharge,
-    isFilterForm,
+    showPresentationGroupKeys = true,
   }: ChargeWrapperSwitchProps) => {
     const isUsageCharge = chargeType === 'usage'
 
@@ -70,7 +69,7 @@ export const ChargeWrapperSwitch = memo(
           {isUsageCharge && (
             <>
               <PricingGroupKeys />
-              {!isFilterForm && <PresentationGroupKeys />}
+              {showPresentationGroupKeys && <PresentationGroupKeys />}
             </>
           )}
         </div>

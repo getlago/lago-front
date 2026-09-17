@@ -1,9 +1,10 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate } from 'react-router'
 
 import { envGlobalVar } from '~/core/apolloClient'
-import { AppEnvEnum } from '~/core/constants/globalTypes'
+import { isDevOrQaAppEnv } from '~/core/utils/appEnv'
 
 import { authRoutes } from './AuthRoutes'
+import { catalogRoutes } from './CatalogRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
 import { customerObjectCreationRoutes, customerRoutes, customerVoidRoutes } from './CustomerRoutes'
 import { objectCreationRoutes, objectDetailsRoutes, objectListRoutes } from './ObjectsRoutes'
@@ -40,7 +41,6 @@ const Error404InApp = lazyLoad(() => import('~/pages/Error404InApp'))
 const Forbidden = lazyLoad(() => import('~/pages/Forbidden'))
 const Analytic = lazyLoad(() => import('~/pages/Analytics'))
 const AnalyticsV2 = lazyLoad(() => import('~/pages/AnalyticsV2'))
-const Forecasts = lazyLoad(() => import('~/pages/forecasts/Forecasts'))
 const UsageBillableMetric = lazyLoad(() => import('~/pages/analytics/UsageBillableMetric'))
 const RevenueRecognitionDashboard = lazyLoad(() => import('~/pages/dashboards/RevenueRecognition'))
 
@@ -61,7 +61,6 @@ export const ANALYTICS_V2_ROUTE = '/analytics-v2'
 export const ANALYTIC_TABS_ROUTE = '/analytics/:tab'
 export const ANALYTICS_V2_TABS_ROUTE = '/analytics-v2/:tab'
 export const ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE = '/analytics/usage/:billableMetricCode'
-export const FORECASTS_ROUTE = '/forecasts'
 export const REVENUE_RECOGNITION_ROUTE = '/revenue-recognition'
 export const ERROR_404_ROUTE = '/404'
 
@@ -97,12 +96,6 @@ const analyticsInlineRoutes: CustomRouteObject[] = [
     permissions: ['analyticsView', 'dataApiView'],
   },
   {
-    path: FORECASTS_ROUTE,
-    private: true,
-    element: <Forecasts />,
-    permissions: ['analyticsView', 'dataApiView'],
-  },
-  {
     path: REVENUE_RECOGNITION_ROUTE,
     private: true,
     element: <RevenueRecognitionDashboard />,
@@ -110,9 +103,7 @@ const analyticsInlineRoutes: CustomRouteObject[] = [
   },
 ]
 
-const devOnlyInlineRoutes: CustomRouteObject[] = [AppEnvEnum.qa, AppEnvEnum.development].includes(
-  appEnv,
-)
+const devOnlyInlineRoutes: CustomRouteObject[] = isDevOrQaAppEnv(appEnv)
   ? [
       {
         path: [ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE],
@@ -192,6 +183,7 @@ export const routes: CustomRouteObject[] = [
           ...makeRelative(analyticsInlineRoutes),
           ...makeRelative(customerRoutes),
           ...makeRelative(objectListRoutes),
+          ...makeRelative(catalogRoutes),
           ...makeRelative(objectDetailsRoutes),
           ...makeRelative(quotesRoutes),
           ...makeRelative(devOnlyInlineRoutes),
@@ -226,16 +218,16 @@ export const routes: CustomRouteObject[] = [
 ]
 
 export * from './AuthRoutes'
+export * from './CatalogRoutes'
 export * from './CustomerRoutes'
 export * from './ObjectsRoutes'
 export * from './QuotesRoutes'
 export * from './SettingRoutes'
 export * from './types'
 
-// Slug-aware wrappers — use these over `react-router-dom` at call sites so
+// Slug-aware wrappers - use these over `react-router` at call sites so
 // the org slug is auto-prepended and, in any case, took into account.
 // Enforced by the ESLint `no-restricted-imports` in  packages/configs/eslint.config.mjs
 export { Link } from './Link'
 export { useLocation } from './useLocation'
-export type { SlugAwareLocation } from './useLocation'
 export { useNavigate } from './useNavigate'

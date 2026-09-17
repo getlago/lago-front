@@ -19,8 +19,8 @@ jest.mock('@apollo/client', () => ({
   useApolloClient: () => mockApolloClient,
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
   useSearchParams: () => mockUseSearchParams(),
   generatePath: jest.fn((route, params) => {
@@ -152,6 +152,40 @@ describe('GoogleAuthCallback', () => {
           expect.objectContaining({ pathname: expect.any(String) }),
         )
       })
+    })
+  })
+
+  describe('GIVEN a successful Google login with an off-origin redirect path', () => {
+    // `state` is parsed straight off the URL query at GoogleAuthCallback.tsx:35,
+    // so this value is attacker-controlled.
+    it.each([
+      '//evil.com',
+      '///evil.com',
+      '/\\evil.com',
+      '\\/evil.com',
+      'https://evil.com',
+      'javascript:alert(1)//',
+    ])('THEN %s is never persisted to localStorage', async (redirectPath) => {
+      mockUseSearchParams.mockReturnValue(
+        buildSearchParams({
+          code: 'google-auth-code',
+          state: JSON.stringify({ mode: 'login', redirectPath }),
+        }),
+      )
+      mockGoogleLoginUser.mockResolvedValue({
+        data: { googleLoginUser: { token: 'test-token' } },
+      })
+
+      renderHook(() => GoogleAuthCallback())
+
+      await waitFor(() => {
+        expect(mockOnLogIn).toHaveBeenCalled()
+      })
+
+      expect(mockSetItemFromLS).not.toHaveBeenCalledWith(
+        REDIRECT_AFTER_LOGIN_LS_KEY,
+        expect.anything(),
+      )
     })
   })
 

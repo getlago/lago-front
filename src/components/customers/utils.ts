@@ -1,6 +1,5 @@
 import {
   Customer,
-  CustomerMainInfosFragment,
   CustomerTypeEnum,
   IntegrationsListForCustomerMainInfosQuery,
 } from '~/generated/graphql'
@@ -43,14 +42,10 @@ export function getConnectedIntegrations<
   TResult extends Extract<Integration, { __typename: TType }>,
 >(
   data: IntegrationsListForCustomerMainInfosQuery | undefined,
-  customer: CustomerMainInfosFragment,
   typename: TType,
-  customerKey: keyof typeof customer,
+  integrationId: string | null | undefined,
 ): TResult | undefined {
-  if (!data) return undefined
-
-  const integrationId = (customer?.[customerKey] as { integrationId?: string | null })
-    ?.integrationId
+  if (!data || !integrationId) return undefined
 
   return data?.integrations?.collection
     ?.filter((i): i is TResult => i.__typename === typename)

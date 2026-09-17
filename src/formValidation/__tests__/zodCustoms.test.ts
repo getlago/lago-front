@@ -1,4 +1,9 @@
+import { DateTime } from 'luxon'
+import { z } from 'zod'
+
+import { UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
 import {
+  addUnsupportedDateIssue,
   PASSWORD_VALIDATION_ERRORS,
   validatePassword,
   zodDomain,
@@ -452,6 +457,116 @@ describe('zodCustoms', () => {
         expect(messages).toContain(PASSWORD_VALIDATION_ERRORS.NUMBER)
         expect(messages).toContain(PASSWORD_VALIDATION_ERRORS.SPECIAL)
       }
+    })
+  })
+  describe('addUnsupportedDateIssue', () => {
+    const parse = (value: string | null | undefined, floor?: DateTime) =>
+      z
+        .custom<{ date: string | null | undefined }>()
+        .superRefine((data, ctx) => {
+          addUnsupportedDateIssue(ctx, data.date, ['date'], floor)
+        })
+        .safeParse({ date: value })
+
+    describe.each([
+      ['undefined', undefined],
+      ['null', null],
+      ['an empty string', ''],
+    ])('GIVEN %s', (_, value) => {
+      describe('WHEN the schema runs', () => {
+        it('THEN should add no issue', () => {
+          expect(parse(value).success).toBe(true)
+        })
+      })
+    })
+
+    describe.each([
+      ['the minimum supported instant', '1970-01-01T00:00:00.000Z'],
+      ['an instant after the minimum', '2026-09-02T00:00:00.000Z'],
+    ])('GIVEN %s', (_, value) => {
+      describe('WHEN the schema runs', () => {
+        it('THEN should add no issue', () => {
+          expect(parse(value).success).toBe(true)
+        })
+      })
+    })
+
+    describe.each([
+      ['a year with fewer than four digits', '0026-02-09T00:00:00.000Z'],
+      ['the last instant before the minimum', '1969-12-31T23:59:59.999Z'],
+      ['a value that is not a date at all', 'not-a-date'],
+    ])('GIVEN %s', (_, value) => {
+      describe('WHEN the schema runs', () => {
+        it('THEN should add an issue on the given path', () => {
+          const result = parse(value)
+
+          expect(result.success).toBe(false)
+
+          if (!result.success) {
+            expect(result.error.issues).toEqual([
+              expect.objectContaining({ path: ['date'], message: UNSUPPORTED_DATE_ERROR }),
+            ])
+          }
+        })
+      })
+    })
+
+    describe('GIVEN a stricter floor', () => {
+      describe('WHEN the date is above 1970 but below that floor', () => {
+        it('THEN should add an issue', () => {
+          const result = parse(
+            '2020-01-01T00:00:00.000Z',
+            DateTime.fromISO('2026-01-01', {
+              zone: 'utc',
+            }),
+          )
+
+          expect(result.success).toBe(false)
+        })
+      })
+
+      describe('WHEN the date is above that floor', () => {
+        it('THEN should add no issue', () => {
+          const result = parse(
+            '2026-06-01T00:00:00.000Z',
+            DateTime.fromISO('2026-01-01', {
+              zone: 'utc',
+            }),
+          )
+
+          expect(result.success).toBe(true)
+        })
+      })
+    })
+
+    describe('GIVEN a caller that branches on the return value', () => {
+      describe('WHEN the date is unsupported', () => {
+        it('THEN should report that an issue was added', () => {
+          const added: boolean[] = []
+
+          z.custom<string>()
+            .superRefine((value, ctx) => {
+              added.push(addUnsupportedDateIssue(ctx, value, ['date']))
+            })
+            .safeParse('0026-02-09T00:00:00.000Z')
+
+          expect(added).toEqual([true])
+        })
+      })
+
+      describe('WHEN the date is supported', () => {
+        it('THEN should report that no issue was added', () => {
+          const added: boolean[] = []
+
+          z.custom<string>()
+            .superRefine((value, ctx) => {
+              added.push(addUnsupportedDateIssue(ctx, value, ['date']))
+            })
+            .safeParse('2026-09-02T00:00:00.000Z')
+
+          expect(added).toEqual([false])
+        })
+      })
     })
   })
 })

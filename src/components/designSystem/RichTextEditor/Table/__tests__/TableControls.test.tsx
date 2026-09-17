@@ -1090,6 +1090,61 @@ describe('TableControls', () => {
       })
     })
 
+    describe('WHEN the "Delete table" button is clicked in the row menu', () => {
+      it('THEN should call chain.deleteTable', async () => {
+        const user = userEvent.setup()
+        const { chainMethods } = await renderWithMenuSupport()
+
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-0`))
+
+        const deleteTableBtn = await screen.findByText('Delete table')
+
+        await user.click(deleteTableBtn)
+
+        expect(chainMethods.deleteTable).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the table only has one row', () => {
+      const renderSingleRowWithMenuSupport = async () => {
+        const { editor, chainMethods } = createMockEditor()
+
+        setupIsInTable(editor, true)
+
+        const CS = getMockedCellSelection()
+
+        CS.rowSelection.mockReturnValue({ type: 'row-selection' })
+
+        await act(() => render(<TableControls editor={editor} />))
+
+        const wrapperEl = screen.getByTestId(TABLE_CONTROLS_WRAPPER_TEST_ID)
+
+        setupDOMForSingleRowLayout(wrapperEl, editor)
+
+        const onCalls = (editor.on as jest.Mock).mock.calls
+        const selectionUpdateHandler = onCalls.find(
+          ([event]: [string]) => event === 'selectionUpdate',
+        )?.[1] as (() => void) | undefined
+
+        if (selectionUpdateHandler) {
+          await act(() => selectionUpdateHandler())
+        }
+
+        return { editor, chainMethods }
+      }
+
+      it('THEN should still offer "Delete table" even though "Delete row" is hidden', async () => {
+        const user = userEvent.setup()
+
+        await renderSingleRowWithMenuSupport()
+
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-0`))
+
+        expect(await screen.findByText('Delete table')).toBeInTheDocument()
+        expect(screen.queryByText('Delete row')).not.toBeInTheDocument()
+      })
+    })
+
     describe('WHEN a background color is selected in the row color picker', () => {
       it('THEN should call editor.commands.setRowBackgroundColor', async () => {
         const user = userEvent.setup()
@@ -1220,6 +1275,61 @@ describe('TableControls', () => {
 
         expect(editor.chain).toHaveBeenCalled()
         expect(runMock).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the "Delete table" button is clicked in the column menu', () => {
+      it('THEN should call chain.deleteTable', async () => {
+        const user = userEvent.setup()
+        const { chainMethods } = await renderWithMenuSupport()
+
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-0`))
+
+        const deleteTableBtn = await screen.findByText('Delete table')
+
+        await user.click(deleteTableBtn)
+
+        expect(chainMethods.deleteTable).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the table only has one column', () => {
+      const renderSingleColWithMenuSupport = async () => {
+        const { editor, chainMethods } = createMockEditor()
+
+        setupIsInTable(editor, true)
+
+        const CS = getMockedCellSelection()
+
+        CS.colSelection.mockReturnValue({ type: 'col-selection' })
+
+        await act(() => render(<TableControls editor={editor} />))
+
+        const wrapperEl = screen.getByTestId(TABLE_CONTROLS_WRAPPER_TEST_ID)
+
+        setupDOMForSingleColLayout(wrapperEl, editor)
+
+        const onCalls = (editor.on as jest.Mock).mock.calls
+        const selectionUpdateHandler = onCalls.find(
+          ([event]: [string]) => event === 'selectionUpdate',
+        )?.[1] as (() => void) | undefined
+
+        if (selectionUpdateHandler) {
+          await act(() => selectionUpdateHandler())
+        }
+
+        return { editor, chainMethods }
+      }
+
+      it('THEN should still offer "Delete table" even though "Delete column" is hidden', async () => {
+        const user = userEvent.setup()
+
+        await renderSingleColWithMenuSupport()
+
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-0`))
+
+        expect(await screen.findByText('Delete table')).toBeInTheDocument()
+        expect(screen.queryByText('Delete column')).not.toBeInTheDocument()
       })
     })
 

@@ -1,5 +1,5 @@
 import { FC, RefObject } from 'react'
-import { generatePath, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router'
 
 import { ActivityLogsTable as Table } from '~/components/activityLogs/ActivityLogsTable'
 import { PaginatedContent } from '~/components/designSystem/Pagination'
@@ -11,6 +11,7 @@ import { ActivityLogsQueryResult } from '~/generated/graphql'
 interface ActivityLogTableProps {
   getActivityLogsResult: ActivityLogsQueryResult
   logListRef: RefObject<ListSectionRef>
+  activeRowId?: string
   pageSize?: number
   onPageSizeChange?: (pageSize: number) => void
 }
@@ -18,6 +19,7 @@ interface ActivityLogTableProps {
 export const ActivityLogTable: FC<ActivityLogTableProps> = ({
   getActivityLogsResult,
   logListRef,
+  activeRowId,
   pageSize,
   onPageSizeChange,
 }) => {
@@ -34,15 +36,12 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
     >
       <Table
         data={data?.activityLogs?.collection ?? []}
+        activeRowId={activeRowId}
         isLoading={loading}
         loadingRowCount={pageSize}
         error={error}
         refetch={refetch}
         onRowActionLink={({ activityId }) => {
-          if (getCurrentBreakpoint() === 'sm') {
-            logListRef.current?.updateView('forward')
-          }
-
           const path = generatePath(ACTIVITY_LOG_ROUTE, {
             logId: activityId,
           })
@@ -51,6 +50,11 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
           const search = query ? `?${query}` : ''
 
           return `${path}${search}`
+        }}
+        onRowActionClick={() => {
+          if (getCurrentBreakpoint() === 'sm') {
+            logListRef.current?.updateView('forward')
+          }
         }}
       />
     </PaginatedContent>

@@ -1,4 +1,6 @@
-import { act, renderHook } from '@testing-library/react'
+import { act, render, renderHook, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { Settings } from 'luxon'
 
 import { AllTheProviders } from '~/test-utils'
 
@@ -23,14 +25,21 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 const FROM_DATETIME = '2024-01-01T00:00:00.000Z'
 const TO_DATETIME = '2024-01-31T23:59:59.999Z'
+const UTC_DAY_FROM_DATETIME = '2026-09-10T00:00:00.000Z'
+const UTC_DAY_TO_DATETIME = '2026-09-30T23:59:59.999Z'
 
 describe('useEditFeeBillingPeriodDialog', () => {
   const customWrapper = ({ children }: { children: React.ReactNode }) =>
     AllTheProviders({ children })
+  const originalDefaultZone = Settings.defaultZone
 
   beforeEach(() => {
     jest.clearAllMocks()
     mockFormDialogOpen.mockResolvedValue({ reason: 'close' })
+  })
+
+  afterEach(() => {
+    Settings.defaultZone = originalDefaultZone
   })
 
   describe('GIVEN the hook is initialized', () => {
@@ -178,6 +187,37 @@ describe('useEditFeeBillingPeriodDialog', () => {
       })
     })
 
+    // Regression: only toDatetime was checked, so a typed pre-1970 from datetime
+    // reached the callback once the picker stopped withholding it.
+    describe('WHEN the from datetime is before the minimum supported date', () => {
+      it('THEN should not invoke the callback and should report the submit as unsuccessful', async () => {
+        const callback = jest.fn()
+        let didSubmitSucceed: boolean | undefined
+
+        mockFormDialogOpen.mockImplementation(async (config) => {
+          await config.form.submit()
+          didSubmitSucceed = config.form.didSubmitSucceed?.()
+
+          return { reason: 'close' }
+        })
+
+        const { result } = renderHook(() => useEditFeeBillingPeriodDialog(), {
+          wrapper: customWrapper,
+        })
+
+        await act(async () => {
+          result.current.openEditFeeBillingPeriodDialog({
+            fromDatetime: '0026-08-31T00:00:00.000Z',
+            toDatetime: TO_DATETIME,
+            callback,
+          })
+        })
+
+        expect(callback).not.toHaveBeenCalled()
+        expect(didSubmitSucceed).toBe(false)
+      })
+    })
+
     describe('WHEN the to datetime is before the from datetime', () => {
       it('THEN should not invoke the callback and should report the submit as unsuccessful', async () => {
         const callback = jest.fn()
@@ -206,6 +246,72 @@ describe('useEditFeeBillingPeriodDialog', () => {
 
         expect(callback).not.toHaveBeenCalled()
         expect(didSubmitSucceed).toBe(false)
+      })
+    })
+  })
+
+  // Regression: the picker built its calendar in the ambient zone, so an end-of-day UTC
+  // bound opened it on the next day — the next month, on the last day of a month.
+  describe('GIVEN an ambient zone ahead of UTC and a period on the UTC day', () => {
+    const openDialogAndPickDay = async (pickerIndex: number, day: string) => {
+      const user = userEvent.setup()
+      const callback = jest.fn()
+      const dialogConfig: { children?: React.ReactNode; submit?: () => Promise<void> } = {}
+
+      // Never resolves: resolving runs the hook's close branch, which resets the
+      // form and drops the callback before the picker is driven.
+      mockFormDialogOpen.mockImplementation((config) => {
+        dialogConfig.children = config.children
+        dialogConfig.submit = config.form.submit
+
+        return new Promise(() => {})
+      })
+
+      const { result } = renderHook(() => useEditFeeBillingPeriodDialog(), {
+        wrapper: customWrapper,
+      })
+
+      act(() => {
+        result.current.openEditFeeBillingPeriodDialog({
+          fromDatetime: UTC_DAY_FROM_DATETIME,
+          toDatetime: UTC_DAY_TO_DATETIME,
+          callback,
+        })
+      })
+
+      render(<>{dialogConfig.children}</>, { wrapper: customWrapper })
+
+      const openCalendar = document.querySelectorAll('.open-picker-tooltip button')[
+        pickerIndex
+      ] as HTMLButtonElement
+
+      await user.click(openCalendar)
+      await user.click(await screen.findByRole('gridcell', { name: day }))
+
+      await act(async () => {
+        await dialogConfig.submit?.()
+      })
+
+      return callback
+    }
+
+    describe('WHEN a start day is picked in the calendar', () => {
+      it('THEN should record that calendar day as the UTC start of day', async () => {
+        Settings.defaultZone = 'Europe/Paris'
+
+        const callback = await openDialogAndPickDay(0, '17')
+
+        expect(callback).toHaveBeenCalledWith('2026-09-17T00:00:00.000Z', UTC_DAY_TO_DATETIME)
+      })
+    })
+
+    describe('WHEN an end day is picked in the calendar', () => {
+      it('THEN should record that calendar day as the UTC end of day', async () => {
+        Settings.defaultZone = 'Europe/Paris'
+
+        const callback = await openDialogAndPickDay(1, '17')
+
+        expect(callback).toHaveBeenCalledWith(UTC_DAY_FROM_DATETIME, '2026-09-17T23:59:59.999Z')
       })
     })
   })

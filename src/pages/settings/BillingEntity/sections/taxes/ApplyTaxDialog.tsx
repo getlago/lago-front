@@ -49,7 +49,7 @@ gql`
   }
 `
 
-export const APPLY_TAX_FORM_ID = 'apply-tax-form'
+const APPLY_TAX_FORM_ID = 'apply-tax-form'
 
 const REQUIRED_TAX_ERROR = 'text_624ea7c29103fd010732ab7d'
 

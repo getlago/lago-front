@@ -1,6 +1,14 @@
 import { StatusProps, StatusType } from '~/components/designSystem/Status'
 import { StatusTypeEnum } from '~/generated/graphql'
 
+/**
+ * Tells whether ending a subscription in this status is a cancellation rather than a
+ * termination. Pending and incomplete subscriptions never started billing, so there is
+ * nothing to invoice or credit when they end.
+ */
+export const isSubscriptionCancellation = (status?: StatusTypeEnum | null): boolean =>
+  status === StatusTypeEnum.Pending || status === StatusTypeEnum.Incomplete
+
 export const subscriptionStatusMapping = (status?: StatusTypeEnum | null): StatusProps => {
   switch (status) {
     case StatusTypeEnum.Active:

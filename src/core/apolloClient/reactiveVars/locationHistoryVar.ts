@@ -4,7 +4,7 @@
  * This var exists to address this problem by allowing to have access to the previous routes.
  */
 import { makeVar } from '@apollo/client'
-import { Location } from 'react-router-dom'
+import { Location } from 'react-router'
 
 const MAX_HISTORY_KEPT = 10
 

@@ -2,13 +2,14 @@ import { revalidateLogic } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
 import { useCallback } from 'react'
 
+import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
 import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { extractThirdPartyErrorMessage, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast, extractThirdPartyErrorMessage, hasDefinedGQLError } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -19,10 +20,6 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 import BillingAccordion from './billingAccordion/BillingAccordion'
-import { useAccountingProviders } from './common/useAccountingProviders'
-import { useCrmProviders } from './common/useCrmProviders'
-import { usePaymentProviders } from './common/usePaymentProviders'
-import { useTaxProviders } from './common/useTaxProviders'
 import CustomerInformation from './customerInformation/CustomerInformation'
 import ExternalAppsAccordion from './externalAppsAccordion/ExternalAppsAccordion'
 import { validationSchema } from './formInitialization/validationSchema'
@@ -37,10 +34,6 @@ const CreateCustomer = () => {
   const centralizedDialog = useCentralizedDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
-  const { getPaymentProvider } = usePaymentProviders()
-  const { taxProviders } = useTaxProviders()
-  const { crmProviders } = useCrmProviders()
-  const { accountingProviders } = useAccountingProviders()
 
   const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.RevenueShare,
@@ -70,18 +63,13 @@ const CreateCustomer = () => {
       onDynamic: validationSchema,
     },
     onSubmit: async ({ value, formApi }) => {
-      const formattedValues = mapFromFormToApi(value, {
-        paymentProvider: getPaymentProvider(value.paymentProviderCode),
-        taxProviders,
-        crmProviders,
-        accountingProviders,
-      })
+      const formattedValues = mapFromFormToApi(value)
 
       const answer = await onSave(formattedValues)
 
       const { errors } = answer
 
-      if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+      if (hasDefinedGQLError('ValueAlreadyExist', errors, 'externalId')) {
         formApi.setErrorMap({
           onDynamic: {
             fields: {
@@ -95,18 +83,40 @@ const CreateCustomer = () => {
         return
       }
 
+      if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_1788430542303frilyf2vb6d',
+        })
+        return
+      }
+
       const thirdPartyErrorMessage = extractThirdPartyErrorMessage(errors)
 
       if (thirdPartyErrorMessage?.startsWith(STRIPE_CUSTOMER_ERROR_MESSAGE_DETAILS)) {
-        formApi.setErrorMap({
-          onDynamic: {
-            fields: {
-              'paymentProviderCustomer.providerCustomerId': {
-                message: 'text_1772636865361lt8w6gchmv1',
-                path: ['paymentProviderCustomer', 'providerCustomerId'],
+        const paymentConnectionIndex = (value.paymentProviderCustomers ?? []).findIndex(
+          (connection) => connection.code !== MANUAL_CONNECTION_CODE,
+        )
+
+        if (paymentConnectionIndex !== -1) {
+          formApi.setErrorMap({
+            onDynamic: {
+              fields: {
+                [`paymentProviderCustomers[${paymentConnectionIndex}].providerCustomerId`]: {
+                  message: 'text_1772636865361lt8w6gchmv1',
+                  path: ['paymentProviderCustomers', paymentConnectionIndex, 'providerCustomerId'],
+                },
               },
             },
-          },
+          })
+        }
+        return
+      }
+
+      if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_622f7a3dc32ce100c46a5154',
         })
         return
       }

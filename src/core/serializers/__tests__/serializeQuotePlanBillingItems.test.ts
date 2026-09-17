@@ -3,6 +3,7 @@ import type {
   LocalUsageChargeInput,
   PlanFormInput,
 } from '~/components/plans/types'
+import { comparable } from '~/core/utils/comparableValue'
 import { planFormSchema } from '~/formValidation/planFormSchema'
 import {
   AggregationTypeEnum,
@@ -128,6 +129,21 @@ describe('toPlanBillingItems', () => {
     expect(result.plans[0].payload.endDate).toBe('2024-07-26')
   })
 
+  it('omits the startDate key entirely when omitStartDate is set', () => {
+    const result = toPlanBillingItems(basePricingState, baseFormValues, undefined, {
+      omitStartDate: true,
+    })
+
+    expect(result.plans[0].payload).not.toHaveProperty('startDate')
+    expect(result.plans[0].payload.endDate).toBeNull()
+  })
+
+  it('keeps the startDate key when omitStartDate is not set', () => {
+    const result = toPlanBillingItems(basePricingState, baseFormValues)
+
+    expect(result.plans[0].payload.startDate).toBe('2023-07-26')
+  })
+
   it('includes invoicing settings in the payload', () => {
     const state: SubscriptionPricingState = {
       ...basePricingState,
@@ -212,12 +228,96 @@ describe('toPlanBillingItems', () => {
 // buildPlanOverrides — form state → overrides mapping (single source of truth)
 // ---------------------------------------------------------------------------
 
+describe('plan currency round trip', () => {
+  const catalogUsd = { ...baseFormValues, amountCurrency: CurrencyEnum.Usd }
+  const dealEur = { ...baseFormValues, amountCurrency: CurrencyEnum.Eur }
+
+  it('keeps the catalog currency in the payload and the deal currency in the override', () => {
+    const result = toPlanBillingItems(basePricingState, dealEur, catalogUsd)
+
+    expect(result.plans[0].payload.amountCurrency).toBe(CurrencyEnum.Usd)
+    expect(result.plans[0].overrides.amountCurrency).toBe(CurrencyEnum.Eur)
+  })
+
+  it('names the same currency on both sides when there is no repricing', () => {
+    const result = toPlanBillingItems(basePricingState, catalogUsd, catalogUsd)
+
+    expect(result.plans[0].payload.amountCurrency).toBe(CurrencyEnum.Usd)
+    expect(result.plans[0].overrides).not.toHaveProperty('amountCurrency')
+  })
+
+  it('reopens a repriced plan in the deal currency, not the catalog one', () => {
+    const serialized = toPlanBillingItems(basePricingState, dealEur, catalogUsd)
+    const deserialized = fromPlanBillingItems(serialized.plans)
+
+    expect(deserialized.formValues?.amountCurrency).toBe(CurrencyEnum.Eur)
+  })
+
+  it('reads the stored amount back unchanged after a repricing', () => {
+    const serialized = toPlanBillingItems(
+      basePricingState,
+      { ...dealEur, amountCents: '850.00' as PlanFormInput['amountCents'] },
+      catalogUsd,
+    )
+    const deserialized = fromPlanBillingItems(serialized.plans)
+
+    expect(deserialized.formValues?.amountCents).toBe('850')
+  })
+
+  it('survives a zero-decimal deal currency, where cents and units are the same number', () => {
+    const serialized = toPlanBillingItems(
+      basePricingState,
+      {
+        ...baseFormValues,
+        amountCurrency: CurrencyEnum.Jpy,
+        amountCents: '850' as PlanFormInput['amountCents'],
+      },
+      catalogUsd,
+    )
+
+    expect(serialized.plans[0].payload.amountCents).toBe('850')
+    expect(fromPlanBillingItems(serialized.plans).formValues?.amountCents).toBe('850')
+  })
+})
+
 describe('buildPlanOverrides', () => {
   it('carries over the subscription fee amount', () => {
     const result = buildPlanOverrides({ ...baseFormValues, amountCents: '850.00' })
 
     // $850.00 → 85000 cents
     expect(result.amountCents).toBe(85000)
+  })
+
+  describe('repricing the deal in another currency', () => {
+    it('sends the currency when the deal is priced differently from the catalog plan', () => {
+      const result = buildPlanOverrides(
+        { ...baseFormValues, amountCurrency: CurrencyEnum.Eur },
+        { ...baseFormValues, amountCurrency: CurrencyEnum.Usd },
+      )
+
+      expect(result.amountCurrency).toBe(CurrencyEnum.Eur)
+    })
+
+    it('stays silent when the deal is in the catalog plan currency', () => {
+      const result = buildPlanOverrides(
+        { ...baseFormValues, amountCurrency: CurrencyEnum.Usd },
+        { ...baseFormValues, amountCurrency: CurrencyEnum.Usd },
+      )
+
+      expect(result).not.toHaveProperty('amountCurrency')
+    })
+
+    it('does not turn an untouched plan into an override', () => {
+      const untouched = { ...baseFormValues, amountCents: '0' as PlanFormInput['amountCents'] }
+
+      expect(buildPlanOverrides(untouched, untouched)).toEqual({})
+    })
+
+    it('sends nothing without a baseline, having no way to tell a repricing from the plan price', () => {
+      const result = buildPlanOverrides({ ...baseFormValues, amountCurrency: CurrencyEnum.Eur })
+
+      expect(result).not.toHaveProperty('amountCurrency')
+    })
   })
 
   it('omits amountCents when the fee is zero or empty', () => {
@@ -618,6 +718,42 @@ describe('fromPlanBillingItems', () => {
     expect(result.overrides).toEqual({})
   })
 
+  // A currency change makes the backend restamp the billing items, and an item whose only
+  // deviation stopped being one comes back with no `overrides` key at all. Dereferencing it
+  // took the whole quote editor down with a TypeError.
+  describe.each([
+    ['null', null],
+    ['undefined', undefined],
+  ])('GIVEN the API returned %s overrides', (_, overrides) => {
+    it('THEN should deserialize the plan as having no overrides', () => {
+      const result = fromPlanBillingItems([{ ...baseBillingItemPlan, overrides }])
+
+      expect(result.overrides).toEqual({})
+      expect(result.planName).toBe('Enterprise Plan')
+      expect(result.basePlanName).toBe('Enterprise Plan')
+      expect(result.planId).toBe('plan_123')
+    })
+  })
+
+  it('falls back to the payload currency when the restamped item carries no overrides', () => {
+    const plan = {
+      ...baseBillingItemPlan,
+      payload: {
+        ...baseBillingItemPlan.payload,
+        interval: PlanInterval.Monthly,
+        amountCents: '1999',
+        amountCurrency: CurrencyEnum.Eur,
+        charges: [],
+      },
+      overrides: null,
+    }
+
+    const result = fromPlanBillingItems([plan])
+
+    expect(result.formValues?.amountCurrency).toBe(CurrencyEnum.Eur)
+    expect(result.formValues?.amountCents).toBe('19.99')
+  })
+
   it('uses overrides.name as the effective name and payload.name as the base', () => {
     const plan: BillingItemPlan = {
       ...baseBillingItemPlan,
@@ -745,6 +881,7 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
       prorated: false,
       invoiceable: true,
       taxCodes: [],
+      displayInQuoteDocument: false,
     }
 
     const formValues: PlanFormInput = {
@@ -772,6 +909,7 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
     expect(roundTrippedCharge?.invoiceDisplayName).toBe('CPU Compute')
     expect(roundTrippedCharge?.billableMetric.filters).toHaveLength(1)
     expect(roundTrippedCharge?.billableMetric.filters?.[0]?.key).toBe('region')
+    expect(roundTrippedCharge?.displayInQuoteDocument).toBe(false)
   })
 
   it('round-trips fixed charges and minimum commitment', () => {
@@ -790,6 +928,7 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
       prorated: false,
       properties: { amount: '500' } as LocalFixedChargeInput['properties'],
       taxCodes: [],
+      displayInQuoteDocument: false,
     }
 
     const formValues: PlanFormInput = {
@@ -816,6 +955,7 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
     expect(rtFixedCharge.addOn.name).toBe('Premium Support')
     expect(rtFixedCharge.units).toBe('1')
     expect(rtFixedCharge.invoiceDisplayName).toBe('Support Package')
+    expect(rtFixedCharge.displayInQuoteDocument).toBe(false)
 
     // Minimum commitment round-trip
     expect(fv.minimumCommitment).toBeDefined()
@@ -1137,5 +1277,221 @@ describe('GIVEN a plan billing item saved from the quote drawer', () => {
       expect(roundTrip(formValues)?.minimumCommitment?.amountCents).toBe('5000')
       expect(planFormSchema.safeParse(roundTrip(formValues)).success).toBe(true)
     })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Payload alignment on the quoted (baseline) plan
+// ---------------------------------------------------------------------------
+
+const usageCharge = (id: string, metricCode: string): LocalUsageChargeInput =>
+  ({
+    id,
+    billableMetric: {
+      id: `bm_${metricCode}`,
+      code: metricCode,
+      name: metricCode,
+      aggregationType: AggregationTypeEnum.CountAgg,
+      recurring: false,
+      filters: [],
+    },
+    chargeModel: ChargeModelEnum.Standard,
+    properties: { amount: '10' },
+    invoiceDisplayName: '',
+    payInAdvance: false,
+    prorated: false,
+    invoiceable: true,
+    taxCodes: [],
+  }) as LocalUsageChargeInput
+
+const fixedCharge = (id: string, addOnCode: string): LocalFixedChargeInput =>
+  ({
+    id,
+    addOn: { id: `addon_${addOnCode}`, name: addOnCode, code: addOnCode },
+    chargeModel: FixedChargeChargeModelEnum.Standard,
+    units: '1',
+    applyUnitsImmediately: false,
+    invoiceDisplayName: null,
+    payInAdvance: false,
+    prorated: false,
+    properties: { amount: '20' },
+    taxCodes: [],
+  }) as LocalFixedChargeInput
+
+describe('toPlanBillingItems — snapshot ids are bound to the quoted plan', () => {
+  describe('GIVEN a subscription amendment, whose form is seeded from the override child while the quote points at the catalog parent', () => {
+    // The child carries its own charge ids; the catalog plan the billing item names
+    // carries the ones the backend resolves overrides against.
+    const childCharge = usageCharge('child_charge', 'count_bm')
+    const catalogCharge = usageCharge('catalog_charge', 'count_bm')
+    const childFixedCharge = fixedCharge('child_fixed_charge', 'support')
+    const catalogFixedCharge = fixedCharge('catalog_fixed_charge', 'support')
+
+    const formValues: PlanFormInput = {
+      ...baseFormValues,
+      name: 'Enterprise Plan with Override',
+      amountCents: '211.00',
+      charges: [childCharge],
+      fixedCharges: [childFixedCharge],
+    }
+    const baselineFormValues: PlanFormInput = {
+      ...baseFormValues,
+      name: 'Enterprise Plan',
+      charges: [catalogCharge],
+      fixedCharges: [catalogFixedCharge],
+    }
+
+    describe('WHEN the billing item is serialized', () => {
+      it('THEN should rebind the snapshot charge ids on the catalog charges sharing the billable metric', () => {
+        const result = toPlanBillingItems(basePricingState, formValues, baselineFormValues)
+
+        expect(result.plans[0].payload.charges?.[0].id).toBe('catalog_charge')
+        expect(result.plans[0].payload.fixedCharges?.[0].id).toBe('catalog_fixed_charge')
+      })
+
+      it('THEN should keep the negotiated values as overrides rather than in the snapshot', () => {
+        // The seeded state carries the child's name, as it does on a first open.
+        const state: SubscriptionPricingState = {
+          ...basePricingState,
+          planName: 'Enterprise Plan with Override',
+          basePlanName: 'Enterprise Plan with Override',
+        }
+        const result = toPlanBillingItems(state, formValues, baselineFormValues)
+
+        // The snapshot still describes what was negotiated, only its ids move.
+        expect(result.plans[0].payload.charges?.[0].properties).toEqual({ amount: '10' })
+        expect(result.plans[0].overrides.amountCents).toBe(21100)
+        expect(result.plans[0].payload.name).toBe('Enterprise Plan')
+        expect(result.plans[0].overrides.name).toBe('Enterprise Plan with Override')
+      })
+    })
+  })
+
+  describe('GIVEN no baseline plan is resolved', () => {
+    describe('WHEN the billing item is serialized', () => {
+      it('THEN should leave the snapshot ids untouched', () => {
+        const formValues: PlanFormInput = {
+          ...baseFormValues,
+          charges: [usageCharge('own_charge', 'count_bm')],
+          fixedCharges: [fixedCharge('own_fixed_charge', 'support')],
+        }
+
+        const result = toPlanBillingItems(basePricingState, formValues)
+
+        expect(result.plans[0].payload.charges?.[0].id).toBe('own_charge')
+        expect(result.plans[0].payload.fixedCharges?.[0].id).toBe('own_fixed_charge')
+      })
+    })
+  })
+
+  describe('GIVEN a charge the baseline plan does not carry', () => {
+    describe('WHEN the billing item is serialized', () => {
+      it('THEN should leave that charge id untouched, having nothing to bind it to', () => {
+        const formValues: PlanFormInput = {
+          ...baseFormValues,
+          charges: [usageCharge('child_charge', 'count_bm'), usageCharge('added_charge', 'sum_bm')],
+        }
+        const baselineFormValues: PlanFormInput = {
+          ...baseFormValues,
+          charges: [usageCharge('catalog_charge', 'count_bm')],
+        }
+
+        const result = toPlanBillingItems(basePricingState, formValues, baselineFormValues)
+
+        expect(result.plans[0].payload.charges?.[0].id).toBe('catalog_charge')
+        expect(result.plans[0].payload.charges?.[1].id).toBe('added_charge')
+      })
+    })
+  })
+
+  describe('GIVEN the baseline plan carries two charges on the same billable metric', () => {
+    describe('WHEN the billing item is serialized', () => {
+      it('THEN should leave the id untouched rather than bind it to an arbitrary one', () => {
+        const formValues: PlanFormInput = {
+          ...baseFormValues,
+          charges: [usageCharge('child_charge', 'count_bm')],
+        }
+        const baselineFormValues: PlanFormInput = {
+          ...baseFormValues,
+          charges: [
+            usageCharge('catalog_charge_a', 'count_bm'),
+            usageCharge('catalog_charge_b', 'count_bm'),
+          ],
+        }
+
+        const result = toPlanBillingItems(basePricingState, formValues, baselineFormValues)
+
+        expect(result.plans[0].payload.charges?.[0].id).toBe('child_charge')
+      })
+    })
+  })
+})
+
+describe('displayInQuoteDocument', () => {
+  // The backend closes `overrides.*` with `additionalProperties: {not: {}}`; an extra key
+  // there returns a 422 the front end swallows via silentErrorCodes, so the quote would
+  // silently stop saving.
+  it('never reaches the overrides payload, and toggling it leaves overrides identical', () => {
+    const visible: PlanFormInput = {
+      ...baseFormValues,
+      charges: [usageCharge('charge_1', 'count_bm')],
+      fixedCharges: [fixedCharge('fc_1', 'support')],
+    }
+    const hidden: PlanFormInput = {
+      ...visible,
+      charges: [{ ...visible.charges[0], displayInQuoteDocument: false }],
+      fixedCharges: [{ ...visible.fixedCharges[0], displayInQuoteDocument: false }],
+    }
+
+    const visibleOverrides = toPlanBillingItems(basePricingState, visible).plans[0].overrides
+    const hiddenOverrides = toPlanBillingItems(basePricingState, hidden).plans[0].overrides
+
+    expect(comparable(hiddenOverrides)).toBe(comparable(visibleOverrides))
+    expect(hiddenOverrides.charges?.[0]).not.toHaveProperty('displayInQuoteDocument')
+    expect(hiddenOverrides.fixedCharges?.[0]).not.toHaveProperty('displayInQuoteDocument')
+  })
+
+  it('lands in the payload for both charge kinds', () => {
+    const formValues: PlanFormInput = {
+      ...baseFormValues,
+      charges: [{ ...usageCharge('charge_1', 'count_bm'), displayInQuoteDocument: false }],
+      fixedCharges: [{ ...fixedCharge('fc_1', 'support'), displayInQuoteDocument: false }],
+    }
+
+    const { payload } = toPlanBillingItems(basePricingState, formValues).plans[0]
+
+    expect(payload.charges?.[0].displayInQuoteDocument).toBe(false)
+    expect(payload.fixedCharges?.[0].displayInQuoteDocument).toBe(false)
+  })
+
+  it('defaults to true when a stored payload predates the flag', () => {
+    const formValues: PlanFormInput = {
+      ...baseFormValues,
+      charges: [usageCharge('charge_1', 'count_bm')],
+      fixedCharges: [fixedCharge('fc_1', 'support')],
+    }
+    const { plans } = toPlanBillingItems(basePricingState, formValues)
+
+    delete plans[0].payload.charges?.[0].displayInQuoteDocument
+    delete plans[0].payload.fixedCharges?.[0].displayInQuoteDocument
+
+    const { formValues: restored } = fromPlanBillingItems(plans)
+
+    expect(restored?.charges[0].displayInQuoteDocument).toBe(true)
+    expect(restored?.fixedCharges[0].displayInQuoteDocument).toBe(true)
+  })
+
+  it('survives an amendment round-trip (omitStartDate)', () => {
+    const formValues: PlanFormInput = {
+      ...baseFormValues,
+      charges: [{ ...usageCharge('charge_1', 'count_bm'), displayInQuoteDocument: false }],
+    }
+
+    const { plans } = toPlanBillingItems(basePricingState, formValues, undefined, {
+      omitStartDate: true,
+    })
+    const { formValues: restored } = fromPlanBillingItems(plans)
+
+    expect(restored?.charges[0].displayInQuoteDocument).toBe(false)
   })
 })

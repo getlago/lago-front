@@ -1,5 +1,10 @@
+import { AnyFormApi } from '@tanstack/react-form'
+
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { AlertThreshold, CurrencyEnum, ThresholdInput } from '~/generated/graphql'
+
+export type SortableThreshold = Pick<AlertThreshold, 'recurring' | 'value'>
 
 /**
  * Turns the API thresholds of an alert into the shape the thresholds table
@@ -7,11 +12,11 @@ import { AlertThreshold, CurrencyEnum, ThresholdInput } from '~/generated/graphq
  * thresholds first and the recurring one — if any — last, since the table
  * relies on that ordering to map row indexes back to the array.
  */
-export const sortAndFormatThresholds = (
-  thresholds: AlertThreshold[],
+export const sortAndFormatThresholds = <T extends SortableThreshold>(
+  thresholds: T[],
   currency: CurrencyEnum,
   shouldHandleUnits: boolean,
-): AlertThreshold[] => {
+): T[] => {
   const formattedThresholds = thresholds.map((threshold) => ({
     ...threshold,
     value: shouldHandleUnits
@@ -91,23 +96,12 @@ export const createThresholdSetters = (form: ThresholdsFormApi): ThresholdSetter
   },
 })
 
-/** The slice of an alert form the duplicate-code error handler relies on. */
-type CodeErrorFormApi = {
-  setErrorMap: (errorMap: {
-    onDynamic: { fields: { code: { message: string; path: ['code'] } } }
-  }) => void
-}
-
 /**
  * Marks the code field with the "value already exists" error and scrolls back
  * to it, as both alert forms do when the API rejects a duplicate code.
  */
-export const setCodeAlreadyExistsError = (formApi: CodeErrorFormApi): void => {
-  formApi.setErrorMap({
-    onDynamic: {
-      fields: { code: { message: 'text_632a2d437e341dcc76817556', path: ['code'] } },
-    },
-  })
+export const setCodeAlreadyExistsError = (formApi: AnyFormApi): void => {
+  applyExistingCodeError(formApi)
 
   document.getElementById('root')?.scrollTo({ top: 0 })
 }

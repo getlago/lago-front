@@ -6,6 +6,7 @@ import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
+  FeatureFlagEnum,
   HubspotTargetedObjectsEnum,
   IntegrationTypeEnum,
   ProviderPaymentMethodsEnum,
@@ -13,25 +14,31 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { ConnectionComboBoxDataItem } from './ConnectionComboBox'
 import { ConnectionDrawerSection } from './ConnectionDrawerSection'
+import {
+  MANUAL_CONNECTION_CODE,
+  PROVIDERS_WITHOUT_CUSTOMER_MAPPING,
+} from './customerIntegrationConst'
 import { LockedConnectionSelection, ProviderSelectionSection } from './ProviderSelectionSection'
 import { CONNECTION_CATEGORY_SHORT_LABEL_KEYS, ConnectionCategory } from './types'
 
 const CUSTOMER_CONNECTION_FORM_ID = 'customer-connection-drawer-form'
 
-/**
- * Provider types that don't support linking an existing provider customer id
- * (mirrors the customer-form rule for the payment section).
- */
-const PROVIDERS_WITHOUT_EXTERNAL_ID: ReadonlySet<string> = new Set([
-  ProviderTypeEnum.Cashfree,
-  ProviderTypeEnum.Flutterwave,
-])
+export const CONNECTION_CODE_FIELD_TEST_ID = 'connection-code-field'
 
 const connectionValidationSchema = z
   .object({
+    code: z
+      .string()
+      .optional()
+      // `lago_manual` identifies the reserved manual payment row: a connection
+      // saved under it is filtered out of the customer payload and destroyed
+      .refine((value) => value !== MANUAL_CONNECTION_CODE, {
+        message: 'text_17884323756206sq3idxonjv',
+      }),
     providerCode: z
       .string()
       .optional()
@@ -54,7 +61,7 @@ const connectionValidationSchema = z
   .refine(
     (data) => {
       if (!data.providerType) return true
-      if (PROVIDERS_WITHOUT_EXTERNAL_ID.has(data.providerType)) return true
+      if (PROVIDERS_WITHOUT_CUSTOMER_MAPPING.has(data.providerType as ProviderTypeEnum)) return true
       if (data.syncWithProvider) return true
 
       return !!data.externalCustomerId
@@ -99,6 +106,7 @@ const connectionValidationSchema = z
 export type ConnectionFormValues = z.infer<typeof connectionValidationSchema>
 
 const DEFAULT_VALUES: ConnectionFormValues = {
+  code: '',
   providerCode: undefined,
   providerType: undefined,
   externalCustomerId: '',
@@ -142,12 +150,17 @@ type CustomerConnectionDrawerProps = {
    * written into the customer form state (deferred to the customer save); on
    * the customer information view they are persisted immediately via the
    * dedicated mutations.
+   *
+   * Returns whether the values were saved: false keeps the drawer open with
+   * its values intact. It must not THROW to signal a failure — `BaseDrawer`
+   * calls `form.handleSubmit` without catching, and TanStack re-throws
+   * whatever `onSubmit` throws, so the rejection would escape unhandled.
    */
   onSave: (
     category: ConnectionCategory,
     values: ConnectionFormValues,
-    utils: { isEdition: boolean },
-  ) => void | Promise<void>
+    utils: { isEdition: boolean; formApi: CustomerConnectionDrawerFormApi },
+  ) => boolean | Promise<boolean>
   /** Org-level provider/integration options per category */
   connectionOptions: Partial<Record<ConnectionCategory, ConnectionComboBoxDataItem[]>>
   /**
@@ -173,9 +186,6 @@ export type CustomerConnectionDrawerRef = {
 /**
  * The shared per-type connection editor drawer (create + edit), reused across
  * customer creation/edition and the customer information view.
- *
- * The `code` field and default selection are intentionally NOT part of this
- * phase (Milestone 2).
  */
 export const CustomerConnectionDrawer = forwardRef<
   CustomerConnectionDrawerRef,
@@ -183,6 +193,8 @@ export const CustomerConnectionDrawer = forwardRef<
 >(({ onSave, connectionOptions, renderProviderContent }, ref) => {
   const { translate } = useInternationalization()
   const drawer = useFormDrawer()
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const isMultiConnectionEnabled = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
 
   const [context, setContext] = useState<{
     category: ConnectionCategory
@@ -200,8 +212,12 @@ export const CustomerConnectionDrawer = forwardRef<
   const form = useConnectionDrawerForm({
     defaultValues: openedValues,
     onSubmit: async (values) => {
-      await onSave(context.category, values, { isEdition: context.isEdition })
-      drawer.close()
+      const saved = await onSave(context.category, values, {
+        isEdition: context.isEdition,
+        formApi: form,
+      })
+
+      if (saved) drawer.close()
     },
   })
 
@@ -232,6 +248,19 @@ export const CustomerConnectionDrawer = forwardRef<
                 options={connectionOptions[category] ?? []}
                 lockedSelection={lockedSelection}
               />
+
+              {isMultiConnectionEnabled && (
+                <form.AppField name="code">
+                  {(field) => (
+                    <field.TextInputField
+                      data-test={CONNECTION_CODE_FIELD_TEST_ID}
+                      label={translate('text_629728388c4d2300e2d380b7')}
+                      placeholder={translate('text_1788433814031zeagk490c7a')}
+                      beforeChangeFormatter="code"
+                    />
+                  )}
+                </form.AppField>
+              )}
             </ConnectionDrawerSection>
 
             {renderProviderContent?.(form, { category, isEdition })}

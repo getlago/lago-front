@@ -1,3 +1,6 @@
+import { generatePath } from 'react-router'
+
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { render } from '~/test-utils'
 
 import PlansList from '../PlansList'
@@ -35,8 +38,8 @@ jest.mock('~/components/plans/DeletePlanDialog', () => ({
   useDeletePlanDialog: () => ({ openDeletePlanDialog: jest.fn() }),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: jest.fn(() => jest.fn()),
   generatePath: jest.fn((route: string) => route),
 }))
@@ -221,6 +224,29 @@ describe('PlansList', () => {
 
         expect(actions).toHaveLength(1)
         expect(actions[0]).toEqual(expect.objectContaining({ startIcon: 'duplicate' }))
+      })
+    })
+  })
+
+  describe('GIVEN the details action is a link', () => {
+    describe('WHEN its target is built', () => {
+      it('THEN should point at the plan overview tab', () => {
+        mockHasPermissions.mockReturnValue(true)
+
+        render(<PlansList />)
+
+        const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
+          item: Record<string, unknown>,
+        ) => ActionItem<{ id: string }>[]
+
+        const [detailsAction] = actionColumn({ id: 'plan-1', name: 'Test Plan', code: 'test' })
+
+        detailsAction?.link?.({ id: 'plan-1' })
+
+        expect(generatePath).toHaveBeenLastCalledWith('/plan/:planId/:tab', {
+          planId: 'plan-1',
+          tab: 'overview',
+        })
       })
     })
   })

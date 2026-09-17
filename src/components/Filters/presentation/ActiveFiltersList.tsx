@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { Typography } from '~/components/designSystem/Typography'
 import { useFilters } from '~/components/Filters/graphql/useFilters'
@@ -54,10 +54,10 @@ export const ActiveFiltersList = () => {
       {activeFilters.map(({ label, value }, index) => (
         <div
           data-test={FILTERS_ACTIVE_FILTER_ITEM_TEST_ID}
-          className="flex h-8 items-center rounded-[100px] bg-grey-100 px-3 py-0"
+          className="flex h-8 min-w-0 max-w-full items-center rounded-[100px] bg-grey-100 px-3 py-0"
           key={`active-filter-${index}`}
         >
-          <Typography variant="captionHl" color="grey600">
+          <Typography variant="captionHl" color="grey600" noWrap>
             {translate(label)}: {value}
           </Typography>
         </div>

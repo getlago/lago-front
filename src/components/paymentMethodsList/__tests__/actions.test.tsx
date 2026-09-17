@@ -92,7 +92,7 @@ describe('generatePaymentMethodsActions', () => {
       expect(setAsDefaultAction).toBeDefined()
       if (!setAsDefaultAction) return
 
-      await setAsDefaultAction.onAction(paymentMethod)
+      await setAsDefaultAction.onAction?.(paymentMethod)
 
       expect(mockSetPaymentMethodAsDefault).toHaveBeenCalledWith({ id: 'pm_test_001' })
 
@@ -119,7 +119,7 @@ describe('generatePaymentMethodsActions', () => {
       expect(copyAction).toBeDefined()
       if (!copyAction) return
 
-      copyAction.onAction(paymentMethod)
+      copyAction.onAction?.(paymentMethod)
 
       expect(copyToClipboard).toHaveBeenCalledWith('pm_copy_001')
 
@@ -146,7 +146,7 @@ describe('generatePaymentMethodsActions', () => {
       expect(deleteAction).toBeDefined()
       if (!deleteAction) return
 
-      deleteAction.onAction(paymentMethod)
+      deleteAction.onAction?.(paymentMethod)
 
       expect(mockOnDeletePaymentMethod).toHaveBeenCalledWith(paymentMethod)
     })

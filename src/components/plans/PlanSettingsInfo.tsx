@@ -1,3 +1,7 @@
+import {
+  MAX_DESCRIPTION_LENGTH_DISPLAY_LIMIT,
+  ShowMoreText,
+} from '~/components/designSystem/ShowMoreText'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { getIntervalTranslationKey } from '~/core/constants/form'
@@ -49,7 +53,14 @@ export const PlanSettingsInfo = ({ plan }: PlanSettingsInfoProps) => {
       {!!plan.description && (
         <DetailsPage.InfoGridItem
           label={translate('text_6388b923e514213fed58331c')}
-          value={plan.description}
+          value={
+            <ShowMoreText
+              variant="body"
+              color="grey700"
+              text={plan.description}
+              limit={MAX_DESCRIPTION_LENGTH_DISPLAY_LIMIT}
+            />
+          }
         />
       )}
 

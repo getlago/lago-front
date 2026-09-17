@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Fragment } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import {
   formatActivityType,
@@ -60,6 +60,9 @@ gql`
         id
         code
       }
+      ... on CatalogPlan {
+        id
+      }
       ... on Coupon {
         id
       }
@@ -112,6 +115,15 @@ gql`
         id
       }
       ... on RateCard {
+        id
+      }
+      ... on Quote {
+        id
+      }
+      ... on OrderForm {
+        id
+      }
+      ... on Order {
         id
       }
     }

@@ -11,6 +11,7 @@ type BillingEntityFormPickerProps = {
   label?: string
   /** Optional helper text rendered below the ComboBox. */
   helperText?: string
+  includeInheritOption?: boolean
 }
 
 /**
@@ -27,11 +28,13 @@ export const BillingEntityFormPicker = ({
   onChange,
   label,
   helperText,
+  includeInheritOption = false,
 }: BillingEntityFormPickerProps) => {
   const { translate } = useInternationalization()
-  const { options, isLoading } = useBillingEntitiesOptions()
+  const { options, isLoading } = useBillingEntitiesOptions({ includeInheritOption })
 
-  const currentCode = options.find((o) => o.id === value)?.value ?? ''
+  const inheritOption = options.find((option) => !option.id)
+  const currentCode = options.find((o) => o.id === value)?.value ?? inheritOption?.value ?? ''
 
   return (
     <ComboBox
@@ -47,7 +50,7 @@ export const BillingEntityFormPicker = ({
       onChange={(code) => {
         const selected = options.find((o) => o.value === code)
 
-        onChange(selected?.id ?? undefined)
+        onChange(selected?.id || undefined)
       }}
     />
   )

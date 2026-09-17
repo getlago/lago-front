@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
 import { APPLIED_COUPON_STATUS_CONFIG } from '~/components/coupons/utils'
@@ -197,6 +197,7 @@ export const CouponDetailsAppliedCoupons = ({ couponCode }: CouponDetailsApplied
           isLoading={loading}
           hasError={!!error}
           rowSize={72}
+          rowLinkLabel={({ customer }) => customer?.name ?? ''}
           onRowActionLink={getRowActionLink}
           placeholder={{
             emptyState: {

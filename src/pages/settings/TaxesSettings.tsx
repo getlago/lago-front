@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useState } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -198,9 +198,7 @@ const TaxesSettings = () => {
                           {
                             title: translate('text_645bb193927b375079d28b7c'),
                             startIcon: 'pen',
-                            onAction: () => {
-                              navigate(generatePath(UPDATE_TAX_ROUTE, { taxId: tax?.id || '' }))
-                            },
+                            link: () => generatePath(UPDATE_TAX_ROUTE, { taxId: tax?.id || '' }),
                           },
                         ]
 

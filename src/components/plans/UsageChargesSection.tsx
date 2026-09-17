@@ -40,6 +40,7 @@ interface UsageChargesSectionProps {
   alreadyExistingCharges?: LocalUsageChargeInput[] | null
   canBeEdited?: boolean
   isInSubscriptionForm?: boolean
+  isInQuoteForm?: boolean
   isEdition: boolean
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
 }
@@ -49,6 +50,7 @@ export const UsageChargesSection = ({
   alreadyExistingCharges,
   canBeEdited,
   isInSubscriptionForm,
+  isInQuoteForm,
   isEdition,
   subscriptionFormType,
 }: UsageChargesSectionProps) => {
@@ -212,8 +214,8 @@ export const UsageChargesSection = ({
       <UsageChargeDrawer
         ref={usageChargeDrawerRef}
         disabled={isEdition && !canBeEdited}
-        isEdition={isEdition}
         isInSubscriptionForm={isInSubscriptionForm}
+        isInQuoteForm={isInQuoteForm}
         subscriptionFormType={subscriptionFormType}
         onSave={handleDrawerSave}
         onDelete={handleChargeDelete}

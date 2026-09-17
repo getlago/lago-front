@@ -68,6 +68,7 @@ interface FixedChargesSectionProps {
   alreadyExistingFixedChargesIds: string[]
   canBeEdited?: boolean
   isInSubscriptionForm?: boolean
+  isInQuoteForm?: boolean
   isEdition?: boolean
 }
 
@@ -76,6 +77,7 @@ export const FixedChargesSection = ({
   alreadyExistingFixedChargesIds,
   canBeEdited,
   isInSubscriptionForm,
+  isInQuoteForm,
   isEdition = false,
 }: FixedChargesSectionProps) => {
   const { translate } = useInternationalization()
@@ -229,6 +231,7 @@ export const FixedChargesSection = ({
         disabled={isEdition && !canBeEdited}
         isEdition={isEdition}
         isInSubscriptionForm={isInSubscriptionForm}
+        isInQuoteForm={isInQuoteForm}
         onSave={handleDrawerSave}
         onDelete={handleChargeDelete}
         openRemoveChargeWarningDialog={openRemoveChargeWarningDialog}

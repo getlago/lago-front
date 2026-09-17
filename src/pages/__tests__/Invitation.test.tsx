@@ -1,6 +1,6 @@
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { act, render, screen, waitFor } from '@testing-library/react'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router'
 
 import { PASSWORD_HINTS_TEST_IDS } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
 import { GetinviteDocument } from '~/generated/graphql'
@@ -219,6 +219,22 @@ describe('Invitation', () => {
       await waitFor(() => {
         expect(screen.getByText('text_1784307344255ojifndnfotw')).toBeInTheDocument()
       })
+    })
+
+    it('should render the Microsoft logo at the same size as the other SSO buttons', async () => {
+      await renderInvitation()
+
+      const entraIdButton = await waitFor(() => {
+        const button = screen
+          .getByText('text_1784307344255ojifndnfotw')
+          .closest('button') as HTMLButtonElement
+
+        expect(button).toBeInTheDocument()
+
+        return button
+      })
+
+      expect(entraIdButton.querySelector('[data-test="microsoft/medium"]')).toBeInTheDocument()
     })
 
     it('should have submit button', async () => {

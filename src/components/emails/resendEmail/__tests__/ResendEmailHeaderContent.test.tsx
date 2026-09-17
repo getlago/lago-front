@@ -86,6 +86,14 @@ describe('ResendEmailHeaderContent', () => {
         expect(gridContainer?.children.length).toBe(8)
       })
 
+      it('THEN should size the grid rows on their own content', async () => {
+        const { container } = await act(() => render(<ResendEmailHeaderContentWrapper />))
+
+        // Equal-height rows would stretch the empty Cc, Bcc and Subject rows to match a To
+        // field grown tall by wrapped recipients.
+        expect(container.querySelector('.grid')).not.toHaveClass('grid-rows-4')
+      })
+
       it('THEN should render three combobox fields for to, cc, and bcc', async () => {
         const { container } = await act(() => render(<ResendEmailHeaderContentWrapper />))
 

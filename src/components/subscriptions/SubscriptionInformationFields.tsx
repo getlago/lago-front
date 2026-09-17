@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
 import { Alert } from '~/components/designSystem/Alert'
@@ -25,6 +25,8 @@ import {
 } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+
+import { SUBSCRIPTION_INFORMATION_FIELDS_TEST_ID } from './subscriptionTestIds'
 
 gql`
   fragment SubscriptionInformationFields on Subscription {
@@ -205,6 +207,10 @@ const getSubscriptionInformationGrid = ({
     .filter(Boolean)
     .join(' ')
 
+  // A pending subscription has no `startedAt` yet, so fall back to the date it is
+  // scheduled to start on. Both being empty should not happen in practice.
+  const startDate = subscription?.startedAt ?? subscription?.subscriptionAt
+
   return [
     {
       label: translate('text_65201c5a175a4b0238abf29a'),
@@ -225,7 +231,7 @@ const getSubscriptionInformationGrid = ({
     },
     {
       label: translate('text_65201c5a175a4b0238abf29e'),
-      value: subscription?.startedAt ? intlFormatDateTimeOrgaTZ(subscription.startedAt).date : '-',
+      value: startDate ? intlFormatDateTimeOrgaTZ(startDate).date : '-',
     },
     {
       label: translate('text_1781859135627z59hpfpa8pt'),
@@ -267,7 +273,10 @@ export const SubscriptionInformationFields = ({
   const parentPlanId = subscription?.plan?.parent?.id
 
   return (
-    <div className="flex max-w-168 flex-col gap-4">
+    <div
+      className="flex max-w-168 flex-col gap-4"
+      data-test={SUBSCRIPTION_INFORMATION_FIELDS_TEST_ID}
+    >
       <SubscriptionDetailAlerts subscription={subscription} />
 
       <DetailsPage.InfoGridItem

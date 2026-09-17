@@ -7,11 +7,13 @@ import {
   DIALOG_TITLE_TEST_ID,
   FORM_DIALOG_CANCEL_BUTTON_TEST_ID,
   FORM_DIALOG_NAME,
+  FORM_DIALOG_TEST_ID,
 } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
 import { GetRolesListDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
+import { UseInviteActionsParams } from '../../hooks/useInviteActions'
 import { EDIT_INVITE_ROLE_FORM_ID, useEditInviteRoleDialog } from '../EditInviteRoleDialog'
 
 NiceModal.register(FORM_DIALOG_NAME, FormDialog)
@@ -45,11 +47,14 @@ jest.mock('~/hooks/useCurrentUser', () => ({
 }))
 
 const mockUpdateInviteRole = jest.fn()
+let mockUseInviteActionsParams: UseInviteActionsParams | undefined
 
 jest.mock('../../hooks/useInviteActions', () => ({
-  useInviteActions: () => ({
-    updateInviteRole: mockUpdateInviteRole,
-  }),
+  useInviteActions: (params: UseInviteActionsParams = {}) => {
+    mockUseInviteActionsParams = params
+
+    return { updateInviteRole: mockUpdateInviteRole }
+  },
 }))
 
 // Mock scrollIntoView for jsdom
@@ -148,6 +153,7 @@ describe('EditInviteRoleDialog', () => {
   afterEach(() => {
     cleanup()
     jest.clearAllMocks()
+    mockUseInviteActionsParams = undefined
   })
 
   describe('Opening', () => {
@@ -300,6 +306,26 @@ describe('EditInviteRoleDialog', () => {
       // Dialog should stay open (closeOnError: false)
       await waitFor(() => {
         expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    it('closes the dialog when the invite no longer exists', async () => {
+      const user = userEvent.setup()
+
+      mockUpdateInviteRole.mockImplementation(async () => {
+        mockUseInviteActionsParams?.onInviteNotFound?.()
+
+        return { data: null }
+      })
+
+      await prepare({ mocks: [rolesListMock, rolesListMock] })
+      await selectRole(user, 'finance')
+
+      await user.click(screen.getByText(/edit role/i))
+
+      await waitFor(() => {
+        expect(mockUpdateInviteRole).toHaveBeenCalledTimes(1)
+        expect(screen.queryByTestId(FORM_DIALOG_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

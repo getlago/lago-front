@@ -1,12 +1,17 @@
 import { Fragment } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { EDIT_QUOTE_ROUTE, QUOTE_VERSION_PREVIEW_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_DETAILS_ROUTE,
+  EDIT_QUOTE_ROUTE,
+  Link,
+  QUOTE_VERSION_PREVIEW_ROUTE,
+} from '~/core/router'
 import { QuoteDetailItemFragment, StatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -22,6 +27,7 @@ interface QuoteDetailsVersionsProps {
 }
 
 export const QUOTE_VERSIONS_TABLE_TEST_ID = 'quote-versions-table'
+export const QUOTE_DETAILS_VERSIONS_CUSTOMER_LINK_TEST_ID = 'quote-details-versions-customer-link'
 
 const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element => {
   const { translate } = useInternationalization()
@@ -69,7 +75,15 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
     },
     {
       label: translate('text_65201c5a175a4b0238abf29a'),
-      value: `${quote.customer.displayName} - ${quote.customer.externalId}`,
+      value: (
+        <Link
+          className="w-fit"
+          data-test={QUOTE_DETAILS_VERSIONS_CUSTOMER_LINK_TEST_ID}
+          to={generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: quote.customer.id })}
+        >
+          {`${quote.customer.displayName} - ${quote.customer.externalId}`}
+        </Link>
+      ),
     },
     {
       label: translate('text_6560809c38fb9de88d8a52fb'),
@@ -96,11 +110,11 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
 
     if (actions.length === 0) return null
 
-    return actions.map(({ icon, label, onAction }) => ({
-      startIcon: icon,
-      title: label,
-      onAction: () => onAction(),
-    }))
+    return actions.map((action) =>
+      action.link
+        ? { startIcon: action.icon, title: action.label, link: action.link }
+        : { startIcon: action.icon, title: action.label, onAction: () => action.onAction() },
+    )
   }
 
   return (
@@ -133,6 +147,7 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
           data={quote.versions}
           containerSize={0}
           columns={versionColumns}
+          rowLinkLabel={({ version }) => String(version)}
           onRowActionLink={getRowLink}
           actionColumnTooltip={() => translate('text_1776414006125pcxcyeblul7')}
           actionColumn={versionActionColumn}

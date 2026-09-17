@@ -1,23 +1,24 @@
-import { DateTime, Settings } from 'luxon'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { Settings } from 'luxon'
 
-jest.mock('~/hooks/core/useInternationalization', () => ({
-  useInternationalization: () => ({
-    translate: (key: string) => key,
-  }),
-}))
+import { FiltersItemWebhookDate } from '~/components/Filters/graphql/filtersElements/FiltersItemWebhookDate'
+import { AllTheProviders } from '~/test-utils'
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
-    timezone: 'UTC',
+    timezone: 'TZ_UTC',
   }),
 }))
 
-jest.mock('~/core/timezone', () => ({
-  getTimezoneConfig: () => ({ name: 'UTC' }),
-}))
+const renderComponent = (value?: string): { setFilterValue: jest.Mock } => {
+  const setFilterValue = jest.fn()
 
-// We test the component's date logic by extracting and testing the handleFromChange / handleToChange
-// behavior through the component's interface
+  render(<FiltersItemWebhookDate value={value} setFilterValue={setFilterValue} />, {
+    wrapper: AllTheProviders,
+  })
+
+  return { setFilterValue }
+}
 
 describe('FiltersItemWebhookDate', () => {
   const originalDefaultZone = Settings.defaultZone
@@ -30,143 +31,91 @@ describe('FiltersItemWebhookDate', () => {
     Settings.defaultZone = originalDefaultZone
   })
 
-  describe('date value parsing', () => {
-    describe('GIVEN a comma-separated value', () => {
-      describe('WHEN the value contains from and to dates', () => {
-        it('THEN should correctly split the value into from and to parts', () => {
-          const value = '2024-01-01T00:00:00.000Z,2024-01-31T23:59:59.999Z'
-          const [from, to] = value.split(',')
+  describe('GIVEN no initial value', () => {
+    describe('WHEN the component is rendered', () => {
+      it('THEN should display two empty date inputs', () => {
+        renderComponent()
 
-          expect(from).toBe('2024-01-01T00:00:00.000Z')
-          expect(to).toBe('2024-01-31T23:59:59.999Z')
-        })
-      })
+        const inputs = screen.getAllByRole('textbox') as HTMLInputElement[]
 
-      describe('WHEN the value has only a from date', () => {
-        it('THEN should have empty to part', () => {
-          const value = '2024-01-01T00:00:00.000Z,'
-          const [from, to] = value.split(',')
-
-          expect(from).toBe('2024-01-01T00:00:00.000Z')
-          expect(to).toBe('')
-        })
-      })
-
-      describe('WHEN the value has only a to date', () => {
-        it('THEN should have empty from part', () => {
-          const value = ',2024-01-31T23:59:59.999Z'
-          const [from, to] = value.split(',')
-
-          expect(from).toBe('')
-          expect(to).toBe('2024-01-31T23:59:59.999Z')
-        })
+        expect(inputs).toHaveLength(2)
+        expect(inputs[0].value).toBe('')
+        expect(inputs[1].value).toBe('')
       })
     })
   })
 
-  describe('handleFromChange logic', () => {
-    describe('GIVEN a from date and an existing to date', () => {
-      describe('WHEN from date is after to date', () => {
-        it('THEN should adjust to date to end of from date day', () => {
-          const mockSetFilterValue = jest.fn()
-          const fromDate = '2024-02-15T00:00:00.000Z'
-          const toDate = '2024-02-10T23:59:59.999Z'
+  describe('GIVEN a comma-separated from/to value', () => {
+    describe('WHEN the component is rendered', () => {
+      it('THEN should display the parsed from and to dates', () => {
+        renderComponent('2024-01-01T00:00:00.000Z,2024-01-31T23:59:59.999Z')
 
-          // Simulate the component's handleFromChange logic
-          const from = DateTime.fromISO(fromDate).startOf('day')
-          const to = DateTime.fromISO(toDate)
-
-          if (from > to) {
-            mockSetFilterValue(`${from.toISO()},${from.endOf('day').toISO()}`)
-          }
-
-          expect(mockSetFilterValue).toHaveBeenCalledWith(expect.stringContaining('2024-02-15'))
-          const callArg = mockSetFilterValue.mock.calls[0][0] as string
-          const [resultFrom, resultTo] = callArg.split(',')
-
-          expect(DateTime.fromISO(resultFrom).day).toBe(15)
-          expect(DateTime.fromISO(resultTo).day).toBe(15)
-        })
-      })
-
-      describe('WHEN from date is before to date', () => {
-        it('THEN should keep to date unchanged', () => {
-          const mockSetFilterValue = jest.fn()
-          const fromDate = '2024-02-05T00:00:00.000Z'
-          const toDate = '2024-02-10T23:59:59.999Z'
-
-          const from = DateTime.fromISO(fromDate).startOf('day')
-          const to = DateTime.fromISO(toDate)
-
-          if (from > to) {
-            mockSetFilterValue(`${from.toISO()},${from.endOf('day').toISO()}`)
-          } else {
-            mockSetFilterValue(`${from.toISO()},${toDate}`)
-          }
-
-          const callArg = mockSetFilterValue.mock.calls[0][0] as string
-
-          expect(callArg).toContain(toDate)
-        })
+        expect(screen.getByDisplayValue('01/01/2024')).toBeInTheDocument()
+        expect(screen.getByDisplayValue('01/31/2024')).toBeInTheDocument()
       })
     })
-  })
 
-  describe('handleToChange logic', () => {
-    describe('GIVEN a to date and an existing from date', () => {
-      describe('WHEN to date is before from date', () => {
-        it('THEN should adjust from date to start of to date day', () => {
-          const mockSetFilterValue = jest.fn()
-          const fromDate = '2024-02-15T00:00:00.000Z'
-          const toDate = '2024-02-10T00:00:00.000Z'
+    describe('WHEN the from date is changed to a date before the to date', () => {
+      it('THEN should call setFilterValue keeping the existing to date', () => {
+        const { setFilterValue } = renderComponent(
+          '2024-01-01T00:00:00.000Z,2024-01-31T23:59:59.999Z',
+        )
 
-          const to = DateTime.fromISO(toDate).endOf('day')
-          const from = DateTime.fromISO(fromDate)
+        const [fromInput] = screen.getAllByRole('textbox')
 
-          if (to < from) {
-            mockSetFilterValue(`${to.startOf('day').toISO()},${to.toISO()}`)
-          }
+        fireEvent.change(fromInput, { target: { value: '01/15/2024' } })
 
-          expect(mockSetFilterValue).toHaveBeenCalled()
-          const callArg = mockSetFilterValue.mock.calls[0][0] as string
-          const [resultFrom, resultTo] = callArg.split(',')
-
-          expect(DateTime.fromISO(resultFrom).day).toBe(10)
-          expect(DateTime.fromISO(resultTo).day).toBe(10)
-        })
-      })
-
-      describe('WHEN to date is after from date', () => {
-        it('THEN should keep from date unchanged', () => {
-          const mockSetFilterValue = jest.fn()
-          const fromDate = '2024-02-05T00:00:00.000Z'
-          const toDate = '2024-02-10T00:00:00.000Z'
-
-          const to = DateTime.fromISO(toDate).endOf('day')
-          const from = DateTime.fromISO(fromDate)
-
-          if (to < from) {
-            mockSetFilterValue(`${to.startOf('day').toISO()},${to.toISO()}`)
-          } else {
-            mockSetFilterValue(`${fromDate},${to.toISO()}`)
-          }
-
-          const callArg = mockSetFilterValue.mock.calls[0][0] as string
-
-          expect(callArg).toContain(fromDate)
-        })
+        expect(setFilterValue).toHaveBeenCalledWith(
+          '2024-01-15T00:00:00.000Z,2024-01-31T23:59:59.999Z',
+        )
       })
     })
-  })
 
-  describe('default value', () => {
-    describe('GIVEN no value is provided', () => {
-      it('THEN should default to comma separator', () => {
-        const defaultValue = ','
-        const [from, to] = defaultValue.split(',')
+    describe('WHEN the to date is changed to a date after the from date', () => {
+      it('THEN should call setFilterValue keeping the existing from date', () => {
+        const { setFilterValue } = renderComponent(
+          '2024-01-01T00:00:00.000Z,2024-01-31T23:59:59.999Z',
+        )
 
-        expect(from).toBe('')
-        expect(to).toBe('')
+        const toInput = screen.getAllByRole('textbox')[1]
+
+        fireEvent.change(toInput, { target: { value: '02/15/2024' } })
+
+        expect(setFilterValue).toHaveBeenCalledWith(
+          '2024-01-01T00:00:00.000Z,2024-02-15T23:59:59.999Z',
+        )
+      })
+    })
+
+    describe('WHEN the from date is changed to a date after the to date', () => {
+      it('THEN should clamp the to date instead of persisting an inverted range', () => {
+        const { setFilterValue } = renderComponent(
+          '2024-01-01T00:00:00.000Z,2024-01-15T23:59:59.999Z',
+        )
+
+        const [fromInput] = screen.getAllByRole('textbox')
+
+        fireEvent.change(fromInput, { target: { value: '02/15/2024' } })
+
+        expect(setFilterValue).toHaveBeenCalledWith(
+          '2024-02-15T00:00:00.000Z,2024-02-15T23:59:59.999Z',
+        )
+      })
+    })
+
+    describe('WHEN the to date is changed to a date before the from date', () => {
+      it('THEN should clamp the from date instead of persisting an inverted range', () => {
+        const { setFilterValue } = renderComponent(
+          '2024-01-15T00:00:00.000Z,2024-01-31T23:59:59.999Z',
+        )
+
+        const toInput = screen.getAllByRole('textbox')[1]
+
+        fireEvent.change(toInput, { target: { value: '01/05/2024' } })
+
+        expect(setFilterValue).toHaveBeenCalledWith(
+          '2024-01-05T00:00:00.000Z,2024-01-05T23:59:59.999Z',
+        )
       })
     })
   })

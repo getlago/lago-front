@@ -1,6 +1,6 @@
 import { FetchResult, gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { addToast, hasDefinedGQLError, PspErrorCode } from '~/core/apolloClient'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
@@ -32,68 +32,83 @@ gql`
     currency
     paymentProvider
     paymentProviderCode
-    # Name in the customer is netsuiteCustomer, but it's used as integrationCustomer in the create update inputs
-    netsuiteCustomer {
-      __typename
+    paymentProviderCustomers {
       id
-      integrationId
-      externalCustomerId
-      integrationCode
-      integrationType
-      subsidiaryId
-      syncWithProvider
-    }
-    anrokCustomer {
-      __typename
-      id
-      integrationId
-      externalCustomerId
-      integrationCode
-      integrationType
-      syncWithProvider
-    }
-    avalaraCustomer {
-      __typename
-      id
-      integrationId
-      externalCustomerId
-      integrationCode
-      integrationType
-      syncWithProvider
-    }
-    xeroCustomer {
-      __typename
-      id
-      integrationId
-      externalCustomerId
-      integrationCode
-      integrationType
-      syncWithProvider
-    }
-    hubspotCustomer {
-      __typename
-      id
-      integrationId
-      externalCustomerId
-      integrationCode
-      integrationType
-      syncWithProvider
-      targetedObject
-    }
-    salesforceCustomer {
-      __typename
-      id
-      integrationId
-      externalCustomerId
-      integrationCode
-      integrationType
-      syncWithProvider
-    }
-    providerCustomer {
-      id
+      code
+      isDefault
       providerCustomerId
-      syncWithProvider
       providerPaymentMethods
+      syncWithProvider
+    }
+    integrationCustomers {
+      ... on NetsuiteCustomer {
+        __typename
+        id
+        integrationId
+        externalCustomerId
+        integrationCode
+        code
+        integrationType
+        isDefault
+        subsidiaryId
+        syncWithProvider
+      }
+      ... on AnrokCustomer {
+        __typename
+        id
+        integrationId
+        externalCustomerId
+        integrationCode
+        code
+        integrationType
+        isDefault
+        syncWithProvider
+      }
+      ... on AvalaraCustomer {
+        __typename
+        id
+        integrationId
+        externalCustomerId
+        integrationCode
+        code
+        integrationType
+        isDefault
+        syncWithProvider
+      }
+      ... on XeroCustomer {
+        __typename
+        id
+        integrationId
+        externalCustomerId
+        integrationCode
+        code
+        integrationType
+        isDefault
+        syncWithProvider
+      }
+      ... on HubspotCustomer {
+        __typename
+        id
+        integrationId
+        externalCustomerId
+        integrationCode
+        code
+        integrationType
+        isDefault
+        syncWithProvider
+        targetedObject
+      }
+      ... on SalesforceCustomer {
+        __typename
+        id
+        integrationId
+        externalCustomerId
+        integrationCode
+        code
+        integrationType
+        isDefault
+        syncWithProvider
+      }
     }
   }
 

@@ -50,7 +50,7 @@ export interface WalletFormItem {
 }
 
 // --- Wire shape (camelCase), sent under `payload` ---
-export interface RecurringTransactionRulePayload {
+interface RecurringTransactionRulePayload {
   trigger: string
   method: string
   interval: string | null

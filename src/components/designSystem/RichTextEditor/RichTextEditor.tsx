@@ -49,7 +49,7 @@ import { PricingBlock } from './extensions/PricingBlock'
 import { type PricingBlockAttributes } from './extensions/PricingBlock.schema'
 import { QuoteImageSchema } from './extensions/QuoteImage'
 import { QuoteImageNodeView } from './extensions/QuoteImageNodeView'
-import { SlashCommands } from './extensions/SlashCommands'
+import { insertPricingBlock, SlashCommands } from './extensions/SlashCommands'
 import { TableCommands } from './extensions/TableCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
 import { type MentionItem, MentionList, type MentionListRef } from './Mentions/MentionList'
@@ -69,6 +69,7 @@ interface RichTextEditorProps {
   templates?: EditorTemplate[]
   getMarkdownRef?: React.MutableRefObject<(() => string) | null>
   removeBlockRef?: React.MutableRefObject<((localId: string) => void) | null>
+  insertPricingBlockRef?: React.MutableRefObject<(() => void) | null>
   onChange?: () => void
   onPricingCommand?: OnPricingCommand
   isPricingDisabled?: () => boolean
@@ -274,6 +275,7 @@ const RichTextEditor = ({
   templates,
   getMarkdownRef,
   removeBlockRef,
+  insertPricingBlockRef,
   onPricingCommand,
   isPricingDisabled,
   onPricingBlocksChange,
@@ -456,6 +458,24 @@ const RichTextEditor = ({
   }, [getMarkdownRef, getMarkdown])
 
   useEffect(() => {
+    if (!insertPricingBlockRef) return
+
+    insertPricingBlockRef.current = () => {
+      const handler = onPricingCommandRef.current
+
+      if (!editor || !handler) return
+
+      insertPricingBlock(editor, handler, { at: 'end' })
+    }
+
+    return () => {
+      if (insertPricingBlockRef) {
+        insertPricingBlockRef.current = null
+      }
+    }
+  }, [insertPricingBlockRef, editor])
+
+  useEffect(() => {
     if (!removeBlockRef) return
 
     removeBlockRef.current = (localId: string) => {
@@ -466,11 +486,18 @@ const RichTextEditor = ({
       editor.state.doc.descendants((node, pos) => {
         if (target) return false
 
+        // Blocks are identified by a client-side local id when they have one, and by the
+        // catalog entity they point at otherwise — a subscription pricing block carries
+        // `entityIds` only, so leaving it out made every removal of one a silent no-op
+        // (a failed insert then left its orphaned block behind). The two id namespaces
+        // never overlap, so a single lookup covering both cannot cross-match.
         const isTargetBlock =
           (node.type.name === 'discountBlock' ||
             node.type.name === 'pricingBlock' ||
             node.type.name === 'creditsBlock') &&
-          (node.attrs.localId === localId || node.attrs.localEntityIds?.includes(localId))
+          (node.attrs.localId === localId ||
+            node.attrs.localEntityIds?.includes(localId) ||
+            node.attrs.entityIds?.includes(localId))
 
         if (isTargetBlock) {
           target = { from: pos, to: pos + node.nodeSize }

@@ -19,7 +19,7 @@ const ResendEmailHeaderContent = withForm({
     const { translate } = useInternationalization()
 
     return (
-      <div className="grid grid-cols-[min-content_auto] grid-rows-4 gap-x-3 gap-y-4">
+      <div className="grid grid-cols-[min-content_auto] gap-x-3 gap-y-4">
         {/* Margin top 12px to mimic vertical center */}
         <Typography color="grey700" className="mt-3">
           {translate('text_17706288935587mtvu3z5stp')}

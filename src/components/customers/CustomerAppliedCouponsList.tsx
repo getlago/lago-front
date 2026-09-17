@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
 import { APPLIED_COUPON_STATUS_CONFIG } from '~/components/coupons/utils'
@@ -199,6 +199,7 @@ export const CustomerAppliedCouponsList = ({
               subtitle: translate('text_17744692844137gqe9ung3gl'),
             },
           }}
+          rowLinkLabel={({ coupon }) => coupon?.name ?? ''}
           onRowActionLink={getRowActionLink}
           columns={columns}
           actionColumn={actionColumn}

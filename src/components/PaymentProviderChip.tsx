@@ -2,16 +2,11 @@ import type { TypographyProps as MuiTypographyProps } from '@mui/material/Typogr
 import { Icon } from 'lago-design-system'
 import { FC } from 'react'
 
+import { paymentAvatarMapping } from '~/components/avatarMappings'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Typography, TypographyColor } from '~/components/designSystem/Typography'
 import { ProviderTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import Adyen from '~/public/images/adyen.svg'
-import Cashfree from '~/public/images/cashfree.svg'
-import Flutterwave from '~/public/images/flutterwave.svg'
-import Gocardless from '~/public/images/gocardless.svg'
-import Moneyhash from '~/public/images/moneyhash.svg'
-import Stripe from '~/public/images/stripe.svg'
 import { tw } from '~/styles/utils'
 
 interface PaymentProviderChipProps {
@@ -30,19 +25,6 @@ const providerLabels: Record<ProviderTypeEnum, string> = {
   [ProviderTypeEnum.Cashfree]: 'text_17367626793434wkg1rk0114',
   [ProviderTypeEnum.Flutterwave]: 'text_1749724395108m0swrna0zt4',
   [ProviderTypeEnum.Moneyhash]: 'text_1733427981129n3wxjui0bex',
-}
-
-const ProviderIcon: FC<{ provider: ProviderTypeEnum }> = ({ provider }) => {
-  const icons: Record<ProviderTypeEnum, JSX.Element> = {
-    [ProviderTypeEnum.Stripe]: <Stripe />,
-    [ProviderTypeEnum.Adyen]: <Adyen />,
-    [ProviderTypeEnum.Gocardless]: <Gocardless />,
-    [ProviderTypeEnum.Cashfree]: <Cashfree />,
-    [ProviderTypeEnum.Flutterwave]: <Flutterwave />,
-    [ProviderTypeEnum.Moneyhash]: <Moneyhash />,
-  }
-
-  return icons[provider]
 }
 
 export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
@@ -74,7 +56,7 @@ export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
           {isManual ? (
             <Icon name="receipt" color="dark" size="small" />
           ) : (
-            <ProviderIcon provider={paymentProvider} />
+            paymentAvatarMapping[paymentProvider]
           )}
         </Avatar>
       )}

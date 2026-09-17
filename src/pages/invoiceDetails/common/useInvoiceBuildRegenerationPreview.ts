@@ -58,7 +58,6 @@ gql`
       code
       einvoicing
       email
-      emailSettings
       logoUrl
       name
     }

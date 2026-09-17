@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useMemo } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
@@ -14,8 +14,13 @@ import { SubscriptionActivityLogs } from '~/components/subscriptions/Subscriptio
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
 import { SubscriptionEntitlementsTabContent } from '~/components/subscriptions/SubscriptionEntitlementsTabContent'
 import { SubscriptionProgressiveBillingTab } from '~/components/subscriptions/SubscriptionProgressiveBillingTab/SubscriptionProgressiveBillingTab'
+import {
+  SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID,
+  SUBSCRIPTION_DETAILS_CANCEL_TEST_ID,
+} from '~/components/subscriptions/subscriptionTestIds'
 import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
 import { addToast } from '~/core/apolloClient'
+import { isSubscriptionCancellation } from '~/core/constants/statusSubscriptionMapping'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE,
@@ -39,6 +44,8 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useSubscriptionPermissionsActions } from '~/hooks/useSubscriptionPermissionsActions'
+
+export { SUBSCRIPTION_DETAILS_CANCEL_TEST_ID } from '~/components/subscriptions/subscriptionTestIds'
 
 gql`
   query getSubscriptionForDetails($subscriptionId: ID!) {
@@ -68,7 +75,6 @@ gql`
   ${SubscriptionForProgressiveBillingTabFragmentDoc}
 `
 
-export const SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID = 'subscription-details-actions'
 export const SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID =
   'subscription-details-upgrade-downgrade'
 export const SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID = 'subscription-details-terminate'
@@ -77,7 +83,8 @@ const SubscriptionDetails = () => {
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const { canEditSubscription, isStatusEditable } = useSubscriptionPermissionsActions()
+  const { canEditSubscription, canTerminateSubscription, isStatusEditable } =
+    useSubscriptionPermissionsActions()
   const { planId = '', customerId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
   const { openTerminateCustomerSubscriptionDialog } = useTerminateCustomerSubscriptionDialog()
@@ -355,9 +362,13 @@ const SubscriptionDetails = () => {
           },
         },
         {
-          label: translate('text_62d904b97e690a881f2b867c'),
-          dataTest: SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
-          hidden: !canEditSubscription(subscription?.status),
+          label: isSubscriptionCancellation(subscription?.status)
+            ? translate('text_64a6d736c23125004817627f')
+            : translate('text_62d904b97e690a881f2b867c'),
+          dataTest: isSubscriptionCancellation(subscription?.status)
+            ? SUBSCRIPTION_DETAILS_CANCEL_TEST_ID
+            : SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
+          hidden: !canTerminateSubscription(subscription?.status),
           danger: true,
           onClick: (closePopper) => {
             openTerminateCustomerSubscriptionDialog({

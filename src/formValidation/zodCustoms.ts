@@ -1,8 +1,33 @@
+import { DateTime } from 'luxon'
 import { z } from 'zod'
 
+import { MIN_SUPPORTED_DATE, UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
 import { validateHostWithoutProtocol } from '~/core/utils/validateHostWithoutProtocol'
 import { allPermissions } from '~/pages/settings/teamAndSecurity/roles/common/permissionsConst'
 import { PermissionName } from '~/pages/settings/teamAndSecurity/roles/common/permissionsTypes'
+
+/**
+ * `DatePicker` publishes whatever the user typed, so a date the API cannot store reaches
+ * the form and the floor is the schema's rule — never the input's. Pass a stricter `floor`
+ * to keep the 1970 guarantee while adding your own bound. Returns whether an issue was
+ * added, so a caller can skip the rules that would only restate it.
+ */
+export const addUnsupportedDateIssue = (
+  ctx: z.RefinementCtx,
+  value: string | null | undefined,
+  path: (string | number)[],
+  floor: DateTime = MIN_SUPPORTED_DATE,
+): boolean => {
+  if (!value) return false
+
+  const date = DateTime.fromISO(value)
+
+  if (date.isValid && date.toUTC() >= floor) return false
+
+  ctx.addIssue({ code: 'custom', message: UNSUPPORTED_DATE_ERROR, path })
+
+  return true
+}
 
 export const EMAIL_REGEX: RegExp =
   // eslint-disable-next-line no-control-regex
@@ -11,7 +36,7 @@ export const EMAIL_REGEX: RegExp =
 const DOMAIN_REGEX: RegExp =
   /^((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})$/
 
-export const zodMultipleEmails = z.string().refine((val) => {
+export const isMultipleEmailsValid = (val: string): boolean => {
   if (!val) return true
   if (typeof val !== 'string') return false
   const separatedEmails = val.split(',').map((mail) => mail.trim())
@@ -23,7 +48,11 @@ export const zodMultipleEmails = z.string().refine((val) => {
   }
 
   return true
-}, 'text_620bc4d4269a55014d493fc3')
+}
+
+export const zodMultipleEmails = z
+  .string()
+  .refine(isMultipleEmailsValid, 'text_620bc4d4269a55014d493fc3')
 
 export const zodDomain = z.string().refine((val) => {
   if (typeof val !== 'string') return false

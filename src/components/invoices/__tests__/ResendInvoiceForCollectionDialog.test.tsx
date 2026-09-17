@@ -177,14 +177,35 @@ describe('ResendInvoiceForCollectionDialog', () => {
   })
 
   describe('Submit Behavior', () => {
-    it('disables submit button when no payment method is selected', async () => {
+    it('keeps submit button enabled when no payment method is selected', async () => {
       await renderAndOpenDialog()
 
       const resendButton = screen.getByTestId(
         RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID,
       )
 
-      expect(resendButton).toBeDisabled()
+      expect(resendButton).not.toBeDisabled()
+    })
+
+    it('calls mutation without payment method when none is selected', async () => {
+      await renderAndOpenDialog()
+
+      const resendButton = screen.getByTestId(
+        RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID,
+      )
+
+      await userEvent.click(resendButton)
+
+      await waitFor(() => {
+        expect(mockRetryInvoicePayment).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              id: 'invoice-123',
+              paymentMethod: undefined,
+            },
+          },
+        })
+      })
     })
 
     it('calls mutation with manually selected payment method', async () => {

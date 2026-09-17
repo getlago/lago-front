@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { act } from 'react'
 
@@ -7,7 +7,10 @@ import { makeEmptyWalletItem, toWallets } from '~/core/serializers/serializeQuot
 import { CurrencyEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
-import EditQuote from '../EditQuote'
+import EditQuote, {
+  EDIT_QUOTE_DOCUMENTATION_TEST_ID,
+  EDIT_QUOTE_PRICING_CTA_TEST_ID,
+} from '../EditQuote'
 
 // --- Shared state for mocks ---
 
@@ -21,6 +24,14 @@ type AsideCallbacks = {
 }
 
 let capturedAsideCallbacks: AsideCallbacks = {}
+
+type AsidePricingProps = {
+  hasPricingBlock?: boolean
+  pricingSummary?: string
+  onAddPricingBlock?: () => void
+}
+
+let capturedAsidePricingProps: AsidePricingProps = {}
 
 type PricingCommandParams = {
   onSave: (...args: unknown[]) => void
@@ -36,6 +47,7 @@ let capturedOnCreditsBlocksChange: ((blocks: unknown[]) => void) | undefined
 let capturedEditorCustomerLocale: string | undefined
 let capturedEditorDocumentCurrency: string | undefined
 let capturedRemoveBlockRef: { current: ((localId: string) => void) | null } | undefined
+const mockInsertPricingBlock = jest.fn()
 
 // --- Mocks ---
 
@@ -58,6 +70,7 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
   const MockRichTextEditor = ({
     getMarkdownRef,
     removeBlockRef,
+    insertPricingBlockRef,
     onChange,
     onPricingCommand,
     onPricingBlocksChange,
@@ -70,6 +83,7 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
   }: {
     getMarkdownRef?: React.MutableRefObject<(() => string) | null>
     removeBlockRef?: React.MutableRefObject<((localId: string) => void) | null>
+    insertPricingBlockRef?: React.MutableRefObject<(() => void) | null>
     onChange?: () => void
     onPricingCommand?: (params: PricingCommandParams) => void
     onPricingBlocksChange?: (blocks: unknown[]) => void
@@ -95,14 +109,22 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
       capturedEditorDocumentCurrency = documentCurrency
       capturedRemoveBlockRef = removeBlockRef
 
+      if (insertPricingBlockRef) {
+        insertPricingBlockRef.current = mockInsertPricingBlock
+      }
+
       return () => {
         if (getMarkdownRef) {
           getMarkdownRef.current = null
+        }
+        if (insertPricingBlockRef) {
+          insertPricingBlockRef.current = null
         }
       }
     }, [
       getMarkdownRef,
       removeBlockRef,
+      insertPricingBlockRef,
       onChange,
       onPricingCommand,
       onPricingBlocksChange,
@@ -128,6 +150,9 @@ jest.mock('../editQuote/EditQuoteAside', () => {
     __esModule: true,
     default: (props: {
       isSaving?: boolean
+      hasPricingBlock?: boolean
+      pricingSummary?: string
+      onAddPricingBlock?: () => void
       onSaveStart?: () => void
       onSaveFinished?: () => void
       onSaveError?: (payload: unknown) => void
@@ -136,6 +161,11 @@ jest.mock('../editQuote/EditQuoteAside', () => {
         onSaveStart: props.onSaveStart,
         onSaveFinished: props.onSaveFinished,
         onSaveError: props.onSaveError,
+      }
+      capturedAsidePricingProps = {
+        hasPricingBlock: props.hasPricingBlock,
+        pricingSummary: props.pricingSummary,
+        onAddPricingBlock: props.onAddPricingBlock,
       }
 
       return <div data-test="mock-edit-quote-aside" data-is-saving={String(!!props.isSaving)} />
@@ -187,6 +217,14 @@ const mockQuote = {
     name: 'Acme Corp',
     externalId: 'ext-cust-1',
     currency: null,
+    netPaymentTerm: 30,
+    billingEntity: {
+      __typename: 'BillingEntity' as const,
+      id: 'be-1',
+      code: 'default',
+      name: 'Default Entity',
+      netPaymentTerm: 60,
+    },
     billingConfiguration: {
       documentLocale: null,
     },
@@ -200,8 +238,7 @@ const mockQuote = {
     version: 1,
     content: 'Some content',
     currency: 'USD',
-    startDate: null,
-    endDate: null,
+    billingEntityId: null,
     createdAt: '2026-01-01',
   },
 }
@@ -214,9 +251,12 @@ jest.mock('../hooks/useQuote', () => ({
   useQuote: (...args: unknown[]) => mockUseQuote(...args),
 }))
 
+let mockPricingEntities: Record<string, { entityId: string; name: string }> = {}
+
 const mockDrawerOnPricingCommand = jest.fn()
 const mockSyncEntitiesWithBlocks = jest.fn().mockReturnValue(null)
 let capturedPricingDrawerArgs: unknown[] = []
+let capturedOneOffDrawerArgs: unknown[] = []
 
 jest.mock('../hooks/useSubscriptionPricingDrawer', () => ({
   useSubscriptionPricingDrawer: (...args: unknown[]) => {
@@ -225,19 +265,23 @@ jest.mock('../hooks/useSubscriptionPricingDrawer', () => ({
     return {
       onPricingCommand: mockDrawerOnPricingCommand,
       isPricingDisabled: () => false,
-      entities: {},
+      entities: mockPricingEntities,
       syncEntitiesWithBlocks: mockSyncEntitiesWithBlocks,
     }
   },
 }))
 
 jest.mock('../hooks/useOneOffPricingDrawer', () => ({
-  useOneOffPricingDrawer: () => ({
-    onPricingCommand: jest.fn(),
-    isPricingDisabled: () => false,
-    entities: {},
-    syncEntitiesWithBlocks: jest.fn().mockReturnValue(null),
-  }),
+  useOneOffPricingDrawer: (...args: unknown[]) => {
+    capturedOneOffDrawerArgs = args
+
+    return {
+      onPricingCommand: jest.fn(),
+      isPricingDisabled: () => false,
+      entities: {},
+      syncEntitiesWithBlocks: jest.fn().mockReturnValue(null),
+    }
+  },
 }))
 
 const mockDiscountOnDiscountCommand = jest.fn()
@@ -297,11 +341,14 @@ describe('EditQuote', () => {
     capturedEditorDocumentCurrency = undefined
     capturedRemoveBlockRef = undefined
     capturedPricingDrawerArgs = []
+    capturedOneOffDrawerArgs = []
     capturedDiscountDrawerOptions = undefined
+    capturedAsidePricingProps = {}
+    mockPricingEntities = {}
     mockSyncEntitiesWithBlocks.mockReturnValue(null)
     mockSyncDiscountBlocks.mockReturnValue(null)
 
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ quoteId: 'quote-123' })
     mockUseQuote.mockReturnValue({ quote: mockQuote, loading: false, refetch: mockRefetchQuote })
@@ -315,6 +362,18 @@ describe('EditQuote', () => {
         render(<EditQuote />)
 
         expect(screen.queryByText('Q-001 - v1')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the page is opened', () => {
+    describe('WHEN the quote is fetched', () => {
+      // The restored persisted cache would otherwise initialize the editor with the previous
+      // content, which it keeps until the next reload.
+      it('THEN should bypass the cache and read the quote from the server', () => {
+        render(<EditQuote />)
+
+        expect(mockUseQuote).toHaveBeenCalledWith('quote-123', { fetchPolicy: 'network-only' })
       })
     })
   })
@@ -429,7 +488,7 @@ describe('EditQuote', () => {
 
     describe('WHEN quoteId is not available', () => {
       it('THEN should not navigate', async () => {
-        const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+        const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
         useParamsMock.mockReturnValue({})
 
@@ -465,6 +524,49 @@ describe('EditQuote', () => {
         await waitFor(() => {
           expect(screen.getByText('text_1779278937735vlpgsllouzy')).toBeInTheDocument()
         })
+      })
+    })
+  })
+
+  describe('GIVEN the documentation link', () => {
+    describe('WHEN the quote is loaded', () => {
+      it('THEN should display the documentation button in the header', () => {
+        render(<EditQuote />)
+
+        const header = screen.getByTestId(RIGHT_ASIDE_PAGE_HEADER_TEST_ID)
+
+        expect(within(header).getByTestId(EDIT_QUOTE_DOCUMENTATION_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the documentation button is clicked', () => {
+      it('THEN should open the quote editor documentation in a new tab', async () => {
+        const user = userEvent.setup()
+        const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null)
+
+        render(<EditQuote />)
+
+        await user.click(screen.getByTestId(EDIT_QUOTE_DOCUMENTATION_TEST_ID))
+
+        expect(openSpy).toHaveBeenCalledWith(
+          'https://docs.getlago.com/guide/quotes/quote-editor',
+          '_blank',
+        )
+
+        openSpy.mockRestore()
+      })
+
+      it('THEN should not navigate away from the editor', async () => {
+        const user = userEvent.setup()
+        const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null)
+
+        render(<EditQuote />)
+
+        await user.click(screen.getByTestId(EDIT_QUOTE_DOCUMENTATION_TEST_ID))
+
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+
+        openSpy.mockRestore()
       })
     })
   })
@@ -755,8 +857,11 @@ describe('EditQuote', () => {
       })
     })
 
+    // The neutral chip and the saved chip are the very same label, so a header left on
+    // `idle` after a rejected save reads as "Saved" — the drawer's toast is then the only
+    // trace, and it is gone as soon as the drawer is closed.
     describe('WHEN savePricingBlock throws (drawer-originated save)', () => {
-      it('THEN should not display the header error status chip — the drawer surfaces the error', async () => {
+      it('THEN should report the failure in the header rather than a saved state', async () => {
         mockUpdateQuoteVersion.mockRejectedValue(new Error('Network error'))
 
         render(<EditQuote />)
@@ -771,18 +876,16 @@ describe('EditQuote', () => {
           wrappedOnSave({}, {}, [{ addOnId: 'addon-1' }])
         })
 
-        // The header should revert to the neutral/idle chip, not the error chip —
-        // the drawer stays open and surfaces the failure itself.
         await waitFor(() => {
-          expect(screen.getByText('text_1779268404389wpd2ysgatw4')).toBeInTheDocument()
+          expect(screen.getByText('text_1779437694622y666yr137gm')).toBeInTheDocument()
         })
 
-        expect(screen.queryByText('text_1779437694622y666yr137gm')).not.toBeInTheDocument()
+        expect(screen.queryByText('text_1779268404389wpd2ysgatw4')).not.toBeInTheDocument()
       })
     })
 
     describe('WHEN savePricingBlock resolves with errors (drawer-originated save)', () => {
-      it('THEN should not display the header error status chip — the drawer surfaces the error', async () => {
+      it('THEN should report the failure in the header rather than a saved state', async () => {
         mockUpdateQuoteVersion.mockResolvedValueOnce({
           data: null,
           errors: [{ message: 'Some GraphQL error' }],
@@ -801,12 +904,170 @@ describe('EditQuote', () => {
         })
 
         await waitFor(() => {
-          expect(screen.getByText('text_1779268404389wpd2ysgatw4')).toBeInTheDocument()
+          expect(screen.getByText('text_1779437694622y666yr137gm')).toBeInTheDocument()
         })
 
-        expect(screen.queryByText('text_1779437694622y666yr137gm')).not.toBeInTheDocument()
+        expect(screen.queryByText('text_1779268404389wpd2ysgatw4')).not.toBeInTheDocument()
         // refetchQuote should not be triggered for a failed save
         expect(mockRefetchQuote).not.toHaveBeenCalled()
+      })
+    })
+
+    // The insertion of the block changes the document, which schedules the editor's own
+    // content-only autosave. That save must never be the one that has the last word: it
+    // would report success for a content whose billing items the API rejected, leaving a
+    // block in the quote with nothing behind it.
+    describe('GIVEN a content autosave is pending when a pricing save fails', () => {
+      beforeEach(() => {
+        jest.useFakeTimers()
+      })
+
+      afterEach(() => {
+        jest.useRealTimers()
+      })
+
+      const renderReady = async (): Promise<void> => {
+        render(<EditQuote />)
+
+        await act(async () => {
+          jest.advanceTimersByTime(0)
+        })
+      }
+
+      // Mirrors production ordering: inserting the node fires the editor's onChange
+      // synchronously, then the drawer's unified save runs.
+      const insertBlockThenSave = async (attrs: Record<string, unknown>): Promise<void> => {
+        act(() => {
+          capturedOnPricingCommand?.({ onSave: jest.fn() })
+        })
+
+        const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+
+        mockMarkdownContent = '<!-- entity:pricing:plan:plan-1 -->'
+
+        act(() => {
+          capturedOnChange?.()
+        })
+
+        await act(async () => {
+          await wrappedOnSave(attrs, {}, { plans: [{ id: 'plan-1' }] })
+        })
+      }
+
+      describe('WHEN the pricing save is rejected', () => {
+        it('THEN should drop the pending content-only save instead of letting it report success', async () => {
+          mockUpdateQuoteVersion.mockResolvedValue({
+            data: null,
+            errors: [{ message: 'Some GraphQL error' }],
+          })
+
+          await renderReady()
+          await insertBlockThenSave({ pricingType: 'plan', entityIds: ['plan-1'] })
+
+          await act(async () => {
+            jest.advanceTimersByTime(2000)
+          })
+
+          // Only the unified save ran — no content-only call followed it.
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledTimes(1)
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            expect.objectContaining({ billingItems: { plans: [{ id: 'plan-1' }] } }),
+            false,
+          )
+        })
+      })
+
+      describe('WHEN the content changes again after a rejected pricing edit', () => {
+        it('THEN should carry the unsaved billing items along rather than the content alone', async () => {
+          mockUpdateQuoteVersion.mockResolvedValue({
+            data: null,
+            errors: [{ message: 'Some GraphQL error' }],
+          })
+
+          await renderReady()
+          // `editData` marks an edit of an existing block: it is never rolled back, so its
+          // block stays in the document with its billing items still unsaved.
+          act(() => {
+            capturedOnPricingCommand?.({
+              onSave: jest.fn(),
+              editData: { pricingType: 'plan', entityIds: ['plan-1'] },
+            })
+          })
+
+          const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+
+          await act(async () => {
+            await wrappedOnSave(
+              { pricingType: 'plan', entityIds: ['plan-1'] },
+              {},
+              {
+                plans: [{ id: 'plan-1' }],
+              },
+            )
+          })
+
+          mockMarkdownContent = '<!-- entity:pricing:plan:plan-1 -->\n\nSome prose'
+
+          act(() => {
+            capturedOnChange?.()
+          })
+
+          await act(async () => {
+            jest.advanceTimersByTime(2000)
+          })
+
+          expect(mockUpdateQuoteVersion).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+              content: '<!-- entity:pricing:plan:plan-1 -->\n\nSome prose',
+              billingItems: { plans: [{ id: 'plan-1' }] },
+            }),
+            false,
+          )
+        })
+      })
+
+      describe('WHEN the failed insert is rolled back', () => {
+        it('THEN should report saved again and stop carrying the abandoned billing items', async () => {
+          mockUpdateQuoteVersion.mockResolvedValueOnce({
+            data: null,
+            errors: [{ message: 'Some GraphQL error' }],
+          })
+
+          await renderReady()
+
+          if (capturedRemoveBlockRef) {
+            capturedRemoveBlockRef.current = () => {
+              // The real editor drops the block, taking the document back to the
+              // content that is stored.
+              mockMarkdownContent = '# Mock markdown content'
+            }
+          }
+
+          await insertBlockThenSave({ pricingType: 'plan', entityIds: ['plan-1'] })
+
+          // The document matches what is stored again, so the saved chip is truthful and
+          // no retry is offered.
+          expect(screen.queryByText('text_1779437694622y666yr137gm')).not.toBeInTheDocument()
+          expect(screen.getByText('text_1779268404389wpd2ysgatw4')).toBeInTheDocument()
+
+          mockUpdateQuoteVersion.mockResolvedValue({
+            data: { updateQuoteVersion: { id: 'version-1' } },
+          })
+          mockMarkdownContent = '# Mock markdown content edited'
+
+          act(() => {
+            capturedOnChange?.()
+          })
+
+          await act(async () => {
+            jest.advanceTimersByTime(2000)
+          })
+
+          expect(mockUpdateQuoteVersion).toHaveBeenLastCalledWith(
+            { id: 'version-1', content: '# Mock markdown content edited' },
+            false,
+          )
+        })
       })
     })
 
@@ -1075,6 +1336,106 @@ describe('EditQuote', () => {
         const options = capturedPricingDrawerArgs[1] as { customer?: { currency?: string } }
 
         expect(options.customer?.currency).toBe('EUR')
+      })
+    })
+  })
+
+  describe('GIVEN a subscription amendment quote', () => {
+    const renderAmendment = (): { isAmendment?: boolean; netPaymentTerm?: number | null } => {
+      mockUseQuote.mockReturnValue({
+        quote: { ...mockQuote, orderType: 'subscription_amendment' },
+        loading: false,
+        refetch: mockRefetchQuote,
+      })
+
+      render(<EditQuote />)
+
+      return capturedPricingDrawerArgs[1] as {
+        isAmendment?: boolean
+        netPaymentTerm?: number | null
+      }
+    }
+
+    describe('WHEN the pricing drawer options are built', () => {
+      it('THEN should flag the amendment', () => {
+        expect(renderAmendment().isAmendment).toBe(true)
+      })
+
+      it('THEN should seed no quote-level dates, which the API no longer accepts', () => {
+        const options = renderAmendment() as Record<string, unknown>
+
+        expect(options).not.toHaveProperty('quoteDates')
+        expect(options).not.toHaveProperty('onDatesChange')
+      })
+    })
+  })
+
+  describe('GIVEN a subscription amendment quote with no currency yet', () => {
+    describe('WHEN the page materializes the quote currency', () => {
+      it('THEN should skip the backfill, which the API refuses on an amendment', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            orderType: 'subscription_amendment',
+            currentVersion: { ...mockQuote.currentVersion, currency: null },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+
+      it('THEN should still backfill it on a subscription creation', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            currentVersion: { ...mockQuote.currentVersion, currency: null },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+          expect.objectContaining({ currency: expect.any(String) }),
+          false,
+        )
+      })
+    })
+  })
+
+  describe('GIVEN the resolved payment term', () => {
+    describe('WHEN the customer carries its own term', () => {
+      it('THEN should pass it to both pricing drawers', () => {
+        render(<EditQuote />)
+
+        expect(capturedPricingDrawerArgs[1]).toEqual(
+          expect.objectContaining({ netPaymentTerm: 30 }),
+        )
+        expect(capturedOneOffDrawerArgs[1]).toEqual(expect.objectContaining({ netPaymentTerm: 30 }))
+      })
+    })
+
+    describe('WHEN the customer has no term of its own', () => {
+      it('THEN should fall back to the billing entity term', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            customer: { ...mockQuote.customer, netPaymentTerm: null },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(capturedPricingDrawerArgs[1]).toEqual(
+          expect.objectContaining({ netPaymentTerm: 60 }),
+        )
       })
     })
   })
@@ -1433,6 +1794,127 @@ describe('EditQuote', () => {
           expect(mockUpdateQuoteVersion).toHaveBeenCalled()
         })
         expect(mockUpdateQuoteVersion.mock.calls[0][0]).not.toHaveProperty('currency')
+      })
+    })
+  })
+  describe('GIVEN the quote has no pricing block', () => {
+    describe('WHEN rendered', () => {
+      it('THEN should display the empty-state CTA below the editor', () => {
+        render(<EditQuote />)
+
+        const cta = screen.getByTestId(EDIT_QUOTE_PRICING_CTA_TEST_ID)
+        const editor = screen.getByTestId('mock-rich-text-editor')
+
+        expect(cta).toBeInTheDocument()
+        expect(editor.compareDocumentPosition(cta) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      })
+
+      it('THEN should tell the aside there is no pricing block', () => {
+        render(<EditQuote />)
+
+        expect(capturedAsidePricingProps.hasPricingBlock).toBe(false)
+      })
+    })
+
+    describe('WHEN the CTA button is clicked', () => {
+      it('THEN should run the editor insert command', async () => {
+        const user = userEvent.setup()
+
+        render(<EditQuote />)
+
+        const cta = screen.getByTestId(EDIT_QUOTE_PRICING_CTA_TEST_ID)
+
+        await user.click(cta.querySelector('button') as HTMLButtonElement)
+
+        expect(mockInsertPricingBlock).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the aside asks to add a pricing block', () => {
+      it('THEN should run the same editor insert command', () => {
+        render(<EditQuote />)
+
+        act(() => {
+          capturedAsidePricingProps.onAddPricingBlock?.()
+        })
+
+        expect(mockInsertPricingBlock).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN a pricing block is inserted in the editor', () => {
+      it('THEN should hide the CTA and tell the aside', () => {
+        render(<EditQuote />)
+
+        act(() => {
+          capturedOnPricingBlocksChange?.([{ pricingType: 'plan', entityIds: ['plan-1'] }])
+        })
+
+        expect(screen.queryByTestId(EDIT_QUOTE_PRICING_CTA_TEST_ID)).not.toBeInTheDocument()
+        expect(capturedAsidePricingProps.hasPricingBlock).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN the quote already has saved pricing', () => {
+    describe.each([
+      ['a subscription plan', { plans: [{ id: 'plan-1' }] }],
+      ['one-off add-ons', { addOns: [{ id: 'addon-1' }] }],
+    ])('WHEN the saved billingItems hold %s', (_label, billingItems) => {
+      // The CTA must not flash on the first paint of a quote that is already priced.
+      it('THEN should never render the CTA', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            currentVersion: { ...mockQuote.currentVersion, billingItems },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(screen.queryByTestId(EDIT_QUOTE_PRICING_CTA_TEST_ID)).not.toBeInTheDocument()
+        expect(capturedAsidePricingProps.hasPricingBlock).toBe(true)
+      })
+    })
+
+    describe('WHEN the last pricing block is removed from the editor', () => {
+      it('THEN should bring the CTA back', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            currentVersion: { ...mockQuote.currentVersion, billingItems: { plans: [{ id: 'p' }] } },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        act(() => {
+          capturedOnPricingBlocksChange?.([])
+        })
+
+        expect(screen.getByTestId(EDIT_QUOTE_PRICING_CTA_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN priced entities are cached by the pricing drawer', () => {
+    describe('WHEN the aside receives the pricing summary', () => {
+      // The drawer indexes each add-on twice — by localId and by catalog id — so an
+      // undeduped summary would repeat every name.
+      it('THEN should list each entity name once', () => {
+        mockPricingEntities = {
+          'local-1': { entityId: 'addon-1', name: 'Setup fee' },
+          'addon-1': { entityId: 'addon-1', name: 'Setup fee' },
+          'local-2': { entityId: 'addon-2', name: 'Support pack' },
+        }
+
+        render(<EditQuote />)
+
+        expect(capturedAsidePricingProps.pricingSummary).toBe('Setup fee, Support pack')
       })
     })
   })

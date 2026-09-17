@@ -1,0 +1,158 @@
+import { gql } from '@apollo/client'
+import { useCallback, useMemo } from 'react'
+import { useSearchParams } from 'react-router'
+
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
+import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
+import { Table } from '~/components/designSystem/Table/Table'
+import {
+  Filters,
+  formatFiltersForRateCardsQuery,
+  RateCardAvailableFilters,
+} from '~/components/Filters'
+import { SearchInput } from '~/components/SearchInput'
+import { RATE_CARD_LIST_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
+import { RateCardForListFragmentDoc, useRateCardsLazyQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { usePermissions } from '~/hooks/usePermissions'
+
+import {
+  RATE_CARD_DRAWER_TITLE_CREATE_KEY,
+  useRateCardDrawer,
+} from './drawers/rateCard/useRateCardDrawer'
+import { useRateCardTableActions } from './useRateCardTableActions'
+import { useRateCardTableColumns } from './useRateCardTableColumns'
+
+// The operation is intentionally named `rateCards` (lowercase): the rate-card
+// delete dialog (Task 3) refetches active queries by that exact string name.
+gql`
+  query rateCards(
+    $page: Int
+    $limit: Int
+    $searchTerm: String
+    $productIds: [ID!]
+    $productFilterIds: [ID!]
+    $productCategoryIds: [ID!]
+  ) {
+    rateCards(
+      page: $page
+      limit: $limit
+      searchTerm: $searchTerm
+      productIds: $productIds
+      productFilterIds: $productFilterIds
+      productCategoryIds: $productCategoryIds
+    ) {
+      collection {
+        id
+        ...RateCardForList
+      }
+      metadata {
+        currentPage
+        totalPages
+        totalCount
+      }
+    }
+  }
+
+  ${RateCardForListFragmentDoc}
+`
+
+export const RATE_CARDS_LIST_TEST_ID = 'rate-cards-list'
+
+const RateCardsList = () => {
+  const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
+  const { openDrawer: openRateCardDrawer } = useRateCardDrawer()
+  const { actionColumn, actionColumnTooltip, getRowActionLink } = useRateCardTableActions()
+  const [searchParams] = useSearchParams()
+  const { page, goToPage } = usePageSearchParam()
+
+  const filtersForRateCardsQuery = useMemo(
+    () => formatFiltersForRateCardsQuery(searchParams),
+    [searchParams],
+  )
+
+  // network-only: tabs are route-based so this component remounts on tab switch
+  // and `?page` is dropped; a cache-first read would flash the previously viewed
+  // page before the page-1 refetch.
+  const [getRateCards, { data, error, loading, variables }] = useRateCardsLazyQuery({
+    variables: { limit: DEFAULT_PAGE_SIZE, page, ...filtersForRateCardsQuery },
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
+  })
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getRateCards, loading)
+
+  const canCreateRateCards = hasPermissions(['rateCardsCreate'])
+
+  const searchInputOnChange = useCallback(
+    (value: string) => {
+      goToPage(1)
+      debouncedSearch?.(value)
+    },
+    [goToPage, debouncedSearch],
+  )
+
+  const columns = useRateCardTableColumns({ withAttachedTo: true })
+
+  const placeholder = buildSearchAwareTablePlaceholder({
+    translate,
+    hasSearchTerm: !!variables?.searchTerm,
+    noResultTitleKey: 'text_17849293094732goytgdvyql',
+    emptyTitleKey: 'text_1784929309473260i6j8d7kb',
+    emptySubtitleKey: 'text_1784929309473m4m8kk6q6g5',
+    emptyAction: canCreateRateCards
+      ? {
+          buttonTitleKey: RATE_CARD_DRAWER_TITLE_CREATE_KEY,
+          onClick: () => openRateCardDrawer(),
+        }
+      : undefined,
+  })
+
+  // Inset layout (per design, same as the customer subscriptions tab): the
+  // wrapper owns the page gutter so the row dividers and the pager border stop
+  // at it instead of running edge to edge; the table keeps only the minimal
+  // 4px cell gutter.
+  return (
+    <div className="flex flex-1 flex-col px-4 md:px-12" data-test={RATE_CARDS_LIST_TEST_ID}>
+      <Filters.Provider
+        filtersNamePrefix={RATE_CARD_LIST_FILTER_PREFIX}
+        availableFilters={RateCardAvailableFilters}
+      >
+        <div className="flex flex-col gap-3 py-4 md:flex-row md:items-center">
+          <SearchInput
+            onChange={searchInputOnChange}
+            placeholder={translate('text_17849293094725tv045xhkxf')}
+            data-test="rate-cards-search-input"
+          />
+          <Filters.Component />
+        </div>
+      </Filters.Provider>
+      <PaginatedContent
+        metadata={data?.rateCards?.metadata}
+        loading={isLoading}
+        onPageChange={goToPage}
+      >
+        <Table
+          name="rate-cards-list"
+          data={data?.rateCards?.collection ?? []}
+          containerSize={4}
+          containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
+          rowSize={72}
+          isLoading={isLoading}
+          hasError={!!error}
+          rowDataTestId={(rateCard) => `${rateCard.name}`}
+          onRowActionLink={getRowActionLink}
+          actionColumnTooltip={actionColumnTooltip}
+          actionColumn={actionColumn}
+          columns={columns}
+          placeholder={placeholder}
+        />
+      </PaginatedContent>
+    </div>
+  )
+}
+
+export default RateCardsList

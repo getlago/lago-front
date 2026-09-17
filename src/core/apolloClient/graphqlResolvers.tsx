@@ -22,6 +22,7 @@ export const typeDefs = gql`
     currencies_does_not_match
     does_not_match_item_amounts
     email_already_used
+    invalid_status
     invite_already_exists
     invite_email_mistmatch
     invite_not_found
@@ -30,6 +31,7 @@ export const typeDefs = gql`
     invoices_not_overdue
     invoices_not_ready_for_payment_processing
     no_active_subscription
+    not_voidable
     payment_processor_is_currently_handling_payment
     plan_overlapping
     url_is_invalid

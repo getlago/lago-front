@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Spinner } from '~/components/designSystem/Spinner'
 import { BILLING_ENTITY_ROUTE, useNavigate } from '~/core/router'

@@ -1,6 +1,6 @@
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 import { z } from 'zod'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -25,8 +25,8 @@ import { useIntegrations } from '~/hooks/useIntegrations'
 
 import { hasNonEuEligibilityError } from './utils'
 
-export const ADD_LAGO_TAX_MANAGEMENT_FORM_ID = 'form-add-lago-tax-management'
-export const ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID = 'add-lago-tax-management-submit-button'
+const ADD_LAGO_TAX_MANAGEMENT_FORM_ID = 'form-add-lago-tax-management'
+const ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID = 'add-lago-tax-management-submit-button'
 
 type BillingEntityFormItem = {
   id?: string

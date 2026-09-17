@@ -1,6 +1,6 @@
 import { Icon } from 'lago-design-system'
 import { useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
@@ -38,6 +38,10 @@ const MembersFilters = ({ searchQuery, setSearchQuery, type }: MembersFiltersPro
   const handleRoleFilterChange = (newRole: string | null) => {
     const newSearchParams = new URLSearchParams(searchParams)
 
+    // Both lists paginate on the bare `page` key: a new filter narrows the result set, so the
+    // page the user was on may no longer exist
+    newSearchParams.delete('page')
+
     if (newRole) {
       newSearchParams.set(MEMBERS_PAGE_ROLE_FILTER_KEY, newRole)
     } else {
@@ -56,7 +60,7 @@ const MembersFilters = ({ searchQuery, setSearchQuery, type }: MembersFiltersPro
   }
 
   return (
-    <div className="flex h-16 items-center justify-between gap-3 shadow-b">
+    <div className="flex shrink-0 items-center justify-between gap-3 pb-4 shadow-b">
       <Popper
         PopperProps={{ placement: 'bottom-start' }}
         opener={

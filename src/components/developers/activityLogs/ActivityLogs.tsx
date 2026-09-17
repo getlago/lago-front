@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { generatePath, useParams, useSearchParams } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { generatePath, useParams, useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
@@ -127,13 +127,6 @@ export const ActivityLogs = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.activityLogs?.collection, logId, searchParams])
 
-  // The table should highlight the selected row when the logId is provided in params
-  useLayoutEffect(() => {
-    if (logId) {
-      logListRef.current?.setActiveRow(logId)
-    }
-  }, [logId])
-
   const shouldDisplayLogDetails = !!logId && !!data?.activityLogs?.collection.length
 
   return (
@@ -178,6 +171,7 @@ export const ActivityLogs = () => {
           <ActivityLogTable
             getActivityLogsResult={getActivityLogsResult}
             logListRef={logListRef}
+            activeRowId={logId}
             pageSize={pageSize}
             onPageSizeChange={setPageSize}
           />

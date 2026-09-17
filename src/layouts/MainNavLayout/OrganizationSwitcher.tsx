@@ -1,7 +1,7 @@
 import { ApolloClient, ApolloError } from '@apollo/client'
 import { captureException } from '@sentry/react'
 import { ConditionalWrapper, Icon } from 'lago-design-system'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -263,7 +263,7 @@ export const OrganizationSwitcher = ({
                 {isVersionLoading && <Skeleton variant="text" className="w-30" />}
                 {!isVersionLoading && !!currentVersion?.githubUrl && !!currentVersion?.number && (
                   <a
-                    className="flex items-center gap-2 text-blue visited:text-blue"
+                    className="flex items-center gap-2 text-blue"
                     href={currentVersion.githubUrl}
                     target="_blank"
                     rel="noreferrer noopener"

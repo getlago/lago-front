@@ -1,3 +1,6 @@
+import { generatePath } from 'react-router'
+
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { CouponStatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
@@ -52,8 +55,8 @@ jest.mock('~/components/designSystem/Status', () => ({
   Status: () => null,
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: jest.fn(() => jest.fn()),
   generatePath: jest.fn((route: string) => route),
 }))
@@ -271,6 +274,30 @@ describe('CouponsList', () => {
 
         expect(actions).toHaveLength(1)
         expect(actions[0]).toEqual(expect.objectContaining({ startIcon: 'trash' }))
+      })
+    })
+  })
+
+  describe('GIVEN the edit action is a link', () => {
+    describe('WHEN its target is built', () => {
+      it('THEN should point at the coupon edit route', () => {
+        render(<CouponsList />)
+
+        const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
+          item: Record<string, unknown>,
+        ) => ActionItem<{ id: string }>[]
+
+        const [editAction] = actionColumn({
+          id: 'coupon-1',
+          name: 'Test Coupon',
+          status: CouponStatusEnum.Active,
+        })
+
+        editAction?.link?.({ id: 'coupon-1' })
+
+        expect(generatePath).toHaveBeenLastCalledWith('/update/coupons/:couponId', {
+          couponId: 'coupon-1',
+        })
       })
     })
   })

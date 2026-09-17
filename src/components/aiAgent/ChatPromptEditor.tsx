@@ -11,7 +11,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { MenuPopper } from '~/styles'
 
-export const CHAT_PROMPT_EDITOR_TEST_ID = 'chat-prompt-editor'
+const CHAT_PROMPT_EDITOR_TEST_ID = 'chat-prompt-editor'
+
 export const CHAT_PROMPT_EDITOR_GRADIENT_TEST_ID = 'chat-prompt-editor-gradient'
 export const GRADIENT_MIN_TEXTAREA_HEIGHT = 80
 export const CHAT_PROMPT_EDITOR_INPUT_TEST_ID = 'chat-prompt-editor-input'

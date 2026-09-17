@@ -8,6 +8,7 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
+import { isSubscriptionCancellation } from '~/core/constants/statusSubscriptionMapping'
 import {
   InvoiceTypeEnum,
   OnTerminationCreditNoteEnum,
@@ -239,13 +240,19 @@ export const useTerminateCustomerSubscriptionDialog = () => {
 
     const values = form.state.values
 
-    const payload: TerminateSubscriptionInput = {
-      onTerminationInvoice: values.onTerminationInvoice
-        ? OnTerminationInvoiceEnum.Generate
-        : OnTerminationInvoiceEnum.Skip,
-      onTerminationCreditNote: data?.payInAdvance ? values.onTerminationCreditNote : undefined,
-      id: data?.id as string,
-    }
+    // An incomplete subscription has never been billed: nothing to invoice or credit.
+    const payload: TerminateSubscriptionInput =
+      data?.status === StatusTypeEnum.Incomplete
+        ? { id: data.id }
+        : {
+            onTerminationInvoice: values.onTerminationInvoice
+              ? OnTerminationInvoiceEnum.Generate
+              : OnTerminationInvoiceEnum.Skip,
+            onTerminationCreditNote: data?.payInAdvance
+              ? values.onTerminationCreditNote
+              : undefined,
+            id: data?.id as string,
+          }
 
     await terminate({ variables: { input: payload } })
 
@@ -267,13 +274,15 @@ export const useTerminateCustomerSubscriptionDialog = () => {
     form.reset()
     loadingRef.current = false
 
-    if (data.status === StatusTypeEnum.Pending) {
-      // Pending subscriptions: simple confirmation, no form fields
+    if (isSubscriptionCancellation(data.status)) {
+      const description =
+        data.status === StatusTypeEnum.Incomplete
+          ? translate('text_1786964945244ww7yr3vukeh', { subscriptionName: data.name })
+          : translate('text_64a6d96f84411700a90dbf51', { subscriptionName: data.name })
+
       centralizedDialog.open({
         title: translate('text_64a6d8cb9ed7d9007e7121ca'),
-        description: translate('text_64a6d96f84411700a90dbf51', {
-          subscriptionName: data.name,
-        }),
+        description,
         colorVariant: 'danger',
         actionText: translate('text_64a6d736c23125004817627f'),
         onAction: handleTerminate,

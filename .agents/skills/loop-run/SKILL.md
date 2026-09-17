@@ -1,59 +1,62 @@
 ---
 name: loop-run
-description: 'Orchestrator of the loop pipeline for lago-front: sweep → spec → build ↔ review → ship (commit, PR, Linear, CI gate, Slack #frontend). Takes a Linear ticket URL and optionally Notion spec URLs. Use when user says "/loop-run <linear-url> [notion-urls...]" or asks to run the full loop on a ticket.'
+description: 'Orchestrator of the loop pipeline for lago-front: sweep → spec → build ↔ review → ship (commit, PR, Linear, CI gate, Slack #frontend). Creates a dedicated worktree by default, or runs in the current checkout with `--in-place` (automatic inside a Conductor workspace). Takes a Linear ticket URL and optionally Notion spec URLs; `--confirm-spec` pauses once after the spec. Use when user says "/loop-run <linear-url> [notion-urls...] [--in-place] [--confirm-spec]" or asks to run the full loop on a ticket.'
 ---
 
 # Loop Run — full pipeline orchestrator
 
-**Input:** a Linear ticket URL (required) + optional Notion spec page URLs. If the Linear URL is missing, ask and stop.
+**Input:** a Linear ticket URL (required) + optional Notion URLs + optional flags `--in-place`, `--confirm-spec`. No Linear URL → ask and stop.
 
-**Repo guard:** this pipeline works ONLY on lago-front (`front/` in the lago monorepo). Any other repo: STOP.
+**Repo guard:** lago-front ONLY. Any other repo: STOP. **Humans merge:** never merge, approve, bypass a gate or force-push.
 
-**Principle: humans merge.** This pipeline NEVER merges or approves a PR, never bypasses a gate, never force-pushes.
+**Autonomy contract:** between the input and the final Slack post the pipeline runs alone. It pauses for the operator ONLY on: `--confirm-spec` (once, after spec), an exhausted retry budget (3 review or 3 CI cycles), a `needs-operator-adjudication` STOP, or an unrecoverable external failure.
 
-**Autonomy contract:** between the input and the final Slack post the pipeline runs alone. The ONLY thing that asks the operator for help is an exhausted retry budget (3 review cycles or 3 CI cycles) or an unrecoverable external failure. Never pause for approval mid-run.
+## Layout — resolved ONCE, before anything else
 
-## Conventions used throughout
+```bash
+if [ -n "${CONDUCTOR_WORKSPACE_PATH:-}" ] || [ "<--in-place passed>" = yes ]; then
+  LAYOUT=in-place; FRONT="$(git rev-parse --show-toplevel)"
+else
+  LAYOUT=worktree;  FRONT="$PWD/front"
+fi
+SCRIPTS="$FRONT/scripts"
+[ -x "$SCRIPTS/iter-budget.sh" ] || { echo "not a lago-front checkout"; exit 1; }
+```
 
-- **Operator** = the developer who started this run. Identity comes from their own tooling (`gh` auth, `git config user.email`, their Slack config) — nothing about any specific person is hardcoded.
-- **State dir** = `$LOOP_STATE_DIR/<ISSUE-ID>/` (default `~/.claude/loop-state/<ISSUE-ID>/`) — per-developer, outside the repo, never committed.
-- **Scripts** = `front/scripts/loop-iter.sh` and `front/scripts/loop-notify.sh`, run from the lago monorepo root. Setup and configuration: `.agents/skills/loop-run/README.md`.
+`worktree` (default): `loop-build` creates `front-worktrees/<ISSUE-ID>-<slug>/` via `lago-worktree`; the session stays in the monorepo root and uses `git -C`. `in-place` (automatic under Conductor, forced with `--in-place`): the current checkout IS the worktree and the branch; nothing is created, destroyed or renamed, `lago-worktree` is never called. Pass the layout to every phase through `state.md`; never re-derive it.
+
+## Conventions
+
+- **Operator** = the developer who started this run; identity from their own tooling (`gh` auth, `git config user.email`, Slack config). Nothing about a person is hardcoded.
+- **State dir** = `$LOOP_STATE_DIR/<ISSUE-ID>/` (default `~/.claude/loop-state/<ISSUE-ID>/`) — outside the repo, never committed.
+- **Scripts** (`$SCRIPTS`, documented in their headers): `iter-budget.sh` (retry caps), `loop-plan-check.sh` (adversarial trigger), `loop-restart.sh` (container reload), `loop-ci-log.sh` (CI failure capture), `loop-journal.sh` (journal row), `loop-notify.sh` (exit DM). Setup: `.agents/skills/loop-run/README.md`.
 
 ## Pipeline
 
-0. **Sweep**: invoke the `loop-clean` skill first — it proposes destroying worktrees of already-merged PRs (operator confirms; skipping is fine, the pipeline continues either way).
+0. **Sweep** (`worktree` layout only): invoke `loop-clean`; the operator confirms or skips, the run continues either way.
 
-1. **Spec**: invoke the `loop-spec` skill with the URL(s). Extract `<ISSUE-ID>`. Then reset the iteration budget: `front/scripts/loop-iter.sh <ISSUE-ID> reset`.
+1. **Spec**: invoke `loop-spec` with the URL(s); extract `<ISSUE-ID>`; `"$SCRIPTS/iter-budget.sh" <ISSUE-ID> reset`. With `--confirm-spec`: show the operator spec.md's Summary, Premises (every `unverified` one first) and Files to touch, ask "why does this exist?" for each new file, and wait for a go — the single human checkpoint this flag buys. Amendments go into spec.md before build.
 
-2. **Build ↔ review cycle** (max 3 iterations — the cap is MECHANICAL, enforced by loop-iter.sh, not by counting in your head):
-   1. Charge the budget: `front/scripts/loop-iter.sh <ISSUE-ID> review`. Exit code 1 → budget exhausted: go straight to the 3-FAIL STOP path below, regardless of what you believe the count is.
-   2. Invoke `loop-build` with `<ISSUE-ID>`.
-   3. **Dispatch the review in a FRESH subagent** (clean context — the reviewer must not inherit the builder's reasoning or bias): use the Agent tool with a prompt like "Invoke the loop-review skill for <ISSUE-ID> and follow it exactly", general-purpose agent type. Do NOT run loop-review inline in this session.
-   4. Read the first line of `state dir`/`review.md`:
-      - `Verdict: PASS` → go to Ship.
-      - `Verdict: FAIL` → **archive the verdict first**: append the full review.md under a `## Iteration <N>` header to `review-history.md` in the state dir, then next iteration (build runs in fix mode off review.md + the history — see loop-build's escalating-retry rules).
-   5. After 3 FAIL verdicts (or loop-iter exit 1): STOP. Write `impediment.md` (see below), send the exit DM, and report the surviving issues to the operator. No git artifacts exist yet — nothing to clean up.
+2. **Build ↔ review cycle** (max 3 — the cap is MECHANICAL, `iter-budget.sh`, never counted in your head):
+   1. `"$SCRIPTS/iter-budget.sh" <ISSUE-ID> review` — exit 1 → the 3-FAIL STOP path, whatever you believe the count is.
+   2. Invoke `loop-build` with `<ISSUE-ID>` and the layout. First iteration only: claim the ticket on Linear (`save_issue`: assignee = operator matched by `git config user.email`, status "Dev in Progress"); a Linear failure warns and continues.
+   3. **Review in a FRESH subagent** (Agent tool, general-purpose: "Invoke the loop-review skill for <ISSUE-ID> and follow it exactly"). Never inline. Its prompt carries nothing but the ISSUE-ID — spec.md holds the ticket, so no reviewer fetches Linear or Notion.
+   4. **Adversarial pass, on trigger only**: `"$SCRIPTS/loop-plan-check.sh" <worktree> <state dir>/plan.md`. Exit 3 (new files/exports, all declared — the build gate guarantees none is undeclared) or 1 → dispatch a second fresh subagent: "Read `.agents/skills/loop-review/adversarial.md` and apply it to <ISSUE-ID>". Exit 0 (nothing new) → no second agent. Two review agents is the maximum.
+   5. Read `review.md` (and `adversarial.md` when dispatched). A file with no `Verdict:` line is not a verdict — resume that subagent ("continue until the file is written"). Any FAIL is a FAIL: archive each verdict under `## Iteration <N>` in `review-history.md`, record every `[review#N]` / `[gate:…]` / `[adversarial]` tag for the journal, then next iteration (build in fix mode). All PASS → Ship.
+   6. Findings arriving AFTER a verdict is written are scored against a stale tree: re-verify each against the current diff, act only on regressions this diff introduced.
+   7. 3 FAILs or iter-budget exit 1: STOP — `impediment.md`, exit DM, report. No git artifacts exist yet.
 
-3. **Restart the worktree app** (right after review PASS — reloads the container on the just-built code). ⚠️ The start script (`start.dev.sh` = `pnpm install && pnpm run dev`) does NOT clean the vite cache, and a restart that interrupts a running dep-optimization leaves `node_modules/.vite` corrupted (browser gets `504 Outdated Optimize Dep`). ALWAYS clear it before restarting:
+3. **Restart the app**: `"$SCRIPTS/loop-restart.sh" <state dir>/state.md` (clears the vite cache first; no container → one-line warning, never a blocker).
 
-   ```bash
-   # BRANCH from state.md (container name derives from the full branch name)
-   SAN=$(echo "<BRANCH>" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g')
-   docker exec lago_front_wt_${SAN} sh -c 'rm -rf /app/node_modules/.vite' 2>/dev/null || true
-   docker restart lago_front_wt_${SAN}
-   ```
-
-   Container not running → skip with a warning, don't block.
-
-4. **Ship** (only after PASS), all inside the worktree recorded in `state.md`:
-   1. **Commit** — stage all pipeline changes and commit with EXACTLY this message structure:
+4. **Ship** (after PASS), inside the `worktree:` path from state.md (`in-place`: the cwd, drop `git -C`):
+   1. **Commit** — stage everything, message EXACTLY:
 
       ```
       <type>(<context>): <Title>
 
       ## Context
 
-      <relevant motivation and context, from the ticket>
+      <motivation, from the ticket>
 
       ## Description
 
@@ -63,18 +66,19 @@ description: 'Orchestrator of the loop pipeline for lago-front: sweep → spec �
       Fixes <ISSUE-ID>
       ```
 
-      `<type>(<context>)`: conventional-commit type implied by the ticket (feat/fix/refactor/chore) + short domain context; `<Title>` sentence-case, imperative.
-   2. **Push**: `git push -u origin <branch>` (branch from state.md).
-   3. **PR** (ready, not draft): `gh pr create --assignee @me` — title = the commit's first line; body = the commit body (same Context/Description/Fixes structure). `@me` is the authenticated `gh` user, so the PR self-assigns to whoever runs the loop.
-   4. **Linear**: move the issue to "In Review" via the Linear MCP `save_issue` tool.
+      `<type>` = feat/fix/refactor/chore implied by the ticket; `<Title>` sentence-case, imperative.
+   2. **Push**: `git push -u origin <branch>`. In `in-place` push the branch as is — **never** rename it.
+   3. **PR** (ready, not draft): `gh pr create --assignee @me`, title = commit subject, body = commit body.
+   4. **Linear**: move the issue to "In Review" (`save_issue`).
 
-5. **CI gate** (max 3 fix cycles — cap enforced by loop-iter.sh):
-   1. `gh pr checks <PR> --watch` and wait for completion.
-   2. All green → go to Announce.
-   3. Any red → charge the budget: `front/scripts/loop-iter.sh <ISSUE-ID> ci`. Exit code 1 → go straight to the 3-red STOP path. Otherwise `gh run view <run-id> --log-failed` to capture failure logs, write them to `ci-failure.md` in the state dir. If a previous ci-failure.md existed, first append it under a `## CI cycle <N>` header to `ci-failure-history.md`. Then re-enter the build ↔ review cycle in fix mode against that report. After fixes: commit (`fix(<context>): address CI failures` + short body), push, watch checks again.
-   4. After 3 red cycles (or loop-iter exit 1): STOP. Write `impediment.md`, send the exit DM, and report to the operator with the PR URL and the last failure log. **NEVER post to Slack channels while CI is red.**
+5. **CI gate** (max 3 fix cycles, `iter-budget.sh`): `gh pr checks <PR> --watch`. All green → Announce. Any red → triage the special cases FIRST, they consume no budget:
+   - **`Run Codegen` red with an unmerged companion lago-api PR**: CI builds the schema from lago-api `main`. Qualifies only with BOTH a concrete companion PR (from the ticket/spec, or named by the codegen errors) AND a one-time `gh pr view <N> --repo getlago/lago-api --json state,title` showing it open, recorded in the state dir. Then skip fix mode, Announce with the plain template, note the pending merge in the journal and the final report. Any other red alongside → real failure.
+   - **Code-scanning (CodeQL) red**: `gh api --paginate 'repos/getlago/lago-front/code-scanning/alerts?per_page=100'`, filter `state == "dismissed"` yourself (single-value `state` param). A dismissed alert with the same `rule.id`, file AND overlapping region is a re-fingerprint no code change clears: fix other reds first; when it is the only red, STOP with outcome `needs-operator-adjudication` asking the operator to dismiss it referencing the prior one. Same rule elsewhere in the file is a real finding.
+   - **Red inherited from a non-`main` base**: `gh pr checks <base PR>` shows the same signature → not this diff's; no cycle charged, both PR URLs in the journal, run ends `needs-operator-adjudication` unless the operator says otherwise in chat. No Slack post.
+   - **Neither** → `"$SCRIPTS/iter-budget.sh" <ISSUE-ID> ci` (exit 1 → STOP path), then `"$SCRIPTS/loop-ci-log.sh" <ISSUE-ID> <run-id> <N>` — raw log to disk, ≤40 decisive lines back. Write `ci-failure.md` from those lines (job, matched lines, file:line, `raw: <path>`, ≤60 lines; the script already archived the previous one), re-enter build in fix mode, commit `fix(<context>): address CI failures`, push, watch again. **Never `cat` the raw log, never `gh run view` without the script.**
+   - 3 red cycles: STOP — `impediment.md`, exit DM, report with the PR URL and the distilled failure. **No Slack channel post while CI is red.**
 
-6. **Announce** (only with CI fully green) — post to the Slack channel `#frontend` via the Slack MCP, EXACTLY this format, no extra text:
+6. **Announce** (CI fully green — sole carve-out: the verified codegen case). Post to `#frontend` via the Slack MCP, EXACTLY this, a BLANK line between the three lines (the connector collapses single newlines):
 
    ```
    **<type>(<context>): <Title>**
@@ -84,104 +88,36 @@ description: 'Orchestrator of the loop pipeline for lago-front: sweep → spec �
    :admission_tickets: <Linear issue URL>
    ```
 
-   Formatting is STRICT (a run with single newlines collapsed everything onto one line):
-   - The Slack MCP message field takes standard markdown where a SINGLE newline is a soft break (collapsed to a space). Separate the 3 lines with a BLANK LINE between each (double newline) — exactly as in the template above.
-   - Line 1: title in `**bold**`. Line 2: `:pr: ` + bare PR URL. Line 3: `:admission_tickets: ` + bare Linear URL. Nothing else.
+7. **External comments**: `gh api repos/getlago/lago-front/pulls/<PR>/comments` + `gh pr view <PR> --json comments`. Any comment by someone other than the operator (`gh api user --jq .login`), human or bot → the loop-revise protocol: evaluate critically, apply if sound, ALWAYS reply (thanks + applied with sha, or not applied with a one-line technical reason).
 
-7. **External comments check**: before closing, fetch PR comments (`gh api repos/getlago/lago-front/pulls/<PR>/comments` + `gh pr view <PR> --json comments`). Any comment authored by someone other than the operator — colleague or bot (e.g. Copilot); the operator's own login is `gh api user --jq .login` → handle it with the loop-revise protocol: evaluate critically, apply if sound, and ALWAYS reply on GitHub — short thanks + applied (with sha) or not applied (with a one-line technical reason). Never leave an external comment unanswered.
-
-8. **Final report** to the operator: PR URL, Linear state, CI status, Slack link, replies posted, cycle counts.
+8. **Final report**: PR URL, Linear state, CI status, Slack link, replies posted, cycle counts, and the cleanup line — `worktree`: `loop-clean` after merge; `in-place`: nothing here, the operator archives the Conductor workspace.
 
 ## Journal & flywheel — SILENT, on EVERY terminal outcome
 
-Run these two steps on every way the pipeline ends — happy path (after Announce) AND every STOP/exit (3 FAIL reviews, 3 red CI cycles, unrecoverable error). They are bookkeeping: never ping the operator about them, never wait for input, never mention them in Slack.
+Happy path and every STOP alike; never ping the operator, never mention in Slack.
 
-1. **Journal**: append ONE row to the table in `$LOOP_STATE_DIR/_journal.md` (create the file with the header row if missing):
+1. **Journal**: `"$SCRIPTS/loop-journal.sh" <ISSUE-ID> <iters N/3> <ci N/3> "<gates red at least once, or none>" <outcome> "<fail-checks, or none>" "<one short phrase>"`. `fail-checks` = every tag collected in step 2.5 across iterations (`review#5,gate:types,adversarial`) — the pruning in `loop-flywheel` runs on this column. Outcomes: `shipped` / `stopped-review` / `stopped-ci` / `needs-operator-adjudication` / `stopped-error`.
 
-   ```markdown
-   | date | issue | build↔review iters | CI cycles | gates failed | outcome | notes |
-   |------|-------|--------------------|-----------|--------------|---------|-------|
-   | 2026-08-05 | LAGO-1234 | 2/3 | 1/3 | types, jest | shipped | reviewer caught missing empty-state |
-   ```
-
-   `outcome` ∈ `shipped` / `stopped-review` / `stopped-ci` / `stopped-error`. `gates failed` = every gate that went red at least once during the run (lint/types/translations/jest/CI-job names). `notes` = one short phrase, only if something non-obvious happened.
-
-2. **Flywheel**: review the run's failures (review-history.md, ci-failure-history.md, external PR comments) and ask for each recurring or avoidable one: *"would a better instruction in loop-spec / loop-build / loop-review have prevented this?"* If yes, append a dated proposal to `$LOOP_STATE_DIR/_flywheel.md`:
+2. **Flywheel**: for each recurring or avoidable failure (review-history, ci-failure-history, external comments) apply the admission test — *would a better instruction have prevented it, AND can I name a second, different plausible occurrence?* Both yes → append to `$LOOP_STATE_DIR/_flywheel.md`:
 
    ```markdown
-   ## 2026-08-05 — LAGO-1234
-   - target: loop-build
-   - evidence: reviewer FAILed twice on missing translation-key cleanup
-   - proposed edit: <the concrete instruction to add/change, quoted>
+   ## <date> — <ISSUE-ID>
+   - target: <skill or doc>
+   - evidence: <what happened, no ticket ID in the rule itself>
+   - proposed edit: <the instruction — as a script or lint rule if it can be one; a check only if it replaces one>
    ```
 
-   Rules: proposals ONLY — NEVER edit the skill files themselves, NEVER notify the operator. They read _flywheel.md when they want, and a proposal that proves itself becomes a PR against these skills. Nothing avoidable found → append nothing (no empty entries).
+   Proposals ONLY: never edit skill files, never notify. One yes → append nothing.
 
-## Failure handling
+## Failure handling & exit notification
 
-- Any external call (Linear, GitHub, Slack) fails → retry once, then STOP and report exactly which steps completed and what remains manual.
-- Never delete branches, worktrees, or PRs to "retry clean" — always stop and ask.
+- External call (Linear, GitHub, Slack) fails → retry once, then STOP and report exactly what completed. Never delete branches, worktrees or PRs to "retry clean".
+- On every STOP needing the operator: write `impediment.md` first (`stage / cause / attempted / needed / links / layout / where`), then `"$SCRIPTS/loop-notify.sh" "<MESSAGE>"` — bot DM, mrkdwn, `:rotating_light: *loop-run stopped — <ISSUE-ID>*` + Reason / Stage / Where / PR / Linear / Next lines. `needs-operator-adjudication` reads as "complete and green, one decision needed", never as a failure.
+- The script prints `CH= TS= USER=`. For fixable stops (review/CI), poll `conversations.history?channel=$CH&oldest=$TS` with `$SLACK_LOOP_BOT_TOKEN` every ~2 min for up to 60 min (background-safe waits only); only messages from `$USER` count. A reply → `:eyes: got it — resuming`, route it into the fix cycle like loop-revise feedback. No reply → `:hourglass: no reply — stopping here; resume with /loop-revise <ISSUE-ID>`.
+- Script non-zero → `PushNotification` + Slack MCP self-DM (blank line between lines), no feedback-wait, note the degradation.
 
-## Exit notification — bot DM (real ping) + feedback-wait
+## Communication & hard rules
 
-The DM goes to whoever runs the loop: `front/scripts/loop-notify.sh` resolves the recipient from `$SLACK_LOOP_USER_ID`, else from `git config user.email` via `users.lookupByEmail`, and sends through the bot token in `$SLACK_LOOP_BOT_TOKEN`. Configuration: `.agents/skills/loop-run/README.md`.
-
-On EVERY exit that needs the operator's attention — 3 FAIL review cycles, 3 red CI cycles, unrecoverable external error, any STOP-and-ask:
-
-0. **Write the impediment first** — `impediment.md` in the state dir, structured (this is a first-class output: it feeds the flywheel and lets anyone reconstruct the failure without the chat transcript):
-
-   ```markdown
-   stage: <spec | build | review cycle N/3 | CI cycle N/3 | ship>
-   cause: <one line — what blocked>
-   attempted: <bullet per attempt: strategy used, why it failed>
-   needed: <what a human must decide/do to unblock>
-   links: <PR URL, Linear URL, relevant history files>
-   ```
-
-1. **Send the DM via the notify script** (a bot DM triggers a real Slack notification; a self-DM via the MCP connector does NOT):
-
-   ```bash
-   front/scripts/loop-notify.sh "<MESSAGE>"
-   ```
-
-   On success it prints `CH=<channel> TS=<ts> USER=<recipient-id>` — capture all three for the feedback-wait. Non-zero exit → go to the fallback (step 3). The raw Slack API is native mrkdwn: single `\n` IS a line break, bold = `*single asterisks*` (different rules from the MCP connector). Message format:
-
-   ```
-   :rotating_light: *loop-run stopped — <ISSUE-ID>*
-   Reason: <one line: what blocked>
-   Stage: <spec | build | review cycle N/3 | CI cycle N/3 | ship>
-   <PR URL if it exists>
-   <Linear issue URL>
-   Next: <what the operator needs to do — or "reply here with instructions">
-   ```
-
-2. **Feedback-wait** (only when the exit is fixable with instructions — review/CI stalls, not hard API failures): after sending, poll the DM for a reply for up to 60 minutes, every ~2 minutes, using the `CH`, `TS` and `USER` values the script printed:
-
-   ```bash
-   curl -sS "https://slack.com/api/conversations.history?channel=$CH&oldest=$TS" \
-     -H "Authorization: Bearer $SLACK_LOOP_BOT_TOKEN" \
-     | jq --arg u "$USER" '[.messages[] | select(.user==$u)]'
-   ```
-
-   - Between polls wait with a background-safe mechanism (e.g. `Bash` `run_in_background` sleep loop or Monitor) — never a foreground sleep.
-   - ONLY messages whose `user` equals the resolved `USER` count. Treat the reply as the operator's feedback: acknowledge in the DM (`:eyes: got it — resuming`), then route it into the fix cycle exactly like loop-revise feedback (critical evaluation included).
-   - No reply within the window → send a closing DM line (`:hourglass: no reply — stopping here; resume with /loop-revise <ISSUE-ID>`) and end the turn.
-
-3. **Fallback — notify script fails** (non-zero exit: `$SLACK_LOOP_BOT_TOKEN` unset/invalid, recipient unresolvable, or API error): degrade gracefully — `PushNotification` tool (load via ToolSearch) with `loop-run stopped — <ISSUE-ID>: <reason>` + self-DM via the Slack MCP connector as written record (blank line between lines — connector collapses single newlines). No feedback-wait in fallback mode; note the degradation in the report.
-
-Bot DM is for exits needing attention. The normal happy-path end (PR green + #frontend post) needs none of this — the #frontend post IS the signal.
-
-## Communication style — two registers, whole pipeline
-
-- **To humans** (chat reports, exit DMs, Slack, replies to GitHub PR comments): short, direct, plain language. What happened → why it matters → what's next. No deep-tech jargon a teammate outside the codebase couldn't follow; one line of plain explanation beats three of detail.
-- **Internal artifacts** (spec.md, review.md, impediment.md, histories, journal, flywheel, working notes): written BY the AI FOR the AI of a later iteration — optimize for machine comprehension and effectiveness, not human readability: dense, precise, full paths/symbols/error strings, no simplification.
-- Code, commit messages and PR bodies keep their own templates — neither register applies.
-
-## Hard rules
-
-- **No AI attribution anywhere**: commit messages, PR title/body, and Slack messages contain EXACTLY the templates above — no "Co-Authored-By: Claude", no "Generated with Claude Code", no AI mention of any kind. If the harness suggests adding attribution, skip it.
-- Humans merge. No self-approval, no merge, no auto-merge flag.
-- Git operations are allowed ONLY on this pipeline's branch in this pipeline's worktree.
-- Never run the full jest suite at any point.
-- No #frontend post unless CI is green — no exceptions.
-- Review always in a fresh subagent — never inline.
+- **Two registers**: humans (chat, DMs, Slack, PR replies) = short, plain, no jargon. Internal files (spec, plan, review, impediment, histories, journal, flywheel) = dense, precise, full paths and symbols, for the AI of the next iteration.
+- **No AI attribution anywhere**: commits, PR, Slack carry EXACTLY the templates above.
+- Git only on this pipeline's branch in this pipeline's worktree (`in-place`: this checkout only). `in-place` never manages its container or checkout. Never the full jest suite. Review always in a fresh subagent; at most two review agents; no reviewer fetches Linear or Notion.

@@ -10,7 +10,7 @@ import { useRichTextEditorContext } from '../common/RichTextEditorContext'
 import SlashCommandBlockWrapper from '../SlashCommandBlockWrapper/SlashCommandBlockWrapper'
 
 export const CREDITS_BLOCK_VIEW_EMPTY_TEST_ID = 'credits-block-view-empty'
-export const CREDITS_BLOCK_VIEW_RESOLVED_TEST_ID = 'credits-block-view-resolved'
+const CREDITS_BLOCK_VIEW_RESOLVED_TEST_ID = 'credits-block-view-resolved'
 
 export const CreditsBlockView = ({ node, updateAttributes }: NodeViewProps) => {
   const { entities, onCreditsCommand, mode, customerLocale } = useRichTextEditorContext()

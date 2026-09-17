@@ -1,5 +1,5 @@
 import { Icon } from 'lago-design-system'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Typography } from '~/components/designSystem/Typography'

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { usePageSearchParam } from '~/components/designSystem/Pagination'
@@ -34,8 +34,8 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   query getCreditNotesList(
-    $amountFrom: Int
-    $amountTo: Int
+    $amountFrom: BigInt
+    $amountTo: BigInt
     $creditStatus: [CreditNoteCreditStatusEnum!]
     $currency: CurrencyEnum
     $customerExternalId: String

@@ -260,15 +260,18 @@ describe('useInvoiceAuthorizations', () => {
 
   describe('authorizations', () => {
     describe('canRetryInvoice', () => {
-      it('should be true when there is a tax provider error', () => {
+      const taxErrorDetails = [
+        {
+          errorCode: ErrorCodesEnum.TaxError,
+          errorDetails: LagoApiError.CurrencyCodeNotSupported,
+        },
+      ]
+
+      it('should be true when there is a tax provider error on a failed invoice', () => {
         const { result } = prepare({
           invoice: createMockInvoice({
-            errorDetails: [
-              {
-                errorCode: ErrorCodesEnum.TaxError,
-                errorDetails: LagoApiError.CurrencyCodeNotSupported,
-              },
-            ],
+            status: InvoiceStatusTypeEnum.Failed,
+            errorDetails: taxErrorDetails,
           }),
         })
 
@@ -276,7 +279,24 @@ describe('useInvoiceAuthorizations', () => {
       })
 
       it('should be false when there is no tax provider error', () => {
-        const { result } = prepare()
+        const { result } = prepare({
+          invoice: createMockInvoice({ status: InvoiceStatusTypeEnum.Failed }),
+        })
+
+        expect(result.current.authorizations.canRetryInvoice).toBe(false)
+      })
+
+      // A retried invoice keeps its tax errors until the async tax job clears them, so the
+      // error alone would keep offering an action the API rejects with invalid_status.
+      it.each([
+        InvoiceStatusTypeEnum.Draft,
+        InvoiceStatusTypeEnum.Pending,
+        InvoiceStatusTypeEnum.Finalized,
+        InvoiceStatusTypeEnum.Voided,
+      ])('should be false on a %s invoice still carrying a tax provider error', (status) => {
+        const { result } = prepare({
+          invoice: createMockInvoice({ status, errorDetails: taxErrorDetails }),
+        })
 
         expect(result.current.authorizations.canRetryInvoice).toBe(false)
       })
@@ -559,7 +579,7 @@ describe('useInvoiceAuthorizations', () => {
         })
       })
 
-      it('should pass status and billingEntity to canResendEmail', () => {
+      it('should pass status to canResendEmail', () => {
         mockActions.canResendEmail.mockReturnValue(true)
 
         const { result } = prepare()
@@ -567,7 +587,6 @@ describe('useInvoiceAuthorizations', () => {
         expect(result.current.authorizations.canResendEmail).toBe(true)
         expect(mockActions.canResendEmail).toHaveBeenCalledWith({
           status: InvoiceStatusTypeEnum.Finalized,
-          billingEntity: { einvoicing: false },
         })
       })
     })
@@ -587,38 +606,6 @@ describe('useInvoiceAuthorizations', () => {
         const { result } = prepare()
 
         expect(result.current.authorizations.canResendEmail).toBe(false)
-      })
-
-      it('should pass billingEntity with emailSettings to canResendEmail', () => {
-        mockActions.canResendEmail.mockReturnValue(true)
-
-        const { result } = prepare({
-          invoice: createMockInvoice({
-            billingEntity: { einvoicing: false, emailSettings: ['invoice_finalized'] },
-          }),
-        })
-
-        expect(result.current.authorizations.canResendEmail).toBe(true)
-        expect(mockActions.canResendEmail).toHaveBeenCalledWith({
-          status: InvoiceStatusTypeEnum.Finalized,
-          billingEntity: { einvoicing: false, emailSettings: ['invoice_finalized'] },
-        })
-      })
-
-      it('should pass billingEntity without emailSettings to canResendEmail', () => {
-        mockActions.canResendEmail.mockReturnValue(false)
-
-        const { result } = prepare({
-          invoice: createMockInvoice({
-            billingEntity: { einvoicing: false, emailSettings: [] },
-          }),
-        })
-
-        expect(result.current.authorizations.canResendEmail).toBe(false)
-        expect(mockActions.canResendEmail).toHaveBeenCalledWith({
-          status: InvoiceStatusTypeEnum.Finalized,
-          billingEntity: { einvoicing: false, emailSettings: [] },
-        })
       })
     })
 
@@ -778,8 +765,8 @@ describe('useInvoiceAuthorizations', () => {
         }),
       })
 
-      // Tax error overrides finalize and download
-      expect(result.current.authorizations.canRetryInvoice).toBe(true)
+      // Tax error overrides finalize and download, but retry stays gated on the failed status
+      expect(result.current.authorizations.canRetryInvoice).toBe(false)
       expect(result.current.authorizations.canFinalizeInvoice).toBe(false)
       expect(result.current.authorizations.canDownloadOnlyPdf).toBe(false)
       expect(result.current.authorizations.canDownloadPdfAndXml).toBe(false)

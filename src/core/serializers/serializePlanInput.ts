@@ -271,6 +271,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
       // Cleaning display only attributes, see plans/types.ts for details
       addon: undefined,
       taxes: undefined,
+      displayInQuoteDocument: undefined,
       properties: serializeFixedChargeProperties(fixedCharge.properties, fixedCharge.chargeModel),
     })),
     minimumCommitment: serializeMinimumCommitment(minimumCommitment, values.amountCurrency),
@@ -314,6 +315,8 @@ export const serializePlanInput = (values: PlanFormInput) => {
               }
             : undefined,
           ...charge,
+          // Must stay after the spread, which would otherwise re-introduce it
+          displayInQuoteDocument: undefined,
         }
       },
     ),

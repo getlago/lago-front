@@ -153,6 +153,7 @@ describe('useDiscountDrawer', () => {
           },
           overrides: {
             amountCents: 5000,
+            amountCurrency: null,
             percentageRate: null,
             frequency: 'forever',
             frequencyDuration: null,
@@ -366,6 +367,7 @@ describe('useDiscountDrawer', () => {
           },
           overrides: {
             amountCents: 4200,
+            amountCurrency: null,
             percentageRate: null,
             frequency: 'recurring',
             frequencyDuration: 6,
@@ -436,6 +438,7 @@ describe('useDiscountDrawer', () => {
       },
       overrides: {
         amountCents: 5000,
+        amountCurrency: null,
         percentageRate: null,
         frequency: 'once',
         frequencyDuration: null,
@@ -521,6 +524,7 @@ describe('useDiscountDrawer', () => {
         localId: string
         overrides: {
           amountCents: number | null
+          amountCurrency: null
           percentageRate: number | null
           frequency: string
           frequencyDuration: number | null
@@ -536,6 +540,7 @@ describe('useDiscountDrawer', () => {
     expect(coupon.localId).toBe('mock-uuid-1')
     expect(coupon.overrides).toEqual({
       amountCents: 1000,
+      amountCurrency: CurrencyEnum.Usd,
       percentageRate: null,
       frequency: 'once',
       frequencyDuration: null,
@@ -649,6 +654,7 @@ describe('useDiscountDrawer', () => {
           },
           overrides: {
             amountCents: 1000,
+            amountCurrency: null,
             percentageRate: null,
             frequency: 'once',
             frequencyDuration: null,
@@ -816,6 +822,7 @@ describe('useDiscountDrawer', () => {
           },
           overrides: {
             amountCents: 1000,
+            amountCurrency: null,
             percentageRate: null,
             frequency: 'once',
             frequencyDuration: null,
@@ -901,6 +908,7 @@ describe('useDiscountDrawer', () => {
           },
           overrides: {
             amountCents: 1000,
+            amountCurrency: null,
             percentageRate: null,
             frequency: 'once',
             frequencyDuration: null,
@@ -984,6 +992,7 @@ describe('useDiscountDrawer', () => {
           },
           overrides: {
             amountCents: 4200,
+            amountCurrency: null,
             percentageRate: null,
             frequency: 'recurring',
             frequencyDuration: 6,
@@ -1047,6 +1056,7 @@ describe('useDiscountDrawer', () => {
           },
           overrides: {
             amountCents: 5000,
+            amountCurrency: null,
             percentageRate: null,
             frequency: 'once',
             frequencyDuration: null,

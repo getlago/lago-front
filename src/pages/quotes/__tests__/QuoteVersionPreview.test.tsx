@@ -9,6 +9,7 @@ import { useQuotePreviewVersion } from '../hooks/useQuotePreviewVersion'
 import QuoteVersionPreview, {
   QUOTE_VERSION_PREVIEW_CARD_TEST_ID,
   QUOTE_VERSION_PREVIEW_CLOSE_BUTTON_TEST_ID,
+  QUOTE_VERSION_PREVIEW_CUSTOMER_LINK_TEST_ID,
   QUOTE_VERSION_PREVIEW_DESCRIPTION_TEST_ID,
 } from '../QuoteVersionPreview'
 
@@ -103,6 +104,17 @@ describe('QuoteVersionPreview', () => {
         expect(screen.getByTestId(QUOTE_VERSION_PREVIEW_CARD_TEST_ID)).toHaveTextContent(
           'Approved content',
         )
+      })
+    })
+
+    describe('WHEN the customer is shown', () => {
+      it('THEN should link it to the customer detail page', () => {
+        renderPage({ quoteId: 'quote-123', versionId: 'version-v1' })
+
+        const link = screen.getByTestId(QUOTE_VERSION_PREVIEW_CUSTOMER_LINK_TEST_ID)
+
+        expect(link).toHaveTextContent('Acme Corp')
+        expect(link).toHaveAttribute('href', expect.stringContaining('/customer/customer-001'))
       })
     })
 

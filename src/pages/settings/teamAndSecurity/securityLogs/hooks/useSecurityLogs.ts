@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { formatFiltersForSecurityLogsQuery } from '~/components/Filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'

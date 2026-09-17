@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon, IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Button } from '~/components/designSystem/Button'
@@ -502,9 +502,14 @@ const PaymentDetails = () => {
                       }}
                       invalidWrapper={() => <>{'-'}</>}
                     >
-                      <Typography variant="body" color="grey700" forceBreak>
+                      <Typography
+                        variant="body"
+                        color="grey700"
+                        forceBreak
+                        className="flex items-center gap-1"
+                      >
                         {payment?.providerPaymentId ?? payment?.reference}
-                        <Icon name="outside" className="mb-1 ml-2" />
+                        <Icon name="outside" />
                       </Typography>
                     </ConditionalWrapper>
                   }
@@ -540,6 +545,7 @@ const PaymentDetails = () => {
             containerSize={{
               default: 4,
             }}
+            rowLinkLabel={({ number }) => number}
             onRowActionLink={({ id }) =>
               generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
                 customerId: customerId || (customer?.id as string),

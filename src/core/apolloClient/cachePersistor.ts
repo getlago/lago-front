@@ -1,7 +1,7 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { CachePersistor, LocalForageWrapper } from 'apollo3-cache-persist'
 import localForage from 'localforage'
-import { matchPath } from 'react-router-dom'
+import { matchPath } from 'react-router'
 
 import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
 

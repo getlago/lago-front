@@ -89,6 +89,56 @@ describe('useSubscriptionPermissionsActions', () => {
     })
   })
 
+  describe('isStatusTerminable', () => {
+    it('should return true for active subscription', () => {
+      const { result } = prepare()
+
+      expect(result.current.isStatusTerminable(StatusTypeEnum.Active)).toBe(true)
+    })
+
+    it('should return true for pending subscription', () => {
+      const { result } = prepare()
+
+      expect(result.current.isStatusTerminable(StatusTypeEnum.Pending)).toBe(true)
+    })
+
+    it('should return true for incomplete subscription', () => {
+      const { result } = prepare()
+
+      expect(result.current.isStatusTerminable(StatusTypeEnum.Incomplete)).toBe(true)
+    })
+
+    it('should return false for terminated subscription', () => {
+      const { result } = prepare()
+
+      expect(result.current.isStatusTerminable(StatusTypeEnum.Terminated)).toBe(false)
+    })
+
+    it('should return false for canceled subscription', () => {
+      const { result } = prepare()
+
+      expect(result.current.isStatusTerminable(StatusTypeEnum.Canceled)).toBe(false)
+    })
+
+    it('should return false for null status', () => {
+      const { result } = prepare()
+
+      expect(result.current.isStatusTerminable(null)).toBe(false)
+    })
+
+    it('should return false for undefined status', () => {
+      const { result } = prepare()
+
+      expect(result.current.isStatusTerminable(undefined)).toBe(false)
+    })
+
+    it('should not depend on permissions', () => {
+      const { result } = prepare({ subscriptionsUpdate: false })
+
+      expect(result.current.isStatusTerminable(StatusTypeEnum.Incomplete)).toBe(true)
+    })
+  })
+
   describe('canEditSubscription', () => {
     it('should return true when user has permission and status is active', () => {
       const { result } = prepare({ subscriptionsUpdate: true })
@@ -142,6 +192,56 @@ describe('useSubscriptionPermissionsActions', () => {
       const { result } = prepare({ subscriptionsUpdate: true })
 
       expect(result.current.canEditSubscription(undefined)).toBe(false)
+    })
+  })
+
+  describe('canTerminateSubscription', () => {
+    it('should return true when user has permission and status is active', () => {
+      const { result } = prepare({ subscriptionsUpdate: true })
+
+      expect(result.current.canTerminateSubscription(StatusTypeEnum.Active)).toBe(true)
+    })
+
+    it('should return true when user has permission and status is pending', () => {
+      const { result } = prepare({ subscriptionsUpdate: true })
+
+      expect(result.current.canTerminateSubscription(StatusTypeEnum.Pending)).toBe(true)
+    })
+
+    it('should return true when user has permission and status is incomplete', () => {
+      const { result } = prepare({ subscriptionsUpdate: true })
+
+      expect(result.current.canTerminateSubscription(StatusTypeEnum.Incomplete)).toBe(true)
+    })
+
+    it('should return false when user has permission but status is terminated', () => {
+      const { result } = prepare({ subscriptionsUpdate: true })
+
+      expect(result.current.canTerminateSubscription(StatusTypeEnum.Terminated)).toBe(false)
+    })
+
+    it('should return false when user has permission but status is canceled', () => {
+      const { result } = prepare({ subscriptionsUpdate: true })
+
+      expect(result.current.canTerminateSubscription(StatusTypeEnum.Canceled)).toBe(false)
+    })
+
+    it('should return false when user does not have permission even if status is incomplete', () => {
+      const { result } = prepare({ subscriptionsUpdate: false })
+
+      expect(result.current.canTerminateSubscription(StatusTypeEnum.Incomplete)).toBe(false)
+    })
+
+    it('should return false for null status even with permission', () => {
+      const { result } = prepare({ subscriptionsUpdate: true })
+
+      expect(result.current.canTerminateSubscription(null)).toBe(false)
+    })
+
+    it('should return false for undefined status even with permission', () => {
+      const { result } = prepare({ subscriptionsUpdate: true })
+
+      expect(result.current.canTerminateSubscription(undefined)).toBe(false)
     })
   })
 })

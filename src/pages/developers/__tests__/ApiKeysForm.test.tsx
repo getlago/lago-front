@@ -121,7 +121,7 @@ describe('ApiKeysForm', () => {
       },
     })
     // Reset useParams mock for each test
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({})
   })
@@ -295,7 +295,7 @@ describe('ApiKeysForm', () => {
 
   describe('GIVEN the form is in edit mode', () => {
     beforeEach(() => {
-      const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+      const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
       useParamsMock.mockReturnValue({
         apiKeyId: 'api-key-123',

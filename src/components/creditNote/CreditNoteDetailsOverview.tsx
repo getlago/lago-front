@@ -1,7 +1,7 @@
 import { gql, MutationFunction } from '@apollo/client'
 import { ConditionalWrapper } from 'lago-design-system'
-import { FC, useMemo } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { FC } from 'react'
+import { generatePath, useParams } from 'react-router'
 
 import { CreditNoteDetailsOverviewTable } from '~/components/creditNote/CreditNoteDetailsOverviewTable'
 import { Button } from '~/components/designSystem/Button'
@@ -102,13 +102,10 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
     ? creditNoteRefundStatusMapping(creditNote?.refundStatus)
     : creditNoteCreditStatusMapping(creditNote?.creditStatus)
 
-  const canDownloadCreditNote = useMemo(() => {
-    return !hasError && !loading && hasPermissions(['creditNotesView']) && !disablePdfGeneration
-  }, [hasError, loading, hasPermissions])
+  const canDownloadCreditNote =
+    !hasError && !loading && hasPermissions(['creditNotesView']) && !disablePdfGeneration
 
-  const canDownloadXmlFile = useMemo(() => {
-    return creditNote?.billingEntity.einvoicing || !!creditNote?.xmlUrl
-  }, [creditNote])
+  const canDownloadXmlFile = creditNote?.billingEntity.einvoicing || !!creditNote?.xmlUrl
 
   return (
     <div>
@@ -198,7 +195,6 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
                       validWrapper={(children) => <>{children}</>}
                       invalidWrapper={(children) => (
                         <Link
-                          className="visited:text-blue"
                           to={generatePath(CUSTOMER_DETAILS_ROUTE, {
                             customerId: creditNote?.customer?.id,
                           })}
@@ -216,7 +212,6 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
                     title={translate('text_637655cb50f04bf1c8379d02')}
                     value={
                       <Link
-                        className="visited:text-blue"
                         to={generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
                           customerId: creditNote?.customer?.id,
                           invoiceId: creditNote?.invoice.id,

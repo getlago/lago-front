@@ -62,6 +62,19 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
       return
     }
 
+    const mountPoint = document.getElementById(mountId)
+
+    if (!mountPoint) {
+      return
+    }
+
+    // The SDK clears its mount point on unmount, so each embed must own a separate element.
+    const instanceMount = document.createElement('div')
+
+    instanceMount.className = 'size-full'
+    mountPoint.replaceChildren(instanceMount)
+
+    let disposed = false
     let embedded: null | EmbeddedDashboard = null
 
     const persistFilters = isFeatureFlagActive(FeatureFlags.SUPERSET_PERSISTENT_FILTERS)
@@ -77,6 +90,10 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
 
     const debouncedSaveFilters = persistFilters
       ? debounce((dataMask: Record<string, unknown>) => {
+          if (disposed) {
+            return
+          }
+
           const filters = extractNativeFilters(dataMask)
 
           if (Object.keys(filters).length > 0) {
@@ -87,13 +104,7 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         }, 500)
       : null
 
-    const mount = async () => {
-      const mountPoint = document.getElementById(mountId)
-
-      if (!mountPoint) {
-        return
-      }
-
+    const mount = async (): Promise<void> => {
       let urlParams: Record<string, string> | undefined
 
       if (persistFilters) {
@@ -103,10 +114,10 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         urlParams = hasFilters ? { native_filters: encodeRison(savedFilters) } : undefined
       }
 
-      embedded = await embedDashboard({
+      const instance = await embedDashboard({
         id: dashboard.embeddedId,
         supersetDomain: lagoSupersetUrl,
-        mountPoint,
+        mountPoint: instanceMount,
         fetchGuestToken: async () => dashboard?.guestToken,
         dashboardUiConfig: {
           hideTitle: true,
@@ -119,6 +130,13 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         iframeSandboxExtras: ['allow-top-navigation', 'allow-popups-to-escape-sandbox'],
       })
 
+      if (disposed) {
+        instance.unmount()
+        return
+      }
+
+      embedded = instance
+
       if (debouncedSaveFilters) {
         embedded.observeDataMask(debouncedSaveFilters)
       }
@@ -129,8 +147,10 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
     mount()
 
     return () => {
+      disposed = true
       debouncedSaveFilters?.cancel()
       embedded?.unmount()
+      instanceMount.remove()
       dashboardRef.current = ''
     }
   }, [dashboard, currentMembership?.organization.id, dashboardTitle, mountId])

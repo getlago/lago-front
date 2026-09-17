@@ -85,6 +85,8 @@ export const SubscriptionPlanPreviewTable = ({
   currency,
   locale,
 }: SubscriptionPlanPreviewTableProps) => {
+  if (data.rows.length === 0) return null
+
   const formatValue = (v: PreviewCellValue): string => {
     switch (v.type) {
       case 'count':

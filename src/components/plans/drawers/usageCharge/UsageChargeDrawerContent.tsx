@@ -1,22 +1,20 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useCallback, useMemo, useRef } from 'react'
-import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
-import { Card } from '~/components/designSystem/Card'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
 import { VirtualFilterList } from '~/components/designSystem/VirtualList/VirtualFilterList'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { DRAWER_TRANSITION_DURATION } from '~/components/drawers/const'
 import { useDrawer } from '~/components/drawers/useDrawer'
-import { JsonEditor } from '~/components/form'
 import { ComboboxDataGrouped } from '~/components/form/ComboBox/types'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { buildChargeFilterAddFilterButtonId } from '~/components/plans/chargeAccordion/ChargeFilter'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { ChargeWrapperSwitch } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { CustomPricingUnitSelector } from '~/components/plans/chargeAccordion/CustomPricingUnitSelector'
+import { ChargeDisplayInQuoteDocumentOption } from '~/components/plans/chargeAccordion/options/ChargeDisplayInQuoteDocumentOption'
 import { ChargeInvoicingStrategyOption } from '~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOption'
 import { ChargePayInAdvanceOption } from '~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption'
 import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
@@ -24,6 +22,7 @@ import { seedChargeCode } from '~/components/plans/drawers/common/chargeCode'
 import ChargeCodeField from '~/components/plans/drawers/common/ChargeCodeField'
 import { buildCodeComboboxItem } from '~/components/plans/drawers/common/codeComboboxItem'
 import { PlanBillingPeriodInfoSection } from '~/components/plans/drawers/common/PlanBillingPeriodInfoSection'
+import { useCustomChargeDrawer } from '~/components/plans/drawers/common/useCustomChargeDrawer'
 import {
   LocalChargeFilterInput,
   LocalPricingUnitInput,
@@ -63,9 +62,9 @@ import { DEFAULT_VALUES, UsageChargeDrawerFormValues } from './constants'
 
 interface UsageChargeDrawerContentExtraProps {
   isCreateMode: boolean
-  isEdition?: boolean
   disabled?: boolean
   isInSubscriptionForm?: boolean
+  isInQuoteForm?: boolean
   // TEMP (LAGO-1498): Code is shown only via the v2 details/edition UI.
   showCode?: boolean
   existingChargeCodes?: (string | null | undefined)[]
@@ -75,14 +74,14 @@ interface UsageChargeDrawerContentExtraProps {
   initialCharge?: LocalUsageChargeInput
   alreadyUsedChargeAlertMessage?: string
   currency: CurrencyEnum
-  interval: PlanInterval
+  interval: PlanInterval | null | undefined
 }
 
 const usageChargeDrawerContentDefaultProps: UsageChargeDrawerContentExtraProps = {
   isCreateMode: false,
-  isEdition: false,
   disabled: false,
   isInSubscriptionForm: false,
+  isInQuoteForm: false,
   showCode: false,
   existingChargeCodes: undefined,
   subscriptionFormType: undefined,
@@ -100,9 +99,9 @@ export const UsageChargeDrawerContent = withForm({
   render: function UsageChargeDrawerContentRender({
     form,
     isCreateMode,
-    isEdition,
     disabled,
     isInSubscriptionForm,
+    isInQuoteForm,
     showCode,
     existingChargeCodes,
     subscriptionFormType,
@@ -270,8 +269,11 @@ export const UsageChargeDrawerContent = withForm({
 
     // Filter drawer
     const filterDrawer = useDrawer()
-    // Custom charge drawer — opened from CustomCharge via context callback
-    const customChargeDrawer = useDrawer()
+    // Custom charge sub-drawer - the only write path for `properties.customProperties`
+    const { openCustomChargeDrawer } = useCustomChargeDrawer({
+      onSave: (customProperties) =>
+        form.setFieldValue('properties.customProperties', customProperties),
+    })
     const filterEditIndexRef = useRef<number | null>(null)
     const filterOpenCounterRef = useRef(0)
 
@@ -356,7 +358,6 @@ export const UsageChargeDrawerContent = withForm({
             chargeType="usage"
             currency={currency}
             chargePricingUnitShortName={chargePricingUnitShortName}
-            isEdition={isEdition || false}
           >
             <ChargeFilterDrawerContent
               key={filterOpenCounterRef.current}
@@ -420,68 +421,6 @@ export const UsageChargeDrawerContent = withForm({
             ?.click()
         }, DRAWER_TRANSITION_DURATION + 150)
       }
-    }
-
-    const customChargeForm = useAppForm({
-      defaultValues: { customProperties: '' as string | undefined },
-      validators: {
-        onDynamic: z.object({ customProperties: z.string().min(1) }),
-      },
-      onSubmit: ({ value }) => {
-        if (value.customProperties) {
-          form.setFieldValue('properties.customProperties', value.customProperties)
-          customChargeDrawer.close()
-        }
-      },
-    })
-
-    const openCustomChargeDrawer = (currentValue: string | undefined) => {
-      customChargeForm.reset({ customProperties: currentValue }, { keepDefaultValues: true })
-
-      customChargeDrawer.open({
-        title: translate('text_663dea5702b60301d8d0646e'),
-        shouldPromptOnClose: () => customChargeForm.state.isDirty,
-        onClose: () => customChargeForm.reset(),
-        children: (
-          <CenteredPage.SectionWrapper>
-            <CenteredPage.PageTitle
-              title={translate('text_663dea5702b60301d8d0646e')}
-              description={translate('text_663dea5702b60301d8d064fe')}
-            />
-
-            <Card>
-              <Typography variant="subhead1">
-                {translate('text_663dea5702b60301d8d06502')}
-              </Typography>
-              <JsonEditor
-                hideLabel
-                label={translate('text_663dea5702b60301d8d06502')}
-                value={currentValue}
-                onChange={(value) => customChargeForm.setFieldValue('customProperties', value)}
-                onBlur={() => {}}
-              />
-            </Card>
-          </CenteredPage.SectionWrapper>
-        ),
-        actions: (
-          <div className="flex justify-end gap-3">
-            <Button variant="quaternary" onClick={() => customChargeDrawer.close()}>
-              {translate('text_6411e6b530cb47007488b027')}
-            </Button>
-            <customChargeForm.Subscribe selector={({ canSubmit }) => canSubmit}>
-              {(canSubmit) => (
-                <Button
-                  disabled={!canSubmit}
-                  onClick={() => customChargeForm.handleSubmit()}
-                  data-test="custom-charge-drawer-save"
-                >
-                  {translate('text_663dea5702b60301d8d06490')}
-                </Button>
-              )}
-            </customChargeForm.Subscribe>
-          </div>
-        ),
-      })
     }
 
     return (
@@ -583,6 +522,7 @@ export const UsageChargeDrawerContent = withForm({
               <CenteredPage.PageSectionTitle title={translate('text_1772133285141xbpuxbd4vrk')} />
 
               <ChargeModelSelector
+                label={translate('text_65201b8216455901fe273dd5')}
                 alreadyUsedChargeAlertMessage={alreadyUsedChargeAlertMessage}
                 isInSubscriptionForm={isInSubscriptionForm}
                 disabled={isExistingChargeDisabled}
@@ -596,7 +536,6 @@ export const UsageChargeDrawerContent = withForm({
                 chargePricingUnitShortName={chargePricingUnitShortName}
                 currency={currency}
                 form={form}
-                isEdition={isEdition || false}
                 localCharge={formValues as unknown as LocalUsageChargeInput}
                 propertyCursor="properties"
                 onExpandCustomCharge={openCustomChargeDrawer}
@@ -758,6 +697,14 @@ export const UsageChargeDrawerContent = withForm({
                     )}
                   </form.AppField>
                 </div>
+              )}
+
+              {isInQuoteForm && (
+                <ChargeDisplayInQuoteDocumentOption
+                  form={form}
+                  fields={{ displayInQuoteDocument: 'displayInQuoteDocument' }}
+                  disabled={disabled}
+                />
               )}
 
               {!formValues.payInAdvance && (

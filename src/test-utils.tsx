@@ -3,7 +3,8 @@ import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { ThemeProvider } from '@mui/material/styles'
 import { configure, render, RenderOptions } from '@testing-library/react'
 import React, { ReactElement, useEffect } from 'react'
-import Router, { BrowserRouter } from 'react-router-dom'
+import * as Router from 'react-router'
+import { BrowserRouter } from 'react-router'
 
 import { MainHeaderProvider } from '~/components/MainHeader/MainHeaderContext'
 import { initializeTranslations } from '~/core/apolloClient'
@@ -43,7 +44,7 @@ export const AllTheProviders = ({
   !!useParams && jest.spyOn(Router, 'useParams').mockReturnValue(useParams)
 
   return (
-    <BrowserRouter basename="/">
+    <BrowserRouter basename="/" useTransitions={false}>
       <MockedProvider addTypename={forceTypenames} mocks={mocks}>
         <ThemeProvider theme={theme}>
           <MainHeaderProvider>{children}</MainHeaderProvider>

@@ -4,21 +4,26 @@ import { LocalFixedChargeInput, LocalUsageChargeInput } from '~/components/plans
 import { getChargeModelHelpTextTranslationKey } from '~/core/constants/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+type ChargeModelSelectorProps = {
+  label: string
+  disabled: boolean | undefined
+  // Narrowed to what is read, so a caller owning no charge need not fake one.
+  localCharge: Pick<LocalUsageChargeInput | LocalFixedChargeInput, 'chargeModel'>
+  chargeModelComboboxData: BasicComboBoxData[]
+  handleUpdate: (name: string, value: unknown) => void
+  alreadyUsedChargeAlertMessage?: string
+  isInSubscriptionForm?: boolean
+}
+
 export const ChargeModelSelector = ({
-  alreadyUsedChargeAlertMessage,
-  isInSubscriptionForm,
+  label,
   disabled,
   localCharge,
   chargeModelComboboxData,
   handleUpdate,
-}: {
-  alreadyUsedChargeAlertMessage: string | undefined
-  isInSubscriptionForm: boolean | undefined
-  disabled: boolean | undefined
-  localCharge: LocalUsageChargeInput | LocalFixedChargeInput
-  chargeModelComboboxData: BasicComboBoxData[]
-  handleUpdate: (name: string, value: unknown) => void
-}) => {
+  alreadyUsedChargeAlertMessage,
+  isInSubscriptionForm,
+}: ChargeModelSelectorProps) => {
   const { translate } = useInternationalization()
 
   return (
@@ -32,7 +37,7 @@ export const ChargeModelSelector = ({
         disableClearable
         name="chargeModel"
         disabled={isInSubscriptionForm || disabled}
-        label={translate('text_65201b8216455901fe273dd5')}
+        label={label}
         data={chargeModelComboboxData}
         value={localCharge.chargeModel}
         helperText={translate(getChargeModelHelpTextTranslationKey[localCharge.chargeModel])}

@@ -1,0 +1,218 @@
+import { gql } from '@apollo/client'
+import { generatePath, useParams } from 'react-router'
+
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderAction } from '~/components/MainHeader/types'
+import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
+import {
+  ProductCatalogTabsOptionsEnum,
+  RateCardDetailsTabsOptionsEnum,
+} from '~/core/constants/tabsOptions'
+import { PRODUCT_CATALOG_TAB_ROUTE, RATE_CARD_DETAILS_ROUTE, useNavigate } from '~/core/router'
+import {
+  GetRateCardForDetailsQuery,
+  LagoApiError,
+  RateCardForDeleteRateCardDialogFragmentDoc,
+  RateCardForDrawerFragmentDoc,
+  RateCardForRateDrawerFragmentDoc,
+  useGetRateCardForDetailsQuery,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
+import { usePermissions } from '~/hooks/usePermissions'
+
+import RateCardActivityLogs from './RateCardActivityLogs'
+import RateCardDetailsOverview from './RateCardDetailsOverview'
+import RateCardRatesTab from './RateCardRatesTab'
+
+import { useDeleteRateCardDialog } from '../dialogs/useDeleteRateCardDialog'
+import { useRateCardDrawer } from '../drawers/rateCard/useRateCardDrawer'
+
+gql`
+  fragment RateCardForRateCardDetails on RateCard {
+    id
+  }
+
+  query getRateCardForDetails($id: ID!) {
+    rateCard(id: $id) {
+      id
+      name
+      code
+      ...RateCardForRateCardDetails
+      ...RateCardForDrawer
+      ...RateCardForDeleteRateCardDialog
+      ...RateCardForRateDrawer
+    }
+  }
+
+  ${RateCardForDrawerFragmentDoc}
+  ${RateCardForDeleteRateCardDialogFragmentDoc}
+  ${RateCardForRateDrawerFragmentDoc}
+`
+
+// The header config is only re-pushed when this key changes, and its closures capture the
+// rate card, so the key must encode every mutable field they read - including `code`, which
+// the header renders through a React node the config snapshot strips.
+export const buildRateCardSnapshotKey = (
+  rateCard?: GetRateCardForDetailsQuery['rateCard'],
+): string =>
+  [
+    rateCard?.code,
+    rateCard?.description,
+    rateCard?.billingTiming,
+    rateCard?.proration,
+    rateCard?.attachedToPlanOrSubscription,
+    rateCard?.attachedToSubscriptions,
+    rateCard?.ratesCount,
+    rateCard?.currency,
+    rateCard?.appliedPricingUnitCode,
+    rateCard?.displayOnInvoice,
+    rateCard?.regroupPaidFees,
+    rateCard?.activeRate?.effectiveFrom,
+  ].join('|')
+
+const RATE_CARDS_LIST_PATH = generatePath(PRODUCT_CATALOG_TAB_ROUTE, {
+  tab: ProductCatalogTabsOptionsEnum.rateCards,
+})
+
+export const RATE_CARD_DETAILS_ACTIONS_TEST_ID = 'rate-card-details-actions'
+export const RATE_CARD_DETAILS_EDIT_TEST_ID = 'rate-card-details-edit'
+export const RATE_CARD_DETAILS_DELETE_TEST_ID = 'rate-card-details-delete'
+
+const RateCardDetails = () => {
+  const navigate = useNavigate()
+  const { translate } = useInternationalization()
+  const { rateCardId } = useParams()
+  const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
+  const { openDrawer: openEditRateCardDrawer } = useRateCardDrawer()
+  const { openDeleteRateCardDialog } = useDeleteRateCardDialog()
+
+  const { data, loading, error } = useGetRateCardForDetailsQuery({
+    variables: { id: rateCardId as string },
+    skip: !rateCardId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+  })
+
+  useNotFoundRedirect({
+    error,
+    loading,
+    redirectTo: RATE_CARDS_LIST_PATH,
+    translateKey: 'text_1784930440657nw8iu2iml5k',
+  })
+
+  const rateCard = data?.rateCard
+
+  const actions: MainHeaderAction[] = [
+    {
+      type: 'dropdown',
+      label: translate('text_626162c62f790600f850b6fe'),
+      dataTest: RATE_CARD_DETAILS_ACTIONS_TEST_ID,
+      items: [
+        {
+          label: translate('text_17849252278173fdc5gny30g'),
+          dataTest: RATE_CARD_DETAILS_EDIT_TEST_ID,
+          hidden: !hasPermissions(['rateCardsUpdate']),
+          onClick: (closePopper) => {
+            if (rateCard) openEditRateCardDrawer({ rateCard })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_629728388c4d2300e2d38182'),
+          dataTest: RATE_CARD_DETAILS_DELETE_TEST_ID,
+          hidden: !hasPermissions(['rateCardsDelete']),
+          onClick: (closePopper) => {
+            if (rateCard) {
+              openDeleteRateCardDialog({
+                rateCard,
+                callback: () => navigate(RATE_CARDS_LIST_PATH),
+              })
+            }
+            closePopper()
+          },
+        },
+      ],
+    },
+  ]
+
+  const activeTabContent = useMainHeaderTabContent()
+
+  return (
+    <>
+      <MainHeader.Configure
+        snapshotKey={buildRateCardSnapshotKey(rateCard)}
+        breadcrumb={[
+          {
+            label: translate('text_1783019143196z1oi70j03vt'),
+            path: RATE_CARDS_LIST_PATH,
+          },
+          { label: translate('text_1783020794400xdy5qokafvy') },
+        ]}
+        entity={{
+          viewName: rateCard?.name || '',
+          viewNameLoading: loading,
+          metadata: rateCard?.code ? (
+            <TypographyWithCopy variant="body">{rateCard.code}</TypographyWithCopy>
+          ) : undefined,
+          metadataLoading: loading,
+        }}
+        actions={{ items: actions, loading }}
+        tabs={[
+          {
+            title: translate('text_628cf761cbe6820138b8f2e4'),
+            link: generatePath(RATE_CARD_DETAILS_ROUTE, {
+              rateCardId: rateCardId as string,
+              tab: RateCardDetailsTabsOptionsEnum.overview,
+            }),
+            content: (
+              <DetailsPage.Container className="pt-6">
+                <RateCardDetailsOverview rateCardId={rateCardId as string} />
+              </DetailsPage.Container>
+            ),
+          },
+          {
+            title: translate('text_1784930705742tg0kbcsak2v'),
+            link: generatePath(RATE_CARD_DETAILS_ROUTE, {
+              rateCardId: rateCardId as string,
+              tab: RateCardDetailsTabsOptionsEnum.rates,
+            }),
+            content: (
+              <DetailsPage.Container className="pt-6">
+                <RateCardRatesTab rateCardId={rateCardId as string} rateCard={rateCard} />
+              </DetailsPage.Container>
+            ),
+          },
+          {
+            title: translate('text_62442e40cea25600b0b6d85a'),
+            link: generatePath(RATE_CARD_DETAILS_ROUTE, {
+              rateCardId: rateCardId as string,
+              tab: RateCardDetailsTabsOptionsEnum.plans,
+            }),
+            content: <div className="p-4">{translate('text_62442e40cea25600b0b6d85a')}</div>,
+          },
+          {
+            title: translate('text_1747314141347qq6rasuxisl'),
+            link: generatePath(RATE_CARD_DETAILS_ROUTE, {
+              rateCardId: rateCardId as string,
+              tab: RateCardDetailsTabsOptionsEnum.activityLogs,
+            }),
+            content: (
+              <DetailsPage.Container className="pt-6">
+                <RateCardActivityLogs rateCardId={rateCardId as string} />
+              </DetailsPage.Container>
+            ),
+            hidden: !isPremium || !hasPermissions(['auditLogsView']),
+          },
+        ]}
+      />
+
+      {activeTabContent}
+    </>
+  )
+}
+
+export default RateCardDetails

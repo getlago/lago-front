@@ -142,6 +142,18 @@ describe('usePlanFormSetup', () => {
         expect(result.current.resolvedPlanId).toBe('plan-123')
       })
 
+      it('THEN should expose the same plan as catalogPlan', () => {
+        mockUseGetSinglePlanQuery.mockReturnValue({
+          data: { plan: mockPlan },
+          loading: false,
+          error: undefined,
+        })
+
+        const { result } = renderHook(() => usePlanFormSetup({ planIdToFetch: 'plan-123' }))
+
+        expect(result.current.catalogPlan).toEqual(mockPlan)
+      })
+
       it('THEN should call buildDefaultValues with the plan', () => {
         mockUseGetSinglePlanQuery.mockReturnValue({
           data: { plan: mockPlan },
@@ -209,6 +221,32 @@ describe('usePlanFormSetup', () => {
         expect(capturedDefaultValues).toEqual(mockDeserialized.formValues)
       })
 
+      it('THEN should expose the parent as catalogPlan when the stored plan is an override', () => {
+        mockFromPlanBillingItems.mockReturnValue({
+          formValues: { name: 'Deserialized Plan' },
+          subscriptionSettings: {},
+          invoicingSettings: {},
+        })
+        // A quote saved from an amendment stores the subscription's override plan id.
+        mockUseGetSinglePlanQuery.mockReturnValue({
+          data: {
+            plan: {
+              ...mockPlan,
+              id: 'override-plan-1',
+              parent: { id: 'parent-plan-1', name: 'Starter', code: 'starter' },
+            },
+          },
+          loading: false,
+          error: undefined,
+        })
+
+        const { result } = renderHook(() =>
+          usePlanFormSetup({ billingItemPlan: billingItemPlan as never }),
+        )
+
+        expect(result.current.catalogPlan?.id).toBe('parent-plan-1')
+      })
+
       it('THEN should skip the plan query', () => {
         mockFromPlanBillingItems.mockReturnValue({
           formValues: { name: 'Plan' },
@@ -261,6 +299,22 @@ describe('usePlanFormSetup', () => {
           startDate: '2026-01-01',
           endDate: '2026-12-31',
         })
+      })
+
+      it('THEN should expose the override child as plan and the parent as catalogPlan', () => {
+        mockUseGetSubscriptionForQuotePricingQuery.mockReturnValue({
+          data: { subscription: mockSubscription },
+        })
+        mockUseGetSinglePlanQuery.mockReturnValue({
+          data: { plan: { ...mockPlan, id: 'parent-plan-1' } },
+          loading: false,
+          error: undefined,
+        })
+
+        const { result } = renderHook(() => usePlanFormSetup({ subscriptionId: 'sub-1' }))
+
+        expect(result.current.plan?.id).toBe('child-plan-1')
+        expect(result.current.catalogPlan?.id).toBe('parent-plan-1')
       })
 
       it('THEN should skip the plan query since subscriptionPlan is available', () => {
@@ -426,6 +480,54 @@ describe('usePlanFormSetup', () => {
         // EUR call can only come from the baseline.
         expect(mockBuildDefaultValues).toHaveBeenCalledWith(
           expect.objectContaining({ amountCurrency: 'EUR' }),
+          FORM_TYPE_ENUM.creation,
+          CurrencyEnum.Eur,
+          false,
+        )
+      })
+    })
+
+    describe('WHEN the resolved plan is an override child', () => {
+      // `parent` is a reference-only selection, so the baseline has to come from a full
+      // fetch of the catalog plan. Diffing against the child instead reads the previous
+      // negotiation as the list price, and every term still matching it drops out of the
+      // overrides — the quote then bills the catalog price (LAGO-1838).
+      const overrideChild = {
+        ...mockPlan,
+        id: 'child-plan-1',
+        parent: { id: 'parent-plan-1', name: 'Starter', code: 'starter' },
+      }
+      const catalogPlan = { id: 'parent-plan-1', amountCurrency: 'EUR', parent: null }
+
+      const mockPlanQueryById = (): void => {
+        mockUseGetSinglePlanQuery.mockImplementation(
+          ({ variables, skip }: { variables?: { id?: string }; skip?: boolean }) => ({
+            data: skip
+              ? undefined
+              : { plan: variables?.id === 'parent-plan-1' ? catalogPlan : overrideChild },
+            loading: false,
+            error: undefined,
+          }),
+        )
+      }
+
+      it('THEN should fetch the catalog plan in full', () => {
+        mockPlanQueryById()
+
+        renderHook(() => usePlanFormSetup({ planIdToFetch: 'child-plan-1' }))
+
+        expect(mockUseGetSinglePlanQuery).toHaveBeenCalledWith(
+          expect.objectContaining({ variables: { id: 'parent-plan-1' }, skip: false }),
+        )
+      })
+
+      it('THEN should build the baseline from the catalog plan rather than the child', () => {
+        mockPlanQueryById()
+
+        renderHook(() => usePlanFormSetup({ planIdToFetch: 'child-plan-1' }))
+
+        expect(mockBuildDefaultValues).toHaveBeenCalledWith(
+          catalogPlan,
           FORM_TYPE_ENUM.creation,
           CurrencyEnum.Eur,
           false,

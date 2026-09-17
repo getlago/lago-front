@@ -61,7 +61,7 @@ jest.mock('~/components/invoicingSettings/InvoicingSettingsSelector', () => ({
   },
 }))
 
-const customer = { id: 'cust-1', externalId: 'ext-1', name: 'Acme' }
+const customer = { id: 'cust-1', externalId: 'ext-1', displayName: 'Acme' }
 
 const section: InvoiceCustomSectionInput = {
   invoiceCustomSections: [{ id: 'sec-1', name: 'Bank details' }],

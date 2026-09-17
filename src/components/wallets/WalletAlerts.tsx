@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Button } from '~/components/designSystem/Button'
@@ -54,6 +54,7 @@ type WalletAlertsProps = {
 }
 
 export const WALLET_ALERT_ACTIONS_DATA_TEST = 'wallet-alert-actions-data-test'
+export const WALLET_ALERT_EDIT_BUTTON_TEST_ID = 'wallet-alert-edit-button'
 
 export const WALLET_ALERTS_LOADING_TEST_ID = 'wallet-alerts-loading'
 export const WALLET_ALERTS_EMPTY_TEST_ID = 'wallet-alerts-empty'
@@ -83,7 +84,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
 
   const { data, error, loading } = useGetWalletAlertsQuery({
     variables: {
-      walletId: wallet?.id as string,
+      walletId: wallet.id,
     },
     skip: !wallet?.id,
   })
@@ -210,25 +211,28 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                       >
                         {({ closePopper }) => (
                           <MenuPopper>
-                            <Button
-                              startIcon="pen"
-                              variant="quaternary"
-                              align="left"
-                              fullWidth
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                navigate(
-                                  generatePath(UPDATE_ALERT_WALLET_ROUTE, {
-                                    walletId: wallet.id,
-                                    customerId: customerId ?? null,
-                                    alertId: currentAlert.id,
-                                  }),
-                                )
-                                closePopper()
-                              }}
-                            >
-                              {translate('text_1773051593208w1akrget7fg')}
-                            </Button>
+                            {!!customerId && (
+                              <Button
+                                startIcon="pen"
+                                variant="quaternary"
+                                align="left"
+                                fullWidth
+                                data-test={WALLET_ALERT_EDIT_BUTTON_TEST_ID}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  navigate(
+                                    generatePath(UPDATE_ALERT_WALLET_ROUTE, {
+                                      walletId: wallet.id,
+                                      customerId,
+                                      alertId: currentAlert.id,
+                                    }),
+                                  )
+                                  closePopper()
+                                }}
+                              >
+                                {translate('text_1773051593208w1akrget7fg')}
+                              </Button>
+                            )}
 
                             <Button
                               startIcon="trash"

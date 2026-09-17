@@ -17,8 +17,8 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 let mockSearchParams = new URLSearchParams()
 
-jest.mock('react-router-dom', () => {
-  const actual = jest.requireActual('react-router-dom')
+jest.mock('react-router', () => {
+  const actual = jest.requireActual('react-router')
   const { mockNavigate } = (
     globalThis as unknown as { __testRouterMocks: { mockNavigate: jest.Mock } }
   ).__testRouterMocks
@@ -83,6 +83,23 @@ describe('ActiveFiltersList', () => {
         renderActiveFiltersList([AvailableFiltersEnum.externalId, AvailableFiltersEnum.status])
 
         expect(screen.getAllByTestId(FILTERS_ACTIVE_FILTER_ITEM_TEST_ID)).toHaveLength(2)
+      })
+    })
+  })
+
+  describe('GIVEN an active filter with a long value', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN the chip stays on one line and ellipsises its content', () => {
+        mockSearchParams = new URLSearchParams(
+          `f_externalId=${'a-very-long-external-id-value'.repeat(5)}`,
+        )
+
+        renderActiveFiltersList([AvailableFiltersEnum.externalId])
+
+        const chip = screen.getAllByTestId(FILTERS_ACTIVE_FILTER_ITEM_TEST_ID)[0]
+
+        expect(chip).toHaveClass('max-w-full')
+        expect(chip.firstChild).toHaveClass('MuiTypography-noWrap')
       })
     })
   })

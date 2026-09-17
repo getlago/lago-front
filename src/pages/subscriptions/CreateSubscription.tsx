@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { generatePath, useParams, useSearchParams } from 'react-router-dom'
+import { generatePath, useParams, useSearchParams } from 'react-router'
 
 import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { Alert } from '~/components/designSystem/Alert'
@@ -569,7 +569,7 @@ const CreateSubscription = () => {
                         }
                         shouldDisplaySubscriptionName={shouldDisplaySubscriptionName}
                         setShouldDisplaySubscriptionName={setShouldDisplaySubscriptionName}
-                        selectedPlanInterval={selectedPlan?.interval}
+                        selectedPlanInterval={selectedPlan?.interval ?? undefined}
                         customerExternalId={customer?.externalId}
                       />
 

@@ -94,7 +94,6 @@ jest.mock('~/contexts/ChargeFilterDrawerContext', () => ({
     chargeType: 'usage',
     currency: 'USD',
     chargePricingUnitShortName: undefined,
-    isEdition: false,
   }),
 }))
 

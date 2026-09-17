@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
 import { QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { QUOTES_TAB_ROUTE } from '~/core/router'
+import { CUSTOMER_DETAILS_ROUTE, Link, QUOTES_TAB_ROUTE } from '~/core/router'
 import { useGetOrderForEditQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -20,8 +20,10 @@ import { getOrderExecutionModeTranslationKey } from './common/getOrderExecutionM
 import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
 import { QuotePreviewCard } from './common/QuotePreviewCard'
 
-export const ORDER_DETAILS_CLOSE_BUTTON_TEST_ID = 'order-details-close-button'
-export const ORDER_DETAILS_PREVIEW_TEST_ID = 'order-details-preview'
+const ORDER_DETAILS_CLOSE_BUTTON_TEST_ID = 'order-details-close-button'
+const ORDER_DETAILS_PREVIEW_TEST_ID = 'order-details-preview'
+
+export const ORDER_DETAILS_CUSTOMER_LINK_TEST_ID = 'order-details-customer-link'
 
 const OrderDetails = () => {
   const { translate } = useInternationalization()
@@ -77,6 +79,22 @@ const OrderDetails = () => {
 
   const executeAtLabel = order?.executeAt ? intlFormatDateTimeOrgaTZ(order.executeAt).date : '-'
 
+  const renderCustomerLink = (): JSX.Element | string => {
+    if (!order?.customer) return ''
+
+    return (
+      <Link
+        className="w-fit"
+        data-test={ORDER_DETAILS_CUSTOMER_LINK_TEST_ID}
+        to={generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: order.customer.id })}
+      >
+        <Typography variant="body" color="inherit">
+          {order.customer.displayName}
+        </Typography>
+      </Link>
+    )
+  }
+
   return (
     <div>
       <PageHeader.Wrapper>
@@ -123,9 +141,7 @@ const OrderDetails = () => {
                     <Typography variant="caption" color="grey600">
                       {translate('text_65201c5a175a4b0238abf29a')}
                     </Typography>
-                    <Typography variant="body" color="grey700">
-                      {order.customer.displayName}
-                    </Typography>
+                    {renderCustomerLink()}
                   </div>
                   <div className="flex flex-col">
                     <Typography variant="caption" color="grey600">

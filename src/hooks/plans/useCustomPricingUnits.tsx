@@ -35,7 +35,7 @@ export const useCustomPricingUnits = (): UseCustomPricingUnitsReturn => {
   const canViewPricingUnits = hasPermissions(['pricingUnitsView'])
 
   const { data } = useGetCustomPricingUnitsQuery({
-    context: { silentError: LagoApiError.NotFound },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
     variables: { limit: 100, page: 1 },
     skip: !canViewPricingUnits,
   })

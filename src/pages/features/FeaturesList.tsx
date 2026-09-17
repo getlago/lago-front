@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
 import { useMemo, useState } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
@@ -237,9 +237,7 @@ const FeaturesList = () => {
               actions.push({
                 title: translate('text_63e51ef4985f0ebd75c212fc'),
                 startIcon: 'pen',
-                onAction: async ({ id }: { id: string }) => {
-                  navigate(generatePath(UPDATE_FEATURE_ROUTE, { featureId: id }))
-                },
+                link: ({ id }) => generatePath(UPDATE_FEATURE_ROUTE, { featureId: id }),
               })
             }
 

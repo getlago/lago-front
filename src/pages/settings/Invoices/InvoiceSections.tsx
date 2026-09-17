@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useState } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
@@ -195,12 +195,10 @@ const InvoiceSections = () => {
                       {
                         startIcon: 'pen',
                         title: translate('text_63e51ef4985f0ebd75c212fc'),
-                        onAction: () =>
-                          navigate(
-                            generatePath(EDIT_PRICING_UNIT, {
-                              pricingUnitId: id,
-                            }),
-                          ),
+                        link: () =>
+                          generatePath(EDIT_PRICING_UNIT, {
+                            pricingUnitId: id,
+                          }),
                       },
                     ]}
                   />
@@ -267,10 +265,8 @@ const InvoiceSections = () => {
                       startIcon: 'pen',
                       title: translate('text_1732638001460kne05vskb7e'),
                       disabled: !hasPermissions(['invoiceCustomSectionsUpdate']),
-                      onAction: () =>
-                        navigate(
-                          generatePath(EDIT_INVOICE_CUSTOM_SECTION, { sectionId: section.id }),
-                        ),
+                      link: () =>
+                        generatePath(EDIT_INVOICE_CUSTOM_SECTION, { sectionId: section.id }),
                     },
                     {
                       startIcon: 'trash',

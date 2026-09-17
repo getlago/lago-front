@@ -7,7 +7,6 @@ interface ChargeFilterDrawerContextValue {
   chargeType: 'fixed' | 'usage'
   currency: CurrencyEnum
   chargePricingUnitShortName: string | undefined
-  isEdition: boolean
 }
 
 const ChargeFilterDrawerContext = createContext<ChargeFilterDrawerContextValue | null>(null)
@@ -21,12 +20,11 @@ export const ChargeFilterDrawerProvider = ({
   chargeType,
   currency,
   chargePricingUnitShortName,
-  isEdition,
   children,
 }: ChargeFilterDrawerProviderProps) => {
   const value = useMemo(
-    () => ({ chargeModel, chargeType, currency, chargePricingUnitShortName, isEdition }),
-    [chargeModel, chargeType, currency, chargePricingUnitShortName, isEdition],
+    () => ({ chargeModel, chargeType, currency, chargePricingUnitShortName }),
+    [chargeModel, chargeType, currency, chargePricingUnitShortName],
   )
 
   return (

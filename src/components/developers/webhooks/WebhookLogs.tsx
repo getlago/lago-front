@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { generatePath, useParams, useSearchParams } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { generatePath, useParams, useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { WEBHOOK_LOGS_ROUTE } from '~/components/developers/devtoolsRoutes'
@@ -167,14 +167,6 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.webhooks.collection, logId])
 
-  // The table should highlight the selected row when the logId is provided in params
-  useLayoutEffect(() => {
-    if (logId && logListRef.current) {
-      logListRef.current.setActiveRow(logId)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [logId, logListRef.current])
-
   const shouldDisplayLogDetails = !!logId && !!data?.webhooks.collection.length
 
   return (
@@ -221,6 +213,7 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
           <WebhookLogTable
             getWebhookLogsResult={getWebhookLogsResult}
             logListRef={logListRef}
+            activeRowId={logId}
             isLoading={isSearchLoading}
             pageSize={pageSize}
             onPageSizeChange={setPageSize}

@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Typography } from '~/components/designSystem/Typography'
+import { CLOSE_PARAMS } from '~/components/dialogs/const'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { InviteForEditRoleForDialogFragment } from '~/generated/graphql'
@@ -29,7 +30,12 @@ const validationSchema = z.object({
 export const useEditInviteRoleDialog = () => {
   const formDialog = useFormDialog()
   const { translate } = useInternationalization()
-  const { updateInviteRole } = useInviteActions()
+  const notFoundRef = useRef(false)
+  const { updateInviteRole } = useInviteActions({
+    onInviteNotFound: () => {
+      notFoundRef.current = true
+    },
+  })
   const inviteRef = useRef<InviteForEditRoleForDialogFragment | null>(null)
   const successRef = useRef(false)
 
@@ -57,7 +63,10 @@ export const useEditInviteRoleDialog = () => {
 
   const handleSubmit = async (): Promise<DialogResult> => {
     successRef.current = false
+    notFoundRef.current = false
     await form.handleSubmit()
+
+    if (notFoundRef.current) return CLOSE_PARAMS
 
     if (!successRef.current) {
       throw new Error('Submit failed')

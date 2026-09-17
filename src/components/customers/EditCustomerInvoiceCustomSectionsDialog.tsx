@@ -22,8 +22,7 @@ import {
   editCustomerInvoiceCustomSectionsSchema,
 } from './editCustomerInvoiceCustomSections/validationSchema'
 
-export const EDIT_CUSTOMER_INVOICE_CUSTOM_SECTIONS_FORM_ID =
-  'edit-customer-invoice-custom-sections-form'
+const EDIT_CUSTOMER_INVOICE_CUSTOM_SECTIONS_FORM_ID = 'edit-customer-invoice-custom-sections-form'
 
 gql`
   mutation editCustomerInvoiceCustomSection($input: UpdateCustomerInput!) {

@@ -29,7 +29,7 @@ gql`
   }
 `
 
-export const APPLY_DUNNING_CAMPAIGN_FORM_ID = 'apply-dunning-campaign-form'
+const APPLY_DUNNING_CAMPAIGN_FORM_ID = 'apply-dunning-campaign-form'
 
 const applyDunningCampaignValidationSchema = z.object({
   appliedDunningCampaignId: z.string().min(1),

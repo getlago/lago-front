@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { useCallback, useId, useMemo, useState } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 import { array, object, string } from 'yup'
 
 import { Button } from '~/components/designSystem/Button'

@@ -62,7 +62,7 @@ export const SubscriptionDetailsV2Plan = ({ subscriptionId }: Props) => {
   const { data, loading } = useGetSubscriptionForDetailsV2PlanQuery({
     variables: { subscriptionId },
     skip: !subscriptionId,
-    context: { silentError: [LagoApiError.NotFound] },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
 
   // Override units, keyed by FixedCharge id, kept in plain React state and
@@ -85,7 +85,7 @@ export const SubscriptionDetailsV2Plan = ({ subscriptionId }: Props) => {
         query: GetSubscriptionFixedChargeUnitsOverridesDocument,
         variables: { subscriptionId },
         fetchPolicy: 'no-cache',
-        context: { silentError: [LagoApiError.NotFound] },
+        context: { silentErrorCodes: [LagoApiError.NotFound] },
       })
 
       const map: Record<string, string> = {}

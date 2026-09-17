@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
@@ -144,7 +144,7 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
   const navigate = useNavigate()
   const { couponId } = useParams()
   const { data, loading, error } = useGetSingleCouponQuery({
-    context: { silentError: LagoApiError.NotFound },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
     variables: { id: couponId as string },
     skip: !couponId,
   })

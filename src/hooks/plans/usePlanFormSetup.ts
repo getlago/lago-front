@@ -53,6 +53,11 @@ gql`
  *  Case 2: billingItemPlan — form values come from deserialized billing items
  *  Case 3: subscriptionId — fetch subscription's plan (override child plan → parent)
  *  Case 4: planIdToFetch — existing behavior (fetch plan by id directly)
+ *
+ * Two plans come out of it: `plan` is what the form displays — on case 3 the
+ * subscription's override child, so the current pricing shows — while `catalogPlan` is
+ * always the plan listed on the Plans page (the parent, whenever the other one is an
+ * override).
  */
 export const usePlanFormSetup = ({
   planIdToFetch,
@@ -109,7 +114,7 @@ export const usePlanFormSetup = ({
     loading: planLoading,
     error,
   } = useGetSinglePlanQuery({
-    context: { silentError: LagoApiError.NotFound },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
     variables: { id: resolvedPlanId as string },
     skip: !resolvedPlanId || skipPlanQuery,
   })
@@ -124,19 +129,32 @@ export const usePlanFormSetup = ({
   // it in `plan`; only cases 2 and 3 — which hydrate the form from a quote payload or
   // a subscription and skip the query above — need to fetch it.
   const { data: basePlanData } = useGetSinglePlanQuery({
-    context: { silentError: LagoApiError.NotFound },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
     variables: { id: resolvedPlanId as string },
     skip: !resolvedPlanId || !skipPlanQuery,
   })
   const basePlan = plan ?? basePlanData?.plan
-  const baseCurrency =
-    initialCurrency || (basePlan?.amountCurrency as CurrencyEnum) || CurrencyEnum.Usd
+  // Whatever was fetched can itself be an override, whose parent is then the catalog plan.
+  const catalogPlan = basePlan?.parent ?? basePlan
+
+  // A `parent` selection carries a reference only, so the catalog plan is fetched in full when the
+  // resolved plan turns out to be an override child. The override diff has to run against the
+  // catalog: baselining on the child would read the previous negotiation as the list price and
+  // silently drop from the overrides every term that still matches it.
+  const catalogPlanId = basePlan?.parent?.id
+  const { data: catalogPlanData } = useGetSinglePlanQuery({
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+    variables: { id: catalogPlanId as string },
+    skip: !catalogPlanId,
+  })
+  const baselinePlan = catalogPlanData?.plan ?? basePlan
+  const baseCurrency = (baselinePlan?.amountCurrency as CurrencyEnum) || CurrencyEnum.Usd
   const basePlanFormValues = useMemo(
     () =>
-      basePlan
-        ? buildDefaultValues(basePlan, formType, baseCurrency, hasAnyPricingUnitConfigured)
+      baselinePlan
+        ? buildDefaultValues(baselinePlan, formType, baseCurrency, hasAnyPricingUnitConfigured)
         : undefined,
-    [basePlan, formType, baseCurrency, hasAnyPricingUnitConfigured],
+    [baselinePlan, formType, baseCurrency, hasAnyPricingUnitConfigured],
   )
 
   const form = useAppForm({
@@ -190,6 +208,7 @@ export const usePlanFormSetup = ({
   return {
     form,
     plan: effectivePlan as EditPlanFragment | undefined,
+    catalogPlan,
     basePlanFormValues,
     formReady,
     loading,

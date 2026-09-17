@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { useGetCustomerFromSubscriptionQuery } from '~/generated/graphql'
 
@@ -9,6 +9,7 @@ import SubscriptionUsageLifetimeGraph from './SubscriptionUsageLifetimeGraph'
 gql`
   query getCustomerFromSubscription($subscriptionId: ID!) {
     subscription(id: $subscriptionId) {
+      id
       customer {
         id
       }

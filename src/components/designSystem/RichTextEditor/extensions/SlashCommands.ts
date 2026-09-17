@@ -12,6 +12,34 @@ import type {
 } from '../common/RichTextEditorContext'
 import { SlashMenu, type SlashMenuRef } from '../SlashMenu/SlashMenu'
 
+// `at: 'end'` must resolve to a numeric position, never `focus('end')`: on a document ending
+// in a selectable atom that yields a NodeSelection, and insertContent would replace the node.
+export const insertPricingBlock = (
+  editor: Editor,
+  onPricingCommand: OnPricingCommand,
+  { at }: { at?: 'end' } = {},
+): void => {
+  onPricingCommand({
+    onSave: (attrs) => {
+      const content = { type: 'pricingBlock', attrs }
+
+      if (at === 'end') {
+        editor.chain().focus().insertContentAt(editor.state.doc.content.size, content).run()
+      } else {
+        editor.chain().focus().insertContent(content).run()
+      }
+
+      // After inserting an atom node, ProseMirror may create a NodeSelection
+      // which triggers the BlockToolbar overlay. Move to a text selection.
+      const { selection } = editor.state
+
+      if (selection instanceof NodeSelection) {
+        editor.commands.setTextSelection(selection.from + selection.node.nodeSize)
+      }
+    },
+  })
+}
+
 export interface SlashCommandItem {
   title: string
   description: string
@@ -168,21 +196,7 @@ export const SlashCommands = Extension.create({
         title: translate('text_1779802343219a1cl5ckvtrn'),
         description: translate('text_1779802343219rul1jvs7170'),
         icon: 'board',
-        command: (editor) => {
-          onPricingCommand({
-            onSave: (attrs) => {
-              editor.chain().focus().insertContent({ type: 'pricingBlock', attrs }).run()
-
-              // After inserting an atom node, ProseMirror may create a NodeSelection
-              // which triggers the BlockToolbar overlay. Move to a text selection.
-              const { selection } = editor.state
-
-              if (selection instanceof NodeSelection) {
-                editor.commands.setTextSelection(selection.from + selection.node.nodeSize)
-              }
-            },
-          })
-        },
+        command: (editor) => insertPricingBlock(editor, onPricingCommand),
       }
       resolvedItems.push(pricingItem)
     }

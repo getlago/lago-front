@@ -186,6 +186,26 @@ describe('BlockToolbar', () => {
       })
     })
 
+    describe('WHEN the editor container is scrolled', () => {
+      it('THEN should offset the toolbar by the container scroll position', () => {
+        mockSelectorReturn = blockSelection
+
+        const editorContainer = createMockEditorContainer()
+
+        Object.defineProperty(editorContainer, 'scrollTop', { value: 240, writable: true })
+        Object.defineProperty(editorContainer, 'scrollLeft', { value: 30, writable: true })
+
+        render(<BlockToolbar editor={createMockEditor({ editorContainer })} />)
+
+        const toolbar = screen.getByTestId(BLOCK_TOOLBAR_TEST_ID)
+
+        // block.top(100) - container.top(20) + scrollTop(240) = 320
+        expect(toolbar.style.top).toBe('320px')
+        // block.left(50) - container.left(10) + scrollLeft(30) = 70
+        expect(toolbar.style.left).toBe('70px')
+      })
+    })
+
     describe('WHEN the delete button is clicked', () => {
       it('THEN should delete the block via deleteRange', async () => {
         const user = userEvent.setup()

@@ -13,6 +13,8 @@ import {
   ANALYTIC_TABS_ROUTE,
   BILLABLE_METRIC_DETAILS_ROUTE,
   BILLABLE_METRICS_ROUTE,
+  CATALOG_PLAN_DETAILS_ROUTE,
+  CATALOG_PLAN_DETAILS_SECTION_ROUTE,
   COUPON_DETAILS_ROUTE,
   COUPONS_ROUTE,
   CREDIT_NOTES_ROUTE,
@@ -26,16 +28,22 @@ import {
   CUSTOMERS_LIST_ROUTE,
   FEATURE_DETAILS_ROUTE,
   FEATURES_ROUTE,
-  FORECASTS_ROUTE,
   INVOICES_ROUTE,
   PAYMENT_DETAILS_ROUTE,
   PAYMENTS_ROUTE,
   PLAN_DETAILS_ROUTE,
+  PLAN_PRICING_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
+  PRODUCT_CATALOG_ROUTE,
+  PRODUCT_CATALOG_TAB_ROUTE,
+  PRODUCT_CATEGORY_DETAILS_ROUTE,
+  PRODUCT_DETAILS_ROUTE,
+  PRODUCT_FILTER_DETAILS_ROUTE,
   QUOTE_DETAILS_ROUTE,
   QUOTES_LIST_ROUTE,
   QUOTES_TAB_ROUTE,
+  RATE_CARD_DETAILS_ROUTE,
   REVENUE_RECOGNITION_ROUTE,
   SUBSCRIPTIONS_ROUTE,
   WALLET_DETAILS_ROUTE,
@@ -47,14 +55,15 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { NavLayout } from '~/layouts/NavLayout'
-import { BadgeAI } from '~/pages/forecasts/Forecasts'
 
+import { MAIN_NAV_CUSTOMERS_TEST_ID } from './mainNavTestIds'
 import { getNavTabs, NavTab } from './utils'
 import { VerticalMenuSkeleton } from './VerticalMenuSkeleton'
 
 export const MAIN_NAV_MENU_SECTIONS_TEST_ID = 'main-nav-menu-sections'
 export const MAIN_NAV_REPORTS_SECTION_TEST_ID = 'main-nav-reports-section'
 export const MAIN_NAV_CONFIGURATION_SECTION_TEST_ID = 'main-nav-configuration-section'
+export const MAIN_NAV_CATALOG_SECTION_TEST_ID = 'main-nav-catalog-section'
 export const MAIN_NAV_BILLING_SECTION_TEST_ID = 'main-nav-billing-section'
 
 interface MainNavMenuSectionsProps {
@@ -64,7 +73,7 @@ interface MainNavMenuSectionsProps {
 
 export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSectionsProps) => {
   const { translate } = useInternationalization()
-  const { hasPermissions } = usePermissions()
+  const { hasPermissions, hasPermissionsOr } = usePermissions()
   const { hasFeatureFlag } = useOrganizationInfos()
   const { isPremium } = useCurrentUser()
   const { currentUser } = useCurrentUser()
@@ -76,14 +85,6 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: ANALYTIC_ROUTE,
       match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
       hidden: !hasPermissions(['analyticsView']),
-    },
-    {
-      title: translate('text_1753014457040hxp6wkphkvw'),
-      icon: 'forecast',
-      link: FORECASTS_ROUTE,
-      match: [FORECASTS_ROUTE],
-      hidden: !hasPermissions(['analyticsView']),
-      extraComponent: <BadgeAI />,
     },
     {
       title: translate('text_1780667013874s6wl9cmxe7q'),
@@ -139,8 +140,42 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
     },
   ]
 
+  const getCatalogTabs = (): NavTab[] => [
+    {
+      title: translate('text_1783019143196z1oi70j03vt'),
+      icon: 'box',
+      link: PRODUCT_CATALOG_ROUTE,
+      canBeClickedOnActive: true,
+      match: [
+        PRODUCT_CATALOG_ROUTE,
+        PRODUCT_CATALOG_TAB_ROUTE,
+        PRODUCT_CATEGORY_DETAILS_ROUTE,
+        PRODUCT_DETAILS_ROUTE,
+        PRODUCT_FILTER_DETAILS_ROUTE,
+        RATE_CARD_DETAILS_ROUTE,
+      ],
+      hidden:
+        !hasFeatureFlag(FeatureFlagEnum.ProductCatalog) ||
+        !hasPermissionsOr([
+          'productCategoriesView',
+          'productsView',
+          'productFiltersView',
+          'rateCardsView',
+        ]),
+    },
+    {
+      title: translate('text_62442e40cea25600b0b6d85a'),
+      icon: 'board',
+      link: PLAN_PRICING_ROUTE,
+      canBeClickedOnActive: true,
+      match: [PLAN_PRICING_ROUTE, CATALOG_PLAN_DETAILS_ROUTE, CATALOG_PLAN_DETAILS_SECTION_ROUTE],
+      hidden: !hasFeatureFlag(FeatureFlagEnum.ProductCatalog) || !hasPermissions(['plansView']),
+    },
+  ]
+
   const getBillingTabs = (): NavTab[] => [
     {
+      'data-test': MAIN_NAV_CUSTOMERS_TEST_ID,
       title: translate('text_624efab67eb2570101d117a5'),
       icon: 'user-multiple',
       link: CUSTOMERS_LIST_ROUTE,
@@ -239,16 +274,18 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
 
   const reportsTabs = getNavTabs(getReportsTabs())
   const configurationTabs = getNavTabs(getConfigurationTabs())
+  const catalogTabs = getNavTabs(getCatalogTabs())
   const billingTabs = getNavTabs(getBillingTabs())
   const adminTabs = getNavTabs(getAdminTabs())
 
   // Don't render the section group if all sections are hidden. The admin ("Internal") section
-  // must be included: on admin routes no org is selected, so reports/configuration/billing are
-  // all permission-gated to hidden — omitting adminTabs here dropped the whole group (and the
+  // must be included: on admin routes no org is selected, so reports/configuration/catalog/billing
+  // are all permission-gated to hidden — omitting adminTabs here dropped the whole group (and the
   // Internal section with it) while the user was on an admin page.
   if (
     reportsTabs.allTabsHidden &&
     configurationTabs.allTabsHidden &&
+    catalogTabs.allTabsHidden &&
     billingTabs.allTabsHidden &&
     adminTabs.allTabsHidden
   ) {
@@ -285,6 +322,21 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
             loadingComponent={<VerticalMenuSkeleton numberOfElements={5} />}
             onClick={onItemClick}
             tabs={configurationTabs.tabs}
+          />
+        </NavLayout.NavSection>
+      )}
+
+      {!catalogTabs.allTabsHidden && (
+        <NavLayout.NavSection data-test={MAIN_NAV_CATALOG_SECTION_TEST_ID}>
+          <VerticalMenuSectionTitle
+            title={translate('text_1783019143196lwfj3wt5eyh')}
+            loading={isLoading}
+          />
+          <VerticalMenu
+            loading={isLoading}
+            loadingComponent={<VerticalMenuSkeleton numberOfElements={2} />}
+            onClick={onItemClick}
+            tabs={catalogTabs.tabs}
           />
         </NavLayout.NavSection>
       )}

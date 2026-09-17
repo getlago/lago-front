@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useState } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { Filters } from '~/components/Filters'

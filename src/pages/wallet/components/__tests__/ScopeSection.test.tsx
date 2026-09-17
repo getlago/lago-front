@@ -5,6 +5,7 @@ import {
   SHOW_BILLABLE_METRIC_LIMIT_INPUT_DATA_TEST,
   SHOW_LIMIT_INPUT_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
+import { WALLET_SCOPE_FEE_TYPES } from '~/components/wallets/utils/walletScopeFeeTypes'
 import {
   CurrencyEnum,
   FeeTypesEnum,
@@ -166,7 +167,7 @@ describe('ScopeSection', () => {
 
   describe('GIVEN all fee types are applied', () => {
     const allFeeTypes = {
-      feeTypes: [FeeTypesEnum.Charge, FeeTypesEnum.Commitment, FeeTypesEnum.Subscription],
+      feeTypes: [...WALLET_SCOPE_FEE_TYPES],
       billableMetrics: [],
     } as unknown as TWalletDataForm['appliesTo']
 
@@ -176,6 +177,38 @@ describe('ScopeSection', () => {
 
         expect(document.querySelector('[data-test="alert-type-info"]')).toBeInTheDocument()
         expect(screen.getByTestId(SHOW_LIMIT_INPUT_DATA_TEST)).toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN the fee-type combobox is open', () => {
+    describe('WHEN listing its options', () => {
+      it('THEN should offer every wallet-scope fee type, fixed charges included', async () => {
+        const user = userEvent.setup()
+
+        render(<TestWrapper />, { mocks: billableMetricsMocks })
+
+        await user.click(screen.getByTestId(SHOW_LIMIT_INPUT_DATA_TEST))
+
+        const options = await screen.findAllByRole('option')
+
+        expect(options).toHaveLength(WALLET_SCOPE_FEE_TYPES.length)
+        expect(screen.getByText('Fixed charge fees')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN selecting the fixed-charge option', () => {
+      it('THEN should add fixed_charge to the form values', async () => {
+        const user = userEvent.setup()
+
+        render(<TestWrapper />, { mocks: billableMetricsMocks })
+
+        await user.click(screen.getByTestId(SHOW_LIMIT_INPUT_DATA_TEST))
+        await user.click(await screen.findByText('Fixed charge fees'))
+
+        await waitFor(() => {
+          expect(lastForm?.state.values.appliesTo?.feeTypes).toEqual([FeeTypesEnum.FixedCharge])
+        })
       })
     })
   })

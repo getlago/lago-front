@@ -14,7 +14,15 @@ delete_branch_on_archive = true
 
 [scripts]
 setup = "pnpm install"
-archive = "$CONDUCTOR_WORKSPACE_PATH/scripts/conductor-front-container.sh down"
+# The archive hook resolves the teardown script from the MAIN clone
+# ($CONDUCTOR_ROOT_PATH), not from the workspace being archived. A workspace
+# whose branch predates the commit that added scripts/conductor-front-container.sh
+# has no such file in its checkout, and by archive time its directory may already
+# be gone, so $CONDUCTOR_WORKSPACE_PATH/scripts/... fails with "no such file or
+# directory". Teardown only needs the generated compose file (kept outside the
+# workspace), so the main clone copy is always the right one. Falls back to the
+# workspace copy, then no-ops, so a missing script never fails the archive.
+archive = 'if [ -x "$CONDUCTOR_ROOT_PATH/scripts/conductor-front-container.sh" ]; then "$CONDUCTOR_ROOT_PATH/scripts/conductor-front-container.sh" down; elif [ -x "$CONDUCTOR_WORKSPACE_PATH/scripts/conductor-front-container.sh" ]; then "$CONDUCTOR_WORKSPACE_PATH/scripts/conductor-front-container.sh" down; else echo "archive hook: container teardown script not found, nothing to tear down"; fi'
 run_mode = "concurrent"
 
 # Run the workspace in its own Docker container on the shared lago stack network.

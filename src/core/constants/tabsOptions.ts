@@ -75,9 +75,61 @@ export enum QuotesTabsOptionsEnum {
   orders = 'orders',
 }
 
+export enum ProductCatalogTabsOptionsEnum {
+  productCategories = 'product-categories',
+  products = 'products',
+  productFilters = 'product-filters',
+  rateCards = 'rate-cards',
+}
+
+export enum ProductCategoryDetailsTabsOptionsEnum {
+  overview = 'overview',
+  products = 'products',
+  plans = 'plans',
+  activityLogs = 'activity-logs',
+}
+
+export enum ProductDetailsTabsOptionsEnum {
+  overview = 'overview',
+  rateCards = 'rate-cards',
+  filters = 'filters',
+  plans = 'plans',
+  activityLogs = 'activity-logs',
+}
+
+export enum ProductFilterDetailsTabsOptionsEnum {
+  overview = 'overview',
+  rateCards = 'rate-cards',
+  plans = 'plans',
+  activityLogs = 'activity-logs',
+}
+
 export enum QuoteDetailsTabsOptionsEnum {
   overview = 'overview',
   orderForms = 'order-forms',
   orders = 'orders',
   activityLogs = 'activity-logs',
+}
+
+export enum RateCardDetailsTabsOptionsEnum {
+  overview = 'overview',
+  rates = 'rates',
+  plans = 'plans',
+  activityLogs = 'activity-logs',
+}
+
+export enum RateCardRateDetailsTabsOptionsEnum {
+  overview = 'overview',
+  activityLogs = 'activity-logs',
+}
+
+export enum CatalogPlanDetailsTabsOptionsEnum {
+  overview = 'overview',
+  contracts = 'contracts',
+  activityLogs = 'activity-logs',
+}
+
+export enum CatalogPlanOverviewSectionsEnum {
+  planOverview = 'plan-overview',
+  rateCards = 'rate-cards',
 }

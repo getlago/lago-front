@@ -19,8 +19,8 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => ({ itemId: 'test-subscription-id', token: 'test-token' }),
   useNavigate: () => mockNavigate,
   generatePath: jest.fn((route: string, params: { token: string }) => {

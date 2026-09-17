@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon'
+
 import {
   BillingTimeEnum,
   ChargeModelEnum,
@@ -21,11 +23,12 @@ export const dateErrorCodes = {
   shouldBeFutureAndBiggerThanSubscriptionAt: 'shouldBeFutureAndBiggerThanSubscriptionAt',
   shouldBeFutureAndBiggerThanFromDatetime: 'shouldBeFutureAndBiggerThanFromDatetime',
 } as const
+export const MIN_SUPPORTED_DATE = DateTime.fromISO('1970-01-01T00:00:00.000Z', { zone: 'utc' })
+export const UNSUPPORTED_DATE_ERROR = 'text_62cd78ea9bff25e3391b2459'
 export const MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR = 'minAmountShouldBeLowerThanMax'
 
 /**** Selectors ****/
 export const MUI_INPUT_BASE_ROOT_CLASSNAME = 'MuiInputBase-root'
-export const MUI_BUTTON_BASE_ROOT_CLASSNAME = 'MuiButtonBase-root'
 // Plans
 export const SEARCH_ADD_ON_IN_FIXED_CHARGE_DRAWER_INPUT_CLASSNAME =
   'searchAddOnInFixedChargeDrawerInput'
@@ -63,6 +66,8 @@ export const SEARCH_APPLIES_TO_FEE_TYPE_CLASSNAME = 'searchAppliesToFeeTypeInput
 export const SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME = 'searchAppliesToBillableMetricInput'
 // Features
 export const SEARCH_PRIVILEGE_SELECT_OPTIONS_INPUT_CLASSNAME = 'searchPrivilegeSelectOptionsInput'
+// Catalog
+export const SEARCH_PRICING_UNIT_FOR_RATE_CARD_CLASSNAME = 'searchPricingUnitForRateCardInput'
 
 /**** DATA ****/
 // Plan form types

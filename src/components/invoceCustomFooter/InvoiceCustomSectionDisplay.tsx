@@ -9,8 +9,8 @@ import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCust
 import { InvoiceCustomSectionBasic } from './types'
 import { computeInvoiceCustomSectionsDisplayState } from './utils'
 
-export const SECTION_CHIP = (sectionId: string) =>
-  `invoice-custom-section-display-chip-${sectionId}`
+const SECTION_CHIP = (sectionId: string) => `invoice-custom-section-display-chip-${sectionId}`
+
 export const FALLBACK_BILLING_ENTITY_LABEL =
   'invoice-custom-section-display-fallback-billing-entity'
 export const FALLBACK_CUSTOMER_SECTIONS_LABEL =

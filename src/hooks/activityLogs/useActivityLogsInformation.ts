@@ -51,6 +51,13 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.InvoicePaymentStatusUpdated]: 'text_1747404656632gzd7vuk85kk',
   [ActivityTypeEnum.InvoiceReadyToFinalize]: 'text_1779108075497ugghnttia9w',
   [ActivityTypeEnum.InvoiceVoided]: 'text_174740465663220m8nkwjqjq',
+  [ActivityTypeEnum.OrderCreated]: 'text_1786955447407vssusoglzlx',
+  [ActivityTypeEnum.OrderExecuted]: 'text_1786955447407iaeqqhoqqlr',
+  [ActivityTypeEnum.OrderFormCreated]: 'text_17869554474079t2uurp16yt',
+  [ActivityTypeEnum.OrderFormExpired]: 'text_1786955447407mnrr7w7329i',
+  [ActivityTypeEnum.OrderFormFileUploaded]: 'text_1786955447407im4rt988ssq',
+  [ActivityTypeEnum.OrderFormSigned]: 'text_1786955447407my7879j5w85',
+  [ActivityTypeEnum.OrderFormVoided]: 'text_1786955447407vg4w8tnjyzv',
   [ActivityTypeEnum.PaymentReceiptCreated]: 'text_1747404656632xnc93fx6cw8',
   [ActivityTypeEnum.PaymentReceiptGenerated]: 'text_1747404806714bdtx6o45wx8',
   [ActivityTypeEnum.PaymentRequestCreated]: 'text_1749561986883tqfllead7o3',
@@ -67,6 +74,11 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.ProductFilterCreated]: 'text_1786365890845d2vq3ufddsd',
   [ActivityTypeEnum.ProductFilterDeleted]: 'text_1786365890845pml4uzbtp7c',
   [ActivityTypeEnum.ProductFilterUpdated]: 'text_1786365890845pt4roxdajsk',
+  [ActivityTypeEnum.QuoteApproved]: 'text_1786955447407x1mw2cxfk3k',
+  [ActivityTypeEnum.QuoteCreated]: 'text_1786955447407cvhaqre7dxd',
+  [ActivityTypeEnum.QuoteUpdated]: 'text_1786955447407vbz8j99t6lh',
+  [ActivityTypeEnum.QuoteVersionCreated]: 'text_17869554474075bgy7thx2lb',
+  [ActivityTypeEnum.QuoteVoided]: 'text_178695544740796c9l3cd8v9',
   [ActivityTypeEnum.RateCardCreated]: 'text_1786367738116xtz2r6c9eoz',
   [ActivityTypeEnum.RateCardDeleted]: 'text_1786367738117541mevhwa63',
   [ActivityTypeEnum.RateCardUpdated]: 'text_1786367738117gbjclk29or1',
@@ -89,10 +101,13 @@ const resourceTypeTranslations: Record<string, string> = {
   CreditNote: 'text_1748341883774iypsrgem3hr',
   Customer: 'text_65201c5a175a4b0238abf29a',
   Invoice: 'text_63fcc3218d35b9377840f5b3',
+  Order: 'text_1786955447407xkrcha3k3x8',
+  OrderForm: 'text_17869554474070hpjb5xm2ft',
   Plan: 'text_63d3a658c6d84a5843032145',
   Product: 'text_1786365890845gfq9jteut9u',
   ProductCategory: 'text_1786365890846dgl39wcqgik',
   ProductFilter: 'text_1786365890846v53b5wwzxjh',
+  Quote: 'text_17869554474074s8lhp2f0vt',
   RateCard: 'text_1786367738117s1n9lpwf97k',
   PaymentRequest: 'text_17495622741665lrk6dp6czk',
   Subscription: 'text_1728472697691k6k2e9m5ibb',
@@ -219,6 +234,21 @@ export const useActivityLogsInformation = () => {
           featureCode: activityObject.code,
         }
         break
+      case ActivityTypeEnum.OrderCreated:
+      case ActivityTypeEnum.OrderExecuted:
+        parameters = {
+          orderNumber: activityObject.number,
+        }
+        break
+      case ActivityTypeEnum.OrderFormCreated:
+      case ActivityTypeEnum.OrderFormExpired:
+      case ActivityTypeEnum.OrderFormFileUploaded:
+      case ActivityTypeEnum.OrderFormSigned:
+      case ActivityTypeEnum.OrderFormVoided:
+        parameters = {
+          orderFormNumber: activityObject.number,
+        }
+        break
       case ActivityTypeEnum.PaymentReceiptCreated:
       case ActivityTypeEnum.PaymentReceiptGenerated:
         parameters = {
@@ -245,6 +275,22 @@ export const useActivityLogsInformation = () => {
         parameters = {
           productFilterCode: activityObject.code,
         }
+        break
+      case ActivityTypeEnum.QuoteCreated:
+        parameters = {
+          quoteNumber: activityObject.number,
+        }
+        break
+      // The logged object is a QuoteVersion for the version-scoped events, and either a Quote or a
+      // QuoteVersion for quote.updated, so `number` is only reliable on quote.created.
+      case ActivityTypeEnum.QuoteApproved:
+      case ActivityTypeEnum.QuoteVersionCreated:
+      case ActivityTypeEnum.QuoteVoided:
+        parameters = {
+          version: activityObject.version,
+        }
+        break
+      case ActivityTypeEnum.QuoteUpdated:
         break
       case ActivityTypeEnum.RateCardCreated:
       case ActivityTypeEnum.RateCardDeleted:

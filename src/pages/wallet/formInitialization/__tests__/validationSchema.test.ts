@@ -1,4 +1,4 @@
-import { dateErrorCodes } from '~/core/constants/form'
+import { dateErrorCodes, UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
 import { DEFAULT_ZOD_ERROR_MESSAGE } from '~/formValidation/initializeZod'
 import { MetadataErrorsEnum } from '~/formValidation/metadataSchema'
 import {
@@ -424,6 +424,18 @@ describe('walletFormValidationSchema', () => {
 
       expect(issueFor(invalid, 'recurringTransactionRules.0.startedAt')?.message).toBe(
         dateErrorCodes.wrongFormat,
+      )
+    })
+
+    // Regression: startedAt has no future rule, so a typed pre-1970 date now
+    // reaching the form would otherwise pass the format-only check.
+    it('rejects a startedAt before the minimum supported date', () => {
+      const result = walletFormValidationSchema.safeParse(
+        baseForm({ recurringTransactionRules: [baseRule({ startedAt: '0026-08-31T00:00:00Z' })] }),
+      )
+
+      expect(issueFor(result, 'recurringTransactionRules.0.startedAt')?.message).toBe(
+        UNSUPPORTED_DATE_ERROR,
       )
     })
 

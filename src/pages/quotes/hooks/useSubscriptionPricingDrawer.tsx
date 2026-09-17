@@ -13,6 +13,7 @@ import {
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import type { PlanFormInput } from '~/components/plans/types'
 import { addToast } from '~/core/apolloClient'
+import { buildPlanPreviewData } from '~/core/serializers/buildPlanPreviewData'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import {
   fromPlanBillingItems,
@@ -36,18 +37,23 @@ interface UseSubscriptionPricingDrawerReturn {
 export interface QuoteCustomer {
   id: string
   externalId: string
-  name?: string | null
+  /** Resolved customer label — the `QuoteDetailItem` fragment selects `displayName`, never `name`. */
+  displayName?: string | null
 }
 
 export interface SubscriptionPricingDrawerOptions {
-  quoteDates?: { startDate?: string; endDate?: string }
-  onDatesChange?: (startDate?: string, endDate?: string) => void
   customer?: QuoteCustomer | null
+  netPaymentTerm?: number | null
   subscriptionId?: string
   /** Currency used to display amounts — may be a customer/organization fallback. */
   currency?: CurrencyEnum | null
   /** Whether `currency` is the quote's own currency rather than a fallback. */
   hasQuoteCurrency?: boolean
+  /**
+   * Subscription-amendment quote: the amended subscription owns the start date, so it is
+   * neither displayed nor serialized (LAGO-1814).
+   */
+  isAmendment?: boolean
 }
 
 export const useSubscriptionPricingDrawer = (
@@ -158,6 +164,7 @@ export const useSubscriptionPricingDrawer = (
           state,
           formValues ?? undefined,
           basePlanFormValuesRef.current ?? undefined,
+          { omitStartDate: !!options?.isAmendment },
         )
         const entityData: Record<string, EntityData> = {
           [state.planId]: {
@@ -165,6 +172,7 @@ export const useSubscriptionPricingDrawer = (
             entityType: 'plan',
             name: state.planName,
             code: state.planCode,
+            plan: buildPlanPreviewData(formValues ?? null),
           },
         }
 
@@ -191,12 +199,6 @@ export const useSubscriptionPricingDrawer = (
 
         entitiesRef.current = { ...entitiesRef.current, ...entityData }
         setEntities({ ...entitiesRef.current })
-
-        // Propagate date changes to the quote level
-        options?.onDatesChange?.(
-          state.subscriptionSettings.startDate || undefined,
-          state.subscriptionSettings.endDate || undefined,
-        )
       }
 
       drawer.open({
@@ -218,12 +220,13 @@ export const useSubscriptionPricingDrawer = (
             validatePlanFormRef={validatePlanFormRef}
             basePlanFormValuesRef={basePlanFormValuesRef}
             initialState={initialStateRef.current}
-            quoteDates={options?.quoteDates}
             customer={options?.customer}
+            netPaymentTerm={options?.netPaymentTerm}
             currency={options?.currency}
             hasQuoteCurrency={options?.hasQuoteCurrency}
             billingItemPlan={billingItemPlan}
             subscriptionId={billingItemPlan ? undefined : options?.subscriptionId}
+            isAmendment={options?.isAmendment}
           />
         ),
       })

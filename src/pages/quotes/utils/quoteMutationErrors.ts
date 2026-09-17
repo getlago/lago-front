@@ -11,6 +11,14 @@ export interface QuoteMutationError {
   message: string
   /** Form field path, set only for field-targeted errors. */
   field?: string
+  /**
+   * Untranslated key behind `message`, set alongside `field`. Form fields translate the error
+   * they are given (`TextInput` runs it through `translate`, `DatePickerField` asks
+   * `useFieldError` for `translateErrors`), so an inline error has to be handed the key —
+   * feeding it a translated sentence only works through the missing-key fallback and logs a
+   * warning per render.
+   */
+  messageKey?: string
 }
 
 /**
@@ -57,17 +65,95 @@ export const TOP_LEVEL_ERROR_KEYS: Record<string, string> = {
   'expiresAt.invalid_date': 'text_1786540789742b4ym3200cp6',
   'currency.value_is_mandatory': 'text_17865407897425abgh9dnl45',
   'currency.invalid_currency': 'text_1786540789742i50p3wlht3g',
+  'currency.not_supported_for_order_type': 'text_1787216718467e8ca9iw2atm',
+  'billingItems.value_is_mandatory': 'text_1788272907430gswzvnbqi2z',
+  'billingItems.plans.value_is_mandatory': 'text_1788272700125nn7h1cyxjvf',
+  'billingItems.addOns.value_is_mandatory': 'text_1788272700125mb3btrwjl5b',
   'quoteVersion.not_found': 'text_178654078974209u9bigc6ta',
   'quoteVersion.not_approved': 'text_1786540789742edgippmh4fh',
   'quoteVersionId.value_already_exist': 'text_1786540789742km6ifr1uf63',
   'voidReason.invalid': 'text_1786540789742xzmnw0kbnw2',
-  'startDate.value_is_mandatory': 'text_1786540789742o1548c5v0cr',
-  'startDate.invalid_date_range': 'text_1786540789742hb3p2cjocck',
+  'expiresAt.after_deal_expiration': 'text_17871360906940d0lnf13g0l',
+  'status.not_editable': 'text_17871360906941z44i8yw0ac',
+  'status.not_clonable': 'text_1787136090694y83z6vb527o',
+  'status.active_version_exists': 'text_1787136090694dk5q95wet17',
+  'owners.invalid': 'text_17871360906948prsrsrwge1',
+  'image.invalid_format': 'text_1787136090694ingmztiheet',
+  'image.file_too_large': 'text_1787136090694qc666iqsdq4',
+  'subscriptionId.value_is_mandatory': 'text_17871360906949qpqk5in7j2',
+  'subscriptionId.subscription_not_active': 'text_1787136090694uz5da4yhddr',
+  'billingEntityId.billing_entity_not_found': 'text_1787136090694cr8wvbhalzc',
+  'billingEntityId.not_supported_for_order_type': 'text_1787136090694e0p67xtiaqu',
+  'base.concurrency_conflict': 'text_17871360906941p1bvt8npaw',
 }
 
-/** Detail keys that map onto an approve-form field, so the error can also be shown inline. */
+/**
+ * Order-form failures, keyed the same way. Consulted before `TOP_LEVEL_ERROR_KEYS` when the
+ * caller passes the `orderForm` scope, because `status.not_voidable` is reported on both
+ * entities and the copy has to name the right one.
+ */
+export const ORDER_FORM_ERROR_KEYS: Record<string, string> = {
+  'orderForm.not_found': 'text_1786610894641duk7n532hdi',
+  'status.not_signable': 'text_1786610894641lt5jhzuiulg',
+  'status.not_voidable': 'text_1786610894641usymql0rk8r',
+  'executionMode.value_is_mandatory': 'text_17866108946411ovi8xqry3n',
+  'executionMode.value_is_invalid': 'text_1786610894641m8ffsiodyjw',
+  'executeAt.invalid_date': 'text_1786610894641sjyf79n6nny',
+  'executeAt.after_deal_expiration': 'text_17871360906947inroyu1jq2',
+  'signedDocument.invalid_format': 'text_1786610894641nv1aitlslgu',
+  'orderFormId.value_already_exist': 'text_17866108946418951e8uxdcl',
+  'base.concurrency_conflict': 'text_17871360906947rld1stpjr6',
+}
+
+/**
+ * Order execution failures, keyed the same way. `executeOrder` reports on the order itself and on
+ * every catalog entity its billing snapshot points at, so a quoted plan/coupon/add-on that has
+ * since disappeared surfaces here as a top-level `<resource>.not_found` — unlike the billing-item
+ * keys below, which the approve mutation reports positionally.
+ */
+export const ORDER_ERROR_KEYS: Record<string, string> = {
+  'order.not_found': 'text_1786630268015utxlmxzyv6k',
+  'orderType.unsupported_order_type': 'text_17866302680156sw8ubyaf72',
+  'executionMode.value_is_mandatory': 'text_1786630268015x89z5erp5gc',
+  'base.concurrency_conflict': 'text_178663026801526jdrqexzy1',
+  'status.not_editable': 'text_1787136090695el9p68o6bbz',
+  'executeAt.invalid_date': 'text_1787137341763zuw842lkske',
+  'executeAt.after_deal_expiration': 'text_1787137341763nutdwcniihz',
+  'subscription.subscription_not_active': 'text_1787136090695a0gmnr8nxim',
+  'billingItems.plans.single_plan_expected': 'text_1787136090695y7j822vqoa1',
+  'plan.not_found': 'text_1786630268016ukk6fi5u778',
+  'coupon.not_found': 'text_1786630268016171ivs0g1kv',
+  'addOn.not_found': 'text_1786630268016o1hi9xo2obe',
+  'charge.not_found': 'text_1786630268016h9odzv5jjs5',
+  'fixedCharge.not_found': 'text_1786630268016t366gcvcago',
+  'billableMetric.not_found': 'text_1786630268016qtainhwsys3',
+  'chargeModel.charge_model_changed': 'text_1786630268016w264kj4y86j',
+  'fixedChargeModel.fixed_charge_model_changed': 'text_1786630268016meyak1nxn9g',
+  'customer.not_found': 'text_1786630268016i9hcrwrzkcc',
+  'fees.not_found': 'text_1786630268016vpwqdibatsd',
+}
+
+/**
+ * Which entity the failing mutation targets. `status.not_voidable` and
+ * `executionMode.value_is_mandatory` are each reported on two entities, so the scope is what keeps
+ * the key sets from silently borrowing each other's copy.
+ */
+export type QuoteMutationErrorScope = 'quote' | 'orderForm' | 'order'
+
+/**
+ * Scope-specific overrides, consulted before `TOP_LEVEL_ERROR_KEYS`. `quote` has no entry: it is
+ * the base scope, so it reads `TOP_LEVEL_ERROR_KEYS` directly.
+ */
+const SCOPED_ERROR_KEYS: Partial<Record<QuoteMutationErrorScope, Record<string, string>>> = {
+  orderForm: ORDER_FORM_ERROR_KEYS,
+  order: ORDER_ERROR_KEYS,
+}
+
+/** Detail keys that map onto a form field, so the error can also be shown inline. */
 const FORM_FIELD_BY_DETAIL_KEY: Record<string, string> = {
   expiresAt: 'expiresAt',
+  executionMode: 'executionMode',
+  executeAt: 'executeAt',
 }
 
 /** `billingItems.<entity>` prefixes, interpolated with the 1-based item position. */
@@ -89,6 +175,10 @@ const RECURRING_RULES_SEGMENT = 'recurringTransactionRules'
  * `BILLING_ITEM_CODE_KEYS`.
  */
 export const BILLING_ITEM_FIELD_ERROR_KEYS: Record<string, string> = {
+  'startDate.value_is_mandatory': 'text_1787146745141l1kczsx39v9',
+  'startDate.invalid_date': 'text_1787146745141j3ktrzyti2x',
+  'endDate.invalid_date': 'text_1787146745141wjbnbx6qx0k',
+  'endDate.invalid_date_range': 'text_17871467451419agn4aantij',
   'amountCents.value_is_mandatory': 'text_17865407897439beomgnzd95',
   'percentageRate.value_is_mandatory': 'text_17865407897434vmamhdvweo',
   'frequencyDuration.value_is_mandatory': 'text_17865407897437dnip7coe05',
@@ -207,11 +297,19 @@ const getDetailError = (
   rawKey: string,
   code: string,
   translate: TranslateFunc,
+  scope: QuoteMutationErrorScope,
 ): QuoteMutationError => {
-  const topLevelKey = TOP_LEVEL_ERROR_KEYS[`${rawKey}.${code}`]
+  const detailKey = `${rawKey}.${code}`
+  const topLevelKey = SCOPED_ERROR_KEYS[scope]?.[detailKey] ?? TOP_LEVEL_ERROR_KEYS[detailKey]
 
   if (topLevelKey) {
-    return { message: translate(topLevelKey), field: FORM_FIELD_BY_DETAIL_KEY[rawKey] }
+    const field = FORM_FIELD_BY_DETAIL_KEY[rawKey]
+
+    return {
+      message: translate(topLevelKey),
+      field,
+      messageKey: field ? topLevelKey : undefined,
+    }
   }
 
   const billingItemMessage = getBillingItemMessage(rawKey, code, translate)
@@ -222,7 +320,7 @@ const getDetailError = (
 }
 
 /**
- * Turns a failed quote mutation into user-facing messages.
+ * Turns a failed quote, order-form or order mutation into user-facing messages.
  *
  * The API answers through `ExecutionErrorResponder`, which exposes
  * `extensions.code` plus a camelized `extensions.details` map of
@@ -233,6 +331,7 @@ const getDetailError = (
 export const getQuoteMutationErrors = (
   errorObject: ApolloError | readonly GraphQLFormattedError[] | undefined,
   translate: TranslateFunc,
+  scope: QuoteMutationErrorScope = 'quote',
 ): QuoteMutationError[] => {
   const genericError: QuoteMutationError[] = [{ message: translate(GENERIC_ERROR_KEY) }]
   const extensions = extractGraphQLErrors(errorObject)[0]?.extensions
@@ -254,7 +353,7 @@ export const getQuoteMutationErrors = (
 
   for (const [rawKey, codes] of Object.entries(details)) {
     const detailCode = Array.isArray(codes) ? codes[0] : String(codes)
-    const error = getDetailError(rawKey, detailCode, translate)
+    const error = getDetailError(rawKey, detailCode, translate, scope)
 
     if (seenMessages.has(error.message)) continue
 

@@ -121,21 +121,3 @@ export const bigNumberShortenNotation = (amount: number) => {
 
   return formatted.replace('$', '')
 }
-
-export const intlFormatOrdinalNumber = (number: number | string) => {
-  const pluralRule = new Intl.PluralRules('en-US', {
-    type: 'ordinal',
-  })
-
-  const suffixes = new Map([
-    ['one', 'st'],
-    ['two', 'nd'],
-    ['few', 'rd'],
-    ['other', 'th'],
-  ])
-
-  const rule = pluralRule.select(Number(number))
-  const suffix = suffixes.get(rule)
-
-  return `${number}${suffix}`
-}

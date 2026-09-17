@@ -2,13 +2,14 @@ import { MutationHookOptions, MutationTuple } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 import { z } from 'zod'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { LOGIN_ROUTE, useLocation } from '~/core/router'
+import { isSafeInAppPath } from '~/core/router/utils/isSafeInAppPath'
 import { setItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { addValuesToUrlState } from '~/core/utils/urlUtils'
@@ -122,7 +123,7 @@ export const LoginSSO = <TData,>({
 
       setErrorAlert(undefined)
 
-      if (previousLocation) {
+      if (previousLocation && isSafeInAppPath(previousLocation)) {
         setItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY, previousLocation)
       }
 

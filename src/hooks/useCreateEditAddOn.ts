@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { AddOnFormInput } from '~/components/addOns/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -79,12 +79,12 @@ export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
   const { addOnId } = useParams()
 
   const { data, loading, error } = useGetSingleAddOnQuery({
-    context: { silentError: LagoApiError.NotFound },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
     variables: { id: addOnId as string },
     skip: !addOnId,
   })
   const [create, { error: createError }] = useCreateAddOnMutation({
-    context: { silentError: LagoApiError.UnprocessableEntity },
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ createAddOn }) {
       if (!!createAddOn) {
         addToast({
@@ -96,7 +96,7 @@ export const useCreateEditAddOn: () => UseCreateEditAddOnReturn = () => {
     },
   })
   const [update, { error: updateError }] = useUpdateAddOnMutation({
-    context: { silentError: LagoApiError.UnprocessableEntity },
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ updateAddOn }) {
       if (!!updateAddOn) {
         addToast({

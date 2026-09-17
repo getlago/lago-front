@@ -1,0 +1,204 @@
+import { gql } from '@apollo/client'
+import { generatePath } from 'react-router'
+
+import { Status } from '~/components/designSystem/Status'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { PageSectionTitle } from '~/components/layouts/Section'
+import { PlanDetailsChargeWrapperSwitch } from '~/components/plans/details/PlanDetailsChargeWrapperSwitch'
+import { chargeModelLookupTranslation } from '~/core/constants/form'
+import { rateCardRateStatusMapping } from '~/core/constants/statusRateCardRateMapping'
+import { RateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { Link, RATE_CARD_DETAILS_ROUTE } from '~/core/router'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { intlFormatDateTime } from '~/core/timezone'
+import {
+  ProductCategoryForCatalogRelationsFragmentDoc,
+  ProductFilterForCatalogRelationsFragmentDoc,
+  ProductForCatalogRelationsFragmentDoc,
+  RateCardBillingTimingEnum,
+  RateCardForRateDetailsFragment,
+  RateCardRateForDetailsFragment,
+  TimezoneEnum,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
+import { usePermissions } from '~/hooks/usePermissions'
+
+import { CatalogRelationsInfoGrid } from './CatalogRelationsInfoGrid'
+
+import {
+  BILLING_INTERVAL_UNIT_TRANSLATION_KEY,
+  RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY,
+} from '../drawers/rateCardRate/constants'
+import { toChargeModel } from '../drawers/rateCardRate/utils'
+
+gql`
+  fragment RateCardForRateDetails on RateCard {
+    id
+    name
+    code
+    currency
+    appliedPricingUnitCode
+    billingTiming
+    product {
+      id
+      ...ProductForCatalogRelations
+      productCategory {
+        id
+        ...ProductCategoryForCatalogRelations
+      }
+    }
+    productFilter {
+      id
+      ...ProductFilterForCatalogRelations
+    }
+  }
+
+  ${ProductCategoryForCatalogRelationsFragmentDoc}
+  ${ProductForCatalogRelationsFragmentDoc}
+  ${ProductFilterForCatalogRelationsFragmentDoc}
+`
+
+export const RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID = 'rate-card-rate-details-overview-edit'
+export const RATE_CARD_RATE_DETAILS_OVERVIEW_STATUS_TEST_ID =
+  'rate-card-rate-details-overview-status'
+
+export const RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY = 'text_17877372202287udsa3vj1ul'
+
+type RateCardRateDetailsOverviewProps = {
+  rate: RateCardRateForDetailsFragment
+  rateCard: RateCardForRateDetailsFragment
+  onEdit?: () => void
+}
+
+const RateCardRateDetailsOverview = ({
+  rate,
+  rateCard,
+  onEdit,
+}: RateCardRateDetailsOverviewProps) => {
+  const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
+  const { pricingUnits } = useCustomPricingUnits()
+
+  const { product, productFilter } = rateCard
+  const pricingUnitShortName = pricingUnits.find(
+    (unit) => unit.code === rateCard.appliedPricingUnitCode,
+  )?.shortName
+
+  const attachedRateCard = (
+    <Link
+      to={generatePath(RATE_CARD_DETAILS_ROUTE, {
+        rateCardId: rateCard.id,
+        tab: RateCardDetailsTabsOptionsEnum.rates,
+      })}
+    >
+      {rateCard.name}
+    </Link>
+  )
+
+  // The backend rejects a spending minimum on a pay-in-advance card.
+  const hasSpendingMinimum = rateCard.billingTiming === RateCardBillingTimingEnum.Arrears
+
+  // A rate saved without one stores 0, which would read as a configured zero floor.
+  const minAmountCents = Number(rate.minAmountCents ?? 0)
+
+  const spendingMinimum =
+    minAmountCents > 0
+      ? intlFormatNumber(deserializeAmount(minAmountCents, rateCard.currency), {
+          currencyDisplay: 'symbol',
+          currency: rateCard.currency,
+          pricingUnitShortName,
+          maximumFractionDigits: 15,
+        })
+      : '-'
+
+  return (
+    <section className="flex flex-col gap-4">
+      {!!onEdit && hasPermissions(['rateCardsUpdate']) && (
+        <PageSectionTitle
+          title={translate('text_1784930705742tg0kbcsak2v')}
+          subtitle={translate('text_17877372202276uc54jqy1np')}
+          action={{
+            title: translate(RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY),
+            dataTest: RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID,
+            onClick: onEdit,
+          }}
+        />
+      )}
+
+      <CatalogRelationsInfoGrid
+        productCategory={product.productCategory}
+        product={product}
+        productFilter={productFilter}
+      />
+
+      <DetailsPage.InfoGrid
+        grid={[
+          {
+            label: translate('text_1787737220228091rkbqj1vl'),
+            value: attachedRateCard,
+          },
+          {
+            label: translate('text_1787737220228i16tnwmeue3'),
+            value: (
+              <TypographyWithCopy variant="body" color="grey700">
+                {rate.code}
+              </TypographyWithCopy>
+            ),
+          },
+          {
+            label: translate('text_1787737220227bfxpshdo133'),
+            // Calendar day: the org timezone would show the previous day west of UTC.
+            value: intlFormatDateTime(rate.effectiveFrom, { timezone: TimezoneEnum.TzUtc }).date,
+          },
+          {
+            label: translate('text_63ac86d797f728a87b2f9fa7'),
+            value: (
+              <Status
+                {...rateCardRateStatusMapping(rate.status)}
+                data-test={RATE_CARD_RATE_DETAILS_OVERVIEW_STATUS_TEST_ID}
+              />
+            ),
+          },
+        ]}
+      />
+
+      <DetailsPage.InfoGridItem
+        className="col-span-2"
+        label={translate('text_1787737220227tqziocrcywv')}
+        value={translate(RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY, {
+          count: rate.billingIntervalCount,
+          unit: translate(
+            BILLING_INTERVAL_UNIT_TRANSLATION_KEY[rate.billingIntervalUnit],
+          ).toLocaleLowerCase(),
+        })}
+      />
+
+      <DetailsPage.InfoGridItem
+        className="col-span-2"
+        label={translate('text_65201b8216455901fe273dd5')}
+        value={translate(chargeModelLookupTranslation[rate.rateModel])}
+      />
+
+      <PlanDetailsChargeWrapperSwitch
+        currency={rateCard.currency}
+        chargeModel={toChargeModel(rate.rateModel)}
+        values={rate.rateProperties}
+        chargeAppliedPricingUnit={
+          pricingUnitShortName ? { pricingUnit: { shortName: pricingUnitShortName } } : undefined
+        }
+        showPresentationGroupKeys={false}
+      />
+
+      {hasSpendingMinimum && (
+        <DetailsPage.InfoGrid
+          grid={[{ label: translate('text_643e592657fc1ba5ce110c30'), value: spendingMinimum }]}
+        />
+      )}
+    </section>
+  )
+}
+
+export default RateCardRateDetailsOverview

@@ -67,7 +67,7 @@ describe('useUpdateQuote', () => {
 
         expect(mockUpdateQuoteVersion).toHaveBeenCalledWith({
           variables: { input: { id: 'version-123', name: 'Updated Name' } },
-          context: { silentError: LagoApiError.UnprocessableEntity },
+          context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
         })
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
       })
@@ -87,7 +87,7 @@ describe('useUpdateQuote', () => {
 
         expect(mockUpdateQuoteVersion).toHaveBeenCalledWith({
           variables: { input: { id: 'version-456' } },
-          context: { silentError: LagoApiError.UnprocessableEntity },
+          context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
         })
         expect(addToast).not.toHaveBeenCalled()
       })
@@ -124,14 +124,14 @@ describe('useUpdateQuote', () => {
 
         expect(mockUpdateQuoteVersion).toHaveBeenCalledWith({
           variables: { input: { id: 'version-default' } },
-          context: { silentError: LagoApiError.UnprocessableEntity },
+          context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
         })
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
       })
     })
 
     describe('WHEN called with a mutation success response', () => {
-      it('THEN should call the mutation with silentError context for unprocessable entity', async () => {
+      it('THEN should call the mutation with silentErrorCodes context for unprocessable entity', async () => {
         mockUpdateQuoteVersion.mockResolvedValueOnce({
           data: { updateQuoteVersion: { id: 'version-context' } },
         })
@@ -144,7 +144,7 @@ describe('useUpdateQuote', () => {
 
         expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
           expect.objectContaining({
-            context: { silentError: LagoApiError.UnprocessableEntity },
+            context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
           }),
         )
       })

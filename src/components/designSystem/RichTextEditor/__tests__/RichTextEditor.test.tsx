@@ -35,6 +35,8 @@ jest.mock('../extensions/CreditsBlock', () => ({
   },
 }))
 
+const mockInsertPricingBlock = jest.fn()
+
 jest.mock('../extensions/SlashCommands', () => ({
   SlashCommands: {
     configure: jest.fn((config: Record<string, unknown>) => {
@@ -44,6 +46,7 @@ jest.mock('../extensions/SlashCommands', () => ({
     }),
   },
   slashCommandDefinitions: [],
+  insertPricingBlock: (...args: unknown[]) => mockInsertPricingBlock(...args),
 }))
 
 const mockGetMarkdown = jest.fn().mockReturnValue('# Hello World')
@@ -1030,6 +1033,183 @@ describe('RichTextEditor', () => {
         fireEvent.mouseDown(container)
 
         expect(mockEditor.commands.focus).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the removeBlockRef prop is provided', () => {
+    type MockNode = { type: { name: string }; attrs: Record<string, unknown>; nodeSize: number }
+
+    const mockDeleteRange = jest.fn().mockReturnValue({ run: jest.fn() })
+
+    // The removal walks the document and deletes the matching node's range, neither of
+    // which the shared editor mock models.
+    const withDoc = async (nodes: MockNode[]): Promise<void> => {
+      mockEditor.state = {
+        ...mockEditor.state,
+        doc: {
+          descendants: (callback: (node: MockNode, pos: number) => unknown) => {
+            nodes.forEach((node, index) => callback(node, index))
+          },
+        },
+      } as unknown as typeof mockEditor.state
+
+      mockEditor.chain = jest.fn().mockReturnValue({
+        focus: jest.fn().mockReturnValue({ deleteRange: mockDeleteRange }),
+      }) as unknown as typeof mockEditor.chain
+    }
+
+    const pricingBlock = (attrs: Record<string, unknown>): MockNode => ({
+      type: { name: 'pricingBlock' },
+      attrs,
+      nodeSize: 1,
+    })
+
+    const renderWithRemoveBlockRef = async (): Promise<
+      React.MutableRefObject<((localId: string) => void) | null>
+    > => {
+      const removeBlockRef = { current: null } as React.MutableRefObject<
+        ((localId: string) => void) | null
+      >
+
+      await act(() => render(<RichTextEditor removeBlockRef={removeBlockRef} />))
+
+      return removeBlockRef
+    }
+
+    beforeEach(() => {
+      mockDeleteRange.mockClear()
+    })
+
+    describe('WHEN the block is identified by its entity id alone', () => {
+      it('THEN should delete it, as a subscription pricing block carries no local id', async () => {
+        await withDoc([pricingBlock({ pricingType: 'plan', entityIds: ['plan-1'] })])
+
+        const removeBlockRef = await renderWithRemoveBlockRef()
+
+        removeBlockRef.current?.('plan-1')
+
+        expect(mockDeleteRange).toHaveBeenCalledWith({ from: 0, to: 1 })
+      })
+    })
+
+    describe('WHEN the block is identified by a local entity id', () => {
+      it('THEN should delete it', async () => {
+        await withDoc([
+          pricingBlock({
+            pricingType: 'addOns',
+            entityIds: ['addon-1'],
+            localEntityIds: ['local-1'],
+          }),
+        ])
+
+        const removeBlockRef = await renderWithRemoveBlockRef()
+
+        removeBlockRef.current?.('local-1')
+
+        expect(mockDeleteRange).toHaveBeenCalledWith({ from: 0, to: 1 })
+      })
+    })
+
+    describe('WHEN no block carries the id', () => {
+      it('THEN should delete nothing', async () => {
+        await withDoc([pricingBlock({ pricingType: 'plan', entityIds: ['plan-1'] })])
+
+        const removeBlockRef = await renderWithRemoveBlockRef()
+
+        removeBlockRef.current?.('plan-2')
+
+        expect(mockDeleteRange).not.toHaveBeenCalled()
+      })
+    })
+  })
+})
+
+describe('RichTextEditor insertPricingBlockRef', () => {
+  beforeEach(() => {
+    mockInsertPricingBlock.mockClear()
+  })
+
+  describe('GIVEN the insertPricingBlockRef prop is provided', () => {
+    describe('WHEN the editor mounts with a pricing handler', () => {
+      it('THEN should assign a function to insertPricingBlockRef.current', async () => {
+        const insertPricingBlockRef = { current: null } as React.MutableRefObject<
+          (() => void) | null
+        >
+
+        await act(() =>
+          render(
+            <RichTextEditor
+              insertPricingBlockRef={insertPricingBlockRef}
+              onPricingCommand={jest.fn()}
+            />,
+          ),
+        )
+
+        expect(typeof insertPricingBlockRef.current).toBe('function')
+      })
+
+      // The out-of-editor CTAs run on a document the user never clicked into, where the
+      // selection is still at the very start.
+      it('THEN should insert at the end of the document when called', async () => {
+        const insertPricingBlockRef = { current: null } as React.MutableRefObject<
+          (() => void) | null
+        >
+        const onPricingCommand = jest.fn()
+
+        await act(() =>
+          render(
+            <RichTextEditor
+              insertPricingBlockRef={insertPricingBlockRef}
+              onPricingCommand={onPricingCommand}
+            />,
+          ),
+        )
+
+        act(() => {
+          insertPricingBlockRef.current?.()
+        })
+
+        expect(mockInsertPricingBlock).toHaveBeenCalledWith(expect.anything(), onPricingCommand, {
+          at: 'end',
+        })
+      })
+    })
+
+    describe('WHEN no pricing handler is provided', () => {
+      it('THEN should not insert anything', async () => {
+        const insertPricingBlockRef = { current: null } as React.MutableRefObject<
+          (() => void) | null
+        >
+
+        await act(() => render(<RichTextEditor insertPricingBlockRef={insertPricingBlockRef} />))
+
+        act(() => {
+          insertPricingBlockRef.current?.()
+        })
+
+        expect(mockInsertPricingBlock).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the editor unmounts', () => {
+      it('THEN should clear insertPricingBlockRef.current', async () => {
+        const insertPricingBlockRef = { current: null } as React.MutableRefObject<
+          (() => void) | null
+        >
+
+        await act(() =>
+          render(
+            <RichTextEditor
+              insertPricingBlockRef={insertPricingBlockRef}
+              onPricingCommand={jest.fn()}
+            />,
+          ),
+        )
+
+        cleanup()
+
+        expect(insertPricingBlockRef.current).toBeNull()
       })
     })
   })

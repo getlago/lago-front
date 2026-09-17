@@ -1,18 +1,17 @@
 import { FC } from 'react'
-import { generatePath, NavigateFunction } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
 import { StatusProps, StatusType } from '~/components/designSystem/Status'
 import { Table, TableProps } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { addToast } from '~/core/apolloClient'
-import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
-import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
-  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
-  UPGRADE_DOWNGRADE_SUBSCRIPTION,
-  useNavigate,
-} from '~/core/router'
+  isSubscriptionCancellation,
+  subscriptionStatusMapping,
+} from '~/core/constants/statusSubscriptionMapping'
+import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, UPGRADE_DOWNGRADE_SUBSCRIPTION } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   NextSubscriptionTypeEnum,
@@ -138,12 +137,14 @@ const annotateSubscriptions = (
   }, [])
 }
 
+export const SUBSCRIPTIONS_LIST_TERMINATE_TEST_ID = 'subscriptions-list-terminate'
+export const SUBSCRIPTIONS_LIST_CANCEL_TEST_ID = 'subscriptions-list-cancel'
+
 const generateActionColumn = ({
   subscription,
   hasSubscriptionsUpdatePermission,
   openTerminateDialog,
   translate,
-  navigate,
 }: {
   subscription: AnnotatedSubscription
   hasSubscriptionsUpdatePermission: boolean
@@ -151,7 +152,6 @@ const generateActionColumn = ({
     typeof useTerminateCustomerSubscriptionDialog
   >['openTerminateCustomerSubscriptionDialog']
   translate: TranslateFunc
-  navigate: NavigateFunction
 }) => {
   let actions: ActionItem<AnnotatedSubscription>[] = []
 
@@ -170,11 +170,39 @@ const generateActionColumn = ({
     },
   }
 
+  const terminateAction: ActionItem<AnnotatedSubscription> = {
+    startIcon: 'trash',
+    title: isSubscriptionCancellation(subscription.status)
+      ? translate('text_64a6d736c23125004817627f')
+      : translate('text_62d904b97e690a881f2b867c'),
+    dataTest: isSubscriptionCancellation(subscription.status)
+      ? SUBSCRIPTIONS_LIST_CANCEL_TEST_ID
+      : SUBSCRIPTIONS_LIST_TERMINATE_TEST_ID,
+    onAction: () => {
+      openTerminateDialog({
+        id: subscription.id,
+        name: subscription.name as string,
+        status: subscription.status as StatusTypeEnum,
+        payInAdvance: subscription.payInAdvance,
+      })
+    },
+  }
+
   if (
     subscription.status === StatusTypeEnum.Terminated ||
-    subscription.status === StatusTypeEnum.Canceled ||
-    subscription.status === StatusTypeEnum.Incomplete
+    subscription.status === StatusTypeEnum.Canceled
   ) {
+    return [copyToClipboardAction]
+  }
+
+  // An incomplete subscription is still waiting on its activation payment. There is no
+  // settled plan to edit, upgrade or downgrade, and no usage to alert on, so the only
+  // action beyond copying the id is cancelling the activation.
+  if (subscription.status === StatusTypeEnum.Incomplete) {
+    if (hasSubscriptionsUpdatePermission) {
+      return [copyToClipboardAction, terminateAction]
+    }
+
     return [copyToClipboardAction]
   }
 
@@ -183,37 +211,31 @@ const generateActionColumn = ({
       {
         startIcon: 'text',
         title: translate('text_62d7f6178ec94cd09370e63c'),
-        onAction: () =>
-          navigate(
-            generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-              customerId: subscription.customer.id,
-              subscriptionId: subscription.id,
-              tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-            }),
-          ),
+        link: () =>
+          generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+            customerId: subscription.customer.id,
+            subscriptionId: subscription.id,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+          }),
       },
       {
         startIcon: 'board',
         title: translate('text_17810297639135ya0hmsldpi'),
-        onAction: () =>
-          navigate(
-            generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-              customerId: subscription.customer.id,
-              subscriptionId: subscription.id,
-              tab: CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
-            }),
-          ),
+        link: () =>
+          generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+            customerId: subscription.customer.id,
+            subscriptionId: subscription.id,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+          }),
       },
       {
         startIcon: 'pen',
         title: translate('text_62d7f6178ec94cd09370e64a'),
-        onAction: () =>
-          navigate(
-            generatePath(UPGRADE_DOWNGRADE_SUBSCRIPTION, {
-              customerId: subscription.customer.id,
-              subscriptionId: subscription.id,
-            }),
-          ),
+        link: () =>
+          generatePath(UPGRADE_DOWNGRADE_SUBSCRIPTION, {
+            customerId: subscription.customer.id,
+            subscriptionId: subscription.id,
+          }),
       },
     ])
   }
@@ -223,33 +245,16 @@ const generateActionColumn = ({
   actions = actions.concat({
     startIcon: 'bell',
     title: translate('text_1746785137190vu5wwlsmzmz'),
-    onAction: () => {
-      navigate(
-        generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-          customerId: subscription.customer.id,
-          subscriptionId: subscription.id,
-          tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
-        }),
-      )
-    },
+    link: () =>
+      generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+        customerId: subscription.customer.id,
+        subscriptionId: subscription.id,
+        tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
+      }),
   })
 
   if (hasSubscriptionsUpdatePermission) {
-    actions = actions.concat({
-      startIcon: 'trash',
-      title:
-        subscription.status === StatusTypeEnum.Pending
-          ? translate('text_64a6d736c23125004817627f')
-          : translate('text_62d904b97e690a881f2b867c'),
-      onAction: () => {
-        openTerminateDialog({
-          id: subscription.id,
-          name: subscription.name as string,
-          status: subscription.status as StatusTypeEnum,
-          payInAdvance: subscription.payInAdvance,
-        })
-      },
-    })
+    actions = actions.concat(terminateAction)
   }
 
   return actions
@@ -267,7 +272,6 @@ export const SubscriptionsList: FC<SubscriptionsListProps> = ({
   customerId,
   ...tableProps
 }) => {
-  const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { isStatusEditable } = useSubscriptionPermissionsActions()
@@ -289,7 +293,6 @@ export const SubscriptionsList: FC<SubscriptionsListProps> = ({
         actionColumn={(subscription) =>
           generateActionColumn({
             subscription,
-            navigate,
             translate,
             openTerminateDialog: openTerminateCustomerSubscriptionDialog,
             hasSubscriptionsUpdatePermission: hasPermissions(['subscriptionsUpdate']),

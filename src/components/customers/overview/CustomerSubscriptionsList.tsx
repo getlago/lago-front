@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status, StatusProps, StatusType } from '~/components/designSystem/Status'
@@ -141,6 +141,7 @@ export const CustomerSubscriptionsList = ({
             containerSize={4}
             isLoading={loading}
             actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
+            rowLinkLabel={({ name }) => name ?? ''}
             onRowActionLink={({ id }) =>
               generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
                 customerId: customerId as string,
@@ -193,7 +194,9 @@ export const CustomerSubscriptionsList = ({
                 key: 'frequency',
                 title: translate('text_1736968618645gg26amx8djq'),
                 content: ({ frequency }) => (
-                  <Typography>{translate(getIntervalTranslationKey[frequency])}</Typography>
+                  <Typography>
+                    {frequency ? translate(getIntervalTranslationKey[frequency]) : '-'}
+                  </Typography>
                 ),
               },
               {

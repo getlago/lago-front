@@ -39,7 +39,7 @@ jobs:
           docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d db redis api front
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6.0.9
+        uses: pnpm/action-setup@v6.0.10
 
       - name: Set up Node.js
         uses: actions/setup-node@v6.5.0
@@ -67,7 +67,7 @@ jobs:
         run: pnpm cypress install
 
       - name: Cypress run
-        uses: cypress-io/github-action@v7.4.1
+        uses: cypress-io/github-action@v7.4.3
         with:
           browser: chrome
           install: false
@@ -81,10 +81,11 @@ jobs:
             cypress/e2e/t10-*
             cypress/e2e/t20-*
             cypress/e2e/t30-*
+            cypress/e2e/t50-*
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v7.0.1
-        if: failure()
+        if: always()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
@@ -92,7 +93,7 @@ jobs:
 
       - name: Upload videos
         uses: actions/upload-artifact@v7.0.1
-        if: failure()
+        if: always()
         with:
           name: cypress-videos
           path: cypress/videos

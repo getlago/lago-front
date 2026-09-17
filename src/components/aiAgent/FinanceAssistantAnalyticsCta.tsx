@@ -12,6 +12,7 @@ import { usePermissions } from '~/hooks/usePermissions'
 export const FINANCE_ASSISTANT_CTA_TEST_ID = 'finance-assistant-cta'
 export const FINANCE_ASSISTANT_CTA_INPUT_TEST_ID = 'finance-assistant-cta-input'
 export const FINANCE_ASSISTANT_CTA_SUBMIT_BUTTON_TEST_ID = 'finance-assistant-cta-submit-button'
+export const FINANCE_ASSISTANT_CTA_CLOSE_BUTTON_TEST_ID = 'finance-assistant-cta-close-button'
 
 export const FinanceAssistantAnalyticsCta = () => {
   const { openPanelWithAgent, state } = useAiAgent()
@@ -47,7 +48,7 @@ export const FinanceAssistantAnalyticsCta = () => {
   }
 
   return (
-    <div className="sticky bottom-6 z-10 mx-auto mt-[-24px] flex w-full max-w-[500px] justify-center">
+    <div className="group/finance-assistant-cta sticky bottom-6 z-10 mx-auto mt-[-24px] flex w-full max-w-[500px] justify-center">
       {/* The page-level wrapper is pointer-events-none (full-width overlay strip); only the visible card may catch clicks */}
       <form
         onSubmit={handleSubmit}
@@ -81,6 +82,16 @@ export const FinanceAssistantAnalyticsCta = () => {
           />
         </button>
       </form>
+
+      <button
+        type="button"
+        aria-label={translate('text_62f50d26c989ab03196884ae')}
+        onClick={() => setIsVisible(false)}
+        className="pointer-events-none absolute -right-2 -top-2 flex size-5 items-center justify-center rounded-full bg-white text-grey-600 opacity-0 shadow-sm transition-opacity duration-200 hover:text-grey-700 focus-visible:pointer-events-auto focus-visible:opacity-100 focus-visible:ring group-hover/finance-assistant-cta:pointer-events-auto group-hover/finance-assistant-cta:opacity-100"
+        data-test={FINANCE_ASSISTANT_CTA_CLOSE_BUTTON_TEST_ID}
+      >
+        <Icon name="close" size="xsmall" />
+      </button>
     </div>
   )
 }

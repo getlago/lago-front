@@ -20,13 +20,17 @@ import {
   CustomerPaymentsAvailableFilters,
   filterDataInlineSeparator,
   filterDataLabelCommaPlaceholder,
-  ForecastsAvailableFilters,
+  filterWithoutProductCategoryValue,
+  filterWithoutProductValue,
   InvoiceAvailableFilters,
   MrrBreakdownPlansAvailableFilters,
   MrrOverviewAvailableFilters,
   OrderAvailableFilters,
   OrderFormAvailableFilters,
+  ProductAvailableFilters,
+  ProductFilterAvailableFilters,
   QuoteAvailableFilters,
+  RateCardAvailableFilters,
   RevenueStreamsAvailablePopperFilters,
   RevenueStreamsCustomersAvailableFilters,
   RevenueStreamsPlansAvailableFilters,
@@ -52,14 +56,16 @@ import {
   CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
   CUSTOMER_LIST_FILTER_PREFIX,
   CUSTOMER_PAYMENTS_FILTER_PREFIX,
-  FORECASTS_FILTER_PREFIX,
   INVOICE_LIST_FILTER_PREFIX,
   MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX,
   MRR_BREAKDOWN_PLANS_FILTER_PREFIX,
   ORDER_FORM_LIST_FILTER_PREFIX,
   ORDER_LIST_FILTER_PREFIX,
   PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX,
+  PRODUCT_FILTER_LIST_FILTER_PREFIX,
+  PRODUCT_LIST_FILTER_PREFIX,
   QUOTE_LIST_FILTER_PREFIX,
+  RATE_CARD_LIST_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
   REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
@@ -78,7 +84,6 @@ import {
   type CustomersQueryVariables,
   type GetApiLogsQueryVariables,
   type GetCreditNotesListQueryVariables,
-  type GetForecastsQueryVariables,
   type GetInvoiceCollectionsForAnalyticsQueryVariables,
   type GetInvoicesListQueryVariables,
   type GetMrrsQueryVariables,
@@ -94,10 +99,40 @@ import {
   type GetWebhookLogQueryVariables,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
+  type ProductFiltersQueryVariables,
+  type ProductsQueryVariables,
 } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 export const keyWithPrefix = (key: string, prefix?: string) => (prefix ? `${prefix}_${key}` : key)
+
+/**
+ * `is between` bounds describe an interval, so `11,10` designates the same interval as
+ * `10,11`. Rewriting the raw `interval,from,to` value with its bounds in ascending order
+ * makes the resulting query — and the chip summarising it — independent from the order
+ * the user typed the bounds in.
+ *
+ * Only applied where the value is consumed (query variables, active filter chip), so the
+ * filter inputs keep displaying the bounds as they were typed.
+ */
+export const orderIntervalBounds = (value: string): string => {
+  const [interval, from, to] = value.split(',')
+
+  // `isBetween` holds the same value in AmountFilterInterval and
+  // ActiveSubscriptionsFilterInterval, the two intervals with a lower and an upper bound.
+  if (interval !== AmountFilterInterval.isBetween || !from || !to) {
+    return value
+  }
+
+  const fromNumber = Number(from)
+  const toNumber = Number(to)
+
+  if (Number.isNaN(fromNumber) || Number.isNaN(toNumber) || fromNumber <= toNumber) {
+    return value
+  }
+
+  return `${interval},${to},${from}`
+}
 
 export const parseFromToValue = (value: string, keys: { from: string; to: string }) => {
   const [interval, from, to] = value.split(',')
@@ -169,6 +204,23 @@ export const escapeFilterLabel = (label: string): string =>
 export const unescapeFilterLabel = (label: string): string =>
   label.split(filterDataLabelCommaPlaceholder).join(',')
 
+/**
+ * A `from,to` date range filter value is only applicable when both bounds parse and are
+ * ordered. Guards the panel against inverted ranges reaching the query, whichever way they
+ * got in (typed date, cleared bound, hand-edited URL) — the API answers them with no results.
+ */
+export const isValidDateRangeValue = (value?: string): boolean => {
+  if (!value) return false
+
+  const [from, to] = value.split(',')
+  const fromDate = DateTime.fromISO(from)
+  const toDate = DateTime.fromISO(to)
+
+  if (!fromDate.isValid || !toDate.isValid) return false
+
+  return fromDate <= toDate
+}
+
 export const FiltersItemDates = [
   AvailableFiltersEnum.date,
   AvailableFiltersEnum.issuingDate,
@@ -187,9 +239,12 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.activitySources]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.activityTypes]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.activeSubscriptions]: (value: string) =>
-    parseFromToValue(value, { from: 'activeSubscriptionsFrom', to: 'activeSubscriptionsTo' }),
+    parseFromToValue(orderIntervalBounds(value), {
+      from: 'activeSubscriptionsFrom',
+      to: 'activeSubscriptionsTo',
+    }),
   [AvailableFiltersEnum.amount]: (value: string) =>
-    parseFromToValue(value, { from: 'amountFrom', to: 'amountTo' }),
+    parseFromToValue(orderIntervalBounds(value), { from: 'amountFrom', to: 'amountTo' }),
   [AvailableFiltersEnum.apiKeyIds]: (value: string) =>
     value.split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.billingEntityIds]: (value: string) =>
@@ -246,6 +301,72 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.planCode]: (value: string) => value,
   [AvailableFiltersEnum.purchaseOrderNumber]: (value: string) => value,
+  [AvailableFiltersEnum.productProductCategory]: (value: string) => {
+    // Multi-select: real productCategories go to `productCategoryIds`; the synthetic "Not defined" entry
+    // maps to the standalone `withoutProductCategory` arg instead of polluting the id array.
+    // Returning an object lets formatFiltersForQuery spread both keys into the query vars.
+    const parts = value.split(',').filter(Boolean)
+    const withoutProductCategory = parts.includes(filterWithoutProductCategoryValue)
+    const productCategoryIds = parts
+      .filter((part) => part !== filterWithoutProductCategoryValue)
+      .map((part) => part.split(filterDataInlineSeparator)[0])
+
+    return {
+      ...(productCategoryIds.length > 0 && { productCategoryIds }),
+      ...(withoutProductCategory && { withoutProductCategory: true }),
+    }
+  },
+  [AvailableFiltersEnum.productType]: (value: string) => value,
+  [AvailableFiltersEnum.productFilterProductCategory]: (value: string) => {
+    // Same shape as productProductCategory: real ids -> `productCategoryIds`, the synthetic
+    // "Not defined" entry -> `withoutProductCategory`. The `productFilters` query accepts both.
+    const parts = value.split(',').filter(Boolean)
+    const withoutProductCategory = parts.includes(filterWithoutProductCategoryValue)
+    const productCategoryIds = parts
+      .filter((part) => part !== filterWithoutProductCategoryValue)
+      .map((part) => part.split(filterDataInlineSeparator)[0])
+
+    return {
+      ...(productCategoryIds.length > 0 && { productCategoryIds }),
+      ...(withoutProductCategory && { withoutProductCategory: true }),
+    }
+  },
+  [AvailableFiltersEnum.productFilterProduct]: (value: string) => {
+    // Multi-select in the UI, but the `productFilters` query only accepts a
+    // single `productId`: keep the first real selection (skip the synthetic
+    // "Not defined" entry, which has no backend meaning here) and drop the rest.
+    // Returning an object lets formatFiltersForQuery spread it directly, matching
+    // the productProductCategory convention above.
+    const [firstId] = value
+      .split(',')
+      .filter((part) => !!part && part !== filterWithoutProductValue)
+      .map((part) => part.split(filterDataInlineSeparator)[0])
+
+    return firstId ? { productId: firstId } : {}
+  },
+  // Rate card list filters are built array-native: every dimension is a plain multi-select
+  // producing an array of ids under a plural key (productCategoryIds / productIds /
+  // productFilterIds), which the rateCards query accepts directly.
+  //
+  // The ProductCategory dimension pins a synthetic "Not defined" sentinel (filterWithoutProductValue),
+  // mirroring productProductCategory/productFilterProductCategory: filter it out before mapping so it
+  // never pollutes the productCategoryIds array. ProductCategory is UI-only via the adapter today, but
+  // this future-proofs the array for when the backend ships a productCategory-level arg on rateCards.
+  [AvailableFiltersEnum.rateCardProductCategory]: (value: string) =>
+    value
+      .split(',')
+      .filter((part) => !!part && part !== filterWithoutProductValue)
+      .map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.rateCardProduct]: (value: string) =>
+    value
+      .split(',')
+      .filter(Boolean)
+      .map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.rateCardProductFilter]: (value: string) =>
+    value
+      .split(',')
+      .filter(Boolean)
+      .map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.orderFormCreatedAt]: (value: string) => {
     return {
       createdAtFrom: value.split(',')[0],
@@ -439,6 +560,71 @@ export const formatFiltersForCreditNotesQuery = (
     keyMap,
     availableFilters: CreditNoteAvailableFilters,
     filtersNamePrefix: CREDIT_NOTE_LIST_FILTER_PREFIX,
+  })
+}
+
+type ProductsQueryFilters = Partial<
+  Pick<ProductsQueryVariables, 'productCategoryIds' | 'productType' | 'withoutProductCategory'>
+>
+
+export const formatFiltersForProductsQuery = (
+  searchParams: URLSearchParams,
+): ProductsQueryFilters => {
+  // productProductCategory is intentionally absent: its FILTER_VALUE_MAP entry returns an object
+  // ({ productCategoryIds?, withoutProductCategory? }) that formatFiltersForQuery spreads directly, so it
+  // maps to two keys at once and can't go through the single-key keyMap.
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof ProductsQueryFilters & string>> = {
+    [AvailableFiltersEnum.productType]: 'productType',
+  }
+
+  return formatFiltersForQuery<ProductsQueryFilters>({
+    searchParams,
+    keyMap,
+    availableFilters: ProductAvailableFilters,
+    filtersNamePrefix: PRODUCT_LIST_FILTER_PREFIX,
+  })
+}
+
+type ProductFiltersQueryFilters = Partial<
+  Pick<ProductFiltersQueryVariables, 'productId' | 'productCategoryIds' | 'withoutProductCategory'>
+>
+
+export const formatFiltersForProductFiltersQuery = (
+  searchParams: URLSearchParams,
+): ProductFiltersQueryFilters => {
+  // No keyMap: both dimensions have FILTER_VALUE_MAP entries returning an object
+  // ({ productCategoryIds?, withoutProductCategory? } / { productId? }) that
+  // formatFiltersForQuery spreads straight into the query vars.
+  return formatFiltersForQuery<ProductFiltersQueryFilters>({
+    searchParams,
+    availableFilters: ProductFilterAvailableFilters,
+    filtersNamePrefix: PRODUCT_FILTER_LIST_FILTER_PREFIX,
+  })
+}
+
+// Array-native shape of the rate card list filters: every dimension resolves to a plural
+// id array, matching the multi-select UI 1:1. The `rateCards` query now accepts these
+// plural args directly, so this shape is spread straight into the query variables.
+export type RateCardsQueryFilters = {
+  productCategoryIds?: string[]
+  productIds?: string[]
+  productFilterIds?: string[]
+}
+
+export const formatFiltersForRateCardsQuery = (
+  searchParams: URLSearchParams,
+): RateCardsQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof RateCardsQueryFilters & string>> = {
+    [AvailableFiltersEnum.rateCardProductCategory]: 'productCategoryIds',
+    [AvailableFiltersEnum.rateCardProduct]: 'productIds',
+    [AvailableFiltersEnum.rateCardProductFilter]: 'productFilterIds',
+  }
+
+  return formatFiltersForQuery<RateCardsQueryFilters>({
+    searchParams,
+    keyMap,
+    availableFilters: RateCardAvailableFilters,
+    filtersNamePrefix: RATE_CARD_LIST_FILTER_PREFIX,
   })
 }
 
@@ -825,40 +1011,6 @@ export const formatFiltersForUsageBillableMetricQuery = (
   })
 }
 
-type ForecastsQueryFilters = Partial<
-  Pick<
-    GetForecastsQueryVariables,
-    | 'billableMetricCode'
-    | 'billingEntityCode'
-    | 'currency'
-    | 'customerCountry'
-    | 'customerType'
-    | 'externalCustomerId'
-    | 'externalSubscriptionId'
-    | 'isCustomerTinEmpty'
-    | 'planCode'
-    | 'timeGranularity'
-  >
->
-
-export const formatFiltersForForecastsQuery = (
-  searchParams: URLSearchParams,
-): ForecastsQueryFilters => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, keyof ForecastsQueryFilters & string>> = {
-    [AvailableFiltersEnum.country]: 'customerCountry',
-    [AvailableFiltersEnum.customerType]: 'customerType',
-    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
-    [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
-  }
-
-  return formatFiltersForQuery<ForecastsQueryFilters>({
-    keyMap,
-    searchParams,
-    availableFilters: [...ForecastsAvailableFilters, AvailableFiltersEnum.timeGranularity],
-    filtersNamePrefix: FORECASTS_FILTER_PREFIX,
-  })
-}
-
 type ActivityLogsQueryFilters = Partial<
   Pick<
     ActivityLogsQueryVariables,
@@ -925,7 +1077,7 @@ export const formatActiveFilterValueDisplay = (
   translate?: TranslateFunc,
 ): string => {
   if (key === AvailableFiltersEnum.amount) {
-    const [interval, from, to] = value.split(',')
+    const [interval, from, to] = orderIntervalBounds(value).split(',')
 
     const intervalLabel = translate?.(
       AMOUNT_INTERVALS_TRANSLATION_MAP[interval as AmountFilterInterval],
@@ -942,7 +1094,7 @@ export const formatActiveFilterValueDisplay = (
   }
 
   if (key === AvailableFiltersEnum.activeSubscriptions) {
-    const [interval, from, to] = value.split(',')
+    const [interval, from, to] = orderIntervalBounds(value).split(',')
 
     const intervalLabel = translate?.(
       ACTIVE_SUBSCRIPTIONS_INTERVALS_TRANSLATION_MAP[interval as ActiveSubscriptionsFilterInterval],
@@ -969,6 +1121,25 @@ export const formatActiveFilterValueDisplay = (
       return unescapeFilterLabel(
         value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
       )
+    case AvailableFiltersEnum.productProductCategory:
+    case AvailableFiltersEnum.productFilterProductCategory:
+    case AvailableFiltersEnum.productFilterProduct:
+    case AvailableFiltersEnum.rateCardProductCategory:
+      // Multi-select with a synthetic "Not defined" entry; render its translated label.
+      // productFilterProduct is lossily mapped to a single productId by
+      // formatFiltersForProductFiltersQuery, but every selected chip still renders here.
+      return value
+        .split(',')
+        .filter(Boolean)
+        .map((entry) =>
+          entry === filterWithoutProductCategoryValue || entry === filterWithoutProductValue
+            ? translate?.('text_1784214117868fh6rndi4m75') || ''
+            : unescapeFilterLabel(
+                entry.split(filterDataInlineSeparator)[1] ||
+                  entry.split(filterDataInlineSeparator)[0],
+              ),
+        )
+        .join(', ')
     case AvailableFiltersEnum.isCustomerTinEmpty:
       return (
         translate?.(
@@ -988,7 +1159,10 @@ export const formatActiveFilterValueDisplay = (
       return value
         .split(',')
         .map((v) => {
-          return intlFormatDateTime(v, { formatDate: DateFormat.DATE_SHORT }).date
+          return intlFormatDateTime(v, {
+            formatDate: DateFormat.DATE_SHORT,
+            setZone: true,
+          }).date
         })
         .join(' - ')
     case AvailableFiltersEnum.period:
@@ -1000,6 +1174,8 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.userIds:
     case AvailableFiltersEnum.multipleCustomers:
     case AvailableFiltersEnum.adminOrganizations:
+    case AvailableFiltersEnum.rateCardProduct:
+    case AvailableFiltersEnum.rateCardProductFilter:
       return value
         .split(',')
         .map((v) =>

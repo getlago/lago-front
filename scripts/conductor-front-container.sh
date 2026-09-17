@@ -10,11 +10,15 @@ set -euo pipefail
 # owner of worktree create/destroy. Wired from the committed team config
 # .conductor/settings.toml:
 #   [scripts.run.container] command = "$CONDUCTOR_WORKSPACE_PATH/scripts/conductor-front-container.sh up"
-#   scripts.archive        = "$CONDUCTOR_WORKSPACE_PATH/scripts/conductor-front-container.sh down"
+#   scripts.archive        = "$CONDUCTOR_ROOT_PATH/scripts/conductor-front-container.sh down"
 #
-# The script is located via $CONDUCTOR_WORKSPACE_PATH (set by Conductor for every
-# script, including the headless archive hook) rather than a user shell var like
-# $LAGO_PATH, which is not present in Conductor's non-interactive script env.
+# The run scripts are located via $CONDUCTOR_WORKSPACE_PATH so a branch-local edit
+# to this file is what actually runs. The archive hook instead resolves it from
+# $CONDUCTOR_ROOT_PATH (the main clone): a workspace whose branch predates the
+# commit that added this file has no copy in its checkout, and by archive time the
+# workspace directory may already be gone. Either way $CONDUCTOR_ROOT_PATH is a
+# Conductor-provided var, not a user shell var like $LAGO_PATH, which is not
+# present in Conductor's non-interactive script env.
 #
 # Prerequisites:
 #   - the main Lago Docker stack is running (`lago up -d`)
@@ -24,7 +28,11 @@ set -euo pipefail
 CMD="${1:-}"
 
 NAME="${CONDUCTOR_WORKSPACE_NAME:?CONDUCTOR_WORKSPACE_NAME is required (run via Conductor)}"
-WS="${CONDUCTOR_WORKSPACE_PATH:?CONDUCTOR_WORKSPACE_PATH is required (run via Conductor)}"
+# Optional: `down` works purely off the generated compose file (kept outside the
+# workspace), so archiving still tears the container down after the workspace
+# directory is gone. `shell` only needs the running container. Only up/host read
+# it, see require_ws.
+WS="${CONDUCTOR_WORKSPACE_PATH:-}"
 ROOT="${CONDUCTOR_ROOT_PATH:?CONDUCTOR_ROOT_PATH is required (run via Conductor)}"
 PORT="${CONDUCTOR_PORT:-8080}"
 
@@ -32,6 +40,24 @@ LAGO_PATH="$(cd "$ROOT/.." && pwd)"
 COMPOSE_DIR="$LAGO_PATH/.conductor-front-containers"
 SAN="$(echo "$NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g')"
 COMPOSE_FILE="$COMPOSE_DIR/${SAN}.yml"
+# One pnpm store shared by every workspace container, mounted at exactly
+# /app/.pnpm-store: /app is a macOS bind mount, so pnpm refuses to keep its store
+# on another device and rewrites any store-dir config (env vars are ignored
+# outright) back to <project>/.pnpm-store, landing ~670MB in every workspace
+# directory on the host. Mounting the shared volume on that path is what pnpm
+# accepts. Declared external in the generated compose file so `down -v` on one
+# workspace can never remove it.
+PNPM_STORE_VOL="lago_front_pnpm_store"
+# Below this `pnpm install` cannot finish (node_modules alone is ~750MB) and the
+# container loops on ERR_PNPM_ENOSPC instead of failing once, loudly.
+MIN_FREE_MB=1536
+
+require_ws() {
+  [[ -d "$WS" ]] || {
+    echo "CONDUCTOR_WORKSPACE_PATH must point at an existing directory (got: ${WS:-<unset>})" >&2
+    exit 1
+  }
+}
 
 gen_compose() {
   mkdir -p "$COMPOSE_DIR"
@@ -45,12 +71,20 @@ services:
     container_name: lago_front_ct_${SAN}
     stdin_open: true
     restart: unless-stopped
+    # start.dev.sh can still exit on a genuine failure; cap the logs so a restart
+    # loop cannot fill the Docker disk with progress lines.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     volumes:
       # Quoted so a workspace path containing spaces / YAML-special chars can't
       # break the volume string parsing.
       - "${WS}:/app:cached"
       - front_nm_ct_${SAN}:/app/node_modules
       - front_dist_ct_${SAN}:/app/dist
+      - ${PNPM_STORE_VOL}:/app/.pnpm-store
     environment:
       - NODE_ENV=development
       - API_URL=http://localhost:${PORT}/api
@@ -74,6 +108,8 @@ services:
 volumes:
   front_nm_ct_${SAN}:
   front_dist_ct_${SAN}:
+  ${PNPM_STORE_VOL}:
+    external: true
 
 networks:
   lago_net:
@@ -105,6 +141,67 @@ patch_env() {
   } >> "$env_file"
 }
 
+# Tear down every project whose workspace directory is gone. Conductor fires the
+# archive hook once and teardown_san gives up when Docker is unreachable, so
+# without this retry a missed archive leaks an ~800MB node_modules volume.
+sweep_stale() {
+  [[ -d "$COMPOSE_DIR" ]] || return 0
+
+  local file san mount
+  for file in "$COMPOSE_DIR"/*.yml; do
+    [[ -f "$file" ]] || continue
+    san="$(basename "$file" .yml)"
+    if [[ "$san" == "$SAN" ]]; then continue; fi
+    mount="$(sed -n 's|^ *- "\(.*\):/app:cached"$|\1|p' "$file" | head -1)" || mount=""
+    # Unparsable mount: hand-edited or from an older revision. Leave it rather
+    # than guess a project is dead and drop its volumes.
+    if [[ -z "$mount" ]]; then continue; fi
+    if [[ -d "$mount" ]]; then continue; fi
+    echo "Sweeping '$san': its workspace directory is gone (archived)."
+    teardown_san "$san"
+  done
+}
+
+check_image() {
+  if ! docker image inspect front_dev >/dev/null 2>&1; then
+    echo "Error: the front_dev image is missing. Build it from the workspace:" >&2
+    echo "    docker build -f Dockerfile.dev -t front_dev $WS" >&2
+    exit 1
+  fi
+
+  local want="" have=""
+  # A branch predating the Dockerfile, or a probe that fails: skip the check
+  # rather than block the boot (set -euo pipefail would abort on the assignment).
+  if [[ -f "$WS/Dockerfile.dev" ]]; then
+    want="$(sed -n 's/^FROM node:\([^-]*\)-alpine.*/\1/p' "$WS/Dockerfile.dev" | head -1)" || want=""
+  fi
+  # node images publish their version as NODE_VERSION, so the image's node is
+  # readable from its config without starting a container.
+  have="$(docker image inspect front_dev --format '{{range .Config.Env}}{{println .}}{{end}}' | sed -n 's/^NODE_VERSION=//p' | head -1)" || have=""
+  if [[ -n "$want" && -n "$have" && "$want" != "$have" ]]; then
+    echo "warn: front_dev runs node ${have}, Dockerfile.dev wants ${want}. Rebuild:" >&2
+    echo "    docker build -f Dockerfile.dev -t front_dev $WS" >&2
+  fi
+}
+
+require_disk() {
+  local free
+  free="$(docker run --rm \
+    --mount "type=volume,src=${PNPM_STORE_VOL},dst=/app/.pnpm-store,readonly" \
+    --entrypoint df front_dev -P /app/.pnpm-store 2>/dev/null \
+    | awk 'NR==2 {print int($4/1024)}')" || free=""
+  # Probe failed: never block a boot on a failed measurement.
+  if [[ -z "$free" ]]; then return 0; fi
+
+  if [[ "$free" -lt "$MIN_FREE_MB" ]]; then
+    echo "Error: ${free}MB free on the Docker disk, pnpm install needs ~${MIN_FREE_MB}MB." >&2
+    echo "  Starting anyway would loop on ERR_PNPM_ENOSPC. Reclaim space, then retry:" >&2
+    echo "    docker builder prune -af" >&2
+    echo "    docker image prune -a" >&2
+    exit 1
+  fi
+}
+
 cmd_up() {
   # Substring match (not anchored) for parity with lago-worktree.sh and to
   # tolerate any Compose-added prefix/suffix on the main front container name.
@@ -113,8 +210,22 @@ cmd_up() {
     exit 1
   fi
 
+  # Before the disk check, so reclaimed space counts towards it.
+  sweep_stale
+  check_image
+  # Create before probing so df reads the same volume-backed filesystem that
+  # pnpm and each workspace's node_modules volume use.
+  docker volume create "$PNPM_STORE_VOL" >/dev/null
+  require_disk
+
   patch_env
   gen_compose
+
+  # Shadowed by the shared store volume from here on, so whatever it already
+  # holds is dead weight on the host disk.
+  if [[ -n "$(ls -A "$WS/.pnpm-store" 2>/dev/null)" ]]; then
+    echo "note: $WS/.pnpm-store is superseded by the shared store volume, safe to delete."
+  fi
 
   # A hard-killed prior run (SIGKILL) can orphan the container or leave a stale
   # network endpoint that blocks re-attach ("endpoint ... already exists"); clear
@@ -138,16 +249,79 @@ cmd_up() {
   docker compose -f "$COMPOSE_FILE" logs -f
 }
 
-cmd_down() {
-  if [[ -f "$COMPOSE_FILE" ]]; then
-    docker compose -f "$COMPOSE_FILE" down -v
-    rm -f "$COMPOSE_FILE"
-  else
-    # No compose file (e.g. deleted manually) — still remove the container and
-    # its named volumes directly so nothing is left orphaned.
-    docker rm -f "lago_front_ct_${SAN}" >/dev/null 2>&1 || true
-    docker volume rm "front_nm_ct_${SAN}" "front_dist_ct_${SAN}" >/dev/null 2>&1 || true
+# Tear down one compose project by its sanitised name, compose file or not.
+teardown_san() {
+  # Two statements: bash expands the whole `local` line before assigning, so
+  # referencing $san in the same statement trips `set -u`.
+  local san="$1"
+  local file="$COMPOSE_DIR/${san}.yml"
+  local project="lago_front_ct_${san}"
+
+  if [[ -f "$file" ]] && docker compose -f "$file" down -v; then
+    rm -f "$file"
+    return
   fi
+
+  # Docker itself unreachable (daemon down, CLI missing): there is nothing to
+  # remove right now and dropping the compose file would lose the only record of
+  # what to clean up, so warn and leave it. Never fail: this runs from the archive
+  # hook, where a teardown error would surface as a failed archive.
+  if ! docker info >/dev/null 2>&1; then
+    echo "warn: docker unreachable, leaving '${san}' teardown for later." >&2
+    return
+  fi
+
+  # No compose file (deleted manually), or it no longer parses (stale format from
+  # an older revision of this script): remove the container and its volumes
+  # directly so nothing is left orphaned.
+  docker rm -f "$project" >/dev/null 2>&1 || true
+
+  # Compose prefixes every declared volume with the project name, so the real
+  # volumes are lago_front_ct_<san>_front_nm_ct_<san>, not front_nm_ct_<san>.
+  # Match on the compose project label, which survives the compose file, and fall
+  # back to the prefixed literals in case the label is missing.
+  local -a vols=()
+  local vol
+  while IFS= read -r vol; do
+    [[ -n "$vol" ]] && vols+=("$vol")
+  done < <(docker volume ls -q --filter "label=com.docker.compose.project=${project}" 2>/dev/null || true)
+  if [[ ${#vols[@]} -gt 0 ]]; then
+    docker volume rm "${vols[@]}" >/dev/null 2>&1 || true
+  fi
+  docker volume rm "${project}_front_nm_ct_${san}" "${project}_front_dist_ct_${san}" >/dev/null 2>&1 || true
+
+  # Only drop the compose file once the container is really gone. Deleting it on a
+  # failed removal would destroy the sole record of the project name and volume
+  # set, leaving both unreclaimable.
+  if docker ps -a --format '{{.Names}}' | grep -qx "$project"; then
+    echo "warn: container ${project} still present, keeping ${file}." >&2
+    return
+  fi
+  rm -f "$file"
+}
+
+cmd_down() {
+  teardown_san "$SAN"
+
+  # The compose project is named after CONDUCTOR_WORKSPACE_NAME at `up` time, so
+  # renaming the workspace afterwards makes $SAN miss the project that is actually
+  # running and orphans its node_modules volume (~600MB each). Also tear down any
+  # other compose project whose /app mount is this workspace, so a rename between
+  # `up` and archive still cleans up.
+  if [[ -n "$WS" && -d "$COMPOSE_DIR" ]]; then
+    local file other
+    for file in "$COMPOSE_DIR"/*.yml; do
+      [[ -f "$file" ]] || continue
+      grep -qF -- "${WS}:/app:cached" "$file" || continue
+      other="$(basename "$file" .yml)"
+      if [[ "$other" == "$SAN" ]]; then continue; fi
+      echo "Also tearing down stale project '$other' for this workspace (renamed since 'up')."
+      teardown_san "$other"
+    done
+  fi
+
+  sweep_stale
+
   echo "Removed front container for '$NAME'."
 }
 
@@ -202,12 +376,17 @@ cmd_host() {
 }
 
 case "$CMD" in
-  up) cmd_up ;;
+  up) require_ws; cmd_up ;;
   down) cmd_down ;;
+  # No require_ws: cmd_shell only needs the running container, not the directory,
+  # so it stays usable when the workspace has already been removed.
   shell) cmd_shell ;;
-  host) cmd_host ;;
+  host) require_ws; cmd_host ;;
+  # Also runs on every `up`; exposed so a leak can be reclaimed without booting
+  # a workspace.
+  sweep) sweep_stale ;;
   *)
-    echo "Usage: conductor-front-container.sh {up|down|shell|host}" >&2
+    echo "Usage: conductor-front-container.sh {up|down|shell|host|sweep}" >&2
     exit 1
     ;;
 esac

@@ -1,11 +1,12 @@
 import { gql } from '@apollo/client'
 import { memo, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import {
   InvoiceMetadatasForMetadataDrawerFragmentDoc,
+  LagoApiError,
   useGetInvoiceMetadatasQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -69,6 +70,7 @@ export const Metadatas = memo(() => {
       id: invoiceId || '',
     },
     skip: !invoiceId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
 
   const invoice = data?.invoice

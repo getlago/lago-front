@@ -3,7 +3,7 @@ import { formatCodeFromName } from '~/core/utils/formatCodeFromName'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withFieldGroup } from '~/hooks/forms/useAppform'
 
-export const ALERT_NAME_AND_CODE_GROUP_DEFAULT_VALUES = {
+const ALERT_NAME_AND_CODE_GROUP_DEFAULT_VALUES = {
   name: '',
   code: '',
 }

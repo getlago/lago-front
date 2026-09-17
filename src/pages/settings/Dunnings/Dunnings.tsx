@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useMemo, useState } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -224,13 +224,10 @@ const Dunnings = () => {
                                 startIcon: 'pen',
                                 title: translate('text_17321873136602nzwuvcycbr'),
                                 disabled: !hasPermissions(['dunningCampaignsUpdate']),
-                                onAction: () => {
-                                  navigate(
-                                    generatePath(UPDATE_DUNNING_ROUTE, {
-                                      campaignId: campaign?.id || '',
-                                    }),
-                                  )
-                                },
+                                link: () =>
+                                  generatePath(UPDATE_DUNNING_ROUTE, {
+                                    campaignId: campaign?.id || '',
+                                  }),
                               },
                               {
                                 startIcon: 'trash',

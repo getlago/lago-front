@@ -2,7 +2,7 @@ import { gql, useMutation } from '@apollo/client'
 import NiceModal from '@ebay/nice-modal-react'
 import { revalidateLogic } from '@tanstack/react-form'
 import { FormEvent } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { REASON_MODAL_NAME } from '~/components/admin/const'
 import { ReasonModalProps } from '~/components/admin/ReasonModal'

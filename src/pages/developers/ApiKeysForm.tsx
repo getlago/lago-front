@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
 import { useEffect } from 'react'
-import { NavigateOptions, useParams } from 'react-router-dom'
+import { NavigateOptions, useParams } from 'react-router'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -103,7 +103,7 @@ const resourceTypeTranslationKeys: Record<ApiKeysPermissionsEnum, string> = {
   [ApiKeysPermissionsEnum.WebhookJwtPublicKey]: 'text_1732894820485vwy7ic1o84g',
 }
 
-export const API_KEYS_FORM_ID = 'api-keys-form'
+const API_KEYS_FORM_ID = 'api-keys-form'
 
 gql`
   query getApiKeyToEdit($apiKeyId: ID!) {

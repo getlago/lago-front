@@ -1,7 +1,7 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { debounce } from 'lodash'
 import { useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { AuditLogEntry, AuditLogTable } from '~/components/admin/AuditLogTable'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'

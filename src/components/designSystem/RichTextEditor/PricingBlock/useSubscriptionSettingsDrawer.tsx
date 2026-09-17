@@ -7,8 +7,11 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useDrawer } from '~/components/drawers/useDrawer'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
+
+import { QuotePaymentTermLine } from './QuotePaymentTermLine'
 
 export const SUBSCRIPTION_SETTINGS_DRAWER_SAVE_TEST_ID = 'subscription-settings-drawer-save'
 
@@ -20,23 +23,30 @@ export interface SubscriptionSettingsFormValues {
   endDate: string
 }
 
-const subscriptionSettingsSchema = z
-  .object({
-    externalId: z.string(),
-    subscriptionName: z.string(),
-    billingTime: z.enum(['anniversary', 'calendar']),
-    startDate: z.string().min(1, 'text_624ea7c29103fd010732ab7d'),
-    endDate: z.string(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.endDate && data.startDate && data.endDate < data.startDate) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'End date must be after start date',
-        path: ['endDate'],
-      })
-    }
-  })
+// Amendment quotes don't display a start date (it belongs to the amended subscription), so
+// the hidden, always-empty field must not block the save (LAGO-1814).
+const makeSubscriptionSettingsSchema = (isAmendment: boolean) =>
+  z
+    .object({
+      externalId: z.string(),
+      subscriptionName: z.string(),
+      billingTime: z.enum(['anniversary', 'calendar']),
+      startDate: isAmendment ? z.string() : z.string().min(1, 'text_624ea7c29103fd010732ab7d'),
+      endDate: z.string(),
+    })
+    .superRefine((data, ctx) => {
+      addUnsupportedDateIssue(ctx, data.startDate, ['startDate'])
+
+      if (addUnsupportedDateIssue(ctx, data.endDate, ['endDate'])) return
+
+      if (data.endDate && data.startDate && data.endDate < data.startDate) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'End date must be after start date',
+          path: ['endDate'],
+        })
+      }
+    })
 
 const DEFAULT_VALUES: SubscriptionSettingsFormValues = {
   externalId: '',
@@ -46,15 +56,27 @@ const DEFAULT_VALUES: SubscriptionSettingsFormValues = {
   endDate: '',
 }
 
+interface SubscriptionSettingsDrawerContentProps {
+  initialValues: SubscriptionSettingsFormValues
+  isAmendment: boolean
+  netPaymentTerm?: number | null
+}
+
+const subscriptionSettingsDrawerContentDefaultProps: SubscriptionSettingsDrawerContentProps = {
+  initialValues: DEFAULT_VALUES,
+  isAmendment: false,
+  netPaymentTerm: undefined,
+}
+
 const SubscriptionSettingsDrawerContent = withForm({
   defaultValues: DEFAULT_VALUES,
-  props: {
-    initialValues: DEFAULT_VALUES,
-    isAmendment: false,
-  },
-  render: function Render({ form, initialValues, isAmendment }) {
+  props: subscriptionSettingsDrawerContentDefaultProps,
+  render: function Render({ form, initialValues, isAmendment, netPaymentTerm }) {
     const { translate } = useInternationalization()
     const [showExternalId, setShowExternalId] = useState(!!initialValues.externalId)
+    // On an amendment the external id identifies the subscription being amended, so once it
+    // is prefilled it can neither be edited nor removed (LAGO-1822).
+    const isExternalIdLocked = isAmendment && !!initialValues.externalId
     const [showSubscriptionName, setShowSubscriptionName] = useState(
       !!initialValues.subscriptionName,
     )
@@ -73,23 +95,26 @@ const SubscriptionSettingsDrawerContent = withForm({
                   label={translate('text_642a94e522316cd9e1875224')}
                   placeholder={translate('text_642ac1d1407baafb9e4390ee')}
                   helperText={translate('text_642ac28c65c2180085afe31a')}
+                  disabled={isExternalIdLocked}
                 />
               )}
             </form.AppField>
-            <Tooltip
-              className="mt-7 h-fit"
-              placement="top-end"
-              title={translate('text_63aa085d28b8510cd46443ff')}
-            >
-              <Button
-                icon="trash"
-                variant="quaternary"
-                onClick={() => {
-                  form.setFieldValue('externalId', '')
-                  setShowExternalId(false)
-                }}
-              />
-            </Tooltip>
+            {!isExternalIdLocked && (
+              <Tooltip
+                className="mt-7 h-fit"
+                placement="top-end"
+                title={translate('text_63aa085d28b8510cd46443ff')}
+              >
+                <Button
+                  icon="trash"
+                  variant="quaternary"
+                  onClick={() => {
+                    form.setFieldValue('externalId', '')
+                    setShowExternalId(false)
+                  }}
+                />
+              </Tooltip>
+            )}
           </div>
         )}
         {showSubscriptionName && (
@@ -171,15 +196,16 @@ const SubscriptionSettingsDrawerContent = withForm({
           </form.AppField>
         </div>
         <div className="flex gap-3">
-          <form.AppField name="startDate">
-            {(field) => (
-              <field.DatePickerField
-                disabled={isAmendment}
-                label={translate('text_65201c5a175a4b0238abf29e')}
-                className="flex-1"
-              />
-            )}
-          </form.AppField>
+          {!isAmendment && (
+            <form.AppField name="startDate">
+              {(field) => (
+                <field.DatePickerField
+                  label={translate('text_65201c5a175a4b0238abf29e')}
+                  className="flex-1"
+                />
+              )}
+            </form.AppField>
+          )}
           <form.AppField name="endDate">
             {(field) => (
               <field.DatePickerField
@@ -189,22 +215,30 @@ const SubscriptionSettingsDrawerContent = withForm({
             )}
           </form.AppField>
         </div>
+        <QuotePaymentTermLine netPaymentTerm={netPaymentTerm} />
       </div>
     )
   },
 })
 
-export const useSubscriptionSettingsDrawer = (
-  onSave: (values: SubscriptionSettingsFormValues) => void,
+interface UseSubscriptionSettingsDrawerProps {
+  onSave: (values: SubscriptionSettingsFormValues) => void
+  isAmendment?: boolean
+  netPaymentTerm?: number | null
+}
+
+export const useSubscriptionSettingsDrawer = ({
+  onSave,
   isAmendment = false,
-) => {
+  netPaymentTerm,
+}: UseSubscriptionSettingsDrawerProps) => {
   const { translate } = useInternationalization()
   const drawer = useDrawer()
 
   const form = useAppForm({
     defaultValues: DEFAULT_VALUES,
     validationLogic: revalidateLogic(),
-    validators: { onDynamic: subscriptionSettingsSchema },
+    validators: { onDynamic: makeSubscriptionSettingsSchema(isAmendment) },
     onSubmit: async ({ value }) => {
       onSave(value)
       drawer.close()
@@ -229,6 +263,7 @@ export const useSubscriptionSettingsDrawer = (
               form={form}
               initialValues={values}
               isAmendment={isAmendment}
+              netPaymentTerm={netPaymentTerm}
             />
           </form>
         ),
@@ -252,9 +287,8 @@ export const useSubscriptionSettingsDrawer = (
         ),
       })
     },
-    // isAmendment and handleFormSubmit are stable (param + closure over form) — safe to omit
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [drawer, form, translate],
+    [drawer, form, translate, netPaymentTerm],
   )
 
   return { openDrawer }

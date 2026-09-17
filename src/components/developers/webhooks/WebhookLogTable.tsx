@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { generatePath, useParams, useSearchParams } from 'react-router-dom'
+import { generatePath, useParams, useSearchParams } from 'react-router'
 
 import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
@@ -16,6 +16,7 @@ import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 type WebhookLogTableProps = {
   getWebhookLogsResult: GetWebhookLogQueryResult
   logListRef: React.RefObject<ListSectionRef>
+  activeRowId?: string
   isLoading: boolean
   pageSize?: number
   onPageSizeChange?: (pageSize: number) => void
@@ -24,6 +25,7 @@ type WebhookLogTableProps = {
 export const WebhookLogTable: FC<WebhookLogTableProps> = ({
   getWebhookLogsResult,
   logListRef,
+  activeRowId,
   isLoading,
   pageSize,
   onPageSizeChange,
@@ -49,9 +51,11 @@ export const WebhookLogTable: FC<WebhookLogTableProps> = ({
         containerSize={16}
         rowSize={48}
         data={data?.webhooks.collection ?? []}
+        activeRowId={activeRowId}
         hasError={!!error}
         isLoading={isLoading}
         loadingRowCount={pageSize}
+        rowLinkLabel={({ webhookType }) => webhookType}
         onRowActionLink={({ id }) => {
           const currentParams = searchParams.toString()
           const path = generatePath(WEBHOOK_LOGS_ROUTE, {
@@ -59,11 +63,12 @@ export const WebhookLogTable: FC<WebhookLogTableProps> = ({
             logId: id,
           })
 
+          return currentParams ? `${path}?${currentParams}` : path
+        }}
+        onRowActionClick={() => {
           if (getCurrentBreakpoint() === 'sm') {
             logListRef.current?.updateView('forward')
           }
-
-          return currentParams ? `${path}?${currentParams}` : path
         }}
         columns={[
           {

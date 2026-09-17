@@ -54,6 +54,7 @@ describe('serializeQuoteCoupons', () => {
       expect(result[0].localId).toBe('local-1')
       expect(result[0].overrides).toEqual({
         amountCents: 9000,
+        amountCurrency: CurrencyEnum.Eur,
         percentageRate: null,
         frequency: 'recurring',
         frequencyDuration: 6,
@@ -90,6 +91,7 @@ describe('serializeQuoteCoupons', () => {
 
       expect(result[0].overrides).toEqual({
         amountCents: null,
+        amountCurrency: null,
         percentageRate: 12.5,
         frequency: 'forever',
         frequencyDuration: null,
@@ -98,6 +100,25 @@ describe('serializeQuoteCoupons', () => {
   })
 
   describe('fromCoupons', () => {
+    // See the plan-side note: a restamped item can come back with no `overrides` key.
+    it('deserializes a coupon whose overrides the API dropped', () => {
+      const saved = [
+        {
+          type: 'coupon' as const,
+          id: 'cpn_uuid',
+          localId: 'local-1',
+          payload: fixedPayload,
+          overrides: null,
+        },
+      ]
+
+      const { discountItems, entities } = fromCoupons(saved)
+
+      expect(discountItems).toHaveLength(1)
+      expect(discountItems[0].couponId).toBe('cpn_uuid')
+      expect(entities['local-1'].entityType).toBe('coupon')
+    })
+
     it('round-trips a saved coupon into a form item keyed by localId, overrides winning', () => {
       const saved: BillingItemCoupon[] = [
         {
@@ -107,6 +128,7 @@ describe('serializeQuoteCoupons', () => {
           payload: fixedPayload,
           overrides: {
             amountCents: 9000,
+            amountCurrency: null,
             percentageRate: null,
             frequency: CouponFrequency.Recurring,
             frequencyDuration: 6,
@@ -122,6 +144,57 @@ describe('serializeQuoteCoupons', () => {
       expect(entities['local-1'].entityType).toBe('coupon')
       expect(entities['local-1'].name).toBe('Enterprise 20% Discount')
       expect(originalPayloads['local-1']).toEqual(fixedPayload)
+    })
+  })
+
+  describe('repricing a fixed-amount coupon in the deal currency', () => {
+    const items = [
+      {
+        localId: 'local-1',
+        couponId: 'cpn_uuid',
+        couponType: CouponTypeEnum.FixedAmount,
+        name: 'Enterprise discount',
+        code: 'enterprise_discount_20',
+        currency: CurrencyEnum.Eur,
+        amount: '90.00',
+        percentageRate: null,
+        frequency: CouponFrequency.Once,
+        frequencyDuration: null,
+      },
+    ]
+
+    it('records the deal currency and prices the amount in it', () => {
+      const result = toCoupons(items, { 'local-1': fixedPayload }, CurrencyEnum.Aud)
+
+      expect(result[0].overrides.amountCurrency).toBe(CurrencyEnum.Aud)
+      expect(result[0].overrides.amountCents).toBe(9000)
+    })
+
+    it('leaves the catalog currency untouched in the payload', () => {
+      const result = toCoupons(items, { 'local-1': fixedPayload }, CurrencyEnum.Aud)
+
+      expect(result[0].payload.currency).toBe(fixedPayload.currency)
+    })
+
+    it('falls back to the form currency when no deal currency is given', () => {
+      const result = toCoupons(items, { 'local-1': fixedPayload })
+
+      expect(result[0].overrides.amountCurrency).toBe(CurrencyEnum.Eur)
+    })
+
+    it('reads the amount back in the deal currency, not the catalog one', () => {
+      const serialized = toCoupons(items, { 'local-1': fixedPayload }, CurrencyEnum.Aud)
+      const { discountItems } = fromCoupons(serialized, CurrencyEnum.Aud)
+
+      expect(discountItems[0].currency).toBe(CurrencyEnum.Aud)
+      expect(discountItems[0].amount).toBe('90')
+    })
+
+    it('reopens in the deal currency even when the stored override is stale', () => {
+      const serialized = toCoupons(items, { 'local-1': fixedPayload }, CurrencyEnum.Eur)
+      const { discountItems } = fromCoupons(serialized, CurrencyEnum.Aud)
+
+      expect(discountItems[0].currency).toBe(CurrencyEnum.Aud)
     })
   })
 })

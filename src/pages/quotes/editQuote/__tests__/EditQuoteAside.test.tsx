@@ -1,25 +1,30 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { print } from 'graphql'
 
+import { BILLING_ENTITY_FORM_PICKER_DATA_TEST } from '~/components/billingEntity/BillingEntityFormPicker'
 import {
   CurrencyEnum,
   OrderTypeEnum,
   QuoteDetailItemFragment,
   StatusEnum,
+  UpdateQuoteVersionDocument,
 } from '~/generated/graphql'
+import { BILLING_ENTITY_INHERIT_CODE } from '~/hooks/useBillingEntitiesOptions'
 import { render } from '~/test-utils'
 
 import EditQuoteAside, {
+  EDIT_QUOTE_ASIDE_ADD_PRICING_TEST_ID,
   EDIT_QUOTE_ASIDE_APPROVE_TEST_ID,
   EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID,
   EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID,
   EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID,
   EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID,
+  EDIT_QUOTE_ASIDE_CUSTOMER_LINK_TEST_ID,
   EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID,
-  EDIT_QUOTE_ASIDE_END_DATE_TEST_ID,
-  EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID,
+  EDIT_QUOTE_ASIDE_PRICING_LABEL_TEST_ID,
+  EDIT_QUOTE_ASIDE_PRICING_SUMMARY_TEST_ID,
   EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID,
-  EDIT_QUOTE_ASIDE_START_DATE_TEST_ID,
   EDIT_QUOTE_ASIDE_SUBSCRIPTION_INPUT_TEST_ID,
 } from '../EditQuoteAside'
 
@@ -39,6 +44,21 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
+}))
+
+const mockAddToast = jest.fn()
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: (payload: unknown) => mockAddToast(payload),
+}))
+
+const mockBillingEntitiesOptions = jest.fn()
+
+jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
+  ...jest.requireActual('~/hooks/useBillingEntitiesOptions'),
+  useBillingEntitiesOptions: (params?: { includeInheritOption?: boolean }) =>
+    mockBillingEntitiesOptions(params),
 }))
 
 const mockUpdateQuoteVersion = jest.fn()
@@ -84,6 +104,24 @@ jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
 
+const BILLING_ENTITY_OPTIONS = [
+  {
+    id: '',
+    value: BILLING_ENTITY_INHERIT_CODE,
+    label: 'Use customer default',
+    isDefault: false,
+    euTaxManagement: false,
+  },
+  {
+    id: 'be-1',
+    value: 'default',
+    label: 'Default Entity',
+    isDefault: true,
+    euTaxManagement: false,
+  },
+  { id: 'be-2', value: 'second', label: 'Second Entity', isDefault: false, euTaxManagement: false },
+]
+
 const mockQuote: QuoteDetailItemFragment = {
   __typename: 'Quote',
   id: 'quote-1',
@@ -91,6 +129,7 @@ const mockQuote: QuoteDetailItemFragment = {
   images: {},
   orderType: OrderTypeEnum.SubscriptionCreation,
   createdAt: '2026-01-01',
+  orderForms: [],
   versions: [
     {
       __typename: 'QuoteVersion',
@@ -123,12 +162,19 @@ const mockQuote: QuoteDetailItemFragment = {
     version: 1,
     content: 'Some content',
     currency: null,
-    startDate: null,
-    endDate: null,
+    billingEntityId: null,
     billingItems: null,
     createdAt: '2026-01-01',
     mentionVariables: {},
   },
+}
+
+const mockAddPricingBlock = jest.fn()
+
+const defaultPricingProps = {
+  hasPricingBlock: true,
+  pricingSummary: 'Premium plan',
+  onAddPricingBlock: mockAddPricingBlock,
 }
 
 describe('EditQuoteAside', () => {
@@ -136,24 +182,30 @@ describe('EditQuoteAside', () => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
     mockUpdateQuoteVersion.mockResolvedValue({ data: { updateQuoteVersion: { id: 'version-1' } } })
+    mockBillingEntitiesOptions.mockReturnValue({
+      options: BILLING_ENTITY_OPTIONS,
+      isLoading: false,
+      defaultEntityCode: 'default',
+      hasMultipleEntities: true,
+    })
   })
 
   describe('GIVEN a quote is provided', () => {
     describe('WHEN the component renders', () => {
       it('THEN should render the quote type field', () => {
-        render(<EditQuoteAside quote={mockQuote} />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
 
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should render the customer field', () => {
-        render(<EditQuoteAside quote={mockQuote} />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
 
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should render the billing entity field', () => {
-        render(<EditQuoteAside quote={mockQuote} />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
 
         expect(
           screen.getByTestId(EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID),
@@ -162,27 +214,12 @@ describe('EditQuoteAside', () => {
     })
   })
 
-  describe('GIVEN a quote with no billing entity', () => {
-    describe('WHEN the component renders', () => {
-      it('THEN should NOT render the billing entity field', () => {
-        const quoteWithoutBillingEntity = {
-          ...mockQuote,
-          customer: { ...mockQuote.customer, billingEntity: null },
-        } as unknown as QuoteDetailItemFragment
-
-        render(<EditQuoteAside quote={quoteWithoutBillingEntity} />)
-
-        expect(
-          screen.queryByTestId(EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID),
-        ).not.toBeInTheDocument()
-      })
-    })
-  })
-
   describe('GIVEN a quote with no subscription', () => {
     describe('WHEN the component renders', () => {
       it('THEN should NOT render the subscription field', () => {
-        render(<EditQuoteAside quote={{ ...mockQuote, subscription: null }} />)
+        render(
+          <EditQuoteAside {...defaultPricingProps} quote={{ ...mockQuote, subscription: null }} />,
+        )
 
         expect(
           screen.queryByTestId(EDIT_QUOTE_ASIDE_SUBSCRIPTION_INPUT_TEST_ID),
@@ -210,7 +247,7 @@ describe('EditQuoteAside', () => {
           },
         }
 
-        render(<EditQuoteAside quote={quoteWithSubscription} />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={quoteWithSubscription} />)
 
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_SUBSCRIPTION_INPUT_TEST_ID)).toBeInTheDocument()
       })
@@ -220,7 +257,7 @@ describe('EditQuoteAside', () => {
   describe('GIVEN no quote is provided', () => {
     describe('WHEN the component renders', () => {
       it('THEN should not render any fields', () => {
-        render(<EditQuoteAside quote={undefined} />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={undefined} />)
 
         expect(
           screen.queryByTestId(EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID),
@@ -237,9 +274,6 @@ describe('EditQuoteAside', () => {
         expect(
           screen.queryByTestId(EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID),
         ).not.toBeInTheDocument()
-        expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_START_DATE_TEST_ID)).not.toBeInTheDocument()
-        expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_END_DATE_TEST_ID)).not.toBeInTheDocument()
-        expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
@@ -247,123 +281,9 @@ describe('EditQuoteAside', () => {
   describe('GIVEN a quote with customer currency', () => {
     describe('WHEN the component renders', () => {
       it('THEN should render the currency field', () => {
-        render(<EditQuoteAside quote={mockQuote} />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
 
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID)).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN a subscription quote with dates and payment term', () => {
-    describe('WHEN the component renders', () => {
-      it('THEN should render the start date field', () => {
-        render(<EditQuoteAside quote={mockQuote} />)
-
-        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_START_DATE_TEST_ID)).toBeInTheDocument()
-      })
-
-      it('THEN should render the end date field', () => {
-        render(<EditQuoteAside quote={mockQuote} />)
-
-        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_END_DATE_TEST_ID)).toBeInTheDocument()
-      })
-
-      it('THEN should render the payment term field', () => {
-        render(<EditQuoteAside quote={mockQuote} />)
-
-        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID)).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN a one-off quote', () => {
-    const oneOffQuote = {
-      ...mockQuote,
-      orderType: OrderTypeEnum.OneOff,
-    }
-
-    describe('WHEN the component renders', () => {
-      it('THEN should NOT render the start date field', () => {
-        render(<EditQuoteAside quote={oneOffQuote} />)
-
-        expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_START_DATE_TEST_ID)).not.toBeInTheDocument()
-      })
-
-      it('THEN should NOT render the end date field', () => {
-        render(<EditQuoteAside quote={oneOffQuote} />)
-
-        expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_END_DATE_TEST_ID)).not.toBeInTheDocument()
-      })
-
-      it('THEN should still render the payment term field', () => {
-        render(<EditQuoteAside quote={oneOffQuote} />)
-
-        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID)).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN a quote with netPaymentTerm of 0', () => {
-    describe('WHEN the component renders', () => {
-      it('THEN should display "0 days (at issuing date)"', () => {
-        const quoteWithZeroTerm = {
-          ...mockQuote,
-          customer: { ...mockQuote.customer, netPaymentTerm: 0 },
-        }
-
-        render(<EditQuoteAside quote={quoteWithZeroTerm} />)
-
-        expect(screen.getByDisplayValue('0 days (at issuing date)')).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN a quote with null customer netPaymentTerm', () => {
-    describe('WHEN the billing entity has a netPaymentTerm', () => {
-      it('THEN should fall back to billing entity netPaymentTerm', () => {
-        const quoteWithNullCustomerTerm = {
-          ...mockQuote,
-          customer: { ...mockQuote.customer, netPaymentTerm: null },
-        }
-
-        render(<EditQuoteAside quote={quoteWithNullCustomerTerm} />)
-
-        expect(screen.getByDisplayValue('60 days')).toBeInTheDocument()
-      })
-    })
-
-    describe('WHEN the billing entity also has no netPaymentTerm', () => {
-      it('THEN should display "-"', () => {
-        const quoteWithNoTerm = {
-          ...mockQuote,
-          customer: {
-            ...mockQuote.customer,
-            netPaymentTerm: null,
-            billingEntity: {
-              ...mockQuote.customer.billingEntity,
-              netPaymentTerm: null,
-            },
-          },
-        } as unknown as QuoteDetailItemFragment
-
-        render(<EditQuoteAside quote={quoteWithNoTerm} />)
-
-        expect(screen.getByDisplayValue('-')).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN a quote with netPaymentTerm of 1', () => {
-    describe('WHEN the component renders', () => {
-      it('THEN should display "1 day" (singular)', () => {
-        const quoteWithOneDayTerm = {
-          ...mockQuote,
-          customer: { ...mockQuote.customer, netPaymentTerm: 1 },
-        }
-
-        render(<EditQuoteAside quote={quoteWithOneDayTerm} />)
-
-        expect(screen.getByDisplayValue('1 day')).toBeInTheDocument()
       })
     })
   })
@@ -372,6 +292,7 @@ describe('EditQuoteAside', () => {
     const renderWithCurrency = (currency: CurrencyEnum | null) =>
       render(
         <EditQuoteAside
+          {...defaultPricingProps}
           quote={{
             ...mockQuote,
             // The customer currency no longer feeds this field — only the version's does.
@@ -417,6 +338,7 @@ describe('EditQuoteAside', () => {
 
         render(
           <EditQuoteAside
+            {...defaultPricingProps}
             quote={{
               ...mockQuote,
               currentVersion: { ...mockQuote.currentVersion, currency: CurrencyEnum.Eur },
@@ -457,6 +379,7 @@ describe('EditQuoteAside', () => {
 
         rerender(
           <EditQuoteAside
+            {...defaultPricingProps}
             quote={{
               ...mockQuote,
               customer: { ...mockQuote.customer, currency: CurrencyEnum.Gbp },
@@ -497,35 +420,9 @@ describe('EditQuoteAside', () => {
           },
         }
 
-        render(<EditQuoteAside quote={quoteWithSubscription} />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={quoteWithSubscription} />)
 
         expect(screen.getByDisplayValue('Premium Plan - ext-sub-1')).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN a subscription amendment quote', () => {
-    describe('WHEN the component renders', () => {
-      it('THEN should render the start date field', () => {
-        const amendmentQuote = {
-          ...mockQuote,
-          orderType: OrderTypeEnum.SubscriptionAmendment,
-        }
-
-        render(<EditQuoteAside quote={amendmentQuote} />)
-
-        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_START_DATE_TEST_ID)).toBeInTheDocument()
-      })
-
-      it('THEN should render the end date field', () => {
-        const amendmentQuote = {
-          ...mockQuote,
-          orderType: OrderTypeEnum.SubscriptionAmendment,
-        }
-
-        render(<EditQuoteAside quote={amendmentQuote} />)
-
-        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_END_DATE_TEST_ID)).toBeInTheDocument()
       })
     })
   })
@@ -533,28 +430,28 @@ describe('EditQuoteAside', () => {
   describe('GIVEN the footer actions', () => {
     describe('WHEN the component renders', () => {
       it('THEN should render the Download PDF button', () => {
-        render(<EditQuoteAside quote={mockQuote} />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
 
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should still render the Download PDF button without the quotesApprove permission', () => {
         mockHasPermissions.mockReturnValue(false)
-        render(<EditQuoteAside quote={mockQuote} />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
 
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should render the Approve button when the user has the quotesApprove permission', () => {
         mockHasPermissions.mockReturnValue(true)
-        render(<EditQuoteAside quote={mockQuote} />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
 
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should NOT render the Approve button without the quotesApprove permission', () => {
         mockHasPermissions.mockReturnValue(false)
-        render(<EditQuoteAside quote={mockQuote} />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
 
         expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID)).not.toBeInTheDocument()
       })
@@ -562,7 +459,7 @@ describe('EditQuoteAside', () => {
 
     describe('WHEN the Download PDF button is clicked', () => {
       it('THEN should trigger a PDF download', () => {
-        render(<EditQuoteAside quote={mockQuote} />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
 
         fireEvent.click(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID))
 
@@ -570,7 +467,7 @@ describe('EditQuoteAside', () => {
       })
 
       it('THEN should build the PDF header from the quote number and version', () => {
-        render(<EditQuoteAside quote={mockQuote} />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
 
         fireEvent.click(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID))
 
@@ -583,11 +480,34 @@ describe('EditQuoteAside', () => {
           }),
         )
       })
+
+      it('THEN should send the content of the version it was last given', () => {
+        const { rerender } = render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
+
+        fireEvent.click(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID))
+
+        expect(mockDownload).toHaveBeenLastCalledWith(
+          expect.objectContaining({ content: 'Some content' }),
+        )
+
+        const editedQuote: QuoteDetailItemFragment = {
+          ...mockQuote,
+          currentVersion: { ...mockQuote.currentVersion, content: 'Edited content' },
+        }
+
+        rerender(<EditQuoteAside {...defaultPricingProps} quote={editedQuote} />)
+
+        fireEvent.click(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID))
+
+        expect(mockDownload).toHaveBeenLastCalledWith(
+          expect.objectContaining({ content: 'Edited content' }),
+        )
+      })
     })
 
     describe('WHEN the Approve button is clicked', () => {
       it('THEN should navigate to the approve quote page', () => {
-        render(<EditQuoteAside quote={mockQuote} />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
 
         fireEvent.click(screen.getByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID))
 
@@ -597,7 +517,7 @@ describe('EditQuoteAside', () => {
 
     describe('WHEN the quote is saving', () => {
       it('THEN should disable both action buttons and show loading spinners', () => {
-        render(<EditQuoteAside quote={mockQuote} isSaving />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} isSaving />)
 
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID)).toBeDisabled()
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID)).toBeDisabled()
@@ -605,7 +525,7 @@ describe('EditQuoteAside', () => {
       })
 
       it('THEN should not trigger a PDF download while saving', () => {
-        render(<EditQuoteAside quote={mockQuote} isSaving />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} isSaving />)
 
         fireEvent.click(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID))
 
@@ -613,7 +533,7 @@ describe('EditQuoteAside', () => {
       })
 
       it('THEN should not navigate to approve while saving', () => {
-        render(<EditQuoteAside quote={mockQuote} isSaving />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} isSaving />)
 
         fireEvent.click(screen.getByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID))
 
@@ -623,9 +543,656 @@ describe('EditQuoteAside', () => {
 
     describe('WHEN the quote is NOT saving', () => {
       it('THEN should not show any loading spinners', () => {
-        render(<EditQuoteAside quote={mockQuote} />)
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
 
         expect(screen.queryAllByTestId(/processing/)).toHaveLength(0)
+      })
+    })
+  })
+  describe('GIVEN the customer row', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should link to the customer detail page', () => {
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_CUSTOMER_LINK_TEST_ID)).toHaveAttribute(
+          'href',
+          expect.stringContaining('/customer/customer-1'),
+        )
+      })
+
+      it('THEN should display the customer name inside the link', () => {
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_CUSTOMER_LINK_TEST_ID)).toHaveTextContent(
+          'Acme Corp',
+        )
+      })
+    })
+  })
+
+  describe('GIVEN the billing entity row', () => {
+    describe('WHEN the organization has several entities on a non-amendment quote', () => {
+      it('THEN should render the picker', () => {
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
+
+        expect(screen.getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)).toBeInTheDocument()
+      })
+
+      it('THEN should request the inherit option', () => {
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
+
+        expect(mockBillingEntitiesOptions).toHaveBeenCalledWith({ includeInheritOption: true })
+      })
+    })
+
+    describe('WHEN the organization has a single entity', () => {
+      it('THEN should hide the row rather than show a one-option picker', () => {
+        mockBillingEntitiesOptions.mockReturnValue({
+          options: [BILLING_ENTITY_OPTIONS[0], BILLING_ENTITY_OPTIONS[1]],
+          isLoading: false,
+          defaultEntityCode: 'default',
+          hasMultipleEntities: false,
+        })
+
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
+
+        expect(
+          screen.queryByTestId(EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID),
+        ).not.toBeInTheDocument()
+        expect(screen.queryByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the quote is a subscription amendment', () => {
+      it('THEN should hide the row, because the backend rejects an entity there', () => {
+        render(
+          <EditQuoteAside
+            {...defaultPricingProps}
+            quote={{ ...mockQuote, orderType: OrderTypeEnum.SubscriptionAmendment }}
+          />,
+        )
+
+        expect(
+          screen.queryByTestId(EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the version pins an entity', () => {
+      it('THEN should preselect it', () => {
+        render(
+          <EditQuoteAside
+            {...defaultPricingProps}
+            quote={{
+              ...mockQuote,
+              currentVersion: { ...mockQuote.currentVersion, billingEntityId: 'be-2' },
+            }}
+          />,
+        )
+
+        const input = screen
+          .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
+          .querySelector('input') as HTMLInputElement
+
+        expect(input).toHaveValue('Second Entity')
+      })
+    })
+
+    describe('WHEN the version pins no entity', () => {
+      it('THEN should preselect the inherit option rather than the customer entity', () => {
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
+
+        const input = screen
+          .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
+          .querySelector('input') as HTMLInputElement
+
+        expect(input).toHaveValue('Use customer default')
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+
+      it('THEN should keep the inherit option displayed after the field loses focus', async () => {
+        const user = userEvent.setup({ delay: null })
+
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
+
+        const input = screen
+          .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
+          .querySelector('input') as HTMLInputElement
+
+        await user.click(input)
+        await user.tab()
+
+        expect(input).toHaveValue('Use customer default')
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the user picks an entity', () => {
+      it('THEN should persist its id immediately', async () => {
+        const user = userEvent.setup({ delay: null })
+        const onSaveStart = jest.fn()
+
+        render(
+          <EditQuoteAside {...defaultPricingProps} quote={mockQuote} onSaveStart={onSaveStart} />,
+        )
+
+        const input = screen
+          .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
+          .querySelector('input') as HTMLInputElement
+
+        await user.clear(input)
+        await user.type(input, 'second')
+
+        await waitFor(() => {
+          expect(screen.getAllByRole('option')).toHaveLength(1)
+        })
+
+        await user.keyboard('{ArrowDown}{Enter}')
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            { id: 'version-1', billingEntityId: 'be-2' },
+            false,
+          )
+        })
+        expect(onSaveStart).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the user switches back to the inherit option', () => {
+      const renderWithPinnedEntity = () =>
+        render(
+          <EditQuoteAside
+            {...defaultPricingProps}
+            quote={{
+              ...mockQuote,
+              currentVersion: { ...mockQuote.currentVersion, billingEntityId: 'be-2' },
+            }}
+          />,
+        )
+
+      const getPickerInput = (): HTMLInputElement =>
+        screen
+          .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
+          .querySelector('input') as HTMLInputElement
+
+      it('THEN should send null when the field is cleared', async () => {
+        const user = userEvent.setup({ delay: null })
+
+        renderWithPinnedEntity()
+
+        await user.clear(getPickerInput())
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            { id: 'version-1', billingEntityId: null },
+            false,
+          )
+        })
+      })
+
+      const pickInheritFromList = async (
+        user: ReturnType<typeof userEvent.setup>,
+      ): Promise<void> => {
+        await user.click(getPickerInput())
+        await user.keyboard('{ArrowDown}')
+
+        await waitFor(() => {
+          expect(screen.getAllByRole('option').length).toBeGreaterThan(1)
+        })
+
+        await user.keyboard('{Enter}')
+      }
+
+      it('THEN should send null when the inherit option is picked from the list', async () => {
+        const user = userEvent.setup({ delay: null })
+
+        renderWithPinnedEntity()
+
+        await pickInheritFromList(user)
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            { id: 'version-1', billingEntityId: null },
+            false,
+          )
+        })
+      })
+
+      it('THEN should keep showing the inherit option once it is saved', async () => {
+        const user = userEvent.setup({ delay: null })
+
+        renderWithPinnedEntity()
+
+        await pickInheritFromList(user)
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalled()
+        })
+
+        await user.tab()
+
+        expect(getPickerInput()).toHaveValue('Use customer default')
+      })
+    })
+
+    describe('WHEN the version entity changes outside the form', () => {
+      it('THEN should sync the field without issuing another save', async () => {
+        const { rerender } = render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
+
+        rerender(
+          <EditQuoteAside
+            {...defaultPricingProps}
+            quote={{
+              ...mockQuote,
+              currentVersion: { ...mockQuote.currentVersion, billingEntityId: 'be-2' },
+            }}
+          />,
+        )
+
+        await waitFor(() => {
+          const input = screen
+            .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
+            .querySelector('input') as HTMLInputElement
+
+          expect(input).toHaveValue('Second Entity')
+        })
+
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a subscription amendment quote', () => {
+    const amendmentQuote = { ...mockQuote, orderType: OrderTypeEnum.SubscriptionAmendment }
+
+    describe('WHEN the aside renders', () => {
+      it('THEN should still show the currency, read-only', () => {
+        render(<EditQuoteAside {...defaultPricingProps} quote={amendmentQuote} />)
+
+        const input = screen
+          .getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID)
+          .querySelector('input') as HTMLInputElement
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID)).toBeInTheDocument()
+        expect(input).toBeDisabled()
+      })
+
+      it('THEN should leave it editable on every other order type', () => {
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
+
+        const input = screen
+          .getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID)
+          .querySelector('input') as HTMLInputElement
+
+        expect(input).not.toBeDisabled()
+      })
+    })
+
+    describe('WHEN the field is driven programmatically', () => {
+      it('THEN should still refuse to persist a currency', async () => {
+        const { rerender } = render(
+          <EditQuoteAside {...defaultPricingProps} quote={amendmentQuote} />,
+        )
+
+        rerender(
+          <EditQuoteAside
+            {...defaultPricingProps}
+            quote={{
+              ...amendmentQuote,
+              currentVersion: { ...amendmentQuote.currentVersion, currency: CurrencyEnum.Jpy },
+            }}
+          />,
+        )
+
+        await waitFor(() => {
+          const input = screen
+            .getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID)
+            .querySelector('input') as HTMLInputElement
+
+          expect(input).toHaveValue(CurrencyEnum.Jpy)
+        })
+
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the document renders mention variables', () => {
+    it('THEN should select mentionVariables back from the version mutation', () => {
+      expect(print(UpdateQuoteVersionDocument)).toContain('mentionVariables')
+    })
+
+    const respondWith = (mentionVariables: Record<string, string>) =>
+      mockUpdateQuoteVersion.mockResolvedValue({
+        data: { updateQuoteVersion: { id: 'version-1', mentionVariables } },
+      })
+
+    it('THEN should return the new entity values when the billing entity changes', async () => {
+      const user = userEvent.setup({ delay: null })
+
+      respondWith({ billing_entity_name: 'Second Entity' })
+
+      render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
+
+      const input = screen
+        .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
+        .querySelector('input') as HTMLInputElement
+
+      await user.clear(input)
+      await user.type(input, 'second')
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('option')).toHaveLength(1)
+      })
+
+      await user.keyboard('{ArrowDown}{Enter}')
+
+      await waitFor(() => {
+        expect(mockUpdateQuoteVersion).toHaveBeenCalled()
+      })
+
+      const result = await mockUpdateQuoteVersion.mock.results.at(-1)?.value
+
+      expect(result.data.updateQuoteVersion.mentionVariables).toEqual({
+        billing_entity_name: 'Second Entity',
+      })
+    })
+
+    it('THEN should return the new quote_currency when the currency changes', async () => {
+      const user = userEvent.setup({ delay: null })
+
+      respondWith({ quote_currency: CurrencyEnum.Aud })
+
+      render(
+        <EditQuoteAside
+          {...defaultPricingProps}
+          quote={{
+            ...mockQuote,
+            currentVersion: { ...mockQuote.currentVersion, currency: CurrencyEnum.Eur },
+          }}
+        />,
+      )
+
+      const input = screen
+        .getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID)
+        .querySelector('input') as HTMLInputElement
+
+      await user.clear(input)
+      await user.type(input, CurrencyEnum.Aud)
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('option')).toHaveLength(1)
+      })
+
+      await user.keyboard('{ArrowDown}{Enter}')
+
+      await waitFor(() => {
+        expect(mockUpdateQuoteVersion).toHaveBeenCalled()
+      })
+
+      const result = await mockUpdateQuoteVersion.mock.results.at(-1)?.value
+
+      expect(result.data.updateQuoteVersion.mentionVariables).toEqual({
+        quote_currency: CurrencyEnum.Aud,
+      })
+    })
+  })
+
+  describe('GIVEN the API rejects a version update with a field-scoped 422', () => {
+    describe('WHEN the entity is rejected', () => {
+      it('THEN should surface the mapped reason and report the failure for retry', async () => {
+        const user = userEvent.setup({ delay: null })
+        const onSaveError = jest.fn()
+
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: null,
+          errors: [
+            {
+              message: 'Unprocessable Entity',
+              extensions: {
+                status: 422,
+                code: 'unprocessable_entity',
+                details: { billingEntityId: ['billing_entity_not_found'] },
+              },
+            },
+          ],
+        })
+
+        render(
+          <EditQuoteAside {...defaultPricingProps} quote={mockQuote} onSaveError={onSaveError} />,
+        )
+
+        const input = screen
+          .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
+          .querySelector('input') as HTMLInputElement
+
+        await user.clear(input)
+        await user.type(input, 'second')
+
+        await waitFor(() => {
+          expect(screen.getAllByRole('option')).toHaveLength(1)
+        })
+
+        await user.keyboard('{ArrowDown}{Enter}')
+
+        await waitFor(() => {
+          expect(mockAddToast).toHaveBeenCalledWith(
+            expect.objectContaining({ severity: 'danger', message: expect.any(String) }),
+          )
+        })
+        expect(onSaveError).toHaveBeenCalledWith(
+          expect.objectContaining({ billingEntityId: 'be-2' }),
+        )
+      })
+
+      it('THEN should put the picker back, rather than showing a pin the quote does not carry', async () => {
+        const user = userEvent.setup({ delay: null })
+
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: null,
+          errors: [
+            {
+              message: 'Unprocessable Entity',
+              extensions: {
+                status: 422,
+                code: 'unprocessable_entity',
+                details: { billingEntityId: ['billing_entity_not_found'] },
+              },
+            },
+          ],
+        })
+
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
+
+        const input = screen
+          .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
+          .querySelector('input') as HTMLInputElement
+
+        await user.clear(input)
+        await user.type(input, 'second')
+
+        await waitFor(() => {
+          expect(screen.getAllByRole('option')).toHaveLength(1)
+        })
+
+        await user.keyboard('{ArrowDown}{Enter}')
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledTimes(1)
+        })
+
+        await waitFor(() => {
+          expect(
+            (
+              screen
+                .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
+                .querySelector('input') as HTMLInputElement
+            ).value,
+          ).toBe('Use customer default')
+        })
+
+        expect(mockUpdateQuoteVersion).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should let the user retry the same entity after the rejection', async () => {
+        const user = userEvent.setup({ delay: null })
+
+        mockUpdateQuoteVersion.mockResolvedValueOnce({
+          data: null,
+          errors: [
+            {
+              message: 'Unprocessable Entity',
+              extensions: {
+                status: 422,
+                code: 'unprocessable_entity',
+                details: { billingEntityId: ['billing_entity_not_found'] },
+              },
+            },
+          ],
+        })
+
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
+
+        const pickSecondEntity = async (): Promise<void> => {
+          const input = screen
+            .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
+            .querySelector('input') as HTMLInputElement
+
+          await user.clear(input)
+          await user.type(input, 'second')
+
+          await waitFor(() => {
+            expect(screen.getAllByRole('option')).toHaveLength(1)
+          })
+
+          await user.keyboard('{ArrowDown}{Enter}')
+        }
+
+        await pickSecondEntity()
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledTimes(1)
+        })
+
+        await pickSecondEntity()
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledTimes(2)
+        })
+        expect(mockUpdateQuoteVersion).toHaveBeenLastCalledWith(
+          { id: 'version-1', billingEntityId: 'be-2' },
+          false,
+        )
+      })
+    })
+  })
+  describe('GIVEN the pricing row', () => {
+    describe('WHEN the quote has a pricing block', () => {
+      it('THEN should display the priced entities and no add button', () => {
+        render(
+          <EditQuoteAside
+            {...defaultPricingProps}
+            quote={mockQuote}
+            pricingSummary="Premium plan"
+          />,
+        )
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_PRICING_LABEL_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_PRICING_SUMMARY_TEST_ID)).toHaveTextContent(
+          'Premium plan',
+        )
+        expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_ADD_PRICING_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should list every add-on of a one-off quote', () => {
+        render(
+          <EditQuoteAside
+            {...defaultPricingProps}
+            quote={{ ...mockQuote, orderType: OrderTypeEnum.OneOff }}
+            pricingSummary="Setup fee, Support pack"
+          />,
+        )
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_PRICING_SUMMARY_TEST_ID)).toHaveTextContent(
+          'Setup fee, Support pack',
+        )
+      })
+    })
+
+    describe('WHEN the quote has no pricing block', () => {
+      it('THEN should display the add button in place of a summary', () => {
+        render(
+          <EditQuoteAside {...defaultPricingProps} quote={mockQuote} hasPricingBlock={false} />,
+        )
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_PRICING_LABEL_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_ADD_PRICING_TEST_ID)).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(EDIT_QUOTE_ASIDE_PRICING_SUMMARY_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+
+      it('THEN should open the pricing drawer when the add button is clicked', async () => {
+        const user = userEvent.setup()
+
+        render(
+          <EditQuoteAside {...defaultPricingProps} quote={mockQuote} hasPricingBlock={false} />,
+        )
+
+        await user.click(screen.getByTestId(EDIT_QUOTE_ASIDE_ADD_PRICING_TEST_ID))
+
+        expect(mockAddPricingBlock).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
+
+  describe('GIVEN the approve button', () => {
+    describe('WHEN the quote has no pricing block', () => {
+      // The server stays the authority on approvability: a client-side false negative
+      // must never lock a user out of a legitimately approvable quote.
+      it('THEN should keep the approve button enabled', () => {
+        render(
+          <EditQuoteAside {...defaultPricingProps} quote={mockQuote} hasPricingBlock={false} />,
+        )
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID)).not.toBeDisabled()
+      })
+
+      it('THEN should still navigate to the approval page when clicked', () => {
+        render(
+          <EditQuoteAside {...defaultPricingProps} quote={mockQuote} hasPricingBlock={false} />,
+        )
+
+        fireEvent.click(screen.getByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID))
+
+        expect(mockGoToApproveQuote).toHaveBeenCalledWith('quote-1', 'version-1')
+      })
+
+      it('THEN should explain the pricing requirement on hover', async () => {
+        const user = userEvent.setup()
+
+        render(
+          <EditQuoteAside {...defaultPricingProps} quote={mockQuote} hasPricingBlock={false} />,
+        )
+
+        await user.hover(screen.getByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID))
+
+        expect(await screen.findByRole('tooltip')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the quote has a pricing block', () => {
+      it('THEN should not explain the pricing requirement on hover', async () => {
+        const user = userEvent.setup()
+
+        render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
+
+        await user.hover(screen.getByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID))
+
+        await waitFor(() => {
+          expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+        })
       })
     })
   })

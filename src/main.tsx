@@ -5,7 +5,9 @@ import { createRoot } from 'react-dom/client'
 import App from '~/App'
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
-import { getEnableFeatureFlags, listFeatureFlags, setFeatureFlags } from '~/core/utils/featureFlags'
+import { reportMissingAppEnv } from '~/core/utils/appEnv'
+import { installLagoWindowApi } from '~/core/utils/featureFlagsConsole'
+import { createWorkerLoadErrorHandler } from '~/core/utils/workerLoadRecovery'
 
 import './main.css'
 
@@ -86,28 +88,18 @@ window.addEventListener('vite:preloadError', (event) => {
   })
 })
 
-if (appEnv !== AppEnvEnum.production) {
-  window.Lago = {
-    getEnableFeatureFlags: getEnableFeatureFlags,
-    setFeatureFlags: setFeatureFlags,
-    listFeatureFlags: listFeatureFlags,
-  }
+// A web worker (e.g. ace-builds' JSON linter) loads its script via
+// `importScripts` inside a blob URL. After a deploy re-hashes `/assets/*`, a
+// tab that's still open can point that call at a filename that no longer
+// exists — same stale-bundle failure the router's chunk `retry()` handles,
+// but this one throws inside the worker's own global scope, so no React
+// error boundary or route-level retry ever sees it. Recover the same way:
+// cache-bust reload once, then stop trying so we can't loop.
+window.addEventListener('error', createWorkerLoadErrorHandler())
 
-  const style = 'background: #eee; color: #fe3d3d'
-  const logs = [
-    'List available flags: %c window.Lago.listFeatureFlags() ',
-    "Set single flag: %c window.Lago.setFeatureFlags('ftr_xxx_enabled') ",
-    "Set multiple flags: %c window.Lago.setFeatureFlags(['ftr_xxx_enabled', 'ftr_yyy_enabled']) ",
-    "Set all flags: %c window.Lago.setFeatureFlags('all') ",
-    'Get enable flags: %c window.Lago.getEnableFeatureFlags() ',
-  ]
+reportMissingAppEnv(appEnv)
 
-  /* eslint-disable no-console */
-  console.groupCollapsed('%c window.Lago is available', style)
-  logs.forEach((log) => console.info(log, style))
-  console.groupEnd()
-  /* eslint-enable no-console */
-}
+installLagoWindowApi(appEnv)
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const container = document.getElementById('root')!

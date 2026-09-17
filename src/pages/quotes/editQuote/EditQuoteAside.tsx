@@ -1,10 +1,14 @@
-import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { debounce } from 'lodash'
-import { useEffect, useMemo, useRef } from 'react'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useEffect, useRef } from 'react'
+import { generatePath } from 'react-router'
 
+import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { Button } from '~/components/designSystem/Button'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { CURRENCY_DATA } from '~/components/form/CurrencyPicker'
+import { addToast } from '~/core/apolloClient'
+import { CUSTOMER_DETAILS_ROUTE, Link } from '~/core/router'
 import {
   type CurrencyEnum,
   OrderTypeEnum,
@@ -13,6 +17,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { usePermissions } from '~/hooks/usePermissions'
 import {
   buildQuotePreviewProps,
@@ -21,28 +26,31 @@ import {
 import { useDownloadQuotePdf } from '~/pages/quotes/common/QuotePdfProvider'
 import { useApproveQuote } from '~/pages/quotes/hooks/useApproveQuote'
 import { useUpdateQuote } from '~/pages/quotes/hooks/useUpdateQuote'
+import { getQuoteMutationErrors } from '~/pages/quotes/utils/quoteMutationErrors'
 
 import { type EditQuoteAsideFormValues, editQuoteAsideSchema } from './validationSchema'
 
 import { getQuoteOrderTypeTranslationKey } from '../common/getQuoteOrderTypeTranslationKey'
 
-const AUTO_SAVE_DELAY_MS = 2000
-
 export const EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID = 'edit-quote-aside-quote-type'
 export const EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID = 'edit-quote-aside-customer'
+export const EDIT_QUOTE_ASIDE_CUSTOMER_LINK_TEST_ID = 'edit-quote-aside-customer-link'
 export const EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID = 'edit-quote-aside-billing-entity'
 export const EDIT_QUOTE_ASIDE_SUBSCRIPTION_INPUT_TEST_ID = 'edit-quote-aside-subscription'
 export const EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID = 'edit-quote-aside-currency'
 export const EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID = 'edit-quote-aside-currency-combobox'
-export const EDIT_QUOTE_ASIDE_START_DATE_TEST_ID = 'edit-quote-aside-start-date'
-export const EDIT_QUOTE_ASIDE_END_DATE_TEST_ID = 'edit-quote-aside-end-date'
-export const EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID = 'edit-quote-aside-payment-term'
 export const EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID = 'edit-quote-aside-download-pdf'
 export const EDIT_QUOTE_ASIDE_APPROVE_TEST_ID = 'edit-quote-aside-approve'
+export const EDIT_QUOTE_ASIDE_PRICING_LABEL_TEST_ID = 'edit-quote-aside-pricing'
+export const EDIT_QUOTE_ASIDE_PRICING_SUMMARY_TEST_ID = 'edit-quote-aside-pricing-summary'
+export const EDIT_QUOTE_ASIDE_ADD_PRICING_TEST_ID = 'edit-quote-aside-add-pricing'
 
 interface EditQuoteAsideProps {
   quote: QuoteDetailItemFragment | null | undefined
   isSaving?: boolean
+  hasPricingBlock: boolean
+  pricingSummary: string
+  onAddPricingBlock: () => void
   onSaveStart?: () => void
   onSaveFinished?: () => void
   onSaveError?: (payload: UpdateQuoteVersionInput) => void
@@ -51,6 +59,9 @@ interface EditQuoteAsideProps {
 const EditQuoteAside = ({
   quote,
   isSaving,
+  hasPricingBlock,
+  pricingSummary,
+  onAddPricingBlock,
   onSaveStart,
   onSaveFinished,
   onSaveError,
@@ -61,6 +72,9 @@ const EditQuoteAside = ({
     <EditQuoteAsideForm
       quote={quote}
       isSaving={isSaving}
+      hasPricingBlock={hasPricingBlock}
+      pricingSummary={pricingSummary}
+      onAddPricingBlock={onAddPricingBlock}
       onSaveStart={onSaveStart}
       onSaveFinished={onSaveFinished}
       onSaveError={onSaveError}
@@ -68,25 +82,21 @@ const EditQuoteAside = ({
   )
 }
 
-const formatNetPaymentTerm = (
-  netPaymentTerm: number | null | undefined,
-  translate: ReturnType<typeof useInternationalization>['translate'],
-): string => {
-  if (typeof netPaymentTerm !== 'number') return '-'
-  if (netPaymentTerm === 0) return translate('text_64c7a89b6c67eb6c98898125')
-
-  return translate('text_64c7a89b6c67eb6c9889815f', { days: netPaymentTerm }, netPaymentTerm)
-}
-
 const EditQuoteAsideForm = ({
   quote,
   isSaving,
+  hasPricingBlock,
+  pricingSummary,
+  onAddPricingBlock,
   onSaveStart,
   onSaveFinished,
   onSaveError,
 }: {
   quote: QuoteDetailItemFragment
   isSaving?: boolean
+  hasPricingBlock: boolean
+  pricingSummary: string
+  onAddPricingBlock: () => void
   onSaveStart?: () => void
   onSaveFinished?: () => void
   onSaveError?: (payload: UpdateQuoteVersionInput) => void
@@ -96,6 +106,7 @@ const EditQuoteAsideForm = ({
   const { hasPermissions } = usePermissions()
   const { download } = useDownloadQuotePdf()
   const { goToApproveQuote } = useApproveQuote()
+  const { hasMultipleEntities } = useBillingEntitiesOptions({ includeInheritOption: true })
 
   const canApprove = hasPermissions(['quotesApprove'])
   const pdfHeader: QuotePdfHeaderData = {
@@ -107,25 +118,19 @@ const EditQuoteAsideForm = ({
     ],
   }
 
-  const hasSubscription = !!quote.subscription
-  const isOneOff = quote.orderType === OrderTypeEnum.OneOff
+  const isAmendment = quote.orderType === OrderTypeEnum.SubscriptionAmendment
   const versionId = quote.currentVersion.id
+  const canPickBillingEntity = hasMultipleEntities && !isAmendment
+  const versionBillingEntityId = quote.currentVersion.billingEntityId ?? ''
 
   const getDefaultValues = (): EditQuoteAsideFormValues => {
     return {
       orderTypeLabel: translate(getQuoteOrderTypeTranslationKey(quote.orderType)),
-      customerName: quote.customer.displayName,
-      billingEntityId: quote.customer.billingEntity?.id ?? '',
+      billingEntityId: versionBillingEntityId,
       currency: (quote.currentVersion.currency as CurrencyEnum | undefined) ?? undefined,
       subscriptionLabel: quote.subscription
         ? `${quote.subscription.plan?.name ?? ''} - ${quote.subscription.externalId}`
         : undefined,
-      startDate: quote.subscription?.subscriptionAt ?? quote.currentVersion.startDate ?? undefined,
-      endDate: quote.currentVersion.endDate ?? undefined,
-      netPaymentTermLabel: formatNetPaymentTerm(
-        quote.customer.netPaymentTerm ?? quote.customer.billingEntity?.netPaymentTerm,
-        translate,
-      ),
     }
   }
 
@@ -137,12 +142,6 @@ const EditQuoteAsideForm = ({
     },
   })
 
-  // Auto-save dates on change
-  const initialDatesRef = useRef({
-    startDate: getDefaultValues().startDate,
-    endDate: getDefaultValues().endDate,
-  })
-  // Allow the use of updateQuoteVersion in a memo without using eslint-disable-next-line
   const updateQuoteVersionRef = useRef(updateQuoteVersion)
   const onSaveStartRef = useRef(onSaveStart)
   const onSaveErrorRef = useRef(onSaveError)
@@ -152,10 +151,8 @@ const EditQuoteAsideForm = ({
   onSaveErrorRef.current = onSaveError
 
   const versionCurrency = (quote.currentVersion.currency as CurrencyEnum | undefined) ?? undefined
-  // Last currency known to be persisted, so the field listener can tell a user
-  // pick apart from a programmatic sync (mount backfill, billing-item seeding)
-  // and only fire a mutation for the former.
   const persistedCurrencyRef = useRef(versionCurrency)
+  const persistedBillingEntityIdRef = useRef(versionBillingEntityId)
 
   useEffect(() => {
     persistedCurrencyRef.current = versionCurrency
@@ -165,71 +162,96 @@ const EditQuoteAsideForm = ({
     }
   }, [versionCurrency, form])
 
-  // Currency is a discrete pick, not typing — save it right away instead of
-  // going through the dates' debounce.
-  const handleCurrencyChange = async (currency: CurrencyEnum | undefined): Promise<void> => {
-    if (!versionId || !currency) return
-    if (currency === persistedCurrencyRef.current) return
+  useEffect(() => {
+    persistedBillingEntityIdRef.current = versionBillingEntityId
 
-    persistedCurrencyRef.current = currency
+    if (form.getFieldValue('billingEntityId') !== versionBillingEntityId) {
+      form.setFieldValue('billingEntityId', versionBillingEntityId)
+    }
+  }, [versionBillingEntityId, form])
 
-    const payload: UpdateQuoteVersionInput = { id: versionId, currency }
-
+  const saveVersionField = async (payload: UpdateQuoteVersionInput): Promise<boolean> => {
     onSaveStartRef.current?.()
 
     try {
       const result = await updateQuoteVersionRef.current(payload, false)
 
-      if (!result.data?.updateQuoteVersion) {
-        onSaveErrorRef.current?.(payload)
-      }
+      if (result.data?.updateQuoteVersion) return true
+
+      getQuoteMutationErrors(result.errors, translate).forEach(({ message }) =>
+        addToast({ severity: 'danger', message }),
+      )
+      onSaveErrorRef.current?.(payload)
+
+      return false
     } catch {
       onSaveErrorRef.current?.(payload)
+
+      return false
     }
   }
 
-  const debouncedSaveDates = useMemo(
-    () =>
-      debounce(async (startDate?: string, endDate?: string) => {
-        if (!versionId) return
+  const handleCurrencyChange = async (currency: CurrencyEnum | undefined): Promise<void> => {
+    if (isAmendment) return
+    if (!versionId || !currency) return
 
-        const payload: UpdateQuoteVersionInput = {
-          id: versionId,
-          startDate,
-          endDate,
-        }
+    const previous = persistedCurrencyRef.current
 
-        try {
-          const result = await updateQuoteVersionRef.current(payload, false)
+    if (currency === previous) return
 
-          if (result.data?.updateQuoteVersion) {
-            initialDatesRef.current = { startDate, endDate }
-          } else {
-            onSaveErrorRef.current?.(payload)
-          }
-        } catch {
-          onSaveErrorRef.current?.(payload)
-        }
-      }, AUTO_SAVE_DELAY_MS),
-    [versionId],
-  )
+    persistedCurrencyRef.current = currency
 
-  const startDate = useStore(form.store, (state) => state.values.startDate)
-  const endDate = useStore(form.store, (state) => state.values.endDate)
-  const canSubmit = useStore(form.store, (state) => state.canSubmit)
+    if (await saveVersionField({ id: versionId, currency })) return
 
-  useEffect(() => {
-    if (!canSubmit) return
+    persistedCurrencyRef.current = previous
 
-    const initial = initialDatesRef.current
+    if (previous) form.setFieldValue('currency', previous)
+  }
 
-    if (startDate === initial.startDate && endDate === initial.endDate) return
+  const handleBillingEntityChange = async (billingEntityId: string): Promise<void> => {
+    if (!versionId) return
 
-    onSaveStartRef.current?.()
-    debouncedSaveDates(startDate, endDate)
-  }, [startDate, endDate, canSubmit, debouncedSaveDates])
+    const previous = persistedBillingEntityIdRef.current
+
+    if (billingEntityId === previous) return
+
+    persistedBillingEntityIdRef.current = billingEntityId
+
+    if (await saveVersionField({ id: versionId, billingEntityId: billingEntityId || null })) return
+
+    persistedBillingEntityIdRef.current = previous
+    form.setFieldValue('billingEntityId', previous)
+  }
 
   const gridClassName = 'grid grid-cols-[7.5rem_1fr] items-center gap-0 gap-y-2'
+
+  const renderPricingValue = () => {
+    if (hasPricingBlock) {
+      return (
+        <Typography
+          variant="body"
+          color="grey700"
+          noWrap
+          data-test={EDIT_QUOTE_ASIDE_PRICING_SUMMARY_TEST_ID}
+        >
+          {pricingSummary}
+        </Typography>
+      )
+    }
+
+    return (
+      <Button
+        className="w-fit"
+        variant="quaternary"
+        size="small"
+        startIcon="plus"
+        data-test={EDIT_QUOTE_ASIDE_ADD_PRICING_TEST_ID}
+        onClick={onAddPricingBlock}
+      >
+        {translate('text_1788277738981ng58j3nfudd')}
+      </Button>
+    )
+  }
 
   const handleDownloadPdf = () => {
     download(
@@ -259,7 +281,7 @@ const EditQuoteAsideForm = ({
           <form.AppField name="orderTypeLabel">
             {(field) => <field.TextInputField disabled />}
           </form.AppField>
-          {quote.customer.billingEntity && (
+          {canPickBillingEntity && (
             <>
               <Typography
                 variant="caption"
@@ -268,18 +290,19 @@ const EditQuoteAsideForm = ({
               >
                 {translate('text_17436114971570doqrwuwhf0')}
               </Typography>
-              <form.AppField name="billingEntityId">
+              <form.AppField
+                name="billingEntityId"
+                listeners={{
+                  onChange: ({ value }) => {
+                    handleBillingEntityChange(value)
+                  },
+                }}
+              >
                 {(field) => (
-                  <field.ComboBoxField
-                    disabled
-                    disableClearable
-                    data={[
-                      {
-                        value: quote.customer.billingEntity.id,
-                        label:
-                          quote.customer.billingEntity.name || quote.customer.billingEntity.code,
-                      },
-                    ]}
+                  <BillingEntityFormPicker
+                    includeInheritOption
+                    value={field.state.value}
+                    onChange={(id) => field.handleChange(id ?? '')}
                   />
                 )}
               </form.AppField>
@@ -300,9 +323,15 @@ const EditQuoteAsideForm = ({
           >
             {translate('text_1776238919927l1m2n3o4p5q')}
           </Typography>
-          <form.AppField name="customerName">
-            {(field) => <field.TextInputField disabled />}
-          </form.AppField>
+          <Link
+            className="w-fit"
+            data-test={EDIT_QUOTE_ASIDE_CUSTOMER_LINK_TEST_ID}
+            to={generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: quote.customer.id })}
+          >
+            <Typography variant="body" color="inherit" noWrap>
+              {quote.customer.displayName}
+            </Typography>
+          </Link>
 
           <Typography
             variant="caption"
@@ -322,6 +351,7 @@ const EditQuoteAsideForm = ({
             {(field) => (
               <field.ComboBoxField
                 dataTest={EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID}
+                disabled={isAmendment}
                 disableClearable
                 placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
                 data={CURRENCY_DATA}
@@ -344,42 +374,14 @@ const EditQuoteAsideForm = ({
             </>
           )}
 
-          {!isOneOff && (
-            <>
-              <Typography
-                variant="caption"
-                color="grey600"
-                data-test={EDIT_QUOTE_ASIDE_START_DATE_TEST_ID}
-              >
-                {translate('text_65201c5a175a4b0238abf29e')}
-              </Typography>
-              <form.AppField name="startDate">
-                {(field) => <field.DatePickerField disabled={hasSubscription} placement="auto" />}
-              </form.AppField>
-
-              <Typography
-                variant="caption"
-                color="grey600"
-                data-test={EDIT_QUOTE_ASIDE_END_DATE_TEST_ID}
-              >
-                {translate('text_65201c5a175a4b0238abf2a0')}
-              </Typography>
-              <form.AppField name="endDate">
-                {(field) => <field.DatePickerField placement="auto" />}
-              </form.AppField>
-            </>
-          )}
-
           <Typography
             variant="caption"
             color="grey600"
-            data-test={EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID}
+            data-test={EDIT_QUOTE_ASIDE_PRICING_LABEL_TEST_ID}
           >
-            {translate('text_1778660219891rv2r5gjmklq')}
+            {translate('text_1779802343219a1cl5ckvtrn')}
           </Typography>
-          <form.AppField name="netPaymentTermLabel">
-            {(field) => <field.TextInputField disabled />}
-          </form.AppField>
+          {renderPricingValue()}
         </div>
       </div>
       <div className="sticky bottom-0 mt-auto flex justify-end gap-3 border-t border-grey-200 bg-white p-4">
@@ -393,15 +395,23 @@ const EditQuoteAsideForm = ({
           {translate('text_17797156485850t8yms6hf7z')}
         </Button>
         {canApprove && (
-          <Button
-            variant="primary"
-            data-test={EDIT_QUOTE_ASIDE_APPROVE_TEST_ID}
-            loading={isSaving}
-            disabled={!!isSaving}
-            onClick={() => goToApproveQuote(quote.id, quote.currentVersion.id)}
+          // Tooltip only: the server stays the authority on approvability, so a
+          // client-side false negative must never disable the button.
+          <Tooltip
+            placement="top-end"
+            title={translate('text_1788272907430gswzvnbqi2z')}
+            disableHoverListener={hasPricingBlock}
           >
-            {translate('text_1776848720529vv5zmyyq94k')}
-          </Button>
+            <Button
+              variant="primary"
+              data-test={EDIT_QUOTE_ASIDE_APPROVE_TEST_ID}
+              loading={isSaving}
+              disabled={!!isSaving}
+              onClick={() => goToApproveQuote(quote.id, quote.currentVersion.id)}
+            >
+              {translate('text_1776848720529vv5zmyyq94k')}
+            </Button>
+          </Tooltip>
         )}
       </div>
     </div>

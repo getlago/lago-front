@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
@@ -139,7 +139,7 @@ const WalletTransactionItems = ({
                     })}?walletId=${wallet.id}&transactionId=${transaction.walletTransaction.id}`}
                   >
                     <Button
-                      className="visited:text-blue focus:underline focus:ring-0"
+                      className="focus:underline focus:ring-0"
                       variant="inline"
                       endIcon="outside"
                     >

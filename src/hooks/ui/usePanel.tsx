@@ -1,3 +1,4 @@
+import { captureException } from '@sentry/react'
 import { RefObject, useRef, useState } from 'react'
 import { ImperativePanelHandle } from 'react-resizable-panels'
 
@@ -29,10 +30,21 @@ export const usePanel = <T,>({ size }: UsePanelProps) => {
   const [currentPanelOpened, setCurrentPanel] = useState<T>()
   const [isFullscreen, setIsFullscreen] = useState(false)
 
+  // `react-resizable-panels` throws (`Panel size not found for panel "…"`) until the panel is
+  // in the group's committed layout, so the resize waits a frame and the catch keeps that
+  // assert away from the error boundary.
+  const safeResize = (height: number) => {
+    requestAnimationFrame(() => {
+      try {
+        panelRef.current?.resize(height)
+      } catch (error) {
+        captureException(error)
+      }
+    })
+  }
+
   const openPanel = (panel?: T) => {
-    if (panelRef.current) {
-      panelRef.current.resize(size.open)
-    }
+    safeResize(size.open)
 
     setOpenPanel(true)
 
@@ -73,9 +85,7 @@ export const usePanel = <T,>({ size }: UsePanelProps) => {
 
     setIsFullscreen(isLocalFullscreen)
 
-    requestAnimationFrame(() => {
-      panelRef.current?.resize(height)
-    })
+    safeResize(height)
   }
 
   const resizePanel = (value: number) => {

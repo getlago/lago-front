@@ -9,6 +9,7 @@ import { useOrderFormDetails } from '../hooks/useOrderFormDetails'
 import OrderFormDetails, {
   ORDER_FORM_DETAILS_ATTACHMENTS_TEST_ID,
   ORDER_FORM_DETAILS_CLOSE_BUTTON_TEST_ID,
+  ORDER_FORM_DETAILS_CUSTOMER_LINK_TEST_ID,
   ORDER_FORM_DETAILS_DESCRIPTION_TEST_ID,
   ORDER_FORM_DETAILS_ERROR_TEST_ID,
   ORDER_FORM_DETAILS_PREVIEW_TEST_ID,
@@ -108,6 +109,17 @@ describe('OrderFormDetails', () => {
       expect(screen.getByTestId(ORDER_FORM_DETAILS_PREVIEW_TEST_ID)).toHaveTextContent(
         'Signed content',
       )
+    })
+  })
+
+  describe('WHEN the customer is shown', () => {
+    it('THEN should link it to the customer detail page', () => {
+      renderPage()
+
+      const link = screen.getByTestId(ORDER_FORM_DETAILS_CUSTOMER_LINK_TEST_ID)
+
+      expect(link).toHaveTextContent('Acme Corp')
+      expect(link).toHaveAttribute('href', expect.stringContaining('/customer/customer-001'))
     })
   })
 

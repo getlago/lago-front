@@ -51,14 +51,14 @@ interface PricingCommandParams {
 
 export type OnPricingCommand = (params: PricingCommandParams) => void
 
-export interface DiscountCommandParams {
+interface DiscountCommandParams {
   onSave: (attrs: DiscountBlockAttributes) => void
   editData?: { couponId: string; localId: string }
 }
 
 export type OnDiscountCommand = (params: DiscountCommandParams) => void
 
-export interface CreditsCommandParams {
+interface CreditsCommandParams {
   onSave: (attrs: CreditsBlockAttributes) => void
   editData?: { localId: string }
 }

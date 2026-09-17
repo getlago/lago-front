@@ -3,6 +3,7 @@ import { Config } from 'tailwindcss/types/config'
 
 export const colors = {
   grey: {
+    '000': '#FFFFFF',
     100: '#F3F4F6',
     200: '#E7EAEE',
     300: '#D9DEE7',
@@ -205,6 +206,11 @@ const config: Config = {
           '100%': { transform: 'translateX(0)' },
         },
 
+        fadeInRight: {
+          '0%': { opacity: '0', transform: 'translateX(8px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+
         pulseSpeed: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
@@ -212,6 +218,7 @@ const config: Config = {
       },
       animation: {
         enter: 'enter 250ms cubic-bezier(0.4, 0, 0.2, 1) 1',
+        'fade-in-right': 'fadeInRight 300ms ease-out 1',
         'pulse-speed': 'pulseSpeed 500ms ease-out infinite',
       },
     },

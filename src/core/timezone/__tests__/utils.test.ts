@@ -45,6 +45,15 @@ describe('intlFormatDateTime', () => {
         expect(date).toEqual('4/18/2025')
       })
 
+      it('should keep the ISO offset when setZone is true', () => {
+        const { date } = intlFormatDateTime('2025-04-18T00:00:00+02:00', {
+          formatDate: DateFormat.DATE_SHORT,
+          setZone: true,
+        })
+
+        expect(date).toEqual('4/18/2025')
+      })
+
       it('should format to "18/04/2025" in French', () => {
         const { date } = intlFormatDateTime('2025-04-18T00:00:00Z', {
           formatDate: DateFormat.DATE_SHORT,

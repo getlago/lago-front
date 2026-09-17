@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 import { z } from 'zod'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
@@ -25,7 +25,7 @@ gql`
   }
 `
 
-export const VOID_WALLET_FORM_ID = 'void-wallet-form'
+const VOID_WALLET_FORM_ID = 'void-wallet-form'
 
 type VoidWalletDialogData = {
   walletId?: string

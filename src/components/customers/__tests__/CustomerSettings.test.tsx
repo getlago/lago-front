@@ -11,8 +11,8 @@ import { CustomerSettings } from '../CustomerSettings'
 
 const CUSTOMER_ID = 'customer-123'
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => ({ customerId: 'customer-123' }),
 }))
 

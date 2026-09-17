@@ -5,7 +5,10 @@ import { OrderTypeEnum, QuoteDetailItemFragment, StatusEnum } from '~/generated/
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useQuoteVersionActions } from '../hooks/useQuoteVersionActions'
-import QuoteDetailsVersions, { QUOTE_VERSIONS_TABLE_TEST_ID } from '../QuoteDetailsVersions'
+import QuoteDetailsVersions, {
+  QUOTE_DETAILS_VERSIONS_CUSTOMER_LINK_TEST_ID,
+  QUOTE_VERSIONS_TABLE_TEST_ID,
+} from '../QuoteDetailsVersions'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -35,6 +38,7 @@ const mockQuote: QuoteDetailItemFragment = {
   id: 'quote-v2',
   number: 'QT-2026-0042',
   images: {},
+  orderForms: [],
   versions: [
     { id: 'version-v2', status: StatusEnum.Draft, version: 2, createdAt: '2026-04-09T15:00:00Z' },
     {
@@ -50,8 +54,7 @@ const mockQuote: QuoteDetailItemFragment = {
     version: 2,
     content: null,
     currency: null,
-    startDate: null,
-    endDate: null,
+    billingEntityId: null,
     billingItems: null,
     createdAt: '2026-04-09T15:00:00Z',
     mentionVariables: {},
@@ -102,6 +105,15 @@ describe('QuoteDetailsVersions', () => {
         render(<QuoteDetailsVersions quote={mockQuote} />)
 
         expect(screen.getByText('Acme Corp - ext-acme-001')).toBeInTheDocument()
+      })
+
+      it('THEN should link the customer to the customer detail page', () => {
+        render(<QuoteDetailsVersions quote={mockQuote} />)
+
+        const link = screen.getByTestId(QUOTE_DETAILS_VERSIONS_CUSTOMER_LINK_TEST_ID)
+
+        expect(link).toHaveTextContent('Acme Corp - ext-acme-001')
+        expect(link).toHaveAttribute('href', expect.stringContaining('/customer/customer-001'))
       })
 
       it('THEN should display owner emails as chips', () => {

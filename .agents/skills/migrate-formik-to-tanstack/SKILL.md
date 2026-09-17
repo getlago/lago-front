@@ -14,6 +14,8 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, AskUserQuestion
 
 This skill guides the migration of React form components from Formik to TanStack Form, following the established patterns in this codebase.
 
+> Building a form that has no Formik ancestor is a different job: read `lago-forms`, which owns the conventions for new forms. This skill covers only what a migration adds on top — the yup→zod mapping, the value-shape audit and the parity check.
+
 ## Prerequisites
 
 Before starting, gather context by reading these reference files:
@@ -100,7 +102,7 @@ Before starting, gather context by reading these reference files:
 > store the component's NATIVE value, and the manual adapter silently dies in the migration.
 > Port the Yup schema 1:1 and it now validates a shape that no longer exists. Zod rejects on
 > every change, `canSubmit` stays `false` forever: **submit button disabled, no visible error,
-> no network request** (the BIL-410 regression signature, lago-front#3932 → #4067). Seeding is
+> no network request** (the MultipleComboBox shape regression, lago-front#3932 → #4067). Seeding is
 > broken the same way: `defaultValues` written in the OLD shape (bare ids) don't match the
 > combobox options, so an existing selection renders no tags.
 >
@@ -129,7 +131,7 @@ Before starting, gather context by reading these reference files:
 > | `TextInputField` (`int`) | `number \| ''` (see Pattern 11)                                             | `z.union([z.number(), z.literal('')])` + `.refine((v) => v !== '')` when required (Pattern 11) |
 >
 > Reference: `src/components/customers/editCustomerInvoiceCustomSections/validationSchema.ts`
-> (the BIL-410 fix) and `CreateQuote` for the MultipleComboBox convention.
+> (the shape-regression fix) and `CreateQuote` for the MultipleComboBox convention.
 
 1. **Locate validation sources** - Search for:
 
@@ -220,7 +222,7 @@ Before writing any code, create a plan document:
 | ----- | -------------- | -------------- | -------------- |
 | ...   | ...            | ...            | ...            |
 
-### Field Value-Shape Map (REQUIRED — do not skip, see BIL-410)
+### Field Value-Shape Map (REQUIRED — do not skip, see the MultipleComboBox shape regression below)
 
 One row PER FIELD. "Formik transform" = any custom `onChange`/`setFieldValue` mapping.
 
@@ -521,7 +523,7 @@ If the form has `name` and `code` fields, use the `NameAndCodeGroup` reusable co
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 
 // In your form JSX:
-<NameAndCodeGroup group={form} isDisabled={isEdition} />
+<NameAndCodeGroup form={form} fields={{ name: 'name', code: 'code' }} disableCodeInput={isEdition} />
 ```
 
 This component:
@@ -531,6 +533,10 @@ This component:
 - Uses the `withFieldGroup` HOC (different from `withForm` — see Advanced Patterns)
 
 > **Reference**: See `src/components/form/NameAndCodeGroup/NameAndCodeGroup.tsx` and its usage in `CreateCoupon.tsx`.
+
+**Duplicate-code errors:** for a unique `code` field, surface the backend "already exists" rejection inline by calling `applyExistingCodeError(formApi)` (`~/core/form/existingCodeError.ts`) in the mutation catch on `LagoApiError.ValueAlreadyExist`. It sets the `code` field's `onDynamic` error to `EXISTING_CODE_ERROR_MESSAGE`; `NameAndCodeGroup` auto-clears it when the user edits the code so submit re-enables.
+
+> **Reference**: `useProductDrawer.tsx` (product) and the charge drawers via `chargeCode.ts`.
 
 #### Step 2.7: Update Field Components
 
@@ -755,7 +761,7 @@ Manually test each validation case:
 3. **Range validations**: Enter out-of-range values, verify error
 4. **Cross-field validations**: Test dependent field combinations
 5. **Conditional validations**: Toggle conditions, verify validation changes
-6. **Happy-path submit through EVERY field** (CRITICAL — BIL-410): interact with each field —
+6. **Happy-path submit through EVERY field** (CRITICAL — the MultipleComboBox shape regression): interact with each field —
    including fields hidden behind radios/conditionals (reveal → fill → submit) — and verify the
    submit button enables AND the mutation fires with the expected payload. A field whose stored
    shape mismatches the schema fails SILENTLY: button stays disabled, no error, no request.
@@ -1168,7 +1174,7 @@ const NameAndCodeGroup = withFieldGroup({
 | -------- | -------------------------------- | ----------------------------------------------------- |
 | Purpose  | Sub-component of a specific form | Reusable field group across multiple forms            |
 | Receives | `form` prop                      | `group` prop                                          |
-| Usage    | `<MySection form={form} />`      | `<NameAndCodeGroup group={form} />`                   |
+| Usage    | `<MySection form={form} />`      | `<NameAndCodeGroup form={form} fields={{ name: 'name', code: 'code' }} />` |
 | Scope    | Specific to one form's structure | Generic, works with any form that has matching fields |
 
 ### Pattern 9: Dialog with Independent Form
@@ -1393,7 +1399,7 @@ The `/make-tests` skill will automatically:
 - [ ] Identify all form fields and types
 - [ ] **Validation Analysis (CRITICAL):**
   - [ ] **Account for `prepareDataForValidation`** — Formik validated `''` as `undefined`; map every `isNaN`/presence/numeric check with `''`-as-absent semantics
-  - [ ] **Field Value-Shape Map (CRITICAL — BIL-410)** — one row per field: inventory custom `onChange`/`setFieldValue` transforms (shape adapters the wrapper won't reproduce), read each `*ForTanstack` wrapper's stored type, write the Zod shape against the WRAPPER
+  - [ ] **Field Value-Shape Map (CRITICAL — the MultipleComboBox shape regression)** — one row per field: inventory custom `onChange`/`setFieldValue` transforms (shape adapters the wrapper won't reproduce), read each `*ForTanstack` wrapper's stored type, write the Zod shape against the WRAPPER
   - [ ] Locate Yup schema / validate function / field-level validations
   - [ ] Create Validation Mapping Table (Field → Yup → Zod)
   - [ ] Document cross-field validations (`.when()`, `.test()`)
@@ -1452,7 +1458,7 @@ The `/make-tests` skill will automatically:
   - [ ] Test all range validations (min, max)
   - [ ] Test all cross-field validations
   - [ ] Test all conditional validations
-  - [ ] **Happy-path submit through every field** (incl. conditionally-rendered ones): reveal → fill → submit → mutation fires with expected payload (BIL-410)
+  - [ ] **Happy-path submit through every field** (incl. conditionally-rendered ones): reveal → fill → submit → mutation fires with expected payload (the MultipleComboBox shape regression)
   - [ ] Test all server-side errors (trigger mutation errors, verify field error displays)
   - [ ] Verify error messages match original
 - [ ] Run `pnpm prettier --write <file>`
@@ -1511,7 +1517,7 @@ async call inside `onSubmit` (`onSave(value)` instead of `await onSave(value)`) 
 `onSubmit` promise resolve on the next microtask, so `isSubmitting` — and `form.SubmitButton`'s
 `loading` prop — flips back to `false` before the mutation actually settles. Always `await` the
 save/mutation call.
-26. **Submit button permanently disabled after selecting in a MultipleComboBox (no error shown, no request sent)**: the schema declares `z.array(z.string())` (the OLD Formik shape, produced by a manual `onChange` adapter that the migration dropped) but `MultipleComboBoxField` stores WHOLE option objects (`{ value, label, … }[]`). Zod rejects every selection → `canSubmit` never turns true; seeding bare ids also renders no tags. Fix: `z.array(z.looseObject({ value: z.string() }))`, map to ids in `onSubmit`, seed `defaultValues` as `{ value, label }` options, derive `FormValues` via `z.infer`. This was the BIL-410 regression (lago-front#3932 → #4067); see the Field Value-Shape Map in Phase 1.
+26. **Submit button permanently disabled after selecting in a MultipleComboBox (no error shown, no request sent)**: the schema declares `z.array(z.string())` (the OLD Formik shape, produced by a manual `onChange` adapter that the migration dropped) but `MultipleComboBoxField` stores WHOLE option objects (`{ value, label, … }[]`). Zod rejects every selection → `canSubmit` never turns true; seeding bare ids also renders no tags. Fix: `z.array(z.looseObject({ value: z.string() }))`, map to ids in `onSubmit`, seed `defaultValues` as `{ value, label }` options, derive `FormValues` via `z.infer`. This regression shipped once (lago-front#3932, fixed in #4067); see the Field Value-Shape Map in Phase 1.
 27. **Section validity for UNMOUNTED fields**: Formik's `errors.someArray` reflected schema errors regardless of what was rendered. The TanStack equivalent for an accordion validity icon is the form-level error map, not `fieldMeta` (which only covers mounted fields). Validator-produced errors live DIRECTLY on `errorMap.onDynamic`, keyed by field path (e.g. `someArray[0].prop`) — the `.fields` sub-shape does NOT exist there; it only appears for errors set manually via `form.setErrorMap({ onDynamic: { fields: ... } })` (server errors). Read it as: `useStore(form.store, (s) => { const dynamicErrors = (s.errorMap as { onDynamic?: Record<string, unknown> })?.onDynamic ?? {}; return Object.entries(dynamicErrors).some(([k, v]) => k.startsWith('someArray') && !!v) })`.
 
 ## Usage

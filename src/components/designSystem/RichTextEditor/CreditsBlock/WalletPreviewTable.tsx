@@ -1,5 +1,6 @@
 import { PreviewTable, type PreviewTableColumn } from '~/components/designSystem/Table/PreviewTable'
 import { Typography } from '~/components/designSystem/Typography'
+import type { WalletScopeFeeType } from '~/components/wallets/utils/walletScopeFeeTypes'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import type {
   WalletBilled,
@@ -41,10 +42,12 @@ const K = {
   walletName: 'text_1783352692386xocpgvrz3na',
 } as const
 
-type ScopedFeeType = FeeTypesEnum.Charge | FeeTypesEnum.Commitment | FeeTypesEnum.Subscription
-const FEE_TYPE_LABEL_KEYS: Record<ScopedFeeType, string> = {
+// Same fee types as the scope drawer, but with its own all-locale keys — the drawer's
+// `WALLET_SCOPE_FEE_TYPE_LABEL_KEYS` are base-only and would render raw here.
+const FEE_TYPE_LABEL_KEYS: Record<WalletScopeFeeType, string> = {
   [FeeTypesEnum.Charge]: 'text_1784883525803oz45f5x0ier',
   [FeeTypesEnum.Commitment]: 'text_1784883525803dqcjtvdskqq',
+  [FeeTypesEnum.FixedCharge]: 'text_1787723331045u6dbfhsdn6n',
   [FeeTypesEnum.Subscription]: 'text_1784883525803z2r3s9910of',
 }
 
@@ -96,7 +99,7 @@ export const WalletPreviewTable = ({
 
   const scopeLabel = (): string => {
     const feeLabels = data.appliesTo.feeTypes
-      .map((ft) => FEE_TYPE_LABEL_KEYS[ft as ScopedFeeType])
+      .map((ft) => FEE_TYPE_LABEL_KEYS[ft as WalletScopeFeeType])
       .filter(Boolean)
       .map((key) => translate(key))
     const parts = [...feeLabels, ...data.appliesTo.billableMetricCodes]

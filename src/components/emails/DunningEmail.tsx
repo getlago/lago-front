@@ -20,20 +20,24 @@ import { tw } from '~/styles/utils'
 
 gql`
   fragment CustomerForDunningEmail on Customer {
+    id
     displayName
     paymentProvider
     netPaymentTerm
     billingConfiguration {
+      id
       documentLocale
     }
   }
 
   fragment OrganizationForDunningEmail on CurrentOrganization {
+    id
     name
     logoUrl
     email
     netPaymentTerm
     billingConfiguration {
+      id
       documentLocale
     }
   }
@@ -46,12 +50,20 @@ gql`
   }
 `
 
+// Only the rendered fields are picked from the fragments. The fragments also
+// carry `id` (required so Apollo normalizes the entity instead of replacing the
+// cached reference with an inline object) and `billingConfiguration`, which the
+// parent reads — neither is rendered here, and the dunning-campaign preview
+// passes `{{customer_name}}`-style placeholders that have no entity behind them.
 export interface DunningEmailProps {
   locale: LocaleEnum
   invoices: InvoicesForDunningEmailFragment[]
-  customer?: CustomerForDunningEmailFragment
+  customer?: Pick<
+    CustomerForDunningEmailFragment,
+    'displayName' | 'paymentProvider' | 'netPaymentTerm'
+  >
   // Omit the netPaymentTerm from the organization and add it possible string
-  organization?: Omit<OrganizationForDunningEmailFragment, 'netPaymentTerm'> & {
+  organization?: Pick<OrganizationForDunningEmailFragment, 'name' | 'logoUrl' | 'email'> & {
     netPaymentTerm: OrganizationForDunningEmailFragment['netPaymentTerm'] | string
   }
   currency: CurrencyEnum

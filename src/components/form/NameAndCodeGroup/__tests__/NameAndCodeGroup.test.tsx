@@ -1,6 +1,7 @@
 import { act, cleanup, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { applyExistingCodeError, EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 
@@ -336,22 +337,12 @@ describe('NameAndCodeGroup', () => {
   })
 
   describe('Server-side error propagation', () => {
-    it('displays error under code input when setFieldMeta sets onDynamic error', async () => {
+    it('displays the duplicate-code error under the code input', async () => {
       await act(() => render(<NameAndCodeGroupWrapper />))
 
-      // Simulate server-side "code already exists" error via setFieldMeta
-      await act(() => {
-        formRef.setFieldMeta('code', (meta: Record<string, unknown>) => ({
-          ...meta,
-          errorMap: {
-            ...(meta.errorMap as Record<string, unknown>),
-            onDynamic: { message: 'text_632a2d437e341dcc76817556' },
-          },
-        }))
-      })
+      await act(() => applyExistingCodeError(formRef))
 
-      // The error should be displayed (translated by the mock as the key itself)
-      expect(screen.getByText('text_632a2d437e341dcc76817556')).toBeInTheDocument()
+      expect(screen.getByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
     })
   })
 })

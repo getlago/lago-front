@@ -1,6 +1,7 @@
 import { captureMessage } from '@sentry/react'
 
 import { AppEnvEnum } from '~/core/constants/globalTypes'
+import { isDevOrQaAppEnv, isProductionAppEnv } from '~/core/utils/appEnv'
 
 import { Locale, LocaleEnum, TranslateData, Translation, Translations } from './types'
 
@@ -41,7 +42,7 @@ export const translateKey: (
   context: {
     translations: Translations
     locale: Locale
-    appEnv: AppEnvEnum
+    appEnv: AppEnvEnum | undefined
   },
   key: string,
   data?: TranslateData,
@@ -60,7 +61,7 @@ export const translateKey: (
     const translationErrorMessage = `Translation '${key}' for locale '${locale}' not found.`
 
     // We decide to capture the error in production only for non english locale
-    if (appEnv === AppEnvEnum.production && locale !== LocaleEnum.en) {
+    if (isProductionAppEnv(appEnv) && locale !== LocaleEnum.en) {
       const customStack = new Error().stack
 
       captureMessage(translationErrorMessage, {
@@ -69,7 +70,7 @@ export const translateKey: (
           customStack,
         },
       })
-    } else if ([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)) {
+    } else if (isDevOrQaAppEnv(appEnv)) {
       // eslint-disable-next-line no-console
       console.warn(translationErrorMessage)
     }

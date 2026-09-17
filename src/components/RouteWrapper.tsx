@@ -1,5 +1,5 @@
 import { ReactNode, Suspense, useEffect } from 'react'
-import { RouteObject, useRoutes } from 'react-router-dom'
+import { RouteObject, useRoutes } from 'react-router'
 
 import { Spinner } from '~/components/designSystem/Spinner'
 import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'
@@ -8,9 +8,8 @@ import { ErrorBoundary } from '~/components/ErrorBoundary'
 import { ErrorFallback } from '~/components/ErrorFallback'
 import { CustomRouteObject, routes, useLocation, useNavigate } from '~/core/router'
 import { NEVER_SLUG_PREFIXES } from '~/core/router/slugPrefixes'
-import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
-import { DEVTOOL_TAB_PARAMS, useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { DEVTOOL_TAB_PARAMS, useDeveloperTool, useDevtoolTabParam } from '~/hooks/useDeveloperTool'
 
 interface PageWrapperProps {
   routeConfig: CustomRouteObject
@@ -32,8 +31,8 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
       const url = new URL(window.location.href)
 
       url.pathname = '/'
-      // URLSearchParams.set() handles encoding automatically, so we don't need encodeURIComponent
-      url.searchParams.set(DEVTOOL_TAB_PARAMS, location.pathname)
+      // The search string is part of the devtools address, not decoration — see `EventKey`.
+      url.searchParams.set(DEVTOOL_TAB_PARAMS, `${location.pathname}${location.search}`)
       window.location.replace(url.toString())
     }
   }, [location])
@@ -46,9 +45,8 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
   return <>{children}</>
 }
 
-const routesFormatter: (routesToFormat: CustomRouteObject[], loggedIn: boolean) => RouteObject[] = (
+const routesFormatter: (routesToFormat: CustomRouteObject[]) => RouteObject[] = (
   routesToFormat,
-  loggedIn,
 ) => {
   return routesToFormat.reduce<RouteObject[]>((acc, route) => {
     // A route chunk that cannot be downloaded rejects instead of hanging, so the
@@ -62,7 +60,7 @@ const routesFormatter: (routesToFormat: CustomRouteObject[], loggedIn: boolean) 
           </ErrorBoundary>
         </PageWrapper>
       ),
-      ...(route?.children ? { children: routesFormatter(route.children, loggedIn) } : {}),
+      ...(route?.children ? { children: routesFormatter(route.children) } : {}),
     }
 
     if (route.index) {
@@ -91,10 +89,11 @@ const routesFormatter: (routesToFormat: CustomRouteObject[], loggedIn: boolean) 
 }
 
 export const RouteWrapper = () => {
-  const { isAuthenticated } = useIsAuthenticated()
   const location = useLocation()
   const navigate = useNavigate()
   const { mainRouterUrl, setMainRouterUrl } = useDeveloperTool()
+
+  useDevtoolTabParam()
 
   // Clear all open drawers on browser navigation (back/forward buttons)
   useEffect(() => {
@@ -119,7 +118,7 @@ export const RouteWrapper = () => {
     setMainRouterUrl('')
   }, [mainRouterUrl, location.pathname, navigate, setMainRouterUrl])
 
-  const formattedRoutes = routesFormatter(routes, isAuthenticated)
+  const formattedRoutes = routesFormatter(routes)
 
   return useRoutes(formattedRoutes)
 }

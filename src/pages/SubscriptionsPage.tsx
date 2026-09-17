@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
 import { useMemo, useState } from 'react'
-import { generatePath, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router'
 
 import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
@@ -260,7 +260,9 @@ const SubscriptionsPage = () => {
               key: 'frequency',
               title: translate('text_1736968618645gg26amx8djq'),
               content: ({ frequency }) => (
-                <Typography>{translate(getIntervalTranslationKey[frequency])}</Typography>
+                <Typography>
+                  {frequency ? translate(getIntervalTranslationKey[frequency]) : '-'}
+                </Typography>
               ),
             },
 

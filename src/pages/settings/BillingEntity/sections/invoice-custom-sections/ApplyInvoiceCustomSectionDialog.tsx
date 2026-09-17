@@ -27,7 +27,7 @@ gql`
   }
 `
 
-export const APPLY_INVOICE_CUSTOM_SECTION_FORM_ID = 'apply-invoice-custom-section-form'
+const APPLY_INVOICE_CUSTOM_SECTION_FORM_ID = 'apply-invoice-custom-section-form'
 
 const applyInvoiceCustomSectionValidationSchema = z.object({
   invoiceCustomSectionId: z.string().min(1),

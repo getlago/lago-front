@@ -19,11 +19,13 @@ export const PlanBillingPeriodInfoSection = () => {
         </Typography>
       </div>
 
-      <Chip
-        label={translate('text_1772030324507alr5hywedel', {
-          interval: translate(getIntervalTranslationKey[interval]),
-        })}
-      />
+      {!!interval && (
+        <Chip
+          label={translate('text_1772030324507alr5hywedel', {
+            interval: translate(getIntervalTranslationKey[interval]),
+          })}
+        />
+      )}
     </div>
   )
 }

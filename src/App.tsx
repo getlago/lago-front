@@ -5,7 +5,7 @@ import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles'
 import { captureException } from '@sentry/react'
 import { useEffect, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
-import { BrowserRouter, MemoryRouter } from 'react-router-dom'
+import { BrowserRouter, MemoryRouter } from 'react-router'
 
 import { AiAgent } from '~/components/aiAgent/AiAgent'
 import { Spinner } from '~/components/designSystem/Spinner'
@@ -110,6 +110,10 @@ const App = () => {
     return <Spinner />
   }
 
+  // ToastContainer sits inside BrowserRouter so router Links in toast messages
+  // resolve; it is a fixed overlay, out of the PanelGroup flow. Toasts triggered
+  // from the devtools MemoryRouter still display (global toastsVar) and their
+  // links navigate the main app router, which is the intent.
   return (
     <ApolloProvider client={client}>
       <StyledEngineProvider injectFirst>
@@ -120,7 +124,7 @@ const App = () => {
                 <NiceModalProvider>
                   <QuotePdfProvider>
                     <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
-                      <BrowserRouter basename="/">
+                      <BrowserRouter basename="/" useTransitions={false}>
                         <Panel id="app-panel-group">
                           <PanelGroup direction="horizontal">
                             <Panel id="app-panel">
@@ -131,8 +135,9 @@ const App = () => {
                             <AiAgent />
                           </PanelGroup>
                         </Panel>
+                        <ToastContainer />
                       </BrowserRouter>
-                      <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
+                      <MemoryRouter initialEntries={[DEVTOOL_ROUTE]} useTransitions={false}>
                         <DevtoolsErrorBoundary>
                           <DevtoolsView />
                         </DevtoolsErrorBoundary>
@@ -144,7 +149,6 @@ const App = () => {
             </DeveloperToolProvider>
           </ErrorBoundary>
           <UserIdentifier />
-          <ToastContainer />
         </ThemeProvider>
       </StyledEngineProvider>
     </ApolloProvider>

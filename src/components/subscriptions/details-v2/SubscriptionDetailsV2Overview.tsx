@@ -37,7 +37,7 @@ export const SubscriptionDetailsV2Overview = ({ subscriptionId }: Props) => {
   const { data, loading } = useGetSubscriptionForDetailsV2OverviewQuery({
     variables: { subscriptionId },
     skip: !subscriptionId,
-    context: { silentError: [LagoApiError.NotFound] },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
 
   const subscription = data?.subscription

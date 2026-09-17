@@ -211,24 +211,6 @@ describe('SubscriptionFeeDrawer', () => {
     })
   })
 
-  describe('GIVEN the form values type', () => {
-    describe('WHEN SubscriptionFeeFormValues is constructed', () => {
-      it('THEN should contain all required fields', () => {
-        const values: SubscriptionFeeFormValues = {
-          amountCents: '50',
-          payInAdvance: true,
-          trialPeriod: 14,
-          invoiceDisplayName: 'Custom Name',
-        }
-
-        expect(values.amountCents).toBe('50')
-        expect(values.payInAdvance).toBe(true)
-        expect(values.trialPeriod).toBe(14)
-        expect(values.invoiceDisplayName).toBe('Custom Name')
-      })
-    })
-  })
-
   describe('GIVEN the form default values', () => {
     describe('WHEN the form is initialized', () => {
       it('THEN trialPeriod defaults to 0 as a number', () => {
@@ -237,13 +219,6 @@ describe('SubscriptionFeeDrawer', () => {
         expect(capturedDefaultValues).toBeDefined()
         expect(capturedDefaultValues?.trialPeriod).toBe(0)
         expect(typeof capturedDefaultValues?.trialPeriod).toBe('number')
-      })
-
-      it('THEN trialPeriod is not undefined or an empty string', () => {
-        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
-
-        expect(capturedDefaultValues?.trialPeriod).not.toBeUndefined()
-        expect(capturedDefaultValues?.trialPeriod).not.toBe('')
       })
     })
   })

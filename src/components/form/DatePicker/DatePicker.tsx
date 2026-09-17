@@ -1,11 +1,10 @@
-import { gql } from '@apollo/client'
 import type { PopperProps as MuiPopperProps } from '@mui/material/Popper'
 import { PickersCalendarHeader, PickersDay } from '@mui/x-date-pickers'
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon'
 import { DesktopDatePicker as MuiDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { Icon } from 'lago-design-system'
-import { DateTime, Settings } from 'luxon'
+import { DateTime } from 'luxon'
 import { ReactNode, useCallback, useEffect, useState } from 'react'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
@@ -13,22 +12,15 @@ import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TextInputProps } from '~/components/form'
-import { getTimezoneConfig } from '~/core/timezone'
+import { MIN_SUPPORTED_DATE } from '~/core/constants/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { theme } from '~/styles'
 import { tw } from '~/styles/utils'
-
-gql`
-  fragment OrganizationForDatePicker on CurrentOrganization {
-    id
-    timezone
-  }
-`
 
 enum DATE_PICKER_ERROR_ENUM {
   invalid = 'invalid',
 }
+
 export interface DatePickerProps extends Omit<
   TextInputProps,
   'label' | 'value' | 'onChange' | 'beforeChangeFormatter' | 'password' | 'onError'
@@ -44,6 +36,7 @@ export interface DatePickerProps extends Omit<
   disableFuture?: boolean
   disablePast?: boolean
   minDate?: DateTime
+  maxDate?: DateTime
   showErrorInTooltip?: boolean
   placement?: MuiPopperProps['placement']
   onError?: (err: keyof typeof DATE_PICKER_ERROR_ENUM | undefined) => void
@@ -60,7 +53,8 @@ export const DatePicker = ({
   defaultZone,
   disableFuture,
   disablePast,
-  minDate,
+  minDate = MIN_SUPPORTED_DATE,
+  maxDate,
   placeholder,
   disabled = false,
   showErrorInTooltip = false,
@@ -70,7 +64,6 @@ export const DatePicker = ({
   helperText,
 }: DatePickerProps) => {
   const { translate } = useInternationalization()
-  const { organization } = useOrganizationInfos()
 
   /**
    * Date will be passed to the parent as ISO
@@ -79,8 +72,8 @@ export const DatePicker = ({
   const getValueFormatted = useCallback(() => {
     if (!value) return null
 
-    return typeof value === 'string' ? DateTime.fromISO(value) : value
-  }, [value])
+    return typeof value === 'string' ? DateTime.fromISO(value, { zone: defaultZone }) : value
+  }, [defaultZone, value])
 
   const [localDate, setLocalDate] = useState<DateTime | null>(getValueFormatted())
 
@@ -96,17 +89,6 @@ export const DatePicker = ({
     }
     return helperText
   }, [error, helperText, isInvalid, showErrorInTooltip, translate])
-
-  useEffect(() => {
-    if (defaultZone) Settings.defaultZone = defaultZone
-
-    return () => {
-      // Reset timezone to default
-      if (defaultZone) Settings.defaultZone = getTimezoneConfig(organization?.timezone).name
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   useEffect(() => {
     setLocalDate(getValueFormatted())
@@ -148,25 +130,31 @@ export const DatePicker = ({
           <MuiDatePicker
             name={name}
             format="MM/dd/yyyy"
+            timezone={defaultZone}
             disableFuture={disableFuture}
             disabled={disabled}
             disablePast={disablePast}
             minDate={minDate}
+            maxDate={maxDate}
             value={localDate}
             onChange={(date) => {
-              setLocalDate(!date ? date : (date as unknown as DateTime).toUTC())
+              const nextDate = date as unknown as DateTime | null
 
-              // To avoid breaking dates in the parent, we do not pass it unless it's valid
-              const formattedDate = !date
-                ? undefined
-                : (date as unknown as DateTime)?.toUTC().toISO()
+              setLocalDate(!nextDate ? nextDate : nextDate.toUTC())
 
-              if ((date as unknown as DateTime)?.isValid || !date) {
-                onError && onError(undefined)
-                onChange(formattedDate)
-              } else {
-                onError && onError(DATE_PICKER_ERROR_ENUM.invalid)
+              if (!nextDate) {
+                onError?.(undefined)
+                onChange(undefined)
+                return
               }
+
+              if (!nextDate.isValid) {
+                onError?.(DATE_PICKER_ERROR_ENUM.invalid)
+                return
+              }
+
+              onError?.(undefined)
+              onChange(nextDate.toUTC().toISO())
             }}
             slots={{
               calendarHeader: (calendarHeaderProps) => (

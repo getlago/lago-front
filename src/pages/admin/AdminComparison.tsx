@@ -1,6 +1,6 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { ComparisonMatrix, OrgData } from '~/components/admin/ComparisonMatrix'
 import { Spinner } from '~/components/designSystem/Spinner'

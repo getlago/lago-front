@@ -33,7 +33,7 @@ export const getEntitlementFormattedValue = (
 }
 
 export const mapChargeIntervalCopy = (
-  interval: PlanInterval,
+  interval: PlanInterval | null | undefined,
   forceMonthlyCharge: boolean,
 ): string => {
   if (forceMonthlyCharge || interval === PlanInterval.Monthly) {
