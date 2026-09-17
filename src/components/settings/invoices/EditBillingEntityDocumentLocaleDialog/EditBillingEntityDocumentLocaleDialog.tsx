@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { z } from 'zod'
 
 import { Typography } from '~/components/designSystem/Typography'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
@@ -12,6 +11,12 @@ import { documentLocalesDataForComboBox } from '~/core/translations/documentLoca
 import { LagoApiError, useUpdateDocumentLocaleBillingEntityMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+
+import {
+  EDIT_BILLING_ENTITY_DOCUMENT_LOCALE_INITIAL_VALUES,
+  OpenEditBillingEntityDocumentLocaleDialogProps,
+} from './types'
+import { editBillingEntityDocumentLocaleValidationSchema } from './validationSchema'
 
 gql`
   mutation updateDocumentLocaleBillingEntity($input: UpdateBillingEntityInput!) {
@@ -24,19 +29,6 @@ gql`
     }
   }
 `
-
-const editBillingEntityDocumentLocaleValidationSchema = z.object({
-  // The combobox emits `undefined` when cleared, so cover both the missing
-  // (invalid_type) and empty-string cases with the same "required" message.
-  documentLocale: z
-    .string({ message: 'text_624ea7c29103fd010732ab7d' })
-    .min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
-})
-
-type OpenEditBillingEntityDocumentLocaleDialogProps = {
-  id: string
-  documentLocale: string
-}
 
 export const EDIT_BILLING_ENTITY_DOCUMENT_LOCALE_FORM_ID =
   'edit-billing-entity-document-locale-form'
@@ -62,18 +54,20 @@ export const useEditBillingEntityDocumentLocaleDialog = () => {
   })
 
   const form = useAppForm({
-    defaultValues: {
-      documentLocale: '',
-    },
+    defaultValues: EDIT_BILLING_ENTITY_DOCUMENT_LOCALE_INITIAL_VALUES,
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: editBillingEntityDocumentLocaleValidationSchema,
     },
     onSubmit: async ({ value }) => {
+      const data = dataRef.current
+
+      if (!data) return
+
       await updateDocumentLocale({
         variables: {
           input: {
-            id: dataRef.current?.id as string,
+            id: data.id,
             billingConfiguration: {
               documentLocale: value.documentLocale,
             },
