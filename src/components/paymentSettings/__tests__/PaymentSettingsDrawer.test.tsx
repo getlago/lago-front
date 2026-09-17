@@ -37,13 +37,13 @@ describe('PaymentSettingsDrawer', () => {
     mockFieldsProps.current = null
   })
 
-  const renderDrawer = (onSave = jest.fn()) => {
+  const renderDrawer = (onSave = jest.fn(), viewType: ViewTypeEnum = ViewTypeEnum.Subscription) => {
     const ref = createRef<PaymentSettingsDrawerRef>()
 
     render(
       <PaymentSettingsDrawer
         ref={ref}
-        viewType={ViewTypeEnum.Subscription}
+        viewType={viewType}
         externalCustomerId="ext_1"
         onSave={onSave}
       />,
@@ -77,6 +77,16 @@ describe('PaymentSettingsDrawer', () => {
     expect(mockOpen).toHaveBeenCalledTimes(1)
     expect(mockOpen).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'text_17828013737948943pe3k8nc' }),
+    )
+  })
+
+  it('uses the contract-specific edit title for contracts', () => {
+    const { ref } = renderDrawer(jest.fn(), ViewTypeEnum.Contract)
+
+    act(() => ref.current?.openDrawer({ paymentMethod: undefined }))
+
+    expect(mockOpen).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'text_1789644720007contract' }),
     )
   })
 

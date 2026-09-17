@@ -7,6 +7,7 @@ import { generatePath, useParams } from 'react-router'
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import { addToast } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { CONTRACT_DETAILS_ROUTE, useNavigate } from '~/core/router'
@@ -67,13 +68,16 @@ const useContractForm = ({
         variables: {
           input: {
             externalCustomerId: value.externalCustomerId,
-            // `CreateContractInput.externalId` is non-null, so one has to travel
-            // even though the designs have Lago generate it. Provisional until
-            // the backend either makes the field optional or the drawer grows
-            // the "Add an external id" input.
-            externalId: crypto.randomUUID(),
+            // The API still requires an external ID. Preserve Lago's generated
+            // fallback unless the user reveals and fills the optional field.
+            externalId: value.externalId || crypto.randomUUID(),
             planCode: value.planCode,
             name: value.name || undefined,
+            billingEntityId: value.billingEntityId || undefined,
+            consolidateInvoice: value.consolidateInvoice,
+            paymentMethod: value.paymentMethod,
+            purchaseOrderNumber:
+              normalizePurchaseOrderNumber(value.purchaseOrderNumber) ?? undefined,
             // The pickers publish UTC already; this is the same belt-and-braces
             // conversion the subscription form applies on submit.
             startedAt: DateTime.fromISO(value.startedAt).toUTC().toISO() ?? undefined,

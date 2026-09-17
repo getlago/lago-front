@@ -50,13 +50,13 @@ describe('InvoicingSettingsDrawer', () => {
     mockIcsProps.current = null
   })
 
-  const renderDrawer = (onSave = jest.fn()) => {
+  const renderDrawer = (onSave = jest.fn(), viewType: ViewTypeEnum = ViewTypeEnum.Subscription) => {
     const ref = createRef<InvoicingSettingsDrawerRef>()
 
     render(
       <InvoicingSettingsDrawer
         ref={ref}
-        viewType={ViewTypeEnum.Subscription}
+        viewType={viewType}
         customerId="cust_1"
         showCustomSection
         withInvoiceConsolidation
@@ -94,6 +94,16 @@ describe('InvoicingSettingsDrawer', () => {
     expect(mockOpen).toHaveBeenCalledTimes(1)
     expect(mockOpen).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'text_17423672025282dl7iozy1ru' }),
+    )
+  })
+
+  it('uses the contract-specific edit title for contracts', () => {
+    const { ref } = renderDrawer(jest.fn(), ViewTypeEnum.Contract)
+
+    act(() => ref.current?.openDrawer({ consolidateInvoice: true }))
+
+    expect(mockOpen).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'text_1789644720003contract' }),
     )
   })
 
