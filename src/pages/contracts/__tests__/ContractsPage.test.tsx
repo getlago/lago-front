@@ -59,6 +59,7 @@ const contract: ContractForContractsListFragment = {
   externalId: 'enterprise-2026',
   startedAt: '2026-06-11T00:00:00Z',
   endedAt: null,
+  plan: { __typename: 'CatalogPlan', id: 'plan-1', name: 'Enterprise plan' },
   customer: { __typename: 'Customer', id: 'customer-1', displayName: 'Acme Inc.' },
 }
 
@@ -195,6 +196,19 @@ describe('ContractsPage', () => {
     })
   })
 
+  it('uses the plan name in the terminate dialog when the contract has no name', async () => {
+    render(<ContractsPage />, { mocks: [contractsMock([{ ...contract, name: null }])] })
+
+    const row = await screen.findByTestId('table-row-0')
+
+    fireEvent.click(within(row).getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
+    fireEvent.click(await screen.findByTestId('terminate-contract'))
+
+    expect(mockOpenTerminateContractDialog).toHaveBeenCalledWith({
+      name: 'Enterprise plan',
+    })
+  })
+
   it('shows a full page of skeleton rows while fetching, then the empty state', async () => {
     render(<ContractsPage />, { mocks: [{ ...contractsMock([], 1, 0), delay: 30 }] })
 
@@ -211,7 +225,7 @@ describe('ContractsPage', () => {
       mocks: [contractsMock([{ ...contract, name: null, startedAt: null, endedAt: null }])],
     })
 
-    expect(await screen.findByText('enterprise-2026')).toBeInTheDocument()
+    expect(await screen.findByText('Enterprise plan')).toBeInTheDocument()
     expect(screen.getAllByText('-')).toHaveLength(2)
   })
 

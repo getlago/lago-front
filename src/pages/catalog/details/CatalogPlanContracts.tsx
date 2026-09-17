@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 
+import { getContractDisplayName } from '~/components/contracts/getContractDisplayName'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
@@ -22,6 +23,10 @@ gql`
     status
     startedAt
     endedAt
+    plan {
+      id
+      name
+    }
   }
 
   query getCatalogPlanContracts($page: Int, $limit: Int, $planCode: String) {
@@ -68,9 +73,9 @@ export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): J
       title: translate('text_6419c64eace749372fc72b0f'),
       maxSpace: true,
       minWidth: 200,
-      content: ({ name, externalId }) => (
+      content: ({ name, plan }) => (
         <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {name || externalId}
+          {getContractDisplayName({ name, plan })}
         </Typography>
       ),
     },

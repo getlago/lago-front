@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { generatePath } from 'react-router'
 
+import { getContractDisplayName } from '~/components/contracts/getContractDisplayName'
 import { useContractTableActions } from '~/components/contracts/useContractTableActions'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
@@ -30,6 +31,10 @@ gql`
     status
     startedAt
     endedAt
+    plan {
+      id
+      name
+    }
   }
 
   query getCustomerContractsList($externalCustomerId: String!, $page: Int, $limit: Int) {
@@ -81,9 +86,9 @@ export const CustomerContractsList = ({ customer }: CustomerContractsListProps):
       title: translate('text_1789552637141273ewsjqx7j'),
       maxSpace: true,
       minWidth: 200,
-      content: ({ name, externalId }) => (
+      content: ({ name, plan }) => (
         <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {name || externalId}
+          {getContractDisplayName({ name, plan })}
         </Typography>
       ),
     },
@@ -178,7 +183,7 @@ export const CustomerContractsList = ({ customer }: CustomerContractsListProps):
           hasError={!!error}
           loadingRowCount={DEFAULT_PAGE_SIZE}
           onRowActionLink={({ id }) => generatePath(CONTRACT_DETAILS_ROUTE, { id })}
-          rowLinkLabel={({ name, externalId }) => name || externalId}
+          rowLinkLabel={getContractDisplayName}
           actionColumnTooltip={() => contractTableActionsTooltip}
           actionColumn={getContractTableActions}
           placeholder={placeholder}
