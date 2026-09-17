@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useEffect, useMemo } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'

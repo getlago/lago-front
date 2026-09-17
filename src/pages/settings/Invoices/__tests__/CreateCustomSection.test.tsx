@@ -1,6 +1,7 @@
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import { InvoiceCustomSectionFormFragment } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
@@ -28,7 +29,7 @@ const mockScrollToTop = jest.fn()
 let mockLoading = false
 let mockIsEdition = false
 let mockInvoiceCustomSection: InvoiceCustomSectionFormFragment | undefined = undefined
-let mockErrorCode: string | undefined = undefined
+let mockSetErrorCode: ((code: string | undefined) => void) | undefined
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -47,16 +48,28 @@ jest.mock('~/core/utils/domUtils', () => ({
   scrollToTop: () => mockScrollToTop(),
 }))
 
-jest.mock('~/hooks/useCreateEditInvoiceCustomSection', () => ({
-  useCreateEditInvoiceCustomSection: () => ({
-    loading: mockLoading,
-    isEdition: mockIsEdition,
-    invoiceCustomSection: mockInvoiceCustomSection,
-    errorCode: mockErrorCode,
-    onSave: mockOnSave,
-    onClose: jest.fn(),
-  }),
-}))
+// The real hook holds `errorCode` in state, so a rejection re-renders the page.
+// A plain object would not: the page only subscribes to the form's `isDirty`.
+jest.mock('~/hooks/useCreateEditInvoiceCustomSection', () => {
+  const { useState } = jest.requireActual('react')
+
+  return {
+    useCreateEditInvoiceCustomSection: () => {
+      const [errorCode, setErrorCode] = useState(undefined)
+
+      mockSetErrorCode = setErrorCode
+
+      return {
+        loading: mockLoading,
+        isEdition: mockIsEdition,
+        invoiceCustomSection: mockInvoiceCustomSection,
+        errorCode,
+        onSave: mockOnSave,
+        onClose: jest.fn(),
+      }
+    },
+  }
+})
 
 jest.mock('~/components/settings/invoices/PreviewCustomSectionDrawer', () => {
   const { forwardRef, useImperativeHandle } = jest.requireActual('react')
@@ -82,7 +95,7 @@ describe('CreateCustomSection', () => {
     mockLoading = false
     mockIsEdition = false
     mockInvoiceCustomSection = undefined
-    mockErrorCode = undefined
+    mockSetErrorCode = undefined
   })
 
   describe('GIVEN the section is loading', () => {
@@ -375,26 +388,39 @@ describe('CreateCustomSection', () => {
     })
   })
 
-  describe('GIVEN the server returned an existing code error', () => {
-    beforeEach(() => {
-      mockErrorCode = 'existingCode'
-    })
+  describe('GIVEN the server rejected the code as already existing', () => {
+    const submitAndGetRejected = async (user: ReturnType<typeof userEvent.setup>) => {
+      await renderPage()
 
-    describe('WHEN rendering the page', () => {
+      // Fills the code too, NameAndCodeGroup derives it from the name.
+      await user.type(screen.getByPlaceholderText(NAME_PLACEHOLDER), 'My section')
+      // The schema demands a display name or details on top of name + code.
+      const detailsContainer = screen.getByTestId(CREATE_CUSTOM_SECTION_DETAILS_INPUT_TEST_ID)
+
+      await user.type(detailsContainer.querySelector('textarea') as HTMLTextAreaElement, 'Details')
+
+      await user.click(screen.getByTestId(CREATE_CUSTOM_SECTION_SUBMIT_BUTTON_TEST_ID))
+
+      await waitFor(() => {
+        expect(mockOnSave).toHaveBeenCalled()
+      })
+
+      act(() => mockSetErrorCode?.('existingCode'))
+    }
+
+    describe('WHEN the rejection comes back', () => {
       it('THEN should scroll to the top', async () => {
-        await renderPage()
+        await submitAndGetRejected(userEvent.setup())
 
         await waitFor(() => {
           expect(mockScrollToTop).toHaveBeenCalled()
         })
       })
 
-      it('THEN should display an error on the code field', async () => {
-        await renderPage()
+      it('THEN should display the duplicate-code error', async () => {
+        await submitAndGetRejected(userEvent.setup())
 
-        await waitFor(() => {
-          expect(screen.getByTestId('text-field-error')).toBeInTheDocument()
-        })
+        expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
       })
     })
 
@@ -402,16 +428,14 @@ describe('CreateCustomSection', () => {
       it('THEN should clear the server error without leaving a stale error behind', async () => {
         const user = userEvent.setup()
 
-        await renderPage()
+        await submitAndGetRejected(user)
 
-        await waitFor(() => {
-          expect(screen.getByTestId('text-field-error')).toBeInTheDocument()
-        })
+        expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
 
         await user.type(screen.getByPlaceholderText(CODE_PLACEHOLDER), 'x')
 
         await waitFor(() => {
-          expect(screen.queryByTestId('text-field-error')).not.toBeInTheDocument()
+          expect(screen.queryByText(EXISTING_CODE_ERROR_MESSAGE)).not.toBeInTheDocument()
         })
       })
     })

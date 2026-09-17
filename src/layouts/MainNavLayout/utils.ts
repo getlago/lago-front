@@ -1,6 +1,7 @@
 import { IconName } from 'lago-design-system'
 
 export interface NavTab {
+  'data-test'?: string
   title: string
   icon: IconName
   link?: string

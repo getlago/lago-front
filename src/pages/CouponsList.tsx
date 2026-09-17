@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
 import { useState } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
 import { useDeleteCoupon } from '~/components/coupons/useDeleteCoupon'
@@ -129,7 +129,7 @@ const CouponsList = () => {
         startIcon: 'pen',
         title: translate('text_625fd39a15394c0117e7d792'),
         dataTest: 'edit-coupon',
-        onAction: () => navigate(generatePath(UPDATE_COUPON_ROUTE, { couponId: coupon.id })),
+        link: () => generatePath(UPDATE_COUPON_ROUTE, { couponId: coupon.id }),
       })
     }
 

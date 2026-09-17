@@ -36,9 +36,8 @@ type FiltersItemRateCardProductFilterProps = {
 }
 
 // Multi-select, array-native: real selections reach the URL/filter state as a plural
-// `productFilterIds` array (see formatFiltersForRateCardsQuery). The `rateCards` query
-// only accepts a singular `productFilterId` today, so mapRateCardFilterVars keeps only
-// the first selection when calling the query - see that adapter for details.
+// `productFilterIds` array (see formatFiltersForRateCardsQuery), which the `rateCards`
+// query accepts directly.
 export const FiltersItemRateCardProductFilter = ({
   value,
   setFilterValue,

@@ -1,5 +1,11 @@
 import { screen, within } from '@testing-library/react'
 
+import {
+  CATALOG_PLAN_DETAILS_ROUTE,
+  CATALOG_PLAN_DETAILS_SECTION_ROUTE,
+  CUSTOMERS_LIST_ROUTE,
+  PLAN_PRICING_ROUTE,
+} from '~/core/router'
 import { FeatureFlagEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
@@ -11,6 +17,8 @@ import {
   MAIN_NAV_REPORTS_SECTION_TEST_ID,
   MainNavMenuSections,
 } from '../MainNavMenuSections'
+import { MAIN_NAV_CUSTOMERS_TEST_ID } from '../mainNavTestIds'
+import { NavTab } from '../utils'
 
 const mockHasPermissions = jest.fn()
 const mockHasPermissionsOr = jest.fn()
@@ -22,6 +30,22 @@ jest.mock('~/hooks/usePermissions', () => ({
     hasPermissionsOr: mockHasPermissionsOr,
   }),
 }))
+
+const mockVerticalMenuProps = jest.fn()
+
+// Renders the real VerticalMenu (so every existing DOM-based test below is unaffected) while
+// also capturing its `tabs` prop, since `match` never reaches the DOM.
+jest.mock('~/components/designSystem/VerticalMenu', () => {
+  const actual = jest.requireActual('~/components/designSystem/VerticalMenu')
+
+  return {
+    ...actual,
+    VerticalMenu: (props: Record<string, unknown>) => {
+      mockVerticalMenuProps(props)
+      return <actual.VerticalMenu {...props} />
+    },
+  }
+})
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
@@ -86,6 +110,15 @@ describe('MainNavMenuSections', () => {
   })
 
   describe('Component rendering', () => {
+    it('exposes a stable selector for the Customers navigation item', () => {
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.getByTestId(MAIN_NAV_CUSTOMERS_TEST_ID).closest('a')).toHaveAttribute(
+        'href',
+        CUSTOMERS_LIST_ROUTE,
+      )
+    })
+
     it('renders the menu sections container', () => {
       render(<MainNavMenuSections {...defaultProps} />)
 
@@ -142,6 +175,23 @@ describe('MainNavMenuSections', () => {
 
       expect(order[0].compareDocumentPosition(order[1])).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
       expect(order[1].compareDocumentPosition(order[2])).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    })
+  })
+
+  describe('Plans nav entry match array', () => {
+    it('matches the plans list route and both catalog-plan details routes', () => {
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      const allTabs = mockVerticalMenuProps.mock.calls.flatMap(
+        ([props]: [{ tabs: NavTab[] }]) => props.tabs,
+      )
+      const plansTab = allTabs.find((tab) => tab.link === PLAN_PRICING_ROUTE)
+
+      expect(plansTab?.match).toEqual([
+        PLAN_PRICING_ROUTE,
+        CATALOG_PLAN_DETAILS_ROUTE,
+        CATALOG_PLAN_DETAILS_SECTION_ROUTE,
+      ])
     })
   })
 

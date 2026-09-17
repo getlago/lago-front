@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { useCallback, useMemo, useRef } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import { Alert } from '~/components/designSystem/Alert'

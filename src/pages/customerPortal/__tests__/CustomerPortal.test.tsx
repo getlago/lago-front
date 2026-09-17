@@ -58,8 +58,8 @@ jest.mock('~/components/customerPortal/common/SectionLoading', () => ({
   LoaderWalletSection: () => <div>Loader</div>,
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   Outlet: () => <div data-test="mock-outlet">Outlet Content</div>,
   useNavigate: () => jest.fn(),
   useParams: () => ({ token: 'test-token' }),

@@ -2,7 +2,7 @@ import { gql, useApolloClient } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useEffect, useState } from 'react'
-import { generatePath, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router'
 
 import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
 import { Alert } from '~/components/designSystem/Alert'

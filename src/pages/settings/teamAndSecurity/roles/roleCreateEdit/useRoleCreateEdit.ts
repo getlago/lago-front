@@ -1,5 +1,5 @@
 import { FetchResult, gql, useApolloClient } from '@apollo/client'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { addToast } from '~/core/apolloClient'
 import { HOME_ROUTE, ROLE_DETAILS_ROUTE, useLocation, useNavigate } from '~/core/router'

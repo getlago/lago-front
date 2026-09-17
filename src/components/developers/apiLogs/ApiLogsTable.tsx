@@ -1,5 +1,5 @@
 import { FC, RefObject, useMemo } from 'react'
-import { generatePath, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router'
 
 import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status, StatusType } from '~/components/designSystem/Status'
@@ -61,16 +61,17 @@ export const ApiLogsTable: FC<ApiLogsTableProps> = ({
         loadingRowCount={pageSize}
         hasError={!!error}
         isLoading={loading}
+        rowLinkLabel={({ requestPath }) => requestPath ?? ''}
         onRowActionLink={({ id }) => {
+          const path = generatePath(API_LOG_ROUTE, { logId: id })
+          const search = searchParams.toString()
+
+          return `${path}${search ? `?${search}` : ''}`
+        }}
+        onRowActionClick={() => {
           if (getCurrentBreakpoint() === 'sm') {
             logListRef.current?.updateView('forward')
           }
-
-          const path = generatePath(API_LOG_ROUTE, { logId: id })
-          const search = searchParams.toString()
-          const fullPath = `${path}${search ? `?${search}` : ''}`
-
-          return fullPath
         }}
         columns={[
           {

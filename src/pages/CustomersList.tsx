@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useMemo, useState } from 'react'
-import { generatePath, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router'
 
 import { useDeleteCustomerDialog } from '~/components/customers/DeleteCustomerDialog'
 import { computeCustomerInitials } from '~/components/customers/utils'
@@ -255,12 +255,10 @@ const CustomersList = () => {
                 ? {
                     startIcon: 'pen',
                     title: translate('text_6261640f28a49700f1290df3'),
-                    onAction: () =>
-                      navigate(
-                        generatePath(UPDATE_CUSTOMER_ROUTE, {
-                          customerId: customer.id,
-                        }),
-                      ),
+                    link: () =>
+                      generatePath(UPDATE_CUSTOMER_ROUTE, {
+                        customerId: customer.id,
+                      }),
                   }
                 : null,
               hasPermissions(['customersDelete'])

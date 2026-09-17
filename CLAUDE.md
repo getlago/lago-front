@@ -13,7 +13,7 @@
 - **UI**: Material UI + TailwindCSS + Custom Design System (MUI-based)
 - **State**: Apollo Client (GraphQL) with reactive variables
 - **Forms**: Tanstack form + zod validation
-- **Routing**: React Router DOM + TanStack Router (newer routes)
+- **Routing**: React Router 7
 - **Testing**: Jest + Cypress + Testing Library
 - **Code Generation**: GraphQL Code Generator for type-safe queries
 - **Linting**: ESLint + Prettier with custom configs from `lago-configs`
@@ -43,7 +43,7 @@
 
 ## Code Quality
 
-- Never put Linear ticket IDs (e.g. ING-123, LAGO-456) in code comments — describe, if needed, the pending work itself instead
+- Never put Linear ticket IDs (the `<TEAM>-<N>` shape) in code comments or anywhere under `.agents/**` — describe the pending work itself instead; `scripts/skill-budget.sh` fails the push on one
 - TypeScript strict mode with proper typing
 - ESLint rules from `lago-configs` package
 - Consistent naming: camelCase for variables, PascalCase for components
@@ -56,24 +56,24 @@
   // Wrong — triggers full MUI bundle parsing
   import { Button } from '@mui/material'
   ```
-- Never import `useNavigate`, `Link`, `useLocation`, or `useMatch` from `react-router-dom`.
+- Never import `useNavigate`, `Link`, `useLocation`, or `useMatch` from `react-router`.
   Import them from `~/core/router` — the slug-aware wrappers auto-prepend
   `/${organizationSlug}` to navigation targets and expose `strippedPathname`
   on the location object. Instead of `useMatch`, use `matchPath` (from
-  `react-router-dom`) with `strippedPathname` from the slug-aware
+  `react-router`) with `strippedPathname` from the slug-aware
   `useLocation` — this is the established pattern throughout the codebase.
   Enforced by the custom `lago/no-direct-rrd-nav-import` ESLint rule.
-  Other `react-router-dom` exports (`useParams`, `matchPath`, `generatePath`,
+  Other `react-router` exports (`useParams`, `matchPath`, `generatePath`,
   `Outlet`, etc.) are unrestricted.
   ```typescript
   // Correct — slug-aware wrappers
   import { useNavigate, Link, useLocation } from '~/core/router'
   // Correct — route matching with strippedPathname
-  import { matchPath } from 'react-router-dom'
+  import { matchPath } from 'react-router'
   const { strippedPathname } = useLocation()
   const match = matchPath(SOME_ROUTE, strippedPathname)
   // Wrong — useMatch uses raw pathname (includes slug), never matches
-  import { useMatch } from 'react-router-dom'
+  import { useMatch } from 'react-router'
   ```
 
 ## Subsystem rules — extracted skills
@@ -137,6 +137,7 @@ Read these on demand when working on the relevant area (backtick-wrapped so they
 are referenced, not auto-loaded):
 
 - **Folder architecture**: `@.agents/docs/folder-architecture.md`
+- **Coding styleguide (Notion mirror)**: `@.agents/docs/frontend-coding-styleguide.md`
 - **Library documentation**: `@.agents/docs/documentation.md`
 - **GraphQL fragments & type safety**: `@.agents/docs/graphql-fragments.md`
 - **Testing best practices**: `@.agents/docs/testing-practices.md`

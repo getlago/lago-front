@@ -26,7 +26,7 @@ import {
 } from '../SubscriptionProgressiveBillingTabThresholdsHeader'
 
 // Get mocked useParams from test-utils mock
-const { useParams } = jest.requireMock('react-router-dom')
+const { useParams } = jest.requireMock('react-router')
 
 // Mock hooks
 jest.mock('~/hooks/core/useInternationalization', () => ({

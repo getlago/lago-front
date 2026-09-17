@@ -75,7 +75,7 @@ return (
 | ---- | --- |
 | Always pass `validationLogic: revalidateLogic()` | Omitted, TanStack falls back to `defaultValidationLogic`, which never runs `onDynamic` — the schema is silently skipped and every value passes |
 | **Submit-first**: the form is never invalid before the first submit attempt | `revalidateLogic()` is `mode: 'submit'` + `modeAfterSubmission: 'change'`. Submit stays enabled until then, whatever the field type |
-| A field component publishes the value; the **schema** decides if it is acceptable | A component that withholds a rejected value leaves the input and the form state disagreeing — the ING-634 bug. Only a value with no representation at all (unparseable date) may be withheld |
+| A field component publishes the value; the **schema** decides if it is acceptable | A component that withholds a rejected value leaves the input and the form state disagreeing — a shipped bug. Only a value with no representation at all (unparseable date) may be withheld |
 | Bare `<form.SubmitButton>` inside `<form.AppForm>` | It subscribes to `canSubmit` + `isSubmitting` and gets the spinner for free. `canSubmit` excludes `isDirty` **by design** — never add a `!isDirty` gate |
 | `await` every async call inside `onSubmit` | `isSubmitting` flips back when `onSubmit`'s own promise resolves, so a dropped promise kills the spinner before the mutation settles |
 | `useStore(form.store, (s) => …)` for anything read in the render | `form.state.*` is a passive read: no subscription, no re-render. It is fine inside event handlers, which only need a snapshot. Import `useStore` from `@tanstack/react-form` |
@@ -88,7 +88,7 @@ return (
 `form.AppField` + the registered `field.*` components only — never a raw input, never a
 hand-wired `<Button type="submit">`. **Write the schema against the stored shape below**,
 not against the payload the API wants: a mismatch fails silently, leaving submit disabled
-with no error and no request (the BIL-410 regression).
+with no error and no request (a shipped regression).
 
 | Component | Stored value |
 | --------- | ------------ |
@@ -159,13 +159,15 @@ formApi.setErrorMap({
 })
 ```
 
-Clear the error when the user edits the field, or submit stays disabled — setting and
-clearing are two separate jobs. For a duplicate `code`, `applyExistingCodeError(formApi)`
-(`~/core/form/existingCodeError`) does only the setting half, in the mutation catch on
-`LagoApiError.ValueAlreadyExist`. The clearing half belongs to the field, gated on
-`EXISTING_CODE_ERROR_MESSAGE` so it does not wipe the zod required-check — already
-implemented in `NameAndCodeGroup` and `ChargeCodeField`, so mount one of those rather
-than re-wiring the listener.
+Prefer `setErrorMap` for a server error: it stamps the error as form-owned, so the next
+validation drops it and submit re-enables on its own. A `setFieldMeta` error reads as
+field-owned, and on these forms — schema on the form, no validator on the field — nothing
+ever clears it, so submit stays disabled for the life of the form.
+
+For a duplicate `code` that is `applyExistingCodeError(formApi)`
+(`~/core/form/existingCodeError`), called in the mutation catch on
+`LagoApiError.ValueAlreadyExist`. It needs no clearing counterpart; do not add a listener
+to clear it.
 
 Validator-produced errors live directly on `errorMap.onDynamic` keyed by field path; the
 `.fields` sub-shape exists only for errors set manually. Reading section validity for

@@ -5,7 +5,6 @@ import { z } from 'zod'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { clearExistingCodeError } from '~/core/form/existingCodeError'
 import {
   FeatureFlagEnum,
   HubspotTargetedObjectsEnum,
@@ -251,10 +250,7 @@ export const CustomerConnectionDrawer = forwardRef<
               />
 
               {isMultiConnectionEnabled && (
-                <form.AppField
-                  name="code"
-                  listeners={{ onChange: () => clearExistingCodeError(form) }}
-                >
+                <form.AppField name="code">
                   {(field) => (
                     <field.TextInputField
                       data-test={CONNECTION_CODE_FIELD_TEST_ID}

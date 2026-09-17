@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SETTINGS_ROUTE, useNavigate } from '~/core/router'

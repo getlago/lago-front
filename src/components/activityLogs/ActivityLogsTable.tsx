@@ -28,7 +28,13 @@ gql`
 
 interface ActivityLogsTableProps extends Pick<
   TableProps<ActivityLogsTableDataFragment>,
-  'data' | 'isLoading' | 'containerSize' | 'onRowActionLink' | 'loadingRowCount' | 'activeRowId'
+  | 'data'
+  | 'isLoading'
+  | 'containerSize'
+  | 'onRowActionLink'
+  | 'onRowActionClick'
+  | 'loadingRowCount'
+  | 'activeRowId'
 > {
   refetch: QueryResult['refetch']
   error: ApolloError | undefined
@@ -40,6 +46,7 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
   isLoading,
   containerSize = 16,
   onRowActionLink,
+  onRowActionClick,
   loadingRowCount,
   activeRowId,
   refetch,
@@ -129,6 +136,7 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
       isLoading={isLoading}
       loadingRowCount={loadingRowCount}
       onRowActionLink={onRowActionLink}
+      onRowActionClick={onRowActionClick}
       columns={columns}
       placeholder={tablePlaceholder}
     />

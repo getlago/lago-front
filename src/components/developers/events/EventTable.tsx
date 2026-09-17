@@ -1,6 +1,6 @@
 import { uniqBy } from 'lodash'
 import { FC, RefObject, useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
@@ -69,12 +69,11 @@ export const EventTable: FC<EventTableProps> = ({
         hasError={!!error}
         isLoading={loading}
         loadingRowCount={pageSize}
-        onRowActionLink={(event) => {
+        onRowActionLink={(event) => buildEventLink(event, searchParams)}
+        onRowActionClick={() => {
           if (getCurrentBreakpoint() === 'sm') {
             logListRef.current?.updateView('forward')
           }
-
-          return buildEventLink(event, searchParams)
         }}
         columns={[
           {

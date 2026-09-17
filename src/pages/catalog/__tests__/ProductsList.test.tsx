@@ -46,8 +46,8 @@ jest.mock('~/components/SearchInput', () => ({
   },
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useSearchParams: () => [new URLSearchParams(), jest.fn()],
 }))
 
@@ -173,10 +173,10 @@ describe('ProductsList', () => {
 
     const [editAction, deleteAction] = actions
 
-    editAction?.onAction(product)
+    editAction?.onAction?.(product)
     expect(mockOpenProductDrawer).toHaveBeenCalledWith({ product })
 
-    deleteAction?.onAction(product)
+    deleteAction?.onAction?.(product)
     expect(mockOpenDeleteProductDialog).toHaveBeenCalledWith({ product })
   })
 

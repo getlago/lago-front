@@ -8,6 +8,8 @@ import {
   ANALYTIC_TABS_ROUTE,
   BILLABLE_METRIC_DETAILS_ROUTE,
   BILLABLE_METRICS_ROUTE,
+  CATALOG_PLAN_DETAILS_ROUTE,
+  CATALOG_PLAN_DETAILS_SECTION_ROUTE,
   COUPON_DETAILS_ROUTE,
   COUPONS_ROUTE,
   CREDIT_NOTES_ROUTE,
@@ -21,7 +23,6 @@ import {
   CUSTOMERS_LIST_ROUTE,
   FEATURE_DETAILS_ROUTE,
   FEATURES_ROUTE,
-  FORECASTS_ROUTE,
   INVOICES_ROUTE,
   PAYMENT_DETAILS_ROUTE,
   PAYMENTS_ROUTE,
@@ -49,8 +50,8 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { NavLayout } from '~/layouts/NavLayout'
-import { BadgeAI } from '~/pages/forecasts/Forecasts'
 
+import { MAIN_NAV_CUSTOMERS_TEST_ID } from './mainNavTestIds'
 import { getNavTabs, NavTab } from './utils'
 import { VerticalMenuSkeleton } from './VerticalMenuSkeleton'
 
@@ -78,14 +79,6 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: ANALYTIC_ROUTE,
       match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
       hidden: !hasPermissions(['analyticsView']),
-    },
-    {
-      title: translate('text_1753014457040hxp6wkphkvw'),
-      icon: 'forecast',
-      link: FORECASTS_ROUTE,
-      match: [FORECASTS_ROUTE],
-      hidden: !hasPermissions(['analyticsView']),
-      extraComponent: <BadgeAI />,
     },
     {
       title: translate('text_1780667013874s6wl9cmxe7q'),
@@ -169,13 +162,14 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       icon: 'board',
       link: PLAN_PRICING_ROUTE,
       canBeClickedOnActive: true,
-      match: [PLAN_PRICING_ROUTE],
+      match: [PLAN_PRICING_ROUTE, CATALOG_PLAN_DETAILS_ROUTE, CATALOG_PLAN_DETAILS_SECTION_ROUTE],
       hidden: !hasFeatureFlag(FeatureFlagEnum.ProductCatalog) || !hasPermissions(['plansView']),
     },
   ]
 
   const getBillingTabs = (): NavTab[] => [
     {
+      'data-test': MAIN_NAV_CUSTOMERS_TEST_ID,
       title: translate('text_624efab67eb2570101d117a5'),
       icon: 'user-multiple',
       link: CUSTOMERS_LIST_ROUTE,

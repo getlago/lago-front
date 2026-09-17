@@ -6,7 +6,6 @@ import {
   ProductTypeEnum,
   RateCardBillingTimingEnum,
   RateCardForListFragment,
-  RateCardRegroupPaidFeesEnum,
 } from '~/generated/graphql'
 
 import { useRateCardTableActions } from '../useRateCardTableActions'
@@ -47,7 +46,7 @@ const buildRateCard = (
   description: null,
   billingTiming: RateCardBillingTimingEnum.Arrears,
   displayOnInvoice: true,
-  regroupPaidFees: RateCardRegroupPaidFeesEnum.None,
+  regroupPaidFees: null,
   proration: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
@@ -99,10 +98,10 @@ describe('useRateCardTableActions', () => {
 
         const [editAction, deleteAction] = actions
 
-        editAction?.onAction(rateCard)
+        editAction?.onAction?.(rateCard)
         expect(mockOpenRateCardDrawer).toHaveBeenCalledWith({ rateCard })
 
-        deleteAction?.onAction(rateCard)
+        deleteAction?.onAction?.(rateCard)
         expect(mockOpenDeleteRateCardDialog).toHaveBeenCalledWith({ rateCard })
       })
     })

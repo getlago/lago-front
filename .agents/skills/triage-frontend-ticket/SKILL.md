@@ -5,7 +5,7 @@ description: 'Use when given a Linear ticket (URL or ID) for lago-front and the 
 
 # Triage frontend ticket
 
-**Input:** one Linear ticket URL or identifier (e.g. `ABC-123`). If none was given, ask with AskUserQuestion and stop until given.
+**Input:** one Linear ticket URL or identifier (e.g. `<ISSUE-ID>`). If none was given, ask with AskUserQuestion and stop until given.
 
 **Repo:** the lago-front checkout (`front/` in the lago monorepo). If the session is not in lago-front, STOP — this skill reasons about this codebase only.
 
@@ -101,7 +101,7 @@ on confirming it at the actual call site.
 | --- | --- |
 | A list loads page 1 then stops; page 2 is empty | Field not registered in `queryFieldPolicies` with `createSinglePageFieldPolicy()` |
 | Another org's data, logo flashing the wrong org, a webhook URL baking the wrong UUID, a value from another tab | A feature component reading `currentOrganizationVar` instead of `useParams` + memberships — the `lago-organization-slug` skill names this a known bug pattern |
-| Route matching never fires | `useMatch` from `react-router-dom` — the raw pathname includes the slug. Use `matchPath` + `strippedPathname` |
+| Route matching never fires | `useMatch` from `react-router` - the raw pathname includes the slug. Use `matchPath` + `strippedPathname` |
 | The "X-Y of N" label disagrees with the rows | `PaginatedContent` `pageSize` ≠ the query `limit` |
 | A previously-viewed page flashes when re-entering a customer tab | List query missing `fetchPolicy: 'network-only'` |
 | The pager is missing entirely | `metadata` not passed to `PaginatedContent`, so `totalCount` is 0 |

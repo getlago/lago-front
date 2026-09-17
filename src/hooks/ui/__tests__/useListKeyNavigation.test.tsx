@@ -1,19 +1,35 @@
 import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { ReactNode } from 'react'
 
 import { useKeyNavigationOptions, useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
 
 interface PageWrapperProps {
   conponentProps: useKeyNavigationOptions
-  children: ReactNode
+  itemCount: number
 }
 
-const MyTestComponentThatUsesNavigation = ({ conponentProps, children }: PageWrapperProps) => {
+// The handler belongs on each item, as the design-system Table wires it: that is
+// what makes `e.currentTarget` the item the keystroke came from.
+const MyTestComponentThatUsesNavigation = ({ conponentProps, itemCount }: PageWrapperProps) => {
   const { onKeyDown } = useListKeysNavigation(conponentProps)
 
-  // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-  return <div onKeyDown={onKeyDown}>{children}</div>
+  return (
+    <div>
+      {/* eslint-disable jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-static-element-interactions */}
+      {Array.from({ length: itemCount }).map((_, index) => (
+        <div
+          key={`item-${index}`}
+          tabIndex={0}
+          id={`item-${index}`}
+          data-id={`model-id-${index}`}
+          onKeyDown={onKeyDown}
+        >
+          {index}
+        </div>
+      ))}
+      {/* eslint-enable jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-static-element-interactions */}
+    </div>
+  )
 }
 
 describe('useListKeyNavigation()', () => {
@@ -29,13 +45,11 @@ describe('useListKeyNavigation()', () => {
             navigate: action,
             disabled: disabled,
           }}
-        >
-          {/* eslint-disable jsx-a11y/anchor-is-valid*/}
-          <a id="item-0">Active element</a>
-          <a id="item-1">Next element</a>
-          {/* eslint-enable jsx-a11y/anchor-is-valid*/}
-        </MyTestComponentThatUsesNavigation>,
+          itemCount={2}
+        />,
       )
+
+      document?.getElementById('item-0')?.focus()
 
       await userEvent.keyboard('{ArrowDown}')
       await userEvent.keyboard('{j}')
@@ -59,20 +73,8 @@ describe('useListKeyNavigation()', () => {
             navigate: navigate,
             disabled: disabled,
           }}
-        >
-          {/* eslint-disable jsx-a11y/anchor-is-valid, jsx-a11y/no-noninteractive-tabindex*/}
-          <a tabIndex={0} id="item-0">
-            First
-          </a>
-          <a tabIndex={0} id="item-1">
-            Second
-          </a>
-          <a tabIndex={0} id="item-2">
-            Third
-          </a>
-
-          {/* eslint-enable jsx-a11y/anchor-is-valid, jsx-a11y/no-noninteractive-tabindex*/}
-        </MyTestComponentThatUsesNavigation>,
+          itemCount={3}
+        />,
       )
 
       document?.getElementById('item-0')?.focus()
@@ -95,13 +97,8 @@ describe('useListKeyNavigation()', () => {
             navigate: navigate,
             disabled: disabled,
           }}
-        >
-          {/* eslint-disable jsx-a11y/anchor-is-valid, jsx-a11y/no-noninteractive-tabindex*/}
-          <a tabIndex={0} id="item-0">
-            First
-          </a>
-          {/* eslint-enable jsx-a11y/anchor-is-valid, jsx-a11y/no-noninteractive-tabindex*/}
-        </MyTestComponentThatUsesNavigation>,
+          itemCount={1}
+        />,
       )
 
       document?.getElementById('item-0')?.focus()
@@ -127,20 +124,8 @@ describe('useListKeyNavigation()', () => {
             navigate: navigate,
             disabled: disabled,
           }}
-        >
-          {/* eslint-disable jsx-a11y/anchor-is-valid, jsx-a11y/no-noninteractive-tabindex*/}
-          <a tabIndex={0} id="item-0">
-            First
-          </a>
-          <a tabIndex={0} id="item-1">
-            Second
-          </a>
-          <a tabIndex={0} id="item-2">
-            Third
-          </a>
-
-          {/* eslint-enable jsx-a11y/anchor-is-valid, jsx-a11y/no-noninteractive-tabindex*/}
-        </MyTestComponentThatUsesNavigation>,
+          itemCount={3}
+        />,
       )
 
       document?.getElementById('item-2')?.focus()
@@ -163,13 +148,8 @@ describe('useListKeyNavigation()', () => {
             navigate: navigate,
             disabled: disabled,
           }}
-        >
-          {/* eslint-disable jsx-a11y/anchor-is-valid, jsx-a11y/no-noninteractive-tabindex*/}
-          <a tabIndex={0} id="item-0">
-            First
-          </a>
-          {/* eslint-enable jsx-a11y/anchor-is-valid, jsx-a11y/no-noninteractive-tabindex*/}
-        </MyTestComponentThatUsesNavigation>,
+          itemCount={1}
+        />,
       )
 
       document?.getElementById('item-0')?.focus()
@@ -195,17 +175,8 @@ describe('useListKeyNavigation()', () => {
             navigate: navigate,
             disabled: disabled,
           }}
-        >
-          {/* eslint-disable jsx-a11y/anchor-is-valid, jsx-a11y/no-noninteractive-tabindex*/}
-          <a tabIndex={0} id="item-0" data-id="model-id-0">
-            First
-          </a>
-          <a tabIndex={0} id="item-1" data-id="model-id-1">
-            Second
-          </a>
-
-          {/* eslint-enable jsx-a11y/anchor-is-valid, jsx-a11y/no-noninteractive-tabindex*/}
-        </MyTestComponentThatUsesNavigation>,
+          itemCount={2}
+        />,
       )
 
       document?.getElementById('item-0')?.focus()

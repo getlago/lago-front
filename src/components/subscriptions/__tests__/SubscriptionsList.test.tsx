@@ -105,7 +105,7 @@ describe('SubscriptionsList', () => {
           (action) => action.dataTest === SUBSCRIPTIONS_LIST_CANCEL_TEST_ID,
         )
 
-        cancelAction?.onAction({} as AnnotatedSubscription)
+        cancelAction?.onAction?.({} as AnnotatedSubscription)
 
         expect(mockOpenTerminateDialog).toHaveBeenCalledWith({
           id: 'subscription-1',
@@ -163,4 +163,20 @@ describe('SubscriptionsList', () => {
       })
     },
   )
+
+  describe('GIVEN an active subscription the user may update', () => {
+    describe('WHEN the navigation entries build their targets', () => {
+      it.each([
+        ['details', 'text', '/customer/customer-1/subscription/subscription-1/overview'],
+        ['plan', 'board', '/customer/customer-1/subscription/subscription-1/subscription-plan'],
+        ['edit', 'pen', '/customer/customer-1/upgrade-downgrade/subscription/subscription-1'],
+        ['alerts', 'bell', '/customer/customer-1/subscription/subscription-1/alerts'],
+      ])('THEN the %s entry points at its route', (_, startIcon, expected) => {
+        const subscription = getActions(StatusTypeEnum.Active)
+        const action = subscription.find((a) => a.startIcon === startIcon)
+
+        expect(action?.link?.({} as AnnotatedSubscription)).toBe(expected)
+      })
+    })
+  })
 })

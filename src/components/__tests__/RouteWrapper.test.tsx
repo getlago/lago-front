@@ -1,6 +1,6 @@
 import { configure, render, screen, waitFor } from '@testing-library/react'
 import { ReactNode } from 'react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 
 import { ERROR_FALLBACK_TEST_ID } from '~/components/ErrorFallback'
 import { RouteWrapper } from '~/components/RouteWrapper'
@@ -15,13 +15,11 @@ jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
   addToast: (...args: unknown[]) => mockAddToast(...args),
 }))
 
-jest.mock('react-router-dom', () => {
-  const actual = jest.requireActual('react-router-dom')
-  const { withRouterFuture } = jest.requireActual('~/test-utils/routerFutureMock')
+jest.mock('react-router', () => {
+  const actual = jest.requireActual('react-router')
 
   return {
     ...actual,
-    ...withRouterFuture(actual),
     useNavigate: () => mockNavigate,
   }
 })

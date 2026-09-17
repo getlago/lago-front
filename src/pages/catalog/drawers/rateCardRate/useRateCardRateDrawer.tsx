@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
@@ -129,6 +129,8 @@ export const useRateCardRateDrawer = (): UseRateCardRateDrawerReturn => {
             currency: rateCard.currency,
             appliedPricingUnitCode: rateCard.appliedPricingUnitCode,
             billingTiming: rateCard.billingTiming,
+            proration: rateCard.proration,
+            recurring: rateCard.product.billableMetric?.recurring,
             productType: rateCard.product.productType,
             aggregationType: rateCard.product.billableMetric?.aggregationType,
           }}

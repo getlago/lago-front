@@ -1,3 +1,6 @@
+import { generatePath } from 'react-router'
+
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { render } from '~/test-utils'
 
 import FeaturesList from '../FeaturesList'
@@ -35,8 +38,8 @@ jest.mock('~/components/features/DeleteFeatureDialog', () => ({
   useDeleteFeatureDialog: () => ({ openDeleteFeatureDialog: jest.fn() }),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: jest.fn(() => jest.fn()),
   generatePath: jest.fn((route: string) => route),
 }))
@@ -216,6 +219,28 @@ describe('FeaturesList', () => {
 
         expect(actions).toHaveLength(1)
         expect(actions[0]).toEqual(expect.objectContaining({ startIcon: 'trash' }))
+      })
+    })
+  })
+
+  describe('GIVEN the edit action is a link', () => {
+    describe('WHEN its target is built', () => {
+      it('THEN should point at the feature edit route', () => {
+        mockHasPermissions.mockReturnValue(true)
+
+        render(<FeaturesList />)
+
+        const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
+          item: Record<string, unknown>,
+        ) => ActionItem<{ id: string }>[]
+
+        const [editAction] = actionColumn({ id: 'feat-1', name: 'Test Feature', code: 'test' })
+
+        editAction?.link?.({ id: 'feat-1' })
+
+        expect(generatePath).toHaveBeenLastCalledWith('/update/feature/:featureId', {
+          featureId: 'feat-1',
+        })
       })
     })
   })

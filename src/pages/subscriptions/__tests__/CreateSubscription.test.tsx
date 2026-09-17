@@ -319,7 +319,7 @@ describe('CreateSubscription', () => {
     testMockNavigateFn.mockClear()
 
     // Mock useParams to provide customerId
-    const Router = jest.requireMock('react-router-dom')
+    const Router = jest.requireMock('react-router')
 
     Router.useParams.mockReturnValue({ customerId: 'customer-1' })
   })

@@ -25,7 +25,8 @@
     "lint": "prettier --cache --check 'src/**/*.{ts,tsx,svg}' 'index.html' 'cypress/**/*.ts' && eslint --cache --cache-location .eslintcache .",
     "lint:fix": "prettier --write {src,cypress}/** index.html && eslint --fix .",
     "types": "node scripts/check-types.js",
-    "code:style": "run-p lint types translations:inspect translations:ensure-consistency",
+    "code:style": "run-p lint types translations:inspect translations:ensure-consistency agents:check",
+    "agents:check": "bash scripts/skill-budget.sh && bash scripts/skill-budget.test.sh && bash scripts/loop-plan-check.test.sh && bash scripts/loop-helpers.test.sh",
     "codegen": "graphql-codegen --config codegen.yml -r dotenv/config",
     "codegen:watch": "graphql-codegen --config codegen.yml -r dotenv/config --watch",
     "test": "jest --config jest.config.ts",
@@ -36,7 +37,10 @@
     "translations:ensure-consistency": "node scripts/translations/ensure-translations-consistency",
     "codemod": "node scripts/codemod.js",
     "bundle-analyzer": "pnpx vite-bundle-analyzer",
-    "prepare": "husky"
+    "prepare": "husky",
+    "t3:up": "scripts/lago-worktree.sh t3-up",
+    "t3:down": "scripts/lago-worktree.sh t3-down",
+    "t3:open": "scripts/lago-worktree.sh t3-open"
   },
   "devDependencies": {
     "@babel/preset-env": "7.29.7",
@@ -172,7 +176,7 @@
     "react-dom": "18.3.1",
     "react-markdown": "10.1.0",
     "react-resizable-panels": "3.0.6",
-    "react-router-dom": "6.30.6",
+    "react-router": "7.18.3",
     "recharts": "2.15.4",
     "remark-gfm": "4.0.1",
     "sanitize-html": "2.17.7",

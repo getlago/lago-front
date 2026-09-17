@@ -1,7 +1,7 @@
 import { useFormik } from 'formik'
 import { Icon } from 'lago-design-system'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 import { array, object, Schema, string } from 'yup'
 
 import { CreditNoteEstimationLine } from '~/components/creditNote/CreditNoteEstimationLine'

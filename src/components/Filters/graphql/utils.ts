@@ -21,7 +21,6 @@ import {
   filterDataLabelCommaPlaceholder,
   filterWithoutProductCategoryValue,
   filterWithoutProductValue,
-  ForecastsAvailableFilters,
   InvoiceAvailableFilters,
   MrrBreakdownPlansAvailableFilters,
   MrrOverviewAvailableFilters,
@@ -55,7 +54,6 @@ import {
   CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
   CUSTOMER_LIST_FILTER_PREFIX,
   CUSTOMER_PAYMENTS_FILTER_PREFIX,
-  FORECASTS_FILTER_PREFIX,
   INVOICE_LIST_FILTER_PREFIX,
   MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX,
   MRR_BREAKDOWN_PLANS_FILTER_PREFIX,
@@ -83,7 +81,6 @@ import {
   type CustomersQueryVariables,
   type GetApiLogsQueryVariables,
   type GetCreditNotesListQueryVariables,
-  type GetForecastsQueryVariables,
   type GetInvoiceCollectionsForAnalyticsQueryVariables,
   type GetInvoicesListQueryVariables,
   type GetMrrsQueryVariables,
@@ -345,8 +342,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   },
   // Rate card list filters are built array-native: every dimension is a plain multi-select
   // producing an array of ids under a plural key (productCategoryIds / productIds /
-  // productFilterIds). See mapRateCardFilterVars below for the schema-gap adapter
-  // down-mapping these arrays to today's singular rateCards query args.
+  // productFilterIds), which the rateCards query accepts directly.
   //
   // The ProductCategory dimension pins a synthetic "Not defined" sentinel (filterWithoutProductValue),
   // mirroring productProductCategory/productFilterProductCategory: filter it out before mapping so it
@@ -590,11 +586,8 @@ export const formatFiltersForProductFiltersQuery = (
 }
 
 // Array-native shape of the rate card list filters: every dimension resolves to a plural
-// id array, matching the multi-select UI 1:1. Codegen validates queries against the live
-// schema, and the `rateCards` query doesn't accept these plural args today (only singular
-// `productId` / `productFilterId`, and no productCategory arg at all) - so this type
-// intentionally does NOT match the generated `RateCardsQueryVariables` type. See
-// mapRateCardFilterVars for the adapter that bridges this to today's singular query args.
+// id array, matching the multi-select UI 1:1. The `rateCards` query now accepts these
+// plural args directly, so this shape is spread straight into the query variables.
 export type RateCardsQueryFilters = {
   productCategoryIds?: string[]
   productIds?: string[]
@@ -616,25 +609,6 @@ export const formatFiltersForRateCardsQuery = (
     availableFilters: RateCardAvailableFilters,
     filtersNamePrefix: RATE_CARD_LIST_FILTER_PREFIX,
   })
-}
-
-// TODO(backend plural filter args): drop this down-mapping and pass plurals straight through
-// once rateCards accepts productCategoryIds/productIds/productFilterIds.
-//
-// The `rateCards` query only accepts singular `productId` / `productFilterId` today,
-// and has no productCategory arg at all. This adapter bridges the array-native filter state
-// (formatFiltersForRateCardsQuery) down to what the query can actually accept: it keeps only
-// the first selected id per dimension, and silently drops `productCategoryIds` - the ProductCategory
-// filter is UI-only until the backend exposes a productCategory-level arg on `rateCards`.
-export const mapRateCardFilterVars = (
-  plurals: RateCardsQueryFilters,
-): { productId?: string; productFilterId?: string } => {
-  return {
-    ...(plurals.productIds?.[0] && { productId: plurals.productIds[0] }),
-    ...(plurals.productFilterIds?.[0] && {
-      productFilterId: plurals.productFilterIds[0],
-    }),
-  }
 }
 
 type InvoiceQueryFilters = Partial<
@@ -1017,40 +991,6 @@ export const formatFiltersForUsageBillableMetricQuery = (
       AvailableFiltersEnum.timeGranularity,
     ],
     filtersNamePrefix: ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
-  })
-}
-
-type ForecastsQueryFilters = Partial<
-  Pick<
-    GetForecastsQueryVariables,
-    | 'billableMetricCode'
-    | 'billingEntityCode'
-    | 'currency'
-    | 'customerCountry'
-    | 'customerType'
-    | 'externalCustomerId'
-    | 'externalSubscriptionId'
-    | 'isCustomerTinEmpty'
-    | 'planCode'
-    | 'timeGranularity'
-  >
->
-
-export const formatFiltersForForecastsQuery = (
-  searchParams: URLSearchParams,
-): ForecastsQueryFilters => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, keyof ForecastsQueryFilters & string>> = {
-    [AvailableFiltersEnum.country]: 'customerCountry',
-    [AvailableFiltersEnum.customerType]: 'customerType',
-    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
-    [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
-  }
-
-  return formatFiltersForQuery<ForecastsQueryFilters>({
-    keyMap,
-    searchParams,
-    availableFilters: [...ForecastsAvailableFilters, AvailableFiltersEnum.timeGranularity],
-    filtersNamePrefix: FORECASTS_FILTER_PREFIX,
   })
 }
 

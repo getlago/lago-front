@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'

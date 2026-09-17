@@ -14,7 +14,13 @@ interface QuotesSectionTableProps<T> {
   fetchMore: ((opts: { variables: { page: number } }) => Promise<unknown>) | undefined
   columns: Array<TableColumn<T>>
   emptyState: { title: string; subtitle: string }
-  getActions?: (row: T) => Array<{ icon: IconName; label: string; onAction: () => void }>
+  getActions?: (
+    row: T,
+  ) => Array<
+    { icon: IconName; label: string } & (
+      { onAction: () => void; link?: never } | { link: () => string; onAction?: never }
+    )
+  >
   onRowActionLink?: (row: T) => string
   className?: string
   containerClassName?: string
@@ -69,11 +75,15 @@ export const QuotesSectionTable = <T extends { id: string }>({
 
                   if (actions.length === 0) return null
 
-                  return actions.map(({ icon, label, onAction }) => ({
-                    startIcon: icon,
-                    title: label,
-                    onAction: () => onAction(),
-                  }))
+                  return actions.map((action) =>
+                    action.link
+                      ? { startIcon: action.icon, title: action.label, link: action.link }
+                      : {
+                          startIcon: action.icon,
+                          title: action.label,
+                          onAction: () => action.onAction(),
+                        },
+                  )
                 }
               : undefined
           }

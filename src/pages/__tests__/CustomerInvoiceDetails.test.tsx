@@ -286,7 +286,7 @@ describe('CustomerInvoiceDetails', () => {
     mockUseIntegrationsListQuery.mockReturnValue({ data: null })
     Object.keys(mockMutationOptions).forEach((key) => delete mockMutationOptions[key])
 
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({
       customerId: 'customer-123',

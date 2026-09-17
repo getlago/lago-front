@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'

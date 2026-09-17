@@ -31,8 +31,12 @@ export const SubscriptionDatesOffsetHelperComponent = ({
     const { date, time } = intlFormatDateTime(subscriptionAt, { timezone })
     const offset = TimeZonesConfig[timezone].offset
 
-    // If date is in the future
-    if (DateTime.fromISO(subscriptionAt).diff(DateTime.now().startOf('day'), 'days').days > 0) {
+    // `subscriptionAt` is a UTC calendar day, as the picker that writes it publishes it, so
+    // today is read in UTC too rather than in the ambient zone.
+    if (
+      DateTime.fromISO(subscriptionAt, { zone: 'utc' }).diff(DateTime.utc().startOf('day'), 'days')
+        .days > 0
+    ) {
       return translate('text_64ef8cc7c83f5d006131a488', { date, time, offset })
     }
 

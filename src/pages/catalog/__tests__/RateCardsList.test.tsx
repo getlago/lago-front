@@ -4,12 +4,7 @@ import { ReactNode } from 'react'
 import { TableProps } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
-import {
-  CurrencyEnum,
-  RateCardForListFragment,
-  RateCardRateModelEnum,
-  RateCardRegroupPaidFeesEnum,
-} from '~/generated/graphql'
+import { CurrencyEnum, RateCardForListFragment, RateCardRateModelEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import RateCardsList, { RATE_CARDS_LIST_TEST_ID } from '../RateCardsList'
@@ -41,12 +36,11 @@ jest.mock('~/components/Filters', () => ({
     Component: () => null,
   },
   formatFiltersForRateCardsQuery: () => ({}),
-  mapRateCardFilterVars: () => ({}),
   RateCardAvailableFilters: [],
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useSearchParams: () => [new URLSearchParams(), jest.fn()],
 }))
 
@@ -108,7 +102,7 @@ const buildRateCard = (
   description: null,
   billingTiming: 'advance' as RateCardForListFragment['billingTiming'],
   displayOnInvoice: true,
-  regroupPaidFees: RateCardRegroupPaidFeesEnum.None,
+  regroupPaidFees: null,
   proration: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
@@ -218,10 +212,10 @@ describe('RateCardsList', () => {
 
     const [editAction, deleteAction] = actions
 
-    editAction?.onAction(rateCard)
+    editAction?.onAction?.(rateCard)
     expect(mockOpenRateCardDrawer).toHaveBeenCalledWith({ rateCard })
 
-    deleteAction?.onAction(rateCard)
+    deleteAction?.onAction?.(rateCard)
     expect(mockOpenDeleteRateCardDialog).toHaveBeenCalledWith({ rateCard })
   })
 

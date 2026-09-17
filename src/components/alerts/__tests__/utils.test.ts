@@ -1,7 +1,13 @@
-import { patchThreshold, sortAndFormatThresholds } from '~/components/alerts/utils'
-import { AlertThreshold, CurrencyEnum, ThresholdInput } from '~/generated/graphql'
+import {
+  patchThreshold,
+  SortableThreshold,
+  sortAndFormatThresholds,
+} from '~/components/alerts/utils'
+import { CurrencyEnum, ThresholdInput } from '~/generated/graphql'
 
-const threshold = (overrides: Partial<AlertThreshold> = {}): AlertThreshold => ({
+type TestThreshold = SortableThreshold & { code?: string | null }
+
+const threshold = (overrides: Partial<TestThreshold> = {}) => ({
   code: 'threshold-code',
   recurring: false,
   value: '1000',

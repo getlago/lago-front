@@ -1,5 +1,5 @@
 import { ApolloError, gql, LazyQueryHookOptions } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
 import { useVoidCreditNoteDialog } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
@@ -278,12 +278,15 @@ const CreditNotesTable = ({
 
           return actions
         }}
+        rowLinkLabel={({ number }) => number}
         onRowActionLink={(creditNote) =>
-          generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
-            customerId: creditNote?.invoice?.customer?.id as string,
-            invoiceId: creditNote?.invoice?.id as string,
-            creditNoteId: creditNote?.id as string,
-          })
+          creditNote.invoice
+            ? generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
+                customerId: creditNote.invoice.customer.id,
+                invoiceId: creditNote.invoice.id,
+                creditNoteId: creditNote.id,
+              })
+            : ''
         }
         columns={[
           {

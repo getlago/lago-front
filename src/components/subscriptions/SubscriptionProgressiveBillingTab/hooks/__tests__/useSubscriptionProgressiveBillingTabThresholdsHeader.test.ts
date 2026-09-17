@@ -3,12 +3,12 @@ import { act, renderHook } from '@testing-library/react'
 import { useSubscriptionProgressiveBillingTabThresholdsHeader } from '../useSubscriptionProgressiveBillingTabThresholdsHeader'
 
 // Get mocked useParams from test-utils mock
-const { useParams } = jest.requireMock('react-router-dom')
+const { useParams } = jest.requireMock('react-router')
 
 const mockNavigate = jest.fn()
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
   useParams: jest.fn(() => ({})),
   generatePath: jest.fn((path: string, params: Record<string, string>) => {

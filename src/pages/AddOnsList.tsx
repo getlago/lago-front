@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
 import { useState } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { useDeleteAddOnDialog } from '~/components/addOns/DeleteAddOnDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -230,7 +230,7 @@ const AddOnsList = () => {
               actions.push({
                 startIcon: 'pen',
                 title: translate('text_629728388c4d2300e2d3816a'),
-                onAction: () => navigate(generatePath(UPDATE_ADD_ON_ROUTE, { addOnId: addOn.id })),
+                link: () => generatePath(UPDATE_ADD_ON_ROUTE, { addOnId: addOn.id }),
               })
             }
 

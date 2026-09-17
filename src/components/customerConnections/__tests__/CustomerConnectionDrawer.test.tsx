@@ -293,6 +293,12 @@ describe('CustomerConnectionDrawer', () => {
 
         if (!formApi) throw new Error('the drawer form was not captured')
 
+        // The rejection only ever reaches the form through a submit, and the
+        // error clears on the revalidation that submit switches on.
+        await act(async () => {
+          await getLastOpenArgs().form.submit()
+        })
+
         act(() => applyExistingCodeError(formApi))
 
         expect(formApi.getFieldMeta('code')?.errorMap?.onDynamic).toBeTruthy()

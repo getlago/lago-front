@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'

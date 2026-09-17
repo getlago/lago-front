@@ -137,7 +137,7 @@ describe('ApproveQuote', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     capturedRichTextEditorProps = {}
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ quoteId: 'quote-123', versionId: 'version-123' })
 
@@ -428,7 +428,7 @@ describe('ApproveQuote', () => {
 
   describe('GIVEN no quoteId param', () => {
     beforeEach(() => {
-      const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+      const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
       useParamsMock.mockReturnValue({})
     })

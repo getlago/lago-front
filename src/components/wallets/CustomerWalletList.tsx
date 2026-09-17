@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
@@ -324,6 +324,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
             hasError={!!error}
             containerSize={0}
             rowSize={72}
+            rowLinkLabel={({ name }) => name ?? ''}
             onRowActionLink={({ id }) =>
               generatePath(WALLET_DETAILS_ROUTE, {
                 customerId,

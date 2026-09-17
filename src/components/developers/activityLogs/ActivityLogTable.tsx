@@ -1,5 +1,5 @@
 import { FC, RefObject } from 'react'
-import { generatePath, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router'
 
 import { ActivityLogsTable as Table } from '~/components/activityLogs/ActivityLogsTable'
 import { PaginatedContent } from '~/components/designSystem/Pagination'
@@ -42,10 +42,6 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
         error={error}
         refetch={refetch}
         onRowActionLink={({ activityId }) => {
-          if (getCurrentBreakpoint() === 'sm') {
-            logListRef.current?.updateView('forward')
-          }
-
           const path = generatePath(ACTIVITY_LOG_ROUTE, {
             logId: activityId,
           })
@@ -54,6 +50,11 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
           const search = query ? `?${query}` : ''
 
           return `${path}${search}`
+        }}
+        onRowActionClick={() => {
+          if (getCurrentBreakpoint() === 'sm') {
+            logListRef.current?.updateView('forward')
+          }
         }}
       />
     </PaginatedContent>

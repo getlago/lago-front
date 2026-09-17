@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
 import { Alert } from '~/components/designSystem/Alert'

@@ -1,7 +1,7 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 import { z } from 'zod'
 
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
@@ -11,6 +11,7 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { MONEYHASH_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddMoneyhashPaymentProviderInput,
@@ -161,16 +162,7 @@ export const useAddMoneyhashDialog = () => {
           res.data?.paymentProvider?.id !== provider?.id)
 
       if (isNotAllowedToMutate) {
-        formApi.setErrorMap({
-          onDynamic: {
-            fields: {
-              code: {
-                message: translate('text_632a2d437e341dcc76817556'),
-                path: ['code'],
-              },
-            },
-          },
-        })
+        applyExistingCodeError(formApi)
         return
       }
 

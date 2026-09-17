@@ -1,6 +1,6 @@
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 import { z } from 'zod'
 
 import { Alert } from '~/components/designSystem/Alert'

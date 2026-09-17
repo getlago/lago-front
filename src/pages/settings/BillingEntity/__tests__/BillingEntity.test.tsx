@@ -19,8 +19,8 @@ const BillingEntityWithProvider = () => (
 const mockNavigate = jest.fn()
 const mockUseGetBillingEntityQuery = jest.fn()
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: jest.fn(() => ({
     billingEntityCode: 'test-billing-entity',
   })),
@@ -71,7 +71,7 @@ const mockQueryResult = {
 describe('BillingEntityPage', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({
       billingEntityCode: 'test-billing-entity',
@@ -153,7 +153,7 @@ describe('BillingEntityPage', () => {
 
   describe('query behavior', () => {
     it('should render header when billingEntityCode is not in params', () => {
-      const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+      const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
       useParamsMock.mockReturnValue({
         billingEntityCode: undefined,

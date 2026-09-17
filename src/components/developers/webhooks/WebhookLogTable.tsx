@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { generatePath, useParams, useSearchParams } from 'react-router-dom'
+import { generatePath, useParams, useSearchParams } from 'react-router'
 
 import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
@@ -55,6 +55,7 @@ export const WebhookLogTable: FC<WebhookLogTableProps> = ({
         hasError={!!error}
         isLoading={isLoading}
         loadingRowCount={pageSize}
+        rowLinkLabel={({ webhookType }) => webhookType}
         onRowActionLink={({ id }) => {
           const currentParams = searchParams.toString()
           const path = generatePath(WEBHOOK_LOGS_ROUTE, {
@@ -62,11 +63,12 @@ export const WebhookLogTable: FC<WebhookLogTableProps> = ({
             logId: id,
           })
 
+          return currentParams ? `${path}?${currentParams}` : path
+        }}
+        onRowActionClick={() => {
           if (getCurrentBreakpoint() === 'sm') {
             logListRef.current?.updateView('forward')
           }
-
-          return currentParams ? `${path}?${currentParams}` : path
         }}
         columns={[
           {

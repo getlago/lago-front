@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
 import PageTitle from '~/components/customerPortal/common/PageTitle'

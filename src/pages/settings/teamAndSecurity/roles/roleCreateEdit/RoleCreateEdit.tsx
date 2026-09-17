@@ -1,5 +1,5 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'

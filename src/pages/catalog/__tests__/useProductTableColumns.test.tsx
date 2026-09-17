@@ -157,12 +157,12 @@ describe('useProductTableColumns', () => {
             {getColumnContent(
               columns,
               'productType',
-            )(buildProduct({ productType: ProductTypeEnum.Usage }))}
+            )(buildProduct({ productType: ProductTypeEnum.Metered }))}
           </>,
         )
 
         expect(
-          screen.getByText(PRODUCT_ITEM_TYPE_TRANSLATION_KEY[ProductTypeEnum.Usage]),
+          screen.getByText(PRODUCT_ITEM_TYPE_TRANSLATION_KEY[ProductTypeEnum.Metered]),
         ).toBeInTheDocument()
       })
     })

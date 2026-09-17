@@ -8,7 +8,7 @@ import ApolloLinkTimeout from 'apollo-link-timeout'
 import { createUploadLink } from 'apollo-upload-client'
 import ActionCableLink from 'graphql-ruby-client/subscriptions/ActionCableLink'
 // IMPORTANT: Keep reactiveVars import before cacheUtils
-import { matchPath } from 'react-router-dom'
+import { matchPath } from 'react-router'
 
 import {
   addToast,

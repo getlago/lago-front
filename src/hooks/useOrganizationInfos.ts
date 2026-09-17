@@ -1,6 +1,6 @@
 import { gql, useReactiveVar } from '@apollo/client'
 import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars/currentOrganizationVar'
 import {
@@ -12,7 +12,6 @@ import {
 import {
   FeatureFlagEnum,
   MainOrganizationInfosFragment,
-  OrganizationForDatePickerFragmentDoc,
   PremiumIntegrationTypeEnum,
   TimezoneEnum,
   useGetOrganizationInfosQuery,
@@ -32,8 +31,6 @@ gql`
     canCreateBillingEntity
     authenticationMethods
     authenticatedMethod
-
-    ...OrganizationForDatePicker
   }
 
   query getOrganizationInfos {
@@ -41,8 +38,6 @@ gql`
       ...MainOrganizationInfos
     }
   }
-
-  ${OrganizationForDatePickerFragmentDoc}
 `
 
 type UseOrganizationInfos = () => {
