@@ -111,11 +111,14 @@ jest.mock('~/components/settings/invoices/EditPaymentTermDialog', () => ({
   }),
 }))
 
-jest.mock('~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog', () => ({
-  useEditFinalizeZeroAmountInvoiceDialog: () => ({
-    openEditFinalizeZeroAmountInvoiceDialog: jest.fn(),
+jest.mock(
+  '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog/EditFinalizeZeroAmountInvoiceDialog',
+  () => ({
+    useEditFinalizeZeroAmountInvoiceDialog: () => ({
+      openEditFinalizeZeroAmountInvoiceDialog: jest.fn(),
+    }),
   }),
-}))
+)
 
 jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
   usePremiumWarningDialog: () => ({ open: jest.fn(), close: jest.fn() }),
