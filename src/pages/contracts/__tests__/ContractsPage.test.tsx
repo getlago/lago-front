@@ -94,15 +94,25 @@ describe('ContractsPage', () => {
 
   it('uses the URL page and lets the sticky pager navigate to the next page', async () => {
     window.history.replaceState({}, '', '/acme/contracts?page=2')
-    render(<ContractsPage />, { mocks: [contractsMock([contract], 2)] })
+    render(<ContractsPage />, { mocks: [contractsMock([contract], 2, 41)] })
 
     expect(await screen.findByText('Enterprise agreement')).toBeInTheDocument()
 
     const pager = screen.getByRole('navigation', { name: 'pagination' })
+    const tableContainer = screen.getByTestId('table-contracts-list').parentElement
 
     expect(pager).toHaveClass('sticky', 'bottom-0', 'mt-auto')
+    expect(tableContainer).toHaveClass('-mb-px', 'h-auto', 'shrink-0')
+    expect(tableContainer?.nextElementSibling).toBe(pager)
     fireEvent.click(within(pager).getByRole('button', { name: 'next page' }))
     expect(testMockNavigateFn).toHaveBeenCalledWith({ search: 'page=3' }, { replace: true })
+  })
+
+  it('hides pagination when all contracts fit within the default 20-row page', async () => {
+    render(<ContractsPage />, { mocks: [contractsMock([contract], 1, DEFAULT_PAGE_SIZE)] })
+
+    expect(await screen.findByText('Enterprise agreement')).toBeInTheDocument()
+    expect(screen.queryByRole('navigation', { name: 'pagination' })).not.toBeInTheDocument()
   })
 
   it('links rows to contract details and supports pointer and keyboard navigation', async () => {
