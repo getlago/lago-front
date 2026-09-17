@@ -4,13 +4,13 @@ import { useRef } from 'react'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
+import { PaymentTermFormContent } from '~/components/paymentTerms/PaymentTermFormContent'
 import {
-  isConcreteTermType,
   PAYMENT_TERM_FORM_DEFAULT_VALUES,
-  PaymentTermFormContent,
-  paymentTermFormSchema,
   PaymentTermFormValues,
-} from '~/components/paymentTerms/PaymentTermFormContent'
+} from '~/components/paymentTerms/types'
+import { isConcreteTermType } from '~/components/paymentTerms/utils'
+import { paymentTermFormSchema } from '~/components/paymentTerms/validationSchema'
 import { addToast } from '~/core/apolloClient'
 import { MUI_INPUT_BASE_ROOT_CLASSNAME, PAYMENT_TERM_INPUT_CLASSNAME } from '~/core/constants/form'
 import {
