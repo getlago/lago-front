@@ -9,6 +9,7 @@ import {
   FORM_DIALOG_TEST_ID,
 } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
+import { EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID } from '~/components/paymentTerms/dataTestConstants'
 import { PAYMENT_TERM_INHERIT } from '~/core/constants/paymentTerm'
 import {
   EditBillingEntityPaymentTermForDialogFragment,
@@ -18,10 +19,7 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import {
-  EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID,
-  useEditPaymentTermDialog,
-} from '../EditPaymentTermDialog'
+import { useEditPaymentTermDialog } from '../EditPaymentTermDialog'
 
 jest.mock('@tanstack/react-virtual', () => ({
   useVirtualizer: ({ count }: { count: number }) => ({
