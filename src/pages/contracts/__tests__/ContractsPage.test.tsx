@@ -111,6 +111,19 @@ describe('ContractsPage', () => {
     ])
     expect(headers[2]).toHaveStyle({ width: '100%' })
     expect(headers[1]).toHaveStyle({ width: 'auto' })
+
+    const row = screen.getByTestId('table-row-0')
+    const cells = within(row).getAllByRole('cell')
+
+    expect(cells[0].firstElementChild).toHaveStyle({ minWidth: '80px' })
+    expect(cells[1].firstElementChild).toHaveStyle({ minWidth: '200px' })
+    expect(cells[2]).not.toHaveClass('max-w-0')
+    expect(cells[2].firstElementChild).toHaveStyle({ minWidth: '200px' })
+    expect(cells[3].firstElementChild).toHaveStyle({ minWidth: '140px' })
+    expect(cells[4].firstElementChild).toHaveStyle({ minWidth: '140px' })
+    expect(cells[5]).toHaveClass('sticky', 'right-0')
+
+    expect(screen.getByTestId('table-contracts-list').parentElement).toHaveClass('overflow-auto')
   })
 
   it('uses the URL page and lets the sticky pager navigate to the next page', async () => {
