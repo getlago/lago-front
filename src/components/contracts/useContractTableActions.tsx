@@ -1,3 +1,4 @@
+import { getContractDisplayName } from '~/components/contracts/getContractDisplayName'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -8,6 +9,7 @@ import { useTerminateContractDialog } from './useTerminateContractDialog'
 type ContractTableActionTarget = {
   externalId: string
   name?: string | null
+  plan?: { name: string } | null
 }
 
 export const useContractTableActions = () => {
@@ -34,7 +36,7 @@ export const useContractTableActions = () => {
       title: translate('text_17896366914848hled21jz6q'),
       dataTest: 'terminate-contract',
       onAction: () => {
-        openTerminateContractDialog({ name: contract.name || contract.externalId })
+        openTerminateContractDialog({ name: getContractDisplayName(contract) })
       },
     },
   ]

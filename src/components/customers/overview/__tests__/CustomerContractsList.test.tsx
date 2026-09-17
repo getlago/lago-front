@@ -90,6 +90,7 @@ const contract: ContractForCustomerContractsListFragment = {
   status: ContractStatusEnum.Active,
   startedAt: '2026-06-11T00:00:00Z',
   endedAt: '2027-06-11T00:00:00Z',
+  plan: { __typename: 'CatalogPlan', id: 'plan-1', name: 'Enterprise plan' },
 }
 
 const metadata = { currentPage: 2, totalPages: 3, totalCount: 45 }
@@ -175,7 +176,7 @@ describe('CustomerContractsList', () => {
     expect(getTableProps().actionColumnTooltip?.(contract)).toBe('Copy ID, terminate')
   })
 
-  it('falls back to the external ID when the contract has no name', () => {
+  it('falls back to the plan name when the contract has no name', () => {
     render(<CustomerContractsList customer={customer} />)
 
     const unnamedContract = { ...contract, name: null }
@@ -183,8 +184,8 @@ describe('CustomerContractsList', () => {
 
     render(<>{nameColumn?.content(unnamedContract)}</>)
 
-    expect(screen.getByText('enterprise-2026')).toBeInTheDocument()
-    expect(getTableProps().rowLinkLabel?.(unnamedContract)).toBe('enterprise-2026')
+    expect(screen.getByText('Enterprise plan')).toBeInTheDocument()
+    expect(getTableProps().rowLinkLabel?.(unnamedContract)).toBe('Enterprise plan')
   })
 
   it('uses customer-timezone dates with the existing timezone tooltip component', () => {
