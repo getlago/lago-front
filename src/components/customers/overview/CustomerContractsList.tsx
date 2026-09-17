@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 import { generatePath } from 'react-router'
 
+import { ContractsList } from '~/components/contracts/ContractsList'
 import { getContractDisplayName } from '~/components/contracts/getContractDisplayName'
-import { useContractTableActions } from '~/components/contracts/useContractTableActions'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
-import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
+import { TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { TimezoneDate } from '~/components/TimezoneDate'
@@ -14,7 +14,7 @@ import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import { CONTRACT_DETAILS_ROUTE } from '~/core/router'
 import {
   ContractForCustomerContractsListFragment,
-  CustomerDetailsFragment,
+  TimezoneEnum,
   useGetCustomerContractsListQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -52,14 +52,18 @@ gql`
 `
 
 type CustomerContractsListProps = {
-  customer: CustomerDetailsFragment
+  customer: {
+    externalId: string
+    displayName: string
+    applicableTimezone: TimezoneEnum
+    billingEntity: { id: string }
+  }
 }
 
 export const CustomerContractsList = ({ customer }: CustomerContractsListProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { openDrawer: openContractDrawer } = useContractDrawer()
-  const { getContractTableActions, contractTableActionsTooltip } = useContractTableActions()
   const { page, goToPage } = usePageSearchParam()
 
   const { data, loading, error, refetch } = useGetCustomerContractsListQuery({
@@ -102,7 +106,6 @@ export const CustomerContractsList = ({ customer }: CustomerContractsListProps):
           <TimezoneDate
             date={startedAt}
             customerTimezone={customer.applicableTimezone}
-            mainTimezone="customer"
             mainTypographyProps={{ variant: 'body', color: 'grey600', noWrap: true }}
           />
         ) : (
@@ -119,7 +122,6 @@ export const CustomerContractsList = ({ customer }: CustomerContractsListProps):
           <TimezoneDate
             date={endedAt}
             customerTimezone={customer.applicableTimezone}
-            mainTimezone="customer"
             mainTypographyProps={{ variant: 'body', color: 'grey600', noWrap: true }}
           />
         ) : (
@@ -172,9 +174,9 @@ export const CustomerContractsList = ({ customer }: CustomerContractsListProps):
         onPageChange={goToPage}
         sticky={false}
       >
-        <Table
+        <ContractsList
           name="customer-contracts"
-          data={data?.contracts.collection ?? []}
+          contracts={data?.contracts.collection ?? []}
           columns={columns}
           containerSize={0}
           containerClassName="border-t border-grey-300"
@@ -183,9 +185,6 @@ export const CustomerContractsList = ({ customer }: CustomerContractsListProps):
           hasError={!!error}
           loadingRowCount={DEFAULT_PAGE_SIZE}
           onRowActionLink={({ id }) => generatePath(CONTRACT_DETAILS_ROUTE, { id })}
-          rowLinkLabel={getContractDisplayName}
-          actionColumnTooltip={() => contractTableActionsTooltip}
-          actionColumn={getContractTableActions}
           placeholder={placeholder}
         />
       </PaginatedContent>

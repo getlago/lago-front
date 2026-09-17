@@ -2,12 +2,12 @@ import { gql } from '@apollo/client'
 import { useState } from 'react'
 import { generatePath } from 'react-router'
 
+import { ContractsList } from '~/components/contracts/ContractsList'
 import { getContractDisplayName } from '~/components/contracts/getContractDisplayName'
-import { useContractTableActions } from '~/components/contracts/useContractTableActions'
 import { Button } from '~/components/designSystem/Button'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
-import { Table, TableColumn } from '~/components/designSystem/Table/Table'
+import { TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
@@ -61,7 +61,6 @@ gql`
 const ContractsPage = (): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const { getContractTableActions, contractTableActionsTooltip } = useContractTableActions()
   const { openDrawer: openContractDrawer } = useContractDrawer()
   const { hasPermissions } = usePermissions()
   const { page, goToPage } = usePageSearchParam()
@@ -167,9 +166,9 @@ const ContractsPage = (): JSX.Element => {
           goToPage(1)
         }}
       >
-        <Table
+        <ContractsList
           name="contracts-list"
-          data={data?.contracts.collection ?? []}
+          contracts={data?.contracts.collection ?? []}
           columns={columns}
           rowSize={48}
           containerSize={{ default: 16, md: 48 }}
@@ -178,9 +177,6 @@ const ContractsPage = (): JSX.Element => {
           loadingRowCount={pageSize}
           hasError={!!error}
           onRowActionLink={({ id }) => generatePath(CONTRACT_DETAILS_ROUTE, { id })}
-          rowLinkLabel={getContractDisplayName}
-          actionColumnTooltip={() => contractTableActionsTooltip}
-          actionColumn={getContractTableActions}
           placeholder={{
             emptyState: {
               title: translate('text_1789030049530zaego9s9413'),

@@ -7,7 +7,6 @@ import { CONTRACT_DETAILS_ROUTE } from '~/core/router'
 import {
   ContractForCustomerContractsListFragment,
   ContractStatusEnum,
-  CustomerDetailsFragment,
   TimezoneEnum,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -68,19 +67,13 @@ jest.mock('~/pages/contracts/drawers/contract/useContractDrawer', () => ({
 }))
 
 const customer = {
-  __typename: 'Customer',
-  id: 'customer-1',
   externalId: 'acme-external',
   displayName: 'Acme Inc.',
   applicableTimezone: TimezoneEnum.TzAmericaNewYork,
   billingEntity: {
-    __typename: 'BillingEntity',
     id: 'billing-entity-1',
-    code: 'us',
-    name: 'US entity',
-    euTaxManagement: false,
   },
-} as CustomerDetailsFragment
+}
 
 const contract: ContractForCustomerContractsListFragment = {
   __typename: 'Contract',
@@ -188,7 +181,7 @@ describe('CustomerContractsList', () => {
     expect(getTableProps().rowLinkLabel?.(unnamedContract)).toBe('Enterprise plan')
   })
 
-  it('uses customer-timezone dates with the existing timezone tooltip component', () => {
+  it('displays organization-timezone dates with the existing customer-timezone tooltip', () => {
     render(<CustomerContractsList customer={customer} />)
 
     const startedAtColumn = getTableProps().columns.find((column) => column?.key === 'startedAt')
@@ -206,7 +199,6 @@ describe('CustomerContractsList', () => {
       expect.objectContaining({
         date: contract.startedAt,
         customerTimezone: TimezoneEnum.TzAmericaNewYork,
-        mainTimezone: 'customer',
       }),
     )
     expect(mockTimezoneDateProps).toHaveBeenNthCalledWith(
@@ -214,9 +206,10 @@ describe('CustomerContractsList', () => {
       expect.objectContaining({
         date: contract.endedAt,
         customerTimezone: TimezoneEnum.TzAmericaNewYork,
-        mainTimezone: 'customer',
       }),
     )
+    expect(mockTimezoneDateProps.mock.calls[0][0]).not.toHaveProperty('mainTimezone')
+    expect(mockTimezoneDateProps.mock.calls[1][0]).not.toHaveProperty('mainTimezone')
   })
 
   it('keeps the stable skeleton while the query is loading', () => {

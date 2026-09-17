@@ -123,7 +123,7 @@ describe('ContractsPage', () => {
     expect(headers[2]).toHaveStyle({ width: '100%' })
     expect(headers[1]).toHaveStyle({ width: 'auto' })
 
-    const row = screen.getByTestId('table-row-0')
+    const row = screen.getByTestId('Enterprise agreement')
     const cells = within(row).getAllByRole('cell')
 
     expect(cells[0].firstElementChild).toHaveStyle({ minWidth: '80px' })
@@ -165,7 +165,7 @@ describe('ContractsPage', () => {
   it('links rows to contract details and supports pointer and keyboard navigation', async () => {
     render(<ContractsPage />, { mocks: [contractsMock()] })
 
-    const row = await screen.findByTestId('table-row-0')
+    const row = await screen.findByTestId('Enterprise agreement')
     const link = within(row).getByRole('link', { name: 'Enterprise agreement' })
 
     expect(row).toHaveAttribute('tabindex', '0')
@@ -184,7 +184,7 @@ describe('ContractsPage', () => {
   it('copies the external ID from the row action menu', async () => {
     render(<ContractsPage />, { mocks: [contractsMock()] })
 
-    const row = await screen.findByTestId('table-row-0')
+    const row = await screen.findByTestId('Enterprise agreement')
 
     fireEvent.click(within(row).getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
     fireEvent.click(await screen.findByTestId('copy-contract-external-id'))
@@ -199,7 +199,7 @@ describe('ContractsPage', () => {
   it('uses the plan name in the terminate dialog when the contract has no name', async () => {
     render(<ContractsPage />, { mocks: [contractsMock([{ ...contract, name: null }])] })
 
-    const row = await screen.findByTestId('table-row-0')
+    const row = await screen.findByTestId('Enterprise plan')
 
     fireEvent.click(within(row).getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
     fireEvent.click(await screen.findByTestId('terminate-contract'))
