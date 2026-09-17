@@ -199,3 +199,14 @@ export const intlFormatDateTime = (
     ),
   }
 }
+
+export const formattedDateWithTimezone = (
+  date: string,
+  applicableTimezone?: TimezoneEnum,
+): string => {
+  const { date: formattedDate, timezone } = intlFormatDateTime(date, {
+    timezone: applicableTimezone,
+  })
+
+  return `${formattedDate} ${timezone}`
+}

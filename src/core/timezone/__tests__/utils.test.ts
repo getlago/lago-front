@@ -1,6 +1,6 @@
 import { DateTime, Settings } from 'luxon'
 
-import { DateFormat, intlFormatDateTime } from '~/core/timezone/utils'
+import { DateFormat, formattedDateWithTimezone, intlFormatDateTime } from '~/core/timezone/utils'
 import { LocaleEnum } from '~/core/translations'
 import { TimezoneEnum } from '~/generated/graphql'
 
@@ -562,5 +562,28 @@ describe('intlFormatDateTime', () => {
         expect(result).toEqual('Jan 15, 2025 1:25 PM')
       })
     })
+  })
+})
+
+describe('formattedDateWithTimezone', () => {
+  const originalDefaultZone = Settings.defaultZone
+
+  beforeAll(() => {
+    Settings.defaultZone = 'UTC'
+  })
+
+  afterAll(() => {
+    Settings.defaultZone = originalDefaultZone
+  })
+
+  it('defaults to UTC without an organization', () => {
+    expect(formattedDateWithTimezone('2025-10-22T00:30:45Z')).toBe('Oct 22, 2025 UTC±0:00')
+  })
+
+  it.each([
+    ['2025-07-22T00:30:45Z', 'Jul 21, 2025 UTC-4:00'],
+    ['2025-01-22T00:30:45Z', 'Jan 21, 2025 UTC-5:00'],
+  ])('formats %s in the explicit timezone with its date-specific offset', (date, expected) => {
+    expect(formattedDateWithTimezone(date, TimezoneEnum.TzAmericaNewYork)).toBe(expected)
   })
 })
