@@ -18,12 +18,12 @@ import {
   PAYMENT_TERM_EDIT_BUTTON_TEST_ID,
   PAYMENT_TERM_SETTINGS_ROW_TEST_ID,
 } from '~/components/paymentTerms/dataTestConstants'
-import { useEditBillingEntityDocumentLocaleDialog } from '~/components/settings/invoices/EditBillingEntityDocumentLocaleDialog'
-import { useEditBillingEntityGracePeriodDialog } from '~/components/settings/invoices/EditBillingEntityGracePeriodDialog'
-import { useEditBillingEntityInvoiceIssuingDatePolicyDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceIssuingDatePolicyDialog'
-import { useEditBillingEntityInvoiceNumberingDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceNumberingDialog'
-import { useEditBillingEntityInvoiceTemplateDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceTemplateDialog'
-import { useEditDefaultCurrencyDialog } from '~/components/settings/invoices/EditDefaultCurrencyDialog'
+import { useEditBillingEntityDocumentLocaleDialog } from '~/components/settings/invoices/EditBillingEntityDocumentLocaleDialog/EditBillingEntityDocumentLocaleDialog'
+import { useEditBillingEntityGracePeriodDialog } from '~/components/settings/invoices/EditBillingEntityGracePeriodDialog/EditBillingEntityGracePeriodDialog'
+import { useEditBillingEntityInvoiceIssuingDatePolicyDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceIssuingDatePolicyDialog/EditBillingEntityInvoiceIssuingDatePolicyDialog'
+import { useEditBillingEntityInvoiceNumberingDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceNumberingDialog/EditBillingEntityInvoiceNumberingDialog'
+import { useEditBillingEntityInvoiceTemplateDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceTemplateDialog/EditBillingEntityInvoiceTemplateDialog'
+import { useEditDefaultCurrencyDialog } from '~/components/settings/invoices/EditDefaultCurrencyDialog/EditDefaultCurrencyDialog'
 import { useEditFinalizeZeroAmountInvoiceDialog } from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog/EditFinalizeZeroAmountInvoiceDialog'
 import { useEditPaymentTermDialog } from '~/components/settings/invoices/EditPaymentTermDialog/EditPaymentTermDialog'
 import {

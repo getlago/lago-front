@@ -1,18 +1,20 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { z } from 'zod'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
-import {
-  CurrencyEnum,
-  EditBillingEntityDefaultCurrencyForDialogFragment,
-  useUpdateBillingEntityDefaultCurrencyMutation,
-} from '~/generated/graphql'
+import { CurrencyEnum, useUpdateBillingEntityDefaultCurrencyMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+
+import {
+  EDIT_DEFAULT_CURRENCY_DIALOG_CURRENCY_FIELD_TEST_ID,
+  EDIT_DEFAULT_CURRENCY_DIALOG_SUBMIT_BUTTON_TEST_ID,
+} from './dataTestConstants'
+import { EDIT_DEFAULT_CURRENCY_INITIAL_VALUES, EditDefaultCurrencyDialogData } from './types'
+import { editDefaultCurrencyValidationSchema } from './validationSchema'
 
 gql`
   fragment EditBillingEntityDefaultCurrencyForDialog on BillingEntity {
@@ -29,23 +31,6 @@ gql`
 `
 
 export const EDIT_DEFAULT_CURRENCY_FORM_ID = 'edit-default-currency-form'
-
-const EDIT_DEFAULT_CURRENCY_DIALOG_SUBMIT_BUTTON_TEST_ID =
-  'edit-default-currency-dialog-submit-button'
-const EDIT_DEFAULT_CURRENCY_DIALOG_CURRENCY_FIELD_TEST_ID =
-  'edit-default-currency-dialog-currency-field'
-
-const editDefaultCurrencyValidationSchema = z.object({
-  defaultCurrency: z.enum(CurrencyEnum),
-})
-
-const initialValues = {
-  defaultCurrency: CurrencyEnum.Usd,
-}
-
-type EditDefaultCurrencyDialogData = {
-  billingEntity?: EditBillingEntityDefaultCurrencyForDialogFragment | null
-}
 
 export const useEditDefaultCurrencyDialog = () => {
   const formDialog = useFormDialog()
@@ -66,16 +51,20 @@ export const useEditDefaultCurrencyDialog = () => {
   })
 
   const form = useAppForm({
-    defaultValues: initialValues,
+    defaultValues: EDIT_DEFAULT_CURRENCY_INITIAL_VALUES,
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: editDefaultCurrencyValidationSchema,
     },
     onSubmit: async ({ value }) => {
+      const billingEntity = dataRef.current?.billingEntity
+
+      if (!billingEntity) return
+
       const result = await updateBillingEntity({
         variables: {
           input: {
-            id: dataRef.current?.billingEntity?.id as string,
+            id: billingEntity.id,
             ...value,
           },
         },

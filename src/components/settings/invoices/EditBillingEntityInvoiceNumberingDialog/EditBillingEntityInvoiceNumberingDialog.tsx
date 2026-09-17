@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { z } from 'zod'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
@@ -18,10 +17,12 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-const DynamicPrefixTranslationLookup: Record<BillingEntityDocumentNumberingEnum, string> = {
-  [BillingEntityDocumentNumberingEnum.PerCustomer]: 'text_6566f920a1d6c35693d6cce0',
-  [BillingEntityDocumentNumberingEnum.PerBillingEntity]: 'YYYYMM',
-}
+import {
+  DynamicPrefixTranslationLookup,
+  EDIT_BILLING_ENTITY_INVOICE_NUMBERING_INITIAL_VALUES,
+  EditBillingEntityInvoiceNumberingDialogData,
+} from './types'
+import { editBillingEntityInvoiceNumberingValidationSchema } from './validationSchema'
 
 gql`
   fragment EditBillingEntityInvoiceNumberingDialog on BillingEntity {
@@ -37,17 +38,6 @@ gql`
     }
   }
 `
-
-const editBillingEntityInvoiceNumberingValidationSchema = z.object({
-  documentNumbering: z.enum(BillingEntityDocumentNumberingEnum),
-  documentNumberPrefix: z.string().min(1).max(10, { message: 'text_6566f920a1d6c35693d6cd77' }),
-})
-
-type EditBillingEntityInvoiceNumberingDialogData = {
-  id: string
-  documentNumbering?: BillingEntityDocumentNumberingEnum | null
-  documentNumberPrefix?: string | null
-}
 
 const FORM_ID = 'edit-billing-entity-invoice-numbering-form'
 
@@ -71,19 +61,20 @@ export const useEditBillingEntityInvoiceNumberingDialog = () => {
   })
 
   const form = useAppForm({
-    defaultValues: {
-      documentNumbering: BillingEntityDocumentNumberingEnum.PerCustomer,
-      documentNumberPrefix: '',
-    },
+    defaultValues: EDIT_BILLING_ENTITY_INVOICE_NUMBERING_INITIAL_VALUES,
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: editBillingEntityInvoiceNumberingValidationSchema,
     },
     onSubmit: async ({ value }) => {
+      const data = dataRef.current
+
+      if (!data) return
+
       const result = await updateBillingEntityInvoiceNumbering({
         variables: {
           input: {
-            id: dataRef.current?.id as string,
+            id: data.id,
             documentNumbering: value.documentNumbering,
             documentNumberPrefix: value.documentNumberPrefix,
           },

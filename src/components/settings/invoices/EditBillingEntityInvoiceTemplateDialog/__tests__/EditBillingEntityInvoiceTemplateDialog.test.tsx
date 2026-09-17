@@ -8,7 +8,7 @@ import {
   FORM_DIALOG_TEST_ID,
 } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
-import { useEditBillingEntityInvoiceTemplateDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceTemplateDialog'
+import { useEditBillingEntityInvoiceTemplateDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceTemplateDialog/EditBillingEntityInvoiceTemplateDialog'
 import { UpdateBillingEntityInvoiceTemplateDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
