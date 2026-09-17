@@ -8,6 +8,7 @@ import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { CONTRACT_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
 import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
@@ -58,6 +59,9 @@ const useContractForm = ({
     defaultValues: buildContractFormDefaults(),
     validationLogic: revalidateLogic(),
     validators: { onDynamic: contractSchema },
+    onSubmitInvalid: ({ formApi }) => {
+      scrollToFirstInputError(CONTRACT_FORM_ID, formApi.state.errorMap.onDynamic || {})
+    },
     onSubmit: async ({ value }) => {
       const result = await createContract({
         variables: {
