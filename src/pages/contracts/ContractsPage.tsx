@@ -95,11 +95,13 @@ const ContractsPage = (): JSX.Element => {
     {
       key: 'status',
       title: translate('text_62d7f6178ec94cd09370e5fb'),
+      minWidth: 80,
       content: ({ status }) => <Status {...contractStatusMapping(status)} />,
     },
     {
       key: 'name',
       title: translate('text_6419c64eace749372fc72b0f'),
+      minWidth: 200,
       content: ({ name, externalId }) => (
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {name || externalId}
@@ -110,7 +112,7 @@ const ContractsPage = (): JSX.Element => {
       key: 'customer.displayName',
       title: translate('text_63ac86d797f728a87b2f9fb3'),
       maxSpace: true,
-      tdCellClassName: 'max-w-0',
+      minWidth: 200,
       content: ({ customer }) => (
         <Typography variant="body" noWrap>
           {customer.displayName}
@@ -120,6 +122,7 @@ const ContractsPage = (): JSX.Element => {
     {
       key: 'startedAt',
       title: translate('text_65201c5a175a4b0238abf29e'),
+      minWidth: 140,
       textAlign: 'right',
       content: ({ startedAt }) => (
         <Typography variant="body" noWrap>
@@ -130,6 +133,7 @@ const ContractsPage = (): JSX.Element => {
     {
       key: 'endedAt',
       title: translate('text_65201c5a175a4b0238abf2a0'),
+      minWidth: 140,
       textAlign: 'right',
       content: ({ endedAt }) => (
         <Typography variant="body" noWrap>
