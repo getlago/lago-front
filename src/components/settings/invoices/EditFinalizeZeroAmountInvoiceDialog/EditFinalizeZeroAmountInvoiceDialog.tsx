@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { z } from 'zod'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
@@ -11,14 +10,19 @@ import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
 } from '~/core/constants/form'
 import {
-  EditBillingEntityFinalizeZeroAmountInvoiceForDialogFragment,
-  EditCustomerFinalizeZeroAmountInvoiceForDialogFragment,
-  FinalizeZeroAmountInvoiceEnum,
   useUpdateBillingEntityFinalizeZeroAmountInvoiceMutation,
   useUpdateCustomerFinalizeZeroAmountInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+
+import { EDIT_FINALIZE_ZERO_AMOUNT_INVOICE_SUBMIT_BUTTON_TEST_ID } from './dataTestConstants'
+import {
+  EDIT_FINALIZE_ZERO_AMOUNT_INVOICE_INITIAL_VALUES,
+  EditFinalizeZeroAmountInvoiceDialogData,
+} from './types'
+import { getInitialValue, isCustomerEntity, toFinalizeZeroAmountInvoiceEnum } from './utils'
+import { editFinalizeZeroAmountInvoiceValidationSchema } from './validationSchema'
 
 gql`
   fragment EditCustomerFinalizeZeroAmountInvoiceForDialog on Customer {
@@ -49,39 +53,6 @@ gql`
 `
 
 const EDIT_FINALIZE_ZERO_AMOUNT_INVOICE_FORM_ID = 'edit-finalize-zero-amount-invoice-form'
-
-export const EDIT_FINALIZE_ZERO_AMOUNT_INVOICE_SUBMIT_BUTTON_TEST_ID =
-  'edit-finalize-zero-amount-invoice-submit-button'
-
-const validationSchema = z.object({
-  finalizeZeroAmountInvoice: z.string().min(1),
-})
-
-type FormValues = z.infer<typeof validationSchema>
-
-const initialValues: FormValues = {
-  finalizeZeroAmountInvoice: '',
-}
-
-type EditFinalizeZeroAmountInvoiceDialogData = {
-  entity?:
-    | EditCustomerFinalizeZeroAmountInvoiceForDialogFragment
-    | EditBillingEntityFinalizeZeroAmountInvoiceForDialogFragment
-    | null
-  finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | boolean | null
-}
-
-const getInitialValue = (data: EditFinalizeZeroAmountInvoiceDialogData): string => {
-  const isCustomer = data.entity?.__typename === 'Customer'
-
-  if (isCustomer) {
-    if (data.finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Inherit) return ''
-
-    return (data.finalizeZeroAmountInvoice as FinalizeZeroAmountInvoiceEnum | undefined) ?? ''
-  }
-
-  return data.finalizeZeroAmountInvoice?.toString() ?? ''
-}
 
 export const useEditFinalizeZeroAmountInvoiceDialog = () => {
   const formDialog = useFormDialog()
@@ -117,29 +88,30 @@ export const useEditFinalizeZeroAmountInvoiceDialog = () => {
     })
 
   const form = useAppForm({
-    defaultValues: initialValues,
+    defaultValues: EDIT_FINALIZE_ZERO_AMOUNT_INVOICE_INITIAL_VALUES,
     validationLogic: revalidateLogic(),
     validators: {
-      onDynamic: validationSchema,
+      onDynamic: editFinalizeZeroAmountInvoiceValidationSchema,
     },
     onSubmit: async ({ value }) => {
-      const data = dataRef.current
+      const entity = dataRef.current?.entity
 
-      if (!data?.entity || !value.finalizeZeroAmountInvoice) return
+      if (!entity || !value.finalizeZeroAmountInvoice) return
 
-      const isCustomer = data.entity.__typename === 'Customer'
+      if (isCustomerEntity(entity)) {
+        const finalizeZeroAmountInvoice = toFinalizeZeroAmountInvoiceEnum(
+          value.finalizeZeroAmountInvoice,
+        )
 
-      if (isCustomer) {
-        const customer = data.entity as EditCustomerFinalizeZeroAmountInvoiceForDialogFragment
+        if (!finalizeZeroAmountInvoice) return
 
         await updateCustomerFinalizeZeroAmountInvoice({
           variables: {
             input: {
-              id: customer.id,
-              externalId: customer.externalId,
-              name: customer.name || '',
-              finalizeZeroAmountInvoice:
-                value.finalizeZeroAmountInvoice as FinalizeZeroAmountInvoiceEnum,
+              id: entity.id,
+              externalId: entity.externalId,
+              name: entity.name || '',
+              finalizeZeroAmountInvoice,
             },
           },
         })
@@ -147,13 +119,10 @@ export const useEditFinalizeZeroAmountInvoiceDialog = () => {
         return
       }
 
-      const billingEntity =
-        data.entity as EditBillingEntityFinalizeZeroAmountInvoiceForDialogFragment
-
       await updateBillingEntityFinalizeZeroAmountInvoice({
         variables: {
           input: {
-            id: billingEntity.id,
+            id: entity.id,
             finalizeZeroAmountInvoice: value.finalizeZeroAmountInvoice === 'true',
           },
         },
@@ -179,8 +148,7 @@ export const useEditFinalizeZeroAmountInvoiceDialog = () => {
     form.reset()
     form.setFieldValue('finalizeZeroAmountInvoice', getInitialValue(data))
 
-    const isCustomer = data.entity?.__typename === 'Customer'
-    const comboBoxData = isCustomer
+    const comboBoxData = isCustomerEntity(data.entity)
       ? [
           { value: 'finalize', label: translate('text_1725549671287ancbf00edxx') },
           { value: 'skip', label: translate('text_1725549671288zkq9sr0y46l') },
