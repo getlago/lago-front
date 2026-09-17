@@ -53,7 +53,7 @@ const useContractForm = ({
 }) => {
   const [createContract] = useCreateContractMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    refetchQueries: ['getContractsList'],
+    refetchQueries: ['getContractsList', 'getCustomerContractsList'],
   })
 
   const form = useAppForm({

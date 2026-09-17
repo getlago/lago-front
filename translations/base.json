@@ -4989,5 +4989,7 @@
   "text_1789644720011contract": "ID used to define your own contract ID from your backend instead of using the one defined by Lago",
   "text_1789644720012contract": "Type a contract name",
   "text_1789636691484c9hodzevcvd": "Copy external ID",
-  "text_1789636691484fyt51yyc9uh": "External ID copied to clipboard"
+  "text_1789636691484fyt51yyc9uh": "External ID copied to clipboard",
+  "text_178965210969958i1zni4czl": "A contract is created when a plan is assigned to a customer.",
+  "text_1789652109699qmz7squ6wr3": "This customer’s contracts will appear here."
 }
