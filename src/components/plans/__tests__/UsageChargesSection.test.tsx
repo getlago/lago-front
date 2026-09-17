@@ -1,7 +1,10 @@
-import { screen } from '@testing-library/react'
+import { revalidateLogic } from '@tanstack/react-form'
+import { act, renderHook, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { planFormSchema } from '~/formValidation/planFormSchema'
 import { AggregationTypeEnum, ChargeModelEnum } from '~/generated/graphql'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 import { createMockPlanForm } from '~/test-utils/createMockPlanForm'
 
@@ -247,5 +250,47 @@ describe('UsageChargesSection', () => {
         expect(screen.getByTestId('usage-charge-selector-0')).toBeInTheDocument()
       })
     })
+  })
+})
+
+describe('Usage charge duplicate warnings with a real form', () => {
+  it('refreshes duplicate warnings after same-length resets, additions and removals', async () => {
+    const user = userEvent.setup()
+    const first = createMockCharge({ invoiceDisplayName: 'First charge' })
+    const duplicate = createMockCharge({ id: 'charge-2', invoiceDisplayName: 'Second charge' })
+    const other = createMockCharge({
+      id: 'charge-3',
+      invoiceDisplayName: 'Second charge',
+      billableMetric: { ...first.billableMetric, id: 'other-catalog-item' },
+    })
+    const { result } = renderHook(() =>
+      useAppForm({
+        defaultValues: createForm({ charges: [first, duplicate] }).state.values,
+        validationLogic: revalidateLogic(),
+        validators: { onDynamic: planFormSchema },
+      }),
+    )
+    const form = result.current
+
+    render(<UsageChargesSection form={form} isEdition={false} />)
+
+    const expectWarning = async (expected: string | undefined): Promise<void> => {
+      await user.click(screen.getByText('First charge'))
+      expect(mockOpenDrawer).toHaveBeenLastCalledWith(
+        first,
+        0,
+        expect.objectContaining({ alreadyUsedChargeAlertMessage: expected }),
+      )
+    }
+
+    await expectWarning('translated_text_6435895831d323008a47911f')
+    act(() => form.reset({ ...form.state.values, charges: [first, other] }))
+    await expectWarning(undefined)
+    act(() => form.reset({ ...form.state.values, charges: [first, duplicate] }))
+    await expectWarning('translated_text_6435895831d323008a47911f')
+    await act(async () => form.removeFieldValue('charges', 1))
+    await expectWarning(undefined)
+    act(() => form.pushFieldValue('charges', duplicate))
+    await expectWarning('translated_text_6435895831d323008a47911f')
   })
 })
