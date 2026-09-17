@@ -21,7 +21,7 @@ import ContractsPage, { CONTRACTS_CREATE_TEST_ID } from '../ContractsPage'
 
 const mockOpenTerminateContractDialog = jest.fn()
 
-jest.mock('../useTerminateContractDialog', () => ({
+jest.mock('~/components/contracts/useTerminateContractDialog', () => ({
   useTerminateContractDialog: () => ({
     openTerminateContractDialog: mockOpenTerminateContractDialog,
   }),

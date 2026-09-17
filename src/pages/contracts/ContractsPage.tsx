@@ -2,21 +2,19 @@ import { gql } from '@apollo/client'
 import { useState } from 'react'
 import { generatePath } from 'react-router'
 
+import { useContractTableActions } from '~/components/contracts/useContractTableActions'
 import { Button } from '~/components/designSystem/Button'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
-import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { SearchInput } from '~/components/SearchInput'
-import { addToast } from '~/core/apolloClient'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import { CONTRACT_DETAILS_ROUTE } from '~/core/router'
-import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { ContractForContractsListFragment, useGetContractsListLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
@@ -24,7 +22,6 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { useContractDrawer } from './drawers/contract/useContractDrawer'
-import { useTerminateContractDialog } from './useTerminateContractDialog'
 
 export const CONTRACTS_CREATE_TEST_ID = 'contracts-create'
 
@@ -59,7 +56,7 @@ gql`
 const ContractsPage = (): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const { openTerminateContractDialog } = useTerminateContractDialog()
+  const { getContractTableActions, contractTableActionsTooltip } = useContractTableActions()
   const { openDrawer: openContractDrawer } = useContractDrawer()
   const { hasPermissions } = usePermissions()
   const { page, goToPage } = usePageSearchParam()
@@ -81,31 +78,6 @@ const ContractsPage = (): JSX.Element => {
       hidden: !hasPermissions(['contractsCreate']),
       dataTest: CONTRACTS_CREATE_TEST_ID,
       onClick: () => openContractDrawer(),
-    },
-  ]
-
-  const getActions = (
-    contract: ContractForContractsListFragment,
-  ): ActionItem<ContractForContractsListFragment>[] => [
-    {
-      startIcon: 'duplicate',
-      title: translate('text_1789636691484c9hodzevcvd'),
-      dataTest: 'copy-contract-external-id',
-      onAction: () => {
-        copyToClipboard(contract.externalId)
-        addToast({
-          severity: 'info',
-          translateKey: 'text_1789636691484fyt51yyc9uh',
-        })
-      },
-    },
-    {
-      startIcon: 'trash',
-      title: translate('text_17896366914848hled21jz6q'),
-      dataTest: 'terminate-contract',
-      onAction: () => {
-        openTerminateContractDialog({ name: contract.name || contract.externalId })
-      },
     },
   ]
 
@@ -202,8 +174,8 @@ const ContractsPage = (): JSX.Element => {
           hasError={!!error}
           onRowActionLink={({ id }) => generatePath(CONTRACT_DETAILS_ROUTE, { id })}
           rowLinkLabel={({ name, externalId }) => name || externalId}
-          actionColumnTooltip={() => translate('text_1789637038124d2rpm0ng6c2')}
-          actionColumn={getActions}
+          actionColumnTooltip={() => contractTableActionsTooltip}
+          actionColumn={getContractTableActions}
           placeholder={{
             emptyState: {
               title: translate('text_1789030049530zaego9s9413'),

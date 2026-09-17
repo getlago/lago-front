@@ -4994,5 +4994,7 @@
   "text_1789636691484vy3pf1f7c2r": "Terminate {{contractName}}?",
   "text_1789636691484w2nd40iyljv": "Terminating a contract stops future billing and cannot be undone.",
   "text_1789636691484vv5ug3lqzuo": "Contract termination is not available yet.",
-  "text_1789637038124d2rpm0ng6c2": "Copy ID, terminate"
+  "text_1789637038124d2rpm0ng6c2": "Copy ID, terminate",
+  "text_178965210969958i1zni4czl": "A contract is created when a plan is assigned to a customer.",
+  "text_1789652109699qmz7squ6wr3": "This customer’s contracts will appear here."
 }
