@@ -12,10 +12,8 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import {
-  EDIT_FINALIZE_ZERO_AMOUNT_INVOICE_SUBMIT_BUTTON_TEST_ID,
-  useEditFinalizeZeroAmountInvoiceDialog,
-} from '../EditFinalizeZeroAmountInvoiceDialog'
+import { EDIT_FINALIZE_ZERO_AMOUNT_INVOICE_SUBMIT_BUTTON_TEST_ID } from '../dataTestConstants'
+import { useEditFinalizeZeroAmountInvoiceDialog } from '../EditFinalizeZeroAmountInvoiceDialog'
 
 NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 

@@ -3,9 +3,13 @@ import {
   PAYMENT_TERM_DEFAULT_MONTH_OFFSET,
   PAYMENT_TERM_INHERIT,
 } from '~/core/constants/paymentTerm'
+import { ResolvablePaymentTerm } from '~/core/utils/paymentTerm'
 import { PaymentTermTypeEnum } from '~/generated/graphql'
 
 export type PaymentTermType = PaymentTermTypeEnum | typeof PAYMENT_TERM_INHERIT
+
+/** The term a level would fall back to, and the label naming the level it comes from. */
+export type PaymentTermInheritedFrom = { term: ResolvablePaymentTerm; labelKey: string }
 
 export type PaymentTermFormValues = {
   termType: PaymentTermType | undefined
