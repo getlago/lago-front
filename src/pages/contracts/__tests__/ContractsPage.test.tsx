@@ -21,7 +21,7 @@ import ContractsPage, { CONTRACTS_CREATE_TEST_ID } from '../ContractsPage'
 
 const mockOpenTerminateContractDialog = jest.fn()
 
-jest.mock('../useTerminateContractDialog', () => ({
+jest.mock('~/components/contracts/useTerminateContractDialog', () => ({
   useTerminateContractDialog: () => ({
     openTerminateContractDialog: mockOpenTerminateContractDialog,
   }),
@@ -67,6 +67,7 @@ const contract: ContractForContractsListFragment = {
   externalId: 'enterprise-2026',
   startedAt: '2026-06-11T00:00:00Z',
   endedAt: null,
+  plan: { __typename: 'CatalogPlan', id: 'plan-1', name: 'Enterprise plan' },
   customer: { __typename: 'Customer', id: 'customer-1', displayName: 'Acme Inc.' },
 }
 
@@ -130,7 +131,7 @@ describe('ContractsPage', () => {
     expect(headers[2]).toHaveStyle({ width: '100%' })
     expect(headers[1]).toHaveStyle({ width: 'auto' })
 
-    const row = screen.getByTestId('table-row-0')
+    const row = screen.getByTestId('Enterprise agreement')
     const cells = within(row).getAllByRole('cell')
 
     expect(cells[0].firstElementChild).toHaveStyle({ minWidth: '80px' })
@@ -172,7 +173,7 @@ describe('ContractsPage', () => {
   it('links rows to contract details and supports pointer and keyboard navigation', async () => {
     render(<ContractsPage />, { mocks: [contractsMock()] })
 
-    const row = await screen.findByTestId('table-row-0')
+    const row = await screen.findByTestId('Enterprise agreement')
     const link = within(row).getByRole('link', { name: 'Enterprise agreement' })
 
     expect(row).toHaveAttribute('tabindex', '0')
@@ -191,7 +192,7 @@ describe('ContractsPage', () => {
   it('copies the external ID and opens the terminate dialog from the row action menu', async () => {
     render(<ContractsPage />, { mocks: [contractsMock()] })
 
-    const row = await screen.findByTestId('table-row-0')
+    const row = await screen.findByTestId('Enterprise agreement')
 
     fireEvent.click(within(row).getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
     fireEvent.click(await screen.findByTestId('copy-contract-external-id'))
@@ -213,6 +214,19 @@ describe('ContractsPage', () => {
     })
   })
 
+  it('uses the plan name in the terminate dialog when the contract has no name', async () => {
+    render(<ContractsPage />, { mocks: [contractsMock([{ ...contract, name: null }])] })
+
+    const row = await screen.findByTestId('Enterprise plan')
+
+    fireEvent.click(within(row).getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
+    fireEvent.click(await screen.findByTestId('terminate-contract'))
+
+    expect(mockOpenTerminateContractDialog).toHaveBeenCalledWith({
+      name: 'Enterprise plan',
+    })
+  })
+
   it('shows a full page of skeleton rows while fetching, then the empty state', async () => {
     render(<ContractsPage />, { mocks: [{ ...contractsMock([], 1, 0), delay: 30 }] })
 
@@ -229,7 +243,7 @@ describe('ContractsPage', () => {
       mocks: [contractsMock([{ ...contract, name: null, startedAt: null, endedAt: null }])],
     })
 
-    expect(await screen.findByText('enterprise-2026')).toBeInTheDocument()
+    expect(await screen.findByText('Enterprise plan')).toBeInTheDocument()
     expect(screen.getAllByText('-')).toHaveLength(2)
   })
 
