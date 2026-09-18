@@ -4963,5 +4963,9 @@
   "text_1789636691484vy3pf1f7c2r": "Terminate {{contractName}}?",
   "text_1789636691484w2nd40iyljv": "Terminating a contract stops future billing and cannot be undone.",
   "text_1789636691484vv5ug3lqzuo": "Contract termination is not available yet.",
-  "text_1789637038124d2rpm0ng6c2": "Copy ID, terminate"
+  "text_1789637038124d2rpm0ng6c2": "Copy ID, terminate",
+  "text_1789752288687t0rx0w5b4d5": "Rate overrides",
+  "text_1789752288687xjph983ekbt": "With rate overrides",
+  "text_1789752288687c3bxfx2tjlu": "Without rate overrides",
+  "text_1789752288687fltu5v8ujsm": "There are no contracts"
 }

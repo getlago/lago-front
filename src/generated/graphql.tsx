@@ -12290,6 +12290,15 @@ export type GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables = Exact<{ [key: str
 
 export type GetApiKeyIdsForFilterItemApiKeyIdsQuery = { __typename?: 'Query', apiKeys: { __typename?: 'SanitizedApiKeyCollection', collection: Array<{ __typename?: 'SanitizedApiKey', id: string, value: string }> } };
 
+export type GetCatalogPlansForFiltersItemContractPlanQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetCatalogPlansForFiltersItemContractPlanQuery = { __typename?: 'Query', catalogPlans: { __typename?: 'CatalogPlanCollection', collection: Array<{ __typename?: 'CatalogPlan', id: string, name: string, code: string }> } };
+
 export type GetCustomersForFilterItemCustomerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -16616,6 +16625,13 @@ export type ContractForContractsListFragment = { __typename?: 'Contract', id: st
 export type GetContractsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalId?: InputMaybe<Scalars['String']['input']>;
+  hasRateOverrides?: InputMaybe<Scalars['Boolean']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Array<ContractStatusEnum> | ContractStatusEnum>;
 }>;
 
 
@@ -24775,6 +24791,55 @@ export type GetApiKeyIdsForFilterItemApiKeyIdsQueryHookResult = ReturnType<typeo
 export type GetApiKeyIdsForFilterItemApiKeyIdsLazyQueryHookResult = ReturnType<typeof useGetApiKeyIdsForFilterItemApiKeyIdsLazyQuery>;
 export type GetApiKeyIdsForFilterItemApiKeyIdsSuspenseQueryHookResult = ReturnType<typeof useGetApiKeyIdsForFilterItemApiKeyIdsSuspenseQuery>;
 export type GetApiKeyIdsForFilterItemApiKeyIdsQueryResult = Apollo.QueryResult<GetApiKeyIdsForFilterItemApiKeyIdsQuery, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>;
+export const GetCatalogPlansForFiltersItemContractPlanDocument = gql`
+    query getCatalogPlansForFiltersItemContractPlan($page: Int, $limit: Int, $searchTerm: String) {
+  catalogPlans(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    collection {
+      id
+      name
+      code
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCatalogPlansForFiltersItemContractPlanQuery__
+ *
+ * To run a query within a React component, call `useGetCatalogPlansForFiltersItemContractPlanQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCatalogPlansForFiltersItemContractPlanQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCatalogPlansForFiltersItemContractPlanQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetCatalogPlansForFiltersItemContractPlanQuery(baseOptions?: Apollo.QueryHookOptions<GetCatalogPlansForFiltersItemContractPlanQuery, GetCatalogPlansForFiltersItemContractPlanQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCatalogPlansForFiltersItemContractPlanQuery, GetCatalogPlansForFiltersItemContractPlanQueryVariables>(GetCatalogPlansForFiltersItemContractPlanDocument, options);
+      }
+export function useGetCatalogPlansForFiltersItemContractPlanLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCatalogPlansForFiltersItemContractPlanQuery, GetCatalogPlansForFiltersItemContractPlanQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCatalogPlansForFiltersItemContractPlanQuery, GetCatalogPlansForFiltersItemContractPlanQueryVariables>(GetCatalogPlansForFiltersItemContractPlanDocument, options);
+        }
+// @ts-ignore
+export function useGetCatalogPlansForFiltersItemContractPlanSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCatalogPlansForFiltersItemContractPlanQuery, GetCatalogPlansForFiltersItemContractPlanQueryVariables>): Apollo.UseSuspenseQueryResult<GetCatalogPlansForFiltersItemContractPlanQuery, GetCatalogPlansForFiltersItemContractPlanQueryVariables>;
+export function useGetCatalogPlansForFiltersItemContractPlanSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCatalogPlansForFiltersItemContractPlanQuery, GetCatalogPlansForFiltersItemContractPlanQueryVariables>): Apollo.UseSuspenseQueryResult<GetCatalogPlansForFiltersItemContractPlanQuery | undefined, GetCatalogPlansForFiltersItemContractPlanQueryVariables>;
+export function useGetCatalogPlansForFiltersItemContractPlanSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCatalogPlansForFiltersItemContractPlanQuery, GetCatalogPlansForFiltersItemContractPlanQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCatalogPlansForFiltersItemContractPlanQuery, GetCatalogPlansForFiltersItemContractPlanQueryVariables>(GetCatalogPlansForFiltersItemContractPlanDocument, options);
+        }
+export type GetCatalogPlansForFiltersItemContractPlanQueryHookResult = ReturnType<typeof useGetCatalogPlansForFiltersItemContractPlanQuery>;
+export type GetCatalogPlansForFiltersItemContractPlanLazyQueryHookResult = ReturnType<typeof useGetCatalogPlansForFiltersItemContractPlanLazyQuery>;
+export type GetCatalogPlansForFiltersItemContractPlanSuspenseQueryHookResult = ReturnType<typeof useGetCatalogPlansForFiltersItemContractPlanSuspenseQuery>;
+export type GetCatalogPlansForFiltersItemContractPlanQueryResult = Apollo.QueryResult<GetCatalogPlansForFiltersItemContractPlanQuery, GetCatalogPlansForFiltersItemContractPlanQueryVariables>;
 export const GetCustomersForFilterItemCustomerDocument = gql`
     query getCustomersForFilterItemCustomer($page: Int, $limit: Int, $searchTerm: String) {
   customers(
@@ -44122,8 +44187,18 @@ export type UpdateRateCardRateMutationHookResult = ReturnType<typeof useUpdateRa
 export type UpdateRateCardRateMutationResult = Apollo.MutationResult<UpdateRateCardRateMutation>;
 export type UpdateRateCardRateMutationOptions = Apollo.BaseMutationOptions<UpdateRateCardRateMutation, UpdateRateCardRateMutationVariables>;
 export const GetContractsListDocument = gql`
-    query getContractsList($page: Int, $limit: Int) {
-  contracts(page: $page, limit: $limit) {
+    query getContractsList($page: Int, $limit: Int, $searchTerm: String, $billingEntityIds: [ID!], $externalCustomerId: String, $externalId: String, $hasRateOverrides: Boolean, $planCode: String, $status: [ContractStatusEnum!]) {
+  contracts(
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+    billingEntityIds: $billingEntityIds
+    externalCustomerId: $externalCustomerId
+    externalId: $externalId
+    hasRateOverrides: $hasRateOverrides
+    planCode: $planCode
+    status: $status
+  ) {
     collection {
       ...ContractForContractsList
     }
@@ -44150,6 +44225,13 @@ export const GetContractsListDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      billingEntityIds: // value for 'billingEntityIds'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      externalId: // value for 'externalId'
+ *      hasRateOverrides: // value for 'hasRateOverrides'
+ *      planCode: // value for 'planCode'
+ *      status: // value for 'status'
  *   },
  * });
  */

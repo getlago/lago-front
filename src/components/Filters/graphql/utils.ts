@@ -11,6 +11,7 @@ import {
   AnalyticsInvoicesAvailableFilters,
   ApiLogsAvailableFilters,
   AvailableFiltersEnum,
+  ContractAvailableFilters,
   CreditNoteAvailableFilters,
   CustomerAnalyticsAvailableFilters,
   CustomerAvailableFilters,
@@ -49,6 +50,7 @@ import {
   ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
   ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX,
   API_LOGS_FILTER_PREFIX,
+  CONTRACT_LIST_FILTER_PREFIX,
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_ANALYTICS_FILTER_PREFIX,
   CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
@@ -80,6 +82,7 @@ import {
   type CustomerAccountTypeEnum,
   type CustomersQueryVariables,
   type GetApiLogsQueryVariables,
+  type GetContractsListQueryVariables,
   type GetCreditNotesListQueryVariables,
   type GetInvoiceCollectionsForAnalyticsQueryVariables,
   type GetInvoicesListQueryVariables,
@@ -248,6 +251,12 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.billingEntityId]: (value: string) =>
     value.split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.billingEntityCode]: (value: string) => value,
+  [AvailableFiltersEnum.contractAffiliatedEntityIds]: (value: string) =>
+    value.split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.contractPlanCode]: (value: string) =>
+    value.split(filterDataInlineSeparator)[0],
+  [AvailableFiltersEnum.contractRateOverrides]: (value: string) => value === 'true',
+  [AvailableFiltersEnum.contractStatus]: (value: string) => value.split(','),
   [AvailableFiltersEnum.country]: (value: string) => value,
   [AvailableFiltersEnum.countries]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
@@ -726,6 +735,43 @@ export const formatFiltersForSubscriptionQuery = (
   })
 }
 
+type ContractQueryFilters = Partial<
+  Pick<
+    GetContractsListQueryVariables,
+    | 'billingEntityIds'
+    | 'externalCustomerId'
+    | 'externalId'
+    | 'hasRateOverrides'
+    | 'planCode'
+    | 'status'
+  >
+>
+
+export const formatFiltersForContractQuery = (
+  searchParams: URLSearchParams,
+): ContractQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof ContractQueryFilters & string>> = {
+    [AvailableFiltersEnum.contractAffiliatedEntityIds]: 'billingEntityIds',
+    [AvailableFiltersEnum.contractPlanCode]: 'planCode',
+    [AvailableFiltersEnum.contractRateOverrides]: 'hasRateOverrides',
+    [AvailableFiltersEnum.contractStatus]: 'status',
+    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
+  }
+
+  const contractSearchParams = new URLSearchParams(
+    Array.from(searchParams.entries()).filter(([key]) =>
+      key.startsWith(`${CONTRACT_LIST_FILTER_PREFIX}_`),
+    ),
+  )
+
+  return formatFiltersForQuery<ContractQueryFilters>({
+    keyMap,
+    searchParams: contractSearchParams,
+    availableFilters: ContractAvailableFilters,
+    filtersNamePrefix: CONTRACT_LIST_FILTER_PREFIX,
+  })
+}
+
 export const formatFiltersForCustomerAnalyticsQuery = (
   searchParams: URLSearchParams,
 ): { currency?: CurrencyEnum; billingEntityId?: string } => {
@@ -1101,6 +1147,7 @@ export const formatActiveFilterValueDisplay = (
         .join(', ')
     case AvailableFiltersEnum.customerExternalId:
     case AvailableFiltersEnum.billingEntityId:
+    case AvailableFiltersEnum.contractPlanCode:
       return unescapeFilterLabel(
         value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
       )
@@ -1131,6 +1178,12 @@ export const formatActiveFilterValueDisplay = (
             : 'text_1744018116743ntlygtcnq95',
         ) || ''
       )
+    case AvailableFiltersEnum.contractRateOverrides:
+      return (
+        translate?.(
+          value === 'true' ? 'text_1789752288687xjph983ekbt' : 'text_1789752288687c3bxfx2tjlu',
+        ) || ''
+      )
     case AvailableFiltersEnum.date:
     case AvailableFiltersEnum.issuingDate:
     case AvailableFiltersEnum.loggedDate:
@@ -1153,6 +1206,7 @@ export const formatActiveFilterValueDisplay = (
       )
     case AvailableFiltersEnum.apiKeyIds:
     case AvailableFiltersEnum.billingEntityIds:
+    case AvailableFiltersEnum.contractAffiliatedEntityIds:
     case AvailableFiltersEnum.userIds:
     case AvailableFiltersEnum.multipleCustomers:
     case AvailableFiltersEnum.rateCardProduct:

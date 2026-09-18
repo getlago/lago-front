@@ -5,6 +5,7 @@ import {
   escapeFilterLabel,
   FILTER_VALUE_MAP,
   formatActiveFilterValueDisplay,
+  formatFiltersForContractQuery,
   formatFiltersForCreditNotesQuery,
   formatFiltersForCustomerQuery,
   formatFiltersForInvoiceQuery,
@@ -274,6 +275,43 @@ describe('Filters utils', () => {
       const result = formatFiltersForSubscriptionQuery(searchParams)
 
       expect(result).toEqual({})
+    })
+  })
+
+  describe('formatFiltersForContractQuery', () => {
+    it('formats every supported contract filter', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'con_contractAffiliatedEntityIds',
+        `entity-1${filterDataInlineSeparator}France,entity-2${filterDataInlineSeparator}Germany`,
+      )
+      searchParams.set('con_customerExternalId', `customer-1${filterDataInlineSeparator}Acme`)
+      searchParams.set('con_externalId', 'contract-2026')
+      searchParams.set('con_contractPlanCode', `enterprise${filterDataInlineSeparator}Enterprise`)
+      searchParams.set('con_contractRateOverrides', 'false')
+      searchParams.set('con_contractStatus', 'active,pending')
+
+      expect(formatFiltersForContractQuery(searchParams)).toEqual({
+        billingEntityIds: ['entity-1', 'entity-2'],
+        externalCustomerId: 'customer-1',
+        externalId: 'contract-2026',
+        hasRateOverrides: false,
+        planCode: 'enterprise',
+        status: ['active', 'pending'],
+      })
+    })
+
+    it('ignores unrelated and unprefixed filters', () => {
+      const searchParams = new URLSearchParams({
+        con_contractStatus: 'terminated',
+        sub_subscriptionStatus: 'active',
+        contractStatus: 'pending',
+      })
+
+      expect(formatFiltersForContractQuery(searchParams)).toEqual({
+        status: ['terminated'],
+      })
     })
   })
 
