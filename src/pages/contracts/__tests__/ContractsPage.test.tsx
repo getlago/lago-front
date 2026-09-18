@@ -57,10 +57,11 @@ const contractsMock = (
   collection: ContractForContractsListFragment[] = [contract],
   page = 1,
   totalCount = 45,
+  variables: Partial<GetContractsListQueryVariables> = {},
 ): MockedResponse<GetContractsListQuery, GetContractsListQueryVariables> => ({
   request: {
     query: GetContractsListDocument,
-    variables: { page, limit: DEFAULT_PAGE_SIZE },
+    variables: { page, limit: DEFAULT_PAGE_SIZE, ...variables },
   },
   result: {
     data: {
@@ -82,7 +83,7 @@ describe('ContractsPage', () => {
     window.history.replaceState({}, '', '/acme/contracts')
   })
 
-  it('renders contract data and disables search and filters until server support is available', async () => {
+  it('renders contract data with enabled search and filters', async () => {
     render(
       <>
         <MainHeader />
@@ -95,8 +96,8 @@ describe('ContractsPage', () => {
     expect(screen.getByText('Acme Inc.')).toBeInTheDocument()
     expect(screen.getByText('2026-06-11')).toBeInTheDocument()
     expect(screen.getByText('-')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Search contracts')).toBeDisabled()
-    expect(screen.getByRole('button', { name: /filters/i })).toBeDisabled()
+    expect(screen.getByPlaceholderText('Search contracts')).toBeEnabled()
+    expect(screen.getByRole('button', { name: /filters/i })).toBeEnabled()
     expect(screen.getByText('Contracts')).toBeInTheDocument()
 
     const headers = screen.getAllByRole('columnheader')
@@ -124,6 +125,59 @@ describe('ContractsPage', () => {
     expect(cells[5]).toHaveClass('sticky', 'right-0')
 
     expect(screen.getByTestId('table-contracts-list').parentElement).toHaveClass('overflow-auto')
+  })
+
+  it('resets pagination when search changes', async () => {
+    window.history.replaceState({}, '', '/acme/contracts?page=2')
+    render(
+      <>
+        <MainHeader />
+        <ContractsPage />
+      </>,
+      { mocks: [contractsMock([contract], 2, 41)] },
+    )
+
+    await screen.findByText('Enterprise agreement')
+    fireEvent.change(screen.getByPlaceholderText('Search contracts'), {
+      target: { value: 'enterprise' },
+    })
+
+    expect(testMockNavigateFn).toHaveBeenCalledWith({ search: '' }, { replace: true })
+  })
+
+  it('sends URL filters to GraphQL and shows the criteria-aware empty state', async () => {
+    const searchParams = new URLSearchParams({
+      con_contractAffiliatedEntityIds: 'entity-1|-_-|France,entity-2|-_-|Germany',
+      con_customerExternalId: 'customer-1|-_-|Acme',
+      con_externalId: 'contract-2026',
+      con_contractPlanCode: 'enterprise|-_-|Enterprise',
+      con_contractRateOverrides: 'false',
+      con_contractStatus: 'active,pending',
+    })
+
+    window.history.replaceState({}, '', `/acme/contracts?${searchParams.toString()}`)
+    render(
+      <>
+        <MainHeader />
+        <ContractsPage />
+      </>,
+      {
+        mocks: [
+          contractsMock([], 1, 0, {
+            billingEntityIds: ['entity-1', 'entity-2'],
+            externalCustomerId: 'customer-1',
+            externalId: 'contract-2026',
+            hasRateOverrides: false,
+            planCode: 'enterprise',
+            status: [ContractStatusEnum.Active, ContractStatusEnum.Pending],
+          }),
+        ],
+      },
+    )
+
+    expect(await screen.findByText('There are no contracts')).toBeInTheDocument()
+    expect(screen.getByText('Could you adjust your filters?')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /reset/i })).toBeInTheDocument()
   })
 
   it('uses the URL page and lets the sticky pager navigate to the next page', async () => {
