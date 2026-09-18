@@ -1165,6 +1165,48 @@ export enum CommitmentTypeEnum {
   MinimumCommitment = 'minimum_commitment'
 }
 
+export enum ConnectionBehaviorEnum {
+  Inherit = 'inherit',
+  Skip = 'skip'
+}
+
+export enum ConnectionCategoryEnum {
+  Accounting = 'accounting',
+  Crm = 'crm',
+  Payment = 'payment',
+  Tax = 'tax'
+}
+
+/** Route a billing object to a specific customer connection, or skip the category */
+export type ConnectionChoiceInput = {
+  behavior?: InputMaybe<ConnectionBehaviorEnum>;
+  code?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** How a billing object routes a category: its own choice, or inherited from the customer */
+export enum ConnectionResolvedBehaviorEnum {
+  Inherit = 'inherit',
+  Skip = 'skip',
+  Specific = 'specific'
+}
+
+/** The connection a billing object routes to for one category, and where that choice came from */
+export type ConnectionRouting = {
+  __typename?: 'ConnectionRouting';
+  behavior: ConnectionResolvedBehaviorEnum;
+  category: ConnectionCategoryEnum;
+  /** Code of the connection in effect. Null when the category is skipped or nothing resolves */
+  code?: Maybe<Scalars['String']['output']>;
+};
+
+/** Per-object connection routing, one choice per category. An omitted category keeps whatever is stored */
+export type ConnectionsInput = {
+  accounting?: InputMaybe<ConnectionChoiceInput>;
+  crm?: InputMaybe<ConnectionChoiceInput>;
+  payment?: InputMaybe<ConnectionChoiceInput>;
+  tax?: InputMaybe<ConnectionChoiceInput>;
+};
+
 /** The agreement a customer signed: an optional plan, a validity window and the billing anchor */
 export type Contract = {
   __typename?: 'Contract';
@@ -2051,6 +2093,7 @@ export type CreateCustomerWalletInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
+  connections?: InputMaybe<ConnectionsInput>;
   currency: CurrencyEnum;
   customerId: Scalars['ID']['input'];
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
@@ -2417,6 +2460,7 @@ export type CreateRateCardInput = {
   rates?: InputMaybe<Array<RateCardRateInput>>;
   regroupPaidFees?: InputMaybe<RateCardRegroupPaidFeesEnum>;
   taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
+  walletTargetable?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** Create rate card rate input arguments */
@@ -2447,6 +2491,7 @@ export type CreateRatePhaseInput = {
 };
 
 export type CreateRecurringTransactionRuleInput = {
+  connections?: InputMaybe<ConnectionsInput>;
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   grantedCredits?: InputMaybe<Scalars['String']['input']>;
   grantsTargetTopUp?: InputMaybe<Scalars['Boolean']['input']>;
@@ -9833,6 +9878,7 @@ export type RateCard = {
   regroupPaidFees?: Maybe<RateCardRegroupPaidFeesEnum>;
   taxes: Array<Tax>;
   updatedAt: Scalars['ISO8601DateTime']['output'];
+  walletTargetable?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export enum RateCardBillingTimingEnum {
@@ -9967,6 +10013,7 @@ export enum RecurringTransactionMethodEnum {
 
 export type RecurringTransactionRule = {
   __typename?: 'RecurringTransactionRule';
+  connections: Array<ConnectionRouting>;
   createdAt: Scalars['ISO8601DateTime']['output'];
   expirationAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   grantedCredits: Scalars['String']['output'];
@@ -11277,6 +11324,7 @@ export type UpdateCustomerWalletInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
+  connections?: InputMaybe<ConnectionsInput>;
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   id: Scalars['ID']['input'];
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
@@ -11655,6 +11703,7 @@ export type UpdateRateCardInput = {
   proration?: InputMaybe<Scalars['Boolean']['input']>;
   regroupPaidFees?: InputMaybe<RateCardRegroupPaidFeesEnum>;
   taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
+  walletTargetable?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** Update rate card rate input arguments */
@@ -11685,6 +11734,7 @@ export type UpdateRatePhaseInput = {
 };
 
 export type UpdateRecurringTransactionRuleInput = {
+  connections?: InputMaybe<ConnectionsInput>;
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   grantedCredits?: InputMaybe<Scalars['String']['input']>;
   grantsTargetTopUp?: InputMaybe<Scalars['Boolean']['input']>;
@@ -11959,6 +12009,7 @@ export type Wallet = {
   balanceCents: Scalars['BigInt']['output'];
   billingEntityId?: Maybe<Scalars['ID']['output']>;
   code?: Maybe<Scalars['String']['output']>;
+  connections: Array<ConnectionRouting>;
   consumedAmountCents: Scalars['BigInt']['output'];
   consumedCredits: Scalars['Float']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
@@ -14820,7 +14871,7 @@ export type GetTaxesForTaxesSelectorSectionQuery = { __typename?: 'Query', taxes
 
 export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean };
 
-export type CustomerWalletFragment = { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, creditsBalance: number, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
+export type CustomerWalletFragment = { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, creditsBalance: number, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
 
 export type GetCustomerWalletListQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
@@ -14829,7 +14880,7 @@ export type GetCustomerWalletListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'WalletCollectionMetadata', currentPage: number, totalPages: number, totalCount: number, customerActiveWalletsCount: number }, collection: Array<{ __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, creditsBalance: number, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null }> } };
+export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'WalletCollectionMetadata', currentPage: number, totalPages: number, totalCount: number, customerActiveWalletsCount: number }, collection: Array<{ __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, creditsBalance: number, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null }> } };
 
 export type DeleteWalletAlertDialogFragment = { __typename?: 'Alert', id: string };
 
@@ -14948,6 +14999,35 @@ export type ConnectionPaymentMethodsQueryVariables = Exact<{
 
 
 export type ConnectionPaymentMethodsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, paymentMethods: { __typename?: 'PaymentMethodCollection', collection: Array<{ __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, paymentProviderName?: string | null, providerMethodId: string, deletedAt?: any | null, createdAt: any, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null }> } } | null } | null };
+
+export type CustomerConnectionPaymentMethodsQueryVariables = Exact<{
+  customerId: Scalars['ID']['input'];
+  limit: Scalars['Int']['input'];
+}>;
+
+
+export type CustomerConnectionPaymentMethodsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, paymentMethods: { __typename?: 'PaymentMethodCollection', collection: Array<{ __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, paymentProviderName?: string | null, providerMethodId: string, deletedAt?: any | null, createdAt: any, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null }>, metadata: { __typename?: 'CollectionMetadata', totalCount: number } } }> } | null };
+
+export type CustomerIntegrationConnectionsQueryVariables = Exact<{
+  customerId: Scalars['ID']['input'];
+}>;
+
+
+export type CustomerIntegrationConnectionsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, integrationCustomers: Array<
+      | { __typename: 'AnrokCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
+      | { __typename: 'AvalaraCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
+      | { __typename: 'HubspotCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
+      | { __typename: 'NetsuiteCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
+      | { __typename: 'SalesforceCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
+      | { __typename: 'XeroCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
+    > } | null };
+
+export type CustomerPaymentConnectionsQueryVariables = Exact<{
+  customerId: Scalars['ID']['input'];
+}>;
+
+
+export type CustomerPaymentConnectionsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, paymentProvider?: ProviderTypeEnum | null }> } | null };
 
 export type PaymentMethodItemFragment = { __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, paymentProviderName?: string | null, providerMethodId: string, deletedAt?: any | null, createdAt: any, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null };
 
@@ -18282,7 +18362,7 @@ export type ThresholdForProgressiveBillingFormFragment = { __typename?: 'UsageTh
 
 export type UseSubscriptionForProgressiveBillingFormFragment = { __typename?: 'Subscription', progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }>, plan: { __typename?: 'Plan', applicableUsageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null } };
 
-export type WalletForUpdateFragment = { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
+export type WalletForUpdateFragment = { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
 
 export type GetCustomerInfosForWalletFormQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -18296,7 +18376,7 @@ export type GetWalletInfosForWalletFormQueryVariables = Exact<{
 }>;
 
 
-export type GetWalletInfosForWalletFormQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
+export type GetWalletInfosForWalletFormQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
 
 export type CreateCustomerWalletMutationVariables = Exact<{
   input: CreateCustomerWalletInput;
@@ -18310,7 +18390,7 @@ export type UpdateCustomerWalletMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCustomerWalletMutation = { __typename?: 'Mutation', updateCustomerWallet?: { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
+export type UpdateCustomerWalletMutation = { __typename?: 'Mutation', updateCustomerWallet?: { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
 
 export type GetWalletForTopUpQueryVariables = Exact<{
   walletId: Scalars['ID']['input'];
@@ -18349,14 +18429,14 @@ export type UpdateWalletAlertMutationVariables = Exact<{
 
 export type UpdateWalletAlertMutation = { __typename?: 'Mutation', updateCustomerWalletAlert?: { __typename?: 'Alert', id: string } | null };
 
-export type WalletDetailsFragment = { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, purchaseOrderNumber?: string | null, paidTopUpMinAmountCents?: any | null, paidTopUpMinCredits?: any | null, paidTopUpMaxAmountCents?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, billingEntityId?: string | null, skipInvoiceCustomSections?: boolean | null, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string, details?: { __typename?: 'PaymentMethodDetails', type?: string | null, brand?: string | null, last4?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, transactionName?: string | null, paidCredits: string, grantedCredits: string, grantsTargetTopUp?: boolean | null, targetOngoingBalance?: string | null, trigger: RecurringTransactionTriggerEnum, thresholdCredits?: string | null, expirationAt?: any | null, interval?: RecurringTransactionIntervalEnum | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, purchaseOrderNumber?: string | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null }> | null };
+export type WalletDetailsFragment = { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, purchaseOrderNumber?: string | null, paidTopUpMinAmountCents?: any | null, paidTopUpMinCredits?: any | null, paidTopUpMaxAmountCents?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, billingEntityId?: string | null, skipInvoiceCustomSections?: boolean | null, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string, details?: { __typename?: 'PaymentMethodDetails', type?: string | null, brand?: string | null, last4?: string | null } | null } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, customer?: { __typename?: 'Customer', id: string, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, transactionName?: string | null, paidCredits: string, grantedCredits: string, grantsTargetTopUp?: boolean | null, targetOngoingBalance?: string | null, trigger: RecurringTransactionTriggerEnum, thresholdCredits?: string | null, expirationAt?: any | null, interval?: RecurringTransactionIntervalEnum | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, purchaseOrderNumber?: string | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null }> | null };
 
 export type GetWalletDetailsQueryVariables = Exact<{
   walletId: Scalars['ID']['input'];
 }>;
 
 
-export type GetWalletDetailsQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, purchaseOrderNumber?: string | null, paidTopUpMinAmountCents?: any | null, paidTopUpMinCredits?: any | null, paidTopUpMaxAmountCents?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, billingEntityId?: string | null, skipInvoiceCustomSections?: boolean | null, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string, details?: { __typename?: 'PaymentMethodDetails', type?: string | null, brand?: string | null, last4?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, transactionName?: string | null, paidCredits: string, grantedCredits: string, grantsTargetTopUp?: boolean | null, targetOngoingBalance?: string | null, trigger: RecurringTransactionTriggerEnum, thresholdCredits?: string | null, expirationAt?: any | null, interval?: RecurringTransactionIntervalEnum | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, purchaseOrderNumber?: string | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null }> | null } | null };
+export type GetWalletDetailsQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, purchaseOrderNumber?: string | null, paidTopUpMinAmountCents?: any | null, paidTopUpMinCredits?: any | null, paidTopUpMaxAmountCents?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, billingEntityId?: string | null, skipInvoiceCustomSections?: boolean | null, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string, details?: { __typename?: 'PaymentMethodDetails', type?: string | null, brand?: string | null, last4?: string | null } | null } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, customer?: { __typename?: 'Customer', id: string, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, transactionName?: string | null, paidCredits: string, grantedCredits: string, grantsTargetTopUp?: boolean | null, targetOngoingBalance?: string | null, trigger: RecurringTransactionTriggerEnum, thresholdCredits?: string | null, expirationAt?: any | null, interval?: RecurringTransactionIntervalEnum | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, purchaseOrderNumber?: string | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null }> | null } | null };
 
 export type BillableMetricForWalletScopeSectionFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string };
 
@@ -21251,6 +21331,11 @@ export const WalletForUpdateFragmentDoc = gql`
   paymentMethod {
     id
   }
+  connections {
+    category
+    behavior
+    code
+  }
   skipInvoiceCustomSections
   selectedInvoiceCustomSections {
     id
@@ -21281,6 +21366,11 @@ export const WalletForUpdateFragmentDoc = gql`
     paymentMethodType
     paymentMethod {
       id
+    }
+    connections {
+      category
+      behavior
+      code
     }
     skipInvoiceCustomSections
     selectedInvoiceCustomSections {
@@ -24610,6 +24700,11 @@ export const WalletDetailsFragmentDoc = gql`
       last4
     }
   }
+  connections {
+    category
+    behavior
+    code
+  }
   billingEntityId
   customer {
     id
@@ -24658,6 +24753,11 @@ export const WalletDetailsFragmentDoc = gql`
     paymentMethodType
     paymentMethod {
       id
+    }
+    connections {
+      category
+      behavior
+      code
     }
     skipInvoiceCustomSections
     selectedInvoiceCustomSections {
@@ -36443,6 +36543,203 @@ export type ConnectionPaymentMethodsQueryHookResult = ReturnType<typeof useConne
 export type ConnectionPaymentMethodsLazyQueryHookResult = ReturnType<typeof useConnectionPaymentMethodsLazyQuery>;
 export type ConnectionPaymentMethodsSuspenseQueryHookResult = ReturnType<typeof useConnectionPaymentMethodsSuspenseQuery>;
 export type ConnectionPaymentMethodsQueryResult = Apollo.QueryResult<ConnectionPaymentMethodsQuery, ConnectionPaymentMethodsQueryVariables>;
+export const CustomerConnectionPaymentMethodsDocument = gql`
+    query CustomerConnectionPaymentMethods($customerId: ID!, $limit: Int!) {
+  customer(id: $customerId) {
+    id
+    paymentProviderCustomers {
+      id
+      paymentMethods(withDeleted: false, limit: $limit) {
+        collection {
+          ...PaymentMethodItem
+        }
+        metadata {
+          totalCount
+        }
+      }
+    }
+  }
+}
+    ${PaymentMethodItemFragmentDoc}`;
+
+/**
+ * __useCustomerConnectionPaymentMethodsQuery__
+ *
+ * To run a query within a React component, call `useCustomerConnectionPaymentMethodsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCustomerConnectionPaymentMethodsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCustomerConnectionPaymentMethodsQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useCustomerConnectionPaymentMethodsQuery(baseOptions: Apollo.QueryHookOptions<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables> & ({ variables: CustomerConnectionPaymentMethodsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>(CustomerConnectionPaymentMethodsDocument, options);
+      }
+export function useCustomerConnectionPaymentMethodsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>(CustomerConnectionPaymentMethodsDocument, options);
+        }
+// @ts-ignore
+export function useCustomerConnectionPaymentMethodsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>;
+export function useCustomerConnectionPaymentMethodsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerConnectionPaymentMethodsQuery | undefined, CustomerConnectionPaymentMethodsQueryVariables>;
+export function useCustomerConnectionPaymentMethodsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>(CustomerConnectionPaymentMethodsDocument, options);
+        }
+export type CustomerConnectionPaymentMethodsQueryHookResult = ReturnType<typeof useCustomerConnectionPaymentMethodsQuery>;
+export type CustomerConnectionPaymentMethodsLazyQueryHookResult = ReturnType<typeof useCustomerConnectionPaymentMethodsLazyQuery>;
+export type CustomerConnectionPaymentMethodsSuspenseQueryHookResult = ReturnType<typeof useCustomerConnectionPaymentMethodsSuspenseQuery>;
+export type CustomerConnectionPaymentMethodsQueryResult = Apollo.QueryResult<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>;
+export const CustomerIntegrationConnectionsDocument = gql`
+    query CustomerIntegrationConnections($customerId: ID!) {
+  customer(id: $customerId) {
+    id
+    integrationCustomers {
+      ... on NetsuiteCustomer {
+        __typename
+        id
+        code
+        integrationCode
+        integrationType
+        isDefault
+      }
+      ... on XeroCustomer {
+        __typename
+        id
+        code
+        integrationCode
+        integrationType
+        isDefault
+      }
+      ... on AnrokCustomer {
+        __typename
+        id
+        code
+        integrationCode
+        integrationType
+        isDefault
+      }
+      ... on AvalaraCustomer {
+        __typename
+        id
+        code
+        integrationCode
+        integrationType
+        isDefault
+      }
+      ... on HubspotCustomer {
+        __typename
+        id
+        code
+        integrationCode
+        integrationType
+        isDefault
+      }
+      ... on SalesforceCustomer {
+        __typename
+        id
+        code
+        integrationCode
+        integrationType
+        isDefault
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useCustomerIntegrationConnectionsQuery__
+ *
+ * To run a query within a React component, call `useCustomerIntegrationConnectionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCustomerIntegrationConnectionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCustomerIntegrationConnectionsQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *   },
+ * });
+ */
+export function useCustomerIntegrationConnectionsQuery(baseOptions: Apollo.QueryHookOptions<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables> & ({ variables: CustomerIntegrationConnectionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>(CustomerIntegrationConnectionsDocument, options);
+      }
+export function useCustomerIntegrationConnectionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>(CustomerIntegrationConnectionsDocument, options);
+        }
+// @ts-ignore
+export function useCustomerIntegrationConnectionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>;
+export function useCustomerIntegrationConnectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerIntegrationConnectionsQuery | undefined, CustomerIntegrationConnectionsQueryVariables>;
+export function useCustomerIntegrationConnectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>(CustomerIntegrationConnectionsDocument, options);
+        }
+export type CustomerIntegrationConnectionsQueryHookResult = ReturnType<typeof useCustomerIntegrationConnectionsQuery>;
+export type CustomerIntegrationConnectionsLazyQueryHookResult = ReturnType<typeof useCustomerIntegrationConnectionsLazyQuery>;
+export type CustomerIntegrationConnectionsSuspenseQueryHookResult = ReturnType<typeof useCustomerIntegrationConnectionsSuspenseQuery>;
+export type CustomerIntegrationConnectionsQueryResult = Apollo.QueryResult<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>;
+export const CustomerPaymentConnectionsDocument = gql`
+    query CustomerPaymentConnections($customerId: ID!) {
+  customer(id: $customerId) {
+    id
+    paymentProviderCustomers {
+      id
+      code
+      isDefault
+      paymentProvider
+    }
+  }
+}
+    `;
+
+/**
+ * __useCustomerPaymentConnectionsQuery__
+ *
+ * To run a query within a React component, call `useCustomerPaymentConnectionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCustomerPaymentConnectionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCustomerPaymentConnectionsQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *   },
+ * });
+ */
+export function useCustomerPaymentConnectionsQuery(baseOptions: Apollo.QueryHookOptions<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables> & ({ variables: CustomerPaymentConnectionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>(CustomerPaymentConnectionsDocument, options);
+      }
+export function useCustomerPaymentConnectionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>(CustomerPaymentConnectionsDocument, options);
+        }
+// @ts-ignore
+export function useCustomerPaymentConnectionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>;
+export function useCustomerPaymentConnectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerPaymentConnectionsQuery | undefined, CustomerPaymentConnectionsQueryVariables>;
+export function useCustomerPaymentConnectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>(CustomerPaymentConnectionsDocument, options);
+        }
+export type CustomerPaymentConnectionsQueryHookResult = ReturnType<typeof useCustomerPaymentConnectionsQuery>;
+export type CustomerPaymentConnectionsLazyQueryHookResult = ReturnType<typeof useCustomerPaymentConnectionsLazyQuery>;
+export type CustomerPaymentConnectionsSuspenseQueryHookResult = ReturnType<typeof useCustomerPaymentConnectionsSuspenseQuery>;
+export type CustomerPaymentConnectionsQueryResult = Apollo.QueryResult<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>;
 export const PaymentMethodsDocument = gql`
     query PaymentMethods($externalCustomerId: ID!, $withDeleted: Boolean) {
   paymentMethods(

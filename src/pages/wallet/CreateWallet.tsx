@@ -25,6 +25,7 @@ import {
 } from '~/core/router'
 import {
   CurrencyEnum,
+  FeatureFlagEnum,
   GetWalletInfosForWalletFormQuery,
   LagoApiError,
   useCreateCustomerWalletMutation,
@@ -66,6 +67,11 @@ gql`
     paymentMethod {
       id
     }
+    connections {
+      category
+      behavior
+      code
+    }
     skipInvoiceCustomSections
     selectedInvoiceCustomSections {
       id
@@ -96,6 +102,11 @@ gql`
       paymentMethodType
       paymentMethod {
         id
+      }
+      connections {
+        category
+        behavior
+        code
       }
       skipInvoiceCustomSections
       selectedInvoiceCustomSections {
@@ -164,10 +175,14 @@ const CreateWallet = () => {
   // as the wallet data is ready (bridge until the dedicated rule mutations,
   // ING-529, allow editing straight from the detail view).
   const autoOpenRuleDrawer = location.state?.openRecurringRuleDrawer === true
+  const autoOpenPaymentConnectionDrawer = location.state?.openConnectionPaymentDrawer === true
+  const autoOpenAdditionalIntegrationDrawer =
+    location.state?.openAdditionalIntegrationDrawer === true
 
   const { customerId = '', walletId = '' } = useParams()
   const { translate } = useInternationalization()
-  const { organization } = useOrganizationInfos()
+  const { organization, hasFeatureFlag } = useOrganizationInfos()
+  const isMultiConnectionEnabled = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
 
   const centralizedDialog = useCentralizedDialog()
 
@@ -275,10 +290,12 @@ const CreateWallet = () => {
       const { errors } =
         formType === FORM_TYPE_ENUM.edition
           ? await updateWallet({
-              variables: { input: mapFormToUpdateInput(value, walletId) },
+              variables: { input: mapFormToUpdateInput(value, walletId, isMultiConnectionEnabled) },
             })
           : await createWallet({
-              variables: { input: mapFormToCreateInput(value, customerId) },
+              variables: {
+                input: mapFormToCreateInput(value, customerId, isMultiConnectionEnabled),
+              },
             })
 
       if (!!errors?.length) {
@@ -381,6 +398,10 @@ const CreateWallet = () => {
               isRecurringTopUpEnabled={isRecurringTopUpEnabled}
               setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
               autoOpenRuleDrawer={autoOpenRuleDrawer && !isLoading}
+              autoOpenPaymentConnectionDrawer={autoOpenPaymentConnectionDrawer && !isLoading}
+              autoOpenAdditionalIntegrationDrawer={
+                autoOpenAdditionalIntegrationDrawer && !isLoading
+              }
             />
           </CenteredPage.Container>
         )}

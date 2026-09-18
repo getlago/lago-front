@@ -1,6 +1,11 @@
+import {
+  findConnectionRouting,
+  toSelectedConnection,
+} from '~/components/connectionSelection/fromConnectionRouting'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
+  ConnectionCategoryEnum,
   CurrencyEnum,
   GetCustomerInfosForWalletFormQuery,
   GetWalletInfosForWalletFormQuery,
@@ -61,9 +66,23 @@ export const mapFromApiToForm = ({
     : undefined,
   ignorePaidTopUpLimitsOnCreation: false,
   priority: wallet?.priority || WALLET_DEFAULT_PRIORITY,
+  paymentConnection: toSelectedConnection(
+    findConnectionRouting(wallet?.connections, ConnectionCategoryEnum.Payment),
+  ),
+  accountingConnection: toSelectedConnection(
+    findConnectionRouting(wallet?.connections, ConnectionCategoryEnum.Accounting),
+  ),
+  crmConnection: toSelectedConnection(
+    findConnectionRouting(wallet?.connections, ConnectionCategoryEnum.Crm),
+  ),
+  taxConnection: toSelectedConnection(
+    findConnectionRouting(wallet?.connections, ConnectionCategoryEnum.Tax),
+  ),
   paymentMethod: {
     paymentMethodType: wallet?.paymentMethodType,
-    paymentMethodId: wallet?.paymentMethod?.id,
+    // `null` is "no method persisted", which both drawers read as the default branch. Leaving it
+    // `undefined` marks an unfinished specific selection and their schemas refuse to submit.
+    paymentMethodId: wallet?.paymentMethod?.id ?? null,
   },
   invoiceCustomSection: {
     invoiceCustomSections: wallet?.selectedInvoiceCustomSections || [],
