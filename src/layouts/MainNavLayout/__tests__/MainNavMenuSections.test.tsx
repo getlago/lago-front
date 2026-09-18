@@ -4,6 +4,8 @@ import {
   CATALOG_PLAN_DETAILS_ROUTE,
   CATALOG_PLAN_DETAILS_SECTION_ROUTE,
   CONTRACT_DETAILS_ROUTE,
+  CONTRACT_DETAILS_SECTION_ROUTE,
+  CONTRACT_DETAILS_TAB_ROUTE,
   CONTRACTS_ROUTE,
   CUSTOMERS_LIST_ROUTE,
   PLAN_PRICING_ROUTE,
@@ -123,7 +125,12 @@ describe('MainNavMenuSections', () => {
       expect(getContractsTab()).toEqual(
         expect.objectContaining({
           icon: 'contract',
-          match: [CONTRACTS_ROUTE, CONTRACT_DETAILS_ROUTE],
+          match: [
+            CONTRACTS_ROUTE,
+            CONTRACT_DETAILS_ROUTE,
+            CONTRACT_DETAILS_TAB_ROUTE,
+            CONTRACT_DETAILS_SECTION_ROUTE,
+          ],
           canBeClickedOnActive: true,
         }),
       )
