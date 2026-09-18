@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { z } from 'zod'
 
+import { SelectedConnection } from '~/components/connectionSelection/types'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { addPurchaseOrderNumberMaxLengthIssue } from '~/components/purchaseOrder/validation'
@@ -15,6 +16,10 @@ export interface SubscriptionFormValues {
   subscriptionAt: string
   endingAt?: string
   billingTime: BillingTimeEnum
+  paymentConnection?: SelectedConnection
+  accountingConnection?: SelectedConnection
+  crmConnection?: SelectedConnection
+  taxConnection?: SelectedConnection
   paymentMethod?: SelectedPaymentMethod
   invoiceCustomSection?: InvoiceCustomSectionInput
   billingEntityId?: string

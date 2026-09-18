@@ -28,6 +28,7 @@ interface ConnectionPaymentSettingsSelectorProps {
   customerId: string
   connection: SelectedConnection
   paymentMethod: SelectedPaymentMethod
+  paymentMethodSummary?: string
   onChange: (values: ConnectionPaymentSettingsValues) => void
   autoOpen?: boolean
   'data-test'?: string
@@ -52,6 +53,7 @@ export const ConnectionPaymentSettingsSelector = ({
   customerId,
   connection,
   paymentMethod,
+  paymentMethodSummary,
   onChange,
   autoOpen = false,
   'data-test': dataTest = CONNECTION_PAYMENT_SETTINGS_SELECTOR_TEST_ID,
@@ -79,9 +81,12 @@ export const ConnectionPaymentSettingsSelector = ({
     <Selector
       icon="coin-dollar"
       title={translate('text_17828013737948943pe3k8nc')}
-      subtitle={translate(
-        CONNECTION_SUMMARY_KEY_BY_BEHAVIOR[deriveConnectionBehavior(seededConnection)],
-      )}
+      subtitle={[
+        translate(CONNECTION_SUMMARY_KEY_BY_BEHAVIOR[deriveConnectionBehavior(seededConnection)]),
+        paymentMethodSummary,
+      ]
+        .filter(Boolean)
+        .join(' • ')}
       endContent={<Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />}
       onClick={() => openDrawer({ connection: seededConnection, paymentMethod })}
       data-test={dataTest}

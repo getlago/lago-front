@@ -2561,6 +2561,7 @@ export type CreateSubscriptionInput = {
   billingTime: BillingTimeEnum;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  connections?: InputMaybe<ConnectionsInput>;
   consolidateInvoice?: InputMaybe<Scalars['Boolean']['input']>;
   customerId: Scalars['ID']['input'];
   endingAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
@@ -11843,6 +11844,7 @@ export type UpdateSubscriptionInput = {
   billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  connections?: InputMaybe<ConnectionsInput>;
   consolidateInvoice?: InputMaybe<Scalars['Boolean']['input']>;
   endingAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   id: Scalars['ID']['input'];
