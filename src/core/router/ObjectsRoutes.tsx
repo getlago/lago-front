@@ -153,6 +153,8 @@ export const CUSTOMER_PAYMENT_DETAILS_ROUTE = '/customer/:customerId/payment/:pa
 export const BILLABLE_METRIC_DETAILS_ROUTE = '/billable-metric/:billableMetricId/:tab'
 export const FEATURE_DETAILS_ROUTE = '/feature/:featureId/:tab'
 export const CONTRACT_DETAILS_ROUTE = '/contracts/:id'
+export const CONTRACT_DETAILS_TAB_ROUTE = '/contracts/:id/:tab'
+export const CONTRACT_DETAILS_SECTION_ROUTE = '/contracts/:id/overview/:section'
 
 export const objectListRoutes: CustomRouteObject[] = [
   {
@@ -353,7 +355,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
 
 export const objectDetailsRoutes: CustomRouteObject[] = [
   {
-    path: [CONTRACT_DETAILS_ROUTE],
+    path: [CONTRACT_DETAILS_ROUTE, CONTRACT_DETAILS_TAB_ROUTE, CONTRACT_DETAILS_SECTION_ROUTE],
     private: true,
     element: <ContractDetails />,
     permissions: ['contractsView'],

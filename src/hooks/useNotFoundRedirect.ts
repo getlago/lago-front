@@ -7,6 +7,7 @@ import { useNavigate } from '~/core/router'
 type UseNotFoundRedirectArgs = {
   error: ApolloError | undefined
   loading: boolean
+  notFound?: boolean
   redirectTo: string
   translateKey: string
 }
@@ -14,14 +15,15 @@ type UseNotFoundRedirectArgs = {
 export const useNotFoundRedirect = ({
   error,
   loading,
+  notFound = false,
   redirectTo,
   translateKey,
 }: UseNotFoundRedirectArgs) => {
   const navigate = useNavigate()
-  const isNotFoundError = hasDefinedGQLError('NotFound', error)
+  const isNotFound = hasDefinedGQLError('NotFound', error) || notFound
 
   useEffect(() => {
-    if (loading || !isNotFoundError) return
+    if (loading || !isNotFound) return
 
     addToast({
       severity: 'info',
@@ -29,5 +31,5 @@ export const useNotFoundRedirect = ({
     })
     navigate(redirectTo, { replace: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, isNotFoundError])
+  }, [loading, isNotFound])
 }

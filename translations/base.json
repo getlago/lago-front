@@ -4996,5 +4996,13 @@
   "text_1789636691484vv5ug3lqzuo": "Contract termination is not available yet.",
   "text_1789637038124d2rpm0ng6c2": "Copy ID, terminate",
   "text_178965210969958i1zni4czl": "A contract is created when a plan is assigned to a customer.",
-  "text_1789652109699qmz7squ6wr3": "This customer’s contracts will appear here."
+  "text_1789652109699qmz7squ6wr3": "This customer’s contracts will appear here.",
+  "text_17897233021145awow0e13vf": "Contract overview",
+  "text_1789723302114t5f7dka9914": "Contract not found",
+  "text_1789723302114ceqx5k6efdq": "Cancellation date",
+  "text_17897233021144v1deu5m2s7": "Termination date",
+  "text_1789723302114au3ml0nf077": "Rate cards applied to this contract will appear here.",
+  "text_1789724492480cacpzfyknb5": "How the contract functions.",
+  "text_1789724492480lc4k8wns9zw": "How invoices are generated for this contract.",
+  "text_17897244924802iix6cccw2v": "How the contract is paid."
 }
