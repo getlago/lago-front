@@ -10,6 +10,8 @@ import {
   BILLABLE_METRICS_ROUTE,
   CATALOG_PLAN_DETAILS_ROUTE,
   CATALOG_PLAN_DETAILS_SECTION_ROUTE,
+  CONTRACT_DETAILS_ROUTE,
+  CONTRACTS_ROUTE,
   COUPON_DETAILS_ROUTE,
   COUPONS_ROUTE,
   CREDIT_NOTES_ROUTE,
@@ -194,6 +196,14 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
           <Icon name="sparkles" />
         </span>
       ),
+    },
+    {
+      title: translate('text_17894894166553ysarr965xr'),
+      icon: 'contract',
+      link: CONTRACTS_ROUTE,
+      canBeClickedOnActive: true,
+      match: [CONTRACTS_ROUTE, CONTRACT_DETAILS_ROUTE],
+      hidden: !hasPermissions(['contractsView']) || !hasFeatureFlag(FeatureFlagEnum.ProductCatalog),
     },
     {
       title: translate('text_6250304370f0f700a8fdc28d'),
