@@ -52,14 +52,14 @@ COPY --chown=nonroot:nonroot ./nginx/gzip.conf /etc/nginx/conf.d/gzip.conf
 COPY --chown=nonroot:nonroot ./nginx/csp.conf /etc/nginx/conf.d/csp.conf
 COPY --chown=nonroot:nonroot ./.env.sh ./.env.sh
 
-# Move nginx's writable state onto tmpfs so readOnlyRootFilesystem works
-# in the pod. The k8s pod-security block mounts an emptyDir at /tmp; the
-# app's runtime `.env.sh` writes its runtime config into the served dist,
-# so /usr/share/nginx/html stays writable via a separate emptyDir mount.
+# Everything nginx writes goes to /tmp so the pod can run with
+# readOnlyRootFilesystem and a single emptyDir: the pid file, env-config.js,
+# and the temp paths redirected in nginx.staging.conf.
+# /usr/share/nginx/html must NOT be mounted over — it holds the built dist.
 ENV NGINX_PID_PATH=/tmp/nginx.pid
 
 USER 65532
 
 EXPOSE 8080
 
-ENTRYPOINT ["/bin/bash", "-c", "./.env.sh && exec nginx -g \"pid /tmp/nginx.pid; daemon off;\""]
+ENTRYPOINT ["/bin/bash", "-c", "cd /tmp && /usr/share/nginx/html/.env.sh && exec nginx -g \"pid /tmp/nginx.pid; daemon off;\""]
