@@ -1,3 +1,4 @@
+import { SelectedConnection } from '~/components/connectionSelection/types'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
@@ -39,11 +40,14 @@ export const useUpdateSubscriptionSettings = (subscriptionId: string) => {
 
   const savePayment = ({
     paymentMethod,
+    connection,
   }: {
     paymentMethod: SelectedPaymentMethod
+    connection?: SelectedConnection
   }): Promise<void> =>
     update({
       id: subscriptionId,
+      ...(connection ? { connections: { payment: connection } } : {}),
       paymentMethod: paymentMethod
         ? {
             paymentMethodId: paymentMethod.paymentMethodId,
