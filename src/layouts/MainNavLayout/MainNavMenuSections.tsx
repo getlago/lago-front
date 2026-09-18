@@ -16,6 +16,8 @@ import {
   CATALOG_PLAN_DETAILS_ROUTE,
   CATALOG_PLAN_DETAILS_SECTION_ROUTE,
   CONTRACT_DETAILS_ROUTE,
+  CONTRACT_DETAILS_SECTION_ROUTE,
+  CONTRACT_DETAILS_TAB_ROUTE,
   CONTRACTS_ROUTE,
   COUPON_DETAILS_ROUTE,
   COUPONS_ROUTE,
@@ -208,7 +210,12 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       icon: 'contract',
       link: CONTRACTS_ROUTE,
       canBeClickedOnActive: true,
-      match: [CONTRACTS_ROUTE, CONTRACT_DETAILS_ROUTE],
+      match: [
+        CONTRACTS_ROUTE,
+        CONTRACT_DETAILS_ROUTE,
+        CONTRACT_DETAILS_TAB_ROUTE,
+        CONTRACT_DETAILS_SECTION_ROUTE,
+      ],
       hidden: !hasPermissions(['contractsView']) || !hasFeatureFlag(FeatureFlagEnum.ProductCatalog),
     },
     {

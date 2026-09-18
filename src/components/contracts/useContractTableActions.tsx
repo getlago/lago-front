@@ -1,7 +1,7 @@
 import { ActionItem } from '~/components/designSystem/Table/types'
-import { addToast } from '~/core/apolloClient'
-import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+import { useCopyContractExternalId } from './useCopyContractExternalId'
 
 type ContractTableActionTarget = {
   externalId: string
@@ -9,21 +9,16 @@ type ContractTableActionTarget = {
 
 export const useContractTableActions = () => {
   const { translate } = useInternationalization()
+  const { copyContractExternalId, copyContractExternalIdLabel } = useCopyContractExternalId()
 
   const getContractTableActions = <T extends ContractTableActionTarget>(
     contract: T,
   ): ActionItem<T>[] => [
     {
       startIcon: 'duplicate',
-      title: translate('text_1789636691484c9hodzevcvd'),
+      title: copyContractExternalIdLabel,
       dataTest: 'copy-contract-external-id',
-      onAction: () => {
-        copyToClipboard(contract.externalId)
-        addToast({
-          severity: 'info',
-          translateKey: 'text_1789636691484fyt51yyc9uh',
-        })
-      },
+      onAction: () => copyContractExternalId(contract.externalId),
     },
   ]
 
