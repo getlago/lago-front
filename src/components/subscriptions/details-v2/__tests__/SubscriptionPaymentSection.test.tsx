@@ -172,6 +172,26 @@ describe('SubscriptionPaymentSection', () => {
       },
     )
 
+    it('THEN should preserve legacy manual payment when routing reports inherit', () => {
+      renderSection({
+        ...subscription,
+        paymentMethodType: PaymentMethodTypeEnum.Manual,
+        paymentMethod: null,
+        connections: [
+          {
+            category: ConnectionCategoryEnum.Payment,
+            behavior: ConnectionResolvedBehaviorEnum.Inherit,
+            code: 'stripe_default',
+          },
+        ],
+      })
+      mockSectionHeader.mock.calls.at(-1)?.[0].action?.onClick()
+      expect(mockOpenConnectionDrawer).toHaveBeenCalledWith({
+        connection: { behavior: ConnectionBehaviorEnum.Skip },
+        paymentMethod: { paymentMethodType: PaymentMethodTypeEnum.Manual, paymentMethodId: null },
+      })
+    })
+
     it('THEN should hide edit without subscription update permission', () => {
       mockCanUpdate = false
       renderSection()

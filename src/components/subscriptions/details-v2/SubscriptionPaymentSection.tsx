@@ -75,7 +75,7 @@ export const SubscriptionPaymentSection = ({ subscription }: SubscriptionPayment
       )
       let connection = toSelectedConnection(paymentRouting)
 
-      if (!paymentRouting && subscription.paymentMethodType === PaymentMethodTypeEnum.Manual) {
+      if (!connection && subscription.paymentMethodType === PaymentMethodTypeEnum.Manual) {
         connection = { behavior: ConnectionBehaviorEnum.Skip }
       }
 
