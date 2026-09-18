@@ -47,16 +47,10 @@ FROM ${RUNTIME_IMAGE}
 WORKDIR /usr/share/nginx/html
 
 COPY --from=build --chown=nonroot:nonroot /app/dist .
-COPY --chown=nonroot:nonroot ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --chown=nonroot:nonroot ./nginx/nginx.staging.conf /etc/nginx/conf.d/default.conf
 COPY --chown=nonroot:nonroot ./nginx/gzip.conf /etc/nginx/conf.d/gzip.conf
 COPY --chown=nonroot:nonroot ./nginx/csp.conf /etc/nginx/conf.d/csp.conf
 COPY --chown=nonroot:nonroot ./.env.sh ./.env.sh
-
-# nginx runs as UID 65532 (nonroot) — it cannot bind the privileged port 80.
-# Rewrite every `listen 80` in the app's nginx.conf to 8080 so the process
-# binds a high port. The k8s Service in lago-helm-charts must target 8080
-# (front chart values expose this as an override).
-RUN sed -i 's/listen[[:space:]]\+80\b/listen 8080/g' /etc/nginx/conf.d/default.conf
 
 # Move nginx's writable state onto tmpfs so readOnlyRootFilesystem works
 # in the pod. The k8s pod-security block mounts an emptyDir at /tmp; the
