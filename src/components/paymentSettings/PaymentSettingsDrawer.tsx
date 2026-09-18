@@ -51,6 +51,10 @@ const PaymentSettingsDrawerContent = withForm({
   props: paymentSettingsDrawerContentDefaultProps,
   render: function PaymentSettingsDrawerContentRender({ form, viewType, externalCustomerId }) {
     const { translate } = useInternationalization()
+    const titleKey =
+      viewType === ViewTypeEnum.Contract
+        ? 'text_1789644720007contract'
+        : 'text_17828013737948943pe3k8nc'
     const paymentMethod = useStore(form.store, (s) => s.values.paymentMethod)
     const paymentMethodError = useStore(
       form.store,
@@ -60,7 +64,7 @@ const PaymentSettingsDrawerContent = withForm({
     return (
       <CenteredPage.SectionWrapper>
         <CenteredPage.PageTitle
-          title={translate('text_17828013737948943pe3k8nc')}
+          title={translate(titleKey)}
           description={translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[viewType])}
         />
 
@@ -98,6 +102,10 @@ export const PaymentSettingsDrawer = forwardRef<
   PaymentSettingsDrawerProps
 >(({ viewType, externalCustomerId, onSave }, ref) => {
   const { translate } = useInternationalization()
+  const titleKey =
+    viewType === ViewTypeEnum.Contract
+      ? 'text_1789644720007contract'
+      : 'text_17828013737948943pe3k8nc'
   const drawer = useFormDrawer()
 
   const form = useAppForm({
@@ -114,7 +122,7 @@ export const PaymentSettingsDrawer = forwardRef<
 
   const openPaymentSettingsDrawer = (): void => {
     drawer.open({
-      title: translate('text_17828013737948943pe3k8nc'),
+      title: translate(titleKey),
       form: { id: PAYMENT_SETTINGS_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
       shouldPromptOnClose: () => form.state.isDirty,
