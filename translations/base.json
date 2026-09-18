@@ -4958,5 +4958,9 @@
   "text_1789489416655gvo52mdwtur": "Search contracts",
   "text_1789489416655cg75diwmbkv": "Your customers’ contracts will appear here.",
   "text_1789636691484c9hodzevcvd": "Copy external ID",
-  "text_1789636691484fyt51yyc9uh": "External ID copied to clipboard"
+  "text_1789636691484fyt51yyc9uh": "External ID copied to clipboard",
+  "text_1789752288687t0rx0w5b4d5": "Rate overrides",
+  "text_1789752288687xjph983ekbt": "With rate overrides",
+  "text_1789752288687c3bxfx2tjlu": "Without rate overrides",
+  "text_1789752288687fltu5v8ujsm": "There are no contracts"
 }
