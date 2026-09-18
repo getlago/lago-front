@@ -4,7 +4,12 @@ import { useConnectionPaymentSettingsDrawer } from '~/components/paymentSettings
 import { PaymentSettingsDrawerRef } from '~/components/paymentSettings/PaymentSettingsDrawer'
 import { SectionHeaderProps } from '~/components/plans/details-v2/shared/SectionHeader'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
-import { ConnectionBehaviorEnum, PaymentMethodTypeEnum } from '~/generated/graphql'
+import {
+  ConnectionBehaviorEnum,
+  ConnectionCategoryEnum,
+  ConnectionResolvedBehaviorEnum,
+  PaymentMethodTypeEnum,
+} from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { SubscriptionPaymentSection } from '../SubscriptionPaymentSection'
@@ -82,6 +87,7 @@ jest.mock('~/hooks/usePermissions', () => ({
 
 const subscription = {
   id: 'sub_1',
+  connections: [],
   paymentMethodType: PaymentMethodTypeEnum.Provider,
   paymentMethod: { id: 'pm_1' },
   customer: { id: 'cust_1', externalId: 'ext_1' },
@@ -135,6 +141,33 @@ describe('SubscriptionPaymentSection', () => {
         expect(mockOpenConnectionDrawer).toHaveBeenCalledWith({
           connection,
           paymentMethod: { paymentMethodType, paymentMethodId: null },
+        })
+      },
+    )
+
+    it.each([
+      [ConnectionResolvedBehaviorEnum.Specific, { code: 'stripe_default' }],
+      [ConnectionResolvedBehaviorEnum.Inherit, undefined],
+      [ConnectionResolvedBehaviorEnum.Skip, { behavior: ConnectionBehaviorEnum.Skip }],
+    ])(
+      'THEN should reopen persisted %s routing independently of the connection code',
+      (behavior, connection) => {
+        const { unmount } = renderSection()
+
+        unmount()
+        renderSection({
+          ...subscription,
+          connections: [
+            { category: ConnectionCategoryEnum.Payment, behavior, code: 'stripe_default' },
+          ],
+        })
+        mockSectionHeader.mock.calls.at(-1)?.[0].action?.onClick()
+        expect(mockOpenConnectionDrawer).toHaveBeenCalledWith({
+          connection,
+          paymentMethod: {
+            paymentMethodType: PaymentMethodTypeEnum.Provider,
+            paymentMethodId: 'pm_1',
+          },
         })
       },
     )

@@ -1,6 +1,10 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 
+import {
+  findConnectionRouting,
+  toSelectedConnection,
+} from '~/components/connectionSelection/fromConnectionRouting'
 import { useConnectionPaymentSettingsDrawer } from '~/components/paymentSettings/connectionFirst/useConnectionPaymentSettingsDrawer'
 import {
   PaymentSettingsDrawer,
@@ -11,6 +15,7 @@ import { SubscriptionPaymentMethodDetails } from '~/components/subscriptions/Sub
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import {
   ConnectionBehaviorEnum,
+  ConnectionCategoryEnum,
   FeatureFlagEnum,
   PaymentMethodTypeEnum,
   SubscriptionPaymentSectionFragment,
@@ -23,6 +28,11 @@ import { usePermissions } from '~/hooks/usePermissions'
 gql`
   fragment SubscriptionPaymentSection on Subscription {
     id
+    connections {
+      category
+      behavior
+      code
+    }
     paymentMethodType
     paymentMethod {
       id
@@ -59,11 +69,18 @@ export const SubscriptionPaymentSection = ({ subscription }: SubscriptionPayment
 
   const openPaymentDrawer = (): void => {
     if (hasMultiConnection) {
+      const paymentRouting = findConnectionRouting(
+        subscription.connections,
+        ConnectionCategoryEnum.Payment,
+      )
+      let connection = toSelectedConnection(paymentRouting)
+
+      if (!paymentRouting && subscription.paymentMethodType === PaymentMethodTypeEnum.Manual) {
+        connection = { behavior: ConnectionBehaviorEnum.Skip }
+      }
+
       openConnectionPaymentDrawer({
-        connection:
-          subscription.paymentMethodType === PaymentMethodTypeEnum.Manual
-            ? { behavior: ConnectionBehaviorEnum.Skip }
-            : undefined,
+        connection,
         paymentMethod: {
           ...selectedPaymentMethod,
           paymentMethodId: subscription.paymentMethod?.id ?? null,

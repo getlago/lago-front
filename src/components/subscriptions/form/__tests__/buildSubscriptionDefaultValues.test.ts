@@ -1,6 +1,11 @@
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { ActivationRuleFormTypeEnum } from '~/core/constants/subscriptionActivationRules'
-import { ActivationRuleTypeEnum, BillingTimeEnum } from '~/generated/graphql'
+import {
+  ActivationRuleTypeEnum,
+  BillingTimeEnum,
+  ConnectionCategoryEnum,
+  ConnectionResolvedBehaviorEnum,
+} from '~/generated/graphql'
 
 import {
   buildSubscriptionDefaultValues,
@@ -181,5 +186,22 @@ describe('buildSubscriptionDefaultValues', () => {
         expect(result.activationRuleTimeoutHours).toBe('')
       })
     })
+  })
+})
+
+describe('persisted payment connection behavior', () => {
+  it.each([
+    [ConnectionResolvedBehaviorEnum.Specific, { code: 'stripe_default' }],
+    [ConnectionResolvedBehaviorEnum.Inherit, undefined],
+  ])('preserves %s even when the connection is the customer default', (behavior, expected) => {
+    const subscription = {
+      ...baseSubscription,
+      connections: [{ category: ConnectionCategoryEnum.Payment, behavior, code: 'stripe_default' }],
+    } as NonNullable<SubscriptionDefaultsSource>
+
+    expect(
+      buildSubscriptionDefaultValues(subscription, FORM_TYPE_ENUM.edition, CURRENT_DATE)
+        .paymentConnection,
+    ).toEqual(expected)
   })
 })
