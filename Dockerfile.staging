@@ -47,19 +47,18 @@ FROM ${RUNTIME_IMAGE}
 WORKDIR /usr/share/nginx/html
 
 COPY --from=build --chown=nonroot:nonroot /app/dist .
+COPY --chown=nonroot:nonroot ./nginx/nginx.main.staging.conf /etc/nginx/nginx.conf
 COPY --chown=nonroot:nonroot ./nginx/nginx.staging.conf /etc/nginx/conf.d/default.conf
 COPY --chown=nonroot:nonroot ./nginx/gzip.conf /etc/nginx/conf.d/gzip.conf
 COPY --chown=nonroot:nonroot ./nginx/csp.conf /etc/nginx/conf.d/csp.conf
 COPY --chown=nonroot:nonroot ./.env.sh ./.env.sh
 
-# Move nginx's writable state onto tmpfs so readOnlyRootFilesystem works
-# in the pod. The k8s pod-security block mounts an emptyDir at /tmp; the
-# app's runtime `.env.sh` writes its runtime config into the served dist,
-# so /usr/share/nginx/html stays writable via a separate emptyDir mount.
-ENV NGINX_PID_PATH=/tmp/nginx.pid
-
+# Everything nginx writes goes to the /tmp emptyDir the pod mounts: the pid
+# file, the temp paths (both in nginx.main.staging.conf) and env-config.js,
+# which .env.sh emits into its cwd. The dist stays read-only and unmounted —
+# an emptyDir over it would mask the built assets.
 USER 65532
 
 EXPOSE 8080
 
-ENTRYPOINT ["/bin/bash", "-c", "./.env.sh && exec nginx -g \"pid /tmp/nginx.pid; daemon off;\""]
+ENTRYPOINT ["/bin/bash", "-c", "cd /tmp && /usr/share/nginx/html/.env.sh && exec nginx -e /dev/stderr -g \"daemon off;\""]
