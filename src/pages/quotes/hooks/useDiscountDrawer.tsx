@@ -80,13 +80,9 @@ interface DiscountFormValues {
   code: string
   currency: CurrencyEnum
   amount: string
-  // Kept as strings — the TanStack TextInputField stores raw string values,
-  // EXCEPT frequencyDuration: the `int` beforeChangeFormatter runs parseInt and
-  // stores a number, so its value can be a string (prefill/default) or a number
-  // (after the user types). Coerced to number|null when building the payload.
   percentageRate: string
   frequency: CouponFrequency
-  frequencyDuration: string | number
+  frequencyDuration: string
   // Base catalog values captured from the selected coupon at selection time.
   // They feed the `payload` snapshot (the faithful catalog reference), kept
   // separate from the user-editable amount/percentageRate/frequency fields that
@@ -123,8 +119,7 @@ const schema = z
     amount: z.string(),
     percentageRate: z.string(),
     frequency: z.nativeEnum(CouponFrequency),
-    // number when set via the `int` input formatter, string on prefill/default
-    frequencyDuration: z.union([z.string(), z.number()]),
+    frequencyDuration: z.string(),
     // Base catalog values — not user-editable, carried through to the payload snapshot.
     baseAmountCents: z.number().nullable(),
     basePercentageRate: z.number().nullable(),
