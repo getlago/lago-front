@@ -1,3 +1,4 @@
+import { ResolvablePaymentTerm } from '~/core/utils/paymentTerm'
 import { type AddOnForPricingSectionFragment, CurrencyEnum } from '~/generated/graphql'
 import { withForm } from '~/hooks/forms/useAppform'
 
@@ -7,13 +8,13 @@ import { pricingDrawerDefaultValues } from './constants'
 interface PricingDrawerContentExtraProps {
   currency: CurrencyEnum
   onAddOnPayloadCapture?: (localId: string, addOn: AddOnForPricingSectionFragment) => void
-  netPaymentTerm?: number | null
+  paymentTerm?: ResolvablePaymentTerm | null
 }
 
 const pricingDrawerContentDefaultProps: PricingDrawerContentExtraProps = {
   currency: CurrencyEnum.Usd,
   onAddOnPayloadCapture: undefined,
-  netPaymentTerm: undefined,
+  paymentTerm: undefined,
 }
 
 const PricingDrawerContent = withForm({
@@ -23,14 +24,14 @@ const PricingDrawerContent = withForm({
     form,
     currency,
     onAddOnPayloadCapture,
-    netPaymentTerm,
+    paymentTerm,
   }) {
     return (
       <AddOnSelectionContent
         form={form}
         currency={currency}
         onAddOnPayloadCapture={onAddOnPayloadCapture}
-        netPaymentTerm={netPaymentTerm}
+        paymentTerm={paymentTerm}
       />
     )
   },

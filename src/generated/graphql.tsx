@@ -811,8 +811,9 @@ export type BillingEntity = {
   legalNumber?: Maybe<Scalars['String']['output']>;
   logoUrl?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
-  netPaymentTerm: Scalars['Int']['output'];
+  netPaymentTerm?: Maybe<Scalars['Int']['output']>;
   organization: Organization;
+  paymentTerm?: Maybe<PaymentTerm>;
   phone?: Maybe<Scalars['String']['output']>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
   state?: Maybe<Scalars['String']['output']>;
@@ -1916,6 +1917,7 @@ export type CreateBillingEntityInput = {
   logo?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   phone?: InputMaybe<Scalars['String']['input']>;
   state?: InputMaybe<Scalars['String']['input']>;
   taxIdentificationNumber?: InputMaybe<Scalars['String']['input']>;
@@ -2015,6 +2017,7 @@ export type CreateCustomerInput = {
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
   paymentProviderCustomers?: InputMaybe<Array<PaymentProviderCustomerInput>>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   phone?: InputMaybe<Scalars['String']['input']>;
   providerCustomer?: InputMaybe<ProviderCustomerInput>;
   shippingAddress?: InputMaybe<CustomerAddressInput>;
@@ -2526,6 +2529,7 @@ export type CreateSubscriptionInput = {
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   name?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   planId: Scalars['ID']['input'];
   planOverrides?: InputMaybe<PlanOverridesInput>;
   progressiveBillingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3042,7 +3046,7 @@ export type CurrentOrganization = {
   legalNumber?: Maybe<Scalars['String']['output']>;
   logoUrl?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
-  netPaymentTerm: Scalars['Int']['output'];
+  netPaymentTerm?: Maybe<Scalars['Int']['output']>;
   premiumIntegrations: Array<PremiumIntegrationTypeEnum>;
   slug: Scalars['String']['output'];
   state?: Maybe<Scalars['String']['output']>;
@@ -3149,6 +3153,7 @@ export type Customer = {
   paymentProvider?: Maybe<ProviderTypeEnum>;
   paymentProviderCode?: Maybe<Scalars['String']['output']>;
   paymentProviderCustomers: Array<ProviderCustomer>;
+  paymentTerm?: Maybe<PaymentTerm>;
   phone?: Maybe<Scalars['String']['output']>;
   /** @deprecated Use paymentProviderCustomers instead */
   providerCustomer?: Maybe<ProviderCustomer>;
@@ -5168,6 +5173,7 @@ export type Invoice = {
   paymentDueDate: Scalars['ISO8601Date']['output'];
   paymentOverdue: Scalars['Boolean']['output'];
   paymentStatus: InvoicePaymentStatusTypeEnum;
+  paymentTerm: PaymentTerm;
   payments?: Maybe<Array<Payment>>;
   prepaidCreditAmountCents: Scalars['BigInt']['output'];
   prepaidGrantedCreditAmountCents?: Maybe<Scalars['BigInt']['output']>;
@@ -7693,6 +7699,33 @@ export type PaymentRequestCreateInput = {
   lagoInvoiceIds?: InputMaybe<Array<Scalars['String']['input']>>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
 };
+
+/** Structured payment term */
+export type PaymentTerm = {
+  __typename?: 'PaymentTerm';
+  dayOfMonth?: Maybe<Scalars['Int']['output']>;
+  days?: Maybe<Scalars['Int']['output']>;
+  monthOffset?: Maybe<Scalars['Int']['output']>;
+  termType: PaymentTermTypeEnum;
+};
+
+/** Structured payment term input */
+export type PaymentTermInput = {
+  dayOfMonth?: InputMaybe<Scalars['Int']['input']>;
+  days?: InputMaybe<Scalars['Int']['input']>;
+  monthOffset?: InputMaybe<Scalars['Int']['input']>;
+  termType: PaymentTermTypeEnum;
+};
+
+/** Payment term type */
+export enum PaymentTermTypeEnum {
+  DayOfMonth = 'day_of_month',
+  DaysEndOfMonth = 'days_end_of_month',
+  DueOnReceipt = 'due_on_receipt',
+  EndOfMonth = 'end_of_month',
+  Net = 'net',
+  NetEndOfMonth = 'net_end_of_month'
+}
 
 export enum PaymentTypeEnum {
   Manual = 'manual',
@@ -10449,6 +10482,7 @@ export type Subscription = {
   onTerminationInvoice: OnTerminationInvoiceEnum;
   paymentMethod?: Maybe<PaymentMethod>;
   paymentMethodType?: Maybe<PaymentMethodTypeEnum>;
+  paymentTerm?: Maybe<PaymentTerm>;
   periodEndDate?: Maybe<Scalars['ISO8601Date']['output']>;
   plan: Plan;
   previousPlan?: Maybe<Plan>;
@@ -11135,6 +11169,7 @@ export type UpdateBillingEntityInput = {
   logo?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   phone?: InputMaybe<Scalars['String']['input']>;
   state?: InputMaybe<Scalars['String']['input']>;
   taxIdentificationNumber?: InputMaybe<Scalars['String']['input']>;
@@ -11248,6 +11283,7 @@ export type UpdateCustomerInput = {
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
   paymentProviderCustomers?: InputMaybe<Array<PaymentProviderCustomerInput>>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   phone?: InputMaybe<Scalars['String']['input']>;
   providerCustomer?: InputMaybe<ProviderCustomerInput>;
   shippingAddress?: InputMaybe<CustomerAddressInput>;
@@ -11829,6 +11865,7 @@ export type UpdateSubscriptionInput = {
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   name?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   planOverrides?: InputMaybe<PlanOverridesInput>;
   progressiveBillingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
   purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
@@ -12991,7 +13028,7 @@ export type GetCustomerSettingsQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerSettingsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null, netPaymentTerm?: number | null, finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | null, currency?: CurrencyEnum | null, excludeFromDunningCampaign: boolean, skipInvoiceCustomSections?: boolean | null, externalId: string, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, name?: string | null, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string, netPaymentTerm: number, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'BillingEntityBillingConfiguration', id: string, invoiceGracePeriod: number, documentLocale?: string | null, subscriptionInvoiceIssuingDateAdjustment: BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum, subscriptionInvoiceIssuingDateAnchor: BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum } | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null, subscriptionInvoiceIssuingDateAdjustment?: CustomerSubscriptionInvoiceIssuingDateAdjustmentEnum | null, subscriptionInvoiceIssuingDateAnchor?: CustomerSubscriptionInvoiceIssuingDateAnchorEnum | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean, code: string, name: string, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null } | null };
+export type GetCustomerSettingsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null, finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | null, currency?: CurrencyEnum | null, excludeFromDunningCampaign: boolean, skipInvoiceCustomSections?: boolean | null, externalId: string, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, name?: string | null, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'BillingEntityBillingConfiguration', id: string, invoiceGracePeriod: number, documentLocale?: string | null, subscriptionInvoiceIssuingDateAdjustment: BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum, subscriptionInvoiceIssuingDateAnchor: BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum } | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null, subscriptionInvoiceIssuingDateAdjustment?: CustomerSubscriptionInvoiceIssuingDateAdjustmentEnum | null, subscriptionInvoiceIssuingDateAnchor?: CustomerSubscriptionInvoiceIssuingDateAnchorEnum | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean, code: string, name: string, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } | null };
 
 export type DeleteCustomerDialogFragment = { __typename?: 'Customer', id: string, name?: string | null, displayName: string };
 
@@ -13029,14 +13066,14 @@ export type DeleteCustomerGracePeriodMutationVariables = Exact<{
 
 export type DeleteCustomerGracePeriodMutation = { __typename?: 'Mutation', updateCustomerInvoiceGracePeriod?: { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null } | null };
 
-export type DeleteCustomerNetPaymentTermFragment = { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, netPaymentTerm?: number | null };
+export type DeleteCustomerPaymentTermFragment = { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null };
 
-export type DeleteCustomerNetPaymentTermMutationVariables = Exact<{
+export type DeleteCustomerPaymentTermMutationVariables = Exact<{
   input: UpdateCustomerInput;
 }>;
 
 
-export type DeleteCustomerNetPaymentTermMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, netPaymentTerm?: number | null } | null };
+export type DeleteCustomerPaymentTermMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } | null };
 
 export type CustomerForDeleteVatRateDialogFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, taxes?: Array<{ __typename?: 'Tax', id: string, code: string }> | null };
 
@@ -13501,9 +13538,9 @@ export type DeleteWebhookMutationVariables = Exact<{
 
 export type DeleteWebhookMutation = { __typename?: 'Mutation', destroyWebhookEndpoint?: { __typename?: 'DestroyWebhookEndpointPayload', id?: string | null } | null };
 
-export type CustomerForDunningEmailFragment = { __typename?: 'Customer', id: string, displayName: string, paymentProvider?: ProviderTypeEnum | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null };
+export type CustomerForDunningEmailFragment = { __typename?: 'Customer', id: string, displayName: string, paymentProvider?: ProviderTypeEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null };
 
-export type OrganizationForDunningEmailFragment = { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null };
+export type OrganizationForDunningEmailFragment = { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, email?: string | null, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null };
 
 export type InvoicesForDunningEmailFragment = { __typename?: 'Invoice', id: string, number: string, totalDueAmountCents: any, currency?: CurrencyEnum | null };
 
@@ -14657,23 +14694,23 @@ export type UpdateBillingEntityFinalizeZeroAmountInvoiceMutationVariables = Exac
 
 export type UpdateBillingEntityFinalizeZeroAmountInvoiceMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, finalizeZeroAmountInvoice: boolean } | null };
 
-export type EditCustomerNetPaymentTermForDialogFragment = { __typename?: 'Customer', id: string, externalId: string, name?: string | null, netPaymentTerm?: number | null };
+export type EditCustomerPaymentTermForDialogFragment = { __typename?: 'Customer', id: string, externalId: string, name?: string | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } };
 
-export type EditBillingEntityNetPaymentTermForDialogFragment = { __typename?: 'BillingEntity', id: string, netPaymentTerm: number };
+export type EditBillingEntityPaymentTermForDialogFragment = { __typename?: 'BillingEntity', id: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null };
 
-export type UpdateCustomerNetPaymentTermMutationVariables = Exact<{
+export type UpdateCustomerPaymentTermMutationVariables = Exact<{
   input: UpdateCustomerInput;
 }>;
 
 
-export type UpdateCustomerNetPaymentTermMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, netPaymentTerm?: number | null } | null };
+export type UpdateCustomerPaymentTermMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } } | null };
 
-export type UpdateBillingEntityNetPaymentTermMutationVariables = Exact<{
+export type UpdateBillingEntityPaymentTermMutationVariables = Exact<{
   input: UpdateBillingEntityInput;
 }>;
 
 
-export type UpdateBillingEntityNetPaymentTermMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, netPaymentTerm: number } | null };
+export type UpdateBillingEntityPaymentTermMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } | null };
 
 export type GetOrganizationCustomFooterForInvoiceQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -15815,7 +15852,7 @@ export type GetRequestOverduePaymentInfosQueryVariables = Exact<{
 }>;
 
 
-export type GetRequestOverduePaymentInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, defaultCurrency: CurrencyEnum, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, externalId: string, currency?: CurrencyEnum | null, email?: string | null, displayName: string, paymentProvider?: ProviderTypeEnum | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> }, invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, totalDueAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any }> } };
+export type GetRequestOverduePaymentInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, defaultCurrency: CurrencyEnum, name: string, logoUrl?: string | null, email?: string | null, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, externalId: string, currency?: CurrencyEnum | null, email?: string | null, displayName: string, paymentProvider?: ProviderTypeEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> }, invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, totalDueAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any }> } };
 
 export type CreatePaymentRequestMutationVariables = Exact<{
   input: PaymentRequestCreateInput;
@@ -16839,7 +16876,7 @@ export type GetOrderForEditQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderForEditQuery = { __typename?: 'Query', order?: { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, orderType: OrderTypeEnum, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } } | null };
+export type GetOrderForEditQuery = { __typename?: 'Query', order?: { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, orderType: OrderTypeEnum, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, currency?: CurrencyEnum | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } } | null };
 
 export type UpdateOrderMutationVariables = Exact<{
   input: UpdateOrderInput;
@@ -16853,7 +16890,7 @@ export type GetOrderForExecuteQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderForExecuteQuery = { __typename?: 'Query', order?: { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, orderType: OrderTypeEnum, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } } | null };
+export type GetOrderForExecuteQuery = { __typename?: 'Query', order?: { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, orderType: OrderTypeEnum, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, currency?: CurrencyEnum | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } } | null };
 
 export type ExecuteOrderMutationVariables = Exact<{
   input: ExecuteOrderInput;
@@ -16876,7 +16913,7 @@ export type GetOrderFormForSignQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderFormForSignQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, expiresAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } | null };
+export type GetOrderFormForSignQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, expiresAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, currency?: CurrencyEnum | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } | null };
 
 export type MarkOrderFormAsSignedMutationVariables = Exact<{
   input: MarkOrderFormAsSignedInput;
@@ -16992,14 +17029,14 @@ export type QuotePreviewVersionFragment = { __typename?: 'QuoteVersion', content
 
 export type QuotePreviewCustomerFragment = { __typename?: 'Customer', currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null };
 
-export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } };
+export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, currency?: CurrencyEnum | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } };
 
 export type GetQuoteQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } | null };
+export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, currency?: CurrencyEnum | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } | null };
 
 export type GetQuotePreviewQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -17183,7 +17220,7 @@ export type GetBillingEntitySettingsQueryVariables = Exact<{
 }>;
 
 
-export type GetBillingEntitySettingsQuery = { __typename?: 'Query', billingEntity?: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number, defaultCurrency: CurrencyEnum, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'BillingEntityBillingConfiguration', id: string, invoiceGracePeriod: number, invoiceFooter?: string | null, documentLocale?: string | null, subscriptionInvoiceIssuingDateAdjustment: BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum, subscriptionInvoiceIssuingDateAnchor: BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> }, invoiceCustomSections?: { __typename?: 'InvoiceCustomSectionCollection', collection: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> } | null };
+export type GetBillingEntitySettingsQuery = { __typename?: 'Query', billingEntity?: { __typename?: 'BillingEntity', id: string, code: string, name: string, defaultCurrency: CurrencyEnum, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'BillingEntityBillingConfiguration', id: string, invoiceGracePeriod: number, invoiceFooter?: string | null, documentLocale?: string | null, subscriptionInvoiceIssuingDateAdjustment: BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum, subscriptionInvoiceIssuingDateAnchor: BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum } | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> }, invoiceCustomSections?: { __typename?: 'InvoiceCustomSectionCollection', collection: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> } | null };
 
 export type ApplyBillingEntityDunningCampaignMutationVariables = Exact<{
   input: BillingEntityUpdateAppliedDunningCampaignInput;
@@ -18938,13 +18975,18 @@ export const DeleteCustomerGracePeriodFragmentDoc = gql`
   displayName
 }
     `;
-export const DeleteCustomerNetPaymentTermFragmentDoc = gql`
-    fragment DeleteCustomerNetPaymentTerm on Customer {
+export const DeleteCustomerPaymentTermFragmentDoc = gql`
+    fragment DeleteCustomerPaymentTerm on Customer {
   id
   externalId
   name
   displayName
-  netPaymentTerm
+  paymentTerm {
+    termType
+    days
+    dayOfMonth
+    monthOffset
+  }
 }
     `;
 export const CustomerForDeleteVatRateDialogFragmentDoc = gql`
@@ -19397,7 +19439,6 @@ export const CustomerForDunningEmailFragmentDoc = gql`
   id
   displayName
   paymentProvider
-  netPaymentTerm
   billingConfiguration {
     id
     documentLocale
@@ -19410,7 +19451,6 @@ export const OrganizationForDunningEmailFragmentDoc = gql`
   name
   logoUrl
   email
-  netPaymentTerm
   billingConfiguration {
     id
     documentLocale
@@ -20865,18 +20905,37 @@ export const EditBillingEntityFinalizeZeroAmountInvoiceForDialogFragmentDoc = gq
   finalizeZeroAmountInvoice
 }
     `;
-export const EditCustomerNetPaymentTermForDialogFragmentDoc = gql`
-    fragment EditCustomerNetPaymentTermForDialog on Customer {
+export const EditCustomerPaymentTermForDialogFragmentDoc = gql`
+    fragment EditCustomerPaymentTermForDialog on Customer {
   id
   externalId
   name
-  netPaymentTerm
+  paymentTerm {
+    termType
+    days
+    dayOfMonth
+    monthOffset
+  }
+  billingEntity {
+    id
+    paymentTerm {
+      termType
+      days
+      dayOfMonth
+      monthOffset
+    }
+  }
 }
     `;
-export const EditBillingEntityNetPaymentTermForDialogFragmentDoc = gql`
-    fragment EditBillingEntityNetPaymentTermForDialog on BillingEntity {
+export const EditBillingEntityPaymentTermForDialogFragmentDoc = gql`
+    fragment EditBillingEntityPaymentTermForDialog on BillingEntity {
   id
-  netPaymentTerm
+  paymentTerm {
+    termType
+    days
+    dayOfMonth
+    monthOffset
+  }
 }
     `;
 export const SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc = gql`
@@ -23854,13 +23913,23 @@ export const QuoteDetailItemFragmentDoc = gql`
     id
     displayName
     externalId
-    netPaymentTerm
+    paymentTerm {
+      termType
+      days
+      dayOfMonth
+      monthOffset
+    }
     ...QuotePreviewCustomer
     billingEntity {
       id
       code
       name
-      netPaymentTerm
+      paymentTerm {
+        termType
+        days
+        dayOfMonth
+        monthOffset
+      }
     }
   }
   owners {
@@ -28248,11 +28317,9 @@ export const GetCustomerSettingsDocument = gql`
   customer(id: $id) {
     id
     invoiceGracePeriod
-    netPaymentTerm
     finalizeZeroAmountInvoice
     billingEntity {
       id
-      netPaymentTerm
       finalizeZeroAmountInvoice
       billingConfiguration {
         id
@@ -28288,7 +28355,8 @@ export const GetCustomerSettingsDocument = gql`
     ...DeleteCustomerGracePeriod
     ...DeleteCustomerDocumentLocale
     ...CustomerForDeleteVatRateDialog
-    ...DeleteCustomerNetPaymentTerm
+    ...DeleteCustomerPaymentTerm
+    ...EditCustomerPaymentTermForDialog
     ...EditCustomerIssuingDatePolicyDialog
   }
 }
@@ -28303,7 +28371,8 @@ ${EditCustomerInvoiceGracePeriodFragmentDoc}
 ${DeleteCustomerGracePeriodFragmentDoc}
 ${DeleteCustomerDocumentLocaleFragmentDoc}
 ${CustomerForDeleteVatRateDialogFragmentDoc}
-${DeleteCustomerNetPaymentTermFragmentDoc}
+${DeleteCustomerPaymentTermFragmentDoc}
+${EditCustomerPaymentTermForDialogFragmentDoc}
 ${EditCustomerIssuingDatePolicyDialogFragmentDoc}`;
 
 /**
@@ -28479,40 +28548,40 @@ export function useDeleteCustomerGracePeriodMutation(baseOptions?: Apollo.Mutati
 export type DeleteCustomerGracePeriodMutationHookResult = ReturnType<typeof useDeleteCustomerGracePeriodMutation>;
 export type DeleteCustomerGracePeriodMutationResult = Apollo.MutationResult<DeleteCustomerGracePeriodMutation>;
 export type DeleteCustomerGracePeriodMutationOptions = Apollo.BaseMutationOptions<DeleteCustomerGracePeriodMutation, DeleteCustomerGracePeriodMutationVariables>;
-export const DeleteCustomerNetPaymentTermDocument = gql`
-    mutation deleteCustomerNetPaymentTerm($input: UpdateCustomerInput!) {
+export const DeleteCustomerPaymentTermDocument = gql`
+    mutation deleteCustomerPaymentTerm($input: UpdateCustomerInput!) {
   updateCustomer(input: $input) {
     id
-    ...DeleteCustomerNetPaymentTerm
+    ...DeleteCustomerPaymentTerm
   }
 }
-    ${DeleteCustomerNetPaymentTermFragmentDoc}`;
-export type DeleteCustomerNetPaymentTermMutationFn = Apollo.MutationFunction<DeleteCustomerNetPaymentTermMutation, DeleteCustomerNetPaymentTermMutationVariables>;
+    ${DeleteCustomerPaymentTermFragmentDoc}`;
+export type DeleteCustomerPaymentTermMutationFn = Apollo.MutationFunction<DeleteCustomerPaymentTermMutation, DeleteCustomerPaymentTermMutationVariables>;
 
 /**
- * __useDeleteCustomerNetPaymentTermMutation__
+ * __useDeleteCustomerPaymentTermMutation__
  *
- * To run a mutation, you first call `useDeleteCustomerNetPaymentTermMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteCustomerNetPaymentTermMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useDeleteCustomerPaymentTermMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCustomerPaymentTermMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [deleteCustomerNetPaymentTermMutation, { data, loading, error }] = useDeleteCustomerNetPaymentTermMutation({
+ * const [deleteCustomerPaymentTermMutation, { data, loading, error }] = useDeleteCustomerPaymentTermMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useDeleteCustomerNetPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCustomerNetPaymentTermMutation, DeleteCustomerNetPaymentTermMutationVariables>) {
+export function useDeleteCustomerPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCustomerPaymentTermMutation, DeleteCustomerPaymentTermMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteCustomerNetPaymentTermMutation, DeleteCustomerNetPaymentTermMutationVariables>(DeleteCustomerNetPaymentTermDocument, options);
+        return Apollo.useMutation<DeleteCustomerPaymentTermMutation, DeleteCustomerPaymentTermMutationVariables>(DeleteCustomerPaymentTermDocument, options);
       }
-export type DeleteCustomerNetPaymentTermMutationHookResult = ReturnType<typeof useDeleteCustomerNetPaymentTermMutation>;
-export type DeleteCustomerNetPaymentTermMutationResult = Apollo.MutationResult<DeleteCustomerNetPaymentTermMutation>;
-export type DeleteCustomerNetPaymentTermMutationOptions = Apollo.BaseMutationOptions<DeleteCustomerNetPaymentTermMutation, DeleteCustomerNetPaymentTermMutationVariables>;
+export type DeleteCustomerPaymentTermMutationHookResult = ReturnType<typeof useDeleteCustomerPaymentTermMutation>;
+export type DeleteCustomerPaymentTermMutationResult = Apollo.MutationResult<DeleteCustomerPaymentTermMutation>;
+export type DeleteCustomerPaymentTermMutationOptions = Apollo.BaseMutationOptions<DeleteCustomerPaymentTermMutation, DeleteCustomerPaymentTermMutationVariables>;
 export const RemoveAppliedTaxRateOnCustomerDocument = gql`
     mutation removeAppliedTaxRateOnCustomer($input: UpdateCustomerInput!) {
   updateCustomer(input: $input) {
@@ -34921,74 +34990,74 @@ export function useUpdateBillingEntityFinalizeZeroAmountInvoiceMutation(baseOpti
 export type UpdateBillingEntityFinalizeZeroAmountInvoiceMutationHookResult = ReturnType<typeof useUpdateBillingEntityFinalizeZeroAmountInvoiceMutation>;
 export type UpdateBillingEntityFinalizeZeroAmountInvoiceMutationResult = Apollo.MutationResult<UpdateBillingEntityFinalizeZeroAmountInvoiceMutation>;
 export type UpdateBillingEntityFinalizeZeroAmountInvoiceMutationOptions = Apollo.BaseMutationOptions<UpdateBillingEntityFinalizeZeroAmountInvoiceMutation, UpdateBillingEntityFinalizeZeroAmountInvoiceMutationVariables>;
-export const UpdateCustomerNetPaymentTermDocument = gql`
-    mutation updateCustomerNetPaymentTerm($input: UpdateCustomerInput!) {
+export const UpdateCustomerPaymentTermDocument = gql`
+    mutation updateCustomerPaymentTerm($input: UpdateCustomerInput!) {
   updateCustomer(input: $input) {
     id
-    ...EditCustomerNetPaymentTermForDialog
+    ...EditCustomerPaymentTermForDialog
   }
 }
-    ${EditCustomerNetPaymentTermForDialogFragmentDoc}`;
-export type UpdateCustomerNetPaymentTermMutationFn = Apollo.MutationFunction<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>;
+    ${EditCustomerPaymentTermForDialogFragmentDoc}`;
+export type UpdateCustomerPaymentTermMutationFn = Apollo.MutationFunction<UpdateCustomerPaymentTermMutation, UpdateCustomerPaymentTermMutationVariables>;
 
 /**
- * __useUpdateCustomerNetPaymentTermMutation__
+ * __useUpdateCustomerPaymentTermMutation__
  *
- * To run a mutation, you first call `useUpdateCustomerNetPaymentTermMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCustomerNetPaymentTermMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdateCustomerPaymentTermMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCustomerPaymentTermMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateCustomerNetPaymentTermMutation, { data, loading, error }] = useUpdateCustomerNetPaymentTermMutation({
+ * const [updateCustomerPaymentTermMutation, { data, loading, error }] = useUpdateCustomerPaymentTermMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useUpdateCustomerNetPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>) {
+export function useUpdateCustomerPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerPaymentTermMutation, UpdateCustomerPaymentTermMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>(UpdateCustomerNetPaymentTermDocument, options);
+        return Apollo.useMutation<UpdateCustomerPaymentTermMutation, UpdateCustomerPaymentTermMutationVariables>(UpdateCustomerPaymentTermDocument, options);
       }
-export type UpdateCustomerNetPaymentTermMutationHookResult = ReturnType<typeof useUpdateCustomerNetPaymentTermMutation>;
-export type UpdateCustomerNetPaymentTermMutationResult = Apollo.MutationResult<UpdateCustomerNetPaymentTermMutation>;
-export type UpdateCustomerNetPaymentTermMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>;
-export const UpdateBillingEntityNetPaymentTermDocument = gql`
-    mutation updateBillingEntityNetPaymentTerm($input: UpdateBillingEntityInput!) {
+export type UpdateCustomerPaymentTermMutationHookResult = ReturnType<typeof useUpdateCustomerPaymentTermMutation>;
+export type UpdateCustomerPaymentTermMutationResult = Apollo.MutationResult<UpdateCustomerPaymentTermMutation>;
+export type UpdateCustomerPaymentTermMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerPaymentTermMutation, UpdateCustomerPaymentTermMutationVariables>;
+export const UpdateBillingEntityPaymentTermDocument = gql`
+    mutation updateBillingEntityPaymentTerm($input: UpdateBillingEntityInput!) {
   updateBillingEntity(input: $input) {
     id
-    ...EditBillingEntityNetPaymentTermForDialog
+    ...EditBillingEntityPaymentTermForDialog
   }
 }
-    ${EditBillingEntityNetPaymentTermForDialogFragmentDoc}`;
-export type UpdateBillingEntityNetPaymentTermMutationFn = Apollo.MutationFunction<UpdateBillingEntityNetPaymentTermMutation, UpdateBillingEntityNetPaymentTermMutationVariables>;
+    ${EditBillingEntityPaymentTermForDialogFragmentDoc}`;
+export type UpdateBillingEntityPaymentTermMutationFn = Apollo.MutationFunction<UpdateBillingEntityPaymentTermMutation, UpdateBillingEntityPaymentTermMutationVariables>;
 
 /**
- * __useUpdateBillingEntityNetPaymentTermMutation__
+ * __useUpdateBillingEntityPaymentTermMutation__
  *
- * To run a mutation, you first call `useUpdateBillingEntityNetPaymentTermMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateBillingEntityNetPaymentTermMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdateBillingEntityPaymentTermMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBillingEntityPaymentTermMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateBillingEntityNetPaymentTermMutation, { data, loading, error }] = useUpdateBillingEntityNetPaymentTermMutation({
+ * const [updateBillingEntityPaymentTermMutation, { data, loading, error }] = useUpdateBillingEntityPaymentTermMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useUpdateBillingEntityNetPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<UpdateBillingEntityNetPaymentTermMutation, UpdateBillingEntityNetPaymentTermMutationVariables>) {
+export function useUpdateBillingEntityPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<UpdateBillingEntityPaymentTermMutation, UpdateBillingEntityPaymentTermMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateBillingEntityNetPaymentTermMutation, UpdateBillingEntityNetPaymentTermMutationVariables>(UpdateBillingEntityNetPaymentTermDocument, options);
+        return Apollo.useMutation<UpdateBillingEntityPaymentTermMutation, UpdateBillingEntityPaymentTermMutationVariables>(UpdateBillingEntityPaymentTermDocument, options);
       }
-export type UpdateBillingEntityNetPaymentTermMutationHookResult = ReturnType<typeof useUpdateBillingEntityNetPaymentTermMutation>;
-export type UpdateBillingEntityNetPaymentTermMutationResult = Apollo.MutationResult<UpdateBillingEntityNetPaymentTermMutation>;
-export type UpdateBillingEntityNetPaymentTermMutationOptions = Apollo.BaseMutationOptions<UpdateBillingEntityNetPaymentTermMutation, UpdateBillingEntityNetPaymentTermMutationVariables>;
+export type UpdateBillingEntityPaymentTermMutationHookResult = ReturnType<typeof useUpdateBillingEntityPaymentTermMutation>;
+export type UpdateBillingEntityPaymentTermMutationResult = Apollo.MutationResult<UpdateBillingEntityPaymentTermMutation>;
+export type UpdateBillingEntityPaymentTermMutationOptions = Apollo.BaseMutationOptions<UpdateBillingEntityPaymentTermMutation, UpdateBillingEntityPaymentTermMutationVariables>;
 export const GetOrganizationCustomFooterForInvoiceDocument = gql`
     query GetOrganizationCustomFooterForInvoice {
   organization {
@@ -46715,7 +46784,6 @@ export const GetBillingEntitySettingsDocument = gql`
     id
     code
     name
-    netPaymentTerm
     defaultCurrency
     documentNumbering
     documentNumberPrefix
@@ -46729,7 +46797,7 @@ export const GetBillingEntitySettingsDocument = gql`
       subscriptionInvoiceIssuingDateAnchor
     }
     ...EditBillingEntityInvoiceTemplateDialog
-    ...EditBillingEntityNetPaymentTermForDialog
+    ...EditBillingEntityPaymentTermForDialog
     ...EditBillingEntityDefaultCurrencyForDialog
     ...EditBillingEntityInvoiceNumberingDialog
     ...EditBillingEntityInvoiceIssuingDatePolicyDialog
@@ -46752,7 +46820,7 @@ export const GetBillingEntitySettingsDocument = gql`
   }
 }
     ${EditBillingEntityInvoiceTemplateDialogFragmentDoc}
-${EditBillingEntityNetPaymentTermForDialogFragmentDoc}
+${EditBillingEntityPaymentTermForDialogFragmentDoc}
 ${EditBillingEntityDefaultCurrencyForDialogFragmentDoc}
 ${EditBillingEntityInvoiceNumberingDialogFragmentDoc}
 ${EditBillingEntityInvoiceIssuingDatePolicyDialogFragmentDoc}
