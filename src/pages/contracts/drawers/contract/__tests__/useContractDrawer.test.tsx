@@ -117,9 +117,6 @@ describe('useContractDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     lastDrawerArgs = null
-    jest
-      .spyOn(globalThis.crypto, 'randomUUID')
-      .mockReturnValue('11111111-1111-4111-8111-111111111111')
   })
 
   afterEach(() => {
