@@ -9,6 +9,7 @@ import { addToast } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { METADATA_KEY_MAX_LENGTH, zodMetadataSchema } from '~/formValidation/metadataSchema'
 import {
+  InvoiceMetadatasForMetadataDrawerFragment,
   LagoApiError,
   useGetInvoiceMetadataForEditionQuery,
   useUpdateInvoiceMetadataMutation,
@@ -65,7 +66,7 @@ export const useAddMetadataDrawer = ({
   // describing the state the user started from, even after the cache updates.
   const isEditionRef = useRef(false)
 
-  const { data } = useGetInvoiceMetadataForEditionQuery({
+  const { data, refetch } = useGetInvoiceMetadataForEditionQuery({
     variables: {
       id: invoiceId || '',
     },
@@ -118,12 +119,10 @@ export const useAddMetadataDrawer = ({
     },
   })
 
-  const openDrawer = (): void => {
-    if (!invoiceId) {
-      return
-    }
-
-    const existingMetadata = (data?.invoice?.metadata || []).map(({ id, key, value }) => ({
+  const openWithMetadata = (
+    metadata: NonNullable<InvoiceMetadatasForMetadataDrawerFragment['metadata']>,
+  ): void => {
+    const existingMetadata = metadata.map(({ id, key, value }) => ({
       id,
       key,
       value,
@@ -159,6 +158,24 @@ export const useAddMetadataDrawer = ({
         </form.AppForm>
       ),
     })
+  }
+
+  // The invoice details page does not prime this fragment, so the drawer can be
+  // opened before the query lands. Seeding it empty would drop the pairs the
+  // invoice already has on the next save, so fetch them first in that case.
+  const openDrawer = (): void => {
+    if (!invoiceId) {
+      return
+    }
+
+    if (data?.invoice) {
+      openWithMetadata(data.invoice.metadata || [])
+      return
+    }
+
+    refetch()
+      .then((result) => openWithMetadata(result.data?.invoice?.metadata || []))
+      .catch(() => openWithMetadata([]))
   }
 
   return { openDrawer }
