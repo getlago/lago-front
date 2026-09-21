@@ -26,8 +26,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
-import { useTerminateContractDialog } from './useTerminateContractDialog'
-
 gql`
   fragment ContractForContractsList on Contract {
     id
@@ -80,7 +78,6 @@ const ContractsPage = (): JSX.Element => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const { openTerminateContractDialog } = useTerminateContractDialog()
   const { page, goToPage } = usePageSearchParam()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const filtersForContractQuery = useMemo(
@@ -116,14 +113,6 @@ const ContractsPage = (): JSX.Element => {
           severity: 'info',
           translateKey: 'text_1789636691484fyt51yyc9uh',
         })
-      },
-    },
-    {
-      startIcon: 'trash',
-      title: translate('text_17896366914848hled21jz6q'),
-      dataTest: 'terminate-contract',
-      onAction: () => {
-        openTerminateContractDialog({ name: contract.name || contract.externalId })
       },
     },
   ]
@@ -255,7 +244,7 @@ const ContractsPage = (): JSX.Element => {
           hasError={!!error}
           onRowActionLink={({ id }) => generatePath(CONTRACT_DETAILS_ROUTE, { id })}
           rowLinkLabel={getContractLabel}
-          actionColumnTooltip={() => translate('text_1789637038124d2rpm0ng6c2')}
+          actionColumnTooltip={() => translate('text_637f813d31381b1ed90ab326')}
           actionColumn={getActions}
           placeholder={getPlaceholder()}
         />
