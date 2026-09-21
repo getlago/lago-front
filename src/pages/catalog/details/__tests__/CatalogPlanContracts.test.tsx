@@ -2,13 +2,17 @@ import { screen } from '@testing-library/react'
 import { ReactNode } from 'react'
 
 import { TableProps } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { ContractForCatalogPlanContractsFragment, ContractStatusEnum } from '~/generated/graphql'
+import { TMembershipPermissions } from '~/hooks/usePermissions'
 import { render } from '~/test-utils'
 
 import { CatalogPlanContracts } from '../CatalogPlanContracts'
 
 const mockTableProps = jest.fn()
+const mockHasPermissions = jest.fn()
+const mockOpenTerminateContractDialog = jest.fn()
 const mockPaginatedContentProps = jest.fn()
 const mockGoToPage = jest.fn()
 const mockUseGetCatalogPlanContractsQuery = jest.fn()
@@ -36,6 +40,17 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     intlFormatDateTimeOrgaTZ: (date: string) =>
       jest.requireActual('~/core/timezone').intlFormatDateTime(date),
+  }),
+}))
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+jest.mock('~/components/contracts/TerminateContractDialog', () => ({
+  ...jest.requireActual('~/components/contracts/TerminateContractDialog'),
+  useTerminateContractDialog: () => ({
+    openTerminateContractDialog: mockOpenTerminateContractDialog,
   }),
 }))
 
@@ -71,6 +86,7 @@ describe('CatalogPlanContracts', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockUseGetCatalogPlanContractsQuery.mockReturnValue(defaultQueryState)
+    mockHasPermissions.mockReturnValue(true)
   })
 
   describe('GIVEN a known plan code', () => {
@@ -246,6 +262,68 @@ describe('CatalogPlanContracts', () => {
         render(<>{endedAtColumn?.content(buildContract({ endedAt: null }))}</>)
 
         expect(screen.getByText('-')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the contracts:update permission', () => {
+    describe('WHEN a contract can still be stopped', () => {
+      it.each([ContractStatusEnum.Active, ContractStatusEnum.Pending])(
+        'THEN offers a single row action on a %s contract',
+        (status) => {
+          render(<CatalogPlanContracts planCode="premium" />)
+
+          const actions = getTableProps().actionColumn?.(buildContract({ status }))
+
+          expect(actions).toHaveLength(1)
+        },
+      )
+
+      it('THEN the action opens the termination dialog for that contract', () => {
+        render(<CatalogPlanContracts planCode="premium" />)
+
+        const contract = buildContract({
+          externalId: 'premium-contract',
+          status: ContractStatusEnum.Active,
+        })
+        const actions = getTableProps().actionColumn?.(contract) as Array<
+          ActionItem<ContractForCatalogPlanContractsFragment>
+        >
+
+        actions[0].onAction?.(contract)
+
+        expect(mockOpenTerminateContractDialog).toHaveBeenCalledWith({
+          externalId: 'premium-contract',
+          status: ContractStatusEnum.Active,
+        })
+      })
+    })
+
+    describe('WHEN a contract is already stopped', () => {
+      it.each([ContractStatusEnum.Terminated, ContractStatusEnum.Canceled])(
+        'THEN offers no row action on a %s contract',
+        (status) => {
+          render(<CatalogPlanContracts planCode="premium" />)
+
+          const actions = getTableProps().actionColumn?.(buildContract({ status }))
+
+          expect(actions).toHaveLength(0)
+        },
+      )
+    })
+  })
+
+  describe('GIVEN no contracts:update permission', () => {
+    describe('WHEN the tab renders', () => {
+      it('THEN the table carries no action column', () => {
+        mockHasPermissions.mockImplementation(
+          (permissions: Array<keyof TMembershipPermissions>) =>
+            !permissions.includes('contractsUpdate'),
+        )
+
+        render(<CatalogPlanContracts planCode="premium" />)
+
+        expect(getTableProps().actionColumn).toBeUndefined()
       })
     })
   })

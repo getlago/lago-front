@@ -1,8 +1,13 @@
 import { gql } from '@apollo/client'
 
+import {
+  getContractTerminationCopy,
+  useTerminateContractDialog,
+} from '~/components/contracts/TerminateContractDialog'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
@@ -13,6 +18,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
   fragment ContractForCatalogPlanContracts on Contract {
@@ -46,7 +52,9 @@ type CatalogPlanContractsProps = {
 export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { hasPermissions } = usePermissions()
   const { page, goToPage } = usePageSearchParam()
+  const { openTerminateContractDialog } = useTerminateContractDialog()
 
   const { data, loading, error } = useGetCatalogPlanContractsQuery({
     variables: { planCode, limit: DEFAULT_PAGE_SIZE, page },
@@ -98,6 +106,28 @@ export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): J
     },
   ]
 
+  const getActionsForActionsColumn = (
+    contract: ContractForCatalogPlanContractsFragment,
+  ): Array<ActionItem<ContractForCatalogPlanContractsFragment>> => {
+    const terminationCopy = getContractTerminationCopy(contract.status)
+
+    if (!terminationCopy) return []
+
+    return [
+      {
+        startIcon: 'stop',
+        title: translate(terminationCopy.actionText),
+        dataTest: 'terminate-contract',
+        onAction: () => {
+          openTerminateContractDialog({
+            externalId: contract.externalId,
+            status: contract.status,
+          })
+        },
+      },
+    ]
+  }
+
   const placeholder: TablePlaceholder = {
     emptyState: {
       title: translate('text_1789030049530zaego9s9413'),
@@ -133,6 +163,9 @@ export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): J
           isLoading={loading || !planCode}
           hasError={!!error}
           columns={columns}
+          actionColumn={
+            hasPermissions(['contractsUpdate']) ? getActionsForActionsColumn : undefined
+          }
           placeholder={placeholder}
         />
       </PaginatedContent>

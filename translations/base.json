@@ -4953,5 +4953,13 @@
   "text_1789033674097g9f5muxpeon": "This rate model is not available for this rate card's invoicing settings.",
   "text_1789033796306gu724up7qa2": "Rate model availability is loading. Please wait before saving.",
   "text_1789463364350r8k8jukikz1": "Attached contracts",
-  "text_1789463364350p2k2yremb26": "All contracts created from this plan."
+  "text_1789463364350p2k2yremb26": "All contracts created from this plan.",
+  "text_1789971751136nrprlsnx192": "Terminate contract",
+  "text_1789971751136h7hm7pbipln": "Cancel contract",
+  "text_1789971751136dxn6qmh7ef9": "You’re about to terminate this contract",
+  "text_1789971751136xsgqxsasdpd": "You’re about to cancel this contract",
+  "text_178997175113710y2zapz4c9": "By terminating this contract, the customer will stop being billed for it and no new invoice will be issued. This action cannot be undone. Are you sure?",
+  "text_1789971751137drk22mafo3k": "By canceling this contract, it will never start and the customer will never be billed for it. This action cannot be undone. Are you sure?",
+  "text_1789971751137egm0tdl3q96": "Contract successfully terminated",
+  "text_1789971751137982utge606b": "Contract successfully canceled"
 }
