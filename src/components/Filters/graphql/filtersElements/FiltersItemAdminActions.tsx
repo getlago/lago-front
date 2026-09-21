@@ -1,8 +1,7 @@
+import { FiltersFormValues } from '~/components/Filters/presentation/types'
 import { MultipleComboBox } from '~/components/form'
 import { AdminActionEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { FiltersFormValues } from '../types'
 
 // Admin-only, English-only labels (the whole admin panel is not translated)
 const ACTION_LABELS: Record<AdminActionEnum, string> = {

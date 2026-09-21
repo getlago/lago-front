@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import NiceModal from '@ebay/nice-modal-react'
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { REASON_MODAL_NAME } from '~/components/admin/const'
 import { ReasonModalProps } from '~/components/admin/ReasonModal'

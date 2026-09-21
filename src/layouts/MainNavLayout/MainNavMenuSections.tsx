@@ -278,7 +278,10 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
   const billingTabs = getNavTabs(getBillingTabs())
   const adminTabs = getNavTabs(getAdminTabs())
 
-  // Keep the group visible when the admin section is the only accessible section.
+  // Don't render the section group if all sections are hidden. The admin ("Internal") section
+  // must be included: on admin routes no org is selected, so reports/configuration/catalog/billing
+  // are all permission-gated to hidden — omitting adminTabs here dropped the whole group (and the
+  // Internal section with it) while the user was on an admin page.
   if (
     reportsTabs.allTabsHidden &&
     configurationTabs.allTabsHidden &&

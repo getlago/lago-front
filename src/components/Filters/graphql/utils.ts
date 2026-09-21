@@ -77,8 +77,8 @@ import { INVOICES_ROUTE } from '~/core/router'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import {
   type ActivityLogsQueryVariables,
-  type AdminAuditLogsQueryVariables,
   ActivityTypeEnum,
+  type AdminAuditLogsQueryVariables,
   CurrencyEnum,
   type CustomerAccountTypeEnum,
   type CustomersQueryVariables,

@@ -1,15 +1,15 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { debounce } from 'lodash'
 import { useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { AuditLogEntry, AuditLogTable } from '~/components/admin/AuditLogTable'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import {
   AdminAuditLogAvailableFilters,
   Filters,
   formatFiltersForAdminAuditLogQuery,
-} from '~/components/designSystem/Filters'
-import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
+} from '~/components/Filters'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { ADMIN_AUDIT_LOG_FILTER_PREFIX } from '~/core/constants/filters'

@@ -17,8 +17,8 @@ gql`
     id
     email
     premium
-    ...OrgSlugResolverData
     csAdmin
+    ...OrgSlugResolverData
     memberships {
       roles
       ...MembershipPermissions

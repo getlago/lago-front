@@ -1,8 +1,7 @@
+import { FiltersFormValues } from '~/components/Filters/presentation/types'
 import { ComboBox } from '~/components/form'
 import { AdminFeatureTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { FiltersFormValues } from '../types'
 
 // Admin-only, English-only labels (the whole admin panel is not translated)
 const FEATURE_TYPE_LABELS: Record<AdminFeatureTypeEnum, string> = {

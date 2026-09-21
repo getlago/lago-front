@@ -1,13 +1,15 @@
 import { gql } from '@apollo/client'
 import { useMemo } from 'react'
 
-import { useFilters } from '~/components/designSystem/Filters/useFilters'
+import { useFilters } from '~/components/Filters/graphql/useFilters'
+import { escapeFilterLabel, unescapeFilterLabel } from '~/components/Filters/graphql/utils'
+import {
+  filterDataInlineSeparator,
+  FiltersFormValues,
+} from '~/components/Filters/presentation/types'
 import { MultipleComboBox } from '~/components/form'
 import { useGetAdminOrganizationsForFilterItemQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { filterDataInlineSeparator, FiltersFormValues } from '../types'
-import { escapeFilterLabel, unescapeFilterLabel } from '../utils'
 
 const ORGANIZATIONS_LIMIT = 500
 

@@ -1,11 +1,10 @@
-import { FiltersItemFeatureType } from '~/components/Filters/graphql/filtersElements/FiltersItemFeatureType'
-import { FiltersItemAdminOrganizations } from '~/components/Filters/graphql/filtersElements/FiltersItemAdminOrganizations'
-import { FiltersItemAdminActions } from '~/components/Filters/graphql/filtersElements/FiltersItemAdminActions'
 import { Typography } from '~/components/designSystem/Typography'
 import { FiltersItemActiveSubscriptions } from '~/components/Filters/graphql/filtersElements/FiltersItemActiveSubscriptions'
 import { FiltersItemActivityIds } from '~/components/Filters/graphql/filtersElements/FiltersItemActivityIds'
 import { FiltersItemActivitySources } from '~/components/Filters/graphql/filtersElements/FiltersItemActivitySources'
 import { FiltersItemActivityTypes } from '~/components/Filters/graphql/filtersElements/FiltersItemActivityTypes'
+import { FiltersItemAdminActions } from '~/components/Filters/graphql/filtersElements/FiltersItemAdminActions'
+import { FiltersItemAdminOrganizations } from '~/components/Filters/graphql/filtersElements/FiltersItemAdminOrganizations'
 import { FiltersItemAmount } from '~/components/Filters/graphql/filtersElements/FiltersItemAmount'
 import { FiltersItemApiKeyIds } from '~/components/Filters/graphql/filtersElements/FiltersItemApiKeyIds'
 import { FiltersItemBillableMetricCode } from '~/components/Filters/graphql/filtersElements/FiltersItemBillableMetricCode'
@@ -25,6 +24,7 @@ import { FiltersItemCustomerAccountType } from '~/components/Filters/graphql/fil
 import { FiltersItemCustomerType } from '~/components/Filters/graphql/filtersElements/FiltersItemCustomerType'
 import { FiltersItemDate } from '~/components/Filters/graphql/filtersElements/FiltersItemDate'
 import { FiltersItemExternalId } from '~/components/Filters/graphql/filtersElements/FiltersItemExternalId'
+import { FiltersItemFeatureType } from '~/components/Filters/graphql/filtersElements/FiltersItemFeatureType'
 import { FiltersItemHasCustomerType } from '~/components/Filters/graphql/filtersElements/FiltersItemHasCustomerType'
 import { FiltersItemHttpMethods } from '~/components/Filters/graphql/filtersElements/FiltersItemHttpMethods'
 import { FiltersItemHttpStatuses } from '~/components/Filters/graphql/filtersElements/FiltersItemHttpStatuses'
@@ -108,9 +108,6 @@ export const FiltersPanelItemTypeSwitch = ({
   }
 
   const filterTypeMap: Record<AvailableFiltersEnum, React.ReactNode> = {
-    [AvailableFiltersEnum.featureType]: <FiltersItemFeatureType {...props} />,
-    [AvailableFiltersEnum.adminOrganizations]: <FiltersItemAdminOrganizations {...props} />,
-    [AvailableFiltersEnum.adminActions]: <FiltersItemAdminActions {...props} />,
     [AvailableFiltersEnum.activityIds]: <FiltersItemActivityIds {...props} />,
     [AvailableFiltersEnum.activitySources]: <FiltersItemActivitySources {...props} />,
     [AvailableFiltersEnum.activityTypes]: <FiltersItemActivityTypes {...props} />,
@@ -197,6 +194,10 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.isCustomerTinEmpty]: <FiltersItemIsCustomerTinEmpty {...props} />,
     [AvailableFiltersEnum.zipcodes]: <FiltersItemZipcodes {...props} />,
     [AvailableFiltersEnum.billableMetricCode]: <FiltersItemBillableMetricCode {...props} />,
+    [AvailableFiltersEnum.featureType]: <FiltersItemFeatureType {...props} />,
+    [AvailableFiltersEnum.adminActions]: <FiltersItemAdminActions {...props} />,
+    [AvailableFiltersEnum.adminOrganizations]: <FiltersItemAdminOrganizations {...props} />,
+    [AvailableFiltersEnum.adminAuditDate]: <FiltersItemDate {...props} />,
   }
 
   return (
