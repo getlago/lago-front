@@ -18,6 +18,7 @@ import {
   ProductForRateCardDrawerFragmentDoc,
   RateCardBillingTimingEnum,
   RateCardForDrawerFragment,
+  TaxForTaxesSelectorSectionFragmentDoc,
   useCreateRateCardMutation,
   useUpdateRateCardMutation,
 } from '~/generated/graphql'
@@ -71,6 +72,9 @@ gql`
       name
       code
     }
+    taxes {
+      ...TaxForTaxesSelectorSection
+    }
   }
 
   mutation createRateCard($input: CreateRateCardInput!) {
@@ -88,6 +92,7 @@ gql`
   }
 
   ${ProductForRateCardDrawerFragmentDoc}
+  ${TaxForTaxesSelectorSectionFragmentDoc}
 `
 
 // The create title doubles as the create submit label (identical copy).
@@ -112,6 +117,7 @@ const mapRateCardToFormValues = (rateCard: RateCardForDrawerFragment): RateCardF
     regroupPaidFees: rateCard.regroupPaidFees,
   }),
   proration: rateCard.proration,
+  taxes: rateCard.taxes,
 })
 
 type ProductAttachment = ProductForRateCardDrawerFragment
@@ -166,11 +172,16 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
 
       let rateCard: RateCardForDrawerFragment | null | undefined
       let errors: FetchResult['errors']
+      const taxCodes = value.taxes.map((tax) => tax.code)
 
       // Update serializes cleared optional fields to null (undefined would be
       // stripped and the previous value would never clear); product item and
       // product item filter are create-only, so they are not sent on update.
       if (editedRateCard) {
+        const previousTaxCodes = editedRateCard.taxes.map((tax) => tax.code)
+        const taxesChanged =
+          taxCodes.length !== previousTaxCodes.length ||
+          taxCodes.some((taxCode) => !previousTaxCodes.includes(taxCode))
         const result = await updateRateCard({
           variables: {
             input: {
@@ -180,6 +191,7 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
               description: value.description || null,
               billingTiming: value.billingTiming,
               proration: value.proration,
+              ...(taxesChanged ? { taxCodes } : {}),
               ...buildUpdatePricingInput({ currency, pricingUnit: value.pricingUnit }),
               ...invoiceFields,
             },
@@ -199,6 +211,7 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
               ...(value.description ? { description: value.description } : {}),
               billingTiming: value.billingTiming,
               proration: value.proration,
+              taxCodes,
               ...buildCreatePricingInput({ currency, pricingUnit: value.pricingUnit }),
               ...invoiceFields,
             },

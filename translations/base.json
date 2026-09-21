@@ -4953,5 +4953,9 @@
   "text_1789033674097g9f5muxpeon": "This rate model is not available for this rate card's invoicing settings.",
   "text_1789033796306gu724up7qa2": "Rate model availability is loading. Please wait before saving.",
   "text_1789463364350r8k8jukikz1": "Attached contracts",
-  "text_1789463364350p2k2yremb26": "All contracts created from this plan."
+  "text_1789463364350p2k2yremb26": "All contracts created from this plan.",
+  "text_1788366458013ubk4410jvj7": "Tax rate (optional)",
+  "text_17883664580131qxuvyxjzvs": "Set specific tax rates to apply to fees generated from this rate card.",
+  "text_1788366458013xjjkd5j2ate": "Tax rates",
+  "text_1788366458013p269p15ecg4": "No tax rates set on this rate card."
 }
