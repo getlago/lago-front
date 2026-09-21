@@ -133,14 +133,20 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
   const { hasFeatureFlag, loading: isOrganizationLoading } = useOrganizationInfos()
   const { hasPermissions } = usePermissions()
   const avalaraIntegrationMapItemDrawerRef = useRef<AvalaraIntegrationMapItemDrawerRef>(null)
-  const canViewProducts =
-    hasFeatureFlag(FeatureFlagEnum.ProductCatalog) && hasPermissions(['productsView'])
+  const hasProductCatalog = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
+  const canViewProducts = hasProductCatalog && hasPermissions(['productsView'])
+  const canViewLegacyMappingTypes = !isOrganizationLoading && !hasProductCatalog
   const [searchParams, setSearchParams] = useSearchParams({
     item_type: SelectedItemTypeEnum.Default,
   })
-  const [selectedItemType, setSelectedItemType] = useState<keyof typeof SelectedItemTypeEnum>(
-    searchParams.get('item_type') as keyof typeof SelectedItemTypeEnum,
+  const itemTypeFromSearchParams = searchParams.get('item_type')
+  const initialItemType = Object.values(SelectedItemTypeEnum).includes(
+    itemTypeFromSearchParams as keyof typeof SelectedItemTypeEnum,
   )
+    ? (itemTypeFromSearchParams as keyof typeof SelectedItemTypeEnum)
+    : SelectedItemTypeEnum.Default
+  const [selectedItemType, setSelectedItemType] =
+    useState<keyof typeof SelectedItemTypeEnum>(initialItemType)
 
   useEffect(() => {
     // Update url with the search param depending on the selected item type
@@ -223,14 +229,19 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
     useDebouncedSearch(getProductsList, productsLoading)
 
   useEffect(() => {
+    if (isOrganizationLoading) return
+
+    const isLegacyMappingType =
+      selectedItemType === MappableTypeEnum.AddOn ||
+      selectedItemType === MappableTypeEnum.BillableMetric
+
     if (
-      !isOrganizationLoading &&
-      selectedItemType === MappableTypeEnum.Product &&
-      !canViewProducts
+      (selectedItemType === MappableTypeEnum.Product && !canViewProducts) ||
+      (isLegacyMappingType && hasProductCatalog)
     ) {
       setSelectedItemType(SelectedItemTypeEnum.Default)
     }
-  }, [canViewProducts, isOrganizationLoading, selectedItemType])
+  }, [canViewProducts, hasProductCatalog, isOrganizationLoading, selectedItemType])
 
   // handeling data fetching
   useEffect(() => {
@@ -238,9 +249,9 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
 
     if (selectedItemType === SelectedItemTypeEnum.Default) {
       getDefaultItems()
-    } else if (selectedItemType === MappableTypeEnum.AddOn) {
+    } else if (selectedItemType === MappableTypeEnum.AddOn && canViewLegacyMappingTypes) {
       getAddonList()
-    } else if (selectedItemType === MappableTypeEnum.BillableMetric) {
+    } else if (selectedItemType === MappableTypeEnum.BillableMetric && canViewLegacyMappingTypes) {
       getBillableMetricsList()
     } else if (selectedItemType === MappableTypeEnum.Product && canViewProducts) {
       getProductsList()
@@ -248,6 +259,7 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
   }, [
     integrationId,
     selectedItemType,
+    canViewLegacyMappingTypes,
     canViewProducts,
     getAddonList,
     getDefaultItems,
@@ -283,28 +295,32 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
                 >
                   {translate('text_65281f686a80b400c8e2f6d1')}
                 </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  fullWidth
-                  onClick={() => {
-                    setSelectedItemType(MappableTypeEnum.AddOn)
-                    closePopper()
-                  }}
-                >
-                  {translate('text_629728388c4d2300e2d3801a')}
-                </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  fullWidth
-                  onClick={() => {
-                    setSelectedItemType(MappableTypeEnum.BillableMetric)
-                    closePopper()
-                  }}
-                >
-                  {translate('text_623b497ad05b960101be3438')}
-                </Button>
+                {canViewLegacyMappingTypes && (
+                  <>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      fullWidth
+                      onClick={() => {
+                        setSelectedItemType(MappableTypeEnum.AddOn)
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_629728388c4d2300e2d3801a')}
+                    </Button>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      fullWidth
+                      onClick={() => {
+                        setSelectedItemType(MappableTypeEnum.BillableMetric)
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_623b497ad05b960101be3438')}
+                    </Button>
+                  </>
+                )}
                 {canViewProducts && (
                   <Button
                     variant="quaternary"
@@ -323,13 +339,13 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
           </Popper>
         </div>
 
-        {selectedItemType === MappableTypeEnum.AddOn && (
+        {selectedItemType === MappableTypeEnum.AddOn && canViewLegacyMappingTypes && (
           <SearchInput
             onChange={debouncedSearchAddons}
             placeholder={translate('text_63bee4e10e2d53912bfe4db8')}
           />
         )}
-        {selectedItemType === MappableTypeEnum.BillableMetric && (
+        {selectedItemType === MappableTypeEnum.BillableMetric && canViewLegacyMappingTypes && (
           <SearchInput
             onChange={debouncedSearchBillableMetrics}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
@@ -352,7 +368,7 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
           avalaraIntegrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
         />
       )}
-      {selectedItemType === MappableTypeEnum.AddOn && (
+      {selectedItemType === MappableTypeEnum.AddOn && canViewLegacyMappingTypes && (
         <AvalaraIntegrationItemsListAddons
           data={addonData}
           fetchMoreAddons={fetchMoreAddons}
@@ -363,7 +379,7 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
           searchTerm={addonVariables?.searchTerm}
         />
       )}
-      {selectedItemType === MappableTypeEnum.BillableMetric && (
+      {selectedItemType === MappableTypeEnum.BillableMetric && canViewLegacyMappingTypes && (
         <AvalaraIntegrationItemsListBillableMetrics
           data={billableMetricsData}
           fetchMoreBillableMetrics={fetchMoreBillableMetrics}
