@@ -14,6 +14,7 @@ import {
 } from '~/components/Filters'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderAction } from '~/components/MainHeader/types'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast } from '~/core/apolloClient'
 import { CONTRACT_LIST_FILTER_PREFIX } from '~/core/constants/filters'
@@ -25,6 +26,11 @@ import { ContractForContractsListFragment, useGetContractsListLazyQuery } from '
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
+
+import { useContractDrawer } from './drawers/contract/useContractDrawer'
+
+export const CONTRACTS_CREATE_TEST_ID = 'contracts-create'
 
 gql`
   fragment ContractForContractsList on Contract {
@@ -78,6 +84,8 @@ const ContractsPage = (): JSX.Element => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { openDrawer: openContractDrawer } = useContractDrawer()
+  const { hasPermissions } = usePermissions()
   const { page, goToPage } = usePageSearchParam()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const filtersForContractQuery = useMemo(
@@ -99,6 +107,17 @@ const ContractsPage = (): JSX.Element => {
     goToPage(1)
     debouncedSearch?.(value)
   }
+
+  const actions: MainHeaderAction[] = [
+    {
+      type: 'action',
+      label: translate('text_1789553562287qzstcfu6er0'),
+      variant: 'primary',
+      hidden: !hasPermissions(['contractsCreate']),
+      dataTest: CONTRACTS_CREATE_TEST_ID,
+      onClick: () => openContractDrawer(),
+    },
+  ]
 
   const getActions = (
     contract: ContractForContractsListFragment,
@@ -206,6 +225,7 @@ const ContractsPage = (): JSX.Element => {
           metadata: formatCountToMetadata(totalCount, translate),
           metadataLoading: isLoading && totalCount === undefined,
         }}
+        actions={{ items: actions }}
         filtersSection={
           <Filters.Provider
             filtersNamePrefix={CONTRACT_LIST_FILTER_PREFIX}
