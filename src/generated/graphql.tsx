@@ -14823,6 +14823,8 @@ export type DestroySubscriptionAlertMutationVariables = Exact<{
 
 export type DestroySubscriptionAlertMutation = { __typename?: 'Mutation', destroySubscriptionAlert?: { __typename?: 'Alert', id: string } | null };
 
+export type SubscriptionAdditionalIntegrationSectionFragment = { __typename?: 'Subscription', id: string, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, customer: { __typename?: 'Customer', id: string } };
+
 export type GetSubscriptionForDetailsV2OverviewQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
 }>;
@@ -21193,6 +21195,19 @@ export const SubscriptionUsageLifetimeGraphForLifetimeGraphFragmentDoc = gql`
     applicableTimezone
   }
   plan {
+    id
+  }
+}
+    `;
+export const SubscriptionAdditionalIntegrationSectionFragmentDoc = gql`
+    fragment SubscriptionAdditionalIntegrationSection on Subscription {
+  id
+  connections {
+    category
+    behavior
+    code
+  }
+  customer {
     id
   }
 }
@@ -35710,11 +35725,13 @@ export const GetSubscriptionForDetailsV2OverviewDocument = gql`
   subscription(id: $subscriptionId) {
     id
     ...SubscriptionInformationSection
+    ...SubscriptionAdditionalIntegrationSection
     ...SubscriptionPaymentSection
     ...SubscriptionInvoiceSection
   }
 }
     ${SubscriptionInformationSectionFragmentDoc}
+${SubscriptionAdditionalIntegrationSectionFragmentDoc}
 ${SubscriptionPaymentSectionFragmentDoc}
 ${SubscriptionInvoiceSectionFragmentDoc}`;
 

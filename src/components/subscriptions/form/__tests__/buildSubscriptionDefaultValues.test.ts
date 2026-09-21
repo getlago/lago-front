@@ -3,6 +3,7 @@ import { ActivationRuleFormTypeEnum } from '~/core/constants/subscriptionActivat
 import {
   ActivationRuleTypeEnum,
   BillingTimeEnum,
+  ConnectionBehaviorEnum,
   ConnectionCategoryEnum,
   ConnectionResolvedBehaviorEnum,
 } from '~/generated/graphql'
@@ -203,5 +204,30 @@ describe('persisted payment connection behavior', () => {
       buildSubscriptionDefaultValues(subscription, FORM_TYPE_ENUM.edition, CURRENT_DATE)
         .paymentConnection,
     ).toEqual(expected)
+  })
+})
+
+describe('persisted additional integration routing', () => {
+  it.each([
+    [ConnectionResolvedBehaviorEnum.Specific, { code: 'connection_default' }],
+    [ConnectionResolvedBehaviorEnum.Inherit, undefined],
+    [ConnectionResolvedBehaviorEnum.Skip, { behavior: ConnectionBehaviorEnum.Skip }],
+  ])('hydrates all additional categories with %s behavior', (behavior, expected) => {
+    const subscription = {
+      ...baseSubscription,
+      connections: [
+        ConnectionCategoryEnum.Accounting,
+        ConnectionCategoryEnum.Crm,
+        ConnectionCategoryEnum.Tax,
+      ].map((category) => ({ category, behavior, code: 'connection_default' })),
+    } as NonNullable<SubscriptionDefaultsSource>
+    const values = buildSubscriptionDefaultValues(
+      subscription,
+      FORM_TYPE_ENUM.edition,
+      CURRENT_DATE,
+    )
+    expect(values.accountingConnection).toEqual(expected)
+    expect(values.crmConnection).toEqual(expected)
+    expect(values.taxConnection).toEqual(expected)
   })
 })

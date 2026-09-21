@@ -1,3 +1,5 @@
+import { gql } from '@apollo/client'
+
 import { ADDITIONAL_INTEGRATION_CATEGORIES } from '~/components/additionalIntegrationSettings/additionalIntegrationSettingsSchema'
 import { useAdditionalIntegrationSettingsDrawer } from '~/components/additionalIntegrationSettings/useAdditionalIntegrationSettingsDrawer'
 import {
@@ -7,18 +9,33 @@ import {
 import { useConnectionRoutingGridItems } from '~/components/connectionSelection/useConnectionRoutingGridItems'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import {
   ConnectionCategoryEnum,
   FeatureFlagEnum,
-  SubscriptionPaymentSectionFragment,
+  SubscriptionAdditionalIntegrationSectionFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdateSubscriptionSettings } from '~/hooks/customer/useUpdateSubscriptionSettings'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
+gql`
+  fragment SubscriptionAdditionalIntegrationSection on Subscription {
+    id
+    connections {
+      category
+      behavior
+      code
+    }
+    customer {
+      id
+    }
+  }
+`
+
 type Props = {
-  subscription: SubscriptionPaymentSectionFragment
+  subscription: SubscriptionAdditionalIntegrationSectionFragment
 }
 
 export const SubscriptionAdditionalIntegrationSection = ({
@@ -30,7 +47,7 @@ export const SubscriptionAdditionalIntegrationSection = ({
   const { saveAdditionalIntegrations } = useUpdateSubscriptionSettings(subscription.id)
   const { openDrawer } = useAdditionalIntegrationSettingsDrawer({
     customerId: subscription.customer?.id ?? '',
-    description: translate('text_178948416677832fz1lquc9c'),
+    viewType: ViewTypeEnum.Subscription,
     onSave: saveAdditionalIntegrations,
   })
   const items = useConnectionRoutingGridItems({

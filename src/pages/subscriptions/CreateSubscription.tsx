@@ -6,6 +6,7 @@ import { generatePath, useParams, useSearchParams } from 'react-router'
 
 import { AdditionalIntegrationSettingsSelector } from '~/components/additionalIntegrationSettings/AdditionalIntegrationSettingsSelector'
 import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
+import { formatConnections } from '~/components/connectionSelection/formatConnections'
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -170,17 +171,10 @@ const CreateSubscription = () => {
 
       const localValues = {
         ...restValues,
-        ...(hasMultiConnection &&
-        (paymentConnection || accountingConnection || crmConnection || taxConnection)
-          ? {
-              connections: {
-                ...(paymentConnection ? { payment: paymentConnection } : {}),
-                ...(accountingConnection ? { accounting: accountingConnection } : {}),
-                ...(crmConnection ? { crm: crmConnection } : {}),
-                ...(taxConnection ? { tax: taxConnection } : {}),
-              },
-            }
-          : {}),
+        ...formatConnections(
+          { paymentConnection, accountingConnection, crmConnection, taxConnection },
+          hasMultiConnection,
+        ),
         activationRules: serializeActivationRules({
           activationRuleTimeoutHours,
           activationRuleType,
@@ -641,6 +635,7 @@ const CreateSubscription = () => {
                           >
                             {(values) => (
                               <AdditionalIntegrationSettingsSelector
+                                viewType={ViewTypeEnum.Subscription}
                                 customerId={customer.id}
                                 values={values}
                                 onChange={({ accounting, crm, tax }) => {

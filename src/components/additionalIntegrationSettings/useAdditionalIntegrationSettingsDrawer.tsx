@@ -2,6 +2,7 @@ import { revalidateLogic } from '@tanstack/react-form'
 
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
@@ -18,7 +19,7 @@ const ADDITIONAL_INTEGRATION_SETTINGS_SAVE_TEST_ID = 'additional-integration-set
 
 interface UseAdditionalIntegrationSettingsDrawerProps {
   customerId: string
-  description?: string
+  viewType: ViewTypeEnum
   onSave: (values: AdditionalIntegrationSettingsValues) => void | Promise<void>
 }
 
@@ -28,7 +29,7 @@ interface UseAdditionalIntegrationSettingsDrawerReturn {
 
 export const useAdditionalIntegrationSettingsDrawer = ({
   customerId,
-  description,
+  viewType,
   onSave,
 }: UseAdditionalIntegrationSettingsDrawerProps): UseAdditionalIntegrationSettingsDrawerReturn => {
   const { translate } = useInternationalization()
@@ -65,7 +66,7 @@ export const useAdditionalIntegrationSettingsDrawer = ({
         <AdditionalIntegrationSettingsDrawerContent
           form={form}
           customerId={customerId}
-          description={description}
+          viewType={viewType}
         />
       ),
       mainAction: (

@@ -9,6 +9,7 @@ import { PaymentMethodValue } from '~/components/connectionSelection/PaymentMeth
 import { useConnectionRoutingGridItems } from '~/components/connectionSelection/useConnectionRoutingGridItems'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { seedConnection } from '~/components/paymentSettings/connectionFirst/seedConnection'
 import { useConnectionPaymentSettingsDrawer } from '~/components/paymentSettings/connectionFirst/useConnectionPaymentSettingsDrawer'
 import {
   PaymentSettingsDrawer,
@@ -18,10 +19,8 @@ import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeade
 import { SubscriptionPaymentMethodDetails } from '~/components/subscriptions/SubscriptionPaymentMethodDetails'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import {
-  ConnectionBehaviorEnum,
   ConnectionCategoryEnum,
   FeatureFlagEnum,
-  PaymentMethodTypeEnum,
   SubscriptionPaymentSectionFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -85,11 +84,7 @@ export const SubscriptionPaymentSection = ({
 
   const openPaymentDrawer = (): void => {
     if (hasMultiConnection) {
-      let connection = toSelectedConnection(paymentRouting)
-
-      if (!connection && subscription.paymentMethodType === PaymentMethodTypeEnum.Manual) {
-        connection = { behavior: ConnectionBehaviorEnum.Skip }
-      }
+      const connection = seedConnection(toSelectedConnection(paymentRouting), selectedPaymentMethod)
 
       openConnectionPaymentDrawer({
         connection,

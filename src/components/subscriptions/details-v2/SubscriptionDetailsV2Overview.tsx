@@ -4,6 +4,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
   LagoApiError,
+  SubscriptionAdditionalIntegrationSectionFragmentDoc,
   SubscriptionInformationSectionFragmentDoc,
   SubscriptionInvoiceSectionFragmentDoc,
   SubscriptionPaymentSectionFragmentDoc,
@@ -20,11 +21,13 @@ gql`
     subscription(id: $subscriptionId) {
       id
       ...SubscriptionInformationSection
+      ...SubscriptionAdditionalIntegrationSection
       ...SubscriptionPaymentSection
       ...SubscriptionInvoiceSection
     }
   }
 
+  ${SubscriptionAdditionalIntegrationSectionFragmentDoc}
   ${SubscriptionInformationSectionFragmentDoc}
   ${SubscriptionPaymentSectionFragmentDoc}
   ${SubscriptionInvoiceSectionFragmentDoc}

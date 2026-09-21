@@ -37,6 +37,15 @@ export const buildSubscriptionDefaultValues = (
     paymentConnection: toSelectedConnection(
       findConnectionRouting(subscription?.connections, ConnectionCategoryEnum.Payment),
     ),
+    accountingConnection: toSelectedConnection(
+      findConnectionRouting(subscription?.connections, ConnectionCategoryEnum.Accounting),
+    ),
+    crmConnection: toSelectedConnection(
+      findConnectionRouting(subscription?.connections, ConnectionCategoryEnum.Crm),
+    ),
+    taxConnection: toSelectedConnection(
+      findConnectionRouting(subscription?.connections, ConnectionCategoryEnum.Tax),
+    ),
     paymentMethod: {
       paymentMethodType: subscription?.paymentMethodType,
       paymentMethodId: subscription?.paymentMethod?.id,
