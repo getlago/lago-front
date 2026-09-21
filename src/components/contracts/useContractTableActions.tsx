@@ -1,7 +1,7 @@
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { ContractStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { usePermissions } from '~/hooks/usePermissions'
+import { useContractPermissionsActions } from '~/hooks/useContractPermissionsActions'
 
 import { useCopyContractExternalId } from './useCopyContractExternalId'
 import {
@@ -16,7 +16,7 @@ type ContractTableActionTarget = {
 
 export const useContractTableActions = () => {
   const { translate } = useInternationalization()
-  const { hasPermissions } = usePermissions()
+  const { canTerminateContract } = useContractPermissionsActions()
   const { copyContractExternalId, copyContractExternalIdLabel } = useCopyContractExternalId()
   const { openTerminateContractDialog } = useTerminateContractDialog()
 
@@ -33,7 +33,7 @@ export const useContractTableActions = () => {
     ]
     const terminationCopy = getContractTerminationCopy(contract.status)
 
-    if (terminationCopy && hasPermissions(['contractsUpdate'])) {
+    if (terminationCopy && canTerminateContract(contract.status)) {
       actions.push({
         startIcon: 'stop',
         title: translate(terminationCopy.actionText),

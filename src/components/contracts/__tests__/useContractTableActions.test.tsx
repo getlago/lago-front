@@ -6,7 +6,7 @@ import { useContractTableActions } from '../useContractTableActions'
 
 const mockCopyContractExternalId = jest.fn()
 const mockOpenTerminateContractDialog = jest.fn()
-const mockHasPermissions = jest.fn()
+const mockCanTerminateContract = jest.fn()
 
 jest.mock('../useCopyContractExternalId', () => ({
   useCopyContractExternalId: () => ({
@@ -23,8 +23,10 @@ jest.mock('../useTerminateContractDialog', () => ({
   }),
 }))
 
-jest.mock('~/hooks/usePermissions', () => ({
-  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+jest.mock('~/hooks/useContractPermissionsActions', () => ({
+  useContractPermissionsActions: () => ({
+    canTerminateContract: mockCanTerminateContract,
+  }),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -39,7 +41,7 @@ const contract = {
 describe('useContractTableActions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockHasPermissions.mockReturnValue(true)
+    mockCanTerminateContract.mockReturnValue(true)
   })
 
   it('keeps Copy external ID as the first action', () => {
@@ -76,10 +78,10 @@ describe('useContractTableActions', () => {
   )
 
   it('hides the lifecycle action without contractsUpdate', () => {
-    mockHasPermissions.mockReturnValue(false)
+    mockCanTerminateContract.mockReturnValue(false)
     const { result } = renderHook(() => useContractTableActions())
 
     expect(result.current.getContractTableActions(contract)).toHaveLength(1)
-    expect(mockHasPermissions).toHaveBeenCalledWith(['contractsUpdate'])
+    expect(mockCanTerminateContract).toHaveBeenCalledWith(ContractStatusEnum.Active)
   })
 })

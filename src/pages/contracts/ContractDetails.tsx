@@ -20,6 +20,7 @@ import {
   useGetContractForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useContractPermissionsActions } from '~/hooks/useContractPermissionsActions'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -54,6 +55,7 @@ const ContractDetails = (): JSX.Element => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
+  const { canTerminateContract } = useContractPermissionsActions()
   const { copyContractExternalId, copyContractExternalIdLabel } = useCopyContractExternalId()
   const { openTerminateContractDialog } = useTerminateContractDialog()
 
@@ -94,11 +96,12 @@ const ContractDetails = (): JSX.Element => {
                 closePopper()
               },
             },
-            ...(terminationCopy && hasPermissions(['contractsUpdate'])
+            ...(terminationCopy && canTerminateContract(contract.status)
               ? [
                   {
                     label: translate(terminationCopy.actionText),
                     startIcon: 'stop' as const,
+                    danger: true,
                     dataTest:
                       contract.status === ContractStatusEnum.Pending
                         ? 'contract-details-cancel'

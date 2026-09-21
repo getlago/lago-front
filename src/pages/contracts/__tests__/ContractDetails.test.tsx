@@ -31,6 +31,7 @@ import ContractDetails, {
 const mockCopyContractExternalId = jest.fn()
 const mockOpenTerminateContractDialog = jest.fn()
 const mockHasPermissions = jest.fn()
+const mockCanTerminateContract = jest.fn()
 let mockIsPremium = true
 
 jest.mock('~/components/contracts/useCopyContractExternalId', () => ({
@@ -51,6 +52,12 @@ jest.mock('~/components/contracts/useTerminateContractDialog', () => ({
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+jest.mock('~/hooks/useContractPermissionsActions', () => ({
+  useContractPermissionsActions: () => ({
+    canTerminateContract: mockCanTerminateContract,
+  }),
 }))
 
 jest.mock('~/hooks/useCurrentUser', () => ({
@@ -127,6 +134,7 @@ describe('ContractDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    mockCanTerminateContract.mockReturnValue(true)
     mockIsPremium = true
   })
 
@@ -178,10 +186,7 @@ describe('ContractDetails', () => {
   })
 
   it('hides the lifecycle action without contractsUpdate permission', async () => {
-    mockHasPermissions.mockImplementation(
-      (permissions: Array<keyof TMembershipPermissions>) =>
-        !permissions.includes('contractsUpdate'),
-    )
+    mockCanTerminateContract.mockReturnValue(false)
 
     await act(() => renderPage())
 
@@ -189,6 +194,14 @@ describe('ContractDetails', () => {
 
     expect(screen.queryByTestId('contract-details-terminate')).not.toBeInTheDocument()
     expect(screen.getByTestId(CONTRACT_DETAILS_COPY_ID_TEST_ID)).toBeInTheDocument()
+  })
+
+  it('marks the lifecycle action as destructive', async () => {
+    await act(() => renderPage())
+
+    await userEvent.click(await screen.findByTestId(CONTRACT_DETAILS_ACTIONS_TEST_ID))
+
+    expect(screen.getByTestId('contract-details-terminate')).toHaveClass('button-danger')
   })
 
   it.each([ContractStatusEnum.Canceled, ContractStatusEnum.Terminated])(
