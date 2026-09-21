@@ -4,11 +4,6 @@ on:
   pull_request:
     types: [opened, reopened, review_requested, ready_for_review, synchronize]
   workflow_dispatch:
-    inputs:
-      api_branch:
-        description: Api Branch
-        required: true
-        default: "main"
 
 jobs:
   codegen:
@@ -24,7 +19,7 @@ jobs:
         with:
           repository: getlago/lago-api
           # Admin schema dependency: getlago/lago-api#5396. Remove after its release.
-          ref: ${{ github.event.inputs.api_branch || (github.event.pull_request.number == 3533 && 'de52b9ac4fc74ea9dac30f9c76d1532dbc6e5ed2') || 'main' }}
+          ref: ${{ github.event.pull_request.number == 3533 && 'de52b9ac4fc74ea9dac30f9c76d1532dbc6e5ed2' || 'main' }}
           path: api
 
       - name: Build API local image
@@ -45,7 +40,7 @@ jobs:
         uses: actions/setup-node@v6.5.0
         with:
           node-version-file: package.json
-          package-manager-cache: false
+          cache: "pnpm"
 
       - name: Install Node.js dependencies
         run: pnpm install
