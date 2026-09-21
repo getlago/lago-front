@@ -161,8 +161,9 @@ export const useAddMetadataDrawer = ({
   }
 
   // The invoice details page does not prime this fragment, so the drawer can be
-  // opened before the query lands. Seeding it empty would drop the pairs the
-  // invoice already has on the next save, so fetch them first in that case.
+  // opened before the query lands. A save replaces the whole metadata array, so
+  // never edit from an unknown list: fetch it first, and refuse to open rather
+  // than seed an empty form that would delete the pairs it failed to read.
   const openDrawer = (): void => {
     if (!invoiceId) {
       return
@@ -174,8 +175,17 @@ export const useAddMetadataDrawer = ({
     }
 
     refetch()
-      .then((result) => openWithMetadata(result.data?.invoice?.metadata || []))
-      .catch(() => openWithMetadata([]))
+      .then((result) => {
+        if (!result.data?.invoice) {
+          addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
+          return
+        }
+
+        openWithMetadata(result.data.invoice.metadata || [])
+      })
+      .catch(() => {
+        addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
+      })
   }
 
   return { openDrawer }
