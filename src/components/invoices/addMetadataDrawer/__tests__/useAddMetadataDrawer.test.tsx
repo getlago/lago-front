@@ -260,7 +260,9 @@ describe('useAddMetadataDrawer', () => {
       expect(screen.getByDisplayValue('PO-42')).toBeInTheDocument()
     })
 
-    it('THEN should still open the drawer when the metadata cannot be fetched', async () => {
+    // Opening empty here would let a save replace the pairs the drawer failed
+    // to read, so the action reports the error instead.
+    it('THEN should not open the drawer when the metadata cannot be fetched', async () => {
       mockUseGetInvoiceMetadataForEditionQuery.mockReturnValue({
         data: undefined,
         refetch: mockRefetchInvoiceMetadata,
@@ -272,10 +274,32 @@ describe('useAddMetadataDrawer', () => {
       await act(async () => {
         result.current.openDrawer()
       })
-      renderDrawerBody()
 
-      expect(mockOpen).toHaveBeenCalledTimes(1)
-      expect(screen.getAllByRole('textbox')).toHaveLength(2)
+      expect(mockOpen).not.toHaveBeenCalled()
+      expect(addToast).toHaveBeenCalledWith({
+        severity: 'danger',
+        translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+      })
+    })
+
+    it('THEN should not open the drawer when the invoice comes back empty', async () => {
+      mockUseGetInvoiceMetadataForEditionQuery.mockReturnValue({
+        data: undefined,
+        refetch: mockRefetchInvoiceMetadata,
+      })
+      mockRefetchInvoiceMetadata.mockResolvedValue({ data: { invoice: null } })
+
+      const { result } = renderDrawerHook()
+
+      await act(async () => {
+        result.current.openDrawer()
+      })
+
+      expect(mockOpen).not.toHaveBeenCalled()
+      expect(addToast).toHaveBeenCalledWith({
+        severity: 'danger',
+        translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+      })
     })
   })
 
