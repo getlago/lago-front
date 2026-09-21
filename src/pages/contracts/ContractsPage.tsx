@@ -4,7 +4,7 @@ import { generatePath, useSearchParams } from 'react-router'
 
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
-import { Table, TableColumn } from '~/components/designSystem/Table/Table'
+import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import {
@@ -174,6 +174,30 @@ const ContractsPage = (): JSX.Element => {
     },
   ]
 
+  const getPlaceholder = (): TablePlaceholder => ({
+    emptyState: hasSearchOrFilters
+      ? {
+          title: translate('text_1789752288687fltu5v8ujsm'),
+          subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
+        }
+      : {
+          title: translate('text_1789030049530zaego9s9413'),
+          subtitle: translate('text_1789489416655cg75diwmbkv'),
+        },
+    errorState: hasSearchOrFilters
+      ? {
+          title: translate('text_623b53fea66c76017eaebb6e'),
+          subtitle: translate('text_63bab307a61c62af497e0599'),
+        }
+      : {
+          title: translate('text_629728388c4d2300e2d380d5'),
+          subtitle: translate('text_629728388c4d2300e2d380eb'),
+          buttonTitle: translate('text_629728388c4d2300e2d38110'),
+          buttonVariant: 'primary',
+          buttonAction: () => location.reload(),
+        },
+  })
+
   return (
     <>
       <MainHeader.Configure
@@ -222,29 +246,7 @@ const ContractsPage = (): JSX.Element => {
           rowLinkLabel={getContractLabel}
           actionColumnTooltip={() => translate('text_637f813d31381b1ed90ab326')}
           actionColumn={getActions}
-          placeholder={{
-            emptyState: hasSearchOrFilters
-              ? {
-                  title: translate('text_1789752288687fltu5v8ujsm'),
-                  subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
-                }
-              : {
-                  title: translate('text_1789030049530zaego9s9413'),
-                  subtitle: translate('text_1789489416655cg75diwmbkv'),
-                },
-            errorState: hasSearchOrFilters
-              ? {
-                  title: translate('text_623b53fea66c76017eaebb6e'),
-                  subtitle: translate('text_63bab307a61c62af497e0599'),
-                }
-              : {
-                  title: translate('text_629728388c4d2300e2d380d5'),
-                  subtitle: translate('text_629728388c4d2300e2d380eb'),
-                  buttonTitle: translate('text_629728388c4d2300e2d38110'),
-                  buttonVariant: 'primary',
-                  buttonAction: () => location.reload(),
-                },
-          }}
+          placeholder={getPlaceholder()}
         />
       </PaginatedContent>
     </>

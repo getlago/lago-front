@@ -139,12 +139,12 @@ describe('ContractsPage', () => {
 
   it('sends URL filters to GraphQL and shows the criteria-aware empty state', async () => {
     const searchParams = new URLSearchParams({
-      con_contractAffiliatedEntityIds: 'entity-1|-_-|France,entity-2|-_-|Germany',
-      con_customerExternalId: 'customer-1|-_-|Acme',
-      con_externalId: 'contract-2026',
-      con_contractPlanCode: 'enterprise|-_-|Enterprise',
-      con_contractRateOverrides: 'false',
-      con_contractStatus: 'active,pending',
+      clf_contractAffiliatedEntityIds: 'entity-1|-_-|France,entity-2|-_-|Germany',
+      clf_customerExternalId: 'customer-1|-_-|Acme',
+      clf_externalId: 'contract-2026',
+      clf_contractPlanCode: 'enterprise|-_-|Enterprise',
+      clf_contractRateOverrides: 'false',
+      clf_contractStatus: 'active,pending',
     })
 
     window.history.replaceState({}, '', `/acme/contracts?${searchParams.toString()}`)

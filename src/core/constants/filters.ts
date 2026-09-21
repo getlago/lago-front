@@ -27,7 +27,7 @@ export const API_LOGS_FILTER_PREFIX = 'apil'
 
 export const SUBSCRIPTION_LIST_FILTER_PREFIX = 'sub'
 
-export const CONTRACT_LIST_FILTER_PREFIX = 'con'
+export const CONTRACT_LIST_FILTER_PREFIX = 'clf'
 
 export const PRODUCT_LIST_FILTER_PREFIX = 'pit'
 

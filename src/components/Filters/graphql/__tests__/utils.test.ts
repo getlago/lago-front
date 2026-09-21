@@ -283,14 +283,14 @@ describe('Filters utils', () => {
       const searchParams = new URLSearchParams()
 
       searchParams.set(
-        'con_contractAffiliatedEntityIds',
+        'clf_contractAffiliatedEntityIds',
         `entity-1${filterDataInlineSeparator}France,entity-2${filterDataInlineSeparator}Germany`,
       )
-      searchParams.set('con_customerExternalId', `customer-1${filterDataInlineSeparator}Acme`)
-      searchParams.set('con_externalId', 'contract-2026')
-      searchParams.set('con_contractPlanCode', `enterprise${filterDataInlineSeparator}Enterprise`)
-      searchParams.set('con_contractRateOverrides', 'false')
-      searchParams.set('con_contractStatus', 'active,pending')
+      searchParams.set('clf_customerExternalId', `customer-1${filterDataInlineSeparator}Acme`)
+      searchParams.set('clf_externalId', 'contract-2026')
+      searchParams.set('clf_contractPlanCode', `enterprise${filterDataInlineSeparator}Enterprise`)
+      searchParams.set('clf_contractRateOverrides', 'false')
+      searchParams.set('clf_contractStatus', 'active,pending')
 
       expect(formatFiltersForContractQuery(searchParams)).toEqual({
         billingEntityIds: ['entity-1', 'entity-2'],

@@ -258,7 +258,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.contractPlanCode]: (value: string) =>
     value.split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.contractRateOverrides]: (value: string) => value === 'true',
-  [AvailableFiltersEnum.contractStatus]: (value: string) => value.split(','),
+  [AvailableFiltersEnum.contractStatus]: (value: string) => value.split(',').filter(Boolean),
   [AvailableFiltersEnum.country]: (value: string) => value,
   [AvailableFiltersEnum.countries]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
