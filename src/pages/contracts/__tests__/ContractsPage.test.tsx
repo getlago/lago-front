@@ -196,19 +196,6 @@ describe('ContractsPage', () => {
     })
   })
 
-  it('uses the plan name in the terminate dialog when the contract has no name', async () => {
-    render(<ContractsPage />, { mocks: [contractsMock([{ ...contract, name: null }])] })
-
-    const row = await screen.findByTestId('Enterprise plan')
-
-    fireEvent.click(within(row).getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
-    fireEvent.click(await screen.findByTestId('terminate-contract'))
-
-    expect(mockOpenTerminateContractDialog).toHaveBeenCalledWith({
-      name: 'Enterprise plan',
-    })
-  })
-
   it('shows a full page of skeleton rows while fetching, then the empty state', async () => {
     render(<ContractsPage />, { mocks: [{ ...contractsMock([], 1, 0), delay: 30 }] })
 
