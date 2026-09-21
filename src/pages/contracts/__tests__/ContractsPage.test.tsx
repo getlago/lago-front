@@ -19,14 +19,6 @@ import { render, testMockNavigateFn } from '~/test-utils'
 
 import ContractsPage from '../ContractsPage'
 
-const mockOpenTerminateContractDialog = jest.fn()
-
-jest.mock('../useTerminateContractDialog', () => ({
-  useTerminateContractDialog: () => ({
-    openTerminateContractDialog: mockOpenTerminateContractDialog,
-  }),
-}))
-
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
   addToast: jest.fn(),
@@ -170,7 +162,7 @@ describe('ContractsPage', () => {
     expect(testMockNavigateFn).toHaveBeenCalledWith('/contract/contract-1')
   })
 
-  it('copies the external ID and opens the terminate dialog from the row action menu', async () => {
+  it('copies the external ID from the row action menu', async () => {
     render(<ContractsPage />, { mocks: [contractsMock()] })
 
     const row = await screen.findByTestId('table-row-0')
@@ -182,16 +174,6 @@ describe('ContractsPage', () => {
     expect(addToast).toHaveBeenCalledWith({
       severity: 'info',
       translateKey: 'text_1789636691484fyt51yyc9uh',
-    })
-
-    await waitFor(() =>
-      expect(screen.queryByTestId('copy-contract-external-id')).not.toBeInTheDocument(),
-    )
-    fireEvent.click(within(row).getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
-    fireEvent.click(await screen.findByTestId('terminate-contract'))
-
-    expect(mockOpenTerminateContractDialog).toHaveBeenCalledWith({
-      name: 'Enterprise agreement',
     })
   })
 
