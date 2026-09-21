@@ -21,6 +21,7 @@ import {
   FeeForCreateFeeDrawerFragment,
   FeeForInvoiceDetailsTableBodyLineFragment,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
+  FeeTypesEnum,
   InvoiceForDetailsTableFooterFragmentDoc,
   InvoiceForDetailsTableFragment,
   InvoiceForFormatInvoiceItemMapFragmentDoc,
@@ -341,20 +342,85 @@ export const InvoiceDetailsTable = memo(
       )
     }
 
+    /**********************************************************
+     * Standalone product fees (not tied to any subscription)
+     **********************************************************/
+    const productFees = fees?.filter(
+      (fee) => fee.feeType === FeeTypesEnum.Product && !fee.subscription?.id,
+    )
+    const subscriptionFees = fees?.filter(
+      (fee) => !(fee.feeType === FeeTypesEnum.Product && !fee.subscription?.id),
+    )
+
     const newFormattedInvoiceItemsMap = groupAndFormatFees({
-      fees,
+      fees: subscriptionFees,
       subscriptions: invoice.subscriptions,
       invoiceSubscriptions: invoice.invoiceSubscriptions,
       invoiceId: invoice.id,
     })
 
+    const hasSubscriptionFees = !!newFormattedInvoiceItemsMap?.metadata?.hasAnyFeeParsed
+
+    const renderProductFees = (includeFooter: boolean): ReactNode => {
+      if (!productFees?.length) return null
+
+      return (
+        <InvoiceTableSection isDraftInvoice={isDraftInvoice} canHaveUnitPrice={canHaveUnitPrice}>
+          <table>
+            <InvoiceDetailsTableHeader
+              canHaveUnitPrice={canHaveUnitPrice}
+              displayName={translate('text_6388b923e514213fed58331c')}
+            />
+            <tbody>
+              {productFees.map((fee, i) => {
+                const feeDisplayName = fee.invoiceDisplayName || fee.itemName
+                const feeWithMetadata = {
+                  ...fee,
+                  metadata: {
+                    displayName: feeDisplayName,
+                  },
+                }
+
+                return (
+                  <InvoiceDetailsTableBodyLine
+                    key={`product-fee-${i}`}
+                    canHaveUnitPrice={canHaveUnitPrice}
+                    currency={currency}
+                    displayFeeBoundaries={true}
+                    displayName={feeDisplayName}
+                    editFeeDrawerRef={editFeeDrawerRef}
+                    isDraftInvoice={isDraftInvoice}
+                    fee={
+                      feeWithMetadata as FeeForInvoiceDetailsTableBodyLineFragment & {
+                        metadata: { displayName: string }
+                      }
+                    }
+                    hasTaxProviderError={hasTaxProviderError}
+                  />
+                )
+              })}
+            </tbody>
+
+            {includeFooter && (
+              <InvoiceDetailsTableFooter
+                invoice={invoice}
+                canHaveUnitPrice={canHaveUnitPrice}
+                hasTaxProviderError={hasTaxProviderError}
+              />
+            )}
+          </table>
+        </InvoiceTableSection>
+      )
+    }
+
     /***************************************
      * No fee placeholder (by subscription)
      **************************************/
 
-    if (!newFormattedInvoiceItemsMap?.metadata?.hasAnyFeeParsed) {
+    if (!hasSubscriptionFees) {
       return (
         <>
+          {renderProductFees(true)}
           {invoice.subscriptions?.map((subscription) => {
             return (
               <InvoiceTableSection
@@ -408,123 +474,130 @@ export const InvoiceDetailsTable = memo(
      * Fees grouped by subscription then by boundary
      ************************************************/
     return (
-      <InvoiceTableSection isDraftInvoice={isDraftInvoice} canHaveUnitPrice={canHaveUnitPrice}>
-        <div className="[&>table:not(:nth-last-child(2))]:mb-8">
-          {Object.entries(newFormattedInvoiceItemsMap.subscriptions).map(
-            ([subscriptionId, subscriptionData]) => {
-              const canAnyChargeBeAdded =
-                !invoice.allChargesHaveFees || !invoice.allFixedChargesHaveFees
-              const showAddNewFeeButton =
-                !!onAdd || // onAdd is present in void and regenerate flow
-                (canAnyChargeBeAdded &&
-                  subscriptionData.acceptNewChargeFees &&
-                  invoice.status === InvoiceStatusTypeEnum.Draft)
+      <>
+        {renderProductFees(false)}
+        <InvoiceTableSection isDraftInvoice={isDraftInvoice} canHaveUnitPrice={canHaveUnitPrice}>
+          <div className="[&>table:not(:nth-last-child(2))]:mb-8">
+            {Object.entries(newFormattedInvoiceItemsMap.subscriptions).map(
+              ([subscriptionId, subscriptionData]) => {
+                const canAnyChargeBeAdded =
+                  !invoice.allChargesHaveFees || !invoice.allFixedChargesHaveFees
+                const showAddNewFeeButton =
+                  !!onAdd || // onAdd is present in void and regenerate flow
+                  (canAnyChargeBeAdded &&
+                    subscriptionData.acceptNewChargeFees &&
+                    invoice.status === InvoiceStatusTypeEnum.Draft)
 
-              const addNewFeeOnClick = () => {
-                editFeeDrawerRef?.current?.openDrawer(
-                  onAdd
-                    ? {
-                        invoiceId: invoice.id,
-                        invoiceSubscriptionId: subscriptionId,
-                        mode: 'regenerate',
-                        onAdd,
-                        localFees,
-                      }
-                    : {
-                        invoiceId: invoice.id,
-                        invoiceSubscriptionId: subscriptionId,
-                        mode: 'add',
-                      },
-                )
-              }
+                const addNewFeeOnClick = () => {
+                  editFeeDrawerRef?.current?.openDrawer(
+                    onAdd
+                      ? {
+                          invoiceId: invoice.id,
+                          invoiceSubscriptionId: subscriptionId,
+                          mode: 'regenerate',
+                          onAdd,
+                          localFees,
+                        }
+                      : {
+                          invoiceId: invoice.id,
+                          invoiceSubscriptionId: subscriptionId,
+                          mode: 'add',
+                        },
+                  )
+                }
 
-              return (
-                <table
-                  key={`subscription-${subscriptionId}`}
-                  data-test={INVOICE_DETAILS_TABLE_SUBSCRIPTION_TEST_ID}
-                >
-                  <InvoiceDetailsTableHeader
-                    canHaveUnitPrice={canHaveUnitPrice}
-                    displayName={subscriptionData.subscriptionDisplayName}
-                  />
-                  <tbody>
-                    {Object.entries(subscriptionData.boundaries).map(([boundaryKey, boundary]) => {
-                      return (
-                        <Fragment key={`subscription-${subscriptionId}-boundary-${boundaryKey}`}>
-                          <InvoiceDetailsTablePeriodLine
-                            canHaveUnitPrice={canHaveUnitPrice}
-                            isDraftInvoice={isDraftInvoice}
-                            period={translate('text_6499a4e4db5730004703f36b', {
-                              from: intlFormatDateTime(boundary.fromDatetime, {
-                                timezone: customer?.applicableTimezone,
-                              }).date,
-                              to: intlFormatDateTime(boundary.toDatetime, {
-                                timezone: customer?.applicableTimezone,
-                              }).date,
-                            })}
-                          />
-                          {boundary.fees.map((fee) => {
-                            const succeededDate = fee.succeededAt
-                              ? intlFormatDateTime(fee.succeededAt).date
-                              : undefined
-
-                            return (
-                              <InvoiceDetailsTableBodyLine
-                                key={`fee-${fee.id}`}
-                                canHaveUnitPrice={canHaveUnitPrice}
-                                currency={currency}
-                                displayName={fee.metadata.displayName}
-                                succeededDate={succeededDate}
-                                editFeeDrawerRef={editFeeDrawerRef}
-                                isDraftInvoice={isDraftInvoice}
-                                fee={fee}
-                                hasTaxProviderError={hasTaxProviderError}
-                                {...getRegenerateModeProps(
-                                  onAdd,
-                                  onDelete,
-                                  localFees,
-                                  subscriptionId,
-                                )}
-                              />
-                            )
-                          })}
-                        </Fragment>
-                      )
-                    })}
-                    {showAddNewFeeButton && (
-                      <tr>
-                        <td colSpan={6}>
-                          <div>
-                            <Button
-                              data-test={INVOICE_DETAILS_TABLE_ADD_FEE_BUTTON_TEST_ID}
-                              variant="quaternary"
-                              size="small"
-                              startIcon="plus"
-                              onClick={addNewFeeOnClick}
+                return (
+                  <table
+                    key={`subscription-${subscriptionId}`}
+                    data-test={INVOICE_DETAILS_TABLE_SUBSCRIPTION_TEST_ID}
+                  >
+                    <InvoiceDetailsTableHeader
+                      canHaveUnitPrice={canHaveUnitPrice}
+                      displayName={subscriptionData.subscriptionDisplayName}
+                    />
+                    <tbody>
+                      {Object.entries(subscriptionData.boundaries).map(
+                        ([boundaryKey, boundary]) => {
+                          return (
+                            <Fragment
+                              key={`subscription-${subscriptionId}-boundary-${boundaryKey}`}
                             >
-                              {translate('text_1737709105343hobdiidr8r9')}
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              )
-            },
-          )}
-          {/* Footer */}
-          <table>
-            <InvoiceDetailsTableFooter
-              invoice={invoice}
-              invoiceFees={onAdd ? fees : null}
-              canHaveUnitPrice={canHaveUnitPrice}
-              hasTaxProviderError={hasTaxProviderError}
-              isRegenerateFlow={!!onAdd}
-            />
-          </table>
-        </div>
-      </InvoiceTableSection>
+                              <InvoiceDetailsTablePeriodLine
+                                canHaveUnitPrice={canHaveUnitPrice}
+                                isDraftInvoice={isDraftInvoice}
+                                period={translate('text_6499a4e4db5730004703f36b', {
+                                  from: intlFormatDateTime(boundary.fromDatetime, {
+                                    timezone: customer?.applicableTimezone,
+                                  }).date,
+                                  to: intlFormatDateTime(boundary.toDatetime, {
+                                    timezone: customer?.applicableTimezone,
+                                  }).date,
+                                })}
+                              />
+                              {boundary.fees.map((fee) => {
+                                const succeededDate = fee.succeededAt
+                                  ? intlFormatDateTime(fee.succeededAt).date
+                                  : undefined
+
+                                return (
+                                  <InvoiceDetailsTableBodyLine
+                                    key={`fee-${fee.id}`}
+                                    canHaveUnitPrice={canHaveUnitPrice}
+                                    currency={currency}
+                                    displayName={fee.metadata.displayName}
+                                    succeededDate={succeededDate}
+                                    editFeeDrawerRef={editFeeDrawerRef}
+                                    isDraftInvoice={isDraftInvoice}
+                                    fee={fee}
+                                    hasTaxProviderError={hasTaxProviderError}
+                                    {...getRegenerateModeProps(
+                                      onAdd,
+                                      onDelete,
+                                      localFees,
+                                      subscriptionId,
+                                    )}
+                                  />
+                                )
+                              })}
+                            </Fragment>
+                          )
+                        },
+                      )}
+                      {showAddNewFeeButton && (
+                        <tr>
+                          <td colSpan={6}>
+                            <div>
+                              <Button
+                                data-test={INVOICE_DETAILS_TABLE_ADD_FEE_BUTTON_TEST_ID}
+                                variant="quaternary"
+                                size="small"
+                                startIcon="plus"
+                                onClick={addNewFeeOnClick}
+                              >
+                                {translate('text_1737709105343hobdiidr8r9')}
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                )
+              },
+            )}
+            {/* Footer */}
+            <table>
+              <InvoiceDetailsTableFooter
+                invoice={invoice}
+                invoiceFees={onAdd ? fees : null}
+                canHaveUnitPrice={canHaveUnitPrice}
+                hasTaxProviderError={hasTaxProviderError}
+                isRegenerateFlow={!!onAdd}
+              />
+            </table>
+          </div>
+        </InvoiceTableSection>
+      </>
     )
   },
 )
