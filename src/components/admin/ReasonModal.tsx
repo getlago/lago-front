@@ -7,6 +7,7 @@ import BaseDialog from '~/components/dialogs/BaseDialog'
 import { CLOSE_PARAMS } from '~/components/dialogs/const'
 import { Checkbox } from '~/components/form/Checkbox/Checkbox'
 import { TextInput } from '~/components/form/TextInput/TextInput'
+import { addToast } from '~/core/apolloClient'
 
 import { REASON_MODAL_NAME } from './const'
 
@@ -28,6 +29,7 @@ export const ReasonModal = create(
     const isValid = trimmedLength >= 10 && trimmedLength <= 500
 
     const handleCancel = async () => {
+      if (loading) return
       modal.resolve(CLOSE_PARAMS)
       modal.hide()
     }
@@ -40,8 +42,7 @@ export const ReasonModal = create(
         modal.resolve({ reason: 'success' })
         modal.hide()
       } catch {
-        modal.reject({ reason: 'error' })
-        modal.hide()
+        addToast({ severity: 'danger', message: 'Failed to save the change. Please try again.' })
       } finally {
         setLoading(false)
       }
@@ -56,7 +57,7 @@ export const ReasonModal = create(
         description={description}
         actions={
           <>
-            <Button variant="quaternary" onClick={handleCancel}>
+            <Button variant="quaternary" disabled={loading} onClick={handleCancel}>
               Cancel
             </Button>
             <Button disabled={!isValid || loading} onClick={handleConfirm}>

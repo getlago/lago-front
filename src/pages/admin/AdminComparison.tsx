@@ -1,4 +1,4 @@
-import { gql, useMutation, useQuery } from '@apollo/client'
+import { gql } from '@apollo/client'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
@@ -13,8 +13,13 @@ import {
 import { Switch } from '~/components/form/Switch/Switch'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { addToast } from '~/core/apolloClient'
+import {
+  AdminFeatureTypeEnum,
+  useAdminOrganizationsComparisonQuery,
+  useAdminToggleFeatureComparisonMutation,
+} from '~/generated/graphql'
 
-const ADMIN_ORGANIZATIONS_QUERY = gql`
+gql`
   query AdminOrganizationsComparison($limit: Int) {
     adminOrganizations(limit: $limit) {
       collection {
@@ -28,7 +33,7 @@ const ADMIN_ORGANIZATIONS_QUERY = gql`
   }
 `
 
-const ADMIN_TOGGLE_FEATURE_MUTATION = gql`
+gql`
   mutation AdminToggleFeatureComparison($input: AdminToggleFeatureInput!) {
     adminToggleFeature(input: $input) {
       id
@@ -54,7 +59,8 @@ const AdminComparison = () => {
     data,
     loading: isLoadingOrgs,
     refetch,
-  } = useQuery(ADMIN_ORGANIZATIONS_QUERY, {
+  } = useAdminOrganizationsComparisonQuery({
+    fetchPolicy: 'network-only',
     variables: { limit: ALL_ORGS_LIMIT },
   })
 
@@ -84,7 +90,7 @@ const AdminComparison = () => {
     [selectedOrgIds, allOrgs],
   )
 
-  const [toggleFeature] = useMutation(ADMIN_TOGGLE_FEATURE_MUTATION)
+  const [toggleFeature] = useAdminToggleFeatureComparisonMutation()
 
   const handleOrgSelectionChange = (newValue: MultipleComboBoxData[]) => {
     const ids = newValue.map((item) => item.value)
@@ -109,9 +115,9 @@ const AdminComparison = () => {
 
   const handleToggle = async (
     orgId: string,
-    featureType: string,
+    featureType: AdminFeatureTypeEnum,
     featureKey: string,
-    _currentlyEnabled: boolean,
+    currentlyEnabled: boolean,
     reason: string,
     notifyOrgAdmin: boolean,
   ) => {
@@ -121,6 +127,7 @@ const AdminComparison = () => {
           organizationId: orgId,
           featureKey,
           featureType,
+          enabled: !currentlyEnabled,
           reason,
           notifyOrgAdmin,
         },

@@ -34,6 +34,7 @@ export const FiltersItemAdminOrganizations = ({
   const { translate } = useInternationalization()
   const { displayInDialog } = useFilters()
   const { data, loading } = useGetAdminOrganizationsForFilterItemQuery({
+    fetchPolicy: 'network-only',
     variables: { limit: ORGANIZATIONS_LIMIT },
   })
 

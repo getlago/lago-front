@@ -17,7 +17,8 @@ jobs:
         uses: actions/checkout@v7.0.1
         with:
           repository: getlago/lago-api
-          ref: ${{ github.event.inputs.api_branch }}
+          # Admin schema dependency: getlago/lago-api#5396. Remove after its release.
+          ref: ${{ github.event.inputs.api_branch || (github.event.pull_request.number == 3533 && 'de52b9ac4fc74ea9dac30f9c76d1532dbc6e5ed2') || 'main' }}
           path: api
 
       - name: Build Front local image

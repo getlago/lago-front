@@ -3,7 +3,11 @@ import NiceModal from '@ebay/nice-modal-react'
 import { Chip } from '~/components/designSystem/Chip'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
-import { FeatureFlagEnum, PremiumIntegrationTypeEnum } from '~/generated/graphql'
+import {
+  AdminFeatureTypeEnum,
+  FeatureFlagEnum,
+  PremiumIntegrationTypeEnum,
+} from '~/generated/graphql'
 
 import { REASON_MODAL_NAME } from './const'
 import { ReasonModalProps } from './ReasonModal'
@@ -23,7 +27,7 @@ export interface ComparisonMatrixProps {
   showDifferencesOnly: boolean
   onToggle: (
     orgId: string,
-    featureType: string,
+    featureType: AdminFeatureTypeEnum,
     featureKey: string,
     currentlyEnabled: boolean,
     reason: string,
@@ -34,19 +38,19 @@ export interface ComparisonMatrixProps {
 interface FeatureRow {
   id: string
   featureKey: string
-  featureType: 'premium_integration' | 'feature_flag'
+  featureType: AdminFeatureTypeEnum
 }
 
 const allRows: FeatureRow[] = [
   ...KNOWN_PREMIUM_INTEGRATIONS.map((k) => ({
     id: `premium_integration:${k}`,
     featureKey: k,
-    featureType: 'premium_integration' as const,
+    featureType: AdminFeatureTypeEnum.PremiumIntegration,
   })),
   ...KNOWN_FEATURE_FLAGS.map((k) => ({
     id: `feature_flag:${k}`,
     featureKey: k,
-    featureType: 'feature_flag' as const,
+    featureType: AdminFeatureTypeEnum.FeatureFlag,
   })),
 ]
 
