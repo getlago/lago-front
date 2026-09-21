@@ -90,9 +90,9 @@ export const CustomerContractsList = ({ customer }: CustomerContractsListProps):
       title: translate('text_1789552637141273ewsjqx7j'),
       maxSpace: true,
       minWidth: 200,
-      content: ({ name, plan }) => (
+      content: (contract) => (
         <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {getContractDisplayName({ name, plan })}
+          {getContractDisplayName(contract)}
         </Typography>
       ),
     },

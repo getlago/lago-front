@@ -5,6 +5,7 @@ describe('getContractDisplayName', () => {
     expect(
       getContractDisplayName({
         name: 'Enterprise agreement',
+        externalId: 'contract-1',
         plan: { name: 'Enterprise plan' },
       }),
     ).toBe('Enterprise agreement')
@@ -14,8 +15,19 @@ describe('getContractDisplayName', () => {
     expect(
       getContractDisplayName({
         name: null,
+        externalId: 'contract-1',
         plan: { name: 'Enterprise plan' },
       }),
     ).toBe('Enterprise plan')
+  })
+
+  it('uses the external ID when neither the name nor the plan is set', () => {
+    expect(
+      getContractDisplayName({
+        name: null,
+        externalId: 'contract-1',
+        plan: null,
+      }),
+    ).toBe('contract-1')
   })
 })

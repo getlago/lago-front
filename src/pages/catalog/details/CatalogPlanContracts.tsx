@@ -73,9 +73,9 @@ export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): J
       title: translate('text_6419c64eace749372fc72b0f'),
       maxSpace: true,
       minWidth: 200,
-      content: ({ name, plan }) => (
+      content: (contract) => (
         <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {getContractDisplayName({ name, plan })}
+          {getContractDisplayName(contract)}
         </Typography>
       ),
     },
