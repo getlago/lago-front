@@ -68,9 +68,7 @@ const useContractForm = ({
         variables: {
           input: {
             externalCustomerId: value.externalCustomerId,
-            // The API still requires an external ID. Preserve Lago's generated
-            // fallback unless the user reveals and fills the optional field.
-            externalId: value.externalId || crypto.randomUUID(),
+            externalId: value.externalId || undefined,
             planCode: value.planCode,
             name: value.name || undefined,
             billingEntityId: value.billingEntityId || undefined,

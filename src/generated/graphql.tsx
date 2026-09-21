@@ -1944,7 +1944,7 @@ export type CreateContractInput = {
   consolidateInvoice?: InputMaybe<Scalars['Boolean']['input']>;
   endedAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   externalCustomerId: Scalars['String']['input'];
-  externalId: Scalars['String']['input'];
+  externalId?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   planCode?: InputMaybe<Scalars['String']['input']>;
