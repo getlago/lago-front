@@ -1,18 +1,22 @@
 import { gql } from '@apollo/client'
-import { useState } from 'react'
-import { generatePath } from 'react-router'
+import { useMemo, useState } from 'react'
+import { generatePath, useSearchParams } from 'react-router'
 
-import { Button } from '~/components/designSystem/Button'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
-import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
-import { Table, TableColumn } from '~/components/designSystem/Table/Table'
+import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import {
+  ContractAvailableFilters,
+  Filters,
+  formatFiltersForContractQuery,
+} from '~/components/Filters'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast } from '~/core/apolloClient'
+import { CONTRACT_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import { CONTRACT_DETAILS_ROUTE } from '~/core/router'
@@ -36,8 +40,28 @@ gql`
     }
   }
 
-  query getContractsList($page: Int, $limit: Int) {
-    contracts(page: $page, limit: $limit) {
+  query getContractsList(
+    $page: Int
+    $limit: Int
+    $searchTerm: String
+    $billingEntityIds: [ID!]
+    $externalCustomerId: String
+    $externalId: String
+    $hasRateOverrides: Boolean
+    $planCode: String
+    $status: [ContractStatusEnum!]
+  ) {
+    contracts(
+      page: $page
+      limit: $limit
+      searchTerm: $searchTerm
+      billingEntityIds: $billingEntityIds
+      externalCustomerId: $externalCustomerId
+      externalId: $externalId
+      hasRateOverrides: $hasRateOverrides
+      planCode: $planCode
+      status: $status
+    ) {
       collection {
         ...ContractForContractsList
       }
@@ -52,15 +76,29 @@ gql`
 
 const ContractsPage = (): JSX.Element => {
   const { translate } = useInternationalization()
+  const [searchParams] = useSearchParams()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { page, goToPage } = usePageSearchParam()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const [getContracts, { data, loading, error }] = useGetContractsListLazyQuery({
-    variables: { page, limit: pageSize },
+  const filtersForContractQuery = useMemo(
+    () => formatFiltersForContractQuery(searchParams),
+    [searchParams],
+  )
+  const [getContracts, { data, loading, error, variables }] = useGetContractsListLazyQuery({
+    variables: { page, limit: pageSize, ...filtersForContractQuery },
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
   })
-  const { isLoading } = useDebouncedSearch(getContracts, loading)
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getContracts, loading)
   const totalCount = data?.contracts.metadata.totalCount
+  const hasSearchOrFilters =
+    Object.keys(filtersForContractQuery).length > 0 || !!variables?.searchTerm
+
+  const searchAndResetPage = (value: string): void => {
+    goToPage(1)
+    debouncedSearch?.(value)
+  }
 
   const getActions = (
     contract: ContractForContractsListFragment,
@@ -136,12 +174,28 @@ const ContractsPage = (): JSX.Element => {
     },
   ]
 
-  const placeholder = buildSearchAwareTablePlaceholder({
-    translate,
-    hasSearchTerm: false,
-    noResultTitleKey: 'text_1789030049530zaego9s9413',
-    emptyTitleKey: 'text_1789030049530zaego9s9413',
-    emptySubtitleKey: 'text_1789489416655cg75diwmbkv',
+  const getPlaceholder = (): TablePlaceholder => ({
+    emptyState: hasSearchOrFilters
+      ? {
+          title: translate('text_1789752288687fltu5v8ujsm'),
+          subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
+        }
+      : {
+          title: translate('text_1789030049530zaego9s9413'),
+          subtitle: translate('text_1789489416655cg75diwmbkv'),
+        },
+    errorState: hasSearchOrFilters
+      ? {
+          title: translate('text_623b53fea66c76017eaebb6e'),
+          subtitle: translate('text_63bab307a61c62af497e0599'),
+        }
+      : {
+          title: translate('text_629728388c4d2300e2d380d5'),
+          subtitle: translate('text_629728388c4d2300e2d380eb'),
+          buttonTitle: translate('text_629728388c4d2300e2d38110'),
+          buttonVariant: 'primary',
+          buttonAction: () => location.reload(),
+        },
   })
 
   return (
@@ -153,12 +207,18 @@ const ContractsPage = (): JSX.Element => {
           metadataLoading: isLoading && totalCount === undefined,
         }}
         filtersSection={
-          <div className="flex flex-col gap-3 md:flex-row md:items-center">
-            <SearchInput disabled placeholder={translate('text_1789489416655gvo52mdwtur')} />
-            <Button disabled startIcon="filter" size="small" variant="quaternary">
-              {translate('text_66ab42d4ece7e6b7078993ad')}
-            </Button>
-          </div>
+          <Filters.Provider
+            filtersNamePrefix={CONTRACT_LIST_FILTER_PREFIX}
+            availableFilters={ContractAvailableFilters}
+          >
+            <div className="flex flex-col gap-3 md:flex-row md:items-center">
+              <SearchInput
+                onChange={searchAndResetPage}
+                placeholder={translate('text_1789489416655gvo52mdwtur')}
+              />
+              <Filters.Component />
+            </div>
+          </Filters.Provider>
         }
       />
       <PaginatedContent
@@ -186,7 +246,7 @@ const ContractsPage = (): JSX.Element => {
           rowLinkLabel={getContractLabel}
           actionColumnTooltip={() => translate('text_637f813d31381b1ed90ab326')}
           actionColumn={getActions}
-          placeholder={placeholder}
+          placeholder={getPlaceholder()}
         />
       </PaginatedContent>
     </>
