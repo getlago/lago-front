@@ -5,6 +5,10 @@ import {
   findConnectionRouting,
   toSelectedConnection,
 } from '~/components/connectionSelection/fromConnectionRouting'
+import { PaymentMethodValue } from '~/components/connectionSelection/PaymentMethodValue'
+import { useConnectionRoutingGridItems } from '~/components/connectionSelection/useConnectionRoutingGridItems'
+import { ConnectionCategory } from '~/components/customerConnections/types'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { useConnectionPaymentSettingsDrawer } from '~/components/paymentSettings/connectionFirst/useConnectionPaymentSettingsDrawer'
 import {
   PaymentSettingsDrawer,
@@ -48,7 +52,9 @@ type SubscriptionPaymentSectionProps = {
   subscription: SubscriptionPaymentSectionFragment
 }
 
-export const SubscriptionPaymentSection = ({ subscription }: SubscriptionPaymentSectionProps) => {
+export const SubscriptionPaymentSection = ({
+  subscription,
+}: SubscriptionPaymentSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { hasFeatureFlag } = useOrganizationInfos()
@@ -62,6 +68,16 @@ export const SubscriptionPaymentSection = ({ subscription }: SubscriptionPayment
     onSave: savePayment,
   })
 
+  const paymentRouting = findConnectionRouting(
+    subscription.connections,
+    ConnectionCategoryEnum.Payment,
+  )
+  const paymentItems = useConnectionRoutingGridItems({
+    categories: [ConnectionCategory.Payment],
+    connections: subscription.connections,
+    customerId: subscription.customer?.id,
+  })
+
   const selectedPaymentMethod = {
     paymentMethodType: subscription.paymentMethodType,
     paymentMethodId: subscription.paymentMethod?.id,
@@ -69,10 +85,6 @@ export const SubscriptionPaymentSection = ({ subscription }: SubscriptionPayment
 
   const openPaymentDrawer = (): void => {
     if (hasMultiConnection) {
-      const paymentRouting = findConnectionRouting(
-        subscription.connections,
-        ConnectionCategoryEnum.Payment,
-      )
       let connection = toSelectedConnection(paymentRouting)
 
       if (!connection && subscription.paymentMethodType === PaymentMethodTypeEnum.Manual) {
@@ -105,10 +117,28 @@ export const SubscriptionPaymentSection = ({ subscription }: SubscriptionPayment
         }}
       />
 
-      <SubscriptionPaymentMethodDetails
-        selectedPaymentMethod={selectedPaymentMethod}
-        externalCustomerId={subscription.customer?.externalId}
-      />
+      {hasMultiConnection ? (
+        <DetailsPage.InfoGrid
+          grid={[
+            ...paymentItems,
+            {
+              label: translate('text_1773043324341qj7t72i7qnk'),
+              value: (
+                <PaymentMethodValue
+                  selectedPaymentMethod={selectedPaymentMethod}
+                  customerId={subscription.customer?.id}
+                  paymentRouting={paymentRouting}
+                />
+              ),
+            },
+          ]}
+        />
+      ) : (
+        <SubscriptionPaymentMethodDetails
+          selectedPaymentMethod={selectedPaymentMethod}
+          externalCustomerId={subscription.customer?.externalId}
+        />
+      )}
 
       {!hasMultiConnection && (
         <PaymentSettingsDrawer

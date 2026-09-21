@@ -29,6 +29,39 @@ describe('useUpdateSubscriptionSettings', () => {
     ;(useUpdateSubscriptionMutation as jest.Mock).mockReturnValue([mockUpdate, {}])
   })
 
+  it('saves additional routing without changing payment and resets inherited overrides explicitly', async () => {
+    const { result } = renderHook(() => useUpdateSubscriptionSettings('sub_1'))
+    await result.current.saveAdditionalIntegrations({
+      accounting: { code: 'netsuite_eu' },
+      crm: undefined,
+      tax: { behavior: ConnectionBehaviorEnum.Skip },
+    })
+    expect(mockUpdate).toHaveBeenCalledWith({
+      variables: {
+        input: {
+          id: 'sub_1',
+          connections: {
+            accounting: { code: 'netsuite_eu' },
+            crm: { behavior: ConnectionBehaviorEnum.Inherit },
+            tax: { behavior: ConnectionBehaviorEnum.Skip },
+          },
+        },
+      },
+    })
+  })
+
+  it('rejects a failed additional integration save', async () => {
+    mockUpdate.mockResolvedValueOnce({ data: { updateSubscription: null } })
+    const { result } = renderHook(() => useUpdateSubscriptionSettings('sub_1'))
+    await expect(
+      result.current.saveAdditionalIntegrations({
+        accounting: undefined,
+        crm: undefined,
+        tax: undefined,
+      }),
+    ).rejects.toThrow('Subscription update failed')
+  })
+
   describe('GIVEN a payment connection choice from the overview', () => {
     it.each([
       { code: 'stripe_eu' },

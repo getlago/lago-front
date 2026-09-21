@@ -12,6 +12,7 @@ import { AdditionalIntegrationSettingsSection } from './AdditionalIntegrationSet
 
 interface AdditionalIntegrationSettingsDrawerContentExtraProps {
   customerId: string
+  description?: string
 }
 
 const contentDefaultProps: AdditionalIntegrationSettingsDrawerContentExtraProps = {
@@ -21,7 +22,11 @@ const contentDefaultProps: AdditionalIntegrationSettingsDrawerContentExtraProps 
 export const AdditionalIntegrationSettingsDrawerContent = withForm({
   defaultValues: ADDITIONAL_INTEGRATION_SETTINGS_DEFAULT_VALUES,
   props: contentDefaultProps,
-  render: function AdditionalIntegrationSettingsDrawerContentRender({ form, customerId }) {
+  render: function AdditionalIntegrationSettingsDrawerContentRender({
+    form,
+    customerId,
+    description,
+  }) {
     const { translate } = useInternationalization()
 
     const values = useStore(form.store, (s) => s.values)
@@ -31,7 +36,7 @@ export const AdditionalIntegrationSettingsDrawerContent = withForm({
       <CenteredPage.SectionWrapper>
         <CenteredPage.PageTitle
           title={translate('text_1789472252793twqbda38ec2')}
-          description={translate('text_1789472252793x4lfuqim3a1')}
+          description={description ?? translate('text_1789472252793x4lfuqim3a1')}
         />
 
         {ADDITIONAL_INTEGRATION_CATEGORIES.map((category) => {

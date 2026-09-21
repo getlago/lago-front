@@ -18,6 +18,7 @@ const ADDITIONAL_INTEGRATION_SETTINGS_SAVE_TEST_ID = 'additional-integration-set
 
 interface UseAdditionalIntegrationSettingsDrawerProps {
   customerId: string
+  description?: string
   onSave: (values: AdditionalIntegrationSettingsValues) => void | Promise<void>
 }
 
@@ -27,6 +28,7 @@ interface UseAdditionalIntegrationSettingsDrawerReturn {
 
 export const useAdditionalIntegrationSettingsDrawer = ({
   customerId,
+  description,
   onSave,
 }: UseAdditionalIntegrationSettingsDrawerProps): UseAdditionalIntegrationSettingsDrawerReturn => {
   const { translate } = useInternationalization()
@@ -59,7 +61,13 @@ export const useAdditionalIntegrationSettingsDrawer = ({
       shouldPromptOnClose: () => form.state.isDirty,
       onClose: () => form.reset(),
       onEntered: (container) => focusFirstInput(container),
-      children: <AdditionalIntegrationSettingsDrawerContent form={form} customerId={customerId} />,
+      children: (
+        <AdditionalIntegrationSettingsDrawerContent
+          form={form}
+          customerId={customerId}
+          description={description}
+        />
+      ),
       mainAction: (
         <form.AppForm>
           <form.SubmitButton dataTest={ADDITIONAL_INTEGRATION_SETTINGS_SAVE_TEST_ID}>

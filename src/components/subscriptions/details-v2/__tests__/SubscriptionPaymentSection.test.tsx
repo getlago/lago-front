@@ -85,6 +85,14 @@ jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: () => mockCanUpdate }),
 }))
 
+jest.mock('~/components/connectionSelection/PaymentMethodValue', () => ({
+  PaymentMethodValue: () => null,
+}))
+
+jest.mock('~/hooks/customer/useCustomerPaymentConnections', () => ({
+  useCustomerPaymentConnections: () => ({ connections: [] }),
+}))
+
 const subscription = {
   id: 'sub_1',
   connections: [],

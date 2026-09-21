@@ -1,9 +1,11 @@
+import { AdditionalIntegrationSettingsValues } from '~/components/additionalIntegrationSettings/additionalIntegrationSettingsSchema'
 import { SelectedConnection } from '~/components/connectionSelection/types'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { addToast } from '~/core/apolloClient'
 import {
+  ConnectionBehaviorEnum,
   LagoApiError,
   UpdateSubscriptionInput,
   useUpdateSubscriptionMutation,
@@ -69,5 +71,15 @@ export const useUpdateSubscriptionSettings = (subscriptionId: string) => {
       invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
     })
 
-  return { savePayment, saveInvoicing }
+  const saveAdditionalIntegrations = (values: AdditionalIntegrationSettingsValues): Promise<void> =>
+    update({
+      id: subscriptionId,
+      connections: {
+        accounting: values.accounting ?? { behavior: ConnectionBehaviorEnum.Inherit },
+        crm: values.crm ?? { behavior: ConnectionBehaviorEnum.Inherit },
+        tax: values.tax ?? { behavior: ConnectionBehaviorEnum.Inherit },
+      },
+    })
+
+  return { savePayment, saveInvoicing, saveAdditionalIntegrations }
 }

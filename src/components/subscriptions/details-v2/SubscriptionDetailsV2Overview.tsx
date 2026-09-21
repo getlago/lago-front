@@ -10,6 +10,7 @@ import {
   useGetSubscriptionForDetailsV2OverviewQuery,
 } from '~/generated/graphql'
 
+import { SubscriptionAdditionalIntegrationSection } from './SubscriptionAdditionalIntegrationSection'
 import { SubscriptionInformationSection } from './SubscriptionInformationSection'
 import { SubscriptionInvoiceSection } from './SubscriptionInvoiceSection'
 import { SubscriptionPaymentSection } from './SubscriptionPaymentSection'
@@ -54,8 +55,9 @@ export const SubscriptionDetailsV2Overview = ({ subscriptionId }: Props) => {
     <div className="pt-6">
       <CenteredPage.SubsectionWrapper>
         <SubscriptionInformationSection subscription={subscription} />
-        <SubscriptionInvoiceSection subscription={subscription} />
         <SubscriptionPaymentSection subscription={subscription} />
+        <SubscriptionAdditionalIntegrationSection subscription={subscription} />
+        <SubscriptionInvoiceSection subscription={subscription} />
       </CenteredPage.SubsectionWrapper>
     </div>
   )
