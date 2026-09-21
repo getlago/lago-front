@@ -10,7 +10,7 @@ type FiltersItemContractStatusProps = {
   setFilterValue: (value: string) => void
 }
 
-const contractStatusTranslation = (status: ContractStatusEnum): string => {
+export const contractStatusTranslation = (status: ContractStatusEnum): string => {
   switch (status) {
     case ContractStatusEnum.Active:
       return 'text_624efab67eb2570101d1180e'

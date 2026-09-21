@@ -53,7 +53,7 @@ export const useFilters = () => {
     removeExistingFilters()
 
     values.filters.forEach((filter) => {
-      if (!filter.filterType || filter.value === undefined) {
+      if (!filter.filterType || filter.value === undefined || filter.value === '') {
         return
       }
 

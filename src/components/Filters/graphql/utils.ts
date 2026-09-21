@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 
 import { formatActivityType } from '~/components/activityLogs/utils'
+import { contractStatusTranslation } from '~/components/Filters/graphql/filtersElements/FiltersItemContractStatus'
 import { IsCustomerTinEmptyEnum } from '~/components/Filters/graphql/filtersElements/FiltersItemIsCustomerTinEmpty'
 import {
   ACTIVE_SUBSCRIPTIONS_INTERVALS_TRANSLATION_MAP,
@@ -78,6 +79,7 @@ import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import {
   type ActivityLogsQueryVariables,
   ActivityTypeEnum,
+  ContractStatusEnum,
   CurrencyEnum,
   type CustomerAccountTypeEnum,
   type CustomersQueryVariables,
@@ -1172,6 +1174,12 @@ export const formatActiveFilterValueDisplay = (
             : 'text_1744018116743ntlygtcnq95',
         ) || ''
       )
+    case AvailableFiltersEnum.contractStatus:
+      return value
+        .split(',')
+        .filter(Boolean)
+        .map((status) => translate?.(contractStatusTranslation(status as ContractStatusEnum)) || '')
+        .join(', ')
     case AvailableFiltersEnum.contractRateOverrides:
       return (
         translate?.(

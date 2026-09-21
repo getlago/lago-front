@@ -84,24 +84,16 @@ const ContractsPage = (): JSX.Element => {
     () => formatFiltersForContractQuery(searchParams),
     [searchParams],
   )
-  const [getContracts, { data, loading, error, refetch, variables }] = useGetContractsListLazyQuery(
-    {
-      variables: { page, limit: pageSize, ...filtersForContractQuery },
-      notifyOnNetworkStatusChange: true,
-      fetchPolicy: 'network-only',
-      nextFetchPolicy: 'network-only',
-    },
-  )
+  const [getContracts, { data, loading, error, variables }] = useGetContractsListLazyQuery({
+    variables: { page, limit: pageSize, ...filtersForContractQuery },
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
+  })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getContracts, loading)
   const totalCount = data?.contracts.metadata.totalCount
   const hasSearchOrFilters =
-    !!variables &&
-    Object.entries(variables).some(([key, value]) => {
-      if (key === 'page' || key === 'limit') return false
-      if (Array.isArray(value)) return value.length > 0
-
-      return value !== undefined && value !== null && value !== ''
-    })
+    Object.keys(filtersForContractQuery).length > 0 || !!variables?.searchTerm
 
   const searchAndResetPage = (value: string): void => {
     goToPage(1)
@@ -250,7 +242,7 @@ const ContractsPage = (): JSX.Element => {
                   subtitle: translate('text_629728388c4d2300e2d380eb'),
                   buttonTitle: translate('text_629728388c4d2300e2d38110'),
                   buttonVariant: 'primary',
-                  buttonAction: () => void refetch(),
+                  buttonAction: () => location.reload(),
                 },
           }}
         />
