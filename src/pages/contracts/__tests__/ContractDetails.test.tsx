@@ -29,6 +29,7 @@ import ContractDetails, {
 } from '../ContractDetails'
 
 const mockCopyContractExternalId = jest.fn()
+const mockOpenTerminateContractDialog = jest.fn()
 const mockHasPermissions = jest.fn()
 let mockIsPremium = true
 
@@ -36,6 +37,15 @@ jest.mock('~/components/contracts/useCopyContractExternalId', () => ({
   useCopyContractExternalId: () => ({
     copyContractExternalId: mockCopyContractExternalId,
     copyContractExternalIdLabel: 'copy-contract-id',
+  }),
+}))
+
+jest.mock('~/components/contracts/useTerminateContractDialog', () => ({
+  getContractTerminationCopy: jest.requireActual(
+    '~/components/contracts/useTerminateContractDialog',
+  ).getContractTerminationCopy,
+  useTerminateContractDialog: () => ({
+    openTerminateContractDialog: mockOpenTerminateContractDialog,
   }),
 }))
 
@@ -157,6 +167,49 @@ describe('ContractDetails', () => {
 
     expect(mockCopyContractExternalId).toHaveBeenCalledWith('external-contract-1')
   })
+
+  it('opens the shared lifecycle dialog for an active contract', async () => {
+    await act(() => renderPage())
+
+    await userEvent.click(await screen.findByTestId(CONTRACT_DETAILS_ACTIONS_TEST_ID))
+    await userEvent.click(screen.getByTestId('contract-details-terminate'))
+
+    expect(mockOpenTerminateContractDialog).toHaveBeenCalledWith(contractFixture)
+  })
+
+  it('hides the lifecycle action without contractsUpdate permission', async () => {
+    mockHasPermissions.mockImplementation(
+      (permissions: Array<keyof TMembershipPermissions>) =>
+        !permissions.includes('contractsUpdate'),
+    )
+
+    await act(() => renderPage())
+
+    await userEvent.click(await screen.findByTestId(CONTRACT_DETAILS_ACTIONS_TEST_ID))
+
+    expect(screen.queryByTestId('contract-details-terminate')).not.toBeInTheDocument()
+    expect(screen.getByTestId(CONTRACT_DETAILS_COPY_ID_TEST_ID)).toBeInTheDocument()
+  })
+
+  it.each([ContractStatusEnum.Canceled, ContractStatusEnum.Terminated])(
+    'hides the lifecycle action for a %s contract',
+    async (status) => {
+      const terminalContract = { ...contractFixture, status }
+      const terminalMock = {
+        request: detailsQueryMock.request,
+        result: { data: { contract: terminalContract } },
+      }
+
+      await act(() =>
+        renderPage(ContractDetailsTabsOptionsEnum.overview, undefined, [terminalMock]),
+      )
+
+      await userEvent.click(await screen.findByTestId(CONTRACT_DETAILS_ACTIONS_TEST_ID))
+
+      expect(screen.queryByTestId('contract-details-terminate')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('contract-details-cancel')).not.toBeInTheDocument()
+    },
+  )
 
   it('shows usage and premium activity-log tabs', async () => {
     await act(() => renderPage())

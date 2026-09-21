@@ -2,6 +2,10 @@ import { gql } from '@apollo/client'
 import { generatePath, useParams } from 'react-router'
 
 import { useCopyContractExternalId } from '~/components/contracts/useCopyContractExternalId'
+import {
+  getContractTerminationCopy,
+  useTerminateContractDialog,
+} from '~/components/contracts/useTerminateContractDialog'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
@@ -10,7 +14,11 @@ import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTa
 import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import { ContractDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CONTRACT_DETAILS_ROUTE, CONTRACT_DETAILS_TAB_ROUTE, CONTRACTS_ROUTE } from '~/core/router'
-import { LagoApiError, useGetContractForDetailsQuery } from '~/generated/graphql'
+import {
+  ContractStatusEnum,
+  LagoApiError,
+  useGetContractForDetailsQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
@@ -47,6 +55,7 @@ const ContractDetails = (): JSX.Element => {
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const { copyContractExternalId, copyContractExternalIdLabel } = useCopyContractExternalId()
+  const { openTerminateContractDialog } = useTerminateContractDialog()
 
   const { data, loading, error } = useGetContractForDetailsQuery({
     variables: { id },
@@ -67,6 +76,7 @@ const ContractDetails = (): JSX.Element => {
   const buildTabLink = (tab: ContractDetailsTabsOptionsEnum): string =>
     generatePath(CONTRACT_DETAILS_TAB_ROUTE, { id, tab })
   const overviewLink = buildTabLink(ContractDetailsTabsOptionsEnum.overview)
+  const terminationCopy = contract ? getContractTerminationCopy(contract.status) : null
 
   const actions: MainHeaderAction[] = [
     {
@@ -84,6 +94,22 @@ const ContractDetails = (): JSX.Element => {
                 closePopper()
               },
             },
+            ...(terminationCopy && hasPermissions(['contractsUpdate'])
+              ? [
+                  {
+                    label: translate(terminationCopy.actionText),
+                    startIcon: 'stop' as const,
+                    dataTest:
+                      contract.status === ContractStatusEnum.Pending
+                        ? 'contract-details-cancel'
+                        : 'contract-details-terminate',
+                    onClick: (closePopper: () => void) => {
+                      closePopper()
+                      openTerminateContractDialog(contract)
+                    },
+                  },
+                ]
+              : []),
           ]
         : [],
     },
