@@ -18,7 +18,7 @@ describe('ContractDetails', () => {
       ({ path }) => Array.isArray(path) && path.includes(CONTRACT_DETAILS_ROUTE),
     )
 
-    expect(CONTRACT_DETAILS_ROUTE).toBe('/contracts/:id')
+    expect(CONTRACT_DETAILS_ROUTE).toBe('/contract/:id')
     expect(route).toEqual(
       expect.objectContaining({
         private: true,

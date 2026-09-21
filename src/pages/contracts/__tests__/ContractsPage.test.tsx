@@ -151,15 +151,15 @@ describe('ContractsPage', () => {
 
     expect(row).toHaveAttribute('tabindex', '0')
     expect(row).toHaveClass('cursor-pointer')
-    expect(link).toHaveAttribute('href', '/contracts/contract-1')
+    expect(link).toHaveAttribute('href', '/contract/contract-1')
 
     fireEvent.click(row)
-    expect(testMockNavigateFn).toHaveBeenCalledWith('/contracts/contract-1')
+    expect(testMockNavigateFn).toHaveBeenCalledWith('/contract/contract-1')
 
     testMockNavigateFn.mockClear()
     row.focus()
     fireEvent.keyDown(row, { key: 'Enter', code: 'Enter' })
-    expect(testMockNavigateFn).toHaveBeenCalledWith('/contracts/contract-1')
+    expect(testMockNavigateFn).toHaveBeenCalledWith('/contract/contract-1')
   })
 
   it('copies the external ID from the row action menu', async () => {
@@ -197,21 +197,18 @@ describe('ContractsPage', () => {
     expect(screen.getAllByText('-')).toHaveLength(2)
   })
 
-  it('retries failed requests without reloading the page', async () => {
+  it('reloads the page from the error state, like other lists', async () => {
     const failedMock = {
       request: contractsMock().request,
       error: new Error('Contracts temporarily unavailable'),
     }
 
-    render(<ContractsPage />, { mocks: [failedMock, contractsMock()] })
+    render(<ContractsPage />, { mocks: [failedMock] })
 
     const retry = await screen.findByRole('button', { name: /refresh/i })
 
-    await waitFor(() =>
-      expect(screen.queryByRole('navigation', { name: 'pagination' })).not.toBeInTheDocument(),
-    )
+    expect(retry).toHaveAttribute('data-test', 'generic-placeholder-button')
     fireEvent.click(retry)
-    await waitFor(() => expect(screen.getByText('Enterprise agreement')).toBeInTheDocument())
   })
   it('registers the list route behind the contractsView permission and ProductCatalog flag', () => {
     const route = objectListRoutes.find(

@@ -5,7 +5,8 @@ import { generatePath } from 'react-router'
 import { Button } from '~/components/designSystem/Button'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
-import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
+import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
+import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
@@ -54,11 +55,9 @@ const ContractsPage = (): JSX.Element => {
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { page, goToPage } = usePageSearchParam()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const [getContracts, { data, loading, error, refetch }] = useGetContractsListLazyQuery({
+  const [getContracts, { data, loading, error }] = useGetContractsListLazyQuery({
     variables: { page, limit: pageSize },
     notifyOnNetworkStatusChange: true,
-    fetchPolicy: 'network-only',
-    nextFetchPolicy: 'network-only',
   })
   const { isLoading } = useDebouncedSearch(getContracts, loading)
   const totalCount = data?.contracts.metadata.totalCount
@@ -80,6 +79,11 @@ const ContractsPage = (): JSX.Element => {
     },
   ]
 
+  const getContractLabel = ({
+    name,
+    externalId,
+  }: Pick<ContractForContractsListFragment, 'name' | 'externalId'>): string => name || externalId
+
   const columns: TableColumn<ContractForContractsListFragment>[] = [
     {
       key: 'status',
@@ -91,9 +95,9 @@ const ContractsPage = (): JSX.Element => {
       key: 'name',
       title: translate('text_6419c64eace749372fc72b0f'),
       minWidth: 200,
-      content: ({ name, externalId }) => (
+      content: (contract) => (
         <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {name || externalId}
+          {getContractLabel(contract)}
         </Typography>
       ),
     },
@@ -132,19 +136,13 @@ const ContractsPage = (): JSX.Element => {
     },
   ]
 
-  const placeholder: TablePlaceholder = {
-    emptyState: {
-      title: translate('text_1789030049530zaego9s9413'),
-      subtitle: translate('text_1789489416655cg75diwmbkv'),
-    },
-    errorState: {
-      title: translate('text_629728388c4d2300e2d380d5'),
-      subtitle: translate('text_629728388c4d2300e2d380eb'),
-      buttonTitle: translate('text_629728388c4d2300e2d38110'),
-      buttonVariant: 'primary',
-      buttonAction: () => void refetch(),
-    },
-  }
+  const placeholder = buildSearchAwareTablePlaceholder({
+    translate,
+    hasSearchTerm: false,
+    noResultTitleKey: 'text_1789030049530zaego9s9413',
+    emptyTitleKey: 'text_1789030049530zaego9s9413',
+    emptySubtitleKey: 'text_1789489416655cg75diwmbkv',
+  })
 
   return (
     <>
@@ -185,7 +183,7 @@ const ContractsPage = (): JSX.Element => {
           loadingRowCount={pageSize}
           hasError={!!error}
           onRowActionLink={({ id }) => generatePath(CONTRACT_DETAILS_ROUTE, { id })}
-          rowLinkLabel={({ name, externalId }) => name || externalId}
+          rowLinkLabel={getContractLabel}
           actionColumnTooltip={() => translate('text_637f813d31381b1ed90ab326')}
           actionColumn={getActions}
           placeholder={placeholder}
