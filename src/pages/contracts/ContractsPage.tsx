@@ -5,7 +5,7 @@ import { generatePath } from 'react-router'
 import { Button } from '~/components/designSystem/Button'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
-import { Table, TableColumn } from '~/components/designSystem/Table/Table'
+import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
@@ -132,6 +132,20 @@ const ContractsPage = (): JSX.Element => {
     },
   ]
 
+  const placeholder: TablePlaceholder = {
+    emptyState: {
+      title: translate('text_1789030049530zaego9s9413'),
+      subtitle: translate('text_1789489416655cg75diwmbkv'),
+    },
+    errorState: {
+      title: translate('text_629728388c4d2300e2d380d5'),
+      subtitle: translate('text_629728388c4d2300e2d380eb'),
+      buttonTitle: translate('text_629728388c4d2300e2d38110'),
+      buttonVariant: 'primary',
+      buttonAction: () => void refetch(),
+    },
+  }
+
   return (
     <>
       <MainHeader.Configure
@@ -174,19 +188,7 @@ const ContractsPage = (): JSX.Element => {
           rowLinkLabel={({ name, externalId }) => name || externalId}
           actionColumnTooltip={() => translate('text_637f813d31381b1ed90ab326')}
           actionColumn={getActions}
-          placeholder={{
-            emptyState: {
-              title: translate('text_1789030049530zaego9s9413'),
-              subtitle: translate('text_1789489416655cg75diwmbkv'),
-            },
-            errorState: {
-              title: translate('text_629728388c4d2300e2d380d5'),
-              subtitle: translate('text_629728388c4d2300e2d380eb'),
-              buttonTitle: translate('text_629728388c4d2300e2d38110'),
-              buttonVariant: 'primary',
-              buttonAction: () => void refetch(),
-            },
-          }}
+          placeholder={placeholder}
         />
       </PaginatedContent>
     </>

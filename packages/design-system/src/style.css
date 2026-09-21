@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.lago-icon-contract path {
-  fill: currentColor;
-}
-
 @layer base {
   html,
   body,
