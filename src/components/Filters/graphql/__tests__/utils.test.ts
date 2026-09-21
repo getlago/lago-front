@@ -302,16 +302,12 @@ describe('Filters utils', () => {
       })
     })
 
-    it('ignores unrelated and unprefixed filters', () => {
-      const searchParams = new URLSearchParams({
-        con_contractStatus: 'terminated',
-        sub_subscriptionStatus: 'active',
-        contractStatus: 'pending',
-      })
+    it('should return empty object when filters are not valid', () => {
+      const searchParams = new URLSearchParams()
 
-      expect(formatFiltersForContractQuery(searchParams)).toEqual({
-        status: ['terminated'],
-      })
+      searchParams.set('invalidFilter', 'value')
+
+      expect(formatFiltersForContractQuery(searchParams)).toEqual({})
     })
   })
 

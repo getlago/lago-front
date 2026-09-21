@@ -758,15 +758,9 @@ export const formatFiltersForContractQuery = (
     [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
   }
 
-  const contractSearchParams = new URLSearchParams(
-    Array.from(searchParams.entries()).filter(([key]) =>
-      key.startsWith(`${CONTRACT_LIST_FILTER_PREFIX}_`),
-    ),
-  )
-
   return formatFiltersForQuery<ContractQueryFilters>({
     keyMap,
-    searchParams: contractSearchParams,
+    searchParams,
     availableFilters: ContractAvailableFilters,
     filtersNamePrefix: CONTRACT_LIST_FILTER_PREFIX,
   })
