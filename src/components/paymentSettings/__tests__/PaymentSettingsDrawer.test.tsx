@@ -86,7 +86,7 @@ describe('PaymentSettingsDrawer', () => {
     act(() => ref.current?.openDrawer({ paymentMethod: undefined }))
 
     expect(mockOpen).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'text_1789644720007contract' }),
+      expect.objectContaining({ title: 'text_1790018785008bkx5wmu4e0b' }),
     )
   })
 

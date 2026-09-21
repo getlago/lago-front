@@ -1,7 +1,5 @@
 // Brand logos belong here only as 16x16 glyphs; the plated versions live in the repo
 // root's `src/public/images` — see `.agents/docs/icons-and-logos.md`.
-import { ComponentProps } from 'react'
-
 import Alphabet from '~/icons/alphabet.svg'
 import Apps from '~/icons/apps.svg'
 import ArrowBackUp from '~/icons/arrow-back-up.svg'
@@ -50,7 +48,7 @@ import ContentCenterAlign from '~/icons/content-center-align.svg'
 import ContentJustifyAlign from '~/icons/content-justify-align.svg'
 import ContentLeftAlign from '~/icons/content-left-align.svg'
 import ContentRightAlign from '~/icons/content-right-align.svg'
-import ContractAsset from '~/icons/contract.svg'
+import Contract from '~/icons/contract.svg'
 import Coupon from '~/icons/coupon.svg'
 import Descending from '~/icons/descending.svg'
 import Document from '~/icons/document.svg'
@@ -162,11 +160,6 @@ import Wallet from '~/icons/wallet.svg'
 import WarningFilled from '~/icons/warning-filled.svg'
 import WarningUnfilled from '~/icons/warning-unfilled.svg'
 import WritingSign from '~/icons/writing-sign.svg'
-import { tw } from '~/lib'
-
-const Contract = (props: ComponentProps<typeof ContractAsset>): JSX.Element => (
-  <ContractAsset {...props} className={tw('lago-icon-contract', props.className)} />
-)
 
 export const ALL_ICONS = {
   at: At,

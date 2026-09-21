@@ -1,13 +1,35 @@
-import { DateTime } from 'luxon'
 import { z } from 'zod'
 
 import { addPurchaseOrderNumberMaxLengthIssue } from '~/components/purchaseOrder/validation'
-import { addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
+import { addEndDateAfterStartIssue, addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
 
 import { ContractFormValues, VALUE_REQUIRED_KEY } from './constants'
 
 /** "End date can't be in the past and should be greater than start date" */
 const END_DATE_INVALID_KEY = 'text_64ef55a730b88e3d2117b3d4'
+
+const requireField = (
+  ctx: z.RefinementCtx,
+  value: string | undefined,
+  path: (string | number)[],
+): void => {
+  if (!value) {
+    ctx.addIssue({ code: 'custom', message: VALUE_REQUIRED_KEY, path })
+  }
+}
+
+const requireDate = (
+  ctx: z.RefinementCtx,
+  value: string | undefined,
+  path: (string | number)[],
+): void => {
+  if (!value) {
+    ctx.addIssue({ code: 'custom', message: VALUE_REQUIRED_KEY, path })
+    return
+  }
+
+  addUnsupportedDateIssue(ctx, value, path)
+}
 
 /**
  * `z.custom` + `superRefine` rather than a `z.object`: the two comboboxes publish
@@ -18,58 +40,15 @@ const END_DATE_INVALID_KEY = 'text_64ef55a730b88e3d2117b3d4'
  * the contract dates are specified to match.
  */
 export const contractSchema = z.custom<ContractFormValues>().superRefine((data, ctx) => {
-  if (!data.externalCustomerId) {
-    ctx.addIssue({
-      code: 'custom',
-      message: VALUE_REQUIRED_KEY,
-      path: ['externalCustomerId'],
-    })
-  }
-
-  if (!data.planCode) {
-    ctx.addIssue({
-      code: 'custom',
-      message: VALUE_REQUIRED_KEY,
-      path: ['planCode'],
-    })
-  }
-
-  if (!data.startedAt) {
-    ctx.addIssue({
-      code: 'custom',
-      message: VALUE_REQUIRED_KEY,
-      path: ['startedAt'],
-    })
-  } else {
-    addUnsupportedDateIssue(ctx, data.startedAt, ['startedAt'])
-  }
-
-  if (!data.billingAnchorDate) {
-    ctx.addIssue({
-      code: 'custom',
-      message: VALUE_REQUIRED_KEY,
-      path: ['billingAnchorDate'],
-    })
-  } else {
-    addUnsupportedDateIssue(ctx, data.billingAnchorDate, ['billingAnchorDate'])
-  }
+  requireField(ctx, data.externalCustomerId, ['externalCustomerId'])
+  requireField(ctx, data.planCode, ['planCode'])
+  requireDate(ctx, data.startedAt, ['startedAt'])
+  requireDate(ctx, data.billingAnchorDate, ['billingAnchorDate'])
 
   addPurchaseOrderNumberMaxLengthIssue(ctx, data.purchaseOrderNumber, ['purchaseOrderNumber'])
 
   if (!data.endedAt) return
-
   if (addUnsupportedDateIssue(ctx, data.endedAt, ['endedAt'])) return
 
-  if (data.startedAt) {
-    const startedAt = DateTime.fromISO(data.startedAt)
-    const endedAt = DateTime.fromISO(data.endedAt)
-
-    if (endedAt <= startedAt || DateTime.now().diff(endedAt, 'days').days >= 0) {
-      ctx.addIssue({
-        code: 'custom',
-        message: END_DATE_INVALID_KEY,
-        path: ['endedAt'],
-      })
-    }
-  }
+  addEndDateAfterStartIssue(ctx, data.startedAt, data.endedAt, ['endedAt'], END_DATE_INVALID_KEY)
 })

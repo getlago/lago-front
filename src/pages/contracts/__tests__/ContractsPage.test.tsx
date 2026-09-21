@@ -67,10 +67,11 @@ const contractsMock = (
   collection: ContractForContractsListFragment[] = [contract],
   page = 1,
   totalCount = 45,
+  variables: Partial<GetContractsListQueryVariables> = {},
 ): MockedResponse<GetContractsListQuery, GetContractsListQueryVariables> => ({
   request: {
     query: GetContractsListDocument,
-    variables: { page, limit: DEFAULT_PAGE_SIZE },
+    variables: { page, limit: DEFAULT_PAGE_SIZE, ...variables },
   },
   result: {
     data: {
@@ -93,7 +94,7 @@ describe('ContractsPage', () => {
     window.history.replaceState({}, '', '/acme/contracts')
   })
 
-  it('renders contract data and disables search and filters until server support is available', async () => {
+  it('renders contract data with enabled search and filters', async () => {
     render(
       <>
         <MainHeader />
@@ -106,8 +107,8 @@ describe('ContractsPage', () => {
     expect(screen.getByText('Acme Inc.')).toBeInTheDocument()
     expect(screen.getByText('2026-06-11')).toBeInTheDocument()
     expect(screen.getByText('-')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Search contracts')).toBeDisabled()
-    expect(screen.getByRole('button', { name: /filters/i })).toBeDisabled()
+    expect(screen.getByPlaceholderText('Search contracts')).toBeEnabled()
+    expect(screen.getByRole('button', { name: /filters/i })).toBeEnabled()
     expect(screen.getByText('Contracts')).toBeInTheDocument()
 
     const headers = screen.getAllByRole('columnheader')
@@ -135,6 +136,59 @@ describe('ContractsPage', () => {
     expect(cells[5]).toHaveClass('sticky', 'right-0')
 
     expect(screen.getByTestId('table-contracts-list').parentElement).toHaveClass('overflow-auto')
+  })
+
+  it('resets pagination when search changes', async () => {
+    window.history.replaceState({}, '', '/acme/contracts?page=2')
+    render(
+      <>
+        <MainHeader />
+        <ContractsPage />
+      </>,
+      { mocks: [contractsMock([contract], 2, 41)] },
+    )
+
+    await screen.findByText('Enterprise agreement')
+    fireEvent.change(screen.getByPlaceholderText('Search contracts'), {
+      target: { value: 'enterprise' },
+    })
+
+    expect(testMockNavigateFn).toHaveBeenCalledWith({ search: '' }, { replace: true })
+  })
+
+  it('sends URL filters to GraphQL and shows the criteria-aware empty state', async () => {
+    const searchParams = new URLSearchParams({
+      clf_contractAffiliatedEntityIds: 'entity-1|-_-|France,entity-2|-_-|Germany',
+      clf_customerExternalId: 'customer-1|-_-|Acme',
+      clf_externalId: 'contract-2026',
+      clf_contractPlanCode: 'enterprise|-_-|Enterprise',
+      clf_contractRateOverrides: 'false',
+      clf_contractStatus: 'active,pending',
+    })
+
+    window.history.replaceState({}, '', `/acme/contracts?${searchParams.toString()}`)
+    render(
+      <>
+        <MainHeader />
+        <ContractsPage />
+      </>,
+      {
+        mocks: [
+          contractsMock([], 1, 0, {
+            billingEntityIds: ['entity-1', 'entity-2'],
+            externalCustomerId: 'customer-1',
+            externalId: 'contract-2026',
+            hasRateOverrides: false,
+            planCode: 'enterprise',
+            status: [ContractStatusEnum.Active, ContractStatusEnum.Pending],
+          }),
+        ],
+      },
+    )
+
+    expect(await screen.findByText('There are no contracts')).toBeInTheDocument()
+    expect(screen.getByText('Could you adjust your filters?')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /reset/i })).toBeInTheDocument()
   })
 
   it('uses the URL page and lets the sticky pager navigate to the next page', async () => {
@@ -170,15 +224,15 @@ describe('ContractsPage', () => {
 
     expect(row).toHaveAttribute('tabindex', '0')
     expect(row).toHaveClass('cursor-pointer')
-    expect(link).toHaveAttribute('href', '/contracts/contract-1')
+    expect(link).toHaveAttribute('href', '/contract/contract-1')
 
     fireEvent.click(row)
-    expect(testMockNavigateFn).toHaveBeenCalledWith('/contracts/contract-1')
+    expect(testMockNavigateFn).toHaveBeenCalledWith('/contract/contract-1')
 
     testMockNavigateFn.mockClear()
     row.focus()
     fireEvent.keyDown(row, { key: 'Enter', code: 'Enter' })
-    expect(testMockNavigateFn).toHaveBeenCalledWith('/contracts/contract-1')
+    expect(testMockNavigateFn).toHaveBeenCalledWith('/contract/contract-1')
   })
 
   it('copies the external ID from the row action menu', async () => {
@@ -216,21 +270,18 @@ describe('ContractsPage', () => {
     expect(screen.getAllByText('-')).toHaveLength(2)
   })
 
-  it('retries failed requests without reloading the page', async () => {
+  it('reloads the page from the error state, like other lists', async () => {
     const failedMock = {
       request: contractsMock().request,
       error: new Error('Contracts temporarily unavailable'),
     }
 
-    render(<ContractsPage />, { mocks: [failedMock, contractsMock()] })
+    render(<ContractsPage />, { mocks: [failedMock] })
 
     const retry = await screen.findByRole('button', { name: /refresh/i })
 
-    await waitFor(() =>
-      expect(screen.queryByRole('navigation', { name: 'pagination' })).not.toBeInTheDocument(),
-    )
+    expect(retry).toHaveAttribute('data-test', 'generic-placeholder-button')
     fireEvent.click(retry)
-    await waitFor(() => expect(screen.getByText('Enterprise agreement')).toBeInTheDocument())
   })
   it('registers the list route behind the contractsView permission and ProductCatalog flag', () => {
     const route = objectListRoutes.find(

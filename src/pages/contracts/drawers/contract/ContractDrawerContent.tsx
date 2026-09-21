@@ -1,20 +1,24 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
+import { DateTime } from 'luxon'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
-import { Button } from '~/components/designSystem/Button'
-import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
 import { CreateMoreResetSignal } from '~/components/drawers/createMore/useCreateMore'
 import { ComboboxItem } from '~/components/form/ComboBox/ComboBoxItem'
+import { ToggleableFieldAddButton, ToggleableFieldRow } from '~/components/form/ToggleableFieldRow'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
 import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
-import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
-import { getTimezoneConfig } from '~/core/timezone'
+import {
+  VIEW_TYPE_INVOICING_CAPTION_KEYS,
+  VIEW_TYPE_PAYMENT_CAPTION_KEYS,
+  ViewTypeEnum,
+} from '~/core/constants/billingObjectViewTypes'
+import { getTimezoneConfig, getTodayAtUtcMidnight } from '~/core/timezone'
 import {
   TimezoneEnum,
   useGetCatalogPlansForContractDrawerLazyQuery,
@@ -91,17 +95,13 @@ const ContractDrawerFormSections = withForm({
       () => !!form.state.values.externalId,
     )
 
+    // Each combobox's own searchQuery prop already fires an initial fetch on mount
+    // (ComboBox -> useDebouncedSearch calls it once with no args), so no extra mount
+    // effect is needed here — adding one back would double every initial request.
     const [getCustomers, { data: customersData, loading: customersLoading }] =
       useGetCustomersForContractDrawerLazyQuery({ variables: { limit: OPTIONS_PAGE_SIZE } })
     const [getCatalogPlans, { data: catalogPlansData, loading: catalogPlansLoading }] =
       useGetCatalogPlansForContractDrawerLazyQuery({ variables: { limit: OPTIONS_PAGE_SIZE } })
-
-    // Lazy queries so the drawer only hits the API once it is actually open —
-    // the hook that owns it is mounted for the whole page.
-    useEffect(() => {
-      getCustomers()
-      getCatalogPlans()
-    }, [getCustomers, getCatalogPlans])
 
     const externalCustomerId = useStore(form.store, (state) => state.values.externalCustomerId)
     const billingEntityId = useStore(form.store, (state) => state.values.billingEntityId)
@@ -110,8 +110,20 @@ const ContractDrawerFormSections = withForm({
     const startedAt = useStore(form.store, (state) => state.values.startedAt)
     const endedAt = useStore(form.store, (state) => state.values.endedAt)
 
+    // Matches the schema's own rule (endedAt must be after both startedAt and today):
+    // disablePast alone would let the picker offer dates the schema then rejects.
+    const minEndedAt = useMemo(() => {
+      const today = DateTime.fromISO(getTodayAtUtcMidnight())
+      const start = startedAt ? DateTime.fromISO(startedAt) : today
+
+      return (start > today ? start : today).plus({ days: 1 })
+    }, [startedAt])
+
     const customersCollection = customersData?.customers?.collection
-    const lastInitializedCustomerRef = useRef<string | undefined>(undefined)
+    // Seeds from the value buildContractFormDefaults already applied, so the auto-fill
+    // effect below treats the opening customer as already initialized and skips marking
+    // the pristine form dirty once its billingEntity/paymentMethod data finishes loading.
+    const lastInitializedCustomerRef = useRef<string | undefined>(seededCustomer?.externalId)
 
     const selectedCustomer = useMemo(
       () => customersCollection?.find(({ externalId }) => externalId === externalCustomerId),
@@ -264,79 +276,54 @@ const ContractDrawerFormSections = withForm({
             />
 
             {shouldDisplayExternalId && (
-              <div className="flex items-center">
+              <ToggleableFieldRow
+                onRemove={handleHideExternalId}
+                removeDataTest={CONTRACT_DRAWER_REMOVE_EXTERNAL_ID_TEST_ID}
+              >
                 <form.AppField name="externalId">
                   {(field) => (
                     <field.TextInputField
                       className="mr-3 flex-1"
-                      label={translate('text_1789644720009contract')}
-                      placeholder={translate('text_1789644720010contract')}
-                      helperText={translate('text_1789644720011contract')}
+                      label={translate('text_1790018785008xgr4069mlgg')}
+                      placeholder={translate('text_1790018785008nd7mpv8ubhh')}
+                      helperText={translate('text_17900187850082zn8o5dvp9y')}
                     />
                   )}
                 </form.AppField>
-                <Tooltip
-                  className="mt-7 h-fit"
-                  placement="top-end"
-                  title={translate('text_63aa085d28b8510cd46443ff')}
-                >
-                  <Button
-                    icon="trash"
-                    variant="quaternary"
-                    onClick={handleHideExternalId}
-                    data-test={CONTRACT_DRAWER_REMOVE_EXTERNAL_ID_TEST_ID}
-                  />
-                </Tooltip>
-              </div>
+              </ToggleableFieldRow>
             )}
 
             {shouldDisplayName && (
-              <div className="flex items-center">
+              <ToggleableFieldRow
+                onRemove={handleHideName}
+                removeDataTest={CONTRACT_DRAWER_REMOVE_NAME_TEST_ID}
+                tooltipClassName="mt-6"
+              >
                 <form.AppField name="name">
                   {(field) => (
                     <field.TextInputField
                       className="mr-3 flex-1"
                       label={translate('text_1789552637141273ewsjqx7j')}
-                      placeholder={translate('text_1789644720012contract')}
+                      placeholder={translate('text_1790018785009vy05bf6zdc6')}
                     />
                   )}
                 </form.AppField>
-                <Tooltip
-                  className="mt-6"
-                  placement="top-end"
-                  title={translate('text_63aa085d28b8510cd46443ff')}
-                >
-                  <Button
-                    icon="trash"
-                    variant="quaternary"
-                    onClick={handleHideName}
-                    data-test={CONTRACT_DRAWER_REMOVE_NAME_TEST_ID}
-                  />
-                </Tooltip>
-              </div>
+              </ToggleableFieldRow>
             )}
             <div className="flex items-center gap-4">
               {!shouldDisplayExternalId && (
-                <Button
-                  fitContent
-                  startIcon="plus"
-                  variant="inline"
+                <ToggleableFieldAddButton
                   onClick={() => setShouldDisplayExternalId(true)}
-                  data-test={CONTRACT_DRAWER_SHOW_EXTERNAL_ID_TEST_ID}
-                >
-                  {translate('text_65118a52df984447c1869472')}
-                </Button>
+                  label={translate('text_65118a52df984447c1869472')}
+                  dataTest={CONTRACT_DRAWER_SHOW_EXTERNAL_ID_TEST_ID}
+                />
               )}
               {!shouldDisplayName && (
-                <Button
-                  fitContent
-                  startIcon="plus"
-                  variant="inline"
+                <ToggleableFieldAddButton
                   onClick={() => setShouldDisplayName(true)}
-                  data-test={CONTRACT_DRAWER_SHOW_NAME_TEST_ID}
-                >
-                  {translate('text_17895526371415m2ipvxifqn')}
-                </Button>
+                  label={translate('text_17895526371415m2ipvxifqn')}
+                  dataTest={CONTRACT_DRAWER_SHOW_NAME_TEST_ID}
+                />
               )}
             </div>
 
@@ -354,7 +341,7 @@ const ContractDrawerFormSections = withForm({
                 <form.AppField name="endedAt">
                   {(field) => (
                     <field.DatePickerField
-                      disablePast
+                      minDate={minEndedAt}
                       placement="auto"
                       label={translate('text_64ef55a730b88e3d2117b3cc')}
                       defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
@@ -399,7 +386,7 @@ const ContractDrawerFormSections = withForm({
               {(field) => (
                 <PurchaseOrderFormBlock
                   value={field.state.value}
-                  description={translate('text_1789644720008contract')}
+                  description={translate('text_1790018785008trx3po6az4b')}
                   onChange={(value) => field.handleChange(value ?? undefined)}
                 />
               )}
@@ -409,7 +396,7 @@ const ContractDrawerFormSections = withForm({
           <CenteredPage.PageSection>
             <CenteredPage.PageSectionTitle
               title={translate('text_17423672025282dl7iozy1ru')}
-              description={translate('text_1789644720001contract')}
+              description={translate(VIEW_TYPE_INVOICING_CAPTION_KEYS[ViewTypeEnum.Contract])}
             />
             <ContractInvoicingSettingsSection
               consolidateInvoice={consolidateInvoice}
@@ -420,7 +407,7 @@ const ContractDrawerFormSections = withForm({
           <CenteredPage.PageSection>
             <CenteredPage.PageSectionTitle
               title={translate('text_17828013737948943pe3k8nc')}
-              description={translate('text_1789644720002contract')}
+              description={translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[ViewTypeEnum.Contract])}
             />
             <PaymentSettingsSelector
               viewType={ViewTypeEnum.Contract}

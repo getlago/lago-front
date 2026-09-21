@@ -117,9 +117,6 @@ describe('useContractDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     lastDrawerArgs = null
-    jest
-      .spyOn(globalThis.crypto, 'randomUUID')
-      .mockReturnValue('11111111-1111-4111-8111-111111111111')
   })
 
   afterEach(() => {
@@ -178,7 +175,7 @@ describe('useContractDrawer', () => {
       endedAt: '2099-02-01T00:00:00.000Z',
       billingAnchorDate: '2099-01-01',
     })
-    expect(mockNavigate).toHaveBeenCalledWith('/contracts/contract-1')
+    expect(mockNavigate).toHaveBeenCalledWith('/contract/contract-1')
     expect(addToast).toHaveBeenCalledWith({
       severity: 'success',
       translateKey: 'text_1789552637141hilxjurcb4j',

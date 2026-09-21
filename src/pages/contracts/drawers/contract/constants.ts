@@ -1,7 +1,5 @@
-import { DateTime } from 'luxon'
-
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
-import { getTimezoneConfig } from '~/core/timezone'
+import { getTodayAtUtcMidnight } from '~/core/timezone'
 import { TimezoneEnum } from '~/generated/graphql'
 
 export const CONTRACT_FORM_ID = 'contract-drawer-form'
@@ -46,17 +44,6 @@ export interface ContractDrawerCustomer {
   applicableTimezone?: TimezoneEnum | null
   billingEntityId?: string
 }
-
-/**
- * Today at UTC midnight, exactly as the subscription form computes it
- * (`CreateSubscription.tsx`): a UTC calendar day, never the customer's local one.
- * The customer timezone only ever reaches the caption under the date fields.
- *
- * Read per open() rather than once per mount — the hook outlives any single
- * drawer session, so a mount-time value would go stale overnight.
- */
-export const getTodayAtUtcMidnight = (): string =>
-  DateTime.now().setZone(getTimezoneConfig(TimezoneEnum.TzUtc).name).startOf('day').toISO() ?? ''
 
 export const buildContractFormDefaults = (
   customer?: ContractDrawerCustomer,

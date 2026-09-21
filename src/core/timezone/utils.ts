@@ -31,6 +31,10 @@ export const isSameDay = (a: DateTime, b: DateTime): boolean => {
   return a.hasSame(b, 'day') && a.hasSame(b, 'month') && a.hasSame(b, 'year')
 }
 
+/** Today at UTC midnight, read fresh on each call rather than cached at import/mount time. */
+export const getTodayAtUtcMidnight = (): string =>
+  DateTime.now().setZone(getTimezoneConfig(TimezoneEnum.TzUtc).name).startOf('day').toISO() ?? ''
+
 export enum DateFormat {
   /** Apr 18 */
   DATE_MED_SHORT = 'DATE_MED_SHORT',
