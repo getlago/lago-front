@@ -91,12 +91,19 @@ export type OnRegeneratedFeeAdd = (input: {
   } | null
 }) => void
 
-const removeEmptyKeys = (obj: object): Record<string, unknown> =>
-  Object.fromEntries(
-    Object.entries(obj).filter(
-      ([, value]) => value !== null && value !== undefined && value !== '',
-    ),
-  )
+const removeEmptyKeys = <T extends object>(obj: T): Partial<T> => {
+  const result: Partial<T> = { ...obj }
+
+  for (const key in result) {
+    const value = result[key]
+
+    if (value === null || value === undefined || value === '') {
+      delete result[key]
+    }
+  }
+
+  return result
+}
 
 export const REGENERATE_INVOICE_SUBMIT_TEST_ID = 'regenerate-invoice-submit'
 
