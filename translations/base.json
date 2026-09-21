@@ -4953,5 +4953,10 @@
   "text_1789033674097g9f5muxpeon": "This rate model is not available for this rate card's invoicing settings.",
   "text_1789033796306gu724up7qa2": "Rate model availability is loading. Please wait before saving.",
   "text_1789463364350r8k8jukikz1": "Attached contracts",
-  "text_1789463364350p2k2yremb26": "All contracts created from this plan."
+  "text_1789463364350p2k2yremb26": "All contracts created from this plan.",
+  "text_17894894166553ysarr965xr": "Contracts",
+  "text_1789489416655gvo52mdwtur": "Search contracts",
+  "text_1789489416655cg75diwmbkv": "Your customers’ contracts will appear here.",
+  "text_1789636691484c9hodzevcvd": "Copy external ID",
+  "text_1789636691484fyt51yyc9uh": "External ID copied to clipboard"
 }
