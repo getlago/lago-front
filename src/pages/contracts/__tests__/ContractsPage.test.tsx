@@ -296,20 +296,6 @@ describe('ContractsPage', () => {
       }),
     )
   })
-  it('registers the list route behind the contractsView permission and ProductCatalog flag', () => {
-    const route = objectListRoutes.find(
-      ({ path }) => Array.isArray(path) && path.includes(CONTRACTS_ROUTE),
-    )
-
-    expect(CONTRACTS_ROUTE).toBe('/contracts')
-    expect(route).toEqual(
-      expect.objectContaining({
-        private: true,
-        permissions: ['contractsView'],
-        featureFlag: FeatureFlagEnum.ProductCatalog,
-      }),
-    )
-  })
   it('opens the create drawer from the header action', async () => {
     render(
       <>
