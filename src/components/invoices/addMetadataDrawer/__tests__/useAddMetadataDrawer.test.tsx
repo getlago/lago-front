@@ -40,6 +40,7 @@ jest.mock('~/core/apolloClient', () => ({
 }))
 
 const mockUseGetInvoiceMetadataForEditionQuery = jest.fn()
+const mockRefetchInvoiceMetadata = jest.fn()
 const mockUpdateInvoiceMetadata = jest.fn()
 
 jest.mock('~/generated/graphql', () => ({
@@ -63,6 +64,7 @@ const INVOICE_ID = 'invoice-123'
 
 const invoiceWithMetadata = (metadata: Array<{ id: string; key: string; value: string }>) => ({
   data: { invoice: { id: INVOICE_ID, metadata } },
+  refetch: mockRefetchInvoiceMetadata,
 })
 
 const providersWrapper = ({ children }: { children: ReactNode }) => (
@@ -103,6 +105,7 @@ describe('useAddMetadataDrawer', () => {
     jest.clearAllMocks()
     lastDrawerArgs = null
     mockUseGetInvoiceMetadataForEditionQuery.mockReturnValue(invoiceWithMetadata([]))
+    mockRefetchInvoiceMetadata.mockResolvedValue({ data: undefined })
     mockUpdateInvoiceMetadata.mockResolvedValue({ data: { updateInvoice: { id: 'invoice-123' } } })
   })
 
@@ -221,6 +224,58 @@ describe('useAddMetadataDrawer', () => {
       await user.type(screen.getByPlaceholderText(KEY_PLACEHOLDER), 'purchase_order')
 
       expect(lastDrawerArgs?.shouldPromptOnClose?.()).toBe(true)
+    })
+  })
+
+  describe('GIVEN the metadata query has not resolved yet', () => {
+    // Opening before the query lands used to seed an empty form, so saving
+    // replaced the pairs the invoice already had.
+    it('THEN should fetch the metadata before seeding the drawer', async () => {
+      mockUseGetInvoiceMetadataForEditionQuery.mockReturnValue({
+        data: undefined,
+        refetch: mockRefetchInvoiceMetadata,
+      })
+      mockRefetchInvoiceMetadata.mockResolvedValue(
+        invoiceWithMetadata([{ id: 'metadata-1', key: 'purchase_order', value: 'PO-42' }]).data
+          ? {
+              data: {
+                invoice: {
+                  id: INVOICE_ID,
+                  metadata: [{ id: 'metadata-1', key: 'purchase_order', value: 'PO-42' }],
+                },
+              },
+            }
+          : { data: undefined },
+      )
+
+      const { result } = renderDrawerHook()
+
+      await act(async () => {
+        await result.current.openDrawer()
+      })
+      renderDrawerBody()
+
+      expect(mockRefetchInvoiceMetadata).toHaveBeenCalledTimes(1)
+      expect(screen.getByDisplayValue('purchase_order')).toBeInTheDocument()
+      expect(screen.getByDisplayValue('PO-42')).toBeInTheDocument()
+    })
+
+    it('THEN should still open the drawer when the metadata cannot be fetched', async () => {
+      mockUseGetInvoiceMetadataForEditionQuery.mockReturnValue({
+        data: undefined,
+        refetch: mockRefetchInvoiceMetadata,
+      })
+      mockRefetchInvoiceMetadata.mockRejectedValue(new Error('offline'))
+
+      const { result } = renderDrawerHook()
+
+      await act(async () => {
+        result.current.openDrawer()
+      })
+      renderDrawerBody()
+
+      expect(mockOpen).toHaveBeenCalledTimes(1)
+      expect(screen.getAllByRole('textbox')).toHaveLength(2)
     })
   })
 
