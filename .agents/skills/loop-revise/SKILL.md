@@ -21,7 +21,7 @@ Resolution fails (no matching state dir) → STOP: this PR was not produced by t
   gh api repos/getlago/lago-front/pulls/<PR>/comments   # review comments (inline)
   gh pr view <PR> --json comments,reviews                # issue comments and review verdicts
   ```
-  Skip feedback authored by the operator (`gh api user --jq .login`) and unchanged, already-answered feedback. Every comment raising a finding, question or requested change from a human or bot requires evaluation and a reply, including SonarQube findings and false positives. Never comment merely to announce or acknowledge green CI or SonarQube results; only success/status reports without findings require no reply. Evaluate concrete findings even when the overall gate is green.
+  Skip feedback authored by the operator (`gh api user --jq .login`) and unchanged, already-answered feedback. Every comment raising a finding, technical question or requested change from a human or bot requires evaluation and a reply, including SonarQube findings and false positives. Never comment merely to announce or acknowledge green CI or SonarQube results; success/status reports without findings require no reply. Praise, approvals and courtesy-only messages without findings or change requests receive no written reply, at most an optional thumbs-up reaction. Evaluate concrete findings even when the overall gate is green.
 
 No free-text feedback given → default to unanswered substantive feedback, including HOLD verdicts and SonarQube findings. None present → report "nothing to revise" to the operator and stop without a PR comment.
 
@@ -66,7 +66,7 @@ No free-text feedback given → default to unanswered substantive feedback, incl
 
 7. **CI gate**: `gh pr checks <PR> --watch`. Red → same recovery as loop-run, INCLUDING its pre-budget triage of special cases (codegen companion PR, code-scanning re-fingerprint, inherited base red); neither applies → `"$SCRIPTS/iter-budget.sh" <ISSUE-ID> ci-revise` (exit 1 = exhausted → STOP path), then `"$SCRIPTS/loop-ci-log.sh" <ISSUE-ID> <run-id> <N>`, write the distilled `ci-failure.md`, fix, recommit. On STOP: `impediment.md` + `"$SCRIPTS/loop-notify.sh"` exactly as loop-run's exit notification.
 
-8. **ALWAYS reply to every finding, question, requested change or HOLD**, applied or not, regardless of whether a human or bot (including SonarQube) authored it. One or two concise sentences in English, no AI attribution. Only success/status reports without findings need no reply; never post a green-CI/SonarQube acknowledgement or a duplicate answer to unchanged feedback:
+8. **ALWAYS reply to every finding, technical question, requested change or HOLD**, applied or not, regardless of whether a human or bot (including SonarQube) authored it. One or two concise sentences in English, no AI attribution. No written replies to success/status reports, praise, approvals or courtesy-only messages without findings or change requests; at most an optional thumbs-up reaction. Never post a green-CI/SonarQube acknowledgement or a duplicate answer to unchanged feedback:
    - Applied / already fixed → `Fixed in <short-sha>: <brief change>.`
    - False positive / not applied → `No change: <one-line technical reason based on the current code>.`
    - Valid but out of scope → `Requires separate work: <brief scope reason>.` Report the follow-up to the operator; do not present the HOLD or failing gate as resolved.

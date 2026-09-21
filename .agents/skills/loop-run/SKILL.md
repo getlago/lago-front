@@ -90,9 +90,10 @@ SCRIPTS="$FRONT/scripts"
 
 7. **External feedback**: `gh api repos/getlago/lago-front/pulls/<PR>/comments` + `gh pr view <PR> --json comments,reviews`. Process feedback from anyone other than the operator (`gh api user --jq .login`) through loop-revise:
    - **Green CI / SonarQube reports**: never post a PR comment merely to announce or acknowledge success. A green gate with concrete findings still requires evaluating those findings.
+   - **Praise, approvals and courtesy-only messages without findings or change requests**: no written reply; at most an optional thumbs-up reaction.
    - **SonarQube findings**: verify them against the current code and attempt a focused fix within the PR's scope. If resolving one requires a large refactor or unrelated changes, report it to the operator for separate work; do not expand this PR or dismiss the finding merely to turn the gate green.
    - **Any HOLD, from any human or bot**: verify the claim against the current commit, distinguish a real issue from a false positive or an already-fixed issue, and fix valid issues within scope. ALWAYS reply briefly with the fix and commit, a technical reason for not changing the code, or the reason a valid issue needs separate work. Do not claim the author's HOLD is lifted without an updated verdict.
-   - **Every comment raising a finding, question or requested change, from any human or bot (including SonarQube)**: evaluate critically and ALWAYS reply briefly with the fix, answer or technical reason for not applying it, including false positives and out-of-scope findings. Only success/status reports without findings need no reply; do not repeat an unchanged, already-answered reply.
+   - **Every comment raising a finding, technical question or requested change, from any human or bot (including SonarQube)**: evaluate critically and ALWAYS reply briefly with the fix, answer or technical reason for not applying it, including false positives and out-of-scope findings. Exclude the informational and courtesy-only messages above; do not repeat an unchanged, already-answered reply.
 
 8. **Final report**: PR URL, Linear state, CI status, Slack link, replies posted, cycle counts, and the cleanup line — `worktree`: `loop-clean` after merge; `in-place`: nothing here, the operator archives the Conductor workspace.
 
