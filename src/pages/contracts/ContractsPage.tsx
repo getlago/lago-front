@@ -2,10 +2,11 @@ import { gql } from '@apollo/client'
 import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router'
 
+import { ContractsList } from '~/components/contracts/ContractsList'
+import { getContractDisplayName } from '~/components/contracts/getContractDisplayName'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
-import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
-import { ActionItem } from '~/components/designSystem/Table/types'
+import { TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import {
   ContractAvailableFilters,
@@ -16,12 +17,10 @@ import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMeta
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { SearchInput } from '~/components/SearchInput'
-import { addToast } from '~/core/apolloClient'
 import { CONTRACT_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import { CONTRACT_DETAILS_ROUTE } from '~/core/router'
-import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { ContractForContractsListFragment, useGetContractsListLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
@@ -40,6 +39,10 @@ gql`
     status
     startedAt
     endedAt
+    plan {
+      id
+      name
+    }
     customer {
       id
       displayName
@@ -119,28 +122,6 @@ const ContractsPage = (): JSX.Element => {
     },
   ]
 
-  const getActions = (
-    contract: ContractForContractsListFragment,
-  ): ActionItem<ContractForContractsListFragment>[] => [
-    {
-      startIcon: 'duplicate',
-      title: translate('text_1789636691484c9hodzevcvd'),
-      dataTest: 'copy-contract-external-id',
-      onAction: () => {
-        copyToClipboard(contract.externalId)
-        addToast({
-          severity: 'info',
-          translateKey: 'text_1789636691484fyt51yyc9uh',
-        })
-      },
-    },
-  ]
-
-  const getContractLabel = ({
-    name,
-    externalId,
-  }: Pick<ContractForContractsListFragment, 'name' | 'externalId'>): string => name || externalId
-
   const columns: TableColumn<ContractForContractsListFragment>[] = [
     {
       key: 'status',
@@ -154,7 +135,7 @@ const ContractsPage = (): JSX.Element => {
       minWidth: 200,
       content: (contract) => (
         <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {getContractLabel(contract)}
+          {getContractDisplayName(contract)}
         </Typography>
       ),
     },
@@ -252,9 +233,9 @@ const ContractsPage = (): JSX.Element => {
           goToPage(1)
         }}
       >
-        <Table
+        <ContractsList
           name="contracts-list"
-          data={data?.contracts.collection ?? []}
+          contracts={data?.contracts.collection ?? []}
           columns={columns}
           rowSize={48}
           containerSize={{ default: 16, md: 48 }}
@@ -263,9 +244,6 @@ const ContractsPage = (): JSX.Element => {
           loadingRowCount={pageSize}
           hasError={!!error}
           onRowActionLink={({ id }) => generatePath(CONTRACT_DETAILS_ROUTE, { id })}
-          rowLinkLabel={getContractLabel}
-          actionColumnTooltip={() => translate('text_637f813d31381b1ed90ab326')}
-          actionColumn={getActions}
           placeholder={getPlaceholder()}
         />
       </PaginatedContent>

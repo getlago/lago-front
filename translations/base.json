@@ -4993,5 +4993,7 @@
   "text_1790018785008xgr4069mlgg": "Contract external ID (optional)",
   "text_1790018785008nd7mpv8ubhh": "Type a contract external id",
   "text_17900187850082zn8o5dvp9y": "ID used to define your own contract ID from your backend instead of using the one defined by Lago",
-  "text_1790018785009vy05bf6zdc6": "Type a contract name"
+  "text_1790018785009vy05bf6zdc6": "Type a contract name",
+  "text_178965210969958i1zni4czl": "A contract is created when a plan is assigned to a customer.",
+  "text_1789652109699qmz7squ6wr3": "This customer’s contracts will appear here."
 }
