@@ -19,11 +19,11 @@ Resolution fails (no matching state dir) → STOP: this PR was not produced by t
 - **GitHub PR comments from others** — colleagues or bots. Fetch them:
   ```bash
   gh api repos/getlago/lago-front/pulls/<PR>/comments   # review comments (inline)
-  gh pr view <PR> --json comments                        # issue-level comments
+  gh pr view <PR> --json comments,reviews                # issue comments and review verdicts
   ```
-  Skip comments authored by the operator themselves (`gh api user --jq .login`) and already-replied ones.
+  Skip feedback authored by the operator (`gh api user --jq .login`) and unchanged, already-answered feedback. Every comment raising a finding, question or requested change from a human or bot requires evaluation and a reply, including SonarQube findings and false positives. Never comment merely to announce or acknowledge green CI or SonarQube results; only success/status reports without findings require no reply. Evaluate concrete findings even when the overall gate is green.
 
-No free-text feedback given → default to the unanswered external PR comments. No unanswered comments either → report "nothing to revise" and stop.
+No free-text feedback given → default to unanswered substantive feedback, including HOLD verdicts and SonarQube findings. None present → report "nothing to revise" to the operator and stop without a PR comment.
 
 **Preconditions:** `state.md` exists in the state dir and the PR for `<ISSUE-ID>` is OPEN (`gh pr view <branch> --json state`). PR MERGED or CLOSED → STOP: nothing to revise, suggest a new ticket instead.
 
@@ -36,6 +36,8 @@ No free-text feedback given → default to the unanswered external PR comments. 
    - **Sound but better done differently** → propose the alternative with reasoning; let the operator pick.
    - **Breaks an acceptance criterion, duplicates the design system, contradicts the styleguide, or degrades the code** → PUSH BACK with what it breaks and what you'd do instead. Do NOT apply it unless the operator confirms after hearing the objection — then note the override in feedback.md.
    - Verify claims before agreeing ("this rerenders twice" → check). Never implement performatively to please.
+   - **Any HOLD, regardless of author**: compare its claim and referenced commit with the current code. Classify it as a real issue, a false positive or already fixed. Apply valid fixes within scope and ALWAYS give the brief reply in step 8, including when no code change is needed. Only an updated verdict from the author lifts their HOLD; a fix or green CI alone does not.
+   - **SonarQube findings**: investigate and attempt a focused code fix within the PR's scope. A large refactor or unrelated change belongs in separate work: explain that to the operator instead of expanding the PR. Do not dismiss or suppress a finding merely to make the gate green; existing CI failure handling still applies.
    - External comments (colleagues/bots) get identical scrutiny; for them "push back" is the polite not-applied reply of step 8 — escalate to the operator only when the comment is sound but conflicts with the spec.
 
 3. **Apply — ONLY the agreed points**, in the `worktree:` path from state.md (the cwd itself in `in-place`):
@@ -64,9 +66,10 @@ No free-text feedback given → default to the unanswered external PR comments. 
 
 7. **CI gate**: `gh pr checks <PR> --watch`. Red → same recovery as loop-run, INCLUDING its pre-budget triage of special cases (codegen companion PR, code-scanning re-fingerprint, inherited base red); neither applies → `"$SCRIPTS/iter-budget.sh" <ISSUE-ID> ci-revise` (exit 1 = exhausted → STOP path), then `"$SCRIPTS/loop-ci-log.sh" <ISSUE-ID> <run-id> <N>`, write the distilled `ci-failure.md`, fix, recommit. On STOP: `impediment.md` + `"$SCRIPTS/loop-notify.sh"` exactly as loop-run's exit notification.
 
-8. **Reply to every external comment on GitHub — ALWAYS**, applied or not. Short, friendly, in English, no AI attribution:
-   - Applied → `Good catch, thanks! Applied in <short-sha>.`
-   - Not applied → `Thanks for the suggestion! Leaving as is: <one-line technical reason>.`
+8. **ALWAYS reply to every finding, question, requested change or HOLD**, applied or not, regardless of whether a human or bot (including SonarQube) authored it. One or two concise sentences in English, no AI attribution. Only success/status reports without findings need no reply; never post a green-CI/SonarQube acknowledgement or a duplicate answer to unchanged feedback:
+   - Applied / already fixed → `Fixed in <short-sha>: <brief change>.`
+   - False positive / not applied → `No change: <one-line technical reason based on the current code>.`
+   - Valid but out of scope → `Requires separate work: <brief scope reason>.` Report the follow-up to the operator; do not present the HOLD or failing gate as resolved.
    - Inline review comments: `gh api repos/getlago/lago-front/pulls/<PR>/comments/<comment-id>/replies -f body='...'`. Issue-level: `gh pr comment <PR> --body '...'`.
 
 9. **Journal & flywheel — SILENT bookkeeping, before the report:**
