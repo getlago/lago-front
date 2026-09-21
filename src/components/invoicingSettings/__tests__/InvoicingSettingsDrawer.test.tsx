@@ -103,7 +103,7 @@ describe('InvoicingSettingsDrawer', () => {
     act(() => ref.current?.openDrawer({ consolidateInvoice: true }))
 
     expect(mockOpen).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'text_1789644720003contract' }),
+      expect.objectContaining({ title: 'text_1790018785008ooo50umu32v' }),
     )
   })
 

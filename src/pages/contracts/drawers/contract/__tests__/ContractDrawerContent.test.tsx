@@ -1,4 +1,5 @@
 import { MockedResponse } from '@apollo/client/testing'
+import { useStore } from '@tanstack/react-form'
 import { fireEvent, screen, waitFor } from '@testing-library/react'
 
 import {
@@ -15,6 +16,8 @@ import {
   CONTRACT_DRAWER_SHOW_EXTERNAL_ID_TEST_ID,
   CONTRACT_DRAWER_SHOW_NAME_TEST_ID,
   CONTRACT_FORM_DEFAULTS,
+  ContractDrawerCustomer,
+  ContractFormValues,
 } from '../constants'
 import { ContractDrawerContent } from '../ContractDrawerContent'
 
@@ -75,16 +78,20 @@ const plansMock: MockedResponse = {
   },
 }
 
-const Wrapper = () => {
-  const form = useAppForm({
-    defaultValues: {
-      ...CONTRACT_FORM_DEFAULTS,
-      externalCustomerId: 'customer-external-id',
-    },
-  })
+const Wrapper = ({ seededCustomer }: { seededCustomer?: ContractDrawerCustomer }) => {
+  const defaultValues: ContractFormValues = {
+    ...CONTRACT_FORM_DEFAULTS,
+    externalCustomerId: 'customer-external-id',
+    // Mirrors buildContractFormDefaults: production seeds billingEntityId from the
+    // customer at the same time as externalCustomerId, never after.
+    billingEntityId: seededCustomer?.billingEntityId,
+  }
+  const form = useAppForm({ defaultValues })
+  const isDirty = useStore(form.store, (state) => state.isDirty)
 
   return (
     <>
+      <span data-test="form-dirty-state">{isDirty ? 'dirty' : 'pristine'}</span>
       <button
         type="button"
         onClick={() => {
@@ -97,7 +104,7 @@ const Wrapper = () => {
       >
         Clear customer
       </button>
-      <ContractDrawerContent form={form} />
+      <ContractDrawerContent form={form} seededCustomer={seededCustomer} />
     </>
   )
 }
@@ -147,6 +154,22 @@ describe('ContractDrawerContent', () => {
 
     fireEvent.click(screen.getByTestId(CONTRACT_DRAWER_SHOW_NAME_TEST_ID))
     expect(screen.getByPlaceholderText('Type a contract name')).toBeInTheDocument()
+  })
+
+  it('does not mark the form dirty once a seeded customer resolves from the loaded list', async () => {
+    render(
+      <Wrapper
+        seededCustomer={{ externalId: 'customer-external-id', billingEntityId: 'billing-entity-1' }}
+      />,
+      { mocks: [customersMock, plansMock] },
+    )
+
+    await waitFor(() =>
+      expect(mockBillingEntityPicker).toHaveBeenLastCalledWith(
+        expect.objectContaining({ value: 'billing-entity-1' }),
+      ),
+    )
+    expect(screen.getByTestId('form-dirty-state')).toHaveTextContent('pristine')
   })
 
   it('clears customer-dependent settings when the customer is cleared', async () => {

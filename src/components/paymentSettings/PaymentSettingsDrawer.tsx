@@ -17,6 +17,11 @@ import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 
 const PAYMENT_SETTINGS_FORM_ID = 'payment-settings-drawer-form'
 
+const getPaymentSettingsTitleKey = (viewType: ViewTypeEnum): string =>
+  viewType === ViewTypeEnum.Contract
+    ? 'text_1790018785008bkx5wmu4e0b'
+    : 'text_17828013737948943pe3k8nc'
+
 interface PaymentSettingsValues {
   paymentMethod: SelectedPaymentMethod
 }
@@ -51,10 +56,7 @@ const PaymentSettingsDrawerContent = withForm({
   props: paymentSettingsDrawerContentDefaultProps,
   render: function PaymentSettingsDrawerContentRender({ form, viewType, externalCustomerId }) {
     const { translate } = useInternationalization()
-    const titleKey =
-      viewType === ViewTypeEnum.Contract
-        ? 'text_1789644720007contract'
-        : 'text_17828013737948943pe3k8nc'
+    const titleKey = getPaymentSettingsTitleKey(viewType)
     const paymentMethod = useStore(form.store, (s) => s.values.paymentMethod)
     const paymentMethodError = useStore(
       form.store,
@@ -102,10 +104,7 @@ export const PaymentSettingsDrawer = forwardRef<
   PaymentSettingsDrawerProps
 >(({ viewType, externalCustomerId, onSave }, ref) => {
   const { translate } = useInternationalization()
-  const titleKey =
-    viewType === ViewTypeEnum.Contract
-      ? 'text_1789644720007contract'
-      : 'text_17828013737948943pe3k8nc'
+  const titleKey = getPaymentSettingsTitleKey(viewType)
   const drawer = useFormDrawer()
 
   const form = useAppForm({
