@@ -45,7 +45,7 @@ jobs:
         uses: actions/setup-node@v6.5.0
         with:
           node-version-file: package.json
-          cache: "pnpm"
+          package-manager-cache: false
 
       - name: Install Node.js dependencies
         run: pnpm install
