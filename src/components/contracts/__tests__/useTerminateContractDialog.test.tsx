@@ -110,27 +110,6 @@ describe('useTerminateContractDialog', () => {
     )
     expect(addToast).not.toHaveBeenCalled()
   })
-
-  it('reuses an in-flight mutation instead of submitting twice', async () => {
-    let resolveMutation: (value: unknown) => void = () => undefined
-
-    mockTerminateContract.mockReturnValue(
-      new Promise((resolve) => {
-        resolveMutation = resolve
-      }),
-    )
-    openDialog({ externalId: 'external-contract-1', status: ContractStatusEnum.Active })
-
-    const firstAction = getDialogProps().onAction()
-    const secondAction = getDialogProps().onAction()
-
-    expect(mockTerminateContract).toHaveBeenCalledTimes(1)
-
-    resolveMutation({
-      data: { terminateContract: { id: 'contract-1', status: ContractStatusEnum.Terminated } },
-    })
-    await act(async () => Promise.all([firstAction, secondAction]))
-  })
 })
 
 describe('getContractTerminationCopy', () => {

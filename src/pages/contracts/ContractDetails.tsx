@@ -49,6 +49,8 @@ gql`
 
 export const CONTRACT_DETAILS_ACTIONS_TEST_ID = 'contract-details-actions'
 export const CONTRACT_DETAILS_COPY_ID_TEST_ID = 'contract-details-copy-external-id'
+export const CONTRACT_DETAILS_TERMINATE_TEST_ID = 'contract-details-terminate'
+export const CONTRACT_DETAILS_CANCEL_TEST_ID = 'contract-details-cancel'
 
 const ContractDetails = (): JSX.Element => {
   const { id = '' } = useParams()
@@ -104,8 +106,8 @@ const ContractDetails = (): JSX.Element => {
                     danger: true,
                     dataTest:
                       contract.status === ContractStatusEnum.Pending
-                        ? 'contract-details-cancel'
-                        : 'contract-details-terminate',
+                        ? CONTRACT_DETAILS_CANCEL_TEST_ID
+                        : CONTRACT_DETAILS_TERMINATE_TEST_ID,
                     onClick: (closePopper: () => void) => {
                       closePopper()
                       openTerminateContractDialog(contract)

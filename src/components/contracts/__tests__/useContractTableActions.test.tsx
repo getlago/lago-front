@@ -2,7 +2,11 @@ import { act, renderHook } from '@testing-library/react'
 
 import { ContractStatusEnum } from '~/generated/graphql'
 
-import { useContractTableActions } from '../useContractTableActions'
+import {
+  CONTRACT_TABLE_CANCEL_TEST_ID,
+  CONTRACT_TABLE_TERMINATE_TEST_ID,
+  useContractTableActions,
+} from '../useContractTableActions'
 
 const mockCopyContractExternalId = jest.fn()
 const mockOpenTerminateContractDialog = jest.fn()
@@ -55,8 +59,8 @@ describe('useContractTableActions', () => {
   })
 
   it.each([
-    [ContractStatusEnum.Active, 'terminate-contract'],
-    [ContractStatusEnum.Pending, 'cancel-contract'],
+    [ContractStatusEnum.Active, CONTRACT_TABLE_TERMINATE_TEST_ID],
+    [ContractStatusEnum.Pending, CONTRACT_TABLE_CANCEL_TEST_ID],
   ])('adds the matching lifecycle action for %s contracts', (status, dataTest) => {
     const { result } = renderHook(() => useContractTableActions())
     const target = { ...contract, status }

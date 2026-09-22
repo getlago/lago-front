@@ -25,7 +25,9 @@ import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import ContractDetails, {
   CONTRACT_DETAILS_ACTIONS_TEST_ID,
+  CONTRACT_DETAILS_CANCEL_TEST_ID,
   CONTRACT_DETAILS_COPY_ID_TEST_ID,
+  CONTRACT_DETAILS_TERMINATE_TEST_ID,
 } from '../ContractDetails'
 
 const mockCopyContractExternalId = jest.fn()
@@ -180,7 +182,7 @@ describe('ContractDetails', () => {
     await act(() => renderPage())
 
     await userEvent.click(await screen.findByTestId(CONTRACT_DETAILS_ACTIONS_TEST_ID))
-    await userEvent.click(screen.getByTestId('contract-details-terminate'))
+    await userEvent.click(screen.getByTestId(CONTRACT_DETAILS_TERMINATE_TEST_ID))
 
     expect(mockOpenTerminateContractDialog).toHaveBeenCalledWith(contractFixture)
   })
@@ -192,7 +194,7 @@ describe('ContractDetails', () => {
 
     await userEvent.click(await screen.findByTestId(CONTRACT_DETAILS_ACTIONS_TEST_ID))
 
-    expect(screen.queryByTestId('contract-details-terminate')).not.toBeInTheDocument()
+    expect(screen.queryByTestId(CONTRACT_DETAILS_TERMINATE_TEST_ID)).not.toBeInTheDocument()
     expect(screen.getByTestId(CONTRACT_DETAILS_COPY_ID_TEST_ID)).toBeInTheDocument()
   })
 
@@ -201,7 +203,7 @@ describe('ContractDetails', () => {
 
     await userEvent.click(await screen.findByTestId(CONTRACT_DETAILS_ACTIONS_TEST_ID))
 
-    expect(screen.getByTestId('contract-details-terminate')).toHaveClass('button-danger')
+    expect(screen.getByTestId(CONTRACT_DETAILS_TERMINATE_TEST_ID)).toHaveClass('button-danger')
   })
 
   it.each([ContractStatusEnum.Canceled, ContractStatusEnum.Terminated])(
@@ -219,8 +221,8 @@ describe('ContractDetails', () => {
 
       await userEvent.click(await screen.findByTestId(CONTRACT_DETAILS_ACTIONS_TEST_ID))
 
-      expect(screen.queryByTestId('contract-details-terminate')).not.toBeInTheDocument()
-      expect(screen.queryByTestId('contract-details-cancel')).not.toBeInTheDocument()
+      expect(screen.queryByTestId(CONTRACT_DETAILS_TERMINATE_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(CONTRACT_DETAILS_CANCEL_TEST_ID)).not.toBeInTheDocument()
     },
   )
 

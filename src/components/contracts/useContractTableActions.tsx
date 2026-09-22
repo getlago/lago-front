@@ -14,6 +14,9 @@ type ContractTableActionTarget = {
   status: ContractStatusEnum
 }
 
+export const CONTRACT_TABLE_TERMINATE_TEST_ID = 'terminate-contract'
+export const CONTRACT_TABLE_CANCEL_TEST_ID = 'cancel-contract'
+
 export const useContractTableActions = () => {
   const { translate } = useInternationalization()
   const { canTerminateContract } = useContractPermissionsActions()
@@ -38,7 +41,9 @@ export const useContractTableActions = () => {
         startIcon: 'stop',
         title: translate(terminationCopy.actionText),
         dataTest:
-          contract.status === ContractStatusEnum.Pending ? 'cancel-contract' : 'terminate-contract',
+          contract.status === ContractStatusEnum.Pending
+            ? CONTRACT_TABLE_CANCEL_TEST_ID
+            : CONTRACT_TABLE_TERMINATE_TEST_ID,
         onAction: () => openTerminateContractDialog(contract),
       })
     }

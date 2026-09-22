@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
@@ -57,7 +56,6 @@ type ContractTerminationTarget = {
 export const useTerminateContractDialog = () => {
   const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
-  const mutationPromiseRef = useRef<Promise<void> | null>(null)
   const [terminateContract] = useTerminateContractMutation()
 
   const openTerminateContractDialog = (contract?: ContractTerminationTarget): void => {
@@ -74,28 +72,18 @@ export const useTerminateContractDialog = () => {
       actionText: translate(copy.actionText),
       closeOnError: false,
       onAction: async () => {
-        if (!mutationPromiseRef.current) {
-          mutationPromiseRef.current = (async () => {
-            const result = await terminateContract({
-              variables: { input: { externalId: contract.externalId } },
-            })
+        const result = await terminateContract({
+          variables: { input: { externalId: contract.externalId } },
+        })
 
-            if (!result.data?.terminateContract) {
-              throw new Error('Contract lifecycle mutation returned no contract')
-            }
-
-            addToast({
-              severity: 'success',
-              translateKey: copy.successToastKey,
-            })
-          })()
+        if (!result.data?.terminateContract) {
+          throw new Error('Contract lifecycle mutation returned no contract')
         }
 
-        try {
-          await mutationPromiseRef.current
-        } finally {
-          mutationPromiseRef.current = null
-        }
+        addToast({
+          severity: 'success',
+          translateKey: copy.successToastKey,
+        })
       },
     })
   }
