@@ -69,6 +69,10 @@ export enum AvailableFiltersEnum {
   billingEntityIds = 'billingEntityIds',
   billingEntityId = 'billingEntityId',
   billingEntityCode = 'billingEntityCode',
+  contractAffiliatedEntityIds = 'contractAffiliatedEntityIds',
+  contractPlanCode = 'contractPlanCode',
+  contractRateOverrides = 'contractRateOverrides',
+  contractStatus = 'contractStatus',
   country = 'country',
   countries = 'countries',
   creditNoteCreditStatus = 'creditNoteCreditStatus',
@@ -306,6 +310,15 @@ export const SubscriptionAvailableFilters = [
   AvailableFiltersEnum.subscriptionStatus,
 ]
 
+export const ContractAvailableFilters = [
+  AvailableFiltersEnum.contractAffiliatedEntityIds,
+  AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.externalId,
+  AvailableFiltersEnum.contractPlanCode,
+  AvailableFiltersEnum.contractRateOverrides,
+  AvailableFiltersEnum.contractStatus,
+]
+
 export const ProductAvailableFilters = [
   AvailableFiltersEnum.productProductCategory,
   AvailableFiltersEnum.productType,
@@ -383,6 +396,10 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.billingEntityIds]: 'text_17436114971570doqrwuwhf0',
   [AvailableFiltersEnum.billingEntityId]: 'text_17791856837133nbboq5tcxi',
   [AvailableFiltersEnum.billingEntityCode]: 'text_1747986368158jgf5jdvfsey',
+  [AvailableFiltersEnum.contractAffiliatedEntityIds]: 'text_1743611497157teaa1zu8l24',
+  [AvailableFiltersEnum.contractPlanCode]: 'text_625434c7bb2cb40124c81a29',
+  [AvailableFiltersEnum.contractRateOverrides]: 'text_1789752288687t0rx0w5b4d5',
+  [AvailableFiltersEnum.contractStatus]: 'text_63ac86d797f728a87b2f9fa7',
   [AvailableFiltersEnum.country]: 'text_62ab2d0396dd6b0361614da0',
   [AvailableFiltersEnum.countries]: 'text_17599097360429zjcfmkb9oi',
   [AvailableFiltersEnum.creditNoteCreditStatus]: 'text_173470389114473bzrbyh6va',

@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router'
 
@@ -46,7 +45,7 @@ import {
   useNavigate,
 } from '~/core/router'
 import { serializeActivationRules } from '~/core/serializers'
-import { getTimezoneConfig } from '~/core/timezone'
+import { getTodayAtUtcMidnight } from '~/core/timezone'
 import { subscriptionFormSchema } from '~/formValidation/subscriptionFormSchema'
 import {
   CurrencyEnum,
@@ -54,7 +53,6 @@ import {
   PlanInterval,
   StatusTypeEnum,
   SubscriptionForSubscriptionEditFormFragmentDoc,
-  TimezoneEnum,
   useGetCustomerForCreateSubscriptionQuery,
   useGetPlansLazyQuery,
   useGetSubscriptionForCreateSubscriptionQuery,
@@ -141,8 +139,7 @@ const CreateSubscription = () => {
 
   const subscription = subscriptionData?.subscription
 
-  const GMT = getTimezoneConfig(TimezoneEnum.TzUtc).name
-  const currentDateRef = useRef<string>(DateTime.now().setZone(GMT).startOf('day').toISO())
+  const currentDateRef = useRef<string>(getTodayAtUtcMidnight())
   const isInSubscriptionForm = location.pathname.includes('/subscription')
 
   const { onSave, formType } = useAddSubscription({ existingSubscription: subscription })

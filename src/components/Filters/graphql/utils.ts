@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 
 import { formatActivityType } from '~/components/activityLogs/utils'
+import { contractStatusTranslation } from '~/components/Filters/graphql/filtersElements/FiltersItemContractStatus'
 import { IsCustomerTinEmptyEnum } from '~/components/Filters/graphql/filtersElements/FiltersItemIsCustomerTinEmpty'
 import {
   ACTIVE_SUBSCRIPTIONS_INTERVALS_TRANSLATION_MAP,
@@ -11,6 +12,7 @@ import {
   AnalyticsInvoicesAvailableFilters,
   ApiLogsAvailableFilters,
   AvailableFiltersEnum,
+  ContractAvailableFilters,
   CreditNoteAvailableFilters,
   CustomerAnalyticsAvailableFilters,
   CustomerAvailableFilters,
@@ -49,6 +51,7 @@ import {
   ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
   ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX,
   API_LOGS_FILTER_PREFIX,
+  CONTRACT_LIST_FILTER_PREFIX,
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_ANALYTICS_FILTER_PREFIX,
   CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
@@ -76,10 +79,12 @@ import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import {
   type ActivityLogsQueryVariables,
   ActivityTypeEnum,
+  ContractStatusEnum,
   CurrencyEnum,
   type CustomerAccountTypeEnum,
   type CustomersQueryVariables,
   type GetApiLogsQueryVariables,
+  type GetContractsListQueryVariables,
   type GetCreditNotesListQueryVariables,
   type GetInvoiceCollectionsForAnalyticsQueryVariables,
   type GetInvoicesListQueryVariables,
@@ -248,6 +253,12 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.billingEntityId]: (value: string) =>
     value.split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.billingEntityCode]: (value: string) => value,
+  [AvailableFiltersEnum.contractAffiliatedEntityIds]: (value: string) =>
+    value.split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.contractPlanCode]: (value: string) =>
+    value.split(filterDataInlineSeparator)[0],
+  [AvailableFiltersEnum.contractRateOverrides]: (value: string) => value === 'true',
+  [AvailableFiltersEnum.contractStatus]: (value: string) => value.split(',').filter(Boolean),
   [AvailableFiltersEnum.country]: (value: string) => value,
   [AvailableFiltersEnum.countries]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
@@ -726,6 +737,37 @@ export const formatFiltersForSubscriptionQuery = (
   })
 }
 
+type ContractQueryFilters = Partial<
+  Pick<
+    GetContractsListQueryVariables,
+    | 'billingEntityIds'
+    | 'externalCustomerId'
+    | 'externalId'
+    | 'hasRateOverrides'
+    | 'planCode'
+    | 'status'
+  >
+>
+
+export const formatFiltersForContractQuery = (
+  searchParams: URLSearchParams,
+): ContractQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof ContractQueryFilters & string>> = {
+    [AvailableFiltersEnum.contractAffiliatedEntityIds]: 'billingEntityIds',
+    [AvailableFiltersEnum.contractPlanCode]: 'planCode',
+    [AvailableFiltersEnum.contractRateOverrides]: 'hasRateOverrides',
+    [AvailableFiltersEnum.contractStatus]: 'status',
+    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
+  }
+
+  return formatFiltersForQuery<ContractQueryFilters>({
+    keyMap,
+    searchParams,
+    availableFilters: ContractAvailableFilters,
+    filtersNamePrefix: CONTRACT_LIST_FILTER_PREFIX,
+  })
+}
+
 export const formatFiltersForCustomerAnalyticsQuery = (
   searchParams: URLSearchParams,
 ): { currency?: CurrencyEnum; billingEntityId?: string } => {
@@ -1101,6 +1143,7 @@ export const formatActiveFilterValueDisplay = (
         .join(', ')
     case AvailableFiltersEnum.customerExternalId:
     case AvailableFiltersEnum.billingEntityId:
+    case AvailableFiltersEnum.contractPlanCode:
       return unescapeFilterLabel(
         value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
       )
@@ -1131,6 +1174,18 @@ export const formatActiveFilterValueDisplay = (
             : 'text_1744018116743ntlygtcnq95',
         ) || ''
       )
+    case AvailableFiltersEnum.contractStatus:
+      return value
+        .split(',')
+        .filter(Boolean)
+        .map((status) => translate?.(contractStatusTranslation(status as ContractStatusEnum)) || '')
+        .join(', ')
+    case AvailableFiltersEnum.contractRateOverrides:
+      return (
+        translate?.(
+          value === 'true' ? 'text_1789752288687xjph983ekbt' : 'text_1789752288687c3bxfx2tjlu',
+        ) || ''
+      )
     case AvailableFiltersEnum.date:
     case AvailableFiltersEnum.issuingDate:
     case AvailableFiltersEnum.loggedDate:
@@ -1153,6 +1208,7 @@ export const formatActiveFilterValueDisplay = (
       )
     case AvailableFiltersEnum.apiKeyIds:
     case AvailableFiltersEnum.billingEntityIds:
+    case AvailableFiltersEnum.contractAffiliatedEntityIds:
     case AvailableFiltersEnum.userIds:
     case AvailableFiltersEnum.multipleCustomers:
     case AvailableFiltersEnum.rateCardProduct:

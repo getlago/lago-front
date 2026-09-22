@@ -7,6 +7,7 @@ import { CustomerInvoicesTab } from '~/components/customers/CustomerInvoicesTab'
 import { CustomerMainInfos } from '~/components/customers/CustomerMainInfos'
 import { CustomerPaymentsTab } from '~/components/customers/CustomerPaymentsTab'
 import { CustomerSettings } from '~/components/customers/CustomerSettings'
+import { CustomerContractsList } from '~/components/customers/overview/CustomerContractsList'
 import { CustomerSubscriptionsList } from '~/components/customers/overview/CustomerSubscriptionsList'
 import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
 import { MainHeaderTab } from '~/components/MainHeader/types'
@@ -18,9 +19,14 @@ import {
   UPDATE_CUSTOMER_ROUTE,
   useNavigate,
 } from '~/core/router'
-import { CustomerAccountTypeEnum, CustomerDetailsFragment } from '~/generated/graphql'
+import {
+  CustomerAccountTypeEnum,
+  CustomerDetailsFragment,
+  FeatureFlagEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
 interface UseCustomerDetailsTabsParams {
@@ -38,6 +44,7 @@ export function useCustomerDetailsHeaderTabs({
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
+  const { hasFeatureFlag } = useOrganizationInfos()
 
   const {
     billingEntity: customerBillingEntity,
@@ -65,7 +72,9 @@ export function useCustomerDetailsHeaderTabs({
         }),
         generatePath(CUSTOMER_DETAILS_ROUTE, { customerId }),
       ],
-      content: (
+      content: hasFeatureFlag(FeatureFlagEnum.ProductCatalog) ? (
+        <CustomerContractsList customer={customer} />
+      ) : (
         <CustomerSubscriptionsList
           customerExternalId={externalId}
           customerTimezone={safeTimezone}

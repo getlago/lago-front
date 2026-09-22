@@ -48,6 +48,7 @@ import ContentCenterAlign from '~/icons/content-center-align.svg'
 import ContentJustifyAlign from '~/icons/content-justify-align.svg'
 import ContentLeftAlign from '~/icons/content-left-align.svg'
 import ContentRightAlign from '~/icons/content-right-align.svg'
+import Contract from '~/icons/contract.svg'
 import Coupon from '~/icons/coupon.svg'
 import Descending from '~/icons/descending.svg'
 import Document from '~/icons/document.svg'
@@ -205,6 +206,7 @@ export const ALL_ICONS = {
   command: Command,
   company: Company,
   condition: Condition,
+  contract: Contract,
   'content-center-align': ContentCenterAlign,
   'content-justify-align': ContentJustifyAlign,
   'content-left-align': ContentLeftAlign,
