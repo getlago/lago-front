@@ -6,6 +6,7 @@ import { SubscriptionPaymentSection } from '../SubscriptionPaymentSection'
 const mockSectionHeader: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 const mockPaymentMethodDetails: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 const mockDrawer: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
+const mockOpenDrawer = jest.fn()
 const mockSavePayment = jest.fn()
 
 jest.mock('~/components/plans/details-v2/shared/SectionHeader', () => ({
@@ -24,11 +25,11 @@ jest.mock('~/components/subscriptions/SubscriptionPaymentMethodDetails', () => (
   },
 }))
 
-jest.mock('~/components/paymentSettings/PaymentSettingsDrawer', () => ({
-  PaymentSettingsDrawer: (props: Record<string, unknown>) => {
+jest.mock('~/components/paymentSettings/usePaymentSettingsDrawer', () => ({
+  usePaymentSettingsDrawer: (props: Record<string, unknown>) => {
     mockDrawer(props)
 
-    return null
+    return { openDrawer: mockOpenDrawer }
   },
 }))
 
@@ -79,5 +80,22 @@ describe('SubscriptionPaymentSection', () => {
     expect(mockDrawer).toHaveBeenCalledWith(
       expect.objectContaining({ onSave: mockSavePayment, externalCustomerId: 'ext_1' }),
     )
+  })
+
+  it('seeds the drawer with the subscription payment method on edit', () => {
+    renderSection()
+
+    const { action } = mockSectionHeader.mock.calls.at(-1)?.[0] as {
+      action: { onClick: () => void }
+    }
+
+    action.onClick()
+
+    expect(mockOpenDrawer).toHaveBeenCalledWith({
+      paymentMethod: {
+        paymentMethodType: PaymentMethodTypeEnum.Provider,
+        paymentMethodId: 'pm_1',
+      },
+    })
   })
 })

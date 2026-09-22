@@ -1,10 +1,10 @@
-import { act, createRef, ReactNode } from 'react'
+import { act, ReactNode } from 'react'
 
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { PaymentSettingsDrawer, PaymentSettingsDrawerRef } from '../PaymentSettingsDrawer'
+import { usePaymentSettingsDrawer } from '../usePaymentSettingsDrawer'
 
 const mockOpen = jest.fn()
 const mockClose = jest.fn()
@@ -31,30 +31,35 @@ jest.mock('~/components/paymentMethodSelection/PaymentMethodFields', () => ({
   },
 }))
 
-describe('PaymentSettingsDrawer', () => {
+type UsePaymentSettingsDrawerProps = Parameters<typeof usePaymentSettingsDrawer>[0]
+type OpenDrawer = ReturnType<typeof usePaymentSettingsDrawer>['openDrawer']
+
+const captured: { current: OpenDrawer | null } = { current: null }
+
+// The hook has no rendered element of its own, so a throwaway host mounts it
+// and hands `openDrawer` back to the test.
+const DrawerHost = (props: UsePaymentSettingsDrawerProps) => {
+  captured.current = usePaymentSettingsDrawer(props).openDrawer
+
+  return null
+}
+
+describe('usePaymentSettingsDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockFieldsProps.current = null
+    captured.current = null
   })
 
   const renderDrawer = (onSave = jest.fn(), viewType: ViewTypeEnum = ViewTypeEnum.Subscription) => {
-    const ref = createRef<PaymentSettingsDrawerRef>()
+    render(<DrawerHost viewType={viewType} externalCustomerId="ext_1" onSave={onSave} />)
 
-    render(
-      <PaymentSettingsDrawer
-        ref={ref}
-        viewType={viewType}
-        externalCustomerId="ext_1"
-        onSave={onSave}
-      />,
-    )
-
-    return { ref, onSave }
+    return { onSave }
   }
 
-  it('renders nothing until opened', () => {
+  it('mounts without rendering anything and without opening the drawer', () => {
     const { container } = render(
-      <PaymentSettingsDrawer
+      <DrawerHost
         viewType={ViewTypeEnum.Subscription}
         externalCustomerId="ext_1"
         onSave={jest.fn()}
@@ -66,10 +71,10 @@ describe('PaymentSettingsDrawer', () => {
   })
 
   it('opens the drawer with the Payment settings title', () => {
-    const { ref } = renderDrawer()
+    renderDrawer()
 
     act(() => {
-      ref.current?.openDrawer({
+      captured.current?.({
         paymentMethod: { paymentMethodId: null, paymentMethodType: PaymentMethodTypeEnum.Provider },
       })
     })
@@ -81,9 +86,9 @@ describe('PaymentSettingsDrawer', () => {
   })
 
   it('uses the contract-specific edit title for contracts', () => {
-    const { ref } = renderDrawer(jest.fn(), ViewTypeEnum.Contract)
+    renderDrawer(jest.fn(), ViewTypeEnum.Contract)
 
-    act(() => ref.current?.openDrawer({ paymentMethod: undefined }))
+    act(() => captured.current?.({ paymentMethod: undefined }))
 
     expect(mockOpen).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'text_1790018785008bkx5wmu4e0b' }),
@@ -91,14 +96,14 @@ describe('PaymentSettingsDrawer', () => {
   })
 
   it('commits the seeded draft through onSave on submit, then closes', async () => {
-    const { ref, onSave } = renderDrawer()
+    const { onSave } = renderDrawer()
 
     const seeded = {
       paymentMethod: { paymentMethodId: 'pm_1', paymentMethodType: PaymentMethodTypeEnum.Provider },
     }
 
     act(() => {
-      ref.current?.openDrawer(seeded)
+      captured.current?.(seeded)
     })
 
     const { form } = mockOpen.mock.calls[0][0] as { form: { submit: () => Promise<void> } }
@@ -112,10 +117,10 @@ describe('PaymentSettingsDrawer', () => {
   })
 
   it('blocks submit and surfaces the error when "specific" is picked with no method', async () => {
-    const { ref, onSave } = renderDrawer()
+    const { onSave } = renderDrawer()
 
     act(() => {
-      ref.current?.openDrawer({
+      captured.current?.({
         paymentMethod: {
           paymentMethodId: undefined,
           paymentMethodType: PaymentMethodTypeEnum.Provider,

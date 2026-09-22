@@ -1,5 +1,4 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { forwardRef, useImperativeHandle } from 'react'
 import { z } from 'zod'
 
 import { useFormDrawer } from '~/components/drawers/useDrawer'
@@ -149,15 +148,7 @@ const InvoicingSettingsDrawerContent = withForm({
   },
 })
 
-export interface InvoicingSettingsDrawerRef {
-  openDrawer: (values: {
-    consolidateInvoice?: boolean
-    invoiceCustomSection?: InvoiceCustomSectionInput | null
-  }) => void
-  closeDrawer: () => void
-}
-
-interface InvoicingSettingsDrawerProps {
+interface UseInvoicingSettingsDrawerProps {
   viewType: ViewTypeEnum
   customerId?: string
   showCustomSection: boolean
@@ -165,10 +156,20 @@ interface InvoicingSettingsDrawerProps {
   onSave: (values: InvoicingSettingsValues) => void | Promise<void>
 }
 
-export const InvoicingSettingsDrawer = forwardRef<
-  InvoicingSettingsDrawerRef,
-  InvoicingSettingsDrawerProps
->(({ viewType, customerId, showCustomSection, withInvoiceConsolidation = false, onSave }, ref) => {
+interface UseInvoicingSettingsDrawerReturn {
+  openDrawer: (values: {
+    consolidateInvoice?: boolean
+    invoiceCustomSection?: InvoiceCustomSectionInput | null
+  }) => void
+}
+
+export const useInvoicingSettingsDrawer = ({
+  viewType,
+  customerId,
+  showCustomSection,
+  withInvoiceConsolidation = false,
+  onSave,
+}: UseInvoicingSettingsDrawerProps): UseInvoicingSettingsDrawerReturn => {
   const { translate } = useInternationalization()
   const titleKey = getInvoicingSettingsTitleKey(viewType)
   const drawer = useFormDrawer()
@@ -188,7 +189,18 @@ export const InvoicingSettingsDrawer = forwardRef<
     },
   })
 
-  const openInvoicingSettingsDrawer = (): void => {
+  const openDrawer: UseInvoicingSettingsDrawerReturn['openDrawer'] = (values): void => {
+    const invoiceCustomSection = values.invoiceCustomSection ?? DEFAULT_VALUES.invoiceCustomSection
+
+    form.reset(
+      {
+        consolidateInvoice: values.consolidateInvoice ?? DEFAULT_VALUES.consolidateInvoice,
+        invoiceCustomSection,
+        invoiceCustomSectionBehavior: deriveInvoiceCustomSectionBehavior(invoiceCustomSection),
+      },
+      { keepDefaultValues: true },
+    )
+
     drawer.open({
       title: translate(titleKey),
       form: { id: INVOICING_SETTINGS_FORM_ID, submit: form.handleSubmit },
@@ -215,27 +227,5 @@ export const InvoicingSettingsDrawer = forwardRef<
     })
   }
 
-  useImperativeHandle(ref, () => ({
-    openDrawer: (values) => {
-      const invoiceCustomSection =
-        values.invoiceCustomSection ?? DEFAULT_VALUES.invoiceCustomSection
-
-      form.reset(
-        {
-          consolidateInvoice: values.consolidateInvoice ?? DEFAULT_VALUES.consolidateInvoice,
-          invoiceCustomSection,
-          invoiceCustomSectionBehavior: deriveInvoiceCustomSectionBehavior(invoiceCustomSection),
-        },
-        { keepDefaultValues: true },
-      )
-      openInvoicingSettingsDrawer()
-    },
-    closeDrawer: () => {
-      drawer.close()
-    },
-  }))
-
-  return null
-})
-
-InvoicingSettingsDrawer.displayName = 'InvoicingSettingsDrawer'
+  return { openDrawer }
+}

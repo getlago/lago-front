@@ -6,6 +6,7 @@ const mockSectionHeader: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 const mockInfoGridItem: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 const mockInvoiceCustomSectionDetails: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 const mockDrawer: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
+const mockOpenDrawer = jest.fn()
 const mockSaveInvoicing = jest.fn()
 
 jest.mock('~/components/plans/details-v2/shared/SectionHeader', () => ({
@@ -34,11 +35,11 @@ jest.mock('~/components/subscriptions/SubscriptionInvoiceCustomSectionDetails', 
   },
 }))
 
-jest.mock('~/components/invoicingSettings/InvoicingSettingsDrawer', () => ({
-  InvoicingSettingsDrawer: (props: Record<string, unknown>) => {
+jest.mock('~/components/invoicingSettings/useInvoicingSettingsDrawer', () => ({
+  useInvoicingSettingsDrawer: (props: Record<string, unknown>) => {
     mockDrawer(props)
 
-    return null
+    return { openDrawer: mockOpenDrawer }
   },
 }))
 
@@ -99,5 +100,23 @@ describe('SubscriptionInvoiceSection', () => {
     expect(mockInfoGridItem).toHaveBeenCalled()
     expect(mockInvoiceCustomSectionDetails).not.toHaveBeenCalled()
     expect(mockDrawer).toHaveBeenCalledWith(expect.objectContaining({ showCustomSection: false }))
+  })
+
+  it('seeds the drawer with the subscription invoicing settings on edit', () => {
+    renderSection()
+
+    const { action } = mockSectionHeader.mock.calls.at(-1)?.[0] as {
+      action: { onClick: () => void }
+    }
+
+    action.onClick()
+
+    expect(mockOpenDrawer).toHaveBeenCalledWith({
+      consolidateInvoice: true,
+      invoiceCustomSection: {
+        invoiceCustomSections: [{ id: 'cs_1', name: 'Bank details' }],
+        skipInvoiceCustomSections: false,
+      },
+    })
   })
 })
