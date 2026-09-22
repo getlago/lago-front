@@ -1,10 +1,6 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 
-import {
-  PaymentSettingsDrawer,
-  PaymentSettingsDrawerRef,
-} from '~/components/paymentSettings/PaymentSettingsDrawer'
+import { usePaymentSettingsDrawer } from '~/components/paymentSettings/usePaymentSettingsDrawer'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { SubscriptionPaymentMethodDetails } from '~/components/subscriptions/SubscriptionPaymentMethodDetails'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
@@ -34,13 +30,18 @@ type SubscriptionPaymentSectionProps = {
 export const SubscriptionPaymentSection = ({ subscription }: SubscriptionPaymentSectionProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const drawerRef = useRef<PaymentSettingsDrawerRef>(null)
   const { savePayment } = useUpdateSubscriptionSettings(subscription.id)
 
   const selectedPaymentMethod = {
     paymentMethodType: subscription.paymentMethodType,
     paymentMethodId: subscription.paymentMethod?.id,
   }
+
+  const { openDrawer } = usePaymentSettingsDrawer({
+    viewType: ViewTypeEnum.Subscription,
+    externalCustomerId: subscription.customer?.externalId ?? '',
+    onSave: savePayment,
+  })
 
   return (
     <section className="flex flex-col gap-6">
@@ -50,7 +51,7 @@ export const SubscriptionPaymentSection = ({ subscription }: SubscriptionPayment
         action={{
           label: translate('text_63e51ef4985f0ebd75c212fc'),
           startIcon: 'pen',
-          onClick: () => drawerRef.current?.openDrawer({ paymentMethod: selectedPaymentMethod }),
+          onClick: () => openDrawer({ paymentMethod: selectedPaymentMethod }),
           hidden: !hasPermissions(['subscriptionsUpdate']),
         }}
       />
@@ -58,13 +59,6 @@ export const SubscriptionPaymentSection = ({ subscription }: SubscriptionPayment
       <SubscriptionPaymentMethodDetails
         selectedPaymentMethod={selectedPaymentMethod}
         externalCustomerId={subscription.customer?.externalId}
-      />
-
-      <PaymentSettingsDrawer
-        ref={drawerRef}
-        viewType={ViewTypeEnum.Subscription}
-        externalCustomerId={subscription.customer?.externalId ?? ''}
-        onSave={savePayment}
       />
     </section>
   )

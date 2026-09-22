@@ -1,5 +1,4 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { forwardRef, useImperativeHandle } from 'react'
 import { z } from 'zod'
 
 import { useFormDrawer } from '~/components/drawers/useDrawer'
@@ -88,21 +87,21 @@ const PaymentSettingsDrawerContent = withForm({
   },
 })
 
-export interface PaymentSettingsDrawerRef {
-  openDrawer: (values: { paymentMethod?: SelectedPaymentMethod }) => void
-  closeDrawer: () => void
-}
-
-interface PaymentSettingsDrawerProps {
+interface UsePaymentSettingsDrawerProps {
   viewType: ViewTypeEnum
   externalCustomerId: string
   onSave: (values: PaymentSettingsValues) => void | Promise<void>
 }
 
-export const PaymentSettingsDrawer = forwardRef<
-  PaymentSettingsDrawerRef,
-  PaymentSettingsDrawerProps
->(({ viewType, externalCustomerId, onSave }, ref) => {
+interface UsePaymentSettingsDrawerReturn {
+  openDrawer: (values: { paymentMethod?: SelectedPaymentMethod }) => void
+}
+
+export const usePaymentSettingsDrawer = ({
+  viewType,
+  externalCustomerId,
+  onSave,
+}: UsePaymentSettingsDrawerProps): UsePaymentSettingsDrawerReturn => {
   const { translate } = useInternationalization()
   const titleKey = getPaymentSettingsTitleKey(viewType)
   const drawer = useFormDrawer()
@@ -119,7 +118,12 @@ export const PaymentSettingsDrawer = forwardRef<
     },
   })
 
-  const openPaymentSettingsDrawer = (): void => {
+  const openDrawer: UsePaymentSettingsDrawerReturn['openDrawer'] = (values): void => {
+    form.reset(
+      { paymentMethod: values.paymentMethod ?? DEFAULT_VALUES.paymentMethod },
+      { keepDefaultValues: true },
+    )
+
     drawer.open({
       title: translate(titleKey),
       form: { id: PAYMENT_SETTINGS_FORM_ID, submit: form.handleSubmit },
@@ -144,20 +148,5 @@ export const PaymentSettingsDrawer = forwardRef<
     })
   }
 
-  useImperativeHandle(ref, () => ({
-    openDrawer: (values) => {
-      form.reset(
-        { paymentMethod: values.paymentMethod ?? DEFAULT_VALUES.paymentMethod },
-        { keepDefaultValues: true },
-      )
-      openPaymentSettingsDrawer()
-    },
-    closeDrawer: () => {
-      drawer.close()
-    },
-  }))
-
-  return null
-})
-
-PaymentSettingsDrawer.displayName = 'PaymentSettingsDrawer'
+  return { openDrawer }
+}
