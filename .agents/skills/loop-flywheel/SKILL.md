@@ -47,6 +47,8 @@ The instruction set has an entrance and needs an exit. Attention is a fixed budg
    git -C front worktree add /tmp/lago-flywheel -b <BRANCH> origin/main
    ```
 
+   When the harvest touched anything under `scripts/`, run `pnpm agents:check` in that worktree before committing: it exercises `loop-plan-check.sh` and `diff-hygiene.sh`, and nothing else does — it is deliberately out of `code:style`, so a break here reaches the loop unannounced.
+
    `<BRANCH>` = kebab-case topic slug, no Linear ID, e.g. `loop-skills-flywheel-harvest`. Commit with a `docs(agents):` or `chore(agents):` subject of 50 chars or less, push, then `gh pr create --base main --repo getlago/lago-front`.
 
    PR body: one line per proposal (applied where, or dropped and why), one line per pruned check with the journal span that justified it, one line for the styleguide refresh. That list is what the operator reviews.

@@ -3,6 +3,11 @@
 # Run: bash scripts/loop-plan-check.test.sh
 set -euo pipefail
 
+# Git exports GIT_DIR and friends to its hooks, and those take precedence over `git -C`: run from
+# the pre-push hook, every command below would address the real repository instead of the sandbox.
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_COMMON_DIR GIT_PREFIX \
+  GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_NAMESPACE
+
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 while IFS= read -r git_env_var; do
   unset "$git_env_var"

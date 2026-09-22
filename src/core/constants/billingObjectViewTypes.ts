@@ -32,6 +32,15 @@ export const VIEW_TYPE_INVOICING_CAPTION_KEYS: Record<ViewTypeEnum, string> = {
   [ViewTypeEnum.OneOffInvoice]: 'text_1785164421080j4ohbewttiq',
 }
 
+export const VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS: Record<ViewTypeEnum, string> = {
+  [ViewTypeEnum.Contract]: 'text_1790063786375kwwwep9h7cd',
+  [ViewTypeEnum.Subscription]: 'text_178948416677832fz1lquc9c',
+  [ViewTypeEnum.WalletTopUp]: 'text_1789472252793x4lfuqim3a1',
+  [ViewTypeEnum.WalletRecurringTopUp]: 'text_1789484166778pyg3ypgpdgo',
+  [ViewTypeEnum.WalletTransactionTopUp]: 'text_1789484166778hblkj5i4ue4',
+  [ViewTypeEnum.OneOffInvoice]: 'text_1789484166778ng9z9mfgqc7',
+}
+
 export const VIEW_TYPE_PAYMENT_CAPTION_KEYS: Record<ViewTypeEnum, string> = {
   [ViewTypeEnum.Contract]: 'text_1790018785008zycb16wfr1x',
   [ViewTypeEnum.Subscription]: 'text_17828013737955532qxu3wq4',
