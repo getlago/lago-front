@@ -1,7 +1,6 @@
 import { ComponentProps } from 'react'
 
 import { useConnectionPaymentSettingsDrawer } from '~/components/paymentSettings/connectionFirst/useConnectionPaymentSettingsDrawer'
-import { PaymentSettingsDrawerRef } from '~/components/paymentSettings/PaymentSettingsDrawer'
 import { SectionHeaderProps } from '~/components/plans/details-v2/shared/SectionHeader'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import {
@@ -56,22 +55,12 @@ jest.mock('~/components/subscriptions/SubscriptionPaymentMethodDetails', () => (
   },
 }))
 
-jest.mock('~/components/paymentSettings/PaymentSettingsDrawer', () => {
-  const { forwardRef, useImperativeHandle } = jest.requireActual<typeof import('react')>('react')
-
-  return {
-    PaymentSettingsDrawer: forwardRef<PaymentSettingsDrawerRef, Record<string, unknown>>(
-      (props, ref) => {
-        useImperativeHandle(ref, () => ({
-          openDrawer: mockOpenLegacyDrawer,
-          closeDrawer: jest.fn(),
-        }))
-        mockDrawer(props)
-        return null
-      },
-    ),
-  }
-})
+jest.mock('~/components/paymentSettings/usePaymentSettingsDrawer', () => ({
+  usePaymentSettingsDrawer: (props: Record<string, unknown>) => {
+    mockDrawer(props)
+    return { openDrawer: mockOpenLegacyDrawer }
+  },
+}))
 
 jest.mock('~/hooks/customer/useUpdateSubscriptionSettings', () => ({
   useUpdateSubscriptionSettings: () => ({ savePayment: mockSavePayment, saveInvoicing: jest.fn() }),
@@ -121,7 +110,7 @@ describe('SubscriptionPaymentSection', () => {
     it('THEN should open the shared connection drawer from the overview edit action', () => {
       renderSection()
       expect(mockOpenConnectionDrawer).not.toHaveBeenCalled()
-      expect(mockDrawer).not.toHaveBeenCalled()
+      expect(mockOpenLegacyDrawer).not.toHaveBeenCalled()
       mockSectionHeader.mock.calls.at(-1)?.[0].action?.onClick()
       expect(mockConnectionDrawer).toHaveBeenCalledWith({
         viewType: ViewTypeEnum.Subscription,

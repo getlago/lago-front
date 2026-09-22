@@ -7,6 +7,7 @@ import {
   ACTIVE_SUBSCRIPTIONS_INTERVALS_TRANSLATION_MAP,
   ActiveSubscriptionsFilterInterval,
   ActivityLogsAvailableFilters,
+  AdminAuditLogAvailableFilters,
   AMOUNT_INTERVALS_TRANSLATION_MAP,
   AmountFilterInterval,
   AnalyticsInvoicesAvailableFilters,
@@ -47,6 +48,7 @@ import {
 } from '~/components/graphs/MonthSelectorDropdown'
 import {
   ACTIVITY_LOG_FILTER_PREFIX,
+  ADMIN_AUDIT_LOG_FILTER_PREFIX,
   ANALYTICS_INVOICES_FILTER_PREFIX,
   ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
   ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX,
@@ -79,6 +81,7 @@ import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import {
   type ActivityLogsQueryVariables,
   ActivityTypeEnum,
+  type AdminAuditLogsQueryVariables,
   ContractStatusEnum,
   CurrencyEnum,
   type CustomerAccountTypeEnum,
@@ -231,6 +234,7 @@ export const FiltersItemDates = [
   AvailableFiltersEnum.quoteCreatedAt,
   AvailableFiltersEnum.orderFormCreatedAt,
   AvailableFiltersEnum.orderExecutedAt,
+  AvailableFiltersEnum.adminAuditDate,
 ]
 
 // TODO: Fix this type
@@ -431,6 +435,19 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.zipcodes]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.billableMetricCode]: (value: string) => value,
+  [AvailableFiltersEnum.featureType]: (value: string) => value,
+  [AvailableFiltersEnum.adminActions]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.adminOrganizations]: (value: string) =>
+    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.adminAuditDate]: (value: string) => {
+    // The date-range element stores full ISO datetimes; the query args are ISO8601Date (day only)
+    const [from, to] = (value as string).split(',')
+
+    return {
+      fromDate: from ? from.split('T')[0] : undefined,
+      toDate: to ? to.split('T')[0] : undefined,
+    }
+  },
 }
 
 // NOTE: this is fixing list fetching issue when new item are added to the DB and user scrolls to the bottom of the list
@@ -1193,6 +1210,7 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.quoteCreatedAt:
     case AvailableFiltersEnum.orderFormCreatedAt:
     case AvailableFiltersEnum.orderExecutedAt:
+    case AvailableFiltersEnum.adminAuditDate:
       return value
         .split(',')
         .map((v) => {
@@ -1211,6 +1229,7 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.contractAffiliatedEntityIds:
     case AvailableFiltersEnum.userIds:
     case AvailableFiltersEnum.multipleCustomers:
+    case AvailableFiltersEnum.adminOrganizations:
     case AvailableFiltersEnum.rateCardProduct:
     case AvailableFiltersEnum.rateCardProductFilter:
       return value
@@ -1250,6 +1269,27 @@ export const formatFiltersForSecurityLogsQuery = (
     searchParams: defineDefaultToDateValue(searchParams, SECURITY_LOGS_FILTER_PREFIX),
     availableFilters: SecurityLogsAvailableFilters,
     filtersNamePrefix: SECURITY_LOGS_FILTER_PREFIX,
+  })
+}
+
+type AdminAuditLogQueryFilters = Partial<
+  Pick<
+    AdminAuditLogsQueryVariables,
+    'organizationIds' | 'featureType' | 'actions' | 'fromDate' | 'toDate'
+  >
+>
+
+export const formatFiltersForAdminAuditLogQuery = (
+  searchParams: URLSearchParams,
+): AdminAuditLogQueryFilters => {
+  return formatFiltersForQuery<AdminAuditLogQueryFilters>({
+    searchParams,
+    availableFilters: AdminAuditLogAvailableFilters,
+    filtersNamePrefix: ADMIN_AUDIT_LOG_FILTER_PREFIX,
+    keyMap: {
+      [AvailableFiltersEnum.adminActions]: 'actions',
+      [AvailableFiltersEnum.adminOrganizations]: 'organizationIds',
+    },
   })
 }
 

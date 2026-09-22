@@ -1,3 +1,5 @@
+import { Navigate } from 'react-router'
+
 import { envGlobalVar } from '~/core/apolloClient'
 import { isDevOrQaAppEnv } from '~/core/utils/appEnv'
 
@@ -23,6 +25,14 @@ const { appEnv } = envGlobalVar()
 const SideNavLayout = lazyLoad(() => import('~/layouts/MainNavLayout/MainNavLayout'))
 const OrganizationLayout = lazyLoad(() => import('~/layouts/OrganizationLayout'))
 
+// ----------- Admin pages -----------
+const AdminGuard = lazyLoad(() => import('~/components/admin/AdminGuard'))
+const AdminOrganizations = lazyLoad(() => import('~/pages/admin/AdminOrganizations'))
+const AdminOrganizationDetail = lazyLoad(() => import('~/pages/admin/AdminOrganizationDetail'))
+const AdminOrganizationCreate = lazyLoad(() => import('~/pages/admin/AdminOrganizationCreate'))
+const AdminComparison = lazyLoad(() => import('~/pages/admin/AdminComparison'))
+const AdminAuditLog = lazyLoad(() => import('~/pages/admin/AdminAuditLog'))
+
 // ----------- Pages -----------
 const Home = lazyLoad(() => import('~/pages/home/Home'))
 const RootRedirect = lazyLoad(() => import('~/pages/home/RootRedirect'))
@@ -36,6 +46,13 @@ const RevenueRecognitionDashboard = lazyLoad(() => import('~/pages/dashboards/Re
 
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
+
+export const ADMIN_ROUTE = '/admin'
+export const ADMIN_ORGANIZATIONS_ROUTE = `${ADMIN_ROUTE}/organizations`
+export const ADMIN_ORGANIZATION_CREATE_ROUTE = `${ADMIN_ROUTE}/organizations/new`
+export const ADMIN_ORGANIZATION_DETAIL_ROUTE = `${ADMIN_ROUTE}/organizations/:organizationId`
+export const ADMIN_COMPARE_ROUTE = `${ADMIN_ROUTE}/compare`
+export const ADMIN_AUDIT_LOG_ROUTE = `${ADMIN_ROUTE}/audit-log`
 
 export const HOME_ROUTE = '/'
 export const FORBIDDEN_ROUTE = '/forbidden'
@@ -120,6 +137,38 @@ export const routes: CustomRouteObject[] = [
     private: true,
   },
   {
+    path: ADMIN_ROUTE,
+    element: <SideNavLayout />,
+    private: true,
+    children: [
+      {
+        element: <AdminGuard />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="organizations" replace />,
+          },
+          {
+            path: 'organizations',
+            element: <AdminOrganizations />,
+          },
+          {
+            path: 'organizations/:organizationId',
+            element: <AdminOrganizationDetail />,
+          },
+          {
+            path: 'compare',
+            element: <AdminComparison />,
+          },
+          {
+            path: 'audit-log',
+            element: <AdminAuditLog />,
+          },
+        ],
+      },
+    ],
+  },
+  {
     path: ':organizationSlug',
     element: <OrganizationLayout />,
     private: true,
@@ -151,6 +200,17 @@ export const routes: CustomRouteObject[] = [
       ...makeRelative(quotesModificationRoutes),
       ...makeRelative(orderFormsModificationRoutes),
       ...makeRelative(ordersModificationRoutes),
+    ],
+  },
+  {
+    path: ADMIN_ORGANIZATION_CREATE_ROUTE,
+    private: true,
+    element: <AdminGuard />,
+    children: [
+      {
+        index: true,
+        element: <AdminOrganizationCreate />,
+      },
     ],
   },
   ...authRoutes,

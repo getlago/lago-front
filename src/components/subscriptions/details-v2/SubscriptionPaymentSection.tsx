@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 
 import {
   findConnectionRouting,
@@ -11,10 +10,7 @@ import { ConnectionCategory } from '~/components/customerConnections/types'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { seedConnection } from '~/components/paymentSettings/connectionFirst/seedConnection'
 import { useConnectionPaymentSettingsDrawer } from '~/components/paymentSettings/connectionFirst/useConnectionPaymentSettingsDrawer'
-import {
-  PaymentSettingsDrawer,
-  PaymentSettingsDrawerRef,
-} from '~/components/paymentSettings/PaymentSettingsDrawer'
+import { usePaymentSettingsDrawer } from '~/components/paymentSettings/usePaymentSettingsDrawer'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { SubscriptionPaymentMethodDetails } from '~/components/subscriptions/SubscriptionPaymentMethodDetails'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
@@ -58,7 +54,6 @@ export const SubscriptionPaymentSection = ({
   const { hasPermissions } = usePermissions()
   const { hasFeatureFlag } = useOrganizationInfos()
   const hasMultiConnection = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
-  const drawerRef = useRef<PaymentSettingsDrawerRef>(null)
   const { savePayment } = useUpdateSubscriptionSettings(subscription.id)
 
   const { openDrawer: openConnectionPaymentDrawer } = useConnectionPaymentSettingsDrawer({
@@ -82,6 +77,12 @@ export const SubscriptionPaymentSection = ({
     paymentMethodId: subscription.paymentMethod?.id,
   }
 
+  const { openDrawer: openLegacyPaymentDrawer } = usePaymentSettingsDrawer({
+    viewType: ViewTypeEnum.Subscription,
+    externalCustomerId: subscription.customer?.externalId ?? '',
+    onSave: savePayment,
+  })
+
   const openPaymentDrawer = (): void => {
     if (hasMultiConnection) {
       const connection = seedConnection(toSelectedConnection(paymentRouting), selectedPaymentMethod)
@@ -96,7 +97,7 @@ export const SubscriptionPaymentSection = ({
       return
     }
 
-    drawerRef.current?.openDrawer({ paymentMethod: selectedPaymentMethod })
+    openLegacyPaymentDrawer({ paymentMethod: selectedPaymentMethod })
   }
 
   return (
@@ -132,15 +133,6 @@ export const SubscriptionPaymentSection = ({
         <SubscriptionPaymentMethodDetails
           selectedPaymentMethod={selectedPaymentMethod}
           externalCustomerId={subscription.customer?.externalId}
-        />
-      )}
-
-      {!hasMultiConnection && (
-        <PaymentSettingsDrawer
-          ref={drawerRef}
-          viewType={ViewTypeEnum.Subscription}
-          externalCustomerId={subscription.customer?.externalId ?? ''}
-          onSave={savePayment}
         />
       )}
     </section>

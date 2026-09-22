@@ -29,6 +29,7 @@ jest.mock('~/components/paymentSettings/connectionFirst/ConnectionPaymentSetting
 
 const mockSelector: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 const mockDrawer: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
+const mockOpenDrawer = jest.fn()
 
 jest.mock('~/components/designSystem/Selector', () => ({
   Selector: (props: Record<string, unknown>) => {
@@ -38,11 +39,11 @@ jest.mock('~/components/designSystem/Selector', () => ({
   },
 }))
 
-jest.mock('~/components/paymentSettings/PaymentSettingsDrawer', () => ({
-  PaymentSettingsDrawer: function MockPaymentSettingsDrawer(props: Record<string, unknown>) {
+jest.mock('~/components/paymentSettings/usePaymentSettingsDrawer', () => ({
+  usePaymentSettingsDrawer: (props: Record<string, unknown>) => {
     mockDrawer(props)
 
-    return null
+    return { openDrawer: mockOpenDrawer }
   },
 }))
 
@@ -136,7 +137,7 @@ describe('PaymentSettingsSection', () => {
           paymentMethodSummary: expect.any(String),
         }),
       )
-      expect(mockDrawer).not.toHaveBeenCalled()
+      expect(mockOpenDrawer).not.toHaveBeenCalled()
       expect(mockSelector).not.toHaveBeenCalled()
     })
 
@@ -206,5 +207,20 @@ describe('PaymentSettingsSection', () => {
     onSave({ paymentMethod: next })
 
     expect(form.setFieldValue).toHaveBeenCalledWith('paymentMethod', next)
+  })
+
+  it('seeds the drawer with the current payment method on click', () => {
+    const paymentMethod: SelectedPaymentMethod = {
+      paymentMethodId: 'pm_1',
+      paymentMethodType: PaymentMethodTypeEnum.Provider,
+    }
+
+    renderSection(paymentMethod)
+
+    const { onClick } = mockSelector.mock.calls.at(-1)?.[0] as { onClick: () => void }
+
+    onClick()
+
+    expect(mockOpenDrawer).toHaveBeenCalledWith({ paymentMethod })
   })
 })

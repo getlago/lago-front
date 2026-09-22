@@ -1,11 +1,11 @@
 import { screen } from '@testing-library/react'
-import { act, createRef, ReactNode } from 'react'
+import { act, ReactNode } from 'react'
 
 import { InvoiceCustomSectionBehavior } from '~/components/invoceCustomFooter/types'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { render } from '~/test-utils'
 
-import { InvoicingSettingsDrawer, InvoicingSettingsDrawerRef } from '../InvoicingSettingsDrawer'
+import { useInvoicingSettingsDrawer } from '../useInvoicingSettingsDrawer'
 
 const mockOpen = jest.fn()
 const mockClose = jest.fn()
@@ -44,18 +44,29 @@ jest.mock('~/components/invoceCustomFooter/InvoiceCustomSectionFields', () => ({
   },
 }))
 
-describe('InvoicingSettingsDrawer', () => {
+type UseInvoicingSettingsDrawerProps = Parameters<typeof useInvoicingSettingsDrawer>[0]
+type OpenDrawer = ReturnType<typeof useInvoicingSettingsDrawer>['openDrawer']
+
+const captured: { current: OpenDrawer | null } = { current: null }
+
+// The hook has no rendered element of its own, so a throwaway host mounts it
+// and hands `openDrawer` back to the test.
+const DrawerHost = (props: UseInvoicingSettingsDrawerProps) => {
+  captured.current = useInvoicingSettingsDrawer(props).openDrawer
+
+  return null
+}
+
+describe('useInvoicingSettingsDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockIcsProps.current = null
+    captured.current = null
   })
 
   const renderDrawer = (onSave = jest.fn(), viewType: ViewTypeEnum = ViewTypeEnum.Subscription) => {
-    const ref = createRef<InvoicingSettingsDrawerRef>()
-
     render(
-      <InvoicingSettingsDrawer
-        ref={ref}
+      <DrawerHost
         viewType={viewType}
         customerId="cust_1"
         showCustomSection
@@ -64,12 +75,12 @@ describe('InvoicingSettingsDrawer', () => {
       />,
     )
 
-    return { ref, onSave }
+    return { onSave }
   }
 
-  it('renders nothing until opened', () => {
+  it('mounts without rendering anything and without opening the drawer', () => {
     const { container } = render(
-      <InvoicingSettingsDrawer
+      <DrawerHost
         viewType={ViewTypeEnum.Subscription}
         customerId="cust_1"
         showCustomSection
@@ -82,10 +93,10 @@ describe('InvoicingSettingsDrawer', () => {
   })
 
   it('opens the drawer with the Invoicing settings title', () => {
-    const { ref } = renderDrawer()
+    renderDrawer()
 
     act(() => {
-      ref.current?.openDrawer({
+      captured.current?.({
         consolidateInvoice: true,
         invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
       })
@@ -98,9 +109,9 @@ describe('InvoicingSettingsDrawer', () => {
   })
 
   it('uses the contract-specific edit title for contracts', () => {
-    const { ref } = renderDrawer(jest.fn(), ViewTypeEnum.Contract)
+    renderDrawer(jest.fn(), ViewTypeEnum.Contract)
 
-    act(() => ref.current?.openDrawer({ consolidateInvoice: true }))
+    act(() => captured.current?.({ consolidateInvoice: true }))
 
     expect(mockOpen).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'text_1790018785008ooo50umu32v' }),
@@ -108,7 +119,7 @@ describe('InvoicingSettingsDrawer', () => {
   })
 
   it('commits the seeded draft through onSave on submit, then closes', async () => {
-    const { ref, onSave } = renderDrawer()
+    const { onSave } = renderDrawer()
 
     const seeded = {
       consolidateInvoice: false,
@@ -119,7 +130,7 @@ describe('InvoicingSettingsDrawer', () => {
     }
 
     act(() => {
-      ref.current?.openDrawer(seeded)
+      captured.current?.(seeded)
     })
 
     const { form } = mockOpen.mock.calls[0][0] as { form: { submit: () => Promise<void> } }
@@ -133,10 +144,10 @@ describe('InvoicingSettingsDrawer', () => {
   })
 
   it('blocks submit and surfaces the error when "apply" is picked with no section', async () => {
-    const { ref, onSave } = renderDrawer()
+    const { onSave } = renderDrawer()
 
     act(() => {
-      ref.current?.openDrawer({
+      captured.current?.({
         consolidateInvoice: true,
         invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
       })
@@ -168,11 +179,8 @@ describe('InvoicingSettingsDrawer', () => {
   // The consolidation section only exists in the subscription payload, so it is
   // opt-in via withInvoiceConsolidation (default false for every other object).
   const openAndMountContent = (withInvoiceConsolidation: boolean) => {
-    const ref = createRef<InvoicingSettingsDrawerRef>()
-
     render(
-      <InvoicingSettingsDrawer
-        ref={ref}
+      <DrawerHost
         viewType={ViewTypeEnum.WalletTopUp}
         customerId="cust_1"
         showCustomSection
@@ -182,7 +190,7 @@ describe('InvoicingSettingsDrawer', () => {
     )
 
     act(() => {
-      ref.current?.openDrawer({
+      captured.current?.({
         invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
       })
     })
