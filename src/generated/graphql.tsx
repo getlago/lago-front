@@ -12840,6 +12840,13 @@ export type DeleteBillableMetricMutationVariables = Exact<{
 
 export type DeleteBillableMetricMutation = { __typename?: 'Mutation', destroyBillableMetric?: { __typename?: 'DestroyBillableMetricPayload', id?: string | null } | null };
 
+export type TerminateContractMutationVariables = Exact<{
+  input: TerminateContractInput;
+}>;
+
+
+export type TerminateContractMutation = { __typename?: 'Mutation', terminateContract?: { __typename?: 'Contract', id: string, status: ContractStatusEnum, endedAt?: any | null, terminatedAt?: any | null, canceledAt?: any | null } | null };
+
 export type CouponCaptionFragment = { __typename?: 'Coupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
 
 export type AppliedCouponCaptionFragment = { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null };
@@ -26875,6 +26882,43 @@ export function useDeleteBillableMetricMutation(baseOptions?: Apollo.MutationHoo
 export type DeleteBillableMetricMutationHookResult = ReturnType<typeof useDeleteBillableMetricMutation>;
 export type DeleteBillableMetricMutationResult = Apollo.MutationResult<DeleteBillableMetricMutation>;
 export type DeleteBillableMetricMutationOptions = Apollo.BaseMutationOptions<DeleteBillableMetricMutation, DeleteBillableMetricMutationVariables>;
+export const TerminateContractDocument = gql`
+    mutation terminateContract($input: TerminateContractInput!) {
+  terminateContract(input: $input) {
+    id
+    status
+    endedAt
+    terminatedAt
+    canceledAt
+  }
+}
+    `;
+export type TerminateContractMutationFn = Apollo.MutationFunction<TerminateContractMutation, TerminateContractMutationVariables>;
+
+/**
+ * __useTerminateContractMutation__
+ *
+ * To run a mutation, you first call `useTerminateContractMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTerminateContractMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [terminateContractMutation, { data, loading, error }] = useTerminateContractMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useTerminateContractMutation(baseOptions?: Apollo.MutationHookOptions<TerminateContractMutation, TerminateContractMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TerminateContractMutation, TerminateContractMutationVariables>(TerminateContractDocument, options);
+      }
+export type TerminateContractMutationHookResult = ReturnType<typeof useTerminateContractMutation>;
+export type TerminateContractMutationResult = Apollo.MutationResult<TerminateContractMutation>;
+export type TerminateContractMutationOptions = Apollo.BaseMutationOptions<TerminateContractMutation, TerminateContractMutationVariables>;
 export const CouponDetailsActivityLogsDocument = gql`
     query CouponDetailsActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
   activityLogs(
