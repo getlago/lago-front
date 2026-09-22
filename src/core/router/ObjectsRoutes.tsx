@@ -1,3 +1,5 @@
+import { FeatureFlagEnum } from '~/generated/graphql'
+
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
@@ -11,6 +13,7 @@ const InvoicesPage = lazyLoad(() => import('~/pages/InvoicesPage'))
 const PaymentsPage = lazyLoad(() => import('~/pages/PaymentsPage'))
 const CreditNotesPage = lazyLoad(() => import('~/pages/CreditNotesPage'))
 const SubscriptionsPage = lazyLoad(() => import('~/pages/SubscriptionsPage'))
+const ContractsPage = lazyLoad(() => import('~/pages/contracts/ContractsPage'))
 const FeaturesList = lazyLoad(() => import('~/pages/features/FeaturesList'))
 
 // Creation
@@ -46,6 +49,7 @@ const BillableMetricDetails = lazyLoad(() => import('~/pages/BillableMetricDetai
 const FeatureDetails = lazyLoad(() => import('~/pages/features/FeatureDetails'))
 const WalletDetails = lazyLoad(() => import('~/pages/wallet/WalletDetails'))
 const WalletAlertForm = lazyLoad(() => import('~/pages/wallet/WalletAlertForm'))
+const ContractDetails = lazyLoad(() => import('~/pages/contracts/ContractDetails'))
 
 // ----------- Routes -----------
 // Lists
@@ -57,6 +61,7 @@ export const INVOICES_ROUTE = '/invoices'
 export const PAYMENTS_ROUTE = '/payments'
 export const CREDIT_NOTES_ROUTE = '/credit-notes'
 export const SUBSCRIPTIONS_ROUTE = '/subscriptions'
+export const CONTRACTS_ROUTE = '/contracts'
 export const FEATURES_ROUTE = '/features'
 
 // Creation
@@ -147,6 +152,7 @@ export const PAYMENT_DETAILS_ROUTE = '/payment/:paymentId'
 export const CUSTOMER_PAYMENT_DETAILS_ROUTE = '/customer/:customerId/payment/:paymentId'
 export const BILLABLE_METRIC_DETAILS_ROUTE = '/billable-metric/:billableMetricId/:tab'
 export const FEATURE_DETAILS_ROUTE = '/feature/:featureId/:tab'
+export const CONTRACT_DETAILS_ROUTE = '/contract/:id'
 
 export const objectListRoutes: CustomRouteObject[] = [
   {
@@ -190,6 +196,13 @@ export const objectListRoutes: CustomRouteObject[] = [
     private: true,
     element: <CreditNotesPage />,
     permissions: ['creditNotesView'],
+  },
+  {
+    path: [CONTRACTS_ROUTE],
+    private: true,
+    element: <ContractsPage />,
+    permissions: ['contractsView'],
+    featureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [SUBSCRIPTIONS_ROUTE],
@@ -339,6 +352,13 @@ export const objectCreationRoutes: CustomRouteObject[] = [
 ]
 
 export const objectDetailsRoutes: CustomRouteObject[] = [
+  {
+    path: [CONTRACT_DETAILS_ROUTE],
+    private: true,
+    element: <ContractDetails />,
+    permissions: ['contractsView'],
+    featureFlag: FeatureFlagEnum.ProductCatalog,
+  },
   {
     path: [CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, PLAN_SUBSCRIPTION_DETAILS_ROUTE],
     private: true,

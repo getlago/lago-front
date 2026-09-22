@@ -4,6 +4,9 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+while IFS= read -r git_env_var; do
+  unset "$git_env_var"
+done < <(git -C "$repo_root" rev-parse --local-env-vars)
 test_root="$(mktemp -d)"
 [ -n "$test_root" ] && [ -d "$test_root" ] || { echo "mktemp -d gave no sandbox" >&2; exit 1; }
 trap 'rm -rf "$test_root"' EXIT

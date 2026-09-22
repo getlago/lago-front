@@ -17,6 +17,11 @@ import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 
 const PAYMENT_SETTINGS_FORM_ID = 'payment-settings-drawer-form'
 
+const getPaymentSettingsTitleKey = (viewType: ViewTypeEnum): string =>
+  viewType === ViewTypeEnum.Contract
+    ? 'text_1790018785008bkx5wmu4e0b'
+    : 'text_17828013737948943pe3k8nc'
+
 interface PaymentSettingsValues {
   paymentMethod: SelectedPaymentMethod
 }
@@ -51,6 +56,7 @@ const PaymentSettingsDrawerContent = withForm({
   props: paymentSettingsDrawerContentDefaultProps,
   render: function PaymentSettingsDrawerContentRender({ form, viewType, externalCustomerId }) {
     const { translate } = useInternationalization()
+    const titleKey = getPaymentSettingsTitleKey(viewType)
     const paymentMethod = useStore(form.store, (s) => s.values.paymentMethod)
     const paymentMethodError = useStore(
       form.store,
@@ -60,7 +66,7 @@ const PaymentSettingsDrawerContent = withForm({
     return (
       <CenteredPage.SectionWrapper>
         <CenteredPage.PageTitle
-          title={translate('text_17828013737948943pe3k8nc')}
+          title={translate(titleKey)}
           description={translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[viewType])}
         />
 
@@ -98,6 +104,7 @@ export const PaymentSettingsDrawer = forwardRef<
   PaymentSettingsDrawerProps
 >(({ viewType, externalCustomerId, onSave }, ref) => {
   const { translate } = useInternationalization()
+  const titleKey = getPaymentSettingsTitleKey(viewType)
   const drawer = useFormDrawer()
 
   const form = useAppForm({
@@ -114,7 +121,7 @@ export const PaymentSettingsDrawer = forwardRef<
 
   const openPaymentSettingsDrawer = (): void => {
     drawer.open({
-      title: translate('text_17828013737948943pe3k8nc'),
+      title: translate(titleKey),
       form: { id: PAYMENT_SETTINGS_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
       shouldPromptOnClose: () => form.state.isDirty,

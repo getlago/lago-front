@@ -11,6 +11,9 @@ import { FiltersItemBillableMetricCode } from '~/components/Filters/graphql/filt
 import { FiltersItemBillingEntity } from '~/components/Filters/graphql/filtersElements/FiltersItemBillingEntity'
 import { FiltersItemBillingEntityCode } from '~/components/Filters/graphql/filtersElements/FiltersItemBillingEntityCode'
 import { FiltersItemBillingEntityId } from '~/components/Filters/graphql/filtersElements/FiltersItemBillingEntityId'
+import { FiltersItemContractPlan } from '~/components/Filters/graphql/filtersElements/FiltersItemContractPlan'
+import { FiltersItemContractRateOverrides } from '~/components/Filters/graphql/filtersElements/FiltersItemContractRateOverrides'
+import { FiltersItemContractStatus } from '~/components/Filters/graphql/filtersElements/FiltersItemContractStatus'
 import { FiltersItemCountries } from '~/components/Filters/graphql/filtersElements/FiltersItemCountries'
 import { FiltersItemCountry } from '~/components/Filters/graphql/filtersElements/FiltersItemCountry'
 import { FiltersItemCreditNoteCreditStatus } from '~/components/Filters/graphql/filtersElements/FiltersItemCreditNoteCreditStatus'
@@ -117,6 +120,10 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.billingEntityIds]: <FiltersItemBillingEntity {...props} />,
     [AvailableFiltersEnum.billingEntityId]: <FiltersItemBillingEntityId {...props} />,
     [AvailableFiltersEnum.billingEntityCode]: <FiltersItemBillingEntityCode {...props} />,
+    [AvailableFiltersEnum.contractAffiliatedEntityIds]: <FiltersItemBillingEntity {...props} />,
+    [AvailableFiltersEnum.contractPlanCode]: <FiltersItemContractPlan {...props} />,
+    [AvailableFiltersEnum.contractRateOverrides]: <FiltersItemContractRateOverrides {...props} />,
+    [AvailableFiltersEnum.contractStatus]: <FiltersItemContractStatus {...props} />,
     [AvailableFiltersEnum.country]: <FiltersItemCountry {...props} />,
     [AvailableFiltersEnum.countries]: <FiltersItemCountries {...props} />,
     [AvailableFiltersEnum.creditNoteCreditStatus]: <FiltersItemCreditNoteCreditStatus {...props} />,
