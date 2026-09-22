@@ -15,10 +15,7 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  /**
-   * Represents non-fractional signed whole numeric values. Since the value may
-   * exceed the size of a 32-bit integer, it's encoded as a string.
-   */
+  /** Represents non-fractional signed whole numeric values. Since the value may exceed the size of a 32-bit integer, it's encoded as a string. */
   BigInt: { input: any; output: any; }
   ChargeFilterValues: { input: any; output: any; }
   /** Api Logs HTTP status */
@@ -1349,7 +1346,7 @@ export type ContractAppliedRateCard = {
   effectiveDate: Scalars['ISO8601Date']['output'];
   endedDate?: Maybe<Scalars['ISO8601Date']['output']>;
   id: Scalars['ID']['output'];
-  nextBillingAt: Scalars['ISO8601DateTime']['output'];
+  nextBillingAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   product: Product;
   rateCard: RateCard;
   ratePhases: Array<RatePhase>;
@@ -2710,7 +2707,7 @@ export type CreateTransactionMetadataInput = {
 
 /** Create usage attribution type input arguments */
 export type CreateUsageAttributionTypeInput = {
-  attributionKey: Scalars['String']['input'];
+  attributionKeys: Array<Scalars['String']['input']>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code: Scalars['String']['input'];
@@ -10989,11 +10986,7 @@ export type TerminateSubscriptionInput = {
 
 export type ThresholdInput = {
   code?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * Transitions this threshold notifies on. Must include triggered. Adding
-   * resolved requires a code that is unique within the alert, and is not supported
-   * on recurring thresholds.
-   */
+  /** Transitions this threshold notifies on. Must include triggered. Adding resolved requires a code that is unique within the alert, and is not supported on recurring thresholds. */
   notifyOn?: InputMaybe<Array<NotifyOnEnum>>;
   recurring?: InputMaybe<Scalars['Boolean']['input']>;
   value: Scalars['String']['input'];
@@ -12093,7 +12086,7 @@ export type UpdateSubscriptionInput = {
 
 /** Update usage attribution type input arguments */
 export type UpdateUsageAttributionTypeInput = {
-  attributionKey?: InputMaybe<Scalars['String']['input']>;
+  attributionKeys?: InputMaybe<Array<Scalars['String']['input']>>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
@@ -12119,7 +12112,7 @@ export type UpdateXeroIntegrationInput = {
 /** Base usage attribution type */
 export type UsageAttributionType = {
   __typename?: 'UsageAttributionType';
-  attributionKey: Scalars['String']['output'];
+  attributionKeys: Array<Scalars['String']['output']>;
   code: Scalars['String']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   id: Scalars['ID']['output'];
@@ -13468,6 +13461,17 @@ export type VoidCreditNoteMutationVariables = Exact<{
 
 
 export type VoidCreditNoteMutation = { __typename?: 'Mutation', voidCreditNote?: { __typename?: 'CreditNote', id: string } | null };
+
+export type ContractForCustomerContractsListFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null };
+
+export type GetCustomerContractsListQueryVariables = Exact<{
+  externalCustomerId: Scalars['String']['input'];
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetCustomerContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type GetCustomerOverdueBalancesQueryVariables = Exact<{
   externalCustomerId: Scalars['String']['input'];
@@ -16978,6 +16982,15 @@ export type RateCardForListFragment = { __typename?: 'RateCard', id: string, nam
 
 export type PropertiesForActiveRateFragment = { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string }> | null };
 
+export type ContractForContractDetailsFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null };
+
+export type GetContractForDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetContractForDetailsQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null } | null };
+
 export type ContractForContractsListFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, displayName: string } };
 
 export type GetContractsListQueryVariables = Exact<{
@@ -16995,16 +17008,14 @@ export type GetContractsListQueryVariables = Exact<{
 
 export type GetContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, displayName: string } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
-export type ContractForCustomerContractsListFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null };
+export type ContractForContractDetailsOverviewFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, canceledAt?: any | null, terminatedAt?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null };
 
-export type GetCustomerContractsListQueryVariables = Exact<{
-  externalCustomerId: Scalars['String']['input'];
-  page?: InputMaybe<Scalars['Int']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
+export type GetContractForDetailsOverviewQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCustomerContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type GetContractForDetailsOverviewQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, canceledAt?: any | null, terminatedAt?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null } | null };
 
 export type GetCustomersForContractDrawerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -19432,6 +19443,20 @@ export const CreditNoteForVoidCreditNoteDialogFragmentDoc = gql`
   id
   totalAmountCents
   currency
+}
+    `;
+export const ContractForCustomerContractsListFragmentDoc = gql`
+    fragment ContractForCustomerContractsList on Contract {
+  id
+  name
+  externalId
+  status
+  startedAt
+  endedAt
+  plan {
+    id
+    name
+  }
 }
     `;
 export const EditCustomerIssuingDatePolicyDialogFragmentDoc = gql`
@@ -23875,6 +23900,19 @@ export const RateCardForListFragmentDoc = gql`
     ${PropertiesForRateCardRateFragmentDoc}
 ${RateCardForDrawerFragmentDoc}
 ${RateCardForDeleteRateCardDialogFragmentDoc}`;
+export const ContractForContractDetailsFragmentDoc = gql`
+    fragment ContractForContractDetails on Contract {
+  id
+  externalId
+  name
+  status
+  appliedRateCardsCount
+  plan {
+    id
+    name
+  }
+}
+    `;
 export const ContractForContractsListFragmentDoc = gql`
     fragment ContractForContractsList on Contract {
   id
@@ -23893,14 +23931,35 @@ export const ContractForContractsListFragmentDoc = gql`
   }
 }
     `;
-export const ContractForCustomerContractsListFragmentDoc = gql`
-    fragment ContractForCustomerContractsList on Contract {
+export const ContractForContractDetailsOverviewFragmentDoc = gql`
+    fragment ContractForContractDetailsOverview on Contract {
   id
-  name
   externalId
+  name
   status
   startedAt
   endedAt
+  billingAnchorDate
+  canceledAt
+  terminatedAt
+  billingEntityId
+  consolidateInvoice
+  purchaseOrderNumber
+  paymentMethodType
+  paymentMethod {
+    id
+  }
+  customer {
+    id
+    externalId
+    displayName
+    applicableTimezone
+    billingEntity {
+      id
+      name
+      code
+    }
+  }
   plan {
     id
     name
@@ -29749,6 +29808,58 @@ export function useVoidCreditNoteMutation(baseOptions?: Apollo.MutationHookOptio
 export type VoidCreditNoteMutationHookResult = ReturnType<typeof useVoidCreditNoteMutation>;
 export type VoidCreditNoteMutationResult = Apollo.MutationResult<VoidCreditNoteMutation>;
 export type VoidCreditNoteMutationOptions = Apollo.BaseMutationOptions<VoidCreditNoteMutation, VoidCreditNoteMutationVariables>;
+export const GetCustomerContractsListDocument = gql`
+    query getCustomerContractsList($externalCustomerId: String!, $page: Int, $limit: Int) {
+  contracts(externalCustomerId: $externalCustomerId, page: $page, limit: $limit) {
+    collection {
+      ...ContractForCustomerContractsList
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    ${ContractForCustomerContractsListFragmentDoc}`;
+
+/**
+ * __useGetCustomerContractsListQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerContractsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerContractsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerContractsListQuery({
+ *   variables: {
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetCustomerContractsListQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables> & ({ variables: GetCustomerContractsListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>(GetCustomerContractsListDocument, options);
+      }
+export function useGetCustomerContractsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>(GetCustomerContractsListDocument, options);
+        }
+// @ts-ignore
+export function useGetCustomerContractsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>;
+export function useGetCustomerContractsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerContractsListQuery | undefined, GetCustomerContractsListQueryVariables>;
+export function useGetCustomerContractsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>(GetCustomerContractsListDocument, options);
+        }
+export type GetCustomerContractsListQueryHookResult = ReturnType<typeof useGetCustomerContractsListQuery>;
+export type GetCustomerContractsListLazyQueryHookResult = ReturnType<typeof useGetCustomerContractsListLazyQuery>;
+export type GetCustomerContractsListSuspenseQueryHookResult = ReturnType<typeof useGetCustomerContractsListSuspenseQuery>;
+export type GetCustomerContractsListQueryResult = Apollo.QueryResult<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>;
 export const GetCustomerOverdueBalancesDocument = gql`
     query getCustomerOverdueBalances($externalCustomerId: String!, $currency: CurrencyEnum, $expireCache: Boolean) {
   paymentRequests(externalCustomerId: $externalCustomerId) {
@@ -45247,6 +45358,49 @@ export function useUpdateRateCardRateMutation(baseOptions?: Apollo.MutationHookO
 export type UpdateRateCardRateMutationHookResult = ReturnType<typeof useUpdateRateCardRateMutation>;
 export type UpdateRateCardRateMutationResult = Apollo.MutationResult<UpdateRateCardRateMutation>;
 export type UpdateRateCardRateMutationOptions = Apollo.BaseMutationOptions<UpdateRateCardRateMutation, UpdateRateCardRateMutationVariables>;
+export const GetContractForDetailsDocument = gql`
+    query getContractForDetails($id: ID!) {
+  contract(id: $id) {
+    ...ContractForContractDetails
+  }
+}
+    ${ContractForContractDetailsFragmentDoc}`;
+
+/**
+ * __useGetContractForDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetContractForDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractForDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContractForDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetContractForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetContractForDetailsQuery, GetContractForDetailsQueryVariables> & ({ variables: GetContractForDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetContractForDetailsQuery, GetContractForDetailsQueryVariables>(GetContractForDetailsDocument, options);
+      }
+export function useGetContractForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetContractForDetailsQuery, GetContractForDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetContractForDetailsQuery, GetContractForDetailsQueryVariables>(GetContractForDetailsDocument, options);
+        }
+// @ts-ignore
+export function useGetContractForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetContractForDetailsQuery, GetContractForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractForDetailsQuery, GetContractForDetailsQueryVariables>;
+export function useGetContractForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractForDetailsQuery, GetContractForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractForDetailsQuery | undefined, GetContractForDetailsQueryVariables>;
+export function useGetContractForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractForDetailsQuery, GetContractForDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetContractForDetailsQuery, GetContractForDetailsQueryVariables>(GetContractForDetailsDocument, options);
+        }
+export type GetContractForDetailsQueryHookResult = ReturnType<typeof useGetContractForDetailsQuery>;
+export type GetContractForDetailsLazyQueryHookResult = ReturnType<typeof useGetContractForDetailsLazyQuery>;
+export type GetContractForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetContractForDetailsSuspenseQuery>;
+export type GetContractForDetailsQueryResult = Apollo.QueryResult<GetContractForDetailsQuery, GetContractForDetailsQueryVariables>;
 export const GetContractsListDocument = gql`
     query getContractsList($page: Int, $limit: Int, $searchTerm: String, $billingEntityIds: [ID!], $externalCustomerId: String, $externalId: String, $hasRateOverrides: Boolean, $planCode: String, $status: [ContractStatusEnum!]) {
   contracts(
@@ -45315,58 +45469,49 @@ export type GetContractsListQueryHookResult = ReturnType<typeof useGetContractsL
 export type GetContractsListLazyQueryHookResult = ReturnType<typeof useGetContractsListLazyQuery>;
 export type GetContractsListSuspenseQueryHookResult = ReturnType<typeof useGetContractsListSuspenseQuery>;
 export type GetContractsListQueryResult = Apollo.QueryResult<GetContractsListQuery, GetContractsListQueryVariables>;
-export const GetCustomerContractsListDocument = gql`
-    query getCustomerContractsList($externalCustomerId: String!, $page: Int, $limit: Int) {
-  contracts(externalCustomerId: $externalCustomerId, page: $page, limit: $limit) {
-    collection {
-      ...ContractForCustomerContractsList
-    }
-    metadata {
-      currentPage
-      totalPages
-      totalCount
-    }
+export const GetContractForDetailsOverviewDocument = gql`
+    query getContractForDetailsOverview($id: ID!) {
+  contract(id: $id) {
+    ...ContractForContractDetailsOverview
   }
 }
-    ${ContractForCustomerContractsListFragmentDoc}`;
+    ${ContractForContractDetailsOverviewFragmentDoc}`;
 
 /**
- * __useGetCustomerContractsListQuery__
+ * __useGetContractForDetailsOverviewQuery__
  *
- * To run a query within a React component, call `useGetCustomerContractsListQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCustomerContractsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetContractForDetailsOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractForDetailsOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetCustomerContractsListQuery({
+ * const { data, loading, error } = useGetContractForDetailsOverviewQuery({
  *   variables: {
- *      externalCustomerId: // value for 'externalCustomerId'
- *      page: // value for 'page'
- *      limit: // value for 'limit'
+ *      id: // value for 'id'
  *   },
  * });
  */
-export function useGetCustomerContractsListQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables> & ({ variables: GetCustomerContractsListQueryVariables; skip?: boolean; } | { skip: boolean; })) {
+export function useGetContractForDetailsOverviewQuery(baseOptions: Apollo.QueryHookOptions<GetContractForDetailsOverviewQuery, GetContractForDetailsOverviewQueryVariables> & ({ variables: GetContractForDetailsOverviewQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>(GetCustomerContractsListDocument, options);
+        return Apollo.useQuery<GetContractForDetailsOverviewQuery, GetContractForDetailsOverviewQueryVariables>(GetContractForDetailsOverviewDocument, options);
       }
-export function useGetCustomerContractsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>) {
+export function useGetContractForDetailsOverviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetContractForDetailsOverviewQuery, GetContractForDetailsOverviewQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>(GetCustomerContractsListDocument, options);
+          return Apollo.useLazyQuery<GetContractForDetailsOverviewQuery, GetContractForDetailsOverviewQueryVariables>(GetContractForDetailsOverviewDocument, options);
         }
 // @ts-ignore
-export function useGetCustomerContractsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>;
-export function useGetCustomerContractsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerContractsListQuery | undefined, GetCustomerContractsListQueryVariables>;
-export function useGetCustomerContractsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>) {
+export function useGetContractForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetContractForDetailsOverviewQuery, GetContractForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractForDetailsOverviewQuery, GetContractForDetailsOverviewQueryVariables>;
+export function useGetContractForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractForDetailsOverviewQuery, GetContractForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractForDetailsOverviewQuery | undefined, GetContractForDetailsOverviewQueryVariables>;
+export function useGetContractForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractForDetailsOverviewQuery, GetContractForDetailsOverviewQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>(GetCustomerContractsListDocument, options);
+          return Apollo.useSuspenseQuery<GetContractForDetailsOverviewQuery, GetContractForDetailsOverviewQueryVariables>(GetContractForDetailsOverviewDocument, options);
         }
-export type GetCustomerContractsListQueryHookResult = ReturnType<typeof useGetCustomerContractsListQuery>;
-export type GetCustomerContractsListLazyQueryHookResult = ReturnType<typeof useGetCustomerContractsListLazyQuery>;
-export type GetCustomerContractsListSuspenseQueryHookResult = ReturnType<typeof useGetCustomerContractsListSuspenseQuery>;
-export type GetCustomerContractsListQueryResult = Apollo.QueryResult<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>;
+export type GetContractForDetailsOverviewQueryHookResult = ReturnType<typeof useGetContractForDetailsOverviewQuery>;
+export type GetContractForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetContractForDetailsOverviewLazyQuery>;
+export type GetContractForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetContractForDetailsOverviewSuspenseQuery>;
+export type GetContractForDetailsOverviewQueryResult = Apollo.QueryResult<GetContractForDetailsOverviewQuery, GetContractForDetailsOverviewQueryVariables>;
 export const GetCustomersForContractDrawerDocument = gql`
     query getCustomersForContractDrawer($page: Int, $limit: Int, $searchTerm: String) {
   customers(page: $page, limit: $limit, searchTerm: $searchTerm) {
