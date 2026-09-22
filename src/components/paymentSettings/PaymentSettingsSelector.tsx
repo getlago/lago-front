@@ -25,6 +25,7 @@ interface PaymentSettingsSelectorProps {
   externalCustomerId: string
   value: SelectedPaymentMethod
   onChange: (value: SelectedPaymentMethod) => void
+  disabled?: boolean
   'data-test'?: string
 }
 
@@ -40,6 +41,7 @@ export const PaymentSettingsSelector = ({
   externalCustomerId,
   value,
   onChange,
+  disabled = false,
   'data-test': dataTest = PAYMENT_SETTINGS_SELECTOR_TEST_ID,
 }: PaymentSettingsSelectorProps) => {
   const { translate } = useInternationalization()
@@ -54,6 +56,7 @@ export const PaymentSettingsSelector = ({
     <>
       <Selector
         icon="coin-dollar"
+        disabled={disabled}
         title={translate('text_17828013737948943pe3k8nc')}
         subtitle={summary}
         endContent={<Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />}

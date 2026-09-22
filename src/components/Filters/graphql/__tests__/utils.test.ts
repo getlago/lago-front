@@ -5,6 +5,7 @@ import {
   escapeFilterLabel,
   FILTER_VALUE_MAP,
   formatActiveFilterValueDisplay,
+  formatFiltersForContractQuery,
   formatFiltersForCreditNotesQuery,
   formatFiltersForCustomerQuery,
   formatFiltersForInvoiceQuery,
@@ -274,6 +275,39 @@ describe('Filters utils', () => {
       const result = formatFiltersForSubscriptionQuery(searchParams)
 
       expect(result).toEqual({})
+    })
+  })
+
+  describe('formatFiltersForContractQuery', () => {
+    it('formats every supported contract filter', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'clf_contractAffiliatedEntityIds',
+        `entity-1${filterDataInlineSeparator}France,entity-2${filterDataInlineSeparator}Germany`,
+      )
+      searchParams.set('clf_customerExternalId', `customer-1${filterDataInlineSeparator}Acme`)
+      searchParams.set('clf_externalId', 'contract-2026')
+      searchParams.set('clf_contractPlanCode', `enterprise${filterDataInlineSeparator}Enterprise`)
+      searchParams.set('clf_contractRateOverrides', 'false')
+      searchParams.set('clf_contractStatus', 'active,pending')
+
+      expect(formatFiltersForContractQuery(searchParams)).toEqual({
+        billingEntityIds: ['entity-1', 'entity-2'],
+        externalCustomerId: 'customer-1',
+        externalId: 'contract-2026',
+        hasRateOverrides: false,
+        planCode: 'enterprise',
+        status: ['active', 'pending'],
+      })
+    })
+
+    it('should return empty object when filters are not valid', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('invalidFilter', 'value')
+
+      expect(formatFiltersForContractQuery(searchParams)).toEqual({})
     })
   })
 

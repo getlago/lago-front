@@ -22,6 +22,16 @@ import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 
 const INVOICING_SETTINGS_FORM_ID = 'invoicing-settings-drawer-form'
 
+const getInvoicingSettingsTitleKey = (viewType: ViewTypeEnum): string =>
+  viewType === ViewTypeEnum.Contract
+    ? 'text_1790018785008ooo50umu32v'
+    : 'text_17423672025282dl7iozy1ru'
+
+const CONTRACT_CONSOLIDATION_TRANSLATION_KEYS = {
+  consolidateDescription: 'text_1790018785008uhq827nuzzz',
+  isolateDescription: 'text_179001878500893b7nboyx9k',
+}
+
 interface InvoicingSettingsValues {
   consolidateInvoice: boolean
   invoiceCustomSection: InvoiceCustomSectionInput
@@ -60,7 +70,7 @@ interface InvoicingSettingsDrawerContentExtraProps {
   viewType: ViewTypeEnum
   customerId?: string
   showCustomSection: boolean
-  /** Subscription-only: other billing objects have no consolidation in their payload */
+  /** Enabled for billing objects whose mutation payload supports invoice consolidation. */
   withInvoiceConsolidation: boolean
 }
 
@@ -82,7 +92,9 @@ const InvoicingSettingsDrawerContent = withForm({
     withInvoiceConsolidation,
   }) {
     const { translate } = useInternationalization()
+    const isContract = viewType === ViewTypeEnum.Contract
     const viewTypeLabel = translate(VIEW_TYPE_TRANSLATION_KEYS[viewType])
+    const titleKey = getInvoicingSettingsTitleKey(viewType)
     const invoiceCustomSection = useStore(form.store, (s) => s.values.invoiceCustomSection)
     const invoiceCustomSectionError = useStore(
       form.store,
@@ -92,7 +104,7 @@ const InvoicingSettingsDrawerContent = withForm({
     return (
       <CenteredPage.SectionWrapper>
         <CenteredPage.PageTitle
-          title={translate('text_17423672025282dl7iozy1ru')}
+          title={translate(titleKey)}
           description={translate(VIEW_TYPE_INVOICING_CAPTION_KEYS[viewType])}
         />
 
@@ -101,11 +113,14 @@ const InvoicingSettingsDrawerContent = withForm({
             <CenteredPage.PageSection>
               <CenteredPage.PageSectionTitle
                 title={translate('text_177874535109128tmqdq682k')}
-                description={translate('text_17827386443477iuks0kxmx5')}
+                description={translate(
+                  isContract ? 'text_1790018785008epy1bgmaoxb' : 'text_17827386443477iuks0kxmx5',
+                )}
               />
               <SubscriptionInvoiceConsolidationSection
                 form={form}
                 fields={{ consolidateInvoice: 'consolidateInvoice' }}
+                translationKeys={isContract ? CONTRACT_CONSOLIDATION_TRANSLATION_KEYS : undefined}
               />
             </CenteredPage.PageSection>
           )}
@@ -155,6 +170,7 @@ export const InvoicingSettingsDrawer = forwardRef<
   InvoicingSettingsDrawerProps
 >(({ viewType, customerId, showCustomSection, withInvoiceConsolidation = false, onSave }, ref) => {
   const { translate } = useInternationalization()
+  const titleKey = getInvoicingSettingsTitleKey(viewType)
   const drawer = useFormDrawer()
 
   const form = useAppForm({
@@ -174,7 +190,7 @@ export const InvoicingSettingsDrawer = forwardRef<
 
   const openInvoicingSettingsDrawer = (): void => {
     drawer.open({
-      title: translate('text_17423672025282dl7iozy1ru'),
+      title: translate(titleKey),
       form: { id: INVOICING_SETTINGS_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
       shouldPromptOnClose: () => form.state.isDirty,

@@ -3,6 +3,8 @@ import { screen, within } from '@testing-library/react'
 import {
   CATALOG_PLAN_DETAILS_ROUTE,
   CATALOG_PLAN_DETAILS_SECTION_ROUTE,
+  CONTRACT_DETAILS_ROUTE,
+  CONTRACTS_ROUTE,
   CUSTOMERS_LIST_ROUTE,
   PLAN_PRICING_ROUTE,
 } from '~/core/router'
@@ -106,6 +108,44 @@ describe('MainNavMenuSections', () => {
       testIds.forEach((testId) => {
         expect(testId).toMatch(/^[a-z-]+$/)
       })
+    })
+  })
+
+  describe('Contracts navigation', () => {
+    const getContractsTab = (): NavTab | undefined =>
+      mockVerticalMenuProps.mock.calls
+        .flatMap(([props]) => props.tabs as NavTab[])
+        .find((tab) => tab.link === CONTRACTS_ROUTE)
+
+    it('registers the contract icon and active route in Billing & operations', () => {
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(getContractsTab()).toEqual(
+        expect.objectContaining({
+          icon: 'contract',
+          match: [CONTRACTS_ROUTE, CONTRACT_DETAILS_ROUTE],
+          canBeClickedOnActive: true,
+        }),
+      )
+      const billing = screen.getByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)
+
+      expect(billing.querySelector(`a[href="${CONTRACTS_ROUTE}"]`)).toBeInTheDocument()
+    })
+
+    it('hides Contracts without contractsView permission', () => {
+      mockHasPermissions.mockImplementation(
+        (permissions: string[]) => !permissions.includes('contractsView'),
+      )
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(document.querySelector(`a[href="${CONTRACTS_ROUTE}"]`)).not.toBeInTheDocument()
+    })
+
+    it('hides Contracts when Product Catalog is disabled', () => {
+      mockHasFeatureFlag.mockImplementation((flag) => flag !== FeatureFlagEnum.ProductCatalog)
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(document.querySelector(`a[href="${CONTRACTS_ROUTE}"]`)).not.toBeInTheDocument()
     })
   })
 
@@ -222,6 +262,7 @@ describe('MainNavMenuSections', () => {
     it('does not render billing section when all billing tabs are hidden', () => {
       mockHasPermissions.mockImplementation((permissions: string[]) => {
         const billingPermissions = [
+          'contractsView',
           'customersView',
           'quotesView',
           'subscriptionsView',
