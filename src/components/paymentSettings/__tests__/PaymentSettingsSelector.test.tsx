@@ -24,18 +24,13 @@ jest.mock('~/components/designSystem/Selector', () => ({
   },
 }))
 
-jest.mock('~/components/paymentSettings/PaymentSettingsDrawer', () => {
-  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
+jest.mock('~/components/paymentSettings/usePaymentSettingsDrawer', () => ({
+  usePaymentSettingsDrawer: (props: Record<string, unknown>) => {
+    mockDrawer(props)
 
-  return {
-    PaymentSettingsDrawer: forwardRef((props: Record<string, unknown>, ref: unknown): null => {
-      mockDrawer(props)
-      useImperativeHandle(ref, () => ({ openDrawer: mockOpenDrawer, closeDrawer: jest.fn() }))
-
-      return null
-    }),
-  }
-})
+    return { openDrawer: mockOpenDrawer }
+  },
+}))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
