@@ -11,7 +11,7 @@ export const useContractPermissionsActions = () => {
   }
 
   const canTerminateContract = (status: ContractStatusEnum | null | undefined): boolean => {
-    return hasPermissions(['contractsUpdate']) && isStatusTerminable(status)
+    return hasPermissions(['contractsTerminate']) && isStatusTerminable(status)
   }
 
   return {

@@ -22,7 +22,7 @@ describe('useContractPermissionsActions', () => {
 
       expect(result.current.isStatusTerminable(status)).toBe(true)
       expect(result.current.canTerminateContract(status)).toBe(true)
-      expect(mockHasPermissions).toHaveBeenCalledWith(['contractsUpdate'])
+      expect(mockHasPermissions).toHaveBeenCalledWith(['contractsTerminate'])
     },
   )
 
@@ -36,11 +36,11 @@ describe('useContractPermissionsActions', () => {
     },
   )
 
-  it('requires contractsUpdate permission', () => {
+  it('requires contractsTerminate permission', () => {
     mockHasPermissions.mockReturnValue(false)
     const { result } = renderHook(() => useContractPermissionsActions())
 
     expect(result.current.canTerminateContract(ContractStatusEnum.Active)).toBe(false)
-    expect(mockHasPermissions).toHaveBeenCalledWith(['contractsUpdate'])
+    expect(mockHasPermissions).toHaveBeenCalledWith(['contractsTerminate'])
   })
 })
