@@ -106,6 +106,42 @@ jest.mock('@tanstack/react-virtual', () => ({
 
 const options = { currency: CurrencyEnum.Usd }
 
+const selectRecurringCoupon = async (): Promise<HTMLElement> => {
+  // Only the coupon combobox is rendered until a coupon is selected.
+  const comboBoxInput = screen.getByRole('combobox') as HTMLInputElement
+
+  await userEvent.type(comboBoxInput, 'Ten')
+
+  await waitFor(() => {
+    expect(comboBoxInput.getAttribute('aria-controls')).toBeTruthy()
+  })
+
+  const listboxId = comboBoxInput.getAttribute('aria-controls') as string
+  const listbox = document.getElementById(listboxId) as HTMLElement
+
+  await userEvent.click(within(listbox).getByText('Ten Off'))
+
+  // Selecting the coupon prefills frequency = Once (its label key). Switch the
+  // frequency dropdown to Recurring so the duration field appears.
+  const freqInput = (await screen.findByDisplayValue(
+    'text_632d68358f1fedc68eed3ea3',
+  )) as HTMLInputElement
+
+  await userEvent.click(freqInput)
+
+  await waitFor(() => {
+    expect(freqInput.getAttribute('aria-controls')).toBeTruthy()
+  })
+
+  const freqListbox = document.getElementById(
+    freqInput.getAttribute('aria-controls') as string,
+  ) as HTMLElement
+
+  await userEvent.click(within(freqListbox).getByText('text_632d68358f1fedc68eed3e64'))
+
+  return screen.findByPlaceholderText('text_632d68358f1fedc68eed3e88')
+}
+
 describe('useDiscountDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -731,40 +767,7 @@ describe('useDiscountDrawer', () => {
       </>,
     )
 
-    // Only the coupon combobox is rendered until a coupon is selected.
-    const comboBoxInput = screen.getByRole('combobox') as HTMLInputElement
-
-    await userEvent.type(comboBoxInput, 'Ten')
-
-    await waitFor(() => {
-      expect(comboBoxInput.getAttribute('aria-controls')).toBeTruthy()
-    })
-
-    const listboxId = comboBoxInput.getAttribute('aria-controls') as string
-    const listbox = document.getElementById(listboxId) as HTMLElement
-
-    await userEvent.click(within(listbox).getByText('Ten Off'))
-
-    // Selecting the coupon prefills frequency = Once (its label key). Switch the
-    // frequency dropdown to Recurring so the duration field appears.
-    const freqInput = (await screen.findByDisplayValue(
-      'text_632d68358f1fedc68eed3ea3',
-    )) as HTMLInputElement
-
-    await userEvent.click(freqInput)
-
-    await waitFor(() => {
-      expect(freqInput.getAttribute('aria-controls')).toBeTruthy()
-    })
-
-    const freqListbox = document.getElementById(
-      freqInput.getAttribute('aria-controls') as string,
-    ) as HTMLElement
-
-    await userEvent.click(within(freqListbox).getByText('text_632d68358f1fedc68eed3e64'))
-
-    // Duration field now renders. Typing runs the `int` formatter → number.
-    const durationInput = await screen.findByPlaceholderText('text_632d68358f1fedc68eed3e88')
+    const durationInput = await selectRecurringCoupon()
 
     await userEvent.type(durationInput, '6')
 
@@ -790,6 +793,34 @@ describe('useDiscountDrawer', () => {
 
     expect(persistedPayload.coupons[0].overrides.frequency).toBe('recurring')
     expect(persistedPayload.coupons[0].overrides.frequencyDuration).toBe(6)
+  })
+
+  it('blocks save when a recurring duration of 0 is typed', async () => {
+    const onPersist = jest.fn()
+    const { result } = renderHook(() =>
+      useDiscountDrawer(undefined, { currency: CurrencyEnum.Usd, onPersist }),
+    )
+
+    act(() => {
+      result.current.onDiscountCommand({ onSave: jest.fn() })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(
+      <>
+        {openArgs.children}
+        {openArgs.actions}
+      </>,
+    )
+
+    const durationInput = await selectRecurringCoupon()
+
+    await userEvent.type(durationInput, '0')
+    await userEvent.click(screen.getByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID))
+
+    expect(await screen.findByText('text_63314cfeb607e57577d894c9')).toBeInTheDocument()
+    expect(onPersist).not.toHaveBeenCalled()
   })
 
   it('calls onPersist with updated overrides when editing an existing coupon', async () => {

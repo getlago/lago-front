@@ -143,7 +143,7 @@ const schema = z
       })
     }
 
-    if (data.frequency === CouponFrequency.Recurring && !data.frequencyDuration) {
+    if (data.frequency === CouponFrequency.Recurring && Number(data.frequencyDuration) < 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'text_63314cfeb607e57577d894c9',
