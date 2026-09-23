@@ -24,18 +24,13 @@ jest.mock('~/components/designSystem/Selector', () => ({
   },
 }))
 
-jest.mock('~/components/paymentSettings/PaymentSettingsDrawer', () => {
-  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
+jest.mock('~/components/paymentSettings/usePaymentSettingsDrawer', () => ({
+  usePaymentSettingsDrawer: (props: Record<string, unknown>) => {
+    mockDrawer(props)
 
-  return {
-    PaymentSettingsDrawer: forwardRef((props: Record<string, unknown>, ref: unknown): null => {
-      mockDrawer(props)
-      useImperativeHandle(ref, () => ({ openDrawer: mockOpenDrawer, closeDrawer: jest.fn() }))
-
-      return null
-    }),
-  }
-})
+    return { openDrawer: mockOpenDrawer }
+  },
+}))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
@@ -57,6 +52,7 @@ const renderSelector = (
     onChange?: (value: SelectedPaymentMethod) => void
     externalCustomerId?: string
     dataTest?: string
+    disabled?: boolean
   } = {},
 ) => {
   const onChange = overrides.onChange ?? jest.fn()
@@ -67,6 +63,7 @@ const renderSelector = (
       externalCustomerId={overrides.externalCustomerId ?? 'ext-1'}
       value={overrides.value}
       onChange={onChange}
+      disabled={overrides.disabled}
       data-test={overrides.dataTest}
     />,
   )
@@ -79,6 +76,7 @@ const lastSelectorProps = () =>
     subtitle?: string
     onClick?: () => void
     'data-test'?: string
+    disabled?: boolean
   }
 
 const lastDrawerProps = () =>
@@ -113,6 +111,12 @@ describe('PaymentSettingsSelector', () => {
         renderSelector()
 
         expect(lastDrawerProps().viewType).toBe(ViewTypeEnum.WalletTopUp)
+      })
+
+      it('THEN forwards its disabled state', () => {
+        renderSelector({ disabled: true })
+
+        expect(lastSelectorProps().disabled).toBe(true)
       })
 
       it('THEN should forward the external customer id', () => {

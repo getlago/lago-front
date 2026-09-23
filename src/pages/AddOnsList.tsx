@@ -230,7 +230,7 @@ const AddOnsList = () => {
               actions.push({
                 startIcon: 'pen',
                 title: translate('text_629728388c4d2300e2d3816a'),
-                onAction: () => navigate(generatePath(UPDATE_ADD_ON_ROUTE, { addOnId: addOn.id })),
+                link: () => generatePath(UPDATE_ADD_ON_ROUTE, { addOnId: addOn.id }),
               })
             }
 

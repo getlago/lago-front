@@ -221,13 +221,11 @@ const PlansList = () => {
                 startIcon: 'pen',
                 title: translate('text_17810296077545fp2y0ulzko'),
                 dataTest: 'tab-internal-button-link-update-plan',
-                onAction: () =>
-                  navigate(
-                    generatePath(PLAN_DETAILS_ROUTE, {
-                      planId: plan.id,
-                      tab: PlanDetailsTabsOptionsEnum.overview,
-                    }),
-                  ),
+                link: () =>
+                  generatePath(PLAN_DETAILS_ROUTE, {
+                    planId: plan.id,
+                    tab: PlanDetailsTabsOptionsEnum.overview,
+                  }),
               })
             }
 

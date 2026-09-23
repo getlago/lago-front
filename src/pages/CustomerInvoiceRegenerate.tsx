@@ -91,11 +91,21 @@ export type OnRegeneratedFeeAdd = (input: {
   } | null
 }) => void
 
-const removeEmptyKeys = (obj: object) => {
-  const keys = Object.keys(obj).filter((key) => !!obj[key as keyof typeof obj])
+const removeEmptyKeys = <T extends object>(obj: T): Partial<T> => {
+  const result: Partial<T> = { ...obj }
 
-  return Object.fromEntries(keys.map((key) => [key, obj[key as keyof typeof obj]]))
+  for (const key in result) {
+    const value = result[key]
+
+    if (value === null || value === undefined || value === '') {
+      delete result[key]
+    }
+  }
+
+  return result
 }
+
+export const REGENERATE_INVOICE_SUBMIT_TEST_ID = 'regenerate-invoice-submit'
 
 const TEMPORARY_ID_PREFIX = 'temporary-id-fee-'
 
@@ -548,7 +558,12 @@ const CustomerInvoiceRegenerate = () => {
           </Button>
         )}
 
-        <Button variant="primary" size="large" onClick={() => onSubmit()}>
+        <Button
+          data-test={REGENERATE_INVOICE_SUBMIT_TEST_ID}
+          variant="primary"
+          size="large"
+          onClick={() => onSubmit()}
+        >
           {translate(
             !!invoice?.voidedAt ? 'text_1750678506388ssxh1yacay0' : 'text_1751991518313o0xwbo9xf0y',
           )}

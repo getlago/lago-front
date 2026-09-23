@@ -5,7 +5,10 @@ import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/Pa
 import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 import { render } from '~/test-utils'
 
-import WalletInformations, { WALLET_INFORMATIONS_CONTAINER_TEST_ID } from '../WalletInformations'
+import WalletInformations, {
+  WALLET_INFORMATIONS_CONTAINER_TEST_ID,
+  WALLET_INFORMATIONS_PAYMENT_SECTION_TEST_ID,
+} from '../WalletInformations'
 
 let mockHasFeatureFlag = false
 let mockPaymentMethodsList: PaymentMethodItem[] = []
@@ -213,6 +216,58 @@ describe('WalletInformations', () => {
         )
 
         expect(screen.getByText('Footer A')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the multi_connection feature flag', () => {
+    const walletWithCard = () =>
+      createMockWallet({
+        customer: { id: 'cust-1', externalId: 'ext-1' },
+        paymentMethodType: PaymentMethodTypeEnum.Provider,
+        paymentMethod: { id: 'pm_specific' },
+      })
+
+    beforeEach(() => {
+      mockPaymentMethodsList = [createMockPaymentMethod({ id: 'pm_specific' })]
+    })
+
+    describe('WHEN the flag is disabled', () => {
+      it('THEN should keep the payment method on the overview', () => {
+        render(<WalletInformations wallet={walletWithCard()} />)
+
+        expect(screen.getByTestId(WALLET_INFORMATIONS_PAYMENT_SECTION_TEST_ID)).toHaveTextContent(
+          '4242',
+        )
+      })
+    })
+
+    describe('WHEN the flag is enabled', () => {
+      beforeEach(() => {
+        mockHasFeatureFlag = true
+      })
+
+      it('THEN should drop the whole payment section, now owned by the External apps tab', () => {
+        render(<WalletInformations wallet={walletWithCard()} />)
+
+        expect(
+          screen.queryByTestId(WALLET_INFORMATIONS_PAYMENT_SECTION_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+
+      it('THEN should keep the section for the invoice custom sections row alone', () => {
+        mockCustomerIcsData = {
+          configurableInvoiceCustomSections: [{ id: 'ics-1', name: 'Footer A' }],
+          hasOverwrittenInvoiceCustomSectionsSelection: false,
+          skipInvoiceCustomSections: false,
+        }
+
+        render(<WalletInformations wallet={walletWithCard()} />)
+
+        const paymentSection = screen.getByTestId(WALLET_INFORMATIONS_PAYMENT_SECTION_TEST_ID)
+
+        expect(paymentSection).toHaveTextContent('Footer A')
+        expect(paymentSection).not.toHaveTextContent('4242')
       })
     })
   })

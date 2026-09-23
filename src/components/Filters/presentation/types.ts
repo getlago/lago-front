@@ -69,6 +69,10 @@ export enum AvailableFiltersEnum {
   billingEntityIds = 'billingEntityIds',
   billingEntityId = 'billingEntityId',
   billingEntityCode = 'billingEntityCode',
+  contractAffiliatedEntityIds = 'contractAffiliatedEntityIds',
+  contractPlanCode = 'contractPlanCode',
+  contractRateOverrides = 'contractRateOverrides',
+  contractStatus = 'contractStatus',
   country = 'country',
   countries = 'countries',
   creditNoteCreditStatus = 'creditNoteCreditStatus',
@@ -137,6 +141,10 @@ export enum AvailableFiltersEnum {
   userIds = 'userIds',
   webhookStatus = 'webhookStatus',
   zipcodes = 'zipcodes',
+  featureType = 'featureType',
+  adminActions = 'adminActions',
+  adminOrganizations = 'adminOrganizations',
+  adminAuditDate = 'adminAuditDate',
 }
 
 export const CreditNoteAvailableFilters = [
@@ -276,18 +284,6 @@ export const UsageBillableMetricAvailableFilters = [
   AvailableFiltersEnum.subscriptionExternalId,
 ]
 
-export const ForecastsAvailableFilters = [
-  AvailableFiltersEnum.billableMetricCode,
-  AvailableFiltersEnum.billingEntityCode,
-  AvailableFiltersEnum.country,
-  AvailableFiltersEnum.currency,
-  AvailableFiltersEnum.customerExternalId,
-  AvailableFiltersEnum.customerAccountType,
-  AvailableFiltersEnum.isCustomerTinEmpty,
-  AvailableFiltersEnum.planCode,
-  AvailableFiltersEnum.subscriptionExternalId,
-]
-
 export const ActivityLogsAvailableFilters = [
   AvailableFiltersEnum.loggedDate,
   AvailableFiltersEnum.apiKeyIds,
@@ -316,6 +312,15 @@ export const SubscriptionAvailableFilters = [
   AvailableFiltersEnum.overriden,
   AvailableFiltersEnum.planCode,
   AvailableFiltersEnum.subscriptionStatus,
+]
+
+export const ContractAvailableFilters = [
+  AvailableFiltersEnum.contractAffiliatedEntityIds,
+  AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.externalId,
+  AvailableFiltersEnum.contractPlanCode,
+  AvailableFiltersEnum.contractRateOverrides,
+  AvailableFiltersEnum.contractStatus,
 ]
 
 export const ProductAvailableFilters = [
@@ -358,6 +363,13 @@ export const SecurityLogsAvailableFilters = [
   AvailableFiltersEnum.userIds,
 ]
 
+export const AdminAuditLogAvailableFilters = [
+  AvailableFiltersEnum.adminAuditDate,
+  AvailableFiltersEnum.featureType,
+  AvailableFiltersEnum.adminActions,
+  AvailableFiltersEnum.adminOrganizations,
+]
+
 export const QuoteAvailableFilters = [
   AvailableFiltersEnum.quoteStatus,
   AvailableFiltersEnum.multipleCustomers,
@@ -395,6 +407,10 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.billingEntityIds]: 'text_17436114971570doqrwuwhf0',
   [AvailableFiltersEnum.billingEntityId]: 'text_17791856837133nbboq5tcxi',
   [AvailableFiltersEnum.billingEntityCode]: 'text_1747986368158jgf5jdvfsey',
+  [AvailableFiltersEnum.contractAffiliatedEntityIds]: 'text_1743611497157teaa1zu8l24',
+  [AvailableFiltersEnum.contractPlanCode]: 'text_625434c7bb2cb40124c81a29',
+  [AvailableFiltersEnum.contractRateOverrides]: 'text_1789752288687t0rx0w5b4d5',
+  [AvailableFiltersEnum.contractStatus]: 'text_63ac86d797f728a87b2f9fa7',
   [AvailableFiltersEnum.country]: 'text_62ab2d0396dd6b0361614da0',
   [AvailableFiltersEnum.countries]: 'text_17599097360429zjcfmkb9oi',
   [AvailableFiltersEnum.creditNoteCreditStatus]: 'text_173470389114473bzrbyh6va',
@@ -465,6 +481,10 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.userIds]: 'text_1772026899880swtnqcqd6s3',
   [AvailableFiltersEnum.webhookStatus]: 'text_63ac86d797f728a87b2f9fa7',
   [AvailableFiltersEnum.zipcodes]: 'text_1759909828496sof33smekse',
+  [AvailableFiltersEnum.featureType]: 'text_1785749891671fvuzzbn493l',
+  [AvailableFiltersEnum.adminActions]: 'text_1785749891671nskw23dl0z4',
+  [AvailableFiltersEnum.adminOrganizations]: 'text_1785749891671s8vuun26gew',
+  [AvailableFiltersEnum.adminAuditDate]: 'text_1785749891671rk4ofmy881a',
 }
 
 export type FiltersFormValues = {

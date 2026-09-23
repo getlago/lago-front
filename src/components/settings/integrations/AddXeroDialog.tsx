@@ -16,6 +16,7 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { useNavigate, XERO_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   GetXeroIntegrationsListDocument,
@@ -146,17 +147,8 @@ export const useAddXeroDialog = () => {
       const isEdition = !!xeroProvider
 
       const handleError = (errors: readonly GraphQLFormattedError[]) => {
-        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-          formApi.setErrorMap({
-            onDynamic: {
-              fields: {
-                code: {
-                  message: translate('text_632a2d437e341dcc76817556'),
-                  path: ['code'],
-                },
-              },
-            },
-          })
+        if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
+          applyExistingCodeError(formApi)
 
           const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
 

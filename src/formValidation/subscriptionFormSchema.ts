@@ -1,11 +1,10 @@
-import { DateTime } from 'luxon'
 import { z } from 'zod'
 
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { addPurchaseOrderNumberMaxLengthIssue } from '~/components/purchaseOrder/validation'
 import { ActivationRuleFormTypeEnum } from '~/core/constants/subscriptionActivationRules'
-import { addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
+import { addEndDateAfterStartIssue, addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
 import { BillingTimeEnum } from '~/generated/graphql'
 
 export interface SubscriptionFormValues {
@@ -70,16 +69,11 @@ export const subscriptionFormSchema = z
 
     if (addUnsupportedDateIssue(ctx, data.endingAt, ['endingAt'])) return
 
-    if (data.subscriptionAt) {
-      const subscriptionAt = DateTime.fromISO(data.subscriptionAt)
-      const endingAt = DateTime.fromISO(data.endingAt)
-
-      if (endingAt <= subscriptionAt || DateTime.now().diff(endingAt, 'days').days >= 0) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'text_64ef55a730b88e3d2117b3d4',
-          path: ['endingAt'],
-        })
-      }
-    }
+    addEndDateAfterStartIssue(
+      ctx,
+      data.subscriptionAt,
+      data.endingAt,
+      ['endingAt'],
+      'text_64ef55a730b88e3d2117b3d4',
+    )
   })

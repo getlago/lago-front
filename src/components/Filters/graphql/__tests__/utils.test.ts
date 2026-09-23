@@ -5,6 +5,7 @@ import {
   escapeFilterLabel,
   FILTER_VALUE_MAP,
   formatActiveFilterValueDisplay,
+  formatFiltersForContractQuery,
   formatFiltersForCreditNotesQuery,
   formatFiltersForCustomerQuery,
   formatFiltersForInvoiceQuery,
@@ -24,7 +25,6 @@ import {
   getFilterValue,
   isValidDateRangeValue,
   keyWithPrefix,
-  mapRateCardFilterVars,
   orderIntervalBounds,
   parseFromToValue,
   parseMetadataFilter,
@@ -275,6 +275,39 @@ describe('Filters utils', () => {
       const result = formatFiltersForSubscriptionQuery(searchParams)
 
       expect(result).toEqual({})
+    })
+  })
+
+  describe('formatFiltersForContractQuery', () => {
+    it('formats every supported contract filter', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'clf_contractAffiliatedEntityIds',
+        `entity-1${filterDataInlineSeparator}France,entity-2${filterDataInlineSeparator}Germany`,
+      )
+      searchParams.set('clf_customerExternalId', `customer-1${filterDataInlineSeparator}Acme`)
+      searchParams.set('clf_externalId', 'contract-2026')
+      searchParams.set('clf_contractPlanCode', `enterprise${filterDataInlineSeparator}Enterprise`)
+      searchParams.set('clf_contractRateOverrides', 'false')
+      searchParams.set('clf_contractStatus', 'active,pending')
+
+      expect(formatFiltersForContractQuery(searchParams)).toEqual({
+        billingEntityIds: ['entity-1', 'entity-2'],
+        externalCustomerId: 'customer-1',
+        externalId: 'contract-2026',
+        hasRateOverrides: false,
+        planCode: 'enterprise',
+        status: ['active', 'pending'],
+      })
+    })
+
+    it('should return empty object when filters are not valid', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('invalidFilter', 'value')
+
+      expect(formatFiltersForContractQuery(searchParams)).toEqual({})
     })
   })
 
@@ -1715,41 +1748,6 @@ describe('Filters utils', () => {
       const params = new URLSearchParams()
 
       expect(formatFiltersForRateCardsQuery(params)).toEqual({})
-    })
-  })
-
-  describe('mapRateCardFilterVars', () => {
-    it('down-maps the first productIds entry to productId', () => {
-      expect(mapRateCardFilterVars({ productIds: ['id1', 'id2'] })).toEqual({
-        productId: 'id1',
-      })
-    })
-
-    it('down-maps the first productFilterIds entry to productFilterId', () => {
-      expect(mapRateCardFilterVars({ productFilterIds: ['f1'] })).toEqual({
-        productFilterId: 'f1',
-      })
-    })
-
-    it('ignores productCategoryIds entirely (no current rateCards arg for the ProductCategory dimension)', () => {
-      expect(mapRateCardFilterVars({ productCategoryIds: ['cat-1'] })).toEqual({})
-    })
-
-    it('combines all mapped dimensions and still ignores productCategoryIds', () => {
-      expect(
-        mapRateCardFilterVars({
-          productCategoryIds: ['cat-1'],
-          productIds: ['id1'],
-          productFilterIds: ['f1'],
-        }),
-      ).toEqual({
-        productId: 'id1',
-        productFilterId: 'f1',
-      })
-    })
-
-    it('returns an empty object when given no plurals', () => {
-      expect(mapRateCardFilterVars({})).toEqual({})
     })
   })
 

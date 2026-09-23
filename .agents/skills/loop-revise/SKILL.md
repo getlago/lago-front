@@ -6,61 +6,48 @@ description: 'Post-PR revision phase of the loop pipeline for lago-front. Takes 
 # Loop Revise — apply feedback to an open loop PR
 
 **Input:** a task reference + feedback. The reference can be ANY of:
-- an ISSUE-ID (`ING-538`) — direct key of the state dir;
+- an ISSUE-ID (`<TEAM>-<N>`) — direct key of the state dir;
 - a PR number (`4065` / `#4065`) or PR URL — resolve it: `gh pr view <n> --json headRefName` → branch → the `$LOOP_STATE_DIR/*/state.md` whose `branch:` matches → that dir's ISSUE-ID;
 - **nothing at all**, when the session already sits in the checkout that owns the PR (the `in-place` layout): resolve from `git rev-parse --abbrev-ref HEAD` → the state dir whose `branch:` matches.
 
-**Layout:** read `layout:` from `state.md` (`worktree` | `in-place`, written by loop-build; missing key = `worktree`, the historical default). It changes exactly two things below — how the app is restarted, and that `in-place` never touches a worktree it did not receive. Scripts live in `<worktree>/scripts` in `in-place` and in `front/scripts` in the `worktree` layout; `$SCRIPTS` below means whichever applies.
+**Layout:** read `layout:` from `state.md` (`worktree` | `in-place`, written by loop-build; missing key = `worktree`). Scripts live in `<worktree>/scripts` in `in-place` and in `front/scripts` in the `worktree` layout; `$SCRIPTS` below means whichever applies.
 
 **State dir:** `$LOOP_STATE_DIR/<ISSUE-ID>/` (default `~/.claude/loop-state/<ISSUE-ID>/`).
 
 Resolution fails (no matching state dir) → STOP: this PR was not produced by the loop; say so. Feedback comes in two forms, both handled:
 - **The operator's free text** (chat, Slack reply) — the operator is the developer running the loop, i.e. the PR author.
-- **GitHub PR comments from others** — colleagues or bots (e.g. Copilot). Fetch them:
+- **GitHub PR comments from others** — colleagues or bots. Fetch them:
   ```bash
   gh api repos/getlago/lago-front/pulls/<PR>/comments   # review comments (inline)
-  gh pr view <PR> --json comments                        # issue-level comments
+  gh pr view <PR> --json comments,reviews                # issue comments and review verdicts
   ```
-  Skip comments authored by the operator themselves (`gh api user --jq .login` — those are their own notes) and already-replied ones.
+  Skip feedback authored by the operator (`gh api user --jq .login`) and unchanged, already-answered feedback. Every comment raising a finding, technical question or requested change from a human or bot requires evaluation and a reply, including SonarQube findings and false positives. Never comment merely to announce or acknowledge green CI or SonarQube results; success/status reports without findings require no reply. Praise, approvals and courtesy-only messages without findings or change requests receive no written reply, at most an optional thumbs-up reaction. Evaluate concrete findings even when the overall gate is green.
 
-No free-text feedback given → default to the unanswered external PR comments as the feedback set. No unanswered comments either → report "nothing to revise" and stop.
+No free-text feedback given → default to unanswered substantive feedback, including HOLD verdicts and SonarQube findings. None present → report "nothing to revise" to the operator and stop without a PR comment.
 
-**Preconditions:** `state.md` exists in the state dir (worktree + branch) and the PR for `<ISSUE-ID>` is OPEN (`gh pr view <branch> --json state`). PR MERGED or CLOSED → STOP: nothing to revise, suggest a new ticket instead.
+**Preconditions:** `state.md` exists in the state dir and the PR for `<ISSUE-ID>` is OPEN (`gh pr view <branch> --json state`). PR MERGED or CLOSED → STOP: nothing to revise, suggest a new ticket instead.
 
 ## Steps
 
-1. **Record the feedback**: append it to `feedback.md` in the state dir with a timestamp header (keep prior rounds — history matters).
+1. **Record the feedback**: append it to `feedback.md` in the state dir with a timestamp header (keep prior rounds).
 
-2. **Evaluate the feedback CRITICALLY — before touching any code.** You are a senior peer, not an executor. Check each feedback point against: the spec's acceptance criteria, the ticket objective (Linear/Notion), the design system, the Frontend coding styleguide, and the actual code. Then classify it:
+2. **Evaluate the feedback CRITICALLY — before touching any code.** You are a senior peer, not an executor. Check each point against: the spec's acceptance criteria and `## Ticket`, plan.md, the design system, `.agents/docs/frontend-coding-styleguide.md`, and the actual code. Then classify it:
    - **Sound** → say why in one line, proceed.
-   - **Sound but better done differently** → propose the alternative with reasoning (e.g. "renaming works, but that hook is imported in 7 files — extracting X instead touches 1"); let the operator pick.
-   - **Breaks an acceptance criterion, duplicates the design system, contradicts the styleguide, or degrades the code** → PUSH BACK: explain concretely what it breaks and what you'd do instead. Do NOT apply it. Apply only if the operator confirms after hearing the objection — then note the override in feedback.md.
-   - Verify claims before agreeing: if the feedback asserts something about the code ("this rerenders twice"), check it in the code first. Never implement performatively to please.
-   - This evaluation applies IDENTICALLY to external comments (colleagues/bots): a Copilot suggestion gets the same scrutiny as anyone else's. For external feedback, "push back" means the polite not-applied reply of step 8 — only escalate to the operator when the comment is sound but conflicts with the spec.
+   - **Sound but better done differently** → propose the alternative with reasoning; let the operator pick.
+   - **Breaks an acceptance criterion, duplicates the design system, contradicts the styleguide, or degrades the code** → PUSH BACK with what it breaks and what you'd do instead. Do NOT apply it unless the operator confirms after hearing the objection — then note the override in feedback.md.
+   - Verify claims before agreeing ("this rerenders twice" → check). Never implement performatively to please.
+   - **Any HOLD, regardless of author**: compare its claim and referenced commit with the current code. Classify it as a real issue, a false positive or already fixed. Apply valid fixes within scope and ALWAYS give the brief reply in step 8, including when no code change is needed. Only an updated verdict from the author lifts their HOLD; a fix or green CI alone does not.
+   - **SonarQube findings**: investigate and attempt a focused code fix within the PR's scope. A large refactor or unrelated change belongs in separate work: explain that to the operator instead of expanding the PR. Do not dismiss or suppress a finding merely to make the gate green; existing CI failure handling still applies.
+   - External comments (colleagues/bots) get identical scrutiny; for them "push back" is the polite not-applied reply of step 8 — escalate to the operator only when the comment is sound but conflicts with the spec.
 
-3. **Apply — ONLY the agreed points.** In the `worktree:` path from state.md (the cwd itself in `in-place`):
+3. **Apply — ONLY the agreed points**, in the `worktree:` path from state.md (the cwd itself in `in-place`):
    - No opportunistic refactors, no scope creep beyond the agreed feedback.
-   - Same build rules as loop-build: design system first, reuse `translations/base.json` labels, no dead keys, follow the Frontend coding styleguide, no dead code.
+   - Same build rules as loop-build: existing mechanism first, reuse `translations/base.json` labels, no dead keys, no dead code, no comment that answers the reviewer. A new file or export goes into plan.md `## Deviations` with its reason.
    - Feedback ambiguous → STOP and ask before coding.
 
-4. **Gates** (in that same path, all must pass):
-   - `pnpm lint`, `pnpm types`, `pnpm translations:inspect`, `pnpm translations:ensure-consistency`.
-   - If the change touched testable logic: re-invoke the `make-tests` skill on the affected paths, then scoped jest on those paths only. NEVER the full suite.
+4. **Gates** (in that same path, all must pass): `pnpm lint`, `pnpm types`, `pnpm translations:inspect`, `pnpm translations:ensure-consistency`, `"$SCRIPTS/diff-hygiene.sh" origin/main <worktree> <state dir>/plan.md` (a comment the revision keeps goes into plan.md `## Comments kept` with its category, or goes). If the change touched testable logic: re-invoke the `make-tests` skill on the affected paths, then scoped jest on those paths only. NEVER the full suite.
 
-5. **Restart the app** (reload on the fixed code). Use the `container:` name from state.md, or derive it from the layout:
-
-   ```bash
-   # in-place: lago_front_ct_<SAN(workspace)>   worktree: lago_front_wt_<SAN(branch)>
-   CT="<container: from state.md>"
-   if docker ps --format '{{.Names}}' | grep -qx "$CT"; then
-     docker exec "$CT" sh -c 'rm -rf /app/node_modules/.vite' 2>/dev/null || true
-     docker restart "$CT"
-   else
-     echo "no container $CT — skipping restart"
-   fi
-   ```
-
-   Container absent → skip with a warning, don't block. Clearing `node_modules/.vite` first is what keeps a restart mid-dep-optimization from serving `504 Outdated Optimize Dep`.
+5. **Restart the app**: `"$SCRIPTS/loop-restart.sh" <state dir>/state.md` (no container → warning, never a blocker).
 
 6. **Commit and push** on the existing branch:
 
@@ -77,32 +64,24 @@ No free-text feedback given → default to the unanswered external PR comments a
 
    Then `git push` — the open PR updates itself.
 
-7. **CI gate**: `gh pr checks <PR> --watch`. Red → same recovery as loop-run, INCLUDING its pre-budget triage of special cases (codegen companion-PR, code-scanning re-fingerprint — loop-run CI-gate step 5.3); neither applies → charge the budget first with `"$SCRIPTS/iter-budget.sh" <ISSUE-ID> ci-revise` (exit 1 = exhausted → STOP path), capture the failure per loop-run's **CI log protocol** (raw log redirected to `ci-raw-<N>.log`, never into context; `ci-failure.md` holds the distilled version, the previous one appended to `ci-failure-history.md`), fix, recommit. On STOP: write `impediment.md` and notify exactly like loop-run's "Exit notification" section — send via `"$SCRIPTS/loop-notify.sh" "<MESSAGE>"` (prints `CH`/`TS`/`USER` for the feedback-wait polling); fallback to PushNotification + MCP self-DM if the script fails.
+7. **CI gate**: `gh pr checks <PR> --watch`. Red → same recovery as loop-run, INCLUDING its pre-budget triage of special cases (codegen companion PR, code-scanning re-fingerprint, inherited base red); neither applies → `"$SCRIPTS/iter-budget.sh" <ISSUE-ID> ci-revise` (exit 1 = exhausted → STOP path), then `"$SCRIPTS/loop-ci-log.sh" <ISSUE-ID> <run-id> <N>`, write the distilled `ci-failure.md`, fix, recommit. On STOP: `impediment.md` + `"$SCRIPTS/loop-notify.sh"` exactly as loop-run's exit notification.
 
-8. **Reply to every external comment on GitHub — ALWAYS** (colleagues and bots alike, whether the suggestion was applied or not). Short, friendly, in English, no AI attribution:
-   - Applied → thank + confirm: `Good catch, thanks! Applied in <short-sha>.`
-   - Not applied → thank + brief concrete reason: `Thanks for the suggestion! Leaving as is: <one-line reason — e.g. this matches the pattern used in X / the spec requires Y>.`
-   - Inline review comments: reply in-thread via `gh api repos/getlago/lago-front/pulls/<PR>/comments/<comment-id>/replies -f body='...'`. Issue-level comments: `gh pr comment <PR> --body '...'`.
-   - Never leave an external comment unanswered; never be dismissive — the reason must be technical, one or two lines max.
+8. **ALWAYS reply to every finding, technical question, requested change or HOLD**, applied or not, regardless of whether a human or bot (including SonarQube) authored it. One or two concise sentences in English, no AI attribution. No written replies to success/status reports, praise, approvals or courtesy-only messages without findings or change requests; at most an optional thumbs-up reaction. Never post a green-CI/SonarQube acknowledgement or a duplicate answer to unchanged feedback:
+   - Applied / already fixed → `Fixed in <short-sha>: <brief change>.`
+   - False positive / not applied → `No change: <one-line technical reason based on the current code>.`
+   - Valid but out of scope → `Requires separate work: <brief scope reason>.` Report the follow-up to the operator; do not present the HOLD or failing gate as resolved.
+   - Inline review comments: `gh api repos/getlago/lago-front/pulls/<PR>/comments/<comment-id>/replies -f body='...'`. Issue-level: `gh pr comment <PR> --body '...'`.
 
 9. **Journal & flywheel — SILENT bookkeeping, before the report:**
-   - Append a row to `$LOOP_STATE_DIR/_journal.md`. It shares loop-run's table, so it must have EXACTLY 7 cells in this order — a misaligned row makes the whole table unreadable:
+   - `"$SCRIPTS/loop-journal.sh" <ISSUE-ID> "<N> points" <ci-revise N/3> "<gates red, or none>" <outcome> "<fail-checks or none>" "<one short phrase>"`. `<N> points` = feedback points applied. `<outcome>` is the way this revision actually ended: `revised` (pushed, CI green), `stopped-ci` (budget exhausted), or `needs-operator-adjudication`. `fail-checks`: for each external comment that was a real defect, the loop-review check that should have caught it (`review#1` … `review#7`, or `none-covers` when no check addresses that defect class) — this is how the flywheel learns which checks miss what colleagues catch.
+   - **Flywheel**: the operator's and colleagues' feedback is the highest-value signal, and it enters `_flywheel.md` under the SAME governance as loop-run: a proposal only when a better instruction would have prevented the defect **and** you can name a second, different plausible occurrence; written as a script or lint rule if it can be one; a new check only naming the check it replaces; no ticket ID in the rule. Both conditions met → append the dated `target / evidence / proposed edit` block. Proposals ONLY: never edit skill files, never ping the operator. One condition → append nothing.
 
-     ```markdown
-     | <date> | <ISSUE-ID> | <N> points | <charged>/<max> | <gates that went red, or none> | revised | <one short phrase> |
-     ```
-
-     Column 3 is how many feedback points were applied (not build↔review iterations, which this phase does not run). Column 4 is the `ci-revise` budget as `N/3`, or `0/3` if CI never went red. Column 6 is `revised`, `stopped-ci`, or `needs-operator-adjudication` (loop-run's definition). Everything narrative belongs in column 7 and nowhere else.
-   - **Flywheel**: the operator's feedback is the highest-value signal — for each point raised, ask *"would a better instruction in loop-spec / loop-build / loop-review have prevented the loop from producing this in the first place?"* If yes, append a dated proposal to `$LOOP_STATE_DIR/_flywheel.md` (target skill, evidence, proposed edit — quoted). Proposals ONLY: never edit skill files, never ping the operator about it. Nothing avoidable → append nothing.
-
-10. **Report**: what changed per feedback point, replies posted, commit SHA, CI status. **NO new #frontend post** — the PR was already announced; colleagues see the update on GitHub.
+10. **Report**: what changed per feedback point, replies posted, commit SHA, CI status. **NO new #frontend post** — the PR was already announced.
 
 ## Hard rules
 
-- **No AI attribution**: commit message contains exactly the template above — no Co-Authored-By: Claude, no "Generated with" lines.
+- **No AI attribution**: commit message contains exactly the template above.
 - Only the existing worktree and branch from state.md — never a new branch, never the main checkout, and in `in-place` never `$CONDUCTOR_ROOT_PATH`, another workspace, or a branch rename.
 - Only the changes the feedback asks for.
-- Humans merge. Never merge, never approve.
-- Never run the full jest suite.
-- No #frontend repost.
-- **Two communication registers**: messages to humans (chat report, notifications, GitHub PR comment replies) = short, direct, plain language, no deep-tech jargon. Internal state files (spec.md, review.md, histories, working notes) = written for the AI of a later iteration: dense, precise, full paths/symbols/error strings — optimize for machine effectiveness, not human readability.
+- Humans merge. Never merge, never approve. Never run the full jest suite. No #frontend repost.
+- **Two communication registers**: messages to humans (chat report, notifications, GitHub PR comment replies) = short, direct, plain language, no deep-tech jargon. Internal state files (spec.md, plan.md, review.md, histories, working notes) = written for the AI of a later iteration: dense, precise, full paths/symbols/error strings — optimize for machine effectiveness, not human readability.

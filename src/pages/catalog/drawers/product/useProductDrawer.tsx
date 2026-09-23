@@ -73,14 +73,16 @@ const productDrawerSchema = z
     code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
     description: z.string(),
     invoiceDisplayName: z.string(),
-    productCategoryId: z.string(),
+    // Not `z.string()`: the combobox clear button stores `undefined`, which a bare
+    // string rejects, so clearing an optional category would block the submit.
+    productCategoryId: z.string().optional(),
     productType: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
     billableMetricId: z.string(),
   })
   .superRefine((values, ctx) => {
     // A usage item bills against a billable metric; the API leaves it optional
     // so the requirement is enforced here.
-    if (values.productType === ProductTypeEnum.Usage && !values.billableMetricId) {
+    if (values.productType === ProductTypeEnum.Metered && !values.billableMetricId) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['billableMetricId'],
@@ -159,7 +161,7 @@ const useProductForm = ({ onSuccess }: { onSuccess: (result: ProductFormSuccess)
               productType: value.productType as ProductTypeEnum,
               productCategoryId: value.productCategoryId || undefined,
               billableMetricId:
-                value.productType === ProductTypeEnum.Usage
+                value.productType === ProductTypeEnum.Metered
                   ? value.billableMetricId || undefined
                   : undefined,
               description: value.description || undefined,

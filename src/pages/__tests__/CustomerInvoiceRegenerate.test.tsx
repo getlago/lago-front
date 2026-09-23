@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { generatePath } from 'react-router'
 
 import { InvoiceDetailsTable } from '~/components/invoices/details/InvoiceDetailsTable'
@@ -7,11 +7,21 @@ import {
   CustomerInvoiceDetailsTabsOptionsEnum,
 } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_TAB_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
-import { CurrencyEnum, InvoiceStatusTypeEnum } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  InvoiceStatusTypeEnum,
+  RegenerateInvoiceMutationOptions,
+} from '~/generated/graphql'
 import { useInvoiceBuildRegenerationPreview } from '~/pages/invoiceDetails/common/useInvoiceBuildRegenerationPreview'
-import { render } from '~/test-utils'
+import { render, testMockNavigateFn } from '~/test-utils'
 
-import CustomerInvoiceRegenerate from '../CustomerInvoiceRegenerate'
+import CustomerInvoiceRegenerate, {
+  REGENERATE_INVOICE_SUBMIT_TEST_ID,
+} from '../CustomerInvoiceRegenerate'
+
+const mockRegenerateInvoice = jest.fn()
+const mockVoidInvoice = jest.fn()
+let mockRegenerateOptions: RegenerateInvoiceMutationOptions | undefined
 
 jest.mock('~/pages/invoiceDetails/common/useInvoiceBuildRegenerationPreview', () => ({
   useInvoiceBuildRegenerationPreview: jest.fn(),
@@ -31,9 +41,13 @@ jest.mock('~/generated/graphql', () => {
   return {
     ...actual,
     useGetCustomerQuery: jest.fn(() => ({ data: undefined, loading: false })),
-    useRegenerateInvoiceMutation: jest.fn(() => [jest.fn(), {}]),
+    useRegenerateInvoiceMutation: jest.fn((options: RegenerateInvoiceMutationOptions) => {
+      mockRegenerateOptions = options
+
+      return [mockRegenerateInvoice, {}]
+    }),
     useFetchDraftInvoiceTaxesMutation: jest.fn(() => [jest.fn(), {}]),
-    useVoidInvoiceMutation: jest.fn(() => [jest.fn(), {}]),
+    useVoidInvoiceMutation: jest.fn(() => [mockVoidInvoice, {}]),
     usePreviewAdjustedFeeMutation: jest.fn(() => [jest.fn(), {}]),
   }
 })
@@ -58,67 +72,39 @@ const MockInvoiceDetailsTable = InvoiceDetailsTable as unknown as jest.Mock
 
 const mockUseInvoiceBuildRegenerationPreview = useInvoiceBuildRegenerationPreview as jest.Mock
 
-/**
- * This tests the redirect logic used in CustomerInvoiceRegenerate's onCompleted callback.
- * The full component is complex to test due to many Apollo and auth dependencies.
- */
 describe('CustomerInvoiceRegenerate redirect logic', () => {
   const customerId = 'test-customer-id'
+  const invoiceId = 'new-invoice-id'
+  const listPath = generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+    customerId,
+    tab: CustomerDetailsTabsOptions.invoices,
+  })
+  const detailPath = generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+    customerId,
+    invoiceId,
+    tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+  })
 
-  /**
-   * Determines the redirect path after invoice regeneration.
-   * Mirrors the logic in CustomerInvoiceRegenerate's onCompleted callback.
-   */
-  const getRedirectPath = (invoiceId: string, status: InvoiceStatusTypeEnum): string => {
-    // If invoice is closed (zero amount + skip setting), redirect to invoices list
-    // because closed invoices are not visible via the API
-    if (status === InvoiceStatusTypeEnum.Closed) {
-      return generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-        customerId,
-        tab: CustomerDetailsTabsOptions.invoices,
-      })
-    }
-
-    return generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-      customerId,
-      invoiceId,
-      tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-    })
-  }
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockRegenerateOptions = undefined
+    mockUseInvoiceBuildRegenerationPreview.mockReturnValue({ loading: true })
+  })
 
   describe('GIVEN an invoice regeneration completes', () => {
-    describe('WHEN the new invoice status is Closed', () => {
-      it('THEN it should redirect to invoices list', () => {
-        const path = getRedirectPath('new-invoice-id', InvoiceStatusTypeEnum.Closed)
+    it.each([
+      { status: InvoiceStatusTypeEnum.Closed, expected: listPath, excluded: detailPath },
+      { status: InvoiceStatusTypeEnum.Finalized, expected: detailPath, excluded: listPath },
+      { status: InvoiceStatusTypeEnum.Draft, expected: detailPath, excluded: listPath },
+      { status: InvoiceStatusTypeEnum.Open, expected: detailPath, excluded: listPath },
+    ])('WHEN status is $status THEN navigates to $expected', ({ status, expected, excluded }) => {
+      render(<CustomerInvoiceRegenerate />, { useParams: { customerId, invoiceId } })
 
-        expect(path).toContain(customerId)
-        expect(path).toContain('invoices')
-        expect(path).not.toContain('new-invoice-id')
-      })
-    })
+      expect(mockRegenerateOptions?.onCompleted).toEqual(expect.any(Function))
+      mockRegenerateOptions?.onCompleted?.({ regenerateFromVoided: { id: invoiceId, status } })
 
-    describe('WHEN the new invoice status is Finalized', () => {
-      it('THEN it should redirect to invoice detail', () => {
-        const path = getRedirectPath('new-invoice-id', InvoiceStatusTypeEnum.Finalized)
-
-        expect(path).toContain('new-invoice-id')
-      })
-    })
-
-    describe('WHEN the new invoice status is Draft', () => {
-      it('THEN it should redirect to invoice detail', () => {
-        const path = getRedirectPath('new-invoice-id', InvoiceStatusTypeEnum.Draft)
-
-        expect(path).toContain('new-invoice-id')
-      })
-    })
-
-    describe('WHEN the new invoice status is Open', () => {
-      it('THEN it should redirect to invoice detail', () => {
-        const path = getRedirectPath('new-invoice-id', InvoiceStatusTypeEnum.Open)
-
-        expect(path).toContain('new-invoice-id')
-      })
+      expect(testMockNavigateFn).toHaveBeenCalledWith(expected)
+      expect(testMockNavigateFn).not.toHaveBeenCalledWith(excluded)
     })
   })
 })
@@ -571,6 +557,58 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
         loading: false,
         error: undefined,
         data: { invoiceBuildRegenerationPreview: mockInvoice },
+      })
+    })
+
+    it.each([
+      { preciseUnitAmount: 0, units: 1 },
+      { preciseUnitAmount: '0', units: 1 },
+      { preciseUnitAmount: 2000, units: 0 },
+    ])('THEN preserves zero values when submitting untouched fees: %j', async (values) => {
+      mockRegenerateInvoice.mockResolvedValue({})
+      mockVoidInvoice.mockResolvedValue({})
+
+      const fee = {
+        id: 'fee-123',
+        ...values,
+        charge: { id: 'charge-123' },
+        subscription: { id: 'subscription-123' },
+        description: '',
+        invoiceDisplayName: null,
+      }
+
+      mockUseInvoiceBuildRegenerationPreview.mockReturnValue({
+        invoiceBuildRegenerationPreview: { ...mockInvoice, fees: [fee] },
+        loading: false,
+      })
+
+      render(<CustomerInvoiceRegenerate />, {
+        useParams: { invoiceId: 'invoice-123', customerId: 'customer-123' },
+      })
+
+      fireEvent.click(screen.getByTestId(REGENERATE_INVOICE_SUBMIT_TEST_ID))
+
+      await waitFor(() => {
+        expect(mockRegenerateInvoice).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              voidedInvoiceId: 'invoice-123',
+              purchaseOrderNumber: null,
+              fees: [
+                {
+                  id: 'fee-123',
+                  chargeId: 'charge-123',
+                  subscriptionId: 'subscription-123',
+                  unitAmountCents: values.preciseUnitAmount,
+                  units: values.units,
+                },
+              ],
+            },
+          },
+        })
+      })
+      expect(mockVoidInvoice).toHaveBeenCalledWith({
+        variables: { input: { id: 'invoice-123', generateCreditNote: false } },
       })
     })
 

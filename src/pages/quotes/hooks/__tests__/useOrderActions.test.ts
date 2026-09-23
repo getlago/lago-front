@@ -2,7 +2,6 @@ import { renderHook } from '@testing-library/react'
 
 import { OrderListItemFragment, OrderStatusEnum } from '~/generated/graphql'
 import { buildQuotePreviewProps } from '~/pages/quotes/common/buildQuotePreviewProps'
-import { testMockNavigateFn } from '~/test-utils'
 
 import { useOrderActions } from '../useOrderActions'
 
@@ -99,13 +98,11 @@ describe('useOrderActions', () => {
   })
 
   describe('GIVEN the edit action', () => {
-    it('THEN navigates to the edit-order route', () => {
+    it('THEN links to the edit-order route', () => {
       const { result } = renderHook(() => useOrderActions())
       const actions = result.current.getActions(createMockOrder({ id: 'order-42' }))
 
-      actions.find((a) => a.icon === 'pen')?.onAction()
-
-      expect(testMockNavigateFn).toHaveBeenCalledWith('/order/order-42/edit')
+      expect(actions.find((a) => a.icon === 'pen')?.link?.()).toBe('/order/order-42/edit')
     })
   })
 
@@ -138,7 +135,7 @@ describe('useOrderActions', () => {
       const actions = result.current.getActions(order)
       const downloadAction = actions.find((a) => a.icon === 'download')
 
-      downloadAction?.onAction()
+      downloadAction?.onAction?.()
 
       expect(mockedBuildQuotePreviewProps).toHaveBeenCalledWith({
         version: order.orderForm.quote.currentVersion,
@@ -163,8 +160,7 @@ describe('useOrderActions', () => {
 
       expect(execute).toBeDefined()
 
-      execute?.onAction()
-      expect(testMockNavigateFn).toHaveBeenCalledWith('/order/order-1/execute')
+      expect(execute?.link?.()).toBe('/order/order-1/execute')
     })
 
     it('is absent for an executed order even with ordersExecute permission', () => {

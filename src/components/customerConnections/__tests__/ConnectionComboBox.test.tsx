@@ -3,6 +3,7 @@ import { isValidElement } from 'react'
 
 import {
   buildConnectionComboBoxData,
+  CONNECTION_COMBOBOX_DEFAULT_BADGE_TEST_ID,
   ConnectionComboBoxDataItem,
   ConnectionComboBoxLabel,
 } from '~/components/customerConnections/ConnectionComboBox'
@@ -118,6 +119,44 @@ describe('buildConnectionComboBoxData', () => {
         render(<>{entry.labelNode}</>)
 
         expect(screen.getByText('Provider A')).toBeInTheDocument()
+      })
+    })
+  })
+})
+
+describe('ConnectionComboBoxLabel default badge', () => {
+  describe('GIVEN the customer default connection', () => {
+    describe('WHEN the option is rendered', () => {
+      it('THEN should display the default badge', () => {
+        render(<ConnectionComboBoxLabel label="Stripe main" subLabel="stripe-1" isDefault />)
+
+        expect(screen.getByTestId(CONNECTION_COMBOBOX_DEFAULT_BADGE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN any other connection', () => {
+    describe('WHEN the option is rendered', () => {
+      it('THEN should not display the default badge', () => {
+        render(<ConnectionComboBoxLabel label="Stripe main" subLabel="stripe-1" />)
+
+        expect(
+          screen.queryByTestId(CONNECTION_COMBOBOX_DEFAULT_BADGE_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN an item flagged as default', () => {
+    describe('WHEN the combobox data is built', () => {
+      it('THEN should carry the flag into the rendered option', () => {
+        const [option] = buildConnectionComboBoxData([
+          { value: 'stripe-1', label: 'Stripe main', subLabel: 'stripe-1', isDefault: true },
+        ])
+
+        render(<>{option.labelNode}</>)
+
+        expect(screen.getByTestId(CONNECTION_COMBOBOX_DEFAULT_BADGE_TEST_ID)).toBeInTheDocument()
       })
     })
   })

@@ -324,6 +324,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
             hasError={!!error}
             containerSize={0}
             rowSize={72}
+            rowLinkLabel={({ name }) => name ?? ''}
             onRowActionLink={({ id }) =>
               generatePath(WALLET_DETAILS_ROUTE, {
                 customerId,

@@ -3,11 +3,13 @@ import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 
+import { ConnectionCategory } from '~/components/customerConnections/types'
 import { SELECTOR_HOVER_ACTIONS_TEST_ID } from '~/components/designSystem/Selector'
 import { ADD_RECURRING_RULE_BUTTON_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import {
+  ConnectionBehaviorEnum,
   CurrencyEnum,
   GetCustomerInfosForWalletFormQuery,
   RecurringTransactionMethodEnum,
@@ -67,6 +69,34 @@ jest.mock('~/components/paymentSettings/PaymentSettingsSelector', () => ({
   },
 }))
 
+jest.mock('~/components/paymentSettings/connectionFirst/ConnectionPaymentSettingsSelector', () => ({
+  ConnectionPaymentSettingsSelector: (props: Record<string, unknown>) => {
+    mockConnectionPaymentSelector(props)
+
+    return null
+  },
+}))
+
+jest.mock(
+  '~/components/additionalIntegrationSettings/AdditionalIntegrationSettingsSelector',
+  () => ({
+    AdditionalIntegrationSettingsSelector: (props: Record<string, unknown>) => {
+      mockAdditionalIntegrationSelector(props)
+
+      return null
+    },
+  }),
+)
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  ...jest.requireActual('~/hooks/useOrganizationInfos'),
+  useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
+}))
+
+const mockConnectionPaymentSelector = jest.fn()
+const mockAdditionalIntegrationSelector = jest.fn()
+const mockHasFeatureFlag = jest.fn(() => false)
+
 // Stub the rule drawer hook: the parent only needs openDrawer + onSave —
 // the drawer's own behaviour is covered by RecurringRuleDrawer.test.tsx.
 const mockOpenRuleDrawer = jest.fn()
@@ -110,11 +140,15 @@ const TestWrapper = ({
   initiallyEnabled = false,
   withValidation = false,
   autoOpenRuleDrawer = false,
+  autoOpenPaymentConnectionDrawer = false,
+  autoOpenAdditionalIntegrationDrawer = false,
 }: {
   defaultsOverride?: Partial<TWalletDataForm>
   initiallyEnabled?: boolean
   withValidation?: boolean
   autoOpenRuleDrawer?: boolean
+  autoOpenPaymentConnectionDrawer?: boolean
+  autoOpenAdditionalIntegrationDrawer?: boolean
 }) => {
   const form = useAppForm({
     defaultValues: {
@@ -150,6 +184,8 @@ const TestWrapper = ({
         isRecurringTopUpEnabled={isRecurringTopUpEnabled}
         setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
         autoOpenRuleDrawer={autoOpenRuleDrawer}
+        autoOpenPaymentConnectionDrawer={autoOpenPaymentConnectionDrawer}
+        autoOpenAdditionalIntegrationDrawer={autoOpenAdditionalIntegrationDrawer}
       />
       {withValidation && (
         <button
@@ -192,6 +228,7 @@ describe('TopUpSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockIsPremium.mockReturnValue(true)
+    mockHasFeatureFlag.mockReturnValue(false)
     capturedDrawerProps.current = null
     formValuesProbe.current = null
   })
@@ -542,6 +579,123 @@ describe('TopUpSection', () => {
         render(<TestWrapper autoOpenRuleDrawer />)
 
         expect(mockOpenRuleDrawer).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the multi-connection flag', () => {
+    describe('WHEN it is off', () => {
+      it('THEN should keep mounting the legacy payment settings selector', () => {
+        render(<TestWrapper />)
+
+        expect(lastSelectorCall(mockPaymentSelector, ViewTypeEnum.WalletTopUp)).toBeDefined()
+        expect(mockConnectionPaymentSelector).not.toHaveBeenCalled()
+      })
+
+      it('THEN should not mount the additional integration settings selector at all', () => {
+        render(<TestWrapper />)
+
+        expect(mockAdditionalIntegrationSelector).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN it is on', () => {
+      it('THEN should mount the connection-first selector wired to the customer id', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        render(<TestWrapper />)
+
+        expect(mockPaymentSelector).not.toHaveBeenCalled()
+        expect(mockConnectionPaymentSelector).toHaveBeenCalledWith(
+          expect.objectContaining({
+            viewType: ViewTypeEnum.WalletTopUp,
+            customerId: 'customer-id',
+          }),
+        )
+      })
+
+      it.each([
+        [
+          'payment connection',
+          { autoOpenPaymentConnectionDrawer: true },
+          () => mockConnectionPaymentSelector,
+          () => mockAdditionalIntegrationSelector,
+        ],
+        [
+          'additional integration',
+          { autoOpenAdditionalIntegrationDrawer: true },
+          () => mockAdditionalIntegrationSelector,
+          () => mockConnectionPaymentSelector,
+        ],
+      ])(
+        'THEN should forward the %s auto-open intent to that selector only',
+        (_, props, getTargetMock, getOtherMock) => {
+          mockHasFeatureFlag.mockReturnValue(true)
+
+          render(<TestWrapper {...props} />)
+
+          expect(getTargetMock()).toHaveBeenCalledWith(expect.objectContaining({ autoOpen: true }))
+          expect(getOtherMock()).toHaveBeenCalledWith(expect.objectContaining({ autoOpen: false }))
+        },
+      )
+
+      it('THEN should mount the additional integration settings selector on the customer id', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        render(<TestWrapper />)
+
+        expect(mockAdditionalIntegrationSelector).toHaveBeenCalledWith(
+          expect.objectContaining({ customerId: 'customer-id' }),
+        )
+      })
+
+      it('THEN should feed it the wallet-level connection values', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        render(
+          <TestWrapper
+            defaultsOverride={{
+              accountingConnection: { code: 'netsuite_eu' },
+              crmConnection: { behavior: ConnectionBehaviorEnum.Skip },
+            }}
+          />,
+        )
+
+        expect(mockAdditionalIntegrationSelector).toHaveBeenCalledWith(
+          expect.objectContaining({
+            values: {
+              [ConnectionCategory.Accounting]: { code: 'netsuite_eu' },
+              [ConnectionCategory.Crm]: { behavior: ConnectionBehaviorEnum.Skip },
+              [ConnectionCategory.Tax]: undefined,
+            },
+          }),
+        )
+      })
+
+      it('THEN should commit the three categories the drawer publishes', async () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        render(<TestWrapper />)
+
+        const onChange = mockAdditionalIntegrationSelector.mock.calls.at(-1)?.[0]?.onChange as (
+          values: Record<string, unknown>,
+        ) => void
+
+        act(() => {
+          onChange({
+            [ConnectionCategory.Accounting]: { code: 'netsuite_eu' },
+            [ConnectionCategory.Crm]: undefined,
+            [ConnectionCategory.Tax]: { behavior: ConnectionBehaviorEnum.Skip },
+          })
+        })
+
+        await waitFor(() => {
+          expect(formValuesProbe.current?.accountingConnection).toEqual({ code: 'netsuite_eu' })
+        })
+        expect(formValuesProbe.current?.crmConnection).toBeUndefined()
+        expect(formValuesProbe.current?.taxConnection).toEqual({
+          behavior: ConnectionBehaviorEnum.Skip,
+        })
       })
     })
   })

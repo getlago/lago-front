@@ -2,6 +2,7 @@ import { act, cleanup, renderHook, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
+import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import {
   AddStripeApiKeyMutation,
   AddStripeProviderDialogFragment,
@@ -231,6 +232,48 @@ describe('useAddStripeDialog', () => {
             },
           },
         })
+      })
+    })
+  })
+
+  describe('GIVEN the code is already taken by another provider', () => {
+    const submitEditionWithTakenCode = async (): Promise<() => Promise<unknown>> => {
+      mockGetProviderByCode.mockResolvedValue({
+        data: { paymentProvider: { id: 'another-stripe-provider-id' } },
+      })
+
+      const { result } = renderHook(() => useAddStripeDialog(), { wrapper })
+
+      act(() => {
+        result.current.openAddStripeDialog({ provider: stripeProvider })
+      })
+
+      const dialogProps = mockDialogOpen.mock.calls[0][0]
+
+      await act(() => render(<>{dialogProps.children}</>))
+
+      return dialogProps.form.submit
+    }
+
+    describe('WHEN submitting the dialog', () => {
+      it('THEN surfaces the shared duplicate-code message under the code input', async () => {
+        const submit = await submitEditionWithTakenCode()
+
+        await act(async () => {
+          await expect(submit()).rejects.toThrow()
+        })
+
+        expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
+      })
+
+      it('THEN does not call the update mutation', async () => {
+        const submit = await submitEditionWithTakenCode()
+
+        await act(async () => {
+          await expect(submit()).rejects.toThrow()
+        })
+
+        expect(mockUpdateApiKey).not.toHaveBeenCalled()
       })
     })
   })

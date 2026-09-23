@@ -72,7 +72,7 @@ const productCategory = { id: 'prod-1', name: 'Object storage', code: 'object_st
 
 const collection = [
   { id: 'pitem-1', name: 'Seats', code: 'seats', productType: ProductTypeEnum.Fixed },
-  { id: 'pitem-2', name: 'Compute', code: 'compute', productType: ProductTypeEnum.Usage },
+  { id: 'pitem-2', name: 'Compute', code: 'compute', productType: ProductTypeEnum.Metered },
 ]
 
 const emptyQueryState = {
@@ -221,10 +221,10 @@ describe('ProductCategoryDetailsProducts', () => {
 
         const [editAction, deleteAction] = actions
 
-        editAction?.onAction(product)
+        editAction?.onAction?.(product)
         expect(mockOpenProductDrawer).toHaveBeenCalledWith({ product })
 
-        deleteAction?.onAction(product)
+        deleteAction?.onAction?.(product)
         expect(mockOpenDeleteProductDialog).toHaveBeenCalledWith({ product })
       })
 

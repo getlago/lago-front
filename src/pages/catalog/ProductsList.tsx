@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
-import { tw } from 'lago-design-system'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
-import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'
+import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
+import { Table } from '~/components/designSystem/Table/Table'
 import {
   Filters,
   formatFiltersForProductsQuery,
@@ -112,41 +112,26 @@ const ProductsList = () => {
 
   const columns = useProductTableColumns({ withAttachedProductCategory: true })
 
-  const placeholder: TablePlaceholder = {
-    errorState: variables?.searchTerm
+  const placeholder = buildSearchAwareTablePlaceholder({
+    translate,
+    hasSearchTerm: !!variables?.searchTerm,
+    noResultTitleKey: 'text_1783980718114wya9wp01m5i',
+    emptyTitleKey: 'text_1783980718114bqx4jce32fv',
+    emptySubtitleKey: 'text_1783980718114kj0fch41rw4',
+    emptyAction: canCreateProducts
       ? {
-          title: translate('text_623b53fea66c76017eaebb6e'),
-          subtitle: translate('text_63bab307a61c62af497e0599'),
+          buttonTitleKey: 'text_1783622030703m9jlurg4jsn',
+          onClick: () => openProductDrawer(),
         }
-      : {
-          title: translate('text_629728388c4d2300e2d380d5'),
-          subtitle: translate('text_629728388c4d2300e2d380eb'),
-          buttonTitle: translate('text_629728388c4d2300e2d38110'),
-          buttonVariant: 'primary',
-          buttonAction: () => location.reload(),
-        },
-    emptyState: variables?.searchTerm
-      ? {
-          title: translate('text_1783980718114wya9wp01m5i'),
-          subtitle: translate('text_63bee4e10e2d53912bfe4da7'),
-        }
-      : {
-          title: translate('text_1783980718114bqx4jce32fv'),
-          subtitle: translate('text_1783980718114kj0fch41rw4'),
-          ...(canCreateProducts && {
-            buttonTitle: translate('text_1783622030703m9jlurg4jsn'),
-            buttonVariant: 'primary',
-            buttonAction: () => openProductDrawer(),
-          }),
-        },
-  }
+      : undefined,
+  })
 
   // Inset layout (per design, same as the customer subscriptions tab): the
   // wrapper owns the page gutter so the row dividers and the pager border stop
   // at it instead of running edge to edge; the table keeps only the minimal
   // 4px cell gutter.
   return (
-    <div className="px-4 md:px-12">
+    <div className="flex flex-1 flex-col px-4 md:px-12">
       <Filters.Provider
         filtersNamePrefix={PRODUCT_LIST_FILTER_PREFIX}
         availableFilters={ProductAvailableFilters}
@@ -164,13 +149,12 @@ const ProductsList = () => {
         metadata={data?.products?.metadata}
         loading={isLoading}
         onPageChange={goToPage}
-        sticky={false}
       >
         <Table
           name="product-items-list"
           data={data?.products?.collection ?? []}
           containerSize={4}
-          containerClassName={tw('border-t border-grey-300')}
+          containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}

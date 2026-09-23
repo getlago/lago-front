@@ -236,7 +236,7 @@ Never:
   code just follows it.
 - **Justify a convention the surrounding code already demonstrates.** A banner
   explaining why the file does something the four sibling files also do is noise.
-- **Reference a ticket id in code** (`// Wired up in BIL-594`). Ticket ids go
+- **Reference a ticket id in code** (`// Wired up in <TEAM>-<N>`). Ticket ids go
   stale; the PR description carries them.
 
 **In tests**, the same rules apply, and the `GIVEN` / `WHEN` / `THEN` names

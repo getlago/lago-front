@@ -1,9 +1,11 @@
+import { SelectedConnection } from '~/components/connectionSelection/types'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
+  ConnectionsInput,
   CreateCustomerWalletInput,
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
@@ -31,9 +33,37 @@ import { TWalletDataForm } from '~/pages/wallet/types'
  *   never reach the update input.
  */
 
+type FormConnections = {
+  paymentConnection?: SelectedConnection
+  accountingConnection?: SelectedConnection
+  crmConnection?: SelectedConnection
+  taxConnection?: SelectedConnection
+}
+
+// An omitted category keeps whatever the backend stored, so an untouched choice must not
+// produce a `connections` key at all: `inherit` would destroy the existing override row.
+const formatConnections = (
+  { paymentConnection, accountingConnection, crmConnection, taxConnection }: FormConnections,
+  isMultiConnectionEnabled: boolean,
+): { connections?: ConnectionsInput } => {
+  // `Wallets::{Create,Update}Service` refuses any payload carrying `connections` while the flag is
+  // off, so a wallet whose stored routing was hydrated must not resend it or every save fails.
+  if (!isMultiConnectionEnabled) return {}
+
+  const connections: ConnectionsInput = {
+    ...(paymentConnection ? { payment: paymentConnection } : {}),
+    ...(accountingConnection ? { accounting: accountingConnection } : {}),
+    ...(crmConnection ? { crm: crmConnection } : {}),
+    ...(taxConnection ? { tax: taxConnection } : {}),
+  }
+
+  return Object.keys(connections).length ? { connections } : {}
+}
+
 const formatRecurringTransactionRules = (
   recurringTransactionRules: TWalletDataForm['recurringTransactionRules'],
   formType: keyof typeof FORM_TYPE_ENUM,
+  isMultiConnectionEnabled: boolean,
 ) => {
   if (!recurringTransactionRules || recurringTransactionRules.length === 0) return []
 
@@ -52,6 +82,10 @@ const formatRecurringTransactionRules = (
       expirationAt,
       ignorePaidTopUpLimits,
       invoiceCustomSection: ruleInvoiceCustomSection,
+      paymentConnection: rulePaymentConnection,
+      accountingConnection: ruleAccountingConnection,
+      crmConnection: ruleCrmConnection,
+      taxConnection: ruleTaxConnection,
       ...rest
     } = rule
 
@@ -91,6 +125,15 @@ const formatRecurringTransactionRules = (
       ),
       // `null` (not `undefined`) on clear → BE erases the stored value.
       purchaseOrderNumber: normalizePurchaseOrderNumber(rule.purchaseOrderNumber),
+      ...formatConnections(
+        {
+          paymentConnection: rulePaymentConnection,
+          accountingConnection: ruleAccountingConnection,
+          crmConnection: ruleCrmConnection,
+          taxConnection: ruleTaxConnection,
+        },
+        isMultiConnectionEnabled,
+      ),
     }
   })
 }
@@ -103,6 +146,7 @@ const formatAppliesTo = (appliesTo: TWalletDataForm['appliesTo']) => ({
 export const mapFormToCreateInput = (
   formValues: TWalletDataForm,
   customerId: string,
+  isMultiConnectionEnabled: boolean,
 ): CreateCustomerWalletInput => {
   const {
     grantedCredits,
@@ -113,6 +157,10 @@ export const mapFormToCreateInput = (
     appliesTo,
     priority,
     paymentMethod,
+    paymentConnection,
+    accountingConnection,
+    crmConnection,
+    taxConnection,
     invoiceCustomSection,
     billingEntityId,
     ...values
@@ -132,6 +180,7 @@ export const mapFormToCreateInput = (
     recurringTransactionRules: formatRecurringTransactionRules(
       recurringTransactionRules,
       FORM_TYPE_ENUM.creation,
+      isMultiConnectionEnabled,
     ),
     appliesTo: formatAppliesTo(appliesTo),
     paymentMethod,
@@ -143,12 +192,17 @@ export const mapFormToCreateInput = (
       ? { paidTopUpMaxAmountCents: serializeAmount(values.paidTopUpMaxAmountCents, currency) }
       : {}),
     priority: Number(priority) || WALLET_DEFAULT_PRIORITY,
+    ...formatConnections(
+      { paymentConnection, accountingConnection, crmConnection, taxConnection },
+      isMultiConnectionEnabled,
+    ),
   }
 }
 
 export const mapFormToUpdateInput = (
   formValues: TWalletDataForm,
   walletId: string,
+  isMultiConnectionEnabled: boolean,
 ): UpdateCustomerWalletInput => {
   /* eslint-disable @typescript-eslint/no-unused-vars -- object-rest omit: create-only fields must not reach the update input */
   const {
@@ -160,6 +214,10 @@ export const mapFormToUpdateInput = (
     appliesTo,
     priority,
     paymentMethod,
+    paymentConnection,
+    accountingConnection,
+    crmConnection,
+    taxConnection,
     invoiceCustomSection,
     billingEntityId,
     transactionName,
@@ -175,6 +233,7 @@ export const mapFormToUpdateInput = (
     recurringTransactionRules: formatRecurringTransactionRules(
       recurringTransactionRules,
       FORM_TYPE_ENUM.edition,
+      isMultiConnectionEnabled,
     ),
     id: walletId,
     // `null` (not `undefined`) on clear → BE stores NULL on the
@@ -192,5 +251,9 @@ export const mapFormToUpdateInput = (
       ? { paidTopUpMaxAmountCents: serializeAmount(values.paidTopUpMaxAmountCents, currency) }
       : { paidTopUpMaxAmountCents: null }),
     priority: Number(priority) || WALLET_DEFAULT_PRIORITY,
+    ...formatConnections(
+      { paymentConnection, accountingConnection, crmConnection, taxConnection },
+      isMultiConnectionEnabled,
+    ),
   }
 }

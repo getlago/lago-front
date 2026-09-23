@@ -122,3 +122,25 @@ export enum RateCardRateDetailsTabsOptionsEnum {
   overview = 'overview',
   activityLogs = 'activity-logs',
 }
+
+export enum CatalogPlanDetailsTabsOptionsEnum {
+  overview = 'overview',
+  contracts = 'contracts',
+  activityLogs = 'activity-logs',
+}
+
+export enum CatalogPlanOverviewSectionsEnum {
+  planOverview = 'plan-overview',
+  rateCards = 'rate-cards',
+}
+
+export enum ContractDetailsTabsOptionsEnum {
+  overview = 'overview',
+  usage = 'usage',
+  activityLogs = 'activity-logs',
+}
+
+export enum ContractOverviewSectionsEnum {
+  contractOverview = 'contract-overview',
+  rateCards = 'rate-cards',
+}

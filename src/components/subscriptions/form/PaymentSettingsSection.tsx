@@ -1,13 +1,10 @@
 import { useStore } from '@tanstack/react-form'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
 import { deriveBehavior, PaymentMethodBehavior } from '~/components/paymentMethodSelection/types'
-import {
-  PaymentSettingsDrawer,
-  PaymentSettingsDrawerRef,
-} from '~/components/paymentSettings/PaymentSettingsDrawer'
+import { usePaymentSettingsDrawer } from '~/components/paymentSettings/usePaymentSettingsDrawer'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -32,8 +29,8 @@ const paymentSettingsSectionDefaultProps: PaymentSettingsSectionExtraProps = {
 }
 
 // Entry point for the subscription payment settings: a Selector card previewing
-// the current choice that opens the PaymentSettingsDrawer. Keeps the preview,
-// the drawer ref and the save wiring in one place (mirrors InvoicingSettingsSection).
+// the current choice that opens the payment settings drawer. Keeps the preview and
+// the save wiring in one place (mirrors InvoicingSettingsSection).
 export const PaymentSettingsSection = withForm({
   defaultValues: buildSubscriptionDefaultValues(
     undefined,
@@ -43,9 +40,16 @@ export const PaymentSettingsSection = withForm({
   props: paymentSettingsSectionDefaultProps,
   render: function PaymentSettingsSectionRender({ form, externalCustomerId }) {
     const { translate } = useInternationalization()
-    const drawerRef = useRef<PaymentSettingsDrawerRef>(null)
 
     const paymentMethod = useStore(form.store, (s) => s.values.paymentMethod)
+
+    const { openDrawer } = usePaymentSettingsDrawer({
+      viewType: ViewTypeEnum.Subscription,
+      externalCustomerId,
+      onSave: ({ paymentMethod: nextPaymentMethod }) => {
+        form.setFieldValue('paymentMethod', nextPaymentMethod)
+      },
+    })
 
     const summary = useMemo(
       () => translate(SUMMARY_KEY_BY_BEHAVIOR[deriveBehavior(paymentMethod)]),
@@ -53,25 +57,14 @@ export const PaymentSettingsSection = withForm({
     )
 
     return (
-      <>
-        <Selector
-          icon="coin-dollar"
-          title={translate('text_17828013737948943pe3k8nc')}
-          subtitle={summary}
-          endContent={<Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />}
-          onClick={() => drawerRef.current?.openDrawer({ paymentMethod })}
-          data-test="payment-settings-selector"
-        />
-
-        <PaymentSettingsDrawer
-          ref={drawerRef}
-          viewType={ViewTypeEnum.Subscription}
-          externalCustomerId={externalCustomerId}
-          onSave={({ paymentMethod: nextPaymentMethod }) => {
-            form.setFieldValue('paymentMethod', nextPaymentMethod)
-          }}
-        />
-      </>
+      <Selector
+        icon="coin-dollar"
+        title={translate('text_17828013737948943pe3k8nc')}
+        subtitle={summary}
+        endContent={<Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />}
+        onClick={() => openDrawer({ paymentMethod })}
+        data-test="payment-settings-selector"
+      />
     )
   },
 })

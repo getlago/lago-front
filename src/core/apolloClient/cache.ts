@@ -16,9 +16,13 @@ export const queryFieldPolicies: Record<string, FieldPolicy> = {
   // Numbered pagination — replace pages instead of appending (migrated off infinite scroll)
   activityLogs: createSinglePageFieldPolicy(),
   addOns: createSinglePageFieldPolicy(),
+  adminAuditLogs: createSinglePageFieldPolicy(),
+  adminOrganizations: createSinglePageFieldPolicy(),
   apiKeys: createSinglePageFieldPolicy(),
   appliedCoupons: createSinglePageFieldPolicy(),
   billableMetrics: createSinglePageFieldPolicy(),
+  catalogPlans: createSinglePageFieldPolicy(),
+  contracts: createSinglePageFieldPolicy(),
   coupons: createSinglePageFieldPolicy(),
   creditNotes: createSinglePageFieldPolicy(),
   customerInvoices: createSinglePageFieldPolicy(),

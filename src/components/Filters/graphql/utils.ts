@@ -1,16 +1,19 @@
 import { DateTime } from 'luxon'
 
 import { formatActivityType } from '~/components/activityLogs/utils'
+import { contractStatusTranslation } from '~/components/Filters/graphql/filtersElements/FiltersItemContractStatus'
 import { IsCustomerTinEmptyEnum } from '~/components/Filters/graphql/filtersElements/FiltersItemIsCustomerTinEmpty'
 import {
   ACTIVE_SUBSCRIPTIONS_INTERVALS_TRANSLATION_MAP,
   ActiveSubscriptionsFilterInterval,
   ActivityLogsAvailableFilters,
+  AdminAuditLogAvailableFilters,
   AMOUNT_INTERVALS_TRANSLATION_MAP,
   AmountFilterInterval,
   AnalyticsInvoicesAvailableFilters,
   ApiLogsAvailableFilters,
   AvailableFiltersEnum,
+  ContractAvailableFilters,
   CreditNoteAvailableFilters,
   CustomerAnalyticsAvailableFilters,
   CustomerAvailableFilters,
@@ -21,7 +24,6 @@ import {
   filterDataLabelCommaPlaceholder,
   filterWithoutProductCategoryValue,
   filterWithoutProductValue,
-  ForecastsAvailableFilters,
   InvoiceAvailableFilters,
   MrrBreakdownPlansAvailableFilters,
   MrrOverviewAvailableFilters,
@@ -46,16 +48,17 @@ import {
 } from '~/components/graphs/MonthSelectorDropdown'
 import {
   ACTIVITY_LOG_FILTER_PREFIX,
+  ADMIN_AUDIT_LOG_FILTER_PREFIX,
   ANALYTICS_INVOICES_FILTER_PREFIX,
   ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
   ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX,
   API_LOGS_FILTER_PREFIX,
+  CONTRACT_LIST_FILTER_PREFIX,
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_ANALYTICS_FILTER_PREFIX,
   CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
   CUSTOMER_LIST_FILTER_PREFIX,
   CUSTOMER_PAYMENTS_FILTER_PREFIX,
-  FORECASTS_FILTER_PREFIX,
   INVOICE_LIST_FILTER_PREFIX,
   MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX,
   MRR_BREAKDOWN_PLANS_FILTER_PREFIX,
@@ -78,12 +81,14 @@ import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import {
   type ActivityLogsQueryVariables,
   ActivityTypeEnum,
+  type AdminAuditLogsQueryVariables,
+  ContractStatusEnum,
   CurrencyEnum,
   type CustomerAccountTypeEnum,
   type CustomersQueryVariables,
   type GetApiLogsQueryVariables,
+  type GetContractsListQueryVariables,
   type GetCreditNotesListQueryVariables,
-  type GetForecastsQueryVariables,
   type GetInvoiceCollectionsForAnalyticsQueryVariables,
   type GetInvoicesListQueryVariables,
   type GetMrrsQueryVariables,
@@ -229,6 +234,7 @@ export const FiltersItemDates = [
   AvailableFiltersEnum.quoteCreatedAt,
   AvailableFiltersEnum.orderFormCreatedAt,
   AvailableFiltersEnum.orderExecutedAt,
+  AvailableFiltersEnum.adminAuditDate,
 ]
 
 // TODO: Fix this type
@@ -251,6 +257,12 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.billingEntityId]: (value: string) =>
     value.split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.billingEntityCode]: (value: string) => value,
+  [AvailableFiltersEnum.contractAffiliatedEntityIds]: (value: string) =>
+    value.split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.contractPlanCode]: (value: string) =>
+    value.split(filterDataInlineSeparator)[0],
+  [AvailableFiltersEnum.contractRateOverrides]: (value: string) => value === 'true',
+  [AvailableFiltersEnum.contractStatus]: (value: string) => value.split(',').filter(Boolean),
   [AvailableFiltersEnum.country]: (value: string) => value,
   [AvailableFiltersEnum.countries]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
@@ -345,8 +357,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   },
   // Rate card list filters are built array-native: every dimension is a plain multi-select
   // producing an array of ids under a plural key (productCategoryIds / productIds /
-  // productFilterIds). See mapRateCardFilterVars below for the schema-gap adapter
-  // down-mapping these arrays to today's singular rateCards query args.
+  // productFilterIds), which the rateCards query accepts directly.
   //
   // The ProductCategory dimension pins a synthetic "Not defined" sentinel (filterWithoutProductValue),
   // mirroring productProductCategory/productFilterProductCategory: filter it out before mapping so it
@@ -424,6 +435,19 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.zipcodes]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.billableMetricCode]: (value: string) => value,
+  [AvailableFiltersEnum.featureType]: (value: string) => value,
+  [AvailableFiltersEnum.adminActions]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.adminOrganizations]: (value: string) =>
+    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.adminAuditDate]: (value: string) => {
+    // The date-range element stores full ISO datetimes; the query args are ISO8601Date (day only)
+    const [from, to] = (value as string).split(',')
+
+    return {
+      fromDate: from ? from.split('T')[0] : undefined,
+      toDate: to ? to.split('T')[0] : undefined,
+    }
+  },
 }
 
 // NOTE: this is fixing list fetching issue when new item are added to the DB and user scrolls to the bottom of the list
@@ -590,11 +614,8 @@ export const formatFiltersForProductFiltersQuery = (
 }
 
 // Array-native shape of the rate card list filters: every dimension resolves to a plural
-// id array, matching the multi-select UI 1:1. Codegen validates queries against the live
-// schema, and the `rateCards` query doesn't accept these plural args today (only singular
-// `productId` / `productFilterId`, and no productCategory arg at all) - so this type
-// intentionally does NOT match the generated `RateCardsQueryVariables` type. See
-// mapRateCardFilterVars for the adapter that bridges this to today's singular query args.
+// id array, matching the multi-select UI 1:1. The `rateCards` query now accepts these
+// plural args directly, so this shape is spread straight into the query variables.
 export type RateCardsQueryFilters = {
   productCategoryIds?: string[]
   productIds?: string[]
@@ -616,25 +637,6 @@ export const formatFiltersForRateCardsQuery = (
     availableFilters: RateCardAvailableFilters,
     filtersNamePrefix: RATE_CARD_LIST_FILTER_PREFIX,
   })
-}
-
-// TODO(backend plural filter args): drop this down-mapping and pass plurals straight through
-// once rateCards accepts productCategoryIds/productIds/productFilterIds.
-//
-// The `rateCards` query only accepts singular `productId` / `productFilterId` today,
-// and has no productCategory arg at all. This adapter bridges the array-native filter state
-// (formatFiltersForRateCardsQuery) down to what the query can actually accept: it keeps only
-// the first selected id per dimension, and silently drops `productCategoryIds` - the ProductCategory
-// filter is UI-only until the backend exposes a productCategory-level arg on `rateCards`.
-export const mapRateCardFilterVars = (
-  plurals: RateCardsQueryFilters,
-): { productId?: string; productFilterId?: string } => {
-  return {
-    ...(plurals.productIds?.[0] && { productId: plurals.productIds[0] }),
-    ...(plurals.productFilterIds?.[0] && {
-      productFilterId: plurals.productFilterIds[0],
-    }),
-  }
 }
 
 type InvoiceQueryFilters = Partial<
@@ -749,6 +751,37 @@ export const formatFiltersForSubscriptionQuery = (
     searchParams,
     availableFilters: SubscriptionAvailableFilters,
     filtersNamePrefix: SUBSCRIPTION_LIST_FILTER_PREFIX,
+  })
+}
+
+type ContractQueryFilters = Partial<
+  Pick<
+    GetContractsListQueryVariables,
+    | 'billingEntityIds'
+    | 'externalCustomerId'
+    | 'externalId'
+    | 'hasRateOverrides'
+    | 'planCode'
+    | 'status'
+  >
+>
+
+export const formatFiltersForContractQuery = (
+  searchParams: URLSearchParams,
+): ContractQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof ContractQueryFilters & string>> = {
+    [AvailableFiltersEnum.contractAffiliatedEntityIds]: 'billingEntityIds',
+    [AvailableFiltersEnum.contractPlanCode]: 'planCode',
+    [AvailableFiltersEnum.contractRateOverrides]: 'hasRateOverrides',
+    [AvailableFiltersEnum.contractStatus]: 'status',
+    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
+  }
+
+  return formatFiltersForQuery<ContractQueryFilters>({
+    keyMap,
+    searchParams,
+    availableFilters: ContractAvailableFilters,
+    filtersNamePrefix: CONTRACT_LIST_FILTER_PREFIX,
   })
 }
 
@@ -1020,40 +1053,6 @@ export const formatFiltersForUsageBillableMetricQuery = (
   })
 }
 
-type ForecastsQueryFilters = Partial<
-  Pick<
-    GetForecastsQueryVariables,
-    | 'billableMetricCode'
-    | 'billingEntityCode'
-    | 'currency'
-    | 'customerCountry'
-    | 'customerType'
-    | 'externalCustomerId'
-    | 'externalSubscriptionId'
-    | 'isCustomerTinEmpty'
-    | 'planCode'
-    | 'timeGranularity'
-  >
->
-
-export const formatFiltersForForecastsQuery = (
-  searchParams: URLSearchParams,
-): ForecastsQueryFilters => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, keyof ForecastsQueryFilters & string>> = {
-    [AvailableFiltersEnum.country]: 'customerCountry',
-    [AvailableFiltersEnum.customerType]: 'customerType',
-    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
-    [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
-  }
-
-  return formatFiltersForQuery<ForecastsQueryFilters>({
-    keyMap,
-    searchParams,
-    availableFilters: [...ForecastsAvailableFilters, AvailableFiltersEnum.timeGranularity],
-    filtersNamePrefix: FORECASTS_FILTER_PREFIX,
-  })
-}
-
 type ActivityLogsQueryFilters = Partial<
   Pick<
     ActivityLogsQueryVariables,
@@ -1161,6 +1160,7 @@ export const formatActiveFilterValueDisplay = (
         .join(', ')
     case AvailableFiltersEnum.customerExternalId:
     case AvailableFiltersEnum.billingEntityId:
+    case AvailableFiltersEnum.contractPlanCode:
       return unescapeFilterLabel(
         value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
       )
@@ -1191,6 +1191,18 @@ export const formatActiveFilterValueDisplay = (
             : 'text_1744018116743ntlygtcnq95',
         ) || ''
       )
+    case AvailableFiltersEnum.contractStatus:
+      return value
+        .split(',')
+        .filter(Boolean)
+        .map((status) => translate?.(contractStatusTranslation(status as ContractStatusEnum)) || '')
+        .join(', ')
+    case AvailableFiltersEnum.contractRateOverrides:
+      return (
+        translate?.(
+          value === 'true' ? 'text_1789752288687xjph983ekbt' : 'text_1789752288687c3bxfx2tjlu',
+        ) || ''
+      )
     case AvailableFiltersEnum.date:
     case AvailableFiltersEnum.issuingDate:
     case AvailableFiltersEnum.loggedDate:
@@ -1198,6 +1210,7 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.quoteCreatedAt:
     case AvailableFiltersEnum.orderFormCreatedAt:
     case AvailableFiltersEnum.orderExecutedAt:
+    case AvailableFiltersEnum.adminAuditDate:
       return value
         .split(',')
         .map((v) => {
@@ -1213,8 +1226,10 @@ export const formatActiveFilterValueDisplay = (
       )
     case AvailableFiltersEnum.apiKeyIds:
     case AvailableFiltersEnum.billingEntityIds:
+    case AvailableFiltersEnum.contractAffiliatedEntityIds:
     case AvailableFiltersEnum.userIds:
     case AvailableFiltersEnum.multipleCustomers:
+    case AvailableFiltersEnum.adminOrganizations:
     case AvailableFiltersEnum.rateCardProduct:
     case AvailableFiltersEnum.rateCardProductFilter:
       return value
@@ -1254,6 +1269,27 @@ export const formatFiltersForSecurityLogsQuery = (
     searchParams: defineDefaultToDateValue(searchParams, SECURITY_LOGS_FILTER_PREFIX),
     availableFilters: SecurityLogsAvailableFilters,
     filtersNamePrefix: SECURITY_LOGS_FILTER_PREFIX,
+  })
+}
+
+type AdminAuditLogQueryFilters = Partial<
+  Pick<
+    AdminAuditLogsQueryVariables,
+    'organizationIds' | 'featureType' | 'actions' | 'fromDate' | 'toDate'
+  >
+>
+
+export const formatFiltersForAdminAuditLogQuery = (
+  searchParams: URLSearchParams,
+): AdminAuditLogQueryFilters => {
+  return formatFiltersForQuery<AdminAuditLogQueryFilters>({
+    searchParams,
+    availableFilters: AdminAuditLogAvailableFilters,
+    filtersNamePrefix: ADMIN_AUDIT_LOG_FILTER_PREFIX,
+    keyMap: {
+      [AvailableFiltersEnum.adminActions]: 'actions',
+      [AvailableFiltersEnum.adminOrganizations]: 'organizationIds',
+    },
   })
 }
 

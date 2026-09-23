@@ -2,6 +2,7 @@
 // (drawers, field components, summaries). Each surface carries its own
 // parametric copy via VIEW_TYPE_TRANSLATION_KEYS.
 export enum ViewTypeEnum {
+  Contract = 'contract',
   Subscription = 'subscription',
   WalletTopUp = 'walletTopUp',
   WalletRecurringTopUp = 'walletRecurringTopUp',
@@ -10,6 +11,7 @@ export enum ViewTypeEnum {
 }
 
 export const VIEW_TYPE_TRANSLATION_KEYS: Record<ViewTypeEnum, string> = {
+  [ViewTypeEnum.Contract]: 'text_17900187850083qq7n4r5x6g',
   [ViewTypeEnum.Subscription]: 'text_1764327933607nrezuuiheuc',
   [ViewTypeEnum.WalletTopUp]: 'text_1765895170354ovelm7g07o4',
   [ViewTypeEnum.WalletRecurringTopUp]: 'text_1765959116589recur1ngrul',
@@ -22,6 +24,7 @@ export const VIEW_TYPE_TRANSLATION_KEYS: Record<ViewTypeEnum, string> = {
 // a parametric template: the wallet-scoped surfaces phrase around "the wallet
 // [...] invoices" while the others phrase around the object itself.
 export const VIEW_TYPE_INVOICING_CAPTION_KEYS: Record<ViewTypeEnum, string> = {
+  [ViewTypeEnum.Contract]: 'text_17900187850085d5g0gun480',
   [ViewTypeEnum.Subscription]: 'text_1782738644346p066xtwa8yj',
   [ViewTypeEnum.WalletTopUp]: 'text_1785164421080mvdaqb17yzp',
   [ViewTypeEnum.WalletRecurringTopUp]: 'text_17851644210806680b9rdlpa',
@@ -29,7 +32,17 @@ export const VIEW_TYPE_INVOICING_CAPTION_KEYS: Record<ViewTypeEnum, string> = {
   [ViewTypeEnum.OneOffInvoice]: 'text_1785164421080j4ohbewttiq',
 }
 
+export const VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS: Record<ViewTypeEnum, string> = {
+  [ViewTypeEnum.Contract]: 'text_1790063786375kwwwep9h7cd',
+  [ViewTypeEnum.Subscription]: 'text_178948416677832fz1lquc9c',
+  [ViewTypeEnum.WalletTopUp]: 'text_1789472252793x4lfuqim3a1',
+  [ViewTypeEnum.WalletRecurringTopUp]: 'text_1789484166778pyg3ypgpdgo',
+  [ViewTypeEnum.WalletTransactionTopUp]: 'text_1789484166778hblkj5i4ue4',
+  [ViewTypeEnum.OneOffInvoice]: 'text_1789484166778ng9z9mfgqc7',
+}
+
 export const VIEW_TYPE_PAYMENT_CAPTION_KEYS: Record<ViewTypeEnum, string> = {
+  [ViewTypeEnum.Contract]: 'text_1790018785008zycb16wfr1x',
   [ViewTypeEnum.Subscription]: 'text_17828013737955532qxu3wq4',
   [ViewTypeEnum.WalletTopUp]: 'text_1785164421080e3ku2v2stj6',
   [ViewTypeEnum.WalletRecurringTopUp]: 'text_1785164421080tk7v5844l7t',

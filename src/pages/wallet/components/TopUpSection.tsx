@@ -2,23 +2,28 @@ import Box from '@mui/material/Box'
 import { useStore } from '@tanstack/react-form'
 import { useEffect, useRef } from 'react'
 
+import { AdditionalIntegrationSettingsSelector } from '~/components/additionalIntegrationSettings/AdditionalIntegrationSettingsSelector'
+import { ConnectionCategory } from '~/components/customerConnections/types'
 import { Button } from '~/components/designSystem/Button'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
+import { ConnectionPaymentSettingsSelector } from '~/components/paymentSettings/connectionFirst/ConnectionPaymentSettingsSelector'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
 import { ADD_RECURRING_RULE_BUTTON_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import {
+  VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS,
   VIEW_TYPE_INVOICING_CAPTION_KEYS,
   VIEW_TYPE_PAYMENT_CAPTION_KEYS,
   ViewTypeEnum,
 } from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
-import { GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
+import { FeatureFlagEnum, GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useRecurringRuleDrawer } from '~/pages/wallet/components/RecurringRuleDrawer'
 import { emptyWalletFormDefaultValues } from '~/pages/wallet/mappers/mapFromApiToForm'
 
@@ -37,6 +42,8 @@ interface TopUpSectionExtraProps {
    * mutations exist (ING-529). Only pass it once the wallet data is loaded.
    */
   autoOpenRuleDrawer?: boolean
+  autoOpenPaymentConnectionDrawer?: boolean
+  autoOpenAdditionalIntegrationDrawer?: boolean
 }
 
 const topUpSectionDefaultProps: TopUpSectionExtraProps = {
@@ -46,6 +53,8 @@ const topUpSectionDefaultProps: TopUpSectionExtraProps = {
   isRecurringTopUpEnabled: false,
   setIsRecurringTopUpEnabled: () => {},
   autoOpenRuleDrawer: false,
+  autoOpenPaymentConnectionDrawer: false,
+  autoOpenAdditionalIntegrationDrawer: false,
 }
 
 export const TopUpSection = withForm({
@@ -58,9 +67,12 @@ export const TopUpSection = withForm({
     isRecurringTopUpEnabled,
     setIsRecurringTopUpEnabled,
     autoOpenRuleDrawer,
+    autoOpenPaymentConnectionDrawer,
+    autoOpenAdditionalIntegrationDrawer,
   }) {
     const { isPremium } = useCurrentUser()
     const { translate } = useInternationalization()
+    const { hasFeatureFlag } = useOrganizationInfos()
     const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
 
     const recurringTransactionRules = useStore(
@@ -85,6 +97,55 @@ export const TopUpSection = withForm({
         ([key, value]) => key.startsWith('recurringTransactionRules') && !!value,
       )
     })
+
+    const isMultiConnectionEnabled = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
+    const additionalIntegrationCustomerId = isMultiConnectionEnabled
+      ? customerData?.customer?.id
+      : undefined
+
+    const renderPaymentSettingsSelector = (customerId: string, externalCustomerId: string) => {
+      if (!isMultiConnectionEnabled) {
+        return (
+          <PaymentSettingsSelector
+            viewType={ViewTypeEnum.WalletTopUp}
+            externalCustomerId={externalCustomerId}
+            value={walletValues.paymentMethod}
+            onChange={(value) => form.setFieldValue('paymentMethod', value)}
+          />
+        )
+      }
+
+      return (
+        <ConnectionPaymentSettingsSelector
+          viewType={ViewTypeEnum.WalletTopUp}
+          customerId={customerId}
+          connection={walletValues.paymentConnection}
+          paymentMethod={walletValues.paymentMethod}
+          onChange={({ connection, paymentMethod }) => {
+            form.setFieldValue('paymentConnection', connection)
+            form.setFieldValue('paymentMethod', paymentMethod)
+          }}
+          autoOpen={autoOpenPaymentConnectionDrawer}
+        />
+      )
+    }
+
+    const renderAdditionalIntegrationSettingsSelector = (customerId: string) => (
+      <AdditionalIntegrationSettingsSelector
+        customerId={customerId}
+        values={{
+          [ConnectionCategory.Accounting]: walletValues.accountingConnection,
+          [ConnectionCategory.Crm]: walletValues.crmConnection,
+          [ConnectionCategory.Tax]: walletValues.taxConnection,
+        }}
+        onChange={(values) => {
+          form.setFieldValue('accountingConnection', values[ConnectionCategory.Accounting])
+          form.setFieldValue('crmConnection', values[ConnectionCategory.Crm])
+          form.setFieldValue('taxConnection', values[ConnectionCategory.Tax])
+        }}
+        autoOpen={autoOpenAdditionalIntegrationDrawer}
+      />
+    )
 
     const { openDrawer } = useRecurringRuleDrawer({
       customerData,
@@ -195,7 +256,7 @@ export const TopUpSection = withForm({
         {customerData?.customer?.id && (
           <section
             className={
-              customerData?.customer?.externalId
+              customerData?.customer?.externalId || !!additionalIntegrationCustomerId
                 ? 'flex w-full flex-col gap-6 pb-12 shadow-b'
                 : 'flex w-full flex-col gap-6'
             }
@@ -218,21 +279,43 @@ export const TopUpSection = withForm({
         )}
 
         {customerData?.customer?.externalId && (
-          <section className="flex w-full flex-col gap-6">
+          <section
+            className={
+              additionalIntegrationCustomerId
+                ? 'flex w-full flex-col gap-6 pb-12 shadow-b'
+                : 'flex w-full flex-col gap-6'
+            }
+          >
             <div className="flex flex-col gap-1">
               <Typography variant="subhead1">
-                {translate('text_1784888105056o78z8t3kjrg')}
+                {translate(
+                  isMultiConnectionEnabled
+                    ? 'text_1789381469546g27fewh3r8c'
+                    : 'text_1784888105056o78z8t3kjrg',
+                )}
               </Typography>
               <Typography variant="caption">
                 {translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[ViewTypeEnum.WalletTopUp])}
               </Typography>
             </div>
-            <PaymentSettingsSelector
-              viewType={ViewTypeEnum.WalletTopUp}
-              externalCustomerId={customerData.customer.externalId}
-              value={walletValues.paymentMethod}
-              onChange={(value) => form.setFieldValue('paymentMethod', value)}
-            />
+            {renderPaymentSettingsSelector(
+              customerData.customer.id,
+              customerData.customer.externalId,
+            )}
+          </section>
+        )}
+
+        {!!additionalIntegrationCustomerId && (
+          <section className="flex w-full flex-col gap-6">
+            <div className="flex flex-col gap-1">
+              <Typography variant="subhead1">
+                {translate('text_1789472252793twqbda38ec2')}
+              </Typography>
+              <Typography variant="caption">
+                {translate(VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS[ViewTypeEnum.WalletTopUp])}
+              </Typography>
+            </div>
+            {renderAdditionalIntegrationSettingsSelector(additionalIntegrationCustomerId)}
           </section>
         )}
       </>

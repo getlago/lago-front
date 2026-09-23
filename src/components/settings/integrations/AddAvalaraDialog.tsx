@@ -13,6 +13,7 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { AVALARA_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddAvalaraIntegrationDialogFragment,
@@ -173,16 +174,11 @@ export const useAddAvalaraDialog = () => {
         })
 
         if (hasDefinedGQLError('ValueAlreadyExist', res.errors)) {
-          formApi.setErrorMap({
-            onDynamic: {
-              fields: {
-                code: {
-                  message: translate('text_632a2d437e341dcc76817556'),
-                  path: ['code'],
-                },
-              },
-            },
-          })
+          if (hasDefinedGQLError('ValueAlreadyExist', res.errors, 'code')) {
+            applyExistingCodeError(formApi)
+          } else {
+            addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
+          }
         }
 
         return
@@ -210,17 +206,8 @@ export const useAddAvalaraDialog = () => {
           },
         })
 
-        if (hasDefinedGQLError('ValueAlreadyExist', res.errors)) {
-          formApi.setErrorMap({
-            onDynamic: {
-              fields: {
-                code: {
-                  message: translate('text_632a2d437e341dcc76817556'),
-                  path: ['code'],
-                },
-              },
-            },
-          })
+        if (hasDefinedGQLError('ValueAlreadyExist', res.errors, 'code')) {
+          applyExistingCodeError(formApi)
         }
       } catch (error) {
         if (error instanceof AuthError) {
