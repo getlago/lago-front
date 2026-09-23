@@ -13,6 +13,7 @@ import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import { CENTRALIZED_DIALOG_NAME } from '~/components/dialogs/const'
 import {
   CreditNoteEstimateDocument,
+  CreditNoteEstimateQuery,
   CreditNoteReasonEnum,
   CurrencyEnum,
   InvoicePaymentStatusTypeEnum,
@@ -40,6 +41,7 @@ jest.mock('../common/useCreateCreditNote', () => ({
 const createCreditNoteEstimateMock = (
   maxCreditableAmountCents: string = '10000',
   maxRefundableAmountCents: string = '10000',
+  appliedTaxes: CreditNoteEstimateQuery['creditNoteEstimate']['appliedTaxes'] = [],
 ): TestMocksType[0] => ({
   request: {
     query: CreditNoteEstimateDocument,
@@ -52,7 +54,7 @@ const createCreditNoteEstimateMock = (
     data: {
       creditNoteEstimate: {
         __typename: 'CreditNoteEstimate',
-        appliedTaxes: [],
+        appliedTaxes,
         couponsAdjustmentAmountCents: '0',
         currency: CurrencyEnum.Usd,
         items: [
@@ -189,6 +191,34 @@ describe('CreateCreditNote', () => {
 
       // Button should be disabled if no fees are checked
       expect(submitButton).toBeDisabled()
+    })
+  })
+
+  describe('Tax summary', () => {
+    it('should render taxes with the same code at different rates', async () => {
+      const mocks = [
+        createCreditNoteEstimateMock('10000', '10000', [
+          {
+            __typename: 'CreditNoteAppliedTax',
+            taxCode: 'tax',
+            taxName: 'Tax',
+            taxRate: 10,
+            amountCents: '1000',
+          },
+          {
+            __typename: 'CreditNoteAppliedTax',
+            taxCode: 'tax',
+            taxName: 'Tax',
+            taxRate: 5,
+            amountCents: '500',
+          },
+        ]),
+      ]
+
+      await act(() => render(<CreateCreditNote />, { mocks }))
+
+      expect(await screen.findByText('Tax (10%)')).toBeInTheDocument()
+      expect(screen.getByText('Tax (5%)')).toBeInTheDocument()
     })
   })
 
