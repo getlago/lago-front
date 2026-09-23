@@ -742,11 +742,7 @@ describe('useDiscountDrawer', () => {
     expect(mockDrawerClose).toHaveBeenCalled()
   })
 
-  it('persists a typed recurring duration (int formatter yields a number, not a string)', async () => {
-    // Regression: the `int` beforeChangeFormatter runs parseInt and stores
-    // frequencyDuration as a NUMBER. The schema previously declared z.string(),
-    // so typing a duration on a recurring discount failed validation
-    // ("Invalid input: expected string, received number") and blocked save.
+  it('persists a typed recurring duration as a number', async () => {
     const onPersist = jest.fn()
     const { result } = renderHook(() =>
       useDiscountDrawer(undefined, { currency: CurrencyEnum.Usd, onPersist }),
@@ -773,8 +769,6 @@ describe('useDiscountDrawer', () => {
 
     const saveButton = screen.getByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
 
-    // Before the fix, the numeric value failed z.string() validation, so
-    // canSubmit stayed false and the button never enabled.
     await waitFor(() => {
       expect(saveButton).not.toBeDisabled()
     })
