@@ -224,15 +224,15 @@ describe('ContractsPage', () => {
 
     expect(row).toHaveAttribute('tabindex', '0')
     expect(row).toHaveClass('cursor-pointer')
-    expect(link).toHaveAttribute('href', '/contract/contract-1')
+    expect(link).toHaveAttribute('href', '/contracts/contract-1')
 
     fireEvent.click(row)
-    expect(testMockNavigateFn).toHaveBeenCalledWith('/contract/contract-1')
+    expect(testMockNavigateFn).toHaveBeenCalledWith('/contracts/contract-1')
 
     testMockNavigateFn.mockClear()
     row.focus()
     fireEvent.keyDown(row, { key: 'Enter', code: 'Enter' })
-    expect(testMockNavigateFn).toHaveBeenCalledWith('/contract/contract-1')
+    expect(testMockNavigateFn).toHaveBeenCalledWith('/contracts/contract-1')
   })
 
   it('copies the external ID from the row action menu', async () => {

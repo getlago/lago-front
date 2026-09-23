@@ -5054,5 +5054,21 @@
   "text_1785749891671fvuzzbn493l": "Feature type",
   "text_1785749891671nskw23dl0z4": "Actions",
   "text_1785749891671s8vuun26gew": "Organizations",
-  "text_1785749891671rk4ofmy881a": "Date"
+  "text_1785749891671rk4ofmy881a": "Date",
+  "text_17897233021145awow0e13vf": "Contract overview",
+  "text_1789723302114t5f7dka9914": "Contract not found",
+  "text_1789723302114ceqx5k6efdq": "Cancellation date",
+  "text_17897233021144v1deu5m2s7": "Termination date",
+  "text_1789723302114au3ml0nf077": "Rate cards applied to this contract will appear here.",
+  "text_1789724492480cacpzfyknb5": "How the contract functions.",
+  "text_1789724492480lc4k8wns9zw": "How invoices are generated for this contract.",
+  "text_17897244924802iix6cccw2v": "How the contract is paid.",
+  "text_1789971751136nrprlsnx192": "Terminate contract",
+  "text_1789971751136h7hm7pbipln": "Cancel contract",
+  "text_1789971751136dxn6qmh7ef9": "You’re about to terminate this contract",
+  "text_1789971751136xsgqxsasdpd": "You’re about to cancel this contract",
+  "text_178997175113710y2zapz4c9": "By terminating this contract, the customer will stop being billed for it and no new invoice will be issued. This action cannot be undone. Are you sure?",
+  "text_1789971751137drk22mafo3k": "By canceling this contract, it will never start and the customer will never be billed for it. This action cannot be undone. Are you sure?",
+  "text_1789971751137egm0tdl3q96": "Contract successfully terminated",
+  "text_1789971751137982utge606b": "Contract successfully canceled"
 }

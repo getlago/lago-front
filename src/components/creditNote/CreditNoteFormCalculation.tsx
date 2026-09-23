@@ -77,7 +77,7 @@ export const CreditNoteFormCalculation = ({
           .sort((a, b) => b.taxRate - a.taxRate)
           .map((tax) => (
             <CreditNoteEstimationLine
-              key={tax.label}
+              key={`${tax.label}-${tax.taxRate}`}
               label={`${tax.label} (${tax.taxRate}%)`}
               labelColor="grey600"
               value={
