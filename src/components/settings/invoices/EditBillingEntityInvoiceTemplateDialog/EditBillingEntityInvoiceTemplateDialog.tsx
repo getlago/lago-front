@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { z } from 'zod'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
@@ -11,7 +10,14 @@ import { useUpdateBillingEntityInvoiceTemplateMutation } from '~/generated/graph
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-const MAX_CHAR_LIMIT = 600
+import {
+  EDIT_BILLING_ENTITY_INVOICE_TEMPLATE_INITIAL_VALUES,
+  EditBillingEntityInvoiceTemplateDialogData,
+} from './types'
+import {
+  editBillingEntityInvoiceTemplateValidationSchema,
+  INVOICE_FOOTER_MAX_CHAR_LIMIT,
+} from './validationSchema'
 
 gql`
   fragment EditBillingEntityInvoiceTemplateDialog on BillingEntity {
@@ -28,15 +34,6 @@ gql`
     }
   }
 `
-
-const editBillingEntityInvoiceTemplateValidationSchema = z.object({
-  invoiceFooter: z.string().max(MAX_CHAR_LIMIT, { message: 'text_62bb10ad2a10bd182d00203b' }),
-})
-
-type EditBillingEntityInvoiceTemplateDialogData = {
-  id: string
-  invoiceFooter: string
-}
 
 const FORM_ID = 'edit-billing-entity-invoice-template-form'
 
@@ -60,18 +57,20 @@ export const useEditBillingEntityInvoiceTemplateDialog = () => {
   })
 
   const form = useAppForm({
-    defaultValues: {
-      invoiceFooter: '',
-    },
+    defaultValues: EDIT_BILLING_ENTITY_INVOICE_TEMPLATE_INITIAL_VALUES,
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: editBillingEntityInvoiceTemplateValidationSchema,
     },
     onSubmit: async ({ value }) => {
+      const data = dataRef.current
+
+      if (!data) return
+
       const result = await updateBillingEntityInvoiceTemplate({
         variables: {
           input: {
-            id: dataRef.current?.id as string,
+            id: data.id,
             billingConfiguration: {
               invoiceFooter: value.invoiceFooter,
             },
@@ -120,7 +119,7 @@ export const useEditBillingEntityInvoiceTemplateDialog = () => {
                     <div className="flex justify-between">
                       <div className="flex-1">{translate('text_62bc52dd8536260acc9eb762')}</div>
                       <div className="shrink-0">
-                        {field.state.value.length}/{MAX_CHAR_LIMIT}
+                        {field.state.value.length}/{INVOICE_FOOTER_MAX_CHAR_LIMIT}
                       </div>
                     </div>
                   }
