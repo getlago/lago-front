@@ -8,8 +8,9 @@ import { CreateCustomerWalletTransactionInput } from '~/generated/graphql'
 // (set by the settings selectors), not the raw GQL reference inputs
 export type TWalletTopUpDataForm = Omit<
   CreateCustomerWalletTransactionInput,
-  'walletId' | 'paymentMethod' | 'invoiceCustomSection'
+  'walletId' | 'priority' | 'paymentMethod' | 'invoiceCustomSection'
 > & {
+  priority?: string
   paymentMethod?: SelectedPaymentMethod
   invoiceCustomSection?: InvoiceCustomSectionInput
 }

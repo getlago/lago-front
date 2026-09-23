@@ -22,16 +22,17 @@ type TWalletRecurringRuleInput = NonNullable<
 
 export type TWalletDataForm = Omit<
   CreateCustomerWalletInput,
-  'customerId' | 'name' | 'code' | 'recurringTransactionRules' | 'connections'
+  'customerId' | 'name' | 'code' | 'priority' | 'recurringTransactionRules' | 'connections'
 > &
   Omit<
     UpdateCustomerWalletInput,
-    'id' | 'name' | 'code' | 'recurringTransactionRules' | 'connections'
+    'id' | 'name' | 'code' | 'priority' | 'recurringTransactionRules' | 'connections'
   > & {
     // Always strings in the form ('' when unset) so they stay compatible
     // with NameAndCodeGroup's field mapping.
     name: string
     code: string
+    priority: string
     appliesTo?: Omit<NonNullable<WalletForScopeSectionFragment['appliesTo']>, 'billableMetrics'> & {
       billableMetrics?: WalletScopeBillableMetric[] | null
     }
