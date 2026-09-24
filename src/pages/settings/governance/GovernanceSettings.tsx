@@ -85,33 +85,37 @@ const GovernanceSettings = (): JSX.Element => {
     }
 
     return (
-      <NavigationTab
-        tabPanelClassName="min-h-0 flex-1 flex-col [&:not([hidden])]:flex"
-        tabs={[
-          {
-            title: translate('text_1790230812563cibrddwcit4'),
-            dataTest: GOVERNANCE_SETTINGS_HIERARCHICAL_TAB_TEST_ID,
-            match: [
-              GOVERNANCE_SETTINGS_ROUTE,
-              generatePath(GOVERNANCE_SETTINGS_TAB_ROUTE, {
+      <div className="flex min-h-0 flex-1 flex-col">
+        <NavigationTab
+          tabPanelClassName="min-h-0 flex-1 flex-col [&:not([hidden])]:flex"
+          tabs={[
+            {
+              title: translate('text_1790230812563cibrddwcit4'),
+              dataTest: GOVERNANCE_SETTINGS_HIERARCHICAL_TAB_TEST_ID,
+              match: [
+                GOVERNANCE_SETTINGS_ROUTE,
+                generatePath(GOVERNANCE_SETTINGS_TAB_ROUTE, {
+                  tab: GovernanceSettingsTabsOptionsEnum.hierarchical,
+                }),
+              ],
+              link: generatePath(GOVERNANCE_SETTINGS_TAB_ROUTE, {
                 tab: GovernanceSettingsTabsOptionsEnum.hierarchical,
               }),
-            ],
-            link: generatePath(GOVERNANCE_SETTINGS_TAB_ROUTE, {
-              tab: GovernanceSettingsTabsOptionsEnum.hierarchical,
-            }),
-            component: <GovernanceEntitiesTable role={UsageAttributionTypeRoleEnum.Hierarchical} />,
-          },
-          {
-            title: translate('text_17902308125635bb6aqr2wbe'),
-            dataTest: GOVERNANCE_SETTINGS_FLAT_TAB_TEST_ID,
-            link: generatePath(GOVERNANCE_SETTINGS_TAB_ROUTE, {
-              tab: GovernanceSettingsTabsOptionsEnum.flat,
-            }),
-            component: <GovernanceEntitiesTable role={UsageAttributionTypeRoleEnum.Flat} />,
-          },
-        ]}
-      />
+              component: (
+                <GovernanceEntitiesTable role={UsageAttributionTypeRoleEnum.Hierarchical} />
+              ),
+            },
+            {
+              title: translate('text_17902308125635bb6aqr2wbe'),
+              dataTest: GOVERNANCE_SETTINGS_FLAT_TAB_TEST_ID,
+              link: generatePath(GOVERNANCE_SETTINGS_TAB_ROUTE, {
+                tab: GovernanceSettingsTabsOptionsEnum.flat,
+              }),
+              component: <GovernanceEntitiesTable role={UsageAttributionTypeRoleEnum.Flat} />,
+            },
+          ]}
+        />
+      </div>
     )
   }
 
