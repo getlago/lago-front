@@ -1,13 +1,11 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
-import { DateTime } from 'luxon'
 import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
-import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import { addToast } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { CONTRACT_DETAILS_ROUTE, useNavigate } from '~/core/router'
@@ -21,6 +19,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
+import { buildCreateContractInput } from './buildContractInput'
 import {
   buildContractFormDefaults,
   CONTRACT_DRAWER_SUBMIT_TEST_ID,
@@ -97,28 +96,7 @@ const useContractForm = ({
     },
     onSubmit: async ({ value }) => {
       const result = await createContract({
-        variables: {
-          input: {
-            externalCustomerId: value.externalCustomerId,
-            externalId: value.externalId || undefined,
-            planCode: value.planCode,
-            name: value.name || undefined,
-            billingEntityId: value.billingEntityId || undefined,
-            consolidateInvoice: value.consolidateInvoice,
-            paymentMethod: value.paymentMethod,
-            purchaseOrderNumber:
-              normalizePurchaseOrderNumber(value.purchaseOrderNumber) ?? undefined,
-            // The pickers publish UTC already; this is the same belt-and-braces
-            // conversion the subscription form applies on submit.
-            startedAt: DateTime.fromISO(value.startedAt).toUTC().toISO() ?? undefined,
-            endedAt: value.endedAt
-              ? (DateTime.fromISO(value.endedAt).toUTC().toISO() ?? undefined)
-              : undefined,
-            // ISO8601Date, not a datetime: a bare calendar day.
-            billingAnchorDate:
-              DateTime.fromISO(value.billingAnchorDate).toUTC().toISODate() ?? undefined,
-          },
-        },
+        variables: { input: buildCreateContractInput(value) },
       })
 
       const contract = result.data?.createContract
