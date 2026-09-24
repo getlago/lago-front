@@ -53132,7 +53132,7 @@ export type GetBillableMetricsForWalletQueryHookResult = ReturnType<typeof useGe
 export type GetBillableMetricsForWalletLazyQueryHookResult = ReturnType<typeof useGetBillableMetricsForWalletLazyQuery>;
 export type GetBillableMetricsForWalletSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricsForWalletSuspenseQuery>;
 export type GetBillableMetricsForWalletQueryResult = Apollo.QueryResult<GetBillableMetricsForWalletQuery, GetBillableMetricsForWalletQueryVariables>;
-export type GovernanceEntityItemFragment = { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, parent?: { __typename?: 'UsageAttributionType', id: string, name?: string | null } | null };
+export type GovernanceEntityItemFragment = { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, parent?: { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string } | null };
 
 export type GetGovernanceEntitiesQueryVariables = Exact<{
   role?: InputMaybe<UsageAttributionTypeRoleEnum>;
@@ -53141,7 +53141,7 @@ export type GetGovernanceEntitiesQueryVariables = Exact<{
 }>;
 
 
-export type GetGovernanceEntitiesQuery = { __typename?: 'Query', usageAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, parent?: { __typename?: 'UsageAttributionType', id: string, name?: string | null } | null }> } };
+export type GetGovernanceEntitiesQuery = { __typename?: 'Query', usageAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, parent?: { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string } | null }> } };
 
 export type GetGovernanceEntitiesRoleCountsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -53158,6 +53158,7 @@ export const GovernanceEntityItemFragmentDoc = gql`
   parent {
     id
     name
+    code
   }
 }
     `;

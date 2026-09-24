@@ -22,7 +22,12 @@ type Entity = {
   code: string
   role: UsageAttributionTypeRoleEnum
   createdAt: string
-  parent: { __typename: 'UsageAttributionType'; id: string; name: string | null } | null
+  parent: {
+    __typename: 'UsageAttributionType'
+    id: string
+    name: string | null
+    code: string
+  } | null
 }
 
 // `__typename` is what lets the cache match the `GovernanceEntityItem` fragment condition;
@@ -148,13 +153,45 @@ describe('GovernanceEntitiesTable', () => {
             role: UsageAttributionTypeRoleEnum.Hierarchical,
             collection: [
               buildEntity({
-                parent: { __typename: 'UsageAttributionType', id: 'parent-1', name: 'Teams' },
+                parent: {
+                  __typename: 'UsageAttributionType',
+                  id: 'parent-1',
+                  name: 'Teams',
+                  code: 'teams',
+                },
               }),
             ],
           }),
         )
 
         expect(await screen.findByText('Teams')).toBeInTheDocument()
+      })
+
+      it('THEN should render the parent code when the parent name is null', async () => {
+        renderTable(
+          UsageAttributionTypeRoleEnum.Hierarchical,
+          entitiesMock({
+            role: UsageAttributionTypeRoleEnum.Hierarchical,
+            collection: [
+              buildEntity({
+                parent: {
+                  __typename: 'UsageAttributionType',
+                  id: 'parent-1',
+                  name: null,
+                  code: 'unnamed-parent',
+                },
+              }),
+            ],
+          }),
+        )
+
+        await screen.findByText('Engineering')
+
+        const table = screen.getByTestId(GOVERNANCE_ENTITIES_TABLE_TEST_ID)
+
+        // A parent that exists but has no name must not be indistinguishable from no parent.
+        expect(within(table).getByText('unnamed-parent')).toBeInTheDocument()
+        expect(within(table).queryByText('-')).not.toBeInTheDocument()
       })
 
       it('THEN should fall back to the code when the name is null', async () => {

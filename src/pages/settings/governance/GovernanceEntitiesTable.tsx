@@ -20,6 +20,7 @@ gql`
     parent {
       id
       name
+      code
     }
   }
 
@@ -119,7 +120,7 @@ export const GovernanceEntitiesTable = ({ role }: GovernanceEntitiesTableProps):
                 title: translate('text_1790230812563xw6orgl2n9j'),
                 content: ({ parent }) => (
                   <Typography variant="body" color="grey700" noWrap>
-                    {parent?.name ?? '-'}
+                    {parent?.name ?? parent?.code ?? '-'}
                   </Typography>
                 ),
               }
