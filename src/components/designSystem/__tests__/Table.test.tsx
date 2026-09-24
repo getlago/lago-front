@@ -549,4 +549,39 @@ describe('Table', () => {
 
     expect(screen.getByText('error.svg')).toBeInTheDocument()
   })
+
+  it('renders a group header row only when getRowGroupHeader returns a node for that row', async () => {
+    const groupedData = [
+      { id: '1', name: 'Alice', group: 'A' },
+      { id: '2', name: 'Bob', group: 'A' },
+      { id: '3', name: 'Carl', group: 'B' },
+    ]
+
+    await act(() =>
+      render(
+        <Table
+          name="grouped"
+          data={groupedData}
+          columns={[{ key: 'name' as const, title: 'Name', content: (row) => row.name }]}
+          getRowGroupHeader={(row, index, data) => {
+            const previousGroup = index > 0 ? data[index - 1].group : undefined
+
+            if (row.group === previousGroup) return undefined
+
+            return `Group ${row.group}`
+          }}
+        />,
+      ),
+    )
+
+    expect(screen.getByText('Group A')).toBeInTheDocument()
+    expect(screen.getByText('Group B')).toBeInTheDocument()
+    expect(screen.getAllByText(/^Group /)).toHaveLength(2)
+  })
+
+  it('renders no group header rows when getRowGroupHeader is omitted', async () => {
+    await prepare()
+
+    expect(screen.queryByText(/^Group /)).not.toBeInTheDocument()
+  })
 })

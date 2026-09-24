@@ -3,7 +3,7 @@ import MUITableBody from '@mui/material/TableBody'
 import { type TableCellProps } from '@mui/material/TableCell'
 import MUITableHead from '@mui/material/TableHead'
 import MUITableRow, { type TableRowProps } from '@mui/material/TableRow'
-import { isValidElement, MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
+import { Fragment, isValidElement, MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
 import { useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -91,6 +91,13 @@ export interface TableProps<T> {
   actionColumn?: ActionColumn<T>
   actionColumnTooltip?: (item: T) => string
   rowDataTestId?: (item: T) => string
+  /**
+   * Called for every data row; return a node to render a full-width group header
+   * immediately above that row. Return `undefined` for rows that don't start a new
+   * group. The caller is responsible for detecting the group boundary (e.g. by
+   * comparing against `data[index - 1]`).
+   */
+  getRowGroupHeader?: (item: T, index: number, data: T[]) => ReactNode | undefined
   containerSize?: ResponsiveStyleValue<TableContainerSize>
   rowSize?: RowSize
   tableInDialog?: boolean
@@ -358,6 +365,7 @@ export const Table = <T extends DataItem>({
   actionColumn,
   actionColumnTooltip,
   rowDataTestId,
+  getRowGroupHeader,
 }: TableProps<T>) => {
   const TABLE_ID = `table-${name}`
   const filteredColumns = columns
@@ -636,19 +644,37 @@ export const Table = <T extends DataItem>({
           {renderPlaceholder() ??
             (!isLoading &&
               data.length > 0 &&
-              data.map((item, i) => (
-                <TableRow
-                  key={`${TABLE_ID}-row-${i}`}
-                  id={`${TABLE_ID}-row-${i}`}
-                  data-id={item.id}
-                  data-state={!!activeRowId && item.id === activeRowId ? 'selected' : undefined}
-                  isClickable={isClickable}
-                  tabIndex={isClickable ? 0 : undefined}
-                  onKeyDown={isClickable ? onKeyDown : undefined}
-                  onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
-                  data-test={rowDataTestId?.(item) || `table-row-${i}`}
-                >
-                  {filteredColumns.map((column, j) => (
+              data.map((item, i) => {
+                const groupHeader = getRowGroupHeader?.(item, i, data)
+
+                return (
+                  <Fragment key={`${TABLE_ID}-row-${i}`}>
+                    {groupHeader !== undefined && (
+                      <TableRow
+                        className="bg-grey-100"
+                        sx={{
+                          '& .lago-table-cell': {
+                            ...setResponsiveProperty('paddingLeft', containerSize),
+                            ...setResponsiveProperty('paddingRight', containerSize),
+                          },
+                        }}
+                      >
+                        <TableCell colSpan={colSpan}>
+                          <TableInnerCell>{groupHeader}</TableInnerCell>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    <TableRow
+                      id={`${TABLE_ID}-row-${i}`}
+                      data-id={item.id}
+                      data-state={!!activeRowId && item.id === activeRowId ? 'selected' : undefined}
+                      isClickable={isClickable}
+                      tabIndex={isClickable ? 0 : undefined}
+                      onKeyDown={isClickable ? onKeyDown : undefined}
+                      onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
+                      data-test={rowDataTestId?.(item) || `table-row-${i}`}
+                    >
+                      {filteredColumns.map((column, j) => (
                     <TableCell
                       key={`${TABLE_ID}-cell-${i}-${j}`}
                       align={column.textAlign || 'left'}
@@ -718,9 +744,11 @@ export const Table = <T extends DataItem>({
                         )}
                       </TableInnerCell>
                     </TableActionCell>
-                  )}
-                </TableRow>
-              )))}
+                    )}
+                    </TableRow>
+                  </Fragment>
+                )
+              }))}
           {isLoading &&
             LoadingRows({
               columns: filteredColumns,
