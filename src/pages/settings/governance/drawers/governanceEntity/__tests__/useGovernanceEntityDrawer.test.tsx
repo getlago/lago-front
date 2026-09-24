@@ -23,9 +23,12 @@ import {
 } from '../AttributionKeysField'
 import {
   GOVERNANCE_ENTITY_DRAWER_CODE_TEST_ID,
+  GOVERNANCE_ENTITY_DRAWER_DESCRIPTION_TEST_ID,
   GOVERNANCE_ENTITY_DRAWER_NAME_TEST_ID,
   GOVERNANCE_ENTITY_DRAWER_PARENT_TEST_ID,
+  GOVERNANCE_ENTITY_DRAWER_REMOVE_DESCRIPTION_TEST_ID,
   GOVERNANCE_ENTITY_DRAWER_ROLE_TEST_ID,
+  GOVERNANCE_ENTITY_DRAWER_SHOW_DESCRIPTION_TEST_ID,
 } from '../GovernanceEntityDrawerContent'
 import { useGovernanceEntityDrawer } from '../useGovernanceEntityDrawer'
 import { MAX_ATTRIBUTION_KEYS } from '../validationSchema'
@@ -283,6 +286,66 @@ describe('useGovernanceEntityDrawer', () => {
         await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
         expect(mutation.result).toHaveBeenCalledTimes(1)
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+    })
+  })
+
+  describe('GIVEN a description is added', () => {
+    describe('WHEN the form is submitted', () => {
+      it('THEN should send the description', async () => {
+        const mutation = createMock({ ...hierarchicalInput, description: 'Engineering teams' })
+
+        renderDrawer([mutation])
+        renderDrawerBody()
+
+        await userEvent.click(screen.getByTestId(GOVERNANCE_ENTITY_DRAWER_SHOW_DESCRIPTION_TEST_ID))
+        await userEvent.type(
+          screen
+            .getByTestId(GOVERNANCE_ENTITY_DRAWER_DESCRIPTION_TEST_ID)
+            .querySelector('textarea') as HTMLTextAreaElement,
+          'Engineering teams',
+        )
+        await fillEntity({
+          role: UsageAttributionTypeRoleEnum.Hierarchical,
+          parent: PARENT_ID,
+          keys: ['department_id'],
+        })
+        await submit()
+
+        await waitFor(() => expect(mutation.result).toHaveBeenCalledTimes(1))
+      })
+    })
+
+    describe('WHEN it is removed with the trash button before submitting', () => {
+      it('THEN should hide the field and send no description', async () => {
+        const mutation = createMock(hierarchicalInput)
+
+        renderDrawer([mutation])
+        renderDrawerBody()
+
+        await userEvent.click(screen.getByTestId(GOVERNANCE_ENTITY_DRAWER_SHOW_DESCRIPTION_TEST_ID))
+        await userEvent.type(
+          screen
+            .getByTestId(GOVERNANCE_ENTITY_DRAWER_DESCRIPTION_TEST_ID)
+            .querySelector('textarea') as HTMLTextAreaElement,
+          'Engineering teams',
+        )
+        await userEvent.click(
+          screen.getByTestId(GOVERNANCE_ENTITY_DRAWER_REMOVE_DESCRIPTION_TEST_ID),
+        )
+
+        expect(
+          screen.queryByTestId(GOVERNANCE_ENTITY_DRAWER_DESCRIPTION_TEST_ID),
+        ).not.toBeInTheDocument()
+
+        await fillEntity({
+          role: UsageAttributionTypeRoleEnum.Hierarchical,
+          parent: PARENT_ID,
+          keys: ['department_id'],
+        })
+        await submit()
+
+        await waitFor(() => expect(mutation.result).toHaveBeenCalledTimes(1))
       })
     })
   })

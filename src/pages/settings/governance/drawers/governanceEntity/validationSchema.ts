@@ -26,6 +26,7 @@ export const governanceEntityValidationSchema = z.object({
     .string()
     .min(1, { message: REQUIRED_MESSAGE })
     .max(MAX_TEXT_LENGTH, { message: TOO_LONG_MESSAGE }),
+  description: z.string(),
   role: z
     .enum(UsageAttributionTypeRoleEnum)
     .optional()
@@ -43,6 +44,7 @@ export type GovernanceEntityFormValues = z.input<typeof governanceEntityValidati
 export const GOVERNANCE_ENTITY_FORM_DEFAULTS: GovernanceEntityFormValues = {
   name: '',
   code: '',
+  description: '',
   role: undefined,
   parentId: undefined,
   attributionKeys: [],
@@ -58,6 +60,7 @@ export const buildCreateUsageAttributionTypeInput = (
   return {
     ...(values.name ? { name: values.name } : {}),
     code: values.code,
+    ...(values.description.trim() ? { description: values.description } : {}),
     role: values.role,
     attributionKeys: values.attributionKeys.map(({ value }) => value.trim()),
     ...(isHierarchical && values.parentId ? { parentId: values.parentId } : {}),

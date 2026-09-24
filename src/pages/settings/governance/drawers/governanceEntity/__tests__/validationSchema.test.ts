@@ -118,6 +118,18 @@ describe('buildCreateUsageAttributionTypeInput', () => {
     })
   })
 
+  describe('GIVEN a description', () => {
+    it.each([
+      ['a filled description', 'Engineering teams', 'Engineering teams'],
+      ['a blank description', '   ', undefined],
+      ['an empty description', '', undefined],
+    ])('THEN should handle %s', (_, description, expected) => {
+      const input = buildCreateUsageAttributionTypeInput(validValues({ description }))
+
+      expect(input?.description).toBe(expected)
+    })
+  })
+
   describe('GIVEN no role', () => {
     it('THEN should return undefined', () => {
       expect(buildCreateUsageAttributionTypeInput(validValues({ role: undefined }))).toBeUndefined()

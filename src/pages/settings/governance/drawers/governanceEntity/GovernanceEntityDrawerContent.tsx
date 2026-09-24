@@ -1,6 +1,9 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
+import { useState } from 'react'
 
+import { Button } from '~/components/designSystem/Button'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
 import { CreateMoreResetSignal } from '~/components/drawers/createMore/useCreateMore'
@@ -56,6 +59,11 @@ export const GOVERNANCE_ENTITY_DRAWER_NAME_TEST_ID = 'governance-entity-drawer-n
 export const GOVERNANCE_ENTITY_DRAWER_CODE_TEST_ID = 'governance-entity-drawer-code'
 export const GOVERNANCE_ENTITY_DRAWER_ROLE_TEST_ID = 'governance-entity-drawer-role'
 export const GOVERNANCE_ENTITY_DRAWER_PARENT_TEST_ID = 'governance-entity-drawer-parent'
+export const GOVERNANCE_ENTITY_DRAWER_SHOW_DESCRIPTION_TEST_ID =
+  'governance-entity-drawer-show-description'
+export const GOVERNANCE_ENTITY_DRAWER_REMOVE_DESCRIPTION_TEST_ID =
+  'governance-entity-drawer-remove-description'
+export const GOVERNANCE_ENTITY_DRAWER_DESCRIPTION_TEST_ID = 'governance-entity-drawer-description'
 
 const GovernanceEntityDrawerFormSections = withForm({
   defaultValues: GOVERNANCE_ENTITY_FORM_DEFAULTS,
@@ -63,6 +71,14 @@ const GovernanceEntityDrawerFormSections = withForm({
     const { translate } = useInternationalization()
     const role = useStore(form.store, (state) => state.values.role)
     const isHierarchical = role === UsageAttributionTypeRoleEnum.Hierarchical
+    const [shouldDisplayDescription, setShouldDisplayDescription] = useState(false)
+
+    const handleHideDescription = (): void => {
+      if (form.state.values.description) {
+        form.setFieldValue('description', '')
+      }
+      setShouldDisplayDescription(false)
+    }
 
     const [getParentOptions, { data: parentOptionsData, loading: parentOptionsLoading }] =
       useGetGovernanceEntityParentOptionsLazyQuery({
@@ -96,6 +112,51 @@ const GovernanceEntityDrawerFormSections = withForm({
       }
     }
 
+    const renderDescription = (): JSX.Element => {
+      if (!shouldDisplayDescription) {
+        return (
+          <Button
+            fitContent
+            startIcon="plus"
+            variant="inline"
+            onClick={() => setShouldDisplayDescription(true)}
+            data-test={GOVERNANCE_ENTITY_DRAWER_SHOW_DESCRIPTION_TEST_ID}
+          >
+            {translate('text_642d5eb2783a2ad10d670324')}
+          </Button>
+        )
+      }
+
+      return (
+        <div className="flex items-center">
+          <form.AppField name="description">
+            {(field) => (
+              <field.TextInputField
+                multiline
+                className="mr-3 flex-1"
+                label={translate('text_629728388c4d2300e2d380f1')}
+                placeholder={translate('text_1750257831368ae3rtaclhjy')}
+                rows="3"
+                data-test={GOVERNANCE_ENTITY_DRAWER_DESCRIPTION_TEST_ID}
+              />
+            )}
+          </form.AppField>
+          <Tooltip
+            className="mt-6"
+            placement="top-end"
+            title={translate('text_63aa085d28b8510cd46443ff')}
+          >
+            <Button
+              icon="trash"
+              variant="quaternary"
+              onClick={handleHideDescription}
+              data-test={GOVERNANCE_ENTITY_DRAWER_REMOVE_DESCRIPTION_TEST_ID}
+            />
+          </Tooltip>
+        </div>
+      )
+    }
+
     return (
       <>
         <div className="flex flex-col gap-2">
@@ -124,6 +185,8 @@ const GovernanceEntityDrawerFormSections = withForm({
             nameDataTest={GOVERNANCE_ENTITY_DRAWER_NAME_TEST_ID}
             codeDataTest={GOVERNANCE_ENTITY_DRAWER_CODE_TEST_ID}
           />
+
+          {renderDescription()}
 
           <form.AppField name="role" listeners={{ onChange: handleRoleChange }}>
             {(field) => (
