@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { generatePath } from 'react-router'
 
 import { usePageSearchParam } from '~/components/designSystem/Pagination/usePageSearchParam'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
@@ -6,6 +7,7 @@ import { AppliedRateCardsTable } from '~/components/rateCards/AppliedRateCardsTa
 import { useRemoveAppliedRateCardDialog } from '~/components/rateCards/dialogs/useRemoveAppliedRateCardDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
+import { CONTRACT_RATE_CARD_DETAILS_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useGetContractAppliedRateCardsForRateCardsSectionLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -110,7 +112,12 @@ export const ContractRateCardsSection = ({
         metadata={data?.contractAppliedRateCards?.metadata}
         loading={isLoading}
         onPageChange={goToPage}
-        getRateCardHref={() => '#'}
+        getRateCardHref={(row) =>
+          generatePath(CONTRACT_RATE_CARD_DETAILS_ROUTE, {
+            id: contractId,
+            appliedRateCardId: row.id,
+          })
+        }
         onCopyRateCardCode={(row) => copyToClipboard(row.rateCard.code)}
         onRemoveRateCard={(row) =>
           openRemoveAppliedRateCardDialog({
