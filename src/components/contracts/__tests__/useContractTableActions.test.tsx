@@ -5,6 +5,7 @@ import { ContractStatusEnum } from '~/generated/graphql'
 
 import {
   CONTRACT_TABLE_CANCEL_TEST_ID,
+  CONTRACT_TABLE_COPY_EXTERNAL_ID_TEST_ID,
   CONTRACT_TABLE_EDIT_TEST_ID,
   CONTRACT_TABLE_TERMINATE_TEST_ID,
   useContractTableActions,
@@ -59,7 +60,9 @@ describe('useContractTableActions', () => {
     const { result } = renderHook(() => useContractTableActions())
     const actions = result.current.getContractTableActions(contract)
 
-    expect(actions[0]).toEqual(expect.objectContaining({ dataTest: 'copy-contract-external-id' }))
+    expect(actions[0]).toEqual(
+      expect.objectContaining({ dataTest: CONTRACT_TABLE_COPY_EXTERNAL_ID_TEST_ID }),
+    )
 
     act(() => actions[0]?.onAction?.(contract))
     expect(mockCopyContractExternalId).toHaveBeenCalledWith('external-contract-1')
@@ -102,7 +105,7 @@ describe('useContractTableActions', () => {
     const actions = result.current.getContractTableActions(contract)
 
     expect(actions.map((action) => action.dataTest)).toEqual([
-      'copy-contract-external-id',
+      CONTRACT_TABLE_COPY_EXTERNAL_ID_TEST_ID,
       CONTRACT_TABLE_EDIT_TEST_ID,
       CONTRACT_TABLE_TERMINATE_TEST_ID,
     ])
