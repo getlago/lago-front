@@ -31,6 +31,10 @@ const requireDate = (
   addUnsupportedDateIssue(ctx, value, path)
 }
 
+type ContractSchemaOptions = {
+  isPlanRequired: () => boolean
+}
+
 /**
  * `z.custom` + `superRefine` rather than a `z.object`: the two comboboxes publish
  * `undefined` when cleared, and a field-level `z.string()` would reject that before
@@ -39,16 +43,21 @@ const requireDate = (
  * The date rules are ported from `subscriptionFormSchema`, which is the behaviour
  * the contract dates are specified to match.
  */
-export const contractSchema = z.custom<ContractFormValues>().superRefine((data, ctx) => {
-  requireField(ctx, data.externalCustomerId, ['externalCustomerId'])
-  requireField(ctx, data.planCode, ['planCode'])
-  requireDate(ctx, data.startedAt, ['startedAt'])
-  requireDate(ctx, data.billingAnchorDate, ['billingAnchorDate'])
+export const buildContractSchema = ({
+  isPlanRequired,
+}: ContractSchemaOptions): z.ZodType<ContractFormValues, ContractFormValues> =>
+  z.custom<ContractFormValues>().superRefine((data, ctx) => {
+    requireField(ctx, data.externalCustomerId, ['externalCustomerId'])
+    if (isPlanRequired()) requireField(ctx, data.planCode, ['planCode'])
+    requireDate(ctx, data.startedAt, ['startedAt'])
+    requireDate(ctx, data.billingAnchorDate, ['billingAnchorDate'])
 
-  addPurchaseOrderNumberMaxLengthIssue(ctx, data.purchaseOrderNumber, ['purchaseOrderNumber'])
+    addPurchaseOrderNumberMaxLengthIssue(ctx, data.purchaseOrderNumber, ['purchaseOrderNumber'])
 
-  if (!data.endedAt) return
-  if (addUnsupportedDateIssue(ctx, data.endedAt, ['endedAt'])) return
+    if (!data.endedAt) return
+    if (addUnsupportedDateIssue(ctx, data.endedAt, ['endedAt'])) return
 
-  addEndDateAfterStartIssue(ctx, data.startedAt, data.endedAt, ['endedAt'], END_DATE_INVALID_KEY)
-})
+    addEndDateAfterStartIssue(ctx, data.startedAt, data.endedAt, ['endedAt'], END_DATE_INVALID_KEY)
+  })
+
+export const contractSchema = buildContractSchema({ isPlanRequired: () => true })

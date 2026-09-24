@@ -1,4 +1,4 @@
-import { contractSchema } from '../schema'
+import { buildContractSchema, contractSchema } from '../schema'
 
 const validValues = {
   externalCustomerId: 'customer-external-id',
@@ -61,5 +61,13 @@ describe('contractSchema', () => {
     expect(result.error.issues).toEqual(
       expect.arrayContaining([expect.objectContaining({ path: ['purchaseOrderNumber'] })]),
     )
+  })
+
+  // A contract created through the API without a plan could otherwise never be saved again.
+  it('accepts a missing plan when the plan is not required', () => {
+    const schema = buildContractSchema({ isPlanRequired: () => false })
+
+    expect(schema.safeParse({ ...validValues, planCode: '' }).success).toBe(true)
+    expect(contractSchema.safeParse({ ...validValues, planCode: '' }).success).toBe(false)
   })
 })

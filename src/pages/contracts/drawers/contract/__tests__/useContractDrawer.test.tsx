@@ -293,6 +293,24 @@ describe('useContractDrawer', () => {
       expect(mockClose).not.toHaveBeenCalled()
     })
 
+    // The plan combobox is locked on an active contract, so a required plan would block every save.
+    it('saves a contract that has no plan without sending a plan code', async () => {
+      let capturedInput: Record<string, unknown> = {}
+      const { result } = renderDrawerHook([
+        updateContractMock((input) => {
+          capturedInput = input
+        }),
+      ])
+
+      act(() =>
+        result.current.openDrawer({ contract: { ...contractForDrawerFixture, plan: null } }),
+      )
+      await submit()
+
+      await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+      expect(capturedInput.planCode).toBeUndefined()
+    })
+
     it('goes back to an empty create form when reopened without a contract', async () => {
       let capturedCreateInput: Record<string, unknown> | undefined
       const { result } = renderDrawerHook([
