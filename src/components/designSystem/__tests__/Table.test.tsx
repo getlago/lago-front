@@ -563,8 +563,8 @@ describe('Table', () => {
           name="grouped"
           data={groupedData}
           columns={[{ key: 'name' as const, title: 'Name', content: (row) => row.name }]}
-          getRowGroupHeader={(row, index, data) => {
-            const previousGroup = index > 0 ? data[index - 1].group : undefined
+          getRowGroupHeader={(row, index, allRows) => {
+            const previousGroup = index > 0 ? allRows[index - 1].group : undefined
 
             if (row.group === previousGroup) return undefined
 
