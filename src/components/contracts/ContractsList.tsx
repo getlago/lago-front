@@ -1,10 +1,24 @@
+import { gql } from '@apollo/client'
+
 import { Table, TableProps } from '~/components/designSystem/Table/Table'
-import { ContractForContractDrawerFragment } from '~/generated/graphql'
+import {
+  ContractForContractDrawerFragmentDoc,
+  ContractForContractsListItemFragment,
+} from '~/generated/graphql'
 
 import { getContractDisplayName } from './getContractDisplayName'
 import { useContractTableActions } from './useContractTableActions'
 
-export type ContractListItem = ContractForContractDrawerFragment
+gql`
+  fragment ContractForContractsListItem on Contract {
+    id
+    ...ContractForContractDrawer
+  }
+
+  ${ContractForContractDrawerFragmentDoc}
+`
+
+export type ContractListItem = ContractForContractsListItemFragment
 
 interface ContractsListProps<T extends ContractListItem> extends Omit<
   TableProps<T>,

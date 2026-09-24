@@ -12883,6 +12883,42 @@ export type DeleteBillableMetricMutationVariables = Exact<{
 
 export type DeleteBillableMetricMutation = { __typename?: 'Mutation', destroyBillableMetric?: { __typename?: 'DestroyBillableMetricPayload', id?: string | null } | null };
 
+export type ContractForContractsListItemFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null };
+
+export type GetCustomersForContractDrawerQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetCustomersForContractDrawerQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', collection: Array<{ __typename?: 'Customer', id: string, displayName: string, externalId: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }> } };
+
+export type GetCatalogPlansForContractDrawerQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetCatalogPlansForContractDrawerQuery = { __typename?: 'Query', catalogPlans: { __typename?: 'CatalogPlanCollection', collection: Array<{ __typename?: 'CatalogPlan', id: string, name: string, code: string }> } };
+
+export type ContractForContractDrawerFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null };
+
+export type CreateContractMutationVariables = Exact<{
+  input: CreateContractInput;
+}>;
+
+
+export type CreateContractMutation = { __typename?: 'Mutation', createContract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null } | null };
+
+export type UpdateContractMutationVariables = Exact<{
+  input: UpdateContractInput;
+}>;
+
+
+export type UpdateContractMutation = { __typename?: 'Mutation', updateContract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null } | null };
+
 export type TerminateContractMutationVariables = Exact<{
   input: TerminateContractInput;
 }>;
@@ -17067,40 +17103,6 @@ export type GetContractForDetailsOverviewQueryVariables = Exact<{
 
 export type GetContractForDetailsOverviewQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, canceledAt?: any | null, terminatedAt?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null } | null };
 
-export type GetCustomersForContractDrawerQueryVariables = Exact<{
-  page?: InputMaybe<Scalars['Int']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type GetCustomersForContractDrawerQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', collection: Array<{ __typename?: 'Customer', id: string, displayName: string, externalId: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }> } };
-
-export type GetCatalogPlansForContractDrawerQueryVariables = Exact<{
-  page?: InputMaybe<Scalars['Int']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type GetCatalogPlansForContractDrawerQuery = { __typename?: 'Query', catalogPlans: { __typename?: 'CatalogPlanCollection', collection: Array<{ __typename?: 'CatalogPlan', id: string, name: string, code: string }> } };
-
-export type ContractForContractDrawerFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null };
-
-export type CreateContractMutationVariables = Exact<{
-  input: CreateContractInput;
-}>;
-
-
-export type CreateContractMutation = { __typename?: 'Mutation', createContract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null } | null };
-
-export type UpdateContractMutationVariables = Exact<{
-  input: UpdateContractInput;
-}>;
-
-
-export type UpdateContractMutation = { __typename?: 'Mutation', updateContract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null } | null };
-
 export type SelectableBillableMetricForCouponsFragment = { __typename?: 'SelectableBillableMetric', id: string, name: string, code: string };
 
 export type GetBillableMetricsForCouponsQueryVariables = Exact<{
@@ -19534,6 +19536,12 @@ export const ContractForContractDrawerFragmentDoc = gql`
   }
 }
     `;
+export const ContractForContractsListItemFragmentDoc = gql`
+    fragment ContractForContractsListItem on Contract {
+  id
+  ...ContractForContractDrawer
+}
+    ${ContractForContractDrawerFragmentDoc}`;
 export const ContractForCustomerContractsListFragmentDoc = gql`
     fragment ContractForCustomerContractsList on Contract {
   id
@@ -19546,9 +19554,9 @@ export const ContractForCustomerContractsListFragmentDoc = gql`
     id
     name
   }
-  ...ContractForContractDrawer
+  ...ContractForContractsListItem
 }
-    ${ContractForContractDrawerFragmentDoc}`;
+    ${ContractForContractsListItemFragmentDoc}`;
 export const EditCustomerIssuingDatePolicyDialogFragmentDoc = gql`
     fragment EditCustomerIssuingDatePolicyDialog on Customer {
   id
@@ -24022,9 +24030,9 @@ export const ContractForContractsListFragmentDoc = gql`
     id
     displayName
   }
-  ...ContractForContractDrawer
+  ...ContractForContractsListItem
 }
-    ${ContractForContractDrawerFragmentDoc}`;
+    ${ContractForContractsListItemFragmentDoc}`;
 export const ContractForContractDetailsOverviewFragmentDoc = gql`
     fragment ContractForContractDetailsOverview on Contract {
   id
@@ -26963,6 +26971,176 @@ export function useDeleteBillableMetricMutation(baseOptions?: Apollo.MutationHoo
 export type DeleteBillableMetricMutationHookResult = ReturnType<typeof useDeleteBillableMetricMutation>;
 export type DeleteBillableMetricMutationResult = Apollo.MutationResult<DeleteBillableMetricMutation>;
 export type DeleteBillableMetricMutationOptions = Apollo.BaseMutationOptions<DeleteBillableMetricMutation, DeleteBillableMetricMutationVariables>;
+export const GetCustomersForContractDrawerDocument = gql`
+    query getCustomersForContractDrawer($page: Int, $limit: Int, $searchTerm: String) {
+  customers(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    collection {
+      id
+      displayName
+      externalId
+      applicableTimezone
+      billingEntity {
+        id
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCustomersForContractDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetCustomersForContractDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomersForContractDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomersForContractDrawerQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetCustomersForContractDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>(GetCustomersForContractDrawerDocument, options);
+      }
+export function useGetCustomersForContractDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>(GetCustomersForContractDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetCustomersForContractDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>;
+export function useGetCustomersForContractDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomersForContractDrawerQuery | undefined, GetCustomersForContractDrawerQueryVariables>;
+export function useGetCustomersForContractDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>(GetCustomersForContractDrawerDocument, options);
+        }
+export type GetCustomersForContractDrawerQueryHookResult = ReturnType<typeof useGetCustomersForContractDrawerQuery>;
+export type GetCustomersForContractDrawerLazyQueryHookResult = ReturnType<typeof useGetCustomersForContractDrawerLazyQuery>;
+export type GetCustomersForContractDrawerSuspenseQueryHookResult = ReturnType<typeof useGetCustomersForContractDrawerSuspenseQuery>;
+export type GetCustomersForContractDrawerQueryResult = Apollo.QueryResult<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>;
+export const GetCatalogPlansForContractDrawerDocument = gql`
+    query getCatalogPlansForContractDrawer($page: Int, $limit: Int, $searchTerm: String) {
+  catalogPlans(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    collection {
+      id
+      name
+      code
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCatalogPlansForContractDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetCatalogPlansForContractDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCatalogPlansForContractDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCatalogPlansForContractDrawerQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetCatalogPlansForContractDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>(GetCatalogPlansForContractDrawerDocument, options);
+      }
+export function useGetCatalogPlansForContractDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>(GetCatalogPlansForContractDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetCatalogPlansForContractDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>;
+export function useGetCatalogPlansForContractDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCatalogPlansForContractDrawerQuery | undefined, GetCatalogPlansForContractDrawerQueryVariables>;
+export function useGetCatalogPlansForContractDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>(GetCatalogPlansForContractDrawerDocument, options);
+        }
+export type GetCatalogPlansForContractDrawerQueryHookResult = ReturnType<typeof useGetCatalogPlansForContractDrawerQuery>;
+export type GetCatalogPlansForContractDrawerLazyQueryHookResult = ReturnType<typeof useGetCatalogPlansForContractDrawerLazyQuery>;
+export type GetCatalogPlansForContractDrawerSuspenseQueryHookResult = ReturnType<typeof useGetCatalogPlansForContractDrawerSuspenseQuery>;
+export type GetCatalogPlansForContractDrawerQueryResult = Apollo.QueryResult<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>;
+export const CreateContractDocument = gql`
+    mutation createContract($input: CreateContractInput!) {
+  createContract(input: $input) {
+    id
+    ...ContractForContractDrawer
+  }
+}
+    ${ContractForContractDrawerFragmentDoc}`;
+export type CreateContractMutationFn = Apollo.MutationFunction<CreateContractMutation, CreateContractMutationVariables>;
+
+/**
+ * __useCreateContractMutation__
+ *
+ * To run a mutation, you first call `useCreateContractMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateContractMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createContractMutation, { data, loading, error }] = useCreateContractMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateContractMutation(baseOptions?: Apollo.MutationHookOptions<CreateContractMutation, CreateContractMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateContractMutation, CreateContractMutationVariables>(CreateContractDocument, options);
+      }
+export type CreateContractMutationHookResult = ReturnType<typeof useCreateContractMutation>;
+export type CreateContractMutationResult = Apollo.MutationResult<CreateContractMutation>;
+export type CreateContractMutationOptions = Apollo.BaseMutationOptions<CreateContractMutation, CreateContractMutationVariables>;
+export const UpdateContractDocument = gql`
+    mutation updateContract($input: UpdateContractInput!) {
+  updateContract(input: $input) {
+    id
+    ...ContractForContractDrawer
+  }
+}
+    ${ContractForContractDrawerFragmentDoc}`;
+export type UpdateContractMutationFn = Apollo.MutationFunction<UpdateContractMutation, UpdateContractMutationVariables>;
+
+/**
+ * __useUpdateContractMutation__
+ *
+ * To run a mutation, you first call `useUpdateContractMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateContractMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateContractMutation, { data, loading, error }] = useUpdateContractMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateContractMutation(baseOptions?: Apollo.MutationHookOptions<UpdateContractMutation, UpdateContractMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateContractMutation, UpdateContractMutationVariables>(UpdateContractDocument, options);
+      }
+export type UpdateContractMutationHookResult = ReturnType<typeof useUpdateContractMutation>;
+export type UpdateContractMutationResult = Apollo.MutationResult<UpdateContractMutation>;
+export type UpdateContractMutationOptions = Apollo.BaseMutationOptions<UpdateContractMutation, UpdateContractMutationVariables>;
 export const TerminateContractDocument = gql`
     mutation terminateContract($input: TerminateContractInput!) {
   terminateContract(input: $input) {
@@ -45637,176 +45815,6 @@ export type GetContractForDetailsOverviewQueryHookResult = ReturnType<typeof use
 export type GetContractForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetContractForDetailsOverviewLazyQuery>;
 export type GetContractForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetContractForDetailsOverviewSuspenseQuery>;
 export type GetContractForDetailsOverviewQueryResult = Apollo.QueryResult<GetContractForDetailsOverviewQuery, GetContractForDetailsOverviewQueryVariables>;
-export const GetCustomersForContractDrawerDocument = gql`
-    query getCustomersForContractDrawer($page: Int, $limit: Int, $searchTerm: String) {
-  customers(page: $page, limit: $limit, searchTerm: $searchTerm) {
-    collection {
-      id
-      displayName
-      externalId
-      applicableTimezone
-      billingEntity {
-        id
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useGetCustomersForContractDrawerQuery__
- *
- * To run a query within a React component, call `useGetCustomersForContractDrawerQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCustomersForContractDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCustomersForContractDrawerQuery({
- *   variables: {
- *      page: // value for 'page'
- *      limit: // value for 'limit'
- *      searchTerm: // value for 'searchTerm'
- *   },
- * });
- */
-export function useGetCustomersForContractDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>(GetCustomersForContractDrawerDocument, options);
-      }
-export function useGetCustomersForContractDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>(GetCustomersForContractDrawerDocument, options);
-        }
-// @ts-ignore
-export function useGetCustomersForContractDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>;
-export function useGetCustomersForContractDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomersForContractDrawerQuery | undefined, GetCustomersForContractDrawerQueryVariables>;
-export function useGetCustomersForContractDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>(GetCustomersForContractDrawerDocument, options);
-        }
-export type GetCustomersForContractDrawerQueryHookResult = ReturnType<typeof useGetCustomersForContractDrawerQuery>;
-export type GetCustomersForContractDrawerLazyQueryHookResult = ReturnType<typeof useGetCustomersForContractDrawerLazyQuery>;
-export type GetCustomersForContractDrawerSuspenseQueryHookResult = ReturnType<typeof useGetCustomersForContractDrawerSuspenseQuery>;
-export type GetCustomersForContractDrawerQueryResult = Apollo.QueryResult<GetCustomersForContractDrawerQuery, GetCustomersForContractDrawerQueryVariables>;
-export const GetCatalogPlansForContractDrawerDocument = gql`
-    query getCatalogPlansForContractDrawer($page: Int, $limit: Int, $searchTerm: String) {
-  catalogPlans(page: $page, limit: $limit, searchTerm: $searchTerm) {
-    collection {
-      id
-      name
-      code
-    }
-  }
-}
-    `;
-
-/**
- * __useGetCatalogPlansForContractDrawerQuery__
- *
- * To run a query within a React component, call `useGetCatalogPlansForContractDrawerQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCatalogPlansForContractDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCatalogPlansForContractDrawerQuery({
- *   variables: {
- *      page: // value for 'page'
- *      limit: // value for 'limit'
- *      searchTerm: // value for 'searchTerm'
- *   },
- * });
- */
-export function useGetCatalogPlansForContractDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>(GetCatalogPlansForContractDrawerDocument, options);
-      }
-export function useGetCatalogPlansForContractDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>(GetCatalogPlansForContractDrawerDocument, options);
-        }
-// @ts-ignore
-export function useGetCatalogPlansForContractDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>;
-export function useGetCatalogPlansForContractDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCatalogPlansForContractDrawerQuery | undefined, GetCatalogPlansForContractDrawerQueryVariables>;
-export function useGetCatalogPlansForContractDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>(GetCatalogPlansForContractDrawerDocument, options);
-        }
-export type GetCatalogPlansForContractDrawerQueryHookResult = ReturnType<typeof useGetCatalogPlansForContractDrawerQuery>;
-export type GetCatalogPlansForContractDrawerLazyQueryHookResult = ReturnType<typeof useGetCatalogPlansForContractDrawerLazyQuery>;
-export type GetCatalogPlansForContractDrawerSuspenseQueryHookResult = ReturnType<typeof useGetCatalogPlansForContractDrawerSuspenseQuery>;
-export type GetCatalogPlansForContractDrawerQueryResult = Apollo.QueryResult<GetCatalogPlansForContractDrawerQuery, GetCatalogPlansForContractDrawerQueryVariables>;
-export const CreateContractDocument = gql`
-    mutation createContract($input: CreateContractInput!) {
-  createContract(input: $input) {
-    id
-    ...ContractForContractDrawer
-  }
-}
-    ${ContractForContractDrawerFragmentDoc}`;
-export type CreateContractMutationFn = Apollo.MutationFunction<CreateContractMutation, CreateContractMutationVariables>;
-
-/**
- * __useCreateContractMutation__
- *
- * To run a mutation, you first call `useCreateContractMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateContractMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createContractMutation, { data, loading, error }] = useCreateContractMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateContractMutation(baseOptions?: Apollo.MutationHookOptions<CreateContractMutation, CreateContractMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateContractMutation, CreateContractMutationVariables>(CreateContractDocument, options);
-      }
-export type CreateContractMutationHookResult = ReturnType<typeof useCreateContractMutation>;
-export type CreateContractMutationResult = Apollo.MutationResult<CreateContractMutation>;
-export type CreateContractMutationOptions = Apollo.BaseMutationOptions<CreateContractMutation, CreateContractMutationVariables>;
-export const UpdateContractDocument = gql`
-    mutation updateContract($input: UpdateContractInput!) {
-  updateContract(input: $input) {
-    id
-    ...ContractForContractDrawer
-  }
-}
-    ${ContractForContractDrawerFragmentDoc}`;
-export type UpdateContractMutationFn = Apollo.MutationFunction<UpdateContractMutation, UpdateContractMutationVariables>;
-
-/**
- * __useUpdateContractMutation__
- *
- * To run a mutation, you first call `useUpdateContractMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateContractMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateContractMutation, { data, loading, error }] = useUpdateContractMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateContractMutation(baseOptions?: Apollo.MutationHookOptions<UpdateContractMutation, UpdateContractMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateContractMutation, UpdateContractMutationVariables>(UpdateContractDocument, options);
-      }
-export type UpdateContractMutationHookResult = ReturnType<typeof useUpdateContractMutation>;
-export type UpdateContractMutationResult = Apollo.MutationResult<UpdateContractMutation>;
-export type UpdateContractMutationOptions = Apollo.BaseMutationOptions<UpdateContractMutation, UpdateContractMutationVariables>;
 export const GetBillableMetricsForCouponsDocument = gql`
     query getBillableMetricsForCoupons($page: Int, $limit: Int, $searchTerm: String) {
   selectableBillableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {

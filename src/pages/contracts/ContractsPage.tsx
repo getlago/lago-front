@@ -23,8 +23,8 @@ import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import { CONTRACT_DETAILS_ROUTE } from '~/core/router'
 import {
-  ContractForContractDrawerFragmentDoc,
   ContractForContractsListFragment,
+  ContractForContractsListItemFragmentDoc,
   useGetContractsListLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -50,7 +50,7 @@ gql`
       id
       displayName
     }
-    ...ContractForContractDrawer
+    ...ContractForContractsListItem
   }
 
   query getContractsList(
@@ -86,7 +86,7 @@ gql`
     }
   }
 
-  ${ContractForContractDrawerFragmentDoc}
+  ${ContractForContractsListItemFragmentDoc}
 `
 
 const ContractsPage = (): JSX.Element => {

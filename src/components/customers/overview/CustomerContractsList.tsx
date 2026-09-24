@@ -14,7 +14,7 @@ import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import { CONTRACT_DETAILS_ROUTE } from '~/core/router'
 import {
-  ContractForContractDrawerFragmentDoc,
+  ContractForContractsListItemFragmentDoc,
   ContractForCustomerContractsListFragment,
   TimezoneEnum,
   useGetCustomerContractsListQuery,
@@ -36,7 +36,7 @@ gql`
       id
       name
     }
-    ...ContractForContractDrawer
+    ...ContractForContractsListItem
   }
 
   query getCustomerContractsList($externalCustomerId: String!, $page: Int, $limit: Int) {
@@ -52,7 +52,7 @@ gql`
     }
   }
 
-  ${ContractForContractDrawerFragmentDoc}
+  ${ContractForContractsListItemFragmentDoc}
 `
 
 type CustomerContractsListProps = {
