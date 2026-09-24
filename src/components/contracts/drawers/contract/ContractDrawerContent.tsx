@@ -315,7 +315,7 @@ const ContractDrawerFormSections = withForm({
                   placeholder={translate('text_17895526371417fmepv9tths')}
                   data={comboboxCustomersData}
                   loading={customersLoading}
-                  searchQuery={getCustomers}
+                  searchQuery={seededCustomer ? undefined : getCustomers}
                   PopperProps={{ displayInDialog: true }}
                 />
               )}
@@ -337,7 +337,7 @@ const ContractDrawerFormSections = withForm({
                   placeholder={translate('text_17895526371415015p23nj8t')}
                   data={comboboxPlansData}
                   loading={catalogPlansLoading}
-                  searchQuery={getCatalogPlans}
+                  searchQuery={fieldLocks.planCode ? undefined : getCatalogPlans}
                   PopperProps={{ displayInDialog: true }}
                 />
               )}
