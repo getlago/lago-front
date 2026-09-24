@@ -10,6 +10,7 @@ describe('mapContractToFormValues', () => {
       externalCustomerId: 'external-customer-1',
       externalId: 'external-contract-1',
       planCode: 'enterprise',
+      isPlanRequired: true,
       name: 'Enterprise agreement',
       billingEntityId: 'billing-entity-2',
       consolidateInvoice: true,
@@ -42,6 +43,7 @@ describe('mapContractToFormValues', () => {
         purchaseOrderNumber: undefined,
         billingEntityId: 'billing-entity-1',
         planCode: '',
+        isPlanRequired: false,
         paymentMethod: {
           paymentMethodId: null,
           paymentMethodType: PaymentMethodTypeEnum.Provider,
