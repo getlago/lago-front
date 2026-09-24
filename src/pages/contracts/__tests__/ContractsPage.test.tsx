@@ -2,6 +2,7 @@ import { MockedResponse } from '@apollo/client/testing'
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 
 import { contractForDrawerFixture } from '~/components/contracts/drawers/contract/__tests__/fixtures'
+import { CONTRACT_TABLE_COPY_EXTERNAL_ID_TEST_ID } from '~/components/contracts/useContractTableActions'
 import { OPEN_ACTION_BUTTON_TEST_ID } from '~/components/designSystem/Table/Table'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { addToast } from '~/core/apolloClient'
@@ -242,7 +243,7 @@ describe('ContractsPage', () => {
     const row = await screen.findByTestId('Enterprise agreement')
 
     fireEvent.click(within(row).getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
-    fireEvent.click(await screen.findByTestId('copy-contract-external-id'))
+    fireEvent.click(await screen.findByTestId(CONTRACT_TABLE_COPY_EXTERNAL_ID_TEST_ID))
 
     expect(copyToClipboard).toHaveBeenCalledWith('enterprise-2026')
     expect(addToast).toHaveBeenCalledWith({

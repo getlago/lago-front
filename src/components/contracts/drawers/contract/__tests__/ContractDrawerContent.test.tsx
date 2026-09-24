@@ -31,6 +31,7 @@ import {
 import { CREATE_CONTRACT_FIELD_LOCKS, getContractFieldLocks } from '../fieldLocks'
 import { mapContractToDrawerCustomer, mapContractToFormValues } from '../mapContractToFormValues'
 
+const FORM_DIRTY_STATE_TEST_ID = 'form-dirty-state'
 const mockBillingEntityPicker = jest.fn()
 const mockPaymentSettingsSelector = jest.fn()
 
@@ -101,7 +102,7 @@ const Wrapper = ({ seededCustomer }: { seededCustomer?: ContractDrawerCustomer }
 
   return (
     <>
-      <span data-test="form-dirty-state">{isDirty ? 'dirty' : 'pristine'}</span>
+      <span data-test={FORM_DIRTY_STATE_TEST_ID}>{isDirty ? 'dirty' : 'pristine'}</span>
       <button
         type="button"
         onClick={() => {
@@ -184,7 +185,7 @@ describe('ContractDrawerContent', () => {
         expect.objectContaining({ value: 'billing-entity-1' }),
       ),
     )
-    expect(screen.getByTestId('form-dirty-state')).toHaveTextContent('pristine')
+    expect(screen.getByTestId(FORM_DIRTY_STATE_TEST_ID)).toHaveTextContent('pristine')
   })
 
   it('clears customer-dependent settings when the customer is cleared', async () => {
@@ -228,7 +229,7 @@ const EditWrapper = ({ status }: { status: ContractStatusEnum }) => {
 
   return (
     <>
-      <span data-test="form-dirty-state">{isDirty ? 'dirty' : 'pristine'}</span>
+      <span data-test={FORM_DIRTY_STATE_TEST_ID}>{isDirty ? 'dirty' : 'pristine'}</span>
       <ContractDrawerContent
         form={form}
         isEdit
@@ -292,6 +293,6 @@ describe('ContractDrawerContent in edit mode', () => {
         expect.objectContaining({ value: 'billing-entity-2' }),
       ),
     )
-    expect(screen.getByTestId('form-dirty-state')).toHaveTextContent('pristine')
+    expect(screen.getByTestId(FORM_DIRTY_STATE_TEST_ID)).toHaveTextContent('pristine')
   })
 })

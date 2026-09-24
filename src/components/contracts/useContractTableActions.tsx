@@ -14,6 +14,7 @@ import {
 export const CONTRACT_TABLE_TERMINATE_TEST_ID = 'terminate-contract'
 export const CONTRACT_TABLE_CANCEL_TEST_ID = 'cancel-contract'
 export const CONTRACT_TABLE_EDIT_TEST_ID = 'edit-contract'
+export const CONTRACT_TABLE_COPY_EXTERNAL_ID_TEST_ID = 'copy-contract-external-id'
 
 export const useContractTableActions = () => {
   const { translate } = useInternationalization()
@@ -29,7 +30,7 @@ export const useContractTableActions = () => {
       {
         startIcon: 'duplicate',
         title: copyContractExternalIdLabel,
-        dataTest: 'copy-contract-external-id',
+        dataTest: CONTRACT_TABLE_COPY_EXTERNAL_ID_TEST_ID,
         onAction: () => copyContractExternalId(contract.externalId),
       },
     ]
