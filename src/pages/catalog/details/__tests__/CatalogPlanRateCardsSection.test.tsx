@@ -79,7 +79,7 @@ const buildDestroyMutationMock = (): TestMocksType[number] => ({
 
 const renderSection = (mocks: TestMocksType) =>
   render(
-    <AllTheProviders mocks={mocks}>
+    <AllTheProviders forceTypenames mocks={mocks}>
       <NiceModal.Provider>
         <CatalogPlanRateCardsSection catalogPlanId="plan-1" />
       </NiceModal.Provider>
