@@ -199,7 +199,9 @@ describe('GovernanceEntitiesTable', () => {
           }),
         )
 
-        expect((await screen.findByTestId('root')).querySelector('svg')).toBeInTheDocument()
+        expect(
+          (await screen.findByTestId('root')).querySelector('[data-test^="indent/"]'),
+        ).toBeInTheDocument()
       })
 
       it('THEN should fall back to the code when the name is null', async () => {
@@ -280,7 +282,9 @@ describe('GovernanceEntitiesTable', () => {
           }),
         )
 
-        expect((await screen.findByTestId('product')).querySelector('svg')).not.toBeInTheDocument()
+        expect(
+          (await screen.findByTestId('product')).querySelector('[data-test^="indent/"]'),
+        ).not.toBeInTheDocument()
       })
     })
   })

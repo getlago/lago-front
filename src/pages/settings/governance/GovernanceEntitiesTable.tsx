@@ -113,7 +113,7 @@ const GovernanceEntityNameCell = ({
   showIndentIcon,
 }: GovernanceEntityNameCellProps): JSX.Element => (
   <div className={tw('flex items-start gap-2', INDENT_CLASS_BY_DEPTH[depth])} data-test={code}>
-    {showIndentIcon && <Icon name="arrow-indent" className="mt-0.5" />}
+    {showIndentIcon && <Icon name="indent" className="mt-0.5" />}
     <div className="min-w-0">
       <Typography color="textSecondary" variant="bodyHl" noWrap>
         {name ?? code}
