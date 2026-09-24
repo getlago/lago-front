@@ -1,6 +1,7 @@
 import { MockedResponse } from '@apollo/client/testing'
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 
+import { contractForDrawerFixture } from '~/components/contracts/drawers/contract/__tests__/fixtures'
 import { OPEN_ACTION_BUTTON_TEST_ID } from '~/components/designSystem/Table/Table'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { addToast } from '~/core/apolloClient'
@@ -15,7 +16,6 @@ import {
   GetContractsListQuery,
   GetContractsListQueryVariables,
 } from '~/generated/graphql'
-import { contractForDrawerFixture } from '~/pages/contracts/drawers/contract/__tests__/fixtures'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import ContractsPage, { CONTRACTS_CREATE_TEST_ID } from '../ContractsPage'
@@ -48,7 +48,7 @@ jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
 }))
 
-jest.mock('~/pages/contracts/drawers/contract/useContractDrawer', () => ({
+jest.mock('~/components/contracts/drawers/contract/useContractDrawer', () => ({
   useContractDrawer: () => ({ openDrawer: mockOpenContractDrawer }),
 }))
 

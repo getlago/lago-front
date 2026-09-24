@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router'
 
 import { ContractsList } from '~/components/contracts/ContractsList'
+import { useContractDrawer } from '~/components/contracts/drawers/contract/useContractDrawer'
 import { getContractDisplayName } from '~/components/contracts/getContractDisplayName'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
@@ -30,8 +31,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-
-import { useContractDrawer } from './drawers/contract/useContractDrawer'
 
 export const CONTRACTS_CREATE_TEST_ID = 'contracts-create'
 

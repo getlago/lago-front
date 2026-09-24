@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { generatePath, useParams } from 'react-router'
 
 import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
+import { useContractDrawer } from '~/components/contracts/drawers/contract/useContractDrawer'
 import { Status } from '~/components/designSystem/Status'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -21,7 +22,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useContractPermissionsActions } from '~/hooks/useContractPermissionsActions'
-import { useContractDrawer } from '~/pages/contracts/drawers/contract/useContractDrawer'
 
 gql`
   fragment ContractForContractDetailsOverview on Contract {

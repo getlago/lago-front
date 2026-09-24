@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { generatePath } from 'react-router'
 
 import { ContractsList } from '~/components/contracts/ContractsList'
+import { useContractDrawer } from '~/components/contracts/drawers/contract/useContractDrawer'
 import { getContractDisplayName } from '~/components/contracts/getContractDisplayName'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
@@ -20,7 +21,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { useContractDrawer } from '~/pages/contracts/drawers/contract/useContractDrawer'
 
 export const CUSTOMER_CONTRACTS_CREATE_TEST_ID = 'customer-contracts-create'
 
