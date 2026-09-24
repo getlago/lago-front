@@ -26,7 +26,7 @@ export const ContractDetailsOverview = ({
 
   const renderSection = (): ReactNode => {
     if (activeSection === ContractOverviewSectionsEnum.rateCards) {
-      return <ContractRateCardsSection />
+      return <ContractRateCardsSection contractId={id} />
     }
 
     return <ContractOverviewSection />
