@@ -16652,6 +16652,18 @@ export type GetCatalogPlanForDetailsOverviewQueryVariables = Exact<{
 
 export type GetCatalogPlanForDetailsOverviewQuery = { __typename?: 'Query', catalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean } | null };
 
+export type PlanAppliedRateCardForRateCardsSectionFragment = { __typename?: 'PlanAppliedRateCard', id: string, ratePhasesCount: number, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null } };
+
+export type GetPlanAppliedRateCardsForRateCardsSectionQueryVariables = Exact<{
+  planId: Scalars['ID']['input'];
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetPlanAppliedRateCardsForRateCardsSectionQuery = { __typename?: 'Query', planAppliedRateCards: { __typename?: 'PlanAppliedRateCardCollection', collection: Array<{ __typename?: 'PlanAppliedRateCard', id: string, ratePhasesCount: number, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+
 export type ProductCategoryForCatalogRelationsFragment = { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null };
 
 export type ProductForCatalogRelationsFragment = { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null };
@@ -23567,6 +23579,32 @@ export const CatalogPlanForCatalogPlanDetailsOverviewFragmentDoc = gql`
   ...CatalogPlanForCatalogPlanDrawer
 }
     ${CatalogPlanForCatalogPlanDrawerFragmentDoc}`;
+export const PlanAppliedRateCardForRateCardsSectionFragmentDoc = gql`
+    fragment PlanAppliedRateCardForRateCardsSection on PlanAppliedRateCard {
+  id
+  ratePhasesCount
+  product {
+    id
+    name
+    invoiceDisplayName
+    productCategory {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+  rateCard {
+    id
+    name
+    code
+    productFilter {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+}
+    `;
 export const ProductCategoryForProductCategoryDetailsFragmentDoc = gql`
     fragment ProductCategoryForProductCategoryDetails on ProductCategory {
   id
@@ -43703,6 +43741,64 @@ export type GetCatalogPlanForDetailsOverviewQueryHookResult = ReturnType<typeof 
 export type GetCatalogPlanForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetCatalogPlanForDetailsOverviewLazyQuery>;
 export type GetCatalogPlanForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetCatalogPlanForDetailsOverviewSuspenseQuery>;
 export type GetCatalogPlanForDetailsOverviewQueryResult = Apollo.QueryResult<GetCatalogPlanForDetailsOverviewQuery, GetCatalogPlanForDetailsOverviewQueryVariables>;
+export const GetPlanAppliedRateCardsForRateCardsSectionDocument = gql`
+    query getPlanAppliedRateCardsForRateCardsSection($planId: ID!, $page: Int, $limit: Int, $searchTerm: String) {
+  planAppliedRateCards(
+    planId: $planId
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+  ) {
+    collection {
+      ...PlanAppliedRateCardForRateCardsSection
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    ${PlanAppliedRateCardForRateCardsSectionFragmentDoc}`;
+
+/**
+ * __useGetPlanAppliedRateCardsForRateCardsSectionQuery__
+ *
+ * To run a query within a React component, call `useGetPlanAppliedRateCardsForRateCardsSectionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPlanAppliedRateCardsForRateCardsSectionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPlanAppliedRateCardsForRateCardsSectionQuery({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetPlanAppliedRateCardsForRateCardsSectionQuery(baseOptions: Apollo.QueryHookOptions<GetPlanAppliedRateCardsForRateCardsSectionQuery, GetPlanAppliedRateCardsForRateCardsSectionQueryVariables> & ({ variables: GetPlanAppliedRateCardsForRateCardsSectionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPlanAppliedRateCardsForRateCardsSectionQuery, GetPlanAppliedRateCardsForRateCardsSectionQueryVariables>(GetPlanAppliedRateCardsForRateCardsSectionDocument, options);
+      }
+export function useGetPlanAppliedRateCardsForRateCardsSectionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPlanAppliedRateCardsForRateCardsSectionQuery, GetPlanAppliedRateCardsForRateCardsSectionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPlanAppliedRateCardsForRateCardsSectionQuery, GetPlanAppliedRateCardsForRateCardsSectionQueryVariables>(GetPlanAppliedRateCardsForRateCardsSectionDocument, options);
+        }
+// @ts-ignore
+export function useGetPlanAppliedRateCardsForRateCardsSectionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlanAppliedRateCardsForRateCardsSectionQuery, GetPlanAppliedRateCardsForRateCardsSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanAppliedRateCardsForRateCardsSectionQuery, GetPlanAppliedRateCardsForRateCardsSectionQueryVariables>;
+export function useGetPlanAppliedRateCardsForRateCardsSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanAppliedRateCardsForRateCardsSectionQuery, GetPlanAppliedRateCardsForRateCardsSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanAppliedRateCardsForRateCardsSectionQuery | undefined, GetPlanAppliedRateCardsForRateCardsSectionQueryVariables>;
+export function useGetPlanAppliedRateCardsForRateCardsSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanAppliedRateCardsForRateCardsSectionQuery, GetPlanAppliedRateCardsForRateCardsSectionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPlanAppliedRateCardsForRateCardsSectionQuery, GetPlanAppliedRateCardsForRateCardsSectionQueryVariables>(GetPlanAppliedRateCardsForRateCardsSectionDocument, options);
+        }
+export type GetPlanAppliedRateCardsForRateCardsSectionQueryHookResult = ReturnType<typeof useGetPlanAppliedRateCardsForRateCardsSectionQuery>;
+export type GetPlanAppliedRateCardsForRateCardsSectionLazyQueryHookResult = ReturnType<typeof useGetPlanAppliedRateCardsForRateCardsSectionLazyQuery>;
+export type GetPlanAppliedRateCardsForRateCardsSectionSuspenseQueryHookResult = ReturnType<typeof useGetPlanAppliedRateCardsForRateCardsSectionSuspenseQuery>;
+export type GetPlanAppliedRateCardsForRateCardsSectionQueryResult = Apollo.QueryResult<GetPlanAppliedRateCardsForRateCardsSectionQuery, GetPlanAppliedRateCardsForRateCardsSectionQueryVariables>;
 export const ProductActivityLogsDocument = gql`
     query ProductActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
   activityLogs(

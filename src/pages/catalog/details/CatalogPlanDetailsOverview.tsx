@@ -29,7 +29,7 @@ export const CatalogPlanDetailsOverview = ({
 
   const renderSection = (): ReactNode => {
     if (activeSection === CatalogPlanOverviewSectionsEnum.rateCards) {
-      return <CatalogPlanRateCardsSection />
+      return <CatalogPlanRateCardsSection catalogPlanId={catalogPlanId} />
     }
 
     return <CatalogPlanOverviewSection />
