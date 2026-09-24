@@ -17,6 +17,9 @@ export const CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID = 'contract-drawer-plan-combo
 export const VALUE_REQUIRED_KEY = 'text_620bc4d4269a55014d493f98'
 
 export const CONTRACT_DRAWER_TITLE_CREATE_KEY = 'text_1789552637140uev14bbwspq'
+export const CONTRACT_DRAWER_TITLE_EDIT_KEY = 'text_1790280529941j6gx3fiaisz'
+export const CONTRACT_DRAWER_UPDATE_SUCCESS_KEY = 'text_1790280529941qgc3lu3ni4u'
+export const CONTRACT_DRAWER_UPDATE_ERROR_KEY = 'text_1790280529941yrthm7q5e68'
 
 /**
  * `externalCustomerId` and `planCode` mirror `CreateContractInput`, which is keyed on
@@ -43,6 +46,11 @@ export interface ContractDrawerCustomer {
   displayName?: string | null
   applicableTimezone?: TimezoneEnum | null
   billingEntityId?: string
+}
+
+export interface ContractDrawerPlan {
+  code: string
+  name: string
 }
 
 export const buildContractFormDefaults = (
