@@ -112,6 +112,12 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
     }
 
     case ChatActionType.STREAMING: {
+      const hasActiveMessage = state.messages.some(
+        (message) => message.id === action.messageId && message.status !== ChatStatus.done,
+      )
+
+      if (!hasActiveMessage) return state
+
       return {
         ...state,
         messages: state.messages.map((message) =>
@@ -129,6 +135,12 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
     }
 
     case ChatActionType.DONE: {
+      const hasActiveMessage = state.messages.some(
+        (message) => message.id === action.messageId && message.status !== ChatStatus.done,
+      )
+
+      if (!hasActiveMessage) return state
+
       return {
         ...state,
         messages: state.messages.map((message) =>
