@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
-import { useMemo, useRef } from 'react'
+import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
@@ -35,7 +35,7 @@ import {
 import { ContractDrawerContent } from './ContractDrawerContent'
 import { getContractFieldLocks } from './fieldLocks'
 import { mapContractToDrawerCustomer, mapContractToFormValues } from './mapContractToFormValues'
-import { buildContractSchema } from './schema'
+import { contractSchema } from './schema'
 
 gql`
   fragment ContractForContractDrawer on Contract {
@@ -97,12 +97,6 @@ const useContractForm = ({ onSuccess }: { onSuccess: (success: ContractFormSucce
   // A ref, not a local: `onSubmit` is created with the form and would otherwise close
   // over the contract from whichever render built it.
   const editedContractRef = useRef<ContractForContractDrawerFragment | undefined>(undefined)
-  // `planCode` is optional on the API, so a contract created without a plan must stay saveable.
-  const isPlanRequiredRef = useRef(true)
-  const contractSchema = useMemo(
-    () => buildContractSchema({ isPlanRequired: () => isPlanRequiredRef.current }),
-    [],
-  )
 
   const [createContract] = useCreateContractMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
@@ -170,7 +164,6 @@ const useContractForm = ({ onSuccess }: { onSuccess: (success: ContractFormSucce
 
   const resetForm = (args: OpenContractDrawerArgs = {}): void => {
     editedContractRef.current = args.contract
-    isPlanRequiredRef.current = !args.contract || !!args.contract.plan
 
     const values = args.contract
       ? mapContractToFormValues(args.contract)
