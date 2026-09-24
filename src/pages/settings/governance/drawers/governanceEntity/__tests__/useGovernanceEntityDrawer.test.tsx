@@ -15,6 +15,7 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import { MAX_GOVERNANCE_HIERARCHY_DEPTH } from '../../../constants'
 import {
   ATTRIBUTION_KEYS_ADD_BUTTON_TEST_ID,
   ATTRIBUTION_KEYS_CHIP_TEST_ID,
@@ -79,12 +80,34 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 const PARENT_ID = 'p1'
 
+type AncestorChain = { id: string; parent: AncestorChain | null }
+
+const buildAncestors = (count: number): AncestorChain | null =>
+  count ? { id: `ancestor-${count}`, parent: buildAncestors(count - 1) } : null
+
+const FULL_DEPTH_PARENT_ID = 'full-depth'
+const LAST_ALLOWED_PARENT_ID = 'last-allowed'
+
 const parentOptionsMock: MockedResponse = {
   request: { query: GetGovernanceEntityParentOptionsDocument, variables: { limit: 100 } },
   result: {
     data: {
       usageAttributionTypes: {
-        collection: [{ id: PARENT_ID, name: 'Engineering', code: 'engineering' }],
+        collection: [
+          { id: PARENT_ID, name: 'Engineering', code: 'engineering', parent: null },
+          {
+            id: LAST_ALLOWED_PARENT_ID,
+            name: 'Squad',
+            code: 'squad',
+            parent: buildAncestors(MAX_GOVERNANCE_HIERARCHY_DEPTH - 1),
+          },
+          {
+            id: FULL_DEPTH_PARENT_ID,
+            name: 'Member',
+            code: 'member',
+            parent: buildAncestors(MAX_GOVERNANCE_HIERARCHY_DEPTH),
+          },
+        ],
       },
     },
   },
@@ -101,7 +124,7 @@ const parentSearchMock: MockedResponse = {
   result: {
     data: {
       usageAttributionTypes: {
-        collection: [{ id: SEARCHED_PARENT_ID, name: 'Finance', code: 'finance' }],
+        collection: [{ id: SEARCHED_PARENT_ID, name: 'Finance', code: 'finance', parent: null }],
       },
     },
   },
@@ -297,6 +320,34 @@ describe('useGovernanceEntityDrawer', () => {
         await submit()
 
         await waitFor(() => expect(mutation.result).toHaveBeenCalledTimes(1))
+      })
+    })
+  })
+
+  describe('GIVEN parent options at different depths', () => {
+    describe('WHEN the parent list opens', () => {
+      it('THEN should disable only the options already at the maximum depth', async () => {
+        renderDrawer()
+        renderDrawerBody()
+
+        await selectOption(
+          GOVERNANCE_ENTITY_DRAWER_ROLE_TEST_ID,
+          UsageAttributionTypeRoleEnum.Hierarchical,
+        )
+        await userEvent.click(
+          screen
+            .getByTestId(GOVERNANCE_ENTITY_DRAWER_PARENT_TEST_ID)
+            .querySelector('.MuiInputBase-root') as HTMLElement,
+        )
+
+        const radioFor = (value: string): HTMLElement | null =>
+          document.querySelector(`input[type="radio"][value="${value}"]`)
+
+        await waitFor(() => expect(radioFor(FULL_DEPTH_PARENT_ID)).toBeInTheDocument())
+
+        expect(radioFor(FULL_DEPTH_PARENT_ID)).toBeDisabled()
+        expect(radioFor(LAST_ALLOWED_PARENT_ID)).toBeEnabled()
+        expect(radioFor(PARENT_ID)).toBeEnabled()
       })
     })
   })

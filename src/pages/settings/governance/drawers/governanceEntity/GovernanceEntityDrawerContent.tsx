@@ -16,6 +16,8 @@ import { withForm } from '~/hooks/forms/useAppform'
 import { AttributionKeysField } from './AttributionKeysField'
 import { GOVERNANCE_ENTITY_FORM_DEFAULTS } from './validationSchema'
 
+import { MAX_GOVERNANCE_HIERARCHY_DEPTH } from '../../constants'
+
 gql`
   query getGovernanceEntityParentOptions($searchTerm: String, $limit: Int) {
     usageAttributionTypes(role: hierarchical, searchTerm: $searchTerm, limit: $limit) {
@@ -23,12 +25,32 @@ gql`
         id
         name
         code
+        parent {
+          id
+          parent {
+            id
+            parent {
+              id
+              parent {
+                id
+                parent {
+                  id
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
 `
 
 const PARENT_OPTIONS_LIMIT = 100
+
+type GovernanceEntityAncestor = { id: string; parent?: GovernanceEntityAncestor | null }
+
+const countAncestors = ({ parent }: GovernanceEntityAncestor): number =>
+  parent ? 1 + countAncestors(parent) : 0
 
 export const GOVERNANCE_ENTITY_DRAWER_NAME_TEST_ID = 'governance-entity-drawer-name'
 export const GOVERNANCE_ENTITY_DRAWER_CODE_TEST_ID = 'governance-entity-drawer-code'
@@ -61,7 +83,11 @@ const GovernanceEntityDrawerFormSections = withForm({
     ]
 
     const parentOptions = (parentOptionsData?.usageAttributionTypes.collection ?? []).map(
-      ({ id, name, code }) => ({ value: id, label: name || code }),
+      (option) => ({
+        value: option.id,
+        label: option.name || option.code,
+        disabled: countAncestors(option) >= MAX_GOVERNANCE_HIERARCHY_DEPTH,
+      }),
     )
 
     const handleRoleChange = ({ value }: { value: string | undefined }): void => {

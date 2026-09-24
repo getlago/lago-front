@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
+import { captureMessage } from '@sentry/react'
 import { Icon, tw } from 'lago-design-system'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
@@ -14,6 +15,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+
+import { MAX_GOVERNANCE_HIERARCHY_DEPTH } from './constants'
 
 gql`
   fragment GovernanceEntityItem on UsageAttributionType {
@@ -54,6 +57,9 @@ gql`
                 children {
                   id
                   ...GovernanceEntityItem
+                  children {
+                    id
+                  }
                 }
               }
             }
@@ -71,17 +77,30 @@ const ROLE_LABEL_KEYS: Record<UsageAttributionTypeRoleEnum, string> = {
 
 const INDENT_CLASS_BY_DEPTH = ['pl-0', 'pl-6', 'pl-12', 'pl-18', 'pl-24', 'pl-30']
 
+type GovernanceEntityProbe = { id: string }
+
 type GovernanceEntityNode = GovernanceEntityItemFragment & {
-  children?: GovernanceEntityNode[]
+  children?: Array<GovernanceEntityNode | GovernanceEntityProbe>
 }
 
 type GovernanceEntityRow = GovernanceEntityItemFragment & { depth: number }
 
+const isEntityNode = (
+  node: GovernanceEntityNode | GovernanceEntityProbe,
+): node is GovernanceEntityNode => 'code' in node
+
 const flattenTree = (nodes: GovernanceEntityNode[], depth = 0): GovernanceEntityRow[] =>
   nodes.flatMap(({ children, ...node }) => [
     { ...node, depth },
-    ...flattenTree(children ?? [], depth + 1),
+    ...flattenTree((children ?? []).filter(isEntityNode), depth + 1),
   ])
+
+const exceedsMaxDepth = (nodes: GovernanceEntityNode[], depth = 0): boolean =>
+  nodes.some(({ children = [] }) => {
+    if (depth >= MAX_GOVERNANCE_HIERARCHY_DEPTH) return children.length > 0
+
+    return exceedsMaxDepth(children.filter(isEntityNode), depth + 1)
+  })
 
 export const GOVERNANCE_ENTITIES_TABLE_NAME = 'governance-settings-entities'
 export const GOVERNANCE_ENTITIES_TABLE_TEST_ID = `table-${GOVERNANCE_ENTITIES_TABLE_NAME}`
@@ -105,6 +124,15 @@ export const GovernanceEntitiesTable = ({ role }: GovernanceEntitiesTableProps):
 
   const { metadata, collection } = data?.usageAttributionTypes || {}
   const rows = flattenTree(collection ?? [])
+
+  useEffect(() => {
+    if (!collection || !exceedsMaxDepth(collection)) return
+
+    captureMessage(
+      `Governance hierarchy deeper than ${MAX_GOVERNANCE_HIERARCHY_DEPTH} levels: descendants are not displayed`,
+      { level: 'error' },
+    )
+  }, [collection])
 
   return (
     <PaginatedContent
@@ -143,10 +171,7 @@ export const GovernanceEntitiesTable = ({ role }: GovernanceEntitiesTableProps):
             maxSpace: true,
             content: ({ name, code, depth }) => (
               <div
-                className={tw(
-                  'flex items-start gap-2',
-                  INDENT_CLASS_BY_DEPTH[Math.min(depth, INDENT_CLASS_BY_DEPTH.length - 1)],
-                )}
+                className={tw('flex items-start gap-2', INDENT_CLASS_BY_DEPTH[depth])}
                 data-test={code}
               >
                 {isHierarchical && <Icon name="arrow-indent" className="mt-0.5" />}
