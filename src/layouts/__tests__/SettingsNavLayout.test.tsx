@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { GetBillingEntitiesDocument } from '~/generated/graphql'
+import { FeatureFlagEnum, GetBillingEntitiesDocument } from '~/generated/graphql'
 import { TMembershipPermissions } from '~/hooks/usePermissions'
 import { render } from '~/test-utils'
 
@@ -16,8 +16,13 @@ jest.mock('~/hooks/usePermissions', () => ({
   }),
 }))
 
+const mockFeatureFlags = new Set<FeatureFlagEnum>()
+
 jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({ organization: { canCreateBillingEntity: false } }),
+  useOrganizationInfos: () => ({
+    organization: { canCreateBillingEntity: false },
+    hasFeatureFlag: (flag: FeatureFlagEnum) => mockFeatureFlags.has(flag),
+  }),
 }))
 
 jest.mock('~/hooks/core/useLocationHistory', () => ({
@@ -52,6 +57,7 @@ describe('SettingsNavLayout', () => {
 
   beforeEach(() => {
     mockPermissions.clear()
+    mockFeatureFlags.clear()
     window.history.replaceState({}, '', '/acme/settings/general')
   })
 
@@ -102,6 +108,32 @@ describe('SettingsNavLayout', () => {
       'href',
       '/acme/settings/team-and-security',
     )
+  })
+
+  it('shows Governance when the account tree flag and the view permission are granted', () => {
+    mockFeatureFlags.add(FeatureFlagEnum.AccountTree)
+    mockPermissions.add('usageAttributionTypesView')
+    renderSettings()
+
+    expect(screen.getAllByRole('link')).toHaveLength(1)
+    expect(screen.getByRole('link', { name: 'Governance' })).toHaveAttribute(
+      'href',
+      '/acme/settings/governance',
+    )
+  })
+
+  it('hides Governance when the account tree flag is missing', () => {
+    mockPermissions.add('usageAttributionTypesView')
+    renderSettings()
+
+    expect(screen.queryByRole('link', { name: 'Governance' })).not.toBeInTheDocument()
+  })
+
+  it('hides Governance when the view permission is missing', () => {
+    mockFeatureFlags.add(FeatureFlagEnum.AccountTree)
+    renderSettings()
+
+    expect(screen.queryByRole('link', { name: 'Governance' })).not.toBeInTheDocument()
   })
 
   it('navigates to taxes in the organization from the URL', async () => {

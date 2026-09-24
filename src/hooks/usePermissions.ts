@@ -127,6 +127,10 @@ gql`
       subscriptionsCreate
       subscriptionsUpdate
       subscriptionsView
+      usageAttributionTypesView
+      usageAttributionTypesCreate
+      usageAttributionTypesUpdate
+      usageAttributionTypesDelete
       walletsCreate
       walletsTerminate
       walletsTopUp

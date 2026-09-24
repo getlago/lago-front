@@ -26,6 +26,8 @@ import {
   FULL_INTEGRATIONS_ROUTE,
   FULL_INTEGRATIONS_ROUTE_ID,
   GENERAL_SETTINGS_ROUTE,
+  GOVERNANCE_SETTINGS_ROUTE,
+  GOVERNANCE_SETTINGS_TAB_ROUTE,
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
@@ -43,7 +45,7 @@ import {
   useLocation,
   useNavigate,
 } from '~/core/router'
-import { useGetBillingEntitiesQuery } from '~/generated/graphql'
+import { FeatureFlagEnum, useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -61,9 +63,11 @@ export const SETTINGS_NAV_BILLING_ENTITY_ITEM_TEST_ID = 'settings-nav-billing-en
 const generateTabs = ({
   translate,
   hasPermissions,
+  hasFeatureFlag,
 }: {
   translate: TranslateFunc
   hasPermissions: (permissionsToCheck: Array<keyof TMembershipPermissions>) => boolean
+  hasFeatureFlag: (flag: FeatureFlagEnum) => boolean
 }) => [
   {
     title: translate('text_1776867582729i8hvt0ot0wl'),
@@ -113,6 +117,14 @@ const generateTabs = ({
     match: [TAXES_SETTINGS_ROUTE],
     hidden: !hasPermissions(['organizationTaxesView']),
   },
+  {
+    title: translate('text_17902308125634licovl9sfs'),
+    link: GOVERNANCE_SETTINGS_ROUTE,
+    match: [GOVERNANCE_SETTINGS_ROUTE, GOVERNANCE_SETTINGS_TAB_ROUTE],
+    hidden:
+      !hasFeatureFlag(FeatureFlagEnum.AccountTree) ||
+      !hasPermissions(['usageAttributionTypesView']),
+  },
 ]
 
 const isEntityActive = (code: string, current: string) => code === current
@@ -124,7 +136,7 @@ const SettingsNavLayout = () => {
   const { hasPermissions } = usePermissions()
   const { billingEntityCode } = useParams()
   const navigate = useNavigate()
-  const { organization: { canCreateBillingEntity } = {} } = useOrganizationInfos()
+  const { organization: { canCreateBillingEntity } = {}, hasFeatureFlag } = useOrganizationInfos()
   const contentRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
 
@@ -135,6 +147,7 @@ const SettingsNavLayout = () => {
   const TABS_ORGANIZATION = generateTabs({
     translate,
     hasPermissions,
+    hasFeatureFlag,
   })
 
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }

@@ -113,6 +113,12 @@ export const permissionGroupMapping: PermissionGroupMapping = {
   roles: ['RolesCreate', 'RolesDelete', 'RolesUpdate', 'RolesView'],
   securityLogs: ['SecurityLogsView'],
   subscriptions: ['SubscriptionsCreate', 'SubscriptionsUpdate', 'SubscriptionsView'],
+  usageAttributionTypes: [
+    'UsageAttributionTypesView',
+    'UsageAttributionTypesCreate',
+    'UsageAttributionTypesUpdate',
+    'UsageAttributionTypesDelete',
+  ],
   wallets: ['WalletsCreate', 'WalletsTerminate', 'WalletsTopUp', 'WalletsUpdate'],
 }
 
@@ -144,6 +150,7 @@ export const groupNameMapping: Record<string, string> = {
   roles: 'text_1765448879791epmkg4xijkn',
   securityLogs: 'text_17730476805600nudrokzkk5',
   subscriptions: 'text_6250304370f0f700a8fdc28d',
+  usageAttributionTypes: 'text_17902308125634licovl9sfs',
   wallets: 'text_62d175066d2dbf1d50bc937c',
 }
 
@@ -311,6 +318,12 @@ export const permissionDescriptionMapping: Partial<Record<PermissionName, string
 
   // Security logs
   SecurityLogsView: 'text_1771594976281yf0uews8jce',
+
+  // Usage attribution types (governance)
+  UsageAttributionTypesView: 'text_1790230812563kq9o2mku1rc',
+  UsageAttributionTypesCreate: 'text_1790230812564tig9p4k5bb3',
+  UsageAttributionTypesUpdate: 'text_1790230812564u35u7vyt4e4',
+  UsageAttributionTypesDelete: 'text_17902308125643oqh5iltbd1',
 
   // Wallets
   WalletsCreate: 'text_1766047644675qckx90hacmh',
