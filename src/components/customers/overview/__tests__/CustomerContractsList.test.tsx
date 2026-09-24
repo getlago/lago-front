@@ -1,6 +1,7 @@
 import { fireEvent, screen } from '@testing-library/react'
 import { ReactNode } from 'react'
 
+import { contractForDrawerFixture } from '~/components/contracts/drawers/contract/__tests__/fixtures'
 import { TableProps } from '~/components/designSystem/Table/Table'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CONTRACT_DETAILS_ROUTE } from '~/core/router'
@@ -9,7 +10,6 @@ import {
   ContractStatusEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
-import { contractForDrawerFixture } from '~/pages/contracts/drawers/contract/__tests__/fixtures'
 import { render } from '~/test-utils'
 
 import { CUSTOMER_CONTRACTS_CREATE_TEST_ID, CustomerContractsList } from '../CustomerContractsList'
@@ -63,7 +63,7 @@ jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
 
-jest.mock('~/pages/contracts/drawers/contract/useContractDrawer', () => ({
+jest.mock('~/components/contracts/drawers/contract/useContractDrawer', () => ({
   useContractDrawer: () => ({ openDrawer: mockOpenContractDrawer }),
 }))
 

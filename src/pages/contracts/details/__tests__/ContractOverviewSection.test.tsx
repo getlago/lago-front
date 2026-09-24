@@ -23,7 +23,7 @@ jest.mock('~/hooks/useContractPermissionsActions', () => ({
   useContractPermissionsActions: () => ({ canEditContract: mockCanEditContract }),
 }))
 
-jest.mock('~/pages/contracts/drawers/contract/useContractDrawer', () => ({
+jest.mock('~/components/contracts/drawers/contract/useContractDrawer', () => ({
   useContractDrawer: () => ({ openDrawer: mockOpenContractDrawer }),
 }))
 

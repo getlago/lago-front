@@ -2,6 +2,7 @@ import type { MockedResponse } from '@apollo/client/testing'
 import { act, render as rtlRender, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { contractForDrawerFixture } from '~/components/contracts/drawers/contract/__tests__/fixtures'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderReader } from '~/components/MainHeader/MainHeaderContext'
 import {
@@ -21,7 +22,6 @@ import {
   GetContractForDetailsDocument,
 } from '~/generated/graphql'
 import { TMembershipPermissions } from '~/hooks/usePermissions'
-import { contractForDrawerFixture } from '~/pages/contracts/drawers/contract/__tests__/fixtures'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import ContractDetails, {
@@ -67,7 +67,7 @@ jest.mock('~/hooks/useContractPermissionsActions', () => ({
   }),
 }))
 
-jest.mock('~/pages/contracts/drawers/contract/useContractDrawer', () => ({
+jest.mock('~/components/contracts/drawers/contract/useContractDrawer', () => ({
   useContractDrawer: () => ({ openDrawer: mockOpenContractDrawer }),
 }))
 

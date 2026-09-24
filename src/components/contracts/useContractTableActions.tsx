@@ -1,9 +1,9 @@
+import { CONTRACT_DRAWER_TITLE_EDIT_KEY } from '~/components/contracts/drawers/contract/constants'
+import { useContractDrawer } from '~/components/contracts/drawers/contract/useContractDrawer'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { ContractForContractDrawerFragment, ContractStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useContractPermissionsActions } from '~/hooks/useContractPermissionsActions'
-import { CONTRACT_DRAWER_TITLE_EDIT_KEY } from '~/pages/contracts/drawers/contract/constants'
-import { useContractDrawer } from '~/pages/contracts/drawers/contract/useContractDrawer'
 
 import { useCopyContractExternalId } from './useCopyContractExternalId'
 import {

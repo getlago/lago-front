@@ -1,6 +1,8 @@
 import { gql } from '@apollo/client'
 import { generatePath, useParams } from 'react-router'
 
+import { CONTRACT_DRAWER_TITLE_EDIT_KEY } from '~/components/contracts/drawers/contract/constants'
+import { useContractDrawer } from '~/components/contracts/drawers/contract/useContractDrawer'
 import { useCopyContractExternalId } from '~/components/contracts/useCopyContractExternalId'
 import {
   getContractTerminationCopy,
@@ -27,8 +29,6 @@ import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { ContractDetailsOverview } from './details/ContractDetailsOverview'
-import { CONTRACT_DRAWER_TITLE_EDIT_KEY } from './drawers/contract/constants'
-import { useContractDrawer } from './drawers/contract/useContractDrawer'
 
 gql`
   fragment ContractForContractDetails on Contract {
