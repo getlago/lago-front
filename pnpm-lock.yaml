@@ -43,8 +43,8 @@ importers:
         specifier: 10.72.0
         version: 10.72.0(react@18.3.1)
       '@superset-ui/embedded-sdk':
-        specifier: 0.3.0
-        version: 0.3.0
+        specifier: 0.4.0
+        version: 0.4.0
       '@tanstack/react-form':
         specifier: 1.33.0
         version: 1.33.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -190,8 +190,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1
       react-ace:
-        specifier: 14.1.0
-        version: 14.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.0.0
+        version: 15.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
@@ -3157,8 +3157,8 @@ packages:
   '@sinonjs/fake-timers@15.4.0':
     resolution: {integrity: sha512-DsG+8/LscQIQg68J6Ef3dv10u6nVyetYn923s3/sus5eaGfTo1of5WMZSLf0UJc9KDuKPilPH0UDJCjvNbDNCA==}
 
-  '@superset-ui/embedded-sdk@0.3.0':
-    resolution: {integrity: sha512-Q1ttlQy5H69pvJ29K5mY3/7awzwmOgTyEa/IzGwIZKlz0/dpV8GT/6zPic8C88TMJpkt5cDlpj8B1aUZm+K7Qg==}
+  '@superset-ui/embedded-sdk@0.4.0':
+    resolution: {integrity: sha512-k/PnzvxO0xfeaAO6DRWsC7nG9oH3ooyBQNTRi/EXrK4DIH4ufx6Wy3AD3qDkCjGRw3KMdavCdwAiu2u4TVQ7oA==}
 
   '@superset-ui/switchboard@0.20.3':
     resolution: {integrity: sha512-qEMXFwdRLfXug4gXXdBEGpFtBWZoxdZkCJLBVxj1IR8cQvSqjkWAQOzSSYYdcIeREWqi8iP+iK6apNV1ZQCKcA==}
@@ -7663,8 +7663,8 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
-  react-ace@14.1.0:
-    resolution: {integrity: sha512-H+Tuw1oa3uP6zRoLBOayPVaMy5Le4G33OpEmLOfSVks75ajmrmFGbyWWEHfBYLCCpu5KfyFlod9jCEUc7i5ekw==}
+  react-ace@15.0.0:
+    resolution: {integrity: sha512-gdmS5ftF0hsbkcrAjZQqYbXwFg5JrHuxjki8mP6Bn9kfa6lHKfZk9sU9EfS0ifQ1CpGCmRxF/VC7GRvlJMBuZw==}
     peerDependencies:
       react: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -11772,7 +11772,7 @@ snapshots:
     dependencies:
       '@sinonjs/commons': 3.0.1
 
-  '@superset-ui/embedded-sdk@0.3.0':
+  '@superset-ui/embedded-sdk@0.4.0':
     dependencies:
       '@superset-ui/switchboard': 0.20.3
       jwt-decode: 4.0.0
@@ -16935,7 +16935,7 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
-  react-ace@14.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-ace@15.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       ace-builds: 1.44.0
       diff-match-patch: 1.0.5

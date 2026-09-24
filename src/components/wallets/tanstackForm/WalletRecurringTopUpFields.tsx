@@ -91,7 +91,7 @@ const buildRecurringAlert = (
     currency,
     paidCredits: '',
     grantedCredits: '',
-    priority: 1,
+    priority: '1',
     rateAmount: '1',
     recurringTransactionRules: [
       {

@@ -21,19 +21,25 @@ export interface SubscriptionFeeFormValues {
   invoiceDisplayName?: string
 }
 
+// The drawer emits `trialPeriod` as a number to its consumers, but the input
+// holds it as a string like every other text input.
+type SubscriptionFeeFormState = Omit<SubscriptionFeeFormValues, 'trialPeriod'> & {
+  trialPeriod: string
+}
+
 const subscriptionFeeSchema = z.object({
   amountCents: z.string().min(1, 'text_624ea7c29103fd010732ab7d'),
   payInAdvance: z.boolean(),
-  trialPeriod: z.number(),
+  trialPeriod: z.string(),
   invoiceDisplayName: z.string().optional(),
 })
 
 const SUBSCRIPTION_FEE_FORM_ID = 'subscription-fee-drawer-form'
 
-const DEFAULT_VALUES: SubscriptionFeeFormValues = {
+const DEFAULT_VALUES: SubscriptionFeeFormState = {
   amountCents: '',
   payInAdvance: false,
-  trialPeriod: 0,
+  trialPeriod: '0',
   invoiceDisplayName: undefined,
 }
 
@@ -151,16 +157,7 @@ export const SubscriptionFeeDrawer = forwardRef<
                   )}
                 </form.AppField>
 
-                <form.AppField
-                  name="trialPeriod"
-                  listeners={{
-                    onChange: ({ value, fieldApi }) => {
-                      if (typeof value !== 'number' || Number.isNaN(value)) {
-                        fieldApi.setValue(0)
-                      }
-                    },
-                  }}
-                >
+                <form.AppField name="trialPeriod">
                   {(field) => (
                     <field.TextInputField
                       beforeChangeFormatter={['positiveNumber', 'int']}
@@ -202,7 +199,7 @@ export const SubscriptionFeeDrawer = forwardRef<
       form.reset(
         {
           ...values,
-          trialPeriod: values.trialPeriod ?? 0,
+          trialPeriod: String(values.trialPeriod ?? 0),
         },
         { keepDefaultValues: true },
       )

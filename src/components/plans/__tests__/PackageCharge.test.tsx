@@ -220,15 +220,26 @@ describe('PackageCharge', () => {
       })
     })
 
-    describe('WHEN packageSize has a value and freeUnits is zero string', () => {
-      it('THEN should show the free units alert section because string "0" is truthy', () => {
+    describe('WHEN packageSize has a value and freeUnits is the string "0"', () => {
+      it('THEN should not show the free units alert section', () => {
         setupDefaultMocks({ packageSize: '10', freeUnits: '0' })
 
         render(<PackageCharge />)
 
-        const freeUnitsAlert = screen.getByTestId(PACKAGE_CHARGE_FREE_UNITS_ALERT_TEST_ID)
+        const freeUnitsAlert = screen.queryByTestId(PACKAGE_CHARGE_FREE_UNITS_ALERT_TEST_ID)
 
-        expect(freeUnitsAlert).toBeInTheDocument()
+        expect(freeUnitsAlert).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN packageSize is the string "0"', () => {
+      it('THEN should show the empty alert, not the filled one', () => {
+        setupDefaultMocks({ packageSize: '0' })
+
+        render(<PackageCharge />)
+
+        expect(screen.getByTestId(PACKAGE_CHARGE_EMPTY_ALERT_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(PACKAGE_CHARGE_FILLED_ALERT_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
