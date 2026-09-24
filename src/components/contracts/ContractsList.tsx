@@ -1,16 +1,10 @@
 import { Table, TableProps } from '~/components/designSystem/Table/Table'
-import { ContractStatusEnum } from '~/generated/graphql'
+import { ContractForContractDrawerFragment } from '~/generated/graphql'
 
 import { getContractDisplayName } from './getContractDisplayName'
 import { useContractTableActions } from './useContractTableActions'
 
-export type ContractListItem = {
-  id: string
-  externalId: string
-  status: ContractStatusEnum
-  name?: string | null
-  plan?: { name: string } | null
-}
+export type ContractListItem = ContractForContractDrawerFragment
 
 interface ContractsListProps<T extends ContractListItem> extends Omit<
   TableProps<T>,
