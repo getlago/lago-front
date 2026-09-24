@@ -1359,6 +1359,15 @@ export type ContractAppliedRateCard = {
   updatedAt: Scalars['ISO8601DateTime']['output'];
 };
 
+/** ContractAppliedRateCardCollection type */
+export type ContractAppliedRateCardCollection = {
+  __typename?: 'ContractAppliedRateCardCollection';
+  /** A collection of paginated ContractAppliedRateCardCollection */
+  collection: Array<ContractAppliedRateCard>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
 export enum ContractBillingTimeEnum {
   Anniversary = 'anniversary',
   Calendar = 'calendar'
@@ -2714,6 +2723,7 @@ export type CreateUsageAttributionTypeInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   parentId?: InputMaybe<Scalars['ID']['input']>;
   role: UsageAttributionTypeRoleEnum;
@@ -6202,7 +6212,7 @@ export type Mutation = {
   updateCharge?: Maybe<Charge>;
   /** Updates an existing Charge Filter */
   updateChargeFilter?: Maybe<ChargeFilter>;
-  /** Updates a pending contract */
+  /** Updates a contract; once active, only its administrative settings */
   updateContract?: Maybe<Contract>;
   /** Update an existing coupon */
   updateCoupon?: Maybe<Coupon>;
@@ -8746,6 +8756,8 @@ export type Query = {
   catalogPlans: CatalogPlanCollection;
   /** Query a single contract of an organization */
   contract?: Maybe<Contract>;
+  /** Query rate cards applied to a contract */
+  contractAppliedRateCards: ContractAppliedRateCardCollection;
   /** Query contracts of an organization */
   contracts: ContractCollection;
   /** Query a single coupon of an organization */
@@ -9149,6 +9161,21 @@ export type QueryCatalogPlansArgs = {
 
 export type QueryContractArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryContractAppliedRateCardsArgs = {
+  contractId?: InputMaybe<Scalars['ID']['input']>;
+  hasRateOverrides?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  productFilterIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  productIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  productType?: InputMaybe<ProductTypeEnum>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  withoutProductCategory?: InputMaybe<Scalars['Boolean']['input']>;
+  withoutProductFilter?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -9720,9 +9747,17 @@ export type QueryPlanArgs = {
 
 
 export type QueryPlanAppliedRateCardsArgs = {
+  hasRateOverrides?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   planId?: InputMaybe<Scalars['ID']['input']>;
+  productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  productFilterIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  productIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  productType?: InputMaybe<ProductTypeEnum>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  withoutProductCategory?: InputMaybe<Scalars['Boolean']['input']>;
+  withoutProductFilter?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -9945,6 +9980,7 @@ export type QueryUsageAttributionTypesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   role?: InputMaybe<UsageAttributionTypeRoleEnum>;
+  roots?: InputMaybe<Scalars['Boolean']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -12093,6 +12129,7 @@ export type UpdateUsageAttributionTypeInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   parentId?: InputMaybe<Scalars['ID']['input']>;
@@ -12116,8 +12153,11 @@ export type UpdateXeroIntegrationInput = {
 export type UsageAttributionType = {
   __typename?: 'UsageAttributionType';
   attributionKeys: Array<Scalars['String']['output']>;
+  /** Child types, empty for a leaf or a flat type */
+  children: Array<UsageAttributionType>;
   code: Scalars['String']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name?: Maybe<Scalars['String']['output']>;
   organization?: Maybe<Organization>;
@@ -17045,14 +17085,21 @@ export type GetCatalogPlansForContractDrawerQueryVariables = Exact<{
 
 export type GetCatalogPlansForContractDrawerQuery = { __typename?: 'Query', catalogPlans: { __typename?: 'CatalogPlanCollection', collection: Array<{ __typename?: 'CatalogPlan', id: string, name: string, code: string }> } };
 
-export type ContractForContractDrawerFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string };
+export type ContractForContractDrawerFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null };
 
 export type CreateContractMutationVariables = Exact<{
   input: CreateContractInput;
 }>;
 
 
-export type CreateContractMutation = { __typename?: 'Mutation', createContract?: { __typename?: 'Contract', id: string, name?: string | null, externalId: string } | null };
+export type CreateContractMutation = { __typename?: 'Mutation', createContract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null } | null };
+
+export type UpdateContractMutationVariables = Exact<{
+  input: UpdateContractInput;
+}>;
+
+
+export type UpdateContractMutation = { __typename?: 'Mutation', updateContract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null } | null };
 
 export type SelectableBillableMetricForCouponsFragment = { __typename?: 'SelectableBillableMetric', id: string, name: string, code: string };
 
@@ -23981,8 +24028,33 @@ export const ContractForContractDetailsOverviewFragmentDoc = gql`
 export const ContractForContractDrawerFragmentDoc = gql`
     fragment ContractForContractDrawer on Contract {
   id
-  name
   externalId
+  name
+  status
+  startedAt
+  endedAt
+  billingAnchorDate
+  billingEntityId
+  consolidateInvoice
+  purchaseOrderNumber
+  paymentMethodType
+  paymentMethod {
+    id
+  }
+  customer {
+    id
+    externalId
+    displayName
+    applicableTimezone
+    billingEntity {
+      id
+    }
+  }
+  plan {
+    id
+    name
+    code
+  }
 }
     `;
 export const SelectableBillableMetricForCouponsFragmentDoc = gql`
@@ -45697,6 +45769,40 @@ export function useCreateContractMutation(baseOptions?: Apollo.MutationHookOptio
 export type CreateContractMutationHookResult = ReturnType<typeof useCreateContractMutation>;
 export type CreateContractMutationResult = Apollo.MutationResult<CreateContractMutation>;
 export type CreateContractMutationOptions = Apollo.BaseMutationOptions<CreateContractMutation, CreateContractMutationVariables>;
+export const UpdateContractDocument = gql`
+    mutation updateContract($input: UpdateContractInput!) {
+  updateContract(input: $input) {
+    id
+    ...ContractForContractDrawer
+  }
+}
+    ${ContractForContractDrawerFragmentDoc}`;
+export type UpdateContractMutationFn = Apollo.MutationFunction<UpdateContractMutation, UpdateContractMutationVariables>;
+
+/**
+ * __useUpdateContractMutation__
+ *
+ * To run a mutation, you first call `useUpdateContractMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateContractMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateContractMutation, { data, loading, error }] = useUpdateContractMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateContractMutation(baseOptions?: Apollo.MutationHookOptions<UpdateContractMutation, UpdateContractMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateContractMutation, UpdateContractMutationVariables>(UpdateContractDocument, options);
+      }
+export type UpdateContractMutationHookResult = ReturnType<typeof useUpdateContractMutation>;
+export type UpdateContractMutationResult = Apollo.MutationResult<UpdateContractMutation>;
+export type UpdateContractMutationOptions = Apollo.BaseMutationOptions<UpdateContractMutation, UpdateContractMutationVariables>;
 export const GetBillableMetricsForCouponsDocument = gql`
     query getBillableMetricsForCoupons($page: Int, $limit: Int, $searchTerm: String) {
   selectableBillableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {

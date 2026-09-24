@@ -34,12 +34,44 @@ import { contractSchema } from './schema'
 gql`
   fragment ContractForContractDrawer on Contract {
     id
-    name
     externalId
+    name
+    status
+    startedAt
+    endedAt
+    billingAnchorDate
+    billingEntityId
+    consolidateInvoice
+    purchaseOrderNumber
+    paymentMethodType
+    paymentMethod {
+      id
+    }
+    customer {
+      id
+      externalId
+      displayName
+      applicableTimezone
+      billingEntity {
+        id
+      }
+    }
+    plan {
+      id
+      name
+      code
+    }
   }
 
   mutation createContract($input: CreateContractInput!) {
     createContract(input: $input) {
+      id
+      ...ContractForContractDrawer
+    }
+  }
+
+  mutation updateContract($input: UpdateContractInput!) {
+    updateContract(input: $input) {
       id
       ...ContractForContractDrawer
     }
