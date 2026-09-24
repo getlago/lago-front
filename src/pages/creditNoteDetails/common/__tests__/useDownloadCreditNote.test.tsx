@@ -7,11 +7,9 @@ import { useDownloadCreditNote } from '../useDownloadCreditNote'
 const mockHandleDownloadFile = jest.fn()
 const mockHandleDownloadFileWithCors = jest.fn()
 
-jest.mock('~/hooks/useDownloadFile', () => ({
-  useDownloadFile: () => ({
-    handleDownloadFile: mockHandleDownloadFile,
-    handleDownloadFileWithCors: mockHandleDownloadFileWithCors,
-  }),
+jest.mock('~/core/utils/downloadFile', () => ({
+  handleDownloadFile: (...args: unknown[]) => mockHandleDownloadFile(...args),
+  handleDownloadFileWithCors: (...args: unknown[]) => mockHandleDownloadFileWithCors(...args),
 }))
 
 const renderUseDownloadCreditNote = () => {

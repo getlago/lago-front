@@ -7,6 +7,7 @@ import {
   FEE_ACTIONS_BUTTON_TEST_ID,
   FEE_ACTIONS_CELL_TEST_ID,
   FEE_ROW_TEST_ID_PREFIX,
+  FEE_VIEW_DETAILS_BUTTON_TEST_ID,
 } from '~/components/invoices/details/invoiceDetailsTestIds'
 import {
   ChargeModelEnum,
@@ -20,13 +21,6 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-// Menu interactions (open menu, click Copy fee ID, click View details) are
-// covered by FeeActionsCell.test.tsx in isolation. This integration suite focuses
-// on row-level wiring: data-test ids, the action cell being rendered on every
-// row, and the row click handler invoking the drawer with the correct fee.
-
-// The drawer is now opened via a hook called inside BodyLine/FeeActionsCell.
-// Stub the hook so we can spy on `open(fee)` without booting NiceModal.
 const mockHookOpen = jest.fn()
 const mockHookClose = jest.fn()
 
@@ -110,7 +104,7 @@ const renderTable = (invoice: InvoiceForDetailsTableFragment) =>
     />,
   )
 
-describe('InvoiceDetailsTableBodyLine — clickable rows + action menu', () => {
+describe('InvoiceDetailsTableBodyLine - clickable rows + action menu', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -129,6 +123,32 @@ describe('InvoiceDetailsTableBodyLine — clickable rows + action menu', () => {
         expect(screen.getAllByTestId(FEE_ACTIONS_CELL_TEST_ID).length).toBeGreaterThan(0)
         expect(screen.getAllByTestId(FEE_ACTIONS_BUTTON_TEST_ID).length).toBeGreaterThan(0)
       })
+    })
+
+    it('keeps the fee menu open after the row receives updated invoice data', async () => {
+      const user = userEvent.setup()
+      const invoice = buildFinalizedInvoice()
+      const { rerender } = renderTable(invoice)
+
+      await user.click(screen.getByTestId(FEE_ACTIONS_BUTTON_TEST_ID))
+      expect(await screen.findByTestId(FEE_VIEW_DETAILS_BUTTON_TEST_ID)).toBeVisible()
+
+      const updatedFees = (invoice.fees ?? []).map((fee) => ({ ...fee, amountCents: '6000' }))
+
+      rerender(
+        <InvoiceDetailsTable
+          customer={{ id: 'customer-1', applicableTimezone: TimezoneEnum.TzAmericaNewYork }}
+          invoice={{ ...invoice, fees: updatedFees }}
+          editFeeDrawerRef={{ current: null }}
+          fees={updatedFees}
+        />,
+      )
+
+      expect(screen.getByTestId(FEE_VIEW_DETAILS_BUTTON_TEST_ID)).toBeVisible()
+      await user.click(screen.getByTestId(FEE_VIEW_DETAILS_BUTTON_TEST_ID))
+      expect(mockHookOpen).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'fee-charge-1', amountCents: '6000' }),
+      )
     })
 
     describe('WHEN user clicks the fee row', () => {

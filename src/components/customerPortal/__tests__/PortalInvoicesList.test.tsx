@@ -39,8 +39,8 @@ jest.mock('~/core/apolloClient', () => ({
   envGlobalVar: () => ({ disablePdfGeneration: false }),
 }))
 
-jest.mock('~/hooks/useDownloadFile', () => ({
-  useDownloadFile: () => ({ handleDownloadFile: jest.fn() }),
+jest.mock('~/core/utils/downloadFile', () => ({
+  handleDownloadFile: jest.fn(),
 }))
 
 jest.mock('~/hooks/useDebouncedSearch', () => ({

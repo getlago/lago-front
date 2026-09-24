@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
 
+import { handleDownloadFile, handleDownloadFileWithCors } from '~/core/utils/downloadFile'
 import {
   useDownloadCreditNotePdfMutation,
   useDownloadCreditNoteXmlMutation,
 } from '~/generated/graphql'
-import { useDownloadFile } from '~/hooks/useDownloadFile'
 
 gql`
   mutation downloadCreditNotePdf($input: DownloadCreditNoteInput!) {
@@ -23,7 +23,6 @@ gql`
 `
 
 export const useDownloadCreditNote = () => {
-  const { handleDownloadFile, handleDownloadFileWithCors } = useDownloadFile()
   const [downloadCreditNote, { loading: loadingCreditNoteDownload }] =
     useDownloadCreditNotePdfMutation({
       onCompleted({ downloadCreditNote: downloadCreditNoteData }) {

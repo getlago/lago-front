@@ -18,6 +18,7 @@ import { SearchInput } from '~/components/SearchInput'
 import { envGlobalVar } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { handleDownloadFile } from '~/core/utils/downloadFile'
 import {
   CurrencyEnum,
   InvoiceForFinalizeInvoiceFragmentDoc,
@@ -32,7 +33,6 @@ import {
   useGetCustomerPortalOverdueBalancesLazyQuery,
 } from '~/generated/graphql'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { useDownloadFile } from '~/hooks/useDownloadFile'
 
 gql`
   fragment PortalInvoiceListItem on Invoice {
@@ -148,7 +148,6 @@ const mapStatusConfig = ({
 const PortalInvoicesList = () => {
   const { translate, documentLocale } = useCustomerPortalTranslate()
   const { disablePdfGeneration } = envGlobalVar()
-  const { handleDownloadFile } = useDownloadFile()
 
   const [getInvoices, { data, loading, error, fetchMore, variables, refetch }] =
     useCustomerPortalInvoicesLazyQuery({
