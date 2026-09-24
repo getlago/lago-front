@@ -46,8 +46,6 @@ export const GOVERNANCE_SETTINGS_FLAT_TAB_TEST_ID = 'governance-settings-flat-ta
 const GovernanceSettings = (): JSX.Element => {
   const { translate } = useInternationalization()
 
-  // `createSinglePageFieldPolicy` drops `page`/`limit` from the cache key, so this
-  // `limit: 1` probe would otherwise overwrite the list entry with a single row.
   const { data, error, loading } = useGetGovernanceEntitiesRoleCountsQuery({
     fetchPolicy: 'no-cache',
   })

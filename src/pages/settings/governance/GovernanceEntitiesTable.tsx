@@ -60,8 +60,6 @@ export const GovernanceEntitiesTable = ({ role }: GovernanceEntitiesTableProps):
   const { data, error, loading } = useGetGovernanceEntitiesQuery({
     variables: { role, limit: pageSize, page },
     notifyOnNetworkStatusChange: true,
-    // Leaving the tab drops `?page`; the single-page cache would flash the previously
-    // viewed page before the page-1 refetch resolves.
     fetchPolicy: 'network-only',
   })
 
