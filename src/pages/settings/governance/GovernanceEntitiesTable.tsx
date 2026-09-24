@@ -59,6 +59,26 @@ gql`
                   ...GovernanceEntityItem
                   children {
                     id
+                    ...GovernanceEntityItem
+                    children {
+                      id
+                      ...GovernanceEntityItem
+                      children {
+                        id
+                        ...GovernanceEntityItem
+                        children {
+                          id
+                          ...GovernanceEntityItem
+                          children {
+                            id
+                            ...GovernanceEntityItem
+                            children {
+                              id
+                            }
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
@@ -75,7 +95,19 @@ const ROLE_LABEL_KEYS: Record<UsageAttributionTypeRoleEnum, string> = {
   [UsageAttributionTypeRoleEnum.Flat]: 'text_17902308125635bb6aqr2wbe',
 }
 
-const INDENT_CLASS_BY_DEPTH = ['pl-0', 'pl-6', 'pl-12', 'pl-18', 'pl-24', 'pl-30']
+const INDENT_CLASS_BY_DEPTH = [
+  'pl-0',
+  'pl-6',
+  'pl-12',
+  'pl-18',
+  'pl-24',
+  'pl-30',
+  'pl-36',
+  'pl-42',
+  'pl-48',
+  'pl-[13.5rem]',
+  'pl-60',
+]
 
 type GovernanceEntityProbe = { id: string }
 

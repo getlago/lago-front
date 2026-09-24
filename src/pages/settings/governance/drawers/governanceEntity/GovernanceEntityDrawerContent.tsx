@@ -38,6 +38,21 @@ gql`
                 id
                 parent {
                   id
+                  parent {
+                    id
+                    parent {
+                      id
+                      parent {
+                        id
+                        parent {
+                          id
+                          parent {
+                            id
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }

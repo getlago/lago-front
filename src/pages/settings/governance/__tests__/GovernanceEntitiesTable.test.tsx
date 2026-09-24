@@ -235,6 +235,7 @@ describe('GovernanceEntitiesTable', () => {
         expect(
           await screen.findByTestId(`depth-${MAX_GOVERNANCE_HIERARCHY_DEPTH}`),
         ).toBeInTheDocument()
+        expect(screen.getByTestId(`depth-${MAX_GOVERNANCE_HIERARCHY_DEPTH}`)).toHaveClass('pl-60')
         expect(captureMessage).not.toHaveBeenCalled()
       })
     })
