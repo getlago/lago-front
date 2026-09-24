@@ -1,5 +1,7 @@
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 
+import { contractForDrawerFixture } from './fixtures'
+
 import { buildCreateContractInput, buildUpdateContractInput } from '../buildContractInput'
 import { ContractFormValues } from '../constants'
 
@@ -61,7 +63,7 @@ describe('buildCreateContractInput', () => {
 
 describe('buildUpdateContractInput', () => {
   it('builds the update input keyed on the contract external id, without the customer', () => {
-    const input = buildUpdateContractInput(values, 'external-contract-1')
+    const input = buildUpdateContractInput(values, contractForDrawerFixture)
 
     expect(input).toEqual({
       externalId: 'external-contract-1',
@@ -81,7 +83,7 @@ describe('buildUpdateContractInput', () => {
   // `undefined` is stripped from the request and the service only writes present keys, so a
   // cleared field would silently keep its stored value.
   it('sends null for every cleared optional value', () => {
-    expect(buildUpdateContractInput(clearedValues, 'external-contract-1')).toEqual(
+    expect(buildUpdateContractInput(clearedValues, contractForDrawerFixture)).toEqual(
       expect.objectContaining({
         externalId: 'external-contract-1',
         name: null,
@@ -90,5 +92,46 @@ describe('buildUpdateContractInput', () => {
         endedAt: null,
       }),
     )
+  })
+
+  it('omits a missing plan instead of sending an empty code', () => {
+    expect(
+      buildUpdateContractInput({ ...values, planCode: '' }, contractForDrawerFixture).planCode,
+    ).toBeUndefined()
+  })
+
+  describe('on a contract that inherits its billing entity and anchor', () => {
+    const inheritingContract = {
+      ...contractForDrawerFixture,
+      billingEntityId: null,
+      billingAnchorDate: null,
+    }
+    const untouchedValues: ContractFormValues = {
+      ...values,
+      billingEntityId: 'billing-entity-1',
+      billingAnchorDate: '2026-01-01T00:00:00.000Z',
+    }
+
+    // Resending the seeded fallbacks would pin them as explicit overrides on a no-op save.
+    it('omits the untouched inherited values', () => {
+      const input = buildUpdateContractInput(untouchedValues, inheritingContract)
+
+      expect(input.billingEntityId).toBeUndefined()
+      expect(input.billingAnchorDate).toBeUndefined()
+    })
+
+    it('sends the values the user changed', () => {
+      const input = buildUpdateContractInput(
+        {
+          ...untouchedValues,
+          billingEntityId: 'billing-entity-3',
+          billingAnchorDate: '2026-02-01T00:00:00.000Z',
+        },
+        inheritingContract,
+      )
+
+      expect(input.billingEntityId).toBe('billing-entity-3')
+      expect(input.billingAnchorDate).toBe('2026-02-01')
+    })
   })
 })
