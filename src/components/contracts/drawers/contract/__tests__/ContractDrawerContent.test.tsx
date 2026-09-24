@@ -1,6 +1,6 @@
 import { MockedResponse } from '@apollo/client/testing'
 import { useStore } from '@tanstack/react-form'
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 
 import {
   ContractStatusEnum,
@@ -280,6 +280,42 @@ describe('ContractDrawerContent in edit mode', () => {
     })
 
     expect(getInputByTestId(CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID)).toBeDisabled()
+  })
+
+  it('only fetches the options of the comboboxes the user can change', async () => {
+    const customersResult = jest.fn(() => ({ data: { customers: { collection: [] } } }))
+    const plansResult = jest.fn(() => ({ data: { catalogPlans: { collection: [] } } }))
+
+    render(<EditWrapper status={ContractStatusEnum.Pending} />, {
+      mocks: [
+        { ...customersMock, result: customersResult },
+        { ...plansMock, result: plansResult },
+      ],
+    })
+
+    await waitFor(() => expect(plansResult).toHaveBeenCalled())
+    expect(customersResult).not.toHaveBeenCalled()
+  })
+
+  it('fetches no options when both comboboxes are locked on an active contract', async () => {
+    const customersResult = jest.fn(() => ({ data: { customers: { collection: [] } } }))
+    const plansResult = jest.fn(() => ({ data: { catalogPlans: { collection: [] } } }))
+
+    render(<EditWrapper status={ContractStatusEnum.Active} />, {
+      mocks: [
+        { ...customersMock, result: customersResult },
+        { ...plansMock, result: plansResult },
+      ],
+    })
+
+    await waitFor(() =>
+      expect(getInputByTestId(CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID)).toHaveValue(
+        'Enterprise plan',
+      ),
+    )
+    await act(async () => undefined)
+    expect(customersResult).not.toHaveBeenCalled()
+    expect(plansResult).not.toHaveBeenCalled()
   })
 
   // The customer auto-fill effect would otherwise reset the stored billing entity and payment method.
