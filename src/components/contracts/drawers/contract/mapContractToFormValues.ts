@@ -32,6 +32,7 @@ export const mapContractToFormValues = (
     externalCustomerId: contract.customer.externalId,
     externalId: contract.externalId,
     planCode: contract.plan?.code ?? '',
+    isPlanRequired: !!contract.plan,
     name: contract.name ?? '',
     billingEntityId: contract.billingEntityId ?? contract.customer.billingEntity?.id,
     consolidateInvoice: contract.consolidateInvoice,
