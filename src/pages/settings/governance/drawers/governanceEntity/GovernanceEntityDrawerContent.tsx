@@ -7,7 +7,7 @@ import { CreateMoreResetSignal } from '~/components/drawers/createMore/useCreate
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import {
   UsageAttributionTypeRoleEnum,
-  useGetGovernanceEntityParentOptionsQuery,
+  useGetGovernanceEntityParentOptionsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
@@ -41,11 +41,11 @@ const GovernanceEntityDrawerFormSections = withForm({
     const role = useStore(form.store, (state) => state.values.role)
     const isHierarchical = role === UsageAttributionTypeRoleEnum.Hierarchical
 
-    const { data: parentOptionsData, loading: parentOptionsLoading } =
-      useGetGovernanceEntityParentOptionsQuery({
+    const [getParentOptions, { data: parentOptionsData, loading: parentOptionsLoading }] =
+      useGetGovernanceEntityParentOptionsLazyQuery({
         variables: { limit: PARENT_OPTIONS_LIMIT },
         fetchPolicy: 'no-cache',
-        skip: !isHierarchical,
+        notifyOnNetworkStatusChange: true,
       })
 
     const roleOptions = [
@@ -110,6 +110,7 @@ const GovernanceEntityDrawerFormSections = withForm({
                   placeholder={translate('text_17902368288446vbtxrw8c8c')}
                   data={parentOptions}
                   loading={parentOptionsLoading}
+                  searchQuery={getParentOptions}
                   dataTest={GOVERNANCE_ENTITY_DRAWER_PARENT_TEST_ID}
                   PopperProps={{ displayInDialog: true }}
                 />

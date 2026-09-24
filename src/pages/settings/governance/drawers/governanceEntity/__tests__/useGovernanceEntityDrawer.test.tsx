@@ -90,6 +90,23 @@ const parentOptionsMock: MockedResponse = {
   maxUsageCount: Number.POSITIVE_INFINITY,
 }
 
+const SEARCHED_PARENT_ID = 'p2'
+
+const parentSearchMock: MockedResponse = {
+  request: {
+    query: GetGovernanceEntityParentOptionsDocument,
+    variables: { limit: 100, searchTerm: 'Finance' },
+  },
+  result: {
+    data: {
+      usageAttributionTypes: {
+        collection: [{ id: SEARCHED_PARENT_ID, name: 'Finance', code: 'finance' }],
+      },
+    },
+  },
+  maxUsageCount: Number.POSITIVE_INFINITY,
+}
+
 const createdEntity = {
   id: 'entity-1',
   name: 'Department',
@@ -133,7 +150,7 @@ const renderDrawerBody = (): void => {
   if (!lastDrawerArgs?.children) throw new Error('Drawer was not opened')
 
   render(
-    <MockedProvider mocks={[parentOptionsMock]} addTypename={false}>
+    <MockedProvider mocks={[parentOptionsMock, parentSearchMock]} addTypename={false}>
       {lastDrawerArgs.children}
     </MockedProvider>,
   )
@@ -243,6 +260,43 @@ describe('useGovernanceEntityDrawer', () => {
         await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
         expect(mutation.result).toHaveBeenCalledTimes(1)
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+    })
+  })
+
+  describe('GIVEN a parent outside the first page of options', () => {
+    describe('WHEN it is searched by name and submitted', () => {
+      it('THEN should find it server-side and send it as the parent', async () => {
+        const mutation = createMock({ ...hierarchicalInput, parentId: SEARCHED_PARENT_ID })
+
+        renderDrawer([mutation])
+        renderDrawerBody()
+
+        await userEvent.type(inputIn(GOVERNANCE_ENTITY_DRAWER_NAME_TEST_ID), 'Department')
+        await selectOption(
+          GOVERNANCE_ENTITY_DRAWER_ROLE_TEST_ID,
+          UsageAttributionTypeRoleEnum.Hierarchical,
+        )
+        await userEvent.type(inputIn(GOVERNANCE_ENTITY_DRAWER_PARENT_TEST_ID), 'Finance')
+
+        const searchedParent = await waitFor(
+          () => {
+            const radio = document.querySelector(
+              `input[type="radio"][value="${SEARCHED_PARENT_ID}"]`,
+            )
+
+            expect(radio).toBeInTheDocument()
+
+            return radio?.closest('.MuiAutocomplete-option') as HTMLElement
+          },
+          { timeout: 3000 },
+        )
+
+        await userEvent.click(searchedParent)
+        await addKeys(['department_id'])
+        await submit()
+
+        await waitFor(() => expect(mutation.result).toHaveBeenCalledTimes(1))
       })
     })
   })
