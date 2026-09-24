@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { Icon, tw } from 'lago-design-system'
 import { useState } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
@@ -6,7 +7,11 @@ import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
-import { UsageAttributionTypeRoleEnum, useGetGovernanceEntitiesQuery } from '~/generated/graphql'
+import {
+  GovernanceEntityItemFragment,
+  UsageAttributionTypeRoleEnum,
+  useGetGovernanceEntitiesQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
@@ -17,15 +22,15 @@ gql`
     code
     role
     createdAt
-    parent {
-      id
-      name
-      code
-    }
   }
 
-  query getGovernanceEntities($role: UsageAttributionTypeRoleEnum, $page: Int, $limit: Int) {
-    usageAttributionTypes(role: $role, page: $page, limit: $limit) {
+  query getGovernanceEntities(
+    $role: UsageAttributionTypeRoleEnum
+    $roots: Boolean
+    $page: Int
+    $limit: Int
+  ) {
+    usageAttributionTypes(role: $role, roots: $roots, page: $page, limit: $limit) {
       metadata {
         currentPage
         totalPages
@@ -34,6 +39,26 @@ gql`
       collection {
         id
         ...GovernanceEntityItem
+        children {
+          id
+          ...GovernanceEntityItem
+          children {
+            id
+            ...GovernanceEntityItem
+            children {
+              id
+              ...GovernanceEntityItem
+              children {
+                id
+                ...GovernanceEntityItem
+                children {
+                  id
+                  ...GovernanceEntityItem
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -43,6 +68,20 @@ const ROLE_LABEL_KEYS: Record<UsageAttributionTypeRoleEnum, string> = {
   [UsageAttributionTypeRoleEnum.Hierarchical]: 'text_1790230812563cibrddwcit4',
   [UsageAttributionTypeRoleEnum.Flat]: 'text_17902308125635bb6aqr2wbe',
 }
+
+const INDENT_CLASS_BY_DEPTH = ['pl-0', 'pl-6', 'pl-12', 'pl-18', 'pl-24', 'pl-30']
+
+type GovernanceEntityNode = GovernanceEntityItemFragment & {
+  children?: GovernanceEntityNode[]
+}
+
+type GovernanceEntityRow = GovernanceEntityItemFragment & { depth: number }
+
+const flattenTree = (nodes: GovernanceEntityNode[], depth = 0): GovernanceEntityRow[] =>
+  nodes.flatMap(({ children, ...node }) => [
+    { ...node, depth },
+    ...flattenTree(children ?? [], depth + 1),
+  ])
 
 export const GOVERNANCE_ENTITIES_TABLE_NAME = 'governance-settings-entities'
 export const GOVERNANCE_ENTITIES_TABLE_TEST_ID = `table-${GOVERNANCE_ENTITIES_TABLE_NAME}`
@@ -56,15 +95,16 @@ export const GovernanceEntitiesTable = ({ role }: GovernanceEntitiesTableProps):
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { page, goToPage } = usePageSearchParam()
+  const isHierarchical = role === UsageAttributionTypeRoleEnum.Hierarchical
 
   const { data, error, loading } = useGetGovernanceEntitiesQuery({
-    variables: { role, limit: pageSize, page },
+    variables: { role, roots: isHierarchical, limit: pageSize, page },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
   })
 
   const { metadata, collection } = data?.usageAttributionTypes || {}
-  const isHierarchical = role === UsageAttributionTypeRoleEnum.Hierarchical
+  const rows = flattenTree(collection ?? [])
 
   return (
     <PaginatedContent
@@ -85,7 +125,7 @@ export const GovernanceEntitiesTable = ({ role }: GovernanceEntitiesTableProps):
         rowSize={72}
         isLoading={loading}
         hasError={!!error}
-        data={collection ?? []}
+        data={rows}
         loadingRowCount={pageSize}
         placeholder={{
           errorState: {
@@ -101,28 +141,26 @@ export const GovernanceEntitiesTable = ({ role }: GovernanceEntitiesTableProps):
             key: 'name',
             title: translate('text_6419c64eace749372fc72b0f'),
             maxSpace: true,
-            content: ({ name, code }) => (
-              <div data-test={code}>
-                <Typography color="textSecondary" variant="bodyHl" noWrap>
-                  {name ?? code}
-                </Typography>
-                <Typography variant="caption" noWrap>
-                  {code}
-                </Typography>
+            content: ({ name, code, depth }) => (
+              <div
+                className={tw(
+                  'flex items-start gap-2',
+                  INDENT_CLASS_BY_DEPTH[Math.min(depth, INDENT_CLASS_BY_DEPTH.length - 1)],
+                )}
+                data-test={code}
+              >
+                {isHierarchical && <Icon name="arrow-indent" className="mt-0.5" />}
+                <div className="min-w-0">
+                  <Typography color="textSecondary" variant="bodyHl" noWrap>
+                    {name ?? code}
+                  </Typography>
+                  <Typography variant="caption" noWrap>
+                    {code}
+                  </Typography>
+                </div>
               </div>
             ),
           },
-          isHierarchical
-            ? {
-                key: 'parent.name',
-                title: translate('text_1790230812563xw6orgl2n9j'),
-                content: ({ parent }) => (
-                  <Typography variant="body" color="grey700" noWrap>
-                    {parent?.name ?? parent?.code ?? '-'}
-                  </Typography>
-                ),
-              }
-            : null,
           {
             key: 'role',
             title: translate('text_632d68358f1fedc68eed3e5a'),

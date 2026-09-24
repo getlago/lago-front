@@ -5,6 +5,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
 import { CreateMoreResetSignal } from '~/components/drawers/createMore/useCreateMore'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   UsageAttributionTypeRoleEnum,
   useGetGovernanceEntityParentOptionsLazyQuery,
@@ -80,11 +81,20 @@ const GovernanceEntityDrawerFormSections = withForm({
           </Typography>
         </div>
 
-        <div className="flex flex-col gap-6">
+        <CenteredPage.PageSection>
+          <CenteredPage.PageSectionTitle
+            title={translate('text_1790244192647rcqt27uhgij')}
+            description={translate('text_1783627031283920r4ap3cwe')}
+          />
+
           <NameAndCodeGroup
             form={form}
             fields={{ name: 'name', code: 'code' }}
-            nameProps={{ autoFocus: true }}
+            nameProps={{
+              autoFocus: true,
+              placeholder: translate('text_1790244192647frw2pd32d3b'),
+            }}
+            codeProps={{ placeholder: translate('text_1790244192647jne99fxqvme') }}
             nameDataTest={GOVERNANCE_ENTITY_DRAWER_NAME_TEST_ID}
             codeDataTest={GOVERNANCE_ENTITY_DRAWER_CODE_TEST_ID}
           />
@@ -106,7 +116,7 @@ const GovernanceEntityDrawerFormSections = withForm({
             <form.AppField name="parentId">
               {(field) => (
                 <field.ComboBoxField
-                  label={translate('text_1790230812563xw6orgl2n9j')}
+                  label={translate('text_17902441926478sdl04thios')}
                   placeholder={translate('text_17902368288446vbtxrw8c8c')}
                   data={parentOptions}
                   loading={parentOptionsLoading}
@@ -119,7 +129,7 @@ const GovernanceEntityDrawerFormSections = withForm({
           )}
 
           <AttributionKeysField form={form} />
-        </div>
+        </CenteredPage.PageSection>
       </>
     )
   },

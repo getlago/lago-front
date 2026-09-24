@@ -9945,6 +9945,7 @@ export type QueryUsageAttributionTypesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   role?: InputMaybe<UsageAttributionTypeRoleEnum>;
+  roots?: InputMaybe<Scalars['Boolean']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -12116,6 +12117,8 @@ export type UpdateXeroIntegrationInput = {
 export type UsageAttributionType = {
   __typename?: 'UsageAttributionType';
   attributionKeys: Array<Scalars['String']['output']>;
+  /** Child types, empty for a leaf or a flat type */
+  children: Array<UsageAttributionType>;
   code: Scalars['String']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   id: Scalars['ID']['output'];
@@ -18216,16 +18219,17 @@ export type GetXeroIntegrationsListQuery = { __typename?: 'Query', integrations?
       | { __typename?: 'XeroIntegration', id: string, name: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null }
     > } | null };
 
-export type GovernanceEntityItemFragment = { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, parent?: { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string } | null };
+export type GovernanceEntityItemFragment = { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any };
 
 export type GetGovernanceEntitiesQueryVariables = Exact<{
   role?: InputMaybe<UsageAttributionTypeRoleEnum>;
+  roots?: InputMaybe<Scalars['Boolean']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type GetGovernanceEntitiesQuery = { __typename?: 'Query', usageAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, parent?: { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string } | null }> } };
+export type GetGovernanceEntitiesQuery = { __typename?: 'Query', usageAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any }> }> }> }> }> }> } };
 
 export type GetGovernanceEntitiesRoleCountsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -18245,7 +18249,7 @@ export type CreateGovernanceEntityMutationVariables = Exact<{
 }>;
 
 
-export type CreateGovernanceEntityMutation = { __typename?: 'Mutation', createUsageAttributionType?: { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, parent?: { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string } | null } | null };
+export type CreateGovernanceEntityMutation = { __typename?: 'Mutation', createUsageAttributionType?: { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any } | null };
 
 export type AnrokIntegrationMapItemDrawerFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
 
@@ -24885,11 +24889,6 @@ export const GovernanceEntityItemFragmentDoc = gql`
   code
   role
   createdAt
-  parent {
-    id
-    name
-    code
-  }
 }
     `;
 export const AnrokIntegrationMapItemDrawerFragmentDoc = gql`
@@ -50355,8 +50354,8 @@ export type GetXeroIntegrationsListLazyQueryHookResult = ReturnType<typeof useGe
 export type GetXeroIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetXeroIntegrationsListSuspenseQuery>;
 export type GetXeroIntegrationsListQueryResult = Apollo.QueryResult<GetXeroIntegrationsListQuery, GetXeroIntegrationsListQueryVariables>;
 export const GetGovernanceEntitiesDocument = gql`
-    query getGovernanceEntities($role: UsageAttributionTypeRoleEnum, $page: Int, $limit: Int) {
-  usageAttributionTypes(role: $role, page: $page, limit: $limit) {
+    query getGovernanceEntities($role: UsageAttributionTypeRoleEnum, $roots: Boolean, $page: Int, $limit: Int) {
+  usageAttributionTypes(role: $role, roots: $roots, page: $page, limit: $limit) {
     metadata {
       currentPage
       totalPages
@@ -50365,6 +50364,26 @@ export const GetGovernanceEntitiesDocument = gql`
     collection {
       id
       ...GovernanceEntityItem
+      children {
+        id
+        ...GovernanceEntityItem
+        children {
+          id
+          ...GovernanceEntityItem
+          children {
+            id
+            ...GovernanceEntityItem
+            children {
+              id
+              ...GovernanceEntityItem
+              children {
+                id
+                ...GovernanceEntityItem
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
@@ -50383,6 +50402,7 @@ export const GetGovernanceEntitiesDocument = gql`
  * const { data, loading, error } = useGetGovernanceEntitiesQuery({
  *   variables: {
  *      role: // value for 'role'
+ *      roots: // value for 'roots'
  *      page: // value for 'page'
  *      limit: // value for 'limit'
  *   },

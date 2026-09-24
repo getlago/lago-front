@@ -145,7 +145,7 @@ const GovernanceSettings = (): JSX.Element => {
           <SettingsListItem className="min-h-0 flex-1">
             <SettingsListItemHeader
               label={translate('text_1790230812563tvbie14jfl9')}
-              sublabel={translate('text_1790230812563hs9lunmy1sc')}
+              sublabel={translate('text_1790236828844ag7c1onjptx')}
               action={
                 hasPermissions(['usageAttributionTypesCreate']) ? (
                   <Button
@@ -154,7 +154,7 @@ const GovernanceSettings = (): JSX.Element => {
                     onClick={() => openDrawer()}
                     data-test={GOVERNANCE_SETTINGS_CREATE_BUTTON_TEST_ID}
                   >
-                    {translate('text_645bb193927b375079d28ad2')}
+                    {translate('text_17902441926471lwe9m10evn')}
                   </Button>
                 ) : undefined
               }

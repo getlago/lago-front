@@ -103,7 +103,7 @@ export const useGovernanceEntityDrawer = (): { openDrawer: () => void } => {
       mainAction: (
         <form.AppForm>
           <form.SubmitButton dataTest={GOVERNANCE_ENTITY_DRAWER_SUBMIT_TEST_ID}>
-            {translate('text_1742230191029lznwj3y41nb')}
+            {translate('text_17902441926478qzpulkexcd')}
           </form.SubmitButton>
         </form.AppForm>
       ),

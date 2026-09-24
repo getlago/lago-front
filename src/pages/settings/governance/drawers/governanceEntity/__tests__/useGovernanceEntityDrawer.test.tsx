@@ -8,6 +8,7 @@ import { CREATE_MORE_SWITCH_TEST_ID } from '~/components/drawers/createMore/Crea
 import { addToast } from '~/core/apolloClient'
 import {
   CreateGovernanceEntityDocument,
+  CreateGovernanceEntityMutation,
   CreateUsageAttributionTypeInput,
   GetGovernanceEntityParentOptionsDocument,
   UsageAttributionTypeRoleEnum,
@@ -107,13 +108,12 @@ const parentSearchMock: MockedResponse = {
   maxUsageCount: Number.POSITIVE_INFINITY,
 }
 
-const createdEntity = {
+const createdEntity: NonNullable<CreateGovernanceEntityMutation['createUsageAttributionType']> = {
   id: 'entity-1',
   name: 'Department',
   code: 'department',
   role: UsageAttributionTypeRoleEnum.Hierarchical,
   createdAt: '2026-09-24T00:00:00Z',
-  parent: null,
 }
 
 const createMock = (
