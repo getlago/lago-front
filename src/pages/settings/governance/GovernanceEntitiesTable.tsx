@@ -102,6 +102,29 @@ const exceedsMaxDepth = (nodes: GovernanceEntityNode[], depth = 0): boolean =>
     return exceedsMaxDepth(children.filter(isEntityNode), depth + 1)
   })
 
+type GovernanceEntityNameCellProps = Pick<GovernanceEntityRow, 'name' | 'code' | 'depth'> & {
+  showIndentIcon: boolean
+}
+
+const GovernanceEntityNameCell = ({
+  name,
+  code,
+  depth,
+  showIndentIcon,
+}: GovernanceEntityNameCellProps): JSX.Element => (
+  <div className={tw('flex items-start gap-2', INDENT_CLASS_BY_DEPTH[depth])} data-test={code}>
+    {showIndentIcon && <Icon name="arrow-indent" className="mt-0.5" />}
+    <div className="min-w-0">
+      <Typography color="textSecondary" variant="bodyHl" noWrap>
+        {name ?? code}
+      </Typography>
+      <Typography variant="caption" noWrap>
+        {code}
+      </Typography>
+    </div>
+  </div>
+)
+
 export const GOVERNANCE_ENTITIES_TABLE_NAME = 'governance-settings-entities'
 export const GOVERNANCE_ENTITIES_TABLE_TEST_ID = `table-${GOVERNANCE_ENTITIES_TABLE_NAME}`
 
@@ -170,20 +193,12 @@ export const GovernanceEntitiesTable = ({ role }: GovernanceEntitiesTableProps):
             title: translate('text_6419c64eace749372fc72b0f'),
             maxSpace: true,
             content: ({ name, code, depth }) => (
-              <div
-                className={tw('flex items-start gap-2', INDENT_CLASS_BY_DEPTH[depth])}
-                data-test={code}
-              >
-                {isHierarchical && <Icon name="arrow-indent" className="mt-0.5" />}
-                <div className="min-w-0">
-                  <Typography color="textSecondary" variant="bodyHl" noWrap>
-                    {name ?? code}
-                  </Typography>
-                  <Typography variant="caption" noWrap>
-                    {code}
-                  </Typography>
-                </div>
-              </div>
+              <GovernanceEntityNameCell
+                name={name}
+                code={code}
+                depth={depth}
+                showIndentIcon={isHierarchical}
+              />
             ),
           },
           {
