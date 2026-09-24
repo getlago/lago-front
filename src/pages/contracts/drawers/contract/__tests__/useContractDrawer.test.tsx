@@ -9,6 +9,8 @@ import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { CreateContractDocument, UpdateContractDocument } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import { contractForDrawerFixture } from './fixtures'
+
 import {
   CONTRACT_DRAWER_TITLE_CREATE_KEY,
   CONTRACT_DRAWER_TITLE_EDIT_KEY,
@@ -17,8 +19,6 @@ import {
   CONTRACT_FORM_ID,
 } from '../constants'
 import { useContractDrawer } from '../useContractDrawer'
-
-import { contractForDrawerFixture } from './fixtures'
 
 type CapturedDrawerArgs = {
   title?: string
