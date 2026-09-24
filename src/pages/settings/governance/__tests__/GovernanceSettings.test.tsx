@@ -1,10 +1,12 @@
 import { screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
 import { GetGovernanceEntitiesRoleCountsDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
 import GovernanceSettings, {
+  GOVERNANCE_SETTINGS_CREATE_BUTTON_TEST_ID,
   GOVERNANCE_SETTINGS_FLAT_TAB_TEST_ID,
   GOVERNANCE_SETTINGS_HIERARCHICAL_TAB_TEST_ID,
 } from '../GovernanceSettings'
@@ -15,6 +17,17 @@ jest.mock('../GovernanceEntitiesTable', () => ({
   GovernanceEntitiesTable: ({ role }: { role: string }) => (
     <div data-test="governance-entities-table-stub" data-role={role} />
   ),
+}))
+
+const mockOpenDrawer = jest.fn()
+const mockHasPermissions = jest.fn(() => true)
+
+jest.mock('../drawers/governanceEntity/useGovernanceEntityDrawer', () => ({
+  useGovernanceEntityDrawer: () => ({ openDrawer: mockOpenDrawer }),
+}))
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
 
 const roleCountsMock = (hierarchical: number, flat: number): TestMocksType => [
@@ -34,6 +47,8 @@ const renderPage = (mocks: TestMocksType) =>
 
 describe('GovernanceSettings', () => {
   beforeEach(() => {
+    jest.clearAllMocks()
+    mockHasPermissions.mockReturnValue(true)
     window.history.replaceState({}, '', '/acme/settings/governance')
   })
 
@@ -136,6 +151,36 @@ describe('GovernanceSettings', () => {
         })
 
         expect(screen.getByTestId('generic-placeholder-button')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the user can create governance entities', () => {
+    describe('WHEN clicking the create action in the empty state', () => {
+      it('THEN should open the creation drawer', async () => {
+        renderPage(roleCountsMock(0, 0))
+
+        await screen.findByTestId(GENERIC_PLACEHOLDER_TEST_ID)
+        await userEvent.click(screen.getByTestId(GOVERNANCE_SETTINGS_CREATE_BUTTON_TEST_ID))
+
+        expect(mockHasPermissions).toHaveBeenCalledWith(['usageAttributionTypesCreate'])
+        expect(mockOpenDrawer).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
+
+  describe('GIVEN the user cannot create governance entities', () => {
+    describe('WHEN the page renders', () => {
+      it('THEN should not render the create action', async () => {
+        mockHasPermissions.mockReturnValue(false)
+
+        renderPage(roleCountsMock(2, 3))
+
+        await screen.findByTestId(GOVERNANCE_SETTINGS_HIERARCHICAL_TAB_TEST_ID)
+
+        expect(
+          screen.queryByTestId(GOVERNANCE_SETTINGS_CREATE_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
   })

@@ -5081,5 +5081,17 @@
   "text_1790230812563kq9o2mku1rc": "View governance entities",
   "text_1790230812564tig9p4k5bb3": "Create a new governance entity",
   "text_1790230812564u35u7vyt4e4": "Update a governance entity",
-  "text_17902308125643oqh5iltbd1": "Delete a governance entity"
+  "text_17902308125643oqh5iltbd1": "Delete a governance entity",
+  "text_1790236824869cg5v2b6hasb": "Create a governance entity",
+  "text_1790236828844ag7c1onjptx": "A governance entity defines how usage is attributed across your organization, either as part of a hierarchy or as a flat attribute.",
+  "text_1790236828844imd71hgrduj": "Search and select a governance entity type",
+  "text_17902368288446vbtxrw8c8c": "Search and select a parent",
+  "text_1790236828844kl6o27txp2z": "Attribution keys",
+  "text_1790236828844d337jccs8wz": "Event properties used to attribute usage to this entity, up to 4 keys.",
+  "text_17902368288445czmo8qbyq7": "Add attribution keys",
+  "text_1790236828844qhsvau9gmzf": "Type a key and press enter",
+  "text_1790236828844u3fpos3gmly": "Governance entity successfully created",
+  "text_1790236828844gao5m0hp13y": "This governance entity could not be saved. Please check its settings and try again.",
+  "text_1790236828844v9irmcydet9": "An attribution key is already used by another governance entity",
+  "text_17902368288440zi147lq15l": "You can add up to 4 attribution keys"
 }

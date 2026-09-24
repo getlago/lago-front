@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { ReactNode } from 'react'
 import { generatePath } from 'react-router'
 
+import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { NavigationTab } from '~/components/designSystem/NavigationTab'
 import {
@@ -20,9 +21,11 @@ import {
   useGetGovernanceEntitiesRoleCountsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
+import { useGovernanceEntityDrawer } from './drawers/governanceEntity/useGovernanceEntityDrawer'
 import { GovernanceEntitiesTable } from './GovernanceEntitiesTable'
 
 gql`
@@ -42,9 +45,12 @@ gql`
 
 export const GOVERNANCE_SETTINGS_HIERARCHICAL_TAB_TEST_ID = 'governance-settings-hierarchical-tab'
 export const GOVERNANCE_SETTINGS_FLAT_TAB_TEST_ID = 'governance-settings-flat-tab'
+export const GOVERNANCE_SETTINGS_CREATE_BUTTON_TEST_ID = 'governance-settings-create-button'
 
 const GovernanceSettings = (): JSX.Element => {
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
+  const { openDrawer } = useGovernanceEntityDrawer()
 
   const { data, error, loading } = useGetGovernanceEntitiesRoleCountsQuery({
     fetchPolicy: 'no-cache',
@@ -140,6 +146,18 @@ const GovernanceSettings = (): JSX.Element => {
             <SettingsListItemHeader
               label={translate('text_1790230812563tvbie14jfl9')}
               sublabel={translate('text_1790230812563hs9lunmy1sc')}
+              action={
+                hasPermissions(['usageAttributionTypesCreate']) ? (
+                  <Button
+                    variant="inline"
+                    disabled={loading}
+                    onClick={() => openDrawer()}
+                    data-test={GOVERNANCE_SETTINGS_CREATE_BUTTON_TEST_ID}
+                  >
+                    {translate('text_645bb193927b375079d28ad2')}
+                  </Button>
+                ) : undefined
+              }
             />
 
             {renderContent()}
