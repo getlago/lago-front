@@ -5067,5 +5067,9 @@
   "text_178997175113710y2zapz4c9": "By terminating this contract, the customer will stop being billed for it and no new invoice will be issued. This action cannot be undone. Are you sure?",
   "text_1789971751137drk22mafo3k": "By canceling this contract, it will never start and the customer will never be billed for it. This action cannot be undone. Are you sure?",
   "text_1789971751137egm0tdl3q96": "Contract successfully terminated",
-  "text_1789971751137982utge606b": "Contract successfully canceled"
+  "text_1789971751137982utge606b": "Contract successfully canceled",
+  "text_1790283913718mpxv4h76ne5": "Remove {{name}}?",
+  "text_1790283913718aiyuge7g45l": "This rate card will no longer be applied and its rate phases will be lost. This action cannot be undone.",
+  "text_1790283913718ou6jmxoxnea": "Remove",
+  "text_1790283913718436odi8om57": "Rate card removed"
 }
