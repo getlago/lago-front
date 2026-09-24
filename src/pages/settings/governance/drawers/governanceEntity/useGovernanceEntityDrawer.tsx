@@ -42,7 +42,8 @@ export const useGovernanceEntityDrawer = (): { openDrawer: () => void } => {
 
   const [createGovernanceEntity] = useCreateGovernanceEntityMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    refetchQueries: ['getGovernanceEntities', 'getGovernanceEntitiesRoleCounts'],
+    refetchQueries: ({ errors }) =>
+      errors?.length ? [] : ['getGovernanceEntities', 'getGovernanceEntitiesRoleCounts'],
   })
 
   const form = useAppForm({
@@ -97,6 +98,7 @@ export const useGovernanceEntityDrawer = (): { openDrawer: () => void } => {
       title: translate('text_1790236824869cg5v2b6hasb'),
       form: { id: GOVERNANCE_ENTITY_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
+      cancelOrCloseText: 'cancel',
       onEntered: focusFirstInput,
       shouldPromptOnClose: () => form.state.isDirty,
       secondaryAction: createMoreControl,

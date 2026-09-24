@@ -9,6 +9,7 @@ import { addToast } from '~/core/apolloClient'
 import {
   CreateGovernanceEntityDocument,
   CreateGovernanceEntityMutation,
+  CreateGovernanceEntityMutationOptions,
   CreateUsageAttributionTypeInput,
   GetGovernanceEntityParentOptionsDocument,
   UsageAttributionTypeRoleEnum,
@@ -33,7 +34,13 @@ import {
 import { useGovernanceEntityDrawer } from '../useGovernanceEntityDrawer'
 import { MAX_ATTRIBUTION_KEYS } from '../validationSchema'
 
+type RefetchQueriesFn = Extract<
+  NonNullable<CreateGovernanceEntityMutationOptions['refetchQueries']>,
+  (...args: never[]) => unknown
+>
+
 type CapturedDrawerArgs = {
+  cancelOrCloseText?: 'close' | 'cancel'
   title?: ReactNode
   children?: ReactNode
   secondaryAction?: ReactNode
@@ -62,6 +69,21 @@ jest.mock('~/components/form/ComboBox', () => {
     ComboBox: (props: ComponentProps<typeof actual.ComboBox>) => (
       <actual.ComboBox {...props} virtualized={false} />
     ),
+  }
+})
+
+const mockMutationOptions: { current?: CreateGovernanceEntityMutationOptions } = {}
+
+jest.mock('~/generated/graphql', () => {
+  const actual = jest.requireActual('~/generated/graphql')
+
+  return {
+    ...actual,
+    useCreateGovernanceEntityMutation: (options: CreateGovernanceEntityMutationOptions) => {
+      mockMutationOptions.current = options
+
+      return actual.useCreateGovernanceEntityMutation(options)
+    },
   }
 })
 
@@ -265,6 +287,38 @@ describe('useGovernanceEntityDrawer', () => {
       expect(lastDrawerArgs?.closeOnSubmitSuccess).toBe(false)
       expect(lastDrawerArgs?.secondaryAction).toBeDefined()
       expect(lastDrawerArgs?.shouldPromptOnClose?.()).toBe(false)
+      expect(lastDrawerArgs?.cancelOrCloseText).toBe('cancel')
+    })
+  })
+
+  describe('GIVEN the create mutation settles', () => {
+    const refetchQueriesFor = (result: Parameters<RefetchQueriesFn>[0]): unknown => {
+      const { refetchQueries } = mockMutationOptions.current ?? {}
+
+      if (typeof refetchQueries !== 'function') throw new Error('refetchQueries is not a function')
+
+      return refetchQueries(result)
+    }
+
+    describe('WHEN it succeeds', () => {
+      it('THEN should refetch the list and the role counts', () => {
+        renderDrawer()
+
+        expect(refetchQueriesFor({ data: { createUsageAttributionType: createdEntity } })).toEqual([
+          'getGovernanceEntities',
+          'getGovernanceEntitiesRoleCounts',
+        ])
+      })
+    })
+
+    describe('WHEN it fails', () => {
+      it('THEN should refetch nothing', () => {
+        renderDrawer()
+
+        expect(refetchQueriesFor({ errors: [valueAlreadyExistError('attributionKeys')] })).toEqual(
+          [],
+        )
+      })
     })
   })
 
