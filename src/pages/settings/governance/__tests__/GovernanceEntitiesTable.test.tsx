@@ -1,5 +1,5 @@
 import { captureMessage } from '@sentry/react'
-import { screen, waitFor, within } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { GetGovernanceEntitiesDocument, UsageAttributionTypeRoleEnum } from '~/generated/graphql'
@@ -281,6 +281,22 @@ describe('GovernanceEntitiesTable', () => {
         )
 
         expect((await screen.findByTestId('product')).querySelector('svg')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the page is still resolving the roles', () => {
+    describe('WHEN the table renders in loading mode', () => {
+      it('THEN should show the table without querying the list', async () => {
+        render(<GovernanceEntitiesTable isLoading />, {
+          useParams: { organizationSlug: 'acme' },
+          mocks: [],
+        })
+
+        await act(() => new Promise((resolve) => setTimeout(resolve, 0)))
+
+        expect(screen.getByTestId(GOVERNANCE_ENTITIES_TABLE_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId('generic-placeholder-button')).not.toBeInTheDocument()
       })
     })
   })

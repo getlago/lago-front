@@ -14,8 +14,8 @@ import GovernanceSettings, {
 const GOVERNANCE_ENTITIES_TABLE_STUB_TEST_ID = 'governance-entities-table-stub'
 
 jest.mock('../GovernanceEntitiesTable', () => ({
-  GovernanceEntitiesTable: ({ role }: { role: string }) => (
-    <div data-test="governance-entities-table-stub" data-role={role} />
+  GovernanceEntitiesTable: ({ role, isLoading }: { role?: string; isLoading?: boolean }) => (
+    <div data-test="governance-entities-table-stub" data-role={role} data-loading={!!isLoading} />
   ),
 }))
 
@@ -127,11 +127,14 @@ describe('GovernanceSettings', () => {
 
   describe('GIVEN the counts are still loading', () => {
     describe('WHEN the page first renders', () => {
-      it('THEN should render neither the empty state nor a table', () => {
+      it('THEN should render the table skeleton and no empty state', () => {
         renderPage(roleCountsMock(0, 0))
 
         expect(screen.queryByTestId(GENERIC_PLACEHOLDER_TEST_ID)).not.toBeInTheDocument()
-        expect(screen.queryByTestId(GOVERNANCE_ENTITIES_TABLE_STUB_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(GOVERNANCE_ENTITIES_TABLE_STUB_TEST_ID)).toHaveAttribute(
+          'data-loading',
+          'true',
+        )
       })
     })
   })

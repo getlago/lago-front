@@ -128,11 +128,13 @@ const GovernanceEntityNameCell = ({
 export const GOVERNANCE_ENTITIES_TABLE_NAME = 'governance-settings-entities'
 export const GOVERNANCE_ENTITIES_TABLE_TEST_ID = `table-${GOVERNANCE_ENTITIES_TABLE_NAME}`
 
-type GovernanceEntitiesTableProps = {
-  role: UsageAttributionTypeRoleEnum
-}
+type GovernanceEntitiesTableProps =
+  { role: UsageAttributionTypeRoleEnum; isLoading?: never } | { role?: never; isLoading: true }
 
-export const GovernanceEntitiesTable = ({ role }: GovernanceEntitiesTableProps): JSX.Element => {
+export const GovernanceEntitiesTable = ({
+  role,
+  isLoading,
+}: GovernanceEntitiesTableProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
@@ -143,6 +145,7 @@ export const GovernanceEntitiesTable = ({ role }: GovernanceEntitiesTableProps):
     variables: { role, roots: isHierarchical, limit: pageSize, page },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
+    skip: !!isLoading,
   })
 
   const { metadata, collection } = data?.usageAttributionTypes || {}
@@ -171,10 +174,10 @@ export const GovernanceEntitiesTable = ({ role }: GovernanceEntitiesTableProps):
     >
       <Table
         name={GOVERNANCE_ENTITIES_TABLE_NAME}
-        containerClassName="border-t border-grey-300"
+        containerClassName="h-auto shrink-0"
         containerSize={{ default: 0 }}
         rowSize={72}
-        isLoading={loading}
+        isLoading={!!isLoading || loading}
         hasError={!!error}
         data={rows}
         loadingRowCount={pageSize}

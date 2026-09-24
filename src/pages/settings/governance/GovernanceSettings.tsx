@@ -8,7 +8,6 @@ import { NavigationTab } from '~/components/designSystem/NavigationTab'
 import {
   SettingsListItem,
   SettingsListItemHeader,
-  SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
   SettingsPaddedContainer,
   SettingsWithTabsPaddedContainer,
@@ -61,7 +60,7 @@ const GovernanceSettings = (): JSX.Element => {
   const hasBothRoles = hasHierarchical && hasFlat
 
   const renderContent = (): ReactNode => {
-    if (loading) return <SettingsListItemLoadingSkeleton count={2} />
+    if (loading) return <GovernanceEntitiesTable isLoading />
 
     if (!hasHierarchical && !hasFlat) {
       return (
@@ -142,7 +141,7 @@ const GovernanceSettings = (): JSX.Element => {
 
       <Container className="min-h-0 flex-1 pb-0">
         <SettingsListWrapper className="min-h-0 flex-1">
-          <SettingsListItem className="min-h-0 flex-1">
+          <SettingsListItem className="min-h-0 flex-1 gap-8">
             <SettingsListItemHeader
               label={translate('text_1790230812563tvbie14jfl9')}
               sublabel={translate('text_1790236828844ag7c1onjptx')}
