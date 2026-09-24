@@ -1,4 +1,5 @@
 import { act, render as rtlRender, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID } from '~/components/designSystem/TypographyWithCopy'
 import {
@@ -10,11 +11,21 @@ import {
 } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
-import { ContractOverviewSection } from '../ContractOverviewSection'
+import { CONTRACT_OVERVIEW_EDIT_TEST_ID, ContractOverviewSection } from '../ContractOverviewSection'
 
 const mockPaymentMethodProps = jest.fn()
 const mockTimezoneDateProps = jest.fn()
 const mockBillingEntityLabelProps = jest.fn()
+const mockCanEditContract = jest.fn()
+const mockOpenContractDrawer = jest.fn()
+
+jest.mock('~/hooks/useContractPermissionsActions', () => ({
+  useContractPermissionsActions: () => ({ canEditContract: mockCanEditContract }),
+}))
+
+jest.mock('~/pages/contracts/drawers/contract/useContractDrawer', () => ({
+  useContractDrawer: () => ({ openDrawer: mockOpenContractDrawer }),
+}))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
@@ -74,6 +85,7 @@ const contract: ContractForContractDetailsOverviewFragment = {
     __typename: 'CatalogPlan',
     id: 'plan-1',
     name: 'Enterprise plan',
+    code: 'enterprise',
   },
 }
 
@@ -99,7 +111,29 @@ const renderSection = async (overrides: Partial<typeof contract> = {}) => {
 }
 
 describe('ContractOverviewSection', () => {
-  beforeEach(() => jest.clearAllMocks())
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockCanEditContract.mockImplementation(
+      (status) => status === ContractStatusEnum.Active || status === ContractStatusEnum.Pending,
+    )
+  })
+
+  it('offers Edit on the attached object section of an editable contract', async () => {
+    await renderSection({ status: ContractStatusEnum.Active })
+
+    await userEvent.click(await screen.findByTestId(CONTRACT_OVERVIEW_EDIT_TEST_ID))
+
+    expect(mockOpenContractDrawer).toHaveBeenCalledWith({
+      contract: expect.objectContaining({ id: 'contract-1' }),
+    })
+  })
+
+  it('hides Edit on a terminated contract', async () => {
+    await renderSection()
+
+    await screen.findByText('external-contract-1')
+    expect(screen.queryByTestId(CONTRACT_OVERVIEW_EDIT_TEST_ID)).not.toBeInTheDocument()
+  })
 
   it('shows the shared details skeleton while the contract is loading', () => {
     const loadingMock = {

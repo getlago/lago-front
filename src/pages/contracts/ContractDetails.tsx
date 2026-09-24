@@ -15,6 +15,7 @@ import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import { ContractDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CONTRACT_DETAILS_ROUTE, CONTRACT_DETAILS_TAB_ROUTE, CONTRACTS_ROUTE } from '~/core/router'
 import {
+  ContractForContractDrawerFragmentDoc,
   ContractStatusEnum,
   LagoApiError,
   useGetContractForDetailsQuery,
@@ -26,6 +27,8 @@ import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { ContractDetailsOverview } from './details/ContractDetailsOverview'
+import { CONTRACT_DRAWER_TITLE_EDIT_KEY } from './drawers/contract/constants'
+import { useContractDrawer } from './drawers/contract/useContractDrawer'
 
 gql`
   fragment ContractForContractDetails on Contract {
@@ -38,6 +41,7 @@ gql`
       id
       name
     }
+    ...ContractForContractDrawer
   }
 
   query getContractForDetails($id: ID!) {
@@ -45,19 +49,23 @@ gql`
       ...ContractForContractDetails
     }
   }
+
+  ${ContractForContractDrawerFragmentDoc}
 `
 
 export const CONTRACT_DETAILS_ACTIONS_TEST_ID = 'contract-details-actions'
 export const CONTRACT_DETAILS_COPY_ID_TEST_ID = 'contract-details-copy-external-id'
 export const CONTRACT_DETAILS_TERMINATE_TEST_ID = 'contract-details-terminate'
 export const CONTRACT_DETAILS_CANCEL_TEST_ID = 'contract-details-cancel'
+export const CONTRACT_DETAILS_EDIT_TEST_ID = 'contract-details-edit'
 
 const ContractDetails = (): JSX.Element => {
   const { id = '' } = useParams()
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const { canTerminateContract } = useContractPermissionsActions()
+  const { canTerminateContract, canEditContract } = useContractPermissionsActions()
+  const { openDrawer: openContractDrawer } = useContractDrawer()
   const { copyContractExternalId, copyContractExternalIdLabel } = useCopyContractExternalId()
   const { openTerminateContractDialog } = useTerminateContractDialog()
 
@@ -98,6 +106,19 @@ const ContractDetails = (): JSX.Element => {
                 closePopper()
               },
             },
+            ...(canEditContract(contract.status)
+              ? [
+                  {
+                    label: translate(CONTRACT_DRAWER_TITLE_EDIT_KEY),
+                    startIcon: 'pen' as const,
+                    dataTest: CONTRACT_DETAILS_EDIT_TEST_ID,
+                    onClick: (closePopper: () => void) => {
+                      closePopper()
+                      openContractDrawer({ contract })
+                    },
+                  },
+                ]
+              : []),
             ...(terminationCopy && canTerminateContract(contract.status)
               ? [
                   {
