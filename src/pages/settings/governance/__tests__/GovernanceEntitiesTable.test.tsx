@@ -1,6 +1,7 @@
 import { captureMessage } from '@sentry/react'
-import { act, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 
+import { OPEN_ACTION_BUTTON_TEST_ID } from '~/components/designSystem/Table/Table'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { GetGovernanceEntitiesDocument, UsageAttributionTypeRoleEnum } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
@@ -8,8 +9,34 @@ import { render, TestMocksType } from '~/test-utils'
 import { MAX_GOVERNANCE_HIERARCHY_DEPTH } from '../constants'
 import {
   GOVERNANCE_ENTITIES_TABLE_TEST_ID,
+  GOVERNANCE_ENTITY_DELETE_ACTION_TEST_ID,
+  GOVERNANCE_ENTITY_EDIT_ACTION_TEST_ID,
   GovernanceEntitiesTable,
 } from '../GovernanceEntitiesTable'
+
+const mockOpenDrawer = jest.fn()
+const mockOpenDeleteDialog = jest.fn()
+const mockHasPermissions = jest.fn()
+
+jest.mock('../drawers/governanceEntity/useGovernanceEntityDrawer', () => ({
+  useGovernanceEntityDrawer: () => ({ openDrawer: mockOpenDrawer }),
+}))
+
+jest.mock('../useDeleteGovernanceEntityDialog', () => ({
+  useDeleteGovernanceEntityDialog: () => ({
+    openDeleteGovernanceEntityDialog: mockOpenDeleteDialog,
+  }),
+}))
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+const grantPermissions = (granted: string[]): void => {
+  mockHasPermissions.mockImplementation((permissions: string[]) =>
+    permissions.every((permission) => granted.includes(permission)),
+  )
+}
 
 jest.mock('@sentry/react', () => ({
   ...jest.requireActual('@sentry/react'),
@@ -27,7 +54,9 @@ type Entity = {
   id: string
   name: string | null
   code: string
+  description: string | null
   role: UsageAttributionTypeRoleEnum
+  attributionKeys: string[]
   createdAt: string
   children: Array<Entity | EntityProbe>
 }
@@ -41,7 +70,9 @@ const buildEntity = (overrides: Partial<Entity> = {}): Entity => ({
   id: 'entity-1',
   name: 'Engineering',
   code: 'engineering',
+  description: null,
   role: UsageAttributionTypeRoleEnum.Hierarchical,
+  attributionKeys: ['engineering_id'],
   createdAt: '2026-01-01T00:00:00Z',
   children: [],
   ...overrides,
@@ -105,6 +136,7 @@ const renderTable = (role: UsageAttributionTypeRoleEnum, mocks: TestMocksType) =
 describe('GovernanceEntitiesTable', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    grantPermissions([])
     window.history.replaceState({}, '', '/acme/settings/governance')
   })
 
@@ -325,6 +357,115 @@ describe('GovernanceEntitiesTable', () => {
         ])
 
         expect(await screen.findByTestId('generic-placeholder-button')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN row actions', () => {
+    const hierarchy = [
+      buildEntity({
+        children: [buildEntity({ id: 'entity-2', name: 'Backend', code: 'backend' })],
+      }),
+    ]
+
+    const renderHierarchy = async (): Promise<void> => {
+      renderTable(
+        UsageAttributionTypeRoleEnum.Hierarchical,
+        entitiesMock({ role: UsageAttributionTypeRoleEnum.Hierarchical, collection: hierarchy }),
+      )
+
+      await screen.findByTestId('backend')
+    }
+
+    const openRowMenu = async (rowIndex: number): Promise<void> => {
+      fireEvent.click(screen.getAllByTestId(OPEN_ACTION_BUTTON_TEST_ID)[rowIndex])
+    }
+
+    describe('WHEN the user can neither update nor delete', () => {
+      it('THEN should render no action column', async () => {
+        await renderHierarchy()
+
+        expect(screen.queryByTestId(OPEN_ACTION_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user can only delete', () => {
+      it('THEN should offer only the delete action', async () => {
+        grantPermissions(['usageAttributionTypesDelete'])
+        await renderHierarchy()
+        await openRowMenu(0)
+
+        expect(
+          await screen.findByTestId(GOVERNANCE_ENTITY_DELETE_ACTION_TEST_ID),
+        ).toBeInTheDocument()
+        expect(screen.queryByTestId(GOVERNANCE_ENTITY_EDIT_ACTION_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user can both update and delete', () => {
+      it('THEN should offer both actions', async () => {
+        grantPermissions(['usageAttributionTypesUpdate', 'usageAttributionTypesDelete'])
+        await renderHierarchy()
+        await openRowMenu(0)
+
+        expect(await screen.findByTestId(GOVERNANCE_ENTITY_EDIT_ACTION_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(GOVERNANCE_ENTITY_DELETE_ACTION_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user can only update', () => {
+      it('THEN should offer only the edit action', async () => {
+        grantPermissions(['usageAttributionTypesUpdate'])
+        await renderHierarchy()
+        await openRowMenu(0)
+
+        expect(await screen.findByTestId(GOVERNANCE_ENTITY_EDIT_ACTION_TEST_ID)).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(GOVERNANCE_ENTITY_DELETE_ACTION_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a child row is edited', () => {
+      it('THEN should open the drawer with the row and its parent', async () => {
+        grantPermissions(['usageAttributionTypesUpdate', 'usageAttributionTypesDelete'])
+        await renderHierarchy()
+        await openRowMenu(1)
+        fireEvent.click(await screen.findByTestId(GOVERNANCE_ENTITY_EDIT_ACTION_TEST_ID))
+
+        expect(mockOpenDrawer).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 'entity-2',
+            attributionKeys: ['engineering_id'],
+            parent: { id: 'entity-1', name: 'Engineering', code: 'engineering' },
+          }),
+        )
+      })
+    })
+
+    describe('WHEN a root row is edited', () => {
+      it('THEN should open the drawer without a parent', async () => {
+        grantPermissions(['usageAttributionTypesUpdate'])
+        await renderHierarchy()
+        await openRowMenu(0)
+        fireEvent.click(await screen.findByTestId(GOVERNANCE_ENTITY_EDIT_ACTION_TEST_ID))
+
+        expect(mockOpenDrawer).toHaveBeenCalledWith(
+          expect.objectContaining({ id: 'entity-1', parent: null }),
+        )
+      })
+    })
+
+    describe('WHEN a row is deleted', () => {
+      it('THEN should open the delete confirmation for that row', async () => {
+        grantPermissions(['usageAttributionTypesDelete'])
+        await renderHierarchy()
+        await openRowMenu(1)
+        fireEvent.click(await screen.findByTestId(GOVERNANCE_ENTITY_DELETE_ACTION_TEST_ID))
+
+        expect(mockOpenDeleteDialog).toHaveBeenCalledWith(
+          expect.objectContaining({ id: 'entity-2' }),
+        )
       })
     })
   })

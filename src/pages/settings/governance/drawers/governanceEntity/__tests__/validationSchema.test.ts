@@ -2,9 +2,12 @@ import { UsageAttributionTypeRoleEnum } from '~/generated/graphql'
 
 import {
   buildCreateUsageAttributionTypeInput,
+  buildUpdateUsageAttributionTypeInput,
   GOVERNANCE_ENTITY_FORM_DEFAULTS,
+  GovernanceEntity,
   GovernanceEntityFormValues,
   governanceEntityValidationSchema,
+  mapGovernanceEntityToFormValues,
   MAX_ATTRIBUTION_KEYS,
 } from '../validationSchema'
 
@@ -133,6 +136,74 @@ describe('buildCreateUsageAttributionTypeInput', () => {
   describe('GIVEN no role', () => {
     it('THEN should return undefined', () => {
       expect(buildCreateUsageAttributionTypeInput(validValues({ role: undefined }))).toBeUndefined()
+    })
+  })
+})
+
+describe('mapGovernanceEntityToFormValues', () => {
+  const entity: GovernanceEntity = {
+    id: 'entity-1',
+    name: 'Department',
+    code: 'department',
+    description: 'Engineering teams',
+    role: UsageAttributionTypeRoleEnum.Hierarchical,
+    attributionKeys: ['department_id', 'team_id'],
+    createdAt: '2026-09-24T00:00:00Z',
+    parent: { id: 'p1', name: 'Engineering', code: 'engineering' },
+  }
+
+  describe('GIVEN an entity with every field set', () => {
+    it('THEN should map it to the form values', () => {
+      expect(mapGovernanceEntityToFormValues(entity)).toEqual({
+        name: 'Department',
+        code: 'department',
+        description: 'Engineering teams',
+        role: UsageAttributionTypeRoleEnum.Hierarchical,
+        parentId: 'p1',
+        attributionKeys: [{ value: 'department_id' }, { value: 'team_id' }],
+      })
+    })
+  })
+
+  describe('GIVEN a root entity without name nor description', () => {
+    it('THEN should fall back to empty strings and no parent', () => {
+      expect(
+        mapGovernanceEntityToFormValues({ ...entity, name: null, description: null, parent: null }),
+      ).toEqual(expect.objectContaining({ name: '', description: '', parentId: undefined }))
+    })
+  })
+})
+
+describe('buildUpdateUsageAttributionTypeInput', () => {
+  describe('GIVEN values with frozen fields set', () => {
+    it('THEN should send only the id and the editable fields', () => {
+      expect(
+        buildUpdateUsageAttributionTypeInput(
+          'entity-1',
+          validValues({
+            role: UsageAttributionTypeRoleEnum.Hierarchical,
+            parentId: 'p1',
+            description: 'Engineering teams',
+            attributionKeys: [{ value: ' department_id ' }],
+          }),
+        ),
+      ).toEqual({
+        id: 'entity-1',
+        name: 'Department',
+        description: 'Engineering teams',
+        attributionKeys: ['department_id'],
+      })
+    })
+  })
+
+  describe('GIVEN an empty name and a blank description', () => {
+    it('THEN should clear them with null', () => {
+      expect(
+        buildUpdateUsageAttributionTypeInput(
+          'entity-1',
+          validValues({ name: '', description: '  ' }),
+        ),
+      ).toEqual(expect.objectContaining({ name: null, description: null }))
     })
   })
 })
