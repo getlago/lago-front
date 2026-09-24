@@ -93,11 +93,7 @@ type ContractFormSuccess = {
   wasEdit: boolean
 }
 
-const useContractForm = ({
-  onSuccess,
-}: {
-  onSuccess: (success: ContractFormSuccess) => void
-}) => {
+const useContractForm = ({ onSuccess }: { onSuccess: (success: ContractFormSuccess) => void }) => {
   // A ref, not a local: `onSubmit` is created with the form and would otherwise close
   // over the contract from whichever render built it.
   const editedContractRef = useRef<ContractForContractDrawerFragment | undefined>(undefined)

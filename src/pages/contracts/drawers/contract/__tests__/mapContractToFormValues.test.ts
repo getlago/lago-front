@@ -1,8 +1,8 @@
 import { PaymentMethodTypeEnum, TimezoneEnum } from '~/generated/graphql'
 
-import { mapContractToDrawerCustomer, mapContractToFormValues } from '../mapContractToFormValues'
-
 import { contractForDrawerFixture } from './fixtures'
+
+import { mapContractToDrawerCustomer, mapContractToFormValues } from '../mapContractToFormValues'
 
 describe('mapContractToFormValues', () => {
   it('maps every stored value onto the form shape', () => {
