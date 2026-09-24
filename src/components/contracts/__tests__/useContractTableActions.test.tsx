@@ -1,9 +1,11 @@
 import { act, renderHook } from '@testing-library/react'
 
 import { ContractStatusEnum } from '~/generated/graphql'
+import { contractForDrawerFixture } from '~/pages/contracts/drawers/contract/__tests__/fixtures'
 
 import {
   CONTRACT_TABLE_CANCEL_TEST_ID,
+  CONTRACT_TABLE_EDIT_TEST_ID,
   CONTRACT_TABLE_TERMINATE_TEST_ID,
   useContractTableActions,
 } from '../useContractTableActions'
@@ -11,6 +13,8 @@ import {
 const mockCopyContractExternalId = jest.fn()
 const mockOpenTerminateContractDialog = jest.fn()
 const mockCanTerminateContract = jest.fn()
+const mockCanEditContract = jest.fn()
+const mockOpenContractDrawer = jest.fn()
 
 jest.mock('../useCopyContractExternalId', () => ({
   useCopyContractExternalId: () => ({
@@ -30,22 +34,25 @@ jest.mock('../useTerminateContractDialog', () => ({
 jest.mock('~/hooks/useContractPermissionsActions', () => ({
   useContractPermissionsActions: () => ({
     canTerminateContract: mockCanTerminateContract,
+    canEditContract: mockCanEditContract,
   }),
+}))
+
+jest.mock('~/pages/contracts/drawers/contract/useContractDrawer', () => ({
+  useContractDrawer: () => ({ openDrawer: mockOpenContractDrawer }),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
-const contract = {
-  externalId: 'external-contract-1',
-  status: ContractStatusEnum.Active,
-}
+const contract = { ...contractForDrawerFixture, externalId: 'external-contract-1' }
 
 describe('useContractTableActions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockCanTerminateContract.mockReturnValue(true)
+    mockCanEditContract.mockReturnValue(false)
   })
 
   it('keeps Copy external ID as the first action', () => {
@@ -87,5 +94,31 @@ describe('useContractTableActions', () => {
 
     expect(result.current.getContractTableActions(contract)).toHaveLength(1)
     expect(mockCanTerminateContract).toHaveBeenCalledWith(ContractStatusEnum.Active)
+  })
+
+  it('adds Edit between the copy and lifecycle actions when the contract is editable', () => {
+    mockCanEditContract.mockReturnValue(true)
+    const { result } = renderHook(() => useContractTableActions())
+    const actions = result.current.getContractTableActions(contract)
+
+    expect(actions.map((action) => action.dataTest)).toEqual([
+      'copy-contract-external-id',
+      CONTRACT_TABLE_EDIT_TEST_ID,
+      CONTRACT_TABLE_TERMINATE_TEST_ID,
+    ])
+
+    act(() => actions[1]?.onAction?.(contract))
+    expect(mockOpenContractDrawer).toHaveBeenCalledWith({ contract })
+  })
+
+  it('omits Edit when the contract is not editable', () => {
+    const { result } = renderHook(() => useContractTableActions())
+
+    expect(
+      result.current
+        .getContractTableActions(contract)
+        .some((action) => action.dataTest === CONTRACT_TABLE_EDIT_TEST_ID),
+    ).toBe(false)
+    expect(mockCanEditContract).toHaveBeenCalledWith(ContractStatusEnum.Active)
   })
 })

@@ -15,6 +15,7 @@ import {
   GetContractsListQuery,
   GetContractsListQueryVariables,
 } from '~/generated/graphql'
+import { contractForDrawerFixture } from '~/pages/contracts/drawers/contract/__tests__/fixtures'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import ContractsPage, { CONTRACTS_CREATE_TEST_ID } from '../ContractsPage'
@@ -52,15 +53,15 @@ jest.mock('~/pages/contracts/drawers/contract/useContractDrawer', () => ({
 }))
 
 const contract: ContractForContractsListFragment = {
-  __typename: 'Contract',
+  ...contractForDrawerFixture,
   id: 'contract-1',
   status: ContractStatusEnum.Active,
   name: 'Enterprise agreement',
   externalId: 'enterprise-2026',
   startedAt: '2026-06-11T00:00:00Z',
   endedAt: null,
-  plan: { __typename: 'CatalogPlan', id: 'plan-1', name: 'Enterprise plan' },
-  customer: { __typename: 'Customer', id: 'customer-1', displayName: 'Acme Inc.' },
+  plan: { __typename: 'CatalogPlan', id: 'plan-1', name: 'Enterprise plan', code: 'enterprise' },
+  customer: { ...contractForDrawerFixture.customer, id: 'customer-1', displayName: 'Acme Inc.' },
 }
 
 const contractsMock = (

@@ -9,6 +9,7 @@ import {
   ContractStatusEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
+import { contractForDrawerFixture } from '~/pages/contracts/drawers/contract/__tests__/fixtures'
 import { render } from '~/test-utils'
 
 import { CUSTOMER_CONTRACTS_CREATE_TEST_ID, CustomerContractsList } from '../CustomerContractsList'
@@ -76,14 +77,14 @@ const customer = {
 }
 
 const contract: ContractForCustomerContractsListFragment = {
-  __typename: 'Contract',
+  ...contractForDrawerFixture,
   id: 'contract-1',
   name: 'Enterprise agreement',
   externalId: 'enterprise-2026',
   status: ContractStatusEnum.Active,
   startedAt: '2026-06-11T00:00:00Z',
   endedAt: '2027-06-11T00:00:00Z',
-  plan: { __typename: 'CatalogPlan', id: 'plan-1', name: 'Enterprise plan' },
+  plan: { __typename: 'CatalogPlan', id: 'plan-1', name: 'Enterprise plan', code: 'enterprise' },
 }
 
 const metadata = { currentPage: 2, totalPages: 3, totalCount: 45 }

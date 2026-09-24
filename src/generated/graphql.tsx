@@ -13512,7 +13512,7 @@ export type VoidCreditNoteMutationVariables = Exact<{
 
 export type VoidCreditNoteMutation = { __typename?: 'Mutation', voidCreditNote?: { __typename?: 'CreditNote', id: string } | null };
 
-export type ContractForCustomerContractsListFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null };
+export type ContractForCustomerContractsListFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } } };
 
 export type GetCustomerContractsListQueryVariables = Exact<{
   externalCustomerId: Scalars['String']['input'];
@@ -13521,7 +13521,7 @@ export type GetCustomerContractsListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type GetCustomerContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type GetCustomerOverdueBalancesQueryVariables = Exact<{
   externalCustomerId: Scalars['String']['input'];
@@ -17041,7 +17041,7 @@ export type GetContractForDetailsQueryVariables = Exact<{
 
 export type GetContractForDetailsQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null } | null };
 
-export type ContractForContractsListFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, displayName: string } };
+export type ContractForContractsListFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null };
 
 export type GetContractsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -17056,7 +17056,7 @@ export type GetContractsListQueryVariables = Exact<{
 }>;
 
 
-export type GetContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null, customer: { __typename?: 'Customer', id: string, displayName: string } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type GetContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type ContractForContractDetailsOverviewFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, canceledAt?: any | null, terminatedAt?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null };
 
@@ -19502,6 +19502,38 @@ export const CreditNoteForVoidCreditNoteDialogFragmentDoc = gql`
   currency
 }
     `;
+export const ContractForContractDrawerFragmentDoc = gql`
+    fragment ContractForContractDrawer on Contract {
+  id
+  externalId
+  name
+  status
+  startedAt
+  endedAt
+  billingAnchorDate
+  billingEntityId
+  consolidateInvoice
+  purchaseOrderNumber
+  paymentMethodType
+  paymentMethod {
+    id
+  }
+  customer {
+    id
+    externalId
+    displayName
+    applicableTimezone
+    billingEntity {
+      id
+    }
+  }
+  plan {
+    id
+    name
+    code
+  }
+}
+    `;
 export const ContractForCustomerContractsListFragmentDoc = gql`
     fragment ContractForCustomerContractsList on Contract {
   id
@@ -19514,8 +19546,9 @@ export const ContractForCustomerContractsListFragmentDoc = gql`
     id
     name
   }
+  ...ContractForContractDrawer
 }
-    `;
+    ${ContractForContractDrawerFragmentDoc}`;
 export const EditCustomerIssuingDatePolicyDialogFragmentDoc = gql`
     fragment EditCustomerIssuingDatePolicyDialog on Customer {
   id
@@ -23988,8 +24021,9 @@ export const ContractForContractsListFragmentDoc = gql`
     id
     displayName
   }
+  ...ContractForContractDrawer
 }
-    `;
+    ${ContractForContractDrawerFragmentDoc}`;
 export const ContractForContractDetailsOverviewFragmentDoc = gql`
     fragment ContractForContractDetailsOverview on Contract {
   id
@@ -24022,38 +24056,6 @@ export const ContractForContractDetailsOverviewFragmentDoc = gql`
   plan {
     id
     name
-  }
-}
-    `;
-export const ContractForContractDrawerFragmentDoc = gql`
-    fragment ContractForContractDrawer on Contract {
-  id
-  externalId
-  name
-  status
-  startedAt
-  endedAt
-  billingAnchorDate
-  billingEntityId
-  consolidateInvoice
-  purchaseOrderNumber
-  paymentMethodType
-  paymentMethod {
-    id
-  }
-  customer {
-    id
-    externalId
-    displayName
-    applicableTimezone
-    billingEntity {
-      id
-    }
-  }
-  plan {
-    id
-    name
-    code
   }
 }
     `;

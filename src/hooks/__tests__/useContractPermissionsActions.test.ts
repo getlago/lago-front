@@ -43,4 +43,30 @@ describe('useContractPermissionsActions', () => {
     expect(result.current.canTerminateContract(ContractStatusEnum.Active)).toBe(false)
     expect(mockHasPermissions).toHaveBeenCalledWith(['contractsTerminate'])
   })
+
+  it.each([ContractStatusEnum.Active, ContractStatusEnum.Pending])(
+    'allows editing a %s contract with contractsUpdate',
+    (status) => {
+      const { result } = renderHook(() => useContractPermissionsActions())
+
+      expect(result.current.canEditContract(status)).toBe(true)
+      expect(mockHasPermissions).toHaveBeenCalledWith(['contractsUpdate'])
+    },
+  )
+
+  it.each([ContractStatusEnum.Canceled, ContractStatusEnum.Terminated, null, undefined])(
+    'does not allow editing a terminal or absent status (%s)',
+    (status) => {
+      const { result } = renderHook(() => useContractPermissionsActions())
+
+      expect(result.current.canEditContract(status)).toBe(false)
+    },
+  )
+
+  it('requires contractsUpdate permission to edit', () => {
+    mockHasPermissions.mockReturnValue(false)
+    const { result } = renderHook(() => useContractPermissionsActions())
+
+    expect(result.current.canEditContract(ContractStatusEnum.Pending)).toBe(false)
+  })
 })
