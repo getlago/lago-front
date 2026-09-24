@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 
+import { contractForDrawerFixture } from '~/components/contracts/drawers/contract/__tests__/fixtures'
 import { ContractStatusEnum } from '~/generated/graphql'
-import { contractForDrawerFixture } from '~/pages/contracts/drawers/contract/__tests__/fixtures'
 
 import {
   CONTRACT_TABLE_CANCEL_TEST_ID,
@@ -38,7 +38,7 @@ jest.mock('~/hooks/useContractPermissionsActions', () => ({
   }),
 }))
 
-jest.mock('~/pages/contracts/drawers/contract/useContractDrawer', () => ({
+jest.mock('~/components/contracts/drawers/contract/useContractDrawer', () => ({
   useContractDrawer: () => ({ openDrawer: mockOpenContractDrawer }),
 }))
 
