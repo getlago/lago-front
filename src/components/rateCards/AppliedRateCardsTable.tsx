@@ -3,7 +3,7 @@ import { ReactNode } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { PaginatedContent } from '~/components/designSystem/Pagination/PaginatedContent'
-import { Table, TableColumn } from '~/components/designSystem/Table/Table'
+import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { CollectionMetadata } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -14,10 +14,13 @@ type AppliedRateCardsTableProps<T extends AppliedRateCardRow> = {
   rows: T[]
   metadata?: Pick<CollectionMetadata, 'currentPage' | 'totalPages' | 'totalCount'>
   loading: boolean
+  hasError?: boolean
+  placeholder?: TablePlaceholder
   onPageChange: (page: number) => void
   getRateCardHref: (row: T) => string
   onCopyRateCardCode: (row: T) => void
   onRemoveRateCard: (row: T) => void
+  canRemove?: boolean
 }
 
 const getGroupKey = (row: AppliedRateCardRow): string =>
@@ -35,10 +38,13 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
   rows,
   metadata,
   loading,
+  hasError = false,
+  placeholder,
   onPageChange,
   getRateCardHref,
   onCopyRateCardCode,
   onRemoveRateCard,
+  canRemove = true,
 }: AppliedRateCardsTableProps<T>): JSX.Element => {
   const { translate } = useInternationalization()
 
@@ -118,6 +124,8 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
         data={rows}
         columns={columns}
         isLoading={loading}
+        hasError={hasError}
+        placeholder={placeholder}
         containerSize={0}
         rowSize={72}
         getRowGroupHeader={getRowGroupHeader}
@@ -128,11 +136,13 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
             startIcon: 'duplicate',
             onAction: () => onCopyRateCardCode(row),
           },
-          {
-            title: translate('text_1790284386156k2d8mjjy98f'),
-            startIcon: 'trash',
-            onAction: () => onRemoveRateCard(row),
-          },
+          canRemove
+            ? {
+                title: translate('text_1790284386156k2d8mjjy98f'),
+                startIcon: 'trash',
+                onAction: () => onRemoveRateCard(row),
+              }
+            : null,
         ]}
       />
     </PaginatedContent>

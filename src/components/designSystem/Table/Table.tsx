@@ -91,12 +91,8 @@ export interface TableProps<T> {
   actionColumn?: ActionColumn<T>
   actionColumnTooltip?: (item: T) => string
   rowDataTestId?: (item: T) => string
-  /**
-   * Called for every data row; return a node to render a full-width group header
-   * immediately above that row. Return `undefined` for rows that don't start a new
-   * group. The caller is responsible for detecting the group boundary (e.g. by
-   * comparing against `data[index - 1]`).
-   */
+  /** Return `undefined` for rows that don't start a new group; the caller detects
+   * the boundary itself (e.g. by comparing against `data[index - 1]`). */
   getRowGroupHeader?: (item: T, index: number, data: T[]) => ReactNode | undefined
   containerSize?: ResponsiveStyleValue<TableContainerSize>
   rowSize?: RowSize

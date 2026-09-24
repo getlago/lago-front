@@ -1,17 +1,20 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 import { generatePath } from 'react-router'
 
 import { usePageSearchParam } from '~/components/designSystem/Pagination/usePageSearchParam'
+import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { AppliedRateCardsTable } from '~/components/rateCards/AppliedRateCardsTable'
 import { useRemoveAppliedRateCardDialog } from '~/components/rateCards/dialogs/useRemoveAppliedRateCardDialog'
 import { SearchInput } from '~/components/SearchInput'
+import { addToast } from '~/core/apolloClient'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useGetPlanAppliedRateCardsForRateCardsSectionLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { usePermissions } from '~/hooks/usePermissions'
 
 export const CATALOG_PLAN_ADD_RATE_CARD_TEST_ID = 'catalog-plan-add-rate-card'
 
@@ -68,13 +71,14 @@ export const CatalogPlanRateCardsSection = ({
   catalogPlanId,
 }: CatalogPlanRateCardsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
+  const client = useApolloClient()
   const { page, goToPage } = usePageSearchParam()
   const { openRemoveAppliedRateCardDialog } = useRemoveAppliedRateCardDialog()
 
-  // network-only: this section is rendered from `renderSection()`, which returns a
-  // different component per URL segment, so the section fully unmounts/remounts on
-  // every tab switch — a cache-first read would flash the previously viewed page.
-  const [getPlanAppliedRateCards, { data, loading, refetch }] =
+  // network-only: the section remounts on every tab switch, so a cache-first read would
+  // flash the previously viewed page.
+  const [getPlanAppliedRateCards, { data, error, loading, variables, refetch }] =
     useGetPlanAppliedRateCardsForRateCardsSectionLazyQuery({
       variables: { planId: catalogPlanId, page, limit: DEFAULT_PAGE_SIZE },
       notifyOnNetworkStatusChange: true,
@@ -83,6 +87,8 @@ export const CatalogPlanRateCardsSection = ({
     })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getPlanAppliedRateCards, loading)
 
+  const canRemoveRateCard = hasPermissions(['plansUpdate'])
+
   const searchInputOnChange = (value: string): void => {
     goToPage(1)
     debouncedSearch?.(value)
@@ -90,8 +96,16 @@ export const CatalogPlanRateCardsSection = ({
 
   const rows = data?.planAppliedRateCards?.collection ?? []
 
+  const placeholder = buildSearchAwareTablePlaceholder({
+    translate,
+    hasSearchTerm: !!variables?.searchTerm,
+    noResultTitleKey: 'text_17849293094732goytgdvyql',
+    emptyTitleKey: 'text_1789030049529u2gzzho6x8x',
+    emptySubtitleKey: 'text_17891323549937b5qwry7pn1',
+  })
+
   return (
-    <section>
+    <section className="flex flex-col gap-6">
       <PageSectionTitle
         title={translate('text_1783104239825nxqno33u945')}
         subtitle={translate('text_1789030049529jp760bke0x8')}
@@ -112,6 +126,9 @@ export const CatalogPlanRateCardsSection = ({
         rows={rows}
         metadata={data?.planAppliedRateCards?.metadata}
         loading={isLoading}
+        hasError={!!error}
+        placeholder={placeholder}
+        canRemove={canRemoveRateCard}
         onPageChange={goToPage}
         getRateCardHref={(row) =>
           generatePath(CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE, {
@@ -119,13 +136,25 @@ export const CatalogPlanRateCardsSection = ({
             appliedRateCardId: row.id,
           })
         }
-        onCopyRateCardCode={(row) => copyToClipboard(row.rateCard.code)}
+        onCopyRateCardCode={(row) => {
+          copyToClipboard(row.rateCard.code)
+          addToast({ severity: 'info', translateKey: 'text_1775559630554ourrtpgddty' })
+        }}
         onRemoveRateCard={(row) =>
           openRemoveAppliedRateCardDialog({
             context: 'plan',
             id: row.id,
             rateCardName: row.rateCard.name,
-            onRemoved: () => refetch(),
+            onRemoved: () => {
+              refetch()
+
+              client.cache.modify({
+                id: client.cache.identify({ __typename: 'CatalogPlan', id: catalogPlanId }),
+                fields: {
+                  appliedRateCardsCount: (existing = 0) => Math.max(existing - 1, 0),
+                },
+              })
+            },
           })
         }
       />

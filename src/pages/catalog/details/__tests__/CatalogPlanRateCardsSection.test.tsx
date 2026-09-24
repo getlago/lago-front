@@ -17,6 +17,12 @@ import { CatalogPlanRateCardsSection } from '../CatalogPlanRateCardsSection'
 
 NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
+const mockHasPermissions = jest.fn().mockReturnValue(true)
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
@@ -45,9 +51,6 @@ const rowFixture = {
 
 const buildListMock = (collection: (typeof rowFixture)[]): TestMocksType[number] => ({
   request: {
-    // `useDebouncedSearch`'s mount effect calls the lazy query with no argument, so the
-    // first network request carries only the hook's own base variables — no `searchTerm`
-    // key at all until a search is actually typed.
     query: GetPlanAppliedRateCardsForRateCardsSectionDocument,
     variables: { planId: 'plan-1', page: 1, limit: 20 },
   },
@@ -89,6 +92,7 @@ const renderSection = (mocks: TestMocksType) =>
 describe('CatalogPlanRateCardsSection', () => {
   beforeEach(() => {
     testMockNavigateFn.mockClear()
+    mockHasPermissions.mockReturnValue(true)
   })
 
   it('queries planAppliedRateCards for the given catalogPlanId and renders the row', async () => {
@@ -109,6 +113,15 @@ describe('CatalogPlanRateCardsSection', () => {
     expect(testMockNavigateFn).toHaveBeenCalledWith({ search: '' }, { replace: true })
   })
 
+  it('shows the empty state when there are no applied rate cards', async () => {
+    renderSection([buildListMock([])])
+
+    await waitFor(() =>
+      expect(screen.getByText('text_1789030049529u2gzzho6x8x')).toBeInTheDocument(),
+    )
+    expect(screen.getByText('text_17891323549937b5qwry7pn1')).toBeInTheDocument()
+  })
+
   it('removes a row through the mutation then refetches the list', async () => {
     const user = userEvent.setup()
 
@@ -121,5 +134,17 @@ describe('CatalogPlanRateCardsSection', () => {
     await user.click(await screen.findByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
 
     await waitFor(() => expect(screen.queryByText('Product One')).not.toBeInTheDocument())
+  })
+
+  it('hides the remove action when the user lacks plansUpdate permission', async () => {
+    mockHasPermissions.mockReturnValue(false)
+    const user = userEvent.setup()
+
+    renderSection([buildListMock([rowFixture])])
+    await waitFor(() => expect(screen.getByText('Product One')).toBeInTheDocument())
+
+    await user.click(screen.getByTestId('open-action-button'))
+
+    expect(screen.queryByText('text_1790284386156k2d8mjjy98f')).not.toBeInTheDocument()
   })
 })

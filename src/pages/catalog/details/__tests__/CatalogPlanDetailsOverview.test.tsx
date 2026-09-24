@@ -4,7 +4,6 @@ import { CatalogPlanOverviewSectionsEnum } from '~/core/constants/tabsOptions'
 import { AllTheProviders } from '~/test-utils'
 
 import { CatalogPlanDetailsOverview } from '../CatalogPlanDetailsOverview'
-import { CATALOG_PLAN_ADD_RATE_CARD_TEST_ID } from '../CatalogPlanRateCardsSection'
 
 const mockParams = { catalogPlanId: 'plan-1', section: undefined as string | undefined }
 
@@ -19,6 +18,13 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 jest.mock('../CatalogPlanOverviewSection', () => ({
   CatalogPlanOverviewSection: () => <div data-test="plan-overview-section" />,
+}))
+
+// The section makes a real GraphQL query; its own data/empty/error behavior is
+// covered by CatalogPlanRateCardsSection.test.tsx, this file only cares which
+// section renders.
+jest.mock('../CatalogPlanRateCardsSection', () => ({
+  CatalogPlanRateCardsSection: () => <div data-test="rate-cards-section" />,
 }))
 
 jest.mock('../CatalogPlanOverviewNav', () => ({
@@ -39,8 +45,6 @@ jest.mock('../CatalogPlanOverviewNav', () => ({
     />
   ),
 }))
-
-const RATE_CARDS_EMPTY_KEY = 'text_1789030049529u2gzzho6x8x'
 
 const renderOverview = (): void => {
   render(<CatalogPlanDetailsOverview rateCardsCount={0} />, { wrapper: AllTheProviders })
@@ -67,8 +71,7 @@ describe('CatalogPlanDetailsOverview', () => {
     renderOverview()
 
     expect(screen.queryByTestId('plan-overview-section')).not.toBeInTheDocument()
-    expect(screen.getByText(RATE_CARDS_EMPTY_KEY)).toBeInTheDocument()
-    expect(screen.getByTestId(CATALOG_PLAN_ADD_RATE_CARD_TEST_ID)).toBeInTheDocument()
+    expect(screen.getByTestId('rate-cards-section')).toBeInTheDocument()
     expect(screen.getByTestId('nav')).toHaveAttribute('data-active', 'rate-cards')
   })
 

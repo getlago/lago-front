@@ -92,6 +92,7 @@ describe('AppliedRateCardsTable', () => {
 
     expect(screen.getByText('Filter One')).toBeInTheDocument()
     expect(screen.queryByText('Product One')).not.toBeInTheDocument()
+    expect(screen.getByText('text_1790284386156njn3ittr9qj')).toBeInTheDocument()
   })
 
   it('calls onRemoveRateCard and onCopyRateCardCode with the row when the action menu items are used', async () => {
@@ -110,6 +111,11 @@ describe('AppliedRateCardsTable', () => {
         onRemoveRateCard={onRemoveRateCard}
       />,
     )
+
+    await user.click(screen.getByTestId('open-action-button'))
+    await user.click(screen.getByText('text_1790284386156m6phatx4cxa'))
+
+    expect(onCopyRateCardCode).toHaveBeenCalledWith(row)
 
     await user.click(screen.getByTestId('open-action-button'))
     await user.click(screen.getByText('text_1790284386156k2d8mjjy98f'))
