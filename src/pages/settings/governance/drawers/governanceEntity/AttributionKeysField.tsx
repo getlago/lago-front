@@ -33,7 +33,7 @@ export const AttributionKeysField = withForm({
   render: function AttributionKeysFieldRender({ form }) {
     const { translate } = useInternationalization()
     const [isInputRevealed, setIsInputRevealed] = useState(false)
-    const inputClassName = `governance-attribution-keys-input-${useId().replace(/:/g, '-')}`
+    const inputClassName = `governance-attribution-keys-input-${useId().replaceAll(':', '-')}`
 
     const revealInput = (): void => {
       setIsInputRevealed(true)
