@@ -21,7 +21,11 @@ import { CONTRACT_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import { CONTRACT_DETAILS_ROUTE } from '~/core/router'
-import { ContractForContractsListFragment, useGetContractsListLazyQuery } from '~/generated/graphql'
+import {
+  ContractForContractDrawerFragmentDoc,
+  ContractForContractsListFragment,
+  useGetContractsListLazyQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -47,6 +51,7 @@ gql`
       id
       displayName
     }
+    ...ContractForContractDrawer
   }
 
   query getContractsList(
@@ -81,6 +86,8 @@ gql`
       }
     }
   }
+
+  ${ContractForContractDrawerFragmentDoc}
 `
 
 const ContractsPage = (): JSX.Element => {
