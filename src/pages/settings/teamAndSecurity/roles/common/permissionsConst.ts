@@ -51,6 +51,12 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'DunningCampaignsDelete',
   ],
   features: ['FeaturesCreate', 'FeaturesDelete', 'FeaturesUpdate', 'FeaturesView'],
+  usageAttributionTypes: [
+    'UsageAttributionTypesView',
+    'UsageAttributionTypesCreate',
+    'UsageAttributionTypesUpdate',
+    'UsageAttributionTypesDelete',
+  ],
   invoiceCustomSections: [
     'InvoiceCustomSectionsCreate',
     'InvoiceCustomSectionsUpdate',
@@ -113,12 +119,6 @@ export const permissionGroupMapping: PermissionGroupMapping = {
   roles: ['RolesCreate', 'RolesDelete', 'RolesUpdate', 'RolesView'],
   securityLogs: ['SecurityLogsView'],
   subscriptions: ['SubscriptionsCreate', 'SubscriptionsUpdate', 'SubscriptionsView'],
-  usageAttributionTypes: [
-    'UsageAttributionTypesView',
-    'UsageAttributionTypesCreate',
-    'UsageAttributionTypesUpdate',
-    'UsageAttributionTypesDelete',
-  ],
   wallets: ['WalletsCreate', 'WalletsTerminate', 'WalletsTopUp', 'WalletsUpdate'],
 }
 
@@ -140,6 +140,7 @@ export const groupNameMapping: Record<string, string> = {
   draftInvoices: 'text_17658824979850l2uroad1dz',
   dunningCampaigns: 'text_1728574726495w5aylnynne9',
   features: 'text_1752692673070k7z0mmf0494',
+  usageAttributionTypes: 'text_17902308125634licovl9sfs',
   invoiceCustomSections: 'text_1765882631575jrjzdfbdvn5',
   invoices: 'text_63ac86d797f728a87b2f9f85',
   organization: 'text_173289482048511y9ieyywq5',
@@ -150,7 +151,6 @@ export const groupNameMapping: Record<string, string> = {
   roles: 'text_1765448879791epmkg4xijkn',
   securityLogs: 'text_17730476805600nudrokzkk5',
   subscriptions: 'text_6250304370f0f700a8fdc28d',
-  usageAttributionTypes: 'text_17902308125634licovl9sfs',
   wallets: 'text_62d175066d2dbf1d50bc937c',
 }
 
