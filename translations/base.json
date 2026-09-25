@@ -5067,5 +5067,19 @@
   "text_178997175113710y2zapz4c9": "By terminating this contract, the customer will stop being billed for it and no new invoice will be issued. This action cannot be undone. Are you sure?",
   "text_1789971751137drk22mafo3k": "By canceling this contract, it will never start and the customer will never be billed for it. This action cannot be undone. Are you sure?",
   "text_1789971751137egm0tdl3q96": "Contract successfully terminated",
-  "text_1789971751137982utge606b": "Contract successfully canceled"
+  "text_1789971751137982utge606b": "Contract successfully canceled",
+  "text_17902308125634licovl9sfs": "Governance",
+  "text_1790230812563a2wurigu4e9": "Governance settings",
+  "text_17902308125636879mvzof83": "Define the entities used to attribute usage across your organization.",
+  "text_1790230812563tvbie14jfl9": "Governance entities",
+  "text_1790230812563hs9lunmy1sc": "Create and manage the entities usage is attributed to.",
+  "text_1790230812563cibrddwcit4": "Hierarchical",
+  "text_17902308125635bb6aqr2wbe": "Flat",
+  "text_1790230812563xw6orgl2n9j": "Parent",
+  "text_1790230812563plypvciyybb": "No governance entity created",
+  "text_1790230812563ek3dytzhy3g": "Governance entities will be listed here once created.",
+  "text_1790230812563kq9o2mku1rc": "View governance entities",
+  "text_1790230812564tig9p4k5bb3": "Create a governance entity",
+  "text_1790230812564u35u7vyt4e4": "Update a governance entity",
+  "text_17902308125643oqh5iltbd1": "Delete a governance entity"
 }
