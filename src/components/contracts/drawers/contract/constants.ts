@@ -40,6 +40,8 @@ export interface ContractFormValues {
   purchaseOrderNumber?: string | null
   startedAt: string
   endedAt?: string
+  // The stored end date: `Contracts::UpdateService` accepts it resent unchanged, even once passed.
+  initialEndedAt?: string
   billingAnchorDate: string
 }
 
@@ -72,6 +74,7 @@ export const buildContractFormDefaults = (
     purchaseOrderNumber: undefined,
     startedAt: today,
     endedAt: undefined,
+    initialEndedAt: undefined,
     billingAnchorDate: today,
   }
 }
@@ -92,5 +95,6 @@ export const CONTRACT_FORM_DEFAULTS: ContractFormValues = {
   purchaseOrderNumber: undefined,
   startedAt: '2026-01-01',
   endedAt: undefined,
+  initialEndedAt: undefined,
   billingAnchorDate: '2026-01-01',
 }

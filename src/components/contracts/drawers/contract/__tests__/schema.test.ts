@@ -71,4 +71,31 @@ describe('contractSchema', () => {
     ).toBe(true)
     expect(contractSchema.safeParse({ ...validValues, planCode: '' }).success).toBe(false)
   })
+
+  // `Contracts::UpdateService` accepts the stored end date resent unchanged, even once it has passed.
+  it('accepts a past end date left unchanged, but not one newly entered', () => {
+    const pastDates = {
+      ...validValues,
+      startedAt: '2020-01-01T00:00:00.000Z',
+      endedAt: '2021-01-01T00:00:00.000Z',
+      billingAnchorDate: '2020-01-01T00:00:00.000Z',
+    }
+
+    expect(
+      contractSchema.safeParse({ ...pastDates, initialEndedAt: '2021-01-01T00:00:00.000Z' })
+        .success,
+    ).toBe(true)
+    expect(contractSchema.safeParse(pastDates).success).toBe(false)
+  })
+
+  it('still rejects an unchanged end date that is not after the start date', () => {
+    expect(
+      contractSchema.safeParse({
+        ...validValues,
+        startedAt: '2099-03-01T00:00:00.000Z',
+        endedAt: '2099-02-01T00:00:00.000Z',
+        initialEndedAt: '2099-02-01T00:00:00.000Z',
+      }).success,
+    ).toBe(false)
+  })
 })

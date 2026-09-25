@@ -21,6 +21,7 @@ describe('mapContractToFormValues', () => {
       purchaseOrderNumber: 'PO-42',
       startedAt: '2026-01-01T00:00:00Z',
       endedAt: '2099-12-31T00:00:00Z',
+      initialEndedAt: '2099-12-31T00:00:00Z',
       billingAnchorDate: '2026-01-15T00:00:00.000Z',
     })
   })
