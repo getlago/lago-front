@@ -44,8 +44,8 @@ export const useCustomExpressionDrawer = ({
     validators: {
       onDynamic: customExpressionValidationSchema,
     },
-    onSubmit: async ({ value }) => {
-      await onSave(value.expression)
+    onSubmit: ({ value }) => {
+      onSave(value.expression)
 
       drawer.close()
     },
