@@ -48,10 +48,10 @@ describe('useRolePermissionsGroups', () => {
       )
 
       expect(governanceGroup?.items.map((item) => item.id)).toEqual([
-        'UsageAttributionTypesView',
         'UsageAttributionTypesCreate',
-        'UsageAttributionTypesUpdate',
         'UsageAttributionTypesDelete',
+        'UsageAttributionTypesUpdate',
+        'UsageAttributionTypesView',
       ])
     })
   })
