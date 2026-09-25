@@ -594,28 +594,33 @@ return (
 >
 > **The UI before and after the migration MUST be visually identical**, unless the change is an intentional UI/UX improvement. Always compare the rendered page before and after the migration to catch layout regressions.
 
-**⚠️ CRITICAL — `await` every async call inside `onSubmit`:**
+**⚠️ CRITICAL — `await` every call inside `onSubmit` that RETURNS A PROMISE:**
 
 `isSubmitting` (which drives `form.SubmitButton`'s spinner) flips back to `false` as soon as
 the `onSubmit` callback's own promise resolves — NOT when a fire-and-forget call inside it
 finishes. If the save/mutation call isn't awaited, `onSubmit` returns on the next microtask and
 the spinner vanishes instantly instead of covering the actual network request.
 
-```typescript
-// ❌ WRONG — onSave's promise is dropped, isSubmitting flips false almost immediately
-onSubmit: async ({ value }) => {
-  onSave(value)
-},
+**The callee's return type decides it, in both directions.** Read the signature before awaiting —
+a callback prop named `onSave` is as often `=> void` as `=> Promise<void>`:
 
-// ✅ CORRECT — isSubmitting stays true until the mutation settles
-onSubmit: async ({ value }) => {
-  await onSave(value)
-},
+```typescript
+// Given `onSave: (value: T) => Promise<void>`
+onSubmit: async ({ value }) => { onSave(value) } // ❌ promise dropped, spinner vanishes
+onSubmit: async ({ value }) => { await onSave(value) } // ✅ spinner covers the request
+
+// Given `onSave: (value: T) => void` — there is nothing to await
+onSubmit: async ({ value }) => { await onSave(value) } // ❌ redundant await on a non-promise
+onSubmit: ({ value }) => { onSave(value) } // ✅
 ```
 
-This applies to every async call inside `onSubmit`: mutation calls, `onSave`/`onCreate`/`onUpdate`
-callback props, etc. Grep the finished `onSubmit` body for any bare (non-`await`ed) call to a
-function whose return type is `Promise<...>`.
+The redundant direction is not harmless and **no local gate catches it**: Sonar fails it as
+`typescript:S4123`, while `@typescript-eslint/await-thenable` is off in this repo, so lint and
+`tsc --noEmit` both stay green and the finding only lands on the PR.
+
+This applies to every call inside `onSubmit`: mutation calls, `onSave`/`onCreate`/`onUpdate`
+callback props, etc. Grep the finished `onSubmit` body twice — for a bare (non-`await`ed) call to
+a function returning `Promise<...>`, and for an `await` on one that does not.
 
 **Replace submit button:**
 
@@ -1424,7 +1429,7 @@ The `/make-tests` skill will automatically:
 - [ ] Use `NameAndCodeGroup` for name + code fields (if applicable)
 - [ ] Wrap content in `<form>` element with `onSubmit`
 - [ ] Verify `<form>` wrapper doesn't break CSS layout (add `className="flex min-h-full flex-col"` if needed)
-- [ ] `await` every async call inside `onSubmit` (mutation calls, `onSave`/`onCreate`/`onUpdate` props) — a dropped `await` makes the submit spinner vanish before the request settles
+- [ ] `await` every call inside `onSubmit` whose return type is `Promise<...>` (mutations, `onSave`/`onCreate`/`onUpdate` props), and only those — a dropped `await` makes the submit spinner vanish before the request settles, while an `await` on a `=> void` callback is a Sonar `typescript:S4123` that lint and `tsc` do not catch
 - [ ] Update each field to use `form.AppField` pattern
 - [ ] Replace submit button with `form.SubmitButton`
 - [ ] Update `setFieldValue` calls
@@ -1515,8 +1520,9 @@ The `/make-tests` skill will automatically:
 25. **Submit spinner disappears instantly / doesn't cover the network request**: an un-awaited
 async call inside `onSubmit` (`onSave(value)` instead of `await onSave(value)`) lets the
 `onSubmit` promise resolve on the next microtask, so `isSubmitting` — and `form.SubmitButton`'s
-`loading` prop — flips back to `false` before the mutation actually settles. Always `await` the
-save/mutation call.
+`loading` prop — flips back to `false` before the mutation actually settles. `await` the
+save/mutation call **when it returns a promise** — check the signature, since the mirror mistake
+(`await` on a `=> void` callback) is a Sonar `typescript:S4123` that lint and `tsc` let through.
 26. **Submit button permanently disabled after selecting in a MultipleComboBox (no error shown, no request sent)**: the schema declares `z.array(z.string())` (the OLD Formik shape, produced by a manual `onChange` adapter that the migration dropped) but `MultipleComboBoxField` stores WHOLE option objects (`{ value, label, … }[]`). Zod rejects every selection → `canSubmit` never turns true; seeding bare ids also renders no tags. Fix: `z.array(z.looseObject({ value: z.string() }))`, map to ids in `onSubmit`, seed `defaultValues` as `{ value, label }` options, derive `FormValues` via `z.infer`. This regression shipped once (lago-front#3932, fixed in #4067); see the Field Value-Shape Map in Phase 1.
 27. **Section validity for UNMOUNTED fields**: Formik's `errors.someArray` reflected schema errors regardless of what was rendered. The TanStack equivalent for an accordion validity icon is the form-level error map, not `fieldMeta` (which only covers mounted fields). Validator-produced errors live DIRECTLY on `errorMap.onDynamic`, keyed by field path (e.g. `someArray[0].prop`) — the `.fields` sub-shape does NOT exist there; it only appears for errors set manually via `form.setErrorMap({ onDynamic: { fields: ... } })` (server errors). Read it as: `useStore(form.store, (s) => { const dynamicErrors = (s.errorMap as { onDynamic?: Record<string, unknown> })?.onDynamic ?? {}; return Object.entries(dynamicErrors).some(([k, v]) => k.startsWith('someArray') && !!v) })`.
 
