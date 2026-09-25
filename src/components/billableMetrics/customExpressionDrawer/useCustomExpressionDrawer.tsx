@@ -40,7 +40,7 @@ export const useCustomExpressionDrawer = ({
 
   const form = useAppForm({
     defaultValues: CUSTOM_EXPRESSION_DEFAULT_VALUES,
-    validationLogic: revalidateLogic({ mode: 'change' }),
+    validationLogic: revalidateLogic({ mode: 'blur' }),
     validators: {
       onDynamic: customExpressionValidationSchema,
     },

@@ -46,29 +46,43 @@ jest.mock('~/components/drawers/useDrawer', () => ({
 }))
 
 // The Ace editor does not hold its value under jsdom: it re-emits an empty
-// change on blur, which would clear the expression on the first click.
+// change on blur, which would clear the expression on the first click. The
+// textarea keeps the same binding contract (value, handleChange, handleBlur and
+// the field error) so error timing stays observable.
 jest.mock('~/components/form/JsonEditor/JsonEditorFieldForTanstack', () => {
   const { useFieldContext } = jest.requireActual<typeof import('~/hooks/forms/formContext')>(
     '~/hooks/forms/formContext',
   )
+  const { useFieldError } = jest.requireActual<typeof import('~/hooks/forms/useFieldError')>(
+    '~/hooks/forms/useFieldError',
+  )
 
   return {
     __esModule: true,
-    default: function MockJsonEditorField() {
+    default: function MockJsonEditorField({ customInvalidError }: { customInvalidError?: string }) {
       const field = useFieldContext<string | Record<string, unknown>>()
+      const error = useFieldError({ noBoolean: true })
 
       return (
-        <textarea
-          data-test={`json-editor-${field.name}`}
-          readOnly
-          value={String(field.state.value)}
-        />
+        <>
+          <textarea
+            data-test={`json-editor-${field.name}`}
+            value={String(field.state.value)}
+            onChange={(event) => field.handleChange(event.target.value)}
+            onBlur={field.handleBlur}
+          />
+          {!!error && (
+            <span data-test={`json-editor-error-${field.name}`}>{customInvalidError}</span>
+          )}
+        </>
       )
     },
   }
 })
 
 const OPEN_BUTTON_TEST_ID = 'open-custom-expression-drawer'
+const EXPRESSION_FIELD_TEST_ID = 'json-editor-expression'
+const EXPRESSION_ERROR_TEST_ID = 'json-editor-error-expression'
 
 type DrawerPayload = {
   children: ReactNode
@@ -263,6 +277,32 @@ describe('useCustomExpressionDrawer', () => {
         )
 
         expect(screen.getByTestId(CUSTOM_EXPRESSION_VALIDATE_TEST_ID)).not.toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN the user types an expression that does not parse', () => {
+    // Submit-first validation would never surface this error: submit is gated
+    // behind a successful evaluation, which the schema already blocks. Firing on
+    // change instead would flag the expression mid-keystroke.
+    describe('WHEN the field has not been blurred yet', () => {
+      it('THEN should not display the field error', async () => {
+        const { user } = await openDrawerAndRenderBody({ isEditable: true })
+
+        await user.type(screen.getByTestId(EXPRESSION_FIELD_TEST_ID), INVALID_EXPRESSION)
+
+        expect(screen.queryByTestId(EXPRESSION_ERROR_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the field is blurred', () => {
+      it('THEN should display the field error', async () => {
+        const { user } = await openDrawerAndRenderBody({ isEditable: true })
+
+        await user.type(screen.getByTestId(EXPRESSION_FIELD_TEST_ID), INVALID_EXPRESSION)
+        await user.tab()
+
+        expect(await screen.findByTestId(EXPRESSION_ERROR_TEST_ID)).toBeInTheDocument()
       })
     })
   })
