@@ -6061,7 +6061,7 @@ export type Mutation = {
   destroyRateCard?: Maybe<DestroyRateCardPayload>;
   /** Deletes a pending rate of a rate card */
   destroyRateCardRate?: Maybe<DestroyRateCardRatePayload>;
-  /** Removes a single phase; deleting an indefinite terminal phase promotes its predecessor */
+  /** Removes a single phase; the indefinite terminal phase cannot be removed */
   destroyRatePhase?: Maybe<RatePhase>;
   /** Deletes a custom role */
   destroyRole?: Maybe<Role>;
@@ -11997,6 +11997,7 @@ export type UpdateRatePhaseInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   newCode?: InputMaybe<Scalars['String']['input']>;
   planAppliedRateCardId: Scalars['ID']['input'];
+  position?: InputMaybe<Scalars['Int']['input']>;
   rateOverride?: InputMaybe<RateOverrideInput>;
 };
 
@@ -14223,6 +14224,10 @@ export type GetBillableMetricsQuery = { __typename?: 'Query', billableMetrics: {
 export type UsageChargeForDrawerFragment = { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, prorated: boolean, invoiceDisplayName?: string | null, regroupPaidFees?: RegroupPaidFeesEnum | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, presentationGroupKeys?: Array<{ __typename?: 'PresentationGroupKey', value: string, options?: { __typename?: 'PresentationGroupKeyOptions', displayInInvoice?: boolean | null } | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null };
 
 export type FixedChargesOnPlanFormFragment = { __typename?: 'Plan', id: string, billFixedChargesMonthly?: boolean | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, prorated: boolean, units: string, chargeModel: FixedChargeChargeModelEnum, invoiceDisplayName?: string | null, payInAdvance: boolean, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> | null };
+
+export type PlanAppliedRateCardForAppliedRateCardsTableFragment = { __typename?: 'PlanAppliedRateCard', id: string, ratePhasesCount: number, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null } };
+
+export type ContractAppliedRateCardForAppliedRateCardsTableFragment = { __typename?: 'ContractAppliedRateCard', id: string, ratePhasesCount: number, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null } };
 
 export type DestroyPlanAppliedRateCardMutationVariables = Exact<{
   input: DestroyPlanAppliedRateCardInput;
@@ -16652,8 +16657,6 @@ export type GetCatalogPlanForDetailsOverviewQueryVariables = Exact<{
 
 export type GetCatalogPlanForDetailsOverviewQuery = { __typename?: 'Query', catalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean } | null };
 
-export type PlanAppliedRateCardForRateCardsSectionFragment = { __typename?: 'PlanAppliedRateCard', id: string, ratePhasesCount: number, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null } };
-
 export type GetPlanAppliedRateCardsForRateCardsSectionQueryVariables = Exact<{
   planId: Scalars['ID']['input'];
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -17092,8 +17095,6 @@ export type GetContractForDetailsOverviewQueryVariables = Exact<{
 
 
 export type GetContractForDetailsOverviewQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, canceledAt?: any | null, terminatedAt?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null } | null };
-
-export type ContractAppliedRateCardForRateCardsSectionFragment = { __typename?: 'ContractAppliedRateCard', id: string, ratePhasesCount: number, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null } };
 
 export type GetContractAppliedRateCardsForRateCardsSectionQueryVariables = Exact<{
   contractId: Scalars['ID']['input'];
@@ -20999,6 +21000,58 @@ export const BillableMetricForUsageChargeSectionFragmentDoc = gql`
   }
 }
     `;
+export const PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc = gql`
+    fragment PlanAppliedRateCardForAppliedRateCardsTable on PlanAppliedRateCard {
+  id
+  ratePhasesCount
+  product {
+    id
+    name
+    invoiceDisplayName
+    productCategory {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+  rateCard {
+    id
+    name
+    code
+    productFilter {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+}
+    `;
+export const ContractAppliedRateCardForAppliedRateCardsTableFragmentDoc = gql`
+    fragment ContractAppliedRateCardForAppliedRateCardsTable on ContractAppliedRateCard {
+  id
+  ratePhasesCount
+  product {
+    id
+    name
+    invoiceDisplayName
+    productCategory {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+  rateCard {
+    id
+    name
+    code
+    productFilter {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+}
+    `;
 export const OrganizationInfoForPreviewDunningCampaignFragmentDoc = gql`
     fragment OrganizationInfoForPreviewDunningCampaign on CurrentOrganization {
   id
@@ -23591,32 +23644,6 @@ export const CatalogPlanForCatalogPlanDetailsOverviewFragmentDoc = gql`
   ...CatalogPlanForCatalogPlanDrawer
 }
     ${CatalogPlanForCatalogPlanDrawerFragmentDoc}`;
-export const PlanAppliedRateCardForRateCardsSectionFragmentDoc = gql`
-    fragment PlanAppliedRateCardForRateCardsSection on PlanAppliedRateCard {
-  id
-  ratePhasesCount
-  product {
-    id
-    name
-    invoiceDisplayName
-    productCategory {
-      id
-      name
-      invoiceDisplayName
-    }
-  }
-  rateCard {
-    id
-    name
-    code
-    productFilter {
-      id
-      name
-      invoiceDisplayName
-    }
-  }
-}
-    `;
 export const ProductCategoryForProductCategoryDetailsFragmentDoc = gql`
     fragment ProductCategoryForProductCategoryDetails on ProductCategory {
   id
@@ -24079,32 +24106,6 @@ export const ContractForContractDetailsOverviewFragmentDoc = gql`
   plan {
     id
     name
-  }
-}
-    `;
-export const ContractAppliedRateCardForRateCardsSectionFragmentDoc = gql`
-    fragment ContractAppliedRateCardForRateCardsSection on ContractAppliedRateCard {
-  id
-  ratePhasesCount
-  product {
-    id
-    name
-    invoiceDisplayName
-    productCategory {
-      id
-      name
-      invoiceDisplayName
-    }
-  }
-  rateCard {
-    id
-    name
-    code
-    productFilter {
-      id
-      name
-      invoiceDisplayName
-    }
   }
 }
     `;
@@ -43788,7 +43789,8 @@ export const GetPlanAppliedRateCardsForRateCardsSectionDocument = gql`
     searchTerm: $searchTerm
   ) {
     collection {
-      ...PlanAppliedRateCardForRateCardsSection
+      id
+      ...PlanAppliedRateCardForAppliedRateCardsTable
     }
     metadata {
       currentPage
@@ -43797,7 +43799,7 @@ export const GetPlanAppliedRateCardsForRateCardsSectionDocument = gql`
     }
   }
 }
-    ${PlanAppliedRateCardForRateCardsSectionFragmentDoc}`;
+    ${PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc}`;
 
 /**
  * __useGetPlanAppliedRateCardsForRateCardsSectionQuery__
@@ -45824,7 +45826,8 @@ export const GetContractAppliedRateCardsForRateCardsSectionDocument = gql`
     searchTerm: $searchTerm
   ) {
     collection {
-      ...ContractAppliedRateCardForRateCardsSection
+      id
+      ...ContractAppliedRateCardForAppliedRateCardsTable
     }
     metadata {
       currentPage
@@ -45833,7 +45836,7 @@ export const GetContractAppliedRateCardsForRateCardsSectionDocument = gql`
     }
   }
 }
-    ${ContractAppliedRateCardForRateCardsSectionFragmentDoc}`;
+    ${ContractAppliedRateCardForAppliedRateCardsTableFragmentDoc}`;
 
 /**
  * __useGetContractAppliedRateCardsForRateCardsSectionQuery__

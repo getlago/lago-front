@@ -13,11 +13,13 @@ const isOverviewSection = (value?: string): value is CatalogPlanOverviewSections
 type CatalogPlanDetailsOverviewComponentProps = {
   rateCardsCount?: number
   loading?: boolean
+  isRateCardRemovalLocked: boolean
 }
 
 export const CatalogPlanDetailsOverview = ({
   rateCardsCount,
   loading = false,
+  isRateCardRemovalLocked,
 }: CatalogPlanDetailsOverviewComponentProps): JSX.Element => {
   const { catalogPlanId = '', section } = useParams()
 
@@ -29,7 +31,12 @@ export const CatalogPlanDetailsOverview = ({
 
   const renderSection = (): ReactNode => {
     if (activeSection === CatalogPlanOverviewSectionsEnum.rateCards) {
-      return <CatalogPlanRateCardsSection catalogPlanId={catalogPlanId} />
+      return (
+        <CatalogPlanRateCardsSection
+          catalogPlanId={catalogPlanId}
+          isRemovalLocked={isRateCardRemovalLocked}
+        />
+      )
     }
 
     return <CatalogPlanOverviewSection />

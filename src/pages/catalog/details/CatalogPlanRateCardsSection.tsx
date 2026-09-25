@@ -1,49 +1,24 @@
-import { gql, useApolloClient } from '@apollo/client'
+import { gql } from '@apollo/client'
 import { generatePath } from 'react-router'
 
 import { usePageSearchParam } from '~/components/designSystem/Pagination/usePageSearchParam'
 import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { AppliedRateCardsTable } from '~/components/rateCards/AppliedRateCardsTable'
-import { useRemoveAppliedRateCardDialog } from '~/components/rateCards/dialogs/useRemoveAppliedRateCardDialog'
+import { useAppliedRateCardRowActions } from '~/components/rateCards/useAppliedRateCardRowActions'
 import { SearchInput } from '~/components/SearchInput'
-import { addToast } from '~/core/apolloClient'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE } from '~/core/router'
-import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { useGetPlanAppliedRateCardsForRateCardsSectionLazyQuery } from '~/generated/graphql'
+import {
+  PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc,
+  useGetPlanAppliedRateCardsForRateCardsSectionLazyQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { usePermissions } from '~/hooks/usePermissions'
 
 export const CATALOG_PLAN_ADD_RATE_CARD_TEST_ID = 'catalog-plan-add-rate-card'
 
 gql`
-  fragment PlanAppliedRateCardForRateCardsSection on PlanAppliedRateCard {
-    id
-    ratePhasesCount
-    product {
-      id
-      name
-      invoiceDisplayName
-      productCategory {
-        id
-        name
-        invoiceDisplayName
-      }
-    }
-    rateCard {
-      id
-      name
-      code
-      productFilter {
-        id
-        name
-        invoiceDisplayName
-      }
-    }
-  }
-
   query getPlanAppliedRateCardsForRateCardsSection(
     $planId: ID!
     $page: Int
@@ -52,7 +27,8 @@ gql`
   ) {
     planAppliedRateCards(planId: $planId, page: $page, limit: $limit, searchTerm: $searchTerm) {
       collection {
-        ...PlanAppliedRateCardForRateCardsSection
+        id
+        ...PlanAppliedRateCardForAppliedRateCardsTable
       }
       metadata {
         currentPage
@@ -61,20 +37,21 @@ gql`
       }
     }
   }
+
+  ${PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc}
 `
 
 type CatalogPlanRateCardsSectionProps = {
   catalogPlanId: string
+  isRemovalLocked: boolean
 }
 
 export const CatalogPlanRateCardsSection = ({
   catalogPlanId,
+  isRemovalLocked,
 }: CatalogPlanRateCardsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
-  const { hasPermissions } = usePermissions()
-  const client = useApolloClient()
   const { page, goToPage } = usePageSearchParam()
-  const { openRemoveAppliedRateCardDialog } = useRemoveAppliedRateCardDialog()
 
   // network-only: the section remounts on every tab switch, so a cache-first read would
   // flash the previously viewed page.
@@ -87,7 +64,12 @@ export const CatalogPlanRateCardsSection = ({
     })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getPlanAppliedRateCards, loading)
 
-  const canRemoveRateCard = hasPermissions(['plansUpdate'])
+  const { removal, copyRateCardCode, removeRateCard } = useAppliedRateCardRowActions({
+    context: 'plan',
+    parentId: catalogPlanId,
+    isRemovalLocked,
+    onRemoved: () => refetch(),
+  })
 
   const searchInputOnChange = (value: string): void => {
     goToPage(1)
@@ -128,7 +110,7 @@ export const CatalogPlanRateCardsSection = ({
         loading={isLoading}
         hasError={!!error}
         placeholder={placeholder}
-        canRemove={canRemoveRateCard}
+        removal={removal}
         onPageChange={goToPage}
         getRateCardHref={(row) =>
           generatePath(CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE, {
@@ -136,27 +118,8 @@ export const CatalogPlanRateCardsSection = ({
             appliedRateCardId: row.id,
           })
         }
-        onCopyRateCardCode={(row) => {
-          copyToClipboard(row.rateCard.code)
-          addToast({ severity: 'info', translateKey: 'text_1775559630554ourrtpgddty' })
-        }}
-        onRemoveRateCard={(row) =>
-          openRemoveAppliedRateCardDialog({
-            context: 'plan',
-            id: row.id,
-            rateCardName: row.rateCard.name,
-            onRemoved: () => {
-              refetch()
-
-              client.cache.modify({
-                id: client.cache.identify({ __typename: 'CatalogPlan', id: catalogPlanId }),
-                fields: {
-                  appliedRateCardsCount: (existing = 0) => Math.max(existing - 1, 0),
-                },
-              })
-            },
-          })
-        }
+        onCopyRateCardCode={copyRateCardCode}
+        onRemoveRateCard={removeRateCard}
       />
     </section>
   )

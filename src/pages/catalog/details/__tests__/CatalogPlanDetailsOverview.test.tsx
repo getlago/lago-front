@@ -47,7 +47,9 @@ jest.mock('../CatalogPlanOverviewNav', () => ({
 }))
 
 const renderOverview = (): void => {
-  render(<CatalogPlanDetailsOverview rateCardsCount={0} />, { wrapper: AllTheProviders })
+  render(<CatalogPlanDetailsOverview isRateCardRemovalLocked={false} rateCardsCount={0} />, {
+    wrapper: AllTheProviders,
+  })
 }
 
 describe('CatalogPlanDetailsOverview', () => {
@@ -85,9 +87,12 @@ describe('CatalogPlanDetailsOverview', () => {
 
   it('GIVEN rateCardsCount and loading THEN forwards both to the nav', () => {
     mockParams.section = undefined
-    render(<CatalogPlanDetailsOverview rateCardsCount={4} loading />, {
-      wrapper: AllTheProviders,
-    })
+    render(
+      <CatalogPlanDetailsOverview isRateCardRemovalLocked={false} rateCardsCount={4} loading />,
+      {
+        wrapper: AllTheProviders,
+      },
+    )
 
     expect(screen.getByTestId('nav')).toHaveAttribute('data-rate-cards-count', '4')
     expect(screen.getByTestId('nav')).toHaveAttribute('data-loading', 'true')

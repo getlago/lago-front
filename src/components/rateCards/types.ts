@@ -1,26 +1,15 @@
-export type AppliedRateCardRow = {
-  id: string
-  ratePhasesCount: number
-  product: {
-    id: string
-    name: string
-    invoiceDisplayName?: string | null
-    productCategory?: {
-      id: string
-      name: string
-      invoiceDisplayName?: string | null
-    } | null
-  }
-  rateCard: {
-    id: string
-    name: string
-    code: string
-    productFilter?: {
-      id: string
-      name: string
-      invoiceDisplayName?: string | null
-    } | null
-  }
-}
+import {
+  ContractAppliedRateCardForAppliedRateCardsTableFragment,
+  PlanAppliedRateCardForAppliedRateCardsTableFragment,
+} from '~/generated/graphql'
+
+export type AppliedRateCardRow =
+  | PlanAppliedRateCardForAppliedRateCardsTableFragment
+  | ContractAppliedRateCardForAppliedRateCardsTableFragment
+
+export type AppliedRateCardContext = 'plan' | 'contract'
+
+export type RateCardRemoval =
+  { status: 'hidden' } | { status: 'enabled' } | { status: 'disabled'; tooltip: string }
 
 export const STANDALONE_GROUP_KEY = '__standalone__'

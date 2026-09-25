@@ -80,11 +80,11 @@ const buildDestroyMutationMock = (): TestMocksType[number] => ({
   },
 })
 
-const renderSection = (mocks: TestMocksType) =>
+const renderSection = (mocks: TestMocksType, { isRemovalLocked = false } = {}) =>
   render(
     <AllTheProviders forceTypenames mocks={mocks}>
       <NiceModal.Provider>
-        <CatalogPlanRateCardsSection catalogPlanId="plan-1" />
+        <CatalogPlanRateCardsSection catalogPlanId="plan-1" isRemovalLocked={isRemovalLocked} />
       </NiceModal.Provider>
     </AllTheProviders>,
   )
@@ -146,5 +146,15 @@ describe('CatalogPlanRateCardsSection', () => {
     await user.click(screen.getByTestId('open-action-button'))
 
     expect(screen.queryByText('text_1790284386156k2d8mjjy98f')).not.toBeInTheDocument()
+  })
+  it('disables the remove action when the plan is attached to contracts', async () => {
+    const user = userEvent.setup()
+
+    renderSection([buildListMock([rowFixture])], { isRemovalLocked: true })
+    await waitFor(() => expect(screen.getByText('Product One')).toBeInTheDocument())
+
+    await user.click(screen.getByTestId('open-action-button'))
+
+    expect(screen.getByText('text_1790284386156k2d8mjjy98f').closest('button')).toBeDisabled()
   })
 })

@@ -1,15 +1,69 @@
+import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { ReactNode } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { PaginatedContent } from '~/components/designSystem/Pagination/PaginatedContent'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { CollectionMetadata } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { getGroupKey, groupRowsByCategory } from './groupRowsByCategory'
-import { AppliedRateCardRow } from './types'
+import { AppliedRateCardRow, RateCardRemoval } from './types'
+
+gql`
+  fragment PlanAppliedRateCardForAppliedRateCardsTable on PlanAppliedRateCard {
+    id
+    ratePhasesCount
+    product {
+      id
+      name
+      invoiceDisplayName
+      productCategory {
+        id
+        name
+        invoiceDisplayName
+      }
+    }
+    rateCard {
+      id
+      name
+      code
+      productFilter {
+        id
+        name
+        invoiceDisplayName
+      }
+    }
+  }
+
+  fragment ContractAppliedRateCardForAppliedRateCardsTable on ContractAppliedRateCard {
+    id
+    ratePhasesCount
+    product {
+      id
+      name
+      invoiceDisplayName
+      productCategory {
+        id
+        name
+        invoiceDisplayName
+      }
+    }
+    rateCard {
+      id
+      name
+      code
+      productFilter {
+        id
+        name
+        invoiceDisplayName
+      }
+    }
+  }
+`
 
 type AppliedRateCardsTableProps<T extends AppliedRateCardRow> = {
   rows: T[]
@@ -21,7 +75,7 @@ type AppliedRateCardsTableProps<T extends AppliedRateCardRow> = {
   getRateCardHref: (row: T) => string
   onCopyRateCardCode: (row: T) => void
   onRemoveRateCard: (row: T) => void
-  canRemove?: boolean
+  removal: RateCardRemoval
 }
 
 const getProductLabel = (row: AppliedRateCardRow): string => {
@@ -42,7 +96,7 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
   getRateCardHref,
   onCopyRateCardCode,
   onRemoveRateCard,
-  canRemove = true,
+  removal,
 }: AppliedRateCardsTableProps<T>): JSX.Element => {
   const { translate } = useInternationalization()
   const groupedRows = groupRowsByCategory(rows)
@@ -78,6 +132,17 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
     if (groupKey === previousGroupKey) return undefined
 
     return renderGroupHeader(row)
+  }
+
+  const getRemoveActionItem = (row: T): ActionItem<T> | null => {
+    if (removal.status === 'hidden') return null
+
+    return {
+      title: translate('text_1790284386156k2d8mjjy98f'),
+      startIcon: 'trash',
+      ...(removal.status === 'disabled' && { disabled: true, tooltip: removal.tooltip }),
+      onAction: () => onRemoveRateCard(row),
+    }
   }
 
   const columns: Array<TableColumn<T>> = [
@@ -135,13 +200,7 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
             startIcon: 'duplicate',
             onAction: () => onCopyRateCardCode(row),
           },
-          canRemove
-            ? {
-                title: translate('text_1790284386156k2d8mjjy98f'),
-                startIcon: 'trash',
-                onAction: () => onRemoveRateCard(row),
-              }
-            : null,
+          getRemoveActionItem(row),
         ]}
       />
     </PaginatedContent>

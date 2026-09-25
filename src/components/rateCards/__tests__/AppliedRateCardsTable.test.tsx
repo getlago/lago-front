@@ -82,6 +82,7 @@ describe('AppliedRateCardsTable', () => {
         getRateCardHref={() => '/somewhere'}
         onCopyRateCardCode={noop}
         onRemoveRateCard={noop}
+        removal={{ status: 'enabled' }}
       />,
     )
 
@@ -126,6 +127,7 @@ describe('AppliedRateCardsTable', () => {
         getRateCardHref={() => '/somewhere'}
         onCopyRateCardCode={noop}
         onRemoveRateCard={noop}
+        removal={{ status: 'enabled' }}
       />,
     )
 
@@ -159,6 +161,7 @@ describe('AppliedRateCardsTable', () => {
         getRateCardHref={() => '/somewhere'}
         onCopyRateCardCode={noop}
         onRemoveRateCard={noop}
+        removal={{ status: 'enabled' }}
       />,
     )
 
@@ -181,6 +184,7 @@ describe('AppliedRateCardsTable', () => {
         getRateCardHref={() => '/somewhere'}
         onCopyRateCardCode={onCopyRateCardCode}
         onRemoveRateCard={onRemoveRateCard}
+        removal={{ status: 'enabled' }}
       />,
     )
 
@@ -193,5 +197,47 @@ describe('AppliedRateCardsTable', () => {
     await user.click(screen.getByText('text_1790284386156k2d8mjjy98f'))
 
     expect(onRemoveRateCard).toHaveBeenCalledWith(row)
+  })
+  it('omits the remove action when removal is hidden', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <AppliedRateCardsTable
+        rows={[buildRow()]}
+        loading={false}
+        onPageChange={noop}
+        getRateCardHref={() => '/somewhere'}
+        onCopyRateCardCode={noop}
+        onRemoveRateCard={noop}
+        removal={{ status: 'hidden' }}
+      />,
+    )
+
+    await user.click(screen.getByTestId('open-action-button'))
+
+    expect(screen.getByText('text_1790284386156m6phatx4cxa')).toBeInTheDocument()
+    expect(screen.queryByText('text_1790284386156k2d8mjjy98f')).not.toBeInTheDocument()
+  })
+
+  it('renders the remove action disabled when removal is locked', async () => {
+    const onRemoveRateCard = jest.fn()
+    const user = userEvent.setup()
+
+    render(
+      <AppliedRateCardsTable
+        rows={[buildRow()]}
+        loading={false}
+        onPageChange={noop}
+        getRateCardHref={() => '/somewhere'}
+        onCopyRateCardCode={noop}
+        onRemoveRateCard={onRemoveRateCard}
+        removal={{ status: 'disabled', tooltip: 'locked' }}
+      />,
+    )
+
+    await user.click(screen.getByTestId('open-action-button'))
+
+    expect(screen.getByText('text_1790284386156k2d8mjjy98f').closest('button')).toBeDisabled()
+    expect(onRemoveRateCard).not.toHaveBeenCalled()
   })
 })
