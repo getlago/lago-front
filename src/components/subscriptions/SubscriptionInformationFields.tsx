@@ -192,9 +192,11 @@ const getSubscriptionInformationGrid = ({
   subscription,
   translate,
   intlFormatDateTimeOrgaTZ,
+  layout,
 }: {
   subscription?: SubscriptionInformationFieldsFragment | null
   translate: TranslateFunc
+  layout: 'default' | 'overview'
   intlFormatDateTimeOrgaTZ: ReturnType<typeof useOrganizationInfos>['intlFormatDateTimeOrgaTZ']
 }) => {
   const isCustomerDeleted = !!subscription?.customer?.deletedAt
@@ -233,7 +235,7 @@ const getSubscriptionInformationGrid = ({
       label: translate('text_65201c5a175a4b0238abf29e'),
       value: startDate ? intlFormatDateTimeOrgaTZ(startDate).date : '-',
     },
-    {
+    layout !== 'overview' && {
       label: translate('text_1781859135627z59hpfpa8pt'),
       value: subscription?.subscriptionAt
         ? intlFormatDateTimeOrgaTZ(subscription.subscriptionAt).date
@@ -243,7 +245,7 @@ const getSubscriptionInformationGrid = ({
       label: translate('text_65201c5a175a4b0238abf2a0'),
       value: <SubscriptionEndOrTerminatedAt subscription={subscription} />,
     },
-    {
+    layout !== 'overview' && {
       label: translate('text_17436114971570doqrwuwhf0'),
       value: (
         <BillingEntityLabel
@@ -252,7 +254,7 @@ const getSubscriptionInformationGrid = ({
         />
       ),
     },
-    {
+    layout !== 'overview' && {
       label: translate('text_17822197712865r9iwe3lgel'),
       value: subscription?.purchaseOrderNumber || '-',
     },
@@ -261,8 +263,10 @@ const getSubscriptionInformationGrid = ({
 
 export const SubscriptionInformationFields = ({
   subscription,
+  layout = 'default',
 }: {
   subscription?: SubscriptionInformationFieldsFragment | null
+  layout?: 'default' | 'overview'
 }) => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
@@ -271,10 +275,12 @@ export const SubscriptionInformationFields = ({
   const customerId = subscription?.customer?.id ?? ''
   const subscriptionId = subscription?.id ?? ''
   const parentPlanId = subscription?.plan?.parent?.id
+  const attachedPlan = subscription?.plan?.parent ?? subscription?.plan
+  const displayedPlan = layout === 'overview' ? attachedPlan : subscription?.plan?.parent
 
   return (
     <div
-      className="flex max-w-168 flex-col gap-4"
+      className={layout === 'overview' ? 'flex flex-col gap-4' : 'flex max-w-168 flex-col gap-4'}
       data-test={SUBSCRIPTION_INFORMATION_FIELDS_TEST_ID}
     >
       <SubscriptionDetailAlerts subscription={subscription} />
@@ -295,13 +301,17 @@ export const SubscriptionInformationFields = ({
           )
         }
       />
-      {subscription?.name && (
+      {(subscription?.name || layout === 'overview') && (
         <DetailsPage.InfoGridItem
           label={translate('text_1780604419477ujb85w6pk81')}
           value={
-            <TypographyWithCopy variant="body" color="grey700">
-              {subscription.name}
-            </TypographyWithCopy>
+            subscription?.name ? (
+              <TypographyWithCopy variant="body" color="grey700">
+                {subscription.name}
+              </TypographyWithCopy>
+            ) : (
+              '-'
+            )
           }
         />
       )}
@@ -310,6 +320,7 @@ export const SubscriptionInformationFields = ({
           subscription,
           translate,
           intlFormatDateTimeOrgaTZ,
+          layout,
         })}
       />
 
@@ -329,26 +340,36 @@ export const SubscriptionInformationFields = ({
         />
       )}
 
-      {!!parentPlanId && (
+      {(!!parentPlanId || layout === 'overview') && (
         <DetailsPage.InfoGrid
           grid={[
             {
-              label: translate('text_65201c5a175a4b0238abf2a2'),
+              label: translate(
+                layout === 'overview'
+                  ? 'text_1789994292627mcytry6e93j'
+                  : 'text_65201c5a175a4b0238abf2a2',
+              ),
               value:
-                !!customerId && !!subscriptionId ? (
+                !!customerId && !!subscriptionId && !!displayedPlan ? (
                   <Link
                     to={generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
                       customerId,
                       subscriptionId,
-                      planId: parentPlanId,
+                      planId: displayedPlan.id,
                       tab: PlanDetailsTabsOptionsEnum.overview,
                     })}
                   >
-                    {subscription?.plan?.parent?.name}
+                    {displayedPlan.name}
                   </Link>
                 ) : (
-                  subscription?.plan?.parent?.name
+                  (displayedPlan?.name ?? '-')
                 ),
+            },
+            layout === 'overview' && {
+              label: translate('text_1789994292627aq1jflu03ya'),
+              value: translate(
+                parentPlanId ? 'text_65251f46339c650084ce0d57' : 'text_65251f4cd55aeb004e5aa5ef',
+              ),
             },
           ]}
         />

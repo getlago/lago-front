@@ -3,7 +3,9 @@ import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router'
 
+import { AdditionalIntegrationSettingsSelector } from '~/components/additionalIntegrationSettings/AdditionalIntegrationSettingsSelector'
 import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
+import { formatConnections } from '~/components/connectionSelection/formatConnections'
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -29,6 +31,10 @@ import { SubscriptionInformationFormSection } from '~/components/subscriptions/f
 import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
+import {
+  VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS,
+  ViewTypeEnum,
+} from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -43,6 +49,7 @@ import { getTodayAtUtcMidnight } from '~/core/timezone'
 import { subscriptionFormSchema } from '~/formValidation/subscriptionFormSchema'
 import {
   CurrencyEnum,
+  FeatureFlagEnum,
   PlanInterval,
   StatusTypeEnum,
   SubscriptionForSubscriptionEditFormFragmentDoc,
@@ -110,7 +117,8 @@ const CreateSubscription = () => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const { customerId, subscriptionId } = useParams()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ, hasFeatureFlag } = useOrganizationInfos()
+  const hasMultiConnection = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
   const { isRunningInSalesForceIframe, isRunningInIframeContext } = useIframeConfig()
 
   const centralizedDialog = useCentralizedDialog()
@@ -151,11 +159,19 @@ const CreateSubscription = () => {
         activationRuleTimeoutHours,
         activationRuleType,
         invoiceCustomSection,
+        paymentConnection,
+        accountingConnection,
+        crmConnection,
+        taxConnection,
         ...restValues
       } = value
 
       const localValues = {
         ...restValues,
+        ...formatConnections(
+          { paymentConnection, accountingConnection, crmConnection, taxConnection },
+          hasMultiConnection,
+        ),
         activationRules: serializeActivationRules({
           activationRuleTimeoutHours,
           activationRuleType,
@@ -595,8 +611,40 @@ const CreateSubscription = () => {
                         <PaymentSettingsSection
                           form={subscriptionForm}
                           externalCustomerId={customer?.externalId ?? ''}
+                          customerId={customer?.id}
                         />
                       </CenteredPage.PageSection>
+
+                      {hasMultiConnection && customer?.id && (
+                        <CenteredPage.PageSection>
+                          <CenteredPage.PageSectionTitle
+                            title={translate('text_1789472252793twqbda38ec2')}
+                            description={translate(
+                              VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS[ViewTypeEnum.Subscription],
+                            )}
+                          />
+                          <subscriptionForm.Subscribe
+                            selector={({ values }) => ({
+                              accounting: values.accountingConnection,
+                              crm: values.crmConnection,
+                              tax: values.taxConnection,
+                            })}
+                          >
+                            {(values) => (
+                              <AdditionalIntegrationSettingsSelector
+                                viewType={ViewTypeEnum.Subscription}
+                                customerId={customer.id}
+                                values={values}
+                                onChange={({ accounting, crm, tax }) => {
+                                  subscriptionForm.setFieldValue('accountingConnection', accounting)
+                                  subscriptionForm.setFieldValue('crmConnection', crm)
+                                  subscriptionForm.setFieldValue('taxConnection', tax)
+                                }}
+                              />
+                            )}
+                          </subscriptionForm.Subscribe>
+                        </CenteredPage.PageSection>
+                      )}
                     </>
                   )}
                 </CenteredPage.SubsectionWrapper>

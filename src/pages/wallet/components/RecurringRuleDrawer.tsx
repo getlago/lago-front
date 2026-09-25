@@ -143,6 +143,7 @@ const RecurringRuleDrawerContent = withForm({
 
     const renderAdditionalIntegrationSettingsSelector = (customerId: string) => (
       <AdditionalIntegrationSettingsSelector
+        viewType={ViewTypeEnum.WalletRecurringTopUp}
         customerId={customerId}
         values={{
           [ConnectionCategory.Accounting]: rule.accountingConnection,

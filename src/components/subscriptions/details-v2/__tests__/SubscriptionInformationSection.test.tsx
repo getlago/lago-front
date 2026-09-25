@@ -74,12 +74,11 @@ describe('SubscriptionInformationSection', () => {
   it('renders the read-only subscription information fields', () => {
     render(<SubscriptionInformationSection subscription={subscription} />)
 
-    expect(screen.getByText('text_6335e8900c69f8ebdfef5312')).toBeInTheDocument() // title
+    expect(screen.getByText('text_17791987800304a3fihrighy')).toBeInTheDocument() // title
     expect(screen.getByText('ext-1')).toBeInTheDocument()
     expect(screen.getByText('Acme')).toBeInTheDocument()
-    // Start date reads startedAt, the billing anchor keeps subscriptionAt
     expect(screen.getByText('formatted-2026-01-15')).toBeInTheDocument()
-    expect(screen.getByText('formatted-2026-01-01')).toBeInTheDocument()
+    expect(screen.queryByText('formatted-2026-01-01')).not.toBeInTheDocument()
   })
 
   it('opens the edit drawer when the Edit action is clicked', () => {

@@ -1,7 +1,15 @@
+import {
+  findConnectionRouting,
+  toSelectedConnection,
+} from '~/components/connectionSelection/fromConnectionRouting'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { deserializeActivationRules } from '~/core/serializers'
 import { SubscriptionFormValues } from '~/formValidation/subscriptionFormSchema'
-import { BillingTimeEnum, SubscriptionForSubscriptionEditFormFragment } from '~/generated/graphql'
+import {
+  BillingTimeEnum,
+  ConnectionCategoryEnum,
+  SubscriptionForSubscriptionEditFormFragment,
+} from '~/generated/graphql'
 
 export type SubscriptionDefaultsSource =
   SubscriptionForSubscriptionEditFormFragment | null | undefined
@@ -26,6 +34,18 @@ export const buildSubscriptionDefaultValues = (
     subscriptionAt: subscription?.subscriptionAt || currentDate,
     endingAt: subscription?.endingAt || undefined,
     billingTime: subscription?.billingTime || BillingTimeEnum.Calendar,
+    paymentConnection: toSelectedConnection(
+      findConnectionRouting(subscription?.connections, ConnectionCategoryEnum.Payment),
+    ),
+    accountingConnection: toSelectedConnection(
+      findConnectionRouting(subscription?.connections, ConnectionCategoryEnum.Accounting),
+    ),
+    crmConnection: toSelectedConnection(
+      findConnectionRouting(subscription?.connections, ConnectionCategoryEnum.Crm),
+    ),
+    taxConnection: toSelectedConnection(
+      findConnectionRouting(subscription?.connections, ConnectionCategoryEnum.Tax),
+    ),
     paymentMethod: {
       paymentMethodType: subscription?.paymentMethodType,
       paymentMethodId: subscription?.paymentMethod?.id,

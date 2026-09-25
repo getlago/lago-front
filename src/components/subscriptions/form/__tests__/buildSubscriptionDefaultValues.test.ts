@@ -1,6 +1,12 @@
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { ActivationRuleFormTypeEnum } from '~/core/constants/subscriptionActivationRules'
-import { ActivationRuleTypeEnum, BillingTimeEnum } from '~/generated/graphql'
+import {
+  ActivationRuleTypeEnum,
+  BillingTimeEnum,
+  ConnectionBehaviorEnum,
+  ConnectionCategoryEnum,
+  ConnectionResolvedBehaviorEnum,
+} from '~/generated/graphql'
 
 import {
   buildSubscriptionDefaultValues,
@@ -181,5 +187,47 @@ describe('buildSubscriptionDefaultValues', () => {
         expect(result.activationRuleTimeoutHours).toBe('')
       })
     })
+  })
+})
+
+describe('persisted payment connection behavior', () => {
+  it.each([
+    [ConnectionResolvedBehaviorEnum.Specific, { code: 'stripe_default' }],
+    [ConnectionResolvedBehaviorEnum.Inherit, undefined],
+  ])('preserves %s even when the connection is the customer default', (behavior, expected) => {
+    const subscription = {
+      ...baseSubscription,
+      connections: [{ category: ConnectionCategoryEnum.Payment, behavior, code: 'stripe_default' }],
+    } as NonNullable<SubscriptionDefaultsSource>
+
+    expect(
+      buildSubscriptionDefaultValues(subscription, FORM_TYPE_ENUM.edition, CURRENT_DATE)
+        .paymentConnection,
+    ).toEqual(expected)
+  })
+})
+
+describe('persisted additional integration routing', () => {
+  it.each([
+    [ConnectionResolvedBehaviorEnum.Specific, { code: 'connection_default' }],
+    [ConnectionResolvedBehaviorEnum.Inherit, undefined],
+    [ConnectionResolvedBehaviorEnum.Skip, { behavior: ConnectionBehaviorEnum.Skip }],
+  ])('hydrates all additional categories with %s behavior', (behavior, expected) => {
+    const subscription = {
+      ...baseSubscription,
+      connections: [
+        ConnectionCategoryEnum.Accounting,
+        ConnectionCategoryEnum.Crm,
+        ConnectionCategoryEnum.Tax,
+      ].map((category) => ({ category, behavior, code: 'connection_default' })),
+    } as NonNullable<SubscriptionDefaultsSource>
+    const values = buildSubscriptionDefaultValues(
+      subscription,
+      FORM_TYPE_ENUM.edition,
+      CURRENT_DATE,
+    )
+    expect(values.accountingConnection).toEqual(expected)
+    expect(values.crmConnection).toEqual(expected)
+    expect(values.taxConnection).toEqual(expected)
   })
 })

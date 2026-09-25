@@ -64,6 +64,36 @@ describe('SubscriptionInformationFields', () => {
   const getValueUnderLabel = (labelKey: string) =>
     within(screen.getByText(labelKey).parentElement as HTMLElement)
 
+  it('shows the overview fields and the attached plan without an override', () => {
+    render(<SubscriptionInformationFields subscription={baseSubscription()} layout="overview" />)
+
+    expect(screen.getByRole('link', { name: 'Current' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('plan-1'),
+    )
+    expect(screen.getByText('text_65251f4cd55aeb004e5aa5ef')).toBeInTheDocument()
+    expect(screen.queryByText(BILLING_ANCHOR_LABEL)).not.toBeInTheDocument()
+    expect(screen.queryByText('text_17436114971570doqrwuwhf0')).not.toBeInTheDocument()
+    expect(screen.queryByText('text_17822197712865r9iwe3lgel')).not.toBeInTheDocument()
+  })
+
+  it('links the original plan and reports an overridden subscription in the overview', () => {
+    render(
+      <SubscriptionInformationFields
+        subscription={baseSubscription({
+          plan: { id: 'override', name: 'Custom', parent: { id: 'original', name: 'Original' } },
+        })}
+        layout="overview"
+      />,
+    )
+
+    expect(screen.getByRole('link', { name: 'Original' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('original'),
+    )
+    expect(screen.getByText('text_65251f46339c650084ce0d57')).toBeInTheDocument()
+  })
+
   it('renders the external id, customer name and the start date from startedAt', () => {
     render(<SubscriptionInformationFields subscription={baseSubscription()} />)
 

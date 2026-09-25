@@ -131,6 +131,13 @@ describe('ConnectionPaymentSettingsSelector', () => {
     mockPaymentMethodFieldsProps.current = null
   })
 
+  it('THEN should include the supplied method summary in the connection selector', async () => {
+    await openDrawerFromSelector({ paymentMethodSummary: 'Selected bank account' })
+    expect(screen.getByTestId(CONNECTION_PAYMENT_SETTINGS_SELECTOR_TEST_ID)).toHaveTextContent(
+      '• Selected bank account',
+    )
+  })
+
   describe('GIVEN the details view asks for the drawer to open on landing', () => {
     describe('WHEN the selector mounts with autoOpen', () => {
       it('THEN should open the drawer once, seeded with the current values', () => {

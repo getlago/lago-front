@@ -132,6 +132,7 @@ export const TopUpSection = withForm({
 
     const renderAdditionalIntegrationSettingsSelector = (customerId: string) => (
       <AdditionalIntegrationSettingsSelector
+        viewType={ViewTypeEnum.WalletTopUp}
         customerId={customerId}
         values={{
           [ConnectionCategory.Accounting]: walletValues.accountingConnection,
