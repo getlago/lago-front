@@ -81,6 +81,7 @@ import Heart from '~/icons/heart.svg'
 import History from '~/icons/history.svg'
 import Id from '~/icons/id.svg'
 import Image from '~/icons/image.svg'
+import Indent from '~/icons/indent.svg'
 import InfoCircle from '~/icons/info-circle.svg'
 import InlineCode from '~/icons/inline-code.svg'
 import Italic from '~/icons/italic.svg'
@@ -243,6 +244,7 @@ export const ALL_ICONS = {
   history: History,
   id: Id,
   image: Image,
+  indent: Indent,
   'info-circle': InfoCircle,
   'inline-code': InlineCode,
   italic: Italic,

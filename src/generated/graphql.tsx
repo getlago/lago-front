@@ -2714,6 +2714,7 @@ export type CreateUsageAttributionTypeInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   parentId?: InputMaybe<Scalars['ID']['input']>;
   role: UsageAttributionTypeRoleEnum;
@@ -9945,6 +9946,7 @@ export type QueryUsageAttributionTypesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   role?: InputMaybe<UsageAttributionTypeRoleEnum>;
+  roots?: InputMaybe<Scalars['Boolean']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -12093,6 +12095,7 @@ export type UpdateUsageAttributionTypeInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   parentId?: InputMaybe<Scalars['ID']['input']>;
@@ -12116,8 +12119,11 @@ export type UpdateXeroIntegrationInput = {
 export type UsageAttributionType = {
   __typename?: 'UsageAttributionType';
   attributionKeys: Array<Scalars['String']['output']>;
+  /** Child types, empty for a leaf or a flat type */
+  children: Array<UsageAttributionType>;
   code: Scalars['String']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name?: Maybe<Scalars['String']['output']>;
   organization?: Maybe<Organization>;
@@ -18215,6 +18221,38 @@ export type GetXeroIntegrationsListQuery = { __typename?: 'Query', integrations?
       | { __typename?: 'SalesforceIntegration' }
       | { __typename?: 'XeroIntegration', id: string, name: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null }
     > } | null };
+
+export type GovernanceEntityItemFragment = { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any };
+
+export type GetGovernanceEntitiesQueryVariables = Exact<{
+  role?: InputMaybe<UsageAttributionTypeRoleEnum>;
+  roots?: InputMaybe<Scalars['Boolean']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetGovernanceEntitiesQuery = { __typename?: 'Query', usageAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string }> }> }> }> }> }> }> }> }> }> }> }> } };
+
+export type GetGovernanceEntitiesRoleCountsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetGovernanceEntitiesRoleCountsQuery = { __typename?: 'Query', hierarchical: { __typename?: 'UsageAttributionTypeCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } }, flat: { __typename?: 'UsageAttributionTypeCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } } };
+
+export type GetGovernanceEntityParentOptionsQueryVariables = Exact<{
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetGovernanceEntityParentOptionsQuery = { __typename?: 'Query', usageAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string } | null } | null } | null } | null } | null } | null } | null } | null } | null } | null }> } };
+
+export type CreateGovernanceEntityMutationVariables = Exact<{
+  input: CreateUsageAttributionTypeInput;
+}>;
+
+
+export type CreateGovernanceEntityMutation = { __typename?: 'Mutation', createUsageAttributionType?: { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any } | null };
 
 export type AnrokIntegrationMapItemDrawerFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
 
@@ -24847,6 +24885,15 @@ export const XeroIntegrationsFragmentDoc = gql`
   ...XeroForCreateDialogDialog
 }
     ${XeroForCreateDialogDialogFragmentDoc}`;
+export const GovernanceEntityItemFragmentDoc = gql`
+    fragment GovernanceEntityItem on UsageAttributionType {
+  id
+  name
+  code
+  role
+  createdAt
+}
+    `;
 export const AnrokIntegrationMapItemDrawerFragmentDoc = gql`
     fragment AnrokIntegrationMapItemDrawer on IntegrationItem {
   id
@@ -50309,6 +50356,268 @@ export type GetXeroIntegrationsListQueryHookResult = ReturnType<typeof useGetXer
 export type GetXeroIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetXeroIntegrationsListLazyQuery>;
 export type GetXeroIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetXeroIntegrationsListSuspenseQuery>;
 export type GetXeroIntegrationsListQueryResult = Apollo.QueryResult<GetXeroIntegrationsListQuery, GetXeroIntegrationsListQueryVariables>;
+export const GetGovernanceEntitiesDocument = gql`
+    query getGovernanceEntities($role: UsageAttributionTypeRoleEnum, $roots: Boolean, $page: Int, $limit: Int) {
+  usageAttributionTypes(role: $role, roots: $roots, page: $page, limit: $limit) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      id
+      ...GovernanceEntityItem
+      children {
+        id
+        ...GovernanceEntityItem
+        children {
+          id
+          ...GovernanceEntityItem
+          children {
+            id
+            ...GovernanceEntityItem
+            children {
+              id
+              ...GovernanceEntityItem
+              children {
+                id
+                ...GovernanceEntityItem
+                children {
+                  id
+                  ...GovernanceEntityItem
+                  children {
+                    id
+                    ...GovernanceEntityItem
+                    children {
+                      id
+                      ...GovernanceEntityItem
+                      children {
+                        id
+                        ...GovernanceEntityItem
+                        children {
+                          id
+                          ...GovernanceEntityItem
+                          children {
+                            id
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    ${GovernanceEntityItemFragmentDoc}`;
+
+/**
+ * __useGetGovernanceEntitiesQuery__
+ *
+ * To run a query within a React component, call `useGetGovernanceEntitiesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGovernanceEntitiesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetGovernanceEntitiesQuery({
+ *   variables: {
+ *      role: // value for 'role'
+ *      roots: // value for 'roots'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetGovernanceEntitiesQuery(baseOptions?: Apollo.QueryHookOptions<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>(GetGovernanceEntitiesDocument, options);
+      }
+export function useGetGovernanceEntitiesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>(GetGovernanceEntitiesDocument, options);
+        }
+// @ts-ignore
+export function useGetGovernanceEntitiesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>): Apollo.UseSuspenseQueryResult<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>;
+export function useGetGovernanceEntitiesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>): Apollo.UseSuspenseQueryResult<GetGovernanceEntitiesQuery | undefined, GetGovernanceEntitiesQueryVariables>;
+export function useGetGovernanceEntitiesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>(GetGovernanceEntitiesDocument, options);
+        }
+export type GetGovernanceEntitiesQueryHookResult = ReturnType<typeof useGetGovernanceEntitiesQuery>;
+export type GetGovernanceEntitiesLazyQueryHookResult = ReturnType<typeof useGetGovernanceEntitiesLazyQuery>;
+export type GetGovernanceEntitiesSuspenseQueryHookResult = ReturnType<typeof useGetGovernanceEntitiesSuspenseQuery>;
+export type GetGovernanceEntitiesQueryResult = Apollo.QueryResult<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>;
+export const GetGovernanceEntitiesRoleCountsDocument = gql`
+    query getGovernanceEntitiesRoleCounts {
+  hierarchical: usageAttributionTypes(role: hierarchical, limit: 1) {
+    metadata {
+      totalCount
+    }
+  }
+  flat: usageAttributionTypes(role: flat, limit: 1) {
+    metadata {
+      totalCount
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetGovernanceEntitiesRoleCountsQuery__
+ *
+ * To run a query within a React component, call `useGetGovernanceEntitiesRoleCountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGovernanceEntitiesRoleCountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetGovernanceEntitiesRoleCountsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetGovernanceEntitiesRoleCountsQuery(baseOptions?: Apollo.QueryHookOptions<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>(GetGovernanceEntitiesRoleCountsDocument, options);
+      }
+export function useGetGovernanceEntitiesRoleCountsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>(GetGovernanceEntitiesRoleCountsDocument, options);
+        }
+// @ts-ignore
+export function useGetGovernanceEntitiesRoleCountsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>): Apollo.UseSuspenseQueryResult<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>;
+export function useGetGovernanceEntitiesRoleCountsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>): Apollo.UseSuspenseQueryResult<GetGovernanceEntitiesRoleCountsQuery | undefined, GetGovernanceEntitiesRoleCountsQueryVariables>;
+export function useGetGovernanceEntitiesRoleCountsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>(GetGovernanceEntitiesRoleCountsDocument, options);
+        }
+export type GetGovernanceEntitiesRoleCountsQueryHookResult = ReturnType<typeof useGetGovernanceEntitiesRoleCountsQuery>;
+export type GetGovernanceEntitiesRoleCountsLazyQueryHookResult = ReturnType<typeof useGetGovernanceEntitiesRoleCountsLazyQuery>;
+export type GetGovernanceEntitiesRoleCountsSuspenseQueryHookResult = ReturnType<typeof useGetGovernanceEntitiesRoleCountsSuspenseQuery>;
+export type GetGovernanceEntitiesRoleCountsQueryResult = Apollo.QueryResult<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>;
+export const GetGovernanceEntityParentOptionsDocument = gql`
+    query getGovernanceEntityParentOptions($searchTerm: String, $limit: Int) {
+  usageAttributionTypes(
+    role: hierarchical
+    searchTerm: $searchTerm
+    limit: $limit
+  ) {
+    collection {
+      id
+      name
+      code
+      parent {
+        id
+        parent {
+          id
+          parent {
+            id
+            parent {
+              id
+              parent {
+                id
+                parent {
+                  id
+                  parent {
+                    id
+                    parent {
+                      id
+                      parent {
+                        id
+                        parent {
+                          id
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetGovernanceEntityParentOptionsQuery__
+ *
+ * To run a query within a React component, call `useGetGovernanceEntityParentOptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGovernanceEntityParentOptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetGovernanceEntityParentOptionsQuery({
+ *   variables: {
+ *      searchTerm: // value for 'searchTerm'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetGovernanceEntityParentOptionsQuery(baseOptions?: Apollo.QueryHookOptions<GetGovernanceEntityParentOptionsQuery, GetGovernanceEntityParentOptionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetGovernanceEntityParentOptionsQuery, GetGovernanceEntityParentOptionsQueryVariables>(GetGovernanceEntityParentOptionsDocument, options);
+      }
+export function useGetGovernanceEntityParentOptionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetGovernanceEntityParentOptionsQuery, GetGovernanceEntityParentOptionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetGovernanceEntityParentOptionsQuery, GetGovernanceEntityParentOptionsQueryVariables>(GetGovernanceEntityParentOptionsDocument, options);
+        }
+// @ts-ignore
+export function useGetGovernanceEntityParentOptionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetGovernanceEntityParentOptionsQuery, GetGovernanceEntityParentOptionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetGovernanceEntityParentOptionsQuery, GetGovernanceEntityParentOptionsQueryVariables>;
+export function useGetGovernanceEntityParentOptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGovernanceEntityParentOptionsQuery, GetGovernanceEntityParentOptionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetGovernanceEntityParentOptionsQuery | undefined, GetGovernanceEntityParentOptionsQueryVariables>;
+export function useGetGovernanceEntityParentOptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGovernanceEntityParentOptionsQuery, GetGovernanceEntityParentOptionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetGovernanceEntityParentOptionsQuery, GetGovernanceEntityParentOptionsQueryVariables>(GetGovernanceEntityParentOptionsDocument, options);
+        }
+export type GetGovernanceEntityParentOptionsQueryHookResult = ReturnType<typeof useGetGovernanceEntityParentOptionsQuery>;
+export type GetGovernanceEntityParentOptionsLazyQueryHookResult = ReturnType<typeof useGetGovernanceEntityParentOptionsLazyQuery>;
+export type GetGovernanceEntityParentOptionsSuspenseQueryHookResult = ReturnType<typeof useGetGovernanceEntityParentOptionsSuspenseQuery>;
+export type GetGovernanceEntityParentOptionsQueryResult = Apollo.QueryResult<GetGovernanceEntityParentOptionsQuery, GetGovernanceEntityParentOptionsQueryVariables>;
+export const CreateGovernanceEntityDocument = gql`
+    mutation createGovernanceEntity($input: CreateUsageAttributionTypeInput!) {
+  createUsageAttributionType(input: $input) {
+    id
+    ...GovernanceEntityItem
+  }
+}
+    ${GovernanceEntityItemFragmentDoc}`;
+export type CreateGovernanceEntityMutationFn = Apollo.MutationFunction<CreateGovernanceEntityMutation, CreateGovernanceEntityMutationVariables>;
+
+/**
+ * __useCreateGovernanceEntityMutation__
+ *
+ * To run a mutation, you first call `useCreateGovernanceEntityMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateGovernanceEntityMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createGovernanceEntityMutation, { data, loading, error }] = useCreateGovernanceEntityMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateGovernanceEntityMutation(baseOptions?: Apollo.MutationHookOptions<CreateGovernanceEntityMutation, CreateGovernanceEntityMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateGovernanceEntityMutation, CreateGovernanceEntityMutationVariables>(CreateGovernanceEntityDocument, options);
+      }
+export type CreateGovernanceEntityMutationHookResult = ReturnType<typeof useCreateGovernanceEntityMutation>;
+export type CreateGovernanceEntityMutationResult = Apollo.MutationResult<CreateGovernanceEntityMutation>;
+export type CreateGovernanceEntityMutationOptions = Apollo.BaseMutationOptions<CreateGovernanceEntityMutation, CreateGovernanceEntityMutationVariables>;
 export const CreateAnrokIntegrationCollectionMappingDocument = gql`
     mutation createAnrokIntegrationCollectionMapping($input: CreateIntegrationCollectionMappingInput!) {
   createIntegrationCollectionMapping(input: $input) {
@@ -53132,135 +53441,3 @@ export type GetBillableMetricsForWalletQueryHookResult = ReturnType<typeof useGe
 export type GetBillableMetricsForWalletLazyQueryHookResult = ReturnType<typeof useGetBillableMetricsForWalletLazyQuery>;
 export type GetBillableMetricsForWalletSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricsForWalletSuspenseQuery>;
 export type GetBillableMetricsForWalletQueryResult = Apollo.QueryResult<GetBillableMetricsForWalletQuery, GetBillableMetricsForWalletQueryVariables>;
-export type GovernanceEntityItemFragment = { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, parent?: { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string } | null };
-
-export type GetGovernanceEntitiesQueryVariables = Exact<{
-  role?: InputMaybe<UsageAttributionTypeRoleEnum>;
-  page?: InputMaybe<Scalars['Int']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type GetGovernanceEntitiesQuery = { __typename?: 'Query', usageAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, parent?: { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string } | null }> } };
-
-export type GetGovernanceEntitiesRoleCountsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetGovernanceEntitiesRoleCountsQuery = { __typename?: 'Query', hierarchical: { __typename?: 'UsageAttributionTypeCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } }, flat: { __typename?: 'UsageAttributionTypeCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } } };
-
-export const GovernanceEntityItemFragmentDoc = gql`
-    fragment GovernanceEntityItem on UsageAttributionType {
-  id
-  name
-  code
-  role
-  createdAt
-  parent {
-    id
-    name
-    code
-  }
-}
-    `;
-export const GetGovernanceEntitiesDocument = gql`
-    query getGovernanceEntities($role: UsageAttributionTypeRoleEnum, $page: Int, $limit: Int) {
-  usageAttributionTypes(role: $role, page: $page, limit: $limit) {
-    metadata {
-      currentPage
-      totalPages
-      totalCount
-    }
-    collection {
-      id
-      ...GovernanceEntityItem
-    }
-  }
-}
-    ${GovernanceEntityItemFragmentDoc}`;
-
-/**
- * __useGetGovernanceEntitiesQuery__
- *
- * To run a query within a React component, call `useGetGovernanceEntitiesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetGovernanceEntitiesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetGovernanceEntitiesQuery({
- *   variables: {
- *      role: // value for 'role'
- *      page: // value for 'page'
- *      limit: // value for 'limit'
- *   },
- * });
- */
-export function useGetGovernanceEntitiesQuery(baseOptions?: Apollo.QueryHookOptions<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>(GetGovernanceEntitiesDocument, options);
-      }
-export function useGetGovernanceEntitiesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>(GetGovernanceEntitiesDocument, options);
-        }
-// @ts-ignore
-export function useGetGovernanceEntitiesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>): Apollo.UseSuspenseQueryResult<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>;
-export function useGetGovernanceEntitiesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>): Apollo.UseSuspenseQueryResult<GetGovernanceEntitiesQuery | undefined, GetGovernanceEntitiesQueryVariables>;
-export function useGetGovernanceEntitiesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>(GetGovernanceEntitiesDocument, options);
-        }
-export type GetGovernanceEntitiesQueryHookResult = ReturnType<typeof useGetGovernanceEntitiesQuery>;
-export type GetGovernanceEntitiesLazyQueryHookResult = ReturnType<typeof useGetGovernanceEntitiesLazyQuery>;
-export type GetGovernanceEntitiesSuspenseQueryHookResult = ReturnType<typeof useGetGovernanceEntitiesSuspenseQuery>;
-export type GetGovernanceEntitiesQueryResult = Apollo.QueryResult<GetGovernanceEntitiesQuery, GetGovernanceEntitiesQueryVariables>;
-export const GetGovernanceEntitiesRoleCountsDocument = gql`
-    query getGovernanceEntitiesRoleCounts {
-  hierarchical: usageAttributionTypes(role: hierarchical, limit: 1) {
-    metadata {
-      totalCount
-    }
-  }
-  flat: usageAttributionTypes(role: flat, limit: 1) {
-    metadata {
-      totalCount
-    }
-  }
-}
-    `;
-
-/**
- * __useGetGovernanceEntitiesRoleCountsQuery__
- *
- * To run a query within a React component, call `useGetGovernanceEntitiesRoleCountsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetGovernanceEntitiesRoleCountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetGovernanceEntitiesRoleCountsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetGovernanceEntitiesRoleCountsQuery(baseOptions?: Apollo.QueryHookOptions<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>(GetGovernanceEntitiesRoleCountsDocument, options);
-      }
-export function useGetGovernanceEntitiesRoleCountsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>(GetGovernanceEntitiesRoleCountsDocument, options);
-        }
-// @ts-ignore
-export function useGetGovernanceEntitiesRoleCountsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>): Apollo.UseSuspenseQueryResult<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>;
-export function useGetGovernanceEntitiesRoleCountsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>): Apollo.UseSuspenseQueryResult<GetGovernanceEntitiesRoleCountsQuery | undefined, GetGovernanceEntitiesRoleCountsQueryVariables>;
-export function useGetGovernanceEntitiesRoleCountsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>(GetGovernanceEntitiesRoleCountsDocument, options);
-        }
-export type GetGovernanceEntitiesRoleCountsQueryHookResult = ReturnType<typeof useGetGovernanceEntitiesRoleCountsQuery>;
-export type GetGovernanceEntitiesRoleCountsLazyQueryHookResult = ReturnType<typeof useGetGovernanceEntitiesRoleCountsLazyQuery>;
-export type GetGovernanceEntitiesRoleCountsSuspenseQueryHookResult = ReturnType<typeof useGetGovernanceEntitiesRoleCountsSuspenseQuery>;
-export type GetGovernanceEntitiesRoleCountsQueryResult = Apollo.QueryResult<GetGovernanceEntitiesRoleCountsQuery, GetGovernanceEntitiesRoleCountsQueryVariables>;

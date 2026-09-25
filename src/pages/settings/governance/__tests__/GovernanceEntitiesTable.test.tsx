@@ -1,13 +1,20 @@
-import { screen, within } from '@testing-library/react'
+import { captureMessage } from '@sentry/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { GetGovernanceEntitiesDocument, UsageAttributionTypeRoleEnum } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
+import { MAX_GOVERNANCE_HIERARCHY_DEPTH } from '../constants'
 import {
   GOVERNANCE_ENTITIES_TABLE_TEST_ID,
   GovernanceEntitiesTable,
 } from '../GovernanceEntitiesTable'
+
+jest.mock('@sentry/react', () => ({
+  ...jest.requireActual('@sentry/react'),
+  captureMessage: jest.fn(),
+}))
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
@@ -22,13 +29,10 @@ type Entity = {
   code: string
   role: UsageAttributionTypeRoleEnum
   createdAt: string
-  parent: {
-    __typename: 'UsageAttributionType'
-    id: string
-    name: string | null
-    code: string
-  } | null
+  children: Array<Entity | EntityProbe>
 }
+
+type EntityProbe = { __typename: 'UsageAttributionType'; id: string }
 
 // `__typename` is what lets the cache match the `GovernanceEntityItem` fragment condition;
 // without it every fragment field reads back undefined.
@@ -39,9 +43,22 @@ const buildEntity = (overrides: Partial<Entity> = {}): Entity => ({
   code: 'engineering',
   role: UsageAttributionTypeRoleEnum.Hierarchical,
   createdAt: '2026-01-01T00:00:00Z',
-  parent: null,
+  children: [],
   ...overrides,
 })
+
+const buildChain = (levels: number, { withProbe = false } = {}, depth = 0): Entity => {
+  const isDeepest = depth === levels - 1
+  const probe: EntityProbe[] = withProbe
+    ? [{ __typename: 'UsageAttributionType', id: 'too-deep' }]
+    : []
+
+  return buildEntity({
+    id: `depth-${depth}`,
+    code: `depth-${depth}`,
+    children: isDeepest ? probe : [buildChain(levels, { withProbe }, depth + 1)],
+  })
+}
 
 const entitiesMock = ({
   role,
@@ -55,7 +72,12 @@ const entitiesMock = ({
   {
     request: {
       query: GetGovernanceEntitiesDocument,
-      variables: { role, limit: DEFAULT_PAGE_SIZE, page },
+      variables: {
+        role,
+        roots: role === UsageAttributionTypeRoleEnum.Hierarchical,
+        limit: DEFAULT_PAGE_SIZE,
+        page,
+      },
     },
     result: {
       data: {
@@ -82,6 +104,7 @@ const renderTable = (role: UsageAttributionTypeRoleEnum, mocks: TestMocksType) =
 
 describe('GovernanceEntitiesTable', () => {
   beforeEach(() => {
+    jest.clearAllMocks()
     window.history.replaceState({}, '', '/acme/settings/governance')
   })
 
@@ -95,9 +118,6 @@ describe('GovernanceEntitiesTable', () => {
             collection: [buildEntity()],
           }),
         )
-
-        // The mock only matches `{ role, limit: DEFAULT_PAGE_SIZE, page: 1 }`; rendering a row
-        // proves those exact variables were sent.
         expect(await screen.findByText('Engineering')).toBeInTheDocument()
       })
 
@@ -116,7 +136,7 @@ describe('GovernanceEntitiesTable', () => {
         expect(await screen.findByText('Page two entity')).toBeInTheDocument()
       })
 
-      it('THEN should render the Parent column', async () => {
+      it('THEN should render no Parent column', async () => {
         renderTable(
           UsageAttributionTypeRoleEnum.Hierarchical,
           entitiesMock({
@@ -127,71 +147,61 @@ describe('GovernanceEntitiesTable', () => {
 
         await screen.findByText('Engineering')
 
-        expect(screen.getAllByRole('columnheader')).toHaveLength(4)
+        expect(screen.getAllByRole('columnheader')).toHaveLength(3)
       })
 
-      it('THEN should render a dash when the entity has no parent', async () => {
-        renderTable(
-          UsageAttributionTypeRoleEnum.Hierarchical,
-          entitiesMock({
-            role: UsageAttributionTypeRoleEnum.Hierarchical,
-            collection: [buildEntity({ parent: null })],
-          }),
-        )
-
-        await screen.findByText('Engineering')
-
-        const table = screen.getByTestId(GOVERNANCE_ENTITIES_TABLE_TEST_ID)
-
-        expect(within(table).getByText('-')).toBeInTheDocument()
-      })
-
-      it('THEN should render the parent name when the entity has one', async () => {
+      it('THEN should list each root followed by its descendants, indented by depth', async () => {
         renderTable(
           UsageAttributionTypeRoleEnum.Hierarchical,
           entitiesMock({
             role: UsageAttributionTypeRoleEnum.Hierarchical,
             collection: [
               buildEntity({
-                parent: {
-                  __typename: 'UsageAttributionType',
-                  id: 'parent-1',
-                  name: 'Teams',
-                  code: 'teams',
-                },
+                id: 'root',
+                code: 'root',
+                children: [
+                  buildEntity({
+                    id: 'child',
+                    code: 'child',
+                    children: [buildEntity({ id: 'grandchild', code: 'grandchild' })],
+                  }),
+                ],
               }),
+              buildEntity({ id: 'sibling-root', code: 'sibling-root' }),
             ],
           }),
         )
 
-        expect(await screen.findByText('Teams')).toBeInTheDocument()
+        await screen.findByTestId('grandchild')
+
+        const table = screen.getByTestId(GOVERNANCE_ENTITIES_TABLE_TEST_ID)
+        const rowCodes = ['root', 'child', 'grandchild', 'sibling-root'].map((code) =>
+          within(table).getByTestId(code),
+        )
+
+        rowCodes.reduce((previous, current) => {
+          expect(previous.compareDocumentPosition(current)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+
+          return current
+        })
+        expect(within(table).getByTestId('root')).toHaveClass('pl-0')
+        expect(within(table).getByTestId('child')).toHaveClass('pl-6')
+        expect(within(table).getByTestId('grandchild')).toHaveClass('pl-12')
+        expect(within(table).getByTestId('sibling-root')).toHaveClass('pl-0')
       })
 
-      it('THEN should render the parent code when the parent name is null', async () => {
+      it('THEN should show the indent icon on every row, roots included', async () => {
         renderTable(
           UsageAttributionTypeRoleEnum.Hierarchical,
           entitiesMock({
             role: UsageAttributionTypeRoleEnum.Hierarchical,
-            collection: [
-              buildEntity({
-                parent: {
-                  __typename: 'UsageAttributionType',
-                  id: 'parent-1',
-                  name: null,
-                  code: 'unnamed-parent',
-                },
-              }),
-            ],
+            collection: [buildEntity({ code: 'root' })],
           }),
         )
 
-        await screen.findByText('Engineering')
-
-        const table = screen.getByTestId(GOVERNANCE_ENTITIES_TABLE_TEST_ID)
-
-        // A parent that exists but has no name must not be indistinguishable from no parent.
-        expect(within(table).getByText('unnamed-parent')).toBeInTheDocument()
-        expect(within(table).queryByText('-')).not.toBeInTheDocument()
+        expect(
+          (await screen.findByTestId('root')).querySelector('[data-test^="indent/"]'),
+        ).toBeInTheDocument()
       })
 
       it('THEN should fall back to the code when the name is null', async () => {
@@ -211,9 +221,46 @@ describe('GovernanceEntitiesTable', () => {
     })
   })
 
+  describe('GIVEN a hierarchy at the maximum depth', () => {
+    describe('WHEN the list resolves', () => {
+      it('THEN should render every level and report nothing', async () => {
+        renderTable(
+          UsageAttributionTypeRoleEnum.Hierarchical,
+          entitiesMock({
+            role: UsageAttributionTypeRoleEnum.Hierarchical,
+            collection: [buildChain(MAX_GOVERNANCE_HIERARCHY_DEPTH + 1)],
+          }),
+        )
+
+        expect(
+          await screen.findByTestId(`depth-${MAX_GOVERNANCE_HIERARCHY_DEPTH}`),
+        ).toBeInTheDocument()
+        expect(screen.getByTestId(`depth-${MAX_GOVERNANCE_HIERARCHY_DEPTH}`)).toHaveClass('pl-60')
+        expect(captureMessage).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a hierarchy deeper than the maximum depth', () => {
+    describe('WHEN the list resolves', () => {
+      it('THEN should report it to Sentry as an error', async () => {
+        const chain = buildChain(MAX_GOVERNANCE_HIERARCHY_DEPTH + 1, { withProbe: true })
+
+        renderTable(
+          UsageAttributionTypeRoleEnum.Hierarchical,
+          entitiesMock({ role: UsageAttributionTypeRoleEnum.Hierarchical, collection: [chain] }),
+        )
+
+        await waitFor(() =>
+          expect(captureMessage).toHaveBeenCalledWith(expect.any(String), { level: 'error' }),
+        )
+      })
+    })
+  })
+
   describe('GIVEN the flat role', () => {
     describe('WHEN the list resolves', () => {
-      it('THEN should not render the Parent column', async () => {
+      it('THEN should render the name, type and creation date columns', async () => {
         renderTable(
           UsageAttributionTypeRoleEnum.Flat,
           entitiesMock({
@@ -225,6 +272,36 @@ describe('GovernanceEntitiesTable', () => {
         await screen.findByText('Product')
 
         expect(screen.getAllByRole('columnheader')).toHaveLength(3)
+      })
+
+      it('THEN should render rows without the indent icon', async () => {
+        renderTable(
+          UsageAttributionTypeRoleEnum.Flat,
+          entitiesMock({
+            role: UsageAttributionTypeRoleEnum.Flat,
+            collection: [buildEntity({ role: UsageAttributionTypeRoleEnum.Flat, code: 'product' })],
+          }),
+        )
+
+        expect(
+          (await screen.findByTestId('product')).querySelector('[data-test^="indent/"]'),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the page is still resolving the roles', () => {
+    describe('WHEN the table renders in loading mode', () => {
+      it('THEN should show the table without querying the list', async () => {
+        render(<GovernanceEntitiesTable isLoading />, {
+          useParams: { organizationSlug: 'acme' },
+          mocks: [],
+        })
+
+        await act(() => new Promise((resolve) => setTimeout(resolve, 0)))
+
+        expect(screen.getByTestId(GOVERNANCE_ENTITIES_TABLE_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId('generic-placeholder-button')).not.toBeInTheDocument()
       })
     })
   })
@@ -238,6 +315,7 @@ describe('GovernanceEntitiesTable', () => {
               query: GetGovernanceEntitiesDocument,
               variables: {
                 role: UsageAttributionTypeRoleEnum.Flat,
+                roots: false,
                 limit: DEFAULT_PAGE_SIZE,
                 page: 1,
               },
