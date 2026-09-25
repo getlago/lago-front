@@ -148,6 +148,7 @@ const ContractDetails = (): JSX.Element => {
               <DetailsPage.Container className="pt-6">
                 <ContractDetailsOverview
                   rateCardsCount={contract?.appliedRateCardsCount}
+                  isRateCardRemovalLocked={contract?.status !== ContractStatusEnum.Pending}
                   loading={loading}
                 />
               </DetailsPage.Container>

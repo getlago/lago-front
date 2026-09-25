@@ -8,12 +8,12 @@ import {
   CENTRALIZED_DIALOG_NAME,
 } from '~/components/dialogs/const'
 import {
-  DestroyContractAppliedRateCardDocument,
-  GetContractAppliedRateCardsForRateCardsSectionDocument,
+  DestroyPlanAppliedRateCardDocument,
+  GetPlanAppliedRateCardsForRateCardsSectionDocument,
 } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
-import { ContractRateCardsSection } from '../ContractRateCardsSection'
+import { CatalogPlanRateCardsSection } from '../CatalogPlanRateCardsSection'
 
 NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
@@ -46,18 +46,18 @@ const rowFixture = {
     productFilter: null,
     __typename: 'RateCard',
   },
-  __typename: 'ContractAppliedRateCard',
+  __typename: 'PlanAppliedRateCard',
 }
 
 const buildListMock = (collection: (typeof rowFixture)[]): TestMocksType[number] => ({
   request: {
-    query: GetContractAppliedRateCardsForRateCardsSectionDocument,
-    variables: { contractId: 'contract-1', page: 1, limit: 20 },
+    query: GetPlanAppliedRateCardsForRateCardsSectionDocument,
+    variables: { planId: 'plan-1', page: 1, limit: 20 },
   },
   result: {
     data: {
-      contractAppliedRateCards: {
-        __typename: 'ContractAppliedRateCardCollection',
+      planAppliedRateCards: {
+        __typename: 'PlanAppliedRateCardCollection',
         collection,
         metadata: {
           __typename: 'CollectionMetadata',
@@ -72,13 +72,11 @@ const buildListMock = (collection: (typeof rowFixture)[]): TestMocksType[number]
 
 const buildDestroyMutationMock = (): TestMocksType[number] => ({
   request: {
-    query: DestroyContractAppliedRateCardDocument,
+    query: DestroyPlanAppliedRateCardDocument,
     variables: { input: { id: 'applied-1' } },
   },
   result: {
-    data: {
-      destroyContractAppliedRateCard: { id: 'applied-1', __typename: 'ContractAppliedRateCard' },
-    },
+    data: { destroyPlanAppliedRateCard: { id: 'applied-1', __typename: 'PlanAppliedRateCard' } },
   },
 })
 
@@ -86,18 +84,18 @@ const renderSection = (mocks: TestMocksType, { isRemovalLocked = false } = {}) =
   render(
     <AllTheProviders forceTypenames mocks={mocks}>
       <NiceModal.Provider>
-        <ContractRateCardsSection contractId="contract-1" isRemovalLocked={isRemovalLocked} />
+        <CatalogPlanRateCardsSection catalogPlanId="plan-1" isRemovalLocked={isRemovalLocked} />
       </NiceModal.Provider>
     </AllTheProviders>,
   )
 
-describe('ContractRateCardsSection', () => {
+describe('CatalogPlanRateCardsSection', () => {
   beforeEach(() => {
     testMockNavigateFn.mockClear()
     mockHasPermissions.mockReturnValue(true)
   })
 
-  it('queries contractAppliedRateCards for the given contractId and renders the row', async () => {
+  it('queries planAppliedRateCards for the given catalogPlanId and renders the row', async () => {
     renderSection([buildListMock([rowFixture])])
 
     await waitFor(() => expect(screen.getByText('Product One')).toBeInTheDocument())
@@ -121,7 +119,7 @@ describe('ContractRateCardsSection', () => {
     await waitFor(() =>
       expect(screen.getByText('text_1789030049529u2gzzho6x8x')).toBeInTheDocument(),
     )
-    expect(screen.getByText('text_1789723302114au3ml0nf077')).toBeInTheDocument()
+    expect(screen.getByText('text_17891323549937b5qwry7pn1')).toBeInTheDocument()
   })
 
   it('removes a row through the mutation then refetches the list', async () => {
@@ -138,7 +136,7 @@ describe('ContractRateCardsSection', () => {
     await waitFor(() => expect(screen.queryByText('Product One')).not.toBeInTheDocument())
   })
 
-  it('hides the remove action when the user lacks contractsUpdate permission', async () => {
+  it('hides the remove action when the user lacks plansUpdate permission', async () => {
     mockHasPermissions.mockReturnValue(false)
     const user = userEvent.setup()
 
@@ -149,7 +147,7 @@ describe('ContractRateCardsSection', () => {
 
     expect(screen.queryByText('text_1790284386156k2d8mjjy98f')).not.toBeInTheDocument()
   })
-  it('disables the remove action when the contract is not pending', async () => {
+  it('disables the remove action when the plan is attached to contracts', async () => {
     const user = userEvent.setup()
 
     renderSection([buildListMock([rowFixture])], { isRemovalLocked: true })

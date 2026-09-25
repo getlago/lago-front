@@ -13,6 +13,12 @@ const RateCardDetails = lazyLoad(() => import('~/pages/catalog/details/RateCardD
 const RateCardRateDetails = lazyLoad(() => import('~/pages/catalog/details/RateCardRateDetails'))
 const CatalogPlansList = lazyLoad(() => import('~/pages/catalog/CatalogPlansList'))
 const CatalogPlanDetails = lazyLoad(() => import('~/pages/catalog/details/CatalogPlanDetails'))
+const CatalogPlanRateCardDetails = lazyLoad(
+  () => import('~/pages/catalog/details/CatalogPlanRateCardDetails'),
+)
+const CatalogPlanRateCardPhaseDetails = lazyLoad(
+  () => import('~/pages/catalog/details/CatalogPlanRateCardPhaseDetails'),
+)
 
 export const PRODUCT_CATALOG_ROUTE = '/product-catalog'
 export const PRODUCT_CATALOG_TAB_ROUTE = '/product-catalog/:tab'
@@ -26,6 +32,10 @@ export const RATE_CARD_RATE_DETAILS_ROUTE =
 export const PLAN_PRICING_ROUTE = '/plan-pricing'
 export const CATALOG_PLAN_DETAILS_ROUTE = '/plan-pricing/:catalogPlanId/:tab'
 export const CATALOG_PLAN_DETAILS_SECTION_ROUTE = '/plan-pricing/:catalogPlanId/overview/:section'
+export const CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE =
+  '/plan-pricing/:catalogPlanId/rate-cards/:appliedRateCardId'
+export const CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_ROUTE =
+  '/plan-pricing/:catalogPlanId/rate-cards/:appliedRateCardId/phases/:phaseId'
 
 export const catalogRoutes: CustomRouteObject[] = [
   {
@@ -63,6 +73,20 @@ export const catalogRoutes: CustomRouteObject[] = [
     private: true,
     element: <ProductCatalog />,
     permissionsOr: ['productCategoriesView', 'productsView', 'productFiltersView', 'rateCardsView'],
+  },
+  {
+    path: [CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_ROUTE],
+    private: true,
+    element: <CatalogPlanRateCardPhaseDetails />,
+    permissions: ['plansView'],
+    featureFlag: FeatureFlagEnum.ProductCatalog,
+  },
+  {
+    path: [CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE],
+    private: true,
+    element: <CatalogPlanRateCardDetails />,
+    permissions: ['plansView'],
+    featureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [CATALOG_PLAN_DETAILS_SECTION_ROUTE, CATALOG_PLAN_DETAILS_ROUTE],
