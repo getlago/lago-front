@@ -293,6 +293,24 @@ describe('useContractDrawer', () => {
       expect(mockClose).not.toHaveBeenCalled()
     })
 
+    it('saves an administrative edit on an active contract whose end date has passed', async () => {
+      const { result } = renderDrawerHook([updateContractMock(() => undefined)])
+
+      act(() =>
+        result.current.openDrawer({
+          contract: {
+            ...contractForDrawerFixture,
+            startedAt: '2020-01-01T00:00:00Z',
+            endedAt: '2021-01-01T00:00:00Z',
+          },
+        }),
+      )
+      await submit()
+
+      await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+      expect(scrollToFirstInputError).not.toHaveBeenCalled()
+    })
+
     // The plan combobox is locked on an active contract, so a required plan would block every save.
     it('saves a contract that has no plan without sending a plan code', async () => {
       let capturedInput: Record<string, unknown> = {}

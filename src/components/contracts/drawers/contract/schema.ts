@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import { z } from 'zod'
 
 import { addPurchaseOrderNumberMaxLengthIssue } from '~/components/purchaseOrder/validation'
@@ -49,6 +50,12 @@ export const contractSchema = z.custom<ContractFormValues>().superRefine((data, 
 
   if (!data.endedAt) return
   if (addUnsupportedDateIssue(ctx, data.endedAt, ['endedAt'])) return
+  if (data.endedAt === data.initialEndedAt) {
+    if (DateTime.fromISO(data.endedAt) <= DateTime.fromISO(data.startedAt)) {
+      ctx.addIssue({ code: 'custom', message: END_DATE_INVALID_KEY, path: ['endedAt'] })
+    }
+    return
+  }
 
   addEndDateAfterStartIssue(ctx, data.startedAt, data.endedAt, ['endedAt'], END_DATE_INVALID_KEY)
 })

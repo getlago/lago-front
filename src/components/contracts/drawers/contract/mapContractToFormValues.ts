@@ -43,6 +43,7 @@ export const mapContractToFormValues = (
     purchaseOrderNumber: contract.purchaseOrderNumber ?? undefined,
     startedAt: contract.startedAt ?? '',
     endedAt: contract.endedAt ?? undefined,
+    initialEndedAt: contract.endedAt ?? undefined,
     billingAnchorDate: billingAnchorDay ? toUtcMidnight(billingAnchorDay) : '',
   }
 }
