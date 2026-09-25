@@ -32,6 +32,78 @@ const buildRow = (overrides: Partial<AppliedRateCardRow> = {}): AppliedRateCardR
 const noop = () => undefined
 
 describe('AppliedRateCardsTable', () => {
+  it('renders one header per category when the backend returns a category split, standalone last', () => {
+    const categoryOne = { id: 'cat-1', name: 'Category One', invoiceDisplayName: null }
+    const categoryTwo = { id: 'cat-2', name: 'Category Two', invoiceDisplayName: null }
+    const rows = [
+      buildRow({
+        id: 'row-1',
+        product: {
+          id: 'p-1',
+          name: 'Standalone P',
+          invoiceDisplayName: null,
+          productCategory: null,
+        },
+      }),
+      buildRow({
+        id: 'row-2',
+        product: {
+          id: 'p-2',
+          name: 'P Two',
+          invoiceDisplayName: null,
+          productCategory: categoryOne,
+        },
+      }),
+      buildRow({
+        id: 'row-3',
+        product: {
+          id: 'p-3',
+          name: 'P Three',
+          invoiceDisplayName: null,
+          productCategory: categoryTwo,
+        },
+      }),
+      buildRow({
+        id: 'row-4',
+        product: {
+          id: 'p-4',
+          name: 'P Four',
+          invoiceDisplayName: null,
+          productCategory: categoryOne,
+        },
+      }),
+    ]
+
+    render(
+      <AppliedRateCardsTable
+        rows={rows}
+        loading={false}
+        onPageChange={noop}
+        getRateCardHref={() => '/somewhere'}
+        onCopyRateCardCode={noop}
+        onRemoveRateCard={noop}
+      />,
+    )
+
+    expect(screen.getAllByText('Category One')).toHaveLength(1)
+
+    const orderedLabels = screen
+      .getAllByText(
+        /^(Category One|Category Two|text_1790284386156njn3ittr9qj|P Two|P Three|P Four|Standalone P)$/,
+      )
+      .map((element) => element.textContent)
+
+    expect(orderedLabels).toEqual([
+      'Category One',
+      'P Two',
+      'P Four',
+      'Category Two',
+      'P Three',
+      'text_1790284386156njn3ittr9qj',
+      'Standalone P',
+    ])
+  })
+
   it('renders a category group header once per category and a standalone group for products without one', () => {
     const rows = [
       buildRow({ id: 'row-1' }),

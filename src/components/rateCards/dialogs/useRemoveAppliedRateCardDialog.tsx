@@ -22,9 +22,12 @@ gql`
   }
 `
 
-type RemoveAppliedRateCardDialogProps =
-  | { context: 'plan'; id: string; rateCardName: string; onRemoved?: () => void }
-  | { context: 'contract'; id: string; rateCardName: string; onRemoved?: () => void }
+type RemoveAppliedRateCardDialogProps = {
+  context: 'plan' | 'contract'
+  id: string
+  rateCardName: string
+  onRemoved?: () => void
+}
 
 export const useRemoveAppliedRateCardDialog = (): {
   openRemoveAppliedRateCardDialog: (props: RemoveAppliedRateCardDialogProps) => void

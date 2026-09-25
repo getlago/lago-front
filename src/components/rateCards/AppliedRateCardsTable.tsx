@@ -8,7 +8,8 @@ import { Typography } from '~/components/designSystem/Typography'
 import { CollectionMetadata } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { AppliedRateCardRow, STANDALONE_GROUP_KEY } from './types'
+import { getGroupKey, groupRowsByCategory } from './groupRowsByCategory'
+import { AppliedRateCardRow } from './types'
 
 type AppliedRateCardsTableProps<T extends AppliedRateCardRow> = {
   rows: T[]
@@ -22,9 +23,6 @@ type AppliedRateCardsTableProps<T extends AppliedRateCardRow> = {
   onRemoveRateCard: (row: T) => void
   canRemove?: boolean
 }
-
-const getGroupKey = (row: AppliedRateCardRow): string =>
-  row.product.productCategory?.id ?? STANDALONE_GROUP_KEY
 
 const getProductLabel = (row: AppliedRateCardRow): string => {
   if (row.rateCard.productFilter) {
@@ -47,6 +45,7 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
   canRemove = true,
 }: AppliedRateCardsTableProps<T>): JSX.Element => {
   const { translate } = useInternationalization()
+  const groupedRows = groupRowsByCategory(rows)
 
   const renderGroupHeader = (row: T): ReactNode => {
     const category = row.product.productCategory
@@ -121,7 +120,7 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
     >
       <Table
         name="applied-rate-cards"
-        data={rows}
+        data={groupedRows}
         columns={columns}
         isLoading={loading}
         hasError={hasError}
