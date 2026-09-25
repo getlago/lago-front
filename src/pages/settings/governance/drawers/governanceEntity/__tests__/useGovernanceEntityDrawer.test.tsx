@@ -12,6 +12,8 @@ import {
   CreateGovernanceEntityMutationOptions,
   CreateUsageAttributionTypeInput,
   GetGovernanceEntityParentOptionsDocument,
+  UpdateGovernanceEntityDocument,
+  UpdateUsageAttributionTypeInput,
   UsageAttributionTypeRoleEnum,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -32,7 +34,7 @@ import {
   GOVERNANCE_ENTITY_DRAWER_SHOW_DESCRIPTION_TEST_ID,
 } from '../GovernanceEntityDrawerContent'
 import { useGovernanceEntityDrawer } from '../useGovernanceEntityDrawer'
-import { MAX_ATTRIBUTION_KEYS } from '../validationSchema'
+import { GovernanceEntity, MAX_ATTRIBUTION_KEYS } from '../validationSchema'
 
 type RefetchQueriesFn = Extract<
   NonNullable<CreateGovernanceEntityMutationOptions['refetchQueries']>,
@@ -160,9 +162,29 @@ const createdEntity: NonNullable<CreateGovernanceEntityMutation['createUsageAttr
   id: 'entity-1',
   name: 'Department',
   code: 'department',
+  description: null,
   role: UsageAttributionTypeRoleEnum.Hierarchical,
+  attributionKeys: ['department_id'],
   createdAt: '2026-09-24T00:00:00Z',
 }
+
+const editedEntity: GovernanceEntity = {
+  ...createdEntity,
+  description: 'Engineering teams',
+  attributionKeys: ['department_id', 'team_id'],
+  parent: { id: PARENT_ID, name: 'Engineering', code: 'engineering' },
+}
+
+const updateMock = (
+  input: UpdateUsageAttributionTypeInput,
+  result: MockedResponse['result'] = {
+    data: { updateUsageAttributionType: { ...createdEntity, name: input.name } },
+  },
+): MockedResponse & { result: jest.Mock } => ({
+  request: { query: UpdateGovernanceEntityDocument, variables: { input } },
+  result: jest.fn(() => result),
+  maxUsageCount: Number.POSITIVE_INFINITY,
+})
 
 const createMock = (
   input: CreateUsageAttributionTypeInput,
@@ -178,7 +200,7 @@ const valueAlreadyExistError = (field: string): GraphQLError =>
     extensions: { code: 'unprocessable_entity', details: { [field]: ['value_already_exist'] } },
   })
 
-const renderDrawer = (mocks: MockedResponse[] = []): void => {
+const renderDrawer = (mocks: MockedResponse[] = [], entity?: GovernanceEntity): void => {
   const { result } = renderHook(() => useGovernanceEntityDrawer(), {
     wrapper: ({ children }: { children: ReactNode }) => (
       <MockedProvider
@@ -191,7 +213,7 @@ const renderDrawer = (mocks: MockedResponse[] = []): void => {
     ),
   })
 
-  act(() => result.current.openDrawer())
+  act(() => result.current.openDrawer(entity))
 }
 
 const renderDrawerBody = (): void => {
@@ -653,6 +675,189 @@ describe('useGovernanceEntityDrawer', () => {
         await waitFor(() => expect(inputIn(GOVERNANCE_ENTITY_DRAWER_NAME_TEST_ID)).toHaveValue(''))
         expect(mockClose).not.toHaveBeenCalled()
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+    })
+  })
+
+  describe('GIVEN an existing entity is opened for edition', () => {
+    const editInput: UpdateUsageAttributionTypeInput = {
+      id: editedEntity.id,
+      name: 'Departments',
+      description: 'Engineering teams',
+      attributionKeys: ['department_id', 'team_id'],
+    }
+
+    const clearAndType = async (testId: string, value: string): Promise<void> => {
+      await userEvent.clear(inputIn(testId))
+      await userEvent.type(inputIn(testId), value)
+    }
+
+    describe('WHEN the drawer opens', () => {
+      it('THEN should not offer create more', () => {
+        renderDrawer([], editedEntity)
+
+        expect(lastDrawerArgs?.secondaryAction).toBeUndefined()
+      })
+
+      it('THEN should seed the form from the entity', () => {
+        renderDrawer([], editedEntity)
+        renderDrawerBody()
+
+        expect(inputIn(GOVERNANCE_ENTITY_DRAWER_NAME_TEST_ID)).toHaveValue('Department')
+        expect(inputIn(GOVERNANCE_ENTITY_DRAWER_CODE_TEST_ID)).toHaveValue('department')
+        expect(inputIn(GOVERNANCE_ENTITY_DRAWER_PARENT_TEST_ID)).toHaveValue('Engineering')
+        expect(
+          screen
+            .getByTestId(GOVERNANCE_ENTITY_DRAWER_DESCRIPTION_TEST_ID)
+            .querySelector('textarea'),
+        ).toHaveValue('Engineering teams')
+        expect(screen.getAllByTestId(ATTRIBUTION_KEYS_CHIP_TEST_ID)).toHaveLength(2)
+      })
+
+      it.each([
+        ['code', GOVERNANCE_ENTITY_DRAWER_CODE_TEST_ID],
+        ['type', GOVERNANCE_ENTITY_DRAWER_ROLE_TEST_ID],
+        ['parent', GOVERNANCE_ENTITY_DRAWER_PARENT_TEST_ID],
+      ])('THEN should disable the %s input', (_, testId) => {
+        renderDrawer([], editedEntity)
+        renderDrawerBody()
+
+        expect(inputIn(testId)).toBeDisabled()
+      })
+
+      it('THEN should keep the name input editable', () => {
+        renderDrawer([], editedEntity)
+        renderDrawerBody()
+
+        expect(inputIn(GOVERNANCE_ENTITY_DRAWER_NAME_TEST_ID)).toBeEnabled()
+      })
+    })
+
+    describe('WHEN the name is changed and the form is submitted', () => {
+      it('THEN should send only the editable fields, toast and close', async () => {
+        const mutation = updateMock(editInput)
+
+        renderDrawer([mutation], editedEntity)
+        renderDrawerBody()
+
+        await clearAndType(GOVERNANCE_ENTITY_DRAWER_NAME_TEST_ID, 'Departments')
+        await submit()
+
+        await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+        expect(mutation.result).toHaveBeenCalledTimes(1)
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+    })
+
+    describe('WHEN the name and the description are cleared', () => {
+      it('THEN should send them as null', async () => {
+        const mutation = updateMock({ ...editInput, name: null, description: null })
+
+        renderDrawer([mutation], editedEntity)
+        renderDrawerBody()
+
+        await userEvent.clear(inputIn(GOVERNANCE_ENTITY_DRAWER_NAME_TEST_ID))
+        await userEvent.click(
+          screen.getByTestId(GOVERNANCE_ENTITY_DRAWER_REMOVE_DESCRIPTION_TEST_ID),
+        )
+        await submit()
+
+        await waitFor(() => expect(mutation.result).toHaveBeenCalledTimes(1))
+      })
+    })
+
+    describe('WHEN a key chip is removed before submitting', () => {
+      it('THEN should send the reduced keys', async () => {
+        const mutation = updateMock({
+          ...editInput,
+          name: 'Department',
+          attributionKeys: ['team_id'],
+        })
+
+        renderDrawer([mutation], editedEntity)
+        renderDrawerBody()
+
+        const [firstChip] = screen.getAllByTestId(ATTRIBUTION_KEYS_CHIP_TEST_ID)
+
+        await userEvent.click(within(firstChip).getByRole('button'))
+        await submit()
+
+        await waitFor(() => expect(mutation.result).toHaveBeenCalledTimes(1))
+      })
+    })
+
+    describe('WHEN every key chip is removed', () => {
+      it('THEN should show the keys error and not call the mutation', async () => {
+        const mutation = updateMock({ ...editInput, name: 'Department', attributionKeys: [] })
+
+        renderDrawer([mutation], editedEntity)
+        renderDrawerBody()
+
+        for (const chip of screen.getAllByTestId(ATTRIBUTION_KEYS_CHIP_TEST_ID).reverse()) {
+          await userEvent.click(within(chip).getByRole('button'))
+        }
+        await submit()
+
+        expect(await screen.findByTestId(ATTRIBUTION_KEYS_ERROR_TEST_ID)).toBeInTheDocument()
+        expect(mutation.result).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the backend rejects a key already used by another entity', () => {
+      it('THEN should show the error under the chips and keep the drawer open', async () => {
+        const mutation = updateMock(
+          { ...editInput, name: 'Department' },
+          { errors: [valueAlreadyExistError('attributionKeys')] },
+        )
+
+        renderDrawer([mutation], editedEntity)
+        renderDrawerBody()
+
+        await submit()
+
+        expect(await screen.findByTestId(ATTRIBUTION_KEYS_ERROR_TEST_ID)).toBeInTheDocument()
+        expect(mockClose).not.toHaveBeenCalled()
+        expect(addToast).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the backend refuses the change because the entity is already attributed', () => {
+      it('THEN should show a danger toast and keep the drawer open', async () => {
+        const mutation = updateMock(
+          { ...editInput, name: 'Department' },
+          {
+            errors: [
+              new GraphQLError('Unprocessable Entity', {
+                extensions: {
+                  code: 'unprocessable_entity',
+                  details: { code: ['usage_already_attributed'] },
+                },
+              }),
+            ],
+          },
+        )
+
+        renderDrawer([mutation], editedEntity)
+        renderDrawerBody()
+
+        await submit()
+
+        await waitFor(() =>
+          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' })),
+        )
+        expect(mockClose).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a root entity is opened for edition', () => {
+    describe('WHEN the drawer body renders', () => {
+      it('THEN should render an empty disabled parent input', () => {
+        renderDrawer([], { ...editedEntity, parent: null })
+        renderDrawerBody()
+
+        expect(inputIn(GOVERNANCE_ENTITY_DRAWER_PARENT_TEST_ID)).toHaveValue('')
+        expect(inputIn(GOVERNANCE_ENTITY_DRAWER_PARENT_TEST_ID)).toBeDisabled()
       })
     })
   })

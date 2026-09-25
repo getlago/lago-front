@@ -5085,7 +5085,7 @@
   "text_1790236828844imd71hgrduj": "Search and select a governance entity type",
   "text_17902368288446vbtxrw8c8c": "Select the parent of this entity",
   "text_1790236828844kl6o27txp2z": "Attribution keys",
-  "text_1790236828844d337jccs8wz": "Event properties used to identify this entity, such as user_id. Define up to 4 keys.",
+  "text_1790236828844d337jccs8wz": "The event property that identifies this entity, e.g. user_id. Case-sensitive, must match your events exactly. Define up to 4 attribution keys.",
   "text_17902368288445czmo8qbyq7": "Add attribution keys",
   "text_1790236828844qhsvau9gmzf": "Type a key and press enter",
   "text_1790236828844u3fpos3gmly": "Governance entity successfully created",
@@ -5097,5 +5097,14 @@
   "text_1790244192647jne99fxqvme": "Type a governance entity code",
   "text_17902441926478sdl04thios": "Parent (optional)",
   "text_17902441926478qzpulkexcd": "Create governance entity",
-  "text_17902441926471lwe9m10evn": "Add a governance entity"
+  "text_17902441926471lwe9m10evn": "Add a governance entity",
+  "text_1790258263571hbxpulilz78": "Edit entity",
+  "text_1790258263571pzojfvp8gw8": "Delete entity",
+  "text_1790258263571csa7fz44d2x": "Edit a governance entity",
+  "text_179025826357111qsh6tn7d5": "Edit governance entity",
+  "text_1790258263571qp7a5ha9di8": "Governance entity successfully edited",
+  "text_1790258263571gh96is813m8": "You are about to delete this governance entity",
+  "text_1790258263571y2mjnbd2me1": "Delete governance entity",
+  "text_1790258263571oi5bbtne9ts": "Governance entity successfully deleted",
+  "text_17902586874164cq2n2rdi9y": "Deleting this entity type stops attributing usage to it from now on. Every breakdown, roll-up, and downstream flow (alerts, limits, budgets) that depends on it will stop working. Billing remains unaffected."
 }

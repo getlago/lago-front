@@ -1,6 +1,11 @@
 import { z } from 'zod'
 
-import { CreateUsageAttributionTypeInput, UsageAttributionTypeRoleEnum } from '~/generated/graphql'
+import {
+  CreateUsageAttributionTypeInput,
+  GovernanceEntityItemFragment,
+  UpdateUsageAttributionTypeInput,
+  UsageAttributionTypeRoleEnum,
+} from '~/generated/graphql'
 
 export const MAX_ATTRIBUTION_KEYS = 4
 
@@ -66,3 +71,28 @@ export const buildCreateUsageAttributionTypeInput = (
     ...(isHierarchical && values.parentId ? { parentId: values.parentId } : {}),
   }
 }
+
+export type GovernanceEntity = GovernanceEntityItemFragment & {
+  parent: Pick<GovernanceEntityItemFragment, 'id' | 'name' | 'code'> | null
+}
+
+export const mapGovernanceEntityToFormValues = (
+  entity: GovernanceEntity,
+): GovernanceEntityFormValues => ({
+  name: entity.name ?? '',
+  code: entity.code,
+  description: entity.description ?? '',
+  role: entity.role,
+  parentId: entity.parent?.id,
+  attributionKeys: entity.attributionKeys.map((value) => ({ value })),
+})
+
+export const buildUpdateUsageAttributionTypeInput = (
+  id: string,
+  values: GovernanceEntityFormValues,
+): UpdateUsageAttributionTypeInput => ({
+  id,
+  name: values.name || null,
+  description: values.description.trim() ? values.description : null,
+  attributionKeys: values.attributionKeys.map(({ value }) => value.trim()),
+})

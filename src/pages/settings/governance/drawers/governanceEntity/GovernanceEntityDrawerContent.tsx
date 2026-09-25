@@ -7,6 +7,7 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
 import { CreateMoreResetSignal } from '~/components/drawers/createMore/useCreateMore'
+import { BasicComboBoxData } from '~/components/form/ComboBox/types'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
@@ -17,7 +18,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
 import { AttributionKeysField } from './AttributionKeysField'
-import { GOVERNANCE_ENTITY_FORM_DEFAULTS } from './validationSchema'
+import { GOVERNANCE_ENTITY_FORM_DEFAULTS, GovernanceEntity } from './validationSchema'
 
 import { MAX_GOVERNANCE_HIERARCHY_DEPTH } from '../../constants'
 
@@ -80,13 +81,25 @@ export const GOVERNANCE_ENTITY_DRAWER_REMOVE_DESCRIPTION_TEST_ID =
   'governance-entity-drawer-remove-description'
 export const GOVERNANCE_ENTITY_DRAWER_DESCRIPTION_TEST_ID = 'governance-entity-drawer-description'
 
+type GovernanceEntityDrawerFormSectionsProps = {
+  editedEntity?: GovernanceEntity
+}
+
+const governanceEntityDrawerFormSectionsDefaultProps: GovernanceEntityDrawerFormSectionsProps = {
+  editedEntity: undefined,
+}
+
 const GovernanceEntityDrawerFormSections = withForm({
   defaultValues: GOVERNANCE_ENTITY_FORM_DEFAULTS,
-  render: function GovernanceEntityDrawerFormSectionsRender({ form }) {
+  props: governanceEntityDrawerFormSectionsDefaultProps,
+  render: function GovernanceEntityDrawerFormSectionsRender({ form, editedEntity }) {
     const { translate } = useInternationalization()
     const role = useStore(form.store, (state) => state.values.role)
     const isHierarchical = role === UsageAttributionTypeRoleEnum.Hierarchical
-    const [shouldDisplayDescription, setShouldDisplayDescription] = useState(false)
+    const isEdition = !!editedEntity
+    const [shouldDisplayDescription, setShouldDisplayDescription] = useState(
+      !!editedEntity?.description,
+    )
 
     const handleHideDescription = (): void => {
       if (form.state.values.description) {
@@ -95,7 +108,7 @@ const GovernanceEntityDrawerFormSections = withForm({
       setShouldDisplayDescription(false)
     }
 
-    const [getParentOptions, { data: parentOptionsData, loading: parentOptionsLoading }] =
+    const [fetchParentOptions, { data: parentOptionsData, loading: parentOptionsLoading }] =
       useGetGovernanceEntityParentOptionsLazyQuery({
         variables: { limit: PARENT_OPTIONS_LIMIT },
         fetchPolicy: 'no-cache',
@@ -113,13 +126,19 @@ const GovernanceEntityDrawerFormSections = withForm({
       },
     ]
 
-    const parentOptions = (parentOptionsData?.usageAttributionTypes.collection ?? []).map(
-      (option) => ({
+    const getParentOptions = (): BasicComboBoxData[] => {
+      if (editedEntity) {
+        const { parent } = editedEntity
+
+        return parent ? [{ value: parent.id, label: parent.name || parent.code }] : []
+      }
+
+      return (parentOptionsData?.usageAttributionTypes.collection ?? []).map((option) => ({
         value: option.id,
         label: option.name || option.code,
         disabled: countAncestors(option) >= MAX_GOVERNANCE_HIERARCHY_DEPTH,
-      }),
-    )
+      }))
+    }
 
     const handleRoleChange = ({ value }: { value: string | undefined }): void => {
       if (value !== UsageAttributionTypeRoleEnum.Hierarchical && form.state.values.parentId) {
@@ -176,7 +195,9 @@ const GovernanceEntityDrawerFormSections = withForm({
       <>
         <div className="flex flex-col gap-2">
           <Typography variant="headline" color="grey700">
-            {translate('text_1790236824869cg5v2b6hasb')}
+            {translate(
+              isEdition ? 'text_1790258263571csa7fz44d2x' : 'text_1790236824869cg5v2b6hasb',
+            )}
           </Typography>
           <Typography variant="body" color="grey600">
             {translate('text_1790236828844ag7c1onjptx')}
@@ -192,6 +213,7 @@ const GovernanceEntityDrawerFormSections = withForm({
           <NameAndCodeGroup
             form={form}
             fields={{ name: 'name', code: 'code' }}
+            disableCodeInput={isEdition}
             nameProps={{
               autoFocus: true,
               placeholder: translate('text_1790244192647frw2pd32d3b'),
@@ -207,6 +229,7 @@ const GovernanceEntityDrawerFormSections = withForm({
             {(field) => (
               <field.ComboBoxField
                 disableClearable
+                disabled={isEdition}
                 label={translate('text_6560809c38fb9de88d8a52fb')}
                 placeholder={translate('text_1790236828844imd71hgrduj')}
                 data={roleOptions}
@@ -222,9 +245,10 @@ const GovernanceEntityDrawerFormSections = withForm({
                 <field.ComboBoxField
                   label={translate('text_17902441926478sdl04thios')}
                   placeholder={translate('text_17902368288446vbtxrw8c8c')}
-                  data={parentOptions}
+                  disabled={isEdition}
+                  data={getParentOptions()}
                   loading={parentOptionsLoading}
-                  searchQuery={getParentOptions}
+                  searchQuery={isEdition ? undefined : fetchParentOptions}
                   dataTest={GOVERNANCE_ENTITY_DRAWER_PARENT_TEST_ID}
                   PopperProps={{ displayInDialog: true }}
                 />
@@ -239,21 +263,22 @@ const GovernanceEntityDrawerFormSections = withForm({
   },
 })
 
-type GovernanceEntityDrawerContentExtraProps = {
+type GovernanceEntityDrawerContentExtraProps = GovernanceEntityDrawerFormSectionsProps & {
   resetSignal?: CreateMoreResetSignal
 }
 
 const governanceEntityDrawerContentDefaultProps: GovernanceEntityDrawerContentExtraProps = {
   resetSignal: undefined,
+  editedEntity: undefined,
 }
 
 export const GovernanceEntityDrawerContent = withForm({
   defaultValues: GOVERNANCE_ENTITY_FORM_DEFAULTS,
   props: governanceEntityDrawerContentDefaultProps,
-  render: function GovernanceEntityDrawerContentRender({ form, resetSignal }) {
+  render: function GovernanceEntityDrawerContentRender({ form, resetSignal, editedEntity }) {
     return (
       <CreateMoreResetBoundary resetSignal={resetSignal}>
-        <GovernanceEntityDrawerFormSections form={form} />
+        <GovernanceEntityDrawerFormSections form={form} editedEntity={editedEntity} />
       </CreateMoreResetBoundary>
     )
   },

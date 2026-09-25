@@ -6203,7 +6203,7 @@ export type Mutation = {
   updateCharge?: Maybe<Charge>;
   /** Updates an existing Charge Filter */
   updateChargeFilter?: Maybe<ChargeFilter>;
-  /** Updates a pending contract */
+  /** Updates a contract; once active, only its administrative settings */
   updateContract?: Maybe<Contract>;
   /** Update an existing coupon */
   updateCoupon?: Maybe<Coupon>;
@@ -18222,7 +18222,7 @@ export type GetXeroIntegrationsListQuery = { __typename?: 'Query', integrations?
       | { __typename?: 'XeroIntegration', id: string, name: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null }
     > } | null };
 
-export type GovernanceEntityItemFragment = { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any };
+export type GovernanceEntityItemFragment = { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any };
 
 export type GetGovernanceEntitiesQueryVariables = Exact<{
   role?: InputMaybe<UsageAttributionTypeRoleEnum>;
@@ -18232,7 +18232,7 @@ export type GetGovernanceEntitiesQueryVariables = Exact<{
 }>;
 
 
-export type GetGovernanceEntitiesQuery = { __typename?: 'Query', usageAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string }> }> }> }> }> }> }> }> }> }> }> }> } };
+export type GetGovernanceEntitiesQuery = { __typename?: 'Query', usageAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string }> }> }> }> }> }> }> }> }> }> }> }> } };
 
 export type GetGovernanceEntitiesRoleCountsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -18252,7 +18252,21 @@ export type CreateGovernanceEntityMutationVariables = Exact<{
 }>;
 
 
-export type CreateGovernanceEntityMutation = { __typename?: 'Mutation', createUsageAttributionType?: { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, role: UsageAttributionTypeRoleEnum, createdAt: any } | null };
+export type CreateGovernanceEntityMutation = { __typename?: 'Mutation', createUsageAttributionType?: { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any } | null };
+
+export type UpdateGovernanceEntityMutationVariables = Exact<{
+  input: UpdateUsageAttributionTypeInput;
+}>;
+
+
+export type UpdateGovernanceEntityMutation = { __typename?: 'Mutation', updateUsageAttributionType?: { __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any } | null };
+
+export type DestroyGovernanceEntityMutationVariables = Exact<{
+  input: DestroyUsageAttributionTypeInput;
+}>;
+
+
+export type DestroyGovernanceEntityMutation = { __typename?: 'Mutation', destroyUsageAttributionType?: { __typename?: 'DestroyUsageAttributionTypePayload', id?: string | null } | null };
 
 export type AnrokIntegrationMapItemDrawerFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
 
@@ -24890,7 +24904,9 @@ export const GovernanceEntityItemFragmentDoc = gql`
   id
   name
   code
+  description
   role
+  attributionKeys
   createdAt
 }
     `;
@@ -50618,6 +50634,73 @@ export function useCreateGovernanceEntityMutation(baseOptions?: Apollo.MutationH
 export type CreateGovernanceEntityMutationHookResult = ReturnType<typeof useCreateGovernanceEntityMutation>;
 export type CreateGovernanceEntityMutationResult = Apollo.MutationResult<CreateGovernanceEntityMutation>;
 export type CreateGovernanceEntityMutationOptions = Apollo.BaseMutationOptions<CreateGovernanceEntityMutation, CreateGovernanceEntityMutationVariables>;
+export const UpdateGovernanceEntityDocument = gql`
+    mutation updateGovernanceEntity($input: UpdateUsageAttributionTypeInput!) {
+  updateUsageAttributionType(input: $input) {
+    id
+    ...GovernanceEntityItem
+  }
+}
+    ${GovernanceEntityItemFragmentDoc}`;
+export type UpdateGovernanceEntityMutationFn = Apollo.MutationFunction<UpdateGovernanceEntityMutation, UpdateGovernanceEntityMutationVariables>;
+
+/**
+ * __useUpdateGovernanceEntityMutation__
+ *
+ * To run a mutation, you first call `useUpdateGovernanceEntityMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateGovernanceEntityMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateGovernanceEntityMutation, { data, loading, error }] = useUpdateGovernanceEntityMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateGovernanceEntityMutation(baseOptions?: Apollo.MutationHookOptions<UpdateGovernanceEntityMutation, UpdateGovernanceEntityMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateGovernanceEntityMutation, UpdateGovernanceEntityMutationVariables>(UpdateGovernanceEntityDocument, options);
+      }
+export type UpdateGovernanceEntityMutationHookResult = ReturnType<typeof useUpdateGovernanceEntityMutation>;
+export type UpdateGovernanceEntityMutationResult = Apollo.MutationResult<UpdateGovernanceEntityMutation>;
+export type UpdateGovernanceEntityMutationOptions = Apollo.BaseMutationOptions<UpdateGovernanceEntityMutation, UpdateGovernanceEntityMutationVariables>;
+export const DestroyGovernanceEntityDocument = gql`
+    mutation destroyGovernanceEntity($input: DestroyUsageAttributionTypeInput!) {
+  destroyUsageAttributionType(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyGovernanceEntityMutationFn = Apollo.MutationFunction<DestroyGovernanceEntityMutation, DestroyGovernanceEntityMutationVariables>;
+
+/**
+ * __useDestroyGovernanceEntityMutation__
+ *
+ * To run a mutation, you first call `useDestroyGovernanceEntityMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyGovernanceEntityMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyGovernanceEntityMutation, { data, loading, error }] = useDestroyGovernanceEntityMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyGovernanceEntityMutation(baseOptions?: Apollo.MutationHookOptions<DestroyGovernanceEntityMutation, DestroyGovernanceEntityMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyGovernanceEntityMutation, DestroyGovernanceEntityMutationVariables>(DestroyGovernanceEntityDocument, options);
+      }
+export type DestroyGovernanceEntityMutationHookResult = ReturnType<typeof useDestroyGovernanceEntityMutation>;
+export type DestroyGovernanceEntityMutationResult = Apollo.MutationResult<DestroyGovernanceEntityMutation>;
+export type DestroyGovernanceEntityMutationOptions = Apollo.BaseMutationOptions<DestroyGovernanceEntityMutation, DestroyGovernanceEntityMutationVariables>;
 export const CreateAnrokIntegrationCollectionMappingDocument = gql`
     mutation createAnrokIntegrationCollectionMapping($input: CreateIntegrationCollectionMappingInput!) {
   createIntegrationCollectionMapping(input: $input) {

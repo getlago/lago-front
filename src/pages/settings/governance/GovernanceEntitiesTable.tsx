@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { Chip } from '~/components/designSystem/Chip'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
@@ -15,15 +16,21 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 
 import { MAX_GOVERNANCE_HIERARCHY_DEPTH } from './constants'
+import { useGovernanceEntityDrawer } from './drawers/governanceEntity/useGovernanceEntityDrawer'
+import { GovernanceEntity } from './drawers/governanceEntity/validationSchema'
+import { useDeleteGovernanceEntityDialog } from './useDeleteGovernanceEntityDialog'
 
 gql`
   fragment GovernanceEntityItem on UsageAttributionType {
     id
     name
     code
+    description
     role
+    attributionKeys
     createdAt
   }
 
@@ -115,16 +122,24 @@ type GovernanceEntityNode = GovernanceEntityItemFragment & {
   children?: Array<GovernanceEntityNode | GovernanceEntityProbe>
 }
 
-type GovernanceEntityRow = GovernanceEntityItemFragment & { depth: number }
+type GovernanceEntityRow = GovernanceEntity & { depth: number }
 
 const isEntityNode = (
   node: GovernanceEntityNode | GovernanceEntityProbe,
 ): node is GovernanceEntityNode => 'code' in node
 
-const flattenTree = (nodes: GovernanceEntityNode[], depth = 0): GovernanceEntityRow[] =>
+const flattenTree = (
+  nodes: GovernanceEntityNode[],
+  depth = 0,
+  parent: GovernanceEntity['parent'] = null,
+): GovernanceEntityRow[] =>
   nodes.flatMap(({ children, ...node }) => [
-    { ...node, depth },
-    ...flattenTree((children ?? []).filter(isEntityNode), depth + 1),
+    { ...node, parent, depth },
+    ...flattenTree((children ?? []).filter(isEntityNode), depth + 1, {
+      id: node.id,
+      name: node.name,
+      code: node.code,
+    }),
   ])
 
 const exceedsMaxDepth = (nodes: GovernanceEntityNode[], depth = 0): boolean =>
@@ -159,6 +174,8 @@ const GovernanceEntityNameCell = ({
 
 export const GOVERNANCE_ENTITIES_TABLE_NAME = 'governance-settings-entities'
 export const GOVERNANCE_ENTITIES_TABLE_TEST_ID = `table-${GOVERNANCE_ENTITIES_TABLE_NAME}`
+export const GOVERNANCE_ENTITY_EDIT_ACTION_TEST_ID = 'governance-entity-edit-action'
+export const GOVERNANCE_ENTITY_DELETE_ACTION_TEST_ID = 'governance-entity-delete-action'
 
 type GovernanceEntitiesTableProps =
   { role: UsageAttributionTypeRoleEnum; isLoading?: never } | { role?: never; isLoading: true }
@@ -172,6 +189,11 @@ export const GovernanceEntitiesTable = ({
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { page, goToPage } = usePageSearchParam()
   const isHierarchical = role === UsageAttributionTypeRoleEnum.Hierarchical
+  const { hasPermissions } = usePermissions()
+  const { openDrawer } = useGovernanceEntityDrawer()
+  const { openDeleteGovernanceEntityDialog } = useDeleteGovernanceEntityDialog()
+  const canUpdate = hasPermissions(['usageAttributionTypesUpdate'])
+  const canDelete = hasPermissions(['usageAttributionTypesDelete'])
 
   const { data, error, loading } = useGetGovernanceEntitiesQuery({
     variables: { role, roots: isHierarchical, limit: pageSize, page },
@@ -182,6 +204,30 @@ export const GovernanceEntitiesTable = ({
 
   const { metadata, collection } = data?.usageAttributionTypes || {}
   const rows = flattenTree(collection ?? [])
+
+  const getRowActions = (entity: GovernanceEntityRow): ActionItem<GovernanceEntityRow>[] => {
+    const actions: ActionItem<GovernanceEntityRow>[] = []
+
+    if (canUpdate) {
+      actions.push({
+        title: translate('text_1790258263571hbxpulilz78'),
+        startIcon: 'pen',
+        dataTest: GOVERNANCE_ENTITY_EDIT_ACTION_TEST_ID,
+        onAction: () => openDrawer(entity),
+      })
+    }
+
+    if (canDelete) {
+      actions.push({
+        title: translate('text_1790258263571pzojfvp8gw8'),
+        startIcon: 'trash',
+        dataTest: GOVERNANCE_ENTITY_DELETE_ACTION_TEST_ID,
+        onAction: () => openDeleteGovernanceEntityDialog(entity),
+      })
+    }
+
+    return actions
+  }
 
   useEffect(() => {
     if (!collection || !exceedsMaxDepth(collection)) return
@@ -222,6 +268,10 @@ export const GovernanceEntitiesTable = ({
             buttonAction: () => location.reload(),
           },
         }}
+        actionColumnTooltip={
+          canUpdate && canDelete ? () => translate('text_626162c62f790600f850b7b6') : undefined
+        }
+        actionColumn={canUpdate || canDelete ? getRowActions : undefined}
         columns={[
           {
             key: 'name',
