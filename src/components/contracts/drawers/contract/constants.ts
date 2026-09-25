@@ -17,6 +17,9 @@ export const CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID = 'contract-drawer-plan-combo
 export const VALUE_REQUIRED_KEY = 'text_620bc4d4269a55014d493f98'
 
 export const CONTRACT_DRAWER_TITLE_CREATE_KEY = 'text_1789552637140uev14bbwspq'
+export const CONTRACT_DRAWER_TITLE_EDIT_KEY = 'text_1790280529941j6gx3fiaisz'
+export const CONTRACT_DRAWER_UPDATE_SUCCESS_KEY = 'text_1790280529941qgc3lu3ni4u'
+export const CONTRACT_DRAWER_UPDATE_ERROR_KEY = 'text_1790280529941yrthm7q5e68'
 
 /**
  * `externalCustomerId` and `planCode` mirror `CreateContractInput`, which is keyed on
@@ -28,6 +31,8 @@ export interface ContractFormValues {
   externalCustomerId: string
   externalId: string
   planCode: string
+  // `planCode` is optional on the API: only a contract edited without a plan may leave it empty.
+  isPlanRequired: boolean
   name: string
   billingEntityId?: string
   consolidateInvoice: boolean
@@ -35,6 +40,8 @@ export interface ContractFormValues {
   purchaseOrderNumber?: string | null
   startedAt: string
   endedAt?: string
+  // The stored end date: `Contracts::UpdateService` accepts it resent unchanged, even once passed.
+  initialEndedAt?: string
   billingAnchorDate: string
 }
 
@@ -43,6 +50,11 @@ export interface ContractDrawerCustomer {
   displayName?: string | null
   applicableTimezone?: TimezoneEnum | null
   billingEntityId?: string
+}
+
+export interface ContractDrawerPlan {
+  code: string
+  name: string
 }
 
 export const buildContractFormDefaults = (
@@ -54,6 +66,7 @@ export const buildContractFormDefaults = (
     externalCustomerId: customer?.externalId ?? '',
     externalId: '',
     planCode: '',
+    isPlanRequired: true,
     name: '',
     billingEntityId: customer?.billingEntityId,
     consolidateInvoice: true,
@@ -61,6 +74,7 @@ export const buildContractFormDefaults = (
     purchaseOrderNumber: undefined,
     startedAt: today,
     endedAt: undefined,
+    initialEndedAt: undefined,
     billingAnchorDate: today,
   }
 }
@@ -73,6 +87,7 @@ export const CONTRACT_FORM_DEFAULTS: ContractFormValues = {
   externalCustomerId: '',
   externalId: '',
   planCode: '',
+  isPlanRequired: true,
   name: '',
   billingEntityId: undefined,
   consolidateInvoice: true,
@@ -80,5 +95,6 @@ export const CONTRACT_FORM_DEFAULTS: ContractFormValues = {
   purchaseOrderNumber: undefined,
   startedAt: '2026-01-01',
   endedAt: undefined,
+  initialEndedAt: undefined,
   billingAnchorDate: '2026-01-01',
 }

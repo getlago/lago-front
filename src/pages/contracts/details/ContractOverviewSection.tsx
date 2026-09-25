@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { generatePath, useParams } from 'react-router'
 
 import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
+import { useContractDrawer } from '~/components/contracts/drawers/contract/useContractDrawer'
 import { Status } from '~/components/designSystem/Status'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -13,12 +14,14 @@ import { CatalogPlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CATALOG_PLAN_DETAILS_ROUTE, CUSTOMER_DETAILS_ROUTE, Link } from '~/core/router'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
+  ContractForContractDrawerFragmentDoc,
   ContractStatusEnum,
   LagoApiError,
   TimezoneEnum,
   useGetContractForDetailsOverviewQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useContractPermissionsActions } from '~/hooks/useContractPermissionsActions'
 
 gql`
   fragment ContractForContractDetailsOverview on Contract {
@@ -53,6 +56,7 @@ gql`
       id
       name
     }
+    ...ContractForContractDrawer
   }
 
   query getContractForDetailsOverview($id: ID!) {
@@ -60,11 +64,17 @@ gql`
       ...ContractForContractDetailsOverview
     }
   }
+
+  ${ContractForContractDrawerFragmentDoc}
 `
+
+export const CONTRACT_OVERVIEW_EDIT_TEST_ID = 'contract-overview-edit'
 
 export const ContractOverviewSection = (): JSX.Element => {
   const { id = '' } = useParams()
   const { translate } = useInternationalization()
+  const { canEditContract } = useContractPermissionsActions()
+  const { openDrawer: openContractDrawer } = useContractDrawer()
   const { data, loading } = useGetContractForDetailsOverviewQuery({
     variables: { id },
     skip: !id,
@@ -101,6 +111,15 @@ export const ContractOverviewSection = (): JSX.Element => {
       }
     : undefined
 
+  const editAction =
+    contract && canEditContract(contract.status)
+      ? {
+          label: translate('text_625fd39a15394c0117e7d792'),
+          dataTest: CONTRACT_OVERVIEW_EDIT_TEST_ID,
+          onClick: () => openContractDrawer({ contract }),
+        }
+      : undefined
+
   return (
     <div className="flex flex-col gap-12">
       <section className="flex flex-col gap-6 pb-12 shadow-b">
@@ -108,6 +127,7 @@ export const ContractOverviewSection = (): JSX.Element => {
           title={translate('text_1789552637141n7ijvldeali')}
           description={translate('text_1789552637141hh9khhh71bm')}
           contentClassName="gap-2"
+          action={editAction}
         />
         <DetailsPage.InfoGrid
           grid={[

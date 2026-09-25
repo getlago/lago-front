@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { generatePath } from 'react-router'
 
 import { ContractsList } from '~/components/contracts/ContractsList'
+import { useContractDrawer } from '~/components/contracts/drawers/contract/useContractDrawer'
 import { getContractDisplayName } from '~/components/contracts/getContractDisplayName'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
@@ -13,13 +14,13 @@ import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import { CONTRACT_DETAILS_ROUTE } from '~/core/router'
 import {
+  ContractForContractsListItemFragmentDoc,
   ContractForCustomerContractsListFragment,
   TimezoneEnum,
   useGetCustomerContractsListQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { useContractDrawer } from '~/pages/contracts/drawers/contract/useContractDrawer'
 
 export const CUSTOMER_CONTRACTS_CREATE_TEST_ID = 'customer-contracts-create'
 
@@ -35,6 +36,7 @@ gql`
       id
       name
     }
+    ...ContractForContractsListItem
   }
 
   query getCustomerContractsList($externalCustomerId: String!, $page: Int, $limit: Int) {
@@ -49,6 +51,8 @@ gql`
       }
     }
   }
+
+  ${ContractForContractsListItemFragmentDoc}
 `
 
 type CustomerContractsListProps = {

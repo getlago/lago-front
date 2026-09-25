@@ -1,6 +1,7 @@
 import { fireEvent, screen } from '@testing-library/react'
 import { ReactNode } from 'react'
 
+import { contractForDrawerFixture } from '~/components/contracts/drawers/contract/__tests__/fixtures'
 import { TableProps } from '~/components/designSystem/Table/Table'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CONTRACT_DETAILS_ROUTE } from '~/core/router'
@@ -62,7 +63,7 @@ jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
 
-jest.mock('~/pages/contracts/drawers/contract/useContractDrawer', () => ({
+jest.mock('~/components/contracts/drawers/contract/useContractDrawer', () => ({
   useContractDrawer: () => ({ openDrawer: mockOpenContractDrawer }),
 }))
 
@@ -76,14 +77,14 @@ const customer = {
 }
 
 const contract: ContractForCustomerContractsListFragment = {
-  __typename: 'Contract',
+  ...contractForDrawerFixture,
   id: 'contract-1',
   name: 'Enterprise agreement',
   externalId: 'enterprise-2026',
   status: ContractStatusEnum.Active,
   startedAt: '2026-06-11T00:00:00Z',
   endedAt: '2027-06-11T00:00:00Z',
-  plan: { __typename: 'CatalogPlan', id: 'plan-1', name: 'Enterprise plan' },
+  plan: { __typename: 'CatalogPlan', id: 'plan-1', name: 'Enterprise plan', code: 'enterprise' },
 }
 
 const metadata = { currentPage: 2, totalPages: 3, totalCount: 45 }

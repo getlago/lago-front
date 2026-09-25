@@ -5067,5 +5067,8 @@
   "text_178997175113710y2zapz4c9": "By terminating this contract, the customer will stop being billed for it and no new invoice will be issued. This action cannot be undone. Are you sure?",
   "text_1789971751137drk22mafo3k": "By canceling this contract, it will never start and the customer will never be billed for it. This action cannot be undone. Are you sure?",
   "text_1789971751137egm0tdl3q96": "Contract successfully terminated",
-  "text_1789971751137982utge606b": "Contract successfully canceled"
+  "text_1789971751137982utge606b": "Contract successfully canceled",
+  "text_1790280529941j6gx3fiaisz": "Edit contract",
+  "text_1790280529941qgc3lu3ni4u": "Contract successfully updated",
+  "text_1790280529941yrthm7q5e68": "This contract could not be updated. Please check its settings and try again."
 }
