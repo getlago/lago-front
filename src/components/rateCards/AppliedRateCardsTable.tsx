@@ -140,7 +140,7 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
     return {
       title: translate('text_1790284386156k2d8mjjy98f'),
       startIcon: 'trash',
-      ...(removal.status === 'disabled' && { disabled: true, tooltip: removal.tooltip }),
+      disabled: removal.status === 'disabled',
       onAction: () => onRemoveRateCard(row),
     }
   }

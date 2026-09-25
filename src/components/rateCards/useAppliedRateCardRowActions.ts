@@ -2,7 +2,6 @@ import { useApolloClient } from '@apollo/client'
 
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { useRemoveAppliedRateCardDialog } from './dialogs/useRemoveAppliedRateCardDialog'
@@ -14,12 +13,10 @@ const CONTEXT_CONFIG = {
   plan: {
     parentTypename: 'CatalogPlan',
     updatePermission: 'plansUpdate',
-    lockedTooltipKey: 'text_1790345637508miwf8p8xngh',
   },
   contract: {
     parentTypename: 'Contract',
     updatePermission: 'contractsUpdate',
-    lockedTooltipKey: 'text_1790345637508xe0d915vill',
   },
 } as const
 
@@ -42,7 +39,6 @@ export const useAppliedRateCardRowActions = ({
   isRemovalLocked,
   onRemoved,
 }: UseAppliedRateCardRowActionsParams): AppliedRateCardRowActions => {
-  const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const client = useApolloClient()
   const { openRemoveAppliedRateCardDialog } = useRemoveAppliedRateCardDialog()
@@ -50,7 +46,7 @@ export const useAppliedRateCardRowActions = ({
 
   const getRemoval = (): RateCardRemoval => {
     if (!hasPermissions([config.updatePermission])) return { status: 'hidden' }
-    if (isRemovalLocked) return { status: 'disabled', tooltip: translate(config.lockedTooltipKey) }
+    if (isRemovalLocked) return { status: 'disabled' }
 
     return { status: 'enabled' }
   }

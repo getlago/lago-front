@@ -231,7 +231,7 @@ describe('AppliedRateCardsTable', () => {
         getRateCardHref={() => '/somewhere'}
         onCopyRateCardCode={noop}
         onRemoveRateCard={onRemoveRateCard}
-        removal={{ status: 'disabled', tooltip: 'locked' }}
+        removal={{ status: 'disabled' }}
       />,
     )
 

@@ -9,7 +9,6 @@ export type AppliedRateCardRow =
 
 export type AppliedRateCardContext = 'plan' | 'contract'
 
-export type RateCardRemoval =
-  { status: 'hidden' } | { status: 'enabled' } | { status: 'disabled'; tooltip: string }
+export type RateCardRemoval = { status: 'hidden' } | { status: 'enabled' } | { status: 'disabled' }
 
 export const STANDALONE_GROUP_KEY = '__standalone__'

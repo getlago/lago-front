@@ -13,12 +13,6 @@ jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
 
-jest.mock('~/hooks/core/useInternationalization', () => ({
-  useInternationalization: () => ({
-    translate: (key: string) => key,
-  }),
-}))
-
 const wrapper = ({ children }: { children: ReactNode }): JSX.Element => (
   <AllTheProviders>
     <NiceModal.Provider>{children}</NiceModal.Provider>
@@ -45,14 +39,12 @@ describe('useAppliedRateCardRowActions', () => {
     {
       context: 'plan' as const,
       permission: 'plansUpdate',
-      tooltip: 'text_1790345637508miwf8p8xngh',
     },
     {
       context: 'contract' as const,
       permission: 'contractsUpdate',
-      tooltip: 'text_1790345637508xe0d915vill',
     },
-  ])('GIVEN the $context context', ({ context, permission, tooltip }) => {
+  ])('GIVEN the $context context', ({ context, permission }) => {
     it('THEN checks its own update permission and hides removal without it', () => {
       mockHasPermissions.mockReturnValue(false)
 
@@ -60,10 +52,10 @@ describe('useAppliedRateCardRowActions', () => {
       expect(mockHasPermissions).toHaveBeenCalledWith([permission])
     })
 
-    it('THEN disables removal with the context tooltip when locked', () => {
+    it('THEN disables removal when locked', () => {
       mockHasPermissions.mockReturnValue(true)
 
-      expect(renderRemoval(context, true)).toEqual({ status: 'disabled', tooltip })
+      expect(renderRemoval(context, true)).toEqual({ status: 'disabled' })
     })
 
     it('THEN enables removal when permitted and unlocked', () => {
