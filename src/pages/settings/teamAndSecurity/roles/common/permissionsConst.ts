@@ -52,10 +52,10 @@ export const permissionGroupMapping: PermissionGroupMapping = {
   ],
   features: ['FeaturesCreate', 'FeaturesDelete', 'FeaturesUpdate', 'FeaturesView'],
   usageAttributionTypes: [
-    'UsageAttributionTypesView',
     'UsageAttributionTypesCreate',
     'UsageAttributionTypesUpdate',
     'UsageAttributionTypesDelete',
+    'UsageAttributionTypesView',
   ],
   invoiceCustomSections: [
     'InvoiceCustomSectionsCreate',
