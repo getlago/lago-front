@@ -5067,5 +5067,19 @@
   "text_178997175113710y2zapz4c9": "By terminating this contract, the customer will stop being billed for it and no new invoice will be issued. This action cannot be undone. Are you sure?",
   "text_1789971751137drk22mafo3k": "By canceling this contract, it will never start and the customer will never be billed for it. This action cannot be undone. Are you sure?",
   "text_1789971751137egm0tdl3q96": "Contract successfully terminated",
-  "text_1789971751137982utge606b": "Contract successfully canceled"
+  "text_1789971751137982utge606b": "Contract successfully canceled",
+  "text_1790283913718mpxv4h76ne5": "Remove {{name}}?",
+  "text_1790283913718aiyuge7g45l": "This rate card will no longer be applied and its rate phases will be lost. This action cannot be undone.",
+  "text_1790283913718ou6jmxoxnea": "Remove",
+  "text_1790283913718436odi8om57": "Rate card removed",
+  "text_1790284386156njn3ittr9qj": "Standalone product",
+  "text_1790284386156lsvbnuzz5s7": "Product / filter",
+  "text_17902843861564ti9tbk3ide": "Rate card",
+  "text_17902843861566isyrs5l0jm": "# phases",
+  "text_1790284386156m6phatx4cxa": "Copy rate card code",
+  "text_1790284386156k2d8mjjy98f": "Remove rate card",
+  "text_17902866782060xpq8p9bh3a": "Rate card",
+  "text_1790286678206xilydvk4a1n": "Phase",
+  "text_1790286678206zy40b7ktge5": "This page isn't ready yet",
+  "text_17902866782061brel90bgxt": "We're still building this page. Check back soon."
 }
