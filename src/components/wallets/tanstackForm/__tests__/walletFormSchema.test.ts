@@ -2,6 +2,7 @@ import {
   PURCHASE_ORDER_NUMBER_MAX_LENGTH,
   PURCHASE_ORDER_TRANSLATIONS,
 } from '~/components/purchaseOrder/constants'
+import { INVALID_DATE_VALUE, UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
 import { makeEmptyWalletItem } from '~/core/serializers/serializeQuoteWallets'
 import {
   RecurringTransactionIntervalEnum,
@@ -16,6 +17,7 @@ import {
   settingsToItem,
   topUpWithinLimits,
   walletFreeAndPaidSchema,
+  walletRecurringSchema,
   type WalletRecurringSlice,
   walletSettingsSchema,
 } from '../walletFormSchema'
@@ -107,6 +109,33 @@ describe('walletFormSchema', () => {
 
     expect(result.success).toBe(true)
   })
+
+  it('flags a settings expiration date that does not exist', () => {
+    const result = walletSettingsSchema.safeParse(settings({ expirationAt: INVALID_DATE_VALUE }))
+
+    expect(settingsMessage(result, 'expirationAt')).toBe(UNSUPPORTED_DATE_ERROR)
+  })
+
+  it.each(['startedAt', 'expirationAt'] as const)(
+    'flags a recurring %s that does not exist',
+    (path) => {
+      const result = walletRecurringSchema().safeParse({
+        ...itemToRecurring(makeEmptyWalletItem('wl_1')),
+        enabled: true,
+        method: RecurringTransactionMethodEnum.Fixed,
+        paidCredits: '10',
+        trigger: RecurringTransactionTriggerEnum.Interval,
+        interval: RecurringTransactionIntervalEnum.Monthly,
+        [path]: INVALID_DATE_VALUE,
+      })
+
+      expect(
+        result.success
+          ? undefined
+          : result.error.issues.find((issue) => issue.path[0] === path)?.message,
+      ).toBe(UNSUPPORTED_DATE_ERROR)
+    },
+  )
 
   it('flags a non-numeric min/max with their respective messages', () => {
     const minResult = walletSettingsSchema.safeParse(settings({ paidTopUpMinAmountCents: 'abc' }))

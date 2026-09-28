@@ -685,7 +685,12 @@ describe('CreateCoupon', () => {
         await user.keyboard('{ArrowRight}30')
 
         expect(dateInput).toHaveValue('02/30/2027')
-        expect(screen.getByTestId('submit')).toBeDisabled()
+
+        await user.click(screen.getByTestId('submit'))
+
+        await waitFor(() => {
+          expect(screen.getByTestId('submit')).toBeDisabled()
+        })
         expect(mockOnSave).not.toHaveBeenCalled()
       })
     })

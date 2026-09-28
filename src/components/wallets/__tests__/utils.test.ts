@@ -6,6 +6,7 @@ import {
   getWordingForWalletCreationAlert,
   toNumber,
 } from '~/components/wallets/utils'
+import { INVALID_DATE_VALUE } from '~/core/constants/form'
 import {
   CurrencyEnum,
   RecurringTransactionIntervalEnum,
@@ -125,6 +126,34 @@ describe('Wallet Utils', () => {
       customerTimezone: TimezoneEnum.TzEuropeParis,
       translate: (key: string) => key,
     }
+
+    describe('GIVEN a recurring start date that does not exist', () => {
+      it('THEN should word the alert as if no start date were set', () => {
+        const withVariables = {
+          ...options,
+          translate: (key: string, data?: Record<string, unknown>) =>
+            `${key}${JSON.stringify(data)}`,
+        }
+        const rule = {
+          trigger: RecurringTransactionTriggerEnum.Interval,
+          interval: RecurringTransactionIntervalEnum.Monthly,
+          method: RecurringTransactionMethodEnum.Fixed,
+        }
+        const wordingWithStartedAt = (startedAt?: string): string =>
+          getWordingForWalletCreationAlert({
+            ...withVariables,
+            recurringRulesValues: rule,
+            walletValues: {
+              ...walletValuesFixture,
+              recurringTransactionRules: [
+                { ...walletValuesFixture.recurringTransactionRules?.[0], ...rule, startedAt },
+              ],
+            },
+          })
+
+        expect(wordingWithStartedAt(INVALID_DATE_VALUE)).toBe(wordingWithStartedAt(undefined))
+      })
+    })
 
     describe('Interval Trigger And Reachable day', () => {
       beforeAll(() => {

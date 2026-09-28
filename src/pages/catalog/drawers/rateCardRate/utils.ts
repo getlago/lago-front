@@ -46,7 +46,10 @@ export const formatEffectiveDate = (isoDate: string): string =>
 export const isEffectiveFromAppendable = (isoDate: string, boundary: string | null): boolean => {
   if (!isoDate || !boundary) return true
 
-  return DateTime.fromISO(isoDate) > DateTime.fromISO(boundary)
+  const date = DateTime.fromISO(isoDate)
+
+  // A date that does not exist is `addUnsupportedDateIssue`'s to report, not an ordering error.
+  return !date.isValid || date > DateTime.fromISO(boundary)
 }
 
 // Carries a boundary moved by a save across a form reset, which re-derives it from an older

@@ -1,8 +1,9 @@
 import { DateTime } from 'luxon'
 import { z } from 'zod'
 
-import { UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
+import { INVALID_DATE_VALUE, UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
 import {
+  addUnparseableDateIssue,
   addUnsupportedDateIssue,
   PASSWORD_VALIDATION_ERRORS,
   validatePassword,
@@ -565,6 +566,40 @@ describe('zodCustoms', () => {
             .safeParse('2026-09-02T00:00:00.000Z')
 
           expect(added).toEqual([false])
+        })
+      })
+    })
+  })
+  describe('addUnparseableDateIssue', () => {
+    const parse = (value: string | null | undefined) =>
+      z
+        .custom<{ date: string | null | undefined }>()
+        .superRefine((data, ctx) => {
+          addUnparseableDateIssue(ctx, data.date, ['date'])
+        })
+        .safeParse({ date: value })
+
+    describe.each([
+      ['undefined', undefined],
+      ['an empty string', ''],
+      ['a valid instant', '2026-09-02T00:00:00.000Z'],
+      ['an instant before the 1970 floor', '1969-12-31T23:59:59.999Z'],
+    ])('GIVEN %s', (_, value) => {
+      describe('WHEN the schema runs', () => {
+        it('THEN should add no issue', () => {
+          expect(parse(value).success).toBe(true)
+        })
+      })
+    })
+
+    describe('GIVEN the placeholder the date picker stores for a date that does not exist', () => {
+      describe('WHEN the schema runs', () => {
+        it('THEN should add the invalid-date issue on the given path', () => {
+          const result = parse(INVALID_DATE_VALUE)
+
+          expect(result.success ? [] : result.error.issues).toEqual([
+            expect.objectContaining({ message: UNSUPPORTED_DATE_ERROR, path: ['date'] }),
+          ])
         })
       })
     })

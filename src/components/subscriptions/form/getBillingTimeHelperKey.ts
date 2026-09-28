@@ -29,9 +29,8 @@ export const getBillingTimeHelperKey = (
 
   // `subscriptionAt` is a UTC calendar day, as the picker that writes it publishes it: read in
   // the ambient zone, the anniversary day would shift for any organization west of UTC.
-  const currentDate = subscriptionAt
-    ? DateTime.fromISO(subscriptionAt, { zone: 'utc' })
-    : DateTime.utc().setLocale('en-gb')
+  const pickedDate = subscriptionAt ? DateTime.fromISO(subscriptionAt, { zone: 'utc' }) : undefined
+  const currentDate = pickedDate?.isValid ? pickedDate : DateTime.utc().setLocale('en-gb')
   const formattedCurrentDate = currentDate.toFormat('LL/dd/yyyy')
   const february29 = `02/29/${DateTime.utc().year}`
   const currentDay = currentDate.get('day')

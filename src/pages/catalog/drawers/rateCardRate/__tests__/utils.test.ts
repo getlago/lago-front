@@ -1,5 +1,6 @@
 import { Settings } from 'luxon'
 
+import { INVALID_DATE_VALUE } from '~/core/constants/form'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
   ChargeModelEnum,
@@ -116,6 +117,14 @@ describe('isEffectiveFromAppendable', () => {
     describe('WHEN it is checked', () => {
       it('THEN accepts it so the required-field error is the one that surfaces', () => {
         expect(isEffectiveFromAppendable('', boundary)).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN a date that does not exist', () => {
+    describe('WHEN it is checked', () => {
+      it('THEN accepts it so the unsupported-date error is the one that surfaces', () => {
+        expect(isEffectiveFromAppendable(INVALID_DATE_VALUE, boundary)).toBe(true)
       })
     })
   })
