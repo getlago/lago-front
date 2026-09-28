@@ -42,11 +42,6 @@ const createMockField = (
   },
   handleChange: mockHandleChange,
   handleBlur: mockHandleBlur,
-  form: {
-    state: { submissionAttempts: 0 },
-    store: { subscribe: jest.fn(() => ({ unsubscribe: jest.fn() })) },
-    getFieldMeta: jest.fn(),
-  },
 })
 
 jest.mock('~/hooks/forms/formContext', () => ({

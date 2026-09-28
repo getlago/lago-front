@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 
+import { INVALID_DATE_VALUE, UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
 import { OrderExecutionModeEnum } from '~/generated/graphql'
 
 import { buildUpdateOrderInput, editOrderValidationSchema } from '../validationSchema'
@@ -27,6 +28,17 @@ describe('editOrderValidationSchema', () => {
     })
 
     expect(result.success).toBe(false)
+  })
+
+  it('rejects an executeAt that does not exist with the invalid-date message only', () => {
+    const result = editOrderValidationSchema.safeParse({
+      executionMode: OrderExecutionModeEnum.ExecuteInLago,
+      executeAt: INVALID_DATE_VALUE,
+    })
+
+    expect(result.success ? [] : result.error.issues.map((issue) => issue.message)).toEqual([
+      UNSUPPORTED_DATE_ERROR,
+    ])
   })
 
   it('accepts an executeAt in the future', () => {
