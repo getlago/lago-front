@@ -35,6 +35,8 @@ const DatePickerField = (
      * suppresses it entirely. When omitted, the field meta errors are used.
      */
     errorOverride?: string | false
+    /** Maps the picked ISO date, or `undefined` once cleared, to the value the field stores. */
+    transformValue?: (value: string | undefined) => string | undefined
   },
 ): JSX.Element => {
   const {
@@ -42,6 +44,7 @@ const DatePickerField = (
     displayErrorText = true,
     errorOverride,
     defaultZone,
+    transformValue,
     ...rest
   } = props
   const field = useFieldContext<string | undefined>()
@@ -112,7 +115,11 @@ const DatePickerField = (
       name={name}
       defaultZone={defaultZone}
       value={value}
-      onChange={(nextValue) => field.handleChange(nextValue ?? undefined)}
+      onChange={(nextValue) => {
+        const pickedValue = nextValue ?? undefined
+
+        field.handleChange(transformValue ? transformValue(pickedValue) : pickedValue)
+      }}
       onError={(pickerError) => {
         isShowingUnparseableRef.current = !!pickerError
         setPickerError(form, name, !!pickerError)

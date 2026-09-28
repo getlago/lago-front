@@ -5,7 +5,6 @@ import { z } from 'zod'
 
 import { dialogFormProps } from '~/components/dialogs/dialogFormProps'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
-import { DatePicker } from '~/components/form'
 import { dateErrorCodes } from '~/core/constants/form'
 import { getTimezoneConfig } from '~/core/timezone'
 import { addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
@@ -16,6 +15,12 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 export const EDIT_FEE_BILLING_PERIOD_FORM_ID = 'edit-fee-billing-period-form'
 
 const BILLING_PERIOD_ZONE = getTimezoneConfig(TimezoneEnum.TzUtc).name
+
+const toBillingDayStart = (value: string | undefined): string =>
+  value ? DateTime.fromISO(value, { zone: BILLING_PERIOD_ZONE }).startOf('day').toISO() || '' : ''
+
+const toBillingDayEnd = (value: string | undefined): string =>
+  value ? DateTime.fromISO(value, { zone: BILLING_PERIOD_ZONE }).endOf('day').toISO() || '' : ''
 
 type OpenEditFeeBillingPeriodDialogParams = {
   fromDatetime: string
@@ -88,45 +93,26 @@ export const useEditFeeBillingPeriodDialog = () => {
           <div className="flex items-start gap-6 p-8 [&>*]:flex-1">
             <form.AppField name="fromDatetime">
               {(field) => (
-                <DatePicker
-                  name="fromDatetime"
+                <field.DatePickerField
                   label={translate('text_1754596347194ycmhkuol77d')}
                   defaultZone={BILLING_PERIOD_ZONE}
-                  value={field.state.value}
-                  onChange={(value) => {
-                    field.handleChange(
-                      value
-                        ? DateTime.fromISO(value, { zone: BILLING_PERIOD_ZONE })
-                            .startOf('day')
-                            .toISO() || ''
-                        : '',
-                    )
-                  }}
+                  transformValue={toBillingDayStart}
+                  errorOverride={false}
                 />
               )}
             </form.AppField>
             <form.AppField name="toDatetime">
               {(field) => (
-                <DatePicker
-                  name="toDatetime"
+                <field.DatePickerField
                   label={translate('text_1754596347194hgyj8fzogqm')}
                   defaultZone={BILLING_PERIOD_ZONE}
-                  value={field.state.value}
-                  error={
+                  transformValue={toBillingDayEnd}
+                  errorOverride={
                     field.state.meta.errors?.[0]?.message ===
                     dateErrorCodes.shouldBeFutureAndBiggerThanFromDatetime
                       ? translate('text_175459724137023yixxoovqg')
-                      : undefined
+                      : false
                   }
-                  onChange={(value) => {
-                    field.handleChange(
-                      value
-                        ? DateTime.fromISO(value, { zone: BILLING_PERIOD_ZONE })
-                            .endOf('day')
-                            .toISO() || ''
-                        : '',
-                    )
-                  }}
                 />
               )}
             </form.AppField>
