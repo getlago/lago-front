@@ -12,6 +12,7 @@ import {
   AmountFilterInterval,
   AnalyticsInvoicesAvailableFilters,
   ApiLogsAvailableFilters,
+  AppliedRateCardsAvailableFilters,
   AvailableFiltersEnum,
   ContractAvailableFilters,
   CreditNoteAvailableFilters,
@@ -23,6 +24,7 @@ import {
   filterDataInlineSeparator,
   filterDataLabelCommaPlaceholder,
   filterWithoutProductCategoryValue,
+  filterWithoutProductFilterValue,
   filterWithoutProductValue,
   InvoiceAvailableFilters,
   MrrBreakdownPlansAvailableFilters,
@@ -53,6 +55,7 @@ import {
   ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
   ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX,
   API_LOGS_FILTER_PREFIX,
+  APPLIED_RATE_CARD_LIST_FILTER_PREFIX,
   CONTRACT_LIST_FILTER_PREFIX,
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_ANALYTICS_FILTER_PREFIX,
@@ -106,6 +109,7 @@ import {
   InvoiceStatusTypeEnum,
   type ProductFiltersQueryVariables,
   type ProductsQueryVariables,
+  type ProductTypeEnum,
 } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
@@ -378,6 +382,23 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
       .split(',')
       .filter(Boolean)
       .map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.appliedRateCardHasOverrides]: (value: string) => value === 'true',
+  // Same object-return split as productProductCategory/productFilterProductCategory, but for
+  // the new withoutProductFilter arg (planAppliedRateCards / contractAppliedRateCards only -
+  // no other query accepts it yet).
+  [AvailableFiltersEnum.appliedRateCardProductFilter]: (value: string) => {
+    const parts = value.split(',').filter(Boolean)
+    const withoutProductFilter = parts.includes(filterWithoutProductFilterValue)
+    const productFilterIds = parts
+      .filter((part) => part !== filterWithoutProductFilterValue)
+      .map((part) => part.split(filterDataInlineSeparator)[0])
+
+    return {
+      ...(productFilterIds.length > 0 && { productFilterIds }),
+      ...(withoutProductFilter && { withoutProductFilter: true }),
+    }
+  },
+  [AvailableFiltersEnum.appliedRateCardProductType]: (value: string) => value,
   [AvailableFiltersEnum.orderFormCreatedAt]: (value: string) => {
     return {
       createdAtFrom: value.split(',')[0],
@@ -636,6 +657,42 @@ export const formatFiltersForRateCardsQuery = (
     keyMap,
     availableFilters: RateCardAvailableFilters,
     filtersNamePrefix: RATE_CARD_LIST_FILTER_PREFIX,
+  })
+}
+
+export type AppliedRateCardsQueryFilters = {
+  productCategoryIds?: string[]
+  withoutProductCategory?: boolean
+  productIds?: string[]
+  productFilterIds?: string[]
+  withoutProductFilter?: boolean
+  productType?: ProductTypeEnum
+  hasRateOverrides?: boolean
+}
+
+// Shared by both CatalogPlanRateCardsSection and ContractRateCardsSection: the two backend
+// queries (planAppliedRateCards / contractAppliedRateCards) take the identical 6 filter args.
+//
+// appliedRateCardHasOverrides -> hasRateOverrides, rateCardProduct -> productIds and
+// appliedRateCardProductType -> productType each need a keyMap entry (their FILTER_VALUE_MAP
+// output is a single value under the enum's own name). productProductCategory and
+// appliedRateCardProductFilter need none: their FILTER_VALUE_MAP entries already return an
+// object under the exact target key names, which formatFiltersForQuery spreads directly.
+export const formatFiltersForAppliedRateCardsQuery = (
+  searchParams: URLSearchParams,
+): AppliedRateCardsQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof AppliedRateCardsQueryFilters & string>> =
+    {
+      [AvailableFiltersEnum.appliedRateCardHasOverrides]: 'hasRateOverrides',
+      [AvailableFiltersEnum.rateCardProduct]: 'productIds',
+      [AvailableFiltersEnum.appliedRateCardProductType]: 'productType',
+    }
+
+  return formatFiltersForQuery<AppliedRateCardsQueryFilters>({
+    searchParams,
+    keyMap,
+    availableFilters: AppliedRateCardsAvailableFilters,
+    filtersNamePrefix: APPLIED_RATE_CARD_LIST_FILTER_PREFIX,
   })
 }
 
