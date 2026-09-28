@@ -5,6 +5,7 @@ import { FiltersItemActivitySources } from '~/components/Filters/graphql/filters
 import { FiltersItemActivityTypes } from '~/components/Filters/graphql/filtersElements/FiltersItemActivityTypes'
 import { FiltersItemAdminActions } from '~/components/Filters/graphql/filtersElements/FiltersItemAdminActions'
 import { FiltersItemAdminOrganizations } from '~/components/Filters/graphql/filtersElements/FiltersItemAdminOrganizations'
+import { FiltersItemAppliedRateCardProductFilter } from '~/components/Filters/graphql/filtersElements/FiltersItemAppliedRateCardProductFilter'
 import { FiltersItemAmount } from '~/components/Filters/graphql/filtersElements/FiltersItemAmount'
 import { FiltersItemApiKeyIds } from '~/components/Filters/graphql/filtersElements/FiltersItemApiKeyIds'
 import { FiltersItemBillableMetricCode } from '~/components/Filters/graphql/filtersElements/FiltersItemBillableMetricCode'
@@ -165,6 +166,11 @@ export const FiltersPanelItemTypeSwitch = ({
       <FiltersItemProductFilterProductCategory {...props} />
     ),
     [AvailableFiltersEnum.productFilterProduct]: <FiltersItemProductFilterProduct {...props} />,
+    [AvailableFiltersEnum.appliedRateCardHasOverrides]: <FiltersItemOverridden {...props} />,
+    [AvailableFiltersEnum.appliedRateCardProductFilter]: (
+      <FiltersItemAppliedRateCardProductFilter {...props} />
+    ),
+    [AvailableFiltersEnum.appliedRateCardProductType]: <FiltersItemProductType {...props} />,
     [AvailableFiltersEnum.rateCardProductCategory]: (
       <FiltersItemRateCardProductCategory {...props} />
     ),
