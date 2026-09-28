@@ -1,4 +1,5 @@
 import { FetchResult, gql } from '@apollo/client'
+import { captureMessage } from '@sentry/react'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
 
@@ -22,8 +23,11 @@ import {
   GOVERNANCE_ENTITY_FORM_DEFAULTS,
   GovernanceEntity,
   governanceEntityValidationSchema,
+  isParentAtMaxDepthSelected,
   mapGovernanceEntityToFormValues,
 } from './validationSchema'
+
+import { MAX_GOVERNANCE_HIERARCHY_DEPTH } from '../../constants'
 
 gql`
   mutation createGovernanceEntity($input: CreateUsageAttributionTypeInput!) {
@@ -74,6 +78,15 @@ export const useGovernanceEntityDrawer = (): {
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: governanceEntityValidationSchema,
+    },
+    onSubmitInvalid: ({ value }) => {
+      if (!isParentAtMaxDepthSelected(value)) return
+
+      captureMessage('Governance: max hierarchy depth reached on create', {
+        level: 'warning',
+        fingerprint: ['governance-max-depth-attempt'],
+        extra: { maxDepth: MAX_GOVERNANCE_HIERARCHY_DEPTH },
+      })
     },
     onSubmit: async ({ value, formApi }) => {
       const editedEntity = editedEntityRef.current

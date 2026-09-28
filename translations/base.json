@@ -5106,5 +5106,7 @@
   "text_1790258263571gh96is813m8": "You are about to delete this governance entity",
   "text_1790258263571y2mjnbd2me1": "Delete governance entity",
   "text_1790258263571oi5bbtne9ts": "Governance entity successfully deleted",
-  "text_17902586874164cq2n2rdi9y": "Deleting this entity type stops attributing usage to it from now on. Every breakdown, roll-up, and downstream flow (alerts, limits, budgets) that depends on it will stop working. Billing remains unaffected."
+  "text_17902586874164cq2n2rdi9y": "Deleting this entity type stops attributing usage to it from now on. Every breakdown, roll-up, and downstream flow (alerts, limits, budgets) that depends on it will stop working. Billing remains unaffected.",
+  "text_17905868609482ypmvd6ovhd": "Maximum hierarchy depth reached",
+  "text_1790586860948m3y6gvqhzw0": "This parent is already at the maximum hierarchy depth. Select another one."
 }

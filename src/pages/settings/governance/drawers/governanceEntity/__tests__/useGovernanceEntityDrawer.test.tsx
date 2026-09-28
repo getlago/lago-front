@@ -1,4 +1,5 @@
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
+import { captureMessage } from '@sentry/react'
 import { act, renderHook, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GraphQLError } from 'graphql'
@@ -88,6 +89,11 @@ jest.mock('~/generated/graphql', () => {
     },
   }
 })
+
+jest.mock('@sentry/react', () => ({
+  ...jest.requireActual('@sentry/react'),
+  captureMessage: jest.fn(),
+}))
 
 jest.mock('~/core/utils/domUtils', () => ({
   ...jest.requireActual('~/core/utils/domUtils'),
@@ -465,7 +471,7 @@ describe('useGovernanceEntityDrawer', () => {
 
   describe('GIVEN parent options at different depths', () => {
     describe('WHEN the parent list opens', () => {
-      it('THEN should disable only the options already at the maximum depth', async () => {
+      it('THEN should keep every option selectable', async () => {
         renderDrawer()
         renderDrawerBody()
 
@@ -484,9 +490,57 @@ describe('useGovernanceEntityDrawer', () => {
 
         await waitFor(() => expect(radioFor(FULL_DEPTH_PARENT_ID)).toBeInTheDocument())
 
-        expect(radioFor(FULL_DEPTH_PARENT_ID)).toBeDisabled()
+        expect(radioFor(FULL_DEPTH_PARENT_ID)).toBeEnabled()
         expect(radioFor(LAST_ALLOWED_PARENT_ID)).toBeEnabled()
-        expect(radioFor(PARENT_ID)).toBeEnabled()
+      })
+    })
+
+    describe('WHEN a parent already at the maximum depth is submitted', () => {
+      it('THEN should block the create, flag the parent field and report the attempt', async () => {
+        const mutation = createMock({ ...hierarchicalInput, parentId: FULL_DEPTH_PARENT_ID })
+
+        renderDrawer([mutation])
+        renderDrawerBody()
+
+        await fillEntity({
+          role: UsageAttributionTypeRoleEnum.Hierarchical,
+          parent: FULL_DEPTH_PARENT_ID,
+          keys: ['department_id'],
+        })
+        await submit()
+
+        await waitFor(() =>
+          expect(
+            within(
+              screen.getByTestId(GOVERNANCE_ENTITY_DRAWER_PARENT_TEST_ID)
+                .parentElement as HTMLElement,
+            ).getByTestId('text-field-error'),
+          ).toBeInTheDocument(),
+        )
+        expect(mutation.result).not.toHaveBeenCalled()
+        expect(captureMessage).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({ level: 'warning' }),
+        )
+      })
+    })
+
+    describe('WHEN the last allowed parent is submitted', () => {
+      it('THEN should create the entity and report nothing', async () => {
+        const mutation = createMock({ ...hierarchicalInput, parentId: LAST_ALLOWED_PARENT_ID })
+
+        renderDrawer([mutation])
+        renderDrawerBody()
+
+        await fillEntity({
+          role: UsageAttributionTypeRoleEnum.Hierarchical,
+          parent: LAST_ALLOWED_PARENT_ID,
+          keys: ['department_id'],
+        })
+        await submit()
+
+        await waitFor(() => expect(mutation.result).toHaveBeenCalledTimes(1))
+        expect(captureMessage).not.toHaveBeenCalled()
       })
     })
   })

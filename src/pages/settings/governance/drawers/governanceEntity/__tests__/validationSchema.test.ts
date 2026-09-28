@@ -74,6 +74,38 @@ describe('governanceEntityValidationSchema', () => {
   })
 })
 
+describe('GIVEN a parent already at the maximum depth', () => {
+  it.each([
+    [
+      'a hierarchical entity',
+      validValues({
+        role: UsageAttributionTypeRoleEnum.Hierarchical,
+        parentId: 'p1',
+        isParentAtMaxDepth: true,
+      }),
+      ['parentId'],
+    ],
+    [
+      'a hierarchical entity with other invalid fields',
+      validValues({
+        role: UsageAttributionTypeRoleEnum.Hierarchical,
+        parentId: 'p1',
+        isParentAtMaxDepth: true,
+        attributionKeys: [],
+      }),
+      ['attributionKeys', 'parentId'],
+    ],
+    ['a flat entity', validValues({ parentId: 'p1', isParentAtMaxDepth: true }), []],
+    [
+      'no parent selected',
+      validValues({ role: UsageAttributionTypeRoleEnum.Hierarchical, isParentAtMaxDepth: true }),
+      [],
+    ],
+  ])('THEN should report the right errors for %s', (_, values, paths) => {
+    expect(errorPaths(values).sort()).toEqual(paths)
+  })
+})
+
 describe('buildCreateUsageAttributionTypeInput', () => {
   describe('GIVEN a hierarchical entity with a parent', () => {
     it('THEN should map every field', () => {
@@ -160,6 +192,7 @@ describe('mapGovernanceEntityToFormValues', () => {
         description: 'Engineering teams',
         role: UsageAttributionTypeRoleEnum.Hierarchical,
         parentId: 'p1',
+        isParentAtMaxDepth: false,
         attributionKeys: [{ value: 'department_id' }, { value: 'team_id' }],
       })
     })
