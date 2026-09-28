@@ -22,14 +22,15 @@ const commaSeparatedEmails = z.string().refine(
 
 // `positiveNumber` keeps the input numeric but the value stays the raw string the
 // user typed, so the bound is checked on the cast rather than with `z.number()`.
-// Zod runs both checks on the same value, so the bound skips '' to keep an empty
-// field reporting the required error alone instead of stacking the two.
+// '' is skipped so an empty field reports only REQUIRED_ERROR.
 const atLeastOne = z
   .string()
   .min(1, { message: REQUIRED_ERROR })
   .refine((value) => value === '' || Number(value) >= 1, { message: MIN_ONE_ERROR })
 
 const thresholdSchema = z.object({
+  // Stays optional, with presence enforced by the refine: an added row starts undefined,
+  // so a bare `z.enum` would reject it before the user has picked anything.
   currency: z
     .enum(CurrencyEnum)
     .optional()

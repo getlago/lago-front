@@ -17,9 +17,7 @@ import CreateDunning, {
   CREATE_DUNNING_SUBMIT_BUTTON_TEST_ID,
 } from '../CreateDunning'
 
-// The combobox popper is virtualized, and `useVirtualizer` measures a scroll container
-// jsdom never lays out, so it renders zero options without this. Mirrors the mock in
-// BaseComboBoxVirtualizedList's own test.
+// jsdom never lays out the popper's scroll container, so options render only with this.
 jest.mock('@tanstack/react-virtual', () => ({
   useVirtualizer: (config: { count: number; estimateSize: (index: number) => number }) => ({
     getVirtualItems: () =>
@@ -228,10 +226,9 @@ describe('CreateDunning', () => {
 
         await user.click(currencyInput)
         await user.type(currencyInput, CurrencyEnum.Cad)
-        const option = await screen.findByTestId(`combobox-item-${CurrencyEnum.Cad}`)
+        const optionWrapper = await screen.findByTestId(`combobox-item-${CurrencyEnum.Cad}`)
 
-        // The option row carries MUI's click handler, not the wrapper around it.
-        await user.click(within(option).getByTestId(CurrencyEnum.Cad))
+        await user.click(within(optionWrapper).getByTestId(CurrencyEnum.Cad))
 
         await user.type(getInput('thresholds[1].amountCents'), '200')
         await user.click(screen.getByTestId(CREATE_DUNNING_SUBMIT_BUTTON_TEST_ID))

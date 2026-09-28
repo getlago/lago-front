@@ -101,35 +101,27 @@ const CreateDunning = () => {
       onDynamic: dunningCampaignFormSchema,
     },
     onSubmit: async ({ value }) => {
-      await onSave({
-        ...value,
-        thresholds: value.thresholds.map(({ currency, amountCents }) => ({
-          currency: currency as CurrencyEnum,
-          amountCents,
-        })),
-      })
+      const save = () =>
+        onSave({
+          ...value,
+          thresholds: value.thresholds.map(({ currency, amountCents }) => ({
+            currency: currency as CurrencyEnum,
+            amountCents,
+          })),
+        })
+
+      // Runs after validation, so the confirmation cannot be answered on a form that
+      // then fails to submit.
+      if (!campaign?.appliedToOrganization && value.appliedToOrganization) {
+        return openDefaultCampaignDialog({ type: 'setDefault', onConfirm: save })
+      }
+
+      await save()
     },
     onSubmitInvalid({ formApi }) {
       scrollToFirstInputError(CREATE_DUNNING_FORM_ID, formApi.state.errorMap.onDynamic || {})
     },
   })
-
-  useEffect(() => {
-    if (!campaign) return
-
-    form.reset(defaultValues)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [campaign])
-
-  // The organization can resolve after the first render. Re-seed only while the form is
-  // untouched: a reset would otherwise discard whatever the user has already typed, and
-  // `setFieldValue` would leave a pristine form reporting itself as dirty.
-  useEffect(() => {
-    if (!!campaign || !defaultCurrency || form.state.isDirty) return
-
-    form.reset(defaultValues)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [campaign, defaultCurrency])
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
@@ -140,7 +132,6 @@ const CreateDunning = () => {
   }, [errorCode])
 
   const isDirty = useStore(form.store, (state) => state.isDirty)
-  const thresholds = useStore(form.store, (state) => state.values.thresholds)
 
   const [shouldDisplayDescription, setShouldDisplayDescription] = useState(!!campaign?.description)
   const [shouldDisplayBCCEmails, setShouldDisplayBCCEmails] = useState(
@@ -177,17 +168,6 @@ const CreateDunning = () => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
-
-    const becomesDefaultCampaign =
-      !campaign?.appliedToOrganization && form.state.values.appliedToOrganization
-
-    if (becomesDefaultCampaign) {
-      return openDefaultCampaignDialog({
-        type: 'setDefault',
-        onConfirm: () => form.handleSubmit(),
-      })
-    }
-
     form.handleSubmit()
   }
 
@@ -276,77 +256,74 @@ const CreateDunning = () => {
                       description={translate('text_1742392390147fju3ihxmtin')}
                     />
 
-                    <div className="flex flex-col gap-6">
-                      {thresholds.map((_threshold, index) => {
-                        const key = `thresholds[${index}]` as const
+                    <form.AppField name="thresholds" mode="array">
+                      {(thresholdsField) => (
+                        <div className="flex flex-col gap-6">
+                          {thresholdsField.state.value.map((_threshold, index) => {
+                            const key = `thresholds[${index}]` as const
 
-                        return (
-                          <div key={key} className="flex flex-1 items-center gap-4">
-                            <form.AppField name={`${key}.currency`}>
-                              {(field) => (
-                                <field.ComboBoxField
-                                  className="w-30"
-                                  data={Object.values(CurrencyEnum).map((currency) => ({
-                                    label: currency,
-                                    value: currency,
-                                    disabled: thresholds.some(
-                                      (localThreshold) => localThreshold.currency === currency,
-                                    ),
-                                  }))}
-                                  placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
-                                  disableClearable
-                                />
-                              )}
-                            </form.AppField>
-                            <form.AppField name={`${key}.amountCents`}>
-                              {(field) => (
-                                <field.AmountInputField
-                                  className="flex-1"
-                                  currency={CurrencyEnum.Usd}
-                                  beforeChangeFormatter={['positiveNumber']}
-                                />
-                              )}
-                            </form.AppField>
-                            {index > 0 && (
-                              <Tooltip
-                                placement="top-end"
-                                title={translate('text_63aa085d28b8510cd46443ff')}
-                              >
-                                <Button
-                                  icon="trash"
-                                  variant="quaternary"
-                                  data-test={`${CREATE_DUNNING_DELETE_THRESHOLD_TEST_ID}-${index}`}
-                                  onClick={() => {
-                                    form.setFieldValue(
-                                      'thresholds',
-                                      thresholds.filter(
-                                        (_localThreshold, localIndex) => localIndex !== index,
-                                      ),
-                                    )
-                                  }}
-                                />
-                              </Tooltip>
-                            )}
+                            return (
+                              <div key={key} className="flex flex-1 items-center gap-4">
+                                <form.AppField name={`${key}.currency`}>
+                                  {(field) => (
+                                    <field.ComboBoxField
+                                      className="w-30"
+                                      data={Object.values(CurrencyEnum).map((currency) => ({
+                                        label: currency,
+                                        value: currency,
+                                        disabled: thresholdsField.state.value.some(
+                                          (localThreshold) => localThreshold.currency === currency,
+                                        ),
+                                      }))}
+                                      placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
+                                      disableClearable
+                                    />
+                                  )}
+                                </form.AppField>
+                                <form.AppField name={`${key}.amountCents`}>
+                                  {(field) => (
+                                    <field.AmountInputField
+                                      className="flex-1"
+                                      currency={CurrencyEnum.Usd}
+                                      beforeChangeFormatter={['positiveNumber']}
+                                    />
+                                  )}
+                                </form.AppField>
+                                {index > 0 && (
+                                  <Tooltip
+                                    placement="top-end"
+                                    title={translate('text_63aa085d28b8510cd46443ff')}
+                                  >
+                                    <Button
+                                      icon="trash"
+                                      variant="quaternary"
+                                      data-test={`${CREATE_DUNNING_DELETE_THRESHOLD_TEST_ID}-${index}`}
+                                      onClick={() => thresholdsField.removeValue(index)}
+                                    />
+                                  </Tooltip>
+                                )}
+                              </div>
+                            )
+                          })}
+
+                          <div>
+                            <Button
+                              startIcon="plus"
+                              variant="inline"
+                              data-test={CREATE_DUNNING_ADD_THRESHOLD_TEST_ID}
+                              onClick={() =>
+                                thresholdsField.pushValue({
+                                  currency: undefined,
+                                  amountCents: '',
+                                })
+                              }
+                            >
+                              {translate('text_1728584028187rmbbvaboadk')}
+                            </Button>
                           </div>
-                        )
-                      })}
-
-                      <div>
-                        <Button
-                          startIcon="plus"
-                          variant="inline"
-                          data-test={CREATE_DUNNING_ADD_THRESHOLD_TEST_ID}
-                          onClick={() =>
-                            form.setFieldValue('thresholds', [
-                              ...thresholds,
-                              { currency: undefined, amountCents: '' },
-                            ])
-                          }
-                        >
-                          {translate('text_1728584028187rmbbvaboadk')}
-                        </Button>
-                      </div>
-                    </div>
+                        </div>
+                      )}
+                    </form.AppField>
                   </section>
 
                   <section className="not-last-child:mb-6">
