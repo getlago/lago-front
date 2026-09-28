@@ -1,14 +1,13 @@
 import InputAdornment from '@mui/material/InputAdornment'
-import { useFormik } from 'formik'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useEffect, useRef, useState } from 'react'
-import { array, boolean, number, object, string } from 'yup'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { AmountInputField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
+import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { useDefaultCampaignDialog } from '~/components/settings/dunnings/DefaultCampaignDialog'
 import {
@@ -16,18 +15,34 @@ import {
   PreviewCampaignEmailDrawerRef,
 } from '~/components/settings/dunnings/PreviewCampaignEmailDrawer'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { DUNNINGS_SETTINGS_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { scrollToTop } from '~/core/utils/domUtils'
-import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  DunningCampaignFormInput,
-  useCreateEditDunningCampaign,
-} from '~/hooks/useCreateEditDunningCampaign'
+import { useAppForm } from '~/hooks/forms/useAppform'
+import { useCreateEditDunningCampaign } from '~/hooks/useCreateEditDunningCampaign'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
+
+import {
+  dunningCampaignFormSchema,
+  DunningCampaignFormValues,
+} from './createDunning/validationSchema'
+
+export const CREATE_DUNNING_FORM_ID = 'create-dunning-form'
+export const CREATE_DUNNING_CLOSE_BUTTON_TEST_ID = 'create-dunning-close'
+export const CREATE_DUNNING_CANCEL_BUTTON_TEST_ID = 'create-dunning-cancel'
+export const CREATE_DUNNING_SUBMIT_BUTTON_TEST_ID = 'create-dunning-submit'
+export const CREATE_DUNNING_SHOW_DESCRIPTION_TEST_ID = 'show-description'
+export const CREATE_DUNNING_DELETE_DESCRIPTION_TEST_ID = 'create-dunning-delete-description'
+export const CREATE_DUNNING_SHOW_BCC_EMAILS_TEST_ID = 'show-bcc-emails'
+export const CREATE_DUNNING_DELETE_BCC_EMAILS_TEST_ID = 'create-dunning-delete-bcc-emails'
+export const CREATE_DUNNING_ADD_THRESHOLD_TEST_ID = 'create-dunning-add-threshold'
+export const CREATE_DUNNING_DELETE_THRESHOLD_TEST_ID = 'create-dunning-delete-threshold'
+export const CREATE_DUNNING_PREVIEW_EMAIL_TEST_ID = 'create-dunning-preview-email'
 
 const CreateDunning = () => {
   const {
@@ -57,378 +72,394 @@ const CreateDunning = () => {
 
   const { organization: { defaultCurrency } = {} } = useOrganizationInfos()
 
+  const defaultValues: DunningCampaignFormValues = {
+    name: campaign?.name || '',
+    code: campaign?.code || '',
+    description: campaign?.description || '',
+    thresholds: campaign?.thresholds
+      ? campaign.thresholds.map((threshold) => ({
+          currency: threshold.currency,
+          amountCents: String(deserializeAmount(threshold.amountCents, threshold.currency)),
+        }))
+      : [
+          {
+            currency: defaultCurrency ?? CurrencyEnum.Usd,
+            amountCents: '',
+          },
+        ],
+    daysBetweenAttempts: campaign?.daysBetweenAttempts ? String(campaign.daysBetweenAttempts) : '',
+    maxAttempts: campaign?.maxAttempts ? String(campaign.maxAttempts) : '',
+    bccEmails: campaign?.bccEmails?.join(',') || '',
+    appliedToOrganization: campaign?.appliedToOrganization || false,
+  }
+
+  const form = useAppForm({
+    defaultValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: dunningCampaignFormSchema,
+    },
+    onSubmit: async ({ value }) => {
+      await onSave({
+        ...value,
+        thresholds: value.thresholds.map(({ currency, amountCents }) => ({
+          currency: currency as CurrencyEnum,
+          amountCents,
+        })),
+      })
+    },
+    onSubmitInvalid({ formApi }) {
+      scrollToFirstInputError(CREATE_DUNNING_FORM_ID, formApi.state.errorMap.onDynamic || {})
+    },
+  })
+
+  useEffect(() => {
+    form.reset(defaultValues)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [campaign, defaultCurrency])
+
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
+      applyExistingCodeError(form)
       scrollToTop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])
 
-  const formikProps = useFormik<DunningCampaignFormInput>({
-    initialValues: {
-      name: campaign?.name || '',
-      code: campaign?.code || '',
-      description: campaign?.description || '',
-      thresholds: campaign?.thresholds
-        ? campaign.thresholds.map((threshold) => ({
-            ...threshold,
-            amountCents: deserializeAmount(threshold.amountCents, threshold.currency),
-          }))
-        : [
-            {
-              currency: defaultCurrency ?? CurrencyEnum.Usd,
-              amountCents: undefined,
-            },
-          ],
-      daysBetweenAttempts: campaign?.daysBetweenAttempts
-        ? String(campaign.daysBetweenAttempts)
-        : '',
-      maxAttempts: campaign?.maxAttempts ? String(campaign.maxAttempts) : '',
-      bccEmails: campaign?.bccEmails?.join(',') || '',
-      appliedToOrganization: campaign?.appliedToOrganization || false,
-    },
-    validationSchema: object().shape({
-      name: string().required(''),
-      code: string().required(''),
-      description: string(),
-      thresholds: array()
-        .of(
-          object().shape({
-            currency: string().required(''),
-            amountCents: string().required(''),
-          }),
-        )
-        .min(1, '')
-        .test((thresholds) => {
-          const currencies = thresholds?.map((t) => t.currency)
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+  const thresholds = useStore(form.store, (state) => state.values.thresholds)
 
-          return new Set(currencies).size === currencies?.length
-        })
-        .required(''),
-      daysBetweenAttempts: number().min(1, '').required(''),
-      maxAttempts: number().min(1, '').required(''),
-      appliedToOrganization: boolean().required(''),
-      bccEmails: array()
-        .transform((value) => value.split(',').map((v: string) => v.trim()))
-        .of(string().email()),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: onSave,
-  })
-
-  const [shouldDisplayDescription, setShouldDisplayDescription] = useState(
-    !!formikProps.initialValues.description,
-  )
+  const [shouldDisplayDescription, setShouldDisplayDescription] = useState(!!campaign?.description)
   const [shouldDisplayBCCEmails, setShouldDisplayBCCEmails] = useState(
-    !!formikProps.initialValues.bccEmails.length,
+    !!campaign?.bccEmails?.length,
   )
 
   useEffect(() => {
-    setShouldDisplayDescription(!!formikProps.initialValues.description)
-    setShouldDisplayBCCEmails(!!formikProps.initialValues.bccEmails.length)
-  }, [formikProps.initialValues])
+    setShouldDisplayDescription(!!campaign?.description)
+    setShouldDisplayBCCEmails(!!campaign?.bccEmails?.length)
+  }, [campaign])
 
-  const onSubmit = () => {
-    if (
-      // If the appliedToOrganization field has changed and is now true, open the default campaign dialog
-      formikProps.initialValues.appliedToOrganization !==
-        formikProps.values.appliedToOrganization &&
-      formikProps.values.appliedToOrganization === true
-    ) {
-      openDefaultCampaignDialog({
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+
+    const becomesDefaultCampaign =
+      !campaign?.appliedToOrganization && form.state.values.appliedToOrganization
+
+    if (becomesDefaultCampaign) {
+      return openDefaultCampaignDialog({
         type: 'setDefault',
-        onConfirm: () => formikProps.submitForm(),
+        onConfirm: () => form.handleSubmit(),
       })
-    } else {
-      formikProps.submitForm()
     }
+
+    form.handleSubmit()
   }
 
   return (
     <>
       <CenteredPage.Wrapper>
-        <CenteredPage.Header>
-          <Typography variant="bodyHl" color="textSecondary" noWrap>
-            {translate(
-              isEdition ? 'text_17322041874138xkertqxbqz' : 'text_17285840281865oxs4lxfs6j',
-            )}
-          </Typography>
-          <Button
-            variant="quaternary"
-            icon="close"
-            onClick={() => (formikProps.dirty ? openDirtyAttributesWarning() : onClose())}
-          />
-        </CenteredPage.Header>
-
-        <CenteredPage.Container>
-          {loading ? (
-            <FormLoadingSkeleton id="create-dunning" />
-          ) : (
-            <>
-              {isEdition && (
-                <Alert type="warning">{translate('text_1732187313660ghhrj235mxg')}</Alert>
+        <form
+          id={CREATE_DUNNING_FORM_ID}
+          className="flex min-h-full flex-col"
+          onSubmit={handleSubmit}
+        >
+          <CenteredPage.Header>
+            <Typography variant="bodyHl" color="textSecondary" noWrap>
+              {translate(
+                isEdition ? 'text_17322041874138xkertqxbqz' : 'text_17285840281865oxs4lxfs6j',
               )}
+            </Typography>
+            <Button
+              variant="quaternary"
+              icon="close"
+              data-test={CREATE_DUNNING_CLOSE_BUTTON_TEST_ID}
+              onClick={() => (isDirty ? openDirtyAttributesWarning() : onClose())}
+            />
+          </CenteredPage.Header>
 
-              <div className="not-last-child:mb-1">
-                <Typography variant="headline" color="textSecondary">
-                  {translate('text_1728584028187fg2ebhssz6r')}
-                </Typography>
-                <Typography variant="body">{translate('text_1728584028187st1bmr7wdw9')}</Typography>
-              </div>
+          <CenteredPage.Container>
+            {loading ? (
+              <FormLoadingSkeleton id="create-dunning" />
+            ) : (
+              <>
+                {isEdition && (
+                  <Alert type="warning">{translate('text_1732187313660ghhrj235mxg')}</Alert>
+                )}
 
-              <div className="flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b">
-                <section className="not-last-child:mb-6">
-                  <div className="not-last-child:mb-2">
-                    <Typography variant="subhead1">
-                      {translate('text_1728584028187on239g4adt5')}
-                    </Typography>
-                    <Typography variant="caption">
-                      {translate('text_1728584028187im92nik4ff8')}
-                    </Typography>
-                  </div>
-                  <div className="flex items-start gap-6 *:flex-1">
-                    <TextInput
-                      // eslint-disable-next-line jsx-a11y/no-autofocus
-                      autoFocus
-                      name="name"
-                      value={formikProps.values.name}
-                      onChange={(name) => {
-                        updateNameAndMaybeCode({ name, formikProps })
-                      }}
-                      label={translate('text_6419c64eace749372fc72b0f')}
-                      placeholder={translate('text_6584550dc4cec7adf861504f')}
-                    />
-                    <TextInputField
-                      name="code"
-                      beforeChangeFormatter="code"
-                      formikProps={formikProps}
-                      label={translate('text_62876e85e32e0300e1803127')}
-                      placeholder={translate('text_6584550dc4cec7adf8615053')}
-                    />
-                  </div>
-                  {shouldDisplayDescription ? (
-                    <div className="flex items-center gap-2">
-                      <TextInputField
-                        className="flex-1"
-                        name="description"
-                        label={translate('text_623b42ff8ee4e000ba87d0c8')}
-                        placeholder={translate('text_1728584028187uqs16ra27ef')}
-                        rows="3"
-                        multiline
-                        formikProps={formikProps}
-                      />
+                <div className="not-last-child:mb-1">
+                  <Typography variant="headline" color="textSecondary">
+                    {translate('text_1728584028187fg2ebhssz6r')}
+                  </Typography>
+                  <Typography variant="body">
+                    {translate('text_1728584028187st1bmr7wdw9')}
+                  </Typography>
+                </div>
 
-                      <Tooltip
-                        placement="top-end"
-                        title={translate('text_63aa085d28b8510cd46443ff')}
-                      >
-                        <Button
-                          icon="trash"
-                          variant="quaternary"
-                          onClick={() => {
-                            formikProps.setFieldValue('description', '')
-                            setShouldDisplayDescription(false)
-                          }}
-                        />
-                      </Tooltip>
+                <div className="flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b">
+                  <section className="not-last-child:mb-6">
+                    <div className="not-last-child:mb-2">
+                      <Typography variant="subhead1">
+                        {translate('text_1728584028187on239g4adt5')}
+                      </Typography>
+                      <Typography variant="caption">
+                        {translate('text_1728584028187im92nik4ff8')}
+                      </Typography>
                     </div>
-                  ) : (
-                    <Button
-                      startIcon="plus"
-                      variant="inline"
-                      onClick={() => setShouldDisplayDescription(true)}
-                      data-test="show-description"
-                    >
-                      {translate('text_642d5eb2783a2ad10d670324')}
-                    </Button>
-                  )}
-                </section>
-
-                <section className="not-last-child:mb-6">
-                  <div className="not-last-child:mb-2">
-                    <Typography variant="subhead1">
-                      {translate('text_1742392390147aoog6603wwy')}
-                    </Typography>
-                    <Typography variant="caption">
-                      {translate('text_1742392390147fju3ihxmtin')}
-                    </Typography>
-                  </div>
-
-                  <div className="flex flex-col gap-6">
-                    {formikProps.values.thresholds.map((_threshold, index) => {
-                      const key = `thresholds.${index}`
-
-                      return (
-                        <div key={key} className="flex flex-1 items-center gap-4">
-                          <ComboBoxField
-                            className="w-30"
-                            name={`${key}.currency`}
-                            formikProps={formikProps}
-                            data={Object.values(CurrencyEnum).map((currency) => ({
-                              label: currency,
-                              value: currency,
-                              disabled: formikProps.values.thresholds.some(
-                                (localThreshold) => localThreshold.currency === currency,
-                              ),
-                            }))}
-                            placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
-                            disableClearable
-                          />
-                          <AmountInputField
-                            className="flex-1"
-                            name={`${key}.amountCents`}
-                            formikProps={formikProps}
-                            currency={CurrencyEnum.Usd}
-                            beforeChangeFormatter={['positiveNumber']}
-                          />
-                          {index > 0 && (
-                            <Tooltip
-                              placement="top-end"
-                              title={translate('text_63aa085d28b8510cd46443ff')}
-                            >
-                              <Button
-                                icon="trash"
-                                variant="quaternary"
-                                onClick={() => {
-                                  const newThresholds = [...formikProps.values.thresholds]
-
-                                  newThresholds.splice(index, 1)
-                                  formikProps.setFieldValue('thresholds', newThresholds)
-                                }}
-                              />
-                            </Tooltip>
+                    <NameAndCodeGroup
+                      form={form}
+                      fields={{ name: 'name', code: 'code' }}
+                      disableAutoGenerateCode={isEdition}
+                      nameProps={{
+                        autoFocus: true,
+                        label: translate('text_6419c64eace749372fc72b0f'),
+                        placeholder: translate('text_6584550dc4cec7adf861504f'),
+                      }}
+                      codeProps={{
+                        label: translate('text_62876e85e32e0300e1803127'),
+                        placeholder: translate('text_6584550dc4cec7adf8615053'),
+                      }}
+                    />
+                    {shouldDisplayDescription ? (
+                      <div className="flex items-center gap-2">
+                        <form.AppField name="description">
+                          {(field) => (
+                            <field.TextInputField
+                              className="flex-1"
+                              label={translate('text_623b42ff8ee4e000ba87d0c8')}
+                              placeholder={translate('text_1728584028187uqs16ra27ef')}
+                              rows="3"
+                              multiline
+                            />
                           )}
-                        </div>
-                      )
-                    })}
+                        </form.AppField>
 
-                    <div>
+                        <Tooltip
+                          placement="top-end"
+                          title={translate('text_63aa085d28b8510cd46443ff')}
+                        >
+                          <Button
+                            icon="trash"
+                            variant="quaternary"
+                            data-test={CREATE_DUNNING_DELETE_DESCRIPTION_TEST_ID}
+                            onClick={() => {
+                              form.setFieldValue('description', '')
+                              setShouldDisplayDescription(false)
+                            }}
+                          />
+                        </Tooltip>
+                      </div>
+                    ) : (
                       <Button
                         startIcon="plus"
                         variant="inline"
-                        onClick={() =>
-                          formikProps.setFieldValue('thresholds', [
-                            ...formikProps.values.thresholds,
-                            { currency: undefined, amountCents: '' },
-                          ])
-                        }
+                        onClick={() => setShouldDisplayDescription(true)}
+                        data-test={CREATE_DUNNING_SHOW_DESCRIPTION_TEST_ID}
                       >
-                        {translate('text_1728584028187rmbbvaboadk')}
+                        {translate('text_642d5eb2783a2ad10d670324')}
                       </Button>
+                    )}
+                  </section>
+
+                  <section className="not-last-child:mb-6">
+                    <div className="not-last-child:mb-2">
+                      <Typography variant="subhead1">
+                        {translate('text_1742392390147aoog6603wwy')}
+                      </Typography>
+                      <Typography variant="caption">
+                        {translate('text_1742392390147fju3ihxmtin')}
+                      </Typography>
                     </div>
-                  </div>
-                </section>
 
-                <section className="not-last-child:mb-6">
-                  <div className="not-last-child:mb-2">
-                    <Typography variant="subhead1">
-                      {translate('text_1742392390147pcg2p300roc')}
-                    </Typography>
-                    <Typography variant="caption">
-                      <span className="mr-1">
-                        {hasPaymentProviderExcludingGoCardless
-                          ? translate('text_1728584028187l2wdjy4s5cs')
-                          : translate('text_17291534666709ytr7mi4jjl')}
-                      </span>
-                      <button
-                        className="h-auto p-0 text-blue-600 hover:underline focus:underline"
-                        onClick={() => previewCampaignEmailDrawerRef.current?.openDrawer()}
-                      >
-                        {translate('text_1728584028187udjepvgj8ra')}
-                      </button>
-                    </Typography>
-                  </div>
+                    <div className="flex flex-col gap-6">
+                      {thresholds.map((_threshold, index) => {
+                        const key = `thresholds[${index}]` as const
 
-                  <TextInputField
-                    name="daysBetweenAttempts"
-                    formikProps={formikProps}
-                    label={translate('text_1728584028187al65i47z3qn')}
-                    placeholder="0"
-                    beforeChangeFormatter={['positiveNumber']}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {translate('text_638dc196fb209d551f3d814d')}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  <TextInputField
-                    name="maxAttempts"
-                    formikProps={formikProps}
-                    label={translate('text_17285840281879mpfdrz2mmi')}
-                    placeholder="0"
-                    beforeChangeFormatter={['positiveNumber']}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {translate('text_172858402818763zwy2u9e3t')}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  {shouldDisplayBCCEmails ? (
-                    <div className="flex flex-1 items-center gap-4">
-                      <TextInputField
-                        name="bccEmails"
-                        className="flex-1"
-                        beforeChangeFormatter={['lowercase']}
-                        formikProps={formikProps}
-                        label={translate('text_1742392390147xtfe9hub59a')}
-                        placeholder={translate('text_1742392390147xia24oyubb3')}
-                        helperText={translate('text_1742392390147638s3zam327')}
-                      />
-                      <Tooltip
-                        placement="top-end"
-                        title={translate('text_63aa085d28b8510cd46443ff')}
-                      >
+                        return (
+                          <div key={key} className="flex flex-1 items-center gap-4">
+                            <form.AppField name={`${key}.currency`}>
+                              {(field) => (
+                                <field.ComboBoxField
+                                  className="w-30"
+                                  data={Object.values(CurrencyEnum).map((currency) => ({
+                                    label: currency,
+                                    value: currency,
+                                    disabled: thresholds.some(
+                                      (localThreshold) => localThreshold.currency === currency,
+                                    ),
+                                  }))}
+                                  placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
+                                  disableClearable
+                                />
+                              )}
+                            </form.AppField>
+                            <form.AppField name={`${key}.amountCents`}>
+                              {(field) => (
+                                <field.AmountInputField
+                                  className="flex-1"
+                                  currency={CurrencyEnum.Usd}
+                                  beforeChangeFormatter={['positiveNumber']}
+                                />
+                              )}
+                            </form.AppField>
+                            {index > 0 && (
+                              <Tooltip
+                                placement="top-end"
+                                title={translate('text_63aa085d28b8510cd46443ff')}
+                              >
+                                <Button
+                                  icon="trash"
+                                  variant="quaternary"
+                                  data-test={`${CREATE_DUNNING_DELETE_THRESHOLD_TEST_ID}-${index}`}
+                                  onClick={() => {
+                                    form.setFieldValue(
+                                      'thresholds',
+                                      thresholds.filter(
+                                        (_localThreshold, localIndex) => localIndex !== index,
+                                      ),
+                                    )
+                                  }}
+                                />
+                              </Tooltip>
+                            )}
+                          </div>
+                        )
+                      })}
+
+                      <div>
                         <Button
-                          icon="trash"
-                          variant="quaternary"
-                          onClick={() => {
-                            formikProps.setFieldValue('bccEmails', '')
-                            setShouldDisplayBCCEmails(false)
+                          startIcon="plus"
+                          variant="inline"
+                          data-test={CREATE_DUNNING_ADD_THRESHOLD_TEST_ID}
+                          onClick={() =>
+                            form.setFieldValue('thresholds', [
+                              ...thresholds,
+                              { currency: undefined, amountCents: '' },
+                            ])
+                          }
+                        >
+                          {translate('text_1728584028187rmbbvaboadk')}
+                        </Button>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section className="not-last-child:mb-6">
+                    <div className="not-last-child:mb-2">
+                      <Typography variant="subhead1">
+                        {translate('text_1742392390147pcg2p300roc')}
+                      </Typography>
+                      <Typography variant="caption">
+                        <span className="mr-1">
+                          {hasPaymentProviderExcludingGoCardless
+                            ? translate('text_1728584028187l2wdjy4s5cs')
+                            : translate('text_17291534666709ytr7mi4jjl')}
+                        </span>
+                        <button
+                          type="button"
+                          className="h-auto p-0 text-blue-600 hover:underline focus:underline"
+                          data-test={CREATE_DUNNING_PREVIEW_EMAIL_TEST_ID}
+                          onClick={() => previewCampaignEmailDrawerRef.current?.openDrawer()}
+                        >
+                          {translate('text_1728584028187udjepvgj8ra')}
+                        </button>
+                      </Typography>
+                    </div>
+
+                    <form.AppField name="daysBetweenAttempts">
+                      {(field) => (
+                        <field.TextInputField
+                          label={translate('text_1728584028187al65i47z3qn')}
+                          placeholder="0"
+                          beforeChangeFormatter={['positiveNumber']}
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                {translate('text_638dc196fb209d551f3d814d')}
+                              </InputAdornment>
+                            ),
                           }}
                         />
-                      </Tooltip>
-                    </div>
-                  ) : (
-                    <Button
-                      startIcon="plus"
-                      variant="inline"
-                      onClick={() => setShouldDisplayBCCEmails(true)}
-                      data-test="show-bcc-emails"
-                    >
-                      {translate('text_1742392390147d9jizkapiou')}
-                    </Button>
-                  )}
-                </section>
-              </div>
-            </>
-          )}
-        </CenteredPage.Container>
-
-        <CenteredPage.StickyFooter>
-          <Button
-            variant="quaternary"
-            onClick={() =>
-              formikProps.dirty ? openDirtyAttributesWarning() : navigate(DUNNINGS_SETTINGS_ROUTE)
-            }
-          >
-            {translate('text_6411e6b530cb47007488b027')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={onSubmit}
-          >
-            {translate(
-              isEdition ? 'text_17295436903260tlyb1gp1i7' : 'text_1742392390147u5hy5yetful',
+                      )}
+                    </form.AppField>
+                    <form.AppField name="maxAttempts">
+                      {(field) => (
+                        <field.TextInputField
+                          label={translate('text_17285840281879mpfdrz2mmi')}
+                          placeholder="0"
+                          beforeChangeFormatter={['positiveNumber']}
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                {translate('text_172858402818763zwy2u9e3t')}
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      )}
+                    </form.AppField>
+                    {shouldDisplayBCCEmails ? (
+                      <div className="flex flex-1 items-center gap-4">
+                        <form.AppField name="bccEmails">
+                          {(field) => (
+                            <field.TextInputField
+                              className="flex-1"
+                              beforeChangeFormatter={['lowercase']}
+                              label={translate('text_1742392390147xtfe9hub59a')}
+                              placeholder={translate('text_1742392390147xia24oyubb3')}
+                              helperText={translate('text_1742392390147638s3zam327')}
+                            />
+                          )}
+                        </form.AppField>
+                        <Tooltip
+                          placement="top-end"
+                          title={translate('text_63aa085d28b8510cd46443ff')}
+                        >
+                          <Button
+                            icon="trash"
+                            variant="quaternary"
+                            data-test={CREATE_DUNNING_DELETE_BCC_EMAILS_TEST_ID}
+                            onClick={() => {
+                              form.setFieldValue('bccEmails', '')
+                              setShouldDisplayBCCEmails(false)
+                            }}
+                          />
+                        </Tooltip>
+                      </div>
+                    ) : (
+                      <Button
+                        startIcon="plus"
+                        variant="inline"
+                        onClick={() => setShouldDisplayBCCEmails(true)}
+                        data-test={CREATE_DUNNING_SHOW_BCC_EMAILS_TEST_ID}
+                      >
+                        {translate('text_1742392390147d9jizkapiou')}
+                      </Button>
+                    )}
+                  </section>
+                </div>
+              </>
             )}
-          </Button>
-        </CenteredPage.StickyFooter>
+          </CenteredPage.Container>
+
+          <CenteredPage.StickyFooter>
+            <Button
+              variant="quaternary"
+              data-test={CREATE_DUNNING_CANCEL_BUTTON_TEST_ID}
+              onClick={() =>
+                isDirty ? openDirtyAttributesWarning() : navigate(DUNNINGS_SETTINGS_ROUTE)
+              }
+            >
+              {translate('text_6411e6b530cb47007488b027')}
+            </Button>
+            <form.AppForm>
+              <form.SubmitButton variant="primary" dataTest={CREATE_DUNNING_SUBMIT_BUTTON_TEST_ID}>
+                {translate(
+                  isEdition ? 'text_17295436903260tlyb1gp1i7' : 'text_1742392390147u5hy5yetful',
+                )}
+              </form.SubmitButton>
+            </form.AppForm>
+          </CenteredPage.StickyFooter>
+        </form>
       </CenteredPage.Wrapper>
 
       <PreviewCampaignEmailDrawer ref={previewCampaignEmailDrawerRef} />

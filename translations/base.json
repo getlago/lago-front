@@ -5067,5 +5067,7 @@
   "text_178997175113710y2zapz4c9": "By terminating this contract, the customer will stop being billed for it and no new invoice will be issued. This action cannot be undone. Are you sure?",
   "text_1789971751137drk22mafo3k": "By canceling this contract, it will never start and the customer will never be billed for it. This action cannot be undone. Are you sure?",
   "text_1789971751137egm0tdl3q96": "Contract successfully terminated",
-  "text_1789971751137982utge606b": "Contract successfully canceled"
+  "text_1789971751137982utge606b": "Contract successfully canceled",
+  "text_17905768999923req4vrrdil": "This currency is already used by another threshold",
+  "text_1790576899992jmnfdn9aqrn": "Value must be greater than or equal to 1"
 }
