@@ -19,11 +19,7 @@ type FiltersItemAppliedRateCardProductFilterProps = {
   setFilterValue: (value: string) => void
 }
 
-// Multi-select with a synthetic "Not defined" entry: real selections map to a plural
-// `productFilterIds` array, the sentinel maps to the standalone `withoutProductFilter: true`
-// arg (see the appliedRateCardProductFilter FILTER_VALUE_MAP entry). Reuses the same
-// productFilters query as FiltersItemRateCardProductFilter rather than co-locating a
-// duplicate.
+// Reuses the productFilters query from FiltersItemRateCardProductFilter rather than duplicating it.
 export const FiltersItemAppliedRateCardProductFilter = ({
   value,
   setFilterValue,
@@ -48,9 +44,7 @@ export const FiltersItemAppliedRateCardProductFilter = ({
       })
       .sort((a, b) => a.label.localeCompare(b.label))
 
-    // "Not defined" is injected client-side (not returned by the API) and pinned on top of
-    // every productFilter. Selecting it maps to `withoutProductFilter: true` rather than a
-    // productFilter id.
+    // "Not defined" is injected client-side; selecting it maps to `withoutProductFilter: true`.
     return [
       {
         label: translate('text_1784214117868fh6rndi4m75'),

@@ -20,13 +20,7 @@ export const filterWithoutProductCategoryValue = '__without_productCategory__'
 // never contributes a `productId` (see formatFiltersForProductFiltersQuery).
 export const filterWithoutProductValue = '__without_productCategory_item__'
 
-// Sentinel entry for the "Not defined" option of the applied-rate-cards list's
-// Product filter facet. Selected alongside real productFilter ids in the same
-// multi-select, it is NOT a productFilter id: it maps to the standalone
-// `withoutProductFilter: true` query arg (planAppliedRateCards /
-// contractAppliedRateCards). Kept free of the comma and
-// `filterDataInlineSeparator` so it can never collide with an encoded
-// productFilter selection.
+// Sentinel for the applied-rate-cards Product filter facet's "Not defined" option; maps to `withoutProductFilter: true`, not a real id.
 export const filterWithoutProductFilterValue = '__without_productFilter__'
 
 export enum AvailableQuickFilters {
@@ -351,14 +345,8 @@ export const RateCardAvailableFilters = [
   AvailableFiltersEnum.rateCardProductFilter,
 ]
 
-// Shared by both the Plan and Contract applied-rate-card lists (identical backend args on
-// planAppliedRateCards / contractAppliedRateCards). Order matches the Figma "Add filter"
-// dropdown: Has rate overrides, Category, Product, Product filters, Product type.
-//
-// Category and Product reuse existing facets rather than minting duplicates:
-// productProductCategory's FILTER_VALUE_MAP entry already emits the exact
-// { productCategoryIds, withoutProductCategory } shape these two queries need, and
-// rateCardProduct's entry already emits the plain productIds array they need.
+// Shared by the Plan and Contract applied-rate-card lists; Category/Product reuse the
+// productProductCategory/rateCardProduct facets rather than minting duplicates.
 export const AppliedRateCardsAvailableFilters = [
   AvailableFiltersEnum.appliedRateCardHasOverrides,
   AvailableFiltersEnum.productProductCategory,

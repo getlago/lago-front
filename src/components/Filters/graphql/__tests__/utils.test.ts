@@ -459,6 +459,86 @@ describe('Filters utils', () => {
 
       expect(result).toBe('Not defined, Seats')
     })
+    it('should format active filter appliedRateCardProductFilter name display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.appliedRateCardProductFilter,
+        `pf-1${filterDataInlineSeparator}Seats,pf-2${filterDataInlineSeparator}Extra`,
+      )
+
+      expect(result).toBe('Seats, Extra')
+    })
+    it('should format active filter appliedRateCardProductFilter "Not defined" with translation', () => {
+      const translate = ((key: string) =>
+        key === 'text_1784214117868fh6rndi4m75' ? 'Not defined' : key) as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.appliedRateCardProductFilter,
+        filterWithoutProductFilterValue,
+        translate,
+      )
+
+      expect(result).toBe('Not defined')
+    })
+    it('should format active filter appliedRateCardProductFilter "Not defined" combined with a real id', () => {
+      const translate = ((key: string) =>
+        key === 'text_1784214117868fh6rndi4m75' ? 'Not defined' : key) as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.appliedRateCardProductFilter,
+        `${filterWithoutProductFilterValue},pf-1${filterDataInlineSeparator}Seats`,
+        translate,
+      )
+
+      expect(result).toBe('Not defined, Seats')
+    })
+    it('should format active filter appliedRateCardHasOverrides true value display', () => {
+      const translate = ((key: string) =>
+        key === 'text_65251f46339c650084ce0d57' ? 'True' : 'False') as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.appliedRateCardHasOverrides,
+        'true',
+        translate,
+      )
+
+      expect(result).toBe('True')
+    })
+    it('should format active filter appliedRateCardHasOverrides false value display', () => {
+      const translate = ((key: string) =>
+        key === 'text_65251f46339c650084ce0d57' ? 'True' : 'False') as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.appliedRateCardHasOverrides,
+        'false',
+        translate,
+      )
+
+      expect(result).toBe('False')
+    })
+    it('should format active filter appliedRateCardProductType fixed value display', () => {
+      const translate = ((key: string) =>
+        key === 'text_1783980718113ritmy7z94je' ? 'Fixed' : 'Metered') as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.appliedRateCardProductType,
+        'fixed',
+        translate,
+      )
+
+      expect(result).toBe('Fixed')
+    })
+    it('should format active filter appliedRateCardProductType metered value display', () => {
+      const translate = ((key: string) =>
+        key === 'text_1783980718113ritmy7z94je' ? 'Fixed' : 'Metered') as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.appliedRateCardProductType,
+        'metered',
+        translate,
+      )
+
+      expect(result).toBe('Metered')
+    })
     it('should format active filter paymentDisputeLost value display', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.paymentDisputeLost, 'true')
 

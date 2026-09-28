@@ -383,9 +383,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
       .filter(Boolean)
       .map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.appliedRateCardHasOverrides]: (value: string) => value === 'true',
-  // Same object-return split as productProductCategory/productFilterProductCategory, but for
-  // the new withoutProductFilter arg (planAppliedRateCards / contractAppliedRateCards only -
-  // no other query accepts it yet).
+  // Same object-return split as productProductCategory, but for withoutProductFilter.
   [AvailableFiltersEnum.appliedRateCardProductFilter]: (value: string) => {
     const parts = value.split(',').filter(Boolean)
     const withoutProductFilter = parts.includes(filterWithoutProductFilterValue)
@@ -670,14 +668,8 @@ export type AppliedRateCardsQueryFilters = {
   hasRateOverrides?: boolean
 }
 
-// Shared by both CatalogPlanRateCardsSection and ContractRateCardsSection: the two backend
-// queries (planAppliedRateCards / contractAppliedRateCards) take the identical 6 filter args.
-//
-// appliedRateCardHasOverrides -> hasRateOverrides, rateCardProduct -> productIds and
-// appliedRateCardProductType -> productType each need a keyMap entry (their FILTER_VALUE_MAP
-// output is a single value under the enum's own name). productProductCategory and
-// appliedRateCardProductFilter need none: their FILTER_VALUE_MAP entries already return an
-// object under the exact target key names, which formatFiltersForQuery spreads directly.
+// appliedRateCardHasOverrides, rateCardProduct and appliedRateCardProductType need a keyMap
+// entry; productProductCategory and appliedRateCardProductFilter already return their target keys.
 export const formatFiltersForAppliedRateCardsQuery = (
   searchParams: URLSearchParams,
 ): AppliedRateCardsQueryFilters => {
@@ -1225,6 +1217,7 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.productFilterProductCategory:
     case AvailableFiltersEnum.productFilterProduct:
     case AvailableFiltersEnum.rateCardProductCategory:
+    case AvailableFiltersEnum.appliedRateCardProductFilter:
       // Multi-select with a synthetic "Not defined" entry; render its translated label.
       // productFilterProduct is lossily mapped to a single productId by
       // formatFiltersForProductFiltersQuery, but every selected chip still renders here.
@@ -1232,7 +1225,9 @@ export const formatActiveFilterValueDisplay = (
         .split(',')
         .filter(Boolean)
         .map((entry) =>
-          entry === filterWithoutProductCategoryValue || entry === filterWithoutProductValue
+          entry === filterWithoutProductCategoryValue ||
+          entry === filterWithoutProductValue ||
+          entry === filterWithoutProductFilterValue
             ? translate?.('text_1784214117868fh6rndi4m75') || ''
             : unescapeFilterLabel(
                 entry.split(filterDataInlineSeparator)[1] ||
@@ -1258,6 +1253,18 @@ export const formatActiveFilterValueDisplay = (
       return (
         translate?.(
           value === 'true' ? 'text_1789752288687xjph983ekbt' : 'text_1789752288687c3bxfx2tjlu',
+        ) || ''
+      )
+    case AvailableFiltersEnum.appliedRateCardHasOverrides:
+      return (
+        translate?.(
+          value === 'true' ? 'text_65251f46339c650084ce0d57' : 'text_65251f4cd55aeb004e5aa5ef',
+        ) || ''
+      )
+    case AvailableFiltersEnum.appliedRateCardProductType:
+      return (
+        translate?.(
+          value === 'fixed' ? 'text_1783980718113ritmy7z94je' : 'text_17839807181133l3z83156s6',
         ) || ''
       )
     case AvailableFiltersEnum.date:

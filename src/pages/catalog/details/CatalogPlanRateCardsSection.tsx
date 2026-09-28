@@ -112,7 +112,7 @@ export const CatalogPlanRateCardsSection = ({
 
   const placeholder = buildSearchAwareTablePlaceholder({
     translate,
-    hasSearchTerm: !!variables?.searchTerm,
+    hasSearchTerm: !!variables?.searchTerm || Object.keys(filtersForQuery).length > 0,
     noResultTitleKey: 'text_17849293094732goytgdvyql',
     emptyTitleKey: 'text_1789030049529u2gzzho6x8x',
     emptySubtitleKey: 'text_17891323549937b5qwry7pn1',

@@ -110,7 +110,7 @@ export const ContractRateCardsSection = ({
 
   const placeholder = buildSearchAwareTablePlaceholder({
     translate,
-    hasSearchTerm: !!variables?.searchTerm,
+    hasSearchTerm: !!variables?.searchTerm || Object.keys(filtersForQuery).length > 0,
     noResultTitleKey: 'text_17849293094732goytgdvyql',
     emptyTitleKey: 'text_1789030049529u2gzzho6x8x',
     emptySubtitleKey: 'text_1789723302114au3ml0nf077',
