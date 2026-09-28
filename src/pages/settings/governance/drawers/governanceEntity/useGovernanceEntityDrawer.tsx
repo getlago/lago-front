@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { captureMessage } from '@sentry/react'
 import { revalidateLogic } from '@tanstack/react-form'
 
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
@@ -15,7 +16,10 @@ import {
   buildCreateUsageAttributionTypeInput,
   GOVERNANCE_ENTITY_FORM_DEFAULTS,
   governanceEntityValidationSchema,
+  isParentAtMaxDepthSelected,
 } from './validationSchema'
+
+import { MAX_GOVERNANCE_HIERARCHY_DEPTH } from '../../constants'
 
 gql`
   mutation createGovernanceEntity($input: CreateUsageAttributionTypeInput!) {
@@ -51,6 +55,15 @@ export const useGovernanceEntityDrawer = (): { openDrawer: () => void } => {
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: governanceEntityValidationSchema,
+    },
+    onSubmitInvalid: ({ value }) => {
+      if (!isParentAtMaxDepthSelected(value)) return
+
+      captureMessage('Governance: max hierarchy depth reached on create', {
+        level: 'warning',
+        fingerprint: ['governance-max-depth-attempt'],
+        extra: { maxDepth: MAX_GOVERNANCE_HIERARCHY_DEPTH },
+      })
     },
     onSubmit: async ({ value, formApi }) => {
       const input = buildCreateUsageAttributionTypeInput(value)

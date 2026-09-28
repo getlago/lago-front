@@ -98,13 +98,25 @@ const GovernanceEntityDrawerFormSections = withForm({
       },
     ]
 
+    const parentOptionsAtMaxDepth = new Set(
+      (parentOptionsData?.usageAttributionTypes.collection ?? [])
+        .filter((option) => countAncestors(option) >= MAX_GOVERNANCE_HIERARCHY_DEPTH)
+        .map(({ id }) => id),
+    )
+
     const parentOptions = (parentOptionsData?.usageAttributionTypes.collection ?? []).map(
       (option) => ({
         value: option.id,
         label: option.name || option.code,
-        disabled: countAncestors(option) >= MAX_GOVERNANCE_HIERARCHY_DEPTH,
+        ...(parentOptionsAtMaxDepth.has(option.id)
+          ? { description: translate('text_17905868609482ypmvd6ovhd') }
+          : {}),
       }),
     )
+
+    const handleParentChange = ({ value }: { value: string | undefined }): void => {
+      form.setFieldValue('isParentAtMaxDepth', !!value && parentOptionsAtMaxDepth.has(value))
+    }
 
     const handleRoleChange = ({ value }: { value: string | undefined }): void => {
       if (value !== UsageAttributionTypeRoleEnum.Hierarchical && form.state.values.parentId) {
@@ -202,7 +214,7 @@ const GovernanceEntityDrawerFormSections = withForm({
           </form.AppField>
 
           {isHierarchical && (
-            <form.AppField name="parentId">
+            <form.AppField name="parentId" listeners={{ onChange: handleParentChange }}>
               {(field) => (
                 <field.ComboBoxField
                   label={translate('text_17902441926478sdl04thios')}
