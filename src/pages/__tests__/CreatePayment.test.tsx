@@ -40,6 +40,35 @@ jest.mock('~/styles/mainObjectsForm', () => ({
   ),
 }))
 
+type ComboBoxStubProps = {
+  name: string
+  value?: string
+  disabled?: boolean
+  data?: { value: string; label?: string }[]
+  onChange: (value: string) => void
+}
+
+// Only the MUI presentation is stubbed, so a click still travels the real
+// `ComboBoxFieldForTanstack`: jsdom mounts no option node for a virtualized list.
+jest.mock('~/components/form/ComboBox', () => ({
+  ...jest.requireActual('~/components/form/ComboBox'),
+  ComboBox: ({ name, value, disabled, data, onChange }: ComboBoxStubProps) => (
+    <div>
+      <input name={name} value={value ?? ''} disabled={disabled} readOnly />
+      {(data ?? []).map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          data-test={`combobox-option-${option.value}`}
+          onClick={() => onChange(option.value)}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  ),
+}))
+
 const mockUseGetPayableInvoicesQuery = jest.fn()
 const mockUseGetPayableInvoiceQuery = jest.fn()
 const mockCreatePayment = jest.fn()
@@ -178,6 +207,55 @@ describe('CreatePayment', () => {
         renderOnCreateRoute()
 
         expect(getInput('invoiceId')).not.toBeDisabled()
+      })
+    })
+
+    describe('WHEN an invoice is picked in the combobox', () => {
+      it('THEN should query that invoice and submit it with the serialized amount', async () => {
+        const user = setupUser()
+
+        renderOnCreateRoute()
+
+        await user.click(screen.getByTestId('combobox-option-invoice-1'))
+
+        await waitFor(() => {
+          expect(mockUseGetPayableInvoiceQuery).toHaveBeenCalledWith(
+            expect.objectContaining({ variables: { id: 'invoice-1' }, skip: false }),
+          )
+        })
+
+        await user.type(getInput('reference'), 'my-reference')
+        await user.type(getInput('amountCents'), '50')
+        await user.click(screen.getByTestId(CREATE_PAYMENT_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockCreatePayment).toHaveBeenCalledWith({
+            variables: {
+              input: {
+                invoiceId: 'invoice-1',
+                reference: 'my-reference',
+                amountCents: 5000,
+                createdAt: expect.any(String),
+              },
+            },
+          })
+        })
+      })
+
+      it('THEN should gate the amount on the picked invoice due amount', async () => {
+        const user = setupUser()
+
+        renderOnCreateRoute()
+
+        await user.click(screen.getByTestId('combobox-option-invoice-1'))
+        await user.type(getInput('reference'), 'my-reference')
+        await user.type(getInput('amountCents'), '150')
+        await user.click(screen.getByTestId(CREATE_PAYMENT_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(screen.getByTestId('text-field-error')).toBeInTheDocument()
+        })
+        expect(mockCreatePayment).not.toHaveBeenCalled()
       })
     })
 
