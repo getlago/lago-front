@@ -42,6 +42,10 @@ const createMockField = (
   },
   handleChange: mockHandleChange,
   handleBlur: mockHandleBlur,
+  form: {
+    getFieldMeta: jest.fn(() => ({ errorMap: {} })),
+    setFieldMeta: jest.fn(),
+  },
 })
 
 jest.mock('~/hooks/forms/formContext', () => ({
