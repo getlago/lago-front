@@ -113,7 +113,8 @@ const CreateDunning = () => {
       // Runs after validation, so the confirmation cannot be answered on a form that
       // then fails to submit.
       if (!campaign?.appliedToOrganization && value.appliedToOrganization) {
-        return openDefaultCampaignDialog({ type: 'setDefault', onConfirm: save })
+        openDefaultCampaignDialog({ type: 'setDefault', onConfirm: save })
+        return
       }
 
       await save()
