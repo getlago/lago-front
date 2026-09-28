@@ -18232,7 +18232,7 @@ export type GetGovernanceEntitiesQueryVariables = Exact<{
 }>;
 
 
-export type GetGovernanceEntitiesQuery = { __typename?: 'Query', usageAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string }> }> }> }> }> }> }> }> }> }> }> }> } };
+export type GetGovernanceEntitiesQuery = { __typename?: 'Query', usageAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, description?: string | null, role: UsageAttributionTypeRoleEnum, attributionKeys: Array<string>, createdAt: any, children: Array<{ __typename?: 'UsageAttributionType', id: string }> }> }> }> }> }> }> } };
 
 export type GetGovernanceEntitiesRoleCountsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -18245,7 +18245,7 @@ export type GetGovernanceEntityParentOptionsQueryVariables = Exact<{
 }>;
 
 
-export type GetGovernanceEntityParentOptionsQuery = { __typename?: 'Query', usageAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string } | null } | null } | null } | null } | null } | null } | null } | null } | null } | null }> } };
+export type GetGovernanceEntityParentOptionsQuery = { __typename?: 'Query', usageAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, name?: string | null, code: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string, parent?: { __typename?: 'UsageAttributionType', id: string } | null } | null } | null } | null } | null }> } };
 
 export type CreateGovernanceEntityMutationVariables = Exact<{
   input: CreateUsageAttributionTypeInput;
@@ -50400,26 +50400,6 @@ export const GetGovernanceEntitiesDocument = gql`
                 ...GovernanceEntityItem
                 children {
                   id
-                  ...GovernanceEntityItem
-                  children {
-                    id
-                    ...GovernanceEntityItem
-                    children {
-                      id
-                      ...GovernanceEntityItem
-                      children {
-                        id
-                        ...GovernanceEntityItem
-                        children {
-                          id
-                          ...GovernanceEntityItem
-                          children {
-                            id
-                          }
-                        }
-                      }
-                    }
-                  }
                 }
               }
             }
@@ -50539,21 +50519,6 @@ export const GetGovernanceEntityParentOptionsDocument = gql`
               id
               parent {
                 id
-                parent {
-                  id
-                  parent {
-                    id
-                    parent {
-                      id
-                      parent {
-                        id
-                        parent {
-                          id
-                        }
-                      }
-                    }
-                  }
-                }
               }
             }
           }
