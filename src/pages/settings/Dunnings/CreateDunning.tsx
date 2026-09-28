@@ -8,6 +8,7 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
+import { ToggleableFieldAddButton, ToggleableFieldRow } from '~/components/form/ToggleableFieldRow'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { useDefaultCampaignDialog } from '~/components/settings/dunnings/DefaultCampaignDialog'
 import {
@@ -139,6 +140,29 @@ const CreateDunning = () => {
     setShouldDisplayBCCEmails(!!campaign?.bccEmails?.length)
   }, [campaign])
 
+  const renderAttemptsField = ({
+    name,
+    label,
+    unit,
+  }: {
+    name: 'daysBetweenAttempts' | 'maxAttempts'
+    label: string
+    unit: string
+  }) => (
+    <form.AppField name={name}>
+      {(field) => (
+        <field.TextInputField
+          label={label}
+          placeholder="0"
+          beforeChangeFormatter={['positiveNumber']}
+          InputProps={{
+            endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
+          }}
+        />
+      )}
+    </form.AppField>
+  )
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
 
@@ -220,7 +244,15 @@ const CreateDunning = () => {
                       }}
                     />
                     {shouldDisplayDescription ? (
-                      <div className="flex items-center gap-2">
+                      <ToggleableFieldRow
+                        rowClassName="flex items-center gap-2"
+                        tooltipClassName=""
+                        removeDataTest={CREATE_DUNNING_DELETE_DESCRIPTION_TEST_ID}
+                        onRemove={() => {
+                          form.setFieldValue('description', '')
+                          setShouldDisplayDescription(false)
+                        }}
+                      >
                         <form.AppField name="description">
                           {(field) => (
                             <field.TextInputField
@@ -232,31 +264,13 @@ const CreateDunning = () => {
                             />
                           )}
                         </form.AppField>
-
-                        <Tooltip
-                          placement="top-end"
-                          title={translate('text_63aa085d28b8510cd46443ff')}
-                        >
-                          <Button
-                            icon="trash"
-                            variant="quaternary"
-                            data-test={CREATE_DUNNING_DELETE_DESCRIPTION_TEST_ID}
-                            onClick={() => {
-                              form.setFieldValue('description', '')
-                              setShouldDisplayDescription(false)
-                            }}
-                          />
-                        </Tooltip>
-                      </div>
+                      </ToggleableFieldRow>
                     ) : (
-                      <Button
-                        startIcon="plus"
-                        variant="inline"
+                      <ToggleableFieldAddButton
+                        label={translate('text_642d5eb2783a2ad10d670324')}
+                        dataTest={CREATE_DUNNING_SHOW_DESCRIPTION_TEST_ID}
                         onClick={() => setShouldDisplayDescription(true)}
-                        data-test={CREATE_DUNNING_SHOW_DESCRIPTION_TEST_ID}
-                      >
-                        {translate('text_642d5eb2783a2ad10d670324')}
-                      </Button>
+                      />
                     )}
                   </section>
 
@@ -365,40 +379,26 @@ const CreateDunning = () => {
                       </Typography>
                     </div>
 
-                    <form.AppField name="daysBetweenAttempts">
-                      {(field) => (
-                        <field.TextInputField
-                          label={translate('text_1728584028187al65i47z3qn')}
-                          placeholder="0"
-                          beforeChangeFormatter={['positiveNumber']}
-                          InputProps={{
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                {translate('text_638dc196fb209d551f3d814d')}
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      )}
-                    </form.AppField>
-                    <form.AppField name="maxAttempts">
-                      {(field) => (
-                        <field.TextInputField
-                          label={translate('text_17285840281879mpfdrz2mmi')}
-                          placeholder="0"
-                          beforeChangeFormatter={['positiveNumber']}
-                          InputProps={{
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                {translate('text_172858402818763zwy2u9e3t')}
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      )}
-                    </form.AppField>
+                    {renderAttemptsField({
+                      name: 'daysBetweenAttempts',
+                      label: translate('text_1728584028187al65i47z3qn'),
+                      unit: translate('text_638dc196fb209d551f3d814d'),
+                    })}
+                    {renderAttemptsField({
+                      name: 'maxAttempts',
+                      label: translate('text_17285840281879mpfdrz2mmi'),
+                      unit: translate('text_172858402818763zwy2u9e3t'),
+                    })}
                     {shouldDisplayBCCEmails ? (
-                      <div className="flex flex-1 items-center gap-4">
+                      <ToggleableFieldRow
+                        rowClassName="flex flex-1 items-center gap-4"
+                        tooltipClassName=""
+                        removeDataTest={CREATE_DUNNING_DELETE_BCC_EMAILS_TEST_ID}
+                        onRemove={() => {
+                          form.setFieldValue('bccEmails', '')
+                          setShouldDisplayBCCEmails(false)
+                        }}
+                      >
                         <form.AppField name="bccEmails">
                           {(field) => (
                             <field.TextInputField
@@ -410,30 +410,13 @@ const CreateDunning = () => {
                             />
                           )}
                         </form.AppField>
-                        <Tooltip
-                          placement="top-end"
-                          title={translate('text_63aa085d28b8510cd46443ff')}
-                        >
-                          <Button
-                            icon="trash"
-                            variant="quaternary"
-                            data-test={CREATE_DUNNING_DELETE_BCC_EMAILS_TEST_ID}
-                            onClick={() => {
-                              form.setFieldValue('bccEmails', '')
-                              setShouldDisplayBCCEmails(false)
-                            }}
-                          />
-                        </Tooltip>
-                      </div>
+                      </ToggleableFieldRow>
                     ) : (
-                      <Button
-                        startIcon="plus"
-                        variant="inline"
+                      <ToggleableFieldAddButton
+                        label={translate('text_1742392390147d9jizkapiou')}
+                        dataTest={CREATE_DUNNING_SHOW_BCC_EMAILS_TEST_ID}
                         onClick={() => setShouldDisplayBCCEmails(true)}
-                        data-test={CREATE_DUNNING_SHOW_BCC_EMAILS_TEST_ID}
-                      >
-                        {translate('text_1742392390147d9jizkapiou')}
-                      </Button>
+                      />
                     )}
                   </section>
                 </div>
