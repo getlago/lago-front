@@ -20,6 +20,15 @@ export const filterWithoutProductCategoryValue = '__without_productCategory__'
 // never contributes a `productId` (see formatFiltersForProductFiltersQuery).
 export const filterWithoutProductValue = '__without_productCategory_item__'
 
+// Sentinel entry for the "Not defined" option of the applied-rate-cards list's
+// Product filter facet. Selected alongside real productFilter ids in the same
+// multi-select, it is NOT a productFilter id: it maps to the standalone
+// `withoutProductFilter: true` query arg (planAppliedRateCards /
+// contractAppliedRateCards). Kept free of the comma and
+// `filterDataInlineSeparator` so it can never collide with an encoded
+// productFilter selection.
+export const filterWithoutProductFilterValue = '__without_productFilter__'
+
 export enum AvailableQuickFilters {
   invoiceStatus = 'invoiceStatus',
   customerAccountType = 'customerAccountType',
