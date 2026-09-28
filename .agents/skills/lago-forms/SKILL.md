@@ -97,7 +97,7 @@ with no error and no request (a shipped regression).
 | `ComboBoxField` | `string \| undefined` |
 | `MultipleComboBoxField` | whole options, `{ value, label, … }[]` — schema `z.array(z.looseObject({ value: z.string() }))`, map to ids in `onSubmit`, seed defaults as options |
 | `CurrencyPickerField` | `CurrencyEnum \| undefined` |
-| `DatePickerField` | ISO `string \| undefined` |
+| `DatePickerField` | ISO `string \| undefined`, or what `transformValue` maps it to (end of day, `''` once cleared). A raw `DatePicker` in a form skips the unparseable-date guard, so never wire one |
 | `SwitchField`, `CheckboxField` | `boolean` |
 | `RadioField` | `string` |
 | `RadioGroupField` | `string \| number \| boolean` |
@@ -209,6 +209,6 @@ A test rendering a form inside a drawer or dialog needs the `import.meta` mock �
 mapper), `src/components/wallets/tanstackForm/` (drawer forms), `CreatePricingUnit.tsx`
 (`scrollToFirstInputError`).
 
-Not a model to copy: `EditFeeBillingPeriod.tsx` drives a raw `DatePicker` inside
-`form.AppField` and carries a `message: ''`, both of which this guide rules out. It works,
-but reading it as a template reproduces two things a new form should not do.
+Not a model to copy: `EditFeeBillingPeriod.tsx` carries a `message: ''`, which this guide
+rules out. It works, but reading it as a template reproduces something a new form should
+not do.

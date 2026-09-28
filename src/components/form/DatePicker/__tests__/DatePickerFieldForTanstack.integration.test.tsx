@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { Settings } from 'luxon'
 import { z } from 'zod'
 
+import { endOfDayIso } from '~/core/utils/dateUtils'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 
@@ -42,6 +43,7 @@ type TestFormProps = {
   onSubmitInvalid?: (props: { formApi: AnyFormApi }) => void
   schema?: ReturnType<typeof buildSchema>
   initialDate?: string
+  transformValue?: (value: string | undefined) => string | undefined
 }
 
 const TestForm = ({
@@ -49,6 +51,7 @@ const TestForm = ({
   onSubmitInvalid,
   schema = buildSchema(),
   initialDate = '',
+  transformValue,
 }: TestFormProps): JSX.Element => {
   const form = useAppForm({
     defaultValues: { reference: '', date: initialDate } as FormValues,
@@ -73,7 +76,7 @@ const TestForm = ({
 
           return (
             <>
-              <field.DatePickerField defaultZone="UTC" />
+              <field.DatePickerField defaultZone="UTC" transformValue={transformValue} />
               <button
                 type="button"
                 data-test={REMOVE_DATE_BUTTON_TEST_ID}
@@ -124,6 +127,24 @@ describe('DatePickerFieldForTanstack in a form', () => {
 
   afterAll(() => {
     Settings.defaultZone = originalDefaultZone
+  })
+
+  describe('GIVEN a transformValue', () => {
+    describe('WHEN a date is typed', () => {
+      it('THEN should store the transformed value', async () => {
+        const { onSubmit, user } = setup({ transformValue: endOfDayIso })
+
+        await user.type(getDateInput(), '12/25/2026')
+        await user.click(screen.getByTestId(SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(onSubmit).toHaveBeenCalledWith({
+            reference: '',
+            date: '2026-12-25T23:59:59.999Z',
+          })
+        })
+      })
+    })
   })
 
   describe('GIVEN a date that does not exist is typed into the picker', () => {

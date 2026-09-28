@@ -316,6 +316,51 @@ describe('useEditFeeBillingPeriodDialog', () => {
     })
   })
 
+  // The picker withholds a date that does not exist, so the last valid bound was recorded.
+  describe('GIVEN a start date that does not exist is typed over a valid one', () => {
+    describe('WHEN the dialog is submitted', () => {
+      it('THEN should not record the period', async () => {
+        const user = userEvent.setup({ pointerEventsCheck: 0 })
+        const callback = jest.fn()
+        const dialogConfig: { children?: React.ReactNode; submit?: () => Promise<void> } = {}
+
+        mockFormDialogOpen.mockImplementation((config) => {
+          dialogConfig.children = config.children
+          dialogConfig.submit = config.form.submit
+
+          return new Promise(() => {})
+        })
+
+        const { result } = renderHook(() => useEditFeeBillingPeriodDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.openEditFeeBillingPeriodDialog({
+            fromDatetime: UTC_DAY_FROM_DATETIME,
+            toDatetime: UTC_DAY_TO_DATETIME,
+            callback,
+          })
+        })
+
+        render(<>{dialogConfig.children}</>, { wrapper: customWrapper })
+
+        const fromInput = document.querySelector('input[name="fromDatetime"]') as HTMLInputElement
+
+        await user.click(fromInput)
+        await user.keyboard('0230')
+
+        expect(fromInput).toHaveValue('02/30/2026')
+
+        await act(async () => {
+          await dialogConfig.submit?.()
+        })
+
+        expect(callback).not.toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('GIVEN the dialog resolves with close', () => {
     describe('WHEN the dialog is cancelled before submit', () => {
       it('THEN should not invoke the callback', async () => {

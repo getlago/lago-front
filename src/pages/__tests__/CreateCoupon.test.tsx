@@ -659,6 +659,38 @@ describe('CreateCoupon', () => {
     })
   })
 
+  // The picker withholds a date that does not exist, so the last valid expiration was saved.
+  describe('GIVEN an expiration date that does not exist typed over a valid one', () => {
+    describe('WHEN the rest of the form is valid', () => {
+      it('THEN should refuse to submit', async () => {
+        const user = userEvent.setup({ pointerEventsCheck: 0 })
+
+        render(<CreateCoupon />)
+
+        await user.type(getNameInput(), 'My Test Coupon')
+        await user.type(
+          screen
+            .getByTestId(COUPON_AMOUNT_INPUT_TEST_ID)
+            .querySelector('input') as HTMLInputElement,
+          '50',
+        )
+        await user.click(screen.getByTestId('checkbox-hasLimit'))
+
+        const dateInput = screen
+          .getByTestId(COUPON_EXPIRATION_SECTION_TEST_ID)
+          .querySelector('input') as HTMLInputElement
+
+        await user.type(dateInput, '02/15/2027')
+        await user.click(dateInput)
+        await user.keyboard('{ArrowRight}30')
+
+        expect(dateInput).toHaveValue('02/30/2027')
+        expect(screen.getByTestId('submit')).toBeDisabled()
+        expect(mockOnSave).not.toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('GIVEN checkbox validation errors on submit', () => {
     describe('WHEN the expiration checkbox is checked but no date is selected', () => {
       it('THEN should show the expiration date error after submit', async () => {
