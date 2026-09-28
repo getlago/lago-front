@@ -119,7 +119,6 @@ describe('CatalogPlanRateCardsSection', () => {
 
   it('requests hasRateOverrides when the Has rate overrides filter is applied through the URL', async () => {
     const mocks = [
-      buildListMock([rowFixture]),
       {
         request: {
           query: GetPlanAppliedRateCardsForRateCardsSectionDocument,
