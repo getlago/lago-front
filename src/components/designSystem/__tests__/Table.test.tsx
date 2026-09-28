@@ -579,6 +579,24 @@ describe('Table', () => {
     expect(screen.getAllByText(/^Group /)).toHaveLength(2)
   })
 
+  it('keeps group header rows at 48px when data rows use a taller rowSize', async () => {
+    await act(() =>
+      render(
+        <Table
+          name="grouped-tall"
+          data={[{ id: '1', name: 'Alice' }]}
+          rowSize={72}
+          columns={[{ key: 'name' as const, title: 'Name', content: (row) => row.name }]}
+          getRowGroupHeader={() => 'Group A'}
+        />,
+      ),
+    )
+
+    expect(screen.getByText('Group A').closest('.lago-table-inner-cell')).toHaveStyle({
+      minHeight: '48px',
+    })
+  })
+
   it('renders no group header rows when getRowGroupHeader is omitted', async () => {
     await prepare()
 

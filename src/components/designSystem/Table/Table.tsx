@@ -131,6 +131,8 @@ const hasInteractiveContent = (node: ReactNode): boolean => {
 
 const ACTION_COLUMN_ID = 'actionColumn'
 const LOADING_ROW_COUNT = DEFAULT_PAGE_SIZE
+// Applied as an inline style: a class would lose to the `tbody .lago-table-inner-cell` rowSize rule.
+const GROUP_HEADER_ROW_HEIGHT = 48
 
 export const OPEN_ACTION_BUTTON_TEST_ID = 'open-action-button'
 
@@ -656,7 +658,9 @@ export const Table = <T extends DataItem>({
                         }}
                       >
                         <TableCell colSpan={colSpan}>
-                          <TableInnerCell>{groupHeader}</TableInnerCell>
+                          <TableInnerCell style={{ minHeight: GROUP_HEADER_ROW_HEIGHT }}>
+                            {groupHeader}
+                          </TableInnerCell>
                         </TableCell>
                       </TableRow>
                     )}
