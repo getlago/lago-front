@@ -180,8 +180,14 @@ const ContractDrawerFormSections = withForm({
     useEffect(() => {
       if (!externalCustomerId) {
         if (lastInitializedCustomerRef.current !== undefined) {
-          form.setFieldValue('billingEntityId', undefined)
-          form.setFieldValue('paymentMethod', undefined)
+          // A create-more reset has already emptied both: writing them again would re-dirty
+          // the fresh form, since setFieldValue always marks the field dirty.
+          if (form.state.values.billingEntityId !== undefined) {
+            form.setFieldValue('billingEntityId', undefined)
+          }
+          if (form.state.values.paymentMethod !== undefined) {
+            form.setFieldValue('paymentMethod', undefined)
+          }
           lastInitializedCustomerRef.current = undefined
         }
         return
