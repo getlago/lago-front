@@ -115,6 +115,18 @@ const CreateDunning = () => {
   })
 
   useEffect(() => {
+    if (!campaign) return
+
+    form.reset(defaultValues)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [campaign])
+
+  // The organization can resolve after the first render. Re-seed only while the form is
+  // untouched: a reset would otherwise discard whatever the user has already typed, and
+  // `setFieldValue` would leave a pristine form reporting itself as dirty.
+  useEffect(() => {
+    if (!!campaign || !defaultCurrency || form.state.isDirty) return
+
     form.reset(defaultValues)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [campaign, defaultCurrency])

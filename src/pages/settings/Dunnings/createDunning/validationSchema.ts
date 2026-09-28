@@ -3,8 +3,8 @@ import { z } from 'zod'
 import { EMAIL_REGEX } from '~/formValidation/zodCustoms'
 import { CurrencyEnum } from '~/generated/graphql'
 
-const REQUIRED_ERROR = 'text_1771342994699klxu2paz7g8'
-const MIN_ONE_ERROR = 'text_1790576899992jmnfdn9aqrn'
+export const REQUIRED_ERROR = 'text_1771342994699klxu2paz7g8'
+export const MIN_ONE_ERROR = 'text_1790576899992jmnfdn9aqrn'
 const DUPLICATE_CURRENCY_ERROR = 'text_17905768999923req4vrrdil'
 const INVALID_EMAIL_ERROR = 'text_620bc4d4269a55014d493fc3'
 
@@ -22,10 +22,12 @@ const commaSeparatedEmails = z.string().refine(
 
 // `positiveNumber` keeps the input numeric but the value stays the raw string the
 // user typed, so the bound is checked on the cast rather than with `z.number()`.
+// Zod runs both checks on the same value, so the bound skips '' to keep an empty
+// field reporting the required error alone instead of stacking the two.
 const atLeastOne = z
   .string()
   .min(1, { message: REQUIRED_ERROR })
-  .refine((value) => Number(value) >= 1, { message: MIN_ONE_ERROR })
+  .refine((value) => value === '' || Number(value) >= 1, { message: MIN_ONE_ERROR })
 
 const thresholdSchema = z.object({
   currency: z

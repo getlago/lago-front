@@ -1,6 +1,11 @@
 import { CurrencyEnum } from '~/generated/graphql'
 
-import { dunningCampaignFormSchema, DunningCampaignFormValues } from '../validationSchema'
+import {
+  dunningCampaignFormSchema,
+  DunningCampaignFormValues,
+  MIN_ONE_ERROR,
+  REQUIRED_ERROR,
+} from '../validationSchema'
 
 const validValues: DunningCampaignFormValues = {
   name: 'Overdue reminder',
@@ -19,6 +24,18 @@ const invalidPaths = (values: DunningCampaignFormValues): string[] => {
   if (result.success) return []
 
   return [...new Set(result.error.issues.map((issue) => issue.path.join('.')))].sort()
+}
+
+// Deduplicated paths hide a field that reports two errors at once; the field wrapper
+// joins every message it is given, so the count matters as much as the path.
+const issuesFor = (values: DunningCampaignFormValues, path: string): string[] => {
+  const result = dunningCampaignFormSchema.safeParse(values)
+
+  if (result.success) return []
+
+  return result.error.issues
+    .filter((issue) => issue.path.join('.') === path)
+    .map((issue) => issue.message)
 }
 
 describe('dunningCampaignFormSchema', () => {
@@ -61,6 +78,22 @@ describe('dunningCampaignFormSchema', () => {
         ['maxAttempts', { maxAttempts: '1' }],
       ])('THEN should accept exactly one for %s', (_path, override) => {
         expect(invalidPaths({ ...validValues, ...override })).toEqual([])
+      })
+
+      it.each([
+        ['daysBetweenAttempts', { daysBetweenAttempts: '' }],
+        ['maxAttempts', { maxAttempts: '' }],
+      ])('THEN should report only the required error on an empty %s', (path, override) => {
+        // Both checks run on the same value, and the field renders every message it
+        // is handed: an empty input must not read "required" and "at least 1" at once.
+        expect(issuesFor({ ...validValues, ...override }, path)).toEqual([REQUIRED_ERROR])
+      })
+
+      it.each([
+        ['daysBetweenAttempts', { daysBetweenAttempts: '0' }],
+        ['maxAttempts', { maxAttempts: '0' }],
+      ])('THEN should report only the bound error on a zero %s', (path, override) => {
+        expect(issuesFor({ ...validValues, ...override }, path)).toEqual([MIN_ONE_ERROR])
       })
     })
   })

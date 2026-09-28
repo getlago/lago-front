@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
@@ -16,6 +16,24 @@ import CreateDunning, {
   CREATE_DUNNING_SHOW_DESCRIPTION_TEST_ID,
   CREATE_DUNNING_SUBMIT_BUTTON_TEST_ID,
 } from '../CreateDunning'
+
+// The combobox popper is virtualized, and `useVirtualizer` measures a scroll container
+// jsdom never lays out, so it renders zero options without this. Mirrors the mock in
+// BaseComboBoxVirtualizedList's own test.
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: (config: { count: number; estimateSize: (index: number) => number }) => ({
+    getVirtualItems: () =>
+      Array.from({ length: config.count }, (_, index) => ({
+        index,
+        key: index,
+        size: config.estimateSize(index),
+        start: index * config.estimateSize(index),
+      })),
+    getTotalSize: () => config.count * config.estimateSize(0),
+    scrollToIndex: jest.fn(),
+    measureElement: jest.fn(),
+  }),
+}))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -47,8 +65,10 @@ jest.mock('~/styles/mainObjectsForm', () => ({
   ),
 }))
 
+const mockUseOrganizationInfos = jest.fn()
+
 jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({ organization: { defaultCurrency: 'EUR' } }),
+  useOrganizationInfos: () => mockUseOrganizationInfos(),
 }))
 
 const mockOnSave = jest.fn()
@@ -105,6 +125,7 @@ describe('CreateDunning', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockOnSave.mockResolvedValue(undefined)
+    mockUseOrganizationInfos.mockReturnValue({ organization: { defaultCurrency: 'EUR' } })
     mockHook()
   })
 
@@ -191,6 +212,40 @@ describe('CreateDunning', () => {
         await user.click(screen.getByTestId(CREATE_DUNNING_SHOW_BCC_EMAILS_TEST_ID))
 
         expect(getInput('bccEmails')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN selecting a currency on an added threshold', () => {
+      it('THEN should save both rows with the selected currency', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateDunning />)
+
+        await fillRequiredFields(user)
+        await user.click(screen.getByTestId(CREATE_DUNNING_ADD_THRESHOLD_TEST_ID))
+
+        const currencyInput = getInput('thresholds[1].currency')
+
+        await user.click(currencyInput)
+        await user.type(currencyInput, CurrencyEnum.Cad)
+        const option = await screen.findByTestId(`combobox-item-${CurrencyEnum.Cad}`)
+
+        // The option row carries MUI's click handler, not the wrapper around it.
+        await user.click(within(option).getByTestId(CurrencyEnum.Cad))
+
+        await user.type(getInput('thresholds[1].amountCents'), '200')
+        await user.click(screen.getByTestId(CREATE_DUNNING_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockOnSave).toHaveBeenCalledWith(
+            expect.objectContaining({
+              thresholds: [
+                { currency: CurrencyEnum.Eur, amountCents: '100' },
+                { currency: CurrencyEnum.Cad, amountCents: '200' },
+              ],
+            }),
+          )
+        })
       })
     })
 
@@ -344,6 +399,24 @@ describe('CreateDunning', () => {
         render(<CreateDunning />)
 
         expect(getInput('thresholds[0].currency')).toHaveValue(CurrencyEnum.Usd)
+      })
+    })
+
+    describe('WHEN the organization currency resolves after the form is loaded', () => {
+      it('THEN should keep what the user already typed', async () => {
+        const user = userEvent.setup()
+
+        mockUseOrganizationInfos.mockReturnValue({ organization: undefined })
+
+        const { rerender } = render(<CreateDunning />)
+
+        await user.clear(getInput('name'))
+        await user.type(getInput('name'), 'Renamed campaign')
+
+        mockUseOrganizationInfos.mockReturnValue({ organization: { defaultCurrency: 'EUR' } })
+        rerender(<CreateDunning />)
+
+        expect(getInput('name')).toHaveValue('Renamed campaign')
       })
     })
 
