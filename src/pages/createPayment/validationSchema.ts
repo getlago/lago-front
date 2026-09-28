@@ -19,16 +19,6 @@ const createPaymentFormShape = z.object({
 
 export type CreatePaymentFormValues = z.infer<typeof createPaymentFormShape>
 
-export const createPaymentDefaultValues = (
-  invoiceId: string,
-  createdAt: string,
-): CreatePaymentFormValues => ({
-  invoiceId,
-  amountCents: '',
-  reference: '',
-  createdAt,
-})
-
 // Formik validated prepareDataForValidation(values), which turns every '' into undefined,
 // so '' counts as absent wherever presence or a numeric cast is checked.
 const prepared = (value: string | number | undefined): string | number | undefined =>
@@ -38,10 +28,8 @@ const addHiddenIssue = (ctx: z.RefinementCtx, path: (string | number)[]): void =
   ctx.addIssue({ code: 'custom', message: HIDDEN_ERROR_MESSAGE, path })
 }
 
-/**
- * `maxAmount` is the invoice's deserialized total due, which lives on the async-loaded
- * invoice instead of in form state, so the schema is rebuilt whenever it moves.
- */
+// `maxAmount` is the invoice's deserialized total due: it lives on the async-loaded
+// invoice, not in form state, so the schema is rebuilt whenever it moves.
 export const buildCreatePaymentValidationSchema = (maxAmount: number) =>
   createPaymentFormShape.superRefine((data, ctx) => {
     if (!data.invoiceId) {
