@@ -32,7 +32,6 @@ export const FiltersItemAppliedRateCardProductFilter = ({
   })
 
   const comboboxProductFiltersData = useMemo(() => {
-    // Freshly mapped array (never a prop/state), so sorting in place is safe.
     const productFilterOptions = (data?.productFilters?.collection ?? [])
       .map((productFilter) => {
         const label = productFilter.invoiceDisplayName || productFilter.name
