@@ -43,8 +43,9 @@ const createMockField = (
   handleChange: mockHandleChange,
   handleBlur: mockHandleBlur,
   form: {
-    getFieldMeta: jest.fn(() => ({ errorMap: {} })),
-    setFieldMeta: jest.fn(),
+    state: { submissionAttempts: 0 },
+    store: { subscribe: jest.fn(() => ({ unsubscribe: jest.fn() })) },
+    getFieldMeta: jest.fn(),
   },
 })
 
