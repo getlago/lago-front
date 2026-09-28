@@ -95,6 +95,10 @@ describe('CatalogPlanRateCardsSection', () => {
     mockHasPermissions.mockReturnValue(true)
   })
 
+  afterEach(() => {
+    window.history.pushState({}, '', '/')
+  })
+
   it('queries planAppliedRateCards for the given catalogPlanId and renders the row', async () => {
     renderSection([buildListMock([rowFixture])])
 
@@ -111,6 +115,38 @@ describe('CatalogPlanRateCardsSection', () => {
     await user.type(screen.getByPlaceholderText('text_17849293094725tv045xhkxf'), 'a')
 
     expect(testMockNavigateFn).toHaveBeenCalledWith({ search: '' }, { replace: true })
+  })
+
+  it('requests hasRateOverrides when the Has rate overrides filter is applied through the URL', async () => {
+    const mocks = [
+      buildListMock([rowFixture]),
+      {
+        request: {
+          query: GetPlanAppliedRateCardsForRateCardsSectionDocument,
+          variables: { planId: 'plan-1', page: 1, limit: 20, hasRateOverrides: true },
+        },
+        result: {
+          data: {
+            planAppliedRateCards: {
+              __typename: 'PlanAppliedRateCardCollection',
+              collection: [rowFixture],
+              metadata: {
+                __typename: 'CollectionMetadata',
+                currentPage: 1,
+                totalPages: 1,
+                totalCount: 1,
+              },
+            },
+          },
+        },
+      },
+    ]
+
+    window.history.pushState({}, '', '/?arc_appliedRateCardHasOverrides=true')
+
+    renderSection(mocks)
+
+    await waitFor(() => expect(screen.getByText('Product One')).toBeInTheDocument())
   })
 
   it('shows the empty state when there are no applied rate cards', async () => {

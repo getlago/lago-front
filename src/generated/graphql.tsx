@@ -16662,6 +16662,13 @@ export type GetPlanAppliedRateCardsForRateCardsSectionQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  productFilterIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  productType?: InputMaybe<ProductTypeEnum>;
+  hasRateOverrides?: InputMaybe<Scalars['Boolean']['input']>;
+  withoutProductCategory?: InputMaybe<Scalars['Boolean']['input']>;
+  withoutProductFilter?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -43781,12 +43788,19 @@ export type GetCatalogPlanForDetailsOverviewLazyQueryHookResult = ReturnType<typ
 export type GetCatalogPlanForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetCatalogPlanForDetailsOverviewSuspenseQuery>;
 export type GetCatalogPlanForDetailsOverviewQueryResult = Apollo.QueryResult<GetCatalogPlanForDetailsOverviewQuery, GetCatalogPlanForDetailsOverviewQueryVariables>;
 export const GetPlanAppliedRateCardsForRateCardsSectionDocument = gql`
-    query getPlanAppliedRateCardsForRateCardsSection($planId: ID!, $page: Int, $limit: Int, $searchTerm: String) {
+    query getPlanAppliedRateCardsForRateCardsSection($planId: ID!, $page: Int, $limit: Int, $searchTerm: String, $productCategoryIds: [ID!], $productIds: [ID!], $productFilterIds: [ID!], $productType: ProductTypeEnum, $hasRateOverrides: Boolean, $withoutProductCategory: Boolean, $withoutProductFilter: Boolean) {
   planAppliedRateCards(
     planId: $planId
     page: $page
     limit: $limit
     searchTerm: $searchTerm
+    productCategoryIds: $productCategoryIds
+    productIds: $productIds
+    productFilterIds: $productFilterIds
+    productType: $productType
+    hasRateOverrides: $hasRateOverrides
+    withoutProductCategory: $withoutProductCategory
+    withoutProductFilter: $withoutProductFilter
   ) {
     collection {
       id
@@ -43817,6 +43831,13 @@ export const GetPlanAppliedRateCardsForRateCardsSectionDocument = gql`
  *      page: // value for 'page'
  *      limit: // value for 'limit'
  *      searchTerm: // value for 'searchTerm'
+ *      productCategoryIds: // value for 'productCategoryIds'
+ *      productIds: // value for 'productIds'
+ *      productFilterIds: // value for 'productFilterIds'
+ *      productType: // value for 'productType'
+ *      hasRateOverrides: // value for 'hasRateOverrides'
+ *      withoutProductCategory: // value for 'withoutProductCategory'
+ *      withoutProductFilter: // value for 'withoutProductFilter'
  *   },
  * });
  */
