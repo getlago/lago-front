@@ -1,8 +1,7 @@
-import { DateTime } from 'luxon'
 import { z } from 'zod'
 
-import { addUnparseableDateIssue } from '~/formValidation/zodCustoms'
 import { MarkOrderFormAsSignedInput, OrderExecutionModeEnum } from '~/generated/graphql'
+import { addExecuteAtIssue } from '~/pages/quotes/common/addExecuteAtIssue'
 
 export const signOrderFormValidationSchema = z
   .object({
@@ -14,22 +13,8 @@ export const signOrderFormValidationSchema = z
     message: 'text_17816865941254uzl22ixohk',
     path: ['executionMode'],
   })
-  // Execution must be scheduled for a future day — today and past are rejected by the backend
-  .refine(
-    (data) => {
-      if (!data.executeAt) return true
-
-      const executeAt = DateTime.fromISO(data.executeAt)
-
-      return !executeAt.isValid || executeAt.startOf('day') > DateTime.now().startOf('day')
-    },
-    {
-      message: 'text_1781698831945d8qod1ugqsu',
-      path: ['executeAt'],
-    },
-  )
   .superRefine((data, ctx) => {
-    addUnparseableDateIssue(ctx, data.executeAt, ['executeAt'])
+    addExecuteAtIssue(ctx, data.executeAt)
   })
 
 export type SignOrderFormValues = z.infer<typeof signOrderFormValidationSchema>
