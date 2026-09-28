@@ -35,6 +35,7 @@ const mockOpen = jest.fn((args: CapturedDrawerArgs) => {
 })
 const mockClose = jest.fn()
 const mockNavigate = jest.fn()
+let mockIsCreateMoreEnabled = false
 
 jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
@@ -43,7 +44,7 @@ jest.mock('~/components/drawers/useDrawer', () => ({
 jest.mock('~/components/drawers/createMore/useCreateMore', () => ({
   useCreateMore: () => ({
     createMoreControl: 'create-more-control',
-    isCreateMoreEnabled: () => false,
+    isCreateMoreEnabled: () => mockIsCreateMoreEnabled,
     resetCreateMore: jest.fn(),
     resetSignal: undefined,
     notifyReset: jest.fn(),
@@ -127,6 +128,7 @@ const submit = async (): Promise<void> => {
 describe('useContractDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockIsCreateMoreEnabled = false
     lastDrawerArgs = null
   })
 
@@ -206,6 +208,29 @@ describe('useContractDrawer', () => {
         planCode: expect.anything(),
       }),
     )
+  })
+
+  // The form is reset for the next contract; closing it must not prompt to discard anything.
+  it('leaves a pristine form after a create more save', async () => {
+    mockIsCreateMoreEnabled = true
+    const { result } = renderDrawerHook([
+      {
+        request: { query: CreateContractDocument },
+        variableMatcher: () => true,
+        result: { data: { createContract: contractForDrawerFixture } },
+      },
+    ])
+
+    act(() => result.current.openDrawer())
+    render(<MockedProvider>{lastDrawerArgs?.children}</MockedProvider>)
+    await userEvent.click(screen.getByRole('button', { name: 'seed contract' }))
+    await submit()
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' })),
+    )
+    expect(mockClose).not.toHaveBeenCalled()
+    expect(lastDrawerArgs?.shouldPromptOnClose?.()).toBe(false)
   })
 
   describe('edit mode', () => {

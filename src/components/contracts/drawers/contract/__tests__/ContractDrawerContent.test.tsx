@@ -2,6 +2,7 @@ import { MockedResponse } from '@apollo/client/testing'
 import { useStore } from '@tanstack/react-form'
 import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 
+import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import {
   ContractStatusEnum,
   GetCatalogPlansForContractDrawerDocument,
@@ -15,6 +16,7 @@ import { render } from '~/test-utils'
 import { contractForDrawerFixture } from './fixtures'
 
 import {
+  buildContractFormDefaults,
   CONTRACT_DRAWER_CUSTOMER_COMBOBOX_TEST_ID,
   CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID,
   CONTRACT_DRAWER_REMOVE_EXTERNAL_ID_TEST_ID,
@@ -327,6 +329,67 @@ describe('ContractDrawerContent in edit mode', () => {
     await waitFor(() =>
       expect(mockBillingEntityPicker).toHaveBeenLastCalledWith(
         expect.objectContaining({ value: 'billing-entity-2' }),
+      ),
+    )
+    expect(screen.getByTestId(FORM_DIRTY_STATE_TEST_ID)).toHaveTextContent('pristine')
+  })
+})
+
+const CreateMoreWrapper = () => {
+  const form = useAppForm({ defaultValues: buildContractFormDefaults() })
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+  const { resetSignal, notifyReset } = useCreateMore()
+
+  return (
+    <>
+      <span data-test={FORM_DIRTY_STATE_TEST_ID}>{isDirty ? 'dirty' : 'pristine'}</span>
+      <button
+        type="button"
+        onClick={() => form.setFieldValue('externalCustomerId', 'customer-external-id')}
+      >
+        Pick customer
+      </button>
+      <button
+        type="button"
+        onClick={async () => {
+          // Mirrors `onSubmit`: the reset lands after the awaited mutation, outside the click batch.
+          await Promise.resolve()
+          form.reset(buildContractFormDefaults(), { keepDefaultValues: true })
+          notifyReset()
+        }}
+      >
+        Create more reset
+      </button>
+      <ContractDrawerContent
+        form={form}
+        isEdit={false}
+        fieldLocks={CREATE_CONTRACT_FIELD_LOCKS}
+        resetSignal={resetSignal}
+      />
+    </>
+  )
+}
+
+describe('ContractDrawerContent with create more', () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  // The form reset empties the customer, which the auto-fill effect used to treat as a user
+  // clearing it, re-dirtying the fresh form so closing it prompted to discard nothing.
+  it('leaves the form pristine after a create more reset', async () => {
+    render(<CreateMoreWrapper />, { mocks: [customersMock, plansMock] })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Pick customer' }))
+    await waitFor(() =>
+      expect(mockBillingEntityPicker).toHaveBeenLastCalledWith(
+        expect.objectContaining({ value: 'billing-entity-1' }),
+      ),
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create more reset' }))
+
+    await waitFor(() =>
+      expect(mockBillingEntityPicker).toHaveBeenLastCalledWith(
+        expect.objectContaining({ value: undefined }),
       ),
     )
     expect(screen.getByTestId(FORM_DIRTY_STATE_TEST_ID)).toHaveTextContent('pristine')
