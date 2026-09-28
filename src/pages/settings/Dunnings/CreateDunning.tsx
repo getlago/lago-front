@@ -210,38 +210,22 @@ const CreateDunning = () => {
                   <Alert type="warning">{translate('text_1732187313660ghhrj235mxg')}</Alert>
                 )}
 
-                <div className="not-last-child:mb-1">
-                  <Typography variant="headline" color="textSecondary">
-                    {translate('text_1728584028187fg2ebhssz6r')}
-                  </Typography>
-                  <Typography variant="body">
-                    {translate('text_1728584028187st1bmr7wdw9')}
-                  </Typography>
-                </div>
+                <CenteredPage.PageTitle
+                  title={translate('text_1728584028187fg2ebhssz6r')}
+                  description={translate('text_1728584028187st1bmr7wdw9')}
+                />
 
                 <div className="flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b">
                   <section className="not-last-child:mb-6">
-                    <div className="not-last-child:mb-2">
-                      <Typography variant="subhead1">
-                        {translate('text_1728584028187on239g4adt5')}
-                      </Typography>
-                      <Typography variant="caption">
-                        {translate('text_1728584028187im92nik4ff8')}
-                      </Typography>
-                    </div>
+                    <CenteredPage.PageSectionTitle
+                      title={translate('text_1728584028187on239g4adt5')}
+                      description={translate('text_1728584028187im92nik4ff8')}
+                    />
                     <NameAndCodeGroup
                       form={form}
                       fields={{ name: 'name', code: 'code' }}
                       disableAutoGenerateCode={isEdition}
-                      nameProps={{
-                        autoFocus: true,
-                        label: translate('text_6419c64eace749372fc72b0f'),
-                        placeholder: translate('text_6584550dc4cec7adf861504f'),
-                      }}
-                      codeProps={{
-                        label: translate('text_62876e85e32e0300e1803127'),
-                        placeholder: translate('text_6584550dc4cec7adf8615053'),
-                      }}
+                      nameProps={{ autoFocus: true }}
                     />
                     {shouldDisplayDescription ? (
                       <ToggleableFieldRow
@@ -275,14 +259,10 @@ const CreateDunning = () => {
                   </section>
 
                   <section className="not-last-child:mb-6">
-                    <div className="not-last-child:mb-2">
-                      <Typography variant="subhead1">
-                        {translate('text_1742392390147aoog6603wwy')}
-                      </Typography>
-                      <Typography variant="caption">
-                        {translate('text_1742392390147fju3ihxmtin')}
-                      </Typography>
-                    </div>
+                    <CenteredPage.PageSectionTitle
+                      title={translate('text_1742392390147aoog6603wwy')}
+                      description={translate('text_1742392390147fju3ihxmtin')}
+                    />
 
                     <div className="flex flex-col gap-6">
                       {thresholds.map((_threshold, index) => {
@@ -358,26 +338,26 @@ const CreateDunning = () => {
                   </section>
 
                   <section className="not-last-child:mb-6">
-                    <div className="not-last-child:mb-2">
-                      <Typography variant="subhead1">
-                        {translate('text_1742392390147pcg2p300roc')}
-                      </Typography>
-                      <Typography variant="caption">
-                        <span className="mr-1">
-                          {hasPaymentProviderExcludingGoCardless
-                            ? translate('text_1728584028187l2wdjy4s5cs')
-                            : translate('text_17291534666709ytr7mi4jjl')}
-                        </span>
-                        <button
-                          type="button"
-                          className="h-auto p-0 text-blue-600 hover:underline focus:underline"
-                          data-test={CREATE_DUNNING_PREVIEW_EMAIL_TEST_ID}
-                          onClick={() => previewCampaignEmailDrawerRef.current?.openDrawer()}
-                        >
-                          {translate('text_1728584028187udjepvgj8ra')}
-                        </button>
-                      </Typography>
-                    </div>
+                    <CenteredPage.PageSectionTitle
+                      title={translate('text_1742392390147pcg2p300roc')}
+                      description={
+                        <Typography variant="caption">
+                          <span className="mr-1">
+                            {hasPaymentProviderExcludingGoCardless
+                              ? translate('text_1728584028187l2wdjy4s5cs')
+                              : translate('text_17291534666709ytr7mi4jjl')}
+                          </span>
+                          <button
+                            type="button"
+                            className="h-auto p-0 text-blue-600 hover:underline focus:underline"
+                            data-test={CREATE_DUNNING_PREVIEW_EMAIL_TEST_ID}
+                            onClick={() => previewCampaignEmailDrawerRef.current?.openDrawer()}
+                          >
+                            {translate('text_1728584028187udjepvgj8ra')}
+                          </button>
+                        </Typography>
+                      }
+                    />
 
                     {renderAttemptsField({
                       name: 'daysBetweenAttempts',
