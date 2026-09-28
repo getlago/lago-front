@@ -39,7 +39,7 @@ import { tw } from '~/styles/utils'
 import {
   buildCreatePaymentInput,
   buildCreatePaymentValidationSchema,
-  createPaymentDefaultValues,
+  CreatePaymentFormValues,
 } from './createPayment/validationSchema'
 
 gql`
@@ -158,8 +158,13 @@ const CreatePayment = () => {
     },
   })
 
-  const defaultValues = useMemo(
-    () => createPaymentDefaultValues(params.invoiceId ?? '', today),
+  const defaultValues = useMemo<CreatePaymentFormValues>(
+    () => ({
+      invoiceId: params.invoiceId ?? '',
+      amountCents: '',
+      reference: '',
+      createdAt: today,
+    }),
     [params.invoiceId],
   )
 

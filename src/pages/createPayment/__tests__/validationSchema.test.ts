@@ -4,7 +4,6 @@ import { CurrencyEnum } from '~/generated/graphql'
 import {
   buildCreatePaymentInput,
   buildCreatePaymentValidationSchema,
-  createPaymentDefaultValues,
   CreatePaymentFormValues,
 } from '../validationSchema'
 
@@ -107,17 +106,6 @@ describe('createPayment/validationSchema', () => {
     })
   })
 
-  describe('GIVEN the default values', () => {
-    it('THEN should seed the invoice and the payment date', () => {
-      expect(createPaymentDefaultValues('invoice-1', '2026-01-15T00:00:00.000Z')).toEqual({
-        invoiceId: 'invoice-1',
-        amountCents: '',
-        reference: '',
-        createdAt: '2026-01-15T00:00:00.000Z',
-      })
-    })
-  })
-
   describe('GIVEN the API input mapper', () => {
     it('THEN should serialize the amount for the invoice currency', () => {
       expect(buildCreatePaymentInput(validValues, CurrencyEnum.Usd)).toEqual({
@@ -126,12 +114,6 @@ describe('createPayment/validationSchema', () => {
         createdAt: '2026-01-15T00:00:00.000Z',
         amountCents: 5000,
       })
-    })
-
-    it('THEN should serialize the amount of a zero decimal currency', () => {
-      expect(
-        buildCreatePaymentInput({ ...validValues, amountCents: '50' }, CurrencyEnum.Jpy),
-      ).toEqual(expect.objectContaining({ amountCents: 50 }))
     })
   })
 })

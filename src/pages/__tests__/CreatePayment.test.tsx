@@ -200,7 +200,6 @@ describe('CreatePayment', () => {
 
         renderOnCreateRoute()
 
-        // `invoiceId` is the first input of the form, so `onSubmitInvalid` must reach it.
         const scrollIntoView = jest.spyOn(getInput('invoiceId'), 'scrollIntoView')
 
         await user.click(screen.getByTestId(CREATE_PAYMENT_SUBMIT_BUTTON_TEST_ID))
