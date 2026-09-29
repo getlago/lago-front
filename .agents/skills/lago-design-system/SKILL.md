@@ -14,3 +14,4 @@ behavior.
 | Component / topic | Reference |
 | --- | --- |
 | Icons, logos & brand assets | `references/icons-and-logos.md` |
+| ComboBox width & focus/open behavior | `references/combobox-width-and-focus.md` |
