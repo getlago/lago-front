@@ -26,11 +26,11 @@ const NetsuiteAdditionalMappingForm = withForm({
     const { translate } = useInternationalization()
 
     const mappings = useStore(form.store, (state) => state.values.default)
-    const alreadyExistingCurrencies = mappings.map((mapping) => mapping.currencyCode)
+    const alreadyExistingCurrencies = new Set(mappings.map((mapping) => mapping.currencyCode))
     const possibleCurrencies = Object.values(CurrencyEnum).map((currency) => ({
       label: currency,
       value: currency,
-      disabled: alreadyExistingCurrencies.includes(currency),
+      disabled: alreadyExistingCurrencies.has(currency),
     }))
 
     return (

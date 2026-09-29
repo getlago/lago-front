@@ -42,7 +42,7 @@ export const useNetsuiteAdditionalMappingDrawer = (): UseNetsuiteAdditionalMappi
     onSubmit: async ({ value }) => {
       const openedWith = drawerPropsRef.current
 
-      if (!openedWith || openedWith.type !== MappingTypeEnum.Currencies) {
+      if (openedWith?.type !== MappingTypeEnum.Currencies) {
         return
       }
 
