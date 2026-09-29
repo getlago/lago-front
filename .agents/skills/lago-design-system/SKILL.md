@@ -16,3 +16,4 @@ behavior.
 | Icons, logos & brand assets | `references/icons-and-logos.md` |
 | ComboBox width & focus/open behavior | `references/combobox-width-and-focus.md` |
 | Filters framework internals | `references/filters-framework-internals.md` |
+| Selector hover actions | `references/selector-hover-actions.md` |
