@@ -241,6 +241,23 @@ export const FiltersItemDates = [
   AvailableFiltersEnum.adminAuditDate,
 ]
 
+// Object-return split (real ids -> productFilterIds, sentinel -> withoutProductFilter),
+// same shape as productProductCategory. Named and exported for direct unit testing.
+export const mapAppliedRateCardProductFilterValue = (
+  value: string,
+): { productFilterIds?: string[]; withoutProductFilter?: boolean } => {
+  const parts = value.split(',').filter(Boolean)
+  const withoutProductFilter = parts.includes(filterWithoutProductFilterValue)
+  const productFilterIds = parts
+    .filter((part) => part !== filterWithoutProductFilterValue)
+    .map((part) => part.split(filterDataInlineSeparator)[0])
+
+  return {
+    ...(productFilterIds.length > 0 && { productFilterIds }),
+    ...(withoutProductFilter && { withoutProductFilter: true }),
+  }
+}
+
 // TODO: Fix this type
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
@@ -383,19 +400,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
       .filter(Boolean)
       .map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.appliedRateCardHasOverrides]: (value: string) => value === 'true',
-  // Same object-return split as productProductCategory, but for withoutProductFilter.
-  [AvailableFiltersEnum.appliedRateCardProductFilter]: (value: string) => {
-    const parts = value.split(',').filter(Boolean)
-    const withoutProductFilter = parts.includes(filterWithoutProductFilterValue)
-    const productFilterIds = parts
-      .filter((part) => part !== filterWithoutProductFilterValue)
-      .map((part) => part.split(filterDataInlineSeparator)[0])
-
-    return {
-      ...(productFilterIds.length > 0 && { productFilterIds }),
-      ...(withoutProductFilter && { withoutProductFilter: true }),
-    }
-  },
+  [AvailableFiltersEnum.appliedRateCardProductFilter]: mapAppliedRateCardProductFilterValue,
   [AvailableFiltersEnum.appliedRateCardProductType]: (value: string) => value,
   [AvailableFiltersEnum.orderFormCreatedAt]: (value: string) => {
     return {

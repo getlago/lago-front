@@ -26,6 +26,7 @@ import {
   getFilterValue,
   isValidDateRangeValue,
   keyWithPrefix,
+  mapAppliedRateCardProductFilterValue,
   orderIntervalBounds,
   parseFromToValue,
   parseMetadataFilter,
@@ -1382,34 +1383,41 @@ describe('Filters utils', () => {
       expect(result).toBe(false)
     })
 
-    it('should map appliedRateCardProductFilter real ids to productFilterIds', () => {
-      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.appliedRateCardProductFilter](
-        `pf-1${filterDataInlineSeparator}A,pf-2${filterDataInlineSeparator}B`,
+    it('FILTER_VALUE_MAP wires appliedRateCardProductFilter to mapAppliedRateCardProductFilterValue', () => {
+      expect(FILTER_VALUE_MAP[AvailableFiltersEnum.appliedRateCardProductFilter]).toBe(
+        mapAppliedRateCardProductFilterValue,
       )
-
-      expect(result).toEqual({ productFilterIds: ['pf-1', 'pf-2'] })
-    })
-
-    it('should map appliedRateCardProductFilter "Not defined" only to withoutProductFilter', () => {
-      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.appliedRateCardProductFilter](
-        filterWithoutProductFilterValue,
-      )
-
-      expect(result).toEqual({ withoutProductFilter: true })
-    })
-
-    it('should map appliedRateCardProductFilter with "Not defined" and a real id to both keys', () => {
-      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.appliedRateCardProductFilter](
-        `${filterWithoutProductFilterValue},pf-1${filterDataInlineSeparator}A`,
-      )
-
-      expect(result).toEqual({ productFilterIds: ['pf-1'], withoutProductFilter: true })
     })
 
     it('should map appliedRateCardProductType to the raw value', () => {
       const result = FILTER_VALUE_MAP[AvailableFiltersEnum.appliedRateCardProductType]('fixed')
 
       expect(result).toBe('fixed')
+    })
+  })
+
+  describe('mapAppliedRateCardProductFilterValue', () => {
+    it('maps real ids to productFilterIds', () => {
+      const result = mapAppliedRateCardProductFilterValue(
+        `pf-1${filterDataInlineSeparator}A,pf-2${filterDataInlineSeparator}B`,
+      )
+
+      expect(result).toEqual({ productFilterIds: ['pf-1', 'pf-2'] })
+    })
+
+    it('maps the "Not defined" sentinel alone to withoutProductFilter, with no productFilterIds key', () => {
+      const result = mapAppliedRateCardProductFilterValue(filterWithoutProductFilterValue)
+
+      expect(result).toEqual({ withoutProductFilter: true })
+      expect(result).not.toHaveProperty('productFilterIds')
+    })
+
+    it('maps "Not defined" combined with a real id to both keys', () => {
+      const result = mapAppliedRateCardProductFilterValue(
+        `${filterWithoutProductFilterValue},pf-1${filterDataInlineSeparator}A`,
+      )
+
+      expect(result).toEqual({ productFilterIds: ['pf-1'], withoutProductFilter: true })
     })
   })
 
