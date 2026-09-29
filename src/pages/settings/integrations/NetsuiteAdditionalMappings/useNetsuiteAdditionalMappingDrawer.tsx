@@ -49,6 +49,13 @@ export const useNetsuiteAdditionalMappingDrawer = (): UseNetsuiteAdditionalMappi
       const { integrationId, itemId, type } = openedWith
       const currencies = buildCurrenciesMappingInput(value)
 
+      // An empty list only means "delete" on an existing mapping; with nothing
+      // mapped yet there is nothing to create.
+      if (!itemId && !currencies.length) {
+        drawer.close()
+        return
+      }
+
       const runMutation = (): Promise<FetchResult<unknown>> => {
         if (!itemId) {
           return createCollectionMapping({
@@ -99,6 +106,7 @@ export const useNetsuiteAdditionalMappingDrawer = (): UseNetsuiteAdditionalMappi
       title,
       form: { id: NETSUITE_ADDITIONAL_MAPPING_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
+      cancelOrCloseText: 'cancel',
       shouldPromptOnClose: () => form.state.isDirty,
       onClose: () => form.reset(),
       onEntered: focusFirstInput,

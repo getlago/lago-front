@@ -57,6 +57,7 @@ type DrawerPayload = {
   mainAction: ReactNode
   form: { id: string; submit: () => void }
   closeOnSubmitSuccess: boolean
+  cancelOrCloseText: 'close' | 'cancel'
   shouldPromptOnClose: () => boolean
   onClose: () => void
 }
@@ -139,6 +140,14 @@ describe('useNetsuiteAdditionalMappingDrawer', () => {
         expect(lastDrawerPayload().form.id).toBe('netsuite-additional-mapping-drawer-form')
       })
 
+      // The legacy drawer's secondary button read "Cancel"; FormDrawer defaults
+      // to "Close".
+      it('THEN should keep the secondary button labelled as a cancel', async () => {
+        await openDrawerAndRenderBody()
+
+        expect(lastDrawerPayload().cancelOrCloseText).toBe('cancel')
+      })
+
       it('THEN should render no mapping row', async () => {
         await openDrawerAndRenderBody()
 
@@ -181,6 +190,20 @@ describe('useNetsuiteAdditionalMappingDrawer', () => {
           }),
         )
         expect(mockClose).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN it is submitted with no row at all', () => {
+      // Removing the legacy `!dirty` gate made this submit reachable; creating
+      // an empty mapping would leave the item looking mapped with no currency.
+      it('THEN should close without creating an empty mapping', async () => {
+        const { payload } = await openDrawerAndRenderBody()
+
+        payload.form.submit()
+
+        await waitFor(() => expect(mockClose).toHaveBeenCalled())
+        expect(mockCreateCollectionMapping).not.toHaveBeenCalled()
+        expect(mockDeleteCollectionMapping).not.toHaveBeenCalled()
       })
     })
 
