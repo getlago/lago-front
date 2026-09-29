@@ -7,6 +7,9 @@ const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme'> = {
   darkMode: ['class'],
   theme: {
     extend: {
+      aria: {
+        invalid: 'invalid="true"',
+      },
       colors: {
         background: 'oklch(var(--background) / <alpha-value>)',
         foreground: 'oklch(var(--foreground) / <alpha-value>)',
