@@ -5108,5 +5108,19 @@
   "text_1790258263571oi5bbtne9ts": "Governance entity successfully deleted",
   "text_17902586874164cq2n2rdi9y": "Deleting this entity type stops attributing usage to it from now on. Every breakdown, roll-up, and downstream flow (alerts, limits, budgets) that depends on it will stop working. Billing remains unaffected.",
   "text_17905868609482ypmvd6ovhd": "Maximum hierarchy depth reached",
-  "text_1790586860948m3y6gvqhzw0": "This parent is already at the maximum hierarchy depth. Select another one."
+  "text_1790586860948m3y6gvqhzw0": "This parent is already at the maximum hierarchy depth. Select another one.",
+  "text_1790283913718mpxv4h76ne5": "Remove {{name}}?",
+  "text_1790283913718aiyuge7g45l": "This rate card will no longer be applied and its rate phases will be lost. This action cannot be undone.",
+  "text_1790283913718ou6jmxoxnea": "Remove",
+  "text_1790283913718436odi8om57": "Rate card removed",
+  "text_1790284386156njn3ittr9qj": "Standalone product",
+  "text_1790284386156lsvbnuzz5s7": "Product / filter",
+  "text_17902843861564ti9tbk3ide": "Rate card",
+  "text_17902843861566isyrs5l0jm": "# phases",
+  "text_1790284386156m6phatx4cxa": "Copy rate card code",
+  "text_1790284386156k2d8mjjy98f": "Remove rate card",
+  "text_17902866782060xpq8p9bh3a": "Rate card",
+  "text_1790286678206xilydvk4a1n": "Phase",
+  "text_1790286678206zy40b7ktge5": "This page isn't ready yet",
+  "text_17902866782061brel90bgxt": "We're still building this page. Check back soon."
 }
