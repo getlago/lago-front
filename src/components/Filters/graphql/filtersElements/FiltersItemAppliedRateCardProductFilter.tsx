@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client'
 import { useMemo } from 'react'
 
 import { useFilters } from '~/components/Filters/graphql/useFilters'
@@ -7,19 +8,34 @@ import {
   filterWithoutProductFilterValue,
 } from '~/components/Filters/presentation/types'
 import { MultipleComboBox } from '~/components/form'
-import { useGetProductFiltersForFilterItemRateCardProductFilterQuery } from '~/generated/graphql'
+import { useGetProductFiltersForFilterItemAppliedRateCardProductFilterQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { formatMultiFilterValue, parseLabeledMultiFilterValue } from './utils'
 
 import { escapeFilterLabel } from '../utils'
 
+gql`
+  query getProductFiltersForFilterItemAppliedRateCardProductFilter($page: Int, $limit: Int) {
+    productFilters(page: $page, limit: $limit) {
+      metadata {
+        currentPage
+        totalPages
+      }
+      collection {
+        id
+        name
+        invoiceDisplayName
+      }
+    }
+  }
+`
+
 type FiltersItemAppliedRateCardProductFilterProps = {
   value: FiltersFormValues['filters'][0]['value']
   setFilterValue: (value: string) => void
 }
 
-// Reuses the productFilters query from FiltersItemRateCardProductFilter rather than duplicating it.
 export const FiltersItemAppliedRateCardProductFilter = ({
   value,
   setFilterValue,
@@ -27,7 +43,7 @@ export const FiltersItemAppliedRateCardProductFilter = ({
   const { translate } = useInternationalization()
   const { displayInDialog } = useFilters()
 
-  const { data } = useGetProductFiltersForFilterItemRateCardProductFilterQuery({
+  const { data } = useGetProductFiltersForFilterItemAppliedRateCardProductFilterQuery({
     variables: { page: 1, limit: 500 },
   })
 

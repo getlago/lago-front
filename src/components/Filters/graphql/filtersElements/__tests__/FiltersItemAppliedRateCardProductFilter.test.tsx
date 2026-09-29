@@ -4,7 +4,7 @@ import {
   filterDataInlineSeparator,
   filterWithoutProductFilterValue,
 } from '~/components/Filters/presentation/types'
-import { GetProductFiltersForFilterItemRateCardProductFilterDocument } from '~/generated/graphql'
+import { GetProductFiltersForFilterItemAppliedRateCardProductFilterDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import { FiltersItemAppliedRateCardProductFilter } from '../FiltersItemAppliedRateCardProductFilter'
@@ -20,7 +20,7 @@ const mockSetFilterValue = jest.fn()
 const productFiltersMock: TestMocksType = [
   {
     request: {
-      query: GetProductFiltersForFilterItemRateCardProductFilterDocument,
+      query: GetProductFiltersForFilterItemAppliedRateCardProductFilterDocument,
       variables: { page: 1, limit: 500 },
     },
     result: {

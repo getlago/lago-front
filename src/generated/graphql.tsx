@@ -12591,6 +12591,14 @@ export type GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables = Exact<{ [key: str
 
 export type GetApiKeyIdsForFilterItemApiKeyIdsQuery = { __typename?: 'Query', apiKeys: { __typename?: 'SanitizedApiKeyCollection', collection: Array<{ __typename?: 'SanitizedApiKey', id: string, value: string }> } };
 
+export type GetProductFiltersForFilterItemAppliedRateCardProductFilterQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetProductFiltersForFilterItemAppliedRateCardProductFilterQuery = { __typename?: 'Query', productFilters: { __typename?: 'ProductFilterCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null }> } };
+
 export type GetCatalogPlansForFiltersItemContractPlanQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -25500,6 +25508,58 @@ export type GetApiKeyIdsForFilterItemApiKeyIdsQueryHookResult = ReturnType<typeo
 export type GetApiKeyIdsForFilterItemApiKeyIdsLazyQueryHookResult = ReturnType<typeof useGetApiKeyIdsForFilterItemApiKeyIdsLazyQuery>;
 export type GetApiKeyIdsForFilterItemApiKeyIdsSuspenseQueryHookResult = ReturnType<typeof useGetApiKeyIdsForFilterItemApiKeyIdsSuspenseQuery>;
 export type GetApiKeyIdsForFilterItemApiKeyIdsQueryResult = Apollo.QueryResult<GetApiKeyIdsForFilterItemApiKeyIdsQuery, GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables>;
+export const GetProductFiltersForFilterItemAppliedRateCardProductFilterDocument = gql`
+    query getProductFiltersForFilterItemAppliedRateCardProductFilter($page: Int, $limit: Int) {
+  productFilters(page: $page, limit: $limit) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetProductFiltersForFilterItemAppliedRateCardProductFilterQuery__
+ *
+ * To run a query within a React component, call `useGetProductFiltersForFilterItemAppliedRateCardProductFilterQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductFiltersForFilterItemAppliedRateCardProductFilterQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductFiltersForFilterItemAppliedRateCardProductFilterQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetProductFiltersForFilterItemAppliedRateCardProductFilterQuery(baseOptions?: Apollo.QueryHookOptions<GetProductFiltersForFilterItemAppliedRateCardProductFilterQuery, GetProductFiltersForFilterItemAppliedRateCardProductFilterQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductFiltersForFilterItemAppliedRateCardProductFilterQuery, GetProductFiltersForFilterItemAppliedRateCardProductFilterQueryVariables>(GetProductFiltersForFilterItemAppliedRateCardProductFilterDocument, options);
+      }
+export function useGetProductFiltersForFilterItemAppliedRateCardProductFilterLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductFiltersForFilterItemAppliedRateCardProductFilterQuery, GetProductFiltersForFilterItemAppliedRateCardProductFilterQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductFiltersForFilterItemAppliedRateCardProductFilterQuery, GetProductFiltersForFilterItemAppliedRateCardProductFilterQueryVariables>(GetProductFiltersForFilterItemAppliedRateCardProductFilterDocument, options);
+        }
+// @ts-ignore
+export function useGetProductFiltersForFilterItemAppliedRateCardProductFilterSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductFiltersForFilterItemAppliedRateCardProductFilterQuery, GetProductFiltersForFilterItemAppliedRateCardProductFilterQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductFiltersForFilterItemAppliedRateCardProductFilterQuery, GetProductFiltersForFilterItemAppliedRateCardProductFilterQueryVariables>;
+export function useGetProductFiltersForFilterItemAppliedRateCardProductFilterSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductFiltersForFilterItemAppliedRateCardProductFilterQuery, GetProductFiltersForFilterItemAppliedRateCardProductFilterQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductFiltersForFilterItemAppliedRateCardProductFilterQuery | undefined, GetProductFiltersForFilterItemAppliedRateCardProductFilterQueryVariables>;
+export function useGetProductFiltersForFilterItemAppliedRateCardProductFilterSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductFiltersForFilterItemAppliedRateCardProductFilterQuery, GetProductFiltersForFilterItemAppliedRateCardProductFilterQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductFiltersForFilterItemAppliedRateCardProductFilterQuery, GetProductFiltersForFilterItemAppliedRateCardProductFilterQueryVariables>(GetProductFiltersForFilterItemAppliedRateCardProductFilterDocument, options);
+        }
+export type GetProductFiltersForFilterItemAppliedRateCardProductFilterQueryHookResult = ReturnType<typeof useGetProductFiltersForFilterItemAppliedRateCardProductFilterQuery>;
+export type GetProductFiltersForFilterItemAppliedRateCardProductFilterLazyQueryHookResult = ReturnType<typeof useGetProductFiltersForFilterItemAppliedRateCardProductFilterLazyQuery>;
+export type GetProductFiltersForFilterItemAppliedRateCardProductFilterSuspenseQueryHookResult = ReturnType<typeof useGetProductFiltersForFilterItemAppliedRateCardProductFilterSuspenseQuery>;
+export type GetProductFiltersForFilterItemAppliedRateCardProductFilterQueryResult = Apollo.QueryResult<GetProductFiltersForFilterItemAppliedRateCardProductFilterQuery, GetProductFiltersForFilterItemAppliedRateCardProductFilterQueryVariables>;
 export const GetCatalogPlansForFiltersItemContractPlanDocument = gql`
     query getCatalogPlansForFiltersItemContractPlan($page: Int, $limit: Int, $searchTerm: String) {
   catalogPlans(page: $page, limit: $limit, searchTerm: $searchTerm) {
