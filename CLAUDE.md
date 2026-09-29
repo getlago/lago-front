@@ -78,7 +78,7 @@
 
 ## Subsystem rules — extracted skills
 
-Five areas carry rules too long and too narrow to live in this file. Each one is a skill
+Six areas carry rules too long and too narrow to live in this file. Each one is a skill
 under `.agents/skills/` whose description auto-triggers on the relevant work. Read the
 skill before writing code in that area — never reconstruct these rules from memory or
 from the nearest existing file.
@@ -97,6 +97,10 @@ from the nearest existing file.
 - **Organization slug architecture** → `lago-organization-slug`. The URL slug is the
   per-tab source of truth for the current org; reading `currentOrganizationVar` from a
   feature component is a known bug pattern.
+- **Design-system & layout components** → `lago-design-system`. Implementation
+  gotchas for a documented subset of components (Button, ComboBox, Selector,
+  Filters, icons-and-logos, layout/shell); most components have no entry —
+  check the skill's index before assuming default MUI/DS behavior.
 
 ## Cypress e2e tests
 
@@ -141,7 +145,6 @@ are referenced, not auto-loaded):
 - **Library documentation**: `@.agents/docs/documentation.md`
 - **GraphQL fragments & type safety**: `@.agents/docs/graphql-fragments.md`
 - **Testing best practices**: `@.agents/docs/testing-practices.md`
-- **Icons, logos & brand assets**: `@.agents/docs/icons-and-logos.md`
 
 ## Maintaining this file
 
