@@ -1,6 +1,6 @@
 ---
 name: lago-design-system
-description: 'Implementation gotchas for lago-front''s design-system and layout components - an index below pointing to references/<topic>.md for the ones with a documented history of mistakes; most components have no entry yet. TRIGGER - read BEFORE writing or reviewing code touching anything under src/components/designSystem/**, packages/design-system/src/components/**, or src/components/layouts/** (Button, ComboBox, Table, Avatar, Selector, Filters, icons-and-logos, MainHeader, VerticalMenu, and others); check the index for a matching file before assuming default MUI/DS behavior.'
+description: 'Implementation gotchas for lago-front''s design-system and layout components - an index below pointing to references/<topic>.md for the ones with a documented history of mistakes; most components have no entry yet. TRIGGER - read BEFORE writing or reviewing code touching or using a component from src/components/designSystem/**, packages/design-system/src/components/**, src/components/layouts/**, src/components/form/**, or src/components/Filters/** (Button, ComboBox, Table, Avatar, Selector, Filters, icons-and-logos, MainHeader, VerticalMenu, a table or menu action's disabled state, a filter's "all values" option, and others); check the index for a matching file before assuming default MUI/DS behavior.'
 ---
 
 # Design system & layout implementation gotchas

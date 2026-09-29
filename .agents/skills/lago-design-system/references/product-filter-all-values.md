@@ -6,9 +6,11 @@ value sub-options - bidirectional mutual-exclusion via `disabled` on combobox
 options plus MUI `getOptionDisabled`). They encode "all values" differently, and
 copying one pattern into the other is wrong:
 
-- **Usage charge** (`ChargeFilter.tsx`, `serializePlanInput.ts`,
+- **Usage charge** (`src/components/plans/chargeAccordion/ChargeFilter.tsx`,
+  `src/components/plans/utils.ts`'s `transformFilterObjectToString`,
   `hooks/plans/utils.ts`): uses the sentinel string `ALL_FILTER_VALUES`
-  (`'__ALL_FILTER_VALUES__'`, `src/core/constants/form.ts`), because
+  (`'__ALL_FILTER_VALUES__'`, `src/core/constants/form.ts`) - `transformFilterObjectToString`
+  is what actually writes it (`value || ALL_FILTER_VALUES`), because
   `ChargeFilterInput.values` is the loose `{ [key]: string[] }` scalar - every
   array element must be a string, so absence can't be expressed any other way.
 - **Product filter** (`src/pages/catalog/drawers/productFilter/`): uses a
