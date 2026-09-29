@@ -17,3 +17,4 @@ behavior.
 | ComboBox width & focus/open behavior | `references/combobox-width-and-focus.md` |
 | Filters framework internals | `references/filters-framework-internals.md` |
 | Selector hover actions | `references/selector-hover-actions.md` |
+| Disabled action tooltips | `references/disabled-action-no-tooltip.md` |
