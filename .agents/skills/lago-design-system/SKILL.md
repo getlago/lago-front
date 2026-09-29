@@ -18,3 +18,4 @@ behavior.
 | Filters framework internals | `references/filters-framework-internals.md` |
 | Selector hover actions | `references/selector-hover-actions.md` |
 | Disabled action tooltips | `references/disabled-action-no-tooltip.md` |
+| Product filter "all values" encoding | `references/product-filter-all-values.md` |
