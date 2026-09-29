@@ -9,6 +9,7 @@ import {
   useTerminateContractDialog,
 } from '~/components/contracts/useTerminateContractDialog'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
@@ -155,7 +156,9 @@ const ContractDetails = (): JSX.Element => {
         entity={{
           viewName: contract?.name || contract?.plan?.name || '',
           viewNameLoading: loading,
-          metadata: contract?.externalId,
+          metadata: contract?.externalId ? (
+            <TypographyWithCopy variant="body">{contract.externalId}</TypographyWithCopy>
+          ) : undefined,
           metadataLoading: loading,
           badges: contract ? [status] : undefined,
         }}
