@@ -131,6 +131,7 @@ const CatalogPlanDetails = (): JSX.Element => {
               <DetailsPage.Container className="pt-6">
                 <CatalogPlanDetailsOverview
                   rateCardsCount={catalogPlan?.appliedRateCardsCount}
+                  isRateCardRemovalLocked={catalogPlan?.attachedToContracts !== false}
                   loading={loading}
                 />
               </DetailsPage.Container>
