@@ -99,7 +99,7 @@ from the nearest existing file.
   feature component is a known bug pattern.
 - **Design-system & layout components** → `lago-design-system`. Implementation
   gotchas for a documented subset of components (Button, ComboBox, Selector,
-  Filters, icons-and-logos, layout/shell); most components have no entry —
+  Filters, icons-and-logos, layout/shell); most components have no entry -
   check the skill's index before assuming default MUI/DS behavior.
 
 ## Cypress e2e tests
