@@ -197,7 +197,9 @@ const renderDrawer = (mocks: MockedResponse[] = []): void => {
     ),
   })
 
-  act(() => result.current.openDrawer())
+  act(() => {
+    result.current.openDrawer()
+  })
 }
 
 const renderDrawerBody = (): void => {
