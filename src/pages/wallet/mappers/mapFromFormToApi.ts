@@ -1,11 +1,10 @@
-import { SelectedConnection } from '~/components/connectionSelection/types'
+import { formatConnections } from '~/components/connectionSelection/formatConnections'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
-  ConnectionsInput,
   CreateCustomerWalletInput,
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
@@ -32,33 +31,6 @@ import { TWalletDataForm } from '~/pages/wallet/types'
  *   `paidCredits`, `transactionName`, `ignorePaidTopUpLimitsOnCreation`)
  *   never reach the update input.
  */
-
-type FormConnections = {
-  paymentConnection?: SelectedConnection
-  accountingConnection?: SelectedConnection
-  crmConnection?: SelectedConnection
-  taxConnection?: SelectedConnection
-}
-
-// An omitted category keeps whatever the backend stored, so an untouched choice must not
-// produce a `connections` key at all: `inherit` would destroy the existing override row.
-const formatConnections = (
-  { paymentConnection, accountingConnection, crmConnection, taxConnection }: FormConnections,
-  isMultiConnectionEnabled: boolean,
-): { connections?: ConnectionsInput } => {
-  // `Wallets::{Create,Update}Service` refuses any payload carrying `connections` while the flag is
-  // off, so a wallet whose stored routing was hydrated must not resend it or every save fails.
-  if (!isMultiConnectionEnabled) return {}
-
-  const connections: ConnectionsInput = {
-    ...(paymentConnection ? { payment: paymentConnection } : {}),
-    ...(accountingConnection ? { accounting: accountingConnection } : {}),
-    ...(crmConnection ? { crm: crmConnection } : {}),
-    ...(taxConnection ? { tax: taxConnection } : {}),
-  }
-
-  return Object.keys(connections).length ? { connections } : {}
-}
 
 const formatRecurringTransactionRules = (
   recurringTransactionRules: TWalletDataForm['recurringTransactionRules'],
