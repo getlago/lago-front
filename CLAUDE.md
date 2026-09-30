@@ -78,29 +78,11 @@
 
 ## Subsystem rules — extracted skills
 
-Six areas carry rules too long and too narrow to live in this file. Each one is a skill
-under `.agents/skills/` whose description auto-triggers on the relevant work. Read the
-skill before writing code in that area — never reconstruct these rules from memory or
-from the nearest existing file.
-
-- **Forms** (new TanStack forms) → `lago-forms`. `useAppForm` + a zod schema, the
-  submit-first validation contract, and the stored value shape of each registered field
-  component that a schema must be written against.
-- **Pagination** (numbered lists & tables) → `lago-pagination`. `PaginatedContent`,
-  `usePageSearchParam`, and the `createSinglePageFieldPolicy` cache registration that a
-  new paginated field silently breaks without.
-- **Drawers** → `lago-drawers`. The `use<Feature>Drawer` hook is the only pattern allowed
-  in new code; two legacy generations survive in the codebase and must not be copied.
-- **Dialogs** → `lago-dialogs`. `useFormDialog` / `useCentralizedDialog` /
-  `useFormDialogOpeningDialog`; the imperative `forwardRef` + `Dialog` pattern is gone and
-  must not come back.
-- **Organization slug architecture** → `lago-organization-slug`. The URL slug is the
-  per-tab source of truth for the current org; reading `currentOrganizationVar` from a
-  feature component is a known bug pattern.
-- **Design-system & layout components** → `lago-design-system`. Implementation
-  gotchas for a documented subset of components (Button, ComboBox, Selector,
-  Filters, icons-and-logos, layout/shell); most components have no entry -
-  check the skill's index before assuming default MUI/DS behavior.
+Frontend architecture patterns (drawers, dialogs, forms, pagination, organization-slug
+scoping) and reactive component/layout implementation gotchas live in one skill,
+`lago-frontend-patterns`, under `.agents/skills/`. Its description auto-triggers on
+UI/pattern work - read it before writing code in that area, never reconstruct these
+rules from memory or from the nearest existing file.
 
 ## Cypress e2e tests
 
