@@ -1,8 +1,3 @@
----
-name: lago-organization-slug
-description: 'Which organization a tab is on comes from the URL slug, never from currentOrganizationVar — the per-caller consistency table, the audited list of legitimate var reads, and useCurrentUser vs useOrganizationInfos. TRIGGER — read BEFORE writing the code whenever anything reads or builds an organization id or slug; whenever the diff mentions currentOrganizationVar, getCurrentOrganizationId, switchCurrentOrganization, useCurrentUser, currentMembership, useOrganizationInfos, organizationSlug, OrganizationLayout or x-lago-organization; whenever the change builds a persistent identifier embedding an org — a URL a user copies, a webhook or template path, a localStorage key, a filename, a mutation argument; whenever a route, redirect or navigation target is added; and whenever the report is wrong-org data, a logo flashing another org, or a value bleeding across tabs.'
----
-
 # Organization slug architecture
 
 All authenticated app routes are nested under `/:organizationSlug/...`. The
@@ -95,3 +90,7 @@ Use `navigate(`/${targetSlug}/...`, { skipSlugPrepend: true })` plus
 `switchCurrentOrganization(client, targetOrgId)` (or rely on
 `OrganizationLayout`'s effect to detect the slug change and resync the var
 and Apollo cache automatically).
+
+## Implementation notes
+
+No implementation notes yet - this section fills in reactively, the same way the design-system component docs do.

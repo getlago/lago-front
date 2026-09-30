@@ -16,6 +16,7 @@ in behavior.
 
 | Component / topic | Reference |
 | --- | --- |
+| Organization slug architecture | `references/organization-slug.md` |
 | Pagination (numbered lists & tables) | `references/pagination.md` |
 | Forms (new TanStack forms) | `references/forms.md` |
 | Dialogs | `references/dialogs.md` |
