@@ -33,6 +33,7 @@ import {
   RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY,
 } from '../drawers/rateCardRate/constants'
 import { toChargeModel } from '../drawers/rateCardRate/utils'
+import { toChargeProperties } from '../utils/rateTiers'
 
 gql`
   fragment RateCardForRateDetails on RateCard {
@@ -185,7 +186,7 @@ const RateCardRateDetailsOverview = ({
       <PlanDetailsChargeWrapperSwitch
         currency={rateCard.currency}
         chargeModel={toChargeModel(rate.rateModel)}
-        values={rate.rateProperties}
+        values={toChargeProperties(rate.rateProperties)}
         chargeAppliedPricingUnit={
           pricingUnitShortName ? { pricingUnit: { shortName: pricingUnitShortName } } : undefined
         }

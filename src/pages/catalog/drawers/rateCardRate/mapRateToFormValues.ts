@@ -1,7 +1,6 @@
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
-  Properties,
   PropertiesInput,
   RateCardForRateDrawerFragment,
   RateCardRateForDrawerFragment,
@@ -9,15 +8,17 @@ import {
 
 import { RateCardRateFormValues } from './constants'
 
+import { toChargeProperties } from '../../utils/rateTiers'
+
 // Range rows arrive carrying `__typename`, which `PropertiesInput` rejects on the way back in.
 export const toFormProperties = (
   rateProperties: RateCardRateForDrawerFragment['rateProperties'],
 ): PropertiesInput => {
-  const shape = getPropertyShape(rateProperties as Properties)
+  const properties = toChargeProperties(rateProperties)
 
   return {
-    ...shape,
-    graduatedRanges: rateProperties.graduatedRanges?.map(
+    ...getPropertyShape(properties),
+    graduatedRanges: properties.graduatedRanges?.map(
       ({ fromValue, toValue, flatAmount, perUnitAmount }) => ({
         fromValue,
         toValue,
@@ -25,10 +26,10 @@ export const toFormProperties = (
         perUnitAmount,
       }),
     ),
-    graduatedPercentageRanges: rateProperties.graduatedPercentageRanges?.map(
+    graduatedPercentageRanges: properties.graduatedPercentageRanges?.map(
       ({ fromValue, toValue, flatAmount, rate }) => ({ fromValue, toValue, flatAmount, rate }),
     ),
-    volumeRanges: rateProperties.volumeRanges?.map(
+    volumeRanges: properties.volumeRanges?.map(
       ({ fromValue, toValue, flatAmount, perUnitAmount }) => ({
         fromValue,
         toValue,

@@ -1,6 +1,6 @@
 import { CurrencyEnum, RateCardRateForDrawerFragment } from '~/generated/graphql'
 
-import { buildRateCardRate } from '../../../__tests__/fixtures'
+import { buildRateCardRate, buildRateProperties } from '../../../__tests__/fixtures'
 import { mapRateToFormValues, toFormProperties } from '../mapRateToFormValues'
 
 const buildDrawerRate = (
@@ -9,49 +9,38 @@ const buildDrawerRate = (
   ({ ...buildRateCardRate(), ...overrides }) as RateCardRateForDrawerFragment
 
 describe('toFormProperties', () => {
-  describe('GIVEN properties carrying range rows', () => {
+  describe('GIVEN tiers that only name their upper bound', () => {
     describe('WHEN they are mapped back into the form', () => {
       // The API sends `__typename` on every row, which `PropertiesInput` rejects.
-      it('THEN the rows are rebuilt without __typename', () => {
-        const properties = toFormProperties({
-          __typename: 'Properties',
-          graduatedRanges: [
-            {
-              __typename: 'GraduatedRange',
-              fromValue: 0,
-              toValue: 10,
-              flatAmount: '1',
-              perUnitAmount: '2',
-            },
-          ],
-          volumeRanges: [
-            {
-              __typename: 'VolumeRange',
-              fromValue: 0,
-              toValue: 10,
-              flatAmount: '3',
-              perUnitAmount: '4',
-            },
-          ],
-          graduatedPercentageRanges: [
-            {
-              __typename: 'GraduatedPercentageRange',
-              fromValue: 0,
-              toValue: 10,
-              flatAmount: '5',
-              rate: '6',
-            },
-          ],
-        } as RateCardRateForDrawerFragment['rateProperties'])
+      it('THEN each tier starts where the previous one ends, without __typename', () => {
+        const properties = toFormProperties(
+          buildRateProperties({
+            graduatedRanges: [
+              { __typename: 'RateTier', toValue: '10', flatAmount: '1', perUnitAmount: '2' },
+              { __typename: 'RateTier', toValue: null, flatAmount: '0', perUnitAmount: '1' },
+            ],
+            volumeRanges: [
+              { __typename: 'RateTier', toValue: '0.5', flatAmount: '3', perUnitAmount: '4' },
+              { __typename: 'RateTier', toValue: null, flatAmount: '0', perUnitAmount: '1' },
+            ],
+            graduatedPercentageRanges: [
+              { __typename: 'RatePercentageTier', toValue: '10', flatAmount: '5', rate: '6' },
+              { __typename: 'RatePercentageTier', toValue: null, flatAmount: '0', rate: '1' },
+            ],
+          }),
+        )
 
         expect(properties.graduatedRanges).toEqual([
           { fromValue: 0, toValue: 10, flatAmount: '1', perUnitAmount: '2' },
+          { fromValue: 10, toValue: null, flatAmount: '0', perUnitAmount: '1' },
         ])
         expect(properties.volumeRanges).toEqual([
-          { fromValue: 0, toValue: 10, flatAmount: '3', perUnitAmount: '4' },
+          { fromValue: 0, toValue: 0.5, flatAmount: '3', perUnitAmount: '4' },
+          { fromValue: 0.5, toValue: null, flatAmount: '0', perUnitAmount: '1' },
         ])
         expect(properties.graduatedPercentageRanges).toEqual([
           { fromValue: 0, toValue: 10, flatAmount: '5', rate: '6' },
+          { fromValue: 10, toValue: null, flatAmount: '0', rate: '1' },
         ])
       })
     })

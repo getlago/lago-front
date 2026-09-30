@@ -206,15 +206,13 @@ describe('RateCardRateDetailsOverview', () => {
               amount: null,
               graduatedRanges: [
                 {
-                  __typename: 'GraduatedRange',
-                  fromValue: 0,
-                  toValue: 10,
+                  __typename: 'RateTier',
+                  toValue: '10',
                   perUnitAmount: '5',
                   flatAmount: '1',
                 },
                 {
-                  __typename: 'GraduatedRange',
-                  fromValue: 11,
+                  __typename: 'RateTier',
                   toValue: null,
                   perUnitAmount: '2',
                   flatAmount: '0',

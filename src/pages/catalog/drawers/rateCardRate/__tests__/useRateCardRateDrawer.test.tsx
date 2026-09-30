@@ -532,10 +532,13 @@ describe('rate submission compatibility', () => {
     await submit()
 
     await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+    // The API derives each tier's lower bound, so only the upper bound is sent.
     expect(captureInput).toHaveBeenCalledWith({
       id: rate.id,
       code: 'updated-volume',
-      rateProperties: updatedProperties,
+      rateProperties: {
+        volumeRanges: [{ toValue: null, perUnitAmount: '15', flatAmount: '0' }],
+      },
     })
   })
 

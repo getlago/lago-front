@@ -15,7 +15,7 @@ import {
 export const buildRateProperties = (
   overrides: Partial<PropertiesForRateCardRateFragment> = {},
 ): PropertiesForRateCardRateFragment => ({
-  __typename: 'Properties',
+  __typename: 'RateProperties',
   amount: '10',
   rate: null,
   packageSize: null,
