@@ -1,8 +1,3 @@
----
-name: lago-pagination
-description: 'Numbered pagination rules for every list and table in lago-front: PaginatedContent, Pagination, usePageSearchParam, the mandatory createSinglePageFieldPolicy cache registration, and the sticky / insetPager / pageSize / page-reset choices. TRIGGER — read BEFORE writing the code whenever the task adds or changes a list, table or paginated query; whenever the diff mentions PaginatedContent, Pagination, usePageSearchParam, DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, loadingRowCount, queryFieldPolicies, createSinglePageFieldPolicy, createPaginatedFieldPolicy or src/core/apolloClient/cache.ts; whenever a GraphQL field returns { collection, metadata } or takes $page / $limit; and whenever the report is that page 2 is empty, the pager is missing, the X-Y of N label disagrees with the rows, or a previously-viewed page flashes when re-entering a tab.'
----
-
 # Pagination (numbered lists & tables)
 
 All lists use numbered pagination via `PaginatedContent` + `Pagination`
@@ -70,3 +65,7 @@ Adding a paginated list:
 
 Constants in `~/core/constants/pagination`: `DEFAULT_PAGE_SIZE = 20`,
 `PAGE_SIZE_OPTIONS = [20, 50, 100]`.
+
+## Implementation notes
+
+No implementation notes yet - this section fills in reactively, the same way the design-system component docs do.
