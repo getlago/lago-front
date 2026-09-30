@@ -74,12 +74,12 @@ jest.mock('~/components/dialogs/CentralizedDialog', () => ({
 }))
 
 const mockScrollToTop = jest.fn()
-const mockScrollToAndExpandAccordion = jest.fn()
 
+// `openAccordionThenScrollTo` is left real: the collapsed-accordion test below
+// depends on it actually expanding the card.
 jest.mock('~/core/utils/domUtils', () => ({
   ...jest.requireActual('~/core/utils/domUtils'),
   scrollToTop: (...args: unknown[]) => mockScrollToTop(...args),
-  scrollToAndExpandAccordion: (...args: unknown[]) => mockScrollToAndExpandAccordion(...args),
   scrollToAndClickElement: jest.fn(),
 }))
 
@@ -153,7 +153,7 @@ const renderPage = async (useParams: Record<string, string> = {}) =>
 
 // An accordion whose privilege already has a code renders collapsed, and MUI
 // unmounts collapsed children, so the fields have to be revealed first.
-const expandPrivilegeAccordion = async (
+const togglePrivilegeAccordion = async (
   user: ReturnType<typeof userEvent.setup>,
   index: number,
 ) => {
@@ -163,6 +163,11 @@ const expandPrivilegeAccordion = async (
 }
 
 describe('FeatureForm', () => {
+  beforeAll(() => {
+    // jsdom does not implement scrollIntoView, used when opening the errored accordion
+    Element.prototype.scrollIntoView = jest.fn()
+  })
+
   beforeEach(() => {
     jest.clearAllMocks()
     mockUseGetFeatureQuery.mockReturnValue({ data: undefined, loading: false })
@@ -496,7 +501,7 @@ describe('FeatureForm', () => {
         const user = userEvent.setup()
 
         await renderPage({ featureId: 'feature-1' })
-        await expandPrivilegeAccordion(user, 0)
+        await togglePrivilegeAccordion(user, 0)
 
         expect(inputIn(FEATURE_PRIVILEGE_NAME_INPUT_TEST_ID)).toHaveValue('Tier')
         expect(inputIn(FEATURE_PRIVILEGE_CODE_INPUT_TEST_ID)).toHaveValue('tier')
@@ -508,7 +513,7 @@ describe('FeatureForm', () => {
         const user = userEvent.setup()
 
         await renderPage({ featureId: 'feature-1' })
-        await expandPrivilegeAccordion(user, 0)
+        await togglePrivilegeAccordion(user, 0)
 
         expect(screen.getByText('gold')).toBeInTheDocument()
         expect(deleteIconOf('gold')).toBeUndefined()
@@ -629,14 +634,41 @@ describe('FeatureForm', () => {
         await user.type(codeInputs[1].querySelector('input') as HTMLInputElement, 'tier')
         await user.click(screen.getByTestId(FEATURE_FORM_SUBMIT_BUTTON_TEST_ID))
 
-        await waitFor(() =>
-          expect(mockScrollToAndExpandAccordion).toHaveBeenCalledWith('privilege-accordion-1'),
-        )
-
         expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
         expect(
           screen.getAllByTestId(FEATURE_PRIVILEGE_CODE_INPUT_TEST_ID)[1].querySelector('input'),
         ).toHaveAttribute('aria-invalid', 'true')
+      })
+    })
+
+    describe('WHEN the privilege accordions are collapsed at submit time', () => {
+      it('THEN should still surface the error on the offending privilege', async () => {
+        const user = userEvent.setup()
+
+        ;(hasDefinedGQLError as unknown as jest.Mock).mockImplementation(
+          (code: string) => code === 'ValueIsDuplicated',
+        )
+        mockCreateFeature.mockResolvedValue({ errors: [{ message: 'duplicated' }] })
+
+        await renderPage()
+
+        await user.type(inputIn(FEATURE_FORM_NAME_INPUT_TEST_ID), 'Max seats')
+        await user.click(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID))
+        await user.click(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID))
+
+        const codeInputs = screen.getAllByTestId(FEATURE_PRIVILEGE_CODE_INPUT_TEST_ID)
+
+        await user.type(codeInputs[0].querySelector('input') as HTMLInputElement, 'tier')
+        await user.type(codeInputs[1].querySelector('input') as HTMLInputElement, 'tier')
+
+        // Collapsing unmounts the code fields, the state a saved feature's accordions
+        // already start in.
+        await togglePrivilegeAccordion(user, 0)
+        await togglePrivilegeAccordion(user, 1)
+
+        await user.click(screen.getByTestId(FEATURE_FORM_SUBMIT_BUTTON_TEST_ID))
+
+        expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
       })
     })
   })

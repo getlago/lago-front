@@ -15,7 +15,7 @@ import { FeatureDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { applyExistingCodeError, EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { FEATURE_DETAILS_ROUTE, FEATURES_ROUTE, useNavigate } from '~/core/router'
-import { scrollToAndExpandAccordion, scrollToTop } from '~/core/utils/domUtils'
+import { openAccordionThenScrollTo, scrollToTop } from '~/core/utils/domUtils'
 import {
   CreateFeatureMutation,
   FeaturePrivilegeAccordionFragmentDoc,
@@ -144,6 +144,10 @@ const FeatureForm = () => {
         if (firstPrivilegeIndexWithDuplicateCode !== -1) {
           const fieldName = `privileges[${firstPrivilegeIndexWithDuplicateCode}].code`
 
+          // Expand before setting the error, not after: `Accordion` unmounts collapsed
+          // children, and an error set on an unmounted field never reaches it.
+          openAccordionThenScrollTo(`privilege-accordion-${firstPrivilegeIndexWithDuplicateCode}`)
+
           formApi.setErrorMap({
             onDynamic: {
               fields: {
@@ -151,8 +155,6 @@ const FeatureForm = () => {
               },
             },
           })
-
-          scrollToAndExpandAccordion(`privilege-accordion-${firstPrivilegeIndexWithDuplicateCode}`)
         }
       }
     },
