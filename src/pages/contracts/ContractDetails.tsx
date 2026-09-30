@@ -152,7 +152,7 @@ const ContractDetails = (): JSX.Element => {
             link: overviewLink,
             match: [baseDetailsPath, overviewLink, `${overviewLink}/:section`],
             content: (
-              <DetailsPage.Container className="pt-6">
+              <DetailsPage.Container className="pb-0 pt-6">
                 <ContractDetailsOverview
                   rateCardsCount={contract?.appliedRateCardsCount}
                   isRateCardRemovalLocked={contract?.status !== ContractStatusEnum.Pending}

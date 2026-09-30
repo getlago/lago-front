@@ -162,7 +162,7 @@ export const ContractOverviewSection = (): JSX.Element => {
   )
 
   return (
-    <div className="flex flex-col gap-12">
+    <div className="flex flex-col gap-12 pb-6">
       <section className="flex flex-col gap-6 pb-12 shadow-b">
         <SectionHeader
           title={translate('text_1789552637141n7ijvldeali')}
