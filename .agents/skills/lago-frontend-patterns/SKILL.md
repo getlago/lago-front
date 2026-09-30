@@ -16,6 +16,7 @@ in behavior.
 
 | Component / topic | Reference |
 | --- | --- |
+| Dialogs | `references/dialogs.md` |
 | Drawers | `references/drawers.md` |
 | Icons, logos & brand assets | `references/icons-and-logos.md` |
 | ComboBox width & focus/open behavior | `references/combobox-width-and-focus.md` |

@@ -1,8 +1,3 @@
----
-name: lago-dialogs
-description: 'The three sanctioned dialog hooks in lago-front — useFormDialog, useCentralizedDialog and useFormDialogOpeningDialog, all NiceModal-backed — the removed forwardRef + Dialog pattern that must not come back, and the jest mock every dialog test needs. TRIGGER — read BEFORE writing the code whenever the task adds, edits or tests a dialog, modal, confirmation, warning or destructive prompt; whenever the diff mentions useFormDialog, useCentralizedDialog, useFormDialogOpeningDialog, WarningDialog, DialogRef or src/core/overlays/registeredDialogs.ts; and whenever a test renders a component that opens one, since jest cannot parse import.meta without the mock.'
----
-
 # Dialogs
 
 All dialogs are hook-based, backed by NiceModal. New code must use one of three hooks
@@ -110,3 +105,7 @@ jest.mock('~/components/dialogs/CentralizedDialog', () => ({
   `open()`'s payload, then render the captured `children` (with `open` mocked, the body
   never mounts on its own). The same object exposes `form.submit`, `onEntered`, etc.,
   so those are asserted directly rather than through the DOM.
+
+## Implementation notes
+
+No implementation notes yet - this section fills in reactively, the same way the design-system component docs do.
