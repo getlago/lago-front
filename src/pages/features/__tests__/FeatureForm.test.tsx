@@ -469,6 +469,28 @@ describe('FeatureForm', () => {
       })
     })
 
+    describe('WHEN the options editor is hidden while still empty', () => {
+      it('THEN should still explain why the submit is blocked', async () => {
+        const user = userEvent.setup()
+
+        await renderPage()
+
+        await user.type(inputIn(FEATURE_FORM_NAME_INPUT_TEST_ID), 'Max seats')
+        await user.click(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID))
+        await user.type(inputIn(FEATURE_PRIVILEGE_CODE_INPUT_TEST_ID), 'tier')
+        await user.click(screen.getByTestId(buttonSelectorOption(PrivilegeValueTypeEnum.Select)))
+
+        // hide the editor while no option has been added
+        await user.click(screen.getByTestId(FEATURE_PRIVILEGE_HIDE_OPTIONS_BUTTON_TEST_ID))
+        expect(screen.queryByTestId(SELECT_OPTIONS_INPUT_TEST_ID)).not.toBeInTheDocument()
+
+        await user.click(screen.getByTestId(FEATURE_FORM_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() => expect(mockCreateFeature).not.toHaveBeenCalled())
+        expect(await screen.findByText(REQUIRED_FIELD_ERROR)).toBeInTheDocument()
+      })
+    })
+
     describe('WHEN a privilege is deleted', () => {
       it('THEN should remove its accordion', async () => {
         const user = userEvent.setup()

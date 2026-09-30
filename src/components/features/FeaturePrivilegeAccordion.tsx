@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
 import { tw } from 'lago-design-system'
-import { useId, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
 
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Button } from '~/components/designSystem/Button'
@@ -62,6 +62,20 @@ export const FeaturePrivilegeAccordion = withForm({
     const privilege = useStore(form.store, (state) => state.values.privileges[privilegeIndex])
 
     const [showSelectOptionsInput, setShowSelectOptionsInput] = useState(false)
+
+    // Validator errors sit directly on `errorMap.onDynamic`, keyed by field path
+    const hasSelectOptionsError = useStore(form.store, (state) => {
+      const dynamicErrors =
+        (state.errorMap as { onDynamic?: Record<string, unknown> })?.onDynamic ?? {}
+
+      return !!dynamicErrors[`privileges[${privilegeIndex}].config.selectOptions`]
+    })
+
+    // The combobox is the only thing rendering that error, so hiding it while empty
+    // would block the submit with nothing on screen. Bring it back instead.
+    useEffect(() => {
+      if (hasSelectOptionsError) setShowSelectOptionsInput(true)
+    }, [hasSelectOptionsError])
 
     const currentSearchClassName = useMemo(() => {
       // Replace all colons with dashes to make the class name valid for querySelector
