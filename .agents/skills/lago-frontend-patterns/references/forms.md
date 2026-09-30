@@ -1,8 +1,3 @@
----
-name: lago-forms
-description: 'How to build a NEW form in lago-front — useAppForm + a colocated zod schema, the submit-first validation contract, and the stored value shape of every registered field component. TRIGGER — read BEFORE writing the code whenever the task adds a form, a form section or a single field, or writes a validation schema; whenever the diff mentions useAppForm, form.AppField, form.AppForm, form.SubmitButton, revalidateLogic, validationLogic, onDynamic, validationSchema.ts, zodCustoms, withForm, withFieldGroup, setErrorMap, setFieldMeta or scrollToFirstInputError; and whenever the report is a submit button stuck disabled with no visible error, a schema that never fires, an error showing before the first submit, or a raw "Invalid input" / untranslated message in a field.'
----
-
 # Forms (new TanStack forms)
 
 Every new form is `useAppForm` (`~/hooks/forms/useAppform`) over a zod schema. Formik +
@@ -212,3 +207,7 @@ mapper), `src/components/wallets/tanstackForm/` (drawer forms), `CreatePricingUn
 Not a model to copy: `EditFeeBillingPeriod.tsx` drives a raw `DatePicker` inside
 `form.AppField` and carries a `message: ''`, both of which this guide rules out. It works,
 but reading it as a template reproduces two things a new form should not do.
+
+## Implementation notes
+
+No implementation notes yet - this section fills in reactively, the same way the design-system component docs do.

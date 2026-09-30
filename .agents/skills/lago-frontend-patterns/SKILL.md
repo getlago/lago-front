@@ -16,6 +16,7 @@ in behavior.
 
 | Component / topic | Reference |
 | --- | --- |
+| Forms (new TanStack forms) | `references/forms.md` |
 | Dialogs | `references/dialogs.md` |
 | Drawers | `references/drawers.md` |
 | Icons, logos & brand assets | `references/icons-and-logos.md` |
