@@ -1,6 +1,24 @@
 import { PrivilegeValueTypeEnum } from '~/generated/graphql'
 
-import { findFirstPrivilegeIndexWithDuplicateCode } from '../utils'
+import { findFirstPrivilegeIndexWithDuplicateCode, firstErroredPrivilegeIndex } from '../utils'
+
+describe('firstErroredPrivilegeIndex', () => {
+  it('should return the lowest errored privilege index, whatever the path shape', () => {
+    expect(
+      firstErroredPrivilegeIndex({
+        'privileges[2].code': { message: 'x' },
+        'privileges[1].valueType': { message: 'x' },
+      }),
+    ).toBe(1)
+    expect(firstErroredPrivilegeIndex({ 'privileges.3.code': { message: 'x' } })).toBe(3)
+  })
+
+  it('should ignore falsy entries and non-privilege fields', () => {
+    expect(firstErroredPrivilegeIndex({ code: { message: 'x' } })).toBeUndefined()
+    expect(firstErroredPrivilegeIndex({ 'privileges[0].code': undefined })).toBeUndefined()
+    expect(firstErroredPrivilegeIndex({})).toBeUndefined()
+  })
+})
 
 describe('findFirstPrivilegeIndexWithDuplicateCode', () => {
   it('should return the index of the first privilege with a duplicate code', () => {

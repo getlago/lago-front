@@ -48,6 +48,11 @@ gql`
       status
       expiresAt
     }
+    connections {
+      category
+      behavior
+      code
+    }
     paymentMethodType
     paymentMethod {
       id
