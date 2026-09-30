@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router'
 
 import { usePageSearchParam } from '~/components/designSystem/Pagination/usePageSearchParam'
@@ -77,6 +77,7 @@ export const ContractRateCardsSection = ({
   const { translate } = useInternationalization()
   const { page, goToPage } = usePageSearchParam()
   const [searchParams] = useSearchParams()
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
 
   const filtersForQuery = useMemo(
     () => formatFiltersForAppliedRateCardsQuery(searchParams),
@@ -87,7 +88,7 @@ export const ContractRateCardsSection = ({
   // flash the previously viewed page.
   const [getContractAppliedRateCards, { data, error, loading, variables, refetch }] =
     useGetContractAppliedRateCardsForRateCardsSectionLazyQuery({
-      variables: { contractId, page, limit: DEFAULT_PAGE_SIZE, ...filtersForQuery },
+      variables: { contractId, page, limit: pageSize, ...filtersForQuery },
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'network-only',
@@ -146,6 +147,11 @@ export const ContractRateCardsSection = ({
         placeholder={placeholder}
         removal={removal}
         onPageChange={goToPage}
+        pageSize={pageSize}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
         getRateCardHref={(row) =>
           generatePath(CONTRACT_RATE_CARD_DETAILS_ROUTE, {
             id: contractId,

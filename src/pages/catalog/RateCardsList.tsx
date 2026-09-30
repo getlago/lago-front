@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
@@ -68,6 +68,7 @@ const RateCardsList = () => {
   const { actionColumn, actionColumnTooltip, getRowActionLink } = useRateCardTableActions()
   const [searchParams] = useSearchParams()
   const { page, goToPage } = usePageSearchParam()
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
 
   const filtersForRateCardsQuery = useMemo(
     () => formatFiltersForRateCardsQuery(searchParams),
@@ -78,7 +79,7 @@ const RateCardsList = () => {
   // and `?page` is dropped; a cache-first read would flash the previously viewed
   // page before the page-1 refetch.
   const [getRateCards, { data, error, loading, variables }] = useRateCardsLazyQuery({
-    variables: { limit: DEFAULT_PAGE_SIZE, page, ...filtersForRateCardsQuery },
+    variables: { limit: pageSize, page, ...filtersForRateCardsQuery },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
@@ -133,7 +134,12 @@ const RateCardsList = () => {
       <PaginatedContent
         metadata={data?.rateCards?.metadata}
         loading={isLoading}
+        pageSize={pageSize}
         onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
       >
         <Table
           name="rate-cards-list"
@@ -142,6 +148,7 @@ const RateCardsList = () => {
           containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
           rowSize={72}
           isLoading={isLoading}
+          loadingRowCount={pageSize}
           hasError={!!error}
           rowDataTestId={(rateCard) => `${rateCard.name}`}
           onRowActionLink={getRowActionLink}
