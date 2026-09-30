@@ -24,8 +24,8 @@ export const useDeleteGovernanceEntityDialog = (): {
       errors?.length ? [] : ['getGovernanceEntities', 'getGovernanceEntitiesRoleCounts'],
   })
 
-  const openDeleteGovernanceEntityDialog = ({ id }: { id: string }): void => {
-    void centralizedDialog.open({
+  const openDeleteGovernanceEntityDialog = async ({ id }: { id: string }): Promise<void> => {
+    await centralizedDialog.open({
       title: translate('text_1790258263571gh96is813m8'),
       description: translate('text_17902586874164cq2n2rdi9y'),
       colorVariant: 'danger',

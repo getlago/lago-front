@@ -54,7 +54,7 @@ const ATTRIBUTION_KEYS_TAKEN_FIELD_ERRORS = {
 }
 
 export const useGovernanceEntityDrawer = (): {
-  openDrawer: (entity?: GovernanceEntity) => void
+  openDrawer: (entity?: GovernanceEntity) => Promise<void>
 } => {
   const { translate } = useInternationalization()
   const drawer = useFormDrawer()
@@ -147,14 +147,14 @@ export const useGovernanceEntityDrawer = (): {
     },
   })
 
-  const openDrawer = (entity?: GovernanceEntity): void => {
+  const openDrawer = async (entity?: GovernanceEntity): Promise<void> => {
     editedEntityRef.current = entity
     resetCreateMore()
     form.reset(entity ? mapGovernanceEntityToFormValues(entity) : GOVERNANCE_ENTITY_FORM_DEFAULTS, {
       keepDefaultValues: true,
     })
 
-    void drawer.open({
+    await drawer.open({
       title: translate(entity ? 'text_1790258263571csa7fz44d2x' : 'text_1790236824869cg5v2b6hasb'),
       form: { id: GOVERNANCE_ENTITY_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
