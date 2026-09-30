@@ -85,6 +85,10 @@ export const FeaturePrivilegeAccordion = withForm({
       <Accordion
         id={id}
         initiallyOpen={!privilege?.code}
+        // Keep the fields mounted while collapsed: `FieldApi`'s unmount cleanup resets
+        // the field meta, which would drop the server duplicate-code error set on a
+        // collapsed privilege.
+        transitionProps={{ unmountOnExit: false }}
         summary={
           <div className="flex w-full items-center justify-between gap-3 overflow-hidden">
             <div className="flex flex-col">

@@ -1,5 +1,6 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { StrictMode } from 'react'
 
 import {
   FEATURE_PRIVILEGE_ADD_OPTION_BUTTON_TEST_ID,
@@ -148,18 +149,35 @@ const typeSelectOptions = (options: string) =>
 const deleteIconOf = (label: string): Element | undefined =>
   screen.getByText(label).closest('.MuiChip-root')?.querySelector('svg') ?? undefined
 
-const renderPage = async (useParams: Record<string, string> = {}) =>
-  act(() => render(<FeatureForm />, { useParams }))
+// `strict` mirrors main.tsx, which wraps the app in StrictMode. Only the
+// collapsed-accordion regression needs it: StrictMode replays the effect
+// setup/cleanup cycle, and `FieldApi`'s cleanup is what wipes the field errors.
+const renderPage = async (useParams: Record<string, string> = {}, { strict = false } = {}) =>
+  act(() =>
+    render(
+      strict ? (
+        <StrictMode>
+          <FeatureForm />
+        </StrictMode>
+      ) : (
+        <FeatureForm />
+      ),
+      { useParams },
+    ),
+  )
 
-// An accordion whose privilege already has a code renders collapsed, and MUI
-// unmounts collapsed children, so the fields have to be revealed first.
+const privilegeAccordionSummary = (index: number): HTMLElement =>
+  (document.getElementById(`privilege-accordion-${index}`) as HTMLElement).querySelector(
+    '[role="button"]',
+  ) as HTMLElement
+
+// An accordion whose privilege already has a code renders collapsed, so the
+// fields have to be revealed before they can be read.
 const togglePrivilegeAccordion = async (
   user: ReturnType<typeof userEvent.setup>,
   index: number,
 ) => {
-  const accordion = document.getElementById(`privilege-accordion-${index}`) as HTMLElement
-
-  await user.click(accordion.querySelector('[role="button"]') as HTMLElement)
+  await user.click(privilegeAccordionSummary(index))
 }
 
 describe('FeatureForm', () => {
@@ -641,8 +659,12 @@ describe('FeatureForm', () => {
       })
     })
 
+    // Regression guard for the collapsed-accordion defect. It only reproduces under
+    // StrictMode, which replays the effect setup/cleanup cycle the way the real app
+    // does: `FieldApi`'s unmount cleanup resets the field meta, wiping the error
+    // `setErrorMap` had just written. Without `unmountOnExit: false` this fails.
     describe('WHEN the privilege accordions are collapsed at submit time', () => {
-      it('THEN should still surface the error on the offending privilege', async () => {
+      it('THEN should surface the error on the offending privilege at the first submit', async () => {
         const user = userEvent.setup()
 
         ;(hasDefinedGQLError as unknown as jest.Mock).mockImplementation(
@@ -650,7 +672,7 @@ describe('FeatureForm', () => {
         )
         mockCreateFeature.mockResolvedValue({ errors: [{ message: 'duplicated' }] })
 
-        await renderPage()
+        await renderPage({}, { strict: true })
 
         await user.type(inputIn(FEATURE_FORM_NAME_INPUT_TEST_ID), 'Max seats')
         await user.click(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID))
@@ -661,14 +683,22 @@ describe('FeatureForm', () => {
         await user.type(codeInputs[0].querySelector('input') as HTMLInputElement, 'tier')
         await user.type(codeInputs[1].querySelector('input') as HTMLInputElement, 'tier')
 
-        // Collapsing unmounts the code fields, the state a saved feature's accordions
-        // already start in.
         await togglePrivilegeAccordion(user, 0)
         await togglePrivilegeAccordion(user, 1)
+
+        // Assert the collapsed state itself rather than trusting the clicks
+        await waitFor(() => {
+          expect(privilegeAccordionSummary(0)).toHaveAttribute('aria-expanded', 'false')
+          expect(privilegeAccordionSummary(1)).toHaveAttribute('aria-expanded', 'false')
+        })
 
         await user.click(screen.getByTestId(FEATURE_FORM_SUBMIT_BUTTON_TEST_ID))
 
         expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
+        expect(
+          screen.getAllByTestId(FEATURE_PRIVILEGE_CODE_INPUT_TEST_ID)[1].querySelector('input'),
+        ).toHaveAttribute('aria-invalid', 'true')
+        expect(mockCreateFeature).toHaveBeenCalledTimes(1)
       })
     })
   })
