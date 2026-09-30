@@ -1,6 +1,10 @@
 import { useStore } from '@tanstack/react-form'
 
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import {
+  VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS,
+  ViewTypeEnum,
+} from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
@@ -12,16 +16,22 @@ import { AdditionalIntegrationSettingsSection } from './AdditionalIntegrationSet
 
 interface AdditionalIntegrationSettingsDrawerContentExtraProps {
   customerId: string
+  viewType: ViewTypeEnum
 }
 
 const contentDefaultProps: AdditionalIntegrationSettingsDrawerContentExtraProps = {
   customerId: '',
+  viewType: ViewTypeEnum.WalletTopUp,
 }
 
 export const AdditionalIntegrationSettingsDrawerContent = withForm({
   defaultValues: ADDITIONAL_INTEGRATION_SETTINGS_DEFAULT_VALUES,
   props: contentDefaultProps,
-  render: function AdditionalIntegrationSettingsDrawerContentRender({ form, customerId }) {
+  render: function AdditionalIntegrationSettingsDrawerContentRender({
+    form,
+    customerId,
+    viewType,
+  }) {
     const { translate } = useInternationalization()
 
     const values = useStore(form.store, (s) => s.values)
@@ -31,7 +41,7 @@ export const AdditionalIntegrationSettingsDrawerContent = withForm({
       <CenteredPage.SectionWrapper>
         <CenteredPage.PageTitle
           title={translate('text_1789472252793twqbda38ec2')}
-          description={translate('text_1789472252793x4lfuqim3a1')}
+          description={translate(VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS[viewType])}
         />
 
         {ADDITIONAL_INTEGRATION_CATEGORIES.map((category) => {

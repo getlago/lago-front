@@ -7,6 +7,7 @@ import {
 import { CONNECTION_CATEGORY_SHORT_LABEL_KEYS } from '~/components/customerConnections/types'
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import {
@@ -26,6 +27,7 @@ export const ADDITIONAL_INTEGRATION_SUMMARY_KEY_BY_BEHAVIOR: Record<ConnectionBe
 
 interface AdditionalIntegrationSettingsSelectorProps {
   customerId: string
+  viewType: ViewTypeEnum
   values: AdditionalIntegrationSettingsValues
   onChange: (values: AdditionalIntegrationSettingsValues) => void
   autoOpen?: boolean
@@ -34,6 +36,7 @@ interface AdditionalIntegrationSettingsSelectorProps {
 
 export const AdditionalIntegrationSettingsSelector = ({
   customerId,
+  viewType,
   values,
   onChange,
   autoOpen = false,
@@ -42,6 +45,7 @@ export const AdditionalIntegrationSettingsSelector = ({
   const { translate } = useInternationalization()
   const { openDrawer } = useAdditionalIntegrationSettingsDrawer({
     customerId,
+    viewType,
     onSave: onChange,
   })
 

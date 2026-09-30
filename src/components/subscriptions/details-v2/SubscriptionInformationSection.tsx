@@ -41,7 +41,7 @@ export const SubscriptionInformationSection = ({
   return (
     <section className="flex flex-col gap-6">
       <SectionHeader
-        title={translate('text_6335e8900c69f8ebdfef5312')}
+        title={translate('text_17791987800304a3fihrighy')}
         description={translate('text_66630368f4333b00795b0e1c')}
         action={{
           label: translate('text_63e51ef4985f0ebd75c212fc'),
@@ -50,7 +50,7 @@ export const SubscriptionInformationSection = ({
           hidden: !hasPermissions(['subscriptionsUpdate']),
         }}
       />
-      <SubscriptionInformationFields subscription={subscription} />
+      <SubscriptionInformationFields subscription={subscription} layout="overview" />
     </section>
   )
 }
