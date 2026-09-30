@@ -33,7 +33,10 @@ import {
   mapPrivilegesToApiInput,
 } from '~/pages/features/featureForm/mappers'
 import { featureValidationSchema } from '~/pages/features/featureForm/validationSchema'
-import { findFirstPrivilegeIndexWithDuplicateCode } from '~/pages/features/utils'
+import {
+  findFirstPrivilegeIndexWithDuplicateCode,
+  firstErroredPrivilegeIndex,
+} from '~/pages/features/utils'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 export const FEATURE_FORM_ID = 'feature-form'
@@ -104,7 +107,18 @@ const FeatureForm = () => {
       onDynamic: featureValidationSchema,
     },
     onSubmitInvalid({ formApi }) {
-      scrollToFirstInputError(FEATURE_FORM_ID, formApi.state.errorMap.onDynamic || {})
+      const dynamicErrors = (formApi.state.errorMap.onDynamic || {}) as Record<string, unknown>
+      const erroredPrivilegeIndex = firstErroredPrivilegeIndex(dynamicErrors)
+
+      // A collapsed accordion hides its inputs, so scrolling to one reveals nothing:
+      // open the offending privilege instead, else the submit looks like a no-op.
+      if (erroredPrivilegeIndex !== undefined) {
+        openAccordionThenScrollTo(`privilege-accordion-${erroredPrivilegeIndex}`)
+
+        return
+      }
+
+      scrollToFirstInputError(FEATURE_FORM_ID, dynamicErrors)
     },
     onSubmit: async ({ value, formApi }) => {
       const { code, privileges, ...values } = value

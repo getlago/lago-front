@@ -659,6 +659,31 @@ describe('FeatureForm', () => {
       })
     })
 
+    describe('WHEN a client-invalid privilege is collapsed at submit time', () => {
+      it('THEN should reveal it instead of silently doing nothing', async () => {
+        const user = userEvent.setup()
+
+        await renderPage({}, { strict: true })
+
+        await user.type(inputIn(FEATURE_FORM_NAME_INPUT_TEST_ID), 'Max seats')
+        await user.click(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID))
+
+        // privilege with no code -> fails the zod schema
+        await togglePrivilegeAccordion(user, 0)
+
+        await waitFor(() =>
+          expect(privilegeAccordionSummary(0)).toHaveAttribute('aria-expanded', 'false'),
+        )
+
+        await user.click(screen.getByTestId(FEATURE_FORM_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() =>
+          expect(privilegeAccordionSummary(0)).toHaveAttribute('aria-expanded', 'true'),
+        )
+        expect(mockCreateFeature).not.toHaveBeenCalled()
+      })
+    })
+
     // Regression guard for the collapsed-accordion defect. It only reproduces under
     // StrictMode, which replays the effect setup/cleanup cycle the way the real app
     // does: `FieldApi`'s unmount cleanup resets the field meta, wiping the error
