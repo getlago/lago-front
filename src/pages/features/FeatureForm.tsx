@@ -1,24 +1,23 @@
 import { FetchResult, gql } from '@apollo/client'
-import { useFormik } from 'formik'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useCallback, useEffect, useState } from 'react'
 import { generatePath, useParams } from 'react-router'
-import { array, object, string } from 'yup'
 
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { FeaturePrivilegeAccordion } from '~/components/features/FeaturePrivilegeAccordion'
-import { TextInput, TextInputField } from '~/components/form'
+import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FeatureDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { applyExistingCodeError, EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { FEATURE_DETAILS_ROUTE, FEATURES_ROUTE, useNavigate } from '~/core/router'
-import { scrollToAndExpandAccordion } from '~/core/utils/domUtils'
-import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
+import { scrollToAndExpandAccordion, scrollToTop } from '~/core/utils/domUtils'
 import {
   CreateFeatureMutation,
-  FeatureObject,
   FeaturePrivilegeAccordionFragmentDoc,
   LagoApiError,
   PrivilegeValueTypeEnum,
@@ -28,10 +27,26 @@ import {
   useUpdateFeatureMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
+import {
+  mapFeatureToFormValues,
+  mapPrivilegesToApiInput,
+} from '~/pages/features/featureForm/mappers'
+import { featureValidationSchema } from '~/pages/features/featureForm/validationSchema'
 import { findFirstPrivilegeIndexWithDuplicateCode } from '~/pages/features/utils'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
-export type FeatureFormValues = Omit<FeatureObject, 'id' | 'createdAt' | 'subscriptionsCount'>
+export const FEATURE_FORM_ID = 'feature-form'
+
+export const FEATURE_FORM_CLOSE_BUTTON_TEST_ID = 'feature-form-close-button'
+export const FEATURE_FORM_CANCEL_BUTTON_TEST_ID = 'feature-form-cancel-button'
+export const FEATURE_FORM_SUBMIT_BUTTON_TEST_ID = 'feature-form-submit-button'
+export const FEATURE_FORM_NAME_INPUT_TEST_ID = 'feature-form-name-input'
+export const FEATURE_FORM_CODE_INPUT_TEST_ID = 'feature-form-code-input'
+export const FEATURE_FORM_DESCRIPTION_INPUT_TEST_ID = 'feature-form-description-input'
+export const FEATURE_FORM_DESCRIPTION_DELETE_TEST_ID = 'feature-form-description-delete-button'
+export const FEATURE_FORM_SHOW_DESCRIPTION_BUTTON_TEST_ID = 'show-description'
+export const FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID = 'feature-form-add-privilege-button'
 
 const SILENT_ERROR_CODES = [LagoApiError.UnprocessableEntity]
 
@@ -82,49 +97,19 @@ const FeatureForm = () => {
   })
   const existingFeature = featureData?.feature
 
-  const formikProps = useFormik<FeatureFormValues>({
-    initialValues: {
-      name: existingFeature?.name || '',
-      code: existingFeature?.code || '',
-      description: existingFeature?.description || '',
-      privileges: existingFeature?.privileges || [],
+  const form = useAppForm({
+    defaultValues: mapFeatureToFormValues(existingFeature),
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: featureValidationSchema,
     },
-    validationSchema: object().shape({
-      name: string(),
-      code: string().required(''),
-      description: string(),
-      privileges: array()
-        .of(
-          object().shape({
-            name: string(),
-            code: string().required(''),
-            valueType: string().required(''),
-            config: object()
-              .when('valueType', {
-                is: PrivilegeValueTypeEnum.Select,
-                then: (schema) =>
-                  schema.shape({
-                    selectOptions: array().of(string()).required(''),
-                  }),
-                otherwise: (schema) => schema.optional(),
-              })
-              .optional(),
-          }),
-        )
-        .required(''),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: async ({ code, privileges, ...values }) => {
+    onSubmitInvalid({ formApi }) {
+      scrollToFirstInputError(FEATURE_FORM_ID, formApi.state.errorMap.onDynamic || {})
+    },
+    onSubmit: async ({ value, formApi }) => {
+      const { code, privileges, ...values } = value
       let result: FetchResult<UpdateFeatureMutation> | FetchResult<CreateFeatureMutation>
-      const sanitizedPrivileges = privileges.map((privilege) => ({
-        ...privilege,
-        // Make sure the id is not defined on update
-        id: undefined,
-        // Make sure the config is not defined when valueType is not "select"
-        config:
-          privilege.valueType !== PrivilegeValueTypeEnum.Select ? undefined : privilege.config,
-      }))
+      const sanitizedPrivileges = mapPrivilegesToApiInput(privileges)
 
       if (isEdition) {
         result = await updateFeature({
@@ -157,16 +142,24 @@ const FeatureForm = () => {
           findFirstPrivilegeIndexWithDuplicateCode(privileges)
 
         if (firstPrivilegeIndexWithDuplicateCode !== -1) {
-          formikProps.setFieldError(
-            `privileges.${firstPrivilegeIndexWithDuplicateCode}.code`,
-            'text_632a2d437e341dcc76817556',
-          )
+          const fieldName = `privileges[${firstPrivilegeIndexWithDuplicateCode}].code`
+
+          formApi.setErrorMap({
+            onDynamic: {
+              fields: {
+                [fieldName]: { message: EXISTING_CODE_ERROR_MESSAGE, path: [fieldName] },
+              },
+            },
+          })
 
           scrollToAndExpandAccordion(`privilege-accordion-${firstPrivilegeIndexWithDuplicateCode}`)
         }
       }
     },
   })
+
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+  const privileges = useStore(form.store, (state) => state.values.privileges)
 
   const onLeave = useCallback(() => {
     if (!!featureId) {
@@ -228,12 +221,16 @@ const FeatureForm = () => {
   })
 
   useEffect(() => {
-    if (hasDefinedGQLError('ValueAlreadyExist', createError || updateError)) {
-      formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
-      const rootElement = document.getElementById('root')
+    if (existingFeature) {
+      form.reset(mapFeatureToFormValues(existingFeature))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existingFeature])
 
-      if (!rootElement) return
-      rootElement.scrollTo({ top: 0 })
+  useEffect(() => {
+    if (hasDefinedGQLError('ValueAlreadyExist', createError || updateError)) {
+      applyExistingCodeError(form)
+      scrollToTop()
     }
 
     return undefined
@@ -244,170 +241,182 @@ const FeatureForm = () => {
     setShouldDisplayDescription(!!existingFeature?.description)
   }, [existingFeature?.description])
 
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    form.handleSubmit()
+  }
+
   return (
     <CenteredPage.Wrapper>
-      <CenteredPage.Header>
-        <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate(isEdition ? 'text_1752692673070znttbx4w0r1' : 'text_17526926730703ysbxa2g5fj')}
-        </Typography>
+      <form id={FEATURE_FORM_ID} className="flex min-h-full flex-col" onSubmit={handleSubmit}>
+        <CenteredPage.Header>
+          <Typography variant="bodyHl" color="textSecondary" noWrap>
+            {translate(
+              isEdition ? 'text_1752692673070znttbx4w0r1' : 'text_17526926730703ysbxa2g5fj',
+            )}
+          </Typography>
 
-        <Button
-          variant="quaternary"
-          icon="close"
-          onClick={() => (formikProps.dirty ? openDirtyAttributesWarning() : onLeave())}
-        />
-      </CenteredPage.Header>
+          <Button
+            variant="quaternary"
+            icon="close"
+            data-test={FEATURE_FORM_CLOSE_BUTTON_TEST_ID}
+            onClick={() => (isDirty ? openDirtyAttributesWarning() : onLeave())}
+          />
+        </CenteredPage.Header>
 
-      <CenteredPage.Container>
-        {featureLoading && <FormLoadingSkeleton id="feature-form" />}
-        {!featureLoading && (
-          <>
-            <div className="not-last-child:mb-1">
-              <Typography variant="headline" color="grey700">
-                {translate(
-                  isEdition ? 'text_1752692673070lensu4uzy0l' : 'text_17526926730703ysbxa2g5fj',
-                )}
-              </Typography>
-              <Typography variant="body" color="grey600">
-                {translate('text_17526926730709neo6v3ki3n')}
-              </Typography>
-            </div>
+        <CenteredPage.Container>
+          {featureLoading && <FormLoadingSkeleton id="feature-form" />}
+          {!featureLoading && (
+            <>
+              <div className="not-last-child:mb-1">
+                <Typography variant="headline" color="grey700">
+                  {translate(
+                    isEdition ? 'text_1752692673070lensu4uzy0l' : 'text_17526926730703ysbxa2g5fj',
+                  )}
+                </Typography>
+                <Typography variant="body" color="grey600">
+                  {translate('text_17526926730709neo6v3ki3n')}
+                </Typography>
+              </div>
 
-            <div className="flex flex-col gap-12">
-              <section className="pb-12 shadow-b not-last-child:mb-6">
-                <div className="not-last-child:mb-2">
-                  <Typography variant="subhead1">
-                    {translate('text_1752692673070lgfy2k2bri4')}
-                  </Typography>
-                  <Typography variant="caption">
-                    {translate('text_1752692673070s4ndn9doemg')}
-                  </Typography>
-                </div>
-                <div className="flex gap-6 *:flex-1">
-                  <TextInput
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
-                    autoFocus
-                    name="name"
-                    label={translate('text_1732286530467zstzwbegfiq')}
-                    placeholder={translate('text_62876e85e32e0300e1803121')}
-                    value={formikProps.values.name || ''}
-                    onChange={(name) => {
-                      updateNameAndMaybeCode({ name, formikProps })
+              <div className="flex flex-col gap-12">
+                <section className="pb-12 shadow-b not-last-child:mb-6">
+                  <div className="not-last-child:mb-2">
+                    <Typography variant="subhead1">
+                      {translate('text_1752692673070lgfy2k2bri4')}
+                    </Typography>
+                    <Typography variant="caption">
+                      {translate('text_1752692673070s4ndn9doemg')}
+                    </Typography>
+                  </div>
+                  <NameAndCodeGroup
+                    form={form}
+                    fields={{ name: 'name', code: 'code' }}
+                    disableCodeInput={isEdition}
+                    nameDataTest={FEATURE_FORM_NAME_INPUT_TEST_ID}
+                    codeDataTest={FEATURE_FORM_CODE_INPUT_TEST_ID}
+                    nameProps={{
+                      autoFocus: true,
+                      label: translate('text_1732286530467zstzwbegfiq'),
+                      placeholder: translate('text_62876e85e32e0300e1803121'),
+                    }}
+                    codeProps={{
+                      label: translate('text_62876e85e32e0300e1803127'),
+                      placeholder: translate('text_623b42ff8ee4e000ba87d0c4'),
                     }}
                   />
-                  <TextInputField
-                    name="code"
-                    beforeChangeFormatter={['code']}
-                    disabled={isEdition}
-                    label={translate('text_62876e85e32e0300e1803127')}
-                    placeholder={translate('text_623b42ff8ee4e000ba87d0c4')}
-                    formikProps={formikProps}
-                    error={formikProps.errors.code}
-                  />
-                </div>
 
-                {shouldDisplayDescription ? (
-                  <div className="flex items-center">
-                    <TextInputField
-                      multiline
-                      className="mr-3 flex-1"
-                      name="description"
-                      label={translate('text_6388b923e514213fed58331c')}
-                      placeholder={translate('text_1752693359315hw1mrrfr1hm')}
-                      rows="3"
-                      formikProps={formikProps}
-                    />
-                    <Tooltip
-                      className="mt-6"
-                      placement="top-end"
-                      title={translate('text_63aa085d28b8510cd46443ff')}
+                  {shouldDisplayDescription ? (
+                    <div className="flex items-center">
+                      <form.AppField name="description">
+                        {(field) => (
+                          <field.TextInputField
+                            multiline
+                            className="mr-3 flex-1"
+                            data-test={FEATURE_FORM_DESCRIPTION_INPUT_TEST_ID}
+                            label={translate('text_6388b923e514213fed58331c')}
+                            placeholder={translate('text_1752693359315hw1mrrfr1hm')}
+                            rows="3"
+                          />
+                        )}
+                      </form.AppField>
+                      <Tooltip
+                        className="mt-6"
+                        placement="top-end"
+                        title={translate('text_63aa085d28b8510cd46443ff')}
+                      >
+                        <Button
+                          icon="trash"
+                          variant="quaternary"
+                          data-test={FEATURE_FORM_DESCRIPTION_DELETE_TEST_ID}
+                          onClick={() => {
+                            form.setFieldValue('description', '')
+                            setShouldDisplayDescription(false)
+                          }}
+                        />
+                      </Tooltip>
+                    </div>
+                  ) : (
+                    <Button
+                      fitContent
+                      align="left"
+                      startIcon="plus"
+                      variant="inline"
+                      onClick={() => setShouldDisplayDescription(true)}
+                      data-test={FEATURE_FORM_SHOW_DESCRIPTION_BUTTON_TEST_ID}
                     >
-                      <Button
-                        icon="trash"
-                        variant="quaternary"
-                        onClick={() => {
-                          formikProps.setFieldValue('description', '')
-                          setShouldDisplayDescription(false)
-                        }}
-                      />
-                    </Tooltip>
+                      {translate('text_642d5eb2783a2ad10d670324')}
+                    </Button>
+                  )}
+                </section>
+
+                <section className="not-last-child:mb-6">
+                  <div className="not-last-child:mb-2">
+                    <Typography variant="subhead1">
+                      {translate('text_1752693359315oilajtir2uj')}
+                    </Typography>
+                    <Typography variant="caption">
+                      {translate('text_1752693359315aaw5g0bbc1h')}
+                    </Typography>
                   </div>
-                ) : (
-                  <Button
-                    fitContent
-                    align="left"
-                    startIcon="plus"
-                    variant="inline"
-                    onClick={() => setShouldDisplayDescription(true)}
-                    data-test="show-description"
-                  >
-                    {translate('text_642d5eb2783a2ad10d670324')}
-                  </Button>
-                )}
-              </section>
+                  <div className="flex flex-col gap-6 *:flex-1">
+                    {privileges.map((privilege, privilegeIndex) => (
+                      <FeaturePrivilegeAccordion
+                        key={`privilege-accordion-${privilegeIndex}`}
+                        form={form}
+                        id={`privilege-accordion-${privilegeIndex}`}
+                        isEdition={isEdition}
+                        privilegeIndex={privilegeIndex}
+                        initialSelectOptions={
+                          existingFeature?.privileges.find((p) => p.id === privilege.id)?.config
+                            ?.selectOptions || []
+                        }
+                      />
+                    ))}
 
-              <section className="not-last-child:mb-6">
-                <div className="not-last-child:mb-2">
-                  <Typography variant="subhead1">
-                    {translate('text_1752693359315oilajtir2uj')}
-                  </Typography>
-                  <Typography variant="caption">
-                    {translate('text_1752693359315aaw5g0bbc1h')}
-                  </Typography>
-                </div>
-                <div className="flex flex-col gap-6 *:flex-1">
-                  {formikProps.values.privileges.map((privilege, privilegeIndex) => (
-                    <FeaturePrivilegeAccordion
-                      key={`privilege-accordion-${privilegeIndex}`}
-                      id={`privilege-accordion-${privilegeIndex}`}
-                      isEdition={isEdition}
-                      privilege={privilege}
-                      privilegeIndex={privilegeIndex}
-                      formikProps={formikProps}
-                    />
-                  ))}
-
-                  <Button
-                    fitContent
-                    align="left"
-                    variant="inline"
-                    startIcon="plus"
-                    onClick={() => {
-                      formikProps.setFieldValue('privileges', [
-                        ...formikProps.values.privileges,
-                        {
+                    <Button
+                      fitContent
+                      align="left"
+                      variant="inline"
+                      startIcon="plus"
+                      data-test={FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID}
+                      onClick={() => {
+                        form.pushFieldValue('privileges', {
                           code: '',
                           name: '',
                           valueType: PrivilegeValueTypeEnum.Boolean,
-                        },
-                      ])
-                    }}
-                  >
-                    {translate('text_1752695518075ut8zscauuq3')}
-                  </Button>
-                </div>
-              </section>
-            </div>
-          </>
-        )}
-      </CenteredPage.Container>
+                        })
+                      }}
+                    >
+                      {translate('text_1752695518075ut8zscauuq3')}
+                    </Button>
+                  </div>
+                </section>
+              </div>
+            </>
+          )}
+        </CenteredPage.Container>
 
-      <CenteredPage.StickyFooter>
-        <Button
-          variant="quaternary"
-          onClick={() => (formikProps.dirty ? openDirtyAttributesWarning() : onLeave())}
-        >
-          {translate('text_6411e6b530cb47007488b027')}
-        </Button>
-        <Button
-          data-test="submit"
-          variant="primary"
-          disabled={!formikProps.isValid || !formikProps.dirty || featureLoading}
-          onClick={formikProps.submitForm}
-        >
-          {translate(isEdition ? 'text_1752693359315c6eoxf5szye' : 'text_1752693359315fi592i0bpyz')}
-        </Button>
-      </CenteredPage.StickyFooter>
+        <CenteredPage.StickyFooter>
+          <Button
+            variant="quaternary"
+            data-test={FEATURE_FORM_CANCEL_BUTTON_TEST_ID}
+            onClick={() => (isDirty ? openDirtyAttributesWarning() : onLeave())}
+          >
+            {translate('text_6411e6b530cb47007488b027')}
+          </Button>
+          <form.AppForm>
+            <form.SubmitButton
+              dataTest={FEATURE_FORM_SUBMIT_BUTTON_TEST_ID}
+              disabled={featureLoading}
+            >
+              {translate(
+                isEdition ? 'text_1752693359315c6eoxf5szye' : 'text_1752693359315fi592i0bpyz',
+              )}
+            </form.SubmitButton>
+          </form.AppForm>
+        </CenteredPage.StickyFooter>
+      </form>
     </CenteredPage.Wrapper>
   )
 }
