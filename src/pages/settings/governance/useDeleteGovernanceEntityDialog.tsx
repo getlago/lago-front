@@ -25,7 +25,7 @@ export const useDeleteGovernanceEntityDialog = (): {
   })
 
   const openDeleteGovernanceEntityDialog = ({ id }: { id: string }): void => {
-    centralizedDialog.open({
+    void centralizedDialog.open({
       title: translate('text_1790258263571gh96is813m8'),
       description: translate('text_17902586874164cq2n2rdi9y'),
       colorVariant: 'danger',
