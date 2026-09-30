@@ -301,7 +301,7 @@ export const SubscriptionInformationFields = ({
           )
         }
       />
-      {(subscription?.name || layout === 'overview') && (
+      {(!!subscription?.name || layout === 'overview') && (
         <DetailsPage.InfoGridItem
           label={translate('text_1780604419477ujb85w6pk81')}
           value={

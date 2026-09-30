@@ -615,7 +615,7 @@ const CreateSubscription = () => {
                         />
                       </CenteredPage.PageSection>
 
-                      {hasMultiConnection && customer?.id && (
+                      {hasMultiConnection && !!customer?.id && (
                         <CenteredPage.PageSection>
                           <CenteredPage.PageSectionTitle
                             title={translate('text_1789472252793twqbda38ec2')}
