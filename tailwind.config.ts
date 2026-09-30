@@ -1,5 +1,5 @@
 import sharedConfig from 'lago-configs/tailwind'
-import { Config } from 'prettier'
+import { Config } from 'tailwindcss/types/config'
 
 const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme'> = {
   content: ['src/**/*.{js,ts,jsx,tsx}'],
