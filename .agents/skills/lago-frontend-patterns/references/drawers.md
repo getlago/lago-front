@@ -1,8 +1,3 @@
----
-name: lago-drawers
-description: 'The only sanctioned drawer pattern in lago-front — a use<Feature>Drawer hook built on useFormDrawer / useDrawer returning { openDrawer } — plus the two legacy generations that must never be copied and the jest mock every drawer test needs. TRIGGER — read BEFORE writing the code whenever the task creates, edits, opens or tests a drawer, side panel or slide-over; whenever the diff mentions useFormDrawer, useDrawer, DrawerRef, ~/components/designSystem/Drawer, ~/components/drawers/useDrawer, openDrawer, closeDrawer, shouldPromptOnClose or closeOnSubmitSuccess; and whenever a test renders a component that opens one, since jest cannot parse import.meta without the mock.'
----
-
 # Drawers
 
 Three generations coexist in the codebase. **Only the hook pattern is allowed in new
@@ -122,3 +117,7 @@ jest.mock('~/components/drawers/useDrawer', () => ({
   ```
   The same object exposes `form.submit`, `shouldPromptOnClose`, `onClose` and `onEntered`,
   so those are asserted directly rather than through the DOM.
+
+## Implementation notes
+
+No implementation notes yet - this section fills in reactively, the same way the design-system component docs do.
