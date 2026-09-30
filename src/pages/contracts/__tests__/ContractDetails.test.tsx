@@ -29,7 +29,6 @@ import ContractDetails, {
   CONTRACT_DETAILS_ACTIONS_TEST_ID,
   CONTRACT_DETAILS_CANCEL_TEST_ID,
   CONTRACT_DETAILS_COPY_ID_TEST_ID,
-  CONTRACT_DETAILS_EDIT_TEST_ID,
   CONTRACT_DETAILS_TERMINATE_TEST_ID,
 } from '../ContractDetails'
 
@@ -37,8 +36,6 @@ const mockCopyContractExternalId = jest.fn()
 const mockOpenTerminateContractDialog = jest.fn()
 const mockHasPermissions = jest.fn()
 const mockCanTerminateContract = jest.fn()
-const mockCanEditContract = jest.fn()
-const mockOpenContractDrawer = jest.fn()
 let mockIsPremium = true
 
 jest.mock('~/components/contracts/useCopyContractExternalId', () => ({
@@ -64,12 +61,7 @@ jest.mock('~/hooks/usePermissions', () => ({
 jest.mock('~/hooks/useContractPermissionsActions', () => ({
   useContractPermissionsActions: () => ({
     canTerminateContract: mockCanTerminateContract,
-    canEditContract: mockCanEditContract,
   }),
-}))
-
-jest.mock('~/components/contracts/drawers/contract/useContractDrawer', () => ({
-  useContractDrawer: () => ({ openDrawer: mockOpenContractDrawer }),
 }))
 
 jest.mock('~/hooks/useCurrentUser', () => ({
@@ -148,7 +140,6 @@ describe('ContractDetails', () => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
     mockCanTerminateContract.mockReturnValue(true)
-    mockCanEditContract.mockReturnValue(true)
     mockIsPremium = true
   })
 
@@ -205,28 +196,6 @@ describe('ContractDetails', () => {
     await userEvent.click(screen.getByTestId(CONTRACT_DETAILS_TERMINATE_TEST_ID))
 
     expect(mockOpenTerminateContractDialog).toHaveBeenCalledWith(contractFixture)
-  })
-
-  it('opens the contract drawer in edit mode from the header action', async () => {
-    await act(() => renderPage())
-
-    await userEvent.click(await screen.findByTestId(CONTRACT_DETAILS_ACTIONS_TEST_ID))
-    await userEvent.click(screen.getByTestId(CONTRACT_DETAILS_EDIT_TEST_ID))
-
-    expect(mockOpenContractDrawer).toHaveBeenCalledWith({
-      contract: expect.objectContaining({ id: 'contract-1', externalId: 'external-contract-1' }),
-    })
-  })
-
-  it('hides the edit action when the contract is not editable', async () => {
-    mockCanEditContract.mockReturnValue(false)
-
-    await act(() => renderPage())
-
-    await userEvent.click(await screen.findByTestId(CONTRACT_DETAILS_ACTIONS_TEST_ID))
-
-    expect(screen.queryByTestId(CONTRACT_DETAILS_EDIT_TEST_ID)).not.toBeInTheDocument()
-    expect(mockCanEditContract).toHaveBeenCalledWith(ContractStatusEnum.Active)
   })
 
   it('hides the lifecycle action without contractsUpdate permission', async () => {

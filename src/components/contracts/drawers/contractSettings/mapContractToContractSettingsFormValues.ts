@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import { getTimezoneConfig } from '~/core/timezone'
 import { ContractForContractDrawerFragment, TimezoneEnum } from '~/generated/graphql'
 
-import { ContractDrawerCustomer, ContractFormValues } from './constants'
+import { ContractSettingsFormValues } from './constants'
 
 const toUtcMidnight = (calendarDay: string): string =>
   DateTime.fromISO(calendarDay, { zone: getTimezoneConfig(TimezoneEnum.TzUtc).name })
@@ -23,36 +23,18 @@ const getBillingAnchorDay = (contract: ContractForContractDrawerFragment): strin
   )
 }
 
-export const mapContractToFormValues = (
+export const mapContractToContractSettingsFormValues = (
   contract: ContractForContractDrawerFragment,
-): ContractFormValues => {
+): ContractSettingsFormValues => {
   const billingAnchorDay = getBillingAnchorDay(contract)
 
   return {
-    externalCustomerId: contract.customer.externalId,
     externalId: contract.externalId,
-    planCode: contract.plan?.code ?? '',
-    isPlanRequired: !!contract.plan,
     name: contract.name ?? '',
-    billingEntityId: contract.billingEntityId ?? contract.customer.billingEntity?.id,
-    consolidateInvoice: contract.consolidateInvoice,
-    paymentMethod: {
-      paymentMethodId: contract.paymentMethod?.id ?? null,
-      paymentMethodType: contract.paymentMethodType,
-    },
-    purchaseOrderNumber: contract.purchaseOrderNumber ?? undefined,
     startedAt: contract.startedAt ?? '',
     endedAt: contract.endedAt ?? undefined,
     initialEndedAt: contract.endedAt ?? undefined,
     billingAnchorDate: billingAnchorDay ? toUtcMidnight(billingAnchorDay) : '',
+    purchaseOrderNumber: contract.purchaseOrderNumber ?? undefined,
   }
 }
-
-export const mapContractToDrawerCustomer = (
-  contract: ContractForContractDrawerFragment,
-): ContractDrawerCustomer => ({
-  externalId: contract.customer.externalId,
-  displayName: contract.customer.displayName,
-  applicableTimezone: contract.customer.applicableTimezone,
-  billingEntityId: contract.customer.billingEntity?.id,
-})

@@ -8,7 +8,6 @@ import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/s
 import { Typography } from '~/components/designSystem/Typography'
 import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
 import { CreateMoreResetSignal } from '~/components/drawers/createMore/useCreateMore'
-import { ComboboxItem } from '~/components/form/ComboBox/ComboBoxItem'
 import { ToggleableFieldAddButton, ToggleableFieldRow } from '~/components/form/ToggleableFieldRow'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
@@ -27,6 +26,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
+import { buildComboboxOption, mergeSeededOption, OPTIONS_PAGE_SIZE } from './comboboxOptions'
 import {
   CONTRACT_DRAWER_CUSTOMER_COMBOBOX_TEST_ID,
   CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID,
@@ -35,13 +35,10 @@ import {
   CONTRACT_DRAWER_SHOW_EXTERNAL_ID_TEST_ID,
   CONTRACT_DRAWER_SHOW_NAME_TEST_ID,
   CONTRACT_DRAWER_TITLE_CREATE_KEY,
-  CONTRACT_DRAWER_TITLE_EDIT_KEY,
   CONTRACT_FORM_DEFAULTS,
   ContractDrawerCustomer,
-  ContractDrawerPlan,
 } from './constants'
 import { ContractInvoicingSettingsSection } from './ContractInvoicingSettingsSection'
-import { ContractFieldLocks, CREATE_CONTRACT_FIELD_LOCKS } from './fieldLocks'
 
 gql`
   query getCustomersForContractDrawer($page: Int, $limit: Int, $searchTerm: String) {
@@ -78,64 +75,20 @@ const CONTRACT_DATES_OFFSET_KEYS = {
   willEnd: 'text_178955263714151g6zubl71x',
 }
 
-const OPTIONS_PAGE_SIZE = 50
-
 export const CONTRACT_DRAWER_EXTERNAL_ID_INPUT_TEST_ID = 'contract-drawer-external-id-input'
 
-type ContractComboboxOption = { label: string; labelNode: JSX.Element; value: string }
-
-const buildComboboxOption = (
-  label: string,
-  caption: string,
-  value: string,
-): ContractComboboxOption => ({
-  label,
-  labelNode: (
-    <ComboboxItem>
-      <Typography variant="body" color="grey700" noWrap>
-        {label}
-      </Typography>
-      <Typography variant="caption" color="grey600" noWrap>
-        {caption}
-      </Typography>
-    </ComboboxItem>
-  ),
-  value,
-})
-
-const mergeSeededOption = (
-  seed: ContractComboboxOption | undefined,
-  options: ContractComboboxOption[],
-): ContractComboboxOption[] => {
-  if (!seed) return options
-
-  return [seed, ...options.filter((option) => option.value !== seed.value)]
-}
-
 type ContractDrawerSectionsExtraProps = {
-  isEdit: boolean
-  fieldLocks: ContractFieldLocks
   seededCustomer?: ContractDrawerCustomer
-  seededPlan?: ContractDrawerPlan
 }
 
 const contractDrawerSectionsDefaultProps: ContractDrawerSectionsExtraProps = {
-  isEdit: false,
-  fieldLocks: CREATE_CONTRACT_FIELD_LOCKS,
   seededCustomer: undefined,
-  seededPlan: undefined,
 }
 
 const ContractDrawerFormSections = withForm({
   defaultValues: CONTRACT_FORM_DEFAULTS,
   props: contractDrawerSectionsDefaultProps,
-  render: function ContractDrawerFormSectionsRender({
-    form,
-    isEdit,
-    fieldLocks,
-    seededCustomer,
-    seededPlan,
-  }) {
+  render: function ContractDrawerFormSectionsRender({ form, seededCustomer }) {
     const { translate } = useInternationalization()
     const [shouldDisplayName, setShouldDisplayName] = useState(() => !!form.state.values.name)
     const [shouldDisplayExternalId, setShouldDisplayExternalId] = useState(
@@ -222,18 +175,13 @@ const ContractDrawerFormSections = withForm({
       )
     }, [customersCollection, seededCustomer])
 
-    const comboboxPlansData = useMemo(() => {
-      const planSeed = seededPlan
-        ? buildComboboxOption(seededPlan.name, seededPlan.code, seededPlan.code)
-        : undefined
-
-      return mergeSeededOption(
-        planSeed,
+    const comboboxPlansData = useMemo(
+      () =>
         (catalogPlansData?.catalogPlans?.collection ?? []).map((plan) =>
           buildComboboxOption(plan.name, plan.code, plan.code),
         ),
-      )
-    }, [catalogPlansData?.catalogPlans?.collection, seededPlan])
+      [catalogPlansData?.catalogPlans?.collection],
+    )
 
     // The caption reads in the customer's timezone. A seeded customer carries its
     // own; a searched one is resolved from the loaded page, and falls back to the
@@ -263,42 +211,11 @@ const ContractDrawerFormSections = withForm({
       setShouldDisplayExternalId(false)
     }
 
-    const renderExternalIdInput = (): JSX.Element => (
-      <form.AppField name="externalId">
-        {(field) => (
-          <field.TextInputField
-            className={fieldLocks.externalId ? undefined : 'mr-3 flex-1'}
-            data-test={CONTRACT_DRAWER_EXTERNAL_ID_INPUT_TEST_ID}
-            disabled={fieldLocks.externalId}
-            label={translate('text_1790018785008xgr4069mlgg')}
-            placeholder={translate('text_1790018785008nd7mpv8ubhh')}
-            helperText={
-              fieldLocks.externalId ? undefined : translate('text_17900187850082zn8o5dvp9y')
-            }
-          />
-        )}
-      </form.AppField>
-    )
-
-    const renderExternalIdField = (): JSX.Element | null => {
-      if (fieldLocks.externalId) return renderExternalIdInput()
-      if (!shouldDisplayExternalId) return null
-
-      return (
-        <ToggleableFieldRow
-          onRemove={handleHideExternalId}
-          removeDataTest={CONTRACT_DRAWER_REMOVE_EXTERNAL_ID_TEST_ID}
-        >
-          {renderExternalIdInput()}
-        </ToggleableFieldRow>
-      )
-    }
-
     return (
       <>
         <div className="flex flex-col gap-2">
           <Typography variant="headline" color="grey700">
-            {translate(isEdit ? CONTRACT_DRAWER_TITLE_EDIT_KEY : CONTRACT_DRAWER_TITLE_CREATE_KEY)}
+            {translate(CONTRACT_DRAWER_TITLE_CREATE_KEY)}
           </Typography>
           <Typography variant="body" color="grey600">
             {translate('text_178955263714139as5p24hhr')}
@@ -338,12 +255,11 @@ const ContractDrawerFormSections = withForm({
               {(field) => (
                 <field.ComboBoxField
                   dataTest={CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID}
-                  disabled={fieldLocks.planCode}
                   label={translate('text_625434c7bb2cb40124c81a29')}
                   placeholder={translate('text_17895526371415015p23nj8t')}
                   data={comboboxPlansData}
                   loading={catalogPlansLoading}
-                  searchQuery={fieldLocks.planCode ? undefined : getCatalogPlans}
+                  searchQuery={getCatalogPlans}
                   PopperProps={{ displayInDialog: true }}
                 />
               )}
@@ -356,7 +272,24 @@ const ContractDrawerFormSections = withForm({
               description={translate('text_1789552637141f22za3l5g2u')}
             />
 
-            {renderExternalIdField()}
+            {shouldDisplayExternalId && (
+              <ToggleableFieldRow
+                onRemove={handleHideExternalId}
+                removeDataTest={CONTRACT_DRAWER_REMOVE_EXTERNAL_ID_TEST_ID}
+              >
+                <form.AppField name="externalId">
+                  {(field) => (
+                    <field.TextInputField
+                      className="mr-3 flex-1"
+                      data-test={CONTRACT_DRAWER_EXTERNAL_ID_INPUT_TEST_ID}
+                      label={translate('text_1790018785008xgr4069mlgg')}
+                      placeholder={translate('text_1790018785008nd7mpv8ubhh')}
+                      helperText={translate('text_17900187850082zn8o5dvp9y')}
+                    />
+                  )}
+                </form.AppField>
+              </ToggleableFieldRow>
+            )}
 
             {shouldDisplayName && (
               <ToggleableFieldRow
@@ -376,7 +309,7 @@ const ContractDrawerFormSections = withForm({
               </ToggleableFieldRow>
             )}
             <div className="flex items-center gap-4">
-              {!shouldDisplayExternalId && !fieldLocks.externalId && (
+              {!shouldDisplayExternalId && (
                 <ToggleableFieldAddButton
                   onClick={() => setShouldDisplayExternalId(true)}
                   label={translate('text_65118a52df984447c1869472')}
@@ -397,7 +330,6 @@ const ContractDrawerFormSections = withForm({
                 <form.AppField name="startedAt">
                   {(field) => (
                     <field.DatePickerField
-                      disabled={fieldLocks.startedAt}
                       placement="auto"
                       label={translate('text_64ef55a730b88e3d2117b3c4')}
                       defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
@@ -440,7 +372,6 @@ const ContractDrawerFormSections = withForm({
             <form.AppField name="billingAnchorDate">
               {(field) => (
                 <field.DatePickerField
-                  disabled={fieldLocks.billingAnchorDate}
                   placement="auto"
                   label={translate('text_1781859135627z59hpfpa8pt')}
                   description={translate('text_1789552637141byit8ajgqyp')}
@@ -504,23 +435,10 @@ const contractDrawerContentDefaultProps: ContractDrawerContentExtraProps = {
 export const ContractDrawerContent = withForm({
   defaultValues: CONTRACT_FORM_DEFAULTS,
   props: contractDrawerContentDefaultProps,
-  render: function ContractDrawerContentRender({
-    form,
-    isEdit,
-    fieldLocks,
-    seededCustomer,
-    seededPlan,
-    resetSignal,
-  }) {
+  render: function ContractDrawerContentRender({ form, seededCustomer, resetSignal }) {
     return (
       <CreateMoreResetBoundary resetSignal={resetSignal}>
-        <ContractDrawerFormSections
-          form={form}
-          isEdit={isEdit}
-          fieldLocks={fieldLocks}
-          seededCustomer={seededCustomer}
-          seededPlan={seededPlan}
-        />
+        <ContractDrawerFormSections form={form} seededCustomer={seededCustomer} />
       </CreateMoreResetBoundary>
     )
   },

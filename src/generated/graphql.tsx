@@ -12992,19 +12992,19 @@ export type CreateContractMutationVariables = Exact<{
 
 export type CreateContractMutation = { __typename?: 'Mutation', createContract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null } | null };
 
-export type UpdateContractMutationVariables = Exact<{
-  input: UpdateContractInput;
-}>;
-
-
-export type UpdateContractMutation = { __typename?: 'Mutation', updateContract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null } | null };
-
 export type TerminateContractMutationVariables = Exact<{
   input: TerminateContractInput;
 }>;
 
 
 export type TerminateContractMutation = { __typename?: 'Mutation', terminateContract?: { __typename?: 'Contract', id: string, status: ContractStatusEnum, endedAt?: any | null, terminatedAt?: any | null, canceledAt?: any | null } | null };
+
+export type UpdateContractMutationVariables = Exact<{
+  input: UpdateContractInput;
+}>;
+
+
+export type UpdateContractMutation = { __typename?: 'Mutation', updateContract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null } | null };
 
 export type CouponCaptionFragment = { __typename?: 'Coupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
 
@@ -27440,40 +27440,6 @@ export function useCreateContractMutation(baseOptions?: Apollo.MutationHookOptio
 export type CreateContractMutationHookResult = ReturnType<typeof useCreateContractMutation>;
 export type CreateContractMutationResult = Apollo.MutationResult<CreateContractMutation>;
 export type CreateContractMutationOptions = Apollo.BaseMutationOptions<CreateContractMutation, CreateContractMutationVariables>;
-export const UpdateContractDocument = gql`
-    mutation updateContract($input: UpdateContractInput!) {
-  updateContract(input: $input) {
-    id
-    ...ContractForContractDrawer
-  }
-}
-    ${ContractForContractDrawerFragmentDoc}`;
-export type UpdateContractMutationFn = Apollo.MutationFunction<UpdateContractMutation, UpdateContractMutationVariables>;
-
-/**
- * __useUpdateContractMutation__
- *
- * To run a mutation, you first call `useUpdateContractMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateContractMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateContractMutation, { data, loading, error }] = useUpdateContractMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateContractMutation(baseOptions?: Apollo.MutationHookOptions<UpdateContractMutation, UpdateContractMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateContractMutation, UpdateContractMutationVariables>(UpdateContractDocument, options);
-      }
-export type UpdateContractMutationHookResult = ReturnType<typeof useUpdateContractMutation>;
-export type UpdateContractMutationResult = Apollo.MutationResult<UpdateContractMutation>;
-export type UpdateContractMutationOptions = Apollo.BaseMutationOptions<UpdateContractMutation, UpdateContractMutationVariables>;
 export const TerminateContractDocument = gql`
     mutation terminateContract($input: TerminateContractInput!) {
   terminateContract(input: $input) {
@@ -27511,6 +27477,40 @@ export function useTerminateContractMutation(baseOptions?: Apollo.MutationHookOp
 export type TerminateContractMutationHookResult = ReturnType<typeof useTerminateContractMutation>;
 export type TerminateContractMutationResult = Apollo.MutationResult<TerminateContractMutation>;
 export type TerminateContractMutationOptions = Apollo.BaseMutationOptions<TerminateContractMutation, TerminateContractMutationVariables>;
+export const UpdateContractDocument = gql`
+    mutation updateContract($input: UpdateContractInput!) {
+  updateContract(input: $input) {
+    id
+    ...ContractForContractDrawer
+  }
+}
+    ${ContractForContractDrawerFragmentDoc}`;
+export type UpdateContractMutationFn = Apollo.MutationFunction<UpdateContractMutation, UpdateContractMutationVariables>;
+
+/**
+ * __useUpdateContractMutation__
+ *
+ * To run a mutation, you first call `useUpdateContractMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateContractMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateContractMutation, { data, loading, error }] = useUpdateContractMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateContractMutation(baseOptions?: Apollo.MutationHookOptions<UpdateContractMutation, UpdateContractMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateContractMutation, UpdateContractMutationVariables>(UpdateContractDocument, options);
+      }
+export type UpdateContractMutationHookResult = ReturnType<typeof useUpdateContractMutation>;
+export type UpdateContractMutationResult = Apollo.MutationResult<UpdateContractMutation>;
+export type UpdateContractMutationOptions = Apollo.BaseMutationOptions<UpdateContractMutation, UpdateContractMutationVariables>;
 export const CouponDetailsActivityLogsDocument = gql`
     query CouponDetailsActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
   activityLogs(
