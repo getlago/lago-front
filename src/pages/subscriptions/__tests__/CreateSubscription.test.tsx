@@ -1,9 +1,13 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { screen } from '@testing-library/react'
+import { act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { ComponentProps } from 'react'
 
+import { AdditionalIntegrationSettingsSelector } from '~/components/additionalIntegrationSettings/AdditionalIntegrationSettingsSelector'
 import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import { CENTRALIZED_DIALOG_NAME } from '~/components/dialogs/const'
+import { SubscriptionFormValues } from '~/formValidation/subscriptionFormSchema'
+import { BillingTimeEnum, ConnectionBehaviorEnum, FeatureFlagEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import CreateSubscription from '../CreateSubscription'
@@ -11,6 +15,30 @@ import CreateSubscription from '../CreateSubscription'
 NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
 // --- Mock state ---
+
+const mockMultiConnectionFlag = FeatureFlagEnum.MultiConnection
+let mockMultiConnection = false
+let mockOnSubmit: (args: { value: SubscriptionFormValues }) => Promise<void>
+const mockAdditionalSelector = jest.fn<
+  null,
+  [ComponentProps<typeof AdditionalIntegrationSettingsSelector>]
+>()
+
+jest.mock(
+  '~/components/additionalIntegrationSettings/AdditionalIntegrationSettingsSelector',
+  () => ({
+    AdditionalIntegrationSettingsSelector: (
+      props: ComponentProps<typeof AdditionalIntegrationSettingsSelector>,
+    ) => {
+      mockAdditionalSelector(props)
+      return null
+    },
+  }),
+)
+
+jest.mock('~/components/paymentSettings/connectionFirst/ConnectionPaymentSettingsSelector', () => ({
+  ConnectionPaymentSettingsSelector: () => null,
+}))
 
 let mockPlanFormIsDirty = false
 let mockPlanFormCanSubmit = true
@@ -35,7 +63,8 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
     organization: undefined,
     timezone: 'TZ_UTC',
     timezoneConfig: { name: 'UTC', offset: '+00:00' },
-    hasFeatureFlag: () => false,
+    hasFeatureFlag: (flag: FeatureFlagEnum) =>
+      flag === mockMultiConnectionFlag && mockMultiConnection,
     hasOrganizationPremiumAddon: () => false,
     refetchOrganizationInfos: jest.fn(),
     intlFormatDateTimeOrgaTZ: (date: string) => ({ date, time: '', timezone: '' }),
@@ -156,7 +185,10 @@ const mockSubscriptionForm = {
 }
 
 jest.mock('~/hooks/forms/useAppform', () => ({
-  useAppForm: jest.fn(() => mockSubscriptionForm),
+  useAppForm: jest.fn((options: { onSubmit: typeof mockOnSubmit }) => {
+    mockOnSubmit = options.onSubmit
+    return mockSubscriptionForm
+  }),
   withForm: jest.fn(
     ({
       render: RenderComponent,
@@ -281,6 +313,14 @@ jest.mock('~/components/invoices/useEditInvoiceDisplayName', () => ({
   }),
 }))
 
+jest.mock('~/components/subscriptions/form/SubscriptionInformationFormSection', () => ({
+  SubscriptionInformationFormSection: () => null,
+}))
+
+jest.mock('~/components/subscriptions/form/InvoicingSettingsSection', () => ({
+  InvoicingSettingsSection: () => null,
+}))
+
 jest.mock('~/components/subscriptions/form/PaymentSettingsSection', () => ({
   PaymentSettingsSection: () => <div data-test="payment-settings-section" />,
 }))
@@ -314,6 +354,7 @@ const renderCreateSubscription = () =>
 describe('CreateSubscription', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockMultiConnection = false
     mockPlanFormIsDirty = false
     mockPlanFormCanSubmit = true
     testMockNavigateFn.mockClear()
@@ -322,6 +363,113 @@ describe('CreateSubscription', () => {
     const Router = jest.requireMock('react-router')
 
     Router.useParams.mockReturnValue({ customerId: 'customer-1' })
+  })
+
+  describe('GIVEN subscription connection settings', () => {
+    beforeEach(() => {
+      mockSubscriptionForm.state.values.planId = 'plan-1'
+    })
+    afterEach(() => {
+      mockSubscriptionForm.state.values.planId = ''
+    })
+    const values: SubscriptionFormValues = {
+      planId: 'plan-1',
+      name: '',
+      externalId: '',
+      subscriptionAt: '2026-01-01',
+      billingTime: BillingTimeEnum.Calendar,
+      consolidateInvoice: true,
+      paymentConnection: { code: 'stripe_eu' },
+      accountingConnection: { behavior: ConnectionBehaviorEnum.Skip },
+      crmConnection: { behavior: ConnectionBehaviorEnum.Inherit },
+      taxConnection: { code: 'avalara_us' },
+    }
+
+    it.each([true, false])('THEN should map connections only with flag %s', async (enabled) => {
+      mockMultiConnection = enabled
+      renderCreateSubscription()
+      await act(async () => {
+        await mockOnSubmit({ value: values })
+      })
+      const input = mockOnSave.mock.calls.at(-1)?.[1]
+
+      expect(mockOnSave.mock.calls.at(-1)?.[0]).toBe('customer-1')
+      for (const key of [
+        'paymentConnection',
+        'accountingConnection',
+        'crmConnection',
+        'taxConnection',
+      ]) {
+        expect(input).not.toHaveProperty(key)
+      }
+      if (enabled) {
+        expect(input.connections).toEqual({
+          payment: values.paymentConnection,
+          accounting: values.accountingConnection,
+          crm: values.crmConnection,
+          tax: values.taxConnection,
+        })
+      } else {
+        expect(input).not.toHaveProperty('connections')
+        expect(mockAdditionalSelector).not.toHaveBeenCalled()
+      }
+    })
+
+    it.each([undefined, { code: 'stripe_eu' }])(
+      'THEN should omit untouched categories when payment is %j',
+      async (paymentConnection) => {
+        mockMultiConnection = true
+        renderCreateSubscription()
+        await act(async () => {
+          await mockOnSubmit({
+            value: {
+              ...values,
+              paymentConnection,
+              accountingConnection: undefined,
+              crmConnection: undefined,
+              taxConnection: undefined,
+            },
+          })
+        })
+        const input = mockOnSave.mock.calls.at(-1)?.[1]
+
+        if (paymentConnection) {
+          expect(input.connections).toEqual({ payment: paymentConnection })
+        } else {
+          expect(input).not.toHaveProperty('connections')
+        }
+      },
+    )
+
+    it('THEN should save the three additional integration choices to the form', () => {
+      mockMultiConnection = true
+      renderCreateSubscription()
+      const props = mockAdditionalSelector.mock.calls.at(-1)?.[0]
+
+      expect(props).toEqual(
+        expect.objectContaining({
+          customerId: 'customer-1',
+          values: { accounting: undefined, crm: undefined, tax: undefined },
+        }),
+      )
+      props?.onChange({
+        accounting: values.accountingConnection,
+        crm: values.crmConnection,
+        tax: values.taxConnection,
+      })
+      expect(mockSubscriptionForm.setFieldValue).toHaveBeenCalledWith(
+        'accountingConnection',
+        values.accountingConnection,
+      )
+      expect(mockSubscriptionForm.setFieldValue).toHaveBeenCalledWith(
+        'crmConnection',
+        values.crmConnection,
+      )
+      expect(mockSubscriptionForm.setFieldValue).toHaveBeenCalledWith(
+        'taxConnection',
+        values.taxConnection,
+      )
+    })
   })
 
   describe('GIVEN form submission via Enter key', () => {
@@ -356,6 +504,7 @@ describe('CreateSubscription', () => {
 
     describe('WHEN neither subscription form nor plan form is dirty', () => {
       it('THEN the submit button should be enabled in creation mode (dirty check only applies in edition)', () => {
+        mockMultiConnection = false
         mockPlanFormIsDirty = false
         mockPlanFormCanSubmit = true
         renderCreateSubscription()
@@ -398,6 +547,7 @@ describe('CreateSubscription', () => {
 
     describe('WHEN neither form is dirty', () => {
       it('THEN should navigate away on close click', async () => {
+        mockMultiConnection = false
         mockPlanFormIsDirty = false
         const user = userEvent.setup()
 

@@ -4,11 +4,14 @@ import { useMemo } from 'react'
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
 import { deriveBehavior, PaymentMethodBehavior } from '~/components/paymentMethodSelection/types'
+import { ConnectionPaymentSettingsSelector } from '~/components/paymentSettings/connectionFirst/ConnectionPaymentSettingsSelector'
 import { usePaymentSettingsDrawer } from '~/components/paymentSettings/usePaymentSettingsDrawer'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
+import { FeatureFlagEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { buildSubscriptionDefaultValues } from './buildSubscriptionDefaultValues'
 
@@ -22,6 +25,7 @@ const SUMMARY_KEY_BY_BEHAVIOR: Record<PaymentMethodBehavior, string> = {
 
 interface PaymentSettingsSectionExtraProps {
   externalCustomerId: string
+  customerId?: string
 }
 
 const paymentSettingsSectionDefaultProps: PaymentSettingsSectionExtraProps = {
@@ -38,10 +42,14 @@ export const PaymentSettingsSection = withForm({
     TYPING_PLACEHOLDER_DATE,
   ),
   props: paymentSettingsSectionDefaultProps,
-  render: function PaymentSettingsSectionRender({ form, externalCustomerId }) {
+  render: function PaymentSettingsSectionRender({ form, externalCustomerId, customerId }) {
     const { translate } = useInternationalization()
+    const { hasFeatureFlag } = useOrganizationInfos()
+    const hasMultiConnection = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
 
     const paymentMethod = useStore(form.store, (s) => s.values.paymentMethod)
+
+    const paymentConnection = useStore(form.store, (s) => s.values.paymentConnection)
 
     const { openDrawer } = usePaymentSettingsDrawer({
       viewType: ViewTypeEnum.Subscription,
@@ -51,10 +59,31 @@ export const PaymentSettingsSection = withForm({
       },
     })
 
-    const summary = useMemo(
-      () => translate(SUMMARY_KEY_BY_BEHAVIOR[deriveBehavior(paymentMethod)]),
-      [paymentMethod, translate],
-    )
+    const summary = useMemo(() => {
+      const behavior = deriveBehavior(paymentMethod)
+
+      if (hasMultiConnection && behavior === PaymentMethodBehavior.FALLBACK) {
+        return translate('text_1789374590507j8hnidtlhwy')
+      }
+
+      return translate(SUMMARY_KEY_BY_BEHAVIOR[behavior])
+    }, [paymentMethod, translate, hasMultiConnection])
+
+    if (hasMultiConnection && customerId) {
+      return (
+        <ConnectionPaymentSettingsSelector
+          viewType={ViewTypeEnum.Subscription}
+          customerId={customerId}
+          connection={paymentConnection}
+          paymentMethod={paymentMethod}
+          paymentMethodSummary={summary}
+          onChange={({ connection, paymentMethod: nextPaymentMethod }) => {
+            form.setFieldValue('paymentConnection', connection)
+            form.setFieldValue('paymentMethod', nextPaymentMethod)
+          }}
+        />
+      )
+    }
 
     return (
       <Selector

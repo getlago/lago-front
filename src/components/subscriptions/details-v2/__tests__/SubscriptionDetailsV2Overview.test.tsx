@@ -41,6 +41,10 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
+jest.mock('../SubscriptionAdditionalIntegrationSection', () => ({
+  SubscriptionAdditionalIntegrationSection: () => null,
+}))
+
 const SUB_ID = 'sub_1'
 
 const queryMock = {
