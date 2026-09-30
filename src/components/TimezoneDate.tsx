@@ -42,7 +42,7 @@ export const TimezoneDate = ({
   mainTimezone = MainTimezoneEnum.organization,
   customerTimezone,
   mainTypographyProps,
-  position = 'top-end',
+  position = 'top-start',
   typographyClassName,
   className,
 }: TimezoneDateProps) => {
@@ -74,7 +74,7 @@ export const TimezoneDate = ({
 
   return (
     <Tooltip
-      className={className}
+      className={tw('w-max', className)}
       maxWidth="unset"
       title={
         <div>
