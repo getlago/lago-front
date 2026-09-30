@@ -45,7 +45,6 @@ import {
 } from '~/generated/graphql'
 import { AnrokIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/AnrokIntegrationMapItemDrawer'
 import { AvalaraIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/AvalaraIntegrationMapItemDrawer'
-import { NetsuiteAdditionalMappingDrawerRef } from '~/pages/settings/integrations/NetsuiteAdditionalMappings/types'
 import { NetsuiteIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer'
 import { XeroIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer'
 
@@ -83,7 +82,6 @@ export type MappableIntegrationMapItemDrawerRef = RefObject<
   | AnrokIntegrationMapItemDrawerRef
   | AvalaraIntegrationMapItemDrawerRef
   | XeroIntegrationMapItemDrawerRef
-  | NetsuiteAdditionalMappingDrawerRef
 >
 
 export type BillingEntityForIntegrationMapping = {
