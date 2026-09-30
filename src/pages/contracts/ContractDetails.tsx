@@ -1,8 +1,6 @@
 import { gql } from '@apollo/client'
 import { generatePath, useParams } from 'react-router'
 
-import { CONTRACT_DRAWER_TITLE_EDIT_KEY } from '~/components/contracts/drawers/contract/constants'
-import { useContractDrawer } from '~/components/contracts/drawers/contract/useContractDrawer'
 import { useCopyContractExternalId } from '~/components/contracts/useCopyContractExternalId'
 import {
   getContractTerminationCopy,
@@ -58,15 +56,13 @@ export const CONTRACT_DETAILS_ACTIONS_TEST_ID = 'contract-details-actions'
 export const CONTRACT_DETAILS_COPY_ID_TEST_ID = 'contract-details-copy-external-id'
 export const CONTRACT_DETAILS_TERMINATE_TEST_ID = 'contract-details-terminate'
 export const CONTRACT_DETAILS_CANCEL_TEST_ID = 'contract-details-cancel'
-export const CONTRACT_DETAILS_EDIT_TEST_ID = 'contract-details-edit'
 
 const ContractDetails = (): JSX.Element => {
   const { id = '' } = useParams()
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const { canTerminateContract, canEditContract } = useContractPermissionsActions()
-  const { openDrawer: openContractDrawer } = useContractDrawer()
+  const { canTerminateContract } = useContractPermissionsActions()
   const { copyContractExternalId, copyContractExternalIdLabel } = useCopyContractExternalId()
   const { openTerminateContractDialog } = useTerminateContractDialog()
 
@@ -107,19 +103,6 @@ const ContractDetails = (): JSX.Element => {
                 closePopper()
               },
             },
-            ...(canEditContract(contract.status)
-              ? [
-                  {
-                    label: translate(CONTRACT_DRAWER_TITLE_EDIT_KEY),
-                    startIcon: 'pen' as const,
-                    dataTest: CONTRACT_DETAILS_EDIT_TEST_ID,
-                    onClick: (closePopper: () => void) => {
-                      closePopper()
-                      openContractDrawer({ contract })
-                    },
-                  },
-                ]
-              : []),
             ...(terminationCopy && canTerminateContract(contract.status)
               ? [
                   {

@@ -1,5 +1,3 @@
-import { CONTRACT_DRAWER_TITLE_EDIT_KEY } from '~/components/contracts/drawers/contract/constants'
-import { useContractDrawer } from '~/components/contracts/drawers/contract/useContractDrawer'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { ContractForContractDrawerFragment, ContractStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -13,13 +11,11 @@ import {
 
 export const CONTRACT_TABLE_TERMINATE_TEST_ID = 'terminate-contract'
 export const CONTRACT_TABLE_CANCEL_TEST_ID = 'cancel-contract'
-export const CONTRACT_TABLE_EDIT_TEST_ID = 'edit-contract'
 export const CONTRACT_TABLE_COPY_EXTERNAL_ID_TEST_ID = 'copy-contract-external-id'
 
 export const useContractTableActions = () => {
   const { translate } = useInternationalization()
-  const { canTerminateContract, canEditContract } = useContractPermissionsActions()
-  const { openDrawer: openContractDrawer } = useContractDrawer()
+  const { canTerminateContract } = useContractPermissionsActions()
   const { copyContractExternalId, copyContractExternalIdLabel } = useCopyContractExternalId()
   const { openTerminateContractDialog } = useTerminateContractDialog()
 
@@ -34,15 +30,6 @@ export const useContractTableActions = () => {
         onAction: () => copyContractExternalId(contract.externalId),
       },
     ]
-
-    if (canEditContract(contract.status)) {
-      actions.push({
-        startIcon: 'pen',
-        title: translate(CONTRACT_DRAWER_TITLE_EDIT_KEY),
-        dataTest: CONTRACT_TABLE_EDIT_TEST_ID,
-        onAction: () => openContractDrawer({ contract }),
-      })
-    }
 
     const terminationCopy = getContractTerminationCopy(contract.status)
 

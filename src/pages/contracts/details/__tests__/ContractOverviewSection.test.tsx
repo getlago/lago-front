@@ -11,20 +11,56 @@ import {
 } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
-import { CONTRACT_OVERVIEW_EDIT_TEST_ID, ContractOverviewSection } from '../ContractOverviewSection'
+import {
+  CONTRACT_OVERVIEW_EDIT_TEST_ID,
+  CONTRACT_OVERVIEW_INVOICING_EDIT_TEST_ID,
+  CONTRACT_OVERVIEW_PAYMENT_EDIT_TEST_ID,
+  CONTRACT_OVERVIEW_SETTINGS_EDIT_TEST_ID,
+  ContractOverviewSection,
+} from '../ContractOverviewSection'
 
 const mockPaymentMethodProps = jest.fn()
 const mockTimezoneDateProps = jest.fn()
 const mockBillingEntityLabelProps = jest.fn()
 const mockCanEditContract = jest.fn()
-const mockOpenContractDrawer = jest.fn()
+const mockOpenAttachedObjectDrawer = jest.fn()
+const mockOpenContractSettingsDrawer = jest.fn()
+const mockOpenInvoicingSettingsDrawer = jest.fn()
+const mockOpenPaymentSettingsDrawer = jest.fn()
+const mockInvoicingSettingsDrawerProps = jest.fn()
+const mockPaymentSettingsDrawerProps = jest.fn()
 
 jest.mock('~/hooks/useContractPermissionsActions', () => ({
   useContractPermissionsActions: () => ({ canEditContract: mockCanEditContract }),
 }))
 
-jest.mock('~/components/contracts/drawers/contract/useContractDrawer', () => ({
-  useContractDrawer: () => ({ openDrawer: mockOpenContractDrawer }),
+jest.mock(
+  '~/components/contracts/drawers/contractAttachedObject/useContractAttachedObjectDrawer',
+  () => ({
+    useContractAttachedObjectDrawer: () => ({ openDrawer: mockOpenAttachedObjectDrawer }),
+  }),
+)
+
+jest.mock('~/components/contracts/drawers/contractSettings/useContractSettingsDrawer', () => ({
+  useContractSettingsDrawer: () => ({ openDrawer: mockOpenContractSettingsDrawer }),
+}))
+
+jest.mock('~/components/contracts/useUpdateContractSection', () => ({
+  useUpdateContractSection: () => ({ updateContractSection: jest.fn() }),
+}))
+
+jest.mock('~/components/invoicingSettings/useInvoicingSettingsDrawer', () => ({
+  useInvoicingSettingsDrawer: (props: Record<string, unknown>) => {
+    mockInvoicingSettingsDrawerProps(props)
+    return { openDrawer: mockOpenInvoicingSettingsDrawer }
+  },
+}))
+
+jest.mock('~/components/paymentSettings/usePaymentSettingsDrawer', () => ({
+  usePaymentSettingsDrawer: (props: Record<string, unknown>) => {
+    mockPaymentSettingsDrawerProps(props)
+    return { openDrawer: mockOpenPaymentSettingsDrawer }
+  },
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -123,16 +159,53 @@ describe('ContractOverviewSection', () => {
 
     await userEvent.click(await screen.findByTestId(CONTRACT_OVERVIEW_EDIT_TEST_ID))
 
-    expect(mockOpenContractDrawer).toHaveBeenCalledWith({
-      contract: expect.objectContaining({ id: 'contract-1' }),
-    })
+    expect(mockOpenAttachedObjectDrawer).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'contract-1' }),
+    )
   })
 
-  it('hides Edit on a terminated contract', async () => {
+  it('offers Edit on the contract settings section of an editable contract', async () => {
+    await renderSection({ status: ContractStatusEnum.Active })
+
+    await userEvent.click(await screen.findByTestId(CONTRACT_OVERVIEW_SETTINGS_EDIT_TEST_ID))
+
+    expect(mockOpenContractSettingsDrawer).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'contract-1' }),
+    )
+  })
+
+  it('offers Edit on the invoicing settings section of an editable contract', async () => {
+    await renderSection({ status: ContractStatusEnum.Active, consolidateInvoice: false })
+
+    await userEvent.click(await screen.findByTestId(CONTRACT_OVERVIEW_INVOICING_EDIT_TEST_ID))
+
+    expect(mockOpenInvoicingSettingsDrawer).toHaveBeenCalledWith({ consolidateInvoice: false })
+    expect(mockInvoicingSettingsDrawerProps).toHaveBeenCalledWith(
+      expect.objectContaining({ showCustomSection: false, withInvoiceConsolidation: true }),
+    )
+  })
+
+  it('offers Edit on the payment settings section of an editable contract', async () => {
+    await renderSection({ status: ContractStatusEnum.Active })
+
+    await userEvent.click(await screen.findByTestId(CONTRACT_OVERVIEW_PAYMENT_EDIT_TEST_ID))
+
+    expect(mockOpenPaymentSettingsDrawer).toHaveBeenCalledWith({
+      paymentMethod: { paymentMethodId: 'payment-method-1', paymentMethodType: 'provider' },
+    })
+    expect(mockPaymentSettingsDrawerProps).toHaveBeenCalledWith(
+      expect.objectContaining({ externalCustomerId: 'external-customer-1' }),
+    )
+  })
+
+  it('hides every Edit action on a terminated contract', async () => {
     await renderSection()
 
     await screen.findByText('external-contract-1')
     expect(screen.queryByTestId(CONTRACT_OVERVIEW_EDIT_TEST_ID)).not.toBeInTheDocument()
+    expect(screen.queryByTestId(CONTRACT_OVERVIEW_SETTINGS_EDIT_TEST_ID)).not.toBeInTheDocument()
+    expect(screen.queryByTestId(CONTRACT_OVERVIEW_INVOICING_EDIT_TEST_ID)).not.toBeInTheDocument()
+    expect(screen.queryByTestId(CONTRACT_OVERVIEW_PAYMENT_EDIT_TEST_ID)).not.toBeInTheDocument()
   })
 
   it('shows the shared details skeleton while the contract is loading', () => {

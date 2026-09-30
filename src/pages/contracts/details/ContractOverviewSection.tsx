@@ -2,13 +2,18 @@ import { gql } from '@apollo/client'
 import { generatePath, useParams } from 'react-router'
 
 import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
-import { useContractDrawer } from '~/components/contracts/drawers/contract/useContractDrawer'
+import { useContractAttachedObjectDrawer } from '~/components/contracts/drawers/contractAttachedObject/useContractAttachedObjectDrawer'
+import { useContractSettingsDrawer } from '~/components/contracts/drawers/contractSettings/useContractSettingsDrawer'
+import { useUpdateContractSection } from '~/components/contracts/useUpdateContractSection'
 import { Status } from '~/components/designSystem/Status'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
+import { useInvoicingSettingsDrawer } from '~/components/invoicingSettings/useInvoicingSettingsDrawer'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { usePaymentSettingsDrawer } from '~/components/paymentSettings/usePaymentSettingsDrawer'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { SubscriptionPaymentMethodDetails } from '~/components/subscriptions/SubscriptionPaymentMethodDetails'
 import { TimezoneDate } from '~/components/TimezoneDate'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import { CatalogPlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CATALOG_PLAN_DETAILS_ROUTE, CUSTOMER_DETAILS_ROUTE, Link } from '~/core/router'
@@ -69,18 +74,38 @@ gql`
 `
 
 export const CONTRACT_OVERVIEW_EDIT_TEST_ID = 'contract-overview-edit'
+export const CONTRACT_OVERVIEW_SETTINGS_EDIT_TEST_ID = 'contract-overview-settings-edit'
+export const CONTRACT_OVERVIEW_INVOICING_EDIT_TEST_ID = 'contract-overview-invoicing-edit'
+export const CONTRACT_OVERVIEW_PAYMENT_EDIT_TEST_ID = 'contract-overview-payment-edit'
 
 export const ContractOverviewSection = (): JSX.Element => {
   const { id = '' } = useParams()
   const { translate } = useInternationalization()
   const { canEditContract } = useContractPermissionsActions()
-  const { openDrawer: openContractDrawer } = useContractDrawer()
+  const { openDrawer: openAttachedObjectDrawer } = useContractAttachedObjectDrawer()
+  const { openDrawer: openContractSettingsDrawer } = useContractSettingsDrawer()
+  const { updateContractSection } = useUpdateContractSection()
   const { data, loading } = useGetContractForDetailsOverviewQuery({
     variables: { id },
     skip: !id,
     context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
   const contract = data?.contract
+
+  const { openDrawer: openInvoicingSettingsDrawer } = useInvoicingSettingsDrawer({
+    viewType: ViewTypeEnum.Contract,
+    showCustomSection: false,
+    withInvoiceConsolidation: true,
+    onSave: ({ consolidateInvoice }) =>
+      updateContractSection({ externalId: contract?.externalId ?? '', consolidateInvoice }),
+  })
+
+  const { openDrawer: openPaymentSettingsDrawer } = usePaymentSettingsDrawer({
+    viewType: ViewTypeEnum.Contract,
+    externalCustomerId: contract?.customer.externalId ?? '',
+    onSave: ({ paymentMethod }) =>
+      updateContractSection({ externalId: contract?.externalId ?? '', paymentMethod }),
+  })
 
   if (!contract && loading) {
     return <DetailsPage.Skeleton />
@@ -111,14 +136,30 @@ export const ContractOverviewSection = (): JSX.Element => {
       }
     : undefined
 
-  const editAction =
+  const buildEditAction = (
+    dataTest: string,
+    onClick: () => void,
+  ): { label: string; dataTest: string; onClick: () => void } | undefined =>
     contract && canEditContract(contract.status)
-      ? {
-          label: translate('text_625fd39a15394c0117e7d792'),
-          dataTest: CONTRACT_OVERVIEW_EDIT_TEST_ID,
-          onClick: () => openContractDrawer({ contract }),
-        }
+      ? { label: translate('text_625fd39a15394c0117e7d792'), dataTest, onClick }
       : undefined
+
+  const attachedObjectEditAction = buildEditAction(CONTRACT_OVERVIEW_EDIT_TEST_ID, () => {
+    if (contract) openAttachedObjectDrawer(contract)
+  })
+  const contractSettingsEditAction = buildEditAction(
+    CONTRACT_OVERVIEW_SETTINGS_EDIT_TEST_ID,
+    () => {
+      if (contract) openContractSettingsDrawer(contract)
+    },
+  )
+  const invoicingSettingsEditAction = buildEditAction(
+    CONTRACT_OVERVIEW_INVOICING_EDIT_TEST_ID,
+    () => openInvoicingSettingsDrawer({ consolidateInvoice: contract?.consolidateInvoice ?? true }),
+  )
+  const paymentSettingsEditAction = buildEditAction(CONTRACT_OVERVIEW_PAYMENT_EDIT_TEST_ID, () =>
+    openPaymentSettingsDrawer({ paymentMethod: selectedPaymentMethod }),
+  )
 
   return (
     <div className="flex flex-col gap-12">
@@ -127,7 +168,7 @@ export const ContractOverviewSection = (): JSX.Element => {
           title={translate('text_1789552637141n7ijvldeali')}
           description={translate('text_1789552637141hh9khhh71bm')}
           contentClassName="gap-2"
-          action={editAction}
+          action={attachedObjectEditAction}
         />
         <DetailsPage.InfoGrid
           grid={[
@@ -167,6 +208,7 @@ export const ContractOverviewSection = (): JSX.Element => {
           title={translate('text_1789552637141f58gbx5dew3')}
           description={translate('text_1789724492480cacpzfyknb5')}
           contentClassName="gap-2"
+          action={contractSettingsEditAction}
         />
 
         <div className="flex flex-col gap-4">
@@ -240,6 +282,7 @@ export const ContractOverviewSection = (): JSX.Element => {
           title={translate('text_17423672025282dl7iozy1ru')}
           description={translate('text_1789724492480lc4k8wns9zw')}
           contentClassName="gap-2"
+          action={invoicingSettingsEditAction}
         />
         <DetailsPage.InfoGridItem
           label={translate('text_177874535109128tmqdq682k')}
@@ -256,6 +299,7 @@ export const ContractOverviewSection = (): JSX.Element => {
           title={translate('text_1782825858647rr5zp42t63m')}
           description={translate('text_17897244924802iix6cccw2v')}
           contentClassName="gap-2"
+          action={paymentSettingsEditAction}
         />
         <SubscriptionPaymentMethodDetails
           selectedPaymentMethod={selectedPaymentMethod}

@@ -1,10 +1,9 @@
 import { MockedResponse } from '@apollo/client/testing'
 import { useStore } from '@tanstack/react-form'
-import { act, fireEvent, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import {
-  ContractStatusEnum,
   GetCatalogPlansForContractDrawerDocument,
   GetCustomersForContractDrawerDocument,
   PaymentMethodTypeEnum,
@@ -13,25 +12,15 @@ import {
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 
-import { contractForDrawerFixture } from './fixtures'
-
 import {
   buildContractFormDefaults,
-  CONTRACT_DRAWER_CUSTOMER_COMBOBOX_TEST_ID,
-  CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID,
-  CONTRACT_DRAWER_REMOVE_EXTERNAL_ID_TEST_ID,
   CONTRACT_DRAWER_SHOW_EXTERNAL_ID_TEST_ID,
   CONTRACT_DRAWER_SHOW_NAME_TEST_ID,
   CONTRACT_FORM_DEFAULTS,
   ContractDrawerCustomer,
   ContractFormValues,
 } from '../constants'
-import {
-  CONTRACT_DRAWER_EXTERNAL_ID_INPUT_TEST_ID,
-  ContractDrawerContent,
-} from '../ContractDrawerContent'
-import { CREATE_CONTRACT_FIELD_LOCKS, getContractFieldLocks } from '../fieldLocks'
-import { mapContractToDrawerCustomer, mapContractToFormValues } from '../mapContractToFormValues'
+import { ContractDrawerContent } from '../ContractDrawerContent'
 
 const FORM_DIRTY_STATE_TEST_ID = 'form-dirty-state'
 const mockBillingEntityPicker = jest.fn()
@@ -117,12 +106,7 @@ const Wrapper = ({ seededCustomer }: { seededCustomer?: ContractDrawerCustomer }
       >
         Clear customer
       </button>
-      <ContractDrawerContent
-        form={form}
-        isEdit={false}
-        fieldLocks={CREATE_CONTRACT_FIELD_LOCKS}
-        seededCustomer={seededCustomer}
-      />
+      <ContractDrawerContent form={form} seededCustomer={seededCustomer} />
     </>
   )
 }
@@ -166,9 +150,6 @@ describe('ContractDrawerContent', () => {
         'ID used to define your own contract ID from your backend instead of using the one defined by Lago',
       ),
     ).toBeInTheDocument()
-
-    fireEvent.click(screen.getByTestId(CONTRACT_DRAWER_REMOVE_EXTERNAL_ID_TEST_ID))
-    expect(screen.queryByPlaceholderText('Type a contract external id')).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByTestId(CONTRACT_DRAWER_SHOW_NAME_TEST_ID))
     expect(screen.getByPlaceholderText('Type a contract name')).toBeInTheDocument()
@@ -216,125 +197,6 @@ describe('ContractDrawerContent', () => {
   })
 })
 
-const getInputByTestId = (testId: string): HTMLInputElement | null => {
-  const element = screen.getByTestId(testId)
-
-  if (element instanceof HTMLInputElement) return element
-
-  return element.querySelector('input')
-}
-
-const EditWrapper = ({ status }: { status: ContractStatusEnum }) => {
-  const contract = { ...contractForDrawerFixture, status }
-  const form = useAppForm({ defaultValues: mapContractToFormValues(contract) })
-  const isDirty = useStore(form.store, (state) => state.isDirty)
-
-  return (
-    <>
-      <span data-test={FORM_DIRTY_STATE_TEST_ID}>{isDirty ? 'dirty' : 'pristine'}</span>
-      <ContractDrawerContent
-        form={form}
-        isEdit
-        fieldLocks={getContractFieldLocks(status)}
-        seededCustomer={mapContractToDrawerCustomer(contract)}
-        seededPlan={{ code: 'enterprise', name: 'Enterprise plan' }}
-      />
-    </>
-  )
-}
-
-describe('ContractDrawerContent in edit mode', () => {
-  beforeEach(() => jest.clearAllMocks())
-
-  it('shows the external id as a locked input with no remove button', () => {
-    render(<EditWrapper status={ContractStatusEnum.Pending} />, {
-      mocks: [customersMock, plansMock],
-    })
-
-    expect(getInputByTestId(CONTRACT_DRAWER_EXTERNAL_ID_INPUT_TEST_ID)).toBeDisabled()
-    expect(screen.queryByTestId(CONTRACT_DRAWER_REMOVE_EXTERNAL_ID_TEST_ID)).not.toBeInTheDocument()
-    expect(screen.queryByTestId(CONTRACT_DRAWER_SHOW_EXTERNAL_ID_TEST_ID)).not.toBeInTheDocument()
-  })
-
-  it('shows the current customer and plan labels even when absent from the first page', async () => {
-    render(<EditWrapper status={ContractStatusEnum.Pending} />, {
-      mocks: [customersMock, plansMock],
-    })
-
-    await waitFor(() =>
-      expect(getInputByTestId(CONTRACT_DRAWER_CUSTOMER_COMBOBOX_TEST_ID)).toHaveValue('Acme'),
-    )
-    expect(getInputByTestId(CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID)).toHaveValue('Enterprise plan')
-  })
-
-  it('keeps the plan editable and the customer locked on a pending contract', () => {
-    render(<EditWrapper status={ContractStatusEnum.Pending} />, {
-      mocks: [customersMock, plansMock],
-    })
-
-    expect(getInputByTestId(CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID)).toBeEnabled()
-    expect(getInputByTestId(CONTRACT_DRAWER_CUSTOMER_COMBOBOX_TEST_ID)).toBeDisabled()
-  })
-
-  it('locks the plan on an active contract', () => {
-    render(<EditWrapper status={ContractStatusEnum.Active} />, {
-      mocks: [customersMock, plansMock],
-    })
-
-    expect(getInputByTestId(CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID)).toBeDisabled()
-  })
-
-  it('only fetches the options of the comboboxes the user can change', async () => {
-    const customersResult = jest.fn(() => ({ data: { customers: { collection: [] } } }))
-    const plansResult = jest.fn(() => ({ data: { catalogPlans: { collection: [] } } }))
-
-    render(<EditWrapper status={ContractStatusEnum.Pending} />, {
-      mocks: [
-        { ...customersMock, result: customersResult },
-        { ...plansMock, result: plansResult },
-      ],
-    })
-
-    await waitFor(() => expect(plansResult).toHaveBeenCalled())
-    expect(customersResult).not.toHaveBeenCalled()
-  })
-
-  it('fetches no options when both comboboxes are locked on an active contract', async () => {
-    const customersResult = jest.fn(() => ({ data: { customers: { collection: [] } } }))
-    const plansResult = jest.fn(() => ({ data: { catalogPlans: { collection: [] } } }))
-
-    render(<EditWrapper status={ContractStatusEnum.Active} />, {
-      mocks: [
-        { ...customersMock, result: customersResult },
-        { ...plansMock, result: plansResult },
-      ],
-    })
-
-    await waitFor(() =>
-      expect(getInputByTestId(CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID)).toHaveValue(
-        'Enterprise plan',
-      ),
-    )
-    await act(async () => undefined)
-    expect(customersResult).not.toHaveBeenCalled()
-    expect(plansResult).not.toHaveBeenCalled()
-  })
-
-  // The customer auto-fill effect would otherwise reset the stored billing entity and payment method.
-  it('stays pristine and keeps the stored billing entity once the customers load', async () => {
-    render(<EditWrapper status={ContractStatusEnum.Active} />, {
-      mocks: [customersMock, plansMock],
-    })
-
-    await waitFor(() =>
-      expect(mockBillingEntityPicker).toHaveBeenLastCalledWith(
-        expect.objectContaining({ value: 'billing-entity-2' }),
-      ),
-    )
-    expect(screen.getByTestId(FORM_DIRTY_STATE_TEST_ID)).toHaveTextContent('pristine')
-  })
-})
-
 const CreateMoreWrapper = () => {
   const form = useAppForm({ defaultValues: buildContractFormDefaults() })
   const isDirty = useStore(form.store, (state) => state.isDirty)
@@ -360,12 +222,7 @@ const CreateMoreWrapper = () => {
       >
         Create more reset
       </button>
-      <ContractDrawerContent
-        form={form}
-        isEdit={false}
-        fieldLocks={CREATE_CONTRACT_FIELD_LOCKS}
-        resetSignal={resetSignal}
-      />
+      <ContractDrawerContent form={form} resetSignal={resetSignal} />
     </>
   )
 }
