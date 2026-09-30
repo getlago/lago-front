@@ -79,7 +79,9 @@ const openDialog = (mocks: MockedResponse[] = []): void => {
     ),
   })
 
-  act(() => result.current.openDeleteGovernanceEntityDialog({ id: ENTITY_ID }))
+  act(() => {
+    result.current.openDeleteGovernanceEntityDialog({ id: ENTITY_ID })
+  })
 }
 
 const confirm = async (): Promise<void> => {

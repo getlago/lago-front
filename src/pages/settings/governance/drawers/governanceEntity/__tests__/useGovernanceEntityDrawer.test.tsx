@@ -219,7 +219,9 @@ const renderDrawer = (mocks: MockedResponse[] = [], entity?: GovernanceEntity): 
     ),
   })
 
-  act(() => result.current.openDrawer(entity))
+  act(() => {
+    result.current.openDrawer(entity)
+  })
 }
 
 const renderDrawerBody = (): void => {
