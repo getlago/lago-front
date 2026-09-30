@@ -13,20 +13,23 @@ describe('contractSettingsSchema', () => {
     expect(contractSettingsSchema.safeParse(validValues).success).toBe(true)
   })
 
-  it('requires a start date and billing anchor date', () => {
+  it('requires a start date', () => {
     const result = contractSettingsSchema.safeParse({
       ...validValues,
       startedAt: '',
-      billingAnchorDate: '',
     })
 
     expect(result.success).toBe(false)
     if (result.success) return
 
-    expect(result.error.issues.map(({ path }) => path[0])).toEqual([
-      'startedAt',
-      'billingAnchorDate',
-    ])
+    expect(result.error.issues.map(({ path }) => path[0])).toEqual(['startedAt'])
+  })
+
+  // The backend anchors billing to `startedAt` when left empty.
+  it('accepts an empty billing anchor date', () => {
+    expect(
+      contractSettingsSchema.safeParse({ ...validValues, billingAnchorDate: undefined }).success,
+    ).toBe(true)
   })
 
   it('rejects an end date before the start date', () => {
