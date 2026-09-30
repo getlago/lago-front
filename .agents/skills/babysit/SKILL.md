@@ -104,7 +104,12 @@ Work out which docs the diff touches, then pass their paths:
 | `.graphql`, fragments, `src/generated/`         | `.agents/docs/graphql-fragments.md`   |
 | new files or directories **under `src/`**       | `.agents/docs/folder-architecture.md` |
 | a new or unfamiliar library                     | `.agents/docs/documentation.md`       |
-| a list, table, paginated query, drawer, dialog, modal, confirmation prompt, form, an org id or slug, or a design-system/layout component | `.agents/skills/lago-frontend-patterns/SKILL.md` |
+| a list, table or paginated query               | `.agents/skills/lago-frontend-patterns/references/pagination.md` |
+| a drawer                                        | `.agents/skills/lago-frontend-patterns/references/drawers.md` |
+| a dialog, modal or confirmation prompt          | `.agents/skills/lago-frontend-patterns/references/dialogs.md` |
+| a form                                          | `.agents/skills/lago-frontend-patterns/references/forms.md` |
+| an org id or slug, or an identifier embedding one | `.agents/skills/lago-frontend-patterns/references/organization-slug.md` |
+| a design-system or layout component             | `.agents/skills/lago-frontend-patterns/SKILL.md` (and the reference its index row names, if any) |
 
 `CLAUDE.md` already pulls in `.agents/docs/typescript-conventions.md` itself, and its own
 sections still cover router imports, MUI imports and translations. The pagination, drawer,

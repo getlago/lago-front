@@ -1,5 +1,5 @@
 // Brand logos belong here only as 16x16 glyphs; the plated versions live in the repo
-// root's `src/public/images` — see `.agents/skills/lago-design-system/references/icons-and-logos.md`.
+// root's `src/public/images` — see `.agents/skills/lago-frontend-patterns/references/icons-and-logos.md`.
 import Alphabet from '~/icons/alphabet.svg'
 import Apps from '~/icons/apps.svg'
 import ArrowBackUp from '~/icons/arrow-back-up.svg'
