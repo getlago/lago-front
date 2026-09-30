@@ -39,7 +39,7 @@ export interface ContractFormValues {
   endedAt?: string
   // The stored end date: `Contracts::UpdateService` accepts it resent unchanged, even once passed.
   initialEndedAt?: string
-  billingAnchorDate: string
+  billingAnchorDate?: string
 }
 
 export interface ContractDrawerCustomer {
@@ -72,7 +72,9 @@ export const buildContractFormDefaults = (
     startedAt: today,
     endedAt: undefined,
     initialEndedAt: undefined,
-    billingAnchorDate: today,
+    // Left empty: `Contracts::CreateService` anchors billing to `startedAt` when
+    // omitted, which a client default of `today` would silently override.
+    billingAnchorDate: undefined,
   }
 }
 
@@ -93,5 +95,5 @@ export const CONTRACT_FORM_DEFAULTS: ContractFormValues = {
   startedAt: '2026-01-01',
   endedAt: undefined,
   initialEndedAt: undefined,
-  billingAnchorDate: '2026-01-01',
+  billingAnchorDate: undefined,
 }

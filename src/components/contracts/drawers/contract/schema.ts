@@ -48,7 +48,9 @@ export const addContractDateAndPurchaseOrderIssues = (
   data: ContractDateAndPurchaseOrderFields,
 ): void => {
   requireDate(ctx, data.startedAt, ['startedAt'])
-  requireDate(ctx, data.billingAnchorDate, ['billingAnchorDate'])
+  // Optional: `Contracts::CreateService`/`UpdateService` anchor billing to
+  // `startedAt` when left empty — only validate the format if the user set one.
+  addUnsupportedDateIssue(ctx, data.billingAnchorDate, ['billingAnchorDate'])
 
   addPurchaseOrderNumberMaxLengthIssue(ctx, data.purchaseOrderNumber, ['purchaseOrderNumber'])
 

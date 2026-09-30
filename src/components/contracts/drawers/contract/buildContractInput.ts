@@ -25,5 +25,7 @@ export const buildCreateContractInput = (value: ContractFormValues): CreateContr
   purchaseOrderNumber: normalizePurchaseOrderNumber(value.purchaseOrderNumber) ?? undefined,
   startedAt: toUtcDateTime(value.startedAt),
   endedAt: value.endedAt ? toUtcDateTime(value.endedAt) : undefined,
-  billingAnchorDate: toUtcCalendarDay(value.billingAnchorDate),
+  billingAnchorDate: value.billingAnchorDate
+    ? toUtcCalendarDay(value.billingAnchorDate)
+    : undefined,
 })
