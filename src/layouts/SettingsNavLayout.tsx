@@ -258,7 +258,7 @@ const SettingsNavLayout = () => {
                     endIcon={!canCreateBillingEntity ? 'sparkles' : undefined}
                     onClick={() => {
                       if (canCreateBillingEntity) {
-                        navigate(generatePath(BILLING_ENTITY_CREATE_ROUTE))
+                        void navigate(generatePath(BILLING_ENTITY_CREATE_ROUTE))
                       } else {
                         premiumWarningDialog.open()
                       }

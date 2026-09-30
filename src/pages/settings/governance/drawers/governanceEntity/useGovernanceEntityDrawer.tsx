@@ -107,7 +107,7 @@ export const useGovernanceEntityDrawer = (): { openDrawer: () => void } => {
     resetCreateMore()
     form.reset(GOVERNANCE_ENTITY_FORM_DEFAULTS, { keepDefaultValues: true })
 
-    drawer.open({
+    void drawer.open({
       title: translate('text_1790236824869cg5v2b6hasb'),
       form: { id: GOVERNANCE_ENTITY_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,

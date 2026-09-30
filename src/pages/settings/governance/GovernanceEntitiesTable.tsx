@@ -125,6 +125,24 @@ const GovernanceEntityNameCell = ({
   </div>
 )
 
+const GovernanceEntityRoleCell = ({ role }: Pick<GovernanceEntityRow, 'role'>): JSX.Element => {
+  const { translate } = useInternationalization()
+
+  return <Chip label={translate(ROLE_LABEL_KEYS[role])} />
+}
+
+const GovernanceEntityCreatedAtCell = ({
+  createdAt,
+}: Pick<GovernanceEntityRow, 'createdAt'>): JSX.Element => {
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+
+  return (
+    <Typography variant="body" color="grey700" noWrap>
+      {intlFormatDateTimeOrgaTZ(createdAt).date}
+    </Typography>
+  )
+}
+
 export const GOVERNANCE_ENTITIES_TABLE_NAME = 'governance-settings-entities'
 export const GOVERNANCE_ENTITIES_TABLE_TEST_ID = `table-${GOVERNANCE_ENTITIES_TABLE_NAME}`
 
@@ -136,7 +154,6 @@ export const GovernanceEntitiesTable = ({
   isLoading,
 }: GovernanceEntitiesTableProps): JSX.Element => {
   const { translate } = useInternationalization()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { page, goToPage } = usePageSearchParam()
   const isHierarchical = role === UsageAttributionTypeRoleEnum.Hierarchical
@@ -207,18 +224,12 @@ export const GovernanceEntitiesTable = ({
           {
             key: 'role',
             title: translate('text_632d68358f1fedc68eed3e5a'),
-            content: ({ role: entityRole }) => (
-              <Chip label={translate(ROLE_LABEL_KEYS[entityRole])} />
-            ),
+            content: ({ role }) => <GovernanceEntityRoleCell role={role} />,
           },
           {
             key: 'createdAt',
             title: translate('text_623b497ad05b960101be3440'),
-            content: ({ createdAt }) => (
-              <Typography variant="body" color="grey700" noWrap>
-                {intlFormatDateTimeOrgaTZ(createdAt).date}
-              </Typography>
-            ),
+            content: ({ createdAt }) => <GovernanceEntityCreatedAtCell createdAt={createdAt} />,
           },
         ]}
       />
