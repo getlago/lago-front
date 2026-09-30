@@ -5,8 +5,8 @@ yup is migration debt: never start a new form there, even next to one.
 
 - Converting an existing Formik form → `migrate-formik-to-tanstack` (owns the yup→zod
   mapping and the parity audit).
-- The form lives in a drawer or dialog → also read `lago-drawers` / `lago-dialogs`, which
-  own the surrounding hook.
+- The form lives in a drawer or dialog → also read `references/drawers.md` /
+  `references/dialogs.md` in this skill, which own the surrounding hook.
 
 Everything below is on top of `.agents/docs/typescript-conventions.md`, which a form hits
 constantly: explicit return types, no nested ternaries, and a `renderX()` helper above the
@@ -193,7 +193,7 @@ Run `/make-tests` for the suite itself. Two rules specific to forms:
   `validationSchema.test.ts` next to it is the convention.
 
 A test rendering a form inside a drawer or dialog needs the `import.meta` mock — see
-`lago-drawers` / `lago-dialogs`.
+`references/drawers.md` / `references/dialogs.md`.
 
 ## Reference implementations
 
