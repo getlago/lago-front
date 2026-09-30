@@ -6,6 +6,7 @@ import {
   MappableIntegrationMapItemDrawerRef,
   MappableIntegrationProvider,
 } from '~/pages/settings/integrations/common'
+import { NetsuiteAdditionalMappingDrawerProps } from '~/pages/settings/integrations/NetsuiteAdditionalMappings/types'
 
 type IntegrationMappings = Array<ItemMapping> | undefined | null
 
@@ -26,8 +27,16 @@ export type IntegrationItemsTableProps = {
   integrationId: string
   items: Array<IntegrationItem>
   provider: MappableIntegrationProvider
-  integrationMapItemDrawerRef: MappableIntegrationMapItemDrawerRef
   isLoading: boolean
   firstColumnName?: string
   displayBillingEntities?: boolean
-}
+} & (
+  | {
+      integrationMapItemDrawerRef: MappableIntegrationMapItemDrawerRef
+      openCurrenciesMappingDrawer?: never
+    }
+  | {
+      integrationMapItemDrawerRef?: never
+      openCurrenciesMappingDrawer: (drawerProps: NetsuiteAdditionalMappingDrawerProps) => void
+    }
+)
