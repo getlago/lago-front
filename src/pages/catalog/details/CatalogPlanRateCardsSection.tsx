@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { useState } from 'react'
 import { generatePath } from 'react-router'
 
 import { usePageSearchParam } from '~/components/designSystem/Pagination/usePageSearchParam'
@@ -52,12 +53,13 @@ export const CatalogPlanRateCardsSection = ({
 }: CatalogPlanRateCardsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { page, goToPage } = usePageSearchParam()
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
 
   // network-only: the section remounts on every tab switch, so a cache-first read would
   // flash the previously viewed page.
   const [getPlanAppliedRateCards, { data, error, loading, variables, refetch }] =
     useGetPlanAppliedRateCardsForRateCardsSectionLazyQuery({
-      variables: { planId: catalogPlanId, page, limit: DEFAULT_PAGE_SIZE },
+      variables: { planId: catalogPlanId, page, limit: pageSize },
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'network-only',
@@ -112,6 +114,11 @@ export const CatalogPlanRateCardsSection = ({
         placeholder={placeholder}
         removal={removal}
         onPageChange={goToPage}
+        pageSize={pageSize}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
         getRateCardHref={(row) =>
           generatePath(CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE, {
             catalogPlanId,

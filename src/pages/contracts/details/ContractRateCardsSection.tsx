@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { useState } from 'react'
 import { generatePath } from 'react-router'
 
 import { usePageSearchParam } from '~/components/designSystem/Pagination/usePageSearchParam'
@@ -55,12 +56,13 @@ export const ContractRateCardsSection = ({
 }: ContractRateCardsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { page, goToPage } = usePageSearchParam()
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
 
   // network-only: the section remounts on every tab switch, so a cache-first read would
   // flash the previously viewed page.
   const [getContractAppliedRateCards, { data, error, loading, variables, refetch }] =
     useGetContractAppliedRateCardsForRateCardsSectionLazyQuery({
-      variables: { contractId, page, limit: DEFAULT_PAGE_SIZE },
+      variables: { contractId, page, limit: pageSize },
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'network-only',
@@ -111,6 +113,11 @@ export const ContractRateCardsSection = ({
         placeholder={placeholder}
         removal={removal}
         onPageChange={goToPage}
+        pageSize={pageSize}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
         getRateCardHref={(row) =>
           generatePath(CONTRACT_RATE_CARD_DETAILS_ROUTE, {
             id: contractId,

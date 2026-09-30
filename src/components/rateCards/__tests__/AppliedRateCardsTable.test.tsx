@@ -79,6 +79,8 @@ describe('AppliedRateCardsTable', () => {
         rows={rows}
         loading={false}
         onPageChange={noop}
+        pageSize={20}
+        onPageSizeChange={noop}
         getRateCardHref={() => '/somewhere'}
         onCopyRateCardCode={noop}
         onRemoveRateCard={noop}
@@ -124,6 +126,8 @@ describe('AppliedRateCardsTable', () => {
         rows={rows}
         loading={false}
         onPageChange={noop}
+        pageSize={20}
+        onPageSizeChange={noop}
         getRateCardHref={() => '/somewhere'}
         onCopyRateCardCode={noop}
         onRemoveRateCard={noop}
@@ -158,6 +162,8 @@ describe('AppliedRateCardsTable', () => {
         rows={rows}
         loading={false}
         onPageChange={noop}
+        pageSize={20}
+        onPageSizeChange={noop}
         getRateCardHref={() => '/somewhere'}
         onCopyRateCardCode={noop}
         onRemoveRateCard={noop}
@@ -181,6 +187,8 @@ describe('AppliedRateCardsTable', () => {
         rows={[row]}
         loading={false}
         onPageChange={noop}
+        pageSize={20}
+        onPageSizeChange={noop}
         getRateCardHref={() => '/somewhere'}
         onCopyRateCardCode={onCopyRateCardCode}
         onRemoveRateCard={onRemoveRateCard}
@@ -206,6 +214,8 @@ describe('AppliedRateCardsTable', () => {
         rows={[buildRow()]}
         loading={false}
         onPageChange={noop}
+        pageSize={20}
+        onPageSizeChange={noop}
         getRateCardHref={() => '/somewhere'}
         onCopyRateCardCode={noop}
         onRemoveRateCard={noop}
@@ -228,6 +238,8 @@ describe('AppliedRateCardsTable', () => {
         rows={[buildRow()]}
         loading={false}
         onPageChange={noop}
+        pageSize={20}
+        onPageSizeChange={noop}
         getRateCardHref={() => '/somewhere'}
         onCopyRateCardCode={noop}
         onRemoveRateCard={onRemoveRateCard}
