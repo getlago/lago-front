@@ -28,6 +28,7 @@ const clearedValues: ContractFormValues = {
   billingEntityId: undefined,
   purchaseOrderNumber: '   ',
   endedAt: undefined,
+  billingAnchorDate: undefined,
 }
 
 describe('buildCreateContractInput', () => {
@@ -55,6 +56,7 @@ describe('buildCreateContractInput', () => {
         billingEntityId: undefined,
         purchaseOrderNumber: undefined,
         endedAt: undefined,
+        billingAnchorDate: undefined,
       }),
     )
   })
