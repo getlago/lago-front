@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
-import { Table } from '~/components/designSystem/Table/Table'
+import { Table, TableColumn } from '~/components/designSystem/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
@@ -13,7 +13,7 @@ import {
   UsageAttributionTypeRoleEnum,
   useGetGovernanceEntitiesQuery,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { MAX_GOVERNANCE_HIERARCHY_DEPTH } from './constants'
@@ -146,6 +146,35 @@ const GovernanceEntityCreatedAtCell = ({
 export const GOVERNANCE_ENTITIES_TABLE_NAME = 'governance-settings-entities'
 export const GOVERNANCE_ENTITIES_TABLE_TEST_ID = `table-${GOVERNANCE_ENTITIES_TABLE_NAME}`
 
+const getColumns = (
+  translate: TranslateFunc,
+  isHierarchical: boolean,
+): Array<TableColumn<GovernanceEntityRow> | null> => [
+  {
+    key: 'name',
+    title: translate('text_6419c64eace749372fc72b0f'),
+    maxSpace: true,
+    content: ({ name, code, depth }) => (
+      <GovernanceEntityNameCell
+        name={name}
+        code={code}
+        depth={depth}
+        showIndentIcon={isHierarchical}
+      />
+    ),
+  },
+  {
+    key: 'role',
+    title: translate('text_632d68358f1fedc68eed3e5a'),
+    content: ({ role }) => <GovernanceEntityRoleCell role={role} />,
+  },
+  {
+    key: 'createdAt',
+    title: translate('text_623b497ad05b960101be3440'),
+    content: ({ createdAt }) => <GovernanceEntityCreatedAtCell createdAt={createdAt} />,
+  },
+]
+
 type GovernanceEntitiesTableProps =
   { role: UsageAttributionTypeRoleEnum; isLoading?: never } | { role?: never; isLoading: true }
 
@@ -207,31 +236,7 @@ export const GovernanceEntitiesTable = ({
             buttonAction: () => location.reload(),
           },
         }}
-        columns={[
-          {
-            key: 'name',
-            title: translate('text_6419c64eace749372fc72b0f'),
-            maxSpace: true,
-            content: ({ name, code, depth }) => (
-              <GovernanceEntityNameCell
-                name={name}
-                code={code}
-                depth={depth}
-                showIndentIcon={isHierarchical}
-              />
-            ),
-          },
-          {
-            key: 'role',
-            title: translate('text_632d68358f1fedc68eed3e5a'),
-            content: ({ role }) => <GovernanceEntityRoleCell role={role} />,
-          },
-          {
-            key: 'createdAt',
-            title: translate('text_623b497ad05b960101be3440'),
-            content: ({ createdAt }) => <GovernanceEntityCreatedAtCell createdAt={createdAt} />,
-          },
-        ]}
+        columns={getColumns(translate, isHierarchical)}
       />
     </PaginatedContent>
   )
