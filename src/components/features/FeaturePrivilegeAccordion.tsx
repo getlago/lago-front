@@ -74,8 +74,8 @@ export const FeaturePrivilegeAccordion = withForm({
     const selectOptions = privilege?.config?.selectOptions
 
     const privilegeName = useMemo(() => {
-      if (!!privilege?.name) return privilege.name
-      if (!!privilege?.id) return '-'
+      if (privilege?.name) return privilege.name
+      if (privilege?.id) return '-'
       return translate('text_1752695518075tkwsxrwmwxh', {
         index: privilegeIndex + 1,
       })
