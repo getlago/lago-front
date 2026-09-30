@@ -38,7 +38,7 @@ const ATTRIBUTION_KEYS_TAKEN_FIELD_ERRORS = {
   attributionKeys: { message: 'text_1790236828844v9irmcydet9', path: ['attributionKeys'] },
 }
 
-export const useGovernanceEntityDrawer = (): { openDrawer: () => void } => {
+export const useGovernanceEntityDrawer = (): { openDrawer: () => Promise<void> } => {
   const { translate } = useInternationalization()
   const drawer = useFormDrawer()
   const { createMoreControl, isCreateMoreEnabled, resetCreateMore, resetSignal, notifyReset } =
@@ -103,11 +103,11 @@ export const useGovernanceEntityDrawer = (): { openDrawer: () => void } => {
     },
   })
 
-  const openDrawer = (): void => {
+  const openDrawer = async (): Promise<void> => {
     resetCreateMore()
     form.reset(GOVERNANCE_ENTITY_FORM_DEFAULTS, { keepDefaultValues: true })
 
-    void drawer.open({
+    await drawer.open({
       title: translate('text_1790236824869cg5v2b6hasb'),
       form: { id: GOVERNANCE_ENTITY_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
