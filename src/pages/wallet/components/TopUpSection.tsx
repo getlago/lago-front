@@ -201,7 +201,7 @@ export const TopUpSection = withForm({
                     // drawer saves — cancelling leaves the CTA untouched.
                     openDrawer()
                   } else {
-                    openPremiumWarningDialog()
+                    void openPremiumWarningDialog()
                   }
                 }}
               >

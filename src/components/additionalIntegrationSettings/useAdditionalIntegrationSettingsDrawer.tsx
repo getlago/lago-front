@@ -55,7 +55,7 @@ export const useAdditionalIntegrationSettingsDrawer = ({
       },
     )
 
-    drawer.open({
+    void drawer.open({
       title: translate('text_1789472252793twqbda38ec2'),
       form: { id: ADDITIONAL_INTEGRATION_SETTINGS_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,

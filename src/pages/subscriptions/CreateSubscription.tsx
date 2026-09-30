@@ -441,7 +441,7 @@ const CreateSubscription = () => {
   }, [searchParams, navigate, plan?.id, customerId])
 
   const openDirtyAttributesWarning = useCallback(() => {
-    centralizedDialog.open({
+    void centralizedDialog.open({
       title: translate('text_65118a52df984447c18694ee'),
       description: translate('text_65118a52df984447c18694fe'),
       actionText: translate('text_645388d5bdbd7b00abffa033'),

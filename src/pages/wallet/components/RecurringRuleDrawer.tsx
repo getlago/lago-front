@@ -663,7 +663,7 @@ export const useRecurringRuleDrawer = ({
     // still seeds every field — lagoId rides along untouched.
     form.reset({ ...DEFAULT_RULES, ...values }, { keepDefaultValues: true })
 
-    drawer.open({
+    void drawer.open({
       title: translate('text_6657c29c84ad4500ad764ed6'),
       form: { id: RECURRING_RULE_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
