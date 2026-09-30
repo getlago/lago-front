@@ -3,7 +3,8 @@ import { z } from 'zod'
 import { PrivilegeValueTypeEnum } from '~/generated/graphql'
 
 const REQUIRED_CODE_ERROR = 'text_1771342994699klxu2paz7g9'
-const REQUIRED_FIELD_ERROR = 'text_1771342994699klxu2paz7g8'
+
+export const REQUIRED_FIELD_ERROR = 'text_1771342994699klxu2paz7g8'
 
 const privilegeSchema = z.object({
   id: z.string().optional(),

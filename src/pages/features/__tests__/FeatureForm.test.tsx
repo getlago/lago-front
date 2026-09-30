@@ -13,6 +13,7 @@ import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { FeatureForFeatureFormFragment, PrivilegeValueTypeEnum } from '~/generated/graphql'
+import { REQUIRED_FIELD_ERROR } from '~/pages/features/featureForm/validationSchema'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import FeatureForm, {
@@ -43,20 +44,26 @@ jest.mock('~/components/form/MultipleComboBox/MultipleComboBox', () => ({
   MultipleComboBox: ({
     name,
     value,
+    error,
     onChange,
   }: {
     name?: string
     value?: { value: string }[]
+    error?: string
     onChange: (value: { value: string }[]) => void
   }) => (
-    <input
-      data-test={SELECT_OPTIONS_INPUT_TEST_ID}
-      name={name}
-      value={value?.map((option) => option.value).join(',') ?? ''}
-      onChange={(event) =>
-        onChange(event.target.value.split(',').map((option) => ({ value: option })))
-      }
-    />
+    <>
+      <input
+        data-test={SELECT_OPTIONS_INPUT_TEST_ID}
+        name={name}
+        value={value?.map((option) => option.value).join(',') ?? ''}
+        onChange={(event) =>
+          onChange(event.target.value.split(',').map((option) => ({ value: option })))
+        }
+      />
+      {/* the real component renders `error` as helper text under the input */}
+      {error ? <span>{error}</span> : null}
+    </>
   ),
 }))
 
@@ -389,6 +396,9 @@ describe('FeatureForm', () => {
 
         await user.click(screen.getByTestId(FEATURE_FORM_SUBMIT_BUTTON_TEST_ID))
         await waitFor(() => expect(mockCreateFeature).not.toHaveBeenCalled())
+
+        // The block must be explained on screen, not just enforced
+        expect(await screen.findByText(REQUIRED_FIELD_ERROR)).toBeInTheDocument()
 
         typeSelectOptions('gold')
         await user.click(screen.getByTestId(FEATURE_FORM_SUBMIT_BUTTON_TEST_ID))

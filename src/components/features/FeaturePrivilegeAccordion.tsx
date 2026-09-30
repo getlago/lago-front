@@ -234,27 +234,40 @@ export const FeaturePrivilegeAccordion = withForm({
               {showSelectOptionsInput ? (
                 <div className="flex gap-3">
                   <form.AppField name={`privileges[${privilegeIndex}].config.selectOptions`}>
-                    {(field) => (
-                      <MultipleComboBox
-                        freeSolo
-                        hideTags
-                        disableClearable
-                        disableCloseOnSelect
-                        className={tw('w-full', currentSearchClassName)}
-                        name={field.name}
-                        placeholder={translate('text_1752863499298r6x9j41ndoy')}
-                        data={[]}
-                        value={(field.state.value || []).map((selectOption) => ({
-                          value: selectOption,
-                        }))}
-                        onChange={(newValue) => {
-                          field.handleChange(
-                            newValue?.map((item) => item.value.trim()).filter((item) => !!item) ||
-                              [],
-                          )
-                        }}
-                      />
-                    )}
+                    {(field) => {
+                      // The raw combobox is bound by hand, so the field error has to be
+                      // forwarded explicitly: without it a select privilege with no
+                      // option blocks submit with nothing on screen.
+                      const fieldError = (
+                        field.state.meta.errors as Array<{ message?: string } | undefined>
+                      )
+                        .map((error) => error?.message)
+                        .filter(Boolean)
+                        .join('')
+
+                      return (
+                        <MultipleComboBox
+                          freeSolo
+                          hideTags
+                          disableClearable
+                          disableCloseOnSelect
+                          className={tw('w-full', currentSearchClassName)}
+                          name={field.name}
+                          placeholder={translate('text_1752863499298r6x9j41ndoy')}
+                          data={[]}
+                          error={fieldError ? translate(fieldError) : undefined}
+                          value={(field.state.value || []).map((selectOption) => ({
+                            value: selectOption,
+                          }))}
+                          onChange={(newValue) => {
+                            field.handleChange(
+                              newValue?.map((item) => item.value.trim()).filter((item) => !!item) ||
+                                [],
+                            )
+                          }}
+                        />
+                      )
+                    }}
                   </form.AppField>
 
                   <Tooltip
