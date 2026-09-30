@@ -8,7 +8,7 @@ copying one pattern into the other is wrong:
 
 - **Usage charge** (`src/components/plans/chargeAccordion/ChargeFilter.tsx`,
   `src/components/plans/utils.ts`'s `transformFilterObjectToString`,
-  `hooks/plans/utils.ts`): uses the sentinel string `ALL_FILTER_VALUES`
+  `src/hooks/plans/utils.ts`): uses the sentinel string `ALL_FILTER_VALUES`
   (`'__ALL_FILTER_VALUES__'`, `src/core/constants/form.ts`) - `transformFilterObjectToString`
   is what actually writes it (`value || ALL_FILTER_VALUES`), because
   `ChargeFilterInput.values` is the loose `{ [key]: string[] }` scalar - every

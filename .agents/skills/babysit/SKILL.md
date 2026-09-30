@@ -27,8 +27,8 @@ References, read on demand rather than up front:
 - `references/slack-format.md` - `#frontend` announcement format
 
 These three describe babysit's own mechanics. **No file in this skill restates a coding
-rule.** The repo's conventions live in `CLAUDE.md`, `.agents/docs/` and the `lago-*`
-subsystem skills, and the review points at those rather than copying them. A copy would drift, and a
+rule.** The repo's conventions live in `CLAUDE.md`, `.agents/docs/` and the
+`lago-frontend-patterns` skill, and the review points at those rather than copying them. A copy would drift, and a
 stale copy enforced during review is worse than no review at all.
 
 ## The two durable-state rules
@@ -91,7 +91,7 @@ First run only. Do not write a review from scratch here. Delegate to the built-i
 `/review`, which takes a PR number.
 
 **Point it at the repo's conventions; never restate them.** `CLAUDE.md`, `.agents/docs/`
-and the `lago-*` subsystem skills are the single source of truth, and they are what coding
+and the `lago-frontend-patterns` skill are the single source of truth, and they are what coding
 sessions already load. The review reads the same files, so a rule can never be enforced in
 review while being absent from the guidance the code was written against.
 
