@@ -462,6 +462,27 @@ describe('FeatureForm', () => {
       })
     })
 
+    describe('WHEN all edits have been reverted', () => {
+      it.each([
+        ['cancel', FEATURE_FORM_CANCEL_BUTTON_TEST_ID],
+        ['close', FEATURE_FORM_CLOSE_BUTTON_TEST_ID],
+      ])('THEN should leave without prompting on %s', async (_, buttonTestId) => {
+        const user = userEvent.setup()
+
+        await renderPage({ featureId: 'feature-1' })
+
+        await user.type(inputIn(FEATURE_FORM_NAME_INPUT_TEST_ID), 'x')
+        await user.keyboard('{Backspace}')
+
+        expect(inputIn(FEATURE_FORM_NAME_INPUT_TEST_ID)).toHaveValue(existingFeature.name)
+
+        await user.click(screen.getByTestId(buttonTestId))
+
+        expect(mockCentralizedDialogOpen).not.toHaveBeenCalled()
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/feature/feature-1/overview')
+      })
+    })
+
     describe('WHEN rendering the page', () => {
       it('THEN should seed the fields with the saved values', async () => {
         await renderPage({ featureId: 'feature-1' })

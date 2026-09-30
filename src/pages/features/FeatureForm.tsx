@@ -158,7 +158,7 @@ const FeatureForm = () => {
     },
   })
 
-  const isDirty = useStore(form.store, (state) => state.isDirty)
+  const isDirty = useStore(form.store, (state) => !state.isDefaultValue)
   const privileges = useStore(form.store, (state) => state.values.privileges)
 
   const onLeave = useCallback(() => {
