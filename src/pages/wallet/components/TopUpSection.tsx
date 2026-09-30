@@ -132,6 +132,7 @@ export const TopUpSection = withForm({
 
     const renderAdditionalIntegrationSettingsSelector = (customerId: string) => (
       <AdditionalIntegrationSettingsSelector
+        viewType={ViewTypeEnum.WalletTopUp}
         customerId={customerId}
         values={{
           [ConnectionCategory.Accounting]: walletValues.accountingConnection,
@@ -200,7 +201,7 @@ export const TopUpSection = withForm({
                     // drawer saves — cancelling leaves the CTA untouched.
                     openDrawer()
                   } else {
-                    openPremiumWarningDialog()
+                    void openPremiumWarningDialog()
                   }
                 }}
               >

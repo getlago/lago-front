@@ -12,6 +12,10 @@ import {
   ConnectionCategory,
   IntegrationConnectionCategory,
 } from '~/components/customerConnections/types'
+import {
+  VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS,
+  ViewTypeEnum,
+} from '~/core/constants/billingObjectViewTypes'
 import { ConnectionBehaviorEnum, IntegrationTypeEnum } from '~/generated/graphql'
 import { CustomerIntegrationConnection } from '~/hooks/customer/useCustomerIntegrationConnections'
 import { render } from '~/test-utils'
@@ -120,6 +124,7 @@ const openDrawerFromSelector = async (
 
   render(
     <AdditionalIntegrationSettingsSelector
+      viewType={ViewTypeEnum.WalletTopUp}
       customerId="customer-1"
       values={{
         [ConnectionCategory.Accounting]: undefined,
@@ -148,6 +153,15 @@ const comboBoxIn = (category: IntegrationConnectionCategory) =>
   sectionOf(category).querySelector(`input[name="selectConnection-${category}"]`)
 
 describe('AdditionalIntegrationSettingsSelector', () => {
+  it.each([ViewTypeEnum.Subscription, ViewTypeEnum.WalletTopUp, ViewTypeEnum.WalletRecurringTopUp])(
+    'uses the caption for %s in the drawer',
+    async (viewType) => {
+      const { opened } = await openDrawerFromSelector({ viewType })
+      render(<>{opened.children}</>)
+      expect(screen.getByText(VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS[viewType])).toBeInTheDocument()
+    },
+  )
+
   beforeEach(() => {
     jest.clearAllMocks()
     mockConnectionsLoading.current = false
@@ -169,6 +183,7 @@ describe('AdditionalIntegrationSettingsSelector', () => {
       it('THEN should open the drawer once', () => {
         const { rerender } = render(
           <AdditionalIntegrationSettingsSelector
+            viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
             values={EMPTY_VALUES}
             onChange={jest.fn()}
@@ -180,6 +195,7 @@ describe('AdditionalIntegrationSettingsSelector', () => {
 
         rerender(
           <AdditionalIntegrationSettingsSelector
+            viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
             values={EMPTY_VALUES}
             onChange={jest.fn()}
@@ -197,6 +213,7 @@ describe('AdditionalIntegrationSettingsSelector', () => {
       it('THEN should display the entry card without opening the drawer', () => {
         render(
           <AdditionalIntegrationSettingsSelector
+            viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
             values={{
               [ConnectionCategory.Accounting]: undefined,
@@ -218,6 +235,7 @@ describe('AdditionalIntegrationSettingsSelector', () => {
       it('THEN should tag the card with it', () => {
         render(
           <AdditionalIntegrationSettingsSelector
+            viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
             values={{
               [ConnectionCategory.Accounting]: undefined,
@@ -262,6 +280,7 @@ describe('AdditionalIntegrationSettingsSelector', () => {
       it('THEN should join one segment per touched category', async () => {
         render(
           <AdditionalIntegrationSettingsSelector
+            viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
             values={{
               [ConnectionCategory.Accounting]: { code: 'customer_netsuite' },
@@ -288,6 +307,7 @@ describe('AdditionalIntegrationSettingsSelector', () => {
       it('THEN should fall back to the customer default segment when nothing was touched', async () => {
         render(
           <AdditionalIntegrationSettingsSelector
+            viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
             values={{
               [ConnectionCategory.Accounting]: undefined,

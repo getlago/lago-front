@@ -49,6 +49,11 @@ gql`
         status
         expiresAt
       }
+      connections {
+        category
+        behavior
+        code
+      }
       paymentMethodType
       paymentMethod {
         id
@@ -90,6 +95,11 @@ gql`
         timeoutHours
         status
         expiresAt
+      }
+      connections {
+        category
+        behavior
+        code
       }
       paymentMethodType
       paymentMethod {
@@ -274,7 +284,7 @@ export const useAddSubscription: UseAddSubscription = ({
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity],
     },
-    onCompleted: async (res) => {
+    onCompleted: (res) => {
       if (!!res?.createSubscription) {
         addToast({
           message: translate('text_65118a52df984447c186962f'),
@@ -307,7 +317,7 @@ export const useAddSubscription: UseAddSubscription = ({
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity],
     },
-    onCompleted: async (res) => {
+    onCompleted: (res) => {
       if (!!res?.updateSubscription) {
         const origin = searchParams.get('origin')
         const originSubscriptionId = searchParams.get('subscriptionId')
