@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
-import { Table } from '~/components/designSystem/Table/Table'
+import { Table, TableColumn } from '~/components/designSystem/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
@@ -11,7 +11,7 @@ import {
   UsageAttributionTypeRoleEnum,
   useGetGovernanceEntitiesQuery,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
@@ -86,6 +86,35 @@ const CreatedAtCell = ({ createdAt }: Pick<GovernanceEntity, 'createdAt'>): JSX.
   )
 }
 
+const getColumns = (
+  translate: TranslateFunc,
+  isHierarchical: boolean,
+): Array<TableColumn<GovernanceEntity> | null> => [
+  {
+    key: 'name',
+    title: translate('text_6419c64eace749372fc72b0f'),
+    maxSpace: true,
+    content: ({ name, code }) => <NameCell name={name} code={code} />,
+  },
+  isHierarchical
+    ? {
+        key: 'parent.name',
+        title: translate('text_1790230812563xw6orgl2n9j'),
+        content: ({ parent }) => <ParentCell parent={parent} />,
+      }
+    : null,
+  {
+    key: 'role',
+    title: translate('text_632d68358f1fedc68eed3e5a'),
+    content: ({ role }) => <RoleCell role={role} />,
+  },
+  {
+    key: 'createdAt',
+    title: translate('text_623b497ad05b960101be3440'),
+    content: ({ createdAt }) => <CreatedAtCell createdAt={createdAt} />,
+  },
+]
+
 type GovernanceEntitiesTableProps = {
   role: UsageAttributionTypeRoleEnum
 }
@@ -134,31 +163,7 @@ export const GovernanceEntitiesTable = ({ role }: GovernanceEntitiesTableProps):
             buttonAction: () => location.reload(),
           },
         }}
-        columns={[
-          {
-            key: 'name',
-            title: translate('text_6419c64eace749372fc72b0f'),
-            maxSpace: true,
-            content: ({ name, code }) => <NameCell name={name} code={code} />,
-          },
-          isHierarchical
-            ? {
-                key: 'parent.name',
-                title: translate('text_1790230812563xw6orgl2n9j'),
-                content: ({ parent }) => <ParentCell parent={parent} />,
-              }
-            : null,
-          {
-            key: 'role',
-            title: translate('text_632d68358f1fedc68eed3e5a'),
-            content: ({ role: entityRole }) => <RoleCell role={entityRole} />,
-          },
-          {
-            key: 'createdAt',
-            title: translate('text_623b497ad05b960101be3440'),
-            content: ({ createdAt }) => <CreatedAtCell createdAt={createdAt} />,
-          },
-        ]}
+        columns={getColumns(translate, isHierarchical)}
       />
     </PaginatedContent>
   )
