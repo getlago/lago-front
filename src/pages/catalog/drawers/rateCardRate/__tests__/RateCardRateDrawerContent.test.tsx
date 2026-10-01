@@ -36,14 +36,14 @@ const CHANGE_MODEL_BUTTON_TEST_ID = 'change-model'
 const SET_SPENDING_MINIMUM_BUTTON_TEST_ID = 'clear-spending-minimum'
 const RATE_MODEL_PROBE_TEST_ID = 'rate-model-probe'
 const RATE_AMOUNT_PROBE_TEST_ID = 'rate-amount-probe'
-const mockChargeWrapperSwitchTestId = 'charge-wrapper-switch'
+const mockRateWrapperSwitchTestId = 'rate-wrapper-switch'
 
 const mockOpenPremiumWarningDialog = jest.fn()
 let mockIsPremium = true
 let mockTranslationSuffix = ''
 let mockTranslations: Record<string, string> = {}
 let mockChargeModelSelectorProps: Record<string, unknown> = {}
-let mockChargeWrapperSwitchProps: Record<string, unknown> = {}
+let mockRateWrapperSwitchProps: Record<string, unknown> = {}
 
 type ChargeModelUpdater = (field: string, value: unknown) => void
 
@@ -113,11 +113,11 @@ jest.mock('~/components/plans/chargeAccordion/ChargeModelSelector', () => ({
   },
 }))
 
-jest.mock('~/components/plans/chargeAccordion/ChargeWrapperSwitch', () => ({
-  ChargeWrapperSwitch: (props: Record<string, unknown>) => {
-    mockChargeWrapperSwitchProps = props
+jest.mock('~/pages/catalog/rateProperties/RateWrapperSwitch', () => ({
+  RateWrapperSwitch: (props: Record<string, unknown>) => {
+    mockRateWrapperSwitchProps = props
 
-    return <div data-test={mockChargeWrapperSwitchTestId} />
+    return <div data-test={mockRateWrapperSwitchTestId} />
   },
 }))
 
@@ -253,7 +253,7 @@ describe('RateCardRateDrawerContent', () => {
     mockIsPremium = true
     mockTranslationSuffix = ''
     mockChargeModelSelectorProps = {}
-    mockChargeWrapperSwitchProps = {}
+    mockRateWrapperSwitchProps = {}
     mockHandleChargeModelUpdate = undefined
     mockSpendingMinimumProps = {}
     mockCustomChargeOnSave = undefined
@@ -312,9 +312,7 @@ describe('RateCardRateDrawerContent', () => {
 
         await userEvent.click(screen.getByTestId(CHANGE_MODEL_BUTTON_TEST_ID))
 
-        expect(
-          (mockChargeWrapperSwitchProps.localCharge as { chargeModel: string }).chargeModel,
-        ).toBe(RateCardRateModelEnum.Package)
+        expect(mockRateWrapperSwitchProps.rateModel).toBe(RateCardRateModelEnum.Package)
       })
     })
 
@@ -352,21 +350,17 @@ describe('RateCardRateDrawerContent', () => {
         mockHandleChargeModelUpdate?.('chargeModel', RateCardRateModelEnum.GraduatedPercentage)
 
         expect(mockOpenPremiumWarningDialog).toHaveBeenCalledTimes(1)
-        expect(
-          (mockChargeWrapperSwitchProps.localCharge as { chargeModel: string }).chargeModel,
-        ).toBe(RateCardRateModelEnum.Package)
+        expect(mockRateWrapperSwitchProps.rateModel).toBe(RateCardRateModelEnum.Package)
       })
     })
   })
 
   describe('GIVEN the pricing inputs', () => {
     describe('WHEN the parent product is a usage product', () => {
-      it('THEN drives them in usage mode, with presentation group keys suppressed', () => {
+      it('THEN drives them with the metered product type', () => {
         render(<Host />)
 
-        expect(mockChargeWrapperSwitchProps.chargeType).toBe('usage')
-        expect(mockChargeWrapperSwitchProps.showPresentationGroupKeys).toBe(false)
-        expect(mockChargeWrapperSwitchProps.propertyCursor).toBe('properties')
+        expect(mockRateWrapperSwitchProps.productType).toBe(ProductTypeEnum.Metered)
       })
     })
 
@@ -374,7 +368,7 @@ describe('RateCardRateDrawerContent', () => {
       it('THEN drives them in fixed mode', () => {
         render(<Host rateCard={{ ...arrearsUsageCard, productType: ProductTypeEnum.Fixed }} />)
 
-        expect(mockChargeWrapperSwitchProps.chargeType).toBe('fixed')
+        expect(mockRateWrapperSwitchProps.productType).toBe(ProductTypeEnum.Fixed)
       })
     })
   })
@@ -401,7 +395,7 @@ describe('RateCardRateDrawerContent', () => {
       it('THEN prices the charge fields in that short name too', () => {
         render(<Host rateCard={{ ...arrearsUsageCard, appliedPricingUnitCode: 'tokens' }} />)
 
-        expect(mockChargeWrapperSwitchProps.chargePricingUnitShortName).toBe('tok')
+        expect(mockRateWrapperSwitchProps.pricingUnitShortName).toBe('tok')
       })
     })
   })
@@ -488,8 +482,8 @@ describe('RateCardRateDrawerContent', () => {
       it('THEN keeps the pricing inputs editable', () => {
         render(<Host isEdit isActiveRate />)
 
-        expect(screen.getByTestId(mockChargeWrapperSwitchTestId)).toBeInTheDocument()
-        expect(mockChargeWrapperSwitchProps.disabled).toBeUndefined()
+        expect(screen.getByTestId(mockRateWrapperSwitchTestId)).toBeInTheDocument()
+        expect(mockRateWrapperSwitchProps).not.toHaveProperty('disabled')
       })
     })
   })
@@ -522,10 +516,10 @@ describe('RateCardRateDrawerContent', () => {
     describe('WHEN the drawer body renders', () => {
       // `CustomCharge` gives its JSON editor no `onChange`, so without this a Custom rate
       // can never be saved.
-      it('THEN ChargeWrapperSwitch receives the expand callback that opens the editor', () => {
+      it('THEN RateWrapperSwitch receives the expand callback that opens the editor', () => {
         render(<Host />)
 
-        expect(mockChargeWrapperSwitchProps.onExpandCustomCharge).toBe(mockOpenCustomChargeDrawer)
+        expect(mockRateWrapperSwitchProps.onExpandCustomCharge).toBe(mockOpenCustomChargeDrawer)
       })
     })
 
