@@ -47,6 +47,32 @@ type Args = {
   hasOverriddenPlans: boolean
 }
 
+const serializeFixedChargeFields = (
+  charge: LocalFixedChargeInput,
+  cascadeUpdates: boolean,
+): Omit<FixedChargeCreateInput, 'planId' | 'addOnId'> => ({
+  chargeModel: charge.chargeModel,
+  code: charge.code || undefined,
+  invoiceDisplayName: charge.invoiceDisplayName || undefined,
+  payInAdvance: charge.payInAdvance ?? false,
+  properties: charge.properties
+    ? serializeFixedChargeProperties(charge.properties, charge.chargeModel)
+    : undefined,
+  prorated: charge.prorated ?? false,
+  units: charge.units ? String(charge.units) : '0',
+  taxCodes: charge.taxes?.map((t) => t.code) ?? [],
+  applyUnitsImmediately: charge.applyUnitsImmediately ?? false,
+  cascadeUpdates,
+})
+
+const buildUpdateInput = (
+  charge: LocalFixedChargeInput,
+  cascadeUpdates: boolean,
+): FixedChargeUpdateInput => ({
+  id: charge.id ?? '',
+  ...serializeFixedChargeFields(charge, cascadeUpdates),
+})
+
 export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans }: Args) => {
   const { translate } = useInternationalization()
   const { openCascadeDialog } = useCascadeFormDialog()
@@ -104,37 +130,7 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
   ): FixedChargeCreateInput => ({
     planId,
     addOnId: charge.addOn.id,
-    chargeModel: charge.chargeModel,
-    code: charge.code || undefined,
-    invoiceDisplayName: charge.invoiceDisplayName || undefined,
-    payInAdvance: charge.payInAdvance ?? false,
-    properties: charge.properties
-      ? serializeFixedChargeProperties(charge.properties, charge.chargeModel)
-      : undefined,
-    prorated: charge.prorated ?? false,
-    units: charge.units ? String(charge.units) : '0',
-    taxCodes: charge.taxes?.map((t) => t.code) ?? [],
-    applyUnitsImmediately: charge.applyUnitsImmediately ?? false,
-    cascadeUpdates,
-  })
-
-  const buildUpdateInput = (
-    charge: LocalFixedChargeInput,
-    cascadeUpdates: boolean,
-  ): FixedChargeUpdateInput => ({
-    id: charge.id ?? '',
-    chargeModel: charge.chargeModel,
-    code: charge.code || undefined,
-    invoiceDisplayName: charge.invoiceDisplayName || undefined,
-    payInAdvance: charge.payInAdvance ?? false,
-    properties: charge.properties
-      ? serializeFixedChargeProperties(charge.properties, charge.chargeModel)
-      : undefined,
-    prorated: charge.prorated ?? false,
-    units: charge.units ? String(charge.units) : '0',
-    taxCodes: charge.taxes?.map((t) => t.code) ?? [],
-    applyUnitsImmediately: charge.applyUnitsImmediately ?? false,
-    cascadeUpdates,
+    ...serializeFixedChargeFields(charge, cascadeUpdates),
   })
 
   const handleSaveCharge = async (
