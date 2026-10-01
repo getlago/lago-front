@@ -7,6 +7,7 @@ import {
   RateCardRateModelEnum,
 } from '~/generated/graphql'
 
+import { RATE_TIER_UP_TO_ERROR_KEY } from '../../../rateProperties/tiers/rateTiers'
 import {
   NO_AVAILABLE_RATE_MODELS_KEY,
   RATE_MODEL_AVAILABILITY_LOADING_KEY,
@@ -312,5 +313,28 @@ describe('buildRateCardRateSchema', () => {
       'rateModel',
       NO_AVAILABLE_RATE_MODELS_KEY,
     ])
+  })
+
+  describe('GIVEN a graduated rate with overlapping tiers', () => {
+    describe('WHEN it is parsed', () => {
+      it('THEN reports the overlap on the tier upper bound', () => {
+        const result = parse({
+          ...validValues,
+          rateModel: RateCardRateModelEnum.Graduated,
+          properties: {
+            graduatedRanges: [
+              { toValue: '10', perUnitAmount: '1', flatAmount: '0' },
+              { toValue: '10', perUnitAmount: '1', flatAmount: '0' },
+              { toValue: null, perUnitAmount: '1', flatAmount: '0' },
+            ],
+          },
+        })
+
+        expect(issuePathsAndMessages(result)).toContainEqual([
+          'properties.graduatedRanges.1.toValue',
+          RATE_TIER_UP_TO_ERROR_KEY,
+        ])
+      })
+    })
   })
 })
