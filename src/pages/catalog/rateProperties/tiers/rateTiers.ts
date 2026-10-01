@@ -51,3 +51,8 @@ export const getTierLowerBound = (tiers: RateTierBound[], index: number): Decima
 
   return parseDecimal(tiers[index - 1]?.toValue) ?? new Decimal(0)
 }
+
+export const getNextTierUpTo = (tiers: RateTierBound[]): string =>
+  getTierLowerBound(tiers, Math.max(tiers.length - 1, 0))
+    .plus(1)
+    .toFixed()
