@@ -9,15 +9,17 @@ export const PrivilegeValueInputComponent: FC<{
   value: string | undefined
   onChange: (value: string | undefined) => void
   translate: TranslateFunc
+  error?: boolean
   config?: {
     selectOptions?: string[] | null
   }
-}> = ({ valueType, value, onChange, translate, config }) => {
+}> = ({ valueType, value, onChange, translate, config, error }) => {
   if (valueType === PrivilegeValueTypeEnum.Select) {
     return (
       <ComboBox
         variant="outlined"
         value={value}
+        error={error}
         placeholder={translate('text_66ab42d4ece7e6b7078993b1')}
         data={
           config?.selectOptions?.map((option) => ({
@@ -37,6 +39,7 @@ export const PrivilegeValueInputComponent: FC<{
       <ComboBox
         variant="outlined"
         value={value}
+        error={error}
         placeholder={translate('text_1753864223060ji5l38phiya')}
         data={[
           {
@@ -59,6 +62,7 @@ export const PrivilegeValueInputComponent: FC<{
     <TextInput
       variant="outlined"
       value={value}
+      error={error}
       placeholder={
         valueType === PrivilegeValueTypeEnum.Integer
           ? translate('text_1753864223060bxskzw3877s')

@@ -151,4 +151,32 @@ describe('PrivilegeValueInputComponent', () => {
       })
     })
   })
+
+  describe('GIVEN an error on the value', () => {
+    describe.each([
+      ['Select', PrivilegeValueTypeEnum.Select],
+      ['Boolean', PrivilegeValueTypeEnum.Boolean],
+      ['Integer', PrivilegeValueTypeEnum.Integer],
+    ])('WHEN the valueType is %s', (_, valueType) => {
+      it('THEN should flag the input as invalid', () => {
+        const { container } = render(
+          <PrivilegeValueInputComponent {...defaultProps} valueType={valueType} error />,
+        )
+
+        const input = container.querySelector('input') as HTMLInputElement
+
+        expect(input).toHaveAttribute('aria-invalid', 'true')
+      })
+
+      it('THEN should leave the input valid without the error flag', () => {
+        const { container } = render(
+          <PrivilegeValueInputComponent {...defaultProps} valueType={valueType} />,
+        )
+
+        const input = container.querySelector('input') as HTMLInputElement
+
+        expect(input).toHaveAttribute('aria-invalid', 'false')
+      })
+    })
+  })
 })
