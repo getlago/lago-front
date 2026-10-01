@@ -10,8 +10,6 @@ export const PrivilegeValueInputComponent: FC<{
   onChange: (value: string | undefined) => void
   translate: TranslateFunc
   error?: boolean
-  // `scrollToFirstInputError` finds the errored field through `input.name`, so an
-  // unnamed input is unreachable on an invalid submit.
   name?: string
   config?: {
     selectOptions?: string[] | null

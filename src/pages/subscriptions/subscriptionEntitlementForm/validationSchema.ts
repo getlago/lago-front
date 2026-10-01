@@ -17,8 +17,6 @@ const privilegeSchema = z.object({
 })
 
 export const subscriptionEntitlementValidationSchema = z.object({
-  // `z.string()` also carries the message: clearing the feature combobox stores
-  // `undefined`, which would otherwise surface Zod's untranslated "Invalid input".
   code: z.string(REQUIRED_FIELD_ERROR).min(1, REQUIRED_FIELD_ERROR),
   privileges: z.array(privilegeSchema),
 })
