@@ -189,7 +189,7 @@ export const ContractOverviewSection = (): JSX.Element => {
                     customerId: contract.customer.id,
                   })}
                 >
-                  {contract.customer.displayName}
+                  {contract.customer.displayName || contract.customer.externalId}
                 </Link>
               ) : (
                 '-'

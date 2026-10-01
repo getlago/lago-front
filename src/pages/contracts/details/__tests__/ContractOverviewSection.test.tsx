@@ -253,6 +253,15 @@ describe('ContractOverviewSection', () => {
     )
   })
 
+  it('falls back to the external id when the customer has no display name', async () => {
+    await renderSection({ customer: { ...contract.customer, displayName: '' } })
+
+    expect(await screen.findByRole('link', { name: 'external-customer-1' })).toHaveAttribute(
+      'href',
+      '/customer/customer-1',
+    )
+  })
+
   it('renders sections in design order with dividers on the first three', async () => {
     await renderSection()
 
