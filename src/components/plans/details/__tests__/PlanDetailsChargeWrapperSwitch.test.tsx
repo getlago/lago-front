@@ -17,8 +17,10 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 jest.mock('~/components/form', () => ({
-  JsonEditor: ({ value }: { value?: unknown }) => (
-    <div data-test={mockJsonEditorTestId}>{JSON.stringify(value)}</div>
+  JsonEditor: ({ value, readOnly }: { value?: unknown; readOnly?: boolean }) => (
+    <div data-test={mockJsonEditorTestId} data-readonly={String(readOnly)}>
+      {JSON.stringify(value)}
+    </div>
   ),
 }))
 
@@ -119,6 +121,21 @@ describe('PlanDetailsChargeWrapperSwitch', () => {
         expect(screen.queryByRole('table')).not.toBeInTheDocument()
       })
     })
+
+    describe('WHEN it renders in a custom pricing unit', () => {
+      it('THEN suffixes the amount with the unit short name', () => {
+        render(
+          <PlanDetailsChargeWrapperSwitch
+            currency={CurrencyEnum.Usd}
+            chargeModel={ChargeModelEnum.Package}
+            values={buildProperties({ amount: '5', packageSize: 100, freeUnits: 10 })}
+            chargeAppliedPricingUnit={{ pricingUnit: { shortName: 'tok' } }}
+          />,
+        )
+
+        expect(getCellTexts()).toEqual(['5.00 tok', '100', '10'])
+      })
+    })
   })
 
   describe('GIVEN a percentage charge', () => {
@@ -148,6 +165,49 @@ describe('PlanDetailsChargeWrapperSwitch', () => {
         expect(getCellTexts()).toEqual(['1.50%', '$2.00', '3', '$4.00'])
         expect(screen.getByText('$1.00')).toBeInTheDocument()
         expect(screen.getByText('$9.00')).toBeInTheDocument()
+        expect(
+          screen.getByText('$1.00').compareDocumentPosition(screen.getByText('$9.00')) &
+            Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy()
+      })
+    })
+
+    describe('WHEN it renders with no values set', () => {
+      it('THEN shows zeros and has four $0.00 texts', () => {
+        render(
+          <PlanDetailsChargeWrapperSwitch
+            currency={CurrencyEnum.Usd}
+            chargeModel={ChargeModelEnum.Percentage}
+            values={buildProperties({})}
+          />,
+        )
+
+        expect(getCellTexts()).toEqual(['0.00%', '$0.00', '0', '$0.00'])
+        expect(screen.getAllByText('$0.00')).toHaveLength(4)
+      })
+    })
+
+    describe('WHEN it renders in a custom pricing unit', () => {
+      it('THEN suffixes amounts with the unit short name', () => {
+        render(
+          <PlanDetailsChargeWrapperSwitch
+            currency={CurrencyEnum.Usd}
+            chargeModel={ChargeModelEnum.Percentage}
+            values={buildProperties({
+              rate: '1.5',
+              fixedAmount: '2',
+              freeUnitsPerEvents: 3,
+              freeUnitsPerTotalAggregation: '4',
+              perTransactionMinAmount: '1',
+              perTransactionMaxAmount: '9',
+            })}
+            chargeAppliedPricingUnit={{ pricingUnit: { shortName: 'tok' } }}
+          />,
+        )
+
+        expect(getCellTexts()).toEqual(['1.50%', '2.00 tok', '3', '4.00 tok'])
+        expect(screen.getByText('1.00 tok')).toBeInTheDocument()
+        expect(screen.getByText('9.00 tok')).toBeInTheDocument()
       })
     })
   })
@@ -165,6 +225,7 @@ describe('PlanDetailsChargeWrapperSwitch', () => {
 
         expect(getHeaderTexts()).toEqual(['text_663dea5702b60301d8d06502'])
         expect(screen.getByTestId(mockJsonEditorTestId)).toHaveTextContent('{"tier":"gold"}')
+        expect(screen.getByTestId(mockJsonEditorTestId)).toHaveAttribute('data-readonly', 'true')
       })
     })
   })
@@ -198,6 +259,111 @@ describe('PlanDetailsChargeWrapperSwitch', () => {
         )
 
         expect(getCellTexts()).toEqual(['0', '10', '$1.00', '$2.00', '10', '∞', '$0.50', '$0.00'])
+      })
+    })
+  })
+
+  describe('GIVEN a graduated percentage charge', () => {
+    describe('WHEN it renders in a custom pricing unit', () => {
+      it('THEN shows ranges with percentage rates and pricing unit suffixed amounts', () => {
+        render(
+          <PlanDetailsChargeWrapperSwitch
+            currency={CurrencyEnum.Usd}
+            chargeModel={ChargeModelEnum.GraduatedPercentage}
+            values={buildProperties({
+              graduatedPercentageRanges: [
+                {
+                  __typename: 'GraduatedPercentageRange',
+                  fromValue: 0,
+                  toValue: 10,
+                  rate: '1',
+                  flatAmount: '2',
+                },
+                {
+                  __typename: 'GraduatedPercentageRange',
+                  fromValue: 11,
+                  toValue: null,
+                  rate: '0.5',
+                  flatAmount: '0',
+                },
+              ],
+            })}
+            chargeAppliedPricingUnit={{ pricingUnit: { shortName: 'tok' } }}
+          />,
+        )
+
+        expect(getCellTexts()).toEqual(['0', '10', '1.00%', '2.00 tok', '11', '∞', '0.50%', '0.00 tok'])
+      })
+    })
+  })
+
+  describe('GIVEN a volume charge', () => {
+    describe('WHEN it renders in a custom pricing unit', () => {
+      it('THEN shows ranges with pricing unit suffixed amounts', () => {
+        render(
+          <PlanDetailsChargeWrapperSwitch
+            currency={CurrencyEnum.Usd}
+            chargeModel={ChargeModelEnum.Volume}
+            values={buildProperties({
+              volumeRanges: [
+                {
+                  __typename: 'VolumeRange',
+                  fromValue: 0,
+                  toValue: 100,
+                  perUnitAmount: '1',
+                  flatAmount: '0',
+                },
+                {
+                  __typename: 'VolumeRange',
+                  fromValue: 101,
+                  toValue: null,
+                  perUnitAmount: '0.5',
+                  flatAmount: '2',
+                },
+              ],
+            })}
+            chargeAppliedPricingUnit={{ pricingUnit: { shortName: 'tok' } }}
+          />,
+        )
+
+        expect(getCellTexts()).toEqual(['0', '100', '1.00 tok', '0.00 tok', '101', '∞', '0.50 tok', '2.00 tok'])
+      })
+    })
+  })
+
+  describe('GIVEN presentation group keys', () => {
+    describe('WHEN they are provided with showPresentationGroupKeys=true (default)', () => {
+      it('THEN shows the region chip', () => {
+        render(
+          <PlanDetailsChargeWrapperSwitch
+            currency={CurrencyEnum.Usd}
+            chargeModel={ChargeModelEnum.Standard}
+            values={buildProperties({
+              amount: '1',
+              presentationGroupKeys: [{ value: 'region', options: { displayInInvoice: true } }],
+            })}
+          />,
+        )
+
+        expect(screen.getByText('region')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN showPresentationGroupKeys={false}', () => {
+      it('THEN does not show the region chip', () => {
+        render(
+          <PlanDetailsChargeWrapperSwitch
+            currency={CurrencyEnum.Usd}
+            chargeModel={ChargeModelEnum.Standard}
+            values={buildProperties({
+              amount: '1',
+              presentationGroupKeys: [{ value: 'region', options: { displayInInvoice: true } }],
+            })}
+            showPresentationGroupKeys={false}
+          />,
+        )
+
+        expect(screen.queryByText('region')).not.toBeInTheDocument()
       })
     })
   })
