@@ -92,6 +92,14 @@ describe('charge details displays', () => {
         expect(screen.getByTestId(mockJsonEditorTestId)).toHaveAttribute('data-readonly', 'true')
       })
     })
+
+    describe('WHEN they are null', () => {
+      it('THEN hands the read-only editor no value', () => {
+        render(<CustomChargeDetails customProperties={null} />)
+
+        expect(screen.getByTestId(mockJsonEditorTestId)).toBeEmptyDOMElement()
+      })
+    })
   })
 
   describe('GIVEN pricing group keys', () => {
