@@ -5085,6 +5085,8 @@
   "text_1790230812564tig9p4k5bb3": "Create a governance entity",
   "text_1790230812564u35u7vyt4e4": "Update a governance entity",
   "text_17902308125643oqh5iltbd1": "Delete a governance entity",
+  "text_17905768999923req4vrrdil": "This currency is already used by another threshold",
+  "text_1790576899992jmnfdn9aqrn": "Value must be greater than or equal to 1",
   "text_1790283913718mpxv4h76ne5": "Remove {{name}}?",
   "text_1790283913718aiyuge7g45l": "This rate card will no longer be applied and its rate phases will be lost. This action cannot be undone.",
   "text_1790283913718ou6jmxoxnea": "Remove",
