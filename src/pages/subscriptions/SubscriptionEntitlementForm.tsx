@@ -32,13 +32,17 @@ import {
   useGetSubscriptionEntitlementToEditQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useFieldContext } from '~/hooks/forms/formContext'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import {
   mapEntitlementToFormValues,
   mapPrivilegeConfigToFormValue,
   mapPrivilegesToApiInput,
 } from '~/pages/subscriptions/subscriptionEntitlementForm/mappers'
-import { subscriptionEntitlementValidationSchema } from '~/pages/subscriptions/subscriptionEntitlementForm/validationSchema'
+import {
+  SubscriptionEntitlementPrivilegeFormValue,
+  subscriptionEntitlementValidationSchema,
+} from '~/pages/subscriptions/subscriptionEntitlementForm/validationSchema'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 export const SUBSCRIPTION_ENTITLEMENT_FORM_ID = 'subscription-entitlement-form'
@@ -115,6 +119,40 @@ gql`
     }
   }
 `
+
+// The value cell is not a registered field wrapper, so the error has to be read
+// off the field store by hand and shown as a tooltip: the inputs only take a
+// boolean error flag, and helper text would change the row height.
+const PrivilegeValueCell = ({
+  privilege,
+}: {
+  privilege: SubscriptionEntitlementPrivilegeFormValue
+}) => {
+  const { translate } = useInternationalization()
+  const field = useFieldContext<string>()
+
+  const errorMessage = useStore(field.store, (state) => state.meta.errors)
+    .map((error) => error?.message)
+    .filter(Boolean)
+    .join(' ')
+
+  return (
+    <Tooltip
+      title={errorMessage ? translate(errorMessage) : ''}
+      disableHoverListener={!errorMessage}
+      placement="top"
+    >
+      <PrivilegeValueInputComponent
+        translate={translate}
+        valueType={privilege.valueType}
+        value={field.state.value}
+        config={privilege.config}
+        error={!!errorMessage}
+        onChange={(value) => field.handleChange(value || '')}
+      />
+    </Tooltip>
+  )
+}
 
 const SubscriptionEntitlementForm = () => {
   const { entitlementCode = '', customerId = '', planId = '', subscriptionId = '' } = useParams()
@@ -281,9 +319,7 @@ const SubscriptionEntitlementForm = () => {
           </Typography>
         </ComboboxItem>
       ),
-      disabled: privileges?.some(
-        (privilegeForUpdate) => privilegeForUpdate.code === privilege.code,
-      ),
+      disabled: privileges.some((privilegeForUpdate) => privilegeForUpdate.code === privilege.code),
     }))
   }, [featureCode, privileges, subscriptionData?.features?.collection])
 
@@ -386,29 +422,7 @@ const SubscriptionEntitlementForm = () => {
                               ),
                               content: (row, rowIndex) => (
                                 <form.AppField name={`privileges[${rowIndex}].value`}>
-                                  {(field) => {
-                                    const errorMessage = field.state.meta.errors
-                                      .map((error) => error?.message)
-                                      .filter(Boolean)
-                                      .join(' ')
-
-                                    return (
-                                      <Tooltip
-                                        title={errorMessage ? translate(errorMessage) : ''}
-                                        disableHoverListener={!errorMessage}
-                                        placement="top"
-                                      >
-                                        <PrivilegeValueInputComponent
-                                          translate={translate}
-                                          valueType={row.valueType}
-                                          value={field.state.value}
-                                          config={row.config}
-                                          error={!!errorMessage}
-                                          onChange={(value) => field.handleChange(value || '')}
-                                        />
-                                      </Tooltip>
-                                    )
-                                  }}
+                                  {() => <PrivilegeValueCell privilege={row} />}
                                 </form.AppField>
                               ),
                             },
