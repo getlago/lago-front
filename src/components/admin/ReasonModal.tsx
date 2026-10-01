@@ -9,8 +9,6 @@ import { Checkbox } from '~/components/form/Checkbox/Checkbox'
 import { TextInput } from '~/components/form/TextInput/TextInput'
 import { addToast } from '~/core/apolloClient'
 
-import { REASON_MODAL_NAME } from './const'
-
 export type ReasonModalProps = {
   title: string
   description: string
@@ -92,15 +90,3 @@ export const ReasonModal = create(
 )
 
 export default ReasonModal
-
-export const useReasonModal = () => {
-  const modal = useModal(REASON_MODAL_NAME)
-
-  return {
-    open: (props: ReasonModalProps) => modal.show(props) as Promise<void>,
-    close: () => {
-      modal.resolve(CLOSE_PARAMS)
-      modal.hide()
-    },
-  }
-}

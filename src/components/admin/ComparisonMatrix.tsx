@@ -158,5 +158,3 @@ export const ComparisonMatrix = ({
     />
   )
 }
-
-export default ComparisonMatrix
