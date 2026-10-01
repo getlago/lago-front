@@ -28,7 +28,7 @@ The instruction set has an entrance and needs an exit. Attention is a fixed budg
    - **Keep** when it is recurring or expensive (escaped a review, cost a cycle, shipped a defect), passes doubled admission, is written as the strongest mechanism available, and either replaces an existing check or costs no check slot.
    - **Drop** when it fails any rule, is already covered (name the line), contradicts a project convention, or is too vague to verify. Dropping is the common case: say why in the report, the entry stays in the backlog.
    - **Merge** two proposals stating the same rule into one bullet.
-   - **Relocate**: `target:` is the proposer's guess. Test-authoring rules go to `make-tests` / `.agents/docs/testing-practices.md`, codebase-wide conventions to `.agents/docs/*`, pipeline behaviour to the loop-* skill, anything mechanical to `scripts/`. A rule whose home is a doc gets a one-line pointer from the skill, never a copy.
+   - **Relocate**: `target:` is the proposer's guess. Test-authoring rules go to `make-tests` / `.agents/docs/testing-practices.md`, a UI/component/pattern implementation gotcha (a drawer, dialog, form, pagination, org-slug, or design-system/layout mistake) goes to `lago-frontend-patterns`'s `references/<topic>.md` (existing topic, or a new one), codebase-wide conventions to `.agents/docs/*`, pipeline behaviour to the loop-* skill, anything mechanical to `scripts/`. A rule whose home is a doc gets a one-line pointer from the skill, never a copy.
 
 4. **Apply the kept proposals**, one bullet each:
    - Cap a proposal at 1-3 lines: the rule, the trigger, the remedy. Cut the evidence narrative.

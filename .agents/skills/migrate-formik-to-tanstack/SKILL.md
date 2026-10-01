@@ -14,7 +14,7 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, AskUserQuestion
 
 This skill guides the migration of React form components from Formik to TanStack Form, following the established patterns in this codebase.
 
-> Building a form that has no Formik ancestor is a different job: read `lago-forms`, which owns the conventions for new forms. This skill covers only what a migration adds on top — the yup→zod mapping, the value-shape audit and the parity check.
+> Building a form that has no Formik ancestor is a different job: read `lago-frontend-patterns` (`references/forms.md`), which owns the conventions for new forms. This skill covers only what a migration adds on top - the yup→zod mapping, the value-shape audit and the parity check.
 
 ## Prerequisites
 
