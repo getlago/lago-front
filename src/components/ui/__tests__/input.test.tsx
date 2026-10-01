@@ -63,6 +63,16 @@ describe('Input', () => {
     expect(screen.getByPlaceholderText('Type something')).toHaveValue('hi')
   })
 
+  it('uses the requested numeric typography instead of the body default', async () => {
+    await act(() => render(<Input aria-label="Amount" className="v2-text-number" />))
+
+    const input = screen.getByRole('textbox', { name: 'Amount' })
+
+    expect(input).toHaveClass('v2-text-number')
+    expect(input).not.toHaveClass('v2-text-body')
+    expect(input).toHaveClass('rounded-md')
+  })
+
   it('forwards the ref to the underlying input element', async () => {
     const ref = { current: null as HTMLInputElement | null }
 

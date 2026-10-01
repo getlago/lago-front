@@ -1,5 +1,6 @@
 /* Import the design system styles */
 @import 'lago-design-system/style';
+@import './styles/v2/typography.css';
 
 /* Useful for components that are styled with tailwind in the app */
 @tailwind base;
