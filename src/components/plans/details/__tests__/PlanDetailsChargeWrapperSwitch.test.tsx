@@ -292,7 +292,16 @@ describe('PlanDetailsChargeWrapperSwitch', () => {
           />,
         )
 
-        expect(getCellTexts()).toEqual(['0', '10', '1.00%', '2.00 tok', '11', '∞', '0.50%', '0.00 tok'])
+        expect(getCellTexts()).toEqual([
+          '0',
+          '10',
+          '1.00%',
+          '2.00 tok',
+          '11',
+          '∞',
+          '0.50%',
+          '0.00 tok',
+        ])
       })
     })
   })
@@ -326,7 +335,16 @@ describe('PlanDetailsChargeWrapperSwitch', () => {
           />,
         )
 
-        expect(getCellTexts()).toEqual(['0', '100', '1.00 tok', '0.00 tok', '101', '∞', '0.50 tok', '2.00 tok'])
+        expect(getCellTexts()).toEqual([
+          '0',
+          '100',
+          '1.00 tok',
+          '0.00 tok',
+          '101',
+          '∞',
+          '0.50 tok',
+          '2.00 tok',
+        ])
       })
     })
   })
