@@ -56,3 +56,6 @@ export const getNextTierUpTo = (tiers: RateTierBound[]): string =>
   getTierLowerBound(tiers, Math.max(tiers.length - 1, 0))
     .plus(1)
     .toFixed()
+
+export const toPercentRatio = (rate: string | number | null | undefined): number =>
+  (parseDecimal(rate) ?? new Decimal(0)).div(100).toNumber()

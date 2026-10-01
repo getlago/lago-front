@@ -5,7 +5,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, PropertiesForRateCardRateFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { getTierLabelKey, RATE_TIER_UP_TO_KEY } from './rateTiers'
+import { getTierLabelKey, RATE_TIER_UP_TO_KEY, toPercentRatio } from './rateTiers'
 
 type GraduatedPercentageRateTiersDetailsProps = {
   tiers: NonNullable<PropertiesForRateCardRateFragment['graduatedPercentageRanges']>
@@ -35,7 +35,7 @@ export const GraduatedPercentageRateTiersDetails = ({
           {translate(getTierLabelKey(index))}
         </Typography>,
         tier.toValue ?? '∞',
-        intlFormatNumber(Number(tier.rate) / 100 || 0, {
+        intlFormatNumber(toPercentRatio(tier.rate), {
           style: 'percent',
           maximumFractionDigits: 15,
         }),

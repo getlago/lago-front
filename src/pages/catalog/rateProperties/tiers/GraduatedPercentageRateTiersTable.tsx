@@ -19,6 +19,7 @@ import {
   getTierLowerBound,
   RATE_TIER_UP_TO_ERROR_KEY,
   RATE_TIER_UP_TO_KEY,
+  toPercentRatio,
 } from './rateTiers'
 import {
   getGraduatedPercentageRateTiersLines,
@@ -87,7 +88,7 @@ export const GraduatedPercentageRateTiersTable = withForm({
     const amountAdornment = pricingUnitShortName || getCurrencySymbol(currency)
 
     const getLineCopy = (line: GraduatedPercentageRateTiersLine, index: number): string => {
-      const rate = intlFormatNumber(line.rate / 100, {
+      const rate = intlFormatNumber(toPercentRatio(line.rate), {
         maximumFractionDigits: 15,
         style: 'percent',
       })

@@ -119,6 +119,30 @@ describe('GraduatedPercentageRateTiersTable', () => {
     })
   })
 
+  describe('GIVEN tiers priced at 8.2% and 12.3%', () => {
+    describe('WHEN the table renders', () => {
+      it('THEN explains each tier in percent without float noise', () => {
+        render(
+          <Host
+            properties={{
+              graduatedPercentageRanges: [
+                { toValue: '1000', rate: '8.2', flatAmount: '0' },
+                { toValue: null, rate: '12.3', flatAmount: '0' },
+              ],
+            }}
+          />,
+        )
+
+        expect(
+          screen.getByTestId(getRateTierTestId(RATE_TIERS_EXAMPLE_LINE_TEST_ID, 0)),
+        ).toHaveTextContent('text_64de472563e2da6b31737e6f|1000|8.20%|$0.00')
+        expect(
+          screen.getByTestId(getRateTierTestId(RATE_TIERS_EXAMPLE_LINE_TEST_ID, 1)),
+        ).toHaveTextContent('text_64de472563e2da6b31737e75|1000|12.30%|$0.00')
+      })
+    })
+  })
+
   describe('GIVEN a single open tier', () => {
     describe('WHEN the table renders', () => {
       it('THEN uses the all-units copy', () => {

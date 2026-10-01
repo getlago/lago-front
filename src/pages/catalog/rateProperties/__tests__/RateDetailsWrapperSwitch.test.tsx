@@ -148,6 +148,26 @@ describe('RateDetailsWrapperSwitch', () => {
         expect(screen.getByRole('table')).toHaveClass('table-fixed')
       })
     })
+
+    describe('WHEN the rates are 8.2% and 12.3%', () => {
+      it('THEN shows them without float noise', () => {
+        renderSwitch(
+          RateCardRateModelEnum.GraduatedPercentage,
+          buildRateProperties({
+            amount: null,
+            graduatedPercentageRanges: [
+              { __typename: 'RatePercentageTier', toValue: '1000', rate: '8.2', flatAmount: '0' },
+              { __typename: 'RatePercentageTier', toValue: null, rate: '12.3', flatAmount: '0' },
+            ],
+          }),
+        )
+
+        expect(getBodyRowTexts()).toEqual([
+          [RATE_TIER_FIRST_LABEL_KEY, '1000', '8.20%', '$0.00'],
+          [RATE_TIER_NEXT_LABEL_KEY, '∞', '12.30%', '$0.00'],
+        ])
+      })
+    })
   })
 
   describe('GIVEN the non-tier models', () => {
