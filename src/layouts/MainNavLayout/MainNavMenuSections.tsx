@@ -228,7 +228,8 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
         PLAN_SUBSCRIPTION_DETAILS_ROUTE,
       ],
       canBeClickedOnActive: true,
-      hidden: !hasPermissions(['subscriptionsView']),
+      hidden:
+        !hasPermissions(['subscriptionsView']) || hasFeatureFlag(FeatureFlagEnum.ProductCatalog),
     },
     {
       title: translate('text_63ac86d797f728a87b2f9f85'),
