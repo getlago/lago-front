@@ -6,6 +6,7 @@ import type {
   WalletMetadataItem,
   WalletRecurringRuleForm,
 } from '~/core/serializers/serializeQuoteWallets'
+import { addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
 import {
   FeeTypesEnum,
   RecurringTransactionIntervalEnum,
@@ -95,6 +96,8 @@ export const walletSettingsSchema = z
     purchaseOrderNumber: z.string().nullable(),
   })
   .superRefine((data, ctx) => {
+    addUnsupportedDateIssue(ctx, data.expirationAt, ['expirationAt'])
+
     const rateAmount = Number(data.rateAmount)
 
     // `Number.isNaN` guard: a non-numeric string ('abc') is NaN, and `NaN <= 0`
@@ -226,6 +229,9 @@ export const walletRecurringSchema = () =>
     })
     .superRefine((data, ctx) => {
       if (!data.enabled) return
+
+      addUnsupportedDateIssue(ctx, data.startedAt, ['startedAt'])
+      addUnsupportedDateIssue(ctx, data.expirationAt, ['expirationAt'])
 
       if (data.trigger === RecurringTransactionTriggerEnum.Threshold && !data.thresholdCredits) {
         ctx.addIssue({

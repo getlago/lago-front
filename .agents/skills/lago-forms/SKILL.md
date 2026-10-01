@@ -75,7 +75,7 @@ return (
 | ---- | --- |
 | Always pass `validationLogic: revalidateLogic()` | Omitted, TanStack falls back to `defaultValidationLogic`, which never runs `onDynamic` — the schema is silently skipped and every value passes |
 | **Submit-first**: the form is never invalid before the first submit attempt | `revalidateLogic()` is `mode: 'submit'` + `modeAfterSubmission: 'change'`. Submit stays enabled until then, whatever the field type |
-| A field component publishes the value; the **schema** decides if it is acceptable | A component that withholds a rejected value leaves the input and the form state disagreeing — a shipped bug. Only a value with no representation at all (unparseable date) may be withheld |
+| A field component publishes the value; the **schema** decides if it is acceptable | A component that withholds a rejected value leaves the input and the form state disagreeing — a shipped bug. Even a date that does not exist is published: `DatePickerField` stores `INVALID_DATE_VALUE` for the schema to reject |
 | Bare `<form.SubmitButton>` inside `<form.AppForm>` | It subscribes to `canSubmit` + `isSubmitting` and gets the spinner for free. `canSubmit` excludes `isDirty` **by design** — never add a `!isDirty` gate |
 | `await` every call inside `onSubmit` that returns a promise, and only those | `isSubmitting` flips back when `onSubmit`'s own promise resolves, so a dropped promise kills the spinner before the mutation settles. Read the callee's signature: an `await` on a `=> void` callback is a Sonar `typescript:S4123`, and `await-thenable` is off here so lint and `tsc` both stay green |
 | `useStore(form.store, (s) => …)` for anything read in the render | `form.state.*` is a passive read: no subscription, no re-render. It is fine inside event handlers, which only need a snapshot. Import `useStore` from `@tanstack/react-form` |
@@ -97,7 +97,7 @@ with no error and no request (a shipped regression).
 | `ComboBoxField` | `string \| undefined` |
 | `MultipleComboBoxField` | whole options, `{ value, label, … }[]` — schema `z.array(z.looseObject({ value: z.string() }))`, map to ids in `onSubmit`, seed defaults as options |
 | `CurrencyPickerField` | `CurrencyEnum \| undefined` |
-| `DatePickerField` | ISO `string \| undefined` |
+| `DatePickerField` | ISO `string \| undefined`, or what `transformValue` maps a picked date to (end of day, `''` once cleared). `INVALID_DATE_VALUE` while the typed date does not exist, so its schema must reject a non-ISO value. A raw `DatePicker` in a form never publishes that, so never wire one |
 | `SwitchField`, `CheckboxField` | `boolean` |
 | `RadioField` | `string` |
 | `RadioGroupField` | `string \| number \| boolean` |
@@ -131,7 +131,9 @@ error behaviour.
 - **Dates**: `addUnsupportedDateIssue(ctx, value, path, floor?)` from `zodCustoms` rejects
   anything below the 1970 floor (`MIN_SUPPORTED_DATE`). It returns whether it added an
   issue, so a following rule can `return` instead of stacking a second message. Skip it
-  only where an existing rule already rejects the floor with better copy (must-be-future).
+  only where an existing rule already rejects the floor with better copy (must-be-future),
+  and add `addUnparseableDateIssue` there instead: it rejects `INVALID_DATE_VALUE` with the
+  invalid-date copy, which the must-be-future rule would misreport.
 - **`superRefine` must never throw**: guard with `Array.isArray` and optional chains. A
   throw inside validation lands after `isSubmitting = true` and the button spins forever —
   infinite spinner + zero errors + no request means a throwing validator.
@@ -209,6 +211,6 @@ A test rendering a form inside a drawer or dialog needs the `import.meta` mock �
 mapper), `src/components/wallets/tanstackForm/` (drawer forms), `CreatePricingUnit.tsx`
 (`scrollToFirstInputError`).
 
-Not a model to copy: `EditFeeBillingPeriod.tsx` drives a raw `DatePicker` inside
-`form.AppField` and carries a `message: ''`, both of which this guide rules out. It works,
-but reading it as a template reproduces two things a new form should not do.
+Not a model to copy: `EditFeeBillingPeriod.tsx` carries a `message: ''`, which this guide
+rules out. It works, but reading it as a template reproduces something a new form should
+not do.

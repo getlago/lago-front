@@ -72,7 +72,9 @@ const getRecurrenceAnchor = ({
 }): DateTime | undefined => {
   const zone = getTimezoneConfig(timezone).name
 
-  if (startedAt) return DateTime.fromISO(startedAt, { zone })
+  const startedAtDate = startedAt ? DateTime.fromISO(startedAt, { zone }) : undefined
+
+  if (startedAtDate?.isValid) return startedAtDate
   if (walletCreatedAt) return DateTime.fromISO(walletCreatedAt, { zone })
 
   return undefined

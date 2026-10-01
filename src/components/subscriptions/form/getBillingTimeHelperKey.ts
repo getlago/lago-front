@@ -20,6 +20,14 @@ const getDayBasedBillingKey = (
   return { key: keys.otherwise }
 }
 
+// `subscriptionAt` is a UTC calendar day, as the picker that writes it publishes it: read in
+// the ambient zone, the anniversary day would shift for any organization west of UTC.
+const getSubscriptionDay = (subscriptionAt: string | undefined): DateTime => {
+  const pickedDate = subscriptionAt ? DateTime.fromISO(subscriptionAt, { zone: 'utc' }) : undefined
+
+  return pickedDate?.isValid ? pickedDate : DateTime.utc().setLocale('en-gb')
+}
+
 export const getBillingTimeHelperKey = (
   billingTime: BillingTimeEnum,
   subscriptionAt: string | undefined,
@@ -27,11 +35,7 @@ export const getBillingTimeHelperKey = (
 ): BillingTimeHelperKey => {
   if (!selectedPlanInterval) return undefined
 
-  // `subscriptionAt` is a UTC calendar day, as the picker that writes it publishes it: read in
-  // the ambient zone, the anniversary day would shift for any organization west of UTC.
-  const currentDate = subscriptionAt
-    ? DateTime.fromISO(subscriptionAt, { zone: 'utc' })
-    : DateTime.utc().setLocale('en-gb')
+  const currentDate = getSubscriptionDay(subscriptionAt)
   const formattedCurrentDate = currentDate.toFormat('LL/dd/yyyy')
   const february29 = `02/29/${DateTime.utc().year}`
   const currentDay = currentDate.get('day')

@@ -12,7 +12,7 @@ import { Card } from '~/components/designSystem/Card'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { Checkbox, DatePicker } from '~/components/form'
+import { Checkbox } from '~/components/form'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -434,24 +434,24 @@ const CreateCoupon = () => {
                         >
                           {translate('text_632d68358f1fedc68eed3eb1')}
                         </Typography>
-                        <DatePicker
-                          disablePast
-                          className="flex-1"
-                          name="expirationAt"
-                          placement="top-end"
-                          placeholder={translate('text_632d68358f1fedc68eed3ea5')}
-                          error={
-                            submissionAttempts > 0 &&
-                            expiration === CouponExpiration.TimeLimit &&
-                            !expirationAt
-                              ? translate('text_1771402708247nxe22ntllvd')
-                              : undefined
-                          }
-                          onChange={(value) => {
-                            form.setFieldValue('expirationAt', endOfDayIso(value as string))
-                          }}
-                          value={expirationAt || ''}
-                        />
+                        <form.AppField name="expirationAt">
+                          {(field) => (
+                            <field.DatePickerField
+                              disablePast
+                              className="flex-1"
+                              placement="top-end"
+                              placeholder={translate('text_632d68358f1fedc68eed3ea5')}
+                              transformValue={endOfDayIso}
+                              errorOverride={
+                                submissionAttempts > 0 &&
+                                expiration === CouponExpiration.TimeLimit &&
+                                !expirationAt
+                                  ? translate('text_1771402708247nxe22ntllvd')
+                                  : false
+                              }
+                            />
+                          )}
+                        </form.AppField>
                       </div>
                     )}
                   </div>

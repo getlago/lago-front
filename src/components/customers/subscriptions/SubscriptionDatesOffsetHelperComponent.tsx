@@ -27,6 +27,8 @@ export const SUBSCRIPTION_DATES_OFFSET_KEYS: DatesOffsetHelperTranslationKeys = 
   willEnd: 'text_64ef81071c6da2010dd24b1f',
 }
 
+const isParseableDate = (value?: string): boolean => !value || DateTime.fromISO(value).isValid
+
 export interface SubscriptionDatesOffsetHelperComponentProps {
   customerTimezone?: TimezoneEnum | null
   subscriptionAt?: string
@@ -79,7 +81,7 @@ export const SubscriptionDatesOffsetHelperComponent = ({
   }, [customerTimezone, endingAt, organizationTimezone, translate, translationKeys])
 
   // If no offset or no date, don't return any text
-  if (!subscriptionAt) return null
+  if (!subscriptionAt || !isParseableDate(subscriptionAt) || !isParseableDate(endingAt)) return null
 
   return (
     <Typography
