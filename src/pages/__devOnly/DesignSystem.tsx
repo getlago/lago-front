@@ -66,6 +66,7 @@ import { tw } from '~/styles/utils'
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
 import EditorTest from './tabs/EditorTest'
+import { TypographyTest } from './tabs/TypographyTest'
 
 const FORM_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'form' })
 const LINK_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'links' })
@@ -2267,6 +2268,7 @@ const DesignSystem = () => {
             link: SHADCN_TAB_URL,
             component: (
               <Container>
+                <TypographyTest />
                 <Typography className="mb-4" variant="headline">
                   Button
                 </Typography>
