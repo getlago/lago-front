@@ -162,7 +162,7 @@ export const CONTRACT_DETAILS_ROUTE = '/contracts/:id'
 export const CONTRACT_DETAILS_TAB_ROUTE = '/contracts/:id/:tab'
 export const CONTRACT_DETAILS_SECTION_ROUTE = '/contracts/:id/overview/:section'
 export const CONTRACT_RATE_CARD_DETAILS_ROUTE = '/contracts/:id/rate-cards/:appliedRateCardId'
-export const CONTRACT_RATE_CARD_PHASE_DETAILS_ROUTE =
+const CONTRACT_RATE_CARD_PHASE_DETAILS_ROUTE =
   '/contracts/:id/rate-cards/:appliedRateCardId/phases/:phaseId'
 
 export const objectListRoutes: CustomRouteObject[] = [
