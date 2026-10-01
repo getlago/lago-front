@@ -1,5 +1,3 @@
-import { ApolloError } from '@apollo/client'
-
 import { LoaderSidebarOrganization } from '~/components/customerPortal/common/SectionLoading'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { Typography } from '~/components/designSystem/Typography'
@@ -9,7 +7,6 @@ type CustomerPortalSidebarProps = {
   organizationName?: string | null
   organizationLogoUrl?: string | null
   isLoading?: boolean
-  isError?: ApolloError
   showPoweredBy?: boolean
 }
 

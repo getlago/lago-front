@@ -30,7 +30,6 @@ const TODAY = DateTime.now().toISODate()
 interface WalletTransactionsProps {
   wallet: WalletDetailsFragment
   customerTimezone?: TimezoneEnum
-  initiallyOpen?: boolean
   selectedTransaction?: string | null
   loading?: boolean
 }

@@ -102,7 +102,7 @@ export function useCustomerDetailsHeaderTabs({
         customerId,
         tab: CustomerDetailsTabsOptions.wallet,
       }),
-      content: <CustomerWalletsList customerId={customerId} customerTimezone={safeTimezone} />,
+      content: <CustomerWalletsList customerId={customerId} />,
       dataTest: 'wallet-tab',
     },
     {
