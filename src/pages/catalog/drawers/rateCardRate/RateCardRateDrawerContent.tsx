@@ -15,7 +15,6 @@ import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion
 import { useCustomChargeDrawer } from '~/components/plans/drawers/common/useCustomChargeDrawer'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   AggregationTypeEnum,
@@ -36,6 +35,7 @@ import {
   RATE_CARD_RATE_EFFECTIVE_DATE_AFTER_ACTIVE_KEY,
   RATE_CARD_RATE_FORM_DEFAULTS,
 } from './constants'
+import { getRatePropertiesShape } from './getRatePropertiesShape'
 import {
   buildRateCodeFromEffectiveDate,
   formatEffectiveDate,
@@ -213,7 +213,7 @@ const RateCardRateDrawerFormSections = withForm({
         .forEach((field) => form.resetField(field as keyof typeof form.state.values))
 
       form.setFieldValue('rateModel', nextRateModel)
-      form.setFieldValue('properties', getPropertyShape({}))
+      form.setFieldValue('properties', getRatePropertiesShape())
     }
 
     return (

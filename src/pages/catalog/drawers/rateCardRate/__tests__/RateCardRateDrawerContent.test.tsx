@@ -762,7 +762,7 @@ describe('correcting an incompatible rate', () => {
           code: 'saved-volume',
           rateModel: RateCardRateModelEnum.Volume,
           properties: {
-            volumeRanges: [{ fromValue: 0, toValue: null, perUnitAmount: '12', flatAmount: '0' }],
+            volumeRanges: [{ toValue: null, perUnitAmount: '12', flatAmount: '0' }],
           },
         }}
       />,

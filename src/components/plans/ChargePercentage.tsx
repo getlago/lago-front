@@ -32,6 +32,15 @@ gql`
     perTransactionMinAmount
     perTransactionMaxAmount
   }
+
+  fragment PercentageChargeForRate on RateProperties {
+    fixedAmount
+    freeUnitsPerEvents
+    freeUnitsPerTotalAggregation
+    rate
+    perTransactionMinAmount
+    perTransactionMaxAmount
+  }
 `
 
 export const ChargePercentage = memo(() => {

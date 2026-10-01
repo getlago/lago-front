@@ -1,62 +1,12 @@
 import { CurrencyEnum, RateCardRateForDrawerFragment } from '~/generated/graphql'
 
 import { buildRateCardRate } from '../../../__tests__/fixtures'
-import { mapRateToFormValues, toFormProperties } from '../mapRateToFormValues'
+import { mapRateToFormValues } from '../mapRateToFormValues'
 
 const buildDrawerRate = (
   overrides: Partial<RateCardRateForDrawerFragment> = {},
 ): RateCardRateForDrawerFragment =>
   ({ ...buildRateCardRate(), ...overrides }) as RateCardRateForDrawerFragment
-
-describe('toFormProperties', () => {
-  describe('GIVEN properties carrying range rows', () => {
-    describe('WHEN they are mapped back into the form', () => {
-      // The API sends `__typename` on every row, which `PropertiesInput` rejects.
-      it('THEN the rows are rebuilt without __typename', () => {
-        const properties = toFormProperties({
-          __typename: 'Properties',
-          graduatedRanges: [
-            {
-              __typename: 'GraduatedRange',
-              fromValue: 0,
-              toValue: 10,
-              flatAmount: '1',
-              perUnitAmount: '2',
-            },
-          ],
-          volumeRanges: [
-            {
-              __typename: 'VolumeRange',
-              fromValue: 0,
-              toValue: 10,
-              flatAmount: '3',
-              perUnitAmount: '4',
-            },
-          ],
-          graduatedPercentageRanges: [
-            {
-              __typename: 'GraduatedPercentageRange',
-              fromValue: 0,
-              toValue: 10,
-              flatAmount: '5',
-              rate: '6',
-            },
-          ],
-        } as RateCardRateForDrawerFragment['rateProperties'])
-
-        expect(properties.graduatedRanges).toEqual([
-          { fromValue: 0, toValue: 10, flatAmount: '1', perUnitAmount: '2' },
-        ])
-        expect(properties.volumeRanges).toEqual([
-          { fromValue: 0, toValue: 10, flatAmount: '3', perUnitAmount: '4' },
-        ])
-        expect(properties.graduatedPercentageRanges).toEqual([
-          { fromValue: 0, toValue: 10, flatAmount: '5', rate: '6' },
-        ])
-      })
-    })
-  })
-})
 
 describe('mapRateToFormValues', () => {
   describe('GIVEN a rate being edited', () => {

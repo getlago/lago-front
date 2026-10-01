@@ -237,7 +237,7 @@ describe('buildRateCardRateSchema', () => {
       ...validValues,
       rateModel: RateCardRateModelEnum.Volume,
       properties: {
-        volumeRanges: [{ fromValue: 0, toValue: null, perUnitAmount: '12', flatAmount: '0' }],
+        volumeRanges: [{ toValue: null, perUnitAmount: '12', flatAmount: '0' }],
       },
     }
 
