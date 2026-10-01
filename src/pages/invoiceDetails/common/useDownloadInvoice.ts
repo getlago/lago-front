@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
+import { handleDownloadFile, handleDownloadFileWithCors } from '~/core/utils/downloadFile'
 import { useDownloadInvoicePdfMutation, useDownloadInvoiceXmlMutation } from '~/generated/graphql'
-import { useDownloadFile } from '~/hooks/useDownloadFile'
 
 gql`
   mutation downloadInvoicePdf($input: DownloadInvoiceInput!) {
@@ -20,8 +20,6 @@ gql`
 `
 
 export const useDownloadInvoice = () => {
-  const { handleDownloadFile, handleDownloadFileWithCors } = useDownloadFile()
-
   const [downloadInvoice, { loading: loadingInvoiceDownload }] = useDownloadInvoicePdfMutation({
     onCompleted({ downloadInvoice: downloadInvoiceData }) {
       handleDownloadFile(downloadInvoiceData?.fileUrl)

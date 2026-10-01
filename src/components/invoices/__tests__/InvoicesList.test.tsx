@@ -95,10 +95,8 @@ jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
 
 const mockHandleDownloadFile = jest.fn()
 
-jest.mock('~/hooks/useDownloadFile', () => ({
-  useDownloadFile: () => ({
-    handleDownloadFile: mockHandleDownloadFile,
-  }),
+jest.mock('~/core/utils/downloadFile', () => ({
+  handleDownloadFile: (...args: unknown[]) => mockHandleDownloadFile(...args),
 }))
 
 const mockDownloadInvoice = jest.fn()

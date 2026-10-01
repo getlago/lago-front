@@ -6,13 +6,11 @@
  * across multiple components. If the formatting logic is specific to a single component,
  * it should reside within that component or, in case, its dedicated hook.
  */
-import { intlFormatDateTime, TimeFormat } from '~/core/timezone/utils'
-import { TimezoneEnum } from '~/generated/graphql'
+import { TimeFormat } from '~/core/timezone/utils'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 type useFormatterDateHelper = () => {
   formattedDateTimeWithSecondsOrgaTZ: (date: string) => string
-  formattedDateWithTimezone: (date: string, timezone?: TimezoneEnum) => string
 }
 
 export const useFormatterDateHelper: useFormatterDateHelper = () => {
@@ -27,17 +25,7 @@ export const useFormatterDateHelper: useFormatterDateHelper = () => {
     return `${d} ${time}`
   }
 
-  // Formatter for date-timezone
-  const formattedDateWithTimezone = (date: string, applicableTimezone?: TimezoneEnum) => {
-    const { date: d, timezone } = intlFormatDateTime(date, {
-      timezone: applicableTimezone,
-    })
-
-    return `${d} ${timezone}`
-  }
-
   return {
     formattedDateTimeWithSecondsOrgaTZ,
-    formattedDateWithTimezone,
   }
 }

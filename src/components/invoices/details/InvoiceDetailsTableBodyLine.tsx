@@ -302,8 +302,6 @@ export const InvoiceDetailsTableBodyLine = memo(
       return '0%'
     }, [fee, hasTaxProviderError])
 
-    const FeeActions = () => <FeeActionsCell fee={fee} />
-
     const handleRowClick = () => {
       if (fee) viewFeeDetails.open(fee)
     }
@@ -478,7 +476,7 @@ export const InvoiceDetailsTableBodyLine = memo(
             </td>
           )}
 
-          {!isDraftInvoice && <FeeActions />}
+          {!isDraftInvoice && <FeeActionsCell fee={fee} />}
         </tr>
 
         {shouldDisplayFeeDetail && (
@@ -537,7 +535,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                 </Typography>
               </td>
 
-              <FeeActions />
+              <FeeActionsCell fee={fee} />
             </tr>
           </>
         )}
@@ -565,7 +563,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                 })}
               </Typography>
             </td>
-            <FeeActions />
+            <FeeActionsCell fee={fee} />
           </tr>
         )}
       </>
