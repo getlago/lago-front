@@ -91,7 +91,6 @@ const DEFAULT_TOOLTIP_Y_GAP = 60
 const TOOLTIP_INNER_LINE_HEIGHT = 31
 
 type CustomTooltipProps<T> = {
-  includeHidden: boolean
   active: boolean
   currency: CurrencyEnum
   payload: Payload<ValueType & { payload: T }, NameType>[] | undefined
@@ -454,7 +453,7 @@ const StackedBarChart = <T extends DataItem>({
               includeHidden={true}
               offset={0}
               position={{ y: yTooltipPosition }}
-              content={({ active, payload, includeHidden }) => (
+              content={({ active, payload }) => (
                 <div
                   className={tw('rounded-xl bg-grey-700 px-4 py-3', {
                     'min-w-90': !inlineTooltip,
@@ -467,7 +466,6 @@ const StackedBarChart = <T extends DataItem>({
                       bars={bars}
                       payload={payload as unknown as CustomTooltipProps<T>['payload']}
                       timeGranularity={timeGranularity}
-                      includeHidden={!!includeHidden}
                       customFormatter={customFormatter}
                       inlineTooltip={inlineTooltip}
                     />
