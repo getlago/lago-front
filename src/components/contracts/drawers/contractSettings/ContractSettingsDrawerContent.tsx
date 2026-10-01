@@ -16,6 +16,7 @@ import {
   CONTRACT_SETTINGS_DRAWER_EXTERNAL_ID_TEST_ID,
   CONTRACT_SETTINGS_DRAWER_REMOVE_NAME_TEST_ID,
   CONTRACT_SETTINGS_DRAWER_SHOW_NAME_TEST_ID,
+  CONTRACT_SETTINGS_DRAWER_TITLE_KEY,
   CONTRACT_SETTINGS_FORM_DEFAULTS,
 } from './constants'
 
@@ -65,111 +66,118 @@ export const ContractSettingsDrawerContent = withForm({
     }
 
     return (
-      <CenteredPage.SubsectionWrapper>
-        <CenteredPage.PageSection>
-          <form.AppField name="externalId">
-            {(field) => (
-              <field.TextInputField
-                disabled
-                data-test={CONTRACT_SETTINGS_DRAWER_EXTERNAL_ID_TEST_ID}
-                label={translate('text_1790018785008xgr4069mlgg')}
+      <CenteredPage.SectionWrapper>
+        <CenteredPage.PageTitle
+          title={translate(CONTRACT_SETTINGS_DRAWER_TITLE_KEY)}
+          description={translate('text_1789552637141f22za3l5g2u')}
+        />
+
+        <CenteredPage.SubsectionWrapper>
+          <CenteredPage.PageSection>
+            <form.AppField name="externalId">
+              {(field) => (
+                <field.TextInputField
+                  disabled
+                  data-test={CONTRACT_SETTINGS_DRAWER_EXTERNAL_ID_TEST_ID}
+                  label={translate('text_1790018785008xgr4069mlgg')}
+                />
+              )}
+            </form.AppField>
+
+            {shouldDisplayName && (
+              <ToggleableFieldRow
+                onRemove={handleHideName}
+                removeDataTest={CONTRACT_SETTINGS_DRAWER_REMOVE_NAME_TEST_ID}
+                tooltipClassName="mt-6"
+              >
+                <form.AppField name="name">
+                  {(field) => (
+                    <field.TextInputField
+                      className="mr-3 flex-1"
+                      label={translate('text_1789552637141273ewsjqx7j')}
+                      placeholder={translate('text_1790018785009vy05bf6zdc6')}
+                    />
+                  )}
+                </form.AppField>
+              </ToggleableFieldRow>
+            )}
+            {!shouldDisplayName && (
+              <ToggleableFieldAddButton
+                onClick={() => setShouldDisplayName(true)}
+                label={translate('text_17895526371415m2ipvxifqn')}
+                dataTest={CONTRACT_SETTINGS_DRAWER_SHOW_NAME_TEST_ID}
               />
             )}
-          </form.AppField>
 
-          {shouldDisplayName && (
-            <ToggleableFieldRow
-              onRemove={handleHideName}
-              removeDataTest={CONTRACT_SETTINGS_DRAWER_REMOVE_NAME_TEST_ID}
-              tooltipClassName="mt-6"
-            >
-              <form.AppField name="name">
-                {(field) => (
-                  <field.TextInputField
-                    className="mr-3 flex-1"
-                    label={translate('text_1789552637141273ewsjqx7j')}
-                    placeholder={translate('text_1790018785009vy05bf6zdc6')}
-                  />
-                )}
-              </form.AppField>
-            </ToggleableFieldRow>
-          )}
-          {!shouldDisplayName && (
-            <ToggleableFieldAddButton
-              onClick={() => setShouldDisplayName(true)}
-              label={translate('text_17895526371415m2ipvxifqn')}
-              dataTest={CONTRACT_SETTINGS_DRAWER_SHOW_NAME_TEST_ID}
-            />
-          )}
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-3 md:flex-row md:[&>*]:flex-1">
+                <form.AppField name="startedAt">
+                  {(field) => (
+                    <field.DatePickerField
+                      disabled={fieldLocks.startedAt}
+                      placement="auto"
+                      label={translate('text_64ef55a730b88e3d2117b3c4')}
+                      defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
+                    />
+                  )}
+                </form.AppField>
+                <form.AppField name="endedAt">
+                  {(field) => (
+                    <field.DatePickerField
+                      minDate={minEndedAt}
+                      placement="auto"
+                      label={translate('text_64ef55a730b88e3d2117b3cc')}
+                      defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
+                      inputProps={{ cleanable: true }}
+                    />
+                  )}
+                </form.AppField>
+              </div>
 
-          <div className="flex flex-col gap-1">
-            <div className="flex flex-col gap-3 md:flex-row md:[&>*]:flex-1">
-              <form.AppField name="startedAt">
-                {(field) => (
-                  <field.DatePickerField
-                    disabled={fieldLocks.startedAt}
-                    placement="auto"
-                    label={translate('text_64ef55a730b88e3d2117b3c4')}
-                    defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
-                  />
-                )}
-              </form.AppField>
-              <form.AppField name="endedAt">
-                {(field) => (
-                  <field.DatePickerField
-                    minDate={minEndedAt}
-                    placement="auto"
-                    label={translate('text_64ef55a730b88e3d2117b3cc')}
-                    defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
-                    inputProps={{ cleanable: true }}
-                  />
-                )}
-              </form.AppField>
+              <form.Subscribe
+                selector={(state) => ({
+                  startedAtErrors: state.fieldMeta.startedAt?.errors,
+                  endedAtErrors: state.fieldMeta.endedAt?.errors,
+                })}
+              >
+                {({ startedAtErrors, endedAtErrors }) =>
+                  !startedAtErrors?.length &&
+                  !endedAtErrors?.length && (
+                    <SubscriptionDatesOffsetHelperComponent
+                      customerTimezone={customerTimezone}
+                      subscriptionAt={startedAt}
+                      endingAt={endedAt}
+                      translationKeys={CONTRACT_DATES_OFFSET_KEYS}
+                    />
+                  )
+                }
+              </form.Subscribe>
             </div>
 
-            <form.Subscribe
-              selector={(state) => ({
-                startedAtErrors: state.fieldMeta.startedAt?.errors,
-                endedAtErrors: state.fieldMeta.endedAt?.errors,
-              })}
-            >
-              {({ startedAtErrors, endedAtErrors }) =>
-                !startedAtErrors?.length &&
-                !endedAtErrors?.length && (
-                  <SubscriptionDatesOffsetHelperComponent
-                    customerTimezone={customerTimezone}
-                    subscriptionAt={startedAt}
-                    endingAt={endedAt}
-                    translationKeys={CONTRACT_DATES_OFFSET_KEYS}
-                  />
-                )
-              }
-            </form.Subscribe>
-          </div>
+            <form.AppField name="billingAnchorDate">
+              {(field) => (
+                <field.DatePickerField
+                  disabled={fieldLocks.billingAnchorDate}
+                  placement="auto"
+                  label={translate('text_1781859135627z59hpfpa8pt')}
+                  description={translate('text_1789552637141byit8ajgqyp')}
+                  defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
+                />
+              )}
+            </form.AppField>
 
-          <form.AppField name="billingAnchorDate">
-            {(field) => (
-              <field.DatePickerField
-                disabled={fieldLocks.billingAnchorDate}
-                placement="auto"
-                label={translate('text_1781859135627z59hpfpa8pt')}
-                description={translate('text_1789552637141byit8ajgqyp')}
-                defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
-              />
-            )}
-          </form.AppField>
-
-          <form.AppField name="purchaseOrderNumber">
-            {(field) => (
-              <PurchaseOrderFormBlock
-                value={field.state.value}
-                description={translate('text_1790018785008trx3po6az4b')}
-                onChange={(value) => field.handleChange(value ?? undefined)}
-              />
-            )}
-          </form.AppField>
-        </CenteredPage.PageSection>
-      </CenteredPage.SubsectionWrapper>
+            <form.AppField name="purchaseOrderNumber">
+              {(field) => (
+                <PurchaseOrderFormBlock
+                  value={field.state.value}
+                  description={translate('text_1790018785008trx3po6az4b')}
+                  onChange={(value) => field.handleChange(value ?? undefined)}
+                />
+              )}
+            </form.AppField>
+          </CenteredPage.PageSection>
+        </CenteredPage.SubsectionWrapper>
+      </CenteredPage.SectionWrapper>
     )
   },
 })

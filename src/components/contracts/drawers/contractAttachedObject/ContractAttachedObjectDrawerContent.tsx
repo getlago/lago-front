@@ -20,6 +20,7 @@ import { withForm } from '~/hooks/forms/useAppform'
 import {
   CONTRACT_ATTACHED_OBJECT_DRAWER_CUSTOMER_TEST_ID,
   CONTRACT_ATTACHED_OBJECT_DRAWER_PLAN_COMBOBOX_TEST_ID,
+  CONTRACT_ATTACHED_OBJECT_DRAWER_TITLE_KEY,
   CONTRACT_ATTACHED_OBJECT_FORM_DEFAULTS,
 } from './constants'
 
@@ -76,42 +77,49 @@ export const ContractAttachedObjectDrawerContent = withForm({
     }, [catalogPlansData?.catalogPlans?.collection, seededPlan])
 
     return (
-      <CenteredPage.SubsectionWrapper>
-        <CenteredPage.PageSection>
-          <form.AppField name="externalCustomerId">
-            {(field) => (
-              <field.ComboBoxField
-                dataTest={CONTRACT_ATTACHED_OBJECT_DRAWER_CUSTOMER_TEST_ID}
-                disabled
-                label={translate('text_65201c5a175a4b0238abf29a')}
-                data={comboboxCustomerData}
-              />
-            )}
-          </form.AppField>
+      <CenteredPage.SectionWrapper>
+        <CenteredPage.PageTitle
+          title={translate(CONTRACT_ATTACHED_OBJECT_DRAWER_TITLE_KEY)}
+          description={translate('text_1789552637141hh9khhh71bm')}
+        />
 
-          <BillingEntityFormPicker
-            label={translate('text_1743611497157teaa1zu8l24')}
-            value={billingEntityId}
-            onChange={(id) => form.setFieldValue('billingEntityId', id)}
-            helperText={translate('text_17800541562349k15h7ik07c')}
-          />
+        <CenteredPage.SubsectionWrapper>
+          <CenteredPage.PageSection>
+            <form.AppField name="externalCustomerId">
+              {(field) => (
+                <field.ComboBoxField
+                  dataTest={CONTRACT_ATTACHED_OBJECT_DRAWER_CUSTOMER_TEST_ID}
+                  disabled
+                  label={translate('text_65201c5a175a4b0238abf29a')}
+                  data={comboboxCustomerData}
+                />
+              )}
+            </form.AppField>
 
-          <form.AppField name="planCode">
-            {(field) => (
-              <field.ComboBoxField
-                dataTest={CONTRACT_ATTACHED_OBJECT_DRAWER_PLAN_COMBOBOX_TEST_ID}
-                disabled={fieldLocks.planCode}
-                label={translate('text_625434c7bb2cb40124c81a29')}
-                placeholder={translate('text_17895526371415015p23nj8t')}
-                data={comboboxPlansData}
-                loading={catalogPlansLoading}
-                searchQuery={fieldLocks.planCode ? undefined : getCatalogPlans}
-                PopperProps={{ displayInDialog: true }}
-              />
-            )}
-          </form.AppField>
-        </CenteredPage.PageSection>
-      </CenteredPage.SubsectionWrapper>
+            <BillingEntityFormPicker
+              label={translate('text_1743611497157teaa1zu8l24')}
+              value={billingEntityId}
+              onChange={(id) => form.setFieldValue('billingEntityId', id)}
+              helperText={translate('text_17800541562349k15h7ik07c')}
+            />
+
+            <form.AppField name="planCode">
+              {(field) => (
+                <field.ComboBoxField
+                  dataTest={CONTRACT_ATTACHED_OBJECT_DRAWER_PLAN_COMBOBOX_TEST_ID}
+                  disabled={fieldLocks.planCode}
+                  label={translate('text_625434c7bb2cb40124c81a29')}
+                  placeholder={translate('text_17895526371415015p23nj8t')}
+                  data={comboboxPlansData}
+                  loading={catalogPlansLoading}
+                  searchQuery={fieldLocks.planCode ? undefined : getCatalogPlans}
+                  PopperProps={{ displayInDialog: true }}
+                />
+              )}
+            </form.AppField>
+          </CenteredPage.PageSection>
+        </CenteredPage.SubsectionWrapper>
+      </CenteredPage.SectionWrapper>
     )
   },
 })

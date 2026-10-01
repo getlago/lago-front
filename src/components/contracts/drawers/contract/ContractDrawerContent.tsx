@@ -5,7 +5,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
-import { Typography } from '~/components/designSystem/Typography'
 import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
 import { CreateMoreResetSignal } from '~/components/drawers/createMore/useCreateMore'
 import { ToggleableFieldAddButton, ToggleableFieldRow } from '~/components/form/ToggleableFieldRow'
@@ -212,15 +211,11 @@ const ContractDrawerFormSections = withForm({
     }
 
     return (
-      <>
-        <div className="flex flex-col gap-2">
-          <Typography variant="headline" color="grey700">
-            {translate(CONTRACT_DRAWER_TITLE_CREATE_KEY)}
-          </Typography>
-          <Typography variant="body" color="grey600">
-            {translate('text_178955263714139as5p24hhr')}
-          </Typography>
-        </div>
+      <CenteredPage.SectionWrapper>
+        <CenteredPage.PageTitle
+          title={translate(CONTRACT_DRAWER_TITLE_CREATE_KEY)}
+          description={translate('text_178955263714139as5p24hhr')}
+        />
 
         <CenteredPage.SubsectionWrapper>
           <CenteredPage.PageSection>
@@ -416,7 +411,7 @@ const ContractDrawerFormSections = withForm({
             />
           </CenteredPage.PageSection>
         </CenteredPage.SubsectionWrapper>
-      </>
+      </CenteredPage.SectionWrapper>
     )
   },
 })
