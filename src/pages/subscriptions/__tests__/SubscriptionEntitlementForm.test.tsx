@@ -12,6 +12,7 @@ import SubscriptionEntitlementForm, {
   SUBSCRIPTION_ENTITLEMENT_FORM_CANCEL_PRIVILEGE_BUTTON_TEST_ID,
   SUBSCRIPTION_ENTITLEMENT_FORM_CLOSE_BUTTON_TEST_ID,
   SUBSCRIPTION_ENTITLEMENT_FORM_FEATURE_INPUT_TEST_ID,
+  SUBSCRIPTION_ENTITLEMENT_FORM_ID,
   SUBSCRIPTION_ENTITLEMENT_FORM_PRIVILEGE_INPUT_TEST_ID,
   SUBSCRIPTION_ENTITLEMENT_FORM_SUBMIT_BUTTON_TEST_ID,
 } from '../SubscriptionEntitlementForm'
@@ -377,6 +378,30 @@ describe('SubscriptionEntitlementForm', () => {
             within(screen.getByTestId('row-0')).getByTestId(PRIVILEGE_VALUE_COMBOBOX_TEST_ID),
           ).toHaveAttribute('data-error', 'true'),
         )
+      })
+
+      // `scrollToFirstInputError` matches an error key against `input.name`, so an
+      // input rendered without one is unreachable however loud its error is.
+      it('THEN should leave its errored input reachable by the scroll helper', async () => {
+        const user = userEvent.setup()
+
+        await renderPage()
+        await selectFeature(user)
+        await addPrivilege(user, 'seats')
+        await submit(user)
+
+        await waitFor(() => expect(scrollToFirstInputError).toHaveBeenCalled())
+
+        const errorMap = (scrollToFirstInputError as jest.Mock).mock.calls[0][1] as Record<
+          string,
+          unknown
+        >
+
+        const inputs = Array.from(
+          document.querySelectorAll(`#${SUBSCRIPTION_ENTITLEMENT_FORM_ID} input`),
+        ) as HTMLInputElement[]
+
+        expect(inputs.find((input) => !!errorMap[input.name])?.name).toBe('privileges[0].value')
       })
 
       it('THEN should submit its code and value once filled', async () => {

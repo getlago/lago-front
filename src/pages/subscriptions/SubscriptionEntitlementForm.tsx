@@ -144,6 +144,7 @@ const PrivilegeValueCell = ({
     >
       <PrivilegeValueInputComponent
         translate={translate}
+        name={field.name}
         valueType={privilege.valueType}
         value={field.state.value}
         config={privilege.config}

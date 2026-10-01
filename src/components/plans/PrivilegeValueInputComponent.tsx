@@ -10,14 +10,18 @@ export const PrivilegeValueInputComponent: FC<{
   onChange: (value: string | undefined) => void
   translate: TranslateFunc
   error?: boolean
+  // `scrollToFirstInputError` finds the errored field through `input.name`, so an
+  // unnamed input is unreachable on an invalid submit.
+  name?: string
   config?: {
     selectOptions?: string[] | null
   }
-}> = ({ valueType, value, onChange, translate, config, error }) => {
+}> = ({ valueType, value, onChange, translate, config, error, name }) => {
   if (valueType === PrivilegeValueTypeEnum.Select) {
     return (
       <ComboBox
         variant="outlined"
+        name={name}
         value={value}
         error={error}
         placeholder={translate('text_66ab42d4ece7e6b7078993b1')}
@@ -38,6 +42,7 @@ export const PrivilegeValueInputComponent: FC<{
     return (
       <ComboBox
         variant="outlined"
+        name={name}
         value={value}
         error={error}
         placeholder={translate('text_1753864223060ji5l38phiya')}
@@ -61,6 +66,7 @@ export const PrivilegeValueInputComponent: FC<{
   return (
     <TextInput
       variant="outlined"
+      name={name}
       value={value}
       error={error}
       placeholder={

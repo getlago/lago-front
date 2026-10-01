@@ -179,4 +179,27 @@ describe('PrivilegeValueInputComponent', () => {
       })
     })
   })
+
+  describe('GIVEN a field name', () => {
+    describe.each([
+      ['Select', PrivilegeValueTypeEnum.Select],
+      ['Boolean', PrivilegeValueTypeEnum.Boolean],
+      ['Integer', PrivilegeValueTypeEnum.Integer],
+    ])('WHEN the valueType is %s', (_, valueType) => {
+      // `scrollToFirstInputError` looks the errored field up by `input.name`.
+      it('THEN should forward it to the rendered input', () => {
+        const { container } = render(
+          <PrivilegeValueInputComponent
+            {...defaultProps}
+            valueType={valueType}
+            name="privileges[0].value"
+          />,
+        )
+
+        const input = container.querySelector('input') as HTMLInputElement
+
+        expect(input).toHaveAttribute('name', 'privileges[0].value')
+      })
+    })
+  })
 })
