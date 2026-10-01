@@ -184,34 +184,42 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
   ]
 
   return (
-    <PaginatedContent
-      metadata={metadata}
-      loading={loading}
-      onPageChange={onPageChange}
-      pageSize={pageSize}
-      onPageSizeChange={onPageSizeChange}
-      sticky={false}
-    >
-      <Table
-        name="applied-rate-cards"
-        data={groupedRows}
-        columns={columns}
-        isLoading={loading}
-        loadingRowCount={pageSize}
-        hasError={hasError}
-        placeholder={placeholder}
-        containerSize={0}
-        getRowGroupHeader={getRowGroupHeader}
-        onRowActionLink={getRateCardHref}
-        actionColumn={(row) => [
-          {
-            title: translate('text_1790284386156m6phatx4cxa'),
-            startIcon: 'duplicate',
-            onAction: () => onCopyRateCardCode(row),
-          },
-          getRemoveActionItem(row),
-        ]}
-      />
-    </PaginatedContent>
+    // `PaginatedContent`'s sticky mode renders the table and pager as bare fragment
+    // siblings (so `mt-auto` can push the pager to the viewport bottom elsewhere) —
+    // wrapped here so the section's `gap-6` treats them as one block instead of
+    // inserting a gap between the table and its own pager.
+    <div>
+      <PaginatedContent
+        metadata={metadata}
+        loading={loading}
+        onPageChange={onPageChange}
+        pageSize={pageSize}
+        onPageSizeChange={onPageSizeChange}
+      >
+        <Table
+          name="applied-rate-cards"
+          data={groupedRows}
+          columns={columns}
+          isLoading={loading}
+          loadingRowCount={pageSize}
+          hasError={hasError}
+          placeholder={placeholder}
+          containerSize={0}
+          containerClassName="h-auto shrink-0 overflow-visible [-webkit-transform:none] -mb-px border-t border-grey-300"
+          getRowGroupHeader={getRowGroupHeader}
+          stickyGroupHeaders
+          hideLastRowBorder
+          onRowActionLink={getRateCardHref}
+          actionColumn={(row) => [
+            {
+              title: translate('text_1790284386156m6phatx4cxa'),
+              startIcon: 'duplicate',
+              onAction: () => onCopyRateCardCode(row),
+            },
+            getRemoveActionItem(row),
+          ]}
+        />
+      </PaginatedContent>
+    </div>
   )
 }

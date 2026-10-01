@@ -94,6 +94,10 @@ export interface TableProps<T> {
   /** Return `undefined` for rows that don't start a new group; the caller detects
    * the boundary itself (e.g. by comparing against `data[index - 1]`). */
   getRowGroupHeader?: (item: T, index: number, data: T[]) => ReactNode | undefined
+  /** Pins each group header row under the column header while its group is in view. */
+  stickyGroupHeaders?: boolean
+  /** Drops the last row's bottom border/divider. */
+  hideLastRowBorder?: boolean
   containerSize?: ResponsiveStyleValue<TableContainerSize>
   rowSize?: RowSize
   tableInDialog?: boolean
@@ -209,8 +213,9 @@ const TableRow = ({
 const TableActionCell = ({
   children,
   className,
+  hideBottomBorder,
   ...props
-}: PropsWithChildren & TableCellProps & { className?: string }) => {
+}: PropsWithChildren & TableCellProps & { className?: string; hideBottomBorder?: boolean }) => {
   return (
     <TableCell
       className={tw(
@@ -218,6 +223,7 @@ const TableActionCell = ({
         'sticky right-0 z-10 w-10 bg-white animate-shadow-left [box-shadow:none]',
         className,
       )}
+      hideBottomBorder={hideBottomBorder}
       sx={{
         '& > div': {
           justifyContent: 'center',
@@ -364,6 +370,8 @@ export const Table = <T extends DataItem>({
   actionColumnTooltip,
   rowDataTestId,
   getRowGroupHeader,
+  stickyGroupHeaders,
+  hideLastRowBorder,
 }: TableProps<T>) => {
   const TABLE_ID = `table-${name}`
   const filteredColumns = columns
@@ -644,6 +652,7 @@ export const Table = <T extends DataItem>({
               data.length > 0 &&
               data.map((item, i) => {
                 const groupHeader = getRowGroupHeader?.(item, i, data)
+                const isLastRow = !!hideLastRowBorder && i === data.length - 1
 
                 return (
                   <Fragment key={`${TABLE_ID}-row-${i}`}>
@@ -657,7 +666,10 @@ export const Table = <T extends DataItem>({
                           },
                         }}
                       >
-                        <TableCell colSpan={colSpan}>
+                        <TableCell
+                          className={tw(stickyGroupHeaders && 'sticky top-10 z-20', 'bg-grey-100')}
+                          colSpan={colSpan}
+                        >
                           <TableInnerCell style={{ minHeight: GROUP_HEADER_ROW_HEIGHT }}>
                             {groupHeader}
                           </TableInnerCell>
@@ -680,6 +692,7 @@ export const Table = <T extends DataItem>({
                           align={column.textAlign || 'left'}
                           maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
                           tdCellClassName={column.tdCellClassName}
+                          hideBottomBorder={isLastRow}
                         >
                           <TableInnerCell
                             align={column.textAlign}
@@ -696,7 +709,7 @@ export const Table = <T extends DataItem>({
                         </TableCell>
                       ))}
                       {shouldDisplayActionColumn && (
-                        <TableActionCell>
+                        <TableActionCell hideBottomBorder={isLastRow}>
                           <TableInnerCell data-id={ACTION_COLUMN_ID}>
                             {Array.isArray(actionColumn(item)) ? (
                               <Popper
