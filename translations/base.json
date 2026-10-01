@@ -5103,6 +5103,8 @@
   "text_17902441926471lwe9m10evn": "Add a governance entity",
   "text_17905868609482ypmvd6ovhd": "Maximum hierarchy depth reached",
   "text_1790586860948m3y6gvqhzw0": "This parent is already at the maximum hierarchy depth. Select another one.",
+  "text_17905768999923req4vrrdil": "This currency is already used by another threshold",
+  "text_1790576899992jmnfdn9aqrn": "Value must be greater than or equal to 1",
   "text_1790283913718mpxv4h76ne5": "Remove {{name}}?",
   "text_1790283913718aiyuge7g45l": "This rate card will no longer be applied and its rate phases will be lost. This action cannot be undone.",
   "text_1790283913718ou6jmxoxnea": "Remove",

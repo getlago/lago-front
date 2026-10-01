@@ -4,6 +4,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
 import { Icon, IconName } from 'lago-design-system'
+import { Plus, Search } from 'lucide-react'
 import { generatePath } from 'react-router'
 import { boolean, number, object, string } from 'yup'
 
@@ -41,6 +42,8 @@ import {
   TextInputField,
 } from '~/components/form'
 import { AmountInputField } from '~/components/form/AmountInput'
+import { Button as ShadcnButton } from '~/components/ui/button'
+import { Input as ShadcnInput } from '~/components/ui/input'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { Link, ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
@@ -77,6 +80,7 @@ const DRAWER_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'dr
 const RICH_TEXT_EDITOR_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, {
   tab: 'rich-text-editor',
 })
+const SHADCN_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'shadcn' })
 
 const Container = ({ children }: { children: React.ReactNode }) => (
   <div className="px-12 pb-20 pt-8">{children}</div>
@@ -2257,6 +2261,133 @@ const DesignSystem = () => {
             title: 'Rich Text Editor',
             link: RICH_TEXT_EDITOR_TAB_URL,
             component: <EditorTest />,
+          },
+          {
+            title: 'Shadcn',
+            link: SHADCN_TAB_URL,
+            component: (
+              <Container>
+                <Typography className="mb-4" variant="headline">
+                  Button
+                </Typography>
+
+                <Typography className="mb-2" variant="bodyHl" color="textSecondary">
+                  Default
+                </Typography>
+                <Block>
+                  <ShadcnButton>Default</ShadcnButton>
+                  <ShadcnButton size="sm">Small</ShadcnButton>
+                  <ShadcnButton size="lg">Large</ShadcnButton>
+                  <ShadcnButton size="icon">
+                    <Plus />
+                  </ShadcnButton>
+                </Block>
+
+                <Typography className="mb-2" variant="bodyHl" color="textSecondary">
+                  Destructive
+                </Typography>
+                <Block>
+                  <ShadcnButton variant="destructive">Default</ShadcnButton>
+                  <ShadcnButton variant="destructive" size="sm">
+                    Small
+                  </ShadcnButton>
+                  <ShadcnButton variant="destructive" size="lg">
+                    Large
+                  </ShadcnButton>
+                  <ShadcnButton variant="destructive" size="icon">
+                    <Plus />
+                  </ShadcnButton>
+                </Block>
+
+                <Typography className="mb-2" variant="bodyHl" color="textSecondary">
+                  Outline
+                </Typography>
+                <Block>
+                  <ShadcnButton variant="outline">Default</ShadcnButton>
+                  <ShadcnButton variant="outline" size="sm">
+                    Small
+                  </ShadcnButton>
+                  <ShadcnButton variant="outline" size="lg">
+                    Large
+                  </ShadcnButton>
+                  <ShadcnButton variant="outline" size="icon">
+                    <Plus />
+                  </ShadcnButton>
+                </Block>
+
+                <Typography className="mb-2" variant="bodyHl" color="textSecondary">
+                  Secondary
+                </Typography>
+                <Block>
+                  <ShadcnButton variant="secondary">Default</ShadcnButton>
+                  <ShadcnButton variant="secondary" size="sm">
+                    Small
+                  </ShadcnButton>
+                  <ShadcnButton variant="secondary" size="lg">
+                    Large
+                  </ShadcnButton>
+                  <ShadcnButton variant="secondary" size="icon">
+                    <Plus />
+                  </ShadcnButton>
+                </Block>
+
+                <Typography className="mb-2" variant="bodyHl" color="textSecondary">
+                  Ghost
+                </Typography>
+                <Block>
+                  <ShadcnButton variant="ghost">Default</ShadcnButton>
+                  <ShadcnButton variant="ghost" size="sm">
+                    Small
+                  </ShadcnButton>
+                  <ShadcnButton variant="ghost" size="lg">
+                    Large
+                  </ShadcnButton>
+                  <ShadcnButton variant="ghost" size="icon">
+                    <Plus />
+                  </ShadcnButton>
+                </Block>
+
+                <Typography className="mb-2" variant="bodyHl" color="textSecondary">
+                  Link
+                </Typography>
+                <Block>
+                  <ShadcnButton variant="link">Link button</ShadcnButton>
+                </Block>
+
+                <Typography className="mb-2" variant="bodyHl" color="textSecondary">
+                  Disabled
+                </Typography>
+                <Block>
+                  <ShadcnButton disabled>Default</ShadcnButton>
+                  <ShadcnButton variant="destructive" disabled>
+                    Destructive
+                  </ShadcnButton>
+                  <ShadcnButton variant="outline" disabled>
+                    Outline
+                  </ShadcnButton>
+                  <ShadcnButton variant="secondary" disabled>
+                    Secondary
+                  </ShadcnButton>
+                  <ShadcnButton variant="ghost" disabled>
+                    Ghost
+                  </ShadcnButton>
+                </Block>
+
+                <Typography className="mb-4 mt-8" variant="headline">
+                  Input
+                </Typography>
+                <VerticalBlock className="max-w-xs">
+                  <ShadcnInput placeholder="Default" />
+                  <ShadcnInput defaultValue="With a value" />
+                  <ShadcnInput placeholder="Disabled" disabled />
+                  <ShadcnInput placeholder="Invalid" aria-invalid />
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <ShadcnInput placeholder="With leading icon" className="pl-9" />
+                  </div>
+                </VerticalBlock>
+              </Container>
+            ),
           },
           // disabled simple tab
           {
