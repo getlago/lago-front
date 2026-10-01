@@ -34,7 +34,7 @@ export interface MainHeaderDropdownAction {
   dataTest?: string
 }
 
-interface MainHeaderDropdownItem {
+export interface MainHeaderDropdownItem {
   label: string
   onClick: (closePopper: () => void) => void | Promise<void>
   disabled?: boolean

@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react'
 
 import { MainHeaderDropdownAction, MainHeaderInPageAction } from '~/components/MainHeader/types'
-import { CustomerAccountTypeEnum, CustomerDetailsFragment } from '~/generated/graphql'
+import { CustomerAccountTypeEnum, CustomerDetailsFragment, TimezoneEnum } from '~/generated/graphql'
 
 import { useCustomerDetailsHeaderActions } from '../useCustomerDetailsHeaderActions'
 
@@ -11,6 +11,8 @@ const mockHasPermissions = jest.fn(() => true)
 const mockHandleDownloadFile = jest.fn()
 const mockGeneratePortalUrl = jest.fn()
 const mockOpenDeleteCustomerDialog = jest.fn()
+const mockOpenContractDrawer = jest.fn()
+const mockHasFeatureFlag = jest.fn(() => false)
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
@@ -55,6 +57,14 @@ jest.mock('~/components/customers/DeleteCustomerDialog', () => ({
   }),
 }))
 
+jest.mock('~/components/contracts/drawers/contract/useContractDrawer', () => ({
+  useContractDrawer: () => ({ openDrawer: mockOpenContractDrawer }),
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
+}))
+
 const createMockCustomer = (
   overrides: Partial<CustomerDetailsFragment> = {},
 ): CustomerDetailsFragment =>
@@ -62,9 +72,11 @@ const createMockCustomer = (
     id: 'cust-1',
     displayName: 'Test Customer',
     externalId: 'ext-1',
+    applicableTimezone: TimezoneEnum.TzUtc,
     hasOverdueInvoices: true,
     hasActiveWallet: false,
     accountType: CustomerAccountTypeEnum.Customer,
+    billingEntity: { id: 'billing-entity-1' },
     ...overrides,
   }) as unknown as CustomerDetailsFragment
 
@@ -80,6 +92,7 @@ describe('useCustomerDetailsHeaderActions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    mockHasFeatureFlag.mockReturnValue(false)
   })
 
   describe('GIVEN the hook is called with a customer', () => {
@@ -273,6 +286,46 @@ describe('useCustomerDetailsHeaderActions', () => {
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
 
         expect(dropdownAction.items[0].hidden).toBe(true)
+      })
+    })
+
+    describe('WHEN product catalog feature flag is active', () => {
+      beforeEach(() => {
+        mockHasFeatureFlag.mockReturnValue(true)
+      })
+
+      it('THEN should hide the first dropdown item based on contractsCreate permission', () => {
+        mockHasPermissions.mockImplementation(((perms: string[]) => {
+          if (perms.includes('contractsCreate')) return false
+
+          return true
+        }) as unknown as () => boolean)
+
+        const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
+
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
+
+        expect(dropdownAction.items[0].hidden).toBe(true)
+      })
+
+      it('THEN should open the contract drawer with the customer when the first item is clicked', () => {
+        const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
+
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
+        const closePopper = jest.fn()
+
+        dropdownAction.items[0].onClick(closePopper)
+
+        expect(mockOpenContractDrawer).toHaveBeenCalledWith({
+          customer: {
+            externalId: 'ext-1',
+            displayName: 'Test Customer',
+            applicableTimezone: TimezoneEnum.TzUtc,
+            billingEntityId: 'billing-entity-1',
+          },
+        })
+        expect(mockNavigate).not.toHaveBeenCalled()
+        expect(closePopper).toHaveBeenCalled()
       })
     })
   })
