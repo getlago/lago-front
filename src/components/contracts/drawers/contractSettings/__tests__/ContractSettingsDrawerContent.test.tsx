@@ -44,6 +44,13 @@ const Wrapper = ({ locked }: { locked: boolean }) => {
 }
 
 describe('ContractSettingsDrawerContent', () => {
+  it('renders the drawer title and description', async () => {
+    render(<Wrapper locked={false} />)
+
+    expect(await screen.findByText('Edit contract settings')).toBeInTheDocument()
+    expect(screen.getByText('Define how the contract will function.')).toBeInTheDocument()
+  })
+
   it('always shows the external id as a disabled, display-only field', () => {
     render(<Wrapper locked={false} />)
 

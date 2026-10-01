@@ -62,6 +62,15 @@ const Wrapper = ({ planLocked }: { planLocked: boolean }) => {
 describe('ContractAttachedObjectDrawerContent', () => {
   beforeEach(() => jest.clearAllMocks())
 
+  it('renders the drawer title and description', async () => {
+    render(<Wrapper planLocked={false} />, { mocks: [plansMock] })
+
+    expect(await screen.findByText('Edit attached object')).toBeInTheDocument()
+    expect(
+      screen.getByText('Define the customer and the plan to create the contract.'),
+    ).toBeInTheDocument()
+  })
+
   it('always shows the customer as a locked, non-editable field', () => {
     render(<Wrapper planLocked={false} />, { mocks: [plansMock] })
 
