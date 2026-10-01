@@ -81,6 +81,7 @@ const fields: SSOIntegrationField<CreateEntraIdIntegrationInput>[] = [
     name: 'clientSecret',
     labelKey: 'text_17843073442551xjnrw1h4bc',
     placeholderKey: 'text_1784307344255ofy9u1w0hqh',
+    editHelperKey: 'text_1790812800000h2k6wsj8x4q',
     password: true,
   },
   {
@@ -110,7 +111,6 @@ export const useAddEntraIdDialog = () => {
       setFieldValue('domain', integration.domain || '')
       setFieldValue('host', integration.host || '')
       setFieldValue('clientId', integration.clientId || '')
-      setFieldValue('clientSecret', integration.clientSecret || '')
       setFieldValue('tenantId', integration.tenantId || '')
     },
     translations: {
