@@ -23,7 +23,7 @@ export const GraduatedPercentageRateTiersDetails = ({
   return (
     <DetailsPage.TableDisplay
       name="graduated-percentage-rate-tiers"
-      className="[&_tbody_td:first-child]:bg-grey-100"
+      className="table-fixed [&_tbody_td:first-child]:bg-grey-100"
       header={[
         '',
         translate(RATE_TIER_UP_TO_KEY),

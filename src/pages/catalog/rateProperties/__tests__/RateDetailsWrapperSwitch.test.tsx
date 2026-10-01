@@ -85,6 +85,7 @@ describe('RateDetailsWrapperSwitch', () => {
           [RATE_TIER_FIRST_LABEL_KEY, '10', '$5.00', '$1.00'],
           [RATE_TIER_NEXT_LABEL_KEY, '∞', '$2.00', '$0.00'],
         ])
+        expect(screen.getByRole('table')).toHaveClass('table-fixed')
       })
     })
 
@@ -118,6 +119,7 @@ describe('RateDetailsWrapperSwitch', () => {
           [RATE_TIER_TOTAL_UNITS_LABEL_KEY, '100', '$1.00', '$0.00'],
           [RATE_TIER_TOTAL_UNITS_LABEL_KEY, '∞', '$0.50', '$2.00'],
         ])
+        expect(screen.getByRole('table')).toHaveClass('table-fixed')
       })
     })
   })
@@ -143,6 +145,7 @@ describe('RateDetailsWrapperSwitch', () => {
           [RATE_TIER_FIRST_LABEL_KEY, '10000', '0.10%', '$1.00'],
           [RATE_TIER_NEXT_LABEL_KEY, '∞', '0.05%', '$0.50'],
         ])
+        expect(screen.getByRole('table')).toHaveClass('table-fixed')
       })
     })
   })
