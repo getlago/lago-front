@@ -32,6 +32,11 @@ export enum CustomerSubscriptionDetailsTabsOptionsEnum {
   usage = 'usage',
 }
 
+export enum GovernanceSettingsTabsOptionsEnum {
+  hierarchical = 'hierarchical',
+  flat = 'flat',
+}
+
 export enum IntegrationsTabsOptionsEnum {
   Lago = 'lago',
   Community = 'community',

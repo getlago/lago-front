@@ -1,3 +1,5 @@
+import { FeatureFlagEnum } from '~/generated/graphql'
+
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
@@ -40,6 +42,7 @@ const CreateInvoiceCustomSection = lazyLoad(
 )
 
 const TaxesSettings = lazyLoad(() => import('~/pages/settings/TaxesSettings'))
+const GovernanceSettings = lazyLoad(() => import('~/pages/settings/governance/GovernanceSettings'))
 const OrganizationGeneralSettings = lazyLoad(
   () => import('~/pages/settings/OrganizationGeneralSettings/OrganizationGeneralSettings'),
 )
@@ -116,6 +119,8 @@ const EntraIdAuthenticationDetails = lazyLoad(
 export const SETTINGS_ROUTE = '/settings'
 export const INVOICE_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/invoice-sections`
 export const TAXES_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/taxes`
+export const GOVERNANCE_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/governance`
+export const GOVERNANCE_SETTINGS_TAB_ROUTE = `${GOVERNANCE_SETTINGS_ROUTE}/:tab`
 export const GENERAL_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/general`
 const ROOT_INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
 
@@ -245,6 +250,13 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <TaxesSettings />,
         permissions: ['organizationTaxesView'],
+      },
+      {
+        path: [GOVERNANCE_SETTINGS_ROUTE, GOVERNANCE_SETTINGS_TAB_ROUTE],
+        private: true,
+        element: <GovernanceSettings />,
+        permissions: ['usageAttributionTypesView'],
+        featureFlag: FeatureFlagEnum.AccountTree,
       },
       {
         path: [GENERAL_SETTINGS_ROUTE],
