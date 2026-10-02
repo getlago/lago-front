@@ -22,7 +22,7 @@ export const VolumeRateTiersDetails = ({
   return (
     <DetailsPage.TableDisplay
       name="volume-rate-tiers"
-      className="table-fixed [&_tbody_td:first-child]:bg-grey-100"
+      className="table-fixed [&_tbody_td:first-child]:bg-grey-100 [&_tbody_tr:not(:last-child)_td:first-child]:shadow-b"
       header={[
         '',
         translate(RATE_TIER_UP_TO_KEY),
