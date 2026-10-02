@@ -20,9 +20,26 @@ const mockVolumeTableTestId = 'volume-rate-tiers-table'
 let mockCustomChargeProps: Record<string, unknown> = {}
 let mockTierTableProps: Record<string, unknown> = {}
 
-jest.mock('~/components/plans/StandardCharge', () => ({
-  StandardCharge: () => <div data-test={mockStandardChargeTestId} />,
-}))
+jest.mock('~/components/plans/StandardCharge', () => {
+  const { useChargeFormContext } = jest.requireActual<
+    typeof import('~/contexts/ChargeFormContext')
+  >('~/contexts/ChargeFormContext')
+
+  return {
+    StandardCharge: () => {
+      const { propertyCursor, currency, chargePricingUnitShortName } = useChargeFormContext()
+
+      return (
+        <div
+          data-test={mockStandardChargeTestId}
+          data-property-cursor={propertyCursor}
+          data-currency={currency}
+          data-pricing-unit={chargePricingUnitShortName}
+        />
+      )
+    },
+  }
+})
 jest.mock('~/components/plans/PackageCharge', () => ({
   PackageCharge: () => <div data-test={mockPackageChargeTestId} />,
 }))
@@ -51,10 +68,18 @@ jest.mock('../tiers/GraduatedRateTiersTable', () => ({
   },
 }))
 jest.mock('../tiers/GraduatedPercentageRateTiersTable', () => ({
-  GraduatedPercentageRateTiersTable: () => <div data-test={mockGraduatedPercentageTableTestId} />,
+  GraduatedPercentageRateTiersTable: (props: Record<string, unknown>) => {
+    mockTierTableProps = props
+
+    return <div data-test={mockGraduatedPercentageTableTestId} />
+  },
 }))
 jest.mock('../tiers/VolumeRateTiersTable', () => ({
-  VolumeRateTiersTable: () => <div data-test={mockVolumeTableTestId} />,
+  VolumeRateTiersTable: (props: Record<string, unknown>) => {
+    mockTierTableProps = props
+
+    return <div data-test={mockVolumeTableTestId} />
+  },
 }))
 
 const handleExpandCustomCharge = jest.fn()
@@ -103,10 +128,28 @@ describe('RateWrapperSwitch', () => {
     })
   })
 
+  describe('GIVEN the standard model', () => {
+    describe('WHEN its charge renders', () => {
+      it('THEN the charge form context carries the properties cursor, the card currency and the pricing unit', () => {
+        render(<Host rateModel={RateCardRateModelEnum.Standard} />)
+
+        const standardCharge = screen.getByTestId(mockStandardChargeTestId)
+
+        expect(standardCharge).toHaveAttribute('data-property-cursor', 'properties')
+        expect(standardCharge).toHaveAttribute('data-currency', CurrencyEnum.Eur)
+        expect(standardCharge).toHaveAttribute('data-pricing-unit', 'tok')
+      })
+    })
+  })
+
   describe('GIVEN a tiered model', () => {
     describe('WHEN its table renders', () => {
-      it('THEN receives the card currency and pricing unit', () => {
-        render(<Host rateModel={RateCardRateModelEnum.Graduated} />)
+      it.each([
+        RateCardRateModelEnum.Graduated,
+        RateCardRateModelEnum.GraduatedPercentage,
+        RateCardRateModelEnum.Volume,
+      ])('THEN the %p table receives the card currency and pricing unit', (rateModel) => {
+        render(<Host rateModel={rateModel} />)
 
         expect(mockTierTableProps.currency).toBe(CurrencyEnum.Eur)
         expect(mockTierTableProps.pricingUnitShortName).toBe('tok')
@@ -116,7 +159,6 @@ describe('RateWrapperSwitch', () => {
 
   describe('GIVEN the custom model', () => {
     describe('WHEN its editor renders', () => {
-      // `CustomCharge` gives its JSON editor no `onChange`; without it a custom rate can never be saved.
       it('THEN receives the expand callback', () => {
         render(<Host rateModel={RateCardRateModelEnum.Custom} />)
 

@@ -315,23 +315,29 @@ describe('buildRateCardRateSchema', () => {
     ])
   })
 
-  describe('GIVEN a graduated rate with overlapping tiers', () => {
+  describe('GIVEN a tiered rate with overlapping tiers', () => {
     describe('WHEN it is parsed', () => {
-      it('THEN reports the overlap on the tier upper bound', () => {
+      it.each([
+        [
+          RateCardRateModelEnum.Graduated,
+          'graduatedRanges',
+          { perUnitAmount: '1', flatAmount: '0' },
+        ],
+        [RateCardRateModelEnum.Volume, 'volumeRanges', { perUnitAmount: '1', flatAmount: '0' }],
+        [
+          RateCardRateModelEnum.GraduatedPercentage,
+          'graduatedPercentageRanges',
+          { rate: '1', flatAmount: '0' },
+        ],
+      ])('THEN a %p rate reports the overlap on its %p upper bound', (rateModel, list, amounts) => {
         const result = parse({
           ...validValues,
-          rateModel: RateCardRateModelEnum.Graduated,
-          properties: {
-            graduatedRanges: [
-              { toValue: '10', perUnitAmount: '1', flatAmount: '0' },
-              { toValue: '10', perUnitAmount: '1', flatAmount: '0' },
-              { toValue: null, perUnitAmount: '1', flatAmount: '0' },
-            ],
-          },
+          rateModel,
+          properties: { [list]: ['10', '10', null].map((toValue) => ({ toValue, ...amounts })) },
         })
 
         expect(issuePathsAndMessages(result)).toContainEqual([
-          'properties.graduatedRanges.1.toValue',
+          `properties.${list}.1.toValue`,
           RATE_TIER_UP_TO_ERROR_KEY,
         ])
       })

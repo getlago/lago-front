@@ -1,6 +1,10 @@
 import { RateCardRateModelEnum } from '~/generated/graphql'
 
-import { buildGraduatedRanges, buildRateProperties } from '../../../__tests__/fixtures'
+import {
+  buildGraduatedPercentageRanges,
+  buildGraduatedRanges,
+  buildRateProperties,
+} from '../../../__tests__/fixtures'
 import { getRatePropertiesShape } from '../getRatePropertiesShape'
 import { serializeRateProperties } from '../serializeRateProperties'
 
@@ -81,6 +85,23 @@ describe('serializeRateProperties', () => {
           { toValue: '10', perUnitAmount: '5', flatAmount: '1' },
           { toValue: null, perUnitAmount: '2', flatAmount: '0' },
         ])
+      })
+
+      it('THEN a graduated percentage payload carries the loaded rates and no per unit amount', () => {
+        const payload = serializeRateProperties(
+          getRatePropertiesShape(
+            buildRateProperties({ graduatedPercentageRanges: buildGraduatedPercentageRanges() }),
+          ),
+          RateCardRateModelEnum.GraduatedPercentage,
+        )
+
+        expect(payload.graduatedPercentageRanges).toEqual([
+          { toValue: '10000', rate: '0.1', flatAmount: '1' },
+          { toValue: null, rate: '0.05', flatAmount: '0.5' },
+        ])
+        expect(payload.graduatedPercentageRanges?.[0]).not.toHaveProperty('perUnitAmount')
+        expect(payload.graduatedRanges).toBeUndefined()
+        expect(payload.volumeRanges).toBeUndefined()
       })
     })
   })
