@@ -148,6 +148,27 @@ describe('useNotFoundRedirect', () => {
     })
   })
 
+  describe('GIVEN the query returns a nullable resource with no error', () => {
+    it('THEN should handle the explicit null state as not found', async () => {
+      renderHook(
+        () =>
+          useNotFoundRedirect({
+            ...defaultArgs,
+            notFound: true,
+          }),
+        { wrapper: customWrapper },
+      )
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/resources', { replace: true })
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'info',
+          translateKey: 'text_some_key',
+        })
+      })
+    })
+  })
+
   describe('GIVEN a non-NotFound error occurred', () => {
     describe('WHEN loading is complete', () => {
       it('THEN should not navigate or show a toast', () => {

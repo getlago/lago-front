@@ -5,6 +5,7 @@ import { ConnectionComboBoxDataItem } from '~/components/customerConnections/Con
 import { getAllIntegrationForAnIntegrationType } from '~/components/customerConnections/getAllIntegrationForAnIntegrationType'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { useAccountingProviders } from '~/components/customerConnections/useAccountingProviders'
+import { toIntegrationConnectionOptions } from '~/components/customerConnections/useCategoryIntegrationOptions'
 import { useCrmProviders } from '~/components/customerConnections/useCrmProviders'
 import { usePaymentProviders } from '~/components/customerConnections/usePaymentProviders'
 import { useTaxProviders } from '~/components/customerConnections/useTaxProviders'
@@ -98,24 +99,9 @@ export const useConnectionOptions = (): UseConnectionOptionsReturn => {
             ],
           }),
         ),
-        [ConnectionCategory.Accounting]: allAccountingIntegrations.map((integration) => ({
-          value: integration.code,
-          label: integration.name,
-          subLabel: integration.code,
-          group: integration.__typename?.replace('Integration', '') || '',
-        })),
-        [ConnectionCategory.Tax]: allTaxIntegrations.map((integration) => ({
-          value: integration.code,
-          label: integration.name,
-          subLabel: integration.code,
-          group: integration.__typename?.replace('Integration', '') || '',
-        })),
-        [ConnectionCategory.Crm]: allCrmIntegrations.map((integration) => ({
-          value: integration.code,
-          label: integration.name,
-          subLabel: integration.code,
-          group: integration.__typename?.replace('Integration', '') || '',
-        })),
+        [ConnectionCategory.Accounting]: toIntegrationConnectionOptions(allAccountingIntegrations),
+        [ConnectionCategory.Tax]: toIntegrationConnectionOptions(allTaxIntegrations),
+        [ConnectionCategory.Crm]: toIntegrationConnectionOptions(allCrmIntegrations),
       }),
       [
         paymentProviders?.paymentProviders?.collection,

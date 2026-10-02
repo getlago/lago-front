@@ -32,6 +32,11 @@ export enum CustomerSubscriptionDetailsTabsOptionsEnum {
   usage = 'usage',
 }
 
+export enum GovernanceSettingsTabsOptionsEnum {
+  hierarchical = 'hierarchical',
+  flat = 'flat',
+}
+
 export enum IntegrationsTabsOptionsEnum {
   Lago = 'lago',
   Community = 'community',
@@ -131,5 +136,16 @@ export enum CatalogPlanDetailsTabsOptionsEnum {
 
 export enum CatalogPlanOverviewSectionsEnum {
   planOverview = 'plan-overview',
+  rateCards = 'rate-cards',
+}
+
+export enum ContractDetailsTabsOptionsEnum {
+  overview = 'overview',
+  usage = 'usage',
+  activityLogs = 'activity-logs',
+}
+
+export enum ContractOverviewSectionsEnum {
+  contractOverview = 'contract-overview',
   rateCards = 'rate-cards',
 }

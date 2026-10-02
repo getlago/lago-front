@@ -33,8 +33,8 @@ jest.mock('~/core/router', () => ({
 jest.mock('~/components/billableMetrics/BillableMetricCodeSnippet', () => ({
   BillableMetricCodeSnippet: () => null,
 }))
-jest.mock('~/components/billableMetrics/CustomExpressionDrawer', () => ({
-  CustomExpressionDrawer: () => null,
+jest.mock('~/components/billableMetrics/customExpressionDrawer/useCustomExpressionDrawer', () => ({
+  useCustomExpressionDrawer: () => ({ openDrawer: jest.fn() }),
 }))
 
 const buildMetric = (overrides = {}) => ({

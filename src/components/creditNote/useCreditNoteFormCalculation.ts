@@ -199,7 +199,7 @@ export const useCreditNoteFormCalculation = ({
       totalExcludedTax: deserializeAmount(subTotalExcludingTaxesAmountCents || 0, currency),
       taxes: new Map(
         appliedTaxes?.map((tax) => [
-          tax.taxCode,
+          `${tax.taxCode}-${tax.taxRate}`,
           {
             label: tax.taxName,
             taxRate: tax.taxRate,

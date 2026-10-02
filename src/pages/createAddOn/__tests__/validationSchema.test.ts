@@ -70,6 +70,8 @@ describe('addOnFormSchema', () => {
         ['empty string', ''],
         ['not a number', 'abc'],
         ['below the 0.01 minimum', '0.001'],
+        // AmountInput emits a string for every currency, 0-decimal ones included
+        ['a raw number', 100],
       ])('THEN should fail validation for %s', (_, amountCents) => {
         const result = addOnFormSchema.safeParse(
           createValidAddOnData({ amountCents: amountCents as AddOnFormValues['amountCents'] }),
@@ -88,7 +90,7 @@ describe('addOnFormSchema', () => {
       it.each([
         ['exactly the 0.01 minimum', '0.01'],
         ['a string value', '100'],
-        ['a numeric value', 100],
+        ['a whole string value', '1'],
       ])('THEN should pass validation for %s', (_, amountCents) => {
         const result = addOnFormSchema.safeParse(
           createValidAddOnData({ amountCents: amountCents as AddOnFormValues['amountCents'] }),

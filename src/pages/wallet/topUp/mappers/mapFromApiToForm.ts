@@ -23,7 +23,7 @@ export const mapFromApiToForm = ({
   name: undefined,
   metadata: undefined,
   ignorePaidTopUpLimits: undefined,
-  priority: 50,
+  priority: WALLET_TOP_UP_DEFAULT_PRIORITY,
   purchaseOrderNumber: purchaseOrderNumber || undefined,
 })
 

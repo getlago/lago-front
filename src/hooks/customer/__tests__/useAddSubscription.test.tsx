@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router'
 
 import { PlanFormInput } from '~/components/plans/types'
 import {
+  ConnectionBehaviorEnum,
   CreateSubscriptionDocument,
   CreateSubscriptionInput,
   GetSubscriptionForCreateSubscriptionQuery,
@@ -117,6 +118,32 @@ describe('useAddSubscription', () => {
   // changes on a subscription that is neither pending nor active
   // (`purchase_order_number_not_editable`, 405), so the client always sends the
   // key and lets the API decide.
+  describe.each([
+    [CREATION_PATHNAME, CreateSubscriptionDocument, undefined],
+    [EDITION_PATHNAME, UpdateSubscriptionDocument, existingSubscription],
+  ])('GIVEN connection choices on %s', (pathname, document, subscription) => {
+    it('THEN should forward all categories to the corresponding mutation', async () => {
+      mockPathname.current = pathname
+      const capture = jest.fn()
+      const { result } = renderAddSubscriptionHook(captureMock(document, capture), subscription)
+      const connections = {
+        payment: { code: 'stripe_eu' },
+        accounting: { behavior: ConnectionBehaviorEnum.Skip },
+        crm: { behavior: ConnectionBehaviorEnum.Inherit },
+        tax: { code: 'avalara_us' },
+      }
+
+      await act(async () => {
+        await result.current.onSave('customer-1', { ...formValues, connections }, planValues, false)
+      })
+      await waitFor(() =>
+        expect(capture).toHaveBeenCalledWith(
+          expect.objectContaining({ input: expect.objectContaining({ connections }) }),
+        ),
+      )
+    })
+  })
+
   describe('GIVEN the subscription edition form is submitted', () => {
     describe.each([
       ['pending', StatusTypeEnum.Pending],

@@ -6,6 +6,7 @@ import CheckboxField from '~/components/form/Checkbox/CheckboxFieldForTanstack'
 import ComboBoxField from '~/components/form/ComboBox/ComboBoxFieldForTanstack'
 import CurrencyPickerField from '~/components/form/CurrencyPickerFieldForTanstack'
 import DatePickerField from '~/components/form/DatePicker/DatePickerFieldForTanstack'
+import JsonEditorField from '~/components/form/JsonEditor/JsonEditorFieldForTanstack'
 import MultipleComboBoxField from '~/components/form/MultipleComboBox/MultipleComboBoxFieldForTanstack'
 import RadioField from '~/components/form/Radio/RadioFieldForTanstack'
 import RadioGroupField from '~/components/form/Radio/RadioGroupFieldForTanstack'
@@ -26,6 +27,7 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
     CheckboxField,
     RadioField,
     DatePickerField,
+    JsonEditorField,
     AmountInputField,
     ButtonSelectorField,
   },

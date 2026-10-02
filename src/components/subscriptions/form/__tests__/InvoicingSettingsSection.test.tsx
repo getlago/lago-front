@@ -4,6 +4,7 @@ import { InvoicingSettingsSection } from '../InvoicingSettingsSection'
 
 const mockSelector: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 const mockDrawer: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
+const mockOpenDrawer = jest.fn()
 
 jest.mock('~/components/designSystem/Selector', () => ({
   Selector: (props: Record<string, unknown>) => {
@@ -13,11 +14,11 @@ jest.mock('~/components/designSystem/Selector', () => ({
   },
 }))
 
-jest.mock('~/components/invoicingSettings/InvoicingSettingsDrawer', () => ({
-  InvoicingSettingsDrawer: function MockInvoicingSettingsDrawer(props: Record<string, unknown>) {
+jest.mock('~/components/invoicingSettings/useInvoicingSettingsDrawer', () => ({
+  useInvoicingSettingsDrawer: (props: Record<string, unknown>) => {
     mockDrawer(props)
 
-    return null
+    return { openDrawer: mockOpenDrawer }
   },
 }))
 
@@ -135,5 +136,32 @@ describe('InvoicingSettingsSection', () => {
 
     expect(form.setFieldValue).toHaveBeenCalledWith('consolidateInvoice', false)
     expect(form.setFieldValue).toHaveBeenCalledWith('invoiceCustomSection', nextIcs)
+  })
+
+  it('seeds the drawer with the current form values on click', () => {
+    const invoiceCustomSection = { invoiceCustomSections: [], skipInvoiceCustomSections: true }
+
+    renderSection({ consolidateInvoice: false, invoiceCustomSection }, 'cust-1')
+
+    const { onClick } = mockSelector.mock.calls.at(-1)?.[0] as { onClick: () => void }
+
+    onClick()
+
+    expect(mockOpenDrawer).toHaveBeenCalledWith({
+      consolidateInvoice: false,
+      invoiceCustomSection,
+    })
+  })
+
+  it('defaults the seeded consolidation to true when the form has no value yet', () => {
+    renderSection({})
+
+    const { onClick } = mockSelector.mock.calls.at(-1)?.[0] as { onClick: () => void }
+
+    onClick()
+
+    expect(mockOpenDrawer).toHaveBeenCalledWith(
+      expect.objectContaining({ consolidateInvoice: true }),
+    )
   })
 })

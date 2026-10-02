@@ -2,15 +2,12 @@ import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
 import _omit from 'lodash/omit'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { matchPath } from 'react-router'
 import { array, bool, number, object, string } from 'yup'
 
 import { BillableMetricCodeSnippet } from '~/components/billableMetrics/BillableMetricCodeSnippet'
-import {
-  CustomExpressionDrawer,
-  CustomExpressionDrawerRef,
-} from '~/components/billableMetrics/CustomExpressionDrawer'
+import { useCustomExpressionDrawer } from '~/components/billableMetrics/customExpressionDrawer/useCustomExpressionDrawer'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -95,7 +92,6 @@ const CreateBillableMetric = () => {
   })
 
   const centralizedDialog = useCentralizedDialog()
-  const customExpressionDrawerRef = useRef<CustomExpressionDrawerRef>(null)
   const canBeEdited =
     isDuplicate || (!billableMetric?.hasSubscriptions && !billableMetric?.hasPlans)
   // A non-duplicate edit of a metric already attached to plans/subscriptions:
@@ -194,6 +190,10 @@ const CreateBillableMetric = () => {
         ),
       )
     },
+  })
+
+  const { openDrawer: openCustomExpressionDrawer } = useCustomExpressionDrawer({
+    onSave: (expression) => formikProps.setFieldValue('expression', expression),
   })
 
   const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
@@ -571,7 +571,7 @@ const CreateBillableMetric = () => {
                               formikProps={formikProps}
                               placeholder={translate('text_1729771640162kaf49b93e20') + '\n'}
                               onExpand={() => {
-                                customExpressionDrawerRef?.current?.openDrawer({
+                                openCustomExpressionDrawer({
                                   expression: formikProps.values.expression,
                                   billableMetricCode: formikProps.values.code,
                                   isEditable: canBeEdited,
@@ -904,10 +904,6 @@ const CreateBillableMetric = () => {
           <BillableMetricCodeSnippet loading={loading} billableMetric={formikProps.values} />
         </Side>
       </div>
-      <CustomExpressionDrawer
-        ref={customExpressionDrawerRef}
-        onSave={(expression: string) => formikProps.setFieldValue('expression', expression)}
-      />
     </div>
   )
 }

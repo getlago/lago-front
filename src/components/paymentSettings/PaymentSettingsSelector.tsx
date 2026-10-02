@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
@@ -10,7 +10,7 @@ import {
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { PaymentSettingsDrawer, PaymentSettingsDrawerRef } from './PaymentSettingsDrawer'
+import { usePaymentSettingsDrawer } from './usePaymentSettingsDrawer'
 
 export const PAYMENT_SETTINGS_SELECTOR_TEST_ID = 'payment-settings-selector'
 
@@ -25,13 +25,14 @@ interface PaymentSettingsSelectorProps {
   externalCustomerId: string
   value: SelectedPaymentMethod
   onChange: (value: SelectedPaymentMethod) => void
+  disabled?: boolean
   'data-test'?: string
 }
 
 /**
  * Controlled (value/onChange) entry point for the per-object payment
  * settings: a Selector card previewing the current choice that opens the
- * shared PaymentSettingsDrawer. Mountable on any form (wallet, top-up,
+ * shared payment settings drawer. Mountable on any form (wallet, top-up,
  * one-off invoice…) — the subscription form keeps its own withForm-bound
  * PaymentSettingsSection.
  */
@@ -40,10 +41,16 @@ export const PaymentSettingsSelector = ({
   externalCustomerId,
   value,
   onChange,
+  disabled = false,
   'data-test': dataTest = PAYMENT_SETTINGS_SELECTOR_TEST_ID,
 }: PaymentSettingsSelectorProps) => {
   const { translate } = useInternationalization()
-  const drawerRef = useRef<PaymentSettingsDrawerRef>(null)
+
+  const { openDrawer } = usePaymentSettingsDrawer({
+    viewType,
+    externalCustomerId,
+    onSave: ({ paymentMethod }) => onChange(paymentMethod),
+  })
 
   const summary = useMemo(
     () => translate(SUMMARY_KEY_BY_BEHAVIOR[deriveBehavior(value)]),
@@ -51,22 +58,14 @@ export const PaymentSettingsSelector = ({
   )
 
   return (
-    <>
-      <Selector
-        icon="coin-dollar"
-        title={translate('text_17828013737948943pe3k8nc')}
-        subtitle={summary}
-        endContent={<Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />}
-        onClick={() => drawerRef.current?.openDrawer({ paymentMethod: value })}
-        data-test={dataTest}
-      />
-
-      <PaymentSettingsDrawer
-        ref={drawerRef}
-        viewType={viewType}
-        externalCustomerId={externalCustomerId}
-        onSave={({ paymentMethod }) => onChange(paymentMethod)}
-      />
-    </>
+    <Selector
+      icon="coin-dollar"
+      disabled={disabled}
+      title={translate('text_17828013737948943pe3k8nc')}
+      subtitle={summary}
+      endContent={<Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />}
+      onClick={() => openDrawer({ paymentMethod: value })}
+      data-test={dataTest}
+    />
   )
 }

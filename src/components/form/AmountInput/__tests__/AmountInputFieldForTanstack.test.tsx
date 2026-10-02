@@ -1,4 +1,5 @@
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { CurrencyEnum } from '~/generated/graphql'
 import { useFieldContext } from '~/hooks/forms/formContext'
@@ -156,6 +157,31 @@ describe('AmountInputFieldForTanstack', () => {
 
         expect(mockTranslate).toHaveBeenCalledWith('error_2')
         expect(mockTranslate).not.toHaveBeenCalledWith('')
+      })
+    })
+  })
+
+  describe('GIVEN a currency with no decimals', () => {
+    describe('WHEN the user types an amount', () => {
+      it.each([
+        ['JPY', CurrencyEnum.Jpy],
+        ['EUR', CurrencyEnum.Eur],
+      ])('THEN should emit a string for %s, never a number', async (_, currency) => {
+        const user = userEvent.setup()
+
+        mockedUseFieldContext.mockReturnValue(createMockField(''))
+
+        render(<AmountInputField currency={currency} beforeChangeFormatter={['positiveNumber']} />)
+
+        await user.type(screen.getByRole('textbox'), '5000')
+
+        expect(mockHandleChange).toHaveBeenCalled()
+        // A 0-decimal currency makes AmountInput push the `int` formatter, which
+        // used to hand the schema a number and fail every `z.string()` over it.
+        mockHandleChange.mock.calls.forEach(([emitted]) => {
+          expect(typeof emitted).toBe('string')
+        })
+        expect(mockHandleChange).toHaveBeenLastCalledWith('5000')
       })
     })
   })

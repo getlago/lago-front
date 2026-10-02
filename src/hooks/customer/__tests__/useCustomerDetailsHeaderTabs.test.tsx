@@ -1,11 +1,16 @@
-import { renderHook } from '@testing-library/react'
+import { render, renderHook, screen } from '@testing-library/react'
 
-import { CustomerAccountTypeEnum, CustomerDetailsFragment } from '~/generated/graphql'
+import {
+  CustomerAccountTypeEnum,
+  CustomerDetailsFragment,
+  FeatureFlagEnum,
+} from '~/generated/graphql'
 
 import { useCustomerDetailsHeaderTabs } from '../useCustomerDetailsHeaderTabs'
 
 const mockNavigate = jest.fn()
 const mockHasPermissions = jest.fn(() => true)
+const mockHasFeatureFlag = jest.fn<boolean, [FeatureFlagEnum]>(() => false)
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
@@ -39,6 +44,12 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   }),
 }))
 
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    hasFeatureFlag: mockHasFeatureFlag,
+  }),
+}))
+
 // Mock child components to avoid rendering them
 jest.mock('~/components/customers/CustomerActivityLogs', () => ({
   CustomerActivityLogs: () => null,
@@ -68,8 +79,12 @@ jest.mock('~/components/customers/CustomerAppliedCouponsList', () => ({
   CustomerAppliedCouponsList: () => null,
 }))
 
+jest.mock('~/components/customers/overview/CustomerContractsList', () => ({
+  CustomerContractsList: () => <div data-testid="customer-contracts-list" />,
+}))
+
 jest.mock('~/components/customers/overview/CustomerSubscriptionsList', () => ({
-  CustomerSubscriptionsList: () => null,
+  CustomerSubscriptionsList: () => <div data-testid="customer-subscriptions-list" />,
 }))
 
 jest.mock('~/components/customers/usage/CustomerUsage', () => ({
@@ -107,6 +122,7 @@ describe('useCustomerDetailsHeaderTabs', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    mockHasFeatureFlag.mockReturnValue(false)
   })
 
   describe('GIVEN a customer is provided', () => {
@@ -137,6 +153,25 @@ describe('useCustomerDetailsHeaderTabs', () => {
         expect(result.current?.[index].title).toEqual(expect.any(String))
         expect(result.current?.[index].content).toBeDefined()
       })
+    })
+
+    it('shows subscriptions in the overview for legacy organizations', () => {
+      const { result } = renderHook(() => useCustomerDetailsHeaderTabs(defaultParams))
+
+      render(result.current?.[0].content)
+
+      expect(screen.getByTestId('customer-subscriptions-list')).toBeInTheDocument()
+      expect(screen.queryByTestId('customer-contracts-list')).not.toBeInTheDocument()
+    })
+
+    it('shows contracts in the overview for Product Catalog organizations', () => {
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.ProductCatalog)
+      const { result } = renderHook(() => useCustomerDetailsHeaderTabs(defaultParams))
+
+      render(result.current?.[0].content)
+
+      expect(screen.getByTestId('customer-contracts-list')).toBeInTheDocument()
+      expect(screen.queryByTestId('customer-subscriptions-list')).not.toBeInTheDocument()
     })
 
     describe('WHEN user does not have analyticsView permission', () => {

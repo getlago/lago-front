@@ -28,7 +28,7 @@ gql`
   }
 `
 
-export const useCrmProviders = (): {
+export const useCrmProviders = ({ skip = false }: { skip?: boolean } = {}): {
   crmProviders: GetCrmIntegrationsForExternalAppsAccordionQuery | undefined
   isLoadingCrmProviders: boolean
   getCrmProviderFromCode: (code: string | undefined) => IntegrationTypeEnum | undefined
@@ -36,6 +36,7 @@ export const useCrmProviders = (): {
   const { data: crmProviders, loading: isLoadingCrmProviders } =
     useGetCrmIntegrationsForExternalAppsAccordionQuery({
       variables: { limit: 1000 },
+      skip,
     })
 
   const getCrmProviderFromCode = (code: string | undefined): IntegrationTypeEnum | undefined => {

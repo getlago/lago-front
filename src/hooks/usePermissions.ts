@@ -26,6 +26,9 @@ gql`
       billingEntitiesCreate
       billingEntitiesUpdate
       billingEntitiesDelete
+      contractsCreate
+      contractsTerminate
+      contractsUpdate
       contractsView
       couponsAttach
       couponsCreate
@@ -124,6 +127,10 @@ gql`
       subscriptionsCreate
       subscriptionsUpdate
       subscriptionsView
+      usageAttributionTypesView
+      usageAttributionTypesCreate
+      usageAttributionTypesUpdate
+      usageAttributionTypesDelete
       walletsCreate
       walletsTerminate
       walletsTopUp

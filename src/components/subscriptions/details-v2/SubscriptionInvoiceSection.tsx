@@ -1,10 +1,6 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 
-import {
-  InvoicingSettingsDrawer,
-  InvoicingSettingsDrawerRef,
-} from '~/components/invoicingSettings/InvoicingSettingsDrawer'
+import { useInvoicingSettingsDrawer } from '~/components/invoicingSettings/useInvoicingSettingsDrawer'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { SubscriptionInvoiceCustomSectionDetails } from '~/components/subscriptions/SubscriptionInvoiceCustomSectionDetails'
@@ -37,10 +33,17 @@ type SubscriptionInvoiceSectionProps = {
 export const SubscriptionInvoiceSection = ({ subscription }: SubscriptionInvoiceSectionProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const drawerRef = useRef<InvoicingSettingsDrawerRef>(null)
   const { saveInvoicing } = useUpdateSubscriptionSettings(subscription.id)
 
   const showCustomSection = !!subscription.customer?.id
+
+  const { openDrawer } = useInvoicingSettingsDrawer({
+    viewType: ViewTypeEnum.Subscription,
+    customerId: subscription.customer?.id,
+    showCustomSection,
+    withInvoiceConsolidation: true,
+    onSave: saveInvoicing,
+  })
 
   return (
     <section className="flex flex-col gap-6">
@@ -51,7 +54,7 @@ export const SubscriptionInvoiceSection = ({ subscription }: SubscriptionInvoice
           label: translate('text_63e51ef4985f0ebd75c212fc'),
           startIcon: 'pen',
           onClick: () =>
-            drawerRef.current?.openDrawer({
+            openDrawer({
               consolidateInvoice: subscription.consolidateInvoice,
               invoiceCustomSection: {
                 invoiceCustomSections: subscription.selectedInvoiceCustomSections ?? [],
@@ -80,15 +83,6 @@ export const SubscriptionInvoiceSection = ({ subscription }: SubscriptionInvoice
           skipInvoiceCustomSections={subscription.skipInvoiceCustomSections}
         />
       )}
-
-      <InvoicingSettingsDrawer
-        ref={drawerRef}
-        viewType={ViewTypeEnum.Subscription}
-        customerId={subscription.customer?.id}
-        showCustomSection={showCustomSection}
-        withInvoiceConsolidation
-        onSave={saveInvoicing}
-      />
     </section>
   )
 }

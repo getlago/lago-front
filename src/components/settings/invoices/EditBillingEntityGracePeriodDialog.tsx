@@ -8,6 +8,7 @@ import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
+import { invoiceGracePeriodSchema } from '~/formValidation/invoiceGracePeriodSchema'
 import { useUpdateBillingEntityGracePeriodMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -25,10 +26,7 @@ gql`
 `
 
 const editBillingEntityGracePeriodValidationSchema = z.object({
-  invoiceGracePeriod: z.union([
-    z.number().max(365, { message: 'text_63bed78ae69de9cad5c348e4' }),
-    z.literal(''),
-  ]),
+  invoiceGracePeriod: invoiceGracePeriodSchema,
 })
 
 const EDIT_BILLING_ENTITY_GRACE_PERIOD_FORM_ID = 'edit-billing-entity-grace-period-form'
@@ -59,7 +57,7 @@ export const useEditBillingEntityGracePeriodDialog = () => {
 
   const form = useAppForm({
     defaultValues: {
-      invoiceGracePeriod: '' as number | '',
+      invoiceGracePeriod: '',
     },
     validationLogic: revalidateLogic(),
     validators: {
@@ -93,7 +91,7 @@ export const useEditBillingEntityGracePeriodDialog = () => {
   const openEditBillingEntityGracePeriodDialog = (data: EditBillingEntityGracePeriodDialogData) => {
     dataRef.current = data
     form.reset()
-    form.setFieldValue('invoiceGracePeriod', (data.invoiceGracePeriod ?? '') as number | '')
+    form.setFieldValue('invoiceGracePeriod', String(data.invoiceGracePeriod ?? ''))
 
     formDialog
       .open({

@@ -16,7 +16,7 @@ interface AmountInputFieldProps extends Omit<
 
 const AmountInputField = forwardRef<HTMLDivElement, AmountInputFieldProps>(
   ({ silentError = false, displayErrorText = true, errorOverride, ...props }, ref) => {
-    const field = useFieldContext<string | number | undefined>()
+    const field = useFieldContext<string | undefined>()
 
     const finalError = useFieldError({
       silentError,

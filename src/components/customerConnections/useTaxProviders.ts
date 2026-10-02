@@ -27,7 +27,7 @@ gql`
   }
 `
 
-export const useTaxProviders = (): {
+export const useTaxProviders = ({ skip = false }: { skip?: boolean } = {}): {
   taxProviders: GetTaxIntegrationsForExternalAppsAccordionQuery | undefined
   isLoadingTaxProviders: boolean
   getTaxProviderFromCode: (code: string | undefined) => IntegrationTypeEnum | undefined
@@ -35,6 +35,7 @@ export const useTaxProviders = (): {
   const { data: taxProviders, loading: isLoadingTaxProviders } =
     useGetTaxIntegrationsForExternalAppsAccordionQuery({
       variables: { limit: 1000 },
+      skip,
     })
 
   const getTaxProviderFromCode = (code: string | undefined): IntegrationTypeEnum | undefined => {

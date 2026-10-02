@@ -2,6 +2,7 @@ import { IconName } from 'lago-design-system'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
+import { tw } from '~/styles/utils'
 
 type SectionHeaderAction = {
   label: string
@@ -17,14 +18,20 @@ export type SectionHeaderProps = {
   title: string
   description?: string
   action?: SectionHeaderAction
+  contentClassName?: string
 }
 
-export const SectionHeader = ({ title, description, action }: SectionHeaderProps) => {
+export const SectionHeader = ({
+  title,
+  description,
+  action,
+  contentClassName,
+}: SectionHeaderProps) => {
   const showAction = !!action && !action.hidden
 
   return (
     <div className="flex items-start justify-between gap-4">
-      <div className="flex flex-col gap-1">
+      <div className={tw('flex flex-col gap-1', contentClassName)}>
         <Typography variant="subhead1" color="grey700">
           {title}
         </Typography>

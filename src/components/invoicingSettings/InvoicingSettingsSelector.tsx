@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
@@ -6,7 +6,7 @@ import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { InvoicingSettingsDrawer, InvoicingSettingsDrawerRef } from './InvoicingSettingsDrawer'
+import { useInvoicingSettingsDrawer } from './useInvoicingSettingsDrawer'
 
 export const INVOICING_SETTINGS_SELECTOR_TEST_ID = 'invoicing-settings-selector'
 
@@ -39,9 +39,15 @@ export const InvoicingSettingsSelector = ({
   'data-test': dataTest = INVOICING_SETTINGS_SELECTOR_TEST_ID,
 }: InvoicingSettingsSelectorProps) => {
   const { translate } = useInternationalization()
-  const drawerRef = useRef<InvoicingSettingsDrawerRef>(null)
 
   const showCustomSection = !!customerId
+
+  const { openDrawer } = useInvoicingSettingsDrawer({
+    viewType,
+    customerId,
+    showCustomSection,
+    onSave: ({ invoiceCustomSection }) => onChange(invoiceCustomSection),
+  })
 
   const summary = useMemo(() => {
     if (value?.skipInvoiceCustomSections) return translate(INVOICING_SUMMARY_KEYS.skip)
@@ -51,23 +57,13 @@ export const InvoicingSettingsSelector = ({
   }, [value, translate])
 
   return (
-    <>
-      <Selector
-        icon="document"
-        title={translate('text_17423672025282dl7iozy1ru')}
-        subtitle={summary}
-        endContent={<Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />}
-        onClick={() => drawerRef.current?.openDrawer({ invoiceCustomSection: value })}
-        data-test={dataTest}
-      />
-
-      <InvoicingSettingsDrawer
-        ref={drawerRef}
-        viewType={viewType}
-        customerId={customerId}
-        showCustomSection={showCustomSection}
-        onSave={({ invoiceCustomSection }) => onChange(invoiceCustomSection)}
-      />
-    </>
+    <Selector
+      icon="document"
+      title={translate('text_17423672025282dl7iozy1ru')}
+      subtitle={summary}
+      endContent={<Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />}
+      onClick={() => openDrawer({ invoiceCustomSection: value })}
+      data-test={dataTest}
+    />
   )
 }

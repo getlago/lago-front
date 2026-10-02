@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { useCallback, useId, useMemo, useState } from 'react'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { useCallback, useEffect, useId, useMemo, useState } from 'react'
 import { generatePath, useParams } from 'react-router'
-import { array, object, string } from 'yup'
 
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
@@ -10,7 +9,7 @@ import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { ComboBox, ComboBoxField, ComboboxItem } from '~/components/form'
+import { ComboBox, ComboboxItem } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PrivilegeValueInputComponent } from '~/components/plans/PrivilegeValueInputComponent'
 import { addToast } from '~/core/apolloClient'
@@ -19,6 +18,7 @@ import {
   SEARCH_SUBSCRIPTION_ENTITLEMENT_PRIVILEGE_SELECT_OPTIONS_INPUT_CLASSNAME,
 } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
@@ -27,14 +27,40 @@ import {
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
   CreateOrUpdateSubscriptionEntitlementInput,
-  PrivilegeValueTypeEnum,
-  SubscriptionEntitlement,
   useCreateOrUpdateSubscriptionEntitlementMutation,
   useGetSubscriptionDataForEntitlementFormQuery,
   useGetSubscriptionEntitlementToEditQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useFieldContext } from '~/hooks/forms/formContext'
+import { useAppForm } from '~/hooks/forms/useAppform'
+import {
+  mapEntitlementToFormValues,
+  mapPrivilegeConfigToFormValue,
+  mapPrivilegesToApiInput,
+} from '~/pages/subscriptions/subscriptionEntitlementForm/mappers'
+import {
+  SubscriptionEntitlementPrivilegeFormValue,
+  subscriptionEntitlementValidationSchema,
+} from '~/pages/subscriptions/subscriptionEntitlementForm/validationSchema'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
+
+export const SUBSCRIPTION_ENTITLEMENT_FORM_ID = 'subscription-entitlement-form'
+
+export const SUBSCRIPTION_ENTITLEMENT_FORM_CLOSE_BUTTON_TEST_ID =
+  'subscription-entitlement-form-close-button'
+export const SUBSCRIPTION_ENTITLEMENT_FORM_CANCEL_BUTTON_TEST_ID =
+  'subscription-entitlement-form-cancel-button'
+export const SUBSCRIPTION_ENTITLEMENT_FORM_SUBMIT_BUTTON_TEST_ID =
+  'subscription-entitlement-form-submit-button'
+export const SUBSCRIPTION_ENTITLEMENT_FORM_FEATURE_INPUT_TEST_ID =
+  'subscription-entitlement-form-feature-input'
+export const SUBSCRIPTION_ENTITLEMENT_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID =
+  'subscription-entitlement-form-add-privilege-button'
+export const SUBSCRIPTION_ENTITLEMENT_FORM_PRIVILEGE_INPUT_TEST_ID =
+  'subscription-entitlement-form-privilege-input'
+export const SUBSCRIPTION_ENTITLEMENT_FORM_CANCEL_PRIVILEGE_BUTTON_TEST_ID =
+  'subscription-entitlement-form-cancel-privilege-button'
 
 gql`
   query getSubscriptionDataForEntitlementForm($subscriptionId: ID!) {
@@ -93,6 +119,41 @@ gql`
     }
   }
 `
+
+// The value cell is not a registered field wrapper, so the error has to be read
+// off the field store by hand and shown as a tooltip: the inputs only take a
+// boolean error flag, and helper text would change the row height.
+const PrivilegeValueCell = ({
+  privilege,
+}: {
+  privilege: SubscriptionEntitlementPrivilegeFormValue
+}) => {
+  const { translate } = useInternationalization()
+  const field = useFieldContext<string>()
+
+  const errorMessage = useStore(field.store, (state) => state.meta.errors)
+    .map((error) => error?.message)
+    .filter(Boolean)
+    .join(' ')
+
+  return (
+    <Tooltip
+      title={errorMessage ? translate(errorMessage) : ''}
+      disableHoverListener={!errorMessage}
+      placement="top"
+    >
+      <PrivilegeValueInputComponent
+        translate={translate}
+        name={field.name}
+        valueType={privilege.valueType}
+        value={field.state.value}
+        config={privilege.config}
+        error={!!errorMessage}
+        onChange={(value) => field.handleChange(value || '')}
+      />
+    </Tooltip>
+  )
+}
 
 const SubscriptionEntitlementForm = () => {
   const { entitlementCode = '', customerId = '', planId = '', subscriptionId = '' } = useParams()
@@ -171,49 +232,24 @@ const SubscriptionEntitlementForm = () => {
     },
   })
 
-  const formikProps = useFormik<Pick<SubscriptionEntitlement, 'code' | 'privileges'>>({
-    initialValues: {
-      code: existingEntitlement?.code || '',
-      privileges:
-        existingEntitlement?.privileges?.map((privilege) => ({
-          value: privilege?.value || '',
-          name: privilege?.name || '',
-          code: privilege?.code || '',
-          valueType: privilege?.valueType || PrivilegeValueTypeEnum.Boolean,
-          config: privilege?.config || undefined,
-        })) || [],
+  const form = useAppForm({
+    defaultValues: mapEntitlementToFormValues(existingEntitlement),
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: subscriptionEntitlementValidationSchema,
     },
-    validationSchema: object().shape({
-      code: string().required(''),
-      privileges: array()
-        .of(
-          object().shape({
-            code: string().required(''),
-            value: string().required(''),
-            valueType: string().required(''),
-            config: object().nullable(),
-          }),
-        )
-        .nullable(),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: async ({ code, ...values }) => {
+    onSubmitInvalid({ formApi }) {
+      scrollToFirstInputError(
+        SUBSCRIPTION_ENTITLEMENT_FORM_ID,
+        (formApi.state.errorMap.onDynamic || {}) as Record<string, unknown>,
+      )
+    },
+    onSubmit: async ({ value }) => {
       const input = {
         subscriptionId,
         entitlement: {
-          ...values,
-          featureCode: code || '',
-          privileges: values.privileges?.map((privilege) => ({
-            ...privilege,
-            privilegeCode: privilege.code || '',
-            value: privilege.value || '',
-            // Reset UI fields cause BE does not accept them
-            config: undefined,
-            name: undefined,
-            code: undefined,
-            valueType: undefined,
-          })),
+          featureCode: value.code,
+          privileges: mapPrivilegesToApiInput(value.privileges),
         },
       } satisfies CreateOrUpdateSubscriptionEntitlementInput
 
@@ -224,6 +260,17 @@ const SubscriptionEntitlementForm = () => {
       })
     },
   })
+
+  const isDirty = useStore(form.store, (state) => !state.isDefaultValue)
+  const featureCode = useStore(form.store, (state) => state.values.code)
+  const privileges = useStore(form.store, (state) => state.values.privileges)
+
+  useEffect(() => {
+    if (existingEntitlement) {
+      form.reset(mapEntitlementToFormValues(existingEntitlement))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existingEntitlement])
 
   const featuresListComboboxData = useMemo(() => {
     if (!subscriptionData) return []
@@ -256,9 +303,7 @@ const SubscriptionEntitlementForm = () => {
   const privilegesListComboBoxData = useMemo(() => {
     if (!subscriptionData?.features?.collection?.length) return []
 
-    const feature = subscriptionData.features.collection.find(
-      (f) => f.code === formikProps.values.code,
-    )
+    const feature = subscriptionData.features.collection.find((f) => f.code === featureCode)
 
     if (!feature) return []
 
@@ -275,237 +320,224 @@ const SubscriptionEntitlementForm = () => {
           </Typography>
         </ComboboxItem>
       ),
-      disabled: formikProps.values.privileges?.some(
-        (privilegeForUpdate) => privilegeForUpdate.code === privilege.code,
-      ),
+      disabled: privileges.some((privilegeForUpdate) => privilegeForUpdate.code === privilege.code),
     }))
-  }, [
-    formikProps.values.code,
-    formikProps.values.privileges,
-    subscriptionData?.features?.collection,
-  ])
+  }, [featureCode, privileges, subscriptionData?.features?.collection])
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    form.handleSubmit()
+  }
 
   return (
     <CenteredPage.Wrapper>
-      <CenteredPage.Header>
-        <div className="flex gap-2">
-          <Typography variant="bodyHl" color="textSecondary" noWrap>
-            {translate(
-              isEdition ? 'text_17561254890571tcj63iu382' : 'text_1753864223060devvklm7vk0',
-            )}
-          </Typography>
-          <Chip size="small" label={translate('text_65d8d71a640c5400917f8a13')} />
-        </div>
-        <Button
-          variant="quaternary"
-          icon="close"
-          onClick={() => (formikProps.dirty ? openDirtyAttributesWarning() : onLeave())}
-        />
-      </CenteredPage.Header>
+      <form
+        id={SUBSCRIPTION_ENTITLEMENT_FORM_ID}
+        className="flex min-h-full flex-col"
+        onSubmit={handleSubmit}
+      >
+        <CenteredPage.Header>
+          <div className="flex gap-2">
+            <Typography variant="bodyHl" color="textSecondary" noWrap>
+              {translate(
+                isEdition ? 'text_17561254890571tcj63iu382' : 'text_1753864223060devvklm7vk0',
+              )}
+            </Typography>
+            <Chip size="small" label={translate('text_65d8d71a640c5400917f8a13')} />
+          </div>
+          <Button
+            variant="quaternary"
+            icon="close"
+            data-test={SUBSCRIPTION_ENTITLEMENT_FORM_CLOSE_BUTTON_TEST_ID}
+            onClick={() => (isDirty ? openDirtyAttributesWarning() : onLeave())}
+          />
+        </CenteredPage.Header>
 
-      <CenteredPage.Container>
-        {isLoading && <FormLoadingSkeleton id="create-alert" />}
-        {!isLoading && (
-          <>
-            <div className="not-last-child:mb-1">
-              <Typography variant="headline" color="grey700">
-                {translate('text_1756125489057x892tvlnat0')}
-              </Typography>
-              <Typography variant="body" color="grey600">
-                {translate('text_17538642230602p03937fj0f')}
-              </Typography>
-            </div>
+        <CenteredPage.Container>
+          {isLoading && <FormLoadingSkeleton id="create-alert" />}
+          {!isLoading && (
+            <>
+              <div className="not-last-child:mb-1">
+                <Typography variant="headline" color="grey700">
+                  {translate('text_1756125489057x892tvlnat0')}
+                </Typography>
+                <Typography variant="body" color="grey600">
+                  {translate('text_17538642230602p03937fj0f')}
+                </Typography>
+              </div>
 
-            <div className="flex flex-col gap-12">
-              <section className="not-last-child:mb-6">
-                <div className="not-last-child:mb-2">
-                  <Typography variant="subhead1">
-                    {translate('text_17561254890572l8l58nidzn')}
-                  </Typography>
-                  <Typography variant="caption">
-                    {translate('text_1756125489057oq6le0rt7mw')}
-                  </Typography>
-                </div>
-                <div className="flex flex-col gap-12 *:flex-1">
-                  <ComboBoxField
-                    name="code"
-                    disableClearable={isEdition}
-                    placeholder={translate('text_1753864223060h6i2e7303eb')}
-                    disabled={isEdition}
-                    loading={subscriptionLoading}
-                    data={featuresListComboboxData}
-                    formikProps={formikProps}
-                  />
+              <div className="flex flex-col gap-12">
+                <section className="not-last-child:mb-6">
+                  <div className="not-last-child:mb-2">
+                    <Typography variant="subhead1">
+                      {translate('text_17561254890572l8l58nidzn')}
+                    </Typography>
+                    <Typography variant="caption">
+                      {translate('text_1756125489057oq6le0rt7mw')}
+                    </Typography>
+                  </div>
+                  <div className="flex flex-col gap-12 *:flex-1">
+                    <form.AppField name="code">
+                      {(field) => (
+                        <field.ComboBoxField
+                          disableClearable={isEdition}
+                          placeholder={translate('text_1753864223060h6i2e7303eb')}
+                          disabled={isEdition}
+                          loading={subscriptionLoading}
+                          data={featuresListComboboxData}
+                          dataTest={SUBSCRIPTION_ENTITLEMENT_FORM_FEATURE_INPUT_TEST_ID}
+                        />
+                      )}
+                    </form.AppField>
 
-                  {!!formikProps.values.privileges.length && (
-                    <div className="-mx-4 -my-1 w-full overflow-auto px-4 py-1">
-                      <ChargeTable
-                        className="w-full"
-                        name={`feature-entitlement-${formikProps.values.code}-privilege-table`}
-                        data={formikProps.values.privileges || []}
-                        deleteTooltipContent={translate('text_17538642230608t3xmlgja96')}
-                        onDeleteRow={(row) => {
-                          formikProps.setFieldValue(
-                            'privileges',
-                            formikProps.values.privileges?.filter(
-                              (privilegeForUpdate) => privilegeForUpdate.code !== row.code,
-                            ),
-                          )
-                        }}
-                        columns={[
-                          {
-                            size: 300,
-                            title: (
-                              <Typography variant="captionHl" className="px-4">
-                                {translate('text_175386422306019wldpp8h5q')}
-                              </Typography>
-                            ),
-                            content: (row) => (
-                              <Typography variant="body" color="grey700" className="px-4">
-                                {row.name || row.code}
-                              </Typography>
-                            ),
-                          },
-                          {
-                            size: 300,
-                            title: (
-                              <Typography variant="captionHl" className="px-4">
-                                {translate('text_63fcc3218d35b9377840f5ab')}
-                              </Typography>
-                            ),
-                            content: (row) => {
-                              return (
-                                <PrivilegeValueInputComponent
-                                  translate={translate}
-                                  valueType={row.valueType}
-                                  value={row.value || ''}
-                                  config={row.config}
-                                  onChange={(value) => {
-                                    formikProps.setFieldValue(
-                                      'privileges',
-                                      formikProps.values.privileges?.map((privilegeForUpdate) =>
-                                        privilegeForUpdate.code === row.code
-                                          ? {
-                                              ...privilegeForUpdate,
-                                              value,
-                                            }
-                                          : privilegeForUpdate,
-                                      ),
-                                    )
-                                  }}
-                                />
-                              )
+                    {!!privileges.length && (
+                      <div className="-mx-4 -my-1 w-full overflow-auto px-4 py-1">
+                        <ChargeTable
+                          className="w-full"
+                          name={`feature-entitlement-${featureCode}-privilege-table`}
+                          data={privileges}
+                          deleteTooltipContent={translate('text_17538642230608t3xmlgja96')}
+                          onDeleteRow={(_row, index) => {
+                            form.removeFieldValue('privileges', index)
+                          }}
+                          columns={[
+                            {
+                              size: 300,
+                              title: (
+                                <Typography variant="captionHl" className="px-4">
+                                  {translate('text_175386422306019wldpp8h5q')}
+                                </Typography>
+                              ),
+                              content: (row) => (
+                                <Typography variant="body" color="grey700" className="px-4">
+                                  {row.name || row.code}
+                                </Typography>
+                              ),
                             },
-                          },
-                        ]}
-                      />
-                    </div>
-                  )}
+                            {
+                              size: 300,
+                              title: (
+                                <Typography variant="captionHl" className="px-4">
+                                  {translate('text_63fcc3218d35b9377840f5ab')}
+                                </Typography>
+                              ),
+                              content: (row, rowIndex) => (
+                                <form.AppField name={`privileges[${rowIndex}].value`}>
+                                  {() => <PrivilegeValueCell privilege={row} />}
+                                </form.AppField>
+                              ),
+                            },
+                          ]}
+                        />
+                      </div>
+                    )}
 
-                  {displayAddPrivilegeInput ? (
-                    <div className="flex w-full items-center gap-3">
-                      <ComboBox
-                        disableClearable
-                        containerClassName="w-full"
-                        placeholder={translate('text_1753864223060yk3svyv4dpr')}
-                        loading={subscriptionLoading}
-                        data={privilegesListComboBoxData}
-                        className={privilegeSearchClassName}
-                        onChange={(selectedPrivilege) => {
-                          if (!selectedPrivilege) return
+                    {displayAddPrivilegeInput ? (
+                      <div className="flex w-full items-center gap-3">
+                        <ComboBox
+                          disableClearable
+                          containerClassName="w-full"
+                          placeholder={translate('text_1753864223060yk3svyv4dpr')}
+                          loading={subscriptionLoading}
+                          data={privilegesListComboBoxData}
+                          className={privilegeSearchClassName}
+                          data-test={SUBSCRIPTION_ENTITLEMENT_FORM_PRIVILEGE_INPUT_TEST_ID}
+                          onChange={(selectedPrivilege) => {
+                            if (!selectedPrivilege) return
 
-                          const selectedPrivilegeFullData =
-                            subscriptionData?.features?.collection.find(
-                              (feature) => feature.code === formikProps.values.code,
+                            const selectedFeature = subscriptionData?.features?.collection.find(
+                              (feature) => feature.code === featureCode,
                             )
 
-                          if (!selectedPrivilegeFullData) {
-                            setDisplayAddPrivilegeInput(false)
-                            return
-                          }
-
-                          const selectedPrivilegeFullDataPrivilege =
-                            selectedPrivilegeFullData.privileges.find(
+                            const selectedPrivilegeFullData = selectedFeature?.privileges.find(
                               (privilege) => privilege.code === selectedPrivilege,
                             )
 
-                          if (!selectedPrivilegeFullDataPrivilege) {
-                            setDisplayAddPrivilegeInput(false)
-                            return
-                          }
+                            if (!selectedPrivilegeFullData) {
+                              setDisplayAddPrivilegeInput(false)
+                              return
+                            }
 
-                          formikProps.setFieldValue('privileges', [
-                            ...(formikProps.values.privileges || []),
-                            {
-                              code: selectedPrivilegeFullDataPrivilege.code,
-                              config: selectedPrivilegeFullDataPrivilege.config || undefined,
-                              name: selectedPrivilegeFullDataPrivilege.name,
+                            form.pushFieldValue('privileges', {
+                              code: selectedPrivilegeFullData.code,
+                              config: mapPrivilegeConfigToFormValue(
+                                selectedPrivilegeFullData.config,
+                              ),
+                              name: selectedPrivilegeFullData.name || '',
                               value: '',
-                              valueType: selectedPrivilegeFullDataPrivilege.valueType,
-                            },
-                          ])
+                              valueType: selectedPrivilegeFullData.valueType,
+                            })
 
-                          setDisplayAddPrivilegeInput(false)
-                        }}
-                      />
-                      <Tooltip
-                        placement="top-end"
-                        title={translate('text_63aa085d28b8510cd46443ff')}
-                      >
-                        <Button
-                          variant="quaternary"
-                          icon="trash"
-                          onClick={() => {
                             setDisplayAddPrivilegeInput(false)
                           }}
                         />
-                      </Tooltip>
-                    </div>
-                  ) : (
-                    <Tooltip
-                      title={translate('text_1756125489057qfgsq8im2b2')}
-                      placement="top-start"
-                      disableHoverListener={!!formikProps.values.code}
-                    >
-                      <Button
-                        align="left"
-                        variant="inline"
-                        startIcon="plus"
-                        disabled={!formikProps.values.code}
-                        onClick={() => {
-                          setDisplayAddPrivilegeInput(true)
-
-                          scrollToAndClickElement({
-                            selector: `.${privilegeSearchClassName} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                          })
-                        }}
+                        <Tooltip
+                          placement="top-end"
+                          title={translate('text_63aa085d28b8510cd46443ff')}
+                        >
+                          <Button
+                            variant="quaternary"
+                            icon="trash"
+                            data-test={
+                              SUBSCRIPTION_ENTITLEMENT_FORM_CANCEL_PRIVILEGE_BUTTON_TEST_ID
+                            }
+                            onClick={() => {
+                              setDisplayAddPrivilegeInput(false)
+                            }}
+                          />
+                        </Tooltip>
+                      </div>
+                    ) : (
+                      <Tooltip
+                        title={translate('text_1756125489057qfgsq8im2b2')}
+                        placement="top-start"
+                        disableHoverListener={!!featureCode}
                       >
-                        {translate('text_1753864223060n9hxs03sa15')}
-                      </Button>
-                    </Tooltip>
-                  )}
-                </div>
-              </section>
-            </div>
-          </>
-        )}
-      </CenteredPage.Container>
+                        <Button
+                          align="left"
+                          variant="inline"
+                          startIcon="plus"
+                          disabled={!featureCode}
+                          data-test={SUBSCRIPTION_ENTITLEMENT_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID}
+                          onClick={() => {
+                            setDisplayAddPrivilegeInput(true)
 
-      <CenteredPage.StickyFooter>
-        <Button
-          variant="quaternary"
-          onClick={() => (formikProps.dirty ? openDirtyAttributesWarning() : onLeave())}
-        >
-          {translate('text_6411e6b530cb47007488b027')}
-        </Button>
-        <Button
-          variant="primary"
-          disabled={!formikProps.isValid || !formikProps.dirty || isLoading}
-          onClick={formikProps.submitForm}
-        >
-          {translate(isEdition ? 'text_17432414198706rdwf76ek3u' : 'text_17561254890574dcio8alli4')}
-        </Button>
-      </CenteredPage.StickyFooter>
+                            scrollToAndClickElement({
+                              selector: `.${privilegeSearchClassName} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                            })
+                          }}
+                        >
+                          {translate('text_1753864223060n9hxs03sa15')}
+                        </Button>
+                      </Tooltip>
+                    )}
+                  </div>
+                </section>
+              </div>
+            </>
+          )}
+        </CenteredPage.Container>
+
+        <CenteredPage.StickyFooter>
+          <Button
+            variant="quaternary"
+            data-test={SUBSCRIPTION_ENTITLEMENT_FORM_CANCEL_BUTTON_TEST_ID}
+            onClick={() => (isDirty ? openDirtyAttributesWarning() : onLeave())}
+          >
+            {translate('text_6411e6b530cb47007488b027')}
+          </Button>
+          <form.AppForm>
+            <form.SubmitButton
+              dataTest={SUBSCRIPTION_ENTITLEMENT_FORM_SUBMIT_BUTTON_TEST_ID}
+              disabled={isLoading}
+            >
+              {translate(
+                isEdition ? 'text_17432414198706rdwf76ek3u' : 'text_17561254890574dcio8alli4',
+              )}
+            </form.SubmitButton>
+          </form.AppForm>
+        </CenteredPage.StickyFooter>
+      </form>
     </CenteredPage.Wrapper>
   )
 }

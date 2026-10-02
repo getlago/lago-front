@@ -1,5 +1,5 @@
 // Brand logos belong here only as 16x16 glyphs; the plated versions live in the repo
-// root's `src/public/images` — see `.agents/docs/icons-and-logos.md`.
+// root's `src/public/images` - see `.agents/skills/lago-frontend-patterns/references/icons-and-logos.md`.
 import Alphabet from '~/icons/alphabet.svg'
 import Apps from '~/icons/apps.svg'
 import ArrowBackUp from '~/icons/arrow-back-up.svg'
@@ -48,6 +48,7 @@ import ContentCenterAlign from '~/icons/content-center-align.svg'
 import ContentJustifyAlign from '~/icons/content-justify-align.svg'
 import ContentLeftAlign from '~/icons/content-left-align.svg'
 import ContentRightAlign from '~/icons/content-right-align.svg'
+import Contract from '~/icons/contract.svg'
 import Coupon from '~/icons/coupon.svg'
 import Descending from '~/icons/descending.svg'
 import Document from '~/icons/document.svg'
@@ -80,6 +81,7 @@ import Heart from '~/icons/heart.svg'
 import History from '~/icons/history.svg'
 import Id from '~/icons/id.svg'
 import Image from '~/icons/image.svg'
+import Indent from '~/icons/indent.svg'
 import InfoCircle from '~/icons/info-circle.svg'
 import InlineCode from '~/icons/inline-code.svg'
 import Italic from '~/icons/italic.svg'
@@ -205,6 +207,7 @@ export const ALL_ICONS = {
   command: Command,
   company: Company,
   condition: Condition,
+  contract: Contract,
   'content-center-align': ContentCenterAlign,
   'content-justify-align': ContentJustifyAlign,
   'content-left-align': ContentLeftAlign,
@@ -241,6 +244,7 @@ export const ALL_ICONS = {
   history: History,
   id: Id,
   image: Image,
+  indent: Indent,
   'info-circle': InfoCircle,
   'inline-code': InlineCode,
   italic: Italic,

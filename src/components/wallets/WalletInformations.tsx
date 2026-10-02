@@ -9,7 +9,7 @@ import { useResolvedPaymentMethodValue } from '~/components/paymentMethodSelecti
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
-import { CurrencyEnum, WalletDetailsFragment } from '~/generated/graphql'
+import { CurrencyEnum, FeatureFlagEnum, WalletDetailsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
@@ -17,6 +17,7 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { tw } from '~/styles/utils'
 
 export const WALLET_INFORMATIONS_CONTAINER_TEST_ID = 'wallet-informations-container'
+export const WALLET_INFORMATIONS_PAYMENT_SECTION_TEST_ID = 'wallet-informations-payment-section'
 
 type WalletInformationsProps = {
   wallet?: WalletDetailsFragment | null
@@ -36,8 +37,11 @@ const SectionTitle = ({ title, subtitle }: { title: string; subtitle: string }) 
 
 const WalletInformations = ({ wallet }: WalletInformationsProps) => {
   const { translate } = useInternationalization()
-  const { intlFormatDateTimeOrgaTZ, organization: { defaultCurrency } = {} } =
-    useOrganizationInfos()
+  const {
+    intlFormatDateTimeOrgaTZ,
+    hasFeatureFlag,
+    organization: { defaultCurrency } = {},
+  } = useOrganizationInfos()
 
   const { data: paymentMethodsList } = usePaymentMethodsList({
     externalCustomerId: wallet?.customer?.externalId || '',
@@ -86,7 +90,10 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
 
   const showAppliesToSection =
     !!wallet?.appliesTo?.feeTypes?.length || !!wallet?.appliesTo?.billableMetrics?.length
-  const showPaymentSection = paymentMethodValue !== '-' || showWalletInvoiceCustomSectionsRow
+  // With multi_connection on this row lives on the External apps tab (WalletExternalApps).
+  const showPaymentMethodRow =
+    !hasFeatureFlag(FeatureFlagEnum.MultiConnection) && paymentMethodValue !== '-'
+  const showPaymentSection = showPaymentMethodRow || showWalletInvoiceCustomSectionsRow
 
   return (
     <div data-test={WALLET_INFORMATIONS_CONTAINER_TEST_ID} className="flex flex-col gap-12">
@@ -206,7 +213,10 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
       )}
 
       {showPaymentSection && (
-        <section className={tw(sectionClassName, 'shadow-b-none')}>
+        <section
+          data-test={WALLET_INFORMATIONS_PAYMENT_SECTION_TEST_ID}
+          className={tw(sectionClassName, 'shadow-b-none')}
+        >
           <SectionTitle
             title={translate('text_1772536695408rpehpvkgn9s')}
             subtitle={translate('text_1772536695408eev9wm37z9t')}
@@ -214,11 +224,15 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
 
           <DetailsPage.InfoGrid
             grid={[
-              {
-                label: translate('text_1773043324341qj7t72i7qnk'),
-                value: paymentMethodValue,
-              },
-              { label: '', value: '' },
+              ...(showPaymentMethodRow
+                ? [
+                    {
+                      label: translate('text_1773043324341qj7t72i7qnk'),
+                      value: paymentMethodValue,
+                    },
+                    { label: '', value: '' },
+                  ]
+                : []),
               ...(showWalletInvoiceCustomSectionsRow
                 ? [
                     {

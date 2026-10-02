@@ -92,6 +92,18 @@ export const ComboBox = ({
     return foundGroup ? renderGroupInputStartAdornment[foundGroup] : undefined
   }, [data, renderGroupInputStartAdornment, value])
 
+  // Build the Popper component once. Calling the factory inline in the JSX would create a new
+  // component type on every render, so MUI would unmount + remount the whole popper on each
+  // render — remounting the virtualized list and scrolling it back to the top. The factory only
+  // reads placement/displayInDialog, so memoize on those.
+  const PopperComponent = useMemo(
+    () => ComboBoxPopperFactory(PopperProps),
+    // Depend on the fields the factory reads, not the PopperProps object: a consumer passing an
+    // inline object would otherwise change identity every render and defeat the memo.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [PopperProps?.placement, PopperProps?.displayInDialog],
+  )
+
   return (
     <Autocomplete
       className={containerClassName}
@@ -206,7 +218,7 @@ export const ComboBox = ({
           maxHeight: `${COMBOBOX_CONFIG.getListboxMaxHeight()}px`,
         },
       }}
-      PopperComponent={ComboBoxPopperFactory(PopperProps)}
+      PopperComponent={PopperComponent}
       getOptionDisabled={(option) => !!option?.disabled}
       getOptionLabel={(option) => {
         const optionForString =

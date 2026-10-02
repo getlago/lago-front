@@ -83,7 +83,6 @@ type MultipleLineChartProps<T> = {
 }
 
 type CustomTooltipProps<T> = {
-  includeHidden: boolean
   active: boolean
   currency: CurrencyEnum
   payload: Payload<ValueType & { payload: T }, NameType>[] | undefined
@@ -389,7 +388,7 @@ const MultipleLineChart = <T extends DataItem>({
               }}
               offset={0}
               position={{ y: yTooltipPosition }}
-              content={({ active, payload, includeHidden }) => (
+              content={({ active, payload }) => (
                 <div className="min-w-90 rounded-xl bg-grey-700 px-4 py-3">
                   {!!payload && (
                     <CustomTooltip
@@ -399,7 +398,6 @@ const MultipleLineChart = <T extends DataItem>({
                       // Payload does not cast T type from data, so we have to manually override
                       payload={payload as unknown as CustomTooltipProps<T>['payload']}
                       timeGranularity={timeGranularity}
-                      includeHidden={!!includeHidden}
                     />
                   )}
                 </div>

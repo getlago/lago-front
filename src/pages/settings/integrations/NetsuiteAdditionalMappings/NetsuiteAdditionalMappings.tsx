@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import {
@@ -11,10 +11,10 @@ import {
   IntegrationItem,
   IntegrationItemsTable,
 } from '~/pages/settings/integrations/IntegrationItem'
-import { NetsuiteAdditionalMappingDrawer } from '~/pages/settings/integrations/NetsuiteAdditionalMappings/NetsuiteAdditionalMappingDrawer'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-import { NetsuiteAdditionalMappingDrawerRef, NetsuiteAdditionalMappingsProps } from './types'
+import { NetsuiteAdditionalMappingsProps } from './types'
+import { useNetsuiteAdditionalMappingDrawer } from './useNetsuiteAdditionalMappingDrawer'
 
 const NetsuiteAdditionalMappings = ({ integrationId }: NetsuiteAdditionalMappingsProps) => {
   const { translate } = useInternationalization()
@@ -30,7 +30,7 @@ const NetsuiteAdditionalMappings = ({ integrationId }: NetsuiteAdditionalMapping
     fetchPolicy: 'no-cache',
   })
 
-  const netsuiteIntegrationMapItemDrawerRef = useRef<NetsuiteAdditionalMappingDrawerRef>(null)
+  const { openDrawer } = useNetsuiteAdditionalMappingDrawer()
 
   const integrationMappings = useMemo(() => {
     return (
@@ -65,17 +65,14 @@ const NetsuiteAdditionalMappings = ({ integrationId }: NetsuiteAdditionalMapping
   }
 
   return (
-    <>
-      <IntegrationItemsTable
-        integrationId={integrationId}
-        integrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
-        items={defaultListToDisplay}
-        provider={IntegrationTypeEnum.Netsuite}
-        isLoading={isLoading}
-        displayBillingEntities={false}
-      />
-      <NetsuiteAdditionalMappingDrawer ref={netsuiteIntegrationMapItemDrawerRef} />
-    </>
+    <IntegrationItemsTable
+      integrationId={integrationId}
+      openCurrenciesMappingDrawer={openDrawer}
+      items={defaultListToDisplay}
+      provider={IntegrationTypeEnum.Netsuite}
+      isLoading={isLoading}
+      displayBillingEntities={false}
+    />
   )
 }
 

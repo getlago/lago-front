@@ -17,6 +17,13 @@ jest.mock('~/components/dialogs/FormDialogOpeningDialog', () => ({
   useFormDialogOpeningDialog: () => ({ open: mockDialogOpen, close: jest.fn() }),
 }))
 
+// The dialog reaches NetsuiteIntegrationDetails for its tab enum, which pulls in
+// the NiceModal drawer stack (import.meta, unparseable by jest).
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 // Identity translate so the surfaced error renders as its message key and can be
 // asserted through the exported constant (never a raw translation literal).
 jest.mock('~/hooks/core/useInternationalization', () => ({

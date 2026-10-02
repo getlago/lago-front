@@ -9,6 +9,10 @@ export enum ConnectionCategory {
   Crm = 'crm',
 }
 
+/** Categories whose customer connections live on `Customer.integrationCustomers` */
+export type IntegrationConnectionCategory =
+  ConnectionCategory.Accounting | ConnectionCategory.Crm | ConnectionCategory.Tax
+
 export const CONNECTION_CATEGORY_LABEL_KEYS: Record<ConnectionCategory, string> = {
   [ConnectionCategory.Payment]: 'text_634ea0ecc6147de10ddb6631',
   [ConnectionCategory.Accounting]: 'text_66423cad72bbad009f2f568f',

@@ -1,12 +1,9 @@
 import { useStore } from '@tanstack/react-form'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
-import {
-  InvoicingSettingsDrawer,
-  InvoicingSettingsDrawerRef,
-} from '~/components/invoicingSettings/InvoicingSettingsDrawer'
+import { useInvoicingSettingsDrawer } from '~/components/invoicingSettings/useInvoicingSettingsDrawer'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -25,9 +22,9 @@ const invoicingSettingsSectionDefaultProps: InvoicingSettingsSectionExtraProps =
 }
 
 // Entry point for the subscription invoicing settings: a Selector card that
-// previews the current choices and opens the InvoicingSettingsDrawer. Keeps the
-// preview summary, the drawer ref and the save wiring in one place instead of
-// scattering them across the (already large) CreateSubscription form.
+// previews the current choices and opens the invoicing settings drawer. Keeps the
+// preview summary and the save wiring in one place instead of scattering them
+// across the (already large) CreateSubscription form.
 export const InvoicingSettingsSection = withForm({
   defaultValues: buildSubscriptionDefaultValues(
     undefined,
@@ -37,13 +34,23 @@ export const InvoicingSettingsSection = withForm({
   props: invoicingSettingsSectionDefaultProps,
   render: function InvoicingSettingsSectionRender({ form, customerId }) {
     const { translate } = useInternationalization()
-    const drawerRef = useRef<InvoicingSettingsDrawerRef>(null)
 
     // Reactive slices so the card preview re-renders when the drawer saves.
     const consolidateInvoice = useStore(form.store, (s) => s.values.consolidateInvoice)
     const invoiceCustomSection = useStore(form.store, (s) => s.values.invoiceCustomSection)
 
     const showCustomSection = !!customerId
+
+    const { openDrawer } = useInvoicingSettingsDrawer({
+      viewType: ViewTypeEnum.Subscription,
+      customerId,
+      showCustomSection,
+      withInvoiceConsolidation: true,
+      onSave: ({ consolidateInvoice: nextConsolidateInvoice, invoiceCustomSection: nextIcs }) => {
+        form.setFieldValue('consolidateInvoice', nextConsolidateInvoice)
+        form.setFieldValue('invoiceCustomSection', nextIcs)
+      },
+    })
 
     const summary = useMemo(() => {
       const consolidationKey =
@@ -69,36 +76,19 @@ export const InvoicingSettingsSection = withForm({
     }, [consolidateInvoice, invoiceCustomSection, showCustomSection, translate])
 
     return (
-      <>
-        <Selector
-          icon="document"
-          title={translate('text_17423672025282dl7iozy1ru')}
-          subtitle={summary}
-          endContent={<Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />}
-          onClick={() =>
-            drawerRef.current?.openDrawer({
-              consolidateInvoice: consolidateInvoice ?? true,
-              invoiceCustomSection,
-            })
-          }
-          data-test="invoicing-settings-selector"
-        />
-
-        <InvoicingSettingsDrawer
-          ref={drawerRef}
-          viewType={ViewTypeEnum.Subscription}
-          customerId={customerId}
-          showCustomSection={showCustomSection}
-          withInvoiceConsolidation
-          onSave={({
-            consolidateInvoice: nextConsolidateInvoice,
-            invoiceCustomSection: nextIcs,
-          }) => {
-            form.setFieldValue('consolidateInvoice', nextConsolidateInvoice)
-            form.setFieldValue('invoiceCustomSection', nextIcs)
-          }}
-        />
-      </>
+      <Selector
+        icon="document"
+        title={translate('text_17423672025282dl7iozy1ru')}
+        subtitle={summary}
+        endContent={<Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />}
+        onClick={() =>
+          openDrawer({
+            consolidateInvoice: consolidateInvoice ?? true,
+            invoiceCustomSection,
+          })
+        }
+        data-test="invoicing-settings-selector"
+      />
     )
   },
 })

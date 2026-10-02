@@ -11,6 +11,7 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction, MainHeaderEntityConfig } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import WalletAlerts from '~/components/wallets/WalletAlerts'
+import WalletExternalApps from '~/components/wallets/WalletExternalApps'
 import WalletInformations from '~/components/wallets/WalletInformations'
 import WalletRecurringRules from '~/components/wallets/WalletRecurringRules'
 import { WalletTransactions } from '~/components/wallets/WalletTransactions'
@@ -24,6 +25,7 @@ import {
 } from '~/core/router'
 import { getCustomerDisplayName } from '~/core/utils/getCustomerDisplayName'
 import {
+  FeatureFlagEnum,
   useGetWalletDetailsQuery,
   WalletInfosForTransactionsFragmentDoc,
   WalletStatusEnum,
@@ -67,6 +69,11 @@ gql`
         brand
         last4
       }
+    }
+    connections {
+      category
+      behavior
+      code
     }
     billingEntityId
     customer {
@@ -117,6 +124,11 @@ gql`
       paymentMethod {
         id
       }
+      connections {
+        category
+        behavior
+        code
+      }
       skipInvoiceCustomSections
       selectedInvoiceCustomSections {
         id
@@ -139,6 +151,7 @@ gql`
 export enum WalletDetailsTabsOptionsEnum {
   overview = 'overview',
   recurringRule = 'recurring-rule',
+  externalApps = 'external-apps',
   transactions = 'transactions',
   alerts = 'alerts',
 }
@@ -165,7 +178,7 @@ const SectionTitle = ({
 const WalletDetails = () => {
   const { translate } = useInternationalization()
   const { walletId, customerId } = useParams()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ, hasFeatureFlag } = useOrganizationInfos()
   const { hasPermissions } = usePermissions()
   const activeTabContent = useMainHeaderTabContent()
 
@@ -197,6 +210,7 @@ const WalletDetails = () => {
   // alert) is hidden the same way the wallet actions menu is (see WalletActions), and the
   // terminated status is surfaced as a header badge since the page otherwise never shows it.
   const isWalletActive = wallet?.status === WalletStatusEnum.Active
+  const isMultiConnectionEnabled = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
   const canEditWallet = hasPermissions(['walletsUpdate']) && isWalletActive
 
   const headerBadges: MainHeaderEntityConfig['badges'] =
@@ -237,7 +251,7 @@ const WalletDetails = () => {
                   {canEditWallet && (
                     <ButtonLink
                       buttonProps={{
-                        variant: 'quaternary',
+                        variant: 'inline',
                       }}
                       type="button"
                       to={generatePath(EDIT_WALLET_ROUTE, {
@@ -246,7 +260,7 @@ const WalletDetails = () => {
                       })}
                       data-test="edit-wallet"
                     >
-                      {translate('text_62e161ceb87c201025388aa2')}
+                      {translate('text_63e51ef4985f0ebd75c212fc')}
                     </ButtonLink>
                   )}
                 </>
@@ -274,7 +288,7 @@ const WalletDetails = () => {
                   {canEditWallet && (
                     <ButtonLink
                       buttonProps={{
-                        variant: 'quaternary',
+                        variant: 'inline',
                       }}
                       type="button"
                       to={generatePath(EDIT_WALLET_ROUTE, {
@@ -283,17 +297,34 @@ const WalletDetails = () => {
                       })}
                       routerState={{ openRecurringRuleDrawer: true }}
                     >
-                      {translate('text_62e161ceb87c201025388aa2')}
+                      {translate('text_63e51ef4985f0ebd75c212fc')}
                     </ButtonLink>
                   )}
                 </>
               }
             />
 
-            <WalletRecurringRules wallet={wallet} />
+            <WalletRecurringRules wallet={wallet} canEditWallet={canEditWallet} />
           </DetailsPage.Container>
         ),
       },
+      ...(isMultiConnectionEnabled
+        ? [
+            {
+              title: translate('text_17895579723912nhrvw71sp8'),
+              link: generatePath(WALLET_DETAILS_ROUTE, {
+                walletId,
+                customerId,
+                tab: WalletDetailsTabsOptionsEnum.externalApps,
+              }),
+              content: (
+                <DetailsPage.Container className="mt-12">
+                  <WalletExternalApps wallet={wallet} canEditWallet={canEditWallet} />
+                </DetailsPage.Container>
+              ),
+            },
+          ]
+        : []),
       {
         title: translate('text_1772536695408zfepv8jb948'),
         link: generatePath(WALLET_DETAILS_ROUTE, {
@@ -350,7 +381,7 @@ const WalletDetails = () => {
         ),
       },
     ]
-  }, [translate, walletId, customerId, wallet, loading, canEditWallet])
+  }, [translate, walletId, customerId, wallet, loading, canEditWallet, isMultiConnectionEnabled])
 
   const headerActions: MainHeaderAction[] = [
     {

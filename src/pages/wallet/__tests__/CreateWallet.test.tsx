@@ -28,6 +28,29 @@ const mockOpenRuleDrawer = jest.fn()
 let mockWalletData: unknown = undefined
 let mockWalletLoading = false
 let mockLocationState: Record<string, unknown> | null = null
+let mockHasFeatureFlag = false
+
+const mockConnectionPaymentSelector = jest.fn()
+const mockAdditionalIntegrationSelector = jest.fn()
+
+jest.mock('~/components/paymentSettings/connectionFirst/ConnectionPaymentSettingsSelector', () => ({
+  ConnectionPaymentSettingsSelector: (props: Record<string, unknown>) => {
+    mockConnectionPaymentSelector(props)
+
+    return null
+  },
+}))
+
+jest.mock(
+  '~/components/additionalIntegrationSettings/AdditionalIntegrationSettingsSelector',
+  () => ({
+    AdditionalIntegrationSettingsSelector: (props: Record<string, unknown>) => {
+      mockAdditionalIntegrationSelector(props)
+
+      return null
+    },
+  }),
+)
 
 // The drawer stack relies on import.meta (unsupported in jest)
 jest.mock('~/components/drawers/useDrawer', () => ({
@@ -78,7 +101,7 @@ jest.mock('~/components/dialogs/CentralizedDialog', () => ({
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: { defaultCurrency: 'USD' },
-    hasFeatureFlag: () => false,
+    hasFeatureFlag: () => mockHasFeatureFlag,
   }),
 }))
 
@@ -126,6 +149,7 @@ describe('CreateWallet', () => {
     mockWalletData = undefined
     mockWalletLoading = false
     mockLocationState = null
+    mockHasFeatureFlag = false
   })
 
   describe('GIVEN the creation mode', () => {
@@ -389,6 +413,42 @@ describe('CreateWallet', () => {
         render(<CreateWallet />)
 
         expect(mockOpenRuleDrawer).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN entered from an External apps tab Edit link', () => {
+      beforeEach(() => {
+        mockHasFeatureFlag = true
+      })
+
+      it.each([
+        ['openConnectionPaymentDrawer', () => mockConnectionPaymentSelector],
+        ['openAdditionalIntegrationDrawer', () => mockAdditionalIntegrationSelector],
+      ])('THEN %s should auto-open only its own selector', (stateKey, getSelectorMock) => {
+        mockLocationState = { [stateKey]: true }
+
+        render(<CreateWallet />)
+
+        const otherSelectorMock =
+          getSelectorMock() === mockConnectionPaymentSelector
+            ? mockAdditionalIntegrationSelector
+            : mockConnectionPaymentSelector
+
+        expect(getSelectorMock()).toHaveBeenCalledWith(expect.objectContaining({ autoOpen: true }))
+        expect(otherSelectorMock).not.toHaveBeenCalledWith(
+          expect.objectContaining({ autoOpen: true }),
+        )
+      })
+
+      it('THEN should leave both selectors closed without an intent flag', () => {
+        render(<CreateWallet />)
+
+        expect(mockConnectionPaymentSelector).toHaveBeenCalledWith(
+          expect.objectContaining({ autoOpen: false }),
+        )
+        expect(mockAdditionalIntegrationSelector).toHaveBeenCalledWith(
+          expect.objectContaining({ autoOpen: false }),
+        )
       })
     })
   })

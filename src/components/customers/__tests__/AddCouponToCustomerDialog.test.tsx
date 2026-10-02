@@ -168,33 +168,14 @@ describe('useAddCouponToCustomerDialog', () => {
       })
     })
 
-    describe('WHEN the amount is still the number seeded from the coupon', () => {
-      it('THEN should submit it serialized as a number', async () => {
-        await submitWithValues({
-          couponType: CouponTypeEnum.FixedAmount,
-          amountCents: 20,
-          amountCurrency: CurrencyEnum.Usd,
-          frequency: CouponFrequency.Once,
-        })
-
-        expect(mockAddCoupon).toHaveBeenCalledWith(
-          expect.objectContaining({
-            variables: expect.objectContaining({
-              input: expect.objectContaining({ amountCents: 2000 }),
-            }),
-          }),
-        )
-      })
-    })
-
     // A 0-decimal currency makes `AmountInput` push the `int` formatter
-    // (AmountInput.tsx:50), so the input itself emits a number here — this is
-    // one of the two cases that make the `string | number` union load-bearing.
-    describe('WHEN the currency has 0 decimals, so the input emits a number', () => {
-      it('THEN should submit it serialized as a number', async () => {
+    // (AmountInput.tsx:50), which used to emit a number here while every other
+    // currency emitted a string.
+    describe('WHEN the currency has 0 decimals', () => {
+      it('THEN should submit the string amount serialized as a number', async () => {
         await submitWithValues({
           couponType: CouponTypeEnum.FixedAmount,
-          amountCents: 1200,
+          amountCents: '1200',
           amountCurrency: CurrencyEnum.Jpy,
           frequency: CouponFrequency.Once,
         })
@@ -306,28 +287,6 @@ describe('useAddCouponToCustomerDialog', () => {
       })
     })
 
-    // The `int` formatter runs `parseInt` (TextInput.tsx:85), so the duration
-    // input always emits a number — the other half of why the union is needed.
-    describe('WHEN the duration is a number, as the `int` formatter produces', () => {
-      it('THEN should submit it unchanged', async () => {
-        await submitWithValues({
-          couponType: CouponTypeEnum.FixedAmount,
-          amountCents: '20',
-          amountCurrency: CurrencyEnum.Usd,
-          frequency: CouponFrequency.Recurring,
-          frequencyDuration: 12,
-        })
-
-        expect(mockAddCoupon).toHaveBeenCalledWith(
-          expect.objectContaining({
-            variables: expect.objectContaining({
-              input: expect.objectContaining({ frequencyDuration: 12 }),
-            }),
-          }),
-        )
-      })
-    })
-
     describe('WHEN the duration is below the minimum', () => {
       it('THEN should not call the mutation', async () => {
         const { submitError } = await submitWithValues({
@@ -349,7 +308,7 @@ describe('useAddCouponToCustomerDialog', () => {
   // rendered input actually stores. This types into it instead.
   describe('GIVEN the rendered duration input', () => {
     describe('WHEN the user types a duration', () => {
-      it('THEN should store a number, since the `int` formatter runs parseInt', async () => {
+      it('THEN should store a string, not the parseInt result', async () => {
         const { config, form } = await openDialog()
 
         await act(async () => {
@@ -367,7 +326,7 @@ describe('useAddCouponToCustomerDialog', () => {
           fireEvent.change(input as HTMLInputElement, { target: { value: '12' } })
         })
 
-        expect(form.getFieldValue('frequencyDuration')).toBe(12)
+        expect(form.getFieldValue('frequencyDuration')).toBe('12')
       })
     })
   })

@@ -21,7 +21,6 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
   CustomerWalletFragment,
-  TimezoneEnum,
   useGetCustomerWalletListQuery,
   WalletForUpdateFragmentDoc,
   WalletInfosForTransactionsFragmentDoc,
@@ -89,7 +88,6 @@ export const CUSTOMER_WALLET_LIST_EMPTY_TEST_ID = 'customer-wallet-list-empty'
 
 interface CustomerWalletListProps {
   customerId: string
-  customerTimezone?: TimezoneEnum
 }
 
 export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => {

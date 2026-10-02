@@ -61,6 +61,7 @@ const buildContract = (
   endedAt: null,
   name: 'Premium contract',
   externalId: 'premium-contract',
+  plan: { __typename: 'CatalogPlan', id: 'plan-1', name: 'Premium plan' },
   ...overrides,
 })
 
@@ -168,8 +169,8 @@ describe('CatalogPlanContracts', () => {
     describe('WHEN the name column content renders', () => {
       it.each([
         { name: 'Premium contract', expected: 'Premium contract' },
-        { name: null, expected: 'premium-contract' },
-        { name: '', expected: 'premium-contract' },
+        { name: null, expected: 'Premium plan' },
+        { name: '', expected: 'Premium plan' },
       ])('THEN shows $expected for name $name', ({ name, expected }) => {
         render(<CatalogPlanContracts planCode="premium" />)
 

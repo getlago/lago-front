@@ -43,6 +43,8 @@ export const ADD_RECURRING_RULE_BUTTON_DATA_TEST = 'add-recurring-rule-button'
 export const RECURRING_RULE_INVOICING_SETTINGS_SELECTOR_DATA_TEST =
   'rule-invoicing-settings-selector'
 export const RECURRING_RULE_PAYMENT_SETTINGS_SELECTOR_DATA_TEST = 'rule-payment-settings-selector'
+export const RECURRING_RULE_ADDITIONAL_INTEGRATION_SETTINGS_SELECTOR_DATA_TEST =
+  'rule-additional-integration-settings-selector'
 
 // SettingsSection
 export const SHOW_EXPIRATION_AT_DATA_TEST = 'show-expiration-at'

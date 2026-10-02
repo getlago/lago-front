@@ -18,7 +18,7 @@ interface PaymentProviderChipProps {
   showAvatar?: boolean
 }
 
-const providerLabels: Record<ProviderTypeEnum, string> = {
+export const providerLabels: Record<ProviderTypeEnum, string> = {
   [ProviderTypeEnum.Stripe]: 'text_62b1edddbf5f461ab971277d',
   [ProviderTypeEnum.Adyen]: 'text_645d071272418a14c1c76a6d',
   [ProviderTypeEnum.Gocardless]: 'text_634ea0ecc6147de10ddb6625',

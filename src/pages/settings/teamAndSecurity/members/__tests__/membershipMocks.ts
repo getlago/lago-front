@@ -137,7 +137,7 @@ export const buildMembershipsResult = ({
 })
 
 export const ADMIN_ROLE_ID = 'role-1'
-export const FINANCE_ROLE_ID = 'role-2'
+const FINANCE_ROLE_ID = 'role-2'
 
 export const rolesListMock = {
   request: {
@@ -185,7 +185,7 @@ export const createMockInvite = (id: string, email: string, roleCodes: string[])
 })
 
 // Invites store role CODES, not names — the API resolves the filtered role ids to codes
-export const mockInvitations = [
+const mockInvitations = [
   createMockInvite('invite-1', 'test1@example.com', ['admin']),
   createMockInvite('invite-2', 'test2@example.com', ['finance']),
 ]

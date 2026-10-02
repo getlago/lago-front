@@ -1,3 +1,4 @@
+import { formatConnections } from '~/components/connectionSelection/formatConnections'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
@@ -34,6 +35,7 @@ import { TWalletDataForm } from '~/pages/wallet/types'
 const formatRecurringTransactionRules = (
   recurringTransactionRules: TWalletDataForm['recurringTransactionRules'],
   formType: keyof typeof FORM_TYPE_ENUM,
+  isMultiConnectionEnabled: boolean,
 ) => {
   if (!recurringTransactionRules || recurringTransactionRules.length === 0) return []
 
@@ -52,6 +54,10 @@ const formatRecurringTransactionRules = (
       expirationAt,
       ignorePaidTopUpLimits,
       invoiceCustomSection: ruleInvoiceCustomSection,
+      paymentConnection: rulePaymentConnection,
+      accountingConnection: ruleAccountingConnection,
+      crmConnection: ruleCrmConnection,
+      taxConnection: ruleTaxConnection,
       ...rest
     } = rule
 
@@ -91,6 +97,15 @@ const formatRecurringTransactionRules = (
       ),
       // `null` (not `undefined`) on clear → BE erases the stored value.
       purchaseOrderNumber: normalizePurchaseOrderNumber(rule.purchaseOrderNumber),
+      ...formatConnections(
+        {
+          paymentConnection: rulePaymentConnection,
+          accountingConnection: ruleAccountingConnection,
+          crmConnection: ruleCrmConnection,
+          taxConnection: ruleTaxConnection,
+        },
+        isMultiConnectionEnabled,
+      ),
     }
   })
 }
@@ -103,6 +118,7 @@ const formatAppliesTo = (appliesTo: TWalletDataForm['appliesTo']) => ({
 export const mapFormToCreateInput = (
   formValues: TWalletDataForm,
   customerId: string,
+  isMultiConnectionEnabled: boolean,
 ): CreateCustomerWalletInput => {
   const {
     grantedCredits,
@@ -113,6 +129,10 @@ export const mapFormToCreateInput = (
     appliesTo,
     priority,
     paymentMethod,
+    paymentConnection,
+    accountingConnection,
+    crmConnection,
+    taxConnection,
     invoiceCustomSection,
     billingEntityId,
     ...values
@@ -132,6 +152,7 @@ export const mapFormToCreateInput = (
     recurringTransactionRules: formatRecurringTransactionRules(
       recurringTransactionRules,
       FORM_TYPE_ENUM.creation,
+      isMultiConnectionEnabled,
     ),
     appliesTo: formatAppliesTo(appliesTo),
     paymentMethod,
@@ -142,13 +163,18 @@ export const mapFormToCreateInput = (
     ...(values.paidTopUpMaxAmountCents
       ? { paidTopUpMaxAmountCents: serializeAmount(values.paidTopUpMaxAmountCents, currency) }
       : {}),
-    priority: priority || WALLET_DEFAULT_PRIORITY,
+    priority: Number(priority) || WALLET_DEFAULT_PRIORITY,
+    ...formatConnections(
+      { paymentConnection, accountingConnection, crmConnection, taxConnection },
+      isMultiConnectionEnabled,
+    ),
   }
 }
 
 export const mapFormToUpdateInput = (
   formValues: TWalletDataForm,
   walletId: string,
+  isMultiConnectionEnabled: boolean,
 ): UpdateCustomerWalletInput => {
   /* eslint-disable @typescript-eslint/no-unused-vars -- object-rest omit: create-only fields must not reach the update input */
   const {
@@ -160,6 +186,10 @@ export const mapFormToUpdateInput = (
     appliesTo,
     priority,
     paymentMethod,
+    paymentConnection,
+    accountingConnection,
+    crmConnection,
+    taxConnection,
     invoiceCustomSection,
     billingEntityId,
     transactionName,
@@ -175,6 +205,7 @@ export const mapFormToUpdateInput = (
     recurringTransactionRules: formatRecurringTransactionRules(
       recurringTransactionRules,
       FORM_TYPE_ENUM.edition,
+      isMultiConnectionEnabled,
     ),
     id: walletId,
     // `null` (not `undefined`) on clear → BE stores NULL on the
@@ -191,6 +222,10 @@ export const mapFormToUpdateInput = (
     ...(values.paidTopUpMaxAmountCents
       ? { paidTopUpMaxAmountCents: serializeAmount(values.paidTopUpMaxAmountCents, currency) }
       : { paidTopUpMaxAmountCents: null }),
-    priority: priority || WALLET_DEFAULT_PRIORITY,
+    priority: Number(priority) || WALLET_DEFAULT_PRIORITY,
+    ...formatConnections(
+      { paymentConnection, accountingConnection, crmConnection, taxConnection },
+      isMultiConnectionEnabled,
+    ),
   }
 }
