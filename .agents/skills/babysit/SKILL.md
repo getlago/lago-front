@@ -27,8 +27,8 @@ References, read on demand rather than up front:
 - `references/slack-format.md` - `#frontend` announcement format
 
 These three describe babysit's own mechanics. **No file in this skill restates a coding
-rule.** The repo's conventions live in `CLAUDE.md`, `.agents/docs/` and the `lago-*`
-subsystem skills, and the review points at those rather than copying them. A copy would drift, and a
+rule.** The repo's conventions live in `CLAUDE.md`, `.agents/docs/` and the
+`lago-frontend-patterns` skill, and the review points at those rather than copying them. A copy would drift, and a
 stale copy enforced during review is worse than no review at all.
 
 ## The two durable-state rules
@@ -91,7 +91,7 @@ First run only. Do not write a review from scratch here. Delegate to the built-i
 `/review`, which takes a PR number.
 
 **Point it at the repo's conventions; never restate them.** `CLAUDE.md`, `.agents/docs/`
-and the `lago-*` subsystem skills are the single source of truth, and they are what coding
+and the `lago-frontend-patterns` skill are the single source of truth, and they are what coding
 sessions already load. The review reads the same files, so a rule can never be enforced in
 review while being absent from the guidance the code was written against.
 
@@ -104,15 +104,17 @@ Work out which docs the diff touches, then pass their paths:
 | `.graphql`, fragments, `src/generated/`         | `.agents/docs/graphql-fragments.md`   |
 | new files or directories **under `src/`**       | `.agents/docs/folder-architecture.md` |
 | a new or unfamiliar library                     | `.agents/docs/documentation.md`       |
-| a list, table or paginated query                | `.agents/skills/lago-pagination/SKILL.md` |
-| a drawer                                        | `.agents/skills/lago-drawers/SKILL.md` |
-| a dialog, modal or confirmation prompt          | `.agents/skills/lago-dialogs/SKILL.md` |
-| an org id or slug, or an identifier embedding one | `.agents/skills/lago-organization-slug/SKILL.md` |
+| a list, table or paginated query               | `.agents/skills/lago-frontend-patterns/references/pagination.md` |
+| a drawer                                        | `.agents/skills/lago-frontend-patterns/references/drawers.md` |
+| a dialog, modal or confirmation prompt          | `.agents/skills/lago-frontend-patterns/references/dialogs.md` |
+| a form                                          | `.agents/skills/lago-frontend-patterns/references/forms.md` |
+| an org id or slug, or an identifier embedding one | `.agents/skills/lago-frontend-patterns/references/organization-slug.md` |
+| a design-system or layout component             | `.agents/skills/lago-frontend-patterns/SKILL.md` (and the reference its index row names, if any) |
 
 `CLAUDE.md` already pulls in `.agents/docs/typescript-conventions.md` itself, and its own
 sections still cover router imports, MUI imports and translations. The pagination, drawer,
-dialog and organization-slug rules now live in the `lago-*` skills listed above. Nothing in
-any of them needs repeating here.
+dialog, form and organization-slug rules now live in `lago-frontend-patterns`, listed
+above. Nothing in it needs repeating here.
 
 ```
 Skill(skill: "review", args: `<n>
@@ -142,7 +144,7 @@ Then turn the findings into a triage list:
 
 | # | Sev  | File:line            | Finding                                  |
 |---|------|----------------------|------------------------------------------|
-| 1 | high | usePlanDrawer.tsx:42 | ref-based drawer, lago-drawers forbids   |
+| 1 | high | usePlanDrawer.tsx:42 | ref-based drawer, lago-frontend-patterns forbids |
 | 2 | med  | cache.ts             | new list field not in queryFieldPolicies |
 
 CI: 2 failing (Run linters, Tests shard 3/4) | Reviews: none | Mergeable: clean

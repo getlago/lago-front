@@ -1,0 +1,1 @@
+export const MAX_GOVERNANCE_HIERARCHY_DEPTH = 5

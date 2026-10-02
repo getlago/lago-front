@@ -1,11 +1,16 @@
 import { renderHook } from '@testing-library/react'
 
-import { PaymentMethodTypeEnum, useUpdateSubscriptionMutation } from '~/generated/graphql'
+import {
+  ConnectionBehaviorEnum,
+  PaymentMethodTypeEnum,
+  useUpdateSubscriptionMutation,
+} from '~/generated/graphql'
 
 import { useUpdateSubscriptionSettings } from '../useUpdateSubscriptionSettings'
 
 jest.mock('~/generated/graphql', () => ({
   LagoApiError: { UnprocessableEntity: 'unprocessable_entity' },
+  ConnectionBehaviorEnum: { Inherit: 'inherit', Skip: 'skip' },
   PaymentMethodTypeEnum: { Provider: 'provider', Manual: 'manual' },
   useUpdateSubscriptionMutation: jest.fn(),
 }))
@@ -22,6 +27,94 @@ describe('useUpdateSubscriptionSettings', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     ;(useUpdateSubscriptionMutation as jest.Mock).mockReturnValue([mockUpdate, {}])
+  })
+
+  it('saves additional routing without changing payment and resets inherited overrides explicitly', async () => {
+    const { result } = renderHook(() => useUpdateSubscriptionSettings('sub_1'))
+    await result.current.saveAdditionalIntegrations({
+      accounting: { code: 'netsuite_eu' },
+      crm: undefined,
+      tax: { behavior: ConnectionBehaviorEnum.Skip },
+    })
+    expect(mockUpdate).toHaveBeenCalledWith({
+      variables: {
+        input: {
+          id: 'sub_1',
+          connections: {
+            accounting: { code: 'netsuite_eu' },
+            crm: { behavior: ConnectionBehaviorEnum.Inherit },
+            tax: { behavior: ConnectionBehaviorEnum.Skip },
+          },
+        },
+      },
+    })
+  })
+
+  it('rejects a failed additional integration save', async () => {
+    mockUpdate.mockResolvedValueOnce({ data: { updateSubscription: null } })
+    const { result } = renderHook(() => useUpdateSubscriptionSettings('sub_1'))
+    await expect(
+      result.current.saveAdditionalIntegrations({
+        accounting: undefined,
+        crm: undefined,
+        tax: undefined,
+      }),
+    ).rejects.toThrow('Subscription update failed')
+  })
+
+  describe('GIVEN a payment connection choice from the overview', () => {
+    it.each([
+      { code: 'stripe_eu' },
+      { behavior: ConnectionBehaviorEnum.Inherit },
+      { behavior: ConnectionBehaviorEnum.Skip },
+    ])(
+      'THEN should persist %j and the method together without changing other categories',
+      async (connection) => {
+        const { result } = renderHook(() => useUpdateSubscriptionSettings('sub_1'))
+        const paymentMethod = {
+          paymentMethodId: null,
+          paymentMethodType: PaymentMethodTypeEnum.Provider,
+        }
+
+        await result.current.savePayment({ connection, paymentMethod })
+        expect(mockUpdate).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              id: 'sub_1',
+              connections: { payment: connection },
+              paymentMethod,
+            },
+          },
+        })
+      },
+    )
+
+    it('THEN should omit untouched routing even when a connection field is supplied', async () => {
+      const { result } = renderHook(() => useUpdateSubscriptionSettings('sub_1'))
+
+      await result.current.savePayment({ connection: undefined, paymentMethod: undefined })
+      expect(mockUpdate).toHaveBeenCalledWith({
+        variables: { input: { id: 'sub_1', paymentMethod: undefined } },
+      })
+    })
+
+    it('THEN should reject an unsuccessful connection save so the drawer keeps its draft', async () => {
+      mockUpdate.mockResolvedValueOnce({ data: { updateSubscription: null } })
+      const { result } = renderHook(() => useUpdateSubscriptionSettings('sub_1'))
+
+      await expect(
+        result.current.savePayment({ connection: { code: 'stripe_eu' }, paymentMethod: undefined }),
+      ).rejects.toThrow('Subscription update failed')
+    })
+
+    it('THEN should propagate a mutation rejection', async () => {
+      mockUpdate.mockRejectedValueOnce(new Error('Network unavailable'))
+      const { result } = renderHook(() => useUpdateSubscriptionSettings('sub_1'))
+
+      await expect(
+        result.current.savePayment({ connection: { code: 'stripe_eu' }, paymentMethod: undefined }),
+      ).rejects.toThrow('Network unavailable')
+    })
   })
 
   it('savePayment sends the payment method on the subscription input', async () => {

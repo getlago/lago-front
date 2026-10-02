@@ -1,0 +1,140 @@
+@layer components {
+  .v2-text-page-title,
+  .v2-text-section-title,
+  .v2-text-group-title,
+  .v2-text-body,
+  .v2-text-body-large,
+  .v2-text-label,
+  .v2-text-caption,
+  .v2-text-number-small,
+  .v2-text-number,
+  .v2-text-number-large,
+  .v2-text-code {
+    --v2-font-sans: Inter, Arial, Verdana, Helvetica, sans-serif;
+    --v2-font-numeric: var(--v2-font-sans);
+    --v2-font-mono: 'IBM Plex Mono', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    --v2-size-12: 0.75rem;
+    --v2-size-14: 0.875rem;
+    --v2-size-16: 1rem;
+    --v2-size-18: 1.125rem;
+    --v2-size-24: 1.5rem;
+    --v2-line-height-16: 1rem;
+    --v2-line-height-20: 1.25rem;
+    --v2-line-height-24: 1.5rem;
+    --v2-line-height-32: 2rem;
+    --v2-weight-regular: 400;
+    --v2-weight-medium: 500;
+    --v2-weight-semibold: 600;
+    --v2-tracking: -0.08px;
+    font-family: var(--v2-font-sans);
+    letter-spacing: var(--v2-tracking);
+    font-variant-numeric: normal;
+  }
+
+  .v2-text-page-title {
+    font-size: var(--v2-size-24);
+    line-height: var(--v2-line-height-32);
+    font-weight: var(--v2-weight-semibold, 600);
+  }
+
+  .v2-text-section-title {
+    font-size: var(--v2-size-18);
+    line-height: var(--v2-line-height-24);
+    font-weight: var(--v2-weight-semibold, 600);
+  }
+
+  .v2-text-group-title {
+    font-size: var(--v2-size-16);
+    line-height: var(--v2-line-height-24);
+    font-weight: var(--v2-weight-semibold, 600);
+  }
+
+  .v2-text-body {
+    font-size: var(--v2-size-14);
+    line-height: var(--v2-line-height-20);
+    font-weight: var(--v2-weight-regular, 400);
+  }
+
+  .v2-text-body-large {
+    font-size: var(--v2-size-16);
+    line-height: var(--v2-line-height-24);
+    font-weight: var(--v2-weight-regular, 400);
+  }
+
+  .v2-text-label {
+    font-size: var(--v2-size-14);
+    line-height: var(--v2-line-height-20);
+    font-weight: var(--v2-weight-medium, 500);
+  }
+
+  .v2-text-caption {
+    font-size: var(--v2-size-12);
+    line-height: var(--v2-line-height-16);
+    font-weight: var(--v2-weight-regular, 400);
+  }
+
+  .v2-text-number-small {
+    font-size: var(--v2-size-12);
+    line-height: var(--v2-line-height-16);
+    font-weight: var(--v2-weight-regular, 400);
+  }
+
+  .v2-text-number {
+    font-size: var(--v2-size-14);
+    line-height: var(--v2-line-height-20);
+    font-weight: var(--v2-weight-regular, 400);
+  }
+
+  .v2-text-number-large {
+    font-size: var(--v2-size-16);
+    line-height: var(--v2-line-height-24);
+    font-weight: var(--v2-weight-regular, 400);
+  }
+
+  .v2-text-code {
+    font-size: var(--v2-size-14);
+    line-height: var(--v2-line-height-20);
+    font-weight: var(--v2-weight-regular, 400);
+  }
+
+  .v2-text-code {
+    font-family: var(--v2-font-mono);
+  }
+
+  .v2-text-number-small,
+  .v2-text-number,
+  .v2-text-number-large {
+    font-family: var(--v2-font-numeric);
+    font-variant-numeric: lining-nums tabular-nums slashed-zero;
+  }
+
+  .v2-emphasis {
+    font-weight: var(--v2-weight-medium, 500);
+  }
+
+  input.v2-text-body::file-selector-button {
+    font: inherit;
+    font-weight: var(--v2-weight-medium, 500);
+    letter-spacing: inherit;
+  }
+}
+
+/* The existing unlayered anchor rules require an equally explicit v2 override. */
+a.v2-inline-link {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  color: theme(colors.blue.DEFAULT);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+a.v2-inline-link:hover {
+  text-decoration-thickness: 2px;
+}
+
+a.v2-inline-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}

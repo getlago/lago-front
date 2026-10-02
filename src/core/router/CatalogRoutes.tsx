@@ -34,7 +34,7 @@ export const CATALOG_PLAN_DETAILS_ROUTE = '/plan-pricing/:catalogPlanId/:tab'
 export const CATALOG_PLAN_DETAILS_SECTION_ROUTE = '/plan-pricing/:catalogPlanId/overview/:section'
 export const CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE =
   '/plan-pricing/:catalogPlanId/rate-cards/:appliedRateCardId'
-export const CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_ROUTE =
+const CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_ROUTE =
   '/plan-pricing/:catalogPlanId/rate-cards/:appliedRateCardId/phases/:phaseId'
 
 export const catalogRoutes: CustomRouteObject[] = [

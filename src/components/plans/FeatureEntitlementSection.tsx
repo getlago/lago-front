@@ -52,7 +52,6 @@ gql`
 
 interface FeatureEntitlementSectionProps {
   form: PlanFormType
-  isEdition?: boolean
 }
 
 export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({ form }) => {

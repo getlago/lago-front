@@ -20,7 +20,7 @@ export interface DatesOffsetHelperTranslationKeys {
   willEnd: string
 }
 
-export const SUBSCRIPTION_DATES_OFFSET_KEYS: DatesOffsetHelperTranslationKeys = {
+const SUBSCRIPTION_DATES_OFFSET_KEYS: DatesOffsetHelperTranslationKeys = {
   willStart: 'text_64ef8cc7c83f5d006131a488',
   started: 'text_64ef81071c6da2010dd24b1d',
   noEnd: 'text_64ef81071c6da2010dd24b1e',

@@ -379,7 +379,6 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
 
     return (
       <Drawer
-        className="px-12 pt-12"
         ref={drawerRef}
         title={translate('text_1741944051511ju78ai43hw9')}
         onClose={onClose}

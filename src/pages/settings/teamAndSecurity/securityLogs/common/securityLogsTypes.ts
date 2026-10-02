@@ -14,11 +14,19 @@ export type SecurityLogWithId = SecurityLog & { id: string }
 // instead of silently accessing undefined fields.
 
 export const apiKeyResourceSchema = z.object({
-  name: z.string(),
+  name: z
+    .union([
+      z.string(),
+      z.object({
+        added: z.string().optional(),
+        deleted: z.string().optional(),
+      }),
+    ])
+    .nullish(),
   value_ending: z.union([z.string(), z.number()]),
 })
 export const rotatedApiKeyResourceSchema = z.object({
-  name: z.string(),
+  name: z.string().nullish(),
   value_ending: z.object({
     deleted: z.string(),
     added: z.string(),

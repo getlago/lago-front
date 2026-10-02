@@ -317,7 +317,7 @@ const CreatePlan = () => {
 
                     <CommitmentsSection form={form} />
 
-                    <FeatureEntitlementSection form={form} isEdition={isEdition} />
+                    <FeatureEntitlementSection form={form} />
 
                     <PlanMetadataSection form={form} />
                   </CenteredPage.SubsectionWrapper>

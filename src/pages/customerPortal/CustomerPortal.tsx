@@ -42,11 +42,7 @@ const CustomerPortal = () => {
 
   const { pathname } = useCustomerPortalNavigation()
 
-  const {
-    data: portalData,
-    loading: portalDataLoading,
-    error: portalDataError,
-  } = useCustomerPortalData()
+  const { data: portalData, loading: portalDataLoading } = useCustomerPortalData()
 
   const portalOrganization = portalData?.customerPortalOrganization
 
@@ -81,7 +77,6 @@ const CustomerPortal = () => {
             organizationLogoUrl={portalOrganization?.logoUrl}
             showPoweredBy={showPoweredBy}
             isLoading={portalDataLoading}
-            isError={portalDataError}
           />
         )}
 
@@ -135,7 +130,6 @@ const CustomerPortal = () => {
           organizationName={portalOrganization?.name}
           organizationLogoUrl={portalOrganization?.logoUrl}
           isLoading={portalDataLoading}
-          isError={portalDataError}
         />
       )}
 

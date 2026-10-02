@@ -26,6 +26,7 @@ const COLUMN_MIN_WIDTH = 200
 const IntegrationItemsTable = ({
   integrationId,
   integrationMapItemDrawerRef,
+  openCurrenciesMappingDrawer,
   items,
   provider,
   isLoading,
@@ -134,14 +135,15 @@ const IntegrationItemsTable = ({
 
     if (isItemMappingForKeyForCurrenciesMapping(item, itemMappingPerBillingEntity, 'default')) {
       return () =>
-        integrationMapItemDrawerRef.current?.openDrawer({
-          ...props,
+        openCurrenciesMappingDrawer?.({
+          integrationId,
+          type: item.mappingType,
           itemId: itemMappingPerBillingEntity.default.itemId || undefined,
           mappings: itemMappingPerBillingEntity.default.currencies || [],
         })
     }
 
-    return () => integrationMapItemDrawerRef.current?.openDrawer(props)
+    return () => integrationMapItemDrawerRef?.current?.openDrawer(props)
   }
 
   const handleRowActionClick = (item: IntegrationItemData): void => {

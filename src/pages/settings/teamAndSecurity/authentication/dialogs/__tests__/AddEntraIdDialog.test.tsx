@@ -262,17 +262,18 @@ describe('AddEntraIdDialog', () => {
       })
     }
 
-    it('prefills the form with the integration values', async () => {
+    it('prefills the form without the client secret', async () => {
       await prepareEdit()
 
       expect(screen.getByLabelText(/Your domain name/i)).toHaveValue('example.com')
       expect(screen.getByLabelText(/Host \(optional\)/i)).toHaveValue('login.microsoftonline.com')
       expect(screen.getByLabelText(/Entra ID client ID/i)).toHaveValue('client-id')
-      expect(screen.getByLabelText(/Entra ID client secret/i)).toHaveValue('client-secret')
+      expect(screen.getByLabelText(/Entra ID client secret/i)).toHaveValue('')
+      expect(screen.getByText('Leave empty to keep the current client secret')).toBeInTheDocument()
       expect(screen.getByLabelText(/Entra ID tenant ID/i)).toHaveValue('tenant-id')
     })
 
-    it('updates the integration on submit', async () => {
+    it('omits an empty client secret when updating the integration', async () => {
       const mocks: TestMocksType = [
         {
           request: {
@@ -282,7 +283,6 @@ describe('AddEntraIdDialog', () => {
                 domain: 'edited.com',
                 host: 'login.microsoftonline.com',
                 clientId: 'client-id',
-                clientSecret: 'client-secret',
                 tenantId: 'tenant-id',
                 id: 'integration-id',
               },
@@ -308,6 +308,42 @@ describe('AddEntraIdDialog', () => {
       const submitButton = screen.getByTestId(ENTRA_ID_INTEGRATION_SUBMIT_BTN)
 
       await userEvent.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockOnSubmit).toHaveBeenCalledWith('integration-id')
+      })
+    })
+
+    it('sends a new client secret when updating the integration', async () => {
+      const mocks: TestMocksType = [
+        {
+          request: {
+            query: UpdateEntraIdIntegrationDocument,
+            variables: {
+              input: {
+                domain: 'example.com',
+                host: 'login.microsoftonline.com',
+                clientId: 'client-id',
+                clientSecret: 'new-client-secret',
+                tenantId: 'tenant-id',
+                id: 'integration-id',
+              },
+            },
+          },
+          result: {
+            data: {
+              updateEntraIdIntegration: {
+                id: 'integration-id',
+              },
+            },
+          },
+        },
+      ]
+
+      await prepareEdit({ mocks })
+
+      await userEvent.type(screen.getByLabelText(/Entra ID client secret/i), 'new-client-secret')
+      await userEvent.click(screen.getByTestId(ENTRA_ID_INTEGRATION_SUBMIT_BTN))
 
       await waitFor(() => {
         expect(mockOnSubmit).toHaveBeenCalledWith('integration-id')

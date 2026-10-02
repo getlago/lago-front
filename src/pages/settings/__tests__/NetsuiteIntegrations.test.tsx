@@ -10,6 +10,12 @@ import {
 
 import NetsuiteIntegrations from '../NetsuiteIntegrations'
 
+// The page reaches NetsuiteIntegrationDetails, which pulls in the NiceModal
+// drawer stack (import.meta, unparseable by jest).
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
 jest.mock('~/components/settings/integrations/AddNetsuiteDialog', () => ({
   useAddNetsuiteDialog: () => ({ openAddNetsuiteDialog: jest.fn() }),
 }))

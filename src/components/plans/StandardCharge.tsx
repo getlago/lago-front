@@ -11,6 +11,11 @@ gql`
     amount
     pricingGroupKeys
   }
+
+  fragment StandardChargeForRate on RateProperties {
+    amount
+    pricingGroupKeys
+  }
 `
 
 export const StandardCharge = memo(() => {

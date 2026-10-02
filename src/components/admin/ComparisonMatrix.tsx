@@ -32,7 +32,7 @@ export interface ComparisonMatrixProps {
     currentlyEnabled: boolean,
     reason: string,
     notifyOrgAdmin: boolean,
-  ) => void
+  ) => Promise<void>
 }
 
 interface FeatureRow {
@@ -158,5 +158,3 @@ export const ComparisonMatrix = ({
     />
   )
 }
-
-export default ComparisonMatrix
