@@ -1,7 +1,9 @@
+import { captureException } from '@sentry/react'
 import { renderHook } from '@testing-library/react'
 
 import { LogEventEnum, LogTypeEnum } from '~/generated/graphql'
 
+import { __resetDriftReportingForTests } from '../../common/parseSecurityLogResource'
 import { SecurityLogWithId } from '../../common/securityLogsTypes'
 import { useSecurityLogsFormatting } from '../useSecurityLogsFormatting'
 
@@ -16,6 +18,10 @@ const mockIntlFormatDateTimeOrgaTZ = jest.fn(() => ({
   date: 'Jan 15',
   time: '13:41:39',
   timezone: 'UTC',
+}))
+
+jest.mock('@sentry/react', () => ({
+  captureException: jest.fn(),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -45,6 +51,7 @@ const createMockSecurityLog = (overrides: Partial<SecurityLogWithId> = {}): Secu
 describe('useSecurityLogsFormatting', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    __resetDriftReportingForTests()
   })
 
   describe('getFormattedLogEvent', () => {
@@ -168,6 +175,115 @@ describe('useSecurityLogsFormatting', () => {
             'text_17719379870627ay1unhe3sc',
             expect.objectContaining({ apiKeyName: 'Updated Key', lastFour: 9012 }),
           )
+        })
+      })
+    })
+
+    describe('GIVEN an API key event whose name is not a plain string', () => {
+      describe('WHEN the event is ApiKeyUpdated', () => {
+        it.each([
+          { scenario: 'no rename', name: 'Admin', expected: 'Admin' },
+          { scenario: 'a rename', name: { deleted: 'Old', added: 'New' }, expected: 'New' },
+          { scenario: 'a name set from empty', name: { added: 'Admin' }, expected: 'Admin' },
+          { scenario: 'a name removed', name: { deleted: 'Old' }, expected: '-' },
+          { scenario: 'an unnamed key', name: null, expected: '-' },
+          { scenario: 'an empty diff', name: {}, expected: '-' },
+          { scenario: 'an empty string name', name: '', expected: '-' },
+        ])('THEN should display $expected for $scenario', ({ name, expected }) => {
+          const { result } = renderHook(() => useSecurityLogsFormatting())
+          const log = createMockSecurityLog({
+            logEvent: LogEventEnum.ApiKeyUpdated,
+            resources: { name, value_ending: '1cae' },
+          })
+
+          result.current.getSecurityLogDescription(log)
+
+          expect(mockTranslate).toHaveBeenCalledWith(
+            expect.any(String),
+            expect.objectContaining({ apiKeyName: expected, lastFour: '1cae' }),
+          )
+          expect(captureException).not.toHaveBeenCalled()
+        })
+
+        it('THEN should resolve the added name without reporting a drift for the production payload', () => {
+          const { result } = renderHook(() => useSecurityLogsFormatting())
+          const log = createMockSecurityLog({
+            logEvent: LogEventEnum.ApiKeyUpdated,
+            resources: {
+              name: { added: 'Admin' },
+              permissions: { deleted: ['api_log:read', 'invoice:write'] },
+              value_ending: '1cae',
+            },
+          })
+
+          result.current.getSecurityLogDescription(log)
+
+          expect(mockTranslate).toHaveBeenCalledWith(
+            expect.any(String),
+            expect.objectContaining({ apiKeyName: 'Admin', lastFour: '1cae' }),
+          )
+          expect(captureException).not.toHaveBeenCalled()
+        })
+      })
+
+      describe.each([LogEventEnum.ApiKeyCreated, LogEventEnum.ApiKeyDeleted])(
+        'WHEN the event is %s for an unnamed key',
+        (logEvent) => {
+          it('THEN should display the neutral fallback name', () => {
+            const { result } = renderHook(() => useSecurityLogsFormatting())
+            const log = createMockSecurityLog({
+              logEvent,
+              resources: { name: null, value_ending: 'abcd' },
+            })
+
+            result.current.getSecurityLogDescription(log)
+
+            expect(mockTranslate).toHaveBeenCalledWith(
+              expect.any(String),
+              expect.objectContaining({ apiKeyName: '-', lastFour: 'abcd' }),
+            )
+            expect(captureException).not.toHaveBeenCalled()
+          })
+        },
+      )
+
+      describe('WHEN the event is ApiKeyRotated for an unnamed key', () => {
+        it('THEN should display the neutral fallback name with both last fours', () => {
+          const { result } = renderHook(() => useSecurityLogsFormatting())
+          const log = createMockSecurityLog({
+            logEvent: LogEventEnum.ApiKeyRotated,
+            resources: { name: null, value_ending: { deleted: 'AAAA', added: 'BBBB' } },
+          })
+
+          result.current.getSecurityLogDescription(log)
+
+          expect(mockTranslate).toHaveBeenCalledWith(
+            expect.any(String),
+            expect.objectContaining({
+              apiKeyName: '-',
+              lastFourFrom: 'AAAA',
+              lastFourTo: 'BBBB',
+            }),
+          )
+          expect(captureException).not.toHaveBeenCalled()
+        })
+      })
+
+      describe('WHEN the payload shape is genuinely unrecognized', () => {
+        it.each([
+          { scenario: 'a numeric name', resources: { name: 42, value_ending: '1cae' } },
+          { scenario: 'a missing value_ending', resources: { name: 'Admin' } },
+        ])('THEN should fall back to unknown and report a drift for $scenario', ({ resources }) => {
+          const { result } = renderHook(() => useSecurityLogsFormatting())
+          const log = createMockSecurityLog({ logEvent: LogEventEnum.ApiKeyUpdated, resources })
+
+          result.current.getSecurityLogDescription(log)
+
+          expect(mockTranslate).toHaveBeenCalledWith(
+            expect.any(String),
+            expect.objectContaining({ apiKeyName: 'unknown', lastFour: 'XXXX' }),
+          )
+          expect(captureException).toHaveBeenCalledTimes(1)
         })
       })
     })
