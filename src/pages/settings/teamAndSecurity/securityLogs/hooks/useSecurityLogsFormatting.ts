@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 import { DateFormat, TimeFormat } from '~/core/timezone'
 import { LogEventEnum, LogTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -16,6 +18,12 @@ import {
   webhookEditedResourceSchema,
   webhookResourceSchema,
 } from '../common/securityLogsTypes'
+
+const getApiKeyDisplayName = (name: z.infer<typeof apiKeyResourceSchema>['name']): string => {
+  if (typeof name === 'string') return name || '-'
+
+  return name?.added || '-'
+}
 
 export const useSecurityLogsFormatting = () => {
   const { translate } = useInternationalization()
@@ -41,7 +49,7 @@ export const useSecurityLogsFormatting = () => {
     if (!parsed) return { apiKeyName: 'unknown', lastFour: 'XXXX' }
 
     return {
-      apiKeyName: parsed.name,
+      apiKeyName: getApiKeyDisplayName(parsed.name),
       lastFour: parsed.value_ending,
     }
   }
@@ -52,7 +60,7 @@ export const useSecurityLogsFormatting = () => {
     if (!parsed) return { apiKeyName: 'unknown', lastFourFrom: 'XXXX', lastFourTo: 'XXXX' }
 
     return {
-      apiKeyName: parsed.name,
+      apiKeyName: getApiKeyDisplayName(parsed.name),
       lastFourFrom: parsed.value_ending.deleted,
       lastFourTo: parsed.value_ending.added,
     }
