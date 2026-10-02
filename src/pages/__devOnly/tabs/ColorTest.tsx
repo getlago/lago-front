@@ -56,7 +56,7 @@ export const ColorTest = () => {
           <div>
             <h2 className="v2-text-page-title">Color foundation</h2>
             <p className="mt-2 text-v2-text-muted">
-              74 primitives · 45 semantic roles · isolated shadcn preview
+              75 primitives · 45 semantic roles · isolated shadcn preview
             </p>
           </div>
           <Button
@@ -194,7 +194,7 @@ export const ColorTest = () => {
 
         <details>
           <summary className="v2-text-section-title cursor-pointer">
-            Primitive palette — 74 colors
+            Primitive palette — 75 colors
           </summary>
           <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
             {Object.entries(colorPrimitives).map(([name, value]) => (
@@ -245,9 +245,9 @@ export const ColorTest = () => {
           </div>
         </details>
         <p className="v2-text-caption text-v2-text-muted">
-          Contrast review: light selected text remains brand-600 on brand-100 (3.81:1), matching
-          Figma. Light text-subtle is 3.19:1 on white. These pairings need review for normal-size
-          text.
+          Contrast review: selected uses brand-600 at 12% with solid brand-600 text in both themes.
+          This pairing needs review for normal-size text on light and dark surfaces. Light
+          text-subtle is 3.19:1 on white.
         </p>
         {open && <ColorDialog onClose={() => setOpen(false)} />}
       </V2Theme>

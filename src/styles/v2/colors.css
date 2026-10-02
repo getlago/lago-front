@@ -1,5 +1,6 @@
 /* Scoped to shadcn roots and v2 sections; no global or legacy token overrides. */
 .v2-theme {
+  --v2-alpha-brand-12: rgb(0 108 250 / 12%);
   --v2-neutral-50: #fbfbfb;
   --v2-neutral-100: #ececee;
   --v2-neutral-200: #d9d9d9;
@@ -91,7 +92,7 @@
   --v2-color-action-primary-foreground: var(--v2-white);
   --v2-color-interactive-hover: var(--v2-alpha-black-04);
   --v2-color-interactive-pressed: var(--v2-alpha-black-08);
-  --v2-color-selected: var(--v2-brand-100);
+  --v2-color-selected: var(--v2-alpha-brand-12);
   --v2-color-selected-foreground: var(--v2-brand-600);
   --v2-color-link: var(--v2-brand-700);
   --v2-color-link-hover: var(--v2-brand-800);
@@ -139,8 +140,8 @@
   --v2-color-action-primary-foreground: var(--v2-white);
   --v2-color-interactive-hover: var(--v2-alpha-white-06);
   --v2-color-interactive-pressed: var(--v2-alpha-white-10);
-  --v2-color-selected: var(--v2-neutral-700);
-  --v2-color-selected-foreground: var(--v2-neutral-300);
+  --v2-color-selected: var(--v2-alpha-brand-12);
+  --v2-color-selected-foreground: var(--v2-brand-600);
   --v2-color-link: var(--v2-brand-400);
   --v2-color-link-hover: var(--v2-brand-300);
   --v2-color-focus-ring: var(--v2-brand-200);

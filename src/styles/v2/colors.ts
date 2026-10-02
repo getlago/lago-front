@@ -67,6 +67,7 @@ export const colorPrimitives = {
   'red-900': '#7F1D1D',
   'red-950': '#450A0A',
   white: '#FFFFFF',
+  'alpha-brand-12': 'rgb(0 108 250 / 12%)',
   'alpha-black-04': 'rgb(0 0 0 / 4%)',
   'alpha-black-08': 'rgb(0 0 0 / 8%)',
   'alpha-black-40': 'rgb(0 0 0 / 40%)',
@@ -146,12 +147,12 @@ export const colorSemantics = {
     dark: 'alpha-white-10',
   },
   selected: {
-    light: 'brand-100',
-    dark: 'neutral-700',
+    light: 'alpha-brand-12',
+    dark: 'alpha-brand-12',
   },
   'selected-foreground': {
     light: 'brand-600',
-    dark: 'neutral-300',
+    dark: 'brand-600',
   },
   link: {
     light: 'brand-700',
