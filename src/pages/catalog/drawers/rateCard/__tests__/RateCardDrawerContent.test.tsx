@@ -32,6 +32,7 @@ import {
 
 let mockTranslationSuffix = ''
 let mockIsPremium = false
+const mockHasPermissions = jest.fn()
 
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({ isPremium: mockIsPremium }),
@@ -53,6 +54,27 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+jest.mock('~/components/taxes/TaxesSelectorSection', () => ({
+  TaxesSelectorSection: ({
+    onUpdate,
+  }: {
+    onUpdate: (taxes: Array<{ id: string; code: string; name: string; rate: number }>) => void
+  }) => (
+    <div data-test="taxes-selector-section">
+      <button
+        data-test="select-tax"
+        onClick={() => onUpdate([{ id: 'tax-1', code: 'vat_20', name: 'VAT', rate: 20 }])}
+      >
+        Select tax
+      </button>
+    </div>
+  ),
+}))
+
 // jsdom has no scrollIntoView, and `scrollToAndClickElement` calls it before the click that
 // opens the pricing unit combobox.
 Element.prototype.scrollIntoView = jest.fn()
@@ -63,6 +85,7 @@ const PRICING_UNIT_PROBE_TEST_ID = 'pricing-unit-probe'
 const PRODUCT_ID_PROBE_TEST_ID = 'product-id-probe'
 const PRORATION_PROBE_TEST_ID = 'proration-probe'
 const INVOICING_STRATEGY_PROBE_TEST_ID = 'invoicing-strategy-probe'
+const SELECTED_TAX_CODES_TEST_ID = 'selected-tax-codes'
 
 const DYNAMIC_MODEL_KEY = 'text_1727711520232zpp50zgnam5'
 const STANDARD_MODEL_KEY = 'text_624aa732d6af4e0103d40e6f'
@@ -163,6 +186,13 @@ const Harness = ({
       >
         reset for next create
       </button>
+      <form.Subscribe selector={(state) => state.values.taxes}>
+        {(taxes) => (
+          <span data-test={SELECTED_TAX_CODES_TEST_ID}>
+            {taxes.map((tax) => tax.code).join(',')}
+          </span>
+        )}
+      </form.Subscribe>
       <RateCardDrawerContent
         form={form}
         resetSignal={resetSignal}
@@ -216,6 +246,11 @@ const getAvailableModelLabels = (): string[] =>
     .map((chip) => chip.textContent ?? '')
 
 describe('RateCardDrawerContent', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockHasPermissions.mockReturnValue(true)
+  })
+
   describe('GIVEN the product selection', () => {
     it('WHEN no product is selected THEN hides invoicing settings', () => {
       renderContent()
@@ -878,4 +913,32 @@ describe('selected product reset lifecycle', () => {
       }
     },
   )
+})
+
+describe('GIVEN organization tax permissions', () => {
+  beforeEach(() => {
+    mockHasPermissions.mockReturnValue(true)
+  })
+
+  it('THEN shows the tax selector', () => {
+    renderContent()
+
+    expect(screen.getByTestId('taxes-selector-section')).toBeInTheDocument()
+  })
+
+  it('THEN hides the tax selector without the view permission', () => {
+    mockHasPermissions.mockReturnValue(false)
+
+    renderContent()
+
+    expect(screen.queryByTestId('taxes-selector-section')).not.toBeInTheDocument()
+  })
+
+  it('THEN allows changing taxes when the rate card settings are locked', async () => {
+    renderContent({ isAttached: true, hasRates: true })
+
+    await userEvent.click(screen.getByTestId('select-tax'))
+
+    expect(screen.getByTestId(SELECTED_TAX_CODES_TEST_ID)).toHaveTextContent('vat_20')
+  })
 })
