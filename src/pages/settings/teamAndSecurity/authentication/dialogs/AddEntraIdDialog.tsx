@@ -34,6 +34,7 @@ gql`
   mutation updateEntraIdIntegration($input: UpdateEntraIdIntegrationInput!) {
     updateEntraIdIntegration(input: $input) {
       id
+      ...AddEntraIdIntegrationDialog
     }
   }
 

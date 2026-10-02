@@ -18767,7 +18767,7 @@ export type UpdateEntraIdIntegrationMutationVariables = Exact<{
 }>;
 
 
-export type UpdateEntraIdIntegrationMutation = { __typename?: 'Mutation', updateEntraIdIntegration?: { __typename?: 'EntraIdIntegration', id: string } | null };
+export type UpdateEntraIdIntegrationMutation = { __typename?: 'Mutation', updateEntraIdIntegration?: { __typename?: 'EntraIdIntegration', id: string, domain: string, additionalDomains: Array<string>, clientId?: string | null, clientSecret?: any | null, tenantId: string, host?: string | null, name: string } | null };
 
 export type AddOktaIntegrationDialogFragment = { __typename?: 'OktaIntegration', id: string, domain: string, clientId?: string | null, clientSecret?: any | null, organizationName: string, host?: string | null, name: string };
 
@@ -52442,9 +52442,10 @@ export const UpdateEntraIdIntegrationDocument = gql`
     mutation updateEntraIdIntegration($input: UpdateEntraIdIntegrationInput!) {
   updateEntraIdIntegration(input: $input) {
     id
+    ...AddEntraIdIntegrationDialog
   }
 }
-    `;
+    ${AddEntraIdIntegrationDialogFragmentDoc}`;
 export type UpdateEntraIdIntegrationMutationFn = Apollo.MutationFunction<UpdateEntraIdIntegrationMutation, UpdateEntraIdIntegrationMutationVariables>;
 
 /**

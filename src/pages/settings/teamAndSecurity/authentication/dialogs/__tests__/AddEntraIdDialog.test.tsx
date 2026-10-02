@@ -1,7 +1,11 @@
+import { InMemoryCache } from '@apollo/client'
+import { MockedProvider } from '@apollo/client/testing'
 import NiceModal from '@ebay/nice-modal-react'
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
+import { ThemeProvider } from '@mui/material/styles'
+import { act, cleanup, render as rtlRender, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode, useEffect } from 'react'
+import { BrowserRouter } from 'react-router'
 
 import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import {
@@ -9,9 +13,11 @@ import {
   FORM_DIALOG_OPENING_DIALOG_NAME,
 } from '~/components/dialogs/const'
 import FormDialogOpeningDialog from '~/components/dialogs/FormDialogOpeningDialog'
+import { MainHeaderProvider } from '~/components/MainHeader/MainHeaderContext'
 import { initializeTranslations } from '~/core/apolloClient'
 import {
   AddEntraIdIntegrationDialogFragment,
+  AddEntraIdIntegrationDialogFragmentDoc,
   CreateEntraIdIntegrationDocument,
   UpdateEntraIdIntegrationDocument,
 } from '~/generated/graphql'
@@ -19,6 +25,7 @@ import {
   ENTRA_ID_INTEGRATION_SUBMIT_BTN,
   useAddEntraIdDialog,
 } from '~/pages/settings/teamAndSecurity/authentication/dialogs/AddEntraIdDialog'
+import { theme } from '~/styles'
 import { render, TestMocksType } from '~/test-utils'
 
 const mockOnSubmit = jest.fn()
@@ -300,6 +307,12 @@ describe('AddEntraIdDialog', () => {
       additionalDomains: ['de.example.com'],
     }
 
+    // The update mutation returns the dialog fields so Apollo refreshes the cached integration.
+    const updatedIntegrationResult = {
+      ...existingIntegration,
+      clientSecret: '••••••••…ret',
+    }
+
     const TestEditComponent = () => {
       const { openAddEntraIdDialog } = useAddEntraIdDialog()
 
@@ -359,9 +372,7 @@ describe('AddEntraIdDialog', () => {
           },
           result: {
             data: {
-              updateEntraIdIntegration: {
-                id: 'integration-id',
-              },
+              updateEntraIdIntegration: updatedIntegrationResult,
             },
           },
         },
@@ -402,9 +413,7 @@ describe('AddEntraIdDialog', () => {
           },
           result: {
             data: {
-              updateEntraIdIntegration: {
-                id: 'integration-id',
-              },
+              updateEntraIdIntegration: updatedIntegrationResult,
             },
           },
         },
@@ -418,6 +427,78 @@ describe('AddEntraIdDialog', () => {
       await waitFor(() => {
         expect(mockOnSubmit).toHaveBeenCalledWith('integration-id')
       })
+    })
+    it('refreshes the cached integration with the updated values', async () => {
+      const cache = new InMemoryCache()
+      const cachedIntegration = {
+        ...existingIntegration,
+        __typename: 'EntraIdIntegration' as const,
+      }
+      const integrationCacheRef = {
+        id: cache.identify(cachedIntegration),
+        fragment: AddEntraIdIntegrationDialogFragmentDoc,
+        fragmentName: 'AddEntraIdIntegrationDialog',
+      }
+
+      cache.writeFragment({ ...integrationCacheRef, data: cachedIntegration })
+
+      const mocks: TestMocksType = [
+        {
+          request: {
+            query: UpdateEntraIdIntegrationDocument,
+            variables: {
+              input: {
+                domain: 'example.com',
+                additionalDomains: ['de.example.com', 'us.example.com'],
+                host: 'login.microsoftonline.com',
+                clientId: 'client-id',
+                tenantId: 'tenant-id',
+                id: 'integration-id',
+              },
+            },
+          },
+          result: {
+            data: {
+              updateEntraIdIntegration: {
+                ...cachedIntegration,
+                clientSecret: '••••••••…ret',
+                additionalDomains: ['de.example.com', 'us.example.com'],
+              },
+            },
+          },
+        },
+      ]
+
+      await act(() =>
+        rtlRender(
+          <BrowserRouter basename="/" useTransitions={false}>
+            <MockedProvider mocks={mocks} cache={cache}>
+              <ThemeProvider theme={theme}>
+                <MainHeaderProvider>
+                  <NiceModalWrapper>
+                    <TestEditComponent />
+                  </NiceModalWrapper>
+                </MainHeaderProvider>
+              </ThemeProvider>
+            </MockedProvider>
+          </BrowserRouter>,
+        ),
+      )
+
+      await userEvent.type(
+        await screen.findByPlaceholderText('Type a domain and press Enter'),
+        'us.example.com{enter}',
+      )
+      await userEvent.click(screen.getByTestId(ENTRA_ID_INTEGRATION_SUBMIT_BTN))
+
+      await waitFor(() => {
+        expect(mockOnSubmit).toHaveBeenCalledWith('integration-id')
+      })
+
+      expect(
+        cache.readFragment<AddEntraIdIntegrationDialogFragment>(integrationCacheRef)
+          ?.additionalDomains,
+      ).toEqual(['de.example.com', 'us.example.com'])
     })
   })
 })
