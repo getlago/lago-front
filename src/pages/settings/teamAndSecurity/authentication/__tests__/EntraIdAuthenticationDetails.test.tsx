@@ -53,6 +53,7 @@ const integrationData = {
   code: 'entra_id',
   tenantId: 'test-tenant-id',
   domain: 'test.example.com',
+  additionalDomains: [] as string[],
   name: 'My Entra ID Integration',
   host: 'login.microsoftonline.com',
   __typename: 'EntraIdIntegration' as const,
@@ -107,6 +108,30 @@ describe('EntraIdAuthenticationDetails', () => {
     expect(screen.getByText('test-client-id')).toBeInTheDocument()
     expect(screen.getByText('test-client-secret')).toBeInTheDocument()
     expect(screen.getByText('test-tenant-id')).toBeInTheDocument()
+  })
+
+  it('lists the additional domains when the integration has some', async () => {
+    await prepare({
+      mocks: [
+        {
+          request: {
+            query: GetEntraIdIntegrationDocument,
+            variables: { id: 'integration-123' },
+          },
+          result: {
+            data: {
+              integration: {
+                ...integrationData,
+                additionalDomains: ['de.example.com', 'us.example.com'],
+              },
+            },
+          },
+        },
+      ],
+    })
+
+    expect(await screen.findByText('de.example.com, us.example.com')).toBeInTheDocument()
+    expect(screen.getByText('Additional domains')).toBeInTheDocument()
   })
 
   it('renders the page header with back button', async () => {

@@ -17,6 +17,7 @@ gql`
   fragment AddEntraIdIntegrationDialog on EntraIdIntegration {
     id
     domain
+    additionalDomains
     clientId
     clientSecret
     tenantId
@@ -33,6 +34,7 @@ gql`
   mutation updateEntraIdIntegration($input: UpdateEntraIdIntegrationInput!) {
     updateEntraIdIntegration(input: $input) {
       id
+      ...AddEntraIdIntegrationDialog
     }
   }
 
@@ -45,6 +47,7 @@ export const ENTRA_ID_INTEGRATION_SUBMIT_BTN = 'add-entra-id-dialog-submit-butto
 
 const defaultFormValues: CreateEntraIdIntegrationInput = {
   domain: '',
+  additionalDomains: [],
   host: '',
   clientId: '',
   clientSecret: '',
@@ -53,6 +56,12 @@ const defaultFormValues: CreateEntraIdIntegrationInput = {
 
 const validationSchema = z.object({
   domain: zodDomain,
+  additionalDomains: z
+    .array(z.string())
+    .refine(
+      (domains) => domains.every((domain) => zodDomain.safeParse(domain).success),
+      'text_664c732c264d7eed1c74fe03',
+    ),
   host: zodOptionalHost,
   clientId: z.string(),
   clientSecret: z.string(),
@@ -66,6 +75,13 @@ const fields: SSOIntegrationField<CreateEntraIdIntegrationInput>[] = [
     labelKey: 'text_1784307344255m1d8phj5f9r',
     placeholderKey: 'text_1784307344255j97hb85e9r0',
     helperKey: 'text_1784307344255lryszig50wc',
+  },
+  {
+    name: 'additionalDomains',
+    type: 'list',
+    labelKey: 'text_1790959050606st0sfgsyq08',
+    placeholderKey: 'text_1790959050607ii8cfyhk6v2',
+    helperKey: 'text_1790959050607s5l0xu9h04v',
   },
   {
     name: 'host',
@@ -109,6 +125,7 @@ export const useAddEntraIdDialog = () => {
       setFieldValue,
     ) => {
       setFieldValue('domain', integration.domain || '')
+      setFieldValue('additionalDomains', integration.additionalDomains ?? [])
       setFieldValue('host', integration.host || '')
       setFieldValue('clientId', integration.clientId || '')
       setFieldValue('tenantId', integration.tenantId || '')

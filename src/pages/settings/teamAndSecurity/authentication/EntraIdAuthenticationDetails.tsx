@@ -24,6 +24,7 @@ gql`
     code
     tenantId
     domain
+    additionalDomains
     name
     host
   }
@@ -80,6 +81,15 @@ const EntraIdAuthenticationDetails = () => {
           labelKey: 'text_1784307344255m1d8phj5f9r',
           value: currentIntegration.domain,
         },
+        ...(currentIntegration.additionalDomains.length
+          ? [
+              {
+                icon: 'globe' as const,
+                labelKey: 'text_1790959463497ioxa22pk7n6',
+                value: currentIntegration.additionalDomains.join(', '),
+              },
+            ]
+          : []),
         {
           icon: 'globe',
           labelKey: 'text_1784307344255fan2blwpos6',
