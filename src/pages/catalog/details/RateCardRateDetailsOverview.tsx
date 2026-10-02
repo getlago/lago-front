@@ -5,7 +5,6 @@ import { Status } from '~/components/designSystem/Status'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import { PlanDetailsChargeWrapperSwitch } from '~/components/plans/details/PlanDetailsChargeWrapperSwitch'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { rateCardRateStatusMapping } from '~/core/constants/statusRateCardRateMapping'
 import { RateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -32,7 +31,7 @@ import {
   BILLING_INTERVAL_UNIT_TRANSLATION_KEY,
   RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY,
 } from '../drawers/rateCardRate/constants'
-import { toChargeModel } from '../drawers/rateCardRate/utils'
+import { RateDetailsWrapperSwitch } from '../rateProperties/RateDetailsWrapperSwitch'
 
 gql`
   fragment RateCardForRateDetails on RateCard {
@@ -182,14 +181,11 @@ const RateCardRateDetailsOverview = ({
         value={translate(chargeModelLookupTranslation[rate.rateModel])}
       />
 
-      <PlanDetailsChargeWrapperSwitch
+      <RateDetailsWrapperSwitch
+        rateModel={rate.rateModel}
+        rateProperties={rate.rateProperties}
         currency={rateCard.currency}
-        chargeModel={toChargeModel(rate.rateModel)}
-        values={rate.rateProperties}
-        chargeAppliedPricingUnit={
-          pricingUnitShortName ? { pricingUnit: { shortName: pricingUnitShortName } } : undefined
-        }
-        showPresentationGroupKeys={false}
+        pricingUnitShortName={pricingUnitShortName}
       />
 
       {hasSpendingMinimum && (

@@ -9,6 +9,10 @@ gql`
   fragment CustomCharge on Properties {
     customProperties
   }
+
+  fragment CustomChargeForRate on RateProperties {
+    customProperties
+  }
 `
 
 export const CUSTOM_CHARGE_JSON_EDITOR_TEST_ID = 'custom-charge-json-editor'

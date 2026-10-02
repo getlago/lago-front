@@ -10,6 +10,7 @@ import {
 import { AllTheProviders } from '~/test-utils'
 
 import {
+  buildGraduatedRanges,
   buildRateCardForRateDetails,
   buildRateCardRate,
   buildRateProperties,
@@ -204,22 +205,7 @@ describe('RateCardRateDetailsOverview', () => {
             rateModel: RateCardRateModelEnum.Graduated,
             rateProperties: buildRateProperties({
               amount: null,
-              graduatedRanges: [
-                {
-                  __typename: 'GraduatedRange',
-                  fromValue: 0,
-                  toValue: 10,
-                  perUnitAmount: '5',
-                  flatAmount: '1',
-                },
-                {
-                  __typename: 'GraduatedRange',
-                  fromValue: 11,
-                  toValue: null,
-                  perUnitAmount: '2',
-                  flatAmount: '0',
-                },
-              ],
+              graduatedRanges: buildGraduatedRanges(),
             }),
           }),
         })

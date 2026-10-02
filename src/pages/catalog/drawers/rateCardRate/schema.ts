@@ -13,7 +13,9 @@ import {
   VALUE_REQUIRED_KEY,
 } from './constants'
 import { isEffectiveFromAppendable, toChargeModel } from './utils'
+import { validateRateTiers } from './validateRateTiers'
 
+import { isTieredRateModel } from '../../rateProperties/tiers/rateTiers'
 import {
   getAvailableRateModels,
   NO_AVAILABLE_RATE_MODELS_KEY,
@@ -116,10 +118,14 @@ export const buildRateCardRateSchema = (getContext: () => RateCardRateSchemaCont
       })
     }
 
-    validateChargeProperties(
-      toChargeModel(values.rateModel),
-      values.properties as PropertiesZodInput | undefined,
-      ctx,
-      ['properties'],
-    )
+    if (isTieredRateModel(values.rateModel)) {
+      validateRateTiers(values.rateModel, values.properties, ctx)
+    } else {
+      validateChargeProperties(
+        toChargeModel(values.rateModel),
+        values.properties as PropertiesZodInput | undefined,
+        ctx,
+        ['properties'],
+      )
+    }
   })
