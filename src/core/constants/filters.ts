@@ -35,6 +35,8 @@ export const PRODUCT_FILTER_LIST_FILTER_PREFIX = 'pif'
 
 export const RATE_CARD_LIST_FILTER_PREFIX = 'rc'
 
+export const APPLIED_RATE_CARD_LIST_FILTER_PREFIX = 'arc'
+
 export const SECURITY_LOGS_FILTER_PREFIX = 'secul'
 
 export const ADMIN_AUDIT_LOG_FILTER_PREFIX = 'aal'

@@ -160,14 +160,14 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
     {
       key: 'rateCard.name' as TableColumn<T>['key'],
       title: translate('text_17902843861564ti9tbk3ide'),
-      minWidth: 160,
-      content: (row) => <Chip label={row.rateCard.name} size="small" />,
+      minWidth: 167,
+      content: (row) => <Chip label={row.rateCard.name} />,
     },
     {
       key: 'ratePhasesCount' as TableColumn<T>['key'],
       title: translate('text_17902843861566isyrs5l0jm'),
       textAlign: 'right',
-      minWidth: 100,
+      minWidth: 88,
       content: (row) => (
         <Typography variant="body" color="grey600" noWrap>
           {row.ratePhasesCount}
@@ -191,7 +191,7 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
         hasError={hasError}
         placeholder={placeholder}
         containerSize={0}
-        rowSize={72}
+        rowSize={48}
         getRowGroupHeader={getRowGroupHeader}
         onRowActionLink={getRateCardHref}
         actionColumn={(row) => [
