@@ -4,13 +4,14 @@ import { Button } from '../button'
 import { Input } from '../input'
 import { V2Portal, V2Theme } from '../v2-theme'
 
-// These tests guard the opt-in boundary rather than any particular palette value.
+// Shadcn defaults to v2; legacy and native controls do not opt in.
 describe('v2 color isolation', () => {
   afterEach(cleanup)
 
-  it('opts in only descendants and preserves existing controls outside the boundary', () => {
+  it('defaults shadcn to light and inherits dark without marking native controls', () => {
     render(
       <>
+        <button>Native control</button>
         <Button>Outside</Button>
         <Input aria-label="Outside input" />
         <V2Theme mode="dark">
@@ -19,10 +20,15 @@ describe('v2 color isolation', () => {
         </V2Theme>
       </>,
     )
-    expect(screen.getByText('Outside')).not.toHaveClass('v2-button')
+    expect(screen.getByText('Outside')).toHaveClass('v2-theme', 'v2-button')
+    expect(screen.getByText('Outside')).toHaveAttribute('data-theme', 'light')
+    expect(screen.getByText('Native control')).not.toHaveClass('v2-theme')
     expect(screen.getByText('Outside')).toHaveClass('bg-primary')
-    expect(screen.getByLabelText('Outside input')).not.toHaveClass('v2-input')
+    expect(screen.getByLabelText('Outside input')).toHaveClass('v2-theme', 'v2-input')
+    expect(screen.getByLabelText('Outside input')).toHaveAttribute('data-theme', 'light')
     expect(screen.getByText('Inside')).toHaveClass('v2-button')
+    expect(screen.getByText('Inside')).toHaveAttribute('data-theme', 'dark')
+    expect(screen.getByLabelText('Inside input')).toHaveAttribute('data-theme', 'dark')
     expect(screen.getByLabelText('Inside input')).toHaveClass('v2-input')
     expect(document.body).not.toHaveClass('v2-theme')
   })

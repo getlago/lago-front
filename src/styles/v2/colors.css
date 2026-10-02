@@ -1,4 +1,4 @@
-/* Opt-in only: no root, global theme, or legacy token overrides. */
+/* Scoped to shadcn roots and v2 sections; no global or legacy token overrides. */
 .v2-theme {
   --v2-neutral-50: #fbfbfb;
   --v2-neutral-100: #ececee;
@@ -170,72 +170,75 @@
   color-scheme: dark;
 }
 
-.v2-theme .v2-button {
+.v2-theme.v2-button {
   color: var(--v2-color-action-primary-foreground);
   background-color: var(--v2-color-action-primary);
   --v2-button-hover: var(--v2-color-action-primary-hover);
   --v2-button-pressed: var(--v2-color-action-primary-pressed);
 }
-.v2-theme .v2-button[data-variant='destructive'] {
+.v2-theme.v2-button[data-variant='destructive'] {
   color: var(--v2-color-destructive-foreground);
   background-color: var(--v2-color-destructive);
   --v2-button-hover: var(--v2-color-destructive-hover);
   --v2-button-pressed: var(--v2-color-destructive-pressed);
 }
-.v2-theme
-  .v2-button:is([data-variant='outline'], [data-variant='secondary'], [data-variant='ghost']) {
+.v2-theme.v2-button:is(
+    [data-variant='outline'],
+    [data-variant='secondary'],
+    [data-variant='ghost']
+  ) {
   color: var(--v2-color-text-default);
   background-color: transparent;
   border-color: var(--v2-color-border-default);
   --v2-button-hover: var(--v2-color-interactive-hover);
   --v2-button-pressed: var(--v2-color-interactive-pressed);
 }
-.v2-theme .v2-button[data-variant='link'],
+.v2-theme.v2-button[data-variant='link'],
 .v2-theme a.v2-inline-link {
   color: var(--v2-color-link);
   background-color: transparent;
   --v2-button-hover: transparent;
   --v2-button-pressed: transparent;
 }
-.v2-theme .v2-button:hover {
+.v2-theme.v2-button:hover {
   background-color: var(--v2-button-hover);
 }
-.v2-theme .v2-button:active {
+.v2-theme.v2-button:active {
   background-color: var(--v2-button-pressed);
 }
-.v2-theme .v2-button[data-variant='link']:hover,
+.v2-theme.v2-button[data-variant='link']:hover,
 .v2-theme a.v2-inline-link:hover {
   color: var(--v2-color-link-hover);
 }
-.v2-theme .v2-input {
+.v2-theme.v2-input {
   color: var(--v2-color-text-default);
   background-color: var(--v2-color-surface);
   border-color: var(--v2-color-border-default);
 }
-.v2-theme .v2-input::placeholder {
+.v2-theme.v2-input::placeholder {
   color: var(--v2-color-text-subtle);
 }
-.v2-theme .v2-button:focus-visible,
-.v2-theme .v2-input:focus-visible,
+.v2-theme.v2-button:focus-visible,
+.v2-theme.v2-input:focus-visible,
 .v2-theme a.v2-inline-link:focus-visible {
   outline: 2px solid var(--v2-color-focus-border);
   outline-offset: 2px;
   box-shadow: 0 0 0 5px var(--v2-color-focus-ring);
 }
-.v2-theme .v2-input[aria-invalid='true'] {
+.v2-theme.v2-input[aria-invalid='true'] {
   border-color: var(--v2-color-danger-border);
 }
-.v2-theme .v2-input[aria-invalid='true']:focus-visible {
+.v2-theme.v2-input[aria-invalid='true']:focus-visible {
   outline-color: var(--v2-color-danger-border);
 }
-.v2-theme .v2-button:disabled,
-.v2-theme .v2-input:disabled {
+.v2-theme.v2-button:disabled,
+.v2-theme.v2-input:disabled {
   background-color: var(--v2-color-disabled);
   color: var(--v2-color-disabled-foreground);
   border-color: var(--v2-color-disabled-border);
   opacity: 1;
 }
-.v2-theme .v2-input:disabled::placeholder {
+.v2-theme.v2-input:disabled::placeholder {
   color: var(--v2-color-disabled-foreground);
 }
 .v2-theme .v2-dialog::backdrop {

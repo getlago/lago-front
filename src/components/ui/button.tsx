@@ -44,8 +44,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <Comp
-        data-variant={colorTheme ? variant || 'default' : undefined}
-        className={cn(buttonVariants({ variant, size }), colorTheme && 'v2-button', className)}
+        data-theme={colorTheme}
+        data-variant={variant || 'default'}
+        className={cn(buttonVariants({ variant, size }), 'v2-theme v2-button', className)}
         ref={ref}
         {...props}
       />

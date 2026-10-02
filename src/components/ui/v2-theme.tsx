@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 
 import { V2ColorMode } from '~/styles/v2/colors'
 
-const ThemeContext = createContext<V2ColorMode | null>(null)
+const ThemeContext = createContext<V2ColorMode>('light')
 
 export const useV2ColorTheme = () => useContext(ThemeContext)
 
@@ -24,5 +24,5 @@ export const V2Theme = ({
 export const V2Portal = ({ children }: { children: React.ReactNode }) => {
   const mode = useV2ColorTheme()
 
-  return createPortal(mode ? <V2Theme mode={mode}>{children}</V2Theme> : children, document.body)
+  return createPortal(<V2Theme mode={mode}>{children}</V2Theme>, document.body)
 }

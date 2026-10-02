@@ -253,11 +253,11 @@ export const ColorTest = () => {
       </V2Theme>
       <div
         className="mt-6 flex flex-wrap items-center gap-4"
-        aria-label="Unchanged shadcn controls outside v2"
+        aria-label="Standalone shadcn controls"
       >
-        <span>Outside v2 — existing styling</span>
-        <Button>Existing button</Button>
-        <Input aria-label="Existing input" className="max-w-xs" placeholder="Existing input" />
+        <span>Standalone shadcn — defaults to light</span>
+        <Button>Standalone button</Button>
+        <Input aria-label="Standalone input" className="max-w-xs" placeholder="Standalone input" />
       </div>
     </section>
   )
