@@ -29,9 +29,9 @@ const POPPER_MIN_WIDTH = 282
 export const ORGANIZATION_SWITCHER_TEST_ID = 'organization-switcher'
 export const ORGANIZATION_SWITCHER_BUTTON_TEST_ID = 'side-nav-user-infos'
 export const ORGANIZATION_SWITCHER_NAME_TEST_ID = 'side-nav-name'
-export const ORGANIZATION_SWITCHER_LOGOUT_TEST_ID = 'side-nav-logout'
-export const ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID = 'organization-switcher-org-item'
-export const ORGANIZATION_SWITCHER_VERSION_LINK_TEST_ID = 'organization-switcher-version-link'
+const ORGANIZATION_SWITCHER_LOGOUT_TEST_ID = 'side-nav-logout'
+const ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID = 'organization-switcher-org-item'
+const ORGANIZATION_SWITCHER_VERSION_LINK_TEST_ID = 'organization-switcher-version-link'
 
 type OrganizationFromMembership = CurrentUserInfosFragment['memberships'][0]['organization']
 

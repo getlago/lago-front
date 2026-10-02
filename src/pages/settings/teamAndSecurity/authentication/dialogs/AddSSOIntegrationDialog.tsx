@@ -24,6 +24,7 @@ export type SSOIntegrationField<TFormValues> = {
   labelKey: string
   placeholderKey: string
   helperKey?: string
+  editHelperKey?: string
   autoFocus?: boolean
   endAdornmentKey?: string
   /** Renders the input as a masked secret field with a show/hide toggle. */
@@ -37,7 +38,7 @@ export type AddSSOIntegrationDialogData<TIntegration> = {
 }
 
 export type UseAddSSOIntegrationDialogConfig<
-  TFormValues extends Record<string, unknown>,
+  TFormValues extends Record<string, unknown> & { clientSecret: string },
   TIntegration extends { id: string },
   TCreateData,
   TUpdateData,
@@ -75,7 +76,7 @@ export type UseAddSSOIntegrationDialogConfig<
 }
 
 export const useAddSSOIntegrationDialog = <
-  TFormValues extends Record<string, unknown>,
+  TFormValues extends Record<string, unknown> & { clientSecret: string },
   TIntegration extends { id: string },
   TCreateData,
   TUpdateData,
@@ -160,13 +161,16 @@ export const useAddSSOIntegrationDialog = <
       const integration = dataRef.current?.integration
 
       if (integration) {
+        const { clientSecret, ...rest } = value
+
         // The update input is a distinct generated type from the form values
         // (partial fields + id), so the variables shape can't be inferred from
         // TFormValues and is cast to the mutation's own variables type.
         await updateIntegration({
           variables: {
             input: {
-              ...value,
+              ...rest,
+              ...(clientSecret ? { clientSecret } : {}),
               id: integration.id,
             },
           } as unknown as TUpdateVars,
@@ -212,33 +216,38 @@ export const useAddSSOIntegrationDialog = <
         ),
         children: (
           <div className="flex flex-col gap-6 p-8">
-            {fields.map((fieldConfig) => (
-              <form.AppField key={fieldConfig.name} name={fieldConfig.name}>
-                {(field) => (
-                  <field.TextInputField
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
-                    autoFocus={fieldConfig.autoFocus}
-                    password={fieldConfig.password}
-                    label={translate(fieldConfig.labelKey)}
-                    placeholder={translate(fieldConfig.placeholderKey)}
-                    helperText={
-                      fieldConfig.helperKey ? translate(fieldConfig.helperKey) : undefined
-                    }
-                    InputProps={
-                      fieldConfig.endAdornmentKey
-                        ? {
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                {translate(fieldConfig.endAdornmentKey)}
-                              </InputAdornment>
-                            ),
-                          }
-                        : undefined
-                    }
-                  />
-                )}
-              </form.AppField>
-            ))}
+            {fields.map((fieldConfig) => {
+              const helperKey =
+                isEdition && fieldConfig.editHelperKey
+                  ? fieldConfig.editHelperKey
+                  : fieldConfig.helperKey
+
+              return (
+                <form.AppField key={fieldConfig.name} name={fieldConfig.name}>
+                  {(field) => (
+                    <field.TextInputField
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
+                      autoFocus={fieldConfig.autoFocus}
+                      password={fieldConfig.password}
+                      label={translate(fieldConfig.labelKey)}
+                      placeholder={translate(fieldConfig.placeholderKey)}
+                      helperText={helperKey ? translate(helperKey) : undefined}
+                      InputProps={
+                        fieldConfig.endAdornmentKey
+                          ? {
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  {translate(fieldConfig.endAdornmentKey)}
+                                </InputAdornment>
+                              ),
+                            }
+                          : undefined
+                      }
+                    />
+                  )}
+                </form.AppField>
+              )
+            })}
           </div>
         ),
         closeOnError: false,

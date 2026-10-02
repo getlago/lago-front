@@ -81,6 +81,7 @@ const fields: SSOIntegrationField<CreateOktaIntegrationInput>[] = [
     name: 'clientSecret',
     labelKey: 'text_664c732c264d7eed1c74fdb2',
     placeholderKey: 'text_664c732c264d7eed1c74fdb7',
+    editHelperKey: 'text_1790812800000h2k6wsj8x4q',
     password: true,
   },
   {
@@ -111,7 +112,6 @@ export const useAddOktaDialog = () => {
       setFieldValue('domain', integration.domain || '')
       setFieldValue('host', integration.host || '')
       setFieldValue('clientId', integration.clientId || '')
-      setFieldValue('clientSecret', integration.clientSecret || '')
       setFieldValue('organizationName', integration.organizationName || '')
     },
     translations: {

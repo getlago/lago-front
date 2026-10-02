@@ -16,9 +16,8 @@ import {
   useConnectionRoutingGridItems,
 } from './useConnectionRoutingGridItems'
 
-export const CONNECTION_SETTINGS_PAYMENT_SECTION_TEST_ID = 'connection-settings-payment-section'
-export const CONNECTION_SETTINGS_ADDITIONAL_SECTION_TEST_ID =
-  'connection-settings-additional-section'
+const CONNECTION_SETTINGS_PAYMENT_SECTION_TEST_ID = 'connection-settings-payment-section'
+const CONNECTION_SETTINGS_ADDITIONAL_SECTION_TEST_ID = 'connection-settings-additional-section'
 
 type SectionHeaderProps = {
   title: string

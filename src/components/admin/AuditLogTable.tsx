@@ -207,5 +207,3 @@ export const AuditLogTable = ({
     />
   )
 }
-
-export default AuditLogTable

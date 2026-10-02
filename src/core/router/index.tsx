@@ -47,7 +47,8 @@ const RevenueRecognitionDashboard = lazyLoad(() => import('~/pages/dashboards/Re
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
 
-export const ADMIN_ROUTE = '/admin'
+const ADMIN_ROUTE = '/admin'
+
 export const ADMIN_ORGANIZATIONS_ROUTE = `${ADMIN_ROUTE}/organizations`
 export const ADMIN_ORGANIZATION_CREATE_ROUTE = `${ADMIN_ROUTE}/organizations/new`
 export const ADMIN_ORGANIZATION_DETAIL_ROUTE = `${ADMIN_ROUTE}/organizations/:organizationId`

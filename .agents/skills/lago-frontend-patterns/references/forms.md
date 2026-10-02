@@ -1,8 +1,3 @@
----
-name: lago-forms
-description: 'How to build a NEW form in lago-front — useAppForm + a colocated zod schema, the submit-first validation contract, and the stored value shape of every registered field component. TRIGGER — read BEFORE writing the code whenever the task adds a form, a form section or a single field, or writes a validation schema; whenever the diff mentions useAppForm, form.AppField, form.AppForm, form.SubmitButton, revalidateLogic, validationLogic, onDynamic, validationSchema.ts, zodCustoms, withForm, withFieldGroup, setErrorMap, setFieldMeta or scrollToFirstInputError; and whenever the report is a submit button stuck disabled with no visible error, a schema that never fires, an error showing before the first submit, or a raw "Invalid input" / untranslated message in a field.'
----
-
 # Forms (new TanStack forms)
 
 Every new form is `useAppForm` (`~/hooks/forms/useAppform`) over a zod schema. Formik +
@@ -10,8 +5,8 @@ yup is migration debt: never start a new form there, even next to one.
 
 - Converting an existing Formik form → `migrate-formik-to-tanstack` (owns the yup→zod
   mapping and the parity audit).
-- The form lives in a drawer or dialog → also read `lago-drawers` / `lago-dialogs`, which
-  own the surrounding hook.
+- The form lives in a drawer or dialog → also read `references/drawers.md` /
+  `references/dialogs.md` in this skill, which own the surrounding hook.
 
 Everything below is on top of `.agents/docs/typescript-conventions.md`, which a form hits
 constantly: explicit return types, no nested ternaries, and a `renderX()` helper above the
@@ -198,7 +193,7 @@ Run `/make-tests` for the suite itself. Two rules specific to forms:
   `validationSchema.test.ts` next to it is the convention.
 
 A test rendering a form inside a drawer or dialog needs the `import.meta` mock — see
-`lago-drawers` / `lago-dialogs`.
+`references/drawers.md` / `references/dialogs.md`.
 
 ## Reference implementations
 
@@ -212,3 +207,7 @@ mapper), `src/components/wallets/tanstackForm/` (drawer forms), `CreatePricingUn
 Not a model to copy: `EditFeeBillingPeriod.tsx` drives a raw `DatePicker` inside
 `form.AppField` and carries a `message: ''`, both of which this guide rules out. It works,
 but reading it as a template reproduces two things a new form should not do.
+
+## Implementation notes
+
+No implementation notes yet - this section fills in reactively, the same way the design-system component docs do.

@@ -17,7 +17,6 @@ import { usePreventClosingDrawerDialog } from './PreventClosingDrawerDialog'
 const DRAWER_TRANSITION_DURATION = 250
 
 interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
-  className?: string
   stickyBottomBarClassName?: string
   title: string | ReactNode
   opener?: ReactElement

@@ -14,7 +14,7 @@ import { PaymentMethodItem, PaymentMethodList } from '~/hooks/customer/usePaymen
 export const CONNECTION_METHOD_DEFAULT_RADIO_TEST_ID = 'connection-payment-method-default-radio'
 export const CONNECTION_METHOD_SPECIFIC_RADIO_TEST_ID = 'connection-payment-method-specific-radio'
 export const CONNECTION_METHOD_NO_DEFAULT_CHIP_TEST_ID = 'connection-payment-method-no-default-chip'
-export const CONNECTION_METHOD_DEFAULT_CHIP_TEST_ID = 'connection-payment-method-default-chip'
+const CONNECTION_METHOD_DEFAULT_CHIP_TEST_ID = 'connection-payment-method-default-chip'
 
 enum MethodBehavior {
   DEFAULT = 'default',
