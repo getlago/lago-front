@@ -12,8 +12,9 @@ const ColorDialog = ({ onClose }: { onClose: () => void }) => {
   useEffect(() => {
     const dialog = ref.current
 
-    dialog?.showModal()
-    return () => dialog?.close()
+    // Removing the dialog from the DOM dismisses it. Calling close() during
+    // StrictMode's effect cleanup dispatches onClose after the effect reopens it.
+    if (dialog && !dialog.open) dialog.showModal()
   }, [])
 
   return (

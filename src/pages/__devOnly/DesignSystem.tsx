@@ -2269,6 +2269,7 @@ const DesignSystem = () => {
             link: SHADCN_TAB_URL,
             component: (
               <Container>
+                <ColorTest />
                 <TypographyTest />
                 <Typography className="mb-4" variant="headline">
                   Button
