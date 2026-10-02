@@ -73,6 +73,8 @@ const formatAmount = (
   intlFormatNumber(amount, {
     currency: currency ?? undefined,
     pricingUnitShortName: appliedPricingUnitCode ?? undefined,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 15,
   })
 
 // Tiered models (graduated / volume) show the per-unit amount of the first tier
