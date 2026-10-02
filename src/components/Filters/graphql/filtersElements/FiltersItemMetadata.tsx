@@ -1,5 +1,5 @@
 import { useStore } from '@tanstack/react-form'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
@@ -18,15 +18,40 @@ const MAX_METADATA_COUNT = 5
 export const FiltersItemMetadata = ({ value = '', setFilterValue }: FiltersItemMetadataProps) => {
   const { translate } = useInternationalization()
 
-  const initialMetadata = parseMetadataFilter(value)
+  const seedFromValue = (filterValue: string) => {
+    const parsed = parseMetadataFilter(filterValue)
+
+    return parsed.length ? parsed : [{ key: '', value: '' }]
+  }
 
   const form = useAppForm({
     defaultValues: {
-      metadata: initialMetadata.length ? initialMetadata : [{ key: '', value: '' }],
+      metadata: seedFromValue(value),
     },
   })
 
   const metadata = useStore(form.store, (state) => state.values.metadata)
+
+  // `&` and `=` are the filter string's own separators, so a value carrying one re-parses into
+  // different rows than the ones typed, and the query layer reads it through the very same
+  // `parseMetadataFilter`. Formik reseeded whenever the parsed rows changed, keeping the panel
+  // showing what is actually filtered; without this the rows would silently disagree with the
+  // query. Reseeding on the parsed rows rather than on the raw value is what Formik's
+  // `enableReinitialize` compared, and what keeps an unrepresentable value from being snapped
+  // away under the cursor.
+  const seededRef = useRef(formatMetadataFilter(seedFromValue(value)))
+
+  useEffect(() => {
+    const nextMetadata = seedFromValue(value)
+    const nextSeed = formatMetadataFilter(nextMetadata)
+
+    if (nextSeed === seededRef.current) return
+
+    seededRef.current = nextSeed
+    form.reset({ metadata: nextMetadata })
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value])
 
   useEffect(() => {
     setFilterValue(formatMetadataFilter(metadata))

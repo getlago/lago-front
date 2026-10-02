@@ -1,7 +1,23 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { useState } from 'react'
 
 import { FiltersItemMetadata } from '~/components/Filters/graphql/filtersElements/FiltersItemMetadata'
 import { AllTheProviders } from '~/test-utils'
+
+// Mirrors FiltersPanelPopper: whatever the widget emits is written back as its `value` prop.
+const PanelFeedback = ({ initial, onEmit }: { initial?: string; onEmit: (v: string) => void }) => {
+  const [value, setValue] = useState(initial)
+
+  return (
+    <FiltersItemMetadata
+      value={value}
+      setFilterValue={(next) => {
+        onEmit(next)
+        setValue(next)
+      }}
+    />
+  )
+}
 
 const renderComponent = (value?: string): { setFilterValue: jest.Mock } => {
   const setFilterValue = jest.fn()
@@ -96,6 +112,30 @@ describe('FiltersItemMetadata', () => {
         fireEvent.click(deleteButtons[0])
 
         expect(screen.getAllByRole('textbox')).toHaveLength(2)
+      })
+    })
+  })
+  describe('GIVEN the panel feeds the parsed rows back', () => {
+    describe('WHEN a value carries the metadata separator', () => {
+      it('THEN should re-split into the rows the query will actually filter on', () => {
+        // `&` separates pairs in the filter string and the query layer reads it with this same
+        // parseMetadataFilter, so `a=x&y` filters on two pairs. The panel has to show those rows
+        // rather than the single one typed, or it reports a filter that is not the active one.
+        const emitted: string[] = []
+
+        render(<PanelFeedback initial="a=b" onEmit={(v) => emitted.push(v)} />, {
+          wrapper: AllTheProviders,
+        })
+
+        fireEvent.change(screen.getAllByRole('textbox')[1], { target: { value: 'x&y' } })
+
+        expect((screen.getAllByRole('textbox') as HTMLInputElement[]).map((i) => i.value)).toEqual([
+          'a',
+          'x',
+          'y',
+          '',
+        ])
+        expect(emitted.at(-1)).toBe('a=x&y=')
       })
     })
   })

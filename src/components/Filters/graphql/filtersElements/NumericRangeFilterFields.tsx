@@ -52,6 +52,20 @@ export const NumericRangeFilterFields = ({
   const showFrom = fromIntervals.includes(interval)
   const showTo = toIntervals.includes(interval)
 
+  // The panel echoes back the NORMALIZED value, not what the fields hold: `parseFromToValue`
+  // mirrors the lower bound onto the upper one for `isEqualTo` and drops the bounds an operator
+  // ignores. Formik absorbed that through `enableReinitialize`; without this, a dropped bound
+  // keeps its stale value and resurfaces on the next operator change.
+  useEffect(() => {
+    const [nextInterval, nextFrom, nextTo] = value.split(',')
+
+    if (`${interval},${from},${to}` === value) return
+
+    form.reset({ interval: nextInterval, from: nextFrom, to: nextTo })
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value])
+
   useEffect(() => {
     const { from: parsedFrom, to: parsedTo } = parseFromToValue(`${interval},${from},${to}`, {
       from: 'from',
