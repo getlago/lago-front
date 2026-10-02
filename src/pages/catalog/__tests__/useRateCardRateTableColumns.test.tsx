@@ -164,16 +164,9 @@ describe('useRateCardRateTableColumns', () => {
                 rateProperties: buildRateProperties({
                   amount: null,
                   graduatedRanges: [
+                    { __typename: 'RateTier', toValue: '10', perUnitAmount: '10', flatAmount: '0' },
                     {
-                      __typename: 'GraduatedRange',
-                      fromValue: 0,
-                      toValue: 10,
-                      perUnitAmount: '10',
-                      flatAmount: '0',
-                    },
-                    {
-                      __typename: 'GraduatedRange',
-                      fromValue: 11,
+                      __typename: 'RateTier',
                       toValue: null,
                       perUnitAmount: '100',
                       flatAmount: '0',

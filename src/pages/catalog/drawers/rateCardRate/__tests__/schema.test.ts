@@ -7,6 +7,7 @@ import {
   RateCardRateModelEnum,
 } from '~/generated/graphql'
 
+import { RATE_TIER_UP_TO_ERROR_KEY } from '../../../rateProperties/tiers/rateTiers'
 import {
   NO_AVAILABLE_RATE_MODELS_KEY,
   RATE_MODEL_AVAILABILITY_LOADING_KEY,
@@ -237,7 +238,7 @@ describe('buildRateCardRateSchema', () => {
       ...validValues,
       rateModel: RateCardRateModelEnum.Volume,
       properties: {
-        volumeRanges: [{ fromValue: 0, toValue: null, perUnitAmount: '12', flatAmount: '0' }],
+        volumeRanges: [{ toValue: null, perUnitAmount: '12', flatAmount: '0' }],
       },
     }
 
@@ -312,5 +313,34 @@ describe('buildRateCardRateSchema', () => {
       'rateModel',
       NO_AVAILABLE_RATE_MODELS_KEY,
     ])
+  })
+
+  describe('GIVEN a tiered rate with overlapping tiers', () => {
+    describe('WHEN it is parsed', () => {
+      it.each([
+        [
+          RateCardRateModelEnum.Graduated,
+          'graduatedRanges',
+          { perUnitAmount: '1', flatAmount: '0' },
+        ],
+        [RateCardRateModelEnum.Volume, 'volumeRanges', { perUnitAmount: '1', flatAmount: '0' }],
+        [
+          RateCardRateModelEnum.GraduatedPercentage,
+          'graduatedPercentageRanges',
+          { rate: '1', flatAmount: '0' },
+        ],
+      ])('THEN a %p rate reports the overlap on its %p upper bound', (rateModel, list, amounts) => {
+        const result = parse({
+          ...validValues,
+          rateModel,
+          properties: { [list]: ['10', '10', null].map((toValue) => ({ toValue, ...amounts })) },
+        })
+
+        expect(issuePathsAndMessages(result)).toContainEqual([
+          `properties.${list}.1.toValue`,
+          RATE_TIER_UP_TO_ERROR_KEY,
+        ])
+      })
+    })
   })
 })

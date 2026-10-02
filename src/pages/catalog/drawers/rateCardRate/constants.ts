@@ -1,9 +1,10 @@
-import getPropertyShape from '~/core/serializers/getPropertyShape'
 import {
-  PropertiesInput,
   RateCardRateBillingIntervalUnitEnum,
   RateCardRateModelEnum,
+  RatePropertiesInput,
 } from '~/generated/graphql'
+
+import { getRatePropertiesShape } from './getRatePropertiesShape'
 
 export const RATE_CARD_RATE_FORM_ID = 'rateCardRateForm'
 
@@ -44,7 +45,7 @@ export interface RateCardRateFormValues {
   billingIntervalUnit: RateCardRateBillingIntervalUnitEnum
   conversionRate: string
   rateModel: RateCardRateModelEnum
-  properties?: PropertiesInput
+  properties?: RatePropertiesInput
   minAmountCents: string
 }
 
@@ -55,6 +56,6 @@ export const RATE_CARD_RATE_FORM_DEFAULTS: RateCardRateFormValues = {
   billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Month,
   conversionRate: '',
   rateModel: RateCardRateModelEnum.Standard,
-  properties: getPropertyShape({}),
+  properties: getRatePropertiesShape(),
   minAmountCents: '',
 }

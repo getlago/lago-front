@@ -15,7 +15,7 @@ import {
 export const buildRateProperties = (
   overrides: Partial<PropertiesForRateCardRateFragment> = {},
 ): PropertiesForRateCardRateFragment => ({
-  __typename: 'Properties',
+  __typename: 'RateProperties',
   amount: '10',
   rate: null,
   packageSize: null,
@@ -32,6 +32,24 @@ export const buildRateProperties = (
   graduatedPercentageRanges: null,
   ...overrides,
 })
+
+type RateTierRows<T extends 'graduatedRanges' | 'volumeRanges' | 'graduatedPercentageRanges'> =
+  NonNullable<PropertiesForRateCardRateFragment[T]>
+
+export const buildGraduatedRanges = (): RateTierRows<'graduatedRanges'> => [
+  { __typename: 'RateTier', toValue: '10', perUnitAmount: '5', flatAmount: '1' },
+  { __typename: 'RateTier', toValue: null, perUnitAmount: '2', flatAmount: '0' },
+]
+
+export const buildVolumeRanges = (): RateTierRows<'volumeRanges'> => [
+  { __typename: 'RateTier', toValue: '100', perUnitAmount: '1', flatAmount: '0' },
+  { __typename: 'RateTier', toValue: null, perUnitAmount: '0.5', flatAmount: '2' },
+]
+
+export const buildGraduatedPercentageRanges = (): RateTierRows<'graduatedPercentageRanges'> => [
+  { __typename: 'RatePercentageTier', toValue: '10000', rate: '0.1', flatAmount: '1' },
+  { __typename: 'RatePercentageTier', toValue: null, rate: '0.05', flatAmount: '0.5' },
+]
 
 export const buildRateCardForRateDrawer = (
   overrides: Partial<RateCardForRateDrawerFragment> = {},

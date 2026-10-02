@@ -19,6 +19,10 @@ gql`
   fragment PricingGroupKeys on Properties {
     pricingGroupKeys
   }
+
+  fragment PricingGroupKeysForRate on RateProperties {
+    pricingGroupKeys
+  }
 `
 
 const PricingGroupKeys = () => {

@@ -15,7 +15,10 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  /** Represents non-fractional signed whole numeric values. Since the value may exceed the size of a 32-bit integer, it's encoded as a string. */
+  /**
+   * Represents non-fractional signed whole numeric values. Since the value may
+   * exceed the size of a 32-bit integer, it's encoded as a string.
+   */
   BigInt: { input: any; output: any; }
   ChargeFilterValues: { input: any; output: any; }
   /** Api Logs HTTP status */
@@ -1348,7 +1351,6 @@ export type ContractAppliedRateCard = {
   billingAnchorDate: Scalars['ISO8601Date']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   effectiveDate: Scalars['ISO8601Date']['output'];
-  endedDate?: Maybe<Scalars['ISO8601Date']['output']>;
   id: Scalars['ID']['output'];
   nextBillingAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   product: Product;
@@ -2603,7 +2605,7 @@ export type CreateRateCardRateInput = {
   minAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   rateCardId: Scalars['ID']['input'];
   rateModel: RateCardRateModelEnum;
-  rateProperties: PropertiesInput;
+  rateProperties: RatePropertiesInput;
 };
 
 /** Insert a phase into a plan rate card's sequence */
@@ -4662,7 +4664,9 @@ export enum FeatureFlagEnum {
   RealtimeUsage = 'realtime_usage',
   SkipCreditInvoiceAutoPaymentDelay = 'skip_credit_invoice_auto_payment_delay',
   StripeSharedPaymentToken = 'stripe_shared_payment_token',
-  WalletTraceability = 'wallet_traceability'
+  WalletTraceability = 'wallet_traceability',
+  X402Payments = 'x402_payments',
+  X402ReservationCounterDisabled = 'x402_reservation_counter_disabled'
 }
 
 export type FeatureObject = {
@@ -7924,7 +7928,8 @@ export type PaymentRequestCreateInput = {
 
 export enum PaymentTypeEnum {
   Manual = 'manual',
-  Provider = 'provider'
+  Provider = 'provider',
+  X402 = 'x402'
 }
 
 /** Permission */
@@ -10168,7 +10173,7 @@ export type RateCardRate = {
   id: Scalars['ID']['output'];
   minAmountCents: Scalars['BigInt']['output'];
   rateModel: RateCardRateModelEnum;
-  rateProperties: Properties;
+  rateProperties: RateProperties;
   status: RateCardRateStatusEnum;
   updatedAt: Scalars['ISO8601DateTime']['output'];
 };
@@ -10198,7 +10203,7 @@ export type RateCardRateInput = {
   effectiveFrom: Scalars['ISO8601DateTime']['input'];
   minAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   rateModel: RateCardRateModelEnum;
-  rateProperties: PropertiesInput;
+  rateProperties: RatePropertiesInput;
 };
 
 export enum RateCardRateModelEnum {
@@ -10232,7 +10237,7 @@ export type RateOverride = {
   minAmountCents: Scalars['BigInt']['output'];
   pricingUnitConversionRate?: Maybe<Scalars['Float']['output']>;
   rateModel: RateCardRateModelEnum;
-  rateProperties: Properties;
+  rateProperties: RateProperties;
   updatedAt: Scalars['ISO8601DateTime']['output'];
 };
 
@@ -10243,7 +10248,22 @@ export type RateOverrideInput = {
   minAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   pricingUnitConversionRate?: InputMaybe<Scalars['Float']['input']>;
   rateModel: RateCardRateModelEnum;
-  rateProperties: PropertiesInput;
+  rateProperties: RatePropertiesInput;
+};
+
+export type RatePercentageTier = {
+  __typename?: 'RatePercentageTier';
+  flatAmount: Scalars['String']['output'];
+  rate: Scalars['String']['output'];
+  toValue?: Maybe<Scalars['String']['output']>;
+};
+
+/** Graduated percentage tier of a catalog rate, starting where the previous tier ends */
+export type RatePercentageTierInput = {
+  flatAmount: Scalars['String']['input'];
+  rate: Scalars['String']['input'];
+  /** Upper bound of the tier; null on the last tier */
+  toValue?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** A phase in the ordered rate schedule of a plan product */
@@ -10257,6 +10277,58 @@ export type RatePhase = {
   position: Scalars['Int']['output'];
   rateOverride?: Maybe<RateOverride>;
   updatedAt: Scalars['ISO8601DateTime']['output'];
+};
+
+export type RateProperties = {
+  __typename?: 'RateProperties';
+  amount?: Maybe<Scalars['String']['output']>;
+  customProperties?: Maybe<Scalars['JSON']['output']>;
+  fixedAmount?: Maybe<Scalars['String']['output']>;
+  freeUnits?: Maybe<Scalars['BigInt']['output']>;
+  freeUnitsPerEvents?: Maybe<Scalars['BigInt']['output']>;
+  freeUnitsPerTotalAggregation?: Maybe<Scalars['String']['output']>;
+  graduatedPercentageRanges?: Maybe<Array<RatePercentageTier>>;
+  graduatedRanges?: Maybe<Array<RateTier>>;
+  packageSize?: Maybe<Scalars['BigInt']['output']>;
+  perTransactionMaxAmount?: Maybe<Scalars['String']['output']>;
+  perTransactionMinAmount?: Maybe<Scalars['String']['output']>;
+  presentationGroupKeys?: Maybe<Array<PresentationGroupKey>>;
+  pricingGroupKeys?: Maybe<Array<Scalars['String']['output']>>;
+  rate?: Maybe<Scalars['String']['output']>;
+  volumeRanges?: Maybe<Array<RateTier>>;
+};
+
+export type RatePropertiesInput = {
+  amount?: InputMaybe<Scalars['String']['input']>;
+  customProperties?: InputMaybe<Scalars['JSON']['input']>;
+  fixedAmount?: InputMaybe<Scalars['String']['input']>;
+  freeUnits?: InputMaybe<Scalars['BigInt']['input']>;
+  freeUnitsPerEvents?: InputMaybe<Scalars['BigInt']['input']>;
+  freeUnitsPerTotalAggregation?: InputMaybe<Scalars['String']['input']>;
+  graduatedPercentageRanges?: InputMaybe<Array<RatePercentageTierInput>>;
+  graduatedRanges?: InputMaybe<Array<RateTierInput>>;
+  packageSize?: InputMaybe<Scalars['BigInt']['input']>;
+  perTransactionMaxAmount?: InputMaybe<Scalars['String']['input']>;
+  perTransactionMinAmount?: InputMaybe<Scalars['String']['input']>;
+  presentationGroupKeys?: InputMaybe<Array<PresentationGroupKeyInput>>;
+  pricingGroupKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  rate?: InputMaybe<Scalars['String']['input']>;
+  volumeRanges?: InputMaybe<Array<RateTierInput>>;
+};
+
+export type RateTier = {
+  __typename?: 'RateTier';
+  flatAmount: Scalars['String']['output'];
+  perUnitAmount: Scalars['String']['output'];
+  toValue?: Maybe<Scalars['String']['output']>;
+};
+
+/** Graduated or volume tier of a catalog rate, starting where the previous tier ends */
+export type RateTierInput = {
+  flatAmount: Scalars['String']['input'];
+  perUnitAmount: Scalars['String']['input'];
+  /** Upper bound of the tier; null on the last tier */
+  toValue?: InputMaybe<Scalars['String']['input']>;
 };
 
 export enum RecurringTransactionIntervalEnum {
@@ -11028,7 +11100,11 @@ export type TerminateSubscriptionInput = {
 
 export type ThresholdInput = {
   code?: InputMaybe<Scalars['String']['input']>;
-  /** Transitions this threshold notifies on. Must include triggered. Adding resolved requires a code that is unique within the alert, and is not supported on recurring thresholds. */
+  /**
+   * Transitions this threshold notifies on. Must include triggered. Adding
+   * resolved requires a code that is unique within the alert, and is not supported
+   * on recurring thresholds.
+   */
   notifyOn?: InputMaybe<Array<NotifyOnEnum>>;
   recurring?: InputMaybe<Scalars['Boolean']['input']>;
   value: Scalars['String']['input'];
@@ -11987,7 +12063,7 @@ export type UpdateRateCardRateInput = {
   id: Scalars['ID']['input'];
   minAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   rateModel?: InputMaybe<RateCardRateModelEnum>;
-  rateProperties?: InputMaybe<PropertiesInput>;
+  rateProperties?: InputMaybe<RatePropertiesInput>;
 };
 
 /** Update a single phase, addressed by its code within the entry */
@@ -14087,7 +14163,11 @@ export type DestroyPaymentMethodMutation = { __typename?: 'Mutation', destroyPay
 
 export type PercentageChargeFragment = { __typename?: 'Properties', fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null };
 
+export type PercentageChargeForRateFragment = { __typename?: 'RateProperties', fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null };
+
 export type CustomChargeFragment = { __typename?: 'Properties', customProperties?: any | null };
+
+export type CustomChargeForRateFragment = { __typename?: 'RateProperties', customProperties?: any | null };
 
 export type DeletePlanDialogFragment = { __typename?: 'Plan', id: string, name: string, draftInvoicesCount: number, activeSubscriptionsCount: number };
 
@@ -14115,6 +14195,8 @@ export type GraduatedPercentageChargeFragment = { __typename?: 'GraduatedPercent
 
 export type PackageChargeFragment = { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null };
 
+export type PackageChargeForRateFragment = { __typename?: 'RateProperties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null };
+
 export type PlanMetadataForPlanFragment = { __typename?: 'Plan', metadata?: Array<{ __typename?: 'ItemMetadata', key: string, value?: string | null }> | null };
 
 export type TaxForPlanSettingsSectionFragment = { __typename?: 'Tax', id: string, code: string, name: string, rate: number };
@@ -14134,7 +14216,11 @@ export type PresentationGroupKeysFragment = { __typename?: 'Properties', present
 
 export type PricingGroupKeysFragment = { __typename?: 'Properties', pricingGroupKeys?: Array<string> | null };
 
+export type PricingGroupKeysForRateFragment = { __typename?: 'RateProperties', pricingGroupKeys?: Array<string> | null };
+
 export type StandardChargeFragment = { __typename?: 'Properties', amount?: string | null, pricingGroupKeys?: Array<string> | null };
+
+export type StandardChargeForRateFragment = { __typename?: 'RateProperties', amount?: string | null, pricingGroupKeys?: Array<string> | null };
 
 export type PlanForSubscriptionFeeSectionFragment = { __typename?: 'Plan', id: string, amountCents?: any | null, payInAdvance?: boolean | null, trialPeriod?: number | null, invoiceDisplayName?: string | null };
 
@@ -16621,7 +16707,7 @@ export type RateCardsQueryVariables = Exact<{
 }>;
 
 
-export type RateCardsQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees?: RateCardRegroupPaidFeesEnum | null, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, minAmountCents: any, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type RateCardsQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees?: RateCardRegroupPaidFeesEnum | null, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, minAmountCents: any, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type CatalogPlanActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -16821,7 +16907,7 @@ export type GetRateCardsForProductDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetRateCardsForProductDetailsQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number }, collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees?: RateCardRegroupPaidFeesEnum | null, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, minAmountCents: any, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } } | null }> } };
+export type GetRateCardsForProductDetailsQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number }, collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees?: RateCardRegroupPaidFeesEnum | null, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, minAmountCents: any, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> } };
 
 export type GetRateCardsForProductFilterDetailsQueryVariables = Exact<{
   productFilterIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
@@ -16830,9 +16916,9 @@ export type GetRateCardsForProductFilterDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetRateCardsForProductFilterDetailsQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number }, collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees?: RateCardRegroupPaidFeesEnum | null, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, minAmountCents: any, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } } | null }> } };
+export type GetRateCardsForProductFilterDetailsQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number }, collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees?: RateCardRegroupPaidFeesEnum | null, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, minAmountCents: any, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> } };
 
-export type RateCardRateForDetailsFragment = { __typename?: 'RateCardRate', id: string, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } };
+export type RateCardRateForDetailsFragment = { __typename?: 'RateCardRate', id: string, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } };
 
 export type GetRateCardRateForDetailsQueryVariables = Exact<{
   rateId: Scalars['ID']['input'];
@@ -16840,7 +16926,7 @@ export type GetRateCardRateForDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetRateCardRateForDetailsQuery = { __typename?: 'Query', rateCardRate?: { __typename?: 'RateCardRate', id: string, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } } | null, rateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, productType: ProductTypeEnum, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any } | null } | null };
+export type GetRateCardRateForDetailsQuery = { __typename?: 'Query', rateCardRate?: { __typename?: 'RateCardRate', id: string, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null, rateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, productType: ProductTypeEnum, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any } | null } | null };
 
 export type RateCardForRateDetailsFragment = { __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null };
 
@@ -16851,7 +16937,7 @@ export type RateCardRatesQueryVariables = Exact<{
 }>;
 
 
-export type RateCardRatesQuery = { __typename?: 'Query', rateCardRates: { __typename?: 'RateCardRateCollection', collection: Array<{ __typename?: 'RateCardRate', id: string, createdAt: any, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type RateCardRatesQuery = { __typename?: 'Query', rateCardRates: { __typename?: 'RateCardRateCollection', collection: Array<{ __typename?: 'RateCardRate', id: string, createdAt: any, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type CatalogPlanForDeleteCatalogPlanDialogFragment = { __typename?: 'CatalogPlan', id: string, name: string };
 
@@ -17040,9 +17126,9 @@ export type UpdateRateCardMutationVariables = Exact<{
 
 export type UpdateRateCardMutation = { __typename?: 'Mutation', updateRateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees?: RateCardRegroupPaidFeesEnum | null, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, ratesCount: number, product: { __typename?: 'Product', id: string, code: string, name: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null } | null };
 
-export type PropertiesForRateCardRateFragment = { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null };
+export type PropertiesForRateCardRateFragment = { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null };
 
-export type RateCardRateForDrawerFragment = { __typename?: 'RateCardRate', id: string, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } };
+export type RateCardRateForDrawerFragment = { __typename?: 'RateCardRate', id: string, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } };
 
 export type RateCardForRateDrawerFragment = { __typename?: 'RateCard', id: string, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any } | null };
 
@@ -17051,20 +17137,28 @@ export type CreateRateCardRateMutationVariables = Exact<{
 }>;
 
 
-export type CreateRateCardRateMutation = { __typename?: 'Mutation', createRateCardRate?: { __typename?: 'RateCardRate', id: string, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } } | null };
+export type CreateRateCardRateMutation = { __typename?: 'Mutation', createRateCardRate?: { __typename?: 'RateCardRate', id: string, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null };
 
 export type UpdateRateCardRateMutationVariables = Exact<{
   input: UpdateRateCardRateInput;
 }>;
 
 
-export type UpdateRateCardRateMutation = { __typename?: 'Mutation', updateRateCardRate?: { __typename?: 'RateCardRate', id: string, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } } | null };
+export type UpdateRateCardRateMutation = { __typename?: 'Mutation', updateRateCardRate?: { __typename?: 'RateCardRate', id: string, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null };
 
-export type RateCardRateForListFragment = { __typename?: 'RateCardRate', id: string, createdAt: any, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } };
+export type RatePropertiesForWrapperSwitchFragment = { __typename?: 'RateProperties', amount?: string | null, pricingGroupKeys?: Array<string> | null, packageSize?: any | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', toValue?: string | null, perUnitAmount: string, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', toValue?: string | null, rate: string, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', toValue?: string | null, perUnitAmount: string, flatAmount: string }> | null };
 
-export type RateCardForListFragment = { __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees?: RateCardRegroupPaidFeesEnum | null, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, minAmountCents: any, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } } | null };
+export type GraduatedPercentageRateTierFragment = { __typename?: 'RatePercentageTier', toValue?: string | null, rate: string, flatAmount: string };
 
-export type PropertiesForActiveRateFragment = { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string }> | null };
+export type GraduatedRateTierFragment = { __typename?: 'RateTier', toValue?: string | null, perUnitAmount: string, flatAmount: string };
+
+export type VolumeRateTierFragment = { __typename?: 'RateTier', toValue?: string | null, perUnitAmount: string, flatAmount: string };
+
+export type RateCardRateForListFragment = { __typename?: 'RateCardRate', id: string, createdAt: any, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } };
+
+export type RateCardForListFragment = { __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees?: RateCardRegroupPaidFeesEnum | null, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, minAmountCents: any, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null };
+
+export type PropertiesForActiveRateFragment = { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string }> | null };
 
 export type ContractForContractDetailsFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null };
 
@@ -23955,7 +24049,7 @@ ${ProductCategoryForCatalogRelationsFragmentDoc}
 ${ProductFilterForCatalogRelationsFragmentDoc}
 ${RateCardForDrawerFragmentDoc}`;
 export const PropertiesForActiveRateFragmentDoc = gql`
-    fragment PropertiesForActiveRate on Properties {
+    fragment PropertiesForActiveRate on RateProperties {
   amount
   rate
   packageSize
@@ -23970,33 +24064,92 @@ export const PropertiesForActiveRateFragmentDoc = gql`
   }
 }
     `;
-export const PropertiesForRateCardRateFragmentDoc = gql`
-    fragment PropertiesForRateCardRate on Properties {
-  ...PropertiesForActiveRate
-  ...StandardCharge
-  ...PackageCharge
-  ...PercentageCharge
-  ...CustomCharge
-  ...PricingGroupKeys
+export const StandardChargeForRateFragmentDoc = gql`
+    fragment StandardChargeForRate on RateProperties {
+  amount
+  pricingGroupKeys
+}
+    `;
+export const PackageChargeForRateFragmentDoc = gql`
+    fragment PackageChargeForRate on RateProperties {
+  amount
+  packageSize
+  freeUnits
+}
+    `;
+export const PercentageChargeForRateFragmentDoc = gql`
+    fragment PercentageChargeForRate on RateProperties {
+  fixedAmount
+  freeUnitsPerEvents
+  freeUnitsPerTotalAggregation
+  rate
+  perTransactionMinAmount
+  perTransactionMaxAmount
+}
+    `;
+export const CustomChargeForRateFragmentDoc = gql`
+    fragment CustomChargeForRate on RateProperties {
+  customProperties
+}
+    `;
+export const PricingGroupKeysForRateFragmentDoc = gql`
+    fragment PricingGroupKeysForRate on RateProperties {
+  pricingGroupKeys
+}
+    `;
+export const GraduatedRateTierFragmentDoc = gql`
+    fragment GraduatedRateTier on RateTier {
+  toValue
+  perUnitAmount
+  flatAmount
+}
+    `;
+export const GraduatedPercentageRateTierFragmentDoc = gql`
+    fragment GraduatedPercentageRateTier on RatePercentageTier {
+  toValue
+  rate
+  flatAmount
+}
+    `;
+export const VolumeRateTierFragmentDoc = gql`
+    fragment VolumeRateTier on RateTier {
+  toValue
+  perUnitAmount
+  flatAmount
+}
+    `;
+export const RatePropertiesForWrapperSwitchFragmentDoc = gql`
+    fragment RatePropertiesForWrapperSwitch on RateProperties {
+  ...StandardChargeForRate
+  ...PackageChargeForRate
+  ...PercentageChargeForRate
+  ...CustomChargeForRate
+  ...PricingGroupKeysForRate
   graduatedRanges {
-    ...GraduatedCharge
+    ...GraduatedRateTier
   }
   graduatedPercentageRanges {
-    ...GraduatedPercentageCharge
+    ...GraduatedPercentageRateTier
   }
   volumeRanges {
-    ...VolumeRanges
+    ...VolumeRateTier
   }
 }
+    ${StandardChargeForRateFragmentDoc}
+${PackageChargeForRateFragmentDoc}
+${PercentageChargeForRateFragmentDoc}
+${CustomChargeForRateFragmentDoc}
+${PricingGroupKeysForRateFragmentDoc}
+${GraduatedRateTierFragmentDoc}
+${GraduatedPercentageRateTierFragmentDoc}
+${VolumeRateTierFragmentDoc}`;
+export const PropertiesForRateCardRateFragmentDoc = gql`
+    fragment PropertiesForRateCardRate on RateProperties {
+  ...PropertiesForActiveRate
+  ...RatePropertiesForWrapperSwitch
+}
     ${PropertiesForActiveRateFragmentDoc}
-${StandardChargeFragmentDoc}
-${PackageChargeFragmentDoc}
-${PercentageChargeFragmentDoc}
-${CustomChargeFragmentDoc}
-${PricingGroupKeysFragmentDoc}
-${GraduatedChargeFragmentDoc}
-${GraduatedPercentageChargeFragmentDoc}
-${VolumeRangesFragmentDoc}`;
+${RatePropertiesForWrapperSwitchFragmentDoc}`;
 export const RateCardRateForDrawerFragmentDoc = gql`
     fragment RateCardRateForDrawer on RateCardRate {
   id
