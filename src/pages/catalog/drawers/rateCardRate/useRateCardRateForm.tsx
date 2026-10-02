@@ -8,13 +8,7 @@ import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { serializeProperties } from '~/core/serializers/serializePlanInput'
 import {
-  CustomChargeFragmentDoc,
-  GraduatedChargeFragmentDoc,
-  GraduatedPercentageChargeFragmentDoc,
   LagoApiError,
-  PackageChargeFragmentDoc,
-  PercentageChargeFragmentDoc,
-  PricingGroupKeysFragmentDoc,
   Properties,
   PropertiesForActiveRateFragmentDoc,
   PropertiesInput,
@@ -22,11 +16,9 @@ import {
   RateCardForRateDrawerFragment,
   RateCardRateForDrawerFragment,
   RateCardRateStatusEnum,
-  StandardChargeFragmentDoc,
   UpdateRateCardRateInput,
   useCreateRateCardRateMutation,
   useUpdateRateCardRateMutation,
-  VolumeRangesFragmentDoc,
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
@@ -36,23 +28,32 @@ import { buildRateCardRateSchema, RateCardRateSchemaContext } from './schema'
 import { deriveEffectiveFromBoundary, laterEffectiveFrom, toChargeModel } from './utils'
 
 gql`
-  fragment PropertiesForRateCardRate on Properties {
+  fragment PropertiesForRateCardRate on RateProperties {
     # Must stay a strict superset of PropertiesForActiveRate: Apollo replaces array fields
     # wholesale, so a narrower write would strip range fields the other one cached.
     ...PropertiesForActiveRate
-    ...StandardCharge
-    ...PackageCharge
-    ...PercentageCharge
-    ...CustomCharge
-    ...PricingGroupKeys
+    pricingGroupKeys
+    freeUnits
+    fixedAmount
+    freeUnitsPerEvents
+    freeUnitsPerTotalAggregation
+    perTransactionMinAmount
+    perTransactionMaxAmount
+    customProperties
     graduatedRanges {
-      ...GraduatedCharge
+      toValue
+      flatAmount
+      perUnitAmount
     }
     graduatedPercentageRanges {
-      ...GraduatedPercentageCharge
+      toValue
+      flatAmount
+      rate
     }
     volumeRanges {
-      ...VolumeRanges
+      toValue
+      flatAmount
+      perUnitAmount
     }
   }
 
@@ -109,14 +110,6 @@ gql`
   }
 
   ${PropertiesForActiveRateFragmentDoc}
-  ${StandardChargeFragmentDoc}
-  ${PackageChargeFragmentDoc}
-  ${PercentageChargeFragmentDoc}
-  ${CustomChargeFragmentDoc}
-  ${PricingGroupKeysFragmentDoc}
-  ${GraduatedChargeFragmentDoc}
-  ${GraduatedPercentageChargeFragmentDoc}
-  ${VolumeRangesFragmentDoc}
 `
 
 // Plus the rate's own details page, which a create or an update leaves in place.
