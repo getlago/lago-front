@@ -1,8 +1,37 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { type ComponentProps, useState } from 'react'
 
 import { FiltersItemAmount } from '~/components/Filters/graphql/filtersElements/FiltersItemAmount'
 import { AmountFilterInterval } from '~/components/Filters/presentation/types'
 import { AllTheProviders } from '~/test-utils'
+
+jest.mock('~/components/form/ComboBox', () => {
+  const actual = jest.requireActual<typeof import('~/components/form/ComboBox')>(
+    '~/components/form/ComboBox',
+  )
+
+  return {
+    ...actual,
+    ComboBox: (props: ComponentProps<typeof actual.ComboBox>) => (
+      <actual.ComboBox {...props} virtualized={false} />
+    ),
+  }
+})
+
+// Mirrors FiltersPanelPopper: whatever the widget emits is written back as its `value` prop.
+const PanelFeedback = ({ initial, onEmit }: { initial?: string; onEmit: (v: string) => void }) => {
+  const [value, setValue] = useState(initial)
+
+  return (
+    <FiltersItemAmount
+      value={value}
+      setFilterValue={(next) => {
+        onEmit(next)
+        setValue(next)
+      }}
+    />
+  )
+}
 
 const renderComponent = (value?: string): { setFilterValue: jest.Mock } => {
   const setFilterValue = jest.fn()
@@ -90,6 +119,53 @@ describe('FiltersItemAmount', () => {
         expect(inputs).toHaveLength(1)
         expect(inputs[0].value).toBe('7')
         expect(setFilterValue).toHaveBeenLastCalledWith(`${AmountFilterInterval.isAtLeast},7,`)
+      })
+    })
+  })
+
+  describe('GIVEN the interval combobox', () => {
+    describe('WHEN an interval is selected', () => {
+      it('THEN should reveal the matching amount inputs and emit the new interval', async () => {
+        const { setFilterValue } = renderComponent()
+
+        fireEvent.mouseDown(screen.getByRole('combobox'))
+        fireEvent.click(await screen.findByText('Is between'))
+
+        expect(screen.getAllByRole('textbox')).toHaveLength(2)
+        expect(setFilterValue).toHaveBeenLastCalledWith(
+          expect.stringMatching(new RegExp(`^${AmountFilterInterval.isBetween},`)),
+        )
+      })
+    })
+  })
+  describe('GIVEN the panel feeds the normalized value back', () => {
+    describe('WHEN the operator changes after an "is equal to" bound was edited', () => {
+      it('THEN should carry the mirrored bound, not the one it replaced', async () => {
+        // parseFromToValue mirrors the lower bound onto the upper one for `isEqualTo`, so the
+        // echoed value differs from what the fields hold. Without reseeding from it, the hidden
+        // upper bound stayed at its old 5 and resurfaced as 10-5 on the next operator.
+        const emitted: string[] = []
+
+        render(
+          <PanelFeedback
+            initial={`${AmountFilterInterval.isEqualTo},5,5`}
+            onEmit={(v) => emitted.push(v)}
+          />,
+          {
+            wrapper: AllTheProviders,
+          },
+        )
+
+        fireEvent.change(screen.getAllByRole('textbox')[0], { target: { value: '10' } })
+
+        fireEvent.mouseDown(screen.getByRole('combobox'))
+        fireEvent.click(await screen.findByText('Is between'))
+
+        expect((screen.getAllByRole('textbox') as HTMLInputElement[]).map((i) => i.value)).toEqual([
+          '10',
+          '10',
+        ])
+        expect(emitted.at(-1)).toBe(`${AmountFilterInterval.isBetween},10,10`)
       })
     })
   })
