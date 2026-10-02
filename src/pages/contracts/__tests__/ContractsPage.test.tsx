@@ -1,6 +1,8 @@
 import { MockedResponse } from '@apollo/client/testing'
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 
+import { contractForDrawerFixture } from '~/components/contracts/drawers/contract/__tests__/fixtures'
+import { CONTRACT_TABLE_COPY_EXTERNAL_ID_TEST_ID } from '~/components/contracts/useContractTableActions'
 import { OPEN_ACTION_BUTTON_TEST_ID } from '~/components/designSystem/Table/Table'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { addToast } from '~/core/apolloClient'
@@ -47,20 +49,20 @@ jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
 }))
 
-jest.mock('~/pages/contracts/drawers/contract/useContractDrawer', () => ({
+jest.mock('~/components/contracts/drawers/contract/useContractDrawer', () => ({
   useContractDrawer: () => ({ openDrawer: mockOpenContractDrawer }),
 }))
 
 const contract: ContractForContractsListFragment = {
-  __typename: 'Contract',
+  ...contractForDrawerFixture,
   id: 'contract-1',
   status: ContractStatusEnum.Active,
   name: 'Enterprise agreement',
   externalId: 'enterprise-2026',
   startedAt: '2026-06-11T00:00:00Z',
   endedAt: null,
-  plan: { __typename: 'CatalogPlan', id: 'plan-1', name: 'Enterprise plan' },
-  customer: { __typename: 'Customer', id: 'customer-1', displayName: 'Acme Inc.' },
+  plan: { __typename: 'CatalogPlan', id: 'plan-1', name: 'Enterprise plan', code: 'enterprise' },
+  customer: { ...contractForDrawerFixture.customer, id: 'customer-1', displayName: 'Acme Inc.' },
 }
 
 const contractsMock = (
@@ -241,7 +243,7 @@ describe('ContractsPage', () => {
     const row = await screen.findByTestId('Enterprise agreement')
 
     fireEvent.click(within(row).getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
-    fireEvent.click(await screen.findByTestId('copy-contract-external-id'))
+    fireEvent.click(await screen.findByTestId(CONTRACT_TABLE_COPY_EXTERNAL_ID_TEST_ID))
 
     expect(copyToClipboard).toHaveBeenCalledWith('enterprise-2026')
     expect(addToast).toHaveBeenCalledWith({

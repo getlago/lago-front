@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
@@ -84,6 +84,7 @@ const ProductFiltersList = () => {
   const { actionColumn, actionColumnTooltip, getRowActionLink } = useProductFilterTableActions()
   const [searchParams] = useSearchParams()
   const { page, goToPage } = usePageSearchParam()
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
 
   const filtersForProductFiltersQuery = useMemo(
     () => formatFiltersForProductFiltersQuery(searchParams),
@@ -94,7 +95,7 @@ const ProductFiltersList = () => {
   // and `?page` is dropped; a cache-first read would flash the previously viewed
   // page before the page-1 refetch.
   const [getProductFilters, { data, error, loading, variables }] = useProductFiltersLazyQuery({
-    variables: { limit: DEFAULT_PAGE_SIZE, page, ...filtersForProductFiltersQuery },
+    variables: { limit: pageSize, page, ...filtersForProductFiltersQuery },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
@@ -152,7 +153,12 @@ const ProductFiltersList = () => {
       <PaginatedContent
         metadata={data?.productFilters?.metadata}
         loading={isLoading}
+        pageSize={pageSize}
         onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
       >
         <Table
           name="product-item-filters-list"
@@ -161,6 +167,7 @@ const ProductFiltersList = () => {
           containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
           rowSize={72}
           isLoading={isLoading}
+          loadingRowCount={pageSize}
           hasError={!!error}
           rowDataTestId={(productFilter) => `${productFilter.name}`}
           onRowActionLink={getRowActionLink}

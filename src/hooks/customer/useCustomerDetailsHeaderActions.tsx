@@ -1,7 +1,8 @@
 import { generatePath } from 'react-router'
 
+import { useContractDrawer } from '~/components/contracts/drawers/contract/useContractDrawer'
 import { useDeleteCustomerDialog } from '~/components/customers/DeleteCustomerDialog'
-import { MainHeaderAction } from '~/components/MainHeader/types'
+import { MainHeaderAction, MainHeaderDropdownItem } from '~/components/MainHeader/types'
 import {
   CREATE_INVOICE_ROUTE,
   CREATE_SUBSCRIPTION,
@@ -10,9 +11,14 @@ import {
   UPDATE_CUSTOMER_ROUTE,
   useNavigate,
 } from '~/core/router'
-import { CustomerDetailsFragment, useGenerateCustomerPortalUrlMutation } from '~/generated/graphql'
+import {
+  CustomerDetailsFragment,
+  FeatureFlagEnum,
+  useGenerateCustomerPortalUrlMutation,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
 const CUSTOMER_ACTIONS_BUTTON_TEST_ID = 'customer-actions'
@@ -30,9 +36,11 @@ export function useCustomerDetailsHeaderActions({
 }: UseCustomerDetailsHeaderActionsParams): MainHeaderAction[] {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
+  const { hasFeatureFlag } = useOrganizationInfos()
   const navigate = useNavigate()
   const { handleDownloadFile } = useDownloadFile()
   const { openDeleteCustomerDialog } = useDeleteCustomerDialog()
+  const { openDrawer: openContractDrawer } = useContractDrawer()
 
   const [generatePortalUrl] = useGenerateCustomerPortalUrlMutation({
     onCompleted({ generateCustomerPortalUrl }) {
@@ -41,6 +49,38 @@ export function useCustomerDetailsHeaderActions({
   })
 
   const { hasActiveWallet } = customer || {}
+  const isProductCatalogActive = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
+
+  const getCreateSubscriptionOrContractAction = (): MainHeaderDropdownItem => {
+    if (!isProductCatalogActive) {
+      return {
+        label: translate('text_626162c62f790600f850b70c'),
+        hidden: !hasPermissions(['subscriptionsCreate']),
+        onClick: (closePopper) => {
+          navigate(generatePath(CREATE_SUBSCRIPTION, { customerId }))
+          closePopper()
+        },
+      }
+    }
+
+    return {
+      label: translate('text_1789553562287qzstcfu6er0'),
+      hidden: !hasPermissions(['contractsCreate']),
+      onClick: (closePopper) => {
+        if (customer) {
+          openContractDrawer({
+            customer: {
+              externalId: customer.externalId,
+              displayName: customer.displayName,
+              applicableTimezone: customer.applicableTimezone,
+              billingEntityId: customer.billingEntity.id,
+            },
+          })
+        }
+        closePopper()
+      },
+    }
+  }
 
   return [
     {
@@ -59,14 +99,7 @@ export function useCustomerDetailsHeaderActions({
       label: translate('text_626162c62f790600f850b6fe'),
       dataTest: CUSTOMER_ACTIONS_BUTTON_TEST_ID,
       items: [
-        {
-          label: translate('text_626162c62f790600f850b70c'),
-          hidden: !hasPermissions(['subscriptionsCreate']),
-          onClick: (closePopper) => {
-            navigate(generatePath(CREATE_SUBSCRIPTION, { customerId }))
-            closePopper()
-          },
-        },
+        getCreateSubscriptionOrContractAction(),
         {
           label: translate('text_6453819268763979024ad083'),
           hidden: !hasPermissions(['invoicesCreate']),

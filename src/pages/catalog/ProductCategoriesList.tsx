@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { generatePath } from 'react-router'
 
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
@@ -63,12 +63,13 @@ const ProductCategoriesList = () => {
   const { openDrawer: openProductCategoryDrawer } = useProductCategoryDrawer()
   const { openDeleteProductCategoryDialog } = useDeleteProductCategoryDialog()
   const { page, goToPage } = usePageSearchParam()
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   // network-only: tabs are route-based so this component remounts on tab switch
   // and `?page` is dropped; a cache-first read would flash the previously viewed
   // page before the page-1 refetch.
   const [getProductCategories, { data, error, loading, variables }] = useProductCategoriesLazyQuery(
     {
-      variables: { limit: DEFAULT_PAGE_SIZE, page },
+      variables: { limit: pageSize, page },
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'network-only',
@@ -210,7 +211,12 @@ const ProductCategoriesList = () => {
       <PaginatedContent
         metadata={data?.productCategories?.metadata}
         loading={isLoading}
+        pageSize={pageSize}
         onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
       >
         <Table
           name="productCategories-list"
@@ -219,6 +225,7 @@ const ProductCategoriesList = () => {
           containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
           rowSize={72}
           isLoading={isLoading}
+          loadingRowCount={pageSize}
           hasError={!!error}
           rowDataTestId={(productCategory) => `${productCategory.name}`}
           onRowActionLink={getRowActionLink}

@@ -128,7 +128,7 @@ const CatalogPlanDetails = (): JSX.Element => {
             // states that directly rather than passing a literal ':section' as a param value.
             match: [overviewLink, `${overviewLink}/:section`],
             content: (
-              <DetailsPage.Container className="pt-6">
+              <DetailsPage.Container className="pb-0 pt-6">
                 <CatalogPlanDetailsOverview
                   rateCardsCount={catalogPlan?.appliedRateCardsCount}
                   isRateCardRemovalLocked={catalogPlan?.attachedToContracts !== false}

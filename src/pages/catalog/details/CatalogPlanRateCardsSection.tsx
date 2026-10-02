@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router'
 
 import { usePageSearchParam } from '~/components/designSystem/Pagination/usePageSearchParam'
@@ -79,6 +79,7 @@ export const CatalogPlanRateCardsSection = ({
   const { translate } = useInternationalization()
   const { page, goToPage } = usePageSearchParam()
   const [searchParams] = useSearchParams()
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
 
   const filtersForQuery = useMemo(
     () => formatFiltersForAppliedRateCardsQuery(searchParams),
@@ -89,7 +90,7 @@ export const CatalogPlanRateCardsSection = ({
   // flash the previously viewed page.
   const [getPlanAppliedRateCards, { data, error, loading, variables, refetch }] =
     useGetPlanAppliedRateCardsForRateCardsSectionLazyQuery({
-      variables: { planId: catalogPlanId, page, limit: DEFAULT_PAGE_SIZE, ...filtersForQuery },
+      variables: { planId: catalogPlanId, page, limit: pageSize, ...filtersForQuery },
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'network-only',
@@ -152,6 +153,11 @@ export const CatalogPlanRateCardsSection = ({
         placeholder={placeholder}
         removal={removal}
         onPageChange={goToPage}
+        pageSize={pageSize}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
         getRateCardHref={(row) =>
           generatePath(CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE, {
             catalogPlanId,

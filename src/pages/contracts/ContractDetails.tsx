@@ -7,6 +7,7 @@ import {
   useTerminateContractDialog,
 } from '~/components/contracts/useTerminateContractDialog'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
@@ -15,6 +16,7 @@ import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import { ContractDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CONTRACT_DETAILS_ROUTE, CONTRACT_DETAILS_TAB_ROUTE, CONTRACTS_ROUTE } from '~/core/router'
 import {
+  ContractForContractDrawerFragmentDoc,
   ContractStatusEnum,
   LagoApiError,
   useGetContractForDetailsQuery,
@@ -38,6 +40,7 @@ gql`
       id
       name
     }
+    ...ContractForContractDrawer
   }
 
   query getContractForDetails($id: ID!) {
@@ -45,6 +48,8 @@ gql`
       ...ContractForContractDetails
     }
   }
+
+  ${ContractForContractDrawerFragmentDoc}
 `
 
 export const CONTRACT_DETAILS_ACTIONS_TEST_ID = 'contract-details-actions'
@@ -134,7 +139,9 @@ const ContractDetails = (): JSX.Element => {
         entity={{
           viewName: contract?.name || contract?.plan?.name || '',
           viewNameLoading: loading,
-          metadata: contract?.externalId,
+          metadata: contract?.externalId ? (
+            <TypographyWithCopy variant="body">{contract.externalId}</TypographyWithCopy>
+          ) : undefined,
           metadataLoading: loading,
           badges: contract ? [status] : undefined,
         }}
@@ -145,7 +152,7 @@ const ContractDetails = (): JSX.Element => {
             link: overviewLink,
             match: [baseDetailsPath, overviewLink, `${overviewLink}/:section`],
             content: (
-              <DetailsPage.Container className="pt-6">
+              <DetailsPage.Container className="pb-0 pt-6">
                 <ContractDetailsOverview
                   rateCardsCount={contract?.appliedRateCardsCount}
                   isRateCardRemovalLocked={contract?.status !== ContractStatusEnum.Pending}

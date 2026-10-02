@@ -9,6 +9,7 @@ import {
   CONTRACTS_ROUTE,
   CUSTOMERS_LIST_ROUTE,
   PLAN_PRICING_ROUTE,
+  SUBSCRIPTIONS_ROUTE,
 } from '~/core/router'
 import { FeatureFlagEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -153,6 +154,20 @@ describe('MainNavMenuSections', () => {
       render(<MainNavMenuSections {...defaultProps} />)
 
       expect(document.querySelector(`a[href="${CONTRACTS_ROUTE}"]`)).not.toBeInTheDocument()
+    })
+
+    it('hides Subscriptions when Product Catalog is enabled', () => {
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.ProductCatalog)
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(document.querySelector(`a[href="${SUBSCRIPTIONS_ROUTE}"]`)).not.toBeInTheDocument()
+    })
+
+    it('shows Subscriptions when Product Catalog is disabled', () => {
+      mockHasFeatureFlag.mockImplementation((flag) => flag !== FeatureFlagEnum.ProductCatalog)
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(document.querySelector(`a[href="${SUBSCRIPTIONS_ROUTE}"]`)).toBeInTheDocument()
     })
   })
 

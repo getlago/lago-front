@@ -1,7 +1,9 @@
 import type { MockedResponse } from '@apollo/client/testing'
-import { act, render as rtlRender, screen, waitFor } from '@testing-library/react'
+import { act, render as rtlRender, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { contractForDrawerFixture } from '~/components/contracts/drawers/contract/__tests__/fixtures'
+import { TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID } from '~/components/designSystem/TypographyWithCopy'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderReader } from '~/components/MainHeader/MainHeaderContext'
 import {
@@ -75,7 +77,7 @@ jest.mock('../details/ContractDetailsOverview', () => ({
 }))
 
 const contractFixture = {
-  __typename: 'Contract',
+  ...contractForDrawerFixture,
   id: 'contract-1',
   externalId: 'external-contract-1',
   name: null,
@@ -85,6 +87,7 @@ const contractFixture = {
     __typename: 'CatalogPlan',
     id: 'plan-1',
     name: 'Enterprise plan',
+    code: 'enterprise',
   },
 }
 
@@ -167,6 +170,14 @@ describe('ContractDetails', () => {
     expect(screen.getByTestId(ENTITY_SECTION_METADATA_TEST_ID)).toHaveTextContent(
       'external-contract-1',
     )
+  })
+
+  it('shows the external ID in the header with a copy button, like the other details pages', async () => {
+    await act(() => renderPage())
+
+    const metadata = await screen.findByTestId(ENTITY_SECTION_METADATA_TEST_ID)
+
+    expect(within(metadata).getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID)).toBeInTheDocument()
   })
 
   it('copies the external ID from the header action', async () => {

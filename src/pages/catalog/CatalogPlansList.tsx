@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
@@ -65,9 +65,10 @@ const CatalogPlansList = (): JSX.Element => {
   const { openDrawer: openCatalogPlanDrawer } = useCatalogPlanDrawer()
   const { actionColumn, actionColumnTooltip, getRowActionLink } = useCatalogPlanTableActions()
   const { page, goToPage } = usePageSearchParam()
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
 
   const [getCatalogPlans, { data, error, loading, variables }] = useCatalogPlansLazyQuery({
-    variables: { limit: DEFAULT_PAGE_SIZE, page },
+    variables: { limit: pageSize, page },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
@@ -178,7 +179,12 @@ const CatalogPlansList = (): JSX.Element => {
       <PaginatedContent
         metadata={data?.catalogPlans?.metadata}
         loading={isLoading}
+        pageSize={pageSize}
         onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
       >
         <Table
           name="catalog-plans-list"
@@ -187,6 +193,7 @@ const CatalogPlansList = (): JSX.Element => {
           containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
           rowSize={72}
           isLoading={isLoading}
+          loadingRowCount={pageSize}
           hasError={!!error}
           rowDataTestId={(catalogPlan) => `${catalogPlan.name}`}
           onRowActionLink={getRowActionLink}
