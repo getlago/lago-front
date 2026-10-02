@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
 import { useStore } from '@tanstack/react-form'
-import { ReactNode, useCallback, useMemo } from 'react'
+import { ReactNode, useCallback } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -74,7 +74,7 @@ export const GraduatedRateTiersTable = withForm({
       onChange: handleTiersChange,
       createTier: createGraduatedTier,
     })
-    const example = useMemo(() => getGraduatedRateTiersExample(rows), [rows])
+    const example = getGraduatedRateTiersExample(rows)
     const amountAdornment = pricingUnitShortName || getCurrencySymbol(currency)
 
     const formatAmount = (amount: number): string =>
