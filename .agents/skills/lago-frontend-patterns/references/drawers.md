@@ -85,6 +85,11 @@ Notes:
   `closeOnSubmitSuccess: false` lets `onSubmit` decide when to close.
 - Drawer-local draft: the value only reaches the parent form in `onSave`, so cancelling
   must not mutate parent state.
+- `drawer.open()` returns `Promise<DrawerResult>` (resolves on close) that nothing reads —
+  intentionally fire-and-forget everywhere in the codebase. SonarCloud's floating-promise
+  rule only flags it in files new to a PR, since older call sites aren't re-scanned. Write
+  `void drawer.open({...})` in new code to keep it fire-and-forget without the finding;
+  don't retrofit existing call sites just to silence it.
 - Reference sites: `usePlanSettingsDrawer`, `useSubscriptionInformationDrawer`,
   `useCreditsDrawer`, `useRecurringRuleDrawer`.
 

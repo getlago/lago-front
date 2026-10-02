@@ -50,7 +50,7 @@ export const useContractAttachedObjectDrawer = (): {
     editedContractRef.current = contract
     form.reset(mapContractToAttachedObjectFormValues(contract), { keepDefaultValues: true })
 
-    drawer.open({
+    void drawer.open({
       title: translate(CONTRACT_ATTACHED_OBJECT_DRAWER_TITLE_KEY),
       form: { id: CONTRACT_ATTACHED_OBJECT_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
