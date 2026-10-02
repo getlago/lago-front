@@ -4,6 +4,8 @@ import * as React from 'react'
 
 import { cn } from '~/lib/utils'
 
+import { useV2ColorTheme } from './v2-theme'
+
 const buttonVariants = cva(
   "v2-text-label inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md outline-none transition-colors focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
@@ -38,9 +40,15 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button'
+    const colorTheme = useV2ColorTheme()
 
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      <Comp
+        data-variant={colorTheme ? variant || 'default' : undefined}
+        className={cn(buttonVariants({ variant, size }), colorTheme && 'v2-button', className)}
+        ref={ref}
+        {...props}
+      />
     )
   },
 )

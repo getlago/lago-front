@@ -1,0 +1,243 @@
+/* Opt-in only: no root, global theme, or legacy token overrides. */
+.v2-theme {
+  --v2-neutral-50: #fbfbfb;
+  --v2-neutral-100: #ececee;
+  --v2-neutral-200: #d9d9d9;
+  --v2-neutral-300: #a4a5a6;
+  --v2-neutral-400: #909090;
+  --v2-neutral-500: #6b6b6b;
+  --v2-neutral-600: #525254;
+  --v2-neutral-700: #3d3d3f;
+  --v2-neutral-800: #1a1c1f;
+  --v2-neutral-900: #18181a;
+  --v2-neutral-950: #101012;
+  --v2-brand-50: #eff6ff;
+  --v2-brand-100: #dbeaff;
+  --v2-brand-200: #b8d7ff;
+  --v2-brand-300: #85baff;
+  --v2-brand-400: #4797ff;
+  --v2-brand-500: #1a7bff;
+  --v2-brand-600: #006cfa;
+  --v2-brand-700: #005bd4;
+  --v2-brand-800: #004bb0;
+  --v2-brand-900: #003c8c;
+  --v2-brand-950: #002354;
+  --v2-violet-50: #f5f3ff;
+  --v2-violet-100: #ede9fe;
+  --v2-violet-200: #ddd6fe;
+  --v2-violet-300: #c4b5fd;
+  --v2-violet-400: #a78bfa;
+  --v2-violet-500: #8b5cf6;
+  --v2-violet-600: #7c3aed;
+  --v2-violet-700: #6d28d9;
+  --v2-violet-800: #5b21b6;
+  --v2-violet-900: #4c1d95;
+  --v2-violet-950: #2e1065;
+  --v2-green-50: #f0fdf4;
+  --v2-green-100: #dcfce7;
+  --v2-green-200: #bbf7d0;
+  --v2-green-300: #86efac;
+  --v2-green-400: #4ade80;
+  --v2-green-500: #22c55e;
+  --v2-green-600: #16a34a;
+  --v2-green-700: #15803d;
+  --v2-green-800: #166534;
+  --v2-green-900: #14532d;
+  --v2-green-950: #052e16;
+  --v2-amber-50: #fffbeb;
+  --v2-amber-100: #fef3c7;
+  --v2-amber-200: #fde68a;
+  --v2-amber-300: #fcd34d;
+  --v2-amber-400: #fbbf24;
+  --v2-amber-500: #f59e0b;
+  --v2-amber-600: #d97706;
+  --v2-amber-700: #b45309;
+  --v2-amber-800: #92400e;
+  --v2-amber-900: #78350f;
+  --v2-amber-950: #451a03;
+  --v2-red-50: #fef2f2;
+  --v2-red-100: #fee2e2;
+  --v2-red-200: #fecaca;
+  --v2-red-300: #fca5a5;
+  --v2-red-400: #f87171;
+  --v2-red-500: #ef4444;
+  --v2-red-600: #dc2626;
+  --v2-red-700: #b91c1c;
+  --v2-red-800: #991b1b;
+  --v2-red-900: #7f1d1d;
+  --v2-red-950: #450a0a;
+  --v2-white: #ffffff;
+  --v2-alpha-black-04: rgb(0 0 0 / 4%);
+  --v2-alpha-black-08: rgb(0 0 0 / 8%);
+  --v2-alpha-black-40: rgb(0 0 0 / 40%);
+  --v2-alpha-black-64: rgb(0 0 0 / 64%);
+  --v2-alpha-white-06: rgb(255 255 255 / 6%);
+  --v2-alpha-white-10: rgb(255 255 255 / 10%);
+  --v2-alpha-white-12: rgb(255 255 255 / 12%);
+  --v2-color-canvas: var(--v2-white);
+  --v2-color-surface: var(--v2-white);
+  --v2-color-surface-raised: var(--v2-white);
+  --v2-color-surface-inset: var(--v2-neutral-50);
+  --v2-color-text-default: var(--v2-neutral-800);
+  --v2-color-text-muted: var(--v2-neutral-600);
+  --v2-color-text-subtle: var(--v2-neutral-400);
+  --v2-color-text-button: var(--v2-white);
+  --v2-color-border-subtle: var(--v2-alpha-black-08);
+  --v2-color-border-default: var(--v2-neutral-500);
+  --v2-color-border-strong: var(--v2-neutral-600);
+  --v2-color-action-primary: var(--v2-brand-600);
+  --v2-color-action-primary-hover: var(--v2-brand-700);
+  --v2-color-action-primary-pressed: var(--v2-brand-800);
+  --v2-color-action-primary-foreground: var(--v2-white);
+  --v2-color-interactive-hover: var(--v2-alpha-black-04);
+  --v2-color-interactive-pressed: var(--v2-alpha-black-08);
+  --v2-color-selected: var(--v2-brand-100);
+  --v2-color-selected-foreground: var(--v2-brand-600);
+  --v2-color-link: var(--v2-brand-700);
+  --v2-color-link-hover: var(--v2-brand-800);
+  --v2-color-focus-ring: var(--v2-brand-200);
+  --v2-color-focus-border: var(--v2-brand-600);
+  --v2-color-disabled: var(--v2-neutral-100);
+  --v2-color-disabled-foreground: var(--v2-neutral-400);
+  --v2-color-disabled-border: var(--v2-neutral-200);
+  --v2-color-info: var(--v2-violet-50);
+  --v2-color-info-foreground: var(--v2-violet-700);
+  --v2-color-info-border: var(--v2-violet-700);
+  --v2-color-success: var(--v2-green-50);
+  --v2-color-success-foreground: var(--v2-green-700);
+  --v2-color-success-border: var(--v2-green-700);
+  --v2-color-warning: var(--v2-amber-50);
+  --v2-color-warning-foreground: var(--v2-amber-800);
+  --v2-color-warning-border: var(--v2-amber-700);
+  --v2-color-danger: var(--v2-red-50);
+  --v2-color-danger-foreground: var(--v2-red-700);
+  --v2-color-danger-border: var(--v2-red-700);
+  --v2-color-destructive: var(--v2-red-700);
+  --v2-color-destructive-hover: var(--v2-red-800);
+  --v2-color-destructive-pressed: var(--v2-red-900);
+  --v2-color-destructive-foreground: var(--v2-white);
+  --v2-color-overlay: var(--v2-alpha-black-40);
+  --v2-color-inverse: var(--v2-neutral-800);
+  --v2-color-inverse-foreground: var(--v2-white);
+  color-scheme: light;
+}
+.v2-theme[data-theme='dark'] {
+  --v2-color-canvas: var(--v2-neutral-900);
+  --v2-color-surface: var(--v2-neutral-900);
+  --v2-color-surface-raised: var(--v2-neutral-900);
+  --v2-color-surface-inset: var(--v2-neutral-800);
+  --v2-color-text-default: var(--v2-neutral-100);
+  --v2-color-text-muted: var(--v2-neutral-200);
+  --v2-color-text-subtle: var(--v2-neutral-300);
+  --v2-color-text-button: var(--v2-white);
+  --v2-color-border-subtle: var(--v2-alpha-white-12);
+  --v2-color-border-default: var(--v2-neutral-400);
+  --v2-color-border-strong: var(--v2-neutral-300);
+  --v2-color-action-primary: var(--v2-brand-600);
+  --v2-color-action-primary-hover: var(--v2-brand-700);
+  --v2-color-action-primary-pressed: var(--v2-brand-800);
+  --v2-color-action-primary-foreground: var(--v2-white);
+  --v2-color-interactive-hover: var(--v2-alpha-white-06);
+  --v2-color-interactive-pressed: var(--v2-alpha-white-10);
+  --v2-color-selected: var(--v2-neutral-700);
+  --v2-color-selected-foreground: var(--v2-neutral-300);
+  --v2-color-link: var(--v2-brand-400);
+  --v2-color-link-hover: var(--v2-brand-300);
+  --v2-color-focus-ring: var(--v2-brand-200);
+  --v2-color-focus-border: var(--v2-brand-300);
+  --v2-color-disabled: var(--v2-neutral-800);
+  --v2-color-disabled-foreground: var(--v2-neutral-500);
+  --v2-color-disabled-border: var(--v2-neutral-700);
+  --v2-color-info: var(--v2-violet-950);
+  --v2-color-info-foreground: var(--v2-violet-300);
+  --v2-color-info-border: var(--v2-violet-400);
+  --v2-color-success: var(--v2-green-950);
+  --v2-color-success-foreground: var(--v2-green-300);
+  --v2-color-success-border: var(--v2-green-400);
+  --v2-color-warning: var(--v2-amber-950);
+  --v2-color-warning-foreground: var(--v2-amber-300);
+  --v2-color-warning-border: var(--v2-amber-400);
+  --v2-color-danger: var(--v2-red-950);
+  --v2-color-danger-foreground: var(--v2-red-300);
+  --v2-color-danger-border: var(--v2-red-400);
+  --v2-color-destructive: var(--v2-red-700);
+  --v2-color-destructive-hover: var(--v2-red-800);
+  --v2-color-destructive-pressed: var(--v2-red-900);
+  --v2-color-destructive-foreground: var(--v2-white);
+  --v2-color-overlay: var(--v2-alpha-black-64);
+  --v2-color-inverse: var(--v2-neutral-50);
+  --v2-color-inverse-foreground: var(--v2-neutral-800);
+  color-scheme: dark;
+}
+
+.v2-theme .v2-button {
+  color: var(--v2-color-action-primary-foreground);
+  background-color: var(--v2-color-action-primary);
+  --v2-button-hover: var(--v2-color-action-primary-hover);
+  --v2-button-pressed: var(--v2-color-action-primary-pressed);
+}
+.v2-theme .v2-button[data-variant='destructive'] {
+  color: var(--v2-color-destructive-foreground);
+  background-color: var(--v2-color-destructive);
+  --v2-button-hover: var(--v2-color-destructive-hover);
+  --v2-button-pressed: var(--v2-color-destructive-pressed);
+}
+.v2-theme
+  .v2-button:is([data-variant='outline'], [data-variant='secondary'], [data-variant='ghost']) {
+  color: var(--v2-color-text-default);
+  background-color: transparent;
+  border-color: var(--v2-color-border-default);
+  --v2-button-hover: var(--v2-color-interactive-hover);
+  --v2-button-pressed: var(--v2-color-interactive-pressed);
+}
+.v2-theme .v2-button[data-variant='link'],
+.v2-theme a.v2-inline-link {
+  color: var(--v2-color-link);
+  background-color: transparent;
+  --v2-button-hover: transparent;
+  --v2-button-pressed: transparent;
+}
+.v2-theme .v2-button:hover {
+  background-color: var(--v2-button-hover);
+}
+.v2-theme .v2-button:active {
+  background-color: var(--v2-button-pressed);
+}
+.v2-theme .v2-button[data-variant='link']:hover,
+.v2-theme a.v2-inline-link:hover {
+  color: var(--v2-color-link-hover);
+}
+.v2-theme .v2-input {
+  color: var(--v2-color-text-default);
+  background-color: var(--v2-color-surface);
+  border-color: var(--v2-color-border-default);
+}
+.v2-theme .v2-input::placeholder {
+  color: var(--v2-color-text-subtle);
+}
+.v2-theme .v2-button:focus-visible,
+.v2-theme .v2-input:focus-visible,
+.v2-theme a.v2-inline-link:focus-visible {
+  outline: 2px solid var(--v2-color-focus-border);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--v2-color-focus-ring);
+}
+.v2-theme .v2-input[aria-invalid='true'] {
+  border-color: var(--v2-color-danger-border);
+}
+.v2-theme .v2-input[aria-invalid='true']:focus-visible {
+  outline-color: var(--v2-color-danger-border);
+}
+.v2-theme .v2-button:disabled,
+.v2-theme .v2-input:disabled {
+  background-color: var(--v2-color-disabled);
+  color: var(--v2-color-disabled-foreground);
+  border-color: var(--v2-color-disabled-border);
+  opacity: 1;
+}
+.v2-theme .v2-input:disabled::placeholder {
+  color: var(--v2-color-disabled-foreground);
+}
+.v2-theme .v2-dialog::backdrop {
+  background-color: var(--v2-color-overlay);
+}

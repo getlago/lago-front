@@ -1,6 +1,8 @@
 import sharedConfig from 'lago-configs/tailwind'
 import { Config } from 'tailwindcss/types/config'
 
+import { v2TailwindColors } from './src/styles/v2/colors'
+
 const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme'> = {
   content: ['src/**/*.{js,ts,jsx,tsx}'],
   presets: [sharedConfig],
@@ -11,6 +13,7 @@ const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme'> = {
         invalid: 'invalid="true"',
       },
       colors: {
+        ...v2TailwindColors,
         background: 'oklch(var(--background) / <alpha-value>)',
         foreground: 'oklch(var(--foreground) / <alpha-value>)',
         card: {
