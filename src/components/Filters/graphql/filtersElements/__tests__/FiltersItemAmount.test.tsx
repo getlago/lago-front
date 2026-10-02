@@ -1,8 +1,22 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import type { ComponentProps } from 'react'
 
 import { FiltersItemAmount } from '~/components/Filters/graphql/filtersElements/FiltersItemAmount'
 import { AmountFilterInterval } from '~/components/Filters/presentation/types'
 import { AllTheProviders } from '~/test-utils'
+
+jest.mock('~/components/form/ComboBox', () => {
+  const actual = jest.requireActual<typeof import('~/components/form/ComboBox')>(
+    '~/components/form/ComboBox',
+  )
+
+  return {
+    ...actual,
+    ComboBox: (props: ComponentProps<typeof actual.ComboBox>) => (
+      <actual.ComboBox {...props} virtualized={false} />
+    ),
+  }
+})
 
 const renderComponent = (value?: string): { setFilterValue: jest.Mock } => {
   const setFilterValue = jest.fn()
@@ -90,6 +104,22 @@ describe('FiltersItemAmount', () => {
         expect(inputs).toHaveLength(1)
         expect(inputs[0].value).toBe('7')
         expect(setFilterValue).toHaveBeenLastCalledWith(`${AmountFilterInterval.isAtLeast},7,`)
+      })
+    })
+  })
+
+  describe('GIVEN the interval combobox', () => {
+    describe('WHEN an interval is selected', () => {
+      it('THEN should reveal the matching amount inputs and emit the new interval', async () => {
+        const { setFilterValue } = renderComponent()
+
+        fireEvent.mouseDown(screen.getByRole('combobox'))
+        fireEvent.click(await screen.findByText('Is between'))
+
+        expect(screen.getAllByRole('textbox')).toHaveLength(2)
+        expect(setFilterValue).toHaveBeenLastCalledWith(
+          expect.stringMatching(new RegExp(`^${AmountFilterInterval.isBetween},`)),
+        )
       })
     })
   })

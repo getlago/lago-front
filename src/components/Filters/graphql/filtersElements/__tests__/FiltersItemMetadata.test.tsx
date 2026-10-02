@@ -53,6 +53,18 @@ describe('FiltersItemMetadata', () => {
         expect(setFilterValue).toHaveBeenLastCalledWith('env=')
       })
     })
+
+    describe('WHEN a value is typed', () => {
+      it('THEN should call setFilterValue with the formatted metadata', () => {
+        const { setFilterValue } = renderComponent('env=')
+
+        const [, valueInput] = screen.getAllByRole('textbox')
+
+        fireEvent.change(valueInput, { target: { value: 'prod' } })
+
+        expect(setFilterValue).toHaveBeenLastCalledWith('env=prod')
+      })
+    })
   })
 
   describe('GIVEN the add metadata button', () => {

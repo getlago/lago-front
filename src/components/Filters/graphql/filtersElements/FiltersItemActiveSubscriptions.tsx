@@ -1,4 +1,4 @@
-import { useFormik } from 'formik'
+import { useStore } from '@tanstack/react-form'
 import { useEffect } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
@@ -8,10 +8,10 @@ import {
   ActiveSubscriptionsFilterInterval,
   FiltersFormValues,
 } from '~/components/Filters/presentation/types'
-import { ComboBoxField, TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
-type FiltersItemAmountProps = {
+type FiltersItemActiveSubscriptionsProps = {
   value: FiltersFormValues['filters'][0]['value']
   setFilterValue: (value: string) => void
 }
@@ -40,30 +40,28 @@ const TO_INTERVALS = [
 export const FiltersItemActiveSubscriptions = ({
   value = '',
   setFilterValue,
-}: FiltersItemAmountProps) => {
+}: FiltersItemActiveSubscriptionsProps) => {
   const { translate } = useInternationalization()
 
-  const formikProps = useFormik({
-    initialValues: {
+  const form = useAppForm({
+    defaultValues: {
       interval: value.split(',')?.[0],
       activeSubscriptionsFrom: value.split(',')?.[1],
       activeSubscriptionsTo: value.split(',')?.[2],
     },
-    validateOnMount: true,
-    enableReinitialize: true,
-    onSubmit: () => {},
   })
 
-  const showFrom = FROM_INTERVALS.includes(
-    formikProps.values.interval as ActiveSubscriptionsFilterInterval,
+  const interval = useStore(form.store, (state) => state.values.interval)
+  const activeSubscriptionsFrom = useStore(
+    form.store,
+    (state) => state.values.activeSubscriptionsFrom,
   )
-  const showTo = TO_INTERVALS.includes(
-    formikProps.values.interval as ActiveSubscriptionsFilterInterval,
-  )
+  const activeSubscriptionsTo = useStore(form.store, (state) => state.values.activeSubscriptionsTo)
+
+  const showFrom = FROM_INTERVALS.includes(interval as ActiveSubscriptionsFilterInterval)
+  const showTo = TO_INTERVALS.includes(interval as ActiveSubscriptionsFilterInterval)
 
   useEffect(() => {
-    const { interval, activeSubscriptionsFrom, activeSubscriptionsTo } = formikProps.values
-
     const { activeSubscriptionsFrom: from, activeSubscriptionsTo: to } = parseFromToValue(
       `${interval},${activeSubscriptionsFrom},${activeSubscriptionsTo}`,
       { from: 'activeSubscriptionsFrom', to: 'activeSubscriptionsTo' },
@@ -72,41 +70,47 @@ export const FiltersItemActiveSubscriptions = ({
     setFilterValue?.(`${interval},${from !== null ? from : ''},${to !== null ? to : ''}`)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikProps.values])
+  }, [interval, activeSubscriptionsFrom, activeSubscriptionsTo])
 
   return (
     <div className="flex items-center gap-2 lg:gap-3">
-      <ComboBoxField
-        name="interval"
-        data={ACTIVE_SUBSCRIPTIONS_INTERVALS.map((interval) => ({
-          value: interval.value,
-          label: translate(interval.label),
-        }))}
-        placeholder={translate('text_66ab42d4ece7e6b7078993b1')}
-        formikProps={formikProps}
-        disableClearable={true}
-      />
+      <form.AppField name="interval">
+        {(field) => (
+          <field.ComboBoxField
+            data={ACTIVE_SUBSCRIPTIONS_INTERVALS.map((subscriptionsInterval) => ({
+              value: subscriptionsInterval.value,
+              label: translate(subscriptionsInterval.label),
+            }))}
+            placeholder={translate('text_66ab42d4ece7e6b7078993b1')}
+            disableClearable={true}
+          />
+        )}
+      </form.AppField>
 
       {showFrom && (
-        <TextInputField
-          name="activeSubscriptionsFrom"
-          beforeChangeFormatter={['int', 'positiveNumber']}
-          type="number"
-          placeholder="0"
-          formikProps={formikProps}
-        />
+        <form.AppField name="activeSubscriptionsFrom">
+          {(field) => (
+            <field.TextInputField
+              beforeChangeFormatter={['int', 'positiveNumber']}
+              type="number"
+              placeholder="0"
+            />
+          )}
+        </form.AppField>
       )}
 
       {showFrom && showTo && <Typography className="text-grey-700">and</Typography>}
 
       {showTo && (
-        <TextInputField
-          name="activeSubscriptionsTo"
-          beforeChangeFormatter={['int', 'positiveNumber']}
-          type="number"
-          placeholder="0"
-          formikProps={formikProps}
-        />
+        <form.AppField name="activeSubscriptionsTo">
+          {(field) => (
+            <field.TextInputField
+              beforeChangeFormatter={['int', 'positiveNumber']}
+              type="number"
+              placeholder="0"
+            />
+          )}
+        </form.AppField>
       )}
     </div>
   )

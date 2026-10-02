@@ -1,12 +1,12 @@
-import { useFormik } from 'formik'
+import { useStore } from '@tanstack/react-form'
 import { useEffect } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatMetadataFilter, parseMetadataFilter } from '~/components/Filters/graphql/utils'
 import { FiltersFormValues } from '~/components/Filters/presentation/types'
-import { TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 type FiltersItemMetadataProps = {
   value: FiltersFormValues['filters'][0]['value']
@@ -20,26 +20,23 @@ export const FiltersItemMetadata = ({ value = '', setFilterValue }: FiltersItemM
 
   const initialMetadata = parseMetadataFilter(value)
 
-  const formikProps = useFormik({
-    initialValues: {
+  const form = useAppForm({
+    defaultValues: {
       metadata: initialMetadata.length ? initialMetadata : [{ key: '', value: '' }],
     },
-    validateOnMount: true,
-    enableReinitialize: true,
-    onSubmit: () => {},
   })
 
-  useEffect(() => {
-    const { metadata } = formikProps.values
+  const metadata = useStore(form.store, (state) => state.values.metadata)
 
+  useEffect(() => {
     setFilterValue(formatMetadataFilter(metadata))
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikProps.values.metadata])
+  }, [metadata])
 
   return (
     <div className="flex flex-col gap-4">
-      {formikProps.values.metadata.map((_metadata, i) => (
+      {metadata.map((_metadata, i) => (
         <div
           className="grid grid-cols-[minmax(30px,max-content)_1fr_minmax(5px,max-content)_1fr_24px] items-center gap-2 lg:gap-3"
           key={i}
@@ -53,26 +50,26 @@ export const FiltersItemMetadata = ({ value = '', setFilterValue }: FiltersItemM
               {translate('text_65f8472df7593301061e27d6').toLowerCase()}
             </Typography>
           )}
-          <TextInputField
-            name={`metadata.${i}.key`}
-            placeholder={translate('text_63fcc3218d35b9377840f5a7')}
-            formikProps={formikProps}
-          />
+          <form.AppField name={`metadata[${i}].key`}>
+            {(field) => (
+              <field.TextInputField placeholder={translate('text_63fcc3218d35b9377840f5a7')} />
+            )}
+          </form.AppField>
           <Typography className="text-grey-700">=</Typography>
-          <TextInputField
-            name={`metadata.${i}.value`}
-            placeholder={translate('text_63fcc3218d35b9377840f5af')}
-            formikProps={formikProps}
-          />
+          <form.AppField name={`metadata[${i}].value`}>
+            {(field) => (
+              <field.TextInputField placeholder={translate('text_63fcc3218d35b9377840f5af')} />
+            )}
+          </form.AppField>
           <Button
             icon="trash"
             variant="quaternary"
             size="small"
-            disabled={i === 0 && formikProps.values.metadata.length === 1}
+            disabled={i === 0 && metadata.length === 1}
             onClick={() =>
-              formikProps.setFieldValue(
+              form.setFieldValue(
                 'metadata',
-                formikProps.values.metadata.filter((_, index) => index !== i),
+                metadata.filter((_, index) => index !== i),
               )
             }
           />
@@ -82,16 +79,8 @@ export const FiltersItemMetadata = ({ value = '', setFilterValue }: FiltersItemM
         startIcon="plus"
         variant="inline"
         fitContent
-        disabled={formikProps.values.metadata.length >= MAX_METADATA_COUNT}
-        onClick={() =>
-          formikProps.setFieldValue('metadata', [
-            ...formikProps.values.metadata,
-            {
-              key: '',
-              value: '',
-            },
-          ])
-        }
+        disabled={metadata.length >= MAX_METADATA_COUNT}
+        onClick={() => form.setFieldValue('metadata', [...metadata, { key: '', value: '' }])}
         data-test="add-metadata-button"
       >
         {translate('text_63fcc3218d35b9377840f5bb')}
