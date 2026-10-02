@@ -5131,5 +5131,9 @@
   "text_1790812800000h2k6wsj8x4q": "Leave empty to keep the current client secret",
   "text_17908879231882xquji7dat9": "Up to",
   "text_1790887923188zkz50zctwn0": "For the units",
-  "text_1790887923188ftf3no9cjov": "Then"
+  "text_1790887923188ftf3no9cjov": "Then",
+  "text_1790959050606st0sfgsyq08": "Additional domains (optional)",
+  "text_1790959050607ii8cfyhk6v2": "Type a domain and press Enter",
+  "text_1790959050607s5l0xu9h04v": "Users whose email is on one of these domains also sign in through this integration, for example de.example.com.",
+  "text_1790959463497ioxa22pk7n6": "Additional domains"
 }

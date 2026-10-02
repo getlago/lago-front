@@ -102,6 +102,7 @@ describe('AddEntraIdDialog', () => {
           variables: {
             input: {
               domain: 'example.com',
+              additionalDomains: [],
               host: 'login.microsoftonline.com',
               clientId: 'client-id',
               clientSecret: 'client-secret',
@@ -169,6 +170,7 @@ describe('AddEntraIdDialog', () => {
           variables: {
             input: {
               domain: 'example.com',
+              additionalDomains: [],
               host: '',
               clientId: 'client-id',
               clientSecret: 'client-secret',
@@ -222,6 +224,70 @@ describe('AddEntraIdDialog', () => {
     })
   })
 
+  it('sends the additional domains typed in the list', async () => {
+    const mocks: TestMocksType = [
+      {
+        request: {
+          query: CreateEntraIdIntegrationDocument,
+          variables: {
+            input: {
+              domain: 'example.com',
+              additionalDomains: ['de.example.com', 'us.example.com'],
+              host: '',
+              clientId: 'client-id',
+              clientSecret: 'client-secret',
+              tenantId: 'tenant-id',
+            },
+          },
+        },
+        result: {
+          data: {
+            createEntraIdIntegration: {
+              id: 'integration-id',
+            },
+          },
+        },
+      },
+    ]
+
+    await prepare({ mocks })
+
+    await userEvent.type(screen.getByLabelText(/Your domain name/i), 'example.com')
+    await userEvent.type(
+      screen.getByPlaceholderText('Type a domain and press Enter'),
+      'de.example.com{enter}us.example.com{enter}',
+    )
+    await userEvent.type(screen.getByLabelText(/Entra ID client ID/i), 'client-id')
+    await userEvent.type(screen.getByLabelText(/Entra ID client secret/i), 'client-secret')
+    await userEvent.type(screen.getByLabelText(/Entra ID tenant ID/i), 'tenant-id')
+
+    await userEvent.click(screen.getByTestId(ENTRA_ID_INTEGRATION_SUBMIT_BTN))
+
+    await waitFor(() => {
+      expect(mockOnSubmit).toHaveBeenCalledWith('integration-id')
+    })
+  })
+
+  it('rejects an additional domain that is not a domain', async () => {
+    await prepare()
+
+    await userEvent.type(screen.getByLabelText(/Your domain name/i), 'example.com')
+    await userEvent.type(
+      screen.getByPlaceholderText('Type a domain and press Enter'),
+      'not a domain{enter}',
+    )
+    await userEvent.type(screen.getByLabelText(/Entra ID client ID/i), 'client-id')
+    await userEvent.type(screen.getByLabelText(/Entra ID client secret/i), 'client-secret')
+    await userEvent.type(screen.getByLabelText(/Entra ID tenant ID/i), 'tenant-id')
+
+    await userEvent.click(screen.getByTestId(ENTRA_ID_INTEGRATION_SUBMIT_BTN))
+
+    await waitFor(() => {
+      expect(screen.getByTestId(ENTRA_ID_INTEGRATION_SUBMIT_BTN)).toBeDisabled()
+    })
+    expect(mockOnSubmit).not.toHaveBeenCalled()
+  })
+
   describe('edition mode', () => {
     const existingIntegration: AddEntraIdIntegrationDialogFragment = {
       id: 'integration-id',
@@ -231,6 +297,7 @@ describe('AddEntraIdDialog', () => {
       clientSecret: 'client-secret',
       tenantId: 'tenant-id',
       host: 'login.microsoftonline.com',
+      additionalDomains: ['de.example.com'],
     }
 
     const TestEditComponent = () => {
@@ -271,6 +338,7 @@ describe('AddEntraIdDialog', () => {
       expect(screen.getByLabelText(/Entra ID client secret/i)).toHaveValue('')
       expect(screen.getByText('Leave empty to keep the current client secret')).toBeInTheDocument()
       expect(screen.getByLabelText(/Entra ID tenant ID/i)).toHaveValue('tenant-id')
+      expect(screen.getByText('de.example.com')).toBeInTheDocument()
     })
 
     it('omits an empty client secret when updating the integration', async () => {
@@ -281,6 +349,7 @@ describe('AddEntraIdDialog', () => {
             variables: {
               input: {
                 domain: 'edited.com',
+                additionalDomains: ['de.example.com'],
                 host: 'login.microsoftonline.com',
                 clientId: 'client-id',
                 tenantId: 'tenant-id',
@@ -322,6 +391,7 @@ describe('AddEntraIdDialog', () => {
             variables: {
               input: {
                 domain: 'example.com',
+                additionalDomains: ['de.example.com'],
                 host: 'login.microsoftonline.com',
                 clientId: 'client-id',
                 clientSecret: 'new-client-secret',
