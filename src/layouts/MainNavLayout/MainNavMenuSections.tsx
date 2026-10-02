@@ -116,7 +116,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: PLANS_ROUTE,
       canBeClickedOnActive: true,
       match: [PLANS_ROUTE, PLAN_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS],
-      hidden: !hasPermissions(['plansView']),
+      hidden: !hasPermissions(['plansView']) || hasFeatureFlag(FeatureFlagEnum.ProductCatalog),
     },
     {
       title: translate('text_1752692673070k7z0mmf0494'),
