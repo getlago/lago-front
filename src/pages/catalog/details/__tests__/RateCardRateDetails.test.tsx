@@ -70,7 +70,7 @@ const rateFixture = {
   minAmountCents: '0',
   appliedPricingUnitConversionRate: null,
   rateProperties: {
-    __typename: 'Properties',
+    __typename: 'RateProperties',
     amount: '10',
     pricingGroupKeys: null,
     packageSize: null,

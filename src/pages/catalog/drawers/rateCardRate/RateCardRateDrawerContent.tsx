@@ -10,12 +10,10 @@ import { CreateMoreResetSignal } from '~/components/drawers/createMore/useCreate
 import { BasicComboBoxData } from '~/components/form/ComboBox/types'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
-import { ChargeWrapperSwitch } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
 import { useCustomChargeDrawer } from '~/components/plans/drawers/common/useCustomChargeDrawer'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   AggregationTypeEnum,
@@ -36,6 +34,7 @@ import {
   RATE_CARD_RATE_EFFECTIVE_DATE_AFTER_ACTIVE_KEY,
   RATE_CARD_RATE_FORM_DEFAULTS,
 } from './constants'
+import { getRatePropertiesShape } from './getRatePropertiesShape'
 import {
   buildRateCodeFromEffectiveDate,
   formatEffectiveDate,
@@ -43,6 +42,7 @@ import {
   toChargeModel,
 } from './utils'
 
+import { RateWrapperSwitch } from '../../rateProperties/RateWrapperSwitch'
 import {
   getAvailableRateModels,
   NO_AVAILABLE_RATE_MODELS_KEY,
@@ -213,7 +213,7 @@ const RateCardRateDrawerFormSections = withForm({
         .forEach((field) => form.resetField(field as keyof typeof form.state.values))
 
       form.setFieldValue('rateModel', nextRateModel)
-      form.setFieldValue('properties', getPropertyShape({}))
+      form.setFieldValue('properties', getRatePropertiesShape())
     }
 
     return (
@@ -376,15 +376,13 @@ const RateCardRateDrawerFormSections = withForm({
             )}
           </form.AppField>
 
-          <ChargeWrapperSwitch
-            chargeType={rateCard.productType === ProductTypeEnum.Fixed ? 'fixed' : 'usage'}
-            chargePricingUnitShortName={pricingUnitShortName}
-            currency={rateCard.currency}
+          <RateWrapperSwitch
             form={form}
-            localCharge={localCharge}
-            propertyCursor="properties"
+            rateModel={rateModel}
+            productType={rateCard.productType}
+            currency={rateCard.currency}
+            pricingUnitShortName={pricingUnitShortName}
             onExpandCustomCharge={openCustomChargeDrawer}
-            showPresentationGroupKeys={false}
           />
         </CenteredPage.PageSection>
 

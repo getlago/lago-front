@@ -14,7 +14,7 @@ import {
 
 import { serializeAmount } from './serializeAmount'
 
-const serializeScientificNotation = (value: string): string => {
+export const serializeScientificNotation = (value: string): string => {
   if (!value) return '0'
 
   return Number(value).toLocaleString('en-US', { maximumFractionDigits: 15, useGrouping: false })

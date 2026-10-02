@@ -485,7 +485,7 @@ describe('rate submission compatibility', () => {
       ...pendingRate,
       rateModel: RateCardRateModelEnum.Volume,
       rateProperties: {
-        volumeRanges: [{ fromValue: 0, toValue: null, perUnitAmount: '12', flatAmount: '0' }],
+        volumeRanges: [{ toValue: null, perUnitAmount: '12', flatAmount: '0' }],
       },
     }
     const card = buildRateCardForRateDrawer({
@@ -513,7 +513,7 @@ describe('rate submission compatibility', () => {
       rateModel: RateCardRateModelEnum.Volume,
       minAmountCents: '0',
       rateProperties: {
-        volumeRanges: [{ fromValue: 0, toValue: null, perUnitAmount: '12', flatAmount: '0' }],
+        volumeRanges: [{ toValue: null, perUnitAmount: '12', flatAmount: '0' }],
       },
     }
     const card = buildRateCardForRateDrawer({
@@ -521,7 +521,7 @@ describe('rate submission compatibility', () => {
       activeRate: { id: rate.id, effectiveFrom: rate.effectiveFrom },
     })
     const updatedProperties = {
-      volumeRanges: [{ fromValue: 0, toValue: null, perUnitAmount: '15', flatAmount: '0' }],
+      volumeRanges: [{ toValue: null, perUnitAmount: '15', flatAmount: '0' }],
     }
 
     act(() => result.current.openDrawer({ rateCard: card, rate }))

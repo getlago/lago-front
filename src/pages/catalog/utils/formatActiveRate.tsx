@@ -10,7 +10,7 @@ import {
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 gql`
-  fragment PropertiesForActiveRate on Properties {
+  fragment PropertiesForActiveRate on RateProperties {
     amount
     rate
     packageSize

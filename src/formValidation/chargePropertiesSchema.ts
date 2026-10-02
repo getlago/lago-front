@@ -61,17 +61,17 @@ export type PropertiesZodInput = z.infer<typeof propertiesZodSchema>
 // Treats empty strings, undefined, null, and NaN as invalid amounts.
 // This is needed because TanStack Form initializes undefined field values to ''
 // and Number('') === 0 which passes isNaN checks.
-function isInvalidAmount(val: string | undefined | null): boolean {
+export function isInvalidAmount(val: string | undefined | null): boolean {
   return !val || Number.isNaN(Number(val))
 }
 
-function isInvalidRate(val: string | undefined | null): boolean {
+export function isInvalidRate(val: string | undefined | null): boolean {
   return Number.isNaN(Number(val)) || val === '' || val === null || val === undefined
 }
 
 // True if value is non-empty/non-undefined but not a valid number (e.g. 'a').
 // Mirrors Yup's validateRangeAmounts second check.
-function isNonEmptyNaN(val: string | undefined | null): boolean {
+export function isNonEmptyNaN(val: string | undefined | null): boolean {
   return !!val && Number.isNaN(Number(val))
 }
 

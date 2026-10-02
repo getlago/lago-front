@@ -6,54 +6,32 @@ import { useRef } from 'react'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
-import { serializeProperties } from '~/core/serializers/serializePlanInput'
 import {
-  CustomChargeFragmentDoc,
-  GraduatedChargeFragmentDoc,
-  GraduatedPercentageChargeFragmentDoc,
   LagoApiError,
-  PackageChargeFragmentDoc,
-  PercentageChargeFragmentDoc,
-  PricingGroupKeysFragmentDoc,
-  Properties,
   PropertiesForActiveRateFragmentDoc,
-  PropertiesInput,
   RateCardBillingTimingEnum,
   RateCardForRateDrawerFragment,
   RateCardRateForDrawerFragment,
   RateCardRateStatusEnum,
-  StandardChargeFragmentDoc,
+  RatePropertiesForWrapperSwitchFragmentDoc,
   UpdateRateCardRateInput,
   useCreateRateCardRateMutation,
   useUpdateRateCardRateMutation,
-  VolumeRangesFragmentDoc,
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
 import { RATE_CARD_RATE_DEPENDENT_QUERIES, RATE_CARD_RATE_FORM_DEFAULTS } from './constants'
 import { mapRateToFormValues } from './mapRateToFormValues'
 import { buildRateCardRateSchema, RateCardRateSchemaContext } from './schema'
-import { deriveEffectiveFromBoundary, laterEffectiveFrom, toChargeModel } from './utils'
+import { serializeRateProperties } from './serializeRateProperties'
+import { deriveEffectiveFromBoundary, laterEffectiveFrom } from './utils'
 
 gql`
-  fragment PropertiesForRateCardRate on Properties {
+  fragment PropertiesForRateCardRate on RateProperties {
     # Must stay a strict superset of PropertiesForActiveRate: Apollo replaces array fields
     # wholesale, so a narrower write would strip range fields the other one cached.
     ...PropertiesForActiveRate
-    ...StandardCharge
-    ...PackageCharge
-    ...PercentageCharge
-    ...CustomCharge
-    ...PricingGroupKeys
-    graduatedRanges {
-      ...GraduatedCharge
-    }
-    graduatedPercentageRanges {
-      ...GraduatedPercentageCharge
-    }
-    volumeRanges {
-      ...VolumeRanges
-    }
+    ...RatePropertiesForWrapperSwitch
   }
 
   fragment RateCardRateForDrawer on RateCardRate {
@@ -109,14 +87,7 @@ gql`
   }
 
   ${PropertiesForActiveRateFragmentDoc}
-  ${StandardChargeFragmentDoc}
-  ${PackageChargeFragmentDoc}
-  ${PercentageChargeFragmentDoc}
-  ${CustomChargeFragmentDoc}
-  ${PricingGroupKeysFragmentDoc}
-  ${GraduatedChargeFragmentDoc}
-  ${GraduatedPercentageChargeFragmentDoc}
-  ${VolumeRangesFragmentDoc}
+  ${RatePropertiesForWrapperSwitchFragmentDoc}
 `
 
 // Plus the rate's own details page, which a create or an update leaves in place.
@@ -169,10 +140,7 @@ export const useRateCardRateForm = ({
 
       if (!rateCard) return
 
-      const rateProperties = serializeProperties(
-        (value.properties ?? {}) as Properties,
-        toChargeModel(value.rateModel),
-      ) as PropertiesInput
+      const rateProperties = serializeRateProperties(value.properties, value.rateModel)
 
       const conversionRate = rateCard.appliedPricingUnitCode
         ? { appliedPricingUnitConversionRate: Number(value.conversionRate) }

@@ -14,6 +14,12 @@ gql`
     packageSize
     freeUnits
   }
+
+  fragment PackageChargeForRate on RateProperties {
+    amount
+    packageSize
+    freeUnits
+  }
 `
 
 export const PACKAGE_CHARGE_EMPTY_ALERT_TEST_ID = 'package-charge-empty-alert'
