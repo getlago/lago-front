@@ -6,6 +6,7 @@ import { ZodType } from 'zod'
 
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
+import { MultipleComboBox } from '~/components/form/MultipleComboBox/MultipleComboBox'
 import { addToast } from '~/core/apolloClient'
 import { AuthenticationMethodsEnum, useDestroyIntegrationMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -29,6 +30,8 @@ export type SSOIntegrationField<TFormValues> = {
   endAdornmentKey?: string
   /** Renders the input as a masked secret field with a show/hide toggle. */
   password?: boolean
+  /** Renders a free-text list (one chip per value) bound to a string[] form value. */
+  type?: 'text' | 'list'
 }
 
 export type AddSSOIntegrationDialogData<TIntegration> = {
@@ -58,7 +61,10 @@ export type UseAddSSOIntegrationDialogConfig<
   getUpdatedIntegrationId: (data: TUpdateData) => string | undefined
   setFormValuesFromIntegration: (
     integration: TIntegration,
-    setFieldValue: (name: keyof TFormValues & string, value: string) => void,
+    setFieldValue: <TName extends keyof TFormValues & string>(
+      name: TName,
+      value: TFormValues[TName],
+    ) => void,
   ) => void
   translations: {
     createTitle: string
@@ -221,6 +227,43 @@ export const useAddSSOIntegrationDialog = <
                 isEdition && fieldConfig.editHelperKey
                   ? fieldConfig.editHelperKey
                   : fieldConfig.helperKey
+
+              if (fieldConfig.type === 'list') {
+                return (
+                  <form.AppField key={fieldConfig.name} name={fieldConfig.name}>
+                    {(field) => {
+                      const values = (field.state.value as string[] | undefined) ?? []
+                      const errors = field.state.meta.errors as Array<
+                        string | { message?: string } | undefined
+                      >
+                      const error = errors
+                        .map((fieldError) =>
+                          typeof fieldError === 'string' ? fieldError : fieldError?.message,
+                        )
+                        .find(Boolean)
+
+                      return (
+                        <MultipleComboBox
+                          freeSolo
+                          data={[]}
+                          name={fieldConfig.name}
+                          label={translate(fieldConfig.labelKey)}
+                          placeholder={translate(fieldConfig.placeholderKey)}
+                          helperText={helperKey ? translate(helperKey) : undefined}
+                          error={error}
+                          PopperProps={{ displayInDialog: true }}
+                          value={values.map((value) => ({ value }))}
+                          onChange={(selected) =>
+                            field.handleChange(
+                              selected.map(({ value }) => value.trim()).filter(Boolean) as never,
+                            )
+                          }
+                        />
+                      )
+                    }}
+                  </form.AppField>
+                )
+              }
 
               return (
                 <form.AppField key={fieldConfig.name} name={fieldConfig.name}>

@@ -5137,5 +5137,9 @@
   "text_1790280529941qgc3lu3ni4u": "Contract successfully updated",
   "text_1790280529941yrthm7q5e68": "This contract could not be updated. Please check its settings and try again.",
   "text_17907810831379bun2hcgjr6": "Edit attached object",
-  "text_1790781083137p7hptflpk49": "Edit contract settings"
+  "text_1790781083137p7hptflpk49": "Edit contract settings",
+  "text_1790959050606st0sfgsyq08": "Additional domains (optional)",
+  "text_1790959050607ii8cfyhk6v2": "Type a domain and press Enter",
+  "text_1790959050607s5l0xu9h04v": "Users whose email is on one of these domains also sign in through this integration, for example de.example.com.",
+  "text_1790959463497ioxa22pk7n6": "Additional domains"
 }
