@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { InvoiceFormInput } from '~/components/invoices/types'
+import { addPaymentTermIssues } from '~/components/paymentTerms/validationSchema'
 
 /**
  * Parity port of the Yup schema from CreateInvoice.tsx — do NOT tighten rules
@@ -48,6 +49,8 @@ export const invoiceFormValidationSchema = z.custom<InvoiceFormInput>().superRef
   if (isMissing(data.currency)) {
     ctx.addIssue({ code: 'custom', message: REQUIRED_LABEL, path: ['currency'] })
   }
+
+  addPaymentTermIssues(ctx, data.paymentTerm, ['paymentTerm'])
 
   if (!Array.isArray(data.fees)) {
     ctx.addIssue({ code: 'custom', message: REQUIRED_LABEL, path: ['fees'] })

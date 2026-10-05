@@ -1,5 +1,6 @@
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { InvoiceFormInput } from '~/components/invoices/types'
+import { paymentTermInputFromFormValues } from '~/components/paymentTerms/utils'
 import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/utils'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { CreateInvoiceInput, CurrencyEnum } from '~/generated/graphql'
@@ -19,12 +20,15 @@ export const mapFormToCreateInput = (
     prefillInvoiceId?: string
   },
 ): CreateInvoiceInput => {
-  const { fees, paymentMethod, invoiceCustomSection, purchaseOrderNumber, ...values } = formValues
+  const { fees, paymentMethod, invoiceCustomSection, purchaseOrderNumber, paymentTerm, ...values } =
+    formValues
   const currency = formValues.currency || CurrencyEnum.Usd
 
   return {
     ...values,
     purchaseOrderNumber: normalizePurchaseOrderNumber(purchaseOrderNumber),
+    // `null` for the inherit choice: the API resolves the customer, then billing entity, term.
+    paymentTerm: paymentTermInputFromFormValues(paymentTerm),
     ...(prefillInvoiceId ? { voidedInvoiceId: prefillInvoiceId } : {}),
     paymentMethod,
     invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),

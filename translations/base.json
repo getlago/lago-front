@@ -5202,5 +5202,6 @@
   "text_1789042962229ojqymcu3289": "Enter a day between 1 and 31",
   "text_1789042962229esmw981wwyt": "Enter an offset between 0 and 12",
   "text_17931224143614x6qy003wuf": "Between 1 and 31",
-  "text_1793122414361w9qm005cw2b": "Between 0 and 12"
+  "text_1793122414361w9qm005cw2b": "Between 0 and 12",
+  "text_17912021395686w9xadhesc3": "{{value}} (inherit from customer)"
 }

@@ -1,9 +1,11 @@
 import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
   GetBillingEntityQuery,
   GetInfosForCreateInvoiceQuery,
+  PaymentTermTypeEnum,
 } from '~/generated/graphql'
 
 import { emptyInvoiceFormDefaultValues, mapFromApiToForm } from '../mapFromApiToForm'
@@ -52,6 +54,7 @@ const baseForm = (overrides: Partial<InvoiceFormInput> = {}): InvoiceFormInput =
   paymentMethod: undefined,
   invoiceCustomSection: undefined,
   purchaseOrderNumber: undefined,
+  paymentTerm: paymentTermFormValuesFromTerm(null, true),
   ...overrides,
 })
 
@@ -75,6 +78,7 @@ describe('mapFromApiToForm', () => {
           paymentMethod: undefined,
           invoiceCustomSection: undefined,
           purchaseOrderNumber: undefined,
+          paymentTerm: paymentTermFormValuesFromTerm(null, true),
         })
       })
 
@@ -167,7 +171,60 @@ describe('mapFromApiToForm', () => {
   })
 })
 
+describe('GIVEN a voided invoice being regenerated', () => {
+  describe('WHEN building the default values', () => {
+    it('THEN should carry over the voided invoice payment term', () => {
+      const values = mapFromApiToForm({
+        customerId: 'cus_1',
+        customer: undefined,
+        billingEntity: undefined,
+        prefillInvoice: {
+          paymentTerm: {
+            termType: PaymentTermTypeEnum.EndOfMonth,
+            days: null,
+            dayOfMonth: null,
+            monthOffset: null,
+          },
+        },
+        prefillFees: undefined,
+      })
+
+      expect(values.paymentTerm.termType).toBe(PaymentTermTypeEnum.EndOfMonth)
+      expect(mapFormToCreateInput(values, { hasTaxProvider: false }).paymentTerm).toEqual({
+        termType: PaymentTermTypeEnum.EndOfMonth,
+      })
+    })
+  })
+})
+
 describe('mapFormToCreateInput', () => {
+  describe('GIVEN the payment term inherits', () => {
+    describe('WHEN mapping to the create input', () => {
+      it('THEN should send a null payment term', () => {
+        expect(mapFormToCreateInput(baseForm(), { hasTaxProvider: false }).paymentTerm).toBeNull()
+      })
+    })
+  })
+
+  describe('GIVEN a chosen payment term', () => {
+    describe('WHEN mapping to the create input', () => {
+      it('THEN should send only the fields of that term type', () => {
+        const input = mapFormToCreateInput(
+          baseForm({
+            paymentTerm: {
+              ...paymentTermFormValuesFromTerm(null, true),
+              termType: PaymentTermTypeEnum.NetEndOfMonth,
+              days: 15,
+            },
+          }),
+          { hasTaxProvider: false },
+        )
+
+        expect(input.paymentTerm).toEqual({ termType: PaymentTermTypeEnum.NetEndOfMonth, days: 15 })
+      })
+    })
+  })
+
   describe('GIVEN a filled form without a tax provider', () => {
     describe('WHEN mapping to the create input', () => {
       it('THEN should serialize amounts, convert taxes to codes and strip the local taxes key', () => {

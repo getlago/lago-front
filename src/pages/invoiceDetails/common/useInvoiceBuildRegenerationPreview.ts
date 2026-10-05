@@ -38,6 +38,12 @@ gql`
     paymentDueDate
     paymentOverdue
     paymentStatus
+    paymentTerm {
+      termType
+      days
+      dayOfMonth
+      monthOffset
+    }
     purchaseOrderNumber
     refundableAmountCents
     regeneratedInvoiceId
