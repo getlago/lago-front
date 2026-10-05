@@ -76,3 +76,18 @@ export const paymentTermFormSchema = z
       })
     }
   })
+
+/** Reports the editor's issues from inside a larger form's schema, under `path`. */
+export const addPaymentTermIssues = (
+  ctx: z.RefinementCtx,
+  values: unknown,
+  path: (string | number)[],
+) => {
+  const parsed = paymentTermFormSchema.safeParse(values)
+
+  if (parsed.success) return
+
+  parsed.error.issues.forEach((issue) => {
+    ctx.addIssue({ code: 'custom', message: issue.message, path: [...path, ...issue.path] })
+  })
+}

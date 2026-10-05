@@ -1,13 +1,6 @@
-import {
-  PAYMENT_TERM_FORM_DEFAULT_VALUES,
-  PaymentTermFormValues,
-  PaymentTermInheritedFrom,
-} from '~/components/paymentTerms/types'
-import {
-  DEFAULT_PAYMENT_TERM,
-  PAYMENT_TERM_DEFAULT_MONTH_OFFSET,
-  PAYMENT_TERM_INHERIT,
-} from '~/core/constants/paymentTerm'
+import { PaymentTermFormValues, PaymentTermInheritedFrom } from '~/components/paymentTerms/types'
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
+import { DEFAULT_PAYMENT_TERM } from '~/core/constants/paymentTerm'
 import { EditCustomerPaymentTermForDialogFragment } from '~/generated/graphql'
 
 import { ModelData, PaymentTermModelTypesEnum } from './types'
@@ -31,20 +24,4 @@ export const getInheritedFrom = (model: ModelData | null): PaymentTermInheritedF
 export const getInitialFormValues = (
   model: ModelData | null,
   canInherit: boolean,
-): PaymentTermFormValues => {
-  const paymentTerm = model?.paymentTerm
-
-  if (!paymentTerm) {
-    return {
-      ...PAYMENT_TERM_FORM_DEFAULT_VALUES,
-      termType: canInherit ? PAYMENT_TERM_INHERIT : undefined,
-    }
-  }
-
-  return {
-    termType: paymentTerm.termType,
-    days: paymentTerm.days ?? PAYMENT_TERM_FORM_DEFAULT_VALUES.days,
-    dayOfMonth: paymentTerm.dayOfMonth ?? PAYMENT_TERM_FORM_DEFAULT_VALUES.dayOfMonth,
-    monthOffset: paymentTerm.monthOffset ?? PAYMENT_TERM_DEFAULT_MONTH_OFFSET,
-  }
-}
+): PaymentTermFormValues => paymentTermFormValuesFromTerm(model?.paymentTerm, canInherit)
