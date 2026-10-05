@@ -1,8 +1,12 @@
 # v2 color guide
 
+> **Work in progress:** v2 styles and components are under development. Use the existing design system for ordinary UI work, including new views and components. This guide applies only when a task explicitly requests building or adopting v2.
+
+For explicitly requested v2 work, follow this guide without additional confirmation. Ask for clarification only when the intended scope is ambiguous.
+
 ## Choosing colors during the transition
 
-- Use semantic tokens for new shadcn components. Choose a role such as `action-primary`, `text-default`, or `border-default` instead of a raw color.
+- Within explicitly scoped v2 work, use semantic tokens for new shadcn components. Choose a role such as `action-primary`, `text-default`, or `border-default` instead of a raw color.
 - Keep the existing palette when maintaining legacy components or extending views built with the legacy design system.
 - A new view is not automatically a palette migration. Adoption outside shadcn and migrations of existing components require explicit design/code review.
 - Primitives (`v2-brand-600`, for example) define the palette behind the semantic roles. They are available for foundation tooling and previews; avoid consuming them directly in application components.
