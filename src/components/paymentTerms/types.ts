@@ -18,6 +18,14 @@ export type PaymentTermFormValues = {
   monthOffset: string
 }
 
+/** Binds `PaymentTermFormContent` to a form whose values are the term itself. */
+export const PAYMENT_TERM_FORM_TOP_LEVEL_FIELDS = {
+  termType: 'termType',
+  days: 'days',
+  dayOfMonth: 'dayOfMonth',
+  monthOffset: 'monthOffset',
+} as const
+
 // `termType` is unset so a level with nothing to inherit reports a required-field error.
 export const PAYMENT_TERM_FORM_DEFAULT_VALUES: PaymentTermFormValues = {
   termType: undefined,

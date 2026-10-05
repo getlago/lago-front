@@ -5,7 +5,7 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
 import { PAYMENT_TERM_FIELDS_BY_TYPE } from '~/core/constants/paymentTerm'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { withForm } from '~/hooks/forms/useAppform'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
 import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 
 import {
@@ -29,17 +29,17 @@ const paymentTermFormContentDefaultProps: PaymentTermFormContentExtraProps = {
   displayInDialog: false,
 }
 
-export const PaymentTermFormContent = withForm({
+export const PaymentTermFormContent = withFieldGroup({
   defaultValues: PAYMENT_TERM_FORM_DEFAULT_VALUES,
   props: paymentTermFormContentDefaultProps,
-  render: function PaymentTermFormContentRender({ form, inheritedFrom, displayInDialog }) {
+  render: function PaymentTermFormContentRender({ group, inheritedFrom, displayInDialog }) {
     const { translate } = useInternationalization()
     const { getDueDatePreviewCopy, getTermTypeComboboxData } = usePaymentTerm()
 
-    const termType = useStore(form.store, (state) => state.values.termType)
-    const days = useStore(form.store, (state) => state.values.days)
-    const dayOfMonth = useStore(form.store, (state) => state.values.dayOfMonth)
-    const monthOffset = useStore(form.store, (state) => state.values.monthOffset)
+    const termType = useStore(group.store, (state) => state.values.termType)
+    const days = useStore(group.store, (state) => state.values.days)
+    const dayOfMonth = useStore(group.store, (state) => state.values.dayOfMonth)
+    const monthOffset = useStore(group.store, (state) => state.values.monthOffset)
 
     const fields = isConcreteTermType(termType) ? PAYMENT_TERM_FIELDS_BY_TYPE[termType] : []
     const values = { termType, days, dayOfMonth, monthOffset }
@@ -53,7 +53,7 @@ export const PaymentTermFormContent = withForm({
 
     return (
       <div className="flex flex-col gap-6">
-        <form.AppField name="termType">
+        <group.AppField name="termType">
           {(field) => (
             <field.ComboBoxField
               className={PAYMENT_TERM_TYPE_COMBOBOX_TEST_CLASSNAME}
@@ -66,10 +66,10 @@ export const PaymentTermFormContent = withForm({
               sortValues={false}
             />
           )}
-        </form.AppField>
+        </group.AppField>
 
         {fields.includes('days') && (
-          <form.AppField name="days">
+          <group.AppField name="days">
             {(field) => (
               <field.TextInputField
                 beforeChangeFormatter={['positiveNumber', 'int']}
@@ -83,12 +83,12 @@ export const PaymentTermFormContent = withForm({
                 }}
               />
             )}
-          </form.AppField>
+          </group.AppField>
         )}
 
         {fields.includes('dayOfMonth') && (
           <div className="flex flex-row items-end gap-3">
-            <form.AppField name="dayOfMonth">
+            <group.AppField name="dayOfMonth">
               {(field) => (
                 <field.TextInputField
                   beforeChangeFormatter={['positiveNumber', 'int']}
@@ -98,13 +98,13 @@ export const PaymentTermFormContent = withForm({
                   errorOverride={dayOfMonthError}
                 />
               )}
-            </form.AppField>
+            </group.AppField>
 
             <Typography className="pb-9" variant="body" color="grey700">
               -
             </Typography>
 
-            <form.AppField name="monthOffset">
+            <group.AppField name="monthOffset">
               {(field) => (
                 <field.TextInputField
                   beforeChangeFormatter={['positiveNumber', 'int']}
@@ -121,7 +121,7 @@ export const PaymentTermFormContent = withForm({
                   }}
                 />
               )}
-            </form.AppField>
+            </group.AppField>
           </div>
         )}
 
