@@ -1,5 +1,6 @@
 import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
-import { CurrencyEnum } from '~/generated/graphql'
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
+import { CurrencyEnum, PaymentTermTypeEnum } from '~/generated/graphql'
 
 import { invoiceFormErrorLabels, invoiceFormValidationSchema } from '../validationSchema'
 
@@ -27,6 +28,7 @@ const baseForm = (overrides: Partial<InvoiceFormInput> = {}): InvoiceFormInput =
   paymentMethod: undefined,
   invoiceCustomSection: undefined,
   purchaseOrderNumber: undefined,
+  paymentTerm: paymentTermFormValuesFromTerm(null, true),
   ...overrides,
 })
 
@@ -41,6 +43,24 @@ describe('invoiceFormValidationSchema', () => {
     describe('WHEN validating', () => {
       it('THEN should pass', () => {
         expect(invoiceFormValidationSchema.safeParse(baseForm()).success).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN a payment term missing its required days', () => {
+    describe('WHEN validating', () => {
+      it('THEN should fail on paymentTerm.days', () => {
+        const result = invoiceFormValidationSchema.safeParse(
+          baseForm({
+            paymentTerm: {
+              ...paymentTermFormValuesFromTerm(null, true),
+              termType: PaymentTermTypeEnum.Net,
+              days: '',
+            },
+          }),
+        )
+
+        expect(issuePaths(result)).toEqual(['paymentTerm.days'])
       })
     })
   })

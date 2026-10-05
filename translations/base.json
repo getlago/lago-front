@@ -5200,5 +5200,6 @@
   "text_1789042962229hmb871mrfas": "a term type is required",
   "text_1789042962229bk0kdnqlbpc": "the number of days is invalid",
   "text_1789042962229ojqymcu3289": "the day of month is invalid",
-  "text_1789042962229esmw981wwyt": "the month offset is invalid"
+  "text_1789042962229esmw981wwyt": "the month offset is invalid",
+  "text_17912021395686w9xadhesc3": "{{value}} (inherit from customer)"
 }

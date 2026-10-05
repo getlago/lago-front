@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { z } from 'zod'
 
+import { addPaymentTermIssues } from '~/components/paymentTerms/validationSchema'
 import { addPurchaseOrderNumberMaxLengthIssue } from '~/components/purchaseOrder/validation'
 import { dateErrorCodes } from '~/core/constants/form'
 import { zodMetadataSchema } from '~/formValidation/metadataSchema'
@@ -378,6 +379,8 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
   addExpirationIssue(ctx, data.expirationAt, ['expirationAt'])
 
   addPurchaseOrderNumberMaxLengthIssue(ctx, data.purchaseOrderNumber, ['purchaseOrderNumber'])
+
+  addPaymentTermIssues(ctx, data.paymentTerm, ['paymentTerm'])
 
   // paidCredits (initial top-up) vs wallet min/max bounds.
   // Values are passed through untouched (null → undefined only), exactly
