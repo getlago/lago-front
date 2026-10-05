@@ -163,8 +163,8 @@ importers:
         specifier: 1.15.2
         version: 1.15.2(@apollo/client@3.14.1(@types/react@18.3.31)(graphql-ws@6.0.6(graphql@16.14.2)(ws@8.21.0))(graphql@16.14.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(graphql@16.14.2)
       html-react-parser:
-        specifier: 6.1.7
-        version: 6.1.7(@types/react@18.3.31)(react@18.3.1)
+        specifier: 6.1.8
+        version: 6.1.8(@types/react@18.3.31)(react@18.3.1)
       lago-configs:
         specifier: workspace:*
         version: link:packages/configs
@@ -5744,8 +5744,8 @@ packages:
     engines: {node: '>=12'}
     hasBin: true
 
-  html-react-parser@6.1.7:
-    resolution: {integrity: sha512-TU3KHM2bDXHetJ7mKddkwdMiMJZdgpq2ZmbzGwVo7O4VECTbvczXKwjeA7+LNvy1iAr2/av351VvIis1OPEGfg==}
+  html-react-parser@6.1.8:
+    resolution: {integrity: sha512-tlLNVnvtAhGabZTyboRJ/5/ZTD1iZzN5oAQZkW37gUvpcR/XkVNUvcB25Vpo+/tosbJNyfHbx/8H30k3Ug638Q==}
     peerDependencies:
       '@types/react': 0.14 || 15 || 16 || 17 || 18 || 19
       react: 0.14 || 15 || 16 || 17 || 18 || 19
@@ -14600,7 +14600,7 @@ snapshots:
       relateurl: 0.2.7
       terser: 5.37.0
 
-  html-react-parser@6.1.7(@types/react@18.3.31)(react@18.3.1):
+  html-react-parser@6.1.8(@types/react@18.3.31)(react@18.3.1):
     dependencies:
       domhandler: 6.0.1
       html-dom-parser: 8.0.2
