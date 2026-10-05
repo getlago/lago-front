@@ -8,10 +8,14 @@ import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { CreateContractDocument } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { CONTRACT_FORM_ID } from '../constants'
+import { contractForDrawerFixture } from './fixtures'
+
+import { CONTRACT_DRAWER_TITLE_CREATE_KEY, CONTRACT_FORM_ID } from '../constants'
 import { useContractDrawer } from '../useContractDrawer'
 
 type CapturedDrawerArgs = {
+  title?: string
+  secondaryAction?: ReactNode
   children?: ReactNode
   form?: { id: string; submit: () => void | Promise<void> }
   closeOnSubmitSuccess?: boolean
@@ -24,6 +28,7 @@ const mockOpen = jest.fn((args: CapturedDrawerArgs) => {
 })
 const mockClose = jest.fn()
 const mockNavigate = jest.fn()
+let mockIsCreateMoreEnabled = false
 
 jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
@@ -31,8 +36,8 @@ jest.mock('~/components/drawers/useDrawer', () => ({
 
 jest.mock('~/components/drawers/createMore/useCreateMore', () => ({
   useCreateMore: () => ({
-    createMoreControl: null,
-    isCreateMoreEnabled: () => false,
+    createMoreControl: 'create-more-control',
+    isCreateMoreEnabled: () => mockIsCreateMoreEnabled,
     resetCreateMore: jest.fn(),
     resetSignal: undefined,
     notifyReset: jest.fn(),
@@ -116,6 +121,7 @@ const submit = async (): Promise<void> => {
 describe('useContractDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockIsCreateMoreEnabled = false
     lastDrawerArgs = null
   })
 
@@ -131,6 +137,15 @@ describe('useContractDrawer', () => {
     expect(lastDrawerArgs?.form?.id).toBe(CONTRACT_FORM_ID)
     expect(lastDrawerArgs?.closeOnSubmitSuccess).toBe(false)
     expect(lastDrawerArgs?.shouldPromptOnClose?.()).toBe(false)
+  })
+
+  it('keeps the create title and create more control', () => {
+    const { result } = renderDrawerHook()
+
+    act(() => result.current.openDrawer())
+
+    expect(lastDrawerArgs?.title).toBe(CONTRACT_DRAWER_TITLE_CREATE_KEY)
+    expect(lastDrawerArgs?.secondaryAction).toBe('create-more-control')
   })
 
   it('submits the selected customer and plan, then navigates to the created contract', async () => {
@@ -195,5 +210,28 @@ describe('useContractDrawer', () => {
         planCode: expect.anything(),
       }),
     )
+  })
+
+  // The form is reset for the next contract; closing it must not prompt to discard anything.
+  it('leaves a pristine form after a create more save', async () => {
+    mockIsCreateMoreEnabled = true
+    const { result } = renderDrawerHook([
+      {
+        request: { query: CreateContractDocument },
+        variableMatcher: () => true,
+        result: { data: { createContract: contractForDrawerFixture } },
+      },
+    ])
+
+    act(() => result.current.openDrawer())
+    render(<MockedProvider>{lastDrawerArgs?.children}</MockedProvider>)
+    await userEvent.click(screen.getByRole('button', { name: 'seed contract' }))
+    await submit()
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' })),
+    )
+    expect(mockClose).not.toHaveBeenCalled()
+    expect(lastDrawerArgs?.shouldPromptOnClose?.()).toBe(false)
   })
 })

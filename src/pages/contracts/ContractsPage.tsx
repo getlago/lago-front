@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router'
 
 import { ContractsList } from '~/components/contracts/ContractsList'
+import { useContractDrawer } from '~/components/contracts/drawers/contract/useContractDrawer'
 import { getContractDisplayName } from '~/components/contracts/getContractDisplayName'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
@@ -21,13 +22,15 @@ import { CONTRACT_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import { CONTRACT_DETAILS_ROUTE } from '~/core/router'
-import { ContractForContractsListFragment, useGetContractsListLazyQuery } from '~/generated/graphql'
+import {
+  ContractForContractsListFragment,
+  ContractForContractsListItemFragmentDoc,
+  useGetContractsListLazyQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-
-import { useContractDrawer } from './drawers/contract/useContractDrawer'
 
 export const CONTRACTS_CREATE_TEST_ID = 'contracts-create'
 
@@ -47,6 +50,7 @@ gql`
       id
       displayName
     }
+    ...ContractForContractsListItem
   }
 
   query getContractsList(
@@ -81,6 +85,8 @@ gql`
       }
     }
   }
+
+  ${ContractForContractsListItemFragmentDoc}
 `
 
 const ContractsPage = (): JSX.Element => {

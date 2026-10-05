@@ -1,32 +1,27 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
-import { DateTime } from 'luxon'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
-import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
-import { Typography } from '~/components/designSystem/Typography'
+import { ContractDatesAndPurchaseOrderFields } from '~/components/contracts/drawers/contract/ContractDatesAndPurchaseOrderFields'
 import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
 import { CreateMoreResetSignal } from '~/components/drawers/createMore/useCreateMore'
-import { ComboboxItem } from '~/components/form/ComboBox/ComboBoxItem'
 import { ToggleableFieldAddButton, ToggleableFieldRow } from '~/components/form/ToggleableFieldRow'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
-import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import {
   VIEW_TYPE_INVOICING_CAPTION_KEYS,
   VIEW_TYPE_PAYMENT_CAPTION_KEYS,
   ViewTypeEnum,
 } from '~/core/constants/billingObjectViewTypes'
-import { getTimezoneConfig, getTodayAtUtcMidnight } from '~/core/timezone'
 import {
-  TimezoneEnum,
   useGetCatalogPlansForContractDrawerLazyQuery,
   useGetCustomersForContractDrawerLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
+import { buildComboboxOption, mergeSeededOption, OPTIONS_PAGE_SIZE } from './comboboxOptions'
 import {
   CONTRACT_DRAWER_CUSTOMER_COMBOBOX_TEST_ID,
   CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID,
@@ -66,16 +61,7 @@ gql`
   }
 `
 
-const CONTRACT_DATES_OFFSET_KEYS = {
-  willStart: 'text_1789552637141d30j39d0p7g',
-  started: 'text_1789552637141n8qg5ybgaf0',
-  // "It won't end until you manually terminate it." — object-agnostic, so the
-  // subscription key is reused verbatim rather than duplicated.
-  noEnd: 'text_64ef81071c6da2010dd24b1e',
-  willEnd: 'text_178955263714151g6zubl71x',
-}
-
-const OPTIONS_PAGE_SIZE = 50
+export const CONTRACT_DRAWER_EXTERNAL_ID_INPUT_TEST_ID = 'contract-drawer-external-id-input'
 
 type ContractDrawerSectionsExtraProps = {
   seededCustomer?: ContractDrawerCustomer
@@ -107,17 +93,6 @@ const ContractDrawerFormSections = withForm({
     const billingEntityId = useStore(form.store, (state) => state.values.billingEntityId)
     const consolidateInvoice = useStore(form.store, (state) => state.values.consolidateInvoice)
     const paymentMethod = useStore(form.store, (state) => state.values.paymentMethod)
-    const startedAt = useStore(form.store, (state) => state.values.startedAt)
-    const endedAt = useStore(form.store, (state) => state.values.endedAt)
-
-    // Matches the schema's own rule (endedAt must be after both startedAt and today):
-    // disablePast alone would let the picker offer dates the schema then rejects.
-    const minEndedAt = useMemo(() => {
-      const today = DateTime.fromISO(getTodayAtUtcMidnight())
-      const start = startedAt ? DateTime.fromISO(startedAt) : today
-
-      return (start > today ? start : today).plus({ days: 1 })
-    }, [startedAt])
 
     const customersCollection = customersData?.customers?.collection
     // Seeds from the value buildContractFormDefaults already applied, so the auto-fill
@@ -133,8 +108,14 @@ const ContractDrawerFormSections = withForm({
     useEffect(() => {
       if (!externalCustomerId) {
         if (lastInitializedCustomerRef.current !== undefined) {
-          form.setFieldValue('billingEntityId', undefined)
-          form.setFieldValue('paymentMethod', undefined)
+          // A create-more reset has already emptied both: writing them again would re-dirty
+          // the fresh form, since setFieldValue always marks the field dirty.
+          if (form.state.values.billingEntityId !== undefined) {
+            form.setFieldValue('billingEntityId', undefined)
+          }
+          if (form.state.values.paymentMethod !== undefined) {
+            form.setFieldValue('paymentMethod', undefined)
+          }
           lastInitializedCustomerRef.current = undefined
         }
         return
@@ -148,41 +129,32 @@ const ContractDrawerFormSections = withForm({
       lastInitializedCustomerRef.current = externalCustomerId
     }, [externalCustomerId, form, selectedCustomer])
 
-    const comboboxCustomersData = useMemo(
-      () =>
-        (customersCollection ?? []).map((customer) => ({
-          label: customer.displayName || customer.externalId,
-          labelNode: (
-            <ComboboxItem>
-              <Typography variant="body" color="grey700" noWrap>
-                {customer.displayName || customer.externalId}
-              </Typography>
-              <Typography variant="caption" color="grey600" noWrap>
-                {customer.externalId}
-              </Typography>
-            </ComboboxItem>
+    const comboboxCustomersData = useMemo(() => {
+      const customerSeed = seededCustomer
+        ? buildComboboxOption(
+            seededCustomer.displayName || seededCustomer.externalId,
+            seededCustomer.externalId,
+            seededCustomer.externalId,
+          )
+        : undefined
+
+      return mergeSeededOption(
+        customerSeed,
+        (customersCollection ?? []).map((customer) =>
+          buildComboboxOption(
+            customer.displayName || customer.externalId,
+            customer.externalId,
+            customer.externalId,
           ),
-          value: customer.externalId,
-        })),
-      [customersCollection],
-    )
+        ),
+      )
+    }, [customersCollection, seededCustomer])
 
     const comboboxPlansData = useMemo(
       () =>
-        (catalogPlansData?.catalogPlans?.collection ?? []).map((plan) => ({
-          label: plan.name,
-          labelNode: (
-            <ComboboxItem>
-              <Typography variant="body" color="grey700" noWrap>
-                {plan.name}
-              </Typography>
-              <Typography variant="caption" color="grey600" noWrap>
-                {plan.code}
-              </Typography>
-            </ComboboxItem>
-          ),
-          value: plan.code,
-        })),
+        (catalogPlansData?.catalogPlans?.collection ?? []).map((plan) =>
+          buildComboboxOption(plan.name, plan.code, plan.code),
+        ),
       [catalogPlansData?.catalogPlans?.collection],
     )
 
@@ -215,15 +187,11 @@ const ContractDrawerFormSections = withForm({
     }
 
     return (
-      <>
-        <div className="flex flex-col gap-2">
-          <Typography variant="headline" color="grey700">
-            {translate(CONTRACT_DRAWER_TITLE_CREATE_KEY)}
-          </Typography>
-          <Typography variant="body" color="grey600">
-            {translate('text_178955263714139as5p24hhr')}
-          </Typography>
-        </div>
+      <CenteredPage.SectionWrapper>
+        <CenteredPage.PageTitle
+          title={translate(CONTRACT_DRAWER_TITLE_CREATE_KEY)}
+          description={translate('text_178955263714139as5p24hhr')}
+        />
 
         <CenteredPage.SubsectionWrapper>
           <CenteredPage.PageSection>
@@ -241,7 +209,7 @@ const ContractDrawerFormSections = withForm({
                   placeholder={translate('text_17895526371417fmepv9tths')}
                   data={comboboxCustomersData}
                   loading={customersLoading}
-                  searchQuery={getCustomers}
+                  searchQuery={seededCustomer ? undefined : getCustomers}
                   PopperProps={{ displayInDialog: true }}
                 />
               )}
@@ -284,6 +252,7 @@ const ContractDrawerFormSections = withForm({
                   {(field) => (
                     <field.TextInputField
                       className="mr-3 flex-1"
+                      data-test={CONTRACT_DRAWER_EXTERNAL_ID_INPUT_TEST_ID}
                       label={translate('text_1790018785008xgr4069mlgg')}
                       placeholder={translate('text_1790018785008nd7mpv8ubhh')}
                       helperText={translate('text_17900187850082zn8o5dvp9y')}
@@ -327,70 +296,16 @@ const ContractDrawerFormSections = withForm({
               )}
             </div>
 
-            <div className="flex flex-col gap-1">
-              <div className="flex flex-col gap-3 md:flex-row md:[&>*]:flex-1">
-                <form.AppField name="startedAt">
-                  {(field) => (
-                    <field.DatePickerField
-                      placement="auto"
-                      label={translate('text_64ef55a730b88e3d2117b3c4')}
-                      defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
-                    />
-                  )}
-                </form.AppField>
-                <form.AppField name="endedAt">
-                  {(field) => (
-                    <field.DatePickerField
-                      minDate={minEndedAt}
-                      placement="auto"
-                      label={translate('text_64ef55a730b88e3d2117b3cc')}
-                      defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
-                      inputProps={{ cleanable: true }}
-                    />
-                  )}
-                </form.AppField>
-              </div>
-
-              <form.Subscribe
-                selector={(state) => ({
-                  startedAtErrors: state.fieldMeta.startedAt?.errors,
-                  endedAtErrors: state.fieldMeta.endedAt?.errors,
-                })}
-              >
-                {({ startedAtErrors, endedAtErrors }) =>
-                  !startedAtErrors?.length &&
-                  !endedAtErrors?.length && (
-                    <SubscriptionDatesOffsetHelperComponent
-                      customerTimezone={customerTimezone}
-                      subscriptionAt={startedAt}
-                      endingAt={endedAt}
-                      translationKeys={CONTRACT_DATES_OFFSET_KEYS}
-                    />
-                  )
-                }
-              </form.Subscribe>
-            </div>
-
-            <form.AppField name="billingAnchorDate">
-              {(field) => (
-                <field.DatePickerField
-                  placement="auto"
-                  label={translate('text_1781859135627z59hpfpa8pt')}
-                  description={translate('text_1789552637141byit8ajgqyp')}
-                  defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
-                />
-              )}
-            </form.AppField>
-
-            <form.AppField name="purchaseOrderNumber">
-              {(field) => (
-                <PurchaseOrderFormBlock
-                  value={field.state.value}
-                  description={translate('text_1790018785008trx3po6az4b')}
-                  onChange={(value) => field.handleChange(value ?? undefined)}
-                />
-              )}
-            </form.AppField>
+            <ContractDatesAndPurchaseOrderFields
+              form={form}
+              fields={{
+                startedAt: 'startedAt',
+                endedAt: 'endedAt',
+                billingAnchorDate: 'billingAnchorDate',
+                purchaseOrderNumber: 'purchaseOrderNumber',
+              }}
+              customerTimezone={customerTimezone}
+            />
           </CenteredPage.PageSection>
 
           <CenteredPage.PageSection>
@@ -418,7 +333,7 @@ const ContractDrawerFormSections = withForm({
             />
           </CenteredPage.PageSection>
         </CenteredPage.SubsectionWrapper>
-      </>
+      </CenteredPage.SectionWrapper>
     )
   },
 })

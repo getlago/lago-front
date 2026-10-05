@@ -28,6 +28,8 @@ export interface ContractFormValues {
   externalCustomerId: string
   externalId: string
   planCode: string
+  // `planCode` is optional on the API: only a contract edited without a plan may leave it empty.
+  isPlanRequired: boolean
   name: string
   billingEntityId?: string
   consolidateInvoice: boolean
@@ -35,7 +37,9 @@ export interface ContractFormValues {
   purchaseOrderNumber?: string | null
   startedAt: string
   endedAt?: string
-  billingAnchorDate: string
+  // The stored end date: `Contracts::UpdateService` accepts it resent unchanged, even once passed.
+  initialEndedAt?: string
+  billingAnchorDate?: string
 }
 
 export interface ContractDrawerCustomer {
@@ -43,6 +47,11 @@ export interface ContractDrawerCustomer {
   displayName?: string | null
   applicableTimezone?: TimezoneEnum | null
   billingEntityId?: string
+}
+
+export interface ContractDrawerPlan {
+  code: string
+  name: string
 }
 
 export const buildContractFormDefaults = (
@@ -54,6 +63,7 @@ export const buildContractFormDefaults = (
     externalCustomerId: customer?.externalId ?? '',
     externalId: '',
     planCode: '',
+    isPlanRequired: true,
     name: '',
     billingEntityId: customer?.billingEntityId,
     consolidateInvoice: true,
@@ -61,7 +71,10 @@ export const buildContractFormDefaults = (
     purchaseOrderNumber: undefined,
     startedAt: today,
     endedAt: undefined,
-    billingAnchorDate: today,
+    initialEndedAt: undefined,
+    // Left empty: `Contracts::CreateService` anchors billing to `startedAt` when
+    // omitted, which a client default of `today` would silently override.
+    billingAnchorDate: undefined,
   }
 }
 
@@ -73,6 +86,7 @@ export const CONTRACT_FORM_DEFAULTS: ContractFormValues = {
   externalCustomerId: '',
   externalId: '',
   planCode: '',
+  isPlanRequired: true,
   name: '',
   billingEntityId: undefined,
   consolidateInvoice: true,
@@ -80,5 +94,6 @@ export const CONTRACT_FORM_DEFAULTS: ContractFormValues = {
   purchaseOrderNumber: undefined,
   startedAt: '2026-01-01',
   endedAt: undefined,
-  billingAnchorDate: '2026-01-01',
+  initialEndedAt: undefined,
+  billingAnchorDate: undefined,
 }

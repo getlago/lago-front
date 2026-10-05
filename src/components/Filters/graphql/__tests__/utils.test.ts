@@ -5,6 +5,7 @@ import {
   escapeFilterLabel,
   FILTER_VALUE_MAP,
   formatActiveFilterValueDisplay,
+  formatFiltersForAppliedRateCardsQuery,
   formatFiltersForContractQuery,
   formatFiltersForCreditNotesQuery,
   formatFiltersForCustomerQuery,
@@ -25,6 +26,7 @@ import {
   getFilterValue,
   isValidDateRangeValue,
   keyWithPrefix,
+  mapAppliedRateCardProductFilterValue,
   orderIntervalBounds,
   parseFromToValue,
   parseMetadataFilter,
@@ -36,6 +38,7 @@ import {
   AvailableFiltersEnum,
   filterDataInlineSeparator,
   filterWithoutProductCategoryValue,
+  filterWithoutProductFilterValue,
   filterWithoutProductValue,
 } from '~/components/Filters/presentation/types'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
@@ -456,6 +459,86 @@ describe('Filters utils', () => {
       )
 
       expect(result).toBe('Not defined, Seats')
+    })
+    it('should format active filter appliedRateCardProductFilter name display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.appliedRateCardProductFilter,
+        `pf-1${filterDataInlineSeparator}Seats,pf-2${filterDataInlineSeparator}Extra`,
+      )
+
+      expect(result).toBe('Seats, Extra')
+    })
+    it('should format active filter appliedRateCardProductFilter "Not defined" with translation', () => {
+      const translate = ((key: string) =>
+        key === 'text_1784214117868fh6rndi4m75' ? 'Not defined' : key) as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.appliedRateCardProductFilter,
+        filterWithoutProductFilterValue,
+        translate,
+      )
+
+      expect(result).toBe('Not defined')
+    })
+    it('should format active filter appliedRateCardProductFilter "Not defined" combined with a real id', () => {
+      const translate = ((key: string) =>
+        key === 'text_1784214117868fh6rndi4m75' ? 'Not defined' : key) as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.appliedRateCardProductFilter,
+        `${filterWithoutProductFilterValue},pf-1${filterDataInlineSeparator}Seats`,
+        translate,
+      )
+
+      expect(result).toBe('Not defined, Seats')
+    })
+    it('should format active filter appliedRateCardHasOverrides true value display', () => {
+      const translate = ((key: string) =>
+        key === 'text_65251f46339c650084ce0d57' ? 'True' : 'False') as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.appliedRateCardHasOverrides,
+        'true',
+        translate,
+      )
+
+      expect(result).toBe('True')
+    })
+    it('should format active filter appliedRateCardHasOverrides false value display', () => {
+      const translate = ((key: string) =>
+        key === 'text_65251f46339c650084ce0d57' ? 'True' : 'False') as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.appliedRateCardHasOverrides,
+        'false',
+        translate,
+      )
+
+      expect(result).toBe('False')
+    })
+    it('should format active filter appliedRateCardProductType fixed value display', () => {
+      const translate = ((key: string) =>
+        key === 'text_1783980718113ritmy7z94je' ? 'Fixed' : 'Metered') as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.appliedRateCardProductType,
+        'fixed',
+        translate,
+      )
+
+      expect(result).toBe('Fixed')
+    })
+    it('should format active filter appliedRateCardProductType metered value display', () => {
+      const translate = ((key: string) =>
+        key === 'text_1783980718113ritmy7z94je' ? 'Fixed' : 'Metered') as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.appliedRateCardProductType,
+        'metered',
+        translate,
+      )
+
+      expect(result).toBe('Metered')
     })
     it('should format active filter paymentDisputeLost value display', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.paymentDisputeLost, 'true')
@@ -1287,6 +1370,55 @@ describe('Filters utils', () => {
 
       expect(result).toEqual({ productId: 'pi-1' })
     })
+
+    it('should map appliedRateCardHasOverrides "true" to boolean true', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.appliedRateCardHasOverrides]('true')
+
+      expect(result).toBe(true)
+    })
+
+    it('should map appliedRateCardHasOverrides "false" to boolean false', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.appliedRateCardHasOverrides]('false')
+
+      expect(result).toBe(false)
+    })
+
+    it('FILTER_VALUE_MAP wires appliedRateCardProductFilter to mapAppliedRateCardProductFilterValue', () => {
+      expect(FILTER_VALUE_MAP[AvailableFiltersEnum.appliedRateCardProductFilter]).toBe(
+        mapAppliedRateCardProductFilterValue,
+      )
+    })
+
+    it('should map appliedRateCardProductType to the raw value', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.appliedRateCardProductType]('fixed')
+
+      expect(result).toBe('fixed')
+    })
+  })
+
+  describe('mapAppliedRateCardProductFilterValue', () => {
+    it('maps real ids to productFilterIds', () => {
+      const result = mapAppliedRateCardProductFilterValue(
+        `pf-1${filterDataInlineSeparator}A,pf-2${filterDataInlineSeparator}B`,
+      )
+
+      expect(result).toEqual({ productFilterIds: ['pf-1', 'pf-2'] })
+    })
+
+    it('maps the "Not defined" sentinel alone to withoutProductFilter, with no productFilterIds key', () => {
+      const result = mapAppliedRateCardProductFilterValue(filterWithoutProductFilterValue)
+
+      expect(result).toEqual({ withoutProductFilter: true })
+      expect(result).not.toHaveProperty('productFilterIds')
+    })
+
+    it('maps "Not defined" combined with a real id to both keys', () => {
+      const result = mapAppliedRateCardProductFilterValue(
+        `${filterWithoutProductFilterValue},pf-1${filterDataInlineSeparator}A`,
+      )
+
+      expect(result).toEqual({ productFilterIds: ['pf-1'], withoutProductFilter: true })
+    })
   })
 
   describe('formatMetadataFilter', () => {
@@ -1748,6 +1880,107 @@ describe('Filters utils', () => {
       const params = new URLSearchParams()
 
       expect(formatFiltersForRateCardsQuery(params)).toEqual({})
+    })
+  })
+
+  describe('formatFiltersForAppliedRateCardsQuery', () => {
+    it('maps the Has rate overrides filter to a boolean', () => {
+      const params = new URLSearchParams()
+
+      params.set('arc_appliedRateCardHasOverrides', 'false')
+
+      expect(formatFiltersForAppliedRateCardsQuery(params)).toEqual({
+        hasRateOverrides: false,
+      })
+    })
+
+    it('maps the Category filter to productCategoryIds only when real ids are selected', () => {
+      const params = new URLSearchParams()
+
+      params.set(
+        'arc_productProductCategory',
+        `cat-1${filterDataInlineSeparator}A,cat-2${filterDataInlineSeparator}B`,
+      )
+
+      expect(formatFiltersForAppliedRateCardsQuery(params)).toEqual({
+        productCategoryIds: ['cat-1', 'cat-2'],
+      })
+    })
+
+    it('maps the Category "Not defined" selection to withoutProductCategory with no productCategoryIds key', () => {
+      const params = new URLSearchParams()
+
+      params.set('arc_productProductCategory', filterWithoutProductCategoryValue)
+
+      const result = formatFiltersForAppliedRateCardsQuery(params)
+
+      expect(result).toEqual({ withoutProductCategory: true })
+      expect(result).not.toHaveProperty('productCategoryIds')
+    })
+
+    it('maps the Product filter to productIds', () => {
+      const params = new URLSearchParams()
+
+      params.set(
+        'arc_rateCardProduct',
+        `id1${filterDataInlineSeparator}A,id2${filterDataInlineSeparator}B`,
+      )
+
+      expect(formatFiltersForAppliedRateCardsQuery(params)).toEqual({
+        productIds: ['id1', 'id2'],
+      })
+    })
+
+    it('maps the Product filters facet with "Not defined" and a real id to both keys', () => {
+      const params = new URLSearchParams()
+
+      params.set(
+        'arc_appliedRateCardProductFilter',
+        `${filterWithoutProductFilterValue},pf-1${filterDataInlineSeparator}A`,
+      )
+
+      expect(formatFiltersForAppliedRateCardsQuery(params)).toEqual({
+        productFilterIds: ['pf-1'],
+        withoutProductFilter: true,
+      })
+    })
+
+    it('maps the Product type filter to productType', () => {
+      const params = new URLSearchParams()
+
+      params.set('arc_appliedRateCardProductType', 'fixed')
+
+      expect(formatFiltersForAppliedRateCardsQuery(params)).toEqual({
+        productType: 'fixed',
+      })
+    })
+
+    it('merges all 5 facets into one object with no key collisions', () => {
+      const params = new URLSearchParams()
+
+      params.set('arc_appliedRateCardHasOverrides', 'true')
+      params.set('arc_productProductCategory', `cat-1${filterDataInlineSeparator}A`)
+      params.set('arc_rateCardProduct', `id1${filterDataInlineSeparator}A`)
+      params.set(
+        'arc_appliedRateCardProductFilter',
+        `${filterWithoutProductFilterValue},pf-1${filterDataInlineSeparator}A`,
+      )
+      params.set('arc_appliedRateCardProductType', 'metered')
+
+      expect(formatFiltersForAppliedRateCardsQuery(params)).toEqual({
+        hasRateOverrides: true,
+        productCategoryIds: ['cat-1'],
+        productIds: ['id1'],
+        productFilterIds: ['pf-1'],
+        withoutProductFilter: true,
+        productType: 'metered',
+      })
+    })
+
+    it('returns an empty object when no filter is set', () => {
+      const params = new URLSearchParams()
+
+      expect(formatFiltersForAppliedRateCardsQuery(params)).toEqual({})
     })
   })
 

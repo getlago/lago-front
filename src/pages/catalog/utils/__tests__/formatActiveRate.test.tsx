@@ -171,6 +171,15 @@ describe('formatActiveRate', () => {
     expect(result).toEqual({ primary: 'Custom' })
   })
 
+  it('shows a sub-cent standard amount in full instead of rounding it to 0', () => {
+    const { primary } = formatActiveRate(
+      { rateModel: RateCardRateModelEnum.Standard, rateProperties: { amount: '0.0005' } },
+      { translate, currency: 'USD' as never },
+    )
+
+    expect(primary).toContain('0.0005')
+  })
+
   it('appends the applied pricing unit code instead of a fiat currency', () => {
     const { primary } = formatActiveRate(
       { rateModel: RateCardRateModelEnum.Standard, rateProperties: { amount: '10' } },

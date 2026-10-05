@@ -2,6 +2,7 @@ import { MockedResponse } from '@apollo/client/testing'
 import { useStore } from '@tanstack/react-form'
 import { fireEvent, screen, waitFor } from '@testing-library/react'
 
+import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import {
   GetCatalogPlansForContractDrawerDocument,
   GetCustomersForContractDrawerDocument,
@@ -12,7 +13,7 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 
 import {
-  CONTRACT_DRAWER_REMOVE_EXTERNAL_ID_TEST_ID,
+  buildContractFormDefaults,
   CONTRACT_DRAWER_SHOW_EXTERNAL_ID_TEST_ID,
   CONTRACT_DRAWER_SHOW_NAME_TEST_ID,
   CONTRACT_FORM_DEFAULTS,
@@ -21,6 +22,7 @@ import {
 } from '../constants'
 import { ContractDrawerContent } from '../ContractDrawerContent'
 
+const FORM_DIRTY_STATE_TEST_ID = 'form-dirty-state'
 const mockBillingEntityPicker = jest.fn()
 const mockPaymentSettingsSelector = jest.fn()
 
@@ -91,7 +93,7 @@ const Wrapper = ({ seededCustomer }: { seededCustomer?: ContractDrawerCustomer }
 
   return (
     <>
-      <span data-test="form-dirty-state">{isDirty ? 'dirty' : 'pristine'}</span>
+      <span data-test={FORM_DIRTY_STATE_TEST_ID}>{isDirty ? 'dirty' : 'pristine'}</span>
       <button
         type="button"
         onClick={() => {
@@ -149,9 +151,6 @@ describe('ContractDrawerContent', () => {
       ),
     ).toBeInTheDocument()
 
-    fireEvent.click(screen.getByTestId(CONTRACT_DRAWER_REMOVE_EXTERNAL_ID_TEST_ID))
-    expect(screen.queryByPlaceholderText('Type a contract external id')).not.toBeInTheDocument()
-
     fireEvent.click(screen.getByTestId(CONTRACT_DRAWER_SHOW_NAME_TEST_ID))
     expect(screen.getByPlaceholderText('Type a contract name')).toBeInTheDocument()
   })
@@ -169,7 +168,7 @@ describe('ContractDrawerContent', () => {
         expect.objectContaining({ value: 'billing-entity-1' }),
       ),
     )
-    expect(screen.getByTestId('form-dirty-state')).toHaveTextContent('pristine')
+    expect(screen.getByTestId(FORM_DIRTY_STATE_TEST_ID)).toHaveTextContent('pristine')
   })
 
   it('clears customer-dependent settings when the customer is cleared', async () => {
@@ -195,5 +194,61 @@ describe('ContractDrawerContent', () => {
         value: undefined,
       }),
     )
+  })
+})
+
+const CreateMoreWrapper = () => {
+  const form = useAppForm({ defaultValues: buildContractFormDefaults() })
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+  const { resetSignal, notifyReset } = useCreateMore()
+
+  return (
+    <>
+      <span data-test={FORM_DIRTY_STATE_TEST_ID}>{isDirty ? 'dirty' : 'pristine'}</span>
+      <button
+        type="button"
+        onClick={() => form.setFieldValue('externalCustomerId', 'customer-external-id')}
+      >
+        Pick customer
+      </button>
+      <button
+        type="button"
+        onClick={async () => {
+          // Mirrors `onSubmit`: the reset lands after the awaited mutation, outside the click batch.
+          await Promise.resolve()
+          form.reset(buildContractFormDefaults(), { keepDefaultValues: true })
+          notifyReset()
+        }}
+      >
+        Create more reset
+      </button>
+      <ContractDrawerContent form={form} resetSignal={resetSignal} />
+    </>
+  )
+}
+
+describe('ContractDrawerContent with create more', () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  // The form reset empties the customer, which the auto-fill effect used to treat as a user
+  // clearing it, re-dirtying the fresh form so closing it prompted to discard nothing.
+  it('leaves the form pristine after a create more reset', async () => {
+    render(<CreateMoreWrapper />, { mocks: [customersMock, plansMock] })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Pick customer' }))
+    await waitFor(() =>
+      expect(mockBillingEntityPicker).toHaveBeenLastCalledWith(
+        expect.objectContaining({ value: 'billing-entity-1' }),
+      ),
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create more reset' }))
+
+    await waitFor(() =>
+      expect(mockBillingEntityPicker).toHaveBeenLastCalledWith(
+        expect.objectContaining({ value: undefined }),
+      ),
+    )
+    expect(screen.getByTestId(FORM_DIRTY_STATE_TEST_ID)).toHaveTextContent('pristine')
   })
 })

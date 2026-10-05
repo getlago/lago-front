@@ -72,6 +72,8 @@ type AppliedRateCardsTableProps<T extends AppliedRateCardRow> = {
   hasError?: boolean
   placeholder?: TablePlaceholder
   onPageChange: (page: number) => void
+  pageSize: number
+  onPageSizeChange: (pageSize: number) => void
   getRateCardHref: (row: T) => string
   onCopyRateCardCode: (row: T) => void
   onRemoveRateCard: (row: T) => void
@@ -93,6 +95,8 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
   hasError = false,
   placeholder,
   onPageChange,
+  pageSize,
+  onPageSizeChange,
   getRateCardHref,
   onCopyRateCardCode,
   onRemoveRateCard,
@@ -107,7 +111,7 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
     if (!category) {
       return (
         <div className="flex items-center gap-2">
-          <Icon name="folder-close" size="small" />
+          <Icon name="folder-close" />
           <Typography variant="bodyHl" color="grey700">
             {translate('text_1790284386156njn3ittr9qj')}
           </Typography>
@@ -117,7 +121,7 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
 
     return (
       <div className="flex items-center gap-2">
-        <Icon name="box" size="small" />
+        <Icon name="box" />
         <Typography variant="bodyHl" color="grey700">
           {category.invoiceDisplayName || category.name}
         </Typography>
@@ -152,22 +156,25 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
       minWidth: 240,
       maxSpace: true,
       content: (row) => (
-        <Typography variant="body" color="grey700" noWrap>
-          {getProductLabel(row)}
-        </Typography>
+        <div className="flex items-center gap-2 pl-2">
+          <Icon name="file" />
+          <Typography variant="body" color="grey700" noWrap>
+            {getProductLabel(row)}
+          </Typography>
+        </div>
       ),
     },
     {
       key: 'rateCard.name' as TableColumn<T>['key'],
       title: translate('text_17902843861564ti9tbk3ide'),
-      minWidth: 160,
-      content: (row) => <Chip label={row.rateCard.name} size="small" />,
+      minWidth: 167,
+      content: (row) => <Chip label={row.rateCard.name} />,
     },
     {
       key: 'ratePhasesCount' as TableColumn<T>['key'],
       title: translate('text_17902843861566isyrs5l0jm'),
       textAlign: 'right',
-      minWidth: 100,
+      minWidth: 88,
       content: (row) => (
         <Typography variant="body" color="grey600" noWrap>
           {row.ratePhasesCount}
@@ -177,32 +184,42 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
   ]
 
   return (
-    <PaginatedContent
-      metadata={metadata}
-      loading={loading}
-      onPageChange={onPageChange}
-      sticky={false}
-    >
-      <Table
-        name="applied-rate-cards"
-        data={groupedRows}
-        columns={columns}
-        isLoading={loading}
-        hasError={hasError}
-        placeholder={placeholder}
-        containerSize={0}
-        rowSize={72}
-        getRowGroupHeader={getRowGroupHeader}
-        onRowActionLink={getRateCardHref}
-        actionColumn={(row) => [
-          {
-            title: translate('text_1790284386156m6phatx4cxa'),
-            startIcon: 'duplicate',
-            onAction: () => onCopyRateCardCode(row),
-          },
-          getRemoveActionItem(row),
-        ]}
-      />
-    </PaginatedContent>
+    // `PaginatedContent`'s sticky mode renders the table and pager as bare fragment
+    // siblings (so `mt-auto` can push the pager to the viewport bottom elsewhere) —
+    // wrapped here so the section's `gap-6` treats them as one block instead of
+    // inserting a gap between the table and its own pager.
+    <div>
+      <PaginatedContent
+        metadata={metadata}
+        loading={loading}
+        onPageChange={onPageChange}
+        pageSize={pageSize}
+        onPageSizeChange={onPageSizeChange}
+      >
+        <Table
+          name="applied-rate-cards"
+          data={groupedRows}
+          columns={columns}
+          isLoading={loading}
+          loadingRowCount={pageSize}
+          hasError={hasError}
+          placeholder={placeholder}
+          containerSize={0}
+          containerClassName="h-auto shrink-0 overflow-visible [-webkit-transform:none] -mb-px border-t border-grey-300"
+          getRowGroupHeader={getRowGroupHeader}
+          stickyGroupHeaders
+          hideLastRowBorder
+          onRowActionLink={getRateCardHref}
+          actionColumn={(row) => [
+            {
+              title: translate('text_1790284386156m6phatx4cxa'),
+              startIcon: 'duplicate',
+              onAction: () => onCopyRateCardCode(row),
+            },
+            getRemoveActionItem(row),
+          ]}
+        />
+      </PaginatedContent>
+    </div>
   )
 }

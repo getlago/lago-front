@@ -1,26 +1,21 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
-import { DateTime } from 'luxon'
 import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
-import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import { addToast } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { CONTRACT_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
 import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
-import {
-  ContractForContractDrawerFragment,
-  LagoApiError,
-  useCreateContractMutation,
-} from '~/generated/graphql'
+import { LagoApiError, useCreateContractMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
+import { buildCreateContractInput } from './buildContractInput'
 import {
   buildContractFormDefaults,
   CONTRACT_DRAWER_SUBMIT_TEST_ID,
@@ -34,8 +29,33 @@ import { contractSchema } from './schema'
 gql`
   fragment ContractForContractDrawer on Contract {
     id
-    name
     externalId
+    name
+    status
+    startedAt
+    endedAt
+    billingAnchorDate
+    billingEntityId
+    consolidateInvoice
+    purchaseOrderNumber
+    paymentMethodType
+    paymentMethod {
+      id
+    }
+    customer {
+      id
+      externalId
+      displayName
+      applicableTimezone
+      billingEntity {
+        id
+      }
+    }
+    plan {
+      id
+      name
+      code
+    }
   }
 
   mutation createContract($input: CreateContractInput!) {
@@ -46,15 +66,28 @@ gql`
   }
 `
 
-const useContractForm = ({
-  onSuccess,
-}: {
-  onSuccess: (contract: ContractForContractDrawerFragment) => void
-}) => {
+export type OpenContractDrawerArgs = { customer?: ContractDrawerCustomer }
+
+export const useContractDrawer = (): {
+  openDrawer: (args?: OpenContractDrawerArgs) => void
+} => {
+  const { translate } = useInternationalization()
+  const navigate = useNavigate()
+  const { organizationSlug } = useParams()
+  const drawer = useFormDrawer()
+  const { createMoreControl, isCreateMoreEnabled, resetCreateMore, resetSignal, notifyReset } =
+    useCreateMore()
+
   const [createContract] = useCreateContractMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     refetchQueries: ['getContractsList', 'getCustomerContractsList'],
   })
+
+  const title = translate(CONTRACT_DRAWER_TITLE_CREATE_KEY)
+
+  // A ref, not a local: `onSubmit` is created with the form and would otherwise close
+  // over the seed from whichever render built it.
+  const seededCustomerRef = useRef<ContractDrawerCustomer | undefined>(undefined)
 
   const form = useAppForm({
     defaultValues: buildContractFormDefaults(),
@@ -64,71 +97,20 @@ const useContractForm = ({
       scrollToFirstInputError(CONTRACT_FORM_ID, formApi.state.errorMap.onDynamic || {})
     },
     onSubmit: async ({ value }) => {
-      const result = await createContract({
-        variables: {
-          input: {
-            externalCustomerId: value.externalCustomerId,
-            externalId: value.externalId || undefined,
-            planCode: value.planCode,
-            name: value.name || undefined,
-            billingEntityId: value.billingEntityId || undefined,
-            consolidateInvoice: value.consolidateInvoice,
-            paymentMethod: value.paymentMethod,
-            purchaseOrderNumber:
-              normalizePurchaseOrderNumber(value.purchaseOrderNumber) ?? undefined,
-            // The pickers publish UTC already; this is the same belt-and-braces
-            // conversion the subscription form applies on submit.
-            startedAt: DateTime.fromISO(value.startedAt).toUTC().toISO() ?? undefined,
-            endedAt: value.endedAt
-              ? (DateTime.fromISO(value.endedAt).toUTC().toISO() ?? undefined)
-              : undefined,
-            // ISO8601Date, not a datetime: a bare calendar day.
-            billingAnchorDate:
-              DateTime.fromISO(value.billingAnchorDate).toUTC().toISODate() ?? undefined,
-          },
-        },
-      })
-
+      const result = await createContract({ variables: { input: buildCreateContractInput(value) } })
       const contract = result.data?.createContract
 
-      // `silentErrorCodes` swallows the rejection, so without this the failed
-      // submit would look like a no-op.
       if (!contract || result.errors?.length) {
         addToast({ severity: 'danger', translateKey: 'text_1789552637141bjmvomefkkg' })
         return
       }
 
-      onSuccess(contract)
-    },
-  })
-
-  const resetForm = (customer?: ContractDrawerCustomer): void => {
-    form.reset(buildContractFormDefaults(customer), { keepDefaultValues: true })
-  }
-
-  return { form, resetForm }
-}
-
-export const useContractDrawer = (): {
-  openDrawer: (args?: { customer?: ContractDrawerCustomer }) => void
-} => {
-  const { translate } = useInternationalization()
-  const navigate = useNavigate()
-  const { organizationSlug } = useParams()
-  const drawer = useFormDrawer()
-  const { createMoreControl, isCreateMoreEnabled, resetCreateMore, resetSignal, notifyReset } =
-    useCreateMore()
-
-  // A ref, not a local: `onSuccess` is created with the form and would otherwise
-  // close over the seed from whichever render built it.
-  const seededCustomerRef = useRef<ContractDrawerCustomer | undefined>(undefined)
-
-  const { form, resetForm } = useContractForm({
-    onSuccess: (contract) => {
       const contractDetailsPath = generatePath(CONTRACT_DETAILS_ROUTE, { id: contract.id })
 
       if (isCreateMoreEnabled()) {
-        resetForm(seededCustomerRef.current)
+        form.reset(buildContractFormDefaults(seededCustomerRef.current), {
+          keepDefaultValues: true,
+        })
         notifyReset()
         // The drawer renders outside the matched-route context, so the router Link
         // in the toast cannot auto-prepend the org slug; bake it in here.
@@ -148,13 +130,13 @@ export const useContractDrawer = (): {
     },
   })
 
-  const openDrawer = (args?: { customer?: ContractDrawerCustomer }): void => {
-    seededCustomerRef.current = args?.customer
+  const openDrawer = (args: OpenContractDrawerArgs = {}): void => {
+    seededCustomerRef.current = args.customer
     resetCreateMore()
-    resetForm(seededCustomerRef.current)
+    form.reset(buildContractFormDefaults(args.customer), { keepDefaultValues: true })
 
     drawer.open({
-      title: translate(CONTRACT_DRAWER_TITLE_CREATE_KEY),
+      title,
       form: { id: CONTRACT_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
       onEntered: focusFirstInput,
@@ -162,15 +144,13 @@ export const useContractDrawer = (): {
       secondaryAction: createMoreControl,
       mainAction: (
         <form.AppForm>
-          <form.SubmitButton dataTest={CONTRACT_DRAWER_SUBMIT_TEST_ID}>
-            {translate(CONTRACT_DRAWER_TITLE_CREATE_KEY)}
-          </form.SubmitButton>
+          <form.SubmitButton dataTest={CONTRACT_DRAWER_SUBMIT_TEST_ID}>{title}</form.SubmitButton>
         </form.AppForm>
       ),
       children: (
         <ContractDrawerContent
           form={form}
-          seededCustomer={seededCustomerRef.current}
+          seededCustomer={args.customer}
           resetSignal={resetSignal}
         />
       ),

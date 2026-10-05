@@ -1,9 +1,11 @@
 import { act, renderHook } from '@testing-library/react'
 
+import { contractForDrawerFixture } from '~/components/contracts/drawers/contract/__tests__/fixtures'
 import { ContractStatusEnum } from '~/generated/graphql'
 
 import {
   CONTRACT_TABLE_CANCEL_TEST_ID,
+  CONTRACT_TABLE_COPY_EXTERNAL_ID_TEST_ID,
   CONTRACT_TABLE_TERMINATE_TEST_ID,
   useContractTableActions,
 } from '../useContractTableActions'
@@ -34,13 +36,12 @@ jest.mock('~/hooks/useContractPermissionsActions', () => ({
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
-  useInternationalization: () => ({ translate: (key: string) => key }),
+  useInternationalization: () => ({
+    translate: (key: string) => key,
+  }),
 }))
 
-const contract = {
-  externalId: 'external-contract-1',
-  status: ContractStatusEnum.Active,
-}
+const contract = { ...contractForDrawerFixture, externalId: 'external-contract-1' }
 
 describe('useContractTableActions', () => {
   beforeEach(() => {
@@ -52,7 +53,9 @@ describe('useContractTableActions', () => {
     const { result } = renderHook(() => useContractTableActions())
     const actions = result.current.getContractTableActions(contract)
 
-    expect(actions[0]).toEqual(expect.objectContaining({ dataTest: 'copy-contract-external-id' }))
+    expect(actions[0]).toEqual(
+      expect.objectContaining({ dataTest: CONTRACT_TABLE_COPY_EXTERNAL_ID_TEST_ID }),
+    )
 
     act(() => actions[0]?.onAction?.(contract))
     expect(mockCopyContractExternalId).toHaveBeenCalledWith('external-contract-1')

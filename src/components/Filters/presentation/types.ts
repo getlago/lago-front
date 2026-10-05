@@ -20,6 +20,9 @@ export const filterWithoutProductCategoryValue = '__without_productCategory__'
 // never contributes a `productId` (see formatFiltersForProductFiltersQuery).
 export const filterWithoutProductValue = '__without_productCategory_item__'
 
+// Sentinel for the applied-rate-cards Product filter facet's "Not defined" option; maps to `withoutProductFilter: true`, not a real id.
+export const filterWithoutProductFilterValue = '__without_productFilter__'
+
 export enum AvailableQuickFilters {
   invoiceStatus = 'invoiceStatus',
   customerAccountType = 'customerAccountType',
@@ -112,6 +115,9 @@ export enum AvailableFiltersEnum {
   rateCardProductCategory = 'rateCardProductCategory',
   rateCardProduct = 'rateCardProduct',
   rateCardProductFilter = 'rateCardProductFilter',
+  appliedRateCardHasOverrides = 'appliedRateCardHasOverrides',
+  appliedRateCardProductFilter = 'appliedRateCardProductFilter',
+  appliedRateCardProductType = 'appliedRateCardProductType',
   orderFormCreatedAt = 'orderFormCreatedAt',
   orderFormNumber = 'orderFormNumber',
   orderFormStatus = 'orderFormStatus',
@@ -339,6 +345,16 @@ export const RateCardAvailableFilters = [
   AvailableFiltersEnum.rateCardProductFilter,
 ]
 
+// Shared by the Plan and Contract applied-rate-card lists; Category/Product reuse the
+// productProductCategory/rateCardProduct facets rather than minting duplicates.
+export const AppliedRateCardsAvailableFilters = [
+  AvailableFiltersEnum.appliedRateCardHasOverrides,
+  AvailableFiltersEnum.productProductCategory,
+  AvailableFiltersEnum.rateCardProduct,
+  AvailableFiltersEnum.appliedRateCardProductFilter,
+  AvailableFiltersEnum.appliedRateCardProductType,
+]
+
 export const CustomerAnalyticsAvailableFilters = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.billingEntityId,
@@ -452,6 +468,11 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.rateCardProductCategory]: 'text_1786374750349h8y80oq55h9',
   [AvailableFiltersEnum.rateCardProduct]: 'text_1783020794400si0ioidu0m5',
   [AvailableFiltersEnum.rateCardProductFilter]: 'text_1783020794400u55s2kj2o4n',
+  [AvailableFiltersEnum.appliedRateCardHasOverrides]: 'text_1790626357129e0p15gxlw0g',
+  // Reuses the existing plural "Product filters" label (matches the Figma mock's plural
+  // wording, unlike rateCardProductFilter's singular "Product filter").
+  [AvailableFiltersEnum.appliedRateCardProductFilter]: 'text_1783104239825gamldgumtq0',
+  [AvailableFiltersEnum.appliedRateCardProductType]: 'text_1790626357129c10aq2mtlre',
   [AvailableFiltersEnum.orderFormCreatedAt]: 'text_1776870266380s3zbpmnfrhj',
   [AvailableFiltersEnum.orderFormNumber]: 'text_1781624189693d7zcv2vog4c',
   [AvailableFiltersEnum.orderFormStatus]: 'text_63ac86d797f728a87b2f9fa7',
