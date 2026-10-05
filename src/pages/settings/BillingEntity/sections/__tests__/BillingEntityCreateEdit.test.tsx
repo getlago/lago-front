@@ -148,6 +148,25 @@ describe('BillingEntityCreateEdit - phone field', () => {
   })
 })
 
+describe('BillingEntityCreateEdit - country field', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('submits null when the country is cleared', async () => {
+    setHook({ isEdition: true, billingEntity: baseBillingEntity({ country: 'DE' }) })
+
+    await renderPage()
+
+    await userEvent.clear(inputIn(BILLING_ENTITY_CREATE_EDIT_COUNTRY_INPUT_TEST_ID))
+    await userEvent.click(screen.getByRole('button', { name: SAVE_EDITS_LABEL }))
+
+    await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ country: null }))
+    })
+  })
+})
+
 describe('BillingEntityCreateEdit - validation', () => {
   beforeEach(() => {
     jest.clearAllMocks()

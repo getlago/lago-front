@@ -120,6 +120,7 @@ const BillingEntityCreateEdit = () => {
       await onSave({
         ...value,
         phone: value.phone || null,
+        country: value.country || null,
       })
     },
     onSubmitInvalid({ formApi }) {
