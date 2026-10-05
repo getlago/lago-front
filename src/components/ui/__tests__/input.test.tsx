@@ -40,7 +40,7 @@ describe('Input', () => {
     const input = screen.getByPlaceholderText('Invalid')
 
     expect(input).toHaveAttribute('aria-invalid', 'true')
-    expect(input).toHaveClass('aria-invalid:border-destructive')
+    expect(input).toHaveClass('aria-invalid:border-danger-border')
   })
 
   it('merges a custom className without losing the base classes', async () => {

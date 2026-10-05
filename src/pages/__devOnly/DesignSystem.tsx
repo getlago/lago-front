@@ -63,6 +63,7 @@ import Stripe from '~/public/images/stripe.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
+import { ColorTest } from './tabs/ColorTest'
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
 import EditorTest from './tabs/EditorTest'
@@ -2268,6 +2269,7 @@ const DesignSystem = () => {
             link: SHADCN_TAB_URL,
             component: (
               <Container>
+                <ColorTest />
                 <TypographyTest />
                 <Typography className="mb-4" variant="headline">
                   Button

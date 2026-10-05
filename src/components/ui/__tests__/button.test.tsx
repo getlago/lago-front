@@ -21,7 +21,7 @@ describe('Button', () => {
 
     const button = screen.getByRole('button', { name: 'Default' })
 
-    expect(button).toHaveClass('bg-primary')
+    expect(button).toHaveClass('bg-action-primary')
     expect(button).toHaveClass('h-9')
   })
 
@@ -31,7 +31,7 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: 'Delete' })
 
     expect(button).toHaveClass('bg-destructive')
-    expect(button).not.toHaveClass('bg-primary')
+    expect(button).not.toHaveClass('bg-action-primary')
   })
 
   it('applies the requested size classes', async () => {
@@ -49,7 +49,7 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: 'Default' })
 
     expect(button).toHaveClass('mt-4')
-    expect(button).toHaveClass('bg-primary')
+    expect(button).toHaveClass('bg-action-primary')
   })
 
   it('lets a conflicting custom className override the variant class, via cn/tailwind-merge', async () => {
@@ -58,7 +58,7 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: 'Default' })
 
     expect(button).toHaveClass('bg-accent')
-    expect(button).not.toHaveClass('bg-primary')
+    expect(button).not.toHaveClass('bg-action-primary')
   })
 
   it('disables the button and blocks the click handler', async () => {
@@ -104,7 +104,7 @@ describe('Button', () => {
 
     expect(link.tagName).toBe('A')
     expect(link).toHaveAttribute('href', '/somewhere')
-    expect(link).toHaveClass('bg-primary')
+    expect(link).toHaveClass('bg-action-primary')
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 

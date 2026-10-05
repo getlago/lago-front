@@ -1,0 +1,9 @@
+@layer components {
+  :where([data-shadcn-button][data-variant='secondary'], [data-shadcn-button][data-variant='outline']):not(:disabled):not([aria-disabled='true']):hover {
+    background-image: linear-gradient(var(--color-interactive-hover), var(--color-interactive-hover));
+  }
+
+  :where([data-shadcn-button][data-variant='secondary'], [data-shadcn-button][data-variant='outline']):not(:disabled):not([aria-disabled='true']):active {
+    background-image: linear-gradient(var(--color-interactive-pressed), var(--color-interactive-pressed));
+  }
+}

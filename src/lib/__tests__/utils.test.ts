@@ -19,3 +19,14 @@ describe('shadcn typography merging', () => {
     expect(tw('v2-text-body', 'v2-text-number')).toBe('v2-text-body v2-text-number')
   })
 })
+
+it('merges semantic colors independently from typography and focus ring widths', () => {
+  expect(cn('v2-text-body text-text-default', 'text-text-muted')).toBe(
+    'v2-text-body text-text-muted',
+  )
+  expect(cn('bg-action-primary', 'bg-surface')).toBe('bg-surface')
+  expect(cn('border border-border-default', 'border-danger-border')).toBe(
+    'border border-danger-border',
+  )
+  expect(cn('ring-1 ring-focus-ring')).toBe('ring-1 ring-focus-ring')
+})
