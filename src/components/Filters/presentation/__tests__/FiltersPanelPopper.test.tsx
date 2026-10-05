@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
@@ -15,7 +15,7 @@ import {
   FiltersPanelPopper,
 } from '~/components/Filters/presentation/FiltersPanelPopper'
 import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
-import { AllTheProviders } from '~/test-utils'
+import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 const CUSTOM_OPENER_TEST_ID = 'custom-opener'
 
@@ -25,6 +25,41 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+// The real ComboBox renders its options through a virtualized list, which measures 0px in jsdom
+// and therefore renders no option to click. Only the filter-type picker is stubbed.
+jest.mock('~/components/form', () => {
+  const actual = jest.requireActual('~/components/form')
+
+  return {
+    ...actual,
+    ComboBox: ({
+      data,
+      value,
+      disabled,
+      onChange,
+    }: {
+      data: Array<{ value: string; disabled?: boolean }>
+      value?: string
+      disabled?: boolean
+      onChange: (value: string) => void
+    }) => (
+      <select
+        data-test="mock-filter-type-combobox"
+        disabled={disabled}
+        value={value ?? ''}
+        onChange={(event) => onChange(event.target.value)}
+      >
+        <option value="" />
+        {data.map((item) => (
+          <option key={item.value} value={item.value} disabled={item.disabled}>
+            {item.value}
+          </option>
+        ))}
+      </select>
+    ),
+  }
+})
+
 const AVAILABLE_FILTERS = [
   AvailableFiltersEnum.status,
   AvailableFiltersEnum.currency,
@@ -32,6 +67,12 @@ const AVAILABLE_FILTERS = [
 ]
 
 const DATE_AVAILABLE_FILTERS = [AvailableFiltersEnum.issuingDate]
+const SINGLE_AVAILABLE_FILTERS = [AvailableFiltersEnum.externalId]
+const MIXED_AVAILABLE_FILTERS = [AvailableFiltersEnum.issuingDate, AvailableFiltersEnum.externalId]
+const FILTER_TYPE_COMBOBOX_TEST_ID = 'mock-filter-type-combobox'
+
+const FROM = '2024-01-01T00:00:00.000Z'
+const TO = '2024-01-31T23:59:59.999Z'
 
 const hydrateUrlWithFilters = (search: string): void => {
   window.history.replaceState({}, '', search)
@@ -85,7 +126,7 @@ describe('FiltersPanelPopper', () => {
         expect(screen.getAllByTestId(FILTERS_PANEL_FILTER_ITEM_TEST_ID)).toHaveLength(1)
       })
 
-      it('THEN the apply button is disabled until the form is dirty and valid', async () => {
+      it('THEN the apply button is disabled while the only filter row is incomplete', async () => {
         renderPanel()
 
         await openPanel()
@@ -160,6 +201,127 @@ describe('FiltersPanelPopper', () => {
         await userEvent.click(screen.getByTestId(FILTERS_PANEL_CANCEL_TEST_ID))
 
         expect(screen.queryByTestId(FILTERS_PANEL_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN an empty panel over a single available filter', () => {
+    afterEach(() => {
+      hydrateUrlWithFilters('/')
+    })
+
+    describe('WHEN a filter type and a value are picked', () => {
+      it('THEN it enables apply, navigates with the filter and closes the panel', async () => {
+        renderPanel({ availableFilters: SINGLE_AVAILABLE_FILTERS })
+        await openPanel()
+
+        expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).toBeDisabled()
+
+        await userEvent.selectOptions(
+          screen.getByTestId(FILTER_TYPE_COMBOBOX_TEST_ID),
+          AvailableFiltersEnum.externalId,
+        )
+
+        expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).toBeDisabled()
+
+        await userEvent.type(screen.getByRole('textbox'), 'cust-1')
+
+        expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).not.toBeDisabled()
+
+        await userEvent.click(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID))
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith({ search: 'f_externalId=cust-1' })
+        expect(screen.queryByTestId(FILTERS_PANEL_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN filters hydrated from the URL', () => {
+    afterEach(() => {
+      hydrateUrlWithFilters('/')
+    })
+
+    describe('WHEN apply is pressed without touching anything', () => {
+      it('THEN it re-applies the filters, as no dirty state gates the button', async () => {
+        hydrateUrlWithFilters('/?f_externalId=cust-1')
+        renderPanel({ availableFilters: SINGLE_AVAILABLE_FILTERS })
+        await openPanel()
+
+        expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).not.toBeDisabled()
+
+        await userEvent.click(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID))
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith({ search: 'f_externalId=cust-1' })
+      })
+    })
+
+    describe('WHEN every filter is cleared and applied', () => {
+      it('THEN it navigates with the filters dropped from the URL', async () => {
+        hydrateUrlWithFilters('/?f_externalId=cust-1')
+        renderPanel({ availableFilters: SINGLE_AVAILABLE_FILTERS })
+        await openPanel()
+
+        await userEvent.click(screen.getByTestId(FILTERS_PANEL_CLEAR_ALL_TEST_ID))
+
+        expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).not.toBeDisabled()
+
+        await userEvent.click(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID))
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith({ search: '' })
+      })
+    })
+
+    describe('WHEN the filter type is changed on a row that already had a value', () => {
+      it('THEN it clears the previous value and disables apply again', async () => {
+        hydrateUrlWithFilters(`/?f_issuingDate=${FROM},${TO}`)
+        renderPanel({ availableFilters: MIXED_AVAILABLE_FILTERS })
+        await openPanel()
+
+        expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).not.toBeDisabled()
+
+        await userEvent.selectOptions(
+          screen.getByTestId(FILTER_TYPE_COMBOBOX_TEST_ID),
+          AvailableFiltersEnum.externalId,
+        )
+
+        expect(screen.getByRole('textbox')).toHaveValue('')
+        expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN the filters change outside the panel after an edit', () => {
+      it('THEN it re-seeds from the URL, discarding the unapplied edit', async () => {
+        hydrateUrlWithFilters('/?f_externalId=cust-1')
+        renderPanel({ availableFilters: SINGLE_AVAILABLE_FILTERS })
+        await openPanel()
+        await userEvent.type(screen.getByRole('textbox'), '-edited')
+
+        expect(screen.getByRole('textbox')).toHaveValue('cust-1-edited')
+
+        act(() => {
+          hydrateUrlWithFilters('/?f_externalId=cust-2')
+          window.dispatchEvent(new PopStateEvent('popstate'))
+        })
+
+        expect(screen.getByRole('textbox')).toHaveValue('cust-2')
+      })
+    })
+
+    describe('WHEN the panel is cancelled after an edit and reopened', () => {
+      it('THEN it restores the applied filters and keeps apply enabled', async () => {
+        hydrateUrlWithFilters('/?f_externalId=cust-1')
+        renderPanel({ availableFilters: SINGLE_AVAILABLE_FILTERS })
+        await openPanel()
+
+        await userEvent.clear(screen.getByRole('textbox'))
+
+        expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).toBeDisabled()
+
+        await userEvent.click(screen.getByTestId(FILTERS_PANEL_CANCEL_TEST_ID))
+        await openPanel()
+
+        expect(screen.getByRole('textbox')).toHaveValue('cust-1')
+        expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).not.toBeDisabled()
       })
     })
   })
