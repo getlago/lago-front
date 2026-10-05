@@ -214,6 +214,65 @@ describe('BillingEntityCreateEdit - validation', () => {
   })
 })
 
+describe('BillingEntityCreateEdit - reinitialisation', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  describe('GIVEN an edit form with unsaved changes', () => {
+    describe('WHEN a BillingEntity field the form does not hold changes', () => {
+      it('THEN should keep the unsaved changes', async () => {
+        setHook({ isEdition: true, billingEntity: baseBillingEntity() })
+
+        let rerender: (ui: React.ReactElement) => void = () => undefined
+
+        await act(async () => {
+          ;({ rerender } = render(<BillingEntityCreateEdit />))
+        })
+
+        await userEvent.type(inputIn(BILLING_ENTITY_CREATE_EDIT_NAME_INPUT_TEST_ID), ' edited')
+
+        setHook({
+          isEdition: true,
+          billingEntity: baseBillingEntity({ logoUrl: 'https://example.com/new-logo.png' }),
+        })
+
+        await act(async () => {
+          rerender(<BillingEntityCreateEdit />)
+        })
+
+        expect(inputIn(BILLING_ENTITY_CREATE_EDIT_NAME_INPUT_TEST_ID)).toHaveValue(
+          'Test Entity edited',
+        )
+      })
+    })
+
+    describe('WHEN a field the form does hold changes', () => {
+      it('THEN should reinitialise from the new value', async () => {
+        setHook({ isEdition: true, billingEntity: baseBillingEntity() })
+
+        let rerender: (ui: React.ReactElement) => void = () => undefined
+
+        await act(async () => {
+          ;({ rerender } = render(<BillingEntityCreateEdit />))
+        })
+
+        await userEvent.type(inputIn(BILLING_ENTITY_CREATE_EDIT_NAME_INPUT_TEST_ID), ' edited')
+
+        setHook({ isEdition: true, billingEntity: baseBillingEntity({ name: 'Renamed Upstream' }) })
+
+        await act(async () => {
+          rerender(<BillingEntityCreateEdit />)
+        })
+
+        expect(inputIn(BILLING_ENTITY_CREATE_EDIT_NAME_INPUT_TEST_ID)).toHaveValue(
+          'Renamed Upstream',
+        )
+      })
+    })
+  })
+})
+
 describe('BillingEntityCreateEdit - address section', () => {
   beforeEach(() => {
     jest.clearAllMocks()

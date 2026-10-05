@@ -130,12 +130,16 @@ const BillingEntityCreateEdit = () => {
     },
   })
 
+  // Not `[billingEntity]`: `enableReinitialize` deep-compared `initialValues`, so a field the
+  // form does not hold changing never reset it. The object's identity changes on any of them.
+  const defaultValuesKey = JSON.stringify(defaultValues)
+
   useEffect(() => {
     if (billingEntity) {
       form.reset(defaultValues)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [billingEntity])
+  }, [defaultValuesKey])
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
