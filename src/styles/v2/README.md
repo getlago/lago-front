@@ -50,7 +50,7 @@ import { ColorTheme } from '~/components/ui/color-theme'
 
 Nested boundaries can use a different mode. For React portals, wrap the portalled content in `ColorThemePortal` from the same module so it inherits the nearest React theme context. Both helpers currently render a `div`; account for that wrapper in layouts and markup.
 
-Inspect the palette and component states at `/design-system/shadcn` in development or QA.
+Inspect the primitive and semantic color tables at `/design-system/shadcn` in development or QA.
 
 ## Updating tokens
 
