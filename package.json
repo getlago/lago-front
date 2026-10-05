@@ -16,8 +16,6 @@
     "packages/*"
   ],
   "scripts": {
-    "colors:generate": "node scripts/generate-v2-colors.mjs",
-    "colors:check": "node scripts/generate-v2-colors.mjs --check",
     "dev": "vite",
     "build:packages": "pnpm --filter lago-design-system build",
     "postinstall": "pnpm run build:packages",

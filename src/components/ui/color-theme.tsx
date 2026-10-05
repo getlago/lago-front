@@ -1,6 +1,6 @@
 import { createContext, HTMLAttributes, useContext } from 'react'
 
-import { ColorMode } from '~/styles/v2/colors'
+export type ColorMode = 'light' | 'dark'
 
 type ColorThemeProps = HTMLAttributes<HTMLDivElement> & { mode: ColorMode }
 const ColorThemeContext = createContext<ColorMode>('light')

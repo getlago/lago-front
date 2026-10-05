@@ -54,15 +54,10 @@ Inspect the primitive and semantic color tables at `/design-system/shadcn` in de
 
 ## Updating tokens
 
-[`colors.ts`](colors.ts) is the source of truth for primitives and semantic aliases. [`colors.css`](colors.css) is generated; do not edit it by hand. The generator resolves aliases, rejects missing references and cycles, and writes the CSS variables for both modes.
+[`colors.css`](colors.css) is the source of truth. Edit primitive values and semantic aliases directly there; no generation command or generated output is needed. Keep both light and dark semantic declarations, including aliases, so nested theme boundaries resolve locally.
 
-When changing token definitions, run these commands from the repository root:
+When adding or removing a token, update its variable name in [`tailwindColors.ts`](tailwindColors.ts) to expose or remove its Tailwind utilities. That file lists names only; color values and aliases live exclusively in CSS. Changing an existing value requires only a CSS edit.
 
-```sh
-pnpm colors:generate
-pnpm colors:check
-```
+The showcase reads the CSS declarations and lets the browser resolve their values for the selected theme. CSS validation tests check alias references and cycles, while utility tests cover opacity and legacy isolation.
 
-Commit both `colors.ts` and the regenerated `colors.css`. The check command verifies freshness without writing files; the color unit tests also check freshness. Consuming existing tokens in a component requires no generation.
-
-The Tailwind mappings are derived from the registry automatically. New semantic roles should represent an agreed design purpose, rather than a one-off visual adjustment.
+New semantic roles should represent an agreed design purpose, rather than a one-off visual adjustment.

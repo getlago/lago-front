@@ -1,60 +1,89 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/ui/button'
-import { ColorTheme } from '~/components/ui/color-theme'
-import {
-  ColorMode,
-  colorPrimitives,
-  colorSemantics,
-  colorToCss,
-  colorVariable,
-  resolveColor,
-} from '~/styles/v2/colors'
+import { ColorMode, ColorTheme } from '~/components/ui/color-theme'
+import colorCss from '~/styles/v2/colors.css?raw'
+
+type ColorRow = { variable: string; value: string; resolved: string }
 
 export const ColorTest = (): JSX.Element => {
   const [mode, setMode] = useState<ColorMode>('light')
-  const primitiveRows = Object.entries(colorPrimitives).map(([name, value]) => (
-    <tr key={name} data-color-primitive={name} className="border-b border-border-subtle">
+  const previewRef = useRef<HTMLElement>(null)
+  const [rows, setRows] = useState<{ primitives: ColorRow[]; semantics: ColorRow[] }>({
+    primitives: [],
+    semantics: [],
+  })
+
+  useEffect(() => {
+    const boundary = previewRef.current?.querySelector('[data-color-theme]')
+
+    if (!boundary) return
+    const computed = getComputedStyle(boundary)
+    const sheet = new CSSStyleSheet()
+
+    sheet.replaceSync(colorCss)
+    const primitives: ColorRow[] = []
+    const semantics: ColorRow[] = []
+
+    for (const rule of Array.from(sheet.cssRules)) {
+      if (!(rule instanceof CSSStyleRule)) continue
+      const isMode = rule.selectorText.includes(`[data-color-theme="${mode}"]`)
+
+      for (const variable of Array.from(rule.style)) {
+        const row = {
+          variable,
+          value: rule.style.getPropertyValue(variable).trim(),
+          resolved: computed.getPropertyValue(variable).trim(),
+        }
+
+        if (variable.startsWith('--v2-')) primitives.push(row)
+        if (isMode && variable.startsWith('--color-')) semantics.push(row)
+      }
+    }
+    setRows({ primitives, semantics })
+  }, [mode])
+
+  const primitiveRows = rows.primitives.map(({ variable, value }) => (
+    <tr
+      key={variable}
+      data-color-primitive={variable.slice(2)}
+      className="border-b border-border-subtle"
+    >
       <th scope="row" className="v2-text-code whitespace-nowrap p-3 text-left font-medium">
-        {name}
+        {variable.slice(2)}
       </th>
       <td className="p-3">
         <div
           className="h-8 w-16 rounded border border-border-subtle"
-          style={{ backgroundColor: `var(${colorVariable(name)})` }}
+          style={{ backgroundColor: `var(${variable})` }}
         />
       </td>
-      <td className="v2-text-code p-3 text-text-muted">{value.hex}</td>
-      <td className="v2-text-number p-3 text-text-muted">{Math.round(value.alpha * 100)}%</td>
+      <td className="v2-text-code p-3 text-text-muted">{value}</td>
     </tr>
   ))
 
-  const semanticRows = Object.entries(colorSemantics).map(([name, aliases]) => {
-    const resolved = resolveColor(name, mode)
-
-    return (
-      <tr key={name} data-color-semantic={name} className="border-b border-border-subtle">
-        <th scope="row" className="p-3 text-left font-medium">
-          {name}
-        </th>
-        <td className="p-3">
-          <div
-            className="h-8 w-16 rounded border border-border-subtle"
-            style={{ backgroundColor: `var(${colorVariable(name)})` }}
-          />
-        </td>
-        <td className="v2-text-code p-3">{aliases[mode]}</td>
-        <td className="v2-text-code p-3 text-text-muted">
-          {resolved.primitive}
-          <br />
-          {colorToCss(resolved)}
-        </td>
-      </tr>
-    )
-  })
+  const semanticRows = rows.semantics.map(({ variable, value, resolved }) => (
+    <tr
+      key={variable}
+      data-color-semantic={variable.slice('--color-'.length)}
+      className="border-b border-border-subtle"
+    >
+      <th scope="row" className="p-3 text-left font-medium">
+        {variable.slice('--color-'.length)}
+      </th>
+      <td className="p-3">
+        <div
+          className="h-8 w-16 rounded border border-border-subtle"
+          style={{ backgroundColor: `var(${variable})` }}
+        />
+      </td>
+      <td className="v2-text-code p-3">{value}</td>
+      <td className="v2-text-code p-3 text-text-muted">{resolved}</td>
+    </tr>
+  ))
 
   return (
-    <section aria-label="Color foundation" className="mb-12">
+    <section ref={previewRef} aria-label="Color foundation" className="mb-12">
       <ColorTheme
         mode={mode}
         className="v2-text-body space-y-8 rounded-lg border border-border-subtle bg-canvas p-6 text-text-default"
@@ -63,8 +92,8 @@ export const ColorTest = (): JSX.Element => {
           <div>
             <h2 className="v2-text-section-title">Colors</h2>
             <p className="text-text-muted">
-              {Object.keys(colorPrimitives).length} primitives ·{' '}
-              {Object.keys(colorSemantics).length} semantic roles · {mode} theme
+              {rows.primitives.length} primitives · {rows.semantics.length} semantic roles · {mode}{' '}
+              theme
             </p>
           </div>
           <div className="flex gap-2" role="group" aria-label="Preview theme">
@@ -97,10 +126,7 @@ export const ColorTest = (): JSX.Element => {
                     Swatch
                   </th>
                   <th scope="col" className="p-3">
-                    Hex
-                  </th>
-                  <th scope="col" className="p-3">
-                    Opacity
+                    CSS value
                   </th>
                 </tr>
               </thead>
