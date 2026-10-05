@@ -4,6 +4,9 @@ import * as React from 'react'
 
 import { cn } from '~/lib/utils'
 
+const surfaceInteractionClasses =
+  '[&:not(:disabled):not([aria-disabled=true]):hover:not(:active)]:bg-[linear-gradient(var(--color-interactive-hover),var(--color-interactive-hover))] [&:not(:disabled):not([aria-disabled=true]):active]:bg-[linear-gradient(var(--color-interactive-pressed),var(--color-interactive-pressed))]'
+
 const buttonVariants = cva(
   "v2-text-label inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border border-[transparent] outline-none transition-colors focus-visible:border-focus-border focus-visible:ring-[3px] focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:pointer-events-none disabled:border-disabled-border disabled:bg-disabled disabled:text-disabled-foreground aria-disabled:pointer-events-none aria-disabled:border-disabled-border aria-disabled:bg-disabled aria-disabled:text-disabled-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
@@ -13,8 +16,8 @@ const buttonVariants = cva(
           'bg-action-primary text-action-primary-foreground [&:not(:disabled):not([aria-disabled=true]):active]:bg-action-primary-pressed [&:not(:disabled):not([aria-disabled=true]):hover:not(:active)]:bg-action-primary-hover',
         destructive:
           'bg-destructive text-destructive-foreground [&:not(:disabled):not([aria-disabled=true]):active]:bg-destructive-pressed [&:not(:disabled):not([aria-disabled=true]):hover:not(:active)]:bg-destructive-hover',
-        outline: 'border-border-default bg-surface text-text-default',
-        secondary: 'bg-surface-raised text-text-default',
+        outline: ['border-border-default bg-surface text-text-default', surfaceInteractionClasses],
+        secondary: ['bg-surface-raised text-text-default', surfaceInteractionClasses],
         ghost:
           'bg-[transparent] text-text-default [&:not(:disabled):not([aria-disabled=true]):active]:bg-interactive-pressed [&:not(:disabled):not([aria-disabled=true]):hover:not(:active)]:bg-interactive-hover',
         link: 'bg-[transparent] text-link underline-offset-4 [&:not(:disabled):not([aria-disabled=true]):active]:text-link-hover [&:not(:disabled):not([aria-disabled=true]):hover:not(:active)]:text-link-hover [&:not(:disabled):not([aria-disabled=true]):hover:not(:active)]:underline',
@@ -43,13 +46,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : 'button'
 
     return (
-      <Comp
-        data-shadcn-button=""
-        data-variant={variant ?? 'default'}
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
+      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
     )
   },
 )
