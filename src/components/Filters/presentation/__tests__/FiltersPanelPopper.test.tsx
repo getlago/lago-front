@@ -69,6 +69,10 @@ const AVAILABLE_FILTERS = [
 const DATE_AVAILABLE_FILTERS = [AvailableFiltersEnum.issuingDate]
 const SINGLE_AVAILABLE_FILTERS = [AvailableFiltersEnum.externalId]
 const MIXED_AVAILABLE_FILTERS = [AvailableFiltersEnum.issuingDate, AvailableFiltersEnum.externalId]
+const NORMALISING_AVAILABLE_FILTERS = [
+  AvailableFiltersEnum.activeSubscriptions,
+  AvailableFiltersEnum.metadata,
+]
 const FILTER_TYPE_COMBOBOX_TEST_ID = 'mock-filter-type-combobox'
 
 const FROM = '2024-01-01T00:00:00.000Z'
@@ -322,6 +326,31 @@ describe('FiltersPanelPopper', () => {
 
         expect(screen.getByRole('textbox')).toHaveValue('cust-1')
         expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).not.toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN two filters that each normalise their own value on mount', () => {
+    afterEach(() => {
+      hydrateUrlWithFilters('/')
+    })
+
+    describe('WHEN apply is pressed', () => {
+      // Both widgets write back through `setFilterValue` in the same commit. Rebuilding the array
+      // from the render snapshot made the second write drop the first one's normalisation, so
+      // `isEqualTo,10,` reached the URL instead of `isEqualTo,10,10`.
+      it('THEN it keeps every normalised value, not only the last one written', async () => {
+        hydrateUrlWithFilters('/?f_activeSubscriptions=isEqualTo,10,&f_metadata=a=1')
+        renderPanel({ availableFilters: NORMALISING_AVAILABLE_FILTERS })
+        await openPanel()
+
+        await userEvent.click(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID))
+
+        const [{ search }] = testMockNavigateFn.mock.calls[0]
+        const appliedFilters = new URLSearchParams(search)
+
+        expect(appliedFilters.get('f_activeSubscriptions')).toBe('isEqualTo,10,10')
+        expect(appliedFilters.get('f_metadata')).toBe('a=1')
       })
     })
   })

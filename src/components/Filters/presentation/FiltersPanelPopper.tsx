@@ -113,12 +113,19 @@ export const FiltersPanelPopper = () => {
             {(filtersField) => {
               const filters = filtersField.state.value
 
+              // Both the array and the row are read from the live form state, never from this
+              // render's snapshot: several rows normalise their own value in the same commit, and
+              // a snapshot-based rewrite makes the last writer drop the others' normalisation.
               const updateFilter = (
                 filterIndex: number,
-                filter: FiltersFormValues['filters'][0],
+                updateCurrentFilter: (
+                  currentFilter: FiltersFormValues['filters'][0],
+                ) => FiltersFormValues['filters'][0],
               ): void => {
-                filtersField.handleChange(
-                  filters.map((current, index) => (index === filterIndex ? filter : current)),
+                filtersField.handleChange((currentFilters) =>
+                  currentFilters.map((current, index) =>
+                    index === filterIndex ? updateCurrentFilter(current) : current,
+                  ),
                 )
               }
 
@@ -204,12 +211,12 @@ export const FiltersPanelPopper = () => {
                             value={filter.filterType}
                             disabled={filter.disabled}
                             onChange={(value) => {
-                              updateFilter(filterIndex, {
-                                ...filter,
+                              updateFilter(filterIndex, (currentFilter) => ({
+                                ...currentFilter,
                                 filterType: value as AvailableFiltersEnum,
                                 // Value needs to be reset when changing type
                                 value: undefined,
-                              })
+                              }))
                             }}
                           />
 
@@ -217,7 +224,10 @@ export const FiltersPanelPopper = () => {
                             filterType={filter.filterType}
                             value={filter.value}
                             setFilterValue={(value: string) => {
-                              updateFilter(filterIndex, { ...filter, value })
+                              updateFilter(filterIndex, (currentFilter) => ({
+                                ...currentFilter,
+                                value,
+                              }))
                             }}
                           />
                         </div>
