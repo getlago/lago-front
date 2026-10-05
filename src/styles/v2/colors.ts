@@ -22,10 +22,6 @@ export const colorPrimitives = {
     hex: '#000000',
     alpha: 0.64,
   },
-  'v2-alpha-brand-12': {
-    hex: '#0369CC',
-    alpha: 0.12,
-  },
   'v2-alpha-white-06': {
     hex: '#FFFFFF',
     alpha: 0.06,

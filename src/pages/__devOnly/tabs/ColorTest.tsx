@@ -28,17 +28,19 @@ export const ColorTest = (): JSX.Element => {
   const [mode, setMode] = useState<ColorMode>('light')
   const [showPortal, setShowPortal] = useState(false)
   const primitiveRows = Object.entries(colorPrimitives).map(([name, value]) => (
-    <div key={name} className="min-w-0 space-y-2" data-color-primitive={name}>
-      <div
-        className="h-12 rounded-md border border-border-subtle"
-        style={{ backgroundColor: `var(${colorVariable(name)})` }}
-      />
-      <div className="v2-text-code break-all">{name}</div>
-      <div className="v2-text-caption text-text-muted">
-        {value.hex}
-        {value.alpha < 1 && ` / ${value.alpha * 100}%`}
-      </div>
-    </div>
+    <tr key={name} data-color-primitive={name} className="border-b border-border-subtle">
+      <th scope="row" className="v2-text-code whitespace-nowrap p-3 text-left font-medium">
+        {name}
+      </th>
+      <td className="p-3">
+        <div
+          className="h-8 w-16 rounded border border-border-subtle"
+          style={{ backgroundColor: `var(${colorVariable(name)})` }}
+        />
+      </td>
+      <td className="v2-text-code p-3 text-text-muted">{value.hex}</td>
+      <td className="v2-text-number p-3 text-text-muted">{Math.round(value.alpha * 100)}%</td>
+    </tr>
   ))
   const semanticRows = Object.entries(colorSemantics).map(([name, aliases]) => {
     const resolved = resolveColor(name, mode)
@@ -175,8 +177,26 @@ export const ColorTest = (): JSX.Element => {
         </section>
         <section id="color-primitives" aria-label="Color primitives" className="space-y-4">
           <h3 className="v2-text-group-title">Primitives</h3>
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-4 xl:grid-cols-6">
-            {primitiveRows}
+          <div className="overflow-x-auto">
+            <table aria-label="Color primitives" className="w-full">
+              <thead>
+                <tr className="text-left">
+                  <th scope="col" className="p-3">
+                    Token
+                  </th>
+                  <th scope="col" className="p-3">
+                    Swatch
+                  </th>
+                  <th scope="col" className="p-3">
+                    Hex
+                  </th>
+                  <th scope="col" className="p-3">
+                    Opacity
+                  </th>
+                </tr>
+              </thead>
+              <tbody>{primitiveRows}</tbody>
+            </table>
           </div>
         </section>
         <section aria-label="Color semantics" className="space-y-4">

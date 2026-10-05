@@ -5,7 +5,7 @@ import { colorPrimitives, colorSemantics, generateColorCss, resolveColor } from 
 
 describe('Figma color foundation', () => {
   it('resolves every mode and keeps semantic aliases intact', () => {
-    expect(Object.keys(colorPrimitives)).toHaveLength(77)
+    expect(Object.keys(colorPrimitives)).toHaveLength(76)
     expect(Object.keys(colorSemantics)).toHaveLength(47)
     for (const name of Object.keys(colorSemantics)) {
       for (const mode of ['light', 'dark'] as const) {

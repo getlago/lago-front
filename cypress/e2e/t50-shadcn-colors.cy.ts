@@ -14,7 +14,7 @@ const visitColors = (): void => {
 describe('Shadcn color foundation', () => {
   it('loads all tokens, switches locally, and propagates nested/portal modes', () => {
     visitColors()
-    cy.get(`${foundation} [data-color-primitive]`).should('have.length', 77)
+    cy.get(`${foundation} [data-color-primitive]`).should('have.length', 76)
     cy.get(`${foundation} [data-color-semantic]`).should('have.length', 47)
     cy.get(preview).should('have.css', 'background-color', 'rgb(255, 255, 255)')
     cy.get(`${foundation} [data-variant="default"]`)
