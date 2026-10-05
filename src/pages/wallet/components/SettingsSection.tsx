@@ -9,6 +9,8 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TextInput } from '~/components/form'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
+import { PaymentTermFormContent } from '~/components/paymentTerms/PaymentTermFormContent'
+import { getInheritedFromCustomer } from '~/components/paymentTerms/utils'
 import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import {
   ADD_MAX_TOPUP_OPTION_DATA_TEST,
@@ -353,6 +355,22 @@ export const SettingsSection = withForm({
             />
           )}
         </form.AppField>
+
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <Typography variant="captionHl" color="grey700">
+              {translate('text_1778660219891rv2r5gjmklq')}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate('text_1787603382163te0ngv2t7cv')}
+            </Typography>
+          </div>
+          <PaymentTermFormContent
+            form={form}
+            fields="paymentTerm"
+            inheritedFrom={getInheritedFromCustomer(customerData?.customer)}
+          />
+        </div>
       </section>
     )
   },

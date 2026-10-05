@@ -1,6 +1,7 @@
 import { SelectedConnection } from '~/components/connectionSelection/types'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
+import { PaymentTermFormValues } from '~/components/paymentTerms/types'
 import {
   BillableMetricForWalletScopeSectionFragment,
   CreateCustomerWalletInput,
@@ -32,10 +33,11 @@ export type TWalletDataForm = Omit<
   | 'paidCredits'
   | 'transactionName'
   | 'ignorePaidTopUpLimitsOnCreation'
+  | 'paymentTerm'
 > &
   Omit<
     UpdateCustomerWalletInput,
-    'id' | 'name' | 'code' | 'priority' | 'recurringTransactionRules' | 'connections'
+    'id' | 'name' | 'code' | 'priority' | 'recurringTransactionRules' | 'connections' | 'paymentTerm'
   > & {
     // Always strings in the form ('' when unset) so they stay compatible
     // with NameAndCodeGroup's field mapping.
@@ -54,6 +56,7 @@ export type TWalletDataForm = Omit<
     accountingConnection?: SelectedConnection
     crmConnection?: SelectedConnection
     taxConnection?: SelectedConnection
+    paymentTerm: PaymentTermFormValues
     invoiceCustomSection?: InvoiceCustomSectionInput
     // Rules carry the FE-shaped payment/invoicing values at runtime
     // (transformRecurringTransactionRule), not the raw GQL reference inputs
