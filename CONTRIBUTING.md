@@ -65,6 +65,8 @@ Also, because Lago is extensible, it's possible that a feature you've become acc
 
 ### Design Decisions
 
+For frontend color usage, palette migration, theme boundaries, and token generation, see the [v2 color guide](src/styles/v2/README.md).
+
 If you have a question around how we do things, check to see if it is documented in the wiki of the related repository. If it is _not_ documented there, please open a new topic on [Github Discussions](https://github.com/getlago/lago-front/discussions) and ask your question.
 
 ## How Can I Contribute?

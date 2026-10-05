@@ -13,7 +13,7 @@ const output = generateColorCss()
 
 if (process.argv.includes('--check')) {
   if ((await readFile(target, 'utf8')) !== output) {
-    throw new Error('Color CSS is stale. Run node scripts/generate-v2-colors.mjs')
+    throw new Error('Color CSS is stale. Run pnpm colors:generate')
   }
 } else {
   await writeFile(target, output)

@@ -7,6 +7,8 @@ moves past the one above.
 
 Most of the guide already lives in this folder. Read the mirrored section, not the summary:
 
+Repository-specific color guidance: [v2 color guide](../../src/styles/v2/README.md) covers semantic token adoption, opacity, themes, and generation.
+
 | Notion section | Local home |
 |---|---|
 | Discriminated unions rather than conditional props | `typescript-conventions.md` |

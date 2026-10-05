@@ -72,4 +72,27 @@ describe('legacy color isolation', () => {
     expect(css).toContain('color: var(--color-text-default)')
     expect(css).toContain('border-color: var(--color-border-default)')
   })
+
+  it.each([
+    ['bg-action-primary/50', 'background-color', '--color-action-primary', '0.5'],
+    ['bg-interactive-hover/50', 'background-color', '--color-interactive-hover', '0.5'],
+    ['bg-selected/50', 'background-color', '--color-selected', '0.5'],
+    ['text-text-default/50', 'color', '--color-text-default', '0.5'],
+    ['border-border-subtle/50', 'border-color', '--color-border-subtle', '0.5'],
+    ['bg-interactive-hover/0', 'background-color', '--color-interactive-hover', '0'],
+    ['bg-interactive-hover/100', 'background-color', '--color-interactive-hover', '1'],
+    ['bg-interactive-hover/[0.25]', 'background-color', '--color-interactive-hover', '0.25'],
+    ['bg-v2-alpha-black-04/50', 'background-color', '--v2-alpha-black-04', '0.5'],
+  ])('generates multiplicative opacity for %s', async (candidate, property, variable, alpha) => {
+    const css = await compile(config.theme, candidate)
+    const values: string[] = []
+
+    postcss.parse(css).walkDecls(property, (declaration) => {
+      values.push(declaration.value)
+    })
+
+    expect(values).toContain(
+      `color-mix(in srgb, var(${variable}) calc(${alpha} * 100%), transparent)`,
+    )
+  })
 })
