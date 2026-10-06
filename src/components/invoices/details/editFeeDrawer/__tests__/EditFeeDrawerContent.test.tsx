@@ -79,10 +79,12 @@ jest.mock('~/components/form', () => ({
   ComboBox: ({
     data,
     onChange,
+    error,
     'data-test': dataTest,
   }: {
     data: Array<{ value: string; label?: string; disabled?: boolean }>
     onChange: (value: string) => void
+    error?: string
     'data-test'?: string
   }) => (
     <div data-test={dataTest}>
@@ -96,6 +98,8 @@ jest.mock('~/components/form', () => ({
           {option.label}
         </button>
       ))}
+      {/* The real ComboBox renders its error through TextInput, under this same test id. */}
+      {!!error && <span data-test="text-field-error">{error}</span>}
     </div>
   ),
 }))
@@ -141,6 +145,7 @@ type ContentForm = React.ComponentProps<typeof EditFeeDrawerContent>['form']
 let capturedForm: ContentForm | undefined
 
 const SUBMIT_BUTTON_LABEL = 'submit-harness'
+const SUBMIT_BUTTON_TEST_ID = 'submit-harness-button'
 
 type HarnessProps = {
   fee?: TExtendedRemainingFee
@@ -159,8 +164,15 @@ const Harness = ({ fee, isRegenerateMode = false }: HarnessProps) => {
 
   capturedForm = form as ContentForm
 
+  // BaseDrawer wraps the body and the actions in a form element; the real SubmitButton only
+  // submits through one.
   return (
-    <>
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        form.handleSubmit()
+      }}
+    >
       <EditFeeDrawerContent
         form={form}
         invoiceId="invoice-1"
@@ -170,10 +182,12 @@ const Harness = ({ fee, isRegenerateMode = false }: HarnessProps) => {
         localFees={undefined}
         onSubscriptionLoaded={jest.fn()}
       />
-      <button type="button" onClick={() => form.handleSubmit()}>
-        {SUBMIT_BUTTON_LABEL}
-      </button>
-    </>
+      <form.AppForm>
+        <form.SubmitButton dataTest={SUBMIT_BUTTON_TEST_ID}>
+          {SUBMIT_BUTTON_LABEL}
+        </form.SubmitButton>
+      </form.AppForm>
+    </form>
   )
 }
 
@@ -311,6 +325,80 @@ describe('EditFeeDrawerContent', () => {
         expect(
           screen.queryByTestId(EDIT_FEE_DRAWER_ADJUSTMENT_TYPE_COMBOBOX_TEST_ID),
         ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the add flow is submitted before anything is selected', () => {
+    // The schema rejects `adjustmentType`, but its section is still hidden: without routing the
+    // message onto the selector on screen, the real SubmitButton just goes dead unexplained.
+    const submitWithNothingSelected = async (
+      user: ReturnType<typeof userEvent.setup>,
+    ): Promise<void> => {
+      render(<Harness />)
+
+      await user.click(screen.getByTestId(SUBMIT_BUTTON_TEST_ID))
+    }
+
+    describe('WHEN no charge has been picked', () => {
+      it('THEN should show the error on the charge selector', async () => {
+        const user = userEvent.setup()
+
+        await submitWithNothingSelected(user)
+
+        await waitFor(() => {
+          expect(
+            within(screen.getByTestId(EDIT_FEE_DRAWER_CHARGE_COMBOBOX_TEST_ID)).getByTestId(
+              'text-field-error',
+            ),
+          ).toBeInTheDocument()
+        })
+      })
+
+      it('THEN should not submit', async () => {
+        const user = userEvent.setup()
+
+        await submitWithNothingSelected(user)
+
+        expect(mockSubmit).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a charge carrying filters is submitted without a filter', () => {
+    const submitWithoutFilter = async (user: ReturnType<typeof userEvent.setup>): Promise<void> => {
+      render(<Harness />)
+
+      await pickOption(
+        user,
+        EDIT_FEE_DRAWER_CHARGE_COMBOBOX_TEST_ID,
+        CHARGE_WITH_FILTERS.invoiceDisplayName,
+      )
+      await user.click(screen.getByTestId(SUBMIT_BUTTON_TEST_ID))
+    }
+
+    describe('WHEN the filter picker is the only selector left', () => {
+      it('THEN should show the error on the filter selector, not the charge one', async () => {
+        const user = userEvent.setup()
+
+        await submitWithoutFilter(user)
+
+        await waitFor(() => {
+          expect(screen.getByTestId('text-field-error')).toBeInTheDocument()
+        })
+        expect(
+          within(screen.getByTestId(EDIT_FEE_DRAWER_CHARGE_COMBOBOX_TEST_ID)).queryByTestId(
+            'text-field-error',
+          ),
+        ).not.toBeInTheDocument()
+      })
+
+      it('THEN should not submit', async () => {
+        const user = userEvent.setup()
+
+        await submitWithoutFilter(user)
+
+        expect(mockSubmit).not.toHaveBeenCalled()
       })
     })
   })

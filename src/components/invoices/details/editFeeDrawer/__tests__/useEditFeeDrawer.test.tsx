@@ -4,8 +4,7 @@ import { act, render } from '@testing-library/react'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { AdjustedFeeTypeEnum, CurrencyEnum, LagoApiError } from '~/generated/graphql'
 
-import { EditFeeDrawerContentProps } from '../EditFeeDrawerContent'
-import { OpenEditFeeDrawer, OpenEditFeeDrawerParams } from '../types'
+import { EditFeeDrawerContentProps, OpenEditFeeDrawer, OpenEditFeeDrawerParams } from '../types'
 import { useEditFeeDrawer } from '../useEditFeeDrawer'
 import { EditFeeFormValues } from '../validationSchema'
 

@@ -9,10 +9,16 @@ const ComboBoxField = ({
   data,
   renderGroupHeader,
   displayErrorText = true,
+  errorOverride,
   ...props
 }: Omit<ComboBoxProps, 'name' | 'onChange' | 'value' | 'error'> & {
   dataTest?: string
   displayErrorText?: boolean
+  /**
+   * Full control over the displayed error, as on `TextInputField` and
+   * `AmountInputField`. A string replaces the field's own message, `false` suppresses it.
+   */
+  errorOverride?: string | boolean
 }) => {
   const field = useFieldContext<string | undefined>()
 
@@ -46,7 +52,7 @@ const ComboBoxField = ({
         onChange(value)
       }}
       value={field.state.value}
-      error={finalError}
+      error={errorOverride ?? finalError}
       data-test={props.dataTest}
     />
   ) : (
@@ -58,7 +64,7 @@ const ComboBoxField = ({
         onChange(value)
       }}
       value={field.state.value}
-      error={finalError}
+      error={errorOverride ?? finalError}
       data-test={props.dataTest}
     />
   )

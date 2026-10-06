@@ -1,34 +1,20 @@
-import InputAdornment from '@mui/material/InputAdornment'
 import { useStore } from '@tanstack/react-form'
-import { tw } from 'lago-design-system'
 import { useCallback, useEffect, useMemo } from 'react'
 
-import { Alert } from '~/components/designSystem/Alert'
 import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox } from '~/components/form'
 import { DrawerLayout } from '~/components/layouts/Drawer'
-import { ALL_CHARGE_MODELS } from '~/core/constants/form'
-import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
-import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import {
-  AdjustedFeeTypeEnum,
-  ChargeModelEnum,
-  CurrencyEnum,
-  FeeForCreateFeeDrawerFragment,
-  FixedChargeChargeModelEnum,
-  SubscriptionForCreateFeeDrawerFragment,
-  useGetInvoiceDetailsForCreateFeeDrawerQuery,
-} from '~/generated/graphql'
-import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
+import { CurrencyEnum, useGetInvoiceDetailsForCreateFeeDrawerQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
+import { EditFeeAdjustmentSection } from './EditFeeAdjustmentSection'
+import { EditFeeFeePreview } from './EditFeeFeePreview'
+import { EditFeeDrawerContentProps } from './types'
+import { isChargeModelUnitAdjustmentDisabled } from './utils'
 import { EDIT_FEE_DEFAULT_VALUES } from './validationSchema'
 
-import { InvoiceTableSection } from '../InvoiceDetailsTable'
-import { InvoiceDetailsTableBodyLine } from '../InvoiceDetailsTableBodyLine'
 import {
-  EDIT_FEE_DRAWER_ADJUSTMENT_TYPE_COMBOBOX_TEST_ID,
   EDIT_FEE_DRAWER_CHARGE_COMBOBOX_TEST_ID,
   EDIT_FEE_DRAWER_CHARGE_FILTER_COMBOBOX_TEST_ID,
   EDIT_FEE_DRAWER_LOADING_TEST_ID,
@@ -37,44 +23,12 @@ import {
   getChargesComboboxDataFromInvoiceSubscription,
   getChargesFiltersComboboxDataFromInvoiceSubscription,
 } from '../utils'
-import { ViewFeeDetailsDrawerProvider } from '../ViewFeeDetailsDrawer'
 
-const isChargeModelUnitAdjustmentDisabled = (
-  chargeModel?: ChargeModelEnum | FixedChargeChargeModelEnum,
-  prorated?: boolean,
-): boolean => {
-  if (!chargeModel) return false
+// Zod issues reach the form error map either singly or as a list, depending on the path.
+const readErrorMessage = (fieldError: unknown): string | undefined => {
+  const first = Array.isArray(fieldError) ? fieldError[0] : fieldError
 
-  return !!(
-    chargeModel === ALL_CHARGE_MODELS.Percentage ||
-    chargeModel === ALL_CHARGE_MODELS.Dynamic ||
-    (chargeModel === ALL_CHARGE_MODELS.Graduated && prorated)
-  )
-}
-
-// `form.AppField` types `meta.errors` as never[] when no field-level validator is declared,
-// though the form schema still fills it at runtime.
-const fieldErrorMessage = (errors: unknown[], translate: TranslateFunc): string =>
-  (errors as Array<{ message?: string } | undefined>)
-    .map((error) => error?.message)
-    .filter((message): message is string => !!message)
-    .map((message) => translate(message))
-    .join('\n')
-
-const calculateTotalAmount = (
-  units?: number | string | null,
-  unitAmount?: number | string | null,
-): number => {
-  return Number(units || 0) * Number(unitAmount || 0)
-}
-
-export type EditFeeDrawerContentProps = {
-  invoiceId: string
-  invoiceSubscriptionId: string | undefined
-  isRegenerateMode: boolean
-  fee: TExtendedRemainingFee | undefined
-  localFees: FeeForCreateFeeDrawerFragment[] | undefined
-  onSubscriptionLoaded: (subscription: SubscriptionForCreateFeeDrawerFragment | undefined) => void
+  return (first as { message?: string } | undefined)?.message
 }
 
 const contentDefaultProps: EditFeeDrawerContentProps = {
@@ -131,9 +85,14 @@ export const EditFeeDrawerContent = withForm({
     const chargeId = useStore(form.store, (state) => state.values.chargeId)
     const fixedChargeId = useStore(form.store, (state) => state.values.fixedChargeId)
     const chargeFilterId = useStore(form.store, (state) => state.values.chargeFilterId)
-    const adjustmentType = useStore(form.store, (state) => state.values.adjustmentType)
-    const units = useStore(form.store, (state) => state.values.units)
-    const unitPreciseAmount = useStore(form.store, (state) => state.values.unitPreciseAmount)
+
+    // `adjustmentType` is the field the schema rejects, but it unmounts with the adjustment
+    // section, so its message has to come off the form error map rather than its field meta.
+    const missingAdjustmentError = useStore(form.store, (state) => {
+      const dynamicErrors = (state.errorMap as { onDynamic?: Record<string, unknown> })?.onDynamic
+
+      return readErrorMessage(dynamicErrors?.adjustmentType)
+    })
 
     const chargesComboboxData = useMemo(() => {
       return getChargesComboboxDataFromInvoiceSubscription({
@@ -185,15 +144,9 @@ export const EditFeeDrawerContent = withForm({
       ])
 
     const isUnitAdjustmentTypeDisabled = useMemo((): boolean => {
-      const getChargeConfig = ():
-        | { chargeModel?: ChargeModelEnum | FixedChargeChargeModelEnum; prorated?: boolean }
-        | undefined => {
+      const getChargeConfig = () => {
         // If we have an existing fee, extract from fee's charge or fixedCharge
-        if (fee) {
-          const source = fee.charge || fee.fixedCharge
-
-          return source ? { chargeModel: source.chargeModel, prorated: source.prorated } : undefined
-        }
+        if (fee) return fee.charge || fee.fixedCharge || undefined
 
         // If we're adding a new fee, find the selected charge or fixed charge
         if (selectedItemType === 'charge') {
@@ -203,7 +156,7 @@ export const EditFeeDrawerContent = withForm({
         if (selectedItemType === 'fixed-charge') {
           return currentSubscription?.plan.fixedCharges?.find(
             (fixedCharge) => fixedCharge.id === fixedChargeId,
-          ) as { chargeModel?: FixedChargeChargeModelEnum; prorated?: boolean } | undefined
+          )
         }
 
         return undefined
@@ -211,7 +164,7 @@ export const EditFeeDrawerContent = withForm({
 
       const config = getChargeConfig()
 
-      return !!config && isChargeModelUnitAdjustmentDisabled(config.chargeModel, config.prorated)
+      return !!config && isChargeModelUnitAdjustmentDisabled(config)
     }, [currentSubscription, fee, chargeId, fixedChargeId, selectedItemType])
 
     const onChargeIdChange = useCallback(
@@ -241,213 +194,15 @@ export const EditFeeDrawerContent = withForm({
     )
 
     const feeName = fee?.metadata?.displayName || fee?.itemName || ''
-    const drawerDescription = !!fee
-      ? translate('text_65a6b4e2cb38d9b70ec53c2d')
-      : translate('text_1737731953885hprgxewyizj')
-    const drawerTitle = !!fee
-      ? translate('text_65a6b4e2cb38d9b70ec53c25', { name: feeName })
-      : translate('text_1737709105343hpvidjp0yz0')
 
-    const renderFeePreview = (): JSX.Element | null => {
-      if (!fee) return null
+    // The adjustment type is what the schema rejects, but while its section is hidden the only
+    // selector on screen is the one still to be filled, so the message belongs there.
+    const getSelectorError = (selector: 'charge' | 'filter'): string | undefined => {
+      if (displayAdjustmentInputs || !missingAdjustmentError) return undefined
 
-      const preview = (
-        <DrawerLayout.Section>
-          <DrawerLayout.SectionTitle
-            title={translate('text_65a6b4e2cb38d9b70ec53c35')}
-            description={translate('text_1737556835239q7202lhbdhk')}
-          />
-          <InvoiceTableSection
-            className={tw(
-              '[&_table>thead>tr>th:nth-child(1)]:w-[45%] [&_table>thead>tr>th:nth-child(1)]:text-left [&_table>thead>tr>th:nth-child(2)]:w-[15%] [&_table>thead>tr>th:nth-child(3)]:w-[20%] [&_table>thead>tr>th:nth-child(4)]:w-[20%]',
-              '[&_table>tbody>tr>td:nth-child(1)]:w-[45%] [&_table>tbody>tr>td:nth-child(1)]:text-left [&_table>tbody>tr>td:nth-child(2)]:w-[15%] [&_table>tbody>tr>td:nth-child(3)]:w-[20%] [&_table>tbody>tr>td:nth-child(4)]:w-[20%]',
-              '[&_table>tbody>tr:last-child>td]:pb-0 [&_table>tbody>tr:last-child>td]:shadow-none [&_table>tbody>tr>td:not(:last-child)]:pr-3 [&_table>thead>tr>th]:pt-0',
-            )}
-          >
-            <table>
-              <thead>
-                <tr>
-                  <th>
-                    <Typography variant="captionHl" color="grey600">
-                      {translate('text_6388b923e514213fed58331c')}
-                    </Typography>
-                  </th>
-                  <th>
-                    <Typography variant="captionHl" color="grey600">
-                      {translate('text_65771fa3f4ab9a00720726ce')}
-                    </Typography>
-                  </th>
-                  <th>
-                    <Typography variant="captionHl" color="grey600">
-                      {translate('text_6453819268763979024ad089')}
-                    </Typography>
-                  </th>
-                  <th>
-                    <Typography variant="captionHl" color="grey600">
-                      {translate('text_634d631acf4dce7b0127a3a6')}
-                    </Typography>
-                  </th>
-                </tr>
-              </thead>
+      const awaitedSelector = displayChargeFilterIdField ? 'filter' : 'charge'
 
-              <tbody>
-                <InvoiceDetailsTableBodyLine
-                  canHaveUnitPrice
-                  hideVat
-                  currency={fee?.currency}
-                  displayName={feeName}
-                  fee={fee}
-                  isDraftInvoice={false}
-                />
-              </tbody>
-            </table>
-          </InvoiceTableSection>
-        </DrawerLayout.Section>
-      )
-
-      // NiceModal mounts this body at the app root, outside the page's provider; the regenerate
-      // flow has none by design, so its preview row must not open the details drawer.
-      if (isRegenerateMode) return preview
-
-      return <ViewFeeDetailsDrawerProvider>{preview}</ViewFeeDetailsDrawerProvider>
-    }
-
-    const renderAdjustmentAmountFields = (): JSX.Element | null => {
-      if (adjustmentType !== AdjustedFeeTypeEnum.AdjustedAmount) return null
-
-      const totalAmount = calculateTotalAmount(units, unitPreciseAmount)
-
-      return (
-        <>
-          <form.AppField name="unitPreciseAmount">
-            {(field) => (
-              <field.AmountInputField
-                label={translate('text_6453819268763979024ad089')}
-                currency={currency}
-                beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-                placeholder={translate('text_62a0b7107afa2700a65ef700')}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {pricingUnitUsage?.shortName || getCurrencySymbol(currency)}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            )}
-          </form.AppField>
-
-          <div className="flex flex-col gap-1">
-            <Typography className="text-end" variant="captionHl" color="grey700">
-              {translate('text_65a6b4e2cb38d9b70ec53d83')}
-            </Typography>
-            <div className="flex h-12 flex-col items-end justify-center self-end">
-              <Typography variant="body" color="grey700">
-                {intlFormatNumber(totalAmount, {
-                  currencyDisplay: 'symbol',
-                  currency: currency,
-                  maximumFractionDigits: 15,
-                  pricingUnitShortName: pricingUnitUsage?.shortName,
-                })}
-              </Typography>
-
-              {!!pricingUnitUsage && (
-                <Typography variant="caption" color="grey600">
-                  {intlFormatNumber(totalAmount * Number(pricingUnitUsage?.conversionRate || 0), {
-                    currencyDisplay: 'symbol',
-                    currency: currency,
-                  })}
-                </Typography>
-              )}
-            </div>
-          </div>
-        </>
-      )
-    }
-
-    const renderAdjustmentFields = (): JSX.Element | null => {
-      if (!adjustmentType) return null
-
-      return (
-        <>
-          <div className="flex items-start gap-4 *:flex-1">
-            <form.AppField name="units">
-              {(field) => (
-                <field.TextInputField
-                  label={translate('text_65771fa3f4ab9a00720726ce')}
-                  beforeChangeFormatter={['positiveNumber', 'decimal']}
-                  placeholder={translate('text_62a0b7107afa2700a65ef700')}
-                />
-              )}
-            </form.AppField>
-
-            {renderAdjustmentAmountFields()}
-          </div>
-
-          {!!fee?.charge && (
-            <Alert type="info">
-              {translate(
-                adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount
-                  ? 'text_65a6b4e2cb38d9b70ec53d93'
-                  : 'text_6613b48da4efd500cacc44d3',
-              )}
-            </Alert>
-          )}
-        </>
-      )
-    }
-
-    const renderAdjustmentSection = (): JSX.Element | null => {
-      if (!displayAdjustmentInputs) return null
-
-      return (
-        <>
-          <form.AppField name="invoiceDisplayName">
-            {(field) => (
-              <field.TextInputField
-                label={translate('text_65a6b4e2cb38d9b70ec53d39')}
-                placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
-              />
-            )}
-          </form.AppField>
-
-          <form.AppField name="adjustmentType">
-            {(field) => (
-              <ComboBox
-                label={translate('text_65a6b4e2cb38d9b70ec53d49')}
-                name={field.name}
-                data-test={EDIT_FEE_DRAWER_ADJUSTMENT_TYPE_COMBOBOX_TEST_ID}
-                placeholder={translate('text_65a94d976d7a9700716590d9')}
-                data={[
-                  {
-                    label: translate('text_65a6b4e2cb38d9b70ec53d83'),
-                    value: AdjustedFeeTypeEnum.AdjustedAmount,
-                  },
-                  {
-                    label: translate('text_6304e74aab6dbc18d615f3a2'),
-                    value: AdjustedFeeTypeEnum.AdjustedUnits,
-                    disabled: isUnitAdjustmentTypeDisabled,
-                  },
-                ]}
-                value={field.state.value}
-                error={fieldErrorMessage(field.state.meta.errors, translate)}
-                onChange={(newValue) => {
-                  field.handleChange((newValue || undefined) as AdjustedFeeTypeEnum | undefined)
-
-                  // Regenerate seeds these from the fee being re-added, so clearing them on a
-                  // type change would throw away the amounts the user came in with.
-                  if (!isRegenerateMode) {
-                    form.setFieldValue('unitPreciseAmount', '')
-                    form.setFieldValue('units', '')
-                  }
-                }}
-              />
-            )}
-          </form.AppField>
-
-          {renderAdjustmentFields()}
-        </>
-      )
+      return selector === awaitedSelector ? translate(missingAdjustmentError) : undefined
     }
 
     const renderLoadingSkeleton = (): JSX.Element => (
@@ -466,9 +221,22 @@ export const EditFeeDrawerContent = withForm({
 
       return (
         <>
-          <DrawerLayout.Header title={drawerTitle} description={drawerDescription} />
+          <DrawerLayout.Header
+            title={
+              !!fee
+                ? translate('text_65a6b4e2cb38d9b70ec53c25', { name: feeName })
+                : translate('text_1737709105343hpvidjp0yz0')
+            }
+            description={
+              !!fee
+                ? translate('text_65a6b4e2cb38d9b70ec53c2d')
+                : translate('text_1737731953885hprgxewyizj')
+            }
+          />
 
-          {renderFeePreview()}
+          {!!fee && (
+            <EditFeeFeePreview fee={fee} feeName={feeName} isRegenerateMode={isRegenerateMode} />
+          )}
 
           <DrawerLayout.Section>
             <DrawerLayout.SectionTitle
@@ -486,6 +254,7 @@ export const EditFeeDrawerContent = withForm({
                   onChange={onChargeIdChange}
                   loading={invoiceLoading}
                   value={chargeId || fixedChargeId || ''}
+                  error={getSelectorError('charge')}
                 />
               )}
 
@@ -510,12 +279,22 @@ export const EditFeeDrawerContent = withForm({
                       label={translate('text_66ab42d4ece7e6b7078993ad')}
                       placeholder={translate('text_1737733582553dm4huzkoee6')}
                       data={chargeFiltersComboboxData}
+                      errorOverride={getSelectorError('filter')}
                     />
                   )}
                 </form.AppField>
               )}
 
-              {renderAdjustmentSection()}
+              {displayAdjustmentInputs && (
+                <EditFeeAdjustmentSection
+                  form={form}
+                  currency={currency}
+                  pricingUnitUsage={pricingUnitUsage ?? null}
+                  isUnitAdjustmentTypeDisabled={isUnitAdjustmentTypeDisabled}
+                  isRegenerateMode={isRegenerateMode}
+                  showChargeAlert={!!fee?.charge}
+                />
+              )}
             </div>
           </DrawerLayout.Section>
         </>

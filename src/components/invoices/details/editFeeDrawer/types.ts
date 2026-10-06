@@ -1,5 +1,8 @@
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
-import { FeeForCreateFeeDrawerFragment } from '~/generated/graphql'
+import {
+  FeeForCreateFeeDrawerFragment,
+  SubscriptionForCreateFeeDrawerFragment,
+} from '~/generated/graphql'
 import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
 
 export type OpenEditFeeDrawerParams =
@@ -23,3 +26,12 @@ export type OpenEditFeeDrawerParams =
     }
 
 export type OpenEditFeeDrawer = (params: OpenEditFeeDrawerParams) => void
+
+export type EditFeeDrawerContentProps = {
+  invoiceId: string
+  invoiceSubscriptionId: string | undefined
+  isRegenerateMode: boolean
+  fee: TExtendedRemainingFee | undefined
+  localFees: FeeForCreateFeeDrawerFragment[] | undefined
+  onSubscriptionLoaded: (subscription: SubscriptionForCreateFeeDrawerFragment | undefined) => void
+}
