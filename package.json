@@ -187,7 +187,7 @@
     "tippy.js": "6.3.7",
     "tiptap-markdown": "0.9.0",
     "yup": "1.7.1",
-    "zod": "4.5.4"
+    "zod": "4.6.5"
   },
   "pnpm": {
     "overrides": {
