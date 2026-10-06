@@ -60,6 +60,7 @@ import Stripe from '~/public/images/stripe.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
+import { BorderTest } from './tabs/BorderTest'
 import { ColorTest } from './tabs/ColorTest'
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
@@ -2267,6 +2268,7 @@ const DesignSystem = () => {
             component: (
               <Container>
                 <ColorTest />
+                <BorderTest />
                 <TypographyTest />
               </Container>
             ),
