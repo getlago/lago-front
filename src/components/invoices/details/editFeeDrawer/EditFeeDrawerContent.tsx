@@ -207,6 +207,8 @@ export const EditFeeDrawerContent = withForm({
 
     const onChargeIdChange = useCallback(
       (selectedChargeId: string) => {
+        if (selectedChargeId === (chargeId || fixedChargeId)) return
+
         const isUsageCharge = currentSubscription?.plan.charges?.find(
           (charge) => charge.id === selectedChargeId,
         )
@@ -215,13 +217,18 @@ export const EditFeeDrawerContent = withForm({
           (fixedCharge) => fixedCharge.id === selectedChargeId,
         )
 
-        if (isUsageCharge) {
-          form.setFieldValue('chargeId', selectedChargeId)
-        } else if (isFixedCharge) {
-          form.setFieldValue('fixedChargeId', selectedChargeId)
-        }
+        if (!isUsageCharge && !isFixedCharge) return
+
+        // The filter and the adjustment were entered for the previous charge. Left behind they
+        // submit against the new one — a filtered charge would go out with no filter picked.
+        form.setFieldValue('chargeId', isUsageCharge ? selectedChargeId : '')
+        form.setFieldValue('fixedChargeId', isFixedCharge ? selectedChargeId : '')
+        form.setFieldValue('chargeFilterId', '')
+        form.setFieldValue('adjustmentType', undefined)
+        form.setFieldValue('units', '')
+        form.setFieldValue('unitPreciseAmount', '')
       },
-      [currentSubscription, form],
+      [chargeId, currentSubscription, fixedChargeId, form],
     )
 
     const feeName = fee?.metadata?.displayName || fee?.itemName || ''

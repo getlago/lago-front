@@ -8,6 +8,7 @@ import {
   AdjustedFeeTypeEnum,
   ChargeModelEnum,
   CurrencyEnum,
+  FixedChargeChargeModelEnum,
   SubscriptionForCreateFeeDrawerFragment,
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -115,12 +116,19 @@ const CHARGE_WITH_FILTERS = {
   filters: [{ id: 'filter-1', invoiceDisplayName: 'Europe', values: {} }],
 }
 
+const FIXED_CHARGE = {
+  id: 'fixed-charge-1',
+  invoiceDisplayName: 'Setup fee',
+  chargeModel: FixedChargeChargeModelEnum.Standard,
+  prorated: false,
+}
+
 const SUBSCRIPTION = {
   id: 'sub-1',
   plan: {
     id: 'plan-1',
     charges: [CHARGE_WITHOUT_FILTER, CHARGE_WITH_FILTERS],
-    fixedCharges: [],
+    fixedCharges: [FIXED_CHARGE],
   },
 } as unknown as SubscriptionForCreateFeeDrawerFragment
 
@@ -303,6 +311,91 @@ describe('EditFeeDrawerContent', () => {
         expect(
           screen.queryByTestId(EDIT_FEE_DRAWER_ADJUSTMENT_TYPE_COMBOBOX_TEST_ID),
         ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN an adjustment was completed for a charge without filters', () => {
+    const completeUnfilteredCharge = async (
+      user: ReturnType<typeof userEvent.setup>,
+    ): Promise<void> => {
+      render(<Harness />)
+
+      await pickOption(
+        user,
+        EDIT_FEE_DRAWER_CHARGE_COMBOBOX_TEST_ID,
+        CHARGE_WITHOUT_FILTER.invoiceDisplayName,
+      )
+
+      await act(async () => {
+        capturedForm?.setFieldValue('adjustmentType', AdjustedFeeTypeEnum.AdjustedUnits)
+        capturedForm?.setFieldValue('units', '5')
+      })
+    }
+
+    describe('WHEN the charge is switched to one carrying filters', () => {
+      // The adjustment controls hide behind the filter picker, so an adjustment left valid
+      // underneath would submit the new charge with no filter chosen at all.
+      it('THEN should drop the adjustment entered for the previous charge', async () => {
+        const user = userEvent.setup()
+
+        await completeUnfilteredCharge(user)
+        await pickOption(
+          user,
+          EDIT_FEE_DRAWER_CHARGE_COMBOBOX_TEST_ID,
+          CHARGE_WITH_FILTERS.invoiceDisplayName,
+        )
+
+        expect(capturedForm?.state.values.adjustmentType).toBeUndefined()
+        expect(capturedForm?.state.values.units).toBe('')
+        expect(
+          screen.queryByTestId(EDIT_FEE_DRAWER_ADJUSTMENT_TYPE_COMBOBOX_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the very same charge is picked again', () => {
+      // Re-selecting is not a change, and wiping the user's entries on it would be its own bug.
+      it('THEN should keep the adjustment', async () => {
+        const user = userEvent.setup()
+
+        await completeUnfilteredCharge(user)
+        await pickOption(
+          user,
+          EDIT_FEE_DRAWER_CHARGE_COMBOBOX_TEST_ID,
+          CHARGE_WITHOUT_FILTER.invoiceDisplayName,
+        )
+
+        expect(capturedForm?.state.values.adjustmentType).toBe(AdjustedFeeTypeEnum.AdjustedUnits)
+        expect(capturedForm?.state.values.units).toBe('5')
+      })
+    })
+  })
+
+  describe('GIVEN a fixed charge was picked', () => {
+    describe('WHEN a usage charge is picked instead', () => {
+      // Both ids ride in the same payload, so a leftover fixedChargeId would submit alongside
+      // the usage charge the user actually chose.
+      it('THEN should keep only the usage charge id', async () => {
+        const user = userEvent.setup()
+
+        render(<Harness />)
+        await pickOption(
+          user,
+          EDIT_FEE_DRAWER_CHARGE_COMBOBOX_TEST_ID,
+          FIXED_CHARGE.invoiceDisplayName,
+        )
+
+        expect(capturedForm?.state.values.fixedChargeId).toBe(FIXED_CHARGE.id)
+
+        await pickOption(
+          user,
+          EDIT_FEE_DRAWER_CHARGE_COMBOBOX_TEST_ID,
+          CHARGE_WITHOUT_FILTER.invoiceDisplayName,
+        )
+
+        expect(capturedForm?.state.values.chargeId).toBe(CHARGE_WITHOUT_FILTER.id)
+        expect(capturedForm?.state.values.fixedChargeId).toBe('')
       })
     })
   })
