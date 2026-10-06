@@ -5,6 +5,8 @@ Synced: 2026-09-16 · Notion last edited: 2026-01-30. The loop pipeline reads th
 fetching Notion on every run; `loop-flywheel` refreshes it when the Notion page's last-edited date
 moves past the one above.
 
+Repository-specific guidance: **v2 styles and components are work in progress.** Use the existing design system for ordinary UI work, including new views and components. Follow the [v2 color guide](../../src/styles/v2/README.md) only when the task explicitly requests building or adopting v2; no additional confirmation is needed for that scope. Ask for clarification only when the intended scope is ambiguous.
+
 Most of the guide already lives in this folder. Read the mirrored section, not the summary:
 
 | Notion section | Local home |
