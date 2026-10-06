@@ -6,6 +6,7 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Status } from '~/components/designSystem/Status'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { getInheritedFromCustomer } from '~/components/paymentTerms/utils'
 import { getBillingTimeEnumTranslationKey } from '~/core/constants/form'
 import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -25,6 +26,7 @@ import {
 } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 
 import { SUBSCRIPTION_INFORMATION_FIELDS_TEST_ID } from './subscriptionTestIds'
 
@@ -45,6 +47,12 @@ gql`
     nextSubscriptionType
     billingEntityId
     purchaseOrderNumber
+    paymentTerm {
+      termType
+      days
+      dayOfMonth
+      monthOffset
+    }
     activationRules {
       id
       type
@@ -70,10 +78,22 @@ gql`
       displayName
       externalId
       deletedAt
+      paymentTerm {
+        termType
+        days
+        dayOfMonth
+        monthOffset
+      }
       billingEntity {
         id
         code
         name
+        paymentTerm {
+          termType
+          days
+          dayOfMonth
+          monthOffset
+        }
       }
     }
     plan {
@@ -192,10 +212,12 @@ const getSubscriptionInformationGrid = ({
   subscription,
   translate,
   intlFormatDateTimeOrgaTZ,
+  paymentTermCopy,
 }: {
   subscription?: SubscriptionInformationFieldsFragment | null
   translate: TranslateFunc
   intlFormatDateTimeOrgaTZ: ReturnType<typeof useOrganizationInfos>['intlFormatDateTimeOrgaTZ']
+  paymentTermCopy: string
 }) => {
   const isCustomerDeleted = !!subscription?.customer?.deletedAt
   const customerId = subscription?.customer?.id ?? ''
@@ -256,6 +278,10 @@ const getSubscriptionInformationGrid = ({
       label: translate('text_17822197712865r9iwe3lgel'),
       value: subscription?.purchaseOrderNumber || '-',
     },
+    {
+      label: translate('text_1778660219891rv2r5gjmklq'),
+      value: paymentTermCopy,
+    },
   ]
 }
 
@@ -266,6 +292,15 @@ export const SubscriptionInformationFields = ({
 }) => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { formatPaymentTerm } = usePaymentTerm()
+
+  const getPaymentTermCopy = (): string => {
+    if (subscription?.paymentTerm) return formatPaymentTerm(subscription.paymentTerm)
+
+    const inheritedFrom = getInheritedFromCustomer(subscription?.customer)
+
+    return translate(inheritedFrom.labelKey, { value: formatPaymentTerm(inheritedFrom.term) })
+  }
 
   const paymentActivationRule = getPaymentActivationRule(subscription)
   const customerId = subscription?.customer?.id ?? ''
@@ -310,6 +345,7 @@ export const SubscriptionInformationFields = ({
           subscription,
           translate,
           intlFormatDateTimeOrgaTZ,
+          paymentTermCopy: getPaymentTermCopy(),
         })}
       />
 

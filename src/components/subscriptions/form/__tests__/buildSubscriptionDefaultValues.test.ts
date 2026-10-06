@@ -1,6 +1,8 @@
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
+import { PAYMENT_TERM_INHERIT } from '~/core/constants/paymentTerm'
 import { ActivationRuleFormTypeEnum } from '~/core/constants/subscriptionActivationRules'
-import { ActivationRuleTypeEnum, BillingTimeEnum } from '~/generated/graphql'
+import { ActivationRuleTypeEnum, BillingTimeEnum, PaymentTermTypeEnum } from '~/generated/graphql'
 
 import {
   buildSubscriptionDefaultValues,
@@ -42,9 +44,43 @@ describe('buildSubscriptionDefaultValues', () => {
         paymentMethod: { paymentMethodType: undefined, paymentMethodId: undefined },
         invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
         consolidateInvoice: true,
+        paymentTerm: paymentTermFormValuesFromTerm(null, true),
         activationRuleType: ActivationRuleFormTypeEnum.Immediately,
         activationRuleTimeoutHours: '24',
       })
+    })
+  })
+
+  describe('GIVEN a subscription with its own payment term', () => {
+    const subscriptionWithTerm = {
+      ...(baseSubscription as object),
+      paymentTerm: {
+        termType: PaymentTermTypeEnum.Net,
+        days: 45,
+        dayOfMonth: null,
+        monthOffset: null,
+      },
+    } as unknown as SubscriptionDefaultsSource
+
+    it.each([FORM_TYPE_ENUM.edition, FORM_TYPE_ENUM.upgradeDowngrade])(
+      'THEN should seed that term for formType=%s',
+      (formType) => {
+        const result = buildSubscriptionDefaultValues(subscriptionWithTerm, formType, CURRENT_DATE)
+
+        expect(result.paymentTerm).toEqual(
+          expect.objectContaining({ termType: PaymentTermTypeEnum.Net, days: 45 }),
+        )
+      },
+    )
+
+    it('THEN should start on the inherit choice when the subscription has no term', () => {
+      const result = buildSubscriptionDefaultValues(
+        baseSubscription,
+        FORM_TYPE_ENUM.edition,
+        CURRENT_DATE,
+      )
+
+      expect(result.paymentTerm.termType).toBe(PAYMENT_TERM_INHERIT)
     })
   })
 

@@ -5,7 +5,10 @@ import { Dispatch, SetStateAction, useMemo } from 'react'
 import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { PaymentTermFormContent } from '~/components/paymentTerms/PaymentTermFormContent'
+import { PaymentTermInheritedFrom } from '~/components/paymentTerms/types'
 import { isSubscriptionPurchaseOrderNumberEditable } from '~/components/purchaseOrder/PO'
 import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import { SubscriptionActivationRuleSection } from '~/components/subscriptions/SubscriptionActivationRuleSection'
@@ -37,6 +40,12 @@ gql`
     endingAt
     billingTime
     purchaseOrderNumber
+    paymentTerm {
+      termType
+      days
+      dayOfMonth
+      monthOffset
+    }
     billingEntityId
     periodEndDate
     status
@@ -94,6 +103,7 @@ interface SubscriptionInformationFormSectionExtraProps {
   setShouldDisplaySubscriptionName: Dispatch<SetStateAction<boolean>>
   selectedPlanInterval?: PlanInterval
   customerExternalId?: string | null
+  paymentTermInheritedFrom?: PaymentTermInheritedFrom
 }
 
 const subscriptionInformationDefaultProps: SubscriptionInformationFormSectionExtraProps = {
@@ -106,6 +116,7 @@ const subscriptionInformationDefaultProps: SubscriptionInformationFormSectionExt
   setShouldDisplaySubscriptionName: () => {},
   selectedPlanInterval: undefined,
   customerExternalId: undefined,
+  paymentTermInheritedFrom: undefined,
 }
 
 const TYPING_PLACEHOLDER_DATE = '2026-01-01'
@@ -128,6 +139,7 @@ export const SubscriptionInformationFormSection = withForm({
     setShouldDisplaySubscriptionName,
     selectedPlanInterval,
     customerExternalId,
+    paymentTermInheritedFrom,
   }) {
     const { translate } = useInternationalization()
 
@@ -331,6 +343,22 @@ export const SubscriptionInformationFormSection = withForm({
               />
             )}
           </form.AppField>
+
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
+              <Typography variant="captionHl" color="grey700">
+                {translate('text_1778660219891rv2r5gjmklq')}
+              </Typography>
+              <Typography variant="caption" color="grey600">
+                {translate('text_1787603382163te0ngv2t7cv')}
+              </Typography>
+            </div>
+            <PaymentTermFormContent
+              form={form}
+              fields="paymentTerm"
+              inheritedFrom={paymentTermInheritedFrom}
+            />
+          </div>
 
           {!!customerExternalId && (
             <SubscriptionActivationRuleSection
