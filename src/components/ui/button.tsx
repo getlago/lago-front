@@ -4,23 +4,17 @@ import * as React from 'react'
 
 import { cn } from '~/lib/utils'
 
-const surfaceInteractionClasses =
-  '[&:not(:disabled):not([aria-disabled=true]):hover:not(:active)]:bg-[linear-gradient(var(--color-interactive-hover),var(--color-interactive-hover))] [&:not(:disabled):not([aria-disabled=true]):active]:bg-[linear-gradient(var(--color-interactive-pressed),var(--color-interactive-pressed))]'
-
 const buttonVariants = cva(
-  "v2-text-label inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border border-[transparent] outline-none transition-colors focus-visible:border-focus-border focus-visible:ring-[3px] focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:pointer-events-none disabled:border-disabled-border disabled:bg-disabled disabled:text-disabled-foreground aria-disabled:pointer-events-none aria-disabled:border-disabled-border aria-disabled:bg-disabled aria-disabled:text-disabled-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "v2-text-label inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md outline-none transition-colors focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default:
-          'bg-action-primary text-action-primary-foreground [&:not(:disabled):not([aria-disabled=true]):active]:bg-action-primary-pressed [&:not(:disabled):not([aria-disabled=true]):hover:not(:active)]:bg-action-primary-hover',
-        destructive:
-          'bg-destructive text-destructive-foreground [&:not(:disabled):not([aria-disabled=true]):active]:bg-destructive-pressed [&:not(:disabled):not([aria-disabled=true]):hover:not(:active)]:bg-destructive-hover',
-        outline: ['border-border-default bg-surface text-text-default', surfaceInteractionClasses],
-        secondary: ['bg-surface-raised text-text-default', surfaceInteractionClasses],
-        ghost:
-          'bg-[transparent] text-text-default [&:not(:disabled):not([aria-disabled=true]):active]:bg-interactive-pressed [&:not(:disabled):not([aria-disabled=true]):hover:not(:active)]:bg-interactive-hover',
-        link: 'bg-[transparent] text-link underline-offset-4 [&:not(:disabled):not([aria-disabled=true]):active]:text-link-hover [&:not(:disabled):not([aria-disabled=true]):hover:not(:active)]:text-link-hover [&:not(:disabled):not([aria-disabled=true]):hover:not(:active)]:underline',
+        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+        outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        ghost: 'hover:bg-accent hover:text-accent-foreground',
+        link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
         default: 'h-9 px-4 py-2',
