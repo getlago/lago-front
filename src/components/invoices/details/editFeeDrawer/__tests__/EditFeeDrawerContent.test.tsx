@@ -98,7 +98,6 @@ jest.mock('~/components/form', () => ({
           {option.label}
         </button>
       ))}
-      {/* The real ComboBox renders its error through TextInput, under this same test id. */}
       {!!error && <span data-test="text-field-error">{error}</span>}
     </div>
   ),

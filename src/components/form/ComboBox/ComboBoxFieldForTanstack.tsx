@@ -14,10 +14,6 @@ const ComboBoxField = ({
 }: Omit<ComboBoxProps, 'name' | 'onChange' | 'value' | 'error'> & {
   dataTest?: string
   displayErrorText?: boolean
-  /**
-   * Full control over the displayed error, as on `TextInputField` and
-   * `AmountInputField`. A string replaces the field's own message, `false` suppresses it.
-   */
   errorOverride?: string | boolean
 }) => {
   const field = useFieldContext<string | undefined>()
