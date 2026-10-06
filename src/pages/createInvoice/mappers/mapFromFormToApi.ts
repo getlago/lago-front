@@ -27,7 +27,6 @@ export const mapFormToCreateInput = (
   return {
     ...values,
     purchaseOrderNumber: normalizePurchaseOrderNumber(purchaseOrderNumber),
-    // `null` for the inherit choice: the API resolves the customer, then billing entity, term.
     paymentTerm: paymentTermInputFromFormValues(paymentTerm),
     ...(prefillInvoiceId ? { voidedInvoiceId: prefillInvoiceId } : {}),
     paymentMethod,
