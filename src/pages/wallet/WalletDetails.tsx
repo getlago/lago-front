@@ -58,6 +58,12 @@ gql`
     creditsOngoingBalance
     priority
     purchaseOrderNumber
+    paymentTerm {
+      termType
+      days
+      dayOfMonth
+      monthOffset
+    }
     paidTopUpMinAmountCents
     paidTopUpMinCredits
     paidTopUpMaxAmountCents
@@ -82,10 +88,22 @@ gql`
       firstname
       lastname
       externalId
+      paymentTerm {
+        termType
+        days
+        dayOfMonth
+        monthOffset
+      }
       billingEntity {
         id
         code
         name
+        paymentTerm {
+          termType
+          days
+          dayOfMonth
+          monthOffset
+        }
       }
     }
     skipInvoiceCustomSections
