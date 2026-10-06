@@ -5,13 +5,8 @@ import { useCallback, useRef } from 'react'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { ALL_FILTER_VALUES } from '~/core/constants/form'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import {
-  AdjustedFeeTypeEnum,
-  Charge,
-  CreateAdjustedFeeInput,
-  FixedCharge,
   LagoApiError,
   SubscriptionForCreateFeeDrawerFragment,
   useCreateAdjustedFeeMutation,
@@ -23,6 +18,7 @@ import { EditFeeDrawerContent } from './EditFeeDrawerContent'
 import { OpenEditFeeDrawer, OpenEditFeeDrawerParams } from './types'
 import {
   buildEditFeeDefaultValues,
+  buildEditFeeInput,
   EDIT_FEE_DEFAULT_VALUES,
   editFeeValidationSchema,
 } from './validationSchema'
@@ -204,7 +200,7 @@ export const useEditFeeDrawer = (): { openDrawer: OpenEditFeeDrawer } => {
     onSubmitInvalid({ formApi }) {
       scrollToFirstInputError(EDIT_FEE_FORM_ID, formApi.state.errorMap.onDynamic || {})
     },
-    onSubmit: async ({ value: { adjustmentType, unitPreciseAmount, units, ...values } }) => {
+    onSubmit: async ({ value }) => {
       const openParams = openParamsRef.current
 
       if (!openParams) return
@@ -213,41 +209,23 @@ export const useEditFeeDrawer = (): { openDrawer: OpenEditFeeDrawer } => {
         openParams.mode === 'edit' ? undefined : openParams.invoiceSubscriptionId
       const fee = openParams.mode === 'add' ? undefined : openParams.fee
 
-      const chargeFilterId =
-        values.chargeFilterId === ALL_FILTER_VALUES ? null : values.chargeFilterId || undefined
-
-      const input: CreateAdjustedFeeInput = {
-        chargeFilterId,
-        chargeId: values.chargeId,
-        feeId: fee?.id,
-        fixedChargeId: values.fixedChargeId,
-        invoiceDisplayName: values.invoiceDisplayName || undefined,
+      const input = buildEditFeeInput({
+        values: value,
         invoiceId: openParams.invoiceId,
-
-        unitPreciseAmount:
-          adjustmentType === AdjustedFeeTypeEnum.AdjustedAmount
-            ? String(unitPreciseAmount)
-            : undefined,
-        units: adjustmentType ? Number(units || 0) : undefined,
-      }
+        feeId: fee?.id,
+      })
 
       if (openParams.mode === 'regenerate') {
         const currentSubscription = currentSubscriptionRef.current
-
-        const currentCharge = currentSubscription?.plan.charges?.find(
-          (charge) => charge.id === values.chargeId,
-        )
-
-        const currentFixedCharge = currentSubscription?.plan.fixedCharges?.find(
-          (fixedCharge) => fixedCharge.id === values.fixedChargeId,
-        )
 
         openParams.onAdd({
           ...(openParams.fee || {}),
           ...input,
           invoiceSubscriptionId: invoiceSubscriptionId || '',
-          charge: currentCharge as Charge,
-          fixedCharge: currentFixedCharge as FixedCharge,
+          charge: currentSubscription?.plan.charges?.find((charge) => charge.id === value.chargeId),
+          fixedCharge: currentSubscription?.plan.fixedCharges?.find(
+            (fixedCharge) => fixedCharge.id === value.fixedChargeId,
+          ),
         })
 
         drawer.close()

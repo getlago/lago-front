@@ -26,14 +26,12 @@ import {
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
-  Charge,
   CurrencyEnum,
   Fee,
   FeeAmountDetails,
   FeeAppliedTax,
   FeeForInvoiceDetailsTableFragmentDoc,
   FetchDraftInvoiceTaxesMutation,
-  FixedCharge,
   InvoiceStatusTypeEnum,
   LagoApiError,
   useFetchDraftInvoiceTaxesMutation,
@@ -81,8 +79,8 @@ export type OnRegeneratedFeeAdd = (input: {
   invoiceDisplayName?: string | null
   units?: number | null
   amountDetails?: FeeAmountDetails | null
-  charge?: Charge | null
-  fixedCharge?: FixedCharge | null
+  charge?: { id: string } | null
+  fixedCharge?: { id: string } | null
   chargeFilterId?: string | null
   invoiceSubscriptionId?: string | null
   properties?: {

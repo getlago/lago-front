@@ -1,12 +1,14 @@
 import { ApolloError } from '@apollo/client'
 import { act, render } from '@testing-library/react'
+import { ComponentProps } from 'react'
 
+import { FormDrawerProps } from '~/components/drawers/FormDrawer'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { AdjustedFeeTypeEnum, CurrencyEnum, LagoApiError } from '~/generated/graphql'
 
-import { EditFeeDrawerContentProps, OpenEditFeeDrawer, OpenEditFeeDrawerParams } from '../types'
+import { EditFeeDrawerContent } from '../EditFeeDrawerContent'
+import { OpenEditFeeDrawer, OpenEditFeeDrawerParams } from '../types'
 import { useEditFeeDrawer } from '../useEditFeeDrawer'
-import { EditFeeFormValues } from '../validationSchema'
 
 type MutationConfig = {
   context?: { silentErrorCodes?: unknown[] }
@@ -14,19 +16,9 @@ type MutationConfig = {
   onCompleted?: (data: { createAdjustedFee?: { id: string } | null }) => void
 }
 
-type ContentProps = EditFeeDrawerContentProps & {
-  form: {
-    setFieldValue: (name: keyof EditFeeFormValues, value: unknown) => void
-    state: { isDirty: boolean }
-  }
-}
+type ContentProps = ComponentProps<typeof EditFeeDrawerContent>
 
-type OpenedDrawer = {
-  form: { id: string; submit: () => Promise<void> }
-  closeOnSubmitSuccess: boolean
-  cancelOrCloseText: string
-  shouldPromptOnClose: () => boolean
-  onClose: () => void
+type OpenedDrawer = Omit<FormDrawerProps, 'children'> & {
   children: { props: ContentProps }
 }
 
@@ -99,14 +91,27 @@ const HookHost = (): null => {
   return null
 }
 
-const openDrawerWith = (params: OpenEditFeeDrawerParams): OpenedDrawer => {
-  render(<HookHost />)
-
+/** Opens on the hook instance already mounted, so a reopen exercises the same form. */
+const reopenWith = (params: OpenEditFeeDrawerParams): OpenedDrawer => {
   act(() => {
     openDrawer(params)
   })
 
   return mockOpen.mock.calls.at(-1)?.[0] as OpenedDrawer
+}
+
+const openDrawerWith = (params: OpenEditFeeDrawerParams): OpenedDrawer => {
+  render(<HookHost />)
+
+  return reopenWith(params)
+}
+
+// `shouldPromptOnClose` is optional on the drawer props, so a missing one must fail loudly
+// rather than read as "does not prompt".
+const promptsOnClose = (opened: OpenedDrawer): boolean => {
+  if (!opened.shouldPromptOnClose) throw new Error('shouldPromptOnClose was not wired')
+
+  return opened.shouldPromptOnClose()
 }
 
 const lastToastKey = (): string => mockAddToast.mock.calls.at(-1)?.[0]?.translateKey
@@ -134,13 +139,13 @@ describe('useEditFeeDrawer', () => {
       it('THEN should prompt before closing only once the form is dirty', () => {
         const opened = openDrawerWith(EDIT_PARAMS)
 
-        expect(opened.shouldPromptOnClose()).toBe(false)
+        expect(promptsOnClose(opened)).toBe(false)
 
         act(() => {
           opened.children.props.form.setFieldValue('invoiceDisplayName', 'Edited')
         })
 
-        expect(opened.shouldPromptOnClose()).toBe(true)
+        expect(promptsOnClose(opened)).toBe(true)
       })
 
       it('THEN should hand the body the fee it was opened on', () => {
@@ -159,20 +164,44 @@ describe('useEditFeeDrawer', () => {
     describe('WHEN it is reopened on another fee', () => {
       // `openDrawer` re-seeds the form: a value left over from the previous fee would be
       // submitted against the new one.
-      it('THEN should reset the values seeded by the previous opening', () => {
+      const reopenOnAnotherFee = (): OpenedDrawer => {
         const first = openDrawerWith(EDIT_PARAMS)
 
         act(() => {
           first.children.props.form.setFieldValue('invoiceDisplayName', 'Edited')
         })
 
-        const second = openDrawerWith({
+        return reopenWith({
           mode: 'edit',
           invoiceId: 'invoice-1',
           fee: buildFee({ id: 'fee-2', invoiceDisplayName: 'Other name' }),
         })
+      }
 
-        expect(second.shouldPromptOnClose()).toBe(false)
+      it('THEN should re-seed the values from the fee it was reopened on', () => {
+        const second = reopenOnAnotherFee()
+
+        expect(second.children.props.form.state.values.invoiceDisplayName).toBe('Other name')
+      })
+
+      it('THEN should drop the dirty state left by the previous opening', () => {
+        const second = reopenOnAnotherFee()
+
+        expect(promptsOnClose(second)).toBe(false)
+      })
+
+      it('THEN should clear the errors a failed submit left behind', async () => {
+        const first = openDrawerWith(EDIT_PARAMS)
+
+        await act(async () => {
+          await first.form.submit()
+        })
+
+        expect(first.children.props.form.state.errorMap.onDynamic).toBeTruthy()
+
+        const second = reopenWith(EDIT_PARAMS)
+
+        expect(second.children.props.form.state.errorMap.onDynamic).toBeFalsy()
       })
     })
   })

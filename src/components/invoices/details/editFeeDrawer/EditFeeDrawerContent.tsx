@@ -74,12 +74,13 @@ export const EditFeeDrawerContent = withForm({
       onSubscriptionLoaded(currentSubscription)
     }, [currentSubscription, onSubscriptionLoaded])
 
-    // Filter invoice-level fees by subscription ID (matches InvoiceForFormatInvoiceItemMap pattern)
-    const subscriptionFees = invoiceData?.invoice?.fees?.filter(
-      (f) => f.subscription?.id === invoiceSubscriptionId,
+    // Kept stable: the combobox data below memoizes on it, and ComboBox re-runs an effect on
+    // every new `data` reference.
+    const subscriptionFees = useMemo(
+      () => invoiceData?.invoice?.fees?.filter((f) => f.subscription?.id === invoiceSubscriptionId),
+      [invoiceData, invoiceSubscriptionId],
     )
 
-    // Use localFees (from regenerate mode) or subscriptionFees (from invoice query)
     const feesForCombobox = localFees ?? subscriptionFees
 
     const chargeId = useStore(form.store, (state) => state.values.chargeId)
@@ -112,79 +113,61 @@ export const EditFeeDrawerContent = withForm({
       })
     }, [currentSubscription, feesForCombobox, chargeId, translate])
 
-    // Determine if the selected item is a charge or fixed charge
-    const selectedItemType = useMemo((): 'charge' | 'fixed-charge' | null => {
+    const getSelectedItemType = (): 'charge' | 'fixed-charge' | null => {
       if (fee?.charge || chargeId) return 'charge'
       if (fee?.fixedCharge || fixedChargeId) return 'fixed-charge'
 
       return null
-    }, [fee, chargeId, fixedChargeId])
+    }
 
-    const { displayChargeIdField, displayChargeFilterIdField, displayAdjustmentInputs } =
-      useMemo(() => {
-        const hasChargeFiltersComboboxData = !!chargeFiltersComboboxData?.length
-        const isUsageCharge = selectedItemType === 'charge'
+    const selectedItemType = getSelectedItemType()
+    const isUsageCharge = selectedItemType === 'charge'
+    const hasChargeFilters = !!chargeFiltersComboboxData?.length
 
-        return {
-          displayChargeIdField: !fee,
-          displayChargeFilterIdField: !fee && isUsageCharge && hasChargeFiltersComboboxData,
-          displayAdjustmentInputs:
-            !!fee ||
-            (hasChargeFiltersComboboxData && isUsageCharge
-              ? !!chargeFilterId
-              : !!chargeId || !!fixedChargeId),
-        }
-      }, [
-        chargeFiltersComboboxData?.length,
-        fee,
-        chargeFilterId,
-        chargeId,
-        fixedChargeId,
-        selectedItemType,
-      ])
+    const displayChargeIdField = !fee
+    const displayChargeFilterIdField = !fee && isUsageCharge && hasChargeFilters
+    const displayAdjustmentInputs =
+      !!fee ||
+      (hasChargeFilters && isUsageCharge ? !!chargeFilterId : !!chargeId || !!fixedChargeId)
 
-    const isUnitAdjustmentTypeDisabled = useMemo((): boolean => {
-      const getChargeConfig = () => {
-        // If we have an existing fee, extract from fee's charge or fixedCharge
-        if (fee) return fee.charge || fee.fixedCharge || undefined
+    const getSelectedChargeConfig = () => {
+      if (fee) return fee.charge || fee.fixedCharge || undefined
 
-        // If we're adding a new fee, find the selected charge or fixed charge
-        if (selectedItemType === 'charge') {
-          return currentSubscription?.plan.charges?.find((charge) => charge.id === chargeId)
-        }
-
-        if (selectedItemType === 'fixed-charge') {
-          return currentSubscription?.plan.fixedCharges?.find(
-            (fixedCharge) => fixedCharge.id === fixedChargeId,
-          )
-        }
-
-        return undefined
+      if (isUsageCharge) {
+        return currentSubscription?.plan.charges?.find((charge) => charge.id === chargeId)
       }
 
-      const config = getChargeConfig()
+      if (selectedItemType === 'fixed-charge') {
+        return currentSubscription?.plan.fixedCharges?.find(
+          (fixedCharge) => fixedCharge.id === fixedChargeId,
+        )
+      }
 
-      return !!config && isChargeModelUnitAdjustmentDisabled(config)
-    }, [currentSubscription, fee, chargeId, fixedChargeId, selectedItemType])
+      return undefined
+    }
+
+    const selectedChargeConfig = getSelectedChargeConfig()
+    const isUnitAdjustmentTypeDisabled =
+      !!selectedChargeConfig && isChargeModelUnitAdjustmentDisabled(selectedChargeConfig)
 
     const onChargeIdChange = useCallback(
       (selectedChargeId: string) => {
         if (selectedChargeId === (chargeId || fixedChargeId)) return
 
-        const isUsageCharge = currentSubscription?.plan.charges?.find(
+        const selectedUsageCharge = currentSubscription?.plan.charges?.find(
           (charge) => charge.id === selectedChargeId,
         )
 
-        const isFixedCharge = currentSubscription?.plan.fixedCharges?.find(
+        const selectedFixedCharge = currentSubscription?.plan.fixedCharges?.find(
           (fixedCharge) => fixedCharge.id === selectedChargeId,
         )
 
-        if (!isUsageCharge && !isFixedCharge) return
+        if (!selectedUsageCharge && !selectedFixedCharge) return
 
         // The filter and the adjustment were entered for the previous charge. Left behind they
         // submit against the new one — a filtered charge would go out with no filter picked.
-        form.setFieldValue('chargeId', isUsageCharge ? selectedChargeId : '')
-        form.setFieldValue('fixedChargeId', isFixedCharge ? selectedChargeId : '')
+        form.setFieldValue('chargeId', selectedUsageCharge ? selectedChargeId : '')
+        form.setFieldValue('fixedChargeId', selectedFixedCharge ? selectedChargeId : '')
         form.setFieldValue('chargeFilterId', '')
         form.setFieldValue('adjustmentType', undefined)
         form.setFieldValue('units', '')
