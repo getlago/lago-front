@@ -1,14 +1,14 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { Icon } from 'lago-design-system'
-import { memo, useRef } from 'react'
+import { memo } from 'react'
 import { generatePath, LinkProps, useParams } from 'react-router'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
-import { EditFeeDrawer, EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
+import { useEditFeeDrawer } from '~/components/invoices/details/editFeeDrawer/useEditFeeDrawer'
 import {
   InvoiceDetailsTable,
   InvoiceTableSection,
@@ -400,7 +400,7 @@ const InvoiceOverview = memo(
     const { invoiceId } = useParams()
 
     const billingEntity = invoice?.billingEntity
-    const editFeeDrawerRef = useRef<EditFeeDrawerRef>(null)
+    const { openDrawer: openEditFeeDrawer } = useEditFeeDrawer()
 
     if (hasError) {
       return (
@@ -575,7 +575,7 @@ const InvoiceOverview = memo(
               <InvoiceDetailsTable
                 customer={customer}
                 invoice={invoice}
-                editFeeDrawerRef={editFeeDrawerRef}
+                openEditFeeDrawer={openEditFeeDrawer}
                 fees={fees}
               />
               {showExternalAppsSection && (
@@ -839,7 +839,6 @@ const InvoiceOverview = memo(
             </>
           )}
         </>
-        <EditFeeDrawer ref={editFeeDrawerRef} />
       </ViewFeeDetailsDrawerProvider>
     )
   },

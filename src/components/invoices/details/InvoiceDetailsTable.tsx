@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
-import { FC, Fragment, memo, ReactNode, RefObject } from 'react'
+import { FC, Fragment, memo, ReactNode } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
+import { OpenEditFeeDrawer } from '~/components/invoices/details/editFeeDrawer/types'
 import {
   getRegenerateModeProps,
   InvoiceDetailsTableBodyLine,
@@ -173,7 +173,7 @@ const getOneTimeFeeDisplayName = ({
 interface InvoiceDetailsTableProps {
   customer: Pick<Customer, 'id' | 'applicableTimezone'> | null | undefined
   invoice: InvoiceForDetailsTableFragment | null | undefined
-  editFeeDrawerRef: RefObject<EditFeeDrawerRef>
+  openEditFeeDrawer: OpenEditFeeDrawer
   isDraftOverride?: boolean
   fees: FeeDetailsForInvoiceOverviewFragment[] | null | undefined
   onAdd?: OnRegeneratedFeeAdd
@@ -252,7 +252,7 @@ export const InvoiceTableSection: FC<{
 export const InvoiceDetailsTable = memo(
   ({
     customer,
-    editFeeDrawerRef,
+    openEditFeeDrawer,
     invoice,
     isDraftOverride,
     fees,
@@ -318,7 +318,7 @@ export const InvoiceDetailsTable = memo(
                         ? intlFormatDateTime(fee.succeededAt).date
                         : undefined
                     }
-                    editFeeDrawerRef={editFeeDrawerRef}
+                    openEditFeeDrawer={openEditFeeDrawer}
                     isDraftInvoice={isDraftInvoice}
                     fee={
                       feeWithMetadata as FeeForInvoiceDetailsTableBodyLineFragment & {
@@ -384,7 +384,7 @@ export const InvoiceDetailsTable = memo(
                       canHaveUnitPrice={canHaveUnitPrice}
                       currency={currency}
                       displayName={subscription.name || subscription.plan.name}
-                      editFeeDrawerRef={editFeeDrawerRef}
+                      openEditFeeDrawer={openEditFeeDrawer}
                       fee={undefined}
                       isDraftInvoice={false}
                       hasTaxProviderError={hasTaxProviderError}
@@ -421,7 +421,7 @@ export const InvoiceDetailsTable = memo(
                   invoice.status === InvoiceStatusTypeEnum.Draft)
 
               const addNewFeeOnClick = () => {
-                editFeeDrawerRef?.current?.openDrawer(
+                openEditFeeDrawer(
                   onAdd
                     ? {
                         invoiceId: invoice.id,
@@ -475,7 +475,7 @@ export const InvoiceDetailsTable = memo(
                                 currency={currency}
                                 displayName={fee.metadata.displayName}
                                 succeededDate={succeededDate}
-                                editFeeDrawerRef={editFeeDrawerRef}
+                                openEditFeeDrawer={openEditFeeDrawer}
                                 isDraftInvoice={isDraftInvoice}
                                 fee={fee}
                                 hasTaxProviderError={hasTaxProviderError}

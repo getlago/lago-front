@@ -21,6 +21,12 @@ export const VIEW_FEE_DETAILS_PGK_TABLE_TEST_ID = 'view-fee-details-pgk-table'
 
 // EditFeeDrawer — the add/edit/regenerate fee drawer
 export const EDIT_FEE_DRAWER_SUBMIT_BUTTON_TEST_ID = 'edit-fee-drawer-submit-button'
+export const EDIT_FEE_DRAWER_LOADING_TEST_ID = 'edit-fee-drawer-loading'
+export const EDIT_FEE_DRAWER_CHARGE_COMBOBOX_TEST_ID = 'edit-fee-drawer-charge-combobox'
+export const EDIT_FEE_DRAWER_CHARGE_FILTER_COMBOBOX_TEST_ID =
+  'edit-fee-drawer-charge-filter-combobox'
+export const EDIT_FEE_DRAWER_ADJUSTMENT_TYPE_COMBOBOX_TEST_ID =
+  'edit-fee-drawer-adjustment-type-combobox'
 
 // InvoiceDetailsTableBodyLine — clickable fee row (dynamic id appended)
 export const FEE_ROW_TEST_ID_PREFIX = 'fee-row'

@@ -1,7 +1,6 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
 import { InvoiceDetailsTable } from '~/components/invoices/details/InvoiceDetailsTable'
 import {
   FEE_ACTIONS_BUTTON_TEST_ID,
@@ -105,7 +104,7 @@ const renderTable = (invoice: InvoiceForDetailsTableFragment) =>
     <InvoiceDetailsTable
       customer={{ id: 'customer-1', applicableTimezone: TimezoneEnum.TzAmericaNewYork }}
       invoice={invoice}
-      editFeeDrawerRef={{ current: null } as unknown as React.RefObject<EditFeeDrawerRef>}
+      openEditFeeDrawer={jest.fn()}
       fees={invoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
     />,
   )
