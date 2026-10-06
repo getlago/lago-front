@@ -35,7 +35,6 @@ export const mapFromApiToForm = ({
   paymentMethod: undefined,
   invoiceCustomSection: undefined,
   purchaseOrderNumber: prefillInvoice?.purchaseOrderNumber || undefined,
-  // A regenerated invoice keeps the voided invoice's term; it cannot be overridden.
   paymentTerm: paymentTermFormValuesFromTerm(prefillInvoice?.paymentTerm, true),
 })
 
