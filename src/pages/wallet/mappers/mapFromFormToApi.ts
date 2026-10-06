@@ -158,7 +158,6 @@ export const mapFormToCreateInput = (
     ),
     appliesTo: formatAppliesTo(appliesTo),
     paymentMethod,
-    // `null` for the inherit choice: no override on creation, cleared on update.
     paymentTerm: paymentTermInputFromFormValues(paymentTerm),
     invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
     ...(values.paidTopUpMinAmountCents
@@ -218,7 +217,6 @@ export const mapFormToUpdateInput = (
     billingEntityId: billingEntityId || null,
     appliesTo: formatAppliesTo(appliesTo),
     paymentMethod,
-    // `null` for the inherit choice: no override on creation, cleared on update.
     paymentTerm: paymentTermInputFromFormValues(paymentTerm),
     invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
     // Unlike creation, clearing min/max on update must send an explicit
