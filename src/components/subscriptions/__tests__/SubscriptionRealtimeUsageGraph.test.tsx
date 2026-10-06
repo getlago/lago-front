@@ -2,6 +2,8 @@ import { fireEvent, screen, waitFor } from '@testing-library/react'
 
 import {
   AggregationTypeEnum,
+  ChargeModelEnum,
+  FeatureFlagEnum,
   GetSubscriptionChargesForRealtimeUsageDocument,
   GetSubscriptionHourlyUsageDocument,
   TimezoneEnum,
@@ -15,6 +17,12 @@ import {
   REALTIME_USAGE_TIME_RANGE_TEST_ID,
   SubscriptionRealtimeUsageGraph,
 } from '../SubscriptionRealtimeUsageGraph'
+
+const mockHasFeatureFlag = jest.fn()
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
+}))
 
 const SUBSCRIPTION_ID = 'subscription-id'
 const CHARGE_ID = 'charge-id'
@@ -36,11 +44,16 @@ const chargesMock = {
             {
               id: CHARGE_ID,
               invoiceDisplayName: 'API calls',
+              chargeModel: ChargeModelEnum.Standard,
+              payInAdvance: false,
+              prorated: false,
               billableMetric: {
                 id: 'bm-id',
                 code: 'count_bm',
                 name: 'Count BM',
                 aggregationType: AggregationTypeEnum.CountAgg,
+                recurring: false,
+                expression: null,
               },
             },
           ],
@@ -50,14 +63,21 @@ const chargesMock = {
   },
 }
 
-const hourlyUsageMock = (
-  filters: { chargeFilterId: string | null; invoiceDisplayName: string | null; units: number }[],
-  hours: {
-    time: string
-    units: number
-    breakdown: { chargeFilterId: string | null; units: number }[]
-  }[],
-) => ({
+type FilterMock = {
+  chargeFilterId: string | null
+  invoiceDisplayName: string | null
+  units: number
+  values?: Record<string, string[]>
+  other?: boolean
+}
+
+type HourMock = {
+  time: string
+  units: number
+  breakdown: { chargeFilterId: string | null; units: number; other?: boolean }[]
+}
+
+const hourlyUsageMock = (filters: FilterMock[], hours: HourMock[]) => ({
   request: { query: GetSubscriptionHourlyUsageDocument },
   variableMatcher: () => true,
   maxUsageCount: Number.POSITIVE_INFINITY,
@@ -68,11 +88,24 @@ const hourlyUsageMock = (
         toDatetime: '2026-08-24T11:30:00Z',
         timezone: TimezoneEnum.TzUtc,
         aggregationType: AggregationTypeEnum.CountAgg,
-        filters: filters.map((filter) => ({ ...filter, eventsCount: filter.units })),
-        hours: hours.map((hour) => ({ ...hour, eventsCount: hour.units })),
+        filters: filters.map((filter) => ({
+          values: {},
+          other: false,
+          ...filter,
+          eventsCount: filter.units,
+        })),
+        hours: hours.map((hour) => ({
+          ...hour,
+          eventsCount: hour.units,
+          breakdown: hour.breakdown.map((breakdown) => ({ other: false, ...breakdown })),
+        })),
       },
     },
   },
+})
+
+beforeEach(() => {
+  mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.RealtimeUsage)
 })
 
 describe('SubscriptionRealtimeUsageGraph', () => {
@@ -238,40 +271,145 @@ describe('SubscriptionRealtimeUsageGraph', () => {
     expect(screen.queryByTestId(REALTIME_USAGE_LEGEND_TEST_ID)).not.toBeInTheDocument()
   })
 
-  it('renders nothing when the plan has no realtime-eligible charge', async () => {
+  it('names a filter without display name by its values', async () => {
+    render(<SubscriptionRealtimeUsageGraph subscriptionId={SUBSCRIPTION_ID} />, {
+      mocks: [
+        chargesMock,
+        hourlyUsageMock(
+          [
+            {
+              chargeFilterId: EU_FILTER_ID,
+              invoiceDisplayName: null,
+              values: { region: ['eu', 'uk'] },
+              units: 30,
+            },
+          ],
+          [
+            {
+              time: '2026-08-24T09:00:00Z',
+              units: 30,
+              breakdown: [{ chargeFilterId: EU_FILTER_ID, units: 30 }],
+            },
+          ],
+        ),
+      ],
+    })
+
+    await waitFor(() => expect(screen.getByTestId(REALTIME_USAGE_LEGEND_TEST_ID)).toBeVisible())
+
+    const legend = screen.getByTestId(REALTIME_USAGE_LEGEND_TEST_ID)
+
+    expect(legend).toHaveTextContent('eu • uk')
+    expect(legend).not.toHaveTextContent('Default (no filter)')
+  })
+
+  it('keeps the charge default apart from the series the API folded', async () => {
+    render(<SubscriptionRealtimeUsageGraph subscriptionId={SUBSCRIPTION_ID} />, {
+      mocks: [
+        chargesMock,
+        hourlyUsageMock(
+          [
+            { chargeFilterId: EU_FILTER_ID, invoiceDisplayName: 'Europe', units: 30 },
+            { chargeFilterId: null, invoiceDisplayName: null, units: 4 },
+            { chargeFilterId: null, invoiceDisplayName: null, units: 2, other: true },
+          ],
+          [
+            {
+              time: '2026-08-24T09:00:00Z',
+              units: 36,
+              breakdown: [
+                { chargeFilterId: EU_FILTER_ID, units: 30 },
+                { chargeFilterId: null, units: 4 },
+                { chargeFilterId: null, units: 2, other: true },
+              ],
+            },
+          ],
+        ),
+      ],
+    })
+
+    await waitFor(() => expect(screen.getByTestId(REALTIME_USAGE_LEGEND_TEST_ID)).toBeVisible())
+
+    const legend = screen.getByTestId(REALTIME_USAGE_LEGEND_TEST_ID)
+
+    expect(legend.children).toHaveLength(3)
+    expect(legend).toHaveTextContent('Europe')
+    expect(legend).toHaveTextContent('Default (no filter)')
+    expect(legend).toHaveTextContent('Other')
+  })
+
+  it('renders an error state when the usage cannot be read', async () => {
+    render(<SubscriptionRealtimeUsageGraph subscriptionId={SUBSCRIPTION_ID} />, {
+      mocks: [
+        chargesMock,
+        {
+          request: { query: GetSubscriptionHourlyUsageDocument },
+          variableMatcher: () => true,
+          error: new Error('usage_buckets_read_failure'),
+        },
+      ],
+    })
+
+    await waitFor(() => expect(screen.getByTestId(REALTIME_USAGE_EMPTY_TEST_ID)).toBeVisible())
+    expect(screen.getByTestId(REALTIME_USAGE_EMPTY_TEST_ID)).toHaveTextContent(
+      'Something went wrong',
+    )
+  })
+
+  it('renders nothing when the organization is not on the realtime usage flag', async () => {
+    mockHasFeatureFlag.mockReturnValue(false)
+
     const { container } = render(
       <SubscriptionRealtimeUsageGraph subscriptionId={SUBSCRIPTION_ID} />,
-      {
-        mocks: [
-          {
-            ...chargesMock,
-            result: {
-              data: {
-                subscription: {
-                  ...chargesMock.result.data.subscription,
-                  plan: {
-                    id: 'plan-id',
-                    charges: [
-                      {
-                        id: 'other-charge',
-                        invoiceDisplayName: null,
-                        billableMetric: {
-                          id: 'bm-2',
-                          code: 'unique_bm',
-                          name: 'Unique BM',
-                          aggregationType: AggregationTypeEnum.UniqueCountAgg,
-                        },
-                      },
-                    ],
-                  },
-                },
-              },
-            },
-          },
-        ],
-      },
+      { mocks: [chargesMock, hourlyUsageMock([], [])] },
     )
 
     await waitFor(() => expect(container).toBeEmptyDOMElement())
   })
+
+  it.each([
+    [
+      'an aggregation that does not add up',
+      { aggregationType: AggregationTypeEnum.UniqueCountAgg },
+      {},
+    ],
+    ['a charge model walking events', {}, { chargeModel: ChargeModelEnum.Percentage }],
+    ['a pay in advance charge', {}, { payInAdvance: true }],
+    ['a recurring metric', { recurring: true }, {}],
+  ])(
+    'renders nothing when the only charge has %s',
+    async (_, billableMetricOverrides, chargeOverrides) => {
+      const [charge] = chargesMock.result.data.subscription.plan.charges
+
+      const { container } = render(
+        <SubscriptionRealtimeUsageGraph subscriptionId={SUBSCRIPTION_ID} />,
+        {
+          mocks: [
+            {
+              ...chargesMock,
+              result: {
+                data: {
+                  subscription: {
+                    ...chargesMock.result.data.subscription,
+                    plan: {
+                      id: 'plan-id',
+                      charges: [
+                        {
+                          ...charge,
+                          ...chargeOverrides,
+                          billableMetric: { ...charge.billableMetric, ...billableMetricOverrides },
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        },
+      )
+
+      await waitFor(() => expect(container).toBeEmptyDOMElement())
+    },
+  )
 })

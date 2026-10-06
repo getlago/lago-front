@@ -15306,7 +15306,7 @@ export type GetSubscriptionChargesForRealtimeUsageQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionChargesForRealtimeUsageQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string, aggregationType: AggregationTypeEnum } }> | null } } | null };
+export type GetSubscriptionChargesForRealtimeUsageQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, payInAdvance: boolean, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, expression?: string | null } }> | null } } | null };
 
 export type GetSubscriptionHourlyUsageQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -15315,7 +15315,7 @@ export type GetSubscriptionHourlyUsageQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionHourlyUsageQuery = { __typename?: 'Query', subscriptionHourlyUsage: { __typename?: 'SubscriptionHourlyUsage', fromDatetime: any, toDatetime: any, timezone: TimezoneEnum, aggregationType: AggregationTypeEnum, filters: Array<{ __typename?: 'HourlyUsageFilter', chargeFilterId?: string | null, invoiceDisplayName?: string | null, units: number, eventsCount: number }>, hours: Array<{ __typename?: 'HourlyUsagePoint', time: any, units: number, eventsCount: number, breakdown: Array<{ __typename?: 'HourlyUsageBreakdown', chargeFilterId?: string | null, units: number }> }> } };
+export type GetSubscriptionHourlyUsageQuery = { __typename?: 'Query', subscriptionHourlyUsage: { __typename?: 'SubscriptionHourlyUsage', fromDatetime: any, toDatetime: any, timezone: TimezoneEnum, aggregationType: AggregationTypeEnum, filters: Array<{ __typename?: 'HourlyUsageFilter', chargeFilterId?: string | null, invoiceDisplayName?: string | null, values: any, other: boolean, units: number, eventsCount: number }>, hours: Array<{ __typename?: 'HourlyUsagePoint', time: any, units: number, eventsCount: number, breakdown: Array<{ __typename?: 'HourlyUsageBreakdown', chargeFilterId?: string | null, other: boolean, units: number }> }> } };
 
 export type SubscriptionUsageLifetimeGraphForLifetimeGraphFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string } };
 
@@ -37045,11 +37045,16 @@ export const GetSubscriptionChargesForRealtimeUsageDocument = gql`
       charges {
         id
         invoiceDisplayName
+        chargeModel
+        payInAdvance
+        prorated
         billableMetric {
           id
           code
           name
           aggregationType
+          recurring
+          expression
         }
       }
     }
@@ -37106,6 +37111,8 @@ export const GetSubscriptionHourlyUsageDocument = gql`
     filters {
       chargeFilterId
       invoiceDisplayName
+      values
+      other
       units
       eventsCount
     }
@@ -37115,6 +37122,7 @@ export const GetSubscriptionHourlyUsageDocument = gql`
       eventsCount
       breakdown {
         chargeFilterId
+        other
         units
       }
     }

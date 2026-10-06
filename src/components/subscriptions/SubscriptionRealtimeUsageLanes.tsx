@@ -3,12 +3,14 @@ import { useState } from 'react'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import {
+  filterLabelOf,
   formatUnits,
   RealtimeUsage,
   RealtimeUsageControls,
   RealtimeUsageEmpty,
   RealtimeUsageHeader,
   SegmentedControl,
+  seriesKeyOf,
   useRealtimeUsage,
 } from '~/components/subscriptions/realtimeUsage'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
@@ -24,12 +26,11 @@ export const REALTIME_LANES_LANE_NAME_TEST_ID = 'realtime-usage-lane-name'
 
 // Small multiples, not a stack: every lane carries the same single hue and
 // identity comes from the row label, so a twentieth filter costs no palette.
-// The charge default (events matching no filter) is grey because it is the
-// absence of a filter rather than another one.
+// The charge default (events matching no filter) and the tail the API folds
+// into "Other" are grey because they are not a filter of their own.
 const LANE_COLOR = theme.palette.primary.main
 const DEFAULT_LANE_COLOR = theme.palette.grey[500]
 
-const DEFAULT_KEY = 'default'
 const SPARK_VIEWBOX_WIDTH = 240
 const LANE_SPARK_HEIGHT = 34
 const TOTAL_SPARK_HEIGHT = 52
@@ -69,7 +70,7 @@ export const SubscriptionRealtimeUsageLanes = ({
     }
 
     if (!state.hasUsage || !usage) {
-      return <RealtimeUsageEmpty testId={REALTIME_LANES_EMPTY_TEST_ID} />
+      return <RealtimeUsageEmpty testId={REALTIME_LANES_EMPTY_TEST_ID} hasError={state.hasError} />
     }
 
     const lanes = buildLanes(usage, translate, sort)
@@ -235,16 +236,16 @@ export const SubscriptionRealtimeUsageLanes = ({
 // disappearing from the list.
 const buildLanes = (usage: RealtimeUsage, translate: TranslateFunc, sort: SortMode): Lane[] => {
   const lanes: Lane[] = usage.filters.map((filter) => {
-    const key = filter.chargeFilterId || DEFAULT_KEY
+    const key = seriesKeyOf(filter)
     const values = usage.hours.map((hour) =>
       hour.breakdown
-        .filter((breakdown) => (breakdown.chargeFilterId || DEFAULT_KEY) === key)
+        .filter((breakdown) => seriesKeyOf(breakdown) === key)
         .reduce((total, breakdown) => total + breakdown.units, 0),
     )
 
     return {
       key,
-      label: filter.invoiceDisplayName || translate('text_17876075026872bdz1e5aeep'),
+      label: filterLabelOf(filter, translate),
       color: filter.chargeFilterId ? LANE_COLOR : DEFAULT_LANE_COLOR,
       values,
       sum: values.reduce((total, value) => total + value, 0),

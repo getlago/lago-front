@@ -4,17 +4,21 @@ import { ReactNode, useEffect, useMemo, useState } from 'react'
 
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { composeChargeFilterDisplayName } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { intlFormatDateTime, TimeFormat } from '~/core/timezone'
 import {
   AggregationTypeEnum,
+  ChargeModelEnum,
+  FeatureFlagEnum,
   GetSubscriptionChargesForRealtimeUsageQuery,
   GetSubscriptionHourlyUsageQuery,
   TimezoneEnum,
   useGetSubscriptionChargesForRealtimeUsageQuery,
   useGetSubscriptionHourlyUsageQuery,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { tw } from '~/styles/utils'
 
 gql`
@@ -30,11 +34,16 @@ gql`
         charges {
           id
           invoiceDisplayName
+          chargeModel
+          payInAdvance
+          prorated
           billableMetric {
             id
             code
             name
             aggregationType
+            recurring
+            expression
           }
         }
       }
@@ -58,6 +67,8 @@ gql`
       filters {
         chargeFilterId
         invoiceDisplayName
+        values
+        other
         units
         eventsCount
       }
@@ -67,6 +78,7 @@ gql`
         eventsCount
         breakdown {
           chargeFilterId
+          other
           units
         }
       }
@@ -75,6 +87,7 @@ gql`
 `
 
 export type RealtimeUsage = GetSubscriptionHourlyUsageQuery['subscriptionHourlyUsage']
+export type RealtimeUsageFilter = RealtimeUsage['filters'][number]
 export type RealtimeUsageCharge = NonNullable<
   NonNullable<GetSubscriptionChargesForRealtimeUsageQuery['subscription']>['plan']['charges']
 >[number]
@@ -93,7 +106,51 @@ export const WINDOWS = [
 ]
 
 const WINDOW_REFRESH_INTERVAL = 60000
+// Mirrors the API gate (`RealtimeUsage.supported_charge?` narrowed to the
+// aggregations whose hours add up): any other charge is refused, so it is not
+// offered at all. `accepts_target_wallet` is part of that gate too but is not
+// exposed on the charge.
 const REALTIME_AGGREGATION_TYPES = [AggregationTypeEnum.CountAgg, AggregationTypeEnum.SumAgg]
+const REALTIME_CHARGE_MODELS = [
+  ChargeModelEnum.Standard,
+  ChargeModelEnum.Graduated,
+  ChargeModelEnum.Package,
+  ChargeModelEnum.Volume,
+  ChargeModelEnum.GraduatedPercentage,
+  ChargeModelEnum.Dynamic,
+]
+
+const isRealtimeCharge = (charge: RealtimeUsageCharge): boolean =>
+  REALTIME_AGGREGATION_TYPES.includes(charge.billableMetric.aggregationType) &&
+  REALTIME_CHARGE_MODELS.includes(charge.chargeModel) &&
+  !charge.payInAdvance &&
+  !charge.prorated &&
+  !charge.billableMetric.recurring &&
+  !charge.billableMetric.expression
+
+export const DEFAULT_SERIES_KEY = 'default'
+export const OTHER_SERIES_KEY = 'other'
+
+// The charge default and the series the API folds past its biggest filters
+// both come without a filter id; only the `other` flag tells them apart.
+export const seriesKeyOf = (series: { chargeFilterId?: string | null; other: boolean }): string => {
+  if (series.other) return OTHER_SERIES_KEY
+
+  return series.chargeFilterId || DEFAULT_SERIES_KEY
+}
+
+export const filterLabelOf = (filter: RealtimeUsageFilter, translate: TranslateFunc): string => {
+  if (filter.other) return translate('text_1787607502687pyo0kxh1flz')
+  if (!filter.chargeFilterId) return translate('text_17876075026872bdz1e5aeep')
+
+  // A filter deleted since its usage was counted has no values left to name it by.
+  return (
+    composeChargeFilterDisplayName({
+      invoiceDisplayName: filter.invoiceDisplayName,
+      values: filter.values || {},
+    }) || filter.chargeFilterId
+  )
+}
 
 export const formatUnits = (value: number): string =>
   intlFormatNumber(value, { style: 'decimal', maximumFractionDigits: 2 })
@@ -122,6 +179,7 @@ export type RealtimeUsageState = {
   setAutoRefreshSeconds: (seconds: number) => void
   usage?: RealtimeUsage
   isLoading: boolean
+  hasError: boolean
   hasUsage: boolean
   hasRealtimeCharge: boolean
   isSwitchingScale: boolean
@@ -136,6 +194,8 @@ export type RealtimeUsageState = {
 // in what they ask for.
 export const useRealtimeUsage = (subscriptionId: string): RealtimeUsageState => {
   const { translate } = useInternationalization()
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const isEnabled = hasFeatureFlag(FeatureFlagEnum.RealtimeUsage)
   const [chargeId, setChargeId] = useState<string>('')
   const [windowInHours, setWindowInHours] = useState<number>(24)
   const [autoRefreshSeconds, setAutoRefreshSeconds] = useState<number>(0)
@@ -158,14 +218,11 @@ export const useRealtimeUsage = (subscriptionId: string): RealtimeUsageState => 
   const { data: subscriptionData, loading: subscriptionLoading } =
     useGetSubscriptionChargesForRealtimeUsageQuery({
       variables: { subscriptionId },
-      skip: !subscriptionId,
+      skip: !subscriptionId || !isEnabled,
     })
 
   const charges = useMemo(
-    () =>
-      (subscriptionData?.subscription?.plan?.charges || []).filter((charge) =>
-        REALTIME_AGGREGATION_TYPES.includes(charge.billableMetric.aggregationType),
-      ),
+    () => (subscriptionData?.subscription?.plan?.charges || []).filter(isRealtimeCharge),
     [subscriptionData],
   )
 
@@ -173,7 +230,7 @@ export const useRealtimeUsage = (subscriptionId: string): RealtimeUsageState => 
   const timezone = (subscriptionData?.subscription?.customer?.applicableTimezone ||
     TimezoneEnum.TzUtc) as TimezoneEnum
 
-  const { data, loading, previousData } = useGetSubscriptionHourlyUsageQuery({
+  const { data, loading, previousData, error } = useGetSubscriptionHourlyUsageQuery({
     variables: {
       subscriptionId,
       chargeId: selectedCharge?.id || '',
@@ -201,11 +258,14 @@ export const useRealtimeUsage = (subscriptionId: string): RealtimeUsageState => 
     setAutoRefreshSeconds,
     usage,
     isLoading: (subscriptionLoading || loading) && !usage,
+    hasError: !!error && !usage,
     hasUsage: (usage?.filters.length || 0) > 0,
-    hasRealtimeCharge: subscriptionLoading || charges.length > 0,
-    // The served window still lags the requested one while the new scale loads.
-    isSwitchingScale:
-      !!usage && new Date(usage.fromDatetime).getTime() !== new Date(fromDatetime).getTime(),
+    hasRealtimeCharge: isEnabled && (subscriptionLoading || charges.length > 0),
+    // New variables (scale or charge) clear `data` until they are served, while
+    // a poll keeps it. The served window cannot be compared to the requested one
+    // instead: the API snaps it to the customer's hour walls, which differ from
+    // the browser's under a half-hour offset.
+    isSwitchingScale: !data && !!previousData,
     timezone,
     unitLabel: translate(
       usage?.aggregationType === AggregationTypeEnum.CountAgg
@@ -316,16 +376,22 @@ export const RealtimeUsageControls = ({
   )
 }
 
-export const RealtimeUsageEmpty = ({ testId }: { testId: string }): JSX.Element => {
+export const RealtimeUsageEmpty = ({
+  testId,
+  hasError,
+}: {
+  testId: string
+  hasError: boolean
+}): JSX.Element => {
   const { translate } = useInternationalization()
 
   return (
     <div className="flex flex-col gap-1 py-8 text-center" data-test={testId}>
       <Typography variant="subhead2" color="grey700">
-        {translate('text_1787607502687zw3kwy13xlm')}
+        {translate(hasError ? 'text_62d7ffcb1c57d7e6d15bdce3' : 'text_1787607502687zw3kwy13xlm')}
       </Typography>
       <Typography variant="caption" color="grey600">
-        {translate('text_17876075026878y6buigdffk')}
+        {translate(hasError ? 'text_62d7ffcb1c57d7e6d15bdce5' : 'text_17876075026878y6buigdffk')}
       </Typography>
     </div>
   )

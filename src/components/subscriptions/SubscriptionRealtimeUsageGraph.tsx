@@ -12,11 +12,16 @@ import {
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import {
+  DEFAULT_SERIES_KEY,
+  filterLabelOf,
   formatUnits,
+  OTHER_SERIES_KEY,
   prefersReducedMotion,
+  RealtimeUsage,
   RealtimeUsageControls,
   RealtimeUsageEmpty,
   RealtimeUsageHeader,
+  seriesKeyOf,
   useRealtimeUsage,
   WINDOWS,
 } from '~/components/subscriptions/realtimeUsage'
@@ -32,9 +37,8 @@ export const REALTIME_USAGE_AUTO_REFRESH_TEST_ID = 'realtime-usage-auto-refresh'
 export const REALTIME_USAGE_TIME_RANGE_TEST_ID = 'realtime-usage-time-range'
 export const REALTIME_USAGE_CHART_TEST_ID = 'realtime-usage-chart'
 
-// Categorical series colors in a fixed order: the color follows the charge
-// filter, never its rank, so hiding or reordering one never repaints the
-// others. Validated for colorblind separation and contrast on white.
+// Categorical series colors, handed out in the order the API ranks the filters
+// (biggest first). Validated for colorblind separation and contrast on white.
 const FILTER_COLORS = ['#006CFA', '#F06700', '#5D48D5', '#008559', '#2FC1FE']
 // The charge default (events matching no filter) and the folded tail are
 // deliberately grey: they are the absence of a filter, not another one.
@@ -42,8 +46,6 @@ const DEFAULT_FILTER_COLOR = theme.palette.grey[500]
 const OTHER_FILTER_COLOR = theme.palette.grey[400]
 
 const MAX_VISIBLE_FILTERS = 5
-const DEFAULT_KEY = 'default'
-const OTHER_KEY = 'other'
 const CURRENT_HOUR_TWEEN_DURATION = 250
 const SCALE_ANIMATION_DURATION = 450
 
@@ -95,7 +97,7 @@ export const SubscriptionRealtimeUsageGraph = ({
     }
 
     if (!state.hasUsage) {
-      return <RealtimeUsageEmpty testId={REALTIME_USAGE_EMPTY_TEST_ID} />
+      return <RealtimeUsageEmpty testId={REALTIME_USAGE_EMPTY_TEST_ID} hasError={state.hasError} />
     }
 
     return (
@@ -209,41 +211,43 @@ const findPoint = (points: HourPoint[], point: HourPoint | undefined): HourPoint
 const totalOf = (point: HourPoint, series: Series[]): number =>
   series.reduce((sum, serie) => sum + seriesValue(point, serie.key), 0)
 
-// Top filters keep one color each; everything past the cap folds into a single
-// grey "Other" series rather than growing the palette.
+// Top filters keep one color each; everything past the cap, including the
+// series the API already folded, goes into a single grey "Other" series rather
+// than growing the palette.
 const buildSeriesAndPoints = (
-  filters: { chargeFilterId?: string | null; invoiceDisplayName?: string | null }[] | undefined,
-  hours:
-    { time: string; breakdown: { chargeFilterId?: string | null; units: number }[] }[] | undefined,
+  filters: RealtimeUsage['filters'] | undefined,
+  hours: RealtimeUsage['hours'] | undefined,
   translate: TranslateFunc,
 ): { series: Series[]; points: HourPoint[] } => {
   if (!filters?.length || !hours?.length) {
     return { series: [], points: [] }
   }
 
-  const visible = filters.slice(0, MAX_VISIBLE_FILTERS)
-  const folded = filters.slice(MAX_VISIBLE_FILTERS)
+  const visible = filters.slice(0, MAX_VISIBLE_FILTERS).filter((filter) => !filter.other)
+  const visibleKeys = new Set(visible.map(seriesKeyOf))
   let colorIndex = 0
 
   const series: Series[] = visible.map((filter) => {
-    const isDefault = !filter.chargeFilterId
+    const key = seriesKeyOf(filter)
 
     return {
-      key: filter.chargeFilterId || DEFAULT_KEY,
-      label: filter.invoiceDisplayName || translate('text_17876075026872bdz1e5aeep'),
-      color: isDefault ? DEFAULT_FILTER_COLOR : FILTER_COLORS[colorIndex++ % FILTER_COLORS.length],
+      key,
+      label: filterLabelOf(filter, translate),
+      color:
+        key === DEFAULT_SERIES_KEY
+          ? DEFAULT_FILTER_COLOR
+          : FILTER_COLORS[colorIndex++ % FILTER_COLORS.length],
     }
   })
 
-  if (folded.length > 0) {
+  if (visible.length < filters.length) {
     series.push({
-      key: OTHER_KEY,
+      key: OTHER_SERIES_KEY,
       label: translate('text_1787607502687pyo0kxh1flz'),
       color: OTHER_FILTER_COLOR,
     })
   }
 
-  const foldedIds = new Set(folded.map((filter) => filter.chargeFilterId))
   const lastIndex = hours.length - 1
 
   const points: HourPoint[] = hours.map((hour, index) => {
@@ -254,9 +258,8 @@ const buildSeriesAndPoints = (
     })
 
     hour.breakdown.forEach((breakdown) => {
-      const key = foldedIds.has(breakdown.chargeFilterId)
-        ? OTHER_KEY
-        : breakdown.chargeFilterId || DEFAULT_KEY
+      const breakdownKey = seriesKeyOf(breakdown)
+      const key = visibleKeys.has(breakdownKey) ? breakdownKey : OTHER_SERIES_KEY
 
       point[key] = seriesValue(point, key) + breakdown.units
     })
