@@ -81,7 +81,7 @@
     "cssnano": "9.1.1",
     "cypress": "15.21.1",
     "cypress-vite": "1.10.2",
-    "dotenv": "17.4.2",
+    "dotenv": "18.0.4",
     "eslint": "9.39.5",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
