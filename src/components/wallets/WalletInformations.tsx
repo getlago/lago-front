@@ -14,6 +14,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 import { tw } from '~/styles/utils'
 
 export const WALLET_INFORMATIONS_CONTAINER_TEST_ID = 'wallet-informations-container'
@@ -36,6 +37,7 @@ const SectionTitle = ({ title, subtitle }: { title: string; subtitle: string }) 
 
 const WalletInformations = ({ wallet }: WalletInformationsProps) => {
   const { translate } = useInternationalization()
+  const { getBillingObjectPaymentTermCopy } = usePaymentTerm()
   const { intlFormatDateTimeOrgaTZ, organization: { defaultCurrency } = {} } =
     useOrganizationInfos()
 
@@ -154,6 +156,13 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
             {
               label: translate('text_17822197712865r9iwe3lgel'),
               value: wallet?.purchaseOrderNumber || '-',
+            },
+            {
+              label: translate('text_1778660219891rv2r5gjmklq'),
+              value: getBillingObjectPaymentTermCopy({
+                ownTerm: wallet?.paymentTerm,
+                customer: wallet?.customer,
+              }),
             },
           ]}
         />

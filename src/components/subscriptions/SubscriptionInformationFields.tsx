@@ -6,7 +6,6 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Status } from '~/components/designSystem/Status'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { getInheritedFromCustomer } from '~/components/paymentTerms/utils'
 import { getBillingTimeEnumTranslationKey } from '~/core/constants/form'
 import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -292,15 +291,7 @@ export const SubscriptionInformationFields = ({
 }) => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const { formatPaymentTerm } = usePaymentTerm()
-
-  const getPaymentTermCopy = (): string => {
-    if (subscription?.paymentTerm) return formatPaymentTerm(subscription.paymentTerm)
-
-    const inheritedFrom = getInheritedFromCustomer(subscription?.customer)
-
-    return translate(inheritedFrom.labelKey, { value: formatPaymentTerm(inheritedFrom.term) })
-  }
+  const { getBillingObjectPaymentTermCopy } = usePaymentTerm()
 
   const paymentActivationRule = getPaymentActivationRule(subscription)
   const customerId = subscription?.customer?.id ?? ''
@@ -345,7 +336,10 @@ export const SubscriptionInformationFields = ({
           subscription,
           translate,
           intlFormatDateTimeOrgaTZ,
-          paymentTermCopy: getPaymentTermCopy(),
+          paymentTermCopy: getBillingObjectPaymentTermCopy({
+            ownTerm: subscription?.paymentTerm,
+            customer: subscription?.customer,
+          }),
         })}
       />
 
