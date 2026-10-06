@@ -114,6 +114,22 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for deleted c
           class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
           data-test="caption"
         >
+          Payment term
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+          data-test="body"
+        >
+          Net 30 days
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          data-test="caption"
+        >
           Invoice status
         </div>
         <div
@@ -333,6 +349,22 @@ United States of America
           >
             Feb 15, 2024 UTC-8:00
           </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Payment term
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+          data-test="body"
+        >
+          Net 30 days
         </div>
       </div>
       <div
@@ -565,6 +597,22 @@ United States of America
           class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
           data-test="caption"
         >
+          Payment term
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+          data-test="body"
+        >
+          Net 30 days
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          data-test="caption"
+        >
           Invoice status
         </div>
         <div
@@ -700,6 +748,22 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for invoice w
           >
             Feb 15, 2024 UTC±0:00
           </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Payment term
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+          data-test="body"
+        >
+          Net 30 days
         </div>
       </div>
       <div
@@ -928,6 +992,22 @@ United States of America
           >
             Feb 15, 2024 UTC-8:00
           </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Payment term
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+          data-test="body"
+        >
+          Net 30 days
         </div>
       </div>
       <div
@@ -1237,6 +1317,22 @@ United States of America
           class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
           data-test="caption"
         >
+          Payment term
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+          data-test="body"
+        >
+          Net 30 days
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          data-test="caption"
+        >
           Invoice status
         </div>
         <div
@@ -1455,6 +1551,22 @@ United States of America
           >
             Feb 15, 2024 UTC-5:00
           </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Payment term
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+          data-test="body"
+        >
+          Net 30 days
         </div>
       </div>
       <div
