@@ -20,7 +20,7 @@ import {
   SubscriptionForCreateFeeDrawerFragment,
   useGetInvoiceDetailsForCreateFeeDrawerQuery,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
 import { EDIT_FEE_DEFAULT_VALUES } from './validationSchema'
@@ -51,6 +51,15 @@ const isChargeModelUnitAdjustmentDisabled = (
     (chargeModel === ALL_CHARGE_MODELS.Graduated && prorated)
   )
 }
+
+// `form.AppField` types `meta.errors` as never[] when no field-level validator is declared,
+// though the form schema still fills it at runtime.
+const fieldErrorMessage = (errors: unknown[], translate: TranslateFunc): string =>
+  (errors as Array<{ message?: string } | undefined>)
+    .map((error) => error?.message)
+    .filter((message): message is string => !!message)
+    .map((message) => translate(message))
+    .join('\n')
 
 const calculateTotalAmount = (
   units?: number | string | null,
@@ -317,7 +326,6 @@ export const EditFeeDrawerContent = withForm({
                 currency={currency}
                 beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
                 placeholder={translate('text_62a0b7107afa2700a65ef700')}
-                errorOverride={false}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
@@ -369,7 +377,6 @@ export const EditFeeDrawerContent = withForm({
                   label={translate('text_65771fa3f4ab9a00720726ce')}
                   beforeChangeFormatter={['positiveNumber', 'decimal']}
                   placeholder={translate('text_62a0b7107afa2700a65ef700')}
-                  errorOverride={false}
                 />
               )}
             </form.AppField>
@@ -404,37 +411,39 @@ export const EditFeeDrawerContent = withForm({
             )}
           </form.AppField>
 
-          <ComboBox
-            label={translate('text_65a6b4e2cb38d9b70ec53d49')}
-            name="adjustmentType"
-            data-test={EDIT_FEE_DRAWER_ADJUSTMENT_TYPE_COMBOBOX_TEST_ID}
-            placeholder={translate('text_65a94d976d7a9700716590d9')}
-            data={[
-              {
-                label: translate('text_65a6b4e2cb38d9b70ec53d83'),
-                value: AdjustedFeeTypeEnum.AdjustedAmount,
-              },
-              {
-                label: translate('text_6304e74aab6dbc18d615f3a2'),
-                value: AdjustedFeeTypeEnum.AdjustedUnits,
-                disabled: isUnitAdjustmentTypeDisabled,
-              },
-            ]}
-            value={adjustmentType}
-            onChange={(newValue) => {
-              form.setFieldValue(
-                'adjustmentType',
-                (newValue || undefined) as AdjustedFeeTypeEnum | undefined,
-              )
+          <form.AppField name="adjustmentType">
+            {(field) => (
+              <ComboBox
+                label={translate('text_65a6b4e2cb38d9b70ec53d49')}
+                name={field.name}
+                data-test={EDIT_FEE_DRAWER_ADJUSTMENT_TYPE_COMBOBOX_TEST_ID}
+                placeholder={translate('text_65a94d976d7a9700716590d9')}
+                data={[
+                  {
+                    label: translate('text_65a6b4e2cb38d9b70ec53d83'),
+                    value: AdjustedFeeTypeEnum.AdjustedAmount,
+                  },
+                  {
+                    label: translate('text_6304e74aab6dbc18d615f3a2'),
+                    value: AdjustedFeeTypeEnum.AdjustedUnits,
+                    disabled: isUnitAdjustmentTypeDisabled,
+                  },
+                ]}
+                value={field.state.value}
+                error={fieldErrorMessage(field.state.meta.errors, translate)}
+                onChange={(newValue) => {
+                  field.handleChange((newValue || undefined) as AdjustedFeeTypeEnum | undefined)
 
-              // Regenerate seeds these from the fee being re-added, so clearing them on a type
-              // change would throw away the amounts the user came in with.
-              if (!isRegenerateMode) {
-                form.setFieldValue('unitPreciseAmount', '')
-                form.setFieldValue('units', '')
-              }
-            }}
-          />
+                  // Regenerate seeds these from the fee being re-added, so clearing them on a
+                  // type change would throw away the amounts the user came in with.
+                  if (!isRegenerateMode) {
+                    form.setFieldValue('unitPreciseAmount', '')
+                    form.setFieldValue('units', '')
+                  }
+                }}
+              />
+            )}
+          </form.AppField>
 
           {renderAdjustmentFields()}
         </>

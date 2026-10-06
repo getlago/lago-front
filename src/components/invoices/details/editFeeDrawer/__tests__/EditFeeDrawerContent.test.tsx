@@ -315,6 +315,48 @@ describe('EditFeeDrawerContent', () => {
     })
   })
 
+  describe('GIVEN the add flow is submitted with the adjustment left incomplete', () => {
+    const submitIncompleteAdjustment = async (
+      user: ReturnType<typeof userEvent.setup>,
+    ): Promise<void> => {
+      render(<Harness />)
+
+      await pickOption(
+        user,
+        EDIT_FEE_DRAWER_CHARGE_COMBOBOX_TEST_ID,
+        CHARGE_WITHOUT_FILTER.invoiceDisplayName,
+      )
+
+      await act(async () => {
+        capturedForm?.setFieldValue('adjustmentType', AdjustedFeeTypeEnum.AdjustedAmount)
+      })
+
+      await user.click(screen.getByText(SUBMIT_BUTTON_LABEL))
+    }
+
+    describe('WHEN the required amounts are empty', () => {
+      // Submit-first validation means the button simply stops working on the first attempt;
+      // without a visible message there is nothing telling the user which input is missing.
+      it('THEN should show an error on each required input', async () => {
+        const user = userEvent.setup()
+
+        await submitIncompleteAdjustment(user)
+
+        await waitFor(() => {
+          expect(screen.getAllByTestId('text-field-error').length).toBeGreaterThanOrEqual(2)
+        })
+      })
+
+      it('THEN should not submit', async () => {
+        const user = userEvent.setup()
+
+        await submitIncompleteAdjustment(user)
+
+        expect(mockSubmit).not.toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('GIVEN an adjustment was completed for a charge without filters', () => {
     const completeUnfilteredCharge = async (
       user: ReturnType<typeof userEvent.setup>,

@@ -6,6 +6,7 @@ import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import {
   AdjustedFeeTypeEnum,
   Charge,
@@ -199,6 +200,9 @@ export const useEditFeeDrawer = (): { openDrawer: OpenEditFeeDrawer } => {
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: editFeeValidationSchema,
+    },
+    onSubmitInvalid({ formApi }) {
+      scrollToFirstInputError(EDIT_FEE_FORM_ID, formApi.state.errorMap.onDynamic || {})
     },
     onSubmit: async ({ value: { adjustmentType, unitPreciseAmount, units, ...values } }) => {
       const openParams = openParamsRef.current
