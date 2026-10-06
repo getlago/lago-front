@@ -37,9 +37,34 @@ jest.mock('../../InvoiceDetailsTable', () => ({
   InvoiceTableSection: ({ children }: { children: ReactNode }) => <>{children}</>,
 }))
 
-jest.mock('../../InvoiceDetailsTableBodyLine', () => ({
-  InvoiceDetailsTableBodyLine: () => null,
+const mockViewFeeDetailsOpen = jest.fn()
+
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: mockViewFeeDetailsOpen, close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
 }))
+
+// Stands in for the real preview row, reduced to the one thing that broke: reaching the
+// fee-details drawer through context from inside the drawer body.
+jest.mock('../../InvoiceDetailsTableBodyLine', () => {
+  const { useViewFeeDetailsDrawer } = jest.requireActual('../../ViewFeeDetailsDrawer')
+
+  return {
+    InvoiceDetailsTableBodyLine: ({ fee }: { fee?: { id: string } }) => {
+      const viewFeeDetails = useViewFeeDetailsDrawer()
+
+      return (
+        <button
+          type="button"
+          data-test={PREVIEW_ROW_TEST_ID}
+          onClick={() => fee && viewFeeDetails.open(fee)}
+        >
+          preview row
+        </button>
+      )
+    },
+  }
+})
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key, locale: 'en' }),
@@ -98,6 +123,8 @@ const SUBSCRIPTION = {
     fixedCharges: [],
   },
 } as unknown as SubscriptionForCreateFeeDrawerFragment
+
+const PREVIEW_ROW_TEST_ID = 'edit-fee-drawer-preview-row-stub'
 
 const mockSubmit = jest.fn()
 
@@ -197,6 +224,32 @@ describe('EditFeeDrawerContent', () => {
         expect(
           screen.getByTestId(EDIT_FEE_DRAWER_ADJUSTMENT_TYPE_COMBOBOX_TEST_ID),
         ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the preview row is clicked', () => {
+      // NiceModal mounts the body at the app root, so the page's ViewFeeDetailsDrawerProvider
+      // no longer reaches it: without the body providing its own, the row kept its pointer
+      // cursor while silently doing nothing.
+      it('THEN should open the fee details drawer', async () => {
+        const user = userEvent.setup()
+
+        render(<Harness fee={fee} />)
+        await user.click(screen.getByTestId(PREVIEW_ROW_TEST_ID))
+
+        expect(mockViewFeeDetailsOpen).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the drawer was opened from the regenerate flow', () => {
+      // That flow has no provider by design, and its preview rows must stay inert.
+      it('THEN should leave the preview row inert', async () => {
+        const user = userEvent.setup()
+
+        render(<Harness fee={fee} isRegenerateMode />)
+        await user.click(screen.getByTestId(PREVIEW_ROW_TEST_ID))
+
+        expect(mockViewFeeDetailsOpen).not.toHaveBeenCalled()
       })
     })
   })

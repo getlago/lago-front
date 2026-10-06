@@ -37,6 +37,7 @@ import {
   getChargesComboboxDataFromInvoiceSubscription,
   getChargesFiltersComboboxDataFromInvoiceSubscription,
 } from '../utils'
+import { ViewFeeDetailsDrawerProvider } from '../ViewFeeDetailsDrawer'
 
 const isChargeModelUnitAdjustmentDisabled = (
   chargeModel?: ChargeModelEnum | FixedChargeChargeModelEnum,
@@ -234,7 +235,7 @@ export const EditFeeDrawerContent = withForm({
     const renderFeePreview = (): JSX.Element | null => {
       if (!fee) return null
 
-      return (
+      const preview = (
         <DrawerLayout.Section>
           <DrawerLayout.SectionTitle
             title={translate('text_65a6b4e2cb38d9b70ec53c35')}
@@ -287,6 +288,12 @@ export const EditFeeDrawerContent = withForm({
           </InvoiceTableSection>
         </DrawerLayout.Section>
       )
+
+      // NiceModal mounts this body at the app root, outside the page's provider; the regenerate
+      // flow has none by design, so its preview row must not open the details drawer.
+      if (isRegenerateMode) return preview
+
+      return <ViewFeeDetailsDrawerProvider>{preview}</ViewFeeDetailsDrawerProvider>
     }
 
     const renderAdjustmentAmountFields = (): JSX.Element | null => {
