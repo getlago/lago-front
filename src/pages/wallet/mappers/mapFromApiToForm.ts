@@ -1,3 +1,4 @@
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
@@ -65,6 +66,7 @@ export const mapFromApiToForm = ({
     paymentMethodType: wallet?.paymentMethodType,
     paymentMethodId: wallet?.paymentMethod?.id,
   },
+  paymentTerm: paymentTermFormValuesFromTerm(wallet?.paymentTerm, true),
   invoiceCustomSection: {
     invoiceCustomSections: wallet?.selectedInvoiceCustomSections || [],
     skipInvoiceCustomSections: wallet?.skipInvoiceCustomSections || false,

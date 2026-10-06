@@ -1,3 +1,4 @@
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { deserializeActivationRules } from '~/core/serializers'
 import { SubscriptionFormValues } from '~/formValidation/subscriptionFormSchema'
@@ -36,6 +37,7 @@ export const buildSubscriptionDefaultValues = (
     },
     consolidateInvoice: subscription?.consolidateInvoice ?? true,
     purchaseOrderNumber: subscription?.purchaseOrderNumber || undefined,
+    paymentTerm: paymentTermFormValuesFromTerm(subscription?.paymentTerm, true),
     ...activationRuleValues,
   }
 }

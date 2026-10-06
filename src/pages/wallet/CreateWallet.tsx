@@ -66,6 +66,12 @@ gql`
     paymentMethod {
       id
     }
+    paymentTerm {
+      termType
+      days
+      dayOfMonth
+      monthOffset
+    }
     skipInvoiceCustomSections
     selectedInvoiceCustomSections {
       id
@@ -117,8 +123,20 @@ gql`
       externalId
       currency
       timezone
+      paymentTerm {
+        termType
+        days
+        dayOfMonth
+        monthOffset
+      }
       billingEntity {
         id
+        paymentTerm {
+          termType
+          days
+          dayOfMonth
+          monthOffset
+        }
       }
     }
   }

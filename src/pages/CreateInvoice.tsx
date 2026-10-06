@@ -16,6 +16,8 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { InvoiceTaxesDisplay, TaxMapType } from '~/components/invoices/InvoiceTaxesDisplay'
 import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
+import { PaymentTermFormContent } from '~/components/paymentTerms/PaymentTermFormContent'
+import { getInheritedFromCustomer } from '~/components/paymentTerms/utils'
 import { PurchaseOrder } from '~/components/purchaseOrder/PO'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
@@ -117,9 +119,21 @@ gql`
       state
       zipcode
       accountType
+      paymentTerm {
+        termType
+        days
+        dayOfMonth
+        monthOffset
+      }
       billingEntity {
         id
         code
+        paymentTerm {
+          termType
+          days
+          dayOfMonth
+          monthOffset
+        }
       }
       taxes {
         id
@@ -690,6 +704,24 @@ const CreateInvoice = () => {
                     </form.AppField>
                   </div>
                 </div>
+
+                {!voidedInvoiceId && (
+                  <div className="flex w-120 flex-col gap-4">
+                    <div className="flex flex-col gap-1">
+                      <Typography variant="captionHl" color="grey700">
+                        {translate('text_1778660219891rv2r5gjmklq')}
+                      </Typography>
+                      <Typography variant="caption" color="grey600">
+                        {translate('text_1787603382163te0ngv2t7cv')}
+                      </Typography>
+                    </div>
+                    <PaymentTermFormContent
+                      form={form}
+                      fields="paymentTerm"
+                      inheritedFrom={getInheritedFromCustomer(customer)}
+                    />
+                  </div>
+                )}
 
                 <div className={tw('flex gap-4', customerIsPartner && 'flex-row-reverse')}>
                   <div className="flex-1">

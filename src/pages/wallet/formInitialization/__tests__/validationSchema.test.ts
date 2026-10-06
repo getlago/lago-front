@@ -1,8 +1,10 @@
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
 import { dateErrorCodes, UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
 import { DEFAULT_ZOD_ERROR_MESSAGE } from '~/formValidation/initializeZod'
 import { MetadataErrorsEnum } from '~/formValidation/metadataSchema'
 import {
   CurrencyEnum,
+  PaymentTermTypeEnum,
   RecurringTransactionIntervalEnum,
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
@@ -30,6 +32,7 @@ const baseForm = (overrides: Partial<TWalletDataForm> = {}): TWalletDataForm => 
   ignorePaidTopUpLimitsOnCreation: false,
   priority: 50,
   paymentMethod: { paymentMethodType: undefined, paymentMethodId: undefined },
+  paymentTerm: paymentTermFormValuesFromTerm(null, true),
   invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
   ...overrides,
 })
@@ -72,6 +75,20 @@ describe('walletFormValidationSchema', () => {
       const result = walletFormValidationSchema.safeParse(baseForm({ rateAmount: '' }))
 
       expect(issuePaths(result)).toContain('rateAmount')
+    })
+
+    it('reports an invalid payment term under paymentTerm', () => {
+      const result = walletFormValidationSchema.safeParse(
+        baseForm({
+          paymentTerm: {
+            ...paymentTermFormValuesFromTerm(null, true),
+            termType: PaymentTermTypeEnum.DayOfMonth,
+            dayOfMonth: 32,
+          },
+        }),
+      )
+
+      expect(issuePaths(result)).toContain('paymentTerm.dayOfMonth')
     })
 
     it('requires code', () => {

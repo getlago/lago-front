@@ -1,7 +1,10 @@
 import { screen, within } from '@testing-library/react'
 
+import { getInheritedFromCustomer } from '~/components/paymentTerms/utils'
+import { PAYMENT_TERM_VALUE_KEYS } from '~/core/constants/paymentTerm'
 import {
   BillingTimeEnum,
+  PaymentTermTypeEnum,
   StatusTypeEnum,
   SubscriptionInformationFieldsFragment,
 } from '~/generated/graphql'
@@ -213,5 +216,33 @@ describe('SubscriptionInformationFields', () => {
     )
 
     expect(screen.getByText('Acme text_1764874328964clrgkmh7i9h')).toBeInTheDocument()
+  })
+
+  describe('GIVEN a payment term', () => {
+    const PAYMENT_TERM_LABEL = 'text_1778660219891rv2r5gjmklq'
+
+    it('shows the subscription own term', () => {
+      render(
+        <SubscriptionInformationFields
+          subscription={baseSubscription({
+            paymentTerm: { termType: PaymentTermTypeEnum.EndOfMonth },
+          })}
+        />,
+      )
+
+      expect(
+        getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(
+          PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.EndOfMonth],
+        ),
+      ).toBeInTheDocument()
+    })
+
+    it('shows the customer term marked as inherited when the subscription has none', () => {
+      render(<SubscriptionInformationFields subscription={baseSubscription()} />)
+
+      expect(
+        getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(getInheritedFromCustomer(null).labelKey),
+      ).toBeInTheDocument()
+    })
   })
 })

@@ -14,6 +14,10 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { BasicComboBoxData, ComboboxItem } from '~/components/form'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import {
+  getInheritedFromCustomer,
+  paymentTermInputFromFormValues,
+} from '~/components/paymentTerms/utils'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
@@ -89,8 +93,20 @@ gql`
       name
       displayName
       externalId
+      paymentTerm {
+        termType
+        days
+        dayOfMonth
+        monthOffset
+      }
       billingEntity {
         id
+        paymentTerm {
+          termType
+          days
+          dayOfMonth
+          monthOffset
+        }
       }
       paymentProvider
     }
@@ -154,6 +170,7 @@ const CreateSubscription = () => {
         activationRuleTimeoutHours,
         activationRuleType,
         invoiceCustomSection,
+        paymentTerm,
         ...restValues
       } = value
 
@@ -165,6 +182,7 @@ const CreateSubscription = () => {
         }),
         invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
         purchaseOrderNumber: normalizePurchaseOrderNumber(value.purchaseOrderNumber),
+        paymentTerm: paymentTermInputFromFormValues(paymentTerm),
       }
       const rootElement = document.getElementById('root')
       const errorsString = await onSave(
@@ -571,6 +589,7 @@ const CreateSubscription = () => {
                         setShouldDisplaySubscriptionName={setShouldDisplaySubscriptionName}
                         selectedPlanInterval={selectedPlan?.interval ?? undefined}
                         customerExternalId={customer?.externalId}
+                        paymentTermInheritedFrom={getInheritedFromCustomer(customer)}
                       />
 
                       {/* Section: Invoicing */}

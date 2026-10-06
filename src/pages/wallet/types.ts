@@ -1,5 +1,6 @@
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
+import { PaymentTermFormValues } from '~/components/paymentTerms/types'
 import {
   BillableMetricForWalletScopeSectionFragment,
   CreateCustomerWalletInput,
@@ -21,9 +22,12 @@ type TWalletRecurringRuleInput = NonNullable<
 
 export type TWalletDataForm = Omit<
   CreateCustomerWalletInput,
-  'customerId' | 'name' | 'code' | 'recurringTransactionRules'
+  'customerId' | 'name' | 'code' | 'recurringTransactionRules' | 'paymentTerm'
 > &
-  Omit<UpdateCustomerWalletInput, 'id' | 'name' | 'code' | 'recurringTransactionRules'> & {
+  Omit<
+    UpdateCustomerWalletInput,
+    'id' | 'name' | 'code' | 'recurringTransactionRules' | 'paymentTerm'
+  > & {
     // Always strings in the form ('' when unset) so they stay compatible
     // with NameAndCodeGroup's field mapping.
     name: string
@@ -32,6 +36,7 @@ export type TWalletDataForm = Omit<
       billableMetrics?: WalletScopeBillableMetric[] | null
     }
     paymentMethod?: SelectedPaymentMethod
+    paymentTerm: PaymentTermFormValues
     invoiceCustomSection?: InvoiceCustomSectionInput
     // Rules carry the FE-shaped payment/invoicing values at runtime
     // (transformRecurringTransactionRule), not the raw GQL reference inputs

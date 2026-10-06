@@ -1,6 +1,12 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 
-import { PaymentMethodTypeEnum, WalletDetailsFragment } from '~/generated/graphql'
+import { getInheritedFromCustomer } from '~/components/paymentTerms/utils'
+import { PAYMENT_TERM_VALUE_KEYS } from '~/core/constants/paymentTerm'
+import {
+  PaymentMethodTypeEnum,
+  PaymentTermTypeEnum,
+  WalletDetailsFragment,
+} from '~/generated/graphql'
 import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
 import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 import { render } from '~/test-utils'
@@ -213,6 +219,41 @@ describe('WalletInformations', () => {
         )
 
         expect(screen.getByText('Footer A')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a payment term', () => {
+    const PAYMENT_TERM_LABEL = 'text_1778660219891rv2r5gjmklq'
+
+    const getValueUnderLabel = (labelKey: string) =>
+      within(screen.getByText(labelKey).parentElement as HTMLElement)
+
+    describe('WHEN the wallet has its own term', () => {
+      it('THEN shows that term', () => {
+        render(
+          <WalletInformations
+            wallet={createMockWallet({
+              paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 15 },
+            })}
+          />,
+        )
+
+        expect(
+          getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(
+            PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net],
+          ),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the wallet has no term', () => {
+      it('THEN shows the customer term marked as inherited', () => {
+        render(<WalletInformations wallet={createMockWallet()} />)
+
+        expect(
+          getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(getInheritedFromCustomer(null).labelKey),
+        ).toBeInTheDocument()
       })
     })
   })

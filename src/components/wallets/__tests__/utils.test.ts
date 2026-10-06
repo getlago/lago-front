@@ -1,5 +1,6 @@
 import { DateTime, Settings } from 'luxon'
 
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
 import {
   getDateRef,
   getRecurringStartDate,
@@ -105,6 +106,7 @@ describe('Wallet Utils', () => {
       paidCredits: '100',
       rateAmount: '1',
       priority: 1,
+      paymentTerm: paymentTermFormValuesFromTerm(null, true),
       recurringTransactionRules: [
         {
           trigger: RecurringTransactionTriggerEnum.Threshold,

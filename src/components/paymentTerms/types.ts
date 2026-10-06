@@ -27,6 +27,14 @@ export type PaymentTermFormValues = {
  * reveals a usable value straight away. Values belonging to a type the user moved away
  * from are simply not sent: `buildPaymentTermInput` emits only the chosen type's fields.
  */
+/** Binds `PaymentTermFormContent` to a form whose values are the term itself. */
+export const PAYMENT_TERM_FORM_TOP_LEVEL_FIELDS = {
+  termType: 'termType',
+  days: 'days',
+  dayOfMonth: 'dayOfMonth',
+  monthOffset: 'monthOffset',
+} as const
+
 export const PAYMENT_TERM_FORM_DEFAULT_VALUES: PaymentTermFormValues = {
   termType: undefined,
   days: 0,
