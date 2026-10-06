@@ -81,6 +81,13 @@ const RICH_TEXT_EDITOR_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, 
   tab: 'rich-text-editor',
 })
 const SHADCN_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'shadcn' })
+const SHADCN_TYPOGRAPHY_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, {
+  tab: 'shadcn-typography',
+})
+const SHADCN_BORDER_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, {
+  tab: 'shadcn-border',
+})
+const SHADCN_COLOR_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'shadcn-color' })
 
 const Container = ({ children }: { children: React.ReactNode }) => (
   <div className="px-12 pb-20 pt-8">{children}</div>
@@ -2263,13 +2270,30 @@ const DesignSystem = () => {
             component: <EditorTest />,
           },
           {
-            title: 'Shadcn',
-            link: SHADCN_TAB_URL,
+            title: 'Shadcn-typography',
+            link: SHADCN_TYPOGRAPHY_TAB_URL,
+            match: [SHADCN_TYPOGRAPHY_TAB_URL, SHADCN_TAB_URL],
+            component: (
+              <Container>
+                <TypographyTest />
+              </Container>
+            ),
+          },
+          {
+            title: 'Shadcn-border',
+            link: SHADCN_BORDER_TAB_URL,
+            component: (
+              <Container>
+                <BorderTest />
+              </Container>
+            ),
+          },
+          {
+            title: 'Shadcn-color',
+            link: SHADCN_COLOR_TAB_URL,
             component: (
               <Container>
                 <ColorTest />
-                <BorderTest />
-                <TypographyTest />
               </Container>
             ),
           },

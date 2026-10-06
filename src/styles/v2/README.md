@@ -50,7 +50,7 @@ import { ColorTheme } from '~/components/ui/color-theme'
 
 Nested boundaries can use a different mode. For React portals, wrap the portalled content in `ColorThemePortal` from the same module so it inherits the nearest React theme context. Use `asChild` on either helper to apply the theme to its single child element without adding a wrapper. Without `asChild`, the helper renders a `div`. Custom child components must pass received properties and refs to their underlying element. Set the theme through the helper rather than a conflicting `data-color-theme` on its child.
 
-Inspect the primitive and semantic color tables at `/design-system/shadcn` in development or QA.
+Inspect the primitive and semantic color tables at `/design-system/shadcn-color` in development or QA.
 
 ## Updating tokens
 
