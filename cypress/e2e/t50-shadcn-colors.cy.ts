@@ -1,5 +1,5 @@
 const foundation = '[aria-label="Color foundation"]'
-const preview = `${foundation} > [data-color-theme]`
+const preview = `${foundation}[data-color-theme]`
 
 const visitColors = (): void => {
   cy.intercept('GET', '**/env-config.js', (req) => {

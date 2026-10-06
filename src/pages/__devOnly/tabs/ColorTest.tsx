@@ -15,7 +15,7 @@ export const ColorTest = (): JSX.Element => {
   })
 
   useEffect(() => {
-    const boundary = previewRef.current?.querySelector('[data-color-theme]')
+    const boundary = previewRef.current
 
     if (!boundary) return
     const computed = getComputedStyle(boundary)
@@ -83,10 +83,11 @@ export const ColorTest = (): JSX.Element => {
   ))
 
   return (
-    <section ref={previewRef} aria-label="Color foundation" className="mb-12">
-      <ColorTheme
-        mode={mode}
-        className="v2-text-body space-y-8 rounded-lg border border-border-subtle bg-canvas p-6 text-text-default"
+    <ColorTheme mode={mode} asChild>
+      <section
+        ref={previewRef}
+        aria-label="Color foundation"
+        className="v2-text-body mb-12 space-y-8 rounded-lg border border-border-subtle bg-canvas p-6 text-text-default"
       >
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -150,7 +151,7 @@ export const ColorTest = (): JSX.Element => {
             </table>
           </div>
         </section>
-      </ColorTheme>
-    </section>
+      </section>
+    </ColorTheme>
   )
 }

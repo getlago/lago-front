@@ -43,12 +43,12 @@ Semantic tokens default to light mode. Use `ColorTheme` to set a local boundary 
 ```tsx
 import { ColorTheme } from '~/components/ui/color-theme'
 
-;<ColorTheme mode="dark">
+;<ColorTheme mode="dark" asChild>
   <section className="bg-surface text-text-default">Content</section>
 </ColorTheme>
 ```
 
-Nested boundaries can use a different mode. For React portals, wrap the portalled content in `ColorThemePortal` from the same module so it inherits the nearest React theme context. Both helpers currently render a `div`; account for that wrapper in layouts and markup.
+Nested boundaries can use a different mode. For React portals, wrap the portalled content in `ColorThemePortal` from the same module so it inherits the nearest React theme context. Use `asChild` on either helper to apply the theme to its single child element without adding a wrapper. Without `asChild`, the helper renders a `div`. Custom child components must pass received properties and refs to their underlying element. Set the theme through the helper rather than a conflicting `data-color-theme` on its child.
 
 Inspect the primitive and semantic color tables at `/design-system/shadcn` in development or QA.
 
