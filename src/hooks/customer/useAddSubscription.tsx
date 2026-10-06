@@ -41,6 +41,12 @@ gql`
       endingAt
       name
       purchaseOrderNumber
+      paymentTerm {
+        termType
+        days
+        dayOfMonth
+        monthOffset
+      }
       externalId
       activationRules {
         id
@@ -88,6 +94,12 @@ gql`
       endingAt
       name
       purchaseOrderNumber
+      paymentTerm {
+        termType
+        days
+        dayOfMonth
+        monthOffset
+      }
       externalId
       activationRules {
         id
