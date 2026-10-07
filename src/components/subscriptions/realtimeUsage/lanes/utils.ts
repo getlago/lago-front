@@ -27,7 +27,7 @@ export const buildLanes = (
       color: filter.chargeFilterId ? LANE_COLOR : DEFAULT_LANE_COLOR,
       values,
       sum: values.reduce((total, value) => total + value, 0),
-      now: values[values.length - 1] || 0,
+      now: values.at(-1) || 0,
     }
   })
 

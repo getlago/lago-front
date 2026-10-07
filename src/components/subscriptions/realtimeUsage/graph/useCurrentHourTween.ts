@@ -16,7 +16,7 @@ export const useCurrentHourTween = (points: HourPoint[]): HourPoint[] => {
   const fromRef = useRef<HourPoint | undefined>(undefined)
 
   useEffect(() => {
-    const target = points[points.length - 1]
+    const target = points.at(-1)
     const from = fromRef.current
 
     const snap = (): void => {
@@ -24,7 +24,7 @@ export const useCurrentHourTween = (points: HourPoint[]): HourPoint[] => {
       setDisplayPoints(points)
     }
 
-    if (!target || !from || from.time !== target.time || prefersReducedMotion()) {
+    if (!target || from?.time !== target.time || prefersReducedMotion()) {
       snap()
 
       return

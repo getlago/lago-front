@@ -23,7 +23,7 @@ export const seriesValue = (point: HourPoint | undefined, key: string): number =
 export const findPoint = (
   points: HourPoint[],
   point: HourPoint | undefined,
-): HourPoint | undefined => points.find((candidate) => candidate.time === point?.time) || point
+): HourPoint | undefined => points.find((candidate) => candidate.time === point?.time) ?? point
 
 export const totalOf = (point: HourPoint, series: Series[]): number =>
   series.reduce((sum, serie) => sum + seriesValue(point, serie.key), 0)
