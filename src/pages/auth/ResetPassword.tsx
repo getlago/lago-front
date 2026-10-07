@@ -1,24 +1,36 @@
 import { gql, useApolloClient } from '@apollo/client'
-import _findKey from 'lodash/findKey'
-import { useEffect, useMemo, useState } from 'react'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useParams } from 'react-router'
-import { object, string } from 'yup'
 
-import { Alert } from '~/components/designSystem/Alert'
-import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Typography } from '~/components/designSystem/Typography'
 import { TextInput } from '~/components/form'
+import { PasswordValidationHints } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
 import { addToast, onLogIn } from '~/core/apolloClient'
+import { PASSWORD_VALIDATION_ERRORS } from '~/formValidation/zodCustoms'
 import {
   LagoApiError,
   useGetPasswordResetQuery,
   useResetPasswordMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useShortcuts } from '~/hooks/ui/useShortcuts'
-import { theme } from '~/styles'
+import { useAppForm } from '~/hooks/forms/useAppform'
+import { usePasswordValidation } from '~/hooks/forms/usePasswordValidation'
 import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
+
+import {
+  resetPasswordDefaultValues,
+  resetPasswordValidationSchema,
+} from './resetPasswordForm/validationSchema'
+
+const RESET_PASSWORD_FORM_ID = 'reset-password-form'
+
+// `scripts/translations/inspect.js` only sees keys passed to `translate()` or written
+// between single quotes, so inlining this one as a JSX attribute reports it as unused.
+const PASSWORD_SUCCESS_MESSAGE_KEY = 'text_63246f875e2228ab7b63dd02'
+
+export const RESET_PASSWORD_EMAIL_FIELD_TEST_ID = 'reset-password-email-field'
+export const RESET_PASSWORD_PASSWORD_FIELD_TEST_ID = 'reset-password-password-field'
+export const RESET_PASSWORD_SUBMIT_BUTTON_TEST_ID = 'reset-password-submit-button'
 
 gql`
   query getPasswordReset($token: String!) {
@@ -37,24 +49,6 @@ gql`
     }
   }
 `
-
-type Fields = { password: string }
-enum FORM_ERRORS {
-  REQUIRED_PASSWORD = 'requiredPassword',
-  LOWERCASE = 'text_63246f875e2228ab7b63dcfa',
-  UPPERCASE = 'text_63246f875e2228ab7b63dd11',
-  NUMBER = 'text_63246f875e2228ab7b63dd15',
-  SPECIAL = 'text_63246f875e2228ab7b63dd17',
-  MIN = 'text_63246f875e2228ab7b63dd1a',
-}
-
-const PASSWORD_VALIDATION = [
-  FORM_ERRORS.LOWERCASE,
-  FORM_ERRORS.SPECIAL,
-  FORM_ERRORS.UPPERCASE,
-  FORM_ERRORS.MIN,
-  FORM_ERRORS.NUMBER,
-]
 
 const ResetPassword = () => {
   const { translate } = useInternationalization()
@@ -84,55 +78,31 @@ const ResetPassword = () => {
   })
   const email = data?.passwordReset?.user?.email || ''
 
-  const [formFields, setFormFields] = useState<Fields>({
-    password: '',
-  })
-  const [errors, setErrors] = useState<FORM_ERRORS[]>([])
-  const validationSchema = useMemo(
-    () =>
-      object().shape({
-        password: string()
-          .min(8, FORM_ERRORS.MIN)
-          .matches(RegExp('(.*[a-z].*)'), FORM_ERRORS.LOWERCASE)
-          .matches(RegExp('(.*[A-Z].*)'), FORM_ERRORS.UPPERCASE)
-          .matches(RegExp('(.*\\d.*)'), FORM_ERRORS.NUMBER)
-          .matches(RegExp('[/_!@#$%^&*(),.?":{}|<>/-]'), FORM_ERRORS.SPECIAL),
-      }),
-    [],
-  )
-  const onResetPassword = async () => {
-    const { password } = formFields
-
-    await resetPassword({
-      variables: {
-        input: {
-          token: token || '',
-          newPassword: password,
-        },
-      },
-    })
-  }
-
-  useEffect(() => {
-    validationSchema
-      .validate(formFields, { abortEarly: false })
-      .catch((err) => err)
-      .then((param) => {
-        if (!!param?.errors && param.errors.length > 0) {
-          setErrors(param.errors)
-        } else {
-          setErrors([])
-        }
-      })
-  }, [formFields, validationSchema])
-
-  useShortcuts([
-    {
-      keys: ['Enter'],
-      disabled: errors.length > 0,
-      action: onResetPassword,
+  const form = useAppForm({
+    defaultValues: resetPasswordDefaultValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: resetPasswordValidationSchema,
     },
-  ])
+    onSubmit: async ({ value }) => {
+      await resetPassword({
+        variables: {
+          input: {
+            token: token || '',
+            newPassword: value.password,
+          },
+        },
+      })
+    },
+  })
+
+  const password = useStore(form.store, (state) => state.values.password)
+  const passwordValidation = usePasswordValidation(password)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    form.handleSubmit()
+  }
 
   return (
     <Page>
@@ -157,75 +127,48 @@ const ResetPassword = () => {
             <Title>{translate('text_642707b0da1753a9bb667290')}</Title>
             <Subtitle>{translate('text_642707b0da1753a9bb66729a')}</Subtitle>
 
-            <form>
+            <form id={RESET_PASSWORD_FORM_ID} onSubmit={handleSubmit}>
               <TextInput
                 disabled
                 className="mb-4"
                 name="email"
+                data-test={RESET_PASSWORD_EMAIL_FIELD_TEST_ID}
                 beforeChangeFormatter={['lowercase']}
                 label={translate('text_63246f875e2228ab7b63dcdc')}
                 value={email}
               />
 
               <div className="mb-8">
-                <TextInput
-                  name="password"
-                  value={formFields.password}
-                  password
-                  onChange={(value) => setFormFields((prev) => ({ ...prev, password: value }))}
-                  label={translate('text_63246f875e2228ab7b63dce9')}
-                  placeholder={translate('text_63246f875e2228ab7b63dcf0')}
-                />
-                <div className="mt-4 flex max-h-124 flex-wrap overflow-hidden transition-all duration-250">
-                  {errors.some((err) => PASSWORD_VALIDATION.includes(err)) ? (
-                    PASSWORD_VALIDATION.map((err) => {
-                      const isErrored = errors.includes(err)
-
-                      return (
-                        <div
-                          className="mb-3 flex h-5 w-1/2 flex-row items-center gap-3"
-                          key={err}
-                          data-test={
-                            isErrored ? _findKey(FORM_ERRORS, (v) => v === err) : undefined
-                          }
-                        >
-                          <svg height={8} width={8}>
-                            <circle
-                              cx="4"
-                              cy="4"
-                              r="4"
-                              fill={
-                                isErrored ? theme.palette.primary.main : theme.palette.grey[500]
-                              }
-                            />
-                          </svg>
-                          <Typography
-                            variant="caption"
-                            color={isErrored ? 'textSecondary' : 'textPrimary'}
-                          >
-                            {translate(err)}
-                          </Typography>
-                        </div>
-                      )
-                    })
-                  ) : (
-                    <Alert className="mb-3 w-full" type="success" data-test="success">
-                      {translate('text_63246f875e2228ab7b63dd02')}
-                    </Alert>
+                <form.AppField name="password">
+                  {(field) => (
+                    <field.TextInputField
+                      password
+                      data-test={RESET_PASSWORD_PASSWORD_FIELD_TEST_ID}
+                      label={translate('text_63246f875e2228ab7b63dce9')}
+                      placeholder={translate('text_63246f875e2228ab7b63dcf0')}
+                      showOnlyErrors={[PASSWORD_VALIDATION_ERRORS.REQUIRED]}
+                    />
                   )}
-                </div>
+                </form.AppField>
+                <PasswordValidationHints
+                  password={password}
+                  errors={passwordValidation.errors}
+                  isValid={passwordValidation.isValid}
+                  successMessage={PASSWORD_SUCCESS_MESSAGE_KEY}
+                />
               </div>
 
-              <Button
-                className="mb-8"
-                data-test="submit-button"
-                disabled={errors.length > 0}
-                fullWidth
-                size="large"
-                onClick={onResetPassword}
-              >
-                {translate('text_642707b0da1753a9bb6672c4')}
-              </Button>
+              <div className="mb-8">
+                <form.AppForm>
+                  <form.SubmitButton
+                    dataTest={RESET_PASSWORD_SUBMIT_BUTTON_TEST_ID}
+                    fullWidth
+                    size="large"
+                  >
+                    {translate('text_642707b0da1753a9bb6672c4')}
+                  </form.SubmitButton>
+                </form.AppForm>
+              </div>
             </form>
           </>
         )}
