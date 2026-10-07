@@ -4,10 +4,12 @@ import { RefObject } from 'react'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import {
   AnrokIntegrationItemsListDefaultFragment,
+  FeatureFlagEnum,
   IntegrationTypeEnum,
   MappingTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { AnrokIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/AnrokIntegrationMapItemDrawer'
 import {
   type IntegrationItem,
@@ -42,6 +44,9 @@ const AnrokIntegrationItemsListDefault = ({
   anrokIntegrationMapItemDrawerRef,
 }: AnrokIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
+  const { hasFeatureFlag, loading: isOrganizationLoading } = useOrganizationInfos()
+  const canViewLegacyMappings =
+    !isOrganizationLoading && !hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
 
   if (!isLoading && hasError) {
     return (
@@ -91,7 +96,9 @@ const AnrokIntegrationItemsListDefault = ({
     <IntegrationItemsTable
       integrationId={integrationId}
       integrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
-      items={defaultListToDisplay}
+      items={defaultListToDisplay.filter(
+        ({ mappingType }) => mappingType === MappingTypeEnum.FallbackItem || canViewLegacyMappings,
+      )}
       provider={IntegrationTypeEnum.Anrok}
       isLoading={isLoading}
     />
