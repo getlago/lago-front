@@ -7,6 +7,7 @@ import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPl
 import WalletAlerts, {
   WALLET_ALERT_ACTIONS_DATA_TEST,
   WALLET_ALERT_EDIT_BUTTON_TEST_ID,
+  WALLET_ALERT_RECURRING_ROW_LABEL_TEST_ID,
   WALLET_ALERTS_EMPTY_TEST_ID,
   WALLET_ALERTS_LIST_TEST_ID,
   WALLET_ALERTS_LOADING_TEST_ID,
@@ -19,7 +20,9 @@ let mockIsPremium = true
 const mockOpenDeleteDialog = jest.fn()
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
-  useInternationalization: () => ({ translate: (key: string) => key }),
+  useInternationalization: () => ({
+    translate: (key: string) => jest.requireActual('../../../../translations/base.json')[key],
+  }),
 }))
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({ isPremium: mockIsPremium }),
@@ -152,6 +155,35 @@ describe('WalletAlerts', () => {
         expect(screen.getByTestId(WALLET_ALERTS_LIST_TEST_ID)).toBeInTheDocument()
         expect(screen.queryByTestId(WALLET_ALERTS_EMPTY_TEST_ID)).not.toBeInTheDocument()
         expect(screen.queryByTestId(WALLET_ALERTS_LOADING_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN an alert with a recurring threshold', () => {
+    describe('WHEN the alert is displayed', () => {
+      it('THEN should describe the recurring step as a balance drop', () => {
+        mockUseGetWalletAlertsQuery.mockReturnValue({
+          data: {
+            walletAlerts: {
+              collection: [
+                {
+                  ...mockAlert,
+                  thresholds: [
+                    ...mockAlert.thresholds,
+                    { code: 'recurring-1', recurring: true, value: '100' },
+                  ],
+                },
+              ],
+            },
+          },
+          loading: false,
+        })
+
+        render(<WalletAlerts wallet={mockWallet} />)
+
+        expect(screen.getByTestId(WALLET_ALERT_RECURRING_ROW_LABEL_TEST_ID)).toHaveTextContent(
+          /^Then every drop of$/,
+        )
       })
     })
   })
