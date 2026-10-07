@@ -56,8 +56,8 @@ jest.mock('~/components/invoices/details/DeleteAdjustedFeeDialog', () => ({
   useDeleteAdjustedFeeDialog: () => ({ openDeleteAdjustedFeeDialog: jest.fn() }),
 }))
 
-jest.mock('~/components/invoices/details/EditFeeDrawer', () => ({
-  EditFeeDrawer: jest.fn(() => null),
+jest.mock('~/components/invoices/details/editFeeDrawer/useEditFeeDrawer', () => ({
+  useEditFeeDrawer: () => ({ openDrawer: jest.fn() }),
 }))
 
 jest.mock('~/components/invoices/details/InvoiceDetailsTable', () => ({

@@ -1,7 +1,5 @@
-import { useStore } from '@tanstack/react-form'
-
-import { getErrorToDisplay } from '~/core/form/getErrorToDisplay'
 import { useFieldContext } from '~/hooks/forms/formContext'
+import { useFieldError } from '~/hooks/forms/useFieldError'
 
 import { BasicComboBoxData, ComboBox, ComboboxDataGrouped, ComboBoxProps } from './'
 
@@ -9,24 +7,17 @@ const ComboBoxField = ({
   data,
   renderGroupHeader,
   displayErrorText = true,
+  errorOverride,
   ...props
 }: Omit<ComboBoxProps, 'name' | 'onChange' | 'value' | 'error'> & {
   dataTest?: string
   displayErrorText?: boolean
+  errorOverride?: string | boolean
 }) => {
   const field = useFieldContext<string | undefined>()
 
-  const error = useStore(field.store, (state) => state.meta.errors)
-    .map((e) => e.message)
-    .join('')
-
-  const errorMap = useStore(field.store, (state) => state.meta.errorMap)
-
-  const finalError = getErrorToDisplay({
-    error,
-    errorMap,
-    displayErrorText,
-  })
+  // Messages are translation keys, as in the sibling wrappers.
+  const finalError = useFieldError({ displayErrorText, translateErrors: true })
 
   const onChange = (value: string) => {
     if (value === '') {
@@ -46,7 +37,7 @@ const ComboBoxField = ({
         onChange(value)
       }}
       value={field.state.value}
-      error={finalError}
+      error={errorOverride ?? finalError}
       data-test={props.dataTest}
     />
   ) : (
@@ -58,7 +49,7 @@ const ComboBoxField = ({
         onChange(value)
       }}
       value={field.state.value}
-      error={finalError}
+      error={errorOverride ?? finalError}
       data-test={props.dataTest}
     />
   )

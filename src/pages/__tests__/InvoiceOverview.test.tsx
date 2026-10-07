@@ -24,8 +24,8 @@ jest.mock('~/components/invoices/details/ViewFeeDetailsDrawer', () => ({
   useViewFeeDetailsDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
 }))
 
-jest.mock('~/components/invoices/details/EditFeeDrawer', () => ({
-  EditFeeDrawer: () => null,
+jest.mock('~/components/invoices/details/editFeeDrawer/useEditFeeDrawer', () => ({
+  useEditFeeDrawer: () => ({ openDrawer: jest.fn() }),
 }))
 
 jest.mock('~/components/invoices/details/InvoiceDetailsTable', () => ({

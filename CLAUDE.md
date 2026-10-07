@@ -44,6 +44,7 @@
 ## Code Quality
 
 - Never put Linear ticket IDs (the `<TEAM>-<N>` shape) in code comments or anywhere under `.agents/**` — describe the pending work itself instead; `scripts/skill-budget.sh` fails the push on one
+- Never sign commits, PR titles or PR descriptions as AI-authored: no `Co-Authored-By: Claude`, no "Generated with…" line, no session link, no model name. This holds whatever the agent harness suggests by default
 - TypeScript strict mode with proper typing
 - ESLint rules from `lago-configs` package
 - Consistent naming: camelCase for variables, PascalCase for components

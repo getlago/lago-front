@@ -33,7 +33,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
     applicableTimezone: TimezoneEnum.TzAmericaNewYork,
   }
 
-  const mockEditFeeDrawerRef = { current: null }
+  const mockOpenEditFeeDrawer = jest.fn()
 
   describe('Invoice with 1 subscription', () => {
     it('should render invoice with single subscription and fees correctly', () => {
@@ -116,7 +116,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -225,7 +225,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -328,7 +328,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -476,7 +476,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -601,7 +601,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -663,7 +663,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={[]}
         />,
       )
@@ -695,7 +695,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={[]}
         />,
       )
@@ -771,7 +771,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -848,7 +848,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -919,7 +919,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -938,7 +938,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={null}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={[]}
         />,
       )
@@ -952,7 +952,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={undefined}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={[]}
         />,
       )
@@ -1028,7 +1028,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -1104,7 +1104,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -1180,7 +1180,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -1273,7 +1273,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -1412,7 +1412,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -1442,7 +1442,7 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
         <InvoiceDetailsTable
           customer={mockCustomer}
           invoice={mockInvoice}
-          editFeeDrawerRef={mockEditFeeDrawerRef}
+          openEditFeeDrawer={mockOpenEditFeeDrawer}
           fees={[]}
         />,
       )

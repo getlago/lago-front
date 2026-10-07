@@ -8,7 +8,7 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
-import { EditFeeDrawer, EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
+import { useEditFeeDrawer } from '~/components/invoices/details/editFeeDrawer/useEditFeeDrawer'
 import { InvoiceDetailsTable } from '~/components/invoices/details/InvoiceDetailsTable'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
@@ -26,14 +26,12 @@ import {
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
-  Charge,
   CurrencyEnum,
   Fee,
   FeeAmountDetails,
   FeeAppliedTax,
   FeeForInvoiceDetailsTableFragmentDoc,
   FetchDraftInvoiceTaxesMutation,
-  FixedCharge,
   InvoiceStatusTypeEnum,
   LagoApiError,
   useFetchDraftInvoiceTaxesMutation,
@@ -81,8 +79,8 @@ export type OnRegeneratedFeeAdd = (input: {
   invoiceDisplayName?: string | null
   units?: number | null
   amountDetails?: FeeAmountDetails | null
-  charge?: Charge | null
-  fixedCharge?: FixedCharge | null
+  charge?: { id: string } | null
+  fixedCharge?: { id: string } | null
   chargeFilterId?: string | null
   invoiceSubscriptionId?: string | null
   properties?: {
@@ -115,7 +113,7 @@ const CustomerInvoiceRegenerate = () => {
   const { customerId, invoiceId } = useParams()
   const navigate = useNavigate()
 
-  const editFeeDrawerRef = useRef<EditFeeDrawerRef>(null)
+  const { openDrawer: openEditFeeDrawer } = useEditFeeDrawer()
 
   const {
     invoiceBuildRegenerationPreview: invoice,
@@ -410,7 +408,7 @@ const CustomerInvoiceRegenerate = () => {
               <InvoiceDetailsTable
                 customer={customer}
                 invoice={invoice}
-                editFeeDrawerRef={editFeeDrawerRef}
+                openEditFeeDrawer={openEditFeeDrawer}
                 isDraftOverride={true}
                 onAdd={onAdd}
                 onDelete={onDelete}
@@ -569,8 +567,6 @@ const CustomerInvoiceRegenerate = () => {
           )}
         </Button>
       </CenteredPage.StickyFooter>
-
-      <EditFeeDrawer ref={editFeeDrawerRef} />
     </CenteredPage.Wrapper>
   )
 }

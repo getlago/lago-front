@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { tw } from 'lago-design-system'
-import { memo, RefObject, useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -34,7 +34,7 @@ import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
 import { MenuPopper, PopperOpener } from '~/styles'
 
 import { useDeleteAdjustedFeeDialog } from './DeleteAdjustedFeeDialog'
-import { EditFeeDrawerRef } from './EditFeeDrawer'
+import { OpenEditFeeDrawer } from './editFeeDrawer/types'
 import { CopyFeeIdButton, FeeActionsCell, ViewFeeDetailsButton } from './FeeActionsCell'
 import { InvoiceDetailsTableBodyLineGraduated } from './InvoiceDetailsTableBodyLineGraduated'
 import { InvoiceDetailsTableBodyLineGraduatedPercentage } from './InvoiceDetailsTableBodyLineGraduatedPercentage'
@@ -132,7 +132,7 @@ type InvoiceDetailsTableBodyLineBaseProps = {
   isDraftInvoice: boolean
   hideVat?: boolean
   displayFeeBoundaries?: boolean
-  editFeeDrawerRef?: RefObject<EditFeeDrawerRef>
+  openEditFeeDrawer?: OpenEditFeeDrawer
   succeededDate?: string
   hasTaxProviderError?: boolean
 }
@@ -229,7 +229,7 @@ export const InvoiceDetailsTableBodyLine = memo(
     canHaveUnitPrice,
     currency,
     displayName,
-    editFeeDrawerRef,
+    openEditFeeDrawer,
     fee,
     hideVat,
     isDraftInvoice,
@@ -443,7 +443,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                             openDeleteAdjustedFeeDialog({ fee, onDelete })
                           } else if (fee) {
                             if (onAdd && invoiceSubscriptionId) {
-                              editFeeDrawerRef?.current?.openDrawer({
+                              openEditFeeDrawer?.({
                                 mode: 'regenerate',
                                 invoiceId,
                                 invoiceSubscriptionId,
@@ -452,7 +452,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                                 localFees,
                               })
                             } else {
-                              editFeeDrawerRef?.current?.openDrawer({
+                              openEditFeeDrawer?.({
                                 mode: 'edit',
                                 invoiceId,
                                 fee,
