@@ -213,7 +213,7 @@ const AlertThresholds = ({
             deleteTooltipContent={translate('text_17242522324608198c2vblmw')}
             columns={[
               {
-                size: 175,
+                size: 200,
                 content: (_, i) => (
                   <Typography
                     className="px-4"
@@ -226,7 +226,7 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 250,
+                size: 225,
                 title: (
                   <Typography className="px-4" variant="captionHl">
                     {translate(
@@ -321,7 +321,7 @@ const AlertThresholds = ({
             data={thresholds.filter((threshold) => threshold.recurring) || []}
             columns={[
               {
-                size: 175,
+                size: 200,
                 content: () => (
                   <Typography
                     className="px-4"
@@ -334,7 +334,7 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 250,
+                size: 225,
                 content: (row) => (
                   <ValueInput
                     currency={currency}
