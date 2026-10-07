@@ -1,13 +1,13 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 
 import {
-  AggregationTypeEnum,
-  ChargeModelEnum,
-  FeatureFlagEnum,
-  GetSubscriptionChargesForRealtimeUsageDocument,
-  GetSubscriptionHourlyUsageDocument,
-  TimezoneEnum,
-} from '~/generated/graphql'
+  buildChargesMock,
+  buildHourlyUsageMock,
+  EU_FILTER_ID,
+  SUBSCRIPTION_ID,
+  US_FILTER_ID,
+} from '~/components/subscriptions/realtimeUsage/common/__tests__/fixtures'
+import { FeatureFlagEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
@@ -16,8 +16,8 @@ import {
   REALTIME_LANES_LANE_TEST_ID,
   REALTIME_LANES_LIST_TEST_ID,
   REALTIME_LANES_SORT_TEST_ID,
-  SubscriptionRealtimeUsageLanes,
-} from '../SubscriptionRealtimeUsageLanes'
+} from '../constants'
+import { SubscriptionRealtimeUsageLanes } from '../SubscriptionRealtimeUsageLanes'
 
 const mockHasFeatureFlag = jest.fn()
 
@@ -25,96 +25,15 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
 }))
 
-const SUBSCRIPTION_ID = 'subscription-id'
-const CHARGE_ID = 'charge-id'
-const EU_FILTER_ID = 'filter-eu'
-const US_FILTER_ID = 'filter-us'
-
-const chargesMock = {
-  request: {
-    query: GetSubscriptionChargesForRealtimeUsageDocument,
-    variables: { subscriptionId: SUBSCRIPTION_ID },
-  },
-  result: {
-    data: {
-      subscription: {
-        id: SUBSCRIPTION_ID,
-        customer: { id: 'customer-id', applicableTimezone: TimezoneEnum.TzUtc },
-        plan: {
-          id: 'plan-id',
-          charges: [
-            {
-              id: CHARGE_ID,
-              invoiceDisplayName: 'API calls',
-              chargeModel: ChargeModelEnum.Standard,
-              payInAdvance: false,
-              prorated: false,
-              billableMetric: {
-                id: 'bm-id',
-                code: 'count_bm',
-                name: 'API calls',
-                aggregationType: AggregationTypeEnum.CountAgg,
-                recurring: false,
-                expression: null,
-              },
-            },
-          ],
-        },
-      },
-    },
-  },
-}
-
-type FilterMock = {
-  chargeFilterId: string | null
-  invoiceDisplayName: string | null
-  units: number
-  values?: Record<string, string[]>
-  other?: boolean
-}
-
-type HourMock = {
-  time: string
-  units: number
-  breakdown: { chargeFilterId: string | null; units: number; other?: boolean }[]
-}
-
-const hourlyUsageMock = (filters: FilterMock[], hours: HourMock[]) => ({
-  request: { query: GetSubscriptionHourlyUsageDocument },
-  variableMatcher: () => true,
-  maxUsageCount: Number.POSITIVE_INFINITY,
-  result: {
-    data: {
-      subscriptionHourlyUsage: {
-        fromDatetime: '2026-08-24T09:00:00Z',
-        toDatetime: '2026-08-24T11:30:00Z',
-        timezone: TimezoneEnum.TzUtc,
-        aggregationType: AggregationTypeEnum.CountAgg,
-        filters: filters.map((filter) => ({
-          values: {},
-          other: false,
-          ...filter,
-          eventsCount: filter.units,
-        })),
-        hours: hours.map((hour) => ({
-          ...hour,
-          eventsCount: hour.units,
-          breakdown: hour.breakdown.map((breakdown) => ({ other: false, ...breakdown })),
-        })),
-      },
-    },
-  },
-})
-
 // Europe leads by volume, "Alpha" wins alphabetically, and the charge default
 // carries the smallest share — enough to tell sorting and shares apart.
-const populatedMock = hourlyUsageMock(
-  [
+const populatedMock = buildHourlyUsageMock({
+  filters: [
     { chargeFilterId: EU_FILTER_ID, invoiceDisplayName: 'Europe', units: 60 },
     { chargeFilterId: US_FILTER_ID, invoiceDisplayName: 'Alpha', units: 30 },
-    { chargeFilterId: null, invoiceDisplayName: null, units: 10 },
+    { chargeFilterId: null, units: 10 },
   ],
-  [
+  hours: [
     {
       time: '2026-08-24T09:00:00Z',
       units: 50,
@@ -134,7 +53,7 @@ const populatedMock = hourlyUsageMock(
       ],
     },
   ],
-)
+})
 
 beforeEach(() => {
   mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.RealtimeUsage)
@@ -143,7 +62,7 @@ beforeEach(() => {
 describe('SubscriptionRealtimeUsageLanes', () => {
   it('gives every charge filter its own lane, with its current hour and share', async () => {
     render(<SubscriptionRealtimeUsageLanes subscriptionId={SUBSCRIPTION_ID} />, {
-      mocks: [chargesMock, populatedMock],
+      mocks: [buildChargesMock(), populatedMock],
     })
 
     await waitFor(() => expect(screen.getByTestId(REALTIME_LANES_LIST_TEST_ID)).toBeVisible())
@@ -168,7 +87,7 @@ describe('SubscriptionRealtimeUsageLanes', () => {
 
   it('reorders the lanes alphabetically when sorting by name', async () => {
     render(<SubscriptionRealtimeUsageLanes subscriptionId={SUBSCRIPTION_ID} />, {
-      mocks: [chargesMock, populatedMock],
+      mocks: [buildChargesMock(), populatedMock],
     })
 
     await waitFor(() => expect(screen.getByTestId(REALTIME_LANES_LIST_TEST_ID)).toBeVisible())
@@ -190,13 +109,13 @@ describe('SubscriptionRealtimeUsageLanes', () => {
       <SubscriptionRealtimeUsageLanes subscriptionId={SUBSCRIPTION_ID} />,
       {
         mocks: [
-          chargesMock,
-          hourlyUsageMock(
-            [
+          buildChargesMock(),
+          buildHourlyUsageMock({
+            filters: [
               { chargeFilterId: EU_FILTER_ID, invoiceDisplayName: 'Europe', units: 1000 },
               { chargeFilterId: US_FILTER_ID, invoiceDisplayName: 'Quiet', units: 3 },
             ],
-            [
+            hours: [
               {
                 time: '2026-08-24T09:00:00Z',
                 units: 1001,
@@ -214,7 +133,7 @@ describe('SubscriptionRealtimeUsageLanes', () => {
                 ],
               },
             ],
-          ),
+          }),
         ],
       },
     )
@@ -235,17 +154,49 @@ describe('SubscriptionRealtimeUsageLanes', () => {
     expect(container.querySelectorAll('path[stroke]')).toHaveLength(3)
   })
 
+  it('scales a lane whose values stay below one to its actual peak', async () => {
+    render(<SubscriptionRealtimeUsageLanes subscriptionId={SUBSCRIPTION_ID} />, {
+      mocks: [
+        buildChargesMock(),
+        buildHourlyUsageMock({
+          filters: [{ chargeFilterId: EU_FILTER_ID, invoiceDisplayName: 'Europe', units: 0.3 }],
+          hours: [
+            {
+              time: '2026-08-24T09:00:00Z',
+              units: 0.1,
+              breakdown: [{ chargeFilterId: EU_FILTER_ID, units: 0.1 }],
+            },
+            {
+              time: '2026-08-24T10:00:00Z',
+              units: 0.2,
+              breakdown: [{ chargeFilterId: EU_FILTER_ID, units: 0.2 }],
+            },
+          ],
+        }),
+      ],
+    })
+
+    await waitFor(() => expect(screen.getByTestId(REALTIME_LANES_LIST_TEST_ID)).toBeVisible())
+
+    const [lane] = screen.getAllByTestId(REALTIME_LANES_LANE_TEST_ID)
+    const line = lane.querySelector('path[stroke]')?.getAttribute('d') || ''
+    const ys = line.match(/,(-?\d+\.?\d*)/g)?.map((y) => Number(y.slice(1))) || []
+
+    // Guards a peak floored at 1, which drew 0.2 at a fifth of the lane height.
+    expect(Math.min(...ys)).toBe(4)
+  })
+
   it('gives the series the API folded its own lane, apart from the charge default', async () => {
     render(<SubscriptionRealtimeUsageLanes subscriptionId={SUBSCRIPTION_ID} />, {
       mocks: [
-        chargesMock,
-        hourlyUsageMock(
-          [
+        buildChargesMock(),
+        buildHourlyUsageMock({
+          filters: [
             { chargeFilterId: EU_FILTER_ID, invoiceDisplayName: 'Europe', units: 30 },
-            { chargeFilterId: null, invoiceDisplayName: null, units: 7 },
-            { chargeFilterId: null, invoiceDisplayName: null, units: 3, other: true },
+            { chargeFilterId: null, units: 7 },
+            { chargeFilterId: null, units: 3, other: true },
           ],
-          [
+          hours: [
             {
               time: '2026-08-24T09:00:00Z',
               units: 40,
@@ -256,7 +207,7 @@ describe('SubscriptionRealtimeUsageLanes', () => {
               ],
             },
           ],
-        ),
+        }),
       ],
     })
 
@@ -273,7 +224,7 @@ describe('SubscriptionRealtimeUsageLanes', () => {
 
   it('renders the empty state when the pipeline has no usage for the charge', async () => {
     render(<SubscriptionRealtimeUsageLanes subscriptionId={SUBSCRIPTION_ID} />, {
-      mocks: [chargesMock, hourlyUsageMock([], [])],
+      mocks: [buildChargesMock(), buildHourlyUsageMock({ filters: [], hours: [] })],
     })
 
     await waitFor(() => expect(screen.getByTestId(REALTIME_LANES_EMPTY_TEST_ID)).toBeVisible())

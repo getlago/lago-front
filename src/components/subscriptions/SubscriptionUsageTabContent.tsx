@@ -3,9 +3,9 @@ import { useParams } from 'react-router'
 
 import { useGetCustomerFromSubscriptionQuery } from '~/generated/graphql'
 
+import { SubscriptionRealtimeUsageGraph } from './realtimeUsage/graph/SubscriptionRealtimeUsageGraph'
+import { SubscriptionRealtimeUsageLanes } from './realtimeUsage/lanes/SubscriptionRealtimeUsageLanes'
 import { SubscriptionCurrentUsageTable } from './SubscriptionCurrentUsageTable'
-import { SubscriptionRealtimeUsageGraph } from './SubscriptionRealtimeUsageGraph'
-import { SubscriptionRealtimeUsageLanes } from './SubscriptionRealtimeUsageLanes'
 import SubscriptionUsageLifetimeGraph from './SubscriptionUsageLifetimeGraph'
 
 gql`
