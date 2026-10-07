@@ -3,6 +3,7 @@ import { Settings } from 'luxon'
 
 import {
   buildCharge,
+  buildChargesErrorMock,
   buildChargesMock,
   buildHourlyUsageErrorMock,
   buildHourlyUsageMock,
@@ -266,7 +267,7 @@ describe('SubscriptionRealtimeUsageGraph', () => {
           buildCharge({ id: SECOND_CHARGE_ID, invoiceDisplayName: 'Storage' }),
         ]),
         singleFilterMock(),
-        buildHourlyUsageErrorMock(SECOND_CHARGE_ID),
+        buildHourlyUsageErrorMock({ chargeId: SECOND_CHARGE_ID }),
       ],
     })
 
@@ -282,6 +283,41 @@ describe('SubscriptionRealtimeUsageGraph', () => {
       ),
     )
     expect(screen.queryByTestId(REALTIME_USAGE_LEGEND_TEST_ID)).not.toBeInTheDocument()
+  })
+
+  it('does not keep showing the previous window when the new one fails', async () => {
+    render(<SubscriptionRealtimeUsageGraph subscriptionId={SUBSCRIPTION_ID} />, {
+      mocks: [
+        buildChargesMock(),
+        singleFilterMock({ fromDatetime: FROM_DATETIME_24H }),
+        buildHourlyUsageErrorMock({ fromDatetime: FROM_DATETIME_6H }),
+      ],
+    })
+
+    await waitFor(() =>
+      expect(screen.getByTestId(REALTIME_USAGE_LEGEND_TEST_ID)).toHaveTextContent('Europe'),
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: '6h' }))
+
+    await waitFor(() =>
+      expect(screen.getByTestId(REALTIME_USAGE_EMPTY_TEST_ID)).toHaveTextContent(
+        'Something went wrong',
+      ),
+    )
+    expect(screen.queryByTestId(REALTIME_USAGE_LEGEND_TEST_ID)).not.toBeInTheDocument()
+  })
+
+  it('renders an error state when the charges cannot be read', async () => {
+    render(<SubscriptionRealtimeUsageGraph subscriptionId={SUBSCRIPTION_ID} />, {
+      mocks: [buildChargesErrorMock()],
+    })
+
+    await waitFor(() =>
+      expect(screen.getByTestId(REALTIME_USAGE_EMPTY_TEST_ID)).toHaveTextContent(
+        'Something went wrong',
+      ),
+    )
   })
 
   it('renders nothing when the organization is not on the realtime usage flag', async () => {

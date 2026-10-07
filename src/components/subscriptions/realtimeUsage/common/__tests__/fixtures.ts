@@ -133,8 +133,20 @@ export const buildHourlyUsageMock = ({
   }
 }
 
-export const buildHourlyUsageErrorMock = (chargeId: string = CHARGE_ID): MockedResponse => ({
+export const buildHourlyUsageErrorMock = ({
+  chargeId = CHARGE_ID,
+  fromDatetime,
+}: { chargeId?: string; fromDatetime?: string } = {}): MockedResponse => ({
   request: { query: GetSubscriptionHourlyUsageDocument },
-  variableMatcher: (variables) => variables.chargeId === chargeId,
+  variableMatcher: (variables) =>
+    variables.chargeId === chargeId && (!fromDatetime || variables.fromDatetime === fromDatetime),
   error: new Error('usage_buckets_read_failure'),
+})
+
+export const buildChargesErrorMock = (): MockedResponse => ({
+  request: {
+    query: GetSubscriptionChargesForRealtimeUsageDocument,
+    variables: { subscriptionId: SUBSCRIPTION_ID },
+  },
+  error: new Error('internal_error'),
 })

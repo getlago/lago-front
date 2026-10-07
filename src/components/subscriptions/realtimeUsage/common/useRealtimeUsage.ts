@@ -104,11 +104,14 @@ export const useRealtimeUsage = (subscriptionId: string): RealtimeUsageState => 
     return () => clearInterval(interval)
   }, [])
 
-  const { data: subscriptionData, loading: subscriptionLoading } =
-    useGetSubscriptionChargesForRealtimeUsageQuery({
-      variables: { subscriptionId },
-      skip: !subscriptionId || !isEnabled,
-    })
+  const {
+    data: subscriptionData,
+    loading: subscriptionLoading,
+    error: subscriptionError,
+  } = useGetSubscriptionChargesForRealtimeUsageQuery({
+    variables: { subscriptionId },
+    skip: !subscriptionId || !isEnabled,
+  })
 
   const charges = useMemo(
     () => (subscriptionData?.subscription?.plan?.charges || []).filter(isRealtimeCharge),
@@ -136,8 +139,10 @@ export const useRealtimeUsage = (subscriptionId: string): RealtimeUsageState => 
   }
 
   // Hold the last served hours while new ones are in flight, but only for the
-  // charge they belong to: another charge's usage must never show under this one.
-  const heldUsage = servedUsage?.chargeId === selectedChargeId ? servedUsage.usage : undefined
+  // charge they belong to and never past a failed request: stale hours would
+  // otherwise sit under the new selection's label.
+  const heldUsage =
+    !error && servedUsage?.chargeId === selectedChargeId ? servedUsage.usage : undefined
   const usage = servedData || heldUsage
 
   return {
@@ -154,9 +159,10 @@ export const useRealtimeUsage = (subscriptionId: string): RealtimeUsageState => 
     setAutoRefreshSeconds,
     usage,
     isLoading: (subscriptionLoading || loading) && !usage,
-    hasError: !!error && !usage,
+    hasError: (!!subscriptionError || !!error) && !usage,
     hasUsage: (usage?.filters.length || 0) > 0,
-    hasRealtimeCharge: isEnabled && (subscriptionLoading || charges.length > 0),
+    hasRealtimeCharge:
+      isEnabled && (subscriptionLoading || !!subscriptionError || charges.length > 0),
     // New variables clear `data` until they are served, while a poll keeps it.
     isSwitchingScale: !servedData && !!heldUsage,
     timezone,
