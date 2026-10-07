@@ -5141,5 +5141,11 @@
   "text_1790959050606st0sfgsyq08": "Additional domains (optional)",
   "text_1790959050607ii8cfyhk6v2": "Type a domain and press Enter",
   "text_1790959050607s5l0xu9h04v": "Users whose email is on one of these domains also sign in through this integration, for example de.example.com.",
-  "text_1790959463497ioxa22pk7n6": "Additional domains"
+  "text_1790959463497ioxa22pk7n6": "Additional domains",
+  "text_17913640764735guuliakuv6": "When balance drops to",
+  "text_1791364076473qvli2f42tos": "Recurring alert below lowest threshold",
+  "text_1791364076473rfetdcmq055": "Sends an alert every time the balance drops by this amount below the lowest threshold.",
+  "text_1791364076473tj13xy14d28": "Then every drop of",
+  "text_1791364076473ecdejxgegz1": "Recurring alert after last threshold",
+  "text_1791364076473ntqbftrbupz": "Sends an alert every time usage increases by this amount above the last threshold."
 }
