@@ -59,6 +59,7 @@ export const WALLET_ALERT_EDIT_BUTTON_TEST_ID = 'wallet-alert-edit-button'
 export const WALLET_ALERTS_LOADING_TEST_ID = 'wallet-alerts-loading'
 export const WALLET_ALERTS_EMPTY_TEST_ID = 'wallet-alerts-empty'
 export const WALLET_ALERTS_LIST_TEST_ID = 'wallet-alerts-list'
+export const WALLET_ALERT_RECURRING_ROW_LABEL_TEST_ID = 'wallet-alert-recurring-row-label'
 
 const WALLET_ALERT_TYPE_TRANSLATION_MAP: Record<string, string> = {
   [AlertTypeEnum.WalletBalanceAmount]: 'text_17730515932099j2rzezwwf0',
@@ -342,8 +343,13 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                       {
                         size: 228,
                         content: () => (
-                          <Typography className="px-4 py-2.5" variant="body" color="grey700">
-                            {translate('text_17241798877230y851fdxzqu')}
+                          <Typography
+                            className="px-4 py-2.5"
+                            variant="body"
+                            color="grey700"
+                            data-test={WALLET_ALERT_RECURRING_ROW_LABEL_TEST_ID}
+                          >
+                            {translate('text_1791364076473tj13xy14d28')}
                           </Typography>
                         ),
                       },

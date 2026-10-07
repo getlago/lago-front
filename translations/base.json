@@ -5168,5 +5168,11 @@
   "text_1787616557790ttd8jllb5eu": "All filters · last {{hours}}h",
   "text_1787616557790yx0vfkqv320": "Led by {{filter}} · {{percent}}%",
   "text_17876165577900f24twmsxnb": "Each lane is scaled to its own peak so quiet filters stay readable — compare shapes here, magnitudes in the share column.",
-  "text_17876165577903v2axlbti3m": "Peak in lane {{peak}}"
+  "text_17876165577903v2axlbti3m": "Peak in lane {{peak}}",
+  "text_17913640764735guuliakuv6": "When balance drops to",
+  "text_1791364076473qvli2f42tos": "Recurring alert below lowest threshold",
+  "text_1791364076473rfetdcmq055": "Sends an alert every time the balance drops by this amount below the lowest threshold.",
+  "text_1791364076473tj13xy14d28": "Then every drop of",
+  "text_1791364076473ecdejxgegz1": "Recurring alert after last threshold",
+  "text_1791364076473ntqbftrbupz": "Sends an alert every time usage increases by this amount above the last threshold."
 }

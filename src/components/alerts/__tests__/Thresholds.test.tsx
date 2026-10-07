@@ -3,7 +3,10 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { CurrencyEnum, ThresholdInput } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
-import AlertThresholds from '../Thresholds'
+import AlertThresholds, {
+  THRESHOLDS_RECURRING_ROW_LABEL_TEST_ID,
+  THRESHOLDS_ROW_LABEL_TEST_ID,
+} from '../Thresholds'
 
 const getMockThresholds = (): ThresholdInput[] => [
   {
@@ -331,5 +334,65 @@ describe('AlertThresholds Component', () => {
         expect(recurringValueInput).toBeInTheDocument()
       })
     })
+  })
+
+  describe('GIVEN the copy depends on the alert direction', () => {
+    describe.each([
+      {
+        direction: 'decreasing (wallet)',
+        props: { reversedThreshold: true },
+        firstRow: 'When balance drops to',
+        switchLabel: 'Recurring alert below lowest threshold',
+        switchSubLabel:
+          'Sends an alert every time the balance drops by this amount below the lowest threshold.',
+        recurringRow: 'Then every drop of',
+      },
+      {
+        direction: 'increasing (usage)',
+        props: {},
+        firstRow: 'When usage reaches',
+        switchLabel: 'Recurring alert after last threshold',
+        switchSubLabel:
+          'Sends an alert every time usage increases by this amount above the last threshold.',
+        recurringRow: 'Then every',
+      },
+    ])(
+      'WHEN the thresholds are $direction',
+      ({ props, firstRow, switchLabel, switchSubLabel, recurringRow }) => {
+        it('THEN should label the first row with the direction copy and the next ones with "Then"', async () => {
+          await renderComponent(getMockThresholdsWithRecurring(), props)
+
+          const rowLabels = screen.getAllByTestId(THRESHOLDS_ROW_LABEL_TEST_ID)
+
+          expect(rowLabels[0]).toHaveTextContent(firstRow)
+          expect(rowLabels[1]).toHaveTextContent(/^Then$/)
+        })
+
+        it('THEN should describe the recurring switch as an alert', async () => {
+          await renderComponent(getMockThresholds(), props)
+
+          const recurringSwitch = screen.getByTestId('add-new-recurring-threshold-switch')
+
+          expect(recurringSwitch).toHaveTextContent(switchLabel)
+          expect(recurringSwitch).toHaveTextContent(switchSubLabel)
+        })
+
+        it('THEN should not mention billing on the recurring switch', async () => {
+          await renderComponent(getMockThresholds(), props)
+
+          const recurringSwitch = screen.getByTestId('add-new-recurring-threshold-switch')
+
+          expect(recurringSwitch).not.toHaveTextContent(/billing|billed/i)
+        })
+
+        it('THEN should label the recurring row with the direction copy', async () => {
+          await renderComponent(getMockThresholdsWithRecurring(), props)
+
+          expect(screen.getByTestId(THRESHOLDS_RECURRING_ROW_LABEL_TEST_ID)).toHaveTextContent(
+            new RegExp(`^${recurringRow}$`),
+          )
+        })
+      },
+    )
   })
 })

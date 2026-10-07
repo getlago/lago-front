@@ -17,6 +17,9 @@ import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, ThresholdInput } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const THRESHOLDS_ROW_LABEL_TEST_ID = 'thresholds-row-label'
+export const THRESHOLDS_RECURRING_ROW_LABEL_TEST_ID = 'thresholds-recurring-row-label'
+
 export const isThresholdValueValid = (
   index: number,
   value: string,
@@ -96,6 +99,20 @@ const ValueInput = ({
   )
 }
 
+const INCREASING_COPY_KEYS = {
+  firstRow: 'text_1747921119080dk04aab1ecy',
+  recurringSwitchLabel: 'text_1791364076473ecdejxgegz1',
+  recurringSwitchSubLabel: 'text_1791364076473ntqbftrbupz',
+  recurringRow: 'text_17241798877230y851fdxzqu',
+}
+
+const DECREASING_COPY_KEYS: typeof INCREASING_COPY_KEYS = {
+  firstRow: 'text_17913640764735guuliakuv6',
+  recurringSwitchLabel: 'text_1791364076473qvli2f42tos',
+  recurringSwitchSubLabel: 'text_1791364076473rfetdcmq055',
+  recurringRow: 'text_1791364076473tj13xy14d28',
+}
+
 const AlertThresholds = ({
   thresholds,
   setThresholds,
@@ -126,6 +143,7 @@ const AlertThresholds = ({
   allowNegativeValues?: boolean
 }) => {
   const { translate } = useInternationalization()
+  const copyKeys = reversedThreshold ? DECREASING_COPY_KEYS : INCREASING_COPY_KEYS
 
   const recurringIndex = thresholds.findIndex((t) => t.recurring)
   const hasRecurringThreshold = recurringIndex !== -1
@@ -195,17 +213,20 @@ const AlertThresholds = ({
             deleteTooltipContent={translate('text_17242522324608198c2vblmw')}
             columns={[
               {
-                size: 175,
+                size: 200,
                 content: (_, i) => (
-                  <Typography className="px-4" variant="captionHl" noWrap>
-                    {translate(
-                      i === 0 ? 'text_1747921119080dk04aab1ecy' : 'text_1724179887723917j8ezkd9v',
-                    )}
+                  <Typography
+                    className="px-4"
+                    variant="captionHl"
+                    noWrap
+                    data-test={THRESHOLDS_ROW_LABEL_TEST_ID}
+                  >
+                    {translate(i === 0 ? copyKeys.firstRow : 'text_1724179887723917j8ezkd9v')}
                   </Typography>
                 ),
               },
               {
-                size: 250,
+                size: 225,
                 title: (
                   <Typography className="px-4" variant="captionHl">
                     {translate(
@@ -290,8 +311,8 @@ const AlertThresholds = ({
         data-test="add-new-recurring-threshold-switch"
         checked={hasRecurringThreshold}
         onChange={onSwitchClick}
-        label={translate('text_1724234174945ztq15pvmty3')}
-        subLabel={translate('text_172423417494563qf45qet2d')}
+        label={translate(copyKeys.recurringSwitchLabel)}
+        subLabel={translate(copyKeys.recurringSwitchSubLabel)}
       />
       {hasRecurringThreshold && (
         <div className="-mx-4 -my-1 overflow-auto px-4 py-1">
@@ -300,15 +321,20 @@ const AlertThresholds = ({
             data={thresholds.filter((threshold) => threshold.recurring) || []}
             columns={[
               {
-                size: 175,
+                size: 200,
                 content: () => (
-                  <Typography className="px-4" variant="captionHl" noWrap>
-                    {translate('text_17241798877230y851fdxzqu')}
+                  <Typography
+                    className="px-4"
+                    variant="captionHl"
+                    noWrap
+                    data-test={THRESHOLDS_RECURRING_ROW_LABEL_TEST_ID}
+                  >
+                    {translate(copyKeys.recurringRow)}
                   </Typography>
                 ),
               },
               {
-                size: 250,
+                size: 225,
                 content: (row) => (
                   <ValueInput
                     currency={currency}
