@@ -194,7 +194,7 @@ const RateCardDetails = () => {
               tab: RateCardDetailsTabsOptionsEnum.plans,
             }),
             content: (
-              <DetailsPage.Container className="pt-6">
+              <DetailsPage.Container className="pb-0 pt-6">
                 <CatalogPlansTabList scope={{ rateCardId: rateCardId as string }} />
               </DetailsPage.Container>
             ),

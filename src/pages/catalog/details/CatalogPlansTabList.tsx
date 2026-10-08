@@ -192,6 +192,7 @@ const CatalogPlansTabList = ({ scope }: { scope: CatalogPlansTabListScope }): JS
           setPageSize(size)
           goToPage(1)
         }}
+        sticky={false}
       >
         <Table
           name="catalog-plans-tab-list"
