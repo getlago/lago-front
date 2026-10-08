@@ -80,6 +80,17 @@ const scopeToVariables = (
   return { rateCardIds: [scope.rateCardId] }
 }
 
+// One full sentence per object type rather than a single interpolated string: the
+// article agrees with the noun's gender in some locales (French "ce" vs "cette"),
+// which string-splicing would break.
+const scopeToEmptyTitleKey = (scope: CatalogPlansTabListScope): string => {
+  if ('productId' in scope) return 'text_1791463004449lwoqb88e5zb'
+  if ('productFilterId' in scope) return 'text_1791463004449xeg7s65pg1h'
+  if ('productCategoryId' in scope) return 'text_1791463004449t63ke0nsc2y'
+
+  return 'text_17914630044498glf9v0i00u'
+}
+
 const CatalogPlansTabList = ({ scope }: { scope: CatalogPlansTabListScope }): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
@@ -160,7 +171,7 @@ const CatalogPlansTabList = ({ scope }: { scope: CatalogPlansTabListScope }): JS
     translate,
     hasSearchTerm: !!variables?.searchTerm,
     noResultTitleKey: 'text_1789030049528z655xwavs78',
-    emptyTitleKey: 'text_17890300495285vbd2xto1kc',
+    emptyTitleKey: scopeToEmptyTitleKey(scope),
     emptySubtitleKey: 'text_17890300495297g290y7et77',
   })
 

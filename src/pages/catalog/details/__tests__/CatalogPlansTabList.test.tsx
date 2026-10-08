@@ -11,7 +11,12 @@ import CatalogPlansTabList, { CATALOG_PLANS_TAB_LIST_SEARCH_TEST_ID } from '../C
 const COL_RATE_CARDS_KEY = 'text_1789030049528f40pn120tj7'
 const COL_CONTRACTS_KEY = 'text_1789030049528f6kajqwypsr'
 const SEARCH_PLANS_KEY = 'text_1789030049528lqtvvif9k1p'
-const LIST_EMPTY_TITLE_KEY = 'text_17890300495285vbd2xto1kc'
+const EMPTY_TITLE_KEY_BY_SCOPE = {
+  productId: 'text_1791463004449lwoqb88e5zb',
+  productFilterId: 'text_1791463004449xeg7s65pg1h',
+  productCategoryId: 'text_1791463004449t63ke0nsc2y',
+  rateCardId: 'text_17914630044498glf9v0i00u',
+} as const
 const LIST_SEARCH_EMPTY_TITLE_KEY = 'text_1789030049528z655xwavs78'
 
 const mockTableProps = jest.fn()
@@ -209,14 +214,22 @@ describe('CatalogPlansTabList', () => {
     )
   })
 
-  it('has no create action in the empty state (plans do not attach directly to this object)', () => {
-    render(<CatalogPlansTabList scope={{ productId: 'prod-1' }} />)
+  it.each([
+    [{ productId: 'prod-1' }, EMPTY_TITLE_KEY_BY_SCOPE.productId],
+    [{ productFilterId: 'pif-1' }, EMPTY_TITLE_KEY_BY_SCOPE.productFilterId],
+    [{ productCategoryId: 'cat-1' }, EMPTY_TITLE_KEY_BY_SCOPE.productCategoryId],
+    [{ rateCardId: 'rc-1' }, EMPTY_TITLE_KEY_BY_SCOPE.rateCardId],
+  ])(
+    'shows the scoped empty-state title for scope %p, with no create action (plans do not attach directly to this object)',
+    (scope, expectedTitleKey) => {
+      render(<CatalogPlansTabList scope={scope} />)
 
-    const { placeholder } = getTableProps()
+      const { placeholder } = getTableProps()
 
-    expect(placeholder?.emptyState?.title).toBe(LIST_EMPTY_TITLE_KEY)
-    expect(placeholder?.emptyState?.buttonTitle).toBeUndefined()
-  })
+      expect(placeholder?.emptyState?.title).toBe(expectedTitleKey)
+      expect(placeholder?.emptyState?.buttonTitle).toBeUndefined()
+    },
+  )
 
   it('uses the search variant of the empty state while searching', () => {
     mockUseCatalogPlansQuery.mockReturnValue([
