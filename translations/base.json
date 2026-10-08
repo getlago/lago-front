@@ -5169,5 +5169,6 @@
   "text_1791364076473rfetdcmq055": "Sends an alert every time the balance drops by this amount below the lowest threshold.",
   "text_1791364076473tj13xy14d28": "Then every drop of",
   "text_1791364076473ecdejxgegz1": "Recurring alert after last threshold",
-  "text_1791364076473ntqbftrbupz": "Sends an alert every time usage increases by this amount above the last threshold."
+  "text_1791364076473ntqbftrbupz": "Sends an alert every time usage increases by this amount above the last threshold.",
+  "text_1791440702706mohkt5xwj1a": "Value must be a number"
 }
