@@ -1,10 +1,25 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { AggregationTypeEnum } from '~/generated/graphql'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { AggregationTypeEnum, RoundingFunctionEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import CreateBillableMetric, { FILTER_VALUE_WARNING_ALERT_TEST_ID } from '../CreateBillableMetric'
+import CreateBillableMetric, {
+  BILLABLE_METRIC_ADD_FILTER_TEST_ID,
+  BILLABLE_METRIC_ADD_ROUNDING_TEST_ID,
+  BILLABLE_METRIC_CODE_INPUT_TEST_ID,
+  BILLABLE_METRIC_FIELD_NAME_INPUT_TEST_ID,
+  BILLABLE_METRIC_FILTER_KEY_INPUT_TEST_ID,
+  BILLABLE_METRIC_NAME_INPUT_TEST_ID,
+  BILLABLE_METRIC_REMOVE_ROUNDING_TEST_ID,
+  BILLABLE_METRIC_ROUNDING_FUNCTION_TEST_ID,
+  BILLABLE_METRIC_SUBMIT_TEST_ID,
+  FILTER_VALUE_WARNING_ALERT_TEST_ID,
+} from '../CreateBillableMetric'
+
+// jsdom does not implement scrollIntoView (used when the form scrolls to its first error)
+Element.prototype.scrollIntoView = jest.fn()
 
 const mockOnSave = jest.fn()
 const mockDialogOpen = jest.fn()
@@ -27,6 +42,11 @@ jest.mock('~/core/router', () => ({
   ...jest.requireActual('~/core/router'),
   useNavigate: () => jest.fn(),
   useLocation: () => ({ strippedPathname: '/billable-metrics/bm-1/edit', pathname: '/x' }),
+}))
+
+jest.mock('~/core/utils/domUtils', () => ({
+  ...jest.requireActual('~/core/utils/domUtils'),
+  scrollToTop: jest.fn(),
 }))
 
 // Heavy children unrelated to the tested behavior (code highlighter + drawer using import.meta)
@@ -64,6 +84,9 @@ const setHook = (overrides = {}): void => {
     ...overrides,
   }
 }
+
+const inputIn = (testId: string): HTMLInputElement =>
+  screen.getByTestId(testId).querySelector('input') as HTMLInputElement
 
 describe('CreateBillableMetric', () => {
   beforeEach(() => {
@@ -109,10 +132,10 @@ describe('CreateBillableMetric', () => {
         render(<CreateBillableMetric />)
 
         // Make the form dirty without touching filters
-        const nameInput = screen.getByDisplayValue('My metric')
+        const nameInput = inputIn(BILLABLE_METRIC_NAME_INPUT_TEST_ID)
 
         await user.type(nameInput, ' updated')
-        await user.click(screen.getByTestId('submit'))
+        await user.click(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID))
 
         await waitFor(() => {
           expect(mockOnSave).toHaveBeenCalledTimes(1)
@@ -139,7 +162,7 @@ describe('CreateBillableMetric', () => {
         await waitFor(() => {
           expect(screen.queryByText('name-1')).not.toBeInTheDocument()
         })
-        await user.click(screen.getByTestId('submit'))
+        await user.click(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID))
 
         await waitFor(() => {
           expect(mockDialogOpen).toHaveBeenCalledWith(
@@ -147,6 +170,255 @@ describe('CreateBillableMetric', () => {
           )
         })
         expect(mockOnSave).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a brand new metric', () => {
+    beforeEach(() => {
+      setHook({ isEdition: false, billableMetric: undefined })
+    })
+
+    describe('WHEN every required field is filled', () => {
+      it('THEN should save the derived code, the picked aggregation and a null expression', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateBillableMetric />)
+
+        await user.type(inputIn(BILLABLE_METRIC_NAME_INPUT_TEST_ID), 'Api calls')
+        await user.click(screen.getByRole('combobox'))
+
+        const options = await screen.findAllByRole('option')
+
+        await user.click(options[0])
+        await user.click(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockOnSave).toHaveBeenCalledWith(
+            expect.objectContaining({
+              name: 'Api calls',
+              code: 'api_calls',
+              aggregationType: AggregationTypeEnum.CountAgg,
+              expression: null,
+              filters: [],
+            }),
+          )
+        })
+      })
+    })
+
+    describe('WHEN required fields are still empty', () => {
+      it('THEN should not save', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateBillableMetric />)
+
+        await user.click(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID))
+
+        await waitFor(() => {
+          expect(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID)).toBeDisabled()
+        })
+        expect(mockOnSave).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the code is derived from the name', () => {
+    describe('WHEN creating a metric', () => {
+      it('THEN should fill the code from the typed name', async () => {
+        const user = userEvent.setup()
+
+        setHook({ isEdition: false, billableMetric: undefined })
+        render(<CreateBillableMetric />)
+
+        await user.type(inputIn(BILLABLE_METRIC_NAME_INPUT_TEST_ID), 'Api calls')
+
+        expect(inputIn(BILLABLE_METRIC_CODE_INPUT_TEST_ID)).toHaveValue('api_calls')
+      })
+    })
+
+    describe('WHEN editing a metric that already has a code', () => {
+      it('THEN should keep the existing code untouched', async () => {
+        const user = userEvent.setup()
+
+        setHook({ billableMetric: buildMetric({ hasPlans: false, hasSubscriptions: false }) })
+        render(<CreateBillableMetric />)
+
+        await user.type(inputIn(BILLABLE_METRIC_NAME_INPUT_TEST_ID), ' renamed')
+
+        expect(inputIn(BILLABLE_METRIC_CODE_INPUT_TEST_ID)).toHaveValue('my_metric')
+      })
+    })
+  })
+
+  describe('GIVEN an aggregation that aggregates on a field', () => {
+    describe('WHEN the field name is emptied', () => {
+      it('THEN should not save', async () => {
+        const user = userEvent.setup()
+
+        setHook({
+          billableMetric: buildMetric({
+            aggregationType: AggregationTypeEnum.SumAgg,
+            fieldName: 'amount',
+            hasPlans: false,
+            hasSubscriptions: false,
+          }),
+        })
+        render(<CreateBillableMetric />)
+
+        await user.clear(inputIn(BILLABLE_METRIC_FIELD_NAME_INPUT_TEST_ID))
+        await user.click(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID))
+
+        await waitFor(() => {
+          expect(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID)).toBeDisabled()
+        })
+        expect(mockOnSave).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the rounding section', () => {
+    beforeEach(() => {
+      setHook({ billableMetric: buildMetric({ hasPlans: false, hasSubscriptions: false }) })
+    })
+
+    describe('WHEN no rounding is set', () => {
+      it('THEN should offer to add one instead of showing the rounding fields', () => {
+        render(<CreateBillableMetric />)
+
+        expect(screen.getByTestId(BILLABLE_METRIC_ADD_ROUNDING_TEST_ID)).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(BILLABLE_METRIC_ROUNDING_FUNCTION_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user adds then removes a rounding', () => {
+      it('THEN should reveal the rounding fields and collapse them back', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateBillableMetric />)
+
+        await user.click(screen.getByTestId(BILLABLE_METRIC_ADD_ROUNDING_TEST_ID))
+
+        expect(screen.getByTestId(BILLABLE_METRIC_ROUNDING_FUNCTION_TEST_ID)).toBeInTheDocument()
+
+        await user.click(screen.getByTestId(BILLABLE_METRIC_REMOVE_ROUNDING_TEST_ID))
+
+        expect(screen.getByTestId(BILLABLE_METRIC_ADD_ROUNDING_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a rounding function is already set', () => {
+      it('THEN should display the rounding fields right away', () => {
+        setHook({
+          billableMetric: buildMetric({
+            hasPlans: false,
+            hasSubscriptions: false,
+            roundingFunction: RoundingFunctionEnum.Round,
+            roundingPrecision: 2,
+          }),
+        })
+
+        render(<CreateBillableMetric />)
+
+        expect(screen.getByTestId(BILLABLE_METRIC_ROUNDING_FUNCTION_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(BILLABLE_METRIC_ADD_ROUNDING_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the filters section', () => {
+    describe('WHEN the user adds a filter', () => {
+      it('THEN should append an empty, invalid row that blocks saving', async () => {
+        const user = userEvent.setup()
+
+        setHook({ billableMetric: buildMetric({ hasPlans: false, hasSubscriptions: false }) })
+        render(<CreateBillableMetric />)
+
+        await user.click(screen.getByTestId(BILLABLE_METRIC_ADD_FILTER_TEST_ID))
+
+        expect(
+          screen.getByTestId(`${BILLABLE_METRIC_FILTER_KEY_INPUT_TEST_ID}-1`),
+        ).toBeInTheDocument()
+
+        await user.click(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID))
+
+        await waitFor(() => {
+          expect(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID)).toBeDisabled()
+        })
+        expect(mockOnSave).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN two filters share the same key', () => {
+      it('THEN should not save', async () => {
+        const user = userEvent.setup()
+
+        setHook({
+          billableMetric: buildMetric({
+            hasPlans: false,
+            hasSubscriptions: false,
+            filters: [
+              { key: 'model', values: ['name-1'] },
+              { key: 'model', values: ['name-2'] },
+            ],
+          }),
+        })
+        render(<CreateBillableMetric />)
+
+        await user.click(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID))
+
+        await waitFor(() => {
+          expect(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID)).toBeDisabled()
+        })
+        expect(mockOnSave).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the backend rejected the code as already taken', () => {
+    describe('WHEN the error reaches the form after a save attempt', () => {
+      it('THEN should flag the code input until it changes, then save again', async () => {
+        const user = userEvent.setup()
+
+        setHook({ billableMetric: buildMetric({ hasPlans: false, hasSubscriptions: false }) })
+
+        const { rerender } = render(<CreateBillableMetric />)
+
+        await user.type(inputIn(BILLABLE_METRIC_NAME_INPUT_TEST_ID), ' v2')
+        await user.click(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockOnSave).toHaveBeenCalledTimes(1)
+        })
+
+        mockHookReturn = { ...mockHookReturn, errorCode: FORM_ERRORS_ENUM.existingCode }
+        rerender(<CreateBillableMetric />)
+
+        await waitFor(() => {
+          expect(inputIn(BILLABLE_METRIC_CODE_INPUT_TEST_ID)).toHaveAttribute(
+            'aria-invalid',
+            'true',
+          )
+        })
+
+        await user.type(inputIn(BILLABLE_METRIC_CODE_INPUT_TEST_ID), '_v2')
+
+        await waitFor(() => {
+          expect(inputIn(BILLABLE_METRIC_CODE_INPUT_TEST_ID)).toHaveAttribute(
+            'aria-invalid',
+            'false',
+          )
+        })
+
+        await user.click(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockOnSave).toHaveBeenLastCalledWith(
+            expect.objectContaining({ code: 'my_metric_v2' }),
+          )
+        })
       })
     })
   })
