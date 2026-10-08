@@ -11,6 +11,7 @@ import {
 } from '~/components/Filters'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { AppliedRateCardsTable } from '~/components/appliedRateCards/AppliedRateCardsTable'
+import { useAppliedRateCardDrawer } from '~/components/appliedRateCards/drawers/appliedRateCard/useAppliedRateCardDrawer'
 import { useAppliedRateCardRowActions } from '~/components/appliedRateCards/useAppliedRateCardRowActions'
 import { SearchInput } from '~/components/SearchInput'
 import { APPLIED_RATE_CARD_LIST_FILTER_PREFIX } from '~/core/constants/filters'
@@ -23,7 +24,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
-const CATALOG_PLAN_ADD_RATE_CARD_TEST_ID = 'catalog-plan-add-rate-card'
+export const CATALOG_PLAN_ADD_RATE_CARD_TEST_ID = 'catalog-plan-add-rate-card'
 
 gql`
   query getPlanAppliedRateCardsForRateCardsSection(
@@ -77,6 +78,7 @@ export const CatalogPlanRateCardsSection = ({
   isRemovalLocked,
 }: CatalogPlanRateCardsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
+  const { openDrawer: openAppliedRateCardDrawer } = useAppliedRateCardDrawer()
   const { page, goToPage } = usePageSearchParam()
   const [searchParams] = useSearchParams()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
@@ -127,7 +129,7 @@ export const CatalogPlanRateCardsSection = ({
         action={{
           title: translate('text_1789030049529b0zmy1slfxl'),
           dataTest: CATALOG_PLAN_ADD_RATE_CARD_TEST_ID,
-          onClick: () => undefined,
+          onClick: () => openAppliedRateCardDrawer({ context: 'plan', planId: catalogPlanId }),
         }}
       />
 
