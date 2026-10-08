@@ -35,7 +35,7 @@ const DialogOpeningDialog = create(
     const modal = useModal()
     const centralizedDialog = useCentralizedDialog()
 
-    const { handleCancel, handleContinue, closeText } = useDialogActions({
+    const { handleCancel, handleContinue, closeText, isActionPending } = useDialogActions({
       modal,
       onAction,
       cancelOrCloseText,
@@ -71,7 +71,8 @@ const DialogOpeningDialog = create(
             {closeText}
           </Button>
           <Button
-            disabled={disableOnContinue}
+            disabled={disableOnContinue || isActionPending}
+            loading={isActionPending}
             danger={colorVariant === 'danger'}
             onClick={handleContinue}
           >

@@ -14,8 +14,10 @@ return instead of conditionals nested inside the JSX.
 
 ## The skeleton
 
-The schema file carries the schema, the inferred type, the default values and the
-form→API mapper (`approveQuote/validationSchema.ts` is the shortest complete example):
+The schema file carries the schema, the inferred type and the default values. A form that
+only builds a payload on the way out can keep that builder there too
+(`approveQuote/validationSchema.ts` is the shortest complete example); one that also maps
+an entity back into form values splits both directions out — see **Mappers** below.
 
 ```typescript
 // src/pages/<feature>/validationSchema.ts
@@ -27,19 +29,17 @@ export const featureValidationSchema = z.object({
 export type FeatureFormValues = z.infer<typeof featureValidationSchema>
 
 export const featureDefaultValues: FeatureFormValues = { name: '', email: '' }
-
-export const buildFeatureInput = (values: FeatureFormValues): FeatureInput => ({ ... })
 ```
 
 ```tsx
 const FEATURE_FORM_ID = 'feature-form'
 
 const form = useAppForm({
-  defaultValues: existing ? mapFromApi(existing) : featureDefaultValues,
+  defaultValues: existing ? mapFromApiToForm(existing) : featureDefaultValues,
   validationLogic: revalidateLogic(),
   validators: { onDynamic: featureValidationSchema },
   onSubmit: async ({ value }) => {
-    await mutate({ variables: { input: buildFeatureInput(value) } })
+    await mutate({ variables: { input: mapFromFormToApi(value) } })
   },
   onSubmitInvalid({ formApi }) {
     scrollToFirstInputError(FEATURE_FORM_ID, formApi.state.errorMap.onDynamic || {})
@@ -118,6 +118,16 @@ error behaviour.
 - **Location**: colocated `validationSchema.ts` next to the form. `src/formValidation/`
   is for schemas two or more forms share (`subscriptionFormSchema`, `planFormSchema`,
   `chargeSchema`, `metadataSchema`).
+- **Mappers**: a form that round-trips an entity — it loads one to edit or duplicate, and
+  sends one back — puts both directions in a `mappers.ts` next to the form, and keeps the
+  schema file to schema + type + defaults (`alertForm/`, `featureForm/`,
+  `walletAlertForm/`, `subscriptionEntitlementForm/`, `createBillableMetric/`; bigger
+  ones use a `mappers/` folder with a file per direction: `createCustomers/`,
+  `wallet/topUp/`). A one-way form — a drawer or dialog that only builds a payload — may
+  keep that builder in `validationSchema.ts` rather than add a file for one function
+  (`approveQuote/`, `editOrder/`, `customExpressionDrawer/`). Name them `mapFromApiToForm`
+  and `mapFromFormToApi`; the strays (`mapFeatureToFormValues`, `mapFormToCreateInput`,
+  `buildXInput`) predate the convention and are not a model to copy.
 - **Messages are translation keys.** Every issue without an explicit message falls back to
   `DEFAULT_ZOD_ERROR_MESSAGE` (`initializeZod.ts`), so never write `message: ''` — Zod v4
   replaces it with its own "Invalid input", which then renders raw. Wrappers translate the

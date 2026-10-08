@@ -305,4 +305,55 @@ describe('useDialogActions', () => {
       expect(mockModal.hide).toHaveBeenCalled()
     })
   })
+
+  describe('re-entrancy', () => {
+    it('ignores a second handleContinue while the first is still running', async () => {
+      const mockModal = createMockModal()
+      let releaseAction: () => void = () => {}
+      const mockOnAction = jest.fn(
+        () =>
+          new Promise<void>((resolve) => {
+            releaseAction = () => resolve()
+          }),
+      )
+
+      const { result } = renderHook(() =>
+        useDialogActions({
+          modal: mockModal,
+          onAction: mockOnAction,
+          cancelOrCloseText: 'close',
+          closeOnError: true,
+        }),
+      )
+
+      const first = result.current.handleContinue()
+      const second = result.current.handleContinue()
+
+      releaseAction()
+      await Promise.all([first, second])
+
+      expect(mockOnAction).toHaveBeenCalledTimes(1)
+    })
+
+    it('accepts a new action once a kept-open dialog has settled', async () => {
+      const mockModal = createMockModal()
+      const mockOnAction = jest.fn().mockResolvedValue(undefined)
+
+      const { result } = renderHook(() =>
+        useDialogActions({
+          modal: mockModal,
+          onAction: mockOnAction,
+          cancelOrCloseText: 'close',
+          closeOnError: true,
+          didSubmitSucceed: () => false,
+        }),
+      )
+
+      await result.current.handleContinue()
+      await result.current.handleContinue()
+
+      expect(mockOnAction).toHaveBeenCalledTimes(2)
+      expect(mockModal.hide).not.toHaveBeenCalled()
+    })
+  })
 })

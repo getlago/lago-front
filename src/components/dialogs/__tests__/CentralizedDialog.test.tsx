@@ -509,4 +509,37 @@ describe('CentralizedDialog', () => {
       )
     })
   })
+
+  describe('GIVEN an action still in flight', () => {
+    // Guards the double-submit: the action used to run again on every click.
+    describe('WHEN the action has not settled', () => {
+      it('THEN should run it once and lock the confirm button', async () => {
+        const user = userEvent.setup()
+        let resolveAction: () => void = () => {}
+        const onAction = jest.fn(
+          () =>
+            new Promise<void>((resolve) => {
+              resolveAction = () => resolve()
+            }),
+        )
+
+        render(
+          <NiceModalWrapper>
+            <TestComponent dialogProps={{ ...defaultProps, onAction }} />
+          </NiceModalWrapper>,
+        )
+
+        const confirm = await screen.findByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)
+
+        await user.click(confirm)
+
+        await waitFor(() => {
+          expect(confirm).toBeDisabled()
+        })
+        expect(onAction).toHaveBeenCalledTimes(1)
+
+        resolveAction()
+      })
+    })
+  })
 })
