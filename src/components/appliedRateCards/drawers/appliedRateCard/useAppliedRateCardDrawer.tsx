@@ -6,6 +6,7 @@ import { generatePath } from 'react-router'
 import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
 import { useNavigate } from '~/core/router'
 import { CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE } from '~/core/router/CatalogRoutes'
@@ -119,6 +120,7 @@ export const useAppliedRateCardDrawer = (): {
       title: translate('text_1789030049529b0zmy1slfxl'),
       form: { id: APPLIED_RATE_CARD_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
+      onEntered: focusFirstInput,
       shouldPromptOnClose: () => form.state.isDirty,
       onClose: () => form.reset(),
       secondaryAction: createMoreControl,
