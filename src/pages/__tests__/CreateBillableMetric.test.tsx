@@ -442,6 +442,64 @@ describe('CreateBillableMetric', () => {
     })
   })
 
+  describe('GIVEN the metric is still being fetched', () => {
+    describe('WHEN it arrives after the first render', () => {
+      it('THEN should reinitialize the form with the fetched values', async () => {
+        setHook({ loading: true, billableMetric: undefined })
+
+        const { rerender } = render(<CreateBillableMetric />)
+
+        expect(screen.queryByTestId(BILLABLE_METRIC_NAME_INPUT_TEST_ID)).not.toBeInTheDocument()
+
+        setHook({ loading: false, billableMetric: buildMetric({ hasPlans: false }) })
+        rerender(<CreateBillableMetric />)
+
+        await waitFor(() => {
+          expect(inputIn(BILLABLE_METRIC_NAME_INPUT_TEST_ID)).toHaveValue('My metric')
+        })
+        expect(inputIn(BILLABLE_METRIC_CODE_INPUT_TEST_ID)).toHaveValue('my_metric')
+      })
+    })
+
+    describe('WHEN it arrives after the fields have mounted empty', () => {
+      it('THEN should still reinitialize them', async () => {
+        setHook({ loading: false, billableMetric: undefined })
+
+        const { rerender } = render(<CreateBillableMetric />)
+
+        expect(inputIn(BILLABLE_METRIC_NAME_INPUT_TEST_ID)).toHaveValue('')
+
+        setHook({ loading: false, billableMetric: buildMetric({ hasPlans: false }) })
+        rerender(<CreateBillableMetric />)
+
+        await waitFor(() => {
+          expect(inputIn(BILLABLE_METRIC_NAME_INPUT_TEST_ID)).toHaveValue('My metric')
+        })
+      })
+    })
+
+    describe('WHEN it arrives after the user has started typing', () => {
+      // Reinitialising unconditionally (an explicit reset on every data change)
+      // would discard what the user typed while the fetch was in flight.
+      it('THEN should keep what the user typed', async () => {
+        const user = userEvent.setup()
+
+        setHook({ loading: false, billableMetric: undefined })
+
+        const { rerender } = render(<CreateBillableMetric />)
+
+        await user.type(inputIn(BILLABLE_METRIC_NAME_INPUT_TEST_ID), 'typed by user')
+
+        setHook({ loading: false, billableMetric: buildMetric({ hasPlans: false }) })
+        rerender(<CreateBillableMetric />)
+
+        await waitFor(() => {
+          expect(inputIn(BILLABLE_METRIC_NAME_INPUT_TEST_ID)).toHaveValue('typed by user')
+        })
+      })
+    })
+  })
+
   describe('GIVEN the backend rejected the code as already taken', () => {
     describe('WHEN the error reaches the form after a save attempt', () => {
       it('THEN should flag the code input until it changes, then save again', async () => {
