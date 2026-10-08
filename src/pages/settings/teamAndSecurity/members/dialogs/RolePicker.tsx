@@ -47,7 +47,9 @@ const RolePicker = withFieldGroup({
         value: role.code,
         label: getDisplayName(role),
         description: getDisplayDescription(role),
-        disabled: (role.admin && !isCurrentUserAdmin) || (!role.admin && !isPremium),
+        // grantable is computed by the API: false for roles with permissions the current member does not hold
+        disabled:
+          (role.admin && !isCurrentUserAdmin) || (!role.admin && !isPremium) || !role.grantable,
       }))
     }, [
       roles,

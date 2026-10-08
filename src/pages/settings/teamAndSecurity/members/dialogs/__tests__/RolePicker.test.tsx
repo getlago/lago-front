@@ -48,6 +48,7 @@ const rolesListMock = {
           description: 'Administrator role',
           permissions: [],
           admin: true,
+          grantable: true,
           memberships: [],
         },
         {
@@ -58,6 +59,7 @@ const rolesListMock = {
           description: 'Finance role',
           permissions: [],
           admin: false,
+          grantable: true,
           memberships: [],
         },
         {
@@ -68,12 +70,25 @@ const rolesListMock = {
           description: 'Manager role',
           permissions: [],
           admin: false,
+          grantable: true,
           memberships: [],
         },
       ],
     },
   },
 }
+
+const buildRolesListMock = (grantableByCode: Record<string, boolean>) => ({
+  ...rolesListMock,
+  result: {
+    data: {
+      roles: rolesListMock.result.data.roles.map((role) => ({
+        ...role,
+        grantable: grantableByCode[role.code] ?? role.grantable,
+      })),
+    },
+  },
+})
 
 // Wrapper component that provides form context
 const RolePickerWrapper = ({
@@ -265,6 +280,24 @@ describe('RolePicker', () => {
 
         expect(financeItem).not.toHaveAttribute('aria-disabled', 'true')
         expect(managerItem).not.toHaveAttribute('aria-disabled', 'true')
+      })
+    })
+
+    describe('when the API marks a role as not grantable', () => {
+      beforeEach(() => {
+        mockUseCurrentUser.mockReturnValue({
+          isPremium: true,
+          currentMembership: { roles: ['Finance'] },
+        })
+      })
+
+      it('disables the roles that are not grantable', async () => {
+        await prepare({ mocks: [buildRolesListMock({ admin: false, manager: false })] })
+        await openDropdown()
+
+        expect(screen.getByTestId('admin')).toHaveAttribute('aria-disabled', 'true')
+        expect(screen.getByTestId('manager')).toHaveAttribute('aria-disabled', 'true')
+        expect(screen.getByTestId('finance')).not.toHaveAttribute('aria-disabled', 'true')
       })
     })
 
