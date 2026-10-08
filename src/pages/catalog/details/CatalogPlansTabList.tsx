@@ -3,22 +3,19 @@ import { useCallback, useState } from 'react'
 
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
-import { Table, TableColumn } from '~/components/designSystem/Table/Table'
-import { Typography } from '~/components/designSystem/Typography'
-import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
+import { Table } from '~/components/designSystem/Table/Table'
 import { SearchInput } from '~/components/SearchInput'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   CatalogPlanForCatalogPlanDrawerFragmentDoc,
-  CatalogPlanForCatalogPlansTabListFragment,
   CatalogPlanForDeleteCatalogPlanDialogFragmentDoc,
   useGetCatalogPlansForCatalogObjectDetailsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { useCatalogPlanTableActions } from '../useCatalogPlanTableActions'
+import { useCatalogPlanTableColumns } from '../useCatalogPlanTableColumns'
 
 export const CATALOG_PLANS_TAB_LIST_SEARCH_TEST_ID = 'catalog-plans-tab-list-search-input'
 
@@ -103,8 +100,8 @@ const scopeToEmptyTitleKey = (scope: CatalogPlansTabListScope): string => {
 
 const CatalogPlansTabList = ({ scope }: { scope: CatalogPlansTabListScope }): JSX.Element => {
   const { translate } = useInternationalization()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { actionColumn, actionColumnTooltip, getRowActionLink } = useCatalogPlanTableActions()
+  const columns = useCatalogPlanTableColumns()
   const { page, goToPage } = usePageSearchParam()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
 
@@ -124,58 +121,6 @@ const CatalogPlansTabList = ({ scope }: { scope: CatalogPlansTabListScope }): JS
     },
     [goToPage, debouncedSearch],
   )
-
-  const columns: TableColumn<CatalogPlanForCatalogPlansTabListFragment>[] = [
-    {
-      key: 'name',
-      title: translate('text_6419c64eace749372fc72b0f'),
-      minWidth: 200,
-      maxSpace: true,
-      content: ({ name, invoiceDisplayName, code }) => (
-        <>
-          <Typography color="textSecondary" variant="bodyHl" noWrap>
-            {invoiceDisplayName || name}
-          </Typography>
-          <TypographyWithCopy compact noWrap variant="caption">
-            {code}
-          </TypographyWithCopy>
-        </>
-      ),
-    },
-    {
-      key: 'appliedRateCardsCount',
-      title: translate('text_1789030049528f40pn120tj7'),
-      textAlign: 'right',
-      minWidth: 112,
-      content: ({ appliedRateCardsCount }) => (
-        <Typography color="grey600" variant="body" noWrap>
-          {appliedRateCardsCount}
-        </Typography>
-      ),
-    },
-    {
-      key: 'contractsCount',
-      title: translate('text_1789030049528f6kajqwypsr'),
-      textAlign: 'right',
-      minWidth: 130,
-      content: ({ contractsCount }) => (
-        <Typography color="grey600" variant="body" noWrap>
-          {contractsCount}
-        </Typography>
-      ),
-    },
-    {
-      key: 'createdAt',
-      title: translate('text_629728388c4d2300e2d380e3'),
-      textAlign: 'right',
-      minWidth: 140,
-      content: ({ createdAt }) => (
-        <Typography color="grey600" variant="body" noWrap>
-          {intlFormatDateTimeOrgaTZ(createdAt).date}
-        </Typography>
-      ),
-    },
-  ]
 
   const placeholder = buildSearchAwareTablePlaceholder({
     translate,
