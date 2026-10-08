@@ -1,7 +1,7 @@
 import { withForm } from '~/hooks/forms/useAppform'
 
-import { RATE_PHASE_FORM_DEFAULTS } from './ratePhaseFormSchema'
 import { RatePhaseFormFields } from './RatePhaseFormFields'
+import { RATE_PHASE_FORM_DEFAULTS } from './ratePhaseFormSchema'
 import { RateCardForRatePhaseFields } from './types'
 
 type RatePhaseLocalDrawerContentProps = {
