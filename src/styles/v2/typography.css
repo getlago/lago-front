@@ -32,30 +32,35 @@
   }
 
   .v2-text-page-title {
+    text-wrap: balance;
     font-size: var(--v2-size-24);
     line-height: var(--v2-line-height-32);
     font-weight: var(--v2-weight-semibold, 600);
   }
 
   .v2-text-section-title {
+    text-wrap: balance;
     font-size: var(--v2-size-18);
     line-height: var(--v2-line-height-24);
     font-weight: var(--v2-weight-semibold, 600);
   }
 
   .v2-text-group-title {
+    text-wrap: balance;
     font-size: var(--v2-size-16);
     line-height: var(--v2-line-height-24);
     font-weight: var(--v2-weight-semibold, 600);
   }
 
   .v2-text-body {
+    text-wrap: pretty;
     font-size: var(--v2-size-14);
     line-height: var(--v2-line-height-20);
     font-weight: var(--v2-weight-regular, 400);
   }
 
   .v2-text-body-large {
+    text-wrap: pretty;
     font-size: var(--v2-size-16);
     line-height: var(--v2-line-height-24);
     font-weight: var(--v2-weight-regular, 400);
@@ -65,6 +70,7 @@
     font-size: var(--v2-size-14);
     line-height: var(--v2-line-height-20);
     font-weight: var(--v2-weight-medium, 500);
+    text-box: trim-both cap alphabetic;
   }
 
   .v2-text-caption {
