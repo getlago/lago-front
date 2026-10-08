@@ -41,6 +41,9 @@ export const mapFromApiToForm = (
   }
 }
 
+const toRoundingPrecision = (value: number | string | undefined): number | undefined =>
+  value === undefined || value === '' ? undefined : Number(value)
+
 export const mapFromFormToApi = (values: BillableMetricFormValues): CreateBillableMetricInput => ({
   name: values.name,
   code: values.code,
@@ -54,9 +57,10 @@ export const mapFromFormToApi = (values: BillableMetricFormValues): CreateBillab
     values: filter.values.map(({ value }) => value),
   })),
   roundingFunction: values.roundingFunction,
-  roundingPrecision:
-    values.roundingPrecision === undefined || values.roundingPrecision === ''
-      ? undefined
-      : Number(values.roundingPrecision),
+  // Without a function the precision input is hidden, so sending it would store a
+  // value the user can no longer see or clear.
+  roundingPrecision: !values.roundingFunction
+    ? undefined
+    : toRoundingPrecision(values.roundingPrecision),
   expression: values.aggregateOnTab === AggregateOnTab.CustomExpression ? values.expression : null,
 })

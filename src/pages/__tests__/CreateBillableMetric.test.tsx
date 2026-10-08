@@ -9,6 +9,7 @@ import CreateBillableMetric from '../CreateBillableMetric'
 import {
   BILLABLE_METRIC_ADD_FILTER_TEST_ID,
   BILLABLE_METRIC_ADD_ROUNDING_TEST_ID,
+  BILLABLE_METRIC_AGGREGATION_TYPE_TEST_ID,
   BILLABLE_METRIC_CODE_INPUT_TEST_ID,
   BILLABLE_METRIC_FIELD_NAME_INPUT_TEST_ID,
   BILLABLE_METRIC_FILTER_KEY_INPUT_TEST_ID,
@@ -250,6 +251,43 @@ describe('CreateBillableMetric', () => {
         await user.type(inputIn(BILLABLE_METRIC_NAME_INPUT_TEST_ID), ' renamed')
 
         expect(inputIn(BILLABLE_METRIC_CODE_INPUT_TEST_ID)).toHaveValue('my_metric')
+      })
+    })
+  })
+
+  describe('GIVEN an aggregation is switched to one that needs no field', () => {
+    describe('WHEN the metric already carries a field name and an expression', () => {
+      it('THEN should save neither of them', async () => {
+        const user = userEvent.setup()
+
+        setHook({
+          billableMetric: buildMetric({
+            aggregationType: AggregationTypeEnum.SumAgg,
+            fieldName: 'amount',
+            expression: 'round(x)',
+            filters: [],
+            hasPlans: false,
+            hasSubscriptions: false,
+          }),
+        })
+        render(<CreateBillableMetric />)
+
+        await user.click(inputIn(BILLABLE_METRIC_AGGREGATION_TYPE_TEST_ID))
+
+        const options = await screen.findAllByRole('option')
+
+        await user.click(options[0])
+        await user.click(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockOnSave).toHaveBeenCalledWith(
+            expect.objectContaining({
+              aggregationType: AggregationTypeEnum.CountAgg,
+              fieldName: undefined,
+              expression: null,
+            }),
+          )
+        })
       })
     })
   })

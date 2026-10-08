@@ -16,13 +16,15 @@ const FIELD_NAME_FREE_AGGREGATIONS = [AggregationTypeEnum.CountAgg, AggregationT
 export const aggregatesOnAField = (aggregationType?: AggregationTypeEnum): boolean =>
   !!aggregationType && !FIELD_NAME_FREE_AGGREGATIONS.includes(aggregationType)
 
-// `Number('  ')` is 0, so a blank-but-not-empty input would otherwise read as a
-// valid zero. An emptied field stays valid: the precision is optional.
+// A count of decimal digits: whole and not negative. `Number('  ')` is 0, so a
+// blank-but-not-empty input would otherwise read as a valid zero.
 const isValidRoundingPrecision = (value: number | string | undefined): boolean => {
   if (value === undefined || value === '') return true
   if (typeof value === 'string' && !value.trim()) return false
 
-  return !isNaN(Number(value))
+  const precision = Number(value)
+
+  return Number.isInteger(precision) && precision >= 0
 }
 
 const filterSchema = z.object({
@@ -59,16 +61,14 @@ export const billableMetricValidationSchema = z
     path: ['fieldName'],
   })
   .superRefine((data, ctx) => {
-    if (!Array.isArray(data.filters)) return
-
     data.filters.forEach((filter, index) => {
-      if (!filter?.key) {
+      if (!filter.key) {
         ctx.addIssue({ code: 'custom', message: REQUIRED_ERROR, path: ['filters', index, 'key'] })
 
         return
       }
 
-      const isKeyDuplicated = data.filters.filter((other) => other?.key === filter.key).length > 1
+      const isKeyDuplicated = data.filters.filter((other) => other.key === filter.key).length > 1
 
       if (isKeyDuplicated) {
         ctx.addIssue({
@@ -80,7 +80,7 @@ export const billableMetricValidationSchema = z
         return
       }
 
-      if (!filter.values?.length) {
+      if (!filter.values.length) {
         ctx.addIssue({
           code: 'custom',
           message: REQUIRED_ERROR,

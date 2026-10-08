@@ -34,7 +34,10 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
 import { hasRemovedFilterValues } from '~/pages/CreateBillableMetric.utils'
-import { getAggregationTypeOptions } from '~/pages/createBillableMetric/aggregationTypeOptions'
+import {
+  getAggregationTypeOptions,
+  isNonRecurringOnly,
+} from '~/pages/createBillableMetric/aggregationTypeOptions'
 import {
   BILLABLE_METRIC_ADD_FILTER_TEST_ID,
   BILLABLE_METRIC_ADD_ROUNDING_TEST_ID,
@@ -144,9 +147,12 @@ const CreateBillableMetric = () => {
     !!billableMetric?.roundingFunction,
   )
 
-  const formValues = useStore(form.store, (state) => state.values)
   const isDirty = useStore(form.store, (state) => state.isDirty)
-  const { aggregationType, aggregateOnTab, recurring, roundingFunction, filters } = formValues
+  const aggregationType = useStore(form.store, (state) => state.values.aggregationType)
+  const aggregateOnTab = useStore(form.store, (state) => state.values.aggregateOnTab)
+  const recurring = useStore(form.store, (state) => state.values.recurring)
+  const roundingFunction = useStore(form.store, (state) => state.values.roundingFunction)
+  const filters = useStore(form.store, (state) => state.values.filters)
 
   const showAggregateOn = aggregatesOnAField(aggregationType)
   const aggregationTypeOptions = getAggregationTypeOptions({
@@ -237,7 +243,7 @@ const CreateBillableMetric = () => {
                   <NameAndCodeGroup
                     form={form}
                     fields={{ name: 'name', code: 'code' }}
-                    disableCodeInput={isEdition && !canBeEdited}
+                    disableCodeInput={isInUse}
                     disableAutoGenerateCode={!!defaultValues.code}
                     nameDataTest={BILLABLE_METRIC_NAME_INPUT_TEST_ID}
                     codeDataTest={BILLABLE_METRIC_CODE_INPUT_TEST_ID}
@@ -313,13 +319,7 @@ const CreateBillableMetric = () => {
                       name="recurring"
                       listeners={{
                         onChange: () => {
-                          const current = form.state.values.aggregationType
-
-                          if (
-                            current === AggregationTypeEnum.CountAgg ||
-                            current === AggregationTypeEnum.LatestAgg ||
-                            current === AggregationTypeEnum.MaxAgg
-                          ) {
+                          if (isNonRecurringOnly(form.state.values.aggregationType)) {
                             form.setFieldValue('aggregationType', undefined)
                           }
                         },
@@ -328,7 +328,7 @@ const CreateBillableMetric = () => {
                       {(field) => (
                         <field.ButtonSelectorField
                           data-test={BILLABLE_METRIC_RECURRING_SWITCH_TEST_ID}
-                          disabled={isEdition && !canBeEdited}
+                          disabled={isInUse}
                           label={translate('text_64d2709dc5b465004fbd3537')}
                           helperText={translate(
                             recurring
@@ -353,9 +353,13 @@ const CreateBillableMetric = () => {
                       name="aggregationType"
                       listeners={{
                         onChange: ({ value }) => {
-                          if (!aggregatesOnAField(value)) {
-                            form.setFieldValue('fieldName', undefined)
-                          }
+                          if (aggregatesOnAField(value)) return
+
+                          // The aggregate-on section is hidden for these types, so its
+                          // fields would otherwise stay behind and still be submitted.
+                          form.setFieldValue('fieldName', undefined)
+                          form.setFieldValue('aggregateOnTab', AggregateOnTab.UniqueField)
+                          form.setFieldValue('expression', '')
                         },
                       }}
                     >
@@ -363,10 +367,7 @@ const CreateBillableMetric = () => {
                         <field.ComboBoxField
                           dataTest={BILLABLE_METRIC_AGGREGATION_TYPE_TEST_ID}
                           sortValues={false}
-                          disabled={
-                            (isEdition && !canBeEdited) ||
-                            aggregationType === AggregationTypeEnum.CustomAgg
-                          }
+                          disabled={isInUse || aggregationType === AggregationTypeEnum.CustomAgg}
                           label={
                             <div className="flex items-center gap-2">
                               <Typography variant="captionHl" color="textSecondary">
@@ -394,7 +395,7 @@ const CreateBillableMetric = () => {
                             <field.ButtonSelectorField
                               data-test={BILLABLE_METRIC_AGGREGATE_ON_SWITCH_TEST_ID}
                               className="mb-4"
-                              disabled={isEdition && !canBeEdited}
+                              disabled={isInUse}
                               label={translate('text_1729771640162n696lisyg7u')}
                               options={[
                                 {
@@ -416,7 +417,7 @@ const CreateBillableMetric = () => {
                               {(field) => (
                                 <field.TextInputField
                                   data-test={BILLABLE_METRIC_FIELD_NAME_INPUT_TEST_ID}
-                                  disabled={isEdition && !canBeEdited}
+                                  disabled={isInUse}
                                   placeholder={translate('text_1729771640162l0f5uuitglm')}
                                   helperText={translate('text_172977164016216e9fgnuf1w')}
                                 />
@@ -430,7 +431,7 @@ const CreateBillableMetric = () => {
                             <form.AppField name="expression">
                               {(field) => (
                                 <field.JsonEditorField
-                                  disabled={isEdition && !canBeEdited}
+                                  disabled={isInUse}
                                   readOnlyWithoutStyles
                                   editorMode="text"
                                   label=""
@@ -450,7 +451,7 @@ const CreateBillableMetric = () => {
                             <form.AppField name="fieldName">
                               {(field) => (
                                 <field.TextInputField
-                                  disabled={isEdition && !canBeEdited}
+                                  disabled={isInUse}
                                   className="mt-4"
                                   placeholder={translate('text_1729771640162l0f5uuitglm')}
                                   helperText={translate('text_1729771640162zvj44b3l84g')}
@@ -467,7 +468,7 @@ const CreateBillableMetric = () => {
                     )}
                   </Stack>
 
-                  {!(isEdition && !canBeEdited && !billableMetric?.roundingFunction) && (
+                  {!(isInUse && !billableMetric?.roundingFunction) && (
                     <div>
                       <div className="mb-6">
                         <Typography variant="subhead2" color="grey700">
@@ -499,8 +500,8 @@ const CreateBillableMetric = () => {
                               {(field) => (
                                 <field.ComboBoxField
                                   dataTest={BILLABLE_METRIC_ROUNDING_FUNCTION_TEST_ID}
-                                  disabled={isEdition && !canBeEdited}
-                                  disableClearable={isEdition && !canBeEdited}
+                                  disabled={isInUse}
+                                  disableClearable={isInUse}
                                   sortValues={false}
                                   virtualized={false}
                                   containerClassName="w-full"
@@ -532,7 +533,7 @@ const CreateBillableMetric = () => {
                                   <field.TextInputField
                                     data-test={BILLABLE_METRIC_ROUNDING_PRECISION_TEST_ID}
                                     type="number"
-                                    disabled={isEdition && !canBeEdited}
+                                    disabled={isInUse}
                                     label={
                                       <Typography variant="body" color="grey700" noWrap>
                                         {translate('text_1730554726832vyn9bep4u0f')}
@@ -545,7 +546,7 @@ const CreateBillableMetric = () => {
                             )}
                           </div>
 
-                          {!(isEdition && !canBeEdited) && (
+                          {!isInUse && (
                             <div className="flex w-7 items-center justify-center pt-6">
                               <Button
                                 icon="trash"
@@ -762,10 +763,14 @@ const CreateBillableMetric = () => {
           </div>
         </Main>
         <Side>
-          <BillableMetricCodeSnippet
-            loading={loading}
-            billableMetric={mapFromFormToApi(formValues)}
-          />
+          <form.Subscribe selector={(state) => state.values}>
+            {(values) => (
+              <BillableMetricCodeSnippet
+                loading={loading}
+                billableMetric={mapFromFormToApi(values)}
+              />
+            )}
+          </form.Subscribe>
         </Side>
       </form>
     </div>

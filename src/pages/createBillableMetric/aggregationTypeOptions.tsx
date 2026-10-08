@@ -17,6 +17,9 @@ const NON_RECURRING_ONLY = [
   AggregationTypeEnum.MaxAgg,
 ]
 
+export const isNonRecurringOnly = (aggregationType?: AggregationTypeEnum): boolean =>
+  !!aggregationType && NON_RECURRING_ONLY.includes(aggregationType)
+
 const SELECTABLE_AGGREGATION_TYPES = [
   AggregationTypeEnum.CountAgg,
   AggregationTypeEnum.UniqueCountAgg,
@@ -43,7 +46,7 @@ export const getAggregationTypeOptions = ({
   })
 
   const options = SELECTABLE_AGGREGATION_TYPES.filter(
-    (type) => !recurring || !NON_RECURRING_ONLY.includes(type),
+    (type) => !recurring || !isNonRecurringOnly(type),
   ).map(toOption)
 
   // `CustomAgg` is never offered: it can only be created through the API, and is

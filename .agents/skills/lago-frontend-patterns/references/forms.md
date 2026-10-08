@@ -17,7 +17,7 @@ return instead of conditionals nested inside the JSX.
 The schema file carries the schema, the inferred type and the default values. A form that
 only builds a payload on the way out can keep that builder there too
 (`approveQuote/validationSchema.ts` is the shortest complete example); one that also maps
-an entity back into form values splits both directions out — see **Mappers** below.
+an entity back into form values splits both directions out - see **Mappers** below.
 
 ```typescript
 // src/pages/<feature>/validationSchema.ts
@@ -118,12 +118,12 @@ error behaviour.
 - **Location**: colocated `validationSchema.ts` next to the form. `src/formValidation/`
   is for schemas two or more forms share (`subscriptionFormSchema`, `planFormSchema`,
   `chargeSchema`, `metadataSchema`).
-- **Mappers**: a form that round-trips an entity — it loads one to edit or duplicate, and
-  sends one back — puts both directions in a `mappers.ts` next to the form, and keeps the
+- **Mappers**: a form that round-trips an entity - it loads one to edit or duplicate, and
+  sends one back - puts both directions in a `mappers.ts` next to the form, and keeps the
   schema file to schema + type + defaults (`alertForm/`, `featureForm/`,
   `walletAlertForm/`, `subscriptionEntitlementForm/`, `createBillableMetric/`; bigger
   ones use a `mappers/` folder with a file per direction: `createCustomers/`,
-  `wallet/topUp/`). A one-way form — a drawer or dialog that only builds a payload — may
+  `wallet/topUp/`). A one-way form - a drawer or dialog that only builds a payload - may
   keep that builder in `validationSchema.ts` rather than add a file for one function
   (`approveQuote/`, `editOrder/`, `customExpressionDrawer/`). Name them `mapFromApiToForm`
   and `mapFromFormToApi`; the strays (`mapFeatureToFormValues`, `mapFormToCreateInput`,

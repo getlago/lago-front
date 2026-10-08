@@ -1,7 +1,5 @@
-// Data test ids for the billable metric form – shared with e2e.
 // `submit`, `show-description`, `add-filter`, `recurring-switch` and
-// `aggregate-on-switch` keep their historical values: `t30-create-bm.cy.ts` and
-// `cypress/support/e2e.ts` select on them.
+// `aggregate-on-switch` keep their historical values: `t30-create-bm.cy.ts` selects on them.
 
 export const FILTER_VALUE_WARNING_ALERT_TEST_ID = 'billable-metric-filter-value-warning'
 export const BILLABLE_METRIC_NAME_INPUT_TEST_ID = 'billable-metric-name-input'

@@ -88,6 +88,11 @@ describe('mapFromApiToForm', () => {
   })
 })
 
+const ROUND = RoundingFunctionEnum.Round
+
+const buildInput = (overrides: Partial<BillableMetricFormValues> = {}) =>
+  mapFromFormToApi({ ...VALID_VALUES, ...overrides })
+
 describe('mapFromFormToApi', () => {
   const formValues: BillableMetricFormValues = {
     ...VALID_VALUES,
@@ -104,26 +109,40 @@ describe('mapFromFormToApi', () => {
     })
   })
 
-  describe('GIVEN a rounding precision', () => {
+  describe('GIVEN a rounding precision alongside its function', () => {
     describe('WHEN it is 0', () => {
       it('THEN should send 0, not drop it', () => {
-        expect(mapFromFormToApi({ ...formValues, roundingPrecision: 0 }).roundingPrecision).toBe(0)
+        expect(
+          buildInput({ roundingFunction: ROUND, roundingPrecision: 0 }).roundingPrecision,
+        ).toBe(0)
       })
     })
 
     describe('WHEN it is an empty string', () => {
       it('THEN should send nothing', () => {
         expect(
-          mapFromFormToApi({ ...formValues, roundingPrecision: '' }).roundingPrecision,
+          buildInput({ roundingFunction: ROUND, roundingPrecision: '' }).roundingPrecision,
         ).toBeUndefined()
       })
     })
 
     describe('WHEN it is a numeric string', () => {
       it('THEN should send it as a number', () => {
-        expect(mapFromFormToApi({ ...formValues, roundingPrecision: '3' }).roundingPrecision).toBe(
-          3,
-        )
+        expect(
+          buildInput({ roundingFunction: ROUND, roundingPrecision: '3' }).roundingPrecision,
+        ).toBe(3)
+      })
+    })
+  })
+
+  describe('GIVEN no rounding function', () => {
+    describe('WHEN a precision lingers from a cleared function', () => {
+      // The precision input is hidden without a function, so sending it would
+      // store a value the user can no longer see or clear.
+      it('THEN should send no precision', () => {
+        expect(
+          buildInput({ roundingFunction: undefined, roundingPrecision: 2 }).roundingPrecision,
+        ).toBeUndefined()
       })
     })
   })

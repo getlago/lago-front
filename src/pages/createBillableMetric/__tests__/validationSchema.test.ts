@@ -144,6 +144,19 @@ describe('billableMetricValidationSchema', () => {
       })
     })
 
+    describe('WHEN it is not a whole, non-negative count of digits', () => {
+      it.each([
+        ['a decimal', 1.5],
+        ['a decimal string', '2.5'],
+        ['a negative number', -3],
+        ['a negative string', '-3'],
+      ])('THEN should flag %s', (_label, roundingPrecision) => {
+        expect(
+          invalidFields({ roundingFunction: RoundingFunctionEnum.Round, roundingPrecision }),
+        ).toContain('roundingPrecision')
+      })
+    })
+
     describe('WHEN it holds a number padded with whitespace', () => {
       it('THEN should accept it', () => {
         expect(
