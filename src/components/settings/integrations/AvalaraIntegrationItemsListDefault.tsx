@@ -4,10 +4,12 @@ import { RefObject } from 'react'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import {
   AvalaraIntegrationItemsListDefaultFragment,
+  FeatureFlagEnum,
   IntegrationTypeEnum,
   MappingTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { AvalaraIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/AvalaraIntegrationMapItemDrawer'
 import {
   type IntegrationItem,
@@ -42,6 +44,9 @@ const AvalaraIntegrationItemsListDefault = ({
   avalaraIntegrationMapItemDrawerRef,
 }: AvalaraIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
+  const { hasFeatureFlag, loading: isOrganizationLoading } = useOrganizationInfos()
+  const canViewLegacyMappings =
+    !isOrganizationLoading && !hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
 
   if (!isLoading && hasError) {
     return (
@@ -91,7 +96,9 @@ const AvalaraIntegrationItemsListDefault = ({
     <IntegrationItemsTable
       integrationId={integrationId}
       integrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
-      items={defaultListToDisplay}
+      items={defaultListToDisplay.filter(
+        ({ mappingType }) => mappingType === MappingTypeEnum.FallbackItem || canViewLegacyMappings,
+      )}
       provider={IntegrationTypeEnum.Avalara}
       isLoading={isLoading}
     />
