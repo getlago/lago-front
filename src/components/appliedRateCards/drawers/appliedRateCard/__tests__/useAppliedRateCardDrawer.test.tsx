@@ -76,10 +76,7 @@ jest.mock('../AppliedRateCardDrawerContent', () => ({
       >
         seed required fields
       </button>
-      <button
-        type="button"
-        onClick={() => form.setFieldValue('billingAnchorDate', '2026-01-01')}
-      >
+      <button type="button" onClick={() => form.setFieldValue('billingAnchorDate', '2026-01-01')}>
         seed billing anchor date
       </button>
     </>
@@ -206,9 +203,7 @@ describe('useAppliedRateCardDrawer', () => {
     await submit()
 
     await waitFor(() =>
-      expect(addToast).toHaveBeenCalledWith(
-        expect.objectContaining({ severity: 'success' }),
-      ),
+      expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' })),
     )
     expect(capturedInput).toMatchObject({ rateCardCode: 'standard-card' })
     expect(mockClose).not.toHaveBeenCalled()

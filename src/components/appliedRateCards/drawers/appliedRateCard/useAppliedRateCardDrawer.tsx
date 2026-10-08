@@ -42,8 +42,7 @@ gql`
 const APPLIED_RATE_CARD_FORM_ID = 'applied-rate-card-drawer-form'
 
 export type AppliedRateCardDrawerProps =
-  | { context: 'plan'; planId: string }
-  | { context: 'contract'; contractId: string }
+  { context: 'plan'; planId: string } | { context: 'contract'; contractId: string }
 
 export const useAppliedRateCardDrawer = (): {
   openDrawer: (props: AppliedRateCardDrawerProps) => void

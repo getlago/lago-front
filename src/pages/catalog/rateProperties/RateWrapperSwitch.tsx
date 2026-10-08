@@ -59,6 +59,8 @@ gql`
 
 // `group.form` is typed as the core FormApi; the tier tables (also `withFieldGroup` consumers)
 // need the React-extended form type for their own `form` prop - same runtime object either way.
+// Mirrors `@tanstack/form-core`'s own `AnyFormApi = FormApi<any, ...>` type-erasure pattern.
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type AnyReactFormApi = AppFieldExtendedReactFormApi<
   any,
   any,
@@ -75,6 +77,7 @@ type AnyReactFormApi = AppFieldExtendedReactFormApi<
   any,
   any
 >
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 // Every tier table is mounted here with a fixed `fields="properties"`: casting them to this
 // concrete signature (rather than threading `hostForm` through their own generics) sidesteps
@@ -90,7 +93,8 @@ const BoundGraduatedRateTiersTable =
   GraduatedRateTiersTable as ComponentType<RatePropertiesTierTableProps>
 const BoundGraduatedPercentageRateTiersTable =
   GraduatedPercentageRateTiersTable as ComponentType<RatePropertiesTierTableProps>
-const BoundVolumeRateTiersTable = VolumeRateTiersTable as ComponentType<RatePropertiesTierTableProps>
+const BoundVolumeRateTiersTable =
+  VolumeRateTiersTable as ComponentType<RatePropertiesTierTableProps>
 
 type RateWrapperSwitchProps = {
   rateModel: RateCardRateModelEnum

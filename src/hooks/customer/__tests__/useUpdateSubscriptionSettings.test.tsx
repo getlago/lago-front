@@ -31,6 +31,7 @@ describe('useUpdateSubscriptionSettings', () => {
 
   it('saves additional routing without changing payment and resets inherited overrides explicitly', async () => {
     const { result } = renderHook(() => useUpdateSubscriptionSettings('sub_1'))
+
     await result.current.saveAdditionalIntegrations({
       accounting: { code: 'netsuite_eu' },
       crm: undefined,
@@ -53,6 +54,7 @@ describe('useUpdateSubscriptionSettings', () => {
   it('rejects a failed additional integration save', async () => {
     mockUpdate.mockResolvedValueOnce({ data: { updateSubscription: null } })
     const { result } = renderHook(() => useUpdateSubscriptionSettings('sub_1'))
+
     await expect(
       result.current.saveAdditionalIntegrations({
         accounting: undefined,

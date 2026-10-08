@@ -111,7 +111,10 @@ const RATE_CARD: RateCardFixture = {
 }
 
 const productsMock = (): MockedResponse => ({
-  request: { query: GetProductsForAppliedRateCardDrawerDocument, variables: { page: 1, limit: 20 } },
+  request: {
+    query: GetProductsForAppliedRateCardDrawerDocument,
+    variables: { page: 1, limit: 20 },
+  },
   maxUsageCount: Number.POSITIVE_INFINITY,
   result: {
     data: { products: { collection: [PRODUCT], metadata: { currentPage: 1, totalPages: 1 } } },
@@ -200,9 +203,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
   it('GIVEN no product selected THEN only the product combobox renders', () => {
     renderContent([productsMock()])
 
-    expect(
-      screen.queryByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)).not.toBeInTheDocument()
     expect(
       screen.queryByTestId(APPLIED_RATE_CARD_DRAWER_SHOW_FILTER_TEST_ID),
     ).not.toBeInTheDocument()
@@ -267,9 +268,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
 
     await userEvent.click(rateCardInput)
 
-    const addValueItem = await screen.findByTestId(
-      'combobox-item-Create rate card',
-    )
+    const addValueItem = await screen.findByTestId('combobox-item-Create rate card')
 
     await userEvent.click(addValueItem.querySelector('button') as HTMLElement)
 
@@ -281,7 +280,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
     )
   })
 
-  it("GIVEN the stacked drawer calls onCreated THEN this drawer sets its rateCardId field to the new code, and the stacked drawer is already closed", async () => {
+  it('GIVEN the stacked drawer calls onCreated THEN this drawer sets its rateCardId field to the new code, and the stacked drawer is already closed', async () => {
     renderContent([productsMock(), rateCardsMock(() => undefined, [])])
 
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
@@ -292,9 +291,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
 
     await userEvent.click(rateCardInput)
 
-    const addValueItem = await screen.findByTestId(
-      'combobox-item-Create rate card',
-    )
+    const addValueItem = await screen.findByTestId('combobox-item-Create rate card')
 
     await userEvent.click(addValueItem.querySelector('button') as HTMLElement)
 
@@ -318,9 +315,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
 
-    expect(
-      screen.queryByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID)).not.toBeInTheDocument()
   })
 
   it('GIVEN a rate card selected AND "Add phase" clicked THEN the local rate-phase drawer opens with isLastPosition true', async () => {
@@ -401,7 +396,12 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
   })
 
   it('GIVEN a rate card is created via the stacked escape hatch THEN the rate phase section still appears once the newly created rate card resolves', async () => {
-    const newRateCard: RateCardFixture = { ...RATE_CARD, id: 'new-rc-id', code: 'new-code', name: 'New card' }
+    const newRateCard: RateCardFixture = {
+      ...RATE_CARD,
+      id: 'new-rc-id',
+      code: 'new-code',
+      name: 'New card',
+    }
 
     renderContent([
       productsMock(),
@@ -417,9 +417,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
 
     await userEvent.click(rateCardInput)
 
-    const addValueItem = await screen.findByTestId(
-      'combobox-item-Create rate card',
-    )
+    const addValueItem = await screen.findByTestId('combobox-item-Create rate card')
 
     await userEvent.click(addValueItem.querySelector('button') as HTMLElement)
 
