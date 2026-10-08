@@ -49,6 +49,7 @@ const Host = ({
     <>
       <GraduatedRateTiersTable
         form={form}
+        fields="properties"
         currency={CurrencyEnum.Usd}
         pricingUnitShortName={pricingUnitShortName}
       />

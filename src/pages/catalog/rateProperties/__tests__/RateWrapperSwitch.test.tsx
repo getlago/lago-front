@@ -96,6 +96,7 @@ const Host = ({
   return (
     <RateWrapperSwitch
       form={form}
+      fields="properties"
       rateModel={rateModel}
       productType={productType}
       currency={CurrencyEnum.Eur}

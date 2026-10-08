@@ -41,6 +41,7 @@ const Host = ({ properties = {} }: { properties?: RatePropertiesInput }) => {
     <>
       <GraduatedPercentageRateTiersTable
         form={form}
+        fields="properties"
         currency={CurrencyEnum.Usd}
         pricingUnitShortName={undefined}
       />

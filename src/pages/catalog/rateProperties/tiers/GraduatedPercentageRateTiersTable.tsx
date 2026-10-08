@@ -11,8 +11,8 @@ import { FieldErrorTooltip } from '~/components/form/FieldErrorTooltip'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, RatePercentageTierInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { withForm } from '~/hooks/forms/useAppform'
-import { RATE_CARD_RATE_FORM_DEFAULTS } from '~/pages/catalog/drawers/rateCardRate/constants'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
+import { getRatePropertiesShape } from '~/pages/catalog/drawers/rateCardRate/getRatePropertiesShape'
 
 import {
   getTierLabelKey,
@@ -61,23 +61,20 @@ const createGraduatedPercentageTier = (toValue: string | null): RatePercentageTi
   flatAmount: '',
 })
 
-export const GraduatedPercentageRateTiersTable = withForm({
-  defaultValues: RATE_CARD_RATE_FORM_DEFAULTS,
+export const GraduatedPercentageRateTiersTable = withFieldGroup({
+  defaultValues: getRatePropertiesShape(),
   props: graduatedPercentageRateTiersTableDefaultProps,
   render: function GraduatedPercentageRateTiersTableRender({
-    form,
+    group,
     currency,
     pricingUnitShortName,
   }) {
     const { translate } = useInternationalization()
-    const tiers = useStore(
-      form.store,
-      (state) => state.values.properties?.graduatedPercentageRanges,
-    )
+    const tiers = useStore(group.store, (state) => state.values.graduatedPercentageRanges)
     const handleTiersChange = useCallback(
       (nextTiers: RatePercentageTierInput[]): void =>
-        form.setFieldValue('properties.graduatedPercentageRanges', nextTiers),
-      [form],
+        group.setFieldValue('graduatedPercentageRanges', nextTiers),
+      [group],
     )
     const { rows, addTier, deleteTier } = useRateTiers({
       tiers,
@@ -124,7 +121,7 @@ export const GraduatedPercentageRateTiersTable = withForm({
       }
 
       return (
-        <form.AppField name={`properties.graduatedPercentageRanges[${index}].toValue`}>
+        <group.AppField name={`graduatedPercentageRanges[${index}].toValue`}>
           {(field) => (
             <FieldErrorTooltip
               title={translate(RATE_TIER_UP_TO_ERROR_KEY, {
@@ -139,7 +136,7 @@ export const GraduatedPercentageRateTiersTable = withForm({
               />
             </FieldErrorTooltip>
           )}
-        </form.AppField>
+        </group.AppField>
       )
     }
 
@@ -189,7 +186,7 @@ export const GraduatedPercentageRateTiersTable = withForm({
                 ),
                 size: 144,
                 content: (_, index) => (
-                  <form.AppField name={`properties.graduatedPercentageRanges[${index}].rate`}>
+                  <group.AppField name={`graduatedPercentageRanges[${index}].rate`}>
                     {(field) => (
                       <FieldErrorTooltip>
                         <field.AmountInputField
@@ -208,7 +205,7 @@ export const GraduatedPercentageRateTiersTable = withForm({
                         />
                       </FieldErrorTooltip>
                     )}
-                  </form.AppField>
+                  </group.AppField>
                 ),
               },
               {
@@ -219,7 +216,7 @@ export const GraduatedPercentageRateTiersTable = withForm({
                 ),
                 size: 144,
                 content: (_, index) => (
-                  <form.AppField name={`properties.graduatedPercentageRanges[${index}].flatAmount`}>
+                  <group.AppField name={`graduatedPercentageRanges[${index}].flatAmount`}>
                     {(field) => (
                       <FieldErrorTooltip>
                         <field.AmountInputField
@@ -236,7 +233,7 @@ export const GraduatedPercentageRateTiersTable = withForm({
                         />
                       </FieldErrorTooltip>
                     )}
-                  </form.AppField>
+                  </group.AppField>
                 ),
               },
             ]}
