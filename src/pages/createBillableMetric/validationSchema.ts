@@ -46,10 +46,7 @@ export const billableMetricValidationSchema = z
     recurring: z.boolean(),
     aggregateOnTab: z.enum(AggregateOnTab),
     roundingFunction: z.enum(RoundingFunctionEnum).optional(),
-    roundingPrecision: z
-      .union([z.number(), z.string()])
-      .optional()
-      .refine(isValidRoundingPrecision, { message: NOT_A_NUMBER_ERROR }),
+    roundingPrecision: z.union([z.number(), z.string()]).optional(),
     filters: z.array(filterSchema),
   })
   .refine((data) => data.aggregateOnTab !== AggregateOnTab.CustomExpression || !!data.expression, {
@@ -59,6 +56,12 @@ export const billableMetricValidationSchema = z
   .refine((data) => !aggregatesOnAField(data.aggregationType) || !!data.fieldName, {
     message: REQUIRED_ERROR,
     path: ['fieldName'],
+  })
+  // Checked here, not on the field: without a function the input is hidden and
+  // `mapFromFormToApi` drops the value, so a leftover must not block the save.
+  .refine((data) => !data.roundingFunction || isValidRoundingPrecision(data.roundingPrecision), {
+    message: NOT_A_NUMBER_ERROR,
+    path: ['roundingPrecision'],
   })
   .superRefine((data, ctx) => {
     data.filters.forEach((filter, index) => {

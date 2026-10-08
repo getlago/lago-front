@@ -451,6 +451,50 @@ describe('CreateBillableMetric', () => {
     })
   })
 
+  describe('GIVEN a precision left behind by a cleared rounding function', () => {
+    describe('WHEN the function is cleared with the combobox and the form submitted', () => {
+      // The precision input is hidden once the function is gone, so validating it
+      // would disable Save with an error nobody can see.
+      it('THEN should save with neither the function nor the precision', async () => {
+        const user = userEvent.setup()
+
+        setHook({
+          billableMetric: buildMetric({ hasPlans: false, hasSubscriptions: false, filters: [] }),
+        })
+        render(<CreateBillableMetric />)
+
+        await user.click(screen.getByTestId(BILLABLE_METRIC_ADD_ROUNDING_TEST_ID))
+        await user.click(inputIn(BILLABLE_METRIC_ROUNDING_FUNCTION_TEST_ID))
+
+        const options = await screen.findAllByRole('option')
+
+        await user.click(options[0])
+        await user.type(inputIn(BILLABLE_METRIC_ROUNDING_PRECISION_TEST_ID), '-3')
+
+        const clearFunction = screen
+          .getByTestId(BILLABLE_METRIC_ROUNDING_FUNCTION_TEST_ID)
+          .querySelector('.MuiAutocomplete-clearIndicator') as HTMLElement
+
+        await user.click(clearFunction)
+
+        expect(
+          screen.queryByTestId(BILLABLE_METRIC_ROUNDING_PRECISION_TEST_ID),
+        ).not.toBeInTheDocument()
+
+        await user.click(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockOnSave).toHaveBeenCalledWith(
+            expect.objectContaining({
+              roundingFunction: undefined,
+              roundingPrecision: undefined,
+            }),
+          )
+        })
+      })
+    })
+  })
+
   describe('GIVEN a filter built through the form', () => {
     describe('WHEN a key and two values are entered', () => {
       it('THEN should save the values as bare strings', async () => {

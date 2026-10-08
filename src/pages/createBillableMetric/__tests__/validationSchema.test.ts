@@ -157,6 +157,19 @@ describe('billableMetricValidationSchema', () => {
       })
     })
 
+    describe('WHEN the rounding function was cleared and a value lingers', () => {
+      // The precision input is hidden without a function and the mapper drops the
+      // value, so a leftover must not block the save with an invisible error.
+      it.each([
+        ['a negative number', -3],
+        ['a decimal', 1.5],
+        ['a non-numeric string', 'abc'],
+        ['whitespace', '   '],
+      ])('THEN should not flag %s', (_label, roundingPrecision) => {
+        expect(invalidFields({ roundingFunction: undefined, roundingPrecision })).toEqual([])
+      })
+    })
+
     describe('WHEN it holds a number padded with whitespace', () => {
       it('THEN should accept it', () => {
         expect(
