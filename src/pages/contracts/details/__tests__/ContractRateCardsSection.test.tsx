@@ -13,14 +13,22 @@ import {
 } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
-import { ContractRateCardsSection } from '../ContractRateCardsSection'
+import {
+  CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID,
+  ContractRateCardsSection,
+} from '../ContractRateCardsSection'
 
 NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
 const mockHasPermissions = jest.fn().mockReturnValue(true)
+const mockOpenAppliedRateCardDrawer = jest.fn()
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+jest.mock('~/components/appliedRateCards/drawers/appliedRateCard/useAppliedRateCardDrawer', () => ({
+  useAppliedRateCardDrawer: () => ({ openDrawer: mockOpenAppliedRateCardDrawer }),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -193,5 +201,21 @@ describe('ContractRateCardsSection', () => {
     await user.click(screen.getByTestId('open-action-button'))
 
     expect(screen.getByText('text_1790284386156k2d8mjjy98f').closest('button')).toBeDisabled()
+  })
+
+  it('GIVEN the section header THEN an Add rate card action renders and opens the drawer with { context: "contract", contractId }', async () => {
+    const user = userEvent.setup()
+
+    renderSection([buildListMock([])])
+    await waitFor(() =>
+      expect(screen.getByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID)).toBeInTheDocument(),
+    )
+
+    await user.click(screen.getByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID))
+
+    expect(mockOpenAppliedRateCardDrawer).toHaveBeenCalledWith({
+      context: 'contract',
+      contractId: 'contract-1',
+    })
   })
 })

@@ -13,14 +13,22 @@ import {
 } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
-import { CatalogPlanRateCardsSection } from '../CatalogPlanRateCardsSection'
+import {
+  CATALOG_PLAN_ADD_RATE_CARD_TEST_ID,
+  CatalogPlanRateCardsSection,
+} from '../CatalogPlanRateCardsSection'
 
 NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
 const mockHasPermissions = jest.fn().mockReturnValue(true)
+const mockOpenAppliedRateCardDrawer = jest.fn()
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+jest.mock('~/components/appliedRateCards/drawers/appliedRateCard/useAppliedRateCardDrawer', () => ({
+  useAppliedRateCardDrawer: () => ({ openDrawer: mockOpenAppliedRateCardDrawer }),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -191,5 +199,21 @@ describe('CatalogPlanRateCardsSection', () => {
     await user.click(screen.getByTestId('open-action-button'))
 
     expect(screen.getByText('text_1790284386156k2d8mjjy98f').closest('button')).toBeDisabled()
+  })
+
+  it('GIVEN the Add rate card button is clicked THEN openDrawer is called with { context: "plan", planId }', async () => {
+    const user = userEvent.setup()
+
+    renderSection([buildListMock([])])
+    await waitFor(() =>
+      expect(screen.getByTestId(CATALOG_PLAN_ADD_RATE_CARD_TEST_ID)).toBeInTheDocument(),
+    )
+
+    await user.click(screen.getByTestId(CATALOG_PLAN_ADD_RATE_CARD_TEST_ID))
+
+    expect(mockOpenAppliedRateCardDrawer).toHaveBeenCalledWith({
+      context: 'plan',
+      planId: 'plan-1',
+    })
   })
 })

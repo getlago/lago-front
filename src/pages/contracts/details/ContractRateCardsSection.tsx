@@ -11,6 +11,7 @@ import {
 } from '~/components/Filters'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { AppliedRateCardsTable } from '~/components/appliedRateCards/AppliedRateCardsTable'
+import { useAppliedRateCardDrawer } from '~/components/appliedRateCards/drawers/appliedRateCard/useAppliedRateCardDrawer'
 import { useAppliedRateCardRowActions } from '~/components/appliedRateCards/useAppliedRateCardRowActions'
 import { SearchInput } from '~/components/SearchInput'
 import { APPLIED_RATE_CARD_LIST_FILTER_PREFIX } from '~/core/constants/filters'
@@ -22,6 +23,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+
+export const CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID = 'contract-rate-card-add-rate-card'
 
 gql`
   query getContractAppliedRateCardsForRateCardsSection(
@@ -75,6 +78,7 @@ export const ContractRateCardsSection = ({
   isRemovalLocked,
 }: ContractRateCardsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
+  const { openDrawer: openAppliedRateCardDrawer } = useAppliedRateCardDrawer()
   const { page, goToPage } = usePageSearchParam()
   const [searchParams] = useSearchParams()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
@@ -123,6 +127,12 @@ export const ContractRateCardsSection = ({
         title={translate('text_1783104239825nxqno33u945')}
         description={translate('text_1789030049529jp760bke0x8')}
         contentClassName="gap-2"
+        action={{
+          label: translate('text_1789030049529b0zmy1slfxl'),
+          dataTest: CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID,
+          onClick: () =>
+            openAppliedRateCardDrawer({ context: 'contract', contractId }),
+        }}
       />
 
       <Filters.Provider
