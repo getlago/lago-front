@@ -139,6 +139,14 @@ describe('CatalogPlansTabList', () => {
     expect(getTableProps().containerSize).toBe(0)
   })
 
+  it('overlaps the table border with the sticky pager instead of a parent gap (sticky renders Table/Pager as flex siblings, so a parent gap would also land between them)', () => {
+    render(<CatalogPlansTabList scope={{ productId: 'prod-1' }} />)
+
+    expect(getTableProps().containerClassName).toBe(
+      '-mb-px h-auto shrink-0 border-t border-grey-300',
+    )
+  })
+
   it('uses the default sticky pager (the tab container is height-bound to the viewport, like a top-level list route)', () => {
     render(<CatalogPlansTabList scope={{ productId: 'prod-1' }} />)
 

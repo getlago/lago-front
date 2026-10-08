@@ -176,8 +176,9 @@ const CatalogPlansTabList = ({ scope }: { scope: CatalogPlansTabListScope }): JS
   })
 
   return (
-    <div className="flex flex-1 flex-col gap-4">
+    <div className="flex flex-1 flex-col">
       <SearchInput
+        className="mb-4"
         onChange={searchInputOnChange}
         placeholder={translate('text_1789030049528lqtvvif9k1p')}
         data-test={CATALOG_PLANS_TAB_LIST_SEARCH_TEST_ID}
@@ -197,6 +198,7 @@ const CatalogPlansTabList = ({ scope }: { scope: CatalogPlansTabListScope }): JS
           name="catalog-plans-tab-list"
           data={data?.catalogPlans?.collection ?? []}
           containerSize={0}
+          containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
           rowSize={72}
           isLoading={isLoading}
           loadingRowCount={pageSize}
