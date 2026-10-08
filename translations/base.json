@@ -5211,5 +5211,18 @@
   "text_1792079766971dsox5y9l65p": "Your current login method doesn’t give access to {{orgName}}. Log out and sign in again with another login method to open it.",
   "text_1792079766971cnr3vlw8vvl": "Go to my organizations",
   "text_1792079766971vkc1n2639mn": "No organization accepts this login",
-  "text_1792079766971dngj0acdbmb": "None of your organizations accept your current login method. Log out and sign in again with another login method."
+  "text_1792079766971dngj0acdbmb": "None of your organizations accept your current login method. Log out and sign in again with another login method.",
+  "text_17914856703265q2q10b1hry": "Duration",
+  "text_1791485670326auwsxq3x83b": "Number of billing cycles",
+  "text_17914856703260y0i9has5wq": "Override rate for this phase",
+  "text_1791485670326gf0h0n6l1w7": "Edit rate phase",
+  "text_17914856703265og9agmiry1": "Add rate phase",
+  "text_1791485670326duemfhw3cbg": "Save",
+  "text_1791485670326tpf0gnrctv6": "The last phase must have no end date",
+  "text_1791485670326bz5dr6tcop3": "Create rate card",
+  "text_1791485670326kzyf0uhsn23": "Rate phase",
+  "text_1791485670326hf9c29bdje6": "Add phase",
+  "text_1791485670326e1zbmola1n3": "The last phase must run forever. Add another phase or remove its end date to continue.",
+  "text_1791485670326zpgh4ogfe6t": "Applied rate card <a href=\"{{rateCardUrl}}\">-</a> successfully created",
+  "text_1791485670327tovqupaf61o": "Applied rate card successfully created"
 }

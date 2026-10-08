@@ -81,15 +81,15 @@ export const RatePhaseFormFields = withForm({
         </CenteredPage.PageSection>
 
         <CenteredPage.PageSection>
-          <CenteredPage.PageSectionTitle title={translate('text_17951541055441xojz4p5i83')} />
+          <CenteredPage.PageSectionTitle title={translate('text_17914856703265q2q10b1hry')} />
 
           <form.AppField name="durationType">
             {(field) => (
               <field.ButtonSelectorField
-                label={translate('text_17951541055441xojz4p5i83')}
+                label={translate('text_17914856703265q2q10b1hry')}
                 options={[
                   {
-                    label: translate('text_17951541055442xojz4p5i84'),
+                    label: translate('text_1791485670326auwsxq3x83b'),
                     value: 'finite',
                     disabled: isLastPosition,
                   },
@@ -111,7 +111,7 @@ export const RatePhaseFormFields = withForm({
                     <field.TextInputField
                       data-test="rate-phase-duration-cycle-count"
                       beforeChangeFormatter={['int', 'positiveNumber']}
-                      label={translate('text_17951541055442xojz4p5i84')}
+                      label={translate('text_1791485670326auwsxq3x83b')}
                     />
                   )}
                 </form.AppField>
@@ -125,7 +125,7 @@ export const RatePhaseFormFields = withForm({
             {(field) => (
               <field.SwitchField
                 dataTest="rate-phase-override-toggle"
-                label={translate('text_17951541055443xojz4p5i85')}
+                label={translate('text_17914856703260y0i9has5wq')}
               />
             )}
           </form.AppField>

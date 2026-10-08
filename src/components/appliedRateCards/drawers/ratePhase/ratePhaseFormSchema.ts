@@ -17,6 +17,7 @@ import { validateRateTiers } from '~/pages/catalog/drawers/rateCardRate/validate
 import { isTieredRateModel } from '~/pages/catalog/rateProperties/tiers/rateTiers'
 import {
   getAvailableRateModels,
+  RATE_MODEL_UNAVAILABLE_KEY,
   RateModelConfiguration,
 } from '~/pages/catalog/utils/rateModelAvailability'
 
@@ -66,14 +67,14 @@ export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaCo
     const context = getContext()
 
     if (!values.code) {
-      ctx.addIssue({ code: 'custom', path: ['code'], message: 'text_626162c62f790600f850b76a' })
+      ctx.addIssue({ code: 'custom', path: ['code'], message: 'text_1771342994699klxu2paz7g8' })
     }
 
     if (context.isLastPosition && values.durationType !== 'forever') {
       ctx.addIssue({
         code: 'custom',
         path: ['durationType'],
-        message: 'text_17951541055441xojz4p5i83',
+        message: 'text_17914856703265q2q10b1hry',
       })
     }
 
@@ -81,7 +82,7 @@ export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaCo
       ctx.addIssue({
         code: 'custom',
         path: ['durationType'],
-        message: 'text_17951541055441xojz4p5i83',
+        message: 'text_17914856703265q2q10b1hry',
       })
     }
 
@@ -92,7 +93,7 @@ export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaCo
         ctx.addIssue({
           code: 'custom',
           path: ['durationCycleCount'],
-          message: 'text_626162c62f790600f850b76a',
+          message: 'text_1771342994699klxu2paz7g8',
         })
       }
     }
@@ -105,7 +106,7 @@ export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaCo
       ctx.addIssue({
         code: 'custom',
         path: ['rateModel'],
-        message: 'text_65201b8216455901fe273de2',
+        message: RATE_MODEL_UNAVAILABLE_KEY,
       })
     }
 
@@ -130,14 +131,14 @@ export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaCo
         ctx.addIssue({
           code: 'custom',
           path: ['minAmountCents'],
-          message: 'text_626162c62f790600f850b76a',
+          message: 'text_1771342994699klxu2paz7g8',
         })
       }
     } else if (Number(values.minAmountCents) > 0) {
       ctx.addIssue({
         code: 'custom',
         path: ['minAmountCents'],
-        message: 'text_626162c62f790600f850b76a',
+        message: 'text_1771342994699klxu2paz7g8',
       })
     }
 
@@ -145,7 +146,7 @@ export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaCo
       ctx.addIssue({
         code: 'custom',
         path: ['conversionRate'],
-        message: 'text_626162c62f790600f850b76a',
+        message: 'text_1771342994699klxu2paz7g8',
       })
     }
   })
