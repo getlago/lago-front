@@ -1,8 +1,8 @@
 import {
   CurrencyEnum,
   RateCardBillingTimingEnum,
-  RateCardRateModelEnum,
   RateCardRateBillingIntervalUnitEnum,
+  RateCardRateModelEnum,
 } from '~/generated/graphql'
 
 import {
@@ -30,7 +30,11 @@ const baseContext = {
 describe('buildRatePhaseFormSchema', () => {
   it('GIVEN isLastPosition true AND durationType finite THEN rejects', () => {
     const schema = buildRatePhaseFormSchema(() => baseContext)
-    const result = schema.safeParse({ ...baseValues, durationType: 'finite', durationCycleCount: '3' })
+    const result = schema.safeParse({
+      ...baseValues,
+      durationType: 'finite',
+      durationCycleCount: '3',
+    })
 
     expect(result.success).toBe(false)
   })
@@ -44,7 +48,11 @@ describe('buildRatePhaseFormSchema', () => {
 
   it('GIVEN isLastPosition false AND durationType finite with a blank count THEN rejects', () => {
     const schema = buildRatePhaseFormSchema(() => ({ ...baseContext, isLastPosition: false }))
-    const result = schema.safeParse({ ...baseValues, durationType: 'finite', durationCycleCount: '' })
+    const result = schema.safeParse({
+      ...baseValues,
+      durationType: 'finite',
+      durationCycleCount: '',
+    })
 
     expect(result.success).toBe(false)
   })
