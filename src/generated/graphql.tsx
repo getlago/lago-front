@@ -13174,6 +13174,34 @@ export type DestroyContractAppliedRateCardMutationVariables = Exact<{
 
 export type DestroyContractAppliedRateCardMutation = { __typename?: 'Mutation', destroyContractAppliedRateCard?: { __typename?: 'ContractAppliedRateCard', id: string } | null };
 
+export type ProductForAppliedRateCardDrawerFragment = { __typename?: 'Product', id: string, name: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null };
+
+export type GetProductsForAppliedRateCardDrawerQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetProductsForAppliedRateCardDrawerQuery = { __typename?: 'Query', products: { __typename?: 'ProductCollection', collection: Array<{ __typename?: 'Product', id: string, code: string, name: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
+
+export type GetProductFiltersForAppliedRateCardDrawerQueryVariables = Exact<{
+  productId?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type GetProductFiltersForAppliedRateCardDrawerQuery = { __typename?: 'Query', productFilters: { __typename?: 'ProductFilterCollection', collection: Array<{ __typename?: 'ProductFilter', id: string, name: string, code: string }> } };
+
+export type GetRateCardsForAppliedRateCardDrawerQueryVariables = Exact<{
+  productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  productFilterIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetRateCardsForAppliedRateCardDrawerQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string }> } };
+
 export type RatePhaseForDrawerFragment = { __typename?: 'RatePhase', id: string, code: string, name?: string | null, position: number, billingIntervalCycleCount?: number | null, rateOverride?: { __typename?: 'RateOverride', rateModel: RateCardRateModelEnum, billingIntervalCount?: number | null, billingIntervalUnit?: RateCardRateBillingIntervalUnitEnum | null, minAmountCents: any, pricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null };
 
 export type CreateRatePhaseMutationVariables = Exact<{
@@ -19483,6 +19511,18 @@ export const ContractAppliedRateCardForAppliedRateCardsTableFragmentDoc = gql`
       name
       invoiceDisplayName
     }
+  }
+}
+    `;
+export const ProductForAppliedRateCardDrawerFragmentDoc = gql`
+    fragment ProductForAppliedRateCardDrawer on Product {
+  id
+  name
+  productType
+  billableMetric {
+    id
+    aggregationType
+    recurring
   }
 }
     `;
@@ -27516,6 +27556,161 @@ export function useDestroyContractAppliedRateCardMutation(baseOptions?: Apollo.M
 export type DestroyContractAppliedRateCardMutationHookResult = ReturnType<typeof useDestroyContractAppliedRateCardMutation>;
 export type DestroyContractAppliedRateCardMutationResult = Apollo.MutationResult<DestroyContractAppliedRateCardMutation>;
 export type DestroyContractAppliedRateCardMutationOptions = Apollo.BaseMutationOptions<DestroyContractAppliedRateCardMutation, DestroyContractAppliedRateCardMutationVariables>;
+export const GetProductsForAppliedRateCardDrawerDocument = gql`
+    query getProductsForAppliedRateCardDrawer($page: Int, $limit: Int, $searchTerm: String) {
+  products(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    collection {
+      id
+      code
+      ...ProductForAppliedRateCardDrawer
+    }
+    metadata {
+      currentPage
+      totalPages
+    }
+  }
+}
+    ${ProductForAppliedRateCardDrawerFragmentDoc}`;
+
+/**
+ * __useGetProductsForAppliedRateCardDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetProductsForAppliedRateCardDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductsForAppliedRateCardDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductsForAppliedRateCardDrawerQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetProductsForAppliedRateCardDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>(GetProductsForAppliedRateCardDrawerDocument, options);
+      }
+export function useGetProductsForAppliedRateCardDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>(GetProductsForAppliedRateCardDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetProductsForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>;
+export function useGetProductsForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductsForAppliedRateCardDrawerQuery | undefined, GetProductsForAppliedRateCardDrawerQueryVariables>;
+export function useGetProductsForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>(GetProductsForAppliedRateCardDrawerDocument, options);
+        }
+export type GetProductsForAppliedRateCardDrawerQueryHookResult = ReturnType<typeof useGetProductsForAppliedRateCardDrawerQuery>;
+export type GetProductsForAppliedRateCardDrawerLazyQueryHookResult = ReturnType<typeof useGetProductsForAppliedRateCardDrawerLazyQuery>;
+export type GetProductsForAppliedRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetProductsForAppliedRateCardDrawerSuspenseQuery>;
+export type GetProductsForAppliedRateCardDrawerQueryResult = Apollo.QueryResult<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>;
+export const GetProductFiltersForAppliedRateCardDrawerDocument = gql`
+    query getProductFiltersForAppliedRateCardDrawer($productId: ID) {
+  productFilters(productId: $productId) {
+    collection {
+      id
+      name
+      code
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetProductFiltersForAppliedRateCardDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetProductFiltersForAppliedRateCardDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductFiltersForAppliedRateCardDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductFiltersForAppliedRateCardDrawerQuery({
+ *   variables: {
+ *      productId: // value for 'productId'
+ *   },
+ * });
+ */
+export function useGetProductFiltersForAppliedRateCardDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>(GetProductFiltersForAppliedRateCardDrawerDocument, options);
+      }
+export function useGetProductFiltersForAppliedRateCardDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>(GetProductFiltersForAppliedRateCardDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetProductFiltersForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>;
+export function useGetProductFiltersForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductFiltersForAppliedRateCardDrawerQuery | undefined, GetProductFiltersForAppliedRateCardDrawerQueryVariables>;
+export function useGetProductFiltersForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>(GetProductFiltersForAppliedRateCardDrawerDocument, options);
+        }
+export type GetProductFiltersForAppliedRateCardDrawerQueryHookResult = ReturnType<typeof useGetProductFiltersForAppliedRateCardDrawerQuery>;
+export type GetProductFiltersForAppliedRateCardDrawerLazyQueryHookResult = ReturnType<typeof useGetProductFiltersForAppliedRateCardDrawerLazyQuery>;
+export type GetProductFiltersForAppliedRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetProductFiltersForAppliedRateCardDrawerSuspenseQuery>;
+export type GetProductFiltersForAppliedRateCardDrawerQueryResult = Apollo.QueryResult<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>;
+export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
+    query getRateCardsForAppliedRateCardDrawer($productIds: [ID!], $productFilterIds: [ID!], $searchTerm: String, $limit: Int) {
+  rateCards(
+    productIds: $productIds
+    productFilterIds: $productFilterIds
+    searchTerm: $searchTerm
+    limit: $limit
+  ) {
+    collection {
+      id
+      name
+      code
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetRateCardsForAppliedRateCardDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetRateCardsForAppliedRateCardDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRateCardsForAppliedRateCardDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRateCardsForAppliedRateCardDrawerQuery({
+ *   variables: {
+ *      productIds: // value for 'productIds'
+ *      productFilterIds: // value for 'productFilterIds'
+ *      searchTerm: // value for 'searchTerm'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetRateCardsForAppliedRateCardDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>(GetRateCardsForAppliedRateCardDrawerDocument, options);
+      }
+export function useGetRateCardsForAppliedRateCardDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>(GetRateCardsForAppliedRateCardDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetRateCardsForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>;
+export function useGetRateCardsForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetRateCardsForAppliedRateCardDrawerQuery | undefined, GetRateCardsForAppliedRateCardDrawerQueryVariables>;
+export function useGetRateCardsForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>(GetRateCardsForAppliedRateCardDrawerDocument, options);
+        }
+export type GetRateCardsForAppliedRateCardDrawerQueryHookResult = ReturnType<typeof useGetRateCardsForAppliedRateCardDrawerQuery>;
+export type GetRateCardsForAppliedRateCardDrawerLazyQueryHookResult = ReturnType<typeof useGetRateCardsForAppliedRateCardDrawerLazyQuery>;
+export type GetRateCardsForAppliedRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetRateCardsForAppliedRateCardDrawerSuspenseQuery>;
+export type GetRateCardsForAppliedRateCardDrawerQueryResult = Apollo.QueryResult<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>;
 export const CreateRatePhaseDocument = gql`
     mutation createRatePhase($input: CreateRatePhaseInput!) {
   createRatePhase(input: $input) {
