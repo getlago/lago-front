@@ -10,8 +10,8 @@ import {
   formatFiltersForAppliedRateCardsQuery,
 } from '~/components/Filters'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
-import { AppliedRateCardsTable } from '~/components/rateCards/AppliedRateCardsTable'
-import { useAppliedRateCardRowActions } from '~/components/rateCards/useAppliedRateCardRowActions'
+import { AppliedRateCardsTable } from '~/components/appliedRateCards/AppliedRateCardsTable'
+import { useAppliedRateCardRowActions } from '~/components/appliedRateCards/useAppliedRateCardRowActions'
 import { SearchInput } from '~/components/SearchInput'
 import { APPLIED_RATE_CARD_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
