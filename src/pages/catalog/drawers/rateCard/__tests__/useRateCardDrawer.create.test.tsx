@@ -382,4 +382,22 @@ describe('useRateCardDrawer create flow', () => {
     )
     expect(mockClose).not.toHaveBeenCalled()
   })
+
+  it('GIVEN onCreated is provided THEN it is called with the created rate card and the drawer always closes, regardless of create-more', async () => {
+    const onCreated = jest.fn()
+    const { result } = renderDrawerHook([createRateCardMock(() => undefined)])
+
+    act(() => result.current.openDrawer({ onCreated }))
+
+    render(<>{lastDrawerArgs?.secondaryAction}</>)
+    await userEvent.click(screen.getByTestId(CREATE_MORE_SWITCH_TEST_ID))
+
+    renderDrawerBody()
+    await userEvent.click(screen.getByTestId('seed-base'))
+    await submit()
+
+    await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+    expect(onCreated).toHaveBeenCalledWith(expect.objectContaining({ code: 'metered_api' }))
+    expect(mockNavigate).not.toHaveBeenCalled()
+  })
 })

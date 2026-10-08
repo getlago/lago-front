@@ -261,6 +261,7 @@ type OpenRateCardDrawerArgs = {
   rateCard?: RateCardForDrawerFragment
   attachToProduct?: ProductAttachment
   attachToProductFilter?: ProductFilterAttachment
+  onCreated?: (rateCard: { id: string; name: string; code: string }) => void
 }
 
 // Tri-mode drawer: `openDrawer()` creates a rate card, `openDrawer({ rateCard })`
@@ -281,6 +282,7 @@ export const useRateCardDrawer = () => {
   // instead of clearing the selection.
   const attachToProductRef = useRef<ProductAttachment | undefined>(undefined)
   const attachToProductFilterRef = useRef<ProductFilterAttachment | undefined>(undefined)
+  const onCreatedRef = useRef<OpenRateCardDrawerArgs['onCreated']>(undefined)
 
   const { form, resetForm } = useRateCardForm({
     onSuccess: ({ rateCard, wasEdit }) => {
@@ -290,6 +292,15 @@ export const useRateCardDrawer = () => {
           severity: 'success',
           message: translate(RATE_CARD_EDIT_SUCCESS_TOAST_KEY),
         })
+        return
+      }
+
+      // An `onCreated` caller (the stacked "create rate card" escape hatch) owns the whole
+      // success path: it always closes and skips create-more/navigate, regardless of whether
+      // create-more was left on from a previous open.
+      if (onCreatedRef.current) {
+        onCreatedRef.current(rateCard)
+        drawer.close()
         return
       }
 
@@ -328,9 +339,11 @@ export const useRateCardDrawer = () => {
     rateCard,
     attachToProduct,
     attachToProductFilter,
+    onCreated,
   }: OpenRateCardDrawerArgs = {}) => {
     attachToProductRef.current = attachToProduct
     attachToProductFilterRef.current = attachToProductFilter
+    onCreatedRef.current = onCreated
     resetCreateMore()
     resetForm(rateCard, attachToProduct, attachToProductFilter)
 
