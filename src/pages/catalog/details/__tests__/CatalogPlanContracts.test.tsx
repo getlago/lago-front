@@ -90,13 +90,14 @@ describe('CatalogPlanContracts', () => {
         )
       })
 
-      it('THEN uses a non-inset table with non-sticky pagination', () => {
+      it('THEN uses a non-inset table with the default sticky pagination', () => {
         render(<CatalogPlanContracts planCode="premium" />)
 
         expect(getTableProps().containerSize).toBe(0)
-        expect(mockPaginatedContentProps).toHaveBeenCalledWith(
-          expect.objectContaining({ sticky: false }),
+        expect(getTableProps().containerClassName).toBe(
+          '-mb-px h-auto shrink-0 border-t border-grey-300',
         )
+        expect(mockPaginatedContentProps.mock.calls[0][0].sticky).toBeUndefined()
       })
 
       it('THEN passes the query metadata to the pager', () => {

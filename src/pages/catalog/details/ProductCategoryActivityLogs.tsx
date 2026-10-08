@@ -66,8 +66,8 @@ const ProductCategoryActivityLogs = ({ productCategoryId }: ProductCategoryActiv
   })
 
   return (
-    <section className="flex flex-col gap-12">
-      <section>
+    <section className="flex flex-1 flex-col gap-12">
+      <section className="flex flex-1 flex-col">
         <ActivityLogsSection
           subtitle={translate('text_1788164971209jpekwrfqvn6')}
           activityLogs={data?.activityLogs}
@@ -75,6 +75,8 @@ const ProductCategoryActivityLogs = ({ productCategoryId }: ProductCategoryActiv
           error={error}
           refetch={refetch}
           fetchMore={fetchMore}
+          sticky
+          containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
         />
       </section>
     </section>

@@ -192,7 +192,7 @@ const ProductCategoryDetails = () => {
               tab: ProductCategoryDetailsTabsOptionsEnum.activityLogs,
             }),
             content: (
-              <DetailsPage.Container className="pt-6">
+              <DetailsPage.Container className="flex-1 pt-6">
                 <ProductCategoryActivityLogs productCategoryId={productCategoryId} />
               </DetailsPage.Container>
             ),
