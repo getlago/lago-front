@@ -17050,6 +17050,8 @@ export type GetPlanAppliedRateCardsForRateCardsSectionQueryVariables = Exact<{
 
 export type GetPlanAppliedRateCardsForRateCardsSectionQuery = { __typename?: 'Query', planAppliedRateCards: { __typename?: 'PlanAppliedRateCardCollection', collection: Array<{ __typename?: 'PlanAppliedRateCard', id: string, ratePhasesCount: number, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
+export type CatalogPlanForCatalogPlansTabListFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, appliedRateCardsCount: number, contractsCount: number, currency: CurrencyEnum, description?: string | null, attachedToContracts: boolean };
+
 export type GetCatalogPlansForCatalogObjectDetailsQueryVariables = Exact<{
   productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   productFilterIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
@@ -24140,6 +24142,20 @@ export const CatalogPlanForCatalogPlanDetailsOverviewFragmentDoc = gql`
   ...CatalogPlanForCatalogPlanDrawer
 }
     ${CatalogPlanForCatalogPlanDrawerFragmentDoc}`;
+export const CatalogPlanForCatalogPlansTabListFragmentDoc = gql`
+    fragment CatalogPlanForCatalogPlansTabList on CatalogPlan {
+  id
+  name
+  code
+  invoiceDisplayName
+  createdAt
+  appliedRateCardsCount
+  contractsCount
+  ...CatalogPlanForCatalogPlanDrawer
+  ...CatalogPlanForDeleteCatalogPlanDialog
+}
+    ${CatalogPlanForCatalogPlanDrawerFragmentDoc}
+${CatalogPlanForDeleteCatalogPlanDialogFragmentDoc}`;
 export const ProductCategoryForProductCategoryDetailsFragmentDoc = gql`
     fragment ProductCategoryForProductCategoryDetails on ProductCategory {
   id
@@ -44804,11 +44820,11 @@ export const GetCatalogPlansForCatalogObjectDetailsDocument = gql`
     }
     collection {
       id
-      ...CatalogPlanForList
+      ...CatalogPlanForCatalogPlansTabList
     }
   }
 }
-    ${CatalogPlanForListFragmentDoc}`;
+    ${CatalogPlanForCatalogPlansTabListFragmentDoc}`;
 
 /**
  * __useGetCatalogPlansForCatalogObjectDetailsQuery__

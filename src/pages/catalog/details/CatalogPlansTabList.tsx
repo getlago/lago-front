@@ -10,9 +10,8 @@ import { SearchInput } from '~/components/SearchInput'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   CatalogPlanForCatalogPlanDrawerFragmentDoc,
+  CatalogPlanForCatalogPlansTabListFragment,
   CatalogPlanForDeleteCatalogPlanDialogFragmentDoc,
-  CatalogPlanForListFragment,
-  CatalogPlanForListFragmentDoc,
   useGetCatalogPlansForCatalogObjectDetailsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -24,6 +23,18 @@ import { useCatalogPlanTableActions } from '../useCatalogPlanTableActions'
 export const CATALOG_PLANS_TAB_LIST_SEARCH_TEST_ID = 'catalog-plans-tab-list-search-input'
 
 gql`
+  fragment CatalogPlanForCatalogPlansTabList on CatalogPlan {
+    id
+    name
+    code
+    invoiceDisplayName
+    createdAt
+    appliedRateCardsCount
+    contractsCount
+    ...CatalogPlanForCatalogPlanDrawer
+    ...CatalogPlanForDeleteCatalogPlanDialog
+  }
+
   query getCatalogPlansForCatalogObjectDetails(
     $productIds: [ID!]
     $productFilterIds: [ID!]
@@ -49,12 +60,11 @@ gql`
       }
       collection {
         id
-        ...CatalogPlanForList
+        ...CatalogPlanForCatalogPlansTabList
       }
     }
   }
 
-  ${CatalogPlanForListFragmentDoc}
   ${CatalogPlanForCatalogPlanDrawerFragmentDoc}
   ${CatalogPlanForDeleteCatalogPlanDialogFragmentDoc}
 `
@@ -115,7 +125,7 @@ const CatalogPlansTabList = ({ scope }: { scope: CatalogPlansTabListScope }): JS
     [goToPage, debouncedSearch],
   )
 
-  const columns: TableColumn<CatalogPlanForListFragment>[] = [
+  const columns: TableColumn<CatalogPlanForCatalogPlansTabListFragment>[] = [
     {
       key: 'name',
       title: translate('text_6419c64eace749372fc72b0f'),

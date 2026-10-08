@@ -3,7 +3,7 @@ import { ReactElement, ReactNode } from 'react'
 
 import { TableProps } from '~/components/designSystem/Table/Table'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
-import { CatalogPlanForListFragment } from '~/generated/graphql'
+import { CatalogPlanForCatalogPlansTabListFragment } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import CatalogPlansTabList, { CATALOG_PLANS_TAB_LIST_SEARCH_TEST_ID } from '../CatalogPlansTabList'
@@ -90,8 +90,8 @@ const defaultQueryState = {
   variables: { limit: DEFAULT_PAGE_SIZE, page: 1 },
 }
 
-const getTableProps = (): TableProps<CatalogPlanForListFragment> =>
-  mockTableProps.mock.calls[0][0] as TableProps<CatalogPlanForListFragment>
+const getTableProps = (): TableProps<CatalogPlanForCatalogPlansTabListFragment> =>
+  mockTableProps.mock.calls[0][0] as TableProps<CatalogPlanForCatalogPlansTabListFragment>
 
 type SearchInputElement = ReactElement<{
   onChange: (value: string) => void
@@ -107,7 +107,7 @@ const catalogPlan = {
   appliedRateCardsCount: 3,
   contractsCount: 2,
   createdAt: '2024-06-11',
-} as CatalogPlanForListFragment
+} as CatalogPlanForCatalogPlansTabListFragment
 
 describe('CatalogPlansTabList', () => {
   beforeEach(() => {
