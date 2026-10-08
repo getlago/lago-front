@@ -60,6 +60,31 @@ const serializeAppliedPricingUnit = (
         conversionRate: Number(appliedPricingUnit.conversionRate),
       }
 
+const serializeUsageChargeFields = (
+  charge: LocalUsageChargeInput,
+  currency: CurrencyEnum,
+  cascadeUpdates: boolean,
+): Omit<ChargeCreateInput, 'planId' | 'billableMetricId'> => ({
+  chargeModel: charge.chargeModel,
+  code: charge.code || undefined,
+  appliedPricingUnit: serializeAppliedPricingUnit(charge.appliedPricingUnit),
+  invoiceDisplayName: charge.invoiceDisplayName || undefined,
+  invoiceable: charge.invoiceable,
+  minAmountCents:
+    !!charge.minAmountCents && !charge.payInAdvance
+      ? Number(serializeAmount(charge.minAmountCents, currency) || 0)
+      : undefined,
+  payInAdvance: charge.payInAdvance || false,
+  prorated: charge.prorated || false,
+  regroupPaidFees: charge.regroupPaidFees || undefined,
+  taxCodes: charge.taxes?.map((t) => t.code) ?? [],
+  properties: charge.properties
+    ? serializeProperties(charge.properties, charge.chargeModel)
+    : undefined,
+  filters: serializeFilters(charge.filters, charge.chargeModel),
+  cascadeUpdates,
+})
+
 export const useChargeMutationsWithCascade = ({ planId, hasOverriddenPlans, currency }: Args) => {
   const { translate } = useInternationalization()
   const { openCascadeDialog } = useCascadeFormDialog()
@@ -108,24 +133,7 @@ export const useChargeMutationsWithCascade = ({ planId, hasOverriddenPlans, curr
   ): ChargeCreateInput => ({
     planId,
     billableMetricId: charge.billableMetric.id,
-    chargeModel: charge.chargeModel,
-    code: charge.code || undefined,
-    appliedPricingUnit: serializeAppliedPricingUnit(charge.appliedPricingUnit),
-    invoiceDisplayName: charge.invoiceDisplayName || undefined,
-    invoiceable: charge.invoiceable,
-    minAmountCents:
-      !!charge.minAmountCents && !charge.payInAdvance
-        ? Number(serializeAmount(charge.minAmountCents, currency) || 0)
-        : undefined,
-    payInAdvance: charge.payInAdvance || false,
-    prorated: charge.prorated || false,
-    regroupPaidFees: charge.regroupPaidFees || undefined,
-    taxCodes: charge.taxes?.map((t) => t.code) ?? [],
-    properties: charge.properties
-      ? serializeProperties(charge.properties, charge.chargeModel)
-      : undefined,
-    filters: serializeFilters(charge.filters, charge.chargeModel),
-    cascadeUpdates,
+    ...serializeUsageChargeFields(charge, currency, cascadeUpdates),
   })
 
   const buildUpdateInput = (
@@ -133,24 +141,7 @@ export const useChargeMutationsWithCascade = ({ planId, hasOverriddenPlans, curr
     cascadeUpdates: boolean,
   ): ChargeUpdateInput => ({
     id: charge.id ?? '',
-    chargeModel: charge.chargeModel,
-    code: charge.code || undefined,
-    appliedPricingUnit: serializeAppliedPricingUnit(charge.appliedPricingUnit),
-    invoiceDisplayName: charge.invoiceDisplayName || undefined,
-    invoiceable: charge.invoiceable,
-    minAmountCents:
-      !!charge.minAmountCents && !charge.payInAdvance
-        ? Number(serializeAmount(charge.minAmountCents, currency) || 0)
-        : undefined,
-    payInAdvance: charge.payInAdvance || false,
-    prorated: charge.prorated || false,
-    regroupPaidFees: charge.regroupPaidFees || undefined,
-    taxCodes: charge.taxes?.map((t) => t.code) ?? [],
-    properties: charge.properties
-      ? serializeProperties(charge.properties, charge.chargeModel)
-      : undefined,
-    filters: serializeFilters(charge.filters, charge.chargeModel),
-    cascadeUpdates,
+    ...serializeUsageChargeFields(charge, currency, cascadeUpdates),
   })
 
   const handleSaveCharge = async (

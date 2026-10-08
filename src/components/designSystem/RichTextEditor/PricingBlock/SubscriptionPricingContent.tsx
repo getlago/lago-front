@@ -232,9 +232,23 @@ export function SubscriptionPricingContent({
   const formDescription = useStore(planForm.store, (s) => s.values.description)
   const formCode = useStore(planForm.store, (s) => s.values.code)
   const formInterval = useStore(planForm.store, (s) => s.values.interval)
-  // Full form values — snapshot into formValuesRef so the serializer can derive
-  // both the plan payload and the overrides from a single source of truth.
-  const formValues = useStore(planForm.store, (s) => s.values)
+
+  useEffect(() => {
+    if (!formReady || !selectedPlanId) {
+      formValuesRef.current = null
+      return
+    }
+
+    formValuesRef.current = planForm.state.values
+    const subscription = planForm.store.subscribe(() => {
+      formValuesRef.current = planForm.state.values
+    })
+
+    return () => {
+      subscription.unsubscribe()
+      formValuesRef.current = null
+    }
+  }, [planForm, formReady, selectedPlanId, formValuesRef])
 
   const displayCurrency = currency ?? CurrencyEnum.Usd
   const displayInterval = formInterval || PlanInterval.Monthly
@@ -245,9 +259,6 @@ export function SubscriptionPricingContent({
   const basePlanName =
     planData?.name ?? billingItemPlan?.payload.name ?? initialState?.basePlanName ?? formName
 
-  // Sync to stateRef + formValuesRef + basePlanFormValuesRef. Overrides are no longer
-  // computed here: toPlanBillingItems() derives them from the two form value refs
-  // (see buildPlanOverrides).
   useEffect(() => {
     if (!formReady || !selectedPlanId) {
       stateRef.current = null
@@ -264,7 +275,6 @@ export function SubscriptionPricingContent({
       invoicingSettings,
     }
 
-    formValuesRef.current = formValues
     basePlanFormValuesRef.current = basePlanFormValues ?? null
   }, [
     formReady,
@@ -278,10 +288,8 @@ export function SubscriptionPricingContent({
     basePlanName,
     formDescription,
     formCode,
-    formValues,
     basePlanFormValues,
     stateRef,
-    formValuesRef,
     basePlanFormValuesRef,
   ])
 

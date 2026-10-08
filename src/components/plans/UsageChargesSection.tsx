@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
@@ -66,7 +66,6 @@ export const UsageChargesSection = ({
   const hasAnyCharge = !!charges.length
   const { openRemoveChargeWarningDialog } = useRemoveChargeWarningDialog()
   const usageChargeDrawerRef = useRef<UsageChargeDrawerRef>(null)
-  const [alreadyUsedBmsIds, setAlreadyUsedBmsIds] = useState<Map<string, number>>(new Map())
 
   const handleDrawerSave = useCallback(
     (charge: LocalUsageChargeInput, index: number | null) => {
@@ -92,23 +91,17 @@ export const UsageChargesSection = ({
     [form],
   )
 
-  useEffect(() => {
-    const BmIdsMap = new Map()
+  const alreadyUsedBmsIds = useMemo(() => {
+    const counts = new Map<string, number>()
 
-    for (let i = 0; i < charges.length; i++) {
-      const element = charges[i]
-      const bmId = element.billableMetric.id
+    for (const charge of charges) {
+      const id = charge.billableMetric.id
 
-      if (BmIdsMap.has(bmId)) {
-        BmIdsMap.set(bmId, BmIdsMap.get(bmId) + 1)
-      } else {
-        BmIdsMap.set(bmId, 1)
-      }
+      counts.set(id, (counts.get(id) ?? 0) + 1)
     }
 
-    setAlreadyUsedBmsIds(BmIdsMap)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [charges.length])
+    return counts
+  }, [charges])
 
   const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(interval)
 
