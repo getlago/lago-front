@@ -159,27 +159,19 @@ const ContractDrawerFormSections = withForm({
       [catalogPlansData?.catalogPlans?.collection],
     )
 
-    // The caption reads in the customer's timezone. A seeded customer carries its
-    // own; a searched one is resolved from the loaded page, and falls back to the
-    // organization timezone inside the helper when it is not there.
-    const customerTimezone = useMemo(() => {
+    // The caption reads in the customer's timezone, and the invoicing section needs
+    // its internal id. A seeded customer carries both already; a searched one is
+    // resolved from the loaded page. The timezone falls back to the organization's
+    // inside the caption helper when it is not there.
+    const effectiveCustomer = useMemo(() => {
       if (seededCustomer?.externalId === externalCustomerId) {
-        return seededCustomer?.applicableTimezone
+        return seededCustomer
       }
 
       return customersCollection?.find(({ externalId }) => externalId === externalCustomerId)
-        ?.applicableTimezone
     }, [seededCustomer, externalCustomerId, customersCollection])
-
-    // Mirrors the timezone lookup above: a seeded customer carries its own internal
-    // id, a searched one is resolved from the loaded page.
-    const customerId = useMemo(() => {
-      if (seededCustomer?.externalId === externalCustomerId) {
-        return seededCustomer?.id
-      }
-
-      return customersCollection?.find(({ externalId }) => externalId === externalCustomerId)?.id
-    }, [seededCustomer, externalCustomerId, customersCollection])
+    const customerTimezone = effectiveCustomer?.applicableTimezone
+    const customerId = effectiveCustomer?.id
 
     const handleHideName = (): void => {
       // Skip the write when already empty: setFieldValue always marks the field

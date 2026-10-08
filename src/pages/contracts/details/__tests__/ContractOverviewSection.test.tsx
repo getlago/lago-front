@@ -29,6 +29,7 @@ const mockOpenInvoicingSettingsDrawer = jest.fn()
 const mockOpenPaymentSettingsDrawer = jest.fn()
 const mockInvoicingSettingsDrawerProps = jest.fn()
 const mockPaymentSettingsDrawerProps = jest.fn()
+const mockInvoiceCustomSectionDetailsProps = jest.fn()
 
 jest.mock('~/hooks/useContractPermissionsActions', () => ({
   useContractPermissionsActions: () => ({ canEditContract: mockCanEditContract }),
@@ -60,6 +61,13 @@ jest.mock('~/components/paymentSettings/usePaymentSettingsDrawer', () => ({
   usePaymentSettingsDrawer: (props: Record<string, unknown>) => {
     mockPaymentSettingsDrawerProps(props)
     return { openDrawer: mockOpenPaymentSettingsDrawer }
+  },
+}))
+
+jest.mock('~/components/invoceCustomFooter/InvoiceCustomSectionDetails', () => ({
+  InvoiceCustomSectionDetails: (props: Record<string, unknown>) => {
+    mockInvoiceCustomSectionDetailsProps(props)
+    return <div data-test="invoice-custom-section-details" />
   },
 }))
 
@@ -259,6 +267,22 @@ describe('ContractOverviewSection', () => {
     expect(screen.getByRole('link', { name: 'Enterprise plan' })).toHaveAttribute(
       'href',
       '/plan-pricing/plan-1/overview',
+    )
+  })
+
+  it('passes the contract customer and selection to the invoice custom section display', async () => {
+    await renderSection({
+      selectedInvoiceCustomSections: [{ id: 'section-1', name: 'Bank details' }],
+      skipInvoiceCustomSections: false,
+    })
+
+    expect(await screen.findByTestId('invoice-custom-section-details')).toBeInTheDocument()
+    expect(mockInvoiceCustomSectionDetailsProps).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerId: 'customer-1',
+        selectedInvoiceCustomSections: [{ id: 'section-1', name: 'Bank details' }],
+        skipInvoiceCustomSections: false,
+      }),
     )
   })
 
