@@ -2,6 +2,10 @@ import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
 import { useEffect, useState } from 'react'
 
+import { RatePhaseList } from '~/components/appliedRateCards/RatePhaseList'
+import { useRatePhaseLocalDrawer } from '~/components/appliedRateCards/drawers/ratePhase/useRatePhaseLocalDrawer'
+import { RatePhaseFormValues } from '~/components/appliedRateCards/drawers/ratePhase/ratePhaseFormSchema'
+import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
@@ -10,6 +14,7 @@ import {
 } from '~/core/constants/form'
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
+  PropertiesForRateCardRateFragmentDoc,
   useGetProductFiltersForAppliedRateCardDrawerLazyQuery,
   useGetProductsForAppliedRateCardDrawerLazyQuery,
   useGetRateCardsForAppliedRateCardDrawerLazyQuery,
@@ -25,6 +30,7 @@ export const APPLIED_RATE_CARD_DRAWER_SHOW_FILTER_TEST_ID = 'applied-rate-card-d
 export const APPLIED_RATE_CARD_DRAWER_PRODUCT_FILTER_TEST_ID =
   'applied-rate-card-drawer-product-filter'
 export const APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID = 'applied-rate-card-drawer-rate-card'
+export const APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID = 'applied-rate-card-drawer-add-phase'
 
 gql`
   fragment ProductForAppliedRateCardDrawer on Product {
@@ -62,6 +68,23 @@ gql`
     }
   }
 
+  fragment RateCardForAppliedRateCardDrawer on RateCard {
+    currency
+    billingTiming
+    appliedPricingUnitCode
+    proration
+    activeRate {
+      rateModel
+      rateProperties {
+        ...PropertiesForRateCardRate
+      }
+      billingIntervalCount
+      billingIntervalUnit
+      minAmountCents
+      appliedPricingUnitConversionRate
+    }
+  }
+
   query getRateCardsForAppliedRateCardDrawer(
     $productIds: [ID!]
     $productFilterIds: [ID!]
@@ -78,9 +101,12 @@ gql`
         id
         name
         code
+        ...RateCardForAppliedRateCardDrawer
       }
     }
   }
+
+  ${PropertiesForRateCardRateFragmentDoc}
 `
 
 export const AppliedRateCardDrawerContent = withForm({
@@ -88,10 +114,13 @@ export const AppliedRateCardDrawerContent = withForm({
   render: function AppliedRateCardDrawerContentRender({ form }) {
     const { translate } = useInternationalization()
     const { openDrawer: openRateCardDrawer } = useRateCardDrawer()
+    const { openDrawer: openRatePhaseDrawer } = useRatePhaseLocalDrawer()
     const [shouldDisplayFilter, setShouldDisplayFilter] = useState(false)
 
     const productId = useStore(form.store, (state) => state.values.productId)
     const productFilterId = useStore(form.store, (state) => state.values.productFilterId)
+    const rateCardId = useStore(form.store, (state) => state.values.rateCardId)
+    const ratePhases = useStore(form.store, (state) => state.values.ratePhases)
 
     const [getProducts, { data: productsData, loading: productsLoading }] =
       useGetProductsForAppliedRateCardDrawerLazyQuery({ variables: { page: 1, limit: 20 } })
@@ -125,6 +154,64 @@ export const AppliedRateCardDrawerContent = withForm({
     const selectedProductFilter = productFiltersData?.productFilters.collection.find(
       (filter) => filter.id === productFilterId,
     )
+    const selectedRateCard = rateCardsData?.rateCards.collection.find(
+      (rateCard) => rateCard.code === rateCardId,
+    )
+
+    // Controller fix: keeps the hidden `currency` field in sync with the selected rate card so
+    // `buildPhaseInput` serializes a phase override's `minAmountCents` against the right
+    // currency precision instead of silently defaulting to USD/EUR's.
+    useEffect(() => {
+      if (selectedRateCard) form.setFieldValue('currency', selectedRateCard.currency)
+    }, [selectedRateCard, form])
+
+    const rateCardForPhaseFields =
+      selectedRateCard && selectedProduct?.productType
+        ? {
+            productType: selectedProduct.productType,
+            currency: selectedRateCard.currency,
+            billingTiming: selectedRateCard.billingTiming,
+            appliedPricingUnitCode: selectedRateCard.appliedPricingUnitCode,
+            rateModelConfiguration: {
+              productType: selectedProduct.productType,
+              aggregationType: selectedProduct.billableMetric?.aggregationType,
+              recurring: selectedProduct.billableMetric?.recurring,
+              billingTiming: selectedRateCard.billingTiming,
+              proration: selectedRateCard.proration,
+            },
+          }
+        : undefined
+
+    const lastPhaseIsFinite = ratePhases.length > 0 && ratePhases.at(-1)?.durationType !== 'forever'
+
+    const handleAddPhase = (): void => {
+      if (!rateCardForPhaseFields) return
+
+      openRatePhaseDrawer({
+        rateCard: rateCardForPhaseFields,
+        isLastPosition: true,
+        onSave: (values) => form.pushFieldValue('ratePhases', values),
+      })
+    }
+
+    const handleEditPhase = (index: number): void => {
+      if (!rateCardForPhaseFields) return
+
+      openRatePhaseDrawer({
+        rateCard: rateCardForPhaseFields,
+        isLastPosition: index === ratePhases.length - 1,
+        phase: ratePhases[index],
+        replaceIndex: index,
+        onSave: (values: RatePhaseFormValues, { replaceIndex }) => {
+          if (replaceIndex === undefined) return
+          form.replaceFieldValue('ratePhases', replaceIndex, values)
+        },
+      })
+    }
+
+    const handleRemovePhase = (index: number): void => {
+      form.removeFieldValue('ratePhases', index)
+    }
 
     const handleCreateRateCard = (): void => {
       openRateCardDrawer({
@@ -221,6 +308,33 @@ export const AppliedRateCardDrawerContent = withForm({
                 />
               )}
             </form.AppField>
+          </CenteredPage.PageSection>
+        )}
+
+        {!!rateCardId && !!selectedRateCard?.activeRate && (
+          <CenteredPage.PageSection>
+            <CenteredPage.PageSectionTitle title={translate('text_17951541055449xojz4p5i91')} />
+
+            <RatePhaseList
+              variant="accordion"
+              phases={ratePhases}
+              activeRate={selectedRateCard.activeRate}
+              onEdit={handleEditPhase}
+              onRemove={handleRemovePhase}
+            />
+
+            <Button
+              variant="inline"
+              startIcon="plus"
+              data-test={APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID}
+              onClick={handleAddPhase}
+            >
+              {translate('text_17951541055450xojz4p5i92')}
+            </Button>
+
+            {lastPhaseIsFinite && (
+              <Alert type="warning">{translate('text_17951541055451xojz4p5i93')}</Alert>
+            )}
           </CenteredPage.PageSection>
         )}
       </CenteredPage.SubsectionWrapper>
