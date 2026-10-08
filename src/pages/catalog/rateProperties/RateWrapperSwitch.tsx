@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
-import { ReactNode } from 'react'
+import { type AnyFormApi, type AppFieldExtendedReactFormApi } from '@tanstack/react-form'
+import { ComponentType, ReactNode } from 'react'
 
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { CustomCharge } from '~/components/plans/CustomCharge'
@@ -21,8 +22,8 @@ import {
   StandardChargeForRateFragmentDoc,
   VolumeRateTierFragmentDoc,
 } from '~/generated/graphql'
-import { withForm } from '~/hooks/forms/useAppform'
-import { RATE_CARD_RATE_FORM_DEFAULTS } from '~/pages/catalog/drawers/rateCardRate/constants'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
+import { getRatePropertiesShape } from '~/pages/catalog/drawers/rateCardRate/getRatePropertiesShape'
 
 import { GraduatedPercentageRateTiersTable } from './tiers/GraduatedPercentageRateTiersTable'
 import { GraduatedRateTiersTable } from './tiers/GraduatedRateTiersTable'
@@ -56,6 +57,41 @@ gql`
   ${VolumeRateTierFragmentDoc}
 `
 
+// `group.form` is typed as the core FormApi; the tier tables (also `withFieldGroup` consumers)
+// need the React-extended form type for their own `form` prop - same runtime object either way.
+type AnyReactFormApi = AppFieldExtendedReactFormApi<
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any
+>
+
+// Every tier table is mounted here with a fixed `fields="properties"`: casting them to this
+// concrete signature (rather than threading `hostForm` through their own generics) sidesteps
+// TanStack Form inferring `TFormData` from a widened `form` value.
+type RatePropertiesTierTableProps = {
+  form: AnyReactFormApi
+  fields: 'properties'
+  currency: CurrencyEnum
+  pricingUnitShortName: string | undefined
+}
+
+const BoundGraduatedRateTiersTable =
+  GraduatedRateTiersTable as ComponentType<RatePropertiesTierTableProps>
+const BoundGraduatedPercentageRateTiersTable =
+  GraduatedPercentageRateTiersTable as ComponentType<RatePropertiesTierTableProps>
+const BoundVolumeRateTiersTable = VolumeRateTiersTable as ComponentType<RatePropertiesTierTableProps>
+
 type RateWrapperSwitchProps = {
   rateModel: RateCardRateModelEnum
   productType: ProductTypeEnum
@@ -72,17 +108,19 @@ const rateWrapperSwitchDefaultProps: RateWrapperSwitchProps = {
   onExpandCustomCharge: () => undefined,
 }
 
-export const RateWrapperSwitch = withForm({
-  defaultValues: RATE_CARD_RATE_FORM_DEFAULTS,
+export const RateWrapperSwitch = withFieldGroup({
+  defaultValues: getRatePropertiesShape(),
   props: rateWrapperSwitchDefaultProps,
   render: function RateWrapperSwitchRender({
-    form,
+    group,
     rateModel,
     productType,
     currency,
     pricingUnitShortName,
     onExpandCustomCharge,
   }) {
+    const hostForm = group.form as unknown as AnyReactFormApi
+
     const contentByRateModel: Record<RateCardRateModelEnum, ReactNode> = {
       [RateCardRateModelEnum.Standard]: <StandardCharge />,
       [RateCardRateModelEnum.Package]: <PackageCharge />,
@@ -90,22 +128,25 @@ export const RateWrapperSwitch = withForm({
       [RateCardRateModelEnum.Custom]: <CustomCharge onExpandCustomCharge={onExpandCustomCharge} />,
       [RateCardRateModelEnum.Dynamic]: <DynamicCharge />,
       [RateCardRateModelEnum.Graduated]: (
-        <GraduatedRateTiersTable
-          form={form}
+        <BoundGraduatedRateTiersTable
+          form={hostForm}
+          fields="properties"
           currency={currency}
           pricingUnitShortName={pricingUnitShortName}
         />
       ),
       [RateCardRateModelEnum.GraduatedPercentage]: (
-        <GraduatedPercentageRateTiersTable
-          form={form}
+        <BoundGraduatedPercentageRateTiersTable
+          form={hostForm}
+          fields="properties"
           currency={currency}
           pricingUnitShortName={pricingUnitShortName}
         />
       ),
       [RateCardRateModelEnum.Volume]: (
-        <VolumeRateTiersTable
-          form={form}
+        <BoundVolumeRateTiersTable
+          form={hostForm}
+          fields="properties"
           currency={currency}
           pricingUnitShortName={pricingUnitShortName}
         />
@@ -114,7 +155,7 @@ export const RateWrapperSwitch = withForm({
 
     return (
       <ChargeFormProvider
-        form={form}
+        form={group.form as unknown as AnyFormApi}
         propertyCursor="properties"
         currency={currency}
         chargePricingUnitShortName={pricingUnitShortName}

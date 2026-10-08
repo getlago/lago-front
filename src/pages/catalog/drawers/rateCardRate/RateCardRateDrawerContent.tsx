@@ -378,6 +378,7 @@ const RateCardRateDrawerFormSections = withForm({
 
           <RateWrapperSwitch
             form={form}
+            fields="properties"
             rateModel={rateModel}
             productType={rateCard.productType}
             currency={rateCard.currency}
