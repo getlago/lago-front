@@ -4,18 +4,18 @@ import { RatePhaseFormFields } from './RatePhaseFormFields'
 import { RATE_PHASE_FORM_DEFAULTS } from './ratePhaseFormSchema'
 import { RateCardForRatePhaseFields } from './types'
 
-type RatePhaseLocalDrawerContentProps = {
+type RatePhaseDrawerContentProps = {
   isLastPosition: boolean
   rateCard: RateCardForRatePhaseFields
 }
 
-export const RatePhaseLocalDrawerContent = withForm({
+export const RatePhaseDrawerContent = withForm({
   defaultValues: RATE_PHASE_FORM_DEFAULTS,
   props: {
     isLastPosition: true,
     rateCard: {} as RateCardForRatePhaseFields,
-  } as RatePhaseLocalDrawerContentProps,
-  render: function RatePhaseLocalDrawerContentRender({ form, isLastPosition, rateCard }) {
+  } as RatePhaseDrawerContentProps,
+  render: function RatePhaseDrawerContentRender({ form, isLastPosition, rateCard }) {
     return <RatePhaseFormFields form={form} isLastPosition={isLastPosition} rateCard={rateCard} />
   },
 })

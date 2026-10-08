@@ -145,7 +145,9 @@ export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaCo
     }
   })
 
-export const buildPhaseInput = (values: RatePhaseFormValues & { position: number }): PhaseInput => ({
+export const buildPhaseInput = (
+  values: RatePhaseFormValues & { position: number },
+): PhaseInput => ({
   code: values.code,
   name: values.name || undefined,
   position: values.position,
