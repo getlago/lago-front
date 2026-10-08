@@ -226,6 +226,7 @@ describe('persisted additional integration routing', () => {
       FORM_TYPE_ENUM.edition,
       CURRENT_DATE,
     )
+
     expect(values.accountingConnection).toEqual(expected)
     expect(values.crmConnection).toEqual(expected)
     expect(values.taxConnection).toEqual(expected)

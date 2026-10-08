@@ -2,6 +2,9 @@ import { gql } from '@apollo/client'
 import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router'
 
+import { AppliedRateCardsTable } from '~/components/appliedRateCards/AppliedRateCardsTable'
+import { useAppliedRateCardDrawer } from '~/components/appliedRateCards/drawers/appliedRateCard/useAppliedRateCardDrawer'
+import { useAppliedRateCardRowActions } from '~/components/appliedRateCards/useAppliedRateCardRowActions'
 import { usePageSearchParam } from '~/components/designSystem/Pagination/usePageSearchParam'
 import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
 import {
@@ -10,9 +13,6 @@ import {
   formatFiltersForAppliedRateCardsQuery,
 } from '~/components/Filters'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import { AppliedRateCardsTable } from '~/components/appliedRateCards/AppliedRateCardsTable'
-import { useAppliedRateCardDrawer } from '~/components/appliedRateCards/drawers/appliedRateCard/useAppliedRateCardDrawer'
-import { useAppliedRateCardRowActions } from '~/components/appliedRateCards/useAppliedRateCardRowActions'
 import { SearchInput } from '~/components/SearchInput'
 import { APPLIED_RATE_CARD_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'

@@ -1,4 +1,4 @@
-import { RateCardRateModelEnum, RateCardRateBillingIntervalUnitEnum } from '~/generated/graphql'
+import { RateCardRateBillingIntervalUnitEnum, RateCardRateModelEnum } from '~/generated/graphql'
 
 import { getOverriddenFields } from '../overrideDiff'
 

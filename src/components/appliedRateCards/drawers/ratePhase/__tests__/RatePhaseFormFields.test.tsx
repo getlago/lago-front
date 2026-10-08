@@ -1,17 +1,12 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import {
-  CurrencyEnum,
-  ProductTypeEnum,
-  RateCardBillingTimingEnum,
-  RateCardRateModelEnum,
-} from '~/generated/graphql'
+import { CurrencyEnum, ProductTypeEnum, RateCardBillingTimingEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 
-import { RATE_PHASE_FORM_DEFAULTS } from '../ratePhaseFormSchema'
 import { RatePhaseFormFields } from '../RatePhaseFormFields'
+import { RATE_PHASE_FORM_DEFAULTS } from '../ratePhaseFormSchema'
 import { RateCardForRatePhaseFields } from '../types'
 
 const rateCardForFields: RateCardForRatePhaseFields = {
@@ -75,7 +70,10 @@ describe('RatePhaseFormFields', () => {
 
   it('GIVEN rateCard has an appliedPricingUnitCode THEN the conversion rate field renders', async () => {
     render(
-      <Host isLastPosition rateCard={{ ...rateCardForFields, appliedPricingUnitCode: 'usd-cents' }} />,
+      <Host
+        isLastPosition
+        rateCard={{ ...rateCardForFields, appliedPricingUnitCode: 'usd-cents' }}
+      />,
     )
 
     await userEvent.click(screen.getByTestId('rate-phase-override-toggle'))
