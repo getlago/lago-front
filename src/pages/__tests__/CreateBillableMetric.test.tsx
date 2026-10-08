@@ -14,6 +14,7 @@ import CreateBillableMetric, {
   BILLABLE_METRIC_NAME_INPUT_TEST_ID,
   BILLABLE_METRIC_REMOVE_ROUNDING_TEST_ID,
   BILLABLE_METRIC_ROUNDING_FUNCTION_TEST_ID,
+  BILLABLE_METRIC_ROUNDING_PRECISION_TEST_ID,
   BILLABLE_METRIC_SUBMIT_TEST_ID,
   FILTER_VALUE_WARNING_ALERT_TEST_ID,
 } from '../CreateBillableMetric'
@@ -373,6 +374,70 @@ describe('CreateBillableMetric', () => {
           expect(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID)).toBeDisabled()
         })
         expect(mockOnSave).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a rounding is configured through the form', () => {
+    describe('WHEN a function is picked and a precision of 0 typed', () => {
+      it('THEN should save both, keeping the 0', async () => {
+        const user = userEvent.setup()
+
+        setHook({
+          billableMetric: buildMetric({ hasPlans: false, hasSubscriptions: false, filters: [] }),
+        })
+        render(<CreateBillableMetric />)
+
+        await user.click(screen.getByTestId(BILLABLE_METRIC_ADD_ROUNDING_TEST_ID))
+        await user.click(inputIn(BILLABLE_METRIC_ROUNDING_FUNCTION_TEST_ID))
+
+        const options = await screen.findAllByRole('option')
+
+        await user.click(options[0])
+        await user.type(inputIn(BILLABLE_METRIC_ROUNDING_PRECISION_TEST_ID), '0')
+        await user.click(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockOnSave).toHaveBeenCalledWith(
+            expect.objectContaining({
+              roundingFunction: expect.any(String),
+              roundingPrecision: 0,
+            }),
+          )
+        })
+      })
+    })
+  })
+
+  describe('GIVEN a filter built through the form', () => {
+    describe('WHEN a key and two values are entered', () => {
+      it('THEN should save the values as bare strings', async () => {
+        const user = userEvent.setup()
+
+        setHook({
+          billableMetric: buildMetric({ hasPlans: false, hasSubscriptions: false, filters: [] }),
+        })
+        render(<CreateBillableMetric />)
+
+        await user.click(screen.getByTestId(BILLABLE_METRIC_ADD_FILTER_TEST_ID))
+        await user.type(inputIn(`${BILLABLE_METRIC_FILTER_KEY_INPUT_TEST_ID}-0`), 'region')
+
+        // MultipleComboBox takes no data-test; the filter values are the last combobox
+        const comboboxes = screen.getAllByRole('combobox')
+        const valuesInput = comboboxes[comboboxes.length - 1]
+
+        await user.type(valuesInput, 'eu{enter}')
+        await user.type(valuesInput, 'us{enter}')
+
+        await user.click(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockOnSave).toHaveBeenCalledWith(
+            expect.objectContaining({
+              filters: [{ key: 'region', values: ['eu', 'us'] }],
+            }),
+          )
+        })
       })
     })
   })

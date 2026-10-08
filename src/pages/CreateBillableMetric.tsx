@@ -14,7 +14,7 @@ import { Chip } from '~/components/designSystem/Chip'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { BasicMultipleComboBoxData, ComboboxItem, MultipleComboBox } from '~/components/form'
+import { ComboboxItem } from '~/components/form'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
@@ -30,19 +30,17 @@ import {
   useNavigate,
 } from '~/core/router'
 import { scrollToTop } from '~/core/utils/domUtils'
-import {
-  AggregationTypeEnum,
-  CreateBillableMetricInput,
-  RoundingFunctionEnum,
-} from '~/generated/graphql'
+import { AggregationTypeEnum, RoundingFunctionEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
 import { hasRemovedFilterValues } from '~/pages/CreateBillableMetric.utils'
 import {
   AggregateOnTab,
-  BillableMetricFormValues,
+  aggregatesOnAField,
   billableMetricValidationSchema,
+  buildBillableMetricInput,
+  mapFromApiToForm,
 } from '~/pages/createBillableMetric/validationSchema'
 import { PageHeader } from '~/styles'
 import { FormLoadingSkeleton, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
@@ -52,7 +50,7 @@ export const BILLABLE_METRIC_FORM_ID = 'create-billable-metric-form'
 export const FILTER_VALUE_WARNING_ALERT_TEST_ID = 'billable-metric-filter-value-warning'
 export const BILLABLE_METRIC_NAME_INPUT_TEST_ID = 'billable-metric-name-input'
 export const BILLABLE_METRIC_CODE_INPUT_TEST_ID = 'billable-metric-code-input'
-export const BILLABLE_METRIC_SHOW_DESCRIPTION_TEST_ID = 'billable-metric-show-description'
+export const BILLABLE_METRIC_SHOW_DESCRIPTION_TEST_ID = 'show-description'
 export const BILLABLE_METRIC_AGGREGATION_TYPE_TEST_ID = 'billable-metric-aggregation-type'
 export const BILLABLE_METRIC_FIELD_NAME_INPUT_TEST_ID = 'billable-metric-field-name-input'
 export const BILLABLE_METRIC_ADD_ROUNDING_TEST_ID = 'billable-metric-add-rounding'
@@ -60,8 +58,10 @@ export const BILLABLE_METRIC_REMOVE_ROUNDING_TEST_ID = 'billable-metric-remove-r
 export const BILLABLE_METRIC_ROUNDING_FUNCTION_TEST_ID = 'billable-metric-rounding-function'
 export const BILLABLE_METRIC_ROUNDING_PRECISION_TEST_ID = 'billable-metric-rounding-precision'
 export const BILLABLE_METRIC_FILTER_KEY_INPUT_TEST_ID = 'billable-metric-filter-key-input'
-export const BILLABLE_METRIC_ADD_FILTER_TEST_ID = 'billable-metric-add-filter'
-export const BILLABLE_METRIC_SUBMIT_TEST_ID = 'billable-metric-submit'
+export const BILLABLE_METRIC_ADD_FILTER_TEST_ID = 'add-filter'
+export const BILLABLE_METRIC_SUBMIT_TEST_ID = 'submit'
+export const BILLABLE_METRIC_RECURRING_SWITCH_TEST_ID = 'recurring-switch'
+export const BILLABLE_METRIC_AGGREGATE_ON_SWITCH_TEST_ID = 'aggregate-on-switch'
 
 gql`
   fragment EditBillableMetric on BillableMetric {
@@ -84,23 +84,6 @@ gql`
   }
 `
 
-const toBillableMetricInput = (values: BillableMetricFormValues): CreateBillableMetricInput => ({
-  name: values.name,
-  code: values.code,
-  description: values.description,
-  // Only ever empty while the form is being filled: the schema requires it before submit.
-  aggregationType: values.aggregationType as AggregationTypeEnum,
-  fieldName: values.fieldName,
-  recurring: values.recurring,
-  filters: values.filters,
-  roundingFunction: values.roundingFunction,
-  roundingPrecision:
-    values.roundingPrecision === undefined || values.roundingPrecision === ''
-      ? undefined
-      : Number(values.roundingPrecision),
-  expression: values.aggregateOnTab === AggregateOnTab.CustomExpression ? values.expression : null,
-})
-
 const CreateBillableMetric = () => {
   const { strippedPathname } = useLocation()
   const isDuplicate = !!matchPath(DUPLICATE_BILLABLE_METRIC_ROUTE, strippedPathname)
@@ -117,23 +100,7 @@ const CreateBillableMetric = () => {
   // A non-duplicate edit of a metric already attached to plans/subscriptions:
   // removing filter values here can collapse existing plan charge filters.
   const isInUse = isEdition && !canBeEdited
-  const initialCode = isDuplicate ? '' : billableMetric?.code || ''
-
-  const defaultValues: BillableMetricFormValues = {
-    name: isDuplicate ? '' : billableMetric?.name || '',
-    code: initialCode,
-    description: billableMetric?.description || '',
-    expression: billableMetric?.expression || '',
-    aggregationType: billableMetric?.aggregationType || undefined,
-    fieldName: billableMetric?.fieldName || undefined,
-    recurring: billableMetric?.recurring || false,
-    filters: billableMetric?.filters || [],
-    aggregateOnTab: billableMetric?.expression
-      ? AggregateOnTab.CustomExpression
-      : AggregateOnTab.UniqueField,
-    roundingFunction: billableMetric?.roundingFunction || undefined,
-    roundingPrecision: billableMetric?.roundingPrecision || undefined,
-  }
+  const defaultValues = mapFromApiToForm(billableMetric, isDuplicate)
 
   const form = useAppForm({
     defaultValues,
@@ -145,11 +112,11 @@ const CreateBillableMetric = () => {
       scrollToFirstInputError(BILLABLE_METRIC_FORM_ID, formApi.state.errorMap.onDynamic || {})
     },
     onSubmit: async ({ value }) => {
-      const input = toBillableMetricInput(value)
+      const input = buildBillableMetricInput(value)
 
       // Warn before saving when the metric is in use and filter values were removed:
       // the backend collapses affected plan charge filters, which may need manual review.
-      if (isInUse && hasRemovedFilterValues(billableMetric?.filters, value.filters)) {
+      if (isInUse && hasRemovedFilterValues(billableMetric?.filters, input.filters)) {
         centralizedDialog.open({
           title: translate('text_1785937424540rcpk2gtmvcw'),
           description: translate('text_17859374245407eq5b0eujux'),
@@ -180,9 +147,7 @@ const CreateBillableMetric = () => {
   const isDirty = useStore(form.store, (state) => state.isDirty)
   const { aggregationType, aggregateOnTab, recurring, roundingFunction, filters } = formValues
 
-  const showAggregateOn =
-    !!aggregationType &&
-    ![AggregationTypeEnum.CountAgg, AggregationTypeEnum.CustomAgg].includes(aggregationType)
+  const showAggregateOn = aggregatesOnAField(aggregationType)
 
   useEffect(() => {
     setShouldDisplayDescription(!!billableMetric?.description)
@@ -191,12 +156,6 @@ const CreateBillableMetric = () => {
   useEffect(() => {
     setShouldDisplayRounding(!!billableMetric?.roundingFunction)
   }, [billableMetric?.roundingFunction])
-
-  useEffect(() => {
-    if (aggregationType === AggregationTypeEnum.CountAgg && !!form.state.values.fieldName) {
-      form.setFieldValue('fieldName', undefined)
-    }
-  }, [aggregationType, form])
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
@@ -272,7 +231,7 @@ const CreateBillableMetric = () => {
                     form={form}
                     fields={{ name: 'name', code: 'code' }}
                     disableCodeInput={isEdition && !canBeEdited}
-                    disableAutoGenerateCode={!!initialCode}
+                    disableAutoGenerateCode={!!defaultValues.code}
                     nameDataTest={BILLABLE_METRIC_NAME_INPUT_TEST_ID}
                     codeDataTest={BILLABLE_METRIC_CODE_INPUT_TEST_ID}
                     nameProps={{
@@ -361,6 +320,7 @@ const CreateBillableMetric = () => {
                     >
                       {(field) => (
                         <field.ButtonSelectorField
+                          data-test={BILLABLE_METRIC_RECURRING_SWITCH_TEST_ID}
                           disabled={isEdition && !canBeEdited}
                           label={translate('text_64d2709dc5b465004fbd3537')}
                           helperText={translate(
@@ -382,7 +342,16 @@ const CreateBillableMetric = () => {
                       )}
                     </form.AppField>
 
-                    <form.AppField name="aggregationType">
+                    <form.AppField
+                      name="aggregationType"
+                      listeners={{
+                        onChange: ({ value }) => {
+                          if (!aggregatesOnAField(value)) {
+                            form.setFieldValue('fieldName', undefined)
+                          }
+                        },
+                      }}
+                    >
                       {(field) => (
                         <field.ComboBoxField
                           dataTest={BILLABLE_METRIC_AGGREGATION_TYPE_TEST_ID}
@@ -490,6 +459,7 @@ const CreateBillableMetric = () => {
                         <form.AppField name="aggregateOnTab">
                           {(field) => (
                             <field.ButtonSelectorField
+                              data-test={BILLABLE_METRIC_AGGREGATE_ON_SWITCH_TEST_ID}
                               className="mb-4"
                               disabled={isEdition && !canBeEdited}
                               label={translate('text_1729771640162n696lisyg7u')}
@@ -760,7 +730,7 @@ const CreateBillableMetric = () => {
                                       return (
                                         <Chip
                                           key={`filter-${filterIndex}-value-${valueIndex}`}
-                                          label={value}
+                                          label={value.value}
                                           deleteIconLabel={translate(
                                             'text_6261640f28a49700f1290df5',
                                           )}
@@ -781,33 +751,22 @@ const CreateBillableMetric = () => {
                                 </Stack>
                               )}
 
-                              <MultipleComboBox
-                                freeSolo
-                                hideTags
-                                disableClearable
-                                showOptionsOnlyWhenTyping
-                                data={[]}
-                                label={
-                                  !filter.values?.length &&
-                                  translate('text_65e9c6d183491188fbbcf078')
-                                }
-                                value={
-                                  filter.values?.map((value) => {
-                                    return {
-                                      value,
+                              <form.AppField name={`filters[${filterIndex}].values`}>
+                                {(field) => (
+                                  <field.MultipleComboBoxField
+                                    freeSolo
+                                    hideTags
+                                    disableClearable
+                                    showOptionsOnlyWhenTyping
+                                    data={[]}
+                                    label={
+                                      !filter.values?.length &&
+                                      translate('text_65e9c6d183491188fbbcf078')
                                     }
-                                  }) || []
-                                }
-                                onChange={(values) => {
-                                  form.setFieldValue(
-                                    `filters[${filterIndex}].values`,
-                                    values.map((value) => {
-                                      return (value as BasicMultipleComboBoxData).value
-                                    }),
-                                  )
-                                }}
-                                placeholder={translate('text_65e9c6d183491188fbbcf07a')}
-                              />
+                                    placeholder={translate('text_65e9c6d183491188fbbcf07a')}
+                                  />
+                                )}
+                              </form.AppField>
                             </Stack>
                           </Accordion>
                         </div>
@@ -869,7 +828,7 @@ const CreateBillableMetric = () => {
         <Side>
           <BillableMetricCodeSnippet
             loading={loading}
-            billableMetric={toBillableMetricInput(formValues)}
+            billableMetric={buildBillableMetricInput(formValues)}
           />
         </Side>
       </form>

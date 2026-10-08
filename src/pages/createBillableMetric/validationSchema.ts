@@ -1,6 +1,11 @@
 import { z } from 'zod'
 
-import { AggregationTypeEnum, RoundingFunctionEnum } from '~/generated/graphql'
+import {
+  AggregationTypeEnum,
+  CreateBillableMetricInput,
+  EditBillableMetricFragment,
+  RoundingFunctionEnum,
+} from '~/generated/graphql'
 
 export enum AggregateOnTab {
   UniqueField,
@@ -13,9 +18,13 @@ const NOT_UNIQUE_KEY_ERROR = 'text_65eadc457f316200770db19c'
 
 const FIELD_NAME_FREE_AGGREGATIONS = [AggregationTypeEnum.CountAgg, AggregationTypeEnum.CustomAgg]
 
+export const aggregatesOnAField = (aggregationType?: AggregationTypeEnum): boolean =>
+  !!aggregationType && !FIELD_NAME_FREE_AGGREGATIONS.includes(aggregationType)
+
 const filterSchema = z.object({
   key: z.string(),
-  values: z.array(z.string()),
+  // `MultipleComboBoxField` stores whole options, not the bare strings the API takes.
+  values: z.array(z.looseObject({ value: z.string() })),
 })
 
 export const billableMetricValidationSchema = z
@@ -44,23 +53,16 @@ export const billableMetricValidationSchema = z
     message: REQUIRED_ERROR,
     path: ['expression'],
   })
-  .refine(
-    (data) =>
-      !data.aggregationType ||
-      FIELD_NAME_FREE_AGGREGATIONS.includes(data.aggregationType) ||
-      !!data.fieldName,
-    { message: REQUIRED_ERROR, path: ['fieldName'] },
-  )
+  .refine((data) => !aggregatesOnAField(data.aggregationType) || !!data.fieldName, {
+    message: REQUIRED_ERROR,
+    path: ['fieldName'],
+  })
   .superRefine((data, ctx) => {
     if (!Array.isArray(data.filters)) return
 
     data.filters.forEach((filter, index) => {
       if (!filter?.key) {
-        ctx.addIssue({
-          code: 'custom',
-          message: REQUIRED_ERROR,
-          path: ['filters', index, 'key'],
-        })
+        ctx.addIssue({ code: 'custom', message: REQUIRED_ERROR, path: ['filters', index, 'key'] })
 
         return
       }
@@ -88,3 +90,69 @@ export const billableMetricValidationSchema = z
   })
 
 export type BillableMetricFormValues = z.infer<typeof billableMetricValidationSchema>
+
+export const billableMetricDefaultValues: BillableMetricFormValues = {
+  name: '',
+  code: '',
+  description: '',
+  expression: '',
+  aggregationType: undefined,
+  fieldName: undefined,
+  recurring: false,
+  aggregateOnTab: AggregateOnTab.UniqueField,
+  roundingFunction: undefined,
+  roundingPrecision: undefined,
+  filters: [],
+}
+
+export const mapFromApiToForm = (
+  billableMetric: EditBillableMetricFragment | undefined,
+  isDuplicate: boolean,
+): BillableMetricFormValues => {
+  if (!billableMetric) return billableMetricDefaultValues
+
+  const aggregationType = billableMetric.aggregationType || undefined
+
+  return {
+    name: isDuplicate ? '' : billableMetric.name || '',
+    code: isDuplicate ? '' : billableMetric.code || '',
+    description: billableMetric.description || '',
+    expression: billableMetric.expression || '',
+    aggregationType,
+    fieldName: aggregatesOnAField(aggregationType)
+      ? billableMetric.fieldName || undefined
+      : undefined,
+    recurring: billableMetric.recurring || false,
+    aggregateOnTab: billableMetric.expression
+      ? AggregateOnTab.CustomExpression
+      : AggregateOnTab.UniqueField,
+    roundingFunction: billableMetric.roundingFunction || undefined,
+    roundingPrecision: billableMetric.roundingPrecision ?? undefined,
+    filters: (billableMetric.filters || []).map((filter) => ({
+      key: filter.key,
+      values: (filter.values || []).map((value) => ({ value })),
+    })),
+  }
+}
+
+export const buildBillableMetricInput = (
+  values: BillableMetricFormValues,
+): CreateBillableMetricInput => ({
+  name: values.name,
+  code: values.code,
+  description: values.description,
+  // Only ever empty while the form is being filled: the schema requires it before submit.
+  aggregationType: values.aggregationType as AggregationTypeEnum,
+  fieldName: values.fieldName,
+  recurring: values.recurring,
+  filters: values.filters.map((filter) => ({
+    key: filter.key,
+    values: filter.values.map(({ value }) => value),
+  })),
+  roundingFunction: values.roundingFunction,
+  roundingPrecision:
+    values.roundingPrecision === undefined || values.roundingPrecision === ''
+      ? undefined
+      : Number(values.roundingPrecision),
+  expression: values.aggregateOnTab === AggregateOnTab.CustomExpression ? values.expression : null,
+})
