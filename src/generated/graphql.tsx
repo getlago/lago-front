@@ -5325,7 +5325,7 @@ export type Invite = {
   revokedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   roles: Array<Scalars['String']['output']>;
   status: InviteStatusTypeEnum;
-  token: Scalars['String']['output'];
+  token?: Maybe<Scalars['String']['output']>;
 };
 
 /** InviteCollection type */
@@ -18892,7 +18892,7 @@ export type UpdateOrganizationAuthenticationMethodsMutationVariables = Exact<{
 
 export type UpdateOrganizationAuthenticationMethodsMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, authenticationMethods: Array<AuthenticationMethodsEnum> } | null };
 
-export type InviteItemForMembersSettingsFragment = { __typename?: 'Invite', id: string, email: string, token: string, roles: Array<string>, organization: { __typename?: 'Organization', id: string, name: string } };
+export type InviteItemForMembersSettingsFragment = { __typename?: 'Invite', id: string, email: string, token?: string | null, roles: Array<string>, organization: { __typename?: 'Organization', id: string, name: string } };
 
 export type GetInvitesQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -18902,7 +18902,7 @@ export type GetInvitesQueryVariables = Exact<{
 }>;
 
 
-export type GetInvitesQuery = { __typename?: 'Query', invites: { __typename?: 'InviteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invite', id: string, email: string, token: string, roles: Array<string>, organization: { __typename?: 'Organization', id: string, name: string } }> } };
+export type GetInvitesQuery = { __typename?: 'Query', invites: { __typename?: 'InviteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invite', id: string, email: string, token?: string | null, roles: Array<string>, organization: { __typename?: 'Organization', id: string, name: string } }> } };
 
 export type MembershipItemForMembershipSettingsFragment = { __typename?: 'Membership', id: string, roles: Array<string>, user: { __typename?: 'User', id: string, email?: string | null }, organization: { __typename?: 'Organization', id: string, name: string }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, contractsCreate: boolean, contractsTerminate: boolean, contractsUpdate: boolean, contractsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesDelete: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, productCategoriesView: boolean, productCategoriesCreate: boolean, productCategoriesUpdate: boolean, productCategoriesDelete: boolean, productsView: boolean, productsCreate: boolean, productsUpdate: boolean, productsDelete: boolean, productFiltersView: boolean, productFiltersCreate: boolean, productFiltersUpdate: boolean, productFiltersDelete: boolean, rateCardsView: boolean, rateCardsCreate: boolean, rateCardsUpdate: boolean, rateCardsDelete: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, usageAttributionTypesView: boolean, usageAttributionTypesCreate: boolean, usageAttributionTypesUpdate: boolean, usageAttributionTypesDelete: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
 
@@ -18923,7 +18923,7 @@ export type CreateInviteMutationVariables = Exact<{
 }>;
 
 
-export type CreateInviteMutation = { __typename?: 'Mutation', createInvite?: { __typename?: 'Invite', id: string, token: string, email: string, roles: Array<string>, organization: { __typename?: 'Organization', id: string, name: string } } | null };
+export type CreateInviteMutation = { __typename?: 'Mutation', createInvite?: { __typename?: 'Invite', id: string, token?: string | null, email: string, roles: Array<string>, organization: { __typename?: 'Organization', id: string, name: string } } | null };
 
 export type UpdateInviteRoleMutationVariables = Exact<{
   input: UpdateInviteInput;
