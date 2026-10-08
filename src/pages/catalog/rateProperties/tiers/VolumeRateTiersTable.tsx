@@ -138,7 +138,7 @@ export const VolumeRateTiersTable = withForm({
             onDeleteRow={(_, index) => deleteTier(index)}
             columns={[
               {
-                size: 144,
+                size: 181,
                 content: (_, index) => (
                   <Typography
                     className="px-4"
@@ -155,7 +155,7 @@ export const VolumeRateTiersTable = withForm({
                     {translate(RATE_TIER_UP_TO_KEY)}
                   </Typography>
                 ),
-                size: 144,
+                size: 181,
                 content: (_, index) => renderUpToCell(index),
               },
               {
@@ -164,7 +164,7 @@ export const VolumeRateTiersTable = withForm({
                     {translate('text_62793bbb599f1c01522e91b6')}
                   </Typography>
                 ),
-                size: 144,
+                size: 181,
                 content: (_, index) => (
                   <form.AppField name={`properties.volumeRanges[${index}].perUnitAmount`}>
                     {(field) => (
@@ -192,7 +192,7 @@ export const VolumeRateTiersTable = withForm({
                     {translate('text_62793bbb599f1c01522e91bc')}
                   </Typography>
                 ),
-                size: 144,
+                size: 181,
                 content: (_, index) => (
                   <form.AppField name={`properties.volumeRanges[${index}].flatAmount`}>
                     {(field) => (
