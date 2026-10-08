@@ -109,9 +109,16 @@ gql`
   ${PropertiesForRateCardRateFragmentDoc}
 `
 
+type AppliedRateCardDrawerContentProps = { context: 'plan' | 'contract' }
+
+const appliedRateCardDrawerContentDefaultProps: AppliedRateCardDrawerContentProps = {
+  context: 'plan',
+}
+
 export const AppliedRateCardDrawerContent = withForm({
   defaultValues: APPLIED_RATE_CARD_FORM_DEFAULTS,
-  render: function AppliedRateCardDrawerContentRender({ form }) {
+  props: appliedRateCardDrawerContentDefaultProps,
+  render: function AppliedRateCardDrawerContentRender({ form, context }) {
     const { translate } = useInternationalization()
     const { openDrawer: openRateCardDrawer } = useRateCardDrawer()
     const { openDrawer: openRatePhaseDrawer } = useRatePhaseLocalDrawer()
@@ -286,6 +293,16 @@ export const AppliedRateCardDrawerContent = withForm({
             </form.AppField>
           )}
         </CenteredPage.PageSection>
+
+        {context === 'contract' && (
+          <CenteredPage.PageSection>
+            <form.AppField name="billingAnchorDate">
+              {(field) => (
+                <field.DatePickerField label={translate('text_1781859135627z59hpfpa8pt')} />
+              )}
+            </form.AppField>
+          </CenteredPage.PageSection>
+        )}
 
         {!!productId && (
           <CenteredPage.PageSection>
