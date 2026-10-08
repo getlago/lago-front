@@ -43,7 +43,7 @@ const CentralizedDialog = create(
     onError,
   }: CentralizedDialogProps) => {
     const modal = useModal()
-    const { handleCancel, handleContinue, closeText } = useDialogActions({
+    const { handleCancel, handleContinue, closeText, isActionPending } = useDialogActions({
       modal,
       onAction,
       cancelOrCloseText,
@@ -70,7 +70,8 @@ const CentralizedDialog = create(
               {closeText}
             </Button>
             <Button
-              disabled={disableOnContinue}
+              disabled={disableOnContinue || isActionPending}
+              loading={isActionPending}
               danger={colorVariant === 'danger'}
               onClick={handleContinue}
               data-test={CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID}

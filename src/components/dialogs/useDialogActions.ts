@@ -1,4 +1,5 @@
 import { useModal } from '@ebay/nice-modal-react'
+import { useRef, useState } from 'react'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -18,6 +19,7 @@ type UseDialogActionsReturn = {
   handleCancel: () => Promise<void>
   handleContinue: () => Promise<void>
   closeText: string
+  isActionPending: boolean
 }
 
 export const useDialogActions = ({
@@ -29,6 +31,8 @@ export const useDialogActions = ({
   didSubmitSucceed,
 }: UseDialogActionsParams): UseDialogActionsReturn => {
   const { translate } = useInternationalization()
+  const [isActionPending, setIsActionPending] = useState(false)
+  const isActionPendingRef = useRef(false)
 
   const handleCancel = async (): Promise<void> => {
     modal.resolve(CLOSE_PARAMS)
@@ -41,7 +45,10 @@ export const useDialogActions = ({
       : translate('text_62f50d26c989ab03196884ae')
 
   const handleContinue = async (): Promise<void> => {
-    if (!onAction) return
+    if (!onAction || isActionPendingRef.current) return
+
+    isActionPendingRef.current = true
+    setIsActionPending(true)
 
     try {
       const result = await onAction()
@@ -64,6 +71,9 @@ export const useDialogActions = ({
       } else {
         onError?.(error as Error)
       }
+    } finally {
+      isActionPendingRef.current = false
+      setIsActionPending(false)
     }
   }
 
@@ -71,5 +81,6 @@ export const useDialogActions = ({
     handleCancel,
     handleContinue,
     closeText,
+    isActionPending,
   }
 }

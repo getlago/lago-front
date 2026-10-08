@@ -29,7 +29,7 @@ export const AlertNameAndCodeSection = withFieldGroup({
     const { translate } = useInternationalization()
 
     // The code is derived from the name until the user takes ownership of it,
-    // and never on an alert that already had one (`updateNameAndMaybeCode` parity)
+    // and never on an alert that already had one.
     const onNameChange = ({ value }: { value: string }) => {
       if (group.getFieldMeta('code')?.isBlurred || hasExistingCode) return
 

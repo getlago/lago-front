@@ -64,12 +64,13 @@ describe('legacy color isolation', () => {
   it('generates distinct primitive and semantic utilities without flattening alpha', async () => {
     const css = await compile(
       config.theme,
-      'bg-v2-green-600 bg-green-600 bg-selected text-text-default border-border-default',
+      'bg-v2-green-600 bg-green-600 bg-selected text-text-default text-icon-premium border-border-default',
     )
 
     expect(css).toContain('background-color: var(--v2-green-600)')
     expect(css).toContain('background-color: var(--color-selected)')
     expect(css).toContain('color: var(--color-text-default)')
+    expect(css).toContain('color: var(--color-icon-premium)')
     expect(css).toContain('border-color: var(--color-border-default)')
   })
 

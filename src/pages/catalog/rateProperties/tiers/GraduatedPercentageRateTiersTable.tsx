@@ -161,7 +161,7 @@ export const GraduatedPercentageRateTiersTable = withForm({
             onDeleteRow={(_, index) => deleteTier(index)}
             columns={[
               {
-                size: 144,
+                size: 181,
                 content: (_, index) => (
                   <Typography
                     className="px-4"
@@ -178,7 +178,7 @@ export const GraduatedPercentageRateTiersTable = withForm({
                     {translate(RATE_TIER_UP_TO_KEY)}
                   </Typography>
                 ),
-                size: 144,
+                size: 181,
                 content: (_, index) => renderUpToCell(index),
               },
               {
@@ -187,7 +187,7 @@ export const GraduatedPercentageRateTiersTable = withForm({
                     {translate('text_64de472463e2da6b31737de0')}
                   </Typography>
                 ),
-                size: 144,
+                size: 181,
                 content: (_, index) => (
                   <form.AppField name={`properties.graduatedPercentageRanges[${index}].rate`}>
                     {(field) => (
@@ -217,7 +217,7 @@ export const GraduatedPercentageRateTiersTable = withForm({
                     {translate('text_62793bbb599f1c01522e91bc')}
                   </Typography>
                 ),
-                size: 144,
+                size: 181,
                 content: (_, index) => (
                   <form.AppField name={`properties.graduatedPercentageRanges[${index}].flatAmount`}>
                     {(field) => (
