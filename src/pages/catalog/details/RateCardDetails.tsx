@@ -182,7 +182,7 @@ const RateCardDetails = () => {
               tab: RateCardDetailsTabsOptionsEnum.rates,
             }),
             content: (
-              <DetailsPage.Container className="flex-1 pt-6">
+              <DetailsPage.Container className="flex-1 pb-0 pt-6">
                 <RateCardRatesTab rateCardId={rateCardId as string} rateCard={rateCard} />
               </DetailsPage.Container>
             ),
@@ -206,7 +206,7 @@ const RateCardDetails = () => {
               tab: RateCardDetailsTabsOptionsEnum.activityLogs,
             }),
             content: (
-              <DetailsPage.Container className="flex-1 pt-6">
+              <DetailsPage.Container className="flex-1 pb-0 pt-6">
                 <RateCardActivityLogs rateCardId={rateCardId as string} />
               </DetailsPage.Container>
             ),

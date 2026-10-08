@@ -151,7 +151,7 @@ const CatalogPlanDetails = (): JSX.Element => {
             title: translate('text_1747314141347qq6rasuxisl'),
             link: buildTabLink(CatalogPlanDetailsTabsOptionsEnum.activityLogs),
             content: (
-              <DetailsPage.Container className="flex-1 pt-6">
+              <DetailsPage.Container className="flex-1 pb-0 pt-6">
                 <CatalogPlanActivityLogs catalogPlanId={catalogPlanId} />
               </DetailsPage.Container>
             ),
