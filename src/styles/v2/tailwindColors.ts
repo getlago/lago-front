@@ -122,6 +122,7 @@ const colorVariables = [
   '--color-icon-default',
   '--color-icon-muted',
   '--color-icon-subtle',
+  '--color-icon-premium',
 ]
 
 type TailwindColor = (options: { opacityValue?: string; opacityVariable?: string }) => string

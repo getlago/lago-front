@@ -126,6 +126,7 @@
   --color-icon-default: var(--color-text-default);
   --color-icon-muted: var(--color-text-muted);
   --color-icon-subtle: var(--color-text-subtle);
+  --color-icon-premium: var(--v2-amber-400);
 }
 
 [data-color-theme='dark'] {
@@ -176,4 +177,5 @@
   --color-icon-default: var(--color-text-default);
   --color-icon-muted: var(--color-text-muted);
   --color-icon-subtle: var(--color-text-subtle);
+  --color-icon-premium: var(--v2-amber-400);
 }
