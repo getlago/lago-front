@@ -59,6 +59,7 @@ jest.mock('~/hooks/useRolesList', () => ({
         description: 'Administrator role',
         permissions: [],
         admin: true,
+        grantable: true,
         memberships: [],
       },
       {
@@ -68,6 +69,7 @@ jest.mock('~/hooks/useRolesList', () => ({
         description: 'Finance role',
         permissions: [],
         admin: false,
+        grantable: true,
         memberships: [],
       },
       {
@@ -77,6 +79,7 @@ jest.mock('~/hooks/useRolesList', () => ({
         description: 'Manager role',
         permissions: [],
         admin: false,
+        grantable: true,
         memberships: [],
       },
     ],

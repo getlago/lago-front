@@ -7,6 +7,7 @@ gql`
     description
     permissions
     admin
+    grantable
     code
     memberships {
       id
