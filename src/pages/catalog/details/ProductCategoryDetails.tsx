@@ -26,6 +26,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
+import CatalogPlansTabList from './CatalogPlansTabList'
 import ProductCategoryActivityLogs from './ProductCategoryActivityLogs'
 import { ProductCategoryDetailsOverview } from './ProductCategoryDetailsOverview'
 import { ProductCategoryDetailsProducts } from './ProductCategoryDetailsProducts'
@@ -178,7 +179,11 @@ const ProductCategoryDetails = () => {
               productCategoryId: productCategoryId as string,
               tab: ProductCategoryDetailsTabsOptionsEnum.plans,
             }),
-            content: <div className="p-4">{translate('text_62442e40cea25600b0b6d85a')}</div>,
+            content: (
+              <DetailsPage.Container className="pt-6">
+                <CatalogPlansTabList scope={{ productCategoryId: productCategoryId as string }} />
+              </DetailsPage.Container>
+            ),
           },
           {
             title: translate('text_1747314141347qq6rasuxisl'),

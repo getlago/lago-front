@@ -37,6 +37,19 @@ jest.mock('../RateCardPreview', () => ({
   },
 }))
 
+const mockCatalogPlansTabListProps = jest.fn()
+
+// Same rationale as the RateCardPreview mock above: CatalogPlansTabList pulls in
+// useCatalogPlanTableActions -> useCatalogPlanDrawer -> BaseDrawer, which crashes
+// Jest on drawerStack's relative import.
+jest.mock('../CatalogPlansTabList', () => ({
+  __esModule: true,
+  default: (props: Record<string, unknown>) => {
+    mockCatalogPlansTabListProps(props)
+    return null
+  },
+}))
+
 const mockProductActivityLogsProps = jest.fn()
 
 jest.mock('../ProductActivityLogs', () => ({
@@ -157,6 +170,16 @@ describe('ProductDetails', () => {
     await waitFor(() => {
       expect(mockRateCardPreviewProps).toHaveBeenCalledWith({
         scope: { product: expect.objectContaining({ id: 'pitem-1', name: 'Seats' }) },
+      })
+    })
+  })
+
+  it('renders CatalogPlansTabList scoped to this product on the plans tab', async () => {
+    await act(() => renderPage(ProductDetailsTabsOptionsEnum.plans))
+
+    await waitFor(() => {
+      expect(mockCatalogPlansTabListProps).toHaveBeenCalledWith({
+        scope: { productId: 'pitem-1' },
       })
     })
   })

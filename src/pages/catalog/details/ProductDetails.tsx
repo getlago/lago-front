@@ -24,6 +24,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
+import CatalogPlansTabList from './CatalogPlansTabList'
 import ProductActivityLogs from './ProductActivityLogs'
 import { ProductDetailsOverview } from './ProductDetailsOverview'
 import ProductFilterPreview from './ProductFilterPreview'
@@ -183,7 +184,11 @@ const ProductDetails = () => {
               productId: productId as string,
               tab: ProductDetailsTabsOptionsEnum.plans,
             }),
-            content: <div className="p-4">{translate('text_62442e40cea25600b0b6d85a')}</div>,
+            content: (
+              <DetailsPage.Container className="pt-6">
+                <CatalogPlansTabList scope={{ productId: productId as string }} />
+              </DetailsPage.Container>
+            ),
           },
           {
             title: translate('text_1747314141347qq6rasuxisl'),

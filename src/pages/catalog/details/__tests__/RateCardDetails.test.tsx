@@ -41,6 +41,19 @@ jest.mock('../RateCardActivityLogs', () => ({
   default: () => null,
 }))
 
+const mockCatalogPlansTabListProps = jest.fn()
+
+// CatalogPlansTabList pulls in useCatalogPlanTableActions -> useCatalogPlanDrawer ->
+// BaseDrawer, which crashes Jest on drawerStack's relative import; stub it out
+// (capture the props so the scope wiring can still be asserted).
+jest.mock('../CatalogPlansTabList', () => ({
+  __esModule: true,
+  default: (props: Record<string, unknown>) => {
+    mockCatalogPlansTabListProps(props)
+    return null
+  },
+}))
+
 // The tab mounts on the card id alone and receives the card once its query resolves.
 jest.mock('../RateCardRatesTab', () => ({
   __esModule: true,
@@ -202,13 +215,15 @@ describe('RateCardDetails', () => {
     })
   })
 
-  it('renders the plans tab stub content when that tab is active', async () => {
+  it('renders CatalogPlansTabList scoped to this rate card when that tab is active', async () => {
     window.history.pushState({}, '', '/product-catalog/rate-cards/rc-1/plans')
 
     await act(() => renderPage())
 
     await waitFor(() => {
-      expect(screen.getAllByText('text_62442e40cea25600b0b6d85a')).toHaveLength(2)
+      expect(mockCatalogPlansTabListProps).toHaveBeenCalledWith({
+        scope: { rateCardId: 'rc-1' },
+      })
     })
   })
 
