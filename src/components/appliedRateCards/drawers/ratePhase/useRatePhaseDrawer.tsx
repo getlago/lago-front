@@ -3,7 +3,9 @@ import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
 
 import { useFormDrawer } from '~/components/drawers/useDrawer'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
+  CurrencyEnum,
   PropertiesForRateCardRateFragmentDoc,
   RateCardBillingTimingEnum,
   RatePhaseForDrawerFragment,
@@ -89,6 +91,7 @@ const RATE_PHASE_FORM_ID = 'rate-phase-drawer-form'
 const mapRatePhaseFragmentToFormValues = (
   phase: RatePhaseForDrawerFragment,
   billingTiming: RateCardBillingTimingEnum,
+  currency: CurrencyEnum,
 ): RatePhaseFormValues => {
   const override = phase.rateOverride
 
@@ -109,7 +112,7 @@ const mapRatePhaseFragmentToFormValues = (
       override?.billingIntervalUnit ?? RATE_PHASE_FORM_DEFAULTS.overrideBillingIntervalUnit,
     minAmountCents:
       billingTiming === RateCardBillingTimingEnum.Arrears && override?.minAmountCents
-        ? String(override.minAmountCents)
+        ? String(deserializeAmount(override.minAmountCents, currency))
         : RATE_PHASE_FORM_DEFAULTS.minAmountCents,
     conversionRate: override?.pricingUnitConversionRate
       ? String(override.pricingUnitConversionRate)
@@ -142,7 +145,7 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
       if (!params) return
 
       const position = params.mode === 'create' ? params.position : params.phase.position
-      const phaseInput = buildPhaseInput({ ...value, position })
+      const phaseInput = buildPhaseInput({ ...value, position }, params.rateCard.currency)
 
       if (params.context === 'plan') {
         if (params.mode === 'create') {
@@ -201,7 +204,11 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
 
     const seed =
       params.mode === 'edit'
-        ? mapRatePhaseFragmentToFormValues(params.phase, params.rateCard.billingTiming)
+        ? mapRatePhaseFragmentToFormValues(
+            params.phase,
+            params.rateCard.billingTiming,
+            params.rateCard.currency,
+          )
         : undefined
 
     form.reset({ ...RATE_PHASE_FORM_DEFAULTS, ...seed }, { keepDefaultValues: true })

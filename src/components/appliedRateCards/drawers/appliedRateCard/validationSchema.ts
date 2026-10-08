@@ -3,6 +3,7 @@ import { z } from 'zod'
 import {
   CreateContractAppliedRateCardInput,
   CreatePlanAppliedRateCardInput,
+  CurrencyEnum,
 } from '~/generated/graphql'
 
 import { buildPhaseInput, RatePhaseFormValues } from '../ratePhase/ratePhaseFormSchema'
@@ -11,6 +12,11 @@ export interface AppliedRateCardDrawerValues {
   productId: string
   productFilterId: string
   rateCardId: string
+  // Set once a rate card is selected (mirrors `rateCardId`); `buildPhaseInput` needs it to
+  // serialize a phase override's `minAmountCents` to the currency's smallest unit. No phase can
+  // exist yet while this still holds its placeholder default - adding a phase is gated on a
+  // rate card already being picked.
+  currency: CurrencyEnum
   units: string
   billingAnchorDate: string
   ratePhases: RatePhaseFormValues[]
@@ -20,6 +26,7 @@ export const APPLIED_RATE_CARD_FORM_DEFAULTS: AppliedRateCardDrawerValues = {
   productId: '',
   productFilterId: '',
   rateCardId: '',
+  currency: CurrencyEnum.Usd,
   units: '',
   billingAnchorDate: '',
   ratePhases: [],
@@ -68,7 +75,7 @@ export const buildCreatePlanAppliedRateCardInput = (
   ...(values.ratePhases.length > 0
     ? {
         ratePhases: values.ratePhases.map((phase, index) =>
-          buildPhaseInput({ ...phase, position: index + 1 }),
+          buildPhaseInput({ ...phase, position: index + 1 }, values.currency),
         ),
       }
     : {}),
@@ -85,7 +92,7 @@ export const buildCreateContractAppliedRateCardInput = (
   ...(values.ratePhases.length > 0
     ? {
         ratePhases: values.ratePhases.map((phase, index) =>
-          buildPhaseInput({ ...phase, position: index + 1 }),
+          buildPhaseInput({ ...phase, position: index + 1 }, values.currency),
         ),
       }
     : {}),

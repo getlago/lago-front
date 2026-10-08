@@ -1,7 +1,9 @@
 import { z } from 'zod'
 
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { validateChargeProperties } from '~/formValidation/chargePropertiesSchema'
 import {
+  CurrencyEnum,
   PhaseInput,
   RateCardBillingTimingEnum,
   RateCardRateBillingIntervalUnitEnum,
@@ -121,7 +123,10 @@ export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaCo
     if (context.billingTiming === RateCardBillingTimingEnum.Arrears) {
       const parsedMinAmount = Number(values.minAmountCents)
 
-      if (values.minAmountCents && (!Number.isInteger(parsedMinAmount) || parsedMinAmount < 0)) {
+      // `minAmountCents` holds a decimal display amount (e.g. "5.00"), not an integer cents
+      // value - `serializeAmount` converts it on submit. Validate it as a finite non-negative
+      // number, not an integer.
+      if (values.minAmountCents && (!Number.isFinite(parsedMinAmount) || parsedMinAmount < 0)) {
         ctx.addIssue({
           code: 'custom',
           path: ['minAmountCents'],
@@ -145,8 +150,13 @@ export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaCo
     }
   })
 
+// `minAmountCents` is a decimal display amount in the rate card's currency (same convention as
+// `RateCardRateFormValues.minAmountCents` in `useRateCardRateForm.tsx`), not an already-scaled
+// integer - `serializeAmount` converts it to the currency's smallest unit here, mirroring that
+// file's own `Number(serializeAmount(value.minAmountCents || 0, rateCard.currency))` call.
 export const buildPhaseInput = (
   values: RatePhaseFormValues & { position: number },
+  currency: CurrencyEnum,
 ): PhaseInput => ({
   code: values.code,
   name: values.name || undefined,
@@ -160,7 +170,9 @@ export const buildPhaseInput = (
           rateProperties: serializeRateProperties(values.properties, values.rateModel),
           billingIntervalCount: Number(values.overrideBillingIntervalCount),
           billingIntervalUnit: values.overrideBillingIntervalUnit,
-          minAmountCents: values.minAmountCents ? Number(values.minAmountCents) : undefined,
+          minAmountCents: values.minAmountCents
+            ? serializeAmount(values.minAmountCents, currency)
+            : undefined,
           pricingUnitConversionRate: values.conversionRate
             ? Number(values.conversionRate)
             : undefined,
