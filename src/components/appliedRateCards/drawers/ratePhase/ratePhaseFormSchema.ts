@@ -55,9 +55,11 @@ export interface RatePhaseFormSchemaContext {
   rateModelConfiguration: RateModelConfiguration | undefined
 }
 
-export const buildRatePhaseFormSchema = (
-  getContext: () => RatePhaseFormSchemaContext,
-): z.ZodType<RatePhaseFormValues> =>
+// No explicit return type: `z.ZodType<RatePhaseFormValues>` widens the input generic to
+// `unknown`, which breaks the Standard Schema shape `useAppForm`'s `validators.onDynamic`
+// requires (see `buildRateCardRateSchema`, `planFormSchema`, `contractSchema` - none of the
+// zod-builder schemas elsewhere in this codebase annotate their return type either).
+export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaContext) =>
   z.custom<RatePhaseFormValues>().superRefine((values, ctx) => {
     const context = getContext()
 
