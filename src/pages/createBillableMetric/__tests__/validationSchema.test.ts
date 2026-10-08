@@ -129,6 +129,28 @@ describe('billableMetricValidationSchema', () => {
         ).toContain('roundingPrecision')
       })
     })
+
+    describe('WHEN it holds nothing but whitespace', () => {
+      // `Number('  ')` is 0, which would otherwise save a blank field as a zero.
+      it.each([
+        ['spaces', '   '],
+        ['a tab', '\t'],
+        ['a newline', '\n'],
+        ['mixed', ' \t \n '],
+      ])('THEN should flag %s', (_label, roundingPrecision) => {
+        expect(
+          invalidFields({ roundingFunction: RoundingFunctionEnum.Round, roundingPrecision }),
+        ).toContain('roundingPrecision')
+      })
+    })
+
+    describe('WHEN it holds a number padded with whitespace', () => {
+      it('THEN should accept it', () => {
+        expect(
+          invalidFields({ roundingFunction: RoundingFunctionEnum.Round, roundingPrecision: ' 5 ' }),
+        ).toEqual([])
+      })
+    })
   })
 
   describe('GIVEN filters', () => {

@@ -16,6 +16,15 @@ const FIELD_NAME_FREE_AGGREGATIONS = [AggregationTypeEnum.CountAgg, AggregationT
 export const aggregatesOnAField = (aggregationType?: AggregationTypeEnum): boolean =>
   !!aggregationType && !FIELD_NAME_FREE_AGGREGATIONS.includes(aggregationType)
 
+// `Number('  ')` is 0, so a blank-but-not-empty input would otherwise read as a
+// valid zero. An emptied field stays valid: the precision is optional.
+const isValidRoundingPrecision = (value: number | string | undefined): boolean => {
+  if (value === undefined || value === '') return true
+  if (typeof value === 'string' && !value.trim()) return false
+
+  return !isNaN(Number(value))
+}
+
 const filterSchema = z.object({
   key: z.string(),
   values: z.array(z.looseObject({ value: z.string() })),
@@ -38,9 +47,7 @@ export const billableMetricValidationSchema = z
     roundingPrecision: z
       .union([z.number(), z.string()])
       .optional()
-      .refine((value) => value === undefined || value === '' || !isNaN(Number(value)), {
-        message: NOT_A_NUMBER_ERROR,
-      }),
+      .refine(isValidRoundingPrecision, { message: NOT_A_NUMBER_ERROR }),
     filters: z.array(filterSchema),
   })
   .refine((data) => data.aggregateOnTab !== AggregateOnTab.CustomExpression || !!data.expression, {
