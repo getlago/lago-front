@@ -450,4 +450,53 @@ describe('MembersInvitationList', () => {
       })
     })
   })
+
+  describe('GIVEN the API returns the invite token', () => {
+    describe('WHEN opening the invitation actions', () => {
+      it('THEN should display the copy invite link action', async () => {
+        await prepare()
+
+        await waitFor(
+          () => {
+            expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+          },
+          { timeout: SEARCH_TIMEOUT },
+        )
+
+        fireEvent.click(screen.getAllByTestId('open-action-button')[0])
+
+        expect(await screen.findByTestId('copy-invite-link')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the API does not return the invite token', () => {
+    describe('WHEN opening the invitation actions', () => {
+      it('THEN should not display the copy invite link action', async () => {
+        const noTokenMock = {
+          request: {
+            query: GetInvitesDocument,
+            variables: DEFAULT_VARIABLES,
+          },
+          result: buildInvitesResult({
+            collection: [createMockInvite('invite-1', 'test1@example.com', ['admin'], null)],
+          }),
+        }
+
+        await prepare({ mocks: [noTokenMock, rolesListMock] })
+
+        await waitFor(
+          () => {
+            expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+          },
+          { timeout: SEARCH_TIMEOUT },
+        )
+
+        fireEvent.click(screen.getAllByTestId('open-action-button')[0])
+
+        expect(await screen.findByText('text_63208c701ce25db78140745e')).toBeInTheDocument()
+        expect(screen.queryByTestId('copy-invite-link')).not.toBeInTheDocument()
+      })
+    })
+  })
 })

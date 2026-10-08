@@ -123,23 +123,29 @@ const MembersInvitationList = () => {
         ]
       : []
 
-    const duplicateAction: ActionItem<InviteItemForMembersSettingsFragment> = {
-      startIcon: 'duplicate',
-      title: translate('text_63208b630aaf8df6bbfb265f'),
-      onAction: () => {
-        copyToClipboard(
-          `${globalThis.location.origin}${generatePath(INVITATION_ROUTE, {
-            token: invite.token,
-          })}`,
-        )
+    // The API only returns the token to members allowed to create this invite
+    const inviteToken = invite.token
+    const duplicateAction: ActionItem<InviteItemForMembersSettingsFragment>[] = inviteToken
+      ? [
+          {
+            startIcon: 'duplicate',
+            title: translate('text_63208b630aaf8df6bbfb265f'),
+            onAction: () => {
+              copyToClipboard(
+                `${globalThis.location.origin}${generatePath(INVITATION_ROUTE, {
+                  token: inviteToken,
+                })}`,
+              )
 
-        addToast({
-          severity: 'info',
-          translateKey: 'text_63208b630aaf8df6bbfb2679',
-        })
-      },
-      dataTest: 'copy-invite-link',
-    }
+              addToast({
+                severity: 'info',
+                translateKey: 'text_63208b630aaf8df6bbfb2679',
+              })
+            },
+            dataTest: 'copy-invite-link',
+          },
+        ]
+      : []
 
     const deleteAction = hasPermissions(['organizationMembersDelete'])
       ? [
@@ -157,7 +163,7 @@ const MembersInvitationList = () => {
         ]
       : []
 
-    return [...editAction, duplicateAction, ...deleteAction]
+    return [...editAction, ...duplicateAction, ...deleteAction]
   }
 
   const getTablePlaceholder = () => {

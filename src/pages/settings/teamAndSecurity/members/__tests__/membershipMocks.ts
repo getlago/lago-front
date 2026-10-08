@@ -171,11 +171,16 @@ export const rolesListMock = {
   },
 }
 
-export const createMockInvite = (id: string, email: string, roleCodes: string[]) => ({
+export const createMockInvite = (
+  id: string,
+  email: string,
+  roleCodes: string[],
+  token: string | null = `token-${id}`,
+) => ({
   __typename: 'Invite',
   id,
   email,
-  token: `token-${id}`,
+  token,
   roles: roleCodes,
   organization: {
     __typename: 'Organization',
