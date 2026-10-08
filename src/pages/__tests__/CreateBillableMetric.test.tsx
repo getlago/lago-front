@@ -5,7 +5,8 @@ import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { AggregationTypeEnum, RoundingFunctionEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import CreateBillableMetric, {
+import CreateBillableMetric from '../CreateBillableMetric'
+import {
   BILLABLE_METRIC_ADD_FILTER_TEST_ID,
   BILLABLE_METRIC_ADD_ROUNDING_TEST_ID,
   BILLABLE_METRIC_CODE_INPUT_TEST_ID,
@@ -17,7 +18,8 @@ import CreateBillableMetric, {
   BILLABLE_METRIC_ROUNDING_PRECISION_TEST_ID,
   BILLABLE_METRIC_SUBMIT_TEST_ID,
   FILTER_VALUE_WARNING_ALERT_TEST_ID,
-} from '../CreateBillableMetric'
+  getBillableMetricFilterTestId,
+} from '../createBillableMetric/billableMetricTestIds'
 
 // jsdom does not implement scrollIntoView (used when the form scrolls to its first error)
 Element.prototype.scrollIntoView = jest.fn()
@@ -340,7 +342,9 @@ describe('CreateBillableMetric', () => {
         await user.click(screen.getByTestId(BILLABLE_METRIC_ADD_FILTER_TEST_ID))
 
         expect(
-          screen.getByTestId(`${BILLABLE_METRIC_FILTER_KEY_INPUT_TEST_ID}-1`),
+          screen.getByTestId(
+            getBillableMetricFilterTestId(BILLABLE_METRIC_FILTER_KEY_INPUT_TEST_ID, 1),
+          ),
         ).toBeInTheDocument()
 
         await user.click(screen.getByTestId(BILLABLE_METRIC_SUBMIT_TEST_ID))
@@ -420,7 +424,10 @@ describe('CreateBillableMetric', () => {
         render(<CreateBillableMetric />)
 
         await user.click(screen.getByTestId(BILLABLE_METRIC_ADD_FILTER_TEST_ID))
-        await user.type(inputIn(`${BILLABLE_METRIC_FILTER_KEY_INPUT_TEST_ID}-0`), 'region')
+        await user.type(
+          inputIn(getBillableMetricFilterTestId(BILLABLE_METRIC_FILTER_KEY_INPUT_TEST_ID, 0)),
+          'region',
+        )
 
         // MultipleComboBox takes no data-test; the filter values are the last combobox
         const comboboxes = screen.getAllByRole('combobox')

@@ -14,7 +14,6 @@ import { Chip } from '~/components/designSystem/Chip'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { ComboboxItem } from '~/components/form'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
@@ -35,33 +34,35 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
 import { hasRemovedFilterValues } from '~/pages/CreateBillableMetric.utils'
+import { getAggregationTypeOptions } from '~/pages/createBillableMetric/aggregationTypeOptions'
+import {
+  BILLABLE_METRIC_ADD_FILTER_TEST_ID,
+  BILLABLE_METRIC_ADD_ROUNDING_TEST_ID,
+  BILLABLE_METRIC_AGGREGATE_ON_SWITCH_TEST_ID,
+  BILLABLE_METRIC_AGGREGATION_TYPE_TEST_ID,
+  BILLABLE_METRIC_CODE_INPUT_TEST_ID,
+  BILLABLE_METRIC_FIELD_NAME_INPUT_TEST_ID,
+  BILLABLE_METRIC_FILTER_KEY_INPUT_TEST_ID,
+  BILLABLE_METRIC_NAME_INPUT_TEST_ID,
+  BILLABLE_METRIC_RECURRING_SWITCH_TEST_ID,
+  BILLABLE_METRIC_REMOVE_ROUNDING_TEST_ID,
+  BILLABLE_METRIC_ROUNDING_FUNCTION_TEST_ID,
+  BILLABLE_METRIC_ROUNDING_PRECISION_TEST_ID,
+  BILLABLE_METRIC_SHOW_DESCRIPTION_TEST_ID,
+  BILLABLE_METRIC_SUBMIT_TEST_ID,
+  FILTER_VALUE_WARNING_ALERT_TEST_ID,
+  getBillableMetricFilterTestId,
+} from '~/pages/createBillableMetric/billableMetricTestIds'
+import { mapFromApiToForm, mapFromFormToApi } from '~/pages/createBillableMetric/mappers'
 import {
   AggregateOnTab,
   aggregatesOnAField,
   billableMetricValidationSchema,
-  buildBillableMetricInput,
-  mapFromApiToForm,
 } from '~/pages/createBillableMetric/validationSchema'
 import { PageHeader } from '~/styles'
 import { FormLoadingSkeleton, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 export const BILLABLE_METRIC_FORM_ID = 'create-billable-metric-form'
-
-export const FILTER_VALUE_WARNING_ALERT_TEST_ID = 'billable-metric-filter-value-warning'
-export const BILLABLE_METRIC_NAME_INPUT_TEST_ID = 'billable-metric-name-input'
-export const BILLABLE_METRIC_CODE_INPUT_TEST_ID = 'billable-metric-code-input'
-export const BILLABLE_METRIC_SHOW_DESCRIPTION_TEST_ID = 'show-description'
-export const BILLABLE_METRIC_AGGREGATION_TYPE_TEST_ID = 'billable-metric-aggregation-type'
-export const BILLABLE_METRIC_FIELD_NAME_INPUT_TEST_ID = 'billable-metric-field-name-input'
-export const BILLABLE_METRIC_ADD_ROUNDING_TEST_ID = 'billable-metric-add-rounding'
-export const BILLABLE_METRIC_REMOVE_ROUNDING_TEST_ID = 'billable-metric-remove-rounding'
-export const BILLABLE_METRIC_ROUNDING_FUNCTION_TEST_ID = 'billable-metric-rounding-function'
-export const BILLABLE_METRIC_ROUNDING_PRECISION_TEST_ID = 'billable-metric-rounding-precision'
-export const BILLABLE_METRIC_FILTER_KEY_INPUT_TEST_ID = 'billable-metric-filter-key-input'
-export const BILLABLE_METRIC_ADD_FILTER_TEST_ID = 'add-filter'
-export const BILLABLE_METRIC_SUBMIT_TEST_ID = 'submit'
-export const BILLABLE_METRIC_RECURRING_SWITCH_TEST_ID = 'recurring-switch'
-export const BILLABLE_METRIC_AGGREGATE_ON_SWITCH_TEST_ID = 'aggregate-on-switch'
 
 gql`
   fragment EditBillableMetric on BillableMetric {
@@ -112,7 +113,7 @@ const CreateBillableMetric = () => {
       scrollToFirstInputError(BILLABLE_METRIC_FORM_ID, formApi.state.errorMap.onDynamic || {})
     },
     onSubmit: async ({ value }) => {
-      const input = buildBillableMetricInput(value)
+      const input = mapFromFormToApi(value)
 
       // Warn before saving when the metric is in use and filter values were removed:
       // the backend collapses affected plan charge filters, which may need manual review.
@@ -148,6 +149,12 @@ const CreateBillableMetric = () => {
   const { aggregationType, aggregateOnTab, recurring, roundingFunction, filters } = formValues
 
   const showAggregateOn = aggregatesOnAField(aggregationType)
+  const aggregationTypeOptions = getAggregationTypeOptions({
+    recurring,
+    isEdition,
+    aggregationType,
+    translate,
+  })
 
   useEffect(() => {
     setShouldDisplayDescription(!!billableMetric?.description)
@@ -370,81 +377,7 @@ const CreateBillableMetric = () => {
                           infoText={translate('text_624d9adba93343010cd14c56')}
                           placeholder={translate('text_623b42ff8ee4e000ba87d0d0')}
                           virtualized={false}
-                          data={[
-                            ...(!recurring
-                              ? [
-                                  {
-                                    label: translate(
-                                      formatAggregationType(AggregationTypeEnum.CountAgg)?.label ||
-                                        '',
-                                    ),
-                                    value: AggregationTypeEnum.CountAgg,
-                                  },
-                                ]
-                              : []),
-
-                            {
-                              label: translate(
-                                formatAggregationType(AggregationTypeEnum.UniqueCountAgg)?.label ||
-                                  '',
-                              ),
-                              value: AggregationTypeEnum.UniqueCountAgg,
-                            },
-                            ...(!recurring
-                              ? [
-                                  {
-                                    label: translate(
-                                      formatAggregationType(AggregationTypeEnum.LatestAgg)?.label ||
-                                        '',
-                                    ),
-                                    value: AggregationTypeEnum.LatestAgg,
-                                  },
-                                  {
-                                    label: translate(
-                                      formatAggregationType(AggregationTypeEnum.MaxAgg)?.label ||
-                                        '',
-                                    ),
-                                    value: AggregationTypeEnum.MaxAgg,
-                                  },
-                                ]
-                              : []),
-
-                            {
-                              label: translate(
-                                formatAggregationType(AggregationTypeEnum.SumAgg)?.label || '',
-                              ),
-                              value: AggregationTypeEnum.SumAgg,
-                            },
-                            {
-                              labelNode: (
-                                <ComboboxItem>
-                                  <Typography variant="body" color="grey700" noWrap>
-                                    {translate(
-                                      formatAggregationType(AggregationTypeEnum.WeightedSumAgg)
-                                        ?.label || '',
-                                    )}
-                                  </Typography>
-                                </ComboboxItem>
-                              ),
-                              label: translate(
-                                formatAggregationType(AggregationTypeEnum.WeightedSumAgg)?.label ||
-                                  '',
-                              ),
-                              value: AggregationTypeEnum.WeightedSumAgg,
-                            },
-
-                            ...(isEdition && aggregationType === AggregationTypeEnum.CustomAgg
-                              ? [
-                                  {
-                                    label: translate(
-                                      formatAggregationType(AggregationTypeEnum.CustomAgg)?.label ||
-                                        '',
-                                    ),
-                                    value: AggregationTypeEnum.CustomAgg,
-                                  },
-                                ]
-                              : []),
-                          ]}
+                          data={aggregationTypeOptions}
                           helperText={
                             aggregationType
                               ? translate(formatAggregationType(aggregationType)?.helperText || '')
@@ -713,7 +646,10 @@ const CreateBillableMetric = () => {
                                 {(field) => (
                                   <field.TextInputField
                                     id={`filter-key-input-${filterIndex}`}
-                                    data-test={`${BILLABLE_METRIC_FILTER_KEY_INPUT_TEST_ID}-${filterIndex}`}
+                                    data-test={getBillableMetricFilterTestId(
+                                      BILLABLE_METRIC_FILTER_KEY_INPUT_TEST_ID,
+                                      filterIndex,
+                                    )}
                                     label={translate('text_63fcc3218d35b9377840f5a3')}
                                     placeholder={translate('text_65e9c6d183491188fbbcf076')}
                                   />
@@ -828,7 +764,7 @@ const CreateBillableMetric = () => {
         <Side>
           <BillableMetricCodeSnippet
             loading={loading}
-            billableMetric={buildBillableMetricInput(formValues)}
+            billableMetric={mapFromFormToApi(formValues)}
           />
         </Side>
       </form>
