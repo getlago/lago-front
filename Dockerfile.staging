@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.26
+# syntax=docker/dockerfile:1.27
 
 # Staging-only hardened image built for SOC2 compliance. FROMs the Wolfi/apko
 # bases published by getlago/lago-packages to GHCR; they are public, so no
