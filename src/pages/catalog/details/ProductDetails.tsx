@@ -185,7 +185,7 @@ const ProductDetails = () => {
               tab: ProductDetailsTabsOptionsEnum.plans,
             }),
             content: (
-              <DetailsPage.Container className="pb-0 pt-6">
+              <DetailsPage.Container className="flex-1 pb-0 pt-6">
                 <CatalogPlansTabList scope={{ productId: productId as string }} />
               </DetailsPage.Container>
             ),

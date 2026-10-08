@@ -139,12 +139,10 @@ describe('CatalogPlansTabList', () => {
     expect(getTableProps().containerSize).toBe(0)
   })
 
-  it('opts out of sticky pagination (DetailsPage.Container is not height-bound, unlike a top-level route)', () => {
+  it('uses the default sticky pager (the tab container is height-bound to the viewport, like a top-level list route)', () => {
     render(<CatalogPlansTabList scope={{ productId: 'prod-1' }} />)
 
-    expect(mockPaginatedContentProps.mock.calls[0][0]).toEqual(
-      expect.objectContaining({ sticky: false }),
-    )
+    expect(mockPaginatedContentProps.mock.calls[0][0].sticky).toBeUndefined()
   })
 
   it('renders the four list columns, with the counts and the date right-aligned', () => {
