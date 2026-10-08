@@ -64,7 +64,7 @@ export const useRatePhaseLocalDrawer = (): {
 
     void drawer.open({
       title: translate(
-        args.phase ? 'text_17951541055444xojz4p5i86' : 'text_17951541055445xojz4p5i87',
+        args.phase ? 'text_1791485670326gf0h0n6l1w7' : 'text_17914856703265og9agmiry1',
       ),
       form: { id: RATE_PHASE_LOCAL_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
@@ -80,7 +80,7 @@ export const useRatePhaseLocalDrawer = (): {
       mainAction: (
         <form.AppForm>
           <form.SubmitButton dataTest="rate-phase-local-drawer-save">
-            {translate('text_17951541055446xojz4p5i88')}
+            {translate('text_1791485670326duemfhw3cbg')}
           </form.SubmitButton>
         </form.AppForm>
       ),

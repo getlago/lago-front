@@ -100,14 +100,14 @@ export const useAppliedRateCardDrawer = (): {
         notifyReset()
         addToast({
           severity: 'success',
-          message: translate('text_17951541055452xojz4p5i94', { rateCardUrl: path }),
+          message: translate('text_1791485670326zpgh4ogfe6t', { rateCardUrl: path }),
         })
         return
       }
 
       drawer.close()
       navigate(path)
-      addToast({ severity: 'success', message: translate('text_17951541055453xojz4p5i95') })
+      addToast({ severity: 'success', message: translate('text_1791485670327tovqupaf61o') })
     },
   })
 

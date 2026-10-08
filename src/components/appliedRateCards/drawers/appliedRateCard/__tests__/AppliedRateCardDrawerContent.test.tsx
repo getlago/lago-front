@@ -268,7 +268,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
     await userEvent.click(rateCardInput)
 
     const addValueItem = await screen.findByTestId(
-      'combobox-item-text_17951541055448xojz4p5i90',
+      'combobox-item-Create rate card',
     )
 
     await userEvent.click(addValueItem.querySelector('button') as HTMLElement)
@@ -293,7 +293,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
     await userEvent.click(rateCardInput)
 
     const addValueItem = await screen.findByTestId(
-      'combobox-item-text_17951541055448xojz4p5i90',
+      'combobox-item-Create rate card',
     )
 
     await userEvent.click(addValueItem.querySelector('button') as HTMLElement)
@@ -418,7 +418,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     await userEvent.click(rateCardInput)
 
     const addValueItem = await screen.findByTestId(
-      'combobox-item-text_17951541055448xojz4p5i90',
+      'combobox-item-Create rate card',
     )
 
     await userEvent.click(addValueItem.querySelector('button') as HTMLElement)

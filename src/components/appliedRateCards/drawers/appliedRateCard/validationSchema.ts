@@ -42,7 +42,7 @@ export const buildAppliedRateCardFormSchema = () =>
       ctx.addIssue({
         code: 'custom',
         path: ['productId'],
-        message: 'text_626162c62f790600f850b76a',
+        message: 'text_1771342994699klxu2paz7g8',
       })
     }
 
@@ -50,7 +50,7 @@ export const buildAppliedRateCardFormSchema = () =>
       ctx.addIssue({
         code: 'custom',
         path: ['rateCardId'],
-        message: 'text_626162c62f790600f850b76a',
+        message: 'text_1771342994699klxu2paz7g8',
       })
     }
 
@@ -60,7 +60,7 @@ export const buildAppliedRateCardFormSchema = () =>
       ctx.addIssue({
         code: 'custom',
         path: ['ratePhases'],
-        message: 'text_17951541055447xojz4p5i89',
+        message: 'text_1791485670326tpf0gnrctv6',
       })
     }
   })

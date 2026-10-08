@@ -5169,5 +5169,18 @@
   "text_1791364076473rfetdcmq055": "Sends an alert every time the balance drops by this amount below the lowest threshold.",
   "text_1791364076473tj13xy14d28": "Then every drop of",
   "text_1791364076473ecdejxgegz1": "Recurring alert after last threshold",
-  "text_1791364076473ntqbftrbupz": "Sends an alert every time usage increases by this amount above the last threshold."
+  "text_1791364076473ntqbftrbupz": "Sends an alert every time usage increases by this amount above the last threshold.",
+  "text_17914856703265q2q10b1hry": "Duration",
+  "text_1791485670326auwsxq3x83b": "Number of billing cycles",
+  "text_17914856703260y0i9has5wq": "Override rate for this phase",
+  "text_1791485670326gf0h0n6l1w7": "Edit rate phase",
+  "text_17914856703265og9agmiry1": "Add rate phase",
+  "text_1791485670326duemfhw3cbg": "Save",
+  "text_1791485670326tpf0gnrctv6": "The last phase must have no end date",
+  "text_1791485670326bz5dr6tcop3": "Create rate card",
+  "text_1791485670326kzyf0uhsn23": "Rate phase",
+  "text_1791485670326hf9c29bdje6": "Add phase",
+  "text_1791485670326e1zbmola1n3": "The last phase must run forever. Add another phase or remove its end date to continue.",
+  "text_1791485670326zpgh4ogfe6t": "Applied rate card <a href=\"{{rateCardUrl}}\">-</a> successfully created",
+  "text_1791485670327tovqupaf61o": "Applied rate card successfully created"
 }

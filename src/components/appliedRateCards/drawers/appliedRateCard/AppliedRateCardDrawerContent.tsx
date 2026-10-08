@@ -314,7 +314,7 @@ export const AppliedRateCardDrawerContent = withForm({
                   loading={rateCardsLoading}
                   allowAddValue
                   addValueProps={{
-                    label: translate('text_17951541055448xojz4p5i90'),
+                    label: translate('text_1791485670326bz5dr6tcop3'),
                     onClick: handleCreateRateCard,
                   }}
                   searchQuery={getRateCards}
@@ -330,7 +330,7 @@ export const AppliedRateCardDrawerContent = withForm({
 
         {!!rateCardId && !!selectedRateCard?.activeRate && (
           <CenteredPage.PageSection>
-            <CenteredPage.PageSectionTitle title={translate('text_17951541055449xojz4p5i91')} />
+            <CenteredPage.PageSectionTitle title={translate('text_1791485670326kzyf0uhsn23')} />
 
             <RatePhaseList
               variant="accordion"
@@ -346,11 +346,11 @@ export const AppliedRateCardDrawerContent = withForm({
               data-test={APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID}
               onClick={handleAddPhase}
             >
-              {translate('text_17951541055450xojz4p5i92')}
+              {translate('text_1791485670326hf9c29bdje6')}
             </Button>
 
             {lastPhaseIsFinite && (
-              <Alert type="warning">{translate('text_17951541055451xojz4p5i93')}</Alert>
+              <Alert type="warning">{translate('text_1791485670326e1zbmola1n3')}</Alert>
             )}
           </CenteredPage.PageSection>
         )}
