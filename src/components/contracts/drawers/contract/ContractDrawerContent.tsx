@@ -92,6 +92,7 @@ const ContractDrawerFormSections = withForm({
     const externalCustomerId = useStore(form.store, (state) => state.values.externalCustomerId)
     const billingEntityId = useStore(form.store, (state) => state.values.billingEntityId)
     const consolidateInvoice = useStore(form.store, (state) => state.values.consolidateInvoice)
+    const invoiceCustomSection = useStore(form.store, (state) => state.values.invoiceCustomSection)
     const paymentMethod = useStore(form.store, (state) => state.values.paymentMethod)
 
     const customersCollection = customersData?.customers?.collection
@@ -168,6 +169,16 @@ const ContractDrawerFormSections = withForm({
 
       return customersCollection?.find(({ externalId }) => externalId === externalCustomerId)
         ?.applicableTimezone
+    }, [seededCustomer, externalCustomerId, customersCollection])
+
+    // Mirrors the timezone lookup above: a seeded customer carries its own internal
+    // id, a searched one is resolved from the loaded page.
+    const customerId = useMemo(() => {
+      if (seededCustomer?.externalId === externalCustomerId) {
+        return seededCustomer?.id
+      }
+
+      return customersCollection?.find(({ externalId }) => externalId === externalCustomerId)?.id
     }, [seededCustomer, externalCustomerId, customersCollection])
 
     const handleHideName = (): void => {
@@ -315,7 +326,12 @@ const ContractDrawerFormSections = withForm({
             />
             <ContractInvoicingSettingsSection
               consolidateInvoice={consolidateInvoice}
+              invoiceCustomSection={invoiceCustomSection}
+              customerId={customerId}
               onChange={(value) => form.setFieldValue('consolidateInvoice', value)}
+              onInvoiceCustomSectionChange={(value) =>
+                form.setFieldValue('invoiceCustomSection', value)
+              }
             />
           </CenteredPage.PageSection>
 

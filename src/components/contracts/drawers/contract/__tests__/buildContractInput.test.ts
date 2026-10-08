@@ -11,6 +11,7 @@ const values: ContractFormValues = {
   name: 'Enterprise agreement',
   billingEntityId: 'billing-entity-1',
   consolidateInvoice: false,
+  invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
   paymentMethod: {
     paymentMethodId: 'payment-method-1',
     paymentMethodType: PaymentMethodTypeEnum.Provider,
@@ -40,6 +41,7 @@ describe('buildCreateContractInput', () => {
       name: 'Enterprise agreement',
       billingEntityId: 'billing-entity-1',
       consolidateInvoice: false,
+      invoiceCustomSection: { invoiceCustomSectionIds: [], skipInvoiceCustomSections: false },
       paymentMethod: { paymentMethodId: 'payment-method-1', paymentMethodType: 'provider' },
       purchaseOrderNumber: 'PO-42',
       startedAt: '2099-01-01T00:00:00.000Z',

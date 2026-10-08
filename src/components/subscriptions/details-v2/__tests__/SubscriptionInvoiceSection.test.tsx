@@ -27,8 +27,8 @@ jest.mock('~/components/layouts/DetailsPage', () => ({
   },
 }))
 
-jest.mock('~/components/subscriptions/SubscriptionInvoiceCustomSectionDetails', () => ({
-  SubscriptionInvoiceCustomSectionDetails: (props: Record<string, unknown>) => {
+jest.mock('~/components/invoceCustomFooter/InvoiceCustomSectionDetails', () => ({
+  InvoiceCustomSectionDetails: (props: Record<string, unknown>) => {
     mockInvoiceCustomSectionDetails(props)
 
     return null

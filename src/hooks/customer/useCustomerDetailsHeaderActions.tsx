@@ -70,6 +70,7 @@ export function useCustomerDetailsHeaderActions({
         if (customer) {
           openContractDrawer({
             customer: {
+              id: customer.id,
               externalId: customer.externalId,
               displayName: customer.displayName,
               applicableTimezone: customer.applicableTimezone,

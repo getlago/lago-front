@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
 
+import { InvoiceCustomSectionDetails } from '~/components/invoceCustomFooter/InvoiceCustomSectionDetails'
 import { useInvoicingSettingsDrawer } from '~/components/invoicingSettings/useInvoicingSettingsDrawer'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
-import { SubscriptionInvoiceCustomSectionDetails } from '~/components/subscriptions/SubscriptionInvoiceCustomSectionDetails'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { SubscriptionInvoiceSectionFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -77,7 +77,8 @@ export const SubscriptionInvoiceSection = ({ subscription }: SubscriptionInvoice
 
       {/* Invoice custom sections */}
       {showCustomSection && (
-        <SubscriptionInvoiceCustomSectionDetails
+        <InvoiceCustomSectionDetails
+          viewType={ViewTypeEnum.Subscription}
           customerId={subscription.customer?.id}
           selectedInvoiceCustomSections={subscription.selectedInvoiceCustomSections}
           skipInvoiceCustomSections={subscription.skipInvoiceCustomSections}

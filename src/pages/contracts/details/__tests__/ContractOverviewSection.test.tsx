@@ -101,6 +101,8 @@ const contract: ContractForContractDetailsOverviewFragment = {
   terminatedAt: '2026-08-01T00:00:00Z',
   billingEntityId: 'entity-2',
   consolidateInvoice: true,
+  selectedInvoiceCustomSections: [],
+  skipInvoiceCustomSections: false,
   purchaseOrderNumber: 'PO-42',
   paymentMethodType: PaymentMethodTypeEnum.Provider,
   paymentMethod: { __typename: 'PaymentMethod', id: 'payment-method-1' },
@@ -179,9 +181,16 @@ describe('ContractOverviewSection', () => {
 
     await userEvent.click(await screen.findByTestId(CONTRACT_OVERVIEW_INVOICING_EDIT_TEST_ID))
 
-    expect(mockOpenInvoicingSettingsDrawer).toHaveBeenCalledWith({ consolidateInvoice: false })
+    expect(mockOpenInvoicingSettingsDrawer).toHaveBeenCalledWith({
+      consolidateInvoice: false,
+      invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
+    })
     expect(mockInvoicingSettingsDrawerProps).toHaveBeenCalledWith(
-      expect.objectContaining({ showCustomSection: false, withInvoiceConsolidation: true }),
+      expect.objectContaining({
+        customerId: 'customer-1',
+        showCustomSection: true,
+        withInvoiceConsolidation: true,
+      }),
     )
   })
 
