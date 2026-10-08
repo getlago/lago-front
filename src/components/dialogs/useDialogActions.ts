@@ -32,8 +32,6 @@ export const useDialogActions = ({
 }: UseDialogActionsParams): UseDialogActionsReturn => {
   const { translate } = useInternationalization()
   const [isActionPending, setIsActionPending] = useState(false)
-  // A ref, not the state: two clicks can land before React re-renders, and both
-  // would then read the stale `false` and run the action twice.
   const isActionPendingRef = useRef(false)
 
   const handleCancel = async (): Promise<void> => {
@@ -74,8 +72,6 @@ export const useDialogActions = ({
         onError?.(error as Error)
       }
     } finally {
-      // Also on the paths that keep the dialog open — a failed validation or a
-      // handled error — so its button goes back to being clickable.
       isActionPendingRef.current = false
       setIsActionPending(false)
     }
