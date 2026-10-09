@@ -157,7 +157,7 @@ const AlertForm = () => {
     useGetSubscriptionBillableMetricsQuery({
       variables: {
         page: 1,
-        limit: 1000,
+        limit: 500,
         searchTerm: '',
         planId: subscriptionData?.subscription?.plan?.id,
       },

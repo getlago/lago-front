@@ -366,7 +366,7 @@ describe('AlertForm', () => {
 
         expect(mockUseGetSubscriptionBillableMetricsQuery).toHaveBeenCalledWith(
           expect.objectContaining({
-            variables: expect.objectContaining({ limit: 1000, planId: 'plan-1' }),
+            variables: expect.objectContaining({ limit: 500, planId: 'plan-1' }),
           }),
         )
       })
