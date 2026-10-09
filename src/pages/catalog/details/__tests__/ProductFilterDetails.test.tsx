@@ -53,6 +53,20 @@ jest.mock('../RateCardPreview', () => ({
   },
 }))
 
+const mockCatalogPlansTabListProps = jest.fn()
+
+// Same rationale as the RateCardPreview mock above: CatalogPlansTabList pulls in
+// useCatalogPlanTableActions -> useCatalogPlanDrawer -> BaseDrawer, which crashes
+// Jest on drawerStack's relative import (the moduleNameMapper alias only matches
+// the `~/...` form, not BaseDrawer's `./drawerStack`).
+jest.mock('../CatalogPlansTabList', () => ({
+  __esModule: true,
+  default: (props: Record<string, unknown>) => {
+    mockCatalogPlansTabListProps(props)
+    return null
+  },
+}))
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
@@ -177,6 +191,17 @@ describe('ProductFilterDetails', () => {
     expect(screen.queryByText('text_1747314141347qq6rasuxisl')).not.toBeInTheDocument()
   })
 
+  it('hides the plans tab without the plansView permission', async () => {
+    mockHasPermissions.mockImplementation(
+      (permissions: string[]) => !permissions.includes('plansView'),
+    )
+
+    await act(() => renderPage())
+
+    expect(await screen.findByText('text_628cf761cbe6820138b8f2e4')).toBeInTheDocument()
+    expect(screen.queryByText('text_62442e40cea25600b0b6d85a')).not.toBeInTheDocument()
+  })
+
   it('renders the RateCardPreview scoped to this product filter when that tab is active', async () => {
     window.history.pushState({}, '', '/product-catalog/product-filters/pif-1/rate-cards')
 
@@ -195,13 +220,15 @@ describe('ProductFilterDetails', () => {
     })
   })
 
-  it('renders the plans tab stub content when that tab is active', async () => {
+  it('renders CatalogPlansTabList scoped to this product filter when that tab is active', async () => {
     window.history.pushState({}, '', '/product-catalog/product-filters/pif-1/plans')
 
     await act(() => renderPage())
 
     await waitFor(() => {
-      expect(screen.getAllByText('text_62442e40cea25600b0b6d85a')).toHaveLength(2)
+      expect(mockCatalogPlansTabListProps).toHaveBeenCalledWith({
+        scope: { productFilterId: 'pif-1' },
+      })
     })
   })
 

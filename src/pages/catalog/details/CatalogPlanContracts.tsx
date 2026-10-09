@@ -118,7 +118,7 @@ export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): J
   }
 
   return (
-    <section>
+    <section className="flex flex-1 flex-col">
       <PageSectionTitle
         title={translate('text_1789463364350r8k8jukikz1')}
         subtitle={translate('text_1789463364350p2k2yremb26')}
@@ -127,13 +127,12 @@ export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): J
         metadata={data?.contracts?.metadata}
         loading={loading || !planCode}
         onPageChange={goToPage}
-        sticky={false}
       >
         <Table
           name="catalog-plan-contracts"
           data={data?.contracts?.collection ?? []}
           containerSize={0}
-          containerClassName="border-t border-grey-300"
+          containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
           rowSize={48}
           isLoading={loading || !planCode}
           hasError={!!error}

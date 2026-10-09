@@ -6,6 +6,7 @@ import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   CatalogPlanForDeleteCatalogPlanDialogFragment,
   CatalogPlansDocument,
+  GetCatalogPlansForCatalogObjectDetailsDocument,
   useDestroyCatalogPlanMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -61,7 +62,7 @@ export const useDeleteCatalogPlanDialog = (): {
           id: destroyedId,
           __typename: 'CatalogPlan',
           listFieldName: 'catalogPlans',
-          listQueryDocument: [CatalogPlansDocument],
+          listQueryDocument: [CatalogPlansDocument, GetCatalogPlansForCatalogObjectDetailsDocument],
         })
 
         callback?.()

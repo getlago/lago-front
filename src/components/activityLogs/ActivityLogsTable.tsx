@@ -31,6 +31,7 @@ interface ActivityLogsTableProps extends Pick<
   | 'data'
   | 'isLoading'
   | 'containerSize'
+  | 'containerClassName'
   | 'onRowActionLink'
   | 'onRowActionClick'
   | 'loadingRowCount'
@@ -45,6 +46,7 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
   error,
   isLoading,
   containerSize = 16,
+  containerClassName = 'h-auto',
   onRowActionLink,
   onRowActionClick,
   loadingRowCount,
@@ -127,7 +129,7 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
   return (
     <Table
       name="activity-logs"
-      containerClassName="h-auto"
+      containerClassName={containerClassName}
       containerSize={containerSize}
       rowSize={48}
       data={logs}

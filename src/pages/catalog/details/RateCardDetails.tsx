@@ -24,6 +24,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
+import CatalogPlansTabList from './CatalogPlansTabList'
 import RateCardActivityLogs from './RateCardActivityLogs'
 import RateCardDetailsOverview from './RateCardDetailsOverview'
 import RateCardRatesTab from './RateCardRatesTab'
@@ -181,7 +182,7 @@ const RateCardDetails = () => {
               tab: RateCardDetailsTabsOptionsEnum.rates,
             }),
             content: (
-              <DetailsPage.Container className="pt-6">
+              <DetailsPage.Container className="flex-1 pb-0 pt-6">
                 <RateCardRatesTab rateCardId={rateCardId as string} rateCard={rateCard} />
               </DetailsPage.Container>
             ),
@@ -192,7 +193,12 @@ const RateCardDetails = () => {
               rateCardId: rateCardId as string,
               tab: RateCardDetailsTabsOptionsEnum.plans,
             }),
-            content: <div className="p-4">{translate('text_62442e40cea25600b0b6d85a')}</div>,
+            content: (
+              <DetailsPage.Container className="flex-1 pb-0 pt-6">
+                <CatalogPlansTabList scope={{ rateCardId: rateCardId as string }} />
+              </DetailsPage.Container>
+            ),
+            hidden: !hasPermissions(['plansView']),
           },
           {
             title: translate('text_1747314141347qq6rasuxisl'),
@@ -201,7 +207,7 @@ const RateCardDetails = () => {
               tab: RateCardDetailsTabsOptionsEnum.activityLogs,
             }),
             content: (
-              <DetailsPage.Container className="pt-6">
+              <DetailsPage.Container className="flex-1 pb-0 pt-6">
                 <RateCardActivityLogs rateCardId={rateCardId as string} />
               </DetailsPage.Container>
             ),

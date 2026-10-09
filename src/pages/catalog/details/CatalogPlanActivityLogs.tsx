@@ -64,7 +64,7 @@ const CatalogPlanActivityLogs = ({ catalogPlanId }: CatalogPlanActivityLogsProps
   })
 
   return (
-    <section>
+    <section className="flex flex-1 flex-col">
       <ActivityLogsSection
         subtitle={translate('text_1748867310812uxo0zoljxaj')}
         activityLogs={data?.activityLogs}
@@ -72,6 +72,8 @@ const CatalogPlanActivityLogs = ({ catalogPlanId }: CatalogPlanActivityLogsProps
         error={error}
         refetch={refetch}
         fetchMore={fetchMore}
+        sticky
+        containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
       />
     </section>
   )

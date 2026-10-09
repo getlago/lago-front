@@ -90,7 +90,7 @@ const RateCardRatesTab = ({ rateCardId, rateCard }: RateCardRatesTabProps) => {
   }
 
   return (
-    <section data-test={RATE_CARD_RATES_TAB_TEST_ID}>
+    <section className="flex flex-1 flex-col" data-test={RATE_CARD_RATES_TAB_TEST_ID}>
       <PageSectionTitle
         title={translate('text_1784930705742tg0kbcsak2v')}
         subtitle={translate('text_17877372202276uc54jqy1np')}
@@ -109,13 +109,12 @@ const RateCardRatesTab = ({ rateCardId, rateCard }: RateCardRatesTabProps) => {
         metadata={data?.rateCardRates?.metadata}
         loading={loading}
         onPageChange={goToPage}
-        sticky={false}
       >
         <Table
           name="rate-card-rates-list"
           data={data?.rateCardRates?.collection ?? []}
           containerSize={0}
-          containerClassName={tw('border-t border-grey-300')}
+          containerClassName={tw('-mb-px h-auto shrink-0 border-t border-grey-300')}
           rowSize={72}
           isLoading={loading}
           hasError={!!error}

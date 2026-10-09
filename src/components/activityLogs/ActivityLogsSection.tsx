@@ -38,6 +38,10 @@ type ActivityLogsSectionProps = ActivityLogsPaginationProps & {
   /** Activity-log lists sit inside a scrolling detail tab, so the pager is not pinned by
    *  default. `InvoiceActivityLogs` is the exception and opts back in. */
   sticky?: boolean
+  /** Forwarded to `ActivityLogsTable`'s `containerClassName`. Callers opting into `sticky`
+   *  need the border-overlap treatment (`-mb-px ... border-t border-grey-300`) so the
+   *  table's bottom border doesn't double up against the pager's own top border. */
+  containerClassName?: string
 }
 
 /**
@@ -68,6 +72,7 @@ export const ActivityLogsSection: FC<ActivityLogsSectionProps> = ({
   fetchMore,
   onPageChange,
   sticky = false,
+  containerClassName,
 }) => {
   const { translate } = useInternationalization()
   const { openPanel, setUrl } = useDeveloperTool()
@@ -94,6 +99,7 @@ export const ActivityLogsSection: FC<ActivityLogsSectionProps> = ({
       >
         <ActivityLogsTable
           containerSize={4}
+          containerClassName={containerClassName}
           data={activityLogs?.collection ?? []}
           error={error}
           isLoading={loading}

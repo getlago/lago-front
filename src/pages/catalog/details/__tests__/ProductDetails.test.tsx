@@ -37,6 +37,19 @@ jest.mock('../RateCardPreview', () => ({
   },
 }))
 
+const mockCatalogPlansTabListProps = jest.fn()
+
+// Same rationale as the RateCardPreview mock above: CatalogPlansTabList pulls in
+// useCatalogPlanTableActions -> useCatalogPlanDrawer -> BaseDrawer, which crashes
+// Jest on drawerStack's relative import.
+jest.mock('../CatalogPlansTabList', () => ({
+  __esModule: true,
+  default: (props: Record<string, unknown>) => {
+    mockCatalogPlansTabListProps(props)
+    return null
+  },
+}))
+
 const mockProductActivityLogsProps = jest.fn()
 
 jest.mock('../ProductActivityLogs', () => ({
@@ -161,6 +174,16 @@ describe('ProductDetails', () => {
     })
   })
 
+  it('renders CatalogPlansTabList scoped to this product on the plans tab', async () => {
+    await act(() => renderPage(ProductDetailsTabsOptionsEnum.plans))
+
+    await waitFor(() => {
+      expect(mockCatalogPlansTabListProps).toHaveBeenCalledWith({
+        scope: { productId: 'pitem-1' },
+      })
+    })
+  })
+
   it('renders the activity logs tab content scoped to the product', async () => {
     await act(() => renderPage(ProductDetailsTabsOptionsEnum.activityLogs))
 
@@ -176,6 +199,17 @@ describe('ProductDetails', () => {
 
     expect(await screen.findByText('text_628cf761cbe6820138b8f2e4')).toBeInTheDocument()
     expect(screen.queryByText('text_1747314141347qq6rasuxisl')).not.toBeInTheDocument()
+  })
+
+  it('hides the plans tab without the plansView permission', async () => {
+    mockHasPermissions.mockImplementation(
+      (permissions: string[]) => !permissions.includes('plansView'),
+    )
+
+    await act(() => renderPage())
+
+    expect(await screen.findByText('text_628cf761cbe6820138b8f2e4')).toBeInTheDocument()
+    expect(screen.queryByText('text_62442e40cea25600b0b6d85a')).not.toBeInTheDocument()
   })
 
   it('opens the edit drawer with the loaded item from the actions dropdown', async () => {

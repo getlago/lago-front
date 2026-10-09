@@ -33,6 +33,18 @@ jest.mock('../ProductCategoryDetailsProducts', () => ({
   ProductCategoryDetailsProducts: () => null,
 }))
 
+const mockCatalogPlansTabListProps = jest.fn()
+
+// Same rationale as the ProductCategoryDetailsProducts mock above: CatalogPlansTabList
+// pulls in the catalog-plan drawer chain (drawerStack uses import.meta and crashes Jest).
+jest.mock('../CatalogPlansTabList', () => ({
+  __esModule: true,
+  default: (props: Record<string, unknown>) => {
+    mockCatalogPlansTabListProps(props)
+    return null
+  },
+}))
+
 const mockProductCategoryActivityLogsProps = jest.fn()
 
 jest.mock('../ProductCategoryActivityLogs', () => ({
@@ -140,6 +152,16 @@ describe('ProductCategoryDetails', () => {
     expect(screen.getByText('text_1747314141347qq6rasuxisl')).toBeInTheDocument()
   })
 
+  it('renders CatalogPlansTabList scoped to this product category on the plans tab', async () => {
+    await act(() => renderPage(ProductCategoryDetailsTabsOptionsEnum.plans))
+
+    await waitFor(() => {
+      expect(mockCatalogPlansTabListProps).toHaveBeenCalledWith({
+        scope: { productCategoryId: 'prod-1' },
+      })
+    })
+  })
+
   it('renders the activity logs tab content scoped to the product category', async () => {
     await act(() => renderPage(ProductCategoryDetailsTabsOptionsEnum.activityLogs))
 
@@ -157,6 +179,17 @@ describe('ProductCategoryDetails', () => {
 
     expect(await screen.findByText('text_628cf761cbe6820138b8f2e4')).toBeInTheDocument()
     expect(screen.queryByText('text_1747314141347qq6rasuxisl')).not.toBeInTheDocument()
+  })
+
+  it('hides the plans tab without the plansView permission', async () => {
+    mockHasPermissions.mockImplementation(
+      (permissions: string[]) => !permissions.includes('plansView'),
+    )
+
+    await act(() => renderPage())
+
+    expect(await screen.findByText('text_628cf761cbe6820138b8f2e4')).toBeInTheDocument()
+    expect(screen.queryByText('text_62442e40cea25600b0b6d85a')).not.toBeInTheDocument()
   })
 
   it('opens the edit drawer with the loaded productCategory from the actions dropdown', async () => {

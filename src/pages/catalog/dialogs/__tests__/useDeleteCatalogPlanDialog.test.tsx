@@ -2,7 +2,10 @@ import { act, render } from '@testing-library/react'
 
 import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
-import { CatalogPlansDocument } from '~/generated/graphql'
+import {
+  CatalogPlansDocument,
+  GetCatalogPlansForCatalogObjectDetailsDocument,
+} from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
 import {
@@ -84,7 +87,7 @@ describe('useDeleteCatalogPlanDialog', () => {
         id: 'plan-1',
         __typename: 'CatalogPlan',
         listFieldName: 'catalogPlans',
-        listQueryDocument: [CatalogPlansDocument],
+        listQueryDocument: [CatalogPlansDocument, GetCatalogPlansForCatalogObjectDetailsDocument],
       }),
     )
     expect(callback).toHaveBeenCalled()
