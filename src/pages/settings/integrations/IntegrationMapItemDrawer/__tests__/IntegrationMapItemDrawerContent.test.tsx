@@ -1,9 +1,11 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 
 import { IntegrationMapItemDrawerContent } from '../IntegrationMapItemDrawerContent'
+import { IntegrationMapItemDrawerContentProps } from '../types'
 
 const BILLING_ENTITIES = [
   { id: null, key: 'default', name: 'Default' },
@@ -11,13 +13,19 @@ const BILLING_ENTITIES = [
   { id: 'be-2', key: 'be-2', name: 'Entity Two' },
 ]
 
+const ContentHost = (props: Omit<IntegrationMapItemDrawerContentProps, 'form'>) => {
+  const form = useAppForm({ defaultValues: {} })
+
+  return <IntegrationMapItemDrawerContent {...props} form={form} />
+}
+
 const mockRenderForm = jest.fn((billingEntityKey: string) => (
   <div data-test={`form-${billingEntityKey}`}>Form for {billingEntityKey}</div>
 ))
 
 const prepare = () =>
   render(
-    <IntegrationMapItemDrawerContent
+    <ContentHost
       title="Map Test Metric"
       description="Select the external account for this metric"
       billingEntities={BILLING_ENTITIES}
@@ -86,7 +94,7 @@ describe('IntegrationMapItemDrawerContent', () => {
     describe('WHEN it mounts', () => {
       it('THEN should render the default form and no tab', () => {
         render(
-          <IntegrationMapItemDrawerContent
+          <ContentHost
             title="Title"
             description="Description"
             billingEntities={[BILLING_ENTITIES[0]]}

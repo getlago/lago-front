@@ -14,7 +14,14 @@ jest.mock('~/pages/settings/integrations/common', () => ({
 
 const mockHandleMutation = jest.mocked(handleIntegrationMappingCreateUpdateDelete)
 
-const mappingFunctions = {} as CreateUpdateDeleteFunctions
+const mappingFunctions: CreateUpdateDeleteFunctions = {
+  createCollectionMapping: jest.fn(),
+  createMapping: jest.fn(),
+  deleteCollectionMapping: jest.fn(),
+  deleteMapping: jest.fn(),
+  updateCollectionMapping: jest.fn(),
+  updateMapping: jest.fn(),
+}
 
 const DEFAULT_ENTITY = { id: null, key: 'default', name: 'Default' }
 const OTHER_ENTITY = { id: 'be-1', key: 'be-1', name: 'Entity One' }

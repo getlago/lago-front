@@ -70,13 +70,32 @@ const DRAWER_PROPS: AnrokIntegrationMapItemDrawerProps = {
   },
 }
 
+const MULTI_ENTITY_DRAWER_PROPS: AnrokIntegrationMapItemDrawerProps = {
+  ...DRAWER_PROPS,
+  billingEntities: [
+    ...DRAWER_PROPS.billingEntities,
+    { id: 'be-2', key: 'be-2', name: 'Entity Two' },
+  ],
+  itemMappings: {
+    ...DRAWER_PROPS.itemMappings,
+    'be-2': {
+      itemId: null,
+      itemExternalId: null,
+      lagoMappableId: 'bm-1',
+      lagoMappableName: 'Metric',
+    },
+  },
+}
+
+const SAVE_BUTTON_TEST_ID = 'anrok-integration-map-item-drawer-save'
+
 type DrawerPayload = FormDrawerProps
 
-const DrawerHost = () => {
+const DrawerHost = ({ params }: { params: AnrokIntegrationMapItemDrawerProps }) => {
   const { openDrawer } = useAnrokIntegrationMapItemDrawer()
 
   return (
-    <button data-test={OPEN_BUTTON_TEST_ID} onClick={() => openDrawer(DRAWER_PROPS)}>
+    <button data-test={OPEN_BUTTON_TEST_ID} onClick={() => openDrawer(params)}>
       open
     </button>
   )
@@ -87,16 +106,23 @@ const lastDrawerPayload = (): DrawerPayload => mockOpen.mock.calls.at(-1)?.[0] a
 const getInput = (name: string): HTMLInputElement =>
   document.querySelector(`input[name="${name}"]`) as HTMLInputElement
 
-const openDrawerAndRenderBody = async (): Promise<{ payload: DrawerPayload; user: UserEvent }> => {
+const openDrawerAndRenderBody = async (
+  params: AnrokIntegrationMapItemDrawerProps = DRAWER_PROPS,
+): Promise<{ payload: DrawerPayload; user: UserEvent }> => {
   const user = userEvent.setup({ pointerEventsCheck: 0 })
 
-  render(<DrawerHost />)
+  render(<DrawerHost params={params} />)
 
   await user.click(screen.getByTestId(OPEN_BUTTON_TEST_ID))
 
   const payload = lastDrawerPayload()
 
-  render(<>{payload.children}</>)
+  render(
+    <>
+      {payload.children}
+      {payload.mainAction}
+    </>,
+  )
 
   return { payload, user }
 }
@@ -281,6 +307,52 @@ describe('useAnrokIntegrationMapItemDrawer', () => {
         act(() => payload.onClose?.())
 
         expect(payload.shouldPromptOnClose?.()).toBe(false)
+      })
+    })
+  })
+
+  describe('GIVEN several billing entity tabs', () => {
+    describe('WHEN a partially filled tab is left and reopened after an invalid submit', () => {
+      it('THEN should keep the error visible and re-enable save once fixed', async () => {
+        const { payload, user } = await openDrawerAndRenderBody(MULTI_ENTITY_DRAWER_PROPS)
+
+        await user.type(getInput('be-1.externalId'), 'partial')
+        await submit(payload)
+
+        expect(getInput('be-1.externalName')).toHaveAttribute('aria-invalid', 'true')
+
+        await user.click(screen.getByRole('tab', { name: 'Entity Two' }))
+        await user.click(screen.getByRole('tab', { name: 'Entity One' }))
+
+        expect(getInput('be-1.externalId')).toHaveValue('partial')
+        await waitFor(() =>
+          expect(getInput('be-1.externalName')).toHaveAttribute('aria-invalid', 'true'),
+        )
+        expect(screen.getByTestId(SAVE_BUTTON_TEST_ID)).toBeDisabled()
+
+        await user.type(getInput('be-1.externalName'), 'Name')
+
+        await waitFor(() => expect(screen.getByTestId(SAVE_BUTTON_TEST_ID)).toBeEnabled())
+      })
+    })
+
+    describe('WHEN the only invalid entry sits on a tab that is not selected', () => {
+      it('THEN should select that tab on submit and show its error', async () => {
+        const { payload, user } = await openDrawerAndRenderBody(MULTI_ENTITY_DRAWER_PROPS)
+
+        await user.click(screen.getByRole('tab', { name: 'Entity Two' }))
+        await user.type(getInput('be-2.externalId'), 'partial')
+        await user.click(screen.getByRole('tab', { name: 'Entity One' }))
+        await submit(payload)
+
+        await waitFor(() =>
+          expect(getInput('be-2.externalName')).toHaveAttribute('aria-invalid', 'true'),
+        )
+        expect(screen.getByRole('tab', { name: 'Entity Two' })).toHaveAttribute(
+          'aria-selected',
+          'true',
+        )
+        expect(mockCreateMapping).not.toHaveBeenCalled()
       })
     })
   })

@@ -1,6 +1,7 @@
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
-import { useMemo, useState } from 'react'
+import { useStore } from '@tanstack/react-form'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -12,11 +13,14 @@ export const IntegrationMapItemDrawerContent = ({
   title,
   description,
   billingEntities,
+  form,
   renderForm,
 }: IntegrationMapItemDrawerContentProps): JSX.Element => {
   const { translate } = useInternationalization()
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(0)
+  const submissionAttempts = useStore(form.store, (state) => state.submissionAttempts)
+  const handledSubmissionAttemptsRef = useRef(submissionAttempts)
 
   const handleTabClick = (_event: React.SyntheticEvent<Element, Event>, newValue: number) =>
     setSelectedTabIndex(newValue)
@@ -24,6 +28,34 @@ export const IntegrationMapItemDrawerContent = ({
   const billingEntitiesWithoutDefault = useMemo(() => {
     return billingEntities.filter((be) => be.id !== null)
   }, [billingEntities])
+
+  useEffect(() => {
+    if (submissionAttempts === handledSubmissionAttemptsRef.current) return
+
+    handledSubmissionAttemptsRef.current = submissionAttempts
+
+    const fieldsWithError = Object.entries(form.state.errorMap.onDynamic ?? {})
+      .filter(([, error]) => !!error)
+      .map(([fieldName]) => fieldName)
+    const hasError = (billingEntityKey: string): boolean =>
+      fieldsWithError.some((fieldName) => fieldName.startsWith(`${billingEntityKey}.`))
+
+    const selectedKey = billingEntitiesWithoutDefault[selectedTabIndex]?.key
+
+    if (hasError(DEFAULT_MAPPING_KEY) || (selectedKey && hasError(selectedKey))) return
+
+    const firstInvalidTabIndex = billingEntitiesWithoutDefault.findIndex((billingEntity) =>
+      hasError(billingEntity.key),
+    )
+
+    if (firstInvalidTabIndex !== -1) setSelectedTabIndex(firstInvalidTabIndex)
+  }, [billingEntitiesWithoutDefault, form, selectedTabIndex, submissionAttempts])
+
+  useEffect(() => {
+    if (!form.state.submissionAttempts) return
+
+    void form.validate('change')
+  }, [form, selectedTabIndex])
 
   return (
     <div className="flex flex-col gap-12">
