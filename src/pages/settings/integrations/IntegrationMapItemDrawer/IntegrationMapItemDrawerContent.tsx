@@ -114,8 +114,12 @@ export const IntegrationMapItemDrawerContent = ({
                 disableFocusRipple
                 disableRipple
                 role="tab"
-                className="relative my-2 h-9 justify-between gap-1 rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700"
-                label={<Typography variant="captionHl">{billingEntity.name}</Typography>}
+                className="relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700"
+                label={
+                  <Typography variant="captionHl" color="inherit">
+                    {billingEntity.name}
+                  </Typography>
+                }
                 value={index}
                 id={`simple-tab-${index}`}
                 aria-controls={`simple-tabpanel-${index}`}

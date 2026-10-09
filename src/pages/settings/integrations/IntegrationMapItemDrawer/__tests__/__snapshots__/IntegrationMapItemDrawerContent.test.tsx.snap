@@ -88,7 +88,7 @@ exports[`IntegrationMapItemDrawerContent GIVEN the content is rendered with bill
               <button
                 aria-controls="simple-tabpanel-0"
                 aria-selected="true"
-                class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected relative my-2 h-9 justify-between gap-1 rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-hash-MuiButtonBase-root-MuiTab-root
+                class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-hash-MuiButtonBase-root-MuiTab-root
                 id="simple-tab-0"
                 role="tab"
                 tabindex="0"
@@ -104,7 +104,7 @@ exports[`IntegrationMapItemDrawerContent GIVEN the content is rendered with bill
               <button
                 aria-controls="simple-tabpanel-1"
                 aria-selected="false"
-                class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary relative my-2 h-9 justify-between gap-1 rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-hash-MuiButtonBase-root-MuiTab-root
+                class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-hash-MuiButtonBase-root-MuiTab-root
                 id="simple-tab-1"
                 role="tab"
                 tabindex="-1"
