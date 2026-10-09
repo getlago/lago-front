@@ -117,7 +117,7 @@ export const useNetsuiteIntegrationMapItemDrawer =
 
       const { title, description } = getTitleAndDescription(drawerProps, drawerProps.type)
 
-      drawer.open({
+      void drawer.open({
         title,
         form: { id: NETSUITE_INTEGRATION_MAP_ITEM_FORM_ID, submit: form.handleSubmit },
         closeOnSubmitSuccess: false,
