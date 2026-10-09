@@ -131,8 +131,7 @@ jobs:
           npx junit-merge --dir junit-shards --recursive --out TestResults/unit-junit.xml
 
       - name: SonarQube Scan (Pull Request)
-        if: github.event_name == 'pull_request'
-        continue-on-error: true
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -142,6 +141,8 @@ jobs:
             -Dsonar.pullrequest.branch=${{ github.head_ref }}
             -Dsonar.pullrequest.base=${{ github.base_ref }}
             -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
 
       - name: SonarQube Scan (Main Branch)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
