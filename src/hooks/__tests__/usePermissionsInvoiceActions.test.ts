@@ -314,6 +314,18 @@ describe('usePermissionsInvoiceActions', () => {
       ).toBe(false)
     })
 
+    it('should return false when customer is connected to GoCardless', async () => {
+      const { result } = await prepare()
+
+      expect(
+        result.current.canGeneratePaymentUrl({
+          status: InvoiceStatusTypeEnum.Finalized,
+          paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
+          customer: { paymentProvider: ProviderTypeEnum.Gocardless },
+        }),
+      ).toBe(false)
+    })
+
     it('should return false when invoice is not finalized', async () => {
       const { result } = await prepare()
 

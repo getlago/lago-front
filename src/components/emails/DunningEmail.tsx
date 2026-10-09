@@ -5,6 +5,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { PROVIDERS_WITHOUT_PAYMENT_URL } from '~/core/constants/paymentProviders'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { LocaleEnum } from '~/core/translations'
@@ -13,7 +14,6 @@ import {
   CustomerForDunningEmailFragment,
   InvoicesForDunningEmailFragment,
   OrganizationForDunningEmailFragment,
-  ProviderTypeEnum,
 } from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { tw } from '~/styles/utils'
@@ -143,7 +143,7 @@ export const DunningEmail: FC<DunningEmailProps> = ({
         </div>
 
         {!!customer?.paymentProvider &&
-          customer.paymentProvider !== ProviderTypeEnum.Gocardless && (
+          !PROVIDERS_WITHOUT_PAYMENT_URL.has(customer.paymentProvider) && (
             <Button
               className={tw('pointer-events-none cursor-default')}
               variant="primary"
