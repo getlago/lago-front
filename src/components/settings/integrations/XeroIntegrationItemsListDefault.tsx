@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { RefObject } from 'react'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import {
@@ -8,11 +7,11 @@ import {
   XeroIntegrationItemsListDefaultFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { OpenMappableIntegrationMapItemDrawer } from '~/pages/settings/integrations/common'
 import {
   IntegrationItem,
   IntegrationItemsTable,
 } from '~/pages/settings/integrations/IntegrationItem'
-import { XeroIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 gql`
@@ -31,7 +30,7 @@ type XeroIntegrationItemsListDefaultProps = {
   hasError: boolean
   integrationId: string
   isLoading: boolean
-  xeroIntegrationMapItemDrawerRef: RefObject<XeroIntegrationMapItemDrawerRef>
+  openIntegrationMapItemDrawer: OpenMappableIntegrationMapItemDrawer
 }
 
 const XeroIntegrationItemsListDefault = ({
@@ -39,7 +38,7 @@ const XeroIntegrationItemsListDefault = ({
   hasError,
   integrationId,
   isLoading,
-  xeroIntegrationMapItemDrawerRef,
+  openIntegrationMapItemDrawer,
 }: XeroIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
 
@@ -122,7 +121,7 @@ const XeroIntegrationItemsListDefault = ({
   return (
     <IntegrationItemsTable
       integrationId={integrationId}
-      integrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
+      openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
       items={defaultListToDisplay}
       provider={IntegrationTypeEnum.Xero}
       isLoading={isLoading}

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -19,10 +19,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import {
-  NetsuiteIntegrationMapItemDrawer,
-  NetsuiteIntegrationMapItemDrawerRef,
-} from '~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer'
+import { useNetsuiteIntegrationMapItemDrawer } from '~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer'
 import { MenuPopper } from '~/styles'
 
 import NetsuiteIntegrationItemsListAddons from './NetsuiteIntegrationItemsListAddons'
@@ -102,7 +99,7 @@ gql`
 
 const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
   const { translate } = useInternationalization()
-  const netsuiteIntegrationMapItemDrawerRef = useRef<NetsuiteIntegrationMapItemDrawerRef>(null)
+  const { openDrawer: openIntegrationMapItemDrawer } = useNetsuiteIntegrationMapItemDrawer()
   const [searchParams, setSearchParams] = useSearchParams({
     item_type: SelectedItemTypeEnum.Default,
   })
@@ -260,7 +257,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           integrationId={integrationId}
           isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
-          netsuiteIntegrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
+          openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
         />
       )}
 
@@ -271,7 +268,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           integrationId={integrationId}
           isLoading={isLoadingAddons}
           hasError={!!addonError}
-          netsuiteIntegrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
+          openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
           searchTerm={addonVariables?.searchTerm}
         />
       )}
@@ -283,12 +280,10 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           integrationId={integrationId}
           isLoading={isLoadingBillableMetrics}
           hasError={!!billableMetricsError}
-          netsuiteIntegrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
+          openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
           searchTerm={billableMetricsVariables?.searchTerm}
         />
       )}
-
-      <NetsuiteIntegrationMapItemDrawer ref={netsuiteIntegrationMapItemDrawerRef} />
     </>
   )
 }

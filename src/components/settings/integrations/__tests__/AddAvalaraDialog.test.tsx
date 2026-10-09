@@ -11,6 +11,11 @@ import { useAddAvalaraDialog } from '../AddAvalaraDialog'
 
 const mockAddToast = jest.fn()
 
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
   ...jest.requireActual('~/core/apolloClient/reactiveVars/toastVar'),
   addToast: (...args: unknown[]) => mockAddToast(...args),

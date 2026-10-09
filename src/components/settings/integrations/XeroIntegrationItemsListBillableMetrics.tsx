@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { RefObject } from 'react'
 
 import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import {
@@ -10,8 +9,8 @@ import {
   useGetBillableMetricsForXeroItemsListLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { OpenMappableIntegrationMapItemDrawer } from '~/pages/settings/integrations/common'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
-import { XeroIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer'
 
 gql`
   fragment XeroIntegrationItemsListBillableMetrics on BillableMetric {
@@ -39,7 +38,7 @@ type XeroIntegrationItemsListBillableMetricsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  xeroIntegrationMapItemDrawerRef: RefObject<XeroIntegrationMapItemDrawerRef>
+  openIntegrationMapItemDrawer: OpenMappableIntegrationMapItemDrawer
 }
 
 const XeroIntegrationItemsListBillableMetrics = ({
@@ -48,7 +47,7 @@ const XeroIntegrationItemsListBillableMetrics = ({
   hasError,
   integrationId,
   isLoading,
-  xeroIntegrationMapItemDrawerRef,
+  openIntegrationMapItemDrawer,
   searchTerm,
 }: XeroIntegrationItemsListBillableMetricsProps) => {
   const { translate } = useInternationalization()
@@ -61,7 +60,7 @@ const XeroIntegrationItemsListBillableMetrics = ({
       hasError={hasError}
       searchTerm={searchTerm}
       isLoading={isLoading}
-      integrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
+      openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
       createRoute={CREATE_BILLABLE_METRIC_ROUTE}
       mappableType={MappableTypeEnum.BillableMetric}
       provider={IntegrationTypeEnum.Xero}

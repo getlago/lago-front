@@ -1,5 +1,4 @@
 import { GraphQLFormattedError } from 'graphql'
-import { RefObject } from 'react'
 
 import { PickEnum } from '~/core/types/pickEnum.type'
 import {
@@ -15,6 +14,8 @@ import {
   GetBillableMetricsForNetsuiteItemsListQuery,
   GetBillableMetricsForXeroItemsListQuery,
   IntegrationTypeEnum,
+  MappableTypeEnum,
+  MappingTypeEnum,
   NetsuiteIntegrationAdditionalItemsListFragment,
   NetsuiteIntegrationItemsListDefaultFragment,
   useCreateAnrokIntegrationCollectionMappingMutation,
@@ -43,10 +44,6 @@ import {
   useUpdateXeroIntegrationMappingMutation,
   XeroIntegrationItemsListDefaultFragment,
 } from '~/generated/graphql'
-import { AnrokIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/AnrokIntegrationMapItemDrawer'
-import { AvalaraIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/AvalaraIntegrationMapItemDrawer'
-import { NetsuiteIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer'
-import { XeroIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer'
 
 export type FetchableIntegrationItemsListData =
   | GetAddOnsForNetsuiteItemsListQuery['addOns']
@@ -76,13 +73,6 @@ export type ItemMapping =
   | AvalaraIntegrationItemsListDefaultFragment
   | XeroIntegrationItemsListDefaultFragment
   | NetsuiteIntegrationAdditionalItemsListFragment
-
-export type MappableIntegrationMapItemDrawerRef = RefObject<
-  | NetsuiteIntegrationMapItemDrawerRef
-  | AnrokIntegrationMapItemDrawerRef
-  | AvalaraIntegrationMapItemDrawerRef
-  | XeroIntegrationMapItemDrawerRef
->
 
 export type BillingEntityForIntegrationMapping = {
   id: string | null
@@ -128,6 +118,17 @@ export type ItemMappingPerBillingEntity = Record<
   | ItemMappingForMappable
   | ItemMappingForCurrenciesMapping
 >
+
+export type MappableIntegrationMapItemDrawerData = {
+  type: MappingTypeEnum | MappableTypeEnum
+  integrationId: string
+  billingEntities: Array<BillingEntityForIntegrationMapping>
+  itemMappings: ItemMappingPerBillingEntity
+}
+
+export type OpenMappableIntegrationMapItemDrawer = (
+  drawerData: MappableIntegrationMapItemDrawerData,
+) => void
 
 export type CreateUpdateDeleteSuccessAnswer =
   | { success: true }

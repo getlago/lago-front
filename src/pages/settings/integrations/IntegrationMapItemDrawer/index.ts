@@ -1,1 +1,2 @@
-export { IntegrationMapItemDrawer } from './IntegrationMapItemDrawer'
+export { IntegrationMapItemDrawerContent } from './IntegrationMapItemDrawerContent'
+export { submitIntegrationMapItemMappings } from './submitIntegrationMapItemMappings'

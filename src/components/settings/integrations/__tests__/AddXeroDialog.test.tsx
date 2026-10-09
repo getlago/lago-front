@@ -15,6 +15,11 @@ const mockDestroyNango = jest.fn()
 
 // `XeroIntegrationDetails`, reached through the dialog's route import, pulls in
 // @nangohq/frontend, which jest cannot load as ESM.
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 jest.mock('@nangohq/frontend', () => ({
   __esModule: true,
   default: jest.fn(),

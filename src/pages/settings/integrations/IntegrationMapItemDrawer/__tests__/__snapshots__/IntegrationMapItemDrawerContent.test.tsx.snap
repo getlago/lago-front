@@ -1,0 +1,144 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`IntegrationMapItemDrawerContent GIVEN the content is rendered with billing entities WHEN it mounts THEN should match snapshot 1`] = `
+<div>
+  <div
+    class="flex flex-col gap-12"
+  >
+    <div
+      class="flex flex-col gap-1"
+    >
+      <div
+        class=MuiTypography-root MuiTypography-headline whitespace-pre-line css-hash-MuiTypography-root
+        data-test="headline"
+      >
+        Map Test Metric
+      </div>
+      <div
+        class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+        data-test="body"
+      >
+        Select the external account for this metric
+      </div>
+    </div>
+    <div
+      class="mb-8 flex flex-col gap-6"
+    >
+      <div
+        class="flex flex-col gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
+          data-test="subhead1"
+        >
+          Default mapping
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Values defined here will apply to all billing entities. Override them below if needed.
+        </div>
+      </div>
+      <div
+        data-test="form-default"
+      >
+        Form for 
+        default
+      </div>
+    </div>
+    <div
+      class="flex flex-col gap-6"
+    >
+      <div
+        class="flex flex-col gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
+          data-test="subhead1"
+        >
+          Mapping per billing entities
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-caption whitespace-pre-line css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Adjust values for each billing entity if required.
+        </div>
+      </div>
+      <div
+        class="flex flex-row shadow-b"
+      >
+        <div
+          class=MuiTabs-root min-h-13 w-full flex-1 items-center overflow-visible css-hash-MuiTabs-root
+          role="navigation"
+        >
+          <div
+            class="MuiTabs-scrollableX MuiTabs-hideScrollbar css-oqr85h"
+            style="width: 99px; height: 99px; position: absolute; top: -9999px; overflow: scroll;"
+          />
+          <div
+            class=MuiTabs-scroller MuiTabs-hideScrollbar MuiTabs-scrollableX css-hash-MuiTabs-scroller
+            style="margin-bottom: 0px;"
+          >
+            <div
+              class=MuiTabs-flexContainer css-hash-MuiTabs-flexContainer
+              role="tablist"
+            >
+              <button
+                aria-controls="simple-tabpanel-0"
+                aria-selected="true"
+                class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-hash-MuiButtonBase-root-MuiTab-root
+                id="simple-tab-0"
+                role="tab"
+                tabindex="0"
+                type="button"
+              >
+                <div
+                  class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
+                  data-test="captionHl"
+                >
+                  Entity One
+                </div>
+              </button>
+              <button
+                aria-controls="simple-tabpanel-1"
+                aria-selected="false"
+                class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 css-hash-MuiButtonBase-root-MuiTab-root
+                id="simple-tab-1"
+                role="tab"
+                tabindex="-1"
+                type="button"
+              >
+                <div
+                  class=MuiTypography-root MuiTypography-captionHl whitespace-pre-line css-hash-MuiTypography-root
+                  data-test="captionHl"
+                >
+                  Entity Two
+                </div>
+              </button>
+            </div>
+            <span
+              class=MuiTabs-indicator css-hash-MuiTabs-indicator
+              style="left: 0px; width: 0px;"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        aria-labelledby="simple-tab-0"
+        class="w-full"
+        id="simple-tabpanel-0"
+        role="tabpanel"
+      >
+        <div
+          data-test="form-be-1"
+        >
+          Form for 
+          be-1
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

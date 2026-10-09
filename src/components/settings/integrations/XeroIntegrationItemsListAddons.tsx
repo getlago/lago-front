@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { RefObject } from 'react'
 
 import { CREATE_ADD_ON_ROUTE } from '~/core/router'
 import {
@@ -10,8 +9,8 @@ import {
   useGetAddOnsForXeroItemsListLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { OpenMappableIntegrationMapItemDrawer } from '~/pages/settings/integrations/common'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
-import { XeroIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer'
 
 gql`
   fragment XeroIntegrationItemsListAddons on AddOn {
@@ -37,7 +36,7 @@ type XeroIntegrationItemsListAddonsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  xeroIntegrationMapItemDrawerRef: RefObject<XeroIntegrationMapItemDrawerRef>
+  openIntegrationMapItemDrawer: OpenMappableIntegrationMapItemDrawer
 }
 
 const XeroIntegrationItemsListAddons = ({
@@ -46,7 +45,7 @@ const XeroIntegrationItemsListAddons = ({
   hasError,
   integrationId,
   isLoading,
-  xeroIntegrationMapItemDrawerRef,
+  openIntegrationMapItemDrawer,
   searchTerm,
 }: XeroIntegrationItemsListAddonsProps) => {
   const { translate } = useInternationalization()
@@ -59,7 +58,7 @@ const XeroIntegrationItemsListAddons = ({
       hasError={hasError}
       searchTerm={searchTerm}
       isLoading={isLoading}
-      integrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
+      openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
       createRoute={CREATE_ADD_ON_ROUTE}
       mappableType={MappableTypeEnum.AddOn}
       provider={IntegrationTypeEnum.Xero}

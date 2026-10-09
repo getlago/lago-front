@@ -16,7 +16,7 @@ const FetchableIntegrationItemList = ({
   hasError,
   searchTerm,
   isLoading,
-  integrationMapItemDrawerRef,
+  openIntegrationMapItemDrawer,
   createRoute,
   mappableType,
   provider,
@@ -73,7 +73,7 @@ const FetchableIntegrationItemList = ({
       >
         <IntegrationItemsTable
           integrationId={integrationId}
-          integrationMapItemDrawerRef={integrationMapItemDrawerRef}
+          openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
           provider={provider}
           items={formattedItems}
           firstColumnName={firstColumnName}

@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { RefObject } from 'react'
 
 import { CREATE_ADD_ON_ROUTE } from '~/core/router'
 import {
@@ -10,7 +9,7 @@ import {
   useGetAddOnsForAvalaraItemsListLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { AvalaraIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/AvalaraIntegrationMapItemDrawer'
+import { OpenMappableIntegrationMapItemDrawer } from '~/pages/settings/integrations/common'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
 
 gql`
@@ -36,7 +35,7 @@ type AvalaraIntegrationItemsListAddonsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  avalaraIntegrationMapItemDrawerRef: RefObject<AvalaraIntegrationMapItemDrawerRef>
+  openIntegrationMapItemDrawer: OpenMappableIntegrationMapItemDrawer
 }
 
 const AvalaraIntegrationItemsListAddons = ({
@@ -45,7 +44,7 @@ const AvalaraIntegrationItemsListAddons = ({
   hasError,
   integrationId,
   isLoading,
-  avalaraIntegrationMapItemDrawerRef,
+  openIntegrationMapItemDrawer,
   searchTerm,
 }: AvalaraIntegrationItemsListAddonsProps) => {
   const { translate } = useInternationalization()
@@ -58,7 +57,7 @@ const AvalaraIntegrationItemsListAddons = ({
       hasError={hasError}
       searchTerm={searchTerm}
       isLoading={isLoading}
-      integrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
+      openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
       createRoute={CREATE_ADD_ON_ROUTE}
       mappableType={MappableTypeEnum.AddOn}
       provider={IntegrationTypeEnum.Avalara}

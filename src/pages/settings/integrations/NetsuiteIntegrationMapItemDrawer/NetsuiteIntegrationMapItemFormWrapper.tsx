@@ -1,33 +1,31 @@
-import { FormikProps } from 'formik'
+import { withForm } from '~/hooks/forms/useAppform'
 
 import NetsuiteIntegrationMapItemNonTaxContextForm from './NetsuiteIntegrationMapItemNonTaxContextForm'
 import NetsuiteIntegrationMapItemTaxContextForm from './NetsuiteIntegrationMapItemTaxContextForm'
-import { FormValuesType } from './types'
+import { netsuiteMappingDefaultValues } from './validationSchema'
 
-export function netsuiteIntegrationMapItemFormWrapperFactory(isTaxContext: boolean) {
-  const NetsuiteIntegrationMapItemFormWrapper = ({
-    formikProps,
+export const NetsuiteIntegrationMapItemFormWrapper = withForm({
+  defaultValues: netsuiteMappingDefaultValues,
+  props: {
+    billingEntityKey: '',
+    isTaxContext: false,
+  },
+  render: function NetsuiteIntegrationMapItemFormWrapperRender({
+    form,
     billingEntityKey,
-  }: {
-    formikProps: FormikProps<FormValuesType>
-    billingEntityKey: string
-  }): JSX.Element => {
+    isTaxContext,
+  }) {
     if (isTaxContext) {
       return (
-        <NetsuiteIntegrationMapItemTaxContextForm
-          formikProps={formikProps}
-          billingEntityKey={billingEntityKey}
-        />
+        <NetsuiteIntegrationMapItemTaxContextForm form={form} billingEntityKey={billingEntityKey} />
       )
     }
 
     return (
       <NetsuiteIntegrationMapItemNonTaxContextForm
-        formikProps={formikProps}
+        form={form}
         billingEntityKey={billingEntityKey}
       />
     )
-  }
-
-  return NetsuiteIntegrationMapItemFormWrapper
-}
+  },
+})

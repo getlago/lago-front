@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { RefObject } from 'react'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import {
@@ -8,7 +7,7 @@ import {
   MappingTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { AvalaraIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/AvalaraIntegrationMapItemDrawer'
+import { OpenMappableIntegrationMapItemDrawer } from '~/pages/settings/integrations/common'
 import {
   type IntegrationItem,
   IntegrationItemsTable,
@@ -31,7 +30,7 @@ type AvalaraIntegrationItemsListDefaultProps = {
   hasError: boolean
   integrationId: string
   isLoading: boolean
-  avalaraIntegrationMapItemDrawerRef: RefObject<AvalaraIntegrationMapItemDrawerRef>
+  openIntegrationMapItemDrawer: OpenMappableIntegrationMapItemDrawer
 }
 
 const AvalaraIntegrationItemsListDefault = ({
@@ -39,7 +38,7 @@ const AvalaraIntegrationItemsListDefault = ({
   hasError,
   integrationId,
   isLoading,
-  avalaraIntegrationMapItemDrawerRef,
+  openIntegrationMapItemDrawer,
 }: AvalaraIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
 
@@ -90,7 +89,7 @@ const AvalaraIntegrationItemsListDefault = ({
   return (
     <IntegrationItemsTable
       integrationId={integrationId}
-      integrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
+      openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
       items={defaultListToDisplay}
       provider={IntegrationTypeEnum.Avalara}
       isLoading={isLoading}

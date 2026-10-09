@@ -87,7 +87,7 @@ describe('NetsuiteAdditionalMappings', () => {
         render(<NetsuiteAdditionalMappings integrationId={INTEGRATION_ID} />)
 
         expect(capturedTableProps?.openCurrenciesMappingDrawer).toBe(mockOpenDrawer)
-        expect(capturedTableProps?.integrationMapItemDrawerRef).toBeUndefined()
+        expect(capturedTableProps?.openIntegrationMapItemDrawer).toBeUndefined()
       })
     })
   })

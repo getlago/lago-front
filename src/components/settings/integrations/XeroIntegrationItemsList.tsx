@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -19,10 +19,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import {
-  XeroIntegrationMapItemDrawer,
-  XeroIntegrationMapItemDrawerRef,
-} from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer'
+import { useXeroIntegrationMapItemDrawer } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer'
 import { MenuPopper } from '~/styles'
 
 import XeroIntegrationItemsListAddons from './XeroIntegrationItemsListAddons'
@@ -102,7 +99,7 @@ gql`
 
 const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
   const { translate } = useInternationalization()
-  const xeroIntegrationMapItemDrawerRef = useRef<XeroIntegrationMapItemDrawerRef>(null)
+  const { openDrawer: openIntegrationMapItemDrawer } = useXeroIntegrationMapItemDrawer()
   const [searchParams, setSearchParams] = useSearchParams({
     item_type: SelectedItemTypeEnum.Default,
   })
@@ -259,7 +256,7 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
           integrationId={integrationId}
           isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
-          xeroIntegrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
+          openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
         />
       ) : (
         <>
@@ -270,7 +267,7 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
               integrationId={integrationId}
               isLoading={isLoadingAddons}
               hasError={!!addonError}
-              xeroIntegrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
+              openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
               searchTerm={addonVariables?.searchTerm}
             />
           )}
@@ -281,13 +278,12 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
               integrationId={integrationId}
               isLoading={isLoadingBillableMetrics}
               hasError={!!billableMetricsError}
-              xeroIntegrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
+              openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
               searchTerm={billableMetricsVariables?.searchTerm}
             />
           )}
         </>
       )}
-      <XeroIntegrationMapItemDrawer ref={xeroIntegrationMapItemDrawerRef} />
     </>
   )
 }
