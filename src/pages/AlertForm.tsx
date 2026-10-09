@@ -157,7 +157,7 @@ const AlertForm = () => {
     useGetSubscriptionBillableMetricsQuery({
       variables: {
         page: 1,
-        limit: 20,
+        limit: 1000,
         searchTerm: '',
         planId: subscriptionData?.subscription?.plan?.id,
       },
@@ -299,7 +299,17 @@ const AlertForm = () => {
   )
 
   const comboboxData = useMemo(() => {
-    return (subscriptionBillableMetricsData?.billableMetrics?.collection || []).map((item) => {
+    const collection = subscriptionBillableMetricsData?.billableMetrics?.collection || []
+    const alertBillableMetric = existingAlert?.billableMetric
+
+    // An alert outlives the charge it was created from, so on edition the saved metric may no
+    // longer be charged on the plan and would render as an empty selection
+    const billableMetrics =
+      !!alertBillableMetric && !collection.some(({ id }) => id === alertBillableMetric.id)
+        ? [...collection, alertBillableMetric]
+        : collection
+
+    return billableMetrics.map((item) => {
       const { id, code, name } = item
 
       const hasAlertOnBillableMetric = existingAlertsData?.subscriptionAlerts?.collection.some(
@@ -324,6 +334,7 @@ const AlertForm = () => {
     })
   }, [
     subscriptionBillableMetricsData?.billableMetrics?.collection,
+    existingAlert?.billableMetric,
     existingAlertsData?.subscriptionAlerts?.collection,
     alertType,
   ])

@@ -359,6 +359,17 @@ describe('AlertForm', () => {
 
         expect(screen.queryByTestId(BILLABLE_METRIC_COMBOBOX_TEST_ID)).not.toBeInTheDocument()
       })
+
+      // Guards the paginated picker that only offered the 20 most recent metrics of the plan
+      it('THEN should fetch the plan metrics in a single unpaginated page', () => {
+        render(<AlertForm />)
+
+        expect(mockUseGetSubscriptionBillableMetricsQuery).toHaveBeenCalledWith(
+          expect.objectContaining({
+            variables: expect.objectContaining({ limit: 1000, planId: 'plan-1' }),
+          }),
+        )
+      })
     })
 
     describe('WHEN picking an amount alert type', () => {
@@ -837,6 +848,22 @@ describe('AlertForm', () => {
 
         expect(getBillableMetricSelect()).toBeDisabled()
         expect(getBillableMetricSelect()).toHaveValue('bm-1')
+      })
+
+      it('THEN should keep prefilling a metric the plan no longer charges', () => {
+        mockUseGetSubscriptionBillableMetricsQuery.mockReturnValue({
+          data: {
+            billableMetrics: { collection: [{ id: 'bm-2', code: 'bm_code_2', name: 'BM Two' }] },
+          },
+          loading: false,
+        })
+
+        render(<AlertForm />)
+
+        expect(getBillableMetricSelect()).toHaveValue('bm-1')
+        expect(getBillableMetricSelect().querySelector('option[value="bm-1"]')).toHaveTextContent(
+          'BM One (bm_code)',
+        )
       })
 
       it('THEN should display the thresholds table', () => {
