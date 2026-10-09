@@ -131,9 +131,7 @@ jobs:
           npx junit-merge --dir junit-shards --recursive --out TestResults/unit-junit.xml
 
       - name: SonarQube Scan (Pull Request)
-        id: sonar-pr
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        continue-on-error: true
         uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -145,31 +143,6 @@ jobs:
             -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
             -Dsonar.qualitygate.wait=true
             -Dsonar.qualitygate.timeout=300
-
-      - name: Check coverage on new code
-        if: steps.sonar-pr.outcome == 'success' || steps.sonar-pr.outcome == 'failure'
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          status=$(curl -fsS -u "${SONAR_TOKEN}:" \
-            "https://sonarcloud.io/api/qualitygates/project_status?projectKey=getlago_lago-front&pullRequest=${PR_NUMBER}")
-          coverage=$(echo "$status" | jq -c '.projectStatus.conditions[] | select(.metricKey == "new_coverage")')
-
-          if [ -z "$coverage" ]; then
-            echo "Coverage on new code not evaluated (no or too few new lines)"
-            exit 0
-          fi
-
-          actual=$(echo "$coverage" | jq -r '.actualValue')
-          threshold=$(echo "$coverage" | jq -r '.errorThreshold')
-
-          if [ "$(echo "$coverage" | jq -r '.status')" = "ERROR" ]; then
-            echo "::error::Coverage on new code is ${actual}%, below the ${threshold}% threshold"
-            exit 1
-          fi
-
-          echo "Coverage on new code is ${actual}% (threshold ${threshold}%)"
 
       - name: SonarQube Scan (Main Branch)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
