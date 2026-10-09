@@ -104,7 +104,7 @@ export const useAvalaraIntegrationMapItemDrawer = (): UseAvalaraIntegrationMapIt
 
     const { title, description } = getTitleAndDescription(drawerProps, drawerProps.type)
 
-    drawer.open({
+    void drawer.open({
       title,
       form: { id: AVALARA_INTEGRATION_MAP_ITEM_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
