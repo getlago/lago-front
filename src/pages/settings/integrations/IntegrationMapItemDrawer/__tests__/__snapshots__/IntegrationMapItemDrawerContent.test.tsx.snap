@@ -67,10 +67,10 @@ exports[`IntegrationMapItemDrawerContent GIVEN the content is rendered with bill
         </div>
       </div>
       <div
-        class="flex flex-row overflow-hidden shadow-b"
+        class="flex flex-row shadow-b"
       >
         <div
-          class=MuiTabs-root min-h-13 w-full flex-1 items-center css-hash-MuiTabs-root
+          class=MuiTabs-root min-h-13 w-full flex-1 items-center overflow-visible css-hash-MuiTabs-root
           role="navigation"
         >
           <div

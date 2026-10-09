@@ -99,9 +99,9 @@ export const IntegrationMapItemDrawerContent = ({
           <Typography variant="subhead1">{translate('text_1762159805730r5zfutgdloi')}</Typography>
           <Typography variant="caption">{translate('text_1762159805730hqzi614r672')}</Typography>
         </div>
-        <div className="flex flex-row overflow-hidden shadow-b">
+        <div className="flex flex-row shadow-b">
           <Tabs
-            className="min-h-13 w-full flex-1 items-center"
+            className="min-h-13 w-full flex-1 items-center overflow-visible"
             variant="scrollable"
             role="navigation"
             scrollButtons="auto"
