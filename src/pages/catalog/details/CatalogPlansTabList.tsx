@@ -9,6 +9,7 @@ import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   CatalogPlanForCatalogPlanDrawerFragmentDoc,
   CatalogPlanForDeleteCatalogPlanDialogFragmentDoc,
+  CatalogPlanForTableColumnsFragmentDoc,
   useGetCatalogPlansForCatalogObjectDetailsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -22,12 +23,7 @@ export const CATALOG_PLANS_TAB_LIST_SEARCH_TEST_ID = 'catalog-plans-tab-list-sea
 gql`
   fragment CatalogPlanForCatalogPlansTabList on CatalogPlan {
     id
-    name
-    code
-    invoiceDisplayName
-    createdAt
-    appliedRateCardsCount
-    contractsCount
+    ...CatalogPlanForTableColumns
     ...CatalogPlanForCatalogPlanDrawer
     ...CatalogPlanForDeleteCatalogPlanDialog
   }
@@ -62,6 +58,7 @@ gql`
     }
   }
 
+  ${CatalogPlanForTableColumnsFragmentDoc}
   ${CatalogPlanForCatalogPlanDrawerFragmentDoc}
   ${CatalogPlanForDeleteCatalogPlanDialogFragmentDoc}
 `

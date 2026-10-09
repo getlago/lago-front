@@ -1,24 +1,29 @@
+import { gql } from '@apollo/client'
+
 import { TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
+import { CatalogPlanForTableColumnsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
-export type CatalogPlanForTableColumns = {
-  name: string
-  code: string
-  invoiceDisplayName?: string | null
-  appliedRateCardsCount: number
-  contractsCount: number
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createdAt: any
-}
+gql`
+  fragment CatalogPlanForTableColumns on CatalogPlan {
+    id
+    name
+    code
+    invoiceDisplayName
+    createdAt
+    appliedRateCardsCount
+    contractsCount
+  }
+`
 
 // Shared between the standalone catalog-plans list and the catalog-object detail
 // pages' scoped plans tab: both render the identical four columns, each off its own
 // query/fragment (every consumer owns its fragment), so only the column shapes - not
 // the data fetching - are shared here.
-export const useCatalogPlanTableColumns = (): TableColumn<CatalogPlanForTableColumns>[] => {
+export const useCatalogPlanTableColumns = (): TableColumn<CatalogPlanForTableColumnsFragment>[] => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 

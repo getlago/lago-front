@@ -189,6 +189,7 @@ const ProductDetails = () => {
                 <CatalogPlansTabList scope={{ productId: productId as string }} />
               </DetailsPage.Container>
             ),
+            hidden: !hasPermissions(['plansView']),
           },
           {
             title: translate('text_1747314141347qq6rasuxisl'),

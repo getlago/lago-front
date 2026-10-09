@@ -2,12 +2,10 @@ import { renderHook, screen } from '@testing-library/react'
 import { ReactNode } from 'react'
 
 import { TableColumn } from '~/components/designSystem/Table/Table'
+import { CatalogPlanForTableColumnsFragment } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import {
-  CatalogPlanForTableColumns,
-  useCatalogPlanTableColumns,
-} from '../useCatalogPlanTableColumns'
+import { useCatalogPlanTableColumns } from '../useCatalogPlanTableColumns'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -22,8 +20,9 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
 }))
 
 const buildCatalogPlan = (
-  overrides: Partial<CatalogPlanForTableColumns> = {},
-): CatalogPlanForTableColumns => ({
+  overrides: Partial<CatalogPlanForTableColumnsFragment> = {},
+): CatalogPlanForTableColumnsFragment => ({
+  id: '1',
   name: 'Premium',
   code: 'premium',
   invoiceDisplayName: null,
@@ -36,9 +35,9 @@ const buildCatalogPlan = (
 const renderColumns = () => renderHook(() => useCatalogPlanTableColumns()).result.current
 
 const getColumnContent = (
-  columns: TableColumn<CatalogPlanForTableColumns>[],
+  columns: TableColumn<CatalogPlanForTableColumnsFragment>[],
   key: string,
-): ((item: CatalogPlanForTableColumns) => ReactNode) => {
+): ((item: CatalogPlanForTableColumnsFragment) => ReactNode) => {
   const column = columns.find((candidate) => candidate.key === key)
 
   if (!column?.content) {

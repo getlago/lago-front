@@ -11,6 +11,7 @@ import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   CatalogPlanForCatalogPlanDrawerFragmentDoc,
   CatalogPlanForDeleteCatalogPlanDialogFragmentDoc,
+  CatalogPlanForTableColumnsFragmentDoc,
   useCatalogPlansLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -27,12 +28,7 @@ export const CATALOG_PLANS_CREATE_TEST_ID = 'create-catalog-plan-cta'
 gql`
   fragment CatalogPlanForList on CatalogPlan {
     id
-    name
-    code
-    invoiceDisplayName
-    createdAt
-    appliedRateCardsCount
-    contractsCount
+    ...CatalogPlanForTableColumns
     ...CatalogPlanForCatalogPlanDrawer
     ...CatalogPlanForDeleteCatalogPlanDialog
   }
@@ -51,6 +47,7 @@ gql`
     }
   }
 
+  ${CatalogPlanForTableColumnsFragmentDoc}
   ${CatalogPlanForCatalogPlanDrawerFragmentDoc}
   ${CatalogPlanForDeleteCatalogPlanDialogFragmentDoc}
 `

@@ -17461,6 +17461,8 @@ export type GraduatedRateTierFragment = { __typename?: 'RateTier', toValue?: str
 
 export type VolumeRateTierFragment = { __typename?: 'RateTier', toValue?: string | null, perUnitAmount: string, flatAmount: string };
 
+export type CatalogPlanForTableColumnsFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, appliedRateCardsCount: number, contractsCount: number };
+
 export type RateCardRateForListFragment = { __typename?: 'RateCardRate', id: string, createdAt: any, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } };
 
 export type RateCardForListFragment = { __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees?: RateCardRegroupPaidFeesEnum | null, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, minAmountCents: any, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null };
@@ -23946,6 +23948,17 @@ export const SubscriptionForSubscriptionsListFragmentDoc = gql`
   }
 }
     `;
+export const CatalogPlanForTableColumnsFragmentDoc = gql`
+    fragment CatalogPlanForTableColumns on CatalogPlan {
+  id
+  name
+  code
+  invoiceDisplayName
+  createdAt
+  appliedRateCardsCount
+  contractsCount
+}
+    `;
 export const CatalogPlanForCatalogPlanDrawerFragmentDoc = gql`
     fragment CatalogPlanForCatalogPlanDrawer on CatalogPlan {
   id
@@ -23967,16 +23980,12 @@ export const CatalogPlanForDeleteCatalogPlanDialogFragmentDoc = gql`
 export const CatalogPlanForListFragmentDoc = gql`
     fragment CatalogPlanForList on CatalogPlan {
   id
-  name
-  code
-  invoiceDisplayName
-  createdAt
-  appliedRateCardsCount
-  contractsCount
+  ...CatalogPlanForTableColumns
   ...CatalogPlanForCatalogPlanDrawer
   ...CatalogPlanForDeleteCatalogPlanDialog
 }
-    ${CatalogPlanForCatalogPlanDrawerFragmentDoc}
+    ${CatalogPlanForTableColumnsFragmentDoc}
+${CatalogPlanForCatalogPlanDrawerFragmentDoc}
 ${CatalogPlanForDeleteCatalogPlanDialogFragmentDoc}`;
 export const ProductCategoryForProductCategoryDrawerFragmentDoc = gql`
     fragment ProductCategoryForProductCategoryDrawer on ProductCategory {
@@ -24145,16 +24154,12 @@ export const CatalogPlanForCatalogPlanDetailsOverviewFragmentDoc = gql`
 export const CatalogPlanForCatalogPlansTabListFragmentDoc = gql`
     fragment CatalogPlanForCatalogPlansTabList on CatalogPlan {
   id
-  name
-  code
-  invoiceDisplayName
-  createdAt
-  appliedRateCardsCount
-  contractsCount
+  ...CatalogPlanForTableColumns
   ...CatalogPlanForCatalogPlanDrawer
   ...CatalogPlanForDeleteCatalogPlanDialog
 }
-    ${CatalogPlanForCatalogPlanDrawerFragmentDoc}
+    ${CatalogPlanForTableColumnsFragmentDoc}
+${CatalogPlanForCatalogPlanDrawerFragmentDoc}
 ${CatalogPlanForDeleteCatalogPlanDialogFragmentDoc}`;
 export const ProductCategoryForProductCategoryDetailsFragmentDoc = gql`
     fragment ProductCategoryForProductCategoryDetails on ProductCategory {

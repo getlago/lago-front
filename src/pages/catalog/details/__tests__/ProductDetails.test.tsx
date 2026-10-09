@@ -201,6 +201,17 @@ describe('ProductDetails', () => {
     expect(screen.queryByText('text_1747314141347qq6rasuxisl')).not.toBeInTheDocument()
   })
 
+  it('hides the plans tab without the plansView permission', async () => {
+    mockHasPermissions.mockImplementation(
+      (permissions: string[]) => !permissions.includes('plansView'),
+    )
+
+    await act(() => renderPage())
+
+    expect(await screen.findByText('text_628cf761cbe6820138b8f2e4')).toBeInTheDocument()
+    expect(screen.queryByText('text_62442e40cea25600b0b6d85a')).not.toBeInTheDocument()
+  })
+
   it('opens the edit drawer with the loaded item from the actions dropdown', async () => {
     await act(() => renderPage())
 
