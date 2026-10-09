@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { RefObject } from 'react'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import {
@@ -8,11 +7,11 @@ import {
   NetsuiteIntegrationItemsListDefaultFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { OpenMappableIntegrationMapItemDrawer } from '~/pages/settings/integrations/common'
 import {
   type IntegrationItem,
   IntegrationItemsTable,
 } from '~/pages/settings/integrations/IntegrationItem'
-import { NetsuiteIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 gql`
@@ -34,7 +33,7 @@ type NetsuiteIntegrationItemsListDefaultProps = {
   hasError: boolean
   integrationId: string
   isLoading: boolean
-  netsuiteIntegrationMapItemDrawerRef: RefObject<NetsuiteIntegrationMapItemDrawerRef>
+  openIntegrationMapItemDrawer: OpenMappableIntegrationMapItemDrawer
 }
 
 const NetsuiteIntegrationItemsListDefault = ({
@@ -42,7 +41,7 @@ const NetsuiteIntegrationItemsListDefault = ({
   hasError,
   integrationId,
   isLoading,
-  netsuiteIntegrationMapItemDrawerRef,
+  openIntegrationMapItemDrawer,
 }: NetsuiteIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
 
@@ -125,7 +124,7 @@ const NetsuiteIntegrationItemsListDefault = ({
   return (
     <IntegrationItemsTable
       integrationId={integrationId}
-      integrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
+      openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
       items={defaultListToDisplay}
       provider={IntegrationTypeEnum.Netsuite}
       isLoading={isLoading}

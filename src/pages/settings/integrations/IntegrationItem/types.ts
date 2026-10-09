@@ -3,8 +3,8 @@ import { IconName } from 'lago-design-system'
 import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import {
   ItemMapping,
-  MappableIntegrationMapItemDrawerRef,
   MappableIntegrationProvider,
+  OpenMappableIntegrationMapItemDrawer,
 } from '~/pages/settings/integrations/common'
 import { NetsuiteAdditionalMappingDrawerProps } from '~/pages/settings/integrations/NetsuiteAdditionalMappings/types'
 
@@ -32,11 +32,11 @@ export type IntegrationItemsTableProps = {
   displayBillingEntities?: boolean
 } & (
   | {
-      integrationMapItemDrawerRef: MappableIntegrationMapItemDrawerRef
+      openIntegrationMapItemDrawer: OpenMappableIntegrationMapItemDrawer
       openCurrenciesMappingDrawer?: never
     }
   | {
-      integrationMapItemDrawerRef?: never
+      openIntegrationMapItemDrawer?: never
       openCurrenciesMappingDrawer: (drawerProps: NetsuiteAdditionalMappingDrawerProps) => void
     }
 )

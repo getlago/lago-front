@@ -110,16 +110,16 @@ jest.mock('~/components/settings/integrations/XeroIntegrationItemsListDefault', 
 }))
 
 jest.mock('~/pages/settings/integrations/AnrokIntegrationMapItemDrawer', () => ({
-  AnrokIntegrationMapItemDrawer: () => null,
+  useAnrokIntegrationMapItemDrawer: () => ({ openDrawer: jest.fn() }),
 }))
 jest.mock('~/pages/settings/integrations/AvalaraIntegrationMapItemDrawer', () => ({
-  AvalaraIntegrationMapItemDrawer: () => null,
+  useAvalaraIntegrationMapItemDrawer: () => ({ openDrawer: jest.fn() }),
 }))
 jest.mock('~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer', () => ({
-  NetsuiteIntegrationMapItemDrawer: () => null,
+  useNetsuiteIntegrationMapItemDrawer: () => ({ openDrawer: jest.fn() }),
 }))
 jest.mock('~/pages/settings/integrations/XeroIntegrationMapItemDrawer', () => ({
-  XeroIntegrationMapItemDrawer: () => null,
+  useXeroIntegrationMapItemDrawer: () => ({ openDrawer: jest.fn() }),
 }))
 
 type ProviderCase = {

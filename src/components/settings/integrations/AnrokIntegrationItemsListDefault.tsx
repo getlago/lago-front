@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { RefObject } from 'react'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import {
@@ -8,7 +7,7 @@ import {
   MappingTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { AnrokIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/AnrokIntegrationMapItemDrawer'
+import { OpenMappableIntegrationMapItemDrawer } from '~/pages/settings/integrations/common'
 import {
   type IntegrationItem,
   IntegrationItemsTable,
@@ -31,7 +30,7 @@ type AnrokIntegrationItemsListDefaultProps = {
   hasError: boolean
   integrationId: string
   isLoading: boolean
-  anrokIntegrationMapItemDrawerRef: RefObject<AnrokIntegrationMapItemDrawerRef>
+  openIntegrationMapItemDrawer: OpenMappableIntegrationMapItemDrawer
 }
 
 const AnrokIntegrationItemsListDefault = ({
@@ -39,7 +38,7 @@ const AnrokIntegrationItemsListDefault = ({
   hasError,
   integrationId,
   isLoading,
-  anrokIntegrationMapItemDrawerRef,
+  openIntegrationMapItemDrawer,
 }: AnrokIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
 
@@ -90,7 +89,7 @@ const AnrokIntegrationItemsListDefault = ({
   return (
     <IntegrationItemsTable
       integrationId={integrationId}
-      integrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
+      openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
       items={defaultListToDisplay}
       provider={IntegrationTypeEnum.Anrok}
       isLoading={isLoading}

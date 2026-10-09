@@ -1,7 +1,4 @@
 import './graphql'
 
-export { NetsuiteIntegrationMapItemDrawer } from './NetsuiteIntegrationMapItemDrawer'
-export type {
-  NetsuiteIntegrationMapItemDrawerRef,
-  NetsuiteIntegrationMapItemDrawerProps,
-} from './types'
+export { useNetsuiteIntegrationMapItemDrawer } from './useNetsuiteIntegrationMapItemDrawer'
+export type { NetsuiteIntegrationMapItemDrawerProps } from './types'

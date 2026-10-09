@@ -2,7 +2,6 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { CurrencyEnum, IntegrationTypeEnum, MappingTypeEnum } from '~/generated/graphql'
-import { MappableIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/common'
 import { render } from '~/test-utils'
 
 import IntegrationItemsTable from '../IntegrationItemsTable'
@@ -50,11 +49,6 @@ const couponItem: IntegrationItem = {
   integrationMappings: [],
 }
 
-const buildDrawerRef = (): MappableIntegrationMapItemDrawerRef =>
-  ({
-    current: { openDrawer: jest.fn(), closeDrawer: jest.fn() },
-  }) as unknown as MappableIntegrationMapItemDrawerRef
-
 describe('IntegrationItemsTable', () => {
   describe('GIVEN a currencies mapping row', () => {
     describe('WHEN the row is clicked', () => {
@@ -87,14 +81,14 @@ describe('IntegrationItemsTable', () => {
 
   describe('GIVEN a non-currencies mapping row', () => {
     describe('WHEN the row is clicked', () => {
-      it('THEN should keep opening the ref-based map item drawer', async () => {
-        const drawerRef = buildDrawerRef()
+      it('THEN should open the map item drawer seeded with the row mapping', async () => {
+        const openIntegrationMapItemDrawer = jest.fn()
         const user = userEvent.setup()
 
         render(
           <IntegrationItemsTable
             integrationId={INTEGRATION_ID}
-            integrationMapItemDrawerRef={drawerRef}
+            openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
             items={[couponItem]}
             provider={IntegrationTypeEnum.Netsuite}
             isLoading={false}
@@ -104,7 +98,7 @@ describe('IntegrationItemsTable', () => {
 
         await user.click(screen.getByTestId(FIRST_ROW_TEST_ID))
 
-        expect(drawerRef.current?.openDrawer).toHaveBeenCalledWith(
+        expect(openIntegrationMapItemDrawer).toHaveBeenCalledWith(
           expect.objectContaining({
             integrationId: INTEGRATION_ID,
             type: MappingTypeEnum.Coupon,

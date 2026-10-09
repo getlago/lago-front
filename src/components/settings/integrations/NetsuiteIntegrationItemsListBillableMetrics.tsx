@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { RefObject } from 'react'
 
 import { CREATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import {
@@ -10,8 +9,8 @@ import {
   useGetBillableMetricsForNetsuiteItemsListLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { OpenMappableIntegrationMapItemDrawer } from '~/pages/settings/integrations/common'
 import FetchableIntegrationItemList from '~/pages/settings/integrations/FetchableIntegrationItemList'
-import { NetsuiteIntegrationMapItemDrawerRef } from '~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer'
 
 gql`
   fragment NetsuiteIntegrationItemsListBillableMetrics on BillableMetric {
@@ -38,7 +37,7 @@ type NetsuiteIntegrationItemsListBillableMetricsProps = {
   integrationId: string
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  netsuiteIntegrationMapItemDrawerRef: RefObject<NetsuiteIntegrationMapItemDrawerRef>
+  openIntegrationMapItemDrawer: OpenMappableIntegrationMapItemDrawer
 }
 
 const NetsuiteIntegrationItemsListBillableMetrics = ({
@@ -47,7 +46,7 @@ const NetsuiteIntegrationItemsListBillableMetrics = ({
   hasError,
   integrationId,
   isLoading,
-  netsuiteIntegrationMapItemDrawerRef,
+  openIntegrationMapItemDrawer,
   searchTerm,
 }: NetsuiteIntegrationItemsListBillableMetricsProps) => {
   const { translate } = useInternationalization()
@@ -60,7 +59,7 @@ const NetsuiteIntegrationItemsListBillableMetrics = ({
       hasError={hasError}
       searchTerm={searchTerm}
       isLoading={isLoading}
-      integrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
+      openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
       createRoute={CREATE_BILLABLE_METRIC_ROUTE}
       mappableType={MappableTypeEnum.BillableMetric}
       provider={IntegrationTypeEnum.Netsuite}

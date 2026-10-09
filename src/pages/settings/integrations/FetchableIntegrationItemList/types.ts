@@ -12,8 +12,8 @@ import {
 } from '~/generated/graphql'
 import {
   FetchableIntegrationItemsListData,
-  MappableIntegrationMapItemDrawerRef,
   MappableIntegrationProvider,
+  OpenMappableIntegrationMapItemDrawer,
 } from '~/pages/settings/integrations/common'
 
 export type FetchMoreFunction = ReturnType<
@@ -34,7 +34,7 @@ export type FetchIntegrationItemsListProps = {
   hasError: boolean
   searchTerm: InputMaybe<string> | undefined
   isLoading: boolean
-  integrationMapItemDrawerRef: MappableIntegrationMapItemDrawerRef
+  openIntegrationMapItemDrawer: OpenMappableIntegrationMapItemDrawer
   createRoute: string
   mappableType: MappableTypeEnum
   provider: MappableIntegrationProvider

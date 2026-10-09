@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -19,10 +19,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import {
-  AnrokIntegrationMapItemDrawer,
-  AnrokIntegrationMapItemDrawerRef,
-} from '~/pages/settings/integrations/AnrokIntegrationMapItemDrawer'
+import { useAnrokIntegrationMapItemDrawer } from '~/pages/settings/integrations/AnrokIntegrationMapItemDrawer'
 import { MenuPopper } from '~/styles'
 
 import AnrokIntegrationItemsListAddons from './AnrokIntegrationItemsListAddons'
@@ -102,7 +99,7 @@ gql`
 
 const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
   const { translate } = useInternationalization()
-  const anrokIntegrationMapItemDrawerRef = useRef<AnrokIntegrationMapItemDrawerRef>(null)
+  const { openDrawer: openIntegrationMapItemDrawer } = useAnrokIntegrationMapItemDrawer()
   const [searchParams, setSearchParams] = useSearchParams({
     item_type: SelectedItemTypeEnum.Default,
   })
@@ -259,7 +256,7 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           integrationId={integrationId}
           isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
-          anrokIntegrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
+          openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
         />
       )}
       {selectedItemType === MappableTypeEnum.AddOn && (
@@ -269,7 +266,7 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           integrationId={integrationId}
           isLoading={isLoadingAddons}
           hasError={!!addonError}
-          anrokIntegrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
+          openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
           searchTerm={addonVariables?.searchTerm}
         />
       )}
@@ -280,12 +277,10 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           integrationId={integrationId}
           isLoading={isLoadingBillableMetrics}
           hasError={!!billableMetricsError}
-          anrokIntegrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
+          openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
           searchTerm={billableMetricsVariables?.searchTerm}
         />
       )}
-
-      <AnrokIntegrationMapItemDrawer ref={anrokIntegrationMapItemDrawerRef} />
     </>
   )
 }

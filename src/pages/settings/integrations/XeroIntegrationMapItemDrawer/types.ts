@@ -1,5 +1,3 @@
-import { FormikProps } from 'formik'
-
 import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import {
   BillingEntityForIntegrationMapping,
@@ -11,26 +9,4 @@ export type XeroIntegrationMapItemDrawerProps = {
   integrationId: string
   billingEntities: Array<BillingEntityForIntegrationMapping>
   itemMappings: ItemMappingPerBillingEntity
-}
-
-export type FormValuesType = Record<
-  'default' | string,
-  {
-    selectedElementValue: string
-  }
->
-
-export interface XeroIntegrationMapItemDrawerRef {
-  openDrawer: (props: XeroIntegrationMapItemDrawerProps) => unknown
-  closeDrawer: () => unknown
-}
-
-export type XeroIntegrationMapItemFormWrapperProps = {
-  formikProps: FormikProps<FormValuesType>
-  billingEntityKey: string
-}
-
-export type XeroIntegrationMapItemFormWrapperFactoryProps = {
-  formType: MappingTypeEnum | MappableTypeEnum | undefined
-  integrationId: string | undefined
 }

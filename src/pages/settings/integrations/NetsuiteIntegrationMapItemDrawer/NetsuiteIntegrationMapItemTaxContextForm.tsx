@@ -1,44 +1,50 @@
-import { TextInputField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { withForm } from '~/hooks/forms/useAppform'
 
-import { NetsuiteIntegrationMapItemFormProps } from './types'
+import { netsuiteMappingDefaultValues } from './validationSchema'
 
-const NetsuiteIntegrationMapItemTaxContextForm = ({
-  formikProps,
-  billingEntityKey,
-}: NetsuiteIntegrationMapItemFormProps) => {
-  const { translate } = useInternationalization()
+const NetsuiteIntegrationMapItemTaxContextForm = withForm({
+  defaultValues: netsuiteMappingDefaultValues,
+  props: {
+    billingEntityKey: '',
+  },
+  render: function NetsuiteIntegrationMapItemTaxContextFormRender({ form, billingEntityKey }) {
+    const { translate } = useInternationalization()
 
-  return (
-    <div className="flex flex-col gap-6">
-      <TextInputField
-        name={`${billingEntityKey}.taxNexus`}
-        autoComplete="off"
-        label={translate('text_172727145621913rzc8t0twl')}
-        placeholder={translate('text_17272714562195xp5rofbulp')}
-        formikProps={formikProps}
-        error={undefined}
-      />
+    return (
+      <div className="flex flex-col gap-6">
+        <form.AppField name={`${billingEntityKey}.taxNexus`}>
+          {(field) => (
+            <field.TextInputField
+              autoComplete="off"
+              label={translate('text_172727145621913rzc8t0twl')}
+              placeholder={translate('text_17272714562195xp5rofbulp')}
+            />
+          )}
+        </form.AppField>
 
-      <TextInputField
-        name={`${billingEntityKey}.taxType`}
-        autoComplete="off"
-        label={translate('text_1727271456219atwdpxysccc')}
-        placeholder={translate('text_1727271456219tl2bt8qdevm')}
-        formikProps={formikProps}
-        error={undefined}
-      />
+        <form.AppField name={`${billingEntityKey}.taxType`}>
+          {(field) => (
+            <field.TextInputField
+              autoComplete="off"
+              label={translate('text_1727271456219atwdpxysccc')}
+              placeholder={translate('text_1727271456219tl2bt8qdevm')}
+            />
+          )}
+        </form.AppField>
 
-      <TextInputField
-        name={`${billingEntityKey}.taxCode`}
-        autoComplete="off"
-        label={translate('text_1727271456220dvb59po0x1g')}
-        placeholder={translate('text_1727271456220u56zdq1mfrn')}
-        formikProps={formikProps}
-        error={undefined}
-      />
-    </div>
-  )
-}
+        <form.AppField name={`${billingEntityKey}.taxCode`}>
+          {(field) => (
+            <field.TextInputField
+              autoComplete="off"
+              label={translate('text_1727271456220dvb59po0x1g')}
+              placeholder={translate('text_1727271456220u56zdq1mfrn')}
+            />
+          )}
+        </form.AppField>
+      </div>
+    )
+  },
+})
 
 export default NetsuiteIntegrationMapItemTaxContextForm

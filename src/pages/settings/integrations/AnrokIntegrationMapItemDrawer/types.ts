@@ -10,16 +10,3 @@ export type AnrokIntegrationMapItemDrawerProps = {
   billingEntities: Array<BillingEntityForIntegrationMapping>
   itemMappings: ItemMappingPerBillingEntity
 }
-
-export type FormValuesType = Record<
-  'default' | string,
-  {
-    externalName: string
-    externalId: string
-  }
->
-
-export interface AnrokIntegrationMapItemDrawerRef {
-  openDrawer: (props: AnrokIntegrationMapItemDrawerProps) => unknown
-  closeDrawer: () => unknown
-}

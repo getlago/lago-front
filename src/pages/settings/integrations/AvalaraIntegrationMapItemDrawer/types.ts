@@ -10,16 +10,3 @@ export type AvalaraIntegrationMapItemDrawerProps = {
   billingEntities: Array<BillingEntityForIntegrationMapping>
   itemMappings: ItemMappingPerBillingEntity
 }
-
-export type FormValuesType = Record<
-  'default' | string,
-  {
-    externalName: string
-    externalId: string
-  }
->
-
-export interface AvalaraIntegrationMapItemDrawerRef {
-  openDrawer: (props: AvalaraIntegrationMapItemDrawerProps) => unknown
-  closeDrawer: () => unknown
-}

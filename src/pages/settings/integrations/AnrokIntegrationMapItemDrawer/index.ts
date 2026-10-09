@@ -1,5 +1,5 @@
 import './graphql'
 
-export { AnrokIntegrationMapItemDrawer } from './AnrokIntegrationMapItemDrawer'
+export { useAnrokIntegrationMapItemDrawer } from './useAnrokIntegrationMapItemDrawer'
 
-export type { AnrokIntegrationMapItemDrawerProps, AnrokIntegrationMapItemDrawerRef } from './types'
+export type { AnrokIntegrationMapItemDrawerProps } from './types'

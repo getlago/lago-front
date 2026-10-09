@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -18,10 +18,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import {
-  AvalaraIntegrationMapItemDrawer,
-  AvalaraIntegrationMapItemDrawerRef,
-} from '~/pages/settings/integrations/AvalaraIntegrationMapItemDrawer'
+import { useAvalaraIntegrationMapItemDrawer } from '~/pages/settings/integrations/AvalaraIntegrationMapItemDrawer'
 import { MenuPopper } from '~/styles'
 
 import AvalaraIntegrationItemsListAddons from './AvalaraIntegrationItemsListAddons'
@@ -101,7 +98,7 @@ gql`
 
 const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
   const { translate } = useInternationalization()
-  const avalaraIntegrationMapItemDrawerRef = useRef<AvalaraIntegrationMapItemDrawerRef>(null)
+  const { openDrawer: openIntegrationMapItemDrawer } = useAvalaraIntegrationMapItemDrawer()
   const [searchParams, setSearchParams] = useSearchParams({
     item_type: SelectedItemTypeEnum.Default,
   })
@@ -258,7 +255,7 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
           integrationId={integrationId}
           isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
-          avalaraIntegrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
+          openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
         />
       )}
       {selectedItemType === MappableTypeEnum.AddOn && (
@@ -268,7 +265,7 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
           integrationId={integrationId}
           isLoading={isLoadingAddons}
           hasError={!!addonError}
-          avalaraIntegrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
+          openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
           searchTerm={addonVariables?.searchTerm}
         />
       )}
@@ -279,12 +276,10 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
           integrationId={integrationId}
           isLoading={isLoadingBillableMetrics}
           hasError={!!billableMetricsError}
-          avalaraIntegrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
+          openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
           searchTerm={billableMetricsVariables?.searchTerm}
         />
       )}
-
-      <AvalaraIntegrationMapItemDrawer ref={avalaraIntegrationMapItemDrawerRef} />
     </>
   )
 }

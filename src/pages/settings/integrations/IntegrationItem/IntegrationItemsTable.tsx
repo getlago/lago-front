@@ -25,7 +25,7 @@ const COLUMN_MIN_WIDTH = 200
 
 const IntegrationItemsTable = ({
   integrationId,
-  integrationMapItemDrawerRef,
+  openIntegrationMapItemDrawer,
   openCurrenciesMappingDrawer,
   items,
   provider,
@@ -143,7 +143,7 @@ const IntegrationItemsTable = ({
         })
     }
 
-    return () => integrationMapItemDrawerRef?.current?.openDrawer(props)
+    return () => openIntegrationMapItemDrawer?.(props)
   }
 
   const handleRowActionClick = (item: IntegrationItemData): void => {

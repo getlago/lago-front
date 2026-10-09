@@ -6,12 +6,15 @@ export { isItemMappingForKeyNotForCurrenciesMapping } from './isItemMappingForKe
 export type {
   MappableIntegrationProvider,
   ItemMapping,
-  MappableIntegrationMapItemDrawerRef,
+  MappableIntegrationMapItemDrawerData,
+  OpenMappableIntegrationMapItemDrawer,
   ItemMappingPerBillingEntity,
   BillingEntityForIntegrationMapping,
   ItemMappingForTaxMapping,
   ItemMappingForNonTaxMapping,
   ItemMappingForMappable,
   FetchableIntegrationItemsListData,
+  CreateUpdateDeleteFunctions,
+  CreateUpdateDeleteSuccessAnswer,
 } from './types'
 export { DEFAULT_MAPPING_KEY } from './const'
