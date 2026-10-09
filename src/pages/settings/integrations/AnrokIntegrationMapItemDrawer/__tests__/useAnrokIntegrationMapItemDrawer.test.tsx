@@ -89,6 +89,10 @@ const MULTI_ENTITY_DRAWER_PROPS: AnrokIntegrationMapItemDrawerProps = {
 
 const SAVE_BUTTON_TEST_ID = 'anrok-integration-map-item-drawer-save'
 
+const mockScrollIntoView = jest.fn()
+
+Element.prototype.scrollIntoView = mockScrollIntoView
+
 type DrawerPayload = FormDrawerProps
 
 const DrawerHost = ({ params }: { params: AnrokIntegrationMapItemDrawerProps }) => {
@@ -118,10 +122,16 @@ const openDrawerAndRenderBody = async (
   const payload = lastDrawerPayload()
 
   render(
-    <>
+    <form
+      id={payload.form.id}
+      onSubmit={(event) => {
+        event.preventDefault()
+        payload.form.submit()
+      }}
+    >
       {payload.children}
       {payload.mainAction}
-    </>,
+    </form>,
   )
 
   return { payload, user }
@@ -314,12 +324,14 @@ describe('useAnrokIntegrationMapItemDrawer', () => {
   describe('GIVEN several billing entity tabs', () => {
     describe('WHEN a partially filled tab is left and reopened after an invalid submit', () => {
       it('THEN should keep the error visible and re-enable save once fixed', async () => {
-        const { payload, user } = await openDrawerAndRenderBody(MULTI_ENTITY_DRAWER_PROPS)
+        const { user } = await openDrawerAndRenderBody(MULTI_ENTITY_DRAWER_PROPS)
 
         await user.type(getInput('be-1.externalId'), 'partial')
-        await submit(payload)
+        await user.click(screen.getByTestId(SAVE_BUTTON_TEST_ID))
 
-        expect(getInput('be-1.externalName')).toHaveAttribute('aria-invalid', 'true')
+        await waitFor(() =>
+          expect(getInput('be-1.externalName')).toHaveAttribute('aria-invalid', 'true'),
+        )
 
         await user.click(screen.getByRole('tab', { name: 'Entity Two' }))
         await user.click(screen.getByRole('tab', { name: 'Entity One' }))
@@ -336,22 +348,25 @@ describe('useAnrokIntegrationMapItemDrawer', () => {
       })
     })
 
-    describe('WHEN the only invalid entry sits on a tab that is not selected', () => {
-      it('THEN should select that tab on submit and show its error', async () => {
-        const { payload, user } = await openDrawerAndRenderBody(MULTI_ENTITY_DRAWER_PROPS)
+    describe('WHEN the only invalid entry sits on a tab that is not selected and save is clicked', () => {
+      it('THEN should select that tab, show its error and scroll to the field', async () => {
+        const { user } = await openDrawerAndRenderBody(MULTI_ENTITY_DRAWER_PROPS)
 
         await user.click(screen.getByRole('tab', { name: 'Entity Two' }))
         await user.type(getInput('be-2.externalId'), 'partial')
         await user.click(screen.getByRole('tab', { name: 'Entity One' }))
-        await submit(payload)
+        await user.click(screen.getByTestId(SAVE_BUTTON_TEST_ID))
 
+        await waitFor(() =>
+          expect(screen.getByRole('tab', { name: 'Entity Two' })).toHaveAttribute(
+            'aria-selected',
+            'true',
+          ),
+        )
         await waitFor(() =>
           expect(getInput('be-2.externalName')).toHaveAttribute('aria-invalid', 'true'),
         )
-        expect(screen.getByRole('tab', { name: 'Entity Two' })).toHaveAttribute(
-          'aria-selected',
-          'true',
-        )
+        expect(mockScrollIntoView).toHaveBeenCalled()
         expect(mockCreateMapping).not.toHaveBeenCalled()
       })
     })

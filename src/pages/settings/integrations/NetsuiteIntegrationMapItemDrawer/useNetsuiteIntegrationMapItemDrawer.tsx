@@ -131,6 +131,7 @@ export const useNetsuiteIntegrationMapItemDrawer =
             description={description}
             billingEntities={drawerProps.billingEntities}
             form={form}
+            formId={NETSUITE_INTEGRATION_MAP_ITEM_FORM_ID}
             renderForm={(billingEntityKey) => (
               <NetsuiteIntegrationMapItemFormWrapper
                 form={form}

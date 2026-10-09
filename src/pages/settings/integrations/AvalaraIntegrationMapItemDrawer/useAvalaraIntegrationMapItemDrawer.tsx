@@ -118,6 +118,7 @@ export const useAvalaraIntegrationMapItemDrawer = (): UseAvalaraIntegrationMapIt
           description={description}
           billingEntities={drawerProps.billingEntities}
           form={form}
+          formId={AVALARA_INTEGRATION_MAP_ITEM_FORM_ID}
           renderForm={(billingEntityKey) => (
             <AvalaraIntegrationMapItemFormWrapper form={form} billingEntityKey={billingEntityKey} />
           )}

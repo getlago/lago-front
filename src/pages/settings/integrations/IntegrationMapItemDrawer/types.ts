@@ -8,5 +8,6 @@ export type IntegrationMapItemDrawerContentProps = {
   description: string
   billingEntities: Array<BillingEntityForIntegrationMapping>
   form: AnyFormApi
+  formId: string
   renderForm: (billingEntityKey: string) => ReactNode
 }

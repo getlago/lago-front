@@ -13,10 +13,10 @@ const BILLING_ENTITIES = [
   { id: 'be-2', key: 'be-2', name: 'Entity Two' },
 ]
 
-const ContentHost = (props: Omit<IntegrationMapItemDrawerContentProps, 'form'>) => {
+const ContentHost = (props: Omit<IntegrationMapItemDrawerContentProps, 'form' | 'formId'>) => {
   const form = useAppForm({ defaultValues: {} })
 
-  return <IntegrationMapItemDrawerContent {...props} form={form} />
+  return <IntegrationMapItemDrawerContent {...props} form={form} formId="content-test-form" />
 }
 
 const mockRenderForm = jest.fn((billingEntityKey: string) => (

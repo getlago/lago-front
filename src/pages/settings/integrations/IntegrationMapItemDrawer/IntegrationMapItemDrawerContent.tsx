@@ -4,23 +4,34 @@ import { useStore } from '@tanstack/react-form'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DEFAULT_MAPPING_KEY } from '~/pages/settings/integrations/common'
 
 import { IntegrationMapItemDrawerContentProps } from './types'
+
+const FIELD_NAMES_SEPARATOR = '\n'
 
 export const IntegrationMapItemDrawerContent = ({
   title,
   description,
   billingEntities,
   form,
+  formId,
   renderForm,
 }: IntegrationMapItemDrawerContentProps): JSX.Element => {
   const { translate } = useInternationalization()
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(0)
   const submissionAttempts = useStore(form.store, (state) => state.submissionAttempts)
+  const fieldsWithErrorSignature = useStore(form.store, (state) =>
+    Object.entries(state.errorMap.onDynamic ?? {})
+      .filter(([, error]) => !!error)
+      .map(([fieldName]) => fieldName)
+      .join(FIELD_NAMES_SEPARATOR),
+  )
   const handledSubmissionAttemptsRef = useRef(submissionAttempts)
+  const shouldScrollToErrorRef = useRef(false)
 
   const handleTabClick = (_event: React.SyntheticEvent<Element, Event>, newValue: number) =>
     setSelectedTabIndex(newValue)
@@ -30,13 +41,13 @@ export const IntegrationMapItemDrawerContent = ({
   }, [billingEntities])
 
   useEffect(() => {
-    if (submissionAttempts === handledSubmissionAttemptsRef.current) return
+    if (submissionAttempts === handledSubmissionAttemptsRef.current || !fieldsWithErrorSignature) {
+      return
+    }
 
     handledSubmissionAttemptsRef.current = submissionAttempts
 
-    const fieldsWithError = Object.entries(form.state.errorMap.onDynamic ?? {})
-      .filter(([, error]) => !!error)
-      .map(([fieldName]) => fieldName)
+    const fieldsWithError = fieldsWithErrorSignature.split(FIELD_NAMES_SEPARATOR)
     const hasError = (billingEntityKey: string): boolean =>
       fieldsWithError.some((fieldName) => fieldName.startsWith(`${billingEntityKey}.`))
 
@@ -48,14 +59,27 @@ export const IntegrationMapItemDrawerContent = ({
       hasError(billingEntity.key),
     )
 
-    if (firstInvalidTabIndex !== -1) setSelectedTabIndex(firstInvalidTabIndex)
-  }, [billingEntitiesWithoutDefault, form, selectedTabIndex, submissionAttempts])
+    if (firstInvalidTabIndex === -1) return
+
+    shouldScrollToErrorRef.current = true
+    setSelectedTabIndex(firstInvalidTabIndex)
+  }, [
+    billingEntitiesWithoutDefault,
+    fieldsWithErrorSignature,
+    selectedTabIndex,
+    submissionAttempts,
+  ])
 
   useEffect(() => {
     if (!form.state.submissionAttempts) return
 
     void form.validate('change')
-  }, [form, selectedTabIndex])
+
+    if (!shouldScrollToErrorRef.current) return
+
+    shouldScrollToErrorRef.current = false
+    scrollToFirstInputError(formId, form.state.errorMap.onDynamic ?? {})
+  }, [form, formId, selectedTabIndex])
 
   return (
     <div className="flex flex-col gap-12">

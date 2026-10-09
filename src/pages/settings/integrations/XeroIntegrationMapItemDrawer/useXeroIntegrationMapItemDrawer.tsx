@@ -133,6 +133,7 @@ export const useXeroIntegrationMapItemDrawer = (): UseXeroIntegrationMapItemDraw
           description={description}
           billingEntities={drawerProps.billingEntities}
           form={form}
+          formId={XERO_INTEGRATION_MAP_ITEM_FORM_ID}
           renderForm={(billingEntityKey) => (
             <XeroIntegrationMapItemFormWrapper
               form={form}

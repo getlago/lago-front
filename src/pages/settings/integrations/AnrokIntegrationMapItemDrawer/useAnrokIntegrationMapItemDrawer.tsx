@@ -118,6 +118,7 @@ export const useAnrokIntegrationMapItemDrawer = (): UseAnrokIntegrationMapItemDr
           description={description}
           billingEntities={drawerProps.billingEntities}
           form={form}
+          formId={ANROK_INTEGRATION_MAP_ITEM_FORM_ID}
           renderForm={(billingEntityKey) => (
             <AnrokIntegrationMapItemFormWrapper form={form} billingEntityKey={billingEntityKey} />
           )}
