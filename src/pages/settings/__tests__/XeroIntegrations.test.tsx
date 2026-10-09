@@ -10,6 +10,11 @@ import {
 
 import XeroIntegrations from '../XeroIntegrations'
 
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 jest.mock('@nangohq/frontend', () => ({
   __esModule: true,
   default: jest.fn(),

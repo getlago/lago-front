@@ -10,6 +10,11 @@ import {
 
 import AnrokIntegrations from '../AnrokIntegrations'
 
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 jest.mock('~/components/settings/integrations/AddAnrokDialog', () => ({
   useAddAnrokDialog: () => ({ openAddAnrokDialog: jest.fn() }),
 }))
