@@ -10800,6 +10800,8 @@ export type Role = {
   code: Scalars['String']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   description?: Maybe<Scalars['String']['output']>;
+  /** Whether the current member can assign this role */
+  grantable: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   memberships: Array<Membership>;
   name: Scalars['String']['output'];
@@ -16183,7 +16185,7 @@ export type ResendPaymentReceiptEmailMutation = { __typename?: 'Mutation', resen
 export type GetRolesListQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetRolesListQuery = { __typename?: 'Query', roles: Array<{ __typename?: 'Role', id: string, name: string, description?: string | null, permissions: Array<PermissionEnum>, admin: boolean, code: string, memberships: Array<{ __typename?: 'Membership', id: string, revokedAt?: any | null, user: { __typename?: 'User', id: string, email?: string | null } }> }> };
+export type GetRolesListQuery = { __typename?: 'Query', roles: Array<{ __typename?: 'Role', id: string, name: string, description?: string | null, permissions: Array<PermissionEnum>, admin: boolean, grantable: boolean, code: string, memberships: Array<{ __typename?: 'Membership', id: string, revokedAt?: any | null, user: { __typename?: 'User', id: string, email?: string | null } }> }> };
 
 export type RemoveCouponMutationVariables = Exact<{
   input: TerminateAppliedCouponInput;
@@ -19151,7 +19153,7 @@ export type RevokeMembershipMutationVariables = Exact<{
 
 export type RevokeMembershipMutation = { __typename?: 'Mutation', revokeMembership?: { __typename?: 'Membership', id: string } | null };
 
-export type RoleFragmentFragment = { __typename?: 'Role', id: string, name: string, description?: string | null, permissions: Array<PermissionEnum>, admin: boolean, code: string, memberships: Array<{ __typename?: 'Membership', id: string, revokedAt?: any | null, user: { __typename?: 'User', id: string, email?: string | null } }> };
+export type RoleFragmentFragment = { __typename?: 'Role', id: string, name: string, description?: string | null, permissions: Array<PermissionEnum>, admin: boolean, grantable: boolean, code: string, memberships: Array<{ __typename?: 'Membership', id: string, revokedAt?: any | null, user: { __typename?: 'User', id: string, email?: string | null } }> };
 
 export type DeleteRoleMutationVariables = Exact<{
   input: DestroyRoleInput;
@@ -19165,7 +19167,7 @@ export type GetRoleQueryVariables = Exact<{
 }>;
 
 
-export type GetRoleQuery = { __typename?: 'Query', role?: { __typename?: 'Role', id: string, name: string, description?: string | null, permissions: Array<PermissionEnum>, admin: boolean, code: string, memberships: Array<{ __typename?: 'Membership', id: string, revokedAt?: any | null, user: { __typename?: 'User', id: string, email?: string | null } }> } | null };
+export type GetRoleQuery = { __typename?: 'Query', role?: { __typename?: 'Role', id: string, name: string, description?: string | null, permissions: Array<PermissionEnum>, admin: boolean, grantable: boolean, code: string, memberships: Array<{ __typename?: 'Membership', id: string, revokedAt?: any | null, user: { __typename?: 'User', id: string, email?: string | null } }> } | null };
 
 export type CreateRoleMutationVariables = Exact<{
   input: CreateRoleInput;
@@ -25815,6 +25817,7 @@ export const RoleFragmentFragmentDoc = gql`
   description
   permissions
   admin
+  grantable
   code
   memberships {
     id

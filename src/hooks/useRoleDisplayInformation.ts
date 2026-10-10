@@ -1,8 +1,8 @@
 import {
+  getSystemRoleKey,
   RoleItem,
   rolesDescriptionMapping,
   rolesNameMapping,
-  systemRoles,
 } from '~/core/constants/roles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -17,16 +17,18 @@ export const useRoleDisplayInformation = (): {
   const getDisplayName = (role: AllowedElements) => {
     if (!role) return ''
 
-    return systemRoles.includes(role.name)
-      ? translate(rolesNameMapping[role.name as keyof typeof rolesNameMapping])
-      : role.name
+    const systemKey = getSystemRoleKey(role)
+
+    return systemKey ? translate(rolesNameMapping[systemKey]) : role.name
   }
 
   const getDisplayDescription = (role: AllowedElements) => {
     if (!role) return ''
 
-    if (systemRoles.includes(role.name)) {
-      return translate(rolesDescriptionMapping[role.name as keyof typeof rolesDescriptionMapping])
+    const systemKey = getSystemRoleKey(role)
+
+    if (systemKey) {
+      return translate(rolesDescriptionMapping[systemKey])
     }
 
     return role.description ?? ''
