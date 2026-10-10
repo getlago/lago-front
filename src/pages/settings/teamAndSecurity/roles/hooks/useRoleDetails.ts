@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useEffect, useState } from 'react'
 
-import { RoleItem, systemRoles } from '~/core/constants/roles'
+import { isSystemRole, RoleItem } from '~/core/constants/roles'
 import { RoleFragmentFragmentDoc, useGetRoleQuery } from '~/generated/graphql'
 import { usePermissions } from '~/hooks/usePermissions'
 
@@ -46,7 +46,7 @@ export const useRoleDetails = ({
       return
     }
 
-    setIsSystem(systemRoles.includes(data.role.name))
+    setIsSystem(isSystemRole(data.role))
 
     setCanBeDuplicated(hasPermissions(['rolesCreate']))
     setCanBeEdited(hasPermissions(['rolesUpdate']))
