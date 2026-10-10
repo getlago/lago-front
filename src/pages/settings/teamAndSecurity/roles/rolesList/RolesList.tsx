@@ -14,7 +14,7 @@ import {
   SettingsListWrapper,
   SettingsWithTabsPaddedContainer,
 } from '~/components/layouts/Settings'
-import { RoleItem, rolesNameMapping, systemRoles } from '~/core/constants/roles'
+import { getSystemRoleKey, isSystemRole, RoleItem, rolesNameMapping } from '~/core/constants/roles'
 import { ROLE_CREATE_ROUTE, ROLE_DETAILS_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -65,9 +65,8 @@ const RolesList = () => {
   }
 
   const displayNameCell = (role: RoleItem) => {
-    const nameToDisplay = systemRoles.includes(role.name)
-      ? translate(rolesNameMapping[role.name as keyof typeof rolesNameMapping])
-      : role.name
+    const systemKey = getSystemRoleKey(role)
+    const nameToDisplay = systemKey ? translate(rolesNameMapping[systemKey]) : role.name
 
     return <Typography color="grey700">{nameToDisplay}</Typography>
   }
@@ -105,7 +104,7 @@ const RolesList = () => {
   const actionColumnTooltip = () => translate('text_1765528202844ro1c3jxwbs8')
 
   const actionColumn = (role: RoleItem): Array<ActionItem<RoleItem>> => {
-    const isSystemRole = systemRoles.includes(role.name)
+    const isSystem = isSystemRole(role)
     const canDelete = role.memberships.length === 0 && canDeleteRoles
 
     if (!hasPremiumAddon) {
@@ -119,7 +118,7 @@ const RolesList = () => {
       ]
     }
 
-    if (isSystemRole) {
+    if (isSystem) {
       return [
         {
           startIcon: 'duplicate',
