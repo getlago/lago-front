@@ -1,11 +1,12 @@
 import { screen } from '@testing-library/react'
 
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { render } from '~/test-utils'
 
 import {
   INVOICE_CUSTOM_FOOTER_SECTION,
-  SubscriptionInvoiceCustomSectionDetails,
-} from '../SubscriptionInvoiceCustomSectionDetails'
+  InvoiceCustomSectionDetails,
+} from '../InvoiceCustomSectionDetails'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
@@ -24,7 +25,7 @@ const { useCustomerInvoiceCustomSections } = jest.requireMock(
   '~/hooks/useCustomerInvoiceCustomSections',
 )
 
-describe('SubscriptionInvoiceCustomSectionDetails', () => {
+describe('InvoiceCustomSectionDetails', () => {
   beforeEach(() => {
     ;(useCustomerInvoiceCustomSections as jest.Mock).mockReturnValue({
       data: null,
@@ -36,7 +37,8 @@ describe('SubscriptionInvoiceCustomSectionDetails', () => {
 
   it('displays explicit selected sections (APPLY)', () => {
     render(
-      <SubscriptionInvoiceCustomSectionDetails
+      <InvoiceCustomSectionDetails
+        viewType={ViewTypeEnum.Subscription}
         customerId="customer-id"
         selectedInvoiceCustomSections={[{ id: 'section-1', name: 'Bank details' }]}
         skipInvoiceCustomSections={false}
@@ -49,7 +51,8 @@ describe('SubscriptionInvoiceCustomSectionDetails', () => {
 
   it('displays the section when sections are explicitly skipped (NONE)', () => {
     render(
-      <SubscriptionInvoiceCustomSectionDetails
+      <InvoiceCustomSectionDetails
+        viewType={ViewTypeEnum.Subscription}
         customerId="customer-id"
         selectedInvoiceCustomSections={[]}
         skipInvoiceCustomSections={true}
@@ -77,7 +80,8 @@ describe('SubscriptionInvoiceCustomSectionDetails', () => {
     })
 
     render(
-      <SubscriptionInvoiceCustomSectionDetails
+      <InvoiceCustomSectionDetails
+        viewType={ViewTypeEnum.Contract}
         customerId="customer-id"
         selectedInvoiceCustomSections={[]}
         skipInvoiceCustomSections={false}
@@ -91,7 +95,8 @@ describe('SubscriptionInvoiceCustomSectionDetails', () => {
 
   it('renders nothing without a customer id and no explicit sections', () => {
     render(
-      <SubscriptionInvoiceCustomSectionDetails
+      <InvoiceCustomSectionDetails
+        viewType={ViewTypeEnum.Contract}
         selectedInvoiceCustomSections={[]}
         skipInvoiceCustomSections={false}
       />,
@@ -115,7 +120,8 @@ describe('SubscriptionInvoiceCustomSectionDetails', () => {
     })
 
     render(
-      <SubscriptionInvoiceCustomSectionDetails
+      <InvoiceCustomSectionDetails
+        viewType={ViewTypeEnum.Subscription}
         customerId="customer-id"
         selectedInvoiceCustomSections={[]}
         skipInvoiceCustomSections={false}

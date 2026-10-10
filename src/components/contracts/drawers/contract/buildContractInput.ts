@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 
+import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import { CreateContractInput } from '~/generated/graphql'
 
@@ -21,6 +22,7 @@ export const buildCreateContractInput = (value: ContractFormValues): CreateContr
   name: value.name || undefined,
   billingEntityId: value.billingEntityId || undefined,
   consolidateInvoice: value.consolidateInvoice,
+  invoiceCustomSection: toInvoiceCustomSectionReference(value.invoiceCustomSection),
   paymentMethod: value.paymentMethod,
   purchaseOrderNumber: normalizePurchaseOrderNumber(value.purchaseOrderNumber) ?? undefined,
   startedAt: toUtcDateTime(value.startedAt),

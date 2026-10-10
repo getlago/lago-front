@@ -181,6 +181,7 @@ describe('useContractDrawer', () => {
       name: 'Enterprise agreement',
       billingEntityId: 'billing-entity-1',
       consolidateInvoice: false,
+      invoiceCustomSection: { invoiceCustomSectionIds: [], skipInvoiceCustomSections: false },
       paymentMethod: {
         paymentMethodId: 'payment-method-1',
         paymentMethodType: 'provider',

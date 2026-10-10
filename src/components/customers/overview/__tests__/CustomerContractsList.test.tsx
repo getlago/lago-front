@@ -68,6 +68,7 @@ jest.mock('~/components/contracts/drawers/contract/useContractDrawer', () => ({
 }))
 
 const customer = {
+  id: 'customer-1',
   externalId: 'acme-external',
   displayName: 'Acme Inc.',
   applicableTimezone: TimezoneEnum.TzAmericaNewYork,
@@ -278,6 +279,7 @@ describe('CustomerContractsList', () => {
 
     expect(mockOpenContractDrawer).toHaveBeenCalledWith({
       customer: {
+        id: 'customer-1',
         externalId: 'acme-external',
         displayName: 'Acme Inc.',
         applicableTimezone: TimezoneEnum.TzAmericaNewYork,

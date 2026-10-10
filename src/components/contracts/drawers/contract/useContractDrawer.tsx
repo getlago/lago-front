@@ -37,6 +37,11 @@ gql`
     billingAnchorDate
     billingEntityId
     consolidateInvoice
+    selectedInvoiceCustomSections {
+      id
+      name
+    }
+    skipInvoiceCustomSections
     purchaseOrderNumber
     paymentMethodType
     paymentMethod {

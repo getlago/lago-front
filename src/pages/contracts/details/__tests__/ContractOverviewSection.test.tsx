@@ -29,6 +29,7 @@ const mockOpenInvoicingSettingsDrawer = jest.fn()
 const mockOpenPaymentSettingsDrawer = jest.fn()
 const mockInvoicingSettingsDrawerProps = jest.fn()
 const mockPaymentSettingsDrawerProps = jest.fn()
+const mockInvoiceCustomSectionDetailsProps = jest.fn()
 
 jest.mock('~/hooks/useContractPermissionsActions', () => ({
   useContractPermissionsActions: () => ({ canEditContract: mockCanEditContract }),
@@ -60,6 +61,13 @@ jest.mock('~/components/paymentSettings/usePaymentSettingsDrawer', () => ({
   usePaymentSettingsDrawer: (props: Record<string, unknown>) => {
     mockPaymentSettingsDrawerProps(props)
     return { openDrawer: mockOpenPaymentSettingsDrawer }
+  },
+}))
+
+jest.mock('~/components/invoceCustomFooter/InvoiceCustomSectionDetails', () => ({
+  InvoiceCustomSectionDetails: (props: Record<string, unknown>) => {
+    mockInvoiceCustomSectionDetailsProps(props)
+    return <div data-test="invoice-custom-section-details" />
   },
 }))
 
@@ -101,6 +109,8 @@ const contract: ContractForContractDetailsOverviewFragment = {
   terminatedAt: '2026-08-01T00:00:00Z',
   billingEntityId: 'entity-2',
   consolidateInvoice: true,
+  selectedInvoiceCustomSections: [],
+  skipInvoiceCustomSections: false,
   purchaseOrderNumber: 'PO-42',
   paymentMethodType: PaymentMethodTypeEnum.Provider,
   paymentMethod: { __typename: 'PaymentMethod', id: 'payment-method-1' },
@@ -179,9 +189,16 @@ describe('ContractOverviewSection', () => {
 
     await userEvent.click(await screen.findByTestId(CONTRACT_OVERVIEW_INVOICING_EDIT_TEST_ID))
 
-    expect(mockOpenInvoicingSettingsDrawer).toHaveBeenCalledWith({ consolidateInvoice: false })
+    expect(mockOpenInvoicingSettingsDrawer).toHaveBeenCalledWith({
+      consolidateInvoice: false,
+      invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
+    })
     expect(mockInvoicingSettingsDrawerProps).toHaveBeenCalledWith(
-      expect.objectContaining({ showCustomSection: false, withInvoiceConsolidation: true }),
+      expect.objectContaining({
+        customerId: 'customer-1',
+        showCustomSection: true,
+        withInvoiceConsolidation: true,
+      }),
     )
   })
 
@@ -250,6 +267,22 @@ describe('ContractOverviewSection', () => {
     expect(screen.getByRole('link', { name: 'Enterprise plan' })).toHaveAttribute(
       'href',
       '/plan-pricing/plan-1/overview',
+    )
+  })
+
+  it('passes the contract customer and selection to the invoice custom section display', async () => {
+    await renderSection({
+      selectedInvoiceCustomSections: [{ id: 'section-1', name: 'Bank details' }],
+      skipInvoiceCustomSections: false,
+    })
+
+    expect(await screen.findByTestId('invoice-custom-section-details')).toBeInTheDocument()
+    expect(mockInvoiceCustomSectionDetailsProps).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerId: 'customer-1',
+        selectedInvoiceCustomSections: [{ id: 'section-1', name: 'Bank details' }],
+        skipInvoiceCustomSections: false,
+      }),
     )
   })
 
