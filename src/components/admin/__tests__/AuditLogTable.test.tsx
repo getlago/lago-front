@@ -43,23 +43,26 @@ describe('AuditLogTable', () => {
     expect(onRollback).toHaveBeenCalledWith(entry, 'Reverting mistaken change')
   })
 
-  it.each(['rollback', 'org_created', 'already_rolled_back'])('hides rollback for %s', (kind) => {
-    render(
-      <AuditLogTable
-        data={[
-          {
-            ...entry,
-            action: kind === 'already_rolled_back' ? 'toggle_off' : kind,
-            rolledBack: kind === 'already_rolled_back',
-          },
-        ]}
-        isLoading={false}
-        hasError={false}
-        onRollback={jest.fn()}
-      />,
-    )
-    expect(screen.queryByRole('button', { name: 'Rollback' })).not.toBeInTheDocument()
-  })
+  it.each(['rollback', 'org_created', 'org_renamed', 'already_rolled_back'])(
+    'hides rollback for %s',
+    (kind) => {
+      render(
+        <AuditLogTable
+          data={[
+            {
+              ...entry,
+              action: kind === 'already_rolled_back' ? 'toggle_off' : kind,
+              rolledBack: kind === 'already_rolled_back',
+            },
+          ]}
+          isLoading={false}
+          hasError={false}
+          onRollback={jest.fn()}
+        />,
+      )
+      expect(screen.queryByRole('button', { name: 'Rollback' })).not.toBeInTheDocument()
+    },
+  )
 
   it('renders integration changes and missing organization metadata', () => {
     render(
