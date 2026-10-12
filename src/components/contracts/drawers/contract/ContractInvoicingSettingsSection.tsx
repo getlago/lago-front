@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
+import { buildInvoicingSettingsSummary } from '~/components/invoicingSettings/invoicingSettingsSummary'
 import { useInvoicingSettingsDrawer } from '~/components/invoicingSettings/useInvoicingSettingsDrawer'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -38,27 +39,16 @@ export const ContractInvoicingSettingsSection = ({
     },
   })
 
-  const summary = useMemo(() => {
-    const parts = [
-      translate(
-        consolidateInvoice ? 'text_1778745351091h7z5baw0ta6' : 'text_1778745351091fxaqr5dwok8',
-      ),
-    ]
-
-    if (showCustomSection) {
-      let icsKey = 'text_1782738644347svkr94bf4aw'
-
-      if (invoiceCustomSection.skipInvoiceCustomSections) {
-        icsKey = 'text_1782738644347z3azl4u1f15'
-      } else if (invoiceCustomSection.invoiceCustomSections.length) {
-        icsKey = 'text_1782738644347qh5s13lol1p'
-      }
-
-      parts.push(translate(icsKey))
-    }
-
-    return parts.join(' • ')
-  }, [consolidateInvoice, invoiceCustomSection, showCustomSection, translate])
+  const summary = useMemo(
+    () =>
+      buildInvoicingSettingsSummary({
+        consolidateInvoice,
+        invoiceCustomSection,
+        showCustomSection,
+        translate,
+      }),
+    [consolidateInvoice, invoiceCustomSection, showCustomSection, translate],
+  )
 
   return (
     <Selector
