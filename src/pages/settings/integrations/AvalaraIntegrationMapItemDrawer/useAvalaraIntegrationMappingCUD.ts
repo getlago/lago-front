@@ -21,6 +21,8 @@ export const useAvalaraIntegrationMappingCUD = (
       return ['getBillableMetricsForAvalaraItemsList']
     }
 
+    if (formType === MappableTypeEnum.Product) return ['getProductsForAvalaraItemsList']
+
     return ['getAvalaraIntegrationCollectionMappings']
   }
 

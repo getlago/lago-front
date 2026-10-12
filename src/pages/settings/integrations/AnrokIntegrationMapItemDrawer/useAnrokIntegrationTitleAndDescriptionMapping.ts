@@ -76,6 +76,18 @@ export const useAnrokIntegrationTitleAndDescriptionMapping = () => {
             integrationType: translate('text_6668821d94e4da4dfd8b3834'),
           }),
         }
+      case MappableTypeEnum.Product:
+        return {
+          title: translate('text_1791824479972csd47bqgz26', {
+            productName: isDefaultMappingInMappableContext(dataToTest)
+              ? dataToTest.itemMappings.default.lagoMappableName
+              : '',
+            integrationType: translate('text_6668821d94e4da4dfd8b3834'),
+          }),
+          description: translate('text_179182447997277lnl7262dw', {
+            integrationType: translate('text_6668821d94e4da4dfd8b3834'),
+          }),
+        }
       default:
         return { title: '', description: '' }
     }
