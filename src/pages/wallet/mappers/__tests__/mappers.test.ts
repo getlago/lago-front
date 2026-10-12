@@ -158,7 +158,7 @@ describe('mapFromApiToForm', () => {
         customerData,
         currency: CurrencyEnum.Usd,
       }).paymentTerm,
-    ).toEqual({ termType: PaymentTermTypeEnum.Net, days: 45, dayOfMonth: 1, monthOffset: 1 })
+    ).toEqual({ termType: PaymentTermTypeEnum.Net, days: '45', dayOfMonth: '1', monthOffset: '1' })
   })
 
   it('transforms recurring rules (nested paymentMethod/invoiceCustomSection, query-only fields dropped)', () => {

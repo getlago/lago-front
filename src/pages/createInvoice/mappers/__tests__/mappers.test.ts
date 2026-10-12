@@ -214,7 +214,7 @@ describe('mapFormToCreateInput', () => {
             paymentTerm: {
               ...paymentTermFormValuesFromTerm(null, true),
               termType: PaymentTermTypeEnum.NetEndOfMonth,
-              days: 15,
+              days: '15',
             },
           }),
           { hasTaxProvider: false },
