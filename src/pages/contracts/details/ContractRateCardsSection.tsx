@@ -70,11 +70,13 @@ gql`
 
 type ContractRateCardsSectionProps = {
   contractId: string
+  contractExternalId: string | undefined
   isRemovalLocked: boolean
 }
 
 export const ContractRateCardsSection = ({
   contractId,
+  contractExternalId,
   isRemovalLocked,
 }: ContractRateCardsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
@@ -130,7 +132,12 @@ export const ContractRateCardsSection = ({
         action={{
           label: translate('text_1789030049529b0zmy1slfxl'),
           dataTest: CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID,
-          onClick: () => openAppliedRateCardDrawer({ context: 'contract', contractId }),
+          disabled: !contractExternalId,
+          onClick: () => {
+            if (!contractExternalId) return
+
+            openAppliedRateCardDrawer({ context: 'contract', contractId, contractExternalId })
+          },
         }}
       />
 

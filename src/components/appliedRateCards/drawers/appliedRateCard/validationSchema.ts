@@ -56,6 +56,14 @@ export const buildAppliedRateCardFormSchema = () =>
 
     const lastPhase = values.ratePhases.at(-1)
 
+    if (values.ratePhases.slice(0, -1).some((phase) => phase.durationType === 'forever')) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['ratePhases'],
+        message: 'text_17918352599305ihwwvq7fyq',
+      })
+    }
+
     if (lastPhase && lastPhase.durationType !== 'forever') {
       ctx.addIssue({
         code: 'custom',

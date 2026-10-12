@@ -21,6 +21,8 @@ import { RatePhaseDrawerContent } from './RatePhaseDrawerContent'
 import {
   buildPhaseInput,
   buildRatePhaseFormSchema,
+  getInsertIndex,
+  getPositionDefaults,
   RATE_PHASE_FORM_DEFAULTS,
   RatePhaseFormSchemaContext,
   RatePhaseFormValues,
@@ -98,6 +100,8 @@ const mapRatePhaseFragmentToFormValues = (
   return {
     code: phase.code,
     name: phase.name || '',
+    positionMode: RATE_PHASE_FORM_DEFAULTS.positionMode,
+    positionReferenceCode: RATE_PHASE_FORM_DEFAULTS.positionReferenceCode,
     durationType: phase.billingIntervalCycleCount ? 'finite' : 'forever',
     durationCycleCount: phase.billingIntervalCycleCount
       ? String(phase.billingIntervalCycleCount)
@@ -129,7 +133,7 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
   const [updateContractRatePhase] = useUpdateContractRatePhaseMutation()
   const currentParams = useRef<RatePhaseDrawerProps | null>(null)
   const schemaContext = useRef<RatePhaseFormSchemaContext>({
-    isLastPosition: true,
+    otherPhases: [],
     billingTiming: RateCardBillingTimingEnum.Arrears,
     hasPricingUnit: false,
     rateModelConfiguration: undefined,
@@ -144,7 +148,7 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
 
       if (!params) return
 
-      const position = params.mode === 'create' ? params.position : params.phase.position
+      const position = getInsertIndex(value, params.otherPhases) + 1
       const phaseInput = buildPhaseInput({ ...value, position }, params.rateCard.currency)
 
       if (params.context === 'plan') {
@@ -162,6 +166,7 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
                 code: params.phase.code,
                 ...(value.code !== params.phase.code ? { newCode: value.code } : {}),
                 name: phaseInput.name,
+                position,
                 billingIntervalCycleCount: phaseInput.billingIntervalCycleCount,
                 rateOverride: value.overrideEnabled ? phaseInput.rateOverride : null,
               },
@@ -182,6 +187,7 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
               code: params.phase.code,
               ...(value.code !== params.phase.code ? { newCode: value.code } : {}),
               name: phaseInput.name,
+              position,
               billingIntervalCycleCount: phaseInput.billingIntervalCycleCount,
               rateOverride: value.overrideEnabled ? phaseInput.rateOverride : null,
             },
@@ -196,27 +202,36 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
   const openDrawer = (params: RatePhaseDrawerProps): void => {
     currentParams.current = params
     schemaContext.current = {
-      isLastPosition: params.isLastPosition,
+      otherPhases: params.otherPhases,
       billingTiming: params.rateCard.billingTiming,
       hasPricingUnit: !!params.rateCard.appliedPricingUnitCode,
       rateModelConfiguration: params.rateCard.rateModelConfiguration,
     }
 
-    const seed =
+    const seed: RatePhaseFormValues =
       params.mode === 'edit'
-        ? mapRatePhaseFragmentToFormValues(
-            params.phase,
-            params.rateCard.billingTiming,
-            params.rateCard.currency,
-          )
-        : undefined
+        ? {
+            ...mapRatePhaseFragmentToFormValues(
+              params.phase,
+              params.rateCard.billingTiming,
+              params.rateCard.currency,
+            ),
+            ...getPositionDefaults(params.otherPhases, params.phase.position - 1),
+          }
+        : {
+            ...RATE_PHASE_FORM_DEFAULTS,
+            ...getPositionDefaults(params.otherPhases),
+            durationType: params.otherPhases.length > 0 ? 'finite' : 'forever',
+          }
 
-    form.reset({ ...RATE_PHASE_FORM_DEFAULTS, ...seed }, { keepDefaultValues: true })
+    form.reset(seed, { keepDefaultValues: true })
+
+    const title = translate(
+      params.mode === 'edit' ? 'text_1791485670326gf0h0n6l1w7' : 'text_17914856703265og9agmiry1',
+    )
 
     void drawer.open({
-      title: translate(
-        params.mode === 'edit' ? 'text_1791485670326gf0h0n6l1w7' : 'text_17914856703265og9agmiry1',
-      ),
+      title,
       form: { id: RATE_PHASE_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
       shouldPromptOnClose: () => form.state.isDirty,
@@ -224,14 +239,19 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
       children: (
         <RatePhaseDrawerContent
           form={form}
-          isLastPosition={params.isLastPosition}
+          title={title}
+          otherPhases={params.otherPhases}
           rateCard={params.rateCard}
         />
       ),
       mainAction: (
         <form.AppForm>
           <form.SubmitButton dataTest="rate-phase-drawer-save">
-            {translate('text_1791485670326duemfhw3cbg')}
+            {translate(
+              params.mode === 'edit'
+                ? 'text_17295436903260tlyb1gp1i7'
+                : 'text_1791485670326duemfhw3cbg',
+            )}
           </form.SubmitButton>
         </form.AppForm>
       ),

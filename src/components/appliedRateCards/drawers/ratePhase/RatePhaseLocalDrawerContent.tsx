@@ -1,21 +1,30 @@
 import { withForm } from '~/hooks/forms/useAppform'
 
 import { RatePhaseFormFields } from './RatePhaseFormFields'
-import { RATE_PHASE_FORM_DEFAULTS } from './ratePhaseFormSchema'
+import { RATE_PHASE_FORM_DEFAULTS, RatePhaseReference } from './ratePhaseFormSchema'
 import { RateCardForRatePhaseFields } from './types'
 
 type RatePhaseLocalDrawerContentProps = {
-  isLastPosition: boolean
+  title: string
+  otherPhases: RatePhaseReference[]
   rateCard: RateCardForRatePhaseFields
 }
 
 export const RatePhaseLocalDrawerContent = withForm({
   defaultValues: RATE_PHASE_FORM_DEFAULTS,
   props: {
-    isLastPosition: true,
+    title: '',
+    otherPhases: [],
     rateCard: {} as RateCardForRatePhaseFields,
   } as RatePhaseLocalDrawerContentProps,
-  render: function RatePhaseLocalDrawerContentRender({ form, isLastPosition, rateCard }) {
-    return <RatePhaseFormFields form={form} isLastPosition={isLastPosition} rateCard={rateCard} />
+  render: function RatePhaseLocalDrawerContentRender({ form, title, otherPhases, rateCard }) {
+    return (
+      <RatePhaseFormFields
+        form={form}
+        title={title}
+        otherPhases={otherPhases}
+        rateCard={rateCard}
+      />
+    )
   },
 })

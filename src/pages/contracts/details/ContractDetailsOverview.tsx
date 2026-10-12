@@ -11,12 +11,14 @@ const isOverviewSection = (value?: string): value is ContractOverviewSectionsEnu
   Object.values(ContractOverviewSectionsEnum).includes(value as ContractOverviewSectionsEnum)
 
 type ContractDetailsOverviewProps = {
+  contractExternalId?: string
   rateCardsCount?: number
   loading?: boolean
   isRateCardRemovalLocked: boolean
 }
 
 export const ContractDetailsOverview = ({
+  contractExternalId,
   rateCardsCount,
   loading = false,
   isRateCardRemovalLocked,
@@ -28,7 +30,13 @@ export const ContractDetailsOverview = ({
 
   const renderSection = (): ReactNode => {
     if (activeSection === ContractOverviewSectionsEnum.rateCards) {
-      return <ContractRateCardsSection contractId={id} isRemovalLocked={isRateCardRemovalLocked} />
+      return (
+        <ContractRateCardsSection
+          contractId={id}
+          contractExternalId={contractExternalId}
+          isRemovalLocked={isRateCardRemovalLocked}
+        />
+      )
     }
 
     return <ContractOverviewSection />

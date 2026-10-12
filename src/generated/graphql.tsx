@@ -13277,7 +13277,7 @@ export type DestroyContractAppliedRateCardMutationVariables = Exact<{
 
 export type DestroyContractAppliedRateCardMutation = { __typename?: 'Mutation', destroyContractAppliedRateCard?: { __typename?: 'ContractAppliedRateCard', id: string } | null };
 
-export type ProductForAppliedRateCardDrawerFragment = { __typename?: 'Product', id: string, name: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null };
+export type ProductForAppliedRateCardDrawerFragment = { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null };
 
 export type GetProductsForAppliedRateCardDrawerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -13286,7 +13286,7 @@ export type GetProductsForAppliedRateCardDrawerQueryVariables = Exact<{
 }>;
 
 
-export type GetProductsForAppliedRateCardDrawerQuery = { __typename?: 'Query', products: { __typename?: 'ProductCollection', collection: Array<{ __typename?: 'Product', id: string, code: string, name: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
+export type GetProductsForAppliedRateCardDrawerQuery = { __typename?: 'Query', products: { __typename?: 'ProductCollection', collection: Array<{ __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
 
 export type GetProductFiltersForAppliedRateCardDrawerQueryVariables = Exact<{
   productId?: InputMaybe<Scalars['ID']['input']>;
@@ -13312,14 +13312,14 @@ export type CreatePlanAppliedRateCardMutationVariables = Exact<{
 }>;
 
 
-export type CreatePlanAppliedRateCardMutation = { __typename?: 'Mutation', createPlanAppliedRateCard?: { __typename?: 'PlanAppliedRateCard', id: string } | null };
+export type CreatePlanAppliedRateCardMutation = { __typename?: 'Mutation', createPlanAppliedRateCard?: { __typename?: 'PlanAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, name: string } } | null };
 
 export type CreateContractAppliedRateCardMutationVariables = Exact<{
   input: CreateContractAppliedRateCardInput;
 }>;
 
 
-export type CreateContractAppliedRateCardMutation = { __typename?: 'Mutation', createContractAppliedRateCard?: { __typename?: 'ContractAppliedRateCard', id: string } | null };
+export type CreateContractAppliedRateCardMutation = { __typename?: 'Mutation', createContractAppliedRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, name: string } } | null };
 
 export type RatePhaseForDrawerFragment = { __typename?: 'RatePhase', id: string, code: string, name?: string | null, position: number, billingIntervalCycleCount?: number | null, rateOverride?: { __typename?: 'RateOverride', rateModel: RateCardRateModelEnum, billingIntervalCount?: number | null, billingIntervalUnit?: RateCardRateBillingIntervalUnitEnum | null, minAmountCents: any, pricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null };
 
@@ -19669,7 +19669,15 @@ export const ProductForAppliedRateCardDrawerFragmentDoc = gql`
     fragment ProductForAppliedRateCardDrawer on Product {
   id
   name
+  code
+  invoiceDisplayName
   productType
+  productCategory {
+    id
+    name
+    code
+    invoiceDisplayName
+  }
   billableMetric {
     id
     aggregationType
@@ -27926,6 +27934,10 @@ export const CreatePlanAppliedRateCardDocument = gql`
     mutation createPlanAppliedRateCard($input: CreatePlanAppliedRateCardInput!) {
   createPlanAppliedRateCard(input: $input) {
     id
+    rateCard {
+      id
+      name
+    }
   }
 }
     `;
@@ -27959,6 +27971,10 @@ export const CreateContractAppliedRateCardDocument = gql`
     mutation createContractAppliedRateCard($input: CreateContractAppliedRateCardInput!) {
   createContractAppliedRateCard(input: $input) {
     id
+    rateCard {
+      id
+      name
+    }
   }
 }
     `;

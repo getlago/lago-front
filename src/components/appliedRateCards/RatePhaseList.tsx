@@ -16,7 +16,7 @@ type RatePhaseListProps =
   | {
       variant: 'accordion'
       phases: LocalRatePhase[]
-      activeRate: ActiveRateForDiff
+      activeRate: ActiveRateForDiff | null
       onEdit: (index: number) => void
       onRemove: (index: number) => void
     }
@@ -54,16 +54,19 @@ const AccordionRatePhaseList = ({
   return (
     <div className="flex flex-col gap-2">
       {phases.map((phase, index) => {
-        const overriddenFields: Set<OverrideDiffField> = phase.overrideEnabled
-          ? getOverriddenFields(activeRate, {
-              rateModel: phase.rateModel,
-              rateProperties: phase.properties,
-              billingIntervalCount: Number(phase.overrideBillingIntervalCount),
-              billingIntervalUnit: phase.overrideBillingIntervalUnit,
-              minAmountCents: Number(phase.minAmountCents),
-              pricingUnitConversionRate: phase.conversionRate ? Number(phase.conversionRate) : null,
-            })
-          : new Set()
+        const overriddenFields: Set<OverrideDiffField> =
+          phase.overrideEnabled && activeRate
+            ? getOverriddenFields(activeRate, {
+                rateModel: phase.rateModel,
+                rateProperties: phase.properties,
+                billingIntervalCount: Number(phase.overrideBillingIntervalCount),
+                billingIntervalUnit: phase.overrideBillingIntervalUnit,
+                minAmountCents: Number(phase.minAmountCents),
+                pricingUnitConversionRate: phase.conversionRate
+                  ? Number(phase.conversionRate)
+                  : null,
+              })
+            : new Set()
 
         return (
           <Accordion

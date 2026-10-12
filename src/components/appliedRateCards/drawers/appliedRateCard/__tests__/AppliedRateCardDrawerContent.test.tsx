@@ -9,6 +9,7 @@ import {
   GetProductFiltersForAppliedRateCardDrawerDocument,
   GetProductsForAppliedRateCardDrawerDocument,
   GetRateCardsForAppliedRateCardDrawerDocument,
+  ProductForAppliedRateCardDrawerFragment,
   ProductTypeEnum,
   RateCardBillingTimingEnum,
   RateCardRateBillingIntervalUnitEnum,
@@ -19,8 +20,11 @@ import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import {
   APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID,
+  APPLIED_RATE_CARD_DRAWER_PHASES_EMPTY_STATE_TEST_ID,
   APPLIED_RATE_CARD_DRAWER_PRODUCT_FILTER_TEST_ID,
+  APPLIED_RATE_CARD_DRAWER_PRODUCT_TEST_ID,
   APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID,
+  APPLIED_RATE_CARD_DRAWER_REMOVE_FILTER_TEST_ID,
   APPLIED_RATE_CARD_DRAWER_SHOW_FILTER_TEST_ID,
   AppliedRateCardDrawerContent,
 } from '../AppliedRateCardDrawerContent'
@@ -46,17 +50,32 @@ jest.mock('~/components/appliedRateCards/drawers/ratePhase/useRatePhaseLocalDraw
   useRatePhaseLocalDrawer: () => ({ openDrawer: mockOpenRatePhaseLocalDrawer }),
 }))
 
-const PRODUCT = {
+const PRODUCT: ProductForAppliedRateCardDrawerFragment = {
   __typename: 'Product',
   id: 'product-1',
   code: 'prod-1',
   name: 'Metered API',
+  invoiceDisplayName: null,
   productType: ProductTypeEnum.Metered,
+  productCategory: null,
   billableMetric: {
     __typename: 'BillableMetric',
     id: 'bm-1',
     aggregationType: AggregationTypeEnum.SumAgg,
     recurring: false,
+  },
+}
+const CATEGORIZED_PRODUCT: ProductForAppliedRateCardDrawerFragment = {
+  ...PRODUCT,
+  id: 'product-2',
+  code: 'prod-2',
+  name: 'Storage',
+  productCategory: {
+    __typename: 'ProductCategory',
+    id: 'category-1',
+    name: 'Infrastructure',
+    code: 'infra',
+    invoiceDisplayName: null,
   },
 }
 const PRODUCT_FILTER = {
@@ -83,7 +102,7 @@ type RateCardFixture = {
     billingIntervalUnit: RateCardRateBillingIntervalUnitEnum
     minAmountCents: number
     appliedPricingUnitConversionRate: number | null
-  }
+  } | null
 }
 
 const RATE_CARD: RateCardFixture = {
@@ -106,14 +125,16 @@ const RATE_CARD: RateCardFixture = {
   },
 }
 
-const productsMock = (): MockedResponse => ({
+const productsMock = (
+  collection: ProductForAppliedRateCardDrawerFragment[] = [PRODUCT],
+): MockedResponse => ({
   request: {
     query: GetProductsForAppliedRateCardDrawerDocument,
     variables: { page: 1, limit: 20 },
   },
   maxUsageCount: Number.POSITIVE_INFINITY,
   result: {
-    data: { products: { collection: [PRODUCT], metadata: { currentPage: 1, totalPages: 1 } } },
+    data: { products: { collection, metadata: { currentPage: 1, totalPages: 1 } } },
   },
 })
 
@@ -141,8 +162,10 @@ const rateCardsMock = (
 })
 
 const RATE_CARD_ID_PROBE_TEST_ID = 'rate-card-id-probe'
+const PRODUCT_FILTER_ID_PROBE_TEST_ID = 'product-filter-id-probe'
 const CURRENCY_PROBE_TEST_ID = 'currency-probe'
 const RATE_PHASES_LENGTH_PROBE_TEST_ID = 'rate-phases-length-probe'
+const RATE_PHASE_CODES_PROBE_TEST_ID = 'rate-phase-codes-probe'
 
 const Host = ({ context = 'plan' }: { context?: 'plan' | 'contract' }): JSX.Element => {
   const form = useAppForm({ defaultValues: APPLIED_RATE_CARD_FORM_DEFAULTS })
@@ -155,11 +178,21 @@ const Host = ({ context = 'plan' }: { context?: 'plan' | 'contract' }): JSX.Elem
       <form.Subscribe selector={(state) => state.values.rateCardId}>
         {(rateCardId) => <output data-test={RATE_CARD_ID_PROBE_TEST_ID}>{rateCardId}</output>}
       </form.Subscribe>
+      <form.Subscribe selector={(state) => state.values.productFilterId}>
+        {(productFilterId) => (
+          <output data-test={PRODUCT_FILTER_ID_PROBE_TEST_ID}>{productFilterId}</output>
+        )}
+      </form.Subscribe>
       <form.Subscribe selector={(state) => state.values.currency}>
         {(currency) => <output data-test={CURRENCY_PROBE_TEST_ID}>{currency}</output>}
       </form.Subscribe>
       <form.Subscribe selector={(state) => state.values.ratePhases.length}>
         {(length) => <output data-test={RATE_PHASES_LENGTH_PROBE_TEST_ID}>{length}</output>}
+      </form.Subscribe>
+      <form.Subscribe
+        selector={(state) => state.values.ratePhases.map((phase) => phase.code).join(',')}
+      >
+        {(codes) => <output data-test={RATE_PHASE_CODES_PROBE_TEST_ID}>{codes}</output>}
       </form.Subscribe>
       <AppliedRateCardDrawerContent
         form={form}
@@ -227,6 +260,53 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
     await userEvent.click(await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_SHOW_FILTER_TEST_ID))
 
     expect(screen.getByTestId(APPLIED_RATE_CARD_DRAWER_PRODUCT_FILTER_TEST_ID)).toBeInTheDocument()
+  })
+
+  it('GIVEN a product filter is picked AND its trash is clicked THEN the filter combobox hides and productFilterId resets', async () => {
+    renderContent([productsMock(), productFiltersMock(), rateCardsMock(() => undefined)])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+    await userEvent.click(await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_SHOW_FILTER_TEST_ID))
+
+    const filterInput = screen
+      .getByTestId(APPLIED_RATE_CARD_DRAWER_PRODUCT_FILTER_TEST_ID)
+      .querySelector('input') as HTMLInputElement
+
+    await userEvent.click(filterInput)
+    await userEvent.type(filterInput, 'EU')
+    await userEvent.click(await screen.findByText(PRODUCT_FILTER.name))
+
+    await waitFor(() =>
+      expect(screen.getByTestId(PRODUCT_FILTER_ID_PROBE_TEST_ID)).toHaveTextContent(
+        PRODUCT_FILTER.id,
+      ),
+    )
+
+    await userEvent.click(screen.getByTestId(APPLIED_RATE_CARD_DRAWER_REMOVE_FILTER_TEST_ID))
+
+    expect(
+      screen.queryByTestId(APPLIED_RATE_CARD_DRAWER_PRODUCT_FILTER_TEST_ID),
+    ).not.toBeInTheDocument()
+    expect(screen.getByTestId(APPLIED_RATE_CARD_DRAWER_SHOW_FILTER_TEST_ID)).toBeInTheDocument()
+    expect(screen.getByTestId(PRODUCT_FILTER_ID_PROBE_TEST_ID)).toBeEmptyDOMElement()
+  })
+
+  it('GIVEN products with and without a category THEN the options are grouped under a category header and a standalone header', async () => {
+    renderContent([productsMock([PRODUCT, CATEGORIZED_PRODUCT])])
+
+    const productInput = screen
+      .getByTestId(APPLIED_RATE_CARD_DRAWER_PRODUCT_TEST_ID)
+      .querySelector('input') as HTMLInputElement
+
+    await userEvent.click(productInput)
+
+    expect(await screen.findByText('Infrastructure')).toBeInTheDocument()
+    expect(screen.getByText('infra')).toBeInTheDocument()
+    expect(screen.getByText('No product category attached')).toBeInTheDocument()
+
+    await userEvent.click(screen.getByText(CATEGORIZED_PRODUCT.name))
+
+    expect(productInput).toHaveValue('Storage from Infrastructure')
   })
 
   it('GIVEN both product and product filter are selected THEN the rate-card query includes both ids', async () => {
@@ -310,15 +390,49 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     jest.clearAllMocks()
   })
 
-  it('GIVEN no rate card selected THEN the rate phase section does not render', async () => {
+  it('GIVEN a product but no rate card selected THEN the phases empty state renders without the add action', async () => {
     renderContent([productsMock(), rateCardsMock(() => undefined, [])])
 
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
 
+    expect(
+      await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_PHASES_EMPTY_STATE_TEST_ID),
+    ).toBeInTheDocument()
     expect(screen.queryByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID)).not.toBeInTheDocument()
   })
 
-  it('GIVEN a rate card selected AND "Add phase" clicked THEN the local rate-phase drawer opens with isLastPosition true', async () => {
+  it('GIVEN a rate card without an active rate THEN the add action still renders', async () => {
+    renderContent([
+      productsMock(),
+      rateCardsMock(() => undefined, [{ ...RATE_CARD, activeRate: null }]),
+    ])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+    await selectRateCard()
+
+    expect(
+      await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByTestId(APPLIED_RATE_CARD_DRAWER_PHASES_EMPTY_STATE_TEST_ID),
+    ).not.toBeInTheDocument()
+  })
+
+  it('GIVEN a rate card selected THEN the phases empty state is replaced by the add action', async () => {
+    renderContent([productsMock(), rateCardsMock(() => undefined)])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+    await selectRateCard()
+
+    expect(
+      await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByTestId(APPLIED_RATE_CARD_DRAWER_PHASES_EMPTY_STATE_TEST_ID),
+    ).not.toBeInTheDocument()
+  })
+
+  it('GIVEN a rate card selected AND "Add a phase" clicked THEN the local rate-phase drawer opens with the current phases as positions', async () => {
     renderContent([productsMock(), rateCardsMock(() => undefined)])
 
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
@@ -327,7 +441,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     await userEvent.click(await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID))
 
     expect(mockOpenRatePhaseLocalDrawer).toHaveBeenCalledWith(
-      expect.objectContaining({ isLastPosition: true, onSave: expect.any(Function) }),
+      expect.objectContaining({ otherPhases: [], onSave: expect.any(Function) }),
     )
   })
 
@@ -347,6 +461,107 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
       expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('1'),
     )
     expect(screen.getByText('Phase 1')).toBeInTheDocument()
+  })
+
+  it('GIVEN a phase saved before an existing one THEN it is inserted at that position', async () => {
+    renderContent([productsMock(), rateCardsMock(() => undefined)])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+    await selectRateCard()
+
+    await userEvent.click(await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID))
+    mockOpenRatePhaseLocalDrawer.mock.calls
+      .at(-1)?.[0]
+      ?.onSave({ code: 'standard', name: 'Standard', durationType: 'forever' }, {})
+
+    await waitFor(() =>
+      expect(screen.getByTestId(RATE_PHASE_CODES_PROBE_TEST_ID)).toHaveTextContent('standard'),
+    )
+
+    await userEvent.click(screen.getByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID))
+
+    const { otherPhases, onSave } = mockOpenRatePhaseLocalDrawer.mock.calls.at(-1)?.[0] ?? {}
+
+    expect(otherPhases).toEqual([{ code: 'standard', name: 'Standard' }])
+
+    onSave(
+      {
+        code: 'trial',
+        name: 'Trial',
+        positionMode: 'before',
+        positionReferenceCode: 'standard',
+        durationType: 'finite',
+        durationCycleCount: '1',
+      },
+      {},
+    )
+
+    await waitFor(() =>
+      expect(screen.getByTestId(RATE_PHASE_CODES_PROBE_TEST_ID)).toHaveTextContent(
+        'trial,standard',
+      ),
+    )
+  })
+
+  it('GIVEN a forever phase is not the last one THEN the only-last-forever warning renders', async () => {
+    renderContent([productsMock(), rateCardsMock(() => undefined)])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+    await selectRateCard()
+
+    await userEvent.click(await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID))
+    mockOpenRatePhaseLocalDrawer.mock.calls
+      .at(-1)?.[0]
+      ?.onSave({ code: 'standard', name: 'Standard', durationType: 'forever' }, {})
+    await waitFor(() =>
+      expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('1'),
+    )
+
+    await userEvent.click(screen.getByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID))
+    mockOpenRatePhaseLocalDrawer.mock.calls.at(-1)?.[0]?.onSave(
+      {
+        code: 'extra',
+        name: 'Extra',
+        positionMode: 'after',
+        positionReferenceCode: 'standard',
+        durationType: 'forever',
+      },
+      {},
+    )
+
+    expect(
+      await screen.findByText(
+        'Only the last phase can run forever. Set a duration on the other phases to continue.',
+      ),
+    ).toBeInTheDocument()
+  })
+
+  it('GIVEN the product changes through the combobox THEN the rate card and phases reset', async () => {
+    renderContent([productsMock([PRODUCT, CATEGORIZED_PRODUCT]), rateCardsMock(() => undefined)])
+
+    const productInput = screen
+      .getByTestId(APPLIED_RATE_CARD_DRAWER_PRODUCT_TEST_ID)
+      .querySelector('input') as HTMLInputElement
+
+    await userEvent.click(productInput)
+    await userEvent.click(await screen.findByText(PRODUCT.name))
+    await selectRateCard()
+
+    await userEvent.click(await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID))
+    mockOpenRatePhaseLocalDrawer.mock.calls
+      .at(-1)?.[0]
+      ?.onSave({ code: 'standard', name: 'Standard', durationType: 'forever' }, {})
+    await waitFor(() =>
+      expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('1'),
+    )
+
+    await userEvent.click(productInput)
+    await userEvent.click(await screen.findByText(CATEGORIZED_PRODUCT.name))
+
+    await waitFor(() =>
+      expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('0'),
+    )
+    expect(screen.getByTestId(RATE_CARD_ID_PROBE_TEST_ID)).toBeEmptyDOMElement()
   })
 
   it("GIVEN the local array's last phase is finite THEN the warning alert renders", async () => {
@@ -436,14 +651,20 @@ describe('AppliedRateCardDrawerContent, contract-only billing anchor date', () =
     jest.clearAllMocks()
   })
 
-  it('GIVEN context contract THEN the billing anchor date field renders', () => {
-    renderContent([productsMock()], 'contract')
+  it('GIVEN context contract THEN the billing anchor date field renders only once a product is picked', async () => {
+    renderContent([productsMock(), rateCardsMock(() => undefined)], 'contract')
 
-    expect(screen.getByText('Billing anchor date')).toBeInTheDocument()
+    expect(screen.queryByText('Billing anchor date')).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+
+    expect(await screen.findByText('Billing anchor date')).toBeInTheDocument()
   })
 
-  it('GIVEN context plan THEN the billing anchor date field does not render', () => {
-    renderContent([productsMock()], 'plan')
+  it('GIVEN context plan THEN the billing anchor date field does not render', async () => {
+    renderContent([productsMock(), rateCardsMock(() => undefined)], 'plan')
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
 
     expect(screen.queryByText('Billing anchor date')).not.toBeInTheDocument()
   })

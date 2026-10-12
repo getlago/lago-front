@@ -8,9 +8,11 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 
 import {
   buildRatePhaseFormSchema,
+  getPositionDefaults,
   RATE_PHASE_FORM_DEFAULTS,
   RatePhaseFormSchemaContext,
   RatePhaseFormValues,
+  RatePhaseReference,
 } from './ratePhaseFormSchema'
 import { RatePhaseLocalDrawerContent } from './RatePhaseLocalDrawerContent'
 import { RateCardForRatePhaseFields } from './types'
@@ -19,7 +21,7 @@ const RATE_PHASE_LOCAL_FORM_ID = 'rate-phase-local-drawer-form'
 
 export type OpenRatePhaseLocalDrawerArgs = {
   rateCard: RateCardForRatePhaseFields
-  isLastPosition: boolean
+  otherPhases: RatePhaseReference[]
   onSave: (values: RatePhaseFormValues, opts: { replaceIndex?: number }) => void
   phase?: RatePhaseFormValues
   replaceIndex?: number
@@ -32,7 +34,7 @@ export const useRatePhaseLocalDrawer = (): {
   const drawer = useFormDrawer()
   const currentArgs = useRef<OpenRatePhaseLocalDrawerArgs | null>(null)
   const schemaContext = useRef<RatePhaseFormSchemaContext>({
-    isLastPosition: true,
+    otherPhases: [],
     billingTiming: RateCardBillingTimingEnum.Arrears,
     hasPricingUnit: false,
     rateModelConfiguration: undefined,
@@ -55,17 +57,31 @@ export const useRatePhaseLocalDrawer = (): {
   const openDrawer = (args: OpenRatePhaseLocalDrawerArgs): void => {
     currentArgs.current = args
     schemaContext.current = {
-      isLastPosition: args.isLastPosition,
+      otherPhases: args.otherPhases,
       billingTiming: args.rateCard.billingTiming,
       hasPricingUnit: !!args.rateCard.appliedPricingUnitCode,
       rateModelConfiguration: args.rateCard.rateModelConfiguration,
     }
-    form.reset({ ...RATE_PHASE_FORM_DEFAULTS, ...args.phase }, { keepDefaultValues: true })
+    const seed: RatePhaseFormValues = args.phase
+      ? {
+          ...RATE_PHASE_FORM_DEFAULTS,
+          ...args.phase,
+          ...getPositionDefaults(args.otherPhases, args.replaceIndex),
+        }
+      : {
+          ...RATE_PHASE_FORM_DEFAULTS,
+          ...getPositionDefaults(args.otherPhases),
+          durationType: args.otherPhases.length > 0 ? 'finite' : 'forever',
+        }
+
+    form.reset(seed, { keepDefaultValues: true })
+
+    const title = translate(
+      args.phase ? 'text_1791485670326gf0h0n6l1w7' : 'text_17914856703265og9agmiry1',
+    )
 
     void drawer.open({
-      title: translate(
-        args.phase ? 'text_1791485670326gf0h0n6l1w7' : 'text_17914856703265og9agmiry1',
-      ),
+      title,
       form: { id: RATE_PHASE_LOCAL_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
       shouldPromptOnClose: () => form.state.isDirty,
@@ -73,14 +89,17 @@ export const useRatePhaseLocalDrawer = (): {
       children: (
         <RatePhaseLocalDrawerContent
           form={form}
-          isLastPosition={args.isLastPosition}
+          title={title}
+          otherPhases={args.otherPhases}
           rateCard={args.rateCard}
         />
       ),
       mainAction: (
         <form.AppForm>
           <form.SubmitButton dataTest="rate-phase-local-drawer-save">
-            {translate('text_1791485670326duemfhw3cbg')}
+            {translate(
+              args.phase ? 'text_17295436903260tlyb1gp1i7' : 'text_1791485670326duemfhw3cbg',
+            )}
           </form.SubmitButton>
         </form.AppForm>
       ),

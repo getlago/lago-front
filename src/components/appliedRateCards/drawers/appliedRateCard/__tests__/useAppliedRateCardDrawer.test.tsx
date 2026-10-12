@@ -41,6 +41,11 @@ jest.mock('~/core/router', () => ({
   useNavigate: () => mockNavigate,
 }))
 
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useParams: () => ({ organizationSlug: 'acme' }),
+}))
+
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
   addToast: jest.fn(),
@@ -91,7 +96,14 @@ const createPlanAppliedRateCardMock = (
     captureInput(vars?.input)
     return true
   },
-  result: { data: { createPlanAppliedRateCard: { id: 'applied-rc-1' } } },
+  result: {
+    data: {
+      createPlanAppliedRateCard: {
+        id: 'applied-rc-1',
+        rateCard: { id: 'rc-1', name: 'Standard card' },
+      },
+    },
+  },
 })
 
 const createContractAppliedRateCardMock = (
@@ -102,7 +114,14 @@ const createContractAppliedRateCardMock = (
     captureInput(vars?.input)
     return true
   },
-  result: { data: { createContractAppliedRateCard: { id: 'applied-rc-2' } } },
+  result: {
+    data: {
+      createContractAppliedRateCard: {
+        id: 'applied-rc-2',
+        rateCard: { id: 'rc-1', name: 'Standard card' },
+      },
+    },
+  },
 })
 
 const renderDrawerHook = (mocks: MockedResponse[] = []) =>
@@ -154,13 +173,21 @@ describe('useAppliedRateCardDrawer', () => {
     expect(capturedInput).not.toHaveProperty('ratePhases')
   })
 
-  it('GIVEN context contract THEN the billing anchor date field renders and submitting includes billingAnchorDate', async () => {
+  // Regression: the route's internal contract id was sent, and the backend looks contracts up
+  // by external id.
+  it('GIVEN context contract THEN submitting sends the contract external id and billingAnchorDate', async () => {
     let capturedInput: Record<string, unknown> = {}
     const { result } = renderDrawerHook([
       createContractAppliedRateCardMock((input) => (capturedInput = input)),
     ])
 
-    act(() => result.current.openDrawer({ context: 'contract', contractId: 'contract-1' }))
+    act(() =>
+      result.current.openDrawer({
+        context: 'contract',
+        contractId: 'contract-1',
+        contractExternalId: 'contract-ext-1',
+      }),
+    )
     renderDrawerBody()
 
     expect(screen.getByTestId('context-probe')).toHaveTextContent('contract')
@@ -172,7 +199,7 @@ describe('useAppliedRateCardDrawer', () => {
     await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
 
     expect(capturedInput).toMatchObject({
-      externalId: 'contract-1',
+      externalId: 'contract-ext-1',
       rateCardCode: 'standard-card',
       billingAnchorDate: '2026-01-01',
     })
@@ -181,7 +208,13 @@ describe('useAppliedRateCardDrawer', () => {
   it('GIVEN context contract THEN no effective date field renders anywhere in the drawer', async () => {
     const { result } = renderDrawerHook()
 
-    act(() => result.current.openDrawer({ context: 'contract', contractId: 'contract-1' }))
+    act(() =>
+      result.current.openDrawer({
+        context: 'contract',
+        contractId: 'contract-1',
+        contractExternalId: 'contract-ext-1',
+      }),
+    )
     renderDrawerBody()
 
     expect(screen.queryByText(/effective date/i)).not.toBeInTheDocument()
@@ -204,6 +237,13 @@ describe('useAppliedRateCardDrawer', () => {
 
     await waitFor(() =>
       expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' })),
+    )
+    expect(addToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringContaining(
+          'Standard card|/acme/plan-pricing/plan-1/rate-cards/applied-rc-1',
+        ),
+      }),
     )
     expect(capturedInput).toMatchObject({ rateCardCode: 'standard-card' })
     expect(mockClose).not.toHaveBeenCalled()

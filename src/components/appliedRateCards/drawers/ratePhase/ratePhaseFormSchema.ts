@@ -23,9 +23,15 @@ import {
 
 export type DurationType = 'finite' | 'forever'
 
+export type PositionMode = 'before' | 'after'
+
+export type RatePhaseReference = { code: string; name: string }
+
 export interface RatePhaseFormValues {
   code: string
   name: string
+  positionMode: PositionMode | ''
+  positionReferenceCode: string
   durationType: DurationType
   durationCycleCount: string
   overrideEnabled: boolean
@@ -40,6 +46,8 @@ export interface RatePhaseFormValues {
 export const RATE_PHASE_FORM_DEFAULTS: RatePhaseFormValues = {
   code: '',
   name: '',
+  positionMode: '',
+  positionReferenceCode: '',
   durationType: 'forever',
   durationCycleCount: '',
   overrideEnabled: false,
@@ -52,10 +60,47 @@ export const RATE_PHASE_FORM_DEFAULTS: RatePhaseFormValues = {
 }
 
 export interface RatePhaseFormSchemaContext {
-  isLastPosition: boolean
+  otherPhases: RatePhaseReference[]
   billingTiming: RateCardBillingTimingEnum
   hasPricingUnit: boolean
   rateModelConfiguration: RateModelConfiguration | undefined
+}
+
+type PositionValues = Pick<RatePhaseFormValues, 'positionMode' | 'positionReferenceCode'>
+
+export const isPlacedLast = (values: PositionValues, otherPhases: RatePhaseReference[]): boolean =>
+  otherPhases.length === 0 ||
+  (values.positionMode === 'after' && values.positionReferenceCode === otherPhases.at(-1)?.code)
+
+export const getInsertIndex = (
+  values: PositionValues,
+  otherPhases: RatePhaseReference[],
+): number => {
+  const referenceIndex = otherPhases.findIndex(
+    (phase) => phase.code === values.positionReferenceCode,
+  )
+
+  if (referenceIndex === -1) return otherPhases.length
+
+  return values.positionMode === 'after' ? referenceIndex + 1 : referenceIndex
+}
+
+// A new phase defaults to just before the current last one, which runs forever.
+export const getPositionDefaults = (
+  otherPhases: RatePhaseReference[],
+  editedIndex?: number,
+): PositionValues => {
+  if (otherPhases.length === 0) return { positionMode: '', positionReferenceCode: '' }
+
+  if (editedIndex === undefined) {
+    return { positionMode: 'before', positionReferenceCode: otherPhases.at(-1)?.code ?? '' }
+  }
+
+  if (editedIndex === 0) {
+    return { positionMode: 'before', positionReferenceCode: otherPhases[0].code }
+  }
+
+  return { positionMode: 'after', positionReferenceCode: otherPhases[editedIndex - 1].code }
 }
 
 // No explicit return type: `z.ZodType<RatePhaseFormValues>` widens the input generic to
@@ -68,21 +113,33 @@ export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaCo
 
     if (!values.code) {
       ctx.addIssue({ code: 'custom', path: ['code'], message: 'text_1771342994699klxu2paz7g8' })
+    } else if (context.otherPhases.some((phase) => phase.code === values.code)) {
+      ctx.addIssue({ code: 'custom', path: ['code'], message: 'text_1791835259930kkfcgn2aa50' })
     }
 
-    if (context.isLastPosition && values.durationType !== 'forever') {
+    if (context.otherPhases.length > 0) {
+      if (!values.positionMode) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['positionMode'],
+          message: 'text_1771342994699klxu2paz7g8',
+        })
+      }
+
+      if (!context.otherPhases.some((phase) => phase.code === values.positionReferenceCode)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['positionReferenceCode'],
+          message: 'text_1771342994699klxu2paz7g8',
+        })
+      }
+    }
+
+    if (values.durationType === 'forever' && !isPlacedLast(values, context.otherPhases)) {
       ctx.addIssue({
         code: 'custom',
         path: ['durationType'],
-        message: 'text_17914856703265q2q10b1hry',
-      })
-    }
-
-    if (!context.isLastPosition && values.durationType !== 'finite') {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['durationType'],
-        message: 'text_17914856703265q2q10b1hry',
+        message: 'text_17918352599305ihwwvq7fyq',
       })
     }
 

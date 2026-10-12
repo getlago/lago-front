@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { generatePath } from 'react-router'
+import { generatePath, useParams } from 'react-router'
 
 import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
@@ -11,6 +11,8 @@ import { addToast } from '~/core/apolloClient'
 import { useNavigate } from '~/core/router'
 import { CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE } from '~/core/router/CatalogRoutes'
 import { CONTRACT_RATE_CARD_DETAILS_ROUTE } from '~/core/router/ObjectsRoutes'
+import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
+import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
 import {
   useCreateContractAppliedRateCardMutation,
   useCreatePlanAppliedRateCardMutation,
@@ -31,12 +33,20 @@ gql`
   mutation createPlanAppliedRateCard($input: CreatePlanAppliedRateCardInput!) {
     createPlanAppliedRateCard(input: $input) {
       id
+      rateCard {
+        id
+        name
+      }
     }
   }
 
   mutation createContractAppliedRateCard($input: CreateContractAppliedRateCardInput!) {
     createContractAppliedRateCard(input: $input) {
       id
+      rateCard {
+        id
+        name
+      }
     }
   }
 `
@@ -44,13 +54,15 @@ gql`
 const APPLIED_RATE_CARD_FORM_ID = 'applied-rate-card-drawer-form'
 
 export type AppliedRateCardDrawerProps =
-  { context: 'plan'; planId: string } | { context: 'contract'; contractId: string }
+  | { context: 'plan'; planId: string }
+  | { context: 'contract'; contractId: string; contractExternalId: string }
 
 export const useAppliedRateCardDrawer = (): {
   openDrawer: (props: AppliedRateCardDrawerProps) => void
 } => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const { organizationSlug } = useParams()
   const drawer = useFormDrawer()
   const { openDrawer: openRateCardDrawer } = useRateCardDrawer()
   const { createMoreControl, isCreateMoreEnabled, resetCreateMore, resetSignal, notifyReset } =
@@ -68,33 +80,35 @@ export const useAppliedRateCardDrawer = (): {
 
       if (!props) return
 
-      let createdId: string | null | undefined
+      let created: { id: string; rateCard: { name: string } } | null | undefined
 
       if (props.context === 'plan') {
         const result = await createPlanAppliedRateCard({
           variables: { input: buildCreatePlanAppliedRateCardInput(value, props.planId) },
         })
 
-        createdId = result.data?.createPlanAppliedRateCard?.id
+        created = result.data?.createPlanAppliedRateCard
       } else {
         const result = await createContractAppliedRateCard({
-          variables: { input: buildCreateContractAppliedRateCardInput(value, props.contractId) },
+          variables: {
+            input: buildCreateContractAppliedRateCardInput(value, props.contractExternalId),
+          },
         })
 
-        createdId = result.data?.createContractAppliedRateCard?.id
+        created = result.data?.createContractAppliedRateCard
       }
 
-      if (!createdId) return
+      if (!created) return
 
       const path =
         props.context === 'plan'
           ? generatePath(CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE, {
               catalogPlanId: props.planId,
-              appliedRateCardId: createdId,
+              appliedRateCardId: created.id,
             })
           : generatePath(CONTRACT_RATE_CARD_DETAILS_ROUTE, {
               id: props.contractId,
-              appliedRateCardId: createdId,
+              appliedRateCardId: created.id,
             })
 
       if (isCreateMoreEnabled()) {
@@ -102,7 +116,10 @@ export const useAppliedRateCardDrawer = (): {
         notifyReset()
         addToast({
           severity: 'success',
-          message: translate('text_1791485670326zpgh4ogfe6t', { rateCardUrl: path }),
+          message: translate('text_1791485670326zpgh4ogfe6t', {
+            rateCardName: escapeDoubleQuotes(created.rateCard.name),
+            rateCardUrl: prependOrgSlug(path, organizationSlug),
+          }),
         })
         return
       }
@@ -119,7 +136,7 @@ export const useAppliedRateCardDrawer = (): {
     form.reset(APPLIED_RATE_CARD_FORM_DEFAULTS)
 
     void drawer.open({
-      title: translate('text_1789030049529b0zmy1slfxl'),
+      title: translate('text_1791833366840i00h4qnyjbw'),
       form: { id: APPLIED_RATE_CARD_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
       onEntered: focusFirstInput,

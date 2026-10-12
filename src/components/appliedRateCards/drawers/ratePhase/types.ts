@@ -6,6 +6,8 @@ import {
 } from '~/generated/graphql'
 import { RateModelConfiguration } from '~/pages/catalog/utils/rateModelAvailability'
 
+import { RatePhaseReference } from './ratePhaseFormSchema'
+
 export type RateCardForRatePhaseFields = {
   productType: ProductTypeEnum
   currency: CurrencyEnum
@@ -19,15 +21,14 @@ export type RatePhaseDrawerProps =
       context: 'plan'
       mode: 'create'
       planAppliedRateCardId: string
-      isLastPosition: boolean
-      position: number
+      otherPhases: RatePhaseReference[]
       rateCard: RateCardForRatePhaseFields
     }
   | {
       context: 'plan'
       mode: 'edit'
       planAppliedRateCardId: string
-      isLastPosition: boolean
+      otherPhases: RatePhaseReference[]
       phase: RatePhaseForDrawerFragment
       rateCard: RateCardForRatePhaseFields
     }
@@ -35,15 +36,14 @@ export type RatePhaseDrawerProps =
       context: 'contract'
       mode: 'create'
       contractAppliedRateCardId: string
-      isLastPosition: boolean
-      position: number
+      otherPhases: RatePhaseReference[]
       rateCard: RateCardForRatePhaseFields
     }
   | {
       context: 'contract'
       mode: 'edit'
       contractAppliedRateCardId: string
-      isLastPosition: boolean
+      otherPhases: RatePhaseReference[]
       phase: RatePhaseForDrawerFragment
       rateCard: RateCardForRatePhaseFields
     }

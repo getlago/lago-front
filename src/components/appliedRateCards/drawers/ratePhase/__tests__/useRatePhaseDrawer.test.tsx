@@ -93,8 +93,7 @@ describe('useRatePhaseDrawer', () => {
       context: 'plan',
       mode: 'create',
       planAppliedRateCardId: 'plan-rc-1',
-      isLastPosition: true,
-      position: 1,
+      otherPhases: [],
       rateCard,
     })
 
@@ -102,7 +101,7 @@ describe('useRatePhaseDrawer', () => {
     await opened.form.submit()
 
     expect(captured).toMatchObject({
-      input: { planAppliedRateCardId: 'plan-rc-1', code: 'phase-1' },
+      input: { planAppliedRateCardId: 'plan-rc-1', code: 'phase-1', position: 1 },
     })
   })
 
@@ -131,7 +130,7 @@ describe('useRatePhaseDrawer', () => {
       mode: 'edit',
       contractAppliedRateCardId: 'contract-rc-1',
       phase: editPhase,
-      isLastPosition: true,
+      otherPhases: [],
       rateCard,
     })
 
@@ -162,7 +161,7 @@ describe('useRatePhaseDrawer', () => {
       mode: 'edit',
       contractAppliedRateCardId: 'contract-rc-1',
       phase: editPhase,
-      isLastPosition: true,
+      otherPhases: [],
       rateCard,
     })
 
@@ -206,7 +205,7 @@ describe('useRatePhaseDrawer', () => {
       mode: 'edit',
       planAppliedRateCardId: 'plan-rc-1',
       phase: overriddenPhase,
-      isLastPosition: true,
+      otherPhases: [],
       rateCard,
     })
 
@@ -248,7 +247,7 @@ describe('useRatePhaseDrawer', () => {
       mode: 'edit',
       planAppliedRateCardId: 'plan-rc-1',
       phase: staleMinAmountPhase,
-      isLastPosition: true,
+      otherPhases: [],
       rateCard: { ...rateCard, billingTiming: RateCardBillingTimingEnum.Advance },
     })
 

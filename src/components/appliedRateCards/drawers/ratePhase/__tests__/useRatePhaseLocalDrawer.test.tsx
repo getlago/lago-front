@@ -24,9 +24,7 @@ const rateCard = {
 const Host = ({ onSave }: { onSave: jest.Mock }) => {
   const { openDrawer } = useRatePhaseLocalDrawer()
 
-  return (
-    <button onClick={() => openDrawer({ rateCard, isLastPosition: true, onSave })}>open</button>
-  )
+  return <button onClick={() => openDrawer({ rateCard, otherPhases: [], onSave })}>open</button>
 }
 
 describe('useRatePhaseLocalDrawer', () => {
