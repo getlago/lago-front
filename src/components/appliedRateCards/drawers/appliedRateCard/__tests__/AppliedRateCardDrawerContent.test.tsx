@@ -386,6 +386,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
 
     expect(mockOpenRateCardDrawer).toHaveBeenCalledWith(
       expect.objectContaining({
+        currency: CurrencyEnum.Usd,
         attachToProduct: expect.objectContaining({ id: PRODUCT.id }),
         onCreated: expect.any(Function),
       }),

@@ -324,6 +324,7 @@ export const AppliedRateCardDrawerContent = withForm({
 
     const handleCreateRateCard = (): void => {
       openRateCardDrawer({
+        currency,
         attachToProduct: selectedProduct,
         attachToProductFilter:
           selectedProduct && selectedProductFilter
