@@ -19,6 +19,7 @@ import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CONTRACT_RATE_CARD_DETAILS_ROUTE } from '~/core/router'
 import {
   ContractAppliedRateCardForAppliedRateCardsTableFragmentDoc,
+  CurrencyEnum,
   useGetContractAppliedRateCardsForRateCardsSectionLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -71,12 +72,14 @@ gql`
 type ContractRateCardsSectionProps = {
   contractId: string
   contractExternalId: string | undefined
+  currency: CurrencyEnum | undefined
   isRemovalLocked: boolean
 }
 
 export const ContractRateCardsSection = ({
   contractId,
   contractExternalId,
+  currency,
   isRemovalLocked,
 }: ContractRateCardsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
@@ -132,11 +135,16 @@ export const ContractRateCardsSection = ({
         action={{
           label: translate('text_1789030049529b0zmy1slfxl'),
           dataTest: CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID,
-          disabled: !contractExternalId,
+          disabled: !contractExternalId || !currency,
           onClick: () => {
-            if (!contractExternalId) return
+            if (!contractExternalId || !currency) return
 
-            openAppliedRateCardDrawer({ context: 'contract', contractId, contractExternalId })
+            openAppliedRateCardDrawer({
+              context: 'contract',
+              contractId,
+              contractExternalId,
+              currency,
+            })
           },
         }}
       />

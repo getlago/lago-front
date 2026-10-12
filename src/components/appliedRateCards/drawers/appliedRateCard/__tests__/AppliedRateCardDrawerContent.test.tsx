@@ -19,6 +19,11 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import {
+  getRatePhaseActionsTestId,
+  RATE_PHASE_REVERT_ACTION_TEST_ID,
+} from '../../../RatePhaseTable'
+import { RATE_PHASE_FORM_DEFAULTS } from '../../ratePhase/ratePhaseFormSchema'
+import {
   APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID,
   APPLIED_RATE_CARD_DRAWER_PRODUCT_FILTER_TEST_ID,
   APPLIED_RATE_CARD_DRAWER_PRODUCT_TEST_ID,
@@ -95,6 +100,8 @@ type RateCardFixture = {
   proration: boolean
   activeRate: {
     __typename: string
+    id: string
+    effectiveFrom: string
     rateModel: RateCardRateModelEnum
     rateProperties: Record<string, unknown>
     billingIntervalCount: number
@@ -115,6 +122,8 @@ const RATE_CARD: RateCardFixture = {
   proration: false,
   activeRate: {
     __typename: 'RateCardRate',
+    id: 'rate-1',
+    effectiveFrom: '2026-01-01T00:00:00Z',
     rateModel: RateCardRateModelEnum.Standard,
     rateProperties: { __typename: 'RateProperties', amount: '10' },
     billingIntervalCount: 1,
@@ -122,6 +131,14 @@ const RATE_CARD: RateCardFixture = {
     minAmountCents: 0,
     appliedPricingUnitConversionRate: null,
   },
+}
+
+const EUR_RATE_CARD: RateCardFixture = {
+  ...RATE_CARD,
+  id: 'rc-eur',
+  name: 'Euro card',
+  code: 'euro-card',
+  currency: CurrencyEnum.Eur,
 }
 
 const productsMock = (
@@ -196,6 +213,7 @@ const Host = ({ context = 'plan' }: { context?: 'plan' | 'contract' }): JSX.Elem
       <AppliedRateCardDrawerContent
         form={form}
         context={context}
+        currency={CurrencyEnum.Usd}
         openRateCardDrawer={mockOpenRateCardDrawer}
       />
     </>
@@ -250,6 +268,21 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
 
     await waitFor(() => expect(capturedVars).toMatchObject({ productIds: [PRODUCT.id] }))
     expect(capturedVars.productFilterIds).toBeUndefined()
+  })
+
+  it('GIVEN rate cards in several currencies THEN only the drawer currency ones are offered, under a label naming it', async () => {
+    renderContent([productsMock(), rateCardsMock(() => undefined, [RATE_CARD, EUR_RATE_CARD])])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+
+    const rateCardField = await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
+
+    expect(screen.getByText('Rate card in USD')).toBeInTheDocument()
+
+    await userEvent.click(rateCardField.querySelector('input') as HTMLInputElement)
+
+    expect(await screen.findByText(RATE_CARD.name)).toBeInTheDocument()
+    expect(screen.queryByText(EUR_RATE_CARD.name)).not.toBeInTheDocument()
   })
 
   it('GIVEN "+ Add filter" is clicked THEN the product filter combobox reveals', async () => {
@@ -443,6 +476,36 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
       expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('1'),
     )
     expect(screen.getByText('Phase 1')).toBeInTheDocument()
+  })
+
+  it('GIVEN an overridden phase WHEN reverted from its actions THEN it runs on the active rate again', async () => {
+    renderContent([productsMock(), rateCardsMock(() => undefined)])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+    await selectRateCard()
+    await userEvent.click(await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID))
+
+    const onSave = mockOpenRatePhaseLocalDrawer.mock.calls.at(-1)?.[0]?.onSave
+
+    onSave(
+      {
+        ...RATE_PHASE_FORM_DEFAULTS,
+        code: 'intro',
+        name: 'Intro',
+        overrideEnabled: true,
+        billingIntervalCount: '14',
+        billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Day,
+      },
+      {},
+    )
+
+    expect(await screen.findByText('Overridden')).toBeInTheDocument()
+
+    await userEvent.click(screen.getByTestId(getRatePhaseActionsTestId(0)))
+    await userEvent.click(screen.getByTestId(RATE_PHASE_REVERT_ACTION_TEST_ID))
+
+    expect(await screen.findByText('Active rate')).toBeInTheDocument()
+    expect(screen.queryByText('Overridden')).not.toBeInTheDocument()
   })
 
   it('GIVEN a phase saved before an existing one THEN it is inserted at that position', async () => {

@@ -1,75 +1,131 @@
-import { RateCardRateBillingIntervalUnitEnum, RateCardRateModelEnum } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  RateCardRateBillingIntervalUnitEnum,
+  RateCardRateModelEnum,
+  RateOverrideInput,
+} from '~/generated/graphql'
+import { getRatePropertiesShape } from '~/pages/catalog/drawers/rateCardRate/getRatePropertiesShape'
 
-import { getOverriddenFields } from '../overrideDiff'
+import {
+  buildPhaseInput,
+  RATE_PHASE_FORM_DEFAULTS,
+  RatePhaseFormValues,
+} from '../drawers/ratePhase/ratePhaseFormSchema'
+import { ActiveRateForDiff, getOverriddenFields } from '../overrideDiff'
 
-const activeRate = {
+const apolloActiveRate: ActiveRateForDiff = {
   rateModel: RateCardRateModelEnum.Standard,
-  rateProperties: { amount: '10' },
+  rateProperties: {
+    __typename: 'RateProperties',
+    amount: '10',
+    packageSize: null,
+    freeUnits: null,
+    pricingGroupKeys: null,
+    presentationGroupKeys: null,
+    graduatedRanges: null,
+    graduatedPercentageRanges: null,
+    volumeRanges: null,
+  },
   billingIntervalCount: 1,
   billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Month,
-  minAmountCents: 0,
-  appliedPricingUnitConversionRate: null,
+  minAmountCents: '500',
+  appliedPricingUnitConversionRate: 1.5,
 }
+
+const formValuesMatchingActiveRate: RatePhaseFormValues = {
+  ...RATE_PHASE_FORM_DEFAULTS,
+  code: 'intro',
+  overrideEnabled: true,
+  rateModel: RateCardRateModelEnum.Standard,
+  properties: getRatePropertiesShape(apolloActiveRate.rateProperties),
+  billingIntervalCount: '1',
+  billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Month,
+  minAmountCents: '5.00',
+  conversionRate: '1.5',
+}
+
+const toOverride = (values: Partial<RatePhaseFormValues>): RateOverrideInput | undefined =>
+  buildPhaseInput({ ...formValuesMatchingActiveRate, ...values, position: 1 }, CurrencyEnum.Usd)
+    .rateOverride ?? undefined
 
 describe('getOverriddenFields', () => {
   it('GIVEN no override WHEN diffing THEN returns an empty set', () => {
-    expect(getOverriddenFields(activeRate, null)).toEqual(new Set())
-    expect(getOverriddenFields(activeRate, undefined)).toEqual(new Set())
+    expect(getOverriddenFields(apolloActiveRate, null)).toEqual(new Set())
+    expect(getOverriddenFields(apolloActiveRate, undefined)).toEqual(new Set())
   })
 
-  it('GIVEN an override present but identical to the active rate THEN returns an empty set', () => {
-    const override = {
-      rateModel: RateCardRateModelEnum.Standard,
-      rateProperties: { amount: '10' },
-      billingIntervalCount: 1,
-      billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Month,
-      minAmountCents: 0,
-      pricingUnitConversionRate: null,
-    }
-
-    expect(getOverriddenFields(activeRate, override)).toEqual(new Set())
+  it('GIVEN an Apollo-shaped active rate and an equal override from the form THEN returns an empty set', () => {
+    // Regression: `__typename` and cents vs display amounts flagged every overridden phase.
+    expect(getOverriddenFields(apolloActiveRate, toOverride({}))).toEqual(new Set())
   })
 
-  it('GIVEN only rateProperties differs THEN flags only rateProperties', () => {
-    const override = {
-      rateModel: RateCardRateModelEnum.Standard,
-      rateProperties: { amount: '20' },
-      billingIntervalCount: 1,
-      billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Month,
-      minAmountCents: 0,
-      pricingUnitConversionRate: null,
+  it('GIVEN a numeric property typed back as a string THEN it is not flagged', () => {
+    const override = toOverride({
+      properties: {
+        ...formValuesMatchingActiveRate.properties,
+        packageSize: '10',
+        amount: '10.00',
+      },
+    })
+
+    expect(getOverriddenFields(apolloActiveRate, override)).toEqual(new Set())
+  })
+
+  it('GIVEN graduated tiers equal to the active rate ones THEN returns an empty set', () => {
+    const graduatedActiveRate: ActiveRateForDiff = {
+      ...apolloActiveRate,
+      rateModel: RateCardRateModelEnum.Graduated,
+      rateProperties: {
+        __typename: 'RateProperties',
+        graduatedRanges: [
+          { __typename: 'RateTier', toValue: '100', perUnitAmount: '1', flatAmount: '0' },
+          { __typename: 'RateTier', toValue: null, perUnitAmount: '0.5', flatAmount: '2' },
+        ],
+      },
     }
 
-    expect(getOverriddenFields(activeRate, override)).toEqual(new Set(['rateProperties']))
+    const override = toOverride({
+      rateModel: RateCardRateModelEnum.Graduated,
+      properties: getRatePropertiesShape(graduatedActiveRate.rateProperties),
+    })
+
+    expect(getOverriddenFields(graduatedActiveRate, override)).toEqual(new Set())
+  })
+
+  it('GIVEN only the amount differs THEN flags only rateProperties', () => {
+    const override = toOverride({
+      properties: { ...formValuesMatchingActiveRate.properties, amount: '20' },
+    })
+
+    expect(getOverriddenFields(apolloActiveRate, override)).toEqual(new Set(['rateProperties']))
   })
 
   it('GIVEN appliedPricingUnitConversionRate/pricingUnitConversionRate differ across their different names THEN flags pricingUnitConversionRate', () => {
-    const override = {
-      rateModel: RateCardRateModelEnum.Standard,
-      rateProperties: { amount: '10' },
-      billingIntervalCount: 1,
-      billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Month,
-      minAmountCents: 0,
-      pricingUnitConversionRate: 1.5,
-    }
-
-    expect(getOverriddenFields(activeRate, override)).toEqual(
+    expect(getOverriddenFields(apolloActiveRate, toOverride({ conversionRate: '2' }))).toEqual(
       new Set(['pricingUnitConversionRate']),
     )
   })
 
-  it('GIVEN rateModel, billingIntervalCount, billingIntervalUnit, minAmountCents all differ THEN flags all four', () => {
-    const override = {
-      rateModel: RateCardRateModelEnum.Package,
-      rateProperties: { amount: '10' },
-      billingIntervalCount: 3,
+  it('GIVEN billingIntervalCount, billingIntervalUnit and minAmountCents differ THEN flags those three', () => {
+    const override = toOverride({
+      billingIntervalCount: '3',
       billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Year,
-      minAmountCents: 500,
-      pricingUnitConversionRate: null,
-    }
+      minAmountCents: '7',
+    })
 
-    expect(getOverriddenFields(activeRate, override)).toEqual(
-      new Set(['rateModel', 'billingIntervalCount', 'billingIntervalUnit', 'minAmountCents']),
+    expect(getOverriddenFields(apolloActiveRate, override)).toEqual(
+      new Set(['billingIntervalCount', 'billingIntervalUnit', 'minAmountCents']),
+    )
+  })
+
+  it('GIVEN another rate model THEN flags rateModel and its rateProperties', () => {
+    const override = toOverride({
+      rateModel: RateCardRateModelEnum.Package,
+      properties: { ...formValuesMatchingActiveRate.properties, packageSize: 5 },
+    })
+
+    expect(getOverriddenFields(apolloActiveRate, override)).toEqual(
+      new Set(['rateModel', 'rateProperties']),
     )
   })
 })

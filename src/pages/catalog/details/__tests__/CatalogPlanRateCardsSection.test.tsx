@@ -8,6 +8,7 @@ import {
   CENTRALIZED_DIALOG_NAME,
 } from '~/components/dialogs/const'
 import {
+  CurrencyEnum,
   DestroyPlanAppliedRateCardDocument,
   GetPlanAppliedRateCardsForRateCardsSectionDocument,
 } from '~/generated/graphql'
@@ -92,7 +93,11 @@ const renderSection = (mocks: TestMocksType, { isRemovalLocked = false } = {}) =
   render(
     <AllTheProviders forceTypenames mocks={mocks}>
       <NiceModal.Provider>
-        <CatalogPlanRateCardsSection catalogPlanId="plan-1" isRemovalLocked={isRemovalLocked} />
+        <CatalogPlanRateCardsSection
+          catalogPlanId="plan-1"
+          currency={CurrencyEnum.Usd}
+          isRemovalLocked={isRemovalLocked}
+        />
       </NiceModal.Provider>
     </AllTheProviders>,
   )
@@ -201,7 +206,7 @@ describe('CatalogPlanRateCardsSection', () => {
     expect(screen.getByText('text_1790284386156k2d8mjjy98f').closest('button')).toBeDisabled()
   })
 
-  it('GIVEN the Add rate card button is clicked THEN openDrawer is called with { context: "plan", planId }', async () => {
+  it('GIVEN the Add rate card button is clicked THEN openDrawer is called with { context: "plan", planId, currency }', async () => {
     const user = userEvent.setup()
 
     renderSection([buildListMock([])])
@@ -214,6 +219,7 @@ describe('CatalogPlanRateCardsSection', () => {
     expect(mockOpenAppliedRateCardDrawer).toHaveBeenCalledWith({
       context: 'plan',
       planId: 'plan-1',
+      currency: CurrencyEnum.Usd,
     })
   })
 })

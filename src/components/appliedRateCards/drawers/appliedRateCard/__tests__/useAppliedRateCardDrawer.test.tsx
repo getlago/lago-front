@@ -8,6 +8,7 @@ import { addToast } from '~/core/apolloClient'
 import {
   CreateContractAppliedRateCardDocument,
   CreatePlanAppliedRateCardDocument,
+  CurrencyEnum,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
@@ -162,7 +163,9 @@ describe('useAppliedRateCardDrawer', () => {
       createPlanAppliedRateCardMock((input) => (capturedInput = input)),
     ])
 
-    act(() => result.current.openDrawer({ context: 'plan', planId: 'plan-1' }))
+    act(() =>
+      result.current.openDrawer({ context: 'plan', planId: 'plan-1', currency: CurrencyEnum.Usd }),
+    )
     renderDrawerBody()
     await userEvent.click(screen.getByRole('button', { name: 'seed required fields' }))
     await submit()
@@ -186,6 +189,7 @@ describe('useAppliedRateCardDrawer', () => {
         context: 'contract',
         contractId: 'contract-1',
         contractExternalId: 'contract-ext-1',
+        currency: CurrencyEnum.Usd,
       }),
     )
     renderDrawerBody()
@@ -213,6 +217,7 @@ describe('useAppliedRateCardDrawer', () => {
         context: 'contract',
         contractId: 'contract-1',
         contractExternalId: 'contract-ext-1',
+        currency: CurrencyEnum.Usd,
       }),
     )
     renderDrawerBody()
@@ -226,7 +231,9 @@ describe('useAppliedRateCardDrawer', () => {
       createPlanAppliedRateCardMock((input) => (capturedInput = input)),
     ])
 
-    act(() => result.current.openDrawer({ context: 'plan', planId: 'plan-1' }))
+    act(() =>
+      result.current.openDrawer({ context: 'plan', planId: 'plan-1', currency: CurrencyEnum.Usd }),
+    )
 
     render(<>{lastDrawerArgs?.secondaryAction}</>)
     await userEvent.click(screen.getByTestId(CREATE_MORE_SWITCH_TEST_ID))
@@ -253,7 +260,9 @@ describe('useAppliedRateCardDrawer', () => {
   it("GIVEN create-more is disabled THEN on success the drawer closes and navigates to the new applied rate card's detail route", async () => {
     const { result } = renderDrawerHook([createPlanAppliedRateCardMock(() => undefined)])
 
-    act(() => result.current.openDrawer({ context: 'plan', planId: 'plan-1' }))
+    act(() =>
+      result.current.openDrawer({ context: 'plan', planId: 'plan-1', currency: CurrencyEnum.Usd }),
+    )
     renderDrawerBody()
     await userEvent.click(screen.getByRole('button', { name: 'seed required fields' }))
     await submit()

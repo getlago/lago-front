@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 import { useParams } from 'react-router'
 
 import { ContractOverviewSectionsEnum } from '~/core/constants/tabsOptions'
+import { CurrencyEnum } from '~/generated/graphql'
 
 import { ContractOverviewNav } from './ContractOverviewNav'
 import { ContractOverviewSection } from './ContractOverviewSection'
@@ -12,6 +13,7 @@ const isOverviewSection = (value?: string): value is ContractOverviewSectionsEnu
 
 type ContractDetailsOverviewProps = {
   contractExternalId?: string
+  currency: CurrencyEnum | undefined
   rateCardsCount?: number
   loading?: boolean
   isRateCardRemovalLocked: boolean
@@ -19,6 +21,7 @@ type ContractDetailsOverviewProps = {
 
 export const ContractDetailsOverview = ({
   contractExternalId,
+  currency,
   rateCardsCount,
   loading = false,
   isRateCardRemovalLocked,
@@ -34,6 +37,7 @@ export const ContractDetailsOverview = ({
         <ContractRateCardsSection
           contractId={id}
           contractExternalId={contractExternalId}
+          currency={currency}
           isRemovalLocked={isRateCardRemovalLocked}
         />
       )

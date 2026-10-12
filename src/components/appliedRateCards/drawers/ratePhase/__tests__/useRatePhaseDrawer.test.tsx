@@ -16,22 +16,24 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { RatePhaseDrawerProps } from '../types'
+import { RateCardForRatePhaseFields, RatePhaseDrawerProps } from '../types'
 import { useRatePhaseDrawer } from '../useRatePhaseDrawer'
 
 const mockOpen = jest.fn()
 const mockClose = jest.fn()
 
 jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
   useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
 }))
 
-const rateCard = {
-  productType: ProductTypeEnum.Metered,
+const rateCard: RateCardForRatePhaseFields = {
+  productType: ProductTypeEnum.Fixed,
   currency: CurrencyEnum.Usd,
   billingTiming: RateCardBillingTimingEnum.Arrears,
   appliedPricingUnitCode: null,
-  rateModelConfiguration: undefined,
+  proration: false,
+  activeRate: null,
 }
 
 type OpenedDrawerArgs = {

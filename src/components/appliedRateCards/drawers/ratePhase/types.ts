@@ -1,19 +1,34 @@
+import { gql } from '@apollo/client'
+
 import {
-  CurrencyEnum,
-  ProductTypeEnum,
-  RateCardBillingTimingEnum,
+  ActiveRateForRatePhaseFragment,
+  PropertiesForRateCardRateFragmentDoc,
   RatePhaseForDrawerFragment,
 } from '~/generated/graphql'
-import { RateModelConfiguration } from '~/pages/catalog/utils/rateModelAvailability'
+import { RateCardRateDrawerRateCard } from '~/pages/catalog/drawers/rateCardRate/RateCardRateFieldGroups'
 
 import { RatePhaseReference } from './ratePhaseFormSchema'
 
-export type RateCardForRatePhaseFields = {
-  productType: ProductTypeEnum
-  currency: CurrencyEnum
-  billingTiming: RateCardBillingTimingEnum
-  appliedPricingUnitCode: string | null | undefined
-  rateModelConfiguration: RateModelConfiguration | undefined
+gql`
+  fragment ActiveRateForRatePhase on RateCardRate {
+    id
+    effectiveFrom
+    rateModel
+    billingIntervalCount
+    billingIntervalUnit
+    minAmountCents
+    appliedPricingUnitConversionRate
+    rateProperties {
+      ...PropertiesForRateCardRate
+    }
+  }
+
+  ${PropertiesForRateCardRateFragmentDoc}
+`
+
+export type RateCardForRatePhaseFields = RateCardRateDrawerRateCard & {
+  // A phase without an override runs on it, so the drawer shows its values read-only.
+  activeRate: ActiveRateForRatePhaseFragment | null | undefined
 }
 
 export type RatePhaseDrawerProps =

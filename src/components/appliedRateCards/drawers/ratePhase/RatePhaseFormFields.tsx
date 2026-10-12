@@ -1,19 +1,20 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import { useStore } from '@tanstack/react-form'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 import { Checkbox } from '~/components/form/Checkbox/Checkbox'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { chargeModelLookupTranslation } from '~/core/constants/form'
-import { RateCardBillingTimingEnum, RateCardRateModelEnum } from '~/generated/graphql'
+import { CurrencyEnum, ProductTypeEnum, RateCardBillingTimingEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
-import { BILLING_INTERVAL_UNIT_TRANSLATION_KEY } from '~/pages/catalog/drawers/rateCardRate/constants'
-import { toChargeModel } from '~/pages/catalog/drawers/rateCardRate/utils'
-import { RateWrapperSwitch } from '~/pages/catalog/rateProperties/RateWrapperSwitch'
-import { getAvailableRateModels } from '~/pages/catalog/utils/rateModelAvailability'
+import {
+  RATE_FIELD_GROUP_FIELDS,
+  RateBillingIntervalFields,
+  RateInvoicingSettingsSection,
+  RatePricingSettingsSection,
+} from '~/pages/catalog/drawers/rateCardRate/RateCardRateFieldGroups'
 
 import {
   isPlacedLast,
@@ -21,44 +22,53 @@ import {
   RatePhaseFormValues,
   RatePhaseReference,
 } from './ratePhaseFormSchema'
+import { getActiveRateFieldValues } from './ratePhaseSeeds'
 import { RateCardForRatePhaseFields } from './types'
 
 export const RATE_PHASE_POSITION_MODE_TEST_ID = 'rate-phase-position-mode'
 export const RATE_PHASE_POSITION_REFERENCE_TEST_ID = 'rate-phase-position-reference'
 export const RATE_PHASE_DURATION_CYCLE_COUNT_TEST_ID = 'rate-phase-duration-cycle-count'
 export const RATE_PHASE_FOREVER_CHECKBOX_TEST_ID = 'rate-phase-forever-checkbox'
+export const RATE_PHASE_OVERRIDE_TOGGLE_TEST_ID = 'rate-phase-override-toggle'
 
 type RatePhaseFormFieldsRenderProps = {
   title: string
-  otherPhases: RatePhaseReference[]
+  // A getter: `children` is captured once at open(), and "create more" adds phases mid-session.
+  getOtherPhases: () => RatePhaseReference[]
   rateCard: RateCardForRatePhaseFields
 }
 
 const defaultProps: RatePhaseFormFieldsRenderProps = {
   title: '',
-  otherPhases: [],
+  getOtherPhases: () => [],
   rateCard: {
-    productType: 'metered' as RateCardForRatePhaseFields['productType'],
-    currency: 'USD' as RateCardForRatePhaseFields['currency'],
+    productType: ProductTypeEnum.Metered,
+    currency: CurrencyEnum.Usd,
     billingTiming: RateCardBillingTimingEnum.Arrears,
     appliedPricingUnitCode: null,
-    rateModelConfiguration: undefined,
+    proration: false,
+    activeRate: null,
   },
 }
 
 export const RatePhaseFormFields = withForm({
   defaultValues: RATE_PHASE_FORM_DEFAULTS,
   props: defaultProps,
-  render: function RatePhaseFormFieldsRender({ form, title, otherPhases, rateCard }) {
+  render: function RatePhaseFormFieldsRender({ form, title, getOtherPhases, rateCard }) {
     const { translate } = useInternationalization()
+    const otherPhases = getOtherPhases()
     const overrideEnabled = useStore(form.store, (state) => state.values.overrideEnabled)
-    const rateModel = useStore(form.store, (state) => state.values.rateModel)
+    const minAmountCents = useStore(form.store, (state) => state.values.minAmountCents)
     const positionMode = useStore(form.store, (state) => state.values.positionMode)
     const positionReferenceCode = useStore(
       form.store,
       (state) => state.values.positionReferenceCode,
     )
     const durationType = useStore(form.store, (state) => state.values.durationType)
+    // Reveals the spending minimum input; frozen while editable so clearing it does not collapse it.
+    const [minAmountCentsWhenEnabled, setMinAmountCentsWhenEnabled] = useState(
+      () => form.state.values.minAmountCents,
+    )
 
     const isLast = isPlacedLast({ positionMode, positionReferenceCode }, otherPhases)
     const isForever = durationType === 'forever'
@@ -77,32 +87,20 @@ export const RatePhaseFormFields = withForm({
       description: phase.code,
     }))
 
-    const rateModelComboboxData = useMemo(() => {
-      const availableRateModels =
-        getAvailableRateModels(rateCard.rateModelConfiguration) ??
-        Object.values(RateCardRateModelEnum)
-
-      return availableRateModels.map((model) => ({
-        value: model,
-        label: translate(chargeModelLookupTranslation[toChargeModel(model)]),
-      }))
-    }, [rateCard.rateModelConfiguration, translate])
-
     const handleOverrideToggle = ({ value }: { value: boolean }): void => {
-      if (value) return
+      if (value) {
+        setMinAmountCentsWhenEnabled(form.state.values.minAmountCents)
+        return
+      }
 
-      form.setFieldValue('rateModel', RATE_PHASE_FORM_DEFAULTS.rateModel)
-      form.setFieldValue('properties', RATE_PHASE_FORM_DEFAULTS.properties)
-      form.setFieldValue(
-        'overrideBillingIntervalCount',
-        RATE_PHASE_FORM_DEFAULTS.overrideBillingIntervalCount,
-      )
-      form.setFieldValue(
-        'overrideBillingIntervalUnit',
-        RATE_PHASE_FORM_DEFAULTS.overrideBillingIntervalUnit,
-      )
-      form.setFieldValue('minAmountCents', RATE_PHASE_FORM_DEFAULTS.minAmountCents)
-      form.setFieldValue('conversionRate', RATE_PHASE_FORM_DEFAULTS.conversionRate)
+      const activeRateValues = getActiveRateFieldValues(rateCard)
+
+      form.setFieldValue('rateModel', activeRateValues.rateModel)
+      form.setFieldValue('properties', activeRateValues.properties)
+      form.setFieldValue('billingIntervalCount', activeRateValues.billingIntervalCount)
+      form.setFieldValue('billingIntervalUnit', activeRateValues.billingIntervalUnit)
+      form.setFieldValue('minAmountCents', activeRateValues.minAmountCents)
+      form.setFieldValue('conversionRate', activeRateValues.conversionRate)
     }
 
     const setDurationType = (value: RatePhaseFormValues['durationType']): void => {
@@ -130,165 +128,117 @@ export const RatePhaseFormFields = withForm({
           </Typography>
         </div>
 
-        <CenteredPage.SubsectionWrapper>
-          <CenteredPage.PageSection>
-            <CenteredPage.PageSectionTitle title={translate('text_17918352599291fjtlpy6o9t')} />
+        <CenteredPage.PageSection>
+          <CenteredPage.PageSectionTitle title={translate('text_17918352599291fjtlpy6o9t')} />
 
-            <NameAndCodeGroup
-              form={form}
-              fields={{ name: 'name', code: 'code' }}
-              nameProps={{ placeholder: translate('text_1791835259930oafoij0etbt') }}
-              codeProps={{ placeholder: translate('text_1791835259930kt2jtyd9bw0') }}
-            />
+          <NameAndCodeGroup
+            form={form}
+            fields={{ name: 'name', code: 'code' }}
+            nameProps={{ placeholder: translate('text_1791835259930oafoij0etbt') }}
+            codeProps={{ placeholder: translate('text_1791835259930kt2jtyd9bw0') }}
+          />
 
-            {otherPhases.length > 0 && (
-              <div className="flex flex-col gap-3">
-                <Typography variant="captionHl" color="grey700">
-                  {translate('text_1791835259929vzy9i811ojq')}
-                </Typography>
-                <div className="flex items-start gap-3">
-                  <form.AppField name="positionMode">
-                    {(field) => (
-                      <field.ComboBoxField
-                        dataTest={RATE_PHASE_POSITION_MODE_TEST_ID}
-                        containerClassName="w-40"
-                        disableClearable
-                        sortValues={false}
-                        placeholder={translate('text_1791835259929w5awid04gdu')}
-                        data={positionModeComboboxData}
-                      />
-                    )}
-                  </form.AppField>
-                  <form.AppField name="positionReferenceCode">
-                    {(field) => (
-                      <field.ComboBoxField
-                        dataTest={RATE_PHASE_POSITION_REFERENCE_TEST_ID}
-                        containerClassName="flex-1"
-                        disableClearable
-                        sortValues={false}
-                        placeholder={translate('text_1791835259929pk9djobpqt4')}
-                        data={positionReferenceComboboxData}
-                      />
-                    )}
-                  </form.AppField>
-                </div>
-              </div>
-            )}
-
+          {otherPhases.length > 0 && (
             <div className="flex flex-col gap-3">
-              <form.AppField name="durationCycleCount">
-                {(field) => (
-                  <field.TextInputField
-                    data-test={RATE_PHASE_DURATION_CYCLE_COUNT_TEST_ID}
-                    beforeChangeFormatter={['int', 'positiveNumber']}
-                    label={translate('text_17914856703265q2q10b1hry')}
-                    placeholder={isForever ? translate('text_63c83a3476e46bc6ab9d85d6') : '1'}
-                    disabled={isForever}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {translate('text_1791485670326auwsxq3x83b')}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                )}
-              </form.AppField>
-              <Checkbox
-                name="durationType"
-                data-test={RATE_PHASE_FOREVER_CHECKBOX_TEST_ID}
-                label={translate('text_1791835259929jzk45luf7yg')}
-                value={isForever}
-                disabled={!isLast}
-                onChange={(_, checked) => setDurationType(checked ? 'forever' : 'finite')}
-              />
-            </div>
-          </CenteredPage.PageSection>
-
-          <CenteredPage.PageSection>
-            <form.AppField name="overrideEnabled" listeners={{ onChange: handleOverrideToggle }}>
-              {(field) => (
-                <field.SwitchField
-                  dataTest="rate-phase-override-toggle"
-                  label={translate('text_17914856703260y0i9has5wq')}
-                />
-              )}
-            </form.AppField>
-
-            {overrideEnabled && (
-              <>
-                <form.AppField name="rateModel">
+              <Typography variant="captionHl" color="grey700">
+                {translate('text_1791835259929vzy9i811ojq')}
+              </Typography>
+              <div className="flex items-start gap-3">
+                <form.AppField name="positionMode">
                   {(field) => (
                     <field.ComboBoxField
-                      label={translate('text_65201b8216455901fe273dd5')}
-                      data={rateModelComboboxData}
+                      dataTest={RATE_PHASE_POSITION_MODE_TEST_ID}
+                      containerClassName="w-40"
                       disableClearable
+                      sortValues={false}
+                      placeholder={translate('text_1791835259929w5awid04gdu')}
+                      data={positionModeComboboxData}
                     />
                   )}
                 </form.AppField>
+                <form.AppField name="positionReferenceCode">
+                  {(field) => (
+                    <field.ComboBoxField
+                      dataTest={RATE_PHASE_POSITION_REFERENCE_TEST_ID}
+                      containerClassName="flex-1"
+                      disableClearable
+                      sortValues={false}
+                      placeholder={translate('text_1791835259929pk9djobpqt4')}
+                      data={positionReferenceComboboxData}
+                    />
+                  )}
+                </form.AppField>
+              </div>
+            </div>
+          )}
 
-                <RateWrapperSwitch
-                  form={form}
-                  fields="properties"
-                  rateModel={rateModel}
-                  productType={rateCard.productType}
-                  currency={rateCard.currency}
-                  pricingUnitShortName={rateCard.appliedPricingUnitCode ?? undefined}
-                  onExpandCustomCharge={() => undefined}
+          <div className="flex flex-col gap-3">
+            <form.AppField name="durationCycleCount">
+              {(field) => (
+                <field.TextInputField
+                  data-test={RATE_PHASE_DURATION_CYCLE_COUNT_TEST_ID}
+                  beforeChangeFormatter={['int', 'positiveNumber']}
+                  label={translate('text_17914856703265q2q10b1hry')}
+                  placeholder={isForever ? translate('text_63c83a3476e46bc6ab9d85d6') : '1'}
+                  disabled={isForever}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        {translate('text_1791485670326auwsxq3x83b')}
+                      </InputAdornment>
+                    ),
+                  }}
                 />
+              )}
+            </form.AppField>
+            <Checkbox
+              name="durationType"
+              data-test={RATE_PHASE_FOREVER_CHECKBOX_TEST_ID}
+              label={translate('text_1791835259929jzk45luf7yg')}
+              value={isForever}
+              disabled={!isLast}
+              onChange={(_, checked) => setDurationType(checked ? 'forever' : 'finite')}
+            />
+          </div>
+        </CenteredPage.PageSection>
 
-                <CenteredPage.PageSectionTitle title={translate('text_1787737220227tqziocrcywv')} />
+        <div className="relative -mx-12 flex justify-center">
+          <div className="absolute inset-x-0 top-1/2 h-px bg-purple-200" />
+          <div className="relative flex items-center gap-3 rounded-lg border border-purple-200 bg-purple-100 px-3 py-1">
+            <Typography variant="bodyHl" className="text-purple-500">
+              {translate('text_17914856703260y0i9has5wq')}
+            </Typography>
+            <form.AppField name="overrideEnabled" listeners={{ onChange: handleOverrideToggle }}>
+              {(field) => <field.SwitchField dataTest={RATE_PHASE_OVERRIDE_TOGGLE_TEST_ID} />}
+            </form.AppField>
+          </div>
+        </div>
 
-                <div className="flex items-start gap-3">
-                  <form.AppField name="overrideBillingIntervalCount">
-                    {(field) => (
-                      <field.TextInputField
-                        className="w-30"
-                        beforeChangeFormatter={['int', 'positiveNumber']}
-                      />
-                    )}
-                  </form.AppField>
-
-                  <form.AppField name="overrideBillingIntervalUnit">
-                    {(field) => (
-                      <field.ComboBoxField
-                        containerClassName="flex-1"
-                        disableClearable
-                        sortValues={false}
-                        data={Object.entries(BILLING_INTERVAL_UNIT_TRANSLATION_KEY).map(
-                          ([unit, labelKey]) => ({ value: unit, label: translate(labelKey) }),
-                        )}
-                      />
-                    )}
-                  </form.AppField>
-                </div>
-
-                {rateCard.billingTiming === RateCardBillingTimingEnum.Arrears && (
-                  <form.AppField name="minAmountCents">
-                    {(field) => (
-                      <field.AmountInputField
-                        data-test="rate-phase-min-amount"
-                        currency={rateCard.currency}
-                        label={translate('text_1758285847805xn6hdyurz3e')}
-                      />
-                    )}
-                  </form.AppField>
-                )}
-
-                {!!rateCard.appliedPricingUnitCode && (
-                  <form.AppField name="conversionRate">
-                    {(field) => (
-                      <field.AmountInputField
-                        data-test="rate-phase-conversion-rate"
-                        currency={rateCard.currency}
-                        label={translate('text_1750411499858su5b7bbp5t9')}
-                      />
-                    )}
-                  </form.AppField>
-                )}
-              </>
-            )}
+        <CenteredPage.SubsectionWrapper>
+          <CenteredPage.PageSection>
+            <CenteredPage.PageSectionTitle title={translate('text_17918384599834dc1b83rkki')} />
+            <RateBillingIntervalFields
+              form={form}
+              fields={RATE_FIELD_GROUP_FIELDS}
+              disabled={!overrideEnabled}
+            />
           </CenteredPage.PageSection>
+
+          <RatePricingSettingsSection
+            form={form}
+            fields={RATE_FIELD_GROUP_FIELDS}
+            rateCard={rateCard}
+            isRateModelLocked={false}
+            disabled={!overrideEnabled}
+          />
+
+          <RateInvoicingSettingsSection
+            form={form}
+            fields={RATE_FIELD_GROUP_FIELDS}
+            rateCard={rateCard}
+            disabled={!overrideEnabled}
+            initialMinAmountCents={overrideEnabled ? minAmountCentsWhenEnabled : minAmountCents}
+          />
         </CenteredPage.SubsectionWrapper>
       </div>
     )

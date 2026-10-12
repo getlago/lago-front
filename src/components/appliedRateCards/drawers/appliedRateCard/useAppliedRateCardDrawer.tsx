@@ -14,6 +14,7 @@ import { CONTRACT_RATE_CARD_DETAILS_ROUTE } from '~/core/router/ObjectsRoutes'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
 import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
 import {
+  CurrencyEnum,
   useCreateContractAppliedRateCardMutation,
   useCreatePlanAppliedRateCardMutation,
 } from '~/generated/graphql'
@@ -54,8 +55,8 @@ gql`
 const APPLIED_RATE_CARD_FORM_ID = 'applied-rate-card-drawer-form'
 
 export type AppliedRateCardDrawerProps =
-  | { context: 'plan'; planId: string }
-  | { context: 'contract'; contractId: string; contractExternalId: string }
+  | { context: 'plan'; planId: string; currency: CurrencyEnum }
+  | { context: 'contract'; contractId: string; contractExternalId: string; currency: CurrencyEnum }
 
 export const useAppliedRateCardDrawer = (): {
   openDrawer: (props: AppliedRateCardDrawerProps) => void
@@ -148,6 +149,7 @@ export const useAppliedRateCardDrawer = (): {
           <AppliedRateCardDrawerContent
             form={form}
             context={props.context}
+            currency={props.currency}
             openRateCardDrawer={openRateCardDrawer}
           />
         </CreateMoreResetBoundary>

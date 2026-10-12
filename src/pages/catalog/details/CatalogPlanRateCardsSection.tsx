@@ -18,6 +18,7 @@ import { APPLIED_RATE_CARD_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE } from '~/core/router'
 import {
+  CurrencyEnum,
   PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc,
   useGetPlanAppliedRateCardsForRateCardsSectionLazyQuery,
 } from '~/generated/graphql'
@@ -70,11 +71,13 @@ gql`
 
 type CatalogPlanRateCardsSectionProps = {
   catalogPlanId: string
+  currency: CurrencyEnum | undefined
   isRemovalLocked: boolean
 }
 
 export const CatalogPlanRateCardsSection = ({
   catalogPlanId,
+  currency,
   isRemovalLocked,
 }: CatalogPlanRateCardsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
@@ -129,7 +132,12 @@ export const CatalogPlanRateCardsSection = ({
         action={{
           title: translate('text_1789030049529b0zmy1slfxl'),
           dataTest: CATALOG_PLAN_ADD_RATE_CARD_TEST_ID,
-          onClick: () => openAppliedRateCardDrawer({ context: 'plan', planId: catalogPlanId }),
+          isDisabled: !currency,
+          onClick: () => {
+            if (!currency) return
+
+            openAppliedRateCardDrawer({ context: 'plan', planId: catalogPlanId, currency })
+          },
         }}
       />
 

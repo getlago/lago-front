@@ -8,6 +8,7 @@ import {
   RateCardBillingTimingEnum,
   RateCardRateBillingIntervalUnitEnum,
   RateCardRateModelEnum,
+  RateOverrideInput,
   RatePropertiesInput,
 } from '~/generated/graphql'
 import { getRatePropertiesShape } from '~/pages/catalog/drawers/rateCardRate/getRatePropertiesShape'
@@ -37,8 +38,8 @@ export interface RatePhaseFormValues {
   overrideEnabled: boolean
   rateModel: RateCardRateModelEnum
   properties: RatePropertiesInput
-  overrideBillingIntervalCount: string
-  overrideBillingIntervalUnit: RateCardRateBillingIntervalUnitEnum
+  billingIntervalCount: string
+  billingIntervalUnit: RateCardRateBillingIntervalUnitEnum
   minAmountCents: string
   conversionRate: string
 }
@@ -53,8 +54,8 @@ export const RATE_PHASE_FORM_DEFAULTS: RatePhaseFormValues = {
   overrideEnabled: false,
   rateModel: RateCardRateModelEnum.Standard,
   properties: getRatePropertiesShape(),
-  overrideBillingIntervalCount: '1',
-  overrideBillingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Month,
+  billingIntervalCount: '1',
+  billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Month,
   minAmountCents: '',
   conversionRate: '',
 }
@@ -208,10 +209,22 @@ export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaCo
     }
   })
 
-// `minAmountCents` is a decimal display amount in the rate card's currency (same convention as
-// `RateCardRateFormValues.minAmountCents` in `useRateCardRateForm.tsx`), not an already-scaled
-// integer - `serializeAmount` converts it to the currency's smallest unit here, mirroring that
-// file's own `Number(serializeAmount(value.minAmountCents || 0, rateCard.currency))` call.
+// `minAmountCents` is a decimal display amount here; `serializeAmount` scales it to the currency's
+// smallest unit, as `useRateCardRateForm` does for the catalog rate.
+export const buildRateOverrideInput = (
+  values: RatePhaseFormValues,
+  currency: CurrencyEnum,
+): RateOverrideInput => ({
+  rateModel: values.rateModel,
+  rateProperties: serializeRateProperties(values.properties, values.rateModel),
+  billingIntervalCount: Number(values.billingIntervalCount),
+  billingIntervalUnit: values.billingIntervalUnit,
+  minAmountCents: values.minAmountCents
+    ? serializeAmount(values.minAmountCents, currency)
+    : undefined,
+  pricingUnitConversionRate: values.conversionRate ? Number(values.conversionRate) : undefined,
+})
+
 export const buildPhaseInput = (
   values: RatePhaseFormValues & { position: number },
   currency: CurrencyEnum,
@@ -221,20 +234,5 @@ export const buildPhaseInput = (
   position: values.position,
   billingIntervalCycleCount:
     values.durationType === 'forever' ? null : Number(values.durationCycleCount),
-  ...(values.overrideEnabled
-    ? {
-        rateOverride: {
-          rateModel: values.rateModel,
-          rateProperties: serializeRateProperties(values.properties, values.rateModel),
-          billingIntervalCount: Number(values.overrideBillingIntervalCount),
-          billingIntervalUnit: values.overrideBillingIntervalUnit,
-          minAmountCents: values.minAmountCents
-            ? serializeAmount(values.minAmountCents, currency)
-            : undefined,
-          pricingUnitConversionRate: values.conversionRate
-            ? Number(values.conversionRate)
-            : undefined,
-        },
-      }
-    : {}),
+  ...(values.overrideEnabled ? { rateOverride: buildRateOverrideInput(values, currency) } : {}),
 })

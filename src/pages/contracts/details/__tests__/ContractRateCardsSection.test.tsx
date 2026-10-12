@@ -8,6 +8,7 @@ import {
   CENTRALIZED_DIALOG_NAME,
 } from '~/components/dialogs/const'
 import {
+  CurrencyEnum,
   DestroyContractAppliedRateCardDocument,
   GetContractAppliedRateCardsForRateCardsSectionDocument,
 } from '~/generated/graphql'
@@ -103,6 +104,7 @@ const renderSection = (
         <ContractRateCardsSection
           contractId="contract-1"
           contractExternalId={hasExternalId ? 'contract-ext-1' : undefined}
+          currency={CurrencyEnum.Usd}
           isRemovalLocked={isRemovalLocked}
         />
       </NiceModal.Provider>
@@ -227,6 +229,7 @@ describe('ContractRateCardsSection', () => {
       context: 'contract',
       contractId: 'contract-1',
       contractExternalId: 'contract-ext-1',
+      currency: CurrencyEnum.Usd,
     })
   })
 

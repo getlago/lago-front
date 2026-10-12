@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 import { useParams } from 'react-router'
 
 import { CatalogPlanOverviewSectionsEnum } from '~/core/constants/tabsOptions'
+import { CurrencyEnum } from '~/generated/graphql'
 
 import { CatalogPlanOverviewNav } from './CatalogPlanOverviewNav'
 import { CatalogPlanOverviewSection } from './CatalogPlanOverviewSection'
@@ -11,12 +12,14 @@ const isOverviewSection = (value?: string): value is CatalogPlanOverviewSections
   Object.values(CatalogPlanOverviewSectionsEnum).includes(value as CatalogPlanOverviewSectionsEnum)
 
 type CatalogPlanDetailsOverviewComponentProps = {
+  currency: CurrencyEnum | undefined
   rateCardsCount?: number
   loading?: boolean
   isRateCardRemovalLocked: boolean
 }
 
 export const CatalogPlanDetailsOverview = ({
+  currency,
   rateCardsCount,
   loading = false,
   isRateCardRemovalLocked,
@@ -34,6 +37,7 @@ export const CatalogPlanDetailsOverview = ({
       return (
         <CatalogPlanRateCardsSection
           catalogPlanId={catalogPlanId}
+          currency={currency}
           isRemovalLocked={isRateCardRemovalLocked}
         />
       )

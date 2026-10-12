@@ -7,8 +7,10 @@ import {
   RatePhaseFormValues,
   RatePhaseReference,
 } from '~/components/appliedRateCards/drawers/ratePhase/ratePhaseFormSchema'
+import { getActiveRateFieldValues } from '~/components/appliedRateCards/drawers/ratePhase/ratePhaseSeeds'
+import { RateCardForRatePhaseFields } from '~/components/appliedRateCards/drawers/ratePhase/types'
 import { useRatePhaseLocalDrawer } from '~/components/appliedRateCards/drawers/ratePhase/useRatePhaseLocalDrawer'
-import { RatePhaseList } from '~/components/appliedRateCards/RatePhaseList'
+import { RatePhaseTable } from '~/components/appliedRateCards/RatePhaseTable'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -22,8 +24,9 @@ import {
 } from '~/core/constants/form'
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
+  ActiveRateForRatePhaseFragmentDoc,
+  CurrencyEnum,
   ProductForAppliedRateCardDrawerFragment,
-  PropertiesForRateCardRateFragmentDoc,
   useGetProductFiltersForAppliedRateCardDrawerLazyQuery,
   useGetProductsForAppliedRateCardDrawerLazyQuery,
   useGetRateCardsForAppliedRateCardDrawerLazyQuery,
@@ -95,14 +98,8 @@ gql`
     appliedPricingUnitCode
     proration
     activeRate {
-      rateModel
-      rateProperties {
-        ...PropertiesForRateCardRate
-      }
-      billingIntervalCount
-      billingIntervalUnit
-      minAmountCents
-      appliedPricingUnitConversionRate
+      id
+      ...ActiveRateForRatePhase
     }
   }
 
@@ -127,7 +124,7 @@ gql`
     }
   }
 
-  ${PropertiesForRateCardRateFragmentDoc}
+  ${ActiveRateForRatePhaseFragmentDoc}
 `
 
 const STANDALONE_PRODUCTS_GROUP_KEY = 'standalone-products'
@@ -180,18 +177,26 @@ const toPhaseReferences = (phases: RatePhaseFormValues[]): RatePhaseReference[] 
 
 type AppliedRateCardDrawerContentProps = {
   context: 'plan' | 'contract'
+  // The backend rejects a rate card in another currency (`currency_does_not_match`).
+  currency: CurrencyEnum
   openRateCardDrawer: OpenRateCardDrawer
 }
 
 const appliedRateCardDrawerContentDefaultProps: AppliedRateCardDrawerContentProps = {
   context: 'plan',
+  currency: CurrencyEnum.Usd,
   openRateCardDrawer: () => {},
 }
 
 export const AppliedRateCardDrawerContent = withForm({
   defaultValues: APPLIED_RATE_CARD_FORM_DEFAULTS,
   props: appliedRateCardDrawerContentDefaultProps,
-  render: function AppliedRateCardDrawerContentRender({ form, context, openRateCardDrawer }) {
+  render: function AppliedRateCardDrawerContentRender({
+    form,
+    context,
+    currency,
+    openRateCardDrawer,
+  }) {
     const { translate } = useInternationalization()
     const { openDrawer: openRatePhaseDrawer } = useRatePhaseLocalDrawer()
     const [shouldDisplayFilter, setShouldDisplayFilter] = useState(false)
@@ -238,9 +243,10 @@ export const AppliedRateCardDrawerContent = withForm({
     const selectedProductFilter = productFiltersData?.productFilters.collection.find(
       (filter) => filter.id === productFilterId,
     )
-    const selectedRateCard = rateCardsData?.rateCards.collection.find(
-      (rateCard) => rateCard.code === rateCardId,
+    const rateCards = (rateCardsData?.rateCards.collection ?? []).filter(
+      (rateCard) => rateCard.currency === currency,
     )
+    const selectedRateCard = rateCards.find((rateCard) => rateCard.code === rateCardId)
 
     // Controller fix: keeps the hidden `currency` field in sync with the selected rate card so
     // `buildPhaseInput` serializes a phase override's `minAmountCents` against the right
@@ -249,20 +255,17 @@ export const AppliedRateCardDrawerContent = withForm({
       if (selectedRateCard) form.setFieldValue('currency', selectedRateCard.currency)
     }, [selectedRateCard, form])
 
-    const rateCardForPhaseFields =
+    const rateCardForPhaseFields: RateCardForRatePhaseFields | undefined =
       selectedRateCard && selectedProduct?.productType
         ? {
             productType: selectedProduct.productType,
+            aggregationType: selectedProduct.billableMetric?.aggregationType,
+            recurring: selectedProduct.billableMetric?.recurring,
             currency: selectedRateCard.currency,
             billingTiming: selectedRateCard.billingTiming,
+            proration: selectedRateCard.proration,
             appliedPricingUnitCode: selectedRateCard.appliedPricingUnitCode,
-            rateModelConfiguration: {
-              productType: selectedProduct.productType,
-              aggregationType: selectedProduct.billableMetric?.aggregationType,
-              recurring: selectedProduct.billableMetric?.recurring,
-              billingTiming: selectedRateCard.billingTiming,
-              proration: selectedRateCard.proration,
-            },
+            activeRate: selectedRateCard.activeRate,
           }
         : undefined
 
@@ -300,6 +303,19 @@ export const AppliedRateCardDrawerContent = withForm({
         replaceIndex: index,
         onSave: (values, { replaceIndex }) => savePhase(values, replaceIndex),
       })
+    }
+
+    const handleRevertPhase = (index: number): void => {
+      if (!rateCardForPhaseFields) return
+
+      const activeRateValues = getActiveRateFieldValues(rateCardForPhaseFields)
+
+      form.setFieldValue(
+        'ratePhases',
+        form.state.values.ratePhases.map((phase, phaseIndex) =>
+          phaseIndex === index ? { ...phase, ...activeRateValues, overrideEnabled: false } : phase,
+        ),
+      )
     }
 
     const handleRemovePhase = (index: number): void => {
@@ -470,7 +486,7 @@ export const AppliedRateCardDrawerContent = withForm({
                 {(field) => (
                   <field.ComboBoxField
                     dataTest={APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID}
-                    label={translate('text_17902843861564ti9tbk3ide')}
+                    label={translate('text_1791838459984syvvlp15glr', { currency })}
                     placeholder={translate('text_1791833366840z1t3fsw26hp')}
                     loading={rateCardsLoading}
                     allowAddValue
@@ -479,7 +495,7 @@ export const AppliedRateCardDrawerContent = withForm({
                       onClick: handleCreateRateCard,
                     }}
                     searchQuery={getRateCards}
-                    data={(rateCardsData?.rateCards.collection ?? []).map((rateCard) => ({
+                    data={rateCards.map((rateCard) => ({
                       value: rateCard.code,
                       label: rateCard.name,
                     }))}
@@ -502,13 +518,15 @@ export const AppliedRateCardDrawerContent = withForm({
                 }}
               />
 
-              <RatePhaseList
-                variant="accordion"
-                phases={ratePhases}
-                activeRate={selectedRateCard.activeRate ?? null}
-                onEdit={handleEditPhase}
-                onRemove={handleRemovePhase}
-              />
+              {ratePhases.length > 0 && !!rateCardForPhaseFields && (
+                <RatePhaseTable
+                  phases={ratePhases}
+                  rateCard={rateCardForPhaseFields}
+                  onEdit={handleEditPhase}
+                  onRevert={handleRevertPhase}
+                  onDelete={handleRemovePhase}
+                />
+              )}
 
               {hasForeverPhaseBeforeLast && (
                 <Alert type="warning">{translate('text_1791835259930jvwajr0xa8s')}</Alert>

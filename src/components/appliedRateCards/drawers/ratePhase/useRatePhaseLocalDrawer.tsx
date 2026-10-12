@@ -1,11 +1,15 @@
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
 
+import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
+import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { RateCardBillingTimingEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
+import { RatePhaseFormFields } from './RatePhaseFormFields'
 import {
   buildRatePhaseFormSchema,
   getPositionDefaults,
@@ -14,7 +18,11 @@ import {
   RatePhaseFormValues,
   RatePhaseReference,
 } from './ratePhaseFormSchema'
-import { RatePhaseLocalDrawerContent } from './RatePhaseLocalDrawerContent'
+import {
+  buildCreatePhaseSeed,
+  buildRatePhaseSchemaContext,
+  insertPhaseReference,
+} from './ratePhaseSeeds'
 import { RateCardForRatePhaseFields } from './types'
 
 const RATE_PHASE_LOCAL_FORM_ID = 'rate-phase-local-drawer-form'
@@ -32,7 +40,10 @@ export const useRatePhaseLocalDrawer = (): {
 } => {
   const { translate } = useInternationalization()
   const drawer = useFormDrawer()
+  const { createMoreControl, isCreateMoreEnabled, resetCreateMore, resetSignal, notifyReset } =
+    useCreateMore()
   const currentArgs = useRef<OpenRatePhaseLocalDrawerArgs | null>(null)
+  const otherPhases = useRef<RatePhaseReference[]>([])
   const schemaContext = useRef<RatePhaseFormSchemaContext>({
     otherPhases: [],
     billingTiming: RateCardBillingTimingEnum.Arrears,
@@ -50,29 +61,34 @@ export const useRatePhaseLocalDrawer = (): {
       if (!args) return
 
       args.onSave(value, { replaceIndex: args.replaceIndex })
-      drawer.close()
+
+      if (args.phase || !isCreateMoreEnabled()) {
+        drawer.close()
+        return
+      }
+
+      otherPhases.current = insertPhaseReference(otherPhases.current, value)
+      schemaContext.current = buildRatePhaseSchemaContext(otherPhases.current, args.rateCard)
+      form.reset(buildCreatePhaseSeed(otherPhases.current, args.rateCard), {
+        keepDefaultValues: true,
+      })
+      notifyReset()
     },
   })
 
   const openDrawer = (args: OpenRatePhaseLocalDrawerArgs): void => {
     currentArgs.current = args
-    schemaContext.current = {
-      otherPhases: args.otherPhases,
-      billingTiming: args.rateCard.billingTiming,
-      hasPricingUnit: !!args.rateCard.appliedPricingUnitCode,
-      rateModelConfiguration: args.rateCard.rateModelConfiguration,
-    }
+    otherPhases.current = args.otherPhases
+    schemaContext.current = buildRatePhaseSchemaContext(args.otherPhases, args.rateCard)
+    resetCreateMore()
+
     const seed: RatePhaseFormValues = args.phase
       ? {
           ...RATE_PHASE_FORM_DEFAULTS,
           ...args.phase,
           ...getPositionDefaults(args.otherPhases, args.replaceIndex),
         }
-      : {
-          ...RATE_PHASE_FORM_DEFAULTS,
-          ...getPositionDefaults(args.otherPhases),
-          durationType: args.otherPhases.length > 0 ? 'finite' : 'forever',
-        }
+      : buildCreatePhaseSeed(args.otherPhases, args.rateCard)
 
     form.reset(seed, { keepDefaultValues: true })
 
@@ -84,15 +100,19 @@ export const useRatePhaseLocalDrawer = (): {
       title,
       form: { id: RATE_PHASE_LOCAL_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
+      onEntered: focusFirstInput,
       shouldPromptOnClose: () => form.state.isDirty,
       onClose: () => form.reset(),
+      secondaryAction: args.phase ? undefined : createMoreControl,
       children: (
-        <RatePhaseLocalDrawerContent
-          form={form}
-          title={title}
-          otherPhases={args.otherPhases}
-          rateCard={args.rateCard}
-        />
+        <CreateMoreResetBoundary resetSignal={resetSignal}>
+          <RatePhaseFormFields
+            form={form}
+            title={title}
+            getOtherPhases={() => otherPhases.current}
+            rateCard={args.rateCard}
+          />
+        </CreateMoreResetBoundary>
       ),
       mainAction: (
         <form.AppForm>
