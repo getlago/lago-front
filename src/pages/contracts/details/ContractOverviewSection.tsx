@@ -7,6 +7,8 @@ import { useContractSettingsDrawer } from '~/components/contracts/drawers/contra
 import { useUpdateContractSection } from '~/components/contracts/useUpdateContractSection'
 import { Status } from '~/components/designSystem/Status'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
+import { InvoiceCustomSectionDetails } from '~/components/invoceCustomFooter/InvoiceCustomSectionDetails'
+import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { useInvoicingSettingsDrawer } from '~/components/invoicingSettings/useInvoicingSettingsDrawer'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { usePaymentSettingsDrawer } from '~/components/paymentSettings/usePaymentSettingsDrawer'
@@ -41,6 +43,11 @@ gql`
     terminatedAt
     billingEntityId
     consolidateInvoice
+    selectedInvoiceCustomSections {
+      id
+      name
+    }
+    skipInvoiceCustomSections
     purchaseOrderNumber
     paymentMethodType
     paymentMethod {
@@ -94,10 +101,15 @@ export const ContractOverviewSection = (): JSX.Element => {
 
   const { openDrawer: openInvoicingSettingsDrawer } = useInvoicingSettingsDrawer({
     viewType: ViewTypeEnum.Contract,
-    showCustomSection: false,
+    customerId: contract?.customer.id,
+    showCustomSection: !!contract?.customer.id,
     withInvoiceConsolidation: true,
-    onSave: ({ consolidateInvoice }) =>
-      updateContractSection({ externalId: contract?.externalId ?? '', consolidateInvoice }),
+    onSave: ({ consolidateInvoice, invoiceCustomSection }) =>
+      updateContractSection({
+        externalId: contract?.externalId ?? '',
+        consolidateInvoice,
+        invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
+      }),
   })
 
   const { openDrawer: openPaymentSettingsDrawer } = usePaymentSettingsDrawer({
@@ -155,7 +167,14 @@ export const ContractOverviewSection = (): JSX.Element => {
   )
   const invoicingSettingsEditAction = buildEditAction(
     CONTRACT_OVERVIEW_INVOICING_EDIT_TEST_ID,
-    () => openInvoicingSettingsDrawer({ consolidateInvoice: contract?.consolidateInvoice ?? true }),
+    () =>
+      openInvoicingSettingsDrawer({
+        consolidateInvoice: contract?.consolidateInvoice ?? true,
+        invoiceCustomSection: {
+          invoiceCustomSections: contract?.selectedInvoiceCustomSections ?? [],
+          skipInvoiceCustomSections: contract?.skipInvoiceCustomSections ?? false,
+        },
+      }),
   )
   const paymentSettingsEditAction = buildEditAction(CONTRACT_OVERVIEW_PAYMENT_EDIT_TEST_ID, () =>
     openPaymentSettingsDrawer({ paymentMethod: selectedPaymentMethod }),
@@ -291,6 +310,12 @@ export const ContractOverviewSection = (): JSX.Element => {
               ? 'text_1778745351091h7z5baw0ta6'
               : 'text_1778745351091fxaqr5dwok8',
           )}
+        />
+        <InvoiceCustomSectionDetails
+          viewType={ViewTypeEnum.Contract}
+          customerId={contract?.customer.id}
+          selectedInvoiceCustomSections={contract?.selectedInvoiceCustomSections}
+          skipInvoiceCustomSections={contract?.skipInvoiceCustomSections}
         />
       </section>
 

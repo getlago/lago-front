@@ -3,26 +3,28 @@ import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 
-import { InvoiceCustomSectionDisplay } from '../invoceCustomFooter/InvoiceCustomSectionDisplay'
-import { InvoiceCustomSectionBasic } from '../invoceCustomFooter/types'
-import { hasInvoiceCustomSectionsContent } from '../invoceCustomFooter/utils'
+import { InvoiceCustomSectionDisplay } from './InvoiceCustomSectionDisplay'
+import { InvoiceCustomSectionBasic } from './types'
+import { hasInvoiceCustomSectionsContent } from './utils'
 
 export const INVOICE_CUSTOM_FOOTER_SECTION = 'invoice-custom-footer-section'
 
-interface SubscriptionInvoiceCustomSectionDetailsProps {
+interface InvoiceCustomSectionDetailsProps {
+  viewType: ViewTypeEnum
   customerId?: string
   selectedInvoiceCustomSections?: InvoiceCustomSectionBasic[] | null
   skipInvoiceCustomSections?: boolean | null
 }
 
-// Read-only display of the subscription's invoice custom sections (explicit
+// Read-only display of a billing object's invoice custom sections (explicit
 // selection, skip, or inherited customer/billing-entity default). Returns null
 // when there's nothing to inherit or display.
-export const SubscriptionInvoiceCustomSectionDetails = ({
+export const InvoiceCustomSectionDetails = ({
+  viewType,
   customerId,
   selectedInvoiceCustomSections,
   skipInvoiceCustomSections,
-}: SubscriptionInvoiceCustomSectionDetailsProps): JSX.Element | null => {
+}: InvoiceCustomSectionDetailsProps): JSX.Element | null => {
   const { translate } = useInternationalization()
 
   const { data: customerIcsData } = useCustomerInvoiceCustomSections(customerId || '')
@@ -46,7 +48,7 @@ export const SubscriptionInvoiceCustomSectionDetails = ({
             selectedSections={selectedInvoiceCustomSections}
             skipSections={skipInvoiceCustomSections}
             customerId={customerId}
-            viewType={ViewTypeEnum.Subscription}
+            viewType={viewType}
           />
         }
       />

@@ -318,6 +318,7 @@ describe('useCustomerDetailsHeaderActions', () => {
 
         expect(mockOpenContractDrawer).toHaveBeenCalledWith({
           customer: {
+            id: 'cust-1',
             externalId: 'ext-1',
             displayName: 'Test Customer',
             applicableTimezone: TimezoneEnum.TzUtc,

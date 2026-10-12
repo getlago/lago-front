@@ -1,3 +1,4 @@
+import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { getTodayAtUtcMidnight } from '~/core/timezone'
 import { TimezoneEnum } from '~/generated/graphql'
@@ -33,6 +34,7 @@ export interface ContractFormValues {
   name: string
   billingEntityId?: string
   consolidateInvoice: boolean
+  invoiceCustomSection: InvoiceCustomSectionInput
   paymentMethod?: SelectedPaymentMethod
   purchaseOrderNumber?: string | null
   startedAt: string
@@ -43,6 +45,7 @@ export interface ContractFormValues {
 }
 
 export interface ContractDrawerCustomer {
+  id?: string
   externalId: string
   displayName?: string | null
   applicableTimezone?: TimezoneEnum | null
@@ -67,6 +70,7 @@ export const buildContractFormDefaults = (
     name: '',
     billingEntityId: customer?.billingEntityId,
     consolidateInvoice: true,
+    invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
     paymentMethod: undefined,
     purchaseOrderNumber: undefined,
     startedAt: today,
@@ -90,6 +94,7 @@ export const CONTRACT_FORM_DEFAULTS: ContractFormValues = {
   name: '',
   billingEntityId: undefined,
   consolidateInvoice: true,
+  invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
   paymentMethod: undefined,
   purchaseOrderNumber: undefined,
   startedAt: '2026-01-01',

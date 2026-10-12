@@ -57,6 +57,7 @@ gql`
 
 type CustomerContractsListProps = {
   customer: {
+    id: string
     externalId: string
     displayName: string
     applicableTimezone: TimezoneEnum
@@ -161,6 +162,7 @@ export const CustomerContractsList = ({ customer }: CustomerContractsListProps):
                 onClick: () =>
                   openContractDrawer({
                     customer: {
+                      id: customer.id,
                       externalId: customer.externalId,
                       displayName: customer.displayName,
                       applicableTimezone: customer.applicableTimezone,

@@ -25,6 +25,7 @@ import { ContractDrawerContent } from '../ContractDrawerContent'
 const FORM_DIRTY_STATE_TEST_ID = 'form-dirty-state'
 const mockBillingEntityPicker = jest.fn()
 const mockPaymentSettingsSelector = jest.fn()
+const mockInvoicingSettingsSection = jest.fn()
 
 jest.mock('~/components/billingEntity/BillingEntityFormPicker', () => ({
   BillingEntityFormPicker: (props: Record<string, unknown>) => {
@@ -41,7 +42,10 @@ jest.mock('~/components/paymentSettings/PaymentSettingsSelector', () => ({
 }))
 
 jest.mock('../ContractInvoicingSettingsSection', () => ({
-  ContractInvoicingSettingsSection: () => <div data-test="invoicing-settings-selector" />,
+  ContractInvoicingSettingsSection: (props: Record<string, unknown>) => {
+    mockInvoicingSettingsSection(props)
+    return <div data-test="invoicing-settings-selector" />
+  },
 }))
 
 jest.mock('~/components/purchaseOrder/PurchaseOrderFormBlock', () => ({
@@ -138,6 +142,22 @@ describe('ContractDrawerContent', () => {
         disabled: false,
       }),
     )
+    await waitFor(() =>
+      expect(mockInvoicingSettingsSection).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          customerId: 'customer-1',
+          invoiceCustomSection: CONTRACT_FORM_DEFAULTS.invoiceCustomSection,
+        }),
+      ),
+    )
+  })
+
+  it('leaves the invoicing section without a customer id until the matching customer has loaded', () => {
+    render(<Wrapper />, { mocks: [customersMock, plansMock] })
+
+    expect(mockInvoicingSettingsSection.mock.calls[0][0]).toEqual(
+      expect.objectContaining({ customerId: undefined }),
+    )
   })
 
   it('reveals and removes the optional contract identity fields', async () => {
@@ -158,7 +178,11 @@ describe('ContractDrawerContent', () => {
   it('does not mark the form dirty once a seeded customer resolves from the loaded list', async () => {
     render(
       <Wrapper
-        seededCustomer={{ externalId: 'customer-external-id', billingEntityId: 'billing-entity-1' }}
+        seededCustomer={{
+          id: 'seeded-customer-id',
+          externalId: 'customer-external-id',
+          billingEntityId: 'billing-entity-1',
+        }}
       />,
       { mocks: [customersMock, plansMock] },
     )
@@ -169,6 +193,11 @@ describe('ContractDrawerContent', () => {
       ),
     )
     expect(screen.getByTestId(FORM_DIRTY_STATE_TEST_ID)).toHaveTextContent('pristine')
+    // The seed's own id wins over the matching collection entry ('customer-1'),
+    // so the search page resolving later never swaps the customer id under it.
+    expect(mockInvoicingSettingsSection).toHaveBeenLastCalledWith(
+      expect.objectContaining({ customerId: 'seeded-customer-id' }),
+    )
   })
 
   it('clears customer-dependent settings when the customer is cleared', async () => {

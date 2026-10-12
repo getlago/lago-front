@@ -92,6 +92,7 @@ const ContractDrawerFormSections = withForm({
     const externalCustomerId = useStore(form.store, (state) => state.values.externalCustomerId)
     const billingEntityId = useStore(form.store, (state) => state.values.billingEntityId)
     const consolidateInvoice = useStore(form.store, (state) => state.values.consolidateInvoice)
+    const invoiceCustomSection = useStore(form.store, (state) => state.values.invoiceCustomSection)
     const paymentMethod = useStore(form.store, (state) => state.values.paymentMethod)
 
     const customersCollection = customersData?.customers?.collection
@@ -158,17 +159,19 @@ const ContractDrawerFormSections = withForm({
       [catalogPlansData?.catalogPlans?.collection],
     )
 
-    // The caption reads in the customer's timezone. A seeded customer carries its
-    // own; a searched one is resolved from the loaded page, and falls back to the
-    // organization timezone inside the helper when it is not there.
-    const customerTimezone = useMemo(() => {
+    // The caption reads in the customer's timezone, and the invoicing section needs
+    // its internal id. A seeded customer carries both already; a searched one is
+    // resolved from the loaded page. The timezone falls back to the organization's
+    // inside the caption helper when it is not there.
+    const effectiveCustomer = useMemo(() => {
       if (seededCustomer?.externalId === externalCustomerId) {
-        return seededCustomer?.applicableTimezone
+        return seededCustomer
       }
 
       return customersCollection?.find(({ externalId }) => externalId === externalCustomerId)
-        ?.applicableTimezone
     }, [seededCustomer, externalCustomerId, customersCollection])
+    const customerTimezone = effectiveCustomer?.applicableTimezone
+    const customerId = effectiveCustomer?.id
 
     const handleHideName = (): void => {
       // Skip the write when already empty: setFieldValue always marks the field
@@ -315,7 +318,12 @@ const ContractDrawerFormSections = withForm({
             />
             <ContractInvoicingSettingsSection
               consolidateInvoice={consolidateInvoice}
+              invoiceCustomSection={invoiceCustomSection}
+              customerId={customerId}
               onChange={(value) => form.setFieldValue('consolidateInvoice', value)}
+              onInvoiceCustomSectionChange={(value) =>
+                form.setFieldValue('invoiceCustomSection', value)
+              }
             />
           </CenteredPage.PageSection>
 
