@@ -1022,6 +1022,7 @@ export type BillingEntity = {
   name: Scalars['String']['output'];
   netPaymentTerm?: Maybe<Scalars['Int']['output']>;
   organization: Organization;
+  paymentTerm?: Maybe<PaymentTerm>;
   phone?: Maybe<Scalars['String']['output']>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
   state?: Maybe<Scalars['String']['output']>;
@@ -2181,6 +2182,7 @@ export type CreateBillingEntityInput = {
   logo?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   phone?: InputMaybe<Scalars['String']['input']>;
   state?: InputMaybe<Scalars['String']['input']>;
   taxIdentificationNumber?: InputMaybe<Scalars['String']['input']>;
@@ -2306,6 +2308,7 @@ export type CreateCustomerInput = {
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
   paymentProviderCustomers?: InputMaybe<Array<PaymentProviderCustomerInput>>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   phone?: InputMaybe<Scalars['String']['input']>;
   providerCustomer?: InputMaybe<ProviderCustomerInput>;
   shippingAddress?: InputMaybe<CustomerAddressInput>;
@@ -2825,6 +2828,7 @@ export type CreateSubscriptionInput = {
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   name?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   planId: Scalars['ID']['input'];
   planOverrides?: InputMaybe<PlanOverridesInput>;
   progressiveBillingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3455,6 +3459,7 @@ export type Customer = {
   paymentProvider?: Maybe<ProviderTypeEnum>;
   paymentProviderCode?: Maybe<Scalars['String']['output']>;
   paymentProviderCustomers: Array<ProviderCustomer>;
+  paymentTerm?: Maybe<PaymentTerm>;
   phone?: Maybe<Scalars['String']['output']>;
   /** @deprecated Use paymentProviderCustomers instead */
   providerCustomer?: Maybe<ProviderCustomer>;
@@ -5570,6 +5575,7 @@ export type Invoice = {
   paymentDueDate: Scalars['ISO8601Date']['output'];
   paymentOverdue: Scalars['Boolean']['output'];
   paymentStatus: InvoicePaymentStatusTypeEnum;
+  paymentTerm: PaymentTerm;
   payments?: Maybe<Array<Payment>>;
   prepaidCreditAmountCents: Scalars['BigInt']['output'];
   prepaidGrantedCreditAmountCents?: Maybe<Scalars['BigInt']['output']>;
@@ -8215,6 +8221,33 @@ export type PaymentRequestCreateInput = {
   lagoInvoiceIds?: InputMaybe<Array<Scalars['String']['input']>>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
 };
+
+/** Structured payment term */
+export type PaymentTerm = {
+  __typename?: 'PaymentTerm';
+  dayOfMonth?: Maybe<Scalars['Int']['output']>;
+  days?: Maybe<Scalars['Int']['output']>;
+  monthOffset?: Maybe<Scalars['Int']['output']>;
+  termType: PaymentTermTypeEnum;
+};
+
+/** Structured payment term input */
+export type PaymentTermInput = {
+  dayOfMonth?: InputMaybe<Scalars['Int']['input']>;
+  days?: InputMaybe<Scalars['Int']['input']>;
+  monthOffset?: InputMaybe<Scalars['Int']['input']>;
+  termType: PaymentTermTypeEnum;
+};
+
+/** Payment term type */
+export enum PaymentTermTypeEnum {
+  DayOfMonth = 'day_of_month',
+  DaysEndOfMonth = 'days_end_of_month',
+  DueOnReceipt = 'due_on_receipt',
+  EndOfMonth = 'end_of_month',
+  Net = 'net',
+  NetEndOfMonth = 'net_end_of_month'
+}
 
 export enum PaymentTypeEnum {
   Manual = 'manual',
@@ -11406,6 +11439,7 @@ export type Subscription = {
   onTerminationInvoice: OnTerminationInvoiceEnum;
   paymentMethod?: Maybe<PaymentMethod>;
   paymentMethodType?: Maybe<PaymentMethodTypeEnum>;
+  paymentTerm?: Maybe<PaymentTerm>;
   periodEndDate?: Maybe<Scalars['ISO8601Date']['output']>;
   plan: Plan;
   previousPlan?: Maybe<Plan>;
@@ -12090,6 +12124,7 @@ export type UpdateBillingEntityInput = {
   logo?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   phone?: InputMaybe<Scalars['String']['input']>;
   state?: InputMaybe<Scalars['String']['input']>;
   taxIdentificationNumber?: InputMaybe<Scalars['String']['input']>;
@@ -12227,6 +12262,7 @@ export type UpdateCustomerInput = {
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
   paymentProviderCustomers?: InputMaybe<Array<PaymentProviderCustomerInput>>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   phone?: InputMaybe<Scalars['String']['input']>;
   providerCustomer?: InputMaybe<ProviderCustomerInput>;
   shippingAddress?: InputMaybe<CustomerAddressInput>;
@@ -12823,6 +12859,7 @@ export type UpdateSubscriptionInput = {
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   name?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   planOverrides?: InputMaybe<PlanOverridesInput>;
   progressiveBillingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
   purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
