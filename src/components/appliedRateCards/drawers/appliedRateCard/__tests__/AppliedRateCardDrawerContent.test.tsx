@@ -40,10 +40,6 @@ jest.mock('~/components/form/ComboBox/ComboBox', () => {
 
 const mockOpenRateCardDrawer = jest.fn()
 
-jest.mock('~/pages/catalog/drawers/rateCard/useRateCardDrawer', () => ({
-  useRateCardDrawer: () => ({ openDrawer: mockOpenRateCardDrawer }),
-}))
-
 const mockOpenRatePhaseLocalDrawer = jest.fn()
 
 jest.mock('~/components/appliedRateCards/drawers/ratePhase/useRatePhaseLocalDrawer', () => ({
@@ -165,7 +161,11 @@ const Host = ({ context = 'plan' }: { context?: 'plan' | 'contract' }): JSX.Elem
       <form.Subscribe selector={(state) => state.values.ratePhases.length}>
         {(length) => <output data-test={RATE_PHASES_LENGTH_PROBE_TEST_ID}>{length}</output>}
       </form.Subscribe>
-      <AppliedRateCardDrawerContent form={form} context={context} />
+      <AppliedRateCardDrawerContent
+        form={form}
+        context={context}
+        openRateCardDrawer={mockOpenRateCardDrawer}
+      />
     </>
   )
 }

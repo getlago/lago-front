@@ -17,6 +17,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { useRateCardDrawer } from '~/pages/catalog/drawers/rateCard/useRateCardDrawer'
 
 import { AppliedRateCardDrawerContent } from './AppliedRateCardDrawerContent'
 import {
@@ -51,6 +52,7 @@ export const useAppliedRateCardDrawer = (): {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const drawer = useFormDrawer()
+  const { openDrawer: openRateCardDrawer } = useRateCardDrawer()
   const { createMoreControl, isCreateMoreEnabled, resetCreateMore, resetSignal, notifyReset } =
     useCreateMore()
   const [createPlanAppliedRateCard] = useCreatePlanAppliedRateCardMutation()
@@ -126,7 +128,11 @@ export const useAppliedRateCardDrawer = (): {
       secondaryAction: createMoreControl,
       children: (
         <CreateMoreResetBoundary resetSignal={resetSignal}>
-          <AppliedRateCardDrawerContent form={form} context={props.context} />
+          <AppliedRateCardDrawerContent
+            form={form}
+            context={props.context}
+            openRateCardDrawer={openRateCardDrawer}
+          />
         </CreateMoreResetBoundary>
       ),
       mainAction: (

@@ -21,9 +21,11 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
-import { useRateCardDrawer } from '~/pages/catalog/drawers/rateCard/useRateCardDrawer'
+import type { useRateCardDrawer } from '~/pages/catalog/drawers/rateCard/useRateCardDrawer'
 
 import { APPLIED_RATE_CARD_FORM_DEFAULTS } from './validationSchema'
+
+type OpenRateCardDrawer = ReturnType<typeof useRateCardDrawer>['openDrawer']
 
 export const APPLIED_RATE_CARD_DRAWER_PRODUCT_TEST_ID = 'applied-rate-card-drawer-product'
 export const APPLIED_RATE_CARD_DRAWER_SHOW_FILTER_TEST_ID = 'applied-rate-card-drawer-show-filter'
@@ -109,18 +111,21 @@ gql`
   ${PropertiesForRateCardRateFragmentDoc}
 `
 
-type AppliedRateCardDrawerContentProps = { context: 'plan' | 'contract' }
+type AppliedRateCardDrawerContentProps = {
+  context: 'plan' | 'contract'
+  openRateCardDrawer: OpenRateCardDrawer
+}
 
 const appliedRateCardDrawerContentDefaultProps: AppliedRateCardDrawerContentProps = {
   context: 'plan',
+  openRateCardDrawer: () => {},
 }
 
 export const AppliedRateCardDrawerContent = withForm({
   defaultValues: APPLIED_RATE_CARD_FORM_DEFAULTS,
   props: appliedRateCardDrawerContentDefaultProps,
-  render: function AppliedRateCardDrawerContentRender({ form, context }) {
+  render: function AppliedRateCardDrawerContentRender({ form, context, openRateCardDrawer }) {
     const { translate } = useInternationalization()
-    const { openDrawer: openRateCardDrawer } = useRateCardDrawer()
     const { openDrawer: openRatePhaseDrawer } = useRatePhaseLocalDrawer()
     const [shouldDisplayFilter, setShouldDisplayFilter] = useState(false)
 
