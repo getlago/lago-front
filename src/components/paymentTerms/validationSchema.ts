@@ -12,8 +12,8 @@ import { PaymentTermTypeEnum } from '~/generated/graphql'
 
 import { isConcreteTermType } from './utils'
 
-const isPositiveIntegerWithin = (value: number | '', min: number, max: number): boolean =>
-  typeof value === 'number' && Number.isInteger(value) && value >= min && value <= max
+const isPositiveIntegerWithin = (value: string, min: number, max: number): boolean =>
+  /^\d+$/.test(value) && Number(value) >= min && Number(value) <= max
 
 /**
  * Mirrors the API's discriminated-union validation: a type's own fields are required and
@@ -24,9 +24,9 @@ export const paymentTermFormSchema = z
     termType: z.union([z.enum(PaymentTermTypeEnum), z.literal(PAYMENT_TERM_INHERIT)], {
       message: 'text_1789042962229hmb871mrfas',
     }),
-    days: z.union([z.number(), z.literal('')]),
-    dayOfMonth: z.union([z.number(), z.literal('')]),
-    monthOffset: z.union([z.number(), z.literal('')]),
+    days: z.string(),
+    dayOfMonth: z.string(),
+    monthOffset: z.string(),
   })
   .superRefine((values, ctx) => {
     if (!isConcreteTermType(values.termType)) return
