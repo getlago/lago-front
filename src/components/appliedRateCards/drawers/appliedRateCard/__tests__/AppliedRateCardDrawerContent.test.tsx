@@ -20,7 +20,6 @@ import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import {
   APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID,
-  APPLIED_RATE_CARD_DRAWER_PHASES_EMPTY_STATE_TEST_ID,
   APPLIED_RATE_CARD_DRAWER_PRODUCT_FILTER_TEST_ID,
   APPLIED_RATE_CARD_DRAWER_PRODUCT_TEST_ID,
   APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID,
@@ -390,18 +389,19 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     jest.clearAllMocks()
   })
 
-  it('GIVEN a product but no rate card selected THEN the phases empty state renders without the add action', async () => {
+  it('GIVEN a product but no rate card selected THEN the rate phases section does not render', async () => {
     renderContent([productsMock(), rateCardsMock(() => undefined, [])])
 
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
 
     expect(
-      await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_PHASES_EMPTY_STATE_TEST_ID),
+      await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID),
     ).toBeInTheDocument()
+    expect(screen.queryByText('Rate phases')).not.toBeInTheDocument()
     expect(screen.queryByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID)).not.toBeInTheDocument()
   })
 
-  it('GIVEN a rate card without an active rate THEN the add action still renders', async () => {
+  it('GIVEN a rate card with no phase and no active rate THEN the add action renders', async () => {
     renderContent([
       productsMock(),
       rateCardsMock(() => undefined, [{ ...RATE_CARD, activeRate: null }]),
@@ -410,26 +410,8 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
     await selectRateCard()
 
-    expect(
-      await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID),
-    ).toBeInTheDocument()
-    expect(
-      screen.queryByTestId(APPLIED_RATE_CARD_DRAWER_PHASES_EMPTY_STATE_TEST_ID),
-    ).not.toBeInTheDocument()
-  })
-
-  it('GIVEN a rate card selected THEN the phases empty state is replaced by the add action', async () => {
-    renderContent([productsMock(), rateCardsMock(() => undefined)])
-
-    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
-    await selectRateCard()
-
-    expect(
-      await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID),
-    ).toBeInTheDocument()
-    expect(
-      screen.queryByTestId(APPLIED_RATE_CARD_DRAWER_PHASES_EMPTY_STATE_TEST_ID),
-    ).not.toBeInTheDocument()
+    expect(await screen.findByText('Rate phases')).toBeInTheDocument()
+    expect(screen.getByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID)).toBeInTheDocument()
   })
 
   it('GIVEN a rate card selected AND "Add a phase" clicked THEN the local rate-phase drawer opens with the current phases as positions', async () => {

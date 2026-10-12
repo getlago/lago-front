@@ -44,8 +44,6 @@ export const APPLIED_RATE_CARD_DRAWER_REMOVE_FILTER_TEST_ID =
   'applied-rate-card-drawer-remove-filter'
 export const APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID = 'applied-rate-card-drawer-rate-card'
 export const APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID = 'applied-rate-card-drawer-add-phase'
-export const APPLIED_RATE_CARD_DRAWER_PHASES_EMPTY_STATE_TEST_ID =
-  'applied-rate-card-drawer-phases-empty-state'
 
 gql`
   fragment ProductForAppliedRateCardDrawer on Product {
@@ -371,41 +369,6 @@ export const AppliedRateCardDrawerContent = withForm({
       )
     }
 
-    const renderRatePhases = (): ReactNode => {
-      if (!selectedRateCard) {
-        return (
-          <div
-            className="rounded-xl border border-dashed border-grey-300 p-3 text-center"
-            data-test={APPLIED_RATE_CARD_DRAWER_PHASES_EMPTY_STATE_TEST_ID}
-          >
-            <Typography variant="caption" color="grey500">
-              {translate('text_1791833366840eersb7p5eqy')}
-            </Typography>
-          </div>
-        )
-      }
-
-      return (
-        <>
-          <RatePhaseList
-            variant="accordion"
-            phases={ratePhases}
-            activeRate={selectedRateCard.activeRate ?? null}
-            onEdit={handleEditPhase}
-            onRemove={handleRemovePhase}
-          />
-
-          {hasForeverPhaseBeforeLast && (
-            <Alert type="warning">{translate('text_1791835259930jvwajr0xa8s')}</Alert>
-          )}
-
-          {lastPhaseIsFinite && (
-            <Alert type="warning">{translate('text_1791485670326e1zbmola1n3')}</Alert>
-          )}
-        </>
-      )
-    }
-
     return (
       <>
         <div className="flex flex-col gap-2">
@@ -526,7 +489,7 @@ export const AppliedRateCardDrawerContent = withForm({
             </CenteredPage.PageSection>
           )}
 
-          {!!productId && (
+          {!!selectedRateCard && (
             <CenteredPage.PageSection>
               <SectionHeader
                 title={translate('text_1791485670326kzyf0uhsn23')}
@@ -535,12 +498,25 @@ export const AppliedRateCardDrawerContent = withForm({
                 action={{
                   label: translate('text_1791485670326hf9c29bdje6'),
                   dataTest: APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID,
-                  hidden: !rateCardForPhaseFields,
                   onClick: handleAddPhase,
                 }}
               />
 
-              {renderRatePhases()}
+              <RatePhaseList
+                variant="accordion"
+                phases={ratePhases}
+                activeRate={selectedRateCard.activeRate ?? null}
+                onEdit={handleEditPhase}
+                onRemove={handleRemovePhase}
+              />
+
+              {hasForeverPhaseBeforeLast && (
+                <Alert type="warning">{translate('text_1791835259930jvwajr0xa8s')}</Alert>
+              )}
+
+              {lastPhaseIsFinite && (
+                <Alert type="warning">{translate('text_1791485670326e1zbmola1n3')}</Alert>
+              )}
             </CenteredPage.PageSection>
           )}
         </CenteredPage.SubsectionWrapper>
