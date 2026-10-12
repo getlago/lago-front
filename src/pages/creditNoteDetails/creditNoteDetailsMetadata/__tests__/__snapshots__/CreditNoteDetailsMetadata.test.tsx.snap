@@ -49,9 +49,6 @@ exports[`CreditNoteDetailsMetadata snapshots matches snapshot with metadata 1`] 
         </div>
       </div>
     </div>
-    <div
-      data-test="metadata-edit-drawer"
-    />
   </div>
 </div>
 `;
@@ -86,9 +83,6 @@ exports[`CreditNoteDetailsMetadata snapshots matches snapshot with no metadata 1
         class="grid grid-cols-1 md:grid-cols-[fit-content(100%)_1fr] gap-x-8 md:gap-y-2 [&>*:nth-child(odd):not(:first-child)]:mt-2 md:[&>*:nth-child(odd):not(:first-child)]:mt-0"
       />
     </div>
-    <div
-      data-test="metadata-edit-drawer"
-    />
   </div>
 </div>
 `;
