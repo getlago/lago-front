@@ -303,7 +303,7 @@ describe('mapFormToCreateInput', () => {
   })
 
   it('sends the chosen payment term, or null when the wallet inherits', () => {
-    expect(mapFormToCreateInput(baseForm(), 'customer-id').paymentTerm).toBeNull()
+    expect(mapFormToCreateInput(baseForm(), 'customer-id', true).paymentTerm).toBeNull()
     expect(
       mapFormToCreateInput(
         baseForm({
@@ -313,6 +313,7 @@ describe('mapFormToCreateInput', () => {
           ),
         }),
         'customer-id',
+        true,
       ).paymentTerm,
     ).toEqual({ termType: PaymentTermTypeEnum.DayOfMonth, dayOfMonth: 10, monthOffset: 2 })
   })
@@ -410,7 +411,7 @@ describe('mapFormToUpdateInput', () => {
   })
 
   it('clears the payment term with an explicit null when the wallet goes back to inheriting', () => {
-    expect(mapFormToUpdateInput(baseForm(), 'wallet-id').paymentTerm).toBeNull()
+    expect(mapFormToUpdateInput(baseForm(), 'wallet-id', true).paymentTerm).toBeNull()
     expect(
       mapFormToUpdateInput(
         baseForm({
@@ -420,6 +421,7 @@ describe('mapFormToUpdateInput', () => {
           ),
         }),
         'wallet-id',
+        true,
       ).paymentTerm,
     ).toEqual({ termType: PaymentTermTypeEnum.Net, days: 15 })
   })

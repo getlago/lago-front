@@ -83,7 +83,7 @@ describe('walletFormValidationSchema', () => {
           paymentTerm: {
             ...paymentTermFormValuesFromTerm(null, true),
             termType: PaymentTermTypeEnum.DayOfMonth,
-            dayOfMonth: 32,
+            dayOfMonth: '32',
           },
         }),
       )
