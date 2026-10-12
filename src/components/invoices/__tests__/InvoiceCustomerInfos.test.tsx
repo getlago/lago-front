@@ -14,6 +14,7 @@ import {
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
+  PaymentTermTypeEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -36,6 +37,12 @@ describe('InvoiceCustomerInfos', () => {
     invoiceType: InvoiceTypeEnum.OneOff,
     issuingDate: '2024-01-15',
     paymentDueDate: '2024-02-15',
+    paymentTerm: {
+      termType: PaymentTermTypeEnum.Net,
+      days: 30,
+      dayOfMonth: null,
+      monthOffset: null,
+    },
     paymentOverdue: false,
     status: InvoiceStatusTypeEnum.Finalized,
     totalPaidAmountCents: '0',
@@ -174,6 +181,12 @@ describe('InvoiceCustomerInfos', () => {
       render(<InvoiceCustomerInfos invoice={mockInvoice} />)
 
       expect(screen.getByRole('link', { name: 'Acme Corporation' })).toBeInTheDocument()
+    })
+
+    it('should render the snapshotted payment term', () => {
+      render(<InvoiceCustomerInfos invoice={createMockInvoice()} />)
+
+      expect(screen.getByText('Net 30 days')).toBeInTheDocument()
     })
 
     it('should render overdue status when payment is overdue', () => {

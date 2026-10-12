@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 
 import { BasicComboBoxData } from '~/components/form/ComboBox/types'
+import { getInheritedFromCustomer } from '~/components/paymentTerms/utils'
 import {
   PAYMENT_TERM_DUE_DATE_PREVIEW_KEYS,
   PAYMENT_TERM_INHERIT,
@@ -142,8 +143,27 @@ export const usePaymentTerm = () => {
     ]
   }
 
+  /**
+   * The value shown for a billing object (subscription, wallet): its own term, else the
+   * customer's resolved term marked as inherited.
+   */
+  const getBillingObjectPaymentTermCopy = ({
+    ownTerm,
+    customer,
+  }: {
+    ownTerm: MaybePaymentTerm
+    customer: Parameters<typeof getInheritedFromCustomer>[0]
+  }): string => {
+    if (ownTerm) return formatPaymentTerm(ownTerm)
+
+    const inheritedFrom = getInheritedFromCustomer(customer)
+
+    return translate(inheritedFrom.labelKey, { value: formatPaymentTerm(inheritedFrom.term) })
+  }
+
   return {
     formatPaymentTerm,
+    getBillingObjectPaymentTermCopy,
     getDueDatePreviewCopy,
     getPaymentTermCopy,
     getTermTypeComboboxData,

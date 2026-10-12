@@ -1,3 +1,5 @@
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
+import { PAYMENT_TERM_INHERIT } from '~/core/constants/paymentTerm'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   ConnectionBehaviorEnum,
@@ -7,6 +9,7 @@ import {
   GetCustomerInfosForWalletFormQuery,
   GetWalletInfosForWalletFormQuery,
   PaymentMethodTypeEnum,
+  PaymentTermTypeEnum,
   RecurringTransactionIntervalEnum,
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
@@ -85,6 +88,7 @@ const baseForm = (overrides: Partial<TWalletDataForm> = {}): TWalletDataForm => 
   ignorePaidTopUpLimitsOnCreation: false,
   priority: '50',
   paymentMethod: { paymentMethodType: undefined, paymentMethodId: undefined },
+  paymentTerm: paymentTermFormValuesFromTerm(null, true),
   invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
   ...overrides,
 })
@@ -134,6 +138,27 @@ describe('mapFromApiToForm', () => {
       invoiceCustomSections: [{ id: 'ics-id', name: 'Section' }],
       skipInvoiceCustomSections: false,
     })
+  })
+
+  it('seeds the payment term from the wallet, or the inherit choice when it has none', () => {
+    expect(
+      mapFromApiToForm({ wallet, customerData, currency: CurrencyEnum.Usd }).paymentTerm.termType,
+    ).toBe(PAYMENT_TERM_INHERIT)
+    expect(
+      mapFromApiToForm({
+        wallet: {
+          ...wallet,
+          paymentTerm: {
+            termType: PaymentTermTypeEnum.Net,
+            days: 45,
+            dayOfMonth: null,
+            monthOffset: null,
+          },
+        },
+        customerData,
+        currency: CurrencyEnum.Usd,
+      }).paymentTerm,
+    ).toEqual({ termType: PaymentTermTypeEnum.Net, days: '45', dayOfMonth: '1', monthOffset: '1' })
   })
 
   it('transforms recurring rules (nested paymentMethod/invoiceCustomSection, query-only fields dropped)', () => {
@@ -277,6 +302,22 @@ describe('mapFormToCreateInput', () => {
     expect(mapFormToCreateInput(baseForm(), 'customer-id', true).purchaseOrderNumber).toBeNull()
   })
 
+  it('sends the chosen payment term, or null when the wallet inherits', () => {
+    expect(mapFormToCreateInput(baseForm(), 'customer-id', true).paymentTerm).toBeNull()
+    expect(
+      mapFormToCreateInput(
+        baseForm({
+          paymentTerm: paymentTermFormValuesFromTerm(
+            { termType: PaymentTermTypeEnum.DayOfMonth, dayOfMonth: 10, monthOffset: 2 },
+            true,
+          ),
+        }),
+        'customer-id',
+        true,
+      ).paymentTerm,
+    ).toEqual({ termType: PaymentTermTypeEnum.DayOfMonth, dayOfMonth: 10, monthOffset: 2 })
+  })
+
   it('normalizes the rule purchaseOrderNumber: trimmed when set, explicit null when cleared', () => {
     const buildRuleInput = (purchaseOrderNumber?: string) =>
       mapFormToCreateInput(
@@ -367,6 +408,22 @@ describe('mapFormToUpdateInput', () => {
         .purchaseOrderNumber,
     ).toBeNull()
     expect(mapFormToUpdateInput(baseForm(), 'wallet-id', true).purchaseOrderNumber).toBeNull()
+  })
+
+  it('clears the payment term with an explicit null when the wallet goes back to inheriting', () => {
+    expect(mapFormToUpdateInput(baseForm(), 'wallet-id', true).paymentTerm).toBeNull()
+    expect(
+      mapFormToUpdateInput(
+        baseForm({
+          paymentTerm: paymentTermFormValuesFromTerm(
+            { termType: PaymentTermTypeEnum.Net, days: 15 },
+            true,
+          ),
+        }),
+        'wallet-id',
+        true,
+      ).paymentTerm,
+    ).toEqual({ termType: PaymentTermTypeEnum.Net, days: 15 })
   })
 })
 
