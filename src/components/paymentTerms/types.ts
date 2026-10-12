@@ -13,9 +13,9 @@ export type PaymentTermInheritedFrom = { term: ResolvablePaymentTerm; labelKey: 
 
 export type PaymentTermFormValues = {
   termType: PaymentTermType | undefined
-  days: number | ''
-  dayOfMonth: number | ''
-  monthOffset: number | ''
+  days: string
+  dayOfMonth: string
+  monthOffset: string
 }
 
 /**
@@ -29,7 +29,7 @@ export type PaymentTermFormValues = {
  */
 export const PAYMENT_TERM_FORM_DEFAULT_VALUES: PaymentTermFormValues = {
   termType: undefined,
-  days: 0,
-  dayOfMonth: PAYMENT_TERM_DAY_OF_MONTH_MIN,
-  monthOffset: PAYMENT_TERM_DEFAULT_MONTH_OFFSET,
+  days: '0',
+  dayOfMonth: String(PAYMENT_TERM_DAY_OF_MONTH_MIN),
+  monthOffset: String(PAYMENT_TERM_DEFAULT_MONTH_OFFSET),
 }
