@@ -100,6 +100,10 @@ const createCreditNote = (metadata: Array<{ key: string; value: string }> = []):
   },
 })
 
+const scrollIntoViewMock = jest.fn()
+
+Element.prototype.scrollIntoView = scrollIntoViewMock
+
 const OPEN_BUTTON_TEST_ID = 'host-open-drawer'
 
 const Host = ({ creditNote }: { creditNote: CreditNote }) => {
@@ -293,6 +297,23 @@ describe('useMetadataEditDrawer', () => {
     })
 
     describe('WHEN a row is invalid', () => {
+      it('THEN should scroll the first errored input into view', async () => {
+        const user = userEvent.setup()
+
+        await openDrawerFor(createCreditNote())
+
+        await user.click(screen.getByTestId(ADD_CREDIT_NOTE_METADATA_ROW_TEST_ID))
+        await user.click(screen.getByTestId(METADATA_EDIT_DRAWER_SAVE_TEST_ID))
+
+        await waitFor(() => {
+          expect(scrollIntoViewMock).toHaveBeenCalled()
+        })
+
+        const scrolled = scrollIntoViewMock.mock.contexts[0] as HTMLElement
+
+        expect(scrolled.getAttribute('name')).toBe('metadata[0].key')
+      })
+
       it('THEN should not call the mutation', async () => {
         const user = userEvent.setup()
 

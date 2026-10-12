@@ -2,6 +2,7 @@ import { revalidateLogic } from '@tanstack/react-form'
 
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { addToast } from '~/core/apolloClient'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { GetCreditNoteForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -34,6 +35,9 @@ export const useMetadataEditDrawer = ({
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: metadataEditValidationSchema,
+    },
+    onSubmitInvalid({ formApi }) {
+      scrollToFirstInputError(METADATA_EDIT_FORM_ID, formApi.state.errorMap.onDynamic || {})
     },
     onSubmit: async ({ value }) => {
       if (!creditNote) return
