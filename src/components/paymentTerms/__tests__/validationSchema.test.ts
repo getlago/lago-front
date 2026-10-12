@@ -74,7 +74,7 @@ describe('paymentTermFormSchema', () => {
 
     describe('WHEN days is zero', () => {
       it('THEN should report no error', () => {
-        expect(errorsOf(values({ termType, days: 0 }))).toEqual([])
+        expect(errorsOf(values({ termType, days: '0' }))).toEqual([])
       })
     })
   })
@@ -83,7 +83,7 @@ describe('paymentTermFormSchema', () => {
     const dayOfMonthTerm = (overrides: Partial<PaymentTermFormValues> = {}) =>
       values({ termType: PaymentTermTypeEnum.DayOfMonth, ...overrides })
 
-    describe.each([0, 32])('WHEN the day of month is %s', (dayOfMonth) => {
+    describe.each(['0', '32'])('WHEN the day of month is %s', (dayOfMonth) => {
       it('THEN should report the day of month error', () => {
         expect(errorsOf(dayOfMonthTerm({ dayOfMonth }))).toEqual([
           { path: 'dayOfMonth', message: DAY_OF_MONTH_INVALID },
@@ -93,7 +93,7 @@ describe('paymentTermFormSchema', () => {
 
     describe('WHEN the month offset is out of range', () => {
       it('THEN should report the month offset error', () => {
-        expect(errorsOf(dayOfMonthTerm({ monthOffset: 13 }))).toEqual([
+        expect(errorsOf(dayOfMonthTerm({ monthOffset: '13' }))).toEqual([
           { path: 'monthOffset', message: MONTH_OFFSET_INVALID },
         ])
       })

@@ -43,8 +43,8 @@ export const getInitialFormValues = (
 
   return {
     termType: paymentTerm.termType,
-    days: paymentTerm.days ?? PAYMENT_TERM_FORM_DEFAULT_VALUES.days,
-    dayOfMonth: paymentTerm.dayOfMonth ?? PAYMENT_TERM_FORM_DEFAULT_VALUES.dayOfMonth,
-    monthOffset: paymentTerm.monthOffset ?? PAYMENT_TERM_DEFAULT_MONTH_OFFSET,
+    days: String(paymentTerm.days ?? PAYMENT_TERM_FORM_DEFAULT_VALUES.days),
+    dayOfMonth: String(paymentTerm.dayOfMonth ?? PAYMENT_TERM_FORM_DEFAULT_VALUES.dayOfMonth),
+    monthOffset: String(paymentTerm.monthOffset ?? PAYMENT_TERM_DEFAULT_MONTH_OFFSET),
   }
 }
