@@ -13,7 +13,7 @@ export const metadataEditValidationSchema = z.object({
   ),
 })
 
-export type MetadataEditFormValues = {
+type MetadataEditFormValues = {
   metadata: Array<{ key: string; value: string }>
 }
 

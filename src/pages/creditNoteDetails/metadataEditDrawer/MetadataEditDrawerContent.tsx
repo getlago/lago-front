@@ -42,23 +42,23 @@ export const MetadataEditDrawerContent = withForm({
   render: function MetadataEditDrawerContentRender({ form }) {
     const { translate } = useInternationalization()
 
-    const getErrorMessage = (errors: unknown, kind: MetadataFieldKind): string => {
-      if (!isZodErrors(errors)) return ''
+    const getErrorMessage = (errors: unknown, kind: MetadataFieldKind): string | undefined => {
+      if (!isZodErrors(errors)) return undefined
 
       const config = FIELD_CONFIG[kind]
-      const code = errors.map((error) => error.message).join('')
+      const codes = errors.map((error) => error.message)
 
-      if (code === MetadataErrorsEnum.uniqueness && config.uniquenessError) {
-        return translate(config.uniquenessError)
-      }
-      if (code === MetadataErrorsEnum.maxLength) {
-        return translate(config.maxLengthError, { max: config.maxLength })
-      }
-      if (code === MetadataErrorsEnum.required) {
+      if (codes.includes(MetadataErrorsEnum.required)) {
         return translate(config.requiredError)
       }
+      if (config.uniquenessError && codes.includes(MetadataErrorsEnum.uniqueness)) {
+        return translate(config.uniquenessError)
+      }
+      if (codes.includes(MetadataErrorsEnum.maxLength)) {
+        return translate(config.maxLengthError, { max: config.maxLength })
+      }
 
-      return ''
+      return undefined
     }
 
     const renderField = (index: number, kind: MetadataFieldKind) => (

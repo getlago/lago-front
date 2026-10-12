@@ -308,6 +308,80 @@ describe('MetadataEditDrawerContent', () => {
       })
     })
 
+    describe('WHEN a row carries both a required and a uniqueness issue', () => {
+      it.each([
+        ['first', 0],
+        ['second', 1],
+      ])('THEN should show the required error on the %s key', async (_, index) => {
+        const user = userEvent.setup()
+
+        render(
+          <Wrapper
+            initialMetadata={[
+              { key: '', value: 'one' },
+              { key: '', value: 'two' },
+            ]}
+          />,
+        )
+
+        await user.click(screen.getByTestId(SUBMIT_TEST_ID))
+
+        await waitFor(() => {
+          expect(screen.getAllByText(LABELS.text_1764753433918x3icklnboak)).toHaveLength(2)
+        })
+        expect(screen.getAllByText(LABELS.text_1764753433918x3icklnboak)[index]).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a row carries both a max length and a uniqueness issue', () => {
+      it('THEN should show the uniqueness error, as the Formik drawer did', async () => {
+        const user = userEvent.setup()
+        const tooLongKey = 'a'.repeat(CREDIT_NOTE_METADATA_KEY_MAX_LENGTH + 1)
+
+        render(
+          <Wrapper
+            initialMetadata={[
+              { key: tooLongKey, value: 'one' },
+              { key: tooLongKey, value: 'two' },
+            ]}
+          />,
+        )
+
+        await user.click(screen.getByTestId(SUBMIT_TEST_ID))
+
+        await waitFor(() => {
+          expect(screen.getAllByText(LABELS.text_63fcc3218d35b9377840f5dd)).toHaveLength(2)
+        })
+      })
+    })
+
+    describe('WHEN the limits inherited from the Formik drawer are exercised', () => {
+      it.each([
+        ['a key of 40 characters', 'a'.repeat(40), 'v', null],
+        ['a key of 41 characters', 'a'.repeat(41), 'v', 'Key must be under 40 characters'],
+        ['a value of 255 characters', 'k', 'v'.repeat(255), null],
+        ['a value of 256 characters', 'k', 'v'.repeat(256), 'Value must be 255 characters maximum'],
+      ])('THEN should handle %s', async (_label, key, value, expectedError) => {
+        const user = userEvent.setup()
+
+        render(<Wrapper initialMetadata={[{ key, value }]} />)
+
+        await user.click(screen.getByTestId(SUBMIT_TEST_ID))
+
+        if (expectedError) {
+          await waitFor(() => {
+            expect(screen.getByText(expectedError)).toBeInTheDocument()
+          })
+
+          return
+        }
+
+        await waitFor(() => {
+          expect(screen.queryByText(/characters/)).not.toBeInTheDocument()
+        })
+      })
+    })
+
     describe('WHEN a valid row is submitted', () => {
       it('THEN should display no error', async () => {
         const user = userEvent.setup()
