@@ -6,6 +6,7 @@ import { ComponentProps } from 'react'
 import { AdditionalIntegrationSettingsSelector } from '~/components/additionalIntegrationSettings/AdditionalIntegrationSettingsSelector'
 import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import { CENTRALIZED_DIALOG_NAME } from '~/components/dialogs/const'
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
 import { SubscriptionFormValues } from '~/formValidation/subscriptionFormSchema'
 import { BillingTimeEnum, ConnectionBehaviorEnum, FeatureFlagEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
@@ -383,6 +384,7 @@ describe('CreateSubscription', () => {
       accountingConnection: { behavior: ConnectionBehaviorEnum.Skip },
       crmConnection: { behavior: ConnectionBehaviorEnum.Inherit },
       taxConnection: { code: 'avalara_us' },
+      paymentTerm: paymentTermFormValuesFromTerm(null, true),
     }
 
     it.each([true, false])('THEN should map connections only with flag %s', async (enabled) => {
