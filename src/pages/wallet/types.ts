@@ -37,7 +37,13 @@ export type TWalletDataForm = Omit<
 > &
   Omit<
     UpdateCustomerWalletInput,
-    'id' | 'name' | 'code' | 'priority' | 'recurringTransactionRules' | 'connections' | 'paymentTerm'
+    | 'id'
+    | 'name'
+    | 'code'
+    | 'priority'
+    | 'recurringTransactionRules'
+    | 'connections'
+    | 'paymentTerm'
   > & {
     // Always strings in the form ('' when unset) so they stay compatible
     // with NameAndCodeGroup's field mapping.
