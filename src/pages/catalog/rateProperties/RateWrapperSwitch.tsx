@@ -61,7 +61,7 @@ gql`
 // need the React-extended form type for their own `form` prop - same runtime object either way.
 // Mirrors `@tanstack/form-core`'s own `AnyFormApi = FormApi<any, ...>` type-erasure pattern.
 /* eslint-disable @typescript-eslint/no-explicit-any */
-type AnyReactFormApi = AppFieldExtendedReactFormApi<
+export type AnyReactFormApi = AppFieldExtendedReactFormApi<
   any,
   any,
   any,
@@ -87,6 +87,7 @@ type RatePropertiesTierTableProps = {
   fields: 'properties'
   currency: CurrencyEnum
   pricingUnitShortName: string | undefined
+  disabled?: boolean
 }
 
 const BoundGraduatedRateTiersTable =
@@ -96,11 +97,12 @@ const BoundGraduatedPercentageRateTiersTable =
 const BoundVolumeRateTiersTable =
   VolumeRateTiersTable as ComponentType<RatePropertiesTierTableProps>
 
-type RateWrapperSwitchProps = {
+export type RateWrapperSwitchProps = {
   rateModel: RateCardRateModelEnum
   productType: ProductTypeEnum
   currency: CurrencyEnum
   pricingUnitShortName: string | undefined
+  disabled?: boolean
   onExpandCustomCharge: (currentValue: string | undefined) => void
 }
 
@@ -109,6 +111,7 @@ const rateWrapperSwitchDefaultProps: RateWrapperSwitchProps = {
   productType: ProductTypeEnum.Metered,
   currency: CurrencyEnum.Usd,
   pricingUnitShortName: undefined,
+  disabled: false,
   onExpandCustomCharge: () => undefined,
 }
 
@@ -121,6 +124,7 @@ export const RateWrapperSwitch = withFieldGroup({
     productType,
     currency,
     pricingUnitShortName,
+    disabled,
     onExpandCustomCharge,
   }) {
     const hostForm = group.form as unknown as AnyReactFormApi
@@ -137,6 +141,7 @@ export const RateWrapperSwitch = withFieldGroup({
           fields="properties"
           currency={currency}
           pricingUnitShortName={pricingUnitShortName}
+          disabled={disabled}
         />
       ),
       [RateCardRateModelEnum.GraduatedPercentage]: (
@@ -145,6 +150,7 @@ export const RateWrapperSwitch = withFieldGroup({
           fields="properties"
           currency={currency}
           pricingUnitShortName={pricingUnitShortName}
+          disabled={disabled}
         />
       ),
       [RateCardRateModelEnum.Volume]: (
@@ -153,6 +159,7 @@ export const RateWrapperSwitch = withFieldGroup({
           fields="properties"
           currency={currency}
           pricingUnitShortName={pricingUnitShortName}
+          disabled={disabled}
         />
       ),
     }
@@ -162,6 +169,7 @@ export const RateWrapperSwitch = withFieldGroup({
         form={group.form as unknown as AnyFormApi}
         propertyCursor="properties"
         currency={currency}
+        disabled={disabled}
         chargePricingUnitShortName={pricingUnitShortName}
       >
         <div className="flex flex-col gap-6">

@@ -45,11 +45,13 @@ gql`
 type GraduatedRateTiersTableProps = {
   currency: CurrencyEnum
   pricingUnitShortName: string | undefined
+  disabled?: boolean
 }
 
 const graduatedRateTiersTableDefaultProps: GraduatedRateTiersTableProps = {
   currency: CurrencyEnum.Usd,
   pricingUnitShortName: undefined,
+  disabled: false,
 }
 
 const createGraduatedTier = (toValue: string | null): RateTierInput => ({
@@ -61,7 +63,12 @@ const createGraduatedTier = (toValue: string | null): RateTierInput => ({
 export const GraduatedRateTiersTable = withFieldGroup({
   defaultValues: getRatePropertiesShape(),
   props: graduatedRateTiersTableDefaultProps,
-  render: function GraduatedRateTiersTableRender({ group, currency, pricingUnitShortName }) {
+  render: function GraduatedRateTiersTableRender({
+    group,
+    currency,
+    pricingUnitShortName,
+    disabled,
+  }) {
     const { translate } = useInternationalization()
     const tiers = useStore(group.store, (state) => state.values.graduatedRanges)
     const handleTiersChange = useCallback(
@@ -133,6 +140,7 @@ export const GraduatedRateTiersTable = withFieldGroup({
                 variant="outlined"
                 beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                 displayErrorText={false}
+                disabled={disabled}
                 data-test={getRateTierTestId(RATE_TIER_UP_TO_TEST_ID, index)}
               />
             </FieldErrorTooltip>
@@ -148,6 +156,7 @@ export const GraduatedRateTiersTable = withFieldGroup({
           startIcon="plus"
           variant="inline"
           onClick={addTier}
+          disabled={disabled}
           data-test={RATE_TIERS_ADD_TIER_TEST_ID}
         >
           {translate('text_62793bbb599f1c01522e91a5')}
@@ -156,7 +165,7 @@ export const GraduatedRateTiersTable = withFieldGroup({
           <ChargeTable
             name="graduated-rate-tiers-table"
             data={rows}
-            onDeleteRow={(_, index) => deleteTier(index)}
+            onDeleteRow={disabled ? undefined : (_, index) => deleteTier(index)}
             columns={[
               {
                 size: 181,
@@ -195,6 +204,7 @@ export const GraduatedRateTiersTable = withFieldGroup({
                           beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                           currency={currency}
                           displayErrorText={false}
+                          disabled={disabled}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">{amountAdornment}</InputAdornment>
@@ -223,6 +233,7 @@ export const GraduatedRateTiersTable = withFieldGroup({
                           beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                           currency={currency}
                           displayErrorText={false}
+                          disabled={disabled}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">{amountAdornment}</InputAdornment>

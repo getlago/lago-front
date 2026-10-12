@@ -45,11 +45,13 @@ gql`
 type VolumeRateTiersTableProps = {
   currency: CurrencyEnum
   pricingUnitShortName: string | undefined
+  disabled?: boolean
 }
 
 const volumeRateTiersTableDefaultProps: VolumeRateTiersTableProps = {
   currency: CurrencyEnum.Usd,
   pricingUnitShortName: undefined,
+  disabled: false,
 }
 
 const createVolumeTier = (toValue: string | null): RateTierInput => ({
@@ -61,7 +63,7 @@ const createVolumeTier = (toValue: string | null): RateTierInput => ({
 export const VolumeRateTiersTable = withFieldGroup({
   defaultValues: getRatePropertiesShape(),
   props: volumeRateTiersTableDefaultProps,
-  render: function VolumeRateTiersTableRender({ group, currency, pricingUnitShortName }) {
+  render: function VolumeRateTiersTableRender({ group, currency, pricingUnitShortName, disabled }) {
     const { translate } = useInternationalization()
     const tiers = useStore(group.store, (state) => state.values.volumeRanges)
     const handleTiersChange = useCallback(
@@ -111,6 +113,7 @@ export const VolumeRateTiersTable = withFieldGroup({
                 variant="outlined"
                 beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                 displayErrorText={false}
+                disabled={disabled}
                 data-test={getRateTierTestId(RATE_TIER_UP_TO_TEST_ID, index)}
               />
             </FieldErrorTooltip>
@@ -126,6 +129,7 @@ export const VolumeRateTiersTable = withFieldGroup({
           startIcon="plus"
           variant="inline"
           onClick={addTier}
+          disabled={disabled}
           data-test={RATE_TIERS_ADD_TIER_TEST_ID}
         >
           {translate('text_6304e74aab6dbc18d615f38e')}
@@ -134,7 +138,7 @@ export const VolumeRateTiersTable = withFieldGroup({
           <ChargeTable
             name="volume-rate-tiers-table"
             data={rows}
-            onDeleteRow={(_, index) => deleteTier(index)}
+            onDeleteRow={disabled ? undefined : (_, index) => deleteTier(index)}
             columns={[
               {
                 size: 181,
@@ -173,6 +177,7 @@ export const VolumeRateTiersTable = withFieldGroup({
                           beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                           currency={currency}
                           displayErrorText={false}
+                          disabled={disabled}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">{amountAdornment}</InputAdornment>
@@ -201,6 +206,7 @@ export const VolumeRateTiersTable = withFieldGroup({
                           beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                           currency={currency}
                           displayErrorText={false}
+                          disabled={disabled}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">{amountAdornment}</InputAdornment>
