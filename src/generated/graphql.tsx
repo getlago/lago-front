@@ -12744,7 +12744,8 @@ export type WalletTransactionMetadataObject = {
 export enum WalletTransactionSourceEnum {
   Interval = 'interval',
   Manual = 'manual',
-  Threshold = 'threshold'
+  Threshold = 'threshold',
+  X402 = 'x402'
 }
 
 export enum WalletTransactionStatusEnum {
