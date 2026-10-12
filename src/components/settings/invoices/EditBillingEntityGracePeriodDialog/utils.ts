@@ -5,4 +5,5 @@ import {
 
 export const getInitialGracePeriod = (
   data: EditBillingEntityGracePeriodDialogData,
-): EditBillingEntityGracePeriodFormValues['invoiceGracePeriod'] => String(data.invoiceGracePeriod ?? '')
+): EditBillingEntityGracePeriodFormValues['invoiceGracePeriod'] =>
+  String(data.invoiceGracePeriod ?? '')
