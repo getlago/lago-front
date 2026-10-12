@@ -75,7 +75,7 @@ describe('buildSubscriptionDefaultValues', () => {
         const result = buildSubscriptionDefaultValues(subscriptionWithTerm, formType, CURRENT_DATE)
 
         expect(result.paymentTerm).toEqual(
-          expect.objectContaining({ termType: PaymentTermTypeEnum.Net, days: 45 }),
+          expect.objectContaining({ termType: PaymentTermTypeEnum.Net, days: '45' }),
         )
       },
     )
