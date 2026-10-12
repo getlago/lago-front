@@ -23,11 +23,23 @@ type TWalletRecurringRuleInput = NonNullable<
 
 export type TWalletDataForm = Omit<
   CreateCustomerWalletInput,
-  'customerId' | 'name' | 'code' | 'priority' | 'recurringTransactionRules' | 'connections' | 'paymentTerm'
+  | 'customerId'
+  | 'name'
+  | 'code'
+  | 'priority'
+  | 'recurringTransactionRules'
+  | 'connections'
+  | 'paymentTerm'
 > &
   Omit<
     UpdateCustomerWalletInput,
-    'id' | 'name' | 'code' | 'priority' | 'recurringTransactionRules' | 'connections' | 'paymentTerm'
+    | 'id'
+    | 'name'
+    | 'code'
+    | 'priority'
+    | 'recurringTransactionRules'
+    | 'connections'
+    | 'paymentTerm'
   > & {
     // Always strings in the form ('' when unset) so they stay compatible
     // with NameAndCodeGroup's field mapping.
