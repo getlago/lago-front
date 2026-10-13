@@ -293,6 +293,13 @@ const RateCardDrawerFormSections = withForm({
       if (form.state.values.productFilterId) {
         form.setFieldValue('productFilterId', '')
       }
+
+      if (
+        nextProduct?.productType === ProductTypeEnum.Fixed &&
+        form.state.values.invoicingStrategy !== 'invoiceable'
+      ) {
+        form.setFieldValue('invoicingStrategy', 'invoiceable')
+      }
     }
 
     const handleHideDescription = () => {

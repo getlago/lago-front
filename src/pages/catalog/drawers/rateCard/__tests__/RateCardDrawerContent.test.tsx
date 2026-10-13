@@ -852,6 +852,40 @@ describe('invoicing strategy selection', () => {
       screen.queryByRole('radio', { name: 'text_6687b0081931407697975945' }),
     ).not.toBeInTheDocument()
   })
+
+  it('resets a stale strategy when switching to a fixed product', async () => {
+    renderContent(
+      {
+        values: {
+          productId: betaProduct.id,
+          billingTiming: RateCardBillingTimingEnum.Advance,
+          invoicingStrategy: 'regroupPaidFees',
+        },
+        productSeed: {
+          value: betaProduct.id,
+          label: betaProduct.name,
+          productType: ProductTypeEnum.Metered,
+          aggregationType: AggregationTypeEnum.SumAgg,
+          recurring: false,
+        },
+      },
+      [...buildMocks(), productQueryMock([alphaProduct]), filterQueryMock],
+    )
+    expect(screen.getByTestId(INVOICING_STRATEGY_PROBE_TEST_ID)).toHaveTextContent(
+      'regroupPaidFees',
+    )
+
+    await userEvent.click(productInput())
+    await userEvent.keyboard('{ArrowDown}')
+    await userEvent.click(
+      await screen.findByRole('option', { name: new RegExp(alphaProduct.name) }),
+    )
+
+    expect(screen.getByTestId(INVOICING_STRATEGY_PROBE_TEST_ID)).toHaveTextContent('invoiceable')
+    expect(
+      screen.queryByRole('radio', { name: 'text_6687b0081931407697975945' }),
+    ).not.toBeInTheDocument()
+  })
 })
 
 describe('selected product reset lifecycle', () => {
