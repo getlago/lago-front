@@ -8,7 +8,8 @@ export const allRoles: Array<RoleItem> = [
     name: 'Admin',
     description: 'Full access to all settings and data.',
     admin: true,
-    code: 'ADMIN',
+    grantable: true,
+    code: 'admin',
     memberships: [
       {
         __typename: 'Membership',
@@ -46,7 +47,8 @@ export const allRoles: Array<RoleItem> = [
     name: 'Manager',
     description: 'Can manage most settings and data, but cannot access admin-only features.',
     admin: false,
-    code: 'MANAGER',
+    grantable: true,
+    code: 'manager',
     memberships: [],
     permissions: [
       PermissionEnum.AddonsCreate,
@@ -61,7 +63,8 @@ export const allRoles: Array<RoleItem> = [
     name: 'Finance',
     description: 'Can view and manage billing and invoicing settings and data.',
     admin: false,
-    code: 'FINANCE',
+    grantable: true,
+    code: 'finance',
     memberships: [
       {
         __typename: 'Membership',
