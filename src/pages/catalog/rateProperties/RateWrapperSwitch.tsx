@@ -57,9 +57,8 @@ gql`
   ${VolumeRateTierFragmentDoc}
 `
 
-// `group.form` is typed as the core FormApi; the tier tables (also `withFieldGroup` consumers)
-// need the React-extended form type for their own `form` prop - same runtime object either way.
-// Mirrors `@tanstack/form-core`'s own `AnyFormApi = FormApi<any, ...>` type-erasure pattern.
+// `group.form` is typed as the core FormApi, the tier tables need the React-extended type: same
+// runtime object, erased like `@tanstack/form-core`'s own `AnyFormApi`.
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type AnyReactFormApi = AppFieldExtendedReactFormApi<
   any,
@@ -79,9 +78,8 @@ export type AnyReactFormApi = AppFieldExtendedReactFormApi<
 >
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-// Every tier table is mounted here with a fixed `fields="properties"`: casting them to this
-// concrete signature (rather than threading `hostForm` through their own generics) sidesteps
-// TanStack Form inferring `TFormData` from a widened `form` value.
+// A concrete signature, not `hostForm` threaded through their generics: TanStack would infer
+// `TFormData` from the widened `form`.
 type RatePropertiesTierTableProps = {
   form: AnyReactFormApi
   fields: 'properties'
@@ -133,7 +131,9 @@ export const RateWrapperSwitch = withFieldGroup({
       [RateCardRateModelEnum.Standard]: <StandardCharge />,
       [RateCardRateModelEnum.Package]: <PackageCharge />,
       [RateCardRateModelEnum.Percentage]: <ChargePercentage />,
-      [RateCardRateModelEnum.Custom]: <CustomCharge onExpandCustomCharge={onExpandCustomCharge} />,
+      [RateCardRateModelEnum.Custom]: (
+        <CustomCharge onExpandCustomCharge={disabled ? undefined : onExpandCustomCharge} />
+      ),
       [RateCardRateModelEnum.Dynamic]: <DynamicCharge />,
       [RateCardRateModelEnum.Graduated]: (
         <BoundGraduatedRateTiersTable
