@@ -865,7 +865,10 @@ export type AttributedUsageChargeUsage = {
   units: Scalars['Float']['output'];
 };
 
-/** Keeps the events whose attribution label of the given type matches one of the values. An empty value matches the events without that label. */
+/**
+ * Keeps the events whose attribution label of the given type matches one of the
+ * values. An empty value matches the events without that label.
+ */
 export type AttributedUsageFilterInput = {
   /** Code of the usage attribution type */
   code: Scalars['String']['input'];
@@ -11390,7 +11393,11 @@ export type TerminateSubscriptionInput = {
 
 export type ThresholdInput = {
   code?: InputMaybe<Scalars['String']['input']>;
-  /** Transitions this threshold notifies on. Must include triggered. Adding resolved requires a code that is unique within the alert, and is not supported on recurring thresholds. */
+  /**
+   * Transitions this threshold notifies on. Must include triggered. Adding
+   * resolved requires a code that is unique within the alert, and is not supported
+   * on recurring thresholds.
+   */
   notifyOn?: InputMaybe<Array<NotifyOnEnum>>;
   recurring?: InputMaybe<Scalars['Boolean']['input']>;
   value: Scalars['String']['input'];
@@ -12369,22 +12376,6 @@ export type UpdateRateCardInput = {
   proration?: InputMaybe<Scalars['Boolean']['input']>;
   regroupPaidFees?: InputMaybe<RateCardRegroupPaidFeesEnum>;
   taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
-};
-
-/** Update rate card input arguments */
-export type UpdateRateCardInput = {
-  appliedPricingUnitCode?: InputMaybe<Scalars['String']['input']>;
-  billingTiming?: InputMaybe<RateCardBillingTimingEnum>;
-  /** A unique identifier for the client performing the mutation. */
-  clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  currency?: InputMaybe<CurrencyEnum>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  displayOnInvoice?: InputMaybe<Scalars['Boolean']['input']>;
-  id: Scalars['ID']['input'];
-  name?: InputMaybe<Scalars['String']['input']>;
-  proration?: InputMaybe<Scalars['Boolean']['input']>;
-  regroupPaidFees?: InputMaybe<RateCardRegroupPaidFeesEnum>;
-  walletTargetable?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** Update rate card rate input arguments */
