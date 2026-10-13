@@ -17,9 +17,8 @@ export const systemRoles = Object.keys(rolesNameMapping)
 
 export type SystemRoleKey = keyof typeof rolesNameMapping
 
-// Predefined roles are identified by their code, which custom roles cannot reuse.
-// Callers that only have a name (membership roles) fall back to the name, since
-// the API rejects custom roles named like a predefined one.
+// Matched by code, which the API reserves. The name fallback (membership roles only expose
+// names) can still match legacy custom roles created before names were reserved.
 export const getSystemRoleKey = (role: {
   name: string
   code?: string | null

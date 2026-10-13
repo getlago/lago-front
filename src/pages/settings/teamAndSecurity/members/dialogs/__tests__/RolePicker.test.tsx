@@ -78,7 +78,7 @@ const rolesListMock = {
   },
 }
 
-const buildRolesListMock = (grantableByCode: Record<string, boolean>) => ({
+const buildRolesListMock = (grantableByCode: Record<string, boolean>): typeof rolesListMock => ({
   ...rolesListMock,
   result: {
     data: {
@@ -89,6 +89,9 @@ const buildRolesListMock = (grantableByCode: Record<string, boolean>) => ({
     },
   },
 })
+
+// What the API returns to a member who is not admin: predefined Admin is not grantable
+const nonAdminRolesListMock = buildRolesListMock({ admin: false })
 
 // Wrapper component that provides form context
 const RolePickerWrapper = ({
@@ -234,7 +237,7 @@ describe('RolePicker', () => {
       })
 
       it('Admin role is disabled', async () => {
-        await prepare()
+        await prepare({ mocks: [nonAdminRolesListMock] })
         await openDropdown()
 
         const adminItem = screen.getByTestId('admin')
@@ -243,7 +246,7 @@ describe('RolePicker', () => {
       })
 
       it('non-admin roles remain enabled', async () => {
-        await prepare()
+        await prepare({ mocks: [nonAdminRolesListMock] })
         await openDropdown()
 
         const financeItem = screen.getByTestId('finance')
@@ -263,7 +266,7 @@ describe('RolePicker', () => {
       })
 
       it('Admin role is disabled', async () => {
-        await prepare()
+        await prepare({ mocks: [nonAdminRolesListMock] })
         await openDropdown()
 
         const adminItem = screen.getByTestId('admin')
@@ -272,7 +275,7 @@ describe('RolePicker', () => {
       })
 
       it('non-admin roles remain enabled', async () => {
-        await prepare()
+        await prepare({ mocks: [nonAdminRolesListMock] })
         await openDropdown()
 
         const financeItem = screen.getByTestId('finance')
@@ -287,16 +290,16 @@ describe('RolePicker', () => {
       beforeEach(() => {
         mockUseCurrentUser.mockReturnValue({
           isPremium: true,
-          currentMembership: { roles: ['Finance'] },
+          currentMembership: { roles: ['Admin'] },
         })
       })
 
-      it('disables the roles that are not grantable', async () => {
-        await prepare({ mocks: [buildRolesListMock({ admin: false, manager: false })] })
+      it('disables a role only because it is not grantable', async () => {
+        await prepare({ mocks: [buildRolesListMock({ manager: false })] })
         await openDropdown()
 
-        expect(screen.getByTestId('admin')).toHaveAttribute('aria-disabled', 'true')
         expect(screen.getByTestId('manager')).toHaveAttribute('aria-disabled', 'true')
+        expect(screen.getByTestId('admin')).not.toHaveAttribute('aria-disabled', 'true')
         expect(screen.getByTestId('finance')).not.toHaveAttribute('aria-disabled', 'true')
       })
     })
@@ -310,7 +313,7 @@ describe('RolePicker', () => {
       })
 
       it('Admin role is disabled (not admin)', async () => {
-        await prepare()
+        await prepare({ mocks: [nonAdminRolesListMock] })
         await openDropdown()
 
         const adminItem = screen.getByTestId('admin')
@@ -319,7 +322,7 @@ describe('RolePicker', () => {
       })
 
       it('non-admin roles are also disabled (not premium)', async () => {
-        await prepare()
+        await prepare({ mocks: [nonAdminRolesListMock] })
         await openDropdown()
 
         const financeItem = screen.getByTestId('finance')
@@ -330,7 +333,7 @@ describe('RolePicker', () => {
       })
 
       it('shows premium upsell banner', async () => {
-        await prepare()
+        await prepare({ mocks: [nonAdminRolesListMock] })
 
         await waitFor(() => {
           expect(screen.getByText('Role')).toBeInTheDocument()

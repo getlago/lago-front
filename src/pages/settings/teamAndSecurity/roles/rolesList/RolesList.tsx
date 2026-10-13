@@ -14,12 +14,13 @@ import {
   SettingsListWrapper,
   SettingsWithTabsPaddedContainer,
 } from '~/components/layouts/Settings'
-import { getSystemRoleKey, isSystemRole, RoleItem, rolesNameMapping } from '~/core/constants/roles'
+import { isSystemRole, RoleItem } from '~/core/constants/roles'
 import { ROLE_CREATE_ROUTE, ROLE_DETAILS_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
+import { useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
 import { useRolesList } from '~/hooks/useRolesList'
 
 import { useDeleteRoleDialog } from '../common/dialogs/DeleteRoleDialog'
@@ -31,6 +32,7 @@ const RolesList = () => {
   const hasPremiumAddon = hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.CustomRoles)
 
   const { translate } = useInternationalization()
+  const { getDisplayName } = useRoleDisplayInformation()
   const { roles, isLoadingRoles } = useRolesList()
   const { getDuplicateRolePath, getEditRolePath } = useRoleActions()
   const { hasPermissions } = usePermissions()
@@ -65,10 +67,7 @@ const RolesList = () => {
   }
 
   const displayNameCell = (role: RoleItem) => {
-    const systemKey = getSystemRoleKey(role)
-    const nameToDisplay = systemKey ? translate(rolesNameMapping[systemKey]) : role.name
-
-    return <Typography color="grey700">{nameToDisplay}</Typography>
+    return <Typography color="grey700">{getDisplayName(role)}</Typography>
   }
 
   const displayMemberNumberCell = (role: RoleItem) => {

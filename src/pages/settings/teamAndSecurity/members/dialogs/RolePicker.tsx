@@ -21,22 +21,12 @@ const defaultValues: UpdateInviteSingleRole = {
 const RolePicker = withFieldGroup({
   defaultValues,
   render: function Render({ group }) {
-    const { isPremium, currentMembership } = useCurrentUser()
+    const { isPremium } = useCurrentUser()
     const { translate } = useInternationalization()
     const { roles, isLoadingRoles } = useRolesList()
     const { open: openPremiumDialog } = usePremiumWarningDialog()
 
     const { getDisplayName, getDisplayDescription } = useRoleDisplayInformation()
-
-    const isCurrentUserAdmin = useMemo(() => {
-      if (!currentMembership?.roles || !roles.length) return false
-
-      return currentMembership.roles.some((userRole) => {
-        const roleObj = roles.find((r) => r.name === userRole)
-
-        return roleObj?.admin
-      })
-    }, [currentMembership?.roles, roles])
 
     const rolesDataForCombobox = useMemo<BasicComboBoxData[]>(() => {
       if (isLoadingRoles || !roles.length) {
@@ -47,18 +37,9 @@ const RolePicker = withFieldGroup({
         value: role.code,
         label: getDisplayName(role),
         description: getDisplayDescription(role),
-        // grantable is computed by the API: false for roles with permissions the current member does not hold
-        disabled:
-          (role.admin && !isCurrentUserAdmin) || (!role.admin && !isPremium) || !role.grantable,
+        disabled: !role.grantable || (!role.admin && !isPremium),
       }))
-    }, [
-      roles,
-      isLoadingRoles,
-      getDisplayName,
-      getDisplayDescription,
-      isPremium,
-      isCurrentUserAdmin,
-    ])
+    }, [roles, isLoadingRoles, getDisplayName, getDisplayDescription, isPremium])
 
     return (
       <div className="flex flex-col gap-4">
