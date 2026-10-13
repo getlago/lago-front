@@ -176,14 +176,12 @@ const toPhaseReferences = (phases: RatePhaseFormValues[]): RatePhaseReference[] 
   phases.map(({ code, name }) => ({ code, name }))
 
 type AppliedRateCardDrawerContentProps = {
-  context: 'plan' | 'contract'
   // The backend rejects a rate card in another currency (`currency_does_not_match`).
   currency: CurrencyEnum
   openRateCardDrawer: OpenRateCardDrawer
 }
 
 const appliedRateCardDrawerContentDefaultProps: AppliedRateCardDrawerContentProps = {
-  context: 'plan',
   currency: CurrencyEnum.Usd,
   openRateCardDrawer: () => {},
 }
@@ -191,12 +189,7 @@ const appliedRateCardDrawerContentDefaultProps: AppliedRateCardDrawerContentProp
 export const AppliedRateCardDrawerContent = withForm({
   defaultValues: APPLIED_RATE_CARD_FORM_DEFAULTS,
   props: appliedRateCardDrawerContentDefaultProps,
-  render: function AppliedRateCardDrawerContentRender({
-    form,
-    context,
-    currency,
-    openRateCardDrawer,
-  }) {
+  render: function AppliedRateCardDrawerContentRender({ form, currency, openRateCardDrawer }) {
     const { translate } = useInternationalization()
     const { openDrawer: openRatePhaseDrawer } = useRatePhaseLocalDrawer()
     const [shouldDisplayFilter, setShouldDisplayFilter] = useState(false)
@@ -345,7 +338,7 @@ export const AppliedRateCardDrawerContent = withForm({
       fields: Array<
         keyof Pick<
           typeof APPLIED_RATE_CARD_FORM_DEFAULTS,
-          'productFilterId' | 'rateCardId' | 'units' | 'billingAnchorDate'
+          'productFilterId' | 'rateCardId' | 'units'
         >
       >,
     ): void => {
@@ -361,7 +354,7 @@ export const AppliedRateCardDrawerContent = withForm({
     }
 
     const handleProductChange = (): void => {
-      resetFields(['productFilterId', 'rateCardId', 'units', 'billingAnchorDate'])
+      resetFields(['productFilterId', 'rateCardId', 'units'])
       resetRatePhases()
       setShouldDisplayFilter(false)
     }
@@ -465,16 +458,6 @@ export const AppliedRateCardDrawerContent = withForm({
               </div>
             )}
           </CenteredPage.PageSection>
-
-          {context === 'contract' && !!productId && (
-            <CenteredPage.PageSection>
-              <form.AppField name="billingAnchorDate">
-                {(field) => (
-                  <field.DatePickerField label={translate('text_1781859135627z59hpfpa8pt')} />
-                )}
-              </form.AppField>
-            </CenteredPage.PageSection>
-          )}
 
           {!!productId && (
             <CenteredPage.PageSection>

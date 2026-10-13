@@ -18,7 +18,6 @@ export interface AppliedRateCardDrawerValues {
   // rate card already being picked.
   currency: CurrencyEnum
   units: string
-  billingAnchorDate: string
   ratePhases: RatePhaseFormValues[]
 }
 
@@ -28,7 +27,6 @@ export const APPLIED_RATE_CARD_FORM_DEFAULTS: AppliedRateCardDrawerValues = {
   rateCardId: '',
   currency: CurrencyEnum.Usd,
   units: '',
-  billingAnchorDate: '',
   ratePhases: [],
 }
 
@@ -96,7 +94,6 @@ export const buildCreateContractAppliedRateCardInput = (
   externalId: contractExternalId,
   rateCardCode: values.rateCardId,
   units: values.units ? Number(values.units) : undefined,
-  billingAnchorDate: values.billingAnchorDate || undefined,
   ...(values.ratePhases.length > 0
     ? {
         ratePhases: values.ratePhases.map((phase, index) =>

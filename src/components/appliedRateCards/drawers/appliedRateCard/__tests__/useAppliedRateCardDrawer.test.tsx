@@ -64,14 +64,11 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 // directly, mirroring useRateCardDrawer.create.test.tsx's own established pattern.
 jest.mock('../AppliedRateCardDrawerContent', () => ({
   AppliedRateCardDrawerContent: ({
-    context,
     form,
   }: {
-    context: 'plan' | 'contract'
     form: { setFieldValue: (name: string, value: unknown) => void }
   }) => (
     <>
-      <span data-test="context-probe">{context}</span>
       <button
         type="button"
         onClick={() => {
@@ -81,9 +78,6 @@ jest.mock('../AppliedRateCardDrawerContent', () => ({
         }}
       >
         seed required fields
-      </button>
-      <button type="button" onClick={() => form.setFieldValue('billingAnchorDate', '2026-01-01')}>
-        seed billing anchor date
       </button>
     </>
   ),
@@ -178,7 +172,7 @@ describe('useAppliedRateCardDrawer', () => {
 
   // Regression: the route's internal contract id was sent, and the backend looks contracts up
   // by external id.
-  it('GIVEN context contract THEN submitting sends the contract external id and billingAnchorDate', async () => {
+  it('GIVEN context contract THEN submitting sends the contract external id and leaves the billing anchor to the backend', async () => {
     let capturedInput: Record<string, unknown> = {}
     const { result } = renderDrawerHook([
       createContractAppliedRateCardMock((input) => (capturedInput = input)),
@@ -194,10 +188,7 @@ describe('useAppliedRateCardDrawer', () => {
     )
     renderDrawerBody()
 
-    expect(screen.getByTestId('context-probe')).toHaveTextContent('contract')
-
     await userEvent.click(screen.getByRole('button', { name: 'seed required fields' }))
-    await userEvent.click(screen.getByRole('button', { name: 'seed billing anchor date' }))
     await submit()
 
     await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
@@ -205,8 +196,8 @@ describe('useAppliedRateCardDrawer', () => {
     expect(capturedInput).toMatchObject({
       externalId: 'contract-ext-1',
       rateCardCode: 'standard-card',
-      billingAnchorDate: '2026-01-01',
     })
+    expect(capturedInput).not.toHaveProperty('billingAnchorDate')
   })
 
   it('GIVEN context contract THEN no effective date field renders anywhere in the drawer', async () => {

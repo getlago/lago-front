@@ -148,7 +148,6 @@ export const useAppliedRateCardDrawer = (): {
         <CreateMoreResetBoundary resetSignal={resetSignal}>
           <AppliedRateCardDrawerContent
             form={form}
-            context={props.context}
             currency={props.currency}
             openRateCardDrawer={openRateCardDrawer}
           />

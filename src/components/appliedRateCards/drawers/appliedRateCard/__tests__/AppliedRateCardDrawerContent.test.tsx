@@ -183,7 +183,7 @@ const CURRENCY_PROBE_TEST_ID = 'currency-probe'
 const RATE_PHASES_LENGTH_PROBE_TEST_ID = 'rate-phases-length-probe'
 const RATE_PHASE_CODES_PROBE_TEST_ID = 'rate-phase-codes-probe'
 
-const Host = ({ context = 'plan' }: { context?: 'plan' | 'contract' }): JSX.Element => {
+const Host = (): JSX.Element => {
   const form = useAppForm({ defaultValues: APPLIED_RATE_CARD_FORM_DEFAULTS })
 
   return (
@@ -212,7 +212,6 @@ const Host = ({ context = 'plan' }: { context?: 'plan' | 'contract' }): JSX.Elem
       </form.Subscribe>
       <AppliedRateCardDrawerContent
         form={form}
-        context={context}
         currency={CurrencyEnum.Usd}
         openRateCardDrawer={mockOpenRateCardDrawer}
       />
@@ -233,11 +232,8 @@ const selectRateCard = async (): Promise<void> => {
 // `PropertiesForRateCardRate`); Apollo's cache needs real `__typename`s to resolve a fragment's
 // type condition when reading a mocked response back out - `~/test-utils`'s own `render` always
 // passes `addTypename={false}`, so this file renders directly like RateCardDrawerContent.test.tsx.
-const renderContent = (
-  mocks: TestMocksType = [],
-  context: 'plan' | 'contract' = 'plan',
-): ReturnType<typeof rtlRender> =>
-  rtlRender(<Host context={context} />, {
+const renderContent = (mocks: TestMocksType = []): ReturnType<typeof rtlRender> =>
+  rtlRender(<Host />, {
     wrapper: ({ children }) => (
       <AllTheProviders forceTypenames mocks={mocks}>
         {children}
@@ -692,32 +688,18 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
   })
 })
 
-describe('AppliedRateCardDrawerContent, contract-only billing anchor date', () => {
+describe('AppliedRateCardDrawerContent, contract lifecycle dates', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  it('GIVEN context contract THEN the billing anchor date field renders only once a product is picked', async () => {
-    renderContent([productsMock(), rateCardsMock(() => undefined)], 'contract')
-
-    expect(screen.queryByText('Billing anchor date')).not.toBeInTheDocument()
+  it('GIVEN a product is picked THEN neither a billing anchor date nor an effective date field renders', async () => {
+    renderContent([productsMock(), rateCardsMock(() => undefined)])
 
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
-
-    expect(await screen.findByText('Billing anchor date')).toBeInTheDocument()
-  })
-
-  it('GIVEN context plan THEN the billing anchor date field does not render', async () => {
-    renderContent([productsMock(), rateCardsMock(() => undefined)], 'plan')
-
-    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+    await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
 
     expect(screen.queryByText('Billing anchor date')).not.toBeInTheDocument()
-  })
-
-  it('GIVEN context contract THEN no effective date field renders anywhere in the drawer', () => {
-    renderContent([productsMock()], 'contract')
-
     expect(screen.queryByText(/effective date/i)).not.toBeInTheDocument()
   })
 })

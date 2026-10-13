@@ -61,13 +61,12 @@ describe('buildCreatePlanAppliedRateCardInput', () => {
 })
 
 describe('buildCreateContractAppliedRateCardInput', () => {
-  it('GIVEN a billingAnchorDate THEN includes it; the input has no effectiveDate field', () => {
+  it('GIVEN a contract THEN the input carries no lifecycle date, the backend derives them', () => {
     const input = buildCreateContractAppliedRateCardInput(
       {
         ...APPLIED_RATE_CARD_FORM_DEFAULTS,
         productId: 'p1',
         rateCardId: 'rc1',
-        billingAnchorDate: '2026-11-01',
         ratePhases: [],
       },
       'contract-1',
@@ -76,7 +75,6 @@ describe('buildCreateContractAppliedRateCardInput', () => {
     expect(input).toEqual({
       externalId: 'contract-1',
       rateCardCode: 'rc1',
-      billingAnchorDate: '2026-11-01',
       units: undefined,
     })
     expect(input).not.toHaveProperty('effectiveDate')
