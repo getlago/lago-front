@@ -9,6 +9,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
 import { Switch } from '~/components/form/Switch/Switch'
+import { TextInput } from '~/components/form/TextInput/TextInput'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { addToast } from '~/core/apolloClient'
 import { ADMIN_ORGANIZATIONS_ROUTE } from '~/core/router'
@@ -17,6 +18,7 @@ import {
   FeatureFlagEnum,
   PremiumIntegrationTypeEnum,
   useAdminOrganizationQuery,
+  useAdminRenameOrganizationMutation,
   useAdminToggleFeatureMutation,
 } from '~/generated/graphql'
 
@@ -37,6 +39,11 @@ gql`
       id
     }
   }
+  mutation AdminRenameOrganization($input: AdminRenameOrganizationInput!) {
+    adminRenameOrganization(input: $input) {
+      id
+    }
+  }
 `
 
 const KNOWN_PREMIUM_INTEGRATIONS = Object.values(PremiumIntegrationTypeEnum)
@@ -52,6 +59,8 @@ const AdminOrganizationDetail = () => {
 
   const [toggleFeature] = useAdminToggleFeatureMutation()
   const [isSaving, setIsSaving] = useState(false)
+  const [renameOrganization] = useAdminRenameOrganizationMutation()
+  const [nameInput, setNameInput] = useState('')
 
   const org = data?.adminOrganization
   const serverIntegrations: string[] = useMemo(
@@ -70,6 +79,14 @@ const AdminOrganizationDetail = () => {
     setLocalIntegrations(new Set(serverIntegrations))
     setLocalFeatureFlags(new Set(serverFeatureFlags))
   }, [serverIntegrations, serverFeatureFlags])
+
+  // Sync the name field when server data changes
+  useEffect(() => {
+    setNameInput(org?.name ?? '')
+  }, [org?.name])
+
+  const trimmedName = nameInput.trim()
+  const canRename = !!org && trimmedName.length > 0 && trimmedName !== org.name
 
   const isDirty = useMemo(() => {
     const integrationsDirty =
@@ -196,6 +213,29 @@ const AdminOrganizationDetail = () => {
     setLocalIntegrations(new Set(serverIntegrations))
     setLocalFeatureFlags(new Set(serverFeatureFlags))
   }
+  const handleRename = () => {
+    if (!org || !canRename) return
+
+    NiceModal.show<void, ReasonModalProps>(REASON_MODAL_NAME, {
+      title: 'Rename organization',
+      description: `Rename "${org.name}" to "${trimmedName}". Please provide a reason.`,
+      showNotifyCheckbox: false,
+      onConfirm: async (reason: string) => {
+        const result = await renameOrganization({
+          variables: {
+            input: { organizationId: organizationId ?? '', name: trimmedName, reason },
+          },
+        })
+
+        if (!result.data?.adminRenameOrganization) {
+          throw new Error('Rename failed')
+        }
+
+        addToast({ severity: 'success', message: 'Organization renamed.' })
+        await refetch()
+      },
+    })
+  }
 
   if (loading) {
     return (
@@ -239,6 +279,23 @@ const AdminOrganizationDetail = () => {
       />
 
       <div className="max-w-200 mx-auto w-full p-4 md:p-12">
+        <div className="mb-8">
+          <Typography variant="subhead1" className="mb-4">
+            General
+          </Typography>
+          <div className="flex items-end gap-3">
+            <TextInput
+              className="flex-1"
+              name="organizationName"
+              label="Organization name"
+              value={nameInput}
+              onChange={(value) => setNameInput(value)}
+            />
+            <Button variant="secondary" disabled={!canRename} onClick={handleRename}>
+              Rename
+            </Button>
+          </div>
+        </div>
         <div>
           <Typography variant="subhead1" className="mb-4">
             Premium Integrations

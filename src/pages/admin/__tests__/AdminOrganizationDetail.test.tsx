@@ -13,6 +13,7 @@ import { render } from '~/test-utils'
 import AdminOrganizationDetail from '../AdminOrganizationDetail'
 
 const mockToggle = jest.fn()
+const mockRename = jest.fn()
 const mockRefetch = jest.fn()
 const integration = Object.values(PremiumIntegrationTypeEnum)[0]
 const flag = Object.values(FeatureFlagEnum)[0]
@@ -28,6 +29,7 @@ let mockQuery = { data: { adminOrganization: mockOrg }, loading: false, refetch:
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useAdminOrganizationQuery: () => mockQuery,
+  useAdminRenameOrganizationMutation: () => [mockRename],
   useAdminToggleFeatureMutation: () => [mockToggle],
 }))
 jest.mock('~/core/apolloClient', () => ({
@@ -47,6 +49,42 @@ describe('AdminOrganizationDetail', () => {
     jest.spyOn(NiceModal, 'show').mockResolvedValue(undefined)
   })
   afterEach(() => jest.restoreAllMocks())
+
+  it('keeps Rename disabled until the name changes', () => {
+    render(<AdminOrganizationDetail />, {
+      useParams: { organizationId: 'org' },
+    })
+
+    expect(screen.getByRole('button', { name: 'Rename' })).toBeDisabled()
+    fireEvent.change(screen.getByDisplayValue('Acme'), { target: { value: '   ' } })
+    expect(screen.getByRole('button', { name: 'Rename' })).toBeDisabled()
+  })
+
+  it('renames the organization after a reason is provided', async () => {
+    mockRename.mockResolvedValue({ data: { adminRenameOrganization: { id: 'log' } } })
+    render(<AdminOrganizationDetail />, {
+      useParams: { organizationId: 'org' },
+    })
+
+    fireEvent.change(screen.getByDisplayValue('Acme'), { target: { value: '  Acme Inc  ' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Rename' }))
+
+    const props = jest.mocked(NiceModal.show).mock.calls[0][1] as ReasonModalProps
+
+    expect(props.showNotifyCheckbox).toBe(false)
+    await act(() => props.onConfirm('Customer rebranded their company', false))
+
+    expect(mockRename).toHaveBeenCalledWith({
+      variables: {
+        input: {
+          organizationId: 'org',
+          name: 'Acme Inc',
+          reason: 'Customer rebranded their company',
+        },
+      },
+    })
+    expect(mockRefetch).toHaveBeenCalled()
+  })
 
   it('resets unsaved changes without sending mutations', async () => {
     render(<AdminOrganizationDetail />, {
