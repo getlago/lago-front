@@ -6,11 +6,10 @@ import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateM
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
+  PhaseInput,
   PropertiesForRateCardRateFragmentDoc,
   RateCardBillingTimingEnum,
-  RatePhaseForDrawerFragment,
   useCreateContractRatePhaseMutation,
   useCreateRatePhaseMutation,
   useUpdateContractRatePhaseMutation,
@@ -18,11 +17,10 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { getRatePropertiesShape } from '~/pages/catalog/drawers/rateCardRate/getRatePropertiesShape'
 
+import { mapFromApiToForm, mapFromFormToApi } from './mappers'
 import { RatePhaseFormFields } from './RatePhaseFormFields'
 import {
-  buildPhaseInput,
   buildRatePhaseFormSchema,
   getInsertIndex,
   getPositionDefaults,
@@ -34,10 +32,9 @@ import {
 import {
   buildCreatePhaseSeed,
   buildRatePhaseSchemaContext,
-  getActiveRateFieldValues,
   insertPhaseReference,
 } from './ratePhaseSeeds'
-import { RateCardForRatePhaseFields, RatePhaseDrawerProps } from './types'
+import { RatePhaseDrawerProps } from './types'
 
 gql`
   fragment RatePhaseForDrawer on RatePhase {
@@ -91,48 +88,6 @@ gql`
 
 const RATE_PHASE_FORM_ID = 'rate-phase-drawer-form'
 
-// `minAmountCents` renders on `arrears` only: a value saved before the card switched to
-// `advance` is dropped, or it would fail validation on a field the form no longer shows.
-const mapRatePhaseFragmentToFormValues = (
-  phase: RatePhaseForDrawerFragment,
-  rateCard: RateCardForRatePhaseFields,
-): RatePhaseFormValues => {
-  const override = phase.rateOverride
-  const duration: Pick<RatePhaseFormValues, 'durationType' | 'durationCycleCount'> =
-    phase.billingIntervalCycleCount
-      ? { durationType: 'finite', durationCycleCount: String(phase.billingIntervalCycleCount) }
-      : { durationType: 'forever', durationCycleCount: '' }
-
-  const base: RatePhaseFormValues = {
-    ...RATE_PHASE_FORM_DEFAULTS,
-    ...getActiveRateFieldValues(rateCard),
-    ...duration,
-    code: phase.code,
-    name: phase.name || '',
-  }
-
-  if (!override) return base
-
-  return {
-    ...base,
-    overrideEnabled: true,
-    rateModel: override.rateModel,
-    properties: getRatePropertiesShape(override.rateProperties),
-    billingIntervalCount: override.billingIntervalCount
-      ? String(override.billingIntervalCount)
-      : base.billingIntervalCount,
-    billingIntervalUnit: override.billingIntervalUnit ?? base.billingIntervalUnit,
-    minAmountCents:
-      rateCard.billingTiming === RateCardBillingTimingEnum.Arrears &&
-      Number(override.minAmountCents)
-        ? String(deserializeAmount(override.minAmountCents, rateCard.currency))
-        : RATE_PHASE_FORM_DEFAULTS.minAmountCents,
-    conversionRate: override.pricingUnitConversionRate
-      ? String(override.pricingUnitConversionRate)
-      : RATE_PHASE_FORM_DEFAULTS.conversionRate,
-  }
-}
-
 export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProps) => void } => {
   const { translate } = useInternationalization()
   const drawer = useFormDrawer()
@@ -151,6 +106,60 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
     rateModelConfiguration: undefined,
   })
 
+  // `errorPolicy: 'all'` resolves a rejected mutation instead of throwing: check the payload.
+  const savePhase = async (
+    params: RatePhaseDrawerProps,
+    value: RatePhaseFormValues,
+    phaseInput: PhaseInput,
+  ): Promise<boolean> => {
+    if (params.mode === 'create') {
+      if (params.context === 'plan') {
+        const { data } = await createRatePhase({
+          variables: {
+            input: { planAppliedRateCardId: params.planAppliedRateCardId, ...phaseInput },
+          },
+        })
+
+        return !!data?.createRatePhase
+      }
+
+      const { data } = await createContractRatePhase({
+        variables: {
+          input: { contractAppliedRateCardId: params.contractAppliedRateCardId, ...phaseInput },
+        },
+      })
+
+      return !!data?.createContractRatePhase
+    }
+
+    const phaseUpdate = {
+      code: params.phase.code,
+      ...(value.code !== params.phase.code ? { newCode: value.code } : {}),
+      name: phaseInput.name,
+      position: phaseInput.position,
+      billingIntervalCycleCount: phaseInput.billingIntervalCycleCount,
+      rateOverride: value.overrideEnabled ? phaseInput.rateOverride : null,
+    }
+
+    if (params.context === 'plan') {
+      const { data } = await updateRatePhase({
+        variables: {
+          input: { planAppliedRateCardId: params.planAppliedRateCardId, ...phaseUpdate },
+        },
+      })
+
+      return !!data?.updateRatePhase
+    }
+
+    const { data } = await updateContractRatePhase({
+      variables: {
+        input: { contractAppliedRateCardId: params.contractAppliedRateCardId, ...phaseUpdate },
+      },
+    })
+
+    return !!data?.updateContractRatePhase
+  }
+
   const form = useAppForm({
     defaultValues: RATE_PHASE_FORM_DEFAULTS,
     validationLogic: revalidateLogic(),
@@ -161,51 +170,10 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
       if (!params) return
 
       const position = getInsertIndex(value, otherPhases.current) + 1
-      const phaseInput = buildPhaseInput({ ...value, position }, params.rateCard.currency)
+      const phaseInput = mapFromFormToApi({ ...value, position }, params.rateCard.currency)
+      const isSaved = await savePhase(params, value, phaseInput)
 
-      if (params.context === 'plan') {
-        if (params.mode === 'create') {
-          await createRatePhase({
-            variables: {
-              input: { planAppliedRateCardId: params.planAppliedRateCardId, ...phaseInput },
-            },
-          })
-        } else {
-          await updateRatePhase({
-            variables: {
-              input: {
-                planAppliedRateCardId: params.planAppliedRateCardId,
-                code: params.phase.code,
-                ...(value.code !== params.phase.code ? { newCode: value.code } : {}),
-                name: phaseInput.name,
-                position,
-                billingIntervalCycleCount: phaseInput.billingIntervalCycleCount,
-                rateOverride: value.overrideEnabled ? phaseInput.rateOverride : null,
-              },
-            },
-          })
-        }
-      } else if (params.mode === 'create') {
-        await createContractRatePhase({
-          variables: {
-            input: { contractAppliedRateCardId: params.contractAppliedRateCardId, ...phaseInput },
-          },
-        })
-      } else {
-        await updateContractRatePhase({
-          variables: {
-            input: {
-              contractAppliedRateCardId: params.contractAppliedRateCardId,
-              code: params.phase.code,
-              ...(value.code !== params.phase.code ? { newCode: value.code } : {}),
-              name: phaseInput.name,
-              position,
-              billingIntervalCycleCount: phaseInput.billingIntervalCycleCount,
-              rateOverride: value.overrideEnabled ? phaseInput.rateOverride : null,
-            },
-          },
-        })
-      }
+      if (!isSaved) return
 
       if (params.mode === 'edit' || !isCreateMoreEnabled()) {
         drawer.close()
@@ -230,7 +198,7 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
     const seed: RatePhaseFormValues =
       params.mode === 'edit'
         ? {
-            ...mapRatePhaseFragmentToFormValues(params.phase, params.rateCard),
+            ...mapFromApiToForm(params.phase, params.rateCard),
             ...getPositionDefaults(params.otherPhases, params.phase.position - 1),
           }
         : buildCreatePhaseSeed(params.otherPhases, params.rateCard)
@@ -254,6 +222,7 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
           <RatePhaseFormFields
             form={form}
             title={title}
+            isEdition={params.mode === 'edit'}
             getOtherPhases={() => otherPhases.current}
             rateCard={params.rateCard}
           />

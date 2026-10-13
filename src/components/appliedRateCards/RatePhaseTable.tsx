@@ -8,10 +8,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 import { tw } from '~/styles/utils'
 
-import {
-  buildRateOverrideInput,
-  RatePhaseFormValues,
-} from './drawers/ratePhase/ratePhaseFormSchema'
+import { mapRateOverrideFromFormToApi } from './drawers/ratePhase/mappers'
+import { RatePhaseFormValues } from './drawers/ratePhase/ratePhaseFormSchema'
 import { RateCardForRatePhaseFields } from './drawers/ratePhase/types'
 import { activeRateToOverrideInput, getOverriddenFields } from './overrideDiff'
 import { RatePhaseDetailsPanel } from './RatePhaseDetailsPanel'
@@ -39,7 +37,7 @@ const getPhaseRate = (
   const { activeRate } = rateCard
 
   if (phase.overrideEnabled) {
-    const rate = buildRateOverrideInput(phase, rateCard.currency)
+    const rate = mapRateOverrideFromFormToApi(phase, rateCard.currency)
 
     return {
       isOverridden: true,

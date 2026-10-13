@@ -1,6 +1,7 @@
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { GraphQLError } from 'graphql'
 import { ReactNode } from 'react'
 
 import {
@@ -16,6 +17,7 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import { RATE_PHASE_OVERRIDE_TOGGLE_TEST_ID } from '../RatePhaseFormFields'
 import { RateCardForRatePhaseFields, RatePhaseDrawerProps } from '../types'
 import { useRatePhaseDrawer } from '../useRatePhaseDrawer'
 
@@ -52,7 +54,11 @@ const openAndRender = async (
   params: RatePhaseDrawerProps,
 ): Promise<{ opened: OpenedDrawerArgs; unmount: () => void }> => {
   const hostRender = render(
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider
+      mocks={mocks}
+      addTypename={false}
+      defaultOptions={{ mutate: { errorPolicy: 'all' } }}
+    >
       <Host params={params} />
     </MockedProvider>,
   )
@@ -105,6 +111,63 @@ describe('useRatePhaseDrawer', () => {
     expect(captured).toMatchObject({
       input: { planAppliedRateCardId: 'plan-rc-1', code: 'phase-1', position: 1 },
     })
+    expect(mockClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('GIVEN the backend rejects the mutation THEN the drawer stays open with the input', async () => {
+    const mock: MockedResponse = {
+      request: { query: CreateRatePhaseDocument },
+      variableMatcher: () => true,
+      result: { errors: [new GraphQLError('code_already_exists')] },
+    }
+
+    const { opened } = await openAndRender([mock], {
+      context: 'plan',
+      mode: 'create',
+      planAppliedRateCardId: 'plan-rc-1',
+      otherPhases: [],
+      rateCard,
+    })
+
+    await userEvent.type(screen.getByLabelText(/code/i), 'phase-1')
+    await opened.form.submit()
+
+    expect(mockClose).not.toHaveBeenCalled()
+  })
+
+  it('GIVEN the name is cleared on edit THEN it is sent as null so the backend clears it', async () => {
+    const namedPhase: RatePhaseForDrawerFragment = {
+      id: 'rp-3',
+      code: 'phase-3',
+      name: 'Phase 3',
+      position: 1,
+      billingIntervalCycleCount: null,
+      rateOverride: null,
+    }
+
+    let captured: Record<string, unknown> | undefined
+    const mock: MockedResponse = {
+      request: { query: UpdateRatePhaseDocument },
+      variableMatcher: (vars) => {
+        captured = vars
+        return true
+      },
+      result: { data: { updateRatePhase: { id: 'rp-3', code: 'phase-3' } } },
+    }
+
+    const { opened } = await openAndRender([mock], {
+      context: 'plan',
+      mode: 'edit',
+      planAppliedRateCardId: 'plan-rc-1',
+      phase: namedPhase,
+      otherPhases: [],
+      rateCard,
+    })
+
+    await userEvent.clear(screen.getByDisplayValue('Phase 3'))
+    await opened.form.submit()
+
+    expect(captured?.input).toMatchObject({ code: 'phase-3', name: null })
   })
 
   it('GIVEN context contract mode edit THEN submitting calls updateContractRatePhase with contractAppliedRateCardId and newCode when the code changed, and omits newCode when unchanged', async () => {
@@ -211,7 +274,7 @@ describe('useRatePhaseDrawer', () => {
       rateCard,
     })
 
-    await userEvent.click(screen.getByTestId('rate-phase-override-toggle'))
+    await userEvent.click(screen.getByTestId(RATE_PHASE_OVERRIDE_TOGGLE_TEST_ID))
     await opened.form.submit()
 
     expect(captured?.input).toHaveProperty('rateOverride', null)

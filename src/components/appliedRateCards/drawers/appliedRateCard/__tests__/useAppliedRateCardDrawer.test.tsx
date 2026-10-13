@@ -74,7 +74,6 @@ jest.mock('../AppliedRateCardDrawerContent', () => ({
         onClick={() => {
           form.setFieldValue('productId', 'product-1')
           form.setFieldValue('rateCardId', 'standard-card')
-          form.setFieldValue('currency', 'USD')
         }}
       >
         seed required fields

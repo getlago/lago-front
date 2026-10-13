@@ -1,6 +1,6 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import { useStore } from '@tanstack/react-form'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 import { Checkbox } from '~/components/form/Checkbox/Checkbox'
@@ -33,6 +33,7 @@ export const RATE_PHASE_OVERRIDE_TOGGLE_TEST_ID = 'rate-phase-override-toggle'
 
 type RatePhaseFormFieldsRenderProps = {
   title: string
+  isEdition: boolean
   // A getter: `children` is captured once at open(), and "create more" adds phases mid-session.
   getOtherPhases: () => RatePhaseReference[]
   rateCard: RateCardForRatePhaseFields
@@ -40,6 +41,7 @@ type RatePhaseFormFieldsRenderProps = {
 
 const defaultProps: RatePhaseFormFieldsRenderProps = {
   title: '',
+  isEdition: false,
   getOtherPhases: () => [],
   rateCard: {
     productType: ProductTypeEnum.Metered,
@@ -54,7 +56,7 @@ const defaultProps: RatePhaseFormFieldsRenderProps = {
 export const RatePhaseFormFields = withForm({
   defaultValues: RATE_PHASE_FORM_DEFAULTS,
   props: defaultProps,
-  render: function RatePhaseFormFieldsRender({ form, title, getOtherPhases, rateCard }) {
+  render: function RatePhaseFormFieldsRender({ form, title, isEdition, getOtherPhases, rateCard }) {
     const { translate } = useInternationalization()
     const otherPhases = getOtherPhases()
     const overrideEnabled = useStore(form.store, (state) => state.values.overrideEnabled)
@@ -112,10 +114,13 @@ export const RatePhaseFormFields = withForm({
     }
 
     // `RatePhases::ReplaceService` only accepts the last phase running forever.
-    useEffect(() => {
-      if (!isLast && form.state.values.durationType === 'forever') setDurationType('finite')
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isLast])
+    const handlePositionChange = (): void => {
+      const { values } = form.state
+
+      if (values.durationType === 'forever' && !isPlacedLast(values, getOtherPhases())) {
+        setDurationType('finite')
+      }
+    }
 
     return (
       <div className="flex flex-col gap-12">
@@ -134,6 +139,7 @@ export const RatePhaseFormFields = withForm({
           <NameAndCodeGroup
             form={form}
             fields={{ name: 'name', code: 'code' }}
+            disableAutoGenerateCode={isEdition}
             nameProps={{ placeholder: translate('text_1791835259930oafoij0etbt') }}
             codeProps={{ placeholder: translate('text_1791835259930kt2jtyd9bw0') }}
           />
@@ -144,7 +150,7 @@ export const RatePhaseFormFields = withForm({
                 {translate('text_1791835259929vzy9i811ojq')}
               </Typography>
               <div className="flex items-start gap-3">
-                <form.AppField name="positionMode">
+                <form.AppField name="positionMode" listeners={{ onChange: handlePositionChange }}>
                   {(field) => (
                     <field.ComboBoxField
                       dataTest={RATE_PHASE_POSITION_MODE_TEST_ID}
@@ -156,7 +162,10 @@ export const RatePhaseFormFields = withForm({
                     />
                   )}
                 </form.AppField>
-                <form.AppField name="positionReferenceCode">
+                <form.AppField
+                  name="positionReferenceCode"
+                  listeners={{ onChange: handlePositionChange }}
+                >
                   {(field) => (
                     <field.ComboBoxField
                       dataTest={RATE_PHASE_POSITION_REFERENCE_TEST_ID}

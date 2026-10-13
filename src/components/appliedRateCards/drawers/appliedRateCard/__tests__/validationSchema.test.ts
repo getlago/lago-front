@@ -1,9 +1,10 @@
+import { CurrencyEnum } from '~/generated/graphql'
+
 import { RATE_PHASE_FORM_DEFAULTS } from '../../ratePhase/ratePhaseFormSchema'
 import {
   APPLIED_RATE_CARD_FORM_DEFAULTS,
   buildAppliedRateCardFormSchema,
-  buildCreateContractAppliedRateCardInput,
-  buildCreatePlanAppliedRateCardInput,
+  mapFromFormToApi,
 } from '../validationSchema'
 
 describe('buildAppliedRateCardFormSchema', () => {
@@ -34,49 +35,49 @@ describe('buildAppliedRateCardFormSchema', () => {
   })
 })
 
-describe('buildCreatePlanAppliedRateCardInput', () => {
+describe('mapFromFormToApi', () => {
   it('GIVEN an empty local phases array THEN omits ratePhases from the input entirely', () => {
-    const input = buildCreatePlanAppliedRateCardInput(
+    const input = mapFromFormToApi(
       { ...APPLIED_RATE_CARD_FORM_DEFAULTS, productId: 'p1', rateCardId: 'rc1', ratePhases: [] },
-      'plan-1',
+      CurrencyEnum.Usd,
     )
 
-    expect(input).not.toHaveProperty('ratePhases')
-    expect(input).toEqual({ planId: 'plan-1', rateCardCode: 'rc1', units: undefined })
+    expect(input).toEqual({ rateCardCode: 'rc1' })
   })
 
-  it('GIVEN a non-empty local phases array THEN maps each phase through buildPhaseInput with its position', () => {
-    const input = buildCreatePlanAppliedRateCardInput(
+  it('GIVEN a non-empty local phases array THEN maps each phase with its position', () => {
+    const input = mapFromFormToApi(
       {
         ...APPLIED_RATE_CARD_FORM_DEFAULTS,
         productId: 'p1',
         rateCardId: 'rc1',
         ratePhases: [{ ...RATE_PHASE_FORM_DEFAULTS, code: 'a' }],
       },
-      'plan-1',
+      CurrencyEnum.Usd,
     )
 
     expect(input.ratePhases).toEqual([expect.objectContaining({ code: 'a', position: 1 })])
   })
-})
 
-describe('buildCreateContractAppliedRateCardInput', () => {
-  it('GIVEN a contract THEN the input carries no lifecycle date, the backend derives them', () => {
-    const input = buildCreateContractAppliedRateCardInput(
+  it('GIVEN an overridden phase THEN serializes its spending minimum in the given currency', () => {
+    const input = mapFromFormToApi(
       {
         ...APPLIED_RATE_CARD_FORM_DEFAULTS,
         productId: 'p1',
         rateCardId: 'rc1',
-        ratePhases: [],
+        ratePhases: [
+          {
+            ...RATE_PHASE_FORM_DEFAULTS,
+            code: 'a',
+            overrideEnabled: true,
+            properties: { amount: '10' },
+            minAmountCents: '5',
+          },
+        ],
       },
-      'contract-1',
+      CurrencyEnum.Jpy,
     )
 
-    expect(input).toEqual({
-      externalId: 'contract-1',
-      rateCardCode: 'rc1',
-      units: undefined,
-    })
-    expect(input).not.toHaveProperty('effectiveDate')
+    expect(input.ratePhases?.[0].rateOverride?.minAmountCents).toBe(5)
   })
 })

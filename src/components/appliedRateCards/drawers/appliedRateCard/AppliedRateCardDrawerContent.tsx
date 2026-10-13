@@ -203,10 +203,8 @@ export const AppliedRateCardDrawerContent = withForm({
       useGetProductsForAppliedRateCardDrawerLazyQuery({ variables: { page: 1, limit: 20 } })
     const [getProductFilters, { data: productFiltersData }] =
       useGetProductFiltersForAppliedRateCardDrawerLazyQuery()
-    // `variables` is rebuilt every render from the current cascade selection, so it stays the
-    // baseline `useLazyQuery`'s execute function merges a bare/search-only call on top of (Apollo
-    // merges a call's variables with this hook-declaration baseline, not with the previous call) -
-    // without this, typing a search term in the combobox below would drop productIds/productFilterIds.
+    // Apollo merges a search-only call onto these hook variables, not onto the previous call's,
+    // so typing a search keeps the product and filter scoping.
     const [
       getRateCards,
       { data: rateCardsData, loading: rateCardsLoading, refetch: refetchRateCards },
@@ -240,13 +238,6 @@ export const AppliedRateCardDrawerContent = withForm({
       (rateCard) => rateCard.currency === currency,
     )
     const selectedRateCard = rateCards.find((rateCard) => rateCard.code === rateCardId)
-
-    // Controller fix: keeps the hidden `currency` field in sync with the selected rate card so
-    // `buildPhaseInput` serializes a phase override's `minAmountCents` against the right
-    // currency precision instead of silently defaulting to USD/EUR's.
-    useEffect(() => {
-      if (selectedRateCard) form.setFieldValue('currency', selectedRateCard.currency)
-    }, [selectedRateCard, form])
 
     const rateCardForPhaseFields: RateCardForRatePhaseFields | undefined =
       selectedRateCard && selectedProduct?.productType
@@ -336,10 +327,7 @@ export const AppliedRateCardDrawerContent = withForm({
 
     const resetFields = (
       fields: Array<
-        keyof Pick<
-          typeof APPLIED_RATE_CARD_FORM_DEFAULTS,
-          'productFilterId' | 'rateCardId' | 'units'
-        >
+        keyof Pick<typeof APPLIED_RATE_CARD_FORM_DEFAULTS, 'productFilterId' | 'rateCardId'>
       >,
     ): void => {
       fields.forEach((field) => {
@@ -354,7 +342,7 @@ export const AppliedRateCardDrawerContent = withForm({
     }
 
     const handleProductChange = (): void => {
-      resetFields(['productFilterId', 'rateCardId', 'units'])
+      resetFields(['productFilterId', 'rateCardId'])
       resetRatePhases()
       setShouldDisplayFilter(false)
     }

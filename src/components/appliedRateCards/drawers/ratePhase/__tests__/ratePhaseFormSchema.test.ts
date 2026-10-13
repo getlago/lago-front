@@ -1,12 +1,6 @@
-import {
-  CurrencyEnum,
-  RateCardBillingTimingEnum,
-  RateCardRateBillingIntervalUnitEnum,
-  RateCardRateModelEnum,
-} from '~/generated/graphql'
+import { RateCardBillingTimingEnum, RateCardRateModelEnum } from '~/generated/graphql'
 
 import {
-  buildPhaseInput,
   buildRatePhaseFormSchema,
   getInsertIndex,
   getPositionDefaults,
@@ -134,6 +128,32 @@ describe('buildRatePhaseFormSchema', () => {
     expect(result.success).toBe(false)
   })
 
+  it.each([[''], ['0']])(
+    'GIVEN overrideEnabled true AND billingIntervalCount %p THEN rejects it',
+    (billingIntervalCount) => {
+      const schema = buildRatePhaseFormSchema(() => baseContext)
+      const result = schema.safeParse({
+        ...baseValues,
+        overrideEnabled: true,
+        rateModel: RateCardRateModelEnum.Standard,
+        properties: { amount: '10' },
+        billingIntervalCount,
+      })
+
+      expect(result.success).toBe(false)
+      expect(result.error?.issues.map((issue) => issue.path.join('.'))).toEqual([
+        'billingIntervalCount',
+      ])
+    },
+  )
+
+  it('GIVEN overrideEnabled false AND a blank billingIntervalCount THEN accepts, it is not sent', () => {
+    const schema = buildRatePhaseFormSchema(() => baseContext)
+    const result = schema.safeParse({ ...baseValues, billingIntervalCount: '' })
+
+    expect(result.success).toBe(true)
+  })
+
   it('GIVEN overrideEnabled true AND hasPricingUnit true AND blank conversionRate THEN rejects', () => {
     const schema = buildRatePhaseFormSchema(() => ({ ...baseContext, hasPricingUnit: true }))
     const result = schema.safeParse({
@@ -179,93 +199,5 @@ describe('phase position helpers', () => {
       positionMode: 'after',
       positionReferenceCode: 'standard',
     })
-  })
-})
-
-describe('buildPhaseInput', () => {
-  it('GIVEN overrideEnabled false THEN omits rateOverride entirely', () => {
-    const input = buildPhaseInput(
-      { ...baseValues, position: 1, overrideEnabled: false },
-      CurrencyEnum.Usd,
-    )
-
-    expect(input).toEqual({
-      code: 'phase-1',
-      name: 'Phase 1',
-      position: 1,
-      billingIntervalCycleCount: null,
-    })
-  })
-
-  it('GIVEN durationType finite THEN sends the parsed cycle count', () => {
-    const input = buildPhaseInput(
-      {
-        ...baseValues,
-        durationType: 'finite',
-        durationCycleCount: '3',
-        position: 1,
-        overrideEnabled: false,
-      },
-      CurrencyEnum.Usd,
-    )
-
-    expect(input.billingIntervalCycleCount).toBe(3)
-  })
-
-  it('GIVEN overrideEnabled true THEN serializes rateOverride with the mapped conversion-rate field name', () => {
-    const input = buildPhaseInput(
-      {
-        ...baseValues,
-        position: 1,
-        overrideEnabled: true,
-        rateModel: RateCardRateModelEnum.Standard,
-        properties: { amount: '10' },
-        billingIntervalCount: '1',
-        billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Month,
-        minAmountCents: '5',
-        conversionRate: '1.5',
-      },
-      CurrencyEnum.Usd,
-    )
-
-    expect(input.rateOverride).toMatchObject({
-      rateModel: RateCardRateModelEnum.Standard,
-      billingIntervalCount: 1,
-      billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Month,
-      minAmountCents: 500,
-      pricingUnitConversionRate: 1.5,
-    })
-  })
-
-  it('GIVEN minAmountCents blank (the only state the schema allows under advance billing) THEN the payload never carries a numeric minAmountCents', () => {
-    const input = buildPhaseInput(
-      {
-        ...baseValues,
-        position: 1,
-        overrideEnabled: true,
-        rateModel: RateCardRateModelEnum.Standard,
-        properties: { amount: '10' },
-        minAmountCents: '',
-      },
-      CurrencyEnum.Usd,
-    )
-
-    expect(input.rateOverride?.minAmountCents).toBeUndefined()
-  })
-
-  it('GIVEN minAmountCents a decimal display amount THEN serializeAmount converts it to the currency smallest unit', () => {
-    const input = buildPhaseInput(
-      {
-        ...baseValues,
-        position: 1,
-        overrideEnabled: true,
-        rateModel: RateCardRateModelEnum.Standard,
-        properties: { amount: '10' },
-        minAmountCents: '12.50',
-      },
-      CurrencyEnum.Usd,
-    )
-
-    expect(input.rateOverride?.minAmountCents).toBe(1250)
   })
 })

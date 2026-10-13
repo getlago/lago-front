@@ -26,8 +26,7 @@ import { AppliedRateCardDrawerContent } from './AppliedRateCardDrawerContent'
 import {
   APPLIED_RATE_CARD_FORM_DEFAULTS,
   buildAppliedRateCardFormSchema,
-  buildCreateContractAppliedRateCardInput,
-  buildCreatePlanAppliedRateCardInput,
+  mapFromFormToApi,
 } from './validationSchema'
 
 gql`
@@ -68,8 +67,13 @@ export const useAppliedRateCardDrawer = (): {
   const { openDrawer: openRateCardDrawer } = useRateCardDrawer()
   const { createMoreControl, isCreateMoreEnabled, resetCreateMore, resetSignal, notifyReset } =
     useCreateMore()
-  const [createPlanAppliedRateCard] = useCreatePlanAppliedRateCardMutation()
-  const [createContractAppliedRateCard] = useCreateContractAppliedRateCardMutation()
+  // The rate cards list and the details header count; create-more never navigates to refresh them.
+  const [createPlanAppliedRateCard] = useCreatePlanAppliedRateCardMutation({
+    refetchQueries: ['getPlanAppliedRateCardsForRateCardsSection', 'getCatalogPlanForDetails'],
+  })
+  const [createContractAppliedRateCard] = useCreateContractAppliedRateCardMutation({
+    refetchQueries: ['getContractAppliedRateCardsForRateCardsSection', 'getContractForDetails'],
+  })
   const currentProps = useRef<AppliedRateCardDrawerProps | null>(null)
 
   const form = useAppForm({
@@ -83,17 +87,17 @@ export const useAppliedRateCardDrawer = (): {
 
       let created: { id: string; rateCard: { name: string } } | null | undefined
 
+      const input = mapFromFormToApi(value, props.currency)
+
       if (props.context === 'plan') {
         const result = await createPlanAppliedRateCard({
-          variables: { input: buildCreatePlanAppliedRateCardInput(value, props.planId) },
+          variables: { input: { planId: props.planId, ...input } },
         })
 
         created = result.data?.createPlanAppliedRateCard
       } else {
         const result = await createContractAppliedRateCard({
-          variables: {
-            input: buildCreateContractAppliedRateCardInput(value, props.contractExternalId),
-          },
+          variables: { input: { externalId: props.contractExternalId, ...input } },
         })
 
         created = result.data?.createContractAppliedRateCard

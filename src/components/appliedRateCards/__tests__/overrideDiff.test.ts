@@ -6,8 +6,8 @@ import {
 } from '~/generated/graphql'
 import { getRatePropertiesShape } from '~/pages/catalog/drawers/rateCardRate/getRatePropertiesShape'
 
+import { mapRateOverrideFromFormToApi } from '../drawers/ratePhase/mappers'
 import {
-  buildPhaseInput,
   RATE_PHASE_FORM_DEFAULTS,
   RatePhaseFormValues,
 } from '../drawers/ratePhase/ratePhaseFormSchema'
@@ -44,9 +44,8 @@ const formValuesMatchingActiveRate: RatePhaseFormValues = {
   conversionRate: '1.5',
 }
 
-const toOverride = (values: Partial<RatePhaseFormValues>): RateOverrideInput | undefined =>
-  buildPhaseInput({ ...formValuesMatchingActiveRate, ...values, position: 1 }, CurrencyEnum.Usd)
-    .rateOverride ?? undefined
+const toOverride = (values: Partial<RatePhaseFormValues>): RateOverrideInput =>
+  mapRateOverrideFromFormToApi({ ...formValuesMatchingActiveRate, ...values }, CurrencyEnum.Usd)
 
 describe('getOverriddenFields', () => {
   it('GIVEN no override WHEN diffing THEN returns an empty set', () => {

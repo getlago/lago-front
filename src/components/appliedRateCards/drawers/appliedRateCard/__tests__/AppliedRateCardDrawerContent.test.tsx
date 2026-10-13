@@ -179,7 +179,6 @@ const rateCardsMock = (
 
 const RATE_CARD_ID_PROBE_TEST_ID = 'rate-card-id-probe'
 const PRODUCT_FILTER_ID_PROBE_TEST_ID = 'product-filter-id-probe'
-const CURRENCY_PROBE_TEST_ID = 'currency-probe'
 const RATE_PHASES_LENGTH_PROBE_TEST_ID = 'rate-phases-length-probe'
 const RATE_PHASE_CODES_PROBE_TEST_ID = 'rate-phase-codes-probe'
 
@@ -198,9 +197,6 @@ const Host = (): JSX.Element => {
         {(productFilterId) => (
           <output data-test={PRODUCT_FILTER_ID_PROBE_TEST_ID}>{productFilterId}</output>
         )}
-      </form.Subscribe>
-      <form.Subscribe selector={(state) => state.values.currency}>
-        {(currency) => <output data-test={CURRENCY_PROBE_TEST_ID}>{currency}</output>}
       </form.Subscribe>
       <form.Subscribe selector={(state) => state.values.ratePhases.length}>
         {(length) => <output data-test={RATE_PHASES_LENGTH_PROBE_TEST_ID}>{length}</output>}
@@ -639,17 +635,6 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
       expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('1'),
     )
     expect(screen.queryByTestId('alert-type-warning')).not.toBeInTheDocument()
-  })
-
-  it("GIVEN the selected rate card changes THEN the form's currency field is set to the rate card's currency", async () => {
-    renderContent([productsMock(), rateCardsMock(() => undefined)])
-
-    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
-    await selectRateCard()
-
-    await waitFor(() =>
-      expect(screen.getByTestId(CURRENCY_PROBE_TEST_ID)).toHaveTextContent(CurrencyEnum.Usd),
-    )
   })
 
   it('GIVEN a rate card is created via the stacked escape hatch THEN the rate phase section still appears once the newly created rate card resolves', async () => {

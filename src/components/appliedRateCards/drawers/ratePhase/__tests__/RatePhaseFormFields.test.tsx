@@ -88,6 +88,7 @@ const Host = ({
       <RatePhaseFormFields
         form={form}
         title="Create a phase"
+        isEdition={false}
         getOtherPhases={() => otherPhases}
         rateCard={rateCard}
       />

@@ -1,18 +1,13 @@
 import { z } from 'zod'
 
-import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { validateChargeProperties } from '~/formValidation/chargePropertiesSchema'
 import {
-  CurrencyEnum,
-  PhaseInput,
   RateCardBillingTimingEnum,
   RateCardRateBillingIntervalUnitEnum,
   RateCardRateModelEnum,
-  RateOverrideInput,
   RatePropertiesInput,
 } from '~/generated/graphql'
 import { getRatePropertiesShape } from '~/pages/catalog/drawers/rateCardRate/getRatePropertiesShape'
-import { serializeRateProperties } from '~/pages/catalog/drawers/rateCardRate/serializeRateProperties'
 import { toChargeModel } from '~/pages/catalog/drawers/rateCardRate/utils'
 import { validateRateTiers } from '~/pages/catalog/drawers/rateCardRate/validateRateTiers'
 import { isTieredRateModel } from '~/pages/catalog/rateProperties/tiers/rateTiers'
@@ -104,10 +99,8 @@ export const getPositionDefaults = (
   return { positionMode: 'after', positionReferenceCode: otherPhases[editedIndex - 1].code }
 }
 
-// No explicit return type: `z.ZodType<RatePhaseFormValues>` widens the input generic to
-// `unknown`, which breaks the Standard Schema shape `useAppForm`'s `validators.onDynamic`
-// requires (see `buildRateCardRateSchema`, `planFormSchema`, `contractSchema` - none of the
-// zod-builder schemas elsewhere in this codebase annotate their return type either).
+// No return type: `z.ZodType<RatePhaseFormValues>` widens the input to `unknown`, which
+// `validators.onDynamic` rejects.
 export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaContext) =>
   z.custom<RatePhaseFormValues>().superRefine((values, ctx) => {
     const context = getContext()
@@ -158,6 +151,16 @@ export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaCo
 
     if (!values.overrideEnabled) return
 
+    const billingIntervalCount = Number(values.billingIntervalCount)
+
+    if (!Number.isInteger(billingIntervalCount) || billingIntervalCount < 1) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['billingIntervalCount'],
+        message: 'text_1771342994699klxu2paz7g8',
+      })
+    }
+
     const availableRateModels = getAvailableRateModels(context.rateModelConfiguration)
 
     if (availableRateModels && !availableRateModels.includes(values.rateModel)) {
@@ -182,9 +185,7 @@ export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaCo
     if (context.billingTiming === RateCardBillingTimingEnum.Arrears) {
       const parsedMinAmount = Number(values.minAmountCents)
 
-      // `minAmountCents` holds a decimal display amount (e.g. "5.00"), not an integer cents
-      // value - `serializeAmount` converts it on submit. Validate it as a finite non-negative
-      // number, not an integer.
+      // A decimal display amount (e.g. "5.00"), not integer cents: `serializeAmount` scales it.
       if (values.minAmountCents && (!Number.isFinite(parsedMinAmount) || parsedMinAmount < 0)) {
         ctx.addIssue({
           code: 'custom',
@@ -208,31 +209,3 @@ export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaCo
       })
     }
   })
-
-// `minAmountCents` is a decimal display amount here; `serializeAmount` scales it to the currency's
-// smallest unit, as `useRateCardRateForm` does for the catalog rate.
-export const buildRateOverrideInput = (
-  values: RatePhaseFormValues,
-  currency: CurrencyEnum,
-): RateOverrideInput => ({
-  rateModel: values.rateModel,
-  rateProperties: serializeRateProperties(values.properties, values.rateModel),
-  billingIntervalCount: Number(values.billingIntervalCount),
-  billingIntervalUnit: values.billingIntervalUnit,
-  minAmountCents: values.minAmountCents
-    ? serializeAmount(values.minAmountCents, currency)
-    : undefined,
-  pricingUnitConversionRate: values.conversionRate ? Number(values.conversionRate) : undefined,
-})
-
-export const buildPhaseInput = (
-  values: RatePhaseFormValues & { position: number },
-  currency: CurrencyEnum,
-): PhaseInput => ({
-  code: values.code,
-  name: values.name || undefined,
-  position: values.position,
-  billingIntervalCycleCount:
-    values.durationType === 'forever' ? null : Number(values.durationCycleCount),
-  ...(values.overrideEnabled ? { rateOverride: buildRateOverrideInput(values, currency) } : {}),
-})

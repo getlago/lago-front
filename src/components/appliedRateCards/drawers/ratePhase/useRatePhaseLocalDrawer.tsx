@@ -109,6 +109,7 @@ export const useRatePhaseLocalDrawer = (): {
           <RatePhaseFormFields
             form={form}
             title={title}
+            isEdition={!!args.phase}
             getOtherPhases={() => otherPhases.current}
             rateCard={args.rateCard}
           />
