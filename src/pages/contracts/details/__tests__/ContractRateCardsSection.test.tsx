@@ -93,10 +93,7 @@ const buildDestroyMutationMock = (): TestMocksType[number] => ({
 
 const renderSection = (
   mocks: TestMocksType,
-  {
-    isRemovalLocked = false,
-    hasExternalId = true,
-  }: { isRemovalLocked?: boolean; hasExternalId?: boolean } = {},
+  { isLocked = false, hasExternalId = true }: { isLocked?: boolean; hasExternalId?: boolean } = {},
 ) =>
   render(
     <AllTheProviders forceTypenames mocks={mocks}>
@@ -105,7 +102,7 @@ const renderSection = (
           contractId="contract-1"
           contractExternalId={hasExternalId ? 'contract-ext-1' : undefined}
           currency={CurrencyEnum.Usd}
-          isRemovalLocked={isRemovalLocked}
+          isLocked={isLocked}
         />
       </NiceModal.Provider>
     </AllTheProviders>,
@@ -207,7 +204,7 @@ describe('ContractRateCardsSection', () => {
   it('disables the remove action when the contract is not pending', async () => {
     const user = userEvent.setup()
 
-    renderSection([buildListMock([rowFixture])], { isRemovalLocked: true })
+    renderSection([buildListMock([rowFixture])], { isLocked: true })
     await waitFor(() => expect(screen.getByText('Product One')).toBeInTheDocument())
 
     await user.click(screen.getByTestId('open-action-button'))
@@ -231,6 +228,14 @@ describe('ContractRateCardsSection', () => {
       contractExternalId: 'contract-ext-1',
       currency: CurrencyEnum.Usd,
     })
+  })
+
+  it('GIVEN the contract is not pending THEN the Add rate card action is disabled', async () => {
+    renderSection([buildListMock([])], { isLocked: true })
+
+    await waitFor(() =>
+      expect(screen.getByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID)).toBeDisabled(),
+    )
   })
 
   it('GIVEN the contract external id is not loaded yet THEN the Add rate card action is disabled', async () => {

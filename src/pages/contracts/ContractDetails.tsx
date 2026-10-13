@@ -158,7 +158,7 @@ const ContractDetails = (): JSX.Element => {
                   contractExternalId={contract?.externalId}
                   currency={contract?.plan?.currency}
                   rateCardsCount={contract?.appliedRateCardsCount}
-                  isRateCardRemovalLocked={contract?.status !== ContractStatusEnum.Pending}
+                  isRateCardsLocked={contract?.status !== ContractStatusEnum.Pending}
                   loading={loading}
                 />
               </DetailsPage.Container>

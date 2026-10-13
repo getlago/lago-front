@@ -89,14 +89,14 @@ const buildDestroyMutationMock = (): TestMocksType[number] => ({
   },
 })
 
-const renderSection = (mocks: TestMocksType, { isRemovalLocked = false } = {}) =>
+const renderSection = (mocks: TestMocksType, { isLocked = false } = {}) =>
   render(
     <AllTheProviders forceTypenames mocks={mocks}>
       <NiceModal.Provider>
         <CatalogPlanRateCardsSection
           catalogPlanId="plan-1"
           currency={CurrencyEnum.Usd}
-          isRemovalLocked={isRemovalLocked}
+          isLocked={isLocked}
         />
       </NiceModal.Provider>
     </AllTheProviders>,
@@ -198,7 +198,7 @@ describe('CatalogPlanRateCardsSection', () => {
   it('disables the remove action when the plan is attached to contracts', async () => {
     const user = userEvent.setup()
 
-    renderSection([buildListMock([rowFixture])], { isRemovalLocked: true })
+    renderSection([buildListMock([rowFixture])], { isLocked: true })
     await waitFor(() => expect(screen.getByText('Product One')).toBeInTheDocument())
 
     await user.click(screen.getByTestId('open-action-button'))
@@ -221,5 +221,13 @@ describe('CatalogPlanRateCardsSection', () => {
       planId: 'plan-1',
       currency: CurrencyEnum.Usd,
     })
+  })
+
+  it('GIVEN the plan is attached to contracts THEN the Add rate card button is disabled', async () => {
+    renderSection([buildListMock([])], { isLocked: true })
+
+    await waitFor(() =>
+      expect(screen.getByTestId(CATALOG_PLAN_ADD_RATE_CARD_TEST_ID)).toBeDisabled(),
+    )
   })
 })

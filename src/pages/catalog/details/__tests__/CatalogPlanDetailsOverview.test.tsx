@@ -51,7 +51,7 @@ const renderOverview = (): void => {
   render(
     <CatalogPlanDetailsOverview
       currency={CurrencyEnum.Usd}
-      isRateCardRemovalLocked={false}
+      isRateCardsLocked={false}
       rateCardsCount={0}
     />,
     {
@@ -98,7 +98,7 @@ describe('CatalogPlanDetailsOverview', () => {
     render(
       <CatalogPlanDetailsOverview
         currency={CurrencyEnum.Usd}
-        isRateCardRemovalLocked={false}
+        isRateCardsLocked={false}
         rateCardsCount={4}
         loading
       />,

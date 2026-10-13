@@ -72,13 +72,13 @@ gql`
 type CatalogPlanRateCardsSectionProps = {
   catalogPlanId: string
   currency: CurrencyEnum | undefined
-  isRemovalLocked: boolean
+  isLocked: boolean
 }
 
 export const CatalogPlanRateCardsSection = ({
   catalogPlanId,
   currency,
-  isRemovalLocked,
+  isLocked,
 }: CatalogPlanRateCardsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { openDrawer: openAppliedRateCardDrawer } = useAppliedRateCardDrawer()
@@ -105,7 +105,7 @@ export const CatalogPlanRateCardsSection = ({
   const { removal, copyRateCardCode, removeRateCard } = useAppliedRateCardRowActions({
     context: 'plan',
     parentId: catalogPlanId,
-    isRemovalLocked,
+    isRemovalLocked: isLocked,
     onRemoved: () => refetch(),
   })
 
@@ -132,9 +132,9 @@ export const CatalogPlanRateCardsSection = ({
         action={{
           title: translate('text_1789030049529b0zmy1slfxl'),
           dataTest: CATALOG_PLAN_ADD_RATE_CARD_TEST_ID,
-          isDisabled: !currency,
+          isDisabled: isLocked || !currency,
           onClick: () => {
-            if (!currency) return
+            if (isLocked || !currency) return
 
             openAppliedRateCardDrawer({ context: 'plan', planId: catalogPlanId, currency })
           },

@@ -16,7 +16,7 @@ type ContractDetailsOverviewProps = {
   currency: CurrencyEnum | undefined
   rateCardsCount?: number
   loading?: boolean
-  isRateCardRemovalLocked: boolean
+  isRateCardsLocked: boolean
 }
 
 export const ContractDetailsOverview = ({
@@ -24,7 +24,7 @@ export const ContractDetailsOverview = ({
   currency,
   rateCardsCount,
   loading = false,
-  isRateCardRemovalLocked,
+  isRateCardsLocked,
 }: ContractDetailsOverviewProps): JSX.Element => {
   const { id = '', section } = useParams()
   const activeSection = isOverviewSection(section)
@@ -38,7 +38,7 @@ export const ContractDetailsOverview = ({
           contractId={id}
           contractExternalId={contractExternalId}
           currency={currency}
-          isRemovalLocked={isRateCardRemovalLocked}
+          isLocked={isRateCardsLocked}
         />
       )
     }

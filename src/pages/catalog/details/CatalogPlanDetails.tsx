@@ -132,7 +132,7 @@ const CatalogPlanDetails = (): JSX.Element => {
                 <CatalogPlanDetailsOverview
                   currency={catalogPlan?.currency}
                   rateCardsCount={catalogPlan?.appliedRateCardsCount}
-                  isRateCardRemovalLocked={catalogPlan?.attachedToContracts !== false}
+                  isRateCardsLocked={catalogPlan?.attachedToContracts !== false}
                   loading={loading}
                 />
               </DetailsPage.Container>

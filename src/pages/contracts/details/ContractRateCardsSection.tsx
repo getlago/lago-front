@@ -73,14 +73,14 @@ type ContractRateCardsSectionProps = {
   contractId: string
   contractExternalId: string | undefined
   currency: CurrencyEnum | undefined
-  isRemovalLocked: boolean
+  isLocked: boolean
 }
 
 export const ContractRateCardsSection = ({
   contractId,
   contractExternalId,
   currency,
-  isRemovalLocked,
+  isLocked,
 }: ContractRateCardsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { openDrawer: openAppliedRateCardDrawer } = useAppliedRateCardDrawer()
@@ -107,7 +107,7 @@ export const ContractRateCardsSection = ({
   const { removal, copyRateCardCode, removeRateCard } = useAppliedRateCardRowActions({
     context: 'contract',
     parentId: contractId,
-    isRemovalLocked,
+    isRemovalLocked: isLocked,
     onRemoved: () => refetch(),
   })
 
@@ -135,9 +135,9 @@ export const ContractRateCardsSection = ({
         action={{
           label: translate('text_1789030049529b0zmy1slfxl'),
           dataTest: CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID,
-          disabled: !contractExternalId || !currency,
+          disabled: isLocked || !contractExternalId || !currency,
           onClick: () => {
-            if (!contractExternalId || !currency) return
+            if (isLocked || !contractExternalId || !currency) return
 
             openAppliedRateCardDrawer({
               context: 'contract',

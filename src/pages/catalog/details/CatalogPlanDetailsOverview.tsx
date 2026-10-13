@@ -15,14 +15,14 @@ type CatalogPlanDetailsOverviewComponentProps = {
   currency: CurrencyEnum | undefined
   rateCardsCount?: number
   loading?: boolean
-  isRateCardRemovalLocked: boolean
+  isRateCardsLocked: boolean
 }
 
 export const CatalogPlanDetailsOverview = ({
   currency,
   rateCardsCount,
   loading = false,
-  isRateCardRemovalLocked,
+  isRateCardsLocked,
 }: CatalogPlanDetailsOverviewComponentProps): JSX.Element => {
   const { catalogPlanId = '', section } = useParams()
 
@@ -38,7 +38,7 @@ export const CatalogPlanDetailsOverview = ({
         <CatalogPlanRateCardsSection
           catalogPlanId={catalogPlanId}
           currency={currency}
-          isRemovalLocked={isRateCardRemovalLocked}
+          isLocked={isRateCardsLocked}
         />
       )
     }
