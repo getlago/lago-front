@@ -70,7 +70,7 @@ RUN apk upgrade --no-cache && apk add --no-cache bash
 COPY --from=build /app/dist .
 COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./nginx/gzip.conf /etc/nginx/conf.d/gzip.conf
-COPY ./nginx/csp.conf /etc/nginx/conf.d/csp.conf
+COPY ./nginx/csp.conf.template /etc/nginx/csp.conf.template
 COPY ./.env.sh ./.env.sh
 
 EXPOSE 80
