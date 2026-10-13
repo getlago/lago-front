@@ -17,20 +17,20 @@ const exhaustiveCheck = (value: never): never => {
 }
 
 const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
-  [ActivityTypeEnum.ContractCreated]: 'Contract created',
-  [ActivityTypeEnum.ContractUpdated]: 'Contract updated',
-  [ActivityTypeEnum.ContractStarted]: 'Contract started',
-  [ActivityTypeEnum.ContractTerminated]: 'Contract terminated',
-  [ActivityTypeEnum.ContractCanceled]: 'Contract canceled',
-  [ActivityTypeEnum.ContractRateCardCreated]: 'Contract rate card created',
-  [ActivityTypeEnum.ContractRateCardDeleted]: 'Contract rate card deleted',
-  [ActivityTypeEnum.ContractRateCardUpdated]: 'Contract rate card updated',
-  [ActivityTypeEnum.PlanRateCardCreated]: 'Plan rate card created',
-  [ActivityTypeEnum.PlanRateCardDeleted]: 'Plan rate card deleted',
-  [ActivityTypeEnum.PlanRateCardUpdated]: 'Plan rate card updated',
-  [ActivityTypeEnum.RateCardRateCreated]: 'Rate card rate created',
-  [ActivityTypeEnum.RateCardRateDeleted]: 'Rate card rate deleted',
-  [ActivityTypeEnum.RateCardRateUpdated]: 'Rate card rate updated',
+  [ActivityTypeEnum.ContractCreated]: 'text_1791921842761by5ureagbe9',
+  [ActivityTypeEnum.ContractUpdated]: 'text_1791921974802th7lzdwh96w',
+  [ActivityTypeEnum.ContractStarted]: 'text_1791921974802xc0m2b09axm',
+  [ActivityTypeEnum.ContractTerminated]: 'text_1791921974802gn196zpm2rp',
+  [ActivityTypeEnum.ContractCanceled]: 'text_1791921974802vliv1zlrf36',
+  [ActivityTypeEnum.ContractRateCardCreated]: 'text_17919219748028qs8slf9r4r',
+  [ActivityTypeEnum.ContractRateCardDeleted]: 'text_1791921974802buml62fqqaz',
+  [ActivityTypeEnum.ContractRateCardUpdated]: 'text_1791921974802geeg4bwwkvk',
+  [ActivityTypeEnum.PlanRateCardCreated]: 'text_1791921974802ltk52urixbp',
+  [ActivityTypeEnum.PlanRateCardDeleted]: 'text_17919219748027k069qsq455',
+  [ActivityTypeEnum.PlanRateCardUpdated]: 'text_1791921974802pda62e0zdtv',
+  [ActivityTypeEnum.RateCardRateCreated]: 'text_1791921974803r2tomq2nay3',
+  [ActivityTypeEnum.RateCardRateDeleted]: 'text_1791921974803zghgbb7drn4',
+  [ActivityTypeEnum.RateCardRateUpdated]: 'text_1791921974803lfnnssptes9',
   [ActivityTypeEnum.AppliedCouponCreated]: 'text_1747404806714mt6os3k8404',
   [ActivityTypeEnum.AppliedCouponDeleted]: 'text_1747404902717ou47ei2bfd3',
   [ActivityTypeEnum.BillableMetricCreated]: 'text_17474046566318icwya96cm4',
@@ -109,10 +109,10 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
 }
 
 const resourceTypeTranslations: Record<string, string> = {
-  Contract: 'Contract',
-  ContractAppliedRateCard: 'Contract rate card',
-  PlanAppliedRateCard: 'Plan rate card',
-  RateCardRate: 'Rate card rate',
+  Contract: 'text_1791921974803dy39wywfdfl',
+  ContractAppliedRateCard: 'text_1791921974803pyof8qcdfk5',
+  PlanAppliedRateCard: 'text_1791921974803v4u3b2dekrv',
+  RateCardRate: 'text_17919219748033tsf7k2uaro',
   BillableMetric: 'text_64352657267c3d916f962757',
   BillingEntity: 'text_1743077296189ms0shds6g53',
   Coupon: 'text_628b8c693e464200e00e4677',
@@ -139,14 +139,6 @@ export const useActivityLogsInformation = () => {
   const getResourceType = (resourceType: string): string => {
     const description = resourceTypeTranslations[resourceType] || resourceType
 
-    if (
-      resourceType === 'Contract' ||
-      resourceType === 'ContractAppliedRateCard' ||
-      resourceType === 'PlanAppliedRateCard' ||
-      resourceType === 'RateCardRate'
-    ) {
-      return description
-    }
     return translate(description)
   }
 
@@ -383,16 +375,6 @@ export const useActivityLogsInformation = () => {
     }
 
     const description = activityTypeTranslations[activityType]
-
-    // The new API activity types have not received localization catalog IDs yet;
-    // show their human-readable English names rather than exposing a missing key.
-    if (
-      activityType.startsWith('contract_') ||
-      activityType.startsWith('plan_rate_card_') ||
-      activityType.startsWith('rate_card_rate_')
-    ) {
-      return description
-    }
 
     return translate(description, parameters)
   }

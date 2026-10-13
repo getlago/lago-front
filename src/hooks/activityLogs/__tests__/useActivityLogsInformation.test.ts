@@ -24,14 +24,14 @@ describe('useActivityLogsInformation', () => {
 
   describe('getResourceType', () => {
     it.each([
-      ['Contract', 'Contract'],
-      ['ContractAppliedRateCard', 'Contract rate card'],
-      ['PlanAppliedRateCard', 'Plan rate card'],
-      ['RateCardRate', 'Rate card rate'],
-    ])('returns a readable label for %s', (resourceType, label) => {
+      ['Contract', 'text_1791921974803dy39wywfdfl'],
+      ['ContractAppliedRateCard', 'text_1791921974803pyof8qcdfk5'],
+      ['PlanAppliedRateCard', 'text_1791921974803v4u3b2dekrv'],
+      ['RateCardRate', 'text_17919219748033tsf7k2uaro'],
+    ])('should return translation key for %s', (resourceType, key) => {
       const { result } = renderHook(() => useActivityLogsInformation())
 
-      expect(result.current.getResourceType(resourceType)).toBe(label)
+      expect(result.current.getResourceType(resourceType)).toBe(`translated:${key}`)
     })
 
     it('should return translation key for known resource types', () => {
@@ -70,15 +70,15 @@ describe('useActivityLogsInformation', () => {
 
   describe('getActivityDescription', () => {
     it.each([
-      [ActivityTypeEnum.ContractStarted, 'Contract started'],
-      [ActivityTypeEnum.ContractRateCardUpdated, 'Contract rate card updated'],
-      [ActivityTypeEnum.PlanRateCardCreated, 'Plan rate card created'],
-      [ActivityTypeEnum.RateCardRateDeleted, 'Rate card rate deleted'],
-    ])('returns a readable description for %s', (activityType, description) => {
+      [ActivityTypeEnum.ContractStarted, 'text_1791921974802xc0m2b09axm'],
+      [ActivityTypeEnum.ContractRateCardUpdated, 'text_1791921974802geeg4bwwkvk'],
+      [ActivityTypeEnum.PlanRateCardCreated, 'text_1791921974802ltk52urixbp'],
+      [ActivityTypeEnum.RateCardRateDeleted, 'text_1791921974803zghgbb7drn4'],
+    ])('should return translation key for %s', (activityType, key) => {
       const { result } = renderHook(() => useActivityLogsInformation())
 
       expect(result.current.getActivityDescription(activityType, { activityObject: {} })).toBe(
-        description,
+        `translated:${key}:{}`,
       )
     })
 
