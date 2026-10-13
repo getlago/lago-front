@@ -8860,6 +8860,7 @@ export enum ProviderPaymentMethodsEnum {
   CustomerBalance = 'customer_balance',
   Link = 'link',
   SepaDebit = 'sepa_debit',
+  SharedPaymentToken = 'shared_payment_token',
   UsBankAccount = 'us_bank_account'
 }
 

@@ -17,6 +17,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 const INELIGIBLE_PAYMENT_METHODS: ProviderPaymentMethodsEnum[] = [
   ProviderPaymentMethodsEnum.CustomerBalance,
   ProviderPaymentMethodsEnum.Crypto,
+  ProviderPaymentMethodsEnum.SharedPaymentToken,
 ]
 
 type PaymentConnectionPaymentMethodsProps = {
@@ -38,7 +39,7 @@ export const PaymentConnectionPaymentMethods = ({
 
   const providerConnection = getProviderPaymentConnection(customer)
 
-  // Bank Transfer / Crypto only: the provider can't register a new method
+  // Bank Transfer / Crypto / Shared payment token only: the provider can't register a new method
   const hasOnlyIneligiblePaymentMethods = useMemo(() => {
     const methods = providerConnection?.providerPaymentMethods
 
