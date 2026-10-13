@@ -23,6 +23,17 @@ describe('useActivityLogsInformation', () => {
   })
 
   describe('getResourceType', () => {
+    it.each([
+      ['Contract', 'Contract'],
+      ['ContractAppliedRateCard', 'Contract rate card'],
+      ['PlanAppliedRateCard', 'Plan rate card'],
+      ['RateCardRate', 'Rate card rate'],
+    ])('returns a readable label for %s', (resourceType, label) => {
+      const { result } = renderHook(() => useActivityLogsInformation())
+
+      expect(result.current.getResourceType(resourceType)).toBe(label)
+    })
+
     it('should return translation key for known resource types', () => {
       const { result } = renderHook(() => useActivityLogsInformation())
 
@@ -58,6 +69,19 @@ describe('useActivityLogsInformation', () => {
   })
 
   describe('getActivityDescription', () => {
+    it.each([
+      [ActivityTypeEnum.ContractStarted, 'Contract started'],
+      [ActivityTypeEnum.ContractRateCardUpdated, 'Contract rate card updated'],
+      [ActivityTypeEnum.PlanRateCardCreated, 'Plan rate card created'],
+      [ActivityTypeEnum.RateCardRateDeleted, 'Rate card rate deleted'],
+    ])('returns a readable description for %s', (activityType, description) => {
+      const { result } = renderHook(() => useActivityLogsInformation())
+
+      expect(result.current.getActivityDescription(activityType, { activityObject: {} })).toBe(
+        description,
+      )
+    })
+
     it('should return description for AppliedCouponCreated', () => {
       const { result } = renderHook(() => useActivityLogsInformation())
       const activityObject = {

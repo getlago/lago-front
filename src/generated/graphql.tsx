@@ -15,7 +15,10 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  /** Represents non-fractional signed whole numeric values. Since the value may exceed the size of a 32-bit integer, it's encoded as a string. */
+  /**
+   * Represents non-fractional signed whole numeric values. Since the value may
+   * exceed the size of a 32-bit integer, it's encoded as a string.
+   */
   BigInt: { input: any; output: any; }
   ChargeFilterValues: { input: any; output: any; }
   /** Api Logs HTTP status */
@@ -81,7 +84,7 @@ export type ActivityLogCollection = {
 };
 
 /** Activity log resource */
-export type ActivityLogResourceObject = BillableMetric | BillingEntity | CatalogPlan | Coupon | CreditNote | Customer | FeatureObject | Invoice | Order | OrderForm | PaymentReceipt | PaymentRequest | Plan | Product | ProductCategory | ProductFilter | Quote | RateCard | Subscription | Wallet;
+export type ActivityLogResourceObject = BillableMetric | BillingEntity | CatalogPlan | Contract | ContractAppliedRateCard | Coupon | CreditNote | Customer | FeatureObject | Invoice | Order | OrderForm | PaymentReceipt | PaymentRequest | Plan | PlanAppliedRateCard | Product | ProductCategory | ProductFilter | Quote | RateCard | RateCardRate | Subscription | Wallet;
 
 /** Activity Logs source enums */
 export enum ActivitySourceEnum {
@@ -108,6 +111,22 @@ export enum ActivityTypeEnum {
   BillingEntitiesDeleted = 'billing_entities_deleted',
   /** billing_entities.updated */
   BillingEntitiesUpdated = 'billing_entities_updated',
+  /** contract.canceled */
+  ContractCanceled = 'contract_canceled',
+  /** contract.created */
+  ContractCreated = 'contract_created',
+  /** contract_rate_card.created */
+  ContractRateCardCreated = 'contract_rate_card_created',
+  /** contract_rate_card.deleted */
+  ContractRateCardDeleted = 'contract_rate_card_deleted',
+  /** contract_rate_card.updated */
+  ContractRateCardUpdated = 'contract_rate_card_updated',
+  /** contract.started */
+  ContractStarted = 'contract_started',
+  /** contract.terminated */
+  ContractTerminated = 'contract_terminated',
+  /** contract.updated */
+  ContractUpdated = 'contract_updated',
   /** coupon.created */
   CouponCreated = 'coupon_created',
   /** coupon.deleted */
@@ -186,6 +205,12 @@ export enum ActivityTypeEnum {
   PlanCreated = 'plan_created',
   /** plan.deleted */
   PlanDeleted = 'plan_deleted',
+  /** plan_rate_card.created */
+  PlanRateCardCreated = 'plan_rate_card_created',
+  /** plan_rate_card.deleted */
+  PlanRateCardDeleted = 'plan_rate_card_deleted',
+  /** plan_rate_card.updated */
+  PlanRateCardUpdated = 'plan_rate_card_updated',
   /** plan.updated */
   PlanUpdated = 'plan_updated',
   /** product_category.created */
@@ -220,6 +245,12 @@ export enum ActivityTypeEnum {
   RateCardCreated = 'rate_card_created',
   /** rate_card.deleted */
   RateCardDeleted = 'rate_card_deleted',
+  /** rate_card_rate.created */
+  RateCardRateCreated = 'rate_card_rate_created',
+  /** rate_card_rate.deleted */
+  RateCardRateDeleted = 'rate_card_rate_deleted',
+  /** rate_card_rate.updated */
+  RateCardRateUpdated = 'rate_card_rate_updated',
   /** rate_card.updated */
   RateCardUpdated = 'rate_card_updated',
   /** subscription.canceled */
@@ -833,7 +864,10 @@ export type AttributedUsageChargeUsage = {
   units: Scalars['Float']['output'];
 };
 
-/** Keeps the events whose attribution label of the given type matches one of the values. An empty value matches the events without that label. */
+/**
+ * Keeps the events whose attribution label of the given type matches one of the
+ * values. An empty value matches the events without that label.
+ */
 export type AttributedUsageFilterInput = {
   /** Code of the usage attribution type */
   code: Scalars['String']['input'];
@@ -4624,6 +4658,7 @@ export enum EventCategoryEnum {
   Payments = 'PAYMENTS',
   PaymentReceipts = 'PAYMENT_RECEIPTS',
   Plans = 'PLANS',
+  ProductCatalog = 'PRODUCT_CATALOG',
   Quotes = 'QUOTES',
   SubscriptionsAndFees = 'SUBSCRIPTIONS_AND_FEES',
   WalletsAndCredits = 'WALLETS_AND_CREDITS'
@@ -4644,6 +4679,14 @@ export enum EventTypeEnum {
   BillableMetricCreated = 'billable_metric_created',
   BillableMetricDeleted = 'billable_metric_deleted',
   BillableMetricUpdated = 'billable_metric_updated',
+  ContractCanceled = 'contract_canceled',
+  ContractCreated = 'contract_created',
+  ContractRateCardCreated = 'contract_rate_card_created',
+  ContractRateCardDeleted = 'contract_rate_card_deleted',
+  ContractRateCardUpdated = 'contract_rate_card_updated',
+  ContractStarted = 'contract_started',
+  ContractTerminated = 'contract_terminated',
+  ContractUpdated = 'contract_updated',
   CreditNoteCreated = 'credit_note_created',
   CreditNoteGenerated = 'credit_note_generated',
   CreditNoteProviderRefundFailure = 'credit_note_provider_refund_failure',
@@ -4696,10 +4739,28 @@ export enum EventTypeEnum {
   PaymentSucceeded = 'payment_succeeded',
   PlanCreated = 'plan_created',
   PlanDeleted = 'plan_deleted',
+  PlanRateCardCreated = 'plan_rate_card_created',
+  PlanRateCardDeleted = 'plan_rate_card_deleted',
+  PlanRateCardUpdated = 'plan_rate_card_updated',
   PlanUpdated = 'plan_updated',
+  ProductCategoryCreated = 'product_category_created',
+  ProductCategoryDeleted = 'product_category_deleted',
+  ProductCategoryUpdated = 'product_category_updated',
+  ProductCreated = 'product_created',
+  ProductDeleted = 'product_deleted',
+  ProductFilterCreated = 'product_filter_created',
+  ProductFilterDeleted = 'product_filter_deleted',
+  ProductFilterUpdated = 'product_filter_updated',
+  ProductUpdated = 'product_updated',
   QuoteApproved = 'quote_approved',
   QuoteCreated = 'quote_created',
   QuoteVoided = 'quote_voided',
+  RateCardCreated = 'rate_card_created',
+  RateCardDeleted = 'rate_card_deleted',
+  RateCardRateCreated = 'rate_card_rate_created',
+  RateCardRateDeleted = 'rate_card_rate_deleted',
+  RateCardRateUpdated = 'rate_card_rate_updated',
+  RateCardUpdated = 'rate_card_updated',
   SubscriptionCanceled = 'subscription_canceled',
   SubscriptionIncomplete = 'subscription_incomplete',
   SubscriptionStarted = 'subscription_started',
@@ -4742,6 +4803,7 @@ export type ExportFinanceAssistantResultInput = {
 /** Organization Feature Flag Values */
 export enum FeatureFlagEnum {
   AccountTree = 'account_tree',
+  ChargeFiltersSingleScan = 'charge_filters_single_scan',
   FixedChargeUsageDeltaMigration = 'fixed_charge_usage_delta_migration',
   MultiConnection = 'multi_connection',
   OrderForms = 'order_forms',
@@ -4750,6 +4812,7 @@ export enum FeatureFlagEnum {
   RealtimeUsage = 'realtime_usage',
   SkipCreditInvoiceAutoPaymentDelay = 'skip_credit_invoice_auto_payment_delay',
   StripeSharedPaymentToken = 'stripe_shared_payment_token',
+  UsagePrefilterShortCache = 'usage_prefilter_short_cache',
   WalletTraceability = 'wallet_traceability',
   X402Payments = 'x402_payments',
   X402ReservationCounterDisabled = 'x402_reservation_counter_disabled'
@@ -5786,6 +5849,8 @@ export enum LogEventEnum {
   IntegrationDeleted = 'integration_deleted',
   /** integration.updated */
   IntegrationUpdated = 'integration_updated',
+  /** organization.authentication_methods_updated */
+  OrganizationAuthenticationMethodsUpdated = 'organization_authentication_methods_updated',
   /** role.created */
   RoleCreated = 'role_created',
   /** role.deleted */
@@ -5824,6 +5889,8 @@ export enum LogTypeEnum {
   Export = 'export',
   /** integration */
   Integration = 'integration',
+  /** organization */
+  Organization = 'organization',
   /** role */
   Role = 'role',
   /** user */
@@ -10696,6 +10763,10 @@ export enum ResourceTypeEnum {
   BillingEntity = 'billing_entity',
   /** CatalogPlan */
   CatalogPlan = 'catalog_plan',
+  /** Contract */
+  Contract = 'contract',
+  /** ContractRateCard */
+  ContractRateCard = 'contract_rate_card',
   /** Coupon */
   Coupon = 'coupon',
   /** CreditNote */
@@ -10716,6 +10787,8 @@ export enum ResourceTypeEnum {
   PaymentRequest = 'payment_request',
   /** Plan */
   Plan = 'plan',
+  /** PlanRateCard */
+  PlanRateCard = 'plan_rate_card',
   /** Product */
   Product = 'product',
   /** ProductCategory */
@@ -10726,6 +10799,8 @@ export enum ResourceTypeEnum {
   Quote = 'quote',
   /** RateCard */
   RateCard = 'rate_card',
+  /** RateCardRate */
+  RateCardRate = 'rate_card_rate',
   /** Subscription */
   Subscription = 'subscription',
   /** Wallet */
@@ -11297,7 +11372,11 @@ export type TerminateSubscriptionInput = {
 
 export type ThresholdInput = {
   code?: InputMaybe<Scalars['String']['input']>;
-  /** Transitions this threshold notifies on. Must include triggered. Adding resolved requires a code that is unique within the alert, and is not supported on recurring thresholds. */
+  /**
+   * Transitions this threshold notifies on. Must include triggered. Adding
+   * resolved requires a code that is unique within the alert, and is not supported
+   * on recurring thresholds.
+   */
   notifyOn?: InputMaybe<Array<NotifyOnEnum>>;
   recurring?: InputMaybe<Scalars['Boolean']['input']>;
   value: Scalars['String']['input'];
@@ -13957,6 +14036,8 @@ export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityT
     | { __typename?: 'BillableMetric', id: string }
     | { __typename?: 'BillingEntity', id: string, code: string }
     | { __typename?: 'CatalogPlan', id: string }
+    | { __typename?: 'Contract', id: string }
+    | { __typename?: 'ContractAppliedRateCard', id: string }
     | { __typename?: 'Coupon', id: string }
     | { __typename?: 'CreditNote', id: string, customer: { __typename?: 'Customer', id: string }, invoice?: { __typename?: 'Invoice', id: string } | null }
     | { __typename?: 'Customer', id: string }
@@ -13967,11 +14048,13 @@ export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityT
     | { __typename?: 'PaymentReceipt', id: string }
     | { __typename?: 'PaymentRequest', id: string }
     | { __typename?: 'Plan', id: string }
+    | { __typename?: 'PlanAppliedRateCard', id: string }
     | { __typename?: 'Product', id: string }
     | { __typename?: 'ProductCategory', id: string }
     | { __typename?: 'ProductFilter', id: string }
     | { __typename?: 'Quote', id: string }
     | { __typename?: 'RateCard', id: string }
+    | { __typename?: 'RateCardRate', id: string }
     | { __typename?: 'Subscription', id: string }
     | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null }
    | null };
@@ -13985,6 +14068,8 @@ export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { 
       | { __typename?: 'BillableMetric', id: string }
       | { __typename?: 'BillingEntity', id: string, code: string }
       | { __typename?: 'CatalogPlan', id: string }
+      | { __typename?: 'Contract', id: string }
+      | { __typename?: 'ContractAppliedRateCard', id: string }
       | { __typename?: 'Coupon', id: string }
       | { __typename?: 'CreditNote', id: string, customer: { __typename?: 'Customer', id: string }, invoice?: { __typename?: 'Invoice', id: string } | null }
       | { __typename?: 'Customer', id: string }
@@ -13995,11 +14080,13 @@ export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { 
       | { __typename?: 'PaymentReceipt', id: string }
       | { __typename?: 'PaymentRequest', id: string }
       | { __typename?: 'Plan', id: string }
+      | { __typename?: 'PlanAppliedRateCard', id: string }
       | { __typename?: 'Product', id: string }
       | { __typename?: 'ProductCategory', id: string }
       | { __typename?: 'ProductFilter', id: string }
       | { __typename?: 'Quote', id: string }
       | { __typename?: 'RateCard', id: string }
+      | { __typename?: 'RateCardRate', id: string }
       | { __typename?: 'Subscription', id: string }
       | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null }
      | null } | null };
@@ -20222,6 +20309,18 @@ export const ActivityLogDetailsFragmentDoc = gql`
       code
     }
     ... on CatalogPlan {
+      id
+    }
+    ... on Contract {
+      id
+    }
+    ... on ContractAppliedRateCard {
+      id
+    }
+    ... on PlanAppliedRateCard {
+      id
+    }
+    ... on RateCardRate {
       id
     }
     ... on Coupon {

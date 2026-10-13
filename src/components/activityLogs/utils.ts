@@ -15,6 +15,7 @@ import {
 import {
   BILLABLE_METRIC_DETAILS_ROUTE,
   BILLING_ENTITY_ROUTE,
+  CONTRACT_DETAILS_ROUTE,
   COUPON_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
@@ -114,6 +115,13 @@ export function getResourceLink(
         couponId: resource.id,
         tab: CouponDetailsTabsOptionsEnum.overview,
       })
+    case 'Contract':
+      return generatePath(CONTRACT_DETAILS_ROUTE, { id: resource.id })
+    case 'ContractRateCard':
+    case 'PlanRateCard':
+    case 'RateCardRate':
+      // These resources need parent IDs that are not selected in the activity log.
+      return null
     case 'CreditNote':
       if (!(resource as CreditNote).customer?.id || !(resource as CreditNote).invoice?.id) {
         return null

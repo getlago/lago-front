@@ -17,6 +17,20 @@ const exhaustiveCheck = (value: never): never => {
 }
 
 const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
+  [ActivityTypeEnum.ContractCreated]: 'Contract created',
+  [ActivityTypeEnum.ContractUpdated]: 'Contract updated',
+  [ActivityTypeEnum.ContractStarted]: 'Contract started',
+  [ActivityTypeEnum.ContractTerminated]: 'Contract terminated',
+  [ActivityTypeEnum.ContractCanceled]: 'Contract canceled',
+  [ActivityTypeEnum.ContractRateCardCreated]: 'Contract rate card created',
+  [ActivityTypeEnum.ContractRateCardDeleted]: 'Contract rate card deleted',
+  [ActivityTypeEnum.ContractRateCardUpdated]: 'Contract rate card updated',
+  [ActivityTypeEnum.PlanRateCardCreated]: 'Plan rate card created',
+  [ActivityTypeEnum.PlanRateCardDeleted]: 'Plan rate card deleted',
+  [ActivityTypeEnum.PlanRateCardUpdated]: 'Plan rate card updated',
+  [ActivityTypeEnum.RateCardRateCreated]: 'Rate card rate created',
+  [ActivityTypeEnum.RateCardRateDeleted]: 'Rate card rate deleted',
+  [ActivityTypeEnum.RateCardRateUpdated]: 'Rate card rate updated',
   [ActivityTypeEnum.AppliedCouponCreated]: 'text_1747404806714mt6os3k8404',
   [ActivityTypeEnum.AppliedCouponDeleted]: 'text_1747404902717ou47ei2bfd3',
   [ActivityTypeEnum.BillableMetricCreated]: 'text_17474046566318icwya96cm4',
@@ -95,6 +109,10 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
 }
 
 const resourceTypeTranslations: Record<string, string> = {
+  Contract: 'Contract',
+  ContractAppliedRateCard: 'Contract rate card',
+  PlanAppliedRateCard: 'Plan rate card',
+  RateCardRate: 'Rate card rate',
   BillableMetric: 'text_64352657267c3d916f962757',
   BillingEntity: 'text_1743077296189ms0shds6g53',
   Coupon: 'text_628b8c693e464200e00e4677',
@@ -119,7 +137,17 @@ export const useActivityLogsInformation = () => {
   const { translate } = useInternationalization()
 
   const getResourceType = (resourceType: string): string => {
-    return translate(resourceTypeTranslations[resourceType] || resourceType)
+    const description = resourceTypeTranslations[resourceType] || resourceType
+
+    if (
+      resourceType === 'Contract' ||
+      resourceType === 'ContractAppliedRateCard' ||
+      resourceType === 'PlanAppliedRateCard' ||
+      resourceType === 'RateCardRate'
+    ) {
+      return description
+    }
+    return translate(description)
   }
 
   const getActivityDescription = (
@@ -171,6 +199,21 @@ export const useActivityLogsInformation = () => {
         parameters = {
           couponCode: activityObject.code,
         }
+        break
+      case ActivityTypeEnum.ContractCreated:
+      case ActivityTypeEnum.ContractUpdated:
+      case ActivityTypeEnum.ContractStarted:
+      case ActivityTypeEnum.ContractTerminated:
+      case ActivityTypeEnum.ContractCanceled:
+      case ActivityTypeEnum.ContractRateCardCreated:
+      case ActivityTypeEnum.ContractRateCardDeleted:
+      case ActivityTypeEnum.ContractRateCardUpdated:
+      case ActivityTypeEnum.PlanRateCardCreated:
+      case ActivityTypeEnum.PlanRateCardDeleted:
+      case ActivityTypeEnum.PlanRateCardUpdated:
+      case ActivityTypeEnum.RateCardRateCreated:
+      case ActivityTypeEnum.RateCardRateDeleted:
+      case ActivityTypeEnum.RateCardRateUpdated:
         break
       case ActivityTypeEnum.CreditNoteCreated:
       case ActivityTypeEnum.CreditNoteGenerated:
@@ -339,7 +382,19 @@ export const useActivityLogsInformation = () => {
         exhaustiveCheck(activityType)
     }
 
-    return translate(activityTypeTranslations[activityType], parameters)
+    const description = activityTypeTranslations[activityType]
+
+    // The new API activity types have not received localization catalog IDs yet;
+    // show their human-readable English names rather than exposing a missing key.
+    if (
+      activityType.startsWith('contract_') ||
+      activityType.startsWith('plan_rate_card_') ||
+      activityType.startsWith('rate_card_rate_')
+    ) {
+      return description
+    }
+
+    return translate(description, parameters)
   }
 
   return {

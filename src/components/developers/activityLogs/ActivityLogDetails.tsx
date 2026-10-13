@@ -37,6 +37,8 @@ export const ACTIVITY_LOG_DETAILS_SUBSCRIPTION_LINK_TEST_ID =
 
 const remapResourceTypeNames = (resourceType: string): keyof typeof ResourceTypeEnum => {
   if (resourceType === 'FeatureObject') return 'Feature'
+  if (resourceType === 'ContractAppliedRateCard') return 'ContractRateCard'
+  if (resourceType === 'PlanAppliedRateCard') return 'PlanRateCard'
   return resourceType as keyof typeof ResourceTypeEnum
 }
 
@@ -61,6 +63,18 @@ gql`
         code
       }
       ... on CatalogPlan {
+        id
+      }
+      ... on Contract {
+        id
+      }
+      ... on ContractAppliedRateCard {
+        id
+      }
+      ... on PlanAppliedRateCard {
+        id
+      }
+      ... on RateCardRate {
         id
       }
       ... on Coupon {
@@ -173,7 +187,9 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
       activityType,
     })
 
-    if (!link) return resource.id
+    const resourceId = 'id' in resource ? resource.id : '-'
+
+    if (!link) return resourceId
 
     return (
       <Button
@@ -181,7 +197,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
         variant="inline"
         onClick={() => handleResourceNavigate(link)}
       >
-        {resource.id}
+        {resourceId}
       </Button>
     )
   }
