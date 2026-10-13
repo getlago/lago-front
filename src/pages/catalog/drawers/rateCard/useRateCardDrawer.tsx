@@ -301,9 +301,8 @@ export const useRateCardDrawer = () => {
         return
       }
 
-      // An `onCreated` caller (the stacked "create rate card" escape hatch) owns the whole
-      // success path: it always closes and skips create-more/navigate, regardless of whether
-      // create-more was left on from a previous open.
+      // An `onCreated` caller owns the success path: always close, even with create-more left on
+      // from a previous open.
       if (onCreatedRef.current) {
         onCreatedRef.current(rateCard)
         drawer.close()

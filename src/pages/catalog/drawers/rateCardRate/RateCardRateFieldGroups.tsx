@@ -254,7 +254,7 @@ export const RatePricingSettingsSection = withFieldGroup({
       if (!nextRateModel || nextRateModel === rateModel || !isRateModelEditable) return
 
       if (!isPremium && nextRateModel === RateCardRateModelEnum.GraduatedPercentage) {
-        openPremiumWarningDialog()
+        void openPremiumWarningDialog()
         return
       }
 
