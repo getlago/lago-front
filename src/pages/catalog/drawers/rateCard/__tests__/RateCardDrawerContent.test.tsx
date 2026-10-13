@@ -801,7 +801,7 @@ describe('invoicing strategy selection', () => {
         billingTiming: RateCardBillingTimingEnum.Advance,
         invoicingStrategy: 'regroupPaidFees',
       },
-      productSeed: { value: PRODUCT_ID, label: 'Seats', productType: ProductTypeEnum.Fixed },
+      productSeed: buildUsageSeed(AggregationTypeEnum.SumAgg),
     })
 
     expect(
@@ -835,6 +835,22 @@ describe('invoicing strategy selection', () => {
         .closest('label')
         ?.querySelector('circle[r="4"]'),
     ).toBeInTheDocument()
+  })
+
+  it('hides the invoicing strategy section for a fixed product', () => {
+    renderContent({
+      isEdit: true,
+      values: {
+        productId: PRODUCT_ID,
+        billingTiming: RateCardBillingTimingEnum.Advance,
+        invoicingStrategy: 'regroupPaidFees',
+      },
+      productSeed: { value: PRODUCT_ID, label: 'Seats', productType: ProductTypeEnum.Fixed },
+    })
+
+    expect(
+      screen.queryByRole('radio', { name: 'text_6687b0081931407697975945' }),
+    ).not.toBeInTheDocument()
   })
 })
 

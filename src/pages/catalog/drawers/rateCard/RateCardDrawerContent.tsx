@@ -515,7 +515,7 @@ const RateCardDrawerFormSections = withForm({
                 )}
               </form.AppField>
 
-              {isPayInAdvance && (
+              {isPayInAdvance && selectedProductMeta?.productType !== ProductTypeEnum.Fixed && (
                 <ChargeInvoicingStrategyOption
                   localCharge={strategyLocalCharge}
                   disabled={hasRates}
