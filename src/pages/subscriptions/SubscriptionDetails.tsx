@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router'
 
+import { CustomerAttributedUsage } from '~/components/customers/attributedUsage/CustomerAttributedUsage'
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -34,6 +35,7 @@ import {
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
+  FeatureFlagEnum,
   LagoApiError,
   StatusTypeEnum,
   SubscriptionForProgressiveBillingTabFragmentDoc,
@@ -42,6 +44,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useSubscriptionPermissionsActions } from '~/hooks/useSubscriptionPermissionsActions'
 
@@ -67,6 +70,8 @@ gql`
       }
       customer {
         id
+        externalId
+        displayName
       }
       ...SubscriptionForProgressiveBillingTab
     }
@@ -83,6 +88,7 @@ const SubscriptionDetails = () => {
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
+  const { hasFeatureFlag } = useOrganizationInfos()
   const { canEditSubscription, canTerminateSubscription, isStatusEditable } =
     useSubscriptionPermissionsActions()
   const { planId = '', customerId = '', subscriptionId = '' } = useParams()
@@ -257,6 +263,37 @@ const SubscriptionDetails = () => {
         ),
       },
       {
+        title: 'Usage governance',
+        link: !!customerId
+          ? getCustomerSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.usageGovernance,
+            )
+          : getPlanSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.usageGovernance,
+            ),
+        match: [
+          getCustomerSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.usageGovernance,
+          ),
+          getPlanSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.usageGovernance,
+          ),
+        ],
+        hidden:
+          !isStatusEditable(subscription?.status) ||
+          !hasFeatureFlag(FeatureFlagEnum.AccountTree) ||
+          !hasPermissions(['attributedUsageView']),
+        content: (
+          <DetailsPage.Container>
+            <CustomerAttributedUsage
+              customerExternalId={subscription?.customer.externalId || ''}
+              customerName={subscription?.customer.displayName || ''}
+              fixedSubscriptionId={subscription?.id}
+            />
+          </DetailsPage.Container>
+        ),
+      },
+      {
         title: translate('text_17465238490269pahbvl3s2m'),
         link: !!customerId
           ? getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.alerts)
@@ -304,6 +341,7 @@ const SubscriptionDetails = () => {
     isStatusEditable,
     isPremium,
     hasPermissions,
+    hasFeatureFlag,
   ])
 
   const headerEntity = {

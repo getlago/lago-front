@@ -1,5 +1,6 @@
 import { generatePath } from 'react-router'
 
+import { CustomerAttributedUsage } from '~/components/customers/attributedUsage/CustomerAttributedUsage'
 import { CustomerActivityLogs } from '~/components/customers/CustomerActivityLogs'
 import { CustomerAppliedCouponsList } from '~/components/customers/CustomerAppliedCouponsList'
 import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
@@ -113,6 +114,21 @@ export function useCustomerDetailsHeaderTabs({
       }),
       hidden: !hasPermissions(['analyticsView']),
       content: <CustomerUsage />,
+    },
+    {
+      title: 'Usage governance',
+      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+        customerId,
+        tab: CustomerDetailsTabsOptions.usageGovernance,
+      }),
+      hidden:
+        !hasFeatureFlag(FeatureFlagEnum.AccountTree) || !hasPermissions(['attributedUsageView']),
+      content: (
+        <CustomerAttributedUsage
+          customerExternalId={externalId || ''}
+          customerName={customer.displayName || externalId || ''}
+        />
+      ),
     },
     {
       title: translate('text_628cf761cbe6820138b8f2e6'),

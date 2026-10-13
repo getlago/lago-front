@@ -30,6 +30,7 @@ export enum CustomerSubscriptionDetailsTabsOptionsEnum {
   progressiveBilling = 'progressive-billing',
   subscriptionPlan = 'subscription-plan',
   usage = 'usage',
+  usageGovernance = 'usage-governance',
 }
 
 export enum GovernanceSettingsTabsOptionsEnum {
@@ -66,6 +67,7 @@ export enum CustomerDetailsTabsOptions {
   payments = 'payments',
   settings = 'settings',
   usage = 'usage',
+  usageGovernance = 'usage-governance',
   wallet = 'wallet',
 }
 
