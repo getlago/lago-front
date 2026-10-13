@@ -4742,7 +4742,9 @@ export type ExportFinanceAssistantResultInput = {
 /** Organization Feature Flag Values */
 export enum FeatureFlagEnum {
   AccountTree = 'account_tree',
+  ChargeFiltersSingleScan = 'charge_filters_single_scan',
   FixedChargeUsageDeltaMigration = 'fixed_charge_usage_delta_migration',
+  IncrementalChargeCache = 'incremental_charge_cache',
   MultiConnection = 'multi_connection',
   OrderForms = 'order_forms',
   PostgresEnrichedEvents = 'postgres_enriched_events',
@@ -4750,6 +4752,8 @@ export enum FeatureFlagEnum {
   RealtimeUsage = 'realtime_usage',
   SkipCreditInvoiceAutoPaymentDelay = 'skip_credit_invoice_auto_payment_delay',
   StripeSharedPaymentToken = 'stripe_shared_payment_token',
+  UsagePrefilterIncremental = 'usage_prefilter_incremental',
+  UsagePrefilterShortCache = 'usage_prefilter_short_cache',
   WalletTraceability = 'wallet_traceability',
   X402Payments = 'x402_payments',
   X402ReservationCounterDisabled = 'x402_reservation_counter_disabled'
@@ -5786,6 +5790,8 @@ export enum LogEventEnum {
   IntegrationDeleted = 'integration_deleted',
   /** integration.updated */
   IntegrationUpdated = 'integration_updated',
+  /** organization.authentication_methods_updated */
+  OrganizationAuthenticationMethodsUpdated = 'organization_authentication_methods_updated',
   /** role.created */
   RoleCreated = 'role_created',
   /** role.deleted */
@@ -5824,6 +5830,8 @@ export enum LogTypeEnum {
   Export = 'export',
   /** integration */
   Integration = 'integration',
+  /** organization */
+  Organization = 'organization',
   /** role */
   Role = 'role',
   /** user */
@@ -11328,6 +11336,8 @@ export enum TimezoneEnum {
   TzAfricaNairobi = 'TZ_AFRICA_NAIROBI',
   /** America/Argentina/Buenos_Aires */
   TzAmericaArgentinaBuenosAires = 'TZ_AMERICA_ARGENTINA_BUENOS_AIRES',
+  /** America/Asuncion */
+  TzAmericaAsuncion = 'TZ_AMERICA_ASUNCION',
   /** America/Bogota */
   TzAmericaBogota = 'TZ_AMERICA_BOGOTA',
   /** America/Caracas */
