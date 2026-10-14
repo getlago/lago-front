@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
-import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 
 import {
   getInsertIndex,
@@ -244,10 +244,7 @@ export const AppliedRateCardDrawerContent = withForm({
       productsData?.products.collection ?? [],
       (product) => product.id === productId,
     )
-    const productsCombobox = useMemo(
-      () => buildProductsComboboxData(products, translate),
-      [products, translate],
-    )
+    const productsCombobox = buildProductsComboboxData(products, translate)
 
     const selectedProductFilter = productFiltersData?.productFilters.collection.find(
       (filter) => filter.id === productFilterId,
