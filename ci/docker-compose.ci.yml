@@ -43,6 +43,8 @@ services:
       LAGO_DISABLE_SEGMENT: "true"
       RAILS_LOG_TO_STDOUT: "true"
       LAGO_LICENSE: ${LAGO_LICENSE}
+      # Codegen introspects this API, which runs in production mode
+      LAGO_GRAPHQL_INTROSPECTION_ENABLED: "true"
 
   front:
     image: getlago/front:ci
