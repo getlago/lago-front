@@ -11399,6 +11399,8 @@ export enum TimezoneEnum {
   TzAfricaNairobi = 'TZ_AFRICA_NAIROBI',
   /** America/Argentina/Buenos_Aires */
   TzAmericaArgentinaBuenosAires = 'TZ_AMERICA_ARGENTINA_BUENOS_AIRES',
+  /** America/Asuncion */
+  TzAmericaAsuncion = 'TZ_AMERICA_ASUNCION',
   /** America/Bogota */
   TzAmericaBogota = 'TZ_AMERICA_BOGOTA',
   /** America/Caracas */
