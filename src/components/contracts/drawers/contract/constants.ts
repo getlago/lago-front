@@ -29,8 +29,6 @@ export interface ContractFormValues {
   externalCustomerId: string
   externalId: string
   planCode: string
-  // `planCode` is optional on the API: only a contract edited without a plan may leave it empty.
-  isPlanRequired: boolean
   name: string
   billingEntityId?: string
   consolidateInvoice: boolean
@@ -66,7 +64,6 @@ export const buildContractFormDefaults = (
     externalCustomerId: customer?.externalId ?? '',
     externalId: '',
     planCode: '',
-    isPlanRequired: true,
     name: '',
     billingEntityId: customer?.billingEntityId,
     consolidateInvoice: true,
@@ -90,7 +87,6 @@ export const CONTRACT_FORM_DEFAULTS: ContractFormValues = {
   externalCustomerId: '',
   externalId: '',
   planCode: '',
-  isPlanRequired: true,
   name: '',
   billingEntityId: undefined,
   consolidateInvoice: true,

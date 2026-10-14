@@ -7,7 +7,6 @@ const values: ContractFormValues = {
   externalCustomerId: 'customer-external-id',
   externalId: 'customer-contract-id',
   planCode: 'enterprise',
-  isPlanRequired: true,
   name: 'Enterprise agreement',
   billingEntityId: 'billing-entity-1',
   consolidateInvoice: false,
