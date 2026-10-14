@@ -24,6 +24,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { usePermissions } from '~/hooks/usePermissions'
 
 export const CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID = 'contract-rate-card-add-rate-card'
 
@@ -83,6 +84,7 @@ export const ContractRateCardsSection = ({
   isLocked,
 }: ContractRateCardsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
   const { openDrawer: openAppliedRateCardDrawer } = useAppliedRateCardDrawer()
   const { page, goToPage } = usePageSearchParam()
   const [searchParams] = useSearchParams()
@@ -126,27 +128,31 @@ export const ContractRateCardsSection = ({
     emptySubtitleKey: 'text_1789723302114au3ml0nf077',
   })
 
+  const addRateCardAction = hasPermissions(['contractsUpdate'])
+    ? {
+        label: translate('text_1789030049529b0zmy1slfxl'),
+        dataTest: CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID,
+        disabled: isLocked || !contractExternalId || !currency,
+        onClick: () => {
+          if (isLocked || !contractExternalId || !currency) return
+
+          openAppliedRateCardDrawer({
+            context: 'contract',
+            contractId,
+            contractExternalId,
+            currency,
+          })
+        },
+      }
+    : undefined
+
   return (
     <section className="flex flex-col gap-6">
       <SectionHeader
         title={translate('text_1783104239825nxqno33u945')}
         description={translate('text_1789030049529jp760bke0x8')}
         contentClassName="gap-2"
-        action={{
-          label: translate('text_1789030049529b0zmy1slfxl'),
-          dataTest: CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID,
-          disabled: isLocked || !contractExternalId || !currency,
-          onClick: () => {
-            if (isLocked || !contractExternalId || !currency) return
-
-            openAppliedRateCardDrawer({
-              context: 'contract',
-              contractId,
-              contractExternalId,
-              currency,
-            })
-          },
-        }}
+        action={addRateCardAction}
       />
 
       <Filters.Provider

@@ -245,4 +245,13 @@ describe('ContractRateCardsSection', () => {
       expect(screen.getByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID)).toBeDisabled(),
     )
   })
+
+  it('GIVEN the user lacks contractsUpdate THEN the Add rate card action is hidden', async () => {
+    mockHasPermissions.mockReturnValue(false)
+
+    renderSection([buildListMock([])])
+
+    expect(mockHasPermissions).toHaveBeenCalledWith(['contractsUpdate'])
+    expect(screen.queryByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID)).not.toBeInTheDocument()
+  })
 })

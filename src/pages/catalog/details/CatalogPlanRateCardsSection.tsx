@@ -24,6 +24,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { usePermissions } from '~/hooks/usePermissions'
 
 export const CATALOG_PLAN_ADD_RATE_CARD_TEST_ID = 'catalog-plan-add-rate-card'
 
@@ -81,6 +82,7 @@ export const CatalogPlanRateCardsSection = ({
   isLocked,
 }: CatalogPlanRateCardsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
   const { openDrawer: openAppliedRateCardDrawer } = useAppliedRateCardDrawer()
   const { page, goToPage } = usePageSearchParam()
   const [searchParams] = useSearchParams()
@@ -124,21 +126,25 @@ export const CatalogPlanRateCardsSection = ({
     emptySubtitleKey: 'text_17891323549937b5qwry7pn1',
   })
 
+  const addRateCardAction = hasPermissions(['plansUpdate'])
+    ? {
+        title: translate('text_1789030049529b0zmy1slfxl'),
+        dataTest: CATALOG_PLAN_ADD_RATE_CARD_TEST_ID,
+        isDisabled: isLocked || !currency,
+        onClick: () => {
+          if (isLocked || !currency) return
+
+          openAppliedRateCardDrawer({ context: 'plan', planId: catalogPlanId, currency })
+        },
+      }
+    : undefined
+
   return (
     <section className="flex flex-col gap-6">
       <PageSectionTitle
         title={translate('text_1783104239825nxqno33u945')}
         subtitle={translate('text_1789030049529jp760bke0x8')}
-        action={{
-          title: translate('text_1789030049529b0zmy1slfxl'),
-          dataTest: CATALOG_PLAN_ADD_RATE_CARD_TEST_ID,
-          isDisabled: isLocked || !currency,
-          onClick: () => {
-            if (isLocked || !currency) return
-
-            openAppliedRateCardDrawer({ context: 'plan', planId: catalogPlanId, currency })
-          },
-        }}
+        action={addRateCardAction}
       />
 
       <Filters.Provider

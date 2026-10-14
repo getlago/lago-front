@@ -230,4 +230,13 @@ describe('CatalogPlanRateCardsSection', () => {
       expect(screen.getByTestId(CATALOG_PLAN_ADD_RATE_CARD_TEST_ID)).toBeDisabled(),
     )
   })
+
+  it('GIVEN the user lacks plansUpdate THEN the Add rate card action is hidden', async () => {
+    mockHasPermissions.mockReturnValue(false)
+
+    renderSection([buildListMock([])])
+
+    expect(mockHasPermissions).toHaveBeenCalledWith(['plansUpdate'])
+    expect(screen.queryByTestId(CATALOG_PLAN_ADD_RATE_CARD_TEST_ID)).not.toBeInTheDocument()
+  })
 })
