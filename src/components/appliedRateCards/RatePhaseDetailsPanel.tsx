@@ -29,6 +29,7 @@ import {
 
 export const RATE_PHASE_DETAILS_PANEL_TEST_ID = 'rate-phase-details-panel'
 export const RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID = 'rate-phase-details-overridden'
+export const RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID = 'rate-phase-details-spending-minimum'
 
 type RatePhaseDetailsPanelProps = {
   phase: RatePhaseForDetails
@@ -184,7 +185,9 @@ export const RatePhaseDetailsPanel = ({
         {rateCard.billingTiming === RateCardBillingTimingEnum.Arrears && (
           <DetailItem
             label={translate('text_1791838459984ploipjejyo9')}
-            value={spendingMinimum}
+            value={
+              <span data-test={RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID}>{spendingMinimum}</span>
+            }
             isOverridden={overriddenFields.has('minAmountCents')}
           />
         )}
