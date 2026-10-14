@@ -175,6 +175,23 @@ const buildProductsComboboxData = (
 const toPhaseReferences = (phases: RatePhaseFormValues[]): RatePhaseReference[] =>
   phases.map(({ code, name }) => ({ code, name }))
 
+// The ComboBox clears a selection its search results drop, which would reset the cascade below
+// it: the selected option stays listed until the selection itself changes.
+const useOptionsWithSelection = <T,>(
+  options: T[],
+  isSelected: (option: T) => boolean,
+): { options: T[]; selected: T | undefined } => {
+  const match = options.find(isSelected)
+  const [retained, setRetained] = useState(match)
+
+  if (match && match !== retained) setRetained(match)
+
+  if (match) return { options, selected: match }
+  if (!retained || !isSelected(retained)) return { options, selected: undefined }
+
+  return { options: [...options, retained], selected: retained }
+}
+
 type AppliedRateCardDrawerContentProps = {
   // The backend rejects a rate card in another currency (`currency_does_not_match`).
   currency: CurrencyEnum
@@ -223,21 +240,24 @@ export const AppliedRateCardDrawerContent = withForm({
       if (productId) getRateCards()
     }, [productId, productFilterId, getRateCards])
 
-    const productsCombobox = useMemo(
-      () => buildProductsComboboxData(productsData?.products.collection ?? [], translate),
-      [productsData?.products.collection, translate],
-    )
-
-    const selectedProduct = productsData?.products.collection.find(
+    const { options: products, selected: selectedProduct } = useOptionsWithSelection(
+      productsData?.products.collection ?? [],
       (product) => product.id === productId,
     )
+    const productsCombobox = useMemo(
+      () => buildProductsComboboxData(products, translate),
+      [products, translate],
+    )
+
     const selectedProductFilter = productFiltersData?.productFilters.collection.find(
       (filter) => filter.id === productFilterId,
     )
-    const rateCards = (rateCardsData?.rateCards.collection ?? []).filter(
-      (rateCard) => rateCard.currency === currency,
+    const { options: rateCards, selected: selectedRateCard } = useOptionsWithSelection(
+      (rateCardsData?.rateCards.collection ?? []).filter(
+        (rateCard) => rateCard.currency === currency,
+      ),
+      (rateCard) => rateCard.code === rateCardId,
     )
-    const selectedRateCard = rateCards.find((rateCard) => rateCard.code === rateCardId)
 
     const rateCardForPhaseFields: RateCardForRatePhaseFields | undefined =
       selectedRateCard && selectedProduct?.productType

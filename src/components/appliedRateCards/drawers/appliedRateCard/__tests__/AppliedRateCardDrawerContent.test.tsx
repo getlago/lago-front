@@ -1,5 +1,5 @@
 import { MockedResponse } from '@apollo/client/testing'
-import { render as rtlRender, screen, waitFor } from '@testing-library/react'
+import { render as rtlRender, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
@@ -635,6 +635,110 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
       expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('1'),
     )
     expect(screen.queryByTestId('alert-type-warning')).not.toBeInTheDocument()
+  })
+
+  it('GIVEN phases were added WHEN a rate card search misses the selected card THEN the selection and the phases stay', async () => {
+    const otherRateCard: RateCardFixture = {
+      ...RATE_CARD,
+      id: 'rc-other',
+      name: 'Other card',
+      code: 'other-card',
+    }
+
+    renderContent([
+      productsMock(),
+      {
+        ...rateCardsMock(() => undefined),
+        result: (vars: Record<string, unknown>) => ({
+          data: { rateCards: { collection: vars.searchTerm ? [otherRateCard] : [RATE_CARD] } },
+        }),
+      },
+    ])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+    await selectRateCard()
+    await userEvent.click(await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID))
+
+    const onSave = mockOpenRatePhaseLocalDrawer.mock.calls.at(-1)?.[0]?.onSave
+
+    onSave({ ...RATE_PHASE_FORM_DEFAULTS, code: 'phase-1', name: 'Phase 1' }, {})
+
+    await waitFor(() =>
+      expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('1'),
+    )
+
+    const rateCardInput = screen
+      .getByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
+      .querySelector('input') as HTMLInputElement
+
+    await userEvent.click(rateCardInput)
+    await userEvent.type(rateCardInput, 'other')
+
+    expect(await screen.findByText(otherRateCard.name, undefined, { timeout: 3000 })).toBeVisible()
+    await userEvent.tab()
+
+    expect(screen.getByTestId(RATE_CARD_ID_PROBE_TEST_ID)).toHaveTextContent(RATE_CARD.code)
+    expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('1')
+  })
+
+  it('GIVEN a product picked WHEN a product search misses it THEN the product and the rate card stay', async () => {
+    renderContent([
+      {
+        ...productsMock(),
+        request: { query: GetProductsForAppliedRateCardDrawerDocument },
+        variableMatcher: () => true,
+        result: (vars: Record<string, unknown>) => ({
+          data: {
+            products: {
+              collection: vars.searchTerm ? [CATEGORIZED_PRODUCT] : [PRODUCT],
+              metadata: { currentPage: 1, totalPages: 1 },
+            },
+          },
+        }),
+      },
+      rateCardsMock(() => undefined),
+    ])
+
+    const productInput = screen
+      .getByTestId(APPLIED_RATE_CARD_DRAWER_PRODUCT_TEST_ID)
+      .querySelector('input') as HTMLInputElement
+
+    await userEvent.click(productInput)
+    await userEvent.click(await screen.findByText(PRODUCT.name))
+    await selectRateCard()
+
+    await userEvent.click(productInput)
+    await userEvent.type(productInput, 'storage')
+
+    expect(
+      await screen.findByText(CATEGORIZED_PRODUCT.name, undefined, { timeout: 3000 }),
+    ).toBeVisible()
+    await userEvent.tab()
+
+    expect(screen.getByTestId(RATE_CARD_ID_PROBE_TEST_ID)).toHaveTextContent(RATE_CARD.code)
+  })
+
+  it('GIVEN "Create rate card" is clicked on an unknown search THEN the typed text is never selected', async () => {
+    renderContent([productsMock(), rateCardsMock(() => undefined, [])])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+
+    const rateCardInput = (
+      await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
+    ).querySelector('input') as HTMLInputElement
+
+    await userEvent.click(rateCardInput)
+    await userEvent.type(rateCardInput, 'unknown-card')
+
+    const addValueItem = await screen.findByTestId('combobox-item-Create rate card', undefined, {
+      timeout: 3000,
+    })
+
+    // A user clicks the option row, which sits inside the add-value button.
+    await userEvent.click(within(addValueItem).getByText('Create rate card'))
+
+    expect(mockOpenRateCardDrawer).toHaveBeenCalledTimes(1)
+    expect(screen.getByTestId(RATE_CARD_ID_PROBE_TEST_ID)).toBeEmptyDOMElement()
   })
 
   it('GIVEN a rate card is created via the stacked escape hatch THEN the rate phase section still appears once the newly created rate card resolves', async () => {
