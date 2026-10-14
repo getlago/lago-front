@@ -1,3 +1,4 @@
+import { ApolloError } from '@apollo/client'
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -18,6 +19,7 @@ import Invitation, {
   INVITATION_JOIN_BUTTON_TEST_ID,
   INVITATION_LOG_IN_BUTTON_TEST_ID,
   INVITATION_LOG_OUT_BUTTON_TEST_ID,
+  INVITATION_OPEN_ORGANIZATION_BUTTON_TEST_ID,
   INVITATION_SUBMIT_BUTTON_TEST_ID,
 } from '../Invitation'
 
@@ -172,6 +174,7 @@ const createInviteMock = (
     existingUser?: boolean
     error?: boolean
     onResult?: () => void
+    delay?: number
   } = {},
 ): MockedResponse => {
   const {
@@ -182,6 +185,7 @@ const createInviteMock = (
     existingUser = false,
     error = false,
     onResult,
+    delay,
   } = overrides
 
   if (error) {
@@ -191,6 +195,7 @@ const createInviteMock = (
         variables: { token },
       },
       error: new Error('Invite not found'),
+      delay,
     }
   }
 
@@ -210,6 +215,7 @@ const createInviteMock = (
   }
 
   return {
+    delay,
     request: {
       query: GetinviteDocument,
       variables: { token },
@@ -347,6 +353,7 @@ describe('Invitation', () => {
     })
     mockOnLogIn.mockResolvedValue(undefined)
     mockLogOut.mockResolvedValue(undefined)
+    mockRefetchCurrentUserInfos.mockResolvedValue({ data: {} })
     mockNavigate.mockReset()
   })
 
@@ -593,7 +600,7 @@ describe('Invitation', () => {
       })
     })
 
-    it('should explain when an account was created after the invitation was loaded', async () => {
+    it('should explain when the invited account is already a member', async () => {
       const user = userEvent.setup()
 
       setupMockUseStore('ValidPassword1!')
@@ -605,6 +612,43 @@ describe('Invitation', () => {
       await user.click(await screen.findByText('text_63246f875e2228ab7b63dd1c'))
 
       expect(await screen.findByText('text_1786557508910guitmzid55q')).toBeInTheDocument()
+    })
+
+    it('should switch to the existing-account form when an account was created after loading', async () => {
+      const user = userEvent.setup()
+
+      setupMockUseStore('ValidPassword1!')
+      await renderInvitation([
+        createInviteMock(),
+        createAcceptInviteMock({ errorCode: 'IncorrectLoginOrPassword' }),
+        createInviteMock({ existingUser: true }),
+      ])
+
+      await user.click(await screen.findByText('text_63246f875e2228ab7b63dd1c'))
+
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_LOG_IN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+      expect(getByDataTest(INVITATION_SUBMIT_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.getByText('text_1791986111631bwcgn2cc96p')).toBeInTheDocument()
+      expect(screen.queryByText('text_1786557508910guitmzid55q')).not.toBeInTheDocument()
+      expect(mockOnLogIn).not.toHaveBeenCalled()
+    })
+
+    it('should show the error fallback if refreshing the new account fails', async () => {
+      const user = userEvent.setup()
+
+      setupMockUseStore('ValidPassword1!')
+      await renderInvitation([
+        createInviteMock(),
+        createAcceptInviteMock({ errorCode: 'IncorrectLoginOrPassword' }),
+        createInviteMock({ error: true }),
+      ])
+
+      await user.click(await screen.findByText('text_63246f875e2228ab7b63dd1c'))
+
+      expect(await screen.findByText('text_63246f875e2228ab7b63dcf4')).toBeInTheDocument()
+      expect(document.querySelector('.animate-pulse')).not.toBeInTheDocument()
     })
   })
 
@@ -643,6 +687,37 @@ describe('Invitation', () => {
       })
 
       expect(document.querySelector('.animate-pulse')).not.toBeInTheDocument()
+    })
+
+    it('should show the skeleton while the current user is initially loading', async () => {
+      mockCurrentUser.mockReturnValue({
+        currentUser: undefined,
+        loading: true,
+        refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
+      })
+
+      await renderInvitation([createInviteMock({ existingUser: true })])
+
+      await waitFor(() => {
+        expect(document.querySelector('.animate-pulse')).toBeInTheDocument()
+      })
+      expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('should offer recovery when the current-user query fails', async () => {
+      mockCurrentUser.mockReturnValue({
+        currentUser: undefined,
+        loading: false,
+        error: new ApolloError({ networkError: new Error('User query failed') }),
+        refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
+      })
+
+      await renderInvitation([createInviteMock({ existingUser: true })])
+
+      expect(await screen.findByText('text_641d6ae1d947c400671e6abb')).toBeInTheDocument()
+      expect(screen.getByText('text_17865575089106781wwdm3l3')).toBeInTheDocument()
+      expect(document.querySelector('.animate-pulse')).not.toBeInTheDocument()
+      expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).not.toBeInTheDocument()
     })
 
     it('should reload the memberships of the user after accepting', async () => {
@@ -694,6 +769,52 @@ describe('Invitation', () => {
       expect(getByDataTest(INVITATION_LOG_OUT_BUTTON_TEST_ID)).toBeInTheDocument()
       expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).not.toBeInTheDocument()
     })
+
+    it('should allow logging out when the server rejects the invited email', async () => {
+      const user = userEvent.setup()
+
+      await renderInvitation([
+        createInviteMock({ existingUser: true }),
+        createJoinOrganizationMock({ errorCode: 'InviteEmailMistmatch' }),
+      ])
+
+      await user.click(await screen.findByText('text_17865575089104r0enbn7r7l'))
+
+      expect(await screen.findByText('text_17865575089107lip4oupwdj')).toBeInTheDocument()
+      expect(getByDataTest(INVITATION_LOG_OUT_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('should open the organization after refreshing memberships when already a member', async () => {
+      const user = userEvent.setup()
+      let resolveRefetch!: (value: unknown) => void
+
+      mockRefetchCurrentUserInfos.mockReturnValue(
+        new Promise((resolve) => {
+          resolveRefetch = resolve
+        }),
+      )
+
+      await renderInvitation([
+        createInviteMock({ existingUser: true, organizationSlug: 'invited-org' }),
+        createJoinOrganizationMock({ errorCode: 'EmailAlreadyUsed' }),
+      ])
+
+      await user.click(await screen.findByText('text_17865575089104r0enbn7r7l'))
+      await user.click(await screen.findByText('text_1791986111631ve46fi5sy3j'))
+
+      expect(getByDataTest(INVITATION_OPEN_ORGANIZATION_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      expect(mockRefetchCurrentUserInfos).toHaveBeenCalledTimes(1)
+      expect(mockNavigate).not.toHaveBeenCalled()
+
+      await act(async () => resolveRefetch({ data: {} }))
+
+      expect(mockNavigate).toHaveBeenCalledWith('/invited-org', {
+        replace: true,
+        skipSlugPrepend: true,
+      })
+    })
   })
 
   describe('when another user is authenticated', () => {
@@ -729,6 +850,44 @@ describe('Invitation', () => {
         expect(mockLogOut).toHaveBeenCalledWith(expect.anything(), true)
         expect(onInviteResult).toHaveBeenCalledTimes(2)
       })
+    })
+
+    it('should show the skeleton during logout refetch even when the invitation remains cached', async () => {
+      const user = userEvent.setup()
+
+      mockLogOut.mockImplementation(async () => {
+        mockIsAuthenticated.mockReturnValue({ isAuthenticated: false })
+      })
+      await renderInvitation([
+        createInviteMock({ existingUser: true }),
+        createInviteMock({ existingUser: true, delay: 100 }),
+      ])
+
+      await user.click(await screen.findByText('text_17865575089106781wwdm3l3'))
+
+      expect(document.querySelector('.animate-pulse')).toBeInTheDocument()
+      expect(getByDataTest(INVITATION_LOG_OUT_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_LOG_IN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+      expect(document.querySelector('.animate-pulse')).not.toBeInTheDocument()
+    })
+
+    it('should show the error fallback when the logout refetch rejects', async () => {
+      const user = userEvent.setup()
+
+      mockLogOut.mockImplementation(async () => {
+        mockIsAuthenticated.mockReturnValue({ isAuthenticated: false })
+      })
+      await renderInvitation([
+        createInviteMock({ existingUser: true }),
+        createInviteMock({ error: true }),
+      ])
+
+      await user.click(await screen.findByText('text_17865575089106781wwdm3l3'))
+
+      expect(await screen.findByText('text_63246f875e2228ab7b63dcf4')).toBeInTheDocument()
+      expect(document.querySelector('.animate-pulse')).not.toBeInTheDocument()
     })
   })
 })

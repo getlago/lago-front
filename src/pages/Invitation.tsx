@@ -1,6 +1,6 @@
 import { gql, useApolloClient } from '@apollo/client'
 import Stack from '@mui/material/Stack'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router'
 
 import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
@@ -39,6 +39,13 @@ export const INVITATION_SUBMIT_BUTTON_TEST_ID = 'submit-button'
 export const INVITATION_JOIN_BUTTON_TEST_ID = 'join-button'
 export const INVITATION_LOG_IN_BUTTON_TEST_ID = 'log-in-button'
 export const INVITATION_LOG_OUT_BUTTON_TEST_ID = 'log-out-button'
+export const INVITATION_OPEN_ORGANIZATION_BUTTON_TEST_ID = 'open-organization-button'
+
+const JOIN_BLOCKING_ERROR_CODES = [
+  'LoginMethodNotAuthorized',
+  'InviteEmailMistmatch',
+  'EmailAlreadyUsed',
+] as const
 
 /**
  * How the invitation can be accepted:
@@ -122,7 +129,14 @@ gql`
 
 const Invitation = () => {
   const { isAuthenticated } = useIsAuthenticated()
-  const { currentUser, loading: currentUserLoading, refetchCurrentUserInfos } = useCurrentUser()
+  const {
+    currentUser,
+    loading: currentUserLoading,
+    error: currentUserError,
+    refetchCurrentUserInfos,
+  } = useCurrentUser()
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [accountCreatedAfterLoad, setAccountCreatedAfterLoad] = useState(false)
   const { translate } = useInternationalization()
   const { token } = useParams()
   const client = useApolloClient()
@@ -143,7 +157,7 @@ const Invitation = () => {
   } = useGetinviteQuery({
     context: { silentErrorCodes: [LagoApiError.InviteNotFound, LagoApiError.NotFound] },
     variables: { token: token || '' },
-    // Keeps the skeleton visible while the invite is fetched again after a log out.
+    // Expose refetch loading even when Apollo retains the previous invitation.
     notifyOnNetworkStatusChange: true,
     skip: !token,
   })
@@ -176,14 +190,28 @@ const Invitation = () => {
   // Logging out clears the Apollo store without refetching the active queries, so the invite has
   // to be queried again to render the logged out flow.
   const onLogOut = async () => {
-    await logOut(client, true)
-    resetJoinOrganization()
-    await refetchInvite()
+    setIsLoggingOut(true)
+    try {
+      await logOut(client, true)
+      resetJoinOrganization()
+      await refetchInvite().catch(() => undefined)
+    } finally {
+      setIsLoggingOut(false)
+    }
   }
 
   const [acceptInvite, { error: acceptInviteError, loading: acceptInviteLoading }] =
     useAcceptInviteMutation({
       context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+      onError: (mutationError) => {
+        if (mode === 'signUp' && hasDefinedGQLError('IncorrectLoginOrPassword', mutationError)) {
+          refetchInvite()
+            .then(({ data: refreshedData }) => {
+              setAccountCreatedAfterLoad(!!refreshedData.invite?.existingUser)
+            })
+            .catch(() => undefined)
+        }
+      },
       onCompleted: async (res) => {
         if (!!res?.acceptInvite) {
           await onAccepted(res.acceptInvite.token, res.acceptInvite.organization.slug)
@@ -262,6 +290,7 @@ const Invitation = () => {
   // Both forms submit the same mutation. The API creates the password when the invited email has
   // no account, and verifies it otherwise.
   const onSubmitPassword = async (password: string) => {
+    setAccountCreatedAfterLoad(false)
     await acceptInvite({
       variables: {
         input: {
@@ -316,6 +345,11 @@ const Invitation = () => {
     joinOrganization({ variables: { input: { token: token || '' } } }).catch(() => undefined)
   }
 
+  const onOpenOrganization = async () => {
+    await refetchCurrentUserInfos()
+    navigate(`/${invitedOrganizationSlug}`, { replace: true, skipSlugPrepend: true })
+  }
+
   useEffect(() => {
     if (!!googleCode && !!token) {
       googleAcceptInvite({
@@ -364,6 +398,10 @@ const Invitation = () => {
     'LoginMethodNotAuthorized',
     joinOrganizationError,
   )
+  const isJoinBlocked = JOIN_BLOCKING_ERROR_CODES.some((code) =>
+    hasDefinedGQLError(code, joinOrganizationError),
+  )
+  const isAlreadyMember = hasDefinedGQLError('EmailAlreadyUsed', joinOrganizationError)
 
   const errorTranslation: string | undefined = useMemo(() => {
     if (
@@ -435,6 +473,9 @@ const Invitation = () => {
 
     // The password submitted for an invitation whose email already has an account did not match.
     if (hasDefinedGQLError('IncorrectLoginOrPassword', acceptInviteError)) {
+      if (accountCreatedAfterLoad) {
+        return translate('text_1791986111631bwcgn2cc96p', { email })
+      }
       return translate('text_620bc4d4269a55014d493fb7')
     }
 
@@ -466,6 +507,8 @@ const Invitation = () => {
     entraIdAcceptInviteError,
     entraIdAuthorizeUrlError,
     joinLoginMethodNotAuthorized,
+    accountCreatedAfterLoad,
+    email,
   ])
 
   const errorAlert = !!errorTranslation && (
@@ -506,120 +549,155 @@ const Invitation = () => {
     </Stack>
   )
 
+  const renderContent = () => {
+    const isResolving =
+      loading || isLoggingOut || (isAuthenticated && currentUserLoading && !currentUser)
+
+    if (isResolving) {
+      return (
+        <>
+          <Skeleton variant="text" className="mb-8 w-52" />
+          <Skeleton variant="text" className="mb-4 w-110" />
+          <Skeleton variant="text" className="w-76" />
+        </>
+      )
+    }
+
+    if (isAuthenticated && (currentUserError || !currentUser)) {
+      return (
+        <Stack spacing={4}>
+          <Title>{translate('text_641d6ae1d947c400671e6abb')}</Title>
+          <Subtitle noMargins>{translate('text_622f7a3dc32ce100c46a5154')}</Subtitle>
+          <Button fullWidth size="large" onClick={() => onLogOut()}>
+            {translate('text_17865575089106781wwdm3l3')}
+          </Button>
+        </Stack>
+      )
+    }
+
+    if (error || !invite || !mode) {
+      return (
+        <>
+          <Title>{translate('text_63246f875e2228ab7b63dcf4')}</Title>
+          <Subtitle noMargins>{translate('text_63246f875e2228ab7b63dcfe')}</Subtitle>
+          <Button
+            fullWidth
+            variant="primary"
+            size="large"
+            onClick={() => window.location.assign(LOGIN_ROUTE)}
+            className="mt-6"
+          >
+            {translate('text_620bc4d4269a55014d493f6d')}
+          </Button>
+        </>
+      )
+    }
+
+    return (
+      <Stack spacing={8}>
+        <Stack spacing={3}>
+          <Typography variant="headline">
+            {translate('text_664c90c9b2b6c2012aa50bcd', {
+              orgnisationName: invite.organization.name,
+            })}
+          </Typography>
+          <Typography>
+            {mode === 'signUp' && translate('text_63246f875e2228ab7b63dcd4')}
+            {mode === 'logInRequired' && translate('text_1786557508910b6cacpc0pjt', { email })}
+            {mode === 'join' &&
+              translate('text_17865575089107fdhugc24r9', { email: currentUser?.email })}
+            {mode === 'emailMismatch' &&
+              translate('text_1786557508910jl708qczi4g', {
+                inviteEmail: email,
+                currentEmail: currentUser?.email,
+              })}
+          </Typography>
+        </Stack>
+
+        {errorAlert}
+
+        {mode === 'join' && !isJoinBlocked && (
+          <Button
+            data-test={INVITATION_JOIN_BUTTON_TEST_ID}
+            fullWidth
+            size="large"
+            variant="primary"
+            loading={joinOrganizationLoading}
+            onClick={onJoinOrganization}
+          >
+            {translate('text_17865575089104r0enbn7r7l')}
+          </Button>
+        )}
+
+        {mode === 'join' && isAlreadyMember && (
+          <Button
+            data-test={INVITATION_OPEN_ORGANIZATION_BUTTON_TEST_ID}
+            fullWidth
+            size="large"
+            loading={currentUserLoading}
+            onClick={() => onOpenOrganization().catch(() => undefined)}
+          >
+            {translate('text_1791986111631ve46fi5sy3j')}
+          </Button>
+        )}
+
+        {(mode === 'emailMismatch' || (mode === 'join' && isJoinBlocked && !isAlreadyMember)) && (
+          <Button
+            data-test={INVITATION_LOG_OUT_BUTTON_TEST_ID}
+            fullWidth
+            size="large"
+            variant="primary"
+            onClick={() => onLogOut()}
+          >
+            {translate('text_17865575089106781wwdm3l3')}
+          </Button>
+        )}
+
+        {(mode === 'signUp' || mode === 'logInRequired') && (
+          <>
+            {ssoButtons}
+
+            <div className="flex items-center justify-center gap-4 before:flex-1 before:border before:border-grey-300 before:content-[''] after:flex-1 after:border after:border-grey-300 after:content-['']">
+              <Typography variant="captionHl" color="grey500">
+                {translate('text_6303351deffd2a0d70498675').toUpperCase()}
+              </Typography>
+            </div>
+
+            {mode === 'signUp' ? (
+              <InvitationSignUpForm
+                email={email}
+                formId={INVITATION_FORM_ID}
+                loading={acceptInviteLoading}
+                submitDataTest={INVITATION_SUBMIT_BUTTON_TEST_ID}
+                onSubmit={onSubmitPassword}
+              />
+            ) : (
+              <InvitationLogInForm
+                email={email}
+                formId={INVITATION_FORM_ID}
+                loading={acceptInviteLoading}
+                submitDataTest={INVITATION_LOG_IN_BUTTON_TEST_ID}
+                onSubmit={onSubmitPassword}
+              />
+            )}
+
+            {mode === 'signUp' && (
+              <Typography
+                variant="caption"
+                html={translate('text_63246f875e2228ab7b63dd1f', { link: LOGIN_ROUTE })}
+              />
+            )}
+          </>
+        )}
+      </Stack>
+    )
+  }
+
   return (
     <Page>
       <Card>
         <StyledLogo height={24} />
-        {(!!error || !data?.invite) && !loading && (
-          <>
-            <Title>{translate('text_63246f875e2228ab7b63dcf4')}</Title>
-            <Subtitle noMargins>{translate('text_63246f875e2228ab7b63dcfe')}</Subtitle>
-            <Button
-              fullWidth
-              variant="primary"
-              size="large"
-              onClick={() => window.location.assign(LOGIN_ROUTE)}
-              className="mt-6"
-            >
-              {translate('text_620bc4d4269a55014d493f6d')}
-            </Button>
-          </>
-        )}
-        {!error &&
-          !mode &&
-          (!!loading || (isAuthenticated && (!!currentUserLoading || !currentUser))) && (
-            <>
-              <Skeleton variant="text" className="mb-8 w-52" />
-              <Skeleton variant="text" className="mb-4 w-110" />
-              <Skeleton variant="text" className="w-76" />
-            </>
-          )}
-        {!error && !loading && !!invite && !!mode && (
-          <Stack spacing={8}>
-            <Stack spacing={3}>
-              <Typography variant="headline">
-                {translate('text_664c90c9b2b6c2012aa50bcd', {
-                  orgnisationName: invite.organization.name,
-                })}
-              </Typography>
-              <Typography>
-                {mode === 'signUp' && translate('text_63246f875e2228ab7b63dcd4')}
-                {mode === 'logInRequired' && translate('text_1786557508910b6cacpc0pjt', { email })}
-                {mode === 'join' &&
-                  translate('text_17865575089107fdhugc24r9', { email: currentUser?.email })}
-                {mode === 'emailMismatch' &&
-                  translate('text_1786557508910jl708qczi4g', {
-                    inviteEmail: email,
-                    currentEmail: currentUser?.email,
-                  })}
-              </Typography>
-            </Stack>
-
-            {errorAlert}
-
-            {mode === 'join' && !joinLoginMethodNotAuthorized && (
-              <Button
-                data-test={INVITATION_JOIN_BUTTON_TEST_ID}
-                fullWidth
-                size="large"
-                variant="primary"
-                loading={joinOrganizationLoading}
-                onClick={onJoinOrganization}
-              >
-                {translate('text_17865575089104r0enbn7r7l')}
-              </Button>
-            )}
-
-            {(mode === 'emailMismatch' || (mode === 'join' && joinLoginMethodNotAuthorized)) && (
-              <Button
-                data-test={INVITATION_LOG_OUT_BUTTON_TEST_ID}
-                fullWidth
-                size="large"
-                variant="primary"
-                onClick={() => onLogOut()}
-              >
-                {translate('text_17865575089106781wwdm3l3')}
-              </Button>
-            )}
-
-            {(mode === 'signUp' || mode === 'logInRequired') && (
-              <>
-                {ssoButtons}
-
-                <div className="flex items-center justify-center gap-4 before:flex-1 before:border before:border-grey-300 before:content-[''] after:flex-1 after:border after:border-grey-300 after:content-['']">
-                  <Typography variant="captionHl" color="grey500">
-                    {translate('text_6303351deffd2a0d70498675').toUpperCase()}
-                  </Typography>
-                </div>
-
-                {mode === 'signUp' ? (
-                  <InvitationSignUpForm
-                    email={email}
-                    formId={INVITATION_FORM_ID}
-                    loading={acceptInviteLoading}
-                    submitDataTest={INVITATION_SUBMIT_BUTTON_TEST_ID}
-                    onSubmit={onSubmitPassword}
-                  />
-                ) : (
-                  <InvitationLogInForm
-                    email={email}
-                    formId={INVITATION_FORM_ID}
-                    loading={acceptInviteLoading}
-                    submitDataTest={INVITATION_LOG_IN_BUTTON_TEST_ID}
-                    onSubmit={onSubmitPassword}
-                  />
-                )}
-
-                {mode === 'signUp' && (
-                  <Typography
-                    variant="caption"
-                    html={translate('text_63246f875e2228ab7b63dd1f', { link: LOGIN_ROUTE })}
-                  />
-                )}
-              </>
-            )}
-          </Stack>
-        )}
+        {renderContent()}
       </Card>
     </Page>
   )

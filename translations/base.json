@@ -5203,5 +5203,7 @@
   "text_17865575089106781wwdm3l3": "Log out",
   "text_1786557508910guitmzid55q": "You are already a member of this organization.",
   "text_17865575089107lip4oupwdj": "This invitation was sent to another email address. Log in with the invited account to accept it.",
-  "text_1786557573982blvi6cjpnti": "Your login method is not allowed by this organization. Log in with an authorized method to accept this invitation."
+  "text_1786557573982blvi6cjpnti": "Your login method is not allowed by this organization. Log in with an authorized method to accept this invitation.",
+  "text_1791986111631ve46fi5sy3j": "Open organization",
+  "text_1791986111631bwcgn2cc96p": "An account now exists for {{email}}. Enter its current password to accept the invitation."
 }
