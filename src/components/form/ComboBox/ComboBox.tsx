@@ -139,6 +139,9 @@ export const ComboBox = ({
       onChange={(_event, newValue) => {
         if (typeof newValue === 'string') {
           onChange(newValue)
+        } else if (newValue?.addValueOnClick) {
+          // The add row only opens its creation flow: its value is the typed search, not an option.
+          return
         } else if (newValue && !newValue.disabled) {
           onChange(newValue?.value)
         } else {
