@@ -28,8 +28,35 @@ describe('ComboBox', () => {
       await userEvent.click(input)
       await userEvent.type(input, 'unknown')
       await userEvent.click(
-        within(await screen.findByTestId('combobox-item-Create one')).getByText('Create one'),
+        within(await screen.findByTestId('combobox-item-Create one')).getByRole('option'),
       )
+
+      expect(onAddValue).toHaveBeenCalledTimes(1)
+      expect(onChange).not.toHaveBeenCalledWith('unknown')
+    })
+
+    it('WHEN the row is picked with the keyboard THEN it runs its action', async () => {
+      const onChange = jest.fn()
+      const onAddValue = jest.fn()
+
+      render(
+        <ComboBox
+          name="rateCard"
+          data={[]}
+          value=""
+          onChange={onChange}
+          virtualized={false}
+          allowAddValue
+          addValueProps={{ label: 'Create one', onClick: onAddValue }}
+        />,
+      )
+
+      const input = screen.getByRole('combobox')
+
+      await userEvent.click(input)
+      await userEvent.type(input, 'unknown')
+      await screen.findByTestId('combobox-item-Create one')
+      await userEvent.keyboard('{ArrowDown}{Enter}')
 
       expect(onAddValue).toHaveBeenCalledTimes(1)
       expect(onChange).not.toHaveBeenCalledWith('unknown')

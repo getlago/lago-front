@@ -1,5 +1,5 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
@@ -144,7 +144,7 @@ describe('EditCustomerVatRateDialog', () => {
 
     expect(createTaxItem).toBeInTheDocument()
 
-    await user.click(createTaxItem.querySelector('button') as HTMLElement)
+    await user.click(within(createTaxItem).getByRole('option'))
 
     expect(mockNavigate).toHaveBeenCalledWith(CREATE_TAX_ROUTE)
   })

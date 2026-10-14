@@ -140,8 +140,8 @@ export const ComboBox = ({
         if (typeof newValue === 'string') {
           onChange(newValue)
         } else if (newValue?.addValueOnClick) {
-          // The add row only opens its creation flow: its value is the typed search, not an option.
-          return
+          // The add row runs its creation flow (click or Enter): its value is the typed search.
+          newValue.addValueOnClick()
         } else if (newValue && !newValue.disabled) {
           onChange(newValue?.value)
         } else {
@@ -182,7 +182,6 @@ export const ComboBox = ({
             option={option}
             selected={state.selected}
             virtualized={virtualized}
-            addValueOnClick={option.addValueOnClick}
             {...props}
           />
         )

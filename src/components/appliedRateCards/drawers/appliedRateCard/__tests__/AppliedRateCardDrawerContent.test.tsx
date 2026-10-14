@@ -374,7 +374,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
 
     const addValueItem = await screen.findByTestId('combobox-item-Create rate card')
 
-    await userEvent.click(addValueItem.querySelector('button') as HTMLElement)
+    await userEvent.click(within(addValueItem).getByRole('option'))
 
     expect(mockOpenRateCardDrawer).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -413,7 +413,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
 
     const addValueItem = await screen.findByTestId('combobox-item-Create rate card')
 
-    await userEvent.click(addValueItem.querySelector('button') as HTMLElement)
+    await userEvent.click(within(addValueItem).getByRole('option'))
 
     const onCreated = mockOpenRateCardDrawer.mock.calls.at(-1)?.[0]?.onCreated
 
@@ -749,8 +749,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
       timeout: 3000,
     })
 
-    // A user clicks the option row, which sits inside the add-value button.
-    await userEvent.click(within(addValueItem).getByText('Create rate card'))
+    await userEvent.click(within(addValueItem).getByRole('option'))
 
     expect(mockOpenRateCardDrawer).toHaveBeenCalledTimes(1)
     expect(screen.getByTestId(RATE_CARD_ID_PROBE_TEST_ID)).toBeEmptyDOMElement()
@@ -780,7 +779,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
 
     const addValueItem = await screen.findByTestId('combobox-item-Create rate card')
 
-    await userEvent.click(addValueItem.querySelector('button') as HTMLElement)
+    await userEvent.click(within(addValueItem).getByRole('option'))
 
     const onCreated = mockOpenRateCardDrawer.mock.calls.at(-1)?.[0]?.onCreated
 
