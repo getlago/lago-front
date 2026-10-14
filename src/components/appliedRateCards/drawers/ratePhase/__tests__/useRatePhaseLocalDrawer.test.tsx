@@ -13,7 +13,7 @@ import {
 import { render } from '~/test-utils'
 
 import { RATE_PHASE_DURATION_CYCLE_COUNT_TEST_ID } from '../RatePhaseFormFields'
-import { RatePhaseFormValues } from '../ratePhaseFormSchema'
+import { RATE_PHASE_FORM_DEFAULTS, RatePhaseFormValues } from '../ratePhaseFormSchema'
 import { RateCardForRatePhaseFields } from '../types'
 import { useRatePhaseLocalDrawer } from '../useRatePhaseLocalDrawer'
 
@@ -95,6 +95,43 @@ describe('useRatePhaseLocalDrawer', () => {
     expect(saved.billingIntervalCount).toBe('14')
     expect(saved.billingIntervalUnit).toBe(RateCardRateBillingIntervalUnitEnum.Day)
     expect(saved.properties.amount).toBe('10')
+  })
+
+  it('GIVEN an existing phase WHEN its name is edited THEN its code is kept', async () => {
+    const onSave = jest.fn()
+    const phase: RatePhaseFormValues = { ...RATE_PHASE_FORM_DEFAULTS, code: 'trial', name: 'Trial' }
+
+    const EditHost = (): JSX.Element => {
+      const { openDrawer: openEditDrawer } = useRatePhaseLocalDrawer()
+
+      return (
+        <button
+          onClick={() =>
+            openEditDrawer({ rateCard, otherPhases: [], onSave, phase, replaceIndex: 0 })
+          }
+        >
+          open edit
+        </button>
+      )
+    }
+
+    render(<EditHost />)
+    await userEvent.click(screen.getByText('open edit'))
+
+    const opened = mockOpen.mock.calls.at(-1)?.[0] as OpenedDrawerArgs
+
+    render(<>{opened.children}</>)
+
+    const nameInput = screen.getByDisplayValue('Trial')
+
+    await userEvent.clear(nameInput)
+    await userEvent.type(nameInput, 'Free trial')
+    await opened.form.submit()
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'trial', name: 'Free trial' }),
+      { replaceIndex: 0 },
+    )
   })
 
   it('GIVEN create more is on WHEN a phase is saved THEN the drawer stays open and the next phase is placed before it', async () => {
