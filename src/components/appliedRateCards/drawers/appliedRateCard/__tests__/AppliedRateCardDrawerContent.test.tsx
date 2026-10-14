@@ -385,6 +385,21 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
     )
   })
 
+  it('GIVEN rate cards are listed THEN the "Create rate card" row still shows', async () => {
+    renderContent([productsMock(), rateCardsMock(() => undefined)])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+
+    const rateCardInput = (
+      await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
+    ).querySelector('input') as HTMLInputElement
+
+    await userEvent.click(rateCardInput)
+
+    expect(await screen.findByText(RATE_CARD.name)).toBeInTheDocument()
+    expect(screen.getByTestId('combobox-item-Create rate card')).toBeInTheDocument()
+  })
+
   it('GIVEN the stacked drawer calls onCreated THEN this drawer sets its rateCardId field to the new code, and the stacked drawer is already closed', async () => {
     renderContent([productsMock(), rateCardsMock(() => undefined, [])])
 

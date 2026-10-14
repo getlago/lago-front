@@ -485,6 +485,7 @@ export const AppliedRateCardDrawerContent = withForm({
                     addValueProps={{
                       label: translate('text_1791485670326bz5dr6tcop3'),
                       onClick: handleCreateRateCard,
+                      alwaysVisible: true,
                     }}
                     searchQuery={getRateCards}
                     data={rateCards.map((rateCard) => ({

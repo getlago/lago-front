@@ -34,5 +34,30 @@ describe('ComboBox', () => {
       expect(onAddValue).toHaveBeenCalledTimes(1)
       expect(onChange).not.toHaveBeenCalledWith('unknown')
     })
+
+    it.each([
+      [false, false],
+      [true, true],
+    ])(
+      'WHEN some options match AND alwaysVisible is %p THEN the row shows: %p',
+      async (alwaysVisible, isShown) => {
+        render(
+          <ComboBox
+            name="rateCard"
+            data={[{ value: 'standard-card', label: 'Standard card' }]}
+            value=""
+            onChange={jest.fn()}
+            virtualized={false}
+            allowAddValue
+            addValueProps={{ label: 'Create one', onClick: jest.fn(), alwaysVisible }}
+          />,
+        )
+
+        await userEvent.click(screen.getByRole('combobox'))
+
+        expect(await screen.findByText('Standard card')).toBeInTheDocument()
+        expect(!!screen.queryByTestId('combobox-item-Create one')).toBe(isShown)
+      },
+    )
   })
 })

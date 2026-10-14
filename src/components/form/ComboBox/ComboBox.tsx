@@ -198,7 +198,12 @@ export const ComboBox = ({
             )
 
         // Suggest the creation of a new value
-        if (filtered.length === 0 && !emptyText && allowAddValue && addValueProps) {
+        if (
+          (filtered.length === 0 || addValueProps?.alwaysVisible) &&
+          !emptyText &&
+          allowAddValue &&
+          addValueProps
+        ) {
           filtered.push({
             value: params.inputValue,
             label: addValueProps.label || `Add "${params.inputValue}"`,
