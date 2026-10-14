@@ -177,6 +177,7 @@ const WALLET_TRANSACTION_SOURCE_TRANSLATIONS: Record<WalletTransactionSourceEnum
   [WalletTransactionSourceEnum.Interval]: 'text_1751530295201vhd64062mii',
   [WalletTransactionSourceEnum.Threshold]: 'text_1751530295201xyz98abc123',
   [WalletTransactionSourceEnum.Manual]: 'text_1751530295201def456ghi78',
+  [WalletTransactionSourceEnum.X402]: 'text_1791465078864pyzrolrd0er',
 }
 
 export const TRANSACTION_STATUS_LABEL_MAP = {

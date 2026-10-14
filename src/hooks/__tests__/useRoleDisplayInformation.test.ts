@@ -16,6 +16,7 @@ describe('useRoleDisplayInformation', () => {
     name: 'test-role',
     description: 'Test description',
     admin: false,
+    grantable: true,
     code: 'TEST_ROLE',
     memberships: [],
     permissions: [],
@@ -31,21 +32,21 @@ describe('useRoleDisplayInformation', () => {
 
     it('returns translated name for admin system role', () => {
       const { result } = renderHook(() => useRoleDisplayInformation())
-      const adminRole = createRole({ name: 'Admin' })
+      const adminRole = createRole({ name: 'Admin', code: 'admin' })
 
       expect(result.current.getDisplayName(adminRole)).toBe('text_664f035a68227f00e261b7ee')
     })
 
     it('returns translated name for manager system role', () => {
       const { result } = renderHook(() => useRoleDisplayInformation())
-      const managerRole = createRole({ name: 'Manager' })
+      const managerRole = createRole({ name: 'Manager', code: 'manager' })
 
       expect(result.current.getDisplayName(managerRole)).toBe('text_664f035a68227f00e261b7f0')
     })
 
     it('returns translated name for finance system role', () => {
       const { result } = renderHook(() => useRoleDisplayInformation())
-      const financeRole = createRole({ name: 'Finance' })
+      const financeRole = createRole({ name: 'Finance', code: 'finance' })
 
       expect(result.current.getDisplayName(financeRole)).toBe('text_664f035a68227f00e261b7f2')
     })
@@ -55,6 +56,22 @@ describe('useRoleDisplayInformation', () => {
       const customRole = createRole({ name: 'My Custom Role' })
 
       expect(result.current.getDisplayName(customRole)).toBe('My Custom Role')
+    })
+
+    it('keeps the name of a custom role named like a system role', () => {
+      const { result } = renderHook(() => useRoleDisplayInformation())
+      const customRole = createRole({ name: 'Admin', code: 'pt_check' })
+
+      expect(result.current.getDisplayName(customRole)).toBe('Admin')
+    })
+
+    it('falls back to the name when no code is available', () => {
+      const { result } = renderHook(() => useRoleDisplayInformation())
+
+      expect(result.current.getDisplayName({ name: 'Finance' })).toBe(
+        'text_664f035a68227f00e261b7f2',
+      )
+      expect(result.current.getDisplayName({ name: 'Other' })).toBe('Other')
     })
   })
 
@@ -67,14 +84,14 @@ describe('useRoleDisplayInformation', () => {
 
     it('returns translated description for admin system role', () => {
       const { result } = renderHook(() => useRoleDisplayInformation())
-      const adminRole = createRole({ name: 'Admin' })
+      const adminRole = createRole({ name: 'Admin', code: 'admin' })
 
       expect(result.current.getDisplayDescription(adminRole)).toBe('text_1767027068946xgqsb9x6z3c')
     })
 
     it('returns translated description for manager system role', () => {
       const { result } = renderHook(() => useRoleDisplayInformation())
-      const managerRole = createRole({ name: 'Manager' })
+      const managerRole = createRole({ name: 'Manager', code: 'manager' })
 
       expect(result.current.getDisplayDescription(managerRole)).toBe(
         'text_1767027068946er3mwgop2xm',
@@ -83,7 +100,7 @@ describe('useRoleDisplayInformation', () => {
 
     it('returns translated description for finance system role', () => {
       const { result } = renderHook(() => useRoleDisplayInformation())
-      const financeRole = createRole({ name: 'Finance' })
+      const financeRole = createRole({ name: 'Finance', code: 'finance' })
 
       expect(result.current.getDisplayDescription(financeRole)).toBe(
         'text_1767027068946errhztv7v4w',
@@ -98,6 +115,17 @@ describe('useRoleDisplayInformation', () => {
       })
 
       expect(result.current.getDisplayDescription(customRole)).toBe('Custom role description')
+    })
+
+    it('keeps the description of a custom role named like a system role', () => {
+      const { result } = renderHook(() => useRoleDisplayInformation())
+      const customRole = createRole({
+        name: 'Admin',
+        code: 'pt_check',
+        description: 'Not really admin',
+      })
+
+      expect(result.current.getDisplayDescription(customRole)).toBe('Not really admin')
     })
 
     it('returns empty string if custom role has no description', () => {
