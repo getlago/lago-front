@@ -13301,6 +13301,7 @@ export type GetRateCardsForAppliedRateCardDrawerQueryVariables = Exact<{
   productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   productFilterIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
@@ -27886,11 +27887,12 @@ export type GetProductFiltersForAppliedRateCardDrawerLazyQueryHookResult = Retur
 export type GetProductFiltersForAppliedRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetProductFiltersForAppliedRateCardDrawerSuspenseQuery>;
 export type GetProductFiltersForAppliedRateCardDrawerQueryResult = Apollo.QueryResult<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>;
 export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
-    query getRateCardsForAppliedRateCardDrawer($productIds: [ID!], $productFilterIds: [ID!], $searchTerm: String, $limit: Int) {
+    query getRateCardsForAppliedRateCardDrawer($productIds: [ID!], $productFilterIds: [ID!], $searchTerm: String, $code: String, $limit: Int) {
   rateCards(
     productIds: $productIds
     productFilterIds: $productFilterIds
     searchTerm: $searchTerm
+    code: $code
     limit: $limit
   ) {
     collection {
@@ -27918,6 +27920,7 @@ export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
  *      productIds: // value for 'productIds'
  *      productFilterIds: // value for 'productFilterIds'
  *      searchTerm: // value for 'searchTerm'
+ *      code: // value for 'code'
  *      limit: // value for 'limit'
  *   },
  * });

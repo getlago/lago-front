@@ -789,6 +789,54 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
       expect(screen.getByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID)).toBeInTheDocument(),
     )
   })
+
+  it('GIVEN a search that the created rate card does not match THEN it still resolves and gets selected', async () => {
+    const newRateCard: RateCardFixture = {
+      ...RATE_CARD,
+      id: 'new-rc-id',
+      code: 'new-code',
+      name: 'New card',
+    }
+    let lastVars: Record<string, unknown> = {}
+
+    renderContent([
+      productsMock(),
+      {
+        ...rateCardsMock((vars) => (lastVars = vars)),
+        result: (vars: Record<string, unknown>) => {
+          if (vars.code === newRateCard.code) {
+            return { data: { rateCards: { collection: [newRateCard] } } }
+          }
+
+          return { data: { rateCards: { collection: vars.searchTerm ? [] : [RATE_CARD] } } }
+        },
+      },
+    ])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+
+    const rateCardInput = (
+      await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
+    ).querySelector('input') as HTMLInputElement
+
+    await userEvent.click(rateCardInput)
+    await userEvent.type(rateCardInput, 'premium')
+    await waitFor(() => expect(lastVars.searchTerm).toBe('premium'), { timeout: 3000 })
+
+    await userEvent.click(
+      within(await screen.findByTestId('combobox-item-Create rate card')).getByRole('option'),
+    )
+
+    mockOpenRateCardDrawer.mock.calls
+      .at(-1)?.[0]
+      ?.onCreated({ id: newRateCard.id, name: newRateCard.name, code: newRateCard.code })
+
+    await waitFor(() =>
+      expect(screen.getByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID)).toBeInTheDocument(),
+    )
+    expect(lastVars).toMatchObject({ code: newRateCard.code, productIds: [PRODUCT.id] })
+    expect(lastVars.searchTerm).toBeUndefined()
+  })
 })
 
 describe('AppliedRateCardDrawerContent, contract lifecycle dates', () => {

@@ -107,12 +107,14 @@ gql`
     $productIds: [ID!]
     $productFilterIds: [ID!]
     $searchTerm: String
+    $code: String
     $limit: Int
   ) {
     rateCards(
       productIds: $productIds
       productFilterIds: $productFilterIds
       searchTerm: $searchTerm
+      code: $code
       limit: $limit
     ) {
       collection {
@@ -337,7 +339,8 @@ export const AppliedRateCardDrawerContent = withForm({
             : undefined,
         onCreated: (createdRateCard) => {
           form.setFieldValue('rateCardId', createdRateCard.code)
-          refetchRateCards()
+          // A plain refetch keeps the typed search, which may not match the new card.
+          refetchRateCards({ searchTerm: undefined, code: createdRateCard.code })
         },
       })
     }
