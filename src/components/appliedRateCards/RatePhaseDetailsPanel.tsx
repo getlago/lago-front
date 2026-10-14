@@ -102,6 +102,18 @@ export const RatePhaseDetailsPanel = ({
     if (!phaseRate || !rate) return null
 
     const isTiered = isTieredRateModel(rate.rateModel)
+    const minAmountCents = Number(rate.minAmountCents ?? 0)
+    // Expressed in the pricing unit when the card has one, as on the catalog rate details.
+    const spendingMinimum =
+      minAmountCents > 0
+        ? intlFormatNumber(deserializeAmount(minAmountCents, rateCard.currency), {
+            currencyDisplay: 'symbol',
+            currency: rateCard.currency,
+            pricingUnitShortName:
+              pricingUnit?.shortName ?? rateCard.appliedPricingUnitCode ?? undefined,
+            maximumFractionDigits: 15,
+          })
+        : '-'
 
     return (
       <DetailsSection title={translate('text_64de472463e2da6b31737de0')}>
@@ -172,7 +184,7 @@ export const RatePhaseDetailsPanel = ({
         {rateCard.billingTiming === RateCardBillingTimingEnum.Arrears && (
           <DetailItem
             label={translate('text_1791838459984ploipjejyo9')}
-            value={formatAmount(deserializeAmount(rate.minAmountCents ?? 0, rateCard.currency))}
+            value={spendingMinimum}
             isOverridden={overriddenFields.has('minAmountCents')}
           />
         )}

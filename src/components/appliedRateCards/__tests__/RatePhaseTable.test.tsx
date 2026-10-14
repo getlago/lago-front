@@ -149,6 +149,35 @@ describe('RatePhaseTable', () => {
     expect(screen.queryByTestId(RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID)).not.toBeInTheDocument()
   })
 
+  it('GIVEN a rate card with a pricing unit THEN the spending minimum reads in that unit', async () => {
+    render(
+      <RatePhaseTable
+        phases={[{ ...overriddenPhase, minAmountCents: '5', conversionRate: '1' }]}
+        rateCard={{ ...rateCard, appliedPricingUnitCode: 'CR' }}
+        {...callbacks}
+      />,
+    )
+
+    await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
+
+    expect(
+      within(screen.getByTestId(RATE_PHASE_DETAILS_PANEL_TEST_ID)).getByText('5 CR'),
+    ).toBeInTheDocument()
+  })
+
+  it('GIVEN no spending minimum THEN the panel shows a dash, not a zero amount', async () => {
+    renderTable([foreverPhase])
+
+    await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
+
+    const panel = screen.getByTestId(RATE_PHASE_DETAILS_PANEL_TEST_ID)
+
+    expect(within(panel).queryByText('$0.00')).not.toBeInTheDocument()
+    expect(
+      within(panel).getByText('Minimum spending per interval').nextElementSibling,
+    ).toHaveTextContent('-')
+  })
+
   it('GIVEN an overridden phase WHEN its actions open THEN edit, revert and delete call back with its index', async () => {
     renderTable()
 
