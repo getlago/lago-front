@@ -9,6 +9,10 @@ import {
 import { getRatePropertiesShape } from '~/pages/catalog/drawers/rateCardRate/getRatePropertiesShape'
 import { serializeRateProperties } from '~/pages/catalog/drawers/rateCardRate/serializeRateProperties'
 
+import { mapRateOverrideFromFormToApi } from './drawers/ratePhase/mappers'
+import { RatePhaseFormValues } from './drawers/ratePhase/ratePhaseFormSchema'
+import { RateCardForRatePhaseFields } from './drawers/ratePhase/types'
+
 export type OverrideDiffField =
   | 'rateModel'
   | 'rateProperties'
@@ -110,4 +114,17 @@ export function getOverriddenFields(
   }
 
   return diff
+}
+
+// An override identical to the active rate changes nothing: the phase runs on the active rate.
+export const hasRateOverride = (
+  values: RatePhaseFormValues,
+  rateCard: RateCardForRatePhaseFields,
+): boolean => {
+  if (!values.overrideEnabled) return false
+  if (!rateCard.activeRate) return true
+
+  const override = mapRateOverrideFromFormToApi(values, rateCard.currency)
+
+  return getOverriddenFields(rateCard.activeRate, override).size > 0
 }

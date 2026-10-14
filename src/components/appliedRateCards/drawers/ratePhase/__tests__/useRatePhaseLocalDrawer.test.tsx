@@ -12,7 +12,10 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { RATE_PHASE_DURATION_CYCLE_COUNT_TEST_ID } from '../RatePhaseFormFields'
+import {
+  RATE_PHASE_DURATION_CYCLE_COUNT_TEST_ID,
+  RATE_PHASE_OVERRIDE_TOGGLE_TEST_ID,
+} from '../RatePhaseFormFields'
 import { RATE_PHASE_FORM_DEFAULTS, RatePhaseFormValues } from '../ratePhaseFormSchema'
 import { RateCardForRatePhaseFields } from '../types'
 import { useRatePhaseLocalDrawer } from '../useRatePhaseLocalDrawer'
@@ -95,6 +98,21 @@ describe('useRatePhaseLocalDrawer', () => {
     expect(saved.billingIntervalCount).toBe('14')
     expect(saved.billingIntervalUnit).toBe(RateCardRateBillingIntervalUnitEnum.Day)
     expect(saved.properties.amount).toBe('10')
+  })
+
+  it('GIVEN the override is switched on without any change THEN the phase is saved on the active rate', async () => {
+    const onSave = jest.fn()
+    const opened = await openDrawer(onSave)
+
+    render(<>{opened.children}</>)
+    await userEvent.type(screen.getByLabelText(/code/i), 'phase-1')
+    await userEvent.click(screen.getByTestId(RATE_PHASE_OVERRIDE_TOGGLE_TEST_ID))
+    await opened.form.submit()
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'phase-1', overrideEnabled: false }),
+      { replaceIndex: undefined },
+    )
   })
 
   it('GIVEN an existing phase WHEN its name is edited THEN its code is kept', async () => {

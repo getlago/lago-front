@@ -1,5 +1,7 @@
 import {
   CurrencyEnum,
+  ProductTypeEnum,
+  RateCardBillingTimingEnum,
   RateCardRateBillingIntervalUnitEnum,
   RateCardRateModelEnum,
   RateOverrideInput,
@@ -11,7 +13,8 @@ import {
   RATE_PHASE_FORM_DEFAULTS,
   RatePhaseFormValues,
 } from '../drawers/ratePhase/ratePhaseFormSchema'
-import { ActiveRateForDiff, getOverriddenFields } from '../overrideDiff'
+import { RateCardForRatePhaseFields } from '../drawers/ratePhase/types'
+import { ActiveRateForDiff, getOverriddenFields, hasRateOverride } from '../overrideDiff'
 
 const apolloActiveRate: ActiveRateForDiff = {
   rateModel: RateCardRateModelEnum.Standard,
@@ -125,6 +128,44 @@ describe('getOverriddenFields', () => {
 
     expect(getOverriddenFields(apolloActiveRate, override)).toEqual(
       new Set(['rateModel', 'rateProperties']),
+    )
+  })
+})
+
+describe('hasRateOverride', () => {
+  const rateCard: RateCardForRatePhaseFields = {
+    productType: ProductTypeEnum.Metered,
+    currency: CurrencyEnum.Usd,
+    billingTiming: RateCardBillingTimingEnum.Arrears,
+    appliedPricingUnitCode: 'CR',
+    proration: false,
+    activeRate: {
+      ...apolloActiveRate,
+      __typename: 'RateCardRate',
+      id: 'rate-1',
+      effectiveFrom: '2026-01-01T00:00:00.000Z',
+    },
+  }
+
+  it('GIVEN the override is off THEN there is none', () => {
+    expect(
+      hasRateOverride({ ...formValuesMatchingActiveRate, overrideEnabled: false }, rateCard),
+    ).toBe(false)
+  })
+
+  it('GIVEN the override is on but matches the active rate THEN there is none', () => {
+    expect(hasRateOverride(formValuesMatchingActiveRate, rateCard)).toBe(false)
+  })
+
+  it('GIVEN the override changes a value THEN there is one', () => {
+    expect(
+      hasRateOverride({ ...formValuesMatchingActiveRate, minAmountCents: '7' }, rateCard),
+    ).toBe(true)
+  })
+
+  it('GIVEN no active rate to compare with THEN an enabled override is kept', () => {
+    expect(hasRateOverride(formValuesMatchingActiveRate, { ...rateCard, activeRate: null })).toBe(
+      true,
     )
   })
 })

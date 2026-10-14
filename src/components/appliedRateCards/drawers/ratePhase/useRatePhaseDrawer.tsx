@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
 
+import { hasRateOverride } from '~/components/appliedRateCards/overrideDiff'
 import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
@@ -169,9 +170,10 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
 
       if (!params) return
 
-      const position = getInsertIndex(value, otherPhases.current) + 1
-      const phaseInput = mapFromFormToApi({ ...value, position }, params.rateCard.currency)
-      const isSaved = await savePhase(params, value, phaseInput)
+      const phase = { ...value, overrideEnabled: hasRateOverride(value, params.rateCard) }
+      const position = getInsertIndex(phase, otherPhases.current) + 1
+      const phaseInput = mapFromFormToApi({ ...phase, position }, params.rateCard.currency)
+      const isSaved = await savePhase(params, phase, phaseInput)
 
       if (!isSaved) return
 

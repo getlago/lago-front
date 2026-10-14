@@ -135,6 +135,60 @@ describe('useRatePhaseDrawer', () => {
     expect(mockClose).not.toHaveBeenCalled()
   })
 
+  it('GIVEN an override identical to the active rate THEN it is sent as null', async () => {
+    const rateCardWithActiveRate: RateCardForRatePhaseFields = {
+      ...rateCard,
+      activeRate: {
+        id: 'active-rate',
+        effectiveFrom: '2026-01-01T00:00:00.000Z',
+        rateModel: RateCardRateModelEnum.Standard,
+        billingIntervalCount: 1,
+        billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Month,
+        minAmountCents: '0',
+        appliedPricingUnitConversionRate: null,
+        rateProperties: { amount: '10' },
+      },
+    }
+    const sameAsActivePhase: RatePhaseForDrawerFragment = {
+      id: 'rp-4',
+      code: 'phase-4',
+      name: 'Phase 4',
+      position: 1,
+      billingIntervalCycleCount: null,
+      rateOverride: {
+        rateModel: RateCardRateModelEnum.Standard,
+        rateProperties: { amount: '10' },
+        billingIntervalCount: 1,
+        billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Month,
+        minAmountCents: 0,
+        pricingUnitConversionRate: null,
+      },
+    }
+
+    let captured: Record<string, unknown> | undefined
+    const mock: MockedResponse = {
+      request: { query: UpdateRatePhaseDocument },
+      variableMatcher: (vars) => {
+        captured = vars
+        return true
+      },
+      result: { data: { updateRatePhase: { id: 'rp-4', code: 'phase-4' } } },
+    }
+
+    const { opened } = await openAndRender([mock], {
+      context: 'plan',
+      mode: 'edit',
+      planAppliedRateCardId: 'plan-rc-1',
+      phase: sameAsActivePhase,
+      otherPhases: [],
+      rateCard: rateCardWithActiveRate,
+    })
+
+    await opened.form.submit()
+
+    expect(captured?.input).toHaveProperty('rateOverride', null)
+  })
+
   it('GIVEN the name is cleared on edit THEN it is sent as null so the backend clears it', async () => {
     const namedPhase: RatePhaseForDrawerFragment = {
       id: 'rp-3',
