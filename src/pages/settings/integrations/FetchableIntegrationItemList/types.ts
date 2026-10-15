@@ -18,7 +18,8 @@ import {
   OpenMappableIntegrationMapItemDrawer,
 } from '~/pages/settings/integrations/common'
 
-type SupportedMappableType = MappableTypeEnum.AddOn | MappableTypeEnum.BillableMetric
+type SupportedMappableType =
+  MappableTypeEnum.AddOn | MappableTypeEnum.BillableMetric | MappableTypeEnum.Product
 
 export type FetchMoreFunction = ReturnType<
   | typeof useGetAddOnsForNetsuiteItemsListLazyQuery
