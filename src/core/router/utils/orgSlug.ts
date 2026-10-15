@@ -6,6 +6,8 @@ import {
 } from '~/core/apolloClient/reactiveVars'
 import { OrgSlugResolverDataFragment } from '~/generated/graphql'
 
+import { getFirstPathSegment } from './getFirstPathSegment'
+
 gql`
   fragment OrgSlugResolverData on User {
     memberships {
@@ -67,14 +69,6 @@ export const resolveOrgSlug = (currentUser: CurrentUser): string | undefined => 
     .slug
 
   return fromCurrentOrg || fromPersisted || memberships[0]?.organization.slug
-}
-
-const PATH_SEGMENT_SEPARATOR = /[/?#]/
-
-export const getFirstPathSegment = (path: string): string | undefined => {
-  if (!path.startsWith('/')) return undefined
-
-  return path.slice(1).split(PATH_SEGMENT_SEPARATOR)[0] || undefined
 }
 
 /**

@@ -3,11 +3,8 @@ import { useEffect, useRef } from 'react'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { getPersistedOrganizationSlug } from '~/core/apolloClient/reactiveVars'
 import { FORBIDDEN_ROUTE, useLocation, useNavigate } from '~/core/router'
-import {
-  getAccessibleMemberships,
-  getFirstPathSegment,
-  isAccessibleOrgSlug,
-} from '~/core/router/utils/orgSlug'
+import { getFirstPathSegment } from '~/core/router/utils/getFirstPathSegment'
+import { getAccessibleMemberships, isAccessibleOrgSlug } from '~/core/router/utils/orgSlug'
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { useCurrentUser } from '~/hooks/useCurrentUser'

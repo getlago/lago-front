@@ -8,10 +8,10 @@ import {
   FORBIDDEN_ROUTE,
 } from '~/core/router'
 import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
+import { getFirstPathSegment } from '~/core/router/utils/getFirstPathSegment'
 import { isSafeInAppPath } from '~/core/router/utils/isSafeInAppPath'
 import {
   ensureSlugPrefix,
-  getFirstPathSegment,
   isAccessibleOrgSlug,
   pathHasValidSlug,
   pathTargetsInaccessibleOrg,
