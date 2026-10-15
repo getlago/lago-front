@@ -118,7 +118,8 @@ describe('Forbidden', () => {
         await userEvent.click(screen.getByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID))
 
         expect(mockLogOut).toHaveBeenCalled()
-        expect(testMockNavigateFn).not.toHaveBeenCalled()
+        expect(testMockNavigateFn).toHaveBeenCalledTimes(1)
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/login', { replace: true })
       })
     })
   })
@@ -135,6 +136,24 @@ describe('Forbidden', () => {
 
       expect(mockLogOut).toHaveBeenCalled()
       expect(getItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)).toBeFalsy()
+    })
+
+    // Guards the user staying logged out on `/forbidden`, a public route no auth guard leaves.
+    it('THEN should send the user to the login page once logged out', async () => {
+      const callOrder: string[] = []
+
+      mockLogOut.mockImplementationOnce(async () => {
+        callOrder.push('logOut')
+      })
+      testMockNavigateFn.mockImplementationOnce((to: string) => {
+        callOrder.push(`navigate:${to}`)
+      })
+      renderForbidden([buildMembership('a', false), buildMembership('b', false)])
+
+      await userEvent.click(screen.getByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID))
+
+      expect(callOrder).toEqual(['logOut', 'navigate:/login'])
+      expect(testMockNavigateFn).toHaveBeenCalledWith('/login', { replace: true })
     })
   })
 

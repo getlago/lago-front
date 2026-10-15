@@ -8,7 +8,7 @@ import {
 } from '~/components/designSystem/GenericPlaceholder'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { logOut } from '~/core/apolloClient'
-import { HOME_ROUTE, useLocation, useNavigate } from '~/core/router'
+import { HOME_ROUTE, LOGIN_ROUTE, useLocation, useNavigate } from '~/core/router'
 import { findRefusedOrganization, getAccessibleMemberships } from '~/core/router/utils/orgSlug'
 import { setItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
@@ -63,6 +63,8 @@ const Forbidden = () => {
       }
 
       await logOut(client, true)
+      // `/forbidden` is not a private route, so no guard leaves it once the session is gone.
+      navigate(LOGIN_ROUTE, { replace: true })
     },
   }
 
