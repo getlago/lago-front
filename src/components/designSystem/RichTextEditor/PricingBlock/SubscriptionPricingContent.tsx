@@ -27,6 +27,7 @@ import {
   DEFAULT_SUBSCRIPTION_SETTINGS,
   type SubscriptionPricingState,
 } from '~/core/serializers/serializeQuotePlanBillingItems'
+import { ResolvablePaymentTerm } from '~/core/utils/paymentTerm'
 import { CurrencyEnum, PlanInterval, usePlansLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanFormSetup } from '~/hooks/plans/usePlanFormSetup'
@@ -47,7 +48,7 @@ interface SubscriptionPricingContentProps {
   basePlanFormValuesRef: MutableRefObject<PlanFormInput | null>
   initialState?: SubscriptionPricingState | null
   customer?: QuoteCustomer | null
-  netPaymentTerm?: number | null
+  paymentTerm?: ResolvablePaymentTerm | null
   /** Currency used to display amounts — may be a customer/organization fallback. */
   currency?: CurrencyEnum | null
   /**
@@ -72,7 +73,7 @@ export function SubscriptionPricingContent({
   basePlanFormValuesRef,
   initialState,
   customer,
-  netPaymentTerm,
+  paymentTerm,
   currency,
   hasQuoteCurrency,
   billingItemPlan,
@@ -203,7 +204,7 @@ export function SubscriptionPricingContent({
       setSubscriptionSettings(values)
     },
     isAmendment,
-    netPaymentTerm,
+    paymentTerm,
   })
   const showInvoicingSection = Boolean(customer?.externalId || customer?.id)
   const planSettingsDrawer = useQuotePlanSettingsDrawer(planForm, {

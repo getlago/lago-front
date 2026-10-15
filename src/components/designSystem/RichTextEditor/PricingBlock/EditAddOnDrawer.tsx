@@ -1,4 +1,5 @@
 import { Typography } from '~/components/designSystem/Typography'
+import { ResolvablePaymentTerm } from '~/core/utils/paymentTerm'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
@@ -14,17 +15,17 @@ export const editAddOnDrawerDefaultValues = {
 const DESCRIPTION_MAX_LENGTH = 255
 
 interface EditAddOnDrawerExtraProps {
-  netPaymentTerm?: number | null
+  paymentTerm?: ResolvablePaymentTerm | null
 }
 
 const editAddOnDrawerDefaultProps: EditAddOnDrawerExtraProps = {
-  netPaymentTerm: undefined,
+  paymentTerm: undefined,
 }
 
 const EditAddOnDrawer = withForm({
   defaultValues: editAddOnDrawerDefaultValues,
   props: editAddOnDrawerDefaultProps,
-  render: function EditAddOnDrawerRender({ form, netPaymentTerm }) {
+  render: function EditAddOnDrawerRender({ form, paymentTerm }) {
     const { translate } = useInternationalization()
 
     return (
@@ -57,7 +58,7 @@ const EditAddOnDrawer = withForm({
               )}
             </form.AppField>
           </div>
-          <QuotePaymentTermLine netPaymentTerm={netPaymentTerm} />
+          <QuotePaymentTermLine paymentTerm={paymentTerm} />
         </div>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">

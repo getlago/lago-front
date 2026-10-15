@@ -10,7 +10,7 @@ import {
   FORM_DIALOG_TEST_ID,
 } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
-import { useEditBillingEntityGracePeriodDialog } from '~/components/settings/invoices/EditBillingEntityGracePeriodDialog'
+import { useEditBillingEntityGracePeriodDialog } from '~/components/settings/invoices/EditBillingEntityGracePeriodDialog/EditBillingEntityGracePeriodDialog'
 import { UpdateBillingEntityGracePeriodDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
