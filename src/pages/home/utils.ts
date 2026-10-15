@@ -59,7 +59,7 @@ export type ResolveRedirectResult = {
  *
  * Resolution priority:
  *   1. `ssoRedirectPath`: drained by caller, even when ignored for targeting an
- *      org the session cannot open.
+ *      org the session cannot open or one the user is not a member of.
  *   2. `savedLocation` (router-state `from`): kept only for an org the session
  *      can open, to avoid stale-org leaks; legacy slug-less paths get
  *      prepended with the resolved slug for ALL users (single-org and
@@ -91,7 +91,14 @@ export const resolveRedirectTarget = (
   const hasUnsafeSsoPath = !!ssoRedirectPath && !isSafeInAppPath(ssoRedirectPath)
   const hasInaccessibleSsoPath =
     !!ssoRedirectPath && pathTargetsInaccessibleOrg(ssoRedirectPath, currentUser)
-  const discardsSsoPath = hasUnsafeSsoPath || hasInaccessibleSsoPath
+  const ssoFirstSegment = getFirstPathSegment(ssoRedirectPath ?? '')
+  // Stored before a logout, so it may name an org this account never belonged to.
+  const hasUnknownOrgSsoPath =
+    !!ssoRedirectPath &&
+    !!ssoFirstSegment &&
+    !LEGACY_APP_PATH_SEGMENTS.has(ssoFirstSegment) &&
+    !pathHasValidSlug(ssoRedirectPath, currentUser)
+  const discardsSsoPath = hasUnsafeSsoPath || hasInaccessibleSsoPath || hasUnknownOrgSsoPath
   const safeSsoRedirectPath = discardsSsoPath ? undefined : ssoRedirectPath
 
   if (!slug) {

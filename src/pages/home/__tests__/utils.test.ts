@@ -258,6 +258,24 @@ describe('resolveRedirectTarget()', () => {
     })
   })
 
+  describe('GIVEN the stored SSO redirect path targets an organization the user is not a member of', () => {
+    beforeEach(() => {
+      mockHasPermissions.mockImplementation((permissions: string[]) =>
+        permissions.includes('customersView'),
+      )
+    })
+
+    // Guards the `/acme/other-org/...` 404 after logging back in with another account.
+    it.each(['/other-org/customers', '/other-org', '/other-org?tab=1'])(
+      'THEN ignores %s, drains LS and falls back to the default route',
+      (ssoRedirectPath) => {
+        const result = resolveRedirectTarget(baseInput({ ssoRedirectPath }))
+
+        expect(result).toEqual({ to: `/${SLUG}/customers`, consumesSsoLs: true })
+      },
+    )
+  })
+
   describe('GIVEN the user has an organization the current session cannot access', () => {
     const LOCKED_SLUG = 'locked'
     const userWithLockedOrg = () =>
