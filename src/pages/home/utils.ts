@@ -12,6 +12,7 @@ import { isSafeInAppPath } from '~/core/router/utils/isSafeInAppPath'
 import {
   ensureSlugPrefix,
   getAccessibleMemberships,
+  getFirstPathSegment,
   pathHasValidSlug,
   pathTargetsInaccessibleOrg,
   resolveOrgSlug,
@@ -57,10 +58,10 @@ export type ResolveRedirectResult = {
  * and is passed in via `ssoRedirectPath`).
  *
  * Resolution priority:
- *   1. `ssoRedirectPath`: drained by caller after success. Ignored (but still
- *      drained) when it targets an org the session cannot open.
- *   2. `savedLocation` (router-state `from`): validated against the
- *      memberships the session can open to avoid stale-org leaks; legacy slug-less paths get
+ *   1. `ssoRedirectPath`: drained by caller, even when ignored for targeting an
+ *      org the session cannot open.
+ *   2. `savedLocation` (router-state `from`): kept only for an org the session
+ *      can open, to avoid stale-org leaks; legacy slug-less paths get
  *      prepended with the resolved slug for ALL users (single-org and
  *      multi-org), matching the universal auto-recovery in
  *      `OrganizationLayout`.
@@ -107,10 +108,9 @@ export const resolveRedirectTarget = (
 
   // 2. Router-state `from` — preserved across same-tab login flows.
   if (savedLocation && savedLocation.pathname !== '/') {
-    // Validate the slug in the saved path is an org the session can open.
-    // Prevents stale path leaks: logout + login with a different org (or a
-    // login method that org refuses) would otherwise carry the old org's path.
-    const savedSlug = savedLocation.pathname.split('/')[1]
+    // Logout + login with another org, or a login method that org refuses,
+    // would otherwise carry the old org's path through router state.
+    const savedSlug = getFirstPathSegment(savedLocation.pathname)
     const isAccessibleOrgPath = getAccessibleMemberships(currentUser).some(
       (m) => m.organization.slug === savedSlug,
     )

@@ -250,8 +250,19 @@ describe('ensureSlugPrefix', () => {
   })
 
   describe('GIVEN the root of an org the user belongs to', () => {
-    it('THEN should not prepend the slug a second time', () => {
-      expect(ensureSlugPrefix('/org-a', 'org-a', currentUser)).toBe('/org-a')
+    it.each(['/org-a', '/org-a?tab=1', '/org-a#top'])(
+      'THEN should not prepend the slug a second time to %s',
+      (path) => {
+        expect(ensureSlugPrefix(path, 'org-a', currentUser)).toBe(path)
+      },
+    )
+  })
+
+  describe('GIVEN a legacy path that only starts with the characters of an org slug', () => {
+    it('THEN should still prepend the slug', () => {
+      expect(ensureSlugPrefix('/org-a-extended', 'org-a', currentUser)).toBe(
+        '/org-a/org-a-extended',
+      )
     })
   })
 

@@ -4,7 +4,7 @@ import { useParams } from 'react-router'
 
 import {
   GenericPlaceholder,
-  GenericPlaceholderProps,
+  GenericPlaceholderContentProps,
 } from '~/components/designSystem/GenericPlaceholder'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { logOut } from '~/core/apolloClient'
@@ -58,7 +58,7 @@ const Forbidden = () => {
     action: async (): Promise<void> => await logOut(client, true),
   }
 
-  const getPlaceholderProps = (): Omit<GenericPlaceholderProps, 'image'> => {
+  const getPlaceholderProps = (): GenericPlaceholderContentProps => {
     if (reason.type === 'organizationRefused') {
       // The org name is user-provided: a ReactNode subtitle renders it as text, not as HTML.
       const subtitle: ReactNode = (

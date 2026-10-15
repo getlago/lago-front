@@ -1,6 +1,6 @@
 import {
   GenericPlaceholder,
-  GenericPlaceholderProps,
+  GenericPlaceholderContentProps,
 } from '~/components/designSystem/GenericPlaceholder'
 import { useNavigate } from '~/core/router'
 import { MappableTypeEnum } from '~/generated/graphql'
@@ -46,7 +46,7 @@ const FetchableIntegrationItemEmpty = ({
     },
   } as const
 
-  const getPlaceholderProps = (): Omit<GenericPlaceholderProps, 'image'> => {
+  const getPlaceholderProps = (): GenericPlaceholderContentProps => {
     return placeholderPropsMapPerTypePerHasSearchTerm[`${hasSearchTerm}`][type]
   }
 

@@ -70,6 +70,16 @@ describe('resolveRedirectTarget()', () => {
       expect(result).toEqual({ to: `/${SLUG}`, consumesSsoLs: true })
     })
 
+    // Guards against a double prefix such as `/${SLUG}/${SLUG}?tab=1`.
+    it.each([`/${SLUG}?tab=1`, `/${SLUG}#top`])(
+      'THEN does not prepend the slug twice to the org root followed by a query or hash (%s)',
+      (ssoRedirectPath) => {
+        const result = resolveRedirectTarget(baseInput({ ssoRedirectPath }))
+
+        expect(result).toEqual({ to: ssoRedirectPath, consumesSsoLs: true })
+      },
+    )
+
     it('THEN prepends the slug for legacy slug-less paths', () => {
       const result = resolveRedirectTarget(baseInput({ ssoRedirectPath: '/features' }))
 

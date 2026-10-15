@@ -1,6 +1,6 @@
 import { useApolloClient, useReactiveVar } from '@apollo/client'
 import * as Sentry from '@sentry/react'
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense, useEffect, useRef } from 'react'
 import { Outlet, useParams } from 'react-router'
 
 import { Spinner } from '~/components/designSystem/Spinner'
@@ -65,6 +65,7 @@ const OrganizationLayout = () => {
     !recoveredSlug &&
     !!currentUser?.memberships.length
   const isInaccessibleOrg = !loading && !!membershipOrg && !org
+  const reportedInaccessibleSlugRef = useRef<string | undefined>(undefined)
 
   // If currentOrgId already exists and differs from org.id, the user switched org
   // (e.g. browser back after org switch). In that case, call switchCurrentOrganization
@@ -140,6 +141,10 @@ const OrganizationLayout = () => {
   // links or redirects sent the user to an organization the session cannot open.
   useEffect(() => {
     if (!isInaccessibleOrg) return
+    // A `currentUser` refetch toggles `loading`, which would report the same visit again.
+    if (reportedInaccessibleSlugRef.current === organizationSlug) return
+
+    reportedInaccessibleSlugRef.current = organizationSlug
 
     const previousPath = locationHistoryVar()[0]?.pathname
 

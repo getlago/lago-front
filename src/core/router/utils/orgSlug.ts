@@ -22,10 +22,7 @@ gql`
 type CurrentUser = OrgSlugResolverDataFragment | undefined
 type Membership = OrgSlugResolverDataFragment['memberships'][number]
 
-/**
- * Memberships whose organization the current session can open. The API refuses
- * every request to the others (e.g. an Okta session on an org bound to another IdP).
- */
+// The API refuses every request to the other orgs (e.g. an Okta session on an org bound to another IdP).
 export const getAccessibleMemberships = (currentUser: CurrentUser): Membership[] =>
   currentUser?.memberships?.filter((m) => m.organization.accessibleByCurrentSession) ?? []
 
@@ -60,7 +57,7 @@ export const resolveOrgSlug = (currentUser: CurrentUser): string | undefined => 
 
 const PATH_SEGMENT_SEPARATOR = /[/?#]/
 
-const getFirstPathSegment = (path: string): string | undefined => {
+export const getFirstPathSegment = (path: string): string | undefined => {
   if (!path.startsWith('/')) return undefined
 
   return path.slice(1).split(PATH_SEGMENT_SEPARATOR)[0] || undefined
@@ -78,10 +75,6 @@ export const pathHasValidSlug = (path: string, currentUser: CurrentUser): boolea
   return currentUser?.memberships?.some((m) => m.organization.slug === firstSegment) ?? false
 }
 
-/**
- * Returns true if the first segment of the path is the slug of one of the user's
- * organizations that the current session cannot open (it would land on the forbidden page).
- */
 export const pathTargetsInaccessibleOrg = (path: string, currentUser: CurrentUser): boolean => {
   const firstSegment = getFirstPathSegment(path)
 

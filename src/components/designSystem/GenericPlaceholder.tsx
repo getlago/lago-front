@@ -12,18 +12,36 @@ export const GENERIC_PLACEHOLDER_IMAGE_TEST_ID = 'generic-placeholder-image'
 export const GENERIC_PLACEHOLDER_BUTTON_TEST_ID = 'generic-placeholder-button'
 export const GENERIC_PLACEHOLDER_SECONDARY_BUTTON_TEST_ID = 'generic-placeholder-secondary-button'
 
-export interface GenericPlaceholderProps {
+type GenericPlaceholderButtonAction = (() => Promise<void>) | (() => void)
+
+type GenericPlaceholderButtonsProps =
+  | {
+      buttonTitle?: string
+      buttonAction?: GenericPlaceholderButtonAction
+      secondaryButtonTitle?: never
+      secondaryButtonAction?: never
+    }
+  | {
+      buttonTitle: string
+      buttonAction: GenericPlaceholderButtonAction
+      secondaryButtonTitle: string
+      secondaryButtonAction: GenericPlaceholderButtonAction
+    }
+
+type GenericPlaceholderBaseProps = {
   className?: string
   title?: string
   subtitle: string | ReactNode
   image: ReactNode
-  buttonTitle?: string
   buttonVariant?: ButtonVariant
-  buttonAction?: (() => Promise<void>) | (() => void)
-  secondaryButtonTitle?: string
-  secondaryButtonAction?: (() => Promise<void>) | (() => void)
   noMargins?: boolean
 }
+
+export type GenericPlaceholderProps = GenericPlaceholderBaseProps & GenericPlaceholderButtonsProps
+
+// `Omit<GenericPlaceholderProps, 'image'>` would flatten the buttons union and no longer spread back.
+export type GenericPlaceholderContentProps = Omit<GenericPlaceholderBaseProps, 'image'> &
+  GenericPlaceholderButtonsProps
 
 export const GenericPlaceholder = ({
   className,
@@ -39,7 +57,6 @@ export const GenericPlaceholder = ({
   ...props
 }: GenericPlaceholderProps) => {
   const hasButton = !!buttonTitle && !!buttonAction
-  const hasSecondaryButton = !!secondaryButtonTitle && !!secondaryButtonAction
 
   const renderButtons = (): ReactNode => {
     if (!hasButton) return null
@@ -54,7 +71,7 @@ export const GenericPlaceholder = ({
       </Button>
     )
 
-    if (!hasSecondaryButton) return primaryButton
+    if (!secondaryButtonTitle || !secondaryButtonAction) return primaryButton
 
     return (
       <div className="flex flex-wrap gap-3">

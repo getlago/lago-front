@@ -209,24 +209,23 @@ describe('OrganizationLayout', () => {
   })
 
   describe('GIVEN the slug matches a membership the current session cannot access', () => {
+    const currentUserWithLockedOrg = {
+      memberships: [
+        defaultMemberships[0],
+        {
+          ...defaultMemberships[1],
+          organization: {
+            ...defaultMemberships[1].organization,
+            accessibleByCurrentSession: false,
+          },
+        },
+      ],
+    }
+
     beforeEach(() => {
       mockUseParams.mockReturnValue({ organizationSlug: 'other-corp' })
       mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
-      mockUseCurrentUser.mockReturnValue({
-        currentUser: {
-          memberships: [
-            defaultMemberships[0],
-            {
-              ...defaultMemberships[1],
-              organization: {
-                ...defaultMemberships[1].organization,
-                accessibleByCurrentSession: false,
-              },
-            },
-          ],
-        },
-        loading: false,
-      })
+      mockUseCurrentUser.mockReturnValue({ currentUser: currentUserWithLockedOrg, loading: false })
     })
 
     it('THEN should render the forbidden page', async () => {
@@ -290,6 +289,22 @@ describe('OrganizationLayout', () => {
             extra: expect.objectContaining({ previousPath: `/${TEST_ORG_SLUG}/plans` }),
           }),
         )
+      })
+    })
+
+    describe('WHEN the current user is refetched while the forbidden page is shown', () => {
+      it('THEN should not report the same visit again', () => {
+        const { rerender } = renderHook(() => OrganizationLayout())
+
+        mockUseCurrentUser.mockReturnValue({ currentUser: currentUserWithLockedOrg, loading: true })
+        rerender()
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: currentUserWithLockedOrg,
+          loading: false,
+        })
+        rerender()
+
+        expect(Sentry.captureException).toHaveBeenCalledTimes(1)
       })
     })
   })
