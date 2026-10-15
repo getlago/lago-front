@@ -5206,5 +5206,10 @@
   "text_1786557573982blvi6cjpnti": "Your login method is not allowed by this organization. Log in with an authorized method to accept this invitation.",
   "text_1791986111631ve46fi5sy3j": "Open organization",
   "text_1791986111631bwcgn2cc96p": "An account now exists for {{email}}. Enter its current password to accept the invitation.",
-  "text_17920584710724rtqabk4fe2": "You’re logged in with {{method}}, which this organization doesn’t accept for your account. To access it, please log out and sign in again using a different login method."
+  "text_17920584710724rtqabk4fe2": "You’re logged in with {{method}}, which this organization doesn’t accept for your account. To access it, please log out and sign in again using a different login method.",
+  "text_17920797669717wipvqpqgvt": "You can’t open {{orgName}} with this login",
+  "text_1792079766971dsox5y9l65p": "Your current login method doesn’t give access to {{orgName}}. Log out and sign in again with another login method to open it.",
+  "text_1792079766971cnr3vlw8vvl": "Go to my organizations",
+  "text_1792079766971vkc1n2639mn": "No organization accepts this login",
+  "text_1792079766971dngj0acdbmb": "None of your organizations accept your current login method. Log out and sign in again with another login method."
 }

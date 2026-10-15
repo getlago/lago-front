@@ -15772,7 +15772,7 @@ export type GetCurrentUserInfosForLoginQuery = { __typename?: 'Query', currentUs
 
 export type InvoiceForFormatInvoiceItemMapFragment = { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, currency: CurrencyEnum, preciseUnitAmount: number, adjustedFee: boolean, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceDisplayName?: string | null, invoiceName?: string | null, units: number, invoiceId?: string | null, amountCurrency: CurrencyEnum, preciseAmountCents: number, preciseCouponsAmountCents: number, subTotalExcludingTaxesAmountCents: any, subTotalExcludingTaxesPreciseAmountCents: number, taxesRate?: number | null, taxesAmountCents: any, taxesPreciseAmountCents: number, totalAmountCents: any, preciseTotalAmountCents: number, eventsCount?: any | null, payInAdvance: boolean, itemCode: string, itemType: string, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, chargeModel: ChargeModelEnum, prorated: boolean, invoiceable: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean, addOn: { __typename?: 'AddOn', id: string } } | null, addOn?: { __typename?: 'AddOn', id: string } | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> | null };
 
-export type OrgSlugResolverDataFragment = { __typename?: 'User', memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, slug: string } }> };
+export type OrgSlugResolverDataFragment = { __typename?: 'User', memberships: Array<{ __typename?: 'Membership', id: string, organization: { __typename?: 'Organization', id: string, slug: string, accessibleByCurrentSession: boolean } }> };
 
 export type FeeForInvoiceFeesToFeeInputFragment = { __typename?: 'Fee', id: string, description?: string | null, invoiceDisplayName?: string | null, itemName: string, preciseUnitAmount: number, addOn?: { __typename?: 'AddOn', id: string } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null };
 
@@ -22882,6 +22882,7 @@ export const OrgSlugResolverDataFragmentDoc = gql`
     organization {
       id
       slug
+      accessibleByCurrentSession
     }
   }
 }

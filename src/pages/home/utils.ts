@@ -8,8 +8,15 @@ import {
   FORBIDDEN_ROUTE,
 } from '~/core/router'
 import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
+import { getFirstPathSegment } from '~/core/router/utils/getFirstPathSegment'
 import { isSafeInAppPath } from '~/core/router/utils/isSafeInAppPath'
-import { ensureSlugPrefix, pathHasValidSlug, resolveOrgSlug } from '~/core/router/utils/orgSlug'
+import {
+  ensureSlugPrefix,
+  isAccessibleOrgSlug,
+  pathHasValidSlug,
+  pathTargetsInaccessibleOrg,
+  resolveOrgSlug,
+} from '~/core/router/utils/orgSlug'
 import { getRouteForPermission } from '~/core/router/utils/permissionRouteMap'
 import { CurrentUserInfosFragment } from '~/generated/graphql'
 import { TMembershipPermissions } from '~/hooks/usePermissions'
@@ -51,9 +58,10 @@ export type ResolveRedirectResult = {
  * and is passed in via `ssoRedirectPath`).
  *
  * Resolution priority:
- *   1. `ssoRedirectPath` — drained by caller after success.
- *   2. `savedLocation` (router-state `from`) — validated against the user's
- *      memberships to avoid stale-org leaks; legacy slug-less paths get
+ *   1. `ssoRedirectPath`: drained by caller, even when ignored for targeting an
+ *      org the session cannot open or one the user is not a member of.
+ *   2. `savedLocation` (router-state `from`): kept only for an org the session
+ *      can open, to avoid stale-org leaks; legacy slug-less paths get
  *      prepended with the resolved slug for ALL users (single-org and
  *      multi-org), matching the universal auto-recovery in
  *      `OrganizationLayout`.
@@ -81,10 +89,20 @@ export const resolveRedirectTarget = (
   // on every load. `isSafeInAppPath` is the guard; `ensureSlugPrefix` prefixes
   // and validates nothing.
   const hasUnsafeSsoPath = !!ssoRedirectPath && !isSafeInAppPath(ssoRedirectPath)
-  const safeSsoRedirectPath = hasUnsafeSsoPath ? undefined : ssoRedirectPath
+  const hasInaccessibleSsoPath =
+    !!ssoRedirectPath && pathTargetsInaccessibleOrg(ssoRedirectPath, currentUser)
+  const ssoFirstSegment = getFirstPathSegment(ssoRedirectPath ?? '')
+  // Stored before a logout, so it may name an org this account never belonged to.
+  const hasUnknownOrgSsoPath =
+    !!ssoRedirectPath &&
+    !!ssoFirstSegment &&
+    !LEGACY_APP_PATH_SEGMENTS.has(ssoFirstSegment) &&
+    !pathHasValidSlug(ssoRedirectPath, currentUser)
+  const discardsSsoPath = hasUnsafeSsoPath || hasInaccessibleSsoPath || hasUnknownOrgSsoPath
+  const safeSsoRedirectPath = discardsSsoPath ? undefined : ssoRedirectPath
 
   if (!slug) {
-    return { to: FORBIDDEN_ROUTE, consumesSsoLs: hasUnsafeSsoPath }
+    return { to: FORBIDDEN_ROUTE, consumesSsoLs: discardsSsoPath }
   }
 
   // 1. SSO redirect from localStorage (set by auth guard or OAuth callback).
@@ -97,16 +115,12 @@ export const resolveRedirectTarget = (
 
   // 2. Router-state `from` — preserved across same-tab login flows.
   if (savedLocation && savedLocation.pathname !== '/') {
-    // Validate the slug in the saved path belongs to one of the user's orgs.
-    // Prevents stale path leaks: logout + login with a different org would
-    // otherwise carry the old org's path through router state.
-    const savedSlug = savedLocation.pathname.split('/')[1]
-    const belongsToCurrentUser = currentUser?.memberships?.some(
-      (m) => m.organization.slug === savedSlug,
-    )
+    // Logout + login with another org, or a login method that org refuses,
+    // would otherwise carry the old org's path through router state.
+    const savedSlug = getFirstPathSegment(savedLocation.pathname)
 
-    if (belongsToCurrentUser) {
-      return { to: savedLocation, consumesSsoLs: hasUnsafeSsoPath }
+    if (isAccessibleOrgSlug(savedSlug, currentUser)) {
+      return { to: savedLocation, consumesSsoLs: discardsSsoPath }
     }
 
     const isLegacySegment = LEGACY_APP_PATH_SEGMENTS.has(savedSlug ?? '')
@@ -119,7 +133,7 @@ export const resolveRedirectTarget = (
 
       return {
         to: `/${slug}${savedLocation.pathname}${search}${hash}`,
-        consumesSsoLs: hasUnsafeSsoPath,
+        consumesSsoLs: discardsSsoPath,
       }
     }
   }
@@ -128,7 +142,7 @@ export const resolveRedirectTarget = (
   const canSeeAnalytics = hasPermissions(['analyticsView', 'dataApiView'])
 
   if (canSeeAnalytics && !hasAccessToAnalyticsDashboardsFeature) {
-    return { to: `/${slug}${ANALYTIC_ROUTE}`, consumesSsoLs: hasUnsafeSsoPath }
+    return { to: `/${slug}${ANALYTIC_ROUTE}`, consumesSsoLs: discardsSsoPath }
   }
 
   if (canSeeAnalytics && hasAccessToAnalyticsDashboardsFeature) {
@@ -136,12 +150,12 @@ export const resolveRedirectTarget = (
       to: `/${slug}${generatePath(ANALYTIC_TABS_ROUTE, {
         tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
       })}`,
-      consumesSsoLs: hasUnsafeSsoPath,
+      consumesSsoLs: discardsSsoPath,
     }
   }
 
   if (hasPermissions(['customersView'])) {
-    return { to: `/${slug}${CUSTOMERS_LIST_ROUTE}`, consumesSsoLs: hasUnsafeSsoPath }
+    return { to: `/${slug}${CUSTOMERS_LIST_ROUTE}`, consumesSsoLs: discardsSsoPath }
   }
 
   const firstViewPermission = findFirstViewPermission()
@@ -150,10 +164,10 @@ export const resolveRedirectTarget = (
   if (routeForPermission) {
     return {
       to: ensureSlugPrefix(routeForPermission, slug, currentUser),
-      consumesSsoLs: hasUnsafeSsoPath,
+      consumesSsoLs: discardsSsoPath,
     }
   }
 
   // 4. No accessible route.
-  return { to: FORBIDDEN_ROUTE, consumesSsoLs: hasUnsafeSsoPath }
+  return { to: FORBIDDEN_ROUTE, consumesSsoLs: discardsSsoPath }
 }

@@ -154,13 +154,16 @@ describe('OrganizationSwitcher', () => {
     }
 
     describe('WHEN the user is logged in through an SSO method', () => {
-      it('THEN should explain the organization does not accept that session', async () => {
-        await hoverLockedOrganization(AuthenticationMethodsEnum.Okta)
+      it.each([AuthenticationMethodsEnum.Okta, AuthenticationMethodsEnum.EntraId])(
+        'THEN should explain the organization does not accept that session for %s',
+        async (authenticatedMethod) => {
+          await hoverLockedOrganization(authenticatedMethod)
 
-        await waitFor(() => {
-          expect(screen.getByText('text_17920584710724rtqabk4fe2')).toBeInTheDocument()
-        })
-      })
+          await waitFor(() => {
+            expect(screen.getByText('text_17920584710724rtqabk4fe2')).toBeInTheDocument()
+          })
+        },
+      )
     })
 
     describe('WHEN the user is logged in with email and password', () => {

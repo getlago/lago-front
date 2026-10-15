@@ -120,6 +120,7 @@ describe('OrganizationLayout', () => {
       hash: '',
     })
     mockLocationHistoryVar.mockReturnValue([])
+    window.history.replaceState(null, '')
     mockGetCurrentOrganizationId.mockReturnValue(TEST_ORG_ID)
     // Persisted last-used slug (read by the missed-migration detection).
     mockGetPersistedOrganizationSlug.mockReturnValue(TEST_ORG_SLUG)
@@ -209,24 +210,23 @@ describe('OrganizationLayout', () => {
   })
 
   describe('GIVEN the slug matches a membership the current session cannot access', () => {
+    const currentUserWithLockedOrg = {
+      memberships: [
+        defaultMemberships[0],
+        {
+          ...defaultMemberships[1],
+          organization: {
+            ...defaultMemberships[1].organization,
+            accessibleByCurrentSession: false,
+          },
+        },
+      ],
+    }
+
     beforeEach(() => {
       mockUseParams.mockReturnValue({ organizationSlug: 'other-corp' })
       mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
-      mockUseCurrentUser.mockReturnValue({
-        currentUser: {
-          memberships: [
-            defaultMemberships[0],
-            {
-              ...defaultMemberships[1],
-              organization: {
-                ...defaultMemberships[1].organization,
-                accessibleByCurrentSession: false,
-              },
-            },
-          ],
-        },
-        loading: false,
-      })
+      mockUseCurrentUser.mockReturnValue({ currentUser: currentUserWithLockedOrg, loading: false })
     })
 
     it('THEN should render the forbidden page', async () => {
@@ -244,6 +244,176 @@ describe('OrganizationLayout', () => {
       expect(mockSwitchCurrentOrganization).not.toHaveBeenCalled()
       expect(mockSetCurrentOrganizationId).not.toHaveBeenCalled()
       expect(mockSetPersistedOrganizationSlug).not.toHaveBeenCalled()
+    })
+
+    it('THEN should not auto-recover nor emit the slug migration signal', () => {
+      renderHook(() => OrganizationLayout())
+
+      expect(mockNavigate).not.toHaveBeenCalled()
+      expect(Sentry.captureException).not.toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'SlugMigrationMissedLink' }),
+        expect.anything(),
+      )
+    })
+
+    describe('WHEN the user lands on it from outside the app (bookmark, shared link)', () => {
+      it('THEN should report it as external even with a stale in-app location history', () => {
+        mockLocationHistoryVar.mockReturnValue([{ pathname: `/${TEST_ORG_SLUG}/plans` }])
+
+        renderHook(() => OrganizationLayout())
+
+        expect(Sentry.captureException).toHaveBeenCalledWith(
+          expect.objectContaining({ name: 'OrganizationInaccessible' }),
+          expect.objectContaining({ tags: expect.objectContaining({ source: 'external' }) }),
+        )
+      })
+
+      it('THEN should emit an external org_inaccessible_for_session warning once', () => {
+        const { rerender } = renderHook(() => OrganizationLayout())
+
+        rerender()
+
+        expect(Sentry.captureException).toHaveBeenCalledTimes(1)
+        expect(Sentry.captureException).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: 'OrganizationInaccessible',
+            message: 'org_inaccessible_for_session',
+          }),
+          expect.objectContaining({
+            level: 'warning',
+            tags: expect.objectContaining({ attemptedSlug: 'other-corp', source: 'external' }),
+            extra: expect.objectContaining({ accessibleMembershipsCount: 1 }),
+          }),
+        )
+      })
+    })
+
+    describe('WHEN the user was already navigating inside the app', () => {
+      it('THEN should emit an in_app org_inaccessible_for_session warning', () => {
+        window.history.replaceState({ idx: 2 }, '')
+        mockLocationHistoryVar.mockReturnValue([{ pathname: `/${TEST_ORG_SLUG}/plans` }])
+
+        renderHook(() => OrganizationLayout())
+
+        expect(Sentry.captureException).toHaveBeenCalledWith(
+          expect.objectContaining({ name: 'OrganizationInaccessible' }),
+          expect.objectContaining({
+            tags: expect.objectContaining({ source: 'in_app' }),
+            extra: expect.objectContaining({ previousPath: `/${TEST_ORG_SLUG}/plans` }),
+          }),
+        )
+      })
+    })
+
+    describe('WHEN the current user is refetched while the forbidden page is shown', () => {
+      it('THEN should not report the same visit again', () => {
+        const { rerender } = renderHook(() => OrganizationLayout())
+
+        mockUseCurrentUser.mockReturnValue({ currentUser: currentUserWithLockedOrg, loading: true })
+        rerender()
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: currentUserWithLockedOrg,
+          loading: false,
+        })
+        rerender()
+
+        expect(Sentry.captureException).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the user leaves and comes back to the same organization', () => {
+      it('THEN should report the new visit', () => {
+        mockUseLocation.mockReturnValue({ pathname: '/other-corp', search: '', hash: '', key: 'a' })
+        const { rerender } = renderHook(() => OrganizationLayout())
+
+        mockUseLocation.mockReturnValue({ pathname: '/other-corp', search: '', hash: '', key: 'b' })
+        rerender()
+
+        expect(Sentry.captureException).toHaveBeenCalledTimes(2)
+      })
+    })
+  })
+
+  describe('GIVEN the slug matches an accessible membership', () => {
+    it('THEN should not emit the org_inaccessible_for_session warning', () => {
+      mockUseParams.mockReturnValue({ organizationSlug: TEST_ORG_SLUG })
+      mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
+      mockUseCurrentUser.mockReturnValue({
+        currentUser: { memberships: defaultMemberships },
+        loading: false,
+      })
+
+      renderHook(() => OrganizationLayout())
+
+      expect(Sentry.captureException).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN a legacy path AND some memberships the session cannot access', () => {
+    const lockOrganization = (membership: (typeof defaultMemberships)[number]) => ({
+      ...membership,
+      organization: { ...membership.organization, accessibleByCurrentSession: false },
+    })
+
+    beforeEach(() => {
+      mockUseParams.mockReturnValue({ organizationSlug: 'customers' })
+      mockUseLocation.mockReturnValue({ pathname: '/customers', search: '', hash: '' })
+      mockCurrentOrganizationVar.mockReturnValue(undefined)
+      mockGetCurrentOrganizationId.mockReturnValue(undefined)
+    })
+
+    describe('WHEN the persisted last-used org is not accessible', () => {
+      it('THEN should recover into the accessible organization', () => {
+        mockGetPersistedOrganizationSlug.mockReturnValue(TEST_ORG_SLUG)
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: {
+            memberships: [lockOrganization(defaultMemberships[0]), defaultMemberships[1]],
+          },
+          loading: false,
+        })
+
+        renderHook(() => OrganizationLayout())
+
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/other-corp/customers',
+          expect.objectContaining({ replace: true, skipSlugPrepend: true }),
+        )
+      })
+    })
+
+    describe('WHEN no membership is accessible', () => {
+      beforeEach(() => {
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: { memberships: defaultMemberships.map(lockOrganization) },
+          loading: false,
+        })
+      })
+
+      it('THEN should render the forbidden page without navigating', async () => {
+        const { container } = render(<OrganizationLayout />)
+
+        await waitFor(() => {
+          expect(container.querySelector('[data-test="forbidden"]')).toBeInTheDocument()
+        })
+        expect(mockNavigate).not.toHaveBeenCalled()
+      })
+
+      it('THEN should emit the no_org_accessible_for_session warning', () => {
+        renderHook(() => OrganizationLayout())
+
+        expect(Sentry.captureException).toHaveBeenCalledTimes(1)
+        expect(Sentry.captureException).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: 'NoOrganizationAccessible',
+            message: 'no_org_accessible_for_session',
+          }),
+          expect.objectContaining({
+            level: 'warning',
+            tags: expect.objectContaining({ attemptedSlug: 'customers', source: 'external' }),
+            extra: expect.objectContaining({ accessibleMembershipsCount: 0 }),
+          }),
+        )
+      })
     })
   })
 
@@ -313,7 +483,12 @@ describe('OrganizationLayout', () => {
     const singleMembership = [
       {
         id: 'membership-1',
-        organization: { id: TEST_ORG_ID, name: 'Acme Corp', slug: TEST_ORG_SLUG },
+        organization: {
+          id: TEST_ORG_ID,
+          name: 'Acme Corp',
+          slug: TEST_ORG_SLUG,
+          accessibleByCurrentSession: true,
+        },
       },
     ]
 

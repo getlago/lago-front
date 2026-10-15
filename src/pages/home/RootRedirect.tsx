@@ -3,6 +3,8 @@ import { useEffect, useRef } from 'react'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { getPersistedOrganizationSlug } from '~/core/apolloClient/reactiveVars'
 import { FORBIDDEN_ROUTE, useLocation, useNavigate } from '~/core/router'
+import { getFirstPathSegment } from '~/core/router/utils/getFirstPathSegment'
+import { getAccessibleMemberships, isAccessibleOrgSlug } from '~/core/router/utils/orgSlug'
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -35,9 +37,7 @@ const RootRedirect = () => {
     if (isUserLoading || !currentUser) return
     if (hasNavigatedRef.current) return
 
-    const accessibleMemberships = (currentUser.memberships || []).filter(
-      (membership) => membership.organization.accessibleByCurrentSession,
-    )
+    const accessibleMemberships = getAccessibleMemberships(currentUser)
 
     if (!accessibleMemberships.length) {
       hasNavigatedRef.current = true
@@ -45,16 +45,13 @@ const RootRedirect = () => {
       return
     }
 
-    const isAccessibleSlug = (slug?: string): slug is string =>
-      !!slug && accessibleMemberships.some((m) => m.organization.slug === slug)
-
     const routerState = location.state as { from?: { pathname?: string } } | null | undefined
-    const savedSlug = routerState?.from?.pathname?.split('/')[1]
-    const ssoSlug = (getItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY) || undefined)?.split('/')[1]
+    const savedSlug = getFirstPathSegment(routerState?.from?.pathname ?? '')
+    const ssoSlug = getFirstPathSegment(getItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY) || '')
     const persistedSlug = getPersistedOrganizationSlug() || undefined
 
     const targetSlug =
-      [savedSlug, ssoSlug, persistedSlug].find(isAccessibleSlug) ??
+      [savedSlug, ssoSlug, persistedSlug].find((slug) => isAccessibleOrgSlug(slug, currentUser)) ??
       accessibleMemberships[0].organization.slug
 
     hasNavigatedRef.current = true
