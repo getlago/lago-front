@@ -268,6 +268,28 @@ describe('activityLogs utils', () => {
       expect(link).toContain('plan-123')
     })
 
+    it('should link a Contract to its details route', () => {
+      const link = getResourceLink(
+        { id: 'contract-123', __typename: 'Contract' },
+        { resourceType: 'Contract', activityType: ActivityTypeEnum.ContractCreated },
+      )
+
+      expect(link).toBe('/contracts/contract-123')
+    })
+
+    it.each([
+      ['ContractRateCard', 'ContractAppliedRateCard'],
+      ['PlanRateCard', 'PlanAppliedRateCard'],
+      ['RateCardRate', 'RateCardRate'],
+    ] as const)('does not link %s resources', (resourceType, typename) => {
+      const link = getResourceLink({ id: 'resource-123', __typename: typename } as never, {
+        resourceType,
+        activityType: ActivityTypeEnum.RateCardRateCreated,
+      })
+
+      expect(link).toBeNull()
+    })
+
     it('should return path for Quote', () => {
       const link = getResourceLink(
         { id: 'quote-123', __typename: 'Quote' as const },
