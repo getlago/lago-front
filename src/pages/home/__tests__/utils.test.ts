@@ -64,19 +64,16 @@ describe('resolveRedirectTarget()', () => {
       expect(result).toEqual({ to: `/${SLUG}/features`, consumesSsoLs: true })
     })
 
-    it('THEN does not prepend the slug twice when the path is the org root', () => {
-      const result = resolveRedirectTarget(baseInput({ ssoRedirectPath: `/${SLUG}` }))
-
-      expect(result).toEqual({ to: `/${SLUG}`, consumesSsoLs: true })
-    })
-
-    // Guards against a double prefix such as `/${SLUG}/${SLUG}?tab=1`.
-    it.each([`/${SLUG}?tab=1`, `/${SLUG}#top`])(
-      'THEN does not prepend the slug twice to the org root followed by a query or hash (%s)',
+    it.each([`/${SLUG}`, `/${SLUG}/`, `/${SLUG}?tab=1`, `/${SLUG}#top`])(
+      'THEN drains the org root path %s and falls through to the default route',
       (ssoRedirectPath) => {
+        mockHasPermissions.mockImplementation((permissions: string[]) =>
+          permissions.includes('customersView'),
+        )
+
         const result = resolveRedirectTarget(baseInput({ ssoRedirectPath }))
 
-        expect(result).toEqual({ to: ssoRedirectPath, consumesSsoLs: true })
+        expect(result).toEqual({ to: `/${SLUG}/customers`, consumesSsoLs: true })
       },
     )
 
@@ -129,6 +126,18 @@ describe('resolveRedirectTarget()', () => {
       const result = resolveRedirectTarget(baseInput({ savedLocation }))
 
       expect(result).toEqual({ to: savedLocation, consumesSsoLs: false })
+    })
+
+    it('THEN does NOT use it when it is the org root, and falls through to the default route', () => {
+      mockHasPermissions.mockImplementation((permissions: string[]) =>
+        permissions.includes('customersView'),
+      )
+
+      const result = resolveRedirectTarget(
+        baseInput({ savedLocation: { pathname: `/${SLUG}`, search: '?tab=1' } }),
+      )
+
+      expect(result).toEqual({ to: `/${SLUG}/customers`, consumesSsoLs: false })
     })
   })
 

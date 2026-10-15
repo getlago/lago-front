@@ -308,6 +308,33 @@ describe('Home', () => {
       })
     })
 
+    describe('WHEN the stored redirect path is the org root', () => {
+      it.each([`/${TEST_ORG_SLUG}`, `/${TEST_ORG_SLUG}?tab=1`])(
+        'THEN should leave the index route for the default route and drain %s',
+        async (orgRootPath) => {
+          mockGetItemFromLS.mockImplementation((key: string) => {
+            if (key === REDIRECT_AFTER_LOGIN_LS_KEY) return orgRootPath
+
+            return undefined
+          })
+          mockHasPermissions.mockImplementation((perms: string[]) =>
+            perms.includes('customersView'),
+          )
+          mockHasOrganizationPremiumAddon.mockReturnValue(false)
+
+          renderHook(() => Home())
+
+          await waitFor(() => {
+            expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/customers`, {
+              replace: true,
+            })
+          })
+          expect(mockNavigate).toHaveBeenCalledTimes(1)
+          expect(mockRemoveItemFromLS).toHaveBeenCalledWith(REDIRECT_AFTER_LOGIN_LS_KEY)
+        },
+      )
+    })
+
     describe('WHEN there is also a saved location in router state', () => {
       it('THEN should prioritize the localStorage redirect over router state', async () => {
         const savedLocation: Location = {

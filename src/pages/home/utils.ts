@@ -23,6 +23,12 @@ import { TMembershipPermissions } from '~/hooks/usePermissions'
 
 type CurrentUser = CurrentUserInfosFragment | undefined
 
+const ORGANIZATION_ROOT_PATH = /^\/[^/?#]+\/?(?:[?#].*)?$/
+
+// The org root renders `Home` itself: navigating there would leave it mounted on its spinner.
+const isOrganizationRootPath = (path: string, currentUser: CurrentUser): boolean =>
+  ORGANIZATION_ROOT_PATH.test(path) && pathHasValidSlug(path, currentUser)
+
 type SavedLocation = {
   pathname: string
   search?: string
@@ -59,9 +65,9 @@ export type ResolveRedirectResult = {
  *
  * Resolution priority:
  *   1. `ssoRedirectPath`: drained by caller, even when ignored for targeting an
- *      org the session cannot open or one the user is not a member of.
- *   2. `savedLocation` (router-state `from`): kept only for an org the session
- *      can open, to avoid stale-org leaks; legacy slug-less paths get
+ *      org the session cannot open, one the user is not a member of, or an org root.
+ *   2. `savedLocation` (router-state `from`): kept only for a non-root path in an
+ *      org the session can open, to avoid stale-org leaks; legacy slug-less paths get
  *      prepended with the resolved slug for ALL users (single-org and
  *      multi-org), matching the universal auto-recovery in
  *      `OrganizationLayout`.
@@ -98,7 +104,10 @@ export const resolveRedirectTarget = (
     !!ssoFirstSegment &&
     !LEGACY_APP_PATH_SEGMENTS.has(ssoFirstSegment) &&
     !pathHasValidSlug(ssoRedirectPath, currentUser)
-  const discardsSsoPath = hasUnsafeSsoPath || hasInaccessibleSsoPath || hasUnknownOrgSsoPath
+  const hasOrganizationRootSsoPath =
+    !!ssoRedirectPath && isOrganizationRootPath(ssoRedirectPath, currentUser)
+  const discardsSsoPath =
+    hasUnsafeSsoPath || hasInaccessibleSsoPath || hasUnknownOrgSsoPath || hasOrganizationRootSsoPath
   const safeSsoRedirectPath = discardsSsoPath ? undefined : ssoRedirectPath
 
   if (!slug) {
@@ -119,7 +128,10 @@ export const resolveRedirectTarget = (
     // would otherwise carry the old org's path through router state.
     const savedSlug = getFirstPathSegment(savedLocation.pathname)
 
-    if (isAccessibleOrgSlug(savedSlug, currentUser)) {
+    if (
+      isAccessibleOrgSlug(savedSlug, currentUser) &&
+      !isOrganizationRootPath(savedLocation.pathname, currentUser)
+    ) {
       return { to: savedLocation, consumesSsoLs: discardsSsoPath }
     }
 
