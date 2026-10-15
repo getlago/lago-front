@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { getPersistedOrganizationSlug } from '~/core/apolloClient/reactiveVars'
 import { FORBIDDEN_ROUTE, useLocation, useNavigate } from '~/core/router'
+import { getAccessibleMemberships } from '~/core/router/utils/orgSlug'
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -35,9 +36,7 @@ const RootRedirect = () => {
     if (isUserLoading || !currentUser) return
     if (hasNavigatedRef.current) return
 
-    const accessibleMemberships = (currentUser.memberships || []).filter(
-      (membership) => membership.organization.accessibleByCurrentSession,
-    )
+    const accessibleMemberships = getAccessibleMemberships(currentUser)
 
     if (!accessibleMemberships.length) {
       hasNavigatedRef.current = true

@@ -1,6 +1,12 @@
 import { OrgSlugResolverDataFragment } from '~/generated/graphql'
 
-import { ensureSlugPrefix, pathHasValidSlug, resolveOrgSlug } from '../orgSlug'
+import {
+  ensureSlugPrefix,
+  getAccessibleMemberships,
+  pathHasValidSlug,
+  pathTargetsInaccessibleOrg,
+  resolveOrgSlug,
+} from '../orgSlug'
 
 const mockGetCurrentOrganizationId = jest.fn()
 const mockGetPersistedOrganizationSlug = jest.fn()
@@ -13,15 +19,24 @@ jest.mock('~/core/apolloClient/reactiveVars', () => ({
 type CurrentUser = OrgSlugResolverDataFragment | undefined
 
 const buildCurrentUser = (
-  memberships: Array<{ id: string; organization: { id: string; name: string; slug: string } }>,
+  memberships: Array<{
+    id: string
+    organization: { id: string; name: string; slug: string; accessibleByCurrentSession: boolean }
+  }>,
 ): CurrentUser =>
   ({
     memberships,
   }) as unknown as CurrentUser
 
 const defaultMemberships = [
-  { id: 'm-1', organization: { id: 'org-a', name: 'Org A', slug: 'org-a' } },
-  { id: 'm-2', organization: { id: 'org-b', name: 'Org B', slug: 'org-b' } },
+  {
+    id: 'm-1',
+    organization: { id: 'org-a', name: 'Org A', slug: 'org-a', accessibleByCurrentSession: true },
+  },
+  {
+    id: 'm-2',
+    organization: { id: 'org-b', name: 'Org B', slug: 'org-b', accessibleByCurrentSession: true },
+  },
 ]
 
 describe('resolveOrgSlug', () => {
@@ -80,6 +95,43 @@ describe('resolveOrgSlug', () => {
       const result = resolveOrgSlug(buildCurrentUser(defaultMemberships))
 
       expect(result).toBe('org-a')
+    })
+  })
+
+  describe('GIVEN some memberships the current session cannot access', () => {
+    const lockedOrgA = {
+      ...defaultMemberships[0],
+      organization: { ...defaultMemberships[0].organization, accessibleByCurrentSession: false },
+    }
+    const lockedOrgB = {
+      ...defaultMemberships[1],
+      organization: { ...defaultMemberships[1].organization, accessibleByCurrentSession: false },
+    }
+
+    it('THEN should skip an inaccessible in-memory current org', () => {
+      mockGetCurrentOrganizationId.mockReturnValue('org-a')
+
+      expect(resolveOrgSlug(buildCurrentUser([lockedOrgA, defaultMemberships[1]]))).toBe('org-b')
+    })
+
+    it('THEN should skip an inaccessible persisted slug', () => {
+      mockGetCurrentOrganizationId.mockReturnValue(undefined)
+      mockGetPersistedOrganizationSlug.mockReturnValue('org-a')
+
+      expect(resolveOrgSlug(buildCurrentUser([lockedOrgA, defaultMemberships[1]]))).toBe('org-b')
+    })
+
+    it('THEN should fall back to the first accessible membership, not memberships[0]', () => {
+      mockGetCurrentOrganizationId.mockReturnValue(undefined)
+
+      expect(resolveOrgSlug(buildCurrentUser([lockedOrgA, defaultMemberships[1]]))).toBe('org-b')
+    })
+
+    it('THEN should return undefined when no membership is accessible', () => {
+      mockGetCurrentOrganizationId.mockReturnValue('org-a')
+      mockGetPersistedOrganizationSlug.mockReturnValue('org-b')
+
+      expect(resolveOrgSlug(buildCurrentUser([lockedOrgA, lockedOrgB]))).toBeUndefined()
     })
   })
 
@@ -181,6 +233,23 @@ describe('ensureSlugPrefix', () => {
     })
   })
 
+  describe('GIVEN a path whose slug is an organization the session cannot access', () => {
+    it('THEN should return the path unchanged instead of double-prefixing it', () => {
+      const lockedOrgB = {
+        ...defaultMemberships[1],
+        organization: { ...defaultMemberships[1].organization, accessibleByCurrentSession: false },
+      }
+
+      expect(
+        ensureSlugPrefix(
+          '/org-b/settings',
+          'org-a',
+          buildCurrentUser([defaultMemberships[0], lockedOrgB]),
+        ),
+      ).toBe('/org-b/settings')
+    })
+  })
+
   describe('GIVEN a path with a different valid slug', () => {
     it('THEN should return the path unchanged', () => {
       expect(ensureSlugPrefix('/org-b/settings', 'org-a', currentUser)).toBe('/org-b/settings')
@@ -206,6 +275,59 @@ describe('ensureSlugPrefix', () => {
       const result = ensureSlugPrefix(input, 'org-a', currentUser)
 
       expect(new URL(result, ORIGIN).origin).toBe(ORIGIN)
+    })
+  })
+})
+
+describe('getAccessibleMemberships', () => {
+  describe('GIVEN a mix of accessible and inaccessible memberships', () => {
+    it('THEN should keep only the accessible ones', () => {
+      const lockedOrgB = {
+        ...defaultMemberships[1],
+        organization: { ...defaultMemberships[1].organization, accessibleByCurrentSession: false },
+      }
+
+      expect(
+        getAccessibleMemberships(buildCurrentUser([defaultMemberships[0], lockedOrgB])),
+      ).toEqual([defaultMemberships[0]])
+    })
+  })
+
+  describe('GIVEN an undefined user', () => {
+    it('THEN should return an empty list', () => {
+      expect(getAccessibleMemberships(undefined)).toEqual([])
+    })
+  })
+})
+
+describe('pathTargetsInaccessibleOrg', () => {
+  const lockedOrgB = {
+    ...defaultMemberships[1],
+    organization: { ...defaultMemberships[1].organization, accessibleByCurrentSession: false },
+  }
+  const currentUser = buildCurrentUser([defaultMemberships[0], lockedOrgB])
+
+  it.each(['/org-b/customers', '/org-b', '/org-b/', '/org-b?tab=1', '/org-b#top', 'org-b/plans'])(
+    'THEN should return true for %s',
+    (path) => {
+      expect(pathTargetsInaccessibleOrg(path, currentUser)).toBe(true)
+    },
+  )
+
+  it.each([
+    '/org-a/customers',
+    '/customers',
+    '/',
+    '',
+    '/org-b-extended/customers',
+    '/unknown/plans',
+  ])('THEN should return false for %s', (path) => {
+    expect(pathTargetsInaccessibleOrg(path, currentUser)).toBe(false)
+  })
+
+  describe('GIVEN an undefined user', () => {
+    it('THEN should return false', () => {
+      expect(pathTargetsInaccessibleOrg('/org-b/customers', undefined)).toBe(false)
     })
   })
 })

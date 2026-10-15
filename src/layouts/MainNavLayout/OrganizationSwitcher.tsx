@@ -96,6 +96,8 @@ export const OrganizationSwitcher = ({
     return translate('text_1752158380555tozrnmtmxcz', { method })
   }
 
+  const inaccessibleOrganizationTooltip = getInaccessibleOrganizationTooltip()
+
   /**
    * Switches the current organization by navigating to its slug.
    *
@@ -217,7 +219,7 @@ export const OrganizationSwitcher = ({
                       condition={accessibleByCurrentSession}
                       validWrapper={(children) => <>{children}</>}
                       invalidWrapper={(children) => (
-                        <Tooltip placement="right" title={getInaccessibleOrganizationTooltip()}>
+                        <Tooltip placement="right" title={inaccessibleOrganizationTooltip}>
                           {children}
                         </Tooltip>
                       )}

@@ -27,7 +27,12 @@ const TEST_ORG_ID = 'org-a'
 const defaultMemberships = [
   {
     id: 'membership-1',
-    organization: { id: TEST_ORG_ID, name: 'Test Org', slug: TEST_ORG_SLUG },
+    organization: {
+      id: TEST_ORG_ID,
+      name: 'Test Org',
+      slug: TEST_ORG_SLUG,
+      accessibleByCurrentSession: true,
+    },
   },
 ]
 
@@ -173,7 +178,12 @@ describe('Home', () => {
             ...defaultMemberships,
             {
               id: 'membership-2',
-              organization: { id: 'org-b', name: 'Other Org', slug: 'other-org' },
+              organization: {
+                id: 'org-b',
+                name: 'Other Org',
+                slug: 'other-org',
+                accessibleByCurrentSession: true,
+              },
             },
           ],
         },

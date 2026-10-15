@@ -13,18 +13,27 @@ gql`
       organization {
         id
         slug
+        accessibleByCurrentSession
       }
     }
   }
 `
 
 type CurrentUser = OrgSlugResolverDataFragment | undefined
+type Membership = OrgSlugResolverDataFragment['memberships'][number]
+
+/**
+ * Memberships whose organization the current session can open. The API refuses
+ * every request to the others (e.g. an Okta session on an org bound to another IdP).
+ */
+export const getAccessibleMemberships = (currentUser: CurrentUser): Membership[] =>
+  currentUser?.memberships?.filter((m) => m.organization.accessibleByCurrentSession) ?? []
 
 /**
  * Resolves the org slug to land on when the URL has no (valid) slug — e.g. a
  * legacy slug-less path or the user deleting the slug from the URL bar.
  *
- * Priority (each validated against the user's memberships):
+ * Priority (each validated against the memberships the session can open):
  *   1. The in-memory current org (`getCurrentOrganizationId()`) — set per-tab
  *      while navigating inside an org. Correct mid-session and multi-tab safe,
  *      but `null` after a hard reload (the var is not persisted).
@@ -33,20 +42,20 @@ type CurrentUser = OrgSlugResolverDataFragment | undefined
  *      path recovers to the org the user was last on instead of `memberships[0]`.
  *   3. Fallback to the first membership's org slug.
  *
- * Returns `undefined` only if the user has no memberships.
+ * Returns `undefined` when the session cannot open any of the user's organizations.
  */
 export const resolveOrgSlug = (currentUser: CurrentUser): string | undefined => {
-  const memberships = currentUser?.memberships
+  const memberships = getAccessibleMemberships(currentUser)
 
   const currentOrgId = getCurrentOrganizationId()
-  const fromCurrentOrg = memberships?.find((m) => m.organization.id === currentOrgId)?.organization
+  const fromCurrentOrg = memberships.find((m) => m.organization.id === currentOrgId)?.organization
     .slug
 
   const persistedSlug = getPersistedOrganizationSlug()
-  const fromPersisted = memberships?.find((m) => m.organization.slug === persistedSlug)
-    ?.organization.slug
+  const fromPersisted = memberships.find((m) => m.organization.slug === persistedSlug)?.organization
+    .slug
 
-  return fromCurrentOrg || fromPersisted || memberships?.[0]?.organization.slug
+  return fromCurrentOrg || fromPersisted || memberships[0]?.organization.slug
 }
 
 /**
@@ -57,6 +66,24 @@ export const pathHasValidSlug = (path: string, currentUser: CurrentUser): boolea
   currentUser?.memberships?.some(
     (m) => m.organization.slug && path.startsWith(`/${m.organization.slug}/`),
   ) ?? false
+
+const PATH_SEGMENT_SEPARATOR = /[/?#]/
+
+/**
+ * Returns true if the first segment of the path is the slug of one of the user's
+ * organizations that the current session cannot open (it would land on the forbidden page).
+ */
+export const pathTargetsInaccessibleOrg = (path: string, currentUser: CurrentUser): boolean => {
+  const firstSegment = path.replace(/^\//, '').split(PATH_SEGMENT_SEPARATOR)[0]
+
+  if (!firstSegment) return false
+
+  return (
+    currentUser?.memberships?.some(
+      (m) => m.organization.slug === firstSegment && !m.organization.accessibleByCurrentSession,
+    ) ?? false
+  )
+}
 
 /**
  * Prepends the given slug to the path if the path doesn't already contain
