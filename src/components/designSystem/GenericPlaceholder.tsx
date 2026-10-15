@@ -10,6 +10,7 @@ export const GENERIC_PLACEHOLDER_TITLE_TEST_ID = 'generic-placeholder-title'
 export const GENERIC_PLACEHOLDER_SUBTITLE_TEST_ID = 'generic-placeholder-subtitle'
 export const GENERIC_PLACEHOLDER_IMAGE_TEST_ID = 'generic-placeholder-image'
 export const GENERIC_PLACEHOLDER_BUTTON_TEST_ID = 'generic-placeholder-button'
+export const GENERIC_PLACEHOLDER_SECONDARY_BUTTON_TEST_ID = 'generic-placeholder-secondary-button'
 
 export interface GenericPlaceholderProps {
   className?: string
@@ -19,6 +20,8 @@ export interface GenericPlaceholderProps {
   buttonTitle?: string
   buttonVariant?: ButtonVariant
   buttonAction?: (() => Promise<void>) | (() => void)
+  secondaryButtonTitle?: string
+  secondaryButtonAction?: (() => Promise<void>) | (() => void)
   noMargins?: boolean
 }
 
@@ -31,9 +34,41 @@ export const GenericPlaceholder = ({
   noMargins = false,
   buttonVariant,
   buttonAction,
+  secondaryButtonTitle,
+  secondaryButtonAction,
   ...props
 }: GenericPlaceholderProps) => {
   const hasButton = !!buttonTitle && !!buttonAction
+  const hasSecondaryButton = !!secondaryButtonTitle && !!secondaryButtonAction
+
+  const renderButtons = (): ReactNode => {
+    if (!hasButton) return null
+
+    const primaryButton = (
+      <Button
+        variant={buttonVariant}
+        onClick={buttonAction}
+        data-test={GENERIC_PLACEHOLDER_BUTTON_TEST_ID}
+      >
+        {buttonTitle}
+      </Button>
+    )
+
+    if (!hasSecondaryButton) return primaryButton
+
+    return (
+      <div className="flex flex-wrap gap-3">
+        {primaryButton}
+        <Button
+          variant="quaternary"
+          onClick={secondaryButtonAction}
+          data-test={GENERIC_PLACEHOLDER_SECONDARY_BUTTON_TEST_ID}
+        >
+          {secondaryButtonTitle}
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div
@@ -74,15 +109,7 @@ export const GenericPlaceholder = ({
         {typeof subtitle === 'string' ? undefined : subtitle}
       </Typography>
 
-      {hasButton && (
-        <Button
-          variant={buttonVariant}
-          onClick={buttonAction}
-          data-test={GENERIC_PLACEHOLDER_BUTTON_TEST_ID}
-        >
-          {buttonTitle}
-        </Button>
-      )}
+      {renderButtons()}
     </div>
   )
 }
