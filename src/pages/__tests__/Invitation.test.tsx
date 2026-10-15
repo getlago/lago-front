@@ -1,11 +1,27 @@
+import { ApolloError } from '@apollo/client'
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { act, render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { GraphQLError } from 'graphql'
 import { MemoryRouter, Route, Routes } from 'react-router'
 
 import { PASSWORD_HINTS_TEST_IDS } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
-import { GetinviteDocument } from '~/generated/graphql'
+import {
+  AcceptInviteDocument,
+  EntraIdAcceptInviteDocument,
+  GetinviteDocument,
+  JoinOrganizationDocument,
+  LagoApiError,
+  OktaAcceptInviteDocument,
+} from '~/generated/graphql'
 
-import Invitation, { INVITATION_SUBMIT_BUTTON_TEST_ID } from '../Invitation'
+import Invitation, {
+  INVITATION_JOIN_BUTTON_TEST_ID,
+  INVITATION_LOG_IN_BUTTON_TEST_ID,
+  INVITATION_LOG_OUT_BUTTON_TEST_ID,
+  INVITATION_OPEN_ORGANIZATION_BUTTON_TEST_ID,
+  INVITATION_SUBMIT_BUTTON_TEST_ID,
+} from '../Invitation'
 
 const getByDataTest = (testId: string) => document.querySelector(`[data-test="${testId}"]`)
 
@@ -19,6 +35,28 @@ const mockIsAuthenticated = jest.fn()
 
 jest.mock('~/hooks/auth/useIsAuthenticated', () => ({
   useIsAuthenticated: () => mockIsAuthenticated(),
+}))
+
+const mockCurrentUser = jest.fn()
+const mockRefetchCurrentUserInfos = jest.fn()
+
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => mockCurrentUser(),
+}))
+
+const mockOnLogIn = jest.fn()
+const mockLogOut = jest.fn()
+const mockNavigate = jest.fn()
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  onLogIn: (...args: unknown[]) => mockOnLogIn(...args),
+  logOut: (...args: unknown[]) => mockLogOut(...args),
+}))
+
+jest.mock('~/core/router', () => ({
+  ...jest.requireActual('~/core/router'),
+  useNavigate: () => mockNavigate,
 }))
 
 jest.mock('~/components/auth/GoogleAuthButton', () => ({
@@ -35,9 +73,14 @@ jest.mock('~/hooks/forms/usePasswordValidation', () => ({
 }))
 
 const mockHandleSubmit = jest.fn()
+let mockFormPassword = ''
 
 jest.mock('~/hooks/forms/useAppform', () => ({
-  useAppForm: () => ({
+  useAppForm: ({
+    onSubmit,
+  }: {
+    onSubmit: (args: { value: { password: string } }) => Promise<void>
+  }) => ({
     store: {
       subscribe: jest.fn(() => jest.fn()),
       getState: () => ({
@@ -45,7 +88,10 @@ jest.mock('~/hooks/forms/useAppform', () => ({
         canSubmit: true,
       }),
     },
-    handleSubmit: mockHandleSubmit,
+    handleSubmit: async () => {
+      mockHandleSubmit()
+      await onSubmit({ value: { password: mockFormPassword } }).catch(() => undefined)
+    },
     AppField: ({
       name,
       children,
@@ -101,6 +147,7 @@ jest.mock('@tanstack/react-form', () => ({
 }))
 
 const setupMockUseStore = (password = '', canSubmit = true) => {
+  mockFormPassword = password
   mockUseStore.mockImplementation((_store, selector) => {
     const state = {
       canSubmit,
@@ -111,19 +158,34 @@ const setupMockUseStore = (password = '', canSubmit = true) => {
   })
 }
 
+type LagoApiErrorCode = keyof typeof LagoApiError
+
+const graphQLError = (code: LagoApiErrorCode) =>
+  new GraphQLError(code, {
+    extensions: { code: LagoApiError[code] },
+  })
+
 const createInviteMock = (
   overrides: {
     token?: string
     email?: string
     organizationName?: string
+    organizationSlug?: string
+    existingUser?: boolean
     error?: boolean
+    onResult?: () => void
+    delay?: number
   } = {},
 ): MockedResponse => {
   const {
     token = 'test-token',
     email = 'test@example.com',
     organizationName = 'Test Org',
+    organizationSlug = 'test-org',
+    existingUser = false,
     error = false,
+    onResult,
+    delay,
   } = overrides
 
   if (error) {
@@ -133,39 +195,137 @@ const createInviteMock = (
         variables: { token },
       },
       error: new Error('Invite not found'),
+      delay,
     }
   }
 
+  const result = {
+    data: {
+      invite: {
+        id: 'invite-1',
+        email,
+        existingUser,
+        organization: {
+          id: 'org-1',
+          name: organizationName,
+          slug: organizationSlug,
+        },
+      },
+    },
+  }
+
   return {
+    delay,
     request: {
       query: GetinviteDocument,
       variables: { token },
     },
-    result: {
-      data: {
-        invite: {
-          id: 'invite-1',
-          email,
-          organization: {
-            id: 'org-1',
-            name: organizationName,
+    result: onResult
+      ? () => {
+          onResult()
+
+          return result
+        }
+      : result,
+  }
+}
+
+const createJoinOrganizationMock = (
+  overrides: { token?: string; slug?: string; errorCode?: LagoApiErrorCode } = {},
+): MockedResponse => {
+  const { token = 'test-token', slug = 'test-org', errorCode } = overrides
+
+  return {
+    request: {
+      query: JoinOrganizationDocument,
+      variables: { input: { token } },
+    },
+    result: errorCode
+      ? { errors: [graphQLError(errorCode)] }
+      : {
+          data: {
+            joinOrganization: {
+              id: 'membership-1',
+              organization: {
+                id: 'org-1',
+                slug,
+              },
+            },
           },
         },
+  }
+}
+
+const createOktaAcceptInviteMock = (): MockedResponse => ({
+  request: {
+    query: OktaAcceptInviteDocument,
+    variables: {
+      input: {
+        code: 'okta-code',
+        state: 'okta-state',
+        inviteToken: 'test-token',
       },
     },
+  },
+  result: { data: { oktaAcceptInvite: { token: 'user-token' } } },
+})
+
+const createEntraIdAcceptInviteMock = (): MockedResponse => ({
+  request: {
+    query: EntraIdAcceptInviteDocument,
+    variables: {
+      input: {
+        code: 'entra-code',
+        state: 'entra-state',
+        inviteToken: 'test-token',
+      },
+    },
+  },
+  result: { data: { entraIdAcceptInvite: { token: 'user-token' } } },
+})
+
+const createAcceptInviteMock = (
+  overrides: {
+    token?: string
+    userToken?: string
+    slug?: string
+    errorCode?: LagoApiErrorCode
+  } = {},
+): MockedResponse => {
+  const { token = 'test-token', userToken = 'user-token', slug = 'test-org', errorCode } = overrides
+
+  return {
+    request: {
+      query: AcceptInviteDocument,
+      variables: { input: { token, password: mockFormPassword } },
+    },
+    result: errorCode
+      ? { errors: [graphQLError(errorCode)] }
+      : {
+          data: {
+            acceptInvite: {
+              token: userToken,
+              organization: {
+                id: 'org-1',
+                slug,
+              },
+            },
+          },
+        },
   }
 }
 
 const renderInvitation = async (
   mocks: MockedResponse[] = [createInviteMock()],
   token = 'test-token',
+  search = '',
 ) => {
   let result
 
   await act(async () => {
     result = render(
       <MockedProvider mocks={mocks}>
-        <MemoryRouter initialEntries={[`/invitation/${token}`]}>
+        <MemoryRouter initialEntries={[`/invitation/${token}${search}`]}>
           <Routes>
             <Route path="/invitation/:token" element={<Invitation />} />
           </Routes>
@@ -182,10 +342,19 @@ describe('Invitation', () => {
     jest.clearAllMocks()
     setupMockUseStore('', true)
     mockIsAuthenticated.mockReturnValue({ isAuthenticated: false })
+    mockCurrentUser.mockReturnValue({
+      currentUser: undefined,
+      loading: false,
+      refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
+    })
     mockPasswordValidation.mockReturnValue({
       isValid: false,
       errors: ['MIN', 'LOWERCASE', 'UPPERCASE', 'NUMBER', 'SPECIAL'],
     })
+    mockOnLogIn.mockResolvedValue(undefined)
+    mockLogOut.mockResolvedValue(undefined)
+    mockRefetchCurrentUserInfos.mockResolvedValue({ data: {} })
+    mockNavigate.mockReset()
   })
 
   describe('when invite is loaded successfully', () => {
@@ -245,6 +414,36 @@ describe('Invitation', () => {
 
         expect(submitButton).toBeInTheDocument()
         expect(submitButton?.textContent).toBe('text_63246f875e2228ab7b63dd1c')
+      })
+    })
+
+    it('should enter the invited organization after Okta authentication', async () => {
+      await renderInvitation(
+        [createInviteMock({ organizationSlug: 'invited-org' }), createOktaAcceptInviteMock()],
+        'test-token',
+        '?oktaCode=okta-code&oktaState=okta-state',
+      )
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/invited-org', {
+          replace: true,
+          skipSlugPrepend: true,
+        })
+      })
+    })
+
+    it('should enter the invited organization after Entra ID authentication', async () => {
+      await renderInvitation(
+        [createInviteMock({ organizationSlug: 'invited-org' }), createEntraIdAcceptInviteMock()],
+        'test-token',
+        '?entraIdCode=entra-code&entraIdState=entra-state',
+      )
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/invited-org', {
+          replace: true,
+          skipSlugPrepend: true,
+        })
       })
     })
   })
@@ -316,13 +515,379 @@ describe('Invitation', () => {
     })
   })
 
-  describe('when user is authenticated', () => {
-    it('should render nothing', async () => {
+  describe('when the invited email already has an account', () => {
+    const mocks = [createInviteMock({ existingUser: true })]
+
+    it('should ask for the password of the existing account', async () => {
+      await renderInvitation(mocks)
+
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_LOG_IN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(document.querySelector('input[name="email"]')).toBeDisabled()
+      expect(getByDataTest(INVITATION_SUBMIT_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    // The password is verified against the existing account, not created: applying the creation
+    // rules would lock out any password predating them.
+    it('should not show the password creation hints', async () => {
+      setupMockUseStore('weak', true)
+      mockPasswordValidation.mockReturnValue({
+        isValid: false,
+        errors: ['MIN', 'UPPERCASE', 'NUMBER', 'SPECIAL'],
+      })
+
+      await renderInvitation(mocks)
+
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_LOG_IN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(getByDataTest(PASSWORD_HINTS_TEST_IDS.VISIBLE)).not.toBeInTheDocument()
+      expect(getByDataTest(PASSWORD_HINTS_TEST_IDS.HIDDEN)).not.toBeInTheDocument()
+    })
+
+    it('should keep the SSO buttons available', async () => {
+      await renderInvitation(mocks)
+
+      await waitFor(() => {
+        expect(screen.getByTestId('google-auth-button')).toBeInTheDocument()
+      })
+
+      expect(screen.getByText('text_664c90c9b2b6c2012aa50bd5')).toBeInTheDocument()
+    })
+
+    it('should submit the existing account password and start its session', async () => {
+      const user = userEvent.setup()
+
+      setupMockUseStore('existing-password')
+      await renderInvitation([createInviteMock({ existingUser: true }), createAcceptInviteMock()])
+
+      await user.click(await screen.findByText('text_1786557508910towzrwnae9w'))
+
+      await waitFor(() => {
+        expect(mockOnLogIn).toHaveBeenCalledWith(expect.anything(), 'user-token')
+      })
+    })
+
+    it('should display an error when the existing account password is incorrect', async () => {
+      const user = userEvent.setup()
+
+      setupMockUseStore('incorrect-password')
+      await renderInvitation([
+        createInviteMock({ existingUser: true }),
+        createAcceptInviteMock({ errorCode: 'IncorrectLoginOrPassword' }),
+      ])
+
+      await user.click(await screen.findByText('text_1786557508910towzrwnae9w'))
+
+      expect(await screen.findByText('text_620bc4d4269a55014d493fb7')).toBeInTheDocument()
+    })
+  })
+
+  describe('when the invited email does not have an account', () => {
+    it('should submit the new password and start the created session', async () => {
+      const user = userEvent.setup()
+
+      setupMockUseStore('ValidPassword1!')
+      await renderInvitation([createInviteMock(), createAcceptInviteMock()])
+
+      await user.click(await screen.findByText('text_63246f875e2228ab7b63dd1c'))
+
+      await waitFor(() => {
+        expect(mockOnLogIn).toHaveBeenCalledWith(expect.anything(), 'user-token')
+      })
+    })
+
+    it('should explain when the invited account is already a member', async () => {
+      const user = userEvent.setup()
+
+      setupMockUseStore('ValidPassword1!')
+      await renderInvitation([
+        createInviteMock(),
+        createAcceptInviteMock({ errorCode: 'EmailAlreadyUsed' }),
+      ])
+
+      await user.click(await screen.findByText('text_63246f875e2228ab7b63dd1c'))
+
+      expect(await screen.findByText('text_1786557508910guitmzid55q')).toBeInTheDocument()
+    })
+
+    it('should switch to the existing-account form when an account was created after loading', async () => {
+      const user = userEvent.setup()
+
+      setupMockUseStore('ValidPassword1!')
+      await renderInvitation([
+        createInviteMock(),
+        createAcceptInviteMock({ errorCode: 'IncorrectLoginOrPassword' }),
+        createInviteMock({ existingUser: true }),
+      ])
+
+      await user.click(await screen.findByText('text_63246f875e2228ab7b63dd1c'))
+
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_LOG_IN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+      expect(getByDataTest(INVITATION_SUBMIT_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.getByText('text_1791986111631bwcgn2cc96p')).toBeInTheDocument()
+      expect(screen.queryByText('text_1786557508910guitmzid55q')).not.toBeInTheDocument()
+      expect(mockOnLogIn).not.toHaveBeenCalled()
+    })
+
+    it('should show the error fallback if refreshing the new account fails', async () => {
+      const user = userEvent.setup()
+
+      setupMockUseStore('ValidPassword1!')
+      await renderInvitation([
+        createInviteMock(),
+        createAcceptInviteMock({ errorCode: 'IncorrectLoginOrPassword' }),
+        createInviteMock({ error: true }),
+      ])
+
+      await user.click(await screen.findByText('text_63246f875e2228ab7b63dd1c'))
+
+      expect(await screen.findByText('text_63246f875e2228ab7b63dcf4')).toBeInTheDocument()
+      expect(document.querySelector('.animate-pulse')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('when the invited user is authenticated', () => {
+    beforeEach(() => {
       mockIsAuthenticated.mockReturnValue({ isAuthenticated: true })
+      mockCurrentUser.mockReturnValue({
+        currentUser: { id: 'user-1', email: 'test@example.com' },
+        loading: false,
+        refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
+      })
+    })
 
-      const { container } = (await renderInvitation()) as unknown as { container: HTMLElement }
+    it('should only offer to accept the invitation', async () => {
+      await renderInvitation([createInviteMock({ existingUser: true })])
 
-      expect(container).toBeEmptyDOMElement()
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(getByDataTest(INVITATION_SUBMIT_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId('google-auth-button')).not.toBeInTheDocument()
+    })
+
+    it('should not show the skeleton while memberships are reloading', async () => {
+      mockCurrentUser.mockReturnValue({
+        currentUser: { id: 'user-1', email: 'test@example.com' },
+        loading: true,
+        refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
+      })
+
+      await renderInvitation([createInviteMock({ existingUser: true })])
+
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(document.querySelector('.animate-pulse')).not.toBeInTheDocument()
+    })
+
+    it('should show the skeleton while the current user is initially loading', async () => {
+      mockCurrentUser.mockReturnValue({
+        currentUser: undefined,
+        loading: true,
+        refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
+      })
+
+      await renderInvitation([createInviteMock({ existingUser: true })])
+
+      await waitFor(() => {
+        expect(document.querySelector('.animate-pulse')).toBeInTheDocument()
+      })
+      expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('should offer recovery when the current-user query fails', async () => {
+      mockCurrentUser.mockReturnValue({
+        currentUser: undefined,
+        loading: false,
+        error: new ApolloError({ networkError: new Error('User query failed') }),
+        refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
+      })
+
+      await renderInvitation([createInviteMock({ existingUser: true })])
+
+      expect(await screen.findByText('text_641d6ae1d947c400671e6abb')).toBeInTheDocument()
+      expect(screen.getByText('text_17865575089106781wwdm3l3')).toBeInTheDocument()
+      expect(document.querySelector('.animate-pulse')).not.toBeInTheDocument()
+      expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('should reload the memberships of the user after accepting', async () => {
+      await renderInvitation([
+        createInviteMock({ existingUser: true }),
+        createJoinOrganizationMock(),
+      ])
+
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      await act(async () => {
+        ;(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID) as HTMLElement).click()
+      })
+
+      await waitFor(() => {
+        expect(mockRefetchCurrentUserInfos).toHaveBeenCalled()
+      })
+    })
+
+    it('should accept the invitation when the invited email only differs by its case', async () => {
+      mockCurrentUser.mockReturnValue({
+        currentUser: { id: 'user-1', email: 'TEST@example.com' },
+        loading: false,
+        refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
+      })
+
+      await renderInvitation([createInviteMock({ existingUser: true })])
+
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(getByDataTest(INVITATION_LOG_OUT_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('should allow logging out when the session cannot accept the invitation', async () => {
+      const user = userEvent.setup()
+
+      await renderInvitation([
+        createInviteMock({ existingUser: true }),
+        createJoinOrganizationMock({ errorCode: 'LoginMethodNotAuthorized' }),
+      ])
+
+      await user.click(await screen.findByText('text_17865575089104r0enbn7r7l'))
+
+      expect(await screen.findByText('text_1786557573982blvi6cjpnti')).toBeInTheDocument()
+      expect(getByDataTest(INVITATION_LOG_OUT_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('should allow logging out when the server rejects the invited email', async () => {
+      const user = userEvent.setup()
+
+      await renderInvitation([
+        createInviteMock({ existingUser: true }),
+        createJoinOrganizationMock({ errorCode: 'InviteEmailMistmatch' }),
+      ])
+
+      await user.click(await screen.findByText('text_17865575089104r0enbn7r7l'))
+
+      expect(await screen.findByText('text_17865575089107lip4oupwdj')).toBeInTheDocument()
+      expect(getByDataTest(INVITATION_LOG_OUT_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('should open the organization after refreshing memberships when already a member', async () => {
+      const user = userEvent.setup()
+      let resolveRefetch!: (value: unknown) => void
+
+      mockRefetchCurrentUserInfos.mockReturnValue(
+        new Promise((resolve) => {
+          resolveRefetch = resolve
+        }),
+      )
+
+      await renderInvitation([
+        createInviteMock({ existingUser: true, organizationSlug: 'invited-org' }),
+        createJoinOrganizationMock({ errorCode: 'EmailAlreadyUsed' }),
+      ])
+
+      await user.click(await screen.findByText('text_17865575089104r0enbn7r7l'))
+      await user.click(await screen.findByText('text_1791986111631ve46fi5sy3j'))
+
+      expect(getByDataTest(INVITATION_OPEN_ORGANIZATION_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      expect(mockRefetchCurrentUserInfos).toHaveBeenCalledTimes(1)
+      expect(mockNavigate).not.toHaveBeenCalled()
+
+      await act(async () => resolveRefetch({ data: {} }))
+
+      expect(mockNavigate).toHaveBeenCalledWith('/invited-org', {
+        replace: true,
+        skipSlugPrepend: true,
+      })
+    })
+  })
+
+  describe('when another user is authenticated', () => {
+    beforeEach(() => {
+      mockIsAuthenticated.mockReturnValue({ isAuthenticated: true })
+      mockCurrentUser.mockReturnValue({
+        currentUser: { id: 'user-2', email: 'someone-else@example.com' },
+        loading: false,
+        refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
+      })
+    })
+
+    it('should offer to log out instead of accepting the invitation', async () => {
+      await renderInvitation([createInviteMock({ existingUser: true })])
+
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_LOG_OUT_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      expect(getByDataTest(INVITATION_SUBMIT_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('should log out and refetch the invitation', async () => {
+      const user = userEvent.setup()
+      const onInviteResult = jest.fn()
+      const inviteMock = createInviteMock({ existingUser: true, onResult: onInviteResult })
+
+      await renderInvitation([inviteMock, inviteMock])
+      await user.click(await screen.findByText('text_17865575089106781wwdm3l3'))
+
+      await waitFor(() => {
+        expect(mockLogOut).toHaveBeenCalledWith(expect.anything(), true)
+        expect(onInviteResult).toHaveBeenCalledTimes(2)
+      })
+    })
+
+    it('should show the skeleton during logout refetch even when the invitation remains cached', async () => {
+      const user = userEvent.setup()
+
+      mockLogOut.mockImplementation(async () => {
+        mockIsAuthenticated.mockReturnValue({ isAuthenticated: false })
+      })
+      await renderInvitation([
+        createInviteMock({ existingUser: true }),
+        createInviteMock({ existingUser: true, delay: 100 }),
+      ])
+
+      await user.click(await screen.findByText('text_17865575089106781wwdm3l3'))
+
+      expect(document.querySelector('.animate-pulse')).toBeInTheDocument()
+      expect(getByDataTest(INVITATION_LOG_OUT_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_LOG_IN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+      expect(document.querySelector('.animate-pulse')).not.toBeInTheDocument()
+    })
+
+    it('should show the error fallback when the logout refetch rejects', async () => {
+      const user = userEvent.setup()
+
+      mockLogOut.mockImplementation(async () => {
+        mockIsAuthenticated.mockReturnValue({ isAuthenticated: false })
+      })
+      await renderInvitation([
+        createInviteMock({ existingUser: true }),
+        createInviteMock({ error: true }),
+      ])
+
+      await user.click(await screen.findByText('text_17865575089106781wwdm3l3'))
+
+      expect(await screen.findByText('text_63246f875e2228ab7b63dcf4')).toBeInTheDocument()
+      expect(document.querySelector('.animate-pulse')).not.toBeInTheDocument()
     })
   })
 })
