@@ -34,13 +34,6 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-jest.mock('~/hooks/useDebouncedSearch', () => ({
-  useDebouncedSearch: () => ({
-    debouncedSearch: jest.fn(),
-    isLoading: false,
-  }),
-}))
-
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     hasFeatureFlag: mockHasFeatureFlag,
@@ -195,13 +188,59 @@ describe.each(providerTestCases)(
         <IntegrationItemsList integrationId="integration-id" />,
       )
 
-      await waitFor(() => expect(getProducts).toHaveBeenCalled())
+      await waitFor(() => expect(getProducts).toHaveBeenCalledTimes(1))
 
       expect(getByTestId(productItemsTestId)).toBeInTheDocument()
       expect(queryByTestId(defaultItemsTestId)).not.toBeInTheDocument()
       expect(getDefaultItems).not.toHaveBeenCalled()
       expect(mockHasFeatureFlag).toHaveBeenCalledWith(FeatureFlagEnum.ProductCatalog)
       expect(mockHasPermissions).toHaveBeenCalledWith(['productsView'])
+    })
+
+    it.each([false, true])(
+      'only loads default mappings on the Default tab when Product Catalog is %s',
+      (hasProductCatalog) => {
+        mockHasFeatureFlag.mockReturnValue(hasProductCatalog)
+        window.history.replaceState({}, '', '/?item_type=Default')
+
+        render(<IntegrationItemsList integrationId="integration-id" />)
+
+        expect(getDefaultItems).toHaveBeenCalledTimes(1)
+        expect(getProducts).not.toHaveBeenCalled()
+        expect(getAddOns).not.toHaveBeenCalled()
+        expect(getBillableMetrics).not.toHaveBeenCalled()
+      },
+    )
+
+    it('does not load products before the integration id is available', () => {
+      const { rerender } = render(<IntegrationItemsList integrationId="" />)
+
+      expect(getProducts).not.toHaveBeenCalled()
+
+      rerender(<IntegrationItemsList integrationId="integration-id" />)
+
+      expect(getProducts).toHaveBeenCalledTimes(1)
+    })
+
+    it('loads and searches products after selecting the Product mapping type', async () => {
+      window.history.replaceState({}, '', '/?item_type=Default')
+      const user = userEvent.setup()
+      const { getByRole, getByText, getByPlaceholderText } = render(
+        <IntegrationItemsList integrationId="integration-id" />,
+      )
+
+      expect(getProducts).not.toHaveBeenCalled()
+
+      await user.click(getByRole('button', { name: 'text_65281f686a80b400c8e2f6d1' }))
+      await user.click(getByText('text_17831042398250iwa2xp8pba'))
+
+      expect(getProducts).toHaveBeenCalledTimes(1)
+
+      await user.type(getByPlaceholderText('text_1783980718114714izppxdwq'), 'compute')
+
+      await waitFor(() =>
+        expect(getProducts).toHaveBeenLastCalledWith({ variables: { searchTerm: 'compute' } }),
+      )
     })
 
     it('falls back to default items without Product access', async () => {
@@ -225,6 +264,7 @@ describe.each(providerTestCases)(
       const { rerender } = render(<IntegrationItemsList integrationId="integration-id" />)
 
       expect(getDefaultItems).not.toHaveBeenCalled()
+      expect(getProducts).not.toHaveBeenCalled()
       expect(window.location.search).toBe(`?item_type=${MappableTypeEnum.Product}`)
 
       mockIsOrganizationLoading = false

@@ -187,12 +187,13 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
   const { debouncedSearch: debouncedSearchAddons, isLoading: isLoadingAddons } = useDebouncedSearch(
     getAddonList,
     addonLoading,
+    { fetchOnMount: false },
   )
 
   const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoadingBillableMetrics } =
-    useDebouncedSearch(getBillableMetricsList, billableMetricsLoading)
+    useDebouncedSearch(getBillableMetricsList, billableMetricsLoading, { fetchOnMount: false })
   const { debouncedSearch: debouncedSearchProducts, isLoading: isLoadingProducts } =
-    useDebouncedSearch(getProductsList, productsLoading)
+    useDebouncedSearch(getProductsList, productsLoading, { fetchOnMount: false })
 
   // handeling data fetching
   useEffect(() => {
