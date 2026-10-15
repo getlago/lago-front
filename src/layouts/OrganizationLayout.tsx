@@ -54,8 +54,6 @@ const OrganizationLayout = () => {
   // Auto-recovery for legacy pre-migration paths (e.g. `/customers`).
   const isLegacyPath = LEGACY_APP_PATH_SEGMENTS.has(organizationSlug ?? '')
 
-  // Resolves among the organizations the session can open: in-memory org var
-  // (`null` here on a legacy slug-less path) → persisted slug → first one.
   const recoveredSlug = resolveOrgSlug(currentUser)
 
   const shouldAutoRecoverLegacyPath = !loading && !membershipOrg && isLegacyPath && !!recoveredSlug

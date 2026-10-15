@@ -7,6 +7,7 @@ import {
   GENERIC_PLACEHOLDER_SUBTITLE_TEST_ID,
   GENERIC_PLACEHOLDER_TITLE_TEST_ID,
 } from '~/components/designSystem/GenericPlaceholder'
+import { CurrentUserInfosFragment } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import Forbidden from '../Forbidden'
@@ -28,15 +29,20 @@ jest.mock('~/hooks/core/useLocationHistory', () => ({
   useLocationHistory: () => ({ goBack: mockGoBack }),
 }))
 
-const buildMembership = (slug: string, accessibleByCurrentSession: boolean) => ({
+type Membership = CurrentUserInfosFragment['memberships'][number]
+type MembershipFixture = Pick<Membership, 'id'> & {
+  organization: Pick<
+    Membership['organization'],
+    'id' | 'name' | 'slug' | 'accessibleByCurrentSession'
+  >
+}
+
+const buildMembership = (slug: string, accessibleByCurrentSession: boolean): MembershipFixture => ({
   id: `membership-${slug}`,
   organization: { id: `org-${slug}`, name: `Org ${slug}`, slug, accessibleByCurrentSession },
 })
 
-const renderForbidden = (
-  memberships: ReturnType<typeof buildMembership>[],
-  organizationSlug?: string,
-): void => {
+const renderForbidden = (memberships: MembershipFixture[], organizationSlug?: string): void => {
   mockUseCurrentUser.mockReturnValue({ currentUser: { memberships }, loading: false })
 
   render(<Forbidden />, organizationSlug ? { useParams: { organizationSlug } } : undefined)
@@ -45,6 +51,17 @@ const renderForbidden = (
 describe('Forbidden', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+  })
+
+  describe('GIVEN the current user is still loading', () => {
+    it('THEN should not render any reason nor button yet', () => {
+      mockUseCurrentUser.mockReturnValue({ currentUser: undefined, loading: true })
+
+      render(<Forbidden />, { useParams: { organizationSlug: 'locked' } })
+
+      expect(screen.queryByTestId(GENERIC_PLACEHOLDER_TITLE_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
   })
 
   describe('GIVEN the URL organization is a membership the session cannot open', () => {

@@ -6,6 +6,7 @@ import {
   GenericPlaceholder,
   GenericPlaceholderProps,
 } from '~/components/designSystem/GenericPlaceholder'
+import { Spinner } from '~/components/designSystem/Spinner'
 import { logOut } from '~/core/apolloClient'
 import { HOME_ROUTE, useNavigate } from '~/core/router'
 import { getAccessibleMemberships } from '~/core/router/utils/orgSlug'
@@ -20,7 +21,7 @@ type ForbiddenReason =
   | { type: 'noAccessibleOrganization' }
   | { type: 'missingPermission' }
 
-export const getForbiddenReason = (
+const getForbiddenReason = (
   currentUser: CurrentUserInfosFragment | undefined,
   organizationSlug: string | undefined,
 ): ForbiddenReason => {
@@ -48,7 +49,7 @@ const Forbidden = () => {
   const { goBack } = useLocationHistory()
   const navigate = useNavigate()
   const client = useApolloClient()
-  const { currentUser } = useCurrentUser()
+  const { currentUser, loading } = useCurrentUser()
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
 
   const reason = getForbiddenReason(currentUser, organizationSlug)
@@ -102,6 +103,8 @@ const Forbidden = () => {
       buttonAction: () => goBack(HOME_ROUTE, { previousCount: -2 }),
     }
   }
+
+  if (loading && !currentUser) return <Spinner />
 
   return (
     <div className="flex h-screen w-screen">

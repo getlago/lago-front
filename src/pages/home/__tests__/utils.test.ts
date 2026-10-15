@@ -64,6 +64,12 @@ describe('resolveRedirectTarget()', () => {
       expect(result).toEqual({ to: `/${SLUG}/features`, consumesSsoLs: true })
     })
 
+    it('THEN does not prepend the slug twice when the path is the org root', () => {
+      const result = resolveRedirectTarget(baseInput({ ssoRedirectPath: `/${SLUG}` }))
+
+      expect(result).toEqual({ to: `/${SLUG}`, consumesSsoLs: true })
+    })
+
     it('THEN prepends the slug for legacy slug-less paths', () => {
       const result = resolveRedirectTarget(baseInput({ ssoRedirectPath: '/features' }))
 

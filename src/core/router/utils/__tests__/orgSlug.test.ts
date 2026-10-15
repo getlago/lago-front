@@ -19,23 +19,19 @@ jest.mock('~/core/apolloClient/reactiveVars', () => ({
 type CurrentUser = OrgSlugResolverDataFragment | undefined
 
 const buildCurrentUser = (
-  memberships: Array<{
-    id: string
-    organization: { id: string; name: string; slug: string; accessibleByCurrentSession: boolean }
-  }>,
-): CurrentUser =>
-  ({
-    memberships,
-  }) as unknown as CurrentUser
+  memberships: OrgSlugResolverDataFragment['memberships'],
+): CurrentUser => ({
+  memberships,
+})
 
-const defaultMemberships = [
+const defaultMemberships: OrgSlugResolverDataFragment['memberships'] = [
   {
     id: 'm-1',
-    organization: { id: 'org-a', name: 'Org A', slug: 'org-a', accessibleByCurrentSession: true },
+    organization: { id: 'org-a', slug: 'org-a', accessibleByCurrentSession: true },
   },
   {
     id: 'm-2',
-    organization: { id: 'org-b', name: 'Org B', slug: 'org-b', accessibleByCurrentSession: true },
+    organization: { id: 'org-b', slug: 'org-b', accessibleByCurrentSession: true },
   },
 ]
 
@@ -196,12 +192,15 @@ describe('pathHasValidSlug', () => {
     })
   })
 
-  describe('GIVEN a path that is exactly the slug without a trailing slash', () => {
-    it('THEN should return false', () => {
-      // `/org-a` (no trailing slash, nothing after) intentionally does NOT match.
-      // The implementation requires `/${slug}/` to prevent false positives like
-      // `/org-a-extended` which would otherwise match `startsWith('/org-a')`.
-      expect(pathHasValidSlug('/org-a', currentUser)).toBe(false)
+  describe('GIVEN a path that is exactly the slug, or the slug followed by a query or hash', () => {
+    it.each(['/org-a', '/org-a?tab=1', '/org-a#top'])('THEN should return true for %s', (path) => {
+      expect(pathHasValidSlug(path, currentUser)).toBe(true)
+    })
+  })
+
+  describe('GIVEN a slug-prefixed path without a leading slash', () => {
+    it('THEN should return false so the caller makes it absolute', () => {
+      expect(pathHasValidSlug('org-a/customers', currentUser)).toBe(false)
     })
   })
 
@@ -247,6 +246,12 @@ describe('ensureSlugPrefix', () => {
           buildCurrentUser([defaultMemberships[0], lockedOrgB]),
         ),
       ).toBe('/org-b/settings')
+    })
+  })
+
+  describe('GIVEN the root of an org the user belongs to', () => {
+    it('THEN should not prepend the slug a second time', () => {
+      expect(ensureSlugPrefix('/org-a', 'org-a', currentUser)).toBe('/org-a')
     })
   })
 
@@ -307,7 +312,7 @@ describe('pathTargetsInaccessibleOrg', () => {
   }
   const currentUser = buildCurrentUser([defaultMemberships[0], lockedOrgB])
 
-  it.each(['/org-b/customers', '/org-b', '/org-b/', '/org-b?tab=1', '/org-b#top', 'org-b/plans'])(
+  it.each(['/org-b/customers', '/org-b', '/org-b/', '/org-b?tab=1', '/org-b#top'])(
     'THEN should return true for %s',
     (path) => {
       expect(pathTargetsInaccessibleOrg(path, currentUser)).toBe(true)
@@ -320,6 +325,7 @@ describe('pathTargetsInaccessibleOrg', () => {
     '/',
     '',
     '/org-b-extended/customers',
+    'org-b/plans',
     '/unknown/plans',
   ])('THEN should return false for %s', (path) => {
     expect(pathTargetsInaccessibleOrg(path, currentUser)).toBe(false)

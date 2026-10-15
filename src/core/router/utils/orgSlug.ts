@@ -40,7 +40,7 @@ export const getAccessibleMemberships = (currentUser: CurrentUser): Membership[]
  *   2. The persisted "last used" slug (`getPersistedOrganizationSlug()`) — the
  *      only signal that survives a hard reload, so a cold load of a slug-less
  *      path recovers to the org the user was last on instead of `memberships[0]`.
- *   3. Fallback to the first membership's org slug.
+ *   3. Fallback to the first accessible membership's org slug.
  *
  * Returns `undefined` when the session cannot open any of the user's organizations.
  */
@@ -58,23 +58,32 @@ export const resolveOrgSlug = (currentUser: CurrentUser): string | undefined => 
   return fromCurrentOrg || fromPersisted || memberships[0]?.organization.slug
 }
 
-/**
- * Returns true if the path already starts with one of the user's org slugs
- * (e.g. `/acme/customers` when the user is a member of `acme`).
- */
-export const pathHasValidSlug = (path: string, currentUser: CurrentUser): boolean =>
-  currentUser?.memberships?.some(
-    (m) => m.organization.slug && path.startsWith(`/${m.organization.slug}/`),
-  ) ?? false
-
 const PATH_SEGMENT_SEPARATOR = /[/?#]/
+
+const getFirstPathSegment = (path: string): string | undefined => {
+  if (!path.startsWith('/')) return undefined
+
+  return path.slice(1).split(PATH_SEGMENT_SEPARATOR)[0] || undefined
+}
+
+/**
+ * Returns true if the first segment of the path is one of the user's org slugs
+ * (e.g. `/acme`, `/acme/customers` or `/acme?tab=1` when the user is a member of `acme`).
+ */
+export const pathHasValidSlug = (path: string, currentUser: CurrentUser): boolean => {
+  const firstSegment = getFirstPathSegment(path)
+
+  if (!firstSegment) return false
+
+  return currentUser?.memberships?.some((m) => m.organization.slug === firstSegment) ?? false
+}
 
 /**
  * Returns true if the first segment of the path is the slug of one of the user's
  * organizations that the current session cannot open (it would land on the forbidden page).
  */
 export const pathTargetsInaccessibleOrg = (path: string, currentUser: CurrentUser): boolean => {
-  const firstSegment = path.replace(/^\//, '').split(PATH_SEGMENT_SEPARATOR)[0]
+  const firstSegment = getFirstPathSegment(path)
 
   if (!firstSegment) return false
 
