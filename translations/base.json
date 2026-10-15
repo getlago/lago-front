@@ -5205,5 +5205,6 @@
   "text_17865575089107lip4oupwdj": "This invitation was sent to another email address. Log in with the invited account to accept it.",
   "text_1786557573982blvi6cjpnti": "Your login method is not allowed by this organization. Log in with an authorized method to accept this invitation.",
   "text_1791986111631ve46fi5sy3j": "Open organization",
-  "text_1791986111631bwcgn2cc96p": "An account now exists for {{email}}. Enter its current password to accept the invitation."
+  "text_1791986111631bwcgn2cc96p": "An account now exists for {{email}}. Enter its current password to accept the invitation.",
+  "text_17920584710724rtqabk4fe2": "You’re logged in with {{method}}, which this organization doesn’t accept for your account. To access it, please log out and sign in again using a different login method."
 }

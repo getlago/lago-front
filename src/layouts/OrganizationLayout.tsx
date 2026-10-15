@@ -19,6 +19,7 @@ import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 const Error404 = lazy(() => import('~/pages/Error404'))
+const Forbidden = lazy(() => import('~/pages/Forbidden'))
 
 /**
  * Slug-migration Sentry events use a named `Error` subclass + `captureException`
@@ -44,9 +45,11 @@ const OrganizationLayout = () => {
 
   const currentOrgId = useReactiveVar(currentOrganizationVar)
 
-  const org = currentUser?.memberships.find(
+  const membershipOrg = currentUser?.memberships.find(
     (m) => m.organization.slug === organizationSlug,
   )?.organization
+  // The API refuses every request to an organization the session can't open.
+  const org = membershipOrg?.accessibleByCurrentSession ? membershipOrg : undefined
 
   // Auto-recovery for legacy pre-migration paths (e.g. `/customers`).
   const isLegacyPath = LEGACY_APP_PATH_SEGMENTS.has(organizationSlug ?? '')
@@ -139,6 +142,14 @@ const OrganizationLayout = () => {
   if (!isAuthenticated) return null
 
   if (loading && !org) return <Spinner />
+
+  if (membershipOrg && !org) {
+    return (
+      <Suspense fallback={<Spinner />}>
+        <Forbidden />
+      </Suspense>
+    )
+  }
 
   if (org) {
     if (currentOrgId !== org.id) return <Spinner />

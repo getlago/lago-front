@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/react'
-import { renderHook } from '@testing-library/react'
+import { render, renderHook, waitFor } from '@testing-library/react'
 
 // Import after mocks
 import OrganizationLayout from '../OrganizationLayout'
@@ -81,6 +81,11 @@ jest.mock('~/pages/Error404', () => ({
   default: () => <div data-test="error-404" />,
 }))
 
+jest.mock('~/pages/Forbidden', () => ({
+  __esModule: true,
+  default: () => <div data-test="forbidden" />,
+}))
+
 const TEST_ORG_SLUG = 'acme'
 const TEST_ORG_ID = 'org-1'
 const OTHER_ORG_ID = 'org-2'
@@ -88,11 +93,21 @@ const OTHER_ORG_ID = 'org-2'
 const defaultMemberships = [
   {
     id: 'membership-1',
-    organization: { id: TEST_ORG_ID, name: 'Acme Corp', slug: TEST_ORG_SLUG },
+    organization: {
+      id: TEST_ORG_ID,
+      name: 'Acme Corp',
+      slug: TEST_ORG_SLUG,
+      accessibleByCurrentSession: true,
+    },
   },
   {
     id: 'membership-2',
-    organization: { id: OTHER_ORG_ID, name: 'Other Corp', slug: 'other-corp' },
+    organization: {
+      id: OTHER_ORG_ID,
+      name: 'Other Corp',
+      slug: 'other-corp',
+      accessibleByCurrentSession: true,
+    },
   },
 ]
 
@@ -190,6 +205,45 @@ describe('OrganizationLayout', () => {
         // During transition it renders spinner (since currentOrgId !== org.id)
         expect(result.current).toBeTruthy()
       })
+    })
+  })
+
+  describe('GIVEN the slug matches a membership the current session cannot access', () => {
+    beforeEach(() => {
+      mockUseParams.mockReturnValue({ organizationSlug: 'other-corp' })
+      mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
+      mockUseCurrentUser.mockReturnValue({
+        currentUser: {
+          memberships: [
+            defaultMemberships[0],
+            {
+              ...defaultMemberships[1],
+              organization: {
+                ...defaultMemberships[1].organization,
+                accessibleByCurrentSession: false,
+              },
+            },
+          ],
+        },
+        loading: false,
+      })
+    })
+
+    it('THEN should render the forbidden page', async () => {
+      const { container } = render(<OrganizationLayout />)
+
+      await waitFor(() => {
+        expect(container.querySelector('[data-test="forbidden"]')).toBeInTheDocument()
+      })
+      expect(container.querySelector('[data-test="outlet"]')).not.toBeInTheDocument()
+    })
+
+    it('THEN should not switch to that organization', () => {
+      renderHook(() => OrganizationLayout())
+
+      expect(mockSwitchCurrentOrganization).not.toHaveBeenCalled()
+      expect(mockSetCurrentOrganizationId).not.toHaveBeenCalled()
+      expect(mockSetPersistedOrganizationSlug).not.toHaveBeenCalled()
     })
   })
 
