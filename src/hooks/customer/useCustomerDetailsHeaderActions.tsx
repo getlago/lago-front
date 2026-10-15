@@ -89,6 +89,7 @@ export function useCustomerDetailsHeaderActions({
       label: translate('text_641b1b19d6e64300632ca60c'),
       variant: 'inline',
       startIcon: 'outside',
+      hidden: !hasPermissions(['customersUpdate']),
       onClick: async () => {
         await generatePortalUrl({
           variables: { input: { id: customerId } },

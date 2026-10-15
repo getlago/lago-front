@@ -106,6 +106,7 @@ describe('useCustomerDetailsHeaderActions', () => {
           type: 'action',
           variant: 'inline',
           startIcon: 'outside',
+          hidden: false,
         })
       })
 
@@ -136,7 +137,7 @@ describe('useCustomerDetailsHeaderActions', () => {
         const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
 
         expect(result.current).toHaveLength(2)
-        expect(result.current[0]).toMatchObject({ type: 'action' })
+        expect(result.current[0]).toMatchObject({ type: 'action', hidden: true })
 
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
 
@@ -286,6 +287,20 @@ describe('useCustomerDetailsHeaderActions', () => {
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
 
         expect(dropdownAction.items[0].hidden).toBe(true)
+      })
+    })
+
+    describe('WHEN user can view but not update customers', () => {
+      it('THEN should hide the portal URL action', () => {
+        mockHasPermissions.mockImplementation(((perms: string[]) => {
+          if (perms.includes('customersUpdate')) return false
+
+          return true
+        }) as unknown as () => boolean)
+
+        const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
+
+        expect(result.current[0]).toMatchObject({ type: 'action', hidden: true })
       })
     })
 
