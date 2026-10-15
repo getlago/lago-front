@@ -8,8 +8,10 @@ import {
 } from '~/components/designSystem/GenericPlaceholder'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { logOut } from '~/core/apolloClient'
-import { HOME_ROUTE, useNavigate } from '~/core/router'
-import { getAccessibleMemberships } from '~/core/router/utils/orgSlug'
+import { HOME_ROUTE, useLocation, useNavigate } from '~/core/router'
+import { findRefusedOrganization, getAccessibleMemberships } from '~/core/router/utils/orgSlug'
+import { setItemFromLS } from '~/core/utils/localStorage'
+import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { CurrentUserInfosFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -27,9 +29,7 @@ const getForbiddenReason = (
 ): ForbiddenReason => {
   const memberships = currentUser?.memberships ?? []
   const hasAccessibleOrganization = getAccessibleMemberships(currentUser).length > 0
-  const refusedOrganization = memberships.find(
-    (m) => m.organization.slug === organizationSlug && !m.organization.accessibleByCurrentSession,
-  )?.organization
+  const refusedOrganization = findRefusedOrganization(organizationSlug, currentUser)
 
   if (refusedOrganization) {
     return {
@@ -48,6 +48,7 @@ const Forbidden = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
   const navigate = useNavigate()
+  const { pathname, search, hash } = useLocation()
   const client = useApolloClient()
   const { currentUser, loading } = useCurrentUser()
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
@@ -55,7 +56,14 @@ const Forbidden = () => {
   const reason = getForbiddenReason(currentUser, organizationSlug)
   const logOutButton = {
     title: translate('text_623b497ad05b960101be3444'),
-    action: async (): Promise<void> => await logOut(client, true),
+    action: async (): Promise<void> => {
+      // Home drains this after the next login and keeps it only if that login can open the org.
+      if (reason.type === 'organizationRefused') {
+        setItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY, `${pathname}${search}${hash}`)
+      }
+
+      await logOut(client, true)
+    },
   }
 
   const getPlaceholderProps = (): GenericPlaceholderContentProps => {

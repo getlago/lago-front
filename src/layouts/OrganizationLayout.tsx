@@ -57,7 +57,6 @@ const OrganizationLayout = () => {
   const recoveredSlug = resolveOrgSlug(currentUser)
 
   const shouldAutoRecoverLegacyPath = !loading && !membershipOrg && isLegacyPath && !!recoveredSlug
-  // A legacy path with nowhere to recover to: every membership is refused to this session.
   const hasNoAccessibleOrgForLegacyPath =
     !loading &&
     !membershipOrg &&
@@ -65,7 +64,8 @@ const OrganizationLayout = () => {
     !recoveredSlug &&
     !!currentUser?.memberships.length
   const isInaccessibleOrg = !loading && !!membershipOrg && !org
-  const reportedInaccessibleSlugRef = useRef<string | undefined>(undefined)
+  const isRefusedBySession = isInaccessibleOrg || hasNoAccessibleOrgForLegacyPath
+  const reportedVisitKeyRef = useRef<string | null>(null)
 
   // If currentOrgId already exists and differs from org.id, the user switched org
   // (e.g. browser back after org switch). In that case, call switchCurrentOrganization
@@ -140,32 +140,34 @@ const OrganizationLayout = () => {
   // `external` (bookmark, shared link) is expected. `in_app` means one of our own
   // links or redirects sent the user to an organization the session cannot open.
   useEffect(() => {
-    if (!isInaccessibleOrg) return
+    if (!isRefusedBySession) return
     // A `currentUser` refetch toggles `loading`, which would report the same visit again.
-    if (reportedInaccessibleSlugRef.current === organizationSlug) return
+    if (reportedVisitKeyRef.current === location.key) return
 
-    reportedInaccessibleSlugRef.current = organizationSlug
+    reportedVisitKeyRef.current = location.key
 
     const previousPath = locationHistoryVar()[0]?.pathname
+    // React Router's per-document history index: 0 is the entry the browser loaded the app on.
+    const historyIndex = (window.history.state as { idx?: number } | null)?.idx ?? 0
+    const event = isInaccessibleOrg
+      ? new OrganizationLayoutEvent('OrganizationInaccessible', 'org_inaccessible_for_session')
+      : new OrganizationLayoutEvent('NoOrganizationAccessible', 'no_org_accessible_for_session')
 
-    Sentry.captureException(
-      new OrganizationLayoutEvent('OrganizationInaccessible', 'org_inaccessible_for_session'),
-      {
-        level: 'warning',
-        tags: {
-          feature: 'org-access',
-          attemptedSlug: organizationSlug ?? '',
-          source: previousPath ? 'in_app' : 'external',
-        },
-        extra: {
-          fullPath: location.pathname,
-          previousPath: previousPath || null,
-          accessibleMembershipsCount: getAccessibleMemberships(currentUser).length,
-        },
+    Sentry.captureException(event, {
+      level: 'warning',
+      tags: {
+        feature: 'org-access',
+        attemptedSlug: organizationSlug ?? '',
+        source: historyIndex > 0 ? 'in_app' : 'external',
       },
-    )
+      extra: {
+        fullPath: location.pathname,
+        previousPath: previousPath || null,
+        accessibleMembershipsCount: getAccessibleMemberships(currentUser).length,
+      },
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isInaccessibleOrg, organizationSlug])
+  }, [isRefusedBySession, location.key])
 
   if (!isAuthenticated) return null
 

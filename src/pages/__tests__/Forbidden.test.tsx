@@ -7,6 +7,8 @@ import {
   GENERIC_PLACEHOLDER_SUBTITLE_TEST_ID,
   GENERIC_PLACEHOLDER_TITLE_TEST_ID,
 } from '~/components/designSystem/GenericPlaceholder'
+import { getItemFromLS } from '~/core/utils/localStorage'
+import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { CurrentUserInfosFragment } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
@@ -51,6 +53,7 @@ const renderForbidden = (memberships: MembershipFixture[], organizationSlug?: st
 describe('Forbidden', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    localStorage.clear()
   })
 
   describe('GIVEN the current user is still loading', () => {
@@ -92,6 +95,18 @@ describe('Forbidden', () => {
       })
     })
 
+    describe('WHEN the user logs out to sign in with another login method', () => {
+      it('THEN should keep the refused page as the post-login redirect', async () => {
+        window.history.pushState({}, '', '/locked/customers?tab=1#top')
+        renderForbidden([buildMembership('open', true), buildMembership('locked', false)], 'locked')
+
+        await userEvent.click(screen.getByTestId(GENERIC_PLACEHOLDER_SECONDARY_BUTTON_TEST_ID))
+
+        expect(getItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)).toBe('/locked/customers?tab=1#top')
+        expect(mockLogOut).toHaveBeenCalled()
+      })
+    })
+
     describe('WHEN the session cannot open any organization', () => {
       it('THEN should only offer to log out', async () => {
         renderForbidden([buildMembership('locked', false)], 'locked')
@@ -119,6 +134,7 @@ describe('Forbidden', () => {
       await userEvent.click(screen.getByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID))
 
       expect(mockLogOut).toHaveBeenCalled()
+      expect(getItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)).toBeFalsy()
     })
   })
 

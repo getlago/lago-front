@@ -26,6 +26,20 @@ type Membership = OrgSlugResolverDataFragment['memberships'][number]
 export const getAccessibleMemberships = (currentUser: CurrentUser): Membership[] =>
   currentUser?.memberships?.filter((m) => m.organization.accessibleByCurrentSession) ?? []
 
+export const isAccessibleOrgSlug = (slug: string | undefined, currentUser: CurrentUser): boolean =>
+  !!slug && getAccessibleMemberships(currentUser).some((m) => m.organization.slug === slug)
+
+export const findRefusedOrganization = <User extends OrgSlugResolverDataFragment>(
+  slug: string | undefined,
+  currentUser: User | undefined,
+): User['memberships'][number]['organization'] | undefined => {
+  if (!slug) return undefined
+
+  return currentUser?.memberships?.find(
+    (m) => m.organization.slug === slug && !m.organization.accessibleByCurrentSession,
+  )?.organization
+}
+
 /**
  * Resolves the org slug to land on when the URL has no (valid) slug — e.g. a
  * legacy slug-less path or the user deleting the slug from the URL bar.
@@ -75,17 +89,8 @@ export const pathHasValidSlug = (path: string, currentUser: CurrentUser): boolea
   return currentUser?.memberships?.some((m) => m.organization.slug === firstSegment) ?? false
 }
 
-export const pathTargetsInaccessibleOrg = (path: string, currentUser: CurrentUser): boolean => {
-  const firstSegment = getFirstPathSegment(path)
-
-  if (!firstSegment) return false
-
-  return (
-    currentUser?.memberships?.some(
-      (m) => m.organization.slug === firstSegment && !m.organization.accessibleByCurrentSession,
-    ) ?? false
-  )
-}
+export const pathTargetsInaccessibleOrg = (path: string, currentUser: CurrentUser): boolean =>
+  !!findRefusedOrganization(getFirstPathSegment(path), currentUser)
 
 /**
  * Prepends the given slug to the path if the path doesn't already contain

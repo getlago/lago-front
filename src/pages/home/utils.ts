@@ -11,8 +11,8 @@ import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
 import { isSafeInAppPath } from '~/core/router/utils/isSafeInAppPath'
 import {
   ensureSlugPrefix,
-  getAccessibleMemberships,
   getFirstPathSegment,
+  isAccessibleOrgSlug,
   pathHasValidSlug,
   pathTargetsInaccessibleOrg,
   resolveOrgSlug,
@@ -111,11 +111,8 @@ export const resolveRedirectTarget = (
     // Logout + login with another org, or a login method that org refuses,
     // would otherwise carry the old org's path through router state.
     const savedSlug = getFirstPathSegment(savedLocation.pathname)
-    const isAccessibleOrgPath = getAccessibleMemberships(currentUser).some(
-      (m) => m.organization.slug === savedSlug,
-    )
 
-    if (isAccessibleOrgPath) {
+    if (isAccessibleOrgSlug(savedSlug, currentUser)) {
       return { to: savedLocation, consumesSsoLs: discardsSsoPath }
     }
 

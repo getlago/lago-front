@@ -2,7 +2,9 @@ import { OrgSlugResolverDataFragment } from '~/generated/graphql'
 
 import {
   ensureSlugPrefix,
+  findRefusedOrganization,
   getAccessibleMemberships,
+  isAccessibleOrgSlug,
   pathHasValidSlug,
   pathTargetsInaccessibleOrg,
   resolveOrgSlug,
@@ -313,6 +315,38 @@ describe('getAccessibleMemberships', () => {
     it('THEN should return an empty list', () => {
       expect(getAccessibleMemberships(undefined)).toEqual([])
     })
+  })
+})
+
+describe('isAccessibleOrgSlug', () => {
+  const lockedOrgB = {
+    ...defaultMemberships[1],
+    organization: { ...defaultMemberships[1].organization, accessibleByCurrentSession: false },
+  }
+  const currentUser = buildCurrentUser([defaultMemberships[0], lockedOrgB])
+
+  it('THEN should return true for an organization the session can open', () => {
+    expect(isAccessibleOrgSlug('org-a', currentUser)).toBe(true)
+  })
+
+  it.each(['org-b', 'unknown', '', undefined])('THEN should return false for %s', (slug) => {
+    expect(isAccessibleOrgSlug(slug, currentUser)).toBe(false)
+  })
+})
+
+describe('findRefusedOrganization', () => {
+  const lockedOrgB = {
+    ...defaultMemberships[1],
+    organization: { ...defaultMemberships[1].organization, accessibleByCurrentSession: false },
+  }
+  const currentUser = buildCurrentUser([defaultMemberships[0], lockedOrgB])
+
+  it('THEN should return the organization the session cannot open', () => {
+    expect(findRefusedOrganization('org-b', currentUser)).toBe(lockedOrgB.organization)
+  })
+
+  it.each(['org-a', 'unknown', undefined])('THEN should return undefined for %s', (slug) => {
+    expect(findRefusedOrganization(slug, currentUser)).toBeUndefined()
   })
 })
 

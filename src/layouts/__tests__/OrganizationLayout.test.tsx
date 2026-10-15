@@ -120,6 +120,7 @@ describe('OrganizationLayout', () => {
       hash: '',
     })
     mockLocationHistoryVar.mockReturnValue([])
+    window.history.replaceState(null, '')
     mockGetCurrentOrganizationId.mockReturnValue(TEST_ORG_ID)
     // Persisted last-used slug (read by the missed-migration detection).
     mockGetPersistedOrganizationSlug.mockReturnValue(TEST_ORG_SLUG)
@@ -256,6 +257,17 @@ describe('OrganizationLayout', () => {
     })
 
     describe('WHEN the user lands on it from outside the app (bookmark, shared link)', () => {
+      it('THEN should report it as external even with a stale in-app location history', () => {
+        mockLocationHistoryVar.mockReturnValue([{ pathname: `/${TEST_ORG_SLUG}/plans` }])
+
+        renderHook(() => OrganizationLayout())
+
+        expect(Sentry.captureException).toHaveBeenCalledWith(
+          expect.objectContaining({ name: 'OrganizationInaccessible' }),
+          expect.objectContaining({ tags: expect.objectContaining({ source: 'external' }) }),
+        )
+      })
+
       it('THEN should emit an external org_inaccessible_for_session warning once', () => {
         const { rerender } = renderHook(() => OrganizationLayout())
 
@@ -278,6 +290,7 @@ describe('OrganizationLayout', () => {
 
     describe('WHEN the user was already navigating inside the app', () => {
       it('THEN should emit an in_app org_inaccessible_for_session warning', () => {
+        window.history.replaceState({ idx: 2 }, '')
         mockLocationHistoryVar.mockReturnValue([{ pathname: `/${TEST_ORG_SLUG}/plans` }])
 
         renderHook(() => OrganizationLayout())
@@ -305,6 +318,18 @@ describe('OrganizationLayout', () => {
         rerender()
 
         expect(Sentry.captureException).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the user leaves and comes back to the same organization', () => {
+      it('THEN should report the new visit', () => {
+        mockUseLocation.mockReturnValue({ pathname: '/other-corp', search: '', hash: '', key: 'a' })
+        const { rerender } = renderHook(() => OrganizationLayout())
+
+        mockUseLocation.mockReturnValue({ pathname: '/other-corp', search: '', hash: '', key: 'b' })
+        rerender()
+
+        expect(Sentry.captureException).toHaveBeenCalledTimes(2)
       })
     })
   })
@@ -373,10 +398,21 @@ describe('OrganizationLayout', () => {
         expect(mockNavigate).not.toHaveBeenCalled()
       })
 
-      it('THEN should not emit the org_inaccessible_for_session warning', () => {
+      it('THEN should emit the no_org_accessible_for_session warning', () => {
         renderHook(() => OrganizationLayout())
 
-        expect(Sentry.captureException).not.toHaveBeenCalled()
+        expect(Sentry.captureException).toHaveBeenCalledTimes(1)
+        expect(Sentry.captureException).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: 'NoOrganizationAccessible',
+            message: 'no_org_accessible_for_session',
+          }),
+          expect.objectContaining({
+            level: 'warning',
+            tags: expect.objectContaining({ attemptedSlug: 'customers', source: 'external' }),
+            extra: expect.objectContaining({ accessibleMembershipsCount: 0 }),
+          }),
+        )
       })
     })
   })
