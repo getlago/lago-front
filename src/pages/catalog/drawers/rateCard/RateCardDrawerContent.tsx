@@ -114,6 +114,7 @@ type RateCardDrawerSectionsExtraProps = {
   isEdit: boolean
   isAttached: boolean
   hasRates: boolean
+  isCurrencyLocked: boolean
   disableCodeInput: boolean
   productSeed: RateCardProductSeed
   productFilterSeed: RateCardComboboxSeed
@@ -123,6 +124,7 @@ const rateCardDrawerSectionsDefaultProps: RateCardDrawerSectionsExtraProps = {
   isEdit: false,
   isAttached: false,
   hasRates: false,
+  isCurrencyLocked: false,
   disableCodeInput: false,
   productSeed: null,
   productFilterSeed: null,
@@ -151,6 +153,7 @@ const RateCardDrawerFormSections = withForm({
     isEdit,
     isAttached,
     hasRates,
+    isCurrencyLocked,
     disableCodeInput,
     productSeed,
     productFilterSeed,
@@ -434,7 +437,7 @@ const RateCardDrawerFormSections = withForm({
                   label={translate('text_1784925227817bab1mp540x7')}
                   placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
                   data={currencyComboboxData}
-                  disabled={hasRates || isAttached}
+                  disabled={hasRates || isAttached || isCurrencyLocked}
                 />
               )}
             </form.AppField>
@@ -621,6 +624,7 @@ export const RateCardDrawerContent = withForm({
     isEdit,
     isAttached,
     hasRates,
+    isCurrencyLocked,
     disableCodeInput,
     productSeed,
     productFilterSeed,
@@ -633,6 +637,7 @@ export const RateCardDrawerContent = withForm({
           isEdit={isEdit}
           isAttached={isAttached}
           hasRates={hasRates}
+          isCurrencyLocked={isCurrencyLocked}
           disableCodeInput={disableCodeInput}
           productSeed={productSeed}
           productFilterSeed={productFilterSeed}

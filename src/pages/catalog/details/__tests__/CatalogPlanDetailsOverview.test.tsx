@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 
 import { CatalogPlanOverviewSectionsEnum } from '~/core/constants/tabsOptions'
+import { CurrencyEnum } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
 import { CatalogPlanDetailsOverview } from '../CatalogPlanDetailsOverview'
@@ -47,9 +48,16 @@ jest.mock('../CatalogPlanOverviewNav', () => ({
 }))
 
 const renderOverview = (): void => {
-  render(<CatalogPlanDetailsOverview isRateCardRemovalLocked={false} rateCardsCount={0} />, {
-    wrapper: AllTheProviders,
-  })
+  render(
+    <CatalogPlanDetailsOverview
+      currency={CurrencyEnum.Usd}
+      isRateCardsLocked={false}
+      rateCardsCount={0}
+    />,
+    {
+      wrapper: AllTheProviders,
+    },
+  )
 }
 
 describe('CatalogPlanDetailsOverview', () => {
@@ -88,7 +96,12 @@ describe('CatalogPlanDetailsOverview', () => {
   it('GIVEN rateCardsCount and loading THEN forwards both to the nav', () => {
     mockParams.section = undefined
     render(
-      <CatalogPlanDetailsOverview isRateCardRemovalLocked={false} rateCardsCount={4} loading />,
+      <CatalogPlanDetailsOverview
+        currency={CurrencyEnum.Usd}
+        isRateCardsLocked={false}
+        rateCardsCount={4}
+        loading
+      />,
       {
         wrapper: AllTheProviders,
       },

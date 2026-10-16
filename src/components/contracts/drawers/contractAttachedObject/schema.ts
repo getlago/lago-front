@@ -12,5 +12,5 @@ import { ContractAttachedObjectFormValues } from './constants'
 export const contractAttachedObjectSchema = z
   .custom<ContractAttachedObjectFormValues>()
   .superRefine((data, ctx) => {
-    if (data.isPlanRequired) requireField(ctx, data.planCode, ['planCode'])
+    requireField(ctx, data.planCode, ['planCode'])
   })

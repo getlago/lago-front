@@ -10134,6 +10134,7 @@ export type QueryRateCardRatesArgs = {
 
 export type QueryRateCardsArgs = {
   code?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -13259,6 +13260,102 @@ export type GetUsageOverviewQueryVariables = Exact<{
 
 export type GetUsageOverviewQuery = { __typename?: 'Query', dataApiUsagesAggregatedAmounts: { __typename?: 'DataApiUsageAggregatedAmountCollection', collection: Array<{ __typename?: 'DataApiUsageAggregatedAmount', amountCents: any, amountCurrency: CurrencyEnum, endOfPeriodDt: any, startOfPeriodDt: any }> } };
 
+export type PlanAppliedRateCardForAppliedRateCardsTableFragment = { __typename?: 'PlanAppliedRateCard', id: string, ratePhasesCount: number, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null } };
+
+export type ContractAppliedRateCardForAppliedRateCardsTableFragment = { __typename?: 'ContractAppliedRateCard', id: string, ratePhasesCount: number, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null } };
+
+export type DestroyPlanAppliedRateCardMutationVariables = Exact<{
+  input: DestroyPlanAppliedRateCardInput;
+}>;
+
+
+export type DestroyPlanAppliedRateCardMutation = { __typename?: 'Mutation', destroyPlanAppliedRateCard?: { __typename?: 'PlanAppliedRateCard', id: string } | null };
+
+export type DestroyContractAppliedRateCardMutationVariables = Exact<{
+  input: DestroyContractAppliedRateCardInput;
+}>;
+
+
+export type DestroyContractAppliedRateCardMutation = { __typename?: 'Mutation', destroyContractAppliedRateCard?: { __typename?: 'ContractAppliedRateCard', id: string } | null };
+
+export type ProductForAppliedRateCardDrawerFragment = { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null };
+
+export type GetProductsForAppliedRateCardDrawerQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetProductsForAppliedRateCardDrawerQuery = { __typename?: 'Query', products: { __typename?: 'ProductCollection', collection: Array<{ __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
+
+export type GetProductFiltersForAppliedRateCardDrawerQueryVariables = Exact<{
+  productId?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type GetProductFiltersForAppliedRateCardDrawerQuery = { __typename?: 'Query', productFilters: { __typename?: 'ProductFilterCollection', collection: Array<{ __typename?: 'ProductFilter', id: string, name: string, code: string }> } };
+
+export type RateCardForAppliedRateCardDrawerFragment = { __typename?: 'RateCard', currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null };
+
+export type GetRateCardsForAppliedRateCardDrawerQueryVariables = Exact<{
+  productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  productFilterIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CurrencyEnum>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetRateCardsForAppliedRateCardDrawerQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> } };
+
+export type CreatePlanAppliedRateCardMutationVariables = Exact<{
+  input: CreatePlanAppliedRateCardInput;
+}>;
+
+
+export type CreatePlanAppliedRateCardMutation = { __typename?: 'Mutation', createPlanAppliedRateCard?: { __typename?: 'PlanAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, name: string } } | null };
+
+export type CreateContractAppliedRateCardMutationVariables = Exact<{
+  input: CreateContractAppliedRateCardInput;
+}>;
+
+
+export type CreateContractAppliedRateCardMutation = { __typename?: 'Mutation', createContractAppliedRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, name: string } } | null };
+
+export type ActiveRateForRatePhaseFragment = { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } };
+
+export type RatePhaseForDrawerFragment = { __typename?: 'RatePhase', id: string, code: string, name?: string | null, position: number, billingIntervalCycleCount?: number | null, rateOverride?: { __typename?: 'RateOverride', rateModel: RateCardRateModelEnum, billingIntervalCount?: number | null, billingIntervalUnit?: RateCardRateBillingIntervalUnitEnum | null, minAmountCents: any, pricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null };
+
+export type CreateRatePhaseMutationVariables = Exact<{
+  input: CreateRatePhaseInput;
+}>;
+
+
+export type CreateRatePhaseMutation = { __typename?: 'Mutation', createRatePhase?: { __typename?: 'RatePhase', id: string, code: string } | null };
+
+export type UpdateRatePhaseMutationVariables = Exact<{
+  input: UpdateRatePhaseInput;
+}>;
+
+
+export type UpdateRatePhaseMutation = { __typename?: 'Mutation', updateRatePhase?: { __typename?: 'RatePhase', id: string, code: string } | null };
+
+export type CreateContractRatePhaseMutationVariables = Exact<{
+  input: CreateContractRatePhaseInput;
+}>;
+
+
+export type CreateContractRatePhaseMutation = { __typename?: 'Mutation', createContractRatePhase?: { __typename?: 'RatePhase', id: string, code: string } | null };
+
+export type UpdateContractRatePhaseMutationVariables = Exact<{
+  input: UpdateContractRatePhaseInput;
+}>;
+
+
+export type UpdateContractRatePhaseMutation = { __typename?: 'Mutation', updateContractRatePhase?: { __typename?: 'RatePhase', id: string, code: string } | null };
+
 export type GetGoogleAuthUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -14693,24 +14790,6 @@ export type GetBillableMetricsQuery = { __typename?: 'Query', billableMetrics: {
 export type UsageChargeForDrawerFragment = { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, prorated: boolean, invoiceDisplayName?: string | null, regroupPaidFees?: RegroupPaidFeesEnum | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, presentationGroupKeys?: Array<{ __typename?: 'PresentationGroupKey', value: string, options?: { __typename?: 'PresentationGroupKeyOptions', displayInInvoice?: boolean | null } | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null };
 
 export type FixedChargesOnPlanFormFragment = { __typename?: 'Plan', id: string, billFixedChargesMonthly?: boolean | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, prorated: boolean, units: string, chargeModel: FixedChargeChargeModelEnum, invoiceDisplayName?: string | null, payInAdvance: boolean, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> | null };
-
-export type PlanAppliedRateCardForAppliedRateCardsTableFragment = { __typename?: 'PlanAppliedRateCard', id: string, ratePhasesCount: number, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null } };
-
-export type ContractAppliedRateCardForAppliedRateCardsTableFragment = { __typename?: 'ContractAppliedRateCard', id: string, ratePhasesCount: number, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null } };
-
-export type DestroyPlanAppliedRateCardMutationVariables = Exact<{
-  input: DestroyPlanAppliedRateCardInput;
-}>;
-
-
-export type DestroyPlanAppliedRateCardMutation = { __typename?: 'Mutation', destroyPlanAppliedRateCard?: { __typename?: 'PlanAppliedRateCard', id: string } | null };
-
-export type DestroyContractAppliedRateCardMutationVariables = Exact<{
-  input: DestroyContractAppliedRateCardInput;
-}>;
-
-
-export type DestroyContractAppliedRateCardMutation = { __typename?: 'Mutation', destroyContractAppliedRateCard?: { __typename?: 'ContractAppliedRateCard', id: string } | null };
 
 export type OrganizationInfoForPreviewDunningCampaignFragment = { __typename?: 'CurrentOrganization', id: string, name: string, email?: string | null, logoUrl?: string | null };
 
@@ -17587,14 +17666,14 @@ export type RateCardForListFragment = { __typename?: 'RateCard', id: string, nam
 
 export type PropertiesForActiveRateFragment = { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string }> | null };
 
-export type ContractForContractDetailsFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } } };
+export type ContractForContractDetailsFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, currency: CurrencyEnum, code: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } } };
 
 export type GetContractForDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetContractForDetailsQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } } } | null };
+export type GetContractForDetailsQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, currency: CurrencyEnum, code: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } } } | null };
 
 export type ContractForContractsListFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null };
 
@@ -19539,6 +19618,225 @@ export const RevenueStreamDataForOverviewSectionFragmentDoc = gql`
   progressiveBillingCreditAmountCents
 }
     `;
+export const PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc = gql`
+    fragment PlanAppliedRateCardForAppliedRateCardsTable on PlanAppliedRateCard {
+  id
+  ratePhasesCount
+  product {
+    id
+    name
+    invoiceDisplayName
+    productCategory {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+  rateCard {
+    id
+    name
+    code
+    productFilter {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+}
+    `;
+export const ContractAppliedRateCardForAppliedRateCardsTableFragmentDoc = gql`
+    fragment ContractAppliedRateCardForAppliedRateCardsTable on ContractAppliedRateCard {
+  id
+  ratePhasesCount
+  product {
+    id
+    name
+    invoiceDisplayName
+    productCategory {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+  rateCard {
+    id
+    name
+    code
+    productFilter {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+}
+    `;
+export const ProductForAppliedRateCardDrawerFragmentDoc = gql`
+    fragment ProductForAppliedRateCardDrawer on Product {
+  id
+  name
+  code
+  invoiceDisplayName
+  productType
+  productCategory {
+    id
+    name
+    code
+    invoiceDisplayName
+  }
+  billableMetric {
+    id
+    aggregationType
+    recurring
+  }
+}
+    `;
+export const PropertiesForActiveRateFragmentDoc = gql`
+    fragment PropertiesForActiveRate on RateProperties {
+  amount
+  rate
+  packageSize
+  graduatedRanges {
+    perUnitAmount
+  }
+  volumeRanges {
+    perUnitAmount
+  }
+  graduatedPercentageRanges {
+    rate
+  }
+}
+    `;
+export const StandardChargeForRateFragmentDoc = gql`
+    fragment StandardChargeForRate on RateProperties {
+  amount
+  pricingGroupKeys
+}
+    `;
+export const PackageChargeForRateFragmentDoc = gql`
+    fragment PackageChargeForRate on RateProperties {
+  amount
+  packageSize
+  freeUnits
+}
+    `;
+export const PercentageChargeForRateFragmentDoc = gql`
+    fragment PercentageChargeForRate on RateProperties {
+  fixedAmount
+  freeUnitsPerEvents
+  freeUnitsPerTotalAggregation
+  rate
+  perTransactionMinAmount
+  perTransactionMaxAmount
+}
+    `;
+export const CustomChargeForRateFragmentDoc = gql`
+    fragment CustomChargeForRate on RateProperties {
+  customProperties
+}
+    `;
+export const PricingGroupKeysForRateFragmentDoc = gql`
+    fragment PricingGroupKeysForRate on RateProperties {
+  pricingGroupKeys
+}
+    `;
+export const GraduatedRateTierFragmentDoc = gql`
+    fragment GraduatedRateTier on RateTier {
+  toValue
+  perUnitAmount
+  flatAmount
+}
+    `;
+export const GraduatedPercentageRateTierFragmentDoc = gql`
+    fragment GraduatedPercentageRateTier on RatePercentageTier {
+  toValue
+  rate
+  flatAmount
+}
+    `;
+export const VolumeRateTierFragmentDoc = gql`
+    fragment VolumeRateTier on RateTier {
+  toValue
+  perUnitAmount
+  flatAmount
+}
+    `;
+export const RatePropertiesForWrapperSwitchFragmentDoc = gql`
+    fragment RatePropertiesForWrapperSwitch on RateProperties {
+  ...StandardChargeForRate
+  ...PackageChargeForRate
+  ...PercentageChargeForRate
+  ...CustomChargeForRate
+  ...PricingGroupKeysForRate
+  graduatedRanges {
+    ...GraduatedRateTier
+  }
+  graduatedPercentageRanges {
+    ...GraduatedPercentageRateTier
+  }
+  volumeRanges {
+    ...VolumeRateTier
+  }
+}
+    ${StandardChargeForRateFragmentDoc}
+${PackageChargeForRateFragmentDoc}
+${PercentageChargeForRateFragmentDoc}
+${CustomChargeForRateFragmentDoc}
+${PricingGroupKeysForRateFragmentDoc}
+${GraduatedRateTierFragmentDoc}
+${GraduatedPercentageRateTierFragmentDoc}
+${VolumeRateTierFragmentDoc}`;
+export const PropertiesForRateCardRateFragmentDoc = gql`
+    fragment PropertiesForRateCardRate on RateProperties {
+  ...PropertiesForActiveRate
+  ...RatePropertiesForWrapperSwitch
+}
+    ${PropertiesForActiveRateFragmentDoc}
+${RatePropertiesForWrapperSwitchFragmentDoc}`;
+export const ActiveRateForRatePhaseFragmentDoc = gql`
+    fragment ActiveRateForRatePhase on RateCardRate {
+  id
+  effectiveFrom
+  rateModel
+  billingIntervalCount
+  billingIntervalUnit
+  minAmountCents
+  appliedPricingUnitConversionRate
+  rateProperties {
+    ...PropertiesForRateCardRate
+  }
+}
+    ${PropertiesForRateCardRateFragmentDoc}`;
+export const RateCardForAppliedRateCardDrawerFragmentDoc = gql`
+    fragment RateCardForAppliedRateCardDrawer on RateCard {
+  currency
+  billingTiming
+  appliedPricingUnitCode
+  proration
+  activeRate {
+    id
+    ...ActiveRateForRatePhase
+  }
+}
+    ${ActiveRateForRatePhaseFragmentDoc}`;
+export const RatePhaseForDrawerFragmentDoc = gql`
+    fragment RatePhaseForDrawer on RatePhase {
+  id
+  code
+  name
+  position
+  billingIntervalCycleCount
+  rateOverride {
+    rateModel
+    rateProperties {
+      ...PropertiesForRateCardRate
+    }
+    billingIntervalCount
+    billingIntervalUnit
+    minAmountCents
+    pricingUnitConversionRate
+  }
+}
+    ${PropertiesForRateCardRateFragmentDoc}`;
 export const BillableMetricDetailsFragmentDoc = gql`
     fragment BillableMetricDetails on BillableMetric {
   name
@@ -21605,58 +21903,6 @@ export const BillableMetricForUsageChargeSectionFragmentDoc = gql`
     id
     key
     values
-  }
-}
-    `;
-export const PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc = gql`
-    fragment PlanAppliedRateCardForAppliedRateCardsTable on PlanAppliedRateCard {
-  id
-  ratePhasesCount
-  product {
-    id
-    name
-    invoiceDisplayName
-    productCategory {
-      id
-      name
-      invoiceDisplayName
-    }
-  }
-  rateCard {
-    id
-    name
-    code
-    productFilter {
-      id
-      name
-      invoiceDisplayName
-    }
-  }
-}
-    `;
-export const ContractAppliedRateCardForAppliedRateCardsTableFragmentDoc = gql`
-    fragment ContractAppliedRateCardForAppliedRateCardsTable on ContractAppliedRateCard {
-  id
-  ratePhasesCount
-  product {
-    id
-    name
-    invoiceDisplayName
-    productCategory {
-      id
-      name
-      invoiceDisplayName
-    }
-  }
-  rateCard {
-    id
-    name
-    code
-    productFilter {
-      id
-      name
-      invoiceDisplayName
-    }
   }
 }
     `;
@@ -24529,108 +24775,6 @@ export const RateCardForDetailsOverviewFragmentDoc = gql`
 ${ProductCategoryForCatalogRelationsFragmentDoc}
 ${ProductFilterForCatalogRelationsFragmentDoc}
 ${RateCardForDrawerFragmentDoc}`;
-export const PropertiesForActiveRateFragmentDoc = gql`
-    fragment PropertiesForActiveRate on RateProperties {
-  amount
-  rate
-  packageSize
-  graduatedRanges {
-    perUnitAmount
-  }
-  volumeRanges {
-    perUnitAmount
-  }
-  graduatedPercentageRanges {
-    rate
-  }
-}
-    `;
-export const StandardChargeForRateFragmentDoc = gql`
-    fragment StandardChargeForRate on RateProperties {
-  amount
-  pricingGroupKeys
-}
-    `;
-export const PackageChargeForRateFragmentDoc = gql`
-    fragment PackageChargeForRate on RateProperties {
-  amount
-  packageSize
-  freeUnits
-}
-    `;
-export const PercentageChargeForRateFragmentDoc = gql`
-    fragment PercentageChargeForRate on RateProperties {
-  fixedAmount
-  freeUnitsPerEvents
-  freeUnitsPerTotalAggregation
-  rate
-  perTransactionMinAmount
-  perTransactionMaxAmount
-}
-    `;
-export const CustomChargeForRateFragmentDoc = gql`
-    fragment CustomChargeForRate on RateProperties {
-  customProperties
-}
-    `;
-export const PricingGroupKeysForRateFragmentDoc = gql`
-    fragment PricingGroupKeysForRate on RateProperties {
-  pricingGroupKeys
-}
-    `;
-export const GraduatedRateTierFragmentDoc = gql`
-    fragment GraduatedRateTier on RateTier {
-  toValue
-  perUnitAmount
-  flatAmount
-}
-    `;
-export const GraduatedPercentageRateTierFragmentDoc = gql`
-    fragment GraduatedPercentageRateTier on RatePercentageTier {
-  toValue
-  rate
-  flatAmount
-}
-    `;
-export const VolumeRateTierFragmentDoc = gql`
-    fragment VolumeRateTier on RateTier {
-  toValue
-  perUnitAmount
-  flatAmount
-}
-    `;
-export const RatePropertiesForWrapperSwitchFragmentDoc = gql`
-    fragment RatePropertiesForWrapperSwitch on RateProperties {
-  ...StandardChargeForRate
-  ...PackageChargeForRate
-  ...PercentageChargeForRate
-  ...CustomChargeForRate
-  ...PricingGroupKeysForRate
-  graduatedRanges {
-    ...GraduatedRateTier
-  }
-  graduatedPercentageRanges {
-    ...GraduatedPercentageRateTier
-  }
-  volumeRanges {
-    ...VolumeRateTier
-  }
-}
-    ${StandardChargeForRateFragmentDoc}
-${PackageChargeForRateFragmentDoc}
-${PercentageChargeForRateFragmentDoc}
-${CustomChargeForRateFragmentDoc}
-${PricingGroupKeysForRateFragmentDoc}
-${GraduatedRateTierFragmentDoc}
-${GraduatedPercentageRateTierFragmentDoc}
-${VolumeRateTierFragmentDoc}`;
-export const PropertiesForRateCardRateFragmentDoc = gql`
-    fragment PropertiesForRateCardRate on RateProperties {
-  ...PropertiesForActiveRate
-  ...RatePropertiesForWrapperSwitch
-}
-    ${PropertiesForActiveRateFragmentDoc}
-${RatePropertiesForWrapperSwitchFragmentDoc}`;
 export const RateCardRateForDrawerFragmentDoc = gql`
     fragment RateCardRateForDrawer on RateCardRate {
   id
@@ -24765,6 +24909,7 @@ export const ContractForContractDetailsFragmentDoc = gql`
   plan {
     id
     name
+    currency
   }
   ...ContractForContractDrawer
 }
@@ -27577,6 +27722,442 @@ export type GetUsageOverviewQueryHookResult = ReturnType<typeof useGetUsageOverv
 export type GetUsageOverviewLazyQueryHookResult = ReturnType<typeof useGetUsageOverviewLazyQuery>;
 export type GetUsageOverviewSuspenseQueryHookResult = ReturnType<typeof useGetUsageOverviewSuspenseQuery>;
 export type GetUsageOverviewQueryResult = Apollo.QueryResult<GetUsageOverviewQuery, GetUsageOverviewQueryVariables>;
+export const DestroyPlanAppliedRateCardDocument = gql`
+    mutation destroyPlanAppliedRateCard($input: DestroyPlanAppliedRateCardInput!) {
+  destroyPlanAppliedRateCard(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyPlanAppliedRateCardMutationFn = Apollo.MutationFunction<DestroyPlanAppliedRateCardMutation, DestroyPlanAppliedRateCardMutationVariables>;
+
+/**
+ * __useDestroyPlanAppliedRateCardMutation__
+ *
+ * To run a mutation, you first call `useDestroyPlanAppliedRateCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyPlanAppliedRateCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyPlanAppliedRateCardMutation, { data, loading, error }] = useDestroyPlanAppliedRateCardMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyPlanAppliedRateCardMutation(baseOptions?: Apollo.MutationHookOptions<DestroyPlanAppliedRateCardMutation, DestroyPlanAppliedRateCardMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyPlanAppliedRateCardMutation, DestroyPlanAppliedRateCardMutationVariables>(DestroyPlanAppliedRateCardDocument, options);
+      }
+export type DestroyPlanAppliedRateCardMutationHookResult = ReturnType<typeof useDestroyPlanAppliedRateCardMutation>;
+export type DestroyPlanAppliedRateCardMutationResult = Apollo.MutationResult<DestroyPlanAppliedRateCardMutation>;
+export type DestroyPlanAppliedRateCardMutationOptions = Apollo.BaseMutationOptions<DestroyPlanAppliedRateCardMutation, DestroyPlanAppliedRateCardMutationVariables>;
+export const DestroyContractAppliedRateCardDocument = gql`
+    mutation destroyContractAppliedRateCard($input: DestroyContractAppliedRateCardInput!) {
+  destroyContractAppliedRateCard(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyContractAppliedRateCardMutationFn = Apollo.MutationFunction<DestroyContractAppliedRateCardMutation, DestroyContractAppliedRateCardMutationVariables>;
+
+/**
+ * __useDestroyContractAppliedRateCardMutation__
+ *
+ * To run a mutation, you first call `useDestroyContractAppliedRateCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyContractAppliedRateCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyContractAppliedRateCardMutation, { data, loading, error }] = useDestroyContractAppliedRateCardMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyContractAppliedRateCardMutation(baseOptions?: Apollo.MutationHookOptions<DestroyContractAppliedRateCardMutation, DestroyContractAppliedRateCardMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyContractAppliedRateCardMutation, DestroyContractAppliedRateCardMutationVariables>(DestroyContractAppliedRateCardDocument, options);
+      }
+export type DestroyContractAppliedRateCardMutationHookResult = ReturnType<typeof useDestroyContractAppliedRateCardMutation>;
+export type DestroyContractAppliedRateCardMutationResult = Apollo.MutationResult<DestroyContractAppliedRateCardMutation>;
+export type DestroyContractAppliedRateCardMutationOptions = Apollo.BaseMutationOptions<DestroyContractAppliedRateCardMutation, DestroyContractAppliedRateCardMutationVariables>;
+export const GetProductsForAppliedRateCardDrawerDocument = gql`
+    query getProductsForAppliedRateCardDrawer($page: Int, $limit: Int, $searchTerm: String) {
+  products(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    collection {
+      id
+      code
+      ...ProductForAppliedRateCardDrawer
+    }
+    metadata {
+      currentPage
+      totalPages
+    }
+  }
+}
+    ${ProductForAppliedRateCardDrawerFragmentDoc}`;
+
+/**
+ * __useGetProductsForAppliedRateCardDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetProductsForAppliedRateCardDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductsForAppliedRateCardDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductsForAppliedRateCardDrawerQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetProductsForAppliedRateCardDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>(GetProductsForAppliedRateCardDrawerDocument, options);
+      }
+export function useGetProductsForAppliedRateCardDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>(GetProductsForAppliedRateCardDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetProductsForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>;
+export function useGetProductsForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductsForAppliedRateCardDrawerQuery | undefined, GetProductsForAppliedRateCardDrawerQueryVariables>;
+export function useGetProductsForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>(GetProductsForAppliedRateCardDrawerDocument, options);
+        }
+export type GetProductsForAppliedRateCardDrawerQueryHookResult = ReturnType<typeof useGetProductsForAppliedRateCardDrawerQuery>;
+export type GetProductsForAppliedRateCardDrawerLazyQueryHookResult = ReturnType<typeof useGetProductsForAppliedRateCardDrawerLazyQuery>;
+export type GetProductsForAppliedRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetProductsForAppliedRateCardDrawerSuspenseQuery>;
+export type GetProductsForAppliedRateCardDrawerQueryResult = Apollo.QueryResult<GetProductsForAppliedRateCardDrawerQuery, GetProductsForAppliedRateCardDrawerQueryVariables>;
+export const GetProductFiltersForAppliedRateCardDrawerDocument = gql`
+    query getProductFiltersForAppliedRateCardDrawer($productId: ID) {
+  productFilters(productId: $productId) {
+    collection {
+      id
+      name
+      code
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetProductFiltersForAppliedRateCardDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetProductFiltersForAppliedRateCardDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductFiltersForAppliedRateCardDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductFiltersForAppliedRateCardDrawerQuery({
+ *   variables: {
+ *      productId: // value for 'productId'
+ *   },
+ * });
+ */
+export function useGetProductFiltersForAppliedRateCardDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>(GetProductFiltersForAppliedRateCardDrawerDocument, options);
+      }
+export function useGetProductFiltersForAppliedRateCardDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>(GetProductFiltersForAppliedRateCardDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetProductFiltersForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>;
+export function useGetProductFiltersForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductFiltersForAppliedRateCardDrawerQuery | undefined, GetProductFiltersForAppliedRateCardDrawerQueryVariables>;
+export function useGetProductFiltersForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>(GetProductFiltersForAppliedRateCardDrawerDocument, options);
+        }
+export type GetProductFiltersForAppliedRateCardDrawerQueryHookResult = ReturnType<typeof useGetProductFiltersForAppliedRateCardDrawerQuery>;
+export type GetProductFiltersForAppliedRateCardDrawerLazyQueryHookResult = ReturnType<typeof useGetProductFiltersForAppliedRateCardDrawerLazyQuery>;
+export type GetProductFiltersForAppliedRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetProductFiltersForAppliedRateCardDrawerSuspenseQuery>;
+export type GetProductFiltersForAppliedRateCardDrawerQueryResult = Apollo.QueryResult<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>;
+export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
+    query getRateCardsForAppliedRateCardDrawer($productIds: [ID!], $productFilterIds: [ID!], $searchTerm: String, $code: String, $currency: CurrencyEnum, $limit: Int) {
+  rateCards(
+    productIds: $productIds
+    productFilterIds: $productFilterIds
+    searchTerm: $searchTerm
+    code: $code
+    currency: $currency
+    limit: $limit
+  ) {
+    collection {
+      id
+      name
+      code
+      ...RateCardForAppliedRateCardDrawer
+    }
+  }
+}
+    ${RateCardForAppliedRateCardDrawerFragmentDoc}`;
+
+/**
+ * __useGetRateCardsForAppliedRateCardDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetRateCardsForAppliedRateCardDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRateCardsForAppliedRateCardDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRateCardsForAppliedRateCardDrawerQuery({
+ *   variables: {
+ *      productIds: // value for 'productIds'
+ *      productFilterIds: // value for 'productFilterIds'
+ *      searchTerm: // value for 'searchTerm'
+ *      code: // value for 'code'
+ *      currency: // value for 'currency'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetRateCardsForAppliedRateCardDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>(GetRateCardsForAppliedRateCardDrawerDocument, options);
+      }
+export function useGetRateCardsForAppliedRateCardDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>(GetRateCardsForAppliedRateCardDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetRateCardsForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>;
+export function useGetRateCardsForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetRateCardsForAppliedRateCardDrawerQuery | undefined, GetRateCardsForAppliedRateCardDrawerQueryVariables>;
+export function useGetRateCardsForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>(GetRateCardsForAppliedRateCardDrawerDocument, options);
+        }
+export type GetRateCardsForAppliedRateCardDrawerQueryHookResult = ReturnType<typeof useGetRateCardsForAppliedRateCardDrawerQuery>;
+export type GetRateCardsForAppliedRateCardDrawerLazyQueryHookResult = ReturnType<typeof useGetRateCardsForAppliedRateCardDrawerLazyQuery>;
+export type GetRateCardsForAppliedRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetRateCardsForAppliedRateCardDrawerSuspenseQuery>;
+export type GetRateCardsForAppliedRateCardDrawerQueryResult = Apollo.QueryResult<GetRateCardsForAppliedRateCardDrawerQuery, GetRateCardsForAppliedRateCardDrawerQueryVariables>;
+export const CreatePlanAppliedRateCardDocument = gql`
+    mutation createPlanAppliedRateCard($input: CreatePlanAppliedRateCardInput!) {
+  createPlanAppliedRateCard(input: $input) {
+    id
+    rateCard {
+      id
+      name
+    }
+  }
+}
+    `;
+export type CreatePlanAppliedRateCardMutationFn = Apollo.MutationFunction<CreatePlanAppliedRateCardMutation, CreatePlanAppliedRateCardMutationVariables>;
+
+/**
+ * __useCreatePlanAppliedRateCardMutation__
+ *
+ * To run a mutation, you first call `useCreatePlanAppliedRateCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePlanAppliedRateCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPlanAppliedRateCardMutation, { data, loading, error }] = useCreatePlanAppliedRateCardMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreatePlanAppliedRateCardMutation(baseOptions?: Apollo.MutationHookOptions<CreatePlanAppliedRateCardMutation, CreatePlanAppliedRateCardMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePlanAppliedRateCardMutation, CreatePlanAppliedRateCardMutationVariables>(CreatePlanAppliedRateCardDocument, options);
+      }
+export type CreatePlanAppliedRateCardMutationHookResult = ReturnType<typeof useCreatePlanAppliedRateCardMutation>;
+export type CreatePlanAppliedRateCardMutationResult = Apollo.MutationResult<CreatePlanAppliedRateCardMutation>;
+export type CreatePlanAppliedRateCardMutationOptions = Apollo.BaseMutationOptions<CreatePlanAppliedRateCardMutation, CreatePlanAppliedRateCardMutationVariables>;
+export const CreateContractAppliedRateCardDocument = gql`
+    mutation createContractAppliedRateCard($input: CreateContractAppliedRateCardInput!) {
+  createContractAppliedRateCard(input: $input) {
+    id
+    rateCard {
+      id
+      name
+    }
+  }
+}
+    `;
+export type CreateContractAppliedRateCardMutationFn = Apollo.MutationFunction<CreateContractAppliedRateCardMutation, CreateContractAppliedRateCardMutationVariables>;
+
+/**
+ * __useCreateContractAppliedRateCardMutation__
+ *
+ * To run a mutation, you first call `useCreateContractAppliedRateCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateContractAppliedRateCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createContractAppliedRateCardMutation, { data, loading, error }] = useCreateContractAppliedRateCardMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateContractAppliedRateCardMutation(baseOptions?: Apollo.MutationHookOptions<CreateContractAppliedRateCardMutation, CreateContractAppliedRateCardMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateContractAppliedRateCardMutation, CreateContractAppliedRateCardMutationVariables>(CreateContractAppliedRateCardDocument, options);
+      }
+export type CreateContractAppliedRateCardMutationHookResult = ReturnType<typeof useCreateContractAppliedRateCardMutation>;
+export type CreateContractAppliedRateCardMutationResult = Apollo.MutationResult<CreateContractAppliedRateCardMutation>;
+export type CreateContractAppliedRateCardMutationOptions = Apollo.BaseMutationOptions<CreateContractAppliedRateCardMutation, CreateContractAppliedRateCardMutationVariables>;
+export const CreateRatePhaseDocument = gql`
+    mutation createRatePhase($input: CreateRatePhaseInput!) {
+  createRatePhase(input: $input) {
+    id
+    code
+  }
+}
+    `;
+export type CreateRatePhaseMutationFn = Apollo.MutationFunction<CreateRatePhaseMutation, CreateRatePhaseMutationVariables>;
+
+/**
+ * __useCreateRatePhaseMutation__
+ *
+ * To run a mutation, you first call `useCreateRatePhaseMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateRatePhaseMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createRatePhaseMutation, { data, loading, error }] = useCreateRatePhaseMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateRatePhaseMutation(baseOptions?: Apollo.MutationHookOptions<CreateRatePhaseMutation, CreateRatePhaseMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateRatePhaseMutation, CreateRatePhaseMutationVariables>(CreateRatePhaseDocument, options);
+      }
+export type CreateRatePhaseMutationHookResult = ReturnType<typeof useCreateRatePhaseMutation>;
+export type CreateRatePhaseMutationResult = Apollo.MutationResult<CreateRatePhaseMutation>;
+export type CreateRatePhaseMutationOptions = Apollo.BaseMutationOptions<CreateRatePhaseMutation, CreateRatePhaseMutationVariables>;
+export const UpdateRatePhaseDocument = gql`
+    mutation updateRatePhase($input: UpdateRatePhaseInput!) {
+  updateRatePhase(input: $input) {
+    id
+    code
+  }
+}
+    `;
+export type UpdateRatePhaseMutationFn = Apollo.MutationFunction<UpdateRatePhaseMutation, UpdateRatePhaseMutationVariables>;
+
+/**
+ * __useUpdateRatePhaseMutation__
+ *
+ * To run a mutation, you first call `useUpdateRatePhaseMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateRatePhaseMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateRatePhaseMutation, { data, loading, error }] = useUpdateRatePhaseMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateRatePhaseMutation(baseOptions?: Apollo.MutationHookOptions<UpdateRatePhaseMutation, UpdateRatePhaseMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateRatePhaseMutation, UpdateRatePhaseMutationVariables>(UpdateRatePhaseDocument, options);
+      }
+export type UpdateRatePhaseMutationHookResult = ReturnType<typeof useUpdateRatePhaseMutation>;
+export type UpdateRatePhaseMutationResult = Apollo.MutationResult<UpdateRatePhaseMutation>;
+export type UpdateRatePhaseMutationOptions = Apollo.BaseMutationOptions<UpdateRatePhaseMutation, UpdateRatePhaseMutationVariables>;
+export const CreateContractRatePhaseDocument = gql`
+    mutation createContractRatePhase($input: CreateContractRatePhaseInput!) {
+  createContractRatePhase(input: $input) {
+    id
+    code
+  }
+}
+    `;
+export type CreateContractRatePhaseMutationFn = Apollo.MutationFunction<CreateContractRatePhaseMutation, CreateContractRatePhaseMutationVariables>;
+
+/**
+ * __useCreateContractRatePhaseMutation__
+ *
+ * To run a mutation, you first call `useCreateContractRatePhaseMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateContractRatePhaseMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createContractRatePhaseMutation, { data, loading, error }] = useCreateContractRatePhaseMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateContractRatePhaseMutation(baseOptions?: Apollo.MutationHookOptions<CreateContractRatePhaseMutation, CreateContractRatePhaseMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateContractRatePhaseMutation, CreateContractRatePhaseMutationVariables>(CreateContractRatePhaseDocument, options);
+      }
+export type CreateContractRatePhaseMutationHookResult = ReturnType<typeof useCreateContractRatePhaseMutation>;
+export type CreateContractRatePhaseMutationResult = Apollo.MutationResult<CreateContractRatePhaseMutation>;
+export type CreateContractRatePhaseMutationOptions = Apollo.BaseMutationOptions<CreateContractRatePhaseMutation, CreateContractRatePhaseMutationVariables>;
+export const UpdateContractRatePhaseDocument = gql`
+    mutation updateContractRatePhase($input: UpdateContractRatePhaseInput!) {
+  updateContractRatePhase(input: $input) {
+    id
+    code
+  }
+}
+    `;
+export type UpdateContractRatePhaseMutationFn = Apollo.MutationFunction<UpdateContractRatePhaseMutation, UpdateContractRatePhaseMutationVariables>;
+
+/**
+ * __useUpdateContractRatePhaseMutation__
+ *
+ * To run a mutation, you first call `useUpdateContractRatePhaseMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateContractRatePhaseMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateContractRatePhaseMutation, { data, loading, error }] = useUpdateContractRatePhaseMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateContractRatePhaseMutation(baseOptions?: Apollo.MutationHookOptions<UpdateContractRatePhaseMutation, UpdateContractRatePhaseMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateContractRatePhaseMutation, UpdateContractRatePhaseMutationVariables>(UpdateContractRatePhaseDocument, options);
+      }
+export type UpdateContractRatePhaseMutationHookResult = ReturnType<typeof useUpdateContractRatePhaseMutation>;
+export type UpdateContractRatePhaseMutationResult = Apollo.MutationResult<UpdateContractRatePhaseMutation>;
+export type UpdateContractRatePhaseMutationOptions = Apollo.BaseMutationOptions<UpdateContractRatePhaseMutation, UpdateContractRatePhaseMutationVariables>;
 export const GetGoogleAuthUrlDocument = gql`
     query getGoogleAuthUrl {
   googleAuthUrl {
@@ -33809,72 +34390,6 @@ export type GetBillableMetricsQueryHookResult = ReturnType<typeof useGetBillable
 export type GetBillableMetricsLazyQueryHookResult = ReturnType<typeof useGetBillableMetricsLazyQuery>;
 export type GetBillableMetricsSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricsSuspenseQuery>;
 export type GetBillableMetricsQueryResult = Apollo.QueryResult<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>;
-export const DestroyPlanAppliedRateCardDocument = gql`
-    mutation destroyPlanAppliedRateCard($input: DestroyPlanAppliedRateCardInput!) {
-  destroyPlanAppliedRateCard(input: $input) {
-    id
-  }
-}
-    `;
-export type DestroyPlanAppliedRateCardMutationFn = Apollo.MutationFunction<DestroyPlanAppliedRateCardMutation, DestroyPlanAppliedRateCardMutationVariables>;
-
-/**
- * __useDestroyPlanAppliedRateCardMutation__
- *
- * To run a mutation, you first call `useDestroyPlanAppliedRateCardMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDestroyPlanAppliedRateCardMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [destroyPlanAppliedRateCardMutation, { data, loading, error }] = useDestroyPlanAppliedRateCardMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useDestroyPlanAppliedRateCardMutation(baseOptions?: Apollo.MutationHookOptions<DestroyPlanAppliedRateCardMutation, DestroyPlanAppliedRateCardMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DestroyPlanAppliedRateCardMutation, DestroyPlanAppliedRateCardMutationVariables>(DestroyPlanAppliedRateCardDocument, options);
-      }
-export type DestroyPlanAppliedRateCardMutationHookResult = ReturnType<typeof useDestroyPlanAppliedRateCardMutation>;
-export type DestroyPlanAppliedRateCardMutationResult = Apollo.MutationResult<DestroyPlanAppliedRateCardMutation>;
-export type DestroyPlanAppliedRateCardMutationOptions = Apollo.BaseMutationOptions<DestroyPlanAppliedRateCardMutation, DestroyPlanAppliedRateCardMutationVariables>;
-export const DestroyContractAppliedRateCardDocument = gql`
-    mutation destroyContractAppliedRateCard($input: DestroyContractAppliedRateCardInput!) {
-  destroyContractAppliedRateCard(input: $input) {
-    id
-  }
-}
-    `;
-export type DestroyContractAppliedRateCardMutationFn = Apollo.MutationFunction<DestroyContractAppliedRateCardMutation, DestroyContractAppliedRateCardMutationVariables>;
-
-/**
- * __useDestroyContractAppliedRateCardMutation__
- *
- * To run a mutation, you first call `useDestroyContractAppliedRateCardMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDestroyContractAppliedRateCardMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [destroyContractAppliedRateCardMutation, { data, loading, error }] = useDestroyContractAppliedRateCardMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useDestroyContractAppliedRateCardMutation(baseOptions?: Apollo.MutationHookOptions<DestroyContractAppliedRateCardMutation, DestroyContractAppliedRateCardMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DestroyContractAppliedRateCardMutation, DestroyContractAppliedRateCardMutationVariables>(DestroyContractAppliedRateCardDocument, options);
-      }
-export type DestroyContractAppliedRateCardMutationHookResult = ReturnType<typeof useDestroyContractAppliedRateCardMutation>;
-export type DestroyContractAppliedRateCardMutationResult = Apollo.MutationResult<DestroyContractAppliedRateCardMutation>;
-export type DestroyContractAppliedRateCardMutationOptions = Apollo.BaseMutationOptions<DestroyContractAppliedRateCardMutation, DestroyContractAppliedRateCardMutationVariables>;
 export const GetOrganizationInfoForPreviewDunningCampaignDocument = gql`
     query getOrganizationInfoForPreviewDunningCampaign {
   organization {

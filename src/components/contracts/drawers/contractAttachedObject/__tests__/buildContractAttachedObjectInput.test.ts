@@ -7,7 +7,6 @@ const values: ContractAttachedObjectFormValues = {
   externalCustomerId: 'external-customer-1',
   billingEntityId: 'billing-entity-1',
   planCode: 'enterprise',
-  isPlanRequired: true,
 }
 
 describe('buildContractAttachedObjectInput', () => {

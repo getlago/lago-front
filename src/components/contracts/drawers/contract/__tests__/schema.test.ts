@@ -3,7 +3,6 @@ import { contractSchema } from '../schema'
 const validValues = {
   externalCustomerId: 'customer-external-id',
   planCode: 'enterprise',
-  isPlanRequired: true,
   name: '',
   consolidateInvoice: true,
   startedAt: '2099-01-01T00:00:00.000Z',
@@ -69,11 +68,7 @@ describe('contractSchema', () => {
     )
   })
 
-  // A contract created through the API without a plan could otherwise never be saved again.
-  it('accepts a missing plan when the plan is not required', () => {
-    expect(
-      contractSchema.safeParse({ ...validValues, isPlanRequired: false, planCode: '' }).success,
-    ).toBe(true)
+  it('always requires a plan', () => {
     expect(contractSchema.safeParse({ ...validValues, planCode: '' }).success).toBe(false)
   })
 

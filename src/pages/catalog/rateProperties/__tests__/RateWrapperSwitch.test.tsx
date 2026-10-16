@@ -87,19 +87,23 @@ const handleExpandCustomCharge = jest.fn()
 const Host = ({
   rateModel,
   productType = ProductTypeEnum.Metered,
+  disabled = false,
 }: {
   rateModel: RateCardRateModelEnum
   productType?: ProductTypeEnum
+  disabled?: boolean
 }) => {
   const form = useAppForm({ defaultValues: { ...RATE_CARD_RATE_FORM_DEFAULTS, rateModel } })
 
   return (
     <RateWrapperSwitch
       form={form}
+      fields="properties"
       rateModel={rateModel}
       productType={productType}
       currency={CurrencyEnum.Eur}
       pricingUnitShortName="tok"
+      disabled={disabled}
       onExpandCustomCharge={handleExpandCustomCharge}
     />
   )
@@ -163,6 +167,15 @@ describe('RateWrapperSwitch', () => {
         render(<Host rateModel={RateCardRateModelEnum.Custom} />)
 
         expect(mockCustomChargeProps.onExpandCustomCharge).toBe(handleExpandCustomCharge)
+      })
+    })
+
+    describe('WHEN the switch is disabled', () => {
+      // The expand drawer's save would otherwise write into a read-only rate.
+      it('THEN the editor gets no expand callback', () => {
+        render(<Host rateModel={RateCardRateModelEnum.Custom} disabled />)
+
+        expect(mockCustomChargeProps.onExpandCustomCharge).toBeUndefined()
       })
     })
   })

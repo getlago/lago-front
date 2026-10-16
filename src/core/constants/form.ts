@@ -68,6 +68,8 @@ export const SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME = 'searchAppliesToBilla
 export const SEARCH_PRIVILEGE_SELECT_OPTIONS_INPUT_CLASSNAME = 'searchPrivilegeSelectOptionsInput'
 // Catalog
 export const SEARCH_PRICING_UNIT_FOR_RATE_CARD_CLASSNAME = 'searchPricingUnitForRateCardInput'
+export const SEARCH_PRODUCT_FILTER_FOR_APPLIED_RATE_CARD_CLASSNAME =
+  'searchProductFilterForAppliedRateCardInput'
 
 /**** DATA ****/
 // Plan form types

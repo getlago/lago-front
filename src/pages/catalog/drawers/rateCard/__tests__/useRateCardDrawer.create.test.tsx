@@ -37,6 +37,7 @@ const mockOpen = jest.fn((args: CapturedDrawerArgs) => {
 })
 const mockClose = jest.fn()
 const mockNavigate = jest.fn()
+let mockContentProps: { isCurrencyLocked?: boolean } = {}
 
 // Mock the NiceModal-backed drawer hook so Jest never loads the drawer stack
 // (drawerStack.ts uses import.meta and crashes Jest) and we can capture the
@@ -74,61 +75,70 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 jest.mock('../RateCardDrawerContent', () => ({
   RateCardDrawerContent: ({
     form,
+    isCurrencyLocked,
   }: {
+    isCurrencyLocked: boolean
     form: {
       Subscribe: (props: {
-        selector: (state: { values: { productId: string } }) => string
-        children: (productId: string) => ReactNode
+        selector: (state: { values: { productId: string; currency: string } }) => string
+        children: (value: string) => ReactNode
       }) => ReactNode
       setFieldValue: (name: string, value: unknown) => void
     }
-  }) => (
-    <>
-      <form.Subscribe selector={(state) => state.values.productId}>
-        {(productId) => <output aria-label="selected product">{productId}</output>}
-      </form.Subscribe>
-      <button
-        type="button"
-        onClick={() => {
-          form.setFieldValue('name', 'Metered API')
-          form.setFieldValue('code', 'metered_api')
-          form.setFieldValue('currency', 'USD')
-        }}
-      >
-        seed required fields
-      </button>
-      <button
-        data-test="seed-base"
-        onClick={() => {
-          form.setFieldValue('name', 'Metered API')
-          form.setFieldValue('code', 'metered_api')
-          form.setFieldValue('productId', 'pi-1')
-          // Literal enum runtime values: the jest.mock factory is hoisted and
-          // cannot reference the imported enums.
-          form.setFieldValue('currency', 'USD')
-        }}
-      >
-        seed base
-      </button>
-      <button
-        data-test="seed-advance"
-        onClick={() => {
-          form.setFieldValue('billingTiming', 'advance')
-          form.setFieldValue('invoicingStrategy', 'regroupPaidFees')
-        }}
-      >
-        seed advance
-      </button>
-      <button
-        data-test="seed-pricing-unit"
-        onClick={() => {
-          form.setFieldValue('pricingUnit', 'credits')
-        }}
-      >
-        seed pricing unit
-      </button>
-    </>
-  ),
+  }) => {
+    mockContentProps = { isCurrencyLocked }
+
+    return (
+      <>
+        <form.Subscribe selector={(state) => state.values.productId}>
+          {(productId) => <output aria-label="selected product">{productId}</output>}
+        </form.Subscribe>
+        <form.Subscribe selector={(state) => state.values.currency}>
+          {(currency) => <output aria-label="selected currency">{currency}</output>}
+        </form.Subscribe>
+        <button
+          type="button"
+          onClick={() => {
+            form.setFieldValue('name', 'Metered API')
+            form.setFieldValue('code', 'metered_api')
+            form.setFieldValue('currency', 'USD')
+          }}
+        >
+          seed required fields
+        </button>
+        <button
+          data-test="seed-base"
+          onClick={() => {
+            form.setFieldValue('name', 'Metered API')
+            form.setFieldValue('code', 'metered_api')
+            form.setFieldValue('productId', 'pi-1')
+            // Literal enum runtime values: the jest.mock factory is hoisted and
+            // cannot reference the imported enums.
+            form.setFieldValue('currency', 'USD')
+          }}
+        >
+          seed base
+        </button>
+        <button
+          data-test="seed-advance"
+          onClick={() => {
+            form.setFieldValue('billingTiming', 'advance')
+            form.setFieldValue('invoicingStrategy', 'regroupPaidFees')
+          }}
+        >
+          seed advance
+        </button>
+        <button
+          data-test="seed-pricing-unit"
+          onClick={() => {
+            form.setFieldValue('pricingUnit', 'credits')
+          }}
+        >
+          seed pricing unit
+        </button>
+      </>
+    )
+  },
 }))
 
 const rateCardResult = {
@@ -381,5 +391,43 @@ describe('useRateCardDrawer create flow', () => {
       expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' })),
     )
     expect(mockClose).not.toHaveBeenCalled()
+  })
+
+  it('GIVEN a currency THEN the form is seeded with it and the content locks it', () => {
+    const { result } = renderDrawerHook()
+
+    act(() => result.current.openDrawer({ currency: CurrencyEnum.Eur }))
+    renderDrawerBody()
+
+    expect(screen.getByLabelText('selected currency')).toHaveTextContent('EUR')
+    expect(mockContentProps.isCurrencyLocked).toBe(true)
+  })
+
+  it('GIVEN no currency THEN the currency stays empty and editable', () => {
+    const { result } = renderDrawerHook()
+
+    act(() => result.current.openDrawer())
+    renderDrawerBody()
+
+    expect(screen.getByLabelText('selected currency')).toBeEmptyDOMElement()
+    expect(mockContentProps.isCurrencyLocked).toBe(false)
+  })
+
+  it('GIVEN onCreated is provided THEN it is called with the created rate card and the drawer always closes, regardless of create-more', async () => {
+    const onCreated = jest.fn()
+    const { result } = renderDrawerHook([createRateCardMock(() => undefined)])
+
+    act(() => result.current.openDrawer({ onCreated }))
+
+    render(<>{lastDrawerArgs?.secondaryAction}</>)
+    await userEvent.click(screen.getByTestId(CREATE_MORE_SWITCH_TEST_ID))
+
+    renderDrawerBody()
+    await userEvent.click(screen.getByTestId('seed-base'))
+    await submit()
+
+    await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+    expect(onCreated).toHaveBeenCalledWith(expect.objectContaining({ code: 'metered_api' }))
+    expect(mockNavigate).not.toHaveBeenCalled()
   })
 })

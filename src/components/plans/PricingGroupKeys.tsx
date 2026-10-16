@@ -55,16 +55,20 @@ const PricingGroupKeys = () => {
               <Chip
                 key={`pricing-groupe-key-chip-${groupKey}-${groupKeyIndex}`}
                 label={groupKey}
-                onDelete={() => {
-                  const newPricingGroupKeys = valuePointer?.pricingGroupKeys?.filter(
-                    (_, index) => index !== groupKeyIndex,
-                  )
+                onDelete={
+                  disabled
+                    ? undefined
+                    : () => {
+                        const newPricingGroupKeys = valuePointer?.pricingGroupKeys?.filter(
+                          (_, index) => index !== groupKeyIndex,
+                        )
 
-                  form.setFieldValue(
-                    `${propertyCursor}.pricingGroupKeys`,
-                    newPricingGroupKeys || [],
-                  )
-                }}
+                        form.setFieldValue(
+                          `${propertyCursor}.pricingGroupKeys`,
+                          newPricingGroupKeys || [],
+                        )
+                      }
+                }
               />
             ))}
           </div>
@@ -108,6 +112,7 @@ const PricingGroupKeys = () => {
             fitContent
             startIcon="plus"
             variant="inline"
+            disabled={disabled}
             onClick={() => {
               setShouldDisplayPricingGroupKeys(true)
 

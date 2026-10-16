@@ -8,19 +8,28 @@ import {
   CENTRALIZED_DIALOG_NAME,
 } from '~/components/dialogs/const'
 import {
+  CurrencyEnum,
   DestroyPlanAppliedRateCardDocument,
   GetPlanAppliedRateCardsForRateCardsSectionDocument,
 } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
-import { CatalogPlanRateCardsSection } from '../CatalogPlanRateCardsSection'
+import {
+  CATALOG_PLAN_ADD_RATE_CARD_TEST_ID,
+  CatalogPlanRateCardsSection,
+} from '../CatalogPlanRateCardsSection'
 
 NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
 const mockHasPermissions = jest.fn().mockReturnValue(true)
+const mockOpenAppliedRateCardDrawer = jest.fn()
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+jest.mock('~/components/appliedRateCards/drawers/appliedRateCard/useAppliedRateCardDrawer', () => ({
+  useAppliedRateCardDrawer: () => ({ openDrawer: mockOpenAppliedRateCardDrawer }),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -80,11 +89,15 @@ const buildDestroyMutationMock = (): TestMocksType[number] => ({
   },
 })
 
-const renderSection = (mocks: TestMocksType, { isRemovalLocked = false } = {}) =>
+const renderSection = (mocks: TestMocksType, { isLocked = false } = {}) =>
   render(
     <AllTheProviders forceTypenames mocks={mocks}>
       <NiceModal.Provider>
-        <CatalogPlanRateCardsSection catalogPlanId="plan-1" isRemovalLocked={isRemovalLocked} />
+        <CatalogPlanRateCardsSection
+          catalogPlanId="plan-1"
+          currency={CurrencyEnum.Usd}
+          isLocked={isLocked}
+        />
       </NiceModal.Provider>
     </AllTheProviders>,
   )
@@ -185,11 +198,45 @@ describe('CatalogPlanRateCardsSection', () => {
   it('disables the remove action when the plan is attached to contracts', async () => {
     const user = userEvent.setup()
 
-    renderSection([buildListMock([rowFixture])], { isRemovalLocked: true })
+    renderSection([buildListMock([rowFixture])], { isLocked: true })
     await waitFor(() => expect(screen.getByText('Product One')).toBeInTheDocument())
 
     await user.click(screen.getByTestId('open-action-button'))
 
     expect(screen.getByText('text_1790284386156k2d8mjjy98f').closest('button')).toBeDisabled()
+  })
+
+  it('GIVEN the Add rate card button is clicked THEN openDrawer is called with { context: "plan", planId, currency }', async () => {
+    const user = userEvent.setup()
+
+    renderSection([buildListMock([])])
+    await waitFor(() =>
+      expect(screen.getByTestId(CATALOG_PLAN_ADD_RATE_CARD_TEST_ID)).toBeInTheDocument(),
+    )
+
+    await user.click(screen.getByTestId(CATALOG_PLAN_ADD_RATE_CARD_TEST_ID))
+
+    expect(mockOpenAppliedRateCardDrawer).toHaveBeenCalledWith({
+      context: 'plan',
+      planId: 'plan-1',
+      currency: CurrencyEnum.Usd,
+    })
+  })
+
+  it('GIVEN the plan is attached to contracts THEN the Add rate card button is disabled', async () => {
+    renderSection([buildListMock([])], { isLocked: true })
+
+    await waitFor(() =>
+      expect(screen.getByTestId(CATALOG_PLAN_ADD_RATE_CARD_TEST_ID)).toBeDisabled(),
+    )
+  })
+
+  it('GIVEN the user lacks plansUpdate THEN the Add rate card action is hidden', async () => {
+    mockHasPermissions.mockReturnValue(false)
+
+    renderSection([buildListMock([])])
+
+    expect(mockHasPermissions).toHaveBeenCalledWith(['plansUpdate'])
+    expect(screen.queryByTestId(CATALOG_PLAN_ADD_RATE_CARD_TEST_ID)).not.toBeInTheDocument()
   })
 })

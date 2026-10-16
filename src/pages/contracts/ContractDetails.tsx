@@ -39,6 +39,7 @@ gql`
     plan {
       id
       name
+      currency
     }
     ...ContractForContractDrawer
   }
@@ -154,8 +155,10 @@ const ContractDetails = (): JSX.Element => {
             content: (
               <DetailsPage.Container className="pb-0 pt-6">
                 <ContractDetailsOverview
+                  contractExternalId={contract?.externalId}
+                  currency={contract?.plan?.currency}
                   rateCardsCount={contract?.appliedRateCardsCount}
-                  isRateCardRemovalLocked={contract?.status !== ContractStatusEnum.Pending}
+                  isRateCardsLocked={contract?.status !== ContractStatusEnum.Pending}
                   loading={loading}
                 />
               </DetailsPage.Container>

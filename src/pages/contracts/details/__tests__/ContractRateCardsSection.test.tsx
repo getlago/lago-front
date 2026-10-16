@@ -8,19 +8,28 @@ import {
   CENTRALIZED_DIALOG_NAME,
 } from '~/components/dialogs/const'
 import {
+  CurrencyEnum,
   DestroyContractAppliedRateCardDocument,
   GetContractAppliedRateCardsForRateCardsSectionDocument,
 } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
-import { ContractRateCardsSection } from '../ContractRateCardsSection'
+import {
+  CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID,
+  ContractRateCardsSection,
+} from '../ContractRateCardsSection'
 
 NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
 const mockHasPermissions = jest.fn().mockReturnValue(true)
+const mockOpenAppliedRateCardDrawer = jest.fn()
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+jest.mock('~/components/appliedRateCards/drawers/appliedRateCard/useAppliedRateCardDrawer', () => ({
+  useAppliedRateCardDrawer: () => ({ openDrawer: mockOpenAppliedRateCardDrawer }),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -82,11 +91,19 @@ const buildDestroyMutationMock = (): TestMocksType[number] => ({
   },
 })
 
-const renderSection = (mocks: TestMocksType, { isRemovalLocked = false } = {}) =>
+const renderSection = (
+  mocks: TestMocksType,
+  { isLocked = false, hasExternalId = true }: { isLocked?: boolean; hasExternalId?: boolean } = {},
+) =>
   render(
     <AllTheProviders forceTypenames mocks={mocks}>
       <NiceModal.Provider>
-        <ContractRateCardsSection contractId="contract-1" isRemovalLocked={isRemovalLocked} />
+        <ContractRateCardsSection
+          contractId="contract-1"
+          contractExternalId={hasExternalId ? 'contract-ext-1' : undefined}
+          currency={CurrencyEnum.Usd}
+          isLocked={isLocked}
+        />
       </NiceModal.Provider>
     </AllTheProviders>,
   )
@@ -187,11 +204,54 @@ describe('ContractRateCardsSection', () => {
   it('disables the remove action when the contract is not pending', async () => {
     const user = userEvent.setup()
 
-    renderSection([buildListMock([rowFixture])], { isRemovalLocked: true })
+    renderSection([buildListMock([rowFixture])], { isLocked: true })
     await waitFor(() => expect(screen.getByText('Product One')).toBeInTheDocument())
 
     await user.click(screen.getByTestId('open-action-button'))
 
     expect(screen.getByText('text_1790284386156k2d8mjjy98f').closest('button')).toBeDisabled()
+  })
+
+  it('GIVEN the section header THEN an Add rate card action renders and opens the drawer with the contract id and external id', async () => {
+    const user = userEvent.setup()
+
+    renderSection([buildListMock([])])
+    await waitFor(() =>
+      expect(screen.getByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID)).toBeInTheDocument(),
+    )
+
+    await user.click(screen.getByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID))
+
+    expect(mockOpenAppliedRateCardDrawer).toHaveBeenCalledWith({
+      context: 'contract',
+      contractId: 'contract-1',
+      contractExternalId: 'contract-ext-1',
+      currency: CurrencyEnum.Usd,
+    })
+  })
+
+  it('GIVEN the contract is not pending THEN the Add rate card action is disabled', async () => {
+    renderSection([buildListMock([])], { isLocked: true })
+
+    await waitFor(() =>
+      expect(screen.getByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID)).toBeDisabled(),
+    )
+  })
+
+  it('GIVEN the contract external id is not loaded yet THEN the Add rate card action is disabled', async () => {
+    renderSection([buildListMock([])], { hasExternalId: false })
+
+    await waitFor(() =>
+      expect(screen.getByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID)).toBeDisabled(),
+    )
+  })
+
+  it('GIVEN the user lacks contractsUpdate THEN the Add rate card action is hidden', async () => {
+    mockHasPermissions.mockReturnValue(false)
+
+    renderSection([buildListMock([])])
+
+    expect(mockHasPermissions).toHaveBeenCalledWith(['contractsUpdate'])
+    expect(screen.queryByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID)).not.toBeInTheDocument()
   })
 })

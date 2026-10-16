@@ -113,6 +113,7 @@ type HarnessProps = {
   isAttached?: boolean
   isEdit?: boolean
   hasRates?: boolean
+  isCurrencyLocked?: boolean
   values?: Partial<RateCardFormValues>
   productSeed?: RateCardProductSeed
 }
@@ -124,6 +125,7 @@ const Harness = ({
   isAttached = false,
   isEdit = false,
   hasRates = false,
+  isCurrencyLocked = false,
 }: HarnessProps): JSX.Element => {
   const form = useAppForm({ defaultValues: { ...RATE_CARD_FORM_DEFAULTS, ...values } })
   const { resetSignal, notifyReset } = useCreateMore()
@@ -169,6 +171,7 @@ const Harness = ({
         isEdit={isEdit}
         isAttached={isAttached}
         hasRates={hasRates}
+        isCurrencyLocked={isCurrencyLocked}
         disableCodeInput={disableCodeInput}
         productSeed={productSeed}
         productFilterSeed={null}
@@ -532,6 +535,12 @@ describe('RateCardDrawerContent', () => {
 
     it('WHEN the card is attached but has no rate THEN only the currency freezes', () => {
       renderContent({ isAttached: true, values: { productId: PRODUCT_ID } })
+
+      expect(currencyInput()).toBeDisabled()
+    })
+
+    it('WHEN the caller locks the currency THEN the currency freezes', () => {
+      renderContent({ isCurrencyLocked: true, values: { productId: PRODUCT_ID } })
 
       expect(currencyInput()).toBeDisabled()
     })
