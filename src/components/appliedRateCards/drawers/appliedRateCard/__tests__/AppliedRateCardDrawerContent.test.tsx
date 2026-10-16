@@ -133,14 +133,6 @@ const RATE_CARD: RateCardFixture = {
   },
 }
 
-const EUR_RATE_CARD: RateCardFixture = {
-  ...RATE_CARD,
-  id: 'rc-eur',
-  name: 'Euro card',
-  code: 'euro-card',
-  currency: CurrencyEnum.Eur,
-}
-
 const productsMock = (
   collection: ProductForAppliedRateCardDrawerFragment[] = [PRODUCT],
 ): MockedResponse => ({
@@ -262,19 +254,37 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
     expect(capturedVars.productFilterIds).toBeUndefined()
   })
 
-  it('GIVEN rate cards in several currencies THEN only the drawer currency ones are offered, under a label naming it', async () => {
-    renderContent([productsMock(), rateCardsMock(() => undefined, [RATE_CARD, EUR_RATE_CARD])])
+  it('GIVEN a product is selected THEN the rate cards are queried in the drawer currency, under a label naming it', async () => {
+    let capturedVars: Record<string, unknown> = {}
+
+    renderContent([productsMock(), rateCardsMock((vars) => (capturedVars = vars))])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+    await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
+
+    expect(screen.getByText('Rate card in USD')).toBeInTheDocument()
+    await waitFor(() => expect(capturedVars).toMatchObject({ currency: CurrencyEnum.Usd }))
+  })
+
+  it('GIVEN a rate card search THEN it stays scoped to the drawer currency', async () => {
+    let capturedVars: Record<string, unknown> = {}
+
+    renderContent([productsMock(), rateCardsMock((vars) => (capturedVars = vars))])
 
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
 
-    const rateCardField = await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
+    const rateCardInput = (
+      await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
+    ).querySelector('input') as HTMLInputElement
 
-    expect(screen.getByText('Rate card in USD')).toBeInTheDocument()
+    await userEvent.click(rateCardInput)
+    await userEvent.type(rateCardInput, 'premium')
 
-    await userEvent.click(rateCardField.querySelector('input') as HTMLInputElement)
-
-    expect(await screen.findByText(RATE_CARD.name)).toBeInTheDocument()
-    expect(screen.queryByText(EUR_RATE_CARD.name)).not.toBeInTheDocument()
+    await waitFor(
+      () =>
+        expect(capturedVars).toMatchObject({ searchTerm: 'premium', currency: CurrencyEnum.Usd }),
+      { timeout: 3000 },
+    )
   })
 
   it('GIVEN "+ Add filter" is clicked THEN the product filter combobox reveals', async () => {

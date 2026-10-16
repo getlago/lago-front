@@ -108,6 +108,7 @@ gql`
     $productFilterIds: [ID!]
     $searchTerm: String
     $code: String
+    $currency: CurrencyEnum
     $limit: Int
   ) {
     rateCards(
@@ -115,6 +116,7 @@ gql`
       productFilterIds: $productFilterIds
       searchTerm: $searchTerm
       code: $code
+      currency: $currency
       limit: $limit
     ) {
       collection {
@@ -231,6 +233,7 @@ export const AppliedRateCardDrawerContent = withForm({
       variables: {
         productIds: productId ? [productId] : undefined,
         productFilterIds: productFilterId ? [productFilterId] : undefined,
+        currency,
       },
     })
 
@@ -252,9 +255,7 @@ export const AppliedRateCardDrawerContent = withForm({
       (filter) => filter.id === productFilterId,
     )
     const { options: rateCards, selected: selectedRateCard } = useOptionsWithSelection(
-      (rateCardsData?.rateCards.collection ?? []).filter(
-        (rateCard) => rateCard.currency === currency,
-      ),
+      rateCardsData?.rateCards.collection ?? [],
       (rateCard) => rateCard.code === rateCardId,
     )
 

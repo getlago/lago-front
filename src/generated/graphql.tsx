@@ -10134,6 +10134,7 @@ export type QueryRateCardRatesArgs = {
 
 export type QueryRateCardsArgs = {
   code?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -13302,6 +13303,7 @@ export type GetRateCardsForAppliedRateCardDrawerQueryVariables = Exact<{
   productFilterIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
@@ -27887,12 +27889,13 @@ export type GetProductFiltersForAppliedRateCardDrawerLazyQueryHookResult = Retur
 export type GetProductFiltersForAppliedRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetProductFiltersForAppliedRateCardDrawerSuspenseQuery>;
 export type GetProductFiltersForAppliedRateCardDrawerQueryResult = Apollo.QueryResult<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>;
 export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
-    query getRateCardsForAppliedRateCardDrawer($productIds: [ID!], $productFilterIds: [ID!], $searchTerm: String, $code: String, $limit: Int) {
+    query getRateCardsForAppliedRateCardDrawer($productIds: [ID!], $productFilterIds: [ID!], $searchTerm: String, $code: String, $currency: CurrencyEnum, $limit: Int) {
   rateCards(
     productIds: $productIds
     productFilterIds: $productFilterIds
     searchTerm: $searchTerm
     code: $code
+    currency: $currency
     limit: $limit
   ) {
     collection {
@@ -27921,6 +27924,7 @@ export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
  *      productFilterIds: // value for 'productFilterIds'
  *      searchTerm: // value for 'searchTerm'
  *      code: // value for 'code'
+ *      currency: // value for 'currency'
  *      limit: // value for 'limit'
  *   },
  * });
