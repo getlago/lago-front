@@ -515,6 +515,7 @@ export const AppliedRateCardDrawerContent = withForm({
               {ratePhases.length > 0 && !!rateCardForPhaseFields && (
                 <RatePhaseTable
                   phases={ratePhases}
+                  rateCardId={selectedRateCard.id}
                   rateCard={rateCardForPhaseFields}
                   onEdit={handleEditPhase}
                   onRevert={handleRevertPhase}

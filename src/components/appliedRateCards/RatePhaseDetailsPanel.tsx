@@ -1,9 +1,14 @@
 import { ReactNode } from 'react'
+import { generatePath } from 'react-router'
 
-import { Button } from '~/components/designSystem/Button'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Typography } from '~/components/designSystem/Typography'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
+import { RateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { RATE_CARD_DETAILS_ROUTE } from '~/core/router/CatalogRoutes'
+import { getFirstPathSegment } from '~/core/router/utils/getFirstPathSegment'
+import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
@@ -30,10 +35,12 @@ import {
 export const RATE_PHASE_DETAILS_PANEL_TEST_ID = 'rate-phase-details-panel'
 export const RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID = 'rate-phase-details-overridden'
 export const RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID = 'rate-phase-details-spending-minimum'
+export const RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID = 'rate-phase-details-rate-history-link'
 
 type RatePhaseDetailsPanelProps = {
   phase: RatePhaseForDetails
   phaseRate: RatePhaseRate | null
+  rateCardId: string
   rateCard: {
     currency: CurrencyEnum
     billingTiming: RateCardBillingTimingEnum
@@ -79,6 +86,7 @@ const DetailsSection = ({ title, children }: { title: string; children: ReactNod
 export const RatePhaseDetailsPanel = ({
   phase,
   phaseRate,
+  rateCardId,
   rateCard,
 }: RatePhaseDetailsPanelProps): JSX.Element => {
   const { translate } = useInternationalization()
@@ -96,8 +104,14 @@ export const RatePhaseDetailsPanel = ({
       maximumFractionDigits: 15,
     })
 
-  // Where the rate history lives is still pending product confirmation.
-  const openRateHistory = (): void => undefined
+  // Drawers render outside the router, so no `useParams`: the org slug is read from the URL.
+  const rateHistoryPath = prependOrgSlug(
+    generatePath(RATE_CARD_DETAILS_ROUTE, {
+      rateCardId,
+      tab: RateCardDetailsTabsOptionsEnum.rates,
+    }),
+    getFirstPathSegment(window.location.pathname),
+  )
 
   const renderRateSection = (): ReactNode => {
     if (!phaseRate || !rate) return null
@@ -124,9 +138,15 @@ export const RatePhaseDetailsPanel = ({
             value={
               <span className="flex items-center gap-2">
                 {intlFormatDateTime(phaseRate.effectiveFrom, { timezone: TimezoneEnum.TzUtc }).date}
-                <Button variant="inline" endIcon="outside" onClick={openRateHistory}>
+                <ButtonLink
+                  type="button"
+                  external
+                  to={rateHistoryPath}
+                  buttonProps={{ variant: 'inline', endIcon: 'outside' }}
+                  data-test={RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID}
+                >
                   {translate('text_1791838459984rqckim3pm28')}
-                </Button>
+                </ButtonLink>
               </span>
             }
           />

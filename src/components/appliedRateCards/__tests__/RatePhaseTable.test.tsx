@@ -19,6 +19,7 @@ import { RateCardForRatePhaseFields } from '../drawers/ratePhase/types'
 import {
   RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID,
   RATE_PHASE_DETAILS_PANEL_TEST_ID,
+  RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID,
   RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID,
 } from '../RatePhaseDetailsPanel'
 import {
@@ -86,7 +87,7 @@ const callbacks = {
 }
 
 const renderTable = (phases: RatePhaseFormValues[] = [overriddenPhase, foreverPhase]) =>
-  render(<RatePhaseTable phases={phases} rateCard={rateCard} {...callbacks} />)
+  render(<RatePhaseTable phases={phases} rateCardId="rc-1" rateCard={rateCard} {...callbacks} />)
 
 const openActions = async (index: number): Promise<void> => {
   await userEvent.click(screen.getByTestId(getRatePhaseActionsTestId(index)))
@@ -150,10 +151,26 @@ describe('RatePhaseTable', () => {
     expect(screen.queryByTestId(RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID)).not.toBeInTheDocument()
   })
 
+  it('GIVEN a phase on the active rate THEN "See rate history" opens the rate card rates tab in a new tab', async () => {
+    window.history.pushState({}, '', '/acme/plan-pricing/plan-1/overview/rate-cards')
+    renderTable([foreverPhase])
+
+    await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
+
+    const link = screen
+      .getAllByTestId(RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID)
+      .find((element) => element.tagName === 'A')
+
+    expect(link).toHaveAttribute('href', '/acme/product-catalog/rate-cards/rc-1/rates')
+    expect(link).toHaveAttribute('target', '_blank')
+    window.history.pushState({}, '', '/')
+  })
+
   it('GIVEN a rate card with a pricing unit THEN the spending minimum reads in that unit', async () => {
     render(
       <RatePhaseTable
         phases={[{ ...overriddenPhase, minAmountCents: '5', conversionRate: '1' }]}
+        rateCardId="rc-1"
         rateCard={{ ...rateCard, appliedPricingUnitCode: 'CR' }}
         {...callbacks}
       />,
