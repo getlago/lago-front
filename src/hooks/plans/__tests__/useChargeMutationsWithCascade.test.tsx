@@ -6,11 +6,12 @@ import { ReactNode } from 'react'
 
 import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
-import { LocalUsageChargeInput } from '~/components/plans/types'
+import { LocalPricingUnitType, LocalUsageChargeInput } from '~/components/plans/types'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import {
   ChargeCreateInput,
   ChargeModelEnum,
+  ChargeUpdateInput,
   CreateChargeDocument,
   CurrencyEnum,
   DestroyChargeDocument,
@@ -92,6 +93,96 @@ const wrapper = (mocks: MockedResponse[]) =>
   }
 
 describe('useChargeMutationsWithCascade', () => {
+  it.each([
+    { currency: CurrencyEnum.Usd, payInAdvance: false, expectedMinimum: 1234 },
+    { currency: CurrencyEnum.Jpy, payInAdvance: false, expectedMinimum: 12 },
+    { currency: CurrencyEnum.Usd, payInAdvance: true, expectedMinimum: undefined },
+  ])(
+    'keeps create and update fields equal for $currency, payInAdvance=$payInAdvance',
+    async ({ currency, payInAdvance, expectedMinimum }) => {
+      let createInput: ChargeCreateInput | undefined
+      let updateInput: ChargeUpdateInput | undefined
+      const mocks: MockedResponse[] = [
+        {
+          request: { query: CreateChargeDocument },
+          variableMatcher: (vars) => {
+            createInput = vars.input
+            return true
+          },
+          result: { data: { createCharge: chargeResult } },
+        },
+        {
+          request: { query: UpdateChargeDocument },
+          variableMatcher: (vars) => {
+            updateInput = vars.input
+            return true
+          },
+          result: { data: { updateCharge: chargeResult } },
+        },
+      ]
+      const charge = buildCharge({
+        code: 'api_custom',
+        invoiceDisplayName: 'Custom usage',
+        payInAdvance,
+        prorated: true,
+        minAmountCents: currency === CurrencyEnum.Jpy ? '12' : '12.34',
+        appliedPricingUnit: {
+          type: LocalPricingUnitType.Custom,
+          code: 'credits',
+          shortName: 'cr',
+          conversionRate: '2.5',
+        },
+        taxes: [{ id: 'tax_1', code: 'vat', name: 'VAT', rate: 20 }],
+        filters: [
+          {
+            values: ['{"region":"eu"}'],
+            invoiceDisplayName: 'Europe',
+            properties: { amount: '15' },
+          },
+        ],
+      })
+      const { result } = renderHook(
+        () =>
+          useChargeMutationsWithCascade({ planId: PLAN_ID, hasOverriddenPlans: false, currency }),
+        { wrapper: wrapper(mocks) },
+      )
+
+      await act(async () => {
+        await result.current.handleSaveCharge(charge, null)
+        await result.current.handleSaveCharge({ ...charge, id: 'ch_1' }, 0)
+      })
+
+      expect(createInput).toMatchObject({ planId: PLAN_ID, billableMetricId: 'bm_1' })
+      if (!createInput) throw new Error('Missing create input')
+
+      const { planId, billableMetricId, ...fields } = createInput
+
+      expect(planId).toBe(PLAN_ID)
+      expect(billableMetricId).toBe('bm_1')
+      expect(updateInput).toEqual({ id: 'ch_1', ...fields })
+      expect(fields).toMatchObject({
+        code: 'api_custom',
+        chargeModel: ChargeModelEnum.Standard,
+        invoiceDisplayName: 'Custom usage',
+        invoiceable: true,
+        appliedPricingUnit: { code: 'credits', conversionRate: 2.5 },
+        minAmountCents: expectedMinimum,
+        payInAdvance,
+        prorated: true,
+        cascadeUpdates: false,
+        taxCodes: ['vat'],
+        properties: { amount: '10' },
+        filters: [
+          {
+            values: { region: ['eu'] },
+            invoiceDisplayName: 'Europe',
+            properties: { amount: '15' },
+          },
+        ],
+      })
+    },
+  )
+
   it('createCharge fires direct when hasOverriddenPlans=false', async () => {
     let called = false
     const createMock: MockedResponse = {
