@@ -26,6 +26,21 @@ async function prepare({ initialLoadingState = false }: { initialLoadingState: b
 }
 
 describe('useDebouncedSearch', () => {
+  it('can skip the initial fetch while keeping debounced search enabled', async () => {
+    const callback = jest.fn()
+    const { result } = renderHook(() =>
+      useDebouncedSearch(callback, false, { fetchOnMount: false }),
+    )
+
+    expect(callback).not.toHaveBeenCalled()
+
+    result.current.debouncedSearch?.('compute')
+    await act(() => jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS))
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenCalledWith({ variables: { searchTerm: 'compute' } })
+  })
+
   it('instantiate the hook with the correct initial state', async () => {
     const { result, callback } = await prepare({ initialLoadingState: false })
 

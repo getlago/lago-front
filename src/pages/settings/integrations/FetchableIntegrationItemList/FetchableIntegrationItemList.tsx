@@ -54,13 +54,18 @@ const FetchableIntegrationItemList = ({
         : undefined
 
     const formattedItems: Array<IntegrationItem> = itemsToDisplay.map((itemToDisplay) => {
+      let icon: 'box' | 'pulse' | 'puzzle' = 'pulse'
+
+      if (mappableType === MappableTypeEnum.AddOn) icon = 'puzzle'
+      if (mappableType === MappableTypeEnum.Product) icon = 'box'
+
       return {
         id: itemToDisplay.id,
         label: itemToDisplay.name,
         description: itemToDisplay.code,
         mappingType: mappableType,
         integrationMappings: itemToDisplay.integrationMappings,
-        icon: mappableType === MappableTypeEnum.AddOn ? 'puzzle' : 'pulse',
+        icon,
       }
     })
 
