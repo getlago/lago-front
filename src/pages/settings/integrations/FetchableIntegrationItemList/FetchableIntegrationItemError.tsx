@@ -1,6 +1,6 @@
 import {
   GenericPlaceholder,
-  GenericPlaceholderProps,
+  GenericPlaceholderContentProps,
 } from '~/components/designSystem/GenericPlaceholder'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -10,7 +10,7 @@ import { FetchableIntegrationItemErrorProps } from './types'
 const FetchableIntegrationItemError = ({ hasSearchTerm }: FetchableIntegrationItemErrorProps) => {
   const { translate } = useInternationalization()
 
-  const getPlaceholderProps = (): Omit<GenericPlaceholderProps, 'image'> => {
+  const getPlaceholderProps = (): GenericPlaceholderContentProps => {
     return hasSearchTerm
       ? {
           title: translate('text_623b53fea66c76017eaebb6e'),

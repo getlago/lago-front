@@ -29,8 +29,8 @@ const POPPER_MIN_WIDTH = 282
 export const ORGANIZATION_SWITCHER_TEST_ID = 'organization-switcher'
 export const ORGANIZATION_SWITCHER_BUTTON_TEST_ID = 'side-nav-user-infos'
 export const ORGANIZATION_SWITCHER_NAME_TEST_ID = 'side-nav-name'
+export const ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID = 'organization-switcher-org-item'
 const ORGANIZATION_SWITCHER_LOGOUT_TEST_ID = 'side-nav-logout'
-const ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID = 'organization-switcher-org-item'
 const ORGANIZATION_SWITCHER_VERSION_LINK_TEST_ID = 'organization-switcher-version-link'
 
 type OrganizationFromMembership = CurrentUserInfosFragment['memberships'][0]['organization']
@@ -43,6 +43,13 @@ interface OrganizationSwitcherProps {
   isLoading: boolean
   isVersionLoading: boolean
 }
+
+// An SSO session only opens the organizations whose integration uses the identity provider
+// it logged in with, even when another organization also allows that method.
+const SSO_AUTHENTICATION_METHODS = [
+  AuthenticationMethodsEnum.Okta,
+  AuthenticationMethodsEnum.EntraId,
+]
 
 export const OrganizationSwitcher = ({
   client,
@@ -73,6 +80,23 @@ export const OrganizationSwitcher = ({
   const currentOrgFromSlug = currentUser?.memberships.find(
     (m) => m.organization.slug === organizationSlug,
   )?.organization
+
+  const getInaccessibleOrganizationTooltip = (): string => {
+    const authenticatedMethod = organization?.authenticatedMethod as
+      AuthenticationMethodsEnum | undefined
+
+    if (!authenticatedMethod) return translate('text_1752158380555tozrnmtmxc1')
+
+    const method = translate(authenticationMethodsMapping[authenticatedMethod])
+
+    if (SSO_AUTHENTICATION_METHODS.includes(authenticatedMethod)) {
+      return translate('text_17920584710724rtqabk4fe2', { method })
+    }
+
+    return translate('text_1752158380555tozrnmtmxcz', { method })
+  }
+
+  const inaccessibleOrganizationTooltip = getInaccessibleOrganizationTooltip()
 
   /**
    * Switches the current organization by navigating to its slug.
@@ -195,20 +219,7 @@ export const OrganizationSwitcher = ({
                       condition={accessibleByCurrentSession}
                       validWrapper={(children) => <>{children}</>}
                       invalidWrapper={(children) => (
-                        <Tooltip
-                          placement="right"
-                          title={
-                            organization
-                              ? translate('text_1752158380555tozrnmtmxcz', {
-                                  method: translate(
-                                    authenticationMethodsMapping[
-                                      organization.authenticatedMethod as AuthenticationMethodsEnum
-                                    ],
-                                  ),
-                                })
-                              : translate('text_1752158380555tozrnmtmxc1')
-                          }
-                        >
+                        <Tooltip placement="right" title={inaccessibleOrganizationTooltip}>
                           {children}
                         </Tooltip>
                       )}

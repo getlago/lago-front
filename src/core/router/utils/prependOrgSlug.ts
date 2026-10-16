@@ -1,3 +1,5 @@
+import { getFirstPathSegment } from './getFirstPathSegment'
+
 import { NEVER_SLUG_PREFIXES } from '../slugPrefixes'
 
 /**
@@ -13,8 +15,8 @@ import { NEVER_SLUG_PREFIXES } from '../slugPrefixes'
  *  - no org slug available (outside `/:organizationSlug`)
  *  - path is not absolute (`./foo`, `foo`, empty, etc.)
  *  - path is exactly `/` (HOME_ROUTE lives outside the org scope)
- *  - path is already slug-prefixed (prevents double prepend, e.g. after
- *    `navigate(location.pathname)`)
+ *  - path is already slug-prefixed, query and hash included (prevents double
+ *    prepend, e.g. after `navigate(location.pathname)`)
  *  - path starts with a `NEVER_SLUG_PREFIXES` entry (public routes:
  *    `/login`, `/customer-portal`, `/forbidden`, `/404`)
  */
@@ -23,8 +25,7 @@ export const prependOrgSlug = (path: string, organizationSlug: string | undefine
     !organizationSlug ||
     !path.startsWith('/') ||
     path === '/' ||
-    path.startsWith(`/${organizationSlug}/`) ||
-    path === `/${organizationSlug}` ||
+    getFirstPathSegment(path) === organizationSlug ||
     NEVER_SLUG_PREFIXES.some((prefix) => path.startsWith(prefix))
   ) {
     return path

@@ -27,7 +27,12 @@ const TEST_ORG_ID = 'org-a'
 const defaultMemberships = [
   {
     id: 'membership-1',
-    organization: { id: TEST_ORG_ID, name: 'Test Org', slug: TEST_ORG_SLUG },
+    organization: {
+      id: TEST_ORG_ID,
+      name: 'Test Org',
+      slug: TEST_ORG_SLUG,
+      accessibleByCurrentSession: true,
+    },
   },
 ]
 
@@ -173,7 +178,12 @@ describe('Home', () => {
             ...defaultMemberships,
             {
               id: 'membership-2',
-              organization: { id: 'org-b', name: 'Other Org', slug: 'other-org' },
+              organization: {
+                id: 'org-b',
+                name: 'Other Org',
+                slug: 'other-org',
+                accessibleByCurrentSession: true,
+              },
             },
           ],
         },
@@ -296,6 +306,33 @@ describe('Home', () => {
           expect(mockNavigate).toHaveBeenCalledWith(pathWithSlug, { replace: true })
         })
       })
+    })
+
+    describe('WHEN the stored redirect path is the org root', () => {
+      it.each([`/${TEST_ORG_SLUG}`, `/${TEST_ORG_SLUG}?tab=1`])(
+        'THEN should leave the index route for the default route and drain %s',
+        async (orgRootPath) => {
+          mockGetItemFromLS.mockImplementation((key: string) => {
+            if (key === REDIRECT_AFTER_LOGIN_LS_KEY) return orgRootPath
+
+            return undefined
+          })
+          mockHasPermissions.mockImplementation((perms: string[]) =>
+            perms.includes('customersView'),
+          )
+          mockHasOrganizationPremiumAddon.mockReturnValue(false)
+
+          renderHook(() => Home())
+
+          await waitFor(() => {
+            expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/customers`, {
+              replace: true,
+            })
+          })
+          expect(mockNavigate).toHaveBeenCalledTimes(1)
+          expect(mockRemoveItemFromLS).toHaveBeenCalledWith(REDIRECT_AFTER_LOGIN_LS_KEY)
+        },
+      )
     })
 
     describe('WHEN there is also a saved location in router state', () => {
