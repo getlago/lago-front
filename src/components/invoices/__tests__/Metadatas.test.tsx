@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { Metadatas } from '~/components/invoices/Metadatas'
 import { LagoApiError } from '~/generated/graphql'
@@ -11,8 +12,15 @@ jest.mock('~/generated/graphql', () => ({
   useGetInvoiceMetadatasQuery: (...args: unknown[]) => mockUseGetInvoiceMetadatasQuery(...args),
 }))
 
-jest.mock('~/components/invoices/AddMetadataDrawer', () => ({
-  AddMetadataDrawer: () => null,
+const mockOpenAddMetadataDrawer = jest.fn()
+const mockUseAddMetadataDrawer = jest.fn()
+
+jest.mock('~/components/invoices/addMetadataDrawer/useAddMetadataDrawer', () => ({
+  useAddMetadataDrawer: (...args: unknown[]) => {
+    mockUseAddMetadataDrawer(...args)
+
+    return { openDrawer: mockOpenAddMetadataDrawer }
+  },
 }))
 
 describe('Metadatas', () => {
@@ -73,6 +81,21 @@ describe('Metadatas', () => {
       expect(screen.getByText('PO-42')).toBeInTheDocument()
       expect(screen.getByText('Cost center')).toBeInTheDocument()
       expect(screen.queryByText('Hidden')).not.toBeInTheDocument()
+    })
+
+    it('THEN should open the metadata drawer on the loaded invoice', async () => {
+      mockUseGetInvoiceMetadatasQuery.mockReturnValue({
+        data: { invoice: { id: 'invoice-123', metadata: [], customer: null } },
+        loading: false,
+      })
+
+      render(<Metadatas />, { useParams: { invoiceId: 'invoice-123' } })
+
+      expect(mockUseAddMetadataDrawer).toHaveBeenCalledWith({ invoiceId: 'invoice-123' })
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add metadata' }))
+
+      expect(mockOpenAddMetadataDrawer).toHaveBeenCalledTimes(1)
     })
   })
 })
