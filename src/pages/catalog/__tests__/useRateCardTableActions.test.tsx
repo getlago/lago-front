@@ -59,6 +59,7 @@ const buildRateCard = (
     billableMetric: null,
   },
   productFilter: null,
+  taxes: [],
   activeRate: null,
   ...overrides,
 })
