@@ -234,6 +234,7 @@ export const AppliedRateCardDrawerContent = withForm({
         productIds: productId ? [productId] : undefined,
         productFilterIds: productFilterId ? [productFilterId] : undefined,
         currency,
+        limit: 50,
       },
     })
 

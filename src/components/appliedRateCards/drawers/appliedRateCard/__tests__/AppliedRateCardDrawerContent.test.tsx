@@ -263,7 +263,9 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
     await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
 
     expect(screen.getByText('Rate card in USD')).toBeInTheDocument()
-    await waitFor(() => expect(capturedVars).toMatchObject({ currency: CurrencyEnum.Usd }))
+    await waitFor(() =>
+      expect(capturedVars).toMatchObject({ currency: CurrencyEnum.Usd, limit: 50 }),
+    )
   })
 
   it('GIVEN a rate card search THEN it stays scoped to the drawer currency', async () => {
