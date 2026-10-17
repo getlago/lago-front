@@ -100,13 +100,13 @@ jobs:
           exit 1
 
       - name: Download all coverage artifacts
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           pattern: coverage-shard-*
           path: coverage-shards
 
       - name: Download all JUnit artifacts
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           pattern: junit-shard-*
           path: junit-shards
