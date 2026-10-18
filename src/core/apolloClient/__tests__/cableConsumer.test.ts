@@ -1,11 +1,4 @@
-import { adapters } from '@rails/actioncable'
-
-import {
-  createCableConsumer,
-  disconnectCableConsumer,
-  getCableConsumer,
-  refreshCableConsumerIfIdle,
-} from '../cableConsumer'
+import type { Consumer } from '@rails/actioncable'
 
 jest.mock('../reactiveVars', () => ({
   AUTH_TOKEN_LS_KEY: 'auth_token',
@@ -21,102 +14,116 @@ jest.mock('~/hooks/useDeveloperTool', () => ({
 
 const CABLE_URL = 'wss://api.lago.dev/cable'
 
-describe('createCableConsumer', () => {
-  const originalWebSocket = adapters.WebSocket
-  const webSocketMock = jest.fn()
+type CableModule = typeof import('../cableConsumer')
+type SubscriptionWithConsumer = { consumer: Consumer; unsubscribe: () => void }
 
-  beforeEach(() => {
+describe('cableConsumer', () => {
+  let cable: CableModule
+  let webSocketMock: jest.Mock
+
+  const subscribe = (link: Consumer): SubscriptionWithConsumer =>
+    link.subscriptions.create({ channel: 'GraphqlChannel' }) as unknown as SubscriptionWithConsumer
+
+  beforeEach(async () => {
+    jest.resetModules()
     localStorage.clear()
-    webSocketMock.mockReset()
-    adapters.WebSocket = webSocketMock as unknown as typeof WebSocket
+
+    const actionCable = await import('@rails/actioncable')
+
+    webSocketMock = jest.fn()
+    actionCable.adapters.WebSocket = webSocketMock as unknown as typeof WebSocket
+    cable = await import('../cableConsumer')
   })
 
-  afterAll(() => {
-    adapters.WebSocket = originalWebSocket
-  })
+  describe('createCableConsumer', () => {
+    describe('WHEN the socket opens', () => {
+      it('THEN should offer the token as a subprotocol and keep it out of the URL', () => {
+        localStorage.setItem('auth_token', 'admin-jwt')
 
-  describe('WHEN the socket opens', () => {
-    it('THEN should offer the token as a subprotocol and keep it out of the URL', () => {
-      localStorage.setItem('auth_token', 'admin-jwt')
+        cable.createCableConsumer(CABLE_URL).connect()
 
-      const consumer = createCableConsumer(CABLE_URL)
+        expect(webSocketMock).toHaveBeenCalledWith(CABLE_URL, [
+          'actioncable-v1-json',
+          'actioncable-unsupported',
+          'lago-token.admin-jwt',
+        ])
+      })
+    })
 
-      consumer.connect()
+    describe('WHEN the token changes after the consumer is created', () => {
+      it('THEN should send the current token', () => {
+        localStorage.setItem('auth_token', 'old-jwt')
 
-      expect(webSocketMock).toHaveBeenCalledWith(CABLE_URL, [
-        'actioncable-v1-json',
-        'actioncable-unsupported',
-        'lago-token.admin-jwt',
-      ])
+        const consumer = cable.createCableConsumer(CABLE_URL)
+
+        localStorage.setItem('auth_token', 'renewed-jwt')
+
+        expect(consumer.subprotocols).toEqual(['lago-token.renewed-jwt'])
+      })
     })
   })
 
-  describe('WHEN the token changes after the consumer is created', () => {
-    it('THEN should send the current token', () => {
-      localStorage.setItem('auth_token', 'old-jwt')
+  describe('refreshCableConsumer', () => {
+    describe('WHEN the token is renewed while no subscription runs', () => {
+      it('THEN should close the socket and reuse the consumer for the next subscription', () => {
+        const link = cable.getCableConsumer(CABLE_URL)
+        const first = subscribe(link)
+        const disconnectSpy = jest.spyOn(first.consumer, 'disconnect')
 
-      const consumer = createCableConsumer(CABLE_URL)
+        first.unsubscribe()
+        cable.refreshCableConsumer()
 
-      localStorage.setItem('auth_token', 'renewed-jwt')
-
-      expect(consumer.subprotocols).toEqual(['lago-token.renewed-jwt'])
+        expect(disconnectSpy).toHaveBeenCalledTimes(1)
+        expect(subscribe(link).consumer).toBe(first.consumer)
+      })
     })
-  })
-})
 
-describe('getCableConsumer', () => {
-  afterEach(() => {
-    jest.restoreAllMocks()
-  })
+    describe('WHEN the token is renewed while an answer is streaming', () => {
+      it('THEN should keep the streaming socket and open a new one for new subscriptions', () => {
+        localStorage.setItem('auth_token', 'old-jwt')
 
-  describe('WHEN called several times', () => {
-    it('THEN should return a single consumer that disconnectCableConsumer closes', () => {
-      const consumer = getCableConsumer(CABLE_URL)
-      const disconnectSpy = jest.spyOn(consumer, 'disconnect')
+        const link = cable.getCableConsumer(CABLE_URL)
+        const streaming = subscribe(link)
+        const disconnectSpy = jest.spyOn(streaming.consumer, 'disconnect')
 
-      expect(getCableConsumer(CABLE_URL)).toBe(consumer)
+        localStorage.setItem('auth_token', 'renewed-jwt')
+        cable.refreshCableConsumer()
 
-      disconnectCableConsumer()
+        expect(disconnectSpy).not.toHaveBeenCalled()
 
-      expect(disconnectSpy).toHaveBeenCalledTimes(1)
-    })
-  })
-})
+        const next = subscribe(link)
 
-describe('refreshCableConsumerIfIdle', () => {
-  const originalWebSocket = adapters.WebSocket
+        expect(next.consumer).not.toBe(streaming.consumer)
+        expect(webSocketMock).toHaveBeenLastCalledWith(CABLE_URL, [
+          'actioncable-v1-json',
+          'actioncable-unsupported',
+          'lago-token.renewed-jwt',
+        ])
 
-  beforeEach(() => {
-    adapters.WebSocket = jest.fn() as unknown as typeof WebSocket
-  })
+        streaming.unsubscribe()
 
-  afterEach(() => {
-    jest.restoreAllMocks()
-    adapters.WebSocket = originalWebSocket
-  })
-
-  describe('WHEN the socket has no subscription', () => {
-    it('THEN should close it so the next subscription uses the renewed token', () => {
-      const consumer = getCableConsumer(CABLE_URL)
-      const disconnectSpy = jest.spyOn(consumer, 'disconnect')
-
-      refreshCableConsumerIfIdle()
-
-      expect(disconnectSpy).toHaveBeenCalledTimes(1)
+        expect(disconnectSpy).toHaveBeenCalledTimes(1)
+      })
     })
   })
 
-  describe('WHEN a subscription is running', () => {
-    it('THEN should keep the socket open not to cut the answer', () => {
-      const consumer = getCableConsumer(CABLE_URL)
-      const disconnectSpy = jest.spyOn(consumer, 'disconnect')
-      const subscription = consumer.subscriptions.create({ channel: 'GraphqlChannel' })
+  describe('disconnectCableConsumer', () => {
+    describe('WHEN a streaming socket was retired by a renewal', () => {
+      it('THEN should close both the active and the retired sockets', () => {
+        const link = cable.getCableConsumer(CABLE_URL)
+        const streaming = subscribe(link)
+        const retiredSpy = jest.spyOn(streaming.consumer, 'disconnect')
 
-      refreshCableConsumerIfIdle()
+        cable.refreshCableConsumer()
 
-      expect(disconnectSpy).not.toHaveBeenCalled()
+        const active = subscribe(link)
+        const activeSpy = jest.spyOn(active.consumer, 'disconnect')
 
-      subscription.unsubscribe()
+        cable.disconnectCableConsumer()
+
+        expect(retiredSpy).toHaveBeenCalledTimes(1)
+        expect(activeSpy).toHaveBeenCalledTimes(1)
+      })
     })
   })
 })

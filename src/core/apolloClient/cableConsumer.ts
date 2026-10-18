@@ -2,8 +2,7 @@ import { Consumer, createConsumer } from '@rails/actioncable'
 
 import { buildCableSubprotocols } from './authHeaders'
 
-// The subprotocols are read each time the socket opens, so a reconnect sends the
-// current token rather than the one present when the consumer was created.
+// Read on every socket open, so a reconnect sends the current token.
 export const createCableConsumer = (url: string): Consumer => {
   const consumer = createConsumer(url)
 
@@ -14,32 +13,73 @@ export const createCableConsumer = (url: string): Consumer => {
   return consumer
 }
 
-let cableConsumer: Consumer | null = null
+// @rails/actioncable's types omit the subscription list and `remove`.
+type CableSubscriptions = Consumer['subscriptions'] & {
+  subscriptions: unknown[]
+  remove: (subscription: unknown) => unknown
+}
 
+const subscriptionsOf = (consumer: Consumer): CableSubscriptions =>
+  consumer.subscriptions as CableSubscriptions
+
+let cableUrl = ''
+let activeConsumer: Consumer | null = null
+const retiringConsumers = new Set<Consumer>()
+
+const getActiveConsumer = (): Consumer => {
+  activeConsumer ??= createCableConsumer(cableUrl)
+
+  return activeConsumer
+}
+
+// ActionCableLink only calls `cable.subscriptions.create`, so new subscriptions always go to
+// the socket opened with the latest token.
 export const getCableConsumer = (url: string): Consumer => {
-  cableConsumer ??= createCableConsumer(url)
+  cableUrl = url
 
-  return cableConsumer
+  return {
+    subscriptions: {
+      create: (...args: Parameters<Consumer['subscriptions']['create']>) =>
+        getActiveConsumer().subscriptions.create(...args),
+    },
+  } as unknown as Consumer
 }
 
-// The API authenticates the socket once, when it opens. Closing it on logout and login makes
-// the next subscription open a new socket with the current user's token.
-export const disconnectCableConsumer = () => {
-  cableConsumer?.disconnect()
-}
+const retireWhenEmpty = (consumer: Consumer): void => {
+  const subscriptions = subscriptionsOf(consumer)
+  const remove = subscriptions.remove.bind(subscriptions)
 
-// Called when the API renews the token, during the last hour before it expires. An idle socket
-// is closed so the next subscription opens one with the renewed token, instead of relying on
-// the API closing it at expiry, which reconnects several seconds later and can drop streamed
-// chunks. A socket with running subscriptions is left open not to cut an answer in progress.
-export const refreshCableConsumerIfIdle = () => {
-  if (cableConsumer && !hasSubscriptions(cableConsumer)) {
-    cableConsumer.disconnect()
+  subscriptions.remove = (subscription: unknown): unknown => {
+    const removed = remove(subscription)
+
+    if (subscriptions.subscriptions.length === 0) {
+      consumer.disconnect()
+      retiringConsumers.delete(consumer)
+    }
+
+    return removed
   }
+
+  retiringConsumers.add(consumer)
 }
 
-// @rails/actioncable keeps the list on `subscriptions.subscriptions`, which its types omit.
-type SubscriptionsWithList = Consumer['subscriptions'] & { subscriptions: unknown[] }
+// The API authenticates a socket with the token it opened with. A socket streaming an answer
+// keeps running until its subscriptions end, and new subscriptions open a new socket.
+export const refreshCableConsumer = (): void => {
+  if (!activeConsumer) return
 
-const hasSubscriptions = (consumer: Consumer) =>
-  (consumer.subscriptions as SubscriptionsWithList).subscriptions.length > 0
+  if (subscriptionsOf(activeConsumer).subscriptions.length === 0) {
+    activeConsumer.disconnect()
+
+    return
+  }
+
+  retireWhenEmpty(activeConsumer)
+  activeConsumer = null
+}
+
+export const disconnectCableConsumer = (): void => {
+  activeConsumer?.disconnect()
+  retiringConsumers.forEach((consumer) => consumer.disconnect())
+  retiringConsumers.clear()
+}

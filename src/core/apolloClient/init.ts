@@ -22,7 +22,7 @@ import { getItemFromLS } from '~/core/utils/localStorage'
 import { LagoApiError } from '~/generated/graphql'
 
 import { buildAuthHeaders, buildCableConnectionParams } from './authHeaders'
-import { getCableConsumer, refreshCableConsumerIfIdle } from './cableConsumer'
+import { getCableConsumer, refreshCableConsumer } from './cableConsumer'
 import { cache } from './cache'
 import { setupCachePersistor } from './cachePersistor'
 import { omitDeep } from './cacheUtils'
@@ -88,7 +88,7 @@ export const initializeApolloClient = async () => {
 
           if (newToken && newToken !== currentToken) {
             updateAuthTokenVar(newToken)
-            refreshCableConsumerIfIdle()
+            refreshCableConsumer()
           }
         }
       }
