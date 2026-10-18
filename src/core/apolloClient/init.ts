@@ -3,7 +3,6 @@ import { onError } from '@apollo/client/link/error'
 import { RetryLink } from '@apollo/client/link/retry'
 import { getMainDefinition } from '@apollo/client/utilities'
 import { captureException, captureMessage } from '@sentry/react'
-import ActionCable from 'actioncable'
 import ApolloLinkTimeout from 'apollo-link-timeout'
 import { createUploadLink } from 'apollo-upload-client'
 import ActionCableLink from 'graphql-ruby-client/subscriptions/ActionCableLink'
@@ -23,6 +22,7 @@ import { getItemFromLS } from '~/core/utils/localStorage'
 import { LagoApiError } from '~/generated/graphql'
 
 import { buildAuthHeaders, buildCableConnectionParams } from './authHeaders'
+import { createCableConsumer } from './cableConsumer'
 import { cache } from './cache'
 import { setupCachePersistor } from './cachePersistor'
 import { omitDeep } from './cacheUtils'
@@ -42,7 +42,7 @@ const { apiUrl, appVersion } = envGlobalVar()
 
 const { cableUrl } = buildWebSocketUrl(apiUrl)
 const subscriptionLink = new ActionCableLink({
-  cable: ActionCable.createConsumer(cableUrl),
+  cable: createCableConsumer(cableUrl),
   channelName: 'GraphqlChannel',
   actionName: 'execute',
   connectionParams: () => buildCableConnectionParams(),

@@ -1,4 +1,8 @@
-import { buildAuthHeaders, buildCableConnectionParams } from '../authHeaders'
+import {
+  buildAuthHeaders,
+  buildCableConnectionParams,
+  buildCableSubprotocols,
+} from '../authHeaders'
 
 const mockGetCurrentOrganizationId = jest.fn()
 
@@ -112,22 +116,18 @@ describe('buildAuthHeaders', () => {
   })
 })
 
-describe('buildCableConnectionParams', () => {
+describe('buildCableSubprotocols', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     localStorage.clear()
-    mockGetCurrentOrganizationId.mockReturnValue(null)
   })
 
-  describe('WHEN a token and an organization id exist', () => {
-    it('THEN should send both as channel params', () => {
+  describe('WHEN an auth token exists', () => {
+    it('THEN should send it as a lago-token subprotocol', () => {
       localStorage.setItem('auth_token', 'admin-jwt')
-      mockGetCurrentOrganizationId.mockReturnValue('org-123')
+      localStorage.setItem('tmp_auth_token', 'tmp-jwt')
 
-      expect(buildCableConnectionParams()).toEqual({
-        token: 'admin-jwt',
-        organization_id: 'org-123',
-      })
+      expect(buildCableSubprotocols(ADMIN_PATH)).toEqual(['lago-token.admin-jwt'])
     })
   })
 
@@ -135,12 +135,45 @@ describe('buildCableConnectionParams', () => {
     it('THEN should send the temporary token', () => {
       localStorage.setItem('tmp_auth_token', 'tmp-jwt')
 
-      expect(buildCableConnectionParams()).toEqual({ token: 'tmp-jwt' })
+      expect(buildCableSubprotocols(ADMIN_PATH)).toEqual(['lago-token.tmp-jwt'])
+    })
+  })
+
+  describe('WHEN on a customer portal route', () => {
+    it('THEN should not send the admin token', () => {
+      localStorage.setItem('auth_token', 'admin-jwt')
+
+      expect(buildCableSubprotocols(PORTAL_PATH)).toEqual([])
     })
   })
 
   describe('WHEN no token exists at all', () => {
+    it('THEN should send no subprotocol', () => {
+      expect(buildCableSubprotocols(ADMIN_PATH)).toEqual([])
+    })
+  })
+})
+
+describe('buildCableConnectionParams', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    localStorage.clear()
+    mockGetCurrentOrganizationId.mockReturnValue(null)
+  })
+
+  describe('WHEN an organization id exists', () => {
+    it('THEN should send only the organization id, never the token', () => {
+      localStorage.setItem('auth_token', 'admin-jwt')
+      mockGetCurrentOrganizationId.mockReturnValue('org-123')
+
+      expect(buildCableConnectionParams()).toEqual({ organization_id: 'org-123' })
+    })
+  })
+
+  describe('WHEN no organization id is resolved', () => {
     it('THEN should send no params', () => {
+      localStorage.setItem('auth_token', 'admin-jwt')
+
       expect(buildCableConnectionParams()).toEqual({})
     })
   })

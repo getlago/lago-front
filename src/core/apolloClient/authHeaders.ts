@@ -33,14 +33,25 @@ export const buildAuthHeaders = (pathname: string): Record<string, string> => {
   }
 }
 
-// ActionCable cannot set headers on the websocket, so subscriptions send the
-// same credentials as channel params. The API rejects subscriptions without them.
-export const buildCableConnectionParams = (): Record<string, string> => {
+export const CABLE_TOKEN_SUBPROTOCOL_PREFIX = 'lago-token.'
+
+// Browsers cannot set headers on a websocket, so the user token travels as an extra
+// subprotocol, which the API reads from the Sec-WebSocket-Protocol header when the
+// socket opens. It must not go in the URL or the channel params: both end up in logs.
+export const buildCableSubprotocols = (pathname: string): string[] => {
+  const isCustomerPortal = !!matchPath(`${CUSTOMER_PORTAL_ROUTE}/*`, pathname)
+
+  if (isCustomerPortal) return []
+
   const token = getItemFromLS(AUTH_TOKEN_LS_KEY) || getItemFromLS(TMP_AUTH_TOKEN_LS_KEY)
+
+  return token ? [`${CABLE_TOKEN_SUBPROTOCOL_PREFIX}${token}`] : []
+}
+
+// Sent as channel params of each subscription, like the x-lago-organization header.
+// Channel params are logged by the API, so they never carry a credential.
+export const buildCableConnectionParams = (): Record<string, string> => {
   const currentOrganizationId = getCurrentOrganizationId()
 
-  return {
-    ...(token ? { token } : {}),
-    ...(currentOrganizationId ? { organization_id: currentOrganizationId } : {}),
-  }
+  return currentOrganizationId ? { organization_id: currentOrganizationId } : {}
 }
