@@ -27,3 +27,19 @@ export const getCableConsumer = (url: string): Consumer => {
 export const disconnectCableConsumer = () => {
   cableConsumer?.disconnect()
 }
+
+// Called when the API renews the token, during the last hour before it expires. An idle socket
+// is closed so the next subscription opens one with the renewed token, instead of relying on
+// the API closing it at expiry, which reconnects several seconds later and can drop streamed
+// chunks. A socket with running subscriptions is left open not to cut an answer in progress.
+export const refreshCableConsumerIfIdle = () => {
+  if (cableConsumer && !hasSubscriptions(cableConsumer)) {
+    cableConsumer.disconnect()
+  }
+}
+
+// @rails/actioncable keeps the list on `subscriptions.subscriptions`, which its types omit.
+type SubscriptionsWithList = Consumer['subscriptions'] & { subscriptions: unknown[] }
+
+const hasSubscriptions = (consumer: Consumer) =>
+  (consumer.subscriptions as SubscriptionsWithList).subscriptions.length > 0

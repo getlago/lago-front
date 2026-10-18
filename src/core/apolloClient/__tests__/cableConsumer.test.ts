@@ -1,6 +1,11 @@
 import { adapters } from '@rails/actioncable'
 
-import { createCableConsumer, disconnectCableConsumer, getCableConsumer } from '../cableConsumer'
+import {
+  createCableConsumer,
+  disconnectCableConsumer,
+  getCableConsumer,
+  refreshCableConsumerIfIdle,
+} from '../cableConsumer'
 
 jest.mock('../reactiveVars', () => ({
   AUTH_TOKEN_LS_KEY: 'auth_token',
@@ -60,6 +65,10 @@ describe('createCableConsumer', () => {
 })
 
 describe('getCableConsumer', () => {
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
   describe('WHEN called several times', () => {
     it('THEN should return a single consumer that disconnectCableConsumer closes', () => {
       const consumer = getCableConsumer(CABLE_URL)
@@ -70,6 +79,44 @@ describe('getCableConsumer', () => {
       disconnectCableConsumer()
 
       expect(disconnectSpy).toHaveBeenCalledTimes(1)
+    })
+  })
+})
+
+describe('refreshCableConsumerIfIdle', () => {
+  const originalWebSocket = adapters.WebSocket
+
+  beforeEach(() => {
+    adapters.WebSocket = jest.fn() as unknown as typeof WebSocket
+  })
+
+  afterEach(() => {
+    jest.restoreAllMocks()
+    adapters.WebSocket = originalWebSocket
+  })
+
+  describe('WHEN the socket has no subscription', () => {
+    it('THEN should close it so the next subscription uses the renewed token', () => {
+      const consumer = getCableConsumer(CABLE_URL)
+      const disconnectSpy = jest.spyOn(consumer, 'disconnect')
+
+      refreshCableConsumerIfIdle()
+
+      expect(disconnectSpy).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('WHEN a subscription is running', () => {
+    it('THEN should keep the socket open not to cut the answer', () => {
+      const consumer = getCableConsumer(CABLE_URL)
+      const disconnectSpy = jest.spyOn(consumer, 'disconnect')
+      const subscription = consumer.subscriptions.create({ channel: 'GraphqlChannel' })
+
+      refreshCableConsumerIfIdle()
+
+      expect(disconnectSpy).not.toHaveBeenCalled()
+
+      subscription.unsubscribe()
     })
   })
 })
