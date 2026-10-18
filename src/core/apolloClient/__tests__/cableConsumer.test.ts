@@ -65,7 +65,7 @@ describe('cableConsumer', () => {
 
   describe('refreshCableConsumer', () => {
     describe('WHEN the token is renewed while no subscription runs', () => {
-      it('THEN should close the socket and reuse the consumer for the next subscription', () => {
+      it('THEN should close the socket and open a new one for the next subscription', () => {
         const link = cable.getCableConsumer(CABLE_URL)
         const first = subscribe(link)
         const disconnectSpy = jest.spyOn(first.consumer, 'disconnect')
@@ -74,7 +74,31 @@ describe('cableConsumer', () => {
         cable.refreshCableConsumer()
 
         expect(disconnectSpy).toHaveBeenCalledTimes(1)
-        expect(subscribe(link).consumer).toBe(first.consumer)
+        expect(subscribe(link).consumer).not.toBe(first.consumer)
+      })
+    })
+
+    describe('WHEN the token is renewed while an idle socket is still connecting', () => {
+      it('THEN should close it and open a new socket with the renewed token', () => {
+        const connectingSocket = { close: jest.fn(), readyState: 0 }
+
+        Object.assign(webSocketMock, { CONNECTING: 0, OPEN: 1, CLOSING: 2, CLOSED: 3 })
+        webSocketMock.mockImplementationOnce(() => connectingSocket)
+        localStorage.setItem('auth_token', 'old-jwt')
+
+        const link = cable.getCableConsumer(CABLE_URL)
+
+        subscribe(link).unsubscribe()
+        localStorage.setItem('auth_token', 'renewed-jwt')
+        cable.refreshCableConsumer()
+        subscribe(link)
+
+        expect(connectingSocket.close).toHaveBeenCalled()
+        expect(webSocketMock).toHaveBeenLastCalledWith(CABLE_URL, [
+          'actioncable-v1-json',
+          'actioncable-unsupported',
+          'lago-token.renewed-jwt',
+        ])
       })
     })
 

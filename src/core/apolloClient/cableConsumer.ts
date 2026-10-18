@@ -45,6 +45,15 @@ export const getCableConsumer = (url: string): Consumer => {
   } as unknown as Consumer
 }
 
+type ConsumerWithSocket = { connection: { webSocket?: WebSocket } }
+
+// `disconnect()` only closes an open socket: one still in its handshake would stay up and be
+// reused by the next subscription with the token it was opened with.
+const discard = (consumer: Consumer): void => {
+  consumer.disconnect()
+  ;(consumer as unknown as ConsumerWithSocket).connection.webSocket?.close()
+}
+
 const retireWhenEmpty = (consumer: Consumer): void => {
   const subscriptions = subscriptionsOf(consumer)
   const remove = subscriptions.remove.bind(subscriptions)
@@ -53,7 +62,7 @@ const retireWhenEmpty = (consumer: Consumer): void => {
     const removed = remove(subscription)
 
     if (subscriptions.subscriptions.length === 0) {
-      consumer.disconnect()
+      discard(consumer)
       retiringConsumers.delete(consumer)
     }
 
@@ -69,22 +78,14 @@ export const refreshCableConsumer = (): void => {
   if (!activeConsumer) return
 
   if (subscriptionsOf(activeConsumer).subscriptions.length === 0) {
-    activeConsumer.disconnect()
+    discard(activeConsumer)
+    activeConsumer = null
 
     return
   }
 
   retireWhenEmpty(activeConsumer)
   activeConsumer = null
-}
-
-type ConsumerWithSocket = { connection: { webSocket?: WebSocket } }
-
-// `disconnect()` only closes an open socket: one still in its handshake would stay up and be
-// reused by the next subscription with the previous user's token.
-const discard = (consumer: Consumer): void => {
-  consumer.disconnect()
-  ;(consumer as unknown as ConsumerWithSocket).connection.webSocket?.close()
 }
 
 export const disconnectCableConsumer = (): void => {
