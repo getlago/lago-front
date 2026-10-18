@@ -1,4 +1,4 @@
-import { buildAuthHeaders } from '../authHeaders'
+import { buildAuthHeaders, buildCableConnectionParams } from '../authHeaders'
 
 const mockGetCurrentOrganizationId = jest.fn()
 
@@ -108,6 +108,40 @@ describe('buildAuthHeaders', () => {
       it('THEN should send no headers', () => {
         expect(buildAuthHeaders(ADMIN_PATH)).toEqual({})
       })
+    })
+  })
+})
+
+describe('buildCableConnectionParams', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    localStorage.clear()
+    mockGetCurrentOrganizationId.mockReturnValue(null)
+  })
+
+  describe('WHEN a token and an organization id exist', () => {
+    it('THEN should send both as channel params', () => {
+      localStorage.setItem('auth_token', 'admin-jwt')
+      mockGetCurrentOrganizationId.mockReturnValue('org-123')
+
+      expect(buildCableConnectionParams()).toEqual({
+        token: 'admin-jwt',
+        organization_id: 'org-123',
+      })
+    })
+  })
+
+  describe('WHEN only the temporary token exists', () => {
+    it('THEN should send the temporary token', () => {
+      localStorage.setItem('tmp_auth_token', 'tmp-jwt')
+
+      expect(buildCableConnectionParams()).toEqual({ token: 'tmp-jwt' })
+    })
+  })
+
+  describe('WHEN no token exists at all', () => {
+    it('THEN should send no params', () => {
+      expect(buildCableConnectionParams()).toEqual({})
     })
   })
 })

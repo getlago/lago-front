@@ -22,7 +22,7 @@ import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { LagoApiError } from '~/generated/graphql'
 
-import { buildAuthHeaders } from './authHeaders'
+import { buildAuthHeaders, buildCableConnectionParams } from './authHeaders'
 import { cache } from './cache'
 import { setupCachePersistor } from './cachePersistor'
 import { omitDeep } from './cacheUtils'
@@ -45,6 +45,7 @@ const subscriptionLink = new ActionCableLink({
   cable: ActionCable.createConsumer(cableUrl),
   channelName: 'GraphqlChannel',
   actionName: 'execute',
+  connectionParams: () => buildCableConnectionParams(),
 })
 
 const hasSubscriptionOperation = ({ query }: Operation) => {

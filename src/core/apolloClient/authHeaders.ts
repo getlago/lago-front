@@ -32,3 +32,15 @@ export const buildAuthHeaders = (pathname: string): Record<string, string> => {
     ...(currentOrganizationId ? { 'x-lago-organization': currentOrganizationId } : {}),
   }
 }
+
+// ActionCable cannot set headers on the websocket, so subscriptions send the
+// same credentials as channel params. The API rejects subscriptions without them.
+export const buildCableConnectionParams = (): Record<string, string> => {
+  const token = getItemFromLS(AUTH_TOKEN_LS_KEY) || getItemFromLS(TMP_AUTH_TOKEN_LS_KEY)
+  const currentOrganizationId = getCurrentOrganizationId()
+
+  return {
+    ...(token ? { token } : {}),
+    ...(currentOrganizationId ? { organization_id: currentOrganizationId } : {}),
+  }
+}
