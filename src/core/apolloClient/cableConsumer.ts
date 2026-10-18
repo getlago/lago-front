@@ -78,8 +78,19 @@ export const refreshCableConsumer = (): void => {
   activeConsumer = null
 }
 
+type ConsumerWithSocket = { connection: { webSocket?: WebSocket } }
+
+// `disconnect()` only closes an open socket: one still in its handshake would stay up and be
+// reused by the next subscription with the previous user's token.
+const discard = (consumer: Consumer): void => {
+  consumer.disconnect()
+  ;(consumer as unknown as ConsumerWithSocket).connection.webSocket?.close()
+}
+
 export const disconnectCableConsumer = (): void => {
-  activeConsumer?.disconnect()
-  retiringConsumers.forEach((consumer) => consumer.disconnect())
+  if (activeConsumer) discard(activeConsumer)
+
+  activeConsumer = null
+  retiringConsumers.forEach(discard)
   retiringConsumers.clear()
 }

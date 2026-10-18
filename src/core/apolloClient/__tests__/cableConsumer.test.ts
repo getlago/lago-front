@@ -30,7 +30,7 @@ describe('cableConsumer', () => {
 
     const actionCable = await import('@rails/actioncable')
 
-    webSocketMock = jest.fn()
+    webSocketMock = jest.fn(() => ({ close: jest.fn() }))
     actionCable.adapters.WebSocket = webSocketMock as unknown as typeof WebSocket
     cable = await import('../cableConsumer')
   })
@@ -108,6 +108,32 @@ describe('cableConsumer', () => {
   })
 
   describe('disconnectCableConsumer', () => {
+    describe('WHEN the user logs out while the socket is still connecting', () => {
+      it('THEN should close it and open a new socket with the next token', () => {
+        const connectingSocket = { close: jest.fn(), readyState: 0 }
+
+        Object.assign(webSocketMock, { CONNECTING: 0, OPEN: 1, CLOSING: 2, CLOSED: 3 })
+        webSocketMock.mockImplementationOnce(() => connectingSocket)
+        localStorage.setItem('auth_token', 'previous-user-jwt')
+
+        const link = cable.getCableConsumer(CABLE_URL)
+        const previous = subscribe(link)
+
+        cable.disconnectCableConsumer()
+        localStorage.setItem('auth_token', 'next-user-jwt')
+
+        const next = subscribe(link)
+
+        expect(connectingSocket.close).toHaveBeenCalled()
+        expect(next.consumer).not.toBe(previous.consumer)
+        expect(webSocketMock).toHaveBeenLastCalledWith(CABLE_URL, [
+          'actioncable-v1-json',
+          'actioncable-unsupported',
+          'lago-token.next-user-jwt',
+        ])
+      })
+    })
+
     describe('WHEN a streaming socket was retired by a renewal', () => {
       it('THEN should close both the active and the retired sockets', () => {
         const link = cable.getCableConsumer(CABLE_URL)
