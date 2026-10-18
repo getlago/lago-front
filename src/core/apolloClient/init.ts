@@ -22,7 +22,7 @@ import { getItemFromLS } from '~/core/utils/localStorage'
 import { LagoApiError } from '~/generated/graphql'
 
 import { buildAuthHeaders, buildCableConnectionParams } from './authHeaders'
-import { createCableConsumer } from './cableConsumer'
+import { getCableConsumer } from './cableConsumer'
 import { cache } from './cache'
 import { setupCachePersistor } from './cachePersistor'
 import { omitDeep } from './cacheUtils'
@@ -42,7 +42,7 @@ const { apiUrl, appVersion } = envGlobalVar()
 
 const { cableUrl } = buildWebSocketUrl(apiUrl)
 const subscriptionLink = new ActionCableLink({
-  cable: createCableConsumer(cableUrl),
+  cable: getCableConsumer(cableUrl),
   channelName: 'GraphqlChannel',
   actionName: 'execute',
   connectionParams: () => buildCableConnectionParams(),

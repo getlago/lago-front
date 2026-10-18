@@ -1,6 +1,6 @@
 import { adapters } from '@rails/actioncable'
 
-import { createCableConsumer } from '../cableConsumer'
+import { createCableConsumer, disconnectCableConsumer, getCableConsumer } from '../cableConsumer'
 
 jest.mock('../reactiveVars', () => ({
   AUTH_TOKEN_LS_KEY: 'auth_token',
@@ -55,6 +55,21 @@ describe('createCableConsumer', () => {
       localStorage.setItem('auth_token', 'renewed-jwt')
 
       expect(consumer.subprotocols).toEqual(['lago-token.renewed-jwt'])
+    })
+  })
+})
+
+describe('getCableConsumer', () => {
+  describe('WHEN called several times', () => {
+    it('THEN should return a single consumer that disconnectCableConsumer closes', () => {
+      const consumer = getCableConsumer(CABLE_URL)
+      const disconnectSpy = jest.spyOn(consumer, 'disconnect')
+
+      expect(getCableConsumer(CABLE_URL)).toBe(consumer)
+
+      disconnectCableConsumer()
+
+      expect(disconnectSpy).toHaveBeenCalledTimes(1)
     })
   })
 })
