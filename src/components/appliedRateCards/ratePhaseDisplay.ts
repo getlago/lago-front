@@ -65,7 +65,6 @@ export const formatSpendingMinimum = (
   const minAmountCents = Number(rate.minAmountCents ?? 0)
 
   if (minAmountCents > 0) {
-    // Expressed in the pricing unit when the card has one, as on the catalog rate details.
     return intlFormatNumber(deserializeAmount(minAmountCents, currency), {
       currencyDisplay: 'symbol',
       currency,

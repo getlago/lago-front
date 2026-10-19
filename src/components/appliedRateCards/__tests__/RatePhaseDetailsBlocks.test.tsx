@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 
 import {
   CurrencyEnum,
@@ -8,17 +8,15 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import {
-  RATE_PHASE_DETAIL_ITEM_TEST_ID,
-  RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID,
-  RatePhaseDetailItem,
-} from '../RatePhaseDetailItem'
+import { RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID, RatePhaseDetailItem } from '../RatePhaseDetailItem'
 import {
   RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID,
   RATE_PHASE_RATE_EFFECTIVE_DATE_TEST_ID,
   RatePhaseRateEffectiveDate,
 } from '../RatePhaseRateEffectiveDate'
 import {
+  OVERRIDDEN_RATE_PROPERTIES_CLASSNAME,
+  OVERRIDDEN_TIERED_RATE_PROPERTIES_CLASSNAME,
   RATE_PHASE_RATE_PROPERTIES_TEST_ID,
   RatePhaseRateProperties,
 } from '../RatePhaseRateProperties'
@@ -52,9 +50,9 @@ describe('RatePhaseDetailItem', () => {
   })
 
   it('GIVEN a value that is not overridden THEN has no overridden test id', async () => {
-    render(<RatePhaseDetailItem label="Model" value="Standard" />)
+    const { container } = render(<RatePhaseDetailItem label="Model" value="Standard" />)
 
-    expect(await screen.findByTestId(RATE_PHASE_DETAIL_ITEM_TEST_ID)).toHaveTextContent('Standard')
+    await waitFor(() => expect(container).toHaveTextContent('Standard'))
     expect(screen.queryByTestId(RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID)).not.toBeInTheDocument()
   })
 })
@@ -70,9 +68,10 @@ describe('RatePhaseRateProperties', () => {
       />,
     )
 
-    expect((await screen.findByTestId(RATE_PHASE_RATE_PROPERTIES_TEST_ID)).className).toContain(
-      '[&_tbody_td:not(:first-child)>*]:bg-purple-100',
-    )
+    const wrapper = await screen.findByTestId(RATE_PHASE_RATE_PROPERTIES_TEST_ID)
+
+    expect(wrapper).toHaveClass(OVERRIDDEN_TIERED_RATE_PROPERTIES_CLASSNAME)
+    expect(wrapper).not.toHaveClass(OVERRIDDEN_RATE_PROPERTIES_CLASSNAME)
   })
 
   it('GIVEN an overridden standard rate THEN highlights every cell', async () => {
@@ -85,9 +84,10 @@ describe('RatePhaseRateProperties', () => {
       />,
     )
 
-    expect((await screen.findByTestId(RATE_PHASE_RATE_PROPERTIES_TEST_ID)).className).toContain(
-      '[&_tbody_td>*]:bg-purple-100',
-    )
+    const wrapper = await screen.findByTestId(RATE_PHASE_RATE_PROPERTIES_TEST_ID)
+
+    expect(wrapper).toHaveClass(OVERRIDDEN_RATE_PROPERTIES_CLASSNAME)
+    expect(wrapper).not.toHaveClass(OVERRIDDEN_TIERED_RATE_PROPERTIES_CLASSNAME)
   })
 
   it('GIVEN a rate that is not overridden THEN highlights nothing', async () => {
@@ -100,13 +100,18 @@ describe('RatePhaseRateProperties', () => {
       />,
     )
 
-    expect((await screen.findByTestId(RATE_PHASE_RATE_PROPERTIES_TEST_ID)).className).not.toContain(
-      'bg-purple-100',
-    )
+    const wrapper = await screen.findByTestId(RATE_PHASE_RATE_PROPERTIES_TEST_ID)
+
+    expect(wrapper).not.toHaveClass(OVERRIDDEN_RATE_PROPERTIES_CLASSNAME)
+    expect(wrapper).not.toHaveClass(OVERRIDDEN_TIERED_RATE_PROPERTIES_CLASSNAME)
   })
 })
 
 describe('RatePhaseRateEffectiveDate', () => {
+  afterEach(() => {
+    window.history.pushState({}, '', '/')
+  })
+
   it('GIVEN an org-scoped URL THEN shows the UTC date and links to the rate card rates tab of that org', async () => {
     window.history.pushState({}, '', '/acme/contracts/c-1/rate-cards/arc-1')
     render(
@@ -122,6 +127,5 @@ describe('RatePhaseRateEffectiveDate', () => {
       .find((element) => element.tagName === 'A')
 
     expect(link).toHaveAttribute('href', '/acme/product-catalog/rate-cards/rc-1/rates')
-    window.history.pushState({}, '', '/')
   })
 })
