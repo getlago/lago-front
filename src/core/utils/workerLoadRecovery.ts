@@ -1,4 +1,4 @@
-import { captureException } from '@sentry/react'
+import { captureException, type ErrorEvent as SentryErrorEvent } from '@sentry/react'
 
 import { envGlobalVar } from '~/core/apolloClient/reactiveVars/envGlobalVar'
 import { reloadWithCacheBust } from '~/core/utils/reloadWithCacheBust'
@@ -38,4 +38,16 @@ export function createWorkerLoadErrorHandler(): (event: ErrorEvent) => void {
     markReloaded()
     reloadWithCacheBust()
   }
+}
+
+// Sentry's global `onerror` handler reports the raw worker failure before this
+// recovery runs, so drop it unless it is our tagged dead-end report.
+export function dropRecoverableWorkerLoadEvent(event: SentryErrorEvent): SentryErrorEvent | null {
+  if (event.tags?.workerLoad) return event
+
+  const isWorkerLoadFailure = !!event.exception?.values?.some(
+    (exception) => !!exception.value && WORKER_IMPORT_SCRIPTS_FAILURE.test(exception.value),
+  )
+
+  return isWorkerLoadFailure ? null : event
 }

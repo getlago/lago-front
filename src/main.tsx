@@ -7,7 +7,10 @@ import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { reportMissingAppEnv } from '~/core/utils/appEnv'
 import { installLagoWindowApi } from '~/core/utils/featureFlagsConsole'
-import { createWorkerLoadErrorHandler } from '~/core/utils/workerLoadRecovery'
+import {
+  createWorkerLoadErrorHandler,
+  dropRecoverableWorkerLoadEvent,
+} from '~/core/utils/workerLoadRecovery'
 
 import './main.css'
 
@@ -39,6 +42,7 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
     release: appVersion,
     // Attach stack traces to all messages
     attachStacktrace: true,
+    beforeSend: dropRecoverableWorkerLoadEvent,
     // Filter out common browser extension errors and noise
     ignoreErrors: [
       // Chrome extensions
