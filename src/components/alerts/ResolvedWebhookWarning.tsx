@@ -17,7 +17,11 @@ export const ResolvedWebhookWarning = ({ thresholds }: { thresholds: ThresholdIn
   const { translate } = useInternationalization()
   const notifiesWhenResolved = thresholds.some((threshold) => notifyOnToBoolean(threshold.notifyOn))
 
-  const { data } = useGetWebhookListQuery({ skip: !notifiesWhenResolved })
+  // Endpoints are edited on another page: refetch so a whitelist change shows on return.
+  const { data } = useGetWebhookListQuery({
+    skip: !notifiesWhenResolved,
+    fetchPolicy: 'cache-and-network',
+  })
 
   if (!notifiesWhenResolved) return null
 

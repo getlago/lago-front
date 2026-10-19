@@ -1070,7 +1070,9 @@ describe('AlertForm', () => {
 
         await fillCreateForm(user)
 
-        expect(mockUseGetWebhookListQuery).toHaveBeenLastCalledWith({ skip: true })
+        expect(mockUseGetWebhookListQuery).toHaveBeenLastCalledWith(
+          expect.objectContaining({ skip: true }),
+        )
       })
     })
 
@@ -1161,7 +1163,9 @@ describe('AlertForm', () => {
         await user.click(screen.getByTestId(NOTIFY_WHEN_RESOLVED_BUTTON))
 
         await waitFor(() => {
-          expect(mockUseGetWebhookListQuery).toHaveBeenLastCalledWith({ skip: false })
+          expect(mockUseGetWebhookListQuery).toHaveBeenLastCalledWith(
+            expect.objectContaining({ skip: false }),
+          )
         })
         expect(screen.queryByTestId(RESOLVED_WEBHOOK_WARNING_TEST_ID)).not.toBeInTheDocument()
       })

@@ -257,7 +257,7 @@ const AlertThresholds = ({
             deleteTooltipContent={translate('text_17242522324608198c2vblmw')}
             columns={[
               {
-                size: 150,
+                size: 200,
                 content: (_, i) => (
                   <Typography
                     className="px-4"
@@ -270,7 +270,7 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 180,
+                size: 155,
                 title: (
                   <Typography className="px-4" variant="captionHl">
                     {translate(
@@ -324,7 +324,7 @@ const AlertThresholds = ({
                 },
               },
               {
-                size: 160,
+                size: 140,
                 title: (
                   <Typography className="px-4" variant="captionHl">
                     {translate('text_1748334091887k4p2p41jdou')}
@@ -358,7 +358,7 @@ const AlertThresholds = ({
                 },
               },
               {
-                size: 190,
+                size: 180,
                 title: (
                   <Typography className="px-4" variant="captionHl" noWrap>
                     {translate('text_1792439710542ctc2yq2zptb')}
@@ -399,7 +399,7 @@ const AlertThresholds = ({
             data={thresholds.filter((threshold) => threshold.recurring) || []}
             columns={[
               {
-                size: 150,
+                size: 200,
                 content: () => (
                   <Typography
                     className="px-4"
@@ -412,7 +412,7 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 180,
+                size: 155,
                 content: (row) => (
                   <ValueInput
                     currency={currency}
@@ -432,7 +432,7 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 160,
+                size: 140,
                 content: (row) => (
                   <TextInput
                     variant="outlined"
@@ -449,7 +449,7 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 190,
+                size: 180,
                 content: () => (
                   <Tooltip placement="top" title={translate('text_1792439710542gpn287ho1ck')}>
                     <NotifyWhenResolvedInput
