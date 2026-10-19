@@ -15,10 +15,7 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  /**
-   * Represents non-fractional signed whole numeric values. Since the value may
-   * exceed the size of a 32-bit integer, it's encoded as a string.
-   */
+  /** Represents non-fractional signed whole numeric values. Since the value may exceed the size of a 32-bit integer, it's encoded as a string. */
   BigInt: { input: any; output: any; }
   ChargeFilterValues: { input: any; output: any; }
   /** Api Logs HTTP status */
@@ -36,8 +33,6 @@ export type Scalars = {
 export type AcceptInviteInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** @deprecated The email is resolved from the invitation token. */
-  email?: InputMaybe<Scalars['String']['input']>;
   password: Scalars['String']['input'];
   /** Uniq token of the Invite */
   token: Scalars['String']['input'];
@@ -865,10 +860,7 @@ export type AttributedUsageChargeUsage = {
   units: Scalars['Float']['output'];
 };
 
-/**
- * Keeps the events whose attribution label of the given type matches one of the
- * values. An empty value matches the events without that label.
- */
+/** Keeps the events whose attribution label of the given type matches one of the values. An empty value matches the events without that label. */
 export type AttributedUsageFilterInput = {
   /** Code of the usage attribution type */
   code: Scalars['String']['input'];
@@ -1102,7 +1094,7 @@ export enum CancellationReasonEnum {
 export type CashfreeProvider = {
   __typename?: 'CashfreeProvider';
   clientId?: Maybe<Scalars['String']['output']>;
-  clientSecret?: Maybe<Scalars['String']['output']>;
+  clientSecret?: Maybe<Scalars['ObfuscatedString']['output']>;
   code: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -4649,8 +4641,10 @@ export type Event = {
 };
 
 export enum EventCategoryEnum {
+  AddOns = 'ADD_ONS',
   Alerts = 'ALERTS',
   BillableMetrics = 'BILLABLE_METRICS',
+  Coupons = 'COUPONS',
   CreditNotes = 'CREDIT_NOTES',
   Customers = 'CUSTOMERS',
   DunningCampaigns = 'DUNNING_CAMPAIGNS',
@@ -4677,6 +4671,9 @@ export type EventCollection = {
 };
 
 export enum EventTypeEnum {
+  AddOnCreated = 'add_on_created',
+  AddOnDeleted = 'add_on_deleted',
+  AddOnUpdated = 'add_on_updated',
   AlertTriggered = 'alert_triggered',
   All = 'all',
   BillableMetricCreated = 'billable_metric_created',
@@ -4690,6 +4687,10 @@ export enum EventTypeEnum {
   ContractStarted = 'contract_started',
   ContractTerminated = 'contract_terminated',
   ContractUpdated = 'contract_updated',
+  CouponCreated = 'coupon_created',
+  CouponDeleted = 'coupon_deleted',
+  CouponTerminated = 'coupon_terminated',
+  CouponUpdated = 'coupon_updated',
   CreditNoteCreated = 'credit_note_created',
   CreditNoteGenerated = 'credit_note_generated',
   CreditNoteProviderRefundFailure = 'credit_note_provider_refund_failure',
@@ -4815,6 +4816,7 @@ export enum FeatureFlagEnum {
   ProductCatalog = 'product_catalog',
   RealtimeUsage = 'realtime_usage',
   SkipCreditInvoiceAutoPaymentDelay = 'skip_credit_invoice_auto_payment_delay',
+  SsoCrossOrganizationSessions = 'sso_cross_organization_sessions',
   StripeSharedPaymentToken = 'stripe_shared_payment_token',
   UsagePrefilterIncremental = 'usage_prefilter_incremental',
   UsagePrefilterShortCache = 'usage_prefilter_short_cache',
@@ -4854,6 +4856,8 @@ export type Fee = InvoiceItem & {
   appliedTaxes?: Maybe<Array<FeeAppliedTax>>;
   charge?: Maybe<Charge>;
   chargeFilter?: Maybe<ChargeFilter>;
+  contract?: Maybe<Contract>;
+  contractRateCard?: Maybe<ContractAppliedRateCard>;
   creditableAmountCents: Scalars['BigInt']['output'];
   currency: CurrencyEnum;
   description?: Maybe<Scalars['String']['output']>;
@@ -6023,7 +6027,7 @@ export type MetadataInput = {
 
 export type MoneyhashProvider = {
   __typename?: 'MoneyhashProvider';
-  apiKey?: Maybe<Scalars['String']['output']>;
+  apiKey?: Maybe<Scalars['ObfuscatedString']['output']>;
   code: Scalars['String']['output'];
   flowId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -11404,11 +11408,7 @@ export type TerminateSubscriptionInput = {
 
 export type ThresholdInput = {
   code?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * Transitions this threshold notifies on. Must include triggered. Adding
-   * resolved requires a code that is unique within the alert, and is not supported
-   * on recurring thresholds.
-   */
+  /** Transitions this threshold notifies on. Must include triggered. Adding resolved requires a code that is unique within the alert, and is not supported on recurring thresholds. */
   notifyOn?: InputMaybe<Array<NotifyOnEnum>>;
   recurring?: InputMaybe<Scalars['Boolean']['input']>;
   value: Scalars['String']['input'];
@@ -14885,7 +14885,7 @@ export type UpdateAvalaraIntegrationMutationVariables = Exact<{
 
 export type UpdateAvalaraIntegrationMutation = { __typename?: 'Mutation', updateAvalaraIntegration?: { __typename?: 'AvalaraIntegration', id: string, accountId?: string | null, code: string, companyCode: string, licenseKey: any, name: string } | null };
 
-export type AddCashfreeProviderDialogFragment = { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null };
+export type AddCashfreeProviderDialogFragment = { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: any | null, successRedirectUrl?: string | null };
 
 export type GetProviderByCodeForCashfreeQueryVariables = Exact<{
   code?: InputMaybe<Scalars['String']['input']>;
@@ -14906,14 +14906,14 @@ export type AddCashfreeApiKeyMutationVariables = Exact<{
 }>;
 
 
-export type AddCashfreeApiKeyMutation = { __typename?: 'Mutation', addCashfreePaymentProvider?: { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null } | null };
+export type AddCashfreeApiKeyMutation = { __typename?: 'Mutation', addCashfreePaymentProvider?: { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: any | null, successRedirectUrl?: string | null } | null };
 
 export type UpdateCashfreeApiKeyMutationVariables = Exact<{
   input: UpdateCashfreePaymentProviderInput;
 }>;
 
 
-export type UpdateCashfreeApiKeyMutation = { __typename?: 'Mutation', updateCashfreePaymentProvider?: { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null } | null };
+export type UpdateCashfreeApiKeyMutation = { __typename?: 'Mutation', updateCashfreePaymentProvider?: { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: any | null, successRedirectUrl?: string | null } | null };
 
 export type AddFlutterwaveProviderDialogFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null, successRedirectUrl?: string | null };
 
@@ -14984,7 +14984,7 @@ export type UpdateHubspotIntegrationMutationVariables = Exact<{
 
 export type UpdateHubspotIntegrationMutation = { __typename?: 'Mutation', updateHubspotIntegration?: { __typename?: 'HubspotIntegration', id: string, name: string, code: string, defaultTargetedObject: HubspotTargetedObjectsEnum, syncInvoices?: boolean | null, syncSubscriptions?: boolean | null } | null };
 
-export type AddMoneyhashProviderDialogFragment = { __typename?: 'MoneyhashProvider', id: string, name: string, code: string, apiKey?: string | null, flowId?: string | null };
+export type AddMoneyhashProviderDialogFragment = { __typename?: 'MoneyhashProvider', id: string, name: string, code: string, apiKey?: any | null, flowId?: string | null };
 
 export type GetProviderByCodeForMoneyhashQueryVariables = Exact<{
   code?: InputMaybe<Scalars['String']['input']>;
@@ -15005,14 +15005,14 @@ export type AddMoneyhashApiKeyMutationVariables = Exact<{
 }>;
 
 
-export type AddMoneyhashApiKeyMutation = { __typename?: 'Mutation', addMoneyhashPaymentProvider?: { __typename?: 'MoneyhashProvider', id: string, name: string, code: string, apiKey?: string | null, flowId?: string | null } | null };
+export type AddMoneyhashApiKeyMutation = { __typename?: 'Mutation', addMoneyhashPaymentProvider?: { __typename?: 'MoneyhashProvider', id: string, name: string, code: string, apiKey?: any | null, flowId?: string | null } | null };
 
 export type UpdateMoneyhashApiKeyMutationVariables = Exact<{
   input: UpdateMoneyhashPaymentProviderInput;
 }>;
 
 
-export type UpdateMoneyhashApiKeyMutation = { __typename?: 'Mutation', updateMoneyhashPaymentProvider?: { __typename?: 'MoneyhashProvider', id: string, name: string, code: string, apiKey?: string | null, flowId?: string | null } | null };
+export type UpdateMoneyhashApiKeyMutation = { __typename?: 'Mutation', updateMoneyhashPaymentProvider?: { __typename?: 'MoneyhashProvider', id: string, name: string, code: string, apiKey?: any | null, flowId?: string | null } | null };
 
 export type NetsuiteForCreateDialogDialogFragment = { __typename?: 'NetsuiteIntegration', id: string, accountId?: string | null, clientId?: string | null, clientSecret?: any | null, code: string, name: string, scriptEndpointUrl: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null, tokenId?: string | null, tokenSecret?: any | null };
 
@@ -18394,7 +18394,7 @@ export type RemoveBillingEntityTaxesMutationVariables = Exact<{
 
 export type RemoveBillingEntityTaxesMutation = { __typename?: 'Mutation', billingEntityRemoveTaxes?: { __typename: 'RemoveTaxesPayload' } | null };
 
-export type CashfreeIntegrationDetailsFragment = { __typename?: 'CashfreeProvider', id: string, code: string, name: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null };
+export type CashfreeIntegrationDetailsFragment = { __typename?: 'CashfreeProvider', id: string, code: string, name: string, clientId?: string | null, clientSecret?: any | null, successRedirectUrl?: string | null };
 
 export type GetCashfreeIntegrationsDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -18405,7 +18405,7 @@ export type GetCashfreeIntegrationsDetailsQueryVariables = Exact<{
 
 export type GetCashfreeIntegrationsDetailsQuery = { __typename?: 'Query', paymentProvider?:
     | { __typename?: 'AdyenProvider' }
-    | { __typename?: 'CashfreeProvider', id: string, code: string, name: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null }
+    | { __typename?: 'CashfreeProvider', id: string, code: string, name: string, clientId?: string | null, clientSecret?: any | null, successRedirectUrl?: string | null }
     | { __typename?: 'FlutterwaveProvider' }
     | { __typename?: 'GocardlessProvider' }
     | { __typename?: 'MoneyhashProvider' }
@@ -18429,7 +18429,7 @@ export type GetCashfreeIntegrationsListQueryVariables = Exact<{
 
 export type GetCashfreeIntegrationsListQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
-      | { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null }
+      | { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: any | null, successRedirectUrl?: string | null }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
       | { __typename?: 'MoneyhashProvider' }
@@ -18670,7 +18670,7 @@ export type GetTaxesForTaxManagementIntegrationDetailsPageQueryVariables = Exact
 
 export type GetTaxesForTaxManagementIntegrationDetailsPageQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> } };
 
-export type MoneyhashIntegrationDetailsFragment = { __typename?: 'MoneyhashProvider', id: string, apiKey?: string | null, code: string, flowId?: string | null, name: string };
+export type MoneyhashIntegrationDetailsFragment = { __typename?: 'MoneyhashProvider', id: string, apiKey?: any | null, code: string, flowId?: string | null, name: string };
 
 export type GetMoneyhashIntegrationsDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -18684,7 +18684,7 @@ export type GetMoneyhashIntegrationsDetailsQuery = { __typename?: 'Query', payme
     | { __typename?: 'CashfreeProvider' }
     | { __typename?: 'FlutterwaveProvider' }
     | { __typename?: 'GocardlessProvider' }
-    | { __typename?: 'MoneyhashProvider', id: string, apiKey?: string | null, code: string, flowId?: string | null, name: string, successRedirectUrl?: string | null }
+    | { __typename?: 'MoneyhashProvider', id: string, apiKey?: any | null, code: string, flowId?: string | null, name: string, successRedirectUrl?: string | null }
     | { __typename?: 'StripeProvider' }
    | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
@@ -18708,7 +18708,7 @@ export type GetMoneyhashIntegrationsListQuery = { __typename?: 'Query', paymentP
       | { __typename?: 'CashfreeProvider' }
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
-      | { __typename?: 'MoneyhashProvider', id: string, name: string, code: string, apiKey?: string | null, flowId?: string | null }
+      | { __typename?: 'MoneyhashProvider', id: string, name: string, code: string, apiKey?: any | null, flowId?: string | null }
       | { __typename?: 'StripeProvider' }
     > } | null };
 

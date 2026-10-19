@@ -209,14 +209,6 @@ describe('ContractDetails', () => {
     expect(screen.getByTestId(CONTRACT_DETAILS_COPY_ID_TEST_ID)).toBeInTheDocument()
   })
 
-  it('marks the lifecycle action as destructive', async () => {
-    await act(() => renderPage())
-
-    await userEvent.click(await screen.findByTestId(CONTRACT_DETAILS_ACTIONS_TEST_ID))
-
-    expect(screen.getByTestId(CONTRACT_DETAILS_TERMINATE_TEST_ID)).toHaveClass('button-danger')
-  })
-
   it.each([ContractStatusEnum.Canceled, ContractStatusEnum.Terminated])(
     'hides the lifecycle action for a %s contract',
     async (status) => {

@@ -109,7 +109,6 @@ const ContractDetails = (): JSX.Element => {
                   {
                     label: translate(terminationCopy.actionText),
                     startIcon: 'stop' as const,
-                    danger: true,
                     dataTest:
                       contract.status === ContractStatusEnum.Pending
                         ? CONTRACT_DETAILS_CANCEL_TEST_ID
