@@ -131,6 +131,37 @@ describe('cableConsumer', () => {
     })
   })
 
+  describe('WHEN another tab renewed the token', () => {
+    it('THEN should open a new socket with that token for the next subscription', () => {
+      localStorage.setItem('auth_token', 'old-jwt')
+
+      const link = cable.getCableConsumer(CABLE_URL)
+      const streaming = subscribe(link)
+      const disconnectSpy = jest.spyOn(streaming.consumer, 'disconnect')
+
+      localStorage.setItem('auth_token', 'renewed-in-another-tab-jwt')
+
+      const next = subscribe(link)
+
+      expect(next.consumer).not.toBe(streaming.consumer)
+      expect(disconnectSpy).not.toHaveBeenCalled()
+      expect(webSocketMock).toHaveBeenLastCalledWith(CABLE_URL, [
+        'actioncable-v1-json',
+        'actioncable-unsupported',
+        'lago-token.renewed-in-another-tab-jwt',
+      ])
+    })
+  })
+
+  describe('WHEN the token did not change', () => {
+    it('THEN should keep using the same socket', () => {
+      const link = cable.getCableConsumer(CABLE_URL)
+      const first = subscribe(link)
+
+      expect(subscribe(link).consumer).toBe(first.consumer)
+    })
+  })
+
   describe('disconnectCableConsumer', () => {
     describe('WHEN the user logs out while the socket is still connecting', () => {
       it('THEN should close it and open a new socket with the next token', () => {

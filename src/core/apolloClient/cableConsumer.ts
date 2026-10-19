@@ -2,12 +2,22 @@ import { Consumer, createConsumer } from '@rails/actioncable'
 
 import { buildCableSubprotocols } from './authHeaders'
 
+const currentSubprotocols = (): string[] => buildCableSubprotocols(window.location.pathname)
+
+const openedWith = new WeakMap<Consumer, string>()
+
 // Read on every socket open, so a reconnect sends the current token.
 export const createCableConsumer = (url: string): Consumer => {
   const consumer = createConsumer(url)
 
   Object.defineProperty(consumer, 'subprotocols', {
-    get: () => buildCableSubprotocols(window.location.pathname),
+    get: (): string[] => {
+      const subprotocols = currentSubprotocols()
+
+      openedWith.set(consumer, subprotocols.join(','))
+
+      return subprotocols
+    },
   })
 
   return consumer
@@ -39,8 +49,11 @@ export const getCableConsumer = (url: string): Consumer => {
 
   return {
     subscriptions: {
-      create: (...args: Parameters<Consumer['subscriptions']['create']>) =>
-        getActiveConsumer().subscriptions.create(...args),
+      create: (...args: Parameters<Consumer['subscriptions']['create']>) => {
+        refreshIfTokenChanged()
+
+        return getActiveConsumer().subscriptions.create(...args)
+      },
     },
   } as unknown as Consumer
 }
@@ -86,6 +99,15 @@ export const refreshCableConsumer = (): void => {
 
   retireWhenEmpty(activeConsumer)
   activeConsumer = null
+}
+
+// Another tab can renew the shared token, and only that tab's refresh link sees the new one.
+const refreshIfTokenChanged = (): void => {
+  if (!activeConsumer) return
+
+  const opened = openedWith.get(activeConsumer)
+
+  if (opened !== undefined && opened !== currentSubprotocols().join(',')) refreshCableConsumer()
 }
 
 export const disconnectCableConsumer = (): void => {
