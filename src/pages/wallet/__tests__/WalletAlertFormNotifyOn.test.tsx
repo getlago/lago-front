@@ -16,6 +16,8 @@ import {
 import { AlertTypeEnum, NotifyOnEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import baselineVariables from './fixtures/wallet-alert-update-main.json'
+
 import WalletAlertForm from '../WalletAlertForm'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -292,6 +294,11 @@ describe('WalletAlertForm with the real thresholds table', () => {
             },
           })
         })
+        expect(
+          JSON.stringify(mockUpdateWalletAlert.mock.calls[0][0].variables, (key, value: unknown) =>
+            key === 'notifyOn' ? undefined : value,
+          ),
+        ).toBe(JSON.stringify(baselineVariables))
       })
     })
   })

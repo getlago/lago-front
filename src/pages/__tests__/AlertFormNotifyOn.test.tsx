@@ -10,6 +10,8 @@ import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import { AlertTypeEnum, NotifyOnEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import baselineVariables from './fixtures/subscription-alert-update-main.json'
+
 import AlertForm, {
   SUBMIT_SUBSCRIPTION_ALERT_TEST_ID,
   SUBSCRIPTION_ALERT_TYPE_COMBOBOX_TEST_ID,
@@ -299,6 +301,12 @@ describe('AlertForm with the real thresholds table', () => {
             },
           })
         })
+        expect(
+          JSON.stringify(
+            mockUpdateSubscriptionAlert.mock.calls[0][0].variables,
+            (key, value: unknown) => (key === 'notifyOn' ? undefined : value),
+          ),
+        ).toBe(JSON.stringify(baselineVariables))
       })
     })
   })
