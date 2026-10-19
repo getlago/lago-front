@@ -135,11 +135,12 @@ const mockUseGetWalletAlertToEditQuery = jest.fn()
 const mockCreateWalletAlert = jest.fn()
 const mockUpdateWalletAlert = jest.fn()
 
-const mockUseGetWebhookListQuery = jest.fn()
+const mockUseGetWebhookEndpointsQuery = jest.fn()
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useGetWebhookListQuery: (...args: unknown[]) => mockUseGetWebhookListQuery(...args),
+  useGetWebhookEndpointsForResolvedAlertsQuery: (...args: unknown[]) =>
+    mockUseGetWebhookEndpointsQuery(...args),
   useGetWalletDetailsQuery: (...args: unknown[]) => mockUseGetWalletDetailsQuery(...args),
   useGetWalletAlertsQuery: (...args: unknown[]) => mockUseGetWalletAlertsQuery(...args),
   useGetWalletAlertToEditQuery: (...args: unknown[]) => mockUseGetWalletAlertToEditQuery(...args),
@@ -210,7 +211,7 @@ const pickAlertType = async (
 describe('WalletAlertForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockUseGetWebhookListQuery.mockReturnValue({ data: undefined })
+    mockUseGetWebhookEndpointsQuery.mockReturnValue({ data: undefined, loading: false })
     mockCreateWalletAlert.mockResolvedValue({
       data: { createCustomerWalletAlert: { id: 'alert-1' } },
       errors: undefined,
@@ -660,7 +661,9 @@ describe('WalletAlertForm', () => {
     const mockWebhookEndpoints = (
       endpoints: { id: string; name: string; eventTypes: string[] | null }[],
     ): void => {
-      mockUseGetWebhookListQuery.mockReturnValue({
+      mockUseGetWebhookEndpointsQuery.mockReturnValue({
+        loading: false,
+        error: undefined,
         data: {
           webhookEndpoints: {
             collection: endpoints.map((endpoint) => ({
@@ -714,7 +717,7 @@ describe('WalletAlertForm', () => {
 
         await fillCreateForm(user)
 
-        expect(mockUseGetWebhookListQuery).toHaveBeenLastCalledWith(
+        expect(mockUseGetWebhookEndpointsQuery).toHaveBeenLastCalledWith(
           expect.objectContaining({ skip: true }),
         )
       })
@@ -807,10 +810,27 @@ describe('WalletAlertForm', () => {
         await user.click(screen.getByTestId(NOTIFY_WHEN_RESOLVED_BUTTON))
 
         await waitFor(() => {
-          expect(mockUseGetWebhookListQuery).toHaveBeenLastCalledWith(
+          expect(mockUseGetWebhookEndpointsQuery).toHaveBeenLastCalledWith(
             expect.objectContaining({ skip: false }),
           )
         })
+        expect(screen.queryByTestId(RESOLVED_WEBHOOK_WARNING_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe.each([
+      ['still loading', { data: undefined, loading: true, error: undefined }],
+      ['failed', { data: undefined, loading: false, error: new Error('network') }],
+    ])('WHEN the webhook endpoints query is %s', (_, queryResult) => {
+      it('THEN should not warn', async () => {
+        mockUseGetWebhookEndpointsQuery.mockReturnValue(queryResult)
+        const user = userEvent.setup()
+
+        render(<WalletAlertForm />)
+
+        await fillCreateForm(user)
+        await user.click(screen.getByTestId(NOTIFY_WHEN_RESOLVED_BUTTON))
+
         expect(screen.queryByTestId(RESOLVED_WEBHOOK_WARNING_TEST_ID)).not.toBeInTheDocument()
       })
     })

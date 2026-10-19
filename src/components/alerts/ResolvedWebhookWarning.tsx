@@ -1,38 +1,52 @@
+import { gql } from '@apollo/client'
 import { generatePath } from 'react-router'
 
 import { notifyOnToBoolean } from '~/components/alerts/utils'
 import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
 import { Link, UPDATE_WEBHOOK_ROUTE } from '~/core/router'
-import { ThresholdInput, useGetWebhookListQuery } from '~/generated/graphql'
+import {
+  EventTypeEnum,
+  ThresholdInput,
+  useGetWebhookEndpointsForResolvedAlertsQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { isListeningToAllEvents } from '~/hooks/useWebhookEventTypes'
 
-// Swap for `EventTypeEnum.AlertResolved` once the API schema exposes the event.
-export const ALERT_RESOLVED_EVENT_KEY = 'alert_resolved'
+gql`
+  query getWebhookEndpointsForResolvedAlerts {
+    webhookEndpoints {
+      collection {
+        id
+        name
+        webhookUrl
+        eventTypes
+      }
+    }
+  }
+`
 
 export const RESOLVED_WEBHOOK_WARNING_TEST_ID = 'resolved-webhook-warning'
 
-export const ResolvedWebhookWarning = ({ thresholds }: { thresholds: ThresholdInput[] }) => {
+export const ResolvedWebhookWarning = ({
+  thresholds,
+}: {
+  thresholds: ThresholdInput[]
+}): JSX.Element | null => {
   const { translate } = useInternationalization()
   const notifiesWhenResolved = thresholds.some((threshold) => notifyOnToBoolean(threshold.notifyOn))
 
-  // Endpoints are edited on another page: refetch so a whitelist change shows on return.
-  const { data } = useGetWebhookListQuery({
+  // Not cache-first: endpoints are edited on another page, and a fixed whitelist must clear this.
+  const { data, loading, error } = useGetWebhookEndpointsForResolvedAlertsQuery({
     skip: !notifiesWhenResolved,
     fetchPolicy: 'cache-and-network',
   })
 
-  if (!notifiesWhenResolved) return null
+  if (!notifiesWhenResolved || loading || error || !data) return null
 
-  const endpointsMissingEvent = (data?.webhookEndpoints.collection ?? []).filter(
-    ({ eventTypes }) => {
-      if (isListeningToAllEvents(eventTypes)) return false
-
-      const listenedEvents: string[] = eventTypes ?? []
-
-      return !listenedEvents.includes(ALERT_RESOLVED_EVENT_KEY)
-    },
+  const endpointsMissingEvent = data.webhookEndpoints.collection.filter(
+    ({ eventTypes }) =>
+      !isListeningToAllEvents(eventTypes) && !eventTypes?.includes(EventTypeEnum.AlertResolved),
   )
 
   if (!endpointsMissingEvent.length) return null
