@@ -29,6 +29,8 @@ export const THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID = 'thresholds-notify-when-r
 export const THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID =
   'thresholds-recurring-notify-when-resolved'
 export const THRESHOLDS_CODE_ERROR_TEST_ID = 'thresholds-code-error'
+export const THRESHOLDS_ADD_ROW_TEST_ID = 'add-new-non-recurring-threshold-button'
+export const THRESHOLDS_RECURRING_SWITCH_TEST_ID = 'add-new-recurring-threshold-switch'
 
 export const isThresholdValueValid = (
   index: number,
@@ -121,15 +123,16 @@ const NotifyWhenResolvedInput = ({
   dataTest,
 }: {
   value: boolean
-  onChange?: (value: boolean) => void
   translate: TranslateFunc
-  disabled?: boolean
   dataTest: string
-}): JSX.Element => (
+} & (
+  { disabled: true; onChange?: never } | { disabled?: false; onChange: (value: boolean) => void }
+)): JSX.Element => (
   <ComboBox
     variant="outlined"
     disableClearable
     sortValues={false}
+    containerClassName="w-full"
     disabled={disabled}
     data-test={dataTest}
     value={value ? NOTIFY_WHEN_RESOLVED_TRUE : NOTIFY_WHEN_RESOLVED_FALSE}
@@ -264,7 +267,7 @@ const AlertThresholds = ({
           startIcon="plus"
           variant="inline"
           onClick={() => addThreshold()}
-          data-test="add-new-non-recurring-threshold-button"
+          data-test={THRESHOLDS_ADD_ROW_TEST_ID}
         >
           {translate('text_1724233213997l2ksi40t8q6')}
         </Button>
@@ -387,7 +390,7 @@ const AlertThresholds = ({
       <Switch
         name="recurring-threshold"
         className="w-fit cursor-pointer"
-        data-test="add-new-recurring-threshold-switch"
+        data-test={THRESHOLDS_RECURRING_SWITCH_TEST_ID}
         checked={hasRecurringThreshold}
         onChange={onSwitchClick}
         label={translate(copyKeys.recurringSwitchLabel)}

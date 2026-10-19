@@ -5,10 +5,12 @@ import { CurrencyEnum, NotifyOnEnum, ThresholdInput } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
 import AlertThresholds, {
+  THRESHOLDS_ADD_ROW_TEST_ID,
   THRESHOLDS_CODE_ERROR_TEST_ID,
   THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID,
   THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID,
   THRESHOLDS_RECURRING_ROW_LABEL_TEST_ID,
+  THRESHOLDS_RECURRING_SWITCH_TEST_ID,
   THRESHOLDS_ROW_LABEL_TEST_ID,
 } from '../Thresholds'
 
@@ -96,7 +98,7 @@ describe('AlertThresholds Component', () => {
       await renderComponent(getMockThresholds(), { setThresholds })
 
       // Find the add button by its text
-      const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+      const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
       await act(async () => {
         fireEvent.click(addButton)
@@ -121,7 +123,7 @@ describe('AlertThresholds Component', () => {
       await renderComponent(getMockThresholds(), { setThresholds })
 
       // Find and click the recurring threshold switch
-      const recurringSwitch = screen.getByTestId('add-new-recurring-threshold-switch')
+      const recurringSwitch = screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID)
 
       await act(async () => {
         fireEvent.click(recurringSwitch)
@@ -146,7 +148,7 @@ describe('AlertThresholds Component', () => {
       await renderComponent(getMockThresholdsWithRecurring(), { setThresholds })
 
       // Find and click the recurring threshold switch to turn it off
-      const recurringSwitch = screen.getByTestId('add-new-recurring-threshold-switch')
+      const recurringSwitch = screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID)
 
       await act(async () => {
         fireEvent.click(recurringSwitch)
@@ -169,7 +171,7 @@ describe('AlertThresholds Component', () => {
 
       await renderComponent(thresholds, { setThresholds })
 
-      const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+      const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
       await act(async () => {
         fireEvent.click(addButton)
@@ -197,7 +199,7 @@ describe('AlertThresholds Component', () => {
 
       await renderComponent(thresholds, { setThresholds })
 
-      const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+      const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
       await act(async () => {
         fireEvent.click(addButton)
@@ -222,7 +224,7 @@ describe('AlertThresholds Component', () => {
 
       await renderComponent(thresholds, { setThresholds })
 
-      const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+      const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
       await act(async () => {
         fireEvent.click(addButton)
@@ -246,7 +248,7 @@ describe('AlertThresholds Component', () => {
 
       await renderComponent(thresholds, { setThresholds })
 
-      const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+      const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
       await act(async () => {
         fireEvent.click(addButton)
@@ -275,7 +277,7 @@ describe('AlertThresholds Component', () => {
 
       await renderComponent(thresholds, { setThresholds })
 
-      const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+      const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
       await act(async () => {
         fireEvent.click(addButton)
@@ -305,7 +307,7 @@ describe('AlertThresholds Component', () => {
 
       await renderComponent(thresholds, { setThresholds })
 
-      const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+      const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
       await act(async () => {
         fireEvent.click(addButton)
@@ -327,7 +329,7 @@ describe('AlertThresholds Component', () => {
 
       // Look for button with correct text
       await waitFor(() => {
-        const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+        const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
         expect(addButton).toBeInTheDocument()
       })
@@ -337,7 +339,7 @@ describe('AlertThresholds Component', () => {
       await renderComponent(getMockThresholds())
 
       await waitFor(() => {
-        expect(screen.getByTestId('add-new-recurring-threshold-switch')).toBeInTheDocument()
+        expect(screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID)).toBeInTheDocument()
       })
     })
 
@@ -401,7 +403,7 @@ describe('AlertThresholds Component', () => {
         it('THEN should describe the recurring switch as an alert', async () => {
           await renderComponent(getMockThresholds(), props)
 
-          const recurringSwitch = screen.getByTestId('add-new-recurring-threshold-switch')
+          const recurringSwitch = screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID)
 
           expect(recurringSwitch).toHaveTextContent(switchLabel)
           expect(recurringSwitch).toHaveTextContent(switchSubLabel)
@@ -410,7 +412,7 @@ describe('AlertThresholds Component', () => {
         it('THEN should not mention billing on the recurring switch', async () => {
           await renderComponent(getMockThresholds(), props)
 
-          const recurringSwitch = screen.getByTestId('add-new-recurring-threshold-switch')
+          const recurringSwitch = screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID)
 
           expect(recurringSwitch).not.toHaveTextContent(/billing|billed/i)
         })

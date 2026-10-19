@@ -2,9 +2,11 @@ import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
+  THRESHOLDS_ADD_ROW_TEST_ID,
   THRESHOLDS_CODE_ERROR_TEST_ID,
   THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID,
   THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID,
+  THRESHOLDS_RECURRING_SWITCH_TEST_ID,
 } from '~/components/alerts/Thresholds'
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import { AlertTypeEnum, NotifyOnEnum } from '~/generated/graphql'
@@ -98,7 +100,8 @@ const setParams = (params: Record<string, string>): void => {
   useParamsMock.mockReturnValue(params)
 }
 
-const row = (index: number): HTMLElement => screen.getByTestId(`row-${index}`)
+const row = (index: number): HTMLElement =>
+  within(screen.getAllByRole('table')[0]).getAllByRole('row')[index + 1]
 const valueInput = (index: number): HTMLElement => within(row(index)).getAllByRole('textbox')[0]
 const codeInput = (index: number): HTMLElement => within(row(index)).getAllByRole('textbox')[1]
 const notifyCell = (index: number): HTMLElement =>
@@ -151,7 +154,7 @@ describe('AlertForm with the real thresholds table', () => {
 
         await startCreateForm(user)
         await fillThreshold(user, 0, '80', 'warn')
-        await user.click(screen.getByTestId('add-new-non-recurring-threshold-button'))
+        await user.click(screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID))
         await fillThreshold(user, 1, '100', 'hard')
 
         expect(notifyCell(0)).toHaveValue('false')
@@ -205,10 +208,10 @@ describe('AlertForm with the real thresholds table', () => {
 
         await startCreateForm(user)
         await fillThreshold(user, 0, '80', 'warn')
-        await user.click(screen.getByTestId('add-new-non-recurring-threshold-button'))
+        await user.click(screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID))
         await fillThreshold(user, 1, '100', 'hard')
         await user.selectOptions(notifyCell(1), 'true')
-        await user.click(within(row(1)).getByTestId('button'))
+        await user.click(within(row(1)).getByRole('button'))
         await user.click(submitButton())
 
         await waitFor(() => {
@@ -230,7 +233,7 @@ describe('AlertForm with the real thresholds table', () => {
         const user = userEvent.setup()
 
         await startCreateForm(user)
-        await user.click(screen.getByTestId('add-new-recurring-threshold-switch'))
+        await user.click(screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID))
 
         const recurringCell = screen.getByTestId(THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID)
 
@@ -243,6 +246,58 @@ describe('AlertForm with the real thresholds table', () => {
         expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
       })
     })
+  })
+
+  it('allows an empty code after opting out and clears the submit error', async () => {
+    const user = userEvent.setup()
+    await startCreateForm(user)
+    await user.type(valueInput(0), '80')
+    await user.selectOptions(notifyCell(0), 'true')
+    await user.click(submitButton())
+    await waitFor(() => expect(submitButton()).toBeDisabled())
+    expect(mockCreateSubscriptionAlert).not.toHaveBeenCalled()
+
+    await user.selectOptions(notifyCell(0), 'false')
+    await waitFor(() => expect(submitButton()).toBeEnabled())
+    expect(screen.queryByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).not.toBeInTheDocument()
+    await user.click(submitButton())
+    await waitFor(() =>
+      expect(mockCreateSubscriptionAlert).toHaveBeenCalledWith({
+        variables: {
+          input: expect.objectContaining({
+            thresholds: [expect.objectContaining({ code: '', notifyOn: TRIGGERED })],
+          }),
+        },
+      }),
+    )
+  })
+
+  it('keeps recurring resolution off after toggling the recurring row off and on', async () => {
+    const user = userEvent.setup()
+    await startCreateForm(user)
+    await fillThreshold(user, 0, '80', 'hard')
+    await user.selectOptions(notifyCell(0), 'true')
+    await user.click(screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID))
+    await user.click(screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID))
+    await user.click(screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID))
+    const recurringTable = screen.getAllByRole('table')[1]
+    await user.type(within(recurringTable).getAllByRole('textbox')[0], '2')
+    expect(screen.getByTestId(THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID)).toHaveValue(
+      'false',
+    )
+    await user.click(submitButton())
+    await waitFor(() =>
+      expect(mockCreateSubscriptionAlert).toHaveBeenCalledWith({
+        variables: {
+          input: expect.objectContaining({
+            thresholds: [
+              expect.objectContaining({ recurring: false, notifyOn: TRIGGERED_AND_RESOLVED }),
+              expect.objectContaining({ recurring: true, notifyOn: TRIGGERED }),
+            ],
+          }),
+        },
+      }),
+    )
   })
 
   describe('GIVEN an alert saved before notifyOn existed', () => {
