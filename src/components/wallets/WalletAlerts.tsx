@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { generatePath, useParams } from 'react-router'
 
+import { notifyOnToBoolean } from '~/components/alerts/utils'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
@@ -43,6 +44,7 @@ gql`
           code
           recurring
           value
+          notifyOn
         }
       }
     }
@@ -60,6 +62,7 @@ export const WALLET_ALERTS_LOADING_TEST_ID = 'wallet-alerts-loading'
 export const WALLET_ALERTS_EMPTY_TEST_ID = 'wallet-alerts-empty'
 export const WALLET_ALERTS_LIST_TEST_ID = 'wallet-alerts-list'
 export const WALLET_ALERT_RECURRING_ROW_LABEL_TEST_ID = 'wallet-alert-recurring-row-label'
+export const WALLET_ALERT_NOTIFY_WHEN_RESOLVED_TEST_ID = 'wallet-alert-notify-when-resolved'
 
 const WALLET_ALERT_TYPE_TRANSLATION_MAP: Record<string, string> = {
   [AlertTypeEnum.WalletBalanceAmount]: 'text_17730515932099j2rzezwwf0',
@@ -290,7 +293,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                     headerCellClassName="rounded-xl bg-grey-100"
                     columns={[
                       {
-                        size: 228,
+                        size: 180,
                         content: (_, i) => (
                           <Typography className="px-4 py-2.5" variant="body" color="grey700">
                             {translate(
@@ -302,7 +305,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                         ),
                       },
                       {
-                        size: 158,
+                        size: 150,
                         title: (
                           <Typography className="px-4 py-2.5" variant="captionHl" color="grey600">
                             {translate('text_1724179887723eh12a0kqbdw')}
@@ -318,7 +321,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                         ),
                       },
                       {
-                        size: 158,
+                        size: 150,
                         title: (
                           <Typography className="px-4 py-2.5" variant="captionHl" color="grey600">
                             {translate('text_17241798877234jhvoho4ci9')}
@@ -327,6 +330,28 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                         content: (row) => (
                           <Typography className="px-4 py-2.5" variant="body" color="grey700">
                             {row.code}
+                          </Typography>
+                        ),
+                      },
+                      {
+                        size: 160,
+                        title: (
+                          <Typography className="px-4 py-2.5" variant="captionHl" color="grey600">
+                            {translate('text_1792439710542ctc2yq2zptb')}
+                          </Typography>
+                        ),
+                        content: (row) => (
+                          <Typography
+                            className="px-4 py-2.5"
+                            variant="body"
+                            color="grey700"
+                            data-test={WALLET_ALERT_NOTIFY_WHEN_RESOLVED_TEST_ID}
+                          >
+                            {translate(
+                              notifyOnToBoolean(row.notifyOn)
+                                ? 'text_65251f46339c650084ce0d57'
+                                : 'text_65251f4cd55aeb004e5aa5ef',
+                            )}
                           </Typography>
                         ),
                       },
@@ -341,7 +366,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                     }
                     columns={[
                       {
-                        size: 228,
+                        size: 180,
                         content: () => (
                           <Typography
                             className="px-4 py-2.5"
@@ -354,7 +379,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                         ),
                       },
                       {
-                        size: 158,
+                        size: 150,
                         content: (row) => (
                           <Typography className="px-4 py-2.5" variant="body" color="grey700">
                             {formatAlertThresholdValue({
@@ -365,10 +390,27 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                         ),
                       },
                       {
-                        size: 158,
+                        size: 150,
                         content: (row) => (
                           <Typography className="px-4 py-2.5" variant="body" color="grey700">
                             {row.code}
+                          </Typography>
+                        ),
+                      },
+                      {
+                        size: 160,
+                        content: (row) => (
+                          <Typography
+                            className="px-4 py-2.5"
+                            variant="body"
+                            color="grey700"
+                            data-test={WALLET_ALERT_NOTIFY_WHEN_RESOLVED_TEST_ID}
+                          >
+                            {translate(
+                              notifyOnToBoolean(row.notifyOn)
+                                ? 'text_65251f46339c650084ce0d57'
+                                : 'text_65251f4cd55aeb004e5aa5ef',
+                            )}
                           </Typography>
                         ),
                       },
