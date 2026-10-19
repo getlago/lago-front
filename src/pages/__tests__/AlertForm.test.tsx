@@ -1,8 +1,14 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { RESOLVED_WEBHOOK_WARNING_TEST_ID } from '~/components/alerts/ResolvedWebhookWarning'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { AlertTypeEnum, LagoApiError, PremiumIntegrationTypeEnum } from '~/generated/graphql'
+import {
+  AlertTypeEnum,
+  LagoApiError,
+  NotifyOnEnum,
+  PremiumIntegrationTypeEnum,
+} from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import AlertForm, {
@@ -124,6 +130,8 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
 const THRESHOLDS_TABLE_TEST_ID = 'mock-alert-thresholds'
 const SET_THRESHOLDS_BUTTON = 'mock-set-thresholds'
 const SET_THRESHOLD_VALUE_BUTTON = 'mock-set-threshold-value'
+const NOTIFY_WHEN_RESOLVED_BUTTON = 'mock-notify-when-resolved'
+const CLEAR_THRESHOLD_CODE_BUTTON = 'mock-clear-threshold-code'
 
 jest.mock('~/components/alerts/Thresholds', () => ({
   __esModule: true,
@@ -145,6 +153,16 @@ jest.mock('~/components/alerts/Thresholds', () => ({
         data-test={SET_THRESHOLD_VALUE_BUTTON}
         onClick={() => setThresholdValue({ index: 0, key: 'value', newValue: '25' })}
       />
+      <button
+        type="button"
+        data-test={NOTIFY_WHEN_RESOLVED_BUTTON}
+        onClick={() => setThresholdValue({ index: 0, key: 'notifyOn', newValue: true })}
+      />
+      <button
+        type="button"
+        data-test={CLEAR_THRESHOLD_CODE_BUTTON}
+        onClick={() => setThresholdValue({ index: 0, key: 'code', newValue: undefined })}
+      />
     </div>
   ),
   isThresholdValueValid: () => false,
@@ -163,8 +181,11 @@ const mockUseGetSubscriptionBillableMetricsQuery = jest.fn()
 const mockCreateSubscriptionAlert = jest.fn()
 const mockUpdateSubscriptionAlert = jest.fn()
 
+const mockUseGetWebhookListQuery = jest.fn()
+
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
+  useGetWebhookListQuery: (...args: unknown[]) => mockUseGetWebhookListQuery(...args),
   useGetSubscriptionInfosQuery: (...args: unknown[]) => mockUseGetSubscriptionInfosQuery(...args),
   useGetSubscriptionAlertToEditQuery: (...args: unknown[]) =>
     mockUseGetSubscriptionAlertToEditQuery(...args),
@@ -188,7 +209,9 @@ const existingAlert = {
   billableMetric: { id: 'bm-1', code: 'bm_code', name: 'BM One' },
   code: 'my-alert',
   name: 'My alert',
-  thresholds: [{ code: 'first', recurring: false, value: '12' }],
+  thresholds: [
+    { code: 'first', recurring: false, value: '12', notifyOn: [NotifyOnEnum.Triggered] },
+  ],
 }
 
 const mockLoadedQueries = ({
@@ -263,6 +286,7 @@ const pickAlertType = async (
 describe('AlertForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockUseGetWebhookListQuery.mockReturnValue({ data: undefined })
     mockCreateSubscriptionAlert.mockResolvedValue({
       data: { createSubscriptionAlert: { id: 'alert-1' } },
       errors: undefined,
@@ -662,7 +686,14 @@ describe('AlertForm', () => {
                 alertType: AlertTypeEnum.CurrentUsageAmount,
                 subscriptionId: 'subscription-1',
                 billableMetricId: undefined,
-                thresholds: [{ code: 'first', recurring: false, value: '1000' }],
+                thresholds: [
+                  {
+                    code: 'first',
+                    recurring: false,
+                    value: '1000',
+                    notifyOn: [NotifyOnEnum.Triggered],
+                  },
+                ],
               },
             },
           })
@@ -687,7 +718,14 @@ describe('AlertForm', () => {
                 input: expect.objectContaining({
                   alertType: AlertTypeEnum.BillableMetricCurrentUsageUnits,
                   billableMetricId: 'bm-1',
-                  thresholds: [{ code: 'first', recurring: false, value: '10' }],
+                  thresholds: [
+                    {
+                      code: 'first',
+                      recurring: false,
+                      value: '10',
+                      notifyOn: [NotifyOnEnum.Triggered],
+                    },
+                  ],
                 }),
               },
             }),
@@ -727,7 +765,14 @@ describe('AlertForm', () => {
             expect.objectContaining({
               variables: {
                 input: expect.objectContaining({
-                  thresholds: [{ code: 'first', recurring: false, value: '2500' }],
+                  thresholds: [
+                    {
+                      code: 'first',
+                      recurring: false,
+                      value: '2500',
+                      notifyOn: [NotifyOnEnum.Triggered],
+                    },
+                  ],
                 }),
               },
             }),
@@ -895,7 +940,14 @@ describe('AlertForm', () => {
                 name: 'My alert',
                 code: 'renamed-alert',
                 billableMetricId: 'bm-1',
-                thresholds: [{ code: 'first', recurring: false, value: '12' }],
+                thresholds: [
+                  {
+                    code: 'first',
+                    recurring: false,
+                    value: '12',
+                    notifyOn: [NotifyOnEnum.Triggered],
+                  },
+                ],
               },
             },
           })
@@ -956,6 +1008,213 @@ describe('AlertForm', () => {
 
         expect(mockDialogOpen).not.toHaveBeenCalled()
         expect(testMockNavigateFn).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the "Notify when resolved" setting', () => {
+    const mockWebhookEndpoints = (
+      endpoints: { id: string; name: string; eventTypes: string[] | null }[],
+    ): void => {
+      mockUseGetWebhookListQuery.mockReturnValue({
+        data: {
+          webhookEndpoints: {
+            collection: endpoints.map((endpoint) => ({
+              ...endpoint,
+              webhookUrl: `https://${endpoint.id}.example.com`,
+            })),
+          },
+        },
+      })
+    }
+
+    const fillCreateForm = async (user: ReturnType<typeof userEvent.setup>): Promise<void> => {
+      await user.type(getInput('code'), 'my-alert')
+      await pickAlertType(user, AlertTypeEnum.CurrentUsageAmount)
+      await user.click(screen.getByTestId(SET_THRESHOLDS_BUTTON))
+    }
+
+    beforeEach(() => {
+      mockLoadedQueries()
+      mockWebhookEndpoints([])
+    })
+
+    describe('WHEN a new threshold is left untouched', () => {
+      it('THEN should send notifyOn [triggered]', async () => {
+        const user = userEvent.setup()
+
+        render(<AlertForm />)
+
+        await fillCreateForm(user)
+        await user.click(screen.getByTestId(SUBMIT_SUBSCRIPTION_ALERT_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockCreateSubscriptionAlert).toHaveBeenCalledWith(
+            expect.objectContaining({
+              variables: {
+                input: expect.objectContaining({
+                  thresholds: [
+                    expect.objectContaining({ code: 'first', notifyOn: [NotifyOnEnum.Triggered] }),
+                  ],
+                }),
+              },
+            }),
+          )
+        })
+      })
+
+      it('THEN should not fetch the webhook endpoints', async () => {
+        const user = userEvent.setup()
+
+        render(<AlertForm />)
+
+        await fillCreateForm(user)
+
+        expect(mockUseGetWebhookListQuery).toHaveBeenLastCalledWith({ skip: true })
+      })
+    })
+
+    describe('WHEN a threshold is switched to True', () => {
+      it('THEN should send notifyOn [triggered, resolved]', async () => {
+        const user = userEvent.setup()
+
+        render(<AlertForm />)
+
+        await fillCreateForm(user)
+        await user.click(screen.getByTestId(NOTIFY_WHEN_RESOLVED_BUTTON))
+        await user.click(screen.getByTestId(SUBMIT_SUBSCRIPTION_ALERT_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockCreateSubscriptionAlert).toHaveBeenCalledWith(
+            expect.objectContaining({
+              variables: {
+                input: expect.objectContaining({
+                  thresholds: [
+                    expect.objectContaining({
+                      code: 'first',
+                      notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+                    }),
+                  ],
+                }),
+              },
+            }),
+          )
+        })
+      })
+
+      it('THEN should block the submit while that threshold has no code', async () => {
+        const user = userEvent.setup()
+
+        render(<AlertForm />)
+
+        await fillCreateForm(user)
+        await user.click(screen.getByTestId(NOTIFY_WHEN_RESOLVED_BUTTON))
+        await user.click(screen.getByTestId(CLEAR_THRESHOLD_CODE_BUTTON))
+        await user.click(screen.getByTestId(SUBMIT_SUBSCRIPTION_ALERT_TEST_ID))
+
+        await waitFor(() => {
+          expect(screen.getByTestId(SUBMIT_SUBSCRIPTION_ALERT_TEST_ID)).toBeDisabled()
+        })
+        expect(mockCreateSubscriptionAlert).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN a webhook endpoint whitelist lacks alert.resolved', () => {
+      it('THEN should warn and name only that endpoint once a threshold is True', async () => {
+        mockWebhookEndpoints([
+          { id: 'wh-whitelist', name: 'Billing hooks', eventTypes: ['alert_triggered'] },
+          { id: 'wh-all', name: 'Everything', eventTypes: ['all'] },
+          { id: 'wh-null', name: 'Legacy', eventTypes: null },
+          { id: 'wh-ok', name: 'Resolved listener', eventTypes: ['alert_resolved'] },
+        ])
+        const user = userEvent.setup()
+
+        render(<AlertForm />)
+
+        await fillCreateForm(user)
+
+        expect(screen.queryByTestId(RESOLVED_WEBHOOK_WARNING_TEST_ID)).not.toBeInTheDocument()
+
+        await user.click(screen.getByTestId(NOTIFY_WHEN_RESOLVED_BUTTON))
+
+        const warning = await screen.findByTestId(RESOLVED_WEBHOOK_WARNING_TEST_ID)
+
+        expect(warning).toHaveTextContent('Billing hooks')
+        expect(warning).not.toHaveTextContent(/Everything|Legacy|Resolved listener/)
+      })
+    })
+
+    describe.each([
+      [
+        'every endpoint listens to all events',
+        [{ id: 'wh-all', name: 'Everything', eventTypes: ['all'] }],
+      ],
+      ['no webhook endpoint exists', []],
+    ])('WHEN %s', (_, endpoints) => {
+      it('THEN should not warn', async () => {
+        mockWebhookEndpoints(endpoints)
+        const user = userEvent.setup()
+
+        render(<AlertForm />)
+
+        await fillCreateForm(user)
+        await user.click(screen.getByTestId(NOTIFY_WHEN_RESOLVED_BUTTON))
+
+        await waitFor(() => {
+          expect(mockUseGetWebhookListQuery).toHaveBeenLastCalledWith({ skip: false })
+        })
+        expect(screen.queryByTestId(RESOLVED_WEBHOOK_WARNING_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN editing an alert whose threshold notifies when resolved', () => {
+      it('THEN should keep notifyOn [triggered, resolved] on an untouched save', async () => {
+        setParams({
+          subscriptionId: 'subscription-1',
+          customerId: 'customer-1',
+          alertId: 'alert-1',
+        })
+        mockLoadedQueries({
+          alert: {
+            ...existingAlert,
+            thresholds: [
+              {
+                code: 'first',
+                recurring: false,
+                value: '12',
+                notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+              },
+            ],
+          },
+        })
+        const user = userEvent.setup()
+
+        render(<AlertForm />)
+
+        await waitFor(() => {
+          expect(getInput('code')).toHaveValue('my-alert')
+        })
+
+        await user.click(screen.getByTestId(SUBMIT_SUBSCRIPTION_ALERT_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockUpdateSubscriptionAlert).toHaveBeenCalledWith(
+            expect.objectContaining({
+              variables: {
+                input: expect.objectContaining({
+                  thresholds: [
+                    {
+                      code: 'first',
+                      recurring: false,
+                      value: '12',
+                      notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+                    },
+                  ],
+                }),
+              },
+            }),
+          )
+        })
       })
     })
   })

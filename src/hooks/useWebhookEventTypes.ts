@@ -83,6 +83,10 @@ type WebhookEventDisplayInfo = {
   eventCount: number
 }
 
+/** A webhook endpoint with no event list, or one holding the `all` sentinel, receives every event. */
+export const isListeningToAllEvents = (eventTypes: EventTypeEnum[] | null | undefined): boolean =>
+  eventTypes === null || eventTypes === undefined || eventTypes.includes(EventTypeEnum.All)
+
 /**
  * Computes display information for webhook event types.
  *
@@ -101,10 +105,9 @@ const getWebhookEventDisplayInfo = (
   allEventNames: string[],
   eventKeyToNameMap: Record<string, string>,
 ): WebhookEventDisplayInfo => {
-  const isListeningToAll =
-    eventTypes === null || eventTypes === undefined || eventTypes.includes(EventTypeEnum.All)
+  const isListeningToAll = isListeningToAllEvents(eventTypes)
 
-  if (isListeningToAll) {
+  if (isListeningToAll || !eventTypes) {
     return {
       isListeningToAll: true,
       displayedEvents: allEventNames,

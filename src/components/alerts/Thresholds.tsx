@@ -1,6 +1,11 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import { useMemo } from 'react'
 
+import {
+  booleanToNotifyOn,
+  getThresholdCodeErrors,
+  notifyOnToBoolean,
+} from '~/components/alerts/utils'
 import { Button } from '~/components/designSystem/Button'
 import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -8,6 +13,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import {
   AmountInput,
   AmountValueFormatter,
+  ComboBox,
   Switch,
   TextInput,
   ValueFormatter,
@@ -19,6 +25,10 @@ import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternat
 
 export const THRESHOLDS_ROW_LABEL_TEST_ID = 'thresholds-row-label'
 export const THRESHOLDS_RECURRING_ROW_LABEL_TEST_ID = 'thresholds-recurring-row-label'
+export const THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID = 'thresholds-notify-when-resolved'
+export const THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID =
+  'thresholds-recurring-notify-when-resolved'
+export const THRESHOLDS_CODE_ERROR_TEST_ID = 'thresholds-code-error'
 
 export const isThresholdValueValid = (
   index: number,
@@ -99,6 +109,37 @@ const ValueInput = ({
   )
 }
 
+const NOTIFY_WHEN_RESOLVED_TRUE = 'true'
+const NOTIFY_WHEN_RESOLVED_FALSE = 'false'
+
+const NotifyWhenResolvedInput = ({
+  value,
+  onChange,
+  translate,
+  disabled = false,
+  dataTest,
+}: {
+  value: boolean
+  onChange?: (value: boolean) => void
+  translate: TranslateFunc
+  disabled?: boolean
+  dataTest: string
+}) => (
+  <ComboBox
+    variant="outlined"
+    disableClearable
+    sortValues={false}
+    disabled={disabled}
+    data-test={dataTest}
+    value={value ? NOTIFY_WHEN_RESOLVED_TRUE : NOTIFY_WHEN_RESOLVED_FALSE}
+    data={[
+      { label: translate('text_65251f4cd55aeb004e5aa5ef'), value: NOTIFY_WHEN_RESOLVED_FALSE },
+      { label: translate('text_65251f46339c650084ce0d57'), value: NOTIFY_WHEN_RESOLVED_TRUE },
+    ]}
+    onChange={(newValue) => onChange?.(newValue === NOTIFY_WHEN_RESOLVED_TRUE)}
+  />
+)
+
 const INCREASING_COPY_KEYS = {
   firstRow: 'text_1747921119080dk04aab1ecy',
   recurringSwitchLabel: 'text_1791364076473ecdejxgegz1',
@@ -154,6 +195,7 @@ const AlertThresholds = ({
       code: '',
       value: '',
       recurring,
+      notifyOn: booleanToNotifyOn(false),
     }
 
     if (!recurring && hasRecurringThreshold && recurringIndex > 0) {
@@ -186,6 +228,8 @@ const AlertThresholds = ({
     [thresholds],
   )
 
+  const codeErrors = useMemo(() => getThresholdCodeErrors(thresholds), [thresholds])
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col">
@@ -213,7 +257,7 @@ const AlertThresholds = ({
             deleteTooltipContent={translate('text_17242522324608198c2vblmw')}
             columns={[
               {
-                size: 200,
+                size: 160,
                 content: (_, i) => (
                   <Typography
                     className="px-4"
@@ -226,7 +270,7 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 225,
+                size: 180,
                 title: (
                   <Typography className="px-4" variant="captionHl">
                     {translate(
@@ -280,22 +324,56 @@ const AlertThresholds = ({
                 },
               },
               {
-                size: 250,
+                size: 170,
                 title: (
                   <Typography className="px-4" variant="captionHl">
                     {translate('text_1748334091887k4p2p41jdou')}
                   </Typography>
                 ),
+                content: (row, i) => {
+                  const codeError = codeErrors[i]
+
+                  return (
+                    <Tooltip
+                      placement="top"
+                      title={codeError ? translate(codeError) : ''}
+                      disableHoverListener={!codeError}
+                    >
+                      <TextInput
+                        variant="outlined"
+                        error={!!codeError}
+                        data-test={codeError ? THRESHOLDS_CODE_ERROR_TEST_ID : undefined}
+                        placeholder={translate('text_1747921154885jqsl0c9xhro')}
+                        value={row.code ?? ''}
+                        onChange={(value) => {
+                          setThresholdValue({
+                            index: i,
+                            key: 'code',
+                            newValue: value === '' ? undefined : value,
+                          })
+                        }}
+                      />
+                    </Tooltip>
+                  )
+                },
+              },
+              {
+                size: 170,
+                title: (
+                  <Typography className="px-4" variant="captionHl">
+                    {translate('text_1792439710542ctc2yq2zptb')}
+                  </Typography>
+                ),
                 content: (row, i) => (
-                  <TextInput
-                    variant="outlined"
-                    placeholder={translate('text_1747921154885jqsl0c9xhro')}
-                    value={row.code ?? ''}
-                    onChange={(value) => {
+                  <NotifyWhenResolvedInput
+                    dataTest={THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID}
+                    translate={translate}
+                    value={notifyOnToBoolean(row.notifyOn)}
+                    onChange={(notifyWhenResolved) => {
                       setThresholdValue({
                         index: i,
-                        key: 'code',
-                        newValue: value === '' ? undefined : value,
+                        key: 'notifyOn',
+                        newValue: notifyWhenResolved,
                       })
                     }}
                   />
@@ -321,7 +399,7 @@ const AlertThresholds = ({
             data={thresholds.filter((threshold) => threshold.recurring) || []}
             columns={[
               {
-                size: 200,
+                size: 160,
                 content: () => (
                   <Typography
                     className="px-4"
@@ -334,7 +412,7 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 225,
+                size: 180,
                 content: (row) => (
                   <ValueInput
                     currency={currency}
@@ -354,7 +432,7 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 250,
+                size: 170,
                 content: (row) => (
                   <TextInput
                     variant="outlined"
@@ -368,6 +446,19 @@ const AlertThresholds = ({
                       })
                     }}
                   />
+                ),
+              },
+              {
+                size: 170,
+                content: () => (
+                  <Tooltip placement="top" title={translate('text_1792439710542gpn287ho1ck')}>
+                    <NotifyWhenResolvedInput
+                      disabled
+                      dataTest={THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID}
+                      translate={translate}
+                      value={false}
+                    />
+                  </Tooltip>
                 ),
               },
             ]}

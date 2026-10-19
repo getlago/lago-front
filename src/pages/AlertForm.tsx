@@ -5,6 +5,7 @@ import { useCallback, useMemo } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { AlertNameAndCodeSection } from '~/components/alerts/AlertNameAndCodeSection'
+import { ResolvedWebhookWarning } from '~/components/alerts/ResolvedWebhookWarning'
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
 import { useAlertFormLeaveGuards } from '~/components/alerts/useAlertFormLeaveGuards'
 import { createThresholdSetters, setCodeAlreadyExistsError } from '~/components/alerts/utils'
@@ -84,6 +85,7 @@ gql`
         code
         recurring
         value
+        notifyOn
       }
     }
   }
@@ -526,6 +528,8 @@ const AlertForm = () => {
                         shouldHandleUnits={isUnitsAlertType(alertType)}
                       />
                     )}
+
+                    {showThresholdTable && <ResolvedWebhookWarning thresholds={thresholds} />}
                   </div>
                 </section>
               </div>
