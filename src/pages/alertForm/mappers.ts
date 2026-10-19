@@ -61,7 +61,6 @@ const mapThresholdToInput = ({
   return {
     code: threshold.code,
     recurring: threshold.recurring,
-    // Always explicit: the API keeps the stored value on omission, matched by code
     notifyOn: booleanToNotifyOn(!threshold.recurring && notifyOnToBoolean(threshold.notifyOn)),
     value: isUnitsAlertType(alertType)
       ? value.split('.')[0]

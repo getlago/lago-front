@@ -137,7 +137,7 @@ describe('subscriptionAlertValidationSchema', () => {
 describe('subscriptionAlertValidationSchema notifyOn rules', () => {
   const CODE_REQUIRED_ERROR = 'text_1792439710542tbnwvrxl0g7'
   const CODE_NOT_UNIQUE_ERROR = 'text_17924397105421fihqq5j6ns'
-  const RECURRING_ERROR = 'text_1792439710542gpn287ho1ck'
+  const RECURRING_ERROR = 'text_1771342994699klxu2paz7g8'
   const TRIGGERED = [NotifyOnEnum.Triggered]
   const TRIGGERED_AND_RESOLVED = [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved]
 
@@ -210,6 +210,27 @@ describe('subscriptionAlertValidationSchema notifyOn rules', () => {
             }),
           ),
         ).toEqual([])
+      })
+    })
+  })
+
+  describe('GIVEN a notifyOn that is not a list', () => {
+    describe('WHEN validating it', () => {
+      it('THEN should reject it instead of throwing', () => {
+        expect(
+          errorsOf(
+            validValues({
+              thresholds: [
+                {
+                  code: 'warn',
+                  recurring: false,
+                  value: '10',
+                  notifyOn: 'resolved' as unknown as NotifyOnEnum[],
+                },
+              ],
+            }),
+          ),
+        ).toEqual([expect.objectContaining({ path: 'thresholds.0.notifyOn' })])
       })
     })
   })

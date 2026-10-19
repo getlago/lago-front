@@ -300,7 +300,13 @@ describe('notifyOn', () => {
               code: 'hard',
               recurring: false,
               value: '20',
-              notifyOn: [NotifyOnEnum.Resolved, NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+              notifyOn: [NotifyOnEnum.Resolved, NotifyOnEnum.Triggered],
+            },
+            {
+              code: 'odd',
+              recurring: false,
+              value: '30',
+              notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved, NotifyOnEnum.Resolved],
             },
             { code: 'every', recurring: true, value: '5', notifyOn: TRIGGERED_AND_RESOLVED },
           ],
@@ -310,6 +316,7 @@ describe('notifyOn', () => {
           [
             { code: 'warn', recurring: false, value: '1000', notifyOn: TRIGGERED },
             { code: 'hard', recurring: false, value: '2000', notifyOn: TRIGGERED_AND_RESOLVED },
+            { code: 'odd', recurring: false, value: '3000', notifyOn: TRIGGERED },
             { code: 'every', recurring: true, value: '500', notifyOn: TRIGGERED },
           ],
         )

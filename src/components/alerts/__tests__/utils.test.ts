@@ -158,6 +158,14 @@ describe('notifyOnToBoolean', () => {
       ['[resolved, triggered]', [NotifyOnEnum.Resolved, NotifyOnEnum.Triggered], true],
       ['an empty list', [], false],
       ['duplicated triggered', [NotifyOnEnum.Triggered, NotifyOnEnum.Triggered], false],
+      [
+        'duplicated resolved',
+        [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved, NotifyOnEnum.Resolved],
+        false,
+      ],
+      ['resolved without triggered', [NotifyOnEnum.Resolved], false],
+      ['an unknown value with resolved', ['unknown' as NotifyOnEnum, NotifyOnEnum.Resolved], false],
+      ['not a list', 'resolved' as unknown as NotifyOnEnum[], false],
       ['null', null, false],
       ['undefined', undefined, false],
     ])('WHEN it is %s THEN should map to %p', (_, notifyOn, expected) => {
@@ -275,6 +283,13 @@ describe('getThresholdCodeErrors', () => {
       ]),
     ).toEqual({ 0: NOT_UNIQUE, 1: NOT_UNIQUE })
   })
+
+  it.each([[null], [undefined], ['not a list' as unknown as ThresholdInput[]]])(
+    'GIVEN thresholds %p THEN should report nothing instead of throwing',
+    (thresholds) => {
+      expect(getThresholdCodeErrors(thresholds)).toEqual({})
+    },
+  )
 
   it('GIVEN opted-in thresholds with unique codes THEN should report nothing', () => {
     expect(
