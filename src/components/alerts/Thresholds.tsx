@@ -257,7 +257,7 @@ const AlertThresholds = ({
             deleteTooltipContent={translate('text_17242522324608198c2vblmw')}
             columns={[
               {
-                size: 160,
+                size: 150,
                 content: (_, i) => (
                   <Typography
                     className="px-4"
@@ -324,7 +324,7 @@ const AlertThresholds = ({
                 },
               },
               {
-                size: 170,
+                size: 160,
                 title: (
                   <Typography className="px-4" variant="captionHl">
                     {translate('text_1748334091887k4p2p41jdou')}
@@ -358,9 +358,9 @@ const AlertThresholds = ({
                 },
               },
               {
-                size: 170,
+                size: 190,
                 title: (
-                  <Typography className="px-4" variant="captionHl">
+                  <Typography className="px-4" variant="captionHl" noWrap>
                     {translate('text_1792439710542ctc2yq2zptb')}
                   </Typography>
                 ),
@@ -399,7 +399,7 @@ const AlertThresholds = ({
             data={thresholds.filter((threshold) => threshold.recurring) || []}
             columns={[
               {
-                size: 160,
+                size: 150,
                 content: () => (
                   <Typography
                     className="px-4"
@@ -432,7 +432,7 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 170,
+                size: 160,
                 content: (row) => (
                   <TextInput
                     variant="outlined"
@@ -449,7 +449,7 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 170,
+                size: 190,
                 content: () => (
                   <Tooltip placement="top" title={translate('text_1792439710542gpn287ho1ck')}>
                     <NotifyWhenResolvedInput

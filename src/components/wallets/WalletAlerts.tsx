@@ -293,7 +293,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                     headerCellClassName="rounded-xl bg-grey-100"
                     columns={[
                       {
-                        size: 180,
+                        size: 170,
                         content: (_, i) => (
                           <Typography className="px-4 py-2.5" variant="body" color="grey700">
                             {translate(
@@ -305,7 +305,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                         ),
                       },
                       {
-                        size: 150,
+                        size: 140,
                         title: (
                           <Typography className="px-4 py-2.5" variant="captionHl" color="grey600">
                             {translate('text_1724179887723eh12a0kqbdw')}
@@ -334,9 +334,14 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                         ),
                       },
                       {
-                        size: 160,
+                        size: 180,
                         title: (
-                          <Typography className="px-4 py-2.5" variant="captionHl" color="grey600">
+                          <Typography
+                            className="px-4 py-2.5"
+                            variant="captionHl"
+                            color="grey600"
+                            noWrap
+                          >
                             {translate('text_1792439710542ctc2yq2zptb')}
                           </Typography>
                         ),
@@ -366,7 +371,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                     }
                     columns={[
                       {
-                        size: 180,
+                        size: 170,
                         content: () => (
                           <Typography
                             className="px-4 py-2.5"
@@ -379,7 +384,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                         ),
                       },
                       {
-                        size: 150,
+                        size: 140,
                         content: (row) => (
                           <Typography className="px-4 py-2.5" variant="body" color="grey700">
                             {formatAlertThresholdValue({
@@ -398,7 +403,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                         ),
                       },
                       {
-                        size: 160,
+                        size: 180,
                         content: (row) => (
                           <Typography
                             className="px-4 py-2.5"
