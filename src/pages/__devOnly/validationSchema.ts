@@ -2,10 +2,26 @@ import { z } from 'zod'
 
 import { CurrencyEnum } from '~/generated/graphql'
 
+// `JSON_EDITOR_ERROR_ENUM.invalid` in JsonEditor.tsx: the editor renders its own
+// malformed-JSON copy only when the field error is exactly this string.
+const JSON_EDITOR_INVALID_ERROR = 'invalid'
+
+const isParsableJson = (value: string): boolean => {
+  if (!value) return true
+
+  try {
+    JSON.parse(value)
+
+    return true
+  } catch {
+    return false
+  }
+}
+
 export const designSystemValidationSchema = z.object({
   amountCurrency: z.enum(CurrencyEnum),
   amountCents: z.union([z.number(), z.string().min(1)]),
-  json: z.string().min(1),
+  json: z.string().min(1).refine(isParsableJson, JSON_EDITOR_INVALID_ERROR),
   date: z.string().regex(/1992-05-26/, 'Sorry, you owe her a beer 🍺'),
   input: z.string().regex(/whatever/, "I thought you'd be more fun... 😏"),
   radio: z.string().regex(/whatever/, 'Really ? 🙄'),
@@ -16,7 +32,7 @@ export const designSystemValidationSchema = z.object({
   multipleCombobox: z.array(z.object({ value: z.string() })),
   checkboxCond1: z.boolean(),
   checkboxCond2: z.boolean(),
-  jsonLong: z.string(),
+  jsonLong: z.string().refine(isParsableJson, JSON_EDITOR_INVALID_ERROR),
 })
 
 export type DesignSystemFormValues = {

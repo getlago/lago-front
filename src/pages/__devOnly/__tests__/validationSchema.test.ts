@@ -83,8 +83,29 @@ describe('designSystemValidationSchema', () => {
 
   describe('GIVEN the JSON editor content', () => {
     describe('WHEN it is cleared', () => {
-      it('THEN should reject it', () => {
+      it('THEN should reject the required editor', () => {
         expect(messageFor({ ...validValues, json: '' }, 'json')).toBeDefined()
+      })
+
+      it('THEN should accept the optional editor', () => {
+        expect(messageFor({ ...validValues, jsonLong: '' }, 'jsonLong')).toBeUndefined()
+      })
+    })
+
+    // Guards the Formik wrapper's `onError` wiring, which the TanStack wrapper does not carry:
+    // without this rule malformed JSON reaches the form with no error at all.
+    describe('WHEN it holds malformed JSON', () => {
+      it.each([['json'], ['jsonLong']])(
+        'THEN should reject %s with the editor own invalid message',
+        (path) => {
+          expect(messageFor({ ...validValues, [path]: '{ "age": ' }, path)).toBe('invalid')
+        },
+      )
+    })
+
+    describe('WHEN it holds parsable JSON', () => {
+      it.each([['json'], ['jsonLong']])('THEN should accept %s', (path) => {
+        expect(messageFor({ ...validValues, [path]: '{ "age": 41 }' }, path)).toBeUndefined()
       })
     })
   })
