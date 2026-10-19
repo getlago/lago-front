@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { DEFAULT_ZOD_ERROR_MESSAGE } from '~/formValidation/initializeZod'
 import { CurrencyEnum } from '~/generated/graphql'
 
 // `JSON_EDITOR_ERROR_ENUM.invalid` in JsonEditor.tsx: the editor renders its own
@@ -18,15 +19,33 @@ const isParsableJson = (value: string): boolean => {
   }
 }
 
+// Not `.min(1).regex(…)`: zod runs every check and would stack both messages on an empty
+// value, where the deleted yup chain stopped at `required`.
+const requiredMatching = (pattern: RegExp, message: string): z.ZodType<string, string> =>
+  z.string().superRefine((value, ctx) => {
+    if (!value) {
+      ctx.addIssue({ code: 'custom', message: DEFAULT_ZOD_ERROR_MESSAGE })
+
+      return
+    }
+
+    if (!pattern.test(value)) {
+      ctx.addIssue({ code: 'custom', message })
+    }
+  })
+
+const isNumericAmount = (value: string | number): boolean =>
+  typeof value === 'number' || (value !== '' && Number.isFinite(Number(value)))
+
 export const designSystemValidationSchema = z.object({
   amountCurrency: z.enum(CurrencyEnum),
-  amountCents: z.union([z.number(), z.string().min(1)]),
+  amountCents: z.union([z.number(), z.string()]).refine(isNumericAmount),
   json: z.string().min(1).refine(isParsableJson, JSON_EDITOR_INVALID_ERROR),
-  date: z.string().regex(/1992-05-26/, 'Sorry, you owe her a beer 🍺'),
-  input: z.string().regex(/whatever/, "I thought you'd be more fun... 😏"),
-  radio: z.string().regex(/whatever/, 'Really ? 🙄'),
-  combobox: z.string().regex(/Mike/, "No, it's Mike 😡"),
-  buttonSelector: z.string().regex(/whatever/, 'Interesting... '),
+  date: requiredMatching(/1992-05-26/, 'Sorry, you owe her a beer 🍺'),
+  input: requiredMatching(/whatever/, "I thought you'd be more fun... 😏"),
+  radio: requiredMatching(/whatever/, 'Really ? 🙄'),
+  combobox: requiredMatching(/Mike/, "No, it's Mike 😡"),
+  buttonSelector: requiredMatching(/whatever/, 'Interesting... '),
   inputNumber: z.string(),
   switch: z.boolean(),
   multipleCombobox: z.array(z.object({ value: z.string() })),

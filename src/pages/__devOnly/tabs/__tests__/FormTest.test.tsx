@@ -2,6 +2,7 @@ import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { act, cleanup, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { DEFAULT_ZOD_ERROR_MESSAGE } from '~/formValidation/initializeZod'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 
@@ -122,11 +123,23 @@ describe('FormTest', () => {
     })
 
     describe('WHEN the answers are submitted', () => {
-      it('THEN should display the error of the fields left unanswered', async () => {
+      it('THEN should report an unanswered field as required, not as a wrong answer', async () => {
         const user = userEvent.setup()
 
         await act(() => render(<FormTestWrapper />))
 
+        await user.click(screen.getByTestId(FORM_TEST_SUBMIT_BUTTON_TEST_ID))
+
+        expect((await screen.findAllByText(DEFAULT_ZOD_ERROR_MESSAGE)).length).toBeGreaterThan(0)
+        expect(screen.queryAllByText("I thought you'd be more fun... 😏")).toHaveLength(0)
+      })
+
+      it('THEN should display the joke message of a field answered wrongly', async () => {
+        const user = userEvent.setup()
+
+        await act(() => render(<FormTestWrapper />))
+
+        await user.type(inputLabelled('Cleanable'), 'something else')
         await user.click(screen.getByTestId(FORM_TEST_SUBMIT_BUTTON_TEST_ID))
 
         expect(

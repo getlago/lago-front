@@ -48,34 +48,27 @@ describe('designSystemValidationSchema', () => {
   })
 
   describe('GIVEN the showcase default values', () => {
-    describe('WHEN an answer has not been given at all', () => {
-      it.each([['date'], ['combobox'], ['buttonSelector']])(
+    // Unanswered is `undefined` on some fields and `''` on others; both read as required,
+    // the way the deleted yup chain did, and neither leaks a joke message.
+    describe('WHEN an answer has not been given', () => {
+      it.each([['date'], ['combobox'], ['buttonSelector'], ['input'], ['radio']])(
         'THEN should report %s as required',
         (path) => {
           expect(messageFor(designSystemFormDefaultValues, path)).toBe(DEFAULT_ZOD_ERROR_MESSAGE)
         },
       )
     })
-
-    describe('WHEN an answer defaults to an empty string', () => {
-      it.each([
-        ['input', "I thought you'd be more fun... 😏"],
-        ['radio', 'Really ? 🙄'],
-      ])('THEN should report the %s joke message', (path, message) => {
-        expect(messageFor(designSystemFormDefaultValues, path)).toBe(message)
-      })
-    })
   })
 
   describe('GIVEN an amount', () => {
-    describe('WHEN it is a number or a filled string', () => {
-      it.each([[42], ['42']])('THEN should accept %p', (amountCents) => {
+    describe('WHEN it is a number or a numeric string', () => {
+      it.each([[42], ['42'], ['4.2']])('THEN should accept %p', (amountCents) => {
         expect(messageFor({ ...validValues, amountCents }, 'amountCents')).toBeUndefined()
       })
     })
 
-    describe('WHEN it is empty', () => {
-      it.each([[undefined], ['']])('THEN should reject %p', (amountCents) => {
+    describe('WHEN it is empty or not a number', () => {
+      it.each([[undefined], [''], ['abc']])('THEN should reject %p', (amountCents) => {
         expect(messageFor({ ...validValues, amountCents }, 'amountCents')).toBeDefined()
       })
     })
