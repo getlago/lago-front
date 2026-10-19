@@ -18,10 +18,12 @@ import {
 import { RateCardForRatePhaseFields } from '../drawers/ratePhase/types'
 import { RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID } from '../RatePhaseDetailItem'
 import {
+  RATE_PHASE_DETAILS_CONVERSION_RATE_TEST_ID,
   RATE_PHASE_DETAILS_PANEL_TEST_ID,
   RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID,
 } from '../RatePhaseDetailsPanel'
 import { RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID } from '../RatePhaseRateEffectiveDate'
+import { RATE_PHASE_RATE_PROPERTIES_TEST_ID } from '../RatePhaseRateProperties'
 import {
   getRatePhaseActionsTestId,
   getRatePhaseToggleTestId,
@@ -194,8 +196,8 @@ describe('RatePhaseTable', () => {
     await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
 
     expect(
-      await within(screen.getByTestId(RATE_PHASE_DETAILS_PANEL_TEST_ID)).findByText(/CR • 1 CR =/),
-    ).toBeInTheDocument()
+      (await screen.findByTestId(RATE_PHASE_DETAILS_CONVERSION_RATE_TEST_ID)).textContent,
+    ).toBe('CR • 1 CR = $1.00')
   })
 
   it('GIVEN a rate card billed in advance THEN the panel shows no spending minimum', async () => {
@@ -211,8 +213,8 @@ describe('RatePhaseTable', () => {
     await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
 
     expect(
-      await within(screen.getByTestId(RATE_PHASE_DETAILS_PANEL_TEST_ID)).findByText(
-        'Billing interval',
+      await within(screen.getByTestId(RATE_PHASE_DETAILS_PANEL_TEST_ID)).findByTestId(
+        RATE_PHASE_RATE_PROPERTIES_TEST_ID,
       ),
     ).toBeInTheDocument()
     expect(

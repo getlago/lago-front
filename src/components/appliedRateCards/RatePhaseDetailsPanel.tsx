@@ -22,6 +22,7 @@ import { RatePhaseRateProperties } from './RatePhaseRateProperties'
 
 export const RATE_PHASE_DETAILS_PANEL_TEST_ID = 'rate-phase-details-panel'
 export const RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID = 'rate-phase-details-spending-minimum'
+export const RATE_PHASE_DETAILS_CONVERSION_RATE_TEST_ID = 'rate-phase-details-conversion-rate'
 
 type RatePhaseDetailsPanelProps = {
   phase: RatePhaseForDetails
@@ -98,14 +99,18 @@ export const RatePhaseDetailsPanel = ({
           {!!rateCard.appliedPricingUnitCode && (
             <RatePhaseDetailItem
               label={translate('text_1750411499858su5b7bbp5t9')}
-              value={translate('text_1791838459984mz627wmmt51', {
-                pricingUnitName: pricingUnit?.name ?? rateCard.appliedPricingUnitCode,
-                pricingUnitShortName: pricingUnit?.shortName ?? rateCard.appliedPricingUnitCode,
-                amount: formatConversionRateAmount(
-                  Number(rate.pricingUnitConversionRate ?? 0),
-                  rateCard.currency,
-                ),
-              })}
+              value={
+                <span data-test={RATE_PHASE_DETAILS_CONVERSION_RATE_TEST_ID}>
+                  {translate('text_1791838459984mz627wmmt51', {
+                    pricingUnitName: pricingUnit?.name ?? rateCard.appliedPricingUnitCode,
+                    pricingUnitShortName: pricingUnit?.shortName ?? rateCard.appliedPricingUnitCode,
+                    amount: formatConversionRateAmount(
+                      Number(rate.pricingUnitConversionRate ?? 0),
+                      rateCard.currency,
+                    ),
+                  })}
+                </span>
+              }
               isOverridden={overriddenFields.has('pricingUnitConversionRate')}
             />
           )}

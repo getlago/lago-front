@@ -3,6 +3,8 @@ import { RateDetailsWrapperSwitch } from '~/pages/catalog/rateProperties/RateDet
 import { isTieredRateModel } from '~/pages/catalog/rateProperties/tiers/rateTiers'
 import { tw } from '~/styles/utils'
 
+export const RATE_PHASE_RATE_PROPERTIES_TEST_ID = 'rate-phase-rate-properties'
+
 type RatePhaseRatePropertiesProps = {
   rate: RateOverrideInput
   currency: CurrencyEnum
@@ -20,6 +22,7 @@ export const RatePhaseRateProperties = ({
 
   return (
     <div
+      data-test={RATE_PHASE_RATE_PROPERTIES_TEST_ID}
       className={tw(
         isOverridden &&
           (isTiered
