@@ -59,8 +59,8 @@ const describeSSOValidationSchema = <TShape extends z.ZodRawShape>(
         expect(createSchema.safeParse(validValues).success).toBe(true)
       })
 
-      it('THEN requires the client secret', () => {
-        const result = createSchema.safeParse({ ...validValues, clientSecret: '' })
+      it.each(['', '   '])('THEN requires the client secret (%j)', (clientSecret) => {
+        const result = createSchema.safeParse({ ...validValues, clientSecret })
 
         expect(getErrorPaths(result)).toEqual(['clientSecret'])
       })

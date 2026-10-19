@@ -576,8 +576,11 @@ describe('zodCustoms', () => {
       expect(zodRequiredString.safeParse('value').success).toBe(true)
     })
 
-    it('rejects an empty string with the required field message', () => {
-      const result = zodRequiredString.safeParse('')
+    it.each([
+      ['', 'empty string'],
+      ['   ', 'whitespace only'],
+    ])('rejects "%s" (%s) with the required field message', (value) => {
+      const result = zodRequiredString.safeParse(value)
 
       expect(result.success).toBe(false)
       expect(result.error?.issues[0].message).toBe('text_1771342994699klxu2paz7g8')

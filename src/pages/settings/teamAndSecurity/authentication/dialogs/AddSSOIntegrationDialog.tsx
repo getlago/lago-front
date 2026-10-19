@@ -1,7 +1,7 @@
 import { MutationHookOptions, MutationTuple, OperationVariables } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic } from '@tanstack/react-form'
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { ZodObject, ZodType } from 'zod'
 
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
@@ -157,7 +157,10 @@ export const useAddSSOIntegrationDialog = <
 
   const [deleteIntegration] = useDestroyIntegrationMutation()
 
-  const createValidationSchema = buildCreateValidationSchema(validationSchema)
+  const createValidationSchema = useMemo(
+    () => buildCreateValidationSchema(validationSchema),
+    [validationSchema],
+  )
 
   const form = useAppForm({
     defaultValues: defaultFormValues,
