@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 
+import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import { CurrencyEnum, NotifyOnEnum, ThresholdInput } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
@@ -14,26 +15,14 @@ import AlertThresholds, {
 // The combobox list is virtualized, so jsdom renders no option: a native select
 // keeps the value, the labels, the disabled state and the change wiring real.
 jest.mock('~/components/form/ComboBox/ComboBox', () => ({
-  ComboBox: ({
-    data,
-    disabled,
-    value,
-    onChange,
-    'data-test': dataTest,
-  }: {
-    data: { value: string; label: string }[]
-    disabled?: boolean
-    value?: string
-    onChange: (value: string) => void
-    'data-test'?: string
-  }) => (
+  ComboBox: ({ data, disabled, value, onChange, 'data-test': dataTest }: ComboBoxProps) => (
     <select
       data-test={dataTest}
       disabled={disabled}
       value={value}
       onChange={(event) => onChange(event.target.value)}
     >
-      {data.map(({ value: optionValue, label }) => (
+      {data?.map(({ value: optionValue, label }) => (
         <option key={optionValue} value={optionValue}>
           {label}
         </option>
@@ -504,6 +493,19 @@ describe('GIVEN the "Notify when resolved" column', () => {
 
       expect(recurringCell).toBeDisabled()
       expect(selectedLabel(recurringCell)).toBe('False')
+    })
+
+    it('THEN should not explain why with a tooltip', async () => {
+      await renderComponent(getMockThresholdsWithRecurring())
+
+      const recurringCell = screen.getByTestId(THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID)
+
+      await act(async () => {
+        fireEvent.mouseOver(recurringCell)
+      })
+
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+      expect(recurringCell.closest('[aria-label]')).toBeNull()
     })
   })
 

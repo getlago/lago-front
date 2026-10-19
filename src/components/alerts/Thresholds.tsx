@@ -124,7 +124,7 @@ const NotifyWhenResolvedInput = ({
   translate: TranslateFunc
   disabled?: boolean
   dataTest: string
-}) => (
+}): JSX.Element => (
   <ComboBox
     variant="outlined"
     disableClearable
@@ -451,14 +451,12 @@ const AlertThresholds = ({
               {
                 size: 180,
                 content: () => (
-                  <Tooltip placement="top" title={translate('text_1792439710542gpn287ho1ck')}>
-                    <NotifyWhenResolvedInput
-                      disabled
-                      dataTest={THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID}
-                      translate={translate}
-                      value={false}
-                    />
-                  </Tooltip>
+                  <NotifyWhenResolvedInput
+                    disabled
+                    dataTest={THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID}
+                    translate={translate}
+                    value={false}
+                  />
                 ),
               },
             ]}
