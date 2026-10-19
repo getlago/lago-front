@@ -10,15 +10,12 @@ import { CurrencyEnum } from '~/generated/graphql'
 import { withForm } from '~/hooks/forms/useAppform'
 import { tw } from '~/styles/utils'
 
+import Container from '../common/Container'
 import { designSystemFormDefaultValues } from '../validationSchema'
 
 export const DESIGN_SYSTEM_FORM_ID = 'design-system-form'
 export const FORM_TEST_ALL_CONDITIONS_CHECKBOX_TEST_ID = 'design-system-form-all-conditions'
 export const FORM_TEST_SUBMIT_BUTTON_TEST_ID = 'design-system-form-submit'
-
-const Container = ({ children }: { children: React.ReactNode }) => (
-  <div className="px-12 pb-20 pt-8">{children}</div>
-)
 
 const Block = ({ children, className }: { children: React.ReactNode; className?: string }) => (
   <div className={tw('mb-6 flex flex-wrap gap-4', className)}>{children}</div>

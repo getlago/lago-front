@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { CurrencyEnum } from '~/generated/graphql'
 
 export const designSystemValidationSchema = z.object({
-  checkbox: z.boolean(),
   amountCurrency: z.enum(CurrencyEnum),
   amountCents: z.union([z.number(), z.string().min(1)]),
   json: z.string().min(1),
@@ -21,7 +20,6 @@ export const designSystemValidationSchema = z.object({
 })
 
 export type DesignSystemFormValues = {
-  checkbox: boolean
   amountCents: string | number | undefined
   amountCurrency: CurrencyEnum
   date: string | undefined
@@ -39,7 +37,6 @@ export type DesignSystemFormValues = {
 }
 
 export const designSystemFormDefaultValues: DesignSystemFormValues = {
-  checkbox: false,
   amountCents: undefined,
   amountCurrency: CurrencyEnum.Usd,
   date: undefined,
