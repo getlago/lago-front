@@ -1,4 +1,10 @@
-import { RateCardRateBillingIntervalUnitEnum, RateOverrideInput } from '~/generated/graphql'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import {
+  CurrencyEnum,
+  RateCardRateBillingIntervalUnitEnum,
+  RateOverrideInput,
+} from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 import { OverrideDiffField } from './overrideDiff'
@@ -31,6 +37,45 @@ export const formatIntervalDuration = (
   unit: RateCardRateBillingIntervalUnitEnum,
   translate: TranslateFunc,
 ): string => translate(DURATION_BY_UNIT_KEY[unit], { count }, count)
+
+export const formatRateBillingInterval = (
+  rate: RateOverrideInput,
+  translate: TranslateFunc,
+): string =>
+  translate('text_17918384599832tqq2f0ezu9', {
+    duration: formatIntervalDuration(
+      rate.billingIntervalCount ?? 1,
+      rate.billingIntervalUnit ?? RateCardRateBillingIntervalUnitEnum.Month,
+      translate,
+    ),
+  })
+
+export const formatConversionRateAmount = (amount: number, currency: CurrencyEnum): string =>
+  intlFormatNumber(amount, {
+    currencyDisplay: 'symbol',
+    currency,
+    maximumFractionDigits: 15,
+  })
+
+export const formatSpendingMinimum = (
+  rate: RateOverrideInput,
+  currency: CurrencyEnum,
+  pricingUnitShortName: string | undefined,
+): string => {
+  const minAmountCents = Number(rate.minAmountCents ?? 0)
+
+  if (minAmountCents > 0) {
+    // Expressed in the pricing unit when the card has one, as on the catalog rate details.
+    return intlFormatNumber(deserializeAmount(minAmountCents, currency), {
+      currencyDisplay: 'symbol',
+      currency,
+      pricingUnitShortName,
+      maximumFractionDigits: 15,
+    })
+  }
+
+  return '-'
+}
 
 // No unit conversion: 1 cycle of 14 days reads "14 days", 2 cycles of 1 week "2 weeks".
 export const formatPhaseDuration = (
