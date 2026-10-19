@@ -1,4 +1,4 @@
-import { captureException, captureMessage } from '@sentry/react'
+import { captureException } from '@sentry/react'
 import { ComponentType, lazy, LazyExoticComponent } from 'react'
 
 import { envGlobalVar } from '~/core/apolloClient/reactiveVars/envGlobalVar'
@@ -33,11 +33,6 @@ const retry = (
         if (!hasReloadedRecently()) {
           // All retries exhausted — reload silently to get fresh HTML
           markReloaded()
-          captureMessage('Chunk load failed - reloading with cache-bust', {
-            level: 'warning',
-            tags: { chunkLoad: true, phase: 'reload' },
-            fingerprint: [CHUNK_LOAD_FINGERPRINT],
-          })
           reloadWithCacheBust()
 
           return

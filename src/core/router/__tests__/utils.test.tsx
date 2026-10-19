@@ -132,7 +132,7 @@ describe('lazyLoad / retry', () => {
         expect(mockAddToast).not.toHaveBeenCalled()
       })
 
-      it('THEN should report the reload to Sentry', async () => {
+      it('THEN should not report the recovered reload to Sentry', async () => {
         const loader = () => Promise.reject(new Error('chunk failed'))
         const LazyComponent = lazyLoad(loader)
 
@@ -144,14 +144,7 @@ describe('lazyLoad / retry', () => {
           await jest.advanceTimersByTimeAsync(3000)
         })
 
-        expect(mockCaptureMessage).toHaveBeenCalledWith(
-          expect.any(String),
-          expect.objectContaining({
-            level: 'warning',
-            tags: { chunkLoad: true, phase: 'reload' },
-            fingerprint: ['chunk-load-failure'],
-          }),
-        )
+        expect(mockCaptureMessage).not.toHaveBeenCalled()
         expect(mockCaptureException).not.toHaveBeenCalled()
       })
     })
