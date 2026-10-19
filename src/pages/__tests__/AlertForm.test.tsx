@@ -5,6 +5,8 @@ import { RESOLVED_WEBHOOK_WARNING_TEST_ID } from '~/components/alerts/ResolvedWe
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   AlertTypeEnum,
+  EventTypeEnum,
+  GetWebhookEndpointsForResolvedAlertsQuery,
   LagoApiError,
   NotifyOnEnum,
   PremiumIntegrationTypeEnum,
@@ -1015,7 +1017,10 @@ describe('AlertForm', () => {
 
   describe('GIVEN the "Notify when resolved" setting', () => {
     const mockWebhookEndpoints = (
-      endpoints: { id: string; name: string; eventTypes: string[] | null }[],
+      endpoints: Omit<
+        GetWebhookEndpointsForResolvedAlertsQuery['webhookEndpoints']['collection'][number],
+        'webhookUrl'
+      >[],
     ): void => {
       mockUseGetWebhookEndpointsQuery.mockReturnValue({
         loading: false,
@@ -1127,10 +1132,10 @@ describe('AlertForm', () => {
     describe('WHEN a webhook endpoint whitelist lacks alert.resolved', () => {
       it('THEN should warn and name only that endpoint once a threshold is True', async () => {
         mockWebhookEndpoints([
-          { id: 'wh-whitelist', name: 'Billing hooks', eventTypes: ['alert_triggered'] },
-          { id: 'wh-all', name: 'Everything', eventTypes: ['all'] },
+          { id: 'wh-whitelist', name: 'Billing hooks', eventTypes: [EventTypeEnum.AlertTriggered] },
+          { id: 'wh-all', name: 'Everything', eventTypes: [EventTypeEnum.All] },
           { id: 'wh-null', name: 'Legacy', eventTypes: null },
-          { id: 'wh-ok', name: 'Resolved listener', eventTypes: ['alert_resolved'] },
+          { id: 'wh-ok', name: 'Resolved listener', eventTypes: [EventTypeEnum.AlertResolved] },
         ])
         const user = userEvent.setup()
 
@@ -1152,7 +1157,7 @@ describe('AlertForm', () => {
     describe.each([
       [
         'every endpoint listens to all events',
-        [{ id: 'wh-all', name: 'Everything', eventTypes: ['all'] }],
+        [{ id: 'wh-all', name: 'Everything', eventTypes: [EventTypeEnum.All] }],
       ],
       ['no webhook endpoint exists', []],
     ])('WHEN %s', (_, endpoints) => {
