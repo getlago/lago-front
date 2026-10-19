@@ -250,6 +250,7 @@ describe('WalletAlertForm with the real thresholds table', () => {
 
   it('allows an empty code after opting out and clears the submit error', async () => {
     const user = userEvent.setup()
+
     await startCreateForm(user)
     await user.type(valueInput(0), '8')
     await user.selectOptions(notifyCell(0), 'true')
@@ -274,6 +275,7 @@ describe('WalletAlertForm with the real thresholds table', () => {
 
   it('keeps recurring resolution off after toggling the recurring row off and on', async () => {
     const user = userEvent.setup()
+
     await startCreateForm(user)
     await fillThreshold(user, 0, '8', 'hard')
     await user.selectOptions(notifyCell(0), 'true')
@@ -281,6 +283,7 @@ describe('WalletAlertForm with the real thresholds table', () => {
     await user.click(screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID))
     await user.click(screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID))
     const recurringTable = screen.getAllByRole('table')[1]
+
     await user.type(within(recurringTable).getAllByRole('textbox')[0], '2')
     expect(screen.getByTestId(THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID)).toHaveValue(
       'false',

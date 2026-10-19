@@ -97,12 +97,14 @@ describe('resolution event in the real webhook picker', () => {
     expect(screen.getByText('1 / 2')).toBeInTheDocument()
     expect(screen.getAllByRole('checkbox')[1]).toHaveAttribute('aria-checked', 'mixed')
     const search = await screen.findByPlaceholderText(/search/i)
+
     await user.type(search, 'alert.resolved')
 
     expect(await screen.findByText('alert.resolved')).toBeInTheDocument()
     expect(screen.getByText(mockCatalog.eventTypes[1].description)).toBeInTheDocument()
     expect(screen.queryByText('alert.triggered')).not.toBeInTheDocument()
     const checkbox = document.querySelector('input[aria-labelledby$="alert_resolved"]')
+
     if (!checkbox) throw new Error('Missing resolution checkbox')
     await user.click(checkbox)
     expect(screen.getByText('2 / 2')).toBeInTheDocument()
