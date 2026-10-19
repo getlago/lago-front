@@ -51,12 +51,19 @@ const defaultFormValues: CreateOktaIntegrationInput = {
   organizationName: '',
 }
 
-const validationSchema = z.object({
+const REQUIRED_FIELD_MESSAGE = 'text_1771342994699klxu2paz7g8'
+
+const editValidationSchema = z.object({
   domain: zodDomain,
   host: zodOptionalHost,
-  clientId: z.string(),
+  clientId: z.string().min(1, REQUIRED_FIELD_MESSAGE),
   clientSecret: z.string(),
-  organizationName: z.string(),
+  organizationName: z.string().min(1, REQUIRED_FIELD_MESSAGE),
+})
+
+// The update service keeps the stored secret when none is sent, so only creation requires one.
+const createValidationSchema = editValidationSchema.extend({
+  clientSecret: z.string().min(1, REQUIRED_FIELD_MESSAGE),
 })
 
 const fields: SSOIntegrationField<CreateOktaIntegrationInput>[] = [
@@ -99,7 +106,7 @@ export const useAddOktaDialog = () => {
     authenticationMethod: AuthenticationMethodsEnum.Okta,
     integrationTypename: 'OktaIntegration',
     defaultFormValues,
-    validationSchema,
+    validationSchemas: { create: createValidationSchema, edit: editValidationSchema },
     fields,
     useCreateIntegrationMutation: useCreateOktaIntegrationMutation,
     useUpdateIntegrationMutation: useUpdateOktaIntegrationMutation,

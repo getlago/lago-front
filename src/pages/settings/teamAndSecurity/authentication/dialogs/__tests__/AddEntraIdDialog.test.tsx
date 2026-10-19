@@ -231,6 +231,21 @@ describe('AddEntraIdDialog', () => {
     })
   })
 
+  // Without it, the empty secret reached `createEntraIdIntegration` and the API answered a bare 422.
+  it('requires the client secret on creation', async () => {
+    await prepare()
+
+    await userEvent.type(screen.getByLabelText(/Your domain name/i), 'example.com')
+    await userEvent.type(screen.getByLabelText(/Entra ID client ID/i), 'client-id')
+    await userEvent.type(screen.getByLabelText(/Entra ID tenant ID/i), 'tenant-id')
+    await userEvent.click(screen.getByTestId(ENTRA_ID_INTEGRATION_SUBMIT_BTN))
+
+    await waitFor(() => {
+      expect(screen.getByText('Field is required')).toBeInTheDocument()
+    })
+    expect(mockOnSubmit).not.toHaveBeenCalled()
+  })
+
   it('sends the additional domains typed in the list', async () => {
     const mocks: TestMocksType = [
       {

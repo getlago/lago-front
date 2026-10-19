@@ -216,6 +216,21 @@ describe('AddOktaDialog', () => {
     })
   })
 
+  // Without it, the empty secret reached `createOktaIntegration` and the API answered a bare 422.
+  it('requires the client secret on creation', async () => {
+    await prepare()
+
+    await userEvent.type(screen.getByLabelText(/Your domain name/i), 'example.com')
+    await userEvent.type(screen.getByLabelText(/Okta client ID/i), 'client-id')
+    await userEvent.type(screen.getByLabelText(/Okta organization name/i), 'org-name')
+    await userEvent.click(screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN))
+
+    await waitFor(() => {
+      expect(screen.getByText('Field is required')).toBeInTheDocument()
+    })
+    expect(mockOnSubmit).not.toHaveBeenCalled()
+  })
+
   describe('edition mode', () => {
     const existingIntegration: AddOktaIntegrationDialogFragment = {
       id: 'integration-id',
