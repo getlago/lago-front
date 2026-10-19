@@ -31,6 +31,7 @@ type AvalaraIntegrationItemsListDefaultProps = {
   integrationId: string
   isLoading: boolean
   openIntegrationMapItemDrawer: OpenMappableIntegrationMapItemDrawer
+  canViewLegacyMappings: boolean
 }
 
 const AvalaraIntegrationItemsListDefault = ({
@@ -39,6 +40,7 @@ const AvalaraIntegrationItemsListDefault = ({
   integrationId,
   isLoading,
   openIntegrationMapItemDrawer,
+  canViewLegacyMappings,
 }: AvalaraIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
 
@@ -90,7 +92,9 @@ const AvalaraIntegrationItemsListDefault = ({
     <IntegrationItemsTable
       integrationId={integrationId}
       openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
-      items={defaultListToDisplay}
+      items={defaultListToDisplay.filter(
+        ({ mappingType }) => mappingType === MappingTypeEnum.FallbackItem || canViewLegacyMappings,
+      )}
       provider={IntegrationTypeEnum.Avalara}
       isLoading={isLoading}
     />

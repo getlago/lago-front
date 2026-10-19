@@ -317,6 +317,7 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
           isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
           openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
+          canViewLegacyMappings={canViewLegacyMappingTypes}
         />
       )}
       {selectedItemType === MappableTypeEnum.AddOn && canViewLegacyMappingTypes && (
