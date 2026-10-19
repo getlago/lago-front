@@ -128,6 +128,8 @@ export const zodRequiredUrl = z
   .min(1, { message: 'text_624ea7c29103fd010732ab7d' })
   .and(zodOptionalUrl)
 
+export const zodRequiredString = z.string().min(1, { message: 'text_1771342994699klxu2paz7g8' })
+
 // Password validation error messages
 export const PASSWORD_VALIDATION_ERRORS = {
   REQUIRED: 'text_620bc4d4269a55014d493f61',

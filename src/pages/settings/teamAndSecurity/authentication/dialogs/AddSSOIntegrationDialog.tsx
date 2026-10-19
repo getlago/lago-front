@@ -2,7 +2,7 @@ import { MutationHookOptions, MutationTuple, OperationVariables } from '@apollo/
 import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { ZodType } from 'zod'
+import { ZodObject, ZodType } from 'zod'
 
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
@@ -12,6 +12,8 @@ import { AuthenticationMethodsEnum, useDestroyIntegrationMutation } from '~/gene
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+
+import { buildCreateValidationSchema } from './validationSchema'
 
 /** Shared label used by both providers for the edit submit button. */
 const EDIT_SUBMIT_TRANSLATION_KEY = 'text_664c732c264d7eed1c74fdaa'
@@ -53,10 +55,7 @@ export type UseAddSSOIntegrationDialogConfig<
   /** GraphQL __typename used to evict the deleted integration from the cache. */
   integrationTypename: 'OktaIntegration' | 'EntraIdIntegration'
   defaultFormValues: TFormValues
-  validationSchemas: {
-    create: ZodType<TFormValues>
-    edit: ZodType<TFormValues>
-  }
+  validationSchema: ZodObject & ZodType<TFormValues>
   fields: SSOIntegrationField<TFormValues>[]
   useCreateIntegrationMutation: IntegrationMutationHook<TCreateData, { input: TFormValues }>
   useUpdateIntegrationMutation: IntegrationMutationHook<TUpdateData, TUpdateVars>
@@ -105,7 +104,7 @@ export const useAddSSOIntegrationDialog = <
     authenticationMethod,
     integrationTypename,
     defaultFormValues,
-    validationSchemas,
+    validationSchema,
     fields,
     useCreateIntegrationMutation,
     useUpdateIntegrationMutation,
@@ -158,6 +157,8 @@ export const useAddSSOIntegrationDialog = <
 
   const [deleteIntegration] = useDestroyIntegrationMutation()
 
+  const createValidationSchema = buildCreateValidationSchema(validationSchema)
+
   const form = useAppForm({
     defaultValues: defaultFormValues,
     validationLogic: revalidateLogic(),
@@ -167,8 +168,8 @@ export const useAddSSOIntegrationDialog = <
       onDynamic: ({ formApi }) =>
         formApi.parseValuesWithSchema(
           (dataRef.current?.integration
-            ? validationSchemas.edit
-            : validationSchemas.create) as unknown as never,
+            ? validationSchema
+            : createValidationSchema) as unknown as never,
         ),
     },
     onSubmit: async ({ value }) => {

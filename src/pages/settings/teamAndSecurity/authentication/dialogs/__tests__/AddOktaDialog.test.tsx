@@ -226,8 +226,13 @@ describe('AddOktaDialog', () => {
     await userEvent.click(screen.getByTestId(OKTA_INTEGRATION_SUBMIT_BTN))
 
     await waitFor(() => {
-      expect(screen.getByText('Field is required')).toBeInTheDocument()
+      expect(screen.getByLabelText(/Okta client secret/i)).toHaveAttribute('aria-invalid', 'true')
     })
+    expect(screen.getByLabelText(/Okta client ID/i)).toHaveAttribute('aria-invalid', 'false')
+    expect(screen.getByLabelText(/Okta organization name/i)).toHaveAttribute(
+      'aria-invalid',
+      'false',
+    )
     expect(mockOnSubmit).not.toHaveBeenCalled()
   })
 

@@ -241,8 +241,13 @@ describe('AddEntraIdDialog', () => {
     await userEvent.click(screen.getByTestId(ENTRA_ID_INTEGRATION_SUBMIT_BTN))
 
     await waitFor(() => {
-      expect(screen.getByText('Field is required')).toBeInTheDocument()
+      expect(screen.getByLabelText(/Entra ID client secret/i)).toHaveAttribute(
+        'aria-invalid',
+        'true',
+      )
     })
+    expect(screen.getByLabelText(/Entra ID client ID/i)).toHaveAttribute('aria-invalid', 'false')
+    expect(screen.getByLabelText(/Entra ID tenant ID/i)).toHaveAttribute('aria-invalid', 'false')
     expect(mockOnSubmit).not.toHaveBeenCalled()
   })
 

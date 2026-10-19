@@ -1,7 +1,5 @@
 import { gql } from '@apollo/client'
-import { z } from 'zod'
 
-import { zodDomain, zodOptionalHost } from '~/formValidation/zodCustoms'
 import {
   AddOktaIntegrationDialogFragment,
   AuthenticationMethodsEnum,
@@ -12,6 +10,7 @@ import {
 } from '~/generated/graphql'
 
 import { SSOIntegrationField, useAddSSOIntegrationDialog } from './AddSSOIntegrationDialog'
+import { oktaDefaultValues, oktaValidationSchema } from './validationSchema'
 
 gql`
   fragment AddOktaIntegrationDialog on OktaIntegration {
@@ -42,29 +41,6 @@ gql`
 const ADD_OKTA_FORM_ID = 'form-add-okta-integration'
 
 export const OKTA_INTEGRATION_SUBMIT_BTN = 'add-okta-dialog-submit-button'
-
-const defaultFormValues: CreateOktaIntegrationInput = {
-  domain: '',
-  host: '',
-  clientId: '',
-  clientSecret: '',
-  organizationName: '',
-}
-
-const REQUIRED_FIELD_MESSAGE = 'text_1771342994699klxu2paz7g8'
-
-const editValidationSchema = z.object({
-  domain: zodDomain,
-  host: zodOptionalHost,
-  clientId: z.string().min(1, REQUIRED_FIELD_MESSAGE),
-  clientSecret: z.string(),
-  organizationName: z.string().min(1, REQUIRED_FIELD_MESSAGE),
-})
-
-// The update service keeps the stored secret when none is sent, so only creation requires one.
-const createValidationSchema = editValidationSchema.extend({
-  clientSecret: z.string().min(1, REQUIRED_FIELD_MESSAGE),
-})
 
 const fields: SSOIntegrationField<CreateOktaIntegrationInput>[] = [
   {
@@ -105,8 +81,8 @@ export const useAddOktaDialog = () => {
     submitBtnTestId: OKTA_INTEGRATION_SUBMIT_BTN,
     authenticationMethod: AuthenticationMethodsEnum.Okta,
     integrationTypename: 'OktaIntegration',
-    defaultFormValues,
-    validationSchemas: { create: createValidationSchema, edit: editValidationSchema },
+    defaultFormValues: oktaDefaultValues,
+    validationSchema: oktaValidationSchema,
     fields,
     useCreateIntegrationMutation: useCreateOktaIntegrationMutation,
     useUpdateIntegrationMutation: useUpdateOktaIntegrationMutation,
