@@ -83,7 +83,6 @@ type WebhookEventDisplayInfo = {
   eventCount: number
 }
 
-/** A webhook endpoint with no event list, or one holding the `all` sentinel, receives every event. */
 export const isListeningToAllEvents = (eventTypes: EventTypeEnum[] | null | undefined): boolean =>
   eventTypes === null || eventTypes === undefined || eventTypes.includes(EventTypeEnum.All)
 
