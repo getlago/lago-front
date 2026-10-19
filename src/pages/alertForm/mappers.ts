@@ -1,4 +1,8 @@
-import { sortAndFormatThresholds } from '~/components/alerts/utils'
+import {
+  booleanToNotifyOn,
+  notifyOnToBoolean,
+  sortAndFormatThresholds,
+} from '~/components/alerts/utils'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   AlertTypeEnum,
@@ -34,7 +38,7 @@ export const mapFromApiToForm = ({
   // reaches the mutation payload.
   thresholds: !!alert?.thresholds?.length
     ? sortAndFormatThresholds(alert.thresholds, currency, isUnitsAlertType(alert.alertType)).map(
-        ({ code, recurring, value }) => ({ code, recurring, value }),
+        ({ code, recurring, value, notifyOn }) => ({ code, recurring, value, notifyOn }),
       )
     : [EMPTY_SUBSCRIPTION_ALERT_THRESHOLD],
 })
@@ -57,6 +61,8 @@ const mapThresholdToInput = ({
   return {
     code: threshold.code,
     recurring: threshold.recurring,
+    // Always explicit: the API keeps the stored value on omission, matched by code
+    notifyOn: booleanToNotifyOn(!threshold.recurring && notifyOnToBoolean(threshold.notifyOn)),
     value: isUnitsAlertType(alertType)
       ? value.split('.')[0]
       : String(serializeAmount(value, currency)),

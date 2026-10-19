@@ -1,9 +1,12 @@
 import {
+  booleanToNotifyOn,
+  getThresholdCodeErrors,
+  notifyOnToBoolean,
   patchThreshold,
   SortableThreshold,
   sortAndFormatThresholds,
 } from '~/components/alerts/utils'
-import { CurrencyEnum, ThresholdInput } from '~/generated/graphql'
+import { CurrencyEnum, NotifyOnEnum, ThresholdInput } from '~/generated/graphql'
 
 type TestThreshold = SortableThreshold & { code?: string | null }
 
@@ -141,5 +144,144 @@ describe('patchThreshold', () => {
         expect(baseThreshold.value).toBe('100')
       })
     })
+  })
+})
+
+const TRIGGERED = [NotifyOnEnum.Triggered]
+const TRIGGERED_AND_RESOLVED = [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved]
+
+describe('notifyOnToBoolean', () => {
+  describe('GIVEN a notifyOn value from the API', () => {
+    it.each<[string, NotifyOnEnum[] | null | undefined, boolean]>([
+      ['[triggered]', TRIGGERED, false],
+      ['[triggered, resolved]', TRIGGERED_AND_RESOLVED, true],
+      ['[resolved, triggered]', [NotifyOnEnum.Resolved, NotifyOnEnum.Triggered], true],
+      ['an empty list', [], false],
+      ['duplicated triggered', [NotifyOnEnum.Triggered, NotifyOnEnum.Triggered], false],
+      ['null', null, false],
+      ['undefined', undefined, false],
+    ])('WHEN it is %s THEN should map to %p', (_, notifyOn, expected) => {
+      expect(notifyOnToBoolean(notifyOn)).toBe(expected)
+    })
+  })
+})
+
+describe('booleanToNotifyOn', () => {
+  describe('GIVEN the "Notify when resolved" choice', () => {
+    it('WHEN false THEN should only notify when triggered', () => {
+      expect(booleanToNotifyOn(false)).toEqual(TRIGGERED)
+    })
+
+    it('WHEN true THEN should notify when triggered and resolved, in the API order', () => {
+      expect(booleanToNotifyOn(true)).toEqual(TRIGGERED_AND_RESOLVED)
+    })
+
+    it.each([true, false])('WHEN %p THEN should round-trip through notifyOnToBoolean', (value) => {
+      expect(notifyOnToBoolean(booleanToNotifyOn(value))).toBe(value)
+    })
+  })
+})
+
+describe('sortAndFormatThresholds with notifyOn', () => {
+  describe('GIVEN one-time and recurring thresholds holding notifyOn', () => {
+    it('THEN should carry notifyOn on every row', () => {
+      const result = sortAndFormatThresholds(
+        [
+          threshold({ code: 'every', recurring: true, value: '500', notifyOn: TRIGGERED }),
+          threshold({ code: 'hard', value: '1000', notifyOn: TRIGGERED_AND_RESOLVED }),
+        ],
+        CurrencyEnum.Usd,
+        false,
+      )
+
+      expect(result).toEqual([
+        { code: 'hard', recurring: false, value: '10', notifyOn: TRIGGERED_AND_RESOLVED },
+        { code: 'every', recurring: true, value: '5', notifyOn: TRIGGERED },
+      ])
+    })
+  })
+})
+
+describe('patchThreshold with notifyOn', () => {
+  const baseThreshold: ThresholdInput = {
+    code: 'hard',
+    recurring: false,
+    value: '10',
+    notifyOn: TRIGGERED,
+  }
+
+  it('WHEN set to true THEN should store [triggered, resolved]', () => {
+    expect(patchThreshold(baseThreshold, 'notifyOn', true).notifyOn).toEqual(TRIGGERED_AND_RESOLVED)
+  })
+
+  it('WHEN set back to false THEN should store [triggered]', () => {
+    expect(
+      patchThreshold({ ...baseThreshold, notifyOn: TRIGGERED_AND_RESOLVED }, 'notifyOn', false)
+        .notifyOn,
+    ).toEqual(TRIGGERED)
+  })
+
+  it('WHEN another cell changes THEN should keep notifyOn untouched', () => {
+    const optedIn = { ...baseThreshold, notifyOn: TRIGGERED_AND_RESOLVED }
+
+    expect(patchThreshold(optedIn, 'value', '20').notifyOn).toEqual(TRIGGERED_AND_RESOLVED)
+    expect(patchThreshold(optedIn, 'code', 'renamed').notifyOn).toEqual(TRIGGERED_AND_RESOLVED)
+  })
+})
+
+describe('getThresholdCodeErrors', () => {
+  const REQUIRED = 'text_1792439710542tbnwvrxl0g7'
+  const NOT_UNIQUE = 'text_17924397105421fihqq5j6ns'
+
+  const row = (overrides: Partial<ThresholdInput> = {}): ThresholdInput => ({
+    code: 'code',
+    recurring: false,
+    value: '10',
+    notifyOn: TRIGGERED,
+    ...overrides,
+  })
+
+  it('GIVEN no threshold notifying when resolved THEN should report nothing, even without codes', () => {
+    expect(getThresholdCodeErrors([row({ code: '' }), row({ code: undefined })])).toEqual({})
+  })
+
+  it.each([[''], ['  '], [undefined], [null]])(
+    'GIVEN an opted-in threshold with code %p THEN should require a code on that row',
+    (code) => {
+      expect(
+        getThresholdCodeErrors([
+          row({ code: 'warn' }),
+          row({ code, notifyOn: TRIGGERED_AND_RESOLVED }),
+        ]),
+      ).toEqual({ 1: REQUIRED })
+    },
+  )
+
+  it('GIVEN an opted-in threshold sharing its code THEN should flag both rows', () => {
+    expect(
+      getThresholdCodeErrors([
+        row({ code: 'hard' }),
+        row({ code: 'other' }),
+        row({ code: 'hard', notifyOn: TRIGGERED_AND_RESOLVED }),
+      ]),
+    ).toEqual({ 0: NOT_UNIQUE, 2: NOT_UNIQUE })
+  })
+
+  it('GIVEN an opted-in threshold sharing its code with the recurring one THEN should flag both rows', () => {
+    expect(
+      getThresholdCodeErrors([
+        row({ code: 'hard', notifyOn: TRIGGERED_AND_RESOLVED }),
+        row({ code: 'hard', recurring: true }),
+      ]),
+    ).toEqual({ 0: NOT_UNIQUE, 1: NOT_UNIQUE })
+  })
+
+  it('GIVEN opted-in thresholds with unique codes THEN should report nothing', () => {
+    expect(
+      getThresholdCodeErrors([
+        row({ code: 'warn', notifyOn: TRIGGERED_AND_RESOLVED }),
+        row({ code: 'hard', notifyOn: TRIGGERED_AND_RESOLVED }),
+      ]),
+    ).toEqual({})
   })
 })

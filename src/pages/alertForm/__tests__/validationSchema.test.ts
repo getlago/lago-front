@@ -1,4 +1,4 @@
-import { AlertTypeEnum } from '~/generated/graphql'
+import { AlertTypeEnum, NotifyOnEnum } from '~/generated/graphql'
 import {
   subscriptionAlertValidationSchema,
   TSubscriptionAlertForm,
@@ -129,6 +129,103 @@ describe('subscriptionAlertValidationSchema', () => {
         expect(errorsOf(validValues({ thresholds: [{ recurring: null, value: '100' }] }))).toEqual([
           { path: 'thresholds.0.recurring', message: REQUIRED_ERROR },
         ])
+      })
+    })
+  })
+})
+
+describe('subscriptionAlertValidationSchema notifyOn rules', () => {
+  const CODE_REQUIRED_ERROR = 'text_1792439710542tbnwvrxl0g7'
+  const CODE_NOT_UNIQUE_ERROR = 'text_17924397105421fihqq5j6ns'
+  const RECURRING_ERROR = 'text_1792439710542gpn287ho1ck'
+  const TRIGGERED = [NotifyOnEnum.Triggered]
+  const TRIGGERED_AND_RESOLVED = [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved]
+
+  describe('GIVEN a threshold notifying when resolved', () => {
+    describe('WHEN its code is empty', () => {
+      it.each([[''], ['   '], [undefined]])(
+        'THEN should report the error on that row code for %p',
+        (code) => {
+          expect(
+            errorsOf(
+              validValues({
+                thresholds: [
+                  { code: 'warn', recurring: false, value: '10', notifyOn: TRIGGERED },
+                  { code, recurring: false, value: '20', notifyOn: TRIGGERED_AND_RESOLVED },
+                ],
+              }),
+            ),
+          ).toEqual([{ path: 'thresholds.1.code', message: CODE_REQUIRED_ERROR }])
+        },
+      )
+    })
+
+    describe('WHEN another threshold uses the same code', () => {
+      it('THEN should report the error on both rows', () => {
+        expect(
+          errorsOf(
+            validValues({
+              thresholds: [
+                { code: 'hard', recurring: false, value: '10', notifyOn: TRIGGERED },
+                { code: 'hard', recurring: false, value: '20', notifyOn: TRIGGERED_AND_RESOLVED },
+              ],
+            }),
+          ),
+        ).toEqual(
+          expect.arrayContaining([
+            { path: 'thresholds.0.code', message: CODE_NOT_UNIQUE_ERROR },
+            { path: 'thresholds.1.code', message: CODE_NOT_UNIQUE_ERROR },
+          ]),
+        )
+      })
+    })
+
+    describe('WHEN it is recurring', () => {
+      it('THEN should reject it', () => {
+        expect(
+          errorsOf(
+            validValues({
+              thresholds: [
+                { code: 'warn', recurring: false, value: '10', notifyOn: TRIGGERED },
+                { code: 'every', recurring: true, value: '5', notifyOn: TRIGGERED_AND_RESOLVED },
+              ],
+            }),
+          ),
+        ).toEqual([{ path: 'thresholds.1.notifyOn', message: RECURRING_ERROR }])
+      })
+    })
+  })
+
+  describe('GIVEN thresholds that only notify when triggered', () => {
+    describe('WHEN their codes are empty or shared', () => {
+      it('THEN should report no error, as today', () => {
+        expect(
+          errorsOf(
+            validValues({
+              thresholds: [
+                { code: '', recurring: false, value: '10', notifyOn: TRIGGERED },
+                { code: 'same', recurring: false, value: '20', notifyOn: TRIGGERED },
+                { code: 'same', recurring: false, value: '30' },
+              ],
+            }),
+          ),
+        ).toEqual([])
+      })
+    })
+  })
+
+  describe('GIVEN a notifyOn without triggered', () => {
+    describe('WHEN validating it', () => {
+      it('THEN should reject it, as the API makes triggered mandatory', () => {
+        expect(
+          errorsOf(
+            validValues({
+              thresholds: [
+                { code: 'warn', recurring: false, value: '10', notifyOn: [NotifyOnEnum.Resolved] },
+              ],
+            }),
+          ),
+        ).toEqual([{ path: 'thresholds.0.notifyOn', message: 'text_1771342994699klxu2paz7g8' }])
       })
     })
   })

@@ -5272,5 +5272,10 @@
   "text_1788366458013p269p15ecg4": "No tax rates set on this rate card.",
   "text_1791824479971k53nxu9rd1p": "Go to product catalog",
   "text_1791824479972csd47bqgz26": "Map {{productName}} with a {{integrationType}} item",
-  "text_179182447997277lnl7262dw": "To link this product with {{integrationType}}, define the corresponding item in your {{integrationType}} account."
+  "text_179182447997277lnl7262dw": "To link this product with {{integrationType}}, define the corresponding item in your {{integrationType}} account.",
+  "text_1792439710542ctc2yq2zptb": "Notify when resolved",
+  "text_1792439710542gpn287ho1ck": "Recurring thresholds can’t notify when resolved",
+  "text_1792439710542tbnwvrxl0g7": "Add a threshold code to notify when this threshold is resolved",
+  "text_17924397105421fihqq5j6ns": "This code is used by another threshold. Use a unique code to notify when resolved",
+  "text_1792439710542z5bi1sj7k1j": "These webhook endpoints don’t listen to alert.resolved, so they won’t receive resolution notifications. Add the event to their list:"
 }

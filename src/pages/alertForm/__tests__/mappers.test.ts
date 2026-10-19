@@ -1,10 +1,18 @@
-import { AlertTypeEnum, CurrencyEnum, GetSubscriptionAlertToEditQuery } from '~/generated/graphql'
+import {
+  AlertTypeEnum,
+  CurrencyEnum,
+  GetSubscriptionAlertToEditQuery,
+  NotifyOnEnum,
+} from '~/generated/graphql'
 import {
   mapFormToCreateInput,
   mapFormToUpdateInput,
   mapFromApiToForm,
 } from '~/pages/alertForm/mappers'
 import { TValidatedSubscriptionAlertForm } from '~/pages/alertForm/validationSchema'
+
+const TRIGGERED = [NotifyOnEnum.Triggered]
+const TRIGGERED_AND_RESOLVED = [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved]
 
 type ExistingAlert = NonNullable<GetSubscriptionAlertToEditQuery['subscriptionAlert']>
 
@@ -15,7 +23,15 @@ const existingAlert = (overrides: Partial<ExistingAlert> = {}): ExistingAlert =>
   billableMetric: null,
   code: 'my-alert',
   name: 'My alert',
-  thresholds: [{ __typename: 'AlertThreshold', code: 'first', recurring: false, value: '1000' }],
+  thresholds: [
+    {
+      __typename: 'AlertThreshold',
+      code: 'first',
+      recurring: false,
+      value: '1000',
+      notifyOn: TRIGGERED,
+    },
+  ],
   ...overrides,
 })
 
@@ -26,7 +42,7 @@ const formValues = (
   code: 'my-alert',
   alertType: AlertTypeEnum.CurrentUsageAmount,
   billableMetricId: '',
-  thresholds: [{ code: 'first', recurring: false, value: '10' }],
+  thresholds: [{ code: 'first', recurring: false, value: '10', notifyOn: TRIGGERED }],
   ...overrides,
 })
 
@@ -39,7 +55,7 @@ describe('mapFromApiToForm', () => {
           code: '',
           alertType: '',
           billableMetricId: '',
-          thresholds: [{ code: '', recurring: false, value: '' }],
+          thresholds: [{ code: '', recurring: false, value: '', notifyOn: TRIGGERED }],
         })
       })
     })
@@ -58,7 +74,7 @@ describe('mapFromApiToForm', () => {
           code: 'my-alert',
           alertType: AlertTypeEnum.CurrentUsageAmount,
           billableMetricId: '',
-          thresholds: [{ code: 'first', recurring: false, value: '10' }],
+          thresholds: [{ code: 'first', recurring: false, value: '10', notifyOn: TRIGGERED }],
         })
       })
 
@@ -98,12 +114,20 @@ describe('mapFromApiToForm', () => {
           alert: existingAlert({
             alertType: AlertTypeEnum.BillableMetricCurrentUsageUnits,
             thresholds: [
-              { __typename: 'AlertThreshold', code: 'first', recurring: false, value: '12.99' },
+              {
+                __typename: 'AlertThreshold',
+                code: 'first',
+                recurring: false,
+                value: '12.99',
+                notifyOn: TRIGGERED,
+              },
             ],
           }),
         })
 
-        expect(thresholds).toEqual([{ code: 'first', recurring: false, value: '12' }])
+        expect(thresholds).toEqual([
+          { code: 'first', recurring: false, value: '12', notifyOn: TRIGGERED },
+        ])
       })
     })
   })
@@ -119,7 +143,7 @@ describe('mapFormToCreateInput', () => {
           alertType: AlertTypeEnum.CurrentUsageAmount,
           subscriptionId: 'subscription-1',
           billableMetricId: undefined,
-          thresholds: [{ code: 'first', recurring: false, value: '1000' }],
+          thresholds: [{ code: 'first', recurring: false, value: '1000', notifyOn: TRIGGERED }],
         })
       })
     })
@@ -133,7 +157,9 @@ describe('mapFormToCreateInput', () => {
             formValues({
               alertType: AlertTypeEnum.BillableMetricCurrentUsageUnits,
               billableMetricId: 'bm-1',
-              thresholds: [{ code: 'first', recurring: false, value: '12.99' }],
+              thresholds: [
+                { code: 'first', recurring: false, value: '12.99', notifyOn: TRIGGERED },
+              ],
             }),
             'subscription-1',
             CurrencyEnum.Usd,
@@ -144,7 +170,7 @@ describe('mapFormToCreateInput', () => {
           alertType: AlertTypeEnum.BillableMetricCurrentUsageUnits,
           subscriptionId: 'subscription-1',
           billableMetricId: 'bm-1',
-          thresholds: [{ code: 'first', recurring: false, value: '12' }],
+          thresholds: [{ code: 'first', recurring: false, value: '12', notifyOn: TRIGGERED }],
         })
       })
     })
@@ -162,7 +188,9 @@ describe('mapFormToCreateInput', () => {
           CurrencyEnum.Usd,
         )
 
-        expect(thresholds).toEqual([{ code: 'first', recurring: false, value: '1000' }])
+        expect(thresholds).toEqual([
+          { code: 'first', recurring: false, value: '1000', notifyOn: TRIGGERED },
+        ])
       })
     })
   })
@@ -173,8 +201,8 @@ describe('mapFormToCreateInput', () => {
         const { thresholds } = mapFormToCreateInput(
           formValues({
             thresholds: [
-              { code: 'first', recurring: false, value: '10' },
-              { code: 'recurring', recurring: true, value: '5' },
+              { code: 'first', recurring: false, value: '10', notifyOn: TRIGGERED },
+              { code: 'recurring', recurring: true, value: '5', notifyOn: TRIGGERED },
             ],
           }),
           'subscription-1',
@@ -182,8 +210,8 @@ describe('mapFormToCreateInput', () => {
         )
 
         expect(thresholds).toEqual([
-          { code: 'first', recurring: false, value: '1000' },
-          { code: 'recurring', recurring: true, value: '500' },
+          { code: 'first', recurring: false, value: '1000', notifyOn: TRIGGERED },
+          { code: 'recurring', recurring: true, value: '500', notifyOn: TRIGGERED },
         ])
       })
     })
@@ -199,7 +227,7 @@ describe('mapFormToUpdateInput', () => {
           name: 'My alert',
           code: 'my-alert',
           billableMetricId: undefined,
-          thresholds: [{ code: 'first', recurring: false, value: '1000' }],
+          thresholds: [{ code: 'first', recurring: false, value: '1000', notifyOn: TRIGGERED }],
         })
       })
 
@@ -221,13 +249,144 @@ describe('mapFormToUpdateInput', () => {
           formValues({
             alertType: AlertTypeEnum.BillableMetricLifetimeUsageUnits,
             billableMetricId: 'bm-1',
-            thresholds: [{ code: 'first', recurring: false, value: '12.99' }],
+            thresholds: [{ code: 'first', recurring: false, value: '12.99', notifyOn: TRIGGERED }],
           }),
           'alert-1',
           CurrencyEnum.Usd,
         )
 
-        expect(thresholds).toEqual([{ code: 'first', recurring: false, value: '12' }])
+        expect(thresholds).toEqual([
+          { code: 'first', recurring: false, value: '12', notifyOn: TRIGGERED },
+        ])
+      })
+    })
+  })
+})
+
+describe('notifyOn', () => {
+  describe('GIVEN an existing threshold notifying when resolved', () => {
+    describe('WHEN building the form values', () => {
+      it('THEN should prefill its notifyOn', () => {
+        const { thresholds } = mapFromApiToForm({
+          currency: CurrencyEnum.Usd,
+
+          alert: existingAlert({
+            thresholds: [
+              {
+                __typename: 'AlertThreshold',
+                code: 'hard',
+                recurring: false,
+                value: '1000',
+                notifyOn: TRIGGERED_AND_RESOLVED,
+              },
+            ],
+          }),
+        })
+
+        expect(thresholds).toEqual([
+          { code: 'hard', recurring: false, value: '10', notifyOn: TRIGGERED_AND_RESOLVED },
+        ])
+      })
+    })
+  })
+
+  describe('GIVEN thresholds with mixed notifyOn values', () => {
+    describe('WHEN building the create input', () => {
+      it('THEN should send an explicit, normalized notifyOn on every threshold', () => {
+        const values = formValues({
+          thresholds: [
+            { code: 'warn', recurring: false, value: '10' },
+            {
+              code: 'hard',
+              recurring: false,
+              value: '20',
+              notifyOn: [NotifyOnEnum.Resolved, NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+            },
+            { code: 'every', recurring: true, value: '5', notifyOn: TRIGGERED_AND_RESOLVED },
+          ],
+        })
+
+        expect(mapFormToCreateInput(values, 'subscription-1', CurrencyEnum.Usd).thresholds).toEqual(
+          [
+            { code: 'warn', recurring: false, value: '1000', notifyOn: TRIGGERED },
+            { code: 'hard', recurring: false, value: '2000', notifyOn: TRIGGERED_AND_RESOLVED },
+            { code: 'every', recurring: true, value: '500', notifyOn: TRIGGERED },
+          ],
+        )
+      })
+    })
+
+    describe('WHEN building the update input', () => {
+      it('THEN should send notifyOn on every threshold too', () => {
+        const { thresholds } = mapFormToUpdateInput(
+          formValues({
+            thresholds: [
+              { code: 'warn', recurring: false, value: '10', notifyOn: TRIGGERED },
+              { code: 'hard', recurring: false, value: '20', notifyOn: TRIGGERED_AND_RESOLVED },
+            ],
+          }),
+          'alert-1',
+          CurrencyEnum.Usd,
+        )
+
+        expect(thresholds).toEqual([
+          { code: 'warn', recurring: false, value: '1000', notifyOn: TRIGGERED },
+          { code: 'hard', recurring: false, value: '2000', notifyOn: TRIGGERED_AND_RESOLVED },
+        ])
+      })
+    })
+  })
+
+  describe('GIVEN an alert created before notifyOn existed', () => {
+    describe('WHEN it is saved without any change', () => {
+      it('THEN should send notifyOn [triggered] on every threshold and nothing else new', () => {
+        const formState = mapFromApiToForm({
+          currency: CurrencyEnum.Usd,
+
+          alert: existingAlert({
+            thresholds: [
+              {
+                __typename: 'AlertThreshold',
+                code: 'warn',
+                recurring: false,
+                value: '8000',
+                notifyOn: TRIGGERED,
+              },
+              {
+                __typename: 'AlertThreshold',
+                code: 'every',
+                recurring: true,
+                value: '5000',
+                notifyOn: TRIGGERED,
+              },
+              {
+                __typename: 'AlertThreshold',
+                code: 'hard',
+                recurring: false,
+                value: '10000',
+                notifyOn: TRIGGERED,
+              },
+            ],
+          }),
+        })
+
+        expect(
+          mapFormToUpdateInput(
+            { ...formState, alertType: AlertTypeEnum.CurrentUsageAmount },
+            'alert-1',
+            CurrencyEnum.Usd,
+          ),
+        ).toEqual({
+          id: 'alert-1',
+          name: 'My alert',
+          code: 'my-alert',
+          billableMetricId: undefined,
+          thresholds: [
+            { code: 'warn', recurring: false, value: '8000', notifyOn: TRIGGERED },
+            { code: 'hard', recurring: false, value: '10000', notifyOn: TRIGGERED },
+            { code: 'every', recurring: true, value: '5000', notifyOn: TRIGGERED },
+          ],
+        })
       })
     })
   })

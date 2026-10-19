@@ -1,10 +1,50 @@
 import { AnyFormApi } from '@tanstack/react-form'
+import { z } from 'zod'
 
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { AlertThreshold, CurrencyEnum, ThresholdInput } from '~/generated/graphql'
+import { AlertThreshold, CurrencyEnum, NotifyOnEnum, ThresholdInput } from '~/generated/graphql'
 
-export type SortableThreshold = Pick<AlertThreshold, 'recurring' | 'value'>
+export type SortableThreshold = Pick<AlertThreshold, 'recurring' | 'value'> &
+  Partial<Pick<AlertThreshold, 'notifyOn'>>
+
+const RECURRING_CANNOT_NOTIFY_WHEN_RESOLVED_ERROR = 'text_1792439710542gpn287ho1ck'
+const CODE_REQUIRED_FOR_RESOLUTION_ERROR = 'text_1792439710542tbnwvrxl0g7'
+const CODE_NOT_UNIQUE_FOR_RESOLUTION_ERROR = 'text_17924397105421fihqq5j6ns'
+
+export const notifyOnToBoolean = (notifyOn?: NotifyOnEnum[] | null): boolean =>
+  !!notifyOn?.includes(NotifyOnEnum.Resolved)
+
+export const booleanToNotifyOn = (notifyWhenResolved: boolean): NotifyOnEnum[] =>
+  notifyWhenResolved ? [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved] : [NotifyOnEnum.Triggered]
+
+/**
+ * Per-row code errors (translation keys, by threshold index) mirroring the API
+ * `validate_notify_on!`: a threshold notifying when resolved needs a non-blank
+ * code that no other threshold of the alert uses.
+ */
+export const getThresholdCodeErrors = (thresholds: ThresholdInput[]): Record<number, string> => {
+  const errors: Record<number, string> = {}
+
+  thresholds.forEach((threshold, index) => {
+    if (threshold.recurring || !notifyOnToBoolean(threshold.notifyOn)) return
+
+    if (!threshold.code?.trim()) {
+      errors[index] = CODE_REQUIRED_FOR_RESOLUTION_ERROR
+
+      return
+    }
+
+    thresholds.forEach((other, otherIndex) => {
+      if (otherIndex === index || other.code !== threshold.code) return
+
+      errors[index] = CODE_NOT_UNIQUE_FOR_RESOLUTION_ERROR
+      errors[otherIndex] = CODE_NOT_UNIQUE_FOR_RESOLUTION_ERROR
+    })
+  })
+
+  return errors
+}
 
 /**
  * Turns the API thresholds of an alert into the shape the thresholds table
@@ -38,6 +78,34 @@ export const sortAndFormatThresholds = <T extends SortableThreshold>(
   return [...sortedNonRecurringThresholds, ...(!!recurringThreshold ? [recurringThreshold] : [])]
 }
 
+/** Zod `superRefine` of an alert form thresholds array, so the API never rejects a `notifyOn`. */
+export const refineThresholdsNotifyOn = (
+  thresholds: ThresholdInput[],
+  ctx: z.RefinementCtx,
+): void => {
+  thresholds.forEach((threshold, index) => {
+    if (threshold.notifyOn && !threshold.notifyOn.includes(NotifyOnEnum.Triggered)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: [index, 'notifyOn'],
+        message: 'text_1771342994699klxu2paz7g8',
+      })
+    }
+
+    if (threshold.recurring && notifyOnToBoolean(threshold.notifyOn)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: [index, 'notifyOn'],
+        message: RECURRING_CANNOT_NOTIFY_WHEN_RESOLVED_ERROR,
+      })
+    }
+  })
+
+  Object.entries(getThresholdCodeErrors(thresholds)).forEach(([index, message]) => {
+    ctx.addIssue({ code: 'custom', path: [Number(index), 'code'], message })
+  })
+}
+
 /**
  * The thresholds table is form-library agnostic: it patches a single cell with
  * an untyped value. This is the one boundary where that value is turned back
@@ -56,6 +124,7 @@ export const patchThreshold = (
 
   if (key === 'code') return { ...threshold, code: asString }
   if (key === 'recurring') return { ...threshold, recurring: !!newValue }
+  if (key === 'notifyOn') return { ...threshold, notifyOn: booleanToNotifyOn(!!newValue) }
 
   return { ...threshold, value: asString ?? '' }
 }
