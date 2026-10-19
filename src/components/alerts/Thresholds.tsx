@@ -404,6 +404,11 @@ const AlertThresholds = ({
             columns={[
               {
                 size: 200,
+                title: (
+                  <Typography className="px-4" variant="captionHl" noWrap>
+                    {translate('text_632d68358f1fedc68eed3e64')}
+                  </Typography>
+                ),
                 content: () => (
                   <Typography
                     className="px-4"
@@ -417,6 +422,15 @@ const AlertThresholds = ({
               },
               {
                 size: 155,
+                title: (
+                  <Typography className="px-4" variant="captionHl" noWrap>
+                    {translate(
+                      shouldHandleUnits
+                        ? unitsTitle || 'text_1748858070139kmh56doz3la'
+                        : 'text_1748858044483q61vd2npre7',
+                    )}
+                  </Typography>
+                ),
                 content: (row) => (
                   <ValueInput
                     currency={currency}
@@ -437,10 +451,20 @@ const AlertThresholds = ({
               },
               {
                 size: 140,
+                title: (
+                  <Typography className="px-4" variant="captionHl" noWrap>
+                    {translate('text_1748334091887k4p2p41jdou')}
+                  </Typography>
+                ),
                 content: (row) => renderCodeInput(row, recurringIndex),
               },
               {
                 size: 180,
+                title: (
+                  <Typography className="px-4" variant="captionHl" noWrap>
+                    {translate('text_1792439710542ctc2yq2zptb')}
+                  </Typography>
+                ),
                 content: () => (
                   <NotifyWhenResolvedInput
                     disabled

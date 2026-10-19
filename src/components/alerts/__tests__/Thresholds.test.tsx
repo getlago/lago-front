@@ -563,6 +563,17 @@ describe('GIVEN the "Notify when resolved" column', () => {
 })
 
 describe('duplicate codes on recurring rows', () => {
+  it('labels all four columns in the recurring table', async () => {
+    await renderComponent(getMockThresholdsWithRecurring())
+
+    const table = screen.getAllByRole('table')[1]
+
+    expect(
+      within(table).getByRole('columnheader', { name: 'Notify when resolved' }),
+    ).toBeInTheDocument()
+    expect(within(table).getByRole('columnheader', { name: 'Recurring' })).toBeInTheDocument()
+  })
+
   it('marks every duplicate code cell, including the recurring row', async () => {
     await renderComponent(
       [
