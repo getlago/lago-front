@@ -1,4 +1,4 @@
-import { captureException, captureMessage } from '@sentry/react'
+import { captureException } from '@sentry/react'
 
 import { envGlobalVar } from '~/core/apolloClient/reactiveVars/envGlobalVar'
 import { reloadWithCacheBust } from '~/core/utils/reloadWithCacheBust'
@@ -22,15 +22,7 @@ export function createWorkerLoadErrorHandler(): (event: ErrorEvent) => void {
 
     workerLoadFailureCount += 1
 
-    if (workerLoadFailureCount < WORKER_LOAD_RELOAD_THRESHOLD) {
-      captureMessage('Worker script load failed once, waiting for a repeat before reloading', {
-        level: 'warning',
-        tags: { workerLoad: true, phase: 'first-failure' },
-        fingerprint: [WORKER_LOAD_FINGERPRINT],
-      })
-
-      return
-    }
+    if (workerLoadFailureCount < WORKER_LOAD_RELOAD_THRESHOLD) return
 
     if (hasReloadedRecently()) {
       captureException(event.error ?? new Error(event.message), {
@@ -44,11 +36,6 @@ export function createWorkerLoadErrorHandler(): (event: ErrorEvent) => void {
     }
 
     markReloaded()
-    captureMessage('Worker script load failed - reloading with cache-bust', {
-      level: 'warning',
-      tags: { workerLoad: true, phase: 'reload' },
-      fingerprint: [WORKER_LOAD_FINGERPRINT],
-    })
     reloadWithCacheBust()
   }
 }
