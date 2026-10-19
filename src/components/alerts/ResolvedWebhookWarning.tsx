@@ -3,6 +3,7 @@ import { generatePath } from 'react-router'
 
 import { notifyOnToBoolean } from '~/components/alerts/utils'
 import { Alert } from '~/components/designSystem/Alert'
+import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
 import { Link, UPDATE_WEBHOOK_ROUTE } from '~/core/router'
 import {
@@ -42,7 +43,17 @@ export const ResolvedWebhookWarning = ({
     fetchPolicy: 'cache-and-network',
   })
 
-  if (!notifiesWhenResolved || loading || error || !data) return null
+  if (!notifiesWhenResolved) return null
+
+  if (loading) {
+    return (
+      <div role="status" aria-busy="true" className="h-8">
+        <Spinner />
+      </div>
+    )
+  }
+
+  if (error || !data) return null
 
   const endpointsMissingEvent = data.webhookEndpoints.collection.filter(
     ({ eventTypes }) =>
