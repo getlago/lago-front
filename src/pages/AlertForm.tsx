@@ -287,6 +287,7 @@ const AlertForm = () => {
     },
   })
 
+  const showCodeErrors = useStore(form.store, (state) => state.submissionAttempts > 0)
   const isDirty = useStore(form.store, (state) => state.isDirty)
   const alertType = useStore(form.store, (state) => state.values.alertType)
   const billableMetricId = useStore(form.store, (state) => state.values.billableMetricId)
@@ -521,6 +522,7 @@ const AlertForm = () => {
 
                     {showThresholdTable && (
                       <AlertThresholds
+                        showCodeErrors={showCodeErrors}
                         thresholds={thresholds}
                         setThresholds={setThresholds}
                         setThresholdValue={setThresholdValue}

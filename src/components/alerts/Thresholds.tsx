@@ -62,7 +62,8 @@ const ValueInput = ({
   translate: TranslateFunc
   unitsLabel?: string
   allowNegativeValues?: boolean
-}) => {
+  showCodeErrors?: boolean
+}): JSX.Element => {
   if (shouldHandleUnits) {
     const beforeChangeFormatter: ValueFormatterType[] = [
       ...(allowNegativeValues ? [] : [ValueFormatter.positiveNumber]),
@@ -164,6 +165,7 @@ const AlertThresholds = ({
   unitsTitle,
   reversedThreshold,
   allowNegativeValues,
+  showCodeErrors = false,
 }: {
   thresholds: ThresholdInput[]
   setThresholds: (thresholds: ThresholdInput[]) => void
@@ -182,7 +184,8 @@ const AlertThresholds = ({
   unitsTitle?: string
   reversedThreshold?: boolean
   allowNegativeValues?: boolean
-}) => {
+  showCodeErrors?: boolean
+}): JSX.Element => {
   const { translate } = useInternationalization()
   const copyKeys = reversedThreshold ? DECREASING_COPY_KEYS : INCREASING_COPY_KEYS
 
@@ -228,7 +231,30 @@ const AlertThresholds = ({
     [thresholds],
   )
 
-  const codeErrors = useMemo(() => getThresholdCodeErrors(thresholds), [thresholds])
+  const codeErrors = showCodeErrors ? getThresholdCodeErrors(thresholds) : {}
+
+  const renderCodeInput = (row: ThresholdInput, index: number): JSX.Element => {
+    const codeError = codeErrors[index]
+
+    return (
+      <Tooltip
+        placement="top"
+        title={codeError ? translate(codeError) : ''}
+        disableHoverListener={!codeError}
+      >
+        <TextInput
+          variant="outlined"
+          error={!!codeError}
+          data-test={codeError ? THRESHOLDS_CODE_ERROR_TEST_ID : undefined}
+          placeholder={translate('text_1747921154885jqsl0c9xhro')}
+          value={row.code ?? ''}
+          onChange={(value) => {
+            setThresholdValue({ index, key: 'code', newValue: value === '' ? undefined : value })
+          }}
+        />
+      </Tooltip>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -330,32 +356,7 @@ const AlertThresholds = ({
                     {translate('text_1748334091887k4p2p41jdou')}
                   </Typography>
                 ),
-                content: (row, i) => {
-                  const codeError = codeErrors[i]
-
-                  return (
-                    <Tooltip
-                      placement="top"
-                      title={codeError ? translate(codeError) : ''}
-                      disableHoverListener={!codeError}
-                    >
-                      <TextInput
-                        variant="outlined"
-                        error={!!codeError}
-                        data-test={codeError ? THRESHOLDS_CODE_ERROR_TEST_ID : undefined}
-                        placeholder={translate('text_1747921154885jqsl0c9xhro')}
-                        value={row.code ?? ''}
-                        onChange={(value) => {
-                          setThresholdValue({
-                            index: i,
-                            key: 'code',
-                            newValue: value === '' ? undefined : value,
-                          })
-                        }}
-                      />
-                    </Tooltip>
-                  )
-                },
+                content: renderCodeInput,
               },
               {
                 size: 180,
@@ -433,20 +434,7 @@ const AlertThresholds = ({
               },
               {
                 size: 140,
-                content: (row) => (
-                  <TextInput
-                    variant="outlined"
-                    placeholder={translate('text_1747921154885jqsl0c9xhro')}
-                    value={row.code ?? ''}
-                    onChange={(value) => {
-                      setThresholdValue({
-                        index: recurringIndex,
-                        key: 'code',
-                        newValue: value === '' ? undefined : value,
-                      })
-                    }}
-                  />
-                ),
+                content: (row) => renderCodeInput(row, recurringIndex),
               },
               {
                 size: 180,

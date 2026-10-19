@@ -211,12 +211,13 @@ describe('WalletAlertForm with the real thresholds table', () => {
         await fillThreshold(user, 1, '5', 'same')
         await user.selectOptions(notifyCell(1), 'true')
 
-        expect(screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toHaveLength(2)
+        expect(screen.queryAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toHaveLength(0)
 
         await user.click(submitButton())
 
         await waitFor(() => {
           expect(submitButton()).toBeDisabled()
+          expect(screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID).length).toBeGreaterThan(0)
         })
         expect(mockCreateWalletAlert).not.toHaveBeenCalled()
       })

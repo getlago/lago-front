@@ -511,10 +511,13 @@ describe('GIVEN the "Notify when resolved" column', () => {
 
   describe('WHEN a threshold notifying when resolved has no code', () => {
     it('THEN should flag that row code cell only', async () => {
-      await renderComponent([
-        { code: 'warn', value: '10', recurring: false, notifyOn: TRIGGERED },
-        { code: undefined, value: '20', recurring: false, notifyOn: TRIGGERED_AND_RESOLVED },
-      ])
+      await renderComponent(
+        [
+          { code: 'warn', value: '10', recurring: false, notifyOn: TRIGGERED },
+          { code: undefined, value: '20', recurring: false, notifyOn: TRIGGERED_AND_RESOLVED },
+        ],
+        { showCodeErrors: true },
+      )
 
       const errorCells = screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)
 
@@ -527,10 +530,13 @@ describe('GIVEN the "Notify when resolved" column', () => {
 
   describe('WHEN two thresholds share the code of one notifying when resolved', () => {
     it('THEN should flag both code cells', async () => {
-      await renderComponent([
-        { code: 'hard', value: '10', recurring: false, notifyOn: TRIGGERED },
-        { code: 'hard', value: '20', recurring: false, notifyOn: TRIGGERED_AND_RESOLVED },
-      ])
+      await renderComponent(
+        [
+          { code: 'hard', value: '10', recurring: false, notifyOn: TRIGGERED },
+          { code: 'hard', value: '20', recurring: false, notifyOn: TRIGGERED_AND_RESOLVED },
+        ],
+        { showCodeErrors: true },
+      )
 
       expect(screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toHaveLength(2)
     })
@@ -551,5 +557,24 @@ describe('GIVEN the "Notify when resolved" column', () => {
 
       expect(defaultProps.setThresholds).toHaveBeenCalledWith([thresholds[0]])
     })
+  })
+})
+
+describe('duplicate codes on recurring rows', () => {
+  it('marks every duplicate code cell, including the recurring row', async () => {
+    await renderComponent(
+      [
+        {
+          code: 'same',
+          value: '10',
+          recurring: false,
+          notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+        },
+        { code: 'same', value: '5', recurring: true, notifyOn: [NotifyOnEnum.Triggered] },
+      ],
+      { showCodeErrors: true },
+    )
+
+    expect(screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toHaveLength(2)
   })
 })

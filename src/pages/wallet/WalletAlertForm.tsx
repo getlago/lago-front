@@ -212,6 +212,7 @@ const WalletAlertForm = () => {
     },
   })
 
+  const showCodeErrors = useStore(form.store, (state) => state.submissionAttempts > 0)
   const isDirty = useStore(form.store, (state) => state.isDirty)
   const alertType = useStore(form.store, (state) => state.values.alertType)
   const thresholds = useStore(form.store, (state) => state.values.thresholds)
@@ -332,6 +333,7 @@ const WalletAlertForm = () => {
 
                     {!!alertType && (
                       <AlertThresholds
+                        showCodeErrors={showCodeErrors}
                         thresholds={thresholds}
                         setThresholds={setThresholds}
                         setThresholdValue={setThresholdValue}

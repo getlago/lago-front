@@ -185,12 +185,13 @@ describe('AlertForm with the real thresholds table', () => {
         await user.type(valueInput(0), '80')
         await user.selectOptions(notifyCell(0), 'true')
 
-        expect(screen.getByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).not.toBeInTheDocument()
 
         await user.click(submitButton())
 
         await waitFor(() => {
           expect(submitButton()).toBeDisabled()
+          expect(screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID).length).toBeGreaterThan(0)
         })
         expect(mockCreateSubscriptionAlert).not.toHaveBeenCalled()
       })
