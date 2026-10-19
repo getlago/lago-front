@@ -16,6 +16,7 @@ import { designSystemFormDefaultValues } from '../validationSchema'
 export const DESIGN_SYSTEM_FORM_ID = 'design-system-form'
 export const FORM_TEST_ALL_CONDITIONS_CHECKBOX_TEST_ID = 'design-system-form-all-conditions'
 export const FORM_TEST_SUBMIT_BUTTON_TEST_ID = 'design-system-form-submit'
+export const FORM_TEST_COMBOBOX_TEST_ID = 'design-system-form-combobox'
 
 const Block = ({ children, className }: { children: React.ReactNode; className?: string }) => (
   <div className={tw('mb-6 flex flex-wrap gap-4', className)}>{children}</div>
@@ -205,6 +206,7 @@ export const FormTest = withForm({
               {(field) => (
                 <field.ComboBoxField
                   virtualized={false}
+                  dataTest={FORM_TEST_COMBOBOX_TEST_ID}
                   data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
                     value: `${letter}-${i}`,
                   }))}
