@@ -16,12 +16,12 @@ import {
   RatePhaseFormValues,
 } from '../drawers/ratePhase/ratePhaseFormSchema'
 import { RateCardForRatePhaseFields } from '../drawers/ratePhase/types'
+import { RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID } from '../RatePhaseDetailItem'
 import {
-  RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID,
   RATE_PHASE_DETAILS_PANEL_TEST_ID,
-  RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID,
   RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID,
 } from '../RatePhaseDetailsPanel'
+import { RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID } from '../RatePhaseRateEffectiveDate'
 import {
   getRatePhaseActionsTestId,
   getRatePhaseToggleTestId,
@@ -179,6 +179,45 @@ describe('RatePhaseTable', () => {
     await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
 
     expect(screen.getByTestId(RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID).textContent).toBe('5 CR')
+  })
+
+  it('GIVEN a pricing unit code unknown to the organization THEN the conversion rate falls back to the code', async () => {
+    render(
+      <RatePhaseTable
+        phases={[{ ...overriddenPhase, conversionRate: '1' }]}
+        rateCardId="rc-1"
+        rateCard={{ ...rateCard, appliedPricingUnitCode: 'CR' }}
+        {...callbacks}
+      />,
+    )
+
+    await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
+
+    expect(
+      await within(screen.getByTestId(RATE_PHASE_DETAILS_PANEL_TEST_ID)).findByText(/CR • 1 CR =/),
+    ).toBeInTheDocument()
+  })
+
+  it('GIVEN a rate card billed in advance THEN the panel shows no spending minimum', async () => {
+    render(
+      <RatePhaseTable
+        phases={[overriddenPhase]}
+        rateCardId="rc-1"
+        rateCard={{ ...rateCard, billingTiming: RateCardBillingTimingEnum.Advance }}
+        {...callbacks}
+      />,
+    )
+
+    await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
+
+    expect(
+      await within(screen.getByTestId(RATE_PHASE_DETAILS_PANEL_TEST_ID)).findByText(
+        'Billing interval',
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByTestId(RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID),
+    ).not.toBeInTheDocument()
   })
 
   it('GIVEN no spending minimum THEN the panel shows a dash, not a zero amount', async () => {
