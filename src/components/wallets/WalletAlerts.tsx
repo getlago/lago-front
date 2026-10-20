@@ -19,6 +19,7 @@ import {
   Alert,
   AlertTypeEnum,
   CurrencyEnum,
+  GetWalletAlertsQuery,
   NotifyOnEnum,
   useGetWalletAlertsQuery,
   WalletDetailsFragment,
@@ -101,6 +102,23 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
   // actions menu goes away rather than opening on an empty list (same shape as WalletActions).
   const canEditAlerts =
     hasPermissions(['walletsUpdate']) && wallet?.status === WalletStatusEnum.Active
+
+  const renderNotifyWhenResolvedCell = (
+    row: GetWalletAlertsQuery['walletAlerts']['collection'][number]['thresholds'][number],
+  ): JSX.Element => (
+    <Typography
+      className="px-4 py-2.5"
+      variant="body"
+      color="grey700"
+      data-test={WALLET_ALERT_NOTIFY_WHEN_RESOLVED_TEST_ID}
+    >
+      {translate(
+        row.notifyOn?.includes(NotifyOnEnum.Resolved)
+          ? 'text_65251f46339c650084ce0d57'
+          : 'text_65251f4cd55aeb004e5aa5ef',
+      )}
+    </Typography>
+  )
 
   const formatAlertThresholdValue = ({
     value,
@@ -345,20 +363,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                             {translate('text_1792439710542ctc2yq2zptb')}
                           </Typography>
                         ),
-                        content: (row) => (
-                          <Typography
-                            className="px-4 py-2.5"
-                            variant="body"
-                            color="grey700"
-                            data-test={WALLET_ALERT_NOTIFY_WHEN_RESOLVED_TEST_ID}
-                          >
-                            {translate(
-                              row.notifyOn?.includes(NotifyOnEnum.Resolved)
-                                ? 'text_65251f46339c650084ce0d57'
-                                : 'text_65251f4cd55aeb004e5aa5ef',
-                            )}
-                          </Typography>
-                        ),
+                        content: renderNotifyWhenResolvedCell,
                       },
                     ]}
                   />
@@ -404,20 +409,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                       },
                       {
                         size: 180,
-                        content: (row) => (
-                          <Typography
-                            className="px-4 py-2.5"
-                            variant="body"
-                            color="grey700"
-                            data-test={WALLET_ALERT_NOTIFY_WHEN_RESOLVED_TEST_ID}
-                          >
-                            {translate(
-                              row.notifyOn?.includes(NotifyOnEnum.Resolved)
-                                ? 'text_65251f46339c650084ce0d57'
-                                : 'text_65251f4cd55aeb004e5aa5ef',
-                            )}
-                          </Typography>
-                        ),
+                        content: renderNotifyWhenResolvedCell,
                       },
                     ]}
                   />
