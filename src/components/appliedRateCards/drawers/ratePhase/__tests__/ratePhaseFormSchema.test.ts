@@ -9,6 +9,7 @@ import {
   RatePhaseFormSchemaContext,
   RatePhaseFormValues,
   RatePhaseReference,
+  RatePhaseSequenceLock,
 } from '../ratePhaseFormSchema'
 
 const baseValues: RatePhaseFormValues = {
@@ -29,9 +30,95 @@ const baseContext: RatePhaseFormSchemaContext = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   hasPricingUnit: false,
   rateModelConfiguration: undefined,
+  sequenceLock: 'none',
 }
 
 const withOtherPhases: RatePhaseFormSchemaContext = { ...baseContext, otherPhases: OTHER_PHASES }
+
+const getIssuePaths = (
+  context: RatePhaseFormSchemaContext,
+  values: RatePhaseFormValues,
+): string[] =>
+  buildRatePhaseFormSchema(() => context)
+    .safeParse(values)
+    .error?.issues.map((issue) => issue.path.join('.')) ?? []
+
+const AFTER_TAIL: Pick<RatePhaseFormValues, 'positionMode' | 'positionReferenceCode'> = {
+  positionMode: 'after',
+  positionReferenceCode: 'standard',
+}
+const BEFORE_TAIL: Pick<RatePhaseFormValues, 'positionMode' | 'positionReferenceCode'> = {
+  positionMode: 'before',
+  positionReferenceCode: 'standard',
+}
+const FINITE: Pick<RatePhaseFormValues, 'durationType' | 'durationCycleCount'> = {
+  durationType: 'finite',
+  durationCycleCount: '3',
+}
+const FOREVER: Pick<RatePhaseFormValues, 'durationType' | 'durationCycleCount'> = {
+  durationType: 'forever',
+  durationCycleCount: '',
+}
+
+type SequenceCase = {
+  scenario: string
+  sequenceLock: Exclude<RatePhaseSequenceLock, 'none'>
+  values: RatePhaseFormValues
+  livePaths: string[]
+  localPaths: string[]
+}
+
+const SEQUENCE_CASES: SequenceCase[] = [
+  {
+    scenario: 'the forever tail kept forever and last',
+    sequenceLock: 'tail',
+    values: { ...baseValues, ...AFTER_TAIL, ...FOREVER },
+    livePaths: [],
+    localPaths: [],
+  },
+  {
+    scenario: 'the forever tail made finite',
+    sequenceLock: 'tail',
+    values: { ...baseValues, ...AFTER_TAIL, ...FINITE },
+    livePaths: ['durationType'],
+    localPaths: [],
+  },
+  {
+    scenario: 'the forever tail moved off the last slot',
+    sequenceLock: 'tail',
+    values: { ...baseValues, ...BEFORE_TAIL, ...FOREVER },
+    livePaths: ['durationType', 'positionReferenceCode'],
+    localPaths: ['durationType'],
+  },
+  {
+    scenario: 'a finite phase placed before the tail',
+    sequenceLock: 'beforeTail',
+    values: { ...baseValues, ...BEFORE_TAIL, ...FINITE },
+    livePaths: [],
+    localPaths: [],
+  },
+  {
+    scenario: 'a new phase placed after the tail',
+    sequenceLock: 'beforeTail',
+    values: { ...baseValues, ...AFTER_TAIL, ...FINITE },
+    livePaths: ['positionReferenceCode'],
+    localPaths: [],
+  },
+  {
+    scenario: 'a finite phase made forever before the tail',
+    sequenceLock: 'beforeTail',
+    values: { ...baseValues, ...BEFORE_TAIL, ...FOREVER },
+    livePaths: ['durationType'],
+    localPaths: ['durationType'],
+  },
+  {
+    scenario: 'a finite phase made forever after the tail',
+    sequenceLock: 'beforeTail',
+    values: { ...baseValues, ...AFTER_TAIL, ...FOREVER },
+    livePaths: ['durationType', 'positionReferenceCode'],
+    localPaths: [],
+  },
+]
 
 describe('buildRatePhaseFormSchema', () => {
   it('GIVEN no other phase AND durationType finite THEN accepts, the parent drawer warns instead', () => {
@@ -165,6 +252,28 @@ describe('buildRatePhaseFormSchema', () => {
     })
 
     expect(result.success).toBe(false)
+  })
+})
+
+describe('buildRatePhaseFormSchema phase sequence', () => {
+  it.each(SEQUENCE_CASES)(
+    'GIVEN $scenario in the live drawer THEN the issues are on $livePaths',
+    ({ sequenceLock, values, livePaths }) => {
+      expect(getIssuePaths({ ...withOtherPhases, sequenceLock }, values)).toEqual(livePaths)
+    },
+  )
+
+  it.each(SEQUENCE_CASES)(
+    'GIVEN $scenario in the local drawer THEN the issues are on $localPaths',
+    ({ values, localPaths }) => {
+      expect(getIssuePaths(withOtherPhases, values)).toEqual(localPaths)
+    },
+  )
+
+  it('GIVEN the only phase in the live drawer WHEN it is made finite THEN rejects on durationType', () => {
+    expect(
+      getIssuePaths({ ...baseContext, sequenceLock: 'tail' }, { ...baseValues, ...FINITE }),
+    ).toEqual(['durationType'])
   })
 })
 

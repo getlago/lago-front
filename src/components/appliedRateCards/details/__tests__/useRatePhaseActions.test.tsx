@@ -268,6 +268,12 @@ describe('useRatePhaseActions', () => {
     expect(getAction(getPhaseActions(FOREVER_PHASE), 'delete').disabled).toBe(true)
   })
 
+  it('GIVEN the last phase runs forever THEN edit stays enabled', () => {
+    const { getPhaseActions } = renderActions({ phases: [FIRST_PHASE, FOREVER_PHASE] })
+
+    expect(getAction(getPhaseActions(FOREVER_PHASE), 'edit').disabled).toBe(false)
+  })
+
   it('GIVEN a single finite phase THEN delete is disabled', () => {
     const { getPhaseActions } = renderActions({ phases: [FIRST_PHASE] })
 
