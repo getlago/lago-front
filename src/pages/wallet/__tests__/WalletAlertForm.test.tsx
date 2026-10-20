@@ -2,7 +2,12 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { RESOLVED_WEBHOOK_NOTICE_TEST_ID } from '~/components/alerts/ResolvedWebhookNotice'
-import { AlertThresholdsProps, THRESHOLDS_CODE_ERROR_TEST_ID } from '~/components/alerts/Thresholds'
+import {
+  AlertThresholdsProps,
+  THRESHOLDS_CODE_ERROR_TEST_ID,
+  THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID,
+} from '~/components/alerts/Thresholds'
+import { ComboBoxProps } from '~/components/form/ComboBox'
 import {
   CLOSE_WALLET_ALERT_BUTTON_DATA_TEST,
   SUBMIT_WALLET_ALERT_DATA_TEST,
@@ -77,39 +82,20 @@ jest.mock('~/components/form/ComboBox/ComboBoxFieldForTanstack', () => {
 })
 
 jest.mock('~/components/form/ComboBox/ComboBox', () => ({
-  ComboBox: ({
-    data,
-    value,
-    disabled,
-    onChange,
-    'data-test': dataTest,
-  }: {
-    data: { value: string; label: string; disabled?: boolean; labelNode?: React.ReactNode }[]
-    value?: string
-    disabled?: boolean
-    onChange: (value: string) => void
-    'data-test'?: string
-  }) => (
-    <>
-      <select
-        data-test={dataTest}
-        disabled={disabled}
-        value={value ?? ''}
-        onChange={(event) => onChange(event.target.value)}
-      >
-        <option value="" />
-        {data.map(({ value: optionValue, label, disabled: optionDisabled }) => (
-          <option key={optionValue} value={optionValue} disabled={optionDisabled}>
-            {label}
-          </option>
-        ))}
-      </select>
-      {/* `<option>` cannot host the rich option row, so the label nodes are rendered
-          aside to keep their premium affordance assertable */}
-      {data.map(({ value: optionValue, labelNode }) =>
-        labelNode ? <div key={`label-node-${optionValue}`}>{labelNode}</div> : null,
-      )}
-    </>
+  ComboBox: ({ data = [], value, disabled, onChange, 'data-test': dataTest }: ComboBoxProps) => (
+    <select
+      data-test={dataTest}
+      disabled={disabled}
+      value={value ?? ''}
+      onChange={(event) => onChange(event.target.value)}
+    >
+      <option value="" />
+      {data.map(({ value: optionValue, label, disabled: optionDisabled }) => (
+        <option key={optionValue} value={optionValue} disabled={optionDisabled}>
+          {label}
+        </option>
+      ))}
+    </select>
   ),
 }))
 
@@ -747,7 +733,7 @@ describe('WalletAlertForm', () => {
     await user.type(codeCells[1], 'hard')
     expect(screen.queryByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).not.toBeInTheDocument()
     expect(submit).toBeEnabled()
-    const resolutionCells = screen.getAllByTestId('thresholds-notify-when-resolved')
+    const resolutionCells = screen.getAllByTestId(THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID)
 
     await user.selectOptions(resolutionCells[1], 'false')
     expect(screen.queryByTestId(RESOLVED_WEBHOOK_NOTICE_TEST_ID)).not.toBeInTheDocument()

@@ -2,7 +2,12 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { RESOLVED_WEBHOOK_NOTICE_TEST_ID } from '~/components/alerts/ResolvedWebhookNotice'
-import { AlertThresholdsProps, THRESHOLDS_CODE_ERROR_TEST_ID } from '~/components/alerts/Thresholds'
+import {
+  AlertThresholdsProps,
+  THRESHOLDS_CODE_ERROR_TEST_ID,
+  THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID,
+} from '~/components/alerts/Thresholds'
+import { ComboBoxProps } from '~/components/form/ComboBox'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   AlertTypeEnum,
@@ -31,19 +36,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 // per-option disabled state and the reset-on-change wiring stay real, only the
 // MUI popper is out of the picture.
 jest.mock('~/components/form/ComboBox/ComboBox', () => ({
-  ComboBox: ({
-    data,
-    value,
-    disabled,
-    onChange,
-    'data-test': dataTest,
-  }: {
-    data: { value: string; label: string; disabled?: boolean; labelNode?: React.ReactNode }[]
-    value?: string
-    disabled?: boolean
-    onChange: (value: string) => void
-    'data-test'?: string
-  }) => (
+  ComboBox: ({ data = [], value, disabled, onChange, 'data-test': dataTest }: ComboBoxProps) => (
     <>
       <select
         data-test={dataTest}
@@ -1066,7 +1059,7 @@ describe('AlertForm', () => {
     await user.type(codeCells[1], 'hard')
     expect(screen.queryByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).not.toBeInTheDocument()
     expect(submit).toBeEnabled()
-    const resolutionCells = screen.getAllByTestId('thresholds-notify-when-resolved')
+    const resolutionCells = screen.getAllByTestId(THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID)
 
     await user.selectOptions(resolutionCells[1], 'false')
     expect(screen.queryByTestId(RESOLVED_WEBHOOK_NOTICE_TEST_ID)).not.toBeInTheDocument()
