@@ -165,6 +165,8 @@ describe('CreateWallet', () => {
   describe('GIVEN the creation mode', () => {
     describe('WHEN the user has the walletsUpdate permission', () => {
       it('THEN should offer to add a recurring top-up rule', () => {
+        mockHasPermissions.mockReturnValue(true)
+
         render(<CreateWallet />)
 
         expect(screen.getByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST)).toBeInTheDocument()

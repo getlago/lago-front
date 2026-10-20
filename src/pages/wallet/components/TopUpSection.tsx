@@ -191,84 +191,86 @@ export const TopUpSection = withForm({
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [autoOpenRuleDrawer, isPremium, canManageRecurringRules])
 
+    const renderRecurringRuleSection = () => {
+      if (!canManageRecurringRules) return null
+
+      return (
+        <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
+          <div className="flex flex-col gap-1">
+            <Typography variant="subhead1">{translate('text_1741101674268ag60i0cc55m')}</Typography>
+            <Typography variant="caption">{translate('text_6657be42151661006d2f3b95')}</Typography>
+          </div>
+          {!isRecurringTopUpEnabled ? (
+            <Box>
+              <Button
+                data-test={ADD_RECURRING_RULE_BUTTON_DATA_TEST}
+                variant="inline"
+                startIcon="plus"
+                endIcon={isPremium ? undefined : 'sparkles'}
+                onClick={() => {
+                  if (isPremium) {
+                    // Create flow: the rule only reaches the form when the
+                    // drawer saves — cancelling leaves the CTA untouched.
+                    openDrawer()
+                  } else {
+                    void openPremiumWarningDialog()
+                  }
+                }}
+              >
+                {translate('text_6657be42151661006d2f3b96')}
+              </Button>
+            </Box>
+          ) : (
+            <div className="flex flex-col gap-1">
+              <Selector
+                icon="robot"
+                title={translate('text_6657c29c84ad4500ad764ed6')}
+                endContent={
+                  <Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />
+                }
+                hoverActions={
+                  <SelectorActions
+                    actions={[
+                      {
+                        icon: 'trash',
+                        tooltipCopy: translate('text_63ea0f84f400488553caa786'),
+                        onClick: (e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          form.setFieldValue('recurringTransactionRules', undefined)
+                          setIsRecurringTopUpEnabled(false)
+                        },
+                      },
+                      {
+                        icon: 'pen',
+                        tooltipCopy: translate('text_63e51ef4985f0ebd75c212fc'),
+                        onClick: openRuleDrawer,
+                      },
+                    ]}
+                  />
+                }
+                onClick={openRuleDrawer}
+                data-test={RECURRING_RULE_SELECTOR_TEST_ID}
+              />
+
+              {hasRecurringTransactionRulesErrors && (
+                <Typography
+                  variant="caption"
+                  color="danger600"
+                  data-test={RECURRING_RULE_ERROR_TEST_ID}
+                >
+                  {translate('text_1785143466690l5iq4bovlq2')}
+                </Typography>
+              )}
+            </div>
+          )}
+        </section>
+      )
+    }
+
     return (
       <>
-        {canManageRecurringRules && (
-          <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
-            <div className="flex flex-col gap-1">
-              <Typography variant="subhead1">
-                {translate('text_1741101674268ag60i0cc55m')}
-              </Typography>
-              <Typography variant="caption">
-                {translate('text_6657be42151661006d2f3b95')}
-              </Typography>
-            </div>
-            {!isRecurringTopUpEnabled ? (
-              <Box>
-                <Button
-                  data-test={ADD_RECURRING_RULE_BUTTON_DATA_TEST}
-                  variant="inline"
-                  startIcon="plus"
-                  endIcon={isPremium ? undefined : 'sparkles'}
-                  onClick={() => {
-                    if (isPremium) {
-                      // Create flow: the rule only reaches the form when the
-                      // drawer saves — cancelling leaves the CTA untouched.
-                      openDrawer()
-                    } else {
-                      void openPremiumWarningDialog()
-                    }
-                  }}
-                >
-                  {translate('text_6657be42151661006d2f3b96')}
-                </Button>
-              </Box>
-            ) : (
-              <div className="flex flex-col gap-1">
-                <Selector
-                  icon="robot"
-                  title={translate('text_6657c29c84ad4500ad764ed6')}
-                  endContent={
-                    <Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />
-                  }
-                  hoverActions={
-                    <SelectorActions
-                      actions={[
-                        {
-                          icon: 'trash',
-                          tooltipCopy: translate('text_63ea0f84f400488553caa786'),
-                          onClick: (e) => {
-                            e.stopPropagation()
-                            e.preventDefault()
-                            form.setFieldValue('recurringTransactionRules', undefined)
-                            setIsRecurringTopUpEnabled(false)
-                          },
-                        },
-                        {
-                          icon: 'pen',
-                          tooltipCopy: translate('text_63e51ef4985f0ebd75c212fc'),
-                          onClick: openRuleDrawer,
-                        },
-                      ]}
-                    />
-                  }
-                  onClick={openRuleDrawer}
-                  data-test={RECURRING_RULE_SELECTOR_TEST_ID}
-                />
-
-                {hasRecurringTransactionRulesErrors && (
-                  <Typography
-                    variant="caption"
-                    color="danger600"
-                    data-test={RECURRING_RULE_ERROR_TEST_ID}
-                  >
-                    {translate('text_1785143466690l5iq4bovlq2')}
-                  </Typography>
-                )}
-              </div>
-            )}
-          </section>
-        )}
+        {renderRecurringRuleSection()}
 
         {customerData?.customer?.id && (
           <section
