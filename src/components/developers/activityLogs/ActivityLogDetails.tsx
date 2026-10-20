@@ -70,9 +70,15 @@ gql`
       }
       ... on ContractAppliedRateCard {
         id
+        contract {
+          id
+        }
       }
       ... on PlanAppliedRateCard {
         id
+        catalogPlan {
+          id
+        }
       }
       ... on RateCardRate {
         id

@@ -1,9 +1,59 @@
+import { gql } from '@apollo/client'
+
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { CONTRACTS_ROUTE } from '~/core/router'
+import {
+  ContractAppliedRateCardForAppliedRateCardsTableFragmentDoc,
+  ProductForAppliedRateCardDrawerFragmentDoc,
+  RateCardForAppliedRateCardDrawerFragmentDoc,
+  RatePhaseForDrawerFragmentDoc,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ThinkingImage from '~/public/images/maneki/thinking.svg'
+
+gql`
+  fragment ContractAppliedRateCardForDetails on ContractAppliedRateCard {
+    id
+    units
+    effectiveDate
+    contract {
+      id
+      name
+      status
+      plan {
+        id
+        name
+      }
+    }
+    ...ContractAppliedRateCardForAppliedRateCardsTable
+    product {
+      id
+      ...ProductForAppliedRateCardDrawer
+    }
+    rateCard {
+      id
+      ...RateCardForAppliedRateCardDrawer
+    }
+    ratePhases {
+      id
+      ...RatePhaseForDrawer
+    }
+  }
+
+  query getContractAppliedRateCardForDetails($appliedRateCardId: ID!) {
+    contractAppliedRateCard(id: $appliedRateCardId) {
+      id
+      ...ContractAppliedRateCardForDetails
+    }
+  }
+
+  ${ContractAppliedRateCardForAppliedRateCardsTableFragmentDoc}
+  ${ProductForAppliedRateCardDrawerFragmentDoc}
+  ${RateCardForAppliedRateCardDrawerFragmentDoc}
+  ${RatePhaseForDrawerFragmentDoc}
+`
 
 const ContractRateCardDetails = (): JSX.Element => {
   const { translate } = useInternationalization()
