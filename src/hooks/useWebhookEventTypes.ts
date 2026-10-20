@@ -104,9 +104,7 @@ const getWebhookEventDisplayInfo = (
   allEventNames: string[],
   eventKeyToNameMap: Record<string, string>,
 ): WebhookEventDisplayInfo => {
-  const isListeningToAll = isListeningToAllEvents(eventTypes)
-
-  if (isListeningToAll || !eventTypes) {
+  if (!eventTypes || isListeningToAllEvents(eventTypes)) {
     return {
       isListeningToAll: true,
       displayedEvents: allEventNames,
