@@ -11,6 +11,7 @@ import {
   formatPhaseDuration,
   formatPhaseTimeline,
   formatRateBillingInterval,
+  formatRatePhaseName,
   formatSpendingMinimum,
 } from '../ratePhaseDisplay'
 
@@ -115,5 +116,23 @@ describe('formatSpendingMinimum', () => {
 describe('formatConversionRateAmount', () => {
   it('GIVEN an amount THEN formats it as a currency symbol amount', () => {
     expect(formatConversionRateAmount(1, CurrencyEnum.Usd)).toBe('$1.00')
+  })
+})
+
+describe('formatRatePhaseName', () => {
+  it('GIVEN a named phase THEN returns the name', () => {
+    expect(formatRatePhaseName({ name: 'Intro', position: 1 }, translate)).toBe('Intro')
+  })
+
+  it('GIVEN a nameless phase THEN falls back to the position copy', () => {
+    expect(formatRatePhaseName({ name: null, position: 3 }, translate)).toBe(
+      'text_1792503533806fhiu57zr6an|{"position":3}',
+    )
+  })
+
+  it('GIVEN an empty name THEN falls back to the position copy', () => {
+    expect(formatRatePhaseName({ name: '', position: 2 }, translate)).toBe(
+      'text_1792503533806fhiu57zr6an|{"position":2}',
+    )
   })
 })

@@ -7,13 +7,12 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 import { tw } from '~/styles/utils'
 
-import { mapRateOverrideFromFormToApi } from './drawers/ratePhase/mappers'
 import { RatePhaseFormValues } from './drawers/ratePhase/ratePhaseFormSchema'
 import { RateCardForRatePhaseFields } from './drawers/ratePhase/types'
-import { activeRateToOverrideInput, getOverriddenFields } from './overrideDiff'
 import { RatePhaseDetailsPanel } from './RatePhaseDetailsPanel'
-import { RatePhaseForDetails, RatePhaseRate } from './ratePhaseDisplay'
+import { RatePhaseForDetails } from './ratePhaseDisplay'
 import { RatePhaseDurationChip } from './RatePhaseDurationChip'
+import { getFormPhaseRate } from './ratePhaseRate'
 import { RatePhaseRateChip } from './RatePhaseRateChip'
 
 export const RATE_PHASE_TABLE_TEST_ID = 'rate-phase-table'
@@ -30,31 +29,6 @@ type RatePhaseTableProps = {
   onEdit: (index: number) => void
   onRevert: (index: number) => void
   onDelete: (index: number) => void
-}
-
-const getPhaseRate = (
-  phase: RatePhaseFormValues,
-  rateCard: RateCardForRatePhaseFields,
-): RatePhaseRate | null => {
-  const { activeRate } = rateCard
-
-  if (phase.overrideEnabled) {
-    const rate = mapRateOverrideFromFormToApi(phase, rateCard.currency)
-
-    return {
-      isOverridden: true,
-      rate,
-      overriddenFields: activeRate ? getOverriddenFields(activeRate, rate) : new Set(),
-    }
-  }
-
-  if (!activeRate) return null
-
-  return {
-    isOverridden: false,
-    rate: activeRateToOverrideInput(activeRate),
-    effectiveFrom: activeRate.effectiveFrom,
-  }
 }
 
 const toPhaseForDetails = (phase: RatePhaseFormValues, index: number): RatePhaseForDetails => ({
@@ -122,7 +96,7 @@ export const RatePhaseTable = ({
       {phases.map((phase, index) => {
         const isExpanded = expandedCodes.has(phase.code)
         const phaseForDetails = toPhaseForDetails(phase, index)
-        const phaseRate = getPhaseRate(phase, rateCard)
+        const phaseRate = getFormPhaseRate(phase, rateCard)
 
         return (
           <Fragment key={phase.code}>

@@ -31,6 +31,7 @@ const DURATION_BY_UNIT_KEY: Record<RateCardRateBillingIntervalUnitEnum, string> 
 
 const FOREVER_KEY = 'text_63c83a3476e46bc6ab9d85d6'
 const CYCLES_KEY = 'text_1791485670326auwsxq3x83b'
+const PHASE_POSITION_KEY = 'text_1792503533806fhiu57zr6an'
 
 export const formatIntervalDuration = (
   count: number,
@@ -116,3 +117,8 @@ export const formatPhaseTimeline = (
     { duration },
   )
 }
+
+export const formatRatePhaseName = (
+  phase: { name?: string | null; position: number },
+  translate: TranslateFunc,
+): string => phase.name || translate(PHASE_POSITION_KEY, { position: phase.position })
