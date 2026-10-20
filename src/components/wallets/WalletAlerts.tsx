@@ -104,7 +104,9 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
     hasPermissions(['walletsUpdate']) && wallet?.status === WalletStatusEnum.Active
 
   const renderNotifyWhenResolvedCell = (
-    row: GetWalletAlertsQuery['walletAlerts']['collection'][number]['thresholds'][number],
+    row: NonNullable<
+      GetWalletAlertsQuery['walletAlerts']['collection'][number]['thresholds']
+    >[number],
   ): JSX.Element => (
     <Typography
       className="px-4 py-2.5"
