@@ -5,12 +5,13 @@ import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   ActivityLogsTableDataFragmentDoc,
   LagoApiError,
-  ResourceTypeEnum,
   useAppliedRateCardActivityLogsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
+
+import { APPLIED_RATE_CARD_DETAILS_CONFIG } from './appliedRateCardDetailsConfig'
 
 import { AppliedRateCardContext } from '../types'
 
@@ -41,11 +42,6 @@ gql`
   ${ActivityLogsTableDataFragmentDoc}
 `
 
-const RESOURCE_TYPE_BY_CONTEXT: Record<AppliedRateCardContext, ResourceTypeEnum> = {
-  plan: ResourceTypeEnum.PlanRateCard,
-  contract: ResourceTypeEnum.ContractRateCard,
-}
-
 type AppliedRateCardActivityLogsProps = {
   context: AppliedRateCardContext
   appliedRateCardId: string
@@ -63,7 +59,7 @@ export const AppliedRateCardActivityLogs = ({
 
   const { data, loading, error, refetch, fetchMore } = useAppliedRateCardActivityLogsQuery({
     variables: {
-      resourceTypes: [RESOURCE_TYPE_BY_CONTEXT[context]],
+      resourceTypes: [APPLIED_RATE_CARD_DETAILS_CONFIG[context].activityLogResourceType],
       resourceIds: [appliedRateCardId],
       limit: DEFAULT_PAGE_SIZE,
     },

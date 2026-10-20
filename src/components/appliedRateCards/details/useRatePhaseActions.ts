@@ -42,7 +42,7 @@ export type UseRatePhaseActionsParams = {
   onPhaseDeleted?: (phase: RatePhaseForDrawerFragment) => void
 }
 
-type RatePhaseActions = {
+export type RatePhaseActions = {
   getPhaseActions: (phase: RatePhaseForDrawerFragment) => RatePhaseAction[]
   createPhase: { hidden: boolean; disabled: boolean; open: () => void }
 }

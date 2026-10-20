@@ -1,17 +1,22 @@
 import { gql } from '@apollo/client'
+import { useParams } from 'react-router'
 
-import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { PLAN_PRICING_ROUTE } from '~/core/router'
 import {
+  APPLIED_RATE_CARD_DETAILS_CONFIG,
+  APPLIED_RATE_CARD_NOT_FOUND_TRANSLATION_KEY,
+} from '~/components/appliedRateCards/details/appliedRateCardDetailsConfig'
+import { AppliedRateCardDetailsView } from '~/components/appliedRateCards/details/AppliedRateCardDetailsView'
+import { AppliedRateCardDetailsData } from '~/components/appliedRateCards/details/types'
+import {
+  LagoApiError,
   PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc,
+  PlanAppliedRateCardForDetailsFragment,
   ProductForAppliedRateCardDrawerFragmentDoc,
   RateCardForAppliedRateCardDrawerFragmentDoc,
   RatePhaseForDrawerFragmentDoc,
+  useGetPlanAppliedRateCardForDetailsQuery,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import ThinkingImage from '~/public/images/maneki/thinking.svg'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 
 gql`
   fragment PlanAppliedRateCardForDetails on PlanAppliedRateCard {
@@ -50,27 +55,45 @@ gql`
   ${RatePhaseForDrawerFragmentDoc}
 `
 
-const CatalogPlanRateCardDetails = (): JSX.Element => {
-  const { translate } = useInternationalization()
+const toDetailsData = (
+  appliedRateCard: PlanAppliedRateCardForDetailsFragment | null | undefined,
+  catalogPlanId: string,
+): AppliedRateCardDetailsData | undefined => {
+  if (!appliedRateCard || appliedRateCard.catalogPlan.id !== catalogPlanId) return undefined
 
-  return (
-    <>
-      <MainHeader.Configure
-        breadcrumb={[
-          { label: translate('text_62442e40cea25600b0b6d85a'), path: PLAN_PRICING_ROUTE },
-          { label: translate('text_17902866782060xpq8p9bh3a') },
-        ]}
-        entity={{ viewName: translate('text_17902866782060xpq8p9bh3a') }}
-      />
-      <DetailsPage.Container className="pt-6">
-        <GenericPlaceholder
-          title={translate('text_1790286678206zy40b7ktge5')}
-          subtitle={translate('text_17902866782061brel90bgxt')}
-          image={<ThinkingImage />}
-        />
-      </DetailsPage.Container>
-    </>
-  )
+  const { catalogPlan } = appliedRateCard
+
+  return {
+    context: 'plan',
+    parent: {
+      id: catalogPlan.id,
+      name: catalogPlan.name,
+      isLocked: catalogPlan.attachedToContracts,
+    },
+    appliedRateCard,
+  }
+}
+
+const CatalogPlanRateCardDetails = (): JSX.Element => {
+  const { catalogPlanId = '', appliedRateCardId = '' } = useParams()
+
+  const { data, loading, error } = useGetPlanAppliedRateCardForDetailsQuery({
+    variables: { appliedRateCardId },
+    skip: !appliedRateCardId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+  })
+
+  const detailsData = toDetailsData(data?.planAppliedRateCard, catalogPlanId)
+
+  useNotFoundRedirect({
+    error,
+    loading,
+    notFound: !!data && !detailsData,
+    redirectTo: APPLIED_RATE_CARD_DETAILS_CONFIG.plan.buildParentRateCardsPath(catalogPlanId),
+    translateKey: APPLIED_RATE_CARD_NOT_FOUND_TRANSLATION_KEY,
+  })
+
+  return <AppliedRateCardDetailsView data={detailsData} loading={loading} />
 }
 
 export default CatalogPlanRateCardDetails
