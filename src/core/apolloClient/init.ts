@@ -21,7 +21,7 @@ import { getItemFromLS } from '~/core/utils/localStorage'
 import { LagoApiError } from '~/generated/graphql'
 
 import { buildAuthHeaders } from './authHeaders'
-import { createCableLink, refreshCableConsumer } from './cableConsumer'
+import { CableSubscriptionError, createCableLink, refreshCableConsumer } from './cableConsumer'
 import { cache } from './cache'
 import { setupCachePersistor } from './cachePersistor'
 import { omitDeep } from './cacheUtils'
@@ -167,6 +167,9 @@ export const initializeApolloClient = async () => {
           error?.name === 'AbortError' || /signal aborted/i.test(error?.message || '')
 
         if (isAbortError) return false
+
+        // The API refused the subscription, or the socket was closed on purpose (logout)
+        if (error instanceof CableSubscriptionError) return false
 
         // Retry network errors (connection failures, timeouts, DNS failures)
         // Don't retry GraphQL errors (which have a result)

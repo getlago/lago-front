@@ -20,7 +20,6 @@ const isCustomerPortalPath = (pathname: string): boolean =>
 
 type AdminCredentials = { token: string | undefined; organizationId: string | undefined }
 
-// Shared by HTTP and websocket so both always authenticate as the same identity.
 const resolveAdminCredentials = (pathname: string): AdminCredentials | null => {
   if (isCustomerPortalPath(pathname)) return null
 
@@ -54,7 +53,6 @@ export const buildCableSubprotocols = (pathname: string): string[] => {
   return token ? [`${CABLE_TOKEN_SUBPROTOCOL_PREFIX}${token}`] : []
 }
 
-// Channel params are logged by the API, so they never carry a credential.
 export const buildCableConnectionParams = (pathname: string): Record<string, string> => {
   const organizationId = resolveAdminCredentials(pathname)?.organizationId
 

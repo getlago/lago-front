@@ -371,6 +371,29 @@ describe('cableConsumer', () => {
       })
     })
 
+    describe('WHEN the user logs out while a subscription waits for the socket to open', () => {
+      it('THEN should error the subscription', () => {
+        const link = cable.createCableLink(CABLE_URL)
+        const { observer } = subscribe(link)
+
+        cable.disconnectCableConsumer()
+
+        expect(observer.error).toHaveBeenCalledWith(expect.any(cable.CableSubscriptionError))
+      })
+    })
+
+    describe('WHEN the user logs out while a subscription is streaming', () => {
+      it('THEN should error the subscription', () => {
+        const link = cable.createCableLink(CABLE_URL)
+        const { observer } = subscribe(link)
+
+        serverOpens(sockets[0])
+        cable.disconnectCableConsumer()
+
+        expect(observer.error).toHaveBeenCalledWith(expect.any(cable.CableSubscriptionError))
+      })
+    })
+
     describe('WHEN a streaming socket was retired by a renewal', () => {
       it('THEN should close both the active and the retired sockets', () => {
         const link = cable.createCableLink(CABLE_URL)

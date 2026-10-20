@@ -1,4 +1,4 @@
-import { ApolloLink, FetchResult, Observable } from '@apollo/client'
+import { ApolloLink, FetchResult, Observable, Operation } from '@apollo/client'
 import { Consumer, createConsumer, Subscription } from '@rails/actioncable'
 import { print } from 'graphql'
 
@@ -10,10 +10,12 @@ import { buildCableConnectionParams, buildCableSubprotocols } from './authHeader
 type CableSubscriptions = Consumer['subscriptions'] & {
   subscriptions: unknown[]
   forget: (subscription: unknown) => unknown
+  notifyAll: (callbackName: string, ...args: unknown[]) => unknown
 }
 type CableConnection = {
   open: () => boolean
   isActive: () => boolean
+  isOpen: () => boolean
   webSocket?: WebSocket
 }
 
@@ -52,11 +54,18 @@ let cableUrl = ''
 let activeConsumer: Consumer | null = null
 const retiringConsumers = new Set<Consumer>()
 
-// `disconnect()` only closes an open socket: one still in its handshake would stay up and be
-// reused by the next subscription with the token it was opened with.
+// `disconnect()` only closes an open socket, and only an open socket tells its subscriptions
+// it closed. One still in its handshake would otherwise stay up, or leave them waiting.
 const discard = (consumer: Consumer): void => {
+  const connection = connectionOf(consumer)
+  const wasOpen = connection.isOpen()
+
   consumer.disconnect()
-  connectionOf(consumer).webSocket?.close()
+
+  if (wasOpen) return
+
+  connection.webSocket?.close()
+  subscriptionsOf(consumer).notifyAll('disconnected', { willAttemptReconnect: false })
 }
 
 // Both `remove` (unsubscribe) and `reject` (refused by the API) go through `forget`.
@@ -144,8 +153,8 @@ export const createCableLink = (url: string): ApolloLink => {
   })
 
   return new ApolloLink(
-    (operation) =>
-      new Observable<FetchResult>((observer) => {
+    (operation: Operation): Observable<FetchResult> =>
+      new Observable<FetchResult>((observer): (() => void) => {
         let isRejected = false
 
         const subscription: Subscription = getActiveConsumer().subscriptions.create(
