@@ -166,7 +166,7 @@ describe('buildCableConnectionParams', () => {
       localStorage.setItem('auth_token', 'admin-jwt')
       mockGetCurrentOrganizationId.mockReturnValue('org-123')
 
-      expect(buildCableConnectionParams()).toEqual({ organization_id: 'org-123' })
+      expect(buildCableConnectionParams(ADMIN_PATH)).toEqual({ organization_id: 'org-123' })
     })
   })
 
@@ -174,7 +174,15 @@ describe('buildCableConnectionParams', () => {
     it('THEN should send no params', () => {
       localStorage.setItem('auth_token', 'admin-jwt')
 
-      expect(buildCableConnectionParams()).toEqual({})
+      expect(buildCableConnectionParams(ADMIN_PATH)).toEqual({})
+    })
+  })
+
+  describe('WHEN on a customer portal route', () => {
+    it('THEN should not send the admin organization id', () => {
+      mockGetCurrentOrganizationId.mockReturnValue('org-123')
+
+      expect(buildCableConnectionParams(PORTAL_PATH)).toEqual({})
     })
   })
 })

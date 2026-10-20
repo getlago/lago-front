@@ -1,85 +1,78 @@
-import { Consumer, createConsumer } from '@rails/actioncable'
+import { ApolloLink, FetchResult, Observable } from '@apollo/client'
+import { Consumer, createConsumer, Subscription } from '@rails/actioncable'
+import { print } from 'graphql'
 
-import { buildCableSubprotocols } from './authHeaders'
+import { AUTH_TOKEN_LS_KEY } from '~/core/apolloClient/reactiveVars'
 
-const currentSubprotocols = (): string[] => buildCableSubprotocols(window.location.pathname)
+import { buildCableConnectionParams, buildCableSubprotocols } from './authHeaders'
 
-const openedWith = new WeakMap<Consumer, string>()
-
-// Read on every socket open, so a reconnect sends the current token.
-export const createCableConsumer = (url: string): Consumer => {
-  const consumer = createConsumer(url)
-
-  Object.defineProperty(consumer, 'subprotocols', {
-    get: (): string[] => {
-      const subprotocols = currentSubprotocols()
-
-      openedWith.set(consumer, subprotocols.join(','))
-
-      return subprotocols
-    },
-  })
-
-  return consumer
-}
-
-// @rails/actioncable's types omit the subscription list and `remove`.
+// @rails/actioncable's types omit these internals.
 type CableSubscriptions = Consumer['subscriptions'] & {
   subscriptions: unknown[]
-  remove: (subscription: unknown) => unknown
+  forget: (subscription: unknown) => unknown
+}
+type CableConnection = {
+  open: () => boolean
+  isActive: () => boolean
+  webSocket?: WebSocket
 }
 
 const subscriptionsOf = (consumer: Consumer): CableSubscriptions =>
   consumer.subscriptions as CableSubscriptions
 
+const connectionOf = (consumer: Consumer): CableConnection =>
+  (consumer as unknown as { connection: CableConnection }).connection
+
+const currentSubprotocols = (): string => buildCableSubprotocols(window.location.pathname).join(',')
+
+const openedWith = new WeakMap<Consumer, string>()
+
+// The route is fixed at creation, so a reconnect keeps the identity but sends the current token.
+export const createCableConsumer = (url: string, pathname: string): Consumer => {
+  const consumer = createConsumer(url)
+  const connection = connectionOf(consumer)
+  const open = connection.open
+
+  connection.open = (): boolean => {
+    if (!connection.isActive()) {
+      const subprotocols = buildCableSubprotocols(pathname)
+
+      // Typed read-only, but `Connection#open` reads it on every open.
+      ;(consumer as { subprotocols: string[] }).subprotocols = subprotocols
+      openedWith.set(consumer, subprotocols.join(','))
+    }
+
+    return open()
+  }
+
+  return consumer
+}
+
 let cableUrl = ''
 let activeConsumer: Consumer | null = null
 const retiringConsumers = new Set<Consumer>()
-
-const getActiveConsumer = (): Consumer => {
-  activeConsumer ??= createCableConsumer(cableUrl)
-
-  return activeConsumer
-}
-
-// ActionCableLink only calls `cable.subscriptions.create`, so new subscriptions always go to
-// the socket opened with the latest token.
-export const getCableConsumer = (url: string): Consumer => {
-  cableUrl = url
-
-  return {
-    subscriptions: {
-      create: (...args: Parameters<Consumer['subscriptions']['create']>) => {
-        refreshIfTokenChanged()
-
-        return getActiveConsumer().subscriptions.create(...args)
-      },
-    },
-  } as unknown as Consumer
-}
-
-type ConsumerWithSocket = { connection: { webSocket?: WebSocket } }
 
 // `disconnect()` only closes an open socket: one still in its handshake would stay up and be
 // reused by the next subscription with the token it was opened with.
 const discard = (consumer: Consumer): void => {
   consumer.disconnect()
-  ;(consumer as unknown as ConsumerWithSocket).connection.webSocket?.close()
+  connectionOf(consumer).webSocket?.close()
 }
 
+// Both `remove` (unsubscribe) and `reject` (refused by the API) go through `forget`.
 const retireWhenEmpty = (consumer: Consumer): void => {
   const subscriptions = subscriptionsOf(consumer)
-  const remove = subscriptions.remove.bind(subscriptions)
+  const forget = subscriptions.forget.bind(subscriptions)
 
-  subscriptions.remove = (subscription: unknown): unknown => {
-    const removed = remove(subscription)
+  subscriptions.forget = (subscription: unknown): unknown => {
+    const forgotten = forget(subscription)
 
     if (subscriptions.subscriptions.length === 0) {
       discard(consumer)
       retiringConsumers.delete(consumer)
     }
 
-    return removed
+    return forgotten
   }
 
   retiringConsumers.add(consumer)
@@ -101,13 +94,20 @@ export const refreshCableConsumer = (): void => {
   activeConsumer = null
 }
 
-// Another tab can renew the shared token, and only that tab's refresh link sees the new one.
-const refreshIfTokenChanged = (): void => {
+// Covers a token renewed in another tab and a move between admin and customer portal routes.
+const refreshIfIdentityChanged = (): void => {
   if (!activeConsumer) return
 
   const opened = openedWith.get(activeConsumer)
 
-  if (opened !== undefined && opened !== currentSubprotocols().join(',')) refreshCableConsumer()
+  if (opened !== undefined && opened !== currentSubprotocols()) refreshCableConsumer()
+}
+
+const getActiveConsumer = (): Consumer => {
+  refreshIfIdentityChanged()
+  activeConsumer ??= createCableConsumer(cableUrl, window.location.pathname)
+
+  return activeConsumer
 }
 
 export const disconnectCableConsumer = (): void => {
@@ -116,4 +116,68 @@ export const disconnectCableConsumer = (): void => {
   activeConsumer = null
   retiringConsumers.forEach(discard)
   retiringConsumers.clear()
+}
+
+const createChannelId = (): string =>
+  `${Date.now().toString(16)}${Math.random().toString(16).slice(2)}`
+
+type CablePayload = { result?: FetchResult; more?: boolean }
+
+export class CableSubscriptionError extends Error {
+  constructor(reason: 'rejected' | 'disconnected') {
+    super(`GraphQL subscription ${reason} by the server`)
+    this.name = 'CableSubscriptionError'
+  }
+}
+
+export const createCableLink = (url: string): ApolloLink => {
+  cableUrl = url
+
+  // A logout in another tab removes the shared token: sockets opened with it must close too.
+  window.addEventListener('storage', (event: StorageEvent): void => {
+    const isTokenRemoved =
+      event.key === null || (event.key === AUTH_TOKEN_LS_KEY && !event.newValue)
+
+    if (isTokenRemoved) disconnectCableConsumer()
+  })
+
+  return new ApolloLink(
+    (operation) =>
+      new Observable<FetchResult>((observer) => {
+        let isRejected = false
+
+        const subscription: Subscription = getActiveConsumer().subscriptions.create(
+          {
+            channel: 'GraphqlChannel',
+            channelId: createChannelId(),
+            ...buildCableConnectionParams(window.location.pathname),
+          },
+          {
+            // Runs again after a reconnect, which re-executes the subscription.
+            connected(this: Subscription): void {
+              this.perform('execute', {
+                query: print(operation.query),
+                variables: operation.variables,
+                operationName: operation.operationName,
+              })
+            },
+            received(payload: CablePayload): void {
+              if (payload?.result?.data || payload?.result?.errors) observer.next(payload.result)
+              if (!payload?.more) observer.complete()
+            },
+            rejected(): void {
+              isRejected = true
+              observer.error(new CableSubscriptionError('rejected'))
+            },
+            disconnected({ willAttemptReconnect }: { willAttemptReconnect: boolean }): void {
+              if (!willAttemptReconnect) observer.error(new CableSubscriptionError('disconnected'))
+            },
+          },
+        )
+
+        return (): void => {
+          if (!isRejected) subscription.unsubscribe()
+        }
+      }),
+  )
 }

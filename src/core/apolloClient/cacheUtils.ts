@@ -38,7 +38,6 @@ export const logOut = async (client: ApolloClient<object>, resetLocationHistory?
   resetDevtoolsNavigation()
   // Cancels active operations
   client.stop()
-  // Closes the websocket, which stays authenticated as the user who opened it
   disconnectCableConsumer()
   // Removes cached data (in-memory + IndexedDB-persisted blob) and prevents
   // active queries re-fetch
@@ -94,8 +93,6 @@ export const onLogIn = async (client: ApolloClient<object>, token: string) => {
     // `RootRedirect` (saved/SSO path → last-used slug → first accessible
     // membership), so login no longer selects or sets a current org id.
     updateAuthTokenVar(token)
-    // A socket opened before this login would keep the previous user's identity
-    disconnectCableConsumer()
   } catch {
     // If an error occurs, display a toast to inform the user that the login failed
     addToast({

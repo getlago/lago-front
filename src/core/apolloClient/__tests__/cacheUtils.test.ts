@@ -139,14 +139,6 @@ describe('onLogIn', () => {
     })
   })
 
-  describe('WHEN login succeeds while a websocket is open', () => {
-    it('THEN closes the websocket so it reopens with the new token', async () => {
-      await onLogIn(createMockClient(), 'token-123')
-
-      expect(mockDisconnectCableConsumer).toHaveBeenCalledTimes(1)
-    })
-  })
-
   describe('WHEN the current user cannot be fetched', () => {
     it('THEN shows a danger toast and does not set the auth token', async () => {
       const client = createMockClient()

@@ -5,7 +5,6 @@ import { getMainDefinition } from '@apollo/client/utilities'
 import { captureException, captureMessage } from '@sentry/react'
 import ApolloLinkTimeout from 'apollo-link-timeout'
 import { createUploadLink } from 'apollo-upload-client'
-import ActionCableLink from 'graphql-ruby-client/subscriptions/ActionCableLink'
 // IMPORTANT: Keep reactiveVars import before cacheUtils
 import { matchPath } from 'react-router'
 
@@ -21,8 +20,8 @@ import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { LagoApiError } from '~/generated/graphql'
 
-import { buildAuthHeaders, buildCableConnectionParams } from './authHeaders'
-import { getCableConsumer, refreshCableConsumer } from './cableConsumer'
+import { buildAuthHeaders } from './authHeaders'
+import { createCableLink, refreshCableConsumer } from './cableConsumer'
 import { cache } from './cache'
 import { setupCachePersistor } from './cachePersistor'
 import { omitDeep } from './cacheUtils'
@@ -41,12 +40,7 @@ const SLOW_QUERY_THRESHOLD_MS = 8000 // threshold for considering a query as "sl
 const { apiUrl, appVersion } = envGlobalVar()
 
 const { cableUrl } = buildWebSocketUrl(apiUrl)
-const subscriptionLink = new ActionCableLink({
-  cable: getCableConsumer(cableUrl),
-  channelName: 'GraphqlChannel',
-  actionName: 'execute',
-  connectionParams: () => buildCableConnectionParams(),
-})
+const subscriptionLink = createCableLink(cableUrl)
 
 const hasSubscriptionOperation = ({ query }: Operation) => {
   const definition = getMainDefinition(query)
