@@ -28,7 +28,7 @@ export const useResetRatePhaseOverrideDialog = (): {
       })
     }
 
-    centralizedDialog.open({
+    void centralizedDialog.open({
       title: translate('text_1792504558237e30tbqnye82', { name: phase.name }),
       description: translate('text_1792504558237c76cown33ob'),
       colorVariant: 'danger',

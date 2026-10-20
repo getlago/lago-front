@@ -55,7 +55,7 @@ export const useDeleteRatePhaseDialog = (): {
       })
     }
 
-    centralizedDialog.open({
+    void centralizedDialog.open({
       title: translate('text_1792504558237fi9a27bn0p2', { name: phase.name }),
       description: translate('text_1792504558237qwb88fdpgp7'),
       colorVariant: 'danger',
