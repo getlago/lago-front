@@ -1,4 +1,4 @@
-import { AnyFormApi } from '@tanstack/react-form'
+import { AnyFormApi, StandardSchemaV1Issue } from '@tanstack/react-form'
 import { z } from 'zod'
 
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
@@ -20,6 +20,21 @@ export const notifyOnToBoolean = (notifyOn?: NotifyOnEnum[] | null): boolean =>
 
 export const booleanToNotifyOn = (notifyWhenResolved: boolean): NotifyOnEnum[] =>
   notifyWhenResolved ? [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved] : [NotifyOnEnum.Triggered]
+
+export const getThresholdCodeErrorsFromForm = (
+  errors: Record<string, readonly StandardSchemaV1Issue[]> | undefined,
+): Record<number, string> => {
+  const codeErrors: Record<number, string> = {}
+
+  Object.entries(errors ?? {}).forEach(([path, issues]) => {
+    const match = /^thresholds\[(\d+)\]\.code$/.exec(path)
+    const message = issues[0]?.message
+
+    if (match && message) codeErrors[Number(match[1])] = message
+  })
+
+  return codeErrors
+}
 
 // Mirrors the API `validate_notify_on!`: an opted-in threshold needs a non-blank, unique code.
 export const getThresholdCodeErrors = (

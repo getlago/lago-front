@@ -1,6 +1,7 @@
 import {
   booleanToNotifyOn,
   getThresholdCodeErrors,
+  getThresholdCodeErrorsFromForm,
   notifyOnToBoolean,
   patchThreshold,
   SortableThreshold,
@@ -298,5 +299,21 @@ describe('getThresholdCodeErrors', () => {
         row({ code: 'hard', notifyOn: TRIGGERED_AND_RESOLVED }),
       ]),
     ).toEqual({})
+  })
+})
+
+describe('getThresholdCodeErrorsFromForm', () => {
+  it('maps nested code issues without recomputing their rule', () => {
+    expect(
+      getThresholdCodeErrorsFromForm({
+        'thresholds[1].code': [{ message: 'fake-refine-rule', path: ['thresholds', 1, 'code'] }],
+        'thresholds[0].value': [{ message: 'invalid-value' }],
+        code: [{ message: 'invalid-alert-code' }],
+      }),
+    ).toEqual({ 1: 'fake-refine-rule' })
+  })
+
+  it('clears cells when the form no longer has issues', () => {
+    expect(getThresholdCodeErrorsFromForm(undefined)).toEqual({})
   })
 })

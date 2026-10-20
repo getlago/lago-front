@@ -7,7 +7,11 @@ import { AlertNameAndCodeSection } from '~/components/alerts/AlertNameAndCodeSec
 import { ResolvedWebhookNotice } from '~/components/alerts/ResolvedWebhookNotice'
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
 import { useAlertFormLeaveGuards } from '~/components/alerts/useAlertFormLeaveGuards'
-import { createThresholdSetters, setCodeAlreadyExistsError } from '~/components/alerts/utils'
+import {
+  createThresholdSetters,
+  getThresholdCodeErrorsFromForm,
+  setCodeAlreadyExistsError,
+} from '~/components/alerts/utils'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
@@ -213,7 +217,8 @@ const WalletAlertForm = () => {
     },
   })
 
-  const showCodeErrors = useStore(form.store, (state) => state.submissionAttempts > 0)
+  const dynamicErrors = useStore(form.store, (state) => state.errorMap.onDynamic)
+  const codeErrors = getThresholdCodeErrorsFromForm(dynamicErrors)
   const isDirty = useStore(form.store, (state) => state.isDirty)
   const alertType = useStore(form.store, (state) => state.values.alertType)
   const thresholds = useStore(form.store, (state) => state.values.thresholds)
@@ -339,7 +344,7 @@ const WalletAlertForm = () => {
 
                     {!!alertType && (
                       <AlertThresholds
-                        showCodeErrors={showCodeErrors}
+                        codeErrors={codeErrors}
                         thresholds={thresholds}
                         setThresholds={setThresholds}
                         setThresholdValue={setThresholdValue}

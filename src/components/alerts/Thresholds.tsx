@@ -1,11 +1,7 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import { useMemo } from 'react'
 
-import {
-  booleanToNotifyOn,
-  getThresholdCodeErrors,
-  notifyOnToBoolean,
-} from '~/components/alerts/utils'
+import { booleanToNotifyOn, notifyOnToBoolean } from '~/components/alerts/utils'
 import { Button } from '~/components/designSystem/Button'
 import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -64,7 +60,6 @@ const ValueInput = ({
   translate: TranslateFunc
   unitsLabel?: string
   allowNegativeValues?: boolean
-  showCodeErrors?: boolean
 }): JSX.Element => {
   if (shouldHandleUnits) {
     const beforeChangeFormatter: ValueFormatterType[] = [
@@ -158,18 +153,7 @@ const DECREASING_COPY_KEYS: typeof INCREASING_COPY_KEYS = {
   recurringRow: 'text_1791364076473tj13xy14d28',
 }
 
-const AlertThresholds = ({
-  thresholds,
-  setThresholds,
-  setThresholdValue,
-  currency,
-  shouldHandleUnits,
-  unitsLabel,
-  unitsTitle,
-  reversedThreshold,
-  allowNegativeValues,
-  showCodeErrors = false,
-}: {
+export type AlertThresholdsProps = {
   thresholds: ThresholdInput[]
   setThresholds: (thresholds: ThresholdInput[]) => void
   setThresholdValue: ({
@@ -187,8 +171,21 @@ const AlertThresholds = ({
   unitsTitle?: string
   reversedThreshold?: boolean
   allowNegativeValues?: boolean
-  showCodeErrors?: boolean
-}): JSX.Element => {
+  codeErrors: Record<number, string>
+}
+
+const AlertThresholds = ({
+  thresholds,
+  setThresholds,
+  setThresholdValue,
+  currency,
+  shouldHandleUnits,
+  unitsLabel,
+  unitsTitle,
+  reversedThreshold,
+  allowNegativeValues,
+  codeErrors,
+}: AlertThresholdsProps): JSX.Element => {
   const { translate } = useInternationalization()
   const copyKeys = reversedThreshold ? DECREASING_COPY_KEYS : INCREASING_COPY_KEYS
 
@@ -233,8 +230,6 @@ const AlertThresholds = ({
     () => thresholds.filter((threshold) => !threshold.recurring),
     [thresholds],
   )
-
-  const codeErrors = showCodeErrors ? getThresholdCodeErrors(thresholds) : {}
 
   const renderCodeInput = (row: ThresholdInput, index: number): JSX.Element => {
     const codeError = codeErrors[index]

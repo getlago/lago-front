@@ -2,6 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { RESOLVED_WEBHOOK_NOTICE_TEST_ID } from '~/components/alerts/ResolvedWebhookNotice'
+import { AlertThresholdsProps, THRESHOLDS_CODE_ERROR_TEST_ID } from '~/components/alerts/Thresholds'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   AlertTypeEnum,
@@ -133,40 +134,50 @@ const SET_THRESHOLD_VALUE_BUTTON = 'mock-set-threshold-value'
 const NOTIFY_WHEN_RESOLVED_BUTTON = 'mock-notify-when-resolved'
 const CLEAR_THRESHOLD_CODE_BUTTON = 'mock-clear-threshold-code'
 
-jest.mock('~/components/alerts/Thresholds', () => ({
-  __esModule: true,
-  default: ({
-    setThresholds,
-    setThresholdValue,
-  }: {
-    setThresholds: (thresholds: unknown[]) => void
-    setThresholdValue: (params: { index: number; key: string; newValue: unknown }) => void
-  }) => (
-    <div data-test="mock-alert-thresholds">
-      <button
-        type="button"
-        data-test={SET_THRESHOLDS_BUTTON}
-        onClick={() => setThresholds([{ code: 'first', recurring: false, value: '10' }])}
-      />
-      <button
-        type="button"
-        data-test={SET_THRESHOLD_VALUE_BUTTON}
-        onClick={() => setThresholdValue({ index: 0, key: 'value', newValue: '25' })}
-      />
-      <button
-        type="button"
-        data-test={NOTIFY_WHEN_RESOLVED_BUTTON}
-        onClick={() => setThresholdValue({ index: 0, key: 'notifyOn', newValue: true })}
-      />
-      <button
-        type="button"
-        data-test={CLEAR_THRESHOLD_CODE_BUTTON}
-        onClick={() => setThresholdValue({ index: 0, key: 'code', newValue: undefined })}
-      />
-    </div>
-  ),
-  isThresholdValueValid: () => false,
-}))
+let mockUseRealThresholds = false
+
+jest.mock('~/components/alerts/Thresholds', () => {
+  const actual = jest.requireActual<typeof import('~/components/alerts/Thresholds')>(
+    '~/components/alerts/Thresholds',
+  )
+
+  return {
+    __esModule: true,
+    ...actual,
+    default: (props: AlertThresholdsProps): JSX.Element => {
+      if (mockUseRealThresholds) return <actual.default {...props} />
+
+      const { setThresholds, setThresholdValue } = props
+
+      return (
+        <div data-test="mock-alert-thresholds">
+          <button
+            type="button"
+            data-test={SET_THRESHOLDS_BUTTON}
+            onClick={() => setThresholds([{ code: 'first', recurring: false, value: '10' }])}
+          />
+          <button
+            type="button"
+            data-test={SET_THRESHOLD_VALUE_BUTTON}
+            onClick={() => setThresholdValue({ index: 0, key: 'value', newValue: '25' })}
+          />
+          <button
+            type="button"
+            data-test={NOTIFY_WHEN_RESOLVED_BUTTON}
+            onClick={() => setThresholdValue({ index: 0, key: 'notifyOn', newValue: true })}
+          />
+          <button
+            type="button"
+            data-test={CLEAR_THRESHOLD_CODE_BUTTON}
+            onClick={() => setThresholdValue({ index: 0, key: 'code', newValue: undefined })}
+          />
+        </div>
+      )
+    },
+    isThresholdValueValid: (...args: Parameters<typeof actual.isThresholdValueValid>): boolean =>
+      mockUseRealThresholds ? actual.isThresholdValueValid(...args) : false,
+  }
+})
 
 jest.mock('~/styles/mainObjectsForm', () => ({
   FormLoadingSkeleton: ({ id }: { id: string }) => (
@@ -289,6 +300,7 @@ const pickAlertType = async (
 describe('AlertForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockUseRealThresholds = false
     mockCanManageWebhooks = true
     mockCreateSubscriptionAlert.mockResolvedValue({
       data: { createSubscriptionAlert: { id: 'alert-1' } },
@@ -1013,6 +1025,48 @@ describe('AlertForm', () => {
         expect(testMockNavigateFn).toHaveBeenCalled()
       })
     })
+  })
+
+  it('shows code errors after submit and clears them as the real cells change', async () => {
+    mockUseRealThresholds = true
+    setParams({ subscriptionId: 'subscription-1', customerId: 'customer-1', alertId: 'alert-1' })
+    mockLoadedQueries({
+      alert: {
+        ...existingAlert,
+        thresholds: [
+          { code: 'warn', value: '8000', recurring: false, notifyOn: [NotifyOnEnum.Triggered] },
+          {
+            code: '',
+            value: '10000',
+            recurring: false,
+            notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+          },
+        ],
+      },
+    })
+    const user = userEvent.setup()
+
+    render(<AlertForm />)
+
+    const codeCells = screen.getAllByPlaceholderText('text_1747921154885jqsl0c9xhro')
+    const submit = screen.getByTestId(SUBMIT_SUBSCRIPTION_ALERT_TEST_ID)
+
+    expect(screen.queryByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).not.toBeInTheDocument()
+    await user.click(submit)
+    expect(screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toHaveLength(1)
+    expect(codeCells[1]).toHaveAttribute('aria-invalid', 'true')
+    expect(mockUpdateSubscriptionAlert).not.toHaveBeenCalled()
+
+    await user.type(codeCells[1], 'warn')
+    expect(screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toHaveLength(2)
+    expect(codeCells[0]).toHaveAttribute('aria-invalid', 'true')
+    expect(submit).toBeDisabled()
+
+    await user.clear(codeCells[1])
+    await user.type(codeCells[1], 'hard')
+    expect(screen.queryByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).not.toBeInTheDocument()
+    expect(submit).toBeEnabled()
+    expect(mockUpdateSubscriptionAlert).not.toHaveBeenCalled()
   })
 
   describe('GIVEN the "Notify when resolved" setting', () => {

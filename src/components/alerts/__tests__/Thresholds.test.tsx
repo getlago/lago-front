@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 
+import { getThresholdCodeErrorsFromForm } from '~/components/alerts/utils'
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import { CurrencyEnum, NotifyOnEnum, ThresholdInput } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
@@ -61,6 +62,7 @@ const getMockThresholdsWithRecurring = (): ThresholdInput[] => [
 
 const defaultProps = {
   currency: CurrencyEnum.Usd,
+  codeErrors: {},
   setThresholds: jest.fn(),
   setThresholdValue: jest.fn(),
 }
@@ -518,7 +520,7 @@ describe('GIVEN the "Notify when resolved" column', () => {
           { code: 'warn', value: '10', recurring: false, notifyOn: TRIGGERED },
           { code: undefined, value: '20', recurring: false, notifyOn: TRIGGERED_AND_RESOLVED },
         ],
-        { showCodeErrors: true },
+        { codeErrors: { 1: 'text_1792439710542tbnwvrxl0g7' } },
       )
 
       const errorCells = screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)
@@ -537,7 +539,7 @@ describe('GIVEN the "Notify when resolved" column', () => {
           { code: 'hard', value: '10', recurring: false, notifyOn: TRIGGERED },
           { code: 'hard', value: '20', recurring: false, notifyOn: TRIGGERED_AND_RESOLVED },
         ],
-        { showCodeErrors: true },
+        { codeErrors: { 0: 'text_17924397105421fihqq5j6ns', 1: 'text_17924397105421fihqq5j6ns' } },
       )
 
       expect(screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toHaveLength(2)
@@ -585,9 +587,27 @@ describe('duplicate codes on recurring rows', () => {
         },
         { code: 'same', value: '5', recurring: true, notifyOn: [NotifyOnEnum.Triggered] },
       ],
-      { showCodeErrors: true },
+      { codeErrors: { 0: 'text_17924397105421fihqq5j6ns', 1: 'text_17924397105421fihqq5j6ns' } },
     )
 
     expect(screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toHaveLength(2)
   })
+})
+
+it('renders a new validator rule on its indexed code cell', async () => {
+  await renderComponent(
+    [
+      { code: 'warn', value: '80', recurring: false },
+      { code: 'hard', value: '100', recurring: false },
+    ],
+    {
+      codeErrors: getThresholdCodeErrorsFromForm({
+        'thresholds[1].code': [{ message: 'fake-refine-rule', path: ['thresholds', 1, 'code'] }],
+      }),
+    },
+  )
+
+  expect(screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toHaveLength(1)
+  expect(screen.getByDisplayValue('warn')).toHaveAttribute('aria-invalid', 'false')
+  expect(screen.getByDisplayValue('hard')).toHaveAttribute('aria-invalid', 'true')
 })
