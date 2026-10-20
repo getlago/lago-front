@@ -4674,6 +4674,7 @@ export enum EventTypeEnum {
   AddOnCreated = 'add_on_created',
   AddOnDeleted = 'add_on_deleted',
   AddOnUpdated = 'add_on_updated',
+  AlertResolved = 'alert_resolved',
   AlertTriggered = 'alert_triggered',
   All = 'all',
   BillableMetricCreated = 'billable_metric_created',
@@ -15831,7 +15832,7 @@ export type GetWalletAlertsQueryVariables = Exact<{
 }>;
 
 
-export type GetWalletAlertsQuery = { __typename?: 'Query', walletAlerts: { __typename?: 'AlertCollection', collection: Array<{ __typename?: 'Alert', id: string, alertType: AlertTypeEnum, walletId?: string | null, code: string, name?: string | null, thresholds?: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string }> | null }> } };
+export type GetWalletAlertsQuery = { __typename?: 'Query', walletAlerts: { __typename?: 'AlertCollection', collection: Array<{ __typename?: 'Alert', id: string, alertType: AlertTypeEnum, walletId?: string | null, code: string, name?: string | null, thresholds?: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string, notifyOn: Array<NotifyOnEnum> }> | null }> } };
 
 export type WalletTransactionDetailsFragment = { __typename?: 'WalletTransaction', id: string, name?: string | null, amount: string, createdAt: any, transactionType: WalletTransactionTransactionTypeEnum, creditAmount: string, settledAt?: any | null, failedAt?: any | null, status: WalletTransactionStatusEnum, transactionStatus: WalletTransactionTransactionStatusEnum, source: WalletTransactionSourceEnum, invoiceRequiresSuccessfulPayment: boolean, priority: number, purchaseOrderNumber?: string | null, remainingAmountCents?: any | null, remainingCreditAmount?: string | null, metadata?: Array<{ __typename?: 'WalletTransactionMetadataObject', key: string, value: string }> | null, invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, customer: { __typename?: 'Customer', id: string }, payments?: Array<{ __typename?: 'Payment', id: string, providerPaymentId?: string | null, paymentProviderType?: ProviderTypeEnum | null, payablePaymentStatus?: PayablePaymentStatusEnum | null }> | null } | null };
 
@@ -16464,7 +16465,7 @@ export type GetSubscriptionAlertToEditQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionAlertToEditQuery = { __typename?: 'Query', subscriptionAlert?: { __typename?: 'Alert', id: string, alertType: AlertTypeEnum, code: string, name?: string | null, billableMetric?: { __typename?: 'BillableMetric', id: string, code: string, name: string } | null, thresholds?: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string }> | null } | null };
+export type GetSubscriptionAlertToEditQuery = { __typename?: 'Query', subscriptionAlert?: { __typename?: 'Alert', id: string, alertType: AlertTypeEnum, code: string, name?: string | null, billableMetric?: { __typename?: 'BillableMetric', id: string, code: string, name: string } | null, thresholds?: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string, notifyOn: Array<NotifyOnEnum> }> | null } | null };
 
 export type GetExistingAlertsOfSubscriptionQueryVariables = Exact<{
   subscriptionExternalId: Scalars['String']['input'];
@@ -19551,7 +19552,7 @@ export type GetWalletAlertToEditQueryVariables = Exact<{
 }>;
 
 
-export type GetWalletAlertToEditQuery = { __typename?: 'Query', walletAlert?: { __typename?: 'Alert', id: string, alertType: AlertTypeEnum, walletId?: string | null, code: string, name?: string | null, thresholds?: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string }> | null } | null };
+export type GetWalletAlertToEditQuery = { __typename?: 'Query', walletAlert?: { __typename?: 'Alert', id: string, alertType: AlertTypeEnum, walletId?: string | null, code: string, name?: string | null, thresholds?: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string, notifyOn: Array<NotifyOnEnum> }> | null } | null };
 
 export type CreateWalletAlertMutationVariables = Exact<{
   input: CreateCustomerWalletAlertInput;
@@ -38707,6 +38708,7 @@ export const GetWalletAlertsDocument = gql`
         code
         recurring
         value
+        notifyOn
       }
     }
   }
@@ -41812,6 +41814,7 @@ export const GetSubscriptionAlertToEditDocument = gql`
       code
       recurring
       value
+      notifyOn
     }
   }
 }
@@ -55331,6 +55334,7 @@ export const GetWalletAlertToEditDocument = gql`
       code
       recurring
       value
+      notifyOn
     }
   }
 }
