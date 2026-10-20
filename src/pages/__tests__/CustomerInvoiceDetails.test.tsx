@@ -1097,7 +1097,8 @@ describe('CustomerInvoiceDetails', () => {
 
   describe('GIVEN the regenerate authorization is granted', () => {
     const REGENERATE_LABEL = 'text_1750678506388oynw9hd01l9'
-    const VOID_LABEL = 'text_1750678506388d4fr5etxbhh'
+    const VOID_AND_REGENERATE_LABEL = 'text_1750678506388d4fr5etxbhh'
+    const VOID_LABEL = 'text_65269b43d4d2b15dd929a259'
 
     const getVisibleDropdownLabels = (): Array<string | undefined> => {
       const dropdownAction = capturedConfig?.actions?.items[0]
@@ -1124,6 +1125,12 @@ describe('CustomerInvoiceDetails', () => {
 
         expect(getVisibleDropdownLabels()).toContain(REGENERATE_LABEL)
       })
+
+      it('THEN should label the void action as void and/or regenerate', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(getVisibleDropdownLabels()).toContain(VOID_AND_REGENERATE_LABEL)
+      })
     })
 
     describe('WHEN the product catalog feature flag is on', () => {
@@ -1137,10 +1144,11 @@ describe('CustomerInvoiceDetails', () => {
         expect(getVisibleDropdownLabels()).not.toContain(REGENERATE_LABEL)
       })
 
-      it('THEN should keep the void action', () => {
+      it('THEN should label the void action as void only', () => {
         render(<CustomerInvoiceDetails />)
 
         expect(getVisibleDropdownLabels()).toContain(VOID_LABEL)
+        expect(getVisibleDropdownLabels()).not.toContain(VOID_AND_REGENERATE_LABEL)
       })
     })
   })

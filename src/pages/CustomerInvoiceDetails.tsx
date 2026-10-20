@@ -961,9 +961,10 @@ const CustomerInvoiceDetails = () => {
           },
         },
         {
-          label: invoice?.customer?.deletedAt
-            ? translate('text_65269b43d4d2b15dd929a259')
-            : translate('text_1750678506388d4fr5etxbhh'),
+          label:
+            invoice?.customer?.deletedAt || isProductCatalogEnabled
+              ? translate('text_65269b43d4d2b15dd929a259')
+              : translate('text_1750678506388d4fr5etxbhh'),
           hidden: !authorizations.canVoid,
           onClick: (closePopper: () => void) => {
             if (customerId && invoiceId) {

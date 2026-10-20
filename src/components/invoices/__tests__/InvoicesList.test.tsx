@@ -1202,7 +1202,7 @@ describe('InvoicesList', () => {
 
       await waitFor(() => user.click(actionButton))
 
-      const voidLink = screen.getByRole('link', { name: 'text_1750678506388d4fr5etxbhh' })
+      const voidLink = screen.getByRole('link', { name: 'text_65269b43d4d2b15dd929a259' })
       const regenerateLink = screen.queryByRole('link', { name: 'text_1750678506388oynw9hd01l9' })
 
       expect(voidLink).toBeInTheDocument()

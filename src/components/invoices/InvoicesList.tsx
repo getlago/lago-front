@@ -302,9 +302,10 @@ const InvoicesList = ({
     const voidInvoiceAction: ActionItem<InvoiceItem> | null = actions.canVoid(invoice)
       ? {
           startIcon: 'stop',
-          title: invoice?.customer?.deletedAt
-            ? translate('text_65269b43d4d2b15dd929a259')
-            : translate('text_1750678506388d4fr5etxbhh'),
+          title:
+            invoice?.customer?.deletedAt || isProductCatalogEnabled
+              ? translate('text_65269b43d4d2b15dd929a259')
+              : translate('text_1750678506388d4fr5etxbhh'),
           link: () =>
             generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
               customerId: invoice?.customer?.id,
