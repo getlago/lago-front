@@ -174,8 +174,8 @@ Merge the three passes into one list:
 5. Number the survivors across buckets and present them.
 
 Write every finding in plain language with a single recommendation, as
-`references/system-review.md` describes. The person running babysit may not be a
-frontend engineer, so "all" must always be a safe answer.
+`references/system-review.md` describes. Anyone can run babysit, and whoever runs it
+makes the triage decisions; plain language is what lets them decide well.
 
 ```
 ### Review - PR #4421 (feat(analytics): usage graph)
@@ -203,8 +203,9 @@ Create the follow-up tickets? (yes / 3 / no)
 Follow-ups are never fixed in this PR. For each one the user confirms, create a Linear
 issue with `save_issue`: the Front-end team (find its id with `list_teams`, never
 hardcode it), a title that names the problem, and a description with the plain-language
-finding, the evidence `file:line`, and the PR URL. Unconfirmed follow-ups stay in the
-review summary only. Never create a ticket without that confirmation.
+finding, the evidence `file:line`, and the PR URL. Never create a ticket without that
+confirmation. A follow-up the user keeps but does not ticket appears in the review
+summary as not ticketed; one the user drops appears nowhere.
 
 Nothing is posted to GitHub in this phase. No findings -> say so and go straight to the
 loop. This is the one point in the run that waits for the user.
