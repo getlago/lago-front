@@ -32,6 +32,8 @@ export const useAppliedRateCardRowActions = ({
   const { openRemoveAppliedRateCardDialog } = useRemoveAppliedRateCardDialog()
   const config = APPLIED_RATE_CARD_CONTEXT_CONFIG[context]
 
+  // `PlanRateCards::DestroyService` rejects a plan attached to contracts (`plan_locked`),
+  // `ContractRateCards::DestroyService` rejects a non-pending contract (`contract_locked`).
   const getRemoval = (): RateCardRemoval => {
     if (!hasPermissions([config.updatePermission])) return { status: 'hidden' }
     if (isRemovalLocked) return { status: 'disabled' }

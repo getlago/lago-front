@@ -134,6 +134,7 @@ export const AppliedRateCardPhasesTable = ({
         metadata={metadata}
         onPageChange={setCurrentPage}
         pageSize={APPLIED_RATE_CARD_PHASES_PAGE_SIZE}
+        sticky={false}
       >
         <Table
           name="applied-rate-card-phases"

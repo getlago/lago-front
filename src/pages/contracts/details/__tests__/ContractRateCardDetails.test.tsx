@@ -157,6 +157,11 @@ describe('ContractRateCardDetails', () => {
       expect(parentCrumb).toHaveTextContent('Enterprise plan')
       expect(parentCrumb).toHaveAttribute('href', CONTRACT_RATE_CARDS_SECTION_PATH)
       expect(testMockNavigateFn).not.toHaveBeenCalled()
+
+      await userEvent.click(screen.getAllByTestId(APPLIED_RATE_CARD_DETAILS_ACTIONS_TEST_ID)[0])
+
+      expect(screen.getByTestId(APPLIED_RATE_CARD_DETAILS_CREATE_PHASE_TEST_ID)).not.toBeDisabled()
+      expect(screen.getByTestId(APPLIED_RATE_CARD_DETAILS_REMOVE_TEST_ID)).not.toBeDisabled()
     })
   })
 

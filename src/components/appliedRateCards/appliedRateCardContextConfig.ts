@@ -1,7 +1,5 @@
 import { AppliedRateCardContext } from './types'
 
-// `PlanRateCards::DestroyService` rejects a plan attached to contracts (`plan_locked`),
-// `ContractRateCards::DestroyService` rejects a non-pending contract (`contract_locked`).
 export const APPLIED_RATE_CARD_CONTEXT_CONFIG = {
   plan: {
     parentTypename: 'CatalogPlan',
