@@ -11,7 +11,10 @@ import {
   LagoApiError,
   PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc,
   PlanAppliedRateCardForDetailsFragment,
+  ProductCategoryForCatalogRelationsFragmentDoc,
+  ProductFilterForCatalogRelationsFragmentDoc,
   ProductForAppliedRateCardDrawerFragmentDoc,
+  ProductForCatalogRelationsFragmentDoc,
   RateCardForAppliedRateCardDrawerFragmentDoc,
   RatePhaseForDrawerFragmentDoc,
   useGetPlanAppliedRateCardForDetailsQuery,
@@ -31,10 +34,19 @@ gql`
     product {
       id
       ...ProductForAppliedRateCardDrawer
+      ...ProductForCatalogRelations
+      productCategory {
+        id
+        ...ProductCategoryForCatalogRelations
+      }
     }
     rateCard {
       id
       ...RateCardForAppliedRateCardDrawer
+      productFilter {
+        id
+        ...ProductFilterForCatalogRelations
+      }
     }
     ratePhases {
       id
@@ -51,7 +63,10 @@ gql`
 
   ${PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc}
   ${ProductForAppliedRateCardDrawerFragmentDoc}
+  ${ProductForCatalogRelationsFragmentDoc}
+  ${ProductCategoryForCatalogRelationsFragmentDoc}
   ${RateCardForAppliedRateCardDrawerFragmentDoc}
+  ${ProductFilterForCatalogRelationsFragmentDoc}
   ${RatePhaseForDrawerFragmentDoc}
 `
 

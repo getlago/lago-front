@@ -24490,6 +24490,20 @@ export const ProductForAppliedRateCardDrawerFragmentDoc = gql`
   }
 }
     `;
+export const ProductForCatalogRelationsFragmentDoc = gql`
+    fragment ProductForCatalogRelations on Product {
+  id
+  name
+  invoiceDisplayName
+}
+    `;
+export const ProductCategoryForCatalogRelationsFragmentDoc = gql`
+    fragment ProductCategoryForCatalogRelations on ProductCategory {
+  id
+  name
+  invoiceDisplayName
+}
+    `;
 export const PropertiesForActiveRateFragmentDoc = gql`
     fragment PropertiesForActiveRate on RateProperties {
   amount
@@ -24618,6 +24632,13 @@ export const RateCardForAppliedRateCardDrawerFragmentDoc = gql`
   }
 }
     ${ActiveRateForRatePhaseFragmentDoc}`;
+export const ProductFilterForCatalogRelationsFragmentDoc = gql`
+    fragment ProductFilterForCatalogRelations on ProductFilter {
+  id
+  name
+  invoiceDisplayName
+}
+    `;
 export const RatePhaseForDrawerFragmentDoc = gql`
     fragment RatePhaseForDrawer on RatePhase {
   id
@@ -24650,10 +24671,19 @@ export const PlanAppliedRateCardForDetailsFragmentDoc = gql`
   product {
     id
     ...ProductForAppliedRateCardDrawer
+    ...ProductForCatalogRelations
+    productCategory {
+      id
+      ...ProductCategoryForCatalogRelations
+    }
   }
   rateCard {
     id
     ...RateCardForAppliedRateCardDrawer
+    productFilter {
+      id
+      ...ProductFilterForCatalogRelations
+    }
   }
   ratePhases {
     id
@@ -24662,7 +24692,10 @@ export const PlanAppliedRateCardForDetailsFragmentDoc = gql`
 }
     ${PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc}
 ${ProductForAppliedRateCardDrawerFragmentDoc}
+${ProductForCatalogRelationsFragmentDoc}
+${ProductCategoryForCatalogRelationsFragmentDoc}
 ${RateCardForAppliedRateCardDrawerFragmentDoc}
+${ProductFilterForCatalogRelationsFragmentDoc}
 ${RatePhaseForDrawerFragmentDoc}`;
 export const CatalogPlanForCatalogPlansTabListFragmentDoc = gql`
     fragment CatalogPlanForCatalogPlansTabList on CatalogPlan {
@@ -24741,13 +24774,6 @@ export const ProductForProductDetailsFragmentDoc = gql`
 ${ProductForFilterPreviewFragmentDoc}
 ${ProductForDrawerFragmentDoc}
 ${ProductForDeleteProductDialogFragmentDoc}`;
-export const ProductCategoryForCatalogRelationsFragmentDoc = gql`
-    fragment ProductCategoryForCatalogRelations on ProductCategory {
-  id
-  name
-  invoiceDisplayName
-}
-    `;
 export const ProductForDetailsOverviewFragmentDoc = gql`
     fragment ProductForDetailsOverview on Product {
   id
@@ -24790,13 +24816,6 @@ export const ProductFilterForProductFilterDetailsFragmentDoc = gql`
     ${RateCardForPreviewProductFilterFragmentDoc}
 ${ProductFilterForDrawerFragmentDoc}
 ${ProductFilterForDeleteProductFilterDialogFragmentDoc}`;
-export const ProductForCatalogRelationsFragmentDoc = gql`
-    fragment ProductForCatalogRelations on Product {
-  id
-  name
-  invoiceDisplayName
-}
-    `;
 export const ProductFilterForDetailsOverviewFragmentDoc = gql`
     fragment ProductFilterForDetailsOverview on ProductFilter {
   id
@@ -24833,13 +24852,6 @@ ${ProductFilterForDrawerFragmentDoc}`;
 export const RateCardForRateCardDetailsFragmentDoc = gql`
     fragment RateCardForRateCardDetails on RateCard {
   id
-}
-    `;
-export const ProductFilterForCatalogRelationsFragmentDoc = gql`
-    fragment ProductFilterForCatalogRelations on ProductFilter {
-  id
-  name
-  invoiceDisplayName
 }
     `;
 export const RateCardForDrawerFragmentDoc = gql`
@@ -25153,10 +25165,19 @@ export const ContractAppliedRateCardForDetailsFragmentDoc = gql`
   product {
     id
     ...ProductForAppliedRateCardDrawer
+    ...ProductForCatalogRelations
+    productCategory {
+      id
+      ...ProductCategoryForCatalogRelations
+    }
   }
   rateCard {
     id
     ...RateCardForAppliedRateCardDrawer
+    productFilter {
+      id
+      ...ProductFilterForCatalogRelations
+    }
   }
   ratePhases {
     id
@@ -25165,7 +25186,10 @@ export const ContractAppliedRateCardForDetailsFragmentDoc = gql`
 }
     ${ContractAppliedRateCardForAppliedRateCardsTableFragmentDoc}
 ${ProductForAppliedRateCardDrawerFragmentDoc}
+${ProductForCatalogRelationsFragmentDoc}
+${ProductCategoryForCatalogRelationsFragmentDoc}
 ${RateCardForAppliedRateCardDrawerFragmentDoc}
+${ProductFilterForCatalogRelationsFragmentDoc}
 ${RatePhaseForDrawerFragmentDoc}`;
 export const SelectableBillableMetricForCouponsFragmentDoc = gql`
     fragment SelectableBillableMetricForCoupons on SelectableBillableMetric {

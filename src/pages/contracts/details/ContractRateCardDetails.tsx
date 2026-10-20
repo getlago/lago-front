@@ -12,7 +12,10 @@ import {
   ContractAppliedRateCardForDetailsFragment,
   ContractStatusEnum,
   LagoApiError,
+  ProductCategoryForCatalogRelationsFragmentDoc,
+  ProductFilterForCatalogRelationsFragmentDoc,
   ProductForAppliedRateCardDrawerFragmentDoc,
+  ProductForCatalogRelationsFragmentDoc,
   RateCardForAppliedRateCardDrawerFragmentDoc,
   RatePhaseForDrawerFragmentDoc,
   useGetContractAppliedRateCardForDetailsQuery,
@@ -37,10 +40,19 @@ gql`
     product {
       id
       ...ProductForAppliedRateCardDrawer
+      ...ProductForCatalogRelations
+      productCategory {
+        id
+        ...ProductCategoryForCatalogRelations
+      }
     }
     rateCard {
       id
       ...RateCardForAppliedRateCardDrawer
+      productFilter {
+        id
+        ...ProductFilterForCatalogRelations
+      }
     }
     ratePhases {
       id
@@ -57,7 +69,10 @@ gql`
 
   ${ContractAppliedRateCardForAppliedRateCardsTableFragmentDoc}
   ${ProductForAppliedRateCardDrawerFragmentDoc}
+  ${ProductForCatalogRelationsFragmentDoc}
+  ${ProductCategoryForCatalogRelationsFragmentDoc}
   ${RateCardForAppliedRateCardDrawerFragmentDoc}
+  ${ProductFilterForCatalogRelationsFragmentDoc}
   ${RatePhaseForDrawerFragmentDoc}
 `
 
