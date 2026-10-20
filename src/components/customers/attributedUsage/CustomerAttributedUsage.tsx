@@ -34,12 +34,14 @@ import {
 import {
   AttributionType,
   buildColumnGroups,
+  chargeUnits,
   ColumnGroup,
   columnWidth,
   countDays,
   formatAmountCents,
-  formatCount,
   formatRange,
+  formatUnits,
+  hasTotalColumn,
   isAttributableCharge,
   isQueryLimitError,
   LEVEL_PAGE_SIZE,
@@ -249,15 +251,15 @@ const TableHeader = ({
           )}
         </div>
       ))}
-      <div
-        className="flex shrink-0 flex-col items-end justify-end border-l border-grey-300 px-4 py-2.5"
-        style={{ width: TOTAL_COLUMN_WIDTH }}
-      >
-        <span className="text-xs font-semibold text-grey-700">Total</span>
-        <span className="text-[11px] leading-4 text-grey-500">
-          {basis === AttributedUsageBasisEnum.Amount ? 'per-unit charges' : 'events'}
-        </span>
-      </div>
+      {hasTotalColumn(basis) && (
+        <div
+          className="flex shrink-0 flex-col items-end justify-end border-l border-grey-300 px-4 py-2.5"
+          style={{ width: TOTAL_COLUMN_WIDTH }}
+        >
+          <span className="text-xs font-semibold text-grey-700">Total</span>
+          <span className="text-[11px] leading-4 text-grey-500">per-unit charges</span>
+        </div>
+      )}
     </div>
   )
 }
@@ -448,23 +450,49 @@ export const CustomerAttributedUsage = ({
           const isAmount = basis === AttributedUsageBasisEnum.Amount
           const tooLarge = isQueryLimitError(totalsError)
 
-          const kpiValue = (aggregate?: typeof totals): string => {
+          const singleCharge = columnGroups.length === 1 ? columnGroups[0] : undefined
+
+          // Units of different charges cannot be added up: the units basis shows each charge's units.
+          const kpiValue = (aggregate?: typeof totals): ReactNode => {
             if (!aggregate) return '—'
             if (isAmount) return formatAmountCents(aggregate.preciseAmountCents ?? 0, currency)
 
-            return `${formatCount(aggregate.eventsCount)} events`
+            const units = chargeUnits(columnGroups, aggregate)
+
+            if (singleCharge) return `${formatUnits(units[0]?.units ?? 0)} units`
+
+            return (
+              <span className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
+                {units.map(({ group, units: value }) => (
+                  <span key={group.charge.id} className="flex items-baseline gap-1.5">
+                    {formatUnits(value)}
+                    <span className="text-xs font-medium text-grey-500">{group.label}</span>
+                  </span>
+                ))}
+              </span>
+            )
           }
           const share = (): string => {
             if (!totals || !unattributed) return ''
 
-            const total = isAmount ? (totals.preciseAmountCents ?? 0) : totals.eventsCount
-            const part = isAmount
-              ? (unattributed.preciseAmountCents ?? 0)
-              : unattributed.eventsCount
+            // With several charges in units, the share is the one of events, the only common measure.
+            const measure = (aggregate: NonNullable<typeof totals>): number => {
+              if (isAmount) return aggregate.preciseAmountCents ?? 0
+              if (singleCharge) return chargeUnits(columnGroups, aggregate)[0]?.units ?? 0
+
+              return aggregate.eventsCount
+            }
+            const total = measure(totals)
+            const unit = isAmount || singleCharge ? 'attributed usage' : 'attributed events'
 
             return total
-              ? `${Math.round((part / total) * 100)}% of attributed usage`
+              ? `${Math.round((measure(unattributed) / total) * 100)}% of ${unit}`
               : 'No usage yet'
+          }
+          const totalsSubtitle = (): string => {
+            if (isAmount) return `Per-unit charges · ${rangeLabel}`
+
+            return `${singleCharge?.label ?? 'All selected charges'} · ${rangeLabel}`
           }
 
           const renderTable = (): ReactNode => {
@@ -565,7 +593,7 @@ export const CustomerAttributedUsage = ({
                   </div>
                   <span className="pl-6 text-xs text-grey-500">
                     Each level loads on expand: {LEVEL_PAGE_SIZE} rows per page, ordered by{' '}
-                    {isAmount ? 'amount' : 'events'}. Grey rows hold usage sent without that level.
+                    {isAmount ? 'amount' : 'units'}. Grey rows hold usage sent without that level.
                     {listType
                       ? ` ${typeLabel(listType)} rows load under one node at a time — top 5, then Show more.`
                       : ''}
@@ -581,7 +609,7 @@ export const CustomerAttributedUsage = ({
                 <KpiCard
                   title="Attributed usage"
                   value={kpiValue(totals)}
-                  subtitle={`${isAmount ? 'Per-unit charges' : 'All selected charges'} · ${rangeLabel}`}
+                  subtitle={totalsSubtitle()}
                 />
                 <KpiCard
                   title={`Not attributed to a ${typeLabel(totalsType).toLowerCase()}`}

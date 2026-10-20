@@ -9,6 +9,7 @@ import {
   columnWidth,
   displayCell,
   displayTotal,
+  hasTotalColumn,
   indexCells,
   TOTAL_COLUMN_WIDTH,
 } from './utils'
@@ -50,16 +51,18 @@ export const UsageCells = ({ aggregate, muted, emphasized }: UsageCellsProps): J
           })}
         </div>
       ))}
-      <div
-        style={{ width: TOTAL_COLUMN_WIDTH }}
-        className={tw(
-          'shrink-0 whitespace-nowrap border-l border-grey-200 px-4 text-right text-sm font-semibold tracking-tight',
-          emphasized ? 'py-3' : 'py-2.5',
-          muted ? 'text-grey-500' : 'text-grey-700',
-        )}
-      >
-        {displayTotal({ aggregate, basis, currency })}
-      </div>
+      {hasTotalColumn(basis) && (
+        <div
+          style={{ width: TOTAL_COLUMN_WIDTH }}
+          className={tw(
+            'shrink-0 whitespace-nowrap border-l border-grey-200 px-4 text-right text-sm font-semibold tracking-tight',
+            emphasized ? 'py-3' : 'py-2.5',
+            muted ? 'text-grey-500' : 'text-grey-700',
+          )}
+        >
+          {displayTotal({ aggregate, basis, currency })}
+        </div>
+      )}
     </>
   )
 }

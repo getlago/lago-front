@@ -243,6 +243,19 @@ export const displayTotal = ({
   return formatCount(aggregate.eventsCount)
 }
 
+// Units of different charges cannot be added up, so the units basis has no total column.
+export const hasTotalColumn = (basis: AttributedUsageBasisEnum) =>
+  basis === AttributedUsageBasisEnum.Amount
+
+// The units of each charge, its filter cells added up.
+export const chargeUnits = (columnGroups: ColumnGroup[], aggregate?: AggregateData) =>
+  columnGroups.map((group) => ({
+    group,
+    units: (aggregate?.chargesUsage ?? [])
+      .filter((cell) => cell.charge.id === group.charge.id)
+      .reduce((sum, cell) => sum + cell.units, 0),
+  }))
+
 export const indexCells = (cells: CellData[] = []) =>
   new Map(cells.map((cell) => [cellKey(cell.charge.id, cell.chargeFilter?.id), cell]))
 
