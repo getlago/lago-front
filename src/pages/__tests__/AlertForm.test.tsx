@@ -1,12 +1,10 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { RESOLVED_WEBHOOK_WARNING_TEST_ID } from '~/components/alerts/ResolvedWebhookWarning'
+import { RESOLVED_WEBHOOK_NOTICE_TEST_ID } from '~/components/alerts/ResolvedWebhookNotice'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   AlertTypeEnum,
-  EventTypeEnum,
-  GetWebhookEndpointsForResolvedAlertsQuery,
   LagoApiError,
   NotifyOnEnum,
   PremiumIntegrationTypeEnum,
@@ -183,12 +181,14 @@ const mockUseGetSubscriptionBillableMetricsQuery = jest.fn()
 const mockCreateSubscriptionAlert = jest.fn()
 const mockUpdateSubscriptionAlert = jest.fn()
 
-const mockUseGetWebhookEndpointsQuery = jest.fn()
+let mockCanManageWebhooks = true
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: () => mockCanManageWebhooks }),
+}))
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useGetWebhookEndpointsForResolvedAlertsQuery: (...args: unknown[]) =>
-    mockUseGetWebhookEndpointsQuery(...args),
   useGetSubscriptionInfosQuery: (...args: unknown[]) => mockUseGetSubscriptionInfosQuery(...args),
   useGetSubscriptionAlertToEditQuery: (...args: unknown[]) =>
     mockUseGetSubscriptionAlertToEditQuery(...args),
@@ -289,7 +289,7 @@ const pickAlertType = async (
 describe('AlertForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockUseGetWebhookEndpointsQuery.mockReturnValue({ data: undefined, loading: false })
+    mockCanManageWebhooks = true
     mockCreateSubscriptionAlert.mockResolvedValue({
       data: { createSubscriptionAlert: { id: 'alert-1' } },
       errors: undefined,
@@ -1016,26 +1016,6 @@ describe('AlertForm', () => {
   })
 
   describe('GIVEN the "Notify when resolved" setting', () => {
-    const mockWebhookEndpoints = (
-      endpoints: Omit<
-        GetWebhookEndpointsForResolvedAlertsQuery['webhookEndpoints']['collection'][number],
-        'webhookUrl'
-      >[],
-    ): void => {
-      mockUseGetWebhookEndpointsQuery.mockReturnValue({
-        loading: false,
-        error: undefined,
-        data: {
-          webhookEndpoints: {
-            collection: endpoints.map((endpoint) => ({
-              ...endpoint,
-              webhookUrl: `https://${endpoint.id}.example.com`,
-            })),
-          },
-        },
-      })
-    }
-
     const fillCreateForm = async (user: ReturnType<typeof userEvent.setup>): Promise<void> => {
       await user.type(getInput('code'), 'my-alert')
       await pickAlertType(user, AlertTypeEnum.CurrentUsageAmount)
@@ -1044,7 +1024,6 @@ describe('AlertForm', () => {
 
     beforeEach(() => {
       mockLoadedQueries()
-      mockWebhookEndpoints([])
     })
 
     describe('WHEN a new threshold is left untouched', () => {
@@ -1071,16 +1050,13 @@ describe('AlertForm', () => {
         })
       })
 
-      it('THEN should not fetch the webhook endpoints', async () => {
+      it('THEN should hide the resolution notice', async () => {
         const user = userEvent.setup()
 
         render(<AlertForm />)
-
         await fillCreateForm(user)
 
-        expect(mockUseGetWebhookEndpointsQuery).toHaveBeenLastCalledWith(
-          expect.objectContaining({ skip: true }),
-        )
+        expect(screen.queryByTestId(RESOLVED_WEBHOOK_NOTICE_TEST_ID)).not.toBeInTheDocument()
       })
     })
 
@@ -1129,71 +1105,32 @@ describe('AlertForm', () => {
       })
     })
 
-    describe('WHEN a webhook endpoint whitelist lacks alert.resolved', () => {
-      it('THEN should warn and name only that endpoint once a threshold is True', async () => {
-        mockWebhookEndpoints([
-          { id: 'wh-whitelist', name: 'Billing hooks', eventTypes: [EventTypeEnum.AlertTriggered] },
-          { id: 'wh-all', name: 'Everything', eventTypes: [EventTypeEnum.All] },
-          { id: 'wh-null', name: 'Legacy', eventTypes: null },
-          { id: 'wh-ok', name: 'Resolved listener', eventTypes: [EventTypeEnum.AlertResolved] },
-        ])
-        const user = userEvent.setup()
+    it.each([true, false])('shows the notice with developersManage=%s', async (canManage) => {
+      mockCanManageWebhooks = canManage
+      const user = userEvent.setup()
 
-        render(<AlertForm />)
+      render(<AlertForm />)
+      await fillCreateForm(user)
+      await user.click(screen.getByTestId(NOTIFY_WHEN_RESOLVED_BUTTON))
 
-        await fillCreateForm(user)
+      const notice = screen.getByTestId(RESOLVED_WEBHOOK_NOTICE_TEST_ID)
 
-        expect(screen.queryByTestId(RESOLVED_WEBHOOK_WARNING_TEST_ID)).not.toBeInTheDocument()
+      expect(notice).toHaveTextContent('text_1792525787885ii787mch1rx')
+      if (canManage) {
+        const link = within(notice).getByRole('link')
+        const destination = new URL(link.getAttribute('href') || '')
 
-        await user.click(screen.getByTestId(NOTIFY_WHEN_RESOLVED_BUTTON))
-
-        const warning = await screen.findByTestId(RESOLVED_WEBHOOK_WARNING_TEST_ID)
-
-        expect(warning).toHaveTextContent('Billing hooks')
-        expect(warning).not.toHaveTextContent(/Everything|Legacy|Resolved listener/)
-      })
-    })
-
-    describe.each([
-      [
-        'every endpoint listens to all events',
-        [{ id: 'wh-all', name: 'Everything', eventTypes: [EventTypeEnum.All] }],
-      ],
-      ['no webhook endpoint exists', []],
-    ])('WHEN %s', (_, endpoints) => {
-      it('THEN should not warn', async () => {
-        mockWebhookEndpoints(endpoints)
-        const user = userEvent.setup()
-
-        render(<AlertForm />)
-
-        await fillCreateForm(user)
-        await user.click(screen.getByTestId(NOTIFY_WHEN_RESOLVED_BUTTON))
-
-        await waitFor(() => {
-          expect(mockUseGetWebhookEndpointsQuery).toHaveBeenLastCalledWith(
-            expect.objectContaining({ skip: false }),
-          )
-        })
-        expect(screen.queryByTestId(RESOLVED_WEBHOOK_WARNING_TEST_ID)).not.toBeInTheDocument()
-      })
-    })
-
-    describe.each([
-      ['still loading', { data: undefined, loading: true, error: undefined }],
-      ['failed', { data: undefined, loading: false, error: new Error('network') }],
-    ])('WHEN the webhook endpoints query is %s', (_, queryResult) => {
-      it('THEN should not warn', async () => {
-        mockUseGetWebhookEndpointsQuery.mockReturnValue(queryResult)
-        const user = userEvent.setup()
-
-        render(<AlertForm />)
-
-        await fillCreateForm(user)
-        await user.click(screen.getByTestId(NOTIFY_WHEN_RESOLVED_BUTTON))
-
-        expect(screen.queryByTestId(RESOLVED_WEBHOOK_WARNING_TEST_ID)).not.toBeInTheDocument()
-      })
+        expect(destination.pathname).toBe(window.location.pathname)
+        expect(destination.searchParams.get('devtool-tab')).toBe('/devtool/webhooks')
+        expect(link).toHaveAttribute('target', '_blank')
+        expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+        await user.click(link)
+      } else {
+        expect(within(notice).queryByRole('link')).not.toBeInTheDocument()
+      }
+      expect(testMockNavigateFn).not.toHaveBeenCalled()
+      expect(mockCreateSubscriptionAlert).not.toHaveBeenCalled()
+      expect(screen.getByTestId(SUBMIT_SUBSCRIPTION_ALERT_TEST_ID)).toBeInTheDocument()
     })
 
     describe('WHEN editing an alert whose threshold notifies when resolved', () => {

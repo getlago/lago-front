@@ -83,9 +83,6 @@ type WebhookEventDisplayInfo = {
   eventCount: number
 }
 
-export const isListeningToAllEvents = (eventTypes: EventTypeEnum[] | null | undefined): boolean =>
-  eventTypes === null || eventTypes === undefined || eventTypes.includes(EventTypeEnum.All)
-
 /**
  * Computes display information for webhook event types.
  *
@@ -104,7 +101,10 @@ const getWebhookEventDisplayInfo = (
   allEventNames: string[],
   eventKeyToNameMap: Record<string, string>,
 ): WebhookEventDisplayInfo => {
-  if (!eventTypes || isListeningToAllEvents(eventTypes)) {
+  const isListeningToAll =
+    eventTypes === null || eventTypes === undefined || eventTypes.includes(EventTypeEnum.All)
+
+  if (isListeningToAll) {
     return {
       isListeningToAll: true,
       displayedEvents: allEventNames,

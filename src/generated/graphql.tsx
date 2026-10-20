@@ -13145,11 +13145,6 @@ export type OnConversationSubscriptionVariables = Exact<{
 
 export type OnConversationSubscription = { __typename?: 'GraphqlSubscription', aiConversationStreamed: { __typename?: 'AiConversationStream', chunk?: string | null, done: boolean } };
 
-export type GetWebhookEndpointsForResolvedAlertsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetWebhookEndpointsForResolvedAlertsQuery = { __typename?: 'Query', webhookEndpoints: { __typename?: 'WebhookEndpointCollection', collection: Array<{ __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, eventTypes?: Array<EventTypeEnum> | null }> } };
-
 export type GetMrrPlanBreakdownQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -27219,53 +27214,6 @@ export function useOnConversationSubscription(baseOptions: Apollo.SubscriptionHo
       }
 export type OnConversationSubscriptionHookResult = ReturnType<typeof useOnConversationSubscription>;
 export type OnConversationSubscriptionResult = Apollo.SubscriptionResult<OnConversationSubscription>;
-export const GetWebhookEndpointsForResolvedAlertsDocument = gql`
-    query getWebhookEndpointsForResolvedAlerts {
-  webhookEndpoints {
-    collection {
-      id
-      name
-      webhookUrl
-      eventTypes
-    }
-  }
-}
-    `;
-
-/**
- * __useGetWebhookEndpointsForResolvedAlertsQuery__
- *
- * To run a query within a React component, call `useGetWebhookEndpointsForResolvedAlertsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetWebhookEndpointsForResolvedAlertsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetWebhookEndpointsForResolvedAlertsQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetWebhookEndpointsForResolvedAlertsQuery(baseOptions?: Apollo.QueryHookOptions<GetWebhookEndpointsForResolvedAlertsQuery, GetWebhookEndpointsForResolvedAlertsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetWebhookEndpointsForResolvedAlertsQuery, GetWebhookEndpointsForResolvedAlertsQueryVariables>(GetWebhookEndpointsForResolvedAlertsDocument, options);
-      }
-export function useGetWebhookEndpointsForResolvedAlertsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWebhookEndpointsForResolvedAlertsQuery, GetWebhookEndpointsForResolvedAlertsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetWebhookEndpointsForResolvedAlertsQuery, GetWebhookEndpointsForResolvedAlertsQueryVariables>(GetWebhookEndpointsForResolvedAlertsDocument, options);
-        }
-// @ts-ignore
-export function useGetWebhookEndpointsForResolvedAlertsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWebhookEndpointsForResolvedAlertsQuery, GetWebhookEndpointsForResolvedAlertsQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookEndpointsForResolvedAlertsQuery, GetWebhookEndpointsForResolvedAlertsQueryVariables>;
-export function useGetWebhookEndpointsForResolvedAlertsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookEndpointsForResolvedAlertsQuery, GetWebhookEndpointsForResolvedAlertsQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookEndpointsForResolvedAlertsQuery | undefined, GetWebhookEndpointsForResolvedAlertsQueryVariables>;
-export function useGetWebhookEndpointsForResolvedAlertsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookEndpointsForResolvedAlertsQuery, GetWebhookEndpointsForResolvedAlertsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetWebhookEndpointsForResolvedAlertsQuery, GetWebhookEndpointsForResolvedAlertsQueryVariables>(GetWebhookEndpointsForResolvedAlertsDocument, options);
-        }
-export type GetWebhookEndpointsForResolvedAlertsQueryHookResult = ReturnType<typeof useGetWebhookEndpointsForResolvedAlertsQuery>;
-export type GetWebhookEndpointsForResolvedAlertsLazyQueryHookResult = ReturnType<typeof useGetWebhookEndpointsForResolvedAlertsLazyQuery>;
-export type GetWebhookEndpointsForResolvedAlertsSuspenseQueryHookResult = ReturnType<typeof useGetWebhookEndpointsForResolvedAlertsSuspenseQuery>;
-export type GetWebhookEndpointsForResolvedAlertsQueryResult = Apollo.QueryResult<GetWebhookEndpointsForResolvedAlertsQuery, GetWebhookEndpointsForResolvedAlertsQueryVariables>;
 export const GetMrrPlanBreakdownDocument = gql`
     query getMrrPlanBreakdown($currency: CurrencyEnum, $limit: Int, $page: Int) {
   dataApiMrrsPlans(currency: $currency, limit: $limit, page: $page) {

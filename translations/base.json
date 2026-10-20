@@ -5276,5 +5276,5 @@
   "text_1792439710542ctc2yq2zptb": "Notify when resolved",
   "text_1792439710542tbnwvrxl0g7": "Add a threshold code to notify when this threshold is resolved",
   "text_17924397105421fihqq5j6ns": "This code is used by another threshold. Use a unique code to notify when resolved",
-  "text_1792439710542z5bi1sj7k1j": "These webhook endpoints don’t listen to alert.resolved, so they won’t receive resolution notifications. Add the event to their list:"
+  "text_1792525787885ii787mch1rx": "Endpoints must subscribe to alert.resolved (or to all events) to receive resolution notifications."
 }

@@ -5,7 +5,7 @@ import { useCallback, useMemo } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { AlertNameAndCodeSection } from '~/components/alerts/AlertNameAndCodeSection'
-import { ResolvedWebhookWarning } from '~/components/alerts/ResolvedWebhookWarning'
+import { ResolvedWebhookNotice } from '~/components/alerts/ResolvedWebhookNotice'
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
 import { useAlertFormLeaveGuards } from '~/components/alerts/useAlertFormLeaveGuards'
 import { createThresholdSetters, setCodeAlreadyExistsError } from '~/components/alerts/utils'
@@ -26,6 +26,7 @@ import {
   AlertTypeEnum,
   CurrencyEnum,
   LagoApiError,
+  NotifyOnEnum,
   useCreateSubscriptionAlertMutation,
   useGetExistingAlertsOfSubscriptionQuery,
   useGetSubscriptionAlertToEditQuery,
@@ -292,6 +293,11 @@ const AlertForm = () => {
   const alertType = useStore(form.store, (state) => state.values.alertType)
   const billableMetricId = useStore(form.store, (state) => state.values.billableMetricId)
   const thresholds = useStore(form.store, (state) => state.values.thresholds)
+  const notifiesWhenResolved = useStore(form.store, (state) =>
+    state.values.thresholds.some((threshold) =>
+      threshold.notifyOn?.includes(NotifyOnEnum.Resolved),
+    ),
+  )
 
   const showThresholdTable = useMemo(
     () =>
@@ -531,7 +537,7 @@ const AlertForm = () => {
                       />
                     )}
 
-                    {showThresholdTable && <ResolvedWebhookWarning thresholds={thresholds} />}
+                    {showThresholdTable && notifiesWhenResolved && <ResolvedWebhookNotice />}
                   </div>
                 </section>
               </div>
