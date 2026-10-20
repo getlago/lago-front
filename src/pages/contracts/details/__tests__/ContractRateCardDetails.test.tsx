@@ -73,6 +73,7 @@ const buildContract = (
   __typename: 'Contract',
   id: CONTRACT_ID,
   name: 'Acme contract',
+  externalId: 'acme_contract',
   status: ContractStatusEnum.Pending,
   plan: { __typename: 'CatalogPlan', id: CATALOG_PLAN_ID, name: 'Enterprise plan' },
   ...overrides,
@@ -162,6 +163,28 @@ describe('ContractRateCardDetails', () => {
 
       expect(screen.getByTestId(APPLIED_RATE_CARD_DETAILS_CREATE_PHASE_TEST_ID)).not.toBeDisabled()
       expect(screen.getByTestId(APPLIED_RATE_CARD_DETAILS_REMOVE_TEST_ID)).not.toBeDisabled()
+    })
+  })
+
+  describe('GIVEN a card of an unnamed contract without a plan', () => {
+    it('THEN names the parent crumb after the contract external id', async () => {
+      await renderPage([
+        detailsQueryMock(
+          buildContractAppliedRateCard({ contract: buildContract({ name: null, plan: null }) }),
+        ),
+      ])
+
+      await waitFor(() =>
+        expect(screen.getAllByTestId(ENTITY_SECTION_VIEW_NAME_TEST_ID)[0]).toHaveTextContent(
+          'Standard rate card',
+        ),
+      )
+
+      const parentCrumb = within(screen.getAllByTestId(BREADCRUMB_NAV_TEST_ID)[0]).getAllByRole(
+        'link',
+      )[1]
+
+      expect(parentCrumb).toHaveTextContent('acme_contract')
     })
   })
 

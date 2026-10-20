@@ -104,6 +104,7 @@ export const buildContractAppliedRateCard = (
     __typename: 'Contract',
     id: CONTRACT_ID,
     name: 'Acme contract',
+    externalId: 'acme_contract',
     status: ContractStatusEnum.Pending,
     plan: { __typename: 'CatalogPlan', id: CATALOG_PLAN_ID, name: 'Enterprise plan' },
   },

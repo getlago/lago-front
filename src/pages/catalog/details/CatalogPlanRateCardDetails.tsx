@@ -7,6 +7,7 @@ import {
 } from '~/components/appliedRateCards/details/appliedRateCardDetailsConfig'
 import { AppliedRateCardDetailsView } from '~/components/appliedRateCards/details/AppliedRateCardDetailsView'
 import { AppliedRateCardDetailsData } from '~/components/appliedRateCards/details/types'
+import { hasDefinedGQLError } from '~/core/apolloClient'
 import {
   LagoApiError,
   PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc,
@@ -108,7 +109,14 @@ const CatalogPlanRateCardDetails = (): JSX.Element => {
     translateKey: APPLIED_RATE_CARD_NOT_FOUND_TRANSLATION_KEY,
   })
 
-  return <AppliedRateCardDetailsView data={detailsData} loading={loading} />
+  return (
+    <AppliedRateCardDetailsView
+      context="plan"
+      data={detailsData}
+      loading={loading}
+      hasError={!!error && !hasDefinedGQLError('NotFound', error)}
+    />
+  )
 }
 
 export default CatalogPlanRateCardDetails

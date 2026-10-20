@@ -275,6 +275,18 @@ describe('buildRatePhaseFormSchema phase sequence', () => {
       getIssuePaths({ ...baseContext, sequenceLock: 'tail' }, { ...baseValues, ...FINITE }),
     ).toEqual(['durationType'])
   })
+
+  // Guards the misleading "only the last phase can run forever" copy on a finite phase.
+  it('GIVEN a finite phase placed after the tail in the live drawer THEN the position issue asks to place it before the tail', () => {
+    const issues =
+      buildRatePhaseFormSchema(() => ({ ...withOtherPhases, sequenceLock: 'beforeTail' }))
+        .safeParse({ ...baseValues, ...AFTER_TAIL, ...FINITE })
+        .error?.issues.map(({ path, message }) => ({ path: path.join('.'), message })) ?? []
+
+    expect(issues).toEqual([
+      { path: 'positionReferenceCode', message: 'text_1792516745021oj4du8sg5mm' },
+    ])
+  })
 })
 
 describe('phase position helpers', () => {

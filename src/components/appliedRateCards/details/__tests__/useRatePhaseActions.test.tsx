@@ -218,19 +218,32 @@ describe('useRatePhaseActions', () => {
   })
 
   describe.each([
-    { condition: 'a locked card', params: { isLocked: true } },
-    { condition: 'a rate card that is not loaded', params: { rateCard: undefined } },
-  ])('GIVEN $condition', ({ params }) => {
-    it('THEN edit, reset and delete are disabled and copy is not', () => {
-      const { getPhaseActions } = renderActions(params)
-      const actions = getPhaseActions(MIDDLE_PHASE)
-
-      expect(actions.map(({ key, disabled }) => ({ key, disabled }))).toEqual([
+    {
+      condition: 'a locked card',
+      params: { isLocked: true },
+      expectedActions: [
         { key: 'copy', disabled: false },
         { key: 'edit', disabled: true },
         { key: 'reset', disabled: true },
         { key: 'delete', disabled: true },
-      ])
+      ],
+    },
+    {
+      condition: 'a rate card that is not loaded',
+      params: { rateCard: undefined },
+      expectedActions: [
+        { key: 'copy', disabled: false },
+        { key: 'edit', disabled: true },
+        { key: 'reset', disabled: false },
+        { key: 'delete', disabled: false },
+      ],
+    },
+  ])('GIVEN $condition', ({ params, expectedActions }) => {
+    it('THEN only the actions it blocks are disabled', () => {
+      const { getPhaseActions } = renderActions(params)
+      const actions = getPhaseActions(MIDDLE_PHASE)
+
+      expect(actions.map(({ key, disabled }) => ({ key, disabled }))).toEqual(expectedActions)
     })
 
     it('THEN create is disabled but not hidden', () => {

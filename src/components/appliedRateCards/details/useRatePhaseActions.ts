@@ -69,7 +69,7 @@ export const useRatePhaseActions = ({
   const { openResetRatePhaseOverrideDialog } = useResetRatePhaseOverrideDialog()
 
   const canUpdate = hasPermissions([APPLIED_RATE_CARD_CONTEXT_CONFIG[context].updatePermission])
-  const isMutationDisabled = isLocked || !rateCard
+  const isDrawerDisabled = isLocked || !rateCard
 
   const getDrawerKey = (): AppliedRateCardDrawerKey => {
     if (context === 'plan') return { context, planAppliedRateCardId: appliedRateCardId }
@@ -130,7 +130,7 @@ export const useRatePhaseActions = ({
       key: 'edit',
       label: translate('text_1791485670326gf0h0n6l1w7'),
       startIcon: 'pen',
-      disabled: isMutationDisabled,
+      disabled: isDrawerDisabled,
       dataTest: RATE_PHASE_ACTION_EDIT_TEST_ID,
       onAction: () => openEditDrawer(phase),
     }
@@ -139,7 +139,7 @@ export const useRatePhaseActions = ({
       key: 'reset',
       label: translate('text_1792505051513lwg9cymf8wg'),
       startIcon: 'reset',
-      disabled: isMutationDisabled,
+      disabled: isLocked,
       dataTest: RATE_PHASE_ACTION_RESET_TEST_ID,
       onAction: () =>
         openResetRatePhaseOverrideDialog({
@@ -153,8 +153,7 @@ export const useRatePhaseActions = ({
       key: 'delete',
       label: translate('text_1791838459984x6zh06klebn'),
       startIcon: 'trash',
-      disabled:
-        isMutationDisabled || phases.length <= 1 || phase.billingIntervalCycleCount === null,
+      disabled: isLocked || phases.length <= 1 || phase.billingIntervalCycleCount === null,
       dataTest: RATE_PHASE_ACTION_DELETE_TEST_ID,
       onAction: () =>
         openDeleteRatePhaseDialog({
@@ -172,6 +171,6 @@ export const useRatePhaseActions = ({
 
   return {
     getPhaseActions,
-    createPhase: { hidden: !canUpdate, disabled: isMutationDisabled, open: openCreateDrawer },
+    createPhase: { hidden: !canUpdate, disabled: isDrawerDisabled, open: openCreateDrawer },
   }
 }

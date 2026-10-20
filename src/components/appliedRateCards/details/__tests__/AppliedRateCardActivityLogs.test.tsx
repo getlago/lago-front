@@ -1,5 +1,6 @@
 import { render as rtlRender, screen, waitFor } from '@testing-library/react'
 
+import { ACTIVITY_LOGS_SECTION_SUBTITLE_TEST_ID } from '~/components/activityLogs/ActivityLogsSection'
 import {
   GENERIC_PLACEHOLDER_BUTTON_TEST_ID,
   GENERIC_PLACEHOLDER_TEST_ID,
@@ -152,10 +153,12 @@ describe('AppliedRateCardActivityLogs', () => {
       expect(await screen.findByText(ACTIVITY_DESCRIPTION)).toBeInTheDocument()
     })
 
-    it('THEN renders the tab subtitle', () => {
+    it('THEN renders the tab subtitle', async () => {
       renderComponent('plan', buildMocks('plan'))
 
-      expect(screen.getByText(SUBTITLE_KEY)).toBeInTheDocument()
+      expect(await screen.findByTestId(ACTIVITY_LOGS_SECTION_SUBTITLE_TEST_ID)).toHaveTextContent(
+        SUBTITLE_KEY,
+      )
     })
   })
 

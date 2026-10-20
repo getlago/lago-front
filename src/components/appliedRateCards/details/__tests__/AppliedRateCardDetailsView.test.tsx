@@ -1,6 +1,8 @@
 import { render as rtlRender, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { ComponentProps } from 'react'
 
+import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
 import { BREADCRUMB_NAV_TEST_ID } from '~/components/MainHeader/Breadcrumb'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import {
@@ -97,17 +99,29 @@ const withLockedParent = (data: AppliedRateCardDetailsData): AppliedRateCardDeta
   parent: { ...data.parent, isLocked: true },
 })
 
-const ViewWithHeader = ({ data }: { data: AppliedRateCardDetailsData }): JSX.Element => (
+type ViewProps = ComponentProps<typeof AppliedRateCardDetailsView>
+
+const ViewWithHeader = (props: ViewProps): JSX.Element => (
   <>
     <MainHeader />
-    <AppliedRateCardDetailsView data={data} loading={false} />
+    <AppliedRateCardDetailsView {...props} />
   </>
 )
 
-const renderView = (data: AppliedRateCardDetailsData): ReturnType<typeof rtlRender> =>
-  rtlRender(<ViewWithHeader data={data} />, {
+const getLoadedViewProps = (data: AppliedRateCardDetailsData): ViewProps => ({
+  context: data.context,
+  data,
+  loading: false,
+  hasError: false,
+})
+
+const renderWithHeader = (props: ViewProps): ReturnType<typeof rtlRender> =>
+  rtlRender(<ViewWithHeader {...props} />, {
     wrapper: ({ children }) => <AllTheProviders>{children}</AllTheProviders>,
   })
+
+const renderView = (data: AppliedRateCardDetailsData): ReturnType<typeof rtlRender> =>
+  renderWithHeader(getLoadedViewProps(data))
 
 const getBreadcrumbLinks = (): HTMLElement[] =>
   within(screen.getAllByTestId(BREADCRUMB_NAV_TEST_ID)[0]).getAllByRole('link')
@@ -311,6 +325,34 @@ describe('AppliedRateCardDetailsView', () => {
     })
   })
 
+  describe.each([
+    { context: 'plan' as const, rootPath: '/plan-pricing' },
+    { context: 'contract' as const, rootPath: '/contracts' },
+  ])('GIVEN a $context card that is still loading', ({ context, rootPath }) => {
+    it('THEN keeps the root crumb and skeletons the parent crumb, with no error', async () => {
+      renderWithHeader({ context, data: undefined, loading: true, hasError: false })
+
+      await waitFor(() =>
+        expect(getBreadcrumbLinks().map((link) => link.getAttribute('href'))).toEqual([rootPath]),
+      )
+      expect(screen.getAllByTestId(BREADCRUMB_NAV_TEST_ID)[0]).toHaveTextContent(
+        'text_17902866782060xpq8p9bh3a',
+      )
+      expect(screen.queryByTestId(GENERIC_PLACEHOLDER_TEST_ID)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the card failed to load with an error other than not found', () => {
+    it('THEN shows the error state under the root crumb', async () => {
+      renderWithHeader({ context: 'plan', data: undefined, loading: false, hasError: true })
+
+      expect(await screen.findByTestId(GENERIC_PLACEHOLDER_TEST_ID)).toBeInTheDocument()
+      expect(getBreadcrumbLinks().map((link) => link.getAttribute('href'))).toEqual([
+        '/plan-pricing',
+      ])
+    })
+  })
+
   describe('GIVEN the card is refetched with a renamed phase', () => {
     // The header only re-pushes its tabs when the snapshot key moves, so a key missing the
     // phase fields would keep showing the old name.
@@ -325,12 +367,12 @@ describe('AppliedRateCardDetailsView', () => {
 
       rerender(
         <ViewWithHeader
-          data={{
+          {...getLoadedViewProps({
             ...PLAN_DATA,
             appliedRateCard: buildPlanAppliedRateCard({
               ratePhases: [{ ...FINITE_PHASE, name: 'Warm up' }, FOREVER_PHASE],
             }),
-          }}
+          })}
         />,
       )
 

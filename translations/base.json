@@ -5286,5 +5286,6 @@
   "text_1792505051513lwg9cymf8wg": "Reset phase overrides",
   "text_1792506302406m3twa4pwimw": "Every change made to this rate card and its phases.",
   "text_1792507128247xgs5eskh1bu": "Create a rate phase",
-  "text_1792507128247tj6ezglktl8": "Rate card not found"
+  "text_1792507128247tj6ezglktl8": "Rate card not found",
+  "text_1792516745021oj4du8sg5mm": "A new phase must be placed before the phase that runs forever"
 }
