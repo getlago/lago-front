@@ -2,6 +2,7 @@ import { act, cleanup, screen, waitFor } from '@testing-library/react'
 
 import {
   CurrencyEnum,
+  FeatureFlagEnum,
   FinalizeZeroAmountInvoiceEnum,
   GetCustomerSettingsDocument,
 } from '~/generated/graphql'
@@ -10,6 +11,8 @@ import { render, TestMocksType } from '~/test-utils'
 import { CustomerSettings } from '../CustomerSettings'
 
 const CUSTOMER_ID = 'customer-123'
+
+const mockHasFeatureFlag = jest.fn((_flag: FeatureFlagEnum) => false)
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
@@ -35,6 +38,7 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
       name: 'Test Organization',
       premiumIntegrations: ['auto_dunning'],
     },
+    hasFeatureFlag: mockHasFeatureFlag,
   }),
 }))
 
@@ -180,6 +184,10 @@ async function prepare({ mocks = [createCustomerSettingsMock()] }: { mocks?: Tes
 }
 
 describe('CustomerSettings', () => {
+  beforeEach(() => {
+    mockHasFeatureFlag.mockReturnValue(false)
+  })
+
   afterEach(() => {
     cleanup()
     jest.clearAllMocks()
@@ -670,6 +678,36 @@ describe('CustomerSettings', () => {
         const settingSections = screen.getAllByRole('button')
 
         expect(settingSections.length).toBeGreaterThanOrEqual(5)
+      })
+    })
+  })
+
+  describe('Product Catalog Feature Flag', () => {
+    describe('GIVEN the organization does not have the product catalog flag', () => {
+      it('THEN renders the net payment term and dunning campaign sections', async () => {
+        await prepare()
+
+        await waitFor(() => {
+          expect(screen.getByText(/net payment term/i)).toBeInTheDocument()
+          expect(screen.getAllByText(/dunning campaign/i).length).toBeGreaterThan(0)
+        })
+      })
+    })
+
+    describe('GIVEN the organization has the product catalog flag', () => {
+      beforeEach(() => {
+        mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.ProductCatalog)
+      })
+
+      it('THEN hides the net payment term and dunning campaign sections', async () => {
+        await prepare()
+
+        await waitFor(() => {
+          expect(screen.getByText(/document language/i)).toBeInTheDocument()
+        })
+
+        expect(screen.queryByText(/net payment term/i)).not.toBeInTheDocument()
+        expect(screen.queryByText(/dunning campaign/i)).not.toBeInTheDocument()
       })
     })
   })

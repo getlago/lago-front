@@ -11,7 +11,7 @@ import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDial
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast, extractThirdPartyErrorMessage, hasDefinedGQLError } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
-import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
+import { FeatureFlagEnum, PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
@@ -33,7 +33,8 @@ const CreateCustomer = () => {
   const { translate } = useInternationalization()
   const centralizedDialog = useCentralizedDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+  const { organization: { premiumIntegrations } = {}, hasFeatureFlag } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
 
   const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.RevenueShare,
@@ -155,6 +156,49 @@ const CreateCustomer = () => {
       : translate('text_632b49e2620ea4c6d96c9666')
   }
 
+  const renderPartnerToggle = () => {
+    if (isProductCatalogEnabled) return null
+
+    if (hasAccessToRevenueShare) {
+      return (
+        <div className="flex items-center justify-between">
+          <form.AppField name="isPartner">
+            {(field) => (
+              <field.SwitchField
+                label={translate('text_173832066416253fgbilrnae')}
+                subLabel={translate('text_173832066416219scp0nqeo8')}
+                labelPosition="right"
+                disabled={!canEditAccountType}
+              />
+            )}
+          </form.AppField>
+        </div>
+      )
+    }
+
+    return (
+      <button
+        type="button"
+        className="flex items-center justify-between"
+        onClick={() => {
+          openPremiumWarningDialog()
+        }}
+      >
+        <form.AppField name="isPartner">
+          {(field) => (
+            <field.SwitchField
+              label={translate('text_173832066416253fgbilrnae')}
+              subLabel={translate('text_173832066416219scp0nqeo8')}
+              labelPosition="right"
+              disabled={!canEditAccountType}
+            />
+          )}
+        </form.AppField>
+        <Icon name="sparkles" />
+      </button>
+    )
+  }
+
   return (
     <CenteredPage.Wrapper>
       <form
@@ -189,40 +233,7 @@ const CreateCustomer = () => {
             </div>
 
             <div className="mb-8 flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b">
-              {hasAccessToRevenueShare ? (
-                <div className="flex items-center justify-between">
-                  <form.AppField name="isPartner">
-                    {(field) => (
-                      <field.SwitchField
-                        label={translate('text_173832066416253fgbilrnae')}
-                        subLabel={translate('text_173832066416219scp0nqeo8')}
-                        labelPosition="right"
-                        disabled={!canEditAccountType}
-                      />
-                    )}
-                  </form.AppField>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  className="flex items-center justify-between"
-                  onClick={() => {
-                    openPremiumWarningDialog()
-                  }}
-                >
-                  <form.AppField name="isPartner">
-                    {(field) => (
-                      <field.SwitchField
-                        label={translate('text_173832066416253fgbilrnae')}
-                        subLabel={translate('text_173832066416219scp0nqeo8')}
-                        labelPosition="right"
-                        disabled={!canEditAccountType}
-                      />
-                    )}
-                  </form.AppField>
-                  <Icon name="sparkles" />
-                </button>
-              )}
+              {renderPartnerToggle()}
 
               <CustomerInformation
                 form={form}

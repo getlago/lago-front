@@ -10,6 +10,7 @@ import { CustomRouteObject, routes, useLocation, useNavigate } from '~/core/rout
 import { NEVER_SLUG_PREFIXES } from '~/core/router/slugPrefixes'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { DEVTOOL_TAB_PARAMS, useDeveloperTool, useDevtoolTabParam } from '~/hooks/useDeveloperTool'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 interface PageWrapperProps {
   routeConfig: CustomRouteObject
@@ -19,6 +20,7 @@ interface PageWrapperProps {
 const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
   const location = useLocation()
   const { onRouteEnter } = useLocationHistory()
+  const { hasFeatureFlag, loading: isOrganizationLoading } = useOrganizationInfos()
 
   useEffect(() => {
     onRouteEnter(routeConfig, location)
@@ -40,6 +42,13 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
   if (location.pathname.startsWith(DEVTOOL_ROUTE)) {
     // Prevent rendering anything while redirecting
     return null
+  }
+
+  if (
+    routeConfig.hiddenWithFeatureFlag &&
+    (isOrganizationLoading || hasFeatureFlag(routeConfig.hiddenWithFeatureFlag))
+  ) {
+    return <Spinner />
   }
 
   return <>{children}</>

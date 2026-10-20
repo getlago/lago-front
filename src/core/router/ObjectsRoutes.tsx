@@ -177,18 +177,21 @@ export const objectListRoutes: CustomRouteObject[] = [
     private: true,
     element: <PlansList />,
     permissions: ['plansView'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: COUPONS_ROUTE,
     private: true,
     element: <CouponsList />,
     permissions: ['couponsView'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: ADD_ONS_ROUTE,
     private: true,
     element: <AddOnsList />,
     permissions: ['addonsView'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [INVOICES_ROUTE],
@@ -220,17 +223,20 @@ export const objectListRoutes: CustomRouteObject[] = [
     private: true,
     element: <SubscriptionsPage />,
     permissions: ['subscriptionsView'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [FEATURES_ROUTE],
     private: true,
     element: <FeaturesList />,
     permissions: ['featuresView'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [WALLET_DETAILS_ROUTE],
     private: true,
     element: <WalletDetails />,
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
 ]
 
@@ -258,12 +264,14 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     private: true,
     element: <CreateAddOn />,
     permissionsOr: ['addonsCreate', 'addonsUpdate'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE],
     private: true,
     element: <CreateCoupon />,
     permissionsOr: ['couponsCreate', 'couponsUpdate'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [
@@ -280,6 +288,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     private: true,
     element: <CreatePlan />,
     permissionsOr: ['plansCreate', 'plansUpdate'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [CREATE_TAX_ROUTE, UPDATE_TAX_ROUTE],
@@ -292,24 +301,28 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     private: true,
     element: <CreateInvoice />,
     permissions: ['invoicesCreate'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [CREATE_SUBSCRIPTION, UPDATE_SUBSCRIPTION, UPGRADE_DOWNGRADE_SUBSCRIPTION],
     private: true,
     element: <CreateSubscription />,
     permissionsOr: ['subscriptionsCreate', 'subscriptionsUpdate'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [CREATE_WALLET_ROUTE, EDIT_WALLET_ROUTE],
     private: true,
     element: <CreateWallet />,
     permissionsOr: ['walletsCreate', 'walletsUpdate'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [CREATE_WALLET_TOP_UP_ROUTE, VOID_CREATE_WALLET_TOP_UP_ROUTE],
     private: true,
     element: <CreateWalletTopUp />,
     permissions: ['walletsTopUp'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [CREATE_PAYMENT_ROUTE, CREATE_INVOICE_PAYMENT_ROUTE],
@@ -327,6 +340,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     private: true,
     element: <AlertForm />,
     permissionsOr: ['subscriptionsCreate', 'subscriptionsUpdate'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [
@@ -338,6 +352,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     private: true,
     element: <SubscriptionEntitlementForm />,
     permissionsOr: ['subscriptionsCreate', 'subscriptionsUpdate'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [
@@ -347,18 +362,21 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     private: true,
     element: <SubscriptionProgressiveBillingForm />,
     permissionsOr: ['subscriptionsCreate', 'subscriptionsUpdate'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [CREATE_FEATURE_ROUTE, UPDATE_FEATURE_ROUTE],
     private: true,
     element: <FeatureForm />,
     permissionsOr: ['featuresCreate', 'featuresUpdate'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [CREATE_ALERT_WALLET_ROUTE, UPDATE_ALERT_WALLET_ROUTE],
     private: true,
     element: <WalletAlertForm />,
     permissions: ['walletsUpdate'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
 ]
 
@@ -389,24 +407,28 @@ export const objectDetailsRoutes: CustomRouteObject[] = [
     private: true,
     element: <SubscriptionDetails />,
     permissions: ['subscriptionsView'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [PLAN_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS],
     private: true,
     element: <PlanDetails />,
     permissions: ['plansView'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [ADD_ON_DETAILS_ROUTE],
     private: true,
     element: <AddOnDetails />,
     permissions: ['addonsView'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [COUPON_DETAILS_ROUTE],
     private: true,
     element: <CouponDetails />,
     permissions: ['couponsView'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [PAYMENT_DETAILS_ROUTE, CUSTOMER_PAYMENT_DETAILS_ROUTE],
@@ -425,5 +447,6 @@ export const objectDetailsRoutes: CustomRouteObject[] = [
     private: true,
     element: <FeatureDetails />,
     permissions: ['featuresView'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
 ]

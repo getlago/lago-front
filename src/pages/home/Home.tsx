@@ -4,7 +4,7 @@ import { Spinner } from '~/components/designSystem/Spinner'
 import { useLocation, useNavigate } from '~/core/router'
 import { getItemFromLS, removeItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
-import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
+import { FeatureFlagEnum, PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -16,7 +16,12 @@ const Home = () => {
   const location = useLocation()
   const { loading: isUserLoading, currentUser, currentMembership } = useCurrentUser()
   const { hasPermissions, findFirstViewPermission } = usePermissions()
-  const { hasOrganizationPremiumAddon, loading: isOrganizationLoading } = useOrganizationInfos()
+  const {
+    hasFeatureFlag,
+    hasOrganizationPremiumAddon,
+    loading: isOrganizationLoading,
+  } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
     PremiumIntegrationTypeEnum.AnalyticsDashboards,
   )
@@ -44,6 +49,7 @@ const Home = () => {
       hasPermissions,
       findFirstViewPermission,
       hasAccessToAnalyticsDashboardsFeature,
+      isProductCatalogEnabled,
     })
 
     if (!target) return
@@ -62,6 +68,7 @@ const Home = () => {
     hasPermissions,
     findFirstViewPermission,
     hasAccessToAnalyticsDashboardsFeature,
+    isProductCatalogEnabled,
     navigate,
     location.state,
   ])

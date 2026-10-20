@@ -38,6 +38,7 @@ const baseInput = (overrides: Partial<Parameters<typeof resolveRedirectTarget>[0
   hasPermissions: mockHasPermissions,
   findFirstViewPermission: mockFindFirstViewPermission,
   hasAccessToAnalyticsDashboardsFeature: false,
+  isProductCatalogEnabled: false,
   ...overrides,
 })
 
@@ -380,6 +381,13 @@ describe('resolveRedirectTarget()', () => {
         to: `/${SLUG}/analytics/revenue-streams`,
         consumesSsoLs: false,
       })
+    })
+
+    it('THEN returns customers instead of analytics when the product catalog is enabled', () => {
+      mockHasPermissions.mockReturnValue(true)
+      const result = resolveRedirectTarget(baseInput({ isProductCatalogEnabled: true }))
+
+      expect(result).toEqual({ to: `/${SLUG}/customers`, consumesSsoLs: false })
     })
 
     it('THEN returns customers when user lacks analytics but has customersView', () => {

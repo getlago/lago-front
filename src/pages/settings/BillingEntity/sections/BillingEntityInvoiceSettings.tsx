@@ -39,12 +39,16 @@ import {
   EditBillingEntityInvoiceNumberingDialogFragmentDoc,
   EditBillingEntityInvoiceTemplateDialogFragmentDoc,
   EditBillingEntityNetPaymentTermForDialogFragmentDoc,
+  FeatureFlagEnum,
   useGetBillingEntitySettingsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
+
+const NET_PAYMENT_TERM_ITEM_ID = 'invoice-settings-net-payment-term'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 
@@ -112,6 +116,8 @@ const BillingEntityInvoiceSettings = () => {
   const { billingEntityCode } = useParams()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
 
   const { openEditBillingEntityInvoiceIssuingDatePolicyDialog } =
     useEditBillingEntityInvoiceIssuingDatePolicyDialog()
@@ -351,7 +357,7 @@ const BillingEntityInvoiceSettings = () => {
       ),
     },
     {
-      id: 'invoice-settings-net-payment-term',
+      id: NET_PAYMENT_TERM_ITEM_ID,
       label: translate('text_64c7a89b6c67eb6c98898167'),
       sublabel: translate('text_1728031300577aivplw3hqav'),
       action: (
@@ -376,7 +382,7 @@ const BillingEntityInvoiceSettings = () => {
         billingEntity?.netPaymentTerm,
       ),
     },
-  ]
+  ].filter((item) => !(isProductCatalogEnabled && item.id === NET_PAYMENT_TERM_ITEM_ID))
 
   return (
     <>

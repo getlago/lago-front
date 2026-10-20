@@ -41,6 +41,7 @@ import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
+  FeatureFlagEnum,
   GetInvoicesListQuery,
   GetInvoicesListQueryResult,
   Invoice,
@@ -51,6 +52,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useGeneratePaymentUrl } from '~/hooks/useGeneratePaymentUrl'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 
@@ -81,6 +83,8 @@ const InvoicesList = ({
 }: TInvoiceListProps) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const [searchParams] = useSearchParams()
   const actions = usePermissionsInvoiceActions()
   const { showResendEmailDialog } = useResendEmailDialog()
@@ -319,16 +323,14 @@ const InvoicesList = ({
         }
       : null
 
-    const regenerateAction: ActionItem<InvoiceItem> | null = actions.canRegenerate(
-      invoice,
-      hasActiveWallet,
-    )
-      ? {
-          startIcon: 'stop',
-          title: translate('text_1750678506388oynw9hd01l9'),
-          link: () => regeneratePath(invoice as Invoice),
-        }
-      : null
+    const regenerateAction: ActionItem<InvoiceItem> | null =
+      !isProductCatalogEnabled && actions.canRegenerate(invoice, hasActiveWallet)
+        ? {
+            startIcon: 'stop',
+            title: translate('text_1750678506388oynw9hd01l9'),
+            link: () => regeneratePath(invoice as Invoice),
+          }
+        : null
 
     return [
       duplicateAction,

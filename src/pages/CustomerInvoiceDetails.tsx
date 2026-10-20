@@ -49,6 +49,7 @@ import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
   CustomerForInvoiceOverviewFragmentDoc,
+  FeatureFlagEnum,
   FeeDetailsForInvoiceOverviewFragmentDoc,
   FeeForInvoiceDetailsTableFooterFragmentDoc,
   HubspotIntegration,
@@ -84,6 +85,7 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useGeneratePaymentUrl } from '~/hooks/useGeneratePaymentUrl'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { useDownloadInvoice } from '~/pages/invoiceDetails/common/useDownloadInvoice'
@@ -315,6 +317,8 @@ const CustomerInvoiceDetails = () => {
   const navigate = useNavigate()
   const { goBack } = useLocationHistory()
   const { isPremium } = useCurrentUser()
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const { hasPermissions } = usePermissions()
   const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
   const { openDeleteInvoiceDialog } = useDeleteInvoiceDialog()
@@ -985,7 +989,7 @@ const CustomerInvoiceDetails = () => {
         },
         {
           label: translate('text_1750678506388oynw9hd01l9'),
-          hidden: !authorizations.canRegenerate,
+          hidden: isProductCatalogEnabled || !authorizations.canRegenerate,
           onClick: (closePopper: () => void) => {
             if (customerId && invoiceId) {
               navigate(regeneratePath(data?.invoice as Invoice))

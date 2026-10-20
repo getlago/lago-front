@@ -293,6 +293,7 @@ describe('InvoicesList', () => {
     mockCanIssueCreditNote.mockReturnValue(true)
     mockCanRecordPayment.mockReturnValue(true)
     mockCanResendEmail.mockReturnValue(false)
+    mockHasFeatureFlag.mockReturnValue(false)
     mockHasDefinedGQLError.mockReturnValue(false)
     mockExtractThirdPartyErrorMessage.mockReturnValue(undefined)
     mockRetryInvoicePayment.mockResolvedValue({ errors: null })
@@ -1180,6 +1181,32 @@ describe('InvoicesList', () => {
         'href',
         '/customer/customer-1/invoice/regenerate/invoice-1',
       )
+    })
+
+    it('hides the regenerate action but keeps void when the product catalog flag is on', async () => {
+      const user = userEvent.setup()
+
+      mockHasFeatureFlag.mockReturnValue(true)
+      mockCanRegenerate.mockReturnValue(true)
+
+      await renderInvoicesList({
+        invoices: [
+          createMockInvoice({
+            status: InvoiceStatusTypeEnum.Finalized,
+            regeneratedInvoiceId: null,
+          }),
+        ],
+      })
+
+      const actionButton = screen.getByTestId('open-action-button')
+
+      await waitFor(() => user.click(actionButton))
+
+      const voidLink = screen.getByRole('link', { name: 'text_1750678506388d4fr5etxbhh' })
+      const regenerateLink = screen.queryByRole('link', { name: 'text_1750678506388oynw9hd01l9' })
+
+      expect(voidLink).toBeInTheDocument()
+      expect(regenerateLink).not.toBeInTheDocument()
     })
   })
 

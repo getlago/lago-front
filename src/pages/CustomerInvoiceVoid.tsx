@@ -20,6 +20,7 @@ import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
   CurrencyEnum,
+  FeatureFlagEnum,
   Invoice,
   InvoiceForVoidInvoiceDialogFragment,
   InvoiceForVoidInvoiceDialogFragmentDoc,
@@ -65,7 +66,8 @@ const CustomerInvoiceVoid = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
   const { customerId, invoiceId } = useParams()
-  const { timezone } = useOrganizationInfos()
+  const { timezone, hasFeatureFlag } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
   const { canVoid } = usePermissionsInvoiceActions()
@@ -155,6 +157,7 @@ const CustomerInvoiceVoid = () => {
   }
 
   const canRegenerate =
+    !isProductCatalogEnabled &&
     hasActiveCustomer &&
     customerId &&
     invoiceId &&

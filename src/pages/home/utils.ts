@@ -42,6 +42,7 @@ export type ResolveRedirectInput = {
   hasPermissions: (permissions: Array<keyof TMembershipPermissions>) => boolean
   findFirstViewPermission: () => keyof TMembershipPermissions | null
   hasAccessToAnalyticsDashboardsFeature: boolean
+  isProductCatalogEnabled: boolean
 }
 
 export type ResolveRedirectResult = {
@@ -87,6 +88,7 @@ export const resolveRedirectTarget = (
     hasPermissions,
     findFirstViewPermission,
     hasAccessToAnalyticsDashboardsFeature,
+    isProductCatalogEnabled,
   } = input
 
   const slug = resolveOrgSlug(currentUser)
@@ -151,7 +153,8 @@ export const resolveRedirectTarget = (
   }
 
   // 3. Permission-based default.
-  const canSeeAnalytics = hasPermissions(['analyticsView', 'dataApiView'])
+  const canSeeAnalytics =
+    !isProductCatalogEnabled && hasPermissions(['analyticsView', 'dataApiView'])
 
   if (canSeeAnalytics && !hasAccessToAnalyticsDashboardsFeature) {
     return { to: `/${slug}${ANALYTIC_ROUTE}`, consumesSsoLs: discardsSsoPath }

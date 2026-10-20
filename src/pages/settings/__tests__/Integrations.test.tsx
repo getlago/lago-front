@@ -12,6 +12,7 @@ import { ReactElement } from 'react'
 import { SELECTOR_HOVER_ACTIONS_TEST_ID } from '~/components/designSystem/Selector'
 import { initializeTranslations } from '~/core/apolloClient'
 import {
+  FeatureFlagEnum,
   GetBillingEntitiesDocument,
   IntegrationsSettingDocument,
   PremiumIntegrationTypeEnum,
@@ -88,11 +89,14 @@ let mockOrganizationData: {
   ],
 }
 
+const mockHasFeatureFlag = jest.fn()
+
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: mockOrganizationData,
     loading: false,
     refetchOrganizationInfos: mockRefetch,
+    hasFeatureFlag: mockHasFeatureFlag,
   }),
 }))
 
@@ -222,6 +226,7 @@ describe('Integrations', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockIsPremium = true
+    mockHasFeatureFlag.mockReturnValue(false)
     mockOrganizationData = {
       premiumIntegrations: [
         PremiumIntegrationTypeEnum.Netsuite,
@@ -467,6 +472,35 @@ describe('Integrations', () => {
       await user.click(netsuiteSelector)
 
       expect(testMockNavigateFn).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('product catalog organizations', () => {
+    it('shows only tax and payment integrations on the Lago tab', async () => {
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.ProductCatalog)
+
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('Stripe')).toBeInTheDocument()
+      })
+
+      expect(screen.queryByText('HubSpot')).not.toBeInTheDocument()
+      expect(screen.queryByText('NetSuite')).not.toBeInTheDocument()
+      expect(screen.queryByText('Salesforce')).not.toBeInTheDocument()
+      expect(screen.queryByText('Segment')).not.toBeInTheDocument()
+    })
+
+    it('keeps every integration for legacy organizations', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByText('Stripe')).toBeInTheDocument()
+      })
+
+      expect(screen.getByText('HubSpot')).toBeInTheDocument()
+      expect(screen.getByText('NetSuite')).toBeInTheDocument()
+      expect(screen.getByText('Salesforce')).toBeInTheDocument()
     })
   })
 })

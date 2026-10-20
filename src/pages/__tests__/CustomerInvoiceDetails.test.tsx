@@ -51,6 +51,14 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => mockUseCurrentUser(),
 }))
 
+let mockIsProductCatalogEnabled = false
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    hasFeatureFlag: () => mockIsProductCatalogEnabled,
+  }),
+}))
+
 const mockHasPermissions = jest.fn().mockReturnValue(true)
 
 jest.mock('~/hooks/usePermissions', () => ({
@@ -280,6 +288,7 @@ describe('CustomerInvoiceDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     capturedConfig = null
+    mockIsProductCatalogEnabled = false
     mockHasPermissions.mockReturnValue(true)
     mockUseCurrentUser.mockReturnValue({ isPremium: true })
     mockUseInvoiceAuthorizations.mockReturnValue(mockDefaultAuthorizationsReturn)
@@ -1082,6 +1091,56 @@ describe('CustomerInvoiceDetails', () => {
         onCompleted?.({ syncSalesforceInvoice: { invoiceId: 'invoice-123' } })
 
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+    })
+  })
+
+  describe('GIVEN the regenerate authorization is granted', () => {
+    const REGENERATE_LABEL = 'text_1750678506388oynw9hd01l9'
+    const VOID_LABEL = 'text_1750678506388d4fr5etxbhh'
+
+    const getVisibleDropdownLabels = (): Array<string | undefined> => {
+      const dropdownAction = capturedConfig?.actions?.items[0]
+
+      if (dropdownAction?.type !== 'dropdown') return []
+
+      return dropdownAction.items.filter((item) => !item.hidden).map((item) => item.label)
+    }
+
+    beforeEach(() => {
+      mockUseInvoiceAuthorizations.mockReturnValue({
+        ...mockDefaultAuthorizationsReturn,
+        authorizations: {
+          ...mockDefaultAuthorizations,
+          canVoid: true,
+          canRegenerate: true,
+        },
+      })
+    })
+
+    describe('WHEN the product catalog feature flag is off', () => {
+      it('THEN should show the regenerate action', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(getVisibleDropdownLabels()).toContain(REGENERATE_LABEL)
+      })
+    })
+
+    describe('WHEN the product catalog feature flag is on', () => {
+      beforeEach(() => {
+        mockIsProductCatalogEnabled = true
+      })
+
+      it('THEN should hide the regenerate action', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(getVisibleDropdownLabels()).not.toContain(REGENERATE_LABEL)
+      })
+
+      it('THEN should keep the void action', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(getVisibleDropdownLabels()).toContain(VOID_LABEL)
       })
     })
   })

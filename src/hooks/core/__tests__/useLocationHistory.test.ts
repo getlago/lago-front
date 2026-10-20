@@ -662,6 +662,45 @@ describe('useLocationHistory()', () => {
         expect(mockHasFeatureFlag).not.toHaveBeenCalled()
       })
 
+      it('should redirect to home when a hiding feature flag is active', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['couponsView'],
+              hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasFeatureFlag).toHaveBeenCalledWith(FeatureFlagEnum.ProductCatalog)
+        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+      })
+
+      it('should allow access when a hiding feature flag is not active', () => {
+        mockHasFeatureFlag.mockReturnValue(false)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['couponsView'],
+              hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockNavigate).not.toHaveBeenCalledWith('/', { replace: true })
+      })
+
       it('should check permissions before feature flag', () => {
         mockHasPermissions.mockReturnValue(false)
         mockHasFeatureFlag.mockReturnValue(false)

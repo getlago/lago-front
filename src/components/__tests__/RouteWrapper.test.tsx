@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router'
 import { ERROR_FALLBACK_TEST_ID } from '~/components/ErrorFallback'
 import { RouteWrapper } from '~/components/RouteWrapper'
 import type { CustomRouteObject } from '~/core/router'
+import { FeatureFlagEnum } from '~/generated/graphql'
 
 configure({ testIdAttribute: 'data-test' })
 
@@ -36,6 +37,16 @@ jest.mock('~/hooks/useDeveloperTool', () => ({
     setMainRouterUrl: mockSetMainRouterUrl,
   }),
   useDevtoolTabParam: () => mockUseDevtoolTabParam(),
+}))
+
+const mockHasFeatureFlag = jest.fn()
+let mockIsOrganizationLoading = false
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    hasFeatureFlag: mockHasFeatureFlag,
+    loading: mockIsOrganizationLoading,
+  }),
 }))
 
 jest.mock('~/hooks/core/useLocationHistory', () => ({
@@ -80,6 +91,8 @@ describe('RouteWrapper', () => {
     jest.clearAllMocks()
     mockMainRouterUrl = ''
     mockRoutes = []
+    mockHasFeatureFlag.mockReturnValue(false)
+    mockIsOrganizationLoading = false
   })
 
   describe('mainRouterUrl navigation effect', () => {
@@ -243,6 +256,58 @@ describe('RouteWrapper', () => {
           expect(screen.getByTestId(PAGE_TEST_ID)).toBeInTheDocument()
           expect(screen.queryByTestId(ERROR_FALLBACK_TEST_ID)).not.toBeInTheDocument()
         })
+      })
+    })
+  })
+
+  describe('routes hidden by a feature flag', () => {
+    const hiddenRoute = (): CustomRouteObject => ({
+      path: '*',
+      element: <div data-test={PAGE_TEST_ID}>v1 page</div>,
+      hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
+    })
+
+    describe('GIVEN the hiding flag is active', () => {
+      it('THEN it should not mount the page', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+        mockRoutes = [hiddenRoute()]
+
+        render(
+          <MemoryRouter>
+            <RouteWrapper />
+          </MemoryRouter>,
+        )
+
+        expect(screen.queryByTestId(PAGE_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('GIVEN the organization is still loading', () => {
+      it('THEN it should not mount the page', () => {
+        mockIsOrganizationLoading = true
+        mockRoutes = [hiddenRoute()]
+
+        render(
+          <MemoryRouter>
+            <RouteWrapper />
+          </MemoryRouter>,
+        )
+
+        expect(screen.queryByTestId(PAGE_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('GIVEN the hiding flag is not active', () => {
+      it('THEN it should mount the page', () => {
+        mockRoutes = [hiddenRoute()]
+
+        render(
+          <MemoryRouter>
+            <RouteWrapper />
+          </MemoryRouter>,
+        )
+
+        expect(screen.getByTestId(PAGE_TEST_ID)).toBeInTheDocument()
       })
     })
   })

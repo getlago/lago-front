@@ -24,6 +24,7 @@ import {
   AddCustomerDrawerFragmentDoc,
   CustomerAccountTypeEnum,
   CustomerItemFragmentDoc,
+  FeatureFlagEnum,
   useCustomersLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -100,13 +101,24 @@ gql`
 const CustomersList = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ, hasFeatureFlag } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
   const filtersForCustomerQuery = useMemo(() => {
-    return formatFiltersForCustomerQuery(searchParams)
-  }, [searchParams])
+    const filters = formatFiltersForCustomerQuery(searchParams)
+
+    if (isProductCatalogEnabled) {
+      delete filters.accountType
+      delete filters.activeSubscriptionsCountFrom
+      delete filters.activeSubscriptionsCountTo
+    }
+
+    return filters
+  }, [searchParams, isProductCatalogEnabled])
+
+  const { accountType, ...otherFiltersForCustomerQuery } = filtersForCustomerQuery
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { page, goToPage } = usePageSearchParam()
@@ -115,11 +127,10 @@ const CustomersList = () => {
     variables: {
       limit: pageSize,
       page,
-      ...filtersForCustomerQuery,
-      accountType: [
-        (filtersForCustomerQuery.accountType as CustomerAccountTypeEnum) ??
-          CustomerAccountTypeEnum.Customer,
-      ],
+      ...otherFiltersForCustomerQuery,
+      ...(!isProductCatalogEnabled && {
+        accountType: [accountType ?? CustomerAccountTypeEnum.Customer],
+      }),
     },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',

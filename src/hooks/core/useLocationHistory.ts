@@ -131,6 +131,11 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
        * Redirect to home page
        */
       navigate(HOME_ROUTE, { replace: true })
+    } else if (
+      routeConfig.hiddenWithFeatureFlag &&
+      hasFeatureFlag(routeConfig.hiddenWithFeatureFlag)
+    ) {
+      navigate(HOME_ROUTE, { replace: true })
     } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
       /**
        * We add the current location to the history only if :

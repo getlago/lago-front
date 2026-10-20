@@ -118,6 +118,7 @@ describe('Home', () => {
     mockUseOrganizationInfos.mockReturnValue({
       loading: false,
       hasOrganizationPremiumAddon: mockHasOrganizationPremiumAddon,
+      hasFeatureFlag: () => false,
     })
   })
 
@@ -522,6 +523,7 @@ describe('Home', () => {
       mockUseOrganizationInfos.mockReturnValue({
         loading: true,
         hasOrganizationPremiumAddon: mockHasOrganizationPremiumAddon,
+        hasFeatureFlag: () => false,
       })
 
       renderHook(() => Home())

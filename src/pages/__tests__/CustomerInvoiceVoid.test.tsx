@@ -31,10 +31,17 @@ jest.mock('~/hooks/core/useLocationHistory', () => ({
   useLocationHistory: () => ({ goBack: jest.fn() }),
 }))
 
+let mockIsProductCatalogEnabled = false
+
 jest.mock('~/hooks/useOrganizationInfos', () => {
   const { TimezoneEnum } = jest.requireActual('~/generated/graphql')
 
-  return { useOrganizationInfos: () => ({ timezone: TimezoneEnum.TzUtc }) }
+  return {
+    useOrganizationInfos: () => ({
+      timezone: TimezoneEnum.TzUtc,
+      hasFeatureFlag: () => mockIsProductCatalogEnabled,
+    }),
+  }
 })
 
 jest.mock('~/hooks/useCurrentUser', () => ({
@@ -103,6 +110,7 @@ describe('CustomerInvoiceVoid', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     capturedVoidMutationOptions = undefined
+    mockIsProductCatalogEnabled = false
     mockHasPermissions.mockReturnValue(true)
   })
 
@@ -290,6 +298,40 @@ describe('CustomerInvoiceVoid', () => {
 
         expect(addToast).not.toHaveBeenCalled()
         expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a finalized invoice of an active customer', () => {
+    const REGENERATE_LINK_LABEL = 'text_1750678506388eexnh1b36o4'
+
+    beforeEach(() => {
+      mockQueryResult({ status: InvoiceStatusTypeEnum.Finalized })
+    })
+
+    describe('WHEN the product catalog feature flag is off', () => {
+      it('THEN should offer the void and regenerate link', () => {
+        renderPage()
+
+        expect(screen.getByRole('link', { name: REGENERATE_LINK_LABEL })).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the product catalog feature flag is on', () => {
+      beforeEach(() => {
+        mockIsProductCatalogEnabled = true
+      })
+
+      it('THEN should not offer the void and regenerate link', () => {
+        renderPage()
+
+        expect(screen.queryByRole('link', { name: REGENERATE_LINK_LABEL })).not.toBeInTheDocument()
+      })
+
+      it('THEN should still display the submit button', () => {
+        renderPage()
+
+        expect(screen.getByTestId(CUSTOMER_INVOICE_VOID_SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
       })
     })
   })
