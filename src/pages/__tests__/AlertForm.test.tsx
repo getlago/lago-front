@@ -1066,7 +1066,32 @@ describe('AlertForm', () => {
     await user.type(codeCells[1], 'hard')
     expect(screen.queryByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).not.toBeInTheDocument()
     expect(submit).toBeEnabled()
-    expect(mockUpdateSubscriptionAlert).not.toHaveBeenCalled()
+    const resolutionCells = screen.getAllByTestId('thresholds-notify-when-resolved')
+
+    await user.selectOptions(resolutionCells[1], 'false')
+    expect(screen.queryByTestId(RESOLVED_WEBHOOK_NOTICE_TEST_ID)).not.toBeInTheDocument()
+    await user.clear(codeCells[1])
+    expect(submit).toBeEnabled()
+    await user.selectOptions(resolutionCells[1], 'true')
+    expect(codeCells[1]).toHaveAttribute('aria-invalid', 'true')
+    await user.type(codeCells[1], 'hard')
+    await user.click(submit)
+    await waitFor(() =>
+      expect(mockUpdateSubscriptionAlert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variables: {
+            input: expect.objectContaining({
+              thresholds: [
+                expect.objectContaining({ notifyOn: [NotifyOnEnum.Triggered] }),
+                expect.objectContaining({
+                  notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+                }),
+              ],
+            }),
+          },
+        }),
+      ),
+    )
   })
 
   describe('GIVEN the "Notify when resolved" setting', () => {

@@ -76,6 +76,43 @@ jest.mock('~/components/form/ComboBox/ComboBoxFieldForTanstack', () => {
   }
 })
 
+jest.mock('~/components/form/ComboBox/ComboBox', () => ({
+  ComboBox: ({
+    data,
+    value,
+    disabled,
+    onChange,
+    'data-test': dataTest,
+  }: {
+    data: { value: string; label: string; disabled?: boolean; labelNode?: React.ReactNode }[]
+    value?: string
+    disabled?: boolean
+    onChange: (value: string) => void
+    'data-test'?: string
+  }) => (
+    <>
+      <select
+        data-test={dataTest}
+        disabled={disabled}
+        value={value ?? ''}
+        onChange={(event) => onChange(event.target.value)}
+      >
+        <option value="" />
+        {data.map(({ value: optionValue, label, disabled: optionDisabled }) => (
+          <option key={optionValue} value={optionValue} disabled={optionDisabled}>
+            {label}
+          </option>
+        ))}
+      </select>
+      {/* `<option>` cannot host the rich option row, so the label nodes are rendered
+          aside to keep their premium affordance assertable */}
+      {data.map(({ value: optionValue, labelNode }) =>
+        labelNode ? <div key={`label-node-${optionValue}`}>{labelNode}</div> : null,
+      )}
+    </>
+  ),
+}))
+
 const mockDialogOpen = jest.fn()
 
 jest.mock('~/components/dialogs/CentralizedDialog', () => ({
@@ -710,7 +747,32 @@ describe('WalletAlertForm', () => {
     await user.type(codeCells[1], 'hard')
     expect(screen.queryByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).not.toBeInTheDocument()
     expect(submit).toBeEnabled()
-    expect(mockUpdateWalletAlert).not.toHaveBeenCalled()
+    const resolutionCells = screen.getAllByTestId('thresholds-notify-when-resolved')
+
+    await user.selectOptions(resolutionCells[1], 'false')
+    expect(screen.queryByTestId(RESOLVED_WEBHOOK_NOTICE_TEST_ID)).not.toBeInTheDocument()
+    await user.clear(codeCells[1])
+    expect(submit).toBeEnabled()
+    await user.selectOptions(resolutionCells[1], 'true')
+    expect(codeCells[1]).toHaveAttribute('aria-invalid', 'true')
+    await user.type(codeCells[1], 'hard')
+    await user.click(submit)
+    await waitFor(() =>
+      expect(mockUpdateWalletAlert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variables: {
+            input: expect.objectContaining({
+              thresholds: [
+                expect.objectContaining({ notifyOn: [NotifyOnEnum.Triggered] }),
+                expect.objectContaining({
+                  notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+                }),
+              ],
+            }),
+          },
+        }),
+      ),
+    )
   })
 
   describe('GIVEN the "Notify when resolved" setting', () => {
