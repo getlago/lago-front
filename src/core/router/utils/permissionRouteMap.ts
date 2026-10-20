@@ -1,12 +1,21 @@
+import { FeatureFlagEnum } from '~/generated/graphql'
 import { TMembershipPermissions } from '~/hooks/usePermissions'
 
-import { routes } from '../index'
+import { isRouteAvailable } from './isRouteAvailable'
 
-type PermissionRouteMap = Partial<Record<keyof TMembershipPermissions, string>>
+import { routes } from '../index'
+import { CustomRouteObject } from '../types'
+
+type RouteCandidate = {
+  path: string
+  route: CustomRouteObject
+}
+
+type PermissionRouteMap = Partial<Record<keyof TMembershipPermissions, RouteCandidate[]>>
 
 /**
  * Recursively extracts view permission to route mappings from route configs.
- * Prioritizes the first route found for each permission.
+ * Keeps every candidate route per permission, in route declaration order.
  */
 const buildPermissionRouteMap = (
   routeConfigs: typeof routes,
@@ -34,11 +43,8 @@ const buildPermissionRouteMap = (
       route.permissionsOr?.filter((p) => p.toLowerCase().includes('view')) || []
     const viewPermissions = [...andViewPermissions, ...orViewPermissions]
 
-    // Map each view permission to the route if not already mapped
     for (const viewPermission of viewPermissions) {
-      if (!map[viewPermission]) {
-        map[viewPermission] = routePath
-      }
+      map[viewPermission] = [...(map[viewPermission] ?? []), { path: routePath, route }]
     }
   }
 
@@ -57,7 +63,25 @@ export const getPermissionRouteMap = (): PermissionRouteMap => {
 
 export const getRouteForPermission = (
   permission: keyof TMembershipPermissions | null,
+  hasFeatureFlag: (flag: FeatureFlagEnum) => boolean,
 ): string | null => {
   if (!permission) return null
-  return getPermissionRouteMap()[permission] ?? null
+
+  const candidate = getPermissionRouteMap()[permission]?.find(({ route }) =>
+    isRouteAvailable(route, hasFeatureFlag),
+  )
+
+  return candidate?.path ?? null
+}
+
+export const isRoutePathAvailable = (
+  path: string,
+  hasFeatureFlag: (flag: FeatureFlagEnum) => boolean,
+): boolean => {
+  const relativePath = path.replace(/^\//, '')
+  const candidate = Object.values(getPermissionRouteMap())
+    .flat()
+    .find((routeCandidate) => routeCandidate?.path === relativePath)
+
+  return !candidate || isRouteAvailable(candidate.route, hasFeatureFlag)
 }

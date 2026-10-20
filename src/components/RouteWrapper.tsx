@@ -8,6 +8,7 @@ import { ErrorBoundary } from '~/components/ErrorBoundary'
 import { ErrorFallback } from '~/components/ErrorFallback'
 import { CustomRouteObject, routes, useLocation, useNavigate } from '~/core/router'
 import { NEVER_SLUG_PREFIXES } from '~/core/router/slugPrefixes'
+import { isRouteAvailable, isRouteGatedByFeatureFlag } from '~/core/router/utils/isRouteAvailable'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { DEVTOOL_TAB_PARAMS, useDeveloperTool, useDevtoolTabParam } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -24,7 +25,7 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
 
   useEffect(() => {
     onRouteEnter(routeConfig, location)
-  }, [location, routeConfig, onRouteEnter])
+  }, [location, routeConfig, onRouteEnter, isOrganizationLoading])
 
   // Redirect to '/' and open devtools if path starts with DEVTOOL_ROUTE
   useEffect(() => {
@@ -45,8 +46,8 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
   }
 
   if (
-    routeConfig.hiddenWithFeatureFlag &&
-    (isOrganizationLoading || hasFeatureFlag(routeConfig.hiddenWithFeatureFlag))
+    isRouteGatedByFeatureFlag(routeConfig) &&
+    (isOrganizationLoading || !isRouteAvailable(routeConfig, hasFeatureFlag))
   ) {
     return <Spinner />
   }

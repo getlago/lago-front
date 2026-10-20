@@ -17,8 +17,8 @@ import {
   pathTargetsInaccessibleOrg,
   resolveOrgSlug,
 } from '~/core/router/utils/orgSlug'
-import { getRouteForPermission } from '~/core/router/utils/permissionRouteMap'
-import { CurrentUserInfosFragment } from '~/generated/graphql'
+import { getRouteForPermission, isRoutePathAvailable } from '~/core/router/utils/permissionRouteMap'
+import { CurrentUserInfosFragment, FeatureFlagEnum } from '~/generated/graphql'
 import { TMembershipPermissions } from '~/hooks/usePermissions'
 
 type CurrentUser = CurrentUserInfosFragment | undefined
@@ -40,9 +40,9 @@ export type ResolveRedirectInput = {
   ssoRedirectPath: string | undefined
   savedLocation: SavedLocation | undefined
   hasPermissions: (permissions: Array<keyof TMembershipPermissions>) => boolean
-  findFirstViewPermission: () => keyof TMembershipPermissions | null
+  findViewPermissions: () => Array<keyof TMembershipPermissions>
   hasAccessToAnalyticsDashboardsFeature: boolean
-  isProductCatalogEnabled: boolean
+  hasFeatureFlag: (flag: FeatureFlagEnum) => boolean
 }
 
 export type ResolveRedirectResult = {
@@ -72,7 +72,7 @@ export type ResolveRedirectResult = {
  *      prepended with the resolved slug for ALL users (single-org and
  *      multi-org), matching the universal auto-recovery in
  *      `OrganizationLayout`.
- *   3. Permission-based default (analytics → customers → first view route).
+ *   3. Permission-based default (analytics → customers → first available view route).
  *   4. `FORBIDDEN_ROUTE` fallback.
  *
  * Returns `null` only when the user has no resolvable slug — caller should
@@ -86,9 +86,9 @@ export const resolveRedirectTarget = (
     ssoRedirectPath,
     savedLocation,
     hasPermissions,
-    findFirstViewPermission,
+    findViewPermissions,
     hasAccessToAnalyticsDashboardsFeature,
-    isProductCatalogEnabled,
+    hasFeatureFlag,
   } = input
 
   const slug = resolveOrgSlug(currentUser)
@@ -154,7 +154,8 @@ export const resolveRedirectTarget = (
 
   // 3. Permission-based default.
   const canSeeAnalytics =
-    !isProductCatalogEnabled && hasPermissions(['analyticsView', 'dataApiView'])
+    hasPermissions(['analyticsView', 'dataApiView']) &&
+    isRoutePathAvailable(ANALYTIC_ROUTE, hasFeatureFlag)
 
   if (canSeeAnalytics && !hasAccessToAnalyticsDashboardsFeature) {
     return { to: `/${slug}${ANALYTIC_ROUTE}`, consumesSsoLs: discardsSsoPath }
@@ -173,8 +174,9 @@ export const resolveRedirectTarget = (
     return { to: `/${slug}${CUSTOMERS_LIST_ROUTE}`, consumesSsoLs: discardsSsoPath }
   }
 
-  const firstViewPermission = findFirstViewPermission()
-  const routeForPermission = getRouteForPermission(firstViewPermission)
+  const routeForPermission = findViewPermissions()
+    .map((permission) => getRouteForPermission(permission, hasFeatureFlag))
+    .find((route): route is string => !!route)
 
   if (routeForPermission) {
     return {

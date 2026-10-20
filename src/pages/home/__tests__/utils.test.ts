@@ -1,13 +1,26 @@
+import { FeatureFlagEnum } from '~/generated/graphql'
+
 import { resolveRedirectTarget } from '../utils'
 
-jest.mock('~/core/router/utils/permissionRouteMap', () => ({
-  getRouteForPermission: (permission: string | null) => {
-    if (permission === 'plansView') return '/plans'
-    if (permission === 'auditLogsView') return null
+jest.mock('~/core/router/utils/permissionRouteMap', () => {
+  const { ProductCatalog } = jest.requireActual('~/generated/graphql').FeatureFlagEnum
 
-    return null
-  },
-}))
+  return {
+    getRouteForPermission: (
+      permission: string | null,
+      hasFeatureFlag: (flag: string) => boolean,
+    ): string | null => {
+      const isProductCatalogEnabled = hasFeatureFlag(ProductCatalog)
+
+      if (permission === 'plansView') return isProductCatalogEnabled ? '/plan-pricing' : '/plans'
+      if (permission === 'couponsView') return isProductCatalogEnabled ? null : '/coupons'
+
+      return null
+    },
+    isRoutePathAvailable: (path: string, hasFeatureFlag: (flag: string) => boolean): boolean =>
+      !(path === '/analytics' && hasFeatureFlag(ProductCatalog)),
+  }
+})
 
 jest.mock('~/core/router/legacyPaths', () => ({
   LEGACY_APP_PATH_SEGMENTS: new Set(['customers', 'customer', 'plans', 'features']),
@@ -25,7 +38,7 @@ const SLUG = 'acme'
 const ORG_ID = 'org-acme'
 
 const mockHasPermissions = jest.fn()
-const mockFindFirstViewPermission = jest.fn()
+const mockFindViewPermissions = jest.fn()
 
 const buildUser = (
   memberships = [{ organization: { id: ORG_ID, slug: SLUG, accessibleByCurrentSession: true } }],
@@ -36,18 +49,21 @@ const baseInput = (overrides: Partial<Parameters<typeof resolveRedirectTarget>[0
   ssoRedirectPath: undefined,
   savedLocation: undefined,
   hasPermissions: mockHasPermissions,
-  findFirstViewPermission: mockFindFirstViewPermission,
+  findViewPermissions: mockFindViewPermissions,
   hasAccessToAnalyticsDashboardsFeature: false,
-  isProductCatalogEnabled: false,
+  hasFeatureFlag: () => false,
   ...overrides,
 })
+
+const withProductCatalog = (flag: FeatureFlagEnum): boolean =>
+  flag === FeatureFlagEnum.ProductCatalog
 
 describe('resolveRedirectTarget()', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     getCurrentOrganizationId.mockReturnValue(ORG_ID)
     mockHasPermissions.mockReturnValue(false)
-    mockFindFirstViewPermission.mockReturnValue(null)
+    mockFindViewPermissions.mockReturnValue([])
   })
 
   describe('GIVEN the user has no resolvable slug', () => {
@@ -385,7 +401,7 @@ describe('resolveRedirectTarget()', () => {
 
     it('THEN returns customers instead of analytics when the product catalog is enabled', () => {
       mockHasPermissions.mockReturnValue(true)
-      const result = resolveRedirectTarget(baseInput({ isProductCatalogEnabled: true }))
+      const result = resolveRedirectTarget(baseInput({ hasFeatureFlag: withProductCatalog }))
 
       expect(result).toEqual({ to: `/${SLUG}/customers`, consumesSsoLs: false })
     })
@@ -401,7 +417,7 @@ describe('resolveRedirectTarget()', () => {
 
     it('THEN returns first-view-permission route when no analytics nor customers', () => {
       mockHasPermissions.mockReturnValue(false)
-      mockFindFirstViewPermission.mockReturnValue('plansView')
+      mockFindViewPermissions.mockReturnValue(['plansView'])
       const result = resolveRedirectTarget(baseInput())
 
       expect(result).toEqual({ to: `/${SLUG}/plans`, consumesSsoLs: false })
@@ -409,10 +425,29 @@ describe('resolveRedirectTarget()', () => {
 
     it('THEN returns FORBIDDEN_ROUTE when no permission resolves to a route', () => {
       mockHasPermissions.mockReturnValue(false)
-      mockFindFirstViewPermission.mockReturnValue('auditLogsView')
+      mockFindViewPermissions.mockReturnValue(['auditLogsView'])
       const result = resolveRedirectTarget(baseInput())
 
       expect(result).toEqual({ to: '/forbidden', consumesSsoLs: false })
+    })
+
+    describe('AND the product catalog is enabled for a role without customersView', () => {
+      // Guards the Home <-> hidden route redirect loop: the fallback used to land on `/coupons`.
+      it('THEN skips permissions whose routes are hidden and uses the next available one', () => {
+        mockHasPermissions.mockReturnValue(false)
+        mockFindViewPermissions.mockReturnValue(['couponsView', 'plansView'])
+        const result = resolveRedirectTarget(baseInput({ hasFeatureFlag: withProductCatalog }))
+
+        expect(result).toEqual({ to: `/${SLUG}/plan-pricing`, consumesSsoLs: false })
+      })
+
+      it('THEN returns FORBIDDEN_ROUTE when every granted route is hidden', () => {
+        mockHasPermissions.mockReturnValue(false)
+        mockFindViewPermissions.mockReturnValue(['couponsView'])
+        const result = resolveRedirectTarget(baseInput({ hasFeatureFlag: withProductCatalog }))
+
+        expect(result).toEqual({ to: '/forbidden', consumesSsoLs: false })
+      })
     })
   })
 })

@@ -9,7 +9,10 @@ import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
-import { formatFiltersForCustomerQuery } from '~/components/Filters'
+import {
+  CustomerFiltersHiddenForProductCatalog,
+  formatFiltersForCustomerQuery,
+} from '~/components/Filters'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
@@ -101,22 +104,23 @@ gql`
 const CustomersList = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { intlFormatDateTimeOrgaTZ, hasFeatureFlag } = useOrganizationInfos()
+  const {
+    intlFormatDateTimeOrgaTZ,
+    hasFeatureFlag,
+    loading: isOrganizationLoading,
+  } = useOrganizationInfos()
   const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
-  const filtersForCustomerQuery = useMemo(() => {
-    const filters = formatFiltersForCustomerQuery(searchParams)
-
-    if (isProductCatalogEnabled) {
-      delete filters.accountType
-      delete filters.activeSubscriptionsCountFrom
-      delete filters.activeSubscriptionsCountTo
-    }
-
-    return filters
-  }, [searchParams, isProductCatalogEnabled])
+  const filtersForCustomerQuery = useMemo(
+    () =>
+      formatFiltersForCustomerQuery(
+        searchParams,
+        isProductCatalogEnabled ? CustomerFiltersHiddenForProductCatalog : undefined,
+      ),
+    [searchParams, isProductCatalogEnabled],
+  )
 
   const { accountType, ...otherFiltersForCustomerQuery } = filtersForCustomerQuery
 
@@ -139,7 +143,9 @@ const CustomersList = () => {
 
   const { openDeleteCustomerDialog } = useDeleteCustomerDialog()
 
-  const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading)
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading, {
+    fetchOnMount: !isOrganizationLoading,
+  })
 
   const searchAndResetPage = (value: string) => {
     goToPage(1)

@@ -1,6 +1,6 @@
 import { revalidateLogic } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
-import { useCallback } from 'react'
+import { ReactNode, useCallback } from 'react'
 
 import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
 import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
@@ -156,24 +156,24 @@ const CreateCustomer = () => {
       : translate('text_632b49e2620ea4c6d96c9666')
   }
 
-  const renderPartnerToggle = () => {
+  const renderPartnerToggle = (): ReactNode => {
     if (isProductCatalogEnabled) return null
 
+    const partnerField = (
+      <form.AppField name="isPartner">
+        {(field) => (
+          <field.SwitchField
+            label={translate('text_173832066416253fgbilrnae')}
+            subLabel={translate('text_173832066416219scp0nqeo8')}
+            labelPosition="right"
+            disabled={!canEditAccountType}
+          />
+        )}
+      </form.AppField>
+    )
+
     if (hasAccessToRevenueShare) {
-      return (
-        <div className="flex items-center justify-between">
-          <form.AppField name="isPartner">
-            {(field) => (
-              <field.SwitchField
-                label={translate('text_173832066416253fgbilrnae')}
-                subLabel={translate('text_173832066416219scp0nqeo8')}
-                labelPosition="right"
-                disabled={!canEditAccountType}
-              />
-            )}
-          </form.AppField>
-        </div>
-      )
+      return <div className="flex items-center justify-between">{partnerField}</div>
     }
 
     return (
@@ -184,16 +184,7 @@ const CreateCustomer = () => {
           openPremiumWarningDialog()
         }}
       >
-        <form.AppField name="isPartner">
-          {(field) => (
-            <field.SwitchField
-              label={translate('text_173832066416253fgbilrnae')}
-              subLabel={translate('text_173832066416219scp0nqeo8')}
-              labelPosition="right"
-              disabled={!canEditAccountType}
-            />
-          )}
-        </form.AppField>
+        {partnerField}
         <Icon name="sparkles" />
       </button>
     )

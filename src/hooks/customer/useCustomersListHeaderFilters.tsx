@@ -4,6 +4,7 @@ import {
   AvailableFiltersEnum,
   AvailableQuickFilters,
   CustomerAvailableFilters,
+  CustomerFiltersHiddenForProductCatalog,
   Filters,
 } from '~/components/Filters'
 import { SearchInput } from '~/components/SearchInput'
@@ -30,9 +31,7 @@ export function useCustomersListHeaderFilters({
   const getAvailableFilters = (): AvailableFiltersEnum[] => {
     if (isProductCatalogEnabled) {
       return CustomerAvailableFilters.filter(
-        (filter) =>
-          filter !== AvailableFiltersEnum.customerAccountType &&
-          filter !== AvailableFiltersEnum.activeSubscriptions,
+        (filter) => !CustomerFiltersHiddenForProductCatalog.includes(filter),
       )
     }
 
