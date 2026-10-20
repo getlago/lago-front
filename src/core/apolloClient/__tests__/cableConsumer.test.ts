@@ -1,4 +1,5 @@
-import { ApolloLink, execute, gql } from '@apollo/client'
+import { ApolloLink, execute } from '@apollo/client'
+import { parse } from 'graphql'
 
 jest.mock('../reactiveVars', () => ({
   AUTH_TOKEN_LS_KEY: 'auth_token',
@@ -16,13 +17,14 @@ const CABLE_URL = 'wss://api.lago.dev/cable'
 const ADMIN_PATH = '/acme/customers'
 const PORTAL_PATH = '/customer-portal/portal-token-abc'
 
-const SUBSCRIPTION = gql`
+// Parsed from a string so codegen does not pick it up as an app operation.
+const SUBSCRIPTION = parse(`
   subscription onConversation($id: ID!) {
     aiConversationStreamed(id: $id) {
       chunk
     }
   }
-`
+`)
 
 const CONNECTING = 0
 const OPEN = 1

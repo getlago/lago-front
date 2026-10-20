@@ -118,8 +118,10 @@ export const disconnectCableConsumer = (): void => {
   retiringConsumers.clear()
 }
 
-const createChannelId = (): string =>
-  `${Date.now().toString(16)}${Math.random().toString(16).slice(2)}`
+// Only needs to be unique within this page, so ActionCable does not merge two subscriptions.
+let channelCount = 0
+
+const createChannelId = (): string => `${Date.now().toString(16)}-${++channelCount}`
 
 type CablePayload = { result?: FetchResult; more?: boolean }
 
