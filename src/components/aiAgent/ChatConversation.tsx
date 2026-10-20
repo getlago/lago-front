@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react'
+import { FC } from 'react'
 
 import { ChatMessages } from '~/components/aiAgent/ChatMessages'
 import { Message } from '~/components/aiAgent/llmOutputs'
@@ -14,27 +14,8 @@ interface ChatConversationProps {
 }
 
 export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) => {
-  const { agentType, lastAssistantMessage, state, setChatDone, streamChunk } = useAiAgent()
+  const { agentType, state } = useAiAgent()
   const { translate } = useInternationalization()
-
-  useEffect(() => {
-    if (subscription.data?.aiConversationStreamed.chunk) {
-      if (lastAssistantMessage) {
-        streamChunk({
-          messageId: lastAssistantMessage.id,
-          chunk: subscription.data.aiConversationStreamed.chunk,
-        })
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscription.data?.aiConversationStreamed.chunk])
-
-  useEffect(() => {
-    if (lastAssistantMessage && subscription.data?.aiConversationStreamed.done) {
-      setChatDone(lastAssistantMessage.id)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscription.data?.aiConversationStreamed.done])
 
   return (
     <div
@@ -51,7 +32,7 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
           )
         }
 
-        // Skip the assistant bubble while it has nothing to render yet — the
+        // Skip the assistant bubble while it has nothing to render yet; the
         // loader stands in for the pending reply. An empty Received element
         // would otherwise stack a second gap-6 above the loader.
         if (!message.message && !message.financeAssistantResult) {
