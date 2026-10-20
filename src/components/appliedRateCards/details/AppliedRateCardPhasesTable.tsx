@@ -3,10 +3,7 @@ import { ReactNode, useState } from 'react'
 import { RateCardForRatePhaseFields } from '~/components/appliedRateCards/drawers/ratePhase/types'
 import { formatRatePhaseName, RatePhaseRate } from '~/components/appliedRateCards/ratePhaseDisplay'
 import { RatePhaseDurationChip } from '~/components/appliedRateCards/RatePhaseDurationChip'
-import {
-  getServerPhaseRate,
-  toServerPhaseForDetails,
-} from '~/components/appliedRateCards/ratePhaseRate'
+import { getServerPhaseRate } from '~/components/appliedRateCards/ratePhaseRate'
 import { RatePhaseRateChip } from '~/components/appliedRateCards/RatePhaseRateChip'
 import { PaginatedContent } from '~/components/designSystem/Pagination/PaginatedContent'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
@@ -47,8 +44,11 @@ export const AppliedRateCardPhasesTable = ({
   const pagePhases = phases.slice(firstRowIndex, firstRowIndex + APPLIED_RATE_CARD_PHASES_PAGE_SIZE)
   const metadata = { currentPage, totalPages, totalCount: phases.length }
 
+  const phaseRates = new Map(
+    pagePhases.map((phase) => [phase.id, rateCard ? getServerPhaseRate(phase, rateCard) : null]),
+  )
   const getPhaseRate = (phase: RatePhaseForDrawerFragment): RatePhaseRate | null =>
-    rateCard ? getServerPhaseRate(phase, rateCard) : null
+    phaseRates.get(phase.id) ?? null
 
   const renderRate = (phase: RatePhaseForDrawerFragment): ReactNode => {
     const phaseRate = getPhaseRate(phase)
@@ -106,7 +106,7 @@ export const AppliedRateCardPhasesTable = ({
       minWidth: 140,
       content: (phase) => (
         <RatePhaseDurationChip
-          cycleCount={toServerPhaseForDetails(phase).billingIntervalCycleCount}
+          cycleCount={phase.billingIntervalCycleCount ?? null}
           rate={getPhaseRate(phase)?.rate}
         />
       ),

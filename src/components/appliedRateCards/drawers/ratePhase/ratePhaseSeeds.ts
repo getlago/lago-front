@@ -60,8 +60,7 @@ export const getLiveSequenceLock = (
   otherPhases: RatePhaseReference[],
   editedPhase?: Pick<RatePhaseFormValues, 'durationType'>,
 ): RatePhaseSequenceLock => {
-  if (editedPhase?.durationType === 'forever') return 'tail'
-  if (otherPhases.length === 0) return 'none'
+  if (editedPhase?.durationType === 'forever' || otherPhases.length === 0) return 'tail'
 
   return 'beforeTail'
 }

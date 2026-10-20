@@ -171,6 +171,20 @@ describe('useRatePhaseDrawer', () => {
       expect(getForeverCheckbox()).toBeDisabled()
     })
 
+    // `RatePhases::CreateService` rejects a lone finite phase with `last_phase_must_be_indefinite`.
+    it('GIVEN no phase yet WHEN the first phase is created THEN it runs forever', async () => {
+      await openAndRender([], {
+        context: 'contract',
+        mode: 'create',
+        contractAppliedRateCardId: 'contract-rc-1',
+        otherPhases: [],
+        rateCard,
+      })
+
+      expect(getForeverCheckbox()).toBeChecked()
+      expect(getForeverCheckbox()).toBeDisabled()
+    })
+
     it('GIVEN other phases WHEN a phase is created THEN it cannot run forever', async () => {
       await openAndRender([], {
         context: 'plan',

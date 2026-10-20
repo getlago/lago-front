@@ -55,9 +55,8 @@ export const RATE_PHASE_FORM_DEFAULTS: RatePhaseFormValues = {
   conversionRate: '',
 }
 
-// A live save is one mutation and `RatePhases::CreateService` / `RatePhases::UpdateService`
-// validate the whole sequence: the forever tail stays last, every other phase stays finite
-// and before it.
+// `RatePhases::CreateService` / `UpdateService` check the whole sequence on each live save:
+// the forever tail stays last, every other phase stays finite and before it.
 export type RatePhaseSequenceLock = 'none' | 'tail' | 'beforeTail'
 
 export interface RatePhaseFormSchemaContext {
