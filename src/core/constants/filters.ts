@@ -54,3 +54,7 @@ export const CUSTOMER_INVOICES_FILTER_PREFIX = 'cin'
 export const CUSTOMER_PAYMENTS_FILTER_PREFIX = 'cpa'
 
 export const CUSTOMER_CREDIT_NOTES_FILTER_PREFIX = 'ccn'
+
+// Shared by the real-time usage overview and its billable metric pages, so the filters follow
+// the user from one to the other.
+export const REALTIME_USAGE_FILTER_PREFIX = 'rtu'
