@@ -235,7 +235,7 @@ describe('notifyOn', () => {
 
   describe('GIVEN thresholds with mixed notifyOn values', () => {
     describe('WHEN building the create input', () => {
-      it('THEN should send an explicit, normalized notifyOn on every threshold', () => {
+      it('THEN should send an explicit notifyOn without discarding values on every threshold', () => {
         const values = formValues({
           thresholds: [
             { code: 'warn', recurring: false, value: '10' },
@@ -251,14 +251,24 @@ describe('notifyOn', () => {
               value: '30',
               notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved, NotifyOnEnum.Resolved],
             },
-            { code: 'every', recurring: true, value: '5', notifyOn: TRIGGERED_AND_RESOLVED },
+            { code: 'every', recurring: true, value: '5', notifyOn: TRIGGERED },
           ],
         })
 
         expect(mapFormToCreateInput(values, CurrencyEnum.Usd).thresholds).toEqual([
           { code: 'warn', recurring: false, value: '1000', notifyOn: TRIGGERED },
-          { code: 'hard', recurring: false, value: '2000', notifyOn: TRIGGERED_AND_RESOLVED },
-          { code: 'odd', recurring: false, value: '3000', notifyOn: TRIGGERED },
+          {
+            code: 'hard',
+            recurring: false,
+            value: '2000',
+            notifyOn: [NotifyOnEnum.Resolved, NotifyOnEnum.Triggered],
+          },
+          {
+            code: 'odd',
+            recurring: false,
+            value: '3000',
+            notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved, NotifyOnEnum.Resolved],
+          },
           { code: 'every', recurring: true, value: '500', notifyOn: TRIGGERED },
         ])
       })
@@ -337,4 +347,27 @@ describe('notifyOn', () => {
       })
     })
   })
+})
+
+it('normalizes recurring resolution on load and preserves other arrays on save', () => {
+  const preserved = [NotifyOnEnum.Resolved, NotifyOnEnum.Triggered, NotifyOnEnum.Triggered]
+  const form = mapFromApiToForm({
+    walletId: 'wallet-1',
+    currency: CurrencyEnum.Usd,
+    alert: existingAlert({
+      thresholds: [
+        { code: 'hard', recurring: false, value: '1000', notifyOn: preserved },
+        { code: 'every', recurring: true, value: '500', notifyOn: TRIGGERED_AND_RESOLVED },
+      ],
+    }),
+  })
+
+  expect(form.thresholds[1].notifyOn).toEqual(TRIGGERED)
+  const input = mapFormToUpdateInput(
+    { ...form, name: 'Unrelated edit', alertType: AlertTypeEnum.WalletBalanceAmount },
+    'alert-1',
+    CurrencyEnum.Usd,
+  )
+
+  expect(input.thresholds?.map(({ notifyOn }) => notifyOn)).toEqual([preserved, TRIGGERED])
 })

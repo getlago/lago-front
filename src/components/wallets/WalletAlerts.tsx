@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { generatePath, useParams } from 'react-router'
 
-import { notifyOnToBoolean } from '~/components/alerts/utils'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
@@ -20,6 +19,7 @@ import {
   Alert,
   AlertTypeEnum,
   CurrencyEnum,
+  NotifyOnEnum,
   useGetWalletAlertsQuery,
   WalletDetailsFragment,
   WalletStatusEnum,
@@ -353,7 +353,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                             data-test={WALLET_ALERT_NOTIFY_WHEN_RESOLVED_TEST_ID}
                           >
                             {translate(
-                              notifyOnToBoolean(row.notifyOn)
+                              row.notifyOn?.includes(NotifyOnEnum.Resolved)
                                 ? 'text_65251f46339c650084ce0d57'
                                 : 'text_65251f4cd55aeb004e5aa5ef',
                             )}
@@ -412,7 +412,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                             data-test={WALLET_ALERT_NOTIFY_WHEN_RESOLVED_TEST_ID}
                           >
                             {translate(
-                              notifyOnToBoolean(row.notifyOn)
+                              row.notifyOn?.includes(NotifyOnEnum.Resolved)
                                 ? 'text_65251f46339c650084ce0d57'
                                 : 'text_65251f4cd55aeb004e5aa5ef',
                             )}

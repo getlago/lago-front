@@ -1,7 +1,6 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import { useMemo } from 'react'
 
-import { booleanToNotifyOn, notifyOnToBoolean } from '~/components/alerts/utils'
 import { Button } from '~/components/designSystem/Button'
 import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -16,7 +15,7 @@ import {
   ValueFormatterType,
 } from '~/components/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, ThresholdInput } from '~/generated/graphql'
+import { CurrencyEnum, NotifyOnEnum, ThresholdInput } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 
 export const THRESHOLDS_ROW_LABEL_TEST_ID = 'thresholds-row-label'
@@ -198,7 +197,7 @@ const AlertThresholds = ({
       code: '',
       value: '',
       recurring,
-      notifyOn: booleanToNotifyOn(false),
+      notifyOn: [NotifyOnEnum.Triggered],
     }
 
     if (!recurring && hasRecurringThreshold && recurringIndex > 0) {
@@ -367,7 +366,7 @@ const AlertThresholds = ({
                   <NotifyWhenResolvedInput
                     dataTest={THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID}
                     translate={translate}
-                    value={notifyOnToBoolean(row.notifyOn)}
+                    value={!!row.notifyOn?.includes(NotifyOnEnum.Resolved)}
                     onChange={(notifyWhenResolved) => {
                       setThresholdValue({
                         index: i,

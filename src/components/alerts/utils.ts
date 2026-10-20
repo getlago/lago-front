@@ -12,14 +12,22 @@ const REQUIRED_ERROR = 'text_1771342994699klxu2paz7g8'
 const CODE_REQUIRED_FOR_RESOLUTION_ERROR = 'text_1792439710542tbnwvrxl0g7'
 const CODE_NOT_UNIQUE_FOR_RESOLUTION_ERROR = 'text_17924397105421fihqq5j6ns'
 
-export const notifyOnToBoolean = (notifyOn?: NotifyOnEnum[] | null): boolean =>
-  Array.isArray(notifyOn) &&
-  notifyOn.length === 2 &&
-  notifyOn.includes(NotifyOnEnum.Triggered) &&
-  notifyOn.includes(NotifyOnEnum.Resolved)
+export const setResolved = (
+  notifyOn: NotifyOnEnum[] | null | undefined,
+  enabled: boolean,
+): NotifyOnEnum[] => {
+  const values = notifyOn ?? [NotifyOnEnum.Triggered]
 
-export const booleanToNotifyOn = (notifyWhenResolved: boolean): NotifyOnEnum[] =>
-  notifyWhenResolved ? [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved] : [NotifyOnEnum.Triggered]
+  if (!enabled) return values.filter((value) => value !== NotifyOnEnum.Resolved)
+
+  return values.includes(NotifyOnEnum.Resolved) ? values : [...values, NotifyOnEnum.Resolved]
+}
+
+export const withTriggered = (notifyOn: NotifyOnEnum[] | null | undefined): NotifyOnEnum[] => {
+  const values = notifyOn ?? []
+
+  return values.includes(NotifyOnEnum.Triggered) ? values : [NotifyOnEnum.Triggered, ...values]
+}
 
 export const getThresholdCodeErrorsFromForm = (
   errors: Record<string, readonly StandardSchemaV1Issue[]> | undefined,
@@ -36,7 +44,6 @@ export const getThresholdCodeErrorsFromForm = (
   return codeErrors
 }
 
-// Mirrors the API `validate_notify_on!`: an opted-in threshold needs a non-blank, unique code.
 export const getThresholdCodeErrors = (
   thresholds?: ThresholdInput[] | null,
 ): Record<number, string> => {
@@ -45,7 +52,7 @@ export const getThresholdCodeErrors = (
   if (!Array.isArray(thresholds)) return errors
 
   thresholds.forEach((threshold, index) => {
-    if (threshold?.recurring || !notifyOnToBoolean(threshold?.notifyOn)) return
+    if (threshold?.recurring || !threshold?.notifyOn?.includes(NotifyOnEnum.Resolved)) return
 
     if (!threshold.code?.trim()) {
       errors[index] = CODE_REQUIRED_FOR_RESOLUTION_ERROR
@@ -105,17 +112,7 @@ export const refineThresholdsNotifyOn = (
   thresholds.forEach((threshold, index) => {
     const notifyOn = threshold?.notifyOn
 
-    if (notifyOn !== null && notifyOn !== undefined && !Array.isArray(notifyOn)) {
-      ctx.addIssue({ code: 'custom', path: [index, 'notifyOn'], message: REQUIRED_ERROR })
-
-      return
-    }
-
     if (Array.isArray(notifyOn) && !notifyOn.includes(NotifyOnEnum.Triggered)) {
-      ctx.addIssue({ code: 'custom', path: [index, 'notifyOn'], message: REQUIRED_ERROR })
-    }
-
-    if (threshold?.recurring && notifyOn?.includes(NotifyOnEnum.Resolved)) {
       ctx.addIssue({ code: 'custom', path: [index, 'notifyOn'], message: REQUIRED_ERROR })
     }
   })
@@ -143,7 +140,8 @@ export const patchThreshold = (
 
   if (key === 'code') return { ...threshold, code: asString }
   if (key === 'recurring') return { ...threshold, recurring: !!newValue }
-  if (key === 'notifyOn') return { ...threshold, notifyOn: booleanToNotifyOn(!!newValue) }
+  if (key === 'notifyOn')
+    return { ...threshold, notifyOn: setResolved(threshold.notifyOn, !!newValue) }
 
   return { ...threshold, value: asString ?? '' }
 }

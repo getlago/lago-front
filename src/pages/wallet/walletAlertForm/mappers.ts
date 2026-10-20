@@ -1,8 +1,4 @@
-import {
-  booleanToNotifyOn,
-  notifyOnToBoolean,
-  sortAndFormatThresholds,
-} from '~/components/alerts/utils'
+import { setResolved, sortAndFormatThresholds, withTriggered } from '~/components/alerts/utils'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   AlertTypeEnum,
@@ -41,7 +37,12 @@ export const mapFromApiToForm = ({
         alert.thresholds,
         currency,
         isWalletCreditsAlert(alert.alertType),
-      ).map(({ code, recurring, value, notifyOn }) => ({ code, recurring, value, notifyOn }))
+      ).map(({ code, recurring, value, notifyOn }) => ({
+        code,
+        recurring,
+        value,
+        notifyOn: recurring ? setResolved(notifyOn, false) : withTriggered(notifyOn),
+      }))
     : [EMPTY_WALLET_ALERT_THRESHOLD],
 })
 
@@ -63,7 +64,7 @@ const mapThresholdToInput = ({
   return {
     code: threshold.code,
     recurring: threshold.recurring,
-    notifyOn: booleanToNotifyOn(!threshold.recurring && notifyOnToBoolean(threshold.notifyOn)),
+    notifyOn: withTriggered(threshold.notifyOn),
     value: isWalletCreditsAlert(alertType)
       ? value.split('.')[0]
       : String(serializeAmount(value, currency)),

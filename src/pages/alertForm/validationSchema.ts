@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { booleanToNotifyOn, refineThresholdsNotifyOn } from '~/components/alerts/utils'
+import { refineThresholdsNotifyOn } from '~/components/alerts/utils'
 import { AlertTypeEnum, NotifyOnEnum, ThresholdInput } from '~/generated/graphql'
 
 /**
@@ -85,5 +85,5 @@ export const EMPTY_SUBSCRIPTION_ALERT_THRESHOLD: ThresholdInput = {
   code: '',
   recurring: false,
   value: '',
-  notifyOn: booleanToNotifyOn(false),
+  notifyOn: [NotifyOnEnum.Triggered],
 }

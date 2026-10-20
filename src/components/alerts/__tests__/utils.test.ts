@@ -1,11 +1,11 @@
 import {
-  booleanToNotifyOn,
   getThresholdCodeErrors,
   getThresholdCodeErrorsFromForm,
-  notifyOnToBoolean,
   patchThreshold,
+  setResolved,
   SortableThreshold,
   sortAndFormatThresholds,
+  withTriggered,
 } from '~/components/alerts/utils'
 import { CurrencyEnum, NotifyOnEnum, ThresholdInput } from '~/generated/graphql'
 
@@ -151,43 +151,37 @@ describe('patchThreshold', () => {
 const TRIGGERED = [NotifyOnEnum.Triggered]
 const TRIGGERED_AND_RESOLVED = [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved]
 
-describe('notifyOnToBoolean', () => {
-  describe('GIVEN a notifyOn value from the API', () => {
-    it.each<[string, NotifyOnEnum[] | null | undefined, boolean]>([
-      ['[triggered]', TRIGGERED, false],
-      ['[triggered, resolved]', TRIGGERED_AND_RESOLVED, true],
-      ['[resolved, triggered]', [NotifyOnEnum.Resolved, NotifyOnEnum.Triggered], true],
-      ['an empty list', [], false],
-      ['duplicated triggered', [NotifyOnEnum.Triggered, NotifyOnEnum.Triggered], false],
-      [
-        'duplicated resolved',
-        [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved, NotifyOnEnum.Resolved],
-        false,
-      ],
-      ['resolved without triggered', [NotifyOnEnum.Resolved], false],
-      ['an unknown value with resolved', ['unknown' as NotifyOnEnum, NotifyOnEnum.Resolved], false],
-      ['not a list', 'resolved' as unknown as NotifyOnEnum[], false],
-      ['null', null, false],
-      ['undefined', undefined, false],
-    ])('WHEN it is %s THEN should map to %p', (_, notifyOn, expected) => {
-      expect(notifyOnToBoolean(notifyOn)).toBe(expected)
-    })
+describe('setResolved', () => {
+  it('round-trips an opt-in without changing other values', () => {
+    const notifyOn = [NotifyOnEnum.Triggered, NotifyOnEnum.Triggered]
+
+    expect(setResolved(setResolved(notifyOn, true), false)).toEqual(notifyOn)
+    expect(setResolved(setResolved(TRIGGERED, true), false)).toEqual(TRIGGERED)
+  })
+
+  it('removes only resolved', () => {
+    expect(setResolved(TRIGGERED_AND_RESOLVED, false)).toEqual(TRIGGERED)
+  })
+
+  it('leaves an already opted-in array untouched', () => {
+    const notifyOn = [NotifyOnEnum.Resolved, NotifyOnEnum.Triggered]
+
+    expect(setResolved(notifyOn, true)).toBe(notifyOn)
+  })
+
+  it('defaults a missing array to triggered', () => {
+    expect(setResolved(undefined, false)).toEqual(TRIGGERED)
   })
 })
 
-describe('booleanToNotifyOn', () => {
-  describe('GIVEN the "Notify when resolved" choice', () => {
-    it('WHEN false THEN should only notify when triggered', () => {
-      expect(booleanToNotifyOn(false)).toEqual(TRIGGERED)
-    })
+describe('withTriggered', () => {
+  it('preserves an array that already includes triggered', () => {
+    expect(withTriggered(TRIGGERED_AND_RESOLVED)).toBe(TRIGGERED_AND_RESOLVED)
+  })
 
-    it('WHEN true THEN should notify when triggered and resolved, in the API order', () => {
-      expect(booleanToNotifyOn(true)).toEqual(TRIGGERED_AND_RESOLVED)
-    })
-
-    it.each([true, false])('WHEN %p THEN should round-trip through notifyOnToBoolean', (value) => {
-      expect(notifyOnToBoolean(booleanToNotifyOn(value))).toBe(value)
-    })
+  it('adds triggered without dropping existing values', () => {
+    expect(withTriggered([NotifyOnEnum.Resolved])).toEqual(TRIGGERED_AND_RESOLVED)
+    expect(withTriggered(null)).toEqual(TRIGGERED)
   })
 })
 

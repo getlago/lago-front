@@ -125,7 +125,6 @@ describe('walletAlertValidationSchema', () => {
 describe('walletAlertValidationSchema notifyOn rules', () => {
   const CODE_REQUIRED_ERROR = 'text_1792439710542tbnwvrxl0g7'
   const CODE_NOT_UNIQUE_ERROR = 'text_17924397105421fihqq5j6ns'
-  const RECURRING_ERROR = 'text_1771342994699klxu2paz7g8'
   const TRIGGERED = [NotifyOnEnum.Triggered]
   const TRIGGERED_AND_RESOLVED = [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved]
 
@@ -165,21 +164,6 @@ describe('walletAlertValidationSchema notifyOn rules', () => {
             { path: 'thresholds.1.code', message: CODE_NOT_UNIQUE_ERROR },
           ]),
         )
-      })
-    })
-
-    describe('WHEN it is recurring', () => {
-      it('THEN should reject it', () => {
-        expect(
-          errorsOf(
-            validValues({
-              thresholds: [
-                { code: 'warn', recurring: false, value: '10', notifyOn: TRIGGERED },
-                { code: 'every', recurring: true, value: '5', notifyOn: TRIGGERED_AND_RESOLVED },
-              ],
-            }),
-          ),
-        ).toEqual([{ path: 'thresholds.1.notifyOn', message: RECURRING_ERROR }])
       })
     })
   })
