@@ -18,18 +18,10 @@ Never merge unless the user explicitly asks.
 
 ## Setup
 
-**`gh` first.** Every phase runs on it. Check before anything else:
-
-```bash
-command -v gh && gh auth status
-```
-
-- Not installed -> stop and ask the user to run `brew install gh`, then
-  `! gh auth login` in the prompt so the login lands in this session.
-- Installed but not logged in -> ask for `! gh auth login` only.
-
-Do not work around a missing `gh` with raw API calls or the GitHub web UI. Resume once
-`gh auth status` passes.
+**`gh` is required.** If any `gh` call fails because `gh` is missing or not logged in,
+stop and ask the user for `brew install gh`, then `! gh auth login` in the prompt so the
+login lands in this session. Do not work around it with raw API calls or the GitHub web
+UI.
 
 The Slack and Linear tools are deferred. Load them in one call:
 
