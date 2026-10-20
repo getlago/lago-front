@@ -188,17 +188,16 @@ export const usePlanFormSetup = ({
   }, [effectivePlan, billingItemData, formType, currency, hasAnyPricingUnitConfigured, form])
 
   // Auto-reset billChargesMonthly when conditions aren't met
-  const charges = useStore(form.store, (s) => s.values.charges)
+  const hasCharges = useStore(form.store, (s) => s.values.charges.length > 0)
   const billChargesMonthly = useStore(form.store, (s) => s.values.billChargesMonthly)
   const interval = useStore(form.store, (s) => s.values.interval)
   const isAnnual = isPlanIntervalAnnual(interval)
 
   useEffect(() => {
-    if ((!charges?.length || !isAnnual) && !!billChargesMonthly) {
+    if ((!hasCharges || !isAnnual) && billChargesMonthly) {
       form.setFieldValue('billChargesMonthly', false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [charges, billChargesMonthly, interval])
+  }, [hasCharges, billChargesMonthly, isAnnual, form])
 
   const loading = planLoading || (!!subscriptionId && !subscriptionData && !billingItemPlan)
 
