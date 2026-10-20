@@ -1,6 +1,6 @@
 # Security headers. This file is a TEMPLATE, not a loaded config.
 #
-# `.env.sh` substitutes `__LAGO_FRAME_ANCESTORS__` and writes the result to
+# `.env.sh` substitutes the `__LAGO_*__` placeholders and writes the result to
 # /tmp/csp.conf at container start. That rendered file is what every location
 # in nginx.conf includes. The image ships this template at
 # /etc/nginx/csp.conf.template, outside conf.d, so nginx never loads it raw.
@@ -14,22 +14,28 @@
 # Browsers ignore a source expression they cannot parse, so the policy then
 # allows no ancestor at all. It fails closed.
 #
-# Design constraint: lago-front ships as a single static image used by both
-# Lago Cloud and self-hosted users. The hosts the app talks to at runtime
-# (the API + its `wss://` ActionCable subscriptions, the Sentry DSN, Nango,
-# the embedded Superset URL) are injected per-deployment via env-config.js and
-# are NOT known at build time. So directives that gate *network egress* or
-# *embedding remote frames/images* (connect-src, frame-src, img-src) are kept
-# permissive on purpose: pinning them statically would break every
-# self-hosted deployment that uses a different API/Sentry/Superset host.
+# `connect-src` and `frame-src` gate where the app may send data and which
+# frames it may load. The hosts the app talks to at runtime (the API and its
+# `wss://` ActionCable socket, the Sentry DSN, Nango, the embedded Superset)
+# differ per deployment, so `.env.sh` renders these two directives too.
+# `LAGO_CSP_SOURCES` picks the mode:
 #
-# The defense-in-depth that DOES apply universally is locking down where
-# *scripts* execute: script-src 'self' (the app only loads its own hashed
-# /assets bundles + env-config.js, with no inline scripts and no eval),
-# object-src 'none', and base-uri 'self'. That is the XSS mitigation this
-# header buys.
+#   open         (default) any https:/http:/wss:/ws: origin, as before. A
+#                self-hosted deployment keeps working with no new variable.
+#   report-only  `open` stays enforced. A second header,
+#                Content-Security-Policy-Report-Only, carries the strict
+#                sources and reports what they would block.
+#   enforce      the strict sources are enforced.
+#
+# The strict sources are derived from API_URL (or LAGO_DOMAIN), SENTRY_DSN,
+# NANGO_PUBLIC_KEY and LAGO_SUPERSET_URL. See `.env.sh`.
+#
+# The defense-in-depth that applies in every mode is where *scripts* execute:
+# script-src 'self' (the app only loads its own hashed /assets bundles +
+# env-config.js, with no inline scripts and no eval), object-src 'none', and
+# base-uri 'self'.
 
-add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https: http: wss: ws: blob: data:; worker-src 'self' blob:; frame-src 'self' https: http:; object-src 'none'; base-uri 'self'; frame-ancestors __LAGO_FRAME_ANCESTORS__;" always;
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src __LAGO_CONNECT_SRC__; worker-src 'self' blob:; frame-src __LAGO_FRAME_SRC__; object-src 'none'; base-uri 'self'; frame-ancestors __LAGO_FRAME_ANCESTORS__;" always;
 
 # Stop browsers MIME-sniffing a response into an unexpected (e.g. executable)
 # content type.

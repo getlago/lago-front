@@ -19,17 +19,119 @@
 # baked list publishes whoever is on it. A deployment's partner origins are
 # also specific to that deployment, and have no meaning in anyone else's.
 # They belong in that deployment's configuration, not in the image.
+#
+# LAGO_CSP_SOURCES sets `connect-src` and `frame-src` (see csp.conf.template):
+#
+#   open         (default) any https:/http:/wss:/ws: origin, as before
+#   report-only  `open` stays enforced; the strict sources go in a
+#                Content-Security-Policy-Report-Only header
+#   enforce      the strict sources are enforced
+#
+# The strict sources are 'self' plus the origins this script already writes to
+# env-config.js:
+#
+#   connect-src  API_URL (or https://$LAGO_DOMAIN/api) over https and wss
+#                (ActionCable), the SENTRY_DSN host, and https/wss
+#                api.nango.dev when NANGO_PUBLIC_KEY is set
+#   frame-src    LAGO_SUPERSET_URL (the embedded dashboards)
+#
+# LAGO_CSP_CONNECT_EXTRA and LAGO_CSP_FRAME_EXTRA add sources, space separated.
+# In the strict modes, violations go to LAGO_CSP_REPORT_URI, or else to the
+# Sentry security endpoint of SENTRY_DSN. An unknown mode stops the container:
+# a typo must not silently fall back to `open`.
 CSP_TEMPLATE="${CSP_TEMPLATE:-/etc/nginx/csp.conf.template}"
 CSP_OUTPUT="${CSP_OUTPUT:-/tmp/csp.conf}"
 frame_ancestors="${LAGO_FRAME_ANCESTORS:-'self'}"
+csp_mode="${LAGO_CSP_SOURCES:-open}"
 
-if [ -f "$CSP_TEMPLATE" ]; then
-  # `|` as the delimiter: the list holds dots and stars but never a pipe.
-  sed "s|__LAGO_FRAME_ANCESTORS__|${frame_ancestors}|" "$CSP_TEMPLATE" > "$CSP_OUTPUT"
-else
+open_connect_src="'self' https: http: wss: ws: blob: data:"
+open_frame_src="'self' https: http:"
+
+# Prints scheme://host[:port] of an http(s) URL, without any user info.
+# Prints nothing for anything else.
+origin_of() {
+  local re='^(https?)://([^/?#]+)'
+  [[ "$1" =~ $re ]] || return 0
+  printf '%s://%s' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]##*@}"
+}
+
+# Escapes a value for the replacement side of `sed s|...|...|`.
+sed_escape() {
+  printf '%s' "$1" | sed -e 's/[\\&|]/\\&/g'
+}
+
+csp_api_url="${API_URL:-}"
+if [ -z "$csp_api_url" ] && [ -n "${LAGO_DOMAIN:-}" ]; then
+  csp_api_url="https://${LAGO_DOMAIN}/api"
+fi
+api_origin="$(origin_of "$csp_api_url")"
+sentry_origin="$(origin_of "${SENTRY_DSN:-}")"
+superset_origin="$(origin_of "${LAGO_SUPERSET_URL:-}")"
+
+strict_connect_src="'self' blob: data:"
+if [ -n "$api_origin" ]; then
+  strict_connect_src+=" $api_origin $(printf '%s' "$api_origin" | sed -e 's|^https://|wss://|' -e 's|^http://|ws://|')"
+fi
+[ -n "$sentry_origin" ] && strict_connect_src+=" $sentry_origin"
+[ -n "${NANGO_PUBLIC_KEY:-}" ] && strict_connect_src+=" https://api.nango.dev wss://api.nango.dev"
+[ -n "${LAGO_CSP_CONNECT_EXTRA:-}" ] && strict_connect_src+=" $LAGO_CSP_CONNECT_EXTRA"
+
+strict_frame_src="'self'"
+[ -n "$superset_origin" ] && strict_frame_src+=" $superset_origin"
+[ -n "${LAGO_CSP_FRAME_EXTRA:-}" ] && strict_frame_src+=" $LAGO_CSP_FRAME_EXTRA"
+
+# https://<key>@<host>/<project> -> https://<host>/api/<project>/security/?sentry_key=<key>
+csp_report_uri="${LAGO_CSP_REPORT_URI:-}"
+dsn_re='^(https?)://([^@/]+)@([^/]+)/([0-9]+)$'
+if [ -z "$csp_report_uri" ] && [[ "${SENTRY_DSN:-}" =~ $dsn_re ]]; then
+  csp_report_uri="${BASH_REMATCH[1]}://${BASH_REMATCH[3]}/api/${BASH_REMATCH[4]}/security/?sentry_key=${BASH_REMATCH[2]}"
+  [ -n "${APP_ENV:-}" ] && csp_report_uri+="&sentry_environment=${APP_ENV}"
+fi
+
+# Renders the template with the given connect-src and frame-src.
+render_csp() {
+  sed -e "s|__LAGO_FRAME_ANCESTORS__|$(sed_escape "$frame_ancestors")|" \
+      -e "s|__LAGO_CONNECT_SRC__|$(sed_escape "$1")|" \
+      -e "s|__LAGO_FRAME_SRC__|$(sed_escape "$2")|" \
+      "$CSP_TEMPLATE"
+}
+
+# Adds `report-uri` to the CSP header line(s), when there is somewhere to report.
+add_report_uri() {
+  if [ -n "$csp_report_uri" ]; then
+    sed -e "/^add_header Content-Security-Policy/s|;\" always;\$|; report-uri $(sed_escape "$csp_report_uri");\" always;|"
+  else
+    cat
+  fi
+}
+
+if [ ! -f "$CSP_TEMPLATE" ]; then
   echo ".env.sh: $CSP_TEMPLATE is missing, cannot render $CSP_OUTPUT" >&2
   exit 1
 fi
+
+case "$csp_mode" in
+  open)
+    render_csp "$open_connect_src" "$open_frame_src" > "$CSP_OUTPUT"
+    ;;
+  report-only)
+    {
+      render_csp "$open_connect_src" "$open_frame_src"
+      render_csp "$strict_connect_src" "$strict_frame_src" \
+        | grep '^add_header Content-Security-Policy ' \
+        | sed 's|^add_header Content-Security-Policy |add_header Content-Security-Policy-Report-Only |' \
+        | add_report_uri
+    } > "$CSP_OUTPUT"
+    ;;
+  enforce)
+    render_csp "$strict_connect_src" "$strict_frame_src" | add_report_uri > "$CSP_OUTPUT"
+    ;;
+  *)
+    echo ".env.sh: LAGO_CSP_SOURCES must be open, report-only or enforce, not '$csp_mode'" >&2
+    exit 1
+    ;;
+esac
+echo ".env.sh: CSP sources: $csp_mode" >&2
 
 # --- runtime app config ------------------------------------------------------
 rm -rf ./env-config.js
