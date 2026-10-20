@@ -30,7 +30,7 @@ jest.mock('~/components/drawers/useDrawer', () => ({
 }))
 
 const mockAddToast = jest.fn()
-const mockHasFeatureFlag = jest.fn((_flag: FeatureFlagEnum) => false)
+const mockHasFeatureFlag = jest.fn<boolean, [FeatureFlagEnum]>(() => false)
 
 jest.mock('~/hooks/useOrganizationInfos', () => {
   const actual = jest.requireActual('~/hooks/useOrganizationInfos')

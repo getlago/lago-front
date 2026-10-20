@@ -11,7 +11,7 @@ configure({ testIdAttribute: 'data-test' })
 const mockDebouncedSearch =
   jest.fn() as unknown as ReturnType<UseDebouncedSearch>['debouncedSearch']
 const mockHasOrganizationPremiumAddon = jest.fn(() => false)
-const mockHasFeatureFlag = jest.fn((_flag: FeatureFlagEnum) => false)
+const mockHasFeatureFlag = jest.fn<boolean, [FeatureFlagEnum]>(() => false)
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({

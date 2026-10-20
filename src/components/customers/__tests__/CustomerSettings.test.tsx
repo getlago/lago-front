@@ -12,7 +12,7 @@ import { CustomerSettings } from '../CustomerSettings'
 
 const CUSTOMER_ID = 'customer-123'
 
-const mockHasFeatureFlag = jest.fn((_flag: FeatureFlagEnum) => false)
+const mockHasFeatureFlag = jest.fn<boolean, [FeatureFlagEnum]>(() => false)
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
