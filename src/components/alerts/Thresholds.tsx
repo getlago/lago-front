@@ -236,8 +236,8 @@ const AlertThresholds = ({
     return (
       <Tooltip
         placement="top"
-        title={codeError ? translate(codeError) : ''}
-        disableHoverListener={!codeError}
+        title={codeError ? translate(codeError) : row.code || ''}
+        disableHoverListener={!codeError && !row.code}
       >
         <TextInput
           variant="outlined"
@@ -280,12 +280,11 @@ const AlertThresholds = ({
             deleteTooltipContent={translate('text_17242522324608198c2vblmw')}
             columns={[
               {
-                size: 200,
+                size: 150,
                 content: (_, i) => (
                   <Typography
                     className="px-4"
                     variant="captionHl"
-                    noWrap
                     data-test={THRESHOLDS_ROW_LABEL_TEST_ID}
                   >
                     {translate(i === 0 ? copyKeys.firstRow : 'text_1724179887723917j8ezkd9v')}
@@ -293,7 +292,7 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 155,
+                size: 210,
                 title: (
                   <Typography className="px-4" variant="captionHl">
                     {translate(
@@ -397,7 +396,7 @@ const AlertThresholds = ({
             data={thresholds.filter((threshold) => threshold.recurring) || []}
             columns={[
               {
-                size: 200,
+                size: 150,
                 title: (
                   <Typography className="px-4" variant="captionHl" noWrap>
                     {translate('text_632d68358f1fedc68eed3e64')}
@@ -407,7 +406,6 @@ const AlertThresholds = ({
                   <Typography
                     className="px-4"
                     variant="captionHl"
-                    noWrap
                     data-test={THRESHOLDS_RECURRING_ROW_LABEL_TEST_ID}
                   >
                     {translate(copyKeys.recurringRow)}
@@ -415,7 +413,7 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 155,
+                size: 210,
                 title: (
                   <Typography className="px-4" variant="captionHl" noWrap>
                     {translate(

@@ -284,7 +284,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
               }
             >
               {() => (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 overflow-x-auto">
                   <DetailsPage.InfoGrid
                     grid={[
                       {
@@ -325,7 +325,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                         ),
                       },
                       {
-                        size: 140,
+                        size: 210,
                         title: (
                           <Typography className="px-4 py-2.5" variant="captionHl" color="grey600">
                             {translate('text_1724179887723eh12a0kqbdw')}
@@ -348,7 +348,11 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                           </Typography>
                         ),
                         content: (row) => (
-                          <Typography className="px-4 py-2.5" variant="body" color="grey700">
+                          <Typography
+                            className="break-all px-4 py-2.5"
+                            variant="body"
+                            color="grey700"
+                          >
                             {row.code}
                           </Typography>
                         ),
@@ -391,7 +395,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                         ),
                       },
                       {
-                        size: 140,
+                        size: 210,
                         content: (row) => (
                           <Typography className="px-4 py-2.5" variant="body" color="grey700">
                             {formatAlertThresholdValue({
@@ -404,7 +408,11 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                       {
                         size: 150,
                         content: (row) => (
-                          <Typography className="px-4 py-2.5" variant="body" color="grey700">
+                          <Typography
+                            className="break-all px-4 py-2.5"
+                            variant="body"
+                            color="grey700"
+                          >
                             {row.code}
                           </Typography>
                         ),
