@@ -5,6 +5,7 @@ import { GraphQLError } from 'graphql'
 import { ReactNode } from 'react'
 
 import {
+  CreateContractRatePhaseDocument,
   CreateRatePhaseDocument,
   CurrencyEnum,
   ProductTypeEnum,
@@ -14,6 +15,10 @@ import {
   RatePhaseForDrawerFragment,
   UpdateContractRatePhaseDocument,
   UpdateRatePhaseDocument,
+  useCreateContractRatePhaseMutation,
+  useCreateRatePhaseMutation,
+  useUpdateContractRatePhaseMutation,
+  useUpdateRatePhaseMutation,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
@@ -28,6 +33,18 @@ jest.mock('~/components/drawers/useDrawer', () => ({
   useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
   useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
 }))
+
+jest.mock('~/generated/graphql', () => {
+  const actual = jest.requireActual('~/generated/graphql')
+
+  return {
+    ...actual,
+    useCreateRatePhaseMutation: jest.fn(actual.useCreateRatePhaseMutation),
+    useUpdateRatePhaseMutation: jest.fn(actual.useUpdateRatePhaseMutation),
+    useCreateContractRatePhaseMutation: jest.fn(actual.useCreateContractRatePhaseMutation),
+    useUpdateContractRatePhaseMutation: jest.fn(actual.useUpdateContractRatePhaseMutation),
+  }
+})
 
 const rateCard: RateCardForRatePhaseFields = {
   productType: ProductTypeEnum.Fixed,
@@ -375,5 +392,53 @@ describe('useRatePhaseDrawer', () => {
     await opened.form.submit()
 
     expect(captured?.input).not.toHaveProperty('minAmountCents')
+  })
+
+  it('GIVEN a plan phase WHEN saved THEN refetches getPlanAppliedRateCardForDetails', async () => {
+    const mock: MockedResponse = {
+      request: { query: CreateRatePhaseDocument },
+      variableMatcher: () => true,
+      result: { data: { createRatePhase: { id: 'rp-1', code: 'phase-1' } } },
+    }
+
+    const { opened } = await openAndRender([mock], {
+      context: 'plan',
+      mode: 'create',
+      planAppliedRateCardId: 'plan-rc-1',
+      otherPhases: [],
+      rateCard,
+    })
+
+    await userEvent.type(screen.getByLabelText(/code/i), 'phase-1')
+    await opened.form.submit()
+
+    const expectedOptions = { refetchQueries: ['getPlanAppliedRateCardForDetails'] }
+
+    expect(useCreateRatePhaseMutation).toHaveBeenCalledWith(expectedOptions)
+    expect(useUpdateRatePhaseMutation).toHaveBeenCalledWith(expectedOptions)
+  })
+
+  it('GIVEN a contract phase WHEN saved THEN refetches getContractAppliedRateCardForDetails', async () => {
+    const mock: MockedResponse = {
+      request: { query: CreateContractRatePhaseDocument },
+      variableMatcher: () => true,
+      result: { data: { createContractRatePhase: { id: 'rp-1', code: 'phase-1' } } },
+    }
+
+    const { opened } = await openAndRender([mock], {
+      context: 'contract',
+      mode: 'create',
+      contractAppliedRateCardId: 'contract-rc-1',
+      otherPhases: [],
+      rateCard,
+    })
+
+    await userEvent.type(screen.getByLabelText(/code/i), 'phase-1')
+    await opened.form.submit()
+
+    const expectedOptions = { refetchQueries: ['getContractAppliedRateCardForDetails'] }
+
+    expect(useCreateContractRatePhaseMutation).toHaveBeenCalledWith(expectedOptions)
+    expect(useUpdateContractRatePhaseMutation).toHaveBeenCalledWith(expectedOptions)
   })
 })

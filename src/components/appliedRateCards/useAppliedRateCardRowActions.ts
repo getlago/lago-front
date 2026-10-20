@@ -4,21 +4,9 @@ import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { usePermissions } from '~/hooks/usePermissions'
 
+import { APPLIED_RATE_CARD_CONTEXT_CONFIG } from './appliedRateCardContextConfig'
 import { useRemoveAppliedRateCardDialog } from './dialogs/useRemoveAppliedRateCardDialog'
 import { AppliedRateCardContext, AppliedRateCardRow, RateCardRemoval } from './types'
-
-// `PlanRateCards::DestroyService` rejects a plan attached to contracts (`plan_locked`),
-// `ContractRateCards::DestroyService` rejects a non-pending contract (`contract_locked`).
-const CONTEXT_CONFIG = {
-  plan: {
-    parentTypename: 'CatalogPlan',
-    updatePermission: 'plansUpdate',
-  },
-  contract: {
-    parentTypename: 'Contract',
-    updatePermission: 'contractsUpdate',
-  },
-} as const
 
 type UseAppliedRateCardRowActionsParams = {
   context: AppliedRateCardContext
@@ -42,7 +30,7 @@ export const useAppliedRateCardRowActions = ({
   const { hasPermissions } = usePermissions()
   const client = useApolloClient()
   const { openRemoveAppliedRateCardDialog } = useRemoveAppliedRateCardDialog()
-  const config = CONTEXT_CONFIG[context]
+  const config = APPLIED_RATE_CARD_CONTEXT_CONFIG[context]
 
   const getRemoval = (): RateCardRemoval => {
     if (!hasPermissions([config.updatePermission])) return { status: 'hidden' }

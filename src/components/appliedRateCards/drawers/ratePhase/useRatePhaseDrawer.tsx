@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
 
+import { RATE_PHASE_REFETCH_QUERIES } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { hasRateOverride } from '~/components/appliedRateCards/overrideDiff'
 import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
@@ -94,10 +95,18 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
   const drawer = useFormDrawer()
   const { createMoreControl, isCreateMoreEnabled, resetCreateMore, resetSignal, notifyReset } =
     useCreateMore()
-  const [createRatePhase] = useCreateRatePhaseMutation()
-  const [updateRatePhase] = useUpdateRatePhaseMutation()
-  const [createContractRatePhase] = useCreateContractRatePhaseMutation()
-  const [updateContractRatePhase] = useUpdateContractRatePhaseMutation()
+  const [createRatePhase] = useCreateRatePhaseMutation({
+    refetchQueries: RATE_PHASE_REFETCH_QUERIES.plan,
+  })
+  const [updateRatePhase] = useUpdateRatePhaseMutation({
+    refetchQueries: RATE_PHASE_REFETCH_QUERIES.plan,
+  })
+  const [createContractRatePhase] = useCreateContractRatePhaseMutation({
+    refetchQueries: RATE_PHASE_REFETCH_QUERIES.contract,
+  })
+  const [updateContractRatePhase] = useUpdateContractRatePhaseMutation({
+    refetchQueries: RATE_PHASE_REFETCH_QUERIES.contract,
+  })
   const currentParams = useRef<RatePhaseDrawerProps | null>(null)
   const otherPhases = useRef<RatePhaseReference[]>([])
   const schemaContext = useRef<RatePhaseFormSchemaContext>({

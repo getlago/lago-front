@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 
+import { RATE_PHASE_REFETCH_QUERIES } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { AppliedRateCardContext } from '~/components/appliedRateCards/types'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
@@ -22,12 +23,6 @@ gql`
     }
   }
 `
-
-// Renaming either details query silently stops these by-name refetches.
-export const RATE_PHASE_REFETCH_QUERIES: Record<AppliedRateCardContext, string[]> = {
-  plan: ['getPlanAppliedRateCardForDetails'],
-  contract: ['getContractAppliedRateCardForDetails'],
-}
 
 export type RatePhaseDialogProps = {
   context: AppliedRateCardContext

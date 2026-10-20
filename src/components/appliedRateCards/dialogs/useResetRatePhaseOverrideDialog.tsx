@@ -1,9 +1,10 @@
+import { RATE_PHASE_REFETCH_QUERIES } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import { useUpdateContractRatePhaseMutation, useUpdateRatePhaseMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { RATE_PHASE_REFETCH_QUERIES, RatePhaseDialogProps } from './useDeleteRatePhaseDialog'
+import { RatePhaseDialogProps } from './useDeleteRatePhaseDialog'
 
 export const useResetRatePhaseOverrideDialog = (): {
   openResetRatePhaseOverrideDialog: (props: RatePhaseDialogProps) => void
