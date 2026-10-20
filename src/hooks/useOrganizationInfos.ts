@@ -28,6 +28,7 @@ gql`
     defaultCurrency
     featureFlags
     premiumIntegrations
+    realtimeUsageEnabled
     canCreateBillingEntity
     authenticationMethods
     authenticatedMethod
