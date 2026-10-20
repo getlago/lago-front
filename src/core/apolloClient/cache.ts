@@ -48,6 +48,8 @@ export const queryFieldPolicies: Record<string, FieldPolicy> = {
   quotes: createSinglePageFieldPolicy(),
   rateCardRates: createSinglePageFieldPolicy(),
   rateCards: createSinglePageFieldPolicy(),
+  realtimeUsageBillableMetrics: createSinglePageFieldPolicy(),
+  realtimeUsageDimensions: createSinglePageFieldPolicy(),
   subscriptions: createSinglePageFieldPolicy(),
   taxes: createSinglePageFieldPolicy(),
   usageAttributionTypes: createSinglePageFieldPolicy(),

@@ -207,6 +207,12 @@ export const formatMetadataFilter = (metadata: { key: string; value: string }[])
  * over-splits; unescapeFilterLabel restores them for display. The id portion (before the
  * separator) is never escaped, so query decoding is unaffected.
  */
+// Dimension keys are JSON, whose commas would split the comma-separated filter value.
+export const encodeRealtimeDimensionKey = (key: string): string => encodeURIComponent(key)
+
+export const decodeRealtimeDimensionKey = (value: string): string =>
+  decodeURIComponent(value.split(filterDataInlineSeparator)[0])
+
 export const escapeFilterLabel = (label: string): string =>
   label.split(',').join(filterDataLabelCommaPlaceholder)
 
@@ -463,6 +469,10 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.adminActions]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.adminOrganizations]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.realtimeDimensions]: (value: string) =>
+    value.split(',').filter(Boolean).map(decodeRealtimeDimensionKey),
+  [AvailableFiltersEnum.realtimeSubscription]: (value: string) =>
+    value.split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.adminAuditDate]: (value: string) => {
     // The date-range element stores full ISO datetimes; the query args are ISO8601Date (day only)
     const [from, to] = (value as string).split(',')
@@ -1301,6 +1311,8 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.adminOrganizations:
     case AvailableFiltersEnum.rateCardProduct:
     case AvailableFiltersEnum.rateCardProductFilter:
+    case AvailableFiltersEnum.realtimeDimensions:
+    case AvailableFiltersEnum.realtimeSubscription:
       return value
         .split(',')
         .map((v) =>
