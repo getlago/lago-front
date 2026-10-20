@@ -26,6 +26,10 @@ export const FiltersItemInvoiceType = ({ value, setFilterValue }: FiltersItemInv
           value: InvoiceTypeEnum.AdvanceCharges,
         },
         {
+          label: translate('text_1792507896669q4dn36fbi4y'),
+          value: InvoiceTypeEnum.Contract,
+        },
+        {
           label: translate('text_62d18855b22699e5cf55f879'),
           value: InvoiceTypeEnum.Credit,
         },

@@ -31,6 +31,7 @@ describe('FiltersItemInvoiceType', () => {
     it.each([
       ['add_on', InvoiceTypeEnum.AddOn],
       ['advance_charges', InvoiceTypeEnum.AdvanceCharges],
+      ['contract', InvoiceTypeEnum.Contract],
       ['credit', InvoiceTypeEnum.Credit],
       ['one_off', InvoiceTypeEnum.OneOff],
       ['progressive_billing', InvoiceTypeEnum.ProgressiveBilling],
