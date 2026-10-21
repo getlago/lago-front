@@ -17,8 +17,17 @@ jest.mock('~/core/router/utils/permissionRouteMap', () => {
 
       return null
     },
-    isRoutePathAvailable: (path: string, hasFeatureFlag: (flag: string) => boolean): boolean =>
-      !(path === '/analytics' && hasFeatureFlag(ProductCatalog)),
+  }
+})
+
+jest.mock('~/core/router/utils/routeRegistry', () => {
+  const { ProductCatalog } = jest.requireActual('~/generated/graphql').FeatureFlagEnum
+
+  return {
+    isOrganizationPathAvailable: (
+      path: string,
+      hasFeatureFlag: (flag: string) => boolean,
+    ): boolean => !(path.startsWith('/analytics') && hasFeatureFlag(ProductCatalog)),
   }
 })
 

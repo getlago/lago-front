@@ -73,7 +73,10 @@ jest.mock('~/hooks/usePermissions', () => ({
 
 jest.mock('~/core/router/utils/permissionRouteMap', () => ({
   getRouteForPermission: (permission: string | null) => mockGetRouteForPermission(permission),
-  isRoutePathAvailable: () => true,
+}))
+
+jest.mock('~/core/router/utils/routeRegistry', () => ({
+  isOrganizationPathAvailable: () => true,
 }))
 
 jest.mock('~/core/router/legacyPaths', () => ({

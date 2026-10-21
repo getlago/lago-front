@@ -2,6 +2,7 @@ import { render as rtlRender, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
+  FeatureFlagEnum,
   GetCustomerIdForActivityLogDetailsDocument,
   GetSingleActivityLogDocument,
   GetSubscriptionIdForActivityLogDetailsDocument,
@@ -13,6 +14,7 @@ import {
   ACTIVITY_LOG_DETAILS_CONTENT_TEST_ID,
   ACTIVITY_LOG_DETAILS_CUSTOMER_LINK_TEST_ID,
   ACTIVITY_LOG_DETAILS_LOADING_TEST_ID,
+  ACTIVITY_LOG_DETAILS_RESOURCE_LINK_TEST_ID,
   ACTIVITY_LOG_DETAILS_SUBSCRIPTION_LINK_TEST_ID,
   ActivityLogDetails,
 } from '../ActivityLogDetails'
@@ -45,6 +47,14 @@ jest.mock('~/hooks/activityLogs/useActivityLogsInformation', () => ({
   useActivityLogsInformation: () => ({
     getActivityDescription: () => 'Test activity description',
     getResourceType: (typename: string) => typename,
+  }),
+}))
+
+const mockHasFeatureFlag = jest.fn<boolean, [FeatureFlagEnum]>(() => false)
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    hasFeatureFlag: mockHasFeatureFlag,
   }),
 }))
 
@@ -132,6 +142,7 @@ const mockGoBack = jest.fn()
 describe('ActivityLogDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasFeatureFlag.mockReturnValue(false)
   })
 
   afterEach(() => {
@@ -265,6 +276,56 @@ describe('ActivityLogDetails', () => {
           ...buildCustomerMock(),
           ...buildSubscriptionMock(null),
         ])
+
+        await waitFor(() => {
+          expect(screen.getByTestId(ACTIVITY_LOG_DETAILS_CONTENT_TEST_ID)).toBeInTheDocument()
+        })
+
+        expect(
+          screen.queryByTestId(ACTIVITY_LOG_DETAILS_SUBSCRIPTION_LINK_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the activity log points to v1 objects', () => {
+    const renderWithFullData = (): void =>
+      renderComponent([
+        ...buildActivityLogMock(),
+        ...buildCustomerMock('customer-internal-123'),
+        ...buildSubscriptionMock('subscription-internal-123'),
+      ])
+
+    describe('WHEN the organization does not use the product catalog', () => {
+      it('THEN should link the plan resource', async () => {
+        renderWithFullData()
+
+        await waitFor(() => {
+          expect(screen.getByTestId(ACTIVITY_LOG_DETAILS_RESOURCE_LINK_TEST_ID)).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN the organization uses the product catalog', () => {
+      beforeEach(() => {
+        mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.ProductCatalog)
+      })
+
+      it('THEN should show the plan resource id without a link', async () => {
+        renderWithFullData()
+
+        await waitFor(() => {
+          expect(screen.getByTestId(ACTIVITY_LOG_DETAILS_CONTENT_TEST_ID)).toBeInTheDocument()
+        })
+
+        expect(screen.getByText('plan-456')).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(ACTIVITY_LOG_DETAILS_RESOURCE_LINK_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+
+      it('THEN should not link the subscription', async () => {
+        renderWithFullData()
 
         await waitFor(() => {
           expect(screen.getByTestId(ACTIVITY_LOG_DETAILS_CONTENT_TEST_ID)).toBeInTheDocument()

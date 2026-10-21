@@ -1,42 +1,12 @@
 import { FeatureFlagEnum } from '~/generated/graphql'
 
-import {
-  getPermissionRouteMap,
-  getRouteForPermission,
-  isRoutePathAvailable,
-} from '../permissionRouteMap'
+import { getRouteForPermission } from '../permissionRouteMap'
 
 const noFeatureFlag = (): boolean => false
 const withProductCatalog = (flag: FeatureFlagEnum): boolean =>
   flag === FeatureFlagEnum.ProductCatalog
 
 describe('permissionRouteMap', () => {
-  describe('getPermissionRouteMap', () => {
-    it('returns a map of view permissions to routes', () => {
-      const map = getPermissionRouteMap()
-
-      expect(map).toBeDefined()
-      expect(typeof map).toBe('object')
-    })
-
-    it('returns the same cached map on subsequent calls', () => {
-      const map1 = getPermissionRouteMap()
-      const map2 = getPermissionRouteMap()
-
-      expect(map1).toBe(map2)
-    })
-
-    it('only includes routes without dynamic params', () => {
-      const map = getPermissionRouteMap()
-
-      for (const candidates of Object.values(map)) {
-        for (const { path } of candidates ?? []) {
-          expect(path).not.toContain(':')
-        }
-      }
-    })
-  })
-
   describe('getRouteForPermission', () => {
     it('returns the relative route for a view permission (paths under :organizationSlug)', () => {
       expect(getRouteForPermission('customersView', noFeatureFlag)).toBe('customers')
@@ -72,6 +42,10 @@ describe('permissionRouteMap', () => {
       expect(getRouteForPermission('auditLogsView', noFeatureFlag)).toBeNull()
     })
 
+    it('only returns static paths', () => {
+      expect(getRouteForPermission('customersView', noFeatureFlag)).not.toContain(':')
+    })
+
     it('returns null for a null permission', () => {
       expect(getRouteForPermission(null, noFeatureFlag)).toBeNull()
     })
@@ -92,20 +66,6 @@ describe('permissionRouteMap', () => {
       it('THEN skips routes requiring the flag', () => {
         expect(getRouteForPermission('contractsView', noFeatureFlag)).toBeNull()
       })
-    })
-  })
-
-  describe('isRoutePathAvailable', () => {
-    it('returns false for a path hidden by an active flag', () => {
-      expect(isRoutePathAvailable('/analytics', withProductCatalog)).toBe(false)
-    })
-
-    it('returns true for the same path when the flag is not active', () => {
-      expect(isRoutePathAvailable('/analytics', noFeatureFlag)).toBe(true)
-    })
-
-    it('returns true for an unknown path', () => {
-      expect(isRoutePathAvailable('/unknown-path', withProductCatalog)).toBe(true)
     })
   })
 })

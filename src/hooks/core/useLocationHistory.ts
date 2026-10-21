@@ -97,7 +97,8 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
   const organizationSlug = params?.organizationSlug
   const { loading: isCurrentUserLoading } = useCurrentUser()
   const { hasPermissions, hasPermissionsOr } = usePermissions()
-  const { hasFeatureFlag, loading: isOrganizationLoading } = useOrganizationInfos()
+  const { hasFeatureFlag, organization, loading: isOrganizationLoading } = useOrganizationInfos()
+  const isWaitingForOrganization = isOrganizationLoading && !organization
   const goBack: GoBack = (fallback, options) => {
     const { previous, remainingHistory } = getPreviousLocation({
       ...(options || {}),
@@ -129,7 +130,7 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
       return
     }
 
-    if (isRouteGatedByFeatureFlag(routeConfig) && isOrganizationLoading) return
+    if (isRouteGatedByFeatureFlag(routeConfig) && isWaitingForOrganization) return
 
     if (!isRouteAvailable(routeConfig, hasFeatureFlag)) {
       /**

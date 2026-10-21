@@ -21,11 +21,12 @@ interface PageWrapperProps {
 const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
   const location = useLocation()
   const { onRouteEnter } = useLocationHistory()
-  const { hasFeatureFlag, loading: isOrganizationLoading } = useOrganizationInfos()
+  const { hasFeatureFlag, organization, loading: isOrganizationLoading } = useOrganizationInfos()
+  const isWaitingForOrganization = isOrganizationLoading && !organization
 
   useEffect(() => {
     onRouteEnter(routeConfig, location)
-  }, [location, routeConfig, onRouteEnter, isOrganizationLoading])
+  }, [location, routeConfig, onRouteEnter, isWaitingForOrganization])
 
   // Redirect to '/' and open devtools if path starts with DEVTOOL_ROUTE
   useEffect(() => {
@@ -47,7 +48,7 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
 
   if (
     isRouteGatedByFeatureFlag(routeConfig) &&
-    (isOrganizationLoading || !isRouteAvailable(routeConfig, hasFeatureFlag))
+    (isWaitingForOrganization || !isRouteAvailable(routeConfig, hasFeatureFlag))
   ) {
     return <Spinner />
   }

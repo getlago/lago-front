@@ -49,10 +49,10 @@ export function useCustomerDetailsHeaderActions({
   })
 
   const { hasActiveWallet } = customer || {}
-  const isProductCatalogActive = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
 
   const getCreateSubscriptionOrContractAction = (): MainHeaderDropdownItem => {
-    if (!isProductCatalogActive) {
+    if (!isProductCatalogEnabled) {
       return {
         label: translate('text_626162c62f790600f850b70c'),
         hidden: !hasPermissions(['subscriptionsCreate']),
@@ -89,7 +89,7 @@ export function useCustomerDetailsHeaderActions({
       label: translate('text_641b1b19d6e64300632ca60c'),
       variant: 'inline',
       startIcon: 'outside',
-      hidden: !hasPermissions(['customersUpdate']) || isProductCatalogActive,
+      hidden: !hasPermissions(['customersUpdate']) || isProductCatalogEnabled,
       onClick: async () => {
         await generatePortalUrl({
           variables: { input: { id: customerId } },
@@ -104,7 +104,7 @@ export function useCustomerDetailsHeaderActions({
         getCreateSubscriptionOrContractAction(),
         {
           label: translate('text_6453819268763979024ad083'),
-          hidden: !hasPermissions(['invoicesCreate']) || isProductCatalogActive,
+          hidden: !hasPermissions(['invoicesCreate']) || isProductCatalogEnabled,
           dataTest: 'create-invoice-action',
           onClick: (closePopper) => {
             navigate(generatePath(CREATE_INVOICE_ROUTE, { customerId }))
@@ -113,7 +113,7 @@ export function useCustomerDetailsHeaderActions({
         },
         {
           label: translate('text_628b8dc14c71840130f8d8a1'),
-          hidden: !hasPermissions(['couponsAttach']) || isProductCatalogActive,
+          hidden: !hasPermissions(['couponsAttach']) || isProductCatalogEnabled,
           dataTest: 'apply-coupon-action',
           onClick: (closePopper) => {
             openAddCouponToCustomerDialog()
@@ -122,7 +122,7 @@ export function useCustomerDetailsHeaderActions({
         },
         {
           label: translate('text_62d175066d2dbf1d50bc93a5'),
-          hidden: !hasPermissions(['walletsCreate']) || isProductCatalogActive,
+          hidden: !hasPermissions(['walletsCreate']) || isProductCatalogEnabled,
           disabled: !!hasActiveWallet,
           onClick: (closePopper) => {
             navigate(generatePath(CREATE_WALLET_ROUTE, { customerId }))

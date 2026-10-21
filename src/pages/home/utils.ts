@@ -17,7 +17,8 @@ import {
   pathTargetsInaccessibleOrg,
   resolveOrgSlug,
 } from '~/core/router/utils/orgSlug'
-import { getRouteForPermission, isRoutePathAvailable } from '~/core/router/utils/permissionRouteMap'
+import { getRouteForPermission } from '~/core/router/utils/permissionRouteMap'
+import { isOrganizationPathAvailable } from '~/core/router/utils/routeRegistry'
 import { CurrentUserInfosFragment, FeatureFlagEnum } from '~/generated/graphql'
 import { TMembershipPermissions } from '~/hooks/usePermissions'
 
@@ -153,24 +154,21 @@ export const resolveRedirectTarget = (
   }
 
   // 3. Permission-based default.
-  const canSeeAnalytics =
+  const analyticsPath = hasAccessToAnalyticsDashboardsFeature
+    ? generatePath(ANALYTIC_TABS_ROUTE, { tab: NewAnalyticsTabsOptionsEnum.revenueStreams })
+    : ANALYTIC_ROUTE
+
+  if (
     hasPermissions(['analyticsView', 'dataApiView']) &&
-    isRoutePathAvailable(ANALYTIC_ROUTE, hasFeatureFlag)
-
-  if (canSeeAnalytics && !hasAccessToAnalyticsDashboardsFeature) {
-    return { to: `/${slug}${ANALYTIC_ROUTE}`, consumesSsoLs: discardsSsoPath }
+    isOrganizationPathAvailable(analyticsPath, hasFeatureFlag)
+  ) {
+    return { to: `/${slug}${analyticsPath}`, consumesSsoLs: discardsSsoPath }
   }
 
-  if (canSeeAnalytics && hasAccessToAnalyticsDashboardsFeature) {
-    return {
-      to: `/${slug}${generatePath(ANALYTIC_TABS_ROUTE, {
-        tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
-      })}`,
-      consumesSsoLs: discardsSsoPath,
-    }
-  }
-
-  if (hasPermissions(['customersView'])) {
+  if (
+    hasPermissions(['customersView']) &&
+    isOrganizationPathAvailable(CUSTOMERS_LIST_ROUTE, hasFeatureFlag)
+  ) {
     return { to: `/${slug}${CUSTOMERS_LIST_ROUTE}`, consumesSsoLs: discardsSsoPath }
   }
 
