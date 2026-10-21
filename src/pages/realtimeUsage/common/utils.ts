@@ -1,22 +1,18 @@
 import { DateTime } from 'luxon'
 
+import { isValidDateRangeValue } from '~/components/Filters/graphql/utils'
+import {
+  DEFAULT_FILTER_COLOR,
+  FILTER_COLORS,
+  OTHER_FILTER_COLOR,
+} from '~/components/subscriptions/realtimeUsage/graph/constants'
+import { REALTIME_USAGE_MAX_DAYS } from '~/core/constants/realtimeUsage'
 import { DateFormat, intlFormatDateTime, TimeFormat } from '~/core/timezone'
 import { RealtimeUsageTimeGranularityEnum, TimezoneEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
-import {
-  DEFAULT_DIMENSION_COLOR,
-  DIMENSION_COLORS,
-  OTHER_DIMENSION_COLOR,
-  SERIES_KEY_PREFIX,
-} from './constants'
+import { SERIES_KEY_PREFIX } from './constants'
 import { PeriodPoint, RealtimeUsageReport, Series } from './types'
-
-export const seriesValue = (point: PeriodPoint | undefined, key: string): number => {
-  const value = point?.[key]
-
-  return typeof value === 'number' ? value : 0
-}
 
 export const dimensionLabelOf = (
   dimension: { name?: string | null; other: boolean },
@@ -31,27 +27,25 @@ export const dimensionColorOf = (
   dimension: { name?: string | null; other: boolean },
   rank: number,
 ): string => {
-  if (dimension.other) return OTHER_DIMENSION_COLOR
-  if (!dimension.name) return DEFAULT_DIMENSION_COLOR
+  if (dimension.other) return OTHER_FILTER_COLOR
+  if (!dimension.name) return DEFAULT_FILTER_COLOR
 
-  return DIMENSION_COLORS[rank % DIMENSION_COLORS.length]
+  return FILTER_COLORS[rank % FILTER_COLORS.length]
 }
 
 const periodDuration = (granularity: RealtimeUsageTimeGranularityEnum): { hours: number } =>
   granularity === RealtimeUsageTimeGranularityEnum.Day ? { hours: 24 } : { hours: 1 }
 
-// The period still filling is drawn lighter than the closed ones.
 export const isPartialPeriod = (
   time: string,
   granularity: RealtimeUsageTimeGranularityEnum,
   now: DateTime,
 ): boolean => DateTime.fromISO(time).plus(periodDuration(granularity)) > now
 
-// The API already ranks the dimensions and folds the tail, so the series follow its order.
-export const buildSeriesAndPoints = (
+export const buildDimensionSeries = (
   report: RealtimeUsageReport | undefined,
   translate: TranslateFunc,
-  now: DateTime = DateTime.now(),
+  now: DateTime,
 ): { series: Series[]; points: PeriodPoint[] } => {
   if (!report) return { series: [], points: [] }
 
@@ -102,12 +96,13 @@ export const formatPeriod = (
   return granularity === RealtimeUsageTimeGranularityEnum.Day ? date : `${date}, ${hour}`
 }
 
-// Rolling windows end now and start on the hour wall the API snaps to, in the organization's
-// timezone. The start only moves when the hour turns, so a minute tick does not refetch.
-export const rollingWindowStartOf = (now: DateTime, hours: number, timezoneName: string): string =>
-  now
-    .setZone(timezoneName)
-    .startOf('hour')
-    .minus({ hours: hours - 1 })
-    .toUTC()
-    .toISO() || ''
+export const isApplicableRange = (value?: string | null): value is string => {
+  if (!value || !isValidDateRangeValue(value)) return false
+
+  const [from, to] = value.split(',')
+
+  return DateTime.fromISO(to).diff(DateTime.fromISO(from), 'days').days <= REALTIME_USAGE_MAX_DAYS
+}
+
+export const heldKeyOf = (variables: Record<string, unknown>): string =>
+  JSON.stringify({ ...variables, fromDatetime: undefined, toDatetime: undefined })

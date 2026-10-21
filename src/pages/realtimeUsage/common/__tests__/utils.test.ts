@@ -1,15 +1,21 @@
 import { DateTime } from 'luxon'
 
+import {
+  DEFAULT_FILTER_COLOR,
+  FILTER_COLORS,
+  OTHER_FILTER_COLOR,
+} from '~/components/subscriptions/realtimeUsage/graph/constants'
 import { RealtimeUsageTimeGranularityEnum, TimezoneEnum } from '~/generated/graphql'
 
-import {
-  DEFAULT_DIMENSION_COLOR,
-  DIMENSION_COLORS,
-  OTHER_DIMENSION_COLOR,
-  SERIES_KEY_PREFIX,
-} from '../constants'
+import { SERIES_KEY_PREFIX } from '../constants'
 import { RealtimeUsageReport } from '../types'
-import { buildSeriesAndPoints, formatPeriod, isPartialPeriod, rollingWindowStartOf } from '../utils'
+import {
+  buildDimensionSeries,
+  formatPeriod,
+  heldKeyOf,
+  isApplicableRange,
+  isPartialPeriod,
+} from '../utils'
 
 const translate = (key: string): string => key
 
@@ -45,9 +51,9 @@ const report: RealtimeUsageReport = {
   ],
 }
 
-describe('buildSeriesAndPoints', () => {
+describe('buildDimensionSeries', () => {
   it('keeps the order the API ranks the dimensions in, keyed on their rank', () => {
-    const { series } = buildSeriesAndPoints(report, translate, NOW)
+    const { series } = buildDimensionSeries(report, translate, NOW)
 
     expect(series.map((serie) => serie.key)).toEqual(
       [0, 1, 2, 3].map((i) => `${SERIES_KEY_PREFIX}${i}`),
@@ -56,13 +62,13 @@ describe('buildSeriesAndPoints', () => {
   })
 
   it('colors the named dimensions in turn and greys out the default and folded ones', () => {
-    const { series } = buildSeriesAndPoints(report, translate, NOW)
+    const { series } = buildDimensionSeries(report, translate, NOW)
 
     expect(series.map((serie) => serie.color)).toEqual([
-      DIMENSION_COLORS[0],
-      DEFAULT_DIMENSION_COLOR,
-      DIMENSION_COLORS[1],
-      OTHER_DIMENSION_COLOR,
+      FILTER_COLORS[0],
+      DEFAULT_FILTER_COLOR,
+      FILTER_COLORS[1],
+      OTHER_FILTER_COLOR,
     ])
     expect(series.map((serie) => serie.label)).toEqual([
       'eu',
@@ -73,7 +79,7 @@ describe('buildSeriesAndPoints', () => {
   })
 
   it('spreads every period over the series, and flags the period still filling', () => {
-    const { points } = buildSeriesAndPoints(report, translate, NOW)
+    const { points } = buildDimensionSeries(report, translate, NOW)
 
     expect(points).toEqual([
       {
@@ -96,7 +102,7 @@ describe('buildSeriesAndPoints', () => {
   })
 
   it('returns nothing without a report', () => {
-    expect(buildSeriesAndPoints(undefined, translate, NOW)).toEqual({ series: [], points: [] })
+    expect(buildDimensionSeries(undefined, translate, NOW)).toEqual({ series: [], points: [] })
   })
 })
 
@@ -130,13 +136,28 @@ describe('formatPeriod', () => {
   })
 })
 
-describe('rollingWindowStartOf', () => {
-  it('starts the window on the hour wall, counting the current hour in', () => {
-    expect(rollingWindowStartOf(NOW, 24, 'UTC')).toBe('2026-08-23T11:00:00.000Z')
+describe('isApplicableRange', () => {
+  it('accepts a range up to the longest window the API serves', () => {
+    expect(isApplicableRange('2026-08-01T00:00:00.000Z,2026-08-31T23:59:59.000Z')).toBe(true)
   })
 
-  it("snaps to the organization's hour walls under a half-hour offset", () => {
-    // 10:30 UTC is 16:00 in Kolkata, whose hour starts at 10:30 UTC.
-    expect(rollingWindowStartOf(NOW, 6, 'Asia/Kolkata')).toBe('2026-08-24T05:30:00.000Z')
+  it('refuses a range the API would reject, or no range at all', () => {
+    expect(isApplicableRange('2026-07-01T00:00:00.000Z,2026-08-31T23:59:59.000Z')).toBe(false)
+    expect(isApplicableRange('2026-08-31T00:00:00.000Z,2026-08-01T00:00:00.000Z')).toBe(false)
+    expect(isApplicableRange('not-a-date,2026-08-01T00:00:00.000Z')).toBe(false)
+    expect(isApplicableRange(null)).toBe(false)
+  })
+})
+
+describe('heldKeyOf', () => {
+  it('ignores the window, which moves on every refresh', () => {
+    expect(heldKeyOf({ page: 1, fromDatetime: 'a', toDatetime: 'b' })).toBe(
+      heldKeyOf({ page: 1, fromDatetime: 'c', toDatetime: 'd' }),
+    )
+  })
+
+  it('tells apart anything else the query reads', () => {
+    expect(heldKeyOf({ page: 1 })).not.toBe(heldKeyOf({ page: 2 }))
+    expect(heldKeyOf({ externalCustomerId: 'a' })).not.toBe(heldKeyOf({ externalCustomerId: 'b' }))
   })
 })

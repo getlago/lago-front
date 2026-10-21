@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
+import { DateTime } from 'luxon'
 import { generatePath, useSearchParams } from 'react-router'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
@@ -9,6 +10,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { keyWithPrefix } from '~/components/Filters/graphql/utils'
 import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
+import { useHeldData } from '~/components/realtimeUsage/useHeldData'
 import { REALTIME_USAGE_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -19,7 +21,9 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { RealtimeUsageBarChart } from '~/pages/realtimeUsage/common/RealtimeUsageBarChart'
+import { RealtimeUsageError } from '~/pages/realtimeUsage/common/RealtimeUsageError'
 import { RealtimeUsageQueryFilters } from '~/pages/realtimeUsage/common/types'
+import { heldKeyOf } from '~/pages/realtimeUsage/common/utils'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 
 gql`
@@ -64,28 +68,31 @@ export const REALTIME_USAGE_BILLABLE_METRIC_LINK_TEST_ID = 'realtime-usage-billa
 
 type RealtimeUsageBillableMetricsSectionProps = {
   filters: RealtimeUsageQueryFilters
-  pollInterval: number
+  now: DateTime
+  skip: boolean
 }
 
 export const RealtimeUsageBillableMetricsSection = ({
   filters,
-  pollInterval,
+  now,
+  skip,
 }: RealtimeUsageBillableMetricsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
   const { page, goToPage } = usePageSearchParam()
 
-  const { data, loading } = useGetRealtimeUsageBillableMetricsQuery({
-    variables: { ...filters, page, limit: DEFAULT_PAGE_SIZE },
-    pollInterval,
-    notifyOnNetworkStatusChange: true,
-  })
+  const variables = { ...filters, page, limit: DEFAULT_PAGE_SIZE }
+  const {
+    data: servedData,
+    loading,
+    error,
+  } = useGetRealtimeUsageBillableMetricsQuery({ variables, skip, fetchPolicy: 'no-cache' })
+  const { data, isHeld } = useHeldData(servedData, heldKeyOf(variables), !!error)
 
   const reports = data?.realtimeUsageBillableMetrics.collection || []
   const metadata = data?.realtimeUsageBillableMetrics.metadata
+  const isLoading = loading && !isHeld
 
-  // The detail page keeps the filters, but not the dimensions of another metric or the page of
-  // this list.
   const detailSearch = (): string => {
     const params = new URLSearchParams(searchParams)
 
@@ -98,7 +105,9 @@ export const RealtimeUsageBillableMetricsSection = ({
   }
 
   const renderContent = (): JSX.Element => {
-    if (loading && !data) {
+    if (error && !data) return <RealtimeUsageError />
+
+    if (isLoading && !data) {
       return (
         <div className="grid grid-cols-1 gap-x-8 gap-y-12 lg:grid-cols-2">
           {[0, 1].map((index) => (
@@ -130,7 +139,7 @@ export const RealtimeUsageBillableMetricsSection = ({
     return (
       <PaginatedContent
         metadata={metadata}
-        loading={loading}
+        loading={isLoading}
         onPageChange={goToPage}
         sticky={false}
       >
@@ -162,7 +171,7 @@ export const RealtimeUsageBillableMetricsSection = ({
               </Typography>
 
               <AnalyticsStateProvider>
-                <RealtimeUsageBarChart report={report} loading={loading} />
+                <RealtimeUsageBarChart report={report} loading={isLoading} now={now} />
               </AnalyticsStateProvider>
             </div>
           ))}

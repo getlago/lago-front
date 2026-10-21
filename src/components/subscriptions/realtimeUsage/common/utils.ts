@@ -1,9 +1,5 @@
-import { DateTime } from 'luxon'
-
 import { composeChargeFilterDisplayName } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { getTimezoneConfig } from '~/core/timezone'
-import { TimezoneEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 import {
@@ -50,17 +46,3 @@ export const prefersReducedMotion = (): boolean =>
   typeof window !== 'undefined' &&
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-// The API snaps the window to the customer's hour walls, which differ from the
-// browser's under a half-hour offset.
-export const windowStartOf = (
-  now: DateTime,
-  windowInHours: number,
-  timezone: TimezoneEnum,
-): string =>
-  now
-    .setZone(getTimezoneConfig(timezone).name)
-    .startOf('hour')
-    .minus({ hours: windowInHours - 1 })
-    .toUTC()
-    .toISO() || ''

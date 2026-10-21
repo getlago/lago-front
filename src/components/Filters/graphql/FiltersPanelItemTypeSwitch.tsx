@@ -64,7 +64,6 @@ import { FiltersItemRateCardProduct } from '~/components/Filters/graphql/filters
 import { FiltersItemRateCardProductCategory } from '~/components/Filters/graphql/filtersElements/FiltersItemRateCardProductCategory'
 import { FiltersItemRateCardProductFilter } from '~/components/Filters/graphql/filtersElements/FiltersItemRateCardProductFilter'
 import { FiltersItemRealtimeDimensions } from '~/components/Filters/graphql/filtersElements/FiltersItemRealtimeDimensions'
-import { FiltersItemRealtimeSubscription } from '~/components/Filters/graphql/filtersElements/FiltersItemRealtimeSubscription'
 import { FiltersItemRequestPath } from '~/components/Filters/graphql/filtersElements/FiltersItemRequestPath'
 import { FiltersItemResourceIds } from '~/components/Filters/graphql/filtersElements/FiltersItemResourceIds'
 import { FiltersItemResourceTypes } from '~/components/Filters/graphql/filtersElements/FiltersItemResourceTypes'
@@ -214,7 +213,6 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.adminOrganizations]: <FiltersItemAdminOrganizations {...props} />,
     [AvailableFiltersEnum.adminAuditDate]: <FiltersItemDate {...props} />,
     [AvailableFiltersEnum.realtimeDimensions]: <FiltersItemRealtimeDimensions {...props} />,
-    [AvailableFiltersEnum.realtimeSubscription]: <FiltersItemRealtimeSubscription {...props} />,
   }
 
   return (

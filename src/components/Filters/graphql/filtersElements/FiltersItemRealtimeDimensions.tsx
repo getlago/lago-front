@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { DateTime } from 'luxon'
 import { useMemo } from 'react'
 import { useParams } from 'react-router'
 
@@ -13,31 +12,17 @@ import {
   FiltersFormValues,
 } from '~/components/Filters/presentation/types'
 import { MultipleComboBox } from '~/components/form'
-import { REALTIME_USAGE_MAX_DAYS } from '~/core/constants/realtimeUsage'
-import { useGetDimensionsForFilterItemRealtimeDimensionsQuery } from '~/generated/graphql'
+import { useGetDimensionNamesForFilterItemRealtimeDimensionsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
-  query getDimensionsForFilterItemRealtimeDimensions(
-    $billableMetricCode: String!
-    $fromDatetime: ISO8601DateTime
-    $limit: Int
-  ) {
-    realtimeUsageDimensions(
-      billableMetricCode: $billableMetricCode
-      fromDatetime: $fromDatetime
-      limit: $limit
-    ) {
-      collection {
-        key
-        name
-      }
+  query getDimensionNamesForFilterItemRealtimeDimensions($billableMetricCode: String!) {
+    realtimeUsageDimensionNames(billableMetricCode: $billableMetricCode) {
+      key
+      name
     }
   }
 `
-
-// The API pages its dimensions by 100 at most: the biggest ones are offered.
-const DIMENSIONS_LIMIT = 100
 
 type FiltersItemRealtimeDimensionsProps = {
   value: FiltersFormValues['filters'][0]['value']
@@ -51,25 +36,15 @@ export const FiltersItemRealtimeDimensions = ({
   const { translate } = useInternationalization()
   const { billableMetricCode = '' } = useParams()
 
-  // Offer every value seen over the longest window the reports can show, so the options do not
-  // depend on the time range picked in the next row.
-  const fromDatetime = useMemo(
-    () =>
-      DateTime.now()
-        .minus({ days: REALTIME_USAGE_MAX_DAYS - 1 })
-        .startOf('day')
-        .toISO(),
-    [],
-  )
-
-  const { data } = useGetDimensionsForFilterItemRealtimeDimensionsQuery({
-    variables: { billableMetricCode, fromDatetime, limit: DIMENSIONS_LIMIT },
+  // Without bounds, `realtimeUsageDimensionNames` reads the longest window a report allows.
+  const { data } = useGetDimensionNamesForFilterItemRealtimeDimensionsQuery({
+    variables: { billableMetricCode },
     skip: !billableMetricCode,
   })
 
   const comboboxData = useMemo(
     () =>
-      (data?.realtimeUsageDimensions.collection || []).map((dimension) => {
+      (data?.realtimeUsageDimensionNames || []).map((dimension) => {
         const label = dimension.name || translate('text_17876075026872bdz1e5aeep')
 
         return {

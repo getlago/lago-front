@@ -4,8 +4,6 @@ import { useState } from 'react'
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { DateRangeFilterFields } from '~/components/Filters/graphql/filtersElements/DateRangeFilterFields'
-import { isValidDateRangeValue } from '~/components/Filters/graphql/utils'
-import { REALTIME_USAGE_MAX_DAYS } from '~/core/constants/realtimeUsage'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -19,14 +17,7 @@ import {
   TimeRangeEnum,
 } from './constants'
 import { isTimeRangePreset, useRealtimeUsageControls } from './useRealtimeUsageControls'
-
-const isApplicableRange = (value?: string): value is string => {
-  if (!isValidDateRangeValue(value)) return false
-
-  const [from, to] = (value || '').split(',')
-
-  return DateTime.fromISO(to).diff(DateTime.fromISO(from), 'days').days <= REALTIME_USAGE_MAX_DAYS
-}
+import { isApplicableRange } from './utils'
 
 export const RealtimeUsageTimeRangeSelector = (): JSX.Element => {
   const { translate } = useInternationalization()
@@ -34,8 +25,6 @@ export const RealtimeUsageTimeRangeSelector = (): JSX.Element => {
   const { timeRange, setTimeRange } = useRealtimeUsageControls()
   const isCustom = !isTimeRangePreset(timeRange)
 
-  // The custom range is drafted in the menu and only applied as a whole, so the pages do not
-  // reload on every date picked.
   const [customDraft, setCustomDraft] = useState<string>()
   const isEditingCustom = customDraft !== undefined
 

@@ -117,12 +117,14 @@ const analyticsInlineRoutes: CustomRouteObject[] = [
     private: true,
     element: <RealtimeUsageOverview />,
     permissions: ['analyticsView'],
+    organizationCapability: 'realtimeUsageEnabled',
   },
   {
     path: REALTIME_USAGE_BILLABLE_METRIC_ROUTE,
     private: true,
     element: <RealtimeUsageBillableMetric />,
     permissions: ['analyticsView'],
+    organizationCapability: 'realtimeUsageEnabled',
   },
 ]
 

@@ -4,6 +4,11 @@ import { useMemo } from 'react'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { HorizontalDataTable } from '~/components/designSystem/Table/HorizontalDataTable'
 import { Typography } from '~/components/designSystem/Typography'
+import { useHeldData } from '~/components/realtimeUsage/useHeldData'
+import {
+  DEFAULT_FILTER_COLOR,
+  OTHER_FILTER_COLOR,
+} from '~/components/subscriptions/realtimeUsage/graph/constants'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -13,12 +18,9 @@ import {
   useGetRealtimeUsageDimensionsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  DEFAULT_DIMENSION_COLOR,
-  OTHER_DIMENSION_COLOR,
-} from '~/pages/realtimeUsage/common/constants'
+import { RealtimeUsageError } from '~/pages/realtimeUsage/common/RealtimeUsageError'
 import { Series } from '~/pages/realtimeUsage/common/types'
-import { formatPeriod } from '~/pages/realtimeUsage/common/utils'
+import { formatPeriod, heldKeyOf } from '~/pages/realtimeUsage/common/utils'
 
 gql`
   query getRealtimeUsageDimensions(
@@ -66,7 +68,7 @@ type PeriodColumn = { time: string } & Record<string, number | string>
 
 type RealtimeUsageDimensionsTableProps = {
   queryVariables: Omit<GetRealtimeUsageDimensionsQueryVariables, 'page' | 'limit'>
-  pollInterval: number
+  skip: boolean
   // The chart's series, so a dimension keeps its color in the table.
   series: Series[]
   timeGranularity?: RealtimeUsageTimeGranularityEnum
@@ -78,7 +80,7 @@ const UnitsCell = ({ units }: { units: number }): JSX.Element => {
 
   return (
     <Typography variant="body" color={units > 0 ? 'grey700' : 'grey500'}>
-      {`${intlFormatNumber(units, { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${translate(
+      {`${intlFormatNumber(units, { style: 'decimal', maximumFractionDigits: 2 })} ${translate(
         'text_17476657511358tgyvof5x1u',
         undefined,
         units,
@@ -89,7 +91,7 @@ const UnitsCell = ({ units }: { units: number }): JSX.Element => {
 
 export const RealtimeUsageDimensionsTable = ({
   queryVariables,
-  pollInterval,
+  skip,
   series,
   timeGranularity = RealtimeUsageTimeGranularityEnum.Hour,
   timezone = TimezoneEnum.TzUtc,
@@ -97,11 +99,14 @@ export const RealtimeUsageDimensionsTable = ({
   const { translate } = useInternationalization()
   const { page, goToPage } = usePageSearchParam()
 
-  const { data, loading } = useGetRealtimeUsageDimensionsQuery({
-    variables: { ...queryVariables, page, limit: DEFAULT_PAGE_SIZE },
-    pollInterval,
-    notifyOnNetworkStatusChange: true,
-  })
+  const variables = { ...queryVariables, page, limit: DEFAULT_PAGE_SIZE }
+  const {
+    data: servedData,
+    loading,
+    error,
+  } = useGetRealtimeUsageDimensionsQuery({ variables, skip, fetchPolicy: 'no-cache' })
+  const { data, isHeld } = useHeldData(servedData, heldKeyOf(variables), !!error)
+  const isLoading = loading && !isHeld
 
   const dimensions = data?.realtimeUsageDimensions.collection
   const colorByKey = useMemo(
@@ -109,7 +114,6 @@ export const RealtimeUsageDimensionsTable = ({
     [series],
   )
 
-  // The table reads one column per period, so the rows of the API are turned on their side.
   const columns = useMemo<PeriodColumn[]>(() => {
     if (!dimensions?.length) return []
 
@@ -124,11 +128,13 @@ export const RealtimeUsageDimensionsTable = ({
     })
   }, [dimensions])
 
+  if (error && !data) return <RealtimeUsageError />
+
   return (
     <div data-test={REALTIME_USAGE_DIMENSIONS_TABLE_TEST_ID}>
       <PaginatedContent
         metadata={data?.realtimeUsageDimensions.metadata}
-        loading={loading}
+        loading={isLoading}
         onPageChange={goToPage}
         sticky={false}
       >
@@ -136,7 +142,7 @@ export const RealtimeUsageDimensionsTable = ({
           leftColumnWidth={240}
           columnWidth={160}
           data={columns}
-          loading={loading && !data}
+          loading={isLoading && !data}
           rows={[
             {
               key: 'time',
@@ -158,7 +164,7 @@ export const RealtimeUsageDimensionsTable = ({
                     style={{
                       backgroundColor:
                         colorByKey.get(dimension.key) ||
-                        (dimension.name ? OTHER_DIMENSION_COLOR : DEFAULT_DIMENSION_COLOR),
+                        (dimension.name ? OTHER_FILTER_COLOR : DEFAULT_FILTER_COLOR),
                     }}
                   />
                   <Typography variant="body" color="grey700" noWrap>
