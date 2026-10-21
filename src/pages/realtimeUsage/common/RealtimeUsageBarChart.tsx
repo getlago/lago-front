@@ -76,6 +76,13 @@ export const RealtimeUsageBarChart = ({
         xAxisDataKey="time"
         xAxisTickAttributes={['time', 'time']}
         fadedDataKey="isPartial"
+        fadeOnHover
+        tooltipFormatter={(units) =>
+          `${formatUnits(units)} ${translate('text_17476657511358tgyvof5x1u', undefined, units)}`
+        }
+        tooltipTotalLabel={
+          series.length > 1 ? translate('text_1787607502687fbugu4gz6xl') : undefined
+        }
         bars={series.map((serie, index) => ({
           dataKey: serie.key,
           tooltipLabel: serie.label,
@@ -87,12 +94,12 @@ export const RealtimeUsageBarChart = ({
 
       {series.length > 1 && (
         <div
-          className="flex flex-row flex-wrap items-center gap-x-4 gap-y-2"
+          className="flex flex-row flex-wrap items-center gap-x-3 gap-y-1"
           data-test={REALTIME_USAGE_BAR_CHART_LEGEND_TEST_ID}
         >
           {series.map((serie) => (
             <div key={`realtime-usage-legend-${serie.key}`} className="flex items-center gap-2">
-              <div className="size-2 rounded-full" style={{ backgroundColor: serie.color }} />
+              <div className="size-3 rounded-full" style={{ backgroundColor: serie.color }} />
               <Typography variant="caption" color="grey700" noWrap>
                 {serie.label}
               </Typography>

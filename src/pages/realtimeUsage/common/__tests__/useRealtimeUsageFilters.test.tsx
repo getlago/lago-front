@@ -1,10 +1,11 @@
 import { act, renderHook } from '@testing-library/react'
 import { Settings } from 'luxon'
 
+import { TimeRangeEnum } from '~/components/realtimeUsage/constants'
 import { TimezoneEnum } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
-import { TIME_RANGE_SEARCH_PARAM, TimeRangeEnum } from '../constants'
+import { TIME_RANGE_SEARCH_PARAM } from '../useRealtimeUsageControls'
 import { useRealtimeUsageFilters } from '../useRealtimeUsageFilters'
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({

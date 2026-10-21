@@ -48,4 +48,36 @@ describe('real-time usage filters', () => {
       ).toBe('sub_old_1')
     })
   })
+
+  describe('auto-refresh', () => {
+    it('shows the interval, or Off', () => {
+      const translate = (key: string): string =>
+        key === 'text_1787609843960bopfeje8bho' ? 'Off' : key
+
+      expect(formatActiveFilterValueDisplay(AvailableFiltersEnum.autoRefresh, '5', translate)).toBe(
+        '5s',
+      )
+      expect(formatActiveFilterValueDisplay(AvailableFiltersEnum.autoRefresh, '0', translate)).toBe(
+        'Off',
+      )
+    })
+  })
+
+  describe('time range', () => {
+    it('shows the preset label, or the bounds of a custom range', () => {
+      const translate = (key: string): string =>
+        key === 'text_1792500580727gdsaipakh25' ? 'Last 24h' : key
+
+      expect(
+        formatActiveFilterValueDisplay(AvailableFiltersEnum.timeRange, 'last_24h', translate),
+      ).toBe('Last 24h')
+      expect(
+        formatActiveFilterValueDisplay(
+          AvailableFiltersEnum.timeRange,
+          '2026-08-01T12:00:00.000Z,2026-08-07T12:00:00.000Z',
+          translate,
+        ),
+      ).toBe('Aug 1, 2026 - Aug 7, 2026')
+    })
+  })
 })

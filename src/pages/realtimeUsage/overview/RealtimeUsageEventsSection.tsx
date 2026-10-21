@@ -104,11 +104,8 @@ export const RealtimeUsageEventsSection = ({
   }
 
   return (
-    <section
-      className="flex flex-col gap-4 pb-8 shadow-b"
-      data-test={REALTIME_USAGE_EVENTS_SECTION_TEST_ID}
-    >
-      <div className="flex flex-col gap-2">
+    <section className="flex flex-col gap-6" data-test={REALTIME_USAGE_EVENTS_SECTION_TEST_ID}>
+      <div className="flex flex-col gap-6">
         <Typography variant="subhead1" color="grey700">
           {translate('text_1792500580726g0dhn1qrvbs')}
         </Typography>

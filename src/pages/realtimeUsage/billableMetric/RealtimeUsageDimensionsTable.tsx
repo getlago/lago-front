@@ -5,10 +5,6 @@ import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/
 import { HorizontalDataTable } from '~/components/designSystem/Table/HorizontalDataTable'
 import { Typography } from '~/components/designSystem/Typography'
 import { useHeldData } from '~/components/realtimeUsage/useHeldData'
-import {
-  DEFAULT_FILTER_COLOR,
-  OTHER_FILTER_COLOR,
-} from '~/components/subscriptions/realtimeUsage/graph/constants'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -18,6 +14,10 @@ import {
   useGetRealtimeUsageDimensionsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import {
+  DEFAULT_DIMENSION_COLOR,
+  OTHER_DIMENSION_COLOR,
+} from '~/pages/realtimeUsage/common/constants'
 import { RealtimeUsageError } from '~/pages/realtimeUsage/common/RealtimeUsageError'
 import { Series } from '~/pages/realtimeUsage/common/types'
 import { formatPeriod, heldKeyOf } from '~/pages/realtimeUsage/common/utils'
@@ -164,7 +164,7 @@ export const RealtimeUsageDimensionsTable = ({
                     style={{
                       backgroundColor:
                         colorByKey.get(dimension.key) ||
-                        (dimension.name ? OTHER_FILTER_COLOR : DEFAULT_FILTER_COLOR),
+                        (dimension.name ? OTHER_DIMENSION_COLOR : DEFAULT_DIMENSION_COLOR),
                     }}
                   />
                   <Typography variant="body" color="grey700" noWrap>

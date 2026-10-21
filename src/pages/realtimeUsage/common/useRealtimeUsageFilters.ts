@@ -3,14 +3,14 @@ import { useSearchParams } from 'react-router'
 
 import { formatFiltersForQuery } from '~/components/Filters/graphql/utils'
 import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
+import { TIME_RANGE_HOURS } from '~/components/realtimeUsage/constants'
 import { useRealtimeUsageClock } from '~/components/realtimeUsage/useRealtimeUsageClock'
-import { windowStartOf } from '~/components/realtimeUsage/utils'
+import { isTimeRangePreset, windowStartOf } from '~/components/realtimeUsage/utils'
 import { REALTIME_USAGE_FILTER_PREFIX } from '~/core/constants/filters'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
-import { TIME_RANGE_HOURS } from './constants'
 import { RealtimeUsageQueryFilters } from './types'
-import { isTimeRangePreset, useRealtimeUsageControls } from './useRealtimeUsageControls'
+import { useRealtimeUsageControls } from './useRealtimeUsageControls'
 
 type UseRealtimeUsageFilters = () => {
   filters: RealtimeUsageQueryFilters
