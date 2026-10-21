@@ -113,7 +113,13 @@ const CreateCoupon = () => {
 
   // Subscribe to form state
   const isDirty = useStore(form.store, (state) => state.isDirty)
-  const submissionAttempts = useStore(form.store, (state) => state.submissionAttempts)
+  const dynamicErrors = useStore(form.store, (state) => state.errorMap.onDynamic)
+
+  const expirationAtError = dynamicErrors?.expirationAt?.[0]?.message
+  const limitErrors = [
+    dynamicErrors?.limitPlansList?.[0]?.message,
+    dynamicErrors?.limitBillableMetricsList?.[0]?.message,
+  ].filter((message): message is string => !!message)
 
   // Get all form values for the code snippet
   const formValues = useStore(form.store, (state) => state.values)
@@ -440,13 +446,7 @@ const CreateCoupon = () => {
                           name="expirationAt"
                           placement="top-end"
                           placeholder={translate('text_632d68358f1fedc68eed3ea5')}
-                          error={
-                            submissionAttempts > 0 &&
-                            expiration === CouponExpiration.TimeLimit &&
-                            !expirationAt
-                              ? translate('text_1771402708247nxe22ntllvd')
-                              : undefined
-                          }
+                          error={expirationAtError ? translate(expirationAtError) : undefined}
                           onChange={(value) => {
                             form.setFieldValue('expirationAt', endOfDayIso(value as string))
                           }}
@@ -600,13 +600,15 @@ const CreateCoupon = () => {
                         </div>
                       )}
 
-                      {submissionAttempts > 0 &&
-                        limitPlansList.length === 0 &&
-                        limitBillableMetricsList.length === 0 && (
-                          <Alert type="danger" data-test={COUPON_LIMIT_ERROR_TEST_ID}>
-                            {translate('text_1771402708247jyowmhc424h')}
-                          </Alert>
-                        )}
+                      {!!limitErrors.length && (
+                        <Alert type="danger" data-test={COUPON_LIMIT_ERROR_TEST_ID}>
+                          <span className="flex flex-col">
+                            {limitErrors.map((message) => (
+                              <span key={message}>{translate(message)}</span>
+                            ))}
+                          </span>
+                        </Alert>
+                      )}
                     </>
                   )}
                 </Card>
