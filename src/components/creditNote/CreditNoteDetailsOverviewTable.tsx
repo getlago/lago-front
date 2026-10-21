@@ -96,6 +96,9 @@ gql`
             invoiceDisplayName
           }
         }
+        contractRateCard {
+          id
+        }
         chargeFilter {
           invoiceDisplayName
           values
@@ -173,9 +176,15 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
           groupSubscriptionItem[0] && groupSubscriptionItem[0][0]
             ? groupSubscriptionItem[0][0].fee.subscription
             : undefined
+        const firstFee = groupSubscriptionItem[0]?.[0]?.fee
+        const contractRateCard = firstFee?.contractRateCard
         const invoiceDisplayName = !!subscription
           ? subscription?.name || subscription.plan.invoiceDisplayName || subscription?.plan?.name
-          : translate('text_6388b923e514213fed58331c')
+          : contractRateCard
+            ? firstFee?.invoiceName ||
+              firstFee?.itemName ||
+              translate('text_6388b923e514213fed58331c')
+            : translate('text_6388b923e514213fed58331c')
 
         return (
           <Fragment key={`groupSubscriptionItem-${i}`}>

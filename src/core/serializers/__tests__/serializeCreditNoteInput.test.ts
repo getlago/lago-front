@@ -48,6 +48,41 @@ describe('serializeCreditNoteInput', () => {
     })
   })
 
+  describe('GIVEN product fees alongside existing fee types', () => {
+    it('serializes product fees separately and includes them in credit note items', () => {
+      const result = serializeCreditNoteInput(
+        invoiceId,
+        {
+          creditAmount: 0,
+          amountCurrency: CurrencyEnum.Eur,
+          refundAmount: 0,
+          reason: CreditNoteReasonEnum.Other,
+          addOnFee: [{ id: 'addon-fee', checked: true, value: 1, name: 'Add-on', maxAmount: 100 }],
+          productFee: [
+            { id: 'product-fee', checked: true, value: 2, name: 'Product', maxAmount: 200 },
+          ],
+          fees: {
+            subscription: {
+              subscriptionName: 'Plan',
+              fees: [
+                { id: 'subscription-fee', checked: true, value: 3, name: 'Usage', maxAmount: 300 },
+              ],
+            },
+          },
+          payBack: [{ value: 6, type: CreditTypeEnum.credit }],
+          metadata: [],
+        },
+        CurrencyEnum.Eur,
+      )
+
+      expect(result.items).toEqual([
+        { feeId: 'addon-fee', amountCents: 100 },
+        { feeId: 'product-fee', amountCents: 200 },
+        { feeId: 'subscription-fee', amountCents: 300 },
+      ])
+    })
+  })
+
   describe('GIVEN a credit note with credit and refund', () => {
     it('THEN should serialize both credit and refund amounts', () => {
       const result = serializeCreditNoteInput(

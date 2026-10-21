@@ -26,17 +26,20 @@ import {
 import {
   CurrencyEnum,
   InvoiceForCreditNoteFormCalculationFragment,
+  InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
 } from '~/generated/graphql'
 
 const prepare = ({
   addonFees = undefined,
+  productFees = undefined,
   fees = undefined,
   hasError = false,
   currency = CurrencyEnum.Eur,
 }: Partial<CreditNoteFormCalculationCalculationProps> = {}) => {
   const { feeForEstimate } = creditNoteFormCalculationCalculation({
     addonFees,
+    productFees,
     fees,
     hasError,
     currency,
@@ -67,6 +70,24 @@ describe('creditNoteFormCalculationCalculation', () => {
       const { feeForEstimate } = prepare({ addonFees: addOnFeeMock })
 
       expect(feeForEstimate).toEqual(addonMockFormatedForEstimate)
+    })
+
+    it('includes flat product fees alongside grouped subscription fees in mixed invoices', () => {
+      const productFees = [{ ...addOnFeeMock[0], id: 'product-fee' }]
+      const { feeForEstimate } = prepare({ fees: feesMock, productFees })
+
+      expect(feeForEstimate).toEqual([
+        ...feeMockFormatedForEstimate,
+        { feeId: 'product-fee', amountCents: 50000 },
+      ])
+    })
+
+    it('includes product fees in estimates when they are the only fee group', () => {
+      const productFees = [{ ...addOnFeeMock[0], id: 'product-fee' }]
+
+      expect(prepare({ productFees }).feeForEstimate).toEqual([
+        { feeId: 'product-fee', amountCents: 50000 },
+      ])
     })
   })
 })
@@ -217,7 +238,7 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
       expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(false)
     })
 
-    it('WHEN addOnFee takes precedence over other fee types THEN should only check addOnFee', () => {
+    it('WHEN addOnFee is unchecked THEN a checked fee in another group still enables submission', () => {
       const formValues = {
         addOnFee: [{ id: '1', checked: false, maxAmount: 100, name: 'Test Addon', value: 50 }],
         creditFee: [{ id: '2', checked: true, maxAmount: 200, name: 'Test Credit', value: 75 }],
@@ -229,11 +250,10 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
         },
       }
 
-      // Should return false because addOnFee takes precedence and none are checked
-      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(false)
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(true)
     })
 
-    it('WHEN creditFee takes precedence over regular fees THEN should only check creditFee', () => {
+    it('WHEN creditFee is unchecked THEN a checked regular fee still enables submission', () => {
       const formValues = {
         creditFee: [{ id: '2', checked: false, maxAmount: 200, name: 'Test Credit', value: 75 }],
         fees: {
@@ -244,8 +264,7 @@ describe('creditNoteFormHasAtLeastOneFeeChecked', () => {
         },
       }
 
-      // Should return false because creditFee takes precedence and none are checked
-      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(false)
+      expect(creditNoteFormHasAtLeastOneFeeChecked(formValues)).toBe(true)
     })
   })
 })
@@ -469,6 +488,22 @@ describe('isCreditNoteCreationDisabled', () => {
 })
 
 describe('createCreditNoteForInvoiceButtonProps', () => {
+  describe('GIVEN a pending or failed invoice', () => {
+    it.each([InvoiceStatusTypeEnum.Pending, InvoiceStatusTypeEnum.Failed])(
+      'THEN disables the button for status %s',
+      (status) => {
+        const result = createCreditNoteForInvoiceButtonProps({
+          invoiceType: InvoiceTypeEnum.Subscription,
+          status,
+          associatedActiveWalletPresent: true,
+        })
+
+        expect(result.disabledIssueCreditNoteButton).toBe(true)
+        expect(result.disabledIssueCreditNoteButtonLabel).toBeUndefined()
+      },
+    )
+  })
+
   describe('GIVEN a non-terminated-wallet invoice', () => {
     it('THEN enables the button regardless of covered amounts', () => {
       const result = createCreditNoteForInvoiceButtonProps({
@@ -504,6 +539,17 @@ describe('createCreditNoteForInvoiceButtonProps', () => {
       expect(result.disabledIssueCreditNoteButton).toBe(true)
       expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_172908299496461z9ejmm2j7')
     })
+  })
+
+  it('preserves the terminated-wallet label when the invoice is also pending', () => {
+    const result = createCreditNoteForInvoiceButtonProps({
+      invoiceType: InvoiceTypeEnum.Credit,
+      status: InvoiceStatusTypeEnum.Pending,
+      associatedActiveWalletPresent: false,
+    })
+
+    expect(result.disabledIssueCreditNoteButton).toBe(true)
+    expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_172908299496461z9ejmm2j7')
   })
 
   describe('GIVEN a prepaid-credits invoice with an active wallet', () => {

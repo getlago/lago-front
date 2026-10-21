@@ -32,6 +32,7 @@ interface CreditNoteItemsFormProps {
   formikProps: FormikProps<Partial<CreditNoteForm>>
   feeForCredit?: FromFee[]
   feeForAddOn?: FromFee[]
+  productFee?: FromFee[]
   feesPerInvoice?: FeesPerInvoice
   currency: CurrencyEnum
 }
@@ -41,6 +42,7 @@ export const CreditNoteItemsForm: FC<CreditNoteItemsFormProps> = ({
   formikProps,
   feeForCredit,
   feeForAddOn,
+  productFee,
   feesPerInvoice,
   currency,
 }) => {
@@ -108,6 +110,30 @@ export const CreditNoteItemsForm: FC<CreditNoteItemsFormProps> = ({
             isReadOnly={fee?.isReadOnly}
           />
         ))}
+
+      {!!productFee?.length && (
+        <div>
+          <div className="flex h-12 flex-row items-center justify-between shadow-b">
+            <Typography variant="bodyHl" color="grey500">
+              {translate('text_17831042398250iwa2xp8pba')}
+            </Typography>
+            <Typography variant="bodyHl" color="grey500">
+              {translate('text_636bedf292786b19d3398ee0')}
+            </Typography>
+          </div>
+          {productFee.map((fee, i) => (
+            <CreditNoteFormItem
+              key={fee?.id}
+              formikProps={formikProps}
+              currency={currency}
+              feeName={fee?.name || translate('text_1783020794400si0ioidu0m5')}
+              formikKey={`productFee.${i}`}
+              maxValue={fee?.maxAmount || 0}
+              isReadOnly={fee?.isReadOnly}
+            />
+          ))}
+        </div>
+      )}
 
       {feesPerInvoice &&
         Object.keys(feesPerInvoice).map((subKey) => {

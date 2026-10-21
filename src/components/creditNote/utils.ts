@@ -5,6 +5,7 @@ import {
   CurrencyEnum,
   Invoice,
   InvoiceForCreditNoteFormCalculationFragment,
+  InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
 } from '~/generated/graphql'
 
@@ -63,6 +64,7 @@ export type CreditNoteFormCalculationCalculationProps = {
   currency: CurrencyEnum
   fees: FeesPerInvoice | undefined
   addonFees: FromFee[] | undefined
+  productFees: FromFee[] | undefined
   hasError: boolean
 }
 
@@ -73,6 +75,7 @@ export const creditNoteFormCalculationCalculation = ({
   currency,
   fees,
   addonFees,
+  productFees,
   hasError,
 }: CreditNoteFormCalculationCalculationProps): {
   feeForEstimate: CreditNoteItemInput[] | undefined
@@ -96,17 +99,23 @@ export const creditNoteFormCalculationCalculation = ({
 
       return [...accSub, ...(subValues || [])]
     }, [])
-  } else if (addonFees) {
-    feeForEstimate = addonFees.reduce<CreditNoteItemInput[]>((acc, fee) => {
-      if (!!fee.checked) {
-        acc.push({
-          feeId: fee.id,
-          amountCents: serializeAmount(fee.value, currency),
-        })
-      }
+  }
 
-      return acc
-    }, [])
+  if (addonFees || productFees) {
+    feeForEstimate = feeForEstimate || []
+    feeForEstimate = [...(addonFees || []), ...(productFees || [])].reduce<CreditNoteItemInput[]>(
+      (acc, fee) => {
+        if (!!fee.checked) {
+          acc.push({
+            feeId: fee.id,
+            amountCents: serializeAmount(fee.value, currency),
+          })
+        }
+
+        return acc
+      },
+      feeForEstimate,
+    )
   }
 
   return {
@@ -246,15 +255,19 @@ export const isCreditNoteCreationDisabled = (
 
 export const createCreditNoteForInvoiceButtonProps = ({
   invoiceType,
+  status,
   associatedActiveWalletPresent,
 }: Partial<Invoice>) => {
   // The fully-covered case is handled on the create-credit-note page itself (form + danger
-  // alert), so no entry point pre-disables for it. The only remaining reason to disable the
-  // action is a prepaid-credits invoice whose wallet has been terminated.
-  const disabledIssueCreditNoteButton =
+  // alert), so no entry point pre-disables for it. Pending/failed invoices are ineligible, and
+  // prepaid-credit invoices also require an active wallet.
+  const disabledForInvoiceStatus =
+    status === InvoiceStatusTypeEnum.Pending || status === InvoiceStatusTypeEnum.Failed
+  const disabledForTerminatedWallet =
     invoiceType === InvoiceTypeEnum.Credit && !associatedActiveWalletPresent
+  const disabledIssueCreditNoteButton = disabledForInvoiceStatus || disabledForTerminatedWallet
 
-  const disabledIssueCreditNoteButtonLabel = disabledIssueCreditNoteButton
+  const disabledIssueCreditNoteButtonLabel = disabledForTerminatedWallet
     ? 'text_172908299496461z9ejmm2j7'
     : undefined
 
@@ -267,24 +280,15 @@ export const createCreditNoteForInvoiceButtonProps = ({
 export const creditNoteFormHasAtLeastOneFeeChecked = (
   formValues: Partial<CreditNoteForm>,
 ): boolean => {
-  const { fees, addOnFee, creditFee } = formValues
+  const { fees, addOnFee, productFee, creditFee } = formValues
   const groupedFeesValues = Object.values(fees || {})
 
-  if (addOnFee?.length) {
-    return addOnFee?.some((aof) => {
-      return aof?.checked
-    })
-  } else if (creditFee?.length) {
-    return creditFee?.some((cf) => {
-      return cf?.checked
-    })
-  } else if (groupedFeesValues.length) {
-    return groupedFeesValues.some((fee) => {
-      return fee?.fees?.some((f) => f?.checked)
-    })
-  }
-
-  return false
+  return !!(
+    addOnFee?.some((fee) => fee?.checked) ||
+    productFee?.some((fee) => fee?.checked) ||
+    creditFee?.some((fee) => fee?.checked) ||
+    groupedFeesValues.some((fee) => fee?.fees?.some((item) => item?.checked))
+  )
 }
 
 // ----------------------------------------

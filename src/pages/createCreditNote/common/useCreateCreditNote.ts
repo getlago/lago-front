@@ -25,6 +25,7 @@ import {
   CreateCreditNoteInvoiceFragmentDoc,
   CreditNoteTableItemFragmentDoc,
   CurrencyEnum,
+  FeatureFlagEnum,
   Fee,
   FeeTypesEnum,
   GetInvoiceCreditNotesDocument,
@@ -36,6 +37,7 @@ import {
   useCreateCreditNoteMutation,
   useGetInvoiceCreateCreditNoteQuery,
 } from '~/generated/graphql'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment InvoiceFee on Fee {
@@ -99,6 +101,9 @@ gql`
     fees {
       id
       amountCurrency
+      contractRateCard {
+        id
+      }
       itemCode
       itemName
       invoiceName
@@ -154,6 +159,7 @@ type UseCreateCreditNoteReturn = {
   invoice?: InvoiceCreateCreditNoteFragment
   feesPerInvoice?: FeesPerInvoice
   feeForAddOn?: FromFee[]
+  feeForProduct?: FromFee[]
   feeForCredit?: FromFee[]
   hasCreditableOrRefundableAmount: boolean
   isInvoiceFullyCovered: boolean
@@ -163,6 +169,8 @@ type UseCreateCreditNoteReturn = {
 }
 
 export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const isProductCatalogActive = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const { invoiceId, customerId } = useParams()
   const navigate = useNavigate()
   const { data, error, loading } = useGetInvoiceCreateCreditNoteQuery({
@@ -261,13 +269,35 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
       data?.invoice?.invoiceType === InvoiceTypeEnum.AddOn ||
       data?.invoice?.invoiceType === InvoiceTypeEnum.OneOff
     ) {
-      const result = buildCreditNoteFees(data?.invoice?.fees, hasCreditableOrRefundableAmount)
+      const nonContractFees = data?.invoice?.fees?.filter((fee) => !fee.contractRateCard?.id)
+      const result = buildCreditNoteFees(nonContractFees, hasCreditableOrRefundableAmount)
 
       return result.length > 0 ? result : undefined
     }
 
     return undefined
   }, [data?.invoice, hasCreditableOrRefundableAmount])
+
+  const feeForProduct = useMemo(() => {
+    const invoice = data?.invoice
+
+    if (!isProductCatalogActive || !invoice || invoice.invoiceType === InvoiceTypeEnum.Credit) {
+      return undefined
+    }
+
+    const subscriptionFeeIds = new Set(
+      invoice.invoiceSubscriptions?.flatMap(
+        (invoiceSubscription) => invoiceSubscription?.fees?.map((fee) => fee.id) || [],
+      ) || [],
+    )
+    const productFees = invoice.fees?.filter(
+      (fee) => !!fee.contractRateCard?.id && !subscriptionFeeIds.has(fee.id),
+    )
+
+    const result = buildCreditNoteFees(productFees, hasCreditableOrRefundableAmount)
+
+    return result.length > 0 ? result : undefined
+  }, [data?.invoice, hasCreditableOrRefundableAmount, isProductCatalogActive])
 
   const feesPerInvoice = useMemo(() => {
     return data?.invoice?.invoiceSubscriptions?.reduce<FeesPerInvoice>(
@@ -377,6 +407,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
     invoice: data?.invoice || undefined,
     feesPerInvoice,
     feeForAddOn,
+    feeForProduct,
     feeForCredit,
     hasCreditableOrRefundableAmount,
     isInvoiceFullyCovered,
