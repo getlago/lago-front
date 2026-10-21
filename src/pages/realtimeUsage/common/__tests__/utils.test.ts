@@ -1,21 +1,15 @@
 import { DateTime } from 'luxon'
 
-import {
-  DEFAULT_FILTER_COLOR,
-  FILTER_COLORS,
-  OTHER_FILTER_COLOR,
-} from '~/components/subscriptions/realtimeUsage/graph/constants'
 import { RealtimeUsageTimeGranularityEnum, TimezoneEnum } from '~/generated/graphql'
 
-import { SERIES_KEY_PREFIX } from '../constants'
-import { RealtimeUsageReport } from '../types'
 import {
-  buildDimensionSeries,
-  formatPeriod,
-  heldKeyOf,
-  isApplicableRange,
-  isPartialPeriod,
-} from '../utils'
+  DEFAULT_DIMENSION_COLOR,
+  DIMENSION_COLORS,
+  OTHER_DIMENSION_COLOR,
+  SERIES_KEY_PREFIX,
+} from '../constants'
+import { RealtimeUsageReport } from '../types'
+import { buildDimensionSeries, formatPeriod, heldKeyOf, isPartialPeriod } from '../utils'
 
 const translate = (key: string): string => key
 
@@ -65,10 +59,10 @@ describe('buildDimensionSeries', () => {
     const { series } = buildDimensionSeries(report, translate, NOW)
 
     expect(series.map((serie) => serie.color)).toEqual([
-      FILTER_COLORS[0],
-      DEFAULT_FILTER_COLOR,
-      FILTER_COLORS[1],
-      OTHER_FILTER_COLOR,
+      DIMENSION_COLORS[0],
+      DEFAULT_DIMENSION_COLOR,
+      DIMENSION_COLORS[1],
+      OTHER_DIMENSION_COLOR,
     ])
     expect(series.map((serie) => serie.label)).toEqual([
       'eu',
@@ -76,6 +70,16 @@ describe('buildDimensionSeries', () => {
       'us',
       'text_1787607502687pyo0kxh1flz',
     ])
+  })
+
+  it('colors the usage of no dimension when it is the whole chart', () => {
+    const { series } = buildDimensionSeries(
+      { ...report, dimensions: [{ key: '\u001f', name: null, other: false }] },
+      translate,
+      NOW,
+    )
+
+    expect(series.map((serie) => serie.color)).toEqual([DIMENSION_COLORS[0]])
   })
 
   it('spreads every period over the series, and flags the period still filling', () => {
@@ -133,19 +137,6 @@ describe('formatPeriod', () => {
         TimezoneEnum.TzUtc,
       ),
     ).toBe('Aug 24, 2026')
-  })
-})
-
-describe('isApplicableRange', () => {
-  it('accepts a range up to the longest window the API serves', () => {
-    expect(isApplicableRange('2026-08-01T00:00:00.000Z,2026-08-31T23:59:59.000Z')).toBe(true)
-  })
-
-  it('refuses a range the API would reject, or no range at all', () => {
-    expect(isApplicableRange('2026-07-01T00:00:00.000Z,2026-08-31T23:59:59.000Z')).toBe(false)
-    expect(isApplicableRange('2026-08-31T00:00:00.000Z,2026-08-01T00:00:00.000Z')).toBe(false)
-    expect(isApplicableRange('not-a-date,2026-08-01T00:00:00.000Z')).toBe(false)
-    expect(isApplicableRange(null)).toBe(false)
   })
 })
 

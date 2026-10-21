@@ -1,17 +1,15 @@
 import { DateTime } from 'luxon'
 
-import { isValidDateRangeValue } from '~/components/Filters/graphql/utils'
-import {
-  DEFAULT_FILTER_COLOR,
-  FILTER_COLORS,
-  OTHER_FILTER_COLOR,
-} from '~/components/subscriptions/realtimeUsage/graph/constants'
-import { REALTIME_USAGE_MAX_DAYS } from '~/core/constants/realtimeUsage'
 import { DateFormat, intlFormatDateTime, TimeFormat } from '~/core/timezone'
 import { RealtimeUsageTimeGranularityEnum, TimezoneEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
-import { SERIES_KEY_PREFIX } from './constants'
+import {
+  DEFAULT_DIMENSION_COLOR,
+  DIMENSION_COLORS,
+  OTHER_DIMENSION_COLOR,
+  SERIES_KEY_PREFIX,
+} from './constants'
 import { PeriodPoint, RealtimeUsageReport, Series } from './types'
 
 export const dimensionLabelOf = (
@@ -23,14 +21,16 @@ export const dimensionLabelOf = (
   return dimension.name || translate('text_17876075026872bdz1e5aeep')
 }
 
+// The usage of no dimension is grey next to named ones, but alone it is the whole chart.
 export const dimensionColorOf = (
   dimension: { name?: string | null; other: boolean },
   rank: number,
+  isAlone = false,
 ): string => {
-  if (dimension.other) return OTHER_FILTER_COLOR
-  if (!dimension.name) return DEFAULT_FILTER_COLOR
+  if (dimension.other) return OTHER_DIMENSION_COLOR
+  if (!dimension.name && !isAlone) return DEFAULT_DIMENSION_COLOR
 
-  return FILTER_COLORS[rank % FILTER_COLORS.length]
+  return DIMENSION_COLORS[rank % DIMENSION_COLORS.length]
 }
 
 const periodDuration = (granularity: RealtimeUsageTimeGranularityEnum): { hours: number } =>
@@ -55,7 +55,11 @@ export const buildDimensionSeries = (
     key: `${SERIES_KEY_PREFIX}${index}`,
     dimensionKey: dimension.key,
     label: dimensionLabelOf(dimension, translate),
-    color: dimensionColorOf(dimension, dimension.other || !dimension.name ? 0 : colorRank++),
+    color: dimensionColorOf(
+      dimension,
+      dimension.other || !dimension.name ? 0 : colorRank++,
+      report.dimensions.length === 1,
+    ),
   }))
 
   const keyByDimension = new Map(series.map((serie) => [serie.dimensionKey, serie.key]))
@@ -94,14 +98,6 @@ export const formatPeriod = (
   })
 
   return granularity === RealtimeUsageTimeGranularityEnum.Day ? date : `${date}, ${hour}`
-}
-
-export const isApplicableRange = (value?: string | null): value is string => {
-  if (!value || !isValidDateRangeValue(value)) return false
-
-  const [from, to] = value.split(',')
-
-  return DateTime.fromISO(to).diff(DateTime.fromISO(from), 'days').days <= REALTIME_USAGE_MAX_DAYS
 }
 
 export const heldKeyOf = (variables: Record<string, unknown>): string =>

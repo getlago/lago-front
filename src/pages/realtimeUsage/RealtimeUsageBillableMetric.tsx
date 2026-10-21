@@ -154,7 +154,7 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
 
       <FullscreenPage.Wrapper>
         <div className="flex flex-col gap-8">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-6">
             <Typography variant="subhead1" color="grey700">
               {title}
             </Typography>

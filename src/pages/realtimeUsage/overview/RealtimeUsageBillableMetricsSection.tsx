@@ -143,32 +143,34 @@ export const RealtimeUsageBillableMetricsSection = ({
         onPageChange={goToPage}
         sticky={false}
       >
-        <div className="grid grid-cols-1 gap-x-8 gap-y-12 pb-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2">
           {reports.map((report) => (
             <div
               key={`realtime-usage-billable-metric-${report.billableMetricId}`}
-              className="flex flex-col gap-1"
+              className="flex flex-col gap-6 py-6 shadow-b lg:odd:pr-6 lg:even:pl-6"
             >
-              <Link
-                data-test={REALTIME_USAGE_BILLABLE_METRIC_LINK_TEST_ID}
-                className="flex w-fit items-center gap-1 text-grey-700 visited:text-grey-700 hover:no-underline"
-                // The slug-aware Link only prefixes string targets.
-                to={`${generatePath(REALTIME_USAGE_BILLABLE_METRIC_ROUTE, {
-                  billableMetricCode: report.billableMetricCode,
-                })}?${detailSearch()}`}
-              >
-                <Typography variant="bodyHl" color="grey700">
-                  {report.billableMetricName}
+              <div className="flex flex-col gap-1">
+                <Link
+                  data-test={REALTIME_USAGE_BILLABLE_METRIC_LINK_TEST_ID}
+                  className="flex w-fit items-center gap-1 text-grey-700 visited:text-grey-700 hover:no-underline"
+                  // The slug-aware Link only prefixes string targets.
+                  to={`${generatePath(REALTIME_USAGE_BILLABLE_METRIC_ROUTE, {
+                    billableMetricCode: report.billableMetricCode,
+                  })}?${detailSearch()}`}
+                >
+                  <Typography variant="bodyHl" color="grey700">
+                    {report.billableMetricName}
+                  </Typography>
+                  <Icon name="chevron-right-filled" color="dark" />
+                </Link>
+                <Typography variant="caption" color="grey600">
+                  {`${intlFormatNumber(report.units, { style: 'decimal', maximumFractionDigits: 2 })} ${translate(
+                    'text_17476657511358tgyvof5x1u',
+                    undefined,
+                    report.units,
+                  )}`}
                 </Typography>
-                <Icon name="chevron-right" />
-              </Link>
-              <Typography variant="body" color="grey600" className="mb-4">
-                {`${intlFormatNumber(report.units, { style: 'decimal', maximumFractionDigits: 2 })} ${translate(
-                  'text_17476657511358tgyvof5x1u',
-                  undefined,
-                  report.units,
-                )}`}
-              </Typography>
+              </div>
 
               <AnalyticsStateProvider>
                 <RealtimeUsageBarChart report={report} loading={isLoading} now={now} />

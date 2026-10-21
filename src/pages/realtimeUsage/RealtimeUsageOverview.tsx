@@ -22,7 +22,7 @@ const RealtimeUsageOverview = (): JSX.Element => {
 
       <FullscreenPage.Wrapper>
         <div className="flex flex-col gap-12">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-6">
             <Typography variant="headline" color="grey700">
               {translate('text_17465414264635ktqocy7leo')}
             </Typography>

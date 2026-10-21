@@ -317,6 +317,59 @@ describe('StackedBarChart periods shorter than a day', () => {
   })
 })
 
+describe('StackedBarChart hover fading and total', () => {
+  const renderFading = (): void => {
+    mockTooltip.mockImplementation((props) => {
+      if (!props.active || typeof props.content !== 'function') return null
+
+      return (
+        <section aria-label="Chart tooltip">
+          {props.content({ ...props, payload: [{ payload: data[1] }] })}
+        </section>
+      )
+    })
+
+    render(
+      withProvider(
+        <StackedBarChart
+          {...chartProps}
+          bars={bars}
+          fadeOnHover
+          tooltipFormatter={(value) => `${value} units`}
+          tooltipTotalLabel="Total"
+        />,
+      ),
+    )
+
+    act(() => {
+      jest
+        .mocked(BarChart)
+        .mock.calls.at(-1)?.[0]
+        .onMouseMove?.({ activeTooltipIndex: 1 }, undefined)
+      jest.advanceTimersByTime(100)
+    })
+  }
+
+  it('fades every column but the hovered one', () => {
+    renderFading()
+
+    const cells = jest.mocked(Bar).mock.calls.at(-1)?.[0].children as ReactElement<{
+      fillOpacity: number
+    }>[]
+
+    expect(cells.map((cell) => cell.props.fillOpacity)).toEqual([0.3, 1])
+  })
+
+  it('formats the tooltip values and sums them', () => {
+    renderFading()
+
+    const tooltip = screen.getByLabelText('Chart tooltip')
+
+    expect(tooltip).toHaveTextContent('400 units')
+    expect(tooltip).toHaveTextContent('Total1500 units')
+  })
+})
+
 describe('AreaChart without a currency', () => {
   it('lays out its axis for the value formatter', () => {
     render(
