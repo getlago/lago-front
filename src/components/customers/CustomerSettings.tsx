@@ -396,11 +396,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                   <Popper
                     PopperProps={{ placement: 'bottom-end' }}
                     opener={
-                      <Button
-                        disabled={loading}
-                        icon="dots-horizontal"
-                        variant="quaternary"
-                      />
+                      <Button disabled={loading} icon="dots-horizontal" variant="quaternary" />
                     }
                   >
                     {({ closePopper }) => (
@@ -444,10 +440,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
         />
 
         <Typography variant="body" color="grey700">
-          {getNetPaymentTermCopy(
-            customer?.netPaymentTerm,
-            billingEntity?.netPaymentTerm || 0,
-          )}
+          {getNetPaymentTermCopy(customer?.netPaymentTerm, billingEntity?.netPaymentTerm || 0)}
         </Typography>
       </SettingsListItem>
     )
