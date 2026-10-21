@@ -56,6 +56,9 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 
+export const INVOICE_LIST_VOID_ACTION_TEST_ID = 'invoice-list-void-action'
+export const INVOICE_LIST_REGENERATE_ACTION_TEST_ID = 'invoice-list-regenerate-action'
+
 type TInvoiceListProps = {
   error: ApolloError | undefined
   fetchMore: GetInvoicesListQueryResult['fetchMore']
@@ -306,6 +309,7 @@ const InvoicesList = ({
             invoice?.customer?.deletedAt || isProductCatalogEnabled
               ? translate('text_65269b43d4d2b15dd929a259')
               : translate('text_1750678506388d4fr5etxbhh'),
+          dataTest: INVOICE_LIST_VOID_ACTION_TEST_ID,
           link: () =>
             generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
               customerId: invoice?.customer?.id,
@@ -329,6 +333,7 @@ const InvoicesList = ({
         ? {
             startIcon: 'stop',
             title: translate('text_1750678506388oynw9hd01l9'),
+            dataTest: INVOICE_LIST_REGENERATE_ACTION_TEST_ID,
             link: () => regeneratePath(invoice as Invoice),
           }
         : null

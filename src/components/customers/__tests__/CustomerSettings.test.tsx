@@ -8,7 +8,11 @@ import {
 } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
-import { CustomerSettings } from '../CustomerSettings'
+import {
+  CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID,
+  CUSTOMER_SETTINGS_NET_PAYMENT_TERM_TEST_ID,
+  CustomerSettings,
+} from '../CustomerSettings'
 
 const CUSTOMER_ID = 'customer-123'
 
@@ -688,8 +692,8 @@ describe('CustomerSettings', () => {
         await prepare()
 
         await waitFor(() => {
-          expect(screen.getByText(/net payment term/i)).toBeInTheDocument()
-          expect(screen.getAllByText(/dunning campaign/i).length).toBeGreaterThan(0)
+          expect(screen.getByTestId(CUSTOMER_SETTINGS_NET_PAYMENT_TERM_TEST_ID)).toBeInTheDocument()
+          expect(screen.getByTestId(CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID)).toBeInTheDocument()
         })
       })
     })
@@ -703,11 +707,15 @@ describe('CustomerSettings', () => {
         await prepare()
 
         await waitFor(() => {
-          expect(screen.getByText(/document language/i)).toBeInTheDocument()
+          expect(screen.getAllByRole('button').length).toBeGreaterThanOrEqual(5)
         })
 
-        expect(screen.queryByText(/net payment term/i)).not.toBeInTheDocument()
-        expect(screen.queryByText(/dunning campaign/i)).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(CUSTOMER_SETTINGS_NET_PAYMENT_TERM_TEST_ID),
+        ).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
   })

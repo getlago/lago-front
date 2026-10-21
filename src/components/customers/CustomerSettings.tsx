@@ -65,6 +65,9 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper } from '~/styles'
 import { tw } from '~/styles/utils'
 
+export const CUSTOMER_SETTINGS_NET_PAYMENT_TERM_TEST_ID = 'customer-settings-net-payment-term'
+export const CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID = 'customer-settings-dunning-campaign'
+
 gql`
   fragment CustomerAppliedTaxRatesForSettings on Customer {
     id
@@ -369,7 +372,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     if (isProductCatalogEnabled) return null
 
     return (
-      <SettingsListItem>
+      <SettingsListItem data-test={CUSTOMER_SETTINGS_NET_PAYMENT_TERM_TEST_ID}>
         <SettingsListItemHeader
           label={translate('text_64c7a89b6c67eb6c98898167')}
           sublabel={translate('text_1728031300577aivplw3hqav')}
@@ -548,6 +551,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
               {/* Dunnings campaign */}
               {hasAutoDunningIntegration && !isProductCatalogEnabled && (
                 <SettingsListItem
+                  data-test={CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID}
                   className={tw(
                     isDunningCampaignApplicable &&
                       !customer?.excludeFromDunningCampaign &&

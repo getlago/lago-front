@@ -48,7 +48,8 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-const NET_PAYMENT_TERM_ITEM_ID = 'invoice-settings-net-payment-term'
+export const BILLING_ENTITY_NET_PAYMENT_TERM_TEST_ID = 'invoice-settings-net-payment-term'
+export const BILLING_ENTITY_ISSUING_DATE_POLICY_TEST_ID = 'invoice-settings-issuing-date-policy'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
 
@@ -318,7 +319,7 @@ const BillingEntityInvoiceSettings = () => {
       ),
     },
     {
-      id: 'invoice-settings-issuing_date-policy',
+      id: BILLING_ENTITY_ISSUING_DATE_POLICY_TEST_ID,
       label: translate('text_1763407530093r6zuzwr3x7p'),
       sublabel: translate('text_1763407530094ffluzv9nvij'),
       action: (
@@ -357,7 +358,7 @@ const BillingEntityInvoiceSettings = () => {
       ),
     },
     {
-      id: NET_PAYMENT_TERM_ITEM_ID,
+      id: BILLING_ENTITY_NET_PAYMENT_TERM_TEST_ID,
       label: translate('text_64c7a89b6c67eb6c98898167'),
       sublabel: translate('text_1728031300577aivplw3hqav'),
       action: (
@@ -382,7 +383,9 @@ const BillingEntityInvoiceSettings = () => {
         billingEntity?.netPaymentTerm,
       ),
     },
-  ].filter((item) => !(isProductCatalogEnabled && item.id === NET_PAYMENT_TERM_ITEM_ID))
+  ].filter(
+    (item) => !(isProductCatalogEnabled && item.id === BILLING_ENTITY_NET_PAYMENT_TERM_TEST_ID),
+  )
 
   return (
     <>
@@ -409,7 +412,7 @@ const BillingEntityInvoiceSettings = () => {
 
           {!loading &&
             items.map((item) => (
-              <SettingsListItem key={item.id}>
+              <SettingsListItem key={item.id} data-test={item.id}>
                 <SettingsListItemHeader
                   label={item.label}
                   sublabel={item.sublabel}

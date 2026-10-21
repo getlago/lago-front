@@ -13,6 +13,7 @@ import {
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import CustomerInvoiceVoid, {
+  CUSTOMER_INVOICE_VOID_REGENERATE_LINK_TEST_ID,
   CUSTOMER_INVOICE_VOID_SUBMIT_BUTTON_TEST_ID,
 } from '../CustomerInvoiceVoid'
 
@@ -303,8 +304,6 @@ describe('CustomerInvoiceVoid', () => {
   })
 
   describe('GIVEN a finalized invoice of an active customer', () => {
-    const REGENERATE_LINK_LABEL = 'text_1750678506388eexnh1b36o4'
-
     beforeEach(() => {
       mockQueryResult({ status: InvoiceStatusTypeEnum.Finalized })
     })
@@ -313,7 +312,9 @@ describe('CustomerInvoiceVoid', () => {
       it('THEN should offer the void and regenerate link', () => {
         renderPage()
 
-        expect(screen.getByRole('link', { name: REGENERATE_LINK_LABEL })).toBeInTheDocument()
+        expect(
+          screen.getByTestId(CUSTOMER_INVOICE_VOID_REGENERATE_LINK_TEST_ID),
+        ).toBeInTheDocument()
       })
     })
 
@@ -325,7 +326,9 @@ describe('CustomerInvoiceVoid', () => {
       it('THEN should not offer the void and regenerate link', () => {
         renderPage()
 
-        expect(screen.queryByRole('link', { name: REGENERATE_LINK_LABEL })).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(CUSTOMER_INVOICE_VOID_REGENERATE_LINK_TEST_ID),
+        ).not.toBeInTheDocument()
       })
 
       it('THEN should still display the submit button', () => {

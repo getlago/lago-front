@@ -14,7 +14,10 @@ import {
 } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
-import InvoicesList from '../InvoicesList'
+import InvoicesList, {
+  INVOICE_LIST_REGENERATE_ACTION_TEST_ID,
+  INVOICE_LIST_VOID_ACTION_TEST_ID,
+} from '../InvoicesList'
 
 // Mock IntersectionObserver
 const mockIntersectionObserver = jest.fn()
@@ -1202,11 +1205,8 @@ describe('InvoicesList', () => {
 
       await waitFor(() => user.click(actionButton))
 
-      const voidLink = screen.getByRole('link', { name: 'text_65269b43d4d2b15dd929a259' })
-      const regenerateLink = screen.queryByRole('link', { name: 'text_1750678506388oynw9hd01l9' })
-
-      expect(voidLink).toBeInTheDocument()
-      expect(regenerateLink).not.toBeInTheDocument()
+      expect(screen.getByTestId(INVOICE_LIST_VOID_ACTION_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(INVOICE_LIST_REGENERATE_ACTION_TEST_ID)).not.toBeInTheDocument()
     })
   })
 

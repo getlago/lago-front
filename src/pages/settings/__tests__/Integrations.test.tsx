@@ -19,7 +19,13 @@ import {
 } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
-import Integrations from '../Integrations'
+import Integrations, {
+  INTEGRATIONS_HUBSPOT_TEST_ID,
+  INTEGRATIONS_NETSUITE_TEST_ID,
+  INTEGRATIONS_SALESFORCE_TEST_ID,
+  INTEGRATIONS_SEGMENT_TEST_ID,
+  INTEGRATIONS_STRIPE_TEST_ID,
+} from '../Integrations'
 
 // Mock dialog components that transitively import @nangohq/frontend (ESM)
 jest.mock('~/components/settings/integrations/AddAnrokDialog', () => ({
@@ -482,25 +488,26 @@ describe('Integrations', () => {
       await prepare()
 
       await waitFor(() => {
-        expect(screen.getByText('Stripe')).toBeInTheDocument()
+        expect(screen.getByTestId(INTEGRATIONS_STRIPE_TEST_ID)).toBeInTheDocument()
       })
 
-      expect(screen.queryByText('HubSpot')).not.toBeInTheDocument()
-      expect(screen.queryByText('NetSuite')).not.toBeInTheDocument()
-      expect(screen.queryByText('Salesforce')).not.toBeInTheDocument()
-      expect(screen.queryByText('Segment')).not.toBeInTheDocument()
+      expect(screen.queryByTestId(INTEGRATIONS_HUBSPOT_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(INTEGRATIONS_NETSUITE_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(INTEGRATIONS_SALESFORCE_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(INTEGRATIONS_SEGMENT_TEST_ID)).not.toBeInTheDocument()
     })
 
     it('keeps every integration for legacy organizations', async () => {
       await prepare()
 
       await waitFor(() => {
-        expect(screen.getByText('Stripe')).toBeInTheDocument()
+        expect(screen.getByTestId(INTEGRATIONS_STRIPE_TEST_ID)).toBeInTheDocument()
       })
 
-      expect(screen.getByText('HubSpot')).toBeInTheDocument()
-      expect(screen.getByText('NetSuite')).toBeInTheDocument()
-      expect(screen.getByText('Salesforce')).toBeInTheDocument()
+      expect(screen.getByTestId(INTEGRATIONS_HUBSPOT_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(INTEGRATIONS_NETSUITE_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(INTEGRATIONS_SALESFORCE_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(INTEGRATIONS_SEGMENT_TEST_ID)).toBeInTheDocument()
     })
   })
 })

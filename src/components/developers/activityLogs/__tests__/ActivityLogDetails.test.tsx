@@ -289,12 +289,13 @@ describe('ActivityLogDetails', () => {
   })
 
   describe('GIVEN the activity log points to v1 objects', () => {
-    const renderWithFullData = (): void =>
+    const renderWithFullData = (): void => {
       renderComponent([
         ...buildActivityLogMock(),
         ...buildCustomerMock('customer-internal-123'),
         ...buildSubscriptionMock('subscription-internal-123'),
       ])
+    }
 
     describe('WHEN the organization does not use the product catalog', () => {
       it('THEN should link the plan resource', async () => {

@@ -79,6 +79,12 @@ import Segment from '~/public/images/segment.svg'
 import Stripe from '~/public/images/stripe.svg'
 import Xero from '~/public/images/xero.svg'
 
+export const INTEGRATIONS_STRIPE_TEST_ID = 'integrations-stripe'
+export const INTEGRATIONS_HUBSPOT_TEST_ID = 'integrations-hubspot'
+export const INTEGRATIONS_NETSUITE_TEST_ID = 'integrations-netsuite'
+export const INTEGRATIONS_SALESFORCE_TEST_ID = 'integrations-salesforce'
+export const INTEGRATIONS_SEGMENT_TEST_ID = 'integrations-segment'
+
 gql`
   query integrationsSetting($limit: Int) {
     paymentProviders(limit: $limit) {
@@ -457,6 +463,7 @@ const Integrations = () => {
                       )}
                       {!isProductCatalogEnabled && (
                         <Selector
+                          data-test={INTEGRATIONS_HUBSPOT_TEST_ID}
                           title={translate('text_1727189568053s79ks5q07tr')}
                           subtitle={translate('text_1727189568053q2gpkjzpmxr')}
                           icon={
@@ -497,6 +504,7 @@ const Integrations = () => {
                       )}
                       {!isProductCatalogEnabled && (
                         <Selector
+                          data-test={INTEGRATIONS_NETSUITE_TEST_ID}
                           fullWidth
                           title={translate('text_661ff6e56ef7e1b7c542b239')}
                           subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
@@ -537,6 +545,7 @@ const Integrations = () => {
                       )}
                       {!isProductCatalogEnabled && (
                         <Selector
+                          data-test={INTEGRATIONS_SALESFORCE_TEST_ID}
                           fullWidth
                           title={translate('text_1731507195246vu9kt6xnhv6')}
                           subtitle={translate('text_1731507195246zr2p61vihmw')}
@@ -577,6 +586,7 @@ const Integrations = () => {
                       )}
                       {!isProductCatalogEnabled && (
                         <Selector
+                          data-test={INTEGRATIONS_SEGMENT_TEST_ID}
                           title={translate('text_641b42035d62fd004e07cdde')}
                           subtitle={translate('text_641b420ccd75240062f2386e')}
                           icon={
@@ -592,6 +602,7 @@ const Integrations = () => {
                         />
                       )}
                       <Selector
+                        data-test={INTEGRATIONS_STRIPE_TEST_ID}
                         title={translate('text_62b1edddbf5f461ab971277d')}
                         subtitle={translate('text_62b1edddbf5f461ab9712795')}
                         icon={

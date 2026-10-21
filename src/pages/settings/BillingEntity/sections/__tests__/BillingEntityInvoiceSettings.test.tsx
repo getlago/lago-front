@@ -3,10 +3,10 @@ import { act, screen } from '@testing-library/react'
 import { FeatureFlagEnum, GetBillingEntitySettingsQuery } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import BillingEntityInvoiceSettings from '../BillingEntityInvoiceSettings'
-
-const NET_PAYMENT_TERM_LABEL = 'Net payment term'
-const ISSUING_DATE_POLICY_LABEL = 'Issuing date policy'
+import BillingEntityInvoiceSettings, {
+  BILLING_ENTITY_ISSUING_DATE_POLICY_TEST_ID,
+  BILLING_ENTITY_NET_PAYMENT_TERM_TEST_ID,
+} from '../BillingEntityInvoiceSettings'
 
 const mockFeatureFlags = new Set<FeatureFlagEnum>()
 const mockUseGetBillingEntitySettingsQuery = jest.fn()
@@ -85,7 +85,7 @@ describe('BillingEntityInvoiceSettings', () => {
   it('GIVEN the product catalog flag is off WHEN rendered THEN the net payment term item is shown', async () => {
     await renderSettings()
 
-    expect(screen.getByText(NET_PAYMENT_TERM_LABEL)).toBeInTheDocument()
+    expect(screen.getByTestId(BILLING_ENTITY_NET_PAYMENT_TERM_TEST_ID)).toBeInTheDocument()
   })
 
   it('GIVEN the product catalog flag is on WHEN rendered THEN the net payment term item is hidden', async () => {
@@ -93,7 +93,7 @@ describe('BillingEntityInvoiceSettings', () => {
 
     await renderSettings()
 
-    expect(screen.queryByText(NET_PAYMENT_TERM_LABEL)).not.toBeInTheDocument()
+    expect(screen.queryByTestId(BILLING_ENTITY_NET_PAYMENT_TERM_TEST_ID)).not.toBeInTheDocument()
   })
 
   it('GIVEN the product catalog flag is on WHEN rendered THEN the issuing date policy item is still shown', async () => {
@@ -101,6 +101,6 @@ describe('BillingEntityInvoiceSettings', () => {
 
     await renderSettings()
 
-    expect(screen.getByText(ISSUING_DATE_POLICY_LABEL)).toBeInTheDocument()
+    expect(screen.getByTestId(BILLING_ENTITY_ISSUING_DATE_POLICY_TEST_ID)).toBeInTheDocument()
   })
 })
