@@ -6,6 +6,7 @@ import { addToast } from '~/core/apolloClient'
 import {
   ApiKeysPermissionsEnum,
   CreateApiKeyDocument,
+  FeatureFlagEnum,
   GetApiKeyToEditDocument,
   PremiumIntegrationTypeEnum,
   UpdateApiKeyDocument,
@@ -45,6 +46,7 @@ jest.mock('~/hooks/useDeveloperTool', () => ({
 }))
 
 const mockUseOrganizationInfos = jest.fn()
+const mockHasFeatureFlag = jest.fn()
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => mockUseOrganizationInfos(),
@@ -115,10 +117,12 @@ const updateApiKeyMock: MockedResponse = {
 describe('ApiKeysForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasFeatureFlag.mockReturnValue(false)
     mockUseOrganizationInfos.mockReturnValue({
       organization: {
         premiumIntegrations: [],
       },
+      hasFeatureFlag: mockHasFeatureFlag,
     })
     // Reset useParams mock for each test
     const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
@@ -212,6 +216,7 @@ describe('ApiKeysForm', () => {
           organization: {
             premiumIntegrations: [PremiumIntegrationTypeEnum.ApiPermissions],
           },
+          hasFeatureFlag: mockHasFeatureFlag,
         })
       })
 
@@ -362,6 +367,7 @@ describe('ApiKeysForm', () => {
         organization: {
           premiumIntegrations: [PremiumIntegrationTypeEnum.ApiPermissions],
         },
+        hasFeatureFlag: mockHasFeatureFlag,
       })
     })
 
@@ -465,6 +471,84 @@ describe('ApiKeysForm', () => {
 
         // Second row should remain unchanged
         expect(secondRowReadCheckbox.checked).toBe(secondRowInitialValue)
+      })
+    })
+
+    describe('WHEN the organization has no feature flag', () => {
+      it('THEN should not display the flagged resources', async () => {
+        render(<ApiKeysForm />)
+
+        await waitFor(() => {
+          expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+        })
+
+        expect(screen.getByText('API logs')).toBeInTheDocument()
+        expect(screen.queryByText('Products')).not.toBeInTheDocument()
+        expect(screen.queryByText('Contracts')).not.toBeInTheDocument()
+        expect(screen.queryByText('Quotes')).not.toBeInTheDocument()
+        expect(screen.queryByText('Usage attribution types')).not.toBeInTheDocument()
+        expect(screen.queryByText('x402 connections')).not.toBeInTheDocument()
+      })
+
+      it('THEN should submit only the displayed resources', async () => {
+        const user = userEvent.setup()
+        let submittedPermissions: Record<string, string[]> = {}
+
+        const createApiKeyWithPermissionsMock: MockedResponse = {
+          request: { query: CreateApiKeyDocument },
+          variableMatcher: (variables) => {
+            submittedPermissions = variables.input.permissions
+
+            return true
+          },
+          result: { data: { createApiKey: { id: 'new-api-key-456' } } },
+        }
+
+        render(<ApiKeysForm />, { mocks: [createApiKeyWithPermissionsMock] })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+        })
+
+        await user.type(screen.getByRole('textbox'), 'New API Key')
+        await user.click(screen.getByRole('button', { name: /add api key/i }))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        })
+
+        expect(submittedPermissions[ApiKeysPermissionsEnum.Plan]).toEqual(['read', 'write'])
+        expect(submittedPermissions[ApiKeysPermissionsEnum.ApiLog]).toEqual(['read'])
+        expect(submittedPermissions).not.toHaveProperty(ApiKeysPermissionsEnum.Product)
+        expect(submittedPermissions).not.toHaveProperty(ApiKeysPermissionsEnum.Contract)
+      })
+    })
+
+    describe('WHEN the organization has the product catalog feature flag', () => {
+      beforeEach(() => {
+        mockHasFeatureFlag.mockImplementation(
+          (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.ProductCatalog,
+        )
+      })
+
+      it('THEN should display the product catalog resources only', async () => {
+        render(<ApiKeysForm />)
+
+        await waitFor(() => {
+          expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+        })
+
+        ;[
+          'Products',
+          'Product categories',
+          'Rate cards',
+          'Plan rate cards',
+          'Contracts',
+          'Contract rate cards',
+        ].forEach((label) => {
+          expect(screen.getByText(label)).toBeInTheDocument()
+        })
+        expect(screen.queryByText('Quotes')).not.toBeInTheDocument()
       })
     })
   })
