@@ -5273,5 +5273,7 @@
   "text_1791824479971k53nxu9rd1p": "Go to product catalog",
   "text_1791824479972csd47bqgz26": "Map {{productName}} with a {{integrationType}} item",
   "text_179182447997277lnl7262dw": "To link this product with {{integrationType}}, define the corresponding item in your {{integrationType}} account.",
-  "text_1792507896669q4dn36fbi4y": "Contract"
+  "text_1792507896669q4dn36fbi4y": "Contract",
+  "text_1792577695510xy36tafb8l5": "This field is too long. It can contain up to {{max}} characters.",
+  "text_1792577695510fp8vzeszoh7": "This field contains characters that are not allowed, such as line breaks, tabs or invisible characters."
 }

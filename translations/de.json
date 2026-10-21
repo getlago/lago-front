@@ -298,5 +298,7 @@
   "text_1784883525803guz1xdk6ub7": "Wöchentlich",
   "text_17848835258036aevge8fx0s": "Halbjährlich",
   "text_1784883525803ghc0vq94t5u": "Jährlich",
-  "text_1787723331045u6dbfhsdn6n": "Feste Gebühren"
+  "text_1787723331045u6dbfhsdn6n": "Feste Gebühren",
+  "text_1792577695510xy36tafb8l5": "Dieses Feld ist zu lang. Es darf höchstens {{max}} Zeichen enthalten.",
+  "text_1792577695510fp8vzeszoh7": "Dieses Feld enthält unzulässige Zeichen, z. B. Zeilenumbrüche, Tabulatoren oder unsichtbare Zeichen."
 }

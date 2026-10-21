@@ -298,5 +298,7 @@
   "text_1784883525803guz1xdk6ub7": "Veckovis",
   "text_17848835258036aevge8fx0s": "Halvårsvis",
   "text_1784883525803ghc0vq94t5u": "Årsvis",
-  "text_1787723331045u6dbfhsdn6n": "Fasta avgifter"
+  "text_1787723331045u6dbfhsdn6n": "Fasta avgifter",
+  "text_1792577695510xy36tafb8l5": "Det här fältet är för långt. Det får innehålla högst {{max}} tecken.",
+  "text_1792577695510fp8vzeszoh7": "Det här fältet innehåller tecken som inte är tillåtna, till exempel radbrytningar, tabbar eller osynliga tecken."
 }

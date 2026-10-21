@@ -298,5 +298,7 @@
   "text_1784883525803guz1xdk6ub7": "Semanal",
   "text_17848835258036aevge8fx0s": "Semestral",
   "text_1784883525803ghc0vq94t5u": "Anual",
-  "text_1787723331045u6dbfhsdn6n": "Tarifas fijas"
+  "text_1787723331045u6dbfhsdn6n": "Tarifas fijas",
+  "text_1792577695510xy36tafb8l5": "Este campo es demasiado largo. Puede contener hasta {{max}} caracteres.",
+  "text_1792577695510fp8vzeszoh7": "Este campo contiene caracteres no permitidos, como saltos de línea, tabulaciones o caracteres invisibles."
 }

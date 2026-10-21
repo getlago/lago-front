@@ -5805,6 +5805,7 @@ export enum LagoApiError {
   GoogleLoginMethodNotAuthorized = 'google_login_method_not_authorized',
   IncorrectLoginOrPassword = 'incorrect_login_or_password',
   InternalError = 'internal_error',
+  InvalidCharacters = 'invalid_characters',
   InvalidGoogleCode = 'invalid_google_code',
   InvalidGoogleToken = 'invalid_google_token',
   InvalidStatus = 'invalid_status',
@@ -5838,7 +5839,8 @@ export enum LagoApiError {
   ValueAlreadyExist = 'value_already_exist',
   ValueIsDuplicated = 'value_is_duplicated',
   ValueIsInvalid = 'value_is_invalid',
-  ValueIsOutOfRange = 'value_is_out_of_range'
+  ValueIsOutOfRange = 'value_is_out_of_range',
+  ValueIsTooLong = 'value_is_too_long'
 }
 
 export type LimitationInput = {

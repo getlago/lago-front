@@ -298,5 +298,7 @@
   "text_1784883525803guz1xdk6ub7": "Hebdomadaire",
   "text_17848835258036aevge8fx0s": "Semestriel",
   "text_1784883525803ghc0vq94t5u": "Annuel",
-  "text_1787723331045u6dbfhsdn6n": "Frais fixes"
+  "text_1787723331045u6dbfhsdn6n": "Frais fixes",
+  "text_1792577695510xy36tafb8l5": "Ce champ est trop long. Il peut contenir jusqu'à {{max}} caractères.",
+  "text_1792577695510fp8vzeszoh7": "Ce champ contient des caractères non autorisés, comme des retours à la ligne, des tabulations ou des caractères invisibles."
 }
