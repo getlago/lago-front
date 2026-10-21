@@ -1,7 +1,8 @@
 import { FiltersFormValues } from '~/components/Filters/presentation/types'
 import { MultipleComboBox } from '~/components/form'
-import { InvoiceTypeEnum } from '~/generated/graphql'
+import { FeatureFlagEnum, InvoiceTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 type FiltersItemInvoiceTypeProps = {
   value: FiltersFormValues['filters'][0]['value']
@@ -10,6 +11,8 @@ type FiltersItemInvoiceTypeProps = {
 
 export const FiltersItemInvoiceType = ({ value, setFilterValue }: FiltersItemInvoiceTypeProps) => {
   const { translate } = useInternationalization()
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const hasProductCatalog = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
 
   return (
     <MultipleComboBox
@@ -25,10 +28,14 @@ export const FiltersItemInvoiceType = ({ value, setFilterValue }: FiltersItemInv
           label: translate('text_1728472697691y39tdxgyrcg'),
           value: InvoiceTypeEnum.AdvanceCharges,
         },
-        {
-          label: translate('text_1792507896669q4dn36fbi4y'),
-          value: InvoiceTypeEnum.Contract,
-        },
+        ...(hasProductCatalog
+          ? [
+              {
+                label: translate('text_1792507896669q4dn36fbi4y'),
+                value: InvoiceTypeEnum.Contract,
+              },
+            ]
+          : []),
         {
           label: translate('text_62d18855b22699e5cf55f879'),
           value: InvoiceTypeEnum.Credit,
