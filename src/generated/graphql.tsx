@@ -5740,6 +5740,7 @@ export enum InvoiceTaxStatusTypeEnum {
 export enum InvoiceTypeEnum {
   AddOn = 'add_on',
   AdvanceCharges = 'advance_charges',
+  Contract = 'contract',
   Credit = 'credit',
   OneOff = 'one_off',
   ProgressiveBilling = 'progressive_billing',
