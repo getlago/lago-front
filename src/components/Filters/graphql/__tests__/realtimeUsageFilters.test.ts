@@ -32,11 +32,20 @@ describe('real-time usage filters', () => {
     })
   })
 
-  it('maps a subscription to its external id', () => {
-    expect(
-      FILTER_VALUE_MAP[AvailableFiltersEnum.realtimeSubscription](
-        `sub_1${filterDataInlineSeparator}sub_1 - Acme`,
-      ),
-    ).toBe('sub_1')
+  describe('subscription', () => {
+    const value = `sub_1${filterDataInlineSeparator}sub_1 - Acme`
+
+    it('queries the external id only', () => {
+      expect(FILTER_VALUE_MAP[AvailableFiltersEnum.subscriptionExternalId](value)).toBe('sub_1')
+    })
+
+    it('shows the label, or the bare id of a value typed before the combobox', () => {
+      expect(
+        formatActiveFilterValueDisplay(AvailableFiltersEnum.subscriptionExternalId, value),
+      ).toBe('sub_1 - Acme')
+      expect(
+        formatActiveFilterValueDisplay(AvailableFiltersEnum.subscriptionExternalId, 'sub_old_1'),
+      ).toBe('sub_old_1')
+    })
   })
 })

@@ -4,17 +4,16 @@ import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPag
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { RealtimeUsageFilters } from '~/pages/realtimeUsage/common/RealtimeUsageFilters'
-import { RealtimeUsageGate } from '~/pages/realtimeUsage/common/RealtimeUsageGate'
 import { useRealtimeUsageFilters } from '~/pages/realtimeUsage/common/useRealtimeUsageFilters'
 import { RealtimeUsageBillableMetricsSection } from '~/pages/realtimeUsage/overview/RealtimeUsageBillableMetricsSection'
 import { RealtimeUsageEventsSection } from '~/pages/realtimeUsage/overview/RealtimeUsageEventsSection'
 
 const RealtimeUsageOverview = (): JSX.Element => {
   const { translate } = useInternationalization()
-  const { filters, pollInterval } = useRealtimeUsageFilters()
+  const { filters, now, refresh, isEnabled } = useRealtimeUsageFilters()
 
   return (
-    <RealtimeUsageGate>
+    <>
       <PageBannerHeaderWithBurgerMenu>
         <Typography variant="bodyHl" color="grey700">
           {translate('text_17465414264635ktqocy7leo')}
@@ -30,15 +29,15 @@ const RealtimeUsageOverview = (): JSX.Element => {
 
             <RealtimeUsageFilters
               availableFilters={RealtimeUsageAvailableFilters}
-              queryNames={['getRealtimeUsageEvents', 'getRealtimeUsageBillableMetrics']}
+              onRefresh={refresh}
             />
           </div>
 
-          <RealtimeUsageEventsSection filters={filters} pollInterval={pollInterval} />
-          <RealtimeUsageBillableMetricsSection filters={filters} pollInterval={pollInterval} />
+          <RealtimeUsageEventsSection filters={filters} skip={!isEnabled} />
+          <RealtimeUsageBillableMetricsSection filters={filters} now={now} skip={!isEnabled} />
         </div>
       </FullscreenPage.Wrapper>
-    </RealtimeUsageGate>
+    </>
   )
 }
 

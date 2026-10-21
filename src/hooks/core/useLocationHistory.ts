@@ -96,7 +96,7 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
   const organizationSlug = params?.organizationSlug
   const { loading: isCurrentUserLoading } = useCurrentUser()
   const { hasPermissions, hasPermissionsOr } = usePermissions()
-  const { hasFeatureFlag } = useOrganizationInfos()
+  const { hasFeatureFlag, organization } = useOrganizationInfos()
   const goBack: GoBack = (fallback, options) => {
     const { previous, remainingHistory } = getPreviousLocation({
       ...(options || {}),
@@ -125,9 +125,12 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
        * Redirect to forbidden page
        */
       navigate(FORBIDDEN_ROUTE)
-    } else if (routeConfig.featureFlag && !hasFeatureFlag(routeConfig.featureFlag)) {
+    } else if (
+      (routeConfig.featureFlag && !hasFeatureFlag(routeConfig.featureFlag)) ||
+      (routeConfig.organizationCapability && !organization?.[routeConfig.organizationCapability])
+    ) {
       /**
-       * In case of navigation to a route gated by a feature flag that is not active
+       * In case of navigation to a route gated by a feature flag or capability that is not active
        * Redirect to home page
        */
       navigate(HOME_ROUTE, { replace: true })

@@ -152,7 +152,6 @@ export enum AvailableFiltersEnum {
   adminOrganizations = 'adminOrganizations',
   adminAuditDate = 'adminAuditDate',
   realtimeDimensions = 'realtimeDimensions',
-  realtimeSubscription = 'realtimeSubscription',
 }
 
 export const CreditNoteAvailableFilters = [
@@ -284,7 +283,7 @@ export const UsageBreakdownRecurringAvailableFilters = [
 
 export const RealtimeUsageAvailableFilters = [
   AvailableFiltersEnum.customerExternalId,
-  AvailableFiltersEnum.realtimeSubscription,
+  AvailableFiltersEnum.subscriptionExternalId,
 ]
 
 export const RealtimeUsageBillableMetricAvailableFilters = [
@@ -519,7 +518,6 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.adminOrganizations]: 'text_1785749891671s8vuun26gew',
   [AvailableFiltersEnum.adminAuditDate]: 'text_1785749891671rk4ofmy881a',
   [AvailableFiltersEnum.realtimeDimensions]: 'text_17925005807270liw8mldaip',
-  [AvailableFiltersEnum.realtimeSubscription]: 'text_17925005807279ssn3c84yk4',
 }
 
 export type FiltersFormValues = {

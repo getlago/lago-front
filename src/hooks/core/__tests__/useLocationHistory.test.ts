@@ -9,6 +9,7 @@ const mockNavigate = jest.fn()
 const mockHasPermissions = jest.fn()
 const mockHasPermissionsOr = jest.fn()
 const mockHasFeatureFlag = jest.fn()
+const mockOrganization = jest.fn()
 
 const FALLBACK_URL = '/fallback'
 const MOCK_HISTORY_VAR = [
@@ -67,6 +68,7 @@ jest.mock('~/hooks/usePermissions', () => ({
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     hasFeatureFlag: mockHasFeatureFlag,
+    organization: mockOrganization(),
   }),
 }))
 
@@ -681,6 +683,51 @@ describe('useLocationHistory()', () => {
 
         // Should redirect to forbidden (permission check), not home (feature flag check)
         expect(mockNavigate).toHaveBeenCalledWith('/forbidden')
+        expect(mockNavigate).not.toHaveBeenCalledWith('/', { replace: true })
+      })
+    })
+
+    describe('organization capability gating', () => {
+      beforeEach(() => {
+        authTokenVar('test-token')
+        mockHasPermissions.mockReturnValue(true)
+      })
+
+      it('should redirect to home when the organization lacks the capability', () => {
+        mockOrganization.mockReturnValue({ realtimeUsageEnabled: false })
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['analyticsView'],
+              organizationCapability: 'realtimeUsageEnabled',
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+      })
+
+      it('should allow access when the organization has the capability', () => {
+        mockOrganization.mockReturnValue({ realtimeUsageEnabled: true })
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['analyticsView'],
+              organizationCapability: 'realtimeUsageEnabled',
+            },
+            mockLocation,
+          )
+        })
+
         expect(mockNavigate).not.toHaveBeenCalledWith('/', { replace: true })
       })
     })

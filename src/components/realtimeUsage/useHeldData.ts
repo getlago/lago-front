@@ -1,0 +1,23 @@
+import { useState } from 'react'
+
+type HeldData<T> = { key: string; data: T }
+
+// A refresh changes the window, which clears `data` until it is served: keep showing the last
+// data served for the same `key` meanwhile, but never past a failed request.
+export const useHeldData = <T>(
+  data: T | undefined,
+  key: string,
+  hasError: boolean,
+): { data: T | undefined; isHeld: boolean } => {
+  const [held, setHeld] = useState<HeldData<T>>()
+
+  if (data !== undefined && (held?.data !== data || held.key !== key)) {
+    setHeld({ key, data })
+  }
+
+  if (data !== undefined) return { data, isHeld: false }
+
+  const heldData = !hasError && held?.key === key ? held.data : undefined
+
+  return { data: heldData, isHeld: heldData !== undefined }
+}

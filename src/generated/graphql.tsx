@@ -9206,6 +9206,8 @@ export type Query = {
   realtimeUsageBillableMetric: RealtimeUsageBillableMetric;
   /** Query the real-time usage of the billable metrics of the organization, per period and per dimension */
   realtimeUsageBillableMetrics: RealtimeUsageBillableMetricCollection;
+  /** Query the dimensions of a billable metric, biggest first, over the longest window by default */
+  realtimeUsageDimensionNames: Array<RealtimeUsageDimensionName>;
   /** Query every dimension of a billable metric, with its real-time usage per period */
   realtimeUsageDimensions: RealtimeUsageDimensionRowCollection;
   /** Query the events counted on the usage-based charges of the organization, per period */
@@ -10191,6 +10193,16 @@ export type QueryRealtimeUsageBillableMetricsArgs = {
 };
 
 
+export type QueryRealtimeUsageDimensionNamesArgs = {
+  billableMetricCode: Scalars['String']['input'];
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+};
+
+
 export type QueryRealtimeUsageDimensionsArgs = {
   billableMetricCode: Scalars['String']['input'];
   dimensionKeys?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -10702,6 +10714,15 @@ export type RealtimeUsageDimension = {
   other: Scalars['Boolean']['output'];
   units: Scalars['Float']['output'];
   values: Scalars['JSON']['output'];
+};
+
+/** A dimension of a billable metric, without its usage */
+export type RealtimeUsageDimensionName = {
+  __typename?: 'RealtimeUsageDimensionName';
+  /** Opaque key, to pass back as a dimension filter */
+  key: Scalars['String']['output'];
+  /** Null for the usage of no charge filter or pricing group */
+  name?: Maybe<Scalars['String']['output']>;
 };
 
 /** Units of a dimension within one period */
@@ -13240,23 +13261,21 @@ export type GetProductFiltersForFilterItemRateCardProductFilterQueryVariables = 
 
 export type GetProductFiltersForFilterItemRateCardProductFilterQuery = { __typename?: 'Query', productFilters: { __typename?: 'ProductFilterCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null }> } };
 
-export type GetDimensionsForFilterItemRealtimeDimensionsQueryVariables = Exact<{
+export type GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables = Exact<{
   billableMetricCode: Scalars['String']['input'];
-  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type GetDimensionsForFilterItemRealtimeDimensionsQuery = { __typename?: 'Query', realtimeUsageDimensions: { __typename?: 'RealtimeUsageDimensionRowCollection', collection: Array<{ __typename?: 'RealtimeUsageDimensionRow', key: string, name?: string | null }> } };
+export type GetDimensionNamesForFilterItemRealtimeDimensionsQuery = { __typename?: 'Query', realtimeUsageDimensionNames: Array<{ __typename?: 'RealtimeUsageDimensionName', key: string, name?: string | null }> };
 
-export type GetSubscriptionsForFilterItemRealtimeSubscriptionQueryVariables = Exact<{
+export type GetSubscriptionsForFilterItemSubscriptionQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type GetSubscriptionsForFilterItemRealtimeSubscriptionQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Subscription', id: string, externalId: string, customer: { __typename?: 'Customer', id: string, displayName: string } }> } };
+export type GetSubscriptionsForFilterItemSubscriptionQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Subscription', id: string, externalId: string, customer: { __typename?: 'Customer', id: string, displayName: string } }> } };
 
 export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -15942,6 +15961,7 @@ export type GetSubscriptionHourlyUsageQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
   chargeId: Scalars['ID']['input'];
   fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
 }>;
 
 
@@ -27141,60 +27161,52 @@ export type GetProductFiltersForFilterItemRateCardProductFilterQueryHookResult =
 export type GetProductFiltersForFilterItemRateCardProductFilterLazyQueryHookResult = ReturnType<typeof useGetProductFiltersForFilterItemRateCardProductFilterLazyQuery>;
 export type GetProductFiltersForFilterItemRateCardProductFilterSuspenseQueryHookResult = ReturnType<typeof useGetProductFiltersForFilterItemRateCardProductFilterSuspenseQuery>;
 export type GetProductFiltersForFilterItemRateCardProductFilterQueryResult = Apollo.QueryResult<GetProductFiltersForFilterItemRateCardProductFilterQuery, GetProductFiltersForFilterItemRateCardProductFilterQueryVariables>;
-export const GetDimensionsForFilterItemRealtimeDimensionsDocument = gql`
-    query getDimensionsForFilterItemRealtimeDimensions($billableMetricCode: String!, $fromDatetime: ISO8601DateTime, $limit: Int) {
-  realtimeUsageDimensions(
-    billableMetricCode: $billableMetricCode
-    fromDatetime: $fromDatetime
-    limit: $limit
-  ) {
-    collection {
-      key
-      name
-    }
+export const GetDimensionNamesForFilterItemRealtimeDimensionsDocument = gql`
+    query getDimensionNamesForFilterItemRealtimeDimensions($billableMetricCode: String!) {
+  realtimeUsageDimensionNames(billableMetricCode: $billableMetricCode) {
+    key
+    name
   }
 }
     `;
 
 /**
- * __useGetDimensionsForFilterItemRealtimeDimensionsQuery__
+ * __useGetDimensionNamesForFilterItemRealtimeDimensionsQuery__
  *
- * To run a query within a React component, call `useGetDimensionsForFilterItemRealtimeDimensionsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetDimensionsForFilterItemRealtimeDimensionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetDimensionNamesForFilterItemRealtimeDimensionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDimensionNamesForFilterItemRealtimeDimensionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetDimensionsForFilterItemRealtimeDimensionsQuery({
+ * const { data, loading, error } = useGetDimensionNamesForFilterItemRealtimeDimensionsQuery({
  *   variables: {
  *      billableMetricCode: // value for 'billableMetricCode'
- *      fromDatetime: // value for 'fromDatetime'
- *      limit: // value for 'limit'
  *   },
  * });
  */
-export function useGetDimensionsForFilterItemRealtimeDimensionsQuery(baseOptions: Apollo.QueryHookOptions<GetDimensionsForFilterItemRealtimeDimensionsQuery, GetDimensionsForFilterItemRealtimeDimensionsQueryVariables> & ({ variables: GetDimensionsForFilterItemRealtimeDimensionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useGetDimensionNamesForFilterItemRealtimeDimensionsQuery(baseOptions: Apollo.QueryHookOptions<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables> & ({ variables: GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetDimensionsForFilterItemRealtimeDimensionsQuery, GetDimensionsForFilterItemRealtimeDimensionsQueryVariables>(GetDimensionsForFilterItemRealtimeDimensionsDocument, options);
+        return Apollo.useQuery<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>(GetDimensionNamesForFilterItemRealtimeDimensionsDocument, options);
       }
-export function useGetDimensionsForFilterItemRealtimeDimensionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetDimensionsForFilterItemRealtimeDimensionsQuery, GetDimensionsForFilterItemRealtimeDimensionsQueryVariables>) {
+export function useGetDimensionNamesForFilterItemRealtimeDimensionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetDimensionsForFilterItemRealtimeDimensionsQuery, GetDimensionsForFilterItemRealtimeDimensionsQueryVariables>(GetDimensionsForFilterItemRealtimeDimensionsDocument, options);
+          return Apollo.useLazyQuery<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>(GetDimensionNamesForFilterItemRealtimeDimensionsDocument, options);
         }
 // @ts-ignore
-export function useGetDimensionsForFilterItemRealtimeDimensionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetDimensionsForFilterItemRealtimeDimensionsQuery, GetDimensionsForFilterItemRealtimeDimensionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetDimensionsForFilterItemRealtimeDimensionsQuery, GetDimensionsForFilterItemRealtimeDimensionsQueryVariables>;
-export function useGetDimensionsForFilterItemRealtimeDimensionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetDimensionsForFilterItemRealtimeDimensionsQuery, GetDimensionsForFilterItemRealtimeDimensionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetDimensionsForFilterItemRealtimeDimensionsQuery | undefined, GetDimensionsForFilterItemRealtimeDimensionsQueryVariables>;
-export function useGetDimensionsForFilterItemRealtimeDimensionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetDimensionsForFilterItemRealtimeDimensionsQuery, GetDimensionsForFilterItemRealtimeDimensionsQueryVariables>) {
+export function useGetDimensionNamesForFilterItemRealtimeDimensionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>;
+export function useGetDimensionNamesForFilterItemRealtimeDimensionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetDimensionNamesForFilterItemRealtimeDimensionsQuery | undefined, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>;
+export function useGetDimensionNamesForFilterItemRealtimeDimensionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetDimensionsForFilterItemRealtimeDimensionsQuery, GetDimensionsForFilterItemRealtimeDimensionsQueryVariables>(GetDimensionsForFilterItemRealtimeDimensionsDocument, options);
+          return Apollo.useSuspenseQuery<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>(GetDimensionNamesForFilterItemRealtimeDimensionsDocument, options);
         }
-export type GetDimensionsForFilterItemRealtimeDimensionsQueryHookResult = ReturnType<typeof useGetDimensionsForFilterItemRealtimeDimensionsQuery>;
-export type GetDimensionsForFilterItemRealtimeDimensionsLazyQueryHookResult = ReturnType<typeof useGetDimensionsForFilterItemRealtimeDimensionsLazyQuery>;
-export type GetDimensionsForFilterItemRealtimeDimensionsSuspenseQueryHookResult = ReturnType<typeof useGetDimensionsForFilterItemRealtimeDimensionsSuspenseQuery>;
-export type GetDimensionsForFilterItemRealtimeDimensionsQueryResult = Apollo.QueryResult<GetDimensionsForFilterItemRealtimeDimensionsQuery, GetDimensionsForFilterItemRealtimeDimensionsQueryVariables>;
-export const GetSubscriptionsForFilterItemRealtimeSubscriptionDocument = gql`
-    query getSubscriptionsForFilterItemRealtimeSubscription($page: Int, $limit: Int, $searchTerm: String) {
+export type GetDimensionNamesForFilterItemRealtimeDimensionsQueryHookResult = ReturnType<typeof useGetDimensionNamesForFilterItemRealtimeDimensionsQuery>;
+export type GetDimensionNamesForFilterItemRealtimeDimensionsLazyQueryHookResult = ReturnType<typeof useGetDimensionNamesForFilterItemRealtimeDimensionsLazyQuery>;
+export type GetDimensionNamesForFilterItemRealtimeDimensionsSuspenseQueryHookResult = ReturnType<typeof useGetDimensionNamesForFilterItemRealtimeDimensionsSuspenseQuery>;
+export type GetDimensionNamesForFilterItemRealtimeDimensionsQueryResult = Apollo.QueryResult<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>;
+export const GetSubscriptionsForFilterItemSubscriptionDocument = gql`
+    query getSubscriptionsForFilterItemSubscription($page: Int, $limit: Int, $searchTerm: String) {
   subscriptions(page: $page, limit: $limit, searchTerm: $searchTerm) {
     metadata {
       currentPage
@@ -27213,16 +27225,16 @@ export const GetSubscriptionsForFilterItemRealtimeSubscriptionDocument = gql`
     `;
 
 /**
- * __useGetSubscriptionsForFilterItemRealtimeSubscriptionQuery__
+ * __useGetSubscriptionsForFilterItemSubscriptionQuery__
  *
- * To run a query within a React component, call `useGetSubscriptionsForFilterItemRealtimeSubscriptionQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetSubscriptionsForFilterItemRealtimeSubscriptionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetSubscriptionsForFilterItemSubscriptionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionsForFilterItemSubscriptionQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetSubscriptionsForFilterItemRealtimeSubscriptionQuery({
+ * const { data, loading, error } = useGetSubscriptionsForFilterItemSubscriptionQuery({
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
@@ -27230,25 +27242,25 @@ export const GetSubscriptionsForFilterItemRealtimeSubscriptionDocument = gql`
  *   },
  * });
  */
-export function useGetSubscriptionsForFilterItemRealtimeSubscriptionQuery(baseOptions?: Apollo.QueryHookOptions<GetSubscriptionsForFilterItemRealtimeSubscriptionQuery, GetSubscriptionsForFilterItemRealtimeSubscriptionQueryVariables>) {
+export function useGetSubscriptionsForFilterItemSubscriptionQuery(baseOptions?: Apollo.QueryHookOptions<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetSubscriptionsForFilterItemRealtimeSubscriptionQuery, GetSubscriptionsForFilterItemRealtimeSubscriptionQueryVariables>(GetSubscriptionsForFilterItemRealtimeSubscriptionDocument, options);
+        return Apollo.useQuery<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>(GetSubscriptionsForFilterItemSubscriptionDocument, options);
       }
-export function useGetSubscriptionsForFilterItemRealtimeSubscriptionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionsForFilterItemRealtimeSubscriptionQuery, GetSubscriptionsForFilterItemRealtimeSubscriptionQueryVariables>) {
+export function useGetSubscriptionsForFilterItemSubscriptionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetSubscriptionsForFilterItemRealtimeSubscriptionQuery, GetSubscriptionsForFilterItemRealtimeSubscriptionQueryVariables>(GetSubscriptionsForFilterItemRealtimeSubscriptionDocument, options);
+          return Apollo.useLazyQuery<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>(GetSubscriptionsForFilterItemSubscriptionDocument, options);
         }
 // @ts-ignore
-export function useGetSubscriptionsForFilterItemRealtimeSubscriptionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionsForFilterItemRealtimeSubscriptionQuery, GetSubscriptionsForFilterItemRealtimeSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionsForFilterItemRealtimeSubscriptionQuery, GetSubscriptionsForFilterItemRealtimeSubscriptionQueryVariables>;
-export function useGetSubscriptionsForFilterItemRealtimeSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionsForFilterItemRealtimeSubscriptionQuery, GetSubscriptionsForFilterItemRealtimeSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionsForFilterItemRealtimeSubscriptionQuery | undefined, GetSubscriptionsForFilterItemRealtimeSubscriptionQueryVariables>;
-export function useGetSubscriptionsForFilterItemRealtimeSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionsForFilterItemRealtimeSubscriptionQuery, GetSubscriptionsForFilterItemRealtimeSubscriptionQueryVariables>) {
+export function useGetSubscriptionsForFilterItemSubscriptionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>;
+export function useGetSubscriptionsForFilterItemSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionsForFilterItemSubscriptionQuery | undefined, GetSubscriptionsForFilterItemSubscriptionQueryVariables>;
+export function useGetSubscriptionsForFilterItemSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetSubscriptionsForFilterItemRealtimeSubscriptionQuery, GetSubscriptionsForFilterItemRealtimeSubscriptionQueryVariables>(GetSubscriptionsForFilterItemRealtimeSubscriptionDocument, options);
+          return Apollo.useSuspenseQuery<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>(GetSubscriptionsForFilterItemSubscriptionDocument, options);
         }
-export type GetSubscriptionsForFilterItemRealtimeSubscriptionQueryHookResult = ReturnType<typeof useGetSubscriptionsForFilterItemRealtimeSubscriptionQuery>;
-export type GetSubscriptionsForFilterItemRealtimeSubscriptionLazyQueryHookResult = ReturnType<typeof useGetSubscriptionsForFilterItemRealtimeSubscriptionLazyQuery>;
-export type GetSubscriptionsForFilterItemRealtimeSubscriptionSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionsForFilterItemRealtimeSubscriptionSuspenseQuery>;
-export type GetSubscriptionsForFilterItemRealtimeSubscriptionQueryResult = Apollo.QueryResult<GetSubscriptionsForFilterItemRealtimeSubscriptionQuery, GetSubscriptionsForFilterItemRealtimeSubscriptionQueryVariables>;
+export type GetSubscriptionsForFilterItemSubscriptionQueryHookResult = ReturnType<typeof useGetSubscriptionsForFilterItemSubscriptionQuery>;
+export type GetSubscriptionsForFilterItemSubscriptionLazyQueryHookResult = ReturnType<typeof useGetSubscriptionsForFilterItemSubscriptionLazyQuery>;
+export type GetSubscriptionsForFilterItemSubscriptionSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionsForFilterItemSubscriptionSuspenseQuery>;
+export type GetSubscriptionsForFilterItemSubscriptionQueryResult = Apollo.QueryResult<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>;
 export const UserIdentifierDocument = gql`
     query UserIdentifier {
   me: currentUser {
@@ -38764,11 +38776,12 @@ export type GetSubscriptionChargesForRealtimeUsageLazyQueryHookResult = ReturnTy
 export type GetSubscriptionChargesForRealtimeUsageSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionChargesForRealtimeUsageSuspenseQuery>;
 export type GetSubscriptionChargesForRealtimeUsageQueryResult = Apollo.QueryResult<GetSubscriptionChargesForRealtimeUsageQuery, GetSubscriptionChargesForRealtimeUsageQueryVariables>;
 export const GetSubscriptionHourlyUsageDocument = gql`
-    query getSubscriptionHourlyUsage($subscriptionId: ID!, $chargeId: ID!, $fromDatetime: ISO8601DateTime) {
+    query getSubscriptionHourlyUsage($subscriptionId: ID!, $chargeId: ID!, $fromDatetime: ISO8601DateTime, $toDatetime: ISO8601DateTime) {
   subscriptionHourlyUsage(
     subscriptionId: $subscriptionId
     chargeId: $chargeId
     fromDatetime: $fromDatetime
+    toDatetime: $toDatetime
   ) {
     fromDatetime
     toDatetime
@@ -38811,6 +38824,7 @@ export const GetSubscriptionHourlyUsageDocument = gql`
  *      subscriptionId: // value for 'subscriptionId'
  *      chargeId: // value for 'chargeId'
  *      fromDatetime: // value for 'fromDatetime'
+ *      toDatetime: // value for 'toDatetime'
  *   },
  * });
  */

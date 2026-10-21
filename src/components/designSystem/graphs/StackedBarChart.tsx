@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import {
   Bar,
   BarChart,
+  Cell,
   Customized,
   Tooltip as RechartTooltip,
   ReferenceLine,
@@ -75,8 +76,13 @@ type StackedBarChartProps<T> = {
   loading: boolean
   xAxisDataKey: DotNestedKeys<T>
   xAxisTickAttributes?: [DotNestedKeys<T>, DotNestedKeys<T>]
-  timeGranularity: TimeGranularityEnum
+  timeGranularity?: TimeGranularityEnum
   customFormatter?: (value: string | number, currency: CurrencyEnum) => string
+  // Labels the axis ends and the tooltip from the x-axis value instead of `timeGranularity`.
+  periodFormatter?: (value: string) => string
+  // Items where this key is truthy are drawn lighter, e.g. a period still filling.
+  fadedDataKey?: DotNestedKeys<T>
+  height?: number
   margin?: {
     top?: number
     right?: number
@@ -87,6 +93,8 @@ type StackedBarChartProps<T> = {
 }
 
 const LOADING_TICK_SIZE = 32
+const DEFAULT_HEIGHT = 232
+const FADED_BAR_OPACITY = 0.5
 const DEFAULT_TOOLTIP_Y_GAP = 60
 const TOOLTIP_INNER_LINE_HEIGHT = 31
 
@@ -95,8 +103,9 @@ type CustomTooltipProps<T> = {
   currency: CurrencyEnum
   payload: Payload<ValueType & { payload: T }, NameType>[] | undefined
   bars: Array<StackedBarChartBar<T>>
-  timeGranularity: TimeGranularityEnum
+  timeGranularity?: TimeGranularityEnum
   customFormatter?: (value: string | number, currency: CurrencyEnum) => string
+  periodLabel?: string
   inlineTooltip?: boolean
 }
 
@@ -107,21 +116,25 @@ const CustomTooltip = <T,>({
   bars,
   timeGranularity,
   customFormatter,
+  periodLabel,
   inlineTooltip,
 }: CustomTooltipProps<T>) => {
   if (!active || !payload?.length) return null
 
   const labelValues = payload[0].payload
+  const date =
+    periodLabel ??
+    (timeGranularity
+      ? getItemDateFormatedByTimeGranularity({
+          item: {
+            startOfPeriodDt: labelValues.startOfPeriodDt,
+            endOfPeriodDt: labelValues.endOfPeriodDt,
+          },
+          timeGranularity,
+        })
+      : '')
 
   if (inlineTooltip) {
-    const date = getItemDateFormatedByTimeGranularity({
-      item: {
-        startOfPeriodDt: labelValues.startOfPeriodDt,
-        endOfPeriodDt: labelValues.endOfPeriodDt,
-      },
-      timeGranularity,
-    })
-
     const value = customFormatter
       ? customFormatter(labelValues[bars[0].dataKey || '0'], currency)
       : toAmountCents(labelValues[bars[0].dataKey || '0'], currency)
@@ -136,13 +149,7 @@ const CustomTooltip = <T,>({
   return (
     <>
       <Typography className="mb-3" variant="captionHl" color="white">
-        {getItemDateFormatedByTimeGranularity({
-          item: {
-            startOfPeriodDt: labelValues.startOfPeriodDt,
-            endOfPeriodDt: labelValues.endOfPeriodDt,
-          },
-          timeGranularity,
-        })}
+        {date}
       </Typography>
 
       <div className="flex flex-col gap-2">
@@ -179,6 +186,9 @@ const StackedBarChart = <T extends DataItem>({
   timeGranularity,
   margin,
   customFormatter,
+  periodFormatter,
+  fadedDataKey,
+  height = DEFAULT_HEIGHT,
   inlineTooltip,
 }: StackedBarChartProps<T>) => {
   const { setClickedDataIndex, setHoverDataIndex, hoverDataIndex, handleMouseLeave } =
@@ -235,7 +245,7 @@ const StackedBarChart = <T extends DataItem>({
 
   return (
     <ChartWrapper className="rounded-xl bg-white" blur={blur}>
-      <ResponsiveContainer width="100%" height={232}>
+      <ResponsiveContainer width="100%" height={height}>
         <BarChart
           width={500}
           height={300}
@@ -311,11 +321,11 @@ const StackedBarChart = <T extends DataItem>({
                       textAnchor: index === 0 ? 'start' : 'end',
                     }}
                   >
-                    {
-                      intlFormatDateTime(dateValue, {
-                        timezone: TimezoneEnum.TzUtc,
-                      }).date
-                    }
+                    {periodFormatter
+                      ? periodFormatter(dateValue)
+                      : intlFormatDateTime(dateValue, {
+                          timezone: TimezoneEnum.TzUtc,
+                        }).date}
                   </text>
                 </g>
               )
@@ -467,6 +477,11 @@ const StackedBarChart = <T extends DataItem>({
                       payload={payload as unknown as CustomTooltipProps<T>['payload']}
                       timeGranularity={timeGranularity}
                       customFormatter={customFormatter}
+                      periodLabel={
+                        periodFormatter && payload?.[0]
+                          ? periodFormatter(String(payload[0].payload?.[xAxisDataKey]))
+                          : undefined
+                      }
                       inlineTooltip={inlineTooltip}
                     />
                   )}
@@ -516,7 +531,15 @@ const StackedBarChart = <T extends DataItem>({
                 stackId="stack"
                 fill={line.colorHex}
                 isAnimationActive={false}
-              />
+              >
+                {!!fadedDataKey &&
+                  localData.map((item, index) => (
+                    <Cell
+                      key={`${line.dataKey}-${index}`}
+                      fillOpacity={item[fadedDataKey] ? FADED_BAR_OPACITY : 1}
+                    />
+                  ))}
+              </Bar>
             ))}
         </BarChart>
       </ResponsiveContainer>

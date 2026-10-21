@@ -1,15 +1,20 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 
 import { FiltersItemSubscription } from '~/components/Filters/graphql/filtersElements/FiltersItemSubscription'
-import { AllTheProviders } from '~/test-utils'
+import { AllTheProviders, TestMocksType } from '~/test-utils'
+
+jest.mock('~/components/Filters/graphql/useFilters', () => ({
+  useFilters: () => ({
+    displayInDialog: false,
+  }),
+}))
 
 const mockSetFilterValue = jest.fn()
 
-const renderComponent = (value?: string) => {
-  return render(<FiltersItemSubscription value={value} setFilterValue={mockSetFilterValue} />, {
-    wrapper: AllTheProviders,
+const renderComponent = (value?: string, mocks: TestMocksType = []) =>
+  render(<FiltersItemSubscription value={value} setFilterValue={mockSetFilterValue} />, {
+    wrapper: (props) => <AllTheProviders {...props} mocks={mocks} />,
   })
-}
 
 describe('FiltersItemSubscription', () => {
   beforeEach(() => {
@@ -17,33 +22,21 @@ describe('FiltersItemSubscription', () => {
   })
 
   describe('GIVEN no initial value', () => {
-    it('THEN displays an empty text input', async () => {
+    it('THEN displays the combobox', async () => {
       renderComponent()
 
       await waitFor(() => {
-        expect(screen.getByRole('textbox')).toHaveValue('')
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
       })
     })
   })
 
-  describe('GIVEN an initial value', () => {
-    it('THEN displays the value in the text input', async () => {
-      renderComponent('sub_123')
+  describe('GIVEN a value stored before the filter was a combobox', () => {
+    it('THEN renders the combobox without crashing', async () => {
+      renderComponent('sub_ext_1')
 
       await waitFor(() => {
-        expect(screen.getByRole('textbox')).toHaveValue('sub_123')
-      })
-    })
-  })
-
-  describe('WHEN the user types a value', () => {
-    it('THEN calls setFilterValue with the typed value', async () => {
-      renderComponent()
-
-      fireEvent.change(screen.getByRole('textbox'), { target: { value: 'sub_123' } })
-
-      await waitFor(() => {
-        expect(mockSetFilterValue).toHaveBeenCalledWith('sub_123')
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
       })
     })
   })

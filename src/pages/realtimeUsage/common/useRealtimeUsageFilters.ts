@@ -1,37 +1,38 @@
 import { DateTime } from 'luxon'
-import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { formatFiltersForQuery } from '~/components/Filters/graphql/utils'
 import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
+import { useRealtimeUsageClock } from '~/components/realtimeUsage/useRealtimeUsageClock'
+import { windowStartOf } from '~/components/realtimeUsage/utils'
 import { REALTIME_USAGE_FILTER_PREFIX } from '~/core/constants/filters'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { TIME_RANGE_HOURS } from './constants'
 import { RealtimeUsageQueryFilters } from './types'
 import { isTimeRangePreset, useRealtimeUsageControls } from './useRealtimeUsageControls'
-import { rollingWindowStartOf } from './utils'
-
-const WINDOW_REFRESH_INTERVAL = 60000
 
 type UseRealtimeUsageFilters = () => {
   filters: RealtimeUsageQueryFilters
   dimensionKeys?: string[]
-  pollInterval: number
+  now: DateTime
+  refresh: () => void
+  isEnabled: boolean
 }
 
-// What every report of the real-time usage pages asks for, read from the filters and the
-// controls in the URL.
 export const useRealtimeUsageFilters: UseRealtimeUsageFilters = () => {
   const [searchParams] = useSearchParams()
-  const { timezoneConfig } = useOrganizationInfos()
-  const [now, setNow] = useState<DateTime>(() => DateTime.now())
+  const { organization, timezone } = useOrganizationInfos()
+  const { autoRefreshSeconds, timeRange } = useRealtimeUsageControls()
 
-  useEffect(() => {
-    const interval = setInterval(() => setNow(DateTime.now()), WINDOW_REFRESH_INTERVAL)
+  const resetParams = new URLSearchParams(searchParams)
 
-    return () => clearInterval(interval)
-  }, [])
+  resetParams.delete('page')
+
+  const { now, tick } = useRealtimeUsageClock({
+    autoRefreshSeconds,
+    resetKey: resetParams.toString(),
+  })
 
   const { dimensionKeys, ...filters } = formatFiltersForQuery<
     Pick<RealtimeUsageQueryFilters, 'externalCustomerId' | 'externalSubscriptionId'> & {
@@ -41,35 +42,41 @@ export const useRealtimeUsageFilters: UseRealtimeUsageFilters = () => {
     searchParams,
     availableFilters: [
       AvailableFiltersEnum.customerExternalId,
-      AvailableFiltersEnum.realtimeSubscription,
+      AvailableFiltersEnum.subscriptionExternalId,
       AvailableFiltersEnum.realtimeDimensions,
     ],
     filtersNamePrefix: REALTIME_USAGE_FILTER_PREFIX,
     keyMap: {
       [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
-      [AvailableFiltersEnum.realtimeSubscription]: 'externalSubscriptionId',
+      [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
       [AvailableFiltersEnum.realtimeDimensions]: 'dimensionKeys',
     },
   })
 
-  const { autoRefresh, timeRange } = useRealtimeUsageControls()
-
   const getWindow = (): Pick<RealtimeUsageQueryFilters, 'fromDatetime' | 'toDatetime'> => {
+    const nowISO = now.toUTC().toISO() || undefined
+
     if (isTimeRangePreset(timeRange)) {
-      // No end: the API reads up to now, so every poll gets the newest buckets.
       return {
-        fromDatetime: rollingWindowStartOf(now, TIME_RANGE_HOURS[timeRange], timezoneConfig.name),
+        fromDatetime: windowStartOf(now, TIME_RANGE_HOURS[timeRange], timezone),
+        toDatetime: nowISO,
       }
     }
 
     const [fromDatetime, toDatetime] = timeRange.split(',')
 
-    return { fromDatetime, toDatetime }
+    // A range ending later than now would never refresh: it reads up to now instead.
+    return {
+      fromDatetime,
+      toDatetime: DateTime.fromISO(toDatetime) > now ? nowISO : toDatetime,
+    }
   }
 
   return {
     filters: { ...filters, ...getWindow() },
     dimensionKeys: dimensionKeys?.length ? dimensionKeys : undefined,
-    pollInterval: (Number(autoRefresh) || 0) * 1000,
+    now,
+    refresh: tick,
+    isEnabled: !!organization?.realtimeUsageEnabled,
   }
 }

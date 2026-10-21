@@ -1,4 +1,6 @@
 import { screen } from '@testing-library/react'
+import { GraphQLError } from 'graphql'
+import { DateTime } from 'luxon'
 
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
@@ -6,6 +8,7 @@ import {
   RealtimeUsageTimeGranularityEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
+import { REALTIME_USAGE_ERROR_TEST_ID } from '~/pages/realtimeUsage/common/constants'
 import { render } from '~/test-utils'
 
 import {
@@ -14,13 +17,19 @@ import {
   RealtimeUsageBillableMetricsSection,
 } from '../RealtimeUsageBillableMetricsSection'
 
-const FILTERS = { fromDatetime: '2026-08-23T11:00:00.000Z' }
+const FILTERS = {
+  fromDatetime: '2026-08-23T11:00:00.000Z',
+  toDatetime: '2026-08-24T10:30:00.000Z',
+}
+const NOW = DateTime.fromISO(FILTERS.toDatetime)
+
+const request = {
+  query: GetRealtimeUsageBillableMetricsDocument,
+  variables: { ...FILTERS, page: 1, limit: DEFAULT_PAGE_SIZE },
+}
 
 const buildMock = (collection: unknown[]) => ({
-  request: {
-    query: GetRealtimeUsageBillableMetricsDocument,
-    variables: { ...FILTERS, page: 1, limit: DEFAULT_PAGE_SIZE },
-  },
+  request,
   result: {
     data: {
       realtimeUsageBillableMetrics: {
@@ -57,7 +66,7 @@ const report = {
 
 describe('RealtimeUsageBillableMetricsSection', () => {
   it('renders one chart per billable metric, linking to its page', async () => {
-    render(<RealtimeUsageBillableMetricsSection filters={FILTERS} pollInterval={0} />, {
+    render(<RealtimeUsageBillableMetricsSection filters={FILTERS} now={NOW} skip={false} />, {
       mocks: [buildMock([report])],
     })
 
@@ -68,12 +77,23 @@ describe('RealtimeUsageBillableMetricsSection', () => {
   })
 
   it('renders an empty state without billable metric', async () => {
-    render(<RealtimeUsageBillableMetricsSection filters={FILTERS} pollInterval={0} />, {
+    render(<RealtimeUsageBillableMetricsSection filters={FILTERS} now={NOW} skip={false} />, {
       mocks: [buildMock([])],
     })
 
     expect(
       await screen.findByTestId(REALTIME_USAGE_BILLABLE_METRICS_EMPTY_TEST_ID),
     ).toBeInTheDocument()
+  })
+
+  it('renders an error rather than an empty state when the report fails', async () => {
+    render(<RealtimeUsageBillableMetricsSection filters={FILTERS} now={NOW} skip={false} />, {
+      mocks: [{ request, result: { errors: [new GraphQLError('window_too_long')] } }],
+    })
+
+    expect(await screen.findByTestId(REALTIME_USAGE_ERROR_TEST_ID)).toBeInTheDocument()
+    expect(
+      screen.queryByTestId(REALTIME_USAGE_BILLABLE_METRICS_EMPTY_TEST_ID),
+    ).not.toBeInTheDocument()
   })
 })

@@ -1,41 +1,28 @@
-import { useApolloClient } from '@apollo/client'
-import { useState } from 'react'
-
 import { Button } from '~/components/designSystem/Button'
 import { AvailableFiltersEnum, Filters } from '~/components/Filters'
+import { AutoRefreshSelector } from '~/components/realtimeUsage/AutoRefreshSelector'
 import { REALTIME_USAGE_FILTER_PREFIX } from '~/core/constants/filters'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { REALTIME_USAGE_FILTERS_TEST_ID, REALTIME_USAGE_REFRESH_BUTTON_TEST_ID } from './constants'
-import { RealtimeUsageAutoRefreshSelector } from './RealtimeUsageAutoRefreshSelector'
+import {
+  REALTIME_USAGE_AUTO_REFRESH_TEST_ID,
+  REALTIME_USAGE_FILTERS_TEST_ID,
+  REALTIME_USAGE_REFRESH_BUTTON_TEST_ID,
+} from './constants'
 import { RealtimeUsageTimeRangeSelector } from './RealtimeUsageTimeRangeSelector'
+import { useRealtimeUsageControls } from './useRealtimeUsageControls'
 
 type RealtimeUsageFiltersProps = {
   availableFilters: AvailableFiltersEnum[]
-  // The operations the Refresh button fetches again.
-  queryNames: string[]
+  onRefresh: () => void
 }
 
-// The filters are kept in the URL like every other report, which also lets them follow the user
-// from the overview to a billable metric and back. Auto-refresh and the time range always apply,
-// so they are their own controls rather than filters a reset would remove.
 export const RealtimeUsageFilters = ({
   availableFilters,
-  queryNames,
+  onRefresh,
 }: RealtimeUsageFiltersProps): JSX.Element => {
   const { translate } = useInternationalization()
-  const client = useApolloClient()
-  const [isRefreshing, setIsRefreshing] = useState(false)
-
-  const refresh = async (): Promise<void> => {
-    setIsRefreshing(true)
-
-    try {
-      await client.refetchQueries({ include: queryNames })
-    } finally {
-      setIsRefreshing(false)
-    }
-  }
+  const { autoRefreshSeconds, setAutoRefreshSeconds } = useRealtimeUsageControls()
 
   return (
     <div
@@ -43,7 +30,11 @@ export const RealtimeUsageFilters = ({
       data-test={REALTIME_USAGE_FILTERS_TEST_ID}
     >
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
-        <RealtimeUsageAutoRefreshSelector />
+        <AutoRefreshSelector
+          data-test={REALTIME_USAGE_AUTO_REFRESH_TEST_ID}
+          value={autoRefreshSeconds}
+          onChange={setAutoRefreshSeconds}
+        />
         <RealtimeUsageTimeRangeSelector />
 
         <Filters.Provider
@@ -64,8 +55,7 @@ export const RealtimeUsageFilters = ({
         variant="quaternary"
         size="small"
         startIcon="reload"
-        loading={isRefreshing}
-        onClick={refresh}
+        onClick={onRefresh}
       >
         {translate('text_1738748043939zqoqzz350yj')}
       </Button>

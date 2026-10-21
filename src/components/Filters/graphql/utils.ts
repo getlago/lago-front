@@ -471,8 +471,6 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.realtimeDimensions]: (value: string) =>
     value.split(',').filter(Boolean).map(decodeRealtimeDimensionKey),
-  [AvailableFiltersEnum.realtimeSubscription]: (value: string) =>
-    value.split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.adminAuditDate]: (value: string) => {
     // The date-range element stores full ISO datetimes; the query args are ISO8601Date (day only)
     const [from, to] = (value as string).split(',')
@@ -1312,7 +1310,7 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.rateCardProduct:
     case AvailableFiltersEnum.rateCardProductFilter:
     case AvailableFiltersEnum.realtimeDimensions:
-    case AvailableFiltersEnum.realtimeSubscription:
+    case AvailableFiltersEnum.subscriptionExternalId:
       return value
         .split(',')
         .map((v) =>

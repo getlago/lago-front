@@ -4,13 +4,13 @@ import { useParams, useSearchParams } from 'react-router'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { Button } from '~/components/designSystem/Button'
-import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { keyWithPrefix, RealtimeUsageBillableMetricAvailableFilters } from '~/components/Filters'
 import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
+import { useHeldData } from '~/components/realtimeUsage/useHeldData'
 import { REALTIME_USAGE_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { REALTIME_USAGE_ROUTE, useNavigate } from '~/core/router'
@@ -20,13 +20,11 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { RealtimeUsageDimensionsTable } from '~/pages/realtimeUsage/billableMetric/RealtimeUsageDimensionsTable'
-import { REALTIME_USAGE_ERROR_TEST_ID } from '~/pages/realtimeUsage/common/constants'
 import { RealtimeUsageBarChart } from '~/pages/realtimeUsage/common/RealtimeUsageBarChart'
+import { RealtimeUsageError } from '~/pages/realtimeUsage/common/RealtimeUsageError'
 import { RealtimeUsageFilters } from '~/pages/realtimeUsage/common/RealtimeUsageFilters'
-import { RealtimeUsageGate } from '~/pages/realtimeUsage/common/RealtimeUsageGate'
 import { useRealtimeUsageFilters } from '~/pages/realtimeUsage/common/useRealtimeUsageFilters'
-import { buildSeriesAndPoints } from '~/pages/realtimeUsage/common/utils'
-import ErrorImage from '~/public/images/maneki/error.svg'
+import { buildDimensionSeries, heldKeyOf } from '~/pages/realtimeUsage/common/utils'
 
 gql`
   query getRealtimeUsageBillableMetric(
@@ -63,20 +61,29 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { billableMetricCode = '' } = useParams()
-  const { filters, dimensionKeys, pollInterval } = useRealtimeUsageFilters()
+  const { filters, dimensionKeys, now, refresh, isEnabled } = useRealtimeUsageFilters()
 
   const queryVariables = { ...filters, billableMetricCode, dimensionKeys }
 
-  const { data, loading, error } = useGetRealtimeUsageBillableMetricQuery({
+  const {
+    data: servedData,
+    loading,
+    error,
+  } = useGetRealtimeUsageBillableMetricQuery({
     variables: queryVariables,
-    pollInterval,
-    skip: !billableMetricCode,
+    skip: !billableMetricCode || !isEnabled,
+    fetchPolicy: 'no-cache',
   })
+  const { data } = useHeldData(servedData, heldKeyOf(queryVariables), !!error)
 
   const report = data?.realtimeUsageBillableMetric
   const title = report?.billableMetricName || billableMetricCode
+  const isLoading = loading && !report
 
-  const { series } = useMemo(() => buildSeriesAndPoints(report, translate), [report, translate])
+  const { series } = useMemo(
+    () => buildDimensionSeries(report, translate, now),
+    [report, translate, now],
+  )
 
   const goBack = (): void => {
     const params = new URLSearchParams(searchParams)
@@ -90,26 +97,13 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
   }
 
   const renderContent = (): JSX.Element => {
-    if (error && !report) {
-      return (
-        <div data-test={REALTIME_USAGE_ERROR_TEST_ID}>
-          <GenericPlaceholder
-            title={translate('text_634812d6f16b31ce5cbf4126')}
-            subtitle={translate('text_634812d6f16b31ce5cbf4128')}
-            buttonTitle={translate('text_634812d6f16b31ce5cbf412a')}
-            buttonVariant="primary"
-            buttonAction={() => location.reload()}
-            image={<ErrorImage width="136" height="104" />}
-          />
-        </div>
-      )
-    }
+    if (error && !report) return <RealtimeUsageError />
 
     const units = report?.units || 0
 
     return (
       <div className="flex flex-col gap-6">
-        {loading && !report ? (
+        {isLoading ? (
           <Skeleton variant="text" className="w-32" />
         ) : (
           <Typography
@@ -127,11 +121,11 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
 
         <AnalyticsStateProvider>
           <div className="flex flex-col gap-8">
-            <RealtimeUsageBarChart report={report} loading={loading} height={240} />
+            <RealtimeUsageBarChart report={report} loading={isLoading} now={now} height={240} />
 
             <RealtimeUsageDimensionsTable
               queryVariables={queryVariables}
-              pollInterval={pollInterval}
+              skip={!isEnabled}
               series={series}
               timeGranularity={report?.timeGranularity}
               timezone={report?.timezone}
@@ -143,7 +137,7 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
   }
 
   return (
-    <RealtimeUsageGate>
+    <>
       <PageBannerHeaderWithBurgerMenu>
         <div className="flex items-center gap-2">
           <Button
@@ -167,14 +161,14 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
 
             <RealtimeUsageFilters
               availableFilters={RealtimeUsageBillableMetricAvailableFilters}
-              queryNames={['getRealtimeUsageBillableMetric', 'getRealtimeUsageDimensions']}
+              onRefresh={refresh}
             />
           </div>
 
           {renderContent()}
         </div>
       </FullscreenPage.Wrapper>
-    </RealtimeUsageGate>
+    </>
   )
 }
 

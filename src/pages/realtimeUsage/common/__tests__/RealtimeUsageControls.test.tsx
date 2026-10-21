@@ -1,16 +1,13 @@
-import { act, fireEvent, renderHook, screen, within } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 
-import { AllTheProviders, render } from '~/test-utils'
+import { AllTheProviders } from '~/test-utils'
 
 import {
   AUTO_REFRESH_SEARCH_PARAM,
-  AutoRefreshEnum,
   DEFAULT_TIME_RANGE,
-  REALTIME_USAGE_AUTO_REFRESH_TEST_ID,
   TIME_RANGE_SEARCH_PARAM,
   TimeRangeEnum,
 } from '../constants'
-import { RealtimeUsageAutoRefreshSelector } from '../RealtimeUsageAutoRefreshSelector'
 import { useRealtimeUsageControls } from '../useRealtimeUsageControls'
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
@@ -30,7 +27,7 @@ describe('useRealtimeUsageControls', () => {
   it('does not auto-refresh and reads the last 24 hours by default', () => {
     const { result } = renderControls()
 
-    expect(result.current.autoRefresh).toBe(AutoRefreshEnum.Off)
+    expect(result.current.autoRefreshSeconds).toBe(0)
     expect(result.current.timeRange).toBe(DEFAULT_TIME_RANGE)
   })
 
@@ -56,34 +53,39 @@ describe('useRealtimeUsageControls', () => {
     expect(new URLSearchParams(window.location.search).has('page')).toBe(false)
   })
 
+  it('keeps the auto-refresh in the URL', () => {
+    const { result } = renderControls()
+
+    act(() => result.current.setAutoRefreshSeconds(5))
+
+    expect(new URLSearchParams(window.location.search).get(AUTO_REFRESH_SEARCH_PARAM)).toBe('5')
+    expect(result.current.autoRefreshSeconds).toBe(5)
+  })
+
+  it('falls back to the default range when the URL holds one the API would reject', () => {
+    window.history.replaceState(
+      {},
+      '',
+      `/usage?${TIME_RANGE_SEARCH_PARAM}=2026-01-01T00:00:00.000Z,2026-08-31T00:00:00.000Z`,
+    )
+    const { result } = renderControls()
+
+    expect(result.current.timeRange).toBe(DEFAULT_TIME_RANGE)
+  })
+
+  it('keeps a custom range the API serves', () => {
+    const range = '2026-08-01T00:00:00.000Z,2026-08-07T23:59:59.000Z'
+
+    window.history.replaceState({}, '', `/usage?${TIME_RANGE_SEARCH_PARAM}=${range}`)
+    const { result } = renderControls()
+
+    expect(result.current.timeRange).toBe(range)
+  })
+
   it('ignores an unknown auto-refresh value', () => {
     window.history.replaceState({}, '', `/usage?${AUTO_REFRESH_SEARCH_PARAM}=3`)
     const { result } = renderControls()
 
-    expect(result.current.autoRefresh).toBe(AutoRefreshEnum.Off)
-  })
-})
-
-describe('RealtimeUsageAutoRefreshSelector', () => {
-  it('opens its options and applies the one picked', async () => {
-    render(<RealtimeUsageAutoRefreshSelector />)
-
-    fireEvent.click(screen.getByTestId(REALTIME_USAGE_AUTO_REFRESH_TEST_ID))
-
-    const options = await screen.findAllByRole('button')
-    // The opener, then one option per auto-refresh value.
-
-    expect(options).toHaveLength(Object.values(AutoRefreshEnum).length + 1)
-
-    fireEvent.click(
-      options[Object.values(AutoRefreshEnum).indexOf(AutoRefreshEnum.FiveSeconds) + 1],
-    )
-
-    expect(new URLSearchParams(window.location.search).get(AUTO_REFRESH_SEARCH_PARAM)).toBe(
-      AutoRefreshEnum.FiveSeconds,
-    )
-    expect(
-      within(screen.getByTestId(REALTIME_USAGE_AUTO_REFRESH_TEST_ID)).getByText(/:/),
-    ).toBeInTheDocument()
+    expect(result.current.autoRefreshSeconds).toBe(0)
   })
 })
