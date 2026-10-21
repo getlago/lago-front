@@ -16,6 +16,7 @@ import { HOME_ROUTE } from '~/core/router'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
   ApiKeysPermissionsEnum,
+  FeatureFlagEnum,
   PremiumIntegrationTypeEnum,
   TimezoneEnum,
   useCreateApiKeyMutation,
@@ -48,8 +49,35 @@ const WRITE_PERMISSION = 'write'
 const canOnlyRead = (permission: ApiKeysPermissionsEnum) =>
   permission === ApiKeysPermissionsEnum.ActivityLog ||
   permission === ApiKeysPermissionsEnum.Analytic ||
+  permission === ApiKeysPermissionsEnum.ApiLog ||
+  permission === ApiKeysPermissionsEnum.AttributedUsage ||
   permission === ApiKeysPermissionsEnum.CustomerUsage ||
   permission === ApiKeysPermissionsEnum.SecurityLog
+
+const PERMISSION_FEATURE_FLAGS: Partial<Record<ApiKeysPermissionsEnum, FeatureFlagEnum>> = {
+  [ApiKeysPermissionsEnum.AttributedUsage]: FeatureFlagEnum.AccountTree,
+  [ApiKeysPermissionsEnum.Contract]: FeatureFlagEnum.ProductCatalog,
+  [ApiKeysPermissionsEnum.ContractRateCard]: FeatureFlagEnum.ProductCatalog,
+  [ApiKeysPermissionsEnum.Order]: FeatureFlagEnum.OrderForms,
+  [ApiKeysPermissionsEnum.OrderForm]: FeatureFlagEnum.OrderForms,
+  [ApiKeysPermissionsEnum.PlanRateCard]: FeatureFlagEnum.ProductCatalog,
+  [ApiKeysPermissionsEnum.Product]: FeatureFlagEnum.ProductCatalog,
+  [ApiKeysPermissionsEnum.ProductCategory]: FeatureFlagEnum.ProductCatalog,
+  [ApiKeysPermissionsEnum.Quote]: FeatureFlagEnum.OrderForms,
+  [ApiKeysPermissionsEnum.RateCard]: FeatureFlagEnum.ProductCatalog,
+  [ApiKeysPermissionsEnum.UsageAttributionType]: FeatureFlagEnum.AccountTree,
+  [ApiKeysPermissionsEnum.X402]: FeatureFlagEnum.X402Payments,
+  [ApiKeysPermissionsEnum.X402Connection]: FeatureFlagEnum.X402Payments,
+}
+
+const getAvailablePermissions = (
+  hasFeatureFlag: (flag: FeatureFlagEnum) => boolean,
+): ApiKeysPermissionsEnum[] =>
+  Object.values(ApiKeysPermissionsEnum).filter((permission) => {
+    const featureFlag = PERMISSION_FEATURE_FLAGS[permission]
+
+    return !featureFlag || hasFeatureFlag(featureFlag)
+  })
 
 const DEFAULT_PERMISSIONS: Record<ApiKeysPermissionsEnum, string[]> = Object.values(
   ApiKeysPermissionsEnum,
@@ -75,9 +103,13 @@ const resourceTypeTranslationKeys: Record<ApiKeysPermissionsEnum, string> = {
   [ApiKeysPermissionsEnum.AddOn]: 'text_1732894820485oyybtfh5rgv',
   [ApiKeysPermissionsEnum.Alert]: 'text_17465238490269pahbvl3s2m',
   [ApiKeysPermissionsEnum.Analytic]: 'text_6553885df387fd0097fd7384',
+  [ApiKeysPermissionsEnum.ApiLog]: 'text_1749644023729atl2vw7ad3z',
   [ApiKeysPermissionsEnum.AppliedCoupon]: 'text_17328948204857eb1ecwe5me',
+  [ApiKeysPermissionsEnum.AttributedUsage]: 'text_1792580016210722np2it8ei',
   [ApiKeysPermissionsEnum.BillableMetric]: 'text_623b497ad05b960101be3438',
   [ApiKeysPermissionsEnum.BillingEntity]: 'text_1743077296189ms0shds6g53',
+  [ApiKeysPermissionsEnum.Contract]: 'text_17894894166553ysarr965xr',
+  [ApiKeysPermissionsEnum.ContractRateCard]: 'text_17925800162109zo2h16ap37',
   [ApiKeysPermissionsEnum.Coupon]: 'text_637ccf8133d2c9a7d11ce705',
   [ApiKeysPermissionsEnum.CreditNote]: 'text_66461ada56a84401188e8c63',
   [ApiKeysPermissionsEnum.Customer]: 'text_624efab67eb2570101d117a5',
@@ -88,19 +120,29 @@ const resourceTypeTranslationKeys: Record<ApiKeysPermissionsEnum, string> = {
   [ApiKeysPermissionsEnum.Invoice]: 'text_63ac86d797f728a87b2f9f85',
   [ApiKeysPermissionsEnum.InvoiceCustomSection]: 'text_1732553358445168zt8fopyf',
   [ApiKeysPermissionsEnum.LifetimeUsage]: 'text_1726481163322ntor50xdm8k',
+  [ApiKeysPermissionsEnum.Order]: 'text_17823920587596x5e6nes7qv',
+  [ApiKeysPermissionsEnum.OrderForm]: 'text_17757461968258p4ij8g74zp',
   [ApiKeysPermissionsEnum.Organization]: 'text_173289482048511y9ieyywq5',
   [ApiKeysPermissionsEnum.Payment]: 'text_6419c64eace749372fc72b40',
   [ApiKeysPermissionsEnum.PaymentReceipt]: 'text_1747209600169a6v8atibi3n',
   [ApiKeysPermissionsEnum.PaymentRequest]: 'text_1732894820485dzoobhyzly1',
   [ApiKeysPermissionsEnum.PaymentMethod]: 'text_64aeb7b998c4322918c84204',
   [ApiKeysPermissionsEnum.Plan]: 'text_62442e40cea25600b0b6d85a',
+  [ApiKeysPermissionsEnum.PlanRateCard]: 'text_1792580016209ml8r6ycj2vu',
+  [ApiKeysPermissionsEnum.Product]: 'text_17831042398250iwa2xp8pba',
+  [ApiKeysPermissionsEnum.ProductCategory]: 'text_17831042398244jk9iv71lra',
+  [ApiKeysPermissionsEnum.Quote]: 'text_17757391860814p20fr87x9g',
+  [ApiKeysPermissionsEnum.RateCard]: 'text_1783104239825nxqno33u945',
   [ApiKeysPermissionsEnum.SecurityLog]: 'text_17730476805600nudrokzkk5',
   [ApiKeysPermissionsEnum.Subscription]: 'text_6250304370f0f700a8fdc28d',
   [ApiKeysPermissionsEnum.Tax]: 'text_645bb193927b375079d28a8f',
+  [ApiKeysPermissionsEnum.UsageAttributionType]: 'text_1792580016210k14xltqbe9q',
   [ApiKeysPermissionsEnum.Wallet]: 'text_62d175066d2dbf1d50bc937c',
   [ApiKeysPermissionsEnum.WalletTransaction]: 'text_1732894820485a7mmqqucnzf',
   [ApiKeysPermissionsEnum.WebhookEndpoint]: 'text_6271200984178801ba8bdf40',
   [ApiKeysPermissionsEnum.WebhookJwtPublicKey]: 'text_1732894820485vwy7ic1o84g',
+  [ApiKeysPermissionsEnum.X402]: 'text_1791465078864pyzrolrd0er',
+  [ApiKeysPermissionsEnum.X402Connection]: 'text_1792580016210az0sy1q92dt',
 }
 
 const API_KEYS_FORM_ID = 'api-keys-form'
@@ -129,9 +171,10 @@ gql`
 `
 
 const transformApiPermissionsForForm = (
+  availablePermissions: ApiKeysPermissionsEnum[],
   permissions?: Record<ApiKeysPermissionsEnum, string[]>,
 ): ApiKeyPermissions[] => {
-  return Object.values(ApiKeysPermissionsEnum).map((permission) => {
+  return availablePermissions.map((permission) => {
     const permissionKey = permission
     const permissionValue = permissions?.[permissionKey] || []
     const hasPermissionRead = permissionValue?.includes(READ_PERMISSION)
@@ -163,7 +206,7 @@ const ApiKeysForm = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+  const { organization: { premiumIntegrations } = {}, hasFeatureFlag } = useOrganizationInfos()
 
   useEffect(() => {
     if (devtool.panelOpen) {
@@ -224,7 +267,10 @@ const ApiKeysForm = () => {
   const form = useAppForm({
     defaultValues: {
       name: apiKey?.name || '',
-      permissions: transformApiPermissionsForForm(apiKey?.permissions || DEFAULT_PERMISSIONS),
+      permissions: transformApiPermissionsForForm(
+        getAvailablePermissions(hasFeatureFlag),
+        apiKey?.permissions || DEFAULT_PERMISSIONS,
+      ),
     },
     validationLogic: revalidateLogic(),
     validators: {
