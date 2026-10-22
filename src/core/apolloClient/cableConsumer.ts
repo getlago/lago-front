@@ -1,5 +1,6 @@
 import { ApolloLink, FetchResult, Observable, Operation } from '@apollo/client'
 import { Consumer, createConsumer, Subscription } from '@rails/actioncable'
+import { captureException } from '@sentry/react'
 import { print } from 'graphql'
 
 import { AUTH_TOKEN_LS_KEY } from '~/core/apolloClient/reactiveVars'
@@ -28,6 +29,7 @@ const connectionOf = (consumer: Consumer): CableConnection =>
 const currentSubprotocols = (): string => buildCableSubprotocols(window.location.pathname).join(',')
 
 const openedWith = new WeakMap<Consumer, string>()
+const discarded = new WeakSet<Consumer>()
 
 // The route is fixed at creation, so a reconnect keeps the identity but sends the current token.
 export const createCableConsumer = (url: string, pathname: string): Consumer => {
@@ -36,6 +38,9 @@ export const createCableConsumer = (url: string, pathname: string): Consumer => 
   const open = connection.open
 
   connection.open = (): boolean => {
+    // A reopen scheduled before the discard would otherwise bring back an untracked socket.
+    if (discarded.has(consumer)) return false
+
     if (!connection.isActive()) {
       const subprotocols = buildCableSubprotocols(pathname)
 
@@ -60,6 +65,7 @@ const discard = (consumer: Consumer): void => {
   const connection = connectionOf(consumer)
   const wasOpen = connection.isOpen()
 
+  discarded.add(consumer)
   consumer.disconnect()
 
   if (wasOpen) return
@@ -135,9 +141,12 @@ const createChannelId = (): string => `${Date.now().toString(16)}-${++channelCou
 type CablePayload = { result?: FetchResult; more?: boolean }
 
 export class CableSubscriptionError extends Error {
+  readonly reason: 'rejected' | 'disconnected'
+
   constructor(reason: 'rejected' | 'disconnected') {
     super(`GraphQL subscription ${reason} by the server`)
     this.name = 'CableSubscriptionError'
+    this.reason = reason
   }
 }
 
@@ -146,6 +155,8 @@ export const createCableLink = (url: string): ApolloLink => {
 
   // A logout in another tab removes the shared token: sockets opened with it must close too.
   window.addEventListener('storage', (event: StorageEvent): void => {
+    if (event.storageArea !== localStorage) return
+
     const isTokenRemoved =
       event.key === null || (event.key === AUTH_TOKEN_LS_KEY && !event.newValue)
 
@@ -177,8 +188,22 @@ export const createCableLink = (url: string): ApolloLink => {
               if (!payload?.more) observer.complete()
             },
             rejected(): void {
+              const error = new CableSubscriptionError('rejected')
+
               isRejected = true
-              observer.error(new CableSubscriptionError('rejected'))
+              // The error link only reports GraphQL errors, and this one is a network error.
+              captureException(error, {
+                tags: {
+                  errorType: error.name,
+                  operationName: operation.operationName || 'unknown',
+                },
+                fingerprint: [
+                  'CableSubscriptionError',
+                  'rejected',
+                  operation.operationName || 'unknown',
+                ],
+              })
+              observer.error(error)
             },
             disconnected({ willAttemptReconnect }: { willAttemptReconnect: boolean }): void {
               if (!willAttemptReconnect) observer.error(new CableSubscriptionError('disconnected'))

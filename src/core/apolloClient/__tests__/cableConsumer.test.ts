@@ -8,6 +8,12 @@ jest.mock('../reactiveVars', () => ({
   getCurrentOrganizationId: jest.fn(),
 }))
 
+const mockCaptureException = jest.fn()
+
+jest.mock('@sentry/react', () => ({
+  captureException: (...args: unknown[]) => mockCaptureException(...args),
+}))
+
 jest.mock('~/hooks/useDeveloperTool', () => ({
   DEVTOOL_AUTO_SAVE_KEY: 'devtool_auto_save',
   resetDevtoolsNavigation: jest.fn(),
@@ -102,6 +108,7 @@ describe('cableConsumer', () => {
 
   beforeEach(async () => {
     jest.resetModules()
+    mockCaptureException.mockClear()
     localStorage.clear()
     window.history.pushState({}, '', ADMIN_PATH)
 
@@ -226,6 +233,12 @@ describe('cableConsumer', () => {
         })
 
         expect(observer.error).toHaveBeenCalledWith(expect.any(cable.CableSubscriptionError))
+        expect(mockCaptureException).toHaveBeenCalledWith(
+          expect.objectContaining({ reason: 'rejected' }),
+          expect.objectContaining({
+            tags: { errorType: 'CableSubscriptionError', operationName: 'onConversation' },
+          }),
+        )
       })
     })
 
@@ -347,9 +360,26 @@ describe('cableConsumer', () => {
       const link = cable.createCableLink(CABLE_URL)
 
       subscribe(link)
-      window.dispatchEvent(new StorageEvent('storage', { key: 'auth_token', newValue: null }))
+      window.dispatchEvent(
+        new StorageEvent('storage', {
+          key: 'auth_token',
+          newValue: null,
+          storageArea: localStorage,
+        }),
+      )
 
       expect(sockets[0].close).toHaveBeenCalled()
+    })
+  })
+
+  describe('WHEN a same-origin frame clears its sessionStorage', () => {
+    it('THEN should keep the sockets open', () => {
+      const link = cable.createCableLink(CABLE_URL)
+
+      subscribe(link)
+      window.dispatchEvent(new StorageEvent('storage', { key: null, storageArea: sessionStorage }))
+
+      expect(sockets[0].close).not.toHaveBeenCalled()
     })
   })
 
@@ -391,6 +421,38 @@ describe('cableConsumer', () => {
         cable.disconnectCableConsumer()
 
         expect(observer.error).toHaveBeenCalledWith(expect.any(cable.CableSubscriptionError))
+      })
+    })
+
+    describe('WHEN the user logs out while a stale socket waits to reopen', () => {
+      afterEach(() => {
+        jest.useRealTimers()
+      })
+
+      it('THEN should not reopen it', () => {
+        jest.useFakeTimers()
+
+        const link = cable.createCableLink(CABLE_URL)
+
+        subscribe(link)
+        serverOpens(sockets[0])
+
+        // No ping arrives, so the connection monitor finds the socket stale and reopens it.
+        // Steps stay well under the 500ms reopen delay, so the reopen is still pending here.
+        for (
+          let elapsed = 0;
+          elapsed < 60000 && !sockets[0].close.mock.calls.length;
+          elapsed += 100
+        ) {
+          jest.advanceTimersByTime(100)
+        }
+
+        expect(sockets[0].close).toHaveBeenCalled()
+
+        cable.disconnectCableConsumer()
+        jest.advanceTimersByTime(5000)
+
+        expect(sockets).toHaveLength(1)
       })
     })
 
