@@ -8,6 +8,12 @@ const mockAddToast = jest.fn()
 const mockResetPersistedCache = jest.fn().mockResolvedValue(undefined)
 const mockPurgePersistedCache = jest.fn().mockResolvedValue(undefined)
 
+const mockDisconnectCableConsumer = jest.fn()
+
+jest.mock('../cableConsumer', () => ({
+  disconnectCableConsumer: () => mockDisconnectCableConsumer(),
+}))
+
 jest.mock('../cachePersistor', () => ({
   resetPersistedCache: (...args: unknown[]) => mockResetPersistedCache(...args),
   purgePersistedCache: (...args: unknown[]) => mockPurgePersistedCache(...args),
@@ -161,6 +167,12 @@ describe('logOut', () => {
 
       expect(mockResetPersistedCache).toHaveBeenCalledWith(client)
       expect(mockUpdateAuthTokenVar).toHaveBeenCalled()
+    })
+
+    it('THEN should close the websocket opened with the previous token', async () => {
+      await logOut(createMockClient())
+
+      expect(mockDisconnectCableConsumer).toHaveBeenCalledTimes(1)
     })
 
     it('THEN should stop the client BEFORE resetting the cache', async () => {

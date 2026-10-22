@@ -8,6 +8,7 @@ import {
 } from '~/generated/graphql'
 import { DEVTOOL_AUTO_SAVE_KEY, resetDevtoolsNavigation } from '~/hooks/useDeveloperTool'
 
+import { disconnectCableConsumer } from './cableConsumer'
 import { purgePersistedCache, resetPersistedCache } from './cachePersistor'
 import {
   addToast,
@@ -37,6 +38,7 @@ export const logOut = async (client: ApolloClient<object>, resetLocationHistory?
   resetDevtoolsNavigation()
   // Cancels active operations
   client.stop()
+  disconnectCableConsumer()
   // Removes cached data (in-memory + IndexedDB-persisted blob) and prevents
   // active queries re-fetch
   await resetPersistedCache(client)
