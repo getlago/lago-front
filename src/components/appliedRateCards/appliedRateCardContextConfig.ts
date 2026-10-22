@@ -19,8 +19,5 @@ export const RATE_PHASE_REFETCH_QUERIES: Record<AppliedRateCardContext, string[]
   contract: ['getContractAppliedRateCardForDetails'],
 }
 
-// Renaming either priced slices query silently stops these by-name refetches.
-export const PRICED_SLICES_REFETCH_QUERIES: Record<AppliedRateCardContext, string[]> = {
-  plan: ['getPlanAppliedRateCardSlicesForAppliedRateCardDrawer'],
-  contract: ['getContractAppliedRateCardSlicesForAppliedRateCardDrawer'],
-}
+// Renaming the apply drawer's rate cards query silently stops this by-name refetch.
+export const ALREADY_PRICED_REFETCH_QUERIES = ['getRateCardsForAppliedRateCardDrawer']

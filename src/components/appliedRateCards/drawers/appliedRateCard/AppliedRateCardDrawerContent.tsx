@@ -27,7 +27,6 @@ import {
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
   ActiveRateForRatePhaseFragmentDoc,
-  AppliedRateCardSliceForAppliedRateCardDrawerFragmentDoc,
   CurrencyEnum,
   ProductForAppliedRateCardDrawerFragment,
   useGetProductFiltersForAppliedRateCardDrawerLazyQuery,
@@ -38,10 +37,12 @@ import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternat
 import { withForm } from '~/hooks/forms/useAppform'
 import type { useRateCardDrawer } from '~/pages/catalog/drawers/rateCard/useRateCardDrawer'
 
-import { AppliedRateCardParent, usePricedProductFilterIds } from './usePricedProductFilterIds'
 import { APPLIED_RATE_CARD_FORM_DEFAULTS } from './validationSchema'
 
 type OpenRateCardDrawer = ReturnType<typeof useRateCardDrawer>['openDrawer']
+
+export type AppliedRateCardParent =
+  { context: 'plan'; planId: string } | { context: 'contract'; contractId: string }
 
 export const APPLIED_RATE_CARD_DRAWER_PRODUCT_TEST_ID = 'applied-rate-card-drawer-product'
 export const APPLIED_RATE_CARD_DRAWER_SHOW_FILTER_TEST_ID = 'applied-rate-card-drawer-show-filter'
@@ -114,6 +115,8 @@ gql`
     $code: String
     $currency: CurrencyEnum
     $limit: Int
+    $planId: ID
+    $contractId: ID
   ) {
     rateCards(
       productIds: $productIds
@@ -127,14 +130,13 @@ gql`
         id
         name
         code
+        alreadyPriced(planId: $planId, contractId: $contractId)
         ...RateCardForAppliedRateCardDrawer
-        ...AppliedRateCardSliceForAppliedRateCardDrawer
       }
     }
   }
 
   ${ActiveRateForRatePhaseFragmentDoc}
-  ${AppliedRateCardSliceForAppliedRateCardDrawerFragmentDoc}
 `
 
 const STANDALONE_PRODUCTS_GROUP_KEY = 'standalone-products'
@@ -235,7 +237,6 @@ export const AppliedRateCardDrawerContent = withForm({
     const productFilterId = useStore(form.store, (state) => state.values.productFilterId)
     const rateCardId = useStore(form.store, (state) => state.values.rateCardId)
     const ratePhases = useStore(form.store, (state) => state.values.ratePhases)
-    const pricedProductFilterIds = usePricedProductFilterIds(parent, productId)
 
     const [getProducts, { data: productsData, loading: productsLoading }] =
       useGetProductsForAppliedRateCardDrawerLazyQuery({ variables: { page: 1, limit: 20 } })
@@ -252,6 +253,10 @@ export const AppliedRateCardDrawerContent = withForm({
         productFilterIds: productFilterId ? [productFilterId] : undefined,
         currency,
         limit: 50,
+        // `alreadyPriced` rejects the query when both ids are sent, even as null.
+        ...(parent.context === 'plan'
+          ? { planId: parent.planId }
+          : { contractId: parent.contractId }),
       },
     })
 
@@ -500,9 +505,7 @@ export const AppliedRateCardDrawerContent = withForm({
                     addValueProps={createRateCardValueProps}
                     searchQuery={getRateCards}
                     data={rateCards.map((rateCard) => {
-                      const isPriced = pricedProductFilterIds.has(
-                        rateCard.productFilter?.id ?? null,
-                      )
+                      const isPriced = !!rateCard.alreadyPriced
 
                       return {
                         value: rateCard.code,
