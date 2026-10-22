@@ -21,6 +21,7 @@ import {
   RATE_PHASE_FORM_DEFAULTS,
   RatePhaseFormValues,
   RatePhaseReference,
+  RatePhaseSequenceLock,
 } from './ratePhaseFormSchema'
 import { getActiveRateFieldValues } from './ratePhaseSeeds'
 import { RateCardForRatePhaseFields } from './types'
@@ -36,6 +37,7 @@ type RatePhaseFormFieldsRenderProps = {
   isEdition: boolean
   // A getter: `children` is captured once at open(), and "create more" adds phases mid-session.
   getOtherPhases: () => RatePhaseReference[]
+  getSequenceLock: () => RatePhaseSequenceLock
   rateCard: RateCardForRatePhaseFields
 }
 
@@ -43,6 +45,7 @@ const defaultProps: RatePhaseFormFieldsRenderProps = {
   title: '',
   isEdition: false,
   getOtherPhases: () => [],
+  getSequenceLock: () => 'none',
   rateCard: {
     productType: ProductTypeEnum.Metered,
     currency: CurrencyEnum.Usd,
@@ -56,9 +59,17 @@ const defaultProps: RatePhaseFormFieldsRenderProps = {
 export const RatePhaseFormFields = withForm({
   defaultValues: RATE_PHASE_FORM_DEFAULTS,
   props: defaultProps,
-  render: function RatePhaseFormFieldsRender({ form, title, isEdition, getOtherPhases, rateCard }) {
+  render: function RatePhaseFormFieldsRender({
+    form,
+    title,
+    isEdition,
+    getOtherPhases,
+    getSequenceLock,
+    rateCard,
+  }) {
     const { translate } = useInternationalization()
     const otherPhases = getOtherPhases()
+    const sequenceLock = getSequenceLock()
     const overrideEnabled = useStore(form.store, (state) => state.values.overrideEnabled)
     const minAmountCents = useStore(form.store, (state) => state.values.minAmountCents)
     const positionMode = useStore(form.store, (state) => state.values.positionMode)
@@ -74,9 +85,15 @@ export const RatePhaseFormFields = withForm({
 
     const isLast = isPlacedLast({ positionMode, positionReferenceCode }, otherPhases)
     const isForever = durationType === 'forever'
+    const tailCode = otherPhases.at(-1)?.code
+    const isBeforeTail = sequenceLock === 'beforeTail'
 
     const positionModeComboboxData = [
-      { value: 'after', label: translate('text_17918352599290m49qpwdu3s') },
+      {
+        value: 'after',
+        label: translate('text_17918352599290m49qpwdu3s'),
+        disabled: isBeforeTail && positionReferenceCode === tailCode,
+      },
       { value: 'before', label: translate('text_1791835259929a6ko4g4o8zx') },
     ]
 
@@ -87,6 +104,7 @@ export const RatePhaseFormFields = withForm({
         position: index + 1,
       }),
       description: phase.code,
+      disabled: isBeforeTail && positionMode === 'after' && phase.code === tailCode,
     }))
 
     const handleOverrideToggle = ({ value }: { value: boolean }): void => {
@@ -155,6 +173,7 @@ export const RatePhaseFormFields = withForm({
                     <field.ComboBoxField
                       dataTest={RATE_PHASE_POSITION_MODE_TEST_ID}
                       containerClassName="w-40"
+                      disabled={sequenceLock === 'tail'}
                       disableClearable
                       sortValues={false}
                       placeholder={translate('text_1791835259929w5awid04gdu')}
@@ -170,6 +189,7 @@ export const RatePhaseFormFields = withForm({
                     <field.ComboBoxField
                       dataTest={RATE_PHASE_POSITION_REFERENCE_TEST_ID}
                       containerClassName="flex-1"
+                      disabled={sequenceLock === 'tail'}
                       disableClearable
                       sortValues={false}
                       placeholder={translate('text_1791835259929pk9djobpqt4')}
@@ -205,7 +225,7 @@ export const RatePhaseFormFields = withForm({
               data-test={RATE_PHASE_FOREVER_CHECKBOX_TEST_ID}
               label={translate('text_1791835259929jzk45luf7yg')}
               value={isForever}
-              disabled={!isLast}
+              disabled={sequenceLock !== 'none' || !isLast}
               onChange={(_, checked) => setDurationType(checked ? 'forever' : 'finite')}
             />
           </div>
