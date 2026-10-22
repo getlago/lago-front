@@ -4,7 +4,9 @@ import userEvent from '@testing-library/user-event'
 import { render } from '~/test-utils'
 
 import { ComboBox } from '../ComboBox'
+import { COMBOBOX_LOADING_TEST_ID } from '../ComboBoxInput'
 import { COMBOBOX_ADD_VALUE_ITEM_TEST_ID } from '../ComboBoxItemWrapper'
+import { ComboBoxProps } from '../types'
 
 describe('ComboBox', () => {
   describe('GIVEN an add-value row', () => {
@@ -63,30 +65,47 @@ describe('ComboBox', () => {
       expect(onChange).not.toHaveBeenCalledWith('unknown')
     })
 
-    it.each([
-      [false, false],
-      [true, true],
-    ])(
-      'WHEN some options match AND alwaysVisible is %p THEN the row shows: %p',
-      async (alwaysVisible, isShown) => {
-        render(
-          <ComboBox
-            name="rateCard"
-            data={[{ value: 'standard-card', label: 'Standard card' }]}
-            value=""
-            onChange={jest.fn()}
-            virtualized={false}
-            allowAddValue
-            addValueProps={{ label: 'Create one', onClick: jest.fn(), alwaysVisible }}
-          />,
-        )
+    it('WHEN some options match THEN the row is hidden', async () => {
+      render(
+        <ComboBox
+          name="rateCard"
+          data={[{ value: 'standard-card', label: 'Standard card' }]}
+          value=""
+          onChange={jest.fn()}
+          virtualized={false}
+          allowAddValue
+          addValueProps={{ label: 'Create one', onClick: jest.fn() }}
+        />,
+      )
 
-        await userEvent.click(screen.getByRole('combobox'))
+      await userEvent.click(screen.getByRole('combobox'))
 
-        expect(await screen.findByText('Standard card')).toBeInTheDocument()
-        expect(!!screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).toBe(isShown)
-      },
-    )
+      expect(await screen.findByText('Standard card')).toBeInTheDocument()
+      expect(screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('WHEN a search is in flight THEN the row only shows once it resolves empty', async () => {
+      const props: ComboBoxProps = {
+        name: 'rateCard',
+        data: [],
+        value: '',
+        onChange: jest.fn(),
+        virtualized: false,
+        allowAddValue: true,
+        addValueProps: { label: 'Create one', onClick: jest.fn() },
+        searchQuery: jest.fn(),
+      }
+      const { rerender } = render(<ComboBox {...props} loading />)
+
+      await userEvent.click(screen.getByRole('combobox'))
+
+      expect(screen.getByTestId(COMBOBOX_LOADING_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).not.toBeInTheDocument()
+
+      rerender(<ComboBox {...props} loading={false} />)
+
+      expect(await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).toBeInTheDocument()
+    })
   })
 
   describe('GIVEN a value typed then submitted with Enter', () => {
