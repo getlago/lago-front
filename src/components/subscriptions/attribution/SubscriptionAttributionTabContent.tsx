@@ -1,11 +1,12 @@
 import { gql, NetworkStatus } from '@apollo/client'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
+import { addToast } from '~/core/apolloClient'
 import {
   AttributedUsageBasisEnum,
   CurrencyEnum,
@@ -182,6 +183,20 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   )
   const selectedCharge = charges.find((charge) => charge.id === selectedChargeId)
 
+  const usageVariables = {
+    subscriptionId,
+    groupBy,
+    basis,
+    chargeIds: selectedCharge ? [selectedCharge.id] : undefined,
+    splitChargeId: selectedCharge?.filters?.length ? selectedCharge.id : undefined,
+    page: 1,
+    limit: ATTRIBUTION_ROWS_LIMIT,
+  }
+  const usageRequestKey = JSON.stringify(usageVariables)
+  const latestUsageRequestKeyRef = useRef(usageRequestKey)
+
+  latestUsageRequestKeyRef.current = usageRequestKey
+
   const {
     data: usageData,
     loading: isUsageQueryLoading,
@@ -190,15 +205,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     refetch: refetchUsage,
     fetchMore: fetchMoreUsage,
   } = useGetSubscriptionAttributedUsageQuery({
-    variables: {
-      subscriptionId,
-      groupBy,
-      basis,
-      chargeIds: selectedCharge ? [selectedCharge.id] : undefined,
-      splitChargeId: selectedCharge?.filters?.length ? selectedCharge.id : undefined,
-      page: 1,
-      limit: ATTRIBUTION_ROWS_LIMIT,
-    },
+    variables: usageVariables,
     skip: !groupBy,
     notifyOnNetworkStatusChange: true,
   })
@@ -239,15 +246,26 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   const loadMoreRows = (): void => {
     if (!attributedUsage) return
 
+    const requestKey = usageRequestKey
+
     fetchMoreUsage({
       variables: { page: attributedUsage.metadata.currentPage + 1 },
-      updateQuery: (previous, { fetchMoreResult }) => ({
-        attributedUsage: {
-          ...previous.attributedUsage,
-          metadata: fetchMoreResult.attributedUsage.metadata,
-          rows: [...previous.attributedUsage.rows, ...fetchMoreResult.attributedUsage.rows],
-        },
-      }),
+      updateQuery: (previous, { fetchMoreResult }) => {
+        // `fetchMore` merges into the query's variables at response time, not at request time.
+        if (requestKey !== latestUsageRequestKeyRef.current || !fetchMoreResult?.attributedUsage) {
+          return previous
+        }
+
+        return {
+          attributedUsage: {
+            ...previous.attributedUsage,
+            metadata: fetchMoreResult.attributedUsage.metadata,
+            rows: [...previous.attributedUsage.rows, ...fetchMoreResult.attributedUsage.rows],
+          },
+        }
+      },
+    }).catch(() => {
+      addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
     })
   }
   const chargesUsage = attributedUsage?.totals.chargesUsage ?? []

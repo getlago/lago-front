@@ -1,7 +1,8 @@
 import { NetworkStatus } from '@apollo/client'
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { addToast } from '~/core/apolloClient'
 import {
   AttributedUsageBasisEnum,
   AttributionChargeUsageFragment,
@@ -25,6 +26,11 @@ import {
 } from '../SubscriptionAttributionTabContent'
 
 const PLACEHOLDER_TEST_ID = 'generic-placeholder'
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
+}))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -152,6 +158,7 @@ const selectOptionByValue = async (
 describe('SubscriptionAttributionTabContent', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockFetchMoreUsage.mockResolvedValue({})
 
     const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
@@ -277,6 +284,71 @@ describe('SubscriptionAttributionTabContent', () => {
         expect(merged.attributedUsage.metadata).toEqual({ currentPage: 2, totalPages: 2 })
         expect(merged.attributedUsage.unattributed).toBe(firstPageUsage.unattributed)
         expect(merged.attributedUsage.totals).toBe(firstPageUsage.totals)
+      })
+    })
+
+    describe('WHEN the selection changes before the next page arrives', () => {
+      it('THEN should drop the late page instead of appending it to the new selection', async () => {
+        const user = userEvent.setup()
+
+        mockUsage({ totalPages: 2 })
+        render(<SubscriptionAttributionTabContent />)
+
+        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
+        await user.click(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID))
+        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'agent_id')
+
+        const { updateQuery } = mockFetchMoreUsage.mock.calls[0][0]
+        const current = {
+          attributedUsage: { ...firstPageUsage, metadata: { currentPage: 1, totalPages: 2 } },
+        }
+        const latePage = {
+          ...firstPageUsage,
+          metadata: { currentPage: 2, totalPages: 2 },
+          rows: [{ value: 'k_live_41aa', amountCents: null, chargesUsage: [] }],
+        }
+
+        expect(updateQuery(current, { fetchMoreResult: { attributedUsage: latePage } })).toBe(
+          current,
+        )
+      })
+    })
+
+    describe('WHEN the next page comes back without data', () => {
+      it('THEN should keep the loaded rows', async () => {
+        const user = userEvent.setup()
+
+        mockUsage({ totalPages: 2 })
+        render(<SubscriptionAttributionTabContent />)
+
+        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
+        await user.click(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID))
+
+        const { updateQuery } = mockFetchMoreUsage.mock.calls[0][0]
+        const current = {
+          attributedUsage: { ...firstPageUsage, metadata: { currentPage: 1, totalPages: 2 } },
+        }
+
+        expect(updateQuery(current, { fetchMoreResult: null })).toBe(current)
+      })
+    })
+
+    describe('WHEN the next page request fails', () => {
+      it('THEN should show an error toast and keep show more available for a retry', async () => {
+        const user = userEvent.setup()
+
+        mockFetchMoreUsage.mockRejectedValue(new Error('network'))
+        mockUsage({ totalPages: 2 })
+        render(<SubscriptionAttributionTabContent />)
+
+        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
+        await user.click(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+        })
+        expect(screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)).toHaveLength(3)
+        expect(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID)).toBeEnabled()
       })
     })
 
