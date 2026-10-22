@@ -5,8 +5,8 @@ import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import {
+  ALREADY_PRICED_REFETCH_QUERIES,
   APPLIED_RATE_CARD_CONTEXT_CONFIG,
-  PRICED_SLICES_REFETCH_QUERIES,
 } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
@@ -29,8 +29,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useRateCardDrawer } from '~/pages/catalog/drawers/rateCard/useRateCardDrawer'
 
-import { AppliedRateCardDrawerContent } from './AppliedRateCardDrawerContent'
-import { AppliedRateCardParent } from './usePricedProductFilterIds'
+import { AppliedRateCardDrawerContent, AppliedRateCardParent } from './AppliedRateCardDrawerContent'
 import {
   APPLIED_RATE_CARD_FORM_DEFAULTS,
   buildAppliedRateCardFormSchema,
@@ -90,7 +89,7 @@ export const useAppliedRateCardDrawer = (): {
     refetchQueries: [
       'getPlanAppliedRateCardsForRateCardsSection',
       'getCatalogPlanForDetails',
-      ...PRICED_SLICES_REFETCH_QUERIES.plan,
+      ...ALREADY_PRICED_REFETCH_QUERIES,
     ],
     context: { silentErrorDetails: ALREADY_PRICED_ERRORS },
   })
@@ -98,7 +97,7 @@ export const useAppliedRateCardDrawer = (): {
     refetchQueries: [
       'getContractAppliedRateCardsForRateCardsSection',
       'getContractForDetails',
-      ...PRICED_SLICES_REFETCH_QUERIES.contract,
+      ...ALREADY_PRICED_REFETCH_QUERIES,
     ],
     context: { silentErrorDetails: ALREADY_PRICED_ERRORS },
   })
