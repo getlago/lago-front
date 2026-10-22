@@ -59,6 +59,8 @@ export const AttributionTreeTable = ({
         variant="quaternary"
         size="small"
         icon={isOpen ? 'chevron-down-filled' : 'chevron-right-filled'}
+        aria-label={row.label}
+        aria-expanded={isOpen}
         loading={node?.status === 'loading'}
         disabled={node?.status === 'loading'}
         onClick={() => onToggleNode(row.path, row.level.code)}

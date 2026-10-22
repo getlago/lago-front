@@ -109,6 +109,29 @@ describe('AttributionTreeTable', () => {
     })
   })
 
+  describe('GIVEN expandable rows', () => {
+    it.each([
+      ['collapsed', false],
+      ['expanded', true],
+    ])('THEN should expose the node name and the %s state', (_, isExpanded) => {
+      renderTree({
+        ...rootNodes(),
+        [RND_KEY]: {
+          status: 'loaded',
+          isExpanded,
+          blocks: [{ level: apiKeyLevel, usage: buildUsage([]), isLoadingMore: false }],
+        },
+      })
+
+      const toggle = within(screen.getAllByTestId(ATTRIBUTION_TREE_ROW_TEST_ID)[0]).getByTestId(
+        ATTRIBUTION_TREE_TOGGLE_TEST_ID,
+      )
+
+      expect(toggle).toHaveAttribute('aria-label', 'rnd')
+      expect(toggle).toHaveAttribute('aria-expanded', String(isExpanded))
+    })
+  })
+
   describe('GIVEN a row is clicked', () => {
     describe('WHEN its toggle is clicked', () => {
       it('THEN should toggle the node with its path and level', async () => {
