@@ -76,6 +76,19 @@ describe('getServerPhaseRate', () => {
     ).toBeNull()
   })
 
+  it('GIVEN an override without billing interval and no active rate THEN the interval stays unset', () => {
+    const result = getServerPhaseRate(
+      {
+        ...phase,
+        rateOverride: { ...override, billingIntervalCount: null, billingIntervalUnit: null },
+      },
+      { ...rateCard, activeRate: null },
+    )
+
+    expect(result?.rate.billingIntervalCount).toBeNull()
+    expect(result?.rate.billingIntervalUnit).toBeNull()
+  })
+
   it('GIVEN an override and no active rate THEN is overridden with no highlighted field', () => {
     const result = getServerPhaseRate(phase, { ...rateCard, activeRate: null })
 

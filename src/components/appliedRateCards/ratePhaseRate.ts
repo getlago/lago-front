@@ -31,10 +31,25 @@ export const getFormPhaseRate = (
   }
 }
 
+// Not the form round trip alone: it fills an unset override interval with the form default, while
+// without an active rate it has nothing to inherit and the duration must count cycles.
 export const getServerPhaseRate = (
   phase: RatePhaseForDrawerFragment,
   rateCard: RateCardForRatePhaseFields,
-): RatePhaseRate | null => getFormPhaseRate(mapFromApiToForm(phase, rateCard), rateCard)
+): RatePhaseRate | null => {
+  const phaseRate = getFormPhaseRate(mapFromApiToForm(phase, rateCard), rateCard)
+
+  if (!phaseRate?.isOverridden || rateCard.activeRate) return phaseRate
+
+  return {
+    ...phaseRate,
+    rate: {
+      ...phaseRate.rate,
+      billingIntervalCount: phase.rateOverride?.billingIntervalCount ?? null,
+      billingIntervalUnit: phase.rateOverride?.billingIntervalUnit ?? null,
+    },
+  }
+}
 
 export const toServerPhaseForDetails = (
   phase: RatePhaseForDrawerFragment,
