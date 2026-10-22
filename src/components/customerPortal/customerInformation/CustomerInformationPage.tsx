@@ -15,12 +15,22 @@ import { Checkbox } from '~/components/form'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import {
   CustomerTypeEnum,
+  LagoApiError,
   UpdateCustomerPortalCustomerInput,
   useUpdatePortalCustomerMutation,
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
+import {
+  ADDRESS_LINE_MAX_LENGTH,
+  FREE_TEXT_MAX_LENGTH,
+  getMaxLength,
+  mapPortalCustomerErrors,
+} from './mapPortalCustomerErrors'
 import { editCustomerBillingValidationSchema, mapCustomerToFormValues } from './validationSchema'
+
+const freeTextInputProps = { maxLength: FREE_TEXT_MAX_LENGTH }
+const addressLineInputProps = { maxLength: ADDRESS_LINE_MAX_LENGTH }
 
 type EditCustomerBillingFormProps = {
   customer?: UpdateCustomerPortalCustomerInput | null
@@ -52,14 +62,18 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
 
   const [isShippingEqualBillingAddress, setIsShippingEqualBillingAddress] =
     useState(addressFieldsMatch)
+  const [hasFieldErrors, setHasFieldErrors] = useState(false)
 
   const [
     updatePortalCustomer,
     { loading: updatePortalCustomerLoading, error: updatePortalCustomerError },
   ] = useUpdatePortalCustomerMutation({
+    context: {
+      silentErrorDetails: [LagoApiError.InvalidCharacters, LagoApiError.ValueIsTooLong],
+    },
     refetchQueries: ['getCustomerPortalData'],
     onCompleted(res) {
-      if (res) {
+      if (res?.updateCustomerPortalCustomer) {
         onSuccess?.()
       }
     },
@@ -71,8 +85,10 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
     validators: {
       onDynamic: editCustomerBillingValidationSchema,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       const { shippingAddress, ...rest } = value
+
+      setHasFieldErrors(false)
 
       const normalizedShippingAddress = shippingAddress
         ? Object.fromEntries(
@@ -83,12 +99,34 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
           )
         : shippingAddress
 
-      updatePortalCustomer({
+      const answer = await updatePortalCustomer({
         variables: {
           input: {
             ...rest,
             shippingAddress: normalizedShippingAddress,
           },
+        },
+      })
+
+      const fieldErrors = mapPortalCustomerErrors(answer.errors)
+
+      if (!fieldErrors.length) return
+
+      setHasFieldErrors(true)
+      formApi.setErrorMap({
+        onDynamic: {
+          fields: Object.fromEntries(
+            fieldErrors.map(({ path, code }) => [
+              path,
+              {
+                message:
+                  code === LagoApiError.InvalidCharacters
+                    ? translate('text_1792577695510fp8vzeszoh7')
+                    : translate('text_1792577695510xy36tafb8l5', { max: getMaxLength(path) }),
+                path: path.split('.'),
+              },
+            ]),
+          ),
         },
       })
     },
@@ -147,6 +185,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       <form.AppField name="name">
         {(field) => (
           <field.TextInputField
+            inputProps={freeTextInputProps}
             label={translate('text_634687079be251fdb43833cb')}
             placeholder={translate('text_1728654170904707saidat0f')}
           />
@@ -157,6 +196,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         <form.AppField name="firstname">
           {(field) => (
             <field.TextInputField
+              inputProps={freeTextInputProps}
               label={translate('text_1726128938631ggtf2ggqs4b')}
               placeholder={translate('text_1726128938631ntcpbzv7x7s')}
             />
@@ -166,6 +206,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         <form.AppField name="lastname">
           {(field) => (
             <field.TextInputField
+              inputProps={freeTextInputProps}
               label={translate('text_1726128938631ymctg83bygm')}
               placeholder={translate('text_1726128938631xmpsba9ssuo')}
             />
@@ -176,6 +217,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       <form.AppField name="legalName">
         {(field) => (
           <field.TextInputField
+            inputProps={freeTextInputProps}
             label={translate('text_626c0c09812bbc00e4c59e01')}
             placeholder={translate('text_626c0c09812bbc00e4c59e03')}
           />
@@ -184,6 +226,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       <form.AppField name="taxIdentificationNumber">
         {(field) => (
           <field.TextInputField
+            inputProps={freeTextInputProps}
             label={translate('text_648053ee819b60364c675d05')}
             placeholder={translate('text_648053ee819b60364c675d0b')}
           />
@@ -206,6 +249,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       <form.AppField name="addressLine1" listeners={billingAddressChangeListener}>
         {(field) => (
           <field.TextInputField
+            inputProps={addressLineInputProps}
             label={translate('text_626c0c09812bbc00e4c59e1b')}
             placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
           />
@@ -213,26 +257,38 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       </form.AppField>
       <form.AppField name="addressLine2" listeners={billingAddressChangeListener}>
         {(field) => (
-          <field.TextInputField placeholder={translate('text_626c0c09812bbc00e4c59e1f')} />
+          <field.TextInputField
+            inputProps={addressLineInputProps}
+            placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
+          />
         )}
       </form.AppField>
 
       <div className="grid grid-cols-2 gap-4">
         <form.AppField name="zipcode" listeners={billingAddressChangeListener}>
           {(field) => (
-            <field.TextInputField placeholder={translate('text_626c0c09812bbc00e4c59e21')} />
+            <field.TextInputField
+              inputProps={freeTextInputProps}
+              placeholder={translate('text_626c0c09812bbc00e4c59e21')}
+            />
           )}
         </form.AppField>
         <form.AppField name="city" listeners={billingAddressChangeListener}>
           {(field) => (
-            <field.TextInputField placeholder={translate('text_626c0c09812bbc00e4c59e23')} />
+            <field.TextInputField
+              inputProps={freeTextInputProps}
+              placeholder={translate('text_626c0c09812bbc00e4c59e23')}
+            />
           )}
         </form.AppField>
       </div>
 
       <form.AppField name="state" listeners={billingAddressChangeListener}>
         {(field) => (
-          <field.TextInputField placeholder={translate('text_626c0c09812bbc00e4c59e25')} />
+          <field.TextInputField
+            inputProps={freeTextInputProps}
+            placeholder={translate('text_626c0c09812bbc00e4c59e25')}
+          />
         )}
       </form.AppField>
       <form.AppField name="country" listeners={billingAddressChangeListener}>
@@ -264,6 +320,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       <form.AppField name="shippingAddress.addressLine1">
         {(field) => (
           <field.TextInputField
+            inputProps={addressLineInputProps}
             label={translate('text_626c0c09812bbc00e4c59e1b')}
             placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
             disabled={isShippingEqualBillingAddress}
@@ -273,6 +330,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       <form.AppField name="shippingAddress.addressLine2">
         {(field) => (
           <field.TextInputField
+            inputProps={addressLineInputProps}
             placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
             disabled={isShippingEqualBillingAddress}
           />
@@ -283,6 +341,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         <form.AppField name="shippingAddress.zipcode">
           {(field) => (
             <field.TextInputField
+              inputProps={freeTextInputProps}
               placeholder={translate('text_626c0c09812bbc00e4c59e21')}
               disabled={isShippingEqualBillingAddress}
             />
@@ -291,6 +350,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         <form.AppField name="shippingAddress.city">
           {(field) => (
             <field.TextInputField
+              inputProps={freeTextInputProps}
               placeholder={translate('text_626c0c09812bbc00e4c59e23')}
               disabled={isShippingEqualBillingAddress}
             />
@@ -301,6 +361,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       <form.AppField name="shippingAddress.state">
         {(field) => (
           <field.TextInputField
+            inputProps={freeTextInputProps}
             placeholder={translate('text_626c0c09812bbc00e4c59e25')}
             disabled={isShippingEqualBillingAddress}
           />
@@ -328,7 +389,7 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         )}
       </form.AppField>
 
-      {updatePortalCustomerError && (
+      {updatePortalCustomerError && !hasFieldErrors && (
         <Alert className="mt-8" type="danger" data-test="error-alert">
           <Typography>{translate('text_1728377307160tb09yisgxk9')}</Typography>
         </Alert>
