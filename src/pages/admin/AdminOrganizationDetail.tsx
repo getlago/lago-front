@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router'
 
 import { REASON_MODAL_NAME } from '~/components/admin/const'
-import { ReasonModalProps } from '~/components/admin/ReasonModal'
+import { ReasonModalError, ReasonModalProps } from '~/components/admin/ReasonModal'
 import { Button } from '~/components/designSystem/Button'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
@@ -16,6 +16,7 @@ import { ADMIN_ORGANIZATIONS_ROUTE } from '~/core/router'
 import {
   AdminFeatureTypeEnum,
   FeatureFlagEnum,
+  LagoApiError,
   PremiumIntegrationTypeEnum,
   useAdminOrganizationQuery,
   useAdminRenameOrganizationMutation,
@@ -49,6 +50,28 @@ gql`
 const KNOWN_PREMIUM_INTEGRATIONS = Object.values(PremiumIntegrationTypeEnum)
 const KNOWN_FEATURE_FLAGS = Object.values(FeatureFlagEnum)
 
+const RENAME_ERROR_MESSAGES: Record<string, string> = {
+  value_is_unchanged: 'The new name is the same as the current name.',
+  value_is_mandatory: 'The organization name cannot be blank.',
+  value_is_too_short: 'The reason must be at least 10 characters.',
+  value_is_too_long: 'The reason is too long once the rename details are added. Please shorten it.',
+}
+
+type RenameErrorExtensions = { code?: string; details?: Record<string, string[]> }
+
+const getRenameErrorMessage = (
+  errors?: ReadonlyArray<{ extensions?: Record<string, unknown> }>,
+): string => {
+  const extensions = errors?.[0]?.extensions as RenameErrorExtensions | undefined
+
+  if (extensions?.code === 'not_found') return 'Organization not found.'
+
+  const detailCode = Object.values(extensions?.details ?? {}).flat()[0]
+  const message = detailCode ? RENAME_ERROR_MESSAGES[detailCode] : undefined
+
+  return message ?? 'Failed to rename the organization. Please try again.'
+}
+
 const AdminOrganizationDetail = () => {
   const { organizationId } = useParams<{ organizationId: string }>()
 
@@ -59,7 +82,10 @@ const AdminOrganizationDetail = () => {
 
   const [toggleFeature] = useAdminToggleFeatureMutation()
   const [isSaving, setIsSaving] = useState(false)
-  const [renameOrganization] = useAdminRenameOrganizationMutation()
+  const [renameOrganization] = useAdminRenameOrganizationMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity, LagoApiError.NotFound] },
+    refetchQueries: ['AdminOrganization'],
+  })
   const [nameInput, setNameInput] = useState('')
 
   const org = data?.adminOrganization
@@ -85,6 +111,7 @@ const AdminOrganizationDetail = () => {
     setNameInput(org?.name ?? '')
   }, [org?.name])
 
+  const isNameDirty = nameInput !== (org?.name ?? '')
   const trimmedName = nameInput.trim()
   const canRename = !!org && trimmedName.length > 0 && trimmedName !== org.name
 
@@ -212,6 +239,7 @@ const AdminOrganizationDetail = () => {
   const handleReset = () => {
     setLocalIntegrations(new Set(serverIntegrations))
     setLocalFeatureFlags(new Set(serverFeatureFlags))
+    setNameInput(org?.name ?? '')
   }
   const handleRename = () => {
     if (!org || !canRename) return
@@ -228,11 +256,8 @@ const AdminOrganizationDetail = () => {
         })
 
         if (!result.data?.adminRenameOrganization) {
-          throw new Error('Rename failed')
+          throw new ReasonModalError(getRenameErrorMessage(result.errors))
         }
-
-        addToast({ severity: 'success', message: 'Organization renamed.' })
-        await refetch()
       },
     })
   }
@@ -337,7 +362,7 @@ const AdminOrganizationDetail = () => {
 
       <footer className="sticky bottom-0 z-navBar w-full bg-white shadow-t">
         <div className="max-w-200 mx-auto flex min-h-footer w-full flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-12">
-          <Button variant="quaternary" disabled={!isDirty} onClick={handleReset}>
+          <Button variant="quaternary" disabled={!isDirty && !isNameDirty} onClick={handleReset}>
             Reset
           </Button>
           <Button disabled={!isDirty || isSaving} onClick={handleSave}>

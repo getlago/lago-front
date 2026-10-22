@@ -50,6 +50,44 @@ describe('AdminOrganizationDetail', () => {
   })
   afterEach(() => jest.restoreAllMocks())
 
+  it('clears a typed name with the Reset button', async () => {
+    render(<AdminOrganizationDetail />, {
+      useParams: { organizationId: 'org' },
+    })
+
+    fireEvent.change(screen.getByDisplayValue('Acme'), { target: { value: 'Acme Inc' } })
+    expect(screen.getByText('Reset')).toBeEnabled()
+
+    fireEvent.click(screen.getByText('Reset'))
+
+    await waitFor(() => expect(screen.getByDisplayValue('Acme')).toBeInTheDocument())
+    expect(screen.getByRole('button', { name: 'Rename' })).toBeDisabled()
+  })
+
+  it('explains why a rename was rejected', async () => {
+    mockRename.mockResolvedValue({
+      data: { adminRenameOrganization: null },
+      errors: [
+        {
+          message: 'unprocessable_entity',
+          extensions: { code: 'unprocessable_entity', details: { reason: ['value_is_too_long'] } },
+        },
+      ],
+    })
+    render(<AdminOrganizationDetail />, {
+      useParams: { organizationId: 'org' },
+    })
+
+    fireEvent.change(screen.getByDisplayValue('Acme'), { target: { value: 'Acme Inc' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Rename' }))
+
+    const props = jest.mocked(NiceModal.show).mock.calls[0][1] as ReasonModalProps
+
+    await expect(props.onConfirm('Customer rebranded their company', false)).rejects.toThrow(
+      'The reason is too long',
+    )
+  })
+
   it('keeps Rename disabled until the name changes', () => {
     render(<AdminOrganizationDetail />, {
       useParams: { organizationId: 'org' },
@@ -83,7 +121,6 @@ describe('AdminOrganizationDetail', () => {
         },
       },
     })
-    expect(mockRefetch).toHaveBeenCalled()
   })
 
   it('resets unsaved changes without sending mutations', async () => {
