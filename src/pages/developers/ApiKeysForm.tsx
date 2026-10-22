@@ -59,44 +59,158 @@ type PermissionAvailability = 'all' | 'withoutProductCatalog' | 'withProductCata
 
 // With the product catalog: the `resource_name` of the v2 controllers, plus the v1 one of each
 // endpoint v2 keeps but does not serve yet; payment receipts authorize with `invoice`.
-const PERMISSION_AVAILABILITY: Record<ApiKeysPermissionsEnum, PermissionAvailability> = {
-  [ApiKeysPermissionsEnum.ActivityLog]: 'all',
-  [ApiKeysPermissionsEnum.AddOn]: 'withoutProductCatalog',
-  [ApiKeysPermissionsEnum.Alert]: 'withoutProductCatalog',
-  [ApiKeysPermissionsEnum.Analytic]: 'withoutProductCatalog',
-  [ApiKeysPermissionsEnum.ApiLog]: 'all',
-  [ApiKeysPermissionsEnum.AppliedCoupon]: 'withoutProductCatalog',
-  [ApiKeysPermissionsEnum.BillableMetric]: 'all',
-  [ApiKeysPermissionsEnum.BillingEntity]: 'all',
-  [ApiKeysPermissionsEnum.Contract]: 'withProductCatalog',
-  [ApiKeysPermissionsEnum.ContractRateCard]: 'withProductCatalog',
-  [ApiKeysPermissionsEnum.Coupon]: 'withoutProductCatalog',
-  [ApiKeysPermissionsEnum.CreditNote]: 'all',
-  [ApiKeysPermissionsEnum.Customer]: 'all',
-  [ApiKeysPermissionsEnum.CustomerUsage]: 'all',
-  [ApiKeysPermissionsEnum.Event]: 'all',
-  [ApiKeysPermissionsEnum.Feature]: 'withoutProductCatalog',
-  [ApiKeysPermissionsEnum.Fee]: 'all',
-  [ApiKeysPermissionsEnum.Invoice]: 'all',
-  [ApiKeysPermissionsEnum.InvoiceCustomSection]: 'withoutProductCatalog',
-  [ApiKeysPermissionsEnum.LifetimeUsage]: 'withoutProductCatalog',
-  [ApiKeysPermissionsEnum.Organization]: 'all',
-  [ApiKeysPermissionsEnum.Payment]: 'all',
-  [ApiKeysPermissionsEnum.PaymentMethod]: 'all',
-  [ApiKeysPermissionsEnum.PaymentReceipt]: 'withoutProductCatalog',
-  [ApiKeysPermissionsEnum.PaymentRequest]: 'all',
-  [ApiKeysPermissionsEnum.Plan]: 'all',
-  [ApiKeysPermissionsEnum.PlanRateCard]: 'withProductCatalog',
-  [ApiKeysPermissionsEnum.Product]: 'withProductCatalog',
-  [ApiKeysPermissionsEnum.ProductCategory]: 'withProductCatalog',
-  [ApiKeysPermissionsEnum.RateCard]: 'withProductCatalog',
-  [ApiKeysPermissionsEnum.SecurityLog]: 'all',
-  [ApiKeysPermissionsEnum.Subscription]: 'withoutProductCatalog',
-  [ApiKeysPermissionsEnum.Tax]: 'all',
-  [ApiKeysPermissionsEnum.Wallet]: 'withoutProductCatalog',
-  [ApiKeysPermissionsEnum.WalletTransaction]: 'withoutProductCatalog',
-  [ApiKeysPermissionsEnum.WebhookEndpoint]: 'all',
-  [ApiKeysPermissionsEnum.WebhookJwtPublicKey]: 'all',
+const PERMISSION_RESOURCES: Record<
+  ApiKeysPermissionsEnum,
+  { translationKey: string; availability: PermissionAvailability }
+> = {
+  [ApiKeysPermissionsEnum.ActivityLog]: {
+    translationKey: 'text_1747314141347qq6rasuxisl',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.AddOn]: {
+    translationKey: 'text_1732894820485oyybtfh5rgv',
+    availability: 'withoutProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.Alert]: {
+    translationKey: 'text_17465238490269pahbvl3s2m',
+    availability: 'withoutProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.Analytic]: {
+    translationKey: 'text_6553885df387fd0097fd7384',
+    availability: 'withoutProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.ApiLog]: {
+    translationKey: 'text_1749644023729atl2vw7ad3z',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.AppliedCoupon]: {
+    translationKey: 'text_17328948204857eb1ecwe5me',
+    availability: 'withoutProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.BillableMetric]: {
+    translationKey: 'text_623b497ad05b960101be3438',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.BillingEntity]: {
+    translationKey: 'text_1743077296189ms0shds6g53',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.Contract]: {
+    translationKey: 'text_17894894166553ysarr965xr',
+    availability: 'withProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.ContractRateCard]: {
+    translationKey: 'text_17925800162109zo2h16ap37',
+    availability: 'withProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.Coupon]: {
+    translationKey: 'text_637ccf8133d2c9a7d11ce705',
+    availability: 'withoutProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.CreditNote]: {
+    translationKey: 'text_66461ada56a84401188e8c63',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.Customer]: {
+    translationKey: 'text_624efab67eb2570101d117a5',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.CustomerUsage]: {
+    translationKey: 'text_1732894820485yff83t91qnm',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.Event]: {
+    translationKey: 'text_6298bd525e359200d5ea001a',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.Feature]: {
+    translationKey: 'text_1752692673070k7z0mmf0494',
+    availability: 'withoutProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.Fee]: {
+    translationKey: 'text_1732894820485lfkgva1ivc6',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.Invoice]: {
+    translationKey: 'text_63ac86d797f728a87b2f9f85',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.InvoiceCustomSection]: {
+    translationKey: 'text_1732553358445168zt8fopyf',
+    availability: 'withoutProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.LifetimeUsage]: {
+    translationKey: 'text_1726481163322ntor50xdm8k',
+    availability: 'withoutProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.Organization]: {
+    translationKey: 'text_173289482048511y9ieyywq5',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.Payment]: {
+    translationKey: 'text_6419c64eace749372fc72b40',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.PaymentMethod]: {
+    translationKey: 'text_64aeb7b998c4322918c84204',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.PaymentReceipt]: {
+    translationKey: 'text_1747209600169a6v8atibi3n',
+    availability: 'withoutProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.PaymentRequest]: {
+    translationKey: 'text_1732894820485dzoobhyzly1',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.Plan]: {
+    translationKey: 'text_62442e40cea25600b0b6d85a',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.PlanRateCard]: {
+    translationKey: 'text_1792580016209ml8r6ycj2vu',
+    availability: 'withProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.Product]: {
+    translationKey: 'text_17831042398250iwa2xp8pba',
+    availability: 'withProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.ProductCategory]: {
+    translationKey: 'text_17831042398244jk9iv71lra',
+    availability: 'withProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.RateCard]: {
+    translationKey: 'text_1783104239825nxqno33u945',
+    availability: 'withProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.SecurityLog]: {
+    translationKey: 'text_17730476805600nudrokzkk5',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.Subscription]: {
+    translationKey: 'text_6250304370f0f700a8fdc28d',
+    availability: 'withoutProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.Tax]: {
+    translationKey: 'text_645bb193927b375079d28a8f',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.Wallet]: {
+    translationKey: 'text_62d175066d2dbf1d50bc937c',
+    availability: 'withoutProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.WalletTransaction]: {
+    translationKey: 'text_1732894820485a7mmqqucnzf',
+    availability: 'withoutProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.WebhookEndpoint]: {
+    translationKey: 'text_6271200984178801ba8bdf40',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.WebhookJwtPublicKey]: {
+    translationKey: 'text_1732894820485vwy7ic1o84g',
+    availability: 'all',
+  },
 }
 
 const getAvailablePermissions = (hasProductCatalog: boolean): ApiKeysPermissionsEnum[] => {
@@ -105,7 +219,7 @@ const getAvailablePermissions = (hasProductCatalog: boolean): ApiKeysPermissions
     : 'withProductCatalog'
 
   return Object.values(ApiKeysPermissionsEnum).filter(
-    (permission) => PERMISSION_AVAILABILITY[permission] !== hiddenAvailability,
+    (permission) => PERMISSION_RESOURCES[permission].availability !== hiddenAvailability,
   )
 }
 
@@ -126,47 +240,6 @@ const DEFAULT_PERMISSIONS: Record<ApiKeysPermissionsEnum, string[]> = Object.val
   },
   {} as Record<ApiKeysPermissionsEnum, string[]>,
 )
-
-// ApiKeysPermissionsEnum can be updated in: src/core/apolloClient/graphqlResolvers.tsx:62
-const resourceTypeTranslationKeys: Record<ApiKeysPermissionsEnum, string> = {
-  [ApiKeysPermissionsEnum.ActivityLog]: 'text_1747314141347qq6rasuxisl',
-  [ApiKeysPermissionsEnum.AddOn]: 'text_1732894820485oyybtfh5rgv',
-  [ApiKeysPermissionsEnum.Alert]: 'text_17465238490269pahbvl3s2m',
-  [ApiKeysPermissionsEnum.Analytic]: 'text_6553885df387fd0097fd7384',
-  [ApiKeysPermissionsEnum.ApiLog]: 'text_1749644023729atl2vw7ad3z',
-  [ApiKeysPermissionsEnum.AppliedCoupon]: 'text_17328948204857eb1ecwe5me',
-  [ApiKeysPermissionsEnum.BillableMetric]: 'text_623b497ad05b960101be3438',
-  [ApiKeysPermissionsEnum.BillingEntity]: 'text_1743077296189ms0shds6g53',
-  [ApiKeysPermissionsEnum.Contract]: 'text_17894894166553ysarr965xr',
-  [ApiKeysPermissionsEnum.ContractRateCard]: 'text_17925800162109zo2h16ap37',
-  [ApiKeysPermissionsEnum.Coupon]: 'text_637ccf8133d2c9a7d11ce705',
-  [ApiKeysPermissionsEnum.CreditNote]: 'text_66461ada56a84401188e8c63',
-  [ApiKeysPermissionsEnum.Customer]: 'text_624efab67eb2570101d117a5',
-  [ApiKeysPermissionsEnum.CustomerUsage]: 'text_1732894820485yff83t91qnm',
-  [ApiKeysPermissionsEnum.Event]: 'text_6298bd525e359200d5ea001a',
-  [ApiKeysPermissionsEnum.Feature]: 'text_1752692673070k7z0mmf0494',
-  [ApiKeysPermissionsEnum.Fee]: 'text_1732894820485lfkgva1ivc6',
-  [ApiKeysPermissionsEnum.Invoice]: 'text_63ac86d797f728a87b2f9f85',
-  [ApiKeysPermissionsEnum.InvoiceCustomSection]: 'text_1732553358445168zt8fopyf',
-  [ApiKeysPermissionsEnum.LifetimeUsage]: 'text_1726481163322ntor50xdm8k',
-  [ApiKeysPermissionsEnum.Organization]: 'text_173289482048511y9ieyywq5',
-  [ApiKeysPermissionsEnum.Payment]: 'text_6419c64eace749372fc72b40',
-  [ApiKeysPermissionsEnum.PaymentReceipt]: 'text_1747209600169a6v8atibi3n',
-  [ApiKeysPermissionsEnum.PaymentRequest]: 'text_1732894820485dzoobhyzly1',
-  [ApiKeysPermissionsEnum.PaymentMethod]: 'text_64aeb7b998c4322918c84204',
-  [ApiKeysPermissionsEnum.Plan]: 'text_62442e40cea25600b0b6d85a',
-  [ApiKeysPermissionsEnum.PlanRateCard]: 'text_1792580016209ml8r6ycj2vu',
-  [ApiKeysPermissionsEnum.Product]: 'text_17831042398250iwa2xp8pba',
-  [ApiKeysPermissionsEnum.ProductCategory]: 'text_17831042398244jk9iv71lra',
-  [ApiKeysPermissionsEnum.RateCard]: 'text_1783104239825nxqno33u945',
-  [ApiKeysPermissionsEnum.SecurityLog]: 'text_17730476805600nudrokzkk5',
-  [ApiKeysPermissionsEnum.Subscription]: 'text_6250304370f0f700a8fdc28d',
-  [ApiKeysPermissionsEnum.Tax]: 'text_645bb193927b375079d28a8f',
-  [ApiKeysPermissionsEnum.Wallet]: 'text_62d175066d2dbf1d50bc937c',
-  [ApiKeysPermissionsEnum.WalletTransaction]: 'text_1732894820485a7mmqqucnzf',
-  [ApiKeysPermissionsEnum.WebhookEndpoint]: 'text_6271200984178801ba8bdf40',
-  [ApiKeysPermissionsEnum.WebhookJwtPublicKey]: 'text_1732894820485vwy7ic1o84g',
-}
 
 const API_KEYS_FORM_ID = 'api-keys-form'
 
@@ -482,7 +555,7 @@ const ApiKeysForm = () => {
                       ),
                       content: ({ id }) => (
                         <Typography variant="body" color="grey700">
-                          {translate(resourceTypeTranslationKeys[id])}
+                          {translate(PERMISSION_RESOURCES[id].translationKey)}
                         </Typography>
                       ),
                     },
