@@ -262,7 +262,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     variables: treeVariables,
     getChildLevels: (parentCode) =>
       getAttributionChildLevels({ roots: rootTypes, parentCode, listBy: treeListBy }),
-    resetKey: JSON.stringify({ ...treeVariables, listBy: treeListBy }),
+    resetKey: JSON.stringify({ ...treeVariables, listBy: treeListBy, rootTypes }),
     skip: !isTreeMode,
   })
   const treeRootNode = treeNodes[getAttributionNodeKey([])]

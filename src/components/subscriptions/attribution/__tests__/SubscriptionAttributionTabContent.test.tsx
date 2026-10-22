@@ -773,6 +773,25 @@ describe('SubscriptionAttributionTabContent', () => {
       })
     })
 
+    describe('WHEN the setup returns a different hierarchy', () => {
+      it('THEN should change the tree reset key', () => {
+        const { rerender } = render(<SubscriptionAttributionTabContent />)
+
+        const previousResetKey = getLastTreeParams().resetKey
+
+        mockSetup({
+          roots: [departmentType, { id: 'type-region', code: 'region', name: 'Region' }],
+        })
+        rerender(<SubscriptionAttributionTabContent />)
+
+        expect(getLastTreeParams().resetKey).not.toEqual(previousResetKey)
+        expect(getLastTreeParams().getChildLevels(null)).toEqual([
+          { code: 'department', name: 'Department', isLeaf: false },
+          { code: 'region', name: 'Region', isLeaf: true },
+        ])
+      })
+    })
+
     describe('WHEN refresh is clicked', () => {
       it('THEN should reset the tree instead of refetching the flat usage', async () => {
         const user = userEvent.setup()
