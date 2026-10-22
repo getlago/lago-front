@@ -1,4 +1,4 @@
-import { matchPath } from 'react-router'
+import { matchRoutes, RouteObject } from 'react-router'
 
 import { FeatureFlagEnum } from '~/generated/graphql'
 
@@ -27,8 +27,20 @@ const joinPaths = (parentPath: string, path: string): string =>
 
 const isSplatPath = (path: string): boolean => path === '*' || path.endsWith('/*')
 
-const countDynamicSegments = (path: string): number =>
-  path.split('/').filter((segment) => segment.startsWith(':')).length
+type MatchableRoute = RouteObject & { source: CustomRouteObject }
+
+// One object per path: `matchRoutes` needs string paths, our configs may hold an array.
+const toMatchableRoutes = (routeConfigs: CustomRouteObject[]): MatchableRoute[] =>
+  routeConfigs.flatMap((route): MatchableRoute[] => {
+    if (route.index) return [{ index: true, source: route }]
+
+    const children = route.children ? toMatchableRoutes(route.children) : undefined
+    const routePaths = getRoutePaths(route)
+
+    if (!routePaths.length) return [{ children, source: route }]
+
+    return routePaths.map((path) => ({ path, children, source: route }))
+  })
 
 const buildRegistry = (
   routeConfigs: CustomRouteObject[],
@@ -56,7 +68,11 @@ const buildRegistry = (
   return registry
 }
 
+const findOrganizationScopeRoute = (): CustomRouteObject | undefined =>
+  routes.find((route) => route.path === ORGANIZATION_SCOPE_PATH)
+
 let cachedRegistry: RouteRegistryEntry[] | null = null
+let cachedMatchableRoutes: MatchableRoute[] | null = null
 
 /**
  * Every concrete route path under `:organizationSlug` (array paths expanded, splats
@@ -64,7 +80,7 @@ let cachedRegistry: RouteRegistryEntry[] | null = null
  */
 export const getOrganizationRouteRegistry = (): RouteRegistryEntry[] => {
   if (!cachedRegistry) {
-    const organizationRoute = routes.find((route) => route.path === ORGANIZATION_SCOPE_PATH)
+    const organizationRoute = findOrganizationScopeRoute()
 
     cachedRegistry = organizationRoute
       ? buildRegistry(organizationRoute.children ?? [], '', [organizationRoute], [])
@@ -74,12 +90,29 @@ export const getOrganizationRouteRegistry = (): RouteRegistryEntry[] => {
   return cachedRegistry
 }
 
-export const findOrganizationRoute = (path: string): RouteRegistryEntry | undefined => {
-  const pathname = `/${stripLeadingSlash(path)}`
+const getMatchableOrganizationRoutes = (): MatchableRoute[] => {
+  if (!cachedMatchableRoutes) {
+    cachedMatchableRoutes = toMatchableRoutes(findOrganizationScopeRoute()?.children ?? [])
+  }
 
-  return getOrganizationRouteRegistry()
-    .filter((entry) => matchPath({ path: `/${entry.path}`, end: true }, pathname))
-    .sort((a, b) => countDynamicSegments(a.path) - countDynamicSegments(b.path))[0]
+  return cachedMatchableRoutes
+}
+
+// A splat leaf is the in-app 404, so an unknown path resolves to no route.
+export const findOrganizationRoute = (path: string): RouteRegistryEntry | undefined => {
+  const organizationRoute = findOrganizationScopeRoute()
+  const matches = matchRoutes(getMatchableOrganizationRoutes(), `/${stripLeadingSlash(path)}`)
+  const leaf = matches?.at(-1)
+
+  if (!organizationRoute || !matches || !leaf?.route.path || isSplatPath(leaf.route.path)) {
+    return undefined
+  }
+
+  return {
+    path: matches.reduce((joined, { route }) => joinPaths(joined, route.path ?? ''), ''),
+    route: leaf.route.source,
+    ancestors: [organizationRoute, ...matches.slice(0, -1).map(({ route }) => route.source)],
+  }
 }
 
 export const isRouteEntryAvailable = (
@@ -93,6 +126,17 @@ export const isOrganizationPathAvailable = (
   hasFeatureFlag: (flag: FeatureFlagEnum) => boolean,
 ): boolean => {
   const entry = findOrganizationRoute(path)
+
+  return !!entry && isRouteEntryAvailable(entry, hasFeatureFlag)
+}
+
+export const isOrganizationRouteAvailable = (
+  pattern: string,
+  hasFeatureFlag: (flag: FeatureFlagEnum) => boolean,
+): boolean => {
+  const entry = getOrganizationRouteRegistry().find(
+    ({ path }) => path === stripLeadingSlash(pattern),
+  )
 
   return !!entry && isRouteEntryAvailable(entry, hasFeatureFlag)
 }

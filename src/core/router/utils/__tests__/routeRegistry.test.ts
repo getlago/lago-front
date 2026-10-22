@@ -1,9 +1,11 @@
+import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import { FeatureFlagEnum } from '~/generated/graphql'
 
 import {
   findOrganizationRoute,
   getOrganizationRouteRegistry,
   isOrganizationPathAvailable,
+  isOrganizationRouteAvailable,
   isRouteEntryAvailable,
 } from '../routeRegistry'
 
@@ -43,8 +45,16 @@ describe('routeRegistry', () => {
       expect(findOrganizationRoute('/customers')?.path).toBe('customers')
     })
 
-    it('returns undefined for an unknown path', () => {
+    it('returns undefined for an unknown path instead of the in-app 404 route', () => {
       expect(findOrganizationRoute('/unknown-path')).toBeUndefined()
+    })
+
+    it('prefers a static route over a dynamic one matching the same URL', () => {
+      expect(findOrganizationRoute('/analytics')?.path).toBe('analytics')
+    })
+
+    it('returns the layout routes wrapping the match as ancestors', () => {
+      expect(findOrganizationRoute('/customers')?.ancestors.length).toBeGreaterThan(1)
     })
   })
 
@@ -64,6 +74,30 @@ describe('routeRegistry', () => {
     // Guards the Home redirect loop: an unknown path must not count as reachable.
     it('fails closed for an unknown path', () => {
       expect(isOrganizationPathAvailable('/unknown-path', noFeatureFlag)).toBe(false)
+    })
+  })
+
+  describe('isOrganizationRouteAvailable', () => {
+    it('looks a route up by its pattern', () => {
+      const isAvailable = isOrganizationRouteAvailable(
+        CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+        noFeatureFlag,
+      )
+
+      expect(isAvailable).toBe(true)
+    })
+
+    it('returns false for a pattern hidden by an active flag', () => {
+      const isAvailable = isOrganizationRouteAvailable(
+        CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+        withProductCatalog,
+      )
+
+      expect(isAvailable).toBe(false)
+    })
+
+    it('fails closed for an unknown pattern', () => {
+      expect(isOrganizationRouteAvailable('/unknown/:id', noFeatureFlag)).toBe(false)
     })
   })
 

@@ -14,7 +14,10 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
-import { isOrganizationPathAvailable } from '~/core/router/utils/routeRegistry'
+import {
+  isOrganizationPathAvailable,
+  isOrganizationRouteAvailable,
+} from '~/core/router/utils/routeRegistry'
 import {
   LagoApiError,
   ResourceTypeEnum,
@@ -232,7 +235,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
     },
   })
 
-  const canOpenSubscription = isOrganizationPathAvailable(
+  const canOpenSubscription = isOrganizationRouteAvailable(
     CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
     hasFeatureFlag,
   )
