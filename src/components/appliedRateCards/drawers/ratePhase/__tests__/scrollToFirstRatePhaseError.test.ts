@@ -19,7 +19,7 @@ describe('scrollToFirstRatePhaseError', () => {
         <input name="code" />
         <input name="durationCycleCount" />
         <input type="checkbox" />
-        <input name="chargeModel" />
+        <input name="rateModel" />
         <input name="properties.amount" />
       </form>
     `
@@ -39,12 +39,6 @@ describe('scrollToFirstRatePhaseError', () => {
     scrollToFirstRatePhaseError(FORM_ID, { durationType: ['forever must be last'] })
 
     expect(getScrolledInputName()).toBe('durationCycleCount')
-  })
-
-  it('GIVEN an error on the rate model THEN scrolls to the rate model selector', () => {
-    scrollToFirstRatePhaseError(FORM_ID, { rateModel: ['unavailable'] })
-
-    expect(getScrolledInputName()).toBe('chargeModel')
   })
 
   it('GIVEN several errors THEN scrolls to the first one in the form', () => {

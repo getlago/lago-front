@@ -1,7 +1,7 @@
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 
-// `scrollToFirstInputError` matches inputs by name: the forever `Checkbox` renders no named input
-// and the shared rate model selector names its input `chargeModel`.
+// `scrollToFirstInputError` matches inputs by name, and the forever `Checkbox` renders no named
+// input: its errors point at the duration input right above it.
 export const scrollToFirstRatePhaseError = (
   formId: string,
   errorMap: Record<string, unknown>,
@@ -9,5 +9,4 @@ export const scrollToFirstRatePhaseError = (
   scrollToFirstInputError(formId, {
     ...errorMap,
     durationCycleCount: errorMap.durationCycleCount ?? errorMap.durationType,
-    chargeModel: errorMap.rateModel,
   })
