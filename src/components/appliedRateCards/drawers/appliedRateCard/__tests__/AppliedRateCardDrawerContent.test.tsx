@@ -447,7 +447,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
     )
   })
 
-  it('GIVEN rate cards are listed THEN the "Create rate card" row still shows', async () => {
+  it('GIVEN rate cards are listed THEN the "Create rate card" row is absent', async () => {
     renderContent([productsMock(), rateCardsMock(() => undefined)])
 
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
@@ -459,7 +459,40 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
     await userEvent.click(rateCardInput)
 
     expect(await screen.findByText(RATE_CARD.name)).toBeInTheDocument()
-    expect(screen.getByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).toBeInTheDocument()
+    expect(screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).not.toBeInTheDocument()
+  })
+
+  it('GIVEN a rate card search matches nothing THEN "Create rate card" shows once the search resolves, as the only option', async () => {
+    let lastVars: Record<string, unknown> = {}
+
+    renderContent([
+      productsMock(),
+      {
+        ...rateCardsMock((vars) => (lastVars = vars)),
+        delay: 500,
+        result: (vars: Record<string, unknown>) => ({
+          data: { rateCards: { collection: vars.searchTerm ? [] : [RATE_CARD] } },
+        }),
+      },
+    ])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+
+    const rateCardInput = (
+      await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
+    ).querySelector('input') as HTMLInputElement
+
+    await userEvent.click(rateCardInput)
+    await userEvent.type(rateCardInput, 'unknown-card')
+    await waitFor(() => expect(lastVars.searchTerm).toBe('unknown-card'), { timeout: 3000 })
+
+    expect(screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).not.toBeInTheDocument()
+
+    const addValueOption = within(
+      await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID),
+    ).getByRole('option')
+
+    expect(screen.getAllByRole('option')).toEqual([addValueOption])
   })
 
   it('GIVEN the stacked drawer calls onCreated THEN this drawer sets its rateCardId field to the new code, and the stacked drawer is already closed', async () => {
