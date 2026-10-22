@@ -7,6 +7,8 @@ import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import {
   AggregationTypeEnum,
   CurrencyEnum,
+  GetContractAppliedRateCardSlicesForAppliedRateCardDrawerDocument,
+  GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerDocument,
   GetProductFiltersForAppliedRateCardDrawerDocument,
   GetProductsForAppliedRateCardDrawerDocument,
   GetRateCardsForAppliedRateCardDrawerDocument,
@@ -35,6 +37,7 @@ import {
   APPLIED_RATE_CARD_DRAWER_SHOW_FILTER_TEST_ID,
   AppliedRateCardDrawerContent,
 } from '../AppliedRateCardDrawerContent'
+import { AppliedRateCardParent } from '../usePricedProductFilterIds'
 import { APPLIED_RATE_CARD_FORM_DEFAULTS } from '../validationSchema'
 
 // jsdom has no scrollIntoView, and `scrollToAndClickElement` calls it before the click that
@@ -101,6 +104,7 @@ type RateCardFixture = {
   billingTiming: RateCardBillingTimingEnum
   appliedPricingUnitCode: string | null
   proration: boolean
+  productFilter: { __typename: string; id: string } | null
   activeRate: {
     __typename: string
     id: string
@@ -123,6 +127,7 @@ const RATE_CARD: RateCardFixture = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   appliedPricingUnitCode: null,
   proration: false,
+  productFilter: null,
   activeRate: {
     __typename: 'RateCardRate',
     id: 'rate-1',
@@ -172,12 +177,44 @@ const rateCardsMock = (
   result: { data: { rateCards: { collection } } },
 })
 
+const PLAN_PARENT: AppliedRateCardParent = { context: 'plan', planId: 'plan-1' }
+const CONTRACT_PARENT: AppliedRateCardParent = { context: 'contract', contractId: 'contract-1' }
+
+const pricedSlicesMock = (
+  parent: AppliedRateCardParent,
+  pricedFilterIds: Array<string | null> = [],
+): MockedResponse => {
+  const collection = pricedFilterIds.map((filterId, index) => ({
+    __typename: parent.context === 'plan' ? 'PlanAppliedRateCard' : 'ContractAppliedRateCard',
+    id: `applied-${index}`,
+    rateCard: {
+      __typename: 'RateCard',
+      id: `priced-rate-card-${index}`,
+      productFilter: filterId ? { __typename: 'ProductFilter', id: filterId } : null,
+    },
+  }))
+
+  return parent.context === 'plan'
+    ? {
+        request: { query: GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerDocument },
+        variableMatcher: () => true,
+        maxUsageCount: Number.POSITIVE_INFINITY,
+        result: { data: { planAppliedRateCards: { collection } } },
+      }
+    : {
+        request: { query: GetContractAppliedRateCardSlicesForAppliedRateCardDrawerDocument },
+        variableMatcher: () => true,
+        maxUsageCount: Number.POSITIVE_INFINITY,
+        result: { data: { contractAppliedRateCards: { collection } } },
+      }
+}
+
 const RATE_CARD_ID_PROBE_TEST_ID = 'rate-card-id-probe'
 const PRODUCT_FILTER_ID_PROBE_TEST_ID = 'product-filter-id-probe'
 const RATE_PHASES_LENGTH_PROBE_TEST_ID = 'rate-phases-length-probe'
 const RATE_PHASE_CODES_PROBE_TEST_ID = 'rate-phase-codes-probe'
 
-const Host = (): JSX.Element => {
+const Host = ({ parent }: { parent: AppliedRateCardParent }): JSX.Element => {
   const form = useAppForm({ defaultValues: APPLIED_RATE_CARD_FORM_DEFAULTS })
 
   return (
@@ -203,6 +240,7 @@ const Host = (): JSX.Element => {
       </form.Subscribe>
       <AppliedRateCardDrawerContent
         form={form}
+        parent={parent}
         currency={CurrencyEnum.Usd}
         openRateCardDrawer={mockOpenRateCardDrawer}
         organizationSlug="acme"
@@ -224,10 +262,13 @@ const selectRateCard = async (): Promise<void> => {
 // `PropertiesForRateCardRate`); Apollo's cache needs real `__typename`s to resolve a fragment's
 // type condition when reading a mocked response back out - `~/test-utils`'s own `render` always
 // passes `addTypename={false}`, so this file renders directly like RateCardDrawerContent.test.tsx.
-const renderContent = (mocks: TestMocksType = []): ReturnType<typeof rtlRender> =>
-  rtlRender(<Host />, {
+const renderContent = (
+  mocks: TestMocksType = [],
+  parent: AppliedRateCardParent = PLAN_PARENT,
+): ReturnType<typeof rtlRender> =>
+  rtlRender(<Host parent={parent} />, {
     wrapper: ({ children }) => (
-      <AllTheProviders forceTypenames mocks={mocks}>
+      <AllTheProviders forceTypenames mocks={[...mocks, pricedSlicesMock(parent)]}>
         {children}
       </AllTheProviders>
     ),
@@ -888,5 +929,68 @@ describe('AppliedRateCardDrawerContent, contract lifecycle dates', () => {
 
     expect(screen.queryByText('Billing anchor date')).not.toBeInTheDocument()
     expect(screen.queryByText(/effective date/i)).not.toBeInTheDocument()
+  })
+})
+
+describe('AppliedRateCardDrawerContent, already priced slices', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  const FILTERED_RATE_CARD: RateCardFixture = {
+    ...RATE_CARD,
+    id: 'rc-eu',
+    name: 'EU card',
+    code: 'eu-card',
+    productFilter: { __typename: 'ProductFilter', id: PRODUCT_FILTER.id },
+  }
+
+  it.each([
+    { parent: PLAN_PARENT, scenario: 'plan' },
+    { parent: CONTRACT_PARENT, scenario: 'contract' },
+  ])(
+    'GIVEN the $scenario already prices the product without filter THEN only the card without filter is disabled',
+    async ({ parent }) => {
+      renderContent(
+        [
+          productsMock(),
+          rateCardsMock(() => {}, [RATE_CARD, FILTERED_RATE_CARD]),
+          pricedSlicesMock(parent, [null]),
+        ],
+        parent,
+      )
+
+      await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+      await userEvent.click(
+        (await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)).querySelector(
+          'input',
+        ) as HTMLInputElement,
+      )
+
+      await waitFor(() =>
+        expect(within(screen.getByTestId(RATE_CARD.code)).getByRole('radio')).toBeDisabled(),
+      )
+      expect(within(screen.getByTestId(FILTERED_RATE_CARD.code)).getByRole('radio')).toBeEnabled()
+    },
+  )
+
+  it('GIVEN the plan already prices the product with a filter THEN only the card for that filter is disabled', async () => {
+    renderContent([
+      productsMock(),
+      rateCardsMock(() => {}, [RATE_CARD, FILTERED_RATE_CARD]),
+      pricedSlicesMock(PLAN_PARENT, [PRODUCT_FILTER.id]),
+    ])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+    await userEvent.click(
+      (await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)).querySelector(
+        'input',
+      ) as HTMLInputElement,
+    )
+
+    await waitFor(() =>
+      expect(within(screen.getByTestId(FILTERED_RATE_CARD.code)).getByRole('radio')).toBeDisabled(),
+    )
+    expect(within(screen.getByTestId(RATE_CARD.code)).getByRole('radio')).toBeEnabled()
   })
 })

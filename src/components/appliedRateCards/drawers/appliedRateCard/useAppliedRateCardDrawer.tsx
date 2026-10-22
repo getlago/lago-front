@@ -7,7 +7,7 @@ import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateM
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
-import { addToast } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { useNavigate } from '~/core/router'
 import { CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE } from '~/core/router/CatalogRoutes'
 import { CONTRACT_RATE_CARD_DETAILS_ROUTE } from '~/core/router/ObjectsRoutes'
@@ -15,6 +15,7 @@ import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
 import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
 import {
   CurrencyEnum,
+  LagoApiError,
   useCreateContractAppliedRateCardMutation,
   useCreatePlanAppliedRateCardMutation,
 } from '~/generated/graphql'
@@ -23,6 +24,11 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 import { useRateCardDrawer } from '~/pages/catalog/drawers/rateCard/useRateCardDrawer'
 
 import { AppliedRateCardDrawerContent } from './AppliedRateCardDrawerContent'
+import {
+  ALREADY_PRICED_TRANSLATION_KEY,
+  AppliedRateCardParent,
+  PRICED_SLICES_REFETCH_QUERIES,
+} from './usePricedProductFilterIds'
 import {
   APPLIED_RATE_CARD_FORM_DEFAULTS,
   buildAppliedRateCardFormSchema,
@@ -53,9 +59,19 @@ gql`
 
 const APPLIED_RATE_CARD_FORM_ID = 'applied-rate-card-drawer-form'
 
+const ALREADY_PRICED_ERRORS = [
+  LagoApiError.ProductAlreadyPriced,
+  LagoApiError.ProductFilterAlreadyPriced,
+]
+
 export type AppliedRateCardDrawerProps =
   | { context: 'plan'; planId: string; currency: CurrencyEnum }
   | { context: 'contract'; contractId: string; contractExternalId: string; currency: CurrencyEnum }
+
+const toParent = (props: AppliedRateCardDrawerProps): AppliedRateCardParent =>
+  props.context === 'plan'
+    ? { context: 'plan', planId: props.planId }
+    : { context: 'contract', contractId: props.contractId }
 
 export const useAppliedRateCardDrawer = (): {
   openDrawer: (props: AppliedRateCardDrawerProps) => void
@@ -69,10 +85,20 @@ export const useAppliedRateCardDrawer = (): {
     useCreateMore()
   // The rate cards list and the details header count; create-more never navigates to refresh them.
   const [createPlanAppliedRateCard] = useCreatePlanAppliedRateCardMutation({
-    refetchQueries: ['getPlanAppliedRateCardsForRateCardsSection', 'getCatalogPlanForDetails'],
+    refetchQueries: [
+      'getPlanAppliedRateCardsForRateCardsSection',
+      'getCatalogPlanForDetails',
+      PRICED_SLICES_REFETCH_QUERIES.plan,
+    ],
+    context: { silentErrorDetails: ALREADY_PRICED_ERRORS },
   })
   const [createContractAppliedRateCard] = useCreateContractAppliedRateCardMutation({
-    refetchQueries: ['getContractAppliedRateCardsForRateCardsSection', 'getContractForDetails'],
+    refetchQueries: [
+      'getContractAppliedRateCardsForRateCardsSection',
+      'getContractForDetails',
+      PRICED_SLICES_REFETCH_QUERIES.contract,
+    ],
+    context: { silentErrorDetails: ALREADY_PRICED_ERRORS },
   })
   const currentProps = useRef<AppliedRateCardDrawerProps | null>(null)
 
@@ -80,12 +106,13 @@ export const useAppliedRateCardDrawer = (): {
     defaultValues: APPLIED_RATE_CARD_FORM_DEFAULTS,
     validationLogic: revalidateLogic(),
     validators: { onDynamic: buildAppliedRateCardFormSchema() },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       const props = currentProps.current
 
       if (!props) return
 
       let created: { id: string; rateCard: { name: string } } | null | undefined
+      let errors: Parameters<typeof hasDefinedGQLError>[1]
 
       const input = mapFromFormToApi(value, props.currency)
 
@@ -95,12 +122,32 @@ export const useAppliedRateCardDrawer = (): {
         })
 
         created = result.data?.createPlanAppliedRateCard
+        errors = result.errors
       } else {
         const result = await createContractAppliedRateCard({
           variables: { input: { externalId: props.contractExternalId, ...input } },
         })
 
         created = result.data?.createContractAppliedRateCard
+        errors = result.errors
+      }
+
+      // Another session can price the slice between the drawer's lookup and this save.
+      if (
+        hasDefinedGQLError('ProductAlreadyPriced', errors, 'rateCard') ||
+        hasDefinedGQLError('ProductFilterAlreadyPriced', errors, 'rateCard')
+      ) {
+        formApi.setErrorMap({
+          onDynamic: {
+            fields: {
+              rateCardId: {
+                message: ALREADY_PRICED_TRANSLATION_KEY[props.context],
+                path: ['rateCardId'],
+              },
+            },
+          },
+        })
+        return
       }
 
       if (!created) return
@@ -152,6 +199,7 @@ export const useAppliedRateCardDrawer = (): {
         <CreateMoreResetBoundary resetSignal={resetSignal}>
           <AppliedRateCardDrawerContent
             form={form}
+            parent={toParent(props)}
             currency={props.currency}
             openRateCardDrawer={openRateCardDrawer}
             organizationSlug={organizationSlug}

@@ -5831,6 +5831,8 @@ export enum LagoApiError {
   PlanNotFound = 'plan_not_found',
   PlanOverlapping = 'plan_overlapping',
   ProductExternalIdUnknown = 'productExternalIdUnknown',
+  ProductAlreadyPriced = 'product_already_priced',
+  ProductFilterAlreadyPriced = 'product_filter_already_priced',
   TokenEncodingError = 'token_encoding_error',
   TokenExpired = 'token_expired',
   Unauthorized = 'unauthorized',
@@ -13362,7 +13364,7 @@ export type GetRateCardsForAppliedRateCardDrawerQueryVariables = Exact<{
 }>;
 
 
-export type GetRateCardsForAppliedRateCardDrawerQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> } };
+export type GetRateCardsForAppliedRateCardDrawerQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null, productFilter?: { __typename?: 'ProductFilter', id: string } | null }> } };
 
 export type CreatePlanAppliedRateCardMutationVariables = Exact<{
   input: CreatePlanAppliedRateCardInput;
@@ -13377,6 +13379,26 @@ export type CreateContractAppliedRateCardMutationVariables = Exact<{
 
 
 export type CreateContractAppliedRateCardMutation = { __typename?: 'Mutation', createContractAppliedRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, name: string } } | null };
+
+export type AppliedRateCardSliceForAppliedRateCardDrawerFragment = { __typename?: 'RateCard', id: string, productFilter?: { __typename?: 'ProductFilter', id: string } | null };
+
+export type GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables = Exact<{
+  planId: Scalars['ID']['input'];
+  productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery = { __typename?: 'Query', planAppliedRateCards: { __typename?: 'PlanAppliedRateCardCollection', collection: Array<{ __typename?: 'PlanAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, productFilter?: { __typename?: 'ProductFilter', id: string } | null } }> } };
+
+export type GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables = Exact<{
+  contractId: Scalars['ID']['input'];
+  productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery = { __typename?: 'Query', contractAppliedRateCards: { __typename?: 'ContractAppliedRateCardCollection', collection: Array<{ __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, productFilter?: { __typename?: 'ProductFilter', id: string } | null } }> } };
 
 export type ActiveRateForRatePhaseFragment = { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } };
 
@@ -19712,6 +19734,14 @@ export const RevenueStreamDataForOverviewSectionFragmentDoc = gql`
   freeCreditsAmountCents
   prepaidCreditsAmountCents
   progressiveBillingCreditAmountCents
+}
+    `;
+export const AppliedRateCardSliceForAppliedRateCardDrawerFragmentDoc = gql`
+    fragment AppliedRateCardSliceForAppliedRateCardDrawer on RateCard {
+  id
+  productFilter {
+    id
+  }
 }
     `;
 export const BillableMetricDetailsFragmentDoc = gql`
@@ -28247,10 +28277,12 @@ export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
       name
       code
       ...RateCardForAppliedRateCardDrawer
+      ...AppliedRateCardSliceForAppliedRateCardDrawer
     }
   }
 }
-    ${RateCardForAppliedRateCardDrawerFragmentDoc}`;
+    ${RateCardForAppliedRateCardDrawerFragmentDoc}
+${AppliedRateCardSliceForAppliedRateCardDrawerFragmentDoc}`;
 
 /**
  * __useGetRateCardsForAppliedRateCardDrawerQuery__
@@ -28366,6 +28398,112 @@ export function useCreateContractAppliedRateCardMutation(baseOptions?: Apollo.Mu
 export type CreateContractAppliedRateCardMutationHookResult = ReturnType<typeof useCreateContractAppliedRateCardMutation>;
 export type CreateContractAppliedRateCardMutationResult = Apollo.MutationResult<CreateContractAppliedRateCardMutation>;
 export type CreateContractAppliedRateCardMutationOptions = Apollo.BaseMutationOptions<CreateContractAppliedRateCardMutation, CreateContractAppliedRateCardMutationVariables>;
+export const GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerDocument = gql`
+    query getPlanAppliedRateCardSlicesForAppliedRateCardDrawer($planId: ID!, $productIds: [ID!], $limit: Int) {
+  planAppliedRateCards(planId: $planId, productIds: $productIds, limit: $limit) {
+    collection {
+      id
+      rateCard {
+        id
+        ...AppliedRateCardSliceForAppliedRateCardDrawer
+      }
+    }
+  }
+}
+    ${AppliedRateCardSliceForAppliedRateCardDrawerFragmentDoc}`;
+
+/**
+ * __useGetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      productIds: // value for 'productIds'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery(baseOptions: Apollo.QueryHookOptions<GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables> & ({ variables: GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>(GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerDocument, options);
+      }
+export function useGetPlanAppliedRateCardSlicesForAppliedRateCardDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>(GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetPlanAppliedRateCardSlicesForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>;
+export function useGetPlanAppliedRateCardSlicesForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery | undefined, GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>;
+export function useGetPlanAppliedRateCardSlicesForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>(GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerDocument, options);
+        }
+export type GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQueryHookResult = ReturnType<typeof useGetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery>;
+export type GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerLazyQueryHookResult = ReturnType<typeof useGetPlanAppliedRateCardSlicesForAppliedRateCardDrawerLazyQuery>;
+export type GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetPlanAppliedRateCardSlicesForAppliedRateCardDrawerSuspenseQuery>;
+export type GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQueryResult = Apollo.QueryResult<GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>;
+export const GetContractAppliedRateCardSlicesForAppliedRateCardDrawerDocument = gql`
+    query getContractAppliedRateCardSlicesForAppliedRateCardDrawer($contractId: ID!, $productIds: [ID!], $limit: Int) {
+  contractAppliedRateCards(
+    contractId: $contractId
+    productIds: $productIds
+    limit: $limit
+  ) {
+    collection {
+      id
+      rateCard {
+        id
+        ...AppliedRateCardSliceForAppliedRateCardDrawer
+      }
+    }
+  }
+}
+    ${AppliedRateCardSliceForAppliedRateCardDrawerFragmentDoc}`;
+
+/**
+ * __useGetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery({
+ *   variables: {
+ *      contractId: // value for 'contractId'
+ *      productIds: // value for 'productIds'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery(baseOptions: Apollo.QueryHookOptions<GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables> & ({ variables: GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>(GetContractAppliedRateCardSlicesForAppliedRateCardDrawerDocument, options);
+      }
+export function useGetContractAppliedRateCardSlicesForAppliedRateCardDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>(GetContractAppliedRateCardSlicesForAppliedRateCardDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetContractAppliedRateCardSlicesForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>;
+export function useGetContractAppliedRateCardSlicesForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery | undefined, GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>;
+export function useGetContractAppliedRateCardSlicesForAppliedRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>(GetContractAppliedRateCardSlicesForAppliedRateCardDrawerDocument, options);
+        }
+export type GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQueryHookResult = ReturnType<typeof useGetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery>;
+export type GetContractAppliedRateCardSlicesForAppliedRateCardDrawerLazyQueryHookResult = ReturnType<typeof useGetContractAppliedRateCardSlicesForAppliedRateCardDrawerLazyQuery>;
+export type GetContractAppliedRateCardSlicesForAppliedRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetContractAppliedRateCardSlicesForAppliedRateCardDrawerSuspenseQuery>;
+export type GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQueryResult = Apollo.QueryResult<GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery, GetContractAppliedRateCardSlicesForAppliedRateCardDrawerQueryVariables>;
 export const CreateRatePhaseDocument = gql`
     mutation createRatePhase($input: CreateRatePhaseInput!) {
   createRatePhase(input: $input) {

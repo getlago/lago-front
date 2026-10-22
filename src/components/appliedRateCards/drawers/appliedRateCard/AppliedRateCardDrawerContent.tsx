@@ -26,6 +26,7 @@ import {
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
   ActiveRateForRatePhaseFragmentDoc,
+  AppliedRateCardSliceForAppliedRateCardDrawerFragmentDoc,
   CurrencyEnum,
   ProductForAppliedRateCardDrawerFragment,
   useGetProductFiltersForAppliedRateCardDrawerLazyQuery,
@@ -36,6 +37,11 @@ import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternat
 import { withForm } from '~/hooks/forms/useAppform'
 import type { useRateCardDrawer } from '~/pages/catalog/drawers/rateCard/useRateCardDrawer'
 
+import {
+  ALREADY_PRICED_TRANSLATION_KEY,
+  AppliedRateCardParent,
+  usePricedProductFilterIds,
+} from './usePricedProductFilterIds'
 import { APPLIED_RATE_CARD_FORM_DEFAULTS } from './validationSchema'
 
 type OpenRateCardDrawer = ReturnType<typeof useRateCardDrawer>['openDrawer']
@@ -125,11 +131,13 @@ gql`
         name
         code
         ...RateCardForAppliedRateCardDrawer
+        ...AppliedRateCardSliceForAppliedRateCardDrawer
       }
     }
   }
 
   ${ActiveRateForRatePhaseFragmentDoc}
+  ${AppliedRateCardSliceForAppliedRateCardDrawerFragmentDoc}
 `
 
 const STANDALONE_PRODUCTS_GROUP_KEY = 'standalone-products'
@@ -198,6 +206,7 @@ const useOptionsWithSelection = <T,>(
 }
 
 type AppliedRateCardDrawerContentProps = {
+  parent: AppliedRateCardParent
   // The backend rejects a rate card in another currency (`currency_does_not_match`).
   currency: CurrencyEnum
   openRateCardDrawer: OpenRateCardDrawer
@@ -205,6 +214,7 @@ type AppliedRateCardDrawerContentProps = {
 }
 
 const appliedRateCardDrawerContentDefaultProps: AppliedRateCardDrawerContentProps = {
+  parent: { context: 'plan', planId: '' },
   currency: CurrencyEnum.Usd,
   openRateCardDrawer: () => {},
   organizationSlug: undefined,
@@ -215,6 +225,7 @@ export const AppliedRateCardDrawerContent = withForm({
   props: appliedRateCardDrawerContentDefaultProps,
   render: function AppliedRateCardDrawerContentRender({
     form,
+    parent,
     currency,
     openRateCardDrawer,
     organizationSlug,
@@ -227,6 +238,7 @@ export const AppliedRateCardDrawerContent = withForm({
     const productFilterId = useStore(form.store, (state) => state.values.productFilterId)
     const rateCardId = useStore(form.store, (state) => state.values.rateCardId)
     const ratePhases = useStore(form.store, (state) => state.values.ratePhases)
+    const pricedProductFilterIds = usePricedProductFilterIds(parent, productId)
 
     const [getProducts, { data: productsData, loading: productsLoading }] =
       useGetProductsForAppliedRateCardDrawerLazyQuery({ variables: { page: 1, limit: 20 } })
@@ -489,10 +501,20 @@ export const AppliedRateCardDrawerContent = withForm({
                       alwaysVisible: true,
                     }}
                     searchQuery={getRateCards}
-                    data={rateCards.map((rateCard) => ({
-                      value: rateCard.code,
-                      label: rateCard.name,
-                    }))}
+                    data={rateCards.map((rateCard) => {
+                      const isPriced = pricedProductFilterIds.has(
+                        rateCard.productFilter?.id ?? null,
+                      )
+
+                      return {
+                        value: rateCard.code,
+                        label: rateCard.name,
+                        disabled: isPriced,
+                        description: isPriced
+                          ? translate(ALREADY_PRICED_TRANSLATION_KEY[parent.context])
+                          : undefined,
+                      }
+                    })}
                   />
                 )}
               </form.AppField>
