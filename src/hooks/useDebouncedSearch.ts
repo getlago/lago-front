@@ -100,10 +100,15 @@ export const useDebouncedSearch: UseDebouncedSearch = (
     }
   }, [loading])
 
+  const hasFetchedOnMount = useRef(false)
+
   useEffect(() => {
-    if (fetchOnMount) searchQuery?.()
+    if (!fetchOnMount || hasFetchedOnMount.current) return
+
+    hasFetchedOnMount.current = true
+    searchQuery?.()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [fetchOnMount])
 
   useEffect(() => {
     return () => {

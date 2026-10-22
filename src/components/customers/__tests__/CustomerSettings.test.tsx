@@ -2,14 +2,21 @@ import { act, cleanup, screen, waitFor } from '@testing-library/react'
 
 import {
   CurrencyEnum,
+  FeatureFlagEnum,
   FinalizeZeroAmountInvoiceEnum,
   GetCustomerSettingsDocument,
 } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
-import { CustomerSettings } from '../CustomerSettings'
+import {
+  CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID,
+  CUSTOMER_SETTINGS_NET_PAYMENT_TERM_TEST_ID,
+  CustomerSettings,
+} from '../CustomerSettings'
 
 const CUSTOMER_ID = 'customer-123'
+
+const mockHasFeatureFlag = jest.fn<boolean, [FeatureFlagEnum]>(() => false)
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
@@ -35,6 +42,7 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
       name: 'Test Organization',
       premiumIntegrations: ['auto_dunning'],
     },
+    hasFeatureFlag: mockHasFeatureFlag,
   }),
 }))
 
@@ -180,6 +188,10 @@ async function prepare({ mocks = [createCustomerSettingsMock()] }: { mocks?: Tes
 }
 
 describe('CustomerSettings', () => {
+  beforeEach(() => {
+    mockHasFeatureFlag.mockReturnValue(false)
+  })
+
   afterEach(() => {
     cleanup()
     jest.clearAllMocks()
@@ -670,6 +682,40 @@ describe('CustomerSettings', () => {
         const settingSections = screen.getAllByRole('button')
 
         expect(settingSections.length).toBeGreaterThanOrEqual(5)
+      })
+    })
+  })
+
+  describe('Product Catalog Feature Flag', () => {
+    describe('GIVEN the organization does not have the product catalog flag', () => {
+      it('THEN renders the net payment term and dunning campaign sections', async () => {
+        await prepare()
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CUSTOMER_SETTINGS_NET_PAYMENT_TERM_TEST_ID)).toBeInTheDocument()
+          expect(screen.getByTestId(CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID)).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('GIVEN the organization has the product catalog flag', () => {
+      beforeEach(() => {
+        mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.ProductCatalog)
+      })
+
+      it('THEN hides the net payment term and dunning campaign sections', async () => {
+        await prepare()
+
+        await waitFor(() => {
+          expect(screen.getAllByRole('button').length).toBeGreaterThanOrEqual(5)
+        })
+
+        expect(
+          screen.queryByTestId(CUSTOMER_SETTINGS_NET_PAYMENT_TERM_TEST_ID),
+        ).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
   })

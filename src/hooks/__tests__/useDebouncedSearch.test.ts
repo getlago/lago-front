@@ -60,6 +60,22 @@ describe('useDebouncedSearch', () => {
     expect(result.current.isSearchPending).toBe(false)
   })
 
+  it('fetches once when fetchOnMount turns true after mount', () => {
+    const callback = jest.fn()
+    const { rerender } = renderHook(
+      ({ fetchOnMount }) => useDebouncedSearch(callback, false, { fetchOnMount }),
+      { initialProps: { fetchOnMount: false } },
+    )
+
+    expect(callback).not.toHaveBeenCalled()
+
+    rerender({ fetchOnMount: true })
+    rerender({ fetchOnMount: false })
+    rerender({ fetchOnMount: true })
+
+    expect(callback).toHaveBeenCalledTimes(1)
+  })
+
   it('instantiate the hook with the correct initial state', async () => {
     const { result, callback } = await prepare({ initialLoadingState: false })
 
