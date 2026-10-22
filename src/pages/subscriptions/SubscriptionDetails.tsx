@@ -269,7 +269,7 @@ const SubscriptionDetails = () => {
       },
       {
         title: translate('text_179266863200554b244nyt8i'),
-        link: !!customerId
+        link: customerId
           ? getCustomerSubscriptionDetailsRoute(
               CustomerSubscriptionDetailsTabsOptionsEnum.attribution,
             )
