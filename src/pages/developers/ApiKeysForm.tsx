@@ -62,7 +62,8 @@ const PRODUCT_CATALOG_ONLY_PERMISSIONS: ApiKeysPermissionsEnum[] = [
   ApiKeysPermissionsEnum.RateCard,
 ]
 
-// The resources the v2 API keeps; the others have no v2 endpoint planned.
+// The `resource_name` of the v2 controllers, plus the v1 one of each endpoint v2 keeps but does not
+// serve yet; payment receipts authorize with `invoice`.
 const PRODUCT_CATALOG_PERMISSIONS: ApiKeysPermissionsEnum[] = [
   ApiKeysPermissionsEnum.ActivityLog,
   ApiKeysPermissionsEnum.ApiLog,
@@ -79,7 +80,6 @@ const PRODUCT_CATALOG_PERMISSIONS: ApiKeysPermissionsEnum[] = [
   ApiKeysPermissionsEnum.Organization,
   ApiKeysPermissionsEnum.Payment,
   ApiKeysPermissionsEnum.PaymentMethod,
-  ApiKeysPermissionsEnum.PaymentReceipt,
   ApiKeysPermissionsEnum.PaymentRequest,
   ApiKeysPermissionsEnum.Plan,
   ApiKeysPermissionsEnum.PlanRateCard,
