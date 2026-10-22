@@ -344,8 +344,8 @@ importers:
         specifier: 1.10.2
         version: 1.10.2(chokidar@3.6.0)(debug@4.4.3)(vite@7.3.7(@types/node@24.19.2)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3))
       dotenv:
-        specifier: 18.0.7
-        version: 18.0.7
+        specifier: 18.0.8
+        version: 18.0.8
       eslint:
         specifier: 9.39.5
         version: 9.39.5(jiti@2.4.2)
@@ -5063,8 +5063,8 @@ packages:
     resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
     engines: {node: '>=12'}
 
-  dotenv@18.0.7:
-    resolution: {integrity: sha512-QEvMEF8ca3GNZJJnAbOgxpj5ULhBvnMcURp+XKrtvqFNPgjBvYoswQ0Jl2cO7JzCjxZjJhr9ZuIEhlrRxMft/Q==}
+  dotenv@18.0.8:
+    resolution: {integrity: sha512-2KDeoFoK/zRtcnbunCDlLG5VWVMcyqeQc6iK65o231nfNAcuGrKoqUQfJFUtBI+QlShk5HKIHxwebBtUl3rEfA==}
     engines: {node: '>=12'}
     hasBin: true
 
@@ -13655,7 +13655,7 @@ snapshots:
 
   dotenv@17.4.2: {}
 
-  dotenv@18.0.7: {}
+  dotenv@18.0.8: {}
 
   dunder-proto@1.0.1:
     dependencies:
