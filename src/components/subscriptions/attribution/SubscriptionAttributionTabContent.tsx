@@ -467,7 +467,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
         <Button
           variant="inline"
           size="small"
-          disabled={isSetupLoading || isUsageLoading}
+          disabled={isSetupLoading || isUsageQueryLoading}
           onClick={refetch}
           data-test={ATTRIBUTION_REFRESH_BUTTON_TEST_ID}
         >

@@ -366,6 +366,15 @@ describe('SubscriptionAttributionTabContent', () => {
       })
     })
 
+    describe('WHEN show more is loading the next page', () => {
+      it('THEN should disable refresh so it cannot reset the list under the pending page', () => {
+        mockUsage({ totalPages: 3, loading: true, networkStatus: NetworkStatus.fetchMore })
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(screen.getByTestId(ATTRIBUTION_REFRESH_BUTTON_TEST_ID)).toBeDisabled()
+      })
+    })
+
     describe('WHEN the last page is loaded', () => {
       it('THEN should hide show more', async () => {
         const user = userEvent.setup()
