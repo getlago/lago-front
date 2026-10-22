@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react'
+import { ReactNode } from 'react'
 
 import { RateCardForRatePhaseFields } from '~/components/appliedRateCards/drawers/ratePhase/types'
 import { formatRatePhaseName, RatePhaseRate } from '~/components/appliedRateCards/ratePhaseDisplay'
@@ -6,6 +6,7 @@ import { RatePhaseDurationChip } from '~/components/appliedRateCards/RatePhaseDu
 import { getServerPhaseRate } from '~/components/appliedRateCards/ratePhaseRate'
 import { RatePhaseRateChip } from '~/components/appliedRateCards/RatePhaseRateChip'
 import { PaginatedContent } from '~/components/designSystem/Pagination/PaginatedContent'
+import { usePageSearchParam } from '~/components/designSystem/Pagination/usePageSearchParam'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { ActionColumn } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
@@ -37,7 +38,7 @@ export const AppliedRateCardPhasesTable = ({
   getPhaseActions,
 }: AppliedRateCardPhasesTableProps): JSX.Element => {
   const { translate } = useInternationalization()
-  const [currentPage, setCurrentPage] = useState(1)
+  const { page: currentPage, goToPage } = usePageSearchParam()
 
   const totalPages = Math.ceil(phases.length / APPLIED_RATE_CARD_PHASES_PAGE_SIZE)
   const firstRowIndex = (currentPage - 1) * APPLIED_RATE_CARD_PHASES_PAGE_SIZE
@@ -132,7 +133,7 @@ export const AppliedRateCardPhasesTable = ({
     <div data-test={APPLIED_RATE_CARD_PHASES_TABLE_TEST_ID}>
       <PaginatedContent
         metadata={metadata}
-        onPageChange={setCurrentPage}
+        onPageChange={goToPage}
         pageSize={APPLIED_RATE_CARD_PHASES_PAGE_SIZE}
         sticky={false}
       >

@@ -121,6 +121,7 @@ const renderTable = (
 describe('AppliedRateCardPhasesTable', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    window.history.pushState({}, '', '/')
   })
 
   it('GIVEN phases THEN each row shows its position, display name, duration chip and rate chip', async () => {
@@ -182,6 +183,23 @@ describe('AppliedRateCardPhasesTable', () => {
     )
   })
 
+  // Guards the form default (1 month) leaking into the duration as "3 months".
+  it('GIVEN an override without billing interval on a card without active rate THEN the duration counts cycles', async () => {
+    renderTable({
+      phases: [
+        {
+          ...OVERRIDDEN_PHASE,
+          rateOverride: { ...RATE_OVERRIDE, billingIntervalCount: null, billingIntervalUnit: null },
+        },
+      ],
+      rateCard: { ...RATE_CARD, activeRate: null },
+    })
+
+    await waitFor(() =>
+      expect(screen.getByTestId(RATE_PHASE_DURATION_CHIP_TEST_ID)).toHaveTextContent('3 cycles'),
+    )
+  })
+
   it('GIVEN a row WHEN it is clicked THEN it navigates to the phase href', async () => {
     const user = userEvent.setup()
 
@@ -195,10 +213,26 @@ describe('AppliedRateCardPhasesTable', () => {
   })
 
   describe('GIVEN 25 phases', () => {
-    it('THEN the first page shows 20 rows WHEN the next page is opened THEN rows 21 to 25 keep their own link and actions', async () => {
+    it('THEN the first page shows 20 rows WHEN the next page is opened THEN the page is written to the URL', async () => {
+      const user = userEvent.setup()
+
+      renderTable({ phases: buildPhases(25) })
+
+      expect(await screen.findAllByTestId(APPLIED_RATE_CARD_PHASE_POSITION_TEST_ID)).toHaveLength(
+        APPLIED_RATE_CARD_PHASES_PAGE_SIZE,
+      )
+      expect(screen.queryByTestId(getAppliedRateCardPhaseRowTestId(21))).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'next page' }))
+
+      expect(testMockNavigateFn).toHaveBeenCalledWith({ search: 'page=2' }, { replace: true })
+    })
+
+    it('GIVEN the second page in the URL THEN rows 21 to 25 keep their own link and actions', async () => {
       const user = userEvent.setup()
       const onCopy = jest.fn()
 
+      window.history.pushState({}, '', '/?page=2')
       renderTable({
         phases: buildPhases(25),
         getPhaseActions: (phase) => [
@@ -211,14 +245,7 @@ describe('AppliedRateCardPhasesTable', () => {
         ],
       })
 
-      expect(await screen.findAllByTestId(APPLIED_RATE_CARD_PHASE_POSITION_TEST_ID)).toHaveLength(
-        APPLIED_RATE_CARD_PHASES_PAGE_SIZE,
-      )
-      expect(screen.queryByTestId(getAppliedRateCardPhaseRowTestId(21))).not.toBeInTheDocument()
-
-      await user.click(screen.getByRole('button', { name: 'next page' }))
-
-      expect(screen.getAllByTestId(APPLIED_RATE_CARD_PHASE_POSITION_TEST_ID)).toHaveLength(5)
+      expect(await screen.findAllByTestId(APPLIED_RATE_CARD_PHASE_POSITION_TEST_ID)).toHaveLength(5)
       expect(screen.queryByTestId(getAppliedRateCardPhaseRowTestId(1))).not.toBeInTheDocument()
 
       const lastRow = screen.getByTestId(getAppliedRateCardPhaseRowTestId(25))
@@ -235,13 +262,11 @@ describe('AppliedRateCardPhasesTable', () => {
       expect(onCopy).toHaveBeenCalledWith('phase-25')
     })
 
-    it('WHEN the phases shrink while on the last page THEN the table falls back to the last remaining page', async () => {
-      const user = userEvent.setup()
+    it('GIVEN the second page in the URL WHEN the phases shrink to one page THEN the URL falls back to the first page', async () => {
+      window.history.pushState({}, '', '/?page=2')
       const { rerender } = renderTable({ phases: buildPhases(21) })
 
-      await user.click(await screen.findByRole('button', { name: 'next page' }))
-
-      expect(screen.getAllByTestId(APPLIED_RATE_CARD_PHASE_POSITION_TEST_ID)).toHaveLength(1)
+      expect(await screen.findAllByTestId(APPLIED_RATE_CARD_PHASE_POSITION_TEST_ID)).toHaveLength(1)
 
       rerender(
         <AppliedRateCardPhasesTable
@@ -252,8 +277,8 @@ describe('AppliedRateCardPhasesTable', () => {
         />,
       )
 
-      expect(screen.getAllByTestId(APPLIED_RATE_CARD_PHASE_POSITION_TEST_ID)).toHaveLength(
-        APPLIED_RATE_CARD_PHASES_PAGE_SIZE,
+      await waitFor(() =>
+        expect(testMockNavigateFn).toHaveBeenCalledWith({ search: '' }, { replace: true }),
       )
     })
   })
