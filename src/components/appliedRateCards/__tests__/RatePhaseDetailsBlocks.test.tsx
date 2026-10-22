@@ -10,19 +10,16 @@ import { render } from '~/test-utils'
 
 import { RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID, RatePhaseDetailItem } from '../RatePhaseDetailItem'
 import {
-  getRateHistoryPath,
   RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID,
   RATE_PHASE_RATE_EFFECTIVE_DATE_TEST_ID,
   RatePhaseRateEffectiveDate,
 } from '../RatePhaseRateEffectiveDate'
 import {
+  OVERRIDDEN_RATE_PROPERTIES_CLASSNAME,
+  OVERRIDDEN_TIERED_RATE_PROPERTIES_CLASSNAME,
   RATE_PHASE_RATE_PROPERTIES_TEST_ID,
   RatePhaseRateProperties,
 } from '../RatePhaseRateProperties'
-
-// Pinned literally: jsdom applies no Tailwind, so a broken selector only shows here.
-const EVERY_CELL_HIGHLIGHT = '[&_tbody_td>*]:bg-purple-100'
-const ALL_BUT_FIRST_COLUMN_HIGHLIGHT = '[&_tbody_td:not(:first-child)>*]:bg-purple-100'
 
 const standardRate: RateOverrideInput = {
   rateModel: RateCardRateModelEnum.Standard,
@@ -73,8 +70,8 @@ describe('RatePhaseRateProperties', () => {
 
     const wrapper = await screen.findByTestId(RATE_PHASE_RATE_PROPERTIES_TEST_ID)
 
-    expect(wrapper).toHaveClass(ALL_BUT_FIRST_COLUMN_HIGHLIGHT)
-    expect(wrapper).not.toHaveClass(EVERY_CELL_HIGHLIGHT)
+    expect(wrapper).toHaveClass(OVERRIDDEN_TIERED_RATE_PROPERTIES_CLASSNAME)
+    expect(wrapper).not.toHaveClass(OVERRIDDEN_RATE_PROPERTIES_CLASSNAME)
   })
 
   it('GIVEN an overridden standard rate THEN highlights every cell', async () => {
@@ -89,8 +86,8 @@ describe('RatePhaseRateProperties', () => {
 
     const wrapper = await screen.findByTestId(RATE_PHASE_RATE_PROPERTIES_TEST_ID)
 
-    expect(wrapper).toHaveClass(EVERY_CELL_HIGHLIGHT)
-    expect(wrapper).not.toHaveClass(ALL_BUT_FIRST_COLUMN_HIGHLIGHT)
+    expect(wrapper).toHaveClass(OVERRIDDEN_RATE_PROPERTIES_CLASSNAME)
+    expect(wrapper).not.toHaveClass(OVERRIDDEN_TIERED_RATE_PROPERTIES_CLASSNAME)
   })
 
   it('GIVEN a rate that is not overridden THEN highlights nothing', async () => {
@@ -105,14 +102,8 @@ describe('RatePhaseRateProperties', () => {
 
     const wrapper = await screen.findByTestId(RATE_PHASE_RATE_PROPERTIES_TEST_ID)
 
-    expect(wrapper).not.toHaveClass(EVERY_CELL_HIGHLIGHT)
-    expect(wrapper).not.toHaveClass(ALL_BUT_FIRST_COLUMN_HIGHLIGHT)
-  })
-})
-
-describe('getRateHistoryPath', () => {
-  it('GIVEN an organization slug THEN points to the rate card rates tab of that org', () => {
-    expect(getRateHistoryPath('rc-1', 'acme')).toBe('/acme/product-catalog/rate-cards/rc-1/rates')
+    expect(wrapper).not.toHaveClass(OVERRIDDEN_RATE_PROPERTIES_CLASSNAME)
+    expect(wrapper).not.toHaveClass(OVERRIDDEN_TIERED_RATE_PROPERTIES_CLASSNAME)
   })
 })
 

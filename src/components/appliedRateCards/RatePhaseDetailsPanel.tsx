@@ -10,8 +10,8 @@ import { toChargeModel } from '~/pages/catalog/drawers/rateCardRate/utils'
 import { OverrideDiffField } from './overrideDiff'
 import { RatePhaseDetailItem } from './RatePhaseDetailItem'
 import {
+  formatConversionRateAmount,
   formatPhaseTimeline,
-  formatRateAmount,
   formatRateBillingInterval,
   formatSpendingMinimum,
   RatePhaseForDetails,
@@ -95,15 +95,18 @@ export const RatePhaseDetailsPanel = ({
           {!!rateCard.appliedPricingUnitCode && (
             <RatePhaseDetailItem
               label={translate('text_1750411499858su5b7bbp5t9')}
-              value={translate('text_1791838459984mz627wmmt51', {
-                pricingUnitName: pricingUnit?.name ?? rateCard.appliedPricingUnitCode,
-                pricingUnitShortName,
-                amount: formatRateAmount(
-                  Number(rate.pricingUnitConversionRate ?? 0),
-                  rateCard.currency,
-                ),
-              })}
-              dataTest={RATE_PHASE_DETAILS_CONVERSION_RATE_TEST_ID}
+              value={
+                <span data-test={RATE_PHASE_DETAILS_CONVERSION_RATE_TEST_ID}>
+                  {translate('text_1791838459984mz627wmmt51', {
+                    pricingUnitName: pricingUnit?.name ?? rateCard.appliedPricingUnitCode,
+                    pricingUnitShortName,
+                    amount: formatConversionRateAmount(
+                      Number(rate.pricingUnitConversionRate ?? 0),
+                      rateCard.currency,
+                    ),
+                  })}
+                </span>
+              }
               isOverridden={overriddenFields.has('pricingUnitConversionRate')}
             />
           )}
@@ -125,8 +128,11 @@ export const RatePhaseDetailsPanel = ({
         {rateCard.billingTiming === RateCardBillingTimingEnum.Arrears && (
           <RatePhaseDetailItem
             label={translate('text_1791838459984ploipjejyo9')}
-            value={formatSpendingMinimum(rate, rateCard.currency, pricingUnitShortName)}
-            dataTest={RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID}
+            value={
+              <span data-test={RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID}>
+                {formatSpendingMinimum(rate, rateCard.currency, pricingUnitShortName)}
+              </span>
+            }
             isOverridden={overriddenFields.has('minAmountCents')}
           />
         )}

@@ -10,7 +10,7 @@ import {
 } from '~/components/appliedRateCards/drawers/ratePhase/ratePhaseFormSchema'
 import { getActiveRateFieldValues } from '~/components/appliedRateCards/drawers/ratePhase/ratePhaseSeeds'
 import { useRatePhaseLocalDrawer } from '~/components/appliedRateCards/drawers/ratePhase/useRatePhaseLocalDrawer'
-import { getRateHistoryPath } from '~/components/appliedRateCards/RatePhaseRateEffectiveDate'
+import { getRateHistoryPath } from '~/components/appliedRateCards/ratePhaseDisplay'
 import { RatePhaseTable } from '~/components/appliedRateCards/RatePhaseTable'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'

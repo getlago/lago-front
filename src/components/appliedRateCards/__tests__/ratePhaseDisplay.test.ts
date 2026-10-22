@@ -7,12 +7,13 @@ import {
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 import {
+  formatConversionRateAmount,
   formatPhaseDuration,
   formatPhaseTimeline,
-  formatRateAmount,
   formatRateBillingInterval,
   formatRatePhaseName,
   formatSpendingMinimum,
+  getRateHistoryPath,
 } from '../ratePhaseDisplay'
 
 const translate: TranslateFunc = (key, data, plural) =>
@@ -113,9 +114,9 @@ describe('formatSpendingMinimum', () => {
   })
 })
 
-describe('formatRateAmount', () => {
+describe('formatConversionRateAmount', () => {
   it('GIVEN an amount THEN formats it as a currency symbol amount', () => {
-    expect(formatRateAmount(1, CurrencyEnum.Usd)).toBe('$1.00')
+    expect(formatConversionRateAmount(1, CurrencyEnum.Usd)).toBe('$1.00')
   })
 })
 
@@ -134,5 +135,11 @@ describe('formatRatePhaseName', () => {
     expect(formatRatePhaseName({ name: '', position: 2 }, translate)).toBe(
       'text_1792503533806fhiu57zr6an|{"position":2}',
     )
+  })
+})
+
+describe('getRateHistoryPath', () => {
+  it('GIVEN an organization slug THEN points to the rate card rates tab of that org', () => {
+    expect(getRateHistoryPath('rc-1', 'acme')).toBe('/acme/product-catalog/rate-cards/rc-1/rates')
   })
 })
