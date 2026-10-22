@@ -1,11 +1,18 @@
 import {
+  CurrencyEnum,
   RateCardRateBillingIntervalUnitEnum,
   RateCardRateModelEnum,
   RateOverrideInput,
 } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
-import { formatPhaseDuration, formatPhaseTimeline } from '../ratePhaseDisplay'
+import {
+  formatConversionRateAmount,
+  formatPhaseDuration,
+  formatPhaseTimeline,
+  formatRateBillingInterval,
+  formatSpendingMinimum,
+} from '../ratePhaseDisplay'
 
 const translate: TranslateFunc = (key, data, plural) =>
   `${key}${data ? `|${JSON.stringify(data)}` : ''}${plural !== undefined ? `|${plural}` : ''}`
@@ -60,5 +67,53 @@ describe('formatPhaseTimeline', () => {
         translate,
       ),
     ).toMatch(/^text_1791838459983owffqxt3lov/)
+  })
+})
+
+describe('formatRateBillingInterval', () => {
+  it('GIVEN a 14 day interval THEN wraps the duration in the "Every" copy', () => {
+    expect(
+      formatRateBillingInterval(rate(14, RateCardRateBillingIntervalUnitEnum.Day), translate),
+    ).toBe(
+      `text_17918384599832tqq2f0ezu9|${JSON.stringify({
+        duration: 'text_1791838459983pbylbvgfd34|{"count":14}|14',
+      })}`,
+    )
+  })
+
+  it('GIVEN no interval on the rate THEN defaults to 1 month', () => {
+    const noInterval: RateOverrideInput = {
+      rateModel: RateCardRateModelEnum.Standard,
+      rateProperties: {},
+    }
+
+    expect(formatRateBillingInterval(noInterval, translate)).toContain(
+      'text_1791838459983q6n44o5fdd4|{\\"count\\":1}|1',
+    )
+  })
+})
+
+describe('formatSpendingMinimum', () => {
+  const rateWithMinimum = (minAmountCents: string): RateOverrideInput => ({
+    ...rate(1, RateCardRateBillingIntervalUnitEnum.Month),
+    minAmountCents,
+  })
+
+  it('GIVEN no minimum THEN returns a dash', () => {
+    expect(formatSpendingMinimum(rateWithMinimum('0'), CurrencyEnum.Usd, undefined)).toBe('-')
+  })
+
+  it('GIVEN a minimum in cents THEN formats it in the currency', () => {
+    expect(formatSpendingMinimum(rateWithMinimum('500'), CurrencyEnum.Usd, undefined)).toBe('$5.00')
+  })
+
+  it('GIVEN a pricing unit THEN formats it in that unit', () => {
+    expect(formatSpendingMinimum(rateWithMinimum('500'), CurrencyEnum.Usd, 'CR')).toBe('5 CR')
+  })
+})
+
+describe('formatConversionRateAmount', () => {
+  it('GIVEN an amount THEN formats it as a currency symbol amount', () => {
+    expect(formatConversionRateAmount(1, CurrencyEnum.Usd)).toBe('$1.00')
   })
 })

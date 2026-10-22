@@ -1,7 +1,6 @@
 import { Fragment, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { Chip } from '~/components/designSystem/Chip'
 import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -13,7 +12,9 @@ import { RatePhaseFormValues } from './drawers/ratePhase/ratePhaseFormSchema'
 import { RateCardForRatePhaseFields } from './drawers/ratePhase/types'
 import { activeRateToOverrideInput, getOverriddenFields } from './overrideDiff'
 import { RatePhaseDetailsPanel } from './RatePhaseDetailsPanel'
-import { formatPhaseDuration, RatePhaseForDetails, RatePhaseRate } from './ratePhaseDisplay'
+import { RatePhaseForDetails, RatePhaseRate } from './ratePhaseDisplay'
+import { RatePhaseDurationChip } from './RatePhaseDurationChip'
+import { RatePhaseRateChip } from './RatePhaseRateChip'
 
 export const RATE_PHASE_TABLE_TEST_ID = 'rate-phase-table'
 export const getRatePhaseToggleTestId = (index: number): string => `rate-phase-toggle-${index}`
@@ -146,30 +147,13 @@ export const RatePhaseTable = ({
               </Typography>
             </div>
             <div className={tw(CELL_CLASSNAME, 'py-2')}>
-              <Chip
-                className="border border-grey-300 bg-grey-100"
-                color="grey700"
-                label={formatPhaseDuration(
-                  phaseForDetails.billingIntervalCycleCount,
-                  phaseRate?.rate,
-                  translate,
-                )}
+              <RatePhaseDurationChip
+                cycleCount={phaseForDetails.billingIntervalCycleCount}
+                rate={phaseRate?.rate}
               />
             </div>
             <div className={tw(CELL_CLASSNAME, 'py-2')}>
-              {phase.overrideEnabled ? (
-                <Chip
-                  className="border border-purple-200 bg-purple-100"
-                  color="infoMain"
-                  label={translate('text_65281f686a80b400c8e2f6dd')}
-                />
-              ) : (
-                <Chip
-                  className="border border-green-200 bg-green-100"
-                  color="success600"
-                  label={translate('text_1784926682600lyzk75bbx48')}
-                />
-              )}
+              <RatePhaseRateChip isOverridden={phase.overrideEnabled} />
             </div>
             <div className="flex items-center border-b border-grey-300 py-1 pl-3 pr-1">
               <Popper
