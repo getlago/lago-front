@@ -24,6 +24,7 @@ import {
   buildRatePhaseSchemaContext,
   insertPhaseReference,
 } from './ratePhaseSeeds'
+import { scrollToFirstRatePhaseError } from './scrollToFirstRatePhaseError'
 import { RateCardForRatePhaseFields } from './types'
 
 const RATE_PHASE_LOCAL_FORM_ID = 'rate-phase-local-drawer-form'
@@ -57,6 +58,9 @@ export const useRatePhaseLocalDrawer = (): {
     defaultValues: RATE_PHASE_FORM_DEFAULTS,
     validationLogic: revalidateLogic(),
     validators: { onDynamic: buildRatePhaseFormSchema(() => schemaContext.current) },
+    onSubmitInvalid: ({ formApi }) => {
+      scrollToFirstRatePhaseError(RATE_PHASE_LOCAL_FORM_ID, formApi.state.errorMap.onDynamic || {})
+    },
     onSubmit: ({ value }) => {
       const args = currentArgs.current
 
