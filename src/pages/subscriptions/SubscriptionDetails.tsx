@@ -35,7 +35,6 @@ import {
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
-  EventsStoreEnum,
   FeatureFlagEnum,
   LagoApiError,
   StatusTypeEnum,
@@ -89,11 +88,7 @@ const SubscriptionDetails = () => {
   const { hasPermissions } = usePermissions()
   const { canEditSubscription, canTerminateSubscription, isStatusEditable } =
     useSubscriptionPermissionsActions()
-  const {
-    organization,
-    hasFeatureFlag,
-    loading: isOrganizationInfosLoading,
-  } = useOrganizationInfos()
+  const { hasFeatureFlag, loading: isOrganizationInfosLoading } = useOrganizationInfos()
   const { planId = '', customerId = '', subscriptionId = '', tab: currentTab } = useParams()
   const { translate } = useInternationalization()
   const { openTerminateCustomerSubscriptionDialog } = useTerminateCustomerSubscriptionDialog()
@@ -117,9 +112,7 @@ const SubscriptionDetails = () => {
   const activeTabContent = useMainHeaderTabContent()
 
   const canViewAttribution =
-    hasFeatureFlag(FeatureFlagEnum.AccountTree) &&
-    organization?.eventsStore === EventsStoreEnum.Clickhouse &&
-    hasPermissions(['attributedUsageView'])
+    hasFeatureFlag(FeatureFlagEnum.AccountTree) && hasPermissions(['attributedUsageView'])
   const shouldRedirectFromAttribution =
     currentTab === CustomerSubscriptionDetailsTabsOptionsEnum.attribution &&
     !isOrganizationInfosLoading &&

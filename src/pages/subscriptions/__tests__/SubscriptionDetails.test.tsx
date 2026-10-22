@@ -9,7 +9,7 @@ import {
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { EventsStoreEnum, FeatureFlagEnum, StatusTypeEnum } from '~/generated/graphql'
+import { FeatureFlagEnum, StatusTypeEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import SubscriptionDetails, {
@@ -140,7 +140,6 @@ describe('SubscriptionDetails', () => {
     mockFeatureFlags.add(FeatureFlagEnum.AccountTree)
     mockUseOrganizationInfos.mockReturnValue({
       loading: false,
-      organization: { eventsStore: EventsStoreEnum.Clickhouse },
       hasFeatureFlag: (flag: FeatureFlagEnum) => mockFeatureFlags.has(flag),
     })
 
@@ -557,33 +556,6 @@ describe('SubscriptionDetails', () => {
         render(<SubscriptionDetails />)
 
         expect(capturedConfig?.tabs?.[ATTRIBUTION_TAB_INDEX]?.hidden).toBe(true)
-      })
-    })
-
-    describe('WHEN the organization events are stored in Postgres', () => {
-      beforeEach(() => {
-        mockUseOrganizationInfos.mockReturnValue({
-          loading: false,
-          organization: { eventsStore: EventsStoreEnum.Postgres },
-          hasFeatureFlag: (flag: FeatureFlagEnum) => mockFeatureFlags.has(flag),
-        })
-      })
-
-      it('THEN should hide the attribution tab', () => {
-        render(<SubscriptionDetails />)
-
-        expect(capturedConfig?.tabs?.[ATTRIBUTION_TAB_INDEX]?.hidden).toBe(true)
-      })
-
-      it('THEN should redirect the attribution URL to the overview tab', () => {
-        setAttributionUrl()
-
-        render(<SubscriptionDetails />)
-
-        expect(testMockNavigateFn).toHaveBeenCalledWith(
-          expect.stringContaining(overviewRoute),
-          expect.objectContaining({ replace: true }),
-        )
       })
     })
 
