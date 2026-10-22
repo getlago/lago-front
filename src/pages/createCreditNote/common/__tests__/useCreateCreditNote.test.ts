@@ -2,11 +2,7 @@ import { wait } from '@apollo/client/testing'
 import { act, renderHook } from '@testing-library/react'
 
 import { ERROR_404_ROUTE } from '~/core/router'
-import {
-  FeatureFlagEnum,
-  GetInvoiceCreateCreditNoteDocument,
-  InvoiceTypeEnum,
-} from '~/generated/graphql'
+import { GetInvoiceCreateCreditNoteDocument, InvoiceTypeEnum } from '~/generated/graphql'
 import {
   fullOneOffInvoiceMockAndExpect,
   fullSubscriptionInvoiceGroupTrueUpMockAndExpect,
@@ -14,16 +10,9 @@ import {
   INVOICE_FIXTURE_ID,
   invoiceWithNoCredOrRefundAmountMockAndExpect,
 } from '~/hooks/__tests__/fixtures'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import { useCreateCreditNote } from '../useCreateCreditNote'
-
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: jest.fn(),
-}))
-
-const mockUseOrganizationInfos = jest.mocked(useOrganizationInfos)
 
 type PrepareType = { mock?: Record<string, unknown> }
 
@@ -56,12 +45,6 @@ async function prepare({ mock }: PrepareType = {}) {
 }
 
 describe('useCreateCreditNote()', () => {
-  beforeEach(() => {
-    mockUseOrganizationInfos.mockReturnValue({
-      hasFeatureFlag: (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.ProductCatalog,
-    } as unknown as ReturnType<typeof useOrganizationInfos>)
-  })
-
   it('returns default datas', async () => {
     const { mock } = fullSubscriptionInvoiceMockAndExpect()
     const { result } = await prepare({ mock })
@@ -105,6 +88,7 @@ describe('useCreateCreditNote()', () => {
     }
 
     const { result } = await prepare({ mock: invoiceWithProductFee })
+
     await act(() => wait(0))
 
     expect(result.current.feeForAddOn).toStrictEqual(transformedObject)
@@ -155,6 +139,7 @@ describe('useCreateCreditNote()', () => {
     }
 
     const { result } = await prepare({ mock: mixedMock })
+
     await act(() => wait(0))
 
     expect(result.current.feeForProduct).toEqual([
@@ -184,39 +169,12 @@ describe('useCreateCreditNote()', () => {
       },
     }
     const { result } = await prepare({ mock: productOnlyMock })
+
     await act(() => wait(0))
 
     expect(result.current.feeForProduct).toEqual([
       expect.objectContaining({ id: productFee.id, value: 12, maxAmount: 1200 }),
     ])
-  })
-
-  it('ignores contract fees when the product_catalog flag is off', async () => {
-    mockUseOrganizationInfos.mockReturnValue({
-      hasFeatureFlag: () => false,
-    } as unknown as ReturnType<typeof useOrganizationInfos>)
-    const { mock } = fullSubscriptionInvoiceMockAndExpect()
-    const productCatalogOffMock = {
-      invoice: {
-        ...mock.invoice,
-        fees: [
-          ...mock.invoice.fees,
-          {
-            id: 'contract-product-fee',
-            amountCurrency: 'EUR',
-            contractRateCard: { id: 'rate-card-1' },
-            itemName: 'Product',
-            creditableAmountCents: '1200',
-            offsettableAmountCents: '1200',
-            appliedTaxes: [],
-          },
-        ],
-      },
-    }
-    const { result } = await prepare({ mock: productCatalogOffMock })
-    await act(() => wait(0))
-
-    expect(result.current.feeForProduct).toBeUndefined()
   })
 
   describe('hasCreditableOrRefundableAmount', () => {

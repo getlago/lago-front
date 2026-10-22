@@ -454,7 +454,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
               createCreditNoteForInvoiceButtonProps({
                 invoiceType: invoice?.invoiceType,
-                status: invoice?.status,
                 associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
               })
 

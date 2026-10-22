@@ -10,6 +10,8 @@ import { intlFormatDateTime } from '~/core/timezone'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const PRODUCT_FEES_CHECKBOX_TEST_ID = 'product-fees-checkbox'
+
 export const getSubscriptionCheckboxTestId = (subscriptionKey: string) =>
   `subscription-checkbox-${subscriptionKey}`
 
@@ -32,7 +34,7 @@ interface CreditNoteItemsFormProps {
   formikProps: FormikProps<Partial<CreditNoteForm>>
   feeForCredit?: FromFee[]
   feeForAddOn?: FromFee[]
-  productFee?: FromFee[]
+  feeForProduct?: FromFee[]
   feesPerInvoice?: FeesPerInvoice
   currency: CurrencyEnum
 }
@@ -42,11 +44,20 @@ export const CreditNoteItemsForm: FC<CreditNoteItemsFormProps> = ({
   formikProps,
   feeForCredit,
   feeForAddOn,
-  productFee,
+  feeForProduct,
   feesPerInvoice,
   currency,
 }) => {
   const { translate } = useInternationalization()
+
+  const productFeesGroupValue = useMemo(
+    () =>
+      (formikProps.values.productFee || []).reduce<boolean | undefined | null>(
+        (groupValue, fee) => determineCheckboxValue(groupValue, fee?.checked),
+        null,
+      ),
+    [formikProps.values.productFee],
+  )
 
   const checkboxGroupValue = useMemo(() => {
     const fees = formikProps.values.fees || {}
@@ -111,17 +122,30 @@ export const CreditNoteItemsForm: FC<CreditNoteItemsFormProps> = ({
           />
         ))}
 
-      {!!productFee?.length && (
+      {!!feeForProduct?.length && (
         <div>
           <div className="flex h-12 flex-row items-center justify-between shadow-b">
-            <Typography variant="bodyHl" color="grey500">
-              {translate('text_17831042398250iwa2xp8pba')}
-            </Typography>
+            <Checkbox
+              canBeIndeterminate
+              value={productFeesGroupValue ?? undefined}
+              label={
+                <Typography variant="bodyHl" color="grey500">
+                  {translate('text_17831042398250iwa2xp8pba')}
+                </Typography>
+              }
+              data-test={PRODUCT_FEES_CHECKBOX_TEST_ID}
+              onChange={(_, value) => {
+                formikProps.setFieldValue(
+                  'productFee',
+                  (formikProps.values.productFee || []).map((fee) => ({ ...fee, checked: value })),
+                )
+              }}
+            />
             <Typography variant="bodyHl" color="grey500">
               {translate('text_636bedf292786b19d3398ee0')}
             </Typography>
           </div>
-          {productFee.map((fee, i) => (
+          {feeForProduct.map((fee, i) => (
             <CreditNoteFormItem
               key={fee?.id}
               formikProps={formikProps}

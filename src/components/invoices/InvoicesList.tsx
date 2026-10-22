@@ -371,7 +371,6 @@ const InvoicesList = ({
             const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
               createCreditNoteForInvoiceButtonProps({
                 invoiceType: invoice?.invoiceType,
-                status: invoice?.status,
                 associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
               })
 

@@ -98,6 +98,11 @@ gql`
         }
         contractRateCard {
           id
+          product {
+            id
+            name
+            invoiceDisplayName
+          }
         }
         chargeFilter {
           invoiceDisplayName
@@ -169,22 +174,23 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
     ])
   }
 
+  const getGroupDisplayName = (fee: CreditNoteItem['fee'] | undefined): string => {
+    const subscription = fee?.subscription
+    const product = fee?.contractRateCard?.product
+
+    if (subscription) {
+      return subscription.name || subscription.plan.invoiceDisplayName || subscription.plan.name
+    }
+
+    if (product) return product.invoiceDisplayName || product.name
+
+    return translate('text_6388b923e514213fed58331c')
+  }
+
   return (
     <CreditNoteTableSection>
       {groupedData.map((groupSubscriptionItem, i) => {
-        const subscription =
-          groupSubscriptionItem[0] && groupSubscriptionItem[0][0]
-            ? groupSubscriptionItem[0][0].fee.subscription
-            : undefined
-        const firstFee = groupSubscriptionItem[0]?.[0]?.fee
-        const contractRateCard = firstFee?.contractRateCard
-        const invoiceDisplayName = !!subscription
-          ? subscription?.name || subscription.plan.invoiceDisplayName || subscription?.plan?.name
-          : contractRateCard
-            ? firstFee?.invoiceName ||
-              firstFee?.itemName ||
-              translate('text_6388b923e514213fed58331c')
-            : translate('text_6388b923e514213fed58331c')
+        const invoiceDisplayName = getGroupDisplayName(groupSubscriptionItem[0]?.[0]?.fee)
 
         return (
           <Fragment key={`groupSubscriptionItem-${i}`}>

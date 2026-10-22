@@ -1,11 +1,11 @@
-import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { serializeCheckedCreditNoteFees } from '~/core/serializers/serializeCreditNoteInput'
 import {
   CreditNoteItemInput,
   CreditNoteTableItemFragment,
   CurrencyEnum,
   Invoice,
   InvoiceForCreditNoteFormCalculationFragment,
-  InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
 } from '~/generated/graphql'
 
@@ -82,44 +82,19 @@ export const creditNoteFormCalculationCalculation = ({
 } => {
   if (hasError) return { feeForEstimate: undefined }
 
-  let feeForEstimate: CreditNoteItemInput[] | undefined = undefined
+  const hasSubscriptionFees = !!Object.keys(fees || {}).length
 
-  if (!!Object.keys(fees || {}).length) {
-    feeForEstimate = Object.keys(fees || {}).reduce<CreditNoteItemInput[]>((accSub, subKey) => {
-      const subChild = ((fees as FeesPerInvoice) || {})[subKey]
-      const subValues = subChild?.fees?.reduce<CreditNoteItemInput[]>((accFees, fee) => {
-        if (fee.checked) {
-          accFees.push({
-            feeId: fee.id,
-            amountCents: serializeAmount(fee.value, currency),
-          })
-        }
-        return accFees
-      }, [])
+  if (!hasSubscriptionFees && !addonFees && !productFees) return { feeForEstimate: undefined }
 
-      return [...accSub, ...(subValues || [])]
-    }, [])
-  }
-
-  if (addonFees || productFees) {
-    feeForEstimate = feeForEstimate || []
-    feeForEstimate = [...(addonFees || []), ...(productFees || [])].reduce<CreditNoteItemInput[]>(
-      (acc, fee) => {
-        if (!!fee.checked) {
-          acc.push({
-            feeId: fee.id,
-            amountCents: serializeAmount(fee.value, currency),
-          })
-        }
-
-        return acc
-      },
-      feeForEstimate,
-    )
-  }
+  const subscriptionFees = Object.values(fees || {}).flatMap(
+    (subscription) => subscription?.fees || [],
+  )
 
   return {
-    feeForEstimate,
+    feeForEstimate: serializeCheckedCreditNoteFees(
+      [...subscriptionFees, ...(addonFees || []), ...(productFees || [])],
+      currency,
+    ),
   }
 }
 
@@ -255,19 +230,15 @@ export const isCreditNoteCreationDisabled = (
 
 export const createCreditNoteForInvoiceButtonProps = ({
   invoiceType,
-  status,
   associatedActiveWalletPresent,
 }: Partial<Invoice>) => {
   // The fully-covered case is handled on the create-credit-note page itself (form + danger
-  // alert), so no entry point pre-disables for it. Pending/failed invoices are ineligible, and
-  // prepaid-credit invoices also require an active wallet.
-  const disabledForInvoiceStatus =
-    status === InvoiceStatusTypeEnum.Pending || status === InvoiceStatusTypeEnum.Failed
-  const disabledForTerminatedWallet =
+  // alert), so no entry point pre-disables for it. The only remaining reason to disable the
+  // action is a prepaid-credits invoice whose wallet has been terminated.
+  const disabledIssueCreditNoteButton =
     invoiceType === InvoiceTypeEnum.Credit && !associatedActiveWalletPresent
-  const disabledIssueCreditNoteButton = disabledForInvoiceStatus || disabledForTerminatedWallet
 
-  const disabledIssueCreditNoteButtonLabel = disabledForTerminatedWallet
+  const disabledIssueCreditNoteButtonLabel = disabledIssueCreditNoteButton
     ? 'text_172908299496461z9ejmm2j7'
     : undefined
 

@@ -25,7 +25,6 @@ import {
   CreateCreditNoteInvoiceFragmentDoc,
   CreditNoteTableItemFragmentDoc,
   CurrencyEnum,
-  FeatureFlagEnum,
   Fee,
   FeeTypesEnum,
   GetInvoiceCreditNotesDocument,
@@ -37,7 +36,6 @@ import {
   useCreateCreditNoteMutation,
   useGetInvoiceCreateCreditNoteQuery,
 } from '~/generated/graphql'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment InvoiceFee on Fee {
@@ -169,8 +167,6 @@ type UseCreateCreditNoteReturn = {
 }
 
 export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
-  const { hasFeatureFlag } = useOrganizationInfos()
-  const isProductCatalogActive = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const { invoiceId, customerId } = useParams()
   const navigate = useNavigate()
   const { data, error, loading } = useGetInvoiceCreateCreditNoteQuery({
@@ -281,7 +277,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
   const feeForProduct = useMemo(() => {
     const invoice = data?.invoice
 
-    if (!isProductCatalogActive || !invoice || invoice.invoiceType === InvoiceTypeEnum.Credit) {
+    if (!invoice || invoice.invoiceType === InvoiceTypeEnum.Credit) {
       return undefined
     }
 
@@ -297,7 +293,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
     const result = buildCreditNoteFees(productFees, hasCreditableOrRefundableAmount)
 
     return result.length > 0 ? result : undefined
-  }, [data?.invoice, hasCreditableOrRefundableAmount, isProductCatalogActive])
+  }, [data?.invoice, hasCreditableOrRefundableAmount])
 
   const feesPerInvoice = useMemo(() => {
     return data?.invoice?.invoiceSubscriptions?.reduce<FeesPerInvoice>(

@@ -120,93 +120,130 @@ describe('CreditNoteDetailsOverviewTable', () => {
   })
 
   describe('GIVEN a contract product fee', () => {
-    it('THEN should use the product identity instead of the generic one-off heading', () => {
-      const productCreditNote = {
-        ...baseCreditNote,
-        items: [
-          {
-            ...baseCreditNote.items[0],
-            fee: {
-              ...mockFee,
-              subscription: null,
-              contractRateCard: { id: 'rate-card-1' },
-              invoiceName: 'Analytics API',
-            },
-          },
-        ],
-      }
+    const buildProductItem = ({
+      feeId,
+      rateCardId,
+      invoiceName,
+      product,
+    }: {
+      feeId: string
+      rateCardId: string
+      invoiceName: string
+      product: { name: string; invoiceDisplayName: string | null }
+    }) => ({
+      ...baseCreditNote.items[0],
+      fee: {
+        ...mockFee,
+        id: feeId,
+        subscription: null,
+        contractRateCard: { id: rateCardId, product: { id: `product-${rateCardId}`, ...product } },
+        invoiceName,
+      },
+    })
 
-      renderComponent({ creditNote: productCreditNote })
+    it('THEN should title the group with the product name instead of the generic one-off heading', () => {
+      renderComponent({
+        creditNote: {
+          ...baseCreditNote,
+          items: [
+            buildProductItem({
+              feeId: 'fee-1',
+              rateCardId: 'rate-card-1',
+              invoiceName: 'Analytics API - seats',
+              product: { name: 'Analytics API', invoiceDisplayName: null },
+            }),
+          ],
+        },
+      })
+
+      const table = screen.getAllByRole('table')[0]
+
+      expect(within(table).getByRole('columnheader', { name: 'Analytics API' })).toBeInTheDocument()
+      expect(
+        within(table).queryByRole('columnheader', { name: 'Description' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('THEN should prefer the product invoice display name', () => {
+      renderComponent({
+        creditNote: {
+          ...baseCreditNote,
+          items: [
+            buildProductItem({
+              feeId: 'fee-1',
+              rateCardId: 'rate-card-1',
+              invoiceName: 'Analytics API - seats',
+              product: { name: 'Analytics API', invoiceDisplayName: 'Analytics' },
+            }),
+          ],
+        },
+      })
 
       expect(
-        within(screen.getAllByRole('table')[0]).getByRole('columnheader', {
-          name: 'Analytics API',
-        }),
+        within(screen.getAllByRole('table')[0]).getByRole('columnheader', { name: 'Analytics' }),
+      ).toBeInTheDocument()
+    })
+
+    it('THEN should keep the product name as heading when one rate card has several fees', () => {
+      const product = { name: 'Analytics API', invoiceDisplayName: null }
+
+      renderComponent({
+        creditNote: {
+          ...baseCreditNote,
+          items: [
+            buildProductItem({
+              feeId: 'fee-1',
+              rateCardId: 'rate-card-1',
+              invoiceName: 'Analytics API - seats',
+              product,
+            }),
+            buildProductItem({
+              feeId: 'fee-2',
+              rateCardId: 'rate-card-1',
+              invoiceName: 'Analytics API - overage',
+              product,
+            }),
+          ],
+        },
+      })
+
+      const tables = screen.getAllByRole('table')
+
+      expect(
+        within(tables[0]).getByRole('columnheader', { name: 'Analytics API' }),
       ).toBeInTheDocument()
       expect(
-        within(screen.getAllByRole('table')[0]).queryByRole('columnheader', {
-          name: 'Description',
-        }),
+        within(tables[0]).queryByRole('columnheader', { name: 'Analytics API - seats' }),
       ).not.toBeInTheDocument()
     })
 
     it('THEN should render each distinct contract product group', () => {
-      const productCreditNote = {
-        ...baseCreditNote,
-        items: [
-          {
-            ...baseCreditNote.items[0],
-            fee: {
-              ...mockFee,
-              subscription: null,
-              contractRateCard: { id: 'rate-card-1' },
-              invoiceName: 'Analytics API',
-            },
-          },
-          {
-            ...baseCreditNote.items[0],
-            fee: {
-              ...mockFee,
-              id: 'fee-2',
-              subscription: null,
-              contractRateCard: { id: 'rate-card-2' },
-              invoiceName: 'Storage',
-            },
-          },
-        ],
-      }
-
-      renderComponent({ creditNote: productCreditNote })
+      renderComponent({
+        creditNote: {
+          ...baseCreditNote,
+          items: [
+            buildProductItem({
+              feeId: 'fee-1',
+              rateCardId: 'rate-card-1',
+              invoiceName: 'Analytics API - seats',
+              product: { name: 'Analytics API', invoiceDisplayName: null },
+            }),
+            buildProductItem({
+              feeId: 'fee-2',
+              rateCardId: 'rate-card-2',
+              invoiceName: 'Storage - GB',
+              product: { name: 'Storage', invoiceDisplayName: null },
+            }),
+          ],
+        },
+      })
 
       const tables = screen.getAllByRole('table')
+
       expect(
         within(tables[0]).getByRole('columnheader', { name: 'Analytics API' }),
       ).toBeInTheDocument()
       expect(within(tables[1]).getByRole('columnheader', { name: 'Storage' })).toBeInTheDocument()
-    })
-
-    it('THEN should fall back to a non-empty heading when the product name is missing', () => {
-      const productCreditNote = {
-        ...baseCreditNote,
-        items: [
-          {
-            ...baseCreditNote.items[0],
-            fee: {
-              ...mockFee,
-              subscription: null,
-              contractRateCard: { id: 'rate-card-1' },
-              invoiceName: null,
-              itemName: '',
-            },
-          },
-        ],
-      }
-
-      renderComponent({ creditNote: productCreditNote })
-
-      expect(
-        within(screen.getAllByRole('table')[0]).getByRole('columnheader', { name: 'Description' }),
-      ).toBeInTheDocument()
     })
 
     it('THEN should preserve the generic heading for legacy unsubscribed items', () => {

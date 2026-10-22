@@ -1440,7 +1440,6 @@ export type Contract = {
 export type ContractAppliedRateCard = {
   __typename?: 'ContractAppliedRateCard';
   billingAnchorDate: Scalars['ISO8601Date']['output'];
-  contract: Contract;
   createdAt: Scalars['ISO8601DateTime']['output'];
   effectiveDate: Scalars['ISO8601Date']['output'];
   id: Scalars['ID']['output'];
@@ -8525,7 +8524,6 @@ export type Plan = {
 /** Rate card applied to a plan */
 export type PlanAppliedRateCard = {
   __typename?: 'PlanAppliedRateCard';
-  catalogPlan: CatalogPlan;
   createdAt: Scalars['ISO8601DateTime']['output'];
   id: Scalars['ID']['output'];
   product: Product;
@@ -9021,8 +9019,6 @@ export type Query = {
   catalogPlans: CatalogPlanCollection;
   /** Query a single contract of an organization */
   contract?: Maybe<Contract>;
-  /** Query a single rate card applied to a contract */
-  contractAppliedRateCard?: Maybe<ContractAppliedRateCard>;
   /** Query rate cards applied to a contract */
   contractAppliedRateCards: ContractAppliedRateCardCollection;
   /** Query contracts of an organization */
@@ -9171,8 +9167,6 @@ export type Query = {
   payments: PaymentCollection;
   /** Query a single plan of an organization */
   plan?: Maybe<Plan>;
-  /** Query a single rate card applied to a plan */
-  planAppliedRateCard?: Maybe<PlanAppliedRateCard>;
   /** Query rate cards applied to a plan */
   planAppliedRateCards: PlanAppliedRateCardCollection;
   /** Query plans of an organization */
@@ -9450,11 +9444,6 @@ export type QueryCatalogPlansArgs = {
 
 
 export type QueryContractArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type QueryContractAppliedRateCardArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -10037,11 +10026,6 @@ export type QueryPaymentsArgs = {
 
 
 export type QueryPlanArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type QueryPlanAppliedRateCardArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -13557,9 +13541,9 @@ export type GetCreditNoteForDetailsOverviewQueryVariables = Exact<{
 }>;
 
 
-export type GetCreditNoteForDetailsOverviewQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, createdAt: any, balanceAmountCents: any, currency: CurrencyEnum, creditStatus?: CreditNoteCreditStatusEnum | null, refundStatus?: CreditNoteRefundStatusEnum | null, refundedAt?: any | null, refundAmountCents: any, xmlUrl?: string | null, couponsAdjustmentAmountCents: any, subTotalExcludingTaxesAmountCents: any, offsetAmountCents: any, creditAmountCents: any, totalAmountCents: any, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, einvoicing: boolean }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, deletedAt?: any | null, applicableTimezone: TimezoneEnum }, invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, purchaseOrderNumber?: string | null } | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, groupedBy: any, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }>, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null } | null };
+export type GetCreditNoteForDetailsOverviewQuery = { __typename?: 'Query', creditNote?: { __typename?: 'CreditNote', id: string, createdAt: any, balanceAmountCents: any, currency: CurrencyEnum, creditStatus?: CreditNoteCreditStatusEnum | null, refundStatus?: CreditNoteRefundStatusEnum | null, refundedAt?: any | null, refundAmountCents: any, xmlUrl?: string | null, couponsAdjustmentAmountCents: any, subTotalExcludingTaxesAmountCents: any, offsetAmountCents: any, creditAmountCents: any, totalAmountCents: any, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, einvoicing: boolean }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, deletedAt?: any | null, applicableTimezone: TimezoneEnum }, invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, purchaseOrderNumber?: string | null } | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, groupedBy: any, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }>, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null } | null };
 
-export type CreditNoteDetailsForOverviewTableFragment = { __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, currency: CurrencyEnum, subTotalExcludingTaxesAmountCents: any, offsetAmountCents: any, creditAmountCents: any, refundAmountCents: any, totalAmountCents: any, invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, purchaseOrderNumber?: string | null } | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, groupedBy: any, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }>, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null };
+export type CreditNoteDetailsForOverviewTableFragment = { __typename?: 'CreditNote', id: string, couponsAdjustmentAmountCents: any, currency: CurrencyEnum, subTotalExcludingTaxesAmountCents: any, offsetAmountCents: any, creditAmountCents: any, refundAmountCents: any, totalAmountCents: any, invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, purchaseOrderNumber?: string | null } | null, items: Array<{ __typename?: 'CreditNoteItem', amountCents: any, amountCurrency: CurrencyEnum, fee: { __typename?: 'Fee', id: string, amountCents: any, eventsCount?: any | null, units: number, feeType: FeeTypesEnum, itemName: string, groupedBy: any, invoiceName?: string | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum } } | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, plan: { __typename?: 'Plan', id: string, name: string, invoiceDisplayName?: string | null } } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null } }>, appliedTaxes?: Array<{ __typename?: 'CreditNoteAppliedTax', id: string, amountCents: any, baseAmountCents: any, taxRate: number, taxName: string }> | null };
 
 export type CreditNoteTableItemFragment = { __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, offsetAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, customer: { __typename?: 'Customer', id: string, email?: string | null } };
 
@@ -20043,6 +20027,11 @@ export const CreditNoteDetailsForOverviewTableFragmentDoc = gql`
       }
       contractRateCard {
         id
+        product {
+          id
+          name
+          invoiceDisplayName
+        }
       }
       chargeFilter {
         invoiceDisplayName

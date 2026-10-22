@@ -26,7 +26,6 @@ import {
 import {
   CurrencyEnum,
   InvoiceForCreditNoteFormCalculationFragment,
-  InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
 } from '~/generated/graphql'
 
@@ -488,22 +487,6 @@ describe('isCreditNoteCreationDisabled', () => {
 })
 
 describe('createCreditNoteForInvoiceButtonProps', () => {
-  describe('GIVEN a pending or failed invoice', () => {
-    it.each([InvoiceStatusTypeEnum.Pending, InvoiceStatusTypeEnum.Failed])(
-      'THEN disables the button for status %s',
-      (status) => {
-        const result = createCreditNoteForInvoiceButtonProps({
-          invoiceType: InvoiceTypeEnum.Subscription,
-          status,
-          associatedActiveWalletPresent: true,
-        })
-
-        expect(result.disabledIssueCreditNoteButton).toBe(true)
-        expect(result.disabledIssueCreditNoteButtonLabel).toBeUndefined()
-      },
-    )
-  })
-
   describe('GIVEN a non-terminated-wallet invoice', () => {
     it('THEN enables the button regardless of covered amounts', () => {
       const result = createCreditNoteForInvoiceButtonProps({
@@ -539,17 +522,6 @@ describe('createCreditNoteForInvoiceButtonProps', () => {
       expect(result.disabledIssueCreditNoteButton).toBe(true)
       expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_172908299496461z9ejmm2j7')
     })
-  })
-
-  it('preserves the terminated-wallet label when the invoice is also pending', () => {
-    const result = createCreditNoteForInvoiceButtonProps({
-      invoiceType: InvoiceTypeEnum.Credit,
-      status: InvoiceStatusTypeEnum.Pending,
-      associatedActiveWalletPresent: false,
-    })
-
-    expect(result.disabledIssueCreditNoteButton).toBe(true)
-    expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_172908299496461z9ejmm2j7')
   })
 
   describe('GIVEN a prepaid-credits invoice with an active wallet', () => {

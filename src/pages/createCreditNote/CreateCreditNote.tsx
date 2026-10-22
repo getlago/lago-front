@@ -486,7 +486,7 @@ const CreateCreditNote = () => {
                     formikProps={formikProps}
                     feeForCredit={feeForCredit}
                     feeForAddOn={feeForAddOn}
-                    productFee={feeForProduct}
+                    feeForProduct={feeForProduct}
                     feesPerInvoice={feesPerInvoice}
                     currency={currency}
                   />
