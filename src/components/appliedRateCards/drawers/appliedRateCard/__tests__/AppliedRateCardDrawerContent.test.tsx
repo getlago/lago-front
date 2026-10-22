@@ -163,6 +163,10 @@ const productFiltersMock = (): MockedResponse => ({
   result: { data: { productFilters: { collection: [PRODUCT_FILTER] } } },
 })
 
+// An instant response can land in the same render as `loading`, so the add row appears and is
+// re-rendered under the click; a network-like delay keeps the search's loading state observable.
+const SEARCH_RESPONSE_DELAY_MS = 100
+
 const rateCardsMock = (
   captureVars: (vars: Record<string, unknown>) => void,
   collection: RateCardFixture[] = [RATE_CARD],
@@ -849,7 +853,10 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
   it('GIVEN "Create rate card" is clicked on an unknown search THEN the typed text is never selected', async () => {
     let lastVars: Record<string, unknown> = {}
 
-    renderContent([productsMock(), rateCardsMock((vars) => (lastVars = vars), [])])
+    renderContent([
+      productsMock(),
+      { ...rateCardsMock((vars) => (lastVars = vars), []), delay: SEARCH_RESPONSE_DELAY_MS },
+    ])
 
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
 
@@ -919,6 +926,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
       productsMock(),
       {
         ...rateCardsMock((vars) => (lastVars = vars)),
+        delay: SEARCH_RESPONSE_DELAY_MS,
         result: (vars: Record<string, unknown>) => {
           if (vars.code === newRateCard.code) {
             return { data: { rateCards: { collection: [newRateCard] } } }
