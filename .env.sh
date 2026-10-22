@@ -37,8 +37,9 @@
 #
 # LAGO_CSP_CONNECT_EXTRA and LAGO_CSP_FRAME_EXTRA add sources, space separated.
 # In the strict modes, violations go to LAGO_CSP_REPORT_URI, or else to the
-# Sentry security endpoint of SENTRY_DSN. An unknown mode stops the container:
-# a typo must not silently fall back to `open`.
+# Sentry security endpoint of SENTRY_DSN. An unknown mode, or a value with a
+# newline, `"`, `$`, `;`, `\` or a backtick, stops the container: a typo must not
+# fall back to `open` or drop the header without a sign.
 CSP_TEMPLATE="${CSP_TEMPLATE:-/etc/nginx/csp.conf.template}"
 CSP_OUTPUT="${CSP_OUTPUT:-/tmp/csp.conf}"
 frame_ancestors="${LAGO_FRAME_ANCESTORS:-'self'}"
@@ -84,7 +85,8 @@ strict_frame_src="'self'"
 csp_report_uri="${LAGO_CSP_REPORT_URI:-}"
 dsn_re='^(https?)://([^@/]+)@([^/]+)/([0-9]+)$'
 if [ -z "$csp_report_uri" ] && [[ "${SENTRY_DSN:-}" =~ $dsn_re ]]; then
-  csp_report_uri="${BASH_REMATCH[1]}://${BASH_REMATCH[3]}/api/${BASH_REMATCH[4]}/security/?sentry_key=${BASH_REMATCH[2]}"
+  # an old-style DSN carries key:secret; only the public key goes in the header
+  csp_report_uri="${BASH_REMATCH[1]}://${BASH_REMATCH[3]}/api/${BASH_REMATCH[4]}/security/?sentry_key=${BASH_REMATCH[2]%%:*}"
   [ -n "${APP_ENV:-}" ] && csp_report_uri+="&sentry_environment=${APP_ENV}"
 fi
 
@@ -104,6 +106,26 @@ add_report_uri() {
     cat
   fi
 }
+
+# Stops the container when a value could leave the add_header string.
+reject_unsafe() {
+  local name value bad=$'[\n"$;\\`]'
+  while [ $# -gt 0 ]; do
+    name="$1" value="$2"; shift 2
+    if [[ "$value" =~ $bad ]]; then
+      echo ".env.sh: $name must not contain a newline, \", \$, ;, \\ or a backtick" >&2
+      exit 1
+    fi
+  done
+}
+reject_unsafe LAGO_FRAME_ANCESTORS "$frame_ancestors"
+if [ "$csp_mode" != open ]; then
+  reject_unsafe "connect-src (API_URL, SENTRY_DSN, LAGO_CSP_CONNECT_EXTRA)" "$strict_connect_src" \
+    "frame-src (LAGO_SUPERSET_URL, LAGO_CSP_FRAME_EXTRA)" "$strict_frame_src" \
+    "report-uri (LAGO_CSP_REPORT_URI, SENTRY_DSN, APP_ENV)" "$csp_report_uri"
+  [ -z "$csp_report_uri" ] &&
+    echo ".env.sh: no LAGO_CSP_REPORT_URI and no usable SENTRY_DSN: violations are not reported" >&2
+fi
 
 if [ ! -f "$CSP_TEMPLATE" ]; then
   echo ".env.sh: $CSP_TEMPLATE is missing, cannot render $CSP_OUTPUT" >&2
@@ -131,6 +153,10 @@ case "$csp_mode" in
     exit 1
     ;;
 esac
+if ! grep -q '^add_header Content-Security-Policy ' "$CSP_OUTPUT"; then
+  echo ".env.sh: $CSP_OUTPUT has no Content-Security-Policy header" >&2
+  exit 1
+fi
 echo ".env.sh: CSP sources: $csp_mode" >&2
 
 # --- runtime app config ------------------------------------------------------

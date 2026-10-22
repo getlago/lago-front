@@ -50,13 +50,10 @@ REPORT_URI="report-uri https://o42.ingest.de.sentry.io/api/4507/security/?sentry
 # --- open (default): identical to the policy before LAGO_CSP_SOURCES ---------
 out="$(render "${CLOUD[@]}")"
 expect_has "open: exits 0" "rc=0" "$out"
-# Byte-for-byte against the template before this change, when git has it.
-if legacy_tpl="$(git -C "$repo_root" show origin/main:nginx/csp.conf.template 2>/dev/null)" &&
-  [[ "$legacy_tpl" != *__LAGO_CONNECT_SRC__* ]]; then
-  expect_eq "open: CSP header identical to origin/main" \
-    "$(sed "s|__LAGO_FRAME_ANCESTORS__|'self'|" <<<"$legacy_tpl" | header Content-Security-Policy)" \
-    "$(header Content-Security-Policy <<<"$out")"
-fi
+# Byte-for-byte the header served before LAGO_CSP_SOURCES existed.
+expect_eq "open: CSP header identical to the pre-LAGO_CSP_SOURCES policy" \
+  "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https: http: wss: ws: blob: data:; worker-src 'self' blob:; frame-src 'self' https: http:; object-src 'none'; base-uri 'self'; frame-ancestors 'self';" \
+  "$(header Content-Security-Policy <<<"$out")"
 expect_eq "open: connect-src unchanged" "connect-src 'self' https: http: wss: ws: blob: data:" \
   "$(header Content-Security-Policy <<<"$out" | directive connect-src)"
 expect_eq "open: frame-src unchanged" "frame-src 'self' https: http:" \
@@ -115,7 +112,27 @@ expect_eq "frame extra appended" "frame-src 'self' https://c.example.com" "$(dir
 expect_eq "explicit report URI wins, & kept" "report-uri https://csp.example.com/r?x=1&y=2" \
   "$(directive report-uri <<<"$policy")"
 
+out="$(render LAGO_CSP_SOURCES=enforce API_URL=https://api.example.com \
+  SENTRY_DSN=https://pub:sekret@o42.ingest.de.sentry.io/4507)"
+expect_eq "old-style DSN: the secret stays out of the header" \
+  "report-uri https://o42.ingest.de.sentry.io/api/4507/security/?sentry_key=pub" \
+  "$(header Content-Security-Policy <<<"$out" | directive report-uri)"
+
 # --- failures -----------------------------------------------------------------
+nl=$'https://a.example.com\nhttps://b.example.com'
+expect_has "newline in an extra stops the container" "rc=1" \
+  "$(render LAGO_CSP_SOURCES=enforce LAGO_CSP_CONNECT_EXTRA="$nl")"
+expect_has "newline in frame-ancestors stops the container" "rc=1" \
+  "$(render LAGO_FRAME_ANCESTORS="$nl")"
+expect_has "quote in an extra stops the container" "rc=1" \
+  "$(render LAGO_CSP_SOURCES=report-only LAGO_CSP_FRAME_EXTRA='https://x" always; add_header X "y')"
+expect_has "nginx variable in an extra stops the container" "rc=1" \
+  "$(render LAGO_CSP_SOURCES=enforce LAGO_CSP_CONNECT_EXTRA='https://$http_host')"
+expect_has "semicolon in an extra stops the container" "rc=1" \
+  "$(render LAGO_CSP_SOURCES=enforce LAGO_CSP_CONNECT_EXTRA="https://a; script-src *")"
+expect_has "open mode ignores the unused strict extras" "rc=0" \
+  "$(render LAGO_CSP_CONNECT_EXTRA="$nl")"
+
 expect_has "unknown mode stops the container" "rc=1" "$(render LAGO_CSP_SOURCES=enforced)"
 expect_has "missing template stops the container" "rc=1" \
   "$(cd "$test_root" && env -i PATH="$PATH" CSP_TEMPLATE=/nonexistent CSP_OUTPUT="$test_root/x" \
