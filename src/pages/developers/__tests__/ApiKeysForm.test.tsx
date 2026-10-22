@@ -564,7 +564,7 @@ describe('ApiKeysForm', () => {
 
         const table = screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)
 
-        expect(table.querySelectorAll('tbody tr')).toHaveLength(26)
+        expect(table.querySelectorAll('tbody tr')).toHaveLength(25)
       })
     })
   })
