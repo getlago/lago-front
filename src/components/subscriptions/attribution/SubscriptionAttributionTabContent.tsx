@@ -21,15 +21,24 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { AttributionFlatTable, AttributionTableRow } from './AttributionFlatTable'
 import { AttributionToolbarSelect } from './AttributionToolbarSelect'
 import {
+  flattenAttributionHierarchyTypes,
+  getAttributionChildLevels,
+  getAttributionNodeKey,
+  getDeepestAttributionHierarchyType,
+} from './attributionTree'
+import { AttributionTreeTable } from './AttributionTreeTable'
+import {
   AttributionGroupByEnum,
   buildAttributionColumns,
   getAttributionChargeLabel,
   isAttributionAmountAvailable,
 } from './buildAttributionColumns'
+import { useAttributionTree } from './useAttributionTree'
 
 export const ATTRIBUTION_REFRESH_BUTTON_TEST_ID = 'attribution-refresh-button'
 export const ATTRIBUTION_GROUP_ROWS_BY_TEST_ID = 'attribution-group-rows-by'
 export const ATTRIBUTION_LIST_BY_TEST_ID = 'attribution-list-by'
+export const ATTRIBUTION_UNDER_TEST_ID = 'attribution-under'
 export const ATTRIBUTION_CHARGES_TEST_ID = 'attribution-charges'
 export const ATTRIBUTION_SHOW_TEST_ID = 'attribution-show'
 
@@ -76,11 +85,36 @@ gql`
         name
       }
     }
-    rootAttributionTypes: usageAttributionTypes(role: hierarchical, roots: true, limit: 1) {
+    rootAttributionTypes: usageAttributionTypes(role: hierarchical, roots: true, limit: $limit) {
       collection {
         id
         code
         name
+        children {
+          id
+          code
+          name
+          children {
+            id
+            code
+            name
+            children {
+              id
+              code
+              name
+              children {
+                id
+                code
+                name
+                children {
+                  id
+                  code
+                  name
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -101,6 +135,7 @@ gql`
     $basis: AttributedUsageBasisEnum
     $chargeIds: [ID!]
     $splitChargeId: ID
+    $filters: [AttributedUsageFilterInput!]
     $page: Int
     $limit: Int
   ) {
@@ -110,6 +145,7 @@ gql`
       basis: $basis
       chargeIds: $chargeIds
       splitChargeId: $splitChargeId
+      filters: $filters
       page: $page
       limit: $limit
     ) {
@@ -149,6 +185,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     AttributionGroupByEnum.hierarchical,
   )
   const [listByCode, setListByCode] = useState<string | null>(null)
+  const [underCode, setUnderCode] = useState<string | null>(null)
   const [selectedChargeId, setSelectedChargeId] = useState<string | null>(null)
   const [basis, setBasis] = useState<AttributedUsageBasisEnum>(AttributedUsageBasisEnum.Units)
   const [isExpanded, setIsExpanded] = useState(false)
@@ -164,10 +201,17 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   })
 
   const flatTypes = setupData?.flatAttributionTypes.collection ?? []
+  const rootTypes = setupData?.rootAttributionTypes.collection ?? []
+  const hierarchicalTypes = flattenAttributionHierarchyTypes(rootTypes).map(({ type }) => type)
   const listByType = flatTypes.find((type) => type.code === listByCode)
-  const fallbackGroupBy =
-    flatTypes[0]?.code ?? setupData?.rootAttributionTypes.collection[0]?.code ?? ''
+  const fallbackGroupBy = flatTypes[0]?.code ?? rootTypes[0]?.code ?? ''
   const groupBy = listByType?.code ?? fallbackGroupBy
+  const isTreeMode = groupRowsBy === AttributionGroupByEnum.hierarchical && !!rootTypes.length
+  const underType =
+    hierarchicalTypes.find((type) => type.code === underCode) ??
+    getDeepestAttributionHierarchyType(rootTypes)
+  const treeListBy =
+    listByType && underType ? { flatType: listByType, underCode: underType.code } : null
 
   const {
     data: chargesData,
@@ -183,15 +227,14 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   )
   const selectedCharge = charges.find((charge) => charge.id === selectedChargeId)
 
-  const usageVariables = {
+  const treeVariables = {
     subscriptionId,
-    groupBy,
     basis,
     chargeIds: selectedCharge ? [selectedCharge.id] : undefined,
     splitChargeId: selectedCharge?.filters?.length ? selectedCharge.id : undefined,
-    page: 1,
     limit: ATTRIBUTION_ROWS_LIMIT,
   }
+  const usageVariables = { ...treeVariables, groupBy, page: 1 }
   const usageRequestKey = JSON.stringify(usageVariables)
   const latestUsageRequestKeyRef = useRef(usageRequestKey)
 
@@ -206,9 +249,26 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     fetchMore: fetchMoreUsage,
   } = useGetSubscriptionAttributedUsageQuery({
     variables: usageVariables,
-    skip: !groupBy,
+    skip: !groupBy || isTreeMode,
     notifyOnNetworkStatusChange: true,
   })
+
+  const {
+    nodes: treeNodes,
+    toggleNode,
+    loadMore: loadMoreTreeRows,
+    reset: resetTree,
+  } = useAttributionTree({
+    variables: treeVariables,
+    getChildLevels: (parentCode) =>
+      getAttributionChildLevels({ roots: rootTypes, parentCode, listBy: treeListBy }),
+    resetKey: JSON.stringify({ ...treeVariables, listBy: treeListBy }),
+    skip: !isTreeMode,
+  })
+  const treeRootNode = treeNodes[getAttributionNodeKey([])]
+  const isTreeLoading = isTreeMode && (!treeRootNode || treeRootNode.status === 'loading')
+  const treeRootUsage =
+    treeRootNode?.status === 'loaded' ? treeRootNode.blocks[0]?.usage : undefined
 
   const isFetchingMoreRows = usageNetworkStatus === NetworkStatus.fetchMore
   const isUsageLoading = isUsageQueryLoading && !isFetchingMoreRows
@@ -223,6 +283,13 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     if (!groupBy) return
 
     refetchCharges()
+
+    if (isTreeMode) {
+      resetTree()
+
+      return
+    }
+
     refetchUsage()
   }
 
@@ -268,7 +335,8 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
       addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
     })
   }
-  const chargesUsage = attributedUsage?.totals.chargesUsage ?? []
+  const displayedUsage = isTreeMode ? treeRootUsage : attributedUsage
+  const chargesUsage = displayedUsage?.totals.chargesUsage ?? []
   const { columns, hiddenColumnsCount } = buildAttributionColumns({
     chargesUsage,
     selectedChargeId: selectedCharge?.id ?? null,
@@ -326,27 +394,42 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     />
   )
 
+  const tableProps = {
+    totals: { amountCents: displayedUsage?.totals.amountCents, chargesUsage },
+    columns,
+    chargeLabel: selectedCharge ? getAttributionChargeLabel(selectedCharge) : null,
+    hiddenColumnsCount,
+    isExpanded,
+    basis,
+    currency: displayedUsage?.currency ?? CurrencyEnum.Usd,
+    onToggleExpanded: () => setIsExpanded((previous) => !previous),
+  }
+
   const renderTable = (): JSX.Element => {
+    if (isTreeMode) {
+      if (treeRootNode?.status === 'error') return renderErrorPlaceholder()
+
+      return (
+        <AttributionTreeTable
+          {...tableProps}
+          nodes={treeNodes}
+          isLoading={isTreeLoading}
+          onToggleNode={toggleNode}
+          onLoadMore={loadMoreTreeRows}
+        />
+      )
+    }
+
     if (usageError) return renderErrorPlaceholder()
 
     return (
       <AttributionFlatTable
+        {...tableProps}
         rows={getTableRows()}
-        totals={{
-          amountCents: attributedUsage?.totals.amountCents,
-          chargesUsage,
-        }}
-        columns={columns}
-        chargeLabel={selectedCharge ? getAttributionChargeLabel(selectedCharge) : null}
-        hiddenColumnsCount={hiddenColumnsCount}
-        isExpanded={isExpanded}
-        basis={basis}
-        currency={attributedUsage?.currency ?? CurrencyEnum.Usd}
         isLoading={isUsageLoading}
         loadMore={
           hasMoreRows ? { isLoading: isFetchingMoreRows, onLoadMore: loadMoreRows } : undefined
         }
-        onToggleExpanded={() => setIsExpanded((previous) => !previous)}
       />
     )
   }
@@ -411,9 +494,25 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
               { value: ALL_VALUE, label: translate('text_1792668632006b3qj9q83f0y') },
               ...flatTypes.map((type) => ({ value: type.code, label: type.name || type.code })),
             ]}
-            onChange={(value) => setListByCode(value === ALL_VALUE ? null : value)}
+            onChange={(value) => {
+              setListByCode(value === ALL_VALUE ? null : value)
+              setUnderCode(null)
+            }}
             data-test={ATTRIBUTION_LIST_BY_TEST_ID}
           />
+          {isTreeMode && !!treeListBy && (
+            <AttributionToolbarSelect
+              label={translate('text_1792683187186aqk8vde7x8t')}
+              value={treeListBy.underCode}
+              searchPlaceholder={translate('text_1792683187186qacr0y860nr')}
+              options={hierarchicalTypes.map((type) => ({
+                value: type.code,
+                label: type.name || type.code,
+              }))}
+              onChange={setUnderCode}
+              data-test={ATTRIBUTION_UNDER_TEST_ID}
+            />
+          )}
           <AttributionToolbarSelect
             label={translate('text_1768572142436xubwd6sei3b')}
             value={selectedCharge?.id ?? ALL_VALUE}
@@ -467,7 +566,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
         <Button
           variant="inline"
           size="small"
-          disabled={isSetupLoading || isUsageQueryLoading}
+          disabled={isSetupLoading || isUsageQueryLoading || isTreeLoading}
           onClick={refetch}
           data-test={ATTRIBUTION_REFRESH_BUTTON_TEST_ID}
         >
