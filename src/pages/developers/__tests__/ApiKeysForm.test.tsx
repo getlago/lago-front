@@ -475,7 +475,7 @@ describe('ApiKeysForm', () => {
     })
 
     describe('WHEN the organization has no feature flag', () => {
-      it('THEN should not display the flagged resources', async () => {
+      it('THEN should not display the product catalog resources', async () => {
         render(<ApiKeysForm />)
 
         await waitFor(() => {
@@ -483,11 +483,9 @@ describe('ApiKeysForm', () => {
         })
 
         expect(screen.getByText('API logs')).toBeInTheDocument()
+        expect(screen.getByText('Coupons')).toBeInTheDocument()
         expect(screen.queryByText('Products')).not.toBeInTheDocument()
         expect(screen.queryByText('Contracts')).not.toBeInTheDocument()
-        expect(screen.queryByText('Quotes')).not.toBeInTheDocument()
-        expect(screen.queryByText('Usage attribution types')).not.toBeInTheDocument()
-        expect(screen.queryByText('x402 connections')).not.toBeInTheDocument()
       })
 
       it('THEN should submit only the displayed resources', async () => {
@@ -557,18 +555,16 @@ describe('ApiKeysForm', () => {
         )
       })
 
-      it('THEN should hide v1-only flagged resources even when their flag is on', async () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-
+      it('THEN should display one row per v2 resource', async () => {
         render(<ApiKeysForm />)
 
         await waitFor(() => {
           expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
         })
 
-        expect(screen.queryByText('Quotes')).not.toBeInTheDocument()
-        expect(screen.queryByText('x402 connections')).not.toBeInTheDocument()
-        expect(screen.queryByText('Usage attribution types')).not.toBeInTheDocument()
+        const table = screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)
+
+        expect(table.querySelectorAll('tbody tr')).toHaveLength(26)
       })
     })
   })
