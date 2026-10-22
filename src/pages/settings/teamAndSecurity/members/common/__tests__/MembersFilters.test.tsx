@@ -27,6 +27,7 @@ const rolesListMock = {
           description: 'Administrator role',
           permissions: [],
           admin: true,
+          grantable: true,
           memberships: [],
         },
         {
@@ -37,6 +38,7 @@ const rolesListMock = {
           description: 'Finance role',
           permissions: [],
           admin: false,
+          grantable: true,
           memberships: [],
         },
         {
@@ -47,6 +49,7 @@ const rolesListMock = {
           description: 'Manager role',
           permissions: [],
           admin: false,
+          grantable: true,
           memberships: [],
         },
       ],

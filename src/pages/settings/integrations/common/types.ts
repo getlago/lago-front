@@ -13,6 +13,8 @@ import {
   GetBillableMetricsForAvalaraItemsListQuery,
   GetBillableMetricsForNetsuiteItemsListQuery,
   GetBillableMetricsForXeroItemsListQuery,
+  GetProductsForAnrokItemsListQuery,
+  GetProductsForAvalaraItemsListQuery,
   IntegrationTypeEnum,
   MappableTypeEnum,
   MappingTypeEnum,
@@ -54,6 +56,8 @@ export type FetchableIntegrationItemsListData =
   | GetBillableMetricsForAvalaraItemsListQuery['billableMetrics']
   | GetAddOnsForXeroItemsListQuery['addOns']
   | GetBillableMetricsForXeroItemsListQuery['billableMetrics']
+  | GetProductsForAnrokItemsListQuery['products']
+  | GetProductsForAvalaraItemsListQuery['products']
   | undefined
 
 export type MappableIntegrationProvider = PickEnum<

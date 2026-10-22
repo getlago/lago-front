@@ -85,13 +85,13 @@ const MembersFilters = ({ searchQuery, setSearchQuery, type }: MembersFiltersPro
               <Button
                 variant="quaternary"
                 align="left"
-                key={role.name}
+                key={role.id}
                 onClick={() => {
                   handleRoleFilterChange(role.name)
                   closePopper()
                 }}
               >
-                {getDisplayName({ name: role.name })}
+                {getDisplayName(role)}
               </Button>
             ))}
           </MenuPopper>

@@ -10,17 +10,38 @@ export const GENERIC_PLACEHOLDER_TITLE_TEST_ID = 'generic-placeholder-title'
 export const GENERIC_PLACEHOLDER_SUBTITLE_TEST_ID = 'generic-placeholder-subtitle'
 export const GENERIC_PLACEHOLDER_IMAGE_TEST_ID = 'generic-placeholder-image'
 export const GENERIC_PLACEHOLDER_BUTTON_TEST_ID = 'generic-placeholder-button'
+export const GENERIC_PLACEHOLDER_SECONDARY_BUTTON_TEST_ID = 'generic-placeholder-secondary-button'
 
-export interface GenericPlaceholderProps {
+type GenericPlaceholderButtonAction = (() => Promise<void>) | (() => void)
+
+type GenericPlaceholderButtonsProps =
+  | {
+      buttonTitle?: string
+      buttonAction?: GenericPlaceholderButtonAction
+      secondaryButtonTitle?: never
+      secondaryButtonAction?: never
+    }
+  | {
+      buttonTitle: string
+      buttonAction: GenericPlaceholderButtonAction
+      secondaryButtonTitle: string
+      secondaryButtonAction: GenericPlaceholderButtonAction
+    }
+
+type GenericPlaceholderBaseProps = {
   className?: string
   title?: string
   subtitle: string | ReactNode
   image: ReactNode
-  buttonTitle?: string
   buttonVariant?: ButtonVariant
-  buttonAction?: (() => Promise<void>) | (() => void)
   noMargins?: boolean
 }
+
+export type GenericPlaceholderProps = GenericPlaceholderBaseProps & GenericPlaceholderButtonsProps
+
+// `Omit<GenericPlaceholderProps, 'image'>` would flatten the buttons union and no longer spread back.
+export type GenericPlaceholderContentProps = Omit<GenericPlaceholderBaseProps, 'image'> &
+  GenericPlaceholderButtonsProps
 
 export const GenericPlaceholder = ({
   className,
@@ -31,9 +52,40 @@ export const GenericPlaceholder = ({
   noMargins = false,
   buttonVariant,
   buttonAction,
+  secondaryButtonTitle,
+  secondaryButtonAction,
   ...props
 }: GenericPlaceholderProps) => {
   const hasButton = !!buttonTitle && !!buttonAction
+
+  const renderButtons = (): ReactNode => {
+    if (!hasButton) return null
+
+    const primaryButton = (
+      <Button
+        variant={buttonVariant}
+        onClick={buttonAction}
+        data-test={GENERIC_PLACEHOLDER_BUTTON_TEST_ID}
+      >
+        {buttonTitle}
+      </Button>
+    )
+
+    if (!secondaryButtonTitle || !secondaryButtonAction) return primaryButton
+
+    return (
+      <div className="flex flex-wrap gap-3">
+        {primaryButton}
+        <Button
+          variant="quaternary"
+          onClick={secondaryButtonAction}
+          data-test={GENERIC_PLACEHOLDER_SECONDARY_BUTTON_TEST_ID}
+        >
+          {secondaryButtonTitle}
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div
@@ -74,15 +126,7 @@ export const GenericPlaceholder = ({
         {typeof subtitle === 'string' ? undefined : subtitle}
       </Typography>
 
-      {hasButton && (
-        <Button
-          variant={buttonVariant}
-          onClick={buttonAction}
-          data-test={GENERIC_PLACEHOLDER_BUTTON_TEST_ID}
-        >
-          {buttonTitle}
-        </Button>
-      )}
+      {renderButtons()}
     </div>
   )
 }

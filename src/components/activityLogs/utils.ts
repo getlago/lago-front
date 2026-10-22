@@ -15,6 +15,9 @@ import {
 import {
   BILLABLE_METRIC_DETAILS_ROUTE,
   BILLING_ENTITY_ROUTE,
+  CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE,
+  CONTRACT_DETAILS_ROUTE,
+  CONTRACT_RATE_CARD_DETAILS_ROUTE,
   COUPON_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
@@ -29,8 +32,10 @@ import {
   ActivityLogDetailsFragment,
   ActivityTypeEnum,
   BillingEntity,
+  ContractAppliedRateCard,
   CreditNote,
   Invoice,
+  PlanAppliedRateCard,
   ResourceTypeEnum,
   Wallet,
 } from '~/generated/graphql'
@@ -114,6 +119,27 @@ export function getResourceLink(
         couponId: resource.id,
         tab: CouponDetailsTabsOptionsEnum.overview,
       })
+    case 'Contract':
+      return generatePath(CONTRACT_DETAILS_ROUTE, { id: resource.id })
+    case 'ContractRateCard':
+      if (!(resource as ContractAppliedRateCard).contract?.id) {
+        return null
+      }
+      return generatePath(CONTRACT_RATE_CARD_DETAILS_ROUTE, {
+        id: (resource as ContractAppliedRateCard).contract.id,
+        appliedRateCardId: resource.id,
+      })
+    case 'PlanRateCard':
+      if (!(resource as PlanAppliedRateCard).catalogPlan?.id) {
+        return null
+      }
+      return generatePath(CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE, {
+        catalogPlanId: (resource as PlanAppliedRateCard).catalogPlan.id,
+        appliedRateCardId: resource.id,
+      })
+    case 'RateCardRate':
+      // Needs the parent rate card id, which is not selected in the activity log.
+      return null
     case 'CreditNote':
       if (!(resource as CreditNote).customer?.id || !(resource as CreditNote).invoice?.id) {
         return null

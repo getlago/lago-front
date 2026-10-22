@@ -51,15 +51,13 @@ describe('createWorkerLoadErrorHandler', () => {
 
   describe('GIVEN the first worker-load failure on this handler', () => {
     describe('WHEN the handler runs', () => {
-      it('THEN should report it without reloading, in case it was a transient blip', () => {
+      it('THEN should neither reload nor report, in case it was a transient blip', () => {
         const handler = createWorkerLoadErrorHandler()
 
         handler(workerLoadErrorEvent())
 
-        expect(mockCaptureMessage).toHaveBeenCalledWith(
-          expect.any(String),
-          expect.objectContaining({ tags: { workerLoad: true, phase: 'first-failure' } }),
-        )
+        expect(mockCaptureMessage).not.toHaveBeenCalled()
+        expect(mockCaptureException).not.toHaveBeenCalled()
         expect(mockReloadWithCacheBust).not.toHaveBeenCalled()
       })
     })
@@ -75,10 +73,8 @@ describe('createWorkerLoadErrorHandler', () => {
 
         expect(sessionStorage.getItem('lago_chunk_reload')).not.toBeNull()
         expect(mockReloadWithCacheBust).toHaveBeenCalledTimes(1)
-        expect(mockCaptureMessage).toHaveBeenCalledWith(
-          expect.any(String),
-          expect.objectContaining({ tags: { workerLoad: true, phase: 'reload' } }),
-        )
+        expect(mockCaptureMessage).not.toHaveBeenCalled()
+        expect(mockCaptureException).not.toHaveBeenCalled()
       })
     })
   })

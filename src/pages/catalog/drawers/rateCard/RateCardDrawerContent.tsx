@@ -14,9 +14,11 @@ import { BasicComboBoxData } from '~/components/form/ComboBox/types'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ChargeInvoicingStrategyOption } from '~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOption'
+import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_PRICING_UNIT_FOR_RATE_CARD_CLASSNAME,
+  SEARCH_TAX_INPUT_FOR_RATE_CARD_CLASSNAME,
 } from '~/core/constants/form'
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
@@ -34,6 +36,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { useChargeForm } from '~/hooks/plans/useChargeForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { usePermissions } from '~/hooks/usePermissions'
 
 import { mapInvoiceFieldsToStrategy, RATE_CARD_FORM_DEFAULTS } from './constants'
 
@@ -100,6 +103,9 @@ export const RATE_CARD_DRAWER_AVAILABLE_MODEL_CHIP_TEST_ID = 'rate-card-drawer-a
 export const RATE_CARD_DRAWER_SHOW_PRICING_UNIT_TEST_ID = 'rate-card-drawer-show-pricing-unit'
 export const RATE_CARD_DRAWER_REMOVE_PRICING_UNIT_TEST_ID = 'rate-card-drawer-remove-pricing-unit'
 
+export const RATE_CARD_TAXES_TITLE_KEY = 'text_1788366458013ubk4410jvj7'
+export const RATE_CARD_TAXES_DESCRIPTION_KEY = 'text_17883664580131qxuvyxjzvs'
+
 export type RateCardComboboxSeed = { value: string; label: string } | null
 
 export type RateCardProductSeed = {
@@ -114,6 +120,7 @@ type RateCardDrawerSectionsExtraProps = {
   isEdit: boolean
   isAttached: boolean
   hasRates: boolean
+  isCurrencyLocked: boolean
   disableCodeInput: boolean
   productSeed: RateCardProductSeed
   productFilterSeed: RateCardComboboxSeed
@@ -123,6 +130,7 @@ const rateCardDrawerSectionsDefaultProps: RateCardDrawerSectionsExtraProps = {
   isEdit: false,
   isAttached: false,
   hasRates: false,
+  isCurrencyLocked: false,
   disableCodeInput: false,
   productSeed: null,
   productFilterSeed: null,
@@ -151,12 +159,14 @@ const RateCardDrawerFormSections = withForm({
     isEdit,
     isAttached,
     hasRates,
+    isCurrencyLocked,
     disableCodeInput,
     productSeed,
     productFilterSeed,
   }) {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
+    const { hasPermissions } = usePermissions()
     const { getFixedChargeModelComboboxData, getUsageChargeModelComboboxData } = useChargeForm()
     const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
 
@@ -269,6 +279,7 @@ const RateCardDrawerFormSections = withForm({
       proration || isRateCardProrationSupported(selectedProductMeta ?? {}) === true
 
     const isPayInAdvance = billingTiming === RateCardBillingTimingEnum.Advance
+    const canViewTaxes = hasPermissions(['organizationTaxesView'])
 
     const strategyLocalCharge = {
       payInAdvance: true,
@@ -292,6 +303,13 @@ const RateCardDrawerFormSections = withForm({
 
       if (form.state.values.productFilterId) {
         form.setFieldValue('productFilterId', '')
+      }
+
+      if (
+        nextProduct?.productType === ProductTypeEnum.Fixed &&
+        form.state.values.invoicingStrategy !== 'invoiceable'
+      ) {
+        form.setFieldValue('invoicingStrategy', 'invoiceable')
       }
     }
 
@@ -427,7 +445,7 @@ const RateCardDrawerFormSections = withForm({
                   label={translate('text_1784925227817bab1mp540x7')}
                   placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
                   data={currencyComboboxData}
-                  disabled={hasRates || isAttached}
+                  disabled={hasRates || isAttached || isCurrencyLocked}
                 />
               )}
             </form.AppField>
@@ -515,7 +533,7 @@ const RateCardDrawerFormSections = withForm({
                 )}
               </form.AppField>
 
-              {isPayInAdvance && (
+              {isPayInAdvance && selectedProductMeta?.productType !== ProductTypeEnum.Fixed && (
                 <ChargeInvoicingStrategyOption
                   localCharge={strategyLocalCharge}
                   disabled={hasRates}
@@ -534,7 +552,6 @@ const RateCardDrawerFormSections = withForm({
                   }}
                 />
               )}
-
               {isProrationVisible && (
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-1">
@@ -587,6 +604,20 @@ const RateCardDrawerFormSections = withForm({
               )}
             </CenteredPage.PageSection>
           )}
+
+          {canViewTaxes && (
+            <form.Subscribe selector={(state) => state.values.taxes}>
+              {(taxes) => (
+                <TaxesSelectorSection
+                  title={translate(RATE_CARD_TAXES_TITLE_KEY)}
+                  description={translate(RATE_CARD_TAXES_DESCRIPTION_KEY)}
+                  taxes={taxes}
+                  comboboxSelector={SEARCH_TAX_INPUT_FOR_RATE_CARD_CLASSNAME}
+                  onUpdate={(newTaxes) => form.setFieldValue('taxes', newTaxes)}
+                />
+              )}
+            </form.Subscribe>
+          )}
         </CenteredPage.SubsectionWrapper>
       </>
     )
@@ -614,6 +645,7 @@ export const RateCardDrawerContent = withForm({
     isEdit,
     isAttached,
     hasRates,
+    isCurrencyLocked,
     disableCodeInput,
     productSeed,
     productFilterSeed,
@@ -626,6 +658,7 @@ export const RateCardDrawerContent = withForm({
           isEdit={isEdit}
           isAttached={isAttached}
           hasRates={hasRates}
+          isCurrencyLocked={isCurrencyLocked}
           disableCodeInput={disableCodeInput}
           productSeed={productSeed}
           productFilterSeed={productFilterSeed}

@@ -12,7 +12,7 @@ gql`
   ${RoleFragmentFragmentDoc}
 `
 
-const SYSTEM_ROLES_ORDER = ['Admin', 'Finance', 'Manager']
+const SYSTEM_ROLES_ORDER = ['admin', 'finance', 'manager']
 
 export const useRolesList = (): {
   roles: Array<RoleItem>
@@ -21,8 +21,8 @@ export const useRolesList = (): {
   const { data, loading } = useGetRolesListQuery()
 
   const sortedRoles = [...(data?.roles || [])].sort((a, b) => {
-    const aIndex = SYSTEM_ROLES_ORDER.indexOf(a.name)
-    const bIndex = SYSTEM_ROLES_ORDER.indexOf(b.name)
+    const aIndex = SYSTEM_ROLES_ORDER.indexOf(a.code)
+    const bIndex = SYSTEM_ROLES_ORDER.indexOf(b.code)
 
     // Both are system roles - sort by defined order
     if (aIndex !== -1 && bIndex !== -1) {

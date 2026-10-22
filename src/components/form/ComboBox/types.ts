@@ -44,6 +44,8 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'search
   addValueProps?: {
     label: string
     onClick?: () => void
+    // Off: the add row only shows once the search matches nothing.
+    alwaysVisible?: boolean
   }
   renderGroupHeader?: never
   onChange: (value: string) => unknown

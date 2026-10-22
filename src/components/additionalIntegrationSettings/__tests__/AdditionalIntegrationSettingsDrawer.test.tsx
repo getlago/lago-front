@@ -157,6 +157,7 @@ describe('AdditionalIntegrationSettingsSelector', () => {
     'uses the caption for %s in the drawer',
     async (viewType) => {
       const { opened } = await openDrawerFromSelector({ viewType })
+
       render(<>{opened.children}</>)
       expect(screen.getByText(VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS[viewType])).toBeInTheDocument()
     },

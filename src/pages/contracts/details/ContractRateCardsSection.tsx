@@ -2,6 +2,9 @@ import { gql } from '@apollo/client'
 import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router'
 
+import { AppliedRateCardsTable } from '~/components/appliedRateCards/AppliedRateCardsTable'
+import { useAppliedRateCardDrawer } from '~/components/appliedRateCards/drawers/appliedRateCard/useAppliedRateCardDrawer'
+import { useAppliedRateCardRowActions } from '~/components/appliedRateCards/useAppliedRateCardRowActions'
 import { usePageSearchParam } from '~/components/designSystem/Pagination/usePageSearchParam'
 import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
 import {
@@ -10,18 +13,20 @@ import {
   formatFiltersForAppliedRateCardsQuery,
 } from '~/components/Filters'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
-import { AppliedRateCardsTable } from '~/components/rateCards/AppliedRateCardsTable'
-import { useAppliedRateCardRowActions } from '~/components/rateCards/useAppliedRateCardRowActions'
 import { SearchInput } from '~/components/SearchInput'
 import { APPLIED_RATE_CARD_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CONTRACT_RATE_CARD_DETAILS_ROUTE } from '~/core/router'
 import {
   ContractAppliedRateCardForAppliedRateCardsTableFragmentDoc,
+  CurrencyEnum,
   useGetContractAppliedRateCardsForRateCardsSectionLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { usePermissions } from '~/hooks/usePermissions'
+
+export const CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID = 'contract-rate-card-add-rate-card'
 
 gql`
   query getContractAppliedRateCardsForRateCardsSection(
@@ -67,14 +72,20 @@ gql`
 
 type ContractRateCardsSectionProps = {
   contractId: string
-  isRemovalLocked: boolean
+  contractExternalId: string | undefined
+  currency: CurrencyEnum | undefined
+  isLocked: boolean
 }
 
 export const ContractRateCardsSection = ({
   contractId,
-  isRemovalLocked,
+  contractExternalId,
+  currency,
+  isLocked,
 }: ContractRateCardsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
+  const { openDrawer: openAppliedRateCardDrawer } = useAppliedRateCardDrawer()
   const { page, goToPage } = usePageSearchParam()
   const [searchParams] = useSearchParams()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
@@ -98,7 +109,7 @@ export const ContractRateCardsSection = ({
   const { removal, copyRateCardCode, removeRateCard } = useAppliedRateCardRowActions({
     context: 'contract',
     parentId: contractId,
-    isRemovalLocked,
+    isRemovalLocked: isLocked,
     onRemoved: () => refetch(),
   })
 
@@ -117,12 +128,31 @@ export const ContractRateCardsSection = ({
     emptySubtitleKey: 'text_1789723302114au3ml0nf077',
   })
 
+  const addRateCardAction = hasPermissions(['contractsUpdate'])
+    ? {
+        label: translate('text_1789030049529b0zmy1slfxl'),
+        dataTest: CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID,
+        disabled: isLocked || !contractExternalId || !currency,
+        onClick: () => {
+          if (isLocked || !contractExternalId || !currency) return
+
+          openAppliedRateCardDrawer({
+            context: 'contract',
+            contractId,
+            contractExternalId,
+            currency,
+          })
+        },
+      }
+    : undefined
+
   return (
     <section className="flex flex-col gap-6">
       <SectionHeader
         title={translate('text_1783104239825nxqno33u945')}
         description={translate('text_1789030049529jp760bke0x8')}
         contentClassName="gap-2"
+        action={addRateCardAction}
       />
 
       <Filters.Provider

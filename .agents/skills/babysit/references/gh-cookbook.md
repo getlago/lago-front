@@ -68,6 +68,15 @@ mutation($id:ID!) {
 }'
 ```
 
+## PR comment (review summary)
+
+```bash
+gh pr view <n> --json comments --jq '.comments[].body'   # look for an existing marker
+gh pr comment <n> --body-file <path>
+```
+
+Shape, conditions and marker: `review-summary.md`.
+
 ## Open a PR
 
 ```bash

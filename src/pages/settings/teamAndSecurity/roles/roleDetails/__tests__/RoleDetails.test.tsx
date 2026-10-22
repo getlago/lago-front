@@ -61,6 +61,7 @@ jest.mock('../../hooks/useRoleDetails', () => ({
       code: 'custom-role-code',
       description: 'A custom role description',
       admin: false,
+      grantable: true,
       memberships: mockMemberships,
       permissions: ['PlansView'],
     },

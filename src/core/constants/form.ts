@@ -37,6 +37,7 @@ export const SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME =
 export const SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME = 'searchTaxForPlanInput'
 export const SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME = 'searchTaxForChargeInput'
 export const SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME = 'searchTaxForMinCommitmentInput'
+export const SEARCH_TAX_INPUT_FOR_RATE_CARD_CLASSNAME = 'searchTaxForRateCardInput'
 export const SEARCH_FILTER_FOR_CHARGE_CLASSNAME = 'searchFilterForChargeInput'
 export const SEARCH_PRICING_GROUP_KEY_INPUT_CLASSNAME = 'searchPricingGroupKeyInput'
 export const SEARCH_FEATURE_SELECT_OPTIONS_INPUT_CLASSNAME = 'searchFeatureSelectOptionsInput'
@@ -68,6 +69,8 @@ export const SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME = 'searchAppliesToBilla
 export const SEARCH_PRIVILEGE_SELECT_OPTIONS_INPUT_CLASSNAME = 'searchPrivilegeSelectOptionsInput'
 // Catalog
 export const SEARCH_PRICING_UNIT_FOR_RATE_CARD_CLASSNAME = 'searchPricingUnitForRateCardInput'
+export const SEARCH_PRODUCT_FILTER_FOR_APPLIED_RATE_CARD_CLASSNAME =
+  'searchProductFilterForAppliedRateCardInput'
 
 /**** DATA ****/
 // Plan form types

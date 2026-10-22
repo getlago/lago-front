@@ -120,6 +120,7 @@ import QuestionCircle from '~/icons/question-circle.svg'
 import Receipt from '~/icons/receipt.svg'
 import Reload from '~/icons/reload.svg'
 import Requested from '~/icons/requested.svg'
+import Reset from '~/icons/reset.svg'
 import ResizeExpand from '~/icons/resize-expand.svg'
 import ResizeReduce from '~/icons/resize-reduce.svg'
 import Robot from '~/icons/robot.svg'
@@ -283,6 +284,7 @@ export const ALL_ICONS = {
   receipt: Receipt,
   reload: Reload,
   requested: Requested,
+  reset: Reset,
   'resize-expand': ResizeExpand,
   'resize-reduce': ResizeReduce,
   robot: Robot,

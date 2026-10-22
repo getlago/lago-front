@@ -39,6 +39,7 @@ gql`
     plan {
       id
       name
+      currency
     }
     ...ContractForContractDrawer
   }
@@ -108,7 +109,6 @@ const ContractDetails = (): JSX.Element => {
                   {
                     label: translate(terminationCopy.actionText),
                     startIcon: 'stop' as const,
-                    danger: true,
                     dataTest:
                       contract.status === ContractStatusEnum.Pending
                         ? CONTRACT_DETAILS_CANCEL_TEST_ID
@@ -154,8 +154,10 @@ const ContractDetails = (): JSX.Element => {
             content: (
               <DetailsPage.Container className="pb-0 pt-6">
                 <ContractDetailsOverview
+                  contractExternalId={contract?.externalId}
+                  currency={contract?.plan?.currency}
                   rateCardsCount={contract?.appliedRateCardsCount}
-                  isRateCardRemovalLocked={contract?.status !== ContractStatusEnum.Pending}
+                  isRateCardsLocked={contract?.status !== ContractStatusEnum.Pending}
                   loading={loading}
                 />
               </DetailsPage.Container>

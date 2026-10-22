@@ -2,7 +2,7 @@ import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { act, renderHook, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GraphQLError } from 'graphql'
-import { ReactNode } from 'react'
+import { ReactElement, ReactNode } from 'react'
 
 import { CREATE_MORE_SWITCH_TEST_ID } from '~/components/drawers/createMore/CreateMoreControl'
 import { addToast } from '~/core/apolloClient'
@@ -37,6 +37,7 @@ const mockOpen = jest.fn((args: CapturedDrawerArgs) => {
 })
 const mockClose = jest.fn()
 const mockNavigate = jest.fn()
+let mockContentProps: { isCurrencyLocked?: boolean } = {}
 
 // Mock the NiceModal-backed drawer hook so Jest never loads the drawer stack
 // (drawerStack.ts uses import.meta and crashes Jest) and we can capture the
@@ -74,61 +75,78 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 jest.mock('../RateCardDrawerContent', () => ({
   RateCardDrawerContent: ({
     form,
+    isCurrencyLocked,
   }: {
+    isCurrencyLocked: boolean
     form: {
       Subscribe: (props: {
-        selector: (state: { values: { productId: string } }) => string
-        children: (productId: string) => ReactNode
+        selector: (state: { values: { productId: string; currency: string } }) => string
+        children: (value: string) => ReactNode
       }) => ReactNode
       setFieldValue: (name: string, value: unknown) => void
     }
-  }) => (
-    <>
-      <form.Subscribe selector={(state) => state.values.productId}>
-        {(productId) => <output aria-label="selected product">{productId}</output>}
-      </form.Subscribe>
-      <button
-        type="button"
-        onClick={() => {
-          form.setFieldValue('name', 'Metered API')
-          form.setFieldValue('code', 'metered_api')
-          form.setFieldValue('currency', 'USD')
-        }}
-      >
-        seed required fields
-      </button>
-      <button
-        data-test="seed-base"
-        onClick={() => {
-          form.setFieldValue('name', 'Metered API')
-          form.setFieldValue('code', 'metered_api')
-          form.setFieldValue('productId', 'pi-1')
-          // Literal enum runtime values: the jest.mock factory is hoisted and
-          // cannot reference the imported enums.
-          form.setFieldValue('currency', 'USD')
-        }}
-      >
-        seed base
-      </button>
-      <button
-        data-test="seed-advance"
-        onClick={() => {
-          form.setFieldValue('billingTiming', 'advance')
-          form.setFieldValue('invoicingStrategy', 'regroupPaidFees')
-        }}
-      >
-        seed advance
-      </button>
-      <button
-        data-test="seed-pricing-unit"
-        onClick={() => {
-          form.setFieldValue('pricingUnit', 'credits')
-        }}
-      >
-        seed pricing unit
-      </button>
-    </>
-  ),
+  }) => {
+    mockContentProps = { isCurrencyLocked }
+
+    return (
+      <>
+        <form.Subscribe selector={(state) => state.values.productId}>
+          {(productId) => <output aria-label="selected product">{productId}</output>}
+        </form.Subscribe>
+        <form.Subscribe selector={(state) => state.values.currency}>
+          {(currency) => <output aria-label="selected currency">{currency}</output>}
+        </form.Subscribe>
+        <button
+          type="button"
+          onClick={() => {
+            form.setFieldValue('name', 'Metered API')
+            form.setFieldValue('code', 'metered_api')
+            form.setFieldValue('currency', 'USD')
+          }}
+        >
+          seed required fields
+        </button>
+        <button
+          data-test="seed-base"
+          onClick={() => {
+            form.setFieldValue('name', 'Metered API')
+            form.setFieldValue('code', 'metered_api')
+            form.setFieldValue('productId', 'pi-1')
+            // Literal enum runtime values: the jest.mock factory is hoisted and
+            // cannot reference the imported enums.
+            form.setFieldValue('currency', 'USD')
+          }}
+        >
+          seed base
+        </button>
+        <button
+          data-test="seed-advance"
+          onClick={() => {
+            form.setFieldValue('billingTiming', 'advance')
+            form.setFieldValue('invoicingStrategy', 'regroupPaidFees')
+          }}
+        >
+          seed advance
+        </button>
+        <button
+          data-test="seed-pricing-unit"
+          onClick={() => {
+            form.setFieldValue('pricingUnit', 'credits')
+          }}
+        >
+          seed pricing unit
+        </button>
+        <button
+          data-test="seed-taxes"
+          onClick={() => {
+            form.setFieldValue('taxes', [{ id: 'tax-1', code: 'vat_20', name: 'VAT', rate: 20 }])
+          }}
+        >
+          seed taxes
+        </button>
+      </>
+    )
+  },
 }))
 
 const rateCardResult = {
@@ -158,6 +176,7 @@ const rateCardResult = {
     },
   },
   productFilter: null,
+  taxes: [],
 }
 
 const createRateCardMock = (
@@ -253,6 +272,7 @@ describe('useRateCardDrawer create flow', () => {
       currency: CurrencyEnum.Usd,
       displayOnInvoice: true,
       regroupPaidFees: null,
+      taxCodes: [],
     })
     expect(capturedInput).not.toHaveProperty('appliedPricingUnitCode')
     expect(capturedInput).not.toHaveProperty('productFilterId')
@@ -298,6 +318,21 @@ describe('useRateCardDrawer create flow', () => {
 
     // Currency is mandatory even with a custom pricing unit; both are sent.
     expect(capturedInput).toMatchObject({ currency: 'USD', appliedPricingUnitCode: 'credits' })
+  })
+
+  it('sends the selected tax codes', async () => {
+    let capturedInput: Record<string, unknown> = {}
+    const { result } = renderDrawerHook([createRateCardMock((input) => (capturedInput = input))])
+
+    act(() => result.current.openDrawer())
+    renderDrawerBody()
+    await userEvent.click(screen.getByTestId('seed-base'))
+    await userEvent.click(screen.getByTestId('seed-taxes'))
+    await submit()
+
+    await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+
+    expect(capturedInput.taxCodes).toEqual(['vat_20'])
   })
 
   it('keeps the drawer open and links the rate card in the toast when create more is on', async () => {
@@ -351,20 +386,29 @@ describe('useRateCardDrawer create flow', () => {
     )
   })
 
-  it('keeps the drawer open on a duplicate code without toasting', async () => {
+  it('keeps the drawer and selected taxes on a duplicate code error', async () => {
     const { result } = renderDrawerHook([
-      createRateCardMock(() => undefined, { data: null, errors: [duplicateCodeError] }),
+      createRateCardMock(() => undefined, {
+        data: null,
+        errors: [duplicateCodeError],
+      }),
     ])
 
     act(() => result.current.openDrawer())
     renderDrawerBody()
     await userEvent.click(screen.getByTestId('seed-base'))
+    await userEvent.click(screen.getByTestId('seed-taxes'))
     await submit()
 
-    await waitFor(() => expect(result.current).toBeDefined())
     expect(mockClose).not.toHaveBeenCalled()
     expect(mockNavigate).not.toHaveBeenCalled()
     expect(addToast).not.toHaveBeenCalled()
+
+    const content = lastDrawerArgs?.children as ReactElement<{
+      form: { state: { values: { taxes: Array<{ code: string }> } } }
+    }>
+
+    expect(content.props.form.state.values.taxes.map((tax) => tax.code)).toEqual(['vat_20'])
   })
 
   it('toasts instead of failing silently when the rejection is on another field', async () => {
@@ -381,5 +425,43 @@ describe('useRateCardDrawer create flow', () => {
       expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' })),
     )
     expect(mockClose).not.toHaveBeenCalled()
+  })
+
+  it('GIVEN a currency THEN the form is seeded with it and the content locks it', () => {
+    const { result } = renderDrawerHook()
+
+    act(() => result.current.openDrawer({ currency: CurrencyEnum.Eur }))
+    renderDrawerBody()
+
+    expect(screen.getByLabelText('selected currency')).toHaveTextContent('EUR')
+    expect(mockContentProps.isCurrencyLocked).toBe(true)
+  })
+
+  it('GIVEN no currency THEN the currency stays empty and editable', () => {
+    const { result } = renderDrawerHook()
+
+    act(() => result.current.openDrawer())
+    renderDrawerBody()
+
+    expect(screen.getByLabelText('selected currency')).toBeEmptyDOMElement()
+    expect(mockContentProps.isCurrencyLocked).toBe(false)
+  })
+
+  it('GIVEN onCreated is provided THEN it is called with the created rate card and the drawer always closes, regardless of create-more', async () => {
+    const onCreated = jest.fn()
+    const { result } = renderDrawerHook([createRateCardMock(() => undefined)])
+
+    act(() => result.current.openDrawer({ onCreated }))
+
+    render(<>{lastDrawerArgs?.secondaryAction}</>)
+    await userEvent.click(screen.getByTestId(CREATE_MORE_SWITCH_TEST_ID))
+
+    renderDrawerBody()
+    await userEvent.click(screen.getByTestId('seed-base'))
+    await submit()
+
+    await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+    expect(onCreated).toHaveBeenCalledWith(expect.objectContaining({ code: 'metered_api' }))
+    expect(mockNavigate).not.toHaveBeenCalled()
   })
 })

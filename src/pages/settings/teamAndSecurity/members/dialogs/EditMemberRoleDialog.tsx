@@ -110,9 +110,10 @@ export const useEditMemberRoleDialog = () => {
     dataRef.current = data
     form.reset()
 
-    const initialRole = roles.find((role) => role.name === data.member?.roles[0])
+    // Membership roles only expose names: preselect only an unambiguous match, never a default.
+    const matchingRoles = roles.filter((role) => role.name === data.member?.roles[0])
 
-    form.setFieldValue('role', initialRole?.code || 'admin')
+    form.setFieldValue('role', matchingRoles.length === 1 ? matchingRoles[0].code : '')
 
     formDialog
       .open({

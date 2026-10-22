@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
-import { ReactNode } from 'react'
+import { type AnyFormApi, type AppFieldExtendedReactFormApi } from '@tanstack/react-form'
+import { ComponentType, ReactNode } from 'react'
 
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { CustomCharge } from '~/components/plans/CustomCharge'
@@ -21,8 +22,8 @@ import {
   StandardChargeForRateFragmentDoc,
   VolumeRateTierFragmentDoc,
 } from '~/generated/graphql'
-import { withForm } from '~/hooks/forms/useAppform'
-import { RATE_CARD_RATE_FORM_DEFAULTS } from '~/pages/catalog/drawers/rateCardRate/constants'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
+import { getRatePropertiesShape } from '~/pages/catalog/drawers/rateCardRate/getRatePropertiesShape'
 
 import { GraduatedPercentageRateTiersTable } from './tiers/GraduatedPercentageRateTiersTable'
 import { GraduatedRateTiersTable } from './tiers/GraduatedRateTiersTable'
@@ -56,11 +57,50 @@ gql`
   ${VolumeRateTierFragmentDoc}
 `
 
-type RateWrapperSwitchProps = {
+// `group.form` is typed as the core FormApi, the tier tables need the React-extended type: same
+// runtime object, erased like `@tanstack/form-core`'s own `AnyFormApi`.
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export type AnyReactFormApi = AppFieldExtendedReactFormApi<
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any
+>
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+// A concrete signature, not `hostForm` threaded through their generics: TanStack would infer
+// `TFormData` from the widened `form`.
+type RatePropertiesTierTableProps = {
+  form: AnyReactFormApi
+  fields: 'properties'
+  currency: CurrencyEnum
+  pricingUnitShortName: string | undefined
+  disabled?: boolean
+}
+
+const BoundGraduatedRateTiersTable =
+  GraduatedRateTiersTable as ComponentType<RatePropertiesTierTableProps>
+const BoundGraduatedPercentageRateTiersTable =
+  GraduatedPercentageRateTiersTable as ComponentType<RatePropertiesTierTableProps>
+const BoundVolumeRateTiersTable =
+  VolumeRateTiersTable as ComponentType<RatePropertiesTierTableProps>
+
+export type RateWrapperSwitchProps = {
   rateModel: RateCardRateModelEnum
   productType: ProductTypeEnum
   currency: CurrencyEnum
   pricingUnitShortName: string | undefined
+  disabled?: boolean
   onExpandCustomCharge: (currentValue: string | undefined) => void
 }
 
@@ -69,54 +109,67 @@ const rateWrapperSwitchDefaultProps: RateWrapperSwitchProps = {
   productType: ProductTypeEnum.Metered,
   currency: CurrencyEnum.Usd,
   pricingUnitShortName: undefined,
+  disabled: false,
   onExpandCustomCharge: () => undefined,
 }
 
-export const RateWrapperSwitch = withForm({
-  defaultValues: RATE_CARD_RATE_FORM_DEFAULTS,
+export const RateWrapperSwitch = withFieldGroup({
+  defaultValues: getRatePropertiesShape(),
   props: rateWrapperSwitchDefaultProps,
   render: function RateWrapperSwitchRender({
-    form,
+    group,
     rateModel,
     productType,
     currency,
     pricingUnitShortName,
+    disabled,
     onExpandCustomCharge,
   }) {
+    const hostForm = group.form as unknown as AnyReactFormApi
+
     const contentByRateModel: Record<RateCardRateModelEnum, ReactNode> = {
       [RateCardRateModelEnum.Standard]: <StandardCharge />,
       [RateCardRateModelEnum.Package]: <PackageCharge />,
       [RateCardRateModelEnum.Percentage]: <ChargePercentage />,
-      [RateCardRateModelEnum.Custom]: <CustomCharge onExpandCustomCharge={onExpandCustomCharge} />,
+      [RateCardRateModelEnum.Custom]: (
+        <CustomCharge onExpandCustomCharge={disabled ? undefined : onExpandCustomCharge} />
+      ),
       [RateCardRateModelEnum.Dynamic]: <DynamicCharge />,
       [RateCardRateModelEnum.Graduated]: (
-        <GraduatedRateTiersTable
-          form={form}
+        <BoundGraduatedRateTiersTable
+          form={hostForm}
+          fields="properties"
           currency={currency}
           pricingUnitShortName={pricingUnitShortName}
+          disabled={disabled}
         />
       ),
       [RateCardRateModelEnum.GraduatedPercentage]: (
-        <GraduatedPercentageRateTiersTable
-          form={form}
+        <BoundGraduatedPercentageRateTiersTable
+          form={hostForm}
+          fields="properties"
           currency={currency}
           pricingUnitShortName={pricingUnitShortName}
+          disabled={disabled}
         />
       ),
       [RateCardRateModelEnum.Volume]: (
-        <VolumeRateTiersTable
-          form={form}
+        <BoundVolumeRateTiersTable
+          form={hostForm}
+          fields="properties"
           currency={currency}
           pricingUnitShortName={pricingUnitShortName}
+          disabled={disabled}
         />
       ),
     }
 
     return (
       <ChargeFormProvider
-        form={form}
+        form={group.form as unknown as AnyFormApi}
         propertyCursor="properties"
         currency={currency}
+        disabled={disabled}
         chargePricingUnitShortName={pricingUnitShortName}
       >
         <div className="flex flex-col gap-6">

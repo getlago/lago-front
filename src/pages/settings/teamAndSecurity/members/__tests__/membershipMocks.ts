@@ -154,6 +154,7 @@ export const rolesListMock = {
           description: 'Administrator role',
           permissions: [],
           admin: true,
+          grantable: true,
           memberships: [],
         },
         {
@@ -164,6 +165,7 @@ export const rolesListMock = {
           description: 'Finance role',
           permissions: [],
           admin: false,
+          grantable: true,
           memberships: [],
         },
       ],

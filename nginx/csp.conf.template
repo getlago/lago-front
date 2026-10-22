@@ -1,4 +1,18 @@
-# Security headers (included from every location in nginx.conf).
+# Security headers. This file is a TEMPLATE, not a loaded config.
+#
+# `.env.sh` substitutes `__LAGO_FRAME_ANCESTORS__` and writes the result to
+# /tmp/csp.conf at container start. That rendered file is what every location
+# in nginx.conf includes. The image ships this template at
+# /etc/nginx/csp.conf.template, outside conf.d, so nginx never loads it raw.
+#
+# `frame-ancestors` is the one directive that differs per deployment, so
+# `LAGO_FRAME_ANCESTORS` overrides it. It defaults to `'self'`: only this app
+# may frame itself. A deployment that embeds Lago elsewhere sets the variable
+# and lists its own origins. See `.env.sh` for the format.
+#
+# If the substitution ever fails, the literal placeholder stays in the header.
+# Browsers ignore a source expression they cannot parse, so the policy then
+# allows no ancestor at all. It fails closed.
 #
 # Design constraint: lago-front ships as a single static image used by both
 # Lago Cloud and self-hosted users. The hosts the app talks to at runtime
@@ -15,7 +29,7 @@
 # object-src 'none', and base-uri 'self'. That is the XSS mitigation this
 # header buys.
 
-add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https: http: wss: ws: blob: data:; worker-src 'self' blob:; frame-src 'self' https: http:; object-src 'none'; base-uri 'self'; frame-ancestors *.force.com *.localhost *.ojin.ai *.ojin.foo *.web.app *.hubspot.com *.hubspotusercontent.com *.foxglove-app-party.pages.dev app.foxglove.party app.foxglove.dev *.gladia.io tgcloud.io savanna.tgcloud.io portal-staging.tgcloud.io tgcloud-dev.com portal.tgcloud-dev.com test-portal.tgcloud-dev.com localhost;" always;
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https: http: wss: ws: blob: data:; worker-src 'self' blob:; frame-src 'self' https: http:; object-src 'none'; base-uri 'self'; frame-ancestors __LAGO_FRAME_ANCESTORS__;" always;
 
 # Stop browsers MIME-sniffing a response into an unexpected (e.g. executable)
 # content type.

@@ -76,6 +76,11 @@ export const TimeZonesConfig: Record<TimezoneEnum, TimezoneConfigObject> = {
     offset: getOffset('America/Argentina/Buenos_Aires'),
     offsetInMinute: getOffsetInMinute('America/Argentina/Buenos_Aires'),
   },
+  TZ_AMERICA_ASUNCION: {
+    name: 'America/Asuncion',
+    offset: getOffset('America/Asuncion'),
+    offsetInMinute: getOffsetInMinute('America/Asuncion'),
+  },
   TZ_AMERICA_BOGOTA: {
     name: 'America/Bogota',
     offset: getOffset('America/Bogota'),

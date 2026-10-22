@@ -15,14 +15,16 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 
 import { RATE_CARD_RATE_FORM_DEFAULTS, RateCardRateFormValues } from '../constants'
 import {
+  RATE_CARD_RATE_DRAWER_CODE_TEST_ID,
+  RateCardRateDrawerContent,
+} from '../RateCardRateDrawerContent'
+import {
   RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_COUNT_TEST_ID,
   RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_UNIT_TEST_ID,
-  RATE_CARD_RATE_DRAWER_CODE_TEST_ID,
   RATE_CARD_RATE_DRAWER_CONVERSION_RATE_TEST_ID,
   RATE_CARD_RATE_DRAWER_SPENDING_MINIMUM_TEST_ID,
-  RateCardRateDrawerContent,
   RateCardRateDrawerRateCard,
-} from '../RateCardRateDrawerContent'
+} from '../RateCardRateFieldGroups'
 import { buildRateCardRateSchema } from '../schema'
 
 configure({ testIdAttribute: 'data-test' })
@@ -483,7 +485,7 @@ describe('RateCardRateDrawerContent', () => {
         render(<Host isEdit isActiveRate />)
 
         expect(screen.getByTestId(mockRateWrapperSwitchTestId)).toBeInTheDocument()
-        expect(mockRateWrapperSwitchProps).not.toHaveProperty('disabled')
+        expect(mockRateWrapperSwitchProps.disabled).toBe(false)
       })
     })
   })

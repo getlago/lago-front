@@ -10,6 +10,7 @@ describe('mapFromApiToForm', () => {
     name: 'test-role',
     description: 'Test description',
     admin: false,
+    grantable: true,
     code: 'TEST_ROLE',
     memberships: [],
     permissions: [],

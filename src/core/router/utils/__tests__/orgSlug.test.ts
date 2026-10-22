@@ -1,6 +1,14 @@
 import { OrgSlugResolverDataFragment } from '~/generated/graphql'
 
-import { ensureSlugPrefix, pathHasValidSlug, resolveOrgSlug } from '../orgSlug'
+import {
+  ensureSlugPrefix,
+  findRefusedOrganization,
+  getAccessibleMemberships,
+  isAccessibleOrgSlug,
+  pathHasValidSlug,
+  pathTargetsInaccessibleOrg,
+  resolveOrgSlug,
+} from '../orgSlug'
 
 const mockGetCurrentOrganizationId = jest.fn()
 const mockGetPersistedOrganizationSlug = jest.fn()
@@ -13,15 +21,20 @@ jest.mock('~/core/apolloClient/reactiveVars', () => ({
 type CurrentUser = OrgSlugResolverDataFragment | undefined
 
 const buildCurrentUser = (
-  memberships: Array<{ id: string; organization: { id: string; name: string; slug: string } }>,
-): CurrentUser =>
-  ({
-    memberships,
-  }) as unknown as CurrentUser
+  memberships: OrgSlugResolverDataFragment['memberships'],
+): CurrentUser => ({
+  memberships,
+})
 
-const defaultMemberships = [
-  { id: 'm-1', organization: { id: 'org-a', name: 'Org A', slug: 'org-a' } },
-  { id: 'm-2', organization: { id: 'org-b', name: 'Org B', slug: 'org-b' } },
+const defaultMemberships: OrgSlugResolverDataFragment['memberships'] = [
+  {
+    id: 'm-1',
+    organization: { id: 'org-a', slug: 'org-a', accessibleByCurrentSession: true },
+  },
+  {
+    id: 'm-2',
+    organization: { id: 'org-b', slug: 'org-b', accessibleByCurrentSession: true },
+  },
 ]
 
 describe('resolveOrgSlug', () => {
@@ -80,6 +93,43 @@ describe('resolveOrgSlug', () => {
       const result = resolveOrgSlug(buildCurrentUser(defaultMemberships))
 
       expect(result).toBe('org-a')
+    })
+  })
+
+  describe('GIVEN some memberships the current session cannot access', () => {
+    const lockedOrgA = {
+      ...defaultMemberships[0],
+      organization: { ...defaultMemberships[0].organization, accessibleByCurrentSession: false },
+    }
+    const lockedOrgB = {
+      ...defaultMemberships[1],
+      organization: { ...defaultMemberships[1].organization, accessibleByCurrentSession: false },
+    }
+
+    it('THEN should skip an inaccessible in-memory current org', () => {
+      mockGetCurrentOrganizationId.mockReturnValue('org-a')
+
+      expect(resolveOrgSlug(buildCurrentUser([lockedOrgA, defaultMemberships[1]]))).toBe('org-b')
+    })
+
+    it('THEN should skip an inaccessible persisted slug', () => {
+      mockGetCurrentOrganizationId.mockReturnValue(undefined)
+      mockGetPersistedOrganizationSlug.mockReturnValue('org-a')
+
+      expect(resolveOrgSlug(buildCurrentUser([lockedOrgA, defaultMemberships[1]]))).toBe('org-b')
+    })
+
+    it('THEN should fall back to the first accessible membership, not memberships[0]', () => {
+      mockGetCurrentOrganizationId.mockReturnValue(undefined)
+
+      expect(resolveOrgSlug(buildCurrentUser([lockedOrgA, defaultMemberships[1]]))).toBe('org-b')
+    })
+
+    it('THEN should return undefined when no membership is accessible', () => {
+      mockGetCurrentOrganizationId.mockReturnValue('org-a')
+      mockGetPersistedOrganizationSlug.mockReturnValue('org-b')
+
+      expect(resolveOrgSlug(buildCurrentUser([lockedOrgA, lockedOrgB]))).toBeUndefined()
     })
   })
 
@@ -144,12 +194,15 @@ describe('pathHasValidSlug', () => {
     })
   })
 
-  describe('GIVEN a path that is exactly the slug without a trailing slash', () => {
-    it('THEN should return false', () => {
-      // `/org-a` (no trailing slash, nothing after) intentionally does NOT match.
-      // The implementation requires `/${slug}/` to prevent false positives like
-      // `/org-a-extended` which would otherwise match `startsWith('/org-a')`.
-      expect(pathHasValidSlug('/org-a', currentUser)).toBe(false)
+  describe('GIVEN a path that is exactly the slug, or the slug followed by a query or hash', () => {
+    it.each(['/org-a', '/org-a?tab=1', '/org-a#top'])('THEN should return true for %s', (path) => {
+      expect(pathHasValidSlug(path, currentUser)).toBe(true)
+    })
+  })
+
+  describe('GIVEN a slug-prefixed path without a leading slash', () => {
+    it('THEN should return false so the caller makes it absolute', () => {
+      expect(pathHasValidSlug('org-a/customers', currentUser)).toBe(false)
     })
   })
 
@@ -181,6 +234,40 @@ describe('ensureSlugPrefix', () => {
     })
   })
 
+  describe('GIVEN a path whose slug is an organization the session cannot access', () => {
+    it('THEN should return the path unchanged instead of double-prefixing it', () => {
+      const lockedOrgB = {
+        ...defaultMemberships[1],
+        organization: { ...defaultMemberships[1].organization, accessibleByCurrentSession: false },
+      }
+
+      expect(
+        ensureSlugPrefix(
+          '/org-b/settings',
+          'org-a',
+          buildCurrentUser([defaultMemberships[0], lockedOrgB]),
+        ),
+      ).toBe('/org-b/settings')
+    })
+  })
+
+  describe('GIVEN the root of an org the user belongs to', () => {
+    it.each(['/org-a', '/org-a?tab=1', '/org-a#top'])(
+      'THEN should not prepend the slug a second time to %s',
+      (path) => {
+        expect(ensureSlugPrefix(path, 'org-a', currentUser)).toBe(path)
+      },
+    )
+  })
+
+  describe('GIVEN a legacy path that only starts with the characters of an org slug', () => {
+    it('THEN should still prepend the slug', () => {
+      expect(ensureSlugPrefix('/org-a-extended', 'org-a', currentUser)).toBe(
+        '/org-a/org-a-extended',
+      )
+    })
+  })
+
   describe('GIVEN a path with a different valid slug', () => {
     it('THEN should return the path unchanged', () => {
       expect(ensureSlugPrefix('/org-b/settings', 'org-a', currentUser)).toBe('/org-b/settings')
@@ -206,6 +293,92 @@ describe('ensureSlugPrefix', () => {
       const result = ensureSlugPrefix(input, 'org-a', currentUser)
 
       expect(new URL(result, ORIGIN).origin).toBe(ORIGIN)
+    })
+  })
+})
+
+describe('getAccessibleMemberships', () => {
+  describe('GIVEN a mix of accessible and inaccessible memberships', () => {
+    it('THEN should keep only the accessible ones', () => {
+      const lockedOrgB = {
+        ...defaultMemberships[1],
+        organization: { ...defaultMemberships[1].organization, accessibleByCurrentSession: false },
+      }
+
+      expect(
+        getAccessibleMemberships(buildCurrentUser([defaultMemberships[0], lockedOrgB])),
+      ).toEqual([defaultMemberships[0]])
+    })
+  })
+
+  describe('GIVEN an undefined user', () => {
+    it('THEN should return an empty list', () => {
+      expect(getAccessibleMemberships(undefined)).toEqual([])
+    })
+  })
+})
+
+describe('isAccessibleOrgSlug', () => {
+  const lockedOrgB = {
+    ...defaultMemberships[1],
+    organization: { ...defaultMemberships[1].organization, accessibleByCurrentSession: false },
+  }
+  const currentUser = buildCurrentUser([defaultMemberships[0], lockedOrgB])
+
+  it('THEN should return true for an organization the session can open', () => {
+    expect(isAccessibleOrgSlug('org-a', currentUser)).toBe(true)
+  })
+
+  it.each(['org-b', 'unknown', '', undefined])('THEN should return false for %s', (slug) => {
+    expect(isAccessibleOrgSlug(slug, currentUser)).toBe(false)
+  })
+})
+
+describe('findRefusedOrganization', () => {
+  const lockedOrgB = {
+    ...defaultMemberships[1],
+    organization: { ...defaultMemberships[1].organization, accessibleByCurrentSession: false },
+  }
+  const currentUser = buildCurrentUser([defaultMemberships[0], lockedOrgB])
+
+  it('THEN should return the organization the session cannot open', () => {
+    expect(findRefusedOrganization('org-b', currentUser)).toBe(lockedOrgB.organization)
+  })
+
+  it.each(['org-a', 'unknown', undefined])('THEN should return undefined for %s', (slug) => {
+    expect(findRefusedOrganization(slug, currentUser)).toBeUndefined()
+  })
+})
+
+describe('pathTargetsInaccessibleOrg', () => {
+  const lockedOrgB = {
+    ...defaultMemberships[1],
+    organization: { ...defaultMemberships[1].organization, accessibleByCurrentSession: false },
+  }
+  const currentUser = buildCurrentUser([defaultMemberships[0], lockedOrgB])
+
+  it.each(['/org-b/customers', '/org-b', '/org-b/', '/org-b?tab=1', '/org-b#top'])(
+    'THEN should return true for %s',
+    (path) => {
+      expect(pathTargetsInaccessibleOrg(path, currentUser)).toBe(true)
+    },
+  )
+
+  it.each([
+    '/org-a/customers',
+    '/customers',
+    '/',
+    '',
+    '/org-b-extended/customers',
+    'org-b/plans',
+    '/unknown/plans',
+  ])('THEN should return false for %s', (path) => {
+    expect(pathTargetsInaccessibleOrg(path, currentUser)).toBe(false)
+  })
+
+  describe('GIVEN an undefined user', () => {
+    it('THEN should return false', () => {
+      expect(pathTargetsInaccessibleOrg('/org-b/customers', undefined)).toBe(false)
     })
   })
 })

@@ -1,7 +1,7 @@
-# syntax=docker/dockerfile:1.26
+# syntax=docker/dockerfile:1.28
 
 # --- deps stage: install node_modules only ---------------------------------
-FROM node:24.21.0-alpine AS deps
+FROM node:24.22.0-alpine AS deps
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store,sharing=locked \
 
 
 # --- build stage: compile the app ------------------------------------------
-FROM node:24.21.0-alpine AS build
+FROM node:24.22.0-alpine AS build
 
 WORKDIR /app
 ENV NODE_OPTIONS="--max-old-space-size=4096"
@@ -70,7 +70,7 @@ RUN apk upgrade --no-cache && apk add --no-cache bash
 COPY --from=build /app/dist .
 COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./nginx/gzip.conf /etc/nginx/conf.d/gzip.conf
-COPY ./nginx/csp.conf /etc/nginx/conf.d/csp.conf
+COPY ./nginx/csp.conf.template /etc/nginx/csp.conf.template
 COPY ./.env.sh ./.env.sh
 
 EXPOSE 80

@@ -6,15 +6,12 @@ import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { getInvoiceCustomSectionSummaryKey } from './invoicingSettingsSummary'
 import { useInvoicingSettingsDrawer } from './useInvoicingSettingsDrawer'
 
-export const INVOICING_SETTINGS_SELECTOR_TEST_ID = 'invoicing-settings-selector'
+export { INVOICING_SUMMARY_KEYS } from './invoicingSettingsSummary'
 
-export const INVOICING_SUMMARY_KEYS = {
-  skip: 'text_1782738644347z3azl4u1f15',
-  apply: 'text_1782738644347qh5s13lol1p',
-  fallback: 'text_1782738644347svkr94bf4aw',
-}
+export const INVOICING_SETTINGS_SELECTOR_TEST_ID = 'invoicing-settings-selector'
 
 interface InvoicingSettingsSelectorProps {
   viewType: ViewTypeEnum
@@ -49,12 +46,10 @@ export const InvoicingSettingsSelector = ({
     onSave: ({ invoiceCustomSection }) => onChange(invoiceCustomSection),
   })
 
-  const summary = useMemo(() => {
-    if (value?.skipInvoiceCustomSections) return translate(INVOICING_SUMMARY_KEYS.skip)
-    if (value?.invoiceCustomSections?.length) return translate(INVOICING_SUMMARY_KEYS.apply)
-
-    return translate(INVOICING_SUMMARY_KEYS.fallback)
-  }, [value, translate])
+  const summary = useMemo(
+    () => translate(getInvoiceCustomSectionSummaryKey(value)),
+    [value, translate],
+  )
 
   return (
     <Selector

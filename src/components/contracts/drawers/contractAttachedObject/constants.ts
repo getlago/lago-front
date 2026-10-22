@@ -15,8 +15,6 @@ export interface ContractAttachedObjectFormValues {
   externalCustomerId: string
   billingEntityId?: string
   planCode: string
-  // `planCode` is optional on the API: only a contract edited without a plan may leave it empty.
-  isPlanRequired: boolean
 }
 
 /** Static shape for `withForm`'s type inference only — the real values come from
@@ -25,5 +23,4 @@ export const CONTRACT_ATTACHED_OBJECT_FORM_DEFAULTS: ContractAttachedObjectFormV
   externalCustomerId: '',
   billingEntityId: undefined,
   planCode: '',
-  isPlanRequired: true,
 }

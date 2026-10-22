@@ -91,6 +91,28 @@ describe('RootRedirect', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/globex', expect.objectContaining({ replace: true }))
   })
 
+  it.each(['/globex', '/globex?tab=1', '/globex#top'])(
+    'reads the whole first segment of the SSO redirect path %s',
+    (ssoPath) => {
+      mockGetItemFromLS.mockReturnValue(ssoPath)
+
+      renderHook(() => RootRedirect())
+
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/globex',
+        expect.objectContaining({ replace: true }),
+      )
+    },
+  )
+
+  it('reads the whole first segment of the saved `from` path', () => {
+    mockUseLocation.mockReturnValue({ state: { from: { pathname: '/globex?tab=1' } } })
+
+    renderHook(() => RootRedirect())
+
+    expect(mockNavigate).toHaveBeenCalledWith('/globex', expect.objectContaining({ replace: true }))
+  })
+
   it('ignores a persisted slug that is not an accessible membership', () => {
     mockGetPersistedOrganizationSlug.mockReturnValue('not-a-member')
 

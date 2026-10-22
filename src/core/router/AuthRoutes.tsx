@@ -90,6 +90,5 @@ export const authRoutes: CustomRouteObject[] = [
   {
     path: INVITATION_ROUTE_FORM,
     element: <Invitation />,
-    invitation: true,
   },
 ]

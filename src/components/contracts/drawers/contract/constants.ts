@@ -1,3 +1,4 @@
+import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { getTodayAtUtcMidnight } from '~/core/timezone'
 import { TimezoneEnum } from '~/generated/graphql'
@@ -28,11 +29,10 @@ export interface ContractFormValues {
   externalCustomerId: string
   externalId: string
   planCode: string
-  // `planCode` is optional on the API: only a contract edited without a plan may leave it empty.
-  isPlanRequired: boolean
   name: string
   billingEntityId?: string
   consolidateInvoice: boolean
+  invoiceCustomSection: InvoiceCustomSectionInput
   paymentMethod?: SelectedPaymentMethod
   purchaseOrderNumber?: string | null
   startedAt: string
@@ -43,6 +43,7 @@ export interface ContractFormValues {
 }
 
 export interface ContractDrawerCustomer {
+  id?: string
   externalId: string
   displayName?: string | null
   applicableTimezone?: TimezoneEnum | null
@@ -63,10 +64,10 @@ export const buildContractFormDefaults = (
     externalCustomerId: customer?.externalId ?? '',
     externalId: '',
     planCode: '',
-    isPlanRequired: true,
     name: '',
     billingEntityId: customer?.billingEntityId,
     consolidateInvoice: true,
+    invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
     paymentMethod: undefined,
     purchaseOrderNumber: undefined,
     startedAt: today,
@@ -86,10 +87,10 @@ export const CONTRACT_FORM_DEFAULTS: ContractFormValues = {
   externalCustomerId: '',
   externalId: '',
   planCode: '',
-  isPlanRequired: true,
   name: '',
   billingEntityId: undefined,
   consolidateInvoice: true,
+  invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
   paymentMethod: undefined,
   purchaseOrderNumber: undefined,
   startedAt: '2026-01-01',

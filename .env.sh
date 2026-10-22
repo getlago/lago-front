@@ -1,5 +1,37 @@
 #!/bin/bash
+# No `set -u`: several of the variables below are optional and unset on
+# self-hosted deployments.
 
+# --- nginx CSP ---------------------------------------------------------------
+# Render /etc/nginx/csp.conf.template to /tmp/csp.conf, which every location in
+# nginx.conf includes. /tmp is the only writable path on the hardened image
+# (read-only rootfs), so the rendered file cannot live next to the template.
+#
+# LAGO_FRAME_ANCESTORS lists the origins allowed to embed this app in an
+# iframe, space separated, in CSP source syntax. For example:
+#
+#   LAGO_FRAME_ANCESTORS="'self' https://portal.example.com *.example.dev"
+#
+# The default is `'self'`: only this app may frame itself. Set the variable
+# when you embed Lago in another application, and list only your own origins.
+#
+# Deliberately no origins are hard-coded here. This repository is public, so a
+# baked list publishes whoever is on it. A deployment's partner origins are
+# also specific to that deployment, and have no meaning in anyone else's.
+# They belong in that deployment's configuration, not in the image.
+CSP_TEMPLATE="${CSP_TEMPLATE:-/etc/nginx/csp.conf.template}"
+CSP_OUTPUT="${CSP_OUTPUT:-/tmp/csp.conf}"
+frame_ancestors="${LAGO_FRAME_ANCESTORS:-'self'}"
+
+if [ -f "$CSP_TEMPLATE" ]; then
+  # `|` as the delimiter: the list holds dots and stars but never a pipe.
+  sed "s|__LAGO_FRAME_ANCESTORS__|${frame_ancestors}|" "$CSP_TEMPLATE" > "$CSP_OUTPUT"
+else
+  echo ".env.sh: $CSP_TEMPLATE is missing, cannot render $CSP_OUTPUT" >&2
+  exit 1
+fi
+
+# --- runtime app config ------------------------------------------------------
 rm -rf ./env-config.js
 touch ./env-config.js
 

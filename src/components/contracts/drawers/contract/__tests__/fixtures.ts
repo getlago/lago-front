@@ -16,6 +16,8 @@ export const contractForDrawerFixture: ContractForContractDrawerFragment = {
   billingAnchorDate: '2026-01-15',
   billingEntityId: 'billing-entity-2',
   consolidateInvoice: true,
+  selectedInvoiceCustomSections: [],
+  skipInvoiceCustomSections: false,
   purchaseOrderNumber: 'PO-42',
   paymentMethodType: PaymentMethodTypeEnum.Provider,
   paymentMethod: { __typename: 'PaymentMethod', id: 'payment-method-1' },

@@ -57,6 +57,18 @@ describe('prependOrgSlug', () => {
         expect(prependOrgSlug('/acme', 'acme')).toBe('/acme')
       })
     })
+
+    describe('WHEN the path is the org root followed by a query or hash', () => {
+      it.each(['/acme?tab=1', '/acme#top'])('THEN should not double-prepend %s', (path) => {
+        expect(prependOrgSlug(path, 'acme')).toBe(path)
+      })
+    })
+
+    describe('WHEN the path only starts with the characters of the slug', () => {
+      it.each(['/acme-extended', '/acme-extended?tab=1'])('THEN should prepend to %s', (path) => {
+        expect(prependOrgSlug(path, 'acme')).toBe(`/acme${path}`)
+      })
+    })
   })
 
   describe('GIVEN the path starts with a NEVER_SLUG_PREFIX', () => {

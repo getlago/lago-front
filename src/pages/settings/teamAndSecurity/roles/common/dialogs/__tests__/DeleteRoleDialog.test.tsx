@@ -45,6 +45,7 @@ const mockRole: RoleItem = {
   description: 'A custom test role',
   code: 'custom_role',
   admin: false,
+  grantable: true,
   memberships: [],
   permissions: [PermissionEnum.PlansView],
 }

@@ -164,6 +164,7 @@ describe('useRoleDetails', () => {
       name: 'custom-role',
       description: 'A custom role',
       admin: false,
+      grantable: true,
       memberships: [],
       permissions: [PermissionEnum.PlansView],
     }
@@ -174,6 +175,7 @@ describe('useRoleDetails', () => {
       name: 'custom-role-with-members',
       description: 'A custom role with members',
       admin: false,
+      grantable: true,
       memberships: [
         {
           __typename: 'Membership' as const,

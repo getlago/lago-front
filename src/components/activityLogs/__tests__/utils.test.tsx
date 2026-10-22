@@ -2,8 +2,10 @@ import { AvailableFiltersEnum } from '~/components/Filters'
 import {
   ActivityTypeEnum,
   BillingEntity,
+  ContractAppliedRateCard,
   CreditNote,
   Invoice,
+  PlanAppliedRateCard,
   ResourceTypeEnum,
   Wallet,
 } from '~/generated/graphql'
@@ -266,6 +268,84 @@ describe('activityLogs utils', () => {
       )
 
       expect(link).toContain('plan-123')
+    })
+
+    it('should link a Contract to its details route', () => {
+      const link = getResourceLink(
+        { id: 'contract-123', __typename: 'Contract' },
+        { resourceType: 'Contract', activityType: ActivityTypeEnum.ContractCreated },
+      )
+
+      expect(link).toBe('/contracts/contract-123')
+    })
+
+    it('GIVEN a PlanRateCard resource with its catalog plan THEN links to the plan rate card page', () => {
+      const link = getResourceLink(
+        {
+          id: 'applied-rate-card-123',
+          catalogPlan: { id: 'catalog-plan-123' },
+          __typename: 'PlanAppliedRateCard' as const,
+        } as PlanAppliedRateCard,
+        { resourceType: 'PlanRateCard', activityType: ActivityTypeEnum.PlanRateCardUpdated },
+      )
+
+      expect(link).toBe('/plan-pricing/catalog-plan-123/rate-cards/applied-rate-card-123')
+    })
+
+    it('GIVEN a ContractRateCard resource with its contract THEN links to the contract rate card page', () => {
+      const link = getResourceLink(
+        {
+          id: 'applied-rate-card-123',
+          contract: { id: 'contract-123' },
+          __typename: 'ContractAppliedRateCard' as const,
+        } as ContractAppliedRateCard,
+        {
+          resourceType: 'ContractRateCard',
+          activityType: ActivityTypeEnum.ContractRateCardUpdated,
+        },
+      )
+
+      expect(link).toBe('/contracts/contract-123/rate-cards/applied-rate-card-123')
+    })
+
+    it.each([
+      ['PlanRateCard', 'PlanAppliedRateCard', ActivityTypeEnum.PlanRateCardUpdated],
+      ['ContractRateCard', 'ContractAppliedRateCard', ActivityTypeEnum.ContractRateCardUpdated],
+    ] as const)(
+      'GIVEN a %s resource without a parent id THEN returns null',
+      (resourceType, typename, activityType) => {
+        const link = getResourceLink(
+          { id: 'applied-rate-card-123', __typename: typename } as never,
+          {
+            resourceType,
+            activityType,
+          },
+        )
+
+        expect(link).toBeNull()
+      },
+    )
+
+    it('GIVEN a deleted PlanRateCard resource THEN returns null', () => {
+      const link = getResourceLink(
+        {
+          id: 'applied-rate-card-123',
+          catalogPlan: { id: 'catalog-plan-123' },
+          __typename: 'PlanAppliedRateCard' as const,
+        } as PlanAppliedRateCard,
+        { resourceType: 'PlanRateCard', activityType: ActivityTypeEnum.PlanRateCardDeleted },
+      )
+
+      expect(link).toBeNull()
+    })
+
+    it('GIVEN a RateCardRate resource THEN returns null', () => {
+      const link = getResourceLink({ id: 'resource-123', __typename: 'RateCardRate' } as never, {
+        resourceType: 'RateCardRate',
+        activityType: ActivityTypeEnum.RateCardRateCreated,
+      })
+
+      expect(link).toBeNull()
     })
 
     it('should return path for Quote', () => {

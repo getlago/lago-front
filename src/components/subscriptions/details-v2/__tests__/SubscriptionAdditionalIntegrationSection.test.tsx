@@ -78,6 +78,7 @@ describe('SubscriptionAdditionalIntegrationSection', () => {
     const { getByText } = render(
       <SubscriptionAdditionalIntegrationSection subscription={subscription} />,
     )
+
     expect(getByText('netsuite_eu')).toBeInTheDocument()
     expect(getByText('salesforce_default')).toBeInTheDocument()
     mockHeader.mock.calls.at(-1)?.[0].action?.onClick()

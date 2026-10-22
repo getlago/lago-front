@@ -1,3 +1,4 @@
+import { ApolloError } from '@apollo/client'
 import { renderHook } from '@testing-library/react'
 
 import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars'
@@ -54,6 +55,23 @@ describe('useCurrentUser — stale-cache refetch safety net', () => {
 
   afterEach(() => {
     currentOrganizationVar(null)
+  })
+
+  it('exposes query failures so callers can stop loading and offer recovery', () => {
+    const error = new ApolloError({ networkError: new Error('User query failed') })
+
+    mockUseGetCurrentUserInfosQuery.mockReturnValue({
+      data: undefined,
+      loading: false,
+      error,
+      refetch: mockRefetch,
+    })
+
+    const { result } = renderHook(() => useCurrentUser())
+
+    expect(result.current.error).toBe(error)
+    expect(result.current.loading).toBe(false)
+    expect(result.current.currentUser).toBeUndefined()
   })
 
   // Regression for the t30-multi-org-redirect E2E failure: on a hard reload the
