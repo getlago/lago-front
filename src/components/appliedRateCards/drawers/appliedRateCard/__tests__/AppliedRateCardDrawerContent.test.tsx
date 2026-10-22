@@ -3,6 +3,8 @@ import { render as rtlRender, screen, waitFor, within } from '@testing-library/r
 import userEvent from '@testing-library/user-event'
 
 import { APPLIED_RATE_CARD_CONTEXT_CONFIG } from '~/components/appliedRateCards/appliedRateCardContextConfig'
+import { COMBOBOX_LOADING_TEST_ID } from '~/components/form/ComboBox/ComboBoxInput'
+import { COMBOBOX_ADD_VALUE_ITEM_TEST_ID } from '~/components/form/ComboBox/ComboBoxItemWrapper'
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import {
   AggregationTypeEnum,
@@ -433,7 +435,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
 
     await userEvent.click(rateCardInput)
 
-    const addValueItem = await screen.findByTestId('combobox-item-Create rate card')
+    const addValueItem = await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)
 
     await userEvent.click(within(addValueItem).getByRole('option'))
 
@@ -458,7 +460,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
     await userEvent.click(rateCardInput)
 
     expect(await screen.findByText(RATE_CARD.name)).toBeInTheDocument()
-    expect(screen.queryByTestId('combobox-item-Create rate card')).not.toBeInTheDocument()
+    expect(screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).not.toBeInTheDocument()
   })
 
   it('GIVEN a rate card search matches nothing THEN "Create rate card" shows once the search resolves, as the only option', async () => {
@@ -467,31 +469,59 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
     renderContent([
       productsMock(),
       {
-        ...rateCardsMock((vars) => (lastVars = vars)),
-        delay: 500,
-        result: (vars: Record<string, unknown>) => ({
-          data: { rateCards: { collection: vars.searchTerm ? [] : [RATE_CARD] } },
-        }),
+        ...rateCardsMock(() => undefined),
+        variableMatcher: (vars) => !vars?.searchTerm,
+      },
+      {
+        ...rateCardsMock(() => undefined, []),
+        variableMatcher: (vars) => {
+          lastVars = vars ?? {}
+          return !!vars?.searchTerm
+        },
+        delay: 2000,
       },
     ])
 
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
 
-    const rateCardInput = (
-      await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
-    ).querySelector('input') as HTMLInputElement
+    const rateCardField = await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
+    const rateCardInput = rateCardField.querySelector('input') as HTMLInputElement
 
     await userEvent.click(rateCardInput)
     await userEvent.type(rateCardInput, 'unknown-card')
     await waitFor(() => expect(lastVars.searchTerm).toBe('unknown-card'), { timeout: 3000 })
 
-    expect(screen.queryByTestId('combobox-item-Create rate card')).not.toBeInTheDocument()
+    expect(within(rateCardField).getByTestId(COMBOBOX_LOADING_TEST_ID)).toBeInTheDocument()
+    expect(screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).not.toBeInTheDocument()
 
     const addValueOption = within(
-      await screen.findByTestId('combobox-item-Create rate card'),
+      await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID, undefined, { timeout: 4000 }),
     ).getByRole('option')
 
     expect(screen.getAllByRole('option')).toEqual([addValueOption])
+  })
+
+  it('GIVEN the rate cards query fails THEN "Create rate card" stays hidden', async () => {
+    renderContent([
+      productsMock(),
+      {
+        request: { query: GetRateCardsForAppliedRateCardDrawerDocument },
+        variableMatcher: () => true,
+        maxUsageCount: Number.POSITIVE_INFINITY,
+        error: new Error('Network error'),
+      },
+    ])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+
+    const rateCardField = await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
+
+    await userEvent.click(rateCardField.querySelector('input') as HTMLInputElement)
+    await waitFor(() =>
+      expect(within(rateCardField).queryByTestId(COMBOBOX_LOADING_TEST_ID)).not.toBeInTheDocument(),
+    )
+
+    expect(screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).not.toBeInTheDocument()
   })
 
   it('GIVEN the stacked drawer calls onCreated THEN this drawer sets its rateCardId field to the new code, and the stacked drawer is already closed', async () => {
@@ -505,7 +535,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
 
     await userEvent.click(rateCardInput)
 
-    const addValueItem = await screen.findByTestId('combobox-item-Create rate card')
+    const addValueItem = await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)
 
     await userEvent.click(within(addValueItem).getByRole('option'))
 
@@ -859,7 +889,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     await userEvent.click(rateCardInput)
     await userEvent.type(rateCardInput, 'unknown-card')
 
-    const addValueItem = await screen.findByTestId('combobox-item-Create rate card', undefined, {
+    const addValueItem = await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID, undefined, {
       timeout: 3000,
     })
 
@@ -891,7 +921,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
 
     await userEvent.click(rateCardInput)
 
-    const addValueItem = await screen.findByTestId('combobox-item-Create rate card')
+    const addValueItem = await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)
 
     await userEvent.click(within(addValueItem).getByRole('option'))
 
@@ -938,7 +968,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     await waitFor(() => expect(lastVars.searchTerm).toBe('premium'), { timeout: 3000 })
 
     await userEvent.click(
-      within(await screen.findByTestId('combobox-item-Create rate card')).getByRole('option'),
+      within(await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).getByRole('option'),
     )
 
     mockOpenRateCardDrawer.mock.calls

@@ -5,6 +5,7 @@ import { ReactNode } from 'react'
 
 import { FORM_DIALOG_NAME, FORM_DIALOG_TEST_ID } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
+import { COMBOBOX_ADD_VALUE_ITEM_TEST_ID } from '~/components/form/ComboBox/ComboBoxItemWrapper'
 import { CREATE_TAX_ROUTE } from '~/core/router'
 import { GetTaxRatesForEditCustomerDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
@@ -140,7 +141,7 @@ describe('EditCustomerVatRateDialog', () => {
     await user.click(input)
     await user.keyboard('a')
 
-    const createTaxItem = await screen.findByTestId('combobox-item-Create a tax_rate')
+    const createTaxItem = await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)
 
     expect(createTaxItem).toBeInTheDocument()
 

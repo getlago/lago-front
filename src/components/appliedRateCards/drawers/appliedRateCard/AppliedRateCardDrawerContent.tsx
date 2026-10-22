@@ -355,10 +355,10 @@ export const AppliedRateCardDrawerContent = withForm({
       })
     }
 
-    // An in-flight search empties the list too, which must not read as "no match".
-    const createRateCardValueProps = rateCardsLoading
-      ? undefined
-      : { label: translate('text_1791485670326bz5dr6tcop3'), onClick: handleCreateRateCard }
+    // A failed query lists nothing too, which must not read as "no match".
+    const createRateCardValueProps = rateCardsData
+      ? { label: translate('text_1791485670326bz5dr6tcop3'), onClick: handleCreateRateCard }
+      : undefined
 
     const resetFields = (
       fields: Array<
