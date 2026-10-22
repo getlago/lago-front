@@ -2,6 +2,7 @@ import { MockedResponse } from '@apollo/client/testing'
 import { render as rtlRender, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { APPLIED_RATE_CARD_CONTEXT_CONFIG } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import {
   AggregationTypeEnum,
@@ -207,6 +208,10 @@ const pricedSlicesMock = (
         result: { data: { contractAppliedRateCards: { collection } } },
       }
 }
+
+const BASE_TRANSLATIONS: Record<string, string> = jest.requireActual(
+  '../../../../../../translations/base.json',
+)
 
 const RATE_CARD_ID_PROBE_TEST_ID = 'rate-card-id-probe'
 const PRODUCT_FILTER_ID_PROBE_TEST_ID = 'product-filter-id-probe'
@@ -948,7 +953,7 @@ describe('AppliedRateCardDrawerContent, already priced slices', () => {
     { parent: PLAN_PARENT, scenario: 'plan' },
     { parent: CONTRACT_PARENT, scenario: 'contract' },
   ])(
-    'GIVEN the $scenario already prices the product without filter THEN only the card without filter is disabled',
+    'GIVEN the $scenario already prices the product without filter THEN only the card without filter is disabled, with the reason',
     async ({ parent }) => {
       renderContent(
         [
@@ -968,6 +973,11 @@ describe('AppliedRateCardDrawerContent, already priced slices', () => {
 
       await waitFor(() =>
         expect(within(screen.getByTestId(RATE_CARD.code)).getByRole('radio')).toBeDisabled(),
+      )
+      expect(screen.getByTestId(RATE_CARD.code)).toHaveTextContent(
+        BASE_TRANSLATIONS[
+          APPLIED_RATE_CARD_CONTEXT_CONFIG[parent.context].alreadyPricedTranslationKey
+        ],
       )
       expect(within(screen.getByTestId(FILTERED_RATE_CARD.code)).getByRole('radio')).toBeEnabled()
     },

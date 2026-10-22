@@ -1,13 +1,19 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
+import { GraphQLFormattedError } from 'graphql'
 import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router'
 
+import {
+  APPLIED_RATE_CARD_CONTEXT_CONFIG,
+  PRICED_SLICES_REFETCH_QUERIES,
+} from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { useNavigate } from '~/core/router'
 import { CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE } from '~/core/router/CatalogRoutes'
 import { CONTRACT_RATE_CARD_DETAILS_ROUTE } from '~/core/router/ObjectsRoutes'
@@ -24,11 +30,7 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 import { useRateCardDrawer } from '~/pages/catalog/drawers/rateCard/useRateCardDrawer'
 
 import { AppliedRateCardDrawerContent } from './AppliedRateCardDrawerContent'
-import {
-  ALREADY_PRICED_TRANSLATION_KEY,
-  AppliedRateCardParent,
-  PRICED_SLICES_REFETCH_QUERIES,
-} from './usePricedProductFilterIds'
+import { AppliedRateCardParent } from './usePricedProductFilterIds'
 import {
   APPLIED_RATE_CARD_FORM_DEFAULTS,
   buildAppliedRateCardFormSchema,
@@ -88,7 +90,7 @@ export const useAppliedRateCardDrawer = (): {
     refetchQueries: [
       'getPlanAppliedRateCardsForRateCardsSection',
       'getCatalogPlanForDetails',
-      PRICED_SLICES_REFETCH_QUERIES.plan,
+      ...PRICED_SLICES_REFETCH_QUERIES.plan,
     ],
     context: { silentErrorDetails: ALREADY_PRICED_ERRORS },
   })
@@ -96,7 +98,7 @@ export const useAppliedRateCardDrawer = (): {
     refetchQueries: [
       'getContractAppliedRateCardsForRateCardsSection',
       'getContractForDetails',
-      PRICED_SLICES_REFETCH_QUERIES.contract,
+      ...PRICED_SLICES_REFETCH_QUERIES.contract,
     ],
     context: { silentErrorDetails: ALREADY_PRICED_ERRORS },
   })
@@ -106,13 +108,16 @@ export const useAppliedRateCardDrawer = (): {
     defaultValues: APPLIED_RATE_CARD_FORM_DEFAULTS,
     validationLogic: revalidateLogic(),
     validators: { onDynamic: buildAppliedRateCardFormSchema() },
+    onSubmitInvalid: ({ formApi }) => {
+      scrollToFirstInputError(APPLIED_RATE_CARD_FORM_ID, formApi.state.errorMap.onDynamic || {})
+    },
     onSubmit: async ({ value, formApi }) => {
       const props = currentProps.current
 
       if (!props) return
 
       let created: { id: string; rateCard: { name: string } } | null | undefined
-      let errors: Parameters<typeof hasDefinedGQLError>[1]
+      let errors: readonly GraphQLFormattedError[] | undefined
 
       const input = mapFromFormToApi(value, props.currency)
 
@@ -137,16 +142,15 @@ export const useAppliedRateCardDrawer = (): {
         hasDefinedGQLError('ProductAlreadyPriced', errors, 'rateCard') ||
         hasDefinedGQLError('ProductFilterAlreadyPriced', errors, 'rateCard')
       ) {
-        formApi.setErrorMap({
-          onDynamic: {
-            fields: {
-              rateCardId: {
-                message: ALREADY_PRICED_TRANSLATION_KEY[props.context],
-                path: ['rateCardId'],
-              },
-            },
+        const fields = {
+          rateCardId: {
+            message: APPLIED_RATE_CARD_CONTEXT_CONFIG[props.context].alreadyPricedTranslationKey,
+            path: ['rateCardId'],
           },
-        })
+        }
+
+        formApi.setErrorMap({ onDynamic: { fields } })
+        scrollToFirstInputError(APPLIED_RATE_CARD_FORM_ID, fields)
         return
       }
 
