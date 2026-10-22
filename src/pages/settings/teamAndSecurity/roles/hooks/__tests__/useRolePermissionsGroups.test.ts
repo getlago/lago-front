@@ -40,7 +40,7 @@ describe('useRolePermissionsGroups', () => {
       mockFeatureFlags.add(FeatureFlagEnum.AccountTree)
     })
 
-    it('THEN it exposes the governance group with its four permissions', () => {
+    it('THEN it exposes the governance group with its five permissions', () => {
       const { result } = renderHook(() => useRolePermissionsGroups())
 
       const governanceGroup = result.current.groups.find(
@@ -48,6 +48,7 @@ describe('useRolePermissionsGroups', () => {
       )
 
       expect(governanceGroup?.items.map((item) => item.id)).toEqual([
+        'AttributedUsageView',
         'UsageAttributionTypesCreate',
         'UsageAttributionTypesDelete',
         'UsageAttributionTypesUpdate',

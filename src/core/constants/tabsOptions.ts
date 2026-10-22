@@ -25,6 +25,7 @@ export enum CustomerInvoiceDetailsTabsOptionsEnum {
 export enum CustomerSubscriptionDetailsTabsOptionsEnum {
   activityLogs = 'activity-logs',
   alerts = 'alerts',
+  attribution = 'attribution',
   entitlements = 'entitlements',
   overview = 'overview',
   progressiveBilling = 'progressive-billing',
