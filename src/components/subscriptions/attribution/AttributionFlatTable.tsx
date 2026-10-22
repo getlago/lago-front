@@ -25,6 +25,7 @@ export const ATTRIBUTION_TABLE_TEST_ID = 'attribution-flat-table'
 export const ATTRIBUTION_TABLE_ROW_TEST_ID = 'attribution-flat-table-row'
 export const ATTRIBUTION_TABLE_FOOTER_TEST_ID = 'attribution-flat-table-footer'
 export const ATTRIBUTION_SHOW_MORE_TEST_ID = 'attribution-show-more'
+export const ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID = 'attribution-load-more-rows'
 
 const LOADING_ROWS_COUNT = 3
 
@@ -47,6 +48,10 @@ type AttributionFlatTableProps = {
   basis: AttributedUsageBasisEnum
   currency: CurrencyEnum
   isLoading: boolean
+  loadMore?: {
+    isLoading: boolean
+    onLoadMore: () => void
+  }
   onToggleExpanded: () => void
 }
 
@@ -66,6 +71,7 @@ export const AttributionFlatTable = ({
   basis,
   currency,
   isLoading,
+  loadMore,
   onToggleExpanded,
 }: AttributionFlatTableProps): JSX.Element => {
   const { translate } = useInternationalization()
@@ -128,7 +134,7 @@ export const AttributionFlatTable = ({
       ))
     }
 
-    return rows.map((row) => (
+    const renderRow = (row: AttributionTableRow): ReactNode => (
       <tr key={row.id} data-test={ATTRIBUTION_TABLE_ROW_TEST_ID}>
         <td className={ENTITY_CELL_CLASSNAME}>
           <div className="flex items-center gap-2">
@@ -140,7 +146,40 @@ export const AttributionFlatTable = ({
         </td>
         {renderValueCells(row)}
       </tr>
-    ))
+    )
+
+    const renderLoadMoreRow = (): ReactNode => {
+      if (!loadMore) return null
+
+      return (
+        <tr key="load-more">
+          <td className={ENTITY_CELL_CLASSNAME}>
+            <Button
+              variant="inline"
+              size="small"
+              loading={loadMore.isLoading}
+              disabled={loadMore.isLoading}
+              onClick={loadMore.onLoadMore}
+              data-test={ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID}
+            >
+              {translate('text_1792668632007fulz8omi190')}
+            </Button>
+          </td>
+          {columns.map((column) => (
+            <td key={column.key} className={CELL_CLASSNAME} />
+          ))}
+          <td className={TOTAL_CELL_CLASSNAME} />
+        </tr>
+      )
+    }
+
+    return (
+      <>
+        {rows.filter((row) => !row.isUnattributed).map(renderRow)}
+        {renderLoadMoreRow()}
+        {rows.filter((row) => row.isUnattributed).map(renderRow)}
+      </>
+    )
   }
 
   return (

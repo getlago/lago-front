@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql, NetworkStatus } from '@apollo/client'
 import { useState } from 'react'
 import { useParams } from 'react-router'
 
@@ -113,6 +113,10 @@ gql`
       limit: $limit
     ) {
       currency
+      metadata {
+        currentPage
+        totalPages
+      }
       rows {
         value
         amountCents
@@ -180,9 +184,11 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
 
   const {
     data: usageData,
-    loading: isUsageLoading,
+    loading: isUsageQueryLoading,
+    networkStatus: usageNetworkStatus,
     error: usageError,
     refetch: refetchUsage,
+    fetchMore: fetchMoreUsage,
   } = useGetSubscriptionAttributedUsageQuery({
     variables: {
       subscriptionId,
@@ -196,6 +202,9 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     skip: !groupBy,
     notifyOnNetworkStatusChange: true,
   })
+
+  const isFetchingMoreRows = usageNetworkStatus === NetworkStatus.fetchMore
+  const isUsageLoading = isUsageQueryLoading && !isFetchingMoreRows
 
   const isAmountAvailable = isAttributionAmountAvailable(
     selectedCharge ? [selectedCharge] : charges,
@@ -222,6 +231,25 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   }
 
   const attributedUsage = usageData?.attributedUsage
+  const hasMoreRows =
+    !!listByType &&
+    !!attributedUsage &&
+    attributedUsage.metadata.currentPage < attributedUsage.metadata.totalPages
+
+  const loadMoreRows = (): void => {
+    if (!attributedUsage) return
+
+    fetchMoreUsage({
+      variables: { page: attributedUsage.metadata.currentPage + 1 },
+      updateQuery: (previous, { fetchMoreResult }) => ({
+        attributedUsage: {
+          ...previous.attributedUsage,
+          metadata: fetchMoreResult.attributedUsage.metadata,
+          rows: [...previous.attributedUsage.rows, ...fetchMoreResult.attributedUsage.rows],
+        },
+      }),
+    })
+  }
   const chargesUsage = attributedUsage?.totals.chargesUsage ?? []
   const { columns, hiddenColumnsCount } = buildAttributionColumns({
     chargesUsage,
@@ -297,6 +325,9 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
         basis={basis}
         currency={attributedUsage?.currency ?? CurrencyEnum.Usd}
         isLoading={isUsageLoading}
+        loadMore={
+          hasMoreRows ? { isLoading: isFetchingMoreRows, onLoadMore: loadMoreRows } : undefined
+        }
         onToggleExpanded={() => setIsExpanded((previous) => !previous)}
       />
     )

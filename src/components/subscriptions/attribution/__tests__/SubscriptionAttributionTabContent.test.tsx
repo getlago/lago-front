@@ -1,3 +1,4 @@
+import { NetworkStatus } from '@apollo/client'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
@@ -9,7 +10,11 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { ATTRIBUTION_TABLE_ROW_TEST_ID, ATTRIBUTION_TABLE_TEST_ID } from '../AttributionFlatTable'
+import {
+  ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID,
+  ATTRIBUTION_TABLE_ROW_TEST_ID,
+  ATTRIBUTION_TABLE_TEST_ID,
+} from '../AttributionFlatTable'
 import { getAttributionToolbarOptionTestId } from '../AttributionToolbarSelect'
 import {
   ATTRIBUTION_CHARGES_TEST_ID,
@@ -99,6 +104,39 @@ const mockSetup = ({
   })
 }
 
+const mockFetchMoreUsage = jest.fn()
+
+const firstPageUsage = {
+  currency: CurrencyEnum.Usd,
+  rows: [
+    { value: 'k_live_ab12', amountCents: null, chargesUsage: [usageOf(tokensCharge, 4)] },
+    { value: 'k_live_c7e0', amountCents: null, chargesUsage: [usageOf(tokensCharge, 2)] },
+  ],
+  unattributed: { amountCents: null, chargesUsage: [usageOf(tokensCharge, 1)] },
+  totals: { amountCents: null, chargesUsage: [usageOf(tokensCharge, 7)] },
+}
+
+const mockUsage = ({
+  currentPage = 1,
+  totalPages = 1,
+  loading = false,
+  networkStatus = NetworkStatus.ready,
+}: {
+  currentPage?: number
+  totalPages?: number
+  loading?: boolean
+  networkStatus?: NetworkStatus
+} = {}): void => {
+  mockUsageQuery.mockReturnValue({
+    data: { attributedUsage: { ...firstPageUsage, metadata: { currentPage, totalPages } } },
+    loading,
+    networkStatus,
+    error: undefined,
+    refetch: mockRefetchUsage,
+    fetchMore: mockFetchMoreUsage,
+  })
+}
+
 const getLastUsageVariables = (): Record<string, unknown> =>
   mockUsageQuery.mock.calls.at(-1)?.[0].variables
 
@@ -128,22 +166,7 @@ describe('SubscriptionAttributionTabContent', () => {
       },
       refetch: mockRefetchCharges,
     })
-    mockUsageQuery.mockReturnValue({
-      data: {
-        attributedUsage: {
-          currency: CurrencyEnum.Usd,
-          rows: [
-            { value: 'k_live_ab12', amountCents: null, chargesUsage: [usageOf(tokensCharge, 4)] },
-            { value: 'k_live_c7e0', amountCents: null, chargesUsage: [usageOf(tokensCharge, 2)] },
-          ],
-          unattributed: { amountCents: null, chargesUsage: [usageOf(tokensCharge, 1)] },
-          totals: { amountCents: null, chargesUsage: [usageOf(tokensCharge, 7)] },
-        },
-      },
-      loading: false,
-      error: undefined,
-      refetch: mockRefetchUsage,
-    })
+    mockUsage()
   })
 
   describe('GIVEN no flat key is listed', () => {
@@ -199,6 +222,97 @@ describe('SubscriptionAttributionTabContent', () => {
         expect(screen.getByTestId(PLACEHOLDER_TEST_ID)).toBeInTheDocument()
         expect(screen.queryByTestId(ATTRIBUTION_TABLE_TEST_ID)).not.toBeInTheDocument()
         expect(mockUsageQuery.mock.calls.at(-1)?.[0].skip).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN a flat key with more values than one page', () => {
+    describe('WHEN the list is displayed', () => {
+      it('THEN should display the show more row before the unattributed row', async () => {
+        const user = userEvent.setup()
+
+        mockUsage({ totalPages: 2 })
+        render(<SubscriptionAttributionTabContent />)
+
+        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
+
+        const loadMoreRow = screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID).closest('tr')
+        const rows = screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)
+
+        expect(rows[1].nextElementSibling).toBe(loadMoreRow)
+        expect(loadMoreRow?.nextElementSibling).toBe(rows[2])
+      })
+    })
+
+    describe('WHEN clicking show more', () => {
+      it('THEN should fetch the next page and append its rows after the current ones', async () => {
+        const user = userEvent.setup()
+
+        mockUsage({ totalPages: 2 })
+        render(<SubscriptionAttributionTabContent />)
+
+        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
+        await user.click(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID))
+
+        expect(mockFetchMoreUsage).toHaveBeenCalledTimes(1)
+
+        const { variables, updateQuery } = mockFetchMoreUsage.mock.calls[0][0]
+        const nextPage = {
+          ...firstPageUsage,
+          metadata: { currentPage: 2, totalPages: 2 },
+          rows: [{ value: 'k_live_41aa', amountCents: null, chargesUsage: [] }],
+          unattributed: { amountCents: null, chargesUsage: [usageOf(tokensCharge, 99)] },
+        }
+        const merged = updateQuery(
+          { attributedUsage: { ...firstPageUsage, metadata: { currentPage: 1, totalPages: 2 } } },
+          { fetchMoreResult: { attributedUsage: nextPage } },
+        )
+
+        expect(variables).toEqual({ page: 2 })
+        expect(merged.attributedUsage.rows.map((row: { value: string }) => row.value)).toEqual([
+          'k_live_ab12',
+          'k_live_c7e0',
+          'k_live_41aa',
+        ])
+        expect(merged.attributedUsage.metadata).toEqual({ currentPage: 2, totalPages: 2 })
+        expect(merged.attributedUsage.unattributed).toBe(firstPageUsage.unattributed)
+        expect(merged.attributedUsage.totals).toBe(firstPageUsage.totals)
+      })
+    })
+
+    describe('WHEN the next page is loading', () => {
+      it('THEN should keep the loaded rows and disable show more', async () => {
+        const user = userEvent.setup()
+
+        mockUsage({ totalPages: 2, loading: true, networkStatus: NetworkStatus.fetchMore })
+        render(<SubscriptionAttributionTabContent />)
+
+        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
+
+        expect(screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)).toHaveLength(3)
+        expect(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN the last page is loaded', () => {
+      it('THEN should hide show more', async () => {
+        const user = userEvent.setup()
+
+        mockUsage({ currentPage: 2, totalPages: 2 })
+        render(<SubscriptionAttributionTabContent />)
+
+        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
+
+        expect(screen.queryByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN no flat key is listed', () => {
+      it('THEN should not display show more next to the customer row', () => {
+        mockUsage({ totalPages: 2 })
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(screen.queryByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

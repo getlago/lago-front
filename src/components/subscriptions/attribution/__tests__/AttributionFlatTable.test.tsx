@@ -10,6 +10,7 @@ import {
 import { render } from '~/test-utils'
 
 import {
+  ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID,
   ATTRIBUTION_SHOW_MORE_TEST_ID,
   ATTRIBUTION_TABLE_FOOTER_TEST_ID,
   ATTRIBUTION_TABLE_ROW_TEST_ID,
@@ -184,6 +185,49 @@ describe('AttributionFlatTable', () => {
 
         expect(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('GIVEN more rows can be loaded', () => {
+    describe('WHEN the table renders', () => {
+      it('THEN should place the show more row right before the unattributed row', () => {
+        renderTable({ loadMore: { isLoading: false, onLoadMore: jest.fn() } })
+
+        const loadMoreRow = screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID).closest('tr')
+        const [valueRow, unattributedRow] = screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)
+
+        expect(valueRow.nextElementSibling).toBe(loadMoreRow)
+        expect(loadMoreRow?.nextElementSibling).toBe(unattributedRow)
+      })
+    })
+
+    describe('WHEN clicking show more', () => {
+      it('THEN should request the next rows', async () => {
+        const user = userEvent.setup()
+        const onLoadMore = jest.fn()
+
+        renderTable({ loadMore: { isLoading: false, onLoadMore } })
+
+        await user.click(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID))
+
+        expect(onLoadMore).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the next rows are loading', () => {
+      it('THEN should disable show more', () => {
+        renderTable({ loadMore: { isLoading: true, onLoadMore: jest.fn() } })
+
+        expect(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID)).toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN no more rows can be loaded', () => {
+    it('THEN should not render the show more row', () => {
+      renderTable()
+
+      expect(screen.queryByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID)).not.toBeInTheDocument()
     })
   })
 
