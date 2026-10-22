@@ -9,6 +9,7 @@ import {
   useNavigate,
 } from '~/core/router'
 import { stripOrgSlug } from '~/core/router/utils/stripOrgSlug'
+import { isUsageGovernanceEnabled } from '~/core/utils/usageGovernance'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { hasIframeParams } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -96,7 +97,7 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
   const organizationSlug = params?.organizationSlug
   const { loading: isCurrentUserLoading } = useCurrentUser()
   const { hasPermissions, hasPermissionsOr } = usePermissions()
-  const { hasFeatureFlag } = useOrganizationInfos()
+  const { organization, hasFeatureFlag } = useOrganizationInfos()
   const goBack: GoBack = (fallback, options) => {
     const { previous, remainingHistory } = getPreviousLocation({
       ...(options || {}),
@@ -125,7 +126,11 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
        * Redirect to forbidden page
        */
       navigate(FORBIDDEN_ROUTE)
-    } else if (routeConfig.featureFlag && !hasFeatureFlag(routeConfig.featureFlag)) {
+    } else if (
+      (routeConfig.featureFlag && !hasFeatureFlag(routeConfig.featureFlag)) ||
+      (routeConfig.requiresUsageGovernance &&
+        !isUsageGovernanceEnabled({ organization, hasFeatureFlag }))
+    ) {
       /**
        * In case of navigation to a route gated by a feature flag that is not active
        * Redirect to home page

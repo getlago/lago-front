@@ -1,5 +1,3 @@
-import { FeatureFlagEnum } from '~/generated/graphql'
-
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
@@ -256,7 +254,7 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <GovernanceSettings />,
         permissions: ['usageAttributionTypesView'],
-        featureFlag: FeatureFlagEnum.AccountTree,
+        requiresUsageGovernance: true,
       },
       {
         path: [GENERAL_SETTINGS_ROUTE],

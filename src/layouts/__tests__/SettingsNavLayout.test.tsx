@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { FeatureFlagEnum, GetBillingEntitiesDocument } from '~/generated/graphql'
+import { EventsStoreEnum, FeatureFlagEnum, GetBillingEntitiesDocument } from '~/generated/graphql'
 import { TMembershipPermissions } from '~/hooks/usePermissions'
 import { render } from '~/test-utils'
 
@@ -17,10 +17,11 @@ jest.mock('~/hooks/usePermissions', () => ({
 }))
 
 const mockFeatureFlags = new Set<FeatureFlagEnum>()
+let mockEventsStore = EventsStoreEnum.Clickhouse
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
-    organization: { canCreateBillingEntity: false },
+    organization: { canCreateBillingEntity: false, eventsStore: mockEventsStore },
     hasFeatureFlag: (flag: FeatureFlagEnum) => mockFeatureFlags.has(flag),
   }),
 }))
@@ -127,6 +128,17 @@ describe('SettingsNavLayout', () => {
     renderSettings()
 
     expect(screen.queryByRole('link', { name: 'Governance' })).not.toBeInTheDocument()
+  })
+
+  it('hides Governance when the organization events are stored in Postgres', () => {
+    mockFeatureFlags.add(FeatureFlagEnum.AccountTree)
+    mockPermissions.add('usageAttributionTypesView')
+    mockEventsStore = EventsStoreEnum.Postgres
+    renderSettings()
+
+    expect(screen.queryByRole('link', { name: 'Governance' })).not.toBeInTheDocument()
+
+    mockEventsStore = EventsStoreEnum.Clickhouse
   })
 
   it('hides Governance when the view permission is missing', () => {
