@@ -82,6 +82,8 @@ const foreverPhase: RatePhaseFormValues = {
   durationType: 'forever',
 }
 
+const RATE_HISTORY_PATH = '/acme/product-catalog/rate-cards/rc-1/rates'
+
 const callbacks = {
   onEdit: jest.fn(),
   onRevert: jest.fn(),
@@ -89,7 +91,14 @@ const callbacks = {
 }
 
 const renderTable = (phases: RatePhaseFormValues[] = [overriddenPhase, foreverPhase]) =>
-  render(<RatePhaseTable phases={phases} rateCardId="rc-1" rateCard={rateCard} {...callbacks} />)
+  render(
+    <RatePhaseTable
+      phases={phases}
+      rateHistoryPath={RATE_HISTORY_PATH}
+      rateCard={rateCard}
+      {...callbacks}
+    />,
+  )
 
 const openActions = async (index: number): Promise<void> => {
   await userEvent.click(screen.getByTestId(getRatePhaseActionsTestId(index)))
@@ -154,7 +163,6 @@ describe('RatePhaseTable', () => {
   })
 
   it('GIVEN a phase on the active rate THEN "See rate history" opens the rate card rates tab in a new tab', async () => {
-    window.history.pushState({}, '', '/acme/plan-pricing/plan-1/overview/rate-cards')
     renderTable([foreverPhase])
 
     await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
@@ -163,16 +171,15 @@ describe('RatePhaseTable', () => {
       .getAllByTestId(RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID)
       .find((element) => element.tagName === 'A')
 
-    expect(link).toHaveAttribute('href', '/acme/product-catalog/rate-cards/rc-1/rates')
+    expect(link).toHaveAttribute('href', RATE_HISTORY_PATH)
     expect(link).toHaveAttribute('target', '_blank')
-    window.history.pushState({}, '', '/')
   })
 
   it('GIVEN a rate card with a pricing unit THEN the spending minimum reads in that unit', async () => {
     render(
       <RatePhaseTable
         phases={[{ ...overriddenPhase, minAmountCents: '5', conversionRate: '1' }]}
-        rateCardId="rc-1"
+        rateHistoryPath={RATE_HISTORY_PATH}
         rateCard={{ ...rateCard, appliedPricingUnitCode: 'CR' }}
         {...callbacks}
       />,
@@ -187,7 +194,7 @@ describe('RatePhaseTable', () => {
     render(
       <RatePhaseTable
         phases={[{ ...overriddenPhase, conversionRate: '1' }]}
-        rateCardId="rc-1"
+        rateHistoryPath={RATE_HISTORY_PATH}
         rateCard={{ ...rateCard, appliedPricingUnitCode: 'CR' }}
         {...callbacks}
       />,
@@ -204,7 +211,7 @@ describe('RatePhaseTable', () => {
     render(
       <RatePhaseTable
         phases={[overriddenPhase]}
-        rateCardId="rc-1"
+        rateHistoryPath={RATE_HISTORY_PATH}
         rateCard={{ ...rateCard, billingTiming: RateCardBillingTimingEnum.Advance }}
         {...callbacks}
       />,

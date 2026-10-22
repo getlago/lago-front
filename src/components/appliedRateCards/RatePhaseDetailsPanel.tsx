@@ -27,7 +27,7 @@ export const RATE_PHASE_DETAILS_CONVERSION_RATE_TEST_ID = 'rate-phase-details-co
 type RatePhaseDetailsPanelProps = {
   phase: RatePhaseForDetails
   phaseRate: RatePhaseRate | null
-  rateCardId: string
+  rateHistoryPath: string
   rateCard: {
     currency: CurrencyEnum
     billingTiming: RateCardBillingTimingEnum
@@ -53,12 +53,14 @@ const DetailsSection = ({
 export const RatePhaseDetailsPanel = ({
   phase,
   phaseRate,
-  rateCardId,
+  rateHistoryPath,
   rateCard,
 }: RatePhaseDetailsPanelProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { pricingUnits } = useCustomPricingUnits()
   const pricingUnit = pricingUnits.find((unit) => unit.code === rateCard.appliedPricingUnitCode)
+  const pricingUnitShortName =
+    pricingUnit?.shortName ?? rateCard.appliedPricingUnitCode ?? undefined
   const rate = phaseRate?.rate
   const overriddenFields: Set<OverrideDiffField> = phaseRate?.isOverridden
     ? phaseRate.overriddenFields
@@ -66,12 +68,6 @@ export const RatePhaseDetailsPanel = ({
 
   const renderRateSection = (): ReactNode => {
     if (!phaseRate || !rate) return null
-
-    const spendingMinimum = formatSpendingMinimum(
-      rate,
-      rateCard.currency,
-      pricingUnit?.shortName ?? rateCard.appliedPricingUnitCode ?? undefined,
-    )
 
     return (
       <DetailsSection title={translate('text_64de472463e2da6b31737de0')}>
@@ -81,7 +77,7 @@ export const RatePhaseDetailsPanel = ({
             value={
               <RatePhaseRateEffectiveDate
                 effectiveFrom={phaseRate.effectiveFrom}
-                rateCardId={rateCardId}
+                rateHistoryPath={rateHistoryPath}
               />
             }
           />
@@ -103,7 +99,7 @@ export const RatePhaseDetailsPanel = ({
                 <span data-test={RATE_PHASE_DETAILS_CONVERSION_RATE_TEST_ID}>
                   {translate('text_1791838459984mz627wmmt51', {
                     pricingUnitName: pricingUnit?.name ?? rateCard.appliedPricingUnitCode,
-                    pricingUnitShortName: pricingUnit?.shortName ?? rateCard.appliedPricingUnitCode,
+                    pricingUnitShortName,
                     amount: formatConversionRateAmount(
                       Number(rate.pricingUnitConversionRate ?? 0),
                       rateCard.currency,
@@ -133,7 +129,9 @@ export const RatePhaseDetailsPanel = ({
           <RatePhaseDetailItem
             label={translate('text_1791838459984ploipjejyo9')}
             value={
-              <span data-test={RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID}>{spendingMinimum}</span>
+              <span data-test={RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID}>
+                {formatSpendingMinimum(rate, rateCard.currency, pricingUnitShortName)}
+              </span>
             }
             isOverridden={overriddenFields.has('minAmountCents')}
           />

@@ -1,4 +1,9 @@
+import { generatePath } from 'react-router'
+
+import { RateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { RATE_CARD_DETAILS_ROUTE } from '~/core/router/CatalogRoutes'
+import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
@@ -59,23 +64,34 @@ export const formatConversionRateAmount = (amount: number, currency: CurrencyEnu
   })
 
 export const formatSpendingMinimum = (
-  rate: RateOverrideInput,
+  rate: Pick<RateOverrideInput, 'minAmountCents'>,
   currency: CurrencyEnum,
   pricingUnitShortName: string | undefined,
 ): string => {
+  // A rate saved without one stores 0, which would read as a configured zero floor.
   const minAmountCents = Number(rate.minAmountCents ?? 0)
 
-  if (minAmountCents > 0) {
-    return intlFormatNumber(deserializeAmount(minAmountCents, currency), {
-      currencyDisplay: 'symbol',
-      currency,
-      pricingUnitShortName,
-      maximumFractionDigits: 15,
-    })
-  }
+  if (minAmountCents <= 0) return '-'
 
-  return '-'
+  return intlFormatNumber(deserializeAmount(minAmountCents, currency), {
+    currencyDisplay: 'symbol',
+    currency,
+    pricingUnitShortName,
+    maximumFractionDigits: 15,
+  })
 }
+
+export const getRateHistoryPath = (
+  rateCardId: string,
+  organizationSlug: string | undefined,
+): string =>
+  prependOrgSlug(
+    generatePath(RATE_CARD_DETAILS_ROUTE, {
+      rateCardId,
+      tab: RateCardDetailsTabsOptionsEnum.rates,
+    }),
+    organizationSlug,
+  )
 
 // No unit conversion: 1 cycle of 14 days reads "14 days", 2 cycles of 1 week "2 weeks".
 export const formatPhaseDuration = (

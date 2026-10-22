@@ -108,14 +108,12 @@ describe('RatePhaseRateProperties', () => {
 })
 
 describe('RatePhaseRateEffectiveDate', () => {
-  afterEach(() => {
-    window.history.pushState({}, '', '/')
-  })
-
-  it('GIVEN an org-scoped URL THEN shows the UTC date and links to the rate card rates tab of that org', async () => {
-    window.history.pushState({}, '', '/acme/contracts/c-1/rate-cards/arc-1')
+  it('GIVEN a rate history path THEN shows the UTC date and links to that path in a new tab', async () => {
     render(
-      <RatePhaseRateEffectiveDate effectiveFrom="2026-01-01T00:00:00.000Z" rateCardId="rc-1" />,
+      <RatePhaseRateEffectiveDate
+        effectiveFrom="2026-01-01T00:00:00.000Z"
+        rateHistoryPath="/acme/product-catalog/rate-cards/rc-1/rates"
+      />,
     )
 
     expect(await screen.findByTestId(RATE_PHASE_RATE_EFFECTIVE_DATE_TEST_ID)).toHaveTextContent(
@@ -127,5 +125,6 @@ describe('RatePhaseRateEffectiveDate', () => {
       .find((element) => element.tagName === 'A')
 
     expect(link).toHaveAttribute('href', '/acme/product-catalog/rate-cards/rc-1/rates')
+    expect(link).toHaveAttribute('target', '_blank')
   })
 })

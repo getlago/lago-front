@@ -13,6 +13,7 @@ import {
   formatRateBillingInterval,
   formatRatePhaseName,
   formatSpendingMinimum,
+  getRateHistoryPath,
 } from '../ratePhaseDisplay'
 
 const translate: TranslateFunc = (key, data, plural) =>
@@ -134,5 +135,11 @@ describe('formatRatePhaseName', () => {
     expect(formatRatePhaseName({ name: '', position: 2 }, translate)).toBe(
       'text_1792503533806fhiu57zr6an|{"position":2}',
     )
+  })
+})
+
+describe('getRateHistoryPath', () => {
+  it('GIVEN an organization slug THEN points to the rate card rates tab of that org', () => {
+    expect(getRateHistoryPath('rc-1', 'acme')).toBe('/acme/product-catalog/rate-cards/rc-1/rates')
   })
 })
