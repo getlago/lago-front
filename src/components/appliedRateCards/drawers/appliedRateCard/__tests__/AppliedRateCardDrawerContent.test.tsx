@@ -878,7 +878,9 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
   })
 
   it('GIVEN "Create rate card" is clicked on an unknown search THEN the typed text is never selected', async () => {
-    renderContent([productsMock(), rateCardsMock(() => undefined, [])])
+    let lastVars: Record<string, unknown> = {}
+
+    renderContent([productsMock(), rateCardsMock((vars) => (lastVars = vars), [])])
 
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
 
@@ -888,6 +890,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
 
     await userEvent.click(rateCardInput)
     await userEvent.type(rateCardInput, 'unknown-card')
+    await waitFor(() => expect(lastVars.searchTerm).toBe('unknown-card'), { timeout: 3000 })
 
     const addValueItem = await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID, undefined, {
       timeout: 3000,

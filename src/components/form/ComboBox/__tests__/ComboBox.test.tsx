@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { render } from '~/test-utils'
@@ -103,6 +103,73 @@ describe('ComboBox', () => {
       expect(screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).not.toBeInTheDocument()
 
       rerender(<ComboBox {...props} loading={false} />)
+
+      expect(await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).toBeInTheDocument()
+    })
+
+    // Regression: the row from an empty result stayed clickable during the next search's debounce.
+    it('WHEN a new term is typed after an empty result THEN the row hides until that term is searched', async () => {
+      const searchQuery = jest.fn()
+      const props = {
+        name: 'rateCard',
+        value: '',
+        onChange: jest.fn(),
+        virtualized: false,
+        allowAddValue: true,
+        addValueProps: { label: 'Create one', onClick: jest.fn() },
+        searchQuery,
+      }
+      const { rerender } = render(<ComboBox {...props} data={[]} />)
+      const input = screen.getByRole('combobox')
+
+      await userEvent.click(input)
+      await userEvent.type(input, 'zzz')
+
+      expect(
+        await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID, undefined, { timeout: 2000 }),
+      ).toBeInTheDocument()
+
+      await userEvent.type(input, 'a')
+
+      expect(screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).not.toBeInTheDocument()
+
+      await waitFor(
+        () => expect(searchQuery).toHaveBeenLastCalledWith({ variables: { searchTerm: 'zzza' } }),
+        { timeout: 2000 },
+      )
+      rerender(<ComboBox {...props} data={[{ value: 'zzza-card', label: 'Zzza card' }]} />)
+
+      expect(await screen.findByText('Zzza card')).toBeInTheDocument()
+      expect(screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    // Regression: after a searched selection, a list the parent emptied on its own never showed the row.
+    it('WHEN the parent empties the list after a searched selection THEN the row shows', async () => {
+      const searchQuery = jest.fn()
+      const props = {
+        name: 'rateCard',
+        onChange: jest.fn(),
+        virtualized: false,
+        allowAddValue: true,
+        addValueProps: { label: 'Create one', onClick: jest.fn() },
+        searchQuery,
+      }
+      const premium = [{ value: 'premium', label: 'Premium card' }]
+      const { rerender } = render(<ComboBox {...props} value="" data={premium} />)
+      const input = screen.getByRole('combobox')
+
+      await userEvent.click(input)
+      await userEvent.type(input, 'prem')
+      await waitFor(
+        () => expect(searchQuery).toHaveBeenLastCalledWith({ variables: { searchTerm: 'prem' } }),
+        { timeout: 2000 },
+      )
+      await userEvent.click(await screen.findByText('Premium card'))
+      rerender(<ComboBox {...props} value="premium" data={premium} />)
+      await userEvent.click(document.body)
+
+      rerender(<ComboBox {...props} value="" data={[]} />)
+      await userEvent.click(screen.getByRole('combobox'))
 
       expect(await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).toBeInTheDocument()
     })
