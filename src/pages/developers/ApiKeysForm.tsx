@@ -54,17 +54,50 @@ const canOnlyRead = (permission: ApiKeysPermissionsEnum) =>
   permission === ApiKeysPermissionsEnum.CustomerUsage ||
   permission === ApiKeysPermissionsEnum.SecurityLog
 
+const PRODUCT_CATALOG_ONLY_PERMISSIONS: ApiKeysPermissionsEnum[] = [
+  ApiKeysPermissionsEnum.Contract,
+  ApiKeysPermissionsEnum.ContractRateCard,
+  ApiKeysPermissionsEnum.PlanRateCard,
+  ApiKeysPermissionsEnum.Product,
+  ApiKeysPermissionsEnum.ProductCategory,
+  ApiKeysPermissionsEnum.RateCard,
+]
+
+// The resources the v2 API keeps; the others have no v2 endpoint planned.
+const PRODUCT_CATALOG_PERMISSIONS: ApiKeysPermissionsEnum[] = [
+  ApiKeysPermissionsEnum.ActivityLog,
+  ApiKeysPermissionsEnum.ApiLog,
+  ApiKeysPermissionsEnum.BillableMetric,
+  ApiKeysPermissionsEnum.BillingEntity,
+  ApiKeysPermissionsEnum.Contract,
+  ApiKeysPermissionsEnum.ContractRateCard,
+  ApiKeysPermissionsEnum.CreditNote,
+  ApiKeysPermissionsEnum.Customer,
+  ApiKeysPermissionsEnum.CustomerUsage,
+  ApiKeysPermissionsEnum.Event,
+  ApiKeysPermissionsEnum.Fee,
+  ApiKeysPermissionsEnum.Invoice,
+  ApiKeysPermissionsEnum.Organization,
+  ApiKeysPermissionsEnum.Payment,
+  ApiKeysPermissionsEnum.PaymentMethod,
+  ApiKeysPermissionsEnum.PaymentReceipt,
+  ApiKeysPermissionsEnum.PaymentRequest,
+  ApiKeysPermissionsEnum.Plan,
+  ApiKeysPermissionsEnum.PlanRateCard,
+  ApiKeysPermissionsEnum.Product,
+  ApiKeysPermissionsEnum.ProductCategory,
+  ApiKeysPermissionsEnum.RateCard,
+  ApiKeysPermissionsEnum.SecurityLog,
+  ApiKeysPermissionsEnum.Tax,
+  ApiKeysPermissionsEnum.WebhookEndpoint,
+  ApiKeysPermissionsEnum.WebhookJwtPublicKey,
+]
+
 const PERMISSION_FEATURE_FLAGS: Partial<Record<ApiKeysPermissionsEnum, FeatureFlagEnum>> = {
   [ApiKeysPermissionsEnum.AttributedUsage]: FeatureFlagEnum.AccountTree,
-  [ApiKeysPermissionsEnum.Contract]: FeatureFlagEnum.ProductCatalog,
-  [ApiKeysPermissionsEnum.ContractRateCard]: FeatureFlagEnum.ProductCatalog,
   [ApiKeysPermissionsEnum.Order]: FeatureFlagEnum.OrderForms,
   [ApiKeysPermissionsEnum.OrderForm]: FeatureFlagEnum.OrderForms,
-  [ApiKeysPermissionsEnum.PlanRateCard]: FeatureFlagEnum.ProductCatalog,
-  [ApiKeysPermissionsEnum.Product]: FeatureFlagEnum.ProductCatalog,
-  [ApiKeysPermissionsEnum.ProductCategory]: FeatureFlagEnum.ProductCatalog,
   [ApiKeysPermissionsEnum.Quote]: FeatureFlagEnum.OrderForms,
-  [ApiKeysPermissionsEnum.RateCard]: FeatureFlagEnum.ProductCatalog,
   [ApiKeysPermissionsEnum.UsageAttributionType]: FeatureFlagEnum.AccountTree,
   [ApiKeysPermissionsEnum.X402]: FeatureFlagEnum.X402Payments,
   [ApiKeysPermissionsEnum.X402Connection]: FeatureFlagEnum.X402Payments,
@@ -72,12 +105,17 @@ const PERMISSION_FEATURE_FLAGS: Partial<Record<ApiKeysPermissionsEnum, FeatureFl
 
 const getAvailablePermissions = (
   hasFeatureFlag: (flag: FeatureFlagEnum) => boolean,
-): ApiKeysPermissionsEnum[] =>
-  Object.values(ApiKeysPermissionsEnum).filter((permission) => {
+): ApiKeysPermissionsEnum[] => {
+  if (hasFeatureFlag(FeatureFlagEnum.ProductCatalog)) return PRODUCT_CATALOG_PERMISSIONS
+
+  return Object.values(ApiKeysPermissionsEnum).filter((permission) => {
+    if (PRODUCT_CATALOG_ONLY_PERMISSIONS.includes(permission)) return false
+
     const featureFlag = PERMISSION_FEATURE_FLAGS[permission]
 
     return !featureFlag || hasFeatureFlag(featureFlag)
   })
+}
 
 const DEFAULT_PERMISSIONS: Record<ApiKeysPermissionsEnum, string[]> = Object.values(
   ApiKeysPermissionsEnum,

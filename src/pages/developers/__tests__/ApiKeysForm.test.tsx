@@ -531,13 +531,12 @@ describe('ApiKeysForm', () => {
         )
       })
 
-      it('THEN should display the product catalog resources only', async () => {
+      it('THEN should display the v2 resources only', async () => {
         render(<ApiKeysForm />)
 
         await waitFor(() => {
           expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
         })
-
         ;[
           'Products',
           'Product categories',
@@ -545,10 +544,31 @@ describe('ApiKeysForm', () => {
           'Plan rate cards',
           'Contracts',
           'Contract rate cards',
+          'Customers',
+          'Invoices',
+          'Plans',
         ].forEach((label) => {
           expect(screen.getByText(label)).toBeInTheDocument()
         })
+        ;['Coupons', 'Wallets', 'Subscriptions', 'Features', 'Invoice custom section'].forEach(
+          (label) => {
+            expect(screen.queryByText(label)).not.toBeInTheDocument()
+          },
+        )
+      })
+
+      it('THEN should hide v1-only flagged resources even when their flag is on', async () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        render(<ApiKeysForm />)
+
+        await waitFor(() => {
+          expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+        })
+
         expect(screen.queryByText('Quotes')).not.toBeInTheDocument()
+        expect(screen.queryByText('x402 connections')).not.toBeInTheDocument()
+        expect(screen.queryByText('Usage attribution types')).not.toBeInTheDocument()
       })
     })
   })
