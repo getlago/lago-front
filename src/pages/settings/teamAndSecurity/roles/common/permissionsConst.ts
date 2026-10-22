@@ -1,4 +1,4 @@
-import { FeatureFlagEnum, PermissionEnum } from '~/generated/graphql'
+import { PermissionEnum } from '~/generated/graphql'
 
 import { PermissionGroupMapping, PermissionName } from './permissionsTypes'
 
@@ -6,13 +6,13 @@ export const allPermissions = Object.keys(PermissionEnum) as Array<PermissionNam
 
 export const hiddenPermissions: Array<PermissionName> = []
 
-export const featureFlagGatedPermissions: Partial<Record<PermissionName, FeatureFlagEnum>> = {
-  AttributedUsageView: FeatureFlagEnum.AccountTree,
-  UsageAttributionTypesView: FeatureFlagEnum.AccountTree,
-  UsageAttributionTypesCreate: FeatureFlagEnum.AccountTree,
-  UsageAttributionTypesUpdate: FeatureFlagEnum.AccountTree,
-  UsageAttributionTypesDelete: FeatureFlagEnum.AccountTree,
-}
+export const usageGovernancePermissions: Array<PermissionName> = [
+  'AttributedUsageView',
+  'UsageAttributionTypesView',
+  'UsageAttributionTypesCreate',
+  'UsageAttributionTypesUpdate',
+  'UsageAttributionTypesDelete',
+]
 
 export const permissionGroupMapping: PermissionGroupMapping = {
   addons: ['AddonsCreate', 'AddonsDelete', 'AddonsUpdate', 'AddonsView'],

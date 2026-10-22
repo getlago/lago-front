@@ -34,8 +34,8 @@ import {
   useNavigate,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { isUsageGovernanceEnabled } from '~/core/utils/usageGovernance'
 import {
-  FeatureFlagEnum,
   LagoApiError,
   StatusTypeEnum,
   SubscriptionForProgressiveBillingTabFragmentDoc,
@@ -88,7 +88,11 @@ const SubscriptionDetails = () => {
   const { hasPermissions } = usePermissions()
   const { canEditSubscription, canTerminateSubscription, isStatusEditable } =
     useSubscriptionPermissionsActions()
-  const { hasFeatureFlag, loading: isOrganizationInfosLoading } = useOrganizationInfos()
+  const {
+    organization,
+    hasFeatureFlag,
+    loading: isOrganizationInfosLoading,
+  } = useOrganizationInfos()
   const { planId = '', customerId = '', subscriptionId = '', tab: currentTab } = useParams()
   const { translate } = useInternationalization()
   const { openTerminateCustomerSubscriptionDialog } = useTerminateCustomerSubscriptionDialog()
@@ -116,7 +120,7 @@ const SubscriptionDetails = () => {
   // `Resolvers::AttributedUsageResolver` only serves active subscriptions, and the tab also reads
   // `usageAttributionTypes`, which requires its own permission.
   const canViewAttribution =
-    hasFeatureFlag(FeatureFlagEnum.AccountTree) &&
+    isUsageGovernanceEnabled({ organization, hasFeatureFlag }) &&
     hasPermissions(['attributedUsageView', 'usageAttributionTypesView']) &&
     subscription?.status === StatusTypeEnum.Active
   const shouldRedirectFromAttribution =

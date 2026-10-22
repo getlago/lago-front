@@ -10,7 +10,6 @@ import {
   TimeZonesConfig,
 } from '~/core/timezone'
 import {
-  EventsStoreEnum,
   FeatureFlagEnum,
   MainOrganizationInfosFragment,
   PremiumIntegrationTypeEnum,
@@ -41,15 +40,6 @@ gql`
     }
   }
 `
-
-// `UsageAttributions::QueryService#available?`: account tree data only exists on the ClickHouse
-// events store, so the flag alone must not unlock any governance UI.
-const FEATURE_FLAG_PREREQUISITES: Partial<
-  Record<FeatureFlagEnum, (organization?: MainOrganizationInfosFragment) => boolean>
-> = {
-  [FeatureFlagEnum.AccountTree]: (organization) =>
-    organization?.eventsStore === EventsStoreEnum.Clickhouse,
-}
 
 type UseOrganizationInfos = () => {
   loading: boolean
@@ -100,8 +90,7 @@ export const useOrganizationInfos: UseOrganizationInfos = () => {
     organization,
     timezone: orgaTimezone || TimezoneEnum.TzUtc,
     timezoneConfig,
-    hasFeatureFlag: (flag: FeatureFlagEnum) =>
-      !!featureFlags?.includes(flag) && (FEATURE_FLAG_PREREQUISITES[flag]?.(organization) ?? true),
+    hasFeatureFlag: (flag: FeatureFlagEnum) => !!featureFlags?.includes(flag),
     hasOrganizationPremiumAddon: (integration: PremiumIntegrationTypeEnum) =>
       !!premiumIntegrations?.includes(integration),
     refetchOrganizationInfos: refetch,
