@@ -559,6 +559,67 @@ describe('SubscriptionDetails', () => {
       })
     })
 
+    describe('WHEN the usageAttributionTypesView permission is missing', () => {
+      beforeEach(() => {
+        mockHasPermissions.mockImplementation(
+          (permissions: string[]) => !permissions.includes('usageAttributionTypesView'),
+        )
+      })
+
+      it('THEN should hide the attribution tab', () => {
+        render(<SubscriptionDetails />)
+
+        expect(capturedConfig?.tabs?.[ATTRIBUTION_TAB_INDEX]?.hidden).toBe(true)
+      })
+    })
+
+    describe.each([StatusTypeEnum.Pending, StatusTypeEnum.Terminated, StatusTypeEnum.Canceled])(
+      'WHEN the subscription is %s',
+      (status) => {
+        beforeEach(() => {
+          mockUseGetSubscriptionForDetailsQuery.mockReturnValue({
+            data: { subscription: { ...mockSubscription, status } },
+            loading: false,
+            error: null,
+          })
+        })
+
+        it('THEN should hide the attribution tab', () => {
+          render(<SubscriptionDetails />)
+
+          expect(capturedConfig?.tabs?.[ATTRIBUTION_TAB_INDEX]?.hidden).toBe(true)
+        })
+
+        it('THEN should redirect the attribution URL to the overview tab', () => {
+          setAttributionUrl()
+
+          render(<SubscriptionDetails />)
+
+          expect(testMockNavigateFn).toHaveBeenCalledWith(
+            expect.stringContaining(overviewRoute),
+            expect.objectContaining({ replace: true }),
+          )
+        })
+      },
+    )
+
+    describe('WHEN the attribution URL is opened while the subscription is loading', () => {
+      beforeEach(() => {
+        mockUseGetSubscriptionForDetailsQuery.mockReturnValue({
+          data: null,
+          loading: true,
+          error: null,
+        })
+        setAttributionUrl()
+      })
+
+      it('THEN should not redirect', () => {
+        render(<SubscriptionDetails />)
+
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+
     describe('WHEN the attributedUsageView permission is missing', () => {
       beforeEach(() => {
         mockHasPermissions.mockImplementation(

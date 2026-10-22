@@ -111,14 +111,19 @@ const SubscriptionDetails = () => {
 
   const activeTabContent = useMainHeaderTabContent()
 
+  const subscription = subscriptionResult?.subscription
+
+  // `Resolvers::AttributedUsageResolver` only serves active subscriptions, and the tab also reads
+  // `usageAttributionTypes`, which requires its own permission.
   const canViewAttribution =
-    hasFeatureFlag(FeatureFlagEnum.AccountTree) && hasPermissions(['attributedUsageView'])
+    hasFeatureFlag(FeatureFlagEnum.AccountTree) &&
+    hasPermissions(['attributedUsageView', 'usageAttributionTypesView']) &&
+    subscription?.status === StatusTypeEnum.Active
   const shouldRedirectFromAttribution =
     currentTab === CustomerSubscriptionDetailsTabsOptionsEnum.attribution &&
     !isOrganizationInfosLoading &&
+    !!subscription &&
     !canViewAttribution
-
-  const subscription = subscriptionResult?.subscription
 
   const canCreateOrUpdateAlert = useMemo(() => {
     return hasPermissions(['subscriptionsCreate', 'subscriptionsUpdate'])

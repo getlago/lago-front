@@ -24,6 +24,52 @@ type AttributionToolbarSelectProps = {
   'data-test'?: string
 }
 
+type AttributionToolbarSelectMenuProps = Omit<AttributionToolbarSelectProps, 'label'> & {
+  onClose: () => void
+}
+
+const AttributionToolbarSelectMenu = ({
+  value,
+  options,
+  searchPlaceholder,
+  onChange,
+  onClose,
+  'data-test': dataTest,
+}: AttributionToolbarSelectMenuProps): JSX.Element => {
+  const [searchTerm, setSearchTerm] = useState('')
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase()
+  const visibleOptions = normalizedSearchTerm
+    ? options.filter((option) => option.label.toLowerCase().includes(normalizedSearchTerm))
+    : options
+
+  return (
+    <MenuPopper>
+      {!!searchPlaceholder && (
+        <SearchInput
+          className="min-w-full max-w-full"
+          placeholder={searchPlaceholder}
+          onChange={setSearchTerm}
+        />
+      )}
+      {visibleOptions.map((option) => (
+        <Button
+          key={option.value}
+          align="left"
+          variant={option.value === value ? 'secondary' : 'quaternary'}
+          disabled={option.disabled}
+          data-test={dataTest && getAttributionToolbarOptionTestId(dataTest, option.value)}
+          onClick={() => {
+            onChange(option.value)
+            onClose()
+          }}
+        >
+          {option.label}
+        </Button>
+      ))}
+    </MenuPopper>
+  )
+}
+
 export const AttributionToolbarSelect = ({
   label,
   value,
@@ -32,12 +78,7 @@ export const AttributionToolbarSelect = ({
   onChange,
   'data-test': dataTest,
 }: AttributionToolbarSelectProps): JSX.Element => {
-  const [searchTerm, setSearchTerm] = useState('')
   const selectedOption = options.find((option) => option.value === value)
-  const normalizedSearchTerm = searchTerm.trim().toLowerCase()
-  const visibleOptions = normalizedSearchTerm
-    ? options.filter((option) => option.label.toLowerCase().includes(normalizedSearchTerm))
-    : options
 
   return (
     <div className="flex items-center gap-2">
@@ -47,7 +88,6 @@ export const AttributionToolbarSelect = ({
       <Popper
         PopperProps={{ placement: 'bottom-start' }}
         maxHeight={360}
-        onClickAway={() => setSearchTerm('')}
         opener={
           <Button variant="secondary" size="small" endIcon="chevron-down" data-test={dataTest}>
             {selectedOption?.label}
@@ -55,31 +95,14 @@ export const AttributionToolbarSelect = ({
         }
       >
         {({ closePopper }) => (
-          <MenuPopper>
-            {!!searchPlaceholder && (
-              <SearchInput
-                className="min-w-full max-w-full"
-                placeholder={searchPlaceholder}
-                onChange={setSearchTerm}
-              />
-            )}
-            {visibleOptions.map((option) => (
-              <Button
-                key={option.value}
-                align="left"
-                variant={option.value === value ? 'secondary' : 'quaternary'}
-                disabled={option.disabled}
-                data-test={dataTest && getAttributionToolbarOptionTestId(dataTest, option.value)}
-                onClick={() => {
-                  onChange(option.value)
-                  setSearchTerm('')
-                  closePopper()
-                }}
-              >
-                {option.label}
-              </Button>
-            ))}
-          </MenuPopper>
+          <AttributionToolbarSelectMenu
+            value={value}
+            options={options}
+            searchPlaceholder={searchPlaceholder}
+            onChange={onChange}
+            onClose={closePopper}
+            data-test={dataTest}
+          />
         )}
       </Popper>
     </div>

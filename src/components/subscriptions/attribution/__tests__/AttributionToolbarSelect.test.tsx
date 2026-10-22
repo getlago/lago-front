@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { render } from '~/test-utils'
@@ -87,6 +87,30 @@ describe('AttributionToolbarSelect', () => {
         expect(optionButtons).toContain('Tokens')
         expect(optionButtons).not.toContain('Storage')
         expect(optionButtons).not.toContain('All')
+      })
+    })
+  })
+
+  describe('GIVEN a search was typed', () => {
+    describe('WHEN the options are closed with Escape and reopened', () => {
+      it('THEN should list every option again with an empty search', async () => {
+        const user = userEvent.setup()
+
+        renderSelect({ searchPlaceholder: 'Search a charge' })
+
+        await user.click(screen.getByTestId(OPENER_TEST_ID))
+        await user.type(screen.getByPlaceholderText('Search a charge'), 'zzz')
+        await user.keyboard('{Escape}')
+
+        await waitFor(() => {
+          expect(screen.queryByPlaceholderText('Search a charge')).not.toBeInTheDocument()
+        })
+
+        await user.click(screen.getByTestId(OPENER_TEST_ID))
+
+        expect(screen.getByPlaceholderText('Search a charge')).toHaveValue('')
+        expect(screen.getByRole('button', { name: 'Tokens' })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: 'Storage' })).toBeInTheDocument()
       })
     })
   })
