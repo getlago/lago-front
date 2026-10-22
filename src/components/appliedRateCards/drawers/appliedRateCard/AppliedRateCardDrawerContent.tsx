@@ -10,6 +10,7 @@ import {
 } from '~/components/appliedRateCards/drawers/ratePhase/ratePhaseFormSchema'
 import { getActiveRateFieldValues } from '~/components/appliedRateCards/drawers/ratePhase/ratePhaseSeeds'
 import { useRatePhaseLocalDrawer } from '~/components/appliedRateCards/drawers/ratePhase/useRatePhaseLocalDrawer'
+import { getRateHistoryPath } from '~/components/appliedRateCards/RatePhaseRateEffectiveDate'
 import { RatePhaseTable } from '~/components/appliedRateCards/RatePhaseTable'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -200,17 +201,24 @@ type AppliedRateCardDrawerContentProps = {
   // The backend rejects a rate card in another currency (`currency_does_not_match`).
   currency: CurrencyEnum
   openRateCardDrawer: OpenRateCardDrawer
+  organizationSlug: string | undefined
 }
 
 const appliedRateCardDrawerContentDefaultProps: AppliedRateCardDrawerContentProps = {
   currency: CurrencyEnum.Usd,
   openRateCardDrawer: () => {},
+  organizationSlug: undefined,
 }
 
 export const AppliedRateCardDrawerContent = withForm({
   defaultValues: APPLIED_RATE_CARD_FORM_DEFAULTS,
   props: appliedRateCardDrawerContentDefaultProps,
-  render: function AppliedRateCardDrawerContentRender({ form, currency, openRateCardDrawer }) {
+  render: function AppliedRateCardDrawerContentRender({
+    form,
+    currency,
+    openRateCardDrawer,
+    organizationSlug,
+  }) {
     const { translate } = useInternationalization()
     const { openDrawer: openRatePhaseDrawer } = useRatePhaseLocalDrawer()
     const [shouldDisplayFilter, setShouldDisplayFilter] = useState(false)
@@ -507,7 +515,7 @@ export const AppliedRateCardDrawerContent = withForm({
               {ratePhases.length > 0 && !!rateCardForPhaseFields && (
                 <RatePhaseTable
                   phases={ratePhases}
-                  rateCardId={selectedRateCard.id}
+                  rateHistoryPath={getRateHistoryPath(selectedRateCard.id, organizationSlug)}
                   rateCard={rateCardForPhaseFields}
                   onEdit={handleEditPhase}
                   onRevert={handleRevertPhase}

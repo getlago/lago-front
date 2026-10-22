@@ -202,6 +202,7 @@ const Host = (): JSX.Element => {
         form={form}
         currency={CurrencyEnum.Usd}
         openRateCardDrawer={mockOpenRateCardDrawer}
+        organizationSlug="acme"
       />
     </>
   )

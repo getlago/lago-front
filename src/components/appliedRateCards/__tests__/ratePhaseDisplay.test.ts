@@ -7,9 +7,9 @@ import {
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 import {
-  formatConversionRateAmount,
   formatPhaseDuration,
   formatPhaseTimeline,
+  formatRateAmount,
   formatRateBillingInterval,
   formatRatePhaseName,
   formatSpendingMinimum,
@@ -113,9 +113,9 @@ describe('formatSpendingMinimum', () => {
   })
 })
 
-describe('formatConversionRateAmount', () => {
+describe('formatRateAmount', () => {
   it('GIVEN an amount THEN formats it as a currency symbol amount', () => {
-    expect(formatConversionRateAmount(1, CurrencyEnum.Usd)).toBe('$1.00')
+    expect(formatRateAmount(1, CurrencyEnum.Usd)).toBe('$1.00')
   })
 })
 

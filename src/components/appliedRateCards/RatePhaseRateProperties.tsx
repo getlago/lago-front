@@ -4,10 +4,9 @@ import { isTieredRateModel } from '~/pages/catalog/rateProperties/tiers/rateTier
 import { tw } from '~/styles/utils'
 
 export const RATE_PHASE_RATE_PROPERTIES_TEST_ID = 'rate-phase-rate-properties'
-export const OVERRIDDEN_TIERED_RATE_PROPERTIES_CLASSNAME =
+const OVERRIDDEN_TIERED_RATE_PROPERTIES_CLASSNAME =
   '[&_tbody_td:not(:first-child)>*]:w-fit [&_tbody_td:not(:first-child)>*]:bg-purple-100'
-export const OVERRIDDEN_RATE_PROPERTIES_CLASSNAME =
-  '[&_tbody_td>*]:w-fit [&_tbody_td>*]:bg-purple-100'
+const OVERRIDDEN_RATE_PROPERTIES_CLASSNAME = '[&_tbody_td>*]:w-fit [&_tbody_td>*]:bg-purple-100'
 
 type RatePhaseRatePropertiesProps = {
   rate: RateOverrideInput

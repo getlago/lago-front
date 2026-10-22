@@ -154,6 +154,7 @@ export const useAppliedRateCardDrawer = (): {
             form={form}
             currency={props.currency}
             openRateCardDrawer={openRateCardDrawer}
+            organizationSlug={organizationSlug}
           />
         </CreateMoreResetBoundary>
       ),

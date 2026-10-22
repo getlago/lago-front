@@ -51,10 +51,15 @@ export const formatRateBillingInterval = (
     ),
   })
 
-export const formatConversionRateAmount = (amount: number, currency: CurrencyEnum): string =>
+export const formatRateAmount = (
+  amount: number,
+  currency: CurrencyEnum,
+  pricingUnitShortName?: string,
+): string =>
   intlFormatNumber(amount, {
     currencyDisplay: 'symbol',
     currency,
+    pricingUnitShortName,
     maximumFractionDigits: 15,
   })
 
@@ -65,16 +70,13 @@ export const formatSpendingMinimum = (
 ): string => {
   const minAmountCents = Number(rate.minAmountCents ?? 0)
 
-  if (minAmountCents > 0) {
-    return intlFormatNumber(deserializeAmount(minAmountCents, currency), {
-      currencyDisplay: 'symbol',
-      currency,
-      pricingUnitShortName,
-      maximumFractionDigits: 15,
-    })
-  }
+  if (minAmountCents <= 0) return '-'
 
-  return '-'
+  return formatRateAmount(
+    deserializeAmount(minAmountCents, currency),
+    currency,
+    pricingUnitShortName,
+  )
 }
 
 // No unit conversion: 1 cycle of 14 days reads "14 days", 2 cycles of 1 week "2 weeks".

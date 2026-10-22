@@ -24,7 +24,7 @@ export const RATE_PHASE_DELETE_ACTION_TEST_ID = 'rate-phase-delete-action'
 
 type RatePhaseTableProps = {
   phases: RatePhaseFormValues[]
-  rateCardId: string
+  rateHistoryPath: string
   rateCard: RateCardForRatePhaseFields
   onEdit: (index: number) => void
   onRevert: (index: number) => void
@@ -43,7 +43,7 @@ const CELL_CLASSNAME = 'flex items-center border-b border-grey-300 pl-1 pr-6'
 
 export const RatePhaseTable = ({
   phases,
-  rateCardId,
+  rateHistoryPath,
   rateCard,
   onEdit,
   onRevert,
@@ -190,7 +190,7 @@ export const RatePhaseTable = ({
                 <RatePhaseDetailsPanel
                   phase={phaseForDetails}
                   phaseRate={phaseRate}
-                  rateCardId={rateCardId}
+                  rateHistoryPath={rateHistoryPath}
                   rateCard={rateCard}
                 />
               </div>
