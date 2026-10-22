@@ -355,6 +355,11 @@ export const AppliedRateCardDrawerContent = withForm({
       })
     }
 
+    // An in-flight search empties the list too, which must not read as "no match".
+    const createRateCardValueProps = rateCardsLoading
+      ? undefined
+      : { label: translate('text_1791485670326bz5dr6tcop3'), onClick: handleCreateRateCard }
+
     const resetFields = (
       fields: Array<
         keyof Pick<typeof APPLIED_RATE_CARD_FORM_DEFAULTS, 'productFilterId' | 'rateCardId'>
@@ -492,11 +497,7 @@ export const AppliedRateCardDrawerContent = withForm({
                     placeholder={translate('text_1791833366840z1t3fsw26hp')}
                     loading={rateCardsLoading}
                     allowAddValue
-                    addValueProps={{
-                      label: translate('text_1791485670326bz5dr6tcop3'),
-                      onClick: handleCreateRateCard,
-                      alwaysVisible: true,
-                    }}
+                    addValueProps={createRateCardValueProps}
                     searchQuery={getRateCards}
                     data={rateCards.map((rateCard) => {
                       const isPriced = pricedProductFilterIds.has(
