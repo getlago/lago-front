@@ -8,7 +8,7 @@
   "private": true,
   "type": "module",
   "sideEffects": false,
-  "packageManager": "pnpm@10.34.6",
+  "packageManager": "pnpm@10.34.7",
   "changelog": {
     "repo": "git@gitlab.com:getlago/lago-front.git"
   },
@@ -61,7 +61,7 @@
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/react": "16.3.3",
-    "@testing-library/user-event": "14.6.7",
+    "@testing-library/user-event": "14.6.8",
     "@trivago/prettier-plugin-sort-imports": "6.0.2",
     "@types/apollo-upload-client": "17.0.5",
     "@types/jest": "30.0.0",
@@ -85,7 +85,7 @@
     "eslint": "9.39.5",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
-    "eslint-plugin-prettier": "5.5.6",
+    "eslint-plugin-prettier": "5.5.7",
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-react-hooks": "5.2.0",
     "eslint-plugin-tailwindcss": "3.18.3",
@@ -98,15 +98,15 @@
     "jest-junit": "17.0.0",
     "jscodeshift": "17.4.0",
     "npm-run-all2": "9.0.3",
-    "postcss": "8.5.29",
+    "postcss": "8.5.30",
     "postcss-preset-env": "11.6.1",
-    "prettier": "3.9.9",
+    "prettier": "3.9.10",
     "prettier-plugin-tailwindcss": "0.8.1",
     "tailwind-merge": "2.6.1",
     "tailwindcss": "3.4.19",
     "ts-node": "10.9.2",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.71.0",
+    "typescript-eslint": "8.71.2",
     "vite": "7.3.7",
     "vite-plugin-html": "3.2.2",
     "vite-plugin-svgr": "5.2.0",
@@ -128,7 +128,7 @@
     "@sentry/react": "10.76.2",
     "@superset-ui/embedded-sdk": "0.4.0",
     "@tanstack/react-form": "1.33.0",
-    "@tanstack/react-virtual": "3.14.15",
+    "@tanstack/react-virtual": "3.14.19",
     "@tiptap/core": "3.31.4",
     "@tiptap/extension-blockquote": "3.31.4",
     "@tiptap/extension-bullet-list": "3.31.4",
@@ -170,7 +170,7 @@
     "localforage": "1.10.0",
     "lodash": "4.18.1",
     "lodash-es": "4.18.1",
-    "lucide-react": "1.55.0",
+    "lucide-react": "1.57.0",
     "luxon": "3.7.2",
     "prismjs": "1.30.0",
     "react": "18.3.1",
@@ -181,12 +181,12 @@
     "react-router": "7.18.4",
     "recharts": "2.15.4",
     "remark-gfm": "4.0.1",
-    "sanitize-html": "2.18.0",
+    "sanitize-html": "2.18.1",
     "shiki": "4.5.0",
     "tippy.js": "6.3.7",
     "tiptap-markdown": "0.9.0",
     "yup": "1.7.1",
-    "zod": "4.6.6"
+    "zod": "4.6.7"
   },
   "pnpm": {
     "overrides": {
@@ -195,7 +195,7 @@
     }
   },
   "engines": {
-    "node": "24.21.0"
+    "node": "24.22.0"
   },
   "browserslist": [
     "> 1%",

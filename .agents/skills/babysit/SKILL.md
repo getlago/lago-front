@@ -10,14 +10,23 @@ Take a pull request from wherever it is to ready-to-merge, and keep it there.
 Opens the PR if the branch has none, reviews it, gets CI green, answers reviewer and
 bot comments, announces it in `#frontend`, then keeps watching until it is ready.
 
+The review looks at the PR as part of the whole application, not as isolated changed
+lines: it checks the documented conventions, whether the app already solves what the
+PR adds, and whether the design holds up.
+
 Never merge unless the user explicitly asks.
 
 ## Setup
 
-The Slack tools are deferred. Load them in one call before starting:
+**`gh` is required.** If any `gh` call fails because `gh` is missing or not logged in,
+stop and ask the user for `brew install gh`, then `! gh auth login` in the prompt so the
+login lands in this session. Do not work around it with raw API calls or the GitHub web
+UI.
+
+The Slack and Linear tools are deferred. Load them in one call:
 
 ```
-ToolSearch(query: "select:mcp__claude_ai_Slack__slack_search_public,mcp__claude_ai_Slack__slack_read_thread,mcp__claude_ai_Slack__slack_send_message,mcp__claude_ai_Slack__slack_search_channels")
+ToolSearch(query: "select:mcp__claude_ai_Slack__slack_search_public,mcp__claude_ai_Slack__slack_read_thread,mcp__claude_ai_Slack__slack_send_message,mcp__claude_ai_Slack__slack_search_channels,mcp__claude_ai_Linear__list_teams,mcp__claude_ai_Linear__save_issue")
 ```
 
 References, read on demand rather than up front:
@@ -25,8 +34,10 @@ References, read on demand rather than up front:
 - `references/gh-cookbook.md` - every `gh` and GraphQL call used below
 - `references/ci-playbook.md` - CI check to local `pnpm` command
 - `references/slack-format.md` - `#frontend` announcement format
+- `references/system-review.md` - how Phase 1 reviews the PR as part of the whole app
+- `references/review-summary.md` - the closing PR comment that tells the story of the review
 
-These three describe babysit's own mechanics. **No file in this skill restates a coding
+These describe babysit's own mechanics. **No file in this skill restates a coding
 rule.** The repo's conventions live in `CLAUDE.md`, `.agents/docs/` and the
 `lago-frontend-patterns` skill, and the review points at those rather than copying them. A copy would drift, and a
 stale copy enforced during review is worse than no review at all.
@@ -87,8 +98,25 @@ the user already triaged it; re-running would re-litigate settled decisions.
 
 ## Phase 1 - Review, report, triage
 
-First run only. Do not write a review from scratch here. Delegate to the built-in
-`/review`, which takes a PR number.
+First run only. The review runs three passes, then merges them into one triage list:
+
+| Pass                   | Question                                         | How                                      |
+| ---------------------- | ------------------------------------------------ | ---------------------------------------- |
+| **A. Conventions**     | Does the diff follow the documented rules?       | The built-in `/review`, inline, below    |
+| **B. System fit**      | Does the app already solve what the diff adds?   | Subagent, `references/system-review.md`  |
+| **C. Design challenge** | Does the approach hold up as a design?           | Subagent, `references/system-review.md`  |
+
+Start B and C first, as two `Agent` calls in one message, then run A inline while they
+work. Subagents inherit none of this session, so each prompt carries: the PR number,
+the base and head sha, the absolute path of `references/system-review.md` with the pass
+to run, and the instruction to return the output contract that file defines. Pass C
+decides for itself whether the diff is large enough to run; a skip comes back as one
+line and is reported as such.
+
+### Pass A - Conventions
+
+Do not write this review from scratch. Delegate to the built-in `/review`, which takes a
+PR number.
 
 **Point it at the repo's conventions; never restate them.** `CLAUDE.md`, `.agents/docs/`
 and the `lago-frontend-patterns` skill are the single source of truth, and they are what coding
@@ -132,28 +160,58 @@ lint. Do not report pre-existing issues on lines this PR did not touch.`)
 If a listed path does not exist, say so in the run output rather than reviewing
 without it. A renamed doc should fail loudly, not silently narrow the review.
 
-Then turn the findings into a triage list:
+### Triage
+
+Merge the three passes into one list:
 
 1. Drop anything CI already covers (formatting, type errors, failing tests, lint). Those
    are the loop's job, not a decision for the user.
-2. Drop findings on lines the PR did not touch.
-3. Renumber the survivors and present them.
+2. Drop findings on lines the PR did not touch. A pre-existing problem the PR reveals is
+   a follow-up, not a finding.
+3. Merge duplicates across passes. Keep the one with the stronger evidence.
+4. Sort into four buckets: **Blocking**, **Should fix**, **Follow-ups**, **Notes**.
+   Pass A severities map high -> Blocking, med and low -> Should fix.
+5. Number the survivors across buckets and present them.
+
+Write every finding in plain language with a single recommendation, as
+`references/system-review.md` describes. Anyone can run babysit, and whoever runs it
+makes the triage decisions; plain language is what lets them decide well.
 
 ```
-### Review - PR #4020 (title)
+### Review - PR #4421 (feat(analytics): usage graph)
 
-| # | Sev  | File:line            | Finding                                  |
-|---|------|----------------------|------------------------------------------|
-| 1 | high | usePlanDrawer.tsx:42 | ref-based drawer, lago-frontend-patterns forbids |
-| 2 | med  | cache.ts             | new list field not in queryFieldPolicies |
+Blocking
+  1  UsageGraph.tsx:12   Chart drawn with raw SVG. The app's charts are built on recharts
+                         (src/components/designSystem/graphs/). -> Rebuild on AreaChart.
+Should fix
+  2  useUsage.ts:30      Refetches on every filter keystroke. -> Use useDebouncedSearch.
+Follow-ups (not in this PR)
+  3  The three analytics graphs each re-implement the same tooltip.
+                         -> Linear ticket: extract a shared ChartTooltip.
+Notes
+  4  "Charts use the designSystem graphs" is written nowhere. -> Worth a line in .agents/docs/.
+Skipped: design challenge (diff under the size threshold)
 
 CI: 2 failing (Run linters, Tests shard 3/4) | Reviews: none | Mergeable: clean
 
-Fix which before the loop starts? (all / 1 / none)
+Fix which before the loop starts? (all / 1,2 / none)
+Create the follow-up tickets? (yes / 3 / no)
 ```
+
+### Follow-ups
+
+Follow-ups are never fixed in this PR. For each one the user confirms, create a Linear
+issue with `save_issue`: the Front-end team (find its id with `list_teams`, never
+hardcode it), a title that names the problem, and a description with the plain-language
+finding, the evidence `file:line`, and the PR URL. Never create a ticket without that
+confirmation. A follow-up the user keeps but does not ticket appears in the review
+summary as not ticketed; one the user drops appears nowhere.
 
 Nothing is posted to GitHub in this phase. No findings -> say so and go straight to the
 loop. This is the one point in the run that waits for the user.
+
+**Keep the review record.** Hold the triage list, the user's answers, and the sha the PR
+was reviewed at for the rest of the session. Phase 4 builds the review summary from it.
 
 ## Phase 2 - The loop
 
@@ -305,6 +363,13 @@ Gate, all of which must hold:
   resolved do not block. That is the point of the ledger.
 - Not already announced.
 
+**Post the review summary first, when it is earned.** Right before the announcement,
+post one PR comment that tells how the PR got from its first approach to the current
+one, per `references/review-summary.md`. Post it only when the Phase 1 review led to at
+least one Blocking or Should-fix change, or created a follow-up ticket. A run that only
+fixed CI or applied mechanical bot nits posts nothing. One summary per PR, never
+updated, never re-posted; that file explains how to detect an existing one.
+
 Compose per `references/slack-format.md` and post to `C04DJLU0KHD` with
 `slack_send_message`. No confirmation prompt. Print the message and its permalink so
 the run's output shows exactly what went out. Keep the returned `ts` as the thread
@@ -407,6 +472,7 @@ Always print the resume command on the way out.
 - PR URL and state.
 - What was fixed, and what was verified.
 - Declined comments, one line each.
+- Review summary comment URL, if posted, and the follow-up tickets created.
 - Slack permalink, if announced.
 - Unanswered pending items.
 - Remaining human action.

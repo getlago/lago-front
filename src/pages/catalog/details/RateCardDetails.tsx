@@ -72,6 +72,7 @@ export const buildRateCardSnapshotKey = (
     rateCard?.appliedPricingUnitCode,
     rateCard?.displayOnInvoice,
     rateCard?.regroupPaidFees,
+    rateCard?.taxes.map((tax) => tax.code).join(','),
     rateCard?.activeRate?.effectiveFrom,
   ].join('|')
 

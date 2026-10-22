@@ -1,7 +1,5 @@
 import { gql } from '@apollo/client'
-import { z } from 'zod'
 
-import { zodDomain, zodOptionalHost } from '~/formValidation/zodCustoms'
 import {
   AddOktaIntegrationDialogFragment,
   AuthenticationMethodsEnum,
@@ -12,6 +10,7 @@ import {
 } from '~/generated/graphql'
 
 import { SSOIntegrationField, useAddSSOIntegrationDialog } from './AddSSOIntegrationDialog'
+import { oktaDefaultValues, oktaValidationSchema } from './validationSchema'
 
 gql`
   fragment AddOktaIntegrationDialog on OktaIntegration {
@@ -42,22 +41,6 @@ gql`
 const ADD_OKTA_FORM_ID = 'form-add-okta-integration'
 
 export const OKTA_INTEGRATION_SUBMIT_BTN = 'add-okta-dialog-submit-button'
-
-const defaultFormValues: CreateOktaIntegrationInput = {
-  domain: '',
-  host: '',
-  clientId: '',
-  clientSecret: '',
-  organizationName: '',
-}
-
-const validationSchema = z.object({
-  domain: zodDomain,
-  host: zodOptionalHost,
-  clientId: z.string(),
-  clientSecret: z.string(),
-  organizationName: z.string(),
-})
 
 const fields: SSOIntegrationField<CreateOktaIntegrationInput>[] = [
   {
@@ -98,8 +81,8 @@ export const useAddOktaDialog = () => {
     submitBtnTestId: OKTA_INTEGRATION_SUBMIT_BTN,
     authenticationMethod: AuthenticationMethodsEnum.Okta,
     integrationTypename: 'OktaIntegration',
-    defaultFormValues,
-    validationSchema,
+    defaultFormValues: oktaDefaultValues,
+    validationSchema: oktaValidationSchema,
     fields,
     useCreateIntegrationMutation: useCreateOktaIntegrationMutation,
     useUpdateIntegrationMutation: useUpdateOktaIntegrationMutation,

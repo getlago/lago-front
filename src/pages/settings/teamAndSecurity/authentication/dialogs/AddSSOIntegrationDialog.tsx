@@ -1,8 +1,8 @@
 import { MutationHookOptions, MutationTuple, OperationVariables } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic } from '@tanstack/react-form'
-import { useRef } from 'react'
-import { ZodType } from 'zod'
+import { useMemo, useRef } from 'react'
+import { ZodObject, ZodType } from 'zod'
 
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
@@ -12,6 +12,8 @@ import { AuthenticationMethodsEnum, useDestroyIntegrationMutation } from '~/gene
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+
+import { buildCreateValidationSchema } from './validationSchema'
 
 /** Shared label used by both providers for the edit submit button. */
 const EDIT_SUBMIT_TRANSLATION_KEY = 'text_664c732c264d7eed1c74fdaa'
@@ -53,7 +55,7 @@ export type UseAddSSOIntegrationDialogConfig<
   /** GraphQL __typename used to evict the deleted integration from the cache. */
   integrationTypename: 'OktaIntegration' | 'EntraIdIntegration'
   defaultFormValues: TFormValues
-  validationSchema: ZodType<TFormValues>
+  validationSchema: ZodObject & ZodType<TFormValues>
   fields: SSOIntegrationField<TFormValues>[]
   useCreateIntegrationMutation: IntegrationMutationHook<TCreateData, { input: TFormValues }>
   useUpdateIntegrationMutation: IntegrationMutationHook<TUpdateData, TUpdateVars>
@@ -155,13 +157,23 @@ export const useAddSSOIntegrationDialog = <
 
   const [deleteIntegration] = useDestroyIntegrationMutation()
 
+  const createValidationSchema = useMemo(
+    () => buildCreateValidationSchema(validationSchema),
+    [validationSchema],
+  )
+
   const form = useAppForm({
     defaultValues: defaultFormValues,
     validationLogic: revalidateLogic(),
     validators: {
-      // TanStack detects standard schemas at runtime; the generic form value
-      // type prevents statically relating the provider schema, so it is cast.
-      onDynamic: validationSchema as unknown as never,
+      // The generic form value type prevents statically relating the provider
+      // schema to the form, so it is cast.
+      onDynamic: ({ formApi }) =>
+        formApi.parseValuesWithSchema(
+          (dataRef.current?.integration
+            ? validationSchema
+            : createValidationSchema) as unknown as never,
+        ),
     },
     onSubmit: async ({ value }) => {
       const integration = dataRef.current?.integration
