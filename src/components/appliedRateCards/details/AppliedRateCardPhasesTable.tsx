@@ -74,7 +74,7 @@ export const AppliedRateCardPhasesTable = ({
       key: 'position',
       title: translate('text_1791838459984bohwav05qa1'),
       textAlign: 'right',
-      minWidth: 56,
+      minWidth: 37,
       content: (phase) => (
         <Typography
           variant="captionCode"
@@ -104,7 +104,7 @@ export const AppliedRateCardPhasesTable = ({
     {
       key: 'billingIntervalCycleCount',
       title: translate('text_632d68358f1fedc68eed3e80'),
-      minWidth: 140,
+      minWidth: 94,
       content: (phase) => (
         <RatePhaseDurationChip
           cycleCount={phase.billingIntervalCycleCount ?? null}
@@ -115,7 +115,7 @@ export const AppliedRateCardPhasesTable = ({
     {
       key: 'rateOverride',
       title: translate('text_64de472463e2da6b31737de0'),
-      minWidth: 140,
+      minWidth: 115,
       content: renderRate,
     },
   ]
