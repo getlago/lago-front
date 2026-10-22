@@ -42,6 +42,8 @@ export const API_KEYS_FORM_PREMIUM_BANNER_TEST_ID = 'api-keys-form-premium-banne
 export const API_KEYS_FORM_PREMIUM_BUTTON_TEST_ID = 'api-keys-form-premium-button'
 export const API_KEYS_FORM_CANCEL_BUTTON_TEST_ID = 'api-keys-form-cancel-button'
 export const API_KEYS_FORM_LAST_USED_ALERT_TEST_ID = 'api-keys-form-last-used-alert'
+export const getApiKeysFormPermissionRowTestId = (permission: ApiKeysPermissionsEnum): string =>
+  `api-keys-form-permission-row-${permission}`
 
 const READ_PERMISSION = 'read'
 const WRITE_PERMISSION = 'write'
@@ -53,50 +55,57 @@ const canOnlyRead = (permission: ApiKeysPermissionsEnum) =>
   permission === ApiKeysPermissionsEnum.CustomerUsage ||
   permission === ApiKeysPermissionsEnum.SecurityLog
 
-const PRODUCT_CATALOG_ONLY_PERMISSIONS: ApiKeysPermissionsEnum[] = [
-  ApiKeysPermissionsEnum.Contract,
-  ApiKeysPermissionsEnum.ContractRateCard,
-  ApiKeysPermissionsEnum.PlanRateCard,
-  ApiKeysPermissionsEnum.Product,
-  ApiKeysPermissionsEnum.ProductCategory,
-  ApiKeysPermissionsEnum.RateCard,
-]
+type PermissionAvailability = 'all' | 'withoutProductCatalog' | 'withProductCatalog'
 
-// The `resource_name` of the v2 controllers, plus the v1 one of each endpoint v2 keeps but does not
-// serve yet; payment receipts authorize with `invoice`.
-const PRODUCT_CATALOG_PERMISSIONS: ApiKeysPermissionsEnum[] = [
-  ApiKeysPermissionsEnum.ActivityLog,
-  ApiKeysPermissionsEnum.ApiLog,
-  ApiKeysPermissionsEnum.BillableMetric,
-  ApiKeysPermissionsEnum.BillingEntity,
-  ApiKeysPermissionsEnum.Contract,
-  ApiKeysPermissionsEnum.ContractRateCard,
-  ApiKeysPermissionsEnum.CreditNote,
-  ApiKeysPermissionsEnum.Customer,
-  ApiKeysPermissionsEnum.CustomerUsage,
-  ApiKeysPermissionsEnum.Event,
-  ApiKeysPermissionsEnum.Fee,
-  ApiKeysPermissionsEnum.Invoice,
-  ApiKeysPermissionsEnum.Organization,
-  ApiKeysPermissionsEnum.Payment,
-  ApiKeysPermissionsEnum.PaymentMethod,
-  ApiKeysPermissionsEnum.PaymentRequest,
-  ApiKeysPermissionsEnum.Plan,
-  ApiKeysPermissionsEnum.PlanRateCard,
-  ApiKeysPermissionsEnum.Product,
-  ApiKeysPermissionsEnum.ProductCategory,
-  ApiKeysPermissionsEnum.RateCard,
-  ApiKeysPermissionsEnum.SecurityLog,
-  ApiKeysPermissionsEnum.Tax,
-  ApiKeysPermissionsEnum.WebhookEndpoint,
-  ApiKeysPermissionsEnum.WebhookJwtPublicKey,
-]
+// With the product catalog: the `resource_name` of the v2 controllers, plus the v1 one of each
+// endpoint v2 keeps but does not serve yet; payment receipts authorize with `invoice`.
+const PERMISSION_AVAILABILITY: Record<ApiKeysPermissionsEnum, PermissionAvailability> = {
+  [ApiKeysPermissionsEnum.ActivityLog]: 'all',
+  [ApiKeysPermissionsEnum.AddOn]: 'withoutProductCatalog',
+  [ApiKeysPermissionsEnum.Alert]: 'withoutProductCatalog',
+  [ApiKeysPermissionsEnum.Analytic]: 'withoutProductCatalog',
+  [ApiKeysPermissionsEnum.ApiLog]: 'all',
+  [ApiKeysPermissionsEnum.AppliedCoupon]: 'withoutProductCatalog',
+  [ApiKeysPermissionsEnum.BillableMetric]: 'all',
+  [ApiKeysPermissionsEnum.BillingEntity]: 'all',
+  [ApiKeysPermissionsEnum.Contract]: 'withProductCatalog',
+  [ApiKeysPermissionsEnum.ContractRateCard]: 'withProductCatalog',
+  [ApiKeysPermissionsEnum.Coupon]: 'withoutProductCatalog',
+  [ApiKeysPermissionsEnum.CreditNote]: 'all',
+  [ApiKeysPermissionsEnum.Customer]: 'all',
+  [ApiKeysPermissionsEnum.CustomerUsage]: 'all',
+  [ApiKeysPermissionsEnum.Event]: 'all',
+  [ApiKeysPermissionsEnum.Feature]: 'withoutProductCatalog',
+  [ApiKeysPermissionsEnum.Fee]: 'all',
+  [ApiKeysPermissionsEnum.Invoice]: 'all',
+  [ApiKeysPermissionsEnum.InvoiceCustomSection]: 'withoutProductCatalog',
+  [ApiKeysPermissionsEnum.LifetimeUsage]: 'withoutProductCatalog',
+  [ApiKeysPermissionsEnum.Organization]: 'all',
+  [ApiKeysPermissionsEnum.Payment]: 'all',
+  [ApiKeysPermissionsEnum.PaymentMethod]: 'all',
+  [ApiKeysPermissionsEnum.PaymentReceipt]: 'withoutProductCatalog',
+  [ApiKeysPermissionsEnum.PaymentRequest]: 'all',
+  [ApiKeysPermissionsEnum.Plan]: 'all',
+  [ApiKeysPermissionsEnum.PlanRateCard]: 'withProductCatalog',
+  [ApiKeysPermissionsEnum.Product]: 'withProductCatalog',
+  [ApiKeysPermissionsEnum.ProductCategory]: 'withProductCatalog',
+  [ApiKeysPermissionsEnum.RateCard]: 'withProductCatalog',
+  [ApiKeysPermissionsEnum.SecurityLog]: 'all',
+  [ApiKeysPermissionsEnum.Subscription]: 'withoutProductCatalog',
+  [ApiKeysPermissionsEnum.Tax]: 'all',
+  [ApiKeysPermissionsEnum.Wallet]: 'withoutProductCatalog',
+  [ApiKeysPermissionsEnum.WalletTransaction]: 'withoutProductCatalog',
+  [ApiKeysPermissionsEnum.WebhookEndpoint]: 'all',
+  [ApiKeysPermissionsEnum.WebhookJwtPublicKey]: 'all',
+}
 
 const getAvailablePermissions = (hasProductCatalog: boolean): ApiKeysPermissionsEnum[] => {
-  if (hasProductCatalog) return PRODUCT_CATALOG_PERMISSIONS
+  const hiddenAvailability: PermissionAvailability = hasProductCatalog
+    ? 'withoutProductCatalog'
+    : 'withProductCatalog'
 
   return Object.values(ApiKeysPermissionsEnum).filter(
-    (permission) => !PRODUCT_CATALOG_ONLY_PERMISSIONS.includes(permission),
+    (permission) => PERMISSION_AVAILABILITY[permission] !== hiddenAvailability,
   )
 }
 
@@ -220,7 +229,11 @@ const ApiKeysForm = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-  const { organization: { premiumIntegrations } = {}, hasFeatureFlag } = useOrganizationInfos()
+  const {
+    organization: { premiumIntegrations } = {},
+    hasFeatureFlag,
+    loading: organizationLoading,
+  } = useOrganizationInfos()
 
   useEffect(() => {
     if (devtool.panelOpen) {
@@ -277,6 +290,7 @@ const ApiKeysForm = () => {
 
   const isEdition = !!apiKeyId
   const apiKey = apiKeyData?.apiKey
+  const isLoading = apiKeyLoading || organizationLoading
 
   const form = useAppForm({
     defaultValues: {
@@ -354,13 +368,13 @@ const ApiKeysForm = () => {
           />
         </CenteredPage.Header>
 
-        {apiKeyLoading && (
+        {isLoading && (
           <CenteredPage.Container>
             <FormLoadingSkeleton id="apiKeys" />
           </CenteredPage.Container>
         )}
 
-        {!apiKeyLoading && (
+        {!isLoading && (
           <CenteredPage.Container>
             <div className="flex flex-col gap-1">
               <Typography variant="headline" color="grey700">
@@ -455,7 +469,8 @@ const ApiKeysForm = () => {
                   name="api-keys-permissions"
                   data={permissions}
                   containerSize={0}
-                  isLoading={apiKeyLoading}
+                  isLoading={isLoading}
+                  rowDataTestId={({ id }) => getApiKeysFormPermissionRowTestId(id)}
                   columns={[
                     {
                       key: 'id',
@@ -587,7 +602,7 @@ const ApiKeysForm = () => {
             {translate('text_6411e6b530cb47007488b027')}
           </Button>
           <form.AppForm>
-            <form.SubmitButton disabled={apiKeyLoading}>
+            <form.SubmitButton disabled={isLoading}>
               {translate(
                 isEdition ? 'text_17295436903260tlyb1gp1i7' : 'text_1732522865354i0r12i6z9mu',
               )}
