@@ -37,8 +37,8 @@ importers:
         specifier: 6.20.2
         version: 6.20.2(@emotion/react@11.14.0(@types/react@18.3.31)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.31)(react@18.3.1))(@types/react@18.3.31)(react@18.3.1))(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.31)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.31)(react@18.3.1))(@types/react@18.3.31)(react@18.3.1))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mui/system@5.18.0(@emotion/react@11.14.0(@types/react@18.3.31)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.31)(react@18.3.1))(@types/react@18.3.31)(react@18.3.1))(@types/react@18.3.31)(react@18.3.1))(@types/react@18.3.31)(dayjs@1.11.23)(luxon@3.7.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@nangohq/frontend':
-        specifier: 0.71.12
-        version: 0.71.12(debug@4.4.3)
+        specifier: 0.71.13
+        version: 0.71.13(debug@4.4.3)
       '@radix-ui/react-slot':
         specifier: 1.5.0
         version: 1.5.0(@types/react@18.3.31)(react@18.3.1)
@@ -2730,11 +2730,11 @@ packages:
       moment-jalaali:
         optional: true
 
-  '@nangohq/frontend@0.71.12':
-    resolution: {integrity: sha512-bJZfNF8+TdHyVP+WiEWRCeStZyvhsHN3PfejB9Vj+Ncb4lu3ZVMOEVNLzHpjZlRzmuzawFz0pKsNBBNLv8EBrw==}
+  '@nangohq/frontend@0.71.13':
+    resolution: {integrity: sha512-0K96fvEYal4IzP2zAl9n1fhj4EobApx8RPenv/adoDtJc3MaFQoFWwOOtvbr+txKObZxAZiOA12q68pKCW+jrw==}
 
-  '@nangohq/types@0.71.12':
-    resolution: {integrity: sha512-j+pFaezECZ2DERYuySlqLfpA39mjN+JWBzBXHA4BuZp4SGkzERm2rQVUSb7NdDLs/Zk0c0vqbgZ807fpS6rGOg==}
+  '@nangohq/types@0.71.13':
+    resolution: {integrity: sha512-QSI1Iwu6JrRQKl76vk3QNsq2pGjNQ8Wp5QLAkfB6CkWFPjEyokeMYUeOHJbG/7tgCP1eMvlK5ZWXGCcm0SNJ6w==}
 
   '@napi-rs/wasm-runtime@1.2.3':
     resolution: {integrity: sha512-UMduMbqO5s5zF2NkNacMT/yK5Y5QiKvWr2+50bzIIxFDwVJ2h49b+oyjaCGPhJxd2/gC2x39EHv/gHVuu36x2Q==}
@@ -11438,14 +11438,14 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@nangohq/frontend@0.71.12(debug@4.4.3)':
+  '@nangohq/frontend@0.71.13(debug@4.4.3)':
     dependencies:
-      '@nangohq/types': 0.71.12(debug@4.4.3)
+      '@nangohq/types': 0.71.13(debug@4.4.3)
     transitivePeerDependencies:
       - debug
       - supports-color
 
-  '@nangohq/types@0.71.12(debug@4.4.3)':
+  '@nangohq/types@0.71.13(debug@4.4.3)':
     dependencies:
       axios: 1.20.0(debug@4.4.3)
       json-schema: 0.4.0
