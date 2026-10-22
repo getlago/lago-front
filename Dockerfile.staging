@@ -46,17 +46,18 @@ FROM ${RUNTIME_IMAGE}
 
 WORKDIR /usr/share/nginx/html
 
-COPY --from=build --chown=nonroot:nonroot /app/dist .
-COPY --chown=nonroot:nonroot ./nginx/nginx.main.staging.conf /etc/nginx/nginx.conf
-COPY --chown=nonroot:nonroot ./nginx/nginx.staging.conf /etc/nginx/conf.d/default.conf
-COPY --chown=nonroot:nonroot ./nginx/gzip.conf /etc/nginx/conf.d/gzip.conf
-COPY --chown=nonroot:nonroot ./nginx/csp.conf.template /etc/nginx/csp.conf.template
-COPY --chown=nonroot:nonroot ./.env.sh ./.env.sh
+COPY --from=build /app/dist .
+COPY ./nginx/nginx.main.staging.conf /etc/nginx/nginx.conf
+COPY ./nginx/nginx.staging.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx/gzip.conf /etc/nginx/conf.d/gzip.conf
+COPY ./nginx/csp.conf.template /etc/nginx/csp.conf.template
+COPY ./.env.sh ./.env.sh
 
 # Everything nginx writes goes to the /tmp emptyDir the pod mounts: the pid
 # file, the temp paths (both in nginx.main.staging.conf) and env-config.js,
 # which .env.sh emits into its cwd. The dist stays read-only and unmounted —
 # an emptyDir over it would mask the built assets.
+# Files stay root-owned so nginx cannot rewrite them.
 USER 65532
 
 EXPOSE 8080

@@ -19,10 +19,10 @@
 # keeps :latest within ~24h of upstream Wolfi; repin here so a base bump is a
 # reviewable diff rather than a silent change under a floating tag.
 #
-# Current pin: lago-packages 8a554c4, published as 20261021-r62. It ships
+# Current pin: lago-packages 8a2dbce, published as 20261022-r64. It ships
 # ca-certificates-bundle 20260909-r3, which removes the eMudhra/emSign roots.
-ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:8a554c4ba1f60e42a235e4fe909fd3c9ce74b8e2@sha256:d7def8857c2d276ca807656acdf2f6882078cbccd8fae4b98481d67e725c10fb
-ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:8a554c4ba1f60e42a235e4fe909fd3c9ce74b8e2@sha256:a1339461576daaff07762e7dbfb18dfc581fe5a8ea9604738654e36ab577e364
+ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:8a2dbced16532c16a8e068327f31da9b32d0304a@sha256:c43db7afeeba2852b6e8caf260783e615605caadee4adc51faf526653518949a
+ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:8a2dbced16532c16a8e068327f31da9b32d0304a@sha256:5178314792a2af6bc97d709c7026f5c70306068ef370a6d4abec0f7017c359c0
 
 # --- deps stage --------------------------------------------------------------
 FROM ${BUILD_IMAGE} AS deps
@@ -33,6 +33,8 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/configs/package.json        ./packages/configs/
 COPY packages/design-system/package.json  ./packages/design-system/
 
+# --ignore-scripts: postinstall builds workspace sources not copied yet;
+# `pnpm build` (prebuild) does it in the next stage.
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store,sharing=locked \
     pnpm install --frozen-lockfile --ignore-scripts
 
@@ -46,6 +48,9 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 COPY --from=deps /app /app
 COPY . .
 
+# Late ARGs: an APP_VERSION change invalidates only `pnpm build`.
+# SENTRY_AUTH_TOKEN is a secret mount, not an ARG: ARGs leak into the image
+# history.
 ARG SENTRY_DSN
 ARG SENTRY_ORG
 ARG SENTRY_FRONT_PROJECT
@@ -61,19 +66,22 @@ FROM ${RUNTIME_IMAGE}
 
 WORKDIR /usr/share/nginx/html
 
-COPY --from=build --chown=nonroot:nonroot /app/dist .
-COPY --chown=nonroot:nonroot ./nginx/nginx.main.staging.conf /etc/nginx/nginx.conf
-COPY --chown=nonroot:nonroot ./nginx/nginx.staging.conf /etc/nginx/conf.d/default.conf
-COPY --chown=nonroot:nonroot ./nginx/gzip.conf /etc/nginx/conf.d/gzip.conf
-COPY --chown=nonroot:nonroot ./nginx/csp.conf.template /etc/nginx/csp.conf.template
-COPY --chown=nonroot:nonroot ./.env.sh ./.env.sh
+COPY --from=build /app/dist .
+COPY ./nginx/nginx.main.staging.conf /etc/nginx/nginx.conf
+COPY ./nginx/nginx.staging.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx/gzip.conf /etc/nginx/conf.d/gzip.conf
+COPY ./nginx/csp.conf.template /etc/nginx/csp.conf.template
+COPY ./.env.sh ./.env.sh
 
 # Everything nginx writes goes to the /tmp emptyDir the pod mounts: the pid
 # file, the temp paths (both in nginx.main.staging.conf), and the two files
-# .env.sh renders at start: env-config.js (into its cwd) and csp.conf. The dist stays read-only and unmounted —
-# an emptyDir over it would mask the built assets.
+# .env.sh renders at start: env-config.js (into its cwd) and csp.conf. The
+# dist stays read-only and unmounted: an emptyDir over it would mask the
+# built assets. Files stay root-owned so nginx cannot rewrite them, even on
+# a writable root filesystem.
 USER 65532
 
 EXPOSE 8080
 
+# `exec` makes nginx PID 1, so it gets SIGTERM.
 ENTRYPOINT ["/bin/bash", "-c", "cd /tmp && /usr/share/nginx/html/.env.sh && exec nginx -e /dev/stderr -g \"daemon off;\""]
