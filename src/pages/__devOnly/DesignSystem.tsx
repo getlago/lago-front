@@ -1,11 +1,9 @@
 /* eslint-disable no-alert */
 import Box from '@mui/material/Box'
-import InputAdornment from '@mui/material/InputAdornment'
 import Stack from '@mui/material/Stack'
-import { useFormik } from 'formik'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { Icon, IconName } from 'lago-design-system'
 import { generatePath } from 'react-router'
-import { boolean, number, object, string } from 'yup'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { Accordion } from '~/components/designSystem/Accordion'
@@ -27,26 +25,14 @@ import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
-import {
-  ButtonSelectorField,
-  Checkbox,
-  CheckboxField,
-  ComboBoxField,
-  DatePickerField,
-  JsonEditorField,
-  MultipleComboBox,
-  MultipleComboBoxField,
-  RadioField,
-  SwitchField,
-  TextInputField,
-} from '~/components/form'
-import { AmountInputField } from '~/components/form/AmountInput'
 import { addToast } from '~/core/apolloClient'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { Link, ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
-import { CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
+import { TimezoneEnum } from '~/generated/graphql'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import {
   chargeTableData,
   currentUsageTableData,
@@ -65,7 +51,9 @@ import { ColorTest } from './tabs/ColorTest'
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
 import EditorTest from './tabs/EditorTest'
+import { DESIGN_SYSTEM_FORM_ID, FormTest } from './tabs/FormTest'
 import { TypographyTest } from './tabs/TypographyTest'
+import { designSystemFormDefaultValues, designSystemValidationSchema } from './validationSchema'
 
 const FORM_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'form' })
 const LINK_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'links' })
@@ -105,80 +93,18 @@ const VerticalBlock = ({
   className?: string
 }) => <div className={tw('*:mb-4', className)}>{children}</div>
 
-const ComboboxHeader = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex w-full gap-1 *:whitespace-nowrap">{children}</div>
-)
-
 const DesignSystem = () => {
-  const formikProps = useFormik({
-    initialValues: {
-      checkbox: false,
-      amountCents: undefined,
-      amountCurrency: CurrencyEnum.Usd,
-      date: undefined,
-      time: undefined,
-      input: undefined,
-      inputNumber: undefined,
-      switch: true,
-      combobox: undefined,
-      multipleCombobox: [],
-      radio: false,
-      buttonSelector: undefined,
-      buttonSelector2: 'time',
-      checkboxCond1: true,
-      checkboxCond2: true,
-      json: {
-        age: '41 years old',
-        home: {
-          country: 'United States',
-          address: '317 example street',
-        },
-        friends: [],
-      },
-      jsonLong: {
-        age: '41 years old',
-        home: {
-          country: 'United States',
-          address: '317 example street',
-        },
-        friends: [
-          'Lucille, Ellissa',
-          'Korry, Shawn',
-          'Auguste, Gina',
-          'Guinna, Aime',
-          'Faustine, Rozalie',
-        ],
-      },
-      jsonEmpty: undefined,
-    },
-    validationSchema: object().shape({
-      checkbox: boolean().required(),
-      amountCurrency: string().required(),
-      amountCents: number().required(),
-      json: string().required(),
-      date: string()
-        .required()
-        .matches(/1992-05-26/, 'Sorry, you owe her a beer 🍺'),
-      time: string().required(),
-      input: string()
-        .required()
-        .matches(/whatever/, "I thought you'd be more fun... 😏"),
-      radio: string()
-        .required()
-        .matches(/whatever/, 'Really ? 🙄'),
-      combobox: string().required().matches(/Mike/, "No, it's Mike 😡"),
-      buttonSelector: string()
-        .required()
-        .matches(/whatever/, 'Interesting... '),
-    }),
+  const form = useAppForm({
+    defaultValues: designSystemFormDefaultValues,
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: designSystemValidationSchema },
     onSubmit: () => {},
+    onSubmitInvalid({ formApi }) {
+      scrollToFirstInputError(DESIGN_SYSTEM_FORM_ID, formApi.state.errorMap.onDynamic || {})
+    },
   })
 
-  const getCheckboxValue = (cond1: boolean, cond2: boolean) => {
-    if (cond1 && cond2) return true
-    if (!cond1 && !cond2) return false
-    return undefined
-  }
+  const amountCurrency = useStore(form.store, (state) => state.values.amountCurrency)
 
   return (
     <>
@@ -1030,13 +956,10 @@ const DesignSystem = () => {
                                 })}
                               >
                                 {intlFormatNumber(
-                                  deserializeAmount(
-                                    item.mrr_new || 0,
-                                    formikProps.values.amountCurrency,
-                                  ),
+                                  deserializeAmount(item.mrr_new || 0, amountCurrency),
                                   {
                                     currencyDisplay: 'symbol',
-                                    currency: formikProps.values.amountCurrency,
+                                    currency: amountCurrency,
                                   },
                                 )}
                               </Typography>
@@ -1058,13 +981,10 @@ const DesignSystem = () => {
                                 })}
                               >
                                 {intlFormatNumber(
-                                  deserializeAmount(
-                                    item.mrr_expansion || 0,
-                                    formikProps.values.amountCurrency,
-                                  ),
+                                  deserializeAmount(item.mrr_expansion || 0, amountCurrency),
                                   {
                                     currencyDisplay: 'symbol',
-                                    currency: formikProps.values.amountCurrency,
+                                    currency: amountCurrency,
                                   },
                                 )}
                               </Typography>
@@ -1086,13 +1006,10 @@ const DesignSystem = () => {
                                 })}
                               >
                                 {intlFormatNumber(
-                                  deserializeAmount(
-                                    item.mrr_contraction || 0,
-                                    formikProps.values.amountCurrency,
-                                  ),
+                                  deserializeAmount(item.mrr_contraction || 0, amountCurrency),
                                   {
                                     currencyDisplay: 'symbol',
-                                    currency: formikProps.values.amountCurrency,
+                                    currency: amountCurrency,
                                   },
                                 )}
                               </Typography>
@@ -1112,13 +1029,10 @@ const DesignSystem = () => {
                                 })}
                               >
                                 {intlFormatNumber(
-                                  deserializeAmount(
-                                    item.mrr_churn || 0,
-                                    formikProps.values.amountCurrency,
-                                  ),
+                                  deserializeAmount(item.mrr_churn || 0, amountCurrency),
                                   {
                                     currencyDisplay: 'symbol',
-                                    currency: formikProps.values.amountCurrency,
+                                    currency: amountCurrency,
                                   },
                                 )}
                               </Typography>
@@ -1157,13 +1071,10 @@ const DesignSystem = () => {
                                 })}
                               >
                                 {intlFormatNumber(
-                                  deserializeAmount(
-                                    item.starting_mrr || 0,
-                                    formikProps.values.amountCurrency,
-                                  ),
+                                  deserializeAmount(item.starting_mrr || 0, amountCurrency),
                                   {
                                     currencyDisplay: 'symbol',
-                                    currency: formikProps.values.amountCurrency,
+                                    currency: amountCurrency,
                                   },
                                 )}
                               </Typography>
@@ -1185,13 +1096,10 @@ const DesignSystem = () => {
                                 })}
                               >
                                 {intlFormatNumber(
-                                  deserializeAmount(
-                                    item.mrr_change || 0,
-                                    formikProps.values.amountCurrency,
-                                  ),
+                                  deserializeAmount(item.mrr_change || 0, amountCurrency),
                                   {
                                     currencyDisplay: 'symbol',
-                                    currency: formikProps.values.amountCurrency,
+                                    currency: amountCurrency,
                                   },
                                 )}
                               </Typography>
@@ -1213,13 +1121,10 @@ const DesignSystem = () => {
                                 })}
                               >
                                 {intlFormatNumber(
-                                  deserializeAmount(
-                                    item.ending_mrr || 0,
-                                    formikProps.values.amountCurrency,
-                                  ),
+                                  deserializeAmount(item.ending_mrr || 0, amountCurrency),
                                   {
                                     currencyDisplay: 'symbol',
-                                    currency: formikProps.values.amountCurrency,
+                                    currency: amountCurrency,
                                   },
                                 )}
                               </Typography>
@@ -1246,13 +1151,10 @@ const DesignSystem = () => {
                                   'text-red-600': total < 0,
                                 })}
                               >
-                                {intlFormatNumber(
-                                  deserializeAmount(total || 0, formikProps.values.amountCurrency),
-                                  {
-                                    currencyDisplay: 'symbol',
-                                    currency: formikProps.values.amountCurrency,
-                                  },
-                                )}
+                                {intlFormatNumber(deserializeAmount(total || 0, amountCurrency), {
+                                  currencyDisplay: 'symbol',
+                                  currency: amountCurrency,
+                                })}
                               </Typography>
                             )
                           },
@@ -1601,596 +1503,7 @@ const DesignSystem = () => {
           {
             title: 'Form',
             link: FORM_TAB_URL,
-            component: (
-              <Container>
-                <form onSubmit={(e) => e.preventDefault()}>
-                  <Typography className="mb-4" variant="headline">
-                    Form
-                  </Typography>
-
-                  <Typography className="mb-4" variant="subhead1">
-                    Checkbox
-                  </Typography>
-
-                  <Block>
-                    <Checkbox
-                      canBeIndeterminate
-                      name="checkboxCond3"
-                      value={getCheckboxValue(
-                        formikProps.values.checkboxCond1,
-                        formikProps.values.checkboxCond2,
-                      )}
-                      onChange={(e, value) => {
-                        if (value) {
-                          formikProps.setFieldValue('checkboxCond1', true)
-                          formikProps.setFieldValue('checkboxCond2', true)
-                        } else {
-                          formikProps.setFieldValue('checkboxCond1', false)
-                          formikProps.setFieldValue('checkboxCond2', false)
-                        }
-                      }}
-                      label="Accept all conditions or else you won't be able to become the incredibly talented person you want to become (we know, life is unfair)"
-                      error={
-                        !formikProps.values.checkboxCond1 || !formikProps.values.checkboxCond2
-                          ? 'Sorry you need to accept both'
-                          : undefined
-                      }
-                    />
-
-                    <CheckboxField
-                      name="checkboxCond1"
-                      formikProps={formikProps}
-                      value={formikProps.values.checkboxCond1}
-                      label="Accept the insane condition"
-                    />
-
-                    <CheckboxField
-                      name="checkboxCond2"
-                      formikProps={formikProps}
-                      value={formikProps.values.checkboxCond2}
-                      label="Accept the smart condition"
-                    />
-
-                    <CheckboxField
-                      name="checkboxCond1"
-                      formikProps={formikProps}
-                      disabled
-                      value={formikProps.values.checkboxCond1}
-                      label="Insane condition you can't remove"
-                    />
-
-                    <CheckboxField
-                      name="checkboxCond2"
-                      formikProps={formikProps}
-                      disabled
-                      value={formikProps.values.checkboxCond2}
-                      label="Smart condition you can't remove"
-                    />
-
-                    <CheckboxField
-                      name="checkboxCond2"
-                      formikProps={formikProps}
-                      value={formikProps.values.checkboxCond2}
-                      label="Label"
-                      sublabel="Sublabel"
-                    />
-                    <CheckboxField
-                      disabled
-                      name="checkboxCond2"
-                      formikProps={formikProps}
-                      value={formikProps.values.checkboxCond2}
-                      label="Label"
-                      sublabel="Sublabel"
-                    />
-                  </Block>
-
-                  <Typography className="mb-4" variant="subhead1">
-                    ButtonSelector
-                  </Typography>
-                  <Block>
-                    <ButtonSelectorField
-                      name="buttonSelector"
-                      label="You'd rather..."
-                      description="Be careful with your choice"
-                      infoText="You WILL be judge on the answer"
-                      formikProps={formikProps}
-                      options={[
-                        {
-                          label: '...talk like Yoda',
-                          value: 'yoda',
-                        },
-                        {
-                          label: '...Breath like Darth Vader',
-                          value: 'vador',
-                        },
-                      ]}
-                    />
-                    <ButtonSelectorField
-                      name="buttonSelector"
-                      label="You'd rather..."
-                      formikProps={formikProps}
-                      disabled
-                      options={[
-                        {
-                          label: '...talk like Yoda',
-                          value: 'yoda',
-                        },
-                        {
-                          label: '...Breath like Darth Vader',
-                          value: 'vador',
-                        },
-                      ]}
-                    />
-                  </Block>
-
-                  <Typography className="mb-4" variant="subhead1">
-                    Switch
-                  </Typography>
-                  <Block>
-                    <SwitchField
-                      name="switch"
-                      formikProps={formikProps}
-                      label="How do you feel today ?"
-                      subLabel={formikProps.values.switch ? '' : 'Wanna talk about it ? Call 911.'}
-                    />
-                    <SwitchField
-                      name="switch"
-                      formikProps={formikProps}
-                      label="Disabled"
-                      disabled
-                    />
-                    <SwitchField
-                      name="switch"
-                      formikProps={formikProps}
-                      label="How do you feel today ?"
-                      subLabel="I really wanna know"
-                      labelPosition="left"
-                    />
-                  </Block>
-
-                  <Typography className="mb-4" variant="subhead1">
-                    Combobox
-                  </Typography>
-                  <Block>
-                    <ComboBoxField
-                      name="combobox"
-                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
-                        value: `${letter}-${i}`,
-                        group: Math.round(i / 5) + '',
-                        description: `I am a description for ${letter}`,
-                      }))}
-                      label="Grouped by - virtualized"
-                      description="You can type anything to see the magic happen"
-                      placeholder="Placeholder"
-                      formikProps={formikProps}
-                    />
-                    <ComboBoxField
-                      name="combobox"
-                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
-                        value: `${letter}-${i}`,
-                      }))}
-                      label="Not grouped - virtualized"
-                      placeholder="Placeholder"
-                      formikProps={formikProps}
-                    />
-                    <ComboBoxField
-                      name="combobox"
-                      virtualized={false}
-                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
-                        value: `${letter}-${i}`,
-                      }))}
-                      label="Not grouped - normal"
-                      placeholder="Placeholder"
-                      formikProps={formikProps}
-                    />
-                    <ComboBoxField
-                      name="combobox"
-                      virtualized={false}
-                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
-                        value: `${letter}-${i}`,
-                        description: `I am a description for ${letter}`,
-                      }))}
-                      label="With description"
-                      placeholder="Placeholder"
-                      formikProps={formikProps}
-                    />
-                    <ComboBoxField
-                      name="combobox"
-                      virtualized={false}
-                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
-                        value: `${letter}-${i}`,
-                        group: Math.round(i / 5) + '',
-                      }))}
-                      renderGroupHeader={{
-                        '0': (
-                          <ComboboxHeader>
-                            <Typography component="span" variant="captionHl" color="textSecondary">
-                              The good •
-                            </Typography>
-                            <Typography component="span" variant="caption" noWrap>
-                              Based on several survey
-                            </Typography>
-                          </ComboboxHeader>
-                        ),
-                        '1': (
-                          <ComboboxHeader>
-                            <Typography component="span" variant="captionHl" color="textSecondary">
-                              The bad •
-                            </Typography>
-                            <Typography component="span" variant="caption" noWrap>
-                              Because I say so
-                            </Typography>
-                          </ComboboxHeader>
-                        ),
-                        '2': (
-                          <ComboboxHeader>
-                            <Typography component="span" variant="captionHl" color="textSecondary">
-                              The ugly •
-                            </Typography>
-                            <Typography component="span" variant="caption" noWrap>
-                              Don&apos;t look at it
-                            </Typography>
-                          </ComboboxHeader>
-                        ),
-                      }}
-                      label="Grouped by - normal - custom headers"
-                      placeholder="Placeholder"
-                      formikProps={formikProps}
-                    />
-                    <ComboBoxField
-                      name="combobox"
-                      virtualized={false}
-                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
-                        value: `${letter}-${i}`,
-                        group: Math.round(i / 5) + '',
-                      }))}
-                      renderGroupHeader={{
-                        '0': (
-                          <ComboboxHeader>
-                            <Typography component="span" variant="captionHl" color="textSecondary">
-                              The good •
-                            </Typography>
-                            <Typography component="span" variant="caption" noWrap>
-                              Based on several survey
-                            </Typography>
-                          </ComboboxHeader>
-                        ),
-                        '1': (
-                          <ComboboxHeader>
-                            <Typography component="span" variant="captionHl" color="textSecondary">
-                              The bad •
-                            </Typography>
-                            <Typography component="span" variant="caption" noWrap>
-                              Because I say so
-                            </Typography>
-                          </ComboboxHeader>
-                        ),
-                        '2': (
-                          <ComboboxHeader>
-                            <Typography component="span" variant="captionHl" color="textSecondary">
-                              The ugly •
-                            </Typography>
-                            <Typography component="span" variant="caption" noWrap>
-                              Don&apos;t look at it
-                            </Typography>
-                          </ComboboxHeader>
-                        ),
-                      }}
-                      renderGroupInputStartAdornment={{
-                        0: 'The good',
-                        1: 'The bad',
-                        2: 'The ugly',
-                      }}
-                      label="Grouped by - normal - custom headers - Input start adornment"
-                      placeholder="Placeholder"
-                      formikProps={formikProps}
-                    />
-                    <ComboBoxField
-                      name="combobox"
-                      virtualized={false}
-                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
-                        value: `${letter}-${i}`,
-                        group: Math.round(i / 5) + '',
-                        description: `I am a description for ${letter}`,
-                      }))}
-                      label="Grouped by with description"
-                      placeholder="Placeholder"
-                      formikProps={formikProps}
-                    />
-
-                    <ComboBoxField
-                      name="combobox"
-                      data={[]}
-                      label="Loading"
-                      placeholder="But who is it anyway ?"
-                      loading
-                      formikProps={formikProps}
-                    />
-                    <ComboBoxField
-                      name="combobox"
-                      data={[]}
-                      label="Disabled"
-                      placeholder="You don't get to answer"
-                      disabled
-                      formikProps={formikProps}
-                    />
-
-                    <MultipleComboBoxField
-                      name="multipleCombobox"
-                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
-                        value: `${letter}-${i}`,
-                      }))}
-                      label="Multiple"
-                      placeholder="Placeholder"
-                      formikProps={formikProps}
-                    />
-                    <MultipleComboBoxField
-                      name="multipleCombobox"
-                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
-                        value: `${letter}-${i}`,
-                        description: `I am a description for ${letter}`,
-                      }))}
-                      label="Multiple with description"
-                      placeholder="Placeholder"
-                      formikProps={formikProps}
-                    />
-                    <MultipleComboBoxField
-                      disableCloseOnSelect
-                      name="multipleCombobox"
-                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
-                        value: `${letter}-${i}`,
-                        group: Math.round(i / 5) + '',
-                        description: `I am a description for ${letter}`,
-                      }))}
-                      label="Multiple disableCloseOnSelect"
-                      placeholder="Placeholder"
-                      formikProps={formikProps}
-                    />
-                    <MultipleComboBoxField
-                      freeSolo
-                      name="multipleCombobox"
-                      data={'abcdefghijklmnopqrstuvwxyz'.split('').map((letter, i) => ({
-                        value: `${letter}-${i}`,
-                        group: Math.round(i / 5) + '',
-                      }))}
-                      label="Multiple Free Solo"
-                      placeholder="Placeholder"
-                      formikProps={formikProps}
-                    />
-                    <MultipleComboBoxField
-                      freeSolo
-                      showOptionsOnlyWhenTyping
-                      name="multipleCombobox"
-                      label="Multiple No Data freeSolo showOptionsOnlyWhenTyping"
-                      placeholder="Placeholder"
-                      formikProps={formikProps}
-                    />
-                    {formikProps.values.multipleCombobox.length > 0 && (
-                      <Stack gap={1} direction="row" flexWrap="wrap">
-                        {formikProps.values.multipleCombobox.map(
-                          (value: { value: string }, index) => (
-                            <Chip
-                              key={index}
-                              label={value.value}
-                              onDelete={() => {
-                                const newValues = formikProps.values.multipleCombobox.filter(
-                                  (v) => v !== value,
-                                )
-
-                                formikProps.setFieldValue('multipleCombobox', newValues)
-                              }}
-                            />
-                          ),
-                        )}
-                      </Stack>
-                    )}
-                    <MultipleComboBox
-                      freeSolo
-                      hideTags
-                      disableClearable
-                      showOptionsOnlyWhenTyping
-                      data={[]}
-                      onChange={(newValue) =>
-                        formikProps.setFieldValue('multipleCombobox', newValue)
-                      }
-                      value={formikProps.values.multipleCombobox}
-                      label="Multiple No Data freeSolo hideTags disableClearable allowSameValue showOptionsOnlyWhenTyping"
-                      placeholder="Placeholder"
-                    />
-                  </Block>
-
-                  <Typography className="mb-4" variant="subhead1">
-                    Radio
-                  </Typography>
-                  <Block>
-                    <RadioField
-                      name="radio"
-                      formikProps={formikProps}
-                      value="chocolatine"
-                      label="Chocolatine"
-                    />
-                    <RadioField
-                      name="radio"
-                      formikProps={formikProps}
-                      value="painauchocolat"
-                      label="Pain au chocolat"
-                      sublabel="The right answer"
-                    />
-                    <RadioField
-                      value="painauchocolat"
-                      name="radio"
-                      formikProps={formikProps}
-                      label="Disabled"
-                      sublabel="I'm disabled too"
-                      disabled
-                    />
-                    <RadioField
-                      name="radio"
-                      formikProps={formikProps}
-                      value="painauchocolat"
-                      label="Radio with a very long label - Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-                      sublabel="The right answer"
-                    />
-                  </Block>
-
-                  <Typography className="mb-4" variant="subhead1">
-                    DatePicker
-                  </Typography>
-                  <Block className="min-w-[325px]">
-                    <DatePickerField
-                      name="date"
-                      label="When is Morguy's birthday ?"
-                      formikProps={formikProps}
-                    />
-                    <DatePickerField
-                      name="date"
-                      label="DatePicker with helper"
-                      helperText="I'm here to help"
-                      formikProps={formikProps}
-                    />
-                    <DatePickerField
-                      name="date"
-                      label="DatePicker disabled"
-                      disabled
-                      formikProps={formikProps}
-                    />
-                  </Block>
-
-                  <Typography className="mb-4" variant="subhead1">
-                    AmountInput
-                  </Typography>
-                  <Block>
-                    <AmountInputField
-                      beforeChangeFormatter={['positiveNumber']}
-                      currency={formikProps.values.amountCurrency}
-                      formikProps={formikProps}
-                      label="Amount"
-                      name="amountCents"
-                      description='Amount in "cents" (1€ = 100 cents)'
-                    />
-                    <ComboBoxField
-                      name="amountCurrency"
-                      data={Object.values(CurrencyEnum).map((currencyType) => ({
-                        value: currencyType,
-                      }))}
-                      label="currency"
-                      description="Select your currency"
-                      placeholder="Placeholder"
-                      isEmptyNull={false}
-                      disableClearable
-                      formikProps={formikProps}
-                    />
-                  </Block>
-
-                  <Typography className="mb-4" variant="subhead1">
-                    TextInput
-                  </Typography>
-                  <Block>
-                    <TextInputField
-                      label="Label"
-                      placeholder="Type something"
-                      name="input"
-                      formikProps={formikProps}
-                      InputProps={{
-                        endAdornment: <InputAdornment position="end">Dias</InputAdornment>,
-                      }}
-                    />
-                    <TextInputField
-                      label="With decimal formatter"
-                      name="inputNumber"
-                      placeholder="Type number"
-                      beforeChangeFormatter={['decimal']}
-                      formikProps={formikProps}
-                    />
-                    <TextInputField
-                      label="With triDecimal formatter"
-                      name="inputNumber"
-                      placeholder="Type number"
-                      beforeChangeFormatter={['triDecimal']}
-                      formikProps={formikProps}
-                    />
-                    <TextInputField
-                      label="With quadDecimal formatter"
-                      name="inputNumber"
-                      placeholder="Type number"
-                      beforeChangeFormatter={['quadDecimal']}
-                      formikProps={formikProps}
-                    />
-                    <TextInputField
-                      label="Cleanable"
-                      name="input"
-                      placeholder="Type something"
-                      formikProps={formikProps}
-                      cleanable
-                    />
-                    <TextInputField
-                      label="Password"
-                      placeholder="Type something"
-                      name="input"
-                      formikProps={formikProps}
-                      password
-                    />
-                    <TextInputField
-                      label="With infotext"
-                      placeholder="Type something"
-                      name="input"
-                      formikProps={formikProps}
-                      infoText="I'm giving you some infos"
-                    />
-                    <TextInputField
-                      label="Disabled"
-                      placeholder="Type something"
-                      name="input"
-                      formikProps={formikProps}
-                      disabled
-                      InputProps={{
-                        endAdornment: <InputAdornment position="end">Dias</InputAdornment>,
-                      }}
-                    />
-                    <TextInputField
-                      label="With helpertext"
-                      placeholder="Type something"
-                      name="input"
-                      formikProps={formikProps}
-                      helperText="I'm here to help"
-                    />
-                    <TextInputField
-                      label="With description"
-                      placeholder="Type something"
-                      name="input"
-                      formikProps={formikProps}
-                      description="I'm here to help"
-                    />
-                  </Block>
-
-                  <Typography className="mb-4" variant="subhead1">
-                    JSON Editor
-                  </Typography>
-                  <Block>
-                    <JsonEditorField
-                      name="json"
-                      label="With small editor and overlay"
-                      description='Click on "expand" to remove the overlay'
-                      infoText="Some tips"
-                      formikProps={formikProps}
-                      onExpand={(deleteOverlay) => {
-                        deleteOverlay()
-                      }}
-                      helperText="Until you can't see the last line in the editor, you will see the expand overlay"
-                    />
-
-                    <JsonEditorField
-                      name="jsonLong"
-                      label="With height"
-                      formikProps={formikProps}
-                      height="300px"
-                    />
-                  </Block>
-
-                  <Button onClick={formikProps.submitForm}>Check your answers</Button>
-                </form>
-              </Container>
-            ),
+            component: <FormTest form={form} />,
           },
           {
             title: 'Links',
