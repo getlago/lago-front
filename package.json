@@ -122,7 +122,7 @@
     "@llm-ui/react": "0.13.3",
     "@mui/material": "5.18.0",
     "@mui/x-date-pickers": "6.20.2",
-    "@nangohq/frontend": "0.71.12",
+    "@nangohq/frontend": "0.71.13",
     "@radix-ui/react-slot": "1.5.0",
     "@rails/actioncable": "8.1.400",
     "@sentry/react": "10.76.2",
