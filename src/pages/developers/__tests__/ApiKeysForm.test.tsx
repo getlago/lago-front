@@ -21,6 +21,7 @@ import ApiKeysForm, {
   API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID,
   API_KEYS_FORM_PREMIUM_BANNER_TEST_ID,
   API_KEYS_FORM_PREMIUM_BUTTON_TEST_ID,
+  getApiKeysFormPermissionRowTestId,
 } from '../ApiKeysForm'
 
 // Mock dependencies
@@ -474,18 +475,37 @@ describe('ApiKeysForm', () => {
       })
     })
 
-    describe('WHEN the organization has no feature flag', () => {
-      it('THEN should not display the product catalog resources', async () => {
+    describe('WHEN the organization has no product catalog feature flag', () => {
+      beforeEach(() => {
+        mockHasFeatureFlag.mockReturnValue(false)
+      })
+
+      it('THEN should display only the resources available without the product catalog', async () => {
         render(<ApiKeysForm />)
 
         await waitFor(() => {
           expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
         })
 
-        expect(screen.getByText('API logs')).toBeInTheDocument()
-        expect(screen.getByText('Coupons')).toBeInTheDocument()
-        expect(screen.queryByText('Products')).not.toBeInTheDocument()
-        expect(screen.queryByText('Contracts')).not.toBeInTheDocument()
+        ;[
+          ApiKeysPermissionsEnum.ApiLog,
+          ApiKeysPermissionsEnum.Coupon,
+          ApiKeysPermissionsEnum.PaymentReceipt,
+          ApiKeysPermissionsEnum.Plan,
+        ].forEach((permission) => {
+          expect(
+            screen.getByTestId(getApiKeysFormPermissionRowTestId(permission)),
+          ).toBeInTheDocument()
+        })
+        ;[
+          ApiKeysPermissionsEnum.Contract,
+          ApiKeysPermissionsEnum.Product,
+          ApiKeysPermissionsEnum.RateCard,
+        ].forEach((permission) => {
+          expect(
+            screen.queryByTestId(getApiKeysFormPermissionRowTestId(permission)),
+          ).not.toBeInTheDocument()
+        })
       })
 
       it('THEN should submit only the displayed resources', async () => {
@@ -529,42 +549,64 @@ describe('ApiKeysForm', () => {
         )
       })
 
-      it('THEN should display the v2 resources only', async () => {
+      it('THEN should display only the v2 resources', async () => {
         render(<ApiKeysForm />)
 
         await waitFor(() => {
           expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+        })
+
+        ;[
+          ApiKeysPermissionsEnum.Contract,
+          ApiKeysPermissionsEnum.ContractRateCard,
+          ApiKeysPermissionsEnum.Customer,
+          ApiKeysPermissionsEnum.Invoice,
+          ApiKeysPermissionsEnum.Plan,
+          ApiKeysPermissionsEnum.PlanRateCard,
+          ApiKeysPermissionsEnum.Product,
+          ApiKeysPermissionsEnum.ProductCategory,
+          ApiKeysPermissionsEnum.RateCard,
+        ].forEach((permission) => {
+          expect(
+            screen.getByTestId(getApiKeysFormPermissionRowTestId(permission)),
+          ).toBeInTheDocument()
         })
         ;[
-          'Products',
-          'Product categories',
-          'Rate cards',
-          'Plan rate cards',
-          'Contracts',
-          'Contract rate cards',
-          'Customers',
-          'Invoices',
-          'Plans',
-        ].forEach((label) => {
-          expect(screen.getByText(label)).toBeInTheDocument()
+          ApiKeysPermissionsEnum.Coupon,
+          ApiKeysPermissionsEnum.Feature,
+          ApiKeysPermissionsEnum.InvoiceCustomSection,
+          ApiKeysPermissionsEnum.PaymentReceipt,
+          ApiKeysPermissionsEnum.Subscription,
+          ApiKeysPermissionsEnum.Wallet,
+        ].forEach((permission) => {
+          expect(
+            screen.queryByTestId(getApiKeysFormPermissionRowTestId(permission)),
+          ).not.toBeInTheDocument()
         })
-        ;['Coupons', 'Wallets', 'Subscriptions', 'Features', 'Invoice custom section'].forEach(
-          (label) => {
-            expect(screen.queryByText(label)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization infos are still loading', () => {
+      beforeEach(() => {
+        mockUseOrganizationInfos.mockReturnValue({
+          organization: {
+            premiumIntegrations: [PremiumIntegrationTypeEnum.ApiPermissions],
           },
-        )
+          hasFeatureFlag: mockHasFeatureFlag,
+          loading: true,
+        })
       })
 
-      it('THEN should display one row per v2 resource', async () => {
+      it('THEN should not display the permissions table and should disable the submit button', async () => {
         render(<ApiKeysForm />)
 
         await waitFor(() => {
-          expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+          expect(screen.getByRole('button', { name: /add api key/i })).toBeDisabled()
         })
 
-        const table = screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)
-
-        expect(table.querySelectorAll('tbody tr')).toHaveLength(25)
+        expect(
+          screen.queryByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
   })
