@@ -49,17 +49,6 @@ gql`
 export type AppliedRateCardParent =
   { context: 'plan'; planId: string } | { context: 'contract'; contractId: string }
 
-// Renaming either query breaks the create mutations' `refetchQueries`, which reference them by name.
-export const PRICED_SLICES_REFETCH_QUERIES: Record<AppliedRateCardParent['context'], string> = {
-  plan: 'getPlanAppliedRateCardSlicesForAppliedRateCardDrawer',
-  contract: 'getContractAppliedRateCardSlicesForAppliedRateCardDrawer',
-}
-
-export const ALREADY_PRICED_TRANSLATION_KEY: Record<AppliedRateCardParent['context'], string> = {
-  plan: 'text_1792683486646v7np3oh22jc',
-  contract: 'text_1792683486646r8re8d0scxh',
-}
-
 // One product holds one card per filter slice, so its applied cards always fit in one page.
 const PRICED_SLICES_LIMIT = 100
 
@@ -69,8 +58,8 @@ export const usePricedProductFilterIds = (
   parent: AppliedRateCardParent,
   productId: string,
 ): Set<string | null> => {
-  // Not cached: these list fields leave `limit` out of their cache key, so this page could
-  // overwrite the rate cards section list.
+  // Not cached (`nextFetchPolicy` too, the client defaults it to `cache-first`): these list
+  // fields leave `limit` out of their cache key, so this page could overwrite the section list.
   const { data: planData } = useGetPlanAppliedRateCardSlicesForAppliedRateCardDrawerQuery({
     variables: {
       planId: parent.context === 'plan' ? parent.planId : '',
@@ -79,6 +68,7 @@ export const usePricedProductFilterIds = (
     },
     skip: parent.context !== 'plan' || !productId,
     fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'no-cache',
   })
   const { data: contractData } = useGetContractAppliedRateCardSlicesForAppliedRateCardDrawerQuery({
     variables: {
@@ -88,6 +78,7 @@ export const usePricedProductFilterIds = (
     },
     skip: parent.context !== 'contract' || !productId,
     fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'no-cache',
   })
 
   const appliedRateCards =

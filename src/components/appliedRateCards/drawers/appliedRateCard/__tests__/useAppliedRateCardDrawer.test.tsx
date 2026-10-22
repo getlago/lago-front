@@ -2,10 +2,12 @@ import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { act, renderHook, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GraphQLError } from 'graphql'
-import { ReactNode } from 'react'
+import { ComponentProps, ReactNode } from 'react'
 
+import { APPLIED_RATE_CARD_CONTEXT_CONFIG } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { CREATE_MORE_SWITCH_TEST_ID } from '~/components/drawers/createMore/CreateMoreControl'
 import { addToast } from '~/core/apolloClient'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import {
   CreateContractAppliedRateCardDocument,
   CreatePlanAppliedRateCardDocument,
@@ -13,8 +15,8 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import type { AppliedRateCardDrawerContent } from '../AppliedRateCardDrawerContent'
 import { useAppliedRateCardDrawer } from '../useAppliedRateCardDrawer'
-import { ALREADY_PRICED_TRANSLATION_KEY } from '../usePricedProductFilterIds'
 
 type CapturedDrawerArgs = {
   title?: ReactNode
@@ -35,6 +37,10 @@ const mockNavigate = jest.fn()
 // Mock the NiceModal-backed drawer hook so Jest never loads the drawer stack
 // (drawerStack.ts uses import.meta and crashes Jest) and we can capture the
 // args the hook passes to `open`.
+jest.mock('~/core/form/scrollToFirstInputError', () => ({
+  scrollToFirstInputError: jest.fn(),
+}))
+
 jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
 }))
@@ -67,19 +73,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 const mockRateCardErrorsProbeTestId = 'rate-card-errors-probe'
 
 jest.mock('../AppliedRateCardDrawerContent', () => ({
-  AppliedRateCardDrawerContent: ({
-    form,
-  }: {
-    form: {
-      setFieldValue: (name: string, value: unknown) => void
-      Subscribe: (props: {
-        selector: (state: {
-          fieldMeta: Record<string, { errors?: unknown[] } | undefined>
-        }) => string
-        children: (value: string) => ReactNode
-      }) => ReactNode
-    }
-  }) => (
+  AppliedRateCardDrawerContent: ({ form }: ComponentProps<typeof AppliedRateCardDrawerContent>) => (
     <>
       <form.Subscribe
         selector={(state) => JSON.stringify(state.fieldMeta.rateCardId?.errors ?? [])}
@@ -219,13 +213,32 @@ describe('useAppliedRateCardDrawer', () => {
 
       await waitFor(() =>
         expect(screen.getByTestId(mockRateCardErrorsProbeTestId)).toHaveTextContent(
-          ALREADY_PRICED_TRANSLATION_KEY[props.context],
+          APPLIED_RATE_CARD_CONTEXT_CONFIG[props.context].alreadyPricedTranslationKey,
         ),
+      )
+      expect(scrollToFirstInputError).toHaveBeenCalledWith(
+        lastDrawerArgs?.form?.id,
+        expect.objectContaining({ rateCardId: expect.anything() }),
       )
       expect(mockClose).not.toHaveBeenCalled()
       expect(addToast).not.toHaveBeenCalled()
     },
   )
+
+  it('GIVEN nothing filled WHEN submitted THEN scrolls to the first error', async () => {
+    const { result } = renderDrawerHook()
+
+    act(() =>
+      result.current.openDrawer({ context: 'plan', planId: 'plan-1', currency: CurrencyEnum.Usd }),
+    )
+    renderDrawerBody()
+    await submit()
+
+    expect(scrollToFirstInputError).toHaveBeenCalledWith(
+      lastDrawerArgs?.form?.id,
+      expect.objectContaining({ productId: expect.anything() }),
+    )
+  })
 
   it('GIVEN context plan THEN submitting with an empty local phases array calls createPlanAppliedRateCard with no ratePhases key', async () => {
     let capturedInput: Record<string, unknown> = {}

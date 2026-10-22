@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
 import { ReactNode, useEffect, useState } from 'react'
 
+import { APPLIED_RATE_CARD_CONTEXT_CONFIG } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { buildRateCardForRatePhaseFields } from '~/components/appliedRateCards/buildRateCardForRatePhaseFields'
 import {
   getInsertIndex,
@@ -37,11 +38,7 @@ import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternat
 import { withForm } from '~/hooks/forms/useAppform'
 import type { useRateCardDrawer } from '~/pages/catalog/drawers/rateCard/useRateCardDrawer'
 
-import {
-  ALREADY_PRICED_TRANSLATION_KEY,
-  AppliedRateCardParent,
-  usePricedProductFilterIds,
-} from './usePricedProductFilterIds'
+import { AppliedRateCardParent, usePricedProductFilterIds } from './usePricedProductFilterIds'
 import { APPLIED_RATE_CARD_FORM_DEFAULTS } from './validationSchema'
 
 type OpenRateCardDrawer = ReturnType<typeof useRateCardDrawer>['openDrawer']
@@ -511,7 +508,10 @@ export const AppliedRateCardDrawerContent = withForm({
                         label: rateCard.name,
                         disabled: isPriced,
                         description: isPriced
-                          ? translate(ALREADY_PRICED_TRANSLATION_KEY[parent.context])
+                          ? translate(
+                              APPLIED_RATE_CARD_CONTEXT_CONFIG[parent.context]
+                                .alreadyPricedTranslationKey,
+                            )
                           : undefined,
                       }
                     })}
