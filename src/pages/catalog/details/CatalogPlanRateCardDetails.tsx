@@ -75,7 +75,7 @@ const toDetailsData = (
   appliedRateCard: PlanAppliedRateCardForDetailsFragment | null | undefined,
   catalogPlanId: string,
 ): AppliedRateCardDetailsData | undefined => {
-  if (!appliedRateCard || appliedRateCard.catalogPlan.id !== catalogPlanId) return undefined
+  if (appliedRateCard?.catalogPlan.id !== catalogPlanId) return undefined
 
   const { catalogPlan } = appliedRateCard
 

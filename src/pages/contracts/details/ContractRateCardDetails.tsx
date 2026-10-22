@@ -82,7 +82,7 @@ const toDetailsData = (
   appliedRateCard: ContractAppliedRateCardForDetailsFragment | null | undefined,
   contractId: string,
 ): AppliedRateCardDetailsData | undefined => {
-  if (!appliedRateCard || appliedRateCard.contract.id !== contractId) return undefined
+  if (appliedRateCard?.contract.id !== contractId) return undefined
 
   const { contract } = appliedRateCard
 
