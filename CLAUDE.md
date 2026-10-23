@@ -33,7 +33,6 @@
 ## Development Guidelines
 
 - TypeScript strict mode with path aliases (`~/*` maps to `src/*`)
-- Use existing design system components from `packages/design-system/`
 - Use hooks and utilities in `src/hooks/`
 - GraphQL queries/mutations for API calls (generated types in `src/generated/`)
 - **After any GraphQL schema/query/fragment changes, run `pnpm codegen`**

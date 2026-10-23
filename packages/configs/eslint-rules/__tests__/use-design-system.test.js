@@ -27,6 +27,12 @@ ruleTester.run('use-design-system', rule, {
     "import { styled } from '@mui/material/styles'",
     "import type { SelectChangeEvent } from '@mui/material/Select'",
     'const C = () => <Table.Row />',
+    'const C = () => <form><button type="submit" hidden={true} /></form>',
+    "import { type SelectChangeEvent } from '@mui/material/Select'",
+    "import { InputAdornment } from '@mui/material'",
+    "import type {} from '@mui/x-date-pickers/themeAugmentation'",
+    "import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon'",
+    "export { Button } from '~/components/designSystem/Button'",
   ],
   invalid: [
     {
@@ -71,6 +77,63 @@ ruleTester.run('use-design-system', rule, {
     },
     {
       code: "import { Drawer, DrawerRef } from '~/components/designSystem/Drawer'",
+      errors: [{ messageId: 'legacyImport' }],
+    },
+    { code: 'const C = () => <button hidden={!isOpen}>Go</button>', errors: [rawElement] },
+    { code: 'const C = () => <button hidden>Go</button>', errors: [rawElement] },
+    {
+      code: 'const C = () => <input type="text" />',
+      errors: [
+        {
+          message:
+            'Use `field.<Name>Field` from `useAppForm` inside a form, or `TextInput`, `ComboBox`, `Checkbox`, `Radio` or `Switch` from `~/components/form` outside one (see the forms reference) instead of a raw <input>.',
+        },
+      ],
+    },
+    {
+      code: "import Dialog from '@mui/material/Dialog'",
+      errors: [
+        {
+          message:
+            'Use `useFormDialog` from `~/components/dialogs/FormDialog` for a form, or `useCentralizedDialog` from `~/components/dialogs/CentralizedDialog` otherwise (see the dialogs reference) instead of importing Dialog from MUI.',
+        },
+      ],
+    },
+    {
+      code: "import { Button, Tabs, InputAdornment } from '@mui/material'",
+      errors: [
+        {
+          messageId: 'muiImport',
+          data: { name: 'Button', use: '`Button` from `~/components/designSystem/Button`' },
+        },
+        {
+          messageId: 'muiImport',
+          data: {
+            name: 'Tabs',
+            use: '`NavigationTab` from `~/components/designSystem/NavigationTab`',
+          },
+        },
+      ],
+    },
+    { code: "import Link from '@mui/material/Link'", errors: [{ messageId: 'muiImport' }] },
+    {
+      code: "import InputBase from '@mui/material/InputBase'",
+      errors: [{ messageId: 'muiImport' }],
+    },
+    {
+      code: "import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'",
+      errors: [{ messageId: 'muiImport' }],
+    },
+    {
+      code: "import { DatePicker } from '@mui/x-date-pickers/DatePicker'",
+      errors: [{ messageId: 'muiImport' }],
+    },
+    {
+      code: "export { default as Tabs } from '@mui/material/Tabs'",
+      errors: [{ messageId: 'muiImport' }],
+    },
+    {
+      code: "export * from '~/components/designSystem/Drawer'",
       errors: [{ messageId: 'legacyImport' }],
     },
   ],

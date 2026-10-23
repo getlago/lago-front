@@ -1,7 +1,7 @@
 /**
  * ESLint rule: new UI composes the design system, it never rebuilds it. Flags a raw
- * HTML element the design system already wraps, a direct import of an MUI component
- * it wraps, and the legacy drawer. Each message names what to use instead.
+ * HTML element the design system already wraps, an import or re-export of an MUI
+ * component it wraps, and the legacy drawer. Each message names what to use instead.
  *
  * The design-system folders implement these components, so the root
  * `eslint.config.mjs` does not run the rule there. Usages that predate the rule are
@@ -11,15 +11,22 @@
 
 const TYPOGRAPHY = '`Typography` from `~/components/designSystem/Typography`'
 const FORM_FIELD =
-  'a field from `~/components/form`, or `field.<Name>` inside `useAppForm` (see the forms reference)'
-const DIALOG = '`useCentralizedDialog` from `~/components/dialogs/CentralizedDialog`'
+  '`field.<Name>Field` from `useAppForm` inside a form, or `TextInput`, `ComboBox`, `Checkbox`, `Radio` or `Switch` from `~/components/form` outside one (see the forms reference)'
+const DATE_FIELD =
+  '`field.DatePickerField` from `useAppForm` inside a form, or `DatePicker` from `~/components/form` outside one'
+const DIALOG =
+  '`useFormDialog` from `~/components/dialogs/FormDialog` for a form, or `useCentralizedDialog` from `~/components/dialogs/CentralizedDialog` otherwise (see the dialogs reference)'
+const DRAWER =
+  '`useFormDrawer` for a form, or `useDrawer` otherwise, both from `~/components/drawers/useDrawer` (see the drawers reference)'
+const LINK =
+  '`Link` from `~/core/router`, or `ButtonLink` from `~/components/designSystem/ButtonLink` (`external` for another site)'
 const POPPER = '`Popper` from `~/components/designSystem/Popper`'
 
 // Raw element -> what to use instead.
 const ELEMENTS = {
   button:
     '`Button` from `~/components/designSystem/Button` (`ButtonLink` to navigate, `ButtonSelector` from `~/components/form` for a choice)',
-  a: '`Link` from `~/core/router`, or `ButtonLink` from `~/components/designSystem/ButtonLink` (`external` for another site)',
+  a: LINK,
   input: FORM_FIELD,
   select: FORM_FIELD,
   textarea: FORM_FIELD,
@@ -34,10 +41,8 @@ const ELEMENTS = {
   h6: TYPOGRAPHY,
 }
 
-// `@mui/material/<Name>` -> what to use instead. A name also covers its parts
-// (`Table` covers `TableCell`, `Menu` covers `MenuItem`); the longest match wins, so
-// `Table` is never read as `Tab`. `Stack`, `Box`, `InputAdornment`, `styles` and other
-// layout primitives stay free.
+// MUI component -> what to use instead. A name covers its parts (`Table` covers
+// `TableCell`), and the longest match wins, so `Table` is never read as `Tab`.
 const MUI = {
   Accordion: '`Accordion` from `~/components/designSystem/Accordion`',
   Alert: '`Alert` from `~/components/designSystem/Alert`',
@@ -48,10 +53,14 @@ const MUI = {
   Chip: '`Chip` from `~/components/designSystem/Chip`',
   CircularProgress: '`Spinner` from `~/components/designSystem/Spinner`',
   Dialog: DIALOG,
-  Drawer: '`useDrawer` from `~/components/drawers/useDrawer`',
+  Drawer: DRAWER,
+  FilledInput: FORM_FIELD,
   IconButton: '`Button` with `icon` from `~/components/designSystem/Button`',
+  Input: FORM_FIELD,
+  Link: LINK,
   Menu: POPPER,
   Modal: DIALOG,
+  OutlinedInput: FORM_FIELD,
   Pagination: '`PaginatedContent` from `~/components/designSystem/Pagination`',
   Popover: POPPER,
   Popper: POPPER,
@@ -59,36 +68,63 @@ const MUI = {
   Select: FORM_FIELD,
   Skeleton: '`Skeleton` from `~/components/designSystem/Skeleton`',
   Snackbar: '`addToast` from `~/core/apolloClient`',
+  SwipeableDrawer: DRAWER,
   Switch: FORM_FIELD,
   Tab: '`NavigationTab` from `~/components/designSystem/NavigationTab`',
   Table: '`Table` from `~/components/designSystem/Table`',
   TextField: FORM_FIELD,
+  TextareaAutosize: FORM_FIELD,
+  ToggleButton: '`ButtonSelector` from `~/components/form`',
   Tooltip: '`Tooltip` from `~/components/designSystem/Tooltip`',
   Typography: TYPOGRAPHY,
+}
+const MUI_NAMES = Object.keys(MUI).sort((a, b) => b.length - a.length)
+// Primitives the design system does not wrap stay free, even when a covered name prefixes them.
+const MUI_FREE = new Set(['InputAdornment'])
+
+// Package -> replacement for one of its exported names, or undefined when it is free.
+const PACKAGES = {
+  '@mui/material': (name) => {
+    if (MUI_FREE.has(name)) return undefined
+    const match = MUI_NAMES.find((key) => name.startsWith(key))
+
+    return match && MUI[match]
+  },
+  '@mui/x-date-pickers': (name) => (/Picker|Calendar|Clock/.test(name) ? DATE_FIELD : undefined),
 }
 
 // Legacy module -> its replacement.
 const LEGACY_SOURCES = {
-  '~/components/designSystem/Drawer':
-    '`useDrawer` from `~/components/drawers/useDrawer` (see the drawers reference)',
+  '~/components/designSystem/Drawer': DRAWER,
 }
 
-const MUI_PREFIX = '@mui/material/'
-const MUI_NAMES = Object.keys(MUI).sort((a, b) => b.length - a.length)
+const isTypeOnly = (node) =>
+  node.importKind === 'type' ||
+  node.exportKind === 'type' ||
+  (node.specifiers?.length > 0 &&
+    node.specifiers.every((s) => s.importKind === 'type' || s.exportKind === 'type'))
 
-const muiReplacement = (source) => {
-  if (!source.startsWith(MUI_PREFIX)) return undefined
-  const name = source.slice(MUI_PREFIX.length).split('/')[0]
-  const match = MUI_NAMES.find((key) => name.startsWith(key))
+// The names a statement takes from its source: the imported name of `{ X as Y }`.
+const namesTaken = (node) =>
+  (node.specifiers ?? [])
+    .filter((s) => s.importKind !== 'type' && s.exportKind !== 'type')
+    .map((s) => s.imported?.name ?? s.local?.name)
+    .filter((name) => name && name !== 'default')
 
-  return match && { name, use: MUI[match] }
-}
-
-// `<button type="submit" hidden />` lets Enter submit a form that has no visible submit
+// `<button type="submit" hidden />` lets Enter submit a form with no visible submit
 // button. It renders nothing, so there is nothing to swap for `Button`.
-const isHiddenButton = (node) =>
-  node.name.name === 'button' &&
-  node.attributes.some((attr) => attr.type === 'JSXAttribute' && attr.name.name === 'hidden')
+const isHiddenSubmit = (node) => {
+  const attr = (name) =>
+    node.attributes.find((a) => a.type === 'JSXAttribute' && a.name.name === name)
+  const type = attr('type')
+  const hidden = attr('hidden')
+  const alwaysHidden =
+    hidden &&
+    (hidden.value === null ||
+      (hidden.value.type === 'JSXExpressionContainer' && hidden.value.expression.value === true))
+
+  return node.name.name === 'button' && type?.value?.value === 'submit' && alwaysHidden
+}
 
 export default {
   meta: {
@@ -107,12 +143,43 @@ export default {
     },
   },
   create(context) {
+    const checkSource = (node) => {
+      if (!node.source || isTypeOnly(node)) return
+      const source = node.source.value
+
+      if (LEGACY_SOURCES[source]) {
+        context.report({
+          node,
+          messageId: 'legacyImport',
+          data: { source, use: LEGACY_SOURCES[source] },
+        })
+
+        return
+      }
+
+      for (const [pkg, replacementFor] of Object.entries(PACKAGES)) {
+        if (source === pkg) {
+          // Barrel import: each named import is its own component.
+          for (const name of namesTaken(node)) {
+            const use = replacementFor(name)
+
+            if (use) context.report({ node, messageId: 'muiImport', data: { name, use } })
+          }
+        } else if (source.startsWith(`${pkg}/`)) {
+          const name = source.slice(pkg.length + 1).split('/')[0]
+          const use = replacementFor(name)
+
+          if (use) context.report({ node, messageId: 'muiImport', data: { name, use } })
+        }
+      }
+    }
+
     return {
       JSXOpeningElement(node) {
         if (node.name.type !== 'JSXIdentifier') return
         const use = ELEMENTS[node.name.name]
 
-        if (!use || isHiddenButton(node)) return
+        if (!use || isHiddenSubmit(node)) return
 
         context.report({
           node,
@@ -120,27 +187,9 @@ export default {
           data: { element: node.name.name, use },
         })
       },
-      ImportDeclaration(node) {
-        // `import type { SelectChangeEvent } from '@mui/material/Select'` renders nothing.
-        if (node.importKind === 'type') return
-        const source = node.source.value
-
-        if (LEGACY_SOURCES[source]) {
-          context.report({
-            node,
-            messageId: 'legacyImport',
-            data: { source, use: LEGACY_SOURCES[source] },
-          })
-
-          return
-        }
-
-        const mui = muiReplacement(source)
-
-        if (mui) {
-          context.report({ node, messageId: 'muiImport', data: mui })
-        }
-      },
+      ImportDeclaration: checkSource,
+      ExportNamedDeclaration: checkSource,
+      ExportAllDeclaration: checkSource,
     }
   },
 }

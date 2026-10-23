@@ -12,7 +12,7 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, AskUserQuestion
 
 > **Important:** If no path was provided above (empty or missing), use the AskUserQuestion tool to ask the user for the path to the section component they want to extract into a drawer.
 
-This skill extracts a Formik-based form section into an independent TanStack Form inside a ref-based Drawer, bridging data back to the parent Formik form via a callback. Both the existing Formik section and the new drawer coexist during migration.
+This skill extracts a Formik-based form section into an independent TanStack Form inside a `use<SectionName>Drawer` hook, bridging data back to the parent Formik form via a callback. Both the existing Formik section and the new drawer coexist during migration.
 
 ## Reference Files
 
@@ -24,11 +24,11 @@ Before starting, read these files to understand existing patterns:
 3. **Zod validation example**: `src/pages/settings/teamAndSecurity/members/dialogs/CreateInviteDialog.tsx`
 
 ### Drawer Pattern
-4. **Drawer component**: `src/components/designSystem/Drawer.tsx` — ref-based `DrawerRef` with `openDrawer`/`closeDrawer`
+4. **Drawers reference**: `.agents/skills/lago-frontend-patterns/references/drawers.md`: the canonical `use<Feature>Drawer` hook built on `useFormDrawer`. The ref-based `~/components/designSystem/Drawer` + `DrawerRef` is legacy and fails `lago/use-design-system`.
 
 ### Existing Implementation (reference)
-5. **SubscriptionFeeDrawer**: `src/components/plans/drawers/SubscriptionFeeDrawer.tsx` — first completed extraction
-6. **SubscriptionFeeSection**: `src/components/plans/SubscriptionFeeSection.tsx` — section that hosts its drawer internally
+5. **usePlanSettingsDrawer**: `src/components/plans/drawers/planSettings/usePlanSettingsDrawer.tsx`: a plan drawer built as a hook
+6. **SubscriptionFeeDrawer**: `src/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer.tsx`: the first completed extraction, still a `forwardRef` wrapper. Read it for the Formik bridge, not for its shape
 7. **PlanFormContext**: `src/contexts/PlanFormContext.tsx` — shared read-only context for currency/interval
 
 ### TanStack Field Components
@@ -82,125 +82,56 @@ const sectionNameSchema = z.object({
 - Use `z.enum(MyEnum)` for GraphQL/TS string enums. `z.nativeEnum()` is deprecated in Zod v4.
 - Pass **translation keys** (not translated strings) as Zod error messages. The TanStack field components translate them via `useInternationalization`.
 
-### Phase 4: Create the Drawer Component
+### Phase 4: Create the Drawer Hook
 
-Create the drawer file at `src/components/plans/drawers/SectionNameDrawer.tsx` following this structure:
+Create `src/components/plans/drawers/sectionName/useSectionNameDrawer.tsx`, with the drawer body in its own `SectionNameDrawerContent` component. Follow the canonical pattern in `.agents/skills/lago-frontend-patterns/references/drawers.md`: a hook that owns the form, opens `useFormDrawer`, and returns `{ openDrawer }`. It holds no ref and renders nothing. Copy the `drawer.open({ ... })` options (`form`, `closeOnSubmitSuccess`, `shouldPromptOnClose`, `onClose`, `mainAction`) from that reference.
+
+What this migration adds to the reference:
 
 ```tsx
-import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { forwardRef, useImperativeHandle, useRef } from 'react'
-import { z } from 'zod'
-
-import { Button } from '~/components/designSystem/Button'
-import { Drawer, DrawerRef } from '~/components/designSystem/Drawer'
-// ... other imports
-
-export interface SectionNameFormValues { /* ... */ }
-
-const sectionNameSchema = z.object({ /* ... */ })
-
-const DEFAULT_VALUES: SectionNameFormValues = { /* ... */ }
-
-const SECTION_NAME_FORM_ID = 'section-name-drawer-form'
-
-export interface SectionNameDrawerRef {
-  openDrawer: (values: SectionNameFormValues) => void
-  closeDrawer: () => void
-}
-
-interface SectionNameDrawerProps {
+interface UseSectionNameDrawerProps {
   onSave: (values: SectionNameFormValues) => void
 }
 
-export const SectionNameDrawer = forwardRef<SectionNameDrawerRef, SectionNameDrawerProps>(
-  ({ onSave }, ref) => {
-    const drawerRef = useRef<DrawerRef>(null)
+export const useSectionNameDrawer = ({
+  onSave,
+}: UseSectionNameDrawerProps): { openDrawer: (values: SectionNameFormValues) => void } => {
+  const drawer = useFormDrawer()
 
-    const form = useAppForm({
-      defaultValues: DEFAULT_VALUES,
-      validationLogic: revalidateLogic(),
-      validators: { onDynamic: sectionNameSchema },
-      onSubmit: async ({ value }) => {
-        onSave(value)
-        drawerRef.current?.closeDrawer()
-      },
+  const form = useAppForm({
+    defaultValues: DEFAULT_VALUES,
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: sectionNameSchema },
+    onSubmit: async ({ value }) => {
+      onSave(value)
+      drawer.close()
+    },
+  })
+
+  const openDrawer = (values: SectionNameFormValues): void => {
+    form.reset(values, { keepDefaultValues: true })
+    drawer.open({
+      // ...options as in the drawers reference
+      children: <SectionNameDrawerContent form={form} />,
     })
+  }
 
-    useImperativeHandle(ref, () => ({
-      openDrawer: (values) => {
-        // keepDefaultValues: true prevents the React adapter's formApi.update()
-        // from overwriting values — it compares opts.defaultValues against
-        // this.options.defaultValues, and since we keep DEFAULT_VALUES as both,
-        // they match and no overwrite occurs. isDirty starts as false because
-        // reset() clears all field meta.
-        form.reset(values, { keepDefaultValues: true })
-        drawerRef.current?.openDrawer()
-      },
-      closeDrawer: () => drawerRef.current?.closeDrawer(),
-    }))
-
-    // IMPORTANT: subscribe to isDirty via useStore — reading form.state.isDirty
-    // directly is a passive read that does NOT trigger re-renders.
-    const isDirty = useStore(form.store, (state) => state.isDirty)
-
-    const handleFormSubmit = (event: React.FormEvent) => {
-      event.preventDefault()
-      form.handleSubmit()
-    }
-
-    return (
-      <Drawer
-        ref={drawerRef}
-        title="..."
-        showCloseWarningDialog={isDirty}
-        onClose={() => form.reset()}
-        stickyBottomBar={({ closeDrawer }) => (
-          <div className="flex justify-end gap-3">
-            <Button variant="quaternary" onClick={closeDrawer}>Cancel</Button>
-            {/* form.SubmitButton uses type="submit" which requires being inside <form>.
-                In drawers, stickyBottomBar is outside <form> in the DOM, so use
-                form.Subscribe + programmatic form.handleSubmit() instead. */}
-            <form.Subscribe selector={(state) => ({ canSubmit: state.canSubmit })}>
-              {({ canSubmit }) => (
-                <Button disabled={!canSubmit} onClick={() => form.handleSubmit()}>
-                  Save
-                </Button>
-              )}
-            </form.Subscribe>
-          </div>
-        )}
-      >
-        <form id={SECTION_NAME_FORM_ID} onSubmit={handleFormSubmit}>
-          {/* Hidden submit button enables Enter-key submission.
-              The visible SubmitButton is in stickyBottomBar, outside the <form> in the DOM. */}
-          <button type="submit" hidden aria-hidden="true" />
-          {/* form.AppField for each field */}
-        </form>
-      </Drawer>
-    )
-  },
-)
+  return { openDrawer }
+}
 ```
 
 ### Key patterns:
 
-- **`<form>` wrapper**: Always wrap drawer content in a `<form>` element with an id and `onSubmit` handler. Add a `<button type="submit" hidden aria-hidden="true" />` inside the form — the visible `SubmitButton` is in `stickyBottomBar` (outside `<form>` in the DOM), so the hidden button is needed for Enter-key submission to work.
 - **`onSubmit` on useAppForm**: The save logic lives in the form's `onSubmit` config, not in a manual handler. This ensures Zod validation runs via `form.handleSubmit()` before saving.
-- **Programmatic submit in drawers**: `form.SubmitButton` uses `type="submit"` which only works inside a `<form>` element. In drawers, the `stickyBottomBar` is rendered outside the `<form>` in the DOM, so use `form.Subscribe` + `form.handleSubmit()` instead: `<form.Subscribe selector={(state) => ({ canSubmit: state.canSubmit })}>{({ canSubmit }) => (<Button disabled={!canSubmit} onClick={() => form.handleSubmit()}>Save</Button>)}</form.Subscribe>`. This gives you the same `canSubmit` gating as `SubmitButton` with programmatic submission.
 - **`reset(values, { keepDefaultValues: true })`**: On `openDrawer`, reset the form to the provided values while keeping `DEFAULT_VALUES` as the internal defaultValues. This prevents the React adapter's `formApi.update()` from overwriting values on re-render, without needing a `useState` workaround.
-- **Enhanced ref**: `openDrawer(values)` accepts initial values from Formik, not just `openDrawer()`
-- **Dirty detection**: Subscribe via `useStore(form.store, (state) => state.isDirty)` — reading `form.state.isDirty` directly is a passive read that does NOT trigger re-renders.
-- **onSave callback**: Does NOT write to Formik directly — the parent handles that via the callback
-- **Form reset on close**: `onClose={() => form.reset()}` cleans up when drawer closes
+- **`openDrawer(values)`** accepts initial values from Formik, not just `openDrawer()`.
+- **onSave callback**: Does NOT write to Formik directly. The parent handles that via the callback.
 
 ### Phase 5: Integrate into the Section Component
 
-The drawer lives **inside** the section component, not at the page level:
-
-1. Add a `useRef<SectionNameDrawerRef>` inside the section component
-2. Add an `onDrawerSave` prop (required, not optional) to the section's props interface
-3. Add a trigger element (e.g., `Selector` component) that calls `drawerRef.current?.openDrawer(currentValues)`
-4. Render `<SectionNameDrawer ref={drawerRef} onSave={onDrawerSave} />` inside the section
+1. Add an `onDrawerSave` prop (required, not optional) to the section's props interface
+2. Call `const { openDrawer } = useSectionNameDrawer({ onSave: onDrawerSave })` inside the section component
+3. Add a trigger element (e.g., `Selector` component) that calls `openDrawer(currentValues)`
 
 ```tsx
 interface SectionProps {
@@ -210,49 +141,23 @@ interface SectionProps {
 }
 ```
 
-#### Single Drawer Instance for List/Loop Sections
+#### One Drawer Hook for List/Loop Sections
 
-**Critical rule for sections that render items in a loop** (e.g., fixed charges, usage charges, where each charge is an accordion item):
-
-The drawer must be rendered **once** at the section level, NOT inside each loop item. Only the **drawerRef** is passed down to each item as a prop. This prevents N drawer instances in the DOM (one per item).
+**Critical rule for sections that render items in a loop** (e.g., fixed charges, usage charges, where each charge is an accordion item): call the hook **once** at the section level and pass `openDrawer` down. Calling it inside each item creates one form per item.
 
 ```tsx
-// ✅ Correct: ONE drawer at the section level, ref passed to items
+// ✅ Correct: one hook at the section level, openDrawer passed to items
 const ChargesSection = ({ formikProps, onDrawerSave }: ChargesSectionProps) => {
-  const drawerRef = useRef<ChargeDrawerRef>(null)
+  const { openDrawer } = useChargeDrawer({ onSave: onDrawerSave })
 
-  return (
-    <>
-      {formikProps.values.charges.map((charge, index) => (
-        <ChargeAccordionItem
-          key={charge.id}
-          charge={charge}
-          drawerRef={drawerRef}  // ← pass only the ref
-        />
-      ))}
-      <ChargeDrawer ref={drawerRef} onSave={onDrawerSave} />
-    </>
-  )
+  return formikProps.values.charges.map((charge) => (
+    <ChargeAccordionItem key={charge.id} charge={charge} openDrawer={openDrawer} />
+  ))
 }
 
-// Each item calls drawerRef.current?.openDrawer(itsValues)
-const ChargeAccordionItem = ({ charge, drawerRef }: ChargeAccordionItemProps) => {
-  return (
-    <Selector
-      onClick={() => drawerRef.current?.openDrawer(charge)}
-      // ...
-    />
-  )
-}
-```
-
-```tsx
-// ❌ Wrong: drawer rendered inside each loop item = N drawers in DOM
-{formikProps.values.charges.map((charge, index) => (
-  <ChargeAccordionItem key={charge.id} charge={charge}>
-    <ChargeDrawer onSave={onDrawerSave} />  {/* duplicated per item! */}
-  </ChargeAccordionItem>
-))}
+const ChargeAccordionItem = ({ charge, openDrawer }: ChargeAccordionItemProps) => (
+  <Selector onClick={() => openDrawer(charge)} /* ... */ />
+)
 ```
 
 ### Phase 6: Wire Up the Parent Page
@@ -344,6 +249,6 @@ After completing the extraction:
 - **Missing PlanFormProvider**: The drawer uses `usePlanFormContext()` for currency/interval. Every parent that renders the section must be wrapped.
 - **Import path**: `useAppForm` is imported from `~/hooks/forms/useAppform` (lowercase 'f').
 - **Revalidation logic**: Always pass `validationLogic: revalidateLogic()` from `@tanstack/react-form`.
-- **Drawer in a loop**: When the section renders items in a loop (charges, thresholds, etc.), render the drawer **once** at the section level and pass the `drawerRef` to each item. Never render a drawer inside each loop iteration.
+- **Drawer in a loop**: When the section renders items in a loop (charges, thresholds, etc.), call the drawer hook **once** at the section level and pass `openDrawer` to each item. Never call it inside each loop iteration.
 - **Manual translation keys**: Never hand-craft translation keys. Always run `pnpm translations:add <count>` to generate them with the correct format.
 - **TanStack field error handling**: Ensure all TanStack field wrappers (`*ForTanstack.tsx`) wire up error state via `useStore(field.store, (state) => state.meta.errors)` and `getErrorToDisplay()`. If the underlying component accepts an `error` prop, it must be connected.
