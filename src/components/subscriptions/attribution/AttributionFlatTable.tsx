@@ -149,7 +149,7 @@ export const AttributionEntityCell = ({
   depth = 0,
   toggle,
 }: AttributionEntityCellProps): JSX.Element => (
-  <td className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
+  <td className={tw(ATTRIBUTION_ENTITY_CELL_CLASSNAME, !!toggle && 'px-1')}>
     <div className="flex items-center gap-2" style={getAttributionIndentStyle(depth)}>
       {toggle}
       <Chip label={typeLabel} variant="captionCode" size="small" />

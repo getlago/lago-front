@@ -47,13 +47,14 @@ export const AttributionTreeTable = ({
   const { columns, basis, currency } = tableProps
 
   const renderToggle = (row: AttributionTreeRow): ReactNode => {
-    if (row.level.isLeaf) return <span className="size-6 shrink-0" />
+    if (row.level.isLeaf) return <span className="size-4 shrink-0" />
 
     const node = nodes[row.nodeKey]
     const isOpen = node?.status === 'loaded' && node.isExpanded
 
     return (
       <Button
+        className="-m-1"
         variant="quaternary"
         size="small"
         icon={isOpen ? 'chevron-down-filled' : 'chevron-right-filled'}
