@@ -140,6 +140,17 @@ describe('AttributionFlatTable', () => {
         expect(screen.getByText('opus')).toBeInTheDocument()
       })
 
+      it('THEN should keep the entities and total headers on the first header row', () => {
+        const { container } = renderTable({ columns: splitColumns, chargeLabel: 'Tokens' })
+
+        const [chargeRow, subColumnRow] = Array.from(container.querySelectorAll('thead tr'))
+
+        expect(container.querySelectorAll('thead th[rowspan]')).toHaveLength(0)
+        expect(chargeRow.querySelectorAll('th')[0]).toHaveTextContent(/\S/)
+        expect(subColumnRow.querySelectorAll('th')).toHaveLength(splitColumns.length + 2)
+        expect(subColumnRow.querySelectorAll('th')[0]).toBeEmptyDOMElement()
+      })
+
       it('THEN should render the footer sub-column totals from the totals', () => {
         renderTable({ columns: splitColumns, chargeLabel: 'Tokens' })
 

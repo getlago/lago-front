@@ -239,7 +239,7 @@ export const AttributionTableLayout = ({
       <table className="w-full border-separate border-spacing-0">
         <thead>
           <tr>
-            <th className={ATTRIBUTION_ENTITY_CELL_CLASSNAME} rowSpan={hasChargeColumns ? 2 : 1}>
+            <th className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
               <Typography variant="captionHl" color="grey600">
                 {translate('text_1792668632006w5a1kxhzpz2')}
               </Typography>
@@ -267,7 +267,7 @@ export const AttributionTableLayout = ({
                 </div>
               </th>
             )}
-            <th className={ATTRIBUTION_TOTAL_CELL_CLASSNAME} rowSpan={hasChargeColumns ? 2 : 1}>
+            <th className={ATTRIBUTION_TOTAL_CELL_CLASSNAME}>
               <Typography variant="captionHl" color="grey600">
                 {translate('text_1738063764295zomiafl8b4s')}
               </Typography>
@@ -275,6 +275,7 @@ export const AttributionTableLayout = ({
           </tr>
           {hasChargeColumns && (
             <tr>
+              <th className={ATTRIBUTION_ENTITY_CELL_CLASSNAME} />
               {columns.map((column) => (
                 <th key={column.key} className={ATTRIBUTION_CELL_CLASSNAME}>
                   <Typography variant="captionHl" color="grey600" noWrap>
@@ -282,6 +283,7 @@ export const AttributionTableLayout = ({
                   </Typography>
                 </th>
               ))}
+              <th className={ATTRIBUTION_TOTAL_CELL_CLASSNAME} />
             </tr>
           )}
         </thead>
