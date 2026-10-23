@@ -82,7 +82,7 @@ export const useEditCustomerPortalFieldsDialog = () => {
   }: EditCustomerPortalFieldsDialogData) => {
     form.reset(toFormValues(editableFields))
 
-    formDialog
+    void formDialog
       .open({
         title: translate('text_1792713576573311eopximw3'),
         description: translate('text_1792713576574ze7tdls8m1o'),
