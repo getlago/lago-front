@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
@@ -8,6 +8,7 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
+import { SubscriptionAttributionTabContent } from '~/components/subscriptions/attribution/SubscriptionAttributionTabContent'
 import { SubscriptionDetailsV2Overview } from '~/components/subscriptions/details-v2/SubscriptionDetailsV2Overview'
 import { SubscriptionDetailsV2Plan } from '~/components/subscriptions/details-v2/SubscriptionDetailsV2Plan'
 import { SubscriptionActivityLogs } from '~/components/subscriptions/SubscriptionActivityLogs'
@@ -33,6 +34,7 @@ import {
   useNavigate,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { isUsageGovernanceEnabled } from '~/core/utils/usageGovernance'
 import {
   LagoApiError,
   StatusTypeEnum,
@@ -42,6 +44,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useSubscriptionPermissionsActions } from '~/hooks/useSubscriptionPermissionsActions'
 
@@ -85,7 +88,12 @@ const SubscriptionDetails = () => {
   const { hasPermissions } = usePermissions()
   const { canEditSubscription, canTerminateSubscription, isStatusEditable } =
     useSubscriptionPermissionsActions()
-  const { planId = '', customerId = '', subscriptionId = '' } = useParams()
+  const {
+    organization,
+    hasFeatureFlag,
+    loading: isOrganizationInfosLoading,
+  } = useOrganizationInfos()
+  const { planId = '', customerId = '', subscriptionId = '', tab: currentTab } = useParams()
   const { translate } = useInternationalization()
   const { openTerminateCustomerSubscriptionDialog } = useTerminateCustomerSubscriptionDialog()
   const {
@@ -108,6 +116,18 @@ const SubscriptionDetails = () => {
   const activeTabContent = useMainHeaderTabContent()
 
   const subscription = subscriptionResult?.subscription
+
+  // `Resolvers::AttributedUsageResolver` only serves active subscriptions, and the tab also reads
+  // `usageAttributionTypes`, which requires its own permission.
+  const canViewAttribution =
+    isUsageGovernanceEnabled({ organization, hasFeatureFlag }) &&
+    hasPermissions(['attributedUsageView', 'usageAttributionTypesView']) &&
+    subscription?.status === StatusTypeEnum.Active
+  const shouldRedirectFromAttribution =
+    currentTab === CustomerSubscriptionDetailsTabsOptionsEnum.attribution &&
+    !isOrganizationInfosLoading &&
+    !!subscription &&
+    !canViewAttribution
 
   const canCreateOrUpdateAlert = useMemo(() => {
     return hasPermissions(['subscriptionsCreate', 'subscriptionsUpdate'])
@@ -257,6 +277,26 @@ const SubscriptionDetails = () => {
         ),
       },
       {
+        title: translate('text_179266863200554b244nyt8i'),
+        link: customerId
+          ? getCustomerSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.attribution,
+            )
+          : getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.attribution),
+        match: [
+          getCustomerSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.attribution,
+          ),
+          getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.attribution),
+        ],
+        hidden: !canViewAttribution,
+        content: (
+          <DetailsPage.Container>
+            <SubscriptionAttributionTabContent />
+          </DetailsPage.Container>
+        ),
+      },
+      {
         title: translate('text_17465238490269pahbvl3s2m'),
         link: !!customerId
           ? getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.alerts)
@@ -304,7 +344,16 @@ const SubscriptionDetails = () => {
     isStatusEditable,
     isPremium,
     hasPermissions,
+    canViewAttribution,
   ])
+
+  const overviewTabLink = tabs[0].link
+
+  useEffect(() => {
+    if (!shouldRedirectFromAttribution || !overviewTabLink) return
+
+    navigate(overviewTabLink, { replace: true })
+  }, [shouldRedirectFromAttribution, overviewTabLink, navigate])
 
   const headerEntity = {
     viewName: translate('text_6529666e71f6ce006d2bf011', {
@@ -396,6 +445,8 @@ const SubscriptionDetails = () => {
       ],
     },
   ]
+
+  if (shouldRedirectFromAttribution) return null
 
   return (
     <>

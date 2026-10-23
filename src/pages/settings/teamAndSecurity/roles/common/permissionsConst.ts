@@ -1,4 +1,4 @@
-import { FeatureFlagEnum, PermissionEnum } from '~/generated/graphql'
+import { PermissionEnum } from '~/generated/graphql'
 
 import { PermissionGroupMapping, PermissionName } from './permissionsTypes'
 
@@ -6,12 +6,13 @@ export const allPermissions = Object.keys(PermissionEnum) as Array<PermissionNam
 
 export const hiddenPermissions: Array<PermissionName> = []
 
-export const featureFlagGatedPermissions: Partial<Record<PermissionName, FeatureFlagEnum>> = {
-  UsageAttributionTypesView: FeatureFlagEnum.AccountTree,
-  UsageAttributionTypesCreate: FeatureFlagEnum.AccountTree,
-  UsageAttributionTypesUpdate: FeatureFlagEnum.AccountTree,
-  UsageAttributionTypesDelete: FeatureFlagEnum.AccountTree,
-}
+export const usageGovernancePermissions: Array<PermissionName> = [
+  'AttributedUsageView',
+  'UsageAttributionTypesView',
+  'UsageAttributionTypesCreate',
+  'UsageAttributionTypesUpdate',
+  'UsageAttributionTypesDelete',
+]
 
 export const permissionGroupMapping: PermissionGroupMapping = {
   addons: ['AddonsCreate', 'AddonsDelete', 'AddonsUpdate', 'AddonsView'],
@@ -59,6 +60,7 @@ export const permissionGroupMapping: PermissionGroupMapping = {
   ],
   features: ['FeaturesCreate', 'FeaturesDelete', 'FeaturesUpdate', 'FeaturesView'],
   usageAttributionTypes: [
+    'AttributedUsageView',
     'UsageAttributionTypesCreate',
     'UsageAttributionTypesDelete',
     'UsageAttributionTypesUpdate',
@@ -327,6 +329,7 @@ export const permissionDescriptionMapping: Partial<Record<PermissionName, string
   SecurityLogsView: 'text_1771594976281yf0uews8jce',
 
   // Usage attribution types (governance)
+  AttributedUsageView: 'text_1792668632007lr3t8cfu1it',
   UsageAttributionTypesView: 'text_1790230812563kq9o2mku1rc',
   UsageAttributionTypesCreate: 'text_1790230812564tig9p4k5bb3',
   UsageAttributionTypesUpdate: 'text_1790230812564u35u7vyt4e4',
