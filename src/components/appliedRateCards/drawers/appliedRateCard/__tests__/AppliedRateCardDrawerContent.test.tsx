@@ -2,7 +2,6 @@ import { MockedResponse } from '@apollo/client/testing'
 import { render as rtlRender, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { APPLIED_RATE_CARD_CONTEXT_CONFIG } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { COMBOBOX_LOADING_TEST_ID } from '~/components/form/ComboBox/ComboBoxInput'
 import { COMBOBOX_ADD_VALUE_ITEM_TEST_ID } from '~/components/form/ComboBox/ComboBoxItemWrapper'
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
@@ -104,7 +103,6 @@ type RateCardFixture = {
   billingTiming: RateCardBillingTimingEnum
   appliedPricingUnitCode: string | null
   proration: boolean
-  alreadyPriced: boolean | null
   activeRate: {
     __typename: string
     id: string
@@ -127,7 +125,6 @@ const RATE_CARD: RateCardFixture = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   appliedPricingUnitCode: null,
   proration: false,
-  alreadyPriced: false,
   activeRate: {
     __typename: 'RateCardRate',
     id: 'rate-1',
@@ -183,10 +180,6 @@ const rateCardsMock = (
 
 const PLAN_PARENT: AppliedRateCardParent = { context: 'plan', planId: 'plan-1' }
 const CONTRACT_PARENT: AppliedRateCardParent = { context: 'contract', contractId: 'contract-1' }
-
-const BASE_TRANSLATIONS: Record<string, string> = jest.requireActual(
-  '../../../../../../translations/base.json',
-)
 
 const RATE_CARD_ID_PROBE_TEST_ID = 'rate-card-id-probe'
 const PRODUCT_FILTER_ID_PROBE_TEST_ID = 'product-filter-id-probe'
@@ -979,18 +972,10 @@ describe('AppliedRateCardDrawerContent, contract lifecycle dates', () => {
   })
 })
 
-describe('AppliedRateCardDrawerContent, already priced slices', () => {
+describe('AppliedRateCardDrawerContent, already priced rate cards', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
-
-  const PRICED_RATE_CARD: RateCardFixture = {
-    ...RATE_CARD,
-    id: 'rc-priced',
-    name: 'Priced card',
-    code: 'priced-card',
-    alreadyPriced: true,
-  }
 
   const openRateCards = async (): Promise<void> => {
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
@@ -1005,55 +990,40 @@ describe('AppliedRateCardDrawerContent, already priced slices', () => {
     {
       parent: PLAN_PARENT,
       scenario: 'plan',
-      askedFor: { planId: 'plan-1' },
-      leftOut: 'contractId',
+      excluded: { excludePricedOnPlanId: 'plan-1' },
+      leftOut: 'excludePricedOnContractId',
     },
     {
       parent: CONTRACT_PARENT,
       scenario: 'contract',
-      askedFor: { contractId: 'contract-1' },
-      leftOut: 'planId',
+      excluded: { excludePricedOnContractId: 'contract-1' },
+      leftOut: 'excludePricedOnPlanId',
     },
   ])(
-    'GIVEN the $scenario THEN the rate cards are asked whether that $scenario already prices them, and only it',
-    async ({ parent, askedFor, leftOut }) => {
+    'GIVEN the $scenario THEN the rate cards it already prices are excluded, and only for it',
+    async ({ parent, excluded, leftOut }) => {
       const requests: Array<Record<string, unknown>> = []
 
       renderContent([productsMock(), rateCardsMock((vars) => requests.push(vars))], parent)
 
       await openRateCards()
 
-      await waitFor(() => expect(requests.at(-1)).toMatchObject(askedFor))
+      await waitFor(() => expect(requests.at(-1)).toMatchObject(excluded))
       requests.forEach((vars) => expect(vars).not.toHaveProperty(leftOut))
     },
   )
 
-  it.each([
-    { parent: PLAN_PARENT, scenario: 'plan' },
-    { parent: CONTRACT_PARENT, scenario: 'contract' },
-  ])(
-    'GIVEN the $scenario already prices a card THEN that card is disabled, with the reason',
-    async ({ parent }) => {
-      renderContent(
-        [productsMock(), rateCardsMock(() => {}, [RATE_CARD, PRICED_RATE_CARD])],
-        parent,
-      )
+  it('GIVEN every rate card of the product is already priced THEN "Create rate card" shows', async () => {
+    renderContent([productsMock(), rateCardsMock(() => {}, [])])
 
-      await openRateCards()
+    await openRateCards()
 
-      await waitFor(() =>
-        expect(within(screen.getByTestId(PRICED_RATE_CARD.code)).getByRole('radio')).toBeDisabled(),
-      )
-      expect(screen.getByTestId(PRICED_RATE_CARD.code)).toHaveTextContent(
-        BASE_TRANSLATIONS[
-          APPLIED_RATE_CARD_CONTEXT_CONFIG[parent.context].alreadyPricedTranslationKey
-        ],
-      )
-      expect(within(screen.getByTestId(RATE_CARD.code)).getByRole('radio')).toBeEnabled()
-    },
-  )
+    expect(
+      await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID, undefined, { timeout: 3000 }),
+    ).toBeInTheDocument()
+  })
 
-  it('GIVEN a rate card search THEN it is still asked for the plan', async () => {
+  it('GIVEN a rate card search THEN the plan exclusion is kept', async () => {
     let capturedVars: Record<string, unknown> = {}
 
     renderContent([productsMock(), rateCardsMock((vars) => (capturedVars = vars))])
@@ -1067,7 +1037,11 @@ describe('AppliedRateCardDrawerContent, already priced slices', () => {
     )
 
     await waitFor(
-      () => expect(capturedVars).toMatchObject({ searchTerm: 'premium', planId: 'plan-1' }),
+      () =>
+        expect(capturedVars).toMatchObject({
+          searchTerm: 'premium',
+          excludePricedOnPlanId: 'plan-1',
+        }),
       { timeout: 3000 },
     )
   })

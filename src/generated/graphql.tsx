@@ -10170,6 +10170,8 @@ export type QueryRateCardRatesArgs = {
 export type QueryRateCardsArgs = {
   code?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
+  excludePricedOnContractId?: InputMaybe<Scalars['ID']['input']>;
+  excludePricedOnPlanId?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -10433,7 +10435,6 @@ export type QuoteVersion = {
 export type RateCard = {
   __typename?: 'RateCard';
   activeRate?: Maybe<RateCardRate>;
-  alreadyPriced?: Maybe<Scalars['Boolean']['output']>;
   appliedPricingUnitCode?: Maybe<Scalars['String']['output']>;
   attachedToPlanOrSubscription: Scalars['Boolean']['output'];
   attachedToSubscriptions: Scalars['Boolean']['output'];
@@ -10453,13 +10454,6 @@ export type RateCard = {
   regroupPaidFees?: Maybe<RateCardRegroupPaidFeesEnum>;
   taxes: Array<Tax>;
   updatedAt: Scalars['ISO8601DateTime']['output'];
-};
-
-
-/** Base rate card */
-export type RateCardAlreadyPricedArgs = {
-  contractId?: InputMaybe<Scalars['ID']['input']>;
-  planId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export enum RateCardBillingTimingEnum {
@@ -13369,12 +13363,12 @@ export type GetRateCardsForAppliedRateCardDrawerQueryVariables = Exact<{
   code?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  planId?: InputMaybe<Scalars['ID']['input']>;
-  contractId?: InputMaybe<Scalars['ID']['input']>;
+  excludePricedOnPlanId?: InputMaybe<Scalars['ID']['input']>;
+  excludePricedOnContractId?: InputMaybe<Scalars['ID']['input']>;
 }>;
 
 
-export type GetRateCardsForAppliedRateCardDrawerQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, alreadyPriced?: boolean | null, currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> } };
+export type GetRateCardsForAppliedRateCardDrawerQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> } };
 
 export type CreatePlanAppliedRateCardMutationVariables = Exact<{
   input: CreatePlanAppliedRateCardInput;
@@ -28245,7 +28239,7 @@ export type GetProductFiltersForAppliedRateCardDrawerLazyQueryHookResult = Retur
 export type GetProductFiltersForAppliedRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetProductFiltersForAppliedRateCardDrawerSuspenseQuery>;
 export type GetProductFiltersForAppliedRateCardDrawerQueryResult = Apollo.QueryResult<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>;
 export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
-    query getRateCardsForAppliedRateCardDrawer($productIds: [ID!], $productFilterIds: [ID!], $searchTerm: String, $code: String, $currency: CurrencyEnum, $limit: Int, $planId: ID, $contractId: ID) {
+    query getRateCardsForAppliedRateCardDrawer($productIds: [ID!], $productFilterIds: [ID!], $searchTerm: String, $code: String, $currency: CurrencyEnum, $limit: Int, $excludePricedOnPlanId: ID, $excludePricedOnContractId: ID) {
   rateCards(
     productIds: $productIds
     productFilterIds: $productFilterIds
@@ -28253,12 +28247,13 @@ export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
     code: $code
     currency: $currency
     limit: $limit
+    excludePricedOnPlanId: $excludePricedOnPlanId
+    excludePricedOnContractId: $excludePricedOnContractId
   ) {
     collection {
       id
       name
       code
-      alreadyPriced(planId: $planId, contractId: $contractId)
       ...RateCardForAppliedRateCardDrawer
     }
   }
@@ -28283,8 +28278,8 @@ export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
  *      code: // value for 'code'
  *      currency: // value for 'currency'
  *      limit: // value for 'limit'
- *      planId: // value for 'planId'
- *      contractId: // value for 'contractId'
+ *      excludePricedOnPlanId: // value for 'excludePricedOnPlanId'
+ *      excludePricedOnContractId: // value for 'excludePricedOnContractId'
  *   },
  * });
  */

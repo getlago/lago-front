@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
 import { ReactNode, useEffect, useState } from 'react'
 
-import { APPLIED_RATE_CARD_CONTEXT_CONFIG } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { buildRateCardForRatePhaseFields } from '~/components/appliedRateCards/buildRateCardForRatePhaseFields'
 import {
   getInsertIndex,
@@ -115,8 +114,8 @@ gql`
     $code: String
     $currency: CurrencyEnum
     $limit: Int
-    $planId: ID
-    $contractId: ID
+    $excludePricedOnPlanId: ID
+    $excludePricedOnContractId: ID
   ) {
     rateCards(
       productIds: $productIds
@@ -125,12 +124,13 @@ gql`
       code: $code
       currency: $currency
       limit: $limit
+      excludePricedOnPlanId: $excludePricedOnPlanId
+      excludePricedOnContractId: $excludePricedOnContractId
     ) {
       collection {
         id
         name
         code
-        alreadyPriced(planId: $planId, contractId: $contractId)
         ...RateCardForAppliedRateCardDrawer
       }
     }
@@ -253,10 +253,9 @@ export const AppliedRateCardDrawerContent = withForm({
         productFilterIds: productFilterId ? [productFilterId] : undefined,
         currency,
         limit: 50,
-        // `alreadyPriced` rejects the query when both ids are sent, even as null.
         ...(parent.context === 'plan'
-          ? { planId: parent.planId }
-          : { contractId: parent.contractId }),
+          ? { excludePricedOnPlanId: parent.planId }
+          : { excludePricedOnContractId: parent.contractId }),
       },
     })
 
@@ -504,21 +503,10 @@ export const AppliedRateCardDrawerContent = withForm({
                     allowAddValue
                     addValueProps={createRateCardValueProps}
                     searchQuery={getRateCards}
-                    data={rateCards.map((rateCard) => {
-                      const isPriced = !!rateCard.alreadyPriced
-
-                      return {
-                        value: rateCard.code,
-                        label: rateCard.name,
-                        disabled: isPriced,
-                        description: isPriced
-                          ? translate(
-                              APPLIED_RATE_CARD_CONTEXT_CONFIG[parent.context]
-                                .alreadyPricedTranslationKey,
-                            )
-                          : undefined,
-                      }
-                    })}
+                    data={rateCards.map((rateCard) => ({
+                      value: rateCard.code,
+                      label: rateCard.name,
+                    }))}
                   />
                 )}
               </form.AppField>
