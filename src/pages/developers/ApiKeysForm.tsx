@@ -48,7 +48,7 @@ export const getApiKeysFormPermissionRowTestId = (permission: ApiKeysPermissions
 const READ_PERMISSION = 'read'
 const WRITE_PERMISSION = 'write'
 
-const canOnlyRead = (permission: ApiKeysPermissionsEnum) =>
+const canOnlyRead = (permission: ApiKeysPermissionsEnum): boolean =>
   permission === ApiKeysPermissionsEnum.ActivityLog ||
   permission === ApiKeysPermissionsEnum.Analytic ||
   permission === ApiKeysPermissionsEnum.ApiLog ||
@@ -302,11 +302,8 @@ const ApiKeysForm = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-  const {
-    organization: { premiumIntegrations } = {},
-    hasFeatureFlag,
-    loading: organizationLoading,
-  } = useOrganizationInfos()
+  const { organization, hasFeatureFlag } = useOrganizationInfos()
+  const premiumIntegrations = organization?.premiumIntegrations
 
   useEffect(() => {
     if (devtool.panelOpen) {
@@ -363,7 +360,9 @@ const ApiKeysForm = () => {
 
   const isEdition = !!apiKeyId
   const apiKey = apiKeyData?.apiKey
-  const isLoading = apiKeyLoading || organizationLoading
+  // Not `loading` from `useOrganizationInfos`: it stays false while the query is skipped (no
+  // current organization yet) and flips on every refetch, which would unmount the form mid-edit.
+  const isLoading = apiKeyLoading || !organization
 
   const form = useAppForm({
     defaultValues: {
@@ -542,7 +541,6 @@ const ApiKeysForm = () => {
                   name="api-keys-permissions"
                   data={permissions}
                   containerSize={0}
-                  isLoading={isLoading}
                   rowDataTestId={({ id }) => getApiKeysFormPermissionRowTestId(id)}
                   columns={[
                     {
