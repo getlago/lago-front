@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Exercises loop-journal.sh, loop-restart.sh and loop-ci-log.sh with a private
+# Exercises loop-journal.sh, loop-restart.sh, loop-ci-log.sh and loop-pr-feedback.sh with a private
 # state dir and stubbed `docker` / `gh`. Run: bash scripts/loop-helpers.test.sh
 set -euo pipefail
 
@@ -113,5 +113,36 @@ printf 'infra exploded, no marker here\nsecond line\n' >"$GH_LOG"
 out="$(run bash "$repo_root/scripts/loop-ci-log.sh" TST-1 125 3)"
 expect "no marker falls back to the tail" "no recognizable marker — log tail:" "$out"
 expect "no marker exits 3" "rc=3" "$out"
+
+# --- loop-pr-feedback.sh --------------------------------------------------------
+cat >"$test_root/bin/gh" <<'STUB'
+#!/usr/bin/env bash
+case "$*" in
+  "api user --jq .login") echo operator ;;
+  *issues/*/comments) cat "$GH_FB/issue.json" ;;
+  *pulls/*/reviews) cat "$GH_FB/reviews.json" ;;
+  *pulls/*/comments) cat "$GH_FB/inline.json" ;;
+esac
+STUB
+chmod +x "$test_root/bin/gh"
+export GH_FB="$test_root/fb"
+mkdir -p "$GH_FB"
+printf '%s' '[{"id":1,"created_at":"2026-01-01T10:00:00Z","user":{"login":"review-bot"},"body":"Pre-review\n\nverdict: **HOLD**"}]' >"$GH_FB/issue.json"
+printf '%s' '[{"id":2,"submitted_at":"2026-01-01T09:00:00Z","user":{"login":"colleague"},"state":"COMMENTED","body":""},{"id":3,"submitted_at":"2026-01-01T09:30:00Z","user":{"login":"colleague"},"state":"CHANGES_REQUESTED","body":"see inline"}]' >"$GH_FB/reviews.json"
+printf '%s' '[{"id":4,"created_at":"2026-01-01T09:00:00Z","user":{"login":"colleague"},"path":"src/a.ts","line":12,"body":"rename this"},{"id":5,"created_at":"2026-01-01T09:45:00Z","user":{"login":"operator"},"path":"src/a.ts","line":12,"body":"done"}]' >"$GH_FB/inline.json"
+
+out="$(run bash "$repo_root/scripts/loop-pr-feedback.sh" 42)"
+expect "issue-level HOLD flagged" "comment review-bot HOLD id=1" "$out"
+expect "inline comment listed with its location" "inline colleague id=4 src/a.ts:12 — rename this" "$out"
+expect "non-empty review listed" "review:CHANGES_REQUESTED colleague id=3" "$out"
+refute "empty COMMENTED review skipped" "id=2" "$out"
+refute "operator entries skipped" "operator id=5" "$out"
+expect "HOLD after the operator's last reply is unanswered" "unanswered HOLD: review-bot id=1" "$out"
+expect "unanswered HOLD exits 1" "rc=1" "$out"
+
+printf '%s' '[{"id":1,"created_at":"2026-01-01T08:00:00Z","user":{"login":"review-bot"},"body":"verdict: HOLD"}]' >"$GH_FB/issue.json"
+out="$(run bash "$repo_root/scripts/loop-pr-feedback.sh" 42)"
+refute "HOLD older than the operator reply is answered" "unanswered HOLD" "$out"
+expect "answered HOLD exits 0" "rc=0" "$out"
 
 exit "$fail"

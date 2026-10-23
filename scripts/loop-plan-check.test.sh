@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Exercises loop-plan-check.sh and diff-hygiene.sh against a throwaway git repo.
+# Exercises loop-plan-check.sh, diff-hygiene.sh and codegen-own-hunks.sh against a throwaway git repo.
 # Run: bash scripts/loop-plan-check.test.sh
 set -euo pipefail
 
@@ -73,9 +73,16 @@ refute "generated export ignored" "Generated" "$out"
 
 printf '# plan\n## Files to change\n- src/core/a.ts\n## New files\n- src/core/newThing.ts — no sibling hosts it\n## New exports\n- helper (src/core/a.ts)\n- NEW_THING (src/core/newThing.ts)\n' >"$plan"
 out="$(run_plan "$plan")"
+expect "declared export nothing imports is unused" "unused-export: NEW_THING" "$out"
+expect "unused export fails" "rc=1" "$out"
+
+printf "import { helper } from './a'\nimport { NEW_THING } from './newThing'\nexport default helper() + NEW_THING\n" >"$wt/src/core/consumer.ts"
+printf '# plan\n## Files to change\n- src/core/a.ts\n## New files\n- src/core/newThing.ts — no sibling hosts it\n- src/core/consumer.ts — reads both\n## New exports\n- helper (src/core/a.ts)\n- NEW_THING (src/core/newThing.ts)\n' >"$plan"
+out="$(run_plan "$plan")"
+refute "imported export is not unused" "unused-export" "$out"
 expect "fully declared plan is the adversarial trigger" "adversarial pass applies" "$out"
 expect "fully declared plan exits 3" "rc=3" "$out"
-rm "$wt/src/core/newThing.ts"
+rm "$wt/src/core/newThing.ts" "$wt/src/core/consumer.ts"
 
 src 'export const a = 1'
 expect "no new export exits 0" "rc=0" "$(run_plan "$plan")"
@@ -143,5 +150,24 @@ expect "declaration without a category is undeclared" "undeclared" "$(run_hyg "$
 src 'type Props = {' '  // the customer id' '  customerId: string' '}' 'export const a = 1'
 printf '# plan\n## Comments kept\n- src/core/a.ts — constraint — "the customer id"\n' >"$plan"
 expect "a declared prop-doc is still refused" "prop-doc" "$(run_hyg "$plan")"
+
+# --- codegen own hunks --------------------------------------------------------
+gen="$wt/src/generated/graphql.tsx"
+printf '%s\n' 'export type A = 1' 'export type B = 2' 'export type C = 3' 'export type D = 4' 'export type E = 5' 'export type F = 6' >"$gen"
+src 'export const a = 1'
+git -C "$wt" add -A && git -C "$wt" commit -qm gen && git -C "$wt" update-ref refs/remotes/origin/main HEAD
+src 'export const a = gql`' '  query getFoo($id: ID!) {' '    foo(id: $id) { id }' '  }' '`'
+printf '%s\n' 'export type A = 1' 'export type GetFooQuery = { foo: { id: string } }' 'export type B = 2' 'export type C = 3' 'export type D = 4' 'export type ContractDrift = 9' 'export type F = 6' 'export type ExtraKept = 7' >"$gen"
+run_own() { (bash "$repo_root/scripts/codegen-own-hunks.sh" "$wt" origin/main "$@" 2>&1) && echo "rc=0" || echo "rc=$?"; }
+out="$(run_own)"
+expect "drift hunks reverted" "reverted 2 drift hunk(s)" "$out"
+expect "own hunk kept" "GetFooQuery" "$(cat "$gen")"
+refute "drift line gone" "ContractDrift" "$(cat "$gen")"
+expect "drift-replaced line restored" "export type E = 5" "$(cat "$gen")"
+refute "unmatched addition gone" "ExtraKept" "$(cat "$gen")"
+printf '%s\n' 'export type ExtraKept = 7' >>"$gen"
+expect "extra pattern keeps a schema type" "reverted 0 drift hunk(s)" "$(run_own 'ExtraKept')"
+git -C "$wt" checkout -q -- src
+expect "nothing to match on exits 1" "rc=1" "$(run_own)"
 
 exit "$fail"

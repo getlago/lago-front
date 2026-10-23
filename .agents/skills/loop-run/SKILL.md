@@ -29,7 +29,7 @@ SCRIPTS="$FRONT/scripts"
 
 - **Operator** = the developer who started this run; identity from their own tooling (`gh` auth, `git config user.email`, Slack config). Nothing about a person is hardcoded.
 - **State dir** = `$LOOP_STATE_DIR/<ISSUE-ID>/` (default `~/.claude/loop-state/<ISSUE-ID>/`) — outside the repo, never committed.
-- **Scripts** (`$SCRIPTS`, documented in their headers): `iter-budget.sh` (retry caps), `loop-plan-check.sh` (adversarial trigger), `loop-restart.sh` (container reload), `loop-ci-log.sh` (CI failure capture), `loop-journal.sh` (journal row), `loop-notify.sh` (exit DM). Setup: `.agents/skills/loop-run/README.md`.
+- **Scripts** (`$SCRIPTS`, documented in their headers): `iter-budget.sh` (retry caps), `loop-plan-check.sh` (adversarial trigger), `loop-restart.sh` (container reload), `loop-ci-log.sh` (CI failure capture), `loop-journal.sh` (journal row), `loop-notify.sh` (exit DM), `loop-pr-feedback.sh` (PR feedback list). Setup: `.agents/skills/loop-run/README.md`.
 
 ## Pipeline
 
@@ -68,13 +68,13 @@ SCRIPTS="$FRONT/scripts"
 
       `<type>` = feat/fix/refactor/chore implied by the ticket; `<Title>` sentence-case, imperative.
    2. **Push**: `git push -u origin <branch>`. In `in-place` push the branch as is — **never** rename it.
-   3. **PR** (ready, not draft): `gh pr create --assignee @me`, title = commit subject, body = commit body.
+   3. **PR** (ready, not draft): `gh pr create --repo getlago/lago-front --base <base> --head <branch> --assignee @me` (`front/` is a submodule: `gh` infers neither from a worktree of it), title = commit subject, body = commit body.
    4. **Linear**: move the issue to "In Review" (`save_issue`).
 
-5. **CI gate** (max 3 fix cycles, `iter-budget.sh`): `gh pr checks <PR> --watch`. All green → Announce. Any red → triage the special cases FIRST, they consume no budget:
+5. **CI gate** (max 3 fix cycles, `iter-budget.sh`): first `gh pr view <PR> --json mergeStateStatus` — `DIRTY` means GitHub builds no merge ref and every `pull_request` workflow is silently skipped, so fetch and merge `<base>` into the branch, resolve, re-run the gates, push (never force). Then `gh pr checks <PR> --watch`; a rollup with only CodeQL entries is not green. All green → Announce. Any red → triage the special cases FIRST, they consume no budget:
    - **`Run Codegen` red with an unmerged companion lago-api PR**: CI builds the schema from lago-api `main`. Qualifies only with BOTH a concrete companion PR (from the ticket/spec, or named by the codegen errors) AND a one-time `gh pr view <N> --repo getlago/lago-api --json state,title` showing it open, recorded in the state dir. Then skip fix mode, Announce with the plain template, note the pending merge in the journal and the final report. Any other red alongside → real failure.
    - **Code-scanning (CodeQL) red**: `gh api --paginate 'repos/getlago/lago-front/code-scanning/alerts?per_page=100'`, filter `state == "dismissed"` yourself (single-value `state` param). A dismissed alert with the same `rule.id`, file AND overlapping region is a re-fingerprint no code change clears: fix other reds first; when it is the only red, STOP with outcome `needs-operator-adjudication` asking the operator to dismiss it referencing the prior one. Same rule elsewhere in the file is a real finding.
-   - **Red inherited from a non-`main` base**: `gh pr checks <base PR>` shows the same signature → not this diff's; no cycle charged, both PR URLs in the journal, run ends `needs-operator-adjudication` unless the operator says otherwise in chat. No Slack post.
+   - **Red inherited from the base**: `gh pr checks <base PR>` (stacked) or main's latest run of the same workflow shows the same signature → not this diff's; no cycle charged, both PR URLs in the journal, run ends `needs-operator-adjudication` unless the operator says otherwise in chat. No Slack post.
    - **Neither** → `"$SCRIPTS/iter-budget.sh" <ISSUE-ID> ci` (exit 1 → STOP path), then `"$SCRIPTS/loop-ci-log.sh" <ISSUE-ID> <run-id> <N>` — raw log to disk, ≤40 decisive lines back. Write `ci-failure.md` from those lines (job, matched lines, file:line, `raw: <path>`, ≤60 lines; the script already archived the previous one), re-enter build in fix mode, commit `fix(<context>): address CI failures`, push, watch again. **Never `cat` the raw log, never `gh run view` without the script.**
    - 3 red cycles: STOP — `impediment.md`, exit DM, report with the PR URL and the distilled failure. **No Slack channel post while CI is red.**
 
@@ -88,7 +88,7 @@ SCRIPTS="$FRONT/scripts"
    :admission_tickets: <Linear issue URL>
    ```
 
-7. **External feedback**: `gh api repos/getlago/lago-front/pulls/<PR>/comments` + `gh pr view <PR> --json comments,reviews`. Process feedback from anyone other than the operator (`gh api user --jq .login`) through loop-revise:
+7. **External feedback**: `"$SCRIPTS/loop-pr-feedback.sh" <PR>` — every comment, review and inline comment from anyone but the operator, HOLDs flagged (exit 1 = unanswered HOLD). Process it through loop-revise:
    - **Green CI / SonarQube reports**: never post a PR comment merely to announce or acknowledge success. A green gate with concrete findings still requires evaluating those findings.
    - **Praise, approvals and courtesy-only messages without findings or change requests**: no written reply; at most an optional thumbs-up reaction.
    - **SonarQube findings**: verify them against the current code and attempt a focused fix within the PR's scope. If resolving one requires a large refactor or unrelated changes, report it to the operator for separate work; do not expand this PR or dismiss the finding merely to turn the gate green.

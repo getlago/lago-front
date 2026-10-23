@@ -22,7 +22,7 @@ description: 'Phase 2 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
 
    **`worktree` layout** (all must hold, else STOP and ask the operator):
    - Main docker stack running: `docker ps --format '{{.Names}}' | grep lago_front_dev`.
-   - Local `main` in `front/` up to date: `git -C front pull --ff-only origin main`. If it fails (dirty checkout, diverged), STOP — never stash, reset, or force.
+   - `git -C front fetch origin main` — fetch only. The worktree branches off `origin/main`, so the operator's local `main` is never pulled, reset or required to be clean.
    - If a `front-worktrees/<ISSUE-ID>-*` dir already exists from an aborted run, STOP and ask — never delete or force.
 
    **`in-place` layout**:
@@ -35,14 +35,14 @@ description: 'Phase 2 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    ```
 
    - **Branch guard**: STOP if `BRANCH` is `main` (or `$CONDUCTOR_DEFAULT_BRANCH`), or is `HEAD` (detached). The loop only ever works on a feature branch.
-   - **`git fetch origin main` is required**: the review phase diffs against `origin/main`. Fetch only — NEVER pull, rebase, merge, stash or reset (the checkout is the operator's).
+   - **`git fetch origin main` is required**: the review phase diffs against `base:` (step 3), `origin/main` unless stacked. Fetch only — NEVER pull, rebase, merge, stash or reset (the checkout is the operator's).
    - **State conflict**: if `state.md` already exists for this ISSUE-ID and its `worktree:` is a different path, STOP — that state belongs to another checkout.
    - **Docker stack** (`docker ps --format '{{.Names}}' | grep lago_front_dev`): missing → **warn only, never block**. Gates run on the host.
 
 2. **Create the worktree** — **`worktree` layout ONLY**; in `in-place` skip this step entirely (nothing is created, `lago-worktree` is never called). Use the repo's own tool (handles branch, .env copy, pnpm install, port slot, dedicated docker containers, isolated API worktree):
 
    ```bash
-   lago-worktree create <BRANCH> --from-front=main --from-api=main
+   lago-worktree create <BRANCH> --from-front=origin/main --from-api=main
    ```
 
    (`lago-worktree` = `front/scripts/lago-worktree.sh`; if the alias is unavailable, call the script directly.)
@@ -60,7 +60,10 @@ description: 'Phase 2 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    port: <front port printed by lago-worktree, or $CONDUCTOR_PORT in in-place>
    workspace: <$CONDUCTOR_WORKSPACE_NAME — in-place under Conductor only>
    container: <lago_front_wt_<SAN(branch)> | lago_front_ct_<SAN(workspace)> — omit when there is none>
+   base: <origin/main, or origin/<parent-branch> when the PR is stacked on another one>
    ```
+
+   Every `<base>` below is this key: the gates, the review diff and codegen all compare against it, and a stacked PR compared against `origin/main` reports its parent's whole diff as its own.
 
    `SAN` = `tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g'` on the branch (worktree layout) or on the workspace name (`in-place`).
 
@@ -98,20 +101,20 @@ description: 'Phase 2 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    3. **Translations** (`translations/base.json`): search for an existing label with the same meaning before adding a key; new keys only when nothing fits, following the naming pattern; remove a key when the change removes its last usage.
    4. **Comments are declared or deleted.** `scripts/diff-hygiene.sh` flags every comment the diff adds unless plan.md `## Comments kept` lists it with its category — `constraint` (an external rule the reader cannot see, identifier named), `why-not` (the obvious alternative is wrong), `trap` (an edit here breaks something elsewhere) — and refuses outright a comment inside a `type`/`interface` body, above an import, one that repeats the export's name, or one over 2 lines. Nothing else is a category: "explains the prop", "describes the step", "summarises the function" are deletions. Expect `none` on a typical diff.
    5. **Never `as unknown as` your way past a type.** A shared component's prop type: narrow to `Pick<...>` of the fields it reads. Two enums with identical members: an exhaustive `Record<Source, Target>` lookup, the only form that breaks the build when one enum grows.
-   6. **Copied state goes stale.** A config snapshot (`MainHeader.Configure`), a drawer `open({ children })`, a child seeding `useState` from a prop: each copies a mutable value once. Either encode every field it reads in a key (remount / snapshot key) or pass a getter / read the prop. A parent that resets a value the child also stores is a silent wrong-save.
+   6. **Copied state goes stale.** A config snapshot (`MainHeader.Configure`), a drawer `open({ children })`, a child seeding `useState` from a prop: each copies a mutable value once. Either encode every field it reads in a key (remount / snapshot key, reset / cache key — inputs read through a ref included) or pass a getter / read the prop. A parent that resets a value the child also stores is a silent wrong-save.
    7. **A redirect in a `useEffect` does not stop its own render**: pair every guard effect with an early `return null` on the same condition (after all hooks), and assert `container.firstChild` is null.
    <!-- checks:end -->
 
-   GraphQL documents changed → `pnpm codegen`, and when the worktree's API runs a feature branch, keep only the hunks in `src/generated/graphql.tsx` that belong to your own operations (CI regenerates from lago-api `main`).
+   GraphQL documents changed → `pnpm codegen`, then `<front>/scripts/codegen-own-hunks.sh <worktree> <base> [<schema-type-regex>]`: it reverts every hunk of `src/generated/graphql.tsx` naming none of the diff's operations (CI regenerates from lago-api `main`, so drift either way is never this PR's). Pass the regex only for schema types the change itself needs.
 
 6. **Tests — ALWAYS**: after the implementation is complete, invoke the `make-tests` skill on the changes. NEVER hand-write tests.
 
 7. **Gates** (run in the worktree, all must pass):
-   - `pnpm lint` (use `pnpm lint:fix` first if there are formatting issues), `pnpm types`, `pnpm translations:inspect`, `pnpm translations:ensure-consistency`.
-   - `<front>/scripts/diff-hygiene.sh origin/main <worktree> <state dir>/plan.md` — every added comment is declared with a category, none in a refused position. Flagged → delete it (the default) or, for a real constraint/why-not/trap, add its line to `## Comments kept`.
-   - `<front>/scripts/loop-plan-check.sh <worktree> <state dir>/plan.md` — every new file / export / re-export is declared. Exit 1 → either delete the abstraction or declare it in plan.md with its reason; never leave it undeclared. Exit 3 (all declared) passes the gate: it is loop-run's signal to run the adversarial pass on what was declared.
+   - `pnpm lint`, `pnpm types`, `pnpm translations:inspect`, `pnpm translations:ensure-consistency`. Formatting issues → fix the diff's own files only (`pnpm exec eslint --fix <files>` then `pnpm exec prettier --write <files>`, files from `git diff --name-only <base>`), never the repo-wide `pnpm lint:fix`, which rewrites files outside the diff.
+   - `<front>/scripts/diff-hygiene.sh <base> <worktree> <state dir>/plan.md` — every added comment is declared with a category, none in a refused position. Flagged → delete it (the default) or, for a real constraint/why-not/trap, add its line to `## Comments kept`.
+   - `<front>/scripts/loop-plan-check.sh <worktree> <state dir>/plan.md <base>` — every new file / export / re-export is declared, and every new named export has a consumer. Exit 1 → delete the abstraction (or the `export` nothing imports) or declare it in plan.md with its reason; never leave it undeclared. Exit 3 (all declared) passes the gate: it is loop-run's signal to run the adversarial pass on what was declared.
    - Scoped jest on the paths make-tests produced/touched. NEVER run the full suite (`pnpm test` with no path is FORBIDDEN).
-   - A jest failure that does not reproduce in isolation or under `--runInBand` is load/cold-cache flake, not a regression: rerun before diagnosing or consuming a cycle.
+   - Flake is a failure that VARIES between two runs of the SAME command — rerun before diagnosing. One that vanishes only when the suite runs alone is not flake: jest runs a lone file in-band, so identical failures across two identical multi-path runs are a real defect (shared Apollo cache field, module-level fixture mutated across tests).
 
 8. **Report**: diff stat, plan.md deviations, gates output summary. Do NOT commit — shipping happens in loop-run after review PASS.
 
