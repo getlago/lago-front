@@ -215,6 +215,48 @@ describe('AttributionTreeTable', () => {
     })
   })
 
+  describe('GIVEN a hierarchy deeper than six levels', () => {
+    it('THEN should keep indenting each level', () => {
+      const DEPTH = 8
+      const levelOf = (index: number): AttributionLevel => ({
+        code: `level_${index}`,
+        name: `Level ${index}`,
+        isLeaf: index === DEPTH,
+      })
+      const pathTo = (index: number) =>
+        Array.from({ length: index }, (_, step) => ({
+          code: `level_${step}`,
+          value: `value_${step}`,
+        }))
+
+      const nodes: AttributionTreeNodes = Object.fromEntries(
+        Array.from({ length: DEPTH + 1 }, (_, index) => [
+          getAttributionNodeKey(pathTo(index)),
+          {
+            status: 'loaded',
+            isExpanded: true,
+            blocks: [
+              {
+                level: levelOf(index),
+                usage: buildUsage([`value_${index}`]),
+                isLoadingMore: false,
+              },
+            ],
+          },
+        ]),
+      )
+
+      renderTree(nodes)
+
+      const deepestRow = screen
+        .getAllByTestId(ATTRIBUTION_TREE_ROW_TEST_ID)
+        .find((row) => row.textContent?.includes(`value_${DEPTH}`)) as HTMLElement
+      const indentedContainer = within(deepestRow).getByText(`value_${DEPTH}`).parentElement
+
+      expect(indentedContainer).toHaveStyle({ paddingLeft: `${DEPTH * 16}px` })
+    })
+  })
+
   describe('GIVEN a collapsed node with cached children', () => {
     it('THEN should not render its children', () => {
       renderTree({

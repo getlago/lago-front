@@ -19,7 +19,6 @@ export const ATTRIBUTION_TREE_ROW_TEST_ID = 'attribution-tree-table-row'
 export const ATTRIBUTION_TREE_TOGGLE_TEST_ID = 'attribution-tree-toggle'
 export const ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID = 'attribution-tree-load-more-rows'
 
-const INDENT_CLASS_BY_DEPTH = ['pl-0', 'pl-4', 'pl-8', 'pl-12', 'pl-16', 'pl-20', 'pl-24']
 const ROOT_NODE_KEY = getAttributionNodeKey([])
 
 type AttributionTreeTableProps = AttributionTableSharedProps & {
@@ -75,7 +74,7 @@ export const AttributionTreeTable = ({
           typeLabel={row.typeLabel}
           label={row.label}
           isUnattributed={row.isUnattributed}
-          indentClassName={INDENT_CLASS_BY_DEPTH[row.depth]}
+          depth={row.depth}
           toggle={renderToggle(row)}
         />
         <AttributionValueCells usage={row} columns={columns} basis={basis} currency={currency} />
@@ -101,7 +100,7 @@ export const AttributionTreeTable = ({
         columns={columns}
         isLoading={block.isLoadingMore}
         onLoadMore={() => onLoadMore(path, blockIndex)}
-        indentClassName={INDENT_CLASS_BY_DEPTH[depth]}
+        depth={depth}
         data-test={ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID}
       />
     )

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { CSSProperties, ReactNode } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
@@ -128,11 +128,17 @@ export const AttributionEmptyCells = ({
   </>
 )
 
+const ATTRIBUTION_INDENT_STEP_PX = 16
+
+const getAttributionIndentStyle = (depth: number): CSSProperties => ({
+  paddingLeft: depth * ATTRIBUTION_INDENT_STEP_PX,
+})
+
 type AttributionEntityCellProps = Pick<
   AttributionTableRow,
   'typeLabel' | 'label' | 'isUnattributed'
 > & {
-  indentClassName?: string
+  depth?: number
   toggle?: ReactNode
 }
 
@@ -140,11 +146,11 @@ export const AttributionEntityCell = ({
   typeLabel,
   label,
   isUnattributed,
-  indentClassName,
+  depth = 0,
   toggle,
 }: AttributionEntityCellProps): JSX.Element => (
   <td className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
-    <div className={tw('flex items-center gap-2', indentClassName)}>
+    <div className="flex items-center gap-2" style={getAttributionIndentStyle(depth)}>
       {toggle}
       <Chip label={typeLabel} variant="captionCode" size="small" />
       <Typography variant="body" color={isUnattributed ? 'grey600' : 'grey700'} noWrap>
@@ -157,7 +163,7 @@ export const AttributionEntityCell = ({
 type AttributionLoadMoreRowProps = Pick<AttributionTableSharedProps, 'columns'> & {
   isLoading: boolean
   onLoadMore: () => void
-  indentClassName?: string
+  depth?: number
   'data-test': string
 }
 
@@ -165,7 +171,7 @@ export const AttributionLoadMoreRow = ({
   columns,
   isLoading,
   onLoadMore,
-  indentClassName,
+  depth = 0,
   'data-test': dataTest,
 }: AttributionLoadMoreRowProps): JSX.Element => {
   const { translate } = useInternationalization()
@@ -173,7 +179,7 @@ export const AttributionLoadMoreRow = ({
   return (
     <tr>
       <td className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
-        <div className={tw('flex items-center', indentClassName)}>
+        <div className="flex items-center" style={getAttributionIndentStyle(depth)}>
           <Button
             variant="inline"
             size="small"
