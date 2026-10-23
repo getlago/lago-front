@@ -41,7 +41,7 @@ SCRIPTS="$FRONT/scripts"
    1. `"$SCRIPTS/iter-budget.sh" <ISSUE-ID> review` — exit 1 → the 3-FAIL STOP path, whatever you believe the count is.
    2. Invoke `loop-build` with `<ISSUE-ID>` and the layout. First iteration only: claim the ticket on Linear (`save_issue`: assignee = operator matched by `git config user.email`, status "Dev in Progress"); a Linear failure warns and continues.
    3. **Review in a FRESH subagent** (Agent tool, general-purpose: "Invoke the loop-review skill for <ISSUE-ID> and follow it exactly"). Never inline. Its prompt carries nothing but the ISSUE-ID — spec.md holds the ticket, so no reviewer fetches Linear or Notion.
-   4. **Adversarial pass, on trigger only**: `"$SCRIPTS/loop-plan-check.sh" <worktree> <state dir>/plan.md`. Exit 3 (new files/exports, all declared — the build gate guarantees none is undeclared) or 1 → dispatch a second fresh subagent: "Read `.agents/skills/loop-review/adversarial.md` and apply it to <ISSUE-ID>". Exit 0 (nothing new) → no second agent. Two review agents is the maximum.
+   4. **Adversarial pass, on trigger only**: `"$SCRIPTS/loop-plan-check.sh" <worktree> <state dir>/plan.md <base>` (`base:` from state.md). Exit 3 (new files/exports, all declared — the build gate guarantees none is undeclared) or 1 → dispatch a second fresh subagent: "Read `.agents/skills/loop-review/adversarial.md` and apply it to <ISSUE-ID>". Exit 0 (nothing new) → no second agent. Two review agents is the maximum.
    5. Read `review.md` (and `adversarial.md` when dispatched). A file with no `Verdict:` line is not a verdict — resume that subagent ("continue until the file is written"). Any FAIL is a FAIL: archive each verdict under `## Iteration <N>` in `review-history.md`, record every `[review#N]` / `[gate:…]` / `[adversarial]` tag for the journal, then next iteration (build in fix mode). All PASS → Ship.
    6. Findings arriving AFTER a verdict is written are scored against a stale tree: re-verify each against the current diff, act only on regressions this diff introduced.
    7. 3 FAILs or iter-budget exit 1: STOP — `impediment.md`, exit DM, report. No git artifacts exist yet.
@@ -68,7 +68,7 @@ SCRIPTS="$FRONT/scripts"
 
       `<type>` = feat/fix/refactor/chore implied by the ticket; `<Title>` sentence-case, imperative.
    2. **Push**: `git push -u origin <branch>`. In `in-place` push the branch as is — **never** rename it.
-   3. **PR** (ready, not draft): `gh pr create --repo getlago/lago-front --base <base> --head <branch> --assignee @me` (`front/` is a submodule: `gh` infers neither from a worktree of it), title = commit subject, body = commit body.
+   3. **PR** (ready, not draft): `gh pr create --repo getlago/lago-front --base <base without origin/> --head <branch> --assignee @me` (`front/` is a submodule: `gh` infers neither from a worktree of it; `--base` takes the branch name, `main`, not the ref), title = commit subject, body = commit body.
    4. **Linear**: move the issue to "In Review" (`save_issue`).
 
 5. **CI gate** (max 3 fix cycles, `iter-budget.sh`): first `gh pr view <PR> --json mergeStateStatus` — `DIRTY` means GitHub builds no merge ref and every `pull_request` workflow is silently skipped, so fetch and merge `<base>` into the branch, resolve, re-run the gates, push (never force). Then `gh pr checks <PR> --watch`; a rollup with only CodeQL entries is not green. All green → Announce. Any red → triage the special cases FIRST, they consume no budget:
