@@ -22,7 +22,7 @@ description: 'Phase 2 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
 
    **`worktree` layout** (all must hold, else STOP and ask the operator):
    - Main docker stack running: `docker ps --format '{{.Names}}' | grep lago_front_dev`.
-   - `git -C front fetch origin main` — fetch only. The worktree branches off `origin/main`, so the operator's local `main` is never pulled, reset or required to be clean.
+   - `git -C front fetch origin main && git -C api fetch origin main` — fetch only. Both worktrees branch off `origin/main`, so the operator's local `main` checkouts are never pulled, reset or required to be clean.
    - If a `front-worktrees/<ISSUE-ID>-*` dir already exists from an aborted run, STOP and ask — never delete or force.
 
    **`in-place` layout**:
@@ -42,7 +42,7 @@ description: 'Phase 2 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
 2. **Create the worktree** — **`worktree` layout ONLY**; in `in-place` skip this step entirely (nothing is created, `lago-worktree` is never called). Use the repo's own tool (handles branch, .env copy, pnpm install, port slot, dedicated docker containers, isolated API worktree):
 
    ```bash
-   lago-worktree create <BRANCH> --from-front=origin/main --from-api=main
+   lago-worktree create <BRANCH> --from-front=origin/main --from-api=origin/main
    ```
 
    (`lago-worktree` = `front/scripts/lago-worktree.sh`; if the alias is unavailable, call the script directly.)
