@@ -19,10 +19,11 @@
 # keeps :latest within ~24h of upstream Wolfi; repin here so a base bump is a
 # reviewable diff rather than a silent change under a floating tag.
 #
-# Current pin: lago-packages 8a2dbce, published as 20261022-r64. It ships
-# ca-certificates-bundle 20260909-r3, which removes the eMudhra/emSign roots.
-ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:8a2dbced16532c16a8e068327f31da9b32d0304a@sha256:c43db7afeeba2852b6e8caf260783e615605caadee4adc51faf526653518949a
-ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:8a2dbced16532c16a8e068327f31da9b32d0304a@sha256:5178314792a2af6bc97d709c7026f5c70306068ef370a6d4abec0f7017c359c0
+# Current pins: build lago-packages b24fd68 (20261023-r69, Node 24 since
+# lago-packages#33), runtime e2374ae (20261023-r68). Both ship
+# ca-certificates-bundle 20260909-r3, without the eMudhra/emSign roots.
+ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:b24fd6870e8b345f15f1817830a04dfd6637104c@sha256:3f8672c63441ebe5f8492b2b52e4ec97d33d0d2a5dca00e9ae803c30c7c4e062
+ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:e2374aed2e42993144637b8bc7aa643f71f4ffec@sha256:6e8d3121119ba0377ad7ba4ad2a243e7f1e473fee7fd79007b47e44863cb6f5a
 
 # --- deps stage --------------------------------------------------------------
 FROM ${BUILD_IMAGE} AS deps
