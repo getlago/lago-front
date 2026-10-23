@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react'
 
-import { CountryCode, CustomerTypeEnum } from '~/generated/graphql'
+import { CountryCode, CustomerPortalEditableFieldEnum, CustomerTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import CustomerInformationPage from '../CustomerInformationPage'
@@ -47,68 +47,85 @@ jest.mock('~/components/customerPortal/common/SectionLoading', () => ({
 }))
 
 const mockHandleSubmit = jest.fn()
+let mockOnSubmit: (args: { value: Record<string, unknown> }) => Promise<void>
 
 jest.mock('~/hooks/forms/useAppform', () => ({
-  useAppForm: ({ defaultValues }: { defaultValues: Record<string, unknown> }) => ({
-    store: {
-      subscribe: jest.fn(() => jest.fn()),
-      state: { values: defaultValues },
-      getState: () => ({
-        values: defaultValues,
-        canSubmit: true,
-      }),
-    },
-    handleSubmit: mockHandleSubmit,
-    setFieldValue: jest.fn(),
-    AppField: ({
-      name,
-      children,
-    }: {
-      name: string
-      children: (field: unknown) => React.ReactNode
-    }) => {
-      const fieldProps = {
-        TextInputField: ({
-          label,
-          placeholder,
-          disabled,
-        }: {
-          label?: string
-          placeholder?: string
-          disabled?: boolean
-        }) => (
-          <div data-test={`field-${name}`}>
-            {label && <label>{label}</label>}
-            <input placeholder={placeholder} disabled={disabled} data-test={`input-${name}`} />
-          </div>
-        ),
-        ComboBoxField: ({
-          label,
-          placeholder,
-          disabled,
-        }: {
-          label?: string
-          placeholder?: string
-          disabled?: boolean
-        }) => (
-          <div data-test={`field-${name}`}>
-            {label && <label>{label}</label>}
-            <select disabled={disabled} data-test={`input-${name}`}>
-              <option>{placeholder}</option>
-            </select>
-          </div>
-        ),
-      }
+  useAppForm: ({
+    defaultValues,
+    onSubmit,
+  }: {
+    defaultValues: Record<string, unknown>
+    onSubmit: (args: { value: Record<string, unknown> }) => Promise<void>
+  }) => {
+    mockOnSubmit = onSubmit
 
-      return <>{children(fieldProps)}</>
-    },
-    AppForm: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-    SubmitButton: ({ children, ...props }: { children: React.ReactNode; 'data-test'?: string }) => (
-      <button type="submit" data-test={props['data-test']}>
-        {children}
-      </button>
-    ),
-  }),
+    return {
+      store: {
+        subscribe: jest.fn(() => jest.fn()),
+        state: { values: defaultValues },
+        getState: () => ({
+          values: defaultValues,
+          canSubmit: true,
+        }),
+      },
+      handleSubmit: mockHandleSubmit,
+      setFieldValue: jest.fn(),
+      AppField: ({
+        name,
+        children,
+      }: {
+        name: string
+        children: (field: unknown) => React.ReactNode
+      }) => {
+        const fieldProps = {
+          TextInputField: ({
+            label,
+            placeholder,
+            disabled,
+          }: {
+            label?: string
+            placeholder?: string
+            disabled?: boolean
+          }) => (
+            <div data-test={`field-${name}`}>
+              {label && <label>{label}</label>}
+              <input placeholder={placeholder} disabled={disabled} data-test={`input-${name}`} />
+            </div>
+          ),
+          ComboBoxField: ({
+            label,
+            placeholder,
+            disabled,
+          }: {
+            label?: string
+            placeholder?: string
+            disabled?: boolean
+          }) => (
+            <div data-test={`field-${name}`}>
+              {label && <label>{label}</label>}
+              <select disabled={disabled} data-test={`input-${name}`}>
+                <option>{placeholder}</option>
+              </select>
+            </div>
+          ),
+        }
+
+        return <>{children(fieldProps)}</>
+      },
+      AppForm: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+      SubmitButton: ({
+        children,
+        ...props
+      }: {
+        children: React.ReactNode
+        'data-test'?: string
+      }) => (
+        <button type="submit" data-test={props['data-test']}>
+          {children}
+        </button>
+      ),
+    }
+  },
 }))
 
 jest.mock('@tanstack/react-form', () => ({
@@ -117,6 +134,16 @@ jest.mock('@tanstack/react-form', () => ({
 }))
 
 const mockGoHome = jest.fn()
+
+const ALL_FIELDS = Object.values(CustomerPortalEditableFieldEnum)
+const DEFAULT_EDITABLE_FIELDS = ALL_FIELDS.filter(
+  (field) =>
+    ![
+      CustomerPortalEditableFieldEnum.Country,
+      CustomerPortalEditableFieldEnum.Zipcode,
+      CustomerPortalEditableFieldEnum.TaxIdentificationNumber,
+    ].includes(field),
+)
 
 const setupDefaultMocks = () => {
   mockUseCustomerPortalTranslate.mockReturnValue({
@@ -151,10 +178,22 @@ const setupDefaultMocks = () => {
           country: CountryCode.Us,
         },
       },
+      customerPortalOrganization: {
+        customerPortalEditableFields: ALL_FIELDS,
+      },
     },
     loading: false,
     error: undefined,
     refetch: jest.fn(),
+  })
+}
+
+const mockEditableFields = (customerPortalEditableFields: CustomerPortalEditableFieldEnum[]) => {
+  const { data, ...rest } = mockUseCustomerPortalData()
+
+  mockUseCustomerPortalData.mockReturnValue({
+    ...rest,
+    data: { ...data, customerPortalOrganization: { customerPortalEditableFields } },
   })
 }
 
@@ -301,6 +340,83 @@ describe('CustomerInformationPage', () => {
       expect(screen.getByTestId('input-shippingAddress.addressLine1')).not.toBeDisabled()
       expect(screen.getByTestId('input-shippingAddress.city')).not.toBeDisabled()
       expect(screen.getByTestId('input-shippingAddress.state')).not.toBeDisabled()
+    })
+  })
+
+  describe('GIVEN every field is editable', () => {
+    it('THEN should not render the read-only alert', () => {
+      render(<CustomerInformationPage />)
+
+      expect(screen.queryByTestId('read-only-fields-alert')).not.toBeInTheDocument()
+      expect(screen.getByTestId('input-country')).not.toBeDisabled()
+    })
+  })
+
+  describe('GIVEN the organization keeps the default editable fields', () => {
+    beforeEach(() => {
+      mockEditableFields(DEFAULT_EDITABLE_FIELDS)
+    })
+
+    it('THEN should disable the tax determining fields', () => {
+      render(<CustomerInformationPage />)
+
+      expect(screen.getByTestId('input-country')).toBeDisabled()
+      expect(screen.getByTestId('input-zipcode')).toBeDisabled()
+      expect(screen.getByTestId('input-taxIdentificationNumber')).toBeDisabled()
+    })
+
+    it('THEN should keep the other fields editable', () => {
+      render(<CustomerInformationPage />)
+
+      expect(screen.getByTestId('input-name')).not.toBeDisabled()
+      expect(screen.getByTestId('input-city')).not.toBeDisabled()
+      expect(screen.getByTestId('input-shippingAddress.addressLine1')).not.toBeDisabled()
+    })
+
+    it('THEN should render the read-only alert', () => {
+      render(<CustomerInformationPage />)
+
+      expect(screen.getByTestId('read-only-fields-alert')).toBeInTheDocument()
+    })
+
+    it('THEN should only send the editable fields on submit', async () => {
+      render(<CustomerInformationPage />)
+
+      await mockOnSubmit({
+        value: {
+          name: 'Acme Inc',
+          city: 'Springfield',
+          country: CountryCode.Lu,
+          zipcode: '1111',
+          taxIdentificationNumber: 'LU123',
+          shippingAddress: { city: 'Shelbyville' },
+        },
+      })
+
+      expect(mockUpdatePortalCustomer).toHaveBeenCalledWith({
+        variables: {
+          input: {
+            name: 'Acme Inc',
+            city: 'Springfield',
+            shippingAddress: { city: 'Shelbyville' },
+          },
+        },
+      })
+    })
+  })
+
+  describe('GIVEN the shipping address is not editable', () => {
+    it('THEN should disable the shipping fields', () => {
+      mockEditableFields(
+        DEFAULT_EDITABLE_FIELDS.filter(
+          (field) => field !== CustomerPortalEditableFieldEnum.ShippingAddress,
+        ),
+      )
+
+      render(<CustomerInformationPage />)
+
+      expect(screen.getByTestId('input-shippingAddress.addressLine1')).toBeDisabled()
+      expect(screen.getByTestId('input-shippingAddress.country')).toBeDisabled()
     })
   })
 })
