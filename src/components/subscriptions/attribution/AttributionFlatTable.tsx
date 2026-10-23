@@ -66,7 +66,7 @@ const ATTRIBUTION_CELL_CLASSNAME = tw(
 )
 
 export const ATTRIBUTION_ENTITY_CELL_CLASSNAME = tw(
-  'sticky left-0 z-10 h-12 min-w-60 whitespace-nowrap border-b border-r border-grey-300 bg-white text-left',
+  'sticky left-0 z-10 h-12 whitespace-nowrap border-b border-r border-grey-300 bg-white text-left',
   ATTRIBUTION_CELL_PADDING_CLASSNAME,
 )
 const ATTRIBUTION_TOTAL_CELL_CLASSNAME = tw(
@@ -246,7 +246,12 @@ export const AttributionTableLayout = ({
 
   return (
     <div className="w-full overflow-x-auto" data-test={dataTest}>
-      <table className="w-full border-separate border-spacing-0">
+      <table
+        className={tw(
+          'w-full border-separate border-spacing-0',
+          hasChargeColumns && '[&_tr>*:first-child]:w-px',
+        )}
+      >
         <thead>
           <tr>
             <th className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
