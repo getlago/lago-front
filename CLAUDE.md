@@ -80,9 +80,10 @@
 ## Subsystem rules — extracted skills
 
 Frontend architecture patterns (drawers, dialogs, forms, pagination, organization-slug
-scoping) and reactive component/layout implementation gotchas live in one skill,
+scoping), reactive component/layout implementation gotchas, and data-layer gotchas
+(GraphQL error handling, loading states, codegen, dates) live in one skill,
 `lago-frontend-patterns`, under `.agents/skills/`. Its description auto-triggers on
-UI/pattern work - read it before writing code in that area, never reconstruct these
+that work - read it before writing code in that area, never reconstruct these
 rules from memory or from the nearest existing file.
 
 ## Cypress e2e tests

@@ -12,7 +12,9 @@ design-system and layout components have no entry, and that's expected. A doc
 exists there only where a mistake recurred enough to be worth codifying, the
 same reason `icons-and-logos.md` exists. For anything not listed, follow the
 current implementation directly; do not assume a gap in this index means a gap
-in behavior.
+in behavior. The data-layer topics (GraphQL errors, loading states, codegen,
+dates) are reactive in the same way: each rule there was raised in review on more
+than one PR.
 
 | Component / topic | Reference |
 | --- | --- |

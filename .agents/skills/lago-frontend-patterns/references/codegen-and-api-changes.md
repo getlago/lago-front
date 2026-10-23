@@ -14,5 +14,7 @@ query that spreads the fragment returns nothing.
 run `pnpm codegen` and commit `src/generated/graphql.tsx`: the check does not diff the
 committed file, so a green run does not prove it is current. A local or feature-branch
 schema drags in unrelated types, which then conflict with the PR that owns them. Run
-`scripts/codegen-own-hunks.sh <worktree> [<base-ref>]` after `pnpm codegen` to keep only
-the hunks your operations and fragments need.
+`scripts/codegen-own-hunks.sh <worktree> [<base-ref>] [<extra-regex>]` after
+`pnpm codegen`: it reverts every hunk that names none of your operations and fragments.
+Pass the regex only for schema types the change itself needs (a new enum or input type
+from the API PR), or they get reverted too.

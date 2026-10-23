@@ -4,14 +4,15 @@ The Apollo client (`src/core/apolloClient/init.ts`) already handles GraphQL erro
 for every request. Code that does not know it handles them a second time, or not at
 all.
 
-**Hooks and mutations resolve, they do not throw.** `defaultOptions` sets
+**GraphQL errors resolve, they do not throw.** `defaultOptions` sets
 `errorPolicy: 'all'` on `watchQuery` (every `useQuery` / `useLazyQuery`) and on
-`mutate`. A GraphQL error comes back in the result: `{ data: { field: null }, errors }`.
-A `try/catch` around `await mutate(...)` never sees it. Read `result.errors`, or match a
-code with `hasDefinedGQLError` (`src/core/apolloClient/errorUtils.ts`). Reference:
-`src/components/settings/integrations/AddHubspotDialog.tsx`. A test that mocks the
-mutation to reject covers a path production never takes. A direct `client.query()` is
-the exception: it keeps Apollo's default policy and does throw.
+`mutate`. A GraphQL error (a validation failure, a `Forbidden`) comes back in the result:
+`{ data: { field: null }, errors }`, so a `try/catch` around `await mutate(...)` does not
+see it. Read `result.errors`, or match a code with `hasDefinedGQLError`
+(`src/core/apolloClient/errorUtils.ts`). Reference:
+`src/components/settings/integrations/AddHubspotDialog.tsx`. Network errors (offline, a
+timeout, a 5xx) still reject, so a `catch` for those stays. A direct `client.query()`
+keeps Apollo's default policy and rejects on GraphQL errors too.
 
 **The error link already shows a toast.** `errorLink` shows a danger toast for every
 GraphQL error that is not silenced. Only auth errors and `Forbidden` are silenced by

@@ -223,9 +223,11 @@ Three shapes of assertion that pass whether or not the code works:
 - **A guard makes it vacuous.** `if (buttons.length > 0) { expect(...) }` passes when nothing
   rendered. Drop the guard so an empty result fails.
 - **The mock cannot reach the state under test.** A mocked `useNavigate` never unmounts, so a test
-  for "redirects" and one for "renders the details" can both pass. A mocked mutation that rejects
-  ignores the client's `errorPolicy: 'all'` (see the patterns skill, `graphql-errors.md`). Mock at
-  the level where the real behaviour still happens, or assert what the mock received.
+  for "redirects" and one for "renders the details" can both pass. A mutation mock that rejects with
+  a GraphQL error cannot happen in production, where `errorPolicy: 'all'` resolves it
+  (`.agents/skills/lago-frontend-patterns/references/graphql-errors.md`); rejecting only fits a
+  network error. Mock at the level where the real behaviour still happens, or assert what the mock
+  received.
 
 ### A Mocked Hook Returns the Same Instance Every Call
 
@@ -289,6 +291,9 @@ describe('MyComponent', () => {
 - Set `Settings.defaultZone = 'UTC'` in `beforeAll` or `beforeEach`
 - Always restore the original timezone in `afterAll` or `afterEach` to avoid affecting other tests
 - This applies to any test involving date formatting, especially snapshot tests
+- For logic that converts between zones, add one case with `Settings.defaultZone = 'America/New_York'`
+  set the same way. A negative offset is where an end-of-day or month-end date slips to the next
+  day. Setting the `TZ` env var does nothing here: `Settings.defaultZone` overrides it
 
 ### Premium vs non-premium in Cypress e2e
 
