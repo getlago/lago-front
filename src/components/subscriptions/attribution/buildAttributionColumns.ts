@@ -37,6 +37,23 @@ export const getAttributionChargeLabel = (charge: AttributionCharge): string =>
 export const isAttributionAmountAvailable = (charges: AttributionCharge[]): boolean =>
   charges.some((charge) => charge.chargeModel === ChargeModelEnum.Standard)
 
+const getAttributionUsageKey = ({ charge, chargeFilter }: AttributionChargeUsageFragment): string =>
+  `${charge.id}-${chargeFilter?.id ?? 'default'}`
+
+export const mergeAttributionChargesUsage = (
+  chargesUsages: AttributionChargeUsageFragment[][],
+): AttributionChargeUsageFragment[] => {
+  const mergedByKey = new Map<string, AttributionChargeUsageFragment>()
+
+  chargesUsages.flat().forEach((usage) => {
+    const key = getAttributionUsageKey(usage)
+
+    if (!mergedByKey.has(key)) mergedByKey.set(key, usage)
+  })
+
+  return [...mergedByKey.values()]
+}
+
 export const buildAttributionColumns = ({
   chargesUsage,
   selectedChargeId,
@@ -50,11 +67,11 @@ export const buildAttributionColumns = ({
 
   const columns = chargesUsage
     .filter(({ charge }) => charge.id === selectedChargeId)
-    .map(({ charge, chargeFilter }) => ({
-      key: `${charge.id}-${chargeFilter?.id ?? 'default'}`,
-      chargeId: charge.id,
-      chargeFilterId: chargeFilter?.id ?? null,
-      label: chargeFilter ? composeChargeFilterDisplayName(chargeFilter) : null,
+    .map((usage) => ({
+      key: getAttributionUsageKey(usage),
+      chargeId: usage.charge.id,
+      chargeFilterId: usage.chargeFilter?.id ?? null,
+      label: usage.chargeFilter ? composeChargeFilterDisplayName(usage.chargeFilter) : null,
     }))
 
   const filterColumns = columns.filter(({ chargeFilterId }) => !!chargeFilterId)

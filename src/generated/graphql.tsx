@@ -15777,7 +15777,7 @@ export type GetSubscriptionAttributionSetupQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionAttributionSetupQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, displayName: string } } | null, flatAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null }> }, rootAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null }> } };
+export type GetSubscriptionAttributionSetupQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, displayName: string } } | null, flatAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null }> }, hierarchicalAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null, parent?: { __typename?: 'UsageAttributionType', id: string } | null }> } };
 
 export type GetSubscriptionAttributionChargesQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -15793,6 +15793,7 @@ export type GetSubscriptionAttributedUsageQueryVariables = Exact<{
   basis?: InputMaybe<AttributedUsageBasisEnum>;
   chargeIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   splitChargeId?: InputMaybe<Scalars['ID']['input']>;
+  filters?: InputMaybe<Array<AttributedUsageFilterInput> | AttributedUsageFilterInput>;
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
@@ -38548,15 +38549,17 @@ export const GetSubscriptionAttributionSetupDocument = gql`
       name
     }
   }
-  rootAttributionTypes: usageAttributionTypes(
+  hierarchicalAttributionTypes: usageAttributionTypes(
     role: hierarchical
-    roots: true
-    limit: 1
+    limit: $limit
   ) {
     collection {
       id
       code
       name
+      parent {
+        id
+      }
     }
   }
 }
@@ -38647,13 +38650,14 @@ export type GetSubscriptionAttributionChargesLazyQueryHookResult = ReturnType<ty
 export type GetSubscriptionAttributionChargesSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionAttributionChargesSuspenseQuery>;
 export type GetSubscriptionAttributionChargesQueryResult = Apollo.QueryResult<GetSubscriptionAttributionChargesQuery, GetSubscriptionAttributionChargesQueryVariables>;
 export const GetSubscriptionAttributedUsageDocument = gql`
-    query getSubscriptionAttributedUsage($subscriptionId: ID!, $groupBy: String!, $basis: AttributedUsageBasisEnum, $chargeIds: [ID!], $splitChargeId: ID, $page: Int, $limit: Int) {
+    query getSubscriptionAttributedUsage($subscriptionId: ID!, $groupBy: String!, $basis: AttributedUsageBasisEnum, $chargeIds: [ID!], $splitChargeId: ID, $filters: [AttributedUsageFilterInput!], $page: Int, $limit: Int) {
   attributedUsage(
     subscriptionId: $subscriptionId
     groupBy: $groupBy
     basis: $basis
     chargeIds: $chargeIds
     splitChargeId: $splitChargeId
+    filters: $filters
     page: $page
     limit: $limit
   ) {
@@ -38702,6 +38706,7 @@ export const GetSubscriptionAttributedUsageDocument = gql`
  *      basis: // value for 'basis'
  *      chargeIds: // value for 'chargeIds'
  *      splitChargeId: // value for 'splitChargeId'
+ *      filters: // value for 'filters'
  *      page: // value for 'page'
  *      limit: // value for 'limit'
  *   },

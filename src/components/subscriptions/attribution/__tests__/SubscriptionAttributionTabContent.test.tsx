@@ -17,11 +17,16 @@ import {
   ATTRIBUTION_TABLE_TEST_ID,
 } from '../AttributionFlatTable'
 import { getAttributionToolbarOptionTestId } from '../AttributionToolbarSelect'
+import { AttributionHierarchyType, getAttributionNodeKey } from '../attributionTree'
+import { ATTRIBUTION_TREE_TABLE_TEST_ID } from '../AttributionTreeTable'
+import { AttributionGroupByEnum } from '../buildAttributionColumns'
 import {
   ATTRIBUTION_CHARGES_TEST_ID,
+  ATTRIBUTION_GROUP_ROWS_BY_TEST_ID,
   ATTRIBUTION_LIST_BY_TEST_ID,
   ATTRIBUTION_REFRESH_BUTTON_TEST_ID,
   ATTRIBUTION_SHOW_TEST_ID,
+  ATTRIBUTION_UNDER_TEST_ID,
   SubscriptionAttributionTabContent,
 } from '../SubscriptionAttributionTabContent'
 
@@ -42,6 +47,14 @@ jest.mock('~/components/designSystem/GenericPlaceholder', () => ({
   GenericPlaceholder: ({ buttonAction }: { buttonAction?: () => void }) => (
     <button data-test="generic-placeholder" onClick={buttonAction} />
   ),
+}))
+
+const mockUseAttributionTree = jest.fn()
+const mockRefreshTree = jest.fn()
+
+jest.mock('../useAttributionTree', () => ({
+  ...jest.requireActual('../useAttributionTree'),
+  useAttributionTree: (params: unknown) => mockUseAttributionTree(params),
 }))
 
 const mockSetupQuery = jest.fn()
@@ -82,6 +95,29 @@ const usageOf = (charge: AttributionCharge, units: number): AttributionChargeUsa
   amountCents: null,
 })
 
+const filteredUsageOf = (
+  filterId: string,
+  invoiceDisplayName: string,
+  units: number,
+): AttributionChargeUsageFragment => ({
+  charge: tokensCharge,
+  chargeFilter: { id: filterId, invoiceDisplayName, values: {} },
+  units,
+  amountCents: null,
+})
+
+const rootBlockOf = (code: string, chargesUsage: AttributionChargeUsageFragment[]) => ({
+  level: { code, name: code, isLeaf: false },
+  usage: {
+    currency: CurrencyEnum.Usd,
+    metadata: { currentPage: 1, totalPages: 1 },
+    rows: [],
+    unattributed: { amountCents: null, chargesUsage: [] },
+    totals: { amountCents: null, chargesUsage },
+  },
+  isLoadingMore: false,
+})
+
 const flatTypes = [
   { id: 'type-api-key', code: 'api_key', name: 'API Key' },
   { id: 'type-agent', code: 'agent_id', name: 'Agent' },
@@ -91,10 +127,19 @@ const mockRefetchSetup = jest.fn()
 const mockRefetchCharges = jest.fn()
 const mockRefetchUsage = jest.fn()
 
+const toFlatHierarchy = (
+  types: AttributionHierarchyType[],
+  parentId: string | null = null,
+): Array<Omit<AttributionHierarchyType, 'children'> & { parent: { id: string } | null }> =>
+  types.flatMap(({ children = [], ...type }) => [
+    { ...type, parent: parentId ? { id: parentId } : null },
+    ...toFlatHierarchy(children, type.id),
+  ])
+
 const mockSetup = ({
   flat = flatTypes,
-  roots = [] as typeof flatTypes,
-}: { flat?: typeof flatTypes; roots?: typeof flatTypes } = {}): void => {
+  roots = [],
+}: { flat?: typeof flatTypes; roots?: AttributionHierarchyType[] } = {}): void => {
   mockSetupQuery.mockReturnValue({
     data: {
       subscription: {
@@ -102,7 +147,7 @@ const mockSetup = ({
         customer: { id: 'customer-1', displayName: 'Acme Corp' },
       },
       flatAttributionTypes: { collection: flat },
-      rootAttributionTypes: { collection: roots },
+      hierarchicalAttributionTypes: { collection: toFlatHierarchy(roots) },
     },
     loading: false,
     error: undefined,
@@ -174,6 +219,12 @@ describe('SubscriptionAttributionTabContent', () => {
       refetch: mockRefetchCharges,
     })
     mockUsage()
+    mockUseAttributionTree.mockReturnValue({
+      nodes: {},
+      toggleNode: jest.fn(),
+      loadMore: jest.fn(),
+      refresh: mockRefreshTree,
+    })
   })
 
   describe('GIVEN no flat key is listed', () => {
@@ -205,16 +256,28 @@ describe('SubscriptionAttributionTabContent', () => {
   })
 
   describe('GIVEN there is no flat type but a hierarchical root type', () => {
-    describe('WHEN the tab renders', () => {
-      it('THEN should query the root hierarchical type', () => {
+    describe('WHEN rows are grouped flat', () => {
+      it('THEN should query the root hierarchical type', async () => {
+        const user = userEvent.setup()
+
         mockSetup({
           flat: [],
           roots: [{ id: 'type-dept', code: 'department', name: 'Department' }],
         })
 
         render(<SubscriptionAttributionTabContent />)
+        await selectOptionByValue(
+          user,
+          ATTRIBUTION_GROUP_ROWS_BY_TEST_ID,
+          AttributionGroupByEnum.flat,
+        )
 
-        expect(getLastUsageVariables()).toEqual(expect.objectContaining({ groupBy: 'department' }))
+        expect(mockUsageQuery.mock.calls.at(-1)?.[0]).toEqual(
+          expect.objectContaining({
+            skip: false,
+            variables: expect.objectContaining({ groupBy: 'department' }),
+          }),
+        )
       })
     })
   })
@@ -609,6 +672,240 @@ describe('SubscriptionAttributionTabContent', () => {
 
         expect(mockRefetchCharges).toHaveBeenCalled()
         expect(mockRefetchUsage).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN hierarchical types are configured', () => {
+    const userType: AttributionHierarchyType = { id: 'type-user', code: 'user', name: 'User' }
+    const teamType: AttributionHierarchyType = {
+      id: 'type-team',
+      code: 'team',
+      name: 'Team',
+      children: [userType],
+    }
+    const departmentType: AttributionHierarchyType = {
+      id: 'type-dept',
+      code: 'department',
+      name: 'Department',
+      children: [teamType],
+    }
+
+    const getLastTreeParams = () => mockUseAttributionTree.mock.calls.at(-1)?.[0]
+
+    beforeEach(() => {
+      mockSetup({ roots: [departmentType] })
+    })
+
+    describe('WHEN rows are grouped hierarchically', () => {
+      it('THEN should always fetch the usage attribution types from the network', () => {
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(mockSetupQuery).toHaveBeenCalledWith(
+          expect.objectContaining({ fetchPolicy: 'network-only' }),
+        )
+      })
+
+      it('THEN should render the tree and skip the flat usage query', () => {
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(screen.getByTestId(ATTRIBUTION_TREE_TABLE_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(ATTRIBUTION_TABLE_TEST_ID)).not.toBeInTheDocument()
+        expect(mockUsageQuery.mock.calls.at(-1)?.[0]).toEqual(
+          expect.objectContaining({ skip: true }),
+        )
+        expect(getLastTreeParams()).toEqual(
+          expect.objectContaining({
+            skip: false,
+            variables: expect.objectContaining({
+              subscriptionId: 'subscription-1',
+              basis: AttributedUsageBasisEnum.Units,
+              limit: 50,
+            }),
+          }),
+        )
+      })
+
+      it('THEN should resolve the root levels from the root types', () => {
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(getLastTreeParams().getChildLevels(null)).toEqual([
+          { code: 'department', name: 'Department', isLeaf: false },
+        ])
+      })
+
+      it('THEN should not display the under selector', () => {
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(screen.queryByTestId(ATTRIBUTION_UNDER_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN rows are grouped flat', () => {
+      it('THEN should skip the tree and render the flat table', async () => {
+        const user = userEvent.setup()
+
+        render(<SubscriptionAttributionTabContent />)
+        await selectOptionByValue(
+          user,
+          ATTRIBUTION_GROUP_ROWS_BY_TEST_ID,
+          AttributionGroupByEnum.flat,
+        )
+
+        expect(getLastTreeParams()).toEqual(expect.objectContaining({ skip: true }))
+        expect(screen.getByTestId(ATTRIBUTION_TABLE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a flat key is listed', () => {
+      it('THEN should display the under selector defaulting to the lowest level', async () => {
+        const user = userEvent.setup()
+
+        render(<SubscriptionAttributionTabContent />)
+        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
+
+        expect(screen.getByTestId(ATTRIBUTION_UNDER_TEST_ID)).toBeInTheDocument()
+        expect(getLastTreeParams().getChildLevels('user')).toEqual([
+          { code: 'api_key', name: 'API Key', isLeaf: true },
+        ])
+      })
+
+      it('THEN should stop the tree at the selected under level', async () => {
+        const user = userEvent.setup()
+
+        render(<SubscriptionAttributionTabContent />)
+        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
+
+        const previousResetKey = getLastTreeParams().resetKey
+
+        await selectOptionByValue(user, ATTRIBUTION_UNDER_TEST_ID, 'team')
+
+        expect(getLastTreeParams().resetKey).not.toEqual(previousResetKey)
+        expect(getLastTreeParams().getChildLevels('team')).toEqual([
+          { code: 'api_key', name: 'API Key', isLeaf: true },
+        ])
+      })
+
+      it('THEN should reset the under level when the flat key changes', async () => {
+        const user = userEvent.setup()
+
+        render(<SubscriptionAttributionTabContent />)
+        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
+        await selectOptionByValue(user, ATTRIBUTION_UNDER_TEST_ID, 'team')
+        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'agent_id')
+
+        expect(getLastTreeParams().getChildLevels('user')).toEqual([
+          { code: 'agent_id', name: 'Agent', isLeaf: true },
+        ])
+      })
+    })
+
+    describe('WHEN a toolbar value changes', () => {
+      it('THEN should change the tree reset key', async () => {
+        const user = userEvent.setup()
+
+        render(<SubscriptionAttributionTabContent />)
+
+        const previousResetKey = getLastTreeParams().resetKey
+
+        await selectOptionByValue(user, ATTRIBUTION_CHARGES_TEST_ID, 'charge-storage')
+
+        expect(getLastTreeParams().resetKey).not.toEqual(previousResetKey)
+      })
+    })
+
+    describe('WHEN the setup returns a different hierarchy', () => {
+      it('THEN should change the tree reset key', () => {
+        const { rerender } = render(<SubscriptionAttributionTabContent />)
+
+        const previousResetKey = getLastTreeParams().resetKey
+
+        mockSetup({
+          roots: [departmentType, { id: 'type-region', code: 'region', name: 'Region' }],
+        })
+        rerender(<SubscriptionAttributionTabContent />)
+
+        expect(getLastTreeParams().resetKey).not.toEqual(previousResetKey)
+        expect(getLastTreeParams().getChildLevels(null)).toEqual([
+          { code: 'department', name: 'Department', isLeaf: false },
+          { code: 'region', name: 'Region', isLeaf: true },
+        ])
+      })
+    })
+
+    describe('WHEN the root exposes several levels', () => {
+      it('THEN should build the columns from every root block, not only the first', async () => {
+        const user = userEvent.setup()
+
+        const regionType: AttributionHierarchyType = {
+          id: 'type-region',
+          code: 'region',
+          name: 'Region',
+        }
+
+        mockSetup({ roots: [departmentType, regionType] })
+        mockUseAttributionTree.mockReturnValue({
+          nodes: {
+            [getAttributionNodeKey([])]: {
+              status: 'loaded',
+              isExpanded: true,
+              blocks: [
+                rootBlockOf('department', [filteredUsageOf('filter-opus', 'Opus', 4)]),
+                rootBlockOf('region', [filteredUsageOf('filter-sonnet', 'Sonnet', 2)]),
+              ],
+            },
+          },
+          toggleNode: jest.fn(),
+          loadMore: jest.fn(),
+          refresh: mockRefreshTree,
+        })
+
+        render(<SubscriptionAttributionTabContent />)
+        await selectOptionByValue(user, ATTRIBUTION_CHARGES_TEST_ID, tokensCharge.id)
+
+        expect(screen.getByText('Opus')).toBeInTheDocument()
+        expect(screen.getByText('Sonnet')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN refresh is clicked', () => {
+      it('THEN should refresh the tree instead of refetching the flat usage', async () => {
+        const user = userEvent.setup()
+
+        mockUseAttributionTree.mockReturnValue({
+          nodes: {
+            [getAttributionNodeKey([])]: {
+              status: 'loaded',
+              isExpanded: true,
+              blocks: [],
+            },
+          },
+          toggleNode: jest.fn(),
+          loadMore: jest.fn(),
+          refresh: mockRefreshTree,
+        })
+
+        render(<SubscriptionAttributionTabContent />)
+        await user.click(screen.getByTestId(ATTRIBUTION_REFRESH_BUTTON_TEST_ID))
+
+        expect(mockRefreshTree).toHaveBeenCalled()
+        expect(mockRefetchUsage).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the root level failed to load', () => {
+      it('THEN should display the error placeholder', () => {
+        mockUseAttributionTree.mockReturnValue({
+          nodes: { [getAttributionNodeKey([])]: { status: 'error' } },
+          toggleNode: jest.fn(),
+          loadMore: jest.fn(),
+          refresh: mockRefreshTree,
+        })
+
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(screen.getByTestId(PLACEHOLDER_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(ATTRIBUTION_TREE_TABLE_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
