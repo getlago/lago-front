@@ -58,12 +58,21 @@ type AttributionFlatTableProps = AttributionTableSharedProps & {
   }
 }
 
-const ATTRIBUTION_CELL_CLASSNAME = 'h-12 whitespace-nowrap border-b border-grey-300 px-3 text-right'
+const ATTRIBUTION_CELL_PADDING_CLASSNAME = 'px-1 py-0'
 
-export const ATTRIBUTION_ENTITY_CELL_CLASSNAME =
-  'sticky left-0 z-10 h-12 min-w-60 whitespace-nowrap border-b border-r border-grey-300 bg-white px-3 text-left'
-const ATTRIBUTION_TOTAL_CELL_CLASSNAME =
-  'sticky right-0 w-px z-10 h-12 whitespace-nowrap border-b border-l border-grey-300 bg-grey-100 px-3 text-right'
+const ATTRIBUTION_CELL_CLASSNAME = tw(
+  'h-12 whitespace-nowrap border-b border-grey-300 text-right',
+  ATTRIBUTION_CELL_PADDING_CLASSNAME,
+)
+
+export const ATTRIBUTION_ENTITY_CELL_CLASSNAME = tw(
+  'sticky left-0 z-10 h-12 min-w-60 whitespace-nowrap border-b border-r border-grey-300 bg-white text-left',
+  ATTRIBUTION_CELL_PADDING_CLASSNAME,
+)
+const ATTRIBUTION_TOTAL_CELL_CLASSNAME = tw(
+  'sticky right-0 z-10 h-12 w-px whitespace-nowrap border-b border-l border-grey-300 bg-grey-100 text-right',
+  ATTRIBUTION_CELL_PADDING_CLASSNAME,
+)
 
 type AttributionValueCellsProps = Pick<
   AttributionTableSharedProps,
@@ -149,7 +158,7 @@ export const AttributionEntityCell = ({
   depth = 0,
   toggle,
 }: AttributionEntityCellProps): JSX.Element => (
-  <td className={tw(ATTRIBUTION_ENTITY_CELL_CLASSNAME, !!toggle && 'px-1')}>
+  <td className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
     <div className="flex items-center gap-2" style={getAttributionIndentStyle(depth)}>
       {toggle}
       <Chip label={typeLabel} variant="captionCode" size="small" />
