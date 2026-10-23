@@ -65,11 +65,13 @@ jest.mock('~/hooks/usePermissions', () => ({
 }))
 
 let mockOrganization: { eventsStore: EventsStoreEnum } | undefined
+let mockIsOrganizationLoading = false
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: mockOrganization,
     hasFeatureFlag: mockHasFeatureFlag,
+    loading: mockIsOrganizationLoading,
   }),
 }))
 
@@ -92,6 +94,7 @@ describe('useLocationHistory()', () => {
     mockHasPermissionsOr.mockClear()
     mockUseParams.mockReturnValue({})
     mockHasFeatureFlag.mockClear()
+    mockIsOrganizationLoading = false
     authTokenVar(undefined)
 
     // Default to true for backwards compatibility with existing tests
@@ -665,6 +668,67 @@ describe('useLocationHistory()', () => {
         expect(mockHasFeatureFlag).not.toHaveBeenCalled()
       })
 
+      it('should redirect to home when a hiding feature flag is active', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['couponsView'],
+              hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasFeatureFlag).toHaveBeenCalledWith(FeatureFlagEnum.ProductCatalog)
+        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+      })
+
+      it('should allow access when a hiding feature flag is not active', () => {
+        mockHasFeatureFlag.mockReturnValue(false)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['couponsView'],
+              hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockNavigate).not.toHaveBeenCalledWith('/', { replace: true })
+      })
+
+      it('should wait for organization infos before evaluating a flag-gated route', () => {
+        mockIsOrganizationLoading = true
+        mockHasFeatureFlag.mockReturnValue(false)
+        locationHistoryVar([])
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['quotesView'],
+              featureFlag: FeatureFlagEnum.OrderForms,
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockNavigate).not.toHaveBeenCalled()
+        expect(locationHistoryVar()).toEqual([])
+      })
+
       it.each([
         ['allow access', EventsStoreEnum.Clickhouse, false],
         ['redirect to home', EventsStoreEnum.Postgres, true],
@@ -683,6 +747,7 @@ describe('useLocationHistory()', () => {
               {
                 private: true,
                 permissions: ['usageAttributionTypesView'],
+                featureFlag: FeatureFlagEnum.AccountTree,
                 requiresUsageGovernance: true,
               },
               mockLocation,

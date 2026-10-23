@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { generatePath } from 'react-router'
 
+import { formatSpendingMinimum } from '~/components/appliedRateCards/ratePhaseDisplay'
 import { Status } from '~/components/designSystem/Status'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -8,9 +9,7 @@ import { PageSectionTitle } from '~/components/layouts/Section'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { rateCardRateStatusMapping } from '~/core/constants/statusRateCardRateMapping'
 import { RateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { Link, RATE_CARD_DETAILS_ROUTE } from '~/core/router'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
   ProductCategoryForCatalogRelationsFragmentDoc,
@@ -100,18 +99,7 @@ const RateCardRateDetailsOverview = ({
   // The backend rejects a spending minimum on a pay-in-advance card.
   const hasSpendingMinimum = rateCard.billingTiming === RateCardBillingTimingEnum.Arrears
 
-  // A rate saved without one stores 0, which would read as a configured zero floor.
-  const minAmountCents = Number(rate.minAmountCents ?? 0)
-
-  const spendingMinimum =
-    minAmountCents > 0
-      ? intlFormatNumber(deserializeAmount(minAmountCents, rateCard.currency), {
-          currencyDisplay: 'symbol',
-          currency: rateCard.currency,
-          pricingUnitShortName,
-          maximumFractionDigits: 15,
-        })
-      : '-'
+  const spendingMinimum = formatSpendingMinimum(rate, rateCard.currency, pricingUnitShortName)
 
   return (
     <section className="flex flex-col gap-4">

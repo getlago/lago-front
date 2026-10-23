@@ -8,6 +8,7 @@ import {
   LOGIN_ROUTE,
   useNavigate,
 } from '~/core/router'
+import { isRouteAvailable, isRouteGatedByFeatureFlag } from '~/core/router/utils/isRouteAvailable'
 import { stripOrgSlug } from '~/core/router/utils/stripOrgSlug'
 import { isUsageGovernanceEnabled } from '~/core/utils/usageGovernance'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -97,7 +98,8 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
   const organizationSlug = params?.organizationSlug
   const { loading: isCurrentUserLoading } = useCurrentUser()
   const { hasPermissions, hasPermissionsOr } = usePermissions()
-  const { organization, hasFeatureFlag } = useOrganizationInfos()
+  const { hasFeatureFlag, organization, loading: isOrganizationLoading } = useOrganizationInfos()
+  const isWaitingForOrganization = isOrganizationLoading && !organization
   const goBack: GoBack = (fallback, options) => {
     const { previous, remainingHistory } = getPreviousLocation({
       ...(options || {}),
@@ -126,17 +128,25 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
        * Redirect to forbidden page
        */
       navigate(FORBIDDEN_ROUTE)
-    } else if (
-      (routeConfig.featureFlag && !hasFeatureFlag(routeConfig.featureFlag)) ||
+      return
+    }
+
+    if (isRouteGatedByFeatureFlag(routeConfig) && isWaitingForOrganization) return
+
+    if (
+      !isRouteAvailable(routeConfig, hasFeatureFlag) ||
       (routeConfig.requiresUsageGovernance &&
         !isUsageGovernanceEnabled({ organization, hasFeatureFlag }))
     ) {
       /**
-       * In case of navigation to a route gated by a feature flag that is not active
+       * In case of navigation to a route its feature flags make unavailable
        * Redirect to home page
        */
       navigate(HOME_ROUTE, { replace: true })
-    } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
+      return
+    }
+
+    if (!routeConfig?.children && !routeConfig.onlyPublic) {
       /**
        * We add the current location to the history only if :
        * - Current route has no children (to avoid adding Layout route which will result in duplicates)

@@ -63,6 +63,14 @@ jest.mock('~/hooks/core/useLocationHistory', () => ({
   }),
 }))
 
+const mockHasPermissions = jest.fn(() => true)
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: mockHasPermissions,
+  }),
+}))
+
 jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
   usePermissionsInvoiceActions: () => ({
     canVoid: jest.fn(() => true),
@@ -186,6 +194,7 @@ const getPriorityInput = () => document.querySelector('input[name="priority"]') 
 describe('CreateWalletTopUp', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasPermissions.mockReturnValue(true)
 
     const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
@@ -284,6 +293,23 @@ describe('CreateWalletTopUp', () => {
         await waitFor(() => {
           expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).not.toBeDisabled()
         })
+      })
+    })
+  })
+
+  describe('GIVEN the user lacks the walletsUpdate permission', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should only offer paid credits', async () => {
+        mockHasPermissions.mockReturnValue(false)
+
+        render(<CreateWalletTopUp />, { mocks: getDefaultMocks() })
+
+        await waitFor(() => {
+          expect(getPaidCreditsInput()).toBeInTheDocument()
+        })
+
+        expect(screen.queryByTestId(TOPUP_TYPE_FREE_CREDITS_DATA_TEST)).not.toBeInTheDocument()
+        expect(mockHasPermissions).toHaveBeenCalledWith(['walletsUpdate'])
       })
     })
   })

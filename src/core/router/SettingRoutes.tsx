@@ -1,3 +1,5 @@
+import { FeatureFlagEnum } from '~/generated/graphql'
+
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
@@ -200,6 +202,7 @@ export const settingsObjectCreationRoutes: CustomRouteObject[] = [
     private: true,
     element: <CreateDunning />,
     permissionsOr: ['dunningCampaignsCreate', 'dunningCampaignsUpdate'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [CREATE_INVOICE_CUSTOM_SECTION, EDIT_INVOICE_CUSTOM_SECTION],
@@ -254,6 +257,7 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <GovernanceSettings />,
         permissions: ['usageAttributionTypesView'],
+        featureFlag: FeatureFlagEnum.AccountTree,
         requiresUsageGovernance: true,
       },
       {
@@ -322,36 +326,42 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <HubspotIntegrations />,
         permissions: ['organizationIntegrationsView'],
+        hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
       },
       {
         path: HUBSPOT_INTEGRATION_DETAILS_ROUTE,
         private: true,
         element: <HubspotIntegrationDetails />,
         permissions: ['organizationIntegrationsView'],
+        hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
       },
       {
         path: NETSUITE_INTEGRATION_DETAILS_ROUTE,
         private: true,
         element: <NetsuiteIntegrationDetails />,
         permissions: ['organizationIntegrationsView'],
+        hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
       },
       {
         path: NETSUITE_INTEGRATION_ROUTE,
         private: true,
         element: <NetsuiteIntegrations />,
         permissions: ['organizationIntegrationsView'],
+        hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
       },
       {
         path: SALESFORCE_INTEGRATION_DETAILS_ROUTE,
         private: true,
         element: <SalesforceIntegrationDetails />,
         permissions: ['organizationIntegrationsView'],
+        hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
       },
       {
         path: SALESFORCE_INTEGRATION_ROUTE,
         private: true,
         element: <SalesforceIntegrations />,
         permissions: ['organizationIntegrationsView'],
+        hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
       },
       {
         path: STRIPE_INTEGRATION_ROUTE,
@@ -430,18 +440,21 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <XeroIntegrationDetails />,
         permissions: ['organizationIntegrationsView'],
+        hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
       },
       {
         path: XERO_INTEGRATION_ROUTE,
         private: true,
         element: <XeroIntegrations />,
         permissions: ['organizationIntegrationsView'],
+        hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
       },
       {
         path: DUNNINGS_SETTINGS_ROUTE,
         private: true,
         element: <DunningsSettings />,
         permissions: ['dunningCampaignsView'],
+        hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
       },
       {
         path: [BILLING_ENTITY_ROUTE, BILLING_ENTITY_BASE],
@@ -472,6 +485,7 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <BillingEntityDunningCampaigns />,
         permissions: ['billingEntitiesView'],
+        hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
       },
       {
         path: BILLING_ENTITY_INVOICE_SETTINGS_ROUTE,

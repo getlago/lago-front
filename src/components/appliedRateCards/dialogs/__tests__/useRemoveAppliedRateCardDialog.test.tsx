@@ -1,3 +1,4 @@
+import { DocumentNode, gql, InMemoryCache } from '@apollo/client'
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import NiceModal from '@ebay/nice-modal-react'
 import { cleanup, configure, render, screen, waitFor } from '@testing-library/react'
@@ -64,11 +65,13 @@ const renderDialog = (
   context: 'plan' | 'contract',
   mocks: MockedResponse[],
   onRemoved?: () => void,
+  cache?: InMemoryCache,
 ) =>
   render(
     <MockedProvider
       mocks={mocks}
       addTypename={false}
+      cache={cache}
       defaultOptions={{ mutate: { errorPolicy: 'all' } }}
     >
       <NiceModal.Provider>
@@ -76,6 +79,24 @@ const renderDialog = (
       </NiceModal.Provider>
     </MockedProvider>,
   )
+
+const CACHED_PLAN_CARD_DETAILS = gql`
+  query cachedPlanAppliedRateCardDetails($id: ID!) {
+    planAppliedRateCard(id: $id) {
+      __typename
+      id
+    }
+  }
+`
+
+const CACHED_CONTRACT_CARD_DETAILS = gql`
+  query cachedContractAppliedRateCardDetails($id: ID!) {
+    contractAppliedRateCard(id: $id) {
+      __typename
+      id
+    }
+  }
+`
 
 const openDialogAndConfirm = async () => {
   await userEvent.click(screen.getByTestId(OPEN_DIALOG_BUTTON_TEST_ID))
@@ -152,6 +173,64 @@ describe('useRemoveAppliedRateCardDialog', () => {
       severity: 'success',
     })
   })
+
+  // Guards a removed card rendering again from cache when its details URL is revisited.
+  it.each<{
+    context: 'plan' | 'contract'
+    typename: string
+    rootField: string
+    detailsQuery: DocumentNode
+    mock: MockedResponse
+  }>([
+    {
+      context: 'plan',
+      typename: 'PlanAppliedRateCard',
+      rootField: 'planAppliedRateCard',
+      detailsQuery: CACHED_PLAN_CARD_DETAILS,
+      mock: {
+        request: {
+          query: DestroyPlanAppliedRateCardDocument,
+          variables: { input: { id: 'applied-1' } },
+        },
+        result: { data: { destroyPlanAppliedRateCard: { id: 'applied-1' } } },
+      },
+    },
+    {
+      context: 'contract',
+      typename: 'ContractAppliedRateCard',
+      rootField: 'contractAppliedRateCard',
+      detailsQuery: CACHED_CONTRACT_CARD_DETAILS,
+      mock: {
+        request: {
+          query: DestroyContractAppliedRateCardDocument,
+          variables: { input: { id: 'applied-1' } },
+        },
+        result: { data: { destroyContractAppliedRateCard: { id: 'applied-1' } } },
+      },
+    },
+  ])(
+    'GIVEN a cached $context card details WHEN the card is removed THEN its details read null and the card leaves the cache',
+    async ({ context, typename, rootField, detailsQuery, mock }) => {
+      const cache = new InMemoryCache({ addTypename: false })
+      const onRemoved = jest.fn()
+
+      cache.writeQuery({
+        query: detailsQuery,
+        variables: { id: 'applied-1' },
+        data: { [rootField]: { __typename: typename, id: 'applied-1' } },
+      })
+
+      renderDialog(context, [mock], onRemoved, cache)
+
+      await openDialogAndConfirm()
+
+      await waitFor(() => expect(onRemoved).toHaveBeenCalledTimes(1))
+      expect(cache.readQuery({ query: detailsQuery, variables: { id: 'applied-1' } })).toEqual({
+        [rootField]: null,
+      })
+      expect(cache.extract()).not.toHaveProperty(`${typename}:applied-1`)
+    },
+  )
 
   it('does nothing beyond the mutation when the backend rejects the removal', async () => {
     const onRemoved = jest.fn()

@@ -46,7 +46,7 @@ import {
   useNavigate,
 } from '~/core/router'
 import { isUsageGovernanceEnabled } from '~/core/utils/usageGovernance'
-import { useGetBillingEntitiesQuery } from '~/generated/graphql'
+import { FeatureFlagEnum, useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -64,10 +64,12 @@ export const SETTINGS_NAV_BILLING_ENTITY_ITEM_TEST_ID = 'settings-nav-billing-en
 const generateTabs = ({
   translate,
   hasPermissions,
+  hasFeatureFlag,
   isUsageGovernanceAvailable,
 }: {
   translate: TranslateFunc
   hasPermissions: (permissionsToCheck: Array<keyof TMembershipPermissions>) => boolean
+  hasFeatureFlag: (flag: FeatureFlagEnum) => boolean
   isUsageGovernanceAvailable: boolean
 }) => [
   {
@@ -110,7 +112,8 @@ const generateTabs = ({
     title: translate('text_17285747264958mqbtws3em8'),
     link: DUNNINGS_SETTINGS_ROUTE,
     match: [DUNNINGS_SETTINGS_ROUTE],
-    hidden: !hasPermissions(['dunningCampaignsView']),
+    hidden:
+      hasFeatureFlag(FeatureFlagEnum.ProductCatalog) || !hasPermissions(['dunningCampaignsView']),
   },
   {
     title: translate('text_645bb193927b375079d28a8f'),
@@ -147,6 +150,7 @@ const SettingsNavLayout = () => {
   const TABS_ORGANIZATION = generateTabs({
     translate,
     hasPermissions,
+    hasFeatureFlag,
     isUsageGovernanceAvailable: isUsageGovernanceEnabled({ organization, hasFeatureFlag }),
   })
 
