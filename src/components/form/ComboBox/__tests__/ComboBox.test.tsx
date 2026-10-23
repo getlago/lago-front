@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { render } from '~/test-utils'
 
 import { ComboBox } from '../ComboBox'
+import { COMBOBOX_ADD_VALUE_ITEM_TEST_ID } from '../ComboBoxItemWrapper'
 
 describe('ComboBox', () => {
   describe('GIVEN an add-value row', () => {
@@ -28,7 +29,7 @@ describe('ComboBox', () => {
       await userEvent.click(input)
       await userEvent.type(input, 'unknown')
       await userEvent.click(
-        within(await screen.findByTestId('combobox-item-Create one')).getByRole('option'),
+        within(await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).getByRole('option'),
       )
 
       expect(onAddValue).toHaveBeenCalledTimes(1)
@@ -55,7 +56,7 @@ describe('ComboBox', () => {
 
       await userEvent.click(input)
       await userEvent.type(input, 'unknown')
-      await screen.findByTestId('combobox-item-Create one')
+      await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)
       await userEvent.keyboard('{ArrowDown}{Enter}')
 
       expect(onAddValue).toHaveBeenCalledTimes(1)
@@ -83,8 +84,116 @@ describe('ComboBox', () => {
         await userEvent.click(screen.getByRole('combobox'))
 
         expect(await screen.findByText('Standard card')).toBeInTheDocument()
-        expect(!!screen.queryByTestId('combobox-item-Create one')).toBe(isShown)
+        expect(!!screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).toBe(isShown)
       },
     )
+  })
+
+  describe('GIVEN a value typed then submitted with Enter', () => {
+    const data = [
+      { value: 'vat_fr', label: 'VAT FR (20%)' },
+      { value: 'vat_de', label: 'VAT DE (19%)', disabled: true },
+    ]
+
+    const typeAndSubmit = async (text: string): Promise<void> => {
+      const input = screen.getByRole('combobox')
+
+      await userEvent.click(input)
+      await userEvent.type(input, text)
+      await userEvent.keyboard('{Enter}')
+    }
+
+    it.each([
+      ['an add action', { label: 'Create one', onClick: jest.fn() }],
+      ['no add row', undefined],
+    ])(
+      'WHEN it is a disabled option value AND the combobox has %s THEN nothing is selected',
+      async (_, addValueProps) => {
+        const onChange = jest.fn()
+
+        render(
+          <ComboBox
+            name="tax"
+            data={data}
+            value=""
+            onChange={onChange}
+            virtualized={false}
+            allowAddValue
+            addValueProps={addValueProps}
+          />,
+        )
+
+        await typeAndSubmit('vat_de')
+
+        expect(onChange).not.toHaveBeenCalled()
+      },
+    )
+
+    it('WHEN it is an enabled option value THEN that option is selected', async () => {
+      const onChange = jest.fn()
+
+      render(
+        <ComboBox
+          name="tax"
+          data={data}
+          value=""
+          onChange={onChange}
+          virtualized={false}
+          allowAddValue
+          addValueProps={{ label: 'Create one', onClick: jest.fn() }}
+        />,
+      )
+
+      await typeAndSubmit('vat_fr')
+
+      expect(onChange).toHaveBeenCalledWith('vat_fr')
+    })
+
+    it('WHEN it matches no option AND the add row has an action THEN nothing is selected', async () => {
+      const onChange = jest.fn()
+      const onAddValue = jest.fn()
+
+      render(
+        <ComboBox
+          name="tax"
+          data={data}
+          value=""
+          onChange={onChange}
+          virtualized={false}
+          allowAddValue
+          addValueProps={{ label: 'Create one', onClick: onAddValue }}
+        />,
+      )
+
+      const input = screen.getByRole('combobox')
+
+      await userEvent.click(input)
+      await userEvent.type(input, 'unknown')
+      await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)
+      await userEvent.keyboard('{Enter}')
+
+      expect(onChange).not.toHaveBeenCalled()
+      expect(onAddValue).not.toHaveBeenCalled()
+    })
+
+    it('WHEN it matches no option AND the add row has no action THEN the typed text is selected', async () => {
+      const onChange = jest.fn()
+
+      render(
+        <ComboBox
+          name="tax"
+          data={data}
+          value=""
+          onChange={onChange}
+          virtualized={false}
+          allowAddValue
+          addValueProps={{ label: 'Create one' }}
+        />,
+      )
+
+      await typeAndSubmit('custom')
+
+      expect(onChange).toHaveBeenCalledWith('custom')
+    })
   })
 })

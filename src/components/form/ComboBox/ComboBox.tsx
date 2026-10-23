@@ -138,6 +138,12 @@ export const ComboBox = ({
       }}
       onChange={(_event, newValue) => {
         if (typeof newValue === 'string') {
+          // MUI `freeSolo` hands typed text + Enter over as a raw string, past `getOptionDisabled`.
+          const typedOption = data.find((option) => option.value === newValue)
+
+          if (typedOption?.disabled) return
+          if (!typedOption && addValueProps?.onClick) return
+
           onChange(newValue)
         } else if (newValue?.addValueOnClick) {
           // The add row runs its creation flow (click or Enter): its value is the typed search.
