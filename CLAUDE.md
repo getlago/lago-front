@@ -48,7 +48,13 @@
 - TypeScript strict mode with proper typing
 - ESLint rules from `lago-configs` package
 - Consistent naming: camelCase for variables, PascalCase for components
-- Use existing design system components before creating new ones
+- New UI composes the design system, it never rebuilds it. `lago/use-design-system` fails on a
+  raw `<button>`, `<a>`, `<input>`, `<table>`, `<svg>`, `<p>` or heading, on an MUI component the
+  design system already wraps, and on the legacy drawer, and names what to use instead. The
+  "use X, not Y" table is at the top of `packages/configs/eslint-rules/use-design-system.js`.
+  Usages from before the rule are baselined in `eslint-suppressions.json`: after removing one,
+  run `pnpm exec eslint --prune-suppressions .`. When no component fits, ask the frontend team
+  before disabling the rule on a line
 - In tests, import and reuse the real exported types/interfaces (e.g. `MainHeaderTab`) instead of redeclaring a partial copy of a production type just for assertions — a local stub drifts from the source and hides type errors
 - Always use direct MUI imports, never barrel imports:
   ```typescript
