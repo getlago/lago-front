@@ -26,8 +26,10 @@ export const useFilters = () => {
   const getDynamicFilter = (key: string): DynamicFilter | undefined =>
     context.dynamicFilters?.find((filter) => filter.key === key)
 
+  const availableFilterKeys: readonly string[] = context.availableFilters
+
   const isFilterKeyAvailable = (key: string): boolean =>
-    context.availableFilters.some((filter) => filter === key) || !!getDynamicFilter(key)
+    availableFilterKeys.includes(key) || !!getDynamicFilter(key)
 
   const removeExistingFilters = () => {
     // Only remove the filters from the URL that are currently applied and are removable (availableFilters)
