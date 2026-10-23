@@ -61,7 +61,7 @@ type AttributionFlatTableProps = AttributionTableSharedProps & {
 const ATTRIBUTION_CELL_PADDING_CLASSNAME = 'px-1 py-0'
 
 const ATTRIBUTION_CELL_CLASSNAME = tw(
-  'h-12 whitespace-nowrap border-b border-grey-300 text-right',
+  'h-12 w-px whitespace-nowrap border-b border-grey-300 text-right',
   ATTRIBUTION_CELL_PADDING_CLASSNAME,
 )
 
@@ -246,12 +246,7 @@ export const AttributionTableLayout = ({
 
   return (
     <div className="w-full overflow-x-auto" data-test={dataTest}>
-      <table
-        className={tw(
-          'w-full border-separate border-spacing-0',
-          hasChargeColumns && '[&_tr>*:first-child]:w-px',
-        )}
-      >
+      <table className="w-full border-separate border-spacing-0">
         <thead>
           <tr>
             <th className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
