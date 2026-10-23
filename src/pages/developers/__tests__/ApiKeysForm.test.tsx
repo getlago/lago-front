@@ -586,7 +586,29 @@ describe('ApiKeysForm', () => {
       })
     })
 
-    describe('WHEN the organization infos are still loading', () => {
+    describe('WHEN the organization is not loaded yet', () => {
+      beforeEach(() => {
+        // Guards the skipped organization query: `loading: false` with no organization used to
+        // build the table from an unset product catalog flag.
+        mockUseOrganizationInfos.mockReturnValue({
+          organization: undefined,
+          hasFeatureFlag: mockHasFeatureFlag,
+          loading: false,
+        })
+      })
+
+      it('THEN should not display the form and should disable the submit button', async () => {
+        render(<ApiKeysForm />)
+
+        await waitFor(() => {
+          expect(screen.getByRole('button', { name: /add api key/i })).toBeDisabled()
+        })
+
+        expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization infos are refetched', () => {
       beforeEach(() => {
         mockUseOrganizationInfos.mockReturnValue({
           organization: {
@@ -597,16 +619,14 @@ describe('ApiKeysForm', () => {
         })
       })
 
-      it('THEN should not display the permissions table and should disable the submit button', async () => {
+      it('THEN should keep the permissions table displayed', async () => {
         render(<ApiKeysForm />)
 
         await waitFor(() => {
-          expect(screen.getByRole('button', { name: /add api key/i })).toBeDisabled()
+          expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
         })
 
-        expect(
-          screen.queryByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID),
-        ).not.toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /add api key/i })).toBeEnabled()
       })
     })
   })
