@@ -1,6 +1,6 @@
 ---
 name: lago-frontend-patterns
-description: 'Implementation guidelines for lago-front''s recurring UI patterns and design-system/layout components - an index below pointing to references/<topic>.md, covering both established architecture patterns (drawers, dialogs, forms, pagination, organization-slug scoping) and reactive component-usage gotchas (most components have no entry; a doc exists only where a mistake recurred). TRIGGER - read BEFORE writing or reviewing any UI/component/pattern implementation in this app; check the index for a matching topic before assuming default behavior.'
+description: 'Implementation guidelines for lago-front''s recurring UI patterns and design-system/layout components - an index below pointing to references/<topic>.md, covering both established architecture patterns (drawers, dialogs, forms, pagination, organization-slug scoping) and reactive component-usage gotchas (most components have no entry; a doc exists only where a mistake recurred). TRIGGER - read BEFORE writing or reviewing any UI/component/pattern implementation in this app, and before handling GraphQL errors or permissions, gating on `loading` or a feature flag, running codegen for an API change, or computing or formatting dates; check the index for a matching topic before assuming default behavior.'
 ---
 
 # Frontend patterns & design-system implementation guidelines
@@ -27,3 +27,7 @@ in behavior.
 | Selector hover actions | `references/selector-hover-actions.md` |
 | Disabled action tooltips | `references/disabled-action-no-tooltip.md` |
 | Product filter "all values" encoding | `references/product-filter-all-values.md` |
+| GraphQL errors, toasts & query permissions | `references/graphql-errors.md` |
+| Loading states, feature flags & redirects | `references/loading-states.md` |
+| Codegen & changes that need a lago-api PR | `references/codegen-and-api-changes.md` |
+| Dates & timezones | `references/dates-and-timezones.md` |

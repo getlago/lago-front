@@ -214,6 +214,19 @@ Before handing off a regression test, revert the production change and rerun it:
 passes does not guard the bug. Global state set by a mounted component (Luxon's `Settings.defaultZone`
 under a `DatePicker`, a module-level cache) commonly masks the condition the test sets up.
 
+Three shapes of assertion that pass whether or not the code works:
+
+- **The expected value cannot tell the paths apart.** A mutation mock returning `'token-1'` when the
+  fallback is also `'token-1'`, a query mock that accepts any variables, a
+  `toBeGreaterThanOrEqual(4)` that holds without the element the test is named after. Make the
+  expected value one that only the code under test can produce.
+- **A guard makes it vacuous.** `if (buttons.length > 0) { expect(...) }` passes when nothing
+  rendered. Drop the guard so an empty result fails.
+- **The mock cannot reach the state under test.** A mocked `useNavigate` never unmounts, so a test
+  for "redirects" and one for "renders the details" can both pass. A mocked mutation that rejects
+  ignores the client's `errorPolicy: 'all'` (see the patterns skill, `graphql-errors.md`). Mock at
+  the level where the real behaviour still happens, or assert what the mock received.
+
 ### A Mocked Hook Returns the Same Instance Every Call
 
 A mock returning an object (an Apollo client, a store, a router) must hoist it to a module-level
