@@ -80,9 +80,12 @@ export const typeDefs = gql`
     add_on
     alert
     analytic
+    api_log
     applied_coupon
     billable_metric
     billing_entity
+    contract
+    contract_rate_card
     coupon
     credit_note
     customer
@@ -99,6 +102,10 @@ export const typeDefs = gql`
     payment_request
     payment_method
     plan
+    plan_rate_card
+    product
+    product_category
+    rate_card
     security_log
     subscription
     tax
