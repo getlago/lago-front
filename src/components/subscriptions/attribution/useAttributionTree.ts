@@ -272,7 +272,7 @@ export const useAttributionTree = ({
     const reloadNode = (key: string): void => {
       const node = previousNodes[key]
       const path = parseAttributionNodeKey(key)
-      const parentCode = path[path.length - 1]?.code ?? null
+      const parentCode = path.at(-1)?.code ?? null
 
       if (node?.status !== 'loaded') {
         loadNode(path, parentCode)
