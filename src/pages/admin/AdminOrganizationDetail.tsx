@@ -4,19 +4,22 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router'
 
 import { REASON_MODAL_NAME } from '~/components/admin/const'
-import { ReasonModalProps } from '~/components/admin/ReasonModal'
+import { ReasonModalError, ReasonModalProps } from '~/components/admin/ReasonModal'
 import { Button } from '~/components/designSystem/Button'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
 import { Switch } from '~/components/form/Switch/Switch'
+import { TextInput } from '~/components/form/TextInput/TextInput'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { addToast } from '~/core/apolloClient'
 import { ADMIN_ORGANIZATIONS_ROUTE } from '~/core/router'
 import {
   AdminFeatureTypeEnum,
   FeatureFlagEnum,
+  LagoApiError,
   PremiumIntegrationTypeEnum,
   useAdminOrganizationQuery,
+  useAdminRenameOrganizationMutation,
   useAdminToggleFeatureMutation,
 } from '~/generated/graphql'
 
@@ -37,10 +40,37 @@ gql`
       id
     }
   }
+  mutation AdminRenameOrganization($input: AdminRenameOrganizationInput!) {
+    adminRenameOrganization(input: $input) {
+      id
+    }
+  }
 `
 
 const KNOWN_PREMIUM_INTEGRATIONS = Object.values(PremiumIntegrationTypeEnum)
 const KNOWN_FEATURE_FLAGS = Object.values(FeatureFlagEnum)
+
+const RENAME_ERROR_MESSAGES: Record<string, string> = {
+  value_is_unchanged: 'The new name is the same as the current name.',
+  value_is_mandatory: 'The organization name cannot be blank.',
+  value_is_too_short: 'The reason must be at least 10 characters.',
+  value_is_too_long: 'The reason is too long once the rename details are added. Please shorten it.',
+}
+
+type RenameErrorExtensions = { code?: string; details?: Record<string, string[]> }
+
+const getRenameErrorMessage = (
+  errors?: ReadonlyArray<{ extensions?: Record<string, unknown> }>,
+): string => {
+  const extensions = errors?.[0]?.extensions as RenameErrorExtensions | undefined
+
+  if (extensions?.code === 'not_found') return 'Organization not found.'
+
+  const detailCode = Object.values(extensions?.details ?? {}).flat()[0]
+  const message = detailCode ? RENAME_ERROR_MESSAGES[detailCode] : undefined
+
+  return message ?? 'Failed to rename the organization. Please try again.'
+}
 
 const AdminOrganizationDetail = () => {
   const { organizationId } = useParams<{ organizationId: string }>()
@@ -52,6 +82,11 @@ const AdminOrganizationDetail = () => {
 
   const [toggleFeature] = useAdminToggleFeatureMutation()
   const [isSaving, setIsSaving] = useState(false)
+  const [renameOrganization] = useAdminRenameOrganizationMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity, LagoApiError.NotFound] },
+    refetchQueries: ['AdminOrganization'],
+  })
+  const [nameInput, setNameInput] = useState('')
 
   const org = data?.adminOrganization
   const serverIntegrations: string[] = useMemo(
@@ -70,6 +105,15 @@ const AdminOrganizationDetail = () => {
     setLocalIntegrations(new Set(serverIntegrations))
     setLocalFeatureFlags(new Set(serverFeatureFlags))
   }, [serverIntegrations, serverFeatureFlags])
+
+  // Sync the name field when server data changes
+  useEffect(() => {
+    setNameInput(org?.name ?? '')
+  }, [org?.name])
+
+  const isNameDirty = nameInput !== (org?.name ?? '')
+  const trimmedName = nameInput.trim()
+  const canRename = !!org && trimmedName.length > 0 && trimmedName !== org.name
 
   const isDirty = useMemo(() => {
     const integrationsDirty =
@@ -195,6 +239,27 @@ const AdminOrganizationDetail = () => {
   const handleReset = () => {
     setLocalIntegrations(new Set(serverIntegrations))
     setLocalFeatureFlags(new Set(serverFeatureFlags))
+    setNameInput(org?.name ?? '')
+  }
+  const handleRename = () => {
+    if (!org || !canRename) return
+
+    NiceModal.show<void, ReasonModalProps>(REASON_MODAL_NAME, {
+      title: 'Rename organization',
+      description: `Rename "${org.name}" to "${trimmedName}". Please provide a reason.`,
+      showNotifyCheckbox: false,
+      onConfirm: async (reason: string) => {
+        const result = await renameOrganization({
+          variables: {
+            input: { organizationId: organizationId ?? '', name: trimmedName, reason },
+          },
+        })
+
+        if (!result.data?.adminRenameOrganization) {
+          throw new ReasonModalError(getRenameErrorMessage(result.errors))
+        }
+      },
+    })
   }
 
   if (loading) {
@@ -239,6 +304,23 @@ const AdminOrganizationDetail = () => {
       />
 
       <div className="max-w-200 mx-auto w-full p-4 md:p-12">
+        <div className="mb-8">
+          <Typography variant="subhead1" className="mb-4">
+            General
+          </Typography>
+          <div className="flex items-end gap-3">
+            <TextInput
+              className="flex-1"
+              name="organizationName"
+              label="Organization name"
+              value={nameInput}
+              onChange={(value) => setNameInput(value)}
+            />
+            <Button variant="secondary" disabled={!canRename} onClick={handleRename}>
+              Rename
+            </Button>
+          </div>
+        </div>
         <div>
           <Typography variant="subhead1" className="mb-4">
             Premium Integrations
@@ -280,7 +362,7 @@ const AdminOrganizationDetail = () => {
 
       <footer className="sticky bottom-0 z-navBar w-full bg-white shadow-t">
         <div className="max-w-200 mx-auto flex min-h-footer w-full flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-12">
-          <Button variant="quaternary" disabled={!isDirty} onClick={handleReset}>
+          <Button variant="quaternary" disabled={!isDirty && !isNameDirty} onClick={handleReset}>
             Reset
           </Button>
           <Button disabled={!isDirty || isSaving} onClick={handleSave}>
