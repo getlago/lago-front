@@ -1,14 +1,11 @@
 import { Fragment, ReactNode } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { Chip } from '~/components/designSystem/Chip'
-import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { tw } from '~/styles/utils'
 
 import {
-  ATTRIBUTION_ENTITY_CELL_CLASSNAME,
-  AttributionEmptyCells,
+  AttributionEntityCell,
+  AttributionLoadMoreRow,
   AttributionTableLayout,
   AttributionTableRow,
   AttributionTableSharedProps,
@@ -23,6 +20,7 @@ export const ATTRIBUTION_TREE_TOGGLE_TEST_ID = 'attribution-tree-toggle'
 export const ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID = 'attribution-tree-load-more-rows'
 
 const INDENT_CLASS_BY_DEPTH = ['pl-0', 'pl-4', 'pl-8', 'pl-12', 'pl-16', 'pl-20', 'pl-24']
+const ROOT_NODE_KEY = getAttributionNodeKey([])
 
 type AttributionTreeTableProps = AttributionTableSharedProps & {
   nodes: AttributionTreeNodes
@@ -35,6 +33,7 @@ type AttributionTreeRow = Pick<
   'typeLabel' | 'label' | 'isUnattributed' | 'amountCents' | 'chargesUsage'
 > & {
   path: AttributionPathStep[]
+  nodeKey: string
   level: AttributionLevel
   depth: number
 }
@@ -51,7 +50,7 @@ export const AttributionTreeTable = ({
   const renderToggle = (row: AttributionTreeRow): ReactNode => {
     if (row.level.isLeaf) return <span className="size-6 shrink-0" />
 
-    const node = nodes[getAttributionNodeKey(row.path)]
+    const node = nodes[row.nodeKey]
     const isOpen = node?.status === 'loaded' && node.isExpanded
 
     return (
@@ -70,20 +69,18 @@ export const AttributionTreeTable = ({
   }
 
   const renderRow = (row: AttributionTreeRow): ReactNode => (
-    <Fragment key={getAttributionNodeKey(row.path)}>
+    <Fragment key={row.nodeKey}>
       <tr data-test={ATTRIBUTION_TREE_ROW_TEST_ID}>
-        <td className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
-          <div className={tw('flex items-center gap-2', INDENT_CLASS_BY_DEPTH[row.depth])}>
-            {renderToggle(row)}
-            <Chip label={row.typeLabel} variant="captionCode" size="small" />
-            <Typography variant="body" color={row.isUnattributed ? 'grey600' : 'grey700'} noWrap>
-              {row.label}
-            </Typography>
-          </div>
-        </td>
+        <AttributionEntityCell
+          typeLabel={row.typeLabel}
+          label={row.label}
+          isUnattributed={row.isUnattributed}
+          indentClassName={INDENT_CLASS_BY_DEPTH[row.depth]}
+          toggle={renderToggle(row)}
+        />
         <AttributionValueCells usage={row} columns={columns} basis={basis} currency={currency} />
       </tr>
-      {renderChildren(row.path, row.depth + 1)}
+      {renderChildren(row.path, row.depth + 1, row.nodeKey)}
     </Fragment>
   )
 
@@ -92,29 +89,21 @@ export const AttributionTreeTable = ({
     path: AttributionPathStep[],
     blockIndex: number,
     depth: number,
+    nodeKey: string,
   ): ReactNode => {
     const { currentPage, totalPages } = block.usage.metadata
 
     if (currentPage >= totalPages) return null
 
     return (
-      <tr key={`${getAttributionNodeKey(path)}-load-more-${block.level.code}`}>
-        <td className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
-          <div className={tw('flex items-center', INDENT_CLASS_BY_DEPTH[depth])}>
-            <Button
-              variant="inline"
-              size="small"
-              loading={block.isLoadingMore}
-              disabled={block.isLoadingMore}
-              onClick={() => onLoadMore(path, blockIndex)}
-              data-test={ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID}
-            >
-              {translate('text_1792668632007fulz8omi190')}
-            </Button>
-          </div>
-        </td>
-        <AttributionEmptyCells columns={columns} />
-      </tr>
+      <AttributionLoadMoreRow
+        key={`${nodeKey}-load-more-${block.level.code}`}
+        columns={columns}
+        isLoading={block.isLoadingMore}
+        onLoadMore={() => onLoadMore(path, blockIndex)}
+        indentClassName={INDENT_CLASS_BY_DEPTH[depth]}
+        data-test={ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID}
+      />
     )
   }
 
@@ -123,14 +112,21 @@ export const AttributionTreeTable = ({
     path: AttributionPathStep[],
     blockIndex: number,
     depth: number,
+    nodeKey: string,
   ): ReactNode => {
     const { level, usage } = block
 
+    const toRow = (value: string | null): Pick<AttributionTreeRow, 'path' | 'nodeKey'> => {
+      const rowPath = [...path, { code: level.code, value }]
+
+      return { path: rowPath, nodeKey: getAttributionNodeKey(rowPath) }
+    }
+
     return (
-      <Fragment key={`${getAttributionNodeKey(path)}-${level.code}`}>
+      <Fragment key={`${nodeKey}-${level.code}`}>
         {usage.rows.map((row) =>
           renderRow({
-            path: [...path, { code: level.code, value: row.value }],
+            ...toRow(row.value),
             level,
             depth,
             typeLabel: level.name,
@@ -140,9 +136,9 @@ export const AttributionTreeTable = ({
             chargesUsage: row.chargesUsage,
           }),
         )}
-        {renderLoadMoreRow(block, path, blockIndex, depth)}
+        {renderLoadMoreRow(block, path, blockIndex, depth, nodeKey)}
         {renderRow({
-          path: [...path, { code: level.code, value: null }],
+          ...toRow(null),
           level,
           depth,
           typeLabel: translate('text_1792668632007lqi5wcqidcx'),
@@ -155,17 +151,23 @@ export const AttributionTreeTable = ({
     )
   }
 
-  const renderChildren = (path: AttributionPathStep[], depth: number): ReactNode => {
-    const node = nodes[getAttributionNodeKey(path)]
+  const renderChildren = (
+    path: AttributionPathStep[],
+    depth: number,
+    nodeKey: string,
+  ): ReactNode => {
+    const node = nodes[nodeKey]
 
     if (node?.status !== 'loaded' || !node.isExpanded) return null
 
-    return node.blocks.map((block, blockIndex) => renderBlock(block, path, blockIndex, depth))
+    return node.blocks.map((block, blockIndex) =>
+      renderBlock(block, path, blockIndex, depth, nodeKey),
+    )
   }
 
   return (
     <AttributionTableLayout {...tableProps} data-test={ATTRIBUTION_TREE_TABLE_TEST_ID}>
-      {renderChildren([], 0)}
+      {renderChildren([], 0, ROOT_NODE_KEY)}
     </AttributionTableLayout>
   )
 }

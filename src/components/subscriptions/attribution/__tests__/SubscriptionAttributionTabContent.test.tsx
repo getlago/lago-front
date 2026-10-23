@@ -50,9 +50,10 @@ jest.mock('~/components/designSystem/GenericPlaceholder', () => ({
 }))
 
 const mockUseAttributionTree = jest.fn()
-const mockResetTree = jest.fn()
+const mockRefreshTree = jest.fn()
 
 jest.mock('../useAttributionTree', () => ({
+  ...jest.requireActual('../useAttributionTree'),
   useAttributionTree: (params: unknown) => mockUseAttributionTree(params),
 }))
 
@@ -92,6 +93,29 @@ const usageOf = (charge: AttributionCharge, units: number): AttributionChargeUsa
   chargeFilter: null,
   units,
   amountCents: null,
+})
+
+const filteredUsageOf = (
+  filterId: string,
+  invoiceDisplayName: string,
+  units: number,
+): AttributionChargeUsageFragment => ({
+  charge: tokensCharge,
+  chargeFilter: { id: filterId, invoiceDisplayName, values: {} },
+  units,
+  amountCents: null,
+})
+
+const rootBlockOf = (code: string, chargesUsage: AttributionChargeUsageFragment[]) => ({
+  level: { code, name: code, isLeaf: false },
+  usage: {
+    currency: CurrencyEnum.Usd,
+    metadata: { currentPage: 1, totalPages: 1 },
+    rows: [],
+    unattributed: { amountCents: null, chargesUsage: [] },
+    totals: { amountCents: null, chargesUsage },
+  },
+  isLoadingMore: false,
 })
 
 const flatTypes = [
@@ -190,7 +214,7 @@ describe('SubscriptionAttributionTabContent', () => {
       nodes: {},
       toggleNode: jest.fn(),
       loadMore: jest.fn(),
-      reset: mockResetTree,
+      refresh: mockRefreshTree,
     })
   })
 
@@ -792,8 +816,43 @@ describe('SubscriptionAttributionTabContent', () => {
       })
     })
 
+    describe('WHEN the root exposes several levels', () => {
+      it('THEN should build the columns from every root block, not only the first', async () => {
+        const user = userEvent.setup()
+
+        const regionType: AttributionHierarchyType = {
+          id: 'type-region',
+          code: 'region',
+          name: 'Region',
+        }
+
+        mockSetup({ roots: [departmentType, regionType] })
+        mockUseAttributionTree.mockReturnValue({
+          nodes: {
+            [getAttributionNodeKey([])]: {
+              status: 'loaded',
+              isExpanded: true,
+              blocks: [
+                rootBlockOf('department', [filteredUsageOf('filter-opus', 'Opus', 4)]),
+                rootBlockOf('region', [filteredUsageOf('filter-sonnet', 'Sonnet', 2)]),
+              ],
+            },
+          },
+          toggleNode: jest.fn(),
+          loadMore: jest.fn(),
+          refresh: mockRefreshTree,
+        })
+
+        render(<SubscriptionAttributionTabContent />)
+        await selectOptionByValue(user, ATTRIBUTION_CHARGES_TEST_ID, tokensCharge.id)
+
+        expect(screen.getByText('Opus')).toBeInTheDocument()
+        expect(screen.getByText('Sonnet')).toBeInTheDocument()
+      })
+    })
+
     describe('WHEN refresh is clicked', () => {
-      it('THEN should reset the tree instead of refetching the flat usage', async () => {
+      it('THEN should refresh the tree instead of refetching the flat usage', async () => {
         const user = userEvent.setup()
 
         mockUseAttributionTree.mockReturnValue({
@@ -806,13 +865,13 @@ describe('SubscriptionAttributionTabContent', () => {
           },
           toggleNode: jest.fn(),
           loadMore: jest.fn(),
-          reset: mockResetTree,
+          refresh: mockRefreshTree,
         })
 
         render(<SubscriptionAttributionTabContent />)
         await user.click(screen.getByTestId(ATTRIBUTION_REFRESH_BUTTON_TEST_ID))
 
-        expect(mockResetTree).toHaveBeenCalled()
+        expect(mockRefreshTree).toHaveBeenCalled()
         expect(mockRefetchUsage).not.toHaveBeenCalled()
       })
     })
@@ -823,7 +882,7 @@ describe('SubscriptionAttributionTabContent', () => {
           nodes: { [getAttributionNodeKey([])]: { status: 'error' } },
           toggleNode: jest.fn(),
           loadMore: jest.fn(),
-          reset: mockResetTree,
+          refresh: mockRefreshTree,
         })
 
         render(<SubscriptionAttributionTabContent />)

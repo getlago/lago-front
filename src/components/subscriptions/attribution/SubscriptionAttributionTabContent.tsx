@@ -1,14 +1,14 @@
 import { gql, NetworkStatus } from '@apollo/client'
-import { useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
-import { addToast } from '~/core/apolloClient'
 import {
   AttributedUsageBasisEnum,
+  AttributionChargeUsageFragment,
   CurrencyEnum,
   useGetSubscriptionAttributedUsageQuery,
   useGetSubscriptionAttributionChargesQuery,
@@ -32,8 +32,9 @@ import {
   buildAttributionColumns,
   getAttributionChargeLabel,
   isAttributionAmountAvailable,
+  mergeAttributionChargesUsage,
 } from './buildAttributionColumns'
-import { useAttributionTree } from './useAttributionTree'
+import { notifyAttributionError, useAttributionTree } from './useAttributionTree'
 
 export const ATTRIBUTION_REFRESH_BUTTON_TEST_ID = 'attribution-refresh-button'
 export const ATTRIBUTION_GROUP_ROWS_BY_TEST_ID = 'attribution-group-rows-by'
@@ -201,15 +202,24 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   })
 
   const flatTypes = setupData?.flatAttributionTypes.collection ?? []
-  const rootTypes = setupData?.rootAttributionTypes.collection ?? []
-  const hierarchicalTypes = flattenAttributionHierarchyTypes(rootTypes).map(({ type }) => type)
+  const rootTypes = useMemo(
+    () => setupData?.rootAttributionTypes.collection ?? [],
+    [setupData?.rootAttributionTypes.collection],
+  )
+  const hierarchy = useMemo(() => {
+    const flattened = flattenAttributionHierarchyTypes(rootTypes)
+
+    return {
+      types: flattened.map(({ type }) => type),
+      deepestType: getDeepestAttributionHierarchyType(rootTypes),
+      signature: flattened.map(({ type, depth }) => `${depth}:${type.id}`).join('|'),
+    }
+  }, [rootTypes])
   const listByType = flatTypes.find((type) => type.code === listByCode)
   const fallbackGroupBy = flatTypes[0]?.code ?? rootTypes[0]?.code ?? ''
   const groupBy = listByType?.code ?? fallbackGroupBy
   const isTreeMode = groupRowsBy === AttributionGroupByEnum.hierarchical && !!rootTypes.length
-  const underType =
-    hierarchicalTypes.find((type) => type.code === underCode) ??
-    getDeepestAttributionHierarchyType(rootTypes)
+  const underType = hierarchy.types.find((type) => type.code === underCode) ?? hierarchy.deepestType
   const treeListBy =
     listByType && underType ? { flatType: listByType, underCode: underType.code } : null
 
@@ -238,7 +248,9 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   const usageRequestKey = JSON.stringify(usageVariables)
   const latestUsageRequestKeyRef = useRef(usageRequestKey)
 
-  latestUsageRequestKeyRef.current = usageRequestKey
+  useEffect(() => {
+    latestUsageRequestKeyRef.current = usageRequestKey
+  }, [usageRequestKey])
 
   const {
     data: usageData,
@@ -257,18 +269,22 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     nodes: treeNodes,
     toggleNode,
     loadMore: loadMoreTreeRows,
-    reset: resetTree,
+    refresh: refreshTree,
   } = useAttributionTree({
     variables: treeVariables,
     getChildLevels: (parentCode) =>
       getAttributionChildLevels({ roots: rootTypes, parentCode, listBy: treeListBy }),
-    resetKey: JSON.stringify({ ...treeVariables, listBy: treeListBy, rootTypes }),
+    resetKey: JSON.stringify({
+      ...treeVariables,
+      listBy: treeListBy,
+      hierarchy: hierarchy.signature,
+    }),
     skip: !isTreeMode,
   })
   const treeRootNode = treeNodes[getAttributionNodeKey([])]
+  const treeRootBlocks = treeRootNode?.status === 'loaded' ? treeRootNode.blocks : []
   const isTreeLoading = isTreeMode && (!treeRootNode || treeRootNode.status === 'loading')
-  const treeRootUsage =
-    treeRootNode?.status === 'loaded' ? treeRootNode.blocks[0]?.usage : undefined
+  const treeRootUsage = treeRootBlocks[0]?.usage
 
   const isFetchingMoreRows = usageNetworkStatus === NetworkStatus.fetchMore
   const isUsageLoading = isUsageQueryLoading && !isFetchingMoreRows
@@ -285,7 +301,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     refetchCharges()
 
     if (isTreeMode) {
-      resetTree()
+      refreshTree()
 
       return
     }
@@ -331,12 +347,21 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
           },
         }
       },
-    }).catch(() => {
-      addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
-    })
+    }).catch(notifyAttributionError)
   }
+
+  // Not `treeRootBlocks[0]` alone: every root block totals the same usage under a different
+  // groupBy, so a charge missing from one of them would drop its column.
+  const getChargesUsage = (): AttributionChargeUsageFragment[] => {
+    if (!isTreeMode) return attributedUsage?.totals.chargesUsage ?? []
+
+    return mergeAttributionChargesUsage(
+      treeRootBlocks.map(({ usage }) => usage.totals.chargesUsage),
+    )
+  }
+
   const displayedUsage = isTreeMode ? treeRootUsage : attributedUsage
-  const chargesUsage = displayedUsage?.totals.chargesUsage ?? []
+  const chargesUsage = getChargesUsage()
   const { columns, hiddenColumnsCount } = buildAttributionColumns({
     chargesUsage,
     selectedChargeId: selectedCharge?.id ?? null,
@@ -505,7 +530,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
               label={translate('text_1792683187186aqk8vde7x8t')}
               value={treeListBy.underCode}
               searchPlaceholder={translate('text_1792683187186qacr0y860nr')}
-              options={hierarchicalTypes.map((type) => ({
+              options={hierarchy.types.map((type) => ({
                 value: type.code,
                 label: type.name || type.code,
               }))}

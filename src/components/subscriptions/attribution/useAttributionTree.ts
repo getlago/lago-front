@@ -13,6 +13,7 @@ import {
   AttributionPathStep,
   buildAttributionFilters,
   getAttributionNodeKey,
+  parseAttributionNodeKey,
 } from './attributionTree'
 
 export type AttributionTreeUsage = GetSubscriptionAttributedUsageQuery['attributedUsage']
@@ -46,10 +47,16 @@ type UseAttributionTreeReturn = {
   nodes: AttributionTreeNodes
   toggleNode: (path: AttributionPathStep[], levelCode: string) => void
   loadMore: (path: AttributionPathStep[], blockIndex: number) => void
-  reset: () => void
+  refresh: () => void
 }
 
-const notifyError = (error: unknown): void => {
+type LoadNodeOptions = {
+  isExpanded?: boolean
+  pageCountByLevelCode?: Record<string, number>
+}
+
+// `errorLink` in `init.ts` already toasts GraphQL errors, only the rest is ours to report.
+export const notifyAttributionError = (error: unknown): void => {
   if (error instanceof ApolloError && error.graphQLErrors.length) return
 
   addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
@@ -67,7 +74,9 @@ export const useAttributionTree = ({
   const generationRef = useRef(0)
   const latestParamsRef = useRef({ variables, getChildLevels, skip })
 
-  latestParamsRef.current = { variables, getChildLevels, skip }
+  useEffect(() => {
+    latestParamsRef.current = { variables, getChildLevels, skip }
+  })
 
   const updateNodes = useCallback(
     (update: (previous: AttributionTreeNodes) => AttributionTreeNodes): void => {
@@ -127,8 +136,27 @@ export const useAttributionTree = ({
     [client],
   )
 
+  const fetchUsagePages = useCallback(
+    async (
+      level: AttributionLevel,
+      path: AttributionPathStep[],
+      pageCount: number,
+    ): Promise<AttributionTreeUsage> => {
+      const pages = await Promise.all(
+        Array.from({ length: pageCount }, (_, index) => fetchUsage(level, path, index + 1)),
+      )
+
+      return { ...pages[pages.length - 1], rows: pages.flatMap(({ rows }) => rows) }
+    },
+    [fetchUsage],
+  )
+
   const loadNode = useCallback(
-    async (path: AttributionPathStep[], parentCode: string | null): Promise<void> => {
+    async (
+      path: AttributionPathStep[],
+      parentCode: string | null,
+      { isExpanded = true, pageCountByLevelCode }: LoadNodeOptions = {},
+    ): Promise<void> => {
       const key = getAttributionNodeKey(path)
       const generation = generationRef.current
       const levels = latestParamsRef.current.getChildLevels(parentCode)
@@ -136,7 +164,11 @@ export const useAttributionTree = ({
       updateNodes((previous) => ({ ...previous, [key]: { status: 'loading' } }))
 
       try {
-        const usages = await Promise.all(levels.map((level) => fetchUsage(level, path, 1)))
+        const usages = await Promise.all(
+          levels.map((level) =>
+            fetchUsagePages(level, path, pageCountByLevelCode?.[level.code] ?? 1),
+          ),
+        )
 
         if (generation !== generationRef.current) return
 
@@ -144,7 +176,7 @@ export const useAttributionTree = ({
           ...previous,
           [key]: {
             status: 'loaded',
-            isExpanded: true,
+            isExpanded,
             blocks: levels.map((level, index) => ({
               level,
               usage: usages[index],
@@ -156,10 +188,10 @@ export const useAttributionTree = ({
         if (generation !== generationRef.current) return
 
         updateNodes((previous) => ({ ...previous, [key]: { status: 'error' } }))
-        notifyError(error)
+        notifyAttributionError(error)
       }
     },
-    [fetchUsage, updateNodes],
+    [fetchUsagePages, updateNodes],
   )
 
   const toggleNode = useCallback(
@@ -213,7 +245,7 @@ export const useAttributionTree = ({
         if (generation !== generationRef.current) return
 
         updateBlock(key, blockIndex, (previous) => ({ ...previous, isLoadingMore: false }))
-        notifyError(error)
+        notifyAttributionError(error)
       }
     },
     [fetchUsage, updateBlock],
@@ -228,9 +260,44 @@ export const useAttributionTree = ({
     loadNode([], null)
   }, [loadNode, updateNodes])
 
+  const refresh = useCallback((): void => {
+    const previousNodes = nodesRef.current
+    const rootKey = getAttributionNodeKey([])
+
+    generationRef.current += 1
+    updateNodes(() => ({}))
+
+    if (latestParamsRef.current.skip) return
+
+    const reloadNode = (key: string): void => {
+      const node = previousNodes[key]
+      const path = parseAttributionNodeKey(key)
+      const parentCode = path[path.length - 1]?.code ?? null
+
+      if (node?.status !== 'loaded') {
+        loadNode(path, parentCode)
+
+        return
+      }
+
+      loadNode(path, parentCode, {
+        isExpanded: node.isExpanded,
+        pageCountByLevelCode: Object.fromEntries(
+          node.blocks.map(({ level, usage }) => [level.code, usage.metadata.currentPage]),
+        ),
+      })
+    }
+
+    reloadNode(rootKey)
+
+    Object.entries(previousNodes)
+      .filter(([key, node]) => key !== rootKey && node.status === 'loaded' && node.isExpanded)
+      .forEach(([key]) => reloadNode(key))
+  }, [loadNode, updateNodes])
+
   useEffect(() => {
     reset()
   }, [resetKey, skip, reset])
 
-  return { nodes, toggleNode, loadMore, reset }
+  return { nodes, toggleNode, loadMore, refresh }
 }

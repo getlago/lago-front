@@ -128,6 +128,69 @@ export const AttributionEmptyCells = ({
   </>
 )
 
+type AttributionEntityCellProps = Pick<
+  AttributionTableRow,
+  'typeLabel' | 'label' | 'isUnattributed'
+> & {
+  indentClassName?: string
+  toggle?: ReactNode
+}
+
+export const AttributionEntityCell = ({
+  typeLabel,
+  label,
+  isUnattributed,
+  indentClassName,
+  toggle,
+}: AttributionEntityCellProps): JSX.Element => (
+  <td className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
+    <div className={tw('flex items-center gap-2', indentClassName)}>
+      {toggle}
+      <Chip label={typeLabel} variant="captionCode" size="small" />
+      <Typography variant="body" color={isUnattributed ? 'grey600' : 'grey700'} noWrap>
+        {label}
+      </Typography>
+    </div>
+  </td>
+)
+
+type AttributionLoadMoreRowProps = Pick<AttributionTableSharedProps, 'columns'> & {
+  isLoading: boolean
+  onLoadMore: () => void
+  indentClassName?: string
+  'data-test': string
+}
+
+export const AttributionLoadMoreRow = ({
+  columns,
+  isLoading,
+  onLoadMore,
+  indentClassName,
+  'data-test': dataTest,
+}: AttributionLoadMoreRowProps): JSX.Element => {
+  const { translate } = useInternationalization()
+
+  return (
+    <tr>
+      <td className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
+        <div className={tw('flex items-center', indentClassName)}>
+          <Button
+            variant="inline"
+            size="small"
+            loading={isLoading}
+            disabled={isLoading}
+            onClick={onLoadMore}
+            data-test={dataTest}
+          >
+            {translate('text_1792668632007fulz8omi190')}
+          </Button>
+        </div>
+      </td>
+      <AttributionEmptyCells columns={columns} />
+    </tr>
+  )
+}
+
 export const AttributionTableLayout = ({
   totals,
   columns,
@@ -245,19 +308,15 @@ export const AttributionFlatTable = ({
   loadMore,
   ...tableProps
 }: AttributionFlatTableProps): JSX.Element => {
-  const { translate } = useInternationalization()
   const { columns, basis, currency } = tableProps
 
   const renderRow = (row: AttributionTableRow): ReactNode => (
     <tr key={row.id} data-test={ATTRIBUTION_TABLE_ROW_TEST_ID}>
-      <td className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
-        <div className="flex items-center gap-2">
-          <Chip label={row.typeLabel} variant="captionCode" size="small" />
-          <Typography variant="body" color={row.isUnattributed ? 'grey600' : 'grey700'} noWrap>
-            {row.label}
-          </Typography>
-        </div>
-      </td>
+      <AttributionEntityCell
+        typeLabel={row.typeLabel}
+        label={row.label}
+        isUnattributed={row.isUnattributed}
+      />
       <AttributionValueCells usage={row} columns={columns} basis={basis} currency={currency} />
     </tr>
   )
@@ -266,21 +325,13 @@ export const AttributionFlatTable = ({
     if (!loadMore) return null
 
     return (
-      <tr key="load-more">
-        <td className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
-          <Button
-            variant="inline"
-            size="small"
-            loading={loadMore.isLoading}
-            disabled={loadMore.isLoading}
-            onClick={loadMore.onLoadMore}
-            data-test={ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID}
-          >
-            {translate('text_1792668632007fulz8omi190')}
-          </Button>
-        </td>
-        <AttributionEmptyCells columns={columns} />
-      </tr>
+      <AttributionLoadMoreRow
+        key="load-more"
+        columns={columns}
+        isLoading={loadMore.isLoading}
+        onLoadMore={loadMore.onLoadMore}
+        data-test={ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID}
+      />
     )
   }
 

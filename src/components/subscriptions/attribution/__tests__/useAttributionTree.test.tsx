@@ -269,6 +269,68 @@ describe('useAttributionTree', () => {
     })
   })
 
+  describe('GIVEN the tree is refreshed', () => {
+    it('THEN should reload the root and keep the expanded children expanded', async () => {
+      const { result } = await renderLoadedTree()
+
+      mockQuery
+        .mockReturnValueOnce(resolveUsage(buildUsage(['eng'])))
+        .mockReturnValueOnce(resolveUsage(buildUsage(['cc-1'])))
+      act(() => result.current.toggleNode(rndPath, 'department'))
+      await waitFor(() => expect(result.current.nodes[RND_KEY]?.status).toBe('loaded'))
+
+      mockQuery.mockClear()
+      mockQuery.mockReturnValue(resolveUsage(buildUsage(['rnd', 'gtm'])))
+
+      await act(async () => result.current.refresh())
+      await waitFor(() => expect(result.current.nodes[RND_KEY]?.status).toBe('loaded'))
+
+      expect(result.current.nodes[RND_KEY]).toEqual(expect.objectContaining({ isExpanded: true }))
+      expect(mockQuery).toHaveBeenCalledTimes(3)
+    })
+
+    it('THEN should refetch every page a level had loaded', async () => {
+      const { result } = await renderLoadedTree()
+
+      mockQuery.mockReturnValueOnce(
+        resolveUsage(buildUsage(['data'], { currentPage: 2, totalPages: 2 })),
+      )
+      await act(async () => result.current.loadMore([], 0))
+
+      mockQuery.mockClear()
+      mockQuery
+        .mockReturnValueOnce(resolveUsage(buildUsage(['rnd', 'gtm'], { totalPages: 2 })))
+        .mockReturnValueOnce(resolveUsage(buildUsage(['data'], { currentPage: 2, totalPages: 2 })))
+
+      await act(async () => result.current.refresh())
+
+      expect(mockQuery).toHaveBeenCalledTimes(2)
+      expect(getQueryVariables(0)).toEqual(expect.objectContaining({ page: 1 }))
+      expect(getQueryVariables(1)).toEqual(expect.objectContaining({ page: 2 }))
+
+      const root = result.current.nodes[ROOT_KEY]
+
+      expect(
+        root?.status === 'loaded' && root.blocks[0].usage.rows.map(({ value }) => value),
+      ).toEqual(['rnd', 'gtm', 'data'])
+      expect(root?.status === 'loaded' && root.blocks[0].usage.metadata.currentPage).toBe(2)
+    })
+
+    it('THEN should reload the root after it failed to load', async () => {
+      mockQuery.mockRejectedValueOnce(new Error('network'))
+
+      const { result } = renderTree()
+
+      await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('error'))
+
+      mockQuery.mockReturnValue(resolveUsage(buildUsage(['rnd'])))
+
+      await act(async () => result.current.refresh())
+
+      await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+    })
+  })
+
   describe('GIVEN the reset key changes', () => {
     it('THEN should collapse every node and reload the root', async () => {
       const { result, rerender } = await renderLoadedTree()

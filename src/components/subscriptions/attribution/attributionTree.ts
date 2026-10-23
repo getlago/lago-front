@@ -33,6 +33,8 @@ export const buildAttributionFilters = (
 
 export const getAttributionNodeKey = (path: AttributionPathStep[]): string => JSON.stringify(path)
 
+export const parseAttributionNodeKey = (key: string): AttributionPathStep[] => JSON.parse(key)
+
 export const flattenAttributionHierarchyTypes = (
   types: AttributionHierarchyType[],
   depth = 0,
