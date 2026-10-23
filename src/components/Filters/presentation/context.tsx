@@ -4,13 +4,16 @@ import { PopperProps } from '~/components/designSystem/Popper'
 import {
   AvailableFiltersEnum,
   AvailableQuickFilters,
+  DynamicFilter,
+  FilterKey,
 } from '~/components/Filters/presentation/types'
 import { useNavigate } from '~/core/router'
 
 interface FilterContextType {
   availableFilters: AvailableFiltersEnum[]
+  dynamicFilters?: DynamicFilter[]
   quickFiltersType?: AvailableQuickFilters
-  staticFilters?: Partial<Record<AvailableFiltersEnum, string>>
+  staticFilters?: Partial<Record<FilterKey, string>>
   staticQuickFilters?: Partial<Record<AvailableQuickFilters, string>>
   filtersNamePrefix: string
   buttonOpener?: PopperProps['opener']
@@ -33,7 +36,7 @@ export const FiltersProvider: FC<PropsWithChildren<FilterContextType>> = ({
       const searchParams = new URLSearchParams(window.location.search)
 
       const staticFiltersEntries = Object.entries(props.staticFilters || []) as [
-        AvailableFiltersEnum,
+        FilterKey,
         unknown,
       ][]
       const staticQuickFiltersEntries = Object.entries(props.staticQuickFilters || []) as [

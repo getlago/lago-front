@@ -15,7 +15,14 @@ export const FILTERS_ACTIVE_FILTER_ITEM_TEST_ID = 'active-filter-item'
 export const ActiveFiltersList = () => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
-  const { availableFilters, staticFilters, keyWithoutPrefix } = useFilters()
+  const {
+    availableFilters,
+    dynamicFilters,
+    staticFilters,
+    keyWithoutPrefix,
+    getDynamicFilter,
+    isFilterKeyAvailable,
+  } = useFilters()
 
   const activeFilters = useMemo(() => {
     const setFilters = Object.fromEntries(searchParams.entries())
@@ -25,14 +32,20 @@ export const ActiveFiltersList = () => {
         const [key, value] = cur as [AvailableFiltersEnum, string]
         const _keyWithoutPrefix = keyWithoutPrefix(key) as AvailableFiltersEnum
 
-        if (!availableFilters.includes(_keyWithoutPrefix) && !staticFilters?.[_keyWithoutPrefix]) {
+        if (!isFilterKeyAvailable(_keyWithoutPrefix) && !staticFilters?.[_keyWithoutPrefix]) {
           return acc
+        }
+
+        const dynamicFilter = getDynamicFilter(_keyWithoutPrefix)
+
+        if (dynamicFilter) {
+          return [...acc, { label: dynamicFilter.label, value: dynamicFilter.formatValue(value) }]
         }
 
         return [
           ...acc,
           {
-            label: mapFilterToTranslationKey(_keyWithoutPrefix),
+            label: translate(mapFilterToTranslationKey(_keyWithoutPrefix)),
             value: formatActiveFilterValueDisplay(_keyWithoutPrefix, value, translate),
           },
         ]
@@ -43,7 +56,7 @@ export const ActiveFiltersList = () => {
     return filtersToDisplay
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableFilters, searchParams])
+  }, [availableFilters, dynamicFilters, searchParams])
 
   if (!activeFilters.length) {
     return null
@@ -58,7 +71,7 @@ export const ActiveFiltersList = () => {
           key={`active-filter-${index}`}
         >
           <Typography variant="captionHl" color="grey600" noWrap>
-            {translate(label)}: {value}
+            {label}: {value}
           </Typography>
         </div>
       ))}

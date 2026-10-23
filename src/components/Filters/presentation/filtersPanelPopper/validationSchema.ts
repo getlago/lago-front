@@ -5,7 +5,12 @@ import {
   isValidDateRangeValue,
   METADATA_SPLITTER,
 } from '~/components/Filters/graphql/utils'
-import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
+import {
+  AvailableFiltersEnum,
+  DynamicFilter,
+  DynamicFilterKey,
+  isDynamicFilterKey,
+} from '~/components/Filters/presentation/types'
 
 // The panel renders no field-level error: these messages are never displayed, the schema only
 // gates the Apply button — exactly what the Yup schema it replaces did with `required('')`.
@@ -14,7 +19,12 @@ const INVALID_FILTER_MESSAGE = 'text_1771342994699klxu2paz7g8'
 const MAX_METADATA_FILTERS = 5
 
 const filterItemSchema = z.object({
-  filterType: z.enum(AvailableFiltersEnum).optional(),
+  filterType: z
+    .union([
+      z.enum(AvailableFiltersEnum),
+      z.custom<DynamicFilterKey>((key) => typeof key === 'string' && isDynamicFilterKey(key)),
+    ])
+    .optional(),
   value: z.string().optional(),
   disabled: z.boolean().optional(),
 })
@@ -40,7 +50,10 @@ const isEmptyFilter = (filter: z.infer<typeof filterItemSchema>): boolean =>
 const isClearedFilters = (filters: Array<z.infer<typeof filterItemSchema>>): boolean =>
   filters.length === 1 && isEmptyFilter(filters[0])
 
-export const buildFiltersPanelValidationSchema = (hasInitialFilters: boolean) =>
+export const buildFiltersPanelValidationSchema = (
+  hasInitialFilters: boolean,
+  dynamicFilters: DynamicFilter[] = [],
+) =>
   z.object({
     filters: z.array(filterItemSchema).superRefine((filters, ctx) => {
       // "Clear all" leaves a single empty row behind: it has to stay submittable, otherwise the
@@ -60,6 +73,20 @@ export const buildFiltersPanelValidationSchema = (hasInitialFilters: boolean) =>
 
         if (!filter.value) {
           ctx.addIssue({ code: 'custom', message: INVALID_FILTER_MESSAGE, path: [index, 'value'] })
+          return
+        }
+
+        if (filter.filterType && isDynamicFilterKey(filter.filterType)) {
+          const dynamicFilter = dynamicFilters.find(({ key }) => key === filter.filterType)
+
+          if (dynamicFilter?.isValueValid && !dynamicFilter.isValueValid(filter.value)) {
+            ctx.addIssue({
+              code: 'custom',
+              message: INVALID_FILTER_MESSAGE,
+              path: [index, 'value'],
+            })
+          }
+
           return
         }
 

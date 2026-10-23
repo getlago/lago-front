@@ -1,16 +1,24 @@
-import { NetworkStatus } from '@apollo/client'
+import { ApolloError, NetworkStatus } from '@apollo/client'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { GraphQLError } from 'graphql'
 
+import { FILTERS_PANEL_OPENER_TEST_ID } from '~/components/Filters/presentation/FiltersPanelPopper'
 import { addToast } from '~/core/apolloClient'
 import {
   AttributedUsageBasisEnum,
   AttributionChargeUsageFragment,
   ChargeModelEnum,
   CurrencyEnum,
+  PlanInterval,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import {
+  ATTRIBUTION_FILTERS_PREFIX,
+  ATTRIBUTION_TIME_RANGE_FILTER_KEY,
+  getAttributionEntityFilterKey,
+} from '../attributionFilters'
 import {
   ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID,
   ATTRIBUTION_TABLE_ROW_TEST_ID,
@@ -44,8 +52,8 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 jest.mock('~/components/designSystem/GenericPlaceholder', () => ({
-  GenericPlaceholder: ({ buttonAction }: { buttonAction?: () => void }) => (
-    <button data-test="generic-placeholder" onClick={buttonAction} />
+  GenericPlaceholder: ({ buttonAction, title }: { buttonAction?: () => void; title?: string }) => (
+    <button data-test="generic-placeholder" data-title={title} onClick={buttonAction} />
   ),
 }))
 
@@ -144,6 +152,9 @@ const mockSetup = ({
     data: {
       subscription: {
         id: 'subscription-1',
+        startedAt: '2026-01-01T00:00:00Z',
+        currentBillingPeriodStartedAt: '2026-10-01T00:00:00Z',
+        plan: { id: 'plan-1', interval: PlanInterval.Monthly },
         customer: { id: 'customer-1', displayName: 'Acme Corp' },
       },
       flatAttributionTypes: { collection: flat },
@@ -906,6 +917,182 @@ describe('SubscriptionAttributionTabContent', () => {
 
         expect(screen.getByTestId(PLACEHOLDER_TEST_ID)).toBeInTheDocument()
         expect(screen.queryByTestId(ATTRIBUTION_TREE_TABLE_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN filters applied in the URL', () => {
+    const setUrlFilters = (filters: Record<string, string>): void => {
+      const search = new URLSearchParams(
+        Object.fromEntries(
+          Object.entries(filters).map(([key, value]) => [
+            `${ATTRIBUTION_FILTERS_PREFIX}_${key}`,
+            value,
+          ]),
+        ),
+      )
+
+      window.history.pushState({}, '', `/?${search.toString()}`)
+    }
+
+    const getLastTreeVariables = (): Record<string, unknown> =>
+      mockUseAttributionTree.mock.calls.at(-1)?.[0].variables
+
+    afterEach(() => {
+      window.history.pushState({}, '', '/')
+    })
+
+    describe('WHEN the tab renders', () => {
+      it('THEN should display the filters bar', () => {
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(screen.getByTestId(FILTERS_PANEL_OPENER_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a custom time range and entity filters are applied', () => {
+      beforeEach(() => {
+        setUrlFilters({
+          [ATTRIBUTION_TIME_RANGE_FILTER_KEY]: '2026-09-01T00:00:00.000Z,2026-09-10T23:59:59.999Z',
+          [getAttributionEntityFilterKey('api_key')]: 'k_live_ab12,k_live_c7e0',
+          [getAttributionEntityFilterKey('unknown_type')]: 'ignored',
+        })
+      })
+
+      it('THEN should send them with the flat usage query', () => {
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(getLastUsageVariables()).toEqual(
+          expect.objectContaining({
+            fromDatetime: '2026-09-01T00:00:00.000Z',
+            toDatetime: '2026-09-10T23:59:59.999Z',
+            filters: [{ code: 'api_key', values: ['k_live_ab12', 'k_live_c7e0'] }],
+          }),
+        )
+      })
+
+      it('THEN should send them with the tree requests', () => {
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(getLastTreeVariables()).toEqual(
+          expect.objectContaining({
+            fromDatetime: '2026-09-01T00:00:00.000Z',
+            toDatetime: '2026-09-10T23:59:59.999Z',
+            filters: [{ code: 'api_key', values: ['k_live_ab12', 'k_live_c7e0'] }],
+          }),
+        )
+      })
+    })
+
+    describe('WHEN the past billing period is applied', () => {
+      it('THEN should send the previous period bounds', () => {
+        setUrlFilters({ [ATTRIBUTION_TIME_RANGE_FILTER_KEY]: 'past' })
+
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(getLastUsageVariables()).toEqual(
+          expect.objectContaining({
+            fromDatetime: '2026-09-01T00:00:00.000Z',
+            toDatetime: '2026-09-30T23:59:59.000Z',
+          }),
+        )
+      })
+    })
+
+    describe('WHEN only the current billing period is applied', () => {
+      it('THEN should send neither bounds nor filters', () => {
+        setUrlFilters({ [ATTRIBUTION_TIME_RANGE_FILTER_KEY]: 'current' })
+
+        render(<SubscriptionAttributionTabContent />)
+
+        const variables = getLastUsageVariables()
+
+        expect(variables.fromDatetime).toBeUndefined()
+        expect(variables.toDatetime).toBeUndefined()
+        expect(variables.filters).toBeUndefined()
+      })
+    })
+  })
+
+  describe('GIVEN the whole table request fails', () => {
+    const guardError = new ApolloError({
+      graphQLErrors: [
+        new GraphQLError('Unprocessable Entity', { extensions: { code: 'too_many_groups' } }),
+      ],
+    })
+
+    const mockUsageError = (error: Error): void => {
+      mockUsageQuery.mockReturnValue({
+        data: undefined,
+        loading: false,
+        error,
+        refetch: mockRefetchUsage,
+      })
+    }
+
+    const getPlaceholderTitle = (): string | null =>
+      screen.getByTestId(PLACEHOLDER_TEST_ID).getAttribute('data-title')
+
+    const getGenericErrorTitle = (): string | null => {
+      mockUsageError(new Error('boom'))
+
+      const { unmount } = render(<SubscriptionAttributionTabContent />)
+      const title = getPlaceholderTitle()
+
+      unmount()
+
+      return title
+    }
+
+    describe('WHEN the flat usage query hits a guard error', () => {
+      it('THEN should display the narrow your view placeholder instead of the generic one', () => {
+        const genericTitle = getGenericErrorTitle()
+
+        mockUsageError(guardError)
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(getPlaceholderTitle()).toEqual(expect.any(String))
+        expect(getPlaceholderTitle()).not.toBe(genericTitle)
+      })
+    })
+
+    describe('WHEN the tree root hits a guard error', () => {
+      it('THEN should display the narrow your view placeholder', () => {
+        const genericTitle = getGenericErrorTitle()
+
+        mockSetup({
+          roots: [{ id: 'type-department', code: 'department', name: 'Department' }],
+        })
+        mockUseAttributionTree.mockReturnValue({
+          nodes: { [getAttributionNodeKey([])]: { status: 'error', error: guardError } },
+          toggleNode: jest.fn(),
+          loadMore: jest.fn(),
+          refresh: mockRefreshTree,
+        })
+
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(getPlaceholderTitle()).not.toBe(genericTitle)
+      })
+    })
+
+    describe('WHEN the tree root hits any other error', () => {
+      it('THEN should keep the generic error placeholder', () => {
+        const genericTitle = getGenericErrorTitle()
+
+        mockSetup({
+          roots: [{ id: 'type-department', code: 'department', name: 'Department' }],
+        })
+        mockUseAttributionTree.mockReturnValue({
+          nodes: { [getAttributionNodeKey([])]: { status: 'error', error: new Error('boom') } },
+          toggleNode: jest.fn(),
+          loadMore: jest.fn(),
+          refresh: mockRefreshTree,
+        })
+
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(getPlaceholderTitle()).toBe(genericTitle)
       })
     })
   })
