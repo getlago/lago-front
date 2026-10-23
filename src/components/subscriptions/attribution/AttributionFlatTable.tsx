@@ -72,6 +72,7 @@ export const ATTRIBUTION_ENTITY_CELL_CLASSNAME = tw(
 const ATTRIBUTION_TOTAL_CELL_CLASSNAME = tw(
   'sticky right-0 z-10 h-12 w-px whitespace-nowrap border-b border-l border-grey-300 bg-grey-100 text-right',
   ATTRIBUTION_CELL_PADDING_CLASSNAME,
+  'pl-6',
 )
 
 type AttributionValueCellsProps = Pick<
