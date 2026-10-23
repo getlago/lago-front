@@ -14,16 +14,16 @@
 # describe the hardened runtime, not an environment. Renaming them is a
 # follow-up, kept out of this diff so the change stays reviewable.
 
-# BASE PIN: :<lago-packages-commit-sha>@<index digest>. The digest is what
-# Docker resolves; the commit tag says where it came from. The daily rebuild
-# keeps :latest within ~24h of upstream Wolfi; repin here so a base bump is a
-# reviewable diff rather than a silent change under a floating tag.
+# BASE PIN: `:latest@sha256:<index digest>`. Docker builds from the digest,
+# so a build is reproducible. Renovate (getlago/lago-packages
+# renovate/lago-bases) opens a PR when `latest` moves; the base refresh
+# rebuilds deployed tags with a newer RUNTIME_IMAGE in between.
 #
 # Current pins: build lago-packages b24fd68 (20261023-r69, Node 24 since
 # lago-packages#33), runtime e2374ae (20261023-r68). Both ship
 # ca-certificates-bundle 20260909-r3, without the eMudhra/emSign roots.
-ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:b24fd6870e8b345f15f1817830a04dfd6637104c@sha256:3f8672c63441ebe5f8492b2b52e4ec97d33d0d2a5dca00e9ae803c30c7c4e062
-ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:e2374aed2e42993144637b8bc7aa643f71f4ffec@sha256:6e8d3121119ba0377ad7ba4ad2a243e7f1e473fee7fd79007b47e44863cb6f5a
+ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:latest@sha256:3f8672c63441ebe5f8492b2b52e4ec97d33d0d2a5dca00e9ae803c30c7c4e062
+ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:latest@sha256:6e8d3121119ba0377ad7ba4ad2a243e7f1e473fee7fd79007b47e44863cb6f5a
 
 # --- deps stage --------------------------------------------------------------
 FROM ${BUILD_IMAGE} AS deps

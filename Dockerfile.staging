@@ -6,8 +6,12 @@
 # stays untouched and continues to serve production builds; only the staging
 # pipeline (lago-deploy's build-front-staging-image.yml) points here.
 
-ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:latest
-ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:latest
+# BASE PIN: `:latest@sha256:<index digest>`. Docker builds from the digest,
+# so a build is reproducible. Renovate (getlago/lago-packages
+# renovate/lago-bases) opens a PR when `latest` moves; the base refresh
+# rebuilds deployed tags with a newer RUNTIME_IMAGE in between.
+ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:latest@sha256:3f8672c63441ebe5f8492b2b52e4ec97d33d0d2a5dca00e9ae803c30c7c4e062
+ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:latest@sha256:6e8d3121119ba0377ad7ba4ad2a243e7f1e473fee7fd79007b47e44863cb6f5a
 
 # --- deps stage --------------------------------------------------------------
 FROM ${BUILD_IMAGE} AS deps
