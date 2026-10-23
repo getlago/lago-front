@@ -28,3 +28,14 @@ jobs:
       - name: Run code:style check
         run: |
           pnpm run code:style
+
+  csp-render:
+    name: Test CSP rendering
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Run nginx/csp.test.sh
+        run: bash nginx/csp.test.sh
