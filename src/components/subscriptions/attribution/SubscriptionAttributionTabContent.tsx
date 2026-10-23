@@ -1,11 +1,12 @@
 import { gql, NetworkStatus } from '@apollo/client'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useParams } from 'react-router'
+import { useParams, useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
+import { Filters } from '~/components/Filters'
 import {
   AttributedUsageBasisEnum,
   AttributionChargeUsageFragment,
@@ -18,6 +19,16 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
+import { buildAttributionDynamicFilters } from './AttributionFilterInputs'
+import {
+  ATTRIBUTION_FILTERS_PREFIX,
+  ATTRIBUTION_TIME_RANGE_FILTER_KEY,
+  AttributionTimeRangeEnum,
+  getAttributionEntityFilters,
+  getAttributionTimeRangeArgs,
+  getAttributionTimeRangeValue,
+  isAttributionGuardError,
+} from './attributionFilters'
 import { AttributionFlatTable, AttributionTableRow } from './AttributionFlatTable'
 import { AttributionToolbarSelect } from './AttributionToolbarSelect'
 import {
@@ -75,6 +86,12 @@ gql`
   query getSubscriptionAttributionSetup($subscriptionId: ID!, $limit: Int) {
     subscription(id: $subscriptionId) {
       id
+      startedAt
+      currentBillingPeriodStartedAt
+      plan {
+        id
+        interval
+      }
       customer {
         id
         displayName
@@ -116,6 +133,8 @@ gql`
     $chargeIds: [ID!]
     $splitChargeId: ID
     $filters: [AttributedUsageFilterInput!]
+    $fromDatetime: ISO8601DateTime
+    $toDatetime: ISO8601DateTime
     $page: Int
     $limit: Int
   ) {
@@ -126,6 +145,8 @@ gql`
       chargeIds: $chargeIds
       splitChargeId: $splitChargeId
       filters: $filters
+      fromDatetime: $fromDatetime
+      toDatetime: $toDatetime
       page: $page
       limit: $limit
     ) {
@@ -160,6 +181,7 @@ gql`
 export const SubscriptionAttributionTabContent = (): JSX.Element => {
   const { translate } = useInternationalization()
   const { subscriptionId = '' } = useParams()
+  const [searchParams] = useSearchParams()
 
   const [groupRowsBy, setGroupRowsBy] = useState<AttributionGroupByEnum>(
     AttributionGroupByEnum.hierarchical,
@@ -195,6 +217,37 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
       signature: flattened.map(({ type, depth }) => `${depth}:${type.id}`).join('|'),
     }
   }, [rootTypes])
+  const subscription = setupData?.subscription
+
+  const dynamicFilters = useMemo(
+    () =>
+      buildAttributionDynamicFilters({
+        translate,
+        subscriptionId,
+        subscription,
+        flatTypes: setupData?.flatAttributionTypes.collection ?? [],
+        hierarchicalTypes: hierarchy.types,
+        rootTypes,
+      }),
+    [
+      hierarchy.types,
+      rootTypes,
+      setupData?.flatAttributionTypes.collection,
+      subscription,
+      subscriptionId,
+      translate,
+    ],
+  )
+
+  const timeRangeArgs = getAttributionTimeRangeArgs({
+    value: getAttributionTimeRangeValue(searchParams),
+    subscription,
+  })
+  const entityFilters = getAttributionEntityFilters({
+    searchParams,
+    codes: [...flatTypes, ...hierarchy.types].map(({ code }) => code),
+  })
+
   const listByType = flatTypes.find((type) => type.code === listByCode)
   const fallbackGroupBy = flatTypes[0]?.code ?? rootTypes[0]?.code ?? ''
   const groupBy = listByType?.code ?? fallbackGroupBy
@@ -222,6 +275,8 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     basis,
     chargeIds: selectedCharge ? [selectedCharge.id] : undefined,
     splitChargeId: selectedCharge?.filters?.length ? selectedCharge.id : undefined,
+    filters: entityFilters.length ? entityFilters : undefined,
+    ...timeRangeArgs,
     limit: ATTRIBUTION_ROWS_LIMIT,
   }
   const usageVariables = { ...treeVariables, groupBy, page: 1 }
@@ -388,16 +443,24 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     ]
   }
 
-  const renderErrorPlaceholder = (): JSX.Element => (
-    <GenericPlaceholder
-      title={translate('text_62c3f3fca8a1625624e83379')}
-      subtitle={translate('text_1726498444629i1fpjyvh0kg')}
-      buttonTitle={translate('text_1725983967306qz0npfuhlo1')}
-      buttonVariant="primary"
-      buttonAction={refetch}
-      image={<ErrorImage width="136" height="104" />}
-    />
-  )
+  const renderErrorPlaceholder = (error?: unknown): JSX.Element => {
+    const isGuardError = isAttributionGuardError(error)
+
+    return (
+      <GenericPlaceholder
+        title={translate(
+          isGuardError ? 'text_1792764705907n0lq6q75y89' : 'text_62c3f3fca8a1625624e83379',
+        )}
+        subtitle={translate(
+          isGuardError ? 'text_17927647059078e1835hd0k1' : 'text_1726498444629i1fpjyvh0kg',
+        )}
+        buttonTitle={translate('text_1725983967306qz0npfuhlo1')}
+        buttonVariant="primary"
+        buttonAction={refetch}
+        image={<ErrorImage width="136" height="104" />}
+      />
+    )
+  }
 
   const tableProps = {
     totals: { amountCents: displayedUsage?.totals.amountCents, chargesUsage },
@@ -412,7 +475,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
 
   const renderTable = (): JSX.Element => {
     if (isTreeMode) {
-      if (treeRootNode?.status === 'error') return renderErrorPlaceholder()
+      if (treeRootNode?.status === 'error') return renderErrorPlaceholder(treeRootNode.error)
 
       return (
         <AttributionTreeTable
@@ -425,7 +488,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
       )
     }
 
-    if (usageError) return renderErrorPlaceholder()
+    if (usageError) return renderErrorPlaceholder(usageError)
 
     return (
       <AttributionFlatTable
@@ -556,6 +619,15 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
             data-test={ATTRIBUTION_SHOW_TEST_ID}
           />
         </div>
+
+        <Filters.Provider
+          filtersNamePrefix={ATTRIBUTION_FILTERS_PREFIX}
+          availableFilters={[]}
+          dynamicFilters={dynamicFilters}
+          staticFilters={{ [ATTRIBUTION_TIME_RANGE_FILTER_KEY]: AttributionTimeRangeEnum.current }}
+        >
+          <Filters.Component />
+        </Filters.Provider>
 
         {renderTable()}
       </>

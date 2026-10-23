@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { addToast } from '~/core/apolloClient'
 import {
+  AttributedUsageFilterInput,
   GetSubscriptionAttributedUsageDocument,
   GetSubscriptionAttributedUsageQuery,
   GetSubscriptionAttributedUsageQueryVariables,
@@ -13,6 +14,7 @@ import {
   AttributionPathStep,
   buildAttributionFilters,
   getAttributionNodeKey,
+  mergeAttributionFilters,
   parseAttributionNodeKey,
 } from './attributionTree'
 
@@ -26,7 +28,7 @@ export type AttributionTreeBlock = {
 
 type AttributionTreeNode =
   | { status: 'loading' }
-  | { status: 'error' }
+  | { status: 'error'; error: unknown }
   | { status: 'loaded'; isExpanded: boolean; blocks: AttributionTreeBlock[] }
 
 export type AttributionTreeNodes = Record<string, AttributionTreeNode>
@@ -34,7 +36,7 @@ export type AttributionTreeNodes = Record<string, AttributionTreeNode>
 type AttributionTreeVariables = Omit<
   GetSubscriptionAttributedUsageQueryVariables,
   'groupBy' | 'filters' | 'page'
->
+> & { filters?: AttributedUsageFilterInput[] }
 
 type UseAttributionTreeParams = {
   variables: AttributionTreeVariables
@@ -117,15 +119,21 @@ export const useAttributionTree = ({
       path: AttributionPathStep[],
       page: number,
     ): Promise<AttributionTreeUsage> => {
+      const latestVariables = latestParamsRef.current.variables
+      const filters = mergeAttributionFilters(
+        latestVariables.filters ?? [],
+        buildAttributionFilters(path),
+      )
+
       const { data } = await client.query<
         GetSubscriptionAttributedUsageQuery,
         GetSubscriptionAttributedUsageQueryVariables
       >({
         query: GetSubscriptionAttributedUsageDocument,
         variables: {
-          ...latestParamsRef.current.variables,
+          ...latestVariables,
           groupBy: level.code,
-          filters: path.length ? buildAttributionFilters(path) : undefined,
+          filters: filters.length ? filters : undefined,
           page,
         },
         fetchPolicy: 'no-cache',
@@ -187,7 +195,7 @@ export const useAttributionTree = ({
       } catch (error) {
         if (generation !== generationRef.current) return
 
-        updateNodes((previous) => ({ ...previous, [key]: { status: 'error' } }))
+        updateNodes((previous) => ({ ...previous, [key]: { status: 'error', error } }))
         notifyAttributionError(error)
       }
     },

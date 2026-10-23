@@ -57,6 +57,14 @@ export const buildAttributionFilters = (
   path: AttributionPathStep[],
 ): AttributedUsageFilterInput[] => path.map(({ code, value }) => ({ code, values: [value ?? ''] }))
 
+export const mergeAttributionFilters = (
+  filters: AttributedUsageFilterInput[],
+  pathFilters: AttributedUsageFilterInput[],
+): AttributedUsageFilterInput[] => [
+  ...filters.filter(({ code }) => !pathFilters.some((pathFilter) => pathFilter.code === code)),
+  ...pathFilters,
+]
+
 export const getAttributionNodeKey = (path: AttributionPathStep[]): string => JSON.stringify(path)
 
 export const parseAttributionNodeKey = (key: string): AttributionPathStep[] => JSON.parse(key)

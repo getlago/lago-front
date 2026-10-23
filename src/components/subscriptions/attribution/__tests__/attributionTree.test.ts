@@ -7,6 +7,7 @@ import {
   getAttributionHierarchyChain,
   getAttributionNodeKey,
   getDeepestAttributionHierarchyType,
+  mergeAttributionFilters,
 } from '../attributionTree'
 
 const userType: AttributionHierarchyType = { id: 'type-user', code: 'user', name: 'User' }
@@ -33,6 +34,35 @@ const roots = [departmentType, regionType]
 const apiKeyType = { code: 'api_key', name: 'API Key' }
 
 describe('attributionTree', () => {
+  describe('GIVEN entity filters and a tree path', () => {
+    describe('WHEN merging them', () => {
+      it('THEN should keep the entity filters the path does not set and append the path', () => {
+        expect(
+          mergeAttributionFilters(
+            [
+              { code: 'department', values: ['rnd', 'gtm'] },
+              { code: 'api_key', values: ['k_1'] },
+            ],
+            [
+              { code: 'department', values: ['rnd'] },
+              { code: 'team', values: [''] },
+            ],
+          ),
+        ).toEqual([
+          { code: 'api_key', values: ['k_1'] },
+          { code: 'department', values: ['rnd'] },
+          { code: 'team', values: [''] },
+        ])
+      })
+
+      it('THEN should return the path alone without entity filters', () => {
+        expect(mergeAttributionFilters([], [{ code: 'department', values: ['rnd'] }])).toEqual([
+          { code: 'department', values: ['rnd'] },
+        ])
+      })
+    })
+  })
+
   describe('buildAttributionHierarchy', () => {
     describe('GIVEN a flat list of types with their parent', () => {
       it('THEN should nest each type under its parent, children sorted by code', () => {

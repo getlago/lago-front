@@ -11,7 +11,7 @@ import { FiltersPanelItemTypeSwitch } from '~/components/Filters/graphql/Filters
 import { useFilters } from '~/components/Filters/graphql/useFilters'
 import { buildFiltersPanelValidationSchema } from '~/components/Filters/presentation/filtersPanelPopper/validationSchema'
 import {
-  AvailableFiltersEnum,
+  FilterKey,
   FiltersFormValues,
   mapFilterToPanelTranslationKey,
 } from '~/components/Filters/presentation/types'
@@ -37,11 +37,13 @@ export const FiltersPanelPopper = () => {
   const { translate } = useInternationalization()
   const {
     availableFilters,
+    dynamicFilters,
     initialFiltersFormValues,
     staticFiltersFormValues,
     applyFilters,
     buttonOpener,
     displayInDialog,
+    getDynamicFilter,
   } = useFilters()
 
   const listContainerElementRef = useRef<HTMLDivElement>(null)
@@ -50,8 +52,19 @@ export const FiltersPanelPopper = () => {
   const hasInitialFilters = initialFiltersFormValues.length > 0
 
   const validationSchema = useMemo(
-    () => buildFiltersPanelValidationSchema(hasInitialFilters),
-    [hasInitialFilters],
+    () => buildFiltersPanelValidationSchema(hasInitialFilters, dynamicFilters),
+    [hasInitialFilters, dynamicFilters],
+  )
+
+  const filterTypeOptions = useMemo<Array<{ label: string; value: FilterKey }>>(
+    () => [
+      ...availableFilters.map((filter) => ({
+        label: translate(mapFilterToPanelTranslationKey(filter)),
+        value: filter,
+      })),
+      ...(dynamicFilters ?? []).map(({ key, label }) => ({ label, value: key })),
+    ],
+    [availableFilters, dynamicFilters, translate],
   )
 
   const form = useAppForm({
@@ -133,10 +146,9 @@ export const FiltersPanelPopper = () => {
               // offer Apply on an incomplete filter. Gate it on the schema instead.
               const isFilterSetApplicable = validationSchema.safeParse({ filters }).success
 
-              const comboboxFiltersData = availableFilters.map((filter) => ({
-                label: translate(mapFilterToPanelTranslationKey(filter)),
-                value: filter,
-                disabled: filters.some(({ filterType }) => filterType === filter),
+              const comboboxFiltersData = filterTypeOptions.map((option) => ({
+                ...option,
+                disabled: filters.some(({ filterType }) => filterType === option.value),
               }))
 
               return (
@@ -213,7 +225,9 @@ export const FiltersPanelPopper = () => {
                             onChange={(value) => {
                               updateFilter(filterIndex, (currentFilter) => ({
                                 ...currentFilter,
-                                filterType: value as AvailableFiltersEnum,
+                                filterType: filterTypeOptions.find(
+                                  (option) => option.value === value,
+                                )?.value,
                                 // Value needs to be reset when changing type
                                 value: undefined,
                               }))
@@ -222,6 +236,9 @@ export const FiltersPanelPopper = () => {
 
                           <FiltersPanelItemTypeSwitch
                             filterType={filter.filterType}
+                            dynamicFilter={
+                              filter.filterType ? getDynamicFilter(filter.filterType) : undefined
+                            }
                             value={filter.value}
                             setFilterValue={(value: string) => {
                               updateFilter(filterIndex, (currentFilter) => ({
@@ -272,7 +289,7 @@ export const FiltersPanelPopper = () => {
                     <Button
                       data-test={FILTERS_PANEL_ADD_FILTER_TEST_ID}
                       startIcon="plus"
-                      disabled={filters.length === availableFilters.length}
+                      disabled={filters.length === filterTypeOptions.length}
                       onClick={() => {
                         filtersField.pushValue({})
 
