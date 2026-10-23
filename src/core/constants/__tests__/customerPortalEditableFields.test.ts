@@ -2,6 +2,7 @@ import { CountryCode, CustomerPortalEditableFieldEnum } from '~/generated/graphq
 
 import {
   CUSTOMER_PORTAL_EDITABLE_FIELDS,
+  hasEditableCustomerPortalFormField,
   pickCustomerPortalEditableFields,
 } from '../customerPortalEditableFields'
 
@@ -33,6 +34,16 @@ describe('customerPortalEditableFields', () => {
 
     it('THEN should return an empty input when nothing is editable', () => {
       expect(pickCustomerPortalEditableFields({ name: 'Acme' }, [])).toEqual({})
+    })
+  })
+
+  describe('hasEditableCustomerPortalFormField', () => {
+    it.each([
+      [[CustomerPortalEditableFieldEnum.City], true],
+      [[CustomerPortalEditableFieldEnum.DocumentLocale], false],
+      [[], false],
+    ])('THEN should return %s -> %s', (fields, expected) => {
+      expect(hasEditableCustomerPortalFormField(fields)).toBe(expected)
     })
   })
 })

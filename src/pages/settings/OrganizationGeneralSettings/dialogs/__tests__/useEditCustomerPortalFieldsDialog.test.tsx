@@ -1,10 +1,13 @@
-import { act, renderHook } from '@testing-library/react'
+import { act, renderHook, screen, within } from '@testing-library/react'
 
 import { addToast } from '~/core/apolloClient'
 import { CustomerPortalEditableFieldEnum } from '~/generated/graphql'
-import { AllTheProviders } from '~/test-utils'
+import { AllTheProviders, render } from '~/test-utils'
 
-import { useEditCustomerPortalFieldsDialog } from '../useEditCustomerPortalFieldsDialog'
+import {
+  CUSTOMER_PORTAL_FIELD_CHECKBOX_TEST_ID,
+  useEditCustomerPortalFieldsDialog,
+} from '../useEditCustomerPortalFieldsDialog'
 
 const mockFormDialogOpen = jest.fn()
 const mockUpdateEditableFields = jest.fn()
@@ -116,6 +119,68 @@ describe('useEditCustomerPortalFieldsDialog', () => {
         expect(submitError).toBeInstanceOf(Error)
         expect(addToast).not.toHaveBeenCalled()
       })
+    })
+  })
+
+  describe('GIVEN the dialog content is rendered', () => {
+    const renderDialogContent = (fields: CustomerPortalEditableFieldEnum[]) => {
+      const { result } = renderHook(() => useEditCustomerPortalFieldsDialog(), {
+        wrapper: customWrapper,
+      })
+
+      act(() => {
+        result.current.openEditCustomerPortalFieldsDialog({ editableFields: fields })
+      })
+
+      render(mockFormDialogOpen.mock.calls[0][0].children)
+    }
+
+    const checkboxFor = (field: CustomerPortalEditableFieldEnum) =>
+      within(screen.getByTestId(`${CUSTOMER_PORTAL_FIELD_CHECKBOX_TEST_ID}-${field}`)).getByRole(
+        'checkbox',
+      )
+
+    it('THEN should check the editable fields and leave the others unchecked', () => {
+      renderDialogContent(editableFields)
+
+      expect(checkboxFor(CustomerPortalEditableFieldEnum.Name)).toBeChecked()
+      expect(checkboxFor(CustomerPortalEditableFieldEnum.City)).toBeChecked()
+      expect(checkboxFor(CustomerPortalEditableFieldEnum.Country)).not.toBeChecked()
+      expect(checkboxFor(CustomerPortalEditableFieldEnum.TaxIdentificationNumber)).not.toBeChecked()
+    })
+
+    it('THEN should not offer the document locale, which the portal form cannot edit', () => {
+      renderDialogContent(editableFields)
+
+      expect(
+        screen.queryByTestId(
+          `${CUSTOMER_PORTAL_FIELD_CHECKBOX_TEST_ID}-${CustomerPortalEditableFieldEnum.DocumentLocale}`,
+        ),
+      ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the document locale is already editable', () => {
+    it('THEN should keep it in the saved list', async () => {
+      const fields = [...editableFields, CustomerPortalEditableFieldEnum.DocumentLocale]
+
+      mockUpdateEditableFields.mockResolvedValue({ data: {}, errors: undefined })
+      mockFormDialogOpen.mockImplementation(async (config) => {
+        await config.form.submit()
+        return { reason: 'success' }
+      })
+
+      const { result } = renderHook(() => useEditCustomerPortalFieldsDialog(), {
+        wrapper: customWrapper,
+      })
+
+      await act(async () => {
+        result.current.openEditCustomerPortalFieldsDialog({ editableFields: fields })
+      })
+
+      expect(
+        mockUpdateEditableFields.mock.calls[0][0].variables.input.customerPortalEditableFields,
+      ).toEqual(expect.arrayContaining([CustomerPortalEditableFieldEnum.DocumentLocale]))
     })
   })
 })

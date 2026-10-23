@@ -86,6 +86,15 @@ export const CUSTOMER_PORTAL_EDITABLE_FIELDS: {
   },
 ]
 
+// Document locale has no input in the customer portal form, so the portal and the settings only deal with the others
+export const CUSTOMER_PORTAL_FORM_FIELDS = CUSTOMER_PORTAL_EDITABLE_FIELDS.filter(
+  ({ field }) => field !== CustomerPortalEditableFieldEnum.DocumentLocale,
+)
+
+export const hasEditableCustomerPortalFormField = (
+  editableFields: CustomerPortalEditableFieldEnum[],
+): boolean => CUSTOMER_PORTAL_FORM_FIELDS.some(({ field }) => editableFields.includes(field))
+
 // The API refuses any field the organization did not open, so only send the editable ones
 export const pickCustomerPortalEditableFields = (
   input: UpdateCustomerPortalCustomerInput,

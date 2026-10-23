@@ -12,7 +12,10 @@ import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
 import { Checkbox } from '~/components/form'
-import { pickCustomerPortalEditableFields } from '~/core/constants/customerPortalEditableFields'
+import {
+  CUSTOMER_PORTAL_FORM_FIELDS,
+  pickCustomerPortalEditableFields,
+} from '~/core/constants/customerPortalEditableFields'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import {
   CustomerPortalEditableFieldEnum,
@@ -30,10 +33,7 @@ type EditCustomerBillingFormProps = {
   onSuccess?: () => void
 }
 
-// Document locale is not part of the form, so it does not count as a read-only field here
-const FORM_FIELDS = Object.values(CustomerPortalEditableFieldEnum).filter(
-  (field) => field !== CustomerPortalEditableFieldEnum.DocumentLocale,
-)
+export const READ_ONLY_FIELDS_ALERT_TEST_ID = 'read-only-fields-alert'
 
 gql`
   mutation updatePortalCustomer($input: UpdateCustomerPortalCustomerInput!) {
@@ -52,7 +52,7 @@ const EditCustomerBillingForm = ({
 
   const isEditable = (field: CustomerPortalEditableFieldEnum) => editableFields.includes(field)
   const canEditShippingAddress = isEditable(CustomerPortalEditableFieldEnum.ShippingAddress)
-  const hasReadOnlyFields = FORM_FIELDS.some((field) => !isEditable(field))
+  const hasReadOnlyFields = CUSTOMER_PORTAL_FORM_FIELDS.some(({ field }) => !isEditable(field))
 
   const initialValues = mapCustomerToFormValues(customer)
   const shipping = initialValues.shippingAddress
@@ -125,7 +125,8 @@ const EditCustomerBillingForm = ({
 
   const billingAddressChangeListener = {
     onChange: () => {
-      if (isShippingEqualBillingAddress) {
+      // A locked shipping address is never saved, so it must not appear to follow billing edits
+      if (canEditShippingAddress && isShippingEqualBillingAddress) {
         syncShippingAddress()
       }
     },
@@ -147,7 +148,7 @@ const EditCustomerBillingForm = ({
       </Typography>
 
       {hasReadOnlyFields && (
-        <Alert type="info" data-test="read-only-fields-alert">
+        <Alert type="info" data-test={READ_ONLY_FIELDS_ALERT_TEST_ID}>
           <Typography>{translate('text_1792713576578hbdtwgcoy2a')}</Typography>
         </Alert>
       )}

@@ -1,10 +1,16 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { CUSTOMER_PORTAL_FORM_FIELDS } from '~/core/constants/customerPortalEditableFields'
 import { CustomerPortalEditableFieldEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import OrganizationGeneralSettings from '../OrganizationGeneralSettings'
+import OrganizationGeneralSettings, {
+  CUSTOMER_PORTAL_EDITABLE_FIELDS_TEST_ID,
+  CUSTOMER_PORTAL_NO_EDITABLE_FIELDS_TEST_ID,
+  CUSTOMER_PORTAL_SETTINGS_ERROR_TEST_ID,
+  EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID,
+} from '../OrganizationGeneralSettings'
 
 const mockMainHeaderConfigure = jest.fn()
 const mockHasPermissions = jest.fn()
@@ -138,13 +144,38 @@ describe('OrganizationGeneralSettings', () => {
   })
 
   describe('GIVEN the customer portal section', () => {
+    const labelOf = (field: CustomerPortalEditableFieldEnum) =>
+      CUSTOMER_PORTAL_FORM_FIELDS.find((entry) => entry.field === field)?.labelKey
+
     describe('WHEN the settings are loaded', () => {
       it('THEN should list the editable fields in the portal form order', () => {
         renderWithSlug('acme')
 
-        expect(screen.getByTestId('customer-portal-editable-fields')).toHaveTextContent(
-          'text_634687079be251fdb43833cb, text_62ab2d0396dd6b0361614d90',
+        expect(screen.getByTestId(CUSTOMER_PORTAL_EDITABLE_FIELDS_TEST_ID)).toHaveTextContent(
+          [
+            labelOf(CustomerPortalEditableFieldEnum.Name),
+            labelOf(CustomerPortalEditableFieldEnum.City),
+          ].join(', '),
         )
+      })
+
+      it('THEN should not list the document locale, which customers cannot edit in the portal', () => {
+        mockUseGetOrganizationCustomerPortalSettingsQuery.mockReturnValue({
+          loading: false,
+          data: {
+            organization: {
+              id: 'org-1',
+              customerPortalEditableFields: [CustomerPortalEditableFieldEnum.DocumentLocale],
+            },
+          },
+        })
+
+        renderWithSlug('acme')
+
+        expect(screen.getByTestId(CUSTOMER_PORTAL_NO_EDITABLE_FIELDS_TEST_ID)).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(CUSTOMER_PORTAL_EDITABLE_FIELDS_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
 
@@ -157,9 +188,26 @@ describe('OrganizationGeneralSettings', () => {
 
         renderWithSlug('acme')
 
-        expect(screen.getByTestId('customer-portal-editable-fields')).toHaveTextContent(
-          'text_17927135765776z05d5xcetc',
-        )
+        expect(screen.getByTestId(CUSTOMER_PORTAL_NO_EDITABLE_FIELDS_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the settings fail to load', () => {
+      it.each([
+        ['the query errors', { loading: false, error: new Error('boom'), data: undefined }],
+        ['the organization is missing', { loading: false, data: { organization: null } }],
+      ])('THEN should show the error state and no edit action when %s', (_, queryResult) => {
+        mockUseGetOrganizationCustomerPortalSettingsQuery.mockReturnValue(queryResult)
+
+        renderWithSlug('acme')
+
+        expect(screen.getByTestId(CUSTOMER_PORTAL_SETTINGS_ERROR_TEST_ID)).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(CUSTOMER_PORTAL_NO_EDITABLE_FIELDS_TEST_ID),
+        ).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
 
@@ -169,7 +217,7 @@ describe('OrganizationGeneralSettings', () => {
 
         renderWithSlug('acme')
 
-        await user.click(screen.getByTestId('edit-customer-portal-fields-button'))
+        await user.click(screen.getByTestId(EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID))
 
         expect(mockOpenEditCustomerPortalFieldsDialog).toHaveBeenCalledWith({
           editableFields: [
@@ -180,16 +228,20 @@ describe('OrganizationGeneralSettings', () => {
       })
     })
 
-    describe('WHEN the user does NOT have organizationTaxesUpdate permission', () => {
+    describe.each([
+      ['organizationTaxesUpdate', 'organizationUpdate'],
+      ['organizationUpdate', 'organizationTaxesUpdate'],
+    ])('WHEN the user has %s but not %s', (granted) => {
       it('THEN should not display the edit button', () => {
-        mockHasPermissions.mockImplementation(
-          (permissions: string[]) => !permissions.includes('organizationTaxesUpdate'),
+        mockHasPermissions.mockImplementation((permissions: string[]) =>
+          permissions.every((permission) => permission === granted),
         )
 
         renderWithSlug('acme')
 
-        expect(screen.queryByTestId('edit-customer-portal-fields-button')).not.toBeInTheDocument()
-        expect(screen.getByTestId('edit-organization-slug-button')).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
   })

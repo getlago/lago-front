@@ -1,9 +1,9 @@
-import { screen } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
 
 import { CountryCode, CustomerPortalEditableFieldEnum, CustomerTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import CustomerInformationPage from '../CustomerInformationPage'
+import CustomerInformationPage, { READ_ONLY_FIELDS_ALERT_TEST_ID } from '../CustomerInformationPage'
 
 const mockUseCustomerPortalData = jest.fn()
 const mockUseCustomerPortalNavigation = jest.fn()
@@ -47,6 +47,7 @@ jest.mock('~/components/customerPortal/common/SectionLoading', () => ({
 }))
 
 const mockHandleSubmit = jest.fn()
+const mockSetFieldValue = jest.fn()
 let mockOnSubmit: (args: { value: Record<string, unknown> }) => Promise<void>
 
 jest.mock('~/hooks/forms/useAppform', () => ({
@@ -69,13 +70,15 @@ jest.mock('~/hooks/forms/useAppform', () => ({
         }),
       },
       handleSubmit: mockHandleSubmit,
-      setFieldValue: jest.fn(),
+      setFieldValue: mockSetFieldValue,
       AppField: ({
         name,
         children,
+        listeners,
       }: {
         name: string
         children: (field: unknown) => React.ReactNode
+        listeners?: { onChange?: (args: { value: unknown }) => void }
       }) => {
         const fieldProps = {
           TextInputField: ({
@@ -89,7 +92,12 @@ jest.mock('~/hooks/forms/useAppform', () => ({
           }) => (
             <div data-test={`field-${name}`}>
               {label && <label>{label}</label>}
-              <input placeholder={placeholder} disabled={disabled} data-test={`input-${name}`} />
+              <input
+                placeholder={placeholder}
+                disabled={disabled}
+                data-test={`input-${name}`}
+                onChange={(event) => listeners?.onChange?.({ value: event.target.value })}
+              />
             </div>
           ),
           ComboBoxField: ({
@@ -347,7 +355,7 @@ describe('CustomerInformationPage', () => {
     it('THEN should not render the read-only alert', () => {
       render(<CustomerInformationPage />)
 
-      expect(screen.queryByTestId('read-only-fields-alert')).not.toBeInTheDocument()
+      expect(screen.queryByTestId(READ_ONLY_FIELDS_ALERT_TEST_ID)).not.toBeInTheDocument()
       expect(screen.getByTestId('input-country')).not.toBeDisabled()
     })
   })
@@ -376,7 +384,7 @@ describe('CustomerInformationPage', () => {
     it('THEN should render the read-only alert', () => {
       render(<CustomerInformationPage />)
 
-      expect(screen.getByTestId('read-only-fields-alert')).toBeInTheDocument()
+      expect(screen.getByTestId(READ_ONLY_FIELDS_ALERT_TEST_ID)).toBeInTheDocument()
     })
 
     it('THEN should only send the editable fields on submit', async () => {
@@ -406,6 +414,64 @@ describe('CustomerInformationPage', () => {
   })
 
   describe('GIVEN the shipping address is not editable', () => {
+    it('THEN should not copy billing edits into the identical shipping address', () => {
+      const address = {
+        addressLine1: '123 Main St',
+        addressLine2: null,
+        city: 'Springfield',
+        state: 'IL',
+        zipcode: '12345',
+        country: CountryCode.Us,
+      }
+
+      mockUseCustomerPortalData.mockReturnValue({
+        data: {
+          customerPortalUser: { name: 'Test', ...address, shippingAddress: address },
+          customerPortalOrganization: {
+            customerPortalEditableFields: DEFAULT_EDITABLE_FIELDS.filter(
+              (field) => field !== CustomerPortalEditableFieldEnum.ShippingAddress,
+            ),
+          },
+        },
+        loading: false,
+        error: undefined,
+        refetch: jest.fn(),
+      })
+
+      render(<CustomerInformationPage />)
+
+      fireEvent.change(screen.getByTestId('input-city'), { target: { value: 'Shelbyville' } })
+
+      expect(mockSetFieldValue).not.toHaveBeenCalledWith('shippingAddress', expect.anything())
+    })
+
+    it('THEN should keep copying billing edits when the shipping address is editable', () => {
+      const address = {
+        addressLine1: '123 Main St',
+        addressLine2: null,
+        city: 'Springfield',
+        state: 'IL',
+        zipcode: '12345',
+        country: CountryCode.Us,
+      }
+
+      mockUseCustomerPortalData.mockReturnValue({
+        data: {
+          customerPortalUser: { name: 'Test', ...address, shippingAddress: address },
+          customerPortalOrganization: { customerPortalEditableFields: DEFAULT_EDITABLE_FIELDS },
+        },
+        loading: false,
+        error: undefined,
+        refetch: jest.fn(),
+      })
+
+      render(<CustomerInformationPage />)
+
+      fireEvent.change(screen.getByTestId('input-city'), { target: { value: 'Shelbyville' } })
+
+      expect(mockSetFieldValue).toHaveBeenCalledWith('shippingAddress', expect.anything())
+    })
+
     it('THEN should disable the shipping fields', () => {
       mockEditableFields(
         DEFAULT_EDITABLE_FIELDS.filter(

@@ -6,7 +6,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
-import { CUSTOMER_PORTAL_EDITABLE_FIELDS } from '~/core/constants/customerPortalEditableFields'
+import { CUSTOMER_PORTAL_FORM_FIELDS } from '~/core/constants/customerPortalEditableFields'
 import {
   CustomerPortalEditableFieldEnum,
   useUpdateOrganizationCustomerPortalEditableFieldsMutation,
@@ -24,6 +24,8 @@ gql`
 `
 
 const EDIT_CUSTOMER_PORTAL_FIELDS_FORM_ID = 'form-edit-customer-portal-fields'
+
+export const CUSTOMER_PORTAL_FIELD_CHECKBOX_TEST_ID = 'customer-portal-field-checkbox'
 
 type EditCustomerPortalFieldsFormValues = Record<CustomerPortalEditableFieldEnum, boolean>
 
@@ -92,12 +94,13 @@ export const useEditCustomerPortalFieldsDialog = () => {
               </Typography>
             </Alert>
 
-            {CUSTOMER_PORTAL_EDITABLE_FIELDS.map(({ field, labelKey }) => (
+            {/* Fields with no checkbox (document locale) keep their loaded value, so saving leaves them unchanged */}
+            {CUSTOMER_PORTAL_FORM_FIELDS.map(({ field, labelKey }) => (
               <form.AppField key={field} name={field}>
                 {(formField) => (
                   <formField.CheckboxField
                     label={translate(labelKey)}
-                    dataTest={`customer-portal-field-${field}`}
+                    dataTest={`${CUSTOMER_PORTAL_FIELD_CHECKBOX_TEST_ID}-${field}`}
                   />
                 )}
               </form.AppField>
