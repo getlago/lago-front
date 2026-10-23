@@ -129,6 +129,47 @@ describe('ComboBox', () => {
       },
     )
 
+    // Regression: the blocked Enter left the option label in the input, and a second Enter sent it as a free value.
+    it('WHEN Enter is pressed again after a blocked disabled option THEN nothing is selected', async () => {
+      const onChange = jest.fn()
+
+      render(
+        <ComboBox
+          name="tax"
+          data={data}
+          value=""
+          onChange={onChange}
+          virtualized={false}
+          allowAddValue
+        />,
+      )
+
+      await typeAndSubmit('vat_de')
+      await userEvent.keyboard('{Enter}')
+
+      expect(onChange).not.toHaveBeenCalled()
+    })
+
+    it('WHEN it is an enabled option label THEN that option value is selected', async () => {
+      const onChange = jest.fn()
+
+      render(
+        <ComboBox
+          name="tax"
+          data={data}
+          value=""
+          onChange={onChange}
+          virtualized={false}
+          allowAddValue
+          addValueProps={{ label: 'Create one', onClick: jest.fn() }}
+        />,
+      )
+
+      await typeAndSubmit('VAT FR (20%)')
+
+      expect(onChange).toHaveBeenCalledWith('vat_fr')
+    })
+
     it('WHEN it is an enabled option value THEN that option is selected', async () => {
       const onChange = jest.fn()
 
