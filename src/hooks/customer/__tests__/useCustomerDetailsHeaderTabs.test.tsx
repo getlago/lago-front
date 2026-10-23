@@ -174,6 +174,27 @@ describe('useCustomerDetailsHeaderTabs', () => {
       expect(screen.queryByTestId('customer-subscriptions-list')).not.toBeInTheDocument()
     })
 
+    it.each([
+      ['coupons', 1],
+      ['wallets', 2],
+      ['analytics', 3],
+    ])('hides the %s tab for Product Catalog organizations', (_, index) => {
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.ProductCatalog)
+      const { result } = renderHook(() => useCustomerDetailsHeaderTabs(defaultParams))
+
+      expect(result.current?.[index].hidden).toBe(true)
+    })
+
+    it.each([
+      ['coupons', 1],
+      ['wallets', 2],
+      ['analytics', 3],
+    ])('shows the %s tab for legacy organizations', (_, index) => {
+      const { result } = renderHook(() => useCustomerDetailsHeaderTabs(defaultParams))
+
+      expect(result.current?.[index].hidden).toBeFalsy()
+    })
+
     describe('WHEN user does not have analyticsView permission', () => {
       it('THEN should hide the usage tab', () => {
         mockHasPermissions.mockImplementation(((perms: string[]) => {

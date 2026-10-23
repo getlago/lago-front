@@ -13,6 +13,7 @@ import {
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import CustomerInvoiceVoid, {
+  CUSTOMER_INVOICE_VOID_REGENERATE_LINK_TEST_ID,
   CUSTOMER_INVOICE_VOID_SUBMIT_BUTTON_TEST_ID,
 } from '../CustomerInvoiceVoid'
 
@@ -31,10 +32,17 @@ jest.mock('~/hooks/core/useLocationHistory', () => ({
   useLocationHistory: () => ({ goBack: jest.fn() }),
 }))
 
+let mockIsProductCatalogEnabled = false
+
 jest.mock('~/hooks/useOrganizationInfos', () => {
   const { TimezoneEnum } = jest.requireActual('~/generated/graphql')
 
-  return { useOrganizationInfos: () => ({ timezone: TimezoneEnum.TzUtc }) }
+  return {
+    useOrganizationInfos: () => ({
+      timezone: TimezoneEnum.TzUtc,
+      hasFeatureFlag: () => mockIsProductCatalogEnabled,
+    }),
+  }
 })
 
 jest.mock('~/hooks/useCurrentUser', () => ({
@@ -103,6 +111,7 @@ describe('CustomerInvoiceVoid', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     capturedVoidMutationOptions = undefined
+    mockIsProductCatalogEnabled = false
     mockHasPermissions.mockReturnValue(true)
   })
 
@@ -290,6 +299,42 @@ describe('CustomerInvoiceVoid', () => {
 
         expect(addToast).not.toHaveBeenCalled()
         expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a finalized invoice of an active customer', () => {
+    beforeEach(() => {
+      mockQueryResult({ status: InvoiceStatusTypeEnum.Finalized })
+    })
+
+    describe('WHEN the product catalog feature flag is off', () => {
+      it('THEN should offer the void and regenerate link', () => {
+        renderPage()
+
+        expect(
+          screen.getByTestId(CUSTOMER_INVOICE_VOID_REGENERATE_LINK_TEST_ID),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the product catalog feature flag is on', () => {
+      beforeEach(() => {
+        mockIsProductCatalogEnabled = true
+      })
+
+      it('THEN should not offer the void and regenerate link', () => {
+        renderPage()
+
+        expect(
+          screen.queryByTestId(CUSTOMER_INVOICE_VOID_REGENERATE_LINK_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+
+      it('THEN should still display the submit button', () => {
+        renderPage()
+
+        expect(screen.getByTestId(CUSTOMER_INVOICE_VOID_SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
       })
     })
   })

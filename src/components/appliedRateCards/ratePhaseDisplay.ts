@@ -1,4 +1,15 @@
-import { RateCardRateBillingIntervalUnitEnum, RateOverrideInput } from '~/generated/graphql'
+import { generatePath } from 'react-router'
+
+import { RateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { RATE_CARD_DETAILS_ROUTE } from '~/core/router/CatalogRoutes'
+import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import {
+  CurrencyEnum,
+  RateCardRateBillingIntervalUnitEnum,
+  RateOverrideInput,
+} from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 import { OverrideDiffField } from './overrideDiff'
@@ -25,12 +36,62 @@ const DURATION_BY_UNIT_KEY: Record<RateCardRateBillingIntervalUnitEnum, string> 
 
 const FOREVER_KEY = 'text_63c83a3476e46bc6ab9d85d6'
 const CYCLES_KEY = 'text_1791485670326auwsxq3x83b'
+const PHASE_POSITION_KEY = 'text_1792503533806fhiu57zr6an'
 
 export const formatIntervalDuration = (
   count: number,
   unit: RateCardRateBillingIntervalUnitEnum,
   translate: TranslateFunc,
 ): string => translate(DURATION_BY_UNIT_KEY[unit], { count }, count)
+
+export const formatRateBillingInterval = (
+  rate: RateOverrideInput,
+  translate: TranslateFunc,
+): string =>
+  translate('text_17918384599832tqq2f0ezu9', {
+    duration: formatIntervalDuration(
+      rate.billingIntervalCount ?? 1,
+      rate.billingIntervalUnit ?? RateCardRateBillingIntervalUnitEnum.Month,
+      translate,
+    ),
+  })
+
+export const formatConversionRateAmount = (amount: number, currency: CurrencyEnum): string =>
+  intlFormatNumber(amount, {
+    currencyDisplay: 'symbol',
+    currency,
+    maximumFractionDigits: 15,
+  })
+
+export const formatSpendingMinimum = (
+  rate: Pick<RateOverrideInput, 'minAmountCents'>,
+  currency: CurrencyEnum,
+  pricingUnitShortName: string | undefined,
+): string => {
+  // A rate saved without one stores 0, which would read as a configured zero floor.
+  const minAmountCents = Number(rate.minAmountCents ?? 0)
+
+  if (minAmountCents <= 0) return '-'
+
+  return intlFormatNumber(deserializeAmount(minAmountCents, currency), {
+    currencyDisplay: 'symbol',
+    currency,
+    pricingUnitShortName,
+    maximumFractionDigits: 15,
+  })
+}
+
+export const getRateHistoryPath = (
+  rateCardId: string,
+  organizationSlug: string | undefined,
+): string =>
+  prependOrgSlug(
+    generatePath(RATE_CARD_DETAILS_ROUTE, {
+      rateCardId,
+      tab: RateCardDetailsTabsOptionsEnum.rates,
+    }),
+    organizationSlug,
+  )
 
 // No unit conversion: 1 cycle of 14 days reads "14 days", 2 cycles of 1 week "2 weeks".
 export const formatPhaseDuration = (
@@ -72,3 +133,8 @@ export const formatPhaseTimeline = (
     { duration },
   )
 }
+
+export const formatRatePhaseName = (
+  phase: { name?: string | null; position: number },
+  translate: TranslateFunc,
+): string => phase.name || translate(PHASE_POSITION_KEY, { position: phase.position })

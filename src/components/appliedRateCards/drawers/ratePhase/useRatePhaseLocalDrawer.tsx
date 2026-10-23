@@ -50,6 +50,7 @@ export const useRatePhaseLocalDrawer = (): {
     billingTiming: RateCardBillingTimingEnum.Arrears,
     hasPricingUnit: false,
     rateModelConfiguration: undefined,
+    sequenceLock: 'none',
   })
 
   const form = useAppForm({
@@ -72,7 +73,11 @@ export const useRatePhaseLocalDrawer = (): {
       }
 
       otherPhases.current = insertPhaseReference(otherPhases.current, value)
-      schemaContext.current = buildRatePhaseSchemaContext(otherPhases.current, args.rateCard)
+      schemaContext.current = buildRatePhaseSchemaContext(
+        otherPhases.current,
+        args.rateCard,
+        'none',
+      )
       form.reset(buildCreatePhaseSeed(otherPhases.current, args.rateCard), {
         keepDefaultValues: true,
       })
@@ -83,7 +88,7 @@ export const useRatePhaseLocalDrawer = (): {
   const openDrawer = (args: OpenRatePhaseLocalDrawerArgs): void => {
     currentArgs.current = args
     otherPhases.current = args.otherPhases
-    schemaContext.current = buildRatePhaseSchemaContext(args.otherPhases, args.rateCard)
+    schemaContext.current = buildRatePhaseSchemaContext(args.otherPhases, args.rateCard, 'none')
     resetCreateMore()
 
     const seed: RatePhaseFormValues = args.phase
@@ -115,6 +120,7 @@ export const useRatePhaseLocalDrawer = (): {
             title={title}
             isEdition={!!args.phase}
             getOtherPhases={() => otherPhases.current}
+            getSequenceLock={() => 'none'}
             rateCard={args.rateCard}
           />
         </CreateMoreResetBoundary>

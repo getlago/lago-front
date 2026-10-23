@@ -144,7 +144,7 @@ export type TMembershipPermissions = Omit<Permissions, '__typename'>
 type TUsePermissionsProps = () => {
   hasPermissions: (permissionsToCheck: Array<keyof TMembershipPermissions>) => boolean
   hasPermissionsOr: (permissionsToCheck: Array<keyof TMembershipPermissions>) => boolean
-  findFirstViewPermission: () => keyof TMembershipPermissions | null
+  findViewPermissions: () => Array<keyof TMembershipPermissions>
 }
 
 export const usePermissions: TUsePermissionsProps = () => {
@@ -175,8 +175,8 @@ export const usePermissions: TUsePermissionsProps = () => {
     return permissionsFound.some((permission) => !!permission && permission === true)
   }
 
-  const findFirstViewPermission = (): keyof TMembershipPermissions | null => {
-    if (!currentMembership) return null
+  const findViewPermissions = (): Array<keyof TMembershipPermissions> => {
+    if (!currentMembership) return []
 
     const allPermissions = currentMembership.permissions as TMembershipPermissions
 
@@ -184,12 +184,12 @@ export const usePermissions: TUsePermissionsProps = () => {
       key.toLowerCase().includes('view'),
     ) as Array<keyof TMembershipPermissions>
 
-    return viewPermissionsKeys.find((key) => allPermissions[key]) ?? null
+    return viewPermissionsKeys.filter((key) => allPermissions[key])
   }
 
   return {
     hasPermissions,
     hasPermissionsOr,
-    findFirstViewPermission,
+    findViewPermissions,
   }
 }

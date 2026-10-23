@@ -7,3 +7,6 @@ packages:
 # manager level so it also covers Renovate's weekly lockFileMaintenance
 # regeneration, which bypasses Renovate's own minimumReleaseAge filter.
 minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  # Renovate security update: sanitize-html@2.18.1
+  - sanitize-html@2.18.1
