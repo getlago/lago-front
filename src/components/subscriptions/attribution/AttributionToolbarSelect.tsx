@@ -81,8 +81,8 @@ export const AttributionToolbarSelect = ({
   const selectedOption = options.find((option) => option.value === value)
 
   return (
-    <div className="flex items-center gap-2">
-      <Typography variant="body" color="grey600" noWrap>
+    <div className="flex items-center gap-2 border-r border-grey-300 pr-3 last:border-r-0 last:pr-0">
+      <Typography variant="caption" color="grey600" noWrap>
         {label}
       </Typography>
       <Popper

@@ -63,7 +63,7 @@ const ATTRIBUTION_CELL_CLASSNAME = 'h-12 whitespace-nowrap border-b border-grey-
 export const ATTRIBUTION_ENTITY_CELL_CLASSNAME =
   'sticky left-0 z-10 h-12 min-w-60 whitespace-nowrap border-b border-r border-grey-300 bg-white px-3 text-left'
 const ATTRIBUTION_TOTAL_CELL_CLASSNAME =
-  'sticky right-0 z-10 h-12 whitespace-nowrap border-b border-l border-grey-300 bg-grey-100 px-3 text-right'
+  'sticky right-0 w-px z-10 h-12 whitespace-nowrap border-b border-l border-grey-300 bg-grey-100 px-3 text-right'
 
 type AttributionValueCellsProps = Pick<
   AttributionTableSharedProps,
