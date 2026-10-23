@@ -20,12 +20,38 @@ export type AttributionPathStep = {
 
 type AttributionFlatType = Pick<AttributionHierarchyType, 'code' | 'name'>
 
+type AttributionHierarchyTypeWithParent = Pick<AttributionHierarchyType, 'id' | 'code' | 'name'> & {
+  parent?: { id: string } | null
+}
+
 type FlattenedAttributionHierarchyType = {
   type: AttributionHierarchyType
   depth: number
 }
 
 const getAttributionTypeName = (type: AttributionFlatType): string => type.name || type.code
+
+export const buildAttributionHierarchy = (
+  types: AttributionHierarchyTypeWithParent[],
+): AttributionHierarchyType[] => {
+  const typeIds = new Set(types.map(({ id }) => id))
+
+  const toNode = ({
+    id,
+    code,
+    name,
+  }: AttributionHierarchyTypeWithParent): AttributionHierarchyType => ({
+    id,
+    code,
+    name,
+    children: types
+      .filter(({ parent }) => parent?.id === id)
+      .sort((a, b) => a.code.localeCompare(b.code))
+      .map(toNode),
+  })
+
+  return types.filter(({ parent }) => !parent || !typeIds.has(parent.id)).map(toNode)
+}
 
 export const buildAttributionFilters = (
   path: AttributionPathStep[],

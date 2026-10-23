@@ -1,6 +1,7 @@
 import {
   AttributionHierarchyType,
   buildAttributionFilters,
+  buildAttributionHierarchy,
   flattenAttributionHierarchyTypes,
   getAttributionChildLevels,
   getAttributionHierarchyChain,
@@ -32,6 +33,59 @@ const roots = [departmentType, regionType]
 const apiKeyType = { code: 'api_key', name: 'API Key' }
 
 describe('attributionTree', () => {
+  describe('buildAttributionHierarchy', () => {
+    describe('GIVEN a flat list of types with their parent', () => {
+      it('THEN should nest each type under its parent, children sorted by code', () => {
+        expect(
+          buildAttributionHierarchy([
+            { id: 'type-region', code: 'region', name: 'Region', parent: null },
+            { id: 'type-user', code: 'user', name: 'User', parent: { id: 'type-team' } },
+            { id: 'type-team', code: 'team', name: 'Team', parent: { id: 'type-department' } },
+            { id: 'type-department', code: 'department', name: 'Department', parent: null },
+            {
+              id: 'type-cost-center',
+              code: 'cost_center',
+              name: null,
+              parent: { id: 'type-department' },
+            },
+          ]),
+        ).toEqual([
+          { id: 'type-region', code: 'region', name: 'Region', children: [] },
+          {
+            id: 'type-department',
+            code: 'department',
+            name: 'Department',
+            children: [
+              { id: 'type-cost-center', code: 'cost_center', name: null, children: [] },
+              {
+                id: 'type-team',
+                code: 'team',
+                name: 'Team',
+                children: [{ id: 'type-user', code: 'user', name: 'User', children: [] }],
+              },
+            ],
+          },
+        ])
+      })
+    })
+
+    describe('GIVEN a type whose parent is not in the list', () => {
+      it('THEN should treat it as a root', () => {
+        expect(
+          buildAttributionHierarchy([
+            { id: 'type-team', code: 'team', name: 'Team', parent: { id: 'type-deleted' } },
+          ]),
+        ).toEqual([{ id: 'type-team', code: 'team', name: 'Team', children: [] }])
+      })
+    })
+
+    describe('GIVEN no type', () => {
+      it('THEN should return no root', () => {
+        expect(buildAttributionHierarchy([])).toEqual([])
+      })
+    })
+  })
+
   describe('buildAttributionFilters', () => {
     describe('GIVEN an empty path', () => {
       it('THEN should return no filters', () => {

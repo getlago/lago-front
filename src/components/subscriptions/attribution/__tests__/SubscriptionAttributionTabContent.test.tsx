@@ -127,6 +127,15 @@ const mockRefetchSetup = jest.fn()
 const mockRefetchCharges = jest.fn()
 const mockRefetchUsage = jest.fn()
 
+const toFlatHierarchy = (
+  types: AttributionHierarchyType[],
+  parentId: string | null = null,
+): Array<Omit<AttributionHierarchyType, 'children'> & { parent: { id: string } | null }> =>
+  types.flatMap(({ children = [], ...type }) => [
+    { ...type, parent: parentId ? { id: parentId } : null },
+    ...toFlatHierarchy(children, type.id),
+  ])
+
 const mockSetup = ({
   flat = flatTypes,
   roots = [],
@@ -138,7 +147,7 @@ const mockSetup = ({
         customer: { id: 'customer-1', displayName: 'Acme Corp' },
       },
       flatAttributionTypes: { collection: flat },
-      rootAttributionTypes: { collection: roots },
+      hierarchicalAttributionTypes: { collection: toFlatHierarchy(roots) },
     },
     loading: false,
     error: undefined,
@@ -689,6 +698,14 @@ describe('SubscriptionAttributionTabContent', () => {
     })
 
     describe('WHEN rows are grouped hierarchically', () => {
+      it('THEN should always fetch the usage attribution types from the network', () => {
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(mockSetupQuery).toHaveBeenCalledWith(
+          expect.objectContaining({ fetchPolicy: 'network-only' }),
+        )
+      })
+
       it('THEN should render the tree and skip the flat usage query', () => {
         render(<SubscriptionAttributionTabContent />)
 

@@ -21,6 +21,7 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { AttributionFlatTable, AttributionTableRow } from './AttributionFlatTable'
 import { AttributionToolbarSelect } from './AttributionToolbarSelect'
 import {
+  buildAttributionHierarchy,
   flattenAttributionHierarchyTypes,
   getAttributionChildLevels,
   getAttributionNodeKey,
@@ -86,35 +87,13 @@ gql`
         name
       }
     }
-    rootAttributionTypes: usageAttributionTypes(role: hierarchical, roots: true, limit: $limit) {
+    hierarchicalAttributionTypes: usageAttributionTypes(role: hierarchical, limit: $limit) {
       collection {
         id
         code
         name
-        children {
+        parent {
           id
-          code
-          name
-          children {
-            id
-            code
-            name
-            children {
-              id
-              code
-              name
-              children {
-                id
-                code
-                name
-                children {
-                  id
-                  code
-                  name
-                }
-              }
-            }
-          }
         }
       }
     }
@@ -199,12 +178,13 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   } = useGetSubscriptionAttributionSetupQuery({
     variables: { subscriptionId, limit: ATTRIBUTION_TYPES_LIMIT },
     skip: !subscriptionId,
+    fetchPolicy: 'network-only',
   })
 
   const flatTypes = setupData?.flatAttributionTypes.collection ?? []
   const rootTypes = useMemo(
-    () => setupData?.rootAttributionTypes.collection ?? [],
-    [setupData?.rootAttributionTypes.collection],
+    () => buildAttributionHierarchy(setupData?.hierarchicalAttributionTypes.collection ?? []),
+    [setupData?.hierarchicalAttributionTypes.collection],
   )
   const hierarchy = useMemo(() => {
     const flattened = flattenAttributionHierarchyTypes(rootTypes)

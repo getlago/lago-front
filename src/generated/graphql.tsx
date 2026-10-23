@@ -15737,7 +15737,7 @@ export type GetSubscriptionAttributionSetupQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionAttributionSetupQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, displayName: string } } | null, flatAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null }> }, rootAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null, children: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null, children: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null, children: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null, children: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null, children: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null }> }> }> }> }> }> } };
+export type GetSubscriptionAttributionSetupQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, displayName: string } } | null, flatAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null }> }, hierarchicalAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null, parent?: { __typename?: 'UsageAttributionType', id: string } | null }> } };
 
 export type GetSubscriptionAttributionChargesQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -38277,39 +38277,16 @@ export const GetSubscriptionAttributionSetupDocument = gql`
       name
     }
   }
-  rootAttributionTypes: usageAttributionTypes(
+  hierarchicalAttributionTypes: usageAttributionTypes(
     role: hierarchical
-    roots: true
     limit: $limit
   ) {
     collection {
       id
       code
       name
-      children {
+      parent {
         id
-        code
-        name
-        children {
-          id
-          code
-          name
-          children {
-            id
-            code
-            name
-            children {
-              id
-              code
-              name
-              children {
-                id
-                code
-                name
-              }
-            }
-          }
-        }
       }
     }
   }
