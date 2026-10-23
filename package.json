@@ -128,7 +128,7 @@
     "@sentry/react": "10.76.2",
     "@superset-ui/embedded-sdk": "0.4.0",
     "@tanstack/react-form": "1.33.0",
-    "@tanstack/react-virtual": "3.14.19",
+    "@tanstack/react-virtual": "3.14.21",
     "@tiptap/core": "3.32.0",
     "@tiptap/extension-blockquote": "3.32.0",
     "@tiptap/extension-bullet-list": "3.32.0",
