@@ -20,7 +20,8 @@ full radius. Link hugs its content and ignores size-based padding/dimensions.
 <Button variant="link" asChild><Link to="/customers">Customers</Link></Button>
 ```
 
-Icons use 14px and stroke width 2 at every button size. Icon-only buttons require
+Icons use 14px and stroke width 2 at every button size, with a 4px gap between
+icon and label (`gap-1`). Icon-only buttons require
 an accessible name, normally `aria-label`. Decorative icons should be hidden
 from assistive technology. Native buttons default to `type="button"`; supply
 `type="submit"` for form submission.
