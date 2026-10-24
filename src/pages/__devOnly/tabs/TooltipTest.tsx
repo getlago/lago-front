@@ -3,6 +3,7 @@ import { generatePath } from 'react-router'
 
 import { Button } from '~/components/ui/button'
 import { ColorTheme } from '~/components/ui/color-theme'
+import { IconButton } from '~/components/ui/icon-button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip'
 import { ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 
@@ -28,16 +29,27 @@ export const TooltipTest = () => (
         >
           <h3 className="v2-text-section-title">{mode === 'light' ? 'Light' : 'Dark'} theme</h3>
           <div className="flex gap-4" role="group" aria-label={`${mode} icon actions`}>
-            {actions.map(({ label, icon: Icon }) => (
-              <Tooltip key={label}>
-                <TooltipTrigger asChild>
-                  <Button variant="secondary" size="icon" aria-label={label}>
-                    <Icon aria-hidden="true" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{label}</TooltipContent>
-              </Tooltip>
+            {actions.map(({ label, icon: Icon }, index) => (
+              <IconButton
+                key={label}
+                label={label}
+                variant="secondary"
+                size={(['icon-sm', 'icon', 'icon-lg'] as const)[index]}
+              >
+                <Icon aria-hidden="true" />
+              </IconButton>
             ))}
+          </div>
+          <p className="v2-text-caption">
+            IconButton: small 32px, default 36px, large 40px. Icons remain 14px.
+          </p>
+          <div className="flex gap-4" role="group" aria-label={`${mode} blocked icon actions`}>
+            <IconButton label="Copy unavailable" variant="secondary" disabled>
+              <Copy aria-hidden="true" />
+            </IconButton>
+            <IconButton label="Downloading invoice" variant="secondary" loading>
+              <Download aria-hidden="true" />
+            </IconButton>
           </div>
           <div className="flex flex-wrap gap-6">
             {(['top', 'right', 'bottom', 'left'] as const).map((side) => (
