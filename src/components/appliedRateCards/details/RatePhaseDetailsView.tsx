@@ -6,7 +6,6 @@ import {
   getRateHistoryPath,
 } from '~/components/appliedRateCards/ratePhaseDisplay'
 import { AppliedRateCardContext } from '~/components/appliedRateCards/types'
-import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
@@ -21,9 +20,9 @@ import { RatePhaseForDrawerFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
-import ErrorImage from '~/public/images/maneki/error.svg'
 
 import { APPLIED_RATE_CARD_DETAILS_CONFIG } from './appliedRateCardDetailsConfig'
+import { AppliedRateCardDetailsPlaceholder } from './AppliedRateCardDetailsPlaceholder'
 import { RatePhaseDetailsOverview } from './RatePhaseDetailsOverview'
 import { AppliedRateCardDetailsData } from './types'
 import { useRatePhaseActions } from './useRatePhaseActions'
@@ -34,69 +33,17 @@ export const RATE_PHASE_DETAILS_ACTIVITY_LOGS_TAB_TEST_ID = 'rate-phase-details-
 export const RATE_PHASE_DETAILS_ACTIVITY_LOGS_EMPTY_TEST_ID =
   'rate-phase-details-activity-logs-empty'
 
-type RatePhaseDetailsPlaceholderProps = {
+type RatePhaseDetailsViewProps = {
   context: AppliedRateCardContext
-  loading: boolean
-  hasError: boolean
-}
-
-type RatePhaseDetailsViewProps = RatePhaseDetailsPlaceholderProps & {
   data: AppliedRateCardDetailsData | undefined
   phaseId: string
+  loading: boolean
+  hasError: boolean
 }
 
 type RatePhaseDetailsContentProps = {
   data: AppliedRateCardDetailsData
   phase: RatePhaseForDrawerFragment
-}
-
-const RatePhaseDetailsPlaceholder = ({
-  context,
-  loading,
-  hasError,
-}: RatePhaseDetailsPlaceholderProps): JSX.Element => {
-  const { translate } = useInternationalization()
-  const config = APPLIED_RATE_CARD_DETAILS_CONFIG[context]
-
-  const renderBody = (): JSX.Element | null => {
-    if (loading) {
-      return (
-        <DetailsPage.Container className="pt-12">
-          <DetailsPage.Skeleton />
-        </DetailsPage.Container>
-      )
-    }
-
-    if (!hasError) return null
-
-    return (
-      <DetailsPage.Container className="pt-12">
-        <GenericPlaceholder
-          title={translate('text_629728388c4d2300e2d380d5')}
-          subtitle={translate('text_629728388c4d2300e2d380eb')}
-          buttonTitle={translate('text_629728388c4d2300e2d38110')}
-          buttonVariant="primary"
-          buttonAction={() => window.location.reload()}
-          image={<ErrorImage width="136" height="104" />}
-        />
-      </DetailsPage.Container>
-    )
-  }
-
-  return (
-    <>
-      <MainHeader.Configure
-        breadcrumb={[
-          { label: translate(config.rootLabelKey), path: config.rootPath },
-          ...(loading ? [{ label: '', loading }] : []),
-          { label: translate('text_1790286678206xilydvk4a1n') },
-        ]}
-        entity={{ viewName: '', viewNameLoading: loading, metadataLoading: loading }}
-        actions={{ items: [], loading }}
-      />
-      {renderBody()}
-    </>
-  )
 }
 
 const RatePhaseDetailsContent = ({ data, phase }: RatePhaseDetailsContentProps): JSX.Element => {
@@ -225,7 +172,14 @@ export const RatePhaseDetailsView = ({
   const phase = data?.appliedRateCard.ratePhases.find(({ id }) => id === phaseId)
 
   if (!data || !phase) {
-    return <RatePhaseDetailsPlaceholder context={context} loading={loading} hasError={hasError} />
+    return (
+      <AppliedRateCardDetailsPlaceholder
+        context={context}
+        loading={loading}
+        hasError={hasError}
+        lastCrumbLabelKey="text_1790286678206xilydvk4a1n"
+      />
+    )
   }
 
   return <RatePhaseDetailsContent data={data} phase={phase} />
