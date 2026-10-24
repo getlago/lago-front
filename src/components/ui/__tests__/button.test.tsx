@@ -21,7 +21,7 @@ describe('Button', () => {
 
     const button = screen.getByRole('button', { name: 'Default' })
 
-    expect(button).toHaveClass('bg-primary')
+    expect(button).toHaveClass('bg-action-primary')
     expect(button).toHaveClass('h-9')
   })
 
@@ -31,7 +31,7 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: 'Delete' })
 
     expect(button).toHaveClass('bg-destructive')
-    expect(button).not.toHaveClass('bg-primary')
+    expect(button).not.toHaveClass('bg-action-primary')
   })
 
   it('applies the requested size classes', async () => {
@@ -49,7 +49,7 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: 'Default' })
 
     expect(button).toHaveClass('mt-4')
-    expect(button).toHaveClass('bg-primary')
+    expect(button).toHaveClass('bg-action-primary')
   })
 
   it('lets a conflicting custom className override the variant class, via cn/tailwind-merge', async () => {
@@ -58,7 +58,7 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: 'Default' })
 
     expect(button).toHaveClass('bg-accent')
-    expect(button).not.toHaveClass('bg-primary')
+    expect(button).not.toHaveClass('bg-action-primary')
   })
 
   it('disables the button and blocks the click handler', async () => {
@@ -104,7 +104,7 @@ describe('Button', () => {
 
     expect(link.tagName).toBe('A')
     expect(link).toHaveAttribute('href', '/somewhere')
-    expect(link).toHaveClass('bg-primary')
+    expect(link).toHaveClass('bg-action-primary')
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 
@@ -115,5 +115,97 @@ describe('Button', () => {
 
     expect(ref.current).toBeInstanceOf(HTMLButtonElement)
     expect(ref.current).toBe(screen.getByRole('button', { name: 'Ref target' }))
+  })
+})
+
+describe('v2 loading and composition', () => {
+  afterEach(cleanup)
+
+  it('preserves the accessible name and content while loading, and prevents activation', async () => {
+    const onClick = jest.fn()
+    const { rerender } = render(<Button onClick={onClick}>Save changes</Button>)
+
+    rerender(
+      <Button onClick={onClick} loading>
+        Save changes
+      </Button>,
+    )
+    const button = screen.getByRole('button', { name: 'Save changes' })
+
+    expect(button).toHaveAttribute('aria-busy', 'true')
+    expect(button).toBeDisabled()
+    expect(screen.getByText('Save changes')).toHaveClass('opacity-0')
+    expect(button.querySelector('[aria-hidden="true"]')).toBeInTheDocument()
+    await userEvent.click(button)
+    expect(onClick).not.toHaveBeenCalled()
+    rerender(<Button onClick={onClick}>Save changes</Button>)
+    await userEvent.click(button)
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it.each(['disabled', 'loading'] as const)(
+    'blocks child and parent handlers on %s anchors',
+    async (state) => {
+      const parent = jest.fn()
+      const child = jest.fn()
+      const capture = jest.fn()
+
+      render(
+        <Button asChild {...{ [state]: true }} onClick={parent}>
+          <a href="#destination" onClick={child} onClickCapture={capture}>
+            Navigate
+          </a>
+        </Button>,
+      )
+      const link = screen.getByRole('link', { name: 'Navigate' })
+
+      expect(link).toHaveAttribute('aria-disabled', 'true')
+      await userEvent.click(link)
+      link.focus()
+      await userEvent.keyboard('{Enter}')
+      expect(parent).not.toHaveBeenCalled()
+      expect(child).not.toHaveBeenCalled()
+      expect(capture).not.toHaveBeenCalled()
+    },
+  )
+
+  it('composes enabled child and parent handlers and keeps link semantics', async () => {
+    const parent = jest.fn()
+    const child = jest.fn((event) => event.preventDefault())
+
+    render(
+      <Button asChild>
+        <a href="#destination" onClick={child} onClickCapture={parent}>
+          Navigate
+        </a>
+      </Button>,
+    )
+    await userEvent.click(screen.getByRole('link', { name: 'Navigate' }))
+    expect(parent).toHaveBeenCalledTimes(1)
+    expect(child).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not submit forms unless explicitly requested', async () => {
+    const submit = jest.fn((event) => event.preventDefault())
+
+    render(
+      <form onSubmit={submit}>
+        <Button>Action</Button>
+        <Button type="submit">Submit</Button>
+      </form>,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Action' }))
+    expect(submit).not.toHaveBeenCalled()
+    await userEvent.click(screen.getByRole('button', { name: 'Submit' }))
+    expect(submit).toHaveBeenCalledTimes(1)
+  })
+
+  it('retains icon-only labels during loading', () => {
+    render(
+      <Button size="icon-sm" loading aria-label="Copy">
+        <svg aria-hidden="true" />
+      </Button>,
+    )
+    expect(screen.getByRole('button', { name: 'Copy' })).toHaveAttribute('aria-busy', 'true')
   })
 })

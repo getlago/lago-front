@@ -61,6 +61,7 @@ import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
 import { BorderTest } from './tabs/BorderTest'
+import { shadcnButtonTab } from './tabs/ButtonTest'
 import { ColorTest } from './tabs/ColorTest'
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
@@ -2297,6 +2298,7 @@ const DesignSystem = () => {
               </Container>
             ),
           },
+          shadcnButtonTab,
           // disabled simple tab
           {
             disabled: true,
