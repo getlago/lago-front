@@ -6,6 +6,7 @@ import {
   buildPlanAppliedRateCard,
   CATALOG_PLAN_ID,
   FINITE_PHASE,
+  FOREVER_PHASE,
 } from '~/components/appliedRateCards/details/__tests__/fixtures'
 import {
   APPLIED_RATE_CARD_NOT_FOUND_TRANSLATION_KEY,
@@ -134,7 +135,11 @@ describe('CatalogPlanRateCardPhaseDetails', () => {
 
   describe('GIVEN the URL phase is not on the card', () => {
     it('THEN redirects to the card overview with the phase not found toast', async () => {
-      await renderPage([detailsQueryMock(buildPlanAppliedRateCard({ ratePhases: [] }))])
+      await renderPage([
+        detailsQueryMock(
+          buildPlanAppliedRateCard({ ratePhases: [FOREVER_PHASE], ratePhasesCount: 1 }),
+        ),
+      ])
 
       await expectRedirect(CARD_OVERVIEW_PATH, RATE_PHASE_NOT_FOUND_TRANSLATION_KEY)
     })
