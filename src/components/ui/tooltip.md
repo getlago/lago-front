@@ -28,7 +28,7 @@ content keeps it open. Essential help must remain available without hover.
 Native disabled buttons cannot receive focus: use an explicit focusable wrapper
 when an explanation is needed, rather than altering disabled button behavior.
 
-Content uses inverse/inverse-foreground, caption, px-2 py-1, rounded-md and the
+Content uses inverse/inverse-foreground, body (14px / 20px), px-3 py-2, rounded-xl and the
 floating shadow. It hugs short text, wraps at a maximum outer width of 240px,
 shrinks to the available viewport width and stays left aligned. Top/center is
 the default placement with an 8px offset; collisions can flip or shift it.
