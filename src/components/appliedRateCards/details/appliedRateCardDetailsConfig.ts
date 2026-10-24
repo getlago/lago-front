@@ -5,16 +5,19 @@ import {
   AppliedRateCardDetailsTabsOptionsEnum,
   CatalogPlanOverviewSectionsEnum,
   ContractOverviewSectionsEnum,
+  RatePhaseDetailsTabsOptionsEnum,
 } from '~/core/constants/tabsOptions'
 import {
   CATALOG_PLAN_DETAILS_SECTION_ROUTE,
   CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE,
   CATALOG_PLAN_RATE_CARD_DETAILS_TAB_ROUTE,
   CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_ROUTE,
+  CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_TAB_ROUTE,
   CONTRACT_DETAILS_SECTION_ROUTE,
   CONTRACT_RATE_CARD_DETAILS_ROUTE,
   CONTRACT_RATE_CARD_DETAILS_TAB_ROUTE,
   CONTRACT_RATE_CARD_PHASE_DETAILS_ROUTE,
+  CONTRACT_RATE_CARD_PHASE_DETAILS_TAB_ROUTE,
   CONTRACTS_ROUTE,
   PLAN_PRICING_ROUTE,
 } from '~/core/router'
@@ -30,6 +33,7 @@ type RatePhasePathParams = {
   parentId: string
   appliedRateCardId: string
   phaseId: string
+  tab?: RatePhaseDetailsTabsOptionsEnum
 }
 
 type AppliedRateCardDetailsConfig = {
@@ -70,12 +74,22 @@ export const APPLIED_RATE_CARD_DETAILS_CONFIG: Record<
         tab,
       })
     },
-    buildPhasePath: ({ parentId, appliedRateCardId, phaseId }) =>
-      generatePath(CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_ROUTE, {
+    buildPhasePath: ({ parentId, appliedRateCardId, phaseId, tab }) => {
+      if (!tab) {
+        return generatePath(CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_ROUTE, {
+          catalogPlanId: parentId,
+          appliedRateCardId,
+          phaseId,
+        })
+      }
+
+      return generatePath(CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_TAB_ROUTE, {
         catalogPlanId: parentId,
         appliedRateCardId,
         phaseId,
-      }),
+        tab,
+      })
+    },
   },
   contract: {
     rootLabelKey: 'text_17894894166553ysarr965xr',
@@ -97,11 +111,21 @@ export const APPLIED_RATE_CARD_DETAILS_CONFIG: Record<
         tab,
       })
     },
-    buildPhasePath: ({ parentId, appliedRateCardId, phaseId }) =>
-      generatePath(CONTRACT_RATE_CARD_PHASE_DETAILS_ROUTE, {
+    buildPhasePath: ({ parentId, appliedRateCardId, phaseId, tab }) => {
+      if (!tab) {
+        return generatePath(CONTRACT_RATE_CARD_PHASE_DETAILS_ROUTE, {
+          id: parentId,
+          appliedRateCardId,
+          phaseId,
+        })
+      }
+
+      return generatePath(CONTRACT_RATE_CARD_PHASE_DETAILS_TAB_ROUTE, {
         id: parentId,
         appliedRateCardId,
         phaseId,
-      }),
+        tab,
+      })
+    },
   },
 }

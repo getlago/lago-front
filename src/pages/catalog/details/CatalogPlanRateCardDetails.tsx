@@ -6,12 +6,11 @@ import {
   APPLIED_RATE_CARD_NOT_FOUND_TRANSLATION_KEY,
 } from '~/components/appliedRateCards/details/appliedRateCardDetailsConfig'
 import { AppliedRateCardDetailsView } from '~/components/appliedRateCards/details/AppliedRateCardDetailsView'
-import { AppliedRateCardDetailsData } from '~/components/appliedRateCards/details/types'
+import { toPlanAppliedRateCardDetailsData } from '~/components/appliedRateCards/details/toAppliedRateCardDetailsData'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import {
   LagoApiError,
   PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc,
-  PlanAppliedRateCardForDetailsFragment,
   ProductCategoryForCatalogRelationsFragmentDoc,
   ProductFilterForCatalogRelationsFragmentDoc,
   ProductForAppliedRateCardDrawerFragmentDoc,
@@ -71,25 +70,6 @@ gql`
   ${RatePhaseForDrawerFragmentDoc}
 `
 
-const toDetailsData = (
-  appliedRateCard: PlanAppliedRateCardForDetailsFragment | null | undefined,
-  catalogPlanId: string,
-): AppliedRateCardDetailsData | undefined => {
-  if (appliedRateCard?.catalogPlan.id !== catalogPlanId) return undefined
-
-  const { catalogPlan } = appliedRateCard
-
-  return {
-    context: 'plan',
-    parent: {
-      id: catalogPlan.id,
-      name: catalogPlan.name,
-      isLocked: catalogPlan.attachedToContracts,
-    },
-    appliedRateCard,
-  }
-}
-
 const CatalogPlanRateCardDetails = (): JSX.Element => {
   const { catalogPlanId = '', appliedRateCardId = '' } = useParams()
 
@@ -99,7 +79,7 @@ const CatalogPlanRateCardDetails = (): JSX.Element => {
     context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
 
-  const detailsData = toDetailsData(data?.planAppliedRateCard, catalogPlanId)
+  const detailsData = toPlanAppliedRateCardDetailsData(data?.planAppliedRateCard, catalogPlanId)
 
   useNotFoundRedirect({
     error,
