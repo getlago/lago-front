@@ -32,7 +32,7 @@ describe('CSS color foundation', () => {
     const values = { ...primitives, ...semantics }
 
     expect(Object.keys(primitives)).toHaveLength(76)
-    expect(Object.keys(semantics)).toHaveLength(48)
+    expect(Object.keys(semantics)).toHaveLength(49)
     expect(Object.keys(v2TailwindColors).sort()).toEqual(
       Object.keys(values)
         .map((name) => name.replace(/^--(?:color-)?/, ''))
