@@ -5123,8 +5123,6 @@
   "text_1790284386156k2d8mjjy98f": "Remove rate card",
   "text_17902866782060xpq8p9bh3a": "Rate card",
   "text_1790286678206xilydvk4a1n": "Phase",
-  "text_1790286678206zy40b7ktge5": "This page isn't ready yet",
-  "text_17902866782061brel90bgxt": "We're still building this page. Check back soon.",
   "text_1790626357129e0p15gxlw0g": "Has rate overrides",
   "text_1790626357129c10aq2mtlre": "Product type",
   "text_1790812800000h2k6wsj8x4q": "Leave empty to keep the current client secret",
@@ -5305,5 +5303,6 @@
   "text_17928065586762rndb8ev72x": "Rate model",
   "text_1792806558676u8zmm1cjcpk": "See active rate",
   "text_1792807216284omzlpv8edip": "Position: {{position}}",
-  "text_1792807216284fcthmczmbad": "Activity logs for this phase are not available yet."
+  "text_1792807216284fcthmczmbad": "Activity logs for this phase are not available yet.",
+  "text_1792808039945mpa3wdnz30t": "Rate phase not found"
 }

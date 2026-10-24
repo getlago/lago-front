@@ -46,6 +46,7 @@ type AppliedRateCardDetailsConfig = {
 }
 
 export const APPLIED_RATE_CARD_NOT_FOUND_TRANSLATION_KEY = 'text_1792507128247tj6ezglktl8'
+export const RATE_PHASE_NOT_FOUND_TRANSLATION_KEY = 'text_1792808039945mpa3wdnz30t'
 
 export const APPLIED_RATE_CARD_DETAILS_CONFIG: Record<
   AppliedRateCardContext,
