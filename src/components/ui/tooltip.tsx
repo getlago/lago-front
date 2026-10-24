@@ -27,7 +27,7 @@ export const TooltipContent = React.forwardRef<
         sideOffset={sideOffset}
         collisionPadding={collisionPadding}
         className={cn(
-          'v2-tooltip v2-text-caption z-[1500] w-max max-w-[min(240px,var(--radix-tooltip-content-available-width))] whitespace-normal break-words rounded-md border-0 bg-inverse px-2 py-1 text-left text-inverse-foreground shadow-v2-floating',
+          'v2-tooltip v2-text-body z-[1500] w-max max-w-[min(240px,var(--radix-tooltip-content-available-width))] whitespace-normal break-words rounded-xl border-0 bg-inverse px-3 py-2 text-left text-inverse-foreground shadow-v2-floating',
           className,
         )}
       />

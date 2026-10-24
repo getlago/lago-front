@@ -58,7 +58,7 @@ export const TooltipTest = () => (
             </TooltipContent>
           </Tooltip>
           <p className="v2-text-caption">
-            Maximum width 240px, left-aligned text, 8px horizontal / 4px vertical padding. Resize
+            Maximum width 240px, left-aligned text, 12px horizontal / 8px vertical padding. Resize
             the window to check collision handling.
           </p>
         </ColorTheme>
