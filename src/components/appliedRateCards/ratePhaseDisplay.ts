@@ -34,7 +34,17 @@ const DURATION_BY_UNIT_KEY: Record<RateCardRateBillingIntervalUnitEnum, string> 
   [RateCardRateBillingIntervalUnitEnum.Year]: 'text_1791838459983d5nh38p5el6',
 }
 
+const UNIT_ADJECTIVE_KEY: Record<RateCardRateBillingIntervalUnitEnum, string> = {
+  [RateCardRateBillingIntervalUnitEnum.Day]: 'text_1792805607611liqqm55m4tx',
+  [RateCardRateBillingIntervalUnitEnum.Week]: 'text_1792805607611szr9xumw4xy',
+  [RateCardRateBillingIntervalUnitEnum.Month]: 'text_1792805607611xb205ke9yxd',
+  [RateCardRateBillingIntervalUnitEnum.Year]: 'text_1792805607611hzs13fujmao',
+}
+
 const FOREVER_KEY = 'text_63c83a3476e46bc6ab9d85d6'
+const CYCLES_OF_KEY = 'text_1792805607611jqwgpebsjt0'
+const FOREVER_IN_KEY = 'text_1792805607611z33he0lep1w'
+const CYCLE_COUNT_KEY = 'text_17928056076110dccmhrqkag'
 const CYCLES_KEY = 'text_1791485670326auwsxq3x83b'
 const PHASE_POSITION_KEY = 'text_1792503533806fhiu57zr6an'
 
@@ -111,28 +121,47 @@ export const formatPhaseDuration = (
   )
 }
 
+const formatTimelineDuration = (
+  cycleCount: number | null,
+  rate: RateOverrideInput | undefined,
+  translate: TranslateFunc,
+): string => {
+  const interval =
+    rate?.billingIntervalCount && rate.billingIntervalUnit
+      ? { count: rate.billingIntervalCount, unit: rate.billingIntervalUnit }
+      : undefined
+
+  if (cycleCount === null) {
+    if (!interval) return translate(FOREVER_KEY)
+
+    return translate(FOREVER_IN_KEY, {
+      duration: translate(UNIT_ADJECTIVE_KEY[interval.unit], { count: interval.count }),
+    })
+  }
+
+  if (!interval) return translate(CYCLE_COUNT_KEY, { count: cycleCount }, cycleCount)
+
+  return translate(
+    CYCLES_OF_KEY,
+    {
+      count: cycleCount,
+      duration: formatIntervalDuration(interval.count, interval.unit, translate),
+    },
+    cycleCount,
+  )
+}
+
 export const formatPhaseTimeline = (
   phase: RatePhaseForDetails,
   rate: RateOverrideInput | undefined,
   translate: TranslateFunc,
-): string => {
-  const duration =
-    phase.billingIntervalCycleCount === null
-      ? translate(FOREVER_KEY)
-      : translate(
-          'text_17918384599837xai95r4dok',
-          {
-            count: phase.billingIntervalCycleCount,
-            duration: formatPhaseDuration(phase.billingIntervalCycleCount, rate, translate),
-          },
-          phase.billingIntervalCycleCount,
-        )
-
-  return translate(
+): string =>
+  translate(
     phase.position === 1 ? 'text_1791838459983033k4czt8tl' : 'text_1791838459983owffqxt3lov',
-    { duration },
+    {
+      duration: formatTimelineDuration(phase.billingIntervalCycleCount, rate, translate),
+    },
   )
-}
 
 export const formatRatePhaseName = (
   phase: { name?: string | null; position: number },

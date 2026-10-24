@@ -5254,7 +5254,6 @@
   "text_17918384599834l3c40rdguv": "{{count}} week|{{count}} weeks",
   "text_1791838459983q6n44o5fdd4": "{{count}} month|{{count}} months",
   "text_1791838459983d5nh38p5el6": "{{count}} year|{{count}} years",
-  "text_17918384599837xai95r4dok": "{{count}} cycle ({{duration}})|{{count}} cycles ({{duration}})",
   "text_17918384599832tqq2f0ezu9": "Every {{duration}}",
   "text_1791838459983033k4czt8tl": "From contract start → {{duration}}",
   "text_1791838459983owffqxt3lov": "Previous phase end → {{duration}}",
@@ -5293,5 +5292,12 @@
   "text_1792507128247tj6ezglktl8": "Rate card not found",
   "text_1792516745021oj4du8sg5mm": "A new phase must be placed before the phase that runs forever",
   "text_1792683486646v7np3oh22jc": "Already priced on this plan",
-  "text_1792683486646r8re8d0scxh": "Already priced on this contract"
+  "text_1792683486646r8re8d0scxh": "Already priced on this contract",
+  "text_1792805607611jqwgpebsjt0": "{{count}} cycle of {{duration}}|{{count}} cycles of {{duration}}",
+  "text_1792805607611z33he0lep1w": "Forever, in {{duration}} cycles",
+  "text_1792805607611liqqm55m4tx": "{{count}}-day",
+  "text_1792805607611szr9xumw4xy": "{{count}}-week",
+  "text_1792805607611xb205ke9yxd": "{{count}}-month",
+  "text_1792805607611hzs13fujmao": "{{count}}-year",
+  "text_17928056076110dccmhrqkag": "{{count}} cycle|{{count}} cycles"
 }

@@ -51,6 +51,15 @@ describe('formatPhaseDuration', () => {
 })
 
 describe('formatPhaseTimeline', () => {
+  const FROM_CONTRACT_START_KEY = 'text_1791838459983033k4czt8tl'
+  const PREVIOUS_PHASE_END_KEY = 'text_1791838459983owffqxt3lov'
+  const FOREVER_KEY = 'text_63c83a3476e46bc6ab9d85d6'
+  const CYCLES_OF_KEY = 'text_1792805607611jqwgpebsjt0'
+  const FOREVER_IN_KEY = 'text_1792805607611z33he0lep1w'
+  const DAY_ADJECTIVE_KEY = 'text_1792805607611liqqm55m4tx'
+  const CYCLE_COUNT_KEY = 'text_17928056076110dccmhrqkag'
+  const DAY_DURATION_KEY = 'text_1791838459983pbylbvgfd34'
+
   it('GIVEN the first phase THEN it starts from the contract start', () => {
     expect(
       formatPhaseTimeline(
@@ -58,7 +67,7 @@ describe('formatPhaseTimeline', () => {
         rate(1, RateCardRateBillingIntervalUnitEnum.Month),
         translate,
       ),
-    ).toBe('text_1791838459983033k4czt8tl|{"duration":"text_63c83a3476e46bc6ab9d85d6"}')
+    ).toMatch(new RegExp(`^${FROM_CONTRACT_START_KEY}`))
   })
 
   it('GIVEN a later phase THEN it starts at the previous phase end', () => {
@@ -68,7 +77,59 @@ describe('formatPhaseTimeline', () => {
         rate(1, RateCardRateBillingIntervalUnitEnum.Month),
         translate,
       ),
-    ).toMatch(/^text_1791838459983owffqxt3lov/)
+    ).toMatch(new RegExp(`^${PREVIOUS_PHASE_END_KEY}`))
+  })
+
+  it('GIVEN a finite phase with a known interval THEN reads the cycle count of one interval', () => {
+    const duration = translate(
+      CYCLES_OF_KEY,
+      { count: 3, duration: translate(DAY_DURATION_KEY, { count: 14 }, 14) },
+      3,
+    )
+
+    expect(
+      formatPhaseTimeline(
+        { name: 'Intro', code: 'intro', position: 1, billingIntervalCycleCount: 3 },
+        rate(14, RateCardRateBillingIntervalUnitEnum.Day),
+        translate,
+      ),
+    ).toBe(translate(FROM_CONTRACT_START_KEY, { duration }))
+  })
+
+  it('GIVEN a forever phase with a known interval THEN reads forever in interval-long cycles', () => {
+    const duration = translate(FOREVER_IN_KEY, {
+      duration: translate(DAY_ADJECTIVE_KEY, { count: 14 }),
+    })
+
+    expect(
+      formatPhaseTimeline(
+        { name: '', code: 'second', position: 2, billingIntervalCycleCount: null },
+        rate(14, RateCardRateBillingIntervalUnitEnum.Day),
+        translate,
+      ),
+    ).toBe(translate(PREVIOUS_PHASE_END_KEY, { duration }))
+  })
+
+  it('GIVEN a finite phase without an interval THEN reads the bare cycle count', () => {
+    const duration = translate(CYCLE_COUNT_KEY, { count: 3 }, 3)
+
+    expect(
+      formatPhaseTimeline(
+        { name: 'Intro', code: 'intro', position: 1, billingIntervalCycleCount: 3 },
+        undefined,
+        translate,
+      ),
+    ).toBe(translate(FROM_CONTRACT_START_KEY, { duration }))
+  })
+
+  it('GIVEN a forever phase without an interval THEN reads forever', () => {
+    expect(
+      formatPhaseTimeline(
+        { name: 'Intro', code: 'intro', position: 1, billingIntervalCycleCount: null },
+        undefined,
+        translate,
+      ),
+    ).toBe(translate(FROM_CONTRACT_START_KEY, { duration: FOREVER_KEY }))
   })
 })
 
