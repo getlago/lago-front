@@ -21,4 +21,20 @@ export default defineConfig([
       },
     },
   },
+  {
+    // App code composes the design system. The folders below implement it, so they may
+    // use raw elements and MUI directly.
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: [
+      'src/components/designSystem/**',
+      'src/components/form/**',
+      'src/components/ui/**',
+      'src/components/dialogs/BaseDialog.tsx',
+      'src/pages/__devOnly/**',
+      'src/**/__tests__/**',
+    ],
+    rules: {
+      'lago/use-design-system': 'error',
+    },
+  },
 ])
