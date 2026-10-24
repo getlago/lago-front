@@ -166,6 +166,12 @@ ruleTester.run('use-design-system', rule, {
       errors: [{ messageId: 'muiImport' }],
     },
     {
+      code: "import * as Mui from '@mui/material'\nconst C = () => <Mui.Button />",
+      errors: [{ messageId: 'muiNamespace' }],
+    },
+    { code: "export * from '@mui/material'", errors: [{ messageId: 'muiNamespace' }] },
+    { code: "export * as Mui from '@mui/material'", errors: [{ messageId: 'muiNamespace' }] },
+    {
       code: "export * from '~/components/designSystem/Drawer'",
       errors: [{ messageId: 'legacyImport' }],
     },

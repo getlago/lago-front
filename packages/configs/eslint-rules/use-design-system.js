@@ -144,6 +144,8 @@ export default {
       rawElement: 'Use {{use}} instead of a raw <{{element}}>.',
       muiImport: 'Use {{use}} instead of importing {{name}} from MUI.',
       legacyImport: 'Use {{use}} instead of the legacy {{source}}.',
+      muiNamespace:
+        'Import the {{source}} parts you need by name: a namespace import or `export *` also reaches the components the design system wraps.',
     },
   },
   create(context) {
@@ -163,6 +165,14 @@ export default {
 
       for (const [pkg, replacementFor] of Object.entries(PACKAGES)) {
         if (source === pkg) {
+          const takesAll =
+            node.type === 'ExportAllDeclaration' ||
+            node.specifiers?.some((s) => s.type === 'ImportNamespaceSpecifier')
+
+          if (takesAll) {
+            context.report({ node, messageId: 'muiNamespace', data: { source } })
+            continue
+          }
           // Barrel import: each named import is its own component.
           for (const name of namesTaken(node)) {
             const use = replacementFor(name)

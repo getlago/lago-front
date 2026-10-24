@@ -110,7 +110,7 @@ export const useSectionNameDrawer = ({
 
   const openDrawer = (values: SectionNameFormValues): void => {
     form.reset(values, { keepDefaultValues: true })
-    drawer.open({
+    void drawer.open({
       // ...options as in the drawers reference
       children: <SectionNameDrawerContent form={form} />,
     })
@@ -240,7 +240,7 @@ After completing the extraction:
 
 ## Common Pitfalls
 
-- **Missing `<form>` wrapper**: Always wrap drawer content in a `<form>` element. Without it, `form.handleSubmit()` won't trigger the validation → submit lifecycle, and Zod validation is never enforced.
+- **A second `<form>`**: `useFormDrawer` already wraps the content and actions in a `<form>` with the `form.id` you pass (`BaseDrawer`). Do not add another one in the drawer content: nested forms are invalid HTML and break submission.
 - **Manual value reading instead of `form.handleSubmit()`**: Never read `form.state.values` directly and pass to `onSave`. Always use `form.handleSubmit()` which runs validation first, then calls the `onSubmit` handler only if valid.
 - **`useState` for defaultValues**: Don't use `useState` to track defaultValues. Use `form.reset(values, { keepDefaultValues: true })` instead — this prevents the React adapter's `formApi.update()` from overwriting values while keeping `isDirty` correct.
 - **`z.nativeEnum()` usage**: Deprecated in Zod v4. Use `z.enum(MyEnum)` for GraphQL/TS string enums.
