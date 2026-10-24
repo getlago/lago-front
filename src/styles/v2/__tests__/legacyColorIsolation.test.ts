@@ -24,6 +24,7 @@ describe('legacy color isolation', () => {
       ...config.theme,
       extend: {
         ...config.theme?.extend,
+        boxShadow: {},
         colors: {
           ...legacyColors,
           destructive: {
@@ -34,6 +35,10 @@ describe('legacy color isolation', () => {
       },
     }
     const candidates = [
+      'shadow',
+      'shadow-sm',
+      'shadow-lg',
+      'focus:ring-4',
       'bg-white',
       'bg-blue',
       'bg-blue-600',
@@ -72,6 +77,19 @@ describe('legacy color isolation', () => {
     expect(css).toContain('color: var(--color-text-default)')
     expect(css).toContain('color: var(--color-icon-premium)')
     expect(css).toContain('border-color: var(--color-border-default)')
+  })
+
+  it('generates opt-in surface and shadow utilities without replacing focus rings', async () => {
+    const css = await compile(
+      config.theme,
+      'bg-surface-floating shadow-v2-floating shadow-v2-dialog focus:ring-4',
+    )
+
+    expect(css).toContain('background-color: var(--color-surface-floating)')
+    expect(css).toContain('--tw-shadow: var(--v2-shadow-floating)')
+    expect(css).toContain('--tw-shadow: var(--v2-shadow-dialog)')
+    expect(css).toContain('var(--tw-ring-offset-shadow')
+    expect(css).toContain('var(--tw-ring-shadow')
   })
 
   it.each([

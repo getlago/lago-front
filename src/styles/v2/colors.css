@@ -81,7 +81,8 @@
 [data-color-theme='light'] {
   --color-canvas: var(--v2-white);
   --color-surface: var(--color-canvas);
-  --color-surface-raised: var(--v2-neutral-100);
+  --color-surface-raised: var(--v2-white);
+  --color-surface-floating: var(--v2-white);
   --color-surface-inset: var(--v2-neutral-50);
   --color-text-default: var(--v2-neutral-900);
   --color-text-muted: var(--v2-neutral-600);
@@ -133,6 +134,7 @@
   --color-canvas: var(--v2-neutral-900);
   --color-surface: var(--color-canvas);
   --color-surface-raised: var(--v2-neutral-800);
+  --color-surface-floating: var(--v2-neutral-750);
   --color-surface-inset: var(--v2-neutral-850);
   --color-text-default: var(--v2-neutral-100);
   --color-text-muted: var(--v2-neutral-200);

@@ -89,6 +89,20 @@ export const ColorTest = (): JSX.Element => {
         aria-label="Color foundation"
         className="v2-text-body mb-12 space-y-8 rounded-lg border border-border-subtle bg-canvas p-6 text-text-default"
       >
+        <div className="grid gap-8 md:grid-cols-3" aria-label="Surface and elevation examples">
+          <div className="rounded-lg border border-border-subtle bg-surface p-6">
+            <h3 className="v2-text-label">Surface</h3>
+            <p className="text-text-muted">Follows canvas; no elevation.</p>
+          </div>
+          <div className="rounded-lg border border-border-subtle bg-surface-floating p-6 shadow-v2-floating">
+            <h3 className="v2-text-label">Floating</h3>
+            <p className="text-text-muted">Toast and popover elevation.</p>
+          </div>
+          <div className="rounded-lg border border-border-subtle bg-surface-floating p-6 shadow-v2-dialog">
+            <h3 className="v2-text-label">Dialog</h3>
+            <p className="text-text-muted">Dialog elevation; preview only.</p>
+          </div>
+        </div>
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="v2-text-section-title">Colors</h2>
