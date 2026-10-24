@@ -125,6 +125,7 @@
     "@mui/x-date-pickers": "6.20.2",
     "@nangohq/frontend": "0.71.13",
     "@radix-ui/react-slot": "1.5.0",
+    "@radix-ui/react-tooltip": "1.4.1",
     "@rails/actioncable": "8.1.400",
     "@sentry/react": "10.76.2",
     "@superset-ui/embedded-sdk": "0.4.0",
