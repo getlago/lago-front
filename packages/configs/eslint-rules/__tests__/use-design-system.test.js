@@ -133,6 +133,39 @@ ruleTester.run('use-design-system', rule, {
       errors: [{ messageId: 'muiImport' }],
     },
     {
+      code: "import { Card, CardContent } from '@mui/material'",
+      errors: [{ messageId: 'muiImport' }, { messageId: 'muiImport' }],
+    },
+    {
+      code: "import SvgIcon from '@mui/material/SvgIcon'",
+      errors: [
+        {
+          messageId: 'muiImport',
+          data: { name: 'SvgIcon', use: '`Icon` from `lago-design-system`' },
+        },
+      ],
+    },
+    {
+      code: "import IconButton from '@mui/material/IconButton'",
+      errors: [
+        {
+          messageId: 'muiImport',
+          data: {
+            name: 'IconButton',
+            use: '`Button` with `icon` from `~/components/designSystem/Button`',
+          },
+        },
+      ],
+    },
+    {
+      code: "import NativeSelect from '@mui/material/NativeSelect'",
+      errors: [{ messageId: 'muiImport' }],
+    },
+    {
+      code: "import Select, { type SelectChangeEvent } from '@mui/material/Select'",
+      errors: [{ messageId: 'muiImport' }],
+    },
+    {
       code: "export * from '~/components/designSystem/Drawer'",
       errors: [{ messageId: 'legacyImport' }],
     },
