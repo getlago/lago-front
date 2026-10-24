@@ -42,9 +42,12 @@ export type UseRatePhaseActionsParams = {
   onPhaseDeleted?: (phase: RatePhaseForDrawerFragment) => void
 }
 
+export type RatePhaseSectionAction = { hidden: boolean; disabled: boolean; open: () => void }
+
 export type RatePhaseActions = {
   getPhaseActions: (phase: RatePhaseForDrawerFragment) => RatePhaseAction[]
-  createPhase: { hidden: boolean; disabled: boolean; open: () => void }
+  getEditPhase: (phase: RatePhaseForDrawerFragment) => RatePhaseSectionAction
+  createPhase: RatePhaseSectionAction
 }
 
 type AppliedRateCardDrawerKey =
@@ -124,13 +127,13 @@ export const useRatePhaseActions = ({
       onAction: () => copyPhaseCode(phase),
     }
 
-    if (!canUpdate) return [copyAction]
+    if (!canUpdate || isLocked) return [copyAction]
 
     const editAction: RatePhaseAction = {
       key: 'edit',
       label: translate('text_1791485670326gf0h0n6l1w7'),
       startIcon: 'pen',
-      disabled: isDrawerDisabled,
+      disabled: !rateCard,
       dataTest: RATE_PHASE_ACTION_EDIT_TEST_ID,
       onAction: () => openEditDrawer(phase),
     }
@@ -139,7 +142,7 @@ export const useRatePhaseActions = ({
       key: 'reset',
       label: translate('text_1792505051513lwg9cymf8wg'),
       startIcon: 'reset',
-      disabled: isLocked,
+      disabled: false,
       dataTest: RATE_PHASE_ACTION_RESET_TEST_ID,
       onAction: () =>
         openResetRatePhaseOverrideDialog({
@@ -153,7 +156,7 @@ export const useRatePhaseActions = ({
       key: 'delete',
       label: translate('text_1791838459984x6zh06klebn'),
       startIcon: 'trash',
-      disabled: isLocked || phases.length <= 1 || phase.billingIntervalCycleCount === null,
+      disabled: phases.length <= 1 || phase.billingIntervalCycleCount === null,
       dataTest: RATE_PHASE_ACTION_DELETE_TEST_ID,
       onAction: () =>
         openDeleteRatePhaseDialog({
@@ -169,8 +172,15 @@ export const useRatePhaseActions = ({
     return [copyAction, editAction, resetAction, deleteAction]
   }
 
+  const getEditPhase = (phase: RatePhaseForDrawerFragment): RatePhaseSectionAction => ({
+    hidden: !canUpdate,
+    disabled: isDrawerDisabled,
+    open: () => openEditDrawer(phase),
+  })
+
   return {
     getPhaseActions,
+    getEditPhase,
     createPhase: { hidden: !canUpdate, disabled: isDrawerDisabled, open: openCreateDrawer },
   }
 }

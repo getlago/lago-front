@@ -219,14 +219,9 @@ describe('useRatePhaseActions', () => {
 
   describe.each([
     {
-      condition: 'a locked card',
+      condition: 'a locked parent',
       params: { isLocked: true },
-      expectedActions: [
-        { key: 'copy', disabled: false },
-        { key: 'edit', disabled: true },
-        { key: 'reset', disabled: true },
-        { key: 'delete', disabled: true },
-      ],
+      expectedActions: [{ key: 'copy', disabled: false }],
     },
     {
       condition: 'a rate card that is not loaded',
@@ -239,7 +234,7 @@ describe('useRatePhaseActions', () => {
       ],
     },
   ])('GIVEN $condition', ({ params, expectedActions }) => {
-    it('THEN only the actions it blocks are disabled', () => {
+    it('THEN only the actions it allows are returned, each in its own state', () => {
       const { getPhaseActions } = renderActions(params)
       const actions = getPhaseActions(MIDDLE_PHASE)
 
@@ -251,6 +246,36 @@ describe('useRatePhaseActions', () => {
 
       expect(createPhase).toMatchObject({ hidden: false, disabled: true })
     })
+  })
+
+  it('GIVEN a locked parent THEN the inline edit is visible but disabled', () => {
+    const { getEditPhase } = renderActions({ isLocked: true })
+
+    expect(getEditPhase(MIDDLE_PHASE)).toMatchObject({ hidden: false, disabled: true })
+  })
+
+  it('GIVEN no update permission THEN the inline edit is hidden', () => {
+    mockHasPermissions.mockReturnValue(false)
+
+    const { getEditPhase } = renderActions()
+
+    expect(getEditPhase(MIDDLE_PHASE)).toMatchObject({ hidden: true })
+  })
+
+  it('GIVEN an unlocked card THEN the inline edit is visible and enabled', () => {
+    const { getEditPhase } = renderActions()
+
+    expect(getEditPhase(MIDDLE_PHASE)).toMatchObject({ hidden: false, disabled: false })
+  })
+
+  it('GIVEN an unlocked card WHEN the inline edit is opened THEN the drawer opens in edit mode for that phase', () => {
+    const { getEditPhase } = renderActions()
+
+    getEditPhase(MIDDLE_PHASE).open()
+
+    expect(mockOpenDrawer).toHaveBeenCalledWith(
+      expect.objectContaining({ mode: 'edit', phase: MIDDLE_PHASE }),
+    )
   })
 
   it('GIVEN an unlocked card THEN create is enabled', () => {
