@@ -82,10 +82,11 @@ describe('legacy color isolation', () => {
   it('generates opt-in surface and shadow utilities without replacing focus rings', async () => {
     const css = await compile(
       config.theme,
-      'bg-surface-floating shadow-v2-floating shadow-v2-dialog focus:ring-4',
+      'bg-surface-floating shadow-v2-interactive shadow-v2-floating shadow-v2-dialog focus:ring-4',
     )
 
     expect(css).toContain('background-color: var(--color-surface-floating)')
+    expect(css).toContain('--tw-shadow: var(--v2-shadow-interactive)')
     expect(css).toContain('--tw-shadow: var(--v2-shadow-floating)')
     expect(css).toContain('--tw-shadow: var(--v2-shadow-dialog)')
     expect(css).toContain('var(--tw-ring-offset-shadow')

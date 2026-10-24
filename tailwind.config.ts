@@ -10,6 +10,7 @@ const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme'> = {
   theme: {
     extend: {
       boxShadow: {
+        'v2-interactive': 'var(--v2-shadow-interactive)',
         'v2-floating': 'var(--v2-shadow-floating)',
         'v2-dialog': 'var(--v2-shadow-dialog)',
       },
