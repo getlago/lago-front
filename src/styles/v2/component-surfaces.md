@@ -21,7 +21,8 @@ Use this guide for new shadcn components. It does not migrate existing productio
 | `surface-inset` | `#FBFBFB` | `#212121` | Navigation, inputs and grouped content |
 | `surface-raised` | `#FFFFFF` | `#232323` | A distinct block within the page |
 | `surface-floating` | `#FFFFFF` | `#2C2C2C` | Dialogs, menus, popovers and toasts |
-| `inverse` | `#1A1A1A` | `#FBFBFB` | Contrasting tooltip background |
+| `inverse` | `#1A1A1A` | `#2C2C2C` | Tooltip background |
+| `inverse-foreground` | `#FFFFFF` | `#FFFFFF` | Text and icons on the inverse surface |
 
 ## Component defaults
 

@@ -174,8 +174,8 @@
   --color-destructive-pressed: var(--v2-red-900);
   --color-destructive-foreground: var(--v2-white);
   --color-overlay: var(--v2-alpha-black-64);
-  --color-inverse: var(--v2-neutral-50);
-  --color-inverse-foreground: var(--v2-neutral-900);
+  --color-inverse: var(--v2-neutral-750);
+  --color-inverse-foreground: var(--v2-white);
   --color-icon-default: var(--color-text-default);
   --color-icon-muted: var(--color-text-muted);
   --color-icon-subtle: var(--color-text-subtle);
