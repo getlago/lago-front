@@ -13,10 +13,16 @@
 # `export { a, b as c }` re-exports (each name), `export * from '<module>'`
 # (the module path must appear in the plan).
 #
+# A new named declaration export that no other file under src/ mentions is
+# reported as `unused-export:` whether declared or not: an export nothing imports
+# is dead weight the plan cannot justify. Default exports are skipped, since the
+# importer names them freely.
+#
 # Usage: loop-plan-check.sh <worktree> <plan.md> [<base-ref>]
 # Exit 0 = the diff adds no new file and no new export
 #      3 = new files/exports exist and every one is declared in plan.md (adversarial trigger)
-#      1 = at least one is undeclared; stdout lists them, prefixed `file:` / `export:` / `reexport:`
+#      1 = at least one is undeclared or unused; stdout lists them, prefixed
+#          `file:` / `export:` / `reexport:` / `unused-export:`
 #      2 = plan.md missing (treat as "everything undeclared")
 set -euo pipefail
 
@@ -51,6 +57,15 @@ while IFS= read -r sym; do
   declared "$sym" || { echo "export: $sym"; undeclared=1; }
 done < <(printf '%s\n' "$added_exports" \
   | sed -nE 's/^export (default )?(async )?(const|let|var|function|class|type|interface|enum|abstract class) ([A-Za-z_$][A-Za-z0-9_$]*).*/\4/p' \
+  | sort -u)
+
+# A named declaration export must have a consumer outside the file that declares it.
+while IFS= read -r sym; do
+  [ -n "$sym" ] || continue
+  users="$(git -C "$WT" grep -lw -- "$sym" -- src ':!src/generated' | wc -l | tr -d ' ')"
+  [ "$users" -gt 1 ] || { echo "unused-export: $sym"; undeclared=1; }
+done < <(printf '%s\n' "$added_exports" \
+  | sed -nE 's/^export (async )?(const|let|var|function|class|type|interface|enum|abstract class) ([A-Za-z_$][A-Za-z0-9_$]*).*/\3/p' \
   | sort -u)
 
 # `export { a, b as c } from '…'` — every exported name, the alias when there is one
