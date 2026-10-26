@@ -14,7 +14,7 @@ import {
   FILTERS_PANEL_TEST_ID,
   FiltersPanelPopper,
 } from '~/components/Filters/presentation/FiltersPanelPopper'
-import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
+import { AvailableFiltersEnum, DynamicFilter } from '~/components/Filters/presentation/types'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 const CUSTOM_OPENER_TEST_ID = 'custom-opener'
@@ -74,6 +74,22 @@ const NORMALISING_AVAILABLE_FILTERS = [
   AvailableFiltersEnum.metadata,
 ]
 const FILTER_TYPE_COMBOBOX_TEST_ID = 'mock-filter-type-combobox'
+
+const DYNAMIC_VALUE_INPUT_TEST_ID = 'dynamic-value-input'
+
+const buildDynamicFilter = (overrides: Partial<DynamicFilter> = {}): DynamicFilter => ({
+  key: 'dynamic.team',
+  label: 'Team',
+  renderValueInput: ({ setFilterValue }) => (
+    <button
+      type="button"
+      data-test={DYNAMIC_VALUE_INPUT_TEST_ID}
+      onClick={() => setFilterValue('eng')}
+    />
+  ),
+  formatValue: (value) => value,
+  ...overrides,
+})
 
 const FROM = '2024-01-01T00:00:00.000Z'
 const TO = '2024-01-31T23:59:59.999Z'
@@ -385,6 +401,76 @@ describe('FiltersPanelPopper', () => {
         fireEvent.change(toInput, { target: { value: '02/15/2024' } })
 
         expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).not.toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN a dynamic filter', () => {
+    afterEach(() => {
+      hydrateUrlWithFilters('/')
+    })
+
+    describe('WHEN picking it in the type combobox', () => {
+      it('THEN it renders its own value input and applies its value to the URL', async () => {
+        renderPanel({ availableFilters: [], dynamicFilters: [buildDynamicFilter()] })
+        await openPanel()
+
+        fireEvent.change(screen.getByTestId(FILTER_TYPE_COMBOBOX_TEST_ID), {
+          target: { value: 'dynamic.team' },
+        })
+        await userEvent.click(screen.getByTestId(DYNAMIC_VALUE_INPUT_TEST_ID))
+        await userEvent.click(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID))
+
+        expect(testMockNavigateFn).toHaveBeenLastCalledWith({
+          search: expect.stringContaining('f_dynamic.team=eng'),
+        })
+      })
+    })
+
+    describe('WHEN its validator rejects the value', () => {
+      it('THEN the apply button stays disabled', async () => {
+        renderPanel({
+          availableFilters: [],
+          dynamicFilters: [buildDynamicFilter({ isValueValid: () => false })],
+        })
+        await openPanel()
+
+        fireEvent.change(screen.getByTestId(FILTER_TYPE_COMBOBOX_TEST_ID), {
+          target: { value: 'dynamic.team' },
+        })
+        await userEvent.click(screen.getByTestId(DYNAMIC_VALUE_INPUT_TEST_ID))
+
+        expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN it is static', () => {
+      it('THEN its row is locked without a remove button', async () => {
+        hydrateUrlWithFilters('/?f_dynamic.team=eng')
+
+        renderPanel({
+          availableFilters: [],
+          dynamicFilters: [buildDynamicFilter()],
+          staticFilters: { 'dynamic.team': 'eng' },
+        })
+        await openPanel()
+
+        expect(screen.getByTestId(FILTER_TYPE_COMBOBOX_TEST_ID)).toBeDisabled()
+        expect(screen.queryByTestId(FILTERS_PANEL_REMOVE_FILTER_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN every enum and dynamic filter has a row', () => {
+      it('THEN the add filter button is disabled', async () => {
+        hydrateUrlWithFilters('/?f_externalId=cust-1&f_dynamic.team=eng')
+
+        renderPanel({
+          availableFilters: SINGLE_AVAILABLE_FILTERS,
+          dynamicFilters: [buildDynamicFilter()],
+        })
+        await openPanel()
+
+        expect(screen.getByTestId(FILTERS_PANEL_ADD_FILTER_TEST_ID)).toBeDisabled()
       })
     })
   })

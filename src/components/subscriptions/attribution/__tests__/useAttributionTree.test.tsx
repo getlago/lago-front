@@ -107,6 +107,53 @@ describe('useAttributionTree', () => {
     })
   })
 
+  describe('GIVEN entity filters in the variables', () => {
+    const entityFilters = [
+      { code: 'department', values: ['rnd', 'gtm'] },
+      { code: 'api_key', values: ['k_live_ab12'] },
+    ]
+
+    describe('WHEN the root levels load', () => {
+      it('THEN should send the entity filters as-is', async () => {
+        mockQuery.mockReturnValueOnce(resolveUsage(buildUsage(['rnd'])))
+
+        const { result } = renderTree({ variables: { ...variables, filters: entityFilters } })
+
+        await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+
+        expect(getQueryVariables(0)).toEqual(expect.objectContaining({ filters: entityFilters }))
+      })
+    })
+
+    describe('WHEN a node is expanded', () => {
+      it('THEN should let the path replace the entity filter of the same code and keep the others', async () => {
+        mockQuery.mockReturnValueOnce(resolveUsage(buildUsage(['rnd'])))
+
+        const { result } = renderTree({ variables: { ...variables, filters: entityFilters } })
+
+        await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+
+        mockQuery
+          .mockReturnValueOnce(resolveUsage(buildUsage(['eng'])))
+          .mockReturnValueOnce(resolveUsage(buildUsage(['cc-1'])))
+
+        act(() => result.current.toggleNode(rndPath, 'department'))
+
+        await waitFor(() => expect(result.current.nodes[RND_KEY]?.status).toBe('loaded'))
+
+        expect(getQueryVariables(1)).toEqual(
+          expect.objectContaining({
+            groupBy: 'team',
+            filters: [
+              { code: 'api_key', values: ['k_live_ab12'] },
+              { code: 'department', values: ['rnd'] },
+            ],
+          }),
+        )
+      })
+    })
+  })
+
   describe('GIVEN a collapsed node', () => {
     describe('WHEN it is expanded', () => {
       it('THEN should fire one request per child level with the path filters', async () => {
@@ -248,7 +295,10 @@ describe('useAttributionTree', () => {
 
         await act(async () => result.current.toggleNode(rndPath, 'department'))
 
-        expect(result.current.nodes[RND_KEY]).toEqual({ status: 'error' })
+        expect(result.current.nodes[RND_KEY]).toEqual({
+          status: 'error',
+          error: expect.any(ApolloError),
+        })
         expect(addToast).not.toHaveBeenCalled()
       })
     })
