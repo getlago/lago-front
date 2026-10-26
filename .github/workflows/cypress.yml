@@ -38,6 +38,18 @@ jobs:
         run: |
           docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d db redis api front
 
+      - name: Check nginx hides its version
+        run: |
+          for _ in $(seq 1 30); do curl -sf -o /dev/null http://localhost/ && break; sleep 2; done
+          server=$(curl -sI http://localhost/ | grep -i '^server:' | tr -d '\r')
+          echo "Header: ${server:-<missing>}"
+          if [ -z "$server" ] || grep -qi 'nginx/' <<<"$server"; then
+            echo "::error::Server header discloses the nginx version"; exit 1
+          fi
+          if curl -s http://localhost/.probe | grep -qi 'nginx/'; then
+            echo "::error::Error page discloses the nginx version"; exit 1
+          fi
+
       - name: Install pnpm
         uses: pnpm/action-setup@v6.1.0
 
