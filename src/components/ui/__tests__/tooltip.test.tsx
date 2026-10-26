@@ -1,5 +1,8 @@
 import { act, cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import sharedConfig from 'lago-configs/tailwind'
+import postcss from 'postcss'
+import tailwindcss from 'tailwindcss'
 
 import { Button } from '../button'
 import { ColorTheme } from '../color-theme'
@@ -90,4 +93,39 @@ describe('Shadcn Tooltip', () => {
     await user.keyboard('{Enter}')
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
   })
+})
+
+it.each(['drawer', 'dialog'])('renders portalled content above the %s layer', async (layer) => {
+  const { container } = render(
+    <div className={`z-${layer}`}>
+      <TooltipProvider>
+        <Tooltip open>
+          <TooltipTrigger>Help</TooltipTrigger>
+          <TooltipContent>Details</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </div>,
+  )
+  const content = document.querySelector('.v2-tooltip') as HTMLElement
+  const overlay = container.firstElementChild as HTMLElement
+  const result = await postcss([
+    tailwindcss({
+      presets: [sharedConfig],
+      content: [{ raw: `${content.className} ${overlay.className}`, extension: 'html' }],
+      corePlugins: { preflight: false },
+    }),
+  ]).process('@tailwind utilities;', { from: undefined })
+  const style = document.createElement('style')
+
+  style.textContent = result.css
+  document.head.appendChild(style)
+  try {
+    expect(container).not.toContainElement(content)
+    expect(getComputedStyle(content).zIndex).toBe('2400')
+    expect(Number(getComputedStyle(content).zIndex)).toBeGreaterThan(
+      Number(getComputedStyle(overlay).zIndex),
+    )
+  } finally {
+    style.remove()
+  }
 })

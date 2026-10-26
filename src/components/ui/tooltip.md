@@ -32,6 +32,7 @@ Content uses inverse/inverse-foreground, body (14px / 20px), px-3 py-2, rounded-
 floating shadow. It hugs short text, wraps at a maximum outer width of 240px,
 shrinks to the available viewport width and stays left aligned. Top/center is
 the default placement with an 8px offset; collisions can flip or shift it.
+Content uses the shared `z-tooltip` layer (2400), above drawers and dialogs.
 No arrow or opening animation is included in v1. ColorThemePortal preserves the
 surrounding theme when content is rendered outside the local DOM subtree.
 
