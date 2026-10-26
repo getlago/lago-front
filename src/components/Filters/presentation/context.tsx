@@ -15,6 +15,7 @@ interface FilterContextType {
   quickFiltersType?: AvailableQuickFilters
   staticFilters?: Partial<Record<FilterKey, string>>
   staticQuickFilters?: Partial<Record<AvailableQuickFilters, string>>
+  showStaticFiltersRemoveButton?: boolean
   filtersNamePrefix: string
   buttonOpener?: PopperProps['opener']
   displayInDialog?: boolean

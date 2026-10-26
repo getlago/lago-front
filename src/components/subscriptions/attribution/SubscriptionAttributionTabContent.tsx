@@ -626,6 +626,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
           availableFilters={[]}
           dynamicFilters={dynamicFilters}
           staticFilters={{ [ATTRIBUTION_TIME_RANGE_FILTER_KEY]: AttributionTimeRangeEnum.current }}
+          showStaticFiltersRemoveButton
         >
           <Filters.Component />
         </Filters.Provider>

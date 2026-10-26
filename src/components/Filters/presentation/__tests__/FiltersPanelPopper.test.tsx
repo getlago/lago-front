@@ -460,6 +460,47 @@ describe('FiltersPanelPopper', () => {
       })
     })
 
+    describe('WHEN it is static and the remove button is shown for static filters', () => {
+      it('THEN its remove button is displayed but disabled', async () => {
+        hydrateUrlWithFilters('/?f_dynamic.team=eng')
+
+        renderPanel({
+          availableFilters: [],
+          dynamicFilters: [buildDynamicFilter()],
+          staticFilters: { 'dynamic.team': 'eng' },
+          showStaticFiltersRemoveButton: true,
+        })
+        await openPanel()
+
+        expect(screen.getByTestId(FILTERS_PANEL_REMOVE_FILTER_TEST_ID)).toBeDisabled()
+      })
+
+      it('THEN its remove button resets a changed value to the static one', async () => {
+        hydrateUrlWithFilters('/?f_dynamic.team=ops')
+
+        renderPanel({
+          availableFilters: [],
+          dynamicFilters: [
+            buildDynamicFilter({
+              renderValueInput: ({ value }) => (
+                <span data-test={DYNAMIC_VALUE_INPUT_TEST_ID}>{value}</span>
+              ),
+            }),
+          ],
+          staticFilters: { 'dynamic.team': 'eng' },
+          showStaticFiltersRemoveButton: true,
+        })
+        await openPanel()
+
+        expect(screen.getByTestId(DYNAMIC_VALUE_INPUT_TEST_ID)).toHaveTextContent('ops')
+
+        await userEvent.click(screen.getByTestId(FILTERS_PANEL_REMOVE_FILTER_TEST_ID))
+
+        expect(screen.getByTestId(DYNAMIC_VALUE_INPUT_TEST_ID)).toHaveTextContent('eng')
+        expect(screen.getByTestId(FILTERS_PANEL_REMOVE_FILTER_TEST_ID)).toBeDisabled()
+      })
+    })
+
     describe('WHEN every enum and dynamic filter has a row', () => {
       it('THEN the add filter button is disabled', async () => {
         hydrateUrlWithFilters('/?f_externalId=cust-1&f_dynamic.team=eng')

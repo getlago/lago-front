@@ -7,7 +7,6 @@ import { PlanInterval } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
-  ATTRIBUTION_TIME_RANGE_HINT_TEST_ID,
   AttributionEntityFilterInput,
   AttributionTimeRangeFilterInput,
   buildAttributionDynamicFilters,
@@ -155,22 +154,6 @@ describe('AttributionFilterInputs', () => {
         await user.click(screen.getAllByTestId(OPTION_TEST_ID)[1])
 
         expect(setFilterValue).toHaveBeenCalledWith('past')
-      })
-    })
-
-    describe.each([
-      ['current', 'current', false],
-      ['past', 'past', false],
-      ['custom', '2026-09-01T00:00:00.000Z,2026-09-10T23:59:59.999Z', true],
-    ])('WHEN the value is %s', (_, value, isHintDisplayed) => {
-      it(`THEN should ${isHintDisplayed ? '' : 'not '}display the 31 days hint`, () => {
-        renderTimeRange({ value })
-
-        if (isHintDisplayed) {
-          expect(screen.getByTestId(ATTRIBUTION_TIME_RANGE_HINT_TEST_ID)).toBeInTheDocument()
-        } else {
-          expect(screen.queryByTestId(ATTRIBUTION_TIME_RANGE_HINT_TEST_ID)).not.toBeInTheDocument()
-        }
       })
     })
   })

@@ -5308,8 +5308,7 @@
   "text_17926699335793izsc0id302": "This subscription's plan has no count or sum charge to attribute usage to.",
   "text_1792683187186aqk8vde7x8t": "Under",
   "text_1792683187186qacr0y860nr": "Search a hierarchical key",
-  "text_1792764705907ayn0xi2qmjf": "Past billing period",
-  "text_1792764705907y00tsrxiqsl": "A custom time range can cover up to 31 days.",
+  "text_1792764705907ayn0xi2qmjf": "Previous billing period",
   "text_1792764705907n0lq6q75y89": "This view is too large to compute",
   "text_17927647059078e1835hd0k1": "Narrow the time range or add filters, then try again."
 }

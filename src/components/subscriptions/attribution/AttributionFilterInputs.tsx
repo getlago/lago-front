@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 
-import { Typography } from '~/components/designSystem/Typography'
 import { DateRangeFilterFields } from '~/components/Filters/graphql/filtersElements/DateRangeFilterFields'
 import { useFilters } from '~/components/Filters/graphql/useFilters'
 import { escapeFilterLabel, unescapeFilterLabel } from '~/components/Filters/graphql/utils'
@@ -20,8 +19,6 @@ import {
   isAttributionTimeRangeValid,
   splitAttributionFilterValues,
 } from './attributionFilters'
-
-export const ATTRIBUTION_TIME_RANGE_HINT_TEST_ID = 'attribution-time-range-hint'
 
 const ATTRIBUTION_FILTER_VALUES_LIMIT = 100
 const ATTRIBUTION_FILTER_MAX_VALUES = 20
@@ -68,38 +65,32 @@ export const AttributionTimeRangeFilterInput = ({
       label: translate(ATTRIBUTION_TIME_RANGE_LABEL_BY_TYPE[option]),
     }))
 
-  return (
-    <div className="flex flex-col gap-2">
-      <ComboBox
-        disableClearable
-        PopperProps={{ displayInDialog }}
-        data={options}
-        value={type}
-        onChange={(nextType) => {
-          const nextOption = options.find((option) => option.value === nextType)
-
-          if (!nextOption || nextOption.value === type) return
-
-          setFilterValue(TIME_RANGE_VALUE_BY_TYPE[nextOption.value])
-        }}
+  // A custom range has no way back to a period from this row: "Clear all" and "Reset filters"
+  // restore the current billing period, which keeps the row on one line as designed.
+  if (type === AttributionTimeRangeEnum.custom) {
+    return (
+      <DateRangeFilterFields
+        defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
+        setFilterValue={setFilterValue}
+        value={value}
       />
-      {type === AttributionTimeRangeEnum.custom && (
-        <>
-          <DateRangeFilterFields
-            defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
-            setFilterValue={setFilterValue}
-            value={value}
-          />
-          <Typography
-            variant="caption"
-            color="grey600"
-            data-test={ATTRIBUTION_TIME_RANGE_HINT_TEST_ID}
-          >
-            {translate('text_1792764705907y00tsrxiqsl')}
-          </Typography>
-        </>
-      )}
-    </div>
+    )
+  }
+
+  return (
+    <ComboBox
+      disableClearable
+      PopperProps={{ displayInDialog }}
+      data={options}
+      value={type}
+      onChange={(nextType) => {
+        const nextOption = options.find((option) => option.value === nextType)
+
+        if (!nextOption || nextOption.value === type) return
+
+        setFilterValue(TIME_RANGE_VALUE_BY_TYPE[nextOption.value])
+      }}
+    />
   )
 }
 
@@ -200,6 +191,8 @@ export const buildAttributionDynamicFilters = ({
       ),
       formatValue: (value) => formatTimeRange(value, translate),
       isValueValid: isAttributionTimeRangeValid,
+      isRangeValue: (value) =>
+        getAttributionTimeRangeType(value) === AttributionTimeRangeEnum.custom,
     },
     ...entityTypes.map(({ type, canListValues }): DynamicFilter => ({
       key: getAttributionEntityFilterKey(type.code),

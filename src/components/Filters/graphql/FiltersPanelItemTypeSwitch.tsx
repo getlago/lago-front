@@ -127,7 +127,11 @@ export const FiltersPanelItemTypeSwitch = ({
           variant="body"
           color="grey700"
         >
-          {translate('text_66ab42d4ece7e6b7078993d0')}
+          {translate(
+            dynamicFilter?.isRangeValue?.(props.value)
+              ? 'text_66ab42d4ece7e6b7078993e2'
+              : 'text_66ab42d4ece7e6b7078993d0',
+          )}
         </Typography>
         {dynamicFilter?.renderValueInput(props)}
       </>

@@ -545,6 +545,7 @@ export type DynamicFilter = {
   renderValueInput: (props: FilterValueInputProps) => ReactNode
   formatValue: (value: string) => string
   isValueValid?: (value: string) => boolean
+  isRangeValue?: (value?: string) => boolean
 }
 
 // Inside the panel the list context already names the resource, so the category dimension
