@@ -5,11 +5,16 @@ import { ReactNode } from 'react'
 
 import { FORM_DIALOG_NAME, FORM_DIALOG_TEST_ID } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
+import { COMBOBOX_ADD_VALUE_ITEM_TEST_ID } from '~/components/form/ComboBox/ComboBoxItemWrapper'
 import { CREATE_TAX_ROUTE } from '~/core/router'
 import { GetTaxRatesForEditCustomerDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
-import { useEditCustomerVatRateDialog } from '../EditCustomerVatRateDialog'
+import {
+  EDIT_CUSTOMER_VAT_RATE_SUBMIT_BUTTON_TEST_ID,
+  OpenEditCustomerVatRateDialogParams,
+  useEditCustomerVatRateDialog,
+} from '../EditCustomerVatRateDialog'
 
 jest.mock('@tanstack/react-virtual', () => ({
   useVirtualizer: ({ count }: { count: number }) => ({
@@ -64,17 +69,46 @@ const NiceModalWrapper = ({ children }: { children: ReactNode }) => {
   return <NiceModal.Provider>{children}</NiceModal.Provider>
 }
 
-const TestComponent = () => {
+type TestComponentProps = Pick<OpenEditCustomerVatRateDialogParams, 'appliedTaxRatesTaxesIds'>
+
+const TestComponent = ({ appliedTaxRatesTaxesIds }: TestComponentProps) => {
   const { openEditCustomerVatRateDialog } = useEditCustomerVatRateDialog()
 
   return (
-    <button data-test="open-dialog" onClick={() => openEditCustomerVatRateDialog({ customer })}>
+    <button
+      data-test="open-dialog"
+      onClick={() => openEditCustomerVatRateDialog({ customer, appliedTaxRatesTaxesIds })}
+    >
       Open Dialog
     </button>
   )
 }
 
+const appliedTax = { id: 'tax-de', name: 'VAT DE', rate: 19, code: 'vat_de' }
+
+const getTaxRatesMock = (
+  searchTerm: string | undefined,
+  collection: (typeof appliedTax)[],
+): TestMocksType[number] => ({
+  request: {
+    query: GetTaxRatesForEditCustomerDocument,
+    variables: { limit: 500, ...(searchTerm && { searchTerm }) },
+  },
+  result: {
+    data: {
+      taxes: {
+        metadata: { currentPage: 1, totalPages: 1 },
+        collection,
+      },
+    },
+  },
+})
+
+const getComboBoxInput = (): HTMLElement =>
+  screen.getByTestId(FORM_DIALOG_TEST_ID).querySelector('[role="combobox"]') as HTMLElement
+
 async function prepare({
+  appliedTaxRatesTaxesIds,
   mocks = [
     {
       request: {
@@ -94,11 +128,11 @@ async function prepare({
       },
     },
   ],
-}: { mocks?: TestMocksType } = {}) {
+}: { mocks?: TestMocksType } & TestComponentProps = {}) {
   await act(() =>
     render(
       <NiceModalWrapper>
-        <TestComponent />
+        <TestComponent appliedTaxRatesTaxesIds={appliedTaxRatesTaxesIds} />
       </NiceModalWrapper>,
       { mocks },
     ),
@@ -118,6 +152,7 @@ describe('EditCustomerVatRateDialog', () => {
     cleanup()
     jest.clearAllMocks()
     NiceModal.remove(FORM_DIALOG_NAME)
+    membershipWithPermissions.permissions.organizationTaxesUpdate = true
   })
 
   it('renders', async () => {
@@ -140,12 +175,54 @@ describe('EditCustomerVatRateDialog', () => {
     await user.click(input)
     await user.keyboard('a')
 
-    const createTaxItem = await screen.findByTestId('combobox-item-Create a tax_rate')
+    const createTaxItem = await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)
 
     expect(createTaxItem).toBeInTheDocument()
 
     await user.click(within(createTaxItem).getByRole('option'))
 
     expect(mockNavigate).toHaveBeenCalledWith(CREATE_TAX_ROUTE)
+  })
+
+  it('WHEN an applied tax code is typed then submitted with Enter THEN the add button stays disabled', async () => {
+    const user = userEvent.setup()
+
+    await prepare({
+      appliedTaxRatesTaxesIds: [appliedTax.id],
+      mocks: [
+        getTaxRatesMock(undefined, [appliedTax]),
+        getTaxRatesMock(appliedTax.code, [appliedTax]),
+      ],
+    })
+
+    const input = getComboBoxInput()
+
+    await user.click(input)
+    await user.type(input, appliedTax.code)
+
+    expect(await screen.findByText(appliedTax.name)).toBeInTheDocument()
+
+    await user.keyboard('{Enter}{Enter}')
+
+    expect(screen.getByTestId(EDIT_CUSTOMER_VAT_RATE_SUBMIT_BUTTON_TEST_ID)).toBeDisabled()
+  })
+
+  it('WHEN the user cannot create taxes AND free text is submitted with Enter THEN the add button stays disabled', async () => {
+    const user = userEvent.setup()
+
+    membershipWithPermissions.permissions.organizationTaxesUpdate = false
+
+    await prepare({
+      mocks: [getTaxRatesMock(undefined, [appliedTax]), getTaxRatesMock('foo', [])],
+    })
+
+    const input = getComboBoxInput()
+
+    await user.click(input)
+    await user.type(input, 'foo')
+    await user.keyboard('{Enter}')
+
+    expect(screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).not.toBeInTheDocument()
+    expect(screen.getByTestId(EDIT_CUSTOMER_VAT_RATE_SUBMIT_BUTTON_TEST_ID)).toBeDisabled()
   })
 })

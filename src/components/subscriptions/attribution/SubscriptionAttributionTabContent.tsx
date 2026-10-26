@@ -55,7 +55,8 @@ export const ATTRIBUTION_UNDER_TEST_ID = 'attribution-under'
 export const ATTRIBUTION_CHARGES_TEST_ID = 'attribution-charges'
 export const ATTRIBUTION_SHOW_TEST_ID = 'attribution-show'
 
-const ALL_VALUE = 'all'
+// Must not collide with a user-defined attribution type `code`, which is free text.
+const ALL_VALUE = '__ALL__'
 const ATTRIBUTION_ROWS_LIMIT = 50
 const ATTRIBUTION_TYPES_LIMIT = 100
 
