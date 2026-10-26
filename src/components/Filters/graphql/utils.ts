@@ -1315,7 +1315,10 @@ export const formatActiveFilterValueDisplay = (
 
       return value
         .split(',')
-        .map((bound) => intlFormatDateTime(bound, { formatDate: DateFormat.DATE_MED }).date)
+        .map(
+          (bound) =>
+            intlFormatDateTime(bound, { formatDate: DateFormat.DATE_MED, setZone: true }).date,
+        )
         .join(' - ')
     case AvailableFiltersEnum.period:
       return (

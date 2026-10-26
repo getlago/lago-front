@@ -55,4 +55,21 @@ describe('useHeldData', () => {
 
     expect(result.current).toEqual({ data: undefined, isHeld: false })
   })
+
+  it('does not resurrect the pre-error data while a retry is in flight', () => {
+    const { result, rerender } = renderHeldData({
+      data: 'first',
+      heldKey: 'page=1',
+      hasError: false,
+    })
+
+    rerender({ data: undefined, heldKey: 'page=1', hasError: true })
+    rerender({ data: undefined, heldKey: 'page=1', hasError: false })
+
+    expect(result.current).toEqual({ data: undefined, isHeld: false })
+
+    rerender({ data: 'second', heldKey: 'page=1', hasError: false })
+
+    expect(result.current).toEqual({ data: 'second', isHeld: false })
+  })
 })

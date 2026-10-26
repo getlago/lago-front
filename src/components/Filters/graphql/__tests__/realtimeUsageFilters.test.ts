@@ -79,5 +79,14 @@ describe('real-time usage filters', () => {
         ),
       ).toBe('Aug 1, 2026 - Aug 7, 2026')
     })
+
+    it('keeps the offset the custom range bounds were stored with', () => {
+      expect(
+        formatActiveFilterValueDisplay(
+          AvailableFiltersEnum.timeRange,
+          '2026-08-01T00:00:00.000+02:00,2026-08-07T23:59:59.999+02:00',
+        ),
+      ).toBe('Aug 1, 2026 - Aug 7, 2026')
+    })
   })
 })
