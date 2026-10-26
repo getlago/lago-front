@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react'
 import { tw } from 'lago-design-system'
-import { useEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { Panel } from 'react-resizable-panels'
 import { matchRoutes } from 'react-router'
 
@@ -50,7 +50,9 @@ export const AiAgent = () => {
 
   // Only membership slugs count as a switch: the legacy-path bounce
   // (`/customers` → `/acme/customers`) must not drop the conversation.
-  useEffect(() => {
+  // Layout, not passive: a passive effect lets the panel paint one frame of the
+  // previous organization's conversation under the new slug.
+  useLayoutEffect(() => {
     if (!isInsideValidOrgContext) return
 
     const previousOrgSlug = lastOrgSlugRef.current

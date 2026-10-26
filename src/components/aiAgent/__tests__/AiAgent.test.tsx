@@ -103,6 +103,7 @@ const mocks: TestMocksType = [
       query: GetAiConversationDocument,
       variables: { id: 'conv-1' },
     },
+    delay: 50,
     result: {
       data: {
         aiConversation: {
@@ -389,6 +390,25 @@ describe('AiAgent', () => {
 
         expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
         expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a history conversation resolves after the organization changed', () => {
+      it('THEN should ignore the restored conversation', async () => {
+        await renderAiAgent()
+        await openPanel()
+        await userEvent.click(getHistoryButton() as HTMLButtonElement)
+
+        const [item] = await screen.findAllByTestId(CHAT_HISTORY_ITEM_TEST_ID)
+
+        await userEvent.click(item)
+        await navigateTo('/second-org/analytics')
+
+        await act(async () => {
+          await new Promise((resolve) => setTimeout(resolve, 150))
+        })
+
+        expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
       })
     })
 
