@@ -2,6 +2,7 @@ import { RenderOptions, render as rtlRender, screen, waitFor } from '@testing-li
 import userEvent from '@testing-library/user-event'
 import { ReactElement } from 'react'
 
+import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import { PspErrorCode } from '~/core/apolloClient/errorUtils'
 import {
   AddCustomerDrawerFragment,
@@ -48,6 +49,11 @@ jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
   ...jest.requireActual('~/core/apolloClient/reactiveVars/toastVar'),
   addToast: (...args: unknown[]) => mockAddToast(...args),
 }))
+
+// jsdom does not implement scrollIntoView, which scrollToFirstInputError calls
+const mockScrollIntoView = jest.fn()
+
+Element.prototype.scrollIntoView = mockScrollIntoView
 
 // Mock data for required queries
 const defaultMocks: TestMocksType = [
@@ -188,6 +194,9 @@ const customerWithStripeConnection: AddCustomerDrawerFragment = {
   integrationCustomers: [],
 }
 
+const TOO_LONG_255_MESSAGE = 'This field is too long. It can contain up to 255 characters.'
+const TOO_LONG_500_MESSAGE = 'This field is too long. It can contain up to 500 characters.'
+
 // Custom render function for CreateCustomer component (create mode)
 const renderCreateCustomer = (
   ui: ReactElement,
@@ -261,37 +270,6 @@ describe('CreateCustomer Integration Tests', () => {
       expect(screen.getByLabelText(/customer name/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/first name/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/last name/i)).toBeInTheDocument()
-    })
-  })
-
-  describe('WHEN checking the free text inputs', () => {
-    it('THEN limits the address lines to 500 characters and the other fields to 255', async () => {
-      const user = userEvent.setup()
-
-      renderCreateCustomer(<CreateCustomer />)
-      await waitForFormReady()
-
-      await user.click(screen.getByRole('button', { name: /expand billing information/i }))
-
-      const freeTextInputs = [
-        screen.getByLabelText(/customer name/i),
-        screen.getByLabelText(/first name/i),
-        screen.getByLabelText(/last name/i),
-        screen.getByLabelText(/legal name/i),
-        screen.getByLabelText(/tax identification number/i),
-        ...screen.getAllByLabelText(/zip code/i),
-        ...screen.getAllByLabelText(/city/i),
-        ...screen.getAllByLabelText(/state/i),
-      ]
-      const addressLineInputs = [
-        ...screen.getAllByLabelText(/address line 1/i),
-        ...screen.getAllByLabelText(/address line 2/i),
-      ]
-
-      expect(freeTextInputs).toHaveLength(11)
-      freeTextInputs.forEach((input) => expect(input).toHaveAttribute('maxLength', '255'))
-      expect(addressLineInputs).toHaveLength(4)
-      addressLineInputs.forEach((input) => expect(input).toHaveAttribute('maxLength', '500'))
     })
   })
 
@@ -519,6 +497,7 @@ describe('CreateCustomer Integration Tests', () => {
         onSave: mockOnSave,
       })
       mockOnSave.mockReset()
+      mockScrollIntoView.mockClear()
     })
 
     afterEach(() => {
@@ -697,7 +676,7 @@ describe('CreateCustomer Integration Tests', () => {
 
       await user.type(screen.getByLabelText(/customer external id/i), 'test-customer')
       await user.click(screen.getByRole('button', { name: /expand billing information/i }))
-      await user.click(screen.getByTestId('submit-customer'))
+      await user.click(screen.getByTestId(SUBMIT_CUSTOMER_DATA_TEST))
 
       await waitFor(() => {
         expect(mockOnSave).toHaveBeenCalled()
@@ -716,14 +695,174 @@ describe('CreateCustomer Integration Tests', () => {
       expect(shippingAddressLine1).not.toHaveAttribute('aria-invalid', 'true')
       expect(billingCity).not.toHaveAttribute('aria-invalid', 'true')
 
-      expect(
-        screen.getAllByText('This field is too long. It can contain up to 255 characters.'),
-      ).toHaveLength(2)
-      expect(
-        screen.getByText('This field is too long. It can contain up to 500 characters.'),
-      ).toBeInTheDocument()
+      expect(screen.getAllByText(TOO_LONG_255_MESSAGE)).toHaveLength(2)
+      expect(screen.getByText(TOO_LONG_500_MESSAGE)).toBeInTheDocument()
 
       expect(screen.getByLabelText(/customer external id/i)).toHaveValue('test-customer')
+    })
+
+    it('THEN should open the billing section to show a field error inside it', async () => {
+      const user = userEvent.setup()
+
+      mockOnSave.mockResolvedValue({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              status: 422,
+              code: 'unprocessable_entity',
+              details: { legalName: ['invalid_characters'] },
+            },
+          },
+        ],
+      })
+
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+
+      expect(screen.queryByLabelText(/legal name/i)).not.toBeInTheDocument()
+
+      await user.type(screen.getByLabelText(/customer external id/i), 'test-customer')
+      await user.click(screen.getByTestId(SUBMIT_CUSTOMER_DATA_TEST))
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/legal name/i)).toHaveAttribute('aria-invalid', 'true')
+      })
+      expect(screen.getByText(/contains characters that are not allowed/i)).toBeInTheDocument()
+      expect(mockScrollIntoView.mock.contexts).toContain(screen.getByLabelText(/legal name/i))
+    })
+
+    it('THEN should keep the externalId error next to the field errors', async () => {
+      const user = userEvent.setup()
+
+      mockOnSave.mockResolvedValue({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              status: 422,
+              code: 'unprocessable_entity',
+              details: { name: ['value_is_too_long'], externalId: ['value_already_exist'] },
+            },
+          },
+        ],
+      })
+
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+
+      const externalIdInput = screen.getByLabelText(/customer external id/i)
+
+      await user.type(externalIdInput, 'test-customer')
+      await user.click(screen.getByTestId(SUBMIT_CUSTOMER_DATA_TEST))
+
+      await waitFor(() => {
+        expect(externalIdInput).toHaveAttribute('aria-invalid', 'true')
+      })
+      expect(screen.getByLabelText(/customer name/i)).toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('THEN should keep the values when field errors come with an unhandled detail', async () => {
+      const user = userEvent.setup()
+
+      mockOnSave.mockResolvedValue({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              status: 422,
+              code: 'unprocessable_entity',
+              details: { name: ['value_is_too_long'], email: ['invalid_value'] },
+            },
+          },
+        ],
+      })
+
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+
+      await user.type(screen.getByLabelText(/customer external id/i), 'test-customer')
+      await user.click(screen.getByTestId(SUBMIT_CUSTOMER_DATA_TEST))
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/customer name/i)).toHaveAttribute('aria-invalid', 'true')
+      })
+      expect(screen.getByLabelText(/customer external id/i)).toHaveValue('test-customer')
+    })
+
+    it('THEN should block the submit when a changed value is over its limit', async () => {
+      const user = userEvent.setup()
+
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+
+      await user.type(screen.getByLabelText(/customer external id/i), 'test-customer')
+      await user.click(screen.getByLabelText(/customer name/i))
+      await user.paste('a'.repeat(256))
+      await user.click(screen.getByTestId(SUBMIT_CUSTOMER_DATA_TEST))
+
+      await waitFor(() => {
+        expect(screen.getByText(TOO_LONG_255_MESSAGE)).toBeInTheDocument()
+      })
+      expect(screen.getByLabelText(/customer name/i)).toHaveAttribute('aria-invalid', 'true')
+      expect(mockOnSave).not.toHaveBeenCalled()
+    })
+
+    it('THEN should open the billing section to show a limit error inside it', async () => {
+      const user = userEvent.setup()
+
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+
+      await user.type(screen.getByLabelText(/customer external id/i), 'test-customer')
+      await user.click(screen.getByRole('button', { name: /expand billing information/i }))
+      await user.click(screen.getAllByLabelText(/address line 1/i)[0])
+      await user.paste('a'.repeat(501))
+      await user.click(screen.getByRole('button', { name: /collapse billing information/i }))
+
+      await waitFor(() => {
+        expect(screen.queryByLabelText(/legal name/i)).not.toBeInTheDocument()
+      })
+
+      await user.click(screen.getByTestId(SUBMIT_CUSTOMER_DATA_TEST))
+
+      await waitFor(() => {
+        expect(screen.getByText(TOO_LONG_500_MESSAGE)).toBeInTheDocument()
+      })
+      expect(mockOnSave).not.toHaveBeenCalled()
+    })
+
+    it('THEN should submit a stored value over its limit when it is unchanged', async () => {
+      const user = userEvent.setup()
+      const longName = 'a'.repeat(256)
+
+      hookSpy.mockReturnValue({
+        isEdition: true,
+        loading: false,
+        customer: {
+          ...customerWithStripeConnection,
+          name: longName,
+          addressLine1: 'a'.repeat(501),
+          paymentProviderCustomers: [],
+        },
+        onClose: mockOnClose,
+        onSave: mockOnSave,
+      })
+      mockOnSave.mockResolvedValue({})
+
+      renderCreateCustomer(<CreateCustomer />)
+
+      const submitButton = await screen.findByTestId(SUBMIT_CUSTOMER_DATA_TEST)
+
+      await waitFor(() => {
+        expect(submitButton).toBeEnabled()
+      })
+
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ name: longName }))
+      })
     })
 
     it('THEN should target the first non-manual payment row when a Stripe resource_missing error is returned', async () => {

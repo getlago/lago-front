@@ -3,7 +3,6 @@ import { useMemo } from 'react'
 
 import { BillingEntityTaxAlerts } from '~/components/billingEntity/BillingEntityTaxAlerts'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
-import { FREE_TEXT_MAX_LENGTH } from '~/components/customers/utils/customerFieldErrors'
 import { Typography } from '~/components/designSystem/Typography'
 import { getTimezoneConfig } from '~/core/timezone'
 import { AddCustomerDrawerFragment, CustomerTypeEnum, TimezoneEnum } from '~/generated/graphql'
@@ -126,7 +125,6 @@ const CustomerInformation = withForm({
         <form.AppField name="name">
           {(field) => (
             <field.TextInputField
-              inputProps={{ maxLength: FREE_TEXT_MAX_LENGTH }}
               label={translate('text_624efab67eb2570101d117be')}
               placeholder={translate('text_624efab67eb2570101d117c6')}
             />
@@ -137,7 +135,6 @@ const CustomerInformation = withForm({
           <form.AppField name="firstname">
             {(field) => (
               <field.TextInputField
-                inputProps={{ maxLength: FREE_TEXT_MAX_LENGTH }}
                 className="w-full"
                 label={translate('text_1726128938631ggtf2ggqs4b')}
                 placeholder={translate('text_1726128938631ntcpbzv7x7s')}
@@ -148,7 +145,6 @@ const CustomerInformation = withForm({
           <form.AppField name="lastname">
             {(field) => (
               <field.TextInputField
-                inputProps={{ maxLength: FREE_TEXT_MAX_LENGTH }}
                 className="w-full"
                 label={translate('text_1726128938631ymctg83bygm')}
                 placeholder={translate('text_1726128938631xmpsba9ssuo')}

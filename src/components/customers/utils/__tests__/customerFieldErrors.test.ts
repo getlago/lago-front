@@ -2,7 +2,12 @@ import { GraphQLFormattedError } from 'graphql'
 
 import { LagoApiError } from '~/generated/graphql'
 
-import { CustomerFieldErrorKey, getCustomerFieldErrorMap } from '../customerFieldErrors'
+import {
+  CustomerFieldErrorKey,
+  getCustomerFieldErrorMap,
+  hasOnlyCustomerFieldErrors,
+  zodCustomerFreeText,
+} from '../customerFieldErrors'
 
 const PATH_BY_ERROR_KEY: Record<CustomerFieldErrorKey, string> = {
   name: 'name',
@@ -22,11 +27,13 @@ const PATH_BY_ERROR_KEY: Record<CustomerFieldErrorKey, string> = {
   shippingState: 'shippingAddress.state',
 }
 
-const translate = (key: string, data?: Record<string, string | number | undefined | null>) =>
-  data ? `${key}:${JSON.stringify(data)}` : key
+const translate = (
+  key: string,
+  data?: Record<string, string | number | undefined | null>,
+): string => (data ? `${key}:${JSON.stringify(data)}` : key)
 
 const INVALID_CHARACTERS_MESSAGE = 'text_1792577695510fp8vzeszoh7'
-const tooLongMessage = (max: number) => `text_1792577695510xy36tafb8l5:{"max":${max}}`
+const tooLongMessage = (max: number): string => `text_1792577695510xy36tafb8l5:{"max":${max}}`
 
 const buildErrors = (details: unknown): GraphQLFormattedError[] => [
   {
@@ -133,6 +140,81 @@ describe('getCustomerFieldErrorMap', () => {
       })
 
       expect(getCustomerFieldErrorMap(errors, PATH_BY_ERROR_KEY, translate)).toEqual({})
+    })
+  })
+})
+
+describe('hasOnlyCustomerFieldErrors', () => {
+  describe('GIVEN no errors or no details', () => {
+    it('THEN returns false', () => {
+      expect(hasOnlyCustomerFieldErrors(undefined)).toBe(false)
+      expect(hasOnlyCustomerFieldErrors(buildErrors(undefined))).toBe(false)
+      expect(hasOnlyCustomerFieldErrors(buildErrors({}))).toBe(false)
+    })
+  })
+
+  describe('GIVEN every detail is a mapped field error', () => {
+    it('THEN returns true', () => {
+      const errors = buildErrors({
+        legalName: [LagoApiError.InvalidCharacters],
+        shippingCity: [LagoApiError.ValueIsTooLong],
+      })
+
+      expect(hasOnlyCustomerFieldErrors(errors)).toBe(true)
+    })
+  })
+
+  describe('GIVEN a mapped field error next to an unmapped detail', () => {
+    it('THEN returns false', () => {
+      const errors = buildErrors({
+        legalName: [LagoApiError.InvalidCharacters],
+        email: [LagoApiError.ValueIsInvalid],
+      })
+
+      expect(hasOnlyCustomerFieldErrors(errors)).toBe(false)
+    })
+  })
+
+  describe('GIVEN a second error next to the field errors', () => {
+    it('THEN returns false', () => {
+      const errors = [
+        ...buildErrors({ legalName: [LagoApiError.InvalidCharacters] }),
+        { message: 'Not found', extensions: { code: LagoApiError.NotFound } },
+      ]
+
+      expect(hasOnlyCustomerFieldErrors(errors)).toBe(false)
+    })
+  })
+})
+
+describe('zodCustomerFreeText', () => {
+  const longName = 'a'.repeat(256)
+
+  describe('GIVEN a value over the limit', () => {
+    it('THEN fails with the limit message', () => {
+      const result = zodCustomerFreeText({ key: 'name', initialValue: '', translate }).safeParse(
+        longName,
+      )
+
+      expect(result.success).toBe(false)
+      expect(result.error?.issues[0].message).toBe(tooLongMessage(255))
+    })
+  })
+
+  describe('GIVEN an address line within its own limit', () => {
+    it('THEN passes', () => {
+      const schema = zodCustomerFreeText({ key: 'addressLine1', initialValue: '', translate })
+
+      expect(schema.safeParse('a'.repeat(500)).success).toBe(true)
+      expect(schema.safeParse('a'.repeat(501)).success).toBe(false)
+    })
+  })
+
+  describe('GIVEN a value over the limit that equals the initial value', () => {
+    it('THEN passes', () => {
+      const schema = zodCustomerFreeText({ key: 'name', initialValue: longName, translate })
+
+      expect(schema.safeParse(longName).success).toBe(true)
     })
   })
 })

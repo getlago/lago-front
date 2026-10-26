@@ -10,7 +10,12 @@ import {
   TimezoneEnum,
 } from '~/generated/graphql'
 
-import { validationSchema } from '../validationSchema'
+import {
+  CreateCustomerDefaultValues,
+  emptyCreateCustomerDefaultValues,
+  getValidationSchema,
+  validationSchema,
+} from '../validationSchema'
 
 describe('validationSchema', () => {
   describe('basic fields', () => {
@@ -903,6 +908,69 @@ describe('validationSchema', () => {
       })
 
       expect(result.success).toBe(true)
+    })
+  })
+
+  describe('getValidationSchema', () => {
+    const TOO_LONG_MESSAGE = 'text_1792577695510xy36tafb8l5'
+    const translate = (key: string): string => key
+    const longName = 'a'.repeat(256)
+    const longAddressLine = 'a'.repeat(501)
+
+    const getSchema = (
+      initialValues = emptyCreateCustomerDefaultValues,
+    ): ReturnType<typeof getValidationSchema> => getValidationSchema({ initialValues, translate })
+
+    it('rejects changed values over their limit', () => {
+      const result = getSchema().safeParse({
+        ...emptyCreateCustomerDefaultValues,
+        externalId: 'customer-123',
+        legalName: longName,
+        billingAddress: {
+          ...emptyCreateCustomerDefaultValues.billingAddress,
+          addressLine2: longAddressLine,
+        },
+        shippingAddress: { ...emptyCreateCustomerDefaultValues.shippingAddress, city: longName },
+      })
+
+      expect(result.success).toBe(false)
+      expect(result.error?.issues.map(({ path, message }) => ({ path, message }))).toEqual([
+        { path: ['legalName'], message: TOO_LONG_MESSAGE },
+        { path: ['billingAddress', 'addressLine2'], message: TOO_LONG_MESSAGE },
+        { path: ['shippingAddress', 'city'], message: TOO_LONG_MESSAGE },
+      ])
+    })
+
+    it('accepts values at their limit', () => {
+      const result = getSchema().safeParse({
+        ...emptyCreateCustomerDefaultValues,
+        externalId: 'customer-123',
+        name: 'a'.repeat(255),
+        billingAddress: {
+          ...emptyCreateCustomerDefaultValues.billingAddress,
+          addressLine1: 'a'.repeat(500),
+        },
+      })
+
+      expect(result.success).toBe(true)
+    })
+
+    it('accepts stored values over their limit when they are unchanged', () => {
+      const initialValues: CreateCustomerDefaultValues = {
+        ...emptyCreateCustomerDefaultValues,
+        externalId: 'customer-123',
+        name: longName,
+        shippingAddress: {
+          addressLine1: longAddressLine,
+          addressLine2: '',
+          city: '',
+          state: '',
+          zipcode: '',
+          country: null,
+        },
+      }
+
+      expect(getSchema(initialValues).safeParse(initialValues).success).toBe(true)
     })
   })
 })

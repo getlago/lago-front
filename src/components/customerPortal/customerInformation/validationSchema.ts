@@ -1,10 +1,15 @@
 import { z } from 'zod'
 
 import {
+  CustomerFieldErrorKey,
+  zodCustomerFreeText,
+} from '~/components/customers/utils/customerFieldErrors'
+import {
   CountryCode,
   CustomerTypeEnum,
   UpdateCustomerPortalCustomerInput,
 } from '~/generated/graphql'
+import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 const addressSchema = z.object({
   addressLine1: z.string().optional(),
@@ -37,6 +42,43 @@ export const editCustomerBillingValidationSchema = z.object({
 })
 
 export type EditCustomerBillingFormValues = z.infer<typeof editCustomerBillingValidationSchema>
+
+export const getEditCustomerBillingValidationSchema = ({
+  initialValues,
+  translate,
+}: {
+  initialValues: EditCustomerBillingFormValues
+  translate: TranslateFunc
+}): typeof editCustomerBillingValidationSchema => {
+  const { shippingAddress } = initialValues
+  const freeText = (
+    key: CustomerFieldErrorKey,
+    initialValue: string | null | undefined,
+  ): z.ZodOptional<z.ZodString> => zodCustomerFreeText({ key, initialValue, translate }).optional()
+
+  return editCustomerBillingValidationSchema.extend({
+    name: freeText('name', initialValues.name),
+    firstname: freeText('firstname', initialValues.firstname),
+    lastname: freeText('lastname', initialValues.lastname),
+    legalName: freeText('legalName', initialValues.legalName),
+    taxIdentificationNumber: freeText(
+      'taxIdentificationNumber',
+      initialValues.taxIdentificationNumber,
+    ),
+    addressLine1: freeText('addressLine1', initialValues.addressLine1),
+    addressLine2: freeText('addressLine2', initialValues.addressLine2),
+    zipcode: freeText('zipcode', initialValues.zipcode),
+    city: freeText('city', initialValues.city),
+    state: freeText('state', initialValues.state),
+    shippingAddress: addressSchema.extend({
+      addressLine1: freeText('shippingAddressLine1', shippingAddress.addressLine1),
+      addressLine2: freeText('shippingAddressLine2', shippingAddress.addressLine2),
+      city: freeText('shippingCity', shippingAddress.city),
+      state: freeText('shippingState', shippingAddress.state),
+      zipcode: freeText('shippingZipcode', shippingAddress.zipcode),
+    }),
+  })
+}
 
 export const editCustomerBillingDefaultValues: EditCustomerBillingFormValues = {
   customerType: null,

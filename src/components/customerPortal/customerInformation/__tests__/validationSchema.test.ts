@@ -3,6 +3,7 @@ import { CountryCode, CustomerTypeEnum } from '~/generated/graphql'
 import {
   editCustomerBillingDefaultValues,
   editCustomerBillingValidationSchema,
+  getEditCustomerBillingValidationSchema,
   mapCustomerToFormValues,
 } from '../validationSchema'
 
@@ -203,6 +204,67 @@ describe('validationSchema', () => {
         const result = editCustomerBillingValidationSchema.safeParse({})
 
         expect(result.success).toBe(false)
+      })
+    })
+  })
+
+  describe('getEditCustomerBillingValidationSchema', () => {
+    const TOO_LONG_MESSAGE = 'text_1792577695510xy36tafb8l5'
+    const translate = (key: string): string => key
+    const longName = 'a'.repeat(256)
+    const longAddressLine = 'a'.repeat(501)
+
+    const getSchema = (
+      initialValues = editCustomerBillingDefaultValues,
+    ): ReturnType<typeof getEditCustomerBillingValidationSchema> =>
+      getEditCustomerBillingValidationSchema({ initialValues, translate })
+
+    const getErrorPaths = (
+      result: ReturnType<ReturnType<typeof getSchema>['safeParse']>,
+    ): string[] | undefined => result.error?.issues.map((issue) => issue.path.join('.'))
+
+    describe('WHEN a changed value is over its limit', () => {
+      it('THEN fails on each field with the limit message', () => {
+        const result = getSchema().safeParse({
+          name: longName,
+          state: longName,
+          addressLine1: longAddressLine,
+          shippingAddress: { addressLine2: longAddressLine, zipcode: longName },
+        })
+
+        expect(result.success).toBe(false)
+        expect(getErrorPaths(result)).toEqual([
+          'name',
+          'addressLine1',
+          'state',
+          'shippingAddress.addressLine2',
+          'shippingAddress.zipcode',
+        ])
+        expect(result.error?.issues.every((issue) => issue.message === TOO_LONG_MESSAGE)).toBe(true)
+      })
+    })
+
+    describe('WHEN values are at their limit', () => {
+      it('THEN should pass validation', () => {
+        const result = getSchema().safeParse({
+          name: 'a'.repeat(255),
+          addressLine1: 'a'.repeat(500),
+          shippingAddress: { addressLine1: 'a'.repeat(500) },
+        })
+
+        expect(result.success).toBe(true)
+      })
+    })
+
+    describe('WHEN a stored value over its limit is unchanged', () => {
+      it('THEN should pass validation', () => {
+        const initialValues = mapCustomerToFormValues({
+          name: longName,
+          addressLine1: longAddressLine,
+          shippingAddress: { city: longName },
+        })
+
+        expect(getSchema(initialValues).safeParse(initialValues).success).toBe(true)
       })
     })
   })

@@ -1,11 +1,13 @@
 import { revalidateLogic } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
-import { ReactNode, useCallback } from 'react'
+import { ReactNode, useCallback, useMemo, useState } from 'react'
+import { flushSync } from 'react-dom'
 
 import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
 import {
   CustomerFieldErrorKey,
   getCustomerFieldErrorMap,
+  hasOnlyCustomerFieldErrors,
 } from '~/components/customers/utils/customerFieldErrors'
 import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import { Button } from '~/components/designSystem/Button'
@@ -23,15 +25,16 @@ import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
-import BillingAccordion from './billingAccordion/BillingAccordion'
+import BillingAccordion, { isBillingAccordionField } from './billingAccordion/BillingAccordion'
 import CustomerInformation from './customerInformation/CustomerInformation'
 import ExternalAppsAccordion from './externalAppsAccordion/ExternalAppsAccordion'
-import { validationSchema } from './formInitialization/validationSchema'
+import { getValidationSchema } from './formInitialization/validationSchema'
 import { mapFromApiToForm } from './mappers/mapFromApiToForm'
 import { mapFromFormToApi } from './mappers/mapFromFormToApi'
 import MetadataAccordion from './metadataAccordion/MetadataAccordion'
 
 const STRIPE_CUSTOMER_ERROR_MESSAGE_DETAILS = 'Stripe: resource_missing'
+const FORM_ID = 'create-customer'
 
 const FIELD_PATH_BY_ERROR_KEY: Record<CustomerFieldErrorKey, string> = {
   name: 'name',
@@ -79,6 +82,25 @@ const CreateCustomer = () => {
   const canEditAccountType =
     hasAccessToRevenueShare && (isEdition ? customer?.canEditAttributes : true)
 
+  const [isBillingAccordionOpen, setIsBillingAccordionOpen] = useState(false)
+
+  const validationSchema = useMemo(
+    () =>
+      getValidationSchema({
+        initialValues: mapFromApiToForm(customer, defaultBillingEntity),
+        translate,
+      }),
+    [customer, defaultBillingEntity, translate],
+  )
+
+  // The accordion unmounts its fields while collapsed, and an unmounted field misses the errors
+  // set on it: mount them first
+  const openAccordionsWithErrors = (errorMap: Record<string, unknown>): void => {
+    if (!Object.keys(errorMap).some(isBillingAccordionField)) return
+
+    flushSync(() => setIsBillingAccordionOpen(true))
+  }
+
   const form = useAppForm({
     defaultValues: mapFromApiToForm(customer, defaultBillingEntity),
     validationLogic: revalidateLogic(),
@@ -93,16 +115,21 @@ const CreateCustomer = () => {
       const { errors } = answer
 
       const fieldErrors = getCustomerFieldErrorMap(errors, FIELD_PATH_BY_ERROR_KEY, translate)
+      const hasFieldErrors = Object.keys(fieldErrors).length > 0
 
-      if (Object.keys(fieldErrors).length) {
+      if (hasFieldErrors) {
+        openAccordionsWithErrors(fieldErrors)
         formApi.setErrorMap({ onDynamic: { fields: fieldErrors } })
-        return
+        scrollToFirstInputError(FORM_ID, fieldErrors)
+
+        if (hasOnlyCustomerFieldErrors(errors)) return
       }
 
       if (hasDefinedGQLError('ValueAlreadyExist', errors, 'externalId')) {
         formApi.setErrorMap({
           onDynamic: {
             fields: {
+              ...fieldErrors,
               externalId: {
                 message: 'text_626162c62f790600f850b728',
                 path: ['externalId'],
@@ -132,6 +159,7 @@ const CreateCustomer = () => {
           formApi.setErrorMap({
             onDynamic: {
               fields: {
+                ...fieldErrors,
                 [`paymentProviderCustomers[${paymentConnectionIndex}].providerCustomerId`]: {
                   message: 'text_1772636865361lt8w6gchmv1',
                   path: ['paymentProviderCustomers', paymentConnectionIndex, 'providerCustomerId'],
@@ -151,10 +179,15 @@ const CreateCustomer = () => {
         return
       }
 
+      if (hasFieldErrors) return
+
       !isEdition && formApi.reset()
     },
     onSubmitInvalid({ formApi }) {
-      scrollToFirstInputError('create-customer', formApi.state.errorMap.onDynamic || {})
+      const errorMap = formApi.state.errorMap.onDynamic || {}
+
+      openAccordionsWithErrors(errorMap)
+      scrollToFirstInputError(FORM_ID, errorMap)
     },
   })
 
@@ -222,7 +255,7 @@ const CreateCustomer = () => {
   return (
     <CenteredPage.Wrapper>
       <form
-        id="create-customer"
+        id={FORM_ID}
         className="flex size-full min-h-full flex-col overflow-auto"
         onSubmit={handleSubmit}
       >
@@ -237,7 +270,7 @@ const CreateCustomer = () => {
 
         {!isFormReady && (
           <CenteredPage.Container>
-            <FormLoadingSkeleton id="create-customer" />
+            <FormLoadingSkeleton id={FORM_ID} />
           </CenteredPage.Container>
         )}
 
@@ -262,7 +295,11 @@ const CreateCustomer = () => {
                 customer={customer}
                 billingEntitiesList={billingEntitiesList}
               />
-              <BillingAccordion form={form} />
+              <BillingAccordion
+                form={form}
+                isOpen={isBillingAccordionOpen}
+                onToggle={setIsBillingAccordionOpen}
+              />
               <MetadataAccordion form={form} />
               <ExternalAppsAccordion form={form} isEdition={isEdition} customer={customer} />
             </div>

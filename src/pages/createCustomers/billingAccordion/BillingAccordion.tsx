@@ -1,7 +1,6 @@
 import { useStore } from '@tanstack/react-form'
 import { useEffect } from 'react'
 
-import { FREE_TEXT_MAX_LENGTH } from '~/components/customers/utils/customerFieldErrors'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Typography } from '~/components/designSystem/Typography'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -11,9 +10,36 @@ import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formIn
 
 import BillingFields from './BillingFields'
 
+const BILLING_ACCORDION_FIELDS = new Set<string>([
+  'currency',
+  'legalName',
+  'legalNumber',
+  'taxIdentificationNumber',
+  'email',
+  'url',
+  'phone',
+  'billingAddress',
+  'isShippingEqualBillingAddress',
+  'shippingAddress',
+])
+
+export const isBillingAccordionField = (fieldName: string): boolean =>
+  BILLING_ACCORDION_FIELDS.has(fieldName.split(/[.[]/)[0])
+
+type BillingAccordionProps = {
+  isOpen?: boolean
+  onToggle?: (open: boolean) => void
+}
+
+const defaultProps: BillingAccordionProps = {
+  isOpen: undefined,
+  onToggle: undefined,
+}
+
 const BillingAccordion = withForm({
   defaultValues: emptyCreateCustomerDefaultValues,
-  render: function Render({ form }) {
+  props: defaultProps,
+  render: function Render({ form, isOpen, onToggle }) {
     const { translate } = useInternationalization()
 
     const billingAddress = useStore(form.store, (state) => state.values.billingAddress)
@@ -36,6 +62,8 @@ const BillingAccordion = withForm({
     return (
       <Accordion
         variant="borderless"
+        isOpen={isOpen}
+        onToggle={onToggle}
         summary={
           <div className="flex flex-col gap-2">
             <Typography variant="subhead1">{translate('text_632b49e2620ea4c6d96c9662')}</Typography>
@@ -58,7 +86,6 @@ const BillingAccordion = withForm({
             <form.AppField name="legalName">
               {(field) => (
                 <field.TextInputField
-                  inputProps={{ maxLength: FREE_TEXT_MAX_LENGTH }}
                   label={translate('text_626c0c09812bbc00e4c59e01')}
                   placeholder={translate('text_626c0c09812bbc00e4c59e03')}
                 />
@@ -75,7 +102,6 @@ const BillingAccordion = withForm({
             <form.AppField name="taxIdentificationNumber">
               {(field) => (
                 <field.TextInputField
-                  inputProps={{ maxLength: FREE_TEXT_MAX_LENGTH }}
                   label={translate('text_648053ee819b60364c675d05')}
                   placeholder={translate('text_648053ee819b60364c675d0b')}
                 />

@@ -1,9 +1,10 @@
 import { act, screen } from '@testing-library/react'
+import { ZodType } from 'zod'
 
 import { CountryCode, CustomerTypeEnum, LagoApiError } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import CustomerInformationPage from '../CustomerInformationPage'
+import CustomerInformationPage, { ERROR_ALERT_TEST_ID } from '../CustomerInformationPage'
 
 const mockUseCustomerPortalData = jest.fn()
 const mockUseCustomerPortalNavigation = jest.fn()
@@ -54,16 +55,20 @@ let capturedOnSubmit: (args: {
   value: Record<string, unknown>
   formApi: { setErrorMap: jest.Mock }
 }) => Promise<void>
+let capturedValidationSchema: ZodType
 
 jest.mock('~/hooks/forms/useAppform', () => ({
   useAppForm: ({
     defaultValues,
     onSubmit,
+    validators,
   }: {
     defaultValues: Record<string, unknown>
     onSubmit: typeof capturedOnSubmit
+    validators: { onDynamic: ZodType }
   }) => {
     capturedOnSubmit = onSubmit
+    capturedValidationSchema = validators.onDynamic
 
     return {
       store: {
@@ -88,21 +93,14 @@ jest.mock('~/hooks/forms/useAppform', () => ({
             label,
             placeholder,
             disabled,
-            inputProps,
           }: {
             label?: string
             placeholder?: string
             disabled?: boolean
-            inputProps?: { maxLength?: number }
           }) => (
             <div data-test={`field-${name}`}>
               {label && <label>{label}</label>}
-              <input
-                placeholder={placeholder}
-                disabled={disabled}
-                maxLength={inputProps?.maxLength}
-                data-test={`input-${name}`}
-              />
+              <input placeholder={placeholder} disabled={disabled} data-test={`input-${name}`} />
             </div>
           ),
           ComboBoxField: ({
@@ -337,35 +335,32 @@ describe('CustomerInformationPage', () => {
   })
 
   describe('GIVEN the free text inputs', () => {
-    it('THEN limits the address lines to 500 characters and the other fields to 255', () => {
+    const longName = 'a'.repeat(256)
+
+    it('THEN rejects a changed value over its limit', () => {
       render(<CustomerInformationPage />)
 
-      const addressLines = [
-        'addressLine1',
-        'addressLine2',
-        'shippingAddress.addressLine1',
-        'shippingAddress.addressLine2',
-      ]
-      const otherFields = [
-        'name',
-        'firstname',
-        'lastname',
-        'legalName',
-        'taxIdentificationNumber',
-        'zipcode',
-        'city',
-        'state',
-        'shippingAddress.zipcode',
-        'shippingAddress.city',
-        'shippingAddress.state',
-      ]
+      const result = capturedValidationSchema.safeParse({ name: longName, shippingAddress: {} })
 
-      addressLines.forEach((field) => {
-        expect(screen.getByTestId(`input-${field}`)).toHaveAttribute('maxLength', '500')
+      expect(result.success).toBe(false)
+      expect(result.error?.issues).toEqual([
+        expect.objectContaining({ path: ['name'], message: 'text_1792577695510xy36tafb8l5' }),
+      ])
+    })
+
+    it('THEN accepts a stored value over its limit when it is unchanged', () => {
+      mockUseCustomerPortalData.mockReturnValue({
+        data: { customerPortalUser: { name: longName, shippingAddress: null } },
+        loading: false,
+        error: undefined,
+        refetch: jest.fn(),
       })
-      otherFields.forEach((field) => {
-        expect(screen.getByTestId(`input-${field}`)).toHaveAttribute('maxLength', '255')
-      })
+
+      render(<CustomerInformationPage />)
+
+      expect(
+        capturedValidationSchema.safeParse({ name: longName, shippingAddress: {} }).success,
+      ).toBe(true)
     })
   })
 
@@ -469,7 +464,7 @@ describe('CustomerInformationPage', () => {
     it('THEN shows the generic error when no field error was mapped', () => {
       render(<CustomerInformationPage />)
 
-      expect(screen.getByTestId('error-alert')).toBeInTheDocument()
+      expect(screen.getByTestId(ERROR_ALERT_TEST_ID)).toBeInTheDocument()
     })
 
     it('THEN hides the generic error when field errors were mapped', async () => {
@@ -491,7 +486,39 @@ describe('CustomerInformationPage', () => {
         capturedOnSubmit({ value: { shippingAddress: {} }, formApi: { setErrorMap: jest.fn() } }),
       )
 
-      expect(screen.queryByTestId('error-alert')).not.toBeInTheDocument()
+      expect(screen.queryByTestId(ERROR_ALERT_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('THEN keeps the generic error when other details were not mapped', async () => {
+      const setErrorMap = jest.fn()
+
+      mockUpdatePortalCustomer.mockResolvedValue({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              code: LagoApiError.UnprocessableEntity,
+              details: {
+                city: [LagoApiError.ValueIsTooLong],
+                email: [LagoApiError.ValueIsInvalid],
+              },
+            },
+          },
+        ],
+      })
+
+      render(<CustomerInformationPage />)
+
+      await act(() =>
+        capturedOnSubmit({ value: { shippingAddress: {} }, formApi: { setErrorMap } }),
+      )
+
+      expect(setErrorMap).toHaveBeenCalledWith({
+        onDynamic: {
+          fields: { city: { message: 'text_1792577695510xy36tafb8l5', path: ['city'] } },
+        },
+      })
+      expect(screen.getByTestId(ERROR_ALERT_TEST_ID)).toBeInTheDocument()
     })
   })
 })

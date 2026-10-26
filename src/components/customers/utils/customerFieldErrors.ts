@@ -1,10 +1,11 @@
 import { GraphQLFormattedError } from 'graphql'
+import { z } from 'zod'
 
 import { LagoApiError } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
-export const FREE_TEXT_MAX_LENGTH = 255
-export const ADDRESS_LINE_MAX_LENGTH = 500
+const FREE_TEXT_MAX_LENGTH = 255
+const ADDRESS_LINE_MAX_LENGTH = 500
 
 // The API returns the errors keyed by the customer attribute, camelized
 // (`shipping_address_line1` becomes `shippingAddressLine1`).
@@ -38,22 +39,36 @@ const isCustomerFieldErrorKey = (key: string): key is CustomerFieldErrorKey =>
 const isCustomerFieldErrorCode = (code: unknown): code is CustomerFieldErrorCode =>
   code === LagoApiError.InvalidCharacters || code === LagoApiError.ValueIsTooLong
 
+const getErrorDetails = (
+  errors: readonly GraphQLFormattedError[] | undefined,
+): Record<string, unknown> | undefined => {
+  const details = errors?.[0]?.extensions?.details
+
+  if (!details || typeof details !== 'object') return undefined
+
+  return details as Record<string, unknown>
+}
+
+const getFieldErrorCode = (key: string, codes: unknown): CustomerFieldErrorCode | undefined => {
+  if (!isCustomerFieldErrorKey(key) || !Array.isArray(codes)) return undefined
+
+  return codes.find(isCustomerFieldErrorCode)
+}
+
 export const getCustomerFieldErrorMap = (
   errors: readonly GraphQLFormattedError[] | undefined,
   pathByErrorKey: Record<CustomerFieldErrorKey, string>,
   translate: TranslateFunc,
 ): CustomerFieldErrorMap => {
-  const details = errors?.[0]?.extensions?.details
+  const details = getErrorDetails(errors)
 
-  if (!details || typeof details !== 'object') return {}
+  if (!details) return {}
 
   return Object.fromEntries(
     Object.entries(details).flatMap(([key, codes]) => {
-      if (!isCustomerFieldErrorKey(key) || !Array.isArray(codes)) return []
+      const code = getFieldErrorCode(key, codes)
 
-      const code = codes.find(isCustomerFieldErrorCode)
-
-      if (!code) return []
+      if (!isCustomerFieldErrorKey(key) || !code) return []
 
       const path = pathByErrorKey[key]
       const message =
@@ -64,4 +79,34 @@ export const getCustomerFieldErrorMap = (
       return [[path, { message, path: path.split('.') }]]
     }),
   )
+}
+
+export const hasOnlyCustomerFieldErrors = (
+  errors: readonly GraphQLFormattedError[] | undefined,
+): boolean => {
+  const details = getErrorDetails(errors)
+
+  if (!details || (errors?.length ?? 0) > 1) return false
+
+  const entries = Object.entries(details)
+
+  return !!entries.length && entries.every(([key, codes]) => !!getFieldErrorCode(key, codes))
+}
+
+// The API only validates the attributes that change, so a stored value already over the
+// limit must still save unchanged.
+export const zodCustomerFreeText = ({
+  key,
+  initialValue,
+  translate,
+}: {
+  key: CustomerFieldErrorKey
+  initialValue: string | null | undefined
+  translate: TranslateFunc
+}): z.ZodString => {
+  const max = MAX_LENGTH_BY_ERROR_KEY[key]
+
+  return z.string().refine((value) => value === initialValue || value.length <= max, {
+    message: translate('text_1792577695510xy36tafb8l5', { max }),
+  })
 }
