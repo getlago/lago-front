@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { refineIntegrationMapItemEntries } from '~/pages/settings/integrations/IntegrationMapItemDrawer/validationSchema'
+import { refineRequiredIntegrationMapItemFields } from '~/pages/settings/integrations/IntegrationMapItemDrawer/validationSchema'
 
 export const avalaraMappingValidationSchema = z
   .record(
@@ -10,11 +10,7 @@ export const avalaraMappingValidationSchema = z
       externalName: z.string(),
     }),
   )
-  .superRefine(
-    refineIntegrationMapItemEntries((entry) =>
-      (['externalId', 'externalName'] as const).filter((field) => !entry[field]),
-    ),
-  )
+  .superRefine(refineRequiredIntegrationMapItemFields(['externalId', 'externalName']))
 
 export type AvalaraMappingFormValues = z.infer<typeof avalaraMappingValidationSchema>
 

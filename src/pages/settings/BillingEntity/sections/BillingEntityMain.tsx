@@ -15,9 +15,13 @@ import {
   BILLING_ENTITY_TAXES_SETTINGS_ROUTE,
   useNavigate,
 } from '~/core/router'
-import { BillingEntity } from '~/generated/graphql'
+import { BillingEntity, FeatureFlagEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { tw } from '~/styles/utils'
+
+export const BILLING_ENTITY_MAIN_ITEM_TEST_ID = 'billing-entity-main-item'
+export const BILLING_ENTITY_DUNNING_CAMPAIGNS_ITEM_ID = 'be-dunning-campaigns'
 
 type SettingsListItem = {
   id: string
@@ -64,7 +68,7 @@ const SETTINGS_LIST_ITEMS: SettingsListItem[] = [
     icon: 'document',
   },
   {
-    id: 'be-dunning-campaigns',
+    id: BILLING_ENTITY_DUNNING_CAMPAIGNS_ITEM_ID,
     label: 'text_1742367202528ti8wj2iwa96',
     sublabel: 'text_1742367202528vgpo1ojm11b',
     actionLabel: 'text_1742367266660e7qgs4vaf1i',
@@ -112,6 +116,7 @@ const Item = ({ item, billingEntityCode }: ItemProps) => {
     <>
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
+        data-test={`${BILLING_ENTITY_MAIN_ITEM_TEST_ID}-${item.id}`}
         className={tw('flex cursor-pointer gap-4 pb-8 shadow-b', item.className)}
         onClick={() => onClick()}
         onKeyDown={() => {}}
@@ -140,6 +145,12 @@ const Item = ({ item, billingEntityCode }: ItemProps) => {
 
 const BillingEntityMain = ({ billingEntity }: BillingEntityMainProps) => {
   const { translate } = useInternationalization()
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
+
+  const settingsListItems = SETTINGS_LIST_ITEMS.filter(
+    (item) => !(isProductCatalogEnabled && item.id === BILLING_ENTITY_DUNNING_CAMPAIGNS_ITEM_ID),
+  )
 
   return (
     <SettingsPaddedContainer className="gap-0">
@@ -148,7 +159,7 @@ const BillingEntityMain = ({ billingEntity }: BillingEntityMainProps) => {
       </Typography>
 
       <div className="mt-8 flex flex-col gap-8">
-        {SETTINGS_LIST_ITEMS.map((item) => (
+        {settingsListItems.map((item) => (
           <Item key={item.id} item={item} billingEntityCode={billingEntity?.code} />
         ))}
       </div>

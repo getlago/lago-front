@@ -12,13 +12,20 @@ import { ReactElement } from 'react'
 import { SELECTOR_HOVER_ACTIONS_TEST_ID } from '~/components/designSystem/Selector'
 import { initializeTranslations } from '~/core/apolloClient'
 import {
+  FeatureFlagEnum,
   GetBillingEntitiesDocument,
   IntegrationsSettingDocument,
   PremiumIntegrationTypeEnum,
 } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
-import Integrations from '../Integrations'
+import Integrations, {
+  INTEGRATIONS_HUBSPOT_TEST_ID,
+  INTEGRATIONS_NETSUITE_TEST_ID,
+  INTEGRATIONS_SALESFORCE_TEST_ID,
+  INTEGRATIONS_SEGMENT_TEST_ID,
+  INTEGRATIONS_STRIPE_TEST_ID,
+} from '../Integrations'
 
 // Mock dialog components that transitively import @nangohq/frontend (ESM)
 jest.mock('~/components/settings/integrations/AddAnrokDialog', () => ({
@@ -88,11 +95,14 @@ let mockOrganizationData: {
   ],
 }
 
+const mockHasFeatureFlag = jest.fn()
+
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: mockOrganizationData,
     loading: false,
     refetchOrganizationInfos: mockRefetch,
+    hasFeatureFlag: mockHasFeatureFlag,
   }),
 }))
 
@@ -222,6 +232,7 @@ describe('Integrations', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockIsPremium = true
+    mockHasFeatureFlag.mockReturnValue(false)
     mockOrganizationData = {
       premiumIntegrations: [
         PremiumIntegrationTypeEnum.Netsuite,
@@ -467,6 +478,36 @@ describe('Integrations', () => {
       await user.click(netsuiteSelector)
 
       expect(testMockNavigateFn).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('product catalog organizations', () => {
+    it('shows only tax and payment integrations on the Lago tab', async () => {
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.ProductCatalog)
+
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByTestId(INTEGRATIONS_STRIPE_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(screen.queryByTestId(INTEGRATIONS_HUBSPOT_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(INTEGRATIONS_NETSUITE_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(INTEGRATIONS_SALESFORCE_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(INTEGRATIONS_SEGMENT_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('keeps every integration for legacy organizations', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByTestId(INTEGRATIONS_STRIPE_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(screen.getByTestId(INTEGRATIONS_HUBSPOT_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(INTEGRATIONS_NETSUITE_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(INTEGRATIONS_SALESFORCE_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(INTEGRATIONS_SEGMENT_TEST_ID)).toBeInTheDocument()
     })
   })
 })
