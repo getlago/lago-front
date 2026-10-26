@@ -1,6 +1,7 @@
 import { useStore } from '@tanstack/react-form'
 import { useEffect } from 'react'
 
+import { FREE_TEXT_MAX_LENGTH } from '~/components/customers/utils/customerFieldErrors'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Typography } from '~/components/designSystem/Typography'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -57,6 +58,7 @@ const BillingAccordion = withForm({
             <form.AppField name="legalName">
               {(field) => (
                 <field.TextInputField
+                  inputProps={{ maxLength: FREE_TEXT_MAX_LENGTH }}
                   label={translate('text_626c0c09812bbc00e4c59e01')}
                   placeholder={translate('text_626c0c09812bbc00e4c59e03')}
                 />
@@ -73,6 +75,7 @@ const BillingAccordion = withForm({
             <form.AppField name="taxIdentificationNumber">
               {(field) => (
                 <field.TextInputField
+                  inputProps={{ maxLength: FREE_TEXT_MAX_LENGTH }}
                   label={translate('text_648053ee819b60364c675d05')}
                   placeholder={translate('text_648053ee819b60364c675d0b')}
                 />

@@ -1,6 +1,6 @@
-import { screen } from '@testing-library/react'
+import { act, screen } from '@testing-library/react'
 
-import { CountryCode, CustomerTypeEnum } from '~/generated/graphql'
+import { CountryCode, CustomerTypeEnum, LagoApiError } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import CustomerInformationPage from '../CustomerInformationPage'
@@ -9,6 +9,8 @@ const mockUseCustomerPortalData = jest.fn()
 const mockUseCustomerPortalNavigation = jest.fn()
 const mockUseCustomerPortalTranslate = jest.fn()
 const mockUpdatePortalCustomer = jest.fn()
+const mockUseUpdatePortalCustomerMutation = jest.fn()
+let mockMutationError: Error | undefined
 
 jest.mock('~/components/customerPortal/common/hooks/useCustomerPortalData', () => ({
   useCustomerPortalData: () => mockUseCustomerPortalData(),
@@ -26,10 +28,11 @@ jest.mock('~/components/customerPortal/common/useCustomerPortalTranslate', () =>
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useUpdatePortalCustomerMutation: () => [
-    mockUpdatePortalCustomer,
-    { loading: false, error: undefined },
-  ],
+  useUpdatePortalCustomerMutation: (options: unknown) => {
+    mockUseUpdatePortalCustomerMutation(options)
+
+    return [mockUpdatePortalCustomer, { loading: false, error: mockMutationError }]
+  },
 }))
 
 jest.mock('~/components/customerPortal/common/PageTitle', () => ({
@@ -47,68 +50,95 @@ jest.mock('~/components/customerPortal/common/SectionLoading', () => ({
 }))
 
 const mockHandleSubmit = jest.fn()
+let capturedOnSubmit: (args: {
+  value: Record<string, unknown>
+  formApi: { setErrorMap: jest.Mock }
+}) => Promise<void>
 
 jest.mock('~/hooks/forms/useAppform', () => ({
-  useAppForm: ({ defaultValues }: { defaultValues: Record<string, unknown> }) => ({
-    store: {
-      subscribe: jest.fn(() => jest.fn()),
-      state: { values: defaultValues },
-      getState: () => ({
-        values: defaultValues,
-        canSubmit: true,
-      }),
-    },
-    handleSubmit: mockHandleSubmit,
-    setFieldValue: jest.fn(),
-    AppField: ({
-      name,
-      children,
-    }: {
-      name: string
-      children: (field: unknown) => React.ReactNode
-    }) => {
-      const fieldProps = {
-        TextInputField: ({
-          label,
-          placeholder,
-          disabled,
-        }: {
-          label?: string
-          placeholder?: string
-          disabled?: boolean
-        }) => (
-          <div data-test={`field-${name}`}>
-            {label && <label>{label}</label>}
-            <input placeholder={placeholder} disabled={disabled} data-test={`input-${name}`} />
-          </div>
-        ),
-        ComboBoxField: ({
-          label,
-          placeholder,
-          disabled,
-        }: {
-          label?: string
-          placeholder?: string
-          disabled?: boolean
-        }) => (
-          <div data-test={`field-${name}`}>
-            {label && <label>{label}</label>}
-            <select disabled={disabled} data-test={`input-${name}`}>
-              <option>{placeholder}</option>
-            </select>
-          </div>
-        ),
-      }
+  useAppForm: ({
+    defaultValues,
+    onSubmit,
+  }: {
+    defaultValues: Record<string, unknown>
+    onSubmit: typeof capturedOnSubmit
+  }) => {
+    capturedOnSubmit = onSubmit
 
-      return <>{children(fieldProps)}</>
-    },
-    AppForm: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-    SubmitButton: ({ children, ...props }: { children: React.ReactNode; 'data-test'?: string }) => (
-      <button type="submit" data-test={props['data-test']}>
-        {children}
-      </button>
-    ),
-  }),
+    return {
+      store: {
+        subscribe: jest.fn(() => jest.fn()),
+        state: { values: defaultValues },
+        getState: () => ({
+          values: defaultValues,
+          canSubmit: true,
+        }),
+      },
+      handleSubmit: mockHandleSubmit,
+      setFieldValue: jest.fn(),
+      AppField: ({
+        name,
+        children,
+      }: {
+        name: string
+        children: (field: unknown) => React.ReactNode
+      }) => {
+        const fieldProps = {
+          TextInputField: ({
+            label,
+            placeholder,
+            disabled,
+            inputProps,
+          }: {
+            label?: string
+            placeholder?: string
+            disabled?: boolean
+            inputProps?: { maxLength?: number }
+          }) => (
+            <div data-test={`field-${name}`}>
+              {label && <label>{label}</label>}
+              <input
+                placeholder={placeholder}
+                disabled={disabled}
+                maxLength={inputProps?.maxLength}
+                data-test={`input-${name}`}
+              />
+            </div>
+          ),
+          ComboBoxField: ({
+            label,
+            placeholder,
+            disabled,
+          }: {
+            label?: string
+            placeholder?: string
+            disabled?: boolean
+          }) => (
+            <div data-test={`field-${name}`}>
+              {label && <label>{label}</label>}
+              <select disabled={disabled} data-test={`input-${name}`}>
+                <option>{placeholder}</option>
+              </select>
+            </div>
+          ),
+        }
+
+        return <>{children(fieldProps)}</>
+      },
+      AppForm: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+      SubmitButton: ({
+        children,
+        ...props
+      }: {
+        children: React.ReactNode
+        'data-test'?: string
+      }) => (
+        <button type="submit" data-test={props['data-test']}>
+          {children}
+        </button>
+      ),
+    }
+  },
 }))
 
 jest.mock('@tanstack/react-form', () => ({
@@ -119,6 +149,8 @@ jest.mock('@tanstack/react-form', () => ({
 const mockGoHome = jest.fn()
 
 const setupDefaultMocks = () => {
+  mockMutationError = undefined
+
   mockUseCustomerPortalTranslate.mockReturnValue({
     translate: (key: string) => key,
     documentLocale: 'en',
@@ -301,6 +333,165 @@ describe('CustomerInformationPage', () => {
       expect(screen.getByTestId('input-shippingAddress.addressLine1')).not.toBeDisabled()
       expect(screen.getByTestId('input-shippingAddress.city')).not.toBeDisabled()
       expect(screen.getByTestId('input-shippingAddress.state')).not.toBeDisabled()
+    })
+  })
+
+  describe('GIVEN the free text inputs', () => {
+    it('THEN limits the address lines to 500 characters and the other fields to 255', () => {
+      render(<CustomerInformationPage />)
+
+      const addressLines = [
+        'addressLine1',
+        'addressLine2',
+        'shippingAddress.addressLine1',
+        'shippingAddress.addressLine2',
+      ]
+      const otherFields = [
+        'name',
+        'firstname',
+        'lastname',
+        'legalName',
+        'taxIdentificationNumber',
+        'zipcode',
+        'city',
+        'state',
+        'shippingAddress.zipcode',
+        'shippingAddress.city',
+        'shippingAddress.state',
+      ]
+
+      addressLines.forEach((field) => {
+        expect(screen.getByTestId(`input-${field}`)).toHaveAttribute('maxLength', '500')
+      })
+      otherFields.forEach((field) => {
+        expect(screen.getByTestId(`input-${field}`)).toHaveAttribute('maxLength', '255')
+      })
+    })
+  })
+
+  describe('GIVEN the update mutation', () => {
+    it('THEN silences the field error codes from the global error handler', () => {
+      render(<CustomerInformationPage />)
+
+      expect(mockUseUpdatePortalCustomerMutation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          context: {
+            silentErrorDetails: [LagoApiError.InvalidCharacters, LagoApiError.ValueIsTooLong],
+          },
+        }),
+      )
+    })
+  })
+
+  describe('WHEN the update answers with field errors', () => {
+    it('THEN shows each error under its field', async () => {
+      const setErrorMap = jest.fn()
+
+      mockUpdatePortalCustomer.mockResolvedValue({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              code: LagoApiError.UnprocessableEntity,
+              details: {
+                legalName: [LagoApiError.InvalidCharacters],
+                shippingAddressLine2: [LagoApiError.ValueIsTooLong],
+              },
+            },
+          },
+        ],
+      })
+
+      render(<CustomerInformationPage />)
+
+      await capturedOnSubmit({ value: { shippingAddress: {} }, formApi: { setErrorMap } })
+
+      expect(setErrorMap).toHaveBeenCalledWith({
+        onDynamic: {
+          fields: {
+            legalName: { message: 'text_1792577695510fp8vzeszoh7', path: ['legalName'] },
+            'shippingAddress.addressLine2': {
+              message: 'text_1792577695510xy36tafb8l5',
+              path: ['shippingAddress', 'addressLine2'],
+            },
+          },
+        },
+      })
+    })
+  })
+
+  describe('WHEN the update answers without field errors', () => {
+    it('THEN sets no field error and sends empty shipping values as null', async () => {
+      const setErrorMap = jest.fn()
+
+      mockUpdatePortalCustomer.mockResolvedValue({ data: { updateCustomerPortalCustomer: {} } })
+
+      render(<CustomerInformationPage />)
+
+      await capturedOnSubmit({
+        value: { name: 'Acme', shippingAddress: { city: '', state: 'IL' } },
+        formApi: { setErrorMap },
+      })
+
+      expect(mockUpdatePortalCustomer).toHaveBeenCalledWith({
+        variables: { input: { name: 'Acme', shippingAddress: { city: null, state: 'IL' } } },
+      })
+      expect(setErrorMap).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('WHEN the update completes', () => {
+    const getOnCompleted = (): ((res: unknown) => void) =>
+      mockUseUpdatePortalCustomerMutation.mock.calls[0][0].onCompleted
+
+    it('THEN goes back home when the customer was updated', () => {
+      render(<CustomerInformationPage />)
+
+      getOnCompleted()({ updateCustomerPortalCustomer: { id: '1' } })
+
+      expect(mockGoHome).toHaveBeenCalled()
+    })
+
+    it('THEN stays on the form when the answer holds no customer', () => {
+      render(<CustomerInformationPage />)
+
+      getOnCompleted()({ updateCustomerPortalCustomer: null })
+
+      expect(mockGoHome).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN the update failed', () => {
+    beforeEach(() => {
+      mockMutationError = new Error('Unprocessable Entity')
+    })
+
+    it('THEN shows the generic error when no field error was mapped', () => {
+      render(<CustomerInformationPage />)
+
+      expect(screen.getByTestId('error-alert')).toBeInTheDocument()
+    })
+
+    it('THEN hides the generic error when field errors were mapped', async () => {
+      mockUpdatePortalCustomer.mockResolvedValue({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              code: LagoApiError.UnprocessableEntity,
+              details: { city: [LagoApiError.ValueIsTooLong] },
+            },
+          },
+        ],
+      })
+
+      render(<CustomerInformationPage />)
+
+      await act(() =>
+        capturedOnSubmit({ value: { shippingAddress: {} }, formApi: { setErrorMap: jest.fn() } }),
+      )
+
+      expect(screen.queryByTestId('error-alert')).not.toBeInTheDocument()
     })
   })
 })

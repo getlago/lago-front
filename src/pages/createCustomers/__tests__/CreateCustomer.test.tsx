@@ -246,6 +246,37 @@ describe('CreateCustomer Integration Tests', () => {
     })
   })
 
+  describe('WHEN checking the free text inputs', () => {
+    it('THEN limits the address lines to 500 characters and the other fields to 255', async () => {
+      const user = userEvent.setup()
+
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+
+      await user.click(screen.getByRole('button', { name: /expand billing information/i }))
+
+      const freeTextInputs = [
+        screen.getByLabelText(/customer name/i),
+        screen.getByLabelText(/first name/i),
+        screen.getByLabelText(/last name/i),
+        screen.getByLabelText(/legal name/i),
+        screen.getByLabelText(/tax identification number/i),
+        ...screen.getAllByLabelText(/zip code/i),
+        ...screen.getAllByLabelText(/city/i),
+        ...screen.getAllByLabelText(/state/i),
+      ]
+      const addressLineInputs = [
+        ...screen.getAllByLabelText(/address line 1/i),
+        ...screen.getAllByLabelText(/address line 2/i),
+      ]
+
+      expect(freeTextInputs).toHaveLength(11)
+      freeTextInputs.forEach((input) => expect(input).toHaveAttribute('maxLength', '255'))
+      expect(addressLineInputs).toHaveLength(4)
+      addressLineInputs.forEach((input) => expect(input).toHaveAttribute('maxLength', '500'))
+    })
+  })
+
   describe('WHEN checking accordion sections', () => {
     it('THEN should display billing information accordion', async () => {
       renderCreateCustomer(<CreateCustomer />)
@@ -608,6 +639,60 @@ describe('CreateCustomer Integration Tests', () => {
       await waitFor(() => {
         expect(externalIdInput).toHaveValue('')
       })
+    })
+
+    it('THEN should show value_is_too_long under each field with its limit and keep the values', async () => {
+      const user = userEvent.setup()
+
+      mockOnSave.mockResolvedValue({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              status: 422,
+              code: 'unprocessable_entity',
+              details: {
+                name: ['value_is_too_long'],
+                addressLine1: ['value_is_too_long'],
+                shippingCity: ['value_is_too_long'],
+              },
+            },
+          },
+        ],
+      })
+
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+
+      await user.type(screen.getByLabelText(/customer external id/i), 'test-customer')
+      await user.click(screen.getByRole('button', { name: /expand billing information/i }))
+      await user.click(screen.getByTestId('submit-customer'))
+
+      await waitFor(() => {
+        expect(mockOnSave).toHaveBeenCalled()
+      })
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/customer name/i)).toHaveAttribute('aria-invalid', 'true')
+      })
+
+      const [billingAddressLine1, shippingAddressLine1] =
+        screen.getAllByLabelText(/address line 1/i)
+      const [billingCity, shippingCity] = screen.getAllByLabelText(/city/i)
+
+      expect(billingAddressLine1).toHaveAttribute('aria-invalid', 'true')
+      expect(shippingCity).toHaveAttribute('aria-invalid', 'true')
+      expect(shippingAddressLine1).not.toHaveAttribute('aria-invalid', 'true')
+      expect(billingCity).not.toHaveAttribute('aria-invalid', 'true')
+
+      expect(
+        screen.getAllByText('This field is too long. It can contain up to 255 characters.'),
+      ).toHaveLength(2)
+      expect(
+        screen.getByText('This field is too long. It can contain up to 500 characters.'),
+      ).toBeInTheDocument()
+
+      expect(screen.getByLabelText(/customer external id/i)).toHaveValue('test-customer')
     })
 
     it('THEN should target the first non-manual payment row when a Stripe resource_missing error is returned', async () => {

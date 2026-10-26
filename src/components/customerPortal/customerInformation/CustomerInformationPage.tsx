@@ -9,6 +9,12 @@ import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderCustomerInformationPage } from '~/components/customerPortal/common/SectionLoading'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
+import {
+  ADDRESS_LINE_MAX_LENGTH,
+  CustomerFieldErrorKey,
+  FREE_TEXT_MAX_LENGTH,
+  getCustomerFieldErrorMap,
+} from '~/components/customers/utils/customerFieldErrors'
 import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
 import { Checkbox } from '~/components/form'
@@ -21,16 +27,28 @@ import {
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import {
-  ADDRESS_LINE_MAX_LENGTH,
-  FREE_TEXT_MAX_LENGTH,
-  getMaxLength,
-  mapPortalCustomerErrors,
-} from './mapPortalCustomerErrors'
 import { editCustomerBillingValidationSchema, mapCustomerToFormValues } from './validationSchema'
 
 const freeTextInputProps = { maxLength: FREE_TEXT_MAX_LENGTH }
 const addressLineInputProps = { maxLength: ADDRESS_LINE_MAX_LENGTH }
+
+const FIELD_PATH_BY_ERROR_KEY: Record<CustomerFieldErrorKey, string> = {
+  name: 'name',
+  firstname: 'firstname',
+  lastname: 'lastname',
+  legalName: 'legalName',
+  taxIdentificationNumber: 'taxIdentificationNumber',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  zipcode: 'zipcode',
+  city: 'city',
+  state: 'state',
+  shippingAddressLine1: 'shippingAddress.addressLine1',
+  shippingAddressLine2: 'shippingAddress.addressLine2',
+  shippingZipcode: 'shippingAddress.zipcode',
+  shippingCity: 'shippingAddress.city',
+  shippingState: 'shippingAddress.state',
+}
 
 type EditCustomerBillingFormProps = {
   customer?: UpdateCustomerPortalCustomerInput | null
@@ -108,27 +126,16 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         },
       })
 
-      const fieldErrors = mapPortalCustomerErrors(answer.errors)
+      const fieldErrors = getCustomerFieldErrorMap(
+        answer.errors,
+        FIELD_PATH_BY_ERROR_KEY,
+        translate,
+      )
 
-      if (!fieldErrors.length) return
+      if (!Object.keys(fieldErrors).length) return
 
       setHasFieldErrors(true)
-      formApi.setErrorMap({
-        onDynamic: {
-          fields: Object.fromEntries(
-            fieldErrors.map(({ path, code }) => [
-              path,
-              {
-                message:
-                  code === LagoApiError.InvalidCharacters
-                    ? translate('text_1792577695510fp8vzeszoh7')
-                    : translate('text_1792577695510xy36tafb8l5', { max: getMaxLength(path) }),
-                path: path.split('.'),
-              },
-            ]),
-          ),
-        },
-      })
+      formApi.setErrorMap({ onDynamic: { fields: fieldErrors } })
     },
   })
 

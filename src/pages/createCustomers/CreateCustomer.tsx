@@ -3,6 +3,10 @@ import { Icon } from 'lago-design-system'
 import { useCallback } from 'react'
 
 import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
+import {
+  CustomerFieldErrorKey,
+  getCustomerFieldErrorMap,
+} from '~/components/customers/utils/customerFieldErrors'
 import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
@@ -28,6 +32,24 @@ import { mapFromFormToApi } from './mappers/mapFromFormToApi'
 import MetadataAccordion from './metadataAccordion/MetadataAccordion'
 
 const STRIPE_CUSTOMER_ERROR_MESSAGE_DETAILS = 'Stripe: resource_missing'
+
+const FIELD_PATH_BY_ERROR_KEY: Record<CustomerFieldErrorKey, string> = {
+  name: 'name',
+  firstname: 'firstname',
+  lastname: 'lastname',
+  legalName: 'legalName',
+  taxIdentificationNumber: 'taxIdentificationNumber',
+  addressLine1: 'billingAddress.addressLine1',
+  addressLine2: 'billingAddress.addressLine2',
+  zipcode: 'billingAddress.zipcode',
+  city: 'billingAddress.city',
+  state: 'billingAddress.state',
+  shippingAddressLine1: 'shippingAddress.addressLine1',
+  shippingAddressLine2: 'shippingAddress.addressLine2',
+  shippingZipcode: 'shippingAddress.zipcode',
+  shippingCity: 'shippingAddress.city',
+  shippingState: 'shippingAddress.state',
+}
 
 const CreateCustomer = () => {
   const { translate } = useInternationalization()
@@ -68,6 +90,13 @@ const CreateCustomer = () => {
       const answer = await onSave(formattedValues)
 
       const { errors } = answer
+
+      const fieldErrors = getCustomerFieldErrorMap(errors, FIELD_PATH_BY_ERROR_KEY, translate)
+
+      if (Object.keys(fieldErrors).length) {
+        formApi.setErrorMap({ onDynamic: { fields: fieldErrors } })
+        return
+      }
 
       if (hasDefinedGQLError('ValueAlreadyExist', errors, 'externalId')) {
         formApi.setErrorMap({
