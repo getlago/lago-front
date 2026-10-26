@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react'
 import { tw } from 'lago-design-system'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Panel } from 'react-resizable-panels'
 import { matchRoutes } from 'react-router'
 
@@ -36,19 +36,35 @@ export const AiAgent = () => {
   const location = useLocation()
   const { hasPermissions } = usePermissions()
 
-  if (!currentUser) {
-    return null
-  }
-
   // Resolve the slug from the URL's first segment + memberships. We can't
   // use `location.strippedPathname` here because `AiAgent` is rendered as a
   // sibling of `RouteWrapper` (not inside `<Routes>`) — `useParams()` has no
   // matched-route context to read the slug from, so the wrapper's strip is a
   // no-op in this component.
   const slugFromPath = location.pathname.split('/')[1] ?? ''
-  const isInsideValidOrgContext = !!currentUser.memberships?.some(
+  const isInsideValidOrgContext = !!currentUser?.memberships?.some(
     (m) => m.organization.slug === slugFromPath,
   )
+
+  const lastOrgSlugRef = useRef<string | null>(null)
+
+  // Only membership slugs count as a switch: the legacy-path bounce
+  // (`/customers` → `/acme/customers`) must not drop the conversation.
+  useEffect(() => {
+    if (!isInsideValidOrgContext) return
+
+    const previousOrgSlug = lastOrgSlugRef.current
+
+    lastOrgSlugRef.current = slugFromPath
+
+    if (previousOrgSlug && previousOrgSlug !== slugFromPath) {
+      resetConversation()
+    }
+  }, [isInsideValidOrgContext, slugFromPath, resetConversation])
+
+  if (!currentUser) {
+    return null
+  }
 
   // Hide when the path's first segment isn't a slug the user is a member of:
   // full-page `Error404` (catch-all `*`, `OrganizationLayout` fallback for an

@@ -1,4 +1,12 @@
-import { createContext, ReactNode, useContext, useMemo, useReducer, useState } from 'react'
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useMemo,
+  useReducer,
+  useState,
+} from 'react'
 
 import { getItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import {
@@ -137,10 +145,10 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     })
   }
 
-  const resetConversation = () => {
+  const resetConversation = useCallback(() => {
     setConversationId('')
     dispatch({ type: ChatActionType.RESET_CONVERSATION })
-  }
+  }, [])
 
   const streamChunk = ({ messageId, chunk }: { messageId: string; chunk: string }) => {
     dispatch({

@@ -44,7 +44,10 @@ jest.mock('~/hooks/useCurrentUser', () => ({
     isPremium: true,
     currentUser: {
       id: 'user-1',
-      memberships: [{ id: 'membership-1', organization: { id: 'org-1', slug: 'test-org' } }],
+      memberships: [
+        { id: 'membership-1', organization: { id: 'org-1', slug: 'test-org' } },
+        { id: 'membership-2', organization: { id: 'org-2', slug: 'second-org' } },
+      ],
     },
   }),
 }))
@@ -134,6 +137,26 @@ const openPanel = async () => {
 
 const getHistoryButton = () =>
   screen.queryByTestId('history/medium')?.closest('button') as HTMLButtonElement | undefined
+
+const openStoredConversation = async () => {
+  await openPanel()
+  await userEvent.click(getHistoryButton() as HTMLButtonElement)
+
+  const [item] = await screen.findAllByTestId(CHAT_HISTORY_ITEM_TEST_ID)
+
+  await userEvent.click(item)
+
+  await waitFor(() => {
+    expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toBeInTheDocument()
+  })
+}
+
+const navigateTo = async (path: string) => {
+  await act(async () => {
+    window.history.pushState({}, '', path)
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  })
+}
 
 describe('AiAgent', () => {
   beforeEach(() => {
@@ -263,6 +286,43 @@ describe('AiAgent', () => {
 
         expect(screen.queryByTestId(CHAT_HISTORY_TEST_ID)).not.toBeInTheDocument()
         expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a conversation opened under an organization', () => {
+    describe('WHEN the user switches to another organization', () => {
+      it('THEN should drop the conversation and return to the welcome view', async () => {
+        await renderAiAgent()
+        await openStoredConversation()
+
+        await navigateTo('/second-org/analytics')
+
+        expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user navigates inside the same organization', () => {
+      it('THEN should keep the conversation', async () => {
+        await renderAiAgent()
+        await openStoredConversation()
+
+        await navigateTo('/test-org/customers')
+
+        expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a legacy slug-less path redirects back to the same organization', () => {
+      it('THEN should keep the conversation', async () => {
+        await renderAiAgent()
+        await openStoredConversation()
+
+        await navigateTo('/customers')
+        await navigateTo('/test-org/customers')
+
+        expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toBeInTheDocument()
       })
     })
   })
