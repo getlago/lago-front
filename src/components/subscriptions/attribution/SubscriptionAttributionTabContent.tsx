@@ -1,14 +1,15 @@
 import { gql, NetworkStatus } from '@apollo/client'
-import { useRef, useState } from 'react'
-import { useParams } from 'react-router'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useParams, useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
-import { addToast } from '~/core/apolloClient'
+import { Filters } from '~/components/Filters'
 import {
   AttributedUsageBasisEnum,
+  AttributionChargeUsageFragment,
   CurrencyEnum,
   useGetSubscriptionAttributedUsageQuery,
   useGetSubscriptionAttributionChargesQuery,
@@ -18,18 +19,39 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
+import { buildAttributionDynamicFilters } from './AttributionFilterInputs'
+import {
+  ATTRIBUTION_FILTERS_PREFIX,
+  ATTRIBUTION_TIME_RANGE_FILTER_KEY,
+  AttributionTimeRangeEnum,
+  getAttributionEntityFilters,
+  getAttributionTimeRangeArgs,
+  getAttributionTimeRangeValue,
+  isAttributionGuardError,
+} from './attributionFilters'
 import { AttributionFlatTable, AttributionTableRow } from './AttributionFlatTable'
 import { AttributionToolbarSelect } from './AttributionToolbarSelect'
+import {
+  buildAttributionHierarchy,
+  flattenAttributionHierarchyTypes,
+  getAttributionChildLevels,
+  getAttributionNodeKey,
+  getDeepestAttributionHierarchyType,
+} from './attributionTree'
+import { AttributionTreeTable } from './AttributionTreeTable'
 import {
   AttributionGroupByEnum,
   buildAttributionColumns,
   getAttributionChargeLabel,
   isAttributionAmountAvailable,
+  mergeAttributionChargesUsage,
 } from './buildAttributionColumns'
+import { notifyAttributionError, useAttributionTree } from './useAttributionTree'
 
 export const ATTRIBUTION_REFRESH_BUTTON_TEST_ID = 'attribution-refresh-button'
 export const ATTRIBUTION_GROUP_ROWS_BY_TEST_ID = 'attribution-group-rows-by'
 export const ATTRIBUTION_LIST_BY_TEST_ID = 'attribution-list-by'
+export const ATTRIBUTION_UNDER_TEST_ID = 'attribution-under'
 export const ATTRIBUTION_CHARGES_TEST_ID = 'attribution-charges'
 export const ATTRIBUTION_SHOW_TEST_ID = 'attribution-show'
 
@@ -65,6 +87,12 @@ gql`
   query getSubscriptionAttributionSetup($subscriptionId: ID!, $limit: Int) {
     subscription(id: $subscriptionId) {
       id
+      startedAt
+      currentBillingPeriodStartedAt
+      plan {
+        id
+        interval
+      }
       customer {
         id
         displayName
@@ -77,11 +105,14 @@ gql`
         name
       }
     }
-    rootAttributionTypes: usageAttributionTypes(role: hierarchical, roots: true, limit: 1) {
+    hierarchicalAttributionTypes: usageAttributionTypes(role: hierarchical, limit: $limit) {
       collection {
         id
         code
         name
+        parent {
+          id
+        }
       }
     }
   }
@@ -102,6 +133,9 @@ gql`
     $basis: AttributedUsageBasisEnum
     $chargeIds: [ID!]
     $splitChargeId: ID
+    $filters: [AttributedUsageFilterInput!]
+    $fromDatetime: ISO8601DateTime
+    $toDatetime: ISO8601DateTime
     $page: Int
     $limit: Int
   ) {
@@ -111,6 +145,9 @@ gql`
       basis: $basis
       chargeIds: $chargeIds
       splitChargeId: $splitChargeId
+      filters: $filters
+      fromDatetime: $fromDatetime
+      toDatetime: $toDatetime
       page: $page
       limit: $limit
     ) {
@@ -145,11 +182,13 @@ gql`
 export const SubscriptionAttributionTabContent = (): JSX.Element => {
   const { translate } = useInternationalization()
   const { subscriptionId = '' } = useParams()
+  const [searchParams] = useSearchParams()
 
   const [groupRowsBy, setGroupRowsBy] = useState<AttributionGroupByEnum>(
     AttributionGroupByEnum.hierarchical,
   )
   const [listByCode, setListByCode] = useState<string | null>(null)
+  const [underCode, setUnderCode] = useState<string | null>(null)
   const [selectedChargeId, setSelectedChargeId] = useState<string | null>(null)
   const [basis, setBasis] = useState<AttributedUsageBasisEnum>(AttributedUsageBasisEnum.Units)
   const [isExpanded, setIsExpanded] = useState(false)
@@ -162,13 +201,61 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   } = useGetSubscriptionAttributionSetupQuery({
     variables: { subscriptionId, limit: ATTRIBUTION_TYPES_LIMIT },
     skip: !subscriptionId,
+    fetchPolicy: 'network-only',
   })
 
   const flatTypes = setupData?.flatAttributionTypes.collection ?? []
+  const rootTypes = useMemo(
+    () => buildAttributionHierarchy(setupData?.hierarchicalAttributionTypes.collection ?? []),
+    [setupData?.hierarchicalAttributionTypes.collection],
+  )
+  const hierarchy = useMemo(() => {
+    const flattened = flattenAttributionHierarchyTypes(rootTypes)
+
+    return {
+      types: flattened.map(({ type }) => type),
+      deepestType: getDeepestAttributionHierarchyType(rootTypes),
+      signature: flattened.map(({ type, depth }) => `${depth}:${type.id}`).join('|'),
+    }
+  }, [rootTypes])
+  const subscription = setupData?.subscription
+
+  const dynamicFilters = useMemo(
+    () =>
+      buildAttributionDynamicFilters({
+        translate,
+        subscriptionId,
+        subscription,
+        flatTypes: setupData?.flatAttributionTypes.collection ?? [],
+        hierarchicalTypes: hierarchy.types,
+        rootTypes,
+      }),
+    [
+      hierarchy.types,
+      rootTypes,
+      setupData?.flatAttributionTypes.collection,
+      subscription,
+      subscriptionId,
+      translate,
+    ],
+  )
+
+  const timeRangeArgs = getAttributionTimeRangeArgs({
+    value: getAttributionTimeRangeValue(searchParams),
+    subscription,
+  })
+  const entityFilters = getAttributionEntityFilters({
+    searchParams,
+    codes: [...flatTypes, ...hierarchy.types].map(({ code }) => code),
+  })
+
   const listByType = flatTypes.find((type) => type.code === listByCode)
-  const fallbackGroupBy =
-    flatTypes[0]?.code ?? setupData?.rootAttributionTypes.collection[0]?.code ?? ''
+  const fallbackGroupBy = flatTypes[0]?.code ?? rootTypes[0]?.code ?? ''
   const groupBy = listByType?.code ?? fallbackGroupBy
+  const isTreeMode = groupRowsBy === AttributionGroupByEnum.hierarchical && !!rootTypes.length
+  const underType = hierarchy.types.find((type) => type.code === underCode) ?? hierarchy.deepestType
+  const treeListBy =
+    listByType && underType ? { flatType: listByType, underCode: underType.code } : null
 
   const {
     data: chargesData,
@@ -184,19 +271,22 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   )
   const selectedCharge = charges.find((charge) => charge.id === selectedChargeId)
 
-  const usageVariables = {
+  const treeVariables = {
     subscriptionId,
-    groupBy,
     basis,
     chargeIds: selectedCharge ? [selectedCharge.id] : undefined,
     splitChargeId: selectedCharge?.filters?.length ? selectedCharge.id : undefined,
-    page: 1,
+    filters: entityFilters.length ? entityFilters : undefined,
+    ...timeRangeArgs,
     limit: ATTRIBUTION_ROWS_LIMIT,
   }
+  const usageVariables = { ...treeVariables, groupBy, page: 1 }
   const usageRequestKey = JSON.stringify(usageVariables)
   const latestUsageRequestKeyRef = useRef(usageRequestKey)
 
-  latestUsageRequestKeyRef.current = usageRequestKey
+  useEffect(() => {
+    latestUsageRequestKeyRef.current = usageRequestKey
+  }, [usageRequestKey])
 
   const {
     data: usageData,
@@ -207,9 +297,30 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     fetchMore: fetchMoreUsage,
   } = useGetSubscriptionAttributedUsageQuery({
     variables: usageVariables,
-    skip: !groupBy,
+    skip: !groupBy || isTreeMode,
     notifyOnNetworkStatusChange: true,
   })
+
+  const {
+    nodes: treeNodes,
+    toggleNode,
+    loadMore: loadMoreTreeRows,
+    refresh: refreshTree,
+  } = useAttributionTree({
+    variables: treeVariables,
+    getChildLevels: (parentCode) =>
+      getAttributionChildLevels({ roots: rootTypes, parentCode, listBy: treeListBy }),
+    resetKey: JSON.stringify({
+      ...treeVariables,
+      listBy: treeListBy,
+      hierarchy: hierarchy.signature,
+    }),
+    skip: !isTreeMode,
+  })
+  const treeRootNode = treeNodes[getAttributionNodeKey([])]
+  const treeRootBlocks = treeRootNode?.status === 'loaded' ? treeRootNode.blocks : []
+  const isTreeLoading = isTreeMode && (!treeRootNode || treeRootNode.status === 'loading')
+  const treeRootUsage = treeRootBlocks[0]?.usage
 
   const isFetchingMoreRows = usageNetworkStatus === NetworkStatus.fetchMore
   const isUsageLoading = isUsageQueryLoading && !isFetchingMoreRows
@@ -224,6 +335,13 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     if (!groupBy) return
 
     refetchCharges()
+
+    if (isTreeMode) {
+      refreshTree()
+
+      return
+    }
+
     refetchUsage()
   }
 
@@ -265,11 +383,21 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
           },
         }
       },
-    }).catch(() => {
-      addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
-    })
+    }).catch(notifyAttributionError)
   }
-  const chargesUsage = attributedUsage?.totals.chargesUsage ?? []
+
+  // Not `treeRootBlocks[0]` alone: every root block totals the same usage under a different
+  // groupBy, so a charge missing from one of them would drop its column.
+  const getChargesUsage = (): AttributionChargeUsageFragment[] => {
+    if (!isTreeMode) return attributedUsage?.totals.chargesUsage ?? []
+
+    return mergeAttributionChargesUsage(
+      treeRootBlocks.map(({ usage }) => usage.totals.chargesUsage),
+    )
+  }
+
+  const displayedUsage = isTreeMode ? treeRootUsage : attributedUsage
+  const chargesUsage = getChargesUsage()
   const { columns, hiddenColumnsCount } = buildAttributionColumns({
     chargesUsage,
     selectedChargeId: selectedCharge?.id ?? null,
@@ -316,38 +444,61 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     ]
   }
 
-  const renderErrorPlaceholder = (): JSX.Element => (
-    <GenericPlaceholder
-      title={translate('text_62c3f3fca8a1625624e83379')}
-      subtitle={translate('text_1726498444629i1fpjyvh0kg')}
-      buttonTitle={translate('text_1725983967306qz0npfuhlo1')}
-      buttonVariant="primary"
-      buttonAction={refetch}
-      image={<ErrorImage width="136" height="104" />}
-    />
-  )
+  const renderErrorPlaceholder = (error?: unknown): JSX.Element => {
+    const isGuardError = isAttributionGuardError(error)
+
+    return (
+      <GenericPlaceholder
+        title={translate(
+          isGuardError ? 'text_1792764705907n0lq6q75y89' : 'text_62c3f3fca8a1625624e83379',
+        )}
+        subtitle={translate(
+          isGuardError ? 'text_17927647059078e1835hd0k1' : 'text_1726498444629i1fpjyvh0kg',
+        )}
+        buttonTitle={translate('text_1725983967306qz0npfuhlo1')}
+        buttonVariant="primary"
+        buttonAction={refetch}
+        image={<ErrorImage width="136" height="104" />}
+      />
+    )
+  }
+
+  const tableProps = {
+    totals: { amountCents: displayedUsage?.totals.amountCents, chargesUsage },
+    columns,
+    chargeLabel: selectedCharge ? getAttributionChargeLabel(selectedCharge) : null,
+    hiddenColumnsCount,
+    isExpanded,
+    basis,
+    currency: displayedUsage?.currency ?? CurrencyEnum.Usd,
+    onToggleExpanded: () => setIsExpanded((previous) => !previous),
+  }
 
   const renderTable = (): JSX.Element => {
-    if (usageError) return renderErrorPlaceholder()
+    if (isTreeMode) {
+      if (treeRootNode?.status === 'error') return renderErrorPlaceholder(treeRootNode.error)
+
+      return (
+        <AttributionTreeTable
+          {...tableProps}
+          nodes={treeNodes}
+          isLoading={isTreeLoading}
+          onToggleNode={toggleNode}
+          onLoadMore={loadMoreTreeRows}
+        />
+      )
+    }
+
+    if (usageError) return renderErrorPlaceholder(usageError)
 
     return (
       <AttributionFlatTable
+        {...tableProps}
         rows={getTableRows()}
-        totals={{
-          amountCents: attributedUsage?.totals.amountCents,
-          chargesUsage,
-        }}
-        columns={columns}
-        chargeLabel={selectedCharge ? getAttributionChargeLabel(selectedCharge) : null}
-        hiddenColumnsCount={hiddenColumnsCount}
-        isExpanded={isExpanded}
-        basis={basis}
-        currency={attributedUsage?.currency ?? CurrencyEnum.Usd}
         isLoading={isUsageLoading}
         loadMore={
           hasMoreRows ? { isLoading: isFetchingMoreRows, onLoadMore: loadMoreRows } : undefined
         }
-        onToggleExpanded={() => setIsExpanded((previous) => !previous)}
       />
     )
   }
@@ -412,9 +563,25 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
               { value: ALL_VALUE, label: translate('text_1792668632006b3qj9q83f0y') },
               ...flatTypes.map((type) => ({ value: type.code, label: type.name || type.code })),
             ]}
-            onChange={(value) => setListByCode(value === ALL_VALUE ? null : value)}
+            onChange={(value) => {
+              setListByCode(value === ALL_VALUE ? null : value)
+              setUnderCode(null)
+            }}
             data-test={ATTRIBUTION_LIST_BY_TEST_ID}
           />
+          {isTreeMode && !!treeListBy && (
+            <AttributionToolbarSelect
+              label={translate('text_1792683187186aqk8vde7x8t')}
+              value={treeListBy.underCode}
+              searchPlaceholder={translate('text_1792683187186qacr0y860nr')}
+              options={hierarchy.types.map((type) => ({
+                value: type.code,
+                label: type.name || type.code,
+              }))}
+              onChange={setUnderCode}
+              data-test={ATTRIBUTION_UNDER_TEST_ID}
+            />
+          )}
           <AttributionToolbarSelect
             label={translate('text_1768572142436xubwd6sei3b')}
             value={selectedCharge?.id ?? ALL_VALUE}
@@ -454,6 +621,15 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
           />
         </div>
 
+        <Filters.Provider
+          filtersNamePrefix={ATTRIBUTION_FILTERS_PREFIX}
+          availableFilters={[]}
+          dynamicFilters={dynamicFilters}
+          staticFilters={{ [ATTRIBUTION_TIME_RANGE_FILTER_KEY]: AttributionTimeRangeEnum.current }}
+        >
+          <Filters.Component />
+        </Filters.Provider>
+
         {renderTable()}
       </>
     )
@@ -468,7 +644,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
         <Button
           variant="inline"
           size="small"
-          disabled={isSetupLoading || isUsageQueryLoading}
+          disabled={isSetupLoading || isUsageQueryLoading || isTreeLoading}
           onClick={refetch}
           data-test={ATTRIBUTION_REFRESH_BUTTON_TEST_ID}
         >

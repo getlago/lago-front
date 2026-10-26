@@ -80,7 +80,13 @@ import { FiltersItemWebhookHttpStatuses } from '~/components/Filters/graphql/fil
 import { FiltersItemWebhookStatus } from '~/components/Filters/graphql/filtersElements/FiltersItemWebhookStatus'
 import { FiltersItemZipcodes } from '~/components/Filters/graphql/filtersElements/FiltersItemZipcodes'
 import { FiltersItemDates } from '~/components/Filters/graphql/utils'
-import { AvailableFiltersEnum, FiltersFormValues } from '~/components/Filters/presentation/types'
+import {
+  AvailableFiltersEnum,
+  DynamicFilter,
+  FilterKey,
+  FiltersFormValues,
+  isDynamicFilterKey,
+} from '~/components/Filters/presentation/types'
 import { LogEventEnum, LogTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -91,13 +97,15 @@ export const FILTERS_PANEL_ITEM_TYPE_SWITCH_DATE_HELP_TEST_ID =
 export const FILTERS_PANEL_ITEM_TYPE_SWITCH_HELP_TEST_ID = 'filters-panel-item-type-switch-help'
 
 type FiltersPanelItemTypeSwitchProps = {
-  filterType: AvailableFiltersEnum | undefined
+  filterType: FilterKey | undefined
+  dynamicFilter?: DynamicFilter
   value: FiltersFormValues['filters'][0]['value']
   setFilterValue: (value: string) => void
 }
 
 export const FiltersPanelItemTypeSwitch = ({
   filterType,
+  dynamicFilter,
   ...props
 }: FiltersPanelItemTypeSwitchProps) => {
   const { translate } = useInternationalization()
@@ -108,6 +116,21 @@ export const FiltersPanelItemTypeSwitch = ({
         data-test={FILTERS_PANEL_ITEM_TYPE_SWITCH_PLACEHOLDER_TEST_ID}
         className="h-[46px] rounded-xl border border-dashed border-grey-300 lg:flex-1"
       />
+    )
+  }
+
+  if (isDynamicFilterKey(filterType)) {
+    return (
+      <>
+        <Typography
+          data-test={FILTERS_PANEL_ITEM_TYPE_SWITCH_HELP_TEST_ID}
+          variant="body"
+          color="grey700"
+        >
+          {translate('text_66ab42d4ece7e6b7078993d0')}
+        </Typography>
+        {dynamicFilter?.renderValueInput(props)}
+      </>
     )
   }
 

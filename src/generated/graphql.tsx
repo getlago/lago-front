@@ -15769,6 +15769,15 @@ export type DestroySubscriptionAlertMutationVariables = Exact<{
 
 export type DestroySubscriptionAlertMutation = { __typename?: 'Mutation', destroySubscriptionAlert?: { __typename?: 'Alert', id: string } | null };
 
+export type GetAttributionFilterValuesQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+  groupBy: Scalars['String']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetAttributionFilterValuesQuery = { __typename?: 'Query', attributedUsage: { __typename?: 'AttributedUsage', rows: Array<{ __typename?: 'AttributedUsageRow', value: string }> } };
+
 export type AttributionChargeUsageFragment = { __typename?: 'AttributedUsageChargeUsage', units: number, amountCents?: any | null, charge: { __typename?: 'Charge', id: string, code?: string | null, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilter', id: string }> | null }, chargeFilter?: { __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any } | null };
 
 export type GetSubscriptionAttributionSetupQueryVariables = Exact<{
@@ -15777,7 +15786,7 @@ export type GetSubscriptionAttributionSetupQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionAttributionSetupQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, displayName: string } } | null, flatAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null }> }, rootAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null }> } };
+export type GetSubscriptionAttributionSetupQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, startedAt?: any | null, currentBillingPeriodStartedAt?: any | null, plan: { __typename?: 'Plan', id: string, interval?: PlanInterval | null }, customer: { __typename?: 'Customer', id: string, displayName: string } } | null, flatAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null }> }, hierarchicalAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null, parent?: { __typename?: 'UsageAttributionType', id: string } | null }> } };
 
 export type GetSubscriptionAttributionChargesQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -15793,6 +15802,9 @@ export type GetSubscriptionAttributedUsageQueryVariables = Exact<{
   basis?: InputMaybe<AttributedUsageBasisEnum>;
   chargeIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   splitChargeId?: InputMaybe<Scalars['ID']['input']>;
+  filters?: InputMaybe<Array<AttributedUsageFilterInput> | AttributedUsageFilterInput>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
@@ -38532,10 +38544,67 @@ export function useDestroySubscriptionAlertMutation(baseOptions?: Apollo.Mutatio
 export type DestroySubscriptionAlertMutationHookResult = ReturnType<typeof useDestroySubscriptionAlertMutation>;
 export type DestroySubscriptionAlertMutationResult = Apollo.MutationResult<DestroySubscriptionAlertMutation>;
 export type DestroySubscriptionAlertMutationOptions = Apollo.BaseMutationOptions<DestroySubscriptionAlertMutation, DestroySubscriptionAlertMutationVariables>;
+export const GetAttributionFilterValuesDocument = gql`
+    query getAttributionFilterValues($subscriptionId: ID!, $groupBy: String!, $limit: Int) {
+  attributedUsage(
+    subscriptionId: $subscriptionId
+    groupBy: $groupBy
+    limit: $limit
+  ) {
+    rows {
+      value
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetAttributionFilterValuesQuery__
+ *
+ * To run a query within a React component, call `useGetAttributionFilterValuesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAttributionFilterValuesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAttributionFilterValuesQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *      groupBy: // value for 'groupBy'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetAttributionFilterValuesQuery(baseOptions: Apollo.QueryHookOptions<GetAttributionFilterValuesQuery, GetAttributionFilterValuesQueryVariables> & ({ variables: GetAttributionFilterValuesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAttributionFilterValuesQuery, GetAttributionFilterValuesQueryVariables>(GetAttributionFilterValuesDocument, options);
+      }
+export function useGetAttributionFilterValuesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAttributionFilterValuesQuery, GetAttributionFilterValuesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAttributionFilterValuesQuery, GetAttributionFilterValuesQueryVariables>(GetAttributionFilterValuesDocument, options);
+        }
+// @ts-ignore
+export function useGetAttributionFilterValuesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAttributionFilterValuesQuery, GetAttributionFilterValuesQueryVariables>): Apollo.UseSuspenseQueryResult<GetAttributionFilterValuesQuery, GetAttributionFilterValuesQueryVariables>;
+export function useGetAttributionFilterValuesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAttributionFilterValuesQuery, GetAttributionFilterValuesQueryVariables>): Apollo.UseSuspenseQueryResult<GetAttributionFilterValuesQuery | undefined, GetAttributionFilterValuesQueryVariables>;
+export function useGetAttributionFilterValuesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAttributionFilterValuesQuery, GetAttributionFilterValuesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAttributionFilterValuesQuery, GetAttributionFilterValuesQueryVariables>(GetAttributionFilterValuesDocument, options);
+        }
+export type GetAttributionFilterValuesQueryHookResult = ReturnType<typeof useGetAttributionFilterValuesQuery>;
+export type GetAttributionFilterValuesLazyQueryHookResult = ReturnType<typeof useGetAttributionFilterValuesLazyQuery>;
+export type GetAttributionFilterValuesSuspenseQueryHookResult = ReturnType<typeof useGetAttributionFilterValuesSuspenseQuery>;
+export type GetAttributionFilterValuesQueryResult = Apollo.QueryResult<GetAttributionFilterValuesQuery, GetAttributionFilterValuesQueryVariables>;
 export const GetSubscriptionAttributionSetupDocument = gql`
     query getSubscriptionAttributionSetup($subscriptionId: ID!, $limit: Int) {
   subscription(id: $subscriptionId) {
     id
+    startedAt
+    currentBillingPeriodStartedAt
+    plan {
+      id
+      interval
+    }
     customer {
       id
       displayName
@@ -38548,15 +38617,17 @@ export const GetSubscriptionAttributionSetupDocument = gql`
       name
     }
   }
-  rootAttributionTypes: usageAttributionTypes(
+  hierarchicalAttributionTypes: usageAttributionTypes(
     role: hierarchical
-    roots: true
-    limit: 1
+    limit: $limit
   ) {
     collection {
       id
       code
       name
+      parent {
+        id
+      }
     }
   }
 }
@@ -38647,13 +38718,16 @@ export type GetSubscriptionAttributionChargesLazyQueryHookResult = ReturnType<ty
 export type GetSubscriptionAttributionChargesSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionAttributionChargesSuspenseQuery>;
 export type GetSubscriptionAttributionChargesQueryResult = Apollo.QueryResult<GetSubscriptionAttributionChargesQuery, GetSubscriptionAttributionChargesQueryVariables>;
 export const GetSubscriptionAttributedUsageDocument = gql`
-    query getSubscriptionAttributedUsage($subscriptionId: ID!, $groupBy: String!, $basis: AttributedUsageBasisEnum, $chargeIds: [ID!], $splitChargeId: ID, $page: Int, $limit: Int) {
+    query getSubscriptionAttributedUsage($subscriptionId: ID!, $groupBy: String!, $basis: AttributedUsageBasisEnum, $chargeIds: [ID!], $splitChargeId: ID, $filters: [AttributedUsageFilterInput!], $fromDatetime: ISO8601DateTime, $toDatetime: ISO8601DateTime, $page: Int, $limit: Int) {
   attributedUsage(
     subscriptionId: $subscriptionId
     groupBy: $groupBy
     basis: $basis
     chargeIds: $chargeIds
     splitChargeId: $splitChargeId
+    filters: $filters
+    fromDatetime: $fromDatetime
+    toDatetime: $toDatetime
     page: $page
     limit: $limit
   ) {
@@ -38702,6 +38776,9 @@ export const GetSubscriptionAttributedUsageDocument = gql`
  *      basis: // value for 'basis'
  *      chargeIds: // value for 'chargeIds'
  *      splitChargeId: // value for 'splitChargeId'
+ *      filters: // value for 'filters'
+ *      fromDatetime: // value for 'fromDatetime'
+ *      toDatetime: // value for 'toDatetime'
  *      page: // value for 'page'
  *      limit: // value for 'limit'
  *   },
