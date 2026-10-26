@@ -204,6 +204,22 @@ describe('SubscriptionAttributionTabContent', () => {
     })
   })
 
+  describe('GIVEN a flat type whose code matches the no flat key option', () => {
+    describe('WHEN it is selected in the list by selector', () => {
+      it('THEN should group by that type', async () => {
+        const user = userEvent.setup()
+
+        mockSetup({ flat: [...flatTypes, { id: 'type-all', code: 'all', name: 'All' }] })
+
+        render(<SubscriptionAttributionTabContent />)
+
+        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'all')
+
+        expect(getLastUsageVariables()).toEqual(expect.objectContaining({ groupBy: 'all' }))
+      })
+    })
+  })
+
   describe('GIVEN there is no flat type but a hierarchical root type', () => {
     describe('WHEN the tab renders', () => {
       it('THEN should query the root hierarchical type', () => {
