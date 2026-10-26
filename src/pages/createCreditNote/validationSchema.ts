@@ -20,8 +20,7 @@ export const MAX_CREDIT_NOTE_METADATA_COUNT = 50
 // this path and read back from the form error map by `CreditNoteFormAllocation`.
 export const PAY_BACK_ERRORS_PATH = 'payBackErrors'
 
-// Smallest amount the yup schema accepted on a checked fee; kept so an empty or zero
-// input still reports `minZero` rather than passing.
+// A checked fee must carry an amount: anything at or below this reports `minZero`.
 const MIN_CHECKED_FEE_VALUE = 0.0000000000000001
 
 export type CreditNoteFormValues = {
@@ -80,8 +79,8 @@ const addFeeIssues = (
   }
 }
 
-// `addOnFee` and `creditFee` are positional: the row at index i is validated against the
-// invoice fee at index i, the way the yup `tuple()` schemas did.
+// `addOnFee` and `creditFee` are positional: the row at index i takes its maximum from the
+// invoice fee at index i.
 const indexedFeesSchema = (initialFees: FromFee[] | undefined, currency: CurrencyEnum) =>
   z
     .custom<FromFee[]>()

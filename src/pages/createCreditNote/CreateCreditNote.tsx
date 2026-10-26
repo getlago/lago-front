@@ -51,6 +51,10 @@ import {
 
 export const CREATE_CREDIT_NOTE_FORM_ID = 'create-credit-note-form'
 
+// These writes mirror another field rather than record user input. Stamping the form as
+// touched would stop `update()` re-seeding it once the invoice query resolves.
+const DERIVED_WRITE = { dontUpdateMeta: true }
+
 export const SUBMIT_BUTTON_TEST_ID = 'submit-credit-note-button'
 export const REASON_COMBOBOX_TEST_ID = 'reason-combobox'
 
@@ -194,7 +198,7 @@ const CreateCreditNote = () => {
   })
 
   const formValues = useStore(form.store, (state) => state.values)
-  const isDirty = useStore(form.store, (state) => state.isDirty)
+  const isDirty = useStore(form.store, (state) => !state.isDefaultValue)
 
   const hasError = useMemo(
     () =>
@@ -237,26 +241,22 @@ const CreateCreditNote = () => {
   useEffect(() => {
     if (isPrepaidCreditsInvoice && creditFeeValue) {
       if (hasCreditableOrRefundableAmount) {
-        form.setFieldValue('payBack', [
-          {
-            type: CreditTypeEnum.refund,
-            value: creditFeeValue,
-          },
-        ])
+        form.setFieldValue(
+          'payBack',
+          [{ type: CreditTypeEnum.refund, value: creditFeeValue }],
+          DERIVED_WRITE,
+        )
       } else if (hasOffsettable) {
-        form.setFieldValue('payBack', [
-          {
-            type: CreditTypeEnum.offset,
-            value: creditFeeValue,
-          },
-        ])
+        form.setFieldValue(
+          'payBack',
+          [{ type: CreditTypeEnum.offset, value: creditFeeValue }],
+          DERIVED_WRITE,
+        )
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPrepaidCreditsInvoice, creditFeeValue, hasCreditableOrRefundableAmount, hasOffsettable])
 
-  // Allocation values are cleared when the fee selection changes, so a total computed
-  // against the previous selection is never carried over.
   const isInitialFeesMount = useRef(true)
 
   useEffect(() => {
@@ -267,8 +267,10 @@ const CreateCreditNote = () => {
 
     if (isPrepaidCreditsInvoice) return
 
-    form.setFieldValue('payBack', (currentPayBack) =>
-      (currentPayBack || []).map((item) => ({ ...item, value: undefined })),
+    form.setFieldValue(
+      'payBack',
+      (currentPayBack) => (currentPayBack || []).map((item) => ({ ...item, value: undefined })),
+      DERIVED_WRITE,
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formValues.fees, formValues.addOnFee])
@@ -283,7 +285,7 @@ const CreateCreditNote = () => {
     form.handleSubmit()
   }
 
-  const renderItemsSection = () => {
+  const renderItemsSection = (): JSX.Element => {
     if (isInvoiceFullyCovered) {
       return <Alert type="danger">{translate('text_1783670256902guo0smcgak1')}</Alert>
     }
@@ -335,7 +337,7 @@ const CreateCreditNote = () => {
     )
   }
 
-  const renderContent = () => {
+  const renderContent = (): JSX.Element => {
     if (loading) {
       return (
         <>

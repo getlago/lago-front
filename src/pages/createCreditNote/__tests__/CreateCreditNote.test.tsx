@@ -186,6 +186,38 @@ describe('CreateCreditNote', () => {
   })
 
   describe('close button', () => {
+    // Regression: the derived payBack writes used to stamp the form as touched while the
+    // invoice query was still resolving, so an untouched form prompted on close.
+    it('navigates back without warning when the invoice arrives after the first render', async () => {
+      const user = userEvent.setup()
+
+      mockUseCreateCreditNote.mockReturnValue({
+        loading: true,
+        invoice: undefined,
+        feesPerInvoice: undefined,
+        feeForAddOn: undefined,
+        feeForCredit: undefined,
+        onCreate: mockOnCreate,
+      })
+
+      const { rerender } = await act(() => render(<CreateCreditNote />))
+
+      mockUseCreateCreditNote.mockReturnValue({
+        loading: false,
+        invoice: defaultMockInvoice,
+        feesPerInvoice: defaultMockFeesPerInvoice,
+        feeForAddOn: undefined,
+        feeForCredit: undefined,
+        onCreate: mockOnCreate,
+      })
+
+      await act(() => rerender(<CreateCreditNote />))
+
+      await user.click(screen.getByTestId(CLOSE_BUTTON_TEST_ID))
+
+      expect(testMockNavigateFn).toHaveBeenCalled()
+    })
+
     it('navigates back without warning when form is not dirty', async () => {
       const user = userEvent.setup()
 

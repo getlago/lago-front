@@ -854,6 +854,10 @@ describe('CreateCreditNote', () => {
       await user.paste(longKey)
 
       await expectSubmitRejected(user)
+
+      expect(
+        await screen.findByText('Key must be a string under 40 characters'),
+      ).toBeInTheDocument()
     }, 10000)
 
     it('should enforce metadata value max length of 255 characters', async () => {
@@ -880,6 +884,10 @@ describe('CreateCreditNote', () => {
       await user.paste(longValue)
 
       await expectSubmitRejected(user)
+
+      expect(
+        await screen.findByText('Value must be a string of 255 characters maximum'),
+      ).toBeInTheDocument()
     }, 10000)
   })
 })

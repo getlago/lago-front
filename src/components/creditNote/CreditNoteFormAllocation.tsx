@@ -6,7 +6,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { isZodErrors } from '~/core/form/isZodErrors'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, LagoApiError } from '~/generated/graphql'
+import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import {
@@ -64,8 +64,7 @@ export const CreditNoteFormAllocation = withForm({
 
     const payBack = useStore(form.store, (state) => state.values.payBack)
 
-    // Validator errors sit directly on `errorMap.onDynamic`, keyed by field path;
-    // `payBackErrors` has no input of its own, so it is only readable there.
+    // Validator errors sit directly on `errorMap.onDynamic`, keyed by field path
     const dynamicErrors = useStore(
       form.store,
       (state) => (state.errorMap as { onDynamic?: Record<string, unknown> })?.onDynamic ?? {},
@@ -76,24 +75,10 @@ export const CreditNoteFormAllocation = withForm({
     const allocatedSoFar = credit.value + refund.value + offset.value
     const remainingToAllocate = totalTaxIncluded - allocatedSoFar
 
-    const payBackErrorMessage = firstErrorMessage(dynamicErrors[PAY_BACK_ERRORS_PATH])
-    const firstPayBackValueError = firstErrorMessage(dynamicErrors['payBack[0].value'])
-
-    const hasPayBackErrors = !!payBackErrorMessage
+    const hasPayBackErrors = !!firstErrorMessage(dynamicErrors[PAY_BACK_ERRORS_PATH])
 
     const allocationCaptionColor = hasPayBackErrors ? 'danger600' : 'grey600'
     const allocationValueColor = hasPayBackErrors ? 'danger600' : 'grey700'
-
-    const getAlertTypographyProps = (): { html?: string } => {
-      if (
-        payBackErrorMessage === PayBackErrorEnum.maxTotalInvoice ||
-        firstPayBackValueError === LagoApiError.DoesNotMatchItemAmounts
-      ) {
-        return { html: translate('text_637e334680481f653e8caa9d') }
-      }
-
-      return {}
-    }
 
     const getRowError = (
       path: string,
@@ -160,7 +145,7 @@ export const CreditNoteFormAllocation = withForm({
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_1767884759747gd07dh4ihn9')}
             </Typography>
-            <Typography color="textSecondary" {...getAlertTypographyProps()} />
+            <Typography color="textSecondary" html={translate('text_637e334680481f653e8caa9d')} />
           </Alert>
         )}
 

@@ -85,7 +85,9 @@ export const CreditNoteItemsForm = withForm({
               }
               value={isCreditFeeChecked}
               onChange={(_, value) => {
-                form.setFieldValue('creditFee[0].checked', value)
+                form.setFieldValue('creditFee', (rows) =>
+                  (rows || []).map((fee) => ({ ...fee, checked: value })),
+                )
               }}
             />
 

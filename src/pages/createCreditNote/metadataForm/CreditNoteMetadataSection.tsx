@@ -59,7 +59,7 @@ export const CreditNoteMetadataSection = withForm({
       return undefined
     }
 
-    const renderField = (index: number, kind: MetadataFieldKind) => (
+    const renderField = (index: number, kind: MetadataFieldKind): JSX.Element => (
       <form.AppField name={`metadata[${index}].${kind}`}>
         {(field) => (
           <field.TextInputField
