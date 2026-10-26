@@ -6,6 +6,7 @@ import { PspErrorCode } from '~/core/apolloClient/errorUtils'
 import {
   AddCustomerDrawerFragment,
   CustomerAccountTypeEnum,
+  FeatureFlagEnum,
   GetAccountingIntegrationsForExternalAppsAccordionDocument,
   GetBillingEntitiesDocument,
   GetCrmIntegrationsForExternalAppsAccordionDocument,
@@ -29,6 +30,19 @@ jest.mock('~/components/drawers/useDrawer', () => ({
 }))
 
 const mockAddToast = jest.fn()
+const mockHasFeatureFlag = jest.fn<boolean, [FeatureFlagEnum]>(() => false)
+
+jest.mock('~/hooks/useOrganizationInfos', () => {
+  const actual = jest.requireActual('~/hooks/useOrganizationInfos')
+
+  return {
+    ...actual,
+    useOrganizationInfos: () => ({
+      ...actual.useOrganizationInfos(),
+      hasFeatureFlag: mockHasFeatureFlag,
+    }),
+  }
+})
 
 jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
   ...jest.requireActual('~/core/apolloClient/reactiveVars/toastVar'),
@@ -203,6 +217,10 @@ const waitForFormReady = async () => {
 }
 
 describe('CreateCustomer Integration Tests', () => {
+  beforeEach(() => {
+    mockHasFeatureFlag.mockReturnValue(false)
+  })
+
   describe('WHEN rendering the component', () => {
     it('THEN should render without crashing', async () => {
       renderCreateCustomer(<CreateCustomer />)
@@ -418,6 +436,19 @@ describe('CreateCustomer Integration Tests', () => {
       // Check basic structure for premium features
       expect(screen.getByLabelText(/isPartner/i)).toBeInTheDocument()
       expect(screen.getByText(/Entity that sells your products or services/i)).toBeInTheDocument()
+    })
+
+    it('THEN should hide the partner account toggle when the product catalog flag is enabled', async () => {
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.ProductCatalog)
+
+      renderCreateCustomer(<CreateCustomer />)
+
+      await waitForFormReady()
+
+      expect(screen.queryByLabelText(/isPartner/i)).not.toBeInTheDocument()
+      expect(
+        screen.queryByText(/Entity that sells your products or services/i),
+      ).not.toBeInTheDocument()
     })
   })
 

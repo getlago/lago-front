@@ -2,14 +2,15 @@ import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
 import { ReactNode, useEffect, useState } from 'react'
 
+import { buildRateCardForRatePhaseFields } from '~/components/appliedRateCards/buildRateCardForRatePhaseFields'
 import {
   getInsertIndex,
   RatePhaseFormValues,
   RatePhaseReference,
 } from '~/components/appliedRateCards/drawers/ratePhase/ratePhaseFormSchema'
 import { getActiveRateFieldValues } from '~/components/appliedRateCards/drawers/ratePhase/ratePhaseSeeds'
-import { RateCardForRatePhaseFields } from '~/components/appliedRateCards/drawers/ratePhase/types'
 import { useRatePhaseLocalDrawer } from '~/components/appliedRateCards/drawers/ratePhase/useRatePhaseLocalDrawer'
+import { getRateHistoryPath } from '~/components/appliedRateCards/ratePhaseDisplay'
 import { RatePhaseTable } from '~/components/appliedRateCards/RatePhaseTable'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -200,17 +201,24 @@ type AppliedRateCardDrawerContentProps = {
   // The backend rejects a rate card in another currency (`currency_does_not_match`).
   currency: CurrencyEnum
   openRateCardDrawer: OpenRateCardDrawer
+  organizationSlug: string | undefined
 }
 
 const appliedRateCardDrawerContentDefaultProps: AppliedRateCardDrawerContentProps = {
   currency: CurrencyEnum.Usd,
   openRateCardDrawer: () => {},
+  organizationSlug: undefined,
 }
 
 export const AppliedRateCardDrawerContent = withForm({
   defaultValues: APPLIED_RATE_CARD_FORM_DEFAULTS,
   props: appliedRateCardDrawerContentDefaultProps,
-  render: function AppliedRateCardDrawerContentRender({ form, currency, openRateCardDrawer }) {
+  render: function AppliedRateCardDrawerContentRender({
+    form,
+    currency,
+    openRateCardDrawer,
+    organizationSlug,
+  }) {
     const { translate } = useInternationalization()
     const { openDrawer: openRatePhaseDrawer } = useRatePhaseLocalDrawer()
     const [shouldDisplayFilter, setShouldDisplayFilter] = useState(false)
@@ -260,18 +268,9 @@ export const AppliedRateCardDrawerContent = withForm({
       (rateCard) => rateCard.code === rateCardId,
     )
 
-    const rateCardForPhaseFields: RateCardForRatePhaseFields | undefined =
-      selectedRateCard && selectedProduct?.productType
-        ? {
-            productType: selectedProduct.productType,
-            aggregationType: selectedProduct.billableMetric?.aggregationType,
-            recurring: selectedProduct.billableMetric?.recurring,
-            currency: selectedRateCard.currency,
-            billingTiming: selectedRateCard.billingTiming,
-            proration: selectedRateCard.proration,
-            appliedPricingUnitCode: selectedRateCard.appliedPricingUnitCode,
-            activeRate: selectedRateCard.activeRate,
-          }
+    const rateCardForPhaseFields =
+      selectedProduct && selectedRateCard
+        ? buildRateCardForRatePhaseFields(selectedProduct, selectedRateCard)
         : undefined
 
     const lastPhaseIsFinite = ratePhases.length > 0 && ratePhases.at(-1)?.durationType !== 'forever'
@@ -516,7 +515,7 @@ export const AppliedRateCardDrawerContent = withForm({
               {ratePhases.length > 0 && !!rateCardForPhaseFields && (
                 <RatePhaseTable
                   phases={ratePhases}
-                  rateCardId={selectedRateCard.id}
+                  rateHistoryPath={getRateHistoryPath(selectedRateCard.id, organizationSlug)}
                   rateCard={rateCardForPhaseFields}
                   onEdit={handleEditPhase}
                   onRevert={handleRevertPhase}

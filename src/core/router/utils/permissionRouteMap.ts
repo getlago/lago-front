@@ -1,63 +1,32 @@
+import { FeatureFlagEnum } from '~/generated/graphql'
 import { TMembershipPermissions } from '~/hooks/usePermissions'
 
-import { routes } from '../index'
+import { getOrganizationRouteRegistry, isRouteEntryAvailable } from './routeRegistry'
 
-type PermissionRouteMap = Partial<Record<keyof TMembershipPermissions, string>>
+import { CustomRouteObject } from '../types'
 
-/**
- * Recursively extracts view permission to route mappings from route configs.
- * Prioritizes the first route found for each permission.
- */
-const buildPermissionRouteMap = (
-  routeConfigs: typeof routes,
-  map: PermissionRouteMap = {},
-): PermissionRouteMap => {
-  for (const route of routeConfigs) {
-    // Process children first (depth-first)
-    if (route.children) {
-      buildPermissionRouteMap(route.children, map)
-    }
+const isViewPermission = (permission: keyof TMembershipPermissions): boolean =>
+  permission.toLowerCase().includes('view')
 
-    // Skip routes without permissions or path
-    if ((!route.permissions && !route.permissionsOr) || !route.path) continue
+const isGrantedByPermission = (
+  route: CustomRouteObject,
+  permission: keyof TMembershipPermissions,
+): boolean =>
+  !!route.permissions?.includes(permission) || !!route.permissionsOr?.includes(permission)
 
-    // Get the first path if it's an array
-    const routePath = Array.isArray(route.path) ? route.path[0] : route.path
-
-    // Skip routes with dynamic params (e.g., :customerId) as they need context
-    if (routePath.includes(':')) continue
-
-    // Find view permissions in this route (check both AND and OR arrays)
-    const andViewPermissions =
-      route.permissions?.filter((p) => p.toLowerCase().includes('view')) || []
-    const orViewPermissions =
-      route.permissionsOr?.filter((p) => p.toLowerCase().includes('view')) || []
-    const viewPermissions = [...andViewPermissions, ...orViewPermissions]
-
-    // Map each view permission to the route if not already mapped
-    for (const viewPermission of viewPermissions) {
-      if (!map[viewPermission]) {
-        map[viewPermission] = routePath
-      }
-    }
-  }
-
-  return map
-}
-
-// Build the map once at module load
-let cachedMap: PermissionRouteMap | null = null
-
-export const getPermissionRouteMap = (): PermissionRouteMap => {
-  if (!cachedMap) {
-    cachedMap = buildPermissionRouteMap(routes)
-  }
-  return cachedMap
-}
-
+// Skips `:param` paths: Home has no context to fill them.
 export const getRouteForPermission = (
   permission: keyof TMembershipPermissions | null,
+  hasFeatureFlag: (flag: FeatureFlagEnum) => boolean,
 ): string | null => {
-  if (!permission) return null
-  return getPermissionRouteMap()[permission] ?? null
+  if (!permission || !isViewPermission(permission)) return null
+
+  const entry = getOrganizationRouteRegistry().find(
+    (candidate) =>
+      !candidate.path.includes(':') &&
+      isGrantedByPermission(candidate.route, permission) &&
+      isRouteEntryAvailable(candidate, hasFeatureFlag),
+  )
+
+  return entry?.path ?? null
 }

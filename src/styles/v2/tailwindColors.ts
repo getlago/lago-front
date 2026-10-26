@@ -78,6 +78,7 @@ const colorVariables = [
   '--color-canvas',
   '--color-surface',
   '--color-surface-raised',
+  '--color-surface-floating',
   '--color-surface-inset',
   '--color-text-default',
   '--color-text-muted',
