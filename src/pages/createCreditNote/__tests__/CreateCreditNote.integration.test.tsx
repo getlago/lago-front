@@ -47,14 +47,18 @@ jest.mock('~/components/form/ComboBox/ComboBox', () => {
 const mockOnCreate = jest.fn()
 const mockUseCreateCreditNote = jest.fn()
 
-// Validation is submit-first, so an invalid form is proven by a submit that never
-// reaches the mutation rather than by a disabled button.
-const expectSubmitRejected = async (user: ReturnType<typeof userEvent.setup>) => {
+// Validation is submit-first, so an invalid form is proven by a submit that never reaches
+// the mutation rather than by a disabled button. The rendered message is what tells us
+// validation has finished: a bare `not.toHaveBeenCalled` would resolve on the first tick,
+// before the submit settles, and so would pass on a form that does submit.
+const expectSubmitRejected = async (
+  user: ReturnType<typeof userEvent.setup>,
+  expectedError: string,
+) => {
   await user.click(screen.getByTestId(SUBMIT_BUTTON_TEST_ID))
 
-  await waitFor(() => {
-    expect(mockOnCreate).not.toHaveBeenCalled()
-  })
+  expect(await screen.findByText(expectedError)).toBeInTheDocument()
+  expect(mockOnCreate).not.toHaveBeenCalled()
 }
 
 jest.mock('../common/useCreateCreditNote', () => ({
@@ -169,7 +173,7 @@ describe('CreateCreditNote', () => {
 
       await act(() => render(<CreateCreditNote />))
 
-      await expectSubmitRejected(user)
+      await expectSubmitRejected(user, 'This value is not valid')
     })
 
     it('should render description field as optional', async () => {
@@ -376,7 +380,7 @@ describe('CreateCreditNote', () => {
       await user.clear(refundInput)
       await user.type(refundInput, '30')
 
-      await expectSubmitRejected(user)
+      await expectSubmitRejected(user, 'Allocation do not match credit note amount')
     })
 
     it('should validate refund does not exceed max refundable amount', async () => {
@@ -405,7 +409,7 @@ describe('CreateCreditNote', () => {
       await user.clear(refundInput)
       await user.type(refundInput, '150')
 
-      await expectSubmitRejected(user)
+      await expectSubmitRejected(user, 'Refund amount cannot exceed $100.00')
     })
 
     it('should validate credit does not exceed max creditable amount', async () => {
@@ -434,7 +438,7 @@ describe('CreateCreditNote', () => {
       await user.clear(refundInput)
       await user.type(refundInput, '0')
 
-      await expectSubmitRejected(user)
+      await expectSubmitRejected(user, 'Credit amount cannot exceed $100.00')
     })
 
     it('should accept valid split between credit and refund', async () => {
@@ -853,11 +857,7 @@ describe('CreateCreditNote', () => {
       await user.click(keyInput)
       await user.paste(longKey)
 
-      await expectSubmitRejected(user)
-
-      expect(
-        await screen.findByText('Key must be a string under 40 characters'),
-      ).toBeInTheDocument()
+      await expectSubmitRejected(user, 'Key must be a string under 40 characters')
     }, 10000)
 
     it('should enforce metadata value max length of 255 characters', async () => {
@@ -883,11 +883,7 @@ describe('CreateCreditNote', () => {
       await user.click(valueInput)
       await user.paste(longValue)
 
-      await expectSubmitRejected(user)
-
-      expect(
-        await screen.findByText('Value must be a string of 255 characters maximum'),
-      ).toBeInTheDocument()
+      await expectSubmitRejected(user, 'Value must be a string of 255 characters maximum')
     }, 10000)
   })
 })
