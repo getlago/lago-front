@@ -271,13 +271,13 @@ describe('SubscriptionAttributionTabContent', () => {
       it('THEN should group by that type', async () => {
         const user = userEvent.setup()
 
-        mockSetup({ flat: [...flatTypes, { id: 'type-all', code: 'all', name: 'All' }] })
+        mockSetup({ flat: [...flatTypes, { id: 'type-all', code: '__ALL__', name: 'All' }] })
 
         render(<SubscriptionAttributionTabContent />)
 
-        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'all')
+        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, '__ALL__')
 
-        expect(getLastUsageVariables()).toEqual(expect.objectContaining({ groupBy: 'all' }))
+        expect(getLastUsageVariables()).toEqual(expect.objectContaining({ groupBy: '__ALL__' }))
       })
     })
   })
