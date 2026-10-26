@@ -69,25 +69,23 @@ export const ButtonTest = () => {
                   Loading example
                 </Button>
               </div>
-              {variant !== 'link' && (
-                <div className="flex items-center gap-6">
-                  {iconSizes.map((size) => (
-                    <Button
-                      key={size}
-                      variant={variant}
-                      size={size}
-                      loading={loading}
-                      aria-label={`Copy, ${size}`}
-                      onClick={() => setClicks((n) => n + 1)}
-                    >
-                      <Copy size={14} strokeWidth={2} aria-hidden="true" />
-                    </Button>
-                  ))}
-                  <Button variant={variant} size="icon" disabled aria-label="Copy, disabled">
-                    <Copy aria-hidden="true" />
+              <div className="flex items-center gap-6">
+                {iconSizes.map((size) => (
+                  <Button
+                    key={size}
+                    variant={variant}
+                    size={size}
+                    loading={loading}
+                    aria-label={`Copy, ${size}`}
+                    onClick={() => setClicks((n) => n + 1)}
+                  >
+                    <Copy size={14} strokeWidth={2} aria-hidden="true" />
                   </Button>
-                </div>
-              )}
+                ))}
+                <Button variant={variant} size="icon" disabled aria-label="Copy, disabled">
+                  <Copy aria-hidden="true" />
+                </Button>
+              </div>
             </div>
           ))}
           <div className="flex items-center gap-6">

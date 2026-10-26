@@ -300,3 +300,48 @@ describe('Button event composition', () => {
     },
   )
 })
+
+describe('slotted context menus', () => {
+  it.each(['disabled', 'loading'] as const)('blocks child context handlers while %s', (state) => {
+    const child = jest.fn()
+    const capture = jest.fn()
+    const parent = jest.fn()
+    const parentCapture = jest.fn()
+    render(
+      <Button
+        asChild
+        {...{ [state]: true }}
+        onContextMenu={parent}
+        onContextMenuCapture={parentCapture}
+      >
+        <a href="#target" onContextMenu={child} onContextMenuCapture={capture}>
+          Context action
+        </a>
+      </Button>,
+    )
+    expect(fireEvent.contextMenu(screen.getByRole('link', { name: 'Context action' }))).toBe(false)
+    for (const handler of [child, capture, parent, parentCapture])
+      expect(handler).not.toHaveBeenCalled()
+  })
+
+  it('preserves enabled context-handler composition', () => {
+    const calls: string[] = []
+    render(
+      <Button
+        asChild
+        onContextMenu={() => calls.push('parent')}
+        onContextMenuCapture={() => calls.push('parent capture')}
+      >
+        <a
+          href="#target"
+          onContextMenu={() => calls.push('child')}
+          onContextMenuCapture={() => calls.push('child capture')}
+        >
+          Context action
+        </a>
+      </Button>,
+    )
+    expect(fireEvent.contextMenu(screen.getByRole('link', { name: 'Context action' }))).toBe(true)
+    expect(calls).toEqual(['child capture', 'parent capture', 'child', 'parent'])
+  })
+})

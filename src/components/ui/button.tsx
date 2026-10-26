@@ -55,6 +55,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       onAuxClickCapture,
       onKeyDownCapture,
       onContextMenu,
+      onContextMenuCapture,
       ...props
     },
     ref,
@@ -109,6 +110,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             if (blocked && (event.key === 'Enter' || event.key === ' ')) block(event)
             else slotted.props.onKeyDownCapture?.(event)
           },
+          onContextMenuCapture: (event) => {
+            if (blocked) block(event)
+            else slotted.props.onContextMenuCapture?.(event)
+          },
+          onContextMenu: (event) => {
+            if (blocked) block(event)
+            else slotted.props.onContextMenu?.(event)
+          },
           children: content(slotted.props.children),
         })
       : content(children)
@@ -122,6 +131,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         aria-disabled={blocked || undefined}
         aria-busy={loading || undefined}
         data-variant={variant ?? 'default'}
+        data-size={size ?? 'default'}
         data-disabled={disabled || undefined}
         data-loading={loading || undefined}
         className={cn(buttonVariants({ variant, size }), className)}
@@ -136,6 +146,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         onKeyDownCapture={(event) => {
           if (blocked && (event.key === 'Enter' || event.key === ' ')) block(event)
           else onKeyDownCapture?.(event)
+        }}
+        onContextMenuCapture={(event) => {
+          if (blocked) block(event)
+          else onContextMenuCapture?.(event)
         }}
         onContextMenu={(event) => {
           if (blocked) block(event)

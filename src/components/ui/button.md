@@ -10,7 +10,8 @@ Use `variant="default"` (primary), `secondary`, `outline`, `ghost`, `link`, or
 `destructive`. Text sizes are `sm` (32px), `default` (36px), and `lg` (40px), with
 horizontal padding of 12px, 16px, and 20px respectively. Icon-only sizes are
 `icon-sm`, `icon`, and `icon-lg`: square 32px, 36px, and 40px controls. All use
-full radius. Link hugs its content and ignores size-based padding/dimensions.
+full radius. Text links hug their content and ignore text-size padding/dimensions.
+Icon-only links retain their 32/36/40px square dimensions.
 
 ```tsx
 <Button variant="secondary" size="lg">Create customer</Button>

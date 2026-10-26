@@ -67,11 +67,14 @@
 .v2-button[data-variant='link'] {
   --v2-button-background: transparent;
   --v2-button-foreground: var(--color-link);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+/* Text links hug their content; icon links retain their square size utilities. */
+.v2-button[data-variant='link']:not([data-size^='icon']) {
   height: auto;
   width: auto;
   padding: 0;
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
 }
 .v2-button[data-variant='link']:not([aria-disabled='true']):is(:hover, :active) {
   --v2-button-foreground: var(--color-link-hover);
