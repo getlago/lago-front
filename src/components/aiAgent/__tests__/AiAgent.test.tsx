@@ -4,8 +4,16 @@ import userEvent from '@testing-library/user-event'
 import { AI_AGENT_ERROR_TEST_ID, AI_AGENT_NAV_TEST_ID, AiAgent } from '~/components/aiAgent/AiAgent'
 import { CHAT_CONVERSATION_TEST_ID } from '~/components/aiAgent/ChatConversation'
 import { CHAT_HISTORY_ITEM_TEST_ID, CHAT_HISTORY_TEST_ID } from '~/components/aiAgent/ChatHistory'
+import {
+  CHAT_PROMPT_EDITOR_INPUT_TEST_ID,
+  CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID,
+} from '~/components/aiAgent/ChatPromptEditor'
 import { PANEL_AI_AGENT_WELCOME_TEST_ID } from '~/components/aiAgent/PanelAiAgent'
-import { GetAiConversationDocument, ListAiConversationsDocument } from '~/generated/graphql'
+import {
+  CreateAiConversationDocument,
+  GetAiConversationDocument,
+  ListAiConversationsDocument,
+} from '~/generated/graphql'
 import { AiAgentProvider, AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { render, TestMocksType } from '~/test-utils'
 
@@ -117,6 +125,22 @@ const mocks: TestMocksType = [
       },
     },
   },
+  {
+    request: {
+      query: CreateAiConversationDocument,
+      variables: { input: { message: 'hello', conversationId: undefined } },
+    },
+    delay: 50,
+    result: {
+      data: {
+        createAiConversation: {
+          __typename: 'AiConversation',
+          id: 'conv-from-first-org',
+          name: 'hello',
+        },
+      },
+    },
+  },
 ]
 
 const renderAiAgent = async (agentType: AiAgentTypeEnum = AiAgentTypeEnum.billing) => {
@@ -149,6 +173,11 @@ const openStoredConversation = async () => {
   await waitFor(() => {
     expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toBeInTheDocument()
   })
+}
+
+const submitPrompt = async (message: string) => {
+  await userEvent.type(screen.getByTestId(CHAT_PROMPT_EDITOR_INPUT_TEST_ID), message)
+  await userEvent.click(screen.getByTestId(CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID))
 }
 
 const navigateTo = async (path: string) => {
@@ -323,6 +352,25 @@ describe('AiAgent', () => {
         await navigateTo('/test-org/customers')
 
         expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a conversation creation still in flight', () => {
+    describe('WHEN it completes after the user switched organization', () => {
+      it('THEN should ignore the stale answer', async () => {
+        await renderAiAgent()
+        await openPanel()
+        await submitPrompt('hello')
+
+        await navigateTo('/second-org/analytics')
+
+        await act(async () => {
+          await new Promise((resolve) => setTimeout(resolve, 100))
+        })
+
+        expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
       })
     })
   })

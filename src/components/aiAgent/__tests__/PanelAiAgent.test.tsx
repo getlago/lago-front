@@ -41,6 +41,7 @@ const mockSubscriptionRestart = jest.fn()
 let mockState: ChatState
 let mockAgentType: AiAgentTypeEnum
 let mockConversationId: string
+let mockConversationVersion: number
 let mockCreateLoading: boolean
 let mockCreateError: Error | undefined
 
@@ -50,6 +51,7 @@ jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
     addNewMessage: mockAddNewMessage,
     agentType: mockAgentType,
     conversationId: mockConversationId,
+    conversationVersion: mockConversationVersion,
     startNewConversation: mockStartNewConversation,
     setAgentType: jest.fn(),
     state: mockState,
@@ -98,6 +100,7 @@ describe('PanelAiAgent', () => {
     mockState = buildState()
     mockAgentType = AiAgentTypeEnum.billing
     mockConversationId = ''
+    mockConversationVersion = 0
     mockCreateLoading = false
     mockCreateError = undefined
   })
@@ -251,6 +254,7 @@ describe('PanelAiAgent', () => {
         await submitPrompt('hello')
 
         mockAgentType = AiAgentTypeEnum.finance
+        mockConversationVersion += 1
         rerender(<PanelAiAgent hasAccessToAiAgent />)
 
         capturedOnCompleted?.({ createAiConversation: { id: 'conv-1' } })
@@ -286,6 +290,7 @@ describe('PanelAiAgent', () => {
         expect(await screen.findByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).toBeInTheDocument()
 
         mockAgentType = AiAgentTypeEnum.finance
+        mockConversationVersion += 1
         rerender(<PanelAiAgent hasAccessToAiAgent />)
 
         await waitFor(() => {

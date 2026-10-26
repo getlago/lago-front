@@ -26,18 +26,25 @@ type PanelAiAgentProps = {
 }
 
 export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentProps) => {
-  const { addNewMessage, agentType, conversationId, startNewConversation, state } = useAiAgent()
+  const {
+    addNewMessage,
+    agentType,
+    conversationId,
+    conversationVersion,
+    startNewConversation,
+    state,
+  } = useAiAgent()
   const { createAiConversation, loading, error } = useCreateAiConversation()
   const { submitFinanceQuestion } = useAskFinanceAssistant()
   const [initialPrompt, setInitialPrompt] = useState<string>('')
   const { translate } = useInternationalization()
   const isFinanceAssistant = agentType === AiAgentTypeEnum.finance
 
-  // Late async completions must check the agent selected *now*, not the one
+  // Late async completions must check the conversation open *now*, not the one
   // captured when the request started
-  const agentTypeRef = useRef(agentType)
+  const conversationVersionRef = useRef(conversationVersion)
 
-  agentTypeRef.current = agentType
+  conversationVersionRef.current = conversationVersion
 
   const subscription = useOnConversation({
     conversationId: isFinanceAssistant ? undefined : conversationId,
@@ -45,7 +52,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
 
   useEffect(() => {
     setInitialPrompt('')
-  }, [agentType])
+  }, [conversationVersion])
 
   const handleSubmit = async (values: CreateAiConversationInput) => {
     if (isFinanceAssistant) {
@@ -53,6 +60,8 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
     }
 
     setInitialPrompt(values.message)
+
+    const versionAtSubmit = conversationVersionRef.current
 
     await createAiConversation({
       variables: {
@@ -63,8 +72,9 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
       },
 
       onCompleted: (data) => {
-        // The user switched agents while the request was in flight
-        if (agentTypeRef.current !== AiAgentTypeEnum.billing) {
+        // The conversation was dropped or replaced while the request was in
+        // flight — organization switch, agent switch, restored history
+        if (conversationVersionRef.current !== versionAtSubmit) {
           return
         }
 
