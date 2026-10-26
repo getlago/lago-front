@@ -1,9 +1,7 @@
-/* Scoped to the shadcn Button; unlayered specificity also overrides legacy a rules. */
+/* Keep link decoration scoped so legacy anchor rules do not override it. */
 .v2-button[data-variant] {
   --v2-button-background: var(--color-action-primary);
   --v2-button-foreground: var(--color-action-primary-foreground);
-  background-color: var(--v2-button-background);
-  color: var(--v2-button-foreground);
   text-decoration: none;
   cursor: pointer;
 }

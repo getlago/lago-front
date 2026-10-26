@@ -8,16 +8,16 @@ import { cn } from '~/lib/utils'
 import './button.css'
 
 const buttonVariants = cva(
-  'v2-button v2-text-label relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full align-middle outline-none transition-colors focus-visible:ring-4 focus-visible:ring-focus-ring focus-visible:ring-offset-0 [&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:stroke-2',
+  'v2-button v2-text-label relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-[var(--v2-button-background)] align-middle text-[color:var(--v2-button-foreground)] outline-none transition-colors focus-visible:ring-4 focus-visible:ring-focus-ring focus-visible:ring-offset-0 [&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:stroke-2',
   {
     variants: {
       variant: {
-        default: 'bg-action-primary',
+        default: '',
         secondary: 'border border-border-subtle shadow-v2-interactive',
         outline: 'border border-border-default',
         ghost: '',
         link: '',
-        destructive: 'bg-destructive',
+        destructive: '',
       },
       size: {
         default: 'h-9 px-4 py-0',

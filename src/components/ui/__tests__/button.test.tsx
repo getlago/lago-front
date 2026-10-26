@@ -1,4 +1,4 @@
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { render } from '~/test-utils'
@@ -21,7 +21,7 @@ describe('Button', () => {
 
     const button = screen.getByRole('button', { name: 'Default' })
 
-    expect(button).toHaveClass('bg-action-primary')
+    expect(button).toHaveClass('bg-[var(--v2-button-background)]')
     expect(button).toHaveClass('h-9')
   })
 
@@ -30,8 +30,8 @@ describe('Button', () => {
 
     const button = screen.getByRole('button', { name: 'Delete' })
 
-    expect(button).toHaveClass('bg-destructive')
-    expect(button).not.toHaveClass('bg-action-primary')
+    expect(button).toHaveAttribute('data-variant', 'destructive')
+    expect(button).toHaveClass('bg-[var(--v2-button-background)]')
   })
 
   it('applies the requested size classes', async () => {
@@ -49,7 +49,7 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: 'Default' })
 
     expect(button).toHaveClass('mt-4')
-    expect(button).toHaveClass('bg-action-primary')
+    expect(button).toHaveClass('bg-[var(--v2-button-background)]')
   })
 
   it('lets a conflicting custom className override the variant class, via cn/tailwind-merge', async () => {
@@ -58,7 +58,7 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: 'Default' })
 
     expect(button).toHaveClass('bg-accent')
-    expect(button).not.toHaveClass('bg-action-primary')
+    expect(button).not.toHaveClass('bg-[var(--v2-button-background)]')
   })
 
   it('disables the button and blocks the click handler', async () => {
@@ -104,7 +104,7 @@ describe('Button', () => {
 
     expect(link.tagName).toBe('A')
     expect(link).toHaveAttribute('href', '/somewhere')
-    expect(link).toHaveClass('bg-action-primary')
+    expect(link).toHaveClass('bg-[var(--v2-button-background)]')
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 
@@ -208,4 +208,95 @@ describe('v2 loading and composition', () => {
     )
     expect(screen.getByRole('button', { name: 'Copy' })).toHaveAttribute('aria-busy', 'true')
   })
+})
+
+describe('Button event composition', () => {
+  it.each([false, true])(
+    'forwards enabled capture and context handlers with asChild=%s',
+    (asChild) => {
+      const parentClick = jest.fn()
+      const parentAux = jest.fn()
+      const parentKey = jest.fn()
+      const parentContext = jest.fn()
+      const childClick = jest.fn()
+      const childAux = jest.fn()
+      const childKey = jest.fn()
+
+      render(
+        <Button
+          asChild={asChild}
+          onClickCapture={parentClick}
+          onAuxClickCapture={parentAux}
+          onKeyDownCapture={parentKey}
+          onContextMenu={parentContext}
+        >
+          {asChild ? (
+            <a
+              href="#target"
+              onClickCapture={childClick}
+              onAuxClickCapture={childAux}
+              onKeyDownCapture={childKey}
+            >
+              Action
+            </a>
+          ) : (
+            'Action'
+          )}
+        </Button>,
+      )
+      const target = screen.getByRole(asChild ? 'link' : 'button', { name: 'Action' })
+
+      fireEvent.click(target)
+      fireEvent(target, new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }))
+      fireEvent.keyDown(target, { key: 'Enter' })
+      fireEvent.contextMenu(target)
+
+      for (const handler of [parentClick, parentAux, parentKey, parentContext]) {
+        expect(handler).toHaveBeenCalledTimes(1)
+      }
+      for (const handler of [childClick, childAux, childKey]) {
+        expect(handler).toHaveBeenCalledTimes(asChild ? 1 : 0)
+      }
+    },
+  )
+
+  it.each(['disabled', 'loading'] as const)(
+    'prevents alternative anchor activation while %s but preserves navigation keys',
+    (state) => {
+      const parentAux = jest.fn()
+      const childAux = jest.fn()
+      const parentKey = jest.fn()
+      const childKey = jest.fn()
+      const contextMenu = jest.fn()
+
+      render(
+        <Button
+          asChild
+          {...{ [state]: true }}
+          onAuxClickCapture={parentAux}
+          onKeyDownCapture={parentKey}
+          onContextMenu={contextMenu}
+        >
+          <a href="#target" onAuxClickCapture={childAux} onKeyDownCapture={childKey}>
+            Action
+          </a>
+        </Button>,
+      )
+      const link = screen.getByRole('link', { name: 'Action' })
+      const auxiliary = new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 })
+
+      expect(fireEvent(link, auxiliary)).toBe(false)
+      expect(fireEvent.keyDown(link, { key: ' ' })).toBe(false)
+      expect(fireEvent.contextMenu(link)).toBe(false)
+      expect(parentAux).not.toHaveBeenCalled()
+      expect(childAux).not.toHaveBeenCalled()
+      expect(parentKey).not.toHaveBeenCalled()
+      expect(childKey).not.toHaveBeenCalled()
+      expect(contextMenu).not.toHaveBeenCalled()
+
+      expect(fireEvent.keyDown(link, { key: 'Tab' })).toBe(true)
+      expect(parentKey).toHaveBeenCalledTimes(1)
+      expect(childKey).toHaveBeenCalledTimes(1)
+    },
+  )
 })
