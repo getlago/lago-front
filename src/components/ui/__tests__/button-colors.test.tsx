@@ -1,3 +1,4 @@
+/* eslint-disable import/order -- prettier groups node builtins with externals, conflicting with builtin-first ordering */
 import { render, screen } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
