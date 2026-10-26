@@ -373,5 +373,42 @@ describe('AiAgent', () => {
         expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
       })
     })
+
+    describe('WHEN it completes after the panel was unmounted and the organization changed', () => {
+      it('THEN should ignore the stale answer', async () => {
+        await renderAiAgent()
+        await openPanel()
+        await submitPrompt('hello')
+
+        await navigateTo('/test-org/create/plans')
+        await navigateTo('/second-org/analytics')
+
+        await act(async () => {
+          await new Promise((resolve) => setTimeout(resolve, 100))
+        })
+
+        expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization switch lands on a page hiding the panel', () => {
+      it('THEN should ignore the stale answer', async () => {
+        await renderAiAgent()
+        await openPanel()
+        await submitPrompt('hello')
+
+        await navigateTo('/second-org/create/plans')
+
+        await act(async () => {
+          await new Promise((resolve) => setTimeout(resolve, 100))
+        })
+
+        await navigateTo('/second-org/analytics')
+
+        expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
+      })
+    })
   })
 })

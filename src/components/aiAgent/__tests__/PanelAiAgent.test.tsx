@@ -52,6 +52,7 @@ jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
     agentType: mockAgentType,
     conversationId: mockConversationId,
     conversationVersion: mockConversationVersion,
+    getConversationVersion: () => mockConversationVersion,
     startNewConversation: mockStartNewConversation,
     setAgentType: jest.fn(),
     state: mockState,

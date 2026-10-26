@@ -5,6 +5,7 @@ import {
   useContext,
   useMemo,
   useReducer,
+  useRef,
   useState,
 } from 'react'
 
@@ -52,6 +53,7 @@ interface AiAgentContextType extends UsePanelReturn<AIPanelEnum> {
   state: ChatState
   conversationId?: string
   conversationVersion: number
+  getConversationVersion: () => number
   agentType: AiAgentTypeEnum
   lastAssistantMessage?: ChatMessage
   setAgentType: (agentType: AiAgentTypeEnum) => void
@@ -98,13 +100,18 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
   const [conversationId, setConversationId] = useState('')
   // Bumped on every change of conversation identity, so a request still in
   // flight can tell on completion that the conversation it answers is gone.
+  // The ref, not the state, is what late callbacks read: a request outlives the
+  // panel that started it, and an unmounted panel stops seeing state updates.
+  const conversationVersionRef = useRef(0)
   const [conversationVersion, setConversationVersion] = useState(0)
   const [agentType, setAgentTypeState] = useState<AiAgentTypeEnum>(getStoredAgentType)
 
-  const bumpConversationVersion = useCallback(
-    () => setConversationVersion((version) => version + 1),
-    [],
-  )
+  const bumpConversationVersion = useCallback(() => {
+    conversationVersionRef.current += 1
+    setConversationVersion(conversationVersionRef.current)
+  }, [])
+
+  const getConversationVersion = useCallback(() => conversationVersionRef.current, [])
 
   const [state, dispatch] = useReducer(chatReducer, {
     messages: [],
@@ -225,6 +232,7 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
         state,
         conversationId,
         conversationVersion,
+        getConversationVersion,
         agentType,
         lastAssistantMessage,
         setAgentType,

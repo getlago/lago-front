@@ -1,5 +1,5 @@
 import { tw } from 'lago-design-system'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { ChatConversation } from '~/components/aiAgent/ChatConversation'
 import { ChatMessages } from '~/components/aiAgent/ChatMessages'
@@ -31,6 +31,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
     agentType,
     conversationId,
     conversationVersion,
+    getConversationVersion,
     startNewConversation,
     state,
   } = useAiAgent()
@@ -39,12 +40,6 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
   const [initialPrompt, setInitialPrompt] = useState<string>('')
   const { translate } = useInternationalization()
   const isFinanceAssistant = agentType === AiAgentTypeEnum.finance
-
-  // Late async completions must check the conversation open *now*, not the one
-  // captured when the request started
-  const conversationVersionRef = useRef(conversationVersion)
-
-  conversationVersionRef.current = conversationVersion
 
   const subscription = useOnConversation({
     conversationId: isFinanceAssistant ? undefined : conversationId,
@@ -61,7 +56,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
 
     setInitialPrompt(values.message)
 
-    const versionAtSubmit = conversationVersionRef.current
+    const versionAtSubmit = getConversationVersion()
 
     await createAiConversation({
       variables: {
@@ -74,7 +69,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
       onCompleted: (data) => {
         // The conversation was dropped or replaced while the request was in
         // flight — organization switch, agent switch, restored history
-        if (conversationVersionRef.current !== versionAtSubmit) {
+        if (getConversationVersion() !== versionAtSubmit) {
           return
         }
 
