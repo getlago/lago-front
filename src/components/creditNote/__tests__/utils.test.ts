@@ -524,9 +524,9 @@ describe('getPayBackFields', () => {
     it('THEN should return all fields with show=false and empty values', () => {
       const result = getPayBackFields(undefined)
 
-      expect(result.credit).toEqual({ path: '', value: 0, show: false })
-      expect(result.refund).toEqual({ path: '', value: 0, show: false })
-      expect(result.offset).toEqual({ path: '', value: 0, show: false })
+      expect(result.credit).toEqual({ path: '', index: -1, value: 0, show: false })
+      expect(result.refund).toEqual({ path: '', index: -1, value: 0, show: false })
+      expect(result.offset).toEqual({ path: '', index: -1, value: 0, show: false })
     })
   })
 
@@ -546,7 +546,7 @@ describe('getPayBackFields', () => {
 
       const result = getPayBackFields(payBack)
 
-      expect(result.credit).toEqual({ path: 'payBack.0.value', value: 50, show: true })
+      expect(result.credit).toEqual({ path: 'payBack[0].value', index: 0, value: 50, show: true })
       expect(result.refund.show).toBe(false)
       expect(result.offset.show).toBe(false)
     })
@@ -561,8 +561,8 @@ describe('getPayBackFields', () => {
 
       const result = getPayBackFields(payBack)
 
-      expect(result.credit).toEqual({ path: 'payBack.0.value', value: 30, show: true })
-      expect(result.refund).toEqual({ path: 'payBack.1.value', value: 20, show: true })
+      expect(result.credit).toEqual({ path: 'payBack[0].value', index: 0, value: 30, show: true })
+      expect(result.refund).toEqual({ path: 'payBack[1].value', index: 1, value: 20, show: true })
       expect(result.offset.show).toBe(false)
     })
   })
@@ -577,9 +577,9 @@ describe('getPayBackFields', () => {
 
       const result = getPayBackFields(payBack)
 
-      expect(result.credit).toEqual({ path: 'payBack.0.value', value: 30, show: true })
-      expect(result.refund).toEqual({ path: 'payBack.1.value', value: 20, show: true })
-      expect(result.offset).toEqual({ path: 'payBack.2.value', value: 10, show: true })
+      expect(result.credit).toEqual({ path: 'payBack[0].value', index: 0, value: 30, show: true })
+      expect(result.refund).toEqual({ path: 'payBack[1].value', index: 1, value: 20, show: true })
+      expect(result.offset).toEqual({ path: 'payBack[2].value', index: 2, value: 10, show: true })
     })
   })
 
@@ -606,8 +606,8 @@ describe('getPayBackFields', () => {
 
       const result = getPayBackFields(payBack)
 
-      expect(result.credit).toEqual({ path: 'payBack.1.value', value: 30, show: true })
-      expect(result.offset).toEqual({ path: 'payBack.0.value', value: 10, show: true })
+      expect(result.credit).toEqual({ path: 'payBack[1].value', index: 1, value: 30, show: true })
+      expect(result.offset).toEqual({ path: 'payBack[0].value', index: 0, value: 10, show: true })
       expect(result.refund.show).toBe(false)
     })
   })

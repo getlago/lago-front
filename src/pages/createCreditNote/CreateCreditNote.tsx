@@ -1,8 +1,7 @@
-import { useFormik } from 'formik'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useRef } from 'react'
 import { generatePath, useParams } from 'react-router'
-import { array, object, Schema, string } from 'yup'
 
 import { CreditNoteEstimationLine } from '~/components/creditNote/CreditNoteEstimationLine'
 import { CreditNoteFormAllocation } from '~/components/creditNote/CreditNoteFormAllocation'
@@ -24,19 +23,13 @@ import { Card } from '~/components/designSystem/Card'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { ComboBoxField, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import {
-  generateAddOnFeesSchema,
-  generateCreditFeesSchema,
-  generateFeesSchema,
-} from '~/formValidation/feesSchema'
-import { metadataSchema } from '~/formValidation/metadataSchema'
 import {
   CreditNoteReasonEnum,
   CurrencyEnum,
@@ -44,13 +37,22 @@ import {
   LagoApiError,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { PageHeader } from '~/styles'
 
 import { useCreateCreditNote } from './common/useCreateCreditNote'
-import MetadataFormCard from './metadataForm/MetadataFormCard'
+import { CreditNoteMetadataSection } from './metadataForm/CreditNoteMetadataSection'
+import {
+  AllocationLimits,
+  buildCreditNoteSchema,
+  CreditNoteFormValues,
+  hasCreditNoteFeeErrors,
+} from './validationSchema'
+
+export const CREATE_CREDIT_NOTE_FORM_ID = 'create-credit-note-form'
 
 export const SUBMIT_BUTTON_TEST_ID = 'submit-credit-note-button'
-const REASON_COMBOBOX_TEST_ID = 'reason-combobox'
+export const REASON_COMBOBOX_TEST_ID = 'reason-combobox'
 
 export const DESCRIPTION_INPUT_TEST_ID = 'description-input'
 export const PREPAID_CREDITS_REFUND_ALERT_TEST_ID = 'prepaid-credits-refund-alert'
@@ -120,111 +122,129 @@ const CreateCreditNote = () => {
     onCreate,
   } = useCreateCreditNote()
   const currency = invoice?.currency || CurrencyEnum.Usd
+  const isPrepaidCreditsInvoice = invoice?.invoiceType === InvoiceTypeEnum.Credit
 
-  const initialPayBack = buildInitialPayBack(invoice)
-
-  const addOnFeesValidation = useMemo(
-    () => generateAddOnFeesSchema(feeForAddOn || [], currency),
-    [feeForAddOn, currency],
-  )
-
-  const feesValidation = useMemo(
-    () => generateFeesSchema(feesPerInvoice || {}, currency),
-    [feesPerInvoice, currency],
-  )
-
-  const creditFeeValidation = useMemo(
-    () => generateCreditFeesSchema(feeForCredit || [], currency),
-    [feeForCredit, currency],
-  )
-
-  const [payBackValidation, setPayBackValidation] = useState<Schema>(array())
-
-  const formikProps = useFormik<Partial<CreditNoteForm>>({
-    validateOnMount: true,
-    enableReinitialize: true,
-    initialValues: {
+  const defaultValues: CreditNoteFormValues = useMemo(
+    () => ({
       description: undefined,
       reason: undefined,
       fees: feesPerInvoice,
       addOnFee: feeForAddOn,
       creditFee: feeForCredit,
-      payBack: initialPayBack,
-      creditAmount: undefined,
-      refundAmount: undefined,
+      payBack: buildInitialPayBack(invoice),
       metadata: [],
-    },
-    validationSchema: object().shape({
-      reason: string().required(''),
-      fees: feesValidation,
-      addOnFee: addOnFeesValidation,
-      creditFee: creditFeeValidation,
-      payBack: payBackValidation,
-      metadata: metadataSchema({
-        keyMaxLength: 40,
-        valueMaxLength: 255,
-      }),
     }),
-    onSubmit: async (values, formikBag) => {
-      const formattedValues = {
-        ...values,
-        metadata: (values.metadata || []).map((metadata) => ({
-          key: metadata.key,
-          value: metadata.value,
-        })),
-      } as CreditNoteForm
+    [feesPerInvoice, feeForAddOn, feeForCredit, invoice],
+  )
 
-      const answer = await onCreate(formattedValues)
+  const allocationLimits = useRef<AllocationLimits>({
+    totalTaxIncluded: 0,
+    maxCreditableAmount: 0,
+    maxRefundableAmount: 0,
+    maxOffsettableAmount: 0,
+  })
+
+  const validationSchema = useMemo(
+    () =>
+      buildCreditNoteSchema({
+        currency,
+        feesPerInvoice,
+        feeForAddOn,
+        feeForCredit,
+        isPrepaidCreditsInvoice,
+        getAllocationLimits: () => allocationLimits.current,
+      }),
+    [currency, feesPerInvoice, feeForAddOn, feeForCredit, isPrepaidCreditsInvoice],
+  )
+
+  const form = useAppForm({
+    defaultValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: validationSchema,
+    },
+    onSubmitInvalid({ formApi }) {
+      scrollToFirstInputError(CREATE_CREDIT_NOTE_FORM_ID, formApi.state.errorMap.onDynamic || {})
+    },
+    onSubmit: async ({ value, formApi }) => {
+      const answer = await onCreate(value as CreditNoteForm)
 
       if (hasDefinedGQLError('DoesNotMatchItemAmounts', answer?.errors)) {
-        formikBag.setErrors({
-          // @ts-expect-error - Formik doesn't know it here but we have 2 values in the array if we get this error
-          payBack: [
-            { value: LagoApiError.DoesNotMatchItemAmounts },
-            { value: LagoApiError.DoesNotMatchItemAmounts },
-          ],
+        const issue = (index: number) => ({
+          message: LagoApiError.DoesNotMatchItemAmounts,
+          path: ['payBack', index, 'value'],
+        })
+
+        // `form` carries the flat path map the allocation section reads, `fields` is what
+        // puts each input in its error state; the two are not interchangeable.
+        formApi.setErrorMap({
+          onDynamic: {
+            form: {
+              'payBack[0].value': [issue(0)],
+              'payBack[1].value': [issue(1)],
+            },
+            fields: {
+              'payBack[0].value': issue(0),
+              'payBack[1].value': issue(1),
+            },
+          },
         })
       }
     },
   })
 
-  const hasError = !!formikProps.errors.fees || !!formikProps.errors.addOnFee
+  const formValues = useStore(form.store, (state) => state.values)
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+
+  const hasError = useMemo(
+    () =>
+      hasCreditNoteFeeErrors({
+        currency,
+        feesPerInvoice,
+        feeForAddOn,
+        fees: formValues.fees,
+        addOnFee: formValues.addOnFee,
+      }),
+    [currency, feesPerInvoice, feeForAddOn, formValues.fees, formValues.addOnFee],
+  )
 
   const { feeForEstimate } = useMemo(
     () =>
       creditNoteFormCalculationCalculation({
         currency,
         hasError,
-        fees: formikProps.values.fees,
-        addonFees: formikProps.values.addOnFee,
+        fees: formValues.fees,
+        addonFees: formValues.addOnFee,
       }),
-    [currency, formikProps.values.addOnFee, formikProps.values.fees, hasError],
+    [currency, formValues.addOnFee, formValues.fees, hasError],
   )
 
   const creditNoteCalculation = useCreditNoteFormCalculation({
     invoice,
-    formikProps,
     feeForEstimate,
-    setPayBackValidation,
   })
 
-  const isPrepaidCreditsInvoice = invoice?.invoiceType === InvoiceTypeEnum.Credit
+  allocationLimits.current = {
+    totalTaxIncluded: creditNoteCalculation.totalTaxIncluded,
+    maxCreditableAmount: creditNoteCalculation.maxCreditableAmount,
+    maxRefundableAmount: creditNoteCalculation.maxRefundableAmount,
+    maxOffsettableAmount: creditNoteCalculation.maxOffsettableAmount,
+  }
 
-  const creditFeeValue = formikProps.values.creditFee?.[0]?.value
-
+  const creditFeeValue = formValues.creditFee?.[0]?.value
   const hasOffsettable = hasOffsettableAmount(invoice)
 
   useEffect(() => {
     if (isPrepaidCreditsInvoice && creditFeeValue) {
       if (hasCreditableOrRefundableAmount) {
-        formikProps.setFieldValue('payBack', [
+        form.setFieldValue('payBack', [
           {
             type: CreditTypeEnum.refund,
             value: creditFeeValue,
           },
         ])
       } else if (hasOffsettable) {
-        formikProps.setFieldValue('payBack', [
+        form.setFieldValue('payBack', [
           {
             type: CreditTypeEnum.offset,
             value: creditFeeValue,
@@ -235,59 +255,268 @@ const CreateCreditNote = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPrepaidCreditsInvoice, creditFeeValue, hasCreditableOrRefundableAmount, hasOffsettable])
 
-  // Reset payBack values, errors, and touched state when fee items change (for non-prepaid credits invoices)
+  // Allocation values are cleared when the fee selection changes, so a total computed
+  // against the previous selection is never carried over.
   const isInitialFeesMount = useRef(true)
-  const resetPayBackAllocation = useCallback(() => {
-    // Reset payBack values to 0
-    const currentPayBack = formikProps.values.payBack || []
-    const resetPayBack = currentPayBack.map((item) => ({
-      ...item,
-      value: undefined,
-    }))
-
-    formikProps.setFieldValue('payBack', resetPayBack)
-
-    // Clear payBack errors (payBackErrors is a custom error field added dynamically)
-    const errors = formikProps.errors as Record<string, unknown>
-
-    if (errors.payBack || errors.payBackErrors) {
-      const cleanedErrors = { ...errors, payBack: undefined, payBackErrors: undefined }
-
-      formikProps.setErrors(cleanedErrors as typeof formikProps.errors)
-    }
-
-    // Reset touched state for payBack fields
-    const currentTouched = formikProps.touched as Record<string, unknown>
-
-    if (currentTouched.payBack) {
-      formikProps.setTouched({
-        ...currentTouched,
-        payBack: undefined,
-      } as typeof formikProps.touched)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikProps.values.payBack])
 
   useEffect(() => {
-    // Skip reset on initial mount
     if (isInitialFeesMount.current) {
       isInitialFeesMount.current = false
       return
     }
 
-    // Only reset for non-prepaid credits invoices
-    if (!isPrepaidCreditsInvoice) {
-      resetPayBackAllocation()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikProps.values.fees, formikProps.values.addOnFee])
+    if (isPrepaidCreditsInvoice) return
 
-  const formHasAtLeastOneFeeChecked: boolean = useMemo(() => {
-    return creditNoteFormHasAtLeastOneFeeChecked(formikProps.values)
-  }, [formikProps.values])
+    form.setFieldValue('payBack', (currentPayBack) =>
+      (currentPayBack || []).map((item) => ({ ...item, value: undefined })),
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formValues.fees, formValues.addOnFee])
+
+  const formHasAtLeastOneFeeChecked: boolean = useMemo(
+    () => creditNoteFormHasAtLeastOneFeeChecked(formValues),
+    [formValues],
+  )
+
+  const handleSubmit = (event: FormEvent): void => {
+    event.preventDefault()
+    form.handleSubmit()
+  }
+
+  const renderItemsSection = () => {
+    if (isInvoiceFullyCovered) {
+      return <Alert type="danger">{translate('text_1783670256902guo0smcgak1')}</Alert>
+    }
+
+    return (
+      <>
+        <CreditNoteItemsForm
+          form={form}
+          isPrepaidCreditsInvoice={isPrepaidCreditsInvoice}
+          feeForCredit={feeForCredit}
+          feeForAddOn={feeForAddOn}
+          feesPerInvoice={feesPerInvoice}
+          currency={currency}
+        />
+
+        {isPrepaidCreditsInvoice ? (
+          <>
+            <div className="ml-auto w-full max-w-100">
+              <CreditNoteEstimationLine
+                label={
+                  hasCreditableOrRefundableAmount
+                    ? translate('text_17270794543889mcmuhfq70p')
+                    : translate('text_1767883339943r32jn2ioyeu')
+                }
+                value={intlFormatNumber(Number(creditFeeValue || 0), { currency })}
+              />
+            </div>
+
+            {hasCreditableOrRefundableAmount && (
+              <Alert className="mt-6" type="info" data-test={PREPAID_CREDITS_REFUND_ALERT_TEST_ID}>
+                {translate('text_1729084495407pcn1mei0hyd')}
+              </Alert>
+            )}
+          </>
+        ) : (
+          <CreditNoteFormCalculation
+            hasError={hasError}
+            currency={creditNoteCalculation.currency}
+            estimationLoading={creditNoteCalculation.estimationLoading}
+            hasCouponLine={creditNoteCalculation.hasCouponLine}
+            proRatedCouponAmount={creditNoteCalculation.proRatedCouponAmount}
+            totalExcludedTax={creditNoteCalculation.totalExcludedTax}
+            taxes={creditNoteCalculation.taxes}
+            totalTaxIncluded={creditNoteCalculation.totalTaxIncluded}
+            canOnlyCredit={creditNoteCalculation.canOnlyCredit}
+          />
+        )}
+      </>
+    )
+  }
+
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <>
+          <Skeleton variant="text" className="mb-5 w-70" />
+          <Skeleton variant="text" className="mb-10 w-120" />
+          <Card className="flex flex-row items-center gap-3 p-4">
+            <Skeleton variant="connectorAvatar" size="medium" />
+            <Skeleton variant="text" className="w-40" />
+          </Card>
+          <Card>
+            <Skeleton variant="text" className="w-104" />
+            <Skeleton variant="text" className="w-164" />
+            <Skeleton variant="text" className="w-64" />
+          </Card>
+          <div className="mb-20 px-8">
+            <Button size="large" disabled fullWidth>
+              {translate('text_636bdef6565341dcb9cfb127')}
+            </Button>
+          </div>
+        </>
+      )
+    }
+
+    return (
+      <>
+        <CenteredPage.PageTitle
+          title={translate('text_636bdef6565341dcb9cfb127')}
+          description={translate('text_636bedf292786b19d3398ec6')}
+        />
+        <div className="flex flex-col gap-12 border-b border-grey-300 pb-12">
+          <div className="flex flex-col">
+            <Typography className="mb-2" variant="subhead1" color="grey700">
+              {translate('text_17374729448780zbfa44h1s3')}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate('text_1766074535186op0u7tt7ses')}
+            </Typography>
+
+            <div className="mt-3 overflow-hidden rounded-xl border border-grey-300">
+              <div className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-3">
+                  <Avatar size="big" variant="connector">
+                    <Icon name="document" />
+                  </Avatar>
+                  <div>
+                    <Typography variant="caption" color="grey600">
+                      {translate('text_634687079be251fdb43833fb')}
+                    </Typography>
+                    <Typography variant="bodyHl" color="grey700">
+                      {invoice?.number}
+                    </Typography>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <Typography variant="caption" color="grey600">
+                    {translate('text_65a6b4e2cb38d9b70ec53d83')}
+                  </Typography>
+                  <Typography variant="bodyHl" color="grey700">
+                    {intlFormatNumber(deserializeAmount(invoice?.totalAmountCents, currency), {
+                      currency,
+                    })}
+                  </Typography>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 border-t border-grey-300 bg-grey-100 p-4">
+                <div>
+                  <Typography variant="caption" color="grey600">
+                    {translate('text_1766074535187gdkj5p0iln0')}
+                  </Typography>
+                  <Typography variant="body" color="grey700">
+                    {intlFormatNumber(
+                      deserializeAmount(invoice?.totalPaidAmountCents || 0, currency),
+                      { currency },
+                    )}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography variant="caption" color="grey600">
+                    {translate('text_17374735502775afvcm9pqxk')}
+                  </Typography>
+                  <Typography variant="body" color="grey700">
+                    {intlFormatNumber(
+                      deserializeAmount(invoice?.totalDueAmountCents || 0, currency),
+                      { currency },
+                    )}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography variant="caption" color="grey600">
+                    {translate('text_1766074535187nro7qatdzyh')}
+                  </Typography>
+                  <Typography variant="body" color="grey700">
+                    {intlFormatNumber(
+                      deserializeAmount(invoice?.refundableAmountCents || 0, currency),
+                      { currency },
+                    )}
+                  </Typography>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-6">
+            <Typography variant="subhead1">{translate('text_636bedf292786b19d3398ece')}</Typography>
+            <form.AppField name="reason">
+              {(field) => (
+                <field.ComboBoxField
+                  label={translate('text_636bedf292786b19d3398ed0')}
+                  placeholder={translate('text_636bedf292786b19d3398ed2')}
+                  data={CREDIT_NOTE_REASONS.map((reason) => ({
+                    value: reason.reason,
+                    label: translate(reason.label),
+                  }))}
+                  dataTest={REASON_COMBOBOX_TEST_ID}
+                />
+              )}
+            </form.AppField>
+            <form.AppField name="description">
+              {(field) => (
+                <field.TextInputField
+                  label={translate('text_636bedf292786b19d3398ed4')}
+                  placeholder={translate('text_636bedf292786b19d3398ed6')}
+                  rows={3}
+                  multiline
+                  data-test={DESCRIPTION_INPUT_TEST_ID}
+                />
+              )}
+            </form.AppField>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-6 border-b border-grey-300 pb-12">
+          <div>
+            <Typography className="mb-2" variant="subhead1" color="grey700">
+              {translate('text_636bedf292786b19d3398ed8')}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate('text_1766133873554m5a3a9c8x2f')}
+            </Typography>
+          </div>
+
+          <div>
+            <Typography variant="caption">{translate('text_636bedf292786b19d3398eda')}</Typography>
+            <Typography variant="bodyHl" color="grey700">
+              {translate('text_636bedf292786b19d3398edc', {
+                invoiceNumber: invoice?.number,
+                subtotal: intlFormatNumber(
+                  deserializeAmount(invoice?.subTotalIncludingTaxesAmountCents || 0, currency),
+                  { currency },
+                ),
+              })}
+            </Typography>
+          </div>
+
+          {renderItemsSection()}
+        </div>
+
+        {!isPrepaidCreditsInvoice && canCreateCreditNote(invoice) && (
+          <div className="flex flex-col gap-6 border-b border-grey-300 pb-12">
+            <CreditNoteFormAllocation
+              form={form}
+              currency={creditNoteCalculation.currency}
+              maxCreditableAmount={creditNoteCalculation.maxCreditableAmount}
+              maxRefundableAmount={creditNoteCalculation.maxRefundableAmount}
+              maxOffsettableAmount={creditNoteCalculation.maxOffsettableAmount}
+              totalTaxIncluded={creditNoteCalculation.totalTaxIncluded}
+              estimationLoading={creditNoteCalculation.estimationLoading}
+            />
+          </div>
+        )}
+
+        <div className="flex flex-col">
+          <CreditNoteMetadataSection form={form} />
+        </div>
+      </>
+    )
+  }
 
   return (
-    <div>
+    <form id={CREATE_CREDIT_NOTE_FORM_ID} onSubmit={handleSubmit}>
       <PageHeader.Wrapper>
         {loading ? (
           <div>
@@ -304,241 +533,10 @@ const CreateCreditNote = () => {
           variant="quaternary"
           icon="close"
           data-test={CLOSE_BUTTON_TEST_ID}
-          onClick={() => (formikProps.dirty ? openDirtyAttributesWarning() : navigateBack())}
+          onClick={() => (isDirty ? openDirtyAttributesWarning() : navigateBack())}
         />
       </PageHeader.Wrapper>
-      <CenteredPage.Container>
-        {loading ? (
-          <>
-            <Skeleton variant="text" className="mb-5 w-70" />
-            <Skeleton variant="text" className="mb-10 w-120" />
-            <Card className="flex flex-row items-center gap-3 p-4">
-              <Skeleton variant="connectorAvatar" size="medium" />
-              <Skeleton variant="text" className="w-40" />
-            </Card>
-            <Card>
-              <Skeleton variant="text" className="w-104" />
-              <Skeleton variant="text" className="w-164" />
-              <Skeleton variant="text" className="w-64" />
-            </Card>
-            <div className="mb-20 px-8">
-              <Button size="large" disabled fullWidth>
-                {translate('text_636bdef6565341dcb9cfb127')}
-              </Button>
-            </div>
-          </>
-        ) : (
-          <>
-            <CenteredPage.PageTitle
-              title={translate('text_636bdef6565341dcb9cfb127')}
-              description={translate('text_636bedf292786b19d3398ec6')}
-            />
-            <div className="flex flex-col gap-12 border-b border-grey-300 pb-12">
-              <div className="flex flex-col">
-                <Typography className="mb-2" variant="subhead1" color="grey700">
-                  {translate('text_17374729448780zbfa44h1s3')}
-                </Typography>
-                <Typography variant="caption" color="grey600">
-                  {translate('text_1766074535186op0u7tt7ses')}
-                </Typography>
-
-                <div className="mt-3 overflow-hidden rounded-xl border border-grey-300">
-                  <div className="flex items-center justify-between p-4">
-                    <div className="flex items-center gap-3">
-                      <Avatar size="big" variant="connector">
-                        <Icon name="document" />
-                      </Avatar>
-                      <div>
-                        <Typography variant="caption" color="grey600">
-                          {translate('text_634687079be251fdb43833fb')}
-                        </Typography>
-                        <Typography variant="bodyHl" color="grey700">
-                          {invoice?.number}
-                        </Typography>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <Typography variant="caption" color="grey600">
-                        {translate('text_65a6b4e2cb38d9b70ec53d83')}
-                      </Typography>
-                      <Typography variant="bodyHl" color="grey700">
-                        {intlFormatNumber(deserializeAmount(invoice?.totalAmountCents, currency), {
-                          currency,
-                        })}
-                      </Typography>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-4 border-t border-grey-300 bg-grey-100 p-4">
-                    <div>
-                      <Typography variant="caption" color="grey600">
-                        {translate('text_1766074535187gdkj5p0iln0')}
-                      </Typography>
-                      <Typography variant="body" color="grey700">
-                        {intlFormatNumber(
-                          deserializeAmount(invoice?.totalPaidAmountCents || 0, currency),
-                          { currency },
-                        )}
-                      </Typography>
-                    </div>
-                    <div>
-                      <Typography variant="caption" color="grey600">
-                        {translate('text_17374735502775afvcm9pqxk')}
-                      </Typography>
-                      <Typography variant="body" color="grey700">
-                        {intlFormatNumber(
-                          deserializeAmount(invoice?.totalDueAmountCents || 0, currency),
-                          { currency },
-                        )}
-                      </Typography>
-                    </div>
-                    <div>
-                      <Typography variant="caption" color="grey600">
-                        {translate('text_1766074535187nro7qatdzyh')}
-                      </Typography>
-                      <Typography variant="body" color="grey700">
-                        {intlFormatNumber(
-                          deserializeAmount(invoice?.refundableAmountCents || 0, currency),
-                          { currency },
-                        )}
-                      </Typography>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-6">
-                <Typography variant="subhead1">
-                  {translate('text_636bedf292786b19d3398ece')}
-                </Typography>
-                <ComboBoxField
-                  name="reason"
-                  formikProps={formikProps}
-                  label={translate('text_636bedf292786b19d3398ed0')}
-                  placeholder={translate('text_636bedf292786b19d3398ed2')}
-                  data={CREDIT_NOTE_REASONS.map((reason) => ({
-                    value: reason.reason,
-                    label: translate(reason.label),
-                  }))}
-                  data-test={REASON_COMBOBOX_TEST_ID}
-                />
-                <TextInputField
-                  name="description"
-                  formikProps={formikProps}
-                  label={translate('text_636bedf292786b19d3398ed4')}
-                  placeholder={translate('text_636bedf292786b19d3398ed6')}
-                  rows={3}
-                  multiline
-                  data-test={DESCRIPTION_INPUT_TEST_ID}
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-6 border-b border-grey-300 pb-12">
-              <div>
-                <Typography className="mb-2" variant="subhead1" color="grey700">
-                  {translate('text_636bedf292786b19d3398ed8')}
-                </Typography>
-                <Typography variant="caption" color="grey600">
-                  {translate('text_1766133873554m5a3a9c8x2f')}
-                </Typography>
-              </div>
-
-              <div>
-                <Typography variant="caption">
-                  {translate('text_636bedf292786b19d3398eda')}
-                </Typography>
-                <Typography variant="bodyHl" color="grey700">
-                  {translate('text_636bedf292786b19d3398edc', {
-                    invoiceNumber: invoice?.number,
-                    subtotal: intlFormatNumber(
-                      deserializeAmount(invoice?.subTotalIncludingTaxesAmountCents || 0, currency),
-                      {
-                        currency,
-                      },
-                    ),
-                  })}
-                </Typography>
-              </div>
-
-              {isInvoiceFullyCovered ? (
-                <Alert type="danger">{translate('text_1783670256902guo0smcgak1')}</Alert>
-              ) : (
-                <>
-                  <CreditNoteItemsForm
-                    isPrepaidCreditsInvoice={isPrepaidCreditsInvoice}
-                    formikProps={formikProps}
-                    feeForCredit={feeForCredit}
-                    feeForAddOn={feeForAddOn}
-                    feesPerInvoice={feesPerInvoice}
-                    currency={currency}
-                  />
-
-                  {isPrepaidCreditsInvoice ? (
-                    <>
-                      <div className="ml-auto w-full max-w-100">
-                        <CreditNoteEstimationLine
-                          label={
-                            hasCreditableOrRefundableAmount
-                              ? translate('text_17270794543889mcmuhfq70p')
-                              : translate('text_1767883339943r32jn2ioyeu')
-                          }
-                          value={intlFormatNumber(
-                            Number(formikProps.values.creditFee?.[0]?.value || 0),
-                            {
-                              currency,
-                            },
-                          )}
-                        />
-                      </div>
-
-                      {hasCreditableOrRefundableAmount && (
-                        <Alert
-                          className="mt-6"
-                          type="info"
-                          data-test={PREPAID_CREDITS_REFUND_ALERT_TEST_ID}
-                        >
-                          {translate('text_1729084495407pcn1mei0hyd')}
-                        </Alert>
-                      )}
-                    </>
-                  ) : (
-                    <CreditNoteFormCalculation
-                      hasError={hasError}
-                      currency={creditNoteCalculation.currency}
-                      estimationLoading={creditNoteCalculation.estimationLoading}
-                      hasCouponLine={creditNoteCalculation.hasCouponLine}
-                      proRatedCouponAmount={creditNoteCalculation.proRatedCouponAmount}
-                      totalExcludedTax={creditNoteCalculation.totalExcludedTax}
-                      taxes={creditNoteCalculation.taxes}
-                      totalTaxIncluded={creditNoteCalculation.totalTaxIncluded}
-                      canOnlyCredit={creditNoteCalculation.canOnlyCredit}
-                    />
-                  )}
-                </>
-              )}
-            </div>
-
-            {!isPrepaidCreditsInvoice && canCreateCreditNote(invoice) && (
-              <div className="flex flex-col gap-6 border-b border-grey-300 pb-12">
-                <CreditNoteFormAllocation
-                  formikProps={formikProps}
-                  currency={creditNoteCalculation.currency}
-                  maxCreditableAmount={creditNoteCalculation.maxCreditableAmount}
-                  maxRefundableAmount={creditNoteCalculation.maxRefundableAmount}
-                  maxOffsettableAmount={creditNoteCalculation.maxOffsettableAmount}
-                  totalTaxIncluded={creditNoteCalculation.totalTaxIncluded}
-                  estimationLoading={creditNoteCalculation.estimationLoading}
-                />
-              </div>
-            )}
-
-            <div className="flex flex-col">
-              <MetadataFormCard formikProps={formikProps} />
-            </div>
-          </>
-        )}
-      </CenteredPage.Container>
+      <CenteredPage.Container>{renderContent()}</CenteredPage.Container>
 
       <CenteredPage.StickyFooter>
         <div className="flex h-full items-center justify-end gap-3">
@@ -556,17 +554,18 @@ const CreateCreditNote = () => {
           >
             {translate('text_6411e6b530cb47007488b027')}
           </Button>
-          <Button
-            disabled={!formikProps.isValid || !formHasAtLeastOneFeeChecked}
-            fullWidth
-            onClick={formikProps.submitForm}
-            data-test={SUBMIT_BUTTON_TEST_ID}
-          >
-            {translate('text_636bedf292786b19d3398f12')}
-          </Button>
+          <form.AppForm>
+            <form.SubmitButton
+              disabled={!formHasAtLeastOneFeeChecked}
+              fullWidth
+              dataTest={SUBMIT_BUTTON_TEST_ID}
+            >
+              {translate('text_636bedf292786b19d3398f12')}
+            </form.SubmitButton>
+          </form.AppForm>
         </div>
       </CenteredPage.StickyFooter>
-    </div>
+    </form>
   )
 }
 

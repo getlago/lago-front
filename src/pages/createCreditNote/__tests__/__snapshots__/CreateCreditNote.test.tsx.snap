@@ -2,7 +2,9 @@
 
 exports[`CreateCreditNote snapshots matches snapshot in loading state 1`] = `
 <div>
-  <div>
+  <form
+    id="create-credit-note-form"
+  >
     <div
       class="sticky top-0 z-navBar flex h-nav min-h-nav items-center justify-between gap-4 bg-white px-4 shadow-b md:px-12 py-4"
     >
@@ -127,20 +129,22 @@ exports[`CreateCreditNote snapshots matches snapshot in loading state 1`] = `
             data-test="submit-credit-note-button"
             disabled=""
             tabindex="-1"
-            type="button"
+            type="submit"
           >
             Issue credit note
           </button>
         </div>
       </div>
     </footer>
-  </div>
+  </form>
 </div>
 `;
 
 exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
 <div>
-  <div>
+  <form
+    id="create-credit-note-form"
+  >
     <div
       class="sticky top-0 z-navBar flex h-nav min-h-nav items-center justify-between gap-4 bg-white px-4 shadow-b md:px-12 py-4"
     >
@@ -602,7 +606,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
             >
               <label
                 class="flex flex-col cursor-pointer"
-                data-test="checkbox-fees.sub-1.fees.0.checked"
+                data-test="checkbox-fees.sub-1.fees[0].checked"
                 for=:r-mui-id:
               >
                 <div
@@ -613,7 +617,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                   >
                     <input
                       aria-checked="true"
-                      aria-labelledby="fees.sub-1.fees.0.checked"
+                      aria-labelledby="fees.sub-1.fees[0].checked"
                       checked=""
                       class="absolute m-0 size-0 p-0 opacity-0"
                       id=:r-mui-id:
@@ -702,8 +706,8 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                         <input
                           aria-invalid="false"
                           class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-hash-MuiInputBase-input-MuiOutlinedInput-input
-                          id="fees.sub-1.fees.0.value"
-                          name="fees.sub-1.fees.0.value"
+                          id="fees.sub-1.fees[0].value"
+                          name="fees.sub-1.fees[0].value"
                           placeholder="0.00"
                           style="text-align: right;"
                           type="text"
@@ -925,8 +929,8 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                       <input
                         aria-invalid="false"
                         class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-hash-MuiInputBase-input-MuiOutlinedInput-input
-                        id="payBack.1.value"
-                        name="payBack.1.value"
+                        id="payBack[1].value"
+                        name="payBack[1].value"
                         placeholder="0.00"
                         style="text-align: right;"
                         type="text"
@@ -991,8 +995,8 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                       <input
                         aria-invalid="false"
                         class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-hash-MuiInputBase-input-MuiOutlinedInput-input
-                        id="payBack.0.value"
-                        name="payBack.0.value"
+                        id="payBack[0].value"
+                        name="payBack[0].value"
                         placeholder="0.00"
                         style="text-align: right;"
                         type="text"
@@ -1089,24 +1093,25 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
             Cancel
           </button>
           <button
-            class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
+            class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="submit-credit-note-button"
-            disabled=""
-            tabindex="-1"
-            type="button"
+            tabindex="0"
+            type="submit"
           >
             Issue credit note
           </button>
         </div>
       </div>
     </footer>
-  </div>
+  </form>
 </div>
 `;
 
 exports[`CreateCreditNote snapshots matches snapshot with no payment (credit only mode) 1`] = `
 <div>
-  <div>
+  <form
+    id="create-credit-note-form"
+  >
     <div
       class="sticky top-0 z-navBar flex h-nav min-h-nav items-center justify-between gap-4 bg-white px-4 shadow-b md:px-12 py-4"
     >
@@ -1568,7 +1573,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
             >
               <label
                 class="flex flex-col cursor-pointer"
-                data-test="checkbox-fees.sub-1.fees.0.checked"
+                data-test="checkbox-fees.sub-1.fees[0].checked"
                 for=:r-mui-id:
               >
                 <div
@@ -1579,7 +1584,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                   >
                     <input
                       aria-checked="true"
-                      aria-labelledby="fees.sub-1.fees.0.checked"
+                      aria-labelledby="fees.sub-1.fees[0].checked"
                       checked=""
                       class="absolute m-0 size-0 p-0 opacity-0"
                       id=:r-mui-id:
@@ -1668,8 +1673,8 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                         <input
                           aria-invalid="false"
                           class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-hash-MuiInputBase-input-MuiOutlinedInput-input
-                          id="fees.sub-1.fees.0.value"
-                          name="fees.sub-1.fees.0.value"
+                          id="fees.sub-1.fees[0].value"
+                          name="fees.sub-1.fees[0].value"
                           placeholder="0.00"
                           style="text-align: right;"
                           type="text"
@@ -1912,8 +1917,8 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                       <input
                         aria-invalid="false"
                         class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-hash-MuiInputBase-input-MuiOutlinedInput-input
-                        id="payBack.0.value"
-                        name="payBack.0.value"
+                        id="payBack[0].value"
+                        name="payBack[0].value"
                         placeholder="0.00"
                         style="text-align: right;"
                         type="text"
@@ -2010,24 +2015,25 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
             Cancel
           </button>
           <button
-            class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
+            class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="submit-credit-note-button"
-            disabled=""
-            tabindex="-1"
-            type="button"
+            tabindex="0"
+            type="submit"
           >
             Issue credit note
           </button>
         </div>
       </div>
     </footer>
-  </div>
+  </form>
 </div>
 `;
 
 exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1`] = `
 <div>
-  <div>
+  <form
+    id="create-credit-note-form"
+  >
     <div
       class="sticky top-0 z-navBar flex h-nav min-h-nav items-center justify-between gap-4 bg-white px-4 shadow-b md:px-12 py-4"
     >
@@ -2489,7 +2495,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
             >
               <label
                 class="flex flex-col cursor-pointer"
-                data-test="checkbox-fees.sub-1.fees.0.checked"
+                data-test="checkbox-fees.sub-1.fees[0].checked"
                 for=:r-mui-id:
               >
                 <div
@@ -2500,7 +2506,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                   >
                     <input
                       aria-checked="true"
-                      aria-labelledby="fees.sub-1.fees.0.checked"
+                      aria-labelledby="fees.sub-1.fees[0].checked"
                       checked=""
                       class="absolute m-0 size-0 p-0 opacity-0"
                       id=:r-mui-id:
@@ -2589,8 +2595,8 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                         <input
                           aria-invalid="false"
                           class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-hash-MuiInputBase-input-MuiOutlinedInput-input
-                          id="fees.sub-1.fees.0.value"
-                          name="fees.sub-1.fees.0.value"
+                          id="fees.sub-1.fees[0].value"
+                          name="fees.sub-1.fees[0].value"
                           placeholder="0.00"
                           style="text-align: right;"
                           type="text"
@@ -2833,8 +2839,8 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                       <input
                         aria-invalid="false"
                         class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-hash-MuiInputBase-input-MuiOutlinedInput-input
-                        id="payBack.0.value"
-                        name="payBack.0.value"
+                        id="payBack[0].value"
+                        name="payBack[0].value"
                         placeholder="0.00"
                         style="text-align: right;"
                         type="text"
@@ -2931,17 +2937,16 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
             Cancel
           </button>
           <button
-            class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
+            class=MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-fullWidth min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="submit-credit-note-button"
-            disabled=""
-            tabindex="-1"
-            type="button"
+            tabindex="0"
+            type="submit"
           >
             Issue credit note
           </button>
         </div>
       </div>
     </footer>
-  </div>
+  </form>
 </div>
 `;

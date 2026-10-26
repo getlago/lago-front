@@ -176,12 +176,12 @@ describe('CreateCreditNote', () => {
   })
 
   describe('form interactions', () => {
-    it('disables submit button when form is invalid', async () => {
+    it('keeps the submit button enabled before the first submit attempt', async () => {
       await act(() => render(<CreateCreditNote />))
 
       const submitButton = screen.getByText('Issue credit note')
 
-      expect(submitButton.closest('button')).toBeDisabled()
+      expect(submitButton.closest('button')).not.toBeDisabled()
     })
   })
 

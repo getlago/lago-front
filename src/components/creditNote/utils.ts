@@ -16,6 +16,7 @@ import { CreditNoteForm, CreditTypeEnum, FeesPerInvoice, FromFee } from './types
 
 interface PayBackFieldInfo {
   path: string
+  index: number
   value: number
   show: boolean
 }
@@ -26,7 +27,7 @@ export interface PayBackFields {
   offset: PayBackFieldInfo
 }
 
-type PayBackItem = { type?: CreditTypeEnum | string; value?: number }
+type PayBackItem = { type?: CreditTypeEnum | string; value?: string | number }
 
 /**
  * Helper to get payBack field info by type.
@@ -42,17 +43,20 @@ export const getPayBackFields = (payBack: PayBackItem[] | undefined): PayBackFie
 
   return {
     credit: {
-      path: creditIndex >= 0 ? `payBack.${creditIndex}.value` : '',
+      path: creditIndex >= 0 ? `payBack[${creditIndex}].value` : '',
+      index: creditIndex,
       value: creditIndex >= 0 ? Number(items[creditIndex]?.value || 0) : 0,
       show: creditIndex >= 0,
     },
     refund: {
-      path: refundIndex >= 0 ? `payBack.${refundIndex}.value` : '',
+      path: refundIndex >= 0 ? `payBack[${refundIndex}].value` : '',
+      index: refundIndex,
       value: refundIndex >= 0 ? Number(items[refundIndex]?.value || 0) : 0,
       show: refundIndex >= 0,
     },
     offset: {
-      path: offsetIndex >= 0 ? `payBack.${offsetIndex}.value` : '',
+      path: offsetIndex >= 0 ? `payBack[${offsetIndex}].value` : '',
+      index: offsetIndex,
       value: offsetIndex >= 0 ? Number(items[offsetIndex]?.value || 0) : 0,
       show: offsetIndex >= 0,
     },

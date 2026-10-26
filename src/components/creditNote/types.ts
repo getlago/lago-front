@@ -34,7 +34,7 @@ export interface CreditNoteForm {
   creditAmount: number
   amountCurrency: CurrencyEnum
   refundAmount: number
-  payBack: { type?: CreditTypeEnum; value?: number }[]
+  payBack: { type?: CreditTypeEnum; value?: string | number }[]
   description?: string
   fees?: FeesPerInvoice
   addOnFee?: FromFee[]

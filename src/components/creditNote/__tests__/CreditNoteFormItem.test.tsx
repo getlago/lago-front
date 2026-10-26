@@ -1,115 +1,72 @@
 import { render, screen } from '@testing-library/react'
 
 import { CurrencyEnum } from '~/generated/graphql'
+import { useAppForm } from '~/hooks/forms/useAppform'
+import {
+  CREDIT_NOTE_DEFAULT_VALUES,
+  CreditNoteFormValues,
+} from '~/pages/createCreditNote/validationSchema'
 import { AllTheProviders } from '~/test-utils'
 
 import { CreditNoteFormItem } from '../CreditNoteFormItem'
+import { FromFee } from '../types'
 
-const createMockFormikProps = (overrides: Record<string, unknown> = {}) => ({
-  values: {
-    testFee: { checked: true, value: 100 },
-  },
-  errors: {},
-  touched: {},
-  isSubmitting: false,
-  isValidating: false,
-  submitCount: 0,
-  dirty: false,
-  isValid: true,
-  initialValues: {},
-  initialErrors: {},
-  initialTouched: {},
-  initialStatus: undefined,
-  status: undefined,
-  handleBlur: jest.fn(),
-  handleChange: jest.fn(),
-  handleReset: jest.fn(),
-  handleSubmit: jest.fn(),
-  resetForm: jest.fn(),
-  setErrors: jest.fn(),
-  setFieldError: jest.fn(),
-  setFieldTouched: jest.fn(),
-  setFieldValue: jest.fn(),
-  setFormikState: jest.fn(),
-  setStatus: jest.fn(),
-  setSubmitting: jest.fn(),
-  setTouched: jest.fn(),
-  setValues: jest.fn(),
-  submitForm: jest.fn(),
-  validateField: jest.fn(),
-  validateForm: jest.fn(),
-  getFieldProps: jest.fn(),
-  getFieldMeta: jest.fn(),
-  getFieldHelpers: jest.fn(),
-  registerField: jest.fn(),
-  unregisterField: jest.fn(),
+const buildFee = (overrides: Partial<FromFee> = {}): FromFee => ({
+  id: 'fee-1',
+  checked: true,
+  value: 100,
+  name: 'Test Fee',
+  maxAmount: 10000,
   ...overrides,
 })
 
-const defaultProps = {
-  currency: CurrencyEnum.Usd,
-  feeName: 'Test Fee',
-  formikKey: 'testFee',
-  maxValue: 10000,
-}
+const Wrapper = ({ fee, isReadOnly }: { fee: FromFee; isReadOnly?: boolean }) => {
+  const defaultValues: CreditNoteFormValues = { ...CREDIT_NOTE_DEFAULT_VALUES, creditFee: [fee] }
 
-const renderComponent = (
-  props: Partial<typeof defaultProps & { isReadOnly?: boolean }> = {},
-  formikOverrides: Record<string, unknown> = {},
-) => {
-  const formikProps = createMockFormikProps(formikOverrides)
+  const form = useAppForm({ defaultValues })
 
-  return render(
+  return (
     <CreditNoteFormItem
-      {...defaultProps}
-      {...props}
-      formikProps={formikProps as Parameters<typeof CreditNoteFormItem>[0]['formikProps']}
-    />,
-    {
-      wrapper: AllTheProviders,
-    },
+      form={form}
+      currency={CurrencyEnum.Usd}
+      feeName="Test Fee"
+      fieldKey="creditFee[0]"
+      maxValue={10000}
+      isReadOnly={isReadOnly}
+    />
   )
 }
+
+const renderComponent = ({
+  fee = buildFee(),
+  isReadOnly,
+}: { fee?: FromFee; isReadOnly?: boolean } = {}) =>
+  render(<Wrapper fee={fee} isReadOnly={isReadOnly} />, { wrapper: AllTheProviders })
 
 describe('CreditNoteFormItem', () => {
   describe('isReadOnly prop', () => {
     it('should disable the input when isReadOnly is true', () => {
       renderComponent({ isReadOnly: true })
 
-      const input = screen.getByRole('textbox')
-
-      expect(input).toBeDisabled()
+      expect(screen.getByRole('textbox')).toBeDisabled()
     })
 
     it('should enable the input when isReadOnly is false and checkbox is checked', () => {
       renderComponent({ isReadOnly: false })
 
-      const input = screen.getByRole('textbox')
-
-      expect(input).not.toBeDisabled()
+      expect(screen.getByRole('textbox')).not.toBeDisabled()
     })
 
     it('should enable the input when isReadOnly is undefined and checkbox is checked', () => {
       renderComponent({ isReadOnly: undefined })
 
-      const input = screen.getByRole('textbox')
-
-      expect(input).not.toBeDisabled()
+      expect(screen.getByRole('textbox')).not.toBeDisabled()
     })
 
     it('should disable the input when checkbox is unchecked regardless of isReadOnly', () => {
-      renderComponent(
-        { isReadOnly: false },
-        {
-          values: {
-            testFee: { checked: false, value: 100 },
-          },
-        },
-      )
+      renderComponent({ fee: buildFee({ checked: false }), isReadOnly: false })
 
-      const input = screen.getByRole('textbox')
-
-      expect(input).toBeDisabled()
+      expect(screen.getByRole('textbox')).toBeDisabled()
     })
   })
 })

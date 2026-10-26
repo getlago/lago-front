@@ -1,7 +1,13 @@
+import { revalidateLogic } from '@tanstack/react-form'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
-import { createMockFormikProps } from '~/components/creditNote/__tests__/formikProps.factory'
 import { CurrencyEnum } from '~/generated/graphql'
+import { useAppForm } from '~/hooks/forms/useAppform'
+import {
+  buildCreditNoteSchema,
+  CREDIT_NOTE_DEFAULT_VALUES,
+} from '~/pages/createCreditNote/validationSchema'
 import { AllTheProviders } from '~/test-utils'
 
 import {
@@ -10,36 +16,68 @@ import {
   OFFSET_AMOUNT_INPUT_TEST_ID,
   REFUND_AMOUNT_INPUT_TEST_ID,
 } from '../CreditNoteFormAllocation'
-import { CreditNoteForm, CreditTypeEnum, PayBackErrorEnum } from '../types'
+import { CreditNoteForm, CreditTypeEnum } from '../types'
 
-const defaultProps = {
-  formikProps: createMockFormikProps<CreditNoteForm>({
-    values: {
-      payBack: [
-        { type: CreditTypeEnum.credit, value: 0 },
-        { type: CreditTypeEnum.refund, value: 0 },
-        { type: CreditTypeEnum.offset, value: 0 },
-      ],
-    },
-  }),
-  currency: CurrencyEnum.Usd,
+const SUBMIT_TEST_ID = 'allocation-test-submit'
+
+const DEFAULT_LIMITS = {
   maxCreditableAmount: 100,
   maxRefundableAmount: 100,
   maxOffsettableAmount: 50,
   totalTaxIncluded: 120,
-  estimationLoading: false,
 }
 
-const renderComponent = (props = {}) => {
-  return render(<CreditNoteFormAllocation {...defaultProps} {...props} />, {
-    wrapper: AllTheProviders,
-  })
+type WrapperProps = {
+  payBack: CreditNoteForm['payBack']
+  totalTaxIncluded?: number
 }
+
+const Wrapper = ({ payBack, totalTaxIncluded = DEFAULT_LIMITS.totalTaxIncluded }: WrapperProps) => {
+  const limits = { ...DEFAULT_LIMITS, totalTaxIncluded }
+
+  const form = useAppForm({
+    defaultValues: { ...CREDIT_NOTE_DEFAULT_VALUES, payBack },
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: buildCreditNoteSchema({
+        currency: CurrencyEnum.Usd,
+        feesPerInvoice: undefined,
+        feeForAddOn: undefined,
+        feeForCredit: undefined,
+        isPrepaidCreditsInvoice: false,
+        getAllocationLimits: () => limits,
+      }),
+    },
+  })
+
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        form.handleSubmit()
+      }}
+    >
+      <CreditNoteFormAllocation form={form} currency={CurrencyEnum.Usd} {...limits} />
+      <button type="submit" data-test={SUBMIT_TEST_ID}>
+        submit
+      </button>
+    </form>
+  )
+}
+
+const renderComponent = (props: WrapperProps) =>
+  render(<Wrapper {...props} />, { wrapper: AllTheProviders })
 
 describe('CreditNoteFormAllocation', () => {
   describe('GIVEN all payBack types are present', () => {
     it('THEN should render all three allocation inputs', () => {
-      renderComponent()
+      renderComponent({
+        payBack: [
+          { type: CreditTypeEnum.credit, value: 0 },
+          { type: CreditTypeEnum.refund, value: 0 },
+          { type: CreditTypeEnum.offset, value: 0 },
+        ],
+      })
 
       expect(screen.getByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
@@ -49,13 +87,7 @@ describe('CreditNoteFormAllocation', () => {
 
   describe('GIVEN only credit type in payBack', () => {
     it('THEN should render only credit input', () => {
-      const formikProps = createMockFormikProps<CreditNoteForm>({
-        values: {
-          payBack: [{ type: CreditTypeEnum.credit, value: 0 }],
-        },
-      })
-
-      renderComponent({ formikProps })
+      renderComponent({ payBack: [{ type: CreditTypeEnum.credit, value: 0 }] })
 
       expect(screen.getByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
       expect(screen.queryByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
@@ -65,16 +97,12 @@ describe('CreditNoteFormAllocation', () => {
 
   describe('GIVEN credit and refund types in payBack', () => {
     it('THEN should render credit and refund inputs only', () => {
-      const formikProps = createMockFormikProps<CreditNoteForm>({
-        values: {
-          payBack: [
-            { type: CreditTypeEnum.credit, value: 0 },
-            { type: CreditTypeEnum.refund, value: 0 },
-          ],
-        },
+      renderComponent({
+        payBack: [
+          { type: CreditTypeEnum.credit, value: 0 },
+          { type: CreditTypeEnum.refund, value: 0 },
+        ],
       })
-
-      renderComponent({ formikProps })
 
       expect(screen.getByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
@@ -84,16 +112,12 @@ describe('CreditNoteFormAllocation', () => {
 
   describe('GIVEN credit and offset types in payBack', () => {
     it('THEN should render credit and offset inputs only', () => {
-      const formikProps = createMockFormikProps<CreditNoteForm>({
-        values: {
-          payBack: [
-            { type: CreditTypeEnum.credit, value: 0 },
-            { type: CreditTypeEnum.offset, value: 0 },
-          ],
-        },
+      renderComponent({
+        payBack: [
+          { type: CreditTypeEnum.credit, value: 0 },
+          { type: CreditTypeEnum.offset, value: 0 },
+        ],
       })
-
-      renderComponent({ formikProps })
 
       expect(screen.getByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).toBeInTheDocument()
       expect(screen.queryByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).not.toBeInTheDocument()
@@ -103,16 +127,13 @@ describe('CreditNoteFormAllocation', () => {
 
   describe('GIVEN allocation summary', () => {
     it('WHEN values are provided THEN should display total, allocated and remaining amounts', () => {
-      const formikProps = createMockFormikProps<CreditNoteForm>({
-        values: {
-          payBack: [
-            { type: CreditTypeEnum.credit, value: 50 },
-            { type: CreditTypeEnum.refund, value: 30 },
-          ],
-        },
+      renderComponent({
+        payBack: [
+          { type: CreditTypeEnum.credit, value: 50 },
+          { type: CreditTypeEnum.refund, value: 30 },
+        ],
+        totalTaxIncluded: 120,
       })
-
-      renderComponent({ formikProps, totalTaxIncluded: 120 })
 
       // Total: $120, Allocated: $80 (50+30), Remaining: $40
       expect(screen.getByText('$120.00')).toBeInTheDocument()
@@ -121,17 +142,14 @@ describe('CreditNoteFormAllocation', () => {
     })
 
     it('WHEN offset has value THEN should include it in allocation calculation', () => {
-      const formikProps = createMockFormikProps<CreditNoteForm>({
-        values: {
-          payBack: [
-            { type: CreditTypeEnum.credit, value: 30 },
-            { type: CreditTypeEnum.refund, value: 20 },
-            { type: CreditTypeEnum.offset, value: 10 },
-          ],
-        },
+      renderComponent({
+        payBack: [
+          { type: CreditTypeEnum.credit, value: 30 },
+          { type: CreditTypeEnum.refund, value: 20 },
+          { type: CreditTypeEnum.offset, value: 10 },
+        ],
+        totalTaxIncluded: 100,
       })
-
-      renderComponent({ formikProps, totalTaxIncluded: 100 })
 
       // Total: $100, Allocated: $60 (30+20+10), Remaining: $40
       expect(screen.getByText('$100.00')).toBeInTheDocument()
@@ -141,48 +159,47 @@ describe('CreditNoteFormAllocation', () => {
   })
 
   describe('GIVEN error alert', () => {
-    it('WHEN payBackErrors exists AND at least one field is touched THEN should show danger alert', () => {
-      const formikProps = createMockFormikProps<CreditNoteForm>({
-        values: {
-          payBack: [
-            { type: CreditTypeEnum.credit, value: 0 },
-            { type: CreditTypeEnum.refund, value: 0 },
-          ],
-        },
-        errors: {
-          payBackErrors: PayBackErrorEnum.maxTotalInvoice,
-        } as Record<string, unknown>,
-        touched: {
-          payBack: [{ value: true }, { value: false }],
-        } as Record<string, unknown>,
+    it('WHEN the allocation does not add up to the total THEN should show the danger alert on submit', async () => {
+      const user = userEvent.setup()
+
+      renderComponent({
+        payBack: [
+          { type: CreditTypeEnum.credit, value: 0 },
+          { type: CreditTypeEnum.refund, value: 0 },
+        ],
+        totalTaxIncluded: 120,
       })
 
-      renderComponent({ formikProps })
+      expect(screen.queryByTestId('alert-type-danger')).not.toBeInTheDocument()
 
-      expect(screen.getByTestId('alert-type-danger')).toBeInTheDocument()
+      await user.click(screen.getByTestId(SUBMIT_TEST_ID))
+
+      expect(await screen.findByTestId('alert-type-danger')).toBeInTheDocument()
     })
 
-    it('WHEN payBackErrors exists BUT no field is touched THEN should not show alert', () => {
-      const formikProps = createMockFormikProps<CreditNoteForm>({
-        values: {
-          payBack: [
-            { type: CreditTypeEnum.credit, value: 0 },
-            { type: CreditTypeEnum.refund, value: 0 },
-          ],
-        },
-        errors: {
-          payBackErrors: PayBackErrorEnum.maxTotalInvoice,
-        } as Record<string, unknown>,
-        touched: {},
+    it('WHEN the allocation adds up to the total THEN should not show the alert', async () => {
+      const user = userEvent.setup()
+
+      renderComponent({
+        payBack: [
+          { type: CreditTypeEnum.credit, value: 120 },
+          { type: CreditTypeEnum.refund, value: 0 },
+        ],
+        totalTaxIncluded: 120,
       })
 
-      renderComponent({ formikProps })
+      await user.click(screen.getByTestId(SUBMIT_TEST_ID))
 
       expect(screen.queryByTestId('alert-type-danger')).not.toBeInTheDocument()
     })
 
-    it('WHEN no errors THEN should not show alert', () => {
-      renderComponent()
+    it('WHEN nothing has been submitted THEN should not show the alert', () => {
+      renderComponent({
+        payBack: [
+          { type: CreditTypeEnum.credit, value: 0 },
+          { type: CreditTypeEnum.refund, value: 0 },
+        ],
+      })
 
       expect(screen.queryByTestId('alert-type-danger')).not.toBeInTheDocument()
     })
