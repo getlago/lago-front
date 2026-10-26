@@ -5276,5 +5276,20 @@
   "text_1792439710542ctc2yq2zptb": "Notify when resolved",
   "text_1792439710542tbnwvrxl0g7": "Add a threshold code to notify when this threshold is resolved",
   "text_17924397105421fihqq5j6ns": "This code is used by another threshold. Use a unique code to notify when resolved",
-  "text_1792525787885ii787mch1rx": "Endpoints must subscribe to alert.resolved (or to all events) to receive resolution notifications."
+  "text_1792525787885ii787mch1rx": "Endpoints must subscribe to alert.resolved (or to all events) to receive resolution notifications.",
+  "text_1792507896669q4dn36fbi4y": "Contract",
+  "text_1792503533806fhiu57zr6an": "Phase {{position}}",
+  "text_1792504558237fi9a27bn0p2": "Delete {{name}}?",
+  "text_1792504558237qwb88fdpgp7": "This phase is removed from the rate card. The phases after it move up one position.",
+  "text_179250455823726yiyqps1z3": "Phase successfully deleted",
+  "text_1792504558237e30tbqnye82": "Reset the overrides of {{name}}?",
+  "text_1792504558237c76cown33ob": "This phase will bill with the rate card's active rate.",
+  "text_179250455823743gk265fc61": "Reset overrides",
+  "text_17925045582370oiauno9u9a": "Phase overrides successfully reset",
+  "text_1792505051512l94aiaeyyqm": "Copy phase code",
+  "text_1792505051513lwg9cymf8wg": "Reset phase overrides",
+  "text_1792506302406m3twa4pwimw": "Every change made to this rate card and its phases.",
+  "text_1792507128247xgs5eskh1bu": "Create a rate phase",
+  "text_1792507128247tj6ezglktl8": "Rate card not found",
+  "text_1792516745021oj4du8sg5mm": "A new phase must be placed before the phase that runs forever"
 }

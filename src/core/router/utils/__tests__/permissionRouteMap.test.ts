@@ -1,73 +1,71 @@
-import { getPermissionRouteMap, getRouteForPermission } from '../permissionRouteMap'
+import { FeatureFlagEnum } from '~/generated/graphql'
+
+import { getRouteForPermission } from '../permissionRouteMap'
+
+const noFeatureFlag = (): boolean => false
+const withProductCatalog = (flag: FeatureFlagEnum): boolean =>
+  flag === FeatureFlagEnum.ProductCatalog
 
 describe('permissionRouteMap', () => {
-  describe('getPermissionRouteMap', () => {
-    it('returns a map of view permissions to routes', () => {
-      const map = getPermissionRouteMap()
-
-      expect(map).toBeDefined()
-      expect(typeof map).toBe('object')
-    })
-
-    it('includes expected view permission mappings (relative paths under :organizationSlug)', () => {
-      const map = getPermissionRouteMap()
-
-      // After route restructure, paths are relative (no leading /)
-      expect(map.customersView).toBe('customers')
-      expect(map.billableMetricsView).toBe('billable-metrics')
-      expect(map.plansView).toBe('plans')
-      expect(map.couponsView).toBe('coupons')
-      expect(map.addonsView).toBe('add-ons')
-      expect(map.invoicesView).toBe('invoices')
-      expect(map.paymentsView).toBe('payments')
-      expect(map.creditNotesView).toBe('credit-notes')
-      expect(map.subscriptionsView).toBe('subscriptions')
-      expect(map.featuresView).toBe('features')
-    })
-
-    it('includes settings route mappings (relative paths)', () => {
-      const map = getPermissionRouteMap()
-
-      expect(map.organizationInvoicesView).toBe('settings/invoice-sections')
-      expect(map.organizationTaxesView).toBe('settings/taxes')
-      expect(map.organizationMembersView).toBe('settings/team-and-security')
-      expect(map.dunningCampaignsView).toBe('settings/dunnings')
-    })
-
-    it('returns the same cached map on subsequent calls', () => {
-      const map1 = getPermissionRouteMap()
-      const map2 = getPermissionRouteMap()
-
-      expect(map1).toBe(map2)
-    })
-
-    it('only includes routes without dynamic params', () => {
-      const map = getPermissionRouteMap()
-
-      // All routes in the map should not contain dynamic params
-      for (const route of Object.values(map)) {
-        expect(route).not.toContain(':')
-      }
-    })
-  })
-
   describe('getRouteForPermission', () => {
-    it('returns the correct route for a valid view permission', () => {
-      expect(getRouteForPermission('customersView')).toBe('customers')
-      expect(getRouteForPermission('plansView')).toBe('plans')
-      expect(getRouteForPermission('invoicesView')).toBe('invoices')
+    it('returns the relative route for a view permission (paths under :organizationSlug)', () => {
+      expect(getRouteForPermission('customersView', noFeatureFlag)).toBe('customers')
+      expect(getRouteForPermission('billableMetricsView', noFeatureFlag)).toBe('billable-metrics')
+      expect(getRouteForPermission('plansView', noFeatureFlag)).toBe('plans')
+      expect(getRouteForPermission('couponsView', noFeatureFlag)).toBe('coupons')
+      expect(getRouteForPermission('addonsView', noFeatureFlag)).toBe('add-ons')
+      expect(getRouteForPermission('invoicesView', noFeatureFlag)).toBe('invoices')
+      expect(getRouteForPermission('paymentsView', noFeatureFlag)).toBe('payments')
+      expect(getRouteForPermission('creditNotesView', noFeatureFlag)).toBe('credit-notes')
+      expect(getRouteForPermission('subscriptionsView', noFeatureFlag)).toBe('subscriptions')
+      expect(getRouteForPermission('featuresView', noFeatureFlag)).toBe('features')
+    })
+
+    it('returns settings routes (relative paths)', () => {
+      expect(getRouteForPermission('organizationInvoicesView', noFeatureFlag)).toBe(
+        'settings/invoice-sections',
+      )
+      expect(getRouteForPermission('organizationTaxesView', noFeatureFlag)).toBe('settings/taxes')
+      expect(getRouteForPermission('organizationMembersView', noFeatureFlag)).toBe(
+        'settings/team-and-security',
+      )
+      expect(getRouteForPermission('dunningCampaignsView', noFeatureFlag)).toBe('settings/dunnings')
     })
 
     it('returns null for non-view permissions', () => {
-      expect(getRouteForPermission('customersCreate')).toBeNull()
-      expect(getRouteForPermission('plansDelete')).toBeNull()
+      expect(getRouteForPermission('customersCreate', noFeatureFlag)).toBeNull()
+      expect(getRouteForPermission('plansDelete', noFeatureFlag)).toBeNull()
     })
 
     it('returns null for permissions without associated routes', () => {
       // auditLogsView doesn't have a standalone route in the current config
-      const result = getRouteForPermission('auditLogsView')
+      expect(getRouteForPermission('auditLogsView', noFeatureFlag)).toBeNull()
+    })
 
-      expect(result).toBeNull()
+    it('only returns static paths', () => {
+      expect(getRouteForPermission('customersView', noFeatureFlag)).not.toContain(':')
+    })
+
+    it('returns null for a null permission', () => {
+      expect(getRouteForPermission(null, noFeatureFlag)).toBeNull()
+    })
+
+    describe('GIVEN the product catalog flag is active', () => {
+      it('THEN skips routes hidden by the flag and falls back to an available one', () => {
+        expect(getRouteForPermission('plansView', withProductCatalog)).toBe('plan-pricing')
+      })
+
+      it('THEN returns null when every route of the permission is hidden', () => {
+        expect(getRouteForPermission('couponsView', withProductCatalog)).toBeNull()
+        expect(getRouteForPermission('addonsView', withProductCatalog)).toBeNull()
+        expect(getRouteForPermission('dunningCampaignsView', withProductCatalog)).toBeNull()
+      })
+    })
+
+    describe('GIVEN the product catalog flag is not active', () => {
+      it('THEN skips routes requiring the flag', () => {
+        expect(getRouteForPermission('contractsView', noFeatureFlag)).toBeNull()
+      })
     })
   })
 })

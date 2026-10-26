@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useMemo } from 'react'
+import { ReactNode, useMemo } from 'react'
 
 import { useDeleteCustomerDocumentLocaleDialog } from '~/components/customers/DeleteCustomerDocumentLocaleDialog'
 import { useDeleteCustomerFinalizeZeroAmountInvoiceDialog } from '~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog'
@@ -52,6 +52,7 @@ import {
   EditCustomerInvoiceGracePeriodFragmentDoc,
   EditCustomerIssuingDatePolicyDialogFragmentDoc,
   EditCustomerVatRateFragmentDoc,
+  FeatureFlagEnum,
   FinalizeZeroAmountInvoiceEnum,
   PremiumIntegrationTypeEnum,
   useGetCustomerSettingsQuery,
@@ -63,6 +64,9 @@ import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper } from '~/styles'
 import { tw } from '~/styles/utils'
+
+export const CUSTOMER_SETTINGS_NET_PAYMENT_TERM_TEST_ID = 'customer-settings-net-payment-term'
+export const CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID = 'customer-settings-dunning-campaign'
 
 gql`
   fragment CustomerAppliedTaxRatesForSettings on Customer {
@@ -171,7 +175,8 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+  const { organization: { premiumIntegrations } = {}, hasFeatureFlag } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const { data, loading, error } = useGetCustomerSettingsQuery({
     variables: { id: customerId as string },
     skip: !customerId,
@@ -363,6 +368,84 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     )
   }
 
+  const renderNetPaymentTerm = (): ReactNode => {
+    if (isProductCatalogEnabled) return null
+
+    return (
+      <SettingsListItem data-test={CUSTOMER_SETTINGS_NET_PAYMENT_TERM_TEST_ID}>
+        <SettingsListItemHeader
+          label={translate('text_64c7a89b6c67eb6c98898167')}
+          sublabel={translate('text_1728031300577aivplw3hqav')}
+          action={
+            hasPermissions(['customersUpdate']) ? (
+              <>
+                {typeof customer?.netPaymentTerm !== 'number' ? (
+                  <Button
+                    disabled={loading}
+                    variant="inline"
+                    onClick={() =>
+                      openEditNetPaymentTermDialog({
+                        model: customer,
+                        description: netPaymentTermDialogDescription,
+                      })
+                    }
+                  >
+                    {translate('text_645bb193927b375079d28ad2')}
+                  </Button>
+                ) : (
+                  <Popper
+                    PopperProps={{ placement: 'bottom-end' }}
+                    opener={
+                      <Button disabled={loading} icon="dots-horizontal" variant="quaternary" />
+                    }
+                  >
+                    {({ closePopper }) => (
+                      <MenuPopper>
+                        <Button
+                          disabled={loading}
+                          startIcon="pen"
+                          variant="quaternary"
+                          align="left"
+                          onClick={() => {
+                            openEditNetPaymentTermDialog({
+                              model: customer,
+                              description: netPaymentTermDialogDescription,
+                            })
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_63aa15caab5b16980b21b0b8')}
+                        </Button>
+                        <Button
+                          disabled={loading}
+                          startIcon="trash"
+                          variant="quaternary"
+                          align="left"
+                          onClick={() => {
+                            if (customer) {
+                              openDeleteCustomerNetPaymentTermDialog({ customer })
+                            }
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_63aa15caab5b16980b21b0ba')}
+                        </Button>
+                      </MenuPopper>
+                    )}
+                  </Popper>
+                )}
+              </>
+            ) : undefined
+          }
+        />
+
+        <Typography variant="body" color="grey700">
+          {getNetPaymentTermCopy(customer?.netPaymentTerm, billingEntity?.netPaymentTerm || 0)}
+        </Typography>
+      </SettingsListItem>
+    )
+  }
+
   return (
     <>
       <SettingsPaddedContainer className="max-w-full p-0 md:px-0">
@@ -459,8 +542,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
               </SettingsListItem>
 
               {/* Dunnings campaign */}
-              {hasAutoDunningIntegration && (
+              {hasAutoDunningIntegration && !isProductCatalogEnabled && (
                 <SettingsListItem
+                  data-test={CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID}
                   className={tw(
                     isDunningCampaignApplicable &&
                       !customer?.excludeFromDunningCampaign &&
@@ -726,84 +810,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
               </SettingsListItem>
 
               {/* Net payment term */}
-              <SettingsListItem>
-                <SettingsListItemHeader
-                  label={translate('text_64c7a89b6c67eb6c98898167')}
-                  sublabel={translate('text_1728031300577aivplw3hqav')}
-                  action={
-                    hasPermissions(['customersUpdate']) ? (
-                      <>
-                        {typeof customer?.netPaymentTerm !== 'number' ? (
-                          <Button
-                            disabled={loading}
-                            variant="inline"
-                            onClick={() =>
-                              openEditNetPaymentTermDialog({
-                                model: customer,
-                                description: netPaymentTermDialogDescription,
-                              })
-                            }
-                          >
-                            {translate('text_645bb193927b375079d28ad2')}
-                          </Button>
-                        ) : (
-                          <Popper
-                            PopperProps={{ placement: 'bottom-end' }}
-                            opener={
-                              <Button
-                                disabled={loading}
-                                icon="dots-horizontal"
-                                variant="quaternary"
-                              />
-                            }
-                          >
-                            {({ closePopper }) => (
-                              <MenuPopper>
-                                <Button
-                                  disabled={loading}
-                                  startIcon="pen"
-                                  variant="quaternary"
-                                  align="left"
-                                  onClick={() => {
-                                    openEditNetPaymentTermDialog({
-                                      model: customer,
-                                      description: netPaymentTermDialogDescription,
-                                    })
-                                    closePopper()
-                                  }}
-                                >
-                                  {translate('text_63aa15caab5b16980b21b0b8')}
-                                </Button>
-                                <Button
-                                  disabled={loading}
-                                  startIcon="trash"
-                                  variant="quaternary"
-                                  align="left"
-                                  onClick={() => {
-                                    if (customer) {
-                                      openDeleteCustomerNetPaymentTermDialog({ customer })
-                                    }
-                                    closePopper()
-                                  }}
-                                >
-                                  {translate('text_63aa15caab5b16980b21b0ba')}
-                                </Button>
-                              </MenuPopper>
-                            )}
-                          </Popper>
-                        )}
-                      </>
-                    ) : undefined
-                  }
-                />
-
-                <Typography variant="body" color="grey700">
-                  {getNetPaymentTermCopy(
-                    customer?.netPaymentTerm,
-                    billingEntity?.netPaymentTerm || 0,
-                  )}
-                </Typography>
-              </SettingsListItem>
+              {renderNetPaymentTerm()}
 
               {/* Issuing date policy */}
               <SettingsListItem>

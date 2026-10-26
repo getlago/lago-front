@@ -16,12 +16,7 @@ description: 'Post-PR revision phase of the loop pipeline for lago-front. Takes 
 
 Resolution fails (no matching state dir) → STOP: this PR was not produced by the loop; say so. Feedback comes in two forms, both handled:
 - **The operator's free text** (chat, Slack reply) — the operator is the developer running the loop, i.e. the PR author.
-- **GitHub PR comments from others** — colleagues or bots. Fetch them:
-  ```bash
-  gh api repos/getlago/lago-front/pulls/<PR>/comments   # review comments (inline)
-  gh pr view <PR> --json comments,reviews                # issue comments and review verdicts
-  ```
-  Skip feedback authored by the operator (`gh api user --jq .login`) and unchanged, already-answered feedback. Every comment raising a finding, technical question or requested change from a human or bot requires evaluation and a reply, including SonarQube findings and false positives. Never comment merely to announce or acknowledge green CI or SonarQube results; success/status reports without findings require no reply. Praise, approvals and courtesy-only messages without findings or change requests receive no written reply, at most an optional thumbs-up reaction. Evaluate concrete findings even when the overall gate is green.
+- **GitHub PR comments from others** — colleagues or bots. Fetch them with `"$SCRIPTS/loop-pr-feedback.sh" <PR>`: issue comments, reviews and inline comments in one list, the operator's own dropped, HOLD verdicts flagged; exit 1 = a HOLD newer than the operator's last reply. Never a hand-written `gh`/jq pipeline: one already missed an issue-level HOLD. Skip unchanged, already-answered feedback. Every comment raising a finding, technical question or requested change from a human or bot requires evaluation and a reply, including SonarQube findings and false positives. Never comment merely to announce or acknowledge green CI or SonarQube results; success/status reports without findings require no reply. Praise, approvals and courtesy-only messages without findings or change requests receive no written reply, at most an optional thumbs-up reaction. Evaluate concrete findings even when the overall gate is green.
 
 No free-text feedback given → default to unanswered substantive feedback, including HOLD verdicts and SonarQube findings. None present → report "nothing to revise" to the operator and stop without a PR comment.
 
@@ -45,7 +40,7 @@ No free-text feedback given → default to unanswered substantive feedback, incl
    - Same build rules as loop-build: existing mechanism first, reuse `translations/base.json` labels, no dead keys, no dead code, no comment that answers the reviewer. A new file or export goes into plan.md `## Deviations` with its reason.
    - Feedback ambiguous → STOP and ask before coding.
 
-4. **Gates** (in that same path, all must pass): `pnpm lint`, `pnpm types`, `pnpm translations:inspect`, `pnpm translations:ensure-consistency`, `"$SCRIPTS/diff-hygiene.sh" origin/main <worktree> <state dir>/plan.md` (a comment the revision keeps goes into plan.md `## Comments kept` with its category, or goes). If the change touched testable logic: re-invoke the `make-tests` skill on the affected paths, then scoped jest on those paths only. NEVER the full suite.
+4. **Gates** (in that same path, all must pass): `pnpm lint`, `pnpm types`, `pnpm translations:inspect`, `pnpm translations:ensure-consistency`, `"$SCRIPTS/diff-hygiene.sh" <base> <worktree> <state dir>/plan.md` (`base:` from state.md, `origin/main` when absent) (a comment the revision keeps goes into plan.md `## Comments kept` with its category, or goes). If the change touched testable logic: re-invoke the `make-tests` skill on the affected paths, then scoped jest on those paths only. NEVER the full suite.
 
 5. **Restart the app**: `"$SCRIPTS/loop-restart.sh" <state dir>/state.md` (no container → warning, never a blocker).
 

@@ -2,6 +2,7 @@ import { MockedResponse } from '@apollo/client/testing'
 import { render as rtlRender, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { COMBOBOX_ADD_VALUE_ITEM_TEST_ID } from '~/components/form/ComboBox/ComboBoxItemWrapper'
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import {
   AggregationTypeEnum,
@@ -18,8 +19,10 @@ import {
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
+import { RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID } from '../../../RatePhaseRateEffectiveDate'
 import {
   getRatePhaseActionsTestId,
+  getRatePhaseToggleTestId,
   RATE_PHASE_REVERT_ACTION_TEST_ID,
 } from '../../../RatePhaseTable'
 import { RATE_PHASE_FORM_DEFAULTS } from '../../ratePhase/ratePhaseFormSchema'
@@ -202,6 +205,7 @@ const Host = (): JSX.Element => {
         form={form}
         currency={CurrencyEnum.Usd}
         openRateCardDrawer={mockOpenRateCardDrawer}
+        organizationSlug="acme"
       />
     </>
   )
@@ -384,7 +388,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
 
     await userEvent.click(rateCardInput)
 
-    const addValueItem = await screen.findByTestId('combobox-item-Create rate card')
+    const addValueItem = await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)
 
     await userEvent.click(within(addValueItem).getByRole('option'))
 
@@ -409,7 +413,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
     await userEvent.click(rateCardInput)
 
     expect(await screen.findByText(RATE_CARD.name)).toBeInTheDocument()
-    expect(screen.getByTestId('combobox-item-Create rate card')).toBeInTheDocument()
+    expect(screen.getByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).toBeInTheDocument()
   })
 
   it('GIVEN the stacked drawer calls onCreated THEN this drawer sets its rateCardId field to the new code, and the stacked drawer is already closed', async () => {
@@ -423,7 +427,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
 
     await userEvent.click(rateCardInput)
 
-    const addValueItem = await screen.findByTestId('combobox-item-Create rate card')
+    const addValueItem = await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)
 
     await userEvent.click(within(addValueItem).getByRole('option'))
 
@@ -526,6 +530,26 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
 
     expect(await screen.findByText('Active rate')).toBeInTheDocument()
     expect(screen.queryByText('Overridden')).not.toBeInTheDocument()
+  })
+
+  it('GIVEN a phase on the active rate THEN "See rate history" links to the rate card in the current organization', async () => {
+    renderContent([productsMock(), rateCardsMock(() => undefined)])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+    await selectRateCard()
+    await userEvent.click(await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID))
+
+    const onSave = mockOpenRatePhaseLocalDrawer.mock.calls.at(-1)?.[0]?.onSave
+
+    onSave({ ...RATE_PHASE_FORM_DEFAULTS, code: 'main', name: 'Main' }, {})
+
+    await userEvent.click(await screen.findByTestId(getRatePhaseToggleTestId(0)))
+
+    const link = screen
+      .getAllByTestId(RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID)
+      .find((element) => element.tagName === 'A')
+
+    expect(link).toHaveAttribute('href', '/acme/product-catalog/rate-cards/rc-1/rates')
   })
 
   it('GIVEN a phase saved before an existing one THEN it is inserted at that position', async () => {
@@ -757,7 +781,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     await userEvent.click(rateCardInput)
     await userEvent.type(rateCardInput, 'unknown-card')
 
-    const addValueItem = await screen.findByTestId('combobox-item-Create rate card', undefined, {
+    const addValueItem = await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID, undefined, {
       timeout: 3000,
     })
 
@@ -789,7 +813,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
 
     await userEvent.click(rateCardInput)
 
-    const addValueItem = await screen.findByTestId('combobox-item-Create rate card')
+    const addValueItem = await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)
 
     await userEvent.click(within(addValueItem).getByRole('option'))
 
@@ -836,7 +860,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     await waitFor(() => expect(lastVars.searchTerm).toBe('premium'), { timeout: 3000 })
 
     await userEvent.click(
-      within(await screen.findByTestId('combobox-item-Create rate card')).getByRole('option'),
+      within(await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).getByRole('option'),
     )
 
     mockOpenRateCardDrawer.mock.calls

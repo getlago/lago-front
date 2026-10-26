@@ -20,6 +20,7 @@ import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
   CurrencyEnum,
+  FeatureFlagEnum,
   Invoice,
   InvoiceForVoidInvoiceDialogFragment,
   InvoiceForVoidInvoiceDialogFragmentDoc,
@@ -60,12 +61,14 @@ gql`
 `
 
 export const CUSTOMER_INVOICE_VOID_SUBMIT_BUTTON_TEST_ID = 'customer-invoice-void-submit-button'
+export const CUSTOMER_INVOICE_VOID_REGENERATE_LINK_TEST_ID = 'customer-invoice-void-regenerate-link'
 
 const CustomerInvoiceVoid = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
   const { customerId, invoiceId } = useParams()
-  const { timezone } = useOrganizationInfos()
+  const { timezone, hasFeatureFlag } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
   const { canVoid } = usePermissionsInvoiceActions()
@@ -155,6 +158,7 @@ const CustomerInvoiceVoid = () => {
   }
 
   const canRegenerate =
+    !isProductCatalogEnabled &&
     hasActiveCustomer &&
     customerId &&
     invoiceId &&
@@ -333,7 +337,10 @@ const CustomerInvoiceVoid = () => {
           <div className="flex w-full items-center justify-between">
             <div>
               {!!canRegenerate && (
-                <Link to={regeneratePath(invoice as Invoice)}>
+                <Link
+                  to={regeneratePath(invoice as Invoice)}
+                  data-test={CUSTOMER_INVOICE_VOID_REGENERATE_LINK_TEST_ID}
+                >
                   {translate('text_1750678506388eexnh1b36o4')}
                 </Link>
               )}
