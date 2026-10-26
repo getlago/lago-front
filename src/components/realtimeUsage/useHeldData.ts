@@ -13,6 +13,9 @@ export const useHeldData = <T>(
 
   if (data !== undefined && (held?.data !== data || held.key !== key)) {
     setHeld({ key, data })
+  } else if (data === undefined && hasError && held !== undefined) {
+    // Drop it, or the retry that follows would show the pre-error data while it is in flight.
+    setHeld(undefined)
   }
 
   if (data !== undefined) return { data, isHeld: false }
