@@ -112,6 +112,7 @@ const INVOICE_TYPE_TRANSLATION_MAP: Record<InvoiceTypeEnum, string> = {
   [InvoiceTypeEnum.OneOff]: 'text_1728472697691t126b808cm9',
   [InvoiceTypeEnum.Subscription]: 'text_1728472697691k6k2e9m5ibb',
   [InvoiceTypeEnum.AdvanceCharges]: 'text_1728472697691y39tdxgyrcg',
+  [InvoiceTypeEnum.Contract]: 'text_1792507896669q4dn36fbi4y',
   [InvoiceTypeEnum.ProgressiveBilling]: 'text_1728472697691pv1eqroobte',
 }
 

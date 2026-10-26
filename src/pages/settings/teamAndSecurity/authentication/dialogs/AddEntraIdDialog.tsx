@@ -1,7 +1,5 @@
 import { gql } from '@apollo/client'
-import { z } from 'zod'
 
-import { zodDomain, zodOptionalHost } from '~/formValidation/zodCustoms'
 import {
   AddEntraIdIntegrationDialogFragment,
   AuthenticationMethodsEnum,
@@ -12,6 +10,7 @@ import {
 } from '~/generated/graphql'
 
 import { SSOIntegrationField, useAddSSOIntegrationDialog } from './AddSSOIntegrationDialog'
+import { entraIdDefaultValues, entraIdValidationSchema } from './validationSchema'
 
 gql`
   fragment AddEntraIdIntegrationDialog on EntraIdIntegration {
@@ -44,29 +43,6 @@ gql`
 const ADD_ENTRA_ID_FORM_ID = 'form-add-entra-id-integration'
 
 export const ENTRA_ID_INTEGRATION_SUBMIT_BTN = 'add-entra-id-dialog-submit-button'
-
-const defaultFormValues: CreateEntraIdIntegrationInput = {
-  domain: '',
-  additionalDomains: [],
-  host: '',
-  clientId: '',
-  clientSecret: '',
-  tenantId: '',
-}
-
-const validationSchema = z.object({
-  domain: zodDomain,
-  additionalDomains: z
-    .array(z.string())
-    .refine(
-      (domains) => domains.every((domain) => zodDomain.safeParse(domain).success),
-      'text_664c732c264d7eed1c74fe03',
-    ),
-  host: zodOptionalHost,
-  clientId: z.string(),
-  clientSecret: z.string(),
-  tenantId: z.string(),
-})
 
 const fields: SSOIntegrationField<CreateEntraIdIntegrationInput>[] = [
   {
@@ -113,8 +89,8 @@ export const useAddEntraIdDialog = () => {
     submitBtnTestId: ENTRA_ID_INTEGRATION_SUBMIT_BTN,
     authenticationMethod: AuthenticationMethodsEnum.EntraId,
     integrationTypename: 'EntraIdIntegration',
-    defaultFormValues,
-    validationSchema,
+    defaultFormValues: entraIdDefaultValues,
+    validationSchema: entraIdValidationSchema,
     fields,
     useCreateIntegrationMutation: useCreateEntraIdIntegrationMutation,
     useUpdateIntegrationMutation: useUpdateEntraIdIntegrationMutation,

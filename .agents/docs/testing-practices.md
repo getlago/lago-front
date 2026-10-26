@@ -208,6 +208,27 @@ fails for it. The visual state lives in `<RadioIcon checked={checked} />`.
 Assert the branch through what selecting it reveals — the slot, combobox or block it renders — not
 through the input.
 
+### A Regression Test Must Fail Without the Fix
+
+Before handing off a regression test, revert the production change and rerun it: a test that still
+passes does not guard the bug. Global state set by a mounted component (Luxon's `Settings.defaultZone`
+under a `DatePicker`, a module-level cache) commonly masks the condition the test sets up.
+
+### A Mocked Hook Returns the Same Instance Every Call
+
+A mock returning an object (an Apollo client, a store, a router) must hoist it to a module-level
+const. A fresh object per render changes every `useCallback`/`useEffect` keyed on it, and an effect
+that resets state on that key re-runs forever: the suite hangs instead of failing.
+
+```typescript
+// ❌ Bad - new client every render
+jest.mock('@apollo/client', () => ({ useApolloClient: () => ({ query: mockQuery }) }))
+
+// ✅ Good - one stable instance
+const mockClient = { query: jest.fn() }
+jest.mock('@apollo/client', () => ({ useApolloClient: () => mockClient }))
+```
+
 ### Use Component Props Types in Tests
 
 **ALWAYS** import and use the component's exported props type when writing tests. Never create a separate type definition that duplicates the component's props structure.

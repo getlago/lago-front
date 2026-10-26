@@ -3,10 +3,8 @@ import { onError } from '@apollo/client/link/error'
 import { RetryLink } from '@apollo/client/link/retry'
 import { getMainDefinition } from '@apollo/client/utilities'
 import { captureException, captureMessage } from '@sentry/react'
-import ActionCable from 'actioncable'
 import ApolloLinkTimeout from 'apollo-link-timeout'
 import { createUploadLink } from 'apollo-upload-client'
-import ActionCableLink from 'graphql-ruby-client/subscriptions/ActionCableLink'
 // IMPORTANT: Keep reactiveVars import before cacheUtils
 import { matchPath } from 'react-router'
 
@@ -23,6 +21,7 @@ import { getItemFromLS } from '~/core/utils/localStorage'
 import { LagoApiError } from '~/generated/graphql'
 
 import { buildAuthHeaders } from './authHeaders'
+import { CableSubscriptionError, createCableLink, refreshCableConsumer } from './cableConsumer'
 import { cache } from './cache'
 import { setupCachePersistor } from './cachePersistor'
 import { omitDeep } from './cacheUtils'
@@ -41,11 +40,7 @@ const SLOW_QUERY_THRESHOLD_MS = 8000 // threshold for considering a query as "sl
 const { apiUrl, appVersion } = envGlobalVar()
 
 const { cableUrl } = buildWebSocketUrl(apiUrl)
-const subscriptionLink = new ActionCableLink({
-  cable: ActionCable.createConsumer(cableUrl),
-  channelName: 'GraphqlChannel',
-  actionName: 'execute',
-})
+const subscriptionLink = createCableLink(cableUrl)
 
 const hasSubscriptionOperation = ({ query }: Operation) => {
   const definition = getMainDefinition(query)
@@ -87,6 +82,7 @@ export const initializeApolloClient = async () => {
 
           if (newToken && newToken !== currentToken) {
             updateAuthTokenVar(newToken)
+            refreshCableConsumer()
           }
         }
       }
@@ -171,6 +167,9 @@ export const initializeApolloClient = async () => {
           error?.name === 'AbortError' || /signal aborted/i.test(error?.message || '')
 
         if (isAbortError) return false
+
+        // The API refused the subscription, or the socket was closed on purpose (logout)
+        if (error instanceof CableSubscriptionError) return false
 
         // Retry network errors (connection failures, timeouts, DNS failures)
         // Don't retry GraphQL errors (which have a result)

@@ -48,6 +48,7 @@ import {
   WalletTransactionTransactionTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper } from '~/styles'
@@ -114,6 +115,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
   containerSize = 16,
 }) => {
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
   const { customerId } = useParams()
   const navigate = useNavigate()
   const walletDetailsDrawerRef = useRef<WalletDetailsDrawerRef>(null)
@@ -153,9 +155,10 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
     walletDetailsDrawerRef.current?.openDrawer({ transactionId: id })
   }
 
-  const topUpPath = customerId
-    ? generatePath(CREATE_WALLET_TOP_UP_ROUTE, { customerId, walletId: wallet.id })
-    : undefined
+  const topUpPath =
+    customerId && hasPermissions(['walletsTopUp'])
+      ? generatePath(CREATE_WALLET_TOP_UP_ROUTE, { customerId, walletId: wallet.id })
+      : undefined
 
   return (
     <>

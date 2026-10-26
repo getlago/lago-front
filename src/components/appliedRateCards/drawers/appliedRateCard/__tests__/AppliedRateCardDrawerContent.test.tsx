@@ -18,8 +18,10 @@ import {
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
+import { RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID } from '../../../RatePhaseRateEffectiveDate'
 import {
   getRatePhaseActionsTestId,
+  getRatePhaseToggleTestId,
   RATE_PHASE_REVERT_ACTION_TEST_ID,
 } from '../../../RatePhaseTable'
 import { RATE_PHASE_FORM_DEFAULTS } from '../../ratePhase/ratePhaseFormSchema'
@@ -202,6 +204,7 @@ const Host = (): JSX.Element => {
         form={form}
         currency={CurrencyEnum.Usd}
         openRateCardDrawer={mockOpenRateCardDrawer}
+        organizationSlug="acme"
       />
     </>
   )
@@ -526,6 +529,26 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
 
     expect(await screen.findByText('Active rate')).toBeInTheDocument()
     expect(screen.queryByText('Overridden')).not.toBeInTheDocument()
+  })
+
+  it('GIVEN a phase on the active rate THEN "See rate history" links to the rate card in the current organization', async () => {
+    renderContent([productsMock(), rateCardsMock(() => undefined)])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+    await selectRateCard()
+    await userEvent.click(await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID))
+
+    const onSave = mockOpenRatePhaseLocalDrawer.mock.calls.at(-1)?.[0]?.onSave
+
+    onSave({ ...RATE_PHASE_FORM_DEFAULTS, code: 'main', name: 'Main' }, {})
+
+    await userEvent.click(await screen.findByTestId(getRatePhaseToggleTestId(0)))
+
+    const link = screen
+      .getAllByTestId(RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID)
+      .find((element) => element.tagName === 'A')
+
+    expect(link).toHaveAttribute('href', '/acme/product-catalog/rate-cards/rc-1/rates')
   })
 
   it('GIVEN a phase saved before an existing one THEN it is inserted at that position', async () => {

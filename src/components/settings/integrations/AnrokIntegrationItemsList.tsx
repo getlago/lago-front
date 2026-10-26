@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
-import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router'
+import { useEffect } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
@@ -12,10 +11,12 @@ import {
   AnrokIntegrationItemsListAddonsFragmentDoc,
   AnrokIntegrationItemsListBillableMetricsFragmentDoc,
   AnrokIntegrationItemsListDefaultFragmentDoc,
+  AnrokIntegrationItemsListProductsFragmentDoc,
   MappableTypeEnum,
   useGetAddOnsForAnrokItemsListLazyQuery,
   useGetAnrokIntegrationCollectionMappingsLazyQuery,
   useGetBillableMetricsForAnrokItemsListLazyQuery,
+  useGetProductsForAnrokItemsListLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
@@ -25,18 +26,12 @@ import { MenuPopper } from '~/styles'
 import AnrokIntegrationItemsListAddons from './AnrokIntegrationItemsListAddons'
 import AnrokIntegrationItemsListBillableMetrics from './AnrokIntegrationItemsListBillableMetrics'
 import AnrokIntegrationItemsListDefault from './AnrokIntegrationItemsListDefault'
-
-const SelectedItemTypeEnum = {
-  Default: 'Default',
-  [MappableTypeEnum.AddOn]: 'AddOn',
-  [MappableTypeEnum.BillableMetric]: 'BillableMetric',
-} as const
-
-const SelectedItemTypeEnumTranslation = {
-  Default: 'text_65281f686a80b400c8e2f6d1',
-  [MappableTypeEnum.AddOn]: 'text_629728388c4d2300e2d3801a',
-  [MappableTypeEnum.BillableMetric]: 'text_623b497ad05b960101be3438',
-} as const
+import AnrokIntegrationItemsListProducts from './AnrokIntegrationItemsListProducts'
+import {
+  SelectedItemTypeEnum,
+  SelectedItemTypeEnumTranslation,
+  useIntegrationItemsListSelection,
+} from './useIntegrationItemsListSelection'
 
 gql`
   fragment AnrokIntegrationItems on AnrokIntegration {
@@ -92,25 +87,37 @@ gql`
     }
   }
 
+  query getProductsForAnrokItemsList(
+    $page: Int
+    $limit: Int
+    $searchTerm: String
+    # integrationId used in item list fragment
+    $integrationId: ID!
+  ) {
+    products(page: $page, limit: $limit, searchTerm: $searchTerm) {
+      metadata {
+        currentPage
+        totalPages
+        totalCount
+      }
+      collection {
+        id
+        ...AnrokIntegrationItemsListProducts
+      }
+    }
+  }
+
   ${AnrokIntegrationItemsListDefaultFragmentDoc}
   ${AnrokIntegrationItemsListAddonsFragmentDoc}
   ${AnrokIntegrationItemsListBillableMetricsFragmentDoc}
+  ${AnrokIntegrationItemsListProductsFragmentDoc}
 `
 
 const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
   const { translate } = useInternationalization()
   const { openDrawer: openIntegrationMapItemDrawer } = useAnrokIntegrationMapItemDrawer()
-  const [searchParams, setSearchParams] = useSearchParams({
-    item_type: SelectedItemTypeEnum.Default,
-  })
-  const [selectedItemType, setSelectedItemType] = useState<keyof typeof SelectedItemTypeEnum>(
-    searchParams.get('item_type') as keyof typeof SelectedItemTypeEnum,
-  )
-
-  useEffect(() => {
-    // Update url with the search param depending on the selected item type
-    setSearchParams({ item_type: selectedItemType })
-  }, [selectedItemType, setSearchParams])
+  const { selectedItemType, setSelectedItemType, canViewProducts, canViewLegacyMappingTypes } =
+    useIntegrationItemsListSelection()
 
   const [
     getDefaultItems,
@@ -160,13 +167,33 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
     },
   })
 
+  const [
+    getProductsList,
+    {
+      data: productsData,
+      loading: productsLoading,
+      error: productsError,
+      variables: productsVariables,
+      fetchMore: fetchMoreProducts,
+    },
+  ] = useGetProductsForAnrokItemsListLazyQuery({
+    notifyOnNetworkStatusChange: true,
+    variables: {
+      limit: DEFAULT_PAGE_SIZE,
+      integrationId,
+    },
+  })
+
   const { debouncedSearch: debouncedSearchAddons, isLoading: isLoadingAddons } = useDebouncedSearch(
     getAddonList,
     addonLoading,
+    { fetchOnMount: false },
   )
 
   const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoadingBillableMetrics } =
-    useDebouncedSearch(getBillableMetricsList, billableMetricsLoading)
+    useDebouncedSearch(getBillableMetricsList, billableMetricsLoading, { fetchOnMount: false })
+  const { debouncedSearch: debouncedSearchProducts, isLoading: isLoadingProducts } =
+    useDebouncedSearch(getProductsList, productsLoading, { fetchOnMount: false })
 
   // handeling data fetching
   useEffect(() => {
@@ -174,12 +201,23 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
 
     if (selectedItemType === SelectedItemTypeEnum.Default) {
       getDefaultItems()
-    } else if (selectedItemType === MappableTypeEnum.AddOn) {
+    } else if (selectedItemType === MappableTypeEnum.AddOn && canViewLegacyMappingTypes) {
       getAddonList()
-    } else if (selectedItemType === MappableTypeEnum.BillableMetric) {
+    } else if (selectedItemType === MappableTypeEnum.BillableMetric && canViewLegacyMappingTypes) {
       getBillableMetricsList()
+    } else if (selectedItemType === MappableTypeEnum.Product && canViewProducts) {
+      getProductsList()
     }
-  }, [integrationId, selectedItemType, getAddonList, getDefaultItems, getBillableMetricsList])
+  }, [
+    integrationId,
+    selectedItemType,
+    canViewLegacyMappingTypes,
+    canViewProducts,
+    getAddonList,
+    getDefaultItems,
+    getBillableMetricsList,
+    getProductsList,
+  ])
 
   return (
     <>
@@ -209,43 +247,66 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
                 >
                   {translate('text_65281f686a80b400c8e2f6d1')}
                 </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  fullWidth
-                  onClick={() => {
-                    setSelectedItemType(MappableTypeEnum.AddOn)
-                    closePopper()
-                  }}
-                >
-                  {translate('text_629728388c4d2300e2d3801a')}
-                </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  fullWidth
-                  onClick={() => {
-                    setSelectedItemType(MappableTypeEnum.BillableMetric)
-                    closePopper()
-                  }}
-                >
-                  {translate('text_623b497ad05b960101be3438')}
-                </Button>
+                {canViewLegacyMappingTypes && (
+                  <>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      fullWidth
+                      onClick={() => {
+                        setSelectedItemType(MappableTypeEnum.AddOn)
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_629728388c4d2300e2d3801a')}
+                    </Button>
+                    <Button
+                      variant="quaternary"
+                      align="left"
+                      fullWidth
+                      onClick={() => {
+                        setSelectedItemType(MappableTypeEnum.BillableMetric)
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_623b497ad05b960101be3438')}
+                    </Button>
+                  </>
+                )}
+                {canViewProducts && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    fullWidth
+                    onClick={() => {
+                      setSelectedItemType(MappableTypeEnum.Product)
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_17831042398250iwa2xp8pba')}
+                  </Button>
+                )}
               </MenuPopper>
             )}
           </Popper>
         </Stack>
 
-        {selectedItemType === MappableTypeEnum.AddOn && (
+        {selectedItemType === MappableTypeEnum.AddOn && canViewLegacyMappingTypes && (
           <SearchInput
             onChange={debouncedSearchAddons}
             placeholder={translate('text_63bee4e10e2d53912bfe4db8')}
           />
         )}
-        {selectedItemType === MappableTypeEnum.BillableMetric && (
+        {selectedItemType === MappableTypeEnum.BillableMetric && canViewLegacyMappingTypes && (
           <SearchInput
             onChange={debouncedSearchBillableMetrics}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
+          />
+        )}
+        {selectedItemType === MappableTypeEnum.Product && canViewProducts && (
+          <SearchInput
+            onChange={debouncedSearchProducts}
+            placeholder={translate('text_1783980718114714izppxdwq')}
           />
         )}
       </div>
@@ -257,9 +318,10 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
           openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
+          canViewLegacyMappings={canViewLegacyMappingTypes}
         />
       )}
-      {selectedItemType === MappableTypeEnum.AddOn && (
+      {selectedItemType === MappableTypeEnum.AddOn && canViewLegacyMappingTypes && (
         <AnrokIntegrationItemsListAddons
           data={addonData}
           fetchMoreAddons={fetchMoreAddons}
@@ -270,7 +332,7 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           searchTerm={addonVariables?.searchTerm}
         />
       )}
-      {selectedItemType === MappableTypeEnum.BillableMetric && (
+      {selectedItemType === MappableTypeEnum.BillableMetric && canViewLegacyMappingTypes && (
         <AnrokIntegrationItemsListBillableMetrics
           data={billableMetricsData}
           fetchMoreBillableMetrics={fetchMoreBillableMetrics}
@@ -279,6 +341,17 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           hasError={!!billableMetricsError}
           openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
           searchTerm={billableMetricsVariables?.searchTerm}
+        />
+      )}
+      {selectedItemType === MappableTypeEnum.Product && canViewProducts && (
+        <AnrokIntegrationItemsListProducts
+          data={productsData}
+          fetchMoreProducts={fetchMoreProducts}
+          integrationId={integrationId}
+          isLoading={isLoadingProducts}
+          hasError={!!productsError}
+          openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
+          searchTerm={productsVariables?.searchTerm}
         />
       )}
     </>

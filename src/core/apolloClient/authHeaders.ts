@@ -15,20 +15,46 @@ import { getItemFromLS } from '~/core/utils/localStorage'
 // breaks the portal when that token is expired (the API rejects it before
 // reading customer-portal-token), and sending the portal token on admin
 // routes leaks it on every request after visiting any portal link.
-export const buildAuthHeaders = (pathname: string): Record<string, string> => {
-  const isCustomerPortal = !!matchPath(`${CUSTOMER_PORTAL_ROUTE}/*`, pathname)
+const isCustomerPortalPath = (pathname: string): boolean =>
+  !!matchPath(`${CUSTOMER_PORTAL_ROUTE}/*`, pathname)
 
-  if (isCustomerPortal) {
+type AdminCredentials = { token: string | undefined; organizationId: string | undefined }
+
+const resolveAdminCredentials = (pathname: string): AdminCredentials | null => {
+  if (isCustomerPortalPath(pathname)) return null
+
+  return {
+    token: getItemFromLS(AUTH_TOKEN_LS_KEY) || getItemFromLS(TMP_AUTH_TOKEN_LS_KEY) || undefined,
+    organizationId: getCurrentOrganizationId() || undefined,
+  }
+}
+
+export const buildAuthHeaders = (pathname: string): Record<string, string> => {
+  const admin = resolveAdminCredentials(pathname)
+
+  if (!admin) {
     const customerPortalToken = getItemFromLS(CUSTOMER_PORTAL_TOKEN_LS_KEY)
 
     return customerPortalToken ? { 'customer-portal-token': customerPortalToken } : {}
   }
 
-  const token = getItemFromLS(AUTH_TOKEN_LS_KEY) || getItemFromLS(TMP_AUTH_TOKEN_LS_KEY)
-  const currentOrganizationId = getCurrentOrganizationId()
-
   return {
-    ...(token ? { authorization: `Bearer ${token}` } : {}),
-    ...(currentOrganizationId ? { 'x-lago-organization': currentOrganizationId } : {}),
+    ...(admin.token ? { authorization: `Bearer ${admin.token}` } : {}),
+    ...(admin.organizationId ? { 'x-lago-organization': admin.organizationId } : {}),
   }
+}
+
+export const CABLE_TOKEN_SUBPROTOCOL_PREFIX = 'lago-token.'
+
+// Browsers cannot set websocket headers, and the URL and channel params are logged.
+export const buildCableSubprotocols = (pathname: string): string[] => {
+  const token = resolveAdminCredentials(pathname)?.token
+
+  return token ? [`${CABLE_TOKEN_SUBPROTOCOL_PREFIX}${token}`] : []
+}
+
+export const buildCableConnectionParams = (pathname: string): Record<string, string> => {
+  const organizationId = resolveAdminCredentials(pathname)?.organizationId
+
+  return organizationId ? { organization_id: organizationId } : {}
 }

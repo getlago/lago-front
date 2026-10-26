@@ -5,7 +5,7 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
 
 # Loop Review — phase 3 of loop-run
 
-**Input:** an ISSUE-ID. State dir: `$LOOP_STATE_DIR/<ISSUE-ID>/` (default `~/.claude/loop-state/<ISSUE-ID>/`). Requires `spec.md`, `plan.md` and `state.md` (worktree path). If missing, stop and say which phase to run first. The `worktree:` path is all this skill needs — every command below is the same in both layouts.
+**Input:** an ISSUE-ID. State dir: `$LOOP_STATE_DIR/<ISSUE-ID>/` (default `~/.claude/loop-state/<ISSUE-ID>/`). Requires `spec.md`, `plan.md` and `state.md` (worktree path). If missing, stop and say which phase to run first. The `worktree:` and `base:` keys (`base:` absent = `origin/main`) are all this skill needs — every command below is the same in both layouts.
 
 **Clean context:** this skill runs with NO knowledge of how the code was written (loop-run dispatches it in a fresh subagent). Judge only what spec.md, plan.md and the diff say. Never assume good intent from the build phase.
 
@@ -16,8 +16,8 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
 1. **Get the diff.** In the worktree from state.md:
 
    ```bash
-   git -C <worktree> add -N . && git -C <worktree> diff origin/main --stat
-   git -C <worktree> diff origin/main
+   git -C <worktree> add -N . && git -C <worktree> diff <base> --stat
+   git -C <worktree> diff <base>
    ```
 
    (`add -N` only marks new files so they appear in the diff — it is part of this pipeline's git exception.)
@@ -26,11 +26,11 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
 
    ```bash
    pnpm lint && pnpm types && pnpm translations:inspect && pnpm translations:ensure-consistency
-   <front>/scripts/diff-hygiene.sh origin/main <worktree> <state dir>/plan.md   # every added comment declared, none in a refused position
-   <front>/scripts/loop-plan-check.sh <worktree> <state dir>/plan.md   # new files / exports outside plan.md
+   <front>/scripts/diff-hygiene.sh <base> <worktree> <state dir>/plan.md   # every added comment declared, none in a refused position
+   <front>/scripts/loop-plan-check.sh <worktree> <state dir>/plan.md <base>   # new files / exports outside plan.md, exports nothing imports
    ```
 
-   `loop-plan-check.sh` exit 3 means new files/exports exist and plan.md declares them: each declared item is a question for check 2 below, and loop-run runs the adversarial pass on the same signal. Exit 1 (undeclared) should not survive the build gate; if it does, it is a FAIL issue tagged `[gate:plan]`.
+   `loop-plan-check.sh` exit 3 means new files/exports exist and plan.md declares them: each declared item is a question for check 2 below, and loop-run runs the adversarial pass on the same signal. Exit 1 (undeclared, or `unused-export:`) should not survive the build gate; if it does, it is a FAIL issue tagged `[gate:plan]`.
 
 3. **The whole diff first**: read spec.md `## Ticket` and `## Acceptance criteria`, then the diff end to end, and answer before any check: does this diff, as a whole, make sense for the ticket's objective, and is it the smallest change that meets the criteria? A diff can pass every check below and still miss the point, or solve around a premise spec.md marked `unverified` — both are FAIL issues.
 
@@ -43,7 +43,7 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    4. **Conventions and translations**: neighboring code style, `.agents/docs/frontend-coding-styleguide.md`, codegen output consistent; new keys in `translations/base.json` only where no existing label fit (search for one), no dead keys.
    5. **Tests exist and test the branch**: make-tests output is in the diff; no fixture default switches off the branch a test claims to cover (`.agents/docs/testing-practices.md` → "Fixture Defaults"); with more than one navigating path, assertions pin the destination with `toHaveBeenCalledWith` and assert the routes NOT taken; every callback the component passes to a mocked hook (`onCompleted`, `onError`, ...) is captured and invoked.
    6. **Follow the calls out of the diff**: when the diff passes an existing hook/util an argument that used to be constant, open that implementation and verify it honours it; when it reuses a form component on a new surface, walk every optional callback prop the new caller omits and name the user action that omission disables; when it redirects to a route constant, confirm the tab it resolves to; for each persisted field, state what the read path puts back and what the next save sends.
-   7. **Declared comments earn their category, and nothing is left behind**: `diff-hygiene.sh` already refused undeclared and mis-positioned comments; read only plan.md `## Comments kept` and FAIL any line whose comment does not do what its category claims — a `constraint` with no identifier a reader could grep, a `why-not` where the alternative was never viable, a `trap` nothing actually trips — or that justifies the diff or answers a review round. No dead code, no unused exports.
+   7. **Declared comments earn their category, and nothing is left behind**: `diff-hygiene.sh` already refused undeclared and mis-positioned comments; read only plan.md `## Comments kept` and FAIL any line whose comment does not do what its category claims — a `constraint` with no identifier a reader could grep, a `why-not` where the alternative was never viable, a `trap` nothing actually trips — or that justifies the diff or answers a review round. No dead code (unused exports are `loop-plan-check.sh`'s).
    <!-- checks:end -->
 
 5. **Second pass with the code-review skill — inline.** Run `/code-review` in THIS session on the worktree diff, never through the Agent tool: a subagent copy has stalled past its bound on every recorded run and returned later against a stale tree. Fold confirmed findings into the issues list and state in review.md which pass produced each.
