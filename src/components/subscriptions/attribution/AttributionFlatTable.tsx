@@ -238,7 +238,7 @@ export const AttributionTableLayout = ({
           </td>
         ))}
         <td className={ATTRIBUTION_TOTAL_CELL_CLASSNAME}>
-          <Skeleton variant="text" className="ml-auto w-16" />
+          <Skeleton variant="text" color="dark" className="ml-auto w-16" />
         </td>
       </tr>
     ))
