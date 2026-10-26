@@ -14,6 +14,7 @@ import {
   zodOptionalUrl,
   zodRequiredEmail,
   zodRequiredPassword,
+  zodRequiredString,
   zodRequiredUrl,
 } from '~/formValidation/zodCustoms'
 
@@ -567,6 +568,22 @@ describe('zodCustoms', () => {
           expect(added).toEqual([false])
         })
       })
+    })
+  })
+
+  describe('zodRequiredString', () => {
+    it('accepts a non-empty string', () => {
+      expect(zodRequiredString.safeParse('value').success).toBe(true)
+    })
+
+    it.each([
+      ['', 'empty string'],
+      ['   ', 'whitespace only'],
+    ])('rejects "%s" (%s) with the required field message', (value) => {
+      const result = zodRequiredString.safeParse(value)
+
+      expect(result.success).toBe(false)
+      expect(result.error?.issues[0].message).toBe('text_1771342994699klxu2paz7g8')
     })
   })
 })

@@ -138,28 +138,28 @@ describe('usePermissions', () => {
     })
   })
 
-  describe('findFirstViewPermission', () => {
-    it('returns null when currentMembership is undefined', () => {
+  describe('findViewPermissions', () => {
+    it('returns an empty list when currentMembership is undefined', () => {
       mockUseCurrentUser.mockReturnValue({
         currentMembership: undefined,
       })
 
       const { result } = prepare()
 
-      expect(result.current.findFirstViewPermission()).toBeNull()
+      expect(result.current.findViewPermissions()).toEqual([])
     })
 
-    it('returns null when currentMembership is null', () => {
+    it('returns an empty list when currentMembership is null', () => {
       mockUseCurrentUser.mockReturnValue({
         currentMembership: null,
       })
 
       const { result } = prepare()
 
-      expect(result.current.findFirstViewPermission()).toBeNull()
+      expect(result.current.findViewPermissions()).toEqual([])
     })
 
-    it('returns the first view permission key that is true', () => {
+    it('returns every granted view permission in membership order', () => {
       mockUseCurrentUser.mockReturnValue({
         currentMembership: createMembershipWithPermissions({
           addonsCreate: true,
@@ -171,13 +171,10 @@ describe('usePermissions', () => {
 
       const { result } = prepare()
 
-      const firstViewPermission = result.current.findFirstViewPermission()
-
-      expect(firstViewPermission).not.toBeNull()
-      expect(firstViewPermission?.toLowerCase()).toContain('view')
+      expect(result.current.findViewPermissions()).toEqual(['addonsView', 'analyticsView'])
     })
 
-    it('returns null when no view permissions are granted', () => {
+    it('returns an empty list when no view permissions are granted', () => {
       mockUseCurrentUser.mockReturnValue({
         currentMembership: createMembershipWithPermissions({
           addonsCreate: true,
@@ -189,10 +186,10 @@ describe('usePermissions', () => {
 
       const { result } = prepare()
 
-      expect(result.current.findFirstViewPermission()).toBeNull()
+      expect(result.current.findViewPermissions()).toEqual([])
     })
 
-    it('returns null when there are no view permissions in the object', () => {
+    it('returns an empty list when there are no view permissions in the object', () => {
       mockUseCurrentUser.mockReturnValue({
         currentMembership: createMembershipWithPermissions({
           addonsCreate: true,
@@ -203,26 +200,7 @@ describe('usePermissions', () => {
 
       const { result } = prepare()
 
-      expect(result.current.findFirstViewPermission()).toBeNull()
-    })
-
-    it('skips view permissions that are false and returns first true one', () => {
-      mockUseCurrentUser.mockReturnValue({
-        currentMembership: createMembershipWithPermissions({
-          addonsView: false,
-          analyticsView: false,
-          billableMetricsView: true,
-          customersView: true,
-        }),
-      })
-
-      const { result } = prepare()
-
-      const firstViewPermission = result.current.findFirstViewPermission()
-
-      expect(firstViewPermission).not.toBeNull()
-      // Should be one of the true view permissions
-      expect(['billableMetricsView', 'customersView']).toContain(firstViewPermission)
+      expect(result.current.findViewPermissions()).toEqual([])
     })
 
     it('handles case-insensitive view permission matching', () => {
@@ -235,9 +213,7 @@ describe('usePermissions', () => {
 
       const { result } = prepare()
 
-      const firstViewPermission = result.current.findFirstViewPermission()
-
-      expect(firstViewPermission).not.toBeNull()
+      expect(result.current.findViewPermissions()).toHaveLength(2)
     })
   })
 
@@ -414,15 +390,15 @@ describe('usePermissions', () => {
       expect(typeof result.current.hasPermissionsOr).toBe('function')
     })
 
-    it('returns findFirstViewPermission function', () => {
+    it('returns findViewPermissions function', () => {
       mockUseCurrentUser.mockReturnValue({
         currentMembership: createMembershipWithPermissions({}),
       })
 
       const { result } = prepare()
 
-      expect(result.current.findFirstViewPermission).toBeDefined()
-      expect(typeof result.current.findFirstViewPermission).toBe('function')
+      expect(result.current.findViewPermissions).toBeDefined()
+      expect(typeof result.current.findViewPermissions).toBe('function')
     })
   })
 })

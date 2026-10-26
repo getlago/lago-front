@@ -43,10 +43,13 @@ jest.mock('~/hooks/useDebouncedSearch', () => ({
   }),
 }))
 
+let mockIsProductCatalogEnabled = false
+
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: { defaultCurrency: 'USD' },
     hasOrganizationPremiumAddon: jest.fn().mockReturnValue(false),
+    hasFeatureFlag: () => mockIsProductCatalogEnabled,
   }),
 }))
 
@@ -88,6 +91,7 @@ jest.mock('~/components/exports/ExportDialog', () => ({
 describe('CreditNotesPage', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockIsProductCatalogEnabled = false
     capturedConfig = null
     capturedListVariables = null
   })
@@ -156,6 +160,34 @@ describe('CreditNotesPage', () => {
           'BigInt',
         )
         expect(getOperationVariableTypeName(GetCreditNotesListDocument, 'amountTo')).toBe('BigInt')
+      })
+    })
+  })
+
+  describe('GIVEN the product catalog feature flag is off', () => {
+    describe('WHEN the page is rendered', () => {
+      it('THEN should show the export action', () => {
+        render(<CreditNotesPage />)
+
+        const action = capturedConfig?.actions?.items[0]
+
+        expect(action?.type === 'action' && action.hidden).toBeFalsy()
+      })
+    })
+  })
+
+  describe('GIVEN the product catalog feature flag is on', () => {
+    beforeEach(() => {
+      mockIsProductCatalogEnabled = true
+    })
+
+    describe('WHEN the page is rendered', () => {
+      it('THEN should hide the export action', () => {
+        render(<CreditNotesPage />)
+
+        const action = capturedConfig?.actions?.items[0]
+
+        expect(action?.type === 'action' && action.hidden).toBe(true)
       })
     })
   })

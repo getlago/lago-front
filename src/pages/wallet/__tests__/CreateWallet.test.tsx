@@ -4,6 +4,7 @@ import { StrictMode } from 'react'
 import { generatePath } from 'react-router'
 
 import {
+  ADD_RECURRING_RULE_BUTTON_DATA_TEST,
   CLOSE_CREATE_WALLET_BUTTON_DATA_TEST,
   SUBMIT_WALLET_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
@@ -109,6 +110,14 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({ isPremium: true }),
 }))
 
+const mockHasPermissions = jest.fn(() => true)
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: mockHasPermissions,
+  }),
+}))
+
 jest.mock('~/components/billingEntity/BillingEntityFormPicker', () => ({
   BillingEntityFormPicker: () => <div data-test="billing-entity-form-picker-stub" />,
 }))
@@ -150,9 +159,45 @@ describe('CreateWallet', () => {
     mockWalletLoading = false
     mockLocationState = null
     mockHasFeatureFlag = false
+    mockHasPermissions.mockReturnValue(true)
   })
 
   describe('GIVEN the creation mode', () => {
+    describe('WHEN the user has the walletsUpdate permission', () => {
+      it('THEN should offer to add a recurring top-up rule', () => {
+        mockHasPermissions.mockReturnValue(true)
+
+        render(<CreateWallet />)
+
+        expect(screen.getByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user lacks the walletsUpdate permission', () => {
+      it('THEN should hide the recurring top-up rule and create the wallet without rules', async () => {
+        mockHasPermissions.mockReturnValue(false)
+        const user = userEvent.setup()
+
+        render(<CreateWallet />)
+
+        expect(screen.queryByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST)).not.toBeInTheDocument()
+
+        await user.type(queryInput('name'), 'My wallet')
+        await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
+
+        await waitFor(() => {
+          expect(mockCreateWallet).toHaveBeenCalledWith({
+            variables: {
+              input: expect.objectContaining({
+                grantedCredits: '0',
+                recurringTransactionRules: [],
+              }),
+            },
+          })
+        })
+      })
+    })
+
     describe('WHEN submitting with the default values', () => {
       it('THEN should call the create mutation with the serialized input', async () => {
         const user = userEvent.setup()

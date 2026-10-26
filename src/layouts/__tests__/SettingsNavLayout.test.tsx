@@ -136,6 +136,30 @@ describe('SettingsNavLayout', () => {
     expect(screen.queryByRole('link', { name: 'Governance' })).not.toBeInTheDocument()
   })
 
+  it('shows Dunning when the product catalog flag is off and the view permission is granted', () => {
+    mockPermissions.add('dunningCampaignsView')
+    renderSettings()
+
+    expect(screen.getByRole('link', { name: 'Dunning' })).toBeInTheDocument()
+  })
+
+  it('hides Dunning when the product catalog flag is on', () => {
+    mockFeatureFlags.add(FeatureFlagEnum.ProductCatalog)
+    mockPermissions.add('dunningCampaignsView')
+    renderSettings()
+
+    expect(screen.queryByRole('link', { name: 'Dunning' })).not.toBeInTheDocument()
+  })
+
+  it('keeps the other sections visible when the product catalog flag is on', () => {
+    mockFeatureFlags.add(FeatureFlagEnum.ProductCatalog)
+    mockPermissions.add('dunningCampaignsView')
+    mockPermissions.add('organizationTaxesView')
+    renderSettings()
+
+    expect(screen.getByRole('link', { name: 'Taxes' })).toBeInTheDocument()
+  })
+
   it('navigates to taxes in the organization from the URL', async () => {
     mockPermissions.add('organizationTaxesView')
     renderSettings()

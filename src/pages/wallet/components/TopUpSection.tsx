@@ -24,6 +24,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import { useRecurringRuleDrawer } from '~/pages/wallet/components/RecurringRuleDrawer'
 import { emptyWalletFormDefaultValues } from '~/pages/wallet/mappers/mapFromApiToForm'
 
@@ -71,6 +72,9 @@ export const TopUpSection = withForm({
     autoOpenAdditionalIntegrationDrawer,
   }) {
     const { isPremium } = useCurrentUser()
+    const { hasPermissions } = usePermissions()
+    // Recurring rules can grant credits and override paid top-up limits, which the API restricts to walletsUpdate
+    const canManageRecurringRules = hasPermissions(['walletsUpdate'])
     const { translate } = useInternationalization()
     const { hasFeatureFlag } = useOrganizationInfos()
     const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
@@ -174,15 +178,23 @@ export const TopUpSection = withForm({
     const hasAutoOpenedRuleDrawer = useRef(false)
 
     useEffect(() => {
-      if (!autoOpenRuleDrawer || hasAutoOpenedRuleDrawer.current || !isPremium) return
+      if (
+        !autoOpenRuleDrawer ||
+        hasAutoOpenedRuleDrawer.current ||
+        !isPremium ||
+        !canManageRecurringRules
+      )
+        return
 
       hasAutoOpenedRuleDrawer.current = true
       openDrawer(recurringTransactionRules)
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [autoOpenRuleDrawer, isPremium])
+    }, [autoOpenRuleDrawer, isPremium, canManageRecurringRules])
 
-    return (
-      <>
+    const renderRecurringRuleSection = () => {
+      if (!canManageRecurringRules) return null
+
+      return (
         <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
           <div className="flex flex-col gap-1">
             <Typography variant="subhead1">{translate('text_1741101674268ag60i0cc55m')}</Typography>
@@ -253,6 +265,12 @@ export const TopUpSection = withForm({
             </div>
           )}
         </section>
+      )
+    }
+
+    return (
+      <>
+        {renderRecurringRuleSection()}
 
         {customerData?.customer?.id && (
           <section

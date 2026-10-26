@@ -14,12 +14,17 @@ export type UseDebouncedSearch = (
     any
   >,
   loading?: boolean,
+  options?: { fetchOnMount?: boolean },
 ) => {
   debouncedSearch?: DebouncedFunc<(value: unknown) => void>
   isLoading: boolean
 }
 
-export const useDebouncedSearch: UseDebouncedSearch = (searchQuery, loading) => {
+export const useDebouncedSearch: UseDebouncedSearch = (
+  searchQuery,
+  loading,
+  { fetchOnMount = true } = {},
+) => {
   const [isLoading, setIsLoading] = useState(true)
   const startLoading = useRef<DateTime | null>(null)
   const lastSearchTerm = useRef<string | undefined>(undefined)
@@ -74,10 +79,15 @@ export const useDebouncedSearch: UseDebouncedSearch = (searchQuery, loading) => 
     }
   }, [loading])
 
+  const hasFetchedOnMount = useRef(false)
+
   useEffect(() => {
-    searchQuery && searchQuery()
+    if (!fetchOnMount || hasFetchedOnMount.current) return
+
+    hasFetchedOnMount.current = true
+    searchQuery?.()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [fetchOnMount])
 
   useEffect(() => {
     return () => {
