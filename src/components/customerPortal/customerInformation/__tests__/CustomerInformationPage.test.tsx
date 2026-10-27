@@ -1,6 +1,7 @@
 import { fireEvent, screen } from '@testing-library/react'
 
-import { CountryCode, CustomerPortalEditableFieldEnum, CustomerTypeEnum } from '~/generated/graphql'
+import { getCustomerPortalLockedFields } from '~/core/constants/customerPortalEditableFields'
+import { CountryCode, CustomerPortalFieldEnum, CustomerTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import CustomerInformationPage, { READ_ONLY_FIELDS_ALERT_TEST_ID } from '../CustomerInformationPage'
@@ -143,13 +144,13 @@ jest.mock('@tanstack/react-form', () => ({
 
 const mockGoHome = jest.fn()
 
-const ALL_FIELDS = Object.values(CustomerPortalEditableFieldEnum)
+const ALL_FIELDS = Object.values(CustomerPortalFieldEnum)
 const DEFAULT_EDITABLE_FIELDS = ALL_FIELDS.filter(
   (field) =>
     ![
-      CustomerPortalEditableFieldEnum.Country,
-      CustomerPortalEditableFieldEnum.Zipcode,
-      CustomerPortalEditableFieldEnum.TaxIdentificationNumber,
+      CustomerPortalFieldEnum.Country,
+      CustomerPortalFieldEnum.Zipcode,
+      CustomerPortalFieldEnum.TaxIdentificationNumber,
     ].includes(field),
 )
 
@@ -187,7 +188,7 @@ const setupDefaultMocks = () => {
         },
       },
       customerPortalOrganization: {
-        customerPortalEditableFields: ALL_FIELDS,
+        customerPortalLockedFields: [],
       },
     },
     loading: false,
@@ -196,12 +197,17 @@ const setupDefaultMocks = () => {
   })
 }
 
-const mockEditableFields = (customerPortalEditableFields: CustomerPortalEditableFieldEnum[]) => {
+const mockEditableFields = (customerPortalEditableFields: CustomerPortalFieldEnum[]) => {
   const { data, ...rest } = mockUseCustomerPortalData()
 
   mockUseCustomerPortalData.mockReturnValue({
     ...rest,
-    data: { ...data, customerPortalOrganization: { customerPortalEditableFields } },
+    data: {
+      ...data,
+      customerPortalOrganization: {
+        customerPortalLockedFields: getCustomerPortalLockedFields(customerPortalEditableFields),
+      },
+    },
   })
 }
 
@@ -428,8 +434,10 @@ describe('CustomerInformationPage', () => {
         data: {
           customerPortalUser: { name: 'Test', ...address, shippingAddress: address },
           customerPortalOrganization: {
-            customerPortalEditableFields: DEFAULT_EDITABLE_FIELDS.filter(
-              (field) => field !== CustomerPortalEditableFieldEnum.ShippingAddress,
+            customerPortalLockedFields: getCustomerPortalLockedFields(
+              DEFAULT_EDITABLE_FIELDS.filter(
+                (field) => field !== CustomerPortalFieldEnum.ShippingAddress,
+              ),
             ),
           },
         },
@@ -458,7 +466,9 @@ describe('CustomerInformationPage', () => {
       mockUseCustomerPortalData.mockReturnValue({
         data: {
           customerPortalUser: { name: 'Test', ...address, shippingAddress: address },
-          customerPortalOrganization: { customerPortalEditableFields: DEFAULT_EDITABLE_FIELDS },
+          customerPortalOrganization: {
+            customerPortalLockedFields: getCustomerPortalLockedFields(DEFAULT_EDITABLE_FIELDS),
+          },
         },
         loading: false,
         error: undefined,
@@ -475,7 +485,7 @@ describe('CustomerInformationPage', () => {
     it('THEN should disable the shipping fields', () => {
       mockEditableFields(
         DEFAULT_EDITABLE_FIELDS.filter(
-          (field) => field !== CustomerPortalEditableFieldEnum.ShippingAddress,
+          (field) => field !== CustomerPortalFieldEnum.ShippingAddress,
         ),
       )
 

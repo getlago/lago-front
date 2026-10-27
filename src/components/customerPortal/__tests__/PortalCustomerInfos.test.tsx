@@ -1,7 +1,8 @@
 import { screen } from '@testing-library/react'
 import { act } from 'react'
 
-import { CountryCode, CustomerPortalEditableFieldEnum, CustomerTypeEnum } from '~/generated/graphql'
+import { getCustomerPortalLockedFields } from '~/core/constants/customerPortalEditableFields'
+import { CountryCode, CustomerPortalFieldEnum, CustomerTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import PortalCustomerInfos, {
@@ -107,7 +108,7 @@ const setupDefaultMocks = () => {
     data: {
       customerPortalUser: mockCustomerPortalUser,
       customerPortalOrganization: {
-        customerPortalEditableFields: [CustomerPortalEditableFieldEnum.Name],
+        customerPortalLockedFields: getCustomerPortalLockedFields([CustomerPortalFieldEnum.Name]),
       },
     },
     loading: false,
@@ -333,12 +334,14 @@ describe('PortalCustomerInfos', () => {
   describe('GIVEN the organization opens no field of the portal form', () => {
     it.each([
       ['no field', []],
-      ['only the document locale', [CustomerPortalEditableFieldEnum.DocumentLocale]],
+      ['only the document locale', [CustomerPortalFieldEnum.DocumentLocale]],
     ])('THEN should not offer to edit the information when it opens %s', (_, fields) => {
       mockUseCustomerPortalData.mockReturnValue({
         data: {
           customerPortalUser: mockCustomerPortalUser,
-          customerPortalOrganization: { customerPortalEditableFields: fields },
+          customerPortalOrganization: {
+            customerPortalLockedFields: getCustomerPortalLockedFields(fields),
+          },
         },
         loading: false,
         error: undefined,

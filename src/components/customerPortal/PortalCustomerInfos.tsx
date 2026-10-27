@@ -5,7 +5,10 @@ import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Typography } from '~/components/designSystem/Typography'
-import { hasEditableCustomerPortalFormField } from '~/core/constants/customerPortalEditableFields'
+import {
+  getCustomerPortalEditableFields,
+  hasEditableCustomerPortalFormField,
+} from '~/core/constants/customerPortalEditableFields'
 import { formatAddress } from '~/core/formats/formatAddress'
 import { CustomerAddressInput, CustomerPortalCustomer, CustomerTypeEnum } from '~/generated/graphql'
 
@@ -138,7 +141,9 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
   ]
 
   const canEditInformation = hasEditableCustomerPortalFormField(
-    portalCustomerInfosData?.customerPortalOrganization?.customerPortalEditableFields ?? [],
+    getCustomerPortalEditableFields(
+      portalCustomerInfosData?.customerPortalOrganization?.customerPortalLockedFields,
+    ),
   )
 
   const isLoading = portalCustomerInfosLoading

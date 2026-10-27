@@ -14,11 +14,12 @@ import { Typography } from '~/components/designSystem/Typography'
 import { Checkbox } from '~/components/form'
 import {
   CUSTOMER_PORTAL_FORM_FIELDS,
+  getCustomerPortalEditableFields,
   pickCustomerPortalEditableFields,
 } from '~/core/constants/customerPortalEditableFields'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import {
-  CustomerPortalEditableFieldEnum,
+  CustomerPortalFieldEnum,
   CustomerTypeEnum,
   UpdateCustomerPortalCustomerInput,
   useUpdatePortalCustomerMutation,
@@ -29,7 +30,7 @@ import { editCustomerBillingValidationSchema, mapCustomerToFormValues } from './
 
 type EditCustomerBillingFormProps = {
   customer?: UpdateCustomerPortalCustomerInput | null
-  editableFields: CustomerPortalEditableFieldEnum[]
+  editableFields: CustomerPortalFieldEnum[]
   onSuccess?: () => void
 }
 
@@ -50,8 +51,8 @@ const EditCustomerBillingForm = ({
 }: EditCustomerBillingFormProps) => {
   const { translate } = useCustomerPortalTranslate()
 
-  const isEditable = (field: CustomerPortalEditableFieldEnum) => editableFields.includes(field)
-  const canEditShippingAddress = isEditable(CustomerPortalEditableFieldEnum.ShippingAddress)
+  const isEditable = (field: CustomerPortalFieldEnum) => editableFields.includes(field)
+  const canEditShippingAddress = isEditable(CustomerPortalFieldEnum.ShippingAddress)
   const hasReadOnlyFields = CUSTOMER_PORTAL_FORM_FIELDS.some(({ field }) => !isEditable(field))
 
   const initialValues = mapCustomerToFormValues(customer)
@@ -156,7 +157,7 @@ const EditCustomerBillingForm = ({
       <form.AppField name="customerType">
         {(field) => (
           <field.ComboBoxField
-            disabled={!isEditable(CustomerPortalEditableFieldEnum.CustomerType)}
+            disabled={!isEditable(CustomerPortalFieldEnum.CustomerType)}
             label={translate('text_1726128938631ioz4orixel3')}
             placeholder={translate('text_17261289386318j0nhr1ms3t')}
             PopperProps={{ displayInDialog: true }}
@@ -171,7 +172,7 @@ const EditCustomerBillingForm = ({
       <form.AppField name="name">
         {(field) => (
           <field.TextInputField
-            disabled={!isEditable(CustomerPortalEditableFieldEnum.Name)}
+            disabled={!isEditable(CustomerPortalFieldEnum.Name)}
             label={translate('text_634687079be251fdb43833cb')}
             placeholder={translate('text_1728654170904707saidat0f')}
           />
@@ -182,7 +183,7 @@ const EditCustomerBillingForm = ({
         <form.AppField name="firstname">
           {(field) => (
             <field.TextInputField
-              disabled={!isEditable(CustomerPortalEditableFieldEnum.Firstname)}
+              disabled={!isEditable(CustomerPortalFieldEnum.Firstname)}
               label={translate('text_1726128938631ggtf2ggqs4b')}
               placeholder={translate('text_1726128938631ntcpbzv7x7s')}
             />
@@ -192,7 +193,7 @@ const EditCustomerBillingForm = ({
         <form.AppField name="lastname">
           {(field) => (
             <field.TextInputField
-              disabled={!isEditable(CustomerPortalEditableFieldEnum.Lastname)}
+              disabled={!isEditable(CustomerPortalFieldEnum.Lastname)}
               label={translate('text_1726128938631ymctg83bygm')}
               placeholder={translate('text_1726128938631xmpsba9ssuo')}
             />
@@ -203,7 +204,7 @@ const EditCustomerBillingForm = ({
       <form.AppField name="legalName">
         {(field) => (
           <field.TextInputField
-            disabled={!isEditable(CustomerPortalEditableFieldEnum.LegalName)}
+            disabled={!isEditable(CustomerPortalFieldEnum.LegalName)}
             label={translate('text_626c0c09812bbc00e4c59e01')}
             placeholder={translate('text_626c0c09812bbc00e4c59e03')}
           />
@@ -212,7 +213,7 @@ const EditCustomerBillingForm = ({
       <form.AppField name="taxIdentificationNumber">
         {(field) => (
           <field.TextInputField
-            disabled={!isEditable(CustomerPortalEditableFieldEnum.TaxIdentificationNumber)}
+            disabled={!isEditable(CustomerPortalFieldEnum.TaxIdentificationNumber)}
             label={translate('text_648053ee819b60364c675d05')}
             placeholder={translate('text_648053ee819b60364c675d0b')}
           />
@@ -221,7 +222,7 @@ const EditCustomerBillingForm = ({
       <form.AppField name="email">
         {(field) => (
           <field.TextInputField
-            disabled={!isEditable(CustomerPortalEditableFieldEnum.Email)}
+            disabled={!isEditable(CustomerPortalFieldEnum.Email)}
             beforeChangeFormatter={['lowercase']}
             label={translate('text_626c0c09812bbc00e4c59e09')}
             placeholder={translate('text_626c0c09812bbc00e4c59e0b')}
@@ -236,7 +237,7 @@ const EditCustomerBillingForm = ({
       <form.AppField name="addressLine1" listeners={billingAddressChangeListener}>
         {(field) => (
           <field.TextInputField
-            disabled={!isEditable(CustomerPortalEditableFieldEnum.AddressLine1)}
+            disabled={!isEditable(CustomerPortalFieldEnum.AddressLine1)}
             label={translate('text_626c0c09812bbc00e4c59e1b')}
             placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
           />
@@ -245,7 +246,7 @@ const EditCustomerBillingForm = ({
       <form.AppField name="addressLine2" listeners={billingAddressChangeListener}>
         {(field) => (
           <field.TextInputField
-            disabled={!isEditable(CustomerPortalEditableFieldEnum.AddressLine2)}
+            disabled={!isEditable(CustomerPortalFieldEnum.AddressLine2)}
             placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
           />
         )}
@@ -255,7 +256,7 @@ const EditCustomerBillingForm = ({
         <form.AppField name="zipcode" listeners={billingAddressChangeListener}>
           {(field) => (
             <field.TextInputField
-              disabled={!isEditable(CustomerPortalEditableFieldEnum.Zipcode)}
+              disabled={!isEditable(CustomerPortalFieldEnum.Zipcode)}
               placeholder={translate('text_626c0c09812bbc00e4c59e21')}
             />
           )}
@@ -263,7 +264,7 @@ const EditCustomerBillingForm = ({
         <form.AppField name="city" listeners={billingAddressChangeListener}>
           {(field) => (
             <field.TextInputField
-              disabled={!isEditable(CustomerPortalEditableFieldEnum.City)}
+              disabled={!isEditable(CustomerPortalFieldEnum.City)}
               placeholder={translate('text_626c0c09812bbc00e4c59e23')}
             />
           )}
@@ -273,7 +274,7 @@ const EditCustomerBillingForm = ({
       <form.AppField name="state" listeners={billingAddressChangeListener}>
         {(field) => (
           <field.TextInputField
-            disabled={!isEditable(CustomerPortalEditableFieldEnum.State)}
+            disabled={!isEditable(CustomerPortalFieldEnum.State)}
             placeholder={translate('text_626c0c09812bbc00e4c59e25')}
           />
         )}
@@ -281,7 +282,7 @@ const EditCustomerBillingForm = ({
       <form.AppField name="country" listeners={billingAddressChangeListener}>
         {(field) => (
           <field.ComboBoxField
-            disabled={!isEditable(CustomerPortalEditableFieldEnum.Country)}
+            disabled={!isEditable(CustomerPortalFieldEnum.Country)}
             data={countryDataForCombobox}
             placeholder={translate('text_626c0c09812bbc00e4c59e27')}
             PopperProps={{ displayInDialog: true }}
@@ -433,9 +434,9 @@ const CustomerInformationPage = () => {
       {!isLoading && (
         <EditCustomerBillingForm
           customer={customerPortalUser}
-          editableFields={
-            portalCustomerInfosData?.customerPortalOrganization?.customerPortalEditableFields ?? []
-          }
+          editableFields={getCustomerPortalEditableFields(
+            portalCustomerInfosData?.customerPortalOrganization?.customerPortalLockedFields,
+          )}
           onSuccess={goHome}
         />
       )}

@@ -1,12 +1,15 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { CUSTOMER_PORTAL_FORM_FIELDS } from '~/core/constants/customerPortalEditableFields'
-import { CustomerPortalEditableFieldEnum } from '~/generated/graphql'
+import {
+  CUSTOMER_PORTAL_FORM_FIELDS,
+  getCustomerPortalLockedFields,
+} from '~/core/constants/customerPortalEditableFields'
+import { CustomerPortalFieldEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import OrganizationGeneralSettings, {
-  CUSTOMER_PORTAL_EDITABLE_FIELDS_TEST_ID,
+  CUSTOMER_PORTAL_FIELDS_TEST_ID,
   CUSTOMER_PORTAL_NO_EDITABLE_FIELDS_TEST_ID,
   CUSTOMER_PORTAL_SETTINGS_ERROR_TEST_ID,
   EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID,
@@ -67,10 +70,10 @@ describe('OrganizationGeneralSettings', () => {
       data: {
         organization: {
           id: 'org-1',
-          customerPortalEditableFields: [
-            CustomerPortalEditableFieldEnum.Name,
-            CustomerPortalEditableFieldEnum.City,
-          ],
+          customerPortalLockedFields: getCustomerPortalLockedFields([
+            CustomerPortalFieldEnum.Name,
+            CustomerPortalFieldEnum.City,
+          ]),
         },
       },
     })
@@ -144,18 +147,15 @@ describe('OrganizationGeneralSettings', () => {
   })
 
   describe('GIVEN the customer portal section', () => {
-    const labelOf = (field: CustomerPortalEditableFieldEnum) =>
+    const labelOf = (field: CustomerPortalFieldEnum) =>
       CUSTOMER_PORTAL_FORM_FIELDS.find((entry) => entry.field === field)?.labelKey
 
     describe('WHEN the settings are loaded', () => {
       it('THEN should list the editable fields in the portal form order', () => {
         renderWithSlug('acme')
 
-        expect(screen.getByTestId(CUSTOMER_PORTAL_EDITABLE_FIELDS_TEST_ID)).toHaveTextContent(
-          [
-            labelOf(CustomerPortalEditableFieldEnum.Name),
-            labelOf(CustomerPortalEditableFieldEnum.City),
-          ].join(', '),
+        expect(screen.getByTestId(CUSTOMER_PORTAL_FIELDS_TEST_ID)).toHaveTextContent(
+          [labelOf(CustomerPortalFieldEnum.Name), labelOf(CustomerPortalFieldEnum.City)].join(', '),
         )
       })
 
@@ -165,7 +165,9 @@ describe('OrganizationGeneralSettings', () => {
           data: {
             organization: {
               id: 'org-1',
-              customerPortalEditableFields: [CustomerPortalEditableFieldEnum.DocumentLocale],
+              customerPortalLockedFields: getCustomerPortalLockedFields([
+                CustomerPortalFieldEnum.DocumentLocale,
+              ]),
             },
           },
         })
@@ -173,9 +175,7 @@ describe('OrganizationGeneralSettings', () => {
         renderWithSlug('acme')
 
         expect(screen.getByTestId(CUSTOMER_PORTAL_NO_EDITABLE_FIELDS_TEST_ID)).toBeInTheDocument()
-        expect(
-          screen.queryByTestId(CUSTOMER_PORTAL_EDITABLE_FIELDS_TEST_ID),
-        ).not.toBeInTheDocument()
+        expect(screen.queryByTestId(CUSTOMER_PORTAL_FIELDS_TEST_ID)).not.toBeInTheDocument()
       })
     })
 
@@ -183,7 +183,12 @@ describe('OrganizationGeneralSettings', () => {
       it('THEN should display the empty state', () => {
         mockUseGetOrganizationCustomerPortalSettingsQuery.mockReturnValue({
           loading: false,
-          data: { organization: { id: 'org-1', customerPortalEditableFields: [] } },
+          data: {
+            organization: {
+              id: 'org-1',
+              customerPortalLockedFields: getCustomerPortalLockedFields([]),
+            },
+          },
         })
 
         renderWithSlug('acme')
@@ -219,12 +224,12 @@ describe('OrganizationGeneralSettings', () => {
 
         await user.click(screen.getByTestId(EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID))
 
-        expect(mockOpenEditCustomerPortalFieldsDialog).toHaveBeenCalledWith({
-          editableFields: [
-            CustomerPortalEditableFieldEnum.Name,
-            CustomerPortalEditableFieldEnum.City,
-          ],
-        })
+        const [{ editableFields }] = mockOpenEditCustomerPortalFieldsDialog.mock.calls[0]
+
+        expect(editableFields).toHaveLength(2)
+        expect(editableFields).toEqual(
+          expect.arrayContaining([CustomerPortalFieldEnum.Name, CustomerPortalFieldEnum.City]),
+        )
       })
     })
 

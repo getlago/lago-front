@@ -6,9 +6,12 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
-import { CUSTOMER_PORTAL_FORM_FIELDS } from '~/core/constants/customerPortalEditableFields'
 import {
-  CustomerPortalEditableFieldEnum,
+  CUSTOMER_PORTAL_FORM_FIELDS,
+  getCustomerPortalLockedFields,
+} from '~/core/constants/customerPortalEditableFields'
+import {
+  CustomerPortalFieldEnum,
   useUpdateOrganizationCustomerPortalEditableFieldsMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -18,7 +21,7 @@ gql`
   mutation updateOrganizationCustomerPortalEditableFields($input: UpdateOrganizationInput!) {
     updateOrganization(input: $input) {
       id
-      customerPortalEditableFields
+      customerPortalLockedFields
     }
   }
 `
@@ -27,23 +30,20 @@ const EDIT_CUSTOMER_PORTAL_FIELDS_FORM_ID = 'form-edit-customer-portal-fields'
 
 export const CUSTOMER_PORTAL_FIELD_CHECKBOX_TEST_ID = 'customer-portal-field-checkbox'
 
-type EditCustomerPortalFieldsFormValues = Record<CustomerPortalEditableFieldEnum, boolean>
+type EditCustomerPortalFieldsFormValues = Record<CustomerPortalFieldEnum, boolean>
 
 const toFormValues = (
-  editableFields: CustomerPortalEditableFieldEnum[],
+  editableFields: CustomerPortalFieldEnum[],
 ): EditCustomerPortalFieldsFormValues =>
   Object.fromEntries(
-    Object.values(CustomerPortalEditableFieldEnum).map((field) => [
-      field,
-      editableFields.includes(field),
-    ]),
+    Object.values(CustomerPortalFieldEnum).map((field) => [field, editableFields.includes(field)]),
   ) as EditCustomerPortalFieldsFormValues
 
 // Built once: a new defaultValues object on each render makes the form reset to it, unchecking the loaded fields
 const DEFAULT_FORM_VALUES = toFormValues([])
 
 type EditCustomerPortalFieldsDialogData = {
-  editableFields: CustomerPortalEditableFieldEnum[]
+  editableFields: CustomerPortalFieldEnum[]
 }
 
 export const useEditCustomerPortalFieldsDialog = () => {
@@ -57,12 +57,12 @@ export const useEditCustomerPortalFieldsDialog = () => {
   const form = useAppForm({
     defaultValues: DEFAULT_FORM_VALUES,
     onSubmit: async ({ value }) => {
-      const customerPortalEditableFields = Object.values(CustomerPortalEditableFieldEnum).filter(
-        (field) => value[field],
+      const customerPortalLockedFields = getCustomerPortalLockedFields(
+        Object.values(CustomerPortalFieldEnum).filter((field) => value[field]),
       )
 
       const { errors } = await updateEditableFields({
-        variables: { input: { customerPortalEditableFields } },
+        variables: { input: { customerPortalLockedFields } },
       })
 
       successRef.current = !errors?.length

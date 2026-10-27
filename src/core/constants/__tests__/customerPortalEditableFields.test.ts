@@ -1,18 +1,20 @@
-import { CountryCode, CustomerPortalEditableFieldEnum } from '~/generated/graphql'
+import { CountryCode, CustomerPortalFieldEnum } from '~/generated/graphql'
 
 import {
-  CUSTOMER_PORTAL_EDITABLE_FIELDS,
+  CUSTOMER_PORTAL_FIELDS,
+  getCustomerPortalEditableFields,
+  getCustomerPortalLockedFields,
   hasEditableCustomerPortalFormField,
   pickCustomerPortalEditableFields,
 } from '../customerPortalEditableFields'
 
 describe('customerPortalEditableFields', () => {
-  describe('CUSTOMER_PORTAL_EDITABLE_FIELDS', () => {
+  describe('CUSTOMER_PORTAL_FIELDS', () => {
     it('THEN should cover every editable field once', () => {
-      const fields = CUSTOMER_PORTAL_EDITABLE_FIELDS.map(({ field }) => field)
+      const fields = CUSTOMER_PORTAL_FIELDS.map(({ field }) => field)
 
-      expect(fields).toHaveLength(Object.values(CustomerPortalEditableFieldEnum).length)
-      expect(new Set(fields)).toEqual(new Set(Object.values(CustomerPortalEditableFieldEnum)))
+      expect(fields).toHaveLength(Object.values(CustomerPortalFieldEnum).length)
+      expect(new Set(fields)).toEqual(new Set(Object.values(CustomerPortalFieldEnum)))
     })
   })
 
@@ -26,7 +28,7 @@ describe('customerPortalEditableFields', () => {
           taxIdentificationNumber: 'US123',
           shippingAddress: { city: 'New York' },
         },
-        [CustomerPortalEditableFieldEnum.Name, CustomerPortalEditableFieldEnum.ShippingAddress],
+        [CustomerPortalFieldEnum.Name, CustomerPortalFieldEnum.ShippingAddress],
       )
 
       expect(result).toEqual({ name: 'Acme', shippingAddress: { city: 'New York' } })
@@ -39,11 +41,42 @@ describe('customerPortalEditableFields', () => {
 
   describe('hasEditableCustomerPortalFormField', () => {
     it.each([
-      [[CustomerPortalEditableFieldEnum.City], true],
-      [[CustomerPortalEditableFieldEnum.DocumentLocale], false],
+      [[CustomerPortalFieldEnum.City], true],
+      [[CustomerPortalFieldEnum.DocumentLocale], false],
       [[], false],
     ])('THEN should return %s -> %s', (fields, expected) => {
       expect(hasEditableCustomerPortalFormField(fields)).toBe(expected)
+    })
+  })
+
+  describe('getCustomerPortalEditableFields', () => {
+    it('THEN should return every field that is not locked', () => {
+      const editable = getCustomerPortalEditableFields([
+        CustomerPortalFieldEnum.Country,
+        CustomerPortalFieldEnum.Zipcode,
+      ])
+
+      expect(editable).toContain(CustomerPortalFieldEnum.City)
+      expect(editable).not.toContain(CustomerPortalFieldEnum.Country)
+      expect(editable).not.toContain(CustomerPortalFieldEnum.Zipcode)
+      expect(editable).toHaveLength(Object.values(CustomerPortalFieldEnum).length - 2)
+    })
+
+    it.each([[undefined], [null]])(
+      'THEN should treat nothing as editable when the list is %s',
+      (fields) => {
+        expect(getCustomerPortalEditableFields(fields)).toEqual([])
+      },
+    )
+  })
+
+  describe('getCustomerPortalLockedFields', () => {
+    it('THEN should be the inverse of getCustomerPortalEditableFields', () => {
+      const locked = [CustomerPortalFieldEnum.Country, CustomerPortalFieldEnum.ShippingAddress]
+
+      expect(getCustomerPortalLockedFields(getCustomerPortalEditableFields(locked))).toEqual(
+        Object.values(CustomerPortalFieldEnum).filter((field) => locked.includes(field)),
+      )
     })
   })
 })

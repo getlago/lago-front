@@ -11,7 +11,10 @@ import {
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { CUSTOMER_PORTAL_FORM_FIELDS } from '~/core/constants/customerPortalEditableFields'
+import {
+  CUSTOMER_PORTAL_FORM_FIELDS,
+  getCustomerPortalEditableFields,
+} from '~/core/constants/customerPortalEditableFields'
 import { useGetOrganizationCustomerPortalSettingsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -20,7 +23,7 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { useEditCustomerPortalFieldsDialog } from './dialogs/useEditCustomerPortalFieldsDialog'
 import { useEditOrganizationSlugDialog } from './dialogs/useEditOrganizationSlugDialog'
 
-export const CUSTOMER_PORTAL_EDITABLE_FIELDS_TEST_ID = 'customer-portal-editable-fields'
+export const CUSTOMER_PORTAL_FIELDS_TEST_ID = 'customer-portal-editable-fields'
 export const CUSTOMER_PORTAL_NO_EDITABLE_FIELDS_TEST_ID = 'customer-portal-no-editable-fields'
 export const CUSTOMER_PORTAL_SETTINGS_ERROR_TEST_ID = 'customer-portal-settings-error'
 export const EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID = 'edit-customer-portal-fields-button'
@@ -29,7 +32,7 @@ gql`
   query getOrganizationCustomerPortalSettings {
     organization {
       id
-      customerPortalEditableFields
+      customerPortalLockedFields
     }
   }
 `
@@ -60,8 +63,9 @@ const OrganizationGeneralSettings = () => {
   // Without the loaded list, the section must not look like "nothing is editable" nor let an empty list be saved
   const hasCustomerPortalSettingsError =
     !customerPortalSettingsLoading && (!!customerPortalSettingsError || !customerPortalOrganization)
-  const customerPortalEditableFields =
-    customerPortalOrganization?.customerPortalEditableFields ?? []
+  const customerPortalEditableFields = getCustomerPortalEditableFields(
+    customerPortalOrganization?.customerPortalLockedFields,
+  )
   const customerPortalEditableFieldLabels = CUSTOMER_PORTAL_FORM_FIELDS.filter(({ field }) =>
     customerPortalEditableFields.includes(field),
   ).map(({ labelKey }) => translate(labelKey))
@@ -154,7 +158,7 @@ const OrganizationGeneralSettings = () => {
                 <Typography
                   variant="body"
                   color="grey700"
-                  data-test={CUSTOMER_PORTAL_EDITABLE_FIELDS_TEST_ID}
+                  data-test={CUSTOMER_PORTAL_FIELDS_TEST_ID}
                 >
                   {customerPortalEditableFieldLabels.join(', ')}
                 </Typography>

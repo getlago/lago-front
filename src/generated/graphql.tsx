@@ -3309,7 +3309,7 @@ export type CurrentOrganization = {
   city?: Maybe<Scalars['String']['output']>;
   country?: Maybe<CountryCode>;
   createdAt: Scalars['ISO8601DateTime']['output'];
-  customerPortalEditableFields: Array<CustomerPortalEditableFieldEnum>;
+  customerPortalLockedFields: Array<CustomerPortalFieldEnum>;
   defaultCurrency: CurrencyEnum;
   documentNumberPrefix: Scalars['String']['output'];
   documentNumbering: DocumentNumberingEnum;
@@ -3571,8 +3571,8 @@ export type CustomerPortalCustomer = {
   zipcode?: Maybe<Scalars['String']['output']>;
 };
 
-/** Customer fields that can be edited from the customer portal */
-export enum CustomerPortalEditableFieldEnum {
+/** Customer fields that can be sent from the customer portal */
+export enum CustomerPortalFieldEnum {
   AddressLine1 = 'address_line1',
   AddressLine2 = 'address_line2',
   City = 'city',
@@ -3594,7 +3594,7 @@ export enum CustomerPortalEditableFieldEnum {
 export type CustomerPortalOrganization = {
   __typename?: 'CustomerPortalOrganization';
   billingConfiguration?: Maybe<OrganizationBillingConfiguration>;
-  customerPortalEditableFields: Array<CustomerPortalEditableFieldEnum>;
+  customerPortalLockedFields: Array<CustomerPortalFieldEnum>;
   defaultCurrency: CurrencyEnum;
   id: Scalars['ID']['output'];
   logoUrl?: Maybe<Scalars['String']['output']>;
@@ -4698,6 +4698,7 @@ export enum EventTypeEnum {
   AddOnCreated = 'add_on_created',
   AddOnDeleted = 'add_on_deleted',
   AddOnUpdated = 'add_on_updated',
+  AlertResolved = 'alert_resolved',
   AlertTriggered = 'alert_triggered',
   All = 'all',
   BillableMetricCreated = 'billable_metric_created',
@@ -4836,9 +4837,11 @@ export enum FeatureFlagEnum {
   IncrementalChargeCache = 'incremental_charge_cache',
   MultiConnection = 'multi_connection',
   OrderForms = 'order_forms',
+  PersistedRecurringValues = 'persisted_recurring_values',
   PostgresEnrichedEvents = 'postgres_enriched_events',
   ProductCatalog = 'product_catalog',
   RealtimeUsage = 'realtime_usage',
+  RecurringAggregationSnapshots = 'recurring_aggregation_snapshots',
   SkipCreditInvoiceAutoPaymentDelay = 'skip_credit_invoice_auto_payment_delay',
   SsoCrossOrganizationSessions = 'sso_cross_organization_sessions',
   StripeSharedPaymentToken = 'stripe_shared_payment_token',
@@ -12277,7 +12280,7 @@ export type UpdateOrganizationInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<CountryCode>;
-  customerPortalEditableFields?: InputMaybe<Array<CustomerPortalEditableFieldEnum>>;
+  customerPortalLockedFields?: InputMaybe<Array<CustomerPortalFieldEnum>>;
   defaultCurrency?: InputMaybe<CurrencyEnum>;
   documentNumberPrefix?: InputMaybe<Scalars['String']['input']>;
   documentNumbering?: InputMaybe<DocumentNumberingEnum>;
@@ -13773,7 +13776,7 @@ export type GetCustomerPortalOverdueBalancesQuery = { __typename?: 'Query', cust
 export type GetCustomerPortalDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCustomerPortalDataQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, applicableTimezone: TimezoneEnum, premium: boolean, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null, billingEntityBillingConfiguration: { __typename?: 'BillingEntityBillingConfiguration', id: string, documentLocale?: string | null }, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null } | null, customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, name: string, logoUrl?: string | null, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, customerPortalEditableFields: Array<CustomerPortalEditableFieldEnum> } | null };
+export type GetCustomerPortalDataQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, applicableTimezone: TimezoneEnum, premium: boolean, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null, billingEntityBillingConfiguration: { __typename?: 'BillingEntityBillingConfiguration', id: string, documentLocale?: string | null }, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null } | null, customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, name: string, logoUrl?: string | null, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, customerPortalLockedFields: Array<CustomerPortalFieldEnum> } | null };
 
 export type UpdatePortalCustomerMutationVariables = Exact<{
   input: UpdateCustomerPortalCustomerInput;
@@ -18860,14 +18863,14 @@ export type GetNetsuiteIntegrationsListQuery = { __typename?: 'Query', integrati
 export type GetOrganizationCustomerPortalSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetOrganizationCustomerPortalSettingsQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, customerPortalEditableFields: Array<CustomerPortalEditableFieldEnum> } | null };
+export type GetOrganizationCustomerPortalSettingsQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, customerPortalLockedFields: Array<CustomerPortalFieldEnum> } | null };
 
 export type UpdateOrganizationCustomerPortalEditableFieldsMutationVariables = Exact<{
   input: UpdateOrganizationInput;
 }>;
 
 
-export type UpdateOrganizationCustomerPortalEditableFieldsMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, customerPortalEditableFields: Array<CustomerPortalEditableFieldEnum> } | null };
+export type UpdateOrganizationCustomerPortalEditableFieldsMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, customerPortalLockedFields: Array<CustomerPortalFieldEnum> } | null };
 
 export type UpdateOrganizationSlugMutationVariables = Exact<{
   input: UpdateOrganizationInput;
@@ -30251,7 +30254,7 @@ export const GetCustomerPortalDataDocument = gql`
     name
     logoUrl
     premiumIntegrations
-    customerPortalEditableFields
+    customerPortalLockedFields
   }
 }
     `;
@@ -52502,7 +52505,7 @@ export const GetOrganizationCustomerPortalSettingsDocument = gql`
     query getOrganizationCustomerPortalSettings {
   organization {
     id
-    customerPortalEditableFields
+    customerPortalLockedFields
   }
 }
     `;
@@ -52545,7 +52548,7 @@ export const UpdateOrganizationCustomerPortalEditableFieldsDocument = gql`
     mutation updateOrganizationCustomerPortalEditableFields($input: UpdateOrganizationInput!) {
   updateOrganization(input: $input) {
     id
-    customerPortalEditableFields
+    customerPortalLockedFields
   }
 }
     `;
