@@ -29,6 +29,7 @@ describe('listenToCrossTabLogOut', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    localStorage.clear()
     mockAuthTokenVar.mockReturnValue('admin-jwt')
     window.history.pushState({}, '', ADMIN_PATH)
     onCrossTabLogOut = jest.fn()
@@ -79,6 +80,18 @@ describe('listenToCrossTabLogOut', () => {
             storageArea: localStorage,
           }),
         )
+
+        expect(onCrossTabLogOut).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN that tab logged back in before the removal arrived', () => {
+      // Both events are delivered; acting on the stale removal tore this tab's
+      // cache down and signed it out of a session that is live again.
+      it('THEN should keep this tab signed in', () => {
+        localStorage.setItem('auth_token', 'new-session-jwt')
+
+        removeAuthToken()
 
         expect(onCrossTabLogOut).not.toHaveBeenCalled()
       })

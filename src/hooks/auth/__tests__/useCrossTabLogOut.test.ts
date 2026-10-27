@@ -4,12 +4,12 @@ import { renderHook } from '@testing-library/react'
 import { useCrossTabLogOut } from '../useCrossTabLogOut'
 
 const mockListenToCrossTabLogOut = jest.fn()
-const mockLogOut = jest.fn()
+const mockLogOutFromOtherTab = jest.fn()
 const mockCaptureException = jest.fn()
 
 jest.mock('~/core/apolloClient', () => ({
   listenToCrossTabLogOut: (...args: unknown[]) => mockListenToCrossTabLogOut(...args),
-  logOut: (...args: unknown[]) => mockLogOut(...args),
+  logOutFromOtherTab: (...args: unknown[]) => mockLogOutFromOtherTab(...args),
 }))
 
 jest.mock('@sentry/react', () => ({
@@ -27,7 +27,7 @@ describe('useCrossTabLogOut', () => {
     jest.clearAllMocks()
     stopListening = jest.fn()
     mockListenToCrossTabLogOut.mockReturnValue(stopListening)
-    mockLogOut.mockResolvedValue(undefined)
+    mockLogOutFromOtherTab.mockResolvedValue(undefined)
   })
 
   describe('GIVEN no Apollo client yet', () => {
@@ -40,12 +40,14 @@ describe('useCrossTabLogOut', () => {
 
   describe('GIVEN an Apollo client', () => {
     describe('WHEN another tab logs out', () => {
-      it('THEN should log out and reset the location history', () => {
+      // `logOut` would remove the shared token, deleting a session opened while
+      // this tab was still clearing its cache.
+      it('THEN should tear down only this tab, leaving the shared token alone', () => {
         renderHook(() => useCrossTabLogOut(client))
 
         triggerCrossTabLogOut()
 
-        expect(mockLogOut).toHaveBeenCalledWith(client, true)
+        expect(mockLogOutFromOtherTab).toHaveBeenCalledWith(client)
       })
     })
 
@@ -53,7 +55,7 @@ describe('useCrossTabLogOut', () => {
       it('THEN should report it instead of leaving the rejection unhandled', async () => {
         const error = new Error('clearStore failed')
 
-        mockLogOut.mockRejectedValue(error)
+        mockLogOutFromOtherTab.mockRejectedValue(error)
         renderHook(() => useCrossTabLogOut(client))
 
         triggerCrossTabLogOut()

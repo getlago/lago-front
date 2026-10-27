@@ -1,4 +1,5 @@
 import { AUTH_TOKEN_LS_KEY, authTokenVar } from '~/core/apolloClient/reactiveVars'
+import { getItemFromLS } from '~/core/utils/localStorage'
 
 import { isCustomerPortalPath } from './authHeaders'
 
@@ -17,6 +18,9 @@ export const listenToCrossTabLogOut = (onCrossTabLogOut: () => void): (() => voi
     // admin session, so an admin logout elsewhere must not tear its cache down.
     if (isCustomerPortalPath(window.location.pathname)) return
     if (!authTokenVar()) return
+    // A logout followed by a login in that tab delivers both events: by the time
+    // the removal arrives the session it refers to is already gone.
+    if (getItemFromLS(AUTH_TOKEN_LS_KEY)) return
 
     onCrossTabLogOut()
   }

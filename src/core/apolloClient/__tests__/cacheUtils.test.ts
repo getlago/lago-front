@@ -4,6 +4,7 @@ import { logOut, onLogIn, switchCurrentOrganization } from '../cacheUtils'
 
 const mockSetCurrentOrganizationId = jest.fn()
 const mockUpdateAuthTokenVar = jest.fn()
+const mockAuthTokenVar = jest.fn()
 const mockAddToast = jest.fn()
 const mockResetPersistedCache = jest.fn().mockResolvedValue(undefined)
 const mockPurgePersistedCache = jest.fn().mockResolvedValue(undefined)
@@ -22,6 +23,7 @@ jest.mock('../cachePersistor', () => ({
 jest.mock('../reactiveVars', () => ({
   addToast: (...args: unknown[]) => mockAddToast(...args),
   AUTH_TOKEN_LS_KEY: 'auth_token',
+  authTokenVar: (...args: unknown[]) => mockAuthTokenVar(...args),
   TMP_AUTH_TOKEN_LS_KEY: 'tmp_auth_token',
   setCurrentOrganizationId: (...args: unknown[]) => mockSetCurrentOrganizationId(...args),
   resetLocationHistoryVar: jest.fn(),
