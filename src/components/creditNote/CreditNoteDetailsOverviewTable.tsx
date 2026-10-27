@@ -174,13 +174,16 @@ export const CreditNoteDetailsOverviewTable: FC<CreditNoteDetailsOverviewTablePr
     ])
   }
 
-  const getGroupDisplayName = (fee: CreditNoteItem['fee'] | undefined): string => {
+  const getGroupDisplayName = (
+    fee: CreditNoteDetailsForOverviewTableFragment['items'][number]['fee'] | undefined,
+  ): string => {
     const subscription = fee?.subscription
-    const product = fee?.contractRateCard?.product
 
     if (subscription) {
       return subscription.name || subscription.plan.invoiceDisplayName || subscription.plan.name
     }
+
+    const product = fee?.contractRateCard?.product
 
     if (product) return product.invoiceDisplayName || product.name
 
