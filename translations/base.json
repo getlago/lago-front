@@ -5292,7 +5292,7 @@
   "text_1792713576572546stva6wu6": "Choose which customer details your customers can edit from the customer portal.",
   "text_1792713576573311eopximw3": "Edit customer portal fields",
   "text_1792713576574ze7tdls8m1o": "Customers can only change the fields you select. The other fields stay read-only in the customer portal.",
-  "text_17927135765756b1t9r9gngf": "Country, zip code and tax identification number set the taxes applied to the customer. If customers can edit them, they can change their own tax rate.",
+  "text_17927135765756b1t9r9gngf": "Country, zip code and tax identification number set the taxes applied to the customer. If customers can edit them, they can change their own tax rate. With Anrok or Avalara, taxes also follow the billing and shipping address, so keep those locked too.",
   "text_1792713576576juq3qxeh6z9": "Customer portal fields successfully updated",
   "text_17927135765776z05d5xcetc": "Customers cannot edit any field",
   "text_1792713576579ugzq1jl0rrj": "Save portal fields",
