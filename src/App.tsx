@@ -20,7 +20,6 @@ import {
   envGlobalVar,
   initializeApolloClient,
   initializeTranslations,
-  listenToCrossTabLogOut,
   logOut,
   setAuthErrorHandler,
 } from '~/core/apolloClient'
@@ -29,6 +28,7 @@ import '~/core/overlays/registeredDialogs'
 import { initializeYup } from '~/formValidation/initializeYup'
 import '~/formValidation/initializeZod'
 import { AiAgentProvider } from '~/hooks/aiAgent/useAiAgent'
+import { useCrossTabLogOut } from '~/hooks/auth/useCrossTabLogOut'
 import { DeveloperToolProvider, DEVTOOL_AUTO_SAVE_ID } from '~/hooks/useDeveloperTool'
 import { QuotePdfProvider } from '~/pages/quotes/common/QuotePdfProvider'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
@@ -77,15 +77,7 @@ const App = () => {
     initializeServices()
   }, [])
 
-  useEffect(() => {
-    if (!client) return
-
-    // Resets the location history like the in-app logout it mirrors, so the next
-    // user cannot go back into the previous one's pages.
-    return listenToCrossTabLogOut(() => {
-      logOut(client, true)
-    })
-  }, [client])
+  useCrossTabLogOut(client)
 
   // Adds explicit apollo messages only in a dev environment
   if (appEnv === AppEnvEnum.development) {
