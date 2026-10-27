@@ -1,0 +1,109 @@
+/* Keep link decoration scoped so legacy anchor rules do not override it. */
+.v2-button[data-variant] {
+  --v2-button-background: var(--color-action-primary);
+  --v2-button-foreground: var(--color-action-primary-foreground);
+  text-decoration: none;
+  cursor: pointer;
+}
+.v2-button-content {
+  text-box: trim-both cap alphabetic;
+}
+.v2-button[data-variant='default']:not([aria-disabled='true']):hover {
+  --v2-button-background: var(--color-action-primary-hover);
+}
+.v2-button[data-variant='default']:not([aria-disabled='true']):active {
+  --v2-button-background: var(--color-action-primary-pressed);
+}
+.v2-button[data-variant='destructive'] {
+  --v2-button-background: var(--color-destructive);
+  --v2-button-foreground: var(--color-destructive-foreground);
+}
+.v2-button[data-variant='destructive']:not([aria-disabled='true']):hover {
+  --v2-button-background: var(--color-destructive-hover);
+}
+.v2-button[data-variant='destructive']:not([aria-disabled='true']):active {
+  --v2-button-background: var(--color-destructive-pressed);
+}
+.v2-button[data-variant='secondary'] {
+  --v2-button-background: var(--color-surface-raised);
+  --v2-button-foreground: var(--color-text-default);
+}
+.v2-button[data-variant='secondary']:focus-visible,
+.v2-button[data-variant='secondary'][data-loading='true'],
+.v2-button[data-variant='secondary']:not([aria-disabled='true']):hover {
+  --v2-button-background: var(--color-surface-inset);
+}
+.v2-button[data-variant='outline'] {
+  --v2-button-background: var(--color-surface);
+  --v2-button-foreground: var(--color-text-default);
+}
+.v2-button[data-variant='outline']:focus-visible {
+  border-color: var(--color-focus-border);
+}
+/* A gradient overlays alpha feedback without making the underlying surface transparent. */
+.v2-button:is([data-variant='secondary'], [data-variant='outline']):not(
+    [aria-disabled='true']
+  ):hover {
+  background-image: linear-gradient(var(--color-interactive-hover), var(--color-interactive-hover));
+}
+.v2-button:is([data-variant='secondary'], [data-variant='outline']):not(
+    [aria-disabled='true']
+  ):active {
+  background-image: linear-gradient(
+    var(--color-interactive-pressed),
+    var(--color-interactive-pressed)
+  );
+}
+.v2-button[data-variant='ghost'] {
+  --v2-button-background: transparent;
+  --v2-button-foreground: var(--color-text-default);
+}
+.v2-button[data-variant='ghost']:not([aria-disabled='true']):hover {
+  --v2-button-background: var(--color-interactive-hover);
+}
+.v2-button[data-variant='ghost']:not([aria-disabled='true']):active {
+  --v2-button-background: var(--color-interactive-pressed);
+}
+.v2-button[data-variant='link'] {
+  --v2-button-background: transparent;
+  --v2-button-foreground: var(--color-link);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+/* Text links hug their content; icon links retain their square size utilities. */
+.v2-button[data-variant='link']:not([data-size^='icon']) {
+  height: auto;
+  width: auto;
+  padding: 0;
+}
+.v2-button[data-variant='link']:not([aria-disabled='true']):is(:hover, :active) {
+  --v2-button-foreground: var(--color-link-hover);
+}
+.v2-button[data-disabled='true'] {
+  --v2-button-background: var(--color-disabled);
+  --v2-button-foreground: var(--color-disabled-foreground);
+}
+.v2-button[data-variant='outline'][data-disabled='true'] {
+  border-color: var(--color-disabled-border);
+}
+.v2-button:is([data-variant='ghost'], [data-variant='link'])[data-disabled='true'] {
+  --v2-button-background: transparent;
+}
+.v2-button[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+.v2-button[data-loading='true'] {
+  cursor: progress;
+}
+@media (forced-colors: active) {
+  .v2-button:focus-visible {
+    outline: 2px solid Highlight;
+  }
+}
+
+.v2-button:focus-visible {
+  @apply rounded-full ring-4 ring-focus-ring ring-offset-0;
+}
+.v2-button:focus:not(:focus-visible) {
+  --tw-ring-shadow: 0 0 #0000;
+}
