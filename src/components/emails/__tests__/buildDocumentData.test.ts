@@ -228,6 +228,20 @@ describe('buildDocumentData', () => {
       })
     })
 
+    describe('GIVEN an x402 payment', () => {
+      describe('WHEN paymentType is X402', () => {
+        it('THEN should use the Coinbase x402 label key', () => {
+          const result = buildPaymentDocumentData({
+            ...basePaymentInput,
+            paymentType: PaymentTypeEnum.X402,
+            paymentProviderType: null,
+          })
+
+          expect(result.paymentMethod).toBe('text_1793137178564a1ls2ponepm')
+        })
+      })
+    })
+
     describe('GIVEN different provider types', () => {
       describe.each([
         [ProviderTypeEnum.Stripe, 'text_62b1edddbf5f461ab971277d'],

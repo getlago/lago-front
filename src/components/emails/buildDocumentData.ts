@@ -15,6 +15,7 @@ const PROVIDER_LABEL_KEYS: Record<ProviderTypeEnum, string> = {
 }
 
 const MANUAL_PAYMENT_LABEL_KEY = 'text_173799550683709p2rqkoqd5'
+const X402_PAYMENT_LABEL_KEY = 'text_1793137178564a1ls2ponepm'
 
 type FormatAmountInput = {
   amountCents: number | string | null | undefined
@@ -111,6 +112,8 @@ export const buildPaymentDocumentData = ({
 
   if (paymentType === PaymentTypeEnum.Manual) {
     paymentMethod = translate(MANUAL_PAYMENT_LABEL_KEY)
+  } else if (paymentType === PaymentTypeEnum.X402) {
+    paymentMethod = translate(X402_PAYMENT_LABEL_KEY)
   } else if (paymentProviderType) {
     paymentMethod = translate(PROVIDER_LABEL_KEYS[paymentProviderType])
   }

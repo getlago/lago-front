@@ -11,11 +11,17 @@ import { Status, StatusType } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { buildPaymentDocumentData } from '~/components/emails/buildDocumentData'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
-import { PaymentProviderChip } from '~/components/PaymentProviderChip'
+import { getPaymentProviderChipType, PaymentProviderChip } from '~/components/PaymentProviderChip'
+import {
+  getX402Network,
+  X402_SETTLEMENT_KIND_TRANSLATIONS,
+} from '~/components/settings/integrations/x402Connection'
+import { formatCredits } from '~/components/wallets/utils'
 import { addToast } from '~/core/apolloClient'
 import { buildGoCardlessPaymentUrl, buildStripePaymentUrl } from '~/core/constants/externalUrls'
 import {
@@ -40,11 +46,11 @@ import {
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   LagoApiError,
-  PaymentTypeEnum,
   ProviderTypeEnum,
   useGetPaymentDetailsQuery,
+  X402SettlementStatusEnum,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -114,6 +120,17 @@ gql`
         xmlUrl
         number
       }
+      x402Settlement {
+        id
+        kind
+        status
+        network
+        asset
+        payerAddress
+        payeeAddress
+        settledAmountCents
+        creditAmount
+      }
     }
   }
 `
@@ -145,16 +162,27 @@ const Loading = () => {
   )
 }
 
+export const PAYMENT_METHOD_TEST_ID = 'payment-method'
+export const X402_SETTLEMENT_SECTION_TEST_ID = 'payment-x402-settlement'
+export const X402_SETTLEMENT_KIND_TEST_ID = 'payment-x402-settlement-kind'
+export const X402_SETTLEMENT_STATUS_TEST_ID = 'payment-x402-settlement-status'
+export const X402_SETTLEMENT_CREDIT_GRANTED_TEST_ID = 'payment-x402-settlement-credit-granted'
+
 const InfoLine = ({
   label,
   value,
   isBold,
+  dataTest,
 }: {
   label: string
   value: string | ReactNode
   isBold?: boolean
+  dataTest?: string
 }) => (
-  <div className="flex items-center gap-3 align-baseline [&>a>*]:text-inherit [&>a]:text-blue-600">
+  <div
+    className="flex items-center gap-3 align-baseline [&>a>*]:text-inherit [&>a]:text-blue-600"
+    data-test={dataTest}
+  >
     <Typography variant={isBold ? 'captionHl' : 'caption'} noWrap className="min-w-35">
       {label}
     </Typography>
@@ -167,6 +195,19 @@ const InfoLine = ({
     )}
   </div>
 )
+
+const settlementStatus = (
+  status: X402SettlementStatusEnum,
+  translate: TranslateFunc,
+): { type: StatusType; label: string } => {
+  if (status === X402SettlementStatusEnum.Settled) {
+    return { type: StatusType.success, label: translate('text_17419455271371fw602t6rhg') }
+  }
+  if (status === X402SettlementStatusEnum.Failed)
+    return { type: StatusType.danger, label: 'failed' }
+
+  return { type: StatusType.default, label: 'pending' }
+}
 
 const PaymentDetails = () => {
   const { hasPermissions } = usePermissions()
@@ -197,6 +238,10 @@ const PaymentDetails = () => {
 
   const payment = data.payment
   const customer = payment?.customer
+  const settlement = payment?.x402Settlement
+  const creditGranted = settlement?.creditAmount
+    ? formatCredits({ credits: settlement.creditAmount })
+    : '-'
   const payable = payment?.payable
   const payableInvoice = payable?.__typename === 'Invoice' && [payable]
   const requestPaymentInvoices = payable?.__typename === 'PaymentRequest' && payable?.invoices
@@ -452,14 +497,15 @@ const PaymentDetails = () => {
               <div className="flex flex-1 flex-col gap-3">
                 <InfoLine
                   isBold
+                  dataTest={PAYMENT_METHOD_TEST_ID}
                   label={translate('text_1737043182491927uocp2ydo')}
                   value={
                     <PaymentProviderChip
-                      paymentProvider={
-                        payment?.paymentType === PaymentTypeEnum.Manual
-                          ? 'manual_long'
-                          : (payment?.paymentProviderType ?? undefined)
-                      }
+                      paymentProvider={getPaymentProviderChipType({
+                        paymentType: payment?.paymentType,
+                        paymentProviderType: payment?.paymentProviderType,
+                        manualVariant: 'manual_long',
+                      })}
                     />
                   }
                 />
@@ -532,6 +578,71 @@ const PaymentDetails = () => {
             </div>
           )}
         </div>
+
+        {!loading && !!settlement && (
+          <div className="pb-12 shadow-b" data-test={X402_SETTLEMENT_SECTION_TEST_ID}>
+            <Typography variant="subhead1" className="mb-4">
+              {translate('text_17931371785650xkiprm0w5l')}
+            </Typography>
+
+            <div className="flex flex-col gap-8 lg:flex-row">
+              <div className="flex flex-1 flex-col gap-3">
+                <InfoLine
+                  dataTest={X402_SETTLEMENT_KIND_TEST_ID}
+                  label={translate('text_1793137178565mus6uoznvwg')}
+                  value={translate(X402_SETTLEMENT_KIND_TRANSLATIONS[settlement.kind])}
+                />
+                <InfoLine
+                  label={translate('text_17931371785658myuq0wn65q')}
+                  value={
+                    <TypographyWithCopy variant="body" color="grey700">
+                      {settlement.payerAddress}
+                    </TypographyWithCopy>
+                  }
+                />
+                <InfoLine
+                  label={translate('text_1793137178565zip9nfrp4y6')}
+                  value={
+                    <TypographyWithCopy variant="body" color="grey700">
+                      {settlement.payeeAddress}
+                    </TypographyWithCopy>
+                  }
+                />
+                <InfoLine
+                  label={translate('text_1793132394869jd4bmw58fz1')}
+                  value={getX402Network(settlement.network)?.name || settlement.network}
+                />
+              </div>
+
+              <div className="flex flex-1 flex-col gap-3">
+                <InfoLine
+                  label={translate('text_17931323948681cl90eupqde')}
+                  value={settlement.asset.toUpperCase()}
+                />
+                <InfoLine
+                  label={translate('text_1793137178565mv32l7ebs04')}
+                  value={intlFormatNumber(
+                    deserializeAmount(
+                      settlement.settledAmountCents,
+                      payment?.amountCurrency || CurrencyEnum.Usd,
+                    ),
+                    { currency: payment?.amountCurrency },
+                  )}
+                />
+                <InfoLine
+                  dataTest={X402_SETTLEMENT_STATUS_TEST_ID}
+                  label={translate('text_1793137178565bz1u82lwd96')}
+                  value={<Status {...settlementStatus(settlement.status, translate)} />}
+                />
+                <InfoLine
+                  dataTest={X402_SETTLEMENT_CREDIT_GRANTED_TEST_ID}
+                  label={translate('text_17931371785653ej4cmqhvso')}
+                  value={creditGranted}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         <div>
           <Typography variant="subhead1" className="mb-4">

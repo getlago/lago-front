@@ -1,16 +1,17 @@
 import type { TypographyProps as MuiTypographyProps } from '@mui/material/Typography'
 import { Icon } from 'lago-design-system'
-import { FC } from 'react'
+import { FC, ReactNode } from 'react'
 
 import { paymentAvatarMapping } from '~/components/avatarMappings'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Typography, TypographyColor } from '~/components/designSystem/Typography'
-import { ProviderTypeEnum } from '~/generated/graphql'
+import { PaymentTypeEnum, ProviderTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import Coinbase from '~/public/images/coinbase.svg'
 import { tw } from '~/styles/utils'
 
 interface PaymentProviderChipProps {
-  paymentProvider?: ProviderTypeEnum | 'manual' | 'manual_long'
+  paymentProvider?: ProviderTypeEnum | 'manual' | 'manual_long' | 'x402'
   label?: string | null | undefined
   className?: string
   textVariant?: MuiTypographyProps['variant']
@@ -25,6 +26,22 @@ export const providerLabels: Record<ProviderTypeEnum, string> = {
   [ProviderTypeEnum.Cashfree]: 'text_17367626793434wkg1rk0114',
   [ProviderTypeEnum.Flutterwave]: 'text_1749724395108m0swrna0zt4',
   [ProviderTypeEnum.Moneyhash]: 'text_1733427981129n3wxjui0bex',
+}
+
+export const getPaymentProviderChipType = ({
+  paymentType,
+  paymentProviderType,
+  manualVariant = 'manual',
+}: {
+  paymentType?: PaymentTypeEnum | null
+  paymentProviderType?: ProviderTypeEnum | null
+  manualVariant?: 'manual' | 'manual_long'
+}): PaymentProviderChipProps['paymentProvider'] => {
+  if (paymentProviderType) return paymentProviderType
+  if (paymentType === PaymentTypeEnum.Manual) return manualVariant
+  if (paymentType === PaymentTypeEnum.X402) return 'x402'
+
+  return undefined
 }
 
 export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
@@ -45,23 +62,29 @@ export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
   const manualLabel =
     paymentProvider === 'manual' ? 'text_1737110192586abtitcui0xt' : 'text_173799550683709p2rqkoqd5'
 
-  const displayLabel = isManual
-    ? translate(manualLabel)
-    : label || translate(providerLabels[paymentProvider])
+  const getDisplayLabel = (): string => {
+    if (isManual) return translate(manualLabel)
+    if (paymentProvider === 'x402') return translate('text_1793137178564a1ls2ponepm')
+
+    return label || translate(providerLabels[paymentProvider])
+  }
+
+  const renderAvatar = (): ReactNode => {
+    if (isManual) return <Icon name="receipt" color="dark" size="small" />
+    if (paymentProvider === 'x402') return <Coinbase />
+
+    return paymentAvatarMapping[paymentProvider]
+  }
 
   return (
     <div className={tw('flex flex-nowrap items-center gap-2', className)}>
       {showAvatar && (
         <Avatar className="bg-white" variant="connector" size="small">
-          {isManual ? (
-            <Icon name="receipt" color="dark" size="small" />
-          ) : (
-            paymentAvatarMapping[paymentProvider]
-          )}
+          {renderAvatar()}
         </Avatar>
       )}
       <Typography variant={textVariant} color={textColor} noWrap>
-        {displayLabel}
+        {getDisplayLabel()}
       </Typography>
     </div>
   )

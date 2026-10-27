@@ -8,12 +8,16 @@ import {
 } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactElement } from 'react'
+import { generatePath } from 'react-router'
 
 import { SELECTOR_HOVER_ACTIONS_TEST_ID } from '~/components/designSystem/Selector'
 import { initializeTranslations } from '~/core/apolloClient'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { X402_INTEGRATION_ROUTE } from '~/core/router'
 import {
   FeatureFlagEnum,
   GetBillingEntitiesDocument,
+  GetX402IntegrationsListDocument,
   IntegrationsSettingDocument,
   PremiumIntegrationTypeEnum,
 } from '~/generated/graphql'
@@ -25,6 +29,7 @@ import Integrations, {
   INTEGRATIONS_SALESFORCE_TEST_ID,
   INTEGRATIONS_SEGMENT_TEST_ID,
   INTEGRATIONS_STRIPE_TEST_ID,
+  INTEGRATIONS_X402_TEST_ID,
 } from '../Integrations'
 
 // Mock dialog components that transitively import @nangohq/frontend (ESM)
@@ -78,6 +83,12 @@ jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
     open: jest.fn(),
     close: jest.fn(),
   }),
+}))
+
+const mockOpenAddX402Dialog = jest.fn()
+
+jest.mock('~/components/settings/integrations/AddX402Dialog', () => ({
+  useAddX402Dialog: () => ({ openAddX402Dialog: mockOpenAddX402Dialog }),
 }))
 
 const mockRefetch = jest.fn()
@@ -208,6 +219,36 @@ function netsuiteConnectedMock(): TestMocksType {
     },
     emptyBillingEntitiesMock(),
   ]
+}
+
+function x402ConnectionsMock(count: number, delay = 0): TestMocksType[number] {
+  return {
+    delay,
+    request: { query: GetX402IntegrationsListDocument, variables: { limit: 1 } },
+    result: {
+      data: {
+        x402Connections: {
+          __typename: 'X402ConnectionObjectCollection',
+          collection: Array.from({ length: count }, (_, index) => ({
+            __typename: 'X402ConnectionObject',
+            id: `x402-${index}`,
+            name: 'Coinbase Devnet',
+            code: 'coinbase_devnet',
+            cdpApiKeyId: '••••••••…abc',
+            cdpApiKeySecret: '••••••••…xyz',
+            networks: ['eip155:84532'],
+            allowedOrigins: ['https://example.com'],
+            autoCreateCustomers: true,
+            payoutAddresses: {
+              __typename: 'X402PayoutAddresses',
+              evm: '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
+              svm: null,
+            },
+          })),
+        },
+      },
+    },
+  }
 }
 
 const customRender = (
@@ -478,6 +519,73 @@ describe('Integrations', () => {
       await user.click(netsuiteSelector)
 
       expect(testMockNavigateFn).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('Coinbase x402', () => {
+    it('is hidden when the organization does not have the x402_payments flag', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByTestId(INTEGRATIONS_STRIPE_TEST_ID)).toBeInTheDocument()
+      })
+      expect(screen.queryByTestId(INTEGRATIONS_X402_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('is hidden when the license is not premium, even with the flag', async () => {
+      mockIsPremium = false
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.X402Payments)
+
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByTestId(INTEGRATIONS_STRIPE_TEST_ID)).toBeInTheDocument()
+      })
+      expect(screen.queryByTestId(INTEGRATIONS_X402_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('opens the connection dialog when nothing is connected yet', async () => {
+      const user = userEvent.setup()
+
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.X402Payments)
+
+      await prepare({ mocks: [...emptyIntegrationsMock(), x402ConnectionsMock(0)] })
+      await user.click(await screen.findByTestId(INTEGRATIONS_X402_TEST_ID))
+
+      expect(mockOpenAddX402Dialog).toHaveBeenCalledTimes(1)
+      expect(testMockNavigateFn).not.toHaveBeenCalled()
+    })
+
+    it('shows the connection once it loads after the other integrations', async () => {
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.X402Payments)
+
+      await prepare({ mocks: [...emptyIntegrationsMock(), x402ConnectionsMock(1, 50)] })
+
+      await waitFor(() => {
+        expect(screen.getByTestId(INTEGRATIONS_X402_TEST_ID)).toHaveTextContent('Connected')
+      })
+    })
+
+    it('navigates to its connections when one is connected', async () => {
+      const user = userEvent.setup()
+
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.X402Payments)
+
+      await prepare({ mocks: [...emptyIntegrationsMock(), x402ConnectionsMock(1)] })
+
+      const selector = await screen.findByTestId(INTEGRATIONS_X402_TEST_ID)
+
+      await waitFor(() => {
+        expect(selector).toHaveTextContent('Connected')
+      })
+      await user.click(selector)
+
+      expect(testMockNavigateFn).toHaveBeenCalledWith(
+        generatePath(X402_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
+      expect(mockOpenAddX402Dialog).not.toHaveBeenCalled()
     })
   })
 

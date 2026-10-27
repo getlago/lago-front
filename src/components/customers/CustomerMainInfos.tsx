@@ -3,6 +3,9 @@ import { gql } from '@apollo/client'
 import { CustomerConnectionsSection } from '~/components/customers/connectionsSection/CustomerConnectionsSection'
 import { CustomerInfoRows } from '~/components/customers/CustomerInfoRows'
 import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
+import { InfoRow } from '~/components/InfoRow'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { CustomerDetailsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -28,6 +31,7 @@ gql`
     country
     city
     url
+    x402AgentAddress
     zipcode
     shippingAddress {
       addressLine1
@@ -106,6 +110,8 @@ gql`
   }
 `
 
+export const CUSTOMER_X402_SECTION_TEST_ID = 'customer-x402-section'
+
 interface CustomerMainInfosProps {
   loading?: boolean
   customer?: CustomerDetailsFragment | null
@@ -147,6 +153,18 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
       <div className="flex flex-col pb-12 shadow-b" data-id="customer-info-list">
         <CustomerInfoRows customer={customer} />
       </div>
+
+      {!!customer.x402AgentAddress && (
+        <div className="flex flex-col py-12 shadow-b" data-test={CUSTOMER_X402_SECTION_TEST_ID}>
+          <PageSectionTitle className="mb-4" title={translate('text_1791465078864pyzrolrd0er')} />
+          <InfoRow>
+            <Typography variant="caption">{translate('text_1793137178564e88z4940spd')}</Typography>
+            <TypographyWithCopy color="textSecondary">
+              {customer.x402AgentAddress}
+            </TypographyWithCopy>
+          </InfoRow>
+        </div>
+      )}
 
       <div className="mt-12">
         <CustomerConnectionsSection customer={customer} />

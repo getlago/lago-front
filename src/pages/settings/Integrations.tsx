@@ -27,6 +27,7 @@ import { useAddMoneyhashDialog } from '~/components/settings/integrations/AddMon
 import { useAddNetsuiteDialog } from '~/components/settings/integrations/AddNetsuiteDialog'
 import { useAddSalesforceDialog } from '~/components/settings/integrations/AddSalesforceDialog'
 import { useAddStripeDialog } from '~/components/settings/integrations/AddStripeDialog'
+import { useAddX402Dialog } from '~/components/settings/integrations/AddX402Dialog'
 import { useAddXeroDialog } from '~/components/settings/integrations/AddXeroDialog'
 import {
   DOCUMENTATION_AIRBYTE,
@@ -50,12 +51,14 @@ import {
   STRIPE_INTEGRATION_ROUTE,
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
   useNavigate,
+  X402_INTEGRATION_ROUTE,
   XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
 import {
   FeatureFlagEnum,
   PremiumIntegrationTypeEnum,
   useGetBillingEntitiesQuery,
+  useGetX402IntegrationsListQuery,
   useIntegrationsSettingQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -66,6 +69,7 @@ import Airbyte from '~/public/images/airbyte.svg'
 import Anrok from '~/public/images/anrok.svg'
 import Avalara from '~/public/images/avalara.svg'
 import Cashfree from '~/public/images/cashfree.svg'
+import Coinbase from '~/public/images/coinbase.svg'
 import Flutterwave from '~/public/images/flutterwave.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import HightTouch from '~/public/images/hightouch.svg'
@@ -80,6 +84,7 @@ import Stripe from '~/public/images/stripe.svg'
 import Xero from '~/public/images/xero.svg'
 
 export const INTEGRATIONS_STRIPE_TEST_ID = 'integrations-stripe'
+export const INTEGRATIONS_X402_TEST_ID = 'integrations-x402'
 export const INTEGRATIONS_HUBSPOT_TEST_ID = 'integrations-hubspot'
 export const INTEGRATIONS_NETSUITE_TEST_ID = 'integrations-netsuite'
 export const INTEGRATIONS_SALESFORCE_TEST_ID = 'integrations-salesforce'
@@ -146,6 +151,7 @@ const Integrations = () => {
   const { isPremium } = useCurrentUser()
   const { organization: { premiumIntegrations } = {}, hasFeatureFlag } = useOrganizationInfos()
   const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
+  const isX402Enabled = isPremium && hasFeatureFlag(FeatureFlagEnum.X402Payments)
 
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { openAddAnrokDialog } = useAddAnrokDialog()
@@ -161,11 +167,18 @@ const Integrations = () => {
   const { openAddFlutterwaveDialog } = useAddFlutterwaveDialog()
   const { openAddHubspotDialog } = useAddHubspotDialog()
   const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
+  const { openAddX402Dialog } = useAddX402Dialog()
 
   const { data, loading } = useIntegrationsSettingQuery({
     variables: { limit: 1000 },
     nextFetchPolicy: 'cache-and-network',
   })
+
+  const { data: x402Data, loading: x402Loading } = useGetX402IntegrationsListQuery({
+    variables: { limit: 1 },
+    skip: !isX402Enabled,
+  })
+  const hasX402Integration = !!x402Data?.x402Connections?.collection.length
 
   const { data: billingEntitiesData } = useGetBillingEntitiesQuery()
 
@@ -283,10 +296,11 @@ const Integrations = () => {
                 integrationGroup: IntegrationsTabsOptionsEnum.Lago,
               }),
             ],
+            snapshotKey: JSON.stringify([isX402Enabled, x402Loading, hasX402Integration]),
             content: (
               <SettingsPaddedContainer className="gap-8">
                 <SettingsListWrapper>
-                  {!!loading ? (
+                  {loading || x402Loading ? (
                     <SettingsListItemLoadingSkeleton count={2} />
                   ) : (
                     <SettingsListItem>
@@ -399,6 +413,37 @@ const Integrations = () => {
                           }
                         }}
                       />
+                      {isX402Enabled && (
+                        <Selector
+                          fullWidth
+                          data-test={INTEGRATIONS_X402_TEST_ID}
+                          title={translate('text_1793132394868hxknwaa4mx4')}
+                          subtitle={translate('text_62b1edddbf5f461ab9712795')}
+                          icon={
+                            <Avatar size="big" variant="connector-full">
+                              <Coinbase />
+                            </Avatar>
+                          }
+                          endContent={getEndContent({ showConnectedBadge: hasX402Integration })}
+                          hoverActions={getHoverActions(
+                            hasX402Integration,
+                            generatePath(X402_INTEGRATION_ROUTE, {
+                              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                            }),
+                          )}
+                          onClick={() => {
+                            if (hasX402Integration) {
+                              navigate(
+                                generatePath(X402_INTEGRATION_ROUTE, {
+                                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                                }),
+                              )
+                            } else {
+                              openAddX402Dialog()
+                            }
+                          }}
+                        />
+                      )}
                       {!isProductCatalogEnabled && (
                         <Selector
                           title={translate('text_63e26d8308d03687188221a5')}
