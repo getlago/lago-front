@@ -149,6 +149,22 @@ describe('useEditCustomerPortalFieldsDialog', () => {
       expect(checkboxFor(CustomerPortalEditableFieldEnum.TaxIdentificationNumber)).not.toBeChecked()
     })
 
+    it('THEN should keep the loaded fields checked when the host re-renders after opening', () => {
+      const { result, rerender } = renderHook(() => useEditCustomerPortalFieldsDialog(), {
+        wrapper: customWrapper,
+      })
+
+      act(() => {
+        result.current.openEditCustomerPortalFieldsDialog({ editableFields })
+      })
+      rerender()
+
+      render(mockFormDialogOpen.mock.calls[0][0].children)
+
+      expect(checkboxFor(CustomerPortalEditableFieldEnum.Name)).toBeChecked()
+      expect(checkboxFor(CustomerPortalEditableFieldEnum.City)).toBeChecked()
+    })
+
     it('THEN should not offer the document locale, which the portal form cannot edit', () => {
       renderDialogContent(editableFields)
 

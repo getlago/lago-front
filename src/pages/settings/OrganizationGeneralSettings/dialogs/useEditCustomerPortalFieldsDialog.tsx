@@ -39,6 +39,9 @@ const toFormValues = (
     ]),
   ) as EditCustomerPortalFieldsFormValues
 
+// Built once: a new defaultValues object on each render makes the form reset to it, unchecking the loaded fields
+const DEFAULT_FORM_VALUES = toFormValues([])
+
 type EditCustomerPortalFieldsDialogData = {
   editableFields: CustomerPortalEditableFieldEnum[]
 }
@@ -52,7 +55,7 @@ export const useEditCustomerPortalFieldsDialog = () => {
   const [updateEditableFields] = useUpdateOrganizationCustomerPortalEditableFieldsMutation()
 
   const form = useAppForm({
-    defaultValues: toFormValues([]),
+    defaultValues: DEFAULT_FORM_VALUES,
     onSubmit: async ({ value }) => {
       const customerPortalEditableFields = Object.values(CustomerPortalEditableFieldEnum).filter(
         (field) => value[field],
@@ -80,7 +83,7 @@ export const useEditCustomerPortalFieldsDialog = () => {
   const openEditCustomerPortalFieldsDialog = ({
     editableFields,
   }: EditCustomerPortalFieldsDialogData) => {
-    form.reset(toFormValues(editableFields))
+    form.reset(toFormValues(editableFields), { keepDefaultValues: true })
 
     void formDialog
       .open({
