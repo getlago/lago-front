@@ -7,12 +7,13 @@ import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPl
 import WalletAlerts, {
   WALLET_ALERT_ACTIONS_DATA_TEST,
   WALLET_ALERT_EDIT_BUTTON_TEST_ID,
+  WALLET_ALERT_NOTIFY_WHEN_RESOLVED_TEST_ID,
   WALLET_ALERT_RECURRING_ROW_LABEL_TEST_ID,
   WALLET_ALERTS_EMPTY_TEST_ID,
   WALLET_ALERTS_LIST_TEST_ID,
   WALLET_ALERTS_LOADING_TEST_ID,
 } from '~/components/wallets/WalletAlerts'
-import { AlertTypeEnum, WalletStatusEnum } from '~/generated/graphql'
+import { AlertTypeEnum, NotifyOnEnum, WalletStatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 let mockIsPremium = true
@@ -60,7 +61,9 @@ const mockAlert = {
   walletId: 'wallet-1',
   code: 'low-balance',
   name: 'Low Balance Alert',
-  thresholds: [{ code: 'threshold-1', recurring: false, value: '1000' }],
+  thresholds: [
+    { code: 'threshold-1', recurring: false, value: '1000', notifyOn: [NotifyOnEnum.Triggered] },
+  ],
 }
 
 describe('WalletAlerts', () => {
@@ -170,7 +173,12 @@ describe('WalletAlerts', () => {
                   ...mockAlert,
                   thresholds: [
                     ...mockAlert.thresholds,
-                    { code: 'recurring-1', recurring: true, value: '100' },
+                    {
+                      code: 'recurring-1',
+                      recurring: true,
+                      value: '100',
+                      notifyOn: [NotifyOnEnum.Triggered],
+                    },
                   ],
                 },
               ],
@@ -184,6 +192,54 @@ describe('WalletAlerts', () => {
         expect(screen.getByTestId(WALLET_ALERT_RECURRING_ROW_LABEL_TEST_ID)).toHaveTextContent(
           /^Then every drop of$/,
         )
+      })
+    })
+  })
+
+  describe('GIVEN thresholds with a "Notify when resolved" setting', () => {
+    describe('WHEN the alert is displayed', () => {
+      it('THEN should show the column with True or False per threshold, recurring included', () => {
+        mockUseGetWalletAlertsQuery.mockReturnValue({
+          data: {
+            walletAlerts: {
+              collection: [
+                {
+                  ...mockAlert,
+                  thresholds: [
+                    {
+                      code: 'warn',
+                      recurring: false,
+                      value: '800',
+                      notifyOn: [NotifyOnEnum.Triggered],
+                    },
+                    {
+                      code: 'critical',
+                      recurring: false,
+                      value: '500',
+                      notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+                    },
+                    {
+                      code: 'every',
+                      recurring: true,
+                      value: '100',
+                      notifyOn: [NotifyOnEnum.Triggered],
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+          loading: false,
+        })
+
+        render(<WalletAlerts wallet={mockWallet} />)
+
+        expect(screen.getByText('Notify when resolved')).toBeInTheDocument()
+        expect(
+          screen
+            .getAllByTestId(WALLET_ALERT_NOTIFY_WHEN_RESOLVED_TEST_ID)
+            .map((cell) => cell.textContent),
+        ).toEqual(['False', 'True', 'False'])
       })
     })
   })

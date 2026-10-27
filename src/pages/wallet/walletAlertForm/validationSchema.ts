@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
-import { AlertTypeEnum, ThresholdInput } from '~/generated/graphql'
+import { refineThresholdsNotifyOn } from '~/components/alerts/utils'
+import { AlertTypeEnum, NotifyOnEnum, ThresholdInput } from '~/generated/graphql'
 
 /**
  * Zod re-map of the legacy Yup schema that lived inline in
@@ -41,6 +42,7 @@ const thresholdSchema = z.object({
   value: z.string().refine((value) => value !== '' && !Number.isNaN(Number(value)), {
     message: REQUIRED_ERROR,
   }),
+  notifyOn: z.array(z.enum(NotifyOnEnum)).nullish(),
 })
 
 export const walletAlertValidationSchema = z.object({
@@ -52,7 +54,7 @@ export const walletAlertValidationSchema = z.object({
     .union([z.enum(AlertTypeEnum), z.literal('')])
     .optional()
     .refine((value) => !!value, { message: REQUIRED_ERROR }),
-  thresholds: z.array(thresholdSchema),
+  thresholds: z.array(thresholdSchema).superRefine(refineThresholdsNotifyOn),
 })
 
 /**
@@ -78,4 +80,5 @@ export const EMPTY_WALLET_ALERT_THRESHOLD: ThresholdInput = {
   code: '',
   recurring: false,
   value: '',
+  notifyOn: [NotifyOnEnum.Triggered],
 }
