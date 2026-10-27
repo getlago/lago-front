@@ -1,15 +1,13 @@
 /* Opt-in elevation. Local theme boundaries also cover portalled content. */
 :root,
 [data-color-theme='light'] {
-  --v2-shadow-interactive:
-    0 0 0 0.5px rgb(0 0 0 / 0.125), 0 1px 1px rgb(0 0 0 / 0.04), 0 2px 4px rgb(0 0 0 / 0.04);
+  --v2-shadow-interactive: 0 0 0 0.5px rgb(0 0 0 / 0.125), 0 1px 1px rgb(0 0 0 / 0.04), 0 2px 4px rgb(0 0 0 / 0.04);
   --v2-shadow-floating: 0 8px 24px rgb(0 0 0 / 0.12), 0 2px 6px rgb(0 0 0 / 0.06);
   --v2-shadow-dialog: 0 16px 48px rgb(0 0 0 / 0.16), 0 2px 8px rgb(0 0 0 / 0.08);
 }
 
 [data-color-theme='dark'] {
-  --v2-shadow-interactive:
-    0 0 0 0.5px rgb(0 0 0 / 0.125), 0 1px 1px rgb(0 0 0 / 0.04), 0 2px 4px rgb(0 0 0 / 0.04);
-  --v2-shadow-floating: 0 8px 24px rgb(0 0 0 / 0.35), 0 2px 6px rgb(0 0 0 / 0.2);
-  --v2-shadow-dialog: 0 16px 48px rgb(0 0 0 / 0.4), 0 2px 8px rgb(0 0 0 / 0.2);
+  --v2-shadow-interactive: 0 0 0 0.5px rgb(0 0 0 / 0.125), 0 1px 1px rgb(0 0 0 / 0.04), 0 2px 4px rgb(0 0 0 / 0.04);
+  --v2-shadow-floating: 0 8px 24px rgb(0 0 0 / 0.35), 0 2px 6px rgb(0 0 0 / 0.20);
+  --v2-shadow-dialog: 0 16px 48px rgb(0 0 0 / 0.40), 0 2px 8px rgb(0 0 0 / 0.20);
 }
