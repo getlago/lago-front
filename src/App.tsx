@@ -20,6 +20,7 @@ import {
   envGlobalVar,
   initializeApolloClient,
   initializeTranslations,
+  listenToCrossTabLogOut,
   logOut,
   setAuthErrorHandler,
 } from '~/core/apolloClient'
@@ -75,6 +76,16 @@ const App = () => {
 
     initializeServices()
   }, [])
+
+  useEffect(() => {
+    if (!client) return
+
+    // Resets the location history like the in-app logout it mirrors, so the next
+    // user cannot go back into the previous one's pages.
+    return listenToCrossTabLogOut(() => {
+      logOut(client, true)
+    })
+  }, [client])
 
   // Adds explicit apollo messages only in a dev environment
   if (appEnv === AppEnvEnum.development) {

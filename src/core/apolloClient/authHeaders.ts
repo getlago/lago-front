@@ -15,7 +15,7 @@ import { getItemFromLS } from '~/core/utils/localStorage'
 // breaks the portal when that token is expired (the API rejects it before
 // reading customer-portal-token), and sending the portal token on admin
 // routes leaks it on every request after visiting any portal link.
-const isCustomerPortalPath = (pathname: string): boolean =>
+export const isCustomerPortalPath = (pathname: string): boolean =>
   !!matchPath(`${CUSTOMER_PORTAL_ROUTE}/*`, pathname)
 
 type AdminCredentials = { token: string | undefined; organizationId: string | undefined }
