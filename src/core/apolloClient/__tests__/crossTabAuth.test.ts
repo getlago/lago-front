@@ -86,14 +86,15 @@ describe('listenToCrossTabLogOut', () => {
     })
 
     describe('WHEN that tab logged back in before the removal arrived', () => {
-      // Both events are delivered; acting on the stale removal tore this tab's
-      // cache down and signed it out of a session that is live again.
-      it('THEN should keep this tab signed in', () => {
-        localStorage.setItem('auth_token', 'new-session-jwt')
+      // Skipping the teardown here left this tab rendering the previous
+      // account's cache while the auth link already signed requests with the
+      // token the other tab had just stored.
+      it('THEN should still tear this tab down', () => {
+        localStorage.setItem('auth_token', 'other-account-jwt')
 
         removeAuthToken()
 
-        expect(onCrossTabLogOut).not.toHaveBeenCalled()
+        expect(onCrossTabLogOut).toHaveBeenCalledTimes(1)
       })
     })
 
