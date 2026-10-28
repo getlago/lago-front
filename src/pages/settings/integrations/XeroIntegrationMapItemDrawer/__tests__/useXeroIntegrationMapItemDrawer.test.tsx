@@ -6,6 +6,7 @@ import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import { MappableTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import { stringifyOptionValue } from '../stringifyOptionValue'
 import { XeroIntegrationMapItemDrawerProps } from '../types'
 import { useXeroIntegrationMapItemDrawer } from '../useXeroIntegrationMapItemDrawer'
 
@@ -28,8 +29,16 @@ const mockUpdateMapping = jest.fn()
 const mockDeleteMapping = jest.fn()
 const mockCRUDArgs = jest.fn()
 
+const mockItemsArgs = jest.fn()
+
 const SEEDED_ITEM = { externalId: 'ext-1', externalName: 'Sales', externalAccountCode: '200' }
 const OTHER_ITEM = { externalId: 'ext-2', externalName: 'Services', externalAccountCode: '300' }
+
+const mockComboboxData = [SEEDED_ITEM, OTHER_ITEM].map((item) => ({
+  label: `${item.externalName} (${item.externalAccountCode})`,
+  description: item.externalId,
+  value: stringifyOptionValue(item),
+}))
 
 jest.mock('../useXeroIntegrationMappingCRUD', () => ({
   useXeroIntegrationMappingCRUD: (...args: unknown[]) => {
@@ -42,20 +51,19 @@ jest.mock('../useXeroIntegrationMappingCRUD', () => ({
       deleteMapping: mockDeleteMapping,
       updateCollectionMapping: jest.fn(),
       updateMapping: mockUpdateMapping,
-      getXeroIntegrationItems: jest.fn(),
-      initialItemFetchLoading: false,
-      initialItemFetchData: {
-        integrationItems: {
-          collection: [
-            { id: 'item-1', ...SEEDED_ITEM },
-            { id: 'item-2', ...OTHER_ITEM },
-          ],
-        },
-      },
-      accountItemsLoading: false,
-      itemsLoading: false,
-      triggerAccountItemRefetch: jest.fn(),
-      triggerItemRefetch: jest.fn(),
+    }
+  },
+}))
+
+jest.mock('../useXeroIntegrationItems', () => ({
+  useXeroIntegrationItems: (...args: unknown[]) => {
+    mockItemsArgs(...args)
+
+    return {
+      comboboxData: mockComboboxData,
+      isLoading: false,
+      searchQuery: undefined,
+      refresh: jest.fn(),
     }
   },
 }))
@@ -131,10 +139,16 @@ describe('useXeroIntegrationMapItemDrawer', () => {
         expect(getComboBoxInput()).toHaveValue('Sales (200)')
       })
 
-      it('THEN should scope the CRUD hook to the opened type and integration', async () => {
+      it('THEN should scope the CRUD hook to the opened type', async () => {
         await openDrawerAndRenderBody()
 
-        expect(mockCRUDArgs).toHaveBeenCalledWith(MappableTypeEnum.AddOn, INTEGRATION_ID)
+        expect(mockCRUDArgs).toHaveBeenCalledWith(MappableTypeEnum.AddOn)
+      })
+
+      it('THEN should scope the items query to the opened type and integration', async () => {
+        await openDrawerAndRenderBody()
+
+        expect(mockItemsArgs).toHaveBeenCalledWith(MappableTypeEnum.AddOn, INTEGRATION_ID)
       })
     })
 

@@ -1,25 +1,24 @@
-import { useMemo } from 'react'
-
 import { Button } from '~/components/designSystem/Button'
-import { ComboBoxProps } from '~/components/form'
-import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
+import { BasicComboBoxData, ComboBoxProps } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
-import { stringifyOptionValue } from './stringifyOptionValue'
-import { useXeroIntegrationMappingCRUD } from './useXeroIntegrationMappingCRUD'
 import { xeroMappingDefaultValues } from './validationSchema'
 
 type XeroIntegrationMapItemFormWrapperProps = {
   billingEntityKey: string
-  formType: MappingTypeEnum | MappableTypeEnum | undefined
-  integrationId: string | undefined
+  comboboxData: BasicComboBoxData[]
+  isLoading: boolean
+  searchQuery: ComboBoxProps['searchQuery']
+  onRefresh: () => void
 }
 
 const defaultProps: XeroIntegrationMapItemFormWrapperProps = {
   billingEntityKey: '',
-  formType: undefined,
-  integrationId: undefined,
+  comboboxData: [],
+  isLoading: false,
+  searchQuery: undefined,
+  onRefresh: () => {},
 }
 
 export const XeroIntegrationMapItemFormWrapper = withForm({
@@ -28,56 +27,15 @@ export const XeroIntegrationMapItemFormWrapper = withForm({
   render: function XeroIntegrationMapItemFormWrapperRender({
     form,
     billingEntityKey,
-    formType,
-    integrationId,
+    comboboxData,
+    isLoading,
+    searchQuery,
+    onRefresh,
   }) {
     const { translate } = useInternationalization()
 
-    const {
-      getXeroIntegrationItems,
-      initialItemFetchLoading,
-      initialItemFetchData,
-      accountItemsLoading,
-      itemsLoading,
-      triggerAccountItemRefetch,
-      triggerItemRefetch,
-    } = useXeroIntegrationMappingCRUD(formType, integrationId)
-
-    const isLoading = initialItemFetchLoading || itemsLoading || accountItemsLoading
-
-    const comboboxData = useMemo(() => {
-      return (initialItemFetchData?.integrationItems?.collection || []).map((item) => {
-        const { externalId, externalName, externalAccountCode } = item
-
-        return {
-          label: `${externalName} (${externalAccountCode})`,
-          description: externalId,
-          value: stringifyOptionValue({
-            externalId,
-            externalName: externalName || '',
-            externalAccountCode: externalAccountCode || '',
-          }),
-        }
-      })
-    }, [initialItemFetchData?.integrationItems?.collection])
-
-    const isAccountContext = formType === MappingTypeEnum.Account
-
-    const searchQuery = !!integrationId
-      ? (getXeroIntegrationItems as unknown as ComboBoxProps['searchQuery'])
-      : undefined
-
     const helperText =
       !isLoading && !comboboxData.length ? translate('text_6630ec823adac97d3bf0fb4b') : undefined
-
-    const handleRefresh = () => {
-      if (isAccountContext) {
-        triggerAccountItemRefetch()
-        return
-      }
-
-      triggerItemRefetch()
-    }
 
     return (
       <div className="mb-8 flex flex-row gap-3">
@@ -102,7 +60,7 @@ export const XeroIntegrationMapItemFormWrapper = withForm({
           variant="quaternary"
           disabled={isLoading}
           loading={isLoading}
-          onClick={handleRefresh}
+          onClick={onRefresh}
         />
       </div>
     )
