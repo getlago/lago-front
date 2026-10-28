@@ -4645,6 +4645,7 @@ export enum EventCategoryEnum {
   AddOns = 'ADD_ONS',
   Alerts = 'ALERTS',
   BillableMetrics = 'BILLABLE_METRICS',
+  Contracts = 'CONTRACTS',
   Coupons = 'COUPONS',
   CreditNotes = 'CREDIT_NOTES',
   Customers = 'CUSTOMERS',

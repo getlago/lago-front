@@ -94,8 +94,8 @@ jest.mock('~/hooks/useWebhookEventTypes', () => ({
         items: [{ id: 'invoice_created', label: 'invoice.created', sublabel: 'Invoice created' }],
       },
       {
-        id: 'CONTRACT',
-        label: 'Contract',
+        id: 'CONTRACTS',
+        label: 'Contracts',
         items: [
           {
             id: 'contract_rate_card_updated',
@@ -262,7 +262,7 @@ describe('WebhookForm', () => {
       const user = userEvent.setup()
 
       renderWithParams(<WebhookForm />, { webhookId: 'webhook-123' })
-      expect(screen.getByText('0 / 1')).toBeInTheDocument()
+      expect(screen.getAllByText('0 / 1')).toHaveLength(2)
       await user.type(
         screen.getByPlaceholderText('text_1770822522308u2ptsqw79ns'),
         'invoice.created',
