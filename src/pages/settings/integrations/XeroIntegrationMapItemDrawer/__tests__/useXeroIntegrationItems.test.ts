@@ -24,18 +24,18 @@ const createWrapper = (mocks: TestMocksType) => {
     })
 }
 
+const buildItem = (id: string, name: string, code: string) => ({
+  __typename: 'IntegrationItem',
+  id,
+  externalId: `ext-${id}`,
+  externalName: name,
+  externalAccountCode: code,
+  itemType: 'standard',
+})
+
 const buildGetItemsMock = (
   variables: Record<string, unknown> = {},
-  collection: Array<Record<string, unknown>> = [
-    {
-      __typename: 'IntegrationItem',
-      id: 'item-1',
-      externalId: 'ext-1',
-      externalName: 'External Item',
-      externalAccountCode: 'ACC001',
-      itemType: 'standard',
-    },
-  ],
+  collection: Array<Record<string, unknown>> = [buildItem('1', 'External Item', 'ACC001')],
 ) => ({
   request: {
     query: GetXeroIntegrationItemsDocument,
@@ -85,33 +85,29 @@ const buildAccountsRefetchMock = () => ({
 describe('useXeroIntegrationItems', () => {
   describe('GIVEN no integrationId', () => {
     describe('WHEN the hook renders', () => {
-      it('THEN should expose no searchQuery', () => {
+      it('THEN should not query and should expose no search', () => {
         const { result } = renderHook(
           () => useXeroIntegrationItems(MappableTypeEnum.BillableMetric, undefined),
           { wrapper: createWrapper([]) },
         )
 
-        expect(result.current.searchQuery).toBeUndefined()
-        expect(result.current.comboboxData).toEqual([])
-        expect(result.current.isLoading).toBe(false)
+        expect(result.current.search).toBeUndefined()
+        expect(result.current.items).toEqual([])
+        expect(result.current.searchResults).toEqual([])
       })
     })
   })
 
   describe('GIVEN an integrationId', () => {
-    describe('WHEN the search query is executed', () => {
-      it('THEN should map the fetched items into combobox options', async () => {
+    describe('WHEN the hook mounts', () => {
+      it('THEN should load the unfiltered list on its own', async () => {
         const { result } = renderHook(
           () => useXeroIntegrationItems(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
           { wrapper: createWrapper([buildGetItemsMock()]) },
         )
 
-        await act(async () => {
-          await result.current.searchQuery?.()
-        })
-
         await waitFor(() => {
-          expect(result.current.comboboxData).toEqual([
+          expect(result.current.items).toEqual([
             {
               label: 'External Item (ACC001)',
               description: 'ext-1',
@@ -125,59 +121,43 @@ describe('useXeroIntegrationItems', () => {
         })
       })
 
-      it('THEN should merge the caller searchTerm with the injected variables', async () => {
-        const { result } = renderHook(
-          () => useXeroIntegrationItems(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
-          { wrapper: createWrapper([buildGetItemsMock({ searchTerm: 'test' }, [])]) },
-        )
-
-        await act(async () => {
-          await result.current.searchQuery?.({ variables: { searchTerm: 'test' } })
-        })
-
-        await waitFor(() => {
-          expect(result.current.comboboxData).toEqual([])
-        })
-      })
-
-      it('THEN should read the latest integrationId when it arrives after mount', async () => {
-        const { result, rerender } = renderHook(
-          ({ id }: { id: string | undefined }) =>
-            useXeroIntegrationItems(MappableTypeEnum.BillableMetric, id),
-          {
-            initialProps: { id: undefined as string | undefined },
-            wrapper: createWrapper([buildGetItemsMock()]),
-          },
-        )
-
-        expect(result.current.searchQuery).toBeUndefined()
-
-        rerender({ id: INTEGRATION_ID })
-
-        await act(async () => {
-          await result.current.searchQuery?.()
-        })
-
-        await waitFor(() => {
-          expect(result.current.comboboxData).toHaveLength(1)
-        })
-      })
-    })
-
-    describe('WHEN the account items query is executed', () => {
-      it('THEN should request the account item type', async () => {
+      it('THEN should request the account item type in an account context', async () => {
         const { result } = renderHook(
           () => useXeroIntegrationItems(MappingTypeEnum.Account, INTEGRATION_ID),
           { wrapper: createWrapper([buildGetItemsMock({ itemType: 'account' })]) },
         )
 
+        await waitFor(() => {
+          expect(result.current.items).toHaveLength(1)
+        })
+      })
+    })
+
+    describe('WHEN a search runs', () => {
+      it('THEN should expose the results without replacing the unfiltered list', async () => {
+        const { result } = renderHook(
+          () => useXeroIntegrationItems(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
+          {
+            wrapper: createWrapper([
+              buildGetItemsMock({}, [
+                buildItem('1', 'External Item', 'ACC001'),
+                buildItem('2', 'Another Item', 'ACC002'),
+              ]),
+              buildGetItemsMock({ searchTerm: 'another' }, [
+                buildItem('2', 'Another Item', 'ACC002'),
+              ]),
+            ]),
+          },
+        )
+
+        await waitFor(() => expect(result.current.items).toHaveLength(2))
+
         await act(async () => {
-          await result.current.searchQuery?.()
+          await result.current.search?.({ variables: { searchTerm: 'another' } })
         })
 
-        await waitFor(() => {
-          expect(result.current.comboboxData).toHaveLength(1)
-        })
+        await waitFor(() => expect(result.current.searchResults).toHaveLength(1))
+        expect(result.current.items).toHaveLength(2)
       })
     })
 
@@ -185,37 +165,38 @@ describe('useXeroIntegrationItems', () => {
       it('THEN should trigger the item refetch outside of an account context', async () => {
         const { result } = renderHook(
           () => useXeroIntegrationItems(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
-          { wrapper: createWrapper([buildItemsRefetchMock()]) },
+          { wrapper: createWrapper([buildGetItemsMock(), buildItemsRefetchMock()]) },
         )
+
+        await waitFor(() => expect(result.current.isLoading).toBe(false))
 
         act(() => {
           result.current.refresh()
         })
 
-        await waitFor(() => {
-          expect(result.current.isLoading).toBe(true)
-        })
-        await waitFor(() => {
-          expect(result.current.isLoading).toBe(false)
-        })
+        await waitFor(() => expect(result.current.isLoading).toBe(true))
+        await waitFor(() => expect(result.current.isLoading).toBe(false))
       })
 
       it('THEN should trigger the account refetch in an account context', async () => {
         const { result } = renderHook(
           () => useXeroIntegrationItems(MappingTypeEnum.Account, INTEGRATION_ID),
-          { wrapper: createWrapper([buildAccountsRefetchMock()]) },
+          {
+            wrapper: createWrapper([
+              buildGetItemsMock({ itemType: 'account' }),
+              buildAccountsRefetchMock(),
+            ]),
+          },
         )
+
+        await waitFor(() => expect(result.current.isLoading).toBe(false))
 
         act(() => {
           result.current.refresh()
         })
 
-        await waitFor(() => {
-          expect(result.current.isLoading).toBe(true)
-        })
-        await waitFor(() => {
-          expect(result.current.isLoading).toBe(false)
-        })
+        await waitFor(() => expect(result.current.isLoading).toBe(true))
+        await waitFor(() => expect(result.current.isLoading).toBe(false))
       })
     })
   })

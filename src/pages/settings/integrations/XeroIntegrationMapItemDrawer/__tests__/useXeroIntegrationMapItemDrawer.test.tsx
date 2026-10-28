@@ -60,9 +60,10 @@ jest.mock('../useXeroIntegrationItems', () => ({
     mockItemsArgs(...args)
 
     return {
-      comboboxData: mockComboboxData,
+      items: mockComboboxData,
+      searchResults: [],
       isLoading: false,
-      searchQuery: undefined,
+      search: undefined,
       refresh: jest.fn(),
     }
   },

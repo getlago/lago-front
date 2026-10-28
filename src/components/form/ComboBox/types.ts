@@ -61,6 +61,8 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'search
       searchTerm?: InputMaybe<string> | undefined
     }>
   >
+  /** Off when the options are already fetched by the caller: `searchQuery` then only runs on typing */
+  fetchOnMount?: boolean
   containerClassName?: string
   'data-test'?: string
 }

@@ -32,6 +32,7 @@ export const ComboBox = ({
   className,
   containerClassName = '',
   searchQuery,
+  fetchOnMount = true,
   emptyText,
   disableClearable = false,
   renderGroupHeader,
@@ -45,7 +46,7 @@ export const ComboBox = ({
 }: ComboBoxProps) => {
   const { translate } = useInternationalization()
 
-  const { debouncedSearch, isLoading } = useDebouncedSearch(searchQuery, loading)
+  const { debouncedSearch, isLoading } = useDebouncedSearch(searchQuery, loading, { fetchOnMount })
 
   // By default, we want to sort `options` alphabetically (by value)
   const data = useMemo(() => {

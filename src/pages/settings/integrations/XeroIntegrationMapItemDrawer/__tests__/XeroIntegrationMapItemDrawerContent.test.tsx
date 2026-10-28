@@ -1,58 +1,74 @@
-import { act, screen } from '@testing-library/react'
+import { ApolloClient, ApolloLink, ApolloProvider, InMemoryCache, Observable } from '@apollo/client'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { BrowserRouter } from 'react-router'
 
-import { ComboBoxProps } from '~/components/form'
+import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import { MappableTypeEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { render } from '~/test-utils'
 
 import { stringifyOptionValue } from '../stringifyOptionValue'
 import { xeroMappingDefaultValues } from '../validationSchema'
 import { XeroIntegrationMapItemDrawerContent } from '../XeroIntegrationMapItemDrawerContent'
 
-const SEEDED_ITEM = { externalId: 'ext-1', externalName: 'Sales', externalAccountCode: '200' }
-const OTHER_ITEM = { externalId: 'ext-2', externalName: 'Services', externalAccountCode: '300' }
+const mockRenderedOptions = jest.fn()
 
-const toOption = (item: typeof SEEDED_ITEM) => ({
-  label: `${item.externalName} (${item.externalAccountCode})`,
-  description: item.externalId,
-  value: stringifyOptionValue(item),
+// The real ComboBox renders its options through a virtualized list, which measures 0px in jsdom.
+// The spy records what each field is given, which is how the per-field option set is asserted:
+// probing the open dropdown is not deterministic when two comboboxes are on screen.
+jest.mock('~/components/form/ComboBox/ComboBox', () => {
+  const actual = jest.requireActual('~/components/form/ComboBox/ComboBox')
+
+  return {
+    ComboBox: (props: ComboBoxProps) => {
+      mockRenderedOptions(
+        props.name,
+        (props.data || []).map((option) => option.label),
+      )
+
+      return <actual.ComboBox {...props} virtualized={false} />
+    },
+  }
 })
 
-const mockComboboxData = [toOption(SEEDED_ITEM), toOption(OTHER_ITEM)]
-// What the shared query holds once one combobox has searched: the other mapping's item is gone.
-const mockSearchedComboboxData = [toOption(SEEDED_ITEM)]
-const mockSetIsSearching = { current: jest.fn<void, [boolean]>() }
+const lastOptionsFor = (billingEntityKey: string): string[] => {
+  const call = mockRenderedOptions.mock.calls
+    .filter(([name]) => name === `${billingEntityKey}.selectedElementValue`)
+    .at(-1)
 
-const mockItemsHookMounted = jest.fn()
-const mockRefresh = jest.fn()
-const mockSearchQuery = jest.fn()
-
-jest.mock('../useXeroIntegrationItems', () => ({
-  useXeroIntegrationItems: (formType: unknown, integrationId: unknown) => {
-    // The mount effect runs once per component instance holding the hook: it is what the
-    // assertions below count to prove the query is not re-instantiated per rendered tab.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    require('react').useEffect(() => {
-      mockItemsHookMounted(formType, integrationId)
-    }, [formType, integrationId])
-
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const [isSearching, setIsSearching] = require('react').useState(false)
-
-    mockSetIsSearching.current = setIsSearching
-
-    return {
-      comboboxData: isSearching ? mockSearchedComboboxData : mockComboboxData,
-      isLoading: false,
-      searchQuery: mockSearchQuery as unknown as ComboBoxProps['searchQuery'],
-      refresh: mockRefresh,
-    }
-  },
-}))
+  return (call?.[1] as string[]) ?? []
+}
 
 const INTEGRATION_ID = 'integration-1'
-const FORM_ID = 'xero-map-item-form'
+const DEBOUNCE_MS = 700
+
+const ITEM_A = { externalId: 'ext-1', externalName: 'Sales', externalAccountCode: '200' }
+const ITEM_B = { externalId: 'ext-2', externalName: 'Services', externalAccountCode: '300' }
+const ITEM_C = { externalId: 'ext-3', externalName: 'Support', externalAccountCode: '400' }
+
+const ALL_ITEMS = [ITEM_A, ITEM_B, ITEM_C]
+
+const toApiItem = (id: string, item: typeof ITEM_A) => ({
+  __typename: 'IntegrationItem',
+  id,
+  externalId: item.externalId,
+  externalName: item.externalName,
+  externalAccountCode: item.externalAccountCode,
+  itemType: 'standard',
+})
+
+const buildResponse = (items: Array<Record<string, unknown>>) => ({
+  integrationItems: {
+    __typename: 'IntegrationItemCollection',
+    collection: items,
+    metadata: {
+      __typename: 'CollectionMetadata',
+      currentPage: 1,
+      totalPages: 1,
+      totalCount: items.length,
+    },
+  },
+})
 
 const BILLING_ENTITIES = [
   { id: null, key: 'default', name: 'Default' },
@@ -60,98 +76,178 @@ const BILLING_ENTITIES = [
   { id: 'be-2', key: 'globex', name: 'Globex' },
 ]
 
-const TestHost = ({ seeded = false }: { seeded?: boolean }) => {
-  const form = useAppForm({
-    defaultValues: seeded
-      ? {
-          default: { selectedElementValue: stringifyOptionValue(SEEDED_ITEM) },
-          acme: { selectedElementValue: stringifyOptionValue(OTHER_ITEM) },
-        }
-      : xeroMappingDefaultValues,
+const getInput = (billingEntityKey: string): HTMLInputElement =>
+  document.querySelector(
+    `input[name="${billingEntityKey}.selectedElementValue"]`,
+  ) as HTMLInputElement
+
+const settle = async (ms = 50): Promise<void> => {
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, ms))
+  })
+}
+
+const renderDrawer = ({ seeded = false }: { seeded?: boolean } = {}) => {
+  mockRenderedOptions.mockClear()
+
+  const executedOperations = jest.fn()
+
+  // The app client is cache-and-network with a cache-first follow-up; a lazy query re-executed
+  // with the same variables still reaches the link, so only a real link exposes the refetches.
+  const client = new ApolloClient({
+    link: new ApolloLink((operation) => {
+      executedOperations(operation.operationName, operation.variables)
+
+      const { searchTerm } = operation.variables
+      const matching = ALL_ITEMS.filter(
+        ({ externalName }) =>
+          !searchTerm || externalName.toLowerCase().includes(String(searchTerm).toLowerCase()),
+      )
+
+      return new Observable((observer) => {
+        setTimeout(() => {
+          observer.next({
+            data: buildResponse(matching.map((item, index) => toApiItem(`item-${index}`, item))),
+          })
+          observer.complete()
+        }, 0)
+      })
+    }),
+    cache: new InMemoryCache(),
+    defaultOptions: {
+      watchQuery: {
+        fetchPolicy: 'cache-and-network',
+        nextFetchPolicy: 'cache-first',
+        errorPolicy: 'all',
+      },
+      mutate: { errorPolicy: 'all' },
+    },
   })
 
-  return (
-    <XeroIntegrationMapItemDrawerContent
-      title="Map item"
-      description="Pick a Xero item"
-      billingEntities={BILLING_ENTITIES}
-      form={form}
-      formId={FORM_ID}
-      formType={MappableTypeEnum.AddOn}
-      integrationId={INTEGRATION_ID}
-    />
+  const Host = () => {
+    const form = useAppForm({
+      defaultValues: seeded
+        ? {
+            default: { selectedElementValue: stringifyOptionValue(ITEM_A) },
+            acme: { selectedElementValue: stringifyOptionValue(ITEM_B) },
+          }
+        : xeroMappingDefaultValues,
+    })
+
+    return (
+      <XeroIntegrationMapItemDrawerContent
+        title="Map item"
+        description="Pick a Xero item"
+        billingEntities={BILLING_ENTITIES}
+        form={form}
+        formId="xero-map-item-form"
+        formType={MappableTypeEnum.AddOn}
+        integrationId={INTEGRATION_ID}
+      />
+    )
+  }
+
+  render(
+    <BrowserRouter basename="/">
+      <ApolloProvider client={client}>
+        <Host />
+      </ApolloProvider>
+    </BrowserRouter>,
   )
+
+  return { executedOperations, user: userEvent.setup({ pointerEventsCheck: 0 }) }
 }
 
 describe('XeroIntegrationMapItemDrawerContent', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
   describe('GIVEN a drawer with several billing entity tabs', () => {
-    describe('WHEN it first renders', () => {
-      it('THEN should instantiate the items query once for the whole drawer', () => {
-        render(<TestHost />)
+    describe('WHEN it opens', () => {
+      it('THEN should fetch the integration items exactly once', async () => {
+        const { executedOperations } = renderDrawer()
 
-        expect(mockItemsHookMounted).toHaveBeenCalledTimes(1)
-        expect(mockItemsHookMounted).toHaveBeenCalledWith(MappableTypeEnum.AddOn, INTEGRATION_ID)
+        await settle()
+
+        expect(executedOperations).toHaveBeenCalledTimes(1)
+        expect(executedOperations).toHaveBeenCalledWith('getXeroIntegrationItems', {
+          integrationId: INTEGRATION_ID,
+          itemType: 'standard',
+          limit: 1000,
+        })
       })
 
-      it('THEN should give the hoisted options to every rendered combobox', () => {
-        render(<TestHost />)
+      it('THEN should give the fetched options to every rendered combobox', async () => {
+        const { executedOperations } = renderDrawer({ seeded: true })
 
-        const comboboxes = document.querySelectorAll('input[name$=".selectedElementValue"]')
+        await settle()
 
-        expect(comboboxes).toHaveLength(2)
+        expect(executedOperations).toHaveBeenCalledTimes(1)
+        expect(getInput('default')).toHaveValue('Sales (200)')
+        expect(getInput('acme')).toHaveValue('Services (300)')
       })
     })
 
+    // Regression: the wrappers used to own the query, and `useDebouncedSearch` fetches on mount,
+    // so every tab switch re-ran it and blanked the combobox until it resolved.
     describe('WHEN switching billing entity tabs', () => {
-      it('THEN should not re-instantiate the items query', async () => {
-        const user = userEvent.setup({ pointerEventsCheck: 0 })
+      it('THEN should not fetch the integration items again', async () => {
+        const { executedOperations, user } = renderDrawer()
 
-        render(<TestHost />)
+        await settle()
+        expect(executedOperations).toHaveBeenCalledTimes(1)
 
         await user.click(screen.getByRole('tab', { name: 'Globex' }))
+        await settle()
+
         await user.click(screen.getByRole('tab', { name: 'Acme' }))
+        await settle()
 
-        expect(mockItemsHookMounted).toHaveBeenCalledTimes(1)
+        expect(executedOperations).toHaveBeenCalledTimes(1)
       })
     })
 
-    describe('WHEN one combobox narrows the shared list by searching', () => {
-      // Regression: the shared list used to drop the other mapping's item, and ComboBox clears a
-      // field whose selected option leaves `data` — silently wiping an untouched mapping.
-      it('THEN should keep the mapping selected in the other combobox', () => {
-        render(<TestHost seeded />)
+    // Regression: the search used to replace the list every combobox read, so it both narrowed
+    // the other combobox's options and — `ComboBox` clearing a field whose selected option leaves
+    // `data` — wiped the mapping the user was not searching in.
+    describe('WHEN one combobox searches', () => {
+      // Appending to the input rather than clearing it: emptying it is MUI's own gesture for
+      // clearing the selection, which would make these assertions test the wrong thing.
+      const searchFrom = async (
+        user: ReturnType<typeof renderDrawer>['user'],
+        billingEntityKey: string,
+        term: string,
+      ): Promise<void> => {
+        await user.type(getInput(billingEntityKey), term)
+        await settle(DEBOUNCE_MS)
+      }
 
-        const acmeInput = document.querySelector(
-          'input[name="acme.selectedElementValue"]',
-        ) as HTMLInputElement
+      it('THEN should keep the other mapping selected', async () => {
+        const { user } = renderDrawer({ seeded: true })
 
-        expect(acmeInput).toHaveValue('Services (300)')
+        await settle()
+        await searchFrom(user, 'default', 'sales')
 
-        act(() => {
-          mockSetIsSearching.current(true)
-        })
-
-        expect(document.querySelector('input[name="acme.selectedElementValue"]')).toHaveValue(
-          'Services (300)',
-        )
+        expect(getInput('acme')).toHaveValue('Services (300)')
       })
-    })
 
-    describe('WHEN the refresh button of a tab is clicked', () => {
-      it('THEN should call the hoisted refresh', async () => {
-        const user = userEvent.setup({ pointerEventsCheck: 0 })
+      it('THEN should leave the other combobox offering the options the search excluded', async () => {
+        const { user } = renderDrawer({ seeded: true })
 
-        render(<TestHost />)
+        await settle()
+        await searchFrom(user, 'default', 'sales')
 
-        const refreshButtons = screen.getAllByTestId('button')
+        // `Support` is in the unfiltered list only: reading the shared search result, acme would
+        // be scoped to the other field's `sales` hit.
+        expect(lastOptionsFor('acme')).toContain('Support (400)')
+        expect(lastOptionsFor('default')).not.toContain('Support (400)')
+      })
 
-        await user.click(refreshButtons[refreshButtons.length - 1])
+      it('THEN should keep its own selection when no result matches', async () => {
+        const { user } = renderDrawer({ seeded: true })
 
-        expect(mockRefresh).toHaveBeenCalledTimes(1)
+        await settle()
+        await searchFrom(user, 'default', 'nothingmatches')
+        await user.tab()
+
+        expect(getInput('default')).toHaveValue('Sales (200)')
       })
     })
   })

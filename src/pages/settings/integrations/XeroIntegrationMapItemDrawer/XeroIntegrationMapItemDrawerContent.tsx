@@ -19,14 +19,14 @@ type XeroIntegrationMapItemDrawerContentProps = Omit<
 }
 
 // `IntegrationMapItemDrawerContent` unmounts the non-selected billing entity tabs, so an items
-// query owned by the form wrapper would refetch — and blank the combobox — on every tab switch.
+// query owned by the form wrapper re-runs on every tab switch.
 export const XeroIntegrationMapItemDrawerContent = ({
   formType,
   integrationId,
   form,
   ...contentProps
 }: XeroIntegrationMapItemDrawerContentProps): JSX.Element => {
-  const { comboboxData, isLoading, searchQuery, refresh } = useXeroIntegrationItems(
+  const { items, searchResults, isLoading, search, refresh } = useXeroIntegrationItems(
     formType,
     integrationId,
   )
@@ -39,9 +39,10 @@ export const XeroIntegrationMapItemDrawerContent = ({
         <XeroIntegrationMapItemFormWrapper
           form={form}
           billingEntityKey={billingEntityKey}
-          comboboxData={comboboxData}
+          items={items}
+          searchResults={searchResults}
           isLoading={isLoading}
-          searchQuery={searchQuery}
+          search={search}
           onRefresh={refresh}
         />
       )}
