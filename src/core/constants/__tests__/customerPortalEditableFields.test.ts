@@ -71,12 +71,29 @@ describe('customerPortalEditableFields', () => {
   })
 
   describe('getCustomerPortalLockedFields', () => {
-    it('THEN should be the inverse of getCustomerPortalEditableFields', () => {
+    it('THEN should lock every form field that is not editable', () => {
       const locked = [CustomerPortalFieldEnum.Country, CustomerPortalFieldEnum.ShippingAddress]
 
       expect(getCustomerPortalLockedFields(getCustomerPortalEditableFields(locked))).toEqual(
-        Object.values(CustomerPortalFieldEnum).filter((field) => locked.includes(field)),
+        expect.arrayContaining(locked),
       )
+      expect(getCustomerPortalLockedFields(getCustomerPortalEditableFields(locked))).toHaveLength(2)
+    })
+
+    it('THEN should keep the current lock of fields that have no form input', () => {
+      const unknownField = 'legal_number' as CustomerPortalFieldEnum
+      const currentLocked = [
+        CustomerPortalFieldEnum.Country,
+        CustomerPortalFieldEnum.DocumentLocale,
+        unknownField,
+      ]
+
+      const locked = getCustomerPortalLockedFields(
+        Object.values(CustomerPortalFieldEnum),
+        currentLocked,
+      )
+
+      expect(locked).toEqual([CustomerPortalFieldEnum.DocumentLocale, unknownField])
     })
   })
 })

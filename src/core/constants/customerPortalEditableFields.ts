@@ -97,10 +97,19 @@ export const getCustomerPortalEditableFields = (
     ? Object.values(CustomerPortalFieldEnum).filter((field) => !lockedFields.includes(field))
     : []
 
+// Only the form fields are decided from the editable list. Any other locked value (document locale, or a field
+// the API added after this front end was built) keeps its current lock, so saving never unlocks it by omission.
 export const getCustomerPortalLockedFields = (
   editableFields: CustomerPortalFieldEnum[],
-): CustomerPortalFieldEnum[] =>
-  Object.values(CustomerPortalFieldEnum).filter((field) => !editableFields.includes(field))
+  currentLockedFields: CustomerPortalFieldEnum[] = [],
+): CustomerPortalFieldEnum[] => {
+  const formFields = CUSTOMER_PORTAL_FORM_FIELDS.map(({ field }) => field)
+
+  return [
+    ...currentLockedFields.filter((field) => !formFields.includes(field)),
+    ...formFields.filter((field) => !editableFields.includes(field)),
+  ]
+}
 
 export const hasEditableCustomerPortalFormField = (
   editableFields: CustomerPortalFieldEnum[],

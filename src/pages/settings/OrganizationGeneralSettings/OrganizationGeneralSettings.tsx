@@ -5,6 +5,7 @@ import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
 import {
+  SettingsListItem,
   SettingsListItemHeader,
   SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
@@ -70,6 +71,75 @@ const OrganizationGeneralSettings = () => {
     customerPortalEditableFields.includes(field),
   ).map(({ labelKey }) => translate(labelKey))
 
+  const renderCustomerPortalEditButton = (): JSX.Element | undefined => {
+    if (!canUpdateCustomerPortalFields || !customerPortalOrganization) return undefined
+
+    return (
+      <Button
+        variant="inline"
+        onClick={() =>
+          openEditCustomerPortalFieldsDialog({
+            lockedFields: customerPortalOrganization.customerPortalLockedFields,
+          })
+        }
+        data-test={EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID}
+      >
+        {translate('text_1776867582730ouvncumhk7p')}
+      </Button>
+    )
+  }
+
+  const renderCustomerPortalEditableFields = (): JSX.Element => {
+    if (!customerPortalEditableFieldLabels.length) {
+      return (
+        <Typography
+          variant="body"
+          color="grey700"
+          data-test={CUSTOMER_PORTAL_NO_EDITABLE_FIELDS_TEST_ID}
+        >
+          {translate('text_17927135765776z05d5xcetc')}
+        </Typography>
+      )
+    }
+
+    return (
+      <Typography variant="body" color="grey700" data-test={CUSTOMER_PORTAL_FIELDS_TEST_ID}>
+        {customerPortalEditableFieldLabels.join(', ')}
+      </Typography>
+    )
+  }
+
+  const renderCustomerPortalSection = (): JSX.Element => {
+    if (customerPortalSettingsLoading) return <SettingsListItemLoadingSkeleton count={1} />
+
+    if (hasCustomerPortalSettingsError) {
+      return (
+        <div data-test={CUSTOMER_PORTAL_SETTINGS_ERROR_TEST_ID}>
+          <GenericPlaceholder
+            title={translate('text_629728388c4d2300e2d380d5')}
+            subtitle={translate('text_629728388c4d2300e2d380eb')}
+            buttonTitle={translate('text_629728388c4d2300e2d38110')}
+            buttonVariant="primary"
+            buttonAction={() => location.reload()}
+            image={<ErrorImage width="136" height="104" />}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <SettingsListItem>
+        <SettingsListItemHeader
+          label={translate('text_17927135765711akh2267o9f')}
+          sublabel={translate('text_1792713576572546stva6wu6')}
+          action={renderCustomerPortalEditButton()}
+        />
+
+        {renderCustomerPortalEditableFields()}
+      </SettingsListItem>
+    )
+  }
+
   return (
     <>
       <MainHeader.Configure
@@ -117,62 +187,7 @@ const OrganizationGeneralSettings = () => {
             </div>
           )}
 
-          {customerPortalSettingsLoading && <SettingsListItemLoadingSkeleton count={1} />}
-
-          {hasCustomerPortalSettingsError && (
-            <div data-test={CUSTOMER_PORTAL_SETTINGS_ERROR_TEST_ID}>
-              <GenericPlaceholder
-                title={translate('text_629728388c4d2300e2d380d5')}
-                subtitle={translate('text_629728388c4d2300e2d380eb')}
-                buttonTitle={translate('text_629728388c4d2300e2d38110')}
-                buttonVariant="primary"
-                buttonAction={() => location.reload()}
-                image={<ErrorImage width="136" height="104" />}
-              />
-            </div>
-          )}
-
-          {!customerPortalSettingsLoading && !hasCustomerPortalSettingsError && (
-            <div className="flex flex-col gap-4 pb-12 shadow-b">
-              <SettingsListItemHeader
-                label={translate('text_17927135765711akh2267o9f')}
-                sublabel={translate('text_1792713576572546stva6wu6')}
-                action={
-                  canUpdateCustomerPortalFields ? (
-                    <Button
-                      variant="inline"
-                      onClick={() =>
-                        openEditCustomerPortalFieldsDialog({
-                          editableFields: customerPortalEditableFields,
-                        })
-                      }
-                      data-test={EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID}
-                    >
-                      {translate('text_1776867582730ouvncumhk7p')}
-                    </Button>
-                  ) : undefined
-                }
-              />
-
-              {customerPortalEditableFieldLabels.length ? (
-                <Typography
-                  variant="body"
-                  color="grey700"
-                  data-test={CUSTOMER_PORTAL_FIELDS_TEST_ID}
-                >
-                  {customerPortalEditableFieldLabels.join(', ')}
-                </Typography>
-              ) : (
-                <Typography
-                  variant="body"
-                  color="grey700"
-                  data-test={CUSTOMER_PORTAL_NO_EDITABLE_FIELDS_TEST_ID}
-                >
-                  {translate('text_17927135765776z05d5xcetc')}
-                </Typography>
-              )}
-            </div>
-          )}
+          {renderCustomerPortalSection()}
         </SettingsListWrapper>
       </SettingsPaddedContainer>
     </>

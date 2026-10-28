@@ -8,6 +8,7 @@ import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
 import {
   CUSTOMER_PORTAL_FORM_FIELDS,
+  getCustomerPortalEditableFields,
   getCustomerPortalLockedFields,
 } from '~/core/constants/customerPortalEditableFields'
 import {
@@ -43,14 +44,17 @@ const toFormValues = (
 const DEFAULT_FORM_VALUES = toFormValues([])
 
 type EditCustomerPortalFieldsDialogData = {
-  editableFields: CustomerPortalFieldEnum[]
+  lockedFields: CustomerPortalFieldEnum[]
 }
 
-export const useEditCustomerPortalFieldsDialog = () => {
+export const useEditCustomerPortalFieldsDialog = (): {
+  openEditCustomerPortalFieldsDialog: (data: EditCustomerPortalFieldsDialogData) => void
+} => {
   const formDialog = useFormDialog()
   const { translate } = useInternationalization()
 
   const successRef = useRef(false)
+  const lockedFieldsRef = useRef<CustomerPortalFieldEnum[]>([])
 
   const [updateEditableFields] = useUpdateOrganizationCustomerPortalEditableFieldsMutation()
 
@@ -59,6 +63,7 @@ export const useEditCustomerPortalFieldsDialog = () => {
     onSubmit: async ({ value }) => {
       const customerPortalLockedFields = getCustomerPortalLockedFields(
         Object.values(CustomerPortalFieldEnum).filter((field) => value[field]),
+        lockedFieldsRef.current,
       )
 
       const { errors } = await updateEditableFields({
@@ -81,9 +86,12 @@ export const useEditCustomerPortalFieldsDialog = () => {
   }
 
   const openEditCustomerPortalFieldsDialog = ({
-    editableFields,
-  }: EditCustomerPortalFieldsDialogData) => {
-    form.reset(toFormValues(editableFields), { keepDefaultValues: true })
+    lockedFields,
+  }: EditCustomerPortalFieldsDialogData): void => {
+    lockedFieldsRef.current = lockedFields
+    form.reset(toFormValues(getCustomerPortalEditableFields(lockedFields)), {
+      keepDefaultValues: true,
+    })
 
     void formDialog
       .open({
@@ -97,7 +105,6 @@ export const useEditCustomerPortalFieldsDialog = () => {
               </Typography>
             </Alert>
 
-            {/* Fields with no checkbox (document locale) keep their loaded value, so saving leaves them unchanged */}
             {CUSTOMER_PORTAL_FORM_FIELDS.map(({ field, labelKey }) => (
               <form.AppField key={field} name={field}>
                 {(formField) => (

@@ -38,6 +38,7 @@ jest.mock('~/generated/graphql', () => ({
 const customWrapper = ({ children }: { children: React.ReactNode }) => AllTheProviders({ children })
 
 const editableFields = [CustomerPortalFieldEnum.Name, CustomerPortalFieldEnum.City]
+const lockedFields = getCustomerPortalLockedFields(editableFields)
 
 describe('useEditCustomerPortalFieldsDialog', () => {
   beforeEach(() => {
@@ -53,7 +54,7 @@ describe('useEditCustomerPortalFieldsDialog', () => {
         })
 
         act(() => {
-          result.current.openEditCustomerPortalFieldsDialog({ editableFields })
+          result.current.openEditCustomerPortalFieldsDialog({ lockedFields })
         })
 
         const callArgs = mockFormDialogOpen.mock.calls[0][0]
@@ -77,13 +78,13 @@ describe('useEditCustomerPortalFieldsDialog', () => {
         })
 
         await act(async () => {
-          result.current.openEditCustomerPortalFieldsDialog({ editableFields })
+          result.current.openEditCustomerPortalFieldsDialog({ lockedFields })
         })
 
         expect(mockUpdateEditableFields).toHaveBeenCalledWith({
           variables: {
             input: {
-              customerPortalLockedFields: getCustomerPortalLockedFields(editableFields),
+              customerPortalLockedFields: lockedFields,
             },
           },
         })
@@ -111,7 +112,7 @@ describe('useEditCustomerPortalFieldsDialog', () => {
         })
 
         await act(async () => {
-          result.current.openEditCustomerPortalFieldsDialog({ editableFields })
+          result.current.openEditCustomerPortalFieldsDialog({ lockedFields })
         })
 
         expect(submitError).toBeInstanceOf(Error)
@@ -121,13 +122,15 @@ describe('useEditCustomerPortalFieldsDialog', () => {
   })
 
   describe('GIVEN the dialog content is rendered', () => {
-    const renderDialogContent = (fields: CustomerPortalFieldEnum[]) => {
+    const renderDialogContent = (fields: CustomerPortalFieldEnum[]): void => {
       const { result } = renderHook(() => useEditCustomerPortalFieldsDialog(), {
         wrapper: customWrapper,
       })
 
       act(() => {
-        result.current.openEditCustomerPortalFieldsDialog({ editableFields: fields })
+        result.current.openEditCustomerPortalFieldsDialog({
+          lockedFields: getCustomerPortalLockedFields(fields),
+        })
       })
 
       render(mockFormDialogOpen.mock.calls[0][0].children)
@@ -153,7 +156,7 @@ describe('useEditCustomerPortalFieldsDialog', () => {
       })
 
       act(() => {
-        result.current.openEditCustomerPortalFieldsDialog({ editableFields })
+        result.current.openEditCustomerPortalFieldsDialog({ lockedFields })
       })
       rerender()
 
@@ -174,9 +177,9 @@ describe('useEditCustomerPortalFieldsDialog', () => {
     })
   })
 
-  describe('GIVEN the document locale is already editable', () => {
-    it('THEN should keep it in the saved list', async () => {
-      const fields = [...editableFields, CustomerPortalFieldEnum.DocumentLocale]
+  describe('GIVEN the loaded list locks fields the dialog has no checkbox for', () => {
+    it('THEN should keep them locked in the saved list', async () => {
+      const unknownField = 'legal_number' as CustomerPortalFieldEnum
 
       mockUpdateEditableFields.mockResolvedValue({ data: {}, errors: undefined })
       mockFormDialogOpen.mockImplementation(async (config) => {
@@ -189,7 +192,31 @@ describe('useEditCustomerPortalFieldsDialog', () => {
       })
 
       await act(async () => {
-        result.current.openEditCustomerPortalFieldsDialog({ editableFields: fields })
+        result.current.openEditCustomerPortalFieldsDialog({
+          lockedFields: [...lockedFields, CustomerPortalFieldEnum.DocumentLocale, unknownField],
+        })
+      })
+
+      expect(
+        mockUpdateEditableFields.mock.calls[0][0].variables.input.customerPortalLockedFields,
+      ).toEqual(expect.arrayContaining([CustomerPortalFieldEnum.DocumentLocale, unknownField]))
+    })
+  })
+
+  describe('GIVEN the document locale is editable', () => {
+    it('THEN should keep it out of the saved list', async () => {
+      mockUpdateEditableFields.mockResolvedValue({ data: {}, errors: undefined })
+      mockFormDialogOpen.mockImplementation(async (config) => {
+        await config.form.submit()
+        return { reason: 'success' }
+      })
+
+      const { result } = renderHook(() => useEditCustomerPortalFieldsDialog(), {
+        wrapper: customWrapper,
+      })
+
+      await act(async () => {
+        result.current.openEditCustomerPortalFieldsDialog({ lockedFields })
       })
 
       expect(

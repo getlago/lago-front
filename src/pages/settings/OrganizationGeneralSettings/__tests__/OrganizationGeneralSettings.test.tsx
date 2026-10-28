@@ -217,19 +217,19 @@ describe('OrganizationGeneralSettings', () => {
     })
 
     describe('WHEN the user clicks the edit button', () => {
-      it('THEN should open the dialog with the current editable fields', async () => {
+      it('THEN should open the dialog with the loaded locked fields', async () => {
         const user = userEvent.setup()
 
         renderWithSlug('acme')
 
         await user.click(screen.getByTestId(EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID))
 
-        const [{ editableFields }] = mockOpenEditCustomerPortalFieldsDialog.mock.calls[0]
-
-        expect(editableFields).toHaveLength(2)
-        expect(editableFields).toEqual(
-          expect.arrayContaining([CustomerPortalFieldEnum.Name, CustomerPortalFieldEnum.City]),
-        )
+        expect(mockOpenEditCustomerPortalFieldsDialog).toHaveBeenCalledWith({
+          lockedFields: getCustomerPortalLockedFields([
+            CustomerPortalFieldEnum.Name,
+            CustomerPortalFieldEnum.City,
+          ]),
+        })
       })
     })
 

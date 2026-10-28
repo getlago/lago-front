@@ -145,6 +145,8 @@ jest.mock('@tanstack/react-form', () => ({
 const mockGoHome = jest.fn()
 
 const ALL_FIELDS = Object.values(CustomerPortalFieldEnum)
+const SAME_AS_BILLING_ADDRESS_LABEL = 'text_667d708c1359b49f5a5a8234'
+
 const DEFAULT_EDITABLE_FIELDS = ALL_FIELDS.filter(
   (field) =>
     ![
@@ -493,6 +495,26 @@ describe('CustomerInformationPage', () => {
 
       expect(screen.getByTestId('input-shippingAddress.addressLine1')).toBeDisabled()
       expect(screen.getByTestId('input-shippingAddress.country')).toBeDisabled()
+    })
+
+    it('THEN should not offer the same as billing address checkbox', () => {
+      mockEditableFields(
+        DEFAULT_EDITABLE_FIELDS.filter(
+          (field) => field !== CustomerPortalFieldEnum.ShippingAddress,
+        ),
+      )
+
+      render(<CustomerInformationPage />)
+
+      expect(screen.queryByText(SAME_AS_BILLING_ADDRESS_LABEL)).not.toBeInTheDocument()
+    })
+
+    it('THEN should offer the same as billing address checkbox when the shipping address is editable', () => {
+      mockEditableFields(DEFAULT_EDITABLE_FIELDS)
+
+      render(<CustomerInformationPage />)
+
+      expect(screen.getByText(SAME_AS_BILLING_ADDRESS_LABEL)).toBeInTheDocument()
     })
   })
 })

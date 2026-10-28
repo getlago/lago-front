@@ -51,7 +51,7 @@ const EditCustomerBillingForm = ({
 }: EditCustomerBillingFormProps) => {
   const { translate } = useCustomerPortalTranslate()
 
-  const isEditable = (field: CustomerPortalFieldEnum) => editableFields.includes(field)
+  const isEditable = (field: CustomerPortalFieldEnum): boolean => editableFields.includes(field)
   const canEditShippingAddress = isEditable(CustomerPortalFieldEnum.ShippingAddress)
   const hasReadOnlyFields = CUSTOMER_PORTAL_FORM_FIELDS.some(({ field }) => !isEditable(field))
 
@@ -294,19 +294,20 @@ const EditCustomerBillingForm = ({
         {translate('text_667d708c1359b49f5a5a8230')}
       </Typography>
 
-      <Checkbox
-        label={translate('text_667d708c1359b49f5a5a8234')}
-        value={isShippingEqualBillingAddress}
-        disabled={!canEditShippingAddress}
-        onChange={() => {
-          const next = !isShippingEqualBillingAddress
+      {canEditShippingAddress && (
+        <Checkbox
+          label={translate('text_667d708c1359b49f5a5a8234')}
+          value={isShippingEqualBillingAddress}
+          onChange={() => {
+            const next = !isShippingEqualBillingAddress
 
-          setIsShippingEqualBillingAddress(next)
-          if (next) {
-            syncShippingAddress()
-          }
-        }}
-      />
+            setIsShippingEqualBillingAddress(next)
+            if (next) {
+              syncShippingAddress()
+            }
+          }}
+        />
+      )}
       <form.AppField name="shippingAddress.addressLine1">
         {(field) => (
           <field.TextInputField
