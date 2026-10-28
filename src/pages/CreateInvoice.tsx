@@ -16,7 +16,7 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { InvoiceTaxesDisplay, TaxMapType } from '~/components/invoices/InvoiceTaxesDisplay'
 import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
-import { getInheritedFromCustomer } from '~/components/paymentTerms/utils'
+import { getInheritedPaymentTerm } from '~/components/paymentTerms/utils'
 import { PurchaseOrder } from '~/components/purchaseOrder/PO'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
@@ -875,7 +875,10 @@ const CreateInvoice = () => {
                         : {
                             value: formValues.paymentTerm,
                             onChange: (value) => form.setFieldValue('paymentTerm', value),
-                            inheritedFrom: getInheritedFromCustomer(customer),
+                            inheritedFrom: getInheritedPaymentTerm({
+                              customer,
+                              issuingBillingEntity: billingEntity,
+                            }),
                           }
                     }
                   />

@@ -1,5 +1,6 @@
 import {
-  getInheritedFromCustomer,
+  INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
+  INHERIT_FROM_CUSTOMER_LABEL_KEY,
   paymentTermFormValuesFromTerm,
 } from '~/components/paymentTerms/utils'
 import { PAYMENT_TERM_VALUE_KEYS } from '~/core/constants/paymentTerm'
@@ -64,6 +65,12 @@ jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: () => true }),
 }))
 
+let mockBoundBillingEntity: { paymentTerm: { termType: PaymentTermTypeEnum } } | undefined
+
+jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
+  useBillingEntityById: () => mockBoundBillingEntity,
+}))
+
 const PAYMENT_TERM_LABEL_KEY = 'text_1778660219891rv2r5gjmklq'
 
 const subscription = {
@@ -71,6 +78,7 @@ const subscription = {
   consolidateInvoice: true,
   skipInvoiceCustomSections: false,
   selectedInvoiceCustomSections: [{ id: 'cs_1', name: 'Bank details' }],
+  billingEntityId: null,
   paymentTerm: null,
   customer: {
     id: 'cust_1',
@@ -91,6 +99,7 @@ const paymentTermItem = () =>
 describe('SubscriptionInvoiceSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockBoundBillingEntity = undefined
   })
 
   it('renders the invoicing header, consolidation, the custom-section display and the drawer', () => {
@@ -160,17 +169,40 @@ describe('SubscriptionInvoiceSection', () => {
       )
     })
 
-    it('shows the inherited term marked as such when the subscription has none', () => {
+    it('shows the customer term marked as inherited from the customer', () => {
+      renderSection({
+        customer: {
+          ...subscription.customer,
+          paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 30 },
+        },
+      })
+
+      expect(paymentTermItem().value).toContain(INHERIT_FROM_CUSTOMER_LABEL_KEY)
+      expect(mockDrawer).toHaveBeenCalledWith(
+        expect.objectContaining({
+          paymentTermInheritedFrom: expect.objectContaining({
+            labelKey: INHERIT_FROM_CUSTOMER_LABEL_KEY,
+          }),
+        }),
+      )
+    })
+
+    it('shows the billing entity term marked as inherited from the entity otherwise', () => {
       renderSection()
 
-      expect(paymentTermItem().value).toContain(getInheritedFromCustomer(null).labelKey)
+      expect(paymentTermItem().value).toContain(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)
       expect(paymentTermItem().value).toContain(
         PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.EndOfMonth],
       )
-      expect(mockDrawer).toHaveBeenCalledWith(
-        expect.objectContaining({
-          paymentTermInheritedFrom: getInheritedFromCustomer(subscription.customer),
-        }),
+    })
+
+    it('reads the term off the entity the subscription is bound to', () => {
+      mockBoundBillingEntity = { paymentTerm: { termType: PaymentTermTypeEnum.DueOnReceipt } }
+
+      renderSection({ billingEntityId: 'be_2' })
+
+      expect(paymentTermItem().value).toContain(
+        PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.DueOnReceipt],
       )
     })
   })
