@@ -76,7 +76,6 @@ const X402IntegrationDetails = (): JSX.Element | null => {
     skip: !integrationId || !isPremium,
   })
   const connection = data?.x402Connection
-  // Cache-and-network can report loading while cached data is already there: keep it visible.
   const initialLoading = loading && !data
   const environment = getX402Environment(connection?.networks || [])
 
@@ -106,8 +105,6 @@ const X402IntegrationDetails = (): JSX.Element | null => {
   return (
     <>
       <MainHeader.Configure
-        // The header keeps its action closures until this key changes: an edit that leaves the
-        // name as is must still reopen the dialog on the saved values.
         snapshotKey={JSON.stringify(data)}
         breadcrumb={[
           {

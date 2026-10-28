@@ -52,7 +52,6 @@ const X402Integrations = (): JSX.Element | null => {
     skip: !isPremium,
   })
   const connections = data?.x402Connections?.collection
-  // Cache-and-network can report loading while cached data is already there: keep it visible.
   const initialLoading = loading && !data
   const deleteDialogCallback =
     connections?.length === 1
