@@ -52,7 +52,6 @@ type UseAttributionTreeReturn = {
   toggleNode: (path: AttributionPathStep[], levelCode: string) => void
   loadMore: (path: AttributionPathStep[], blockIndex: number) => void
   loadMoreFilterPage: () => void
-  collapseFilterPages: () => void
   refresh: () => void
 }
 
@@ -86,6 +85,7 @@ export const useAttributionTree = ({
   const nodesRef = useRef<AttributionTreeNodes>({})
   const generationRef = useRef(0)
   const filterPagesCountRef = useRef(1)
+  const filterPageAttemptRef = useRef(0)
   const isLoadingFilterPageRef = useRef(false)
   const [isLoadingFilterPage, setIsLoadingFilterPage] = useState(false)
   const latestParamsRef = useRef({ variables, getChildLevels, skip })
@@ -330,6 +330,7 @@ export const useAttributionTree = ({
 
     const generation = generationRef.current
     const filterPage = filterPagesCountRef.current
+    const attempt = ++filterPageAttemptRef.current
 
     updateIsLoadingFilterPage(true)
     filterPagesCountRef.current = filterPage + 1
@@ -349,15 +350,12 @@ export const useAttributionTree = ({
               filterPage,
             )
 
-            if (generation !== generationRef.current) return
+            if (generation !== generationRef.current || attempt !== filterPageAttemptRef.current) {
+              return
+            }
 
             updateBlock(key, blockIndex, (previous) => {
-              if (
-                previous.usages.length !== filterPage ||
-                filterPagesCountRef.current <= filterPage
-              ) {
-                return previous
-              }
+              if (previous.usages.length !== filterPage) return previous
 
               return { ...previous, usages: [...previous.usages, usage] }
             })
@@ -367,6 +365,7 @@ export const useAttributionTree = ({
     } catch (error) {
       if (generation !== generationRef.current) return
 
+      filterPageAttemptRef.current += 1
       dropFilterPages(filterPage)
       notifyAttributionError(error)
     }
@@ -375,12 +374,6 @@ export const useAttributionTree = ({
 
     updateIsLoadingFilterPage(false)
   }, [dropFilterPages, fetchUsagePages, updateBlock, updateIsLoadingFilterPage])
-
-  const collapseFilterPages = useCallback((): void => {
-    if (isLoadingFilterPageRef.current || isAttributionTreeBusy(nodesRef.current)) return
-
-    dropFilterPages(1)
-  }, [dropFilterPages])
 
   const reset = useCallback((): void => {
     generationRef.current += 1
@@ -439,7 +432,6 @@ export const useAttributionTree = ({
     toggleNode,
     loadMore,
     loadMoreFilterPage,
-    collapseFilterPages,
     refresh,
   }
 }

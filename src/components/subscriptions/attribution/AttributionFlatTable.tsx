@@ -25,7 +25,6 @@ export const ATTRIBUTION_TABLE_TEST_ID = 'attribution-flat-table'
 export const ATTRIBUTION_TABLE_ROW_TEST_ID = 'attribution-flat-table-row'
 export const ATTRIBUTION_TABLE_FOOTER_TEST_ID = 'attribution-flat-table-footer'
 export const ATTRIBUTION_SHOW_MORE_TEST_ID = 'attribution-show-more'
-export const ATTRIBUTION_SHOW_LESS_TEST_ID = 'attribution-show-less'
 export const ATTRIBUTION_LOADING_CELL_TEST_ID = 'attribution-loading-cell'
 export const ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID = 'attribution-load-more-rows'
 
@@ -40,16 +39,17 @@ export type AttributionTableRow = {
   chargesUsageByFilterPage: AttributionChargeUsageFragment[][]
 }
 
-export type AttributionColumnsToggle = {
-  showMore?: { isLoading: boolean; isDisabled?: boolean; onClick: () => void }
-  showLess?: { isDisabled: boolean; onClick: () => void }
+export type AttributionShowMoreColumns = {
+  isLoading: boolean
+  isDisabled?: boolean
+  onClick: () => void
 }
 
 export type AttributionTableSharedProps = {
   totals: Pick<AttributionTableRow, 'amountCents' | 'chargesUsageByFilterPage'>
   columns: AttributionColumn[]
   chargeLabel: string | null
-  columnsToggle: AttributionColumnsToggle
+  showMoreColumns?: AttributionShowMoreColumns
   basis: AttributedUsageBasisEnum
   currency: CurrencyEnum
   isLoading: boolean
@@ -243,7 +243,7 @@ export const AttributionTableLayout = ({
   totals,
   columns,
   chargeLabel,
-  columnsToggle,
+  showMoreColumns,
   basis,
   currency,
   isLoading,
@@ -252,7 +252,6 @@ export const AttributionTableLayout = ({
 }: AttributionTableSharedProps & { children: ReactNode; 'data-test': string }): JSX.Element => {
   const { translate } = useInternationalization()
   const hasChargeColumns = columns.length > 0
-  const { showMore, showLess } = columnsToggle
 
   const renderBody = (): ReactNode => {
     if (!isLoading) return children
@@ -291,31 +290,18 @@ export const AttributionTableLayout = ({
                   <Typography variant="captionHl" color="grey600" noWrap>
                     {chargeLabel}
                   </Typography>
-                  <div className="flex items-center gap-2">
-                    {showMore && (
-                      <Button
-                        variant="inline"
-                        size="small"
-                        loading={showMore.isLoading}
-                        disabled={showMore.isLoading || showMore.isDisabled}
-                        onClick={showMore.onClick}
-                        data-test={ATTRIBUTION_SHOW_MORE_TEST_ID}
-                      >
-                        {translate('text_1792668632007fulz8omi190')}
-                      </Button>
-                    )}
-                    {showLess && (
-                      <Button
-                        variant="inline"
-                        size="small"
-                        disabled={showLess.isDisabled}
-                        onClick={showLess.onClick}
-                        data-test={ATTRIBUTION_SHOW_LESS_TEST_ID}
-                      >
-                        {translate('text_1792668632007s3b89z21nto')}
-                      </Button>
-                    )}
-                  </div>
+                  {showMoreColumns && (
+                    <Button
+                      variant="inline"
+                      size="small"
+                      loading={showMoreColumns.isLoading}
+                      disabled={showMoreColumns.isLoading || showMoreColumns.isDisabled}
+                      onClick={showMoreColumns.onClick}
+                      data-test={ATTRIBUTION_SHOW_MORE_TEST_ID}
+                    >
+                      {translate('text_1792668632007fulz8omi190')}
+                    </Button>
+                  )}
                 </div>
               </th>
             )}

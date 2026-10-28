@@ -28,8 +28,8 @@ import {
   isAttributionGuardError,
 } from './attributionFilters'
 import {
-  AttributionColumnsToggle,
   AttributionFlatTable,
+  AttributionShowMoreColumns,
   AttributionTableRow,
 } from './AttributionFlatTable'
 import { AttributionToolbarSelect } from './AttributionToolbarSelect'
@@ -303,7 +303,6 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     toggleNode,
     loadMore: loadMoreTreeRows,
     loadMoreFilterPage,
-    collapseFilterPages,
     refresh: refreshTree,
   } = useAttributionTree({
     variables: treeVariables,
@@ -414,29 +413,16 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     ]
   }
 
-  const getColumnsToggle = (): AttributionColumnsToggle => {
+  const getShowMoreColumns = (): AttributionShowMoreColumns | undefined => {
     if (!isExpanded) {
-      if (!hiddenColumnsCount) return {}
+      if (!hiddenColumnsCount) return undefined
 
-      return { showMore: { isLoading: false, onClick: () => setExpandedResetKey(treeResetKey) } }
+      return { isLoading: false, onClick: () => setExpandedResetKey(treeResetKey) }
     }
 
-    return {
-      showMore: hasMoreFilterPages
-        ? {
-            isLoading: isLoadingFilterPage,
-            isDisabled: isTreeBusy,
-            onClick: loadMoreFilterPage,
-          }
-        : undefined,
-      showLess: {
-        isDisabled: isLoadingFilterPage || isTreeBusy,
-        onClick: () => {
-          setExpandedResetKey(null)
-          collapseFilterPages()
-        },
-      },
-    }
+    if (!hasMoreFilterPages) return undefined
+
+    return { isLoading: isLoadingFilterPage, isDisabled: isTreeBusy, onClick: loadMoreFilterPage }
   }
 
   const renderErrorPlaceholder = (error?: unknown): JSX.Element => {
@@ -462,7 +448,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     totals: { amountCents: rootUsage?.totals.amountCents, chargesUsageByFilterPage },
     columns,
     chargeLabel: selectedCharge ? getAttributionChargeLabel(selectedCharge) : null,
-    columnsToggle: getColumnsToggle(),
+    showMoreColumns: getShowMoreColumns(),
     basis,
     currency: rootUsage?.currency ?? CurrencyEnum.Usd,
   }

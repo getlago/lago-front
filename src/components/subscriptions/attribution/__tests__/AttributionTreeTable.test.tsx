@@ -76,7 +76,6 @@ const renderTree = (
       totals={{ amountCents: null, chargesUsageByFilterPage: [[], []] }}
       columns={columns}
       chargeLabel={columns.length ? 'Tokens' : null}
-      columnsToggle={{}}
       basis={AttributedUsageBasisEnum.Units}
       currency={CurrencyEnum.Usd}
       isLoading={isLoading}

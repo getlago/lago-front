@@ -12,7 +12,6 @@ import { render } from '~/test-utils'
 import {
   ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID,
   ATTRIBUTION_LOADING_CELL_TEST_ID,
-  ATTRIBUTION_SHOW_LESS_TEST_ID,
   ATTRIBUTION_SHOW_MORE_TEST_ID,
   ATTRIBUTION_TABLE_FOOTER_TEST_ID,
   ATTRIBUTION_TABLE_ROW_TEST_ID,
@@ -101,7 +100,6 @@ const renderTable = (overrides: Partial<TableProps> = {}): ReturnType<typeof ren
       }}
       columns={[]}
       chargeLabel={null}
-      columnsToggle={{}}
       basis={AttributedUsageBasisEnum.Units}
       currency={CurrencyEnum.Usd}
       isLoading={false}
@@ -182,12 +180,11 @@ describe('AttributionFlatTable', () => {
       })
     })
 
-    describe('WHEN there is no columns toggle', () => {
-      it('THEN should display neither show more nor show less', () => {
+    describe('WHEN there is no show more for the columns', () => {
+      it('THEN should not display it', () => {
         renderTable({ columns: splitColumns, chargeLabel: 'Tokens' })
 
         expect(screen.queryByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).not.toBeInTheDocument()
-        expect(screen.queryByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).not.toBeInTheDocument()
       })
     })
 
@@ -199,7 +196,7 @@ describe('AttributionFlatTable', () => {
         renderTable({
           columns: splitColumns,
           chargeLabel: 'Tokens',
-          columnsToggle: { showMore: { isLoading: false, onClick } },
+          showMoreColumns: { isLoading: false, onClick },
         })
 
         await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
@@ -214,32 +211,10 @@ describe('AttributionFlatTable', () => {
         renderTable({
           columns: splitColumns,
           chargeLabel: 'Tokens',
-          columnsToggle: { showMore: { ...state, onClick: jest.fn() } },
+          showMoreColumns: { ...state, onClick: jest.fn() },
         })
 
         expect(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).toBeDisabled()
-      })
-    })
-
-    describe('WHEN show more and show less are both available', () => {
-      it('THEN should display both and call show less when clicked', async () => {
-        const user = userEvent.setup()
-        const onShowLess = jest.fn()
-
-        renderTable({
-          columns: splitColumns,
-          chargeLabel: 'Tokens',
-          columnsToggle: {
-            showMore: { isLoading: false, onClick: jest.fn() },
-            showLess: { isDisabled: false, onClick: onShowLess },
-          },
-        })
-
-        expect(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).toBeInTheDocument()
-
-        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID))
-
-        expect(onShowLess).toHaveBeenCalledTimes(1)
       })
     })
 

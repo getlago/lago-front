@@ -20,7 +20,6 @@ import {
 } from '../attributionFilters'
 import {
   ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID,
-  ATTRIBUTION_SHOW_LESS_TEST_ID,
   ATTRIBUTION_SHOW_MORE_TEST_ID,
   ATTRIBUTION_TABLE_ROW_TEST_ID,
   ATTRIBUTION_TABLE_TEST_ID,
@@ -62,7 +61,6 @@ const mockUseAttributionTree = jest.fn()
 const mockRefreshTree = jest.fn()
 const mockLoadMoreTreeRows = jest.fn()
 const mockLoadMoreFilterPage = jest.fn()
-const mockCollapseFilterPages = jest.fn()
 
 jest.mock('../useAttributionTree', () => ({
   ...jest.requireActual('../useAttributionTree'),
@@ -187,7 +185,6 @@ const mockTree = (overrides: Record<string, unknown> = {}): void => {
     toggleNode: jest.fn(),
     loadMore: mockLoadMoreTreeRows,
     loadMoreFilterPage: mockLoadMoreFilterPage,
-    collapseFilterPages: mockCollapseFilterPages,
     refresh: mockRefreshTree,
     ...overrides,
   })
@@ -1046,12 +1043,10 @@ describe('SubscriptionAttributionTabContent', () => {
       it('THEN should expand the first page without fetching another filter page', async () => {
         const user = await renderSplit()
 
-        expect(screen.queryByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).not.toBeInTheDocument()
-
         await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
 
         expect(mockLoadMoreFilterPage).not.toHaveBeenCalled()
-        expect(screen.getByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).toBeInTheDocument()
+        expect(getHeaderLabels().slice(1, -1)).toEqual([...firstPageModels, expect.any(String)])
       })
     })
 
@@ -1071,7 +1066,6 @@ describe('SubscriptionAttributionTabContent', () => {
         await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
 
         expect(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).toBeDisabled()
-        expect(screen.getByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).toBeDisabled()
         expect(screen.getByTestId(ATTRIBUTION_REFRESH_BUTTON_TEST_ID)).toBeDisabled()
       })
     })
@@ -1094,7 +1088,6 @@ describe('SubscriptionAttributionTabContent', () => {
         await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
 
         expect(screen.queryByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).not.toBeInTheDocument()
-        expect(screen.getByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should keep the total of each row from the first filter page', async () => {
@@ -1112,38 +1105,25 @@ describe('SubscriptionAttributionTabContent', () => {
       })
     })
 
-    describe('WHEN show less is clicked', () => {
-      it('THEN should collapse the columns and drop the extra filter pages', async () => {
-        const user = await renderSplit({}, [firstPageModels, ['m11']])
-
-        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
-        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID))
-
-        expect(mockCollapseFilterPages).toHaveBeenCalledTimes(1)
-        expect(screen.queryByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).not.toBeInTheDocument()
-      })
-    })
-
     describe('WHEN a toolbar value changes while the columns are expanded', () => {
       it('THEN should collapse the columns back to the first page view', async () => {
         const user = await renderSplit({}, [firstPageModels, ['m11']])
 
         await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
-        expect(screen.getByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).not.toBeInTheDocument()
 
         await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
 
-        expect(screen.queryByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).not.toBeInTheDocument()
         expect(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).toBeEnabled()
         expect(getHeaderLabels().slice(1, -1)).toEqual(['m1', 'm2', 'm3', expect.any(String)])
       })
     })
 
     describe('WHEN a tree node is loading while the columns are expanded', () => {
-      it('THEN should disable show less', async () => {
+      it('THEN should disable show more', async () => {
         const user = await renderSplit({
           nodes: {
-            ...loadedRootOf([splitBlock([firstPageModels, ['m11']])]),
+            ...loadedRootOf([splitBlock([firstPageModels], 11)]),
             [getAttributionNodeKey([{ code: 'api_key', value: 'k_live_ab12' }])]: {
               status: 'loading',
             },
@@ -1152,12 +1132,12 @@ describe('SubscriptionAttributionTabContent', () => {
 
         await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
 
-        expect(screen.getByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).toBeDisabled()
+        expect(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).toBeDisabled()
       })
     })
 
     describe('WHEN the charge has no more filters than one page', () => {
-      it('THEN should only offer show less once expanded', async () => {
+      it('THEN should not offer show more once expanded', async () => {
         const user = await renderSplit({}, [firstPageModels], SPLIT_FILTERS_PER_PAGE)
 
         await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))

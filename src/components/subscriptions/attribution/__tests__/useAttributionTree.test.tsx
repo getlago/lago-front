@@ -566,6 +566,36 @@ describe('useAttributionTree', () => {
         expect(getBlockFilterPagesCounts(result.current.nodes, ROOT_KEY)).toEqual([1])
         expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([1, 1])
       })
+
+      it('THEN should ignore the late responses of the failed attempt on retry', async () => {
+        const { result } = await renderExpandedTree()
+
+        let resolveStale: (value: unknown) => void = () => undefined
+        let resolveFresh: (value: unknown) => void = () => undefined
+
+        mockQuery
+          .mockRejectedValueOnce(new Error('network'))
+          .mockReturnValueOnce(new Promise((resolve) => (resolveStale = resolve)))
+          .mockReturnValueOnce(resolveUsage(buildUsage(['cc-1'])))
+
+        await act(async () => result.current.loadMoreFilterPage())
+
+        mockQuery
+          .mockReturnValueOnce(resolveUsage(buildUsage(['rnd'])))
+          .mockReturnValueOnce(new Promise((resolve) => (resolveFresh = resolve)))
+          .mockReturnValueOnce(resolveUsage(buildUsage(['cc-1'])))
+
+        act(() => {
+          result.current.loadMoreFilterPage()
+        })
+
+        await act(async () => resolveStale({ data: { attributedUsage: buildUsage(['stale']) } }))
+        await act(async () => resolveFresh({ data: { attributedUsage: buildUsage(['fresh']) } }))
+
+        const rnd = result.current.nodes[RND_KEY]
+
+        expect(rnd?.status === 'loaded' && rnd.blocks[0].usages[1].rows[0].value).toBe('fresh')
+      })
     })
 
     describe('WHEN a node is expanded with two filter pages open', () => {
@@ -628,41 +658,6 @@ describe('useAttributionTree', () => {
           ['rnd', 'gtm', 'data'],
           ['rnd', 'data'],
         ])
-      })
-    })
-
-    describe('WHEN the filter pages are collapsed', () => {
-      it('THEN should drop the extra pages and go back to one request per level', async () => {
-        const { result } = await renderTreeWithTwoFilterPages()
-
-        act(() => result.current.collapseFilterPages())
-
-        expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([1, 1])
-
-        const gtmPath: AttributionPathStep[] = [{ code: 'department', value: 'gtm' }]
-
-        mockQuery.mockReturnValue(resolveUsage(buildUsage(['ops'])))
-        act(() => result.current.toggleNode(gtmPath, 'department'))
-        await waitFor(() =>
-          expect(result.current.nodes[getAttributionNodeKey(gtmPath)]?.status).toBe('loaded'),
-        )
-
-        expect(mockQuery).toHaveBeenCalledTimes(2)
-      })
-    })
-
-    describe('WHEN collapsing the filter pages while a node is still loading', () => {
-      it('THEN should ignore the collapse so the node does not commit extra filter pages', async () => {
-        const { result } = await renderTreeWithTwoFilterPages()
-
-        const gtmPath: AttributionPathStep[] = [{ code: 'department', value: 'gtm' }]
-
-        mockQuery.mockReturnValue(new Promise(() => undefined))
-        act(() => result.current.toggleNode(gtmPath, 'department'))
-
-        act(() => result.current.collapseFilterPages())
-
-        expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([2, 2])
       })
     })
 
