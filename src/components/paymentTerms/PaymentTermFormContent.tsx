@@ -14,6 +14,10 @@ import {
 } from './dataTestConstants'
 import { PAYMENT_TERM_FORM_DEFAULT_VALUES, PaymentTermInheritedFrom } from './types'
 import { isConcreteTermType, paymentTermFromFormValues } from './utils'
+import { isDayOfMonthValid, isMonthOffsetValid, paymentTermFormSchema } from './validationSchema'
+
+const DAY_OF_MONTH_ERROR_KEY = 'text_1789042962229ojqymcu3289'
+const MONTH_OFFSET_ERROR_KEY = 'text_1789042962229esmw981wwyt'
 
 type PaymentTermFormContentExtraProps = {
   /**
@@ -48,7 +52,14 @@ export const PaymentTermFormContent = withForm({
     const monthOffset = useStore(form.store, (state) => state.values.monthOffset)
 
     const fields = isConcreteTermType(termType) ? PAYMENT_TERM_FIELDS_BY_TYPE[termType] : []
-    const previewTerm = paymentTermFromFormValues({ termType, days, dayOfMonth, monthOffset })
+    const values = { termType, days, dayOfMonth, monthOffset }
+    // The range errors show as the user types, ahead of the submit-first form validation,
+    // and the preview goes with them: an out-of-range day has no due date to show.
+    const previewTerm = paymentTermFormSchema.safeParse(values).success
+      ? paymentTermFromFormValues(values)
+      : null
+    const dayOfMonthError = isDayOfMonthValid(dayOfMonth) ? undefined : DAY_OF_MONTH_ERROR_KEY
+    const monthOffsetError = isMonthOffsetValid(monthOffset) ? undefined : MONTH_OFFSET_ERROR_KEY
 
     return (
       <div className="flex flex-col gap-6">
@@ -93,11 +104,13 @@ export const PaymentTermFormContent = withForm({
                   beforeChangeFormatter={['positiveNumber', 'int']}
                   className="flex-1"
                   label={translate('text_1787603382163oqy9psl295a')}
+                  helperText={translate('text_17931224143614x6qy003wuf')}
+                  errorOverride={dayOfMonthError}
                 />
               )}
             </form.AppField>
 
-            <Typography className="pb-4" variant="body" color="grey700">
+            <Typography className="pb-9" variant="body" color="grey700">
               -
             </Typography>
 
@@ -107,6 +120,8 @@ export const PaymentTermFormContent = withForm({
                   beforeChangeFormatter={['positiveNumber', 'int']}
                   className="flex-1"
                   label={translate('text_1787603382163w1trdmfds5q')}
+                  helperText={translate('text_1793122414361w9qm005cw2b')}
+                  errorOverride={monthOffsetError}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">

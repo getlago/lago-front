@@ -9,7 +9,10 @@ import {
   FORM_DIALOG_TEST_ID,
 } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
-import { EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID } from '~/components/paymentTerms/dataTestConstants'
+import {
+  EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID,
+  PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID,
+} from '~/components/paymentTerms/dataTestConstants'
 import { PAYMENT_TERM_INHERIT } from '~/core/constants/paymentTerm'
 import {
   EditBillingEntityPaymentTermForDialogFragment,
@@ -182,6 +185,14 @@ const selectTermTypeOption = async (label: string, value: string): Promise<void>
 const submittedCustomerTerm = (): PaymentTermInput | null =>
   mockUpdateCustomer.mock.calls[0][0].variables.input.paymentTerm
 
+const numericInput = (name: 'days' | 'dayOfMonth' | 'monthOffset'): HTMLElement =>
+  screen.getByTestId(FORM_DIALOG_TEST_ID).querySelector(`input[name="${name}"]`) as HTMLElement
+
+const retype = async (input: HTMLElement, value: string): Promise<void> => {
+  await userEvent.clear(input)
+  await userEvent.type(input, value)
+}
+
 describe('EditPaymentTermDialog', () => {
   afterEach(() => {
     cleanup()
@@ -233,6 +244,57 @@ describe('EditPaymentTermDialog', () => {
         await waitFor(() => expect(mockUpdateCustomer).toHaveBeenCalled())
 
         expect(submittedCustomerTerm()).toEqual(expected)
+      })
+    })
+  })
+
+  describe('GIVEN a day of month term', () => {
+    const DAY_OF_MONTH_ERROR_KEY = 'text_1789042962229ojqymcu3289'
+    const MONTH_OFFSET_ERROR_KEY = 'text_1789042962229esmw981wwyt'
+
+    const openDayOfMonthDialog = () =>
+      renderAndOpenDialog({
+        model: buildBillingEntity(
+          term({ termType: PaymentTermTypeEnum.DayOfMonth, dayOfMonth: 15, monthOffset: 1 }),
+        ),
+      })
+
+    describe('WHEN a day outside 1-31 is typed', () => {
+      it('THEN should flag the field and hide the preview before any submit', async () => {
+        await openDayOfMonthDialog()
+
+        expect(screen.getByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID)).toBeInTheDocument()
+
+        await retype(numericInput('dayOfMonth'), '32')
+
+        // The schema only runs on submit, so without the inline check the dialog kept
+        // previewing a due date for a day that does not exist.
+        expect(screen.getByText(DAY_OF_MONTH_ERROR_KEY)).toBeInTheDocument()
+        expect(screen.queryByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID)).not.toBeInTheDocument()
+        expect(mockUpdateBillingEntity).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN an offset outside 0-12 is typed', () => {
+      it('THEN should flag the field and hide the preview before any submit', async () => {
+        await openDayOfMonthDialog()
+
+        await retype(numericInput('monthOffset'), '13')
+
+        expect(screen.getByText(MONTH_OFFSET_ERROR_KEY)).toBeInTheDocument()
+        expect(screen.queryByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the day is typed back into range', () => {
+      it('THEN should clear the error and preview the due date again', async () => {
+        await openDayOfMonthDialog()
+
+        await retype(numericInput('dayOfMonth'), '32')
+        await retype(numericInput('dayOfMonth'), '20')
+
+        expect(screen.queryByText(DAY_OF_MONTH_ERROR_KEY)).not.toBeInTheDocument()
+        expect(screen.getByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID)).toBeInTheDocument()
       })
     })
   })
