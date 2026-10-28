@@ -66,6 +66,7 @@ import { shadcnButtonTab } from './tabs/ButtonTest'
 import { ColorTest } from './tabs/ColorTest'
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
+import { shadcnDropdownMenuTab } from './tabs/DropdownMenuTest'
 import EditorTest from './tabs/EditorTest'
 import { shadcnTooltipTab } from './tabs/TooltipTest'
 import { TypographyTest } from './tabs/TypographyTest'
@@ -2303,6 +2304,7 @@ const DesignSystem = () => {
           shadcnButtonTab,
           shadcnBadgeTab,
           shadcnTooltipTab,
+          shadcnDropdownMenuTab,
           // disabled simple tab
           {
             disabled: true,
