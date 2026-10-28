@@ -1,10 +1,15 @@
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
+import { PaymentTermFormValues } from '~/components/paymentTerms/types'
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
+import { PAYMENT_TERM_VALUE_KEYS } from '~/core/constants/paymentTerm'
+import { PaymentTermTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
   INVOICING_SETTINGS_SELECTOR_TEST_ID,
   INVOICING_SUMMARY_KEYS,
+  InvoicingSettingsPaymentTermProps,
   InvoicingSettingsSelector,
 } from '../InvoicingSettingsSelector'
 
@@ -42,12 +47,23 @@ const APPLY_VALUE: InvoiceCustomSectionInput = {
   skipInvoiceCustomSections: false,
 }
 
+const INHERIT_LABEL_KEY = 'inherit_key'
+const INHERITED_FROM = {
+  term: { termType: PaymentTermTypeEnum.EndOfMonth },
+  labelKey: INHERIT_LABEL_KEY,
+}
+const NET_60_VALUES = paymentTermFormValuesFromTerm(
+  { termType: PaymentTermTypeEnum.Net, days: 60 },
+  true,
+)
+
 const renderSelector = (
   overrides: {
     value?: InvoiceCustomSectionInput
     onChange?: (value: InvoiceCustomSectionInput) => void
     customerId?: string | undefined
     dataTest?: string
+    paymentTerm?: InvoicingSettingsPaymentTermProps
   } = {},
 ) => {
   const onChange = overrides.onChange ?? jest.fn()
@@ -58,6 +74,7 @@ const renderSelector = (
       customerId={'customerId' in overrides ? overrides.customerId : 'cust-1'}
       value={overrides.value}
       onChange={onChange}
+      paymentTerm={overrides.paymentTerm}
       data-test={overrides.dataTest}
     />,
   )
@@ -77,7 +94,11 @@ const lastDrawerProps = () =>
     viewType?: ViewTypeEnum
     customerId?: string
     showCustomSection?: boolean
-    onSave?: (v: { invoiceCustomSection: InvoiceCustomSectionInput }) => void
+    paymentTermInheritedFrom?: InvoicingSettingsPaymentTermProps['inheritedFrom']
+    onSave?: (v: {
+      invoiceCustomSection: InvoiceCustomSectionInput
+      paymentTerm: PaymentTermFormValues
+    }) => void
   }
 
 describe('InvoicingSettingsSelector', () => {
@@ -143,10 +164,83 @@ describe('InvoicingSettingsSelector', () => {
       it('THEN should propagate the invoice custom section through onChange', () => {
         const { onChange } = renderSelector()
 
-        lastDrawerProps().onSave?.({ invoiceCustomSection: APPLY_VALUE })
+        lastDrawerProps().onSave?.({
+          invoiceCustomSection: APPLY_VALUE,
+          paymentTerm: NET_60_VALUES,
+        })
 
         expect(onChange).toHaveBeenCalledWith(APPLY_VALUE)
       })
+    })
+  })
+
+  describe('GIVEN the object carries a payment term override', () => {
+    const inheritValues = paymentTermFormValuesFromTerm(null, true)
+
+    describe('WHEN summarising the selection', () => {
+      it('THEN should append the inherited term marked with its level', () => {
+        renderSelector({
+          paymentTerm: { value: inheritValues, onChange: jest.fn(), inheritedFrom: INHERITED_FROM },
+        })
+
+        expect(lastSelectorProps().subtitle).toBe(
+          `${INVOICING_SUMMARY_KEYS.fallback} • ${INHERIT_LABEL_KEY}`,
+        )
+      })
+
+      it('THEN should append the chosen term', () => {
+        renderSelector({
+          paymentTerm: { value: NET_60_VALUES, onChange: jest.fn(), inheritedFrom: INHERITED_FROM },
+        })
+
+        expect(lastSelectorProps().subtitle).toBe(
+          `${INVOICING_SUMMARY_KEYS.fallback} • ${PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net]}`,
+        )
+      })
+    })
+
+    describe('WHEN the drawer is wired', () => {
+      it('THEN should enable its payment term section with the inherited term', () => {
+        renderSelector({
+          paymentTerm: { value: inheritValues, onChange: jest.fn(), inheritedFrom: INHERITED_FROM },
+        })
+
+        expect(lastDrawerProps().paymentTermInheritedFrom).toEqual(INHERITED_FROM)
+      })
+
+      it('THEN should seed the drawer with the current term and propagate the saved one', () => {
+        const onPaymentTermChange = jest.fn()
+
+        renderSelector({
+          value: APPLY_VALUE,
+          paymentTerm: {
+            value: inheritValues,
+            onChange: onPaymentTermChange,
+            inheritedFrom: INHERITED_FROM,
+          },
+        })
+
+        lastSelectorProps().onClick?.()
+        lastDrawerProps().onSave?.({
+          invoiceCustomSection: APPLY_VALUE,
+          paymentTerm: NET_60_VALUES,
+        })
+
+        expect(mockOpenDrawer).toHaveBeenCalledWith({
+          invoiceCustomSection: APPLY_VALUE,
+          paymentTerm: inheritValues,
+        })
+        expect(onPaymentTermChange).toHaveBeenCalledWith(NET_60_VALUES)
+      })
+    })
+  })
+
+  describe('GIVEN the object carries no payment term override', () => {
+    it('THEN should leave the drawer payment term section off', () => {
+      renderSelector()
+
+      expect(lastDrawerProps().paymentTermInheritedFrom).toBeUndefined()
+      expect(lastSelectorProps().subtitle).toBe(INVOICING_SUMMARY_KEYS.fallback)
     })
   })
 
