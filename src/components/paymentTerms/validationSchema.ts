@@ -15,6 +15,14 @@ import { isConcreteTermType } from './utils'
 const isPositiveIntegerWithin = (value: string, min: number, max: number): boolean =>
   /^\d+$/.test(value) && Number(value) >= min && Number(value) <= max
 
+export const isDayOfMonthValid = (value: string): boolean =>
+  isPositiveIntegerWithin(value, PAYMENT_TERM_DAY_OF_MONTH_MIN, PAYMENT_TERM_DAY_OF_MONTH_MAX)
+
+/** Blank is valid: the API fills its own default when the offset is absent. */
+export const isMonthOffsetValid = (value: string): boolean =>
+  value === '' ||
+  isPositiveIntegerWithin(value, PAYMENT_TERM_MONTH_OFFSET_MIN, PAYMENT_TERM_MONTH_OFFSET_MAX)
+
 /**
  * Mirrors the API's discriminated-union validation: a type's own fields are required and
  * bounded, and nothing else is looked at.
@@ -44,14 +52,7 @@ export const paymentTermFormSchema = z
       })
     }
 
-    if (
-      fields.includes('dayOfMonth') &&
-      !isPositiveIntegerWithin(
-        values.dayOfMonth,
-        PAYMENT_TERM_DAY_OF_MONTH_MIN,
-        PAYMENT_TERM_DAY_OF_MONTH_MAX,
-      )
-    ) {
+    if (fields.includes('dayOfMonth') && !isDayOfMonthValid(values.dayOfMonth)) {
       ctx.addIssue({
         code: 'custom',
         path: ['dayOfMonth'],
@@ -59,16 +60,7 @@ export const paymentTermFormSchema = z
       })
     }
 
-    // Absent is valid — the API fills the default — but a value that is present must be in range.
-    if (
-      fields.includes('monthOffset') &&
-      values.monthOffset !== '' &&
-      !isPositiveIntegerWithin(
-        values.monthOffset,
-        PAYMENT_TERM_MONTH_OFFSET_MIN,
-        PAYMENT_TERM_MONTH_OFFSET_MAX,
-      )
-    ) {
+    if (fields.includes('monthOffset') && !isMonthOffsetValid(values.monthOffset)) {
       ctx.addIssue({
         code: 'custom',
         path: ['monthOffset'],

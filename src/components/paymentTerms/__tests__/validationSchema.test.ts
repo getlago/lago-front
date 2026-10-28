@@ -2,7 +2,7 @@ import { PAYMENT_TERM_INHERIT } from '~/core/constants/paymentTerm'
 import { PaymentTermTypeEnum } from '~/generated/graphql'
 
 import { PAYMENT_TERM_FORM_DEFAULT_VALUES, PaymentTermFormValues } from '../types'
-import { paymentTermFormSchema } from '../validationSchema'
+import { isDayOfMonthValid, isMonthOffsetValid, paymentTermFormSchema } from '../validationSchema'
 
 const TERM_TYPE_REQUIRED = 'text_1789042962229hmb871mrfas'
 const DAYS_INVALID = 'text_1789042962229bk0kdnqlbpc'
@@ -104,6 +104,28 @@ describe('paymentTermFormSchema', () => {
         // The API fills its own default when the field is absent.
         expect(errorsOf(dayOfMonthTerm({ monthOffset: '' }))).toEqual([])
       })
+    })
+  })
+
+  // The editor reuses the two range checks to flag a field as the user types, so they
+  // must agree with what the schema rejects on submit.
+  describe('isDayOfMonthValid', () => {
+    it.each(['1', '15', '31'])('accepts %s', (value) => {
+      expect(isDayOfMonthValid(value)).toBe(true)
+    })
+
+    it.each(['', '0', '32', '1.5', '-1'])('rejects "%s"', (value) => {
+      expect(isDayOfMonthValid(value)).toBe(false)
+    })
+  })
+
+  describe('isMonthOffsetValid', () => {
+    it.each(['', '0', '12'])('accepts "%s"', (value) => {
+      expect(isMonthOffsetValid(value)).toBe(true)
+    })
+
+    it.each(['13', '-1', 'x'])('rejects "%s"', (value) => {
+      expect(isMonthOffsetValid(value)).toBe(false)
     })
   })
 })
