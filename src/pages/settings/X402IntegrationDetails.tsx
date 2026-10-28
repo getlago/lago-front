@@ -72,10 +72,12 @@ const X402IntegrationDetails = (): JSX.Element | null => {
   const { isPremium, loading: currentUserLoading } = useCurrentUser()
   const isUnavailable = !currentUserLoading && !isPremium
   const { data, loading } = useGetX402IntegrationDetailsQuery({
-    variables: { id: integrationId as string, limit: CONNECTION_LIMIT },
+    variables: { id: integrationId ?? '', limit: CONNECTION_LIMIT },
     skip: !integrationId || !isPremium,
   })
   const connection = data?.x402Connection
+  // Cache-and-network can report loading while cached data is already there: keep it visible.
+  const initialLoading = loading && !data
   const environment = getX402Environment(connection?.networks || [])
 
   const deleteDialogCallback = (): void => {
@@ -104,6 +106,9 @@ const X402IntegrationDetails = (): JSX.Element | null => {
   return (
     <>
       <MainHeader.Configure
+        // The header keeps its action closures until this key changes: an edit that leaves the
+        // name as is must still reopen the dialog on the saved values.
+        snapshotKey={JSON.stringify(data)}
         breadcrumb={[
           {
             label: translate('text_62b1edddbf5f461ab9712750'),
@@ -120,9 +125,9 @@ const X402IntegrationDetails = (): JSX.Element | null => {
         ]}
         entity={{
           viewName: connection?.name || '',
-          viewNameLoading: loading,
+          viewNameLoading: initialLoading,
           metadata: `${translate('text_1793132394868yvgcalp0ap7')} • ${translate('text_1793132394868vegc4k6d1yb')}`,
-          metadataLoading: loading,
+          metadataLoading: initialLoading,
           icon: <Coinbase />,
         }}
         actions={{
@@ -143,17 +148,19 @@ const X402IntegrationDetails = (): JSX.Element | null => {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
                   hidden: !canDeleteIntegration,
                   onClick: (closePopper) => {
-                    openDeleteX402IntegrationDialog({
-                      connection: connection || null,
-                      callback: deleteDialogCallback,
-                    })
+                    if (connection) {
+                      openDeleteX402IntegrationDialog({
+                        connection,
+                        callback: deleteDialogCallback,
+                      })
+                    }
                     closePopper()
                   },
                 },
               ],
             },
           ],
-          loading,
+          loading: initialLoading,
         }}
       />
 
@@ -163,7 +170,7 @@ const X402IntegrationDetails = (): JSX.Element | null => {
             {canEditIntegration && (
               <Button
                 variant="inline"
-                disabled={loading || !connection}
+                disabled={initialLoading || !connection}
                 onClick={() => {
                   if (connection) openAddX402Dialog({ connection })
                 }}
@@ -173,9 +180,9 @@ const X402IntegrationDetails = (): JSX.Element | null => {
             )}
           </IntegrationsPage.Headline>
 
-          {loading &&
+          {initialLoading &&
             [0, 1, 2].map((i) => <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />)}
-          {!loading && !!connection && (
+          {!initialLoading && !!connection && (
             <>
               <IntegrationsPage.DetailsItem
                 icon="text"

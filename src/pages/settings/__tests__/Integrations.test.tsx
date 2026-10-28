@@ -17,7 +17,7 @@ import { X402_INTEGRATION_ROUTE } from '~/core/router'
 import {
   FeatureFlagEnum,
   GetBillingEntitiesDocument,
-  GetX402IntegrationsListDocument,
+  GetX402ConnectionsPresenceDocument,
   IntegrationsSettingDocument,
   PremiumIntegrationTypeEnum,
 } from '~/generated/graphql'
@@ -224,7 +224,7 @@ function netsuiteConnectedMock(): TestMocksType {
 function x402ConnectionsMock(count: number, delay = 0): TestMocksType[number] {
   return {
     delay,
-    request: { query: GetX402IntegrationsListDocument, variables: { limit: 1 } },
+    request: { query: GetX402ConnectionsPresenceDocument },
     result: {
       data: {
         x402Connections: {

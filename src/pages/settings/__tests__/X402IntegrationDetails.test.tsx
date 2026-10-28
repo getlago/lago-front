@@ -1,12 +1,13 @@
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { generatePath } from 'react-router'
 
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { ENTITY_SECTION_VIEW_NAME_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
 import { initializeTranslations } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, X402_INTEGRATION_ROUTE } from '~/core/router'
-import { testMockNavigateFn } from '~/test-utils'
+import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import { renderIntegrationPage } from './integrationTestHelpers'
 
@@ -20,11 +21,13 @@ const AUTO_CREATE_LABEL = 'Auto-create customers - Unknown buyers'
 const MAINNET_VALUE = 'Mainnet'
 const NO_VALUE = 'No'
 const DELETE_ACTION = 'Delete connection'
+const EDIT_ACTION = 'Edit connection'
 
 const mockOpenDeleteDialog = jest.fn()
+const mockOpenAddDialog = jest.fn()
 
 jest.mock('~/components/settings/integrations/AddX402Dialog', () => ({
-  useAddX402Dialog: () => ({ openAddX402Dialog: jest.fn() }),
+  useAddX402Dialog: () => ({ openAddX402Dialog: mockOpenAddDialog }),
 }))
 jest.mock('~/components/settings/integrations/DeleteX402IntegrationDialog', () => ({
   useDeleteX402IntegrationDialog: () => ({
@@ -49,7 +52,7 @@ jest.mock('~/generated/graphql', () => ({
   useGetX402IntegrationDetailsQuery: (...args: unknown[]) => mockQueryResult(...args),
 }))
 
-const buildQueryResult = (otherConnections: number) => ({
+const buildQueryResult = (otherConnections: number, allowedOrigins = ['https://example.com']) => ({
   data: {
     x402Connection: {
       __typename: 'X402ConnectionObject',
@@ -60,7 +63,7 @@ const buildQueryResult = (otherConnections: number) => ({
       cdpApiKeyId: '••••••••…abc',
       cdpApiKeySecret: '••••••••…xyz',
       networks: ['eip155:8453'],
-      allowedOrigins: ['https://example.com'],
+      allowedOrigins,
       autoCreateCustomers: false,
       payoutAddresses: {
         __typename: 'X402PayoutAddresses',
@@ -78,6 +81,13 @@ const buildQueryResult = (otherConnections: number) => ({
   },
   loading: false,
 })
+
+const PageWithHeader = () => (
+  <>
+    <MainHeader />
+    <X402IntegrationDetails />
+  </>
+)
 
 const valueOf = (label: string): string | null | undefined =>
   screen.getByText(label).parentElement?.textContent
@@ -158,6 +168,48 @@ describe('X402IntegrationDetails', () => {
           integrationGroup: IntegrationsTabsOptionsEnum.Lago,
         }),
       )
+    })
+  })
+
+  describe('GIVEN the connection was just edited without renaming it', () => {
+    it('WHEN reopening the edit action from the header THEN it opens on the saved values', async () => {
+      const user = userEvent.setup()
+
+      mockQueryResult.mockReturnValue(buildQueryResult(0))
+      // One component type across renders, so the rerender updates the page like a refetch
+      // does instead of mounting a fresh header.
+      const { rerender } = render(<PageWithHeader />, {
+        wrapper: ({ children }) => (
+          <AllTheProviders useParams={{ integrationId: 'connection-id' }}>
+            {children}
+          </AllTheProviders>
+        ),
+      })
+
+      mockQueryResult.mockReturnValue(buildQueryResult(0, ['https://saved.example.com']))
+      await act(async () => {
+        rerender(<PageWithHeader />)
+      })
+
+      await user.click(screen.getByText('Actions'))
+      await user.click(screen.getByText(EDIT_ACTION))
+
+      expect(mockOpenAddDialog).toHaveBeenLastCalledWith({
+        connection: expect.objectContaining({ allowedOrigins: ['https://saved.example.com'] }),
+      })
+    })
+  })
+
+  describe('GIVEN cached data while the query refreshes', () => {
+    it('THEN keeps showing the fields instead of skeletons', async () => {
+      mockQueryResult.mockReturnValue({ ...buildQueryResult(0), loading: true })
+
+      const { container } = await renderIntegrationPage(X402IntegrationDetails, {
+        useParams: { integrationId: 'connection-id' },
+      })
+
+      expect(valueOf(SECRET_LABEL)).toContain('••••••••…xyz')
+      expect(container.querySelector('.animate-pulse')).not.toBeInTheDocument()
     })
   })
 

@@ -24,7 +24,7 @@ gql`
 `
 
 type TDeleteX402IntegrationDialogProps = {
-  connection: DeleteX402IntegrationDialogFragment | null
+  connection: DeleteX402IntegrationDialogFragment
   callback?: () => void
 }
 
@@ -42,13 +42,19 @@ export const useDeleteX402IntegrationDialog = (): {
     callback,
   }: TDeleteX402IntegrationDialogProps): void => {
     void centralizedDialog.open({
-      title: translate('text_658461066530343fe1808cd7', { name: connection?.name }),
+      title: translate('text_658461066530343fe1808cd7', { name: connection.name }),
       description: translate('text_1793132394870zqu6a6vy2ps'),
       colorVariant: 'danger',
       actionText: translate('text_645d071272418a14c1c76a81'),
+      // A network failure rejects the mutation, and the error link only reports GraphQL errors:
+      // keep the dialog open and say it failed.
+      closeOnError: false,
+      onError: () => {
+        addToast({ message: translate('text_62d7ffcb1c57d7e6d15bdce3'), severity: 'danger' })
+      },
       onAction: async () => {
         const result = await deleteConnection({
-          variables: { input: { id: connection?.id as string } },
+          variables: { input: { id: connection.id } },
         })
 
         const destroyedId = result.data?.destroyX402Connection?.id

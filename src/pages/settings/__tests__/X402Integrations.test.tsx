@@ -50,6 +50,14 @@ const connection = {
   code: 'coinbase_devnet',
 }
 
+const rowActionsButton = (): HTMLElement => {
+  const button = screen.getByTestId('dots-horizontal/medium').closest('button')
+
+  if (!button) throw new Error('No row actions button')
+
+  return button
+}
+
 describe('X402Integrations', () => {
   beforeAll(async () => {
     await initializeTranslations()
@@ -83,9 +91,7 @@ describe('X402Integrations', () => {
       const user = userEvent.setup()
 
       await renderIntegrationPage(X402Integrations)
-      await user.click(
-        screen.getByTestId('dots-horizontal/medium').closest('button') as HTMLElement,
-      )
+      await user.click(rowActionsButton())
       await user.click(screen.getByText(EDIT_ACTION))
 
       expect(mockOpenAddDialog).toHaveBeenCalledWith({ connection })
@@ -96,9 +102,7 @@ describe('X402Integrations', () => {
       const user = userEvent.setup()
 
       await renderIntegrationPage(X402Integrations)
-      await user.click(
-        screen.getByTestId('dots-horizontal/medium').closest('button') as HTMLElement,
-      )
+      await user.click(rowActionsButton())
       await user.click(screen.getByText(DELETE_ACTION))
 
       const { connection: deleted, callback } = mockOpenDeleteDialog.mock.calls[0][0]
@@ -123,6 +127,17 @@ describe('X402Integrations', () => {
       )
       expect(mockQueryResult).toHaveBeenCalledWith(expect.objectContaining({ skip: true }))
       expect(screen.queryByText('Coinbase Devnet')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN cached connections while the query refreshes', () => {
+    it('THEN keeps showing them instead of skeletons', async () => {
+      mockQueryResult.mockReturnValue({ ...mockQueryResult(), loading: true })
+
+      const { container } = await renderIntegrationPage(X402Integrations)
+
+      expect(screen.getByText('Coinbase Devnet')).toBeInTheDocument()
+      expect(container.querySelector('.animate-pulse')).not.toBeInTheDocument()
     })
   })
 

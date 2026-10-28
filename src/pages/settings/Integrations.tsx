@@ -58,7 +58,7 @@ import {
   FeatureFlagEnum,
   PremiumIntegrationTypeEnum,
   useGetBillingEntitiesQuery,
-  useGetX402IntegrationsListQuery,
+  useGetX402ConnectionsPresenceQuery,
   useIntegrationsSettingQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -91,6 +91,14 @@ export const INTEGRATIONS_SALESFORCE_TEST_ID = 'integrations-salesforce'
 export const INTEGRATIONS_SEGMENT_TEST_ID = 'integrations-segment'
 
 gql`
+  query getX402ConnectionsPresence {
+    x402Connections(limit: 1) {
+      collection {
+        id
+      }
+    }
+  }
+
   query integrationsSetting($limit: Int) {
     paymentProviders(limit: $limit) {
       collection {
@@ -174,8 +182,7 @@ const Integrations = () => {
     nextFetchPolicy: 'cache-and-network',
   })
 
-  const { data: x402Data, loading: x402Loading } = useGetX402IntegrationsListQuery({
-    variables: { limit: 1 },
+  const { data: x402Data, loading: x402Loading } = useGetX402ConnectionsPresenceQuery({
     skip: !isX402Enabled,
   })
   const hasX402Integration = !!x402Data?.x402Connections?.collection.length

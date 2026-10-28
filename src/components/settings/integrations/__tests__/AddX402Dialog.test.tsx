@@ -3,13 +3,18 @@ import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 import { generatePath } from 'react-router'
 
+import { FormProps } from '~/components/dialogs/types'
 import { addToast, initializeTranslations } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { X402_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   AddX402ConnectionDialogFragment,
   CreateX402ConnectionMutation,
+  CreateX402ConnectionMutationOptions,
   UpdateX402ConnectionMutation,
+  UpdateX402ConnectionMutationOptions,
+  X402AssetEnum,
 } from '~/generated/graphql'
 import { AllTheProviders, render, testMockNavigateFn } from '~/test-utils'
 
@@ -27,20 +32,15 @@ const mockDialogOpen = jest.fn()
 const mockCreateConnection = jest.fn()
 const mockUpdateConnection = jest.fn()
 
-type CreateOptions = {
-  context?: unknown
-  onCompleted?: (data: CreateX402ConnectionMutation) => void
-}
-type UpdateOptions = {
-  context?: unknown
-  onCompleted?: (data: UpdateX402ConnectionMutation) => void
-}
-
-let mockCreateOptions: CreateOptions | undefined
-let mockUpdateOptions: UpdateOptions | undefined
+let mockCreateOptions: CreateX402ConnectionMutationOptions | undefined
+let mockUpdateOptions: UpdateX402ConnectionMutationOptions | undefined
 
 jest.mock('~/components/dialogs/FormDialog', () => ({
   useFormDialog: () => ({ open: mockDialogOpen, close: jest.fn() }),
+}))
+
+jest.mock('~/core/form/scrollToFirstInputError', () => ({
+  scrollToFirstInputError: jest.fn(),
 }))
 
 jest.mock('~/core/apolloClient', () => ({
@@ -50,11 +50,11 @@ jest.mock('~/core/apolloClient', () => ({
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useCreateX402ConnectionMutation: (options?: CreateOptions) => {
+  useCreateX402ConnectionMutation: (options?: CreateX402ConnectionMutationOptions) => {
     mockCreateOptions = options
     return [mockCreateConnection]
   },
-  useUpdateX402ConnectionMutation: (options?: UpdateOptions) => {
+  useUpdateX402ConnectionMutation: (options?: UpdateX402ConnectionMutationOptions) => {
     mockUpdateOptions = options
     return [mockUpdateConnection]
   },
@@ -63,6 +63,8 @@ jest.mock('~/generated/graphql', () => ({
 const wrapper = ({ children }: { children: ReactNode }) => (
   <AllTheProviders>{children}</AllTheProviders>
 )
+
+const SVM_ADDRESS = '2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4'
 
 const connection: AddX402ConnectionDialogFragment = {
   __typename: 'X402ConnectionObject',
@@ -75,8 +77,25 @@ const connection: AddX402ConnectionDialogFragment = {
   payoutAddresses: {
     __typename: 'X402PayoutAddresses',
     evm: '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
-    svm: '2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4',
+    svm: SVM_ADDRESS,
   },
+}
+
+// What the API answers: the dialog's fields plus the details page's.
+const savedConnection: NonNullable<UpdateX402ConnectionMutation['updateX402Connection']> = {
+  ...connection,
+  asset: X402AssetEnum.Usdc,
+  cdpApiKeyId: '••••••••…abc',
+  cdpApiKeySecret: '••••••••…xyz',
+}
+
+// The input's wrapper, which holds its error message.
+const fieldOf = (input: HTMLElement): HTMLElement => {
+  const field = input.closest('.MuiFormControl-root')?.parentElement
+
+  if (!field) throw new Error('No form field around this input')
+
+  return field
 }
 
 const openDialog = async (data?: { connection?: AddX402ConnectionDialogFragment }) => {
@@ -93,14 +112,17 @@ const openDialog = async (data?: { connection?: AddX402ConnectionDialogFragment 
   return dialogProps
 }
 
-const submit = async (dialogProps: { form: { submit: () => Promise<unknown> } }) => {
+// Judged the way the dialog does: a rejected submit, or one the form did not mark successful.
+const submit = async (dialogProps: { form: FormProps }) => {
   let outcome: 'success' | 'failure' = 'success'
 
   await act(async () => {
-    await dialogProps.form.submit().catch(() => {
+    await Promise.resolve(dialogProps.form.submit()).catch(() => {
       outcome = 'failure'
     })
   })
+
+  if (dialogProps.form.didSubmitSucceed && !dialogProps.form.didSubmitSucceed()) outcome = 'failure'
 
   return outcome
 }
@@ -128,14 +150,14 @@ describe('useAddX402Dialog', () => {
     mockDialogOpen.mockImplementation(() => new Promise(() => {}))
     mockCreateConnection.mockImplementation(async () => {
       const data: CreateX402ConnectionMutation = {
-        createX402Connection: { ...connection, id: 'new-connection-id', asset: undefined },
-      } as unknown as CreateX402ConnectionMutation
+        createX402Connection: { ...savedConnection, id: 'new-connection-id' },
+      }
 
       mockCreateOptions?.onCompleted?.(data)
       return { data }
     })
     mockUpdateConnection.mockImplementation(async () => {
-      const data = { updateX402Connection: connection } as unknown as UpdateX402ConnectionMutation
+      const data: UpdateX402ConnectionMutation = { updateX402Connection: savedConnection }
 
       mockUpdateOptions?.onCompleted?.(data)
       return { data }
@@ -157,11 +179,15 @@ describe('useAddX402Dialog', () => {
     })
 
     describe('WHEN submitting an empty form', () => {
-      it('THEN shows the required errors and sends nothing', async () => {
+      it('THEN shows the required errors, scrolls to the first one and sends nothing', async () => {
         const dialogProps = await openDialog()
 
         expect(await submit(dialogProps)).toBe('failure')
         expect(screen.getAllByText(REQUIRED_ERROR).length).toBeGreaterThan(0)
+        expect(scrollToFirstInputError).toHaveBeenCalledWith(
+          'form-add-x402-integration',
+          expect.objectContaining({ name: expect.anything() }),
+        )
         expect(mockCreateConnection).not.toHaveBeenCalled()
         expect(mockUpdateConnection).not.toHaveBeenCalled()
       })
@@ -314,9 +340,7 @@ describe('useAddX402Dialog', () => {
 
         expect(await submit(dialogProps)).toBe('failure')
 
-        const svmField = screen
-          .getByDisplayValue(connection.payoutAddresses.svm as string)
-          .closest('.MuiFormControl-root')?.parentElement as HTMLElement
+        const svmField = fieldOf(screen.getByDisplayValue(SVM_ADDRESS))
 
         expect(
           within(svmField).getByText(

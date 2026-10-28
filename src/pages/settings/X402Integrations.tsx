@@ -52,6 +52,8 @@ const X402Integrations = (): JSX.Element | null => {
     skip: !isPremium,
   })
   const connections = data?.x402Connections?.collection
+  // Cache-and-network can report loading while cached data is already there: keep it visible.
+  const initialLoading = loading && !data
   const deleteDialogCallback =
     connections?.length === 1
       ? () =>
@@ -89,9 +91,9 @@ const X402Integrations = (): JSX.Element | null => {
         ]}
         entity={{
           viewName: translate('text_1793132394868yvgcalp0ap7'),
-          viewNameLoading: loading,
+          viewNameLoading: initialLoading,
           metadata: translate('text_62b1edddbf5f461ab971271f'),
-          metadataLoading: loading,
+          metadataLoading: initialLoading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Coinbase />,
         }}
@@ -107,7 +109,7 @@ const X402Integrations = (): JSX.Element | null => {
               },
             },
           ],
-          loading,
+          loading: initialLoading,
         }}
       />
 
@@ -115,10 +117,10 @@ const X402Integrations = (): JSX.Element | null => {
         <section>
           <IntegrationsPage.Headline label={translate('text_65846763e6140b469140e239')} />
 
-          {loading &&
+          {initialLoading &&
             [1, 2].map((i) => <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />)}
 
-          {!loading &&
+          {!initialLoading &&
             connections?.map((connection) => (
               <IntegrationsPage.ListItem
                 key={`x402-connection-${connection.id}`}
