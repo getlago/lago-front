@@ -472,6 +472,61 @@ describe('AddOnSelectionContent', () => {
     })
   })
 
+  describe('GIVEN an add-on in a currency without 2 decimals', () => {
+    describe('WHEN it is selected in a JPY quote', () => {
+      it('THEN should show and prefill its full price', async () => {
+        mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
+          data: {
+            addOns: {
+              collection: [
+                {
+                  ...addOnsCollection[0],
+                  id: 'addon-jpy',
+                  name: 'Yen Setup',
+                  code: 'yen_setup',
+                  amountCents: '1000',
+                  amountCurrency: CurrencyEnum.Jpy,
+                },
+              ],
+            },
+          },
+          loading: false,
+        })
+
+        renderWithForm({ currency: CurrencyEnum.Jpy, initialValues: { addOnItems: [] } })
+
+        await userEvent.click(screen.getByTestId('add-add-on-button'))
+
+        const comboBoxInput = within(screen.getByTestId('add-on-pending-0')).getByRole(
+          'combobox',
+        ) as HTMLInputElement
+
+        await userEvent.type(comboBoxInput, 'Yen')
+
+        await waitFor(() => {
+          expect(comboBoxInput.getAttribute('aria-controls')).toBeTruthy()
+        })
+
+        const listbox = document.getElementById(
+          comboBoxInput.getAttribute('aria-controls') as string,
+        ) as HTMLElement
+
+        // ¥1,000, not ¥10
+        expect(within(listbox).getByText(/1,000/)).toBeInTheDocument()
+
+        await userEvent.click(within(listbox).getByText('Yen Setup'))
+
+        await waitFor(() => {
+          expect(screen.getByTestId('add-on-item-0')).toBeInTheDocument()
+        })
+
+        expect(
+          within(screen.getByTestId('add-on-item-0')).getByDisplayValue(/^1,?000$/),
+        ).toBeInTheDocument()
+      })
+    })
+  })
+
   describe('GIVEN a confirmed add-on item already selected', () => {
     beforeEach(() => {
       mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
