@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 
 import {
   buildPaymentTermInput,
+  displayedPaymentTerm,
   paymentTermDueDate,
   ResolvablePaymentTerm,
   resolvePaymentTerm,
@@ -12,6 +13,24 @@ const dueDate = (issuingDate: string, term: ResolvablePaymentTerm): string =>
   paymentTermDueDate(DateTime.fromISO(issuingDate), term).toISODate() as string
 
 describe('paymentTerm', () => {
+  describe('displayedPaymentTerm', () => {
+    it('reads a zero-day net term as due on receipt, as the PDF does', () => {
+      expect(displayedPaymentTerm({ termType: PaymentTermTypeEnum.Net, days: 0 })).toEqual({
+        termType: PaymentTermTypeEnum.DueOnReceipt,
+      })
+    })
+
+    it.each`
+      term
+      ${{ termType: PaymentTermTypeEnum.Net, days: 30 }}
+      ${{ termType: PaymentTermTypeEnum.NetEndOfMonth, days: 0 }}
+      ${{ termType: PaymentTermTypeEnum.DaysEndOfMonth, days: 0 }}
+      ${{ termType: PaymentTermTypeEnum.EndOfMonth }}
+    `('leaves $term.termType with $term.days days as is', ({ term }) => {
+      expect(displayedPaymentTerm(term)).toBe(term)
+    })
+  })
+
   describe('paymentTermDueDate', () => {
     // The reference table from the spec: every type against the same issuing date.
     it.each`
