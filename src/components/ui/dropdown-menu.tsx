@@ -158,7 +158,7 @@ export const DropdownMenuShortcut = ({
     {...props}
     aria-hidden="true"
     className={cn(
-      'v2-text-caption ml-auto shrink-0 text-text-muted group-data-[disabled]:text-disabled-foreground',
+      'v2-text-caption ml-auto shrink-0 text-text-subtle group-data-[disabled]:text-disabled-foreground',
       className,
     )}
   />
