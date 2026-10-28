@@ -31,9 +31,9 @@ from assistive technology. Native buttons default to `type="button"`; supply
 
 Colors follow the surrounding v2 color theme. Use `ColorTheme` when an explicit
 light/dark region is needed. Primary/destructive use their action state tokens.
-Secondary uses surface-raised at rest, surface-inset for focus/loading and as the
-base for hover/pressed feedback, border-subtle and shadow-v2-interactive. Outline
-uses surface and border-default. Ghost is transparent at rest. Alpha interactive
+Secondary uses surface-raised at rest, surface-subtle for focus/loading and as the
+base for hover/pressed feedback, border-divider and shadow-v2-interactive. Outline
+uses surface and border-control. Ghost is transparent at rest. Alpha interactive
 feedback overlays secondary/outline surfaces and fills ghost controls.
 
 Focus uses a 4px focus-ring with no gap; outline buttons also use focus-border.
