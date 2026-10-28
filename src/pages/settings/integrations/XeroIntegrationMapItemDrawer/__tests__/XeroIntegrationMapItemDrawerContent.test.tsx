@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { ComboBoxProps } from '~/components/form'
@@ -11,14 +11,18 @@ import { xeroMappingDefaultValues } from '../validationSchema'
 import { XeroIntegrationMapItemDrawerContent } from '../XeroIntegrationMapItemDrawerContent'
 
 const SEEDED_ITEM = { externalId: 'ext-1', externalName: 'Sales', externalAccountCode: '200' }
+const OTHER_ITEM = { externalId: 'ext-2', externalName: 'Services', externalAccountCode: '300' }
 
-const mockComboboxData = [
-  {
-    label: 'Sales (200)',
-    description: SEEDED_ITEM.externalId,
-    value: stringifyOptionValue(SEEDED_ITEM),
-  },
-]
+const toOption = (item: typeof SEEDED_ITEM) => ({
+  label: `${item.externalName} (${item.externalAccountCode})`,
+  description: item.externalId,
+  value: stringifyOptionValue(item),
+})
+
+const mockComboboxData = [toOption(SEEDED_ITEM), toOption(OTHER_ITEM)]
+// What the shared query holds once one combobox has searched: the other mapping's item is gone.
+const mockSearchedComboboxData = [toOption(SEEDED_ITEM)]
+const mockSetIsSearching = { current: jest.fn<void, [boolean]>() }
 
 const mockItemsHookMounted = jest.fn()
 const mockRefresh = jest.fn()
@@ -28,13 +32,18 @@ jest.mock('../useXeroIntegrationItems', () => ({
   useXeroIntegrationItems: (formType: unknown, integrationId: unknown) => {
     // The mount effect runs once per component instance holding the hook: it is what the
     // assertions below count to prove the query is not re-instantiated per rendered tab.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, react-hooks/rules-of-hooks
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('react').useEffect(() => {
       mockItemsHookMounted(formType, integrationId)
     }, [formType, integrationId])
 
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const [isSearching, setIsSearching] = require('react').useState(false)
+
+    mockSetIsSearching.current = setIsSearching
+
     return {
-      comboboxData: mockComboboxData,
+      comboboxData: isSearching ? mockSearchedComboboxData : mockComboboxData,
       isLoading: false,
       searchQuery: mockSearchQuery as unknown as ComboBoxProps['searchQuery'],
       refresh: mockRefresh,
@@ -51,8 +60,15 @@ const BILLING_ENTITIES = [
   { id: 'be-2', key: 'globex', name: 'Globex' },
 ]
 
-const TestHost = () => {
-  const form = useAppForm({ defaultValues: xeroMappingDefaultValues })
+const TestHost = ({ seeded = false }: { seeded?: boolean }) => {
+  const form = useAppForm({
+    defaultValues: seeded
+      ? {
+          default: { selectedElementValue: stringifyOptionValue(SEEDED_ITEM) },
+          acme: { selectedElementValue: stringifyOptionValue(OTHER_ITEM) },
+        }
+      : xeroMappingDefaultValues,
+  })
 
   return (
     <XeroIntegrationMapItemDrawerContent
@@ -100,6 +116,28 @@ describe('XeroIntegrationMapItemDrawerContent', () => {
         await user.click(screen.getByRole('tab', { name: 'Acme' }))
 
         expect(mockItemsHookMounted).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN one combobox narrows the shared list by searching', () => {
+      // Regression: the shared list used to drop the other mapping's item, and ComboBox clears a
+      // field whose selected option leaves `data` — silently wiping an untouched mapping.
+      it('THEN should keep the mapping selected in the other combobox', () => {
+        render(<TestHost seeded />)
+
+        const acmeInput = document.querySelector(
+          'input[name="acme.selectedElementValue"]',
+        ) as HTMLInputElement
+
+        expect(acmeInput).toHaveValue('Services (300)')
+
+        act(() => {
+          mockSetIsSearching.current(true)
+        })
+
+        expect(document.querySelector('input[name="acme.selectedElementValue"]')).toHaveValue(
+          'Services (300)',
+        )
       })
     })
 

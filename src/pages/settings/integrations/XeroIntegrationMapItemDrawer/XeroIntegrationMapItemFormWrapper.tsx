@@ -3,6 +3,7 @@ import { BasicComboBoxData, ComboBoxProps } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
+import { extractOptionValue } from './extractOptionValue'
 import { xeroMappingDefaultValues } from './validationSchema'
 
 type XeroIntegrationMapItemFormWrapperProps = {
@@ -19,6 +20,29 @@ const defaultProps: XeroIntegrationMapItemFormWrapperProps = {
   isLoading: false,
   searchQuery: undefined,
   onRefresh: () => {},
+}
+
+// The item list is shared by every billing entity, so a search narrows it for all of them.
+// `ComboBox` clears its field when the selected option leaves `data`, which would wipe the
+// mappings the user is not searching in.
+const withSelectedOption = (
+  comboboxData: BasicComboBoxData[],
+  selectedValue: string | undefined,
+): BasicComboBoxData[] => {
+  if (!selectedValue || comboboxData.some(({ value }) => value === selectedValue)) {
+    return comboboxData
+  }
+
+  const { externalId, externalName, externalAccountCode } = extractOptionValue(selectedValue)
+
+  return [
+    ...comboboxData,
+    {
+      label: `${externalName} (${externalAccountCode})`,
+      description: externalId,
+      value: selectedValue,
+    },
+  ]
 }
 
 export const XeroIntegrationMapItemFormWrapper = withForm({
@@ -43,7 +67,7 @@ export const XeroIntegrationMapItemFormWrapper = withForm({
           <form.AppField name={`${billingEntityKey}.selectedElementValue`}>
             {(field) => (
               <field.ComboBoxField
-                data={comboboxData}
+                data={withSelectedOption(comboboxData, field.state.value as string | undefined)}
                 loading={isLoading}
                 label={translate('text_6672ebb8b1b50be550eccb73')}
                 placeholder={translate('text_6630e51df0a194013daea622')}
