@@ -4,19 +4,19 @@ import * as React from 'react'
 import { cn } from '~/lib/utils'
 
 export const badgeVariants = cva(
-  'v2-text-caption inline-flex shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-md border border-solid px-[7px] py-0 [&>svg]:size-3.5 [&>svg]:shrink-0',
+  'v2-text-caption inline-flex shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-md border border-solid py-0 text-center font-medium [&>svg]:size-3.5 [&>svg]:shrink-0',
   {
     variants: {
       variant: {
-        neutral: 'border-border-subtle bg-surface-inset text-text-default',
+        neutral: 'border-border-divider bg-surface-subtle text-text-default',
         info: 'border-info-border bg-info text-info-foreground',
         success: 'border-success-border bg-success text-success-foreground',
         warning: 'border-warning-border bg-warning text-warning-foreground',
         danger: 'border-danger-border bg-danger text-danger-foreground',
-        disabled: 'border-border-subtle bg-surface-inset text-disabled-foreground',
-        outline: 'border-border-subtle bg-surface-inset text-text-subtle',
+        disabled: 'border-border-divider bg-surface-subtle text-disabled-foreground',
+        outline: 'border-border-divider bg-surface-subtle text-text-subtle',
       },
-      size: { sm: 'h-5', default: 'h-6' },
+      size: { sm: 'h-5 min-w-5 px-1', default: 'h-6 min-w-6 px-2' },
     },
     defaultVariants: { variant: 'neutral', size: 'default' },
   },
@@ -25,10 +25,17 @@ export const badgeVariants = cva(
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLSpanElement>, VariantProps<typeof badgeVariants> {}
 
-// Seven pixels of padding plus the border preserve Figma's 8px inside inset.
 export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
-  ({ className, variant, size, ...props }, ref) => (
-    <span ref={ref} className={cn(badgeVariants({ variant, size }), className)} {...props} />
+  ({ className, variant, size, children, ...props }, ref) => (
+    <span ref={ref} className={cn(badgeVariants({ variant, size }), className)} {...props}>
+      {React.Children.map(children, (child) =>
+        typeof child === 'string' || typeof child === 'number' ? (
+          <span className="min-w-px flex-1 text-center">{child}</span>
+        ) : (
+          child
+        ),
+      )}
+    </span>
   ),
 )
 Badge.displayName = 'Badge'
