@@ -8,7 +8,7 @@ describe('Badge', () => {
   it('renders static text and forwards its span ref and attributes', () => {
     const ref = createRef<HTMLSpanElement>()
     render(
-      <Badge ref={ref} title="Payment state" data-testid="badge">
+      <Badge ref={ref} title="Payment state">
         Active
       </Badge>,
     )
@@ -22,15 +22,16 @@ describe('Badge', () => {
   })
 
   it('keeps decorative icons hidden while preserving the visible label', () => {
+    const iconRef = createRef<SVGSVGElement>()
     render(
       <Badge variant="success" size="sm">
-        <CircleCheck aria-hidden="true" data-testid="icon" strokeWidth={2} />
+        <CircleCheck ref={iconRef} aria-hidden="true" strokeWidth={2} />
         Active
       </Badge>,
     )
     expect(screen.getByText('Active')).toBeVisible()
-    expect(screen.getByTestId('icon')).toHaveAttribute('aria-hidden', 'true')
-    expect(screen.getByTestId('icon')).toHaveAttribute('stroke-width', '2')
+    expect(iconRef.current).toHaveAttribute('aria-hidden', 'true')
+    expect(iconRef.current).toHaveAttribute('stroke-width', '2')
   })
 
   it('does not treat the disabled tone as an inactive control', () => {
