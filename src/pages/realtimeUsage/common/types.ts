@@ -1,11 +1,7 @@
+import { Series } from '~/components/realtimeUsage/types'
 import { RealtimeUsageTimeGranularityEnum } from '~/generated/graphql'
 
-export type Series = { key: string; dimensionKey: string; label: string; color: string }
-
-export type PeriodPoint = { time: string; isPartial: boolean } & Record<
-  string,
-  number | string | boolean
->
+export type DimensionSeries = Series & { dimensionKey: string }
 
 export type RealtimeUsageQueryFilters = {
   externalCustomerId?: string

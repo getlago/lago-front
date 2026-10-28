@@ -1,6 +1,8 @@
 import { act, renderHook } from '@testing-library/react'
 import { Settings } from 'luxon'
 
+import { TimezoneEnum } from '~/generated/graphql'
+
 import { useRealtimeUsageClock } from '../useRealtimeUsageClock'
 
 const START = Date.parse('2026-08-24T10:00:00.000Z')
@@ -58,6 +60,35 @@ describe('useRealtimeUsageClock', () => {
       act(() => result.current.tick())
 
       expect(result.current.now.toMillis()).toBe(START + 90_000)
+    })
+
+    describe('WHEN an hourly timezone is given', () => {
+      it('THEN ticks on each hour wall of that timezone', () => {
+        const { result } = renderHook(() =>
+          useRealtimeUsageClock({ autoRefreshSeconds: 0, hourlyTimezone: TimezoneEnum.TzUtc }),
+        )
+
+        advance(30 * 60 * 1000)
+        expect(result.current.now.toMillis()).toBe(START)
+
+        advance(30 * 60 * 1000)
+        expect(result.current.now.toMillis()).toBe(START + 60 * 60 * 1000)
+
+        advance(60 * 60 * 1000)
+        expect(result.current.now.toMillis()).toBe(START + 2 * 60 * 60 * 1000)
+      })
+
+      it('THEN follows a half-hour offset rather than the UTC hour', () => {
+        const { result } = renderHook(() =>
+          useRealtimeUsageClock({
+            autoRefreshSeconds: 0,
+            hourlyTimezone: TimezoneEnum.TzAsiaKolkata,
+          }),
+        )
+
+        advance(30 * 60 * 1000)
+        expect(result.current.now.toMillis()).toBe(START + 30 * 60 * 1000)
+      })
     })
   })
 

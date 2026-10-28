@@ -13,8 +13,6 @@ export const DIMENSION_COLORS = [
   theme.palette.success[300],
   theme.palette.secondary[400],
 ]
-export const DEFAULT_DIMENSION_COLOR = theme.palette.grey[500]
-export const OTHER_DIMENSION_COLOR = theme.palette.grey[400]
 
 // A dimension key is JSON, which recharts would read as a nested path.
 export const SERIES_KEY_PREFIX = 'dimension_'

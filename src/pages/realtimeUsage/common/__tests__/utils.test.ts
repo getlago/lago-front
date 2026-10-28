@@ -1,13 +1,9 @@
 import { DateTime } from 'luxon'
 
+import { DEFAULT_SERIES_COLOR, OTHER_SERIES_COLOR } from '~/components/realtimeUsage/constants'
 import { RealtimeUsageTimeGranularityEnum, TimezoneEnum } from '~/generated/graphql'
 
-import {
-  DEFAULT_DIMENSION_COLOR,
-  DIMENSION_COLORS,
-  OTHER_DIMENSION_COLOR,
-  SERIES_KEY_PREFIX,
-} from '../constants'
+import { DIMENSION_COLORS, SERIES_KEY_PREFIX } from '../constants'
 import { RealtimeUsageReport } from '../types'
 import { buildDimensionSeries, formatPeriod, heldKeyOf, isPartialPeriod } from '../utils'
 
@@ -60,9 +56,9 @@ describe('buildDimensionSeries', () => {
 
     expect(series.map((serie) => serie.color)).toEqual([
       DIMENSION_COLORS[0],
-      DEFAULT_DIMENSION_COLOR,
+      DEFAULT_SERIES_COLOR,
       DIMENSION_COLORS[1],
-      OTHER_DIMENSION_COLOR,
+      OTHER_SERIES_COLOR,
     ])
     expect(series.map((serie) => serie.label)).toEqual([
       'eu',

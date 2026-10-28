@@ -11,15 +11,13 @@ import {
 
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
+import { formatUnits } from '~/components/realtimeUsage/utils'
 import { WINDOWS } from '~/components/subscriptions/realtimeUsage/common/constants'
 import { RealtimeUsageControls } from '~/components/subscriptions/realtimeUsage/common/RealtimeUsageControls'
 import { RealtimeUsageEmpty } from '~/components/subscriptions/realtimeUsage/common/RealtimeUsageEmpty'
 import { RealtimeUsageHeader } from '~/components/subscriptions/realtimeUsage/common/RealtimeUsageHeader'
 import { useRealtimeUsage } from '~/components/subscriptions/realtimeUsage/common/useRealtimeUsage'
-import {
-  formatUnits,
-  prefersReducedMotion,
-} from '~/components/subscriptions/realtimeUsage/common/utils'
+import { prefersReducedMotion } from '~/components/subscriptions/realtimeUsage/common/utils'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { tw } from '~/styles/utils'

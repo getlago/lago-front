@@ -205,6 +205,12 @@ export const formatMetadataFilter = (metadata: { key: string; value: string }[])
     .join(METADATA_SPLITTER)
 }
 
+// Dimension keys are JSON, whose commas would split the comma-separated filter value.
+export const encodeRealtimeDimensionKey = (key: string): string => encodeURIComponent(key)
+
+export const decodeRealtimeDimensionKey = (value: string): string =>
+  decodeURIComponent(value.split(filterDataInlineSeparator)[0])
+
 /**
  * Multiple-value filters join selections with a comma; the display label embedded after
  * `filterDataInlineSeparator` (a customer/entity name, an email) can itself contain commas.
@@ -212,12 +218,6 @@ export const formatMetadataFilter = (metadata: { key: string; value: string }[])
  * over-splits; unescapeFilterLabel restores them for display. The id portion (before the
  * separator) is never escaped, so query decoding is unaffected.
  */
-// Dimension keys are JSON, whose commas would split the comma-separated filter value.
-export const encodeRealtimeDimensionKey = (key: string): string => encodeURIComponent(key)
-
-export const decodeRealtimeDimensionKey = (value: string): string =>
-  decodeURIComponent(value.split(filterDataInlineSeparator)[0])
-
 export const escapeFilterLabel = (label: string): string =>
   label.split(',').join(filterDataLabelCommaPlaceholder)
 

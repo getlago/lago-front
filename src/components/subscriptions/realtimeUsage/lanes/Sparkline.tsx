@@ -1,7 +1,7 @@
 import { PointerEvent, useState } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
-import { formatUnits } from '~/components/subscriptions/realtimeUsage/common/utils'
+import { formatUnits } from '~/components/realtimeUsage/utils'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { SPARK_VIEWBOX_WIDTH } from './constants'

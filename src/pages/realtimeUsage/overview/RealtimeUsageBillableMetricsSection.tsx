@@ -11,9 +11,9 @@ import { Typography } from '~/components/designSystem/Typography'
 import { keyWithPrefix } from '~/components/Filters/graphql/utils'
 import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
 import { useHeldData } from '~/components/realtimeUsage/useHeldData'
+import { formatUnits } from '~/components/realtimeUsage/utils'
 import { REALTIME_USAGE_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { Link, REALTIME_USAGE_BILLABLE_METRIC_ROUTE } from '~/core/router'
 import {
   RealtimeUsageBarChartReportFragmentDoc,
@@ -86,7 +86,12 @@ export const RealtimeUsageBillableMetricsSection = ({
     data: servedData,
     loading,
     error,
-  } = useGetRealtimeUsageBillableMetricsQuery({ variables, skip, fetchPolicy: 'no-cache' })
+  } = useGetRealtimeUsageBillableMetricsQuery({
+    variables,
+    skip,
+    fetchPolicy: 'no-cache',
+    context: { silentError: true },
+  })
   const { data, isHeld } = useHeldData(servedData, heldKeyOf(variables), !!error)
 
   const reports = data?.realtimeUsageBillableMetrics.collection || []
@@ -164,7 +169,7 @@ export const RealtimeUsageBillableMetricsSection = ({
                   <Icon name="chevron-right-filled" color="dark" />
                 </Link>
                 <Typography variant="caption" color="grey600">
-                  {`${intlFormatNumber(report.units, { style: 'decimal', maximumFractionDigits: 2 })} ${translate(
+                  {`${formatUnits(report.units)} ${translate(
                     'text_17476657511358tgyvof5x1u',
                     undefined,
                     report.units,
