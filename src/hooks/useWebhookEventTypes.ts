@@ -35,9 +35,36 @@ const formatCategoryLabel = (category: EventCategoryEnum): string => {
   return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1)
 }
 
+const planEventKeys = new Set<string>([
+  EventTypeEnum.PlanCreated,
+  EventTypeEnum.PlanUpdated,
+  EventTypeEnum.PlanDeleted,
+  EventTypeEnum.PlanRateCardCreated,
+  EventTypeEnum.PlanRateCardUpdated,
+  EventTypeEnum.PlanRateCardDeleted,
+])
+
+const contractEventKeys = new Set<string>([
+  EventTypeEnum.ContractCreated,
+  EventTypeEnum.ContractUpdated,
+  EventTypeEnum.ContractStarted,
+  EventTypeEnum.ContractCanceled,
+  EventTypeEnum.ContractTerminated,
+  EventTypeEnum.ContractRateCardCreated,
+  EventTypeEnum.ContractRateCardUpdated,
+  EventTypeEnum.ContractRateCardDeleted,
+])
+
+const getDisplayCategory = (event: EventTypeItem): string => {
+  if (planEventKeys.has(event.key)) return EventCategoryEnum.Plans
+  if (contractEventKeys.has(event.key)) return 'CONTRACT'
+
+  return event.category
+}
+
 /**
  * Transforms a list of event types into grouped checkbox data.
- * Uses event.category for grouping and event.key as checkbox ID.
+ * Uses the display category for grouping and event.key as checkbox ID.
  */
 const transformEventTypesToGroups = (eventTypes: EventTypeItem[]): CheckboxGroup[] => {
   // Filter out deprecated events and the special "all" event
@@ -47,7 +74,7 @@ const transformEventTypesToGroups = (eventTypes: EventTypeItem[]): CheckboxGroup
 
   // Group events by category
   const groupedByCategory = activeEvents.reduce<Record<string, EventTypeItem[]>>((acc, event) => {
-    const category = event.category
+    const category = getDisplayCategory(event)
 
     if (!acc[category]) {
       acc[category] = []
@@ -61,7 +88,12 @@ const transformEventTypesToGroups = (eventTypes: EventTypeItem[]): CheckboxGroup
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([category, events]) => ({
       id: category,
-      label: formatCategoryLabel(category as EventCategoryEnum),
+      label:
+        category === EventCategoryEnum.Plans
+          ? 'Plan'
+          : category === 'CONTRACT'
+            ? 'Contract'
+            : formatCategoryLabel(category as EventCategoryEnum),
       items: events.map((event) => ({
         id: event.key,
         label: event.name,

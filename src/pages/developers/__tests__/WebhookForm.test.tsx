@@ -77,6 +77,7 @@ jest.mock('~/hooks/useWebhookEventTypes', () => ({
       customer_created: false,
       customer_updated: false,
       invoice_created: false,
+      contract_rate_card_updated: false,
     },
     groups: [
       {
@@ -91,6 +92,17 @@ jest.mock('~/hooks/useWebhookEventTypes', () => ({
         id: 'INVOICES',
         label: 'Invoices',
         items: [{ id: 'invoice_created', label: 'invoice.created', sublabel: 'Invoice created' }],
+      },
+      {
+        id: 'CONTRACT',
+        label: 'Contract',
+        items: [
+          {
+            id: 'contract_rate_card_updated',
+            label: 'contract_rate_card.updated',
+            sublabel: 'Contract rate card updated',
+          },
+        ],
       },
     ],
     loading: false,
@@ -273,6 +285,46 @@ describe('WebhookForm', () => {
               ...mockWebhookEndpointData,
               eventTypes: [EventTypeEnum.CustomerCreated, EventTypeEnum.InvoiceCreated],
             },
+          },
+        }),
+      )
+    })
+
+    it('keeps an existing contract event checked and saves its exact event type', async () => {
+      mockUseRealEvents = true
+      jest.mocked(useWebhookEndpoint).mockReturnValue({
+        webhook: {
+          ...mockWebhookEndpointData,
+          eventTypes: [EventTypeEnum.ContractRateCardUpdated],
+        },
+        loading: false,
+        refetch: jest.fn(),
+      })
+      mockUpdateWebhook.mockResolvedValue({
+        data: { updateWebhookEndpoint: { id: 'webhook-123' } },
+        errors: undefined,
+      })
+      const user = userEvent.setup()
+
+      renderWithParams(<WebhookForm />, { webhookId: 'webhook-123' })
+
+      const contractEventCheckbox = document.querySelector(
+        'input[aria-labelledby="webhookEvents.contract_rate_card_updated"]',
+      ) as HTMLInputElement | null
+
+      expect(contractEventCheckbox).toBeInTheDocument()
+      if (!contractEventCheckbox) throw new Error('Missing contract rate card checkbox')
+      expect(contractEventCheckbox).toBeChecked()
+
+      await user.click(screen.getByTestId(WEBHOOK_FORM_SUBMIT_BUTTON_TEST_ID))
+
+      await waitFor(() =>
+        expect(mockUpdateWebhook).toHaveBeenCalledWith({
+          variables: {
+            input: expect.objectContaining({
+              id: 'webhook-123',
+              eventTypes: [EventTypeEnum.ContractRateCardUpdated],
+            }),
           },
         }),
       )
