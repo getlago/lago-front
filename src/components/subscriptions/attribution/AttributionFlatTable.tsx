@@ -249,6 +249,7 @@ export const AttributionTableLayout = ({
 
   return (
     <div className="w-full overflow-x-auto" data-test={dataTest}>
+      {/* eslint-disable-next-line lago/use-design-system -- design-system `Table` has no lazy multi-level tree, two-row header or sticky columns */}
       <table className="w-full border-separate border-spacing-0">
         <thead>
           <tr>
