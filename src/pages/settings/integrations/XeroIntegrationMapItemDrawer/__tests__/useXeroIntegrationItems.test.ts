@@ -11,7 +11,7 @@ import {
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import { stringifyOptionValue } from '../stringifyOptionValue'
-import { useXeroIntegrationItems } from '../useXeroIntegrationItems'
+import { useXeroIntegrationItems, useXeroIntegrationItemSearch } from '../useXeroIntegrationItems'
 
 const INTEGRATION_ID = 'integration-123'
 
@@ -85,14 +85,22 @@ const buildAccountsRefetchMock = () => ({
 describe('useXeroIntegrationItems', () => {
   describe('GIVEN no integrationId', () => {
     describe('WHEN the hook renders', () => {
-      it('THEN should not query and should expose no search', () => {
+      it('THEN should not query', () => {
         const { result } = renderHook(
           () => useXeroIntegrationItems(MappableTypeEnum.BillableMetric, undefined),
           { wrapper: createWrapper([]) },
         )
 
-        expect(result.current.search).toBeUndefined()
         expect(result.current.items).toEqual([])
+      })
+
+      it('THEN should expose no search', () => {
+        const { result } = renderHook(
+          () => useXeroIntegrationItemSearch(MappableTypeEnum.BillableMetric, undefined),
+          { wrapper: createWrapper([]) },
+        )
+
+        expect(result.current.search).toBeUndefined()
         expect(result.current.searchResults).toEqual([])
       })
     })
@@ -134,15 +142,11 @@ describe('useXeroIntegrationItems', () => {
     })
 
     describe('WHEN a search runs', () => {
-      it('THEN should expose the results without replacing the unfiltered list', async () => {
+      it('THEN should expose the results and flag the field as searching', async () => {
         const { result } = renderHook(
-          () => useXeroIntegrationItems(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
+          () => useXeroIntegrationItemSearch(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
           {
             wrapper: createWrapper([
-              buildGetItemsMock({}, [
-                buildItem('1', 'External Item', 'ACC001'),
-                buildItem('2', 'Another Item', 'ACC002'),
-              ]),
               buildGetItemsMock({ searchTerm: 'another' }, [
                 buildItem('2', 'Another Item', 'ACC002'),
               ]),
@@ -150,14 +154,39 @@ describe('useXeroIntegrationItems', () => {
           },
         )
 
-        await waitFor(() => expect(result.current.items).toHaveLength(2))
+        expect(result.current.isSearching).toBe(false)
 
         await act(async () => {
           await result.current.search?.({ variables: { searchTerm: 'another' } })
         })
 
         await waitFor(() => expect(result.current.searchResults).toHaveLength(1))
-        expect(result.current.items).toHaveLength(2)
+        expect(result.current.isSearching).toBe(true)
+      })
+
+      it('THEN should stop flagging the field once the term is cleared', async () => {
+        const { result } = renderHook(
+          () => useXeroIntegrationItemSearch(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
+          {
+            wrapper: createWrapper([
+              buildGetItemsMock({ searchTerm: 'another' }, [
+                buildItem('2', 'Another Item', 'ACC002'),
+              ]),
+              buildGetItemsMock({}, [buildItem('1', 'External Item', 'ACC001')]),
+            ]),
+          },
+        )
+
+        await act(async () => {
+          await result.current.search?.({ variables: { searchTerm: 'another' } })
+        })
+        await waitFor(() => expect(result.current.isSearching).toBe(true))
+
+        await act(async () => {
+          await result.current.search?.()
+        })
+
+        await waitFor(() => expect(result.current.isSearching).toBe(false))
       })
     })
 

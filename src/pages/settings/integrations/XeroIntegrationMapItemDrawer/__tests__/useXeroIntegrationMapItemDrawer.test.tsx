@@ -61,12 +61,16 @@ jest.mock('../useXeroIntegrationItems', () => ({
 
     return {
       items: mockComboboxData,
-      searchResults: [],
       isLoading: false,
-      search: undefined,
       refresh: jest.fn(),
     }
   },
+  useXeroIntegrationItemSearch: () => ({
+    searchResults: [],
+    isSearching: false,
+    isLoading: false,
+    search: undefined,
+  }),
 }))
 
 const OPEN_BUTTON_TEST_ID = 'open-xero-map-item-drawer'

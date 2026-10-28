@@ -1,30 +1,28 @@
 import { Button } from '~/components/designSystem/Button'
-import { BasicComboBoxData, ComboBoxProps } from '~/components/form'
+import { BasicComboBoxData } from '~/components/form'
+import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
 import { extractOptionValue } from './extractOptionValue'
+import { useXeroIntegrationItemSearch } from './useXeroIntegrationItems'
 import { xeroMappingDefaultValues } from './validationSchema'
 
 type XeroIntegrationMapItemFormWrapperProps = {
   billingEntityKey: string
   items: BasicComboBoxData[]
-  searchResults: BasicComboBoxData[]
-  isSearching: boolean
   isLoading: boolean
-  search: ComboBoxProps['searchQuery']
-  onSearch: (billingEntityKey: string, searchTerm: string | undefined) => void
+  formType: MappingTypeEnum | MappableTypeEnum | undefined
+  integrationId: string | undefined
   onRefresh: () => void
 }
 
 const defaultProps: XeroIntegrationMapItemFormWrapperProps = {
   billingEntityKey: '',
   items: [],
-  searchResults: [],
-  isSearching: false,
   isLoading: false,
-  search: undefined,
-  onSearch: () => {},
+  formType: undefined,
+  integrationId: undefined,
   onRefresh: () => {},
 }
 
@@ -57,29 +55,24 @@ export const XeroIntegrationMapItemFormWrapper = withForm({
     form,
     billingEntityKey,
     items,
-    searchResults,
-    isSearching,
     isLoading,
-    search,
-    onSearch,
+    formType,
+    integrationId,
     onRefresh,
   }) {
     const { translate } = useInternationalization()
-
-    // The search query is shared by every billing entity, so the drawer tracks which field is
-    // searching; the others keep showing the unfiltered list.
-    const searchQuery = search
-      ? (((...args: Parameters<NonNullable<ComboBoxProps['searchQuery']>>) => {
-          onSearch(billingEntityKey, args[0]?.variables?.searchTerm ?? undefined)
-
-          return search(...args)
-        }) as ComboBoxProps['searchQuery'])
-      : undefined
+    const {
+      searchResults,
+      isSearching,
+      isLoading: isSearchLoading,
+      search,
+    } = useXeroIntegrationItemSearch(formType, integrationId)
 
     const comboboxData = isSearching ? searchResults : items
+    const isBusy = isLoading || isSearchLoading
 
     const helperText =
-      !isLoading && !comboboxData.length ? translate('text_6630ec823adac97d3bf0fb4b') : undefined
+      !isBusy && !comboboxData.length ? translate('text_6630ec823adac97d3bf0fb4b') : undefined
 
     return (
       <div className="mb-8 flex flex-row gap-3">
@@ -88,11 +81,11 @@ export const XeroIntegrationMapItemFormWrapper = withForm({
             {(field) => (
               <field.ComboBoxField
                 data={withSelectedOption(comboboxData, field.state.value as string | undefined)}
-                loading={isLoading}
+                loading={isBusy}
                 label={translate('text_6672ebb8b1b50be550eccb73')}
                 placeholder={translate('text_6630e51df0a194013daea622')}
                 helperText={helperText}
-                searchQuery={searchQuery}
+                searchQuery={search}
                 fetchOnMount={false}
                 PopperProps={{ displayInDialog: true }}
               />
@@ -103,8 +96,8 @@ export const XeroIntegrationMapItemFormWrapper = withForm({
           className="mt-8"
           icon="reload"
           variant="quaternary"
-          disabled={isLoading}
-          loading={isLoading}
+          disabled={isBusy}
+          loading={isBusy}
           onClick={onRefresh}
         />
       </div>

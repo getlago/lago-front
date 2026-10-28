@@ -48,9 +48,11 @@ const ITEM_C = { externalId: 'ext-3', externalName: 'Support', externalAccountCo
 
 const ALL_ITEMS = [ITEM_A, ITEM_B, ITEM_C]
 
-const toApiItem = (id: string, item: typeof ITEM_A) => ({
+// The id has to identify the item, not its position in a result set: Apollo normalises
+// IntegrationItem by id, so an index-based id lets a search result overwrite another item.
+const toApiItem = (item: typeof ITEM_A) => ({
   __typename: 'IntegrationItem',
-  id,
+  id: `item-${item.externalId}`,
   externalId: item.externalId,
   externalName: item.externalName,
   externalAccountCode: item.externalAccountCode,
@@ -107,7 +109,7 @@ const renderDrawer = ({ seeded = false }: { seeded?: boolean } = {}) => {
       return new Observable((observer) => {
         setTimeout(() => {
           observer.next({
-            data: buildResponse(matching.map((item, index) => toApiItem(`item-${index}`, item))),
+            data: buildResponse(matching.map(toApiItem)),
           })
           observer.complete()
         }, 0)
@@ -210,6 +212,22 @@ describe('XeroIntegrationMapItemDrawerContent', () => {
     describe('WHEN one combobox searches', () => {
       // Appending to the input rather than clearing it: emptying it is MUI's own gesture for
       // clearing the selection, which would make these assertions test the wrong thing.
+      // Selecting the text before typing replaces it in one input event, so the term reaching the
+      // query is exactly what is typed. Deleting it first would instead be MUI's own gesture for
+      // clearing the selection, and a field with no selection drops its search on blur.
+      const typeSearch = async (
+        user: ReturnType<typeof renderDrawer>['user'],
+        billingEntityKey: string,
+        term: string,
+      ): Promise<void> => {
+        const input = getInput(billingEntityKey)
+
+        await user.click(input)
+        input.setSelectionRange(0, input.value.length)
+        await user.keyboard(term)
+        await settle(DEBOUNCE_MS)
+      }
+
       const searchFrom = async (
         user: ReturnType<typeof renderDrawer>['user'],
         billingEntityKey: string,
@@ -240,17 +258,38 @@ describe('XeroIntegrationMapItemDrawerContent', () => {
         expect(lastOptionsFor('default')).not.toContain('Support (400)')
       })
 
-      it('THEN should hand the results to the field searched last only', async () => {
+      it('THEN should keep each field on its own results', async () => {
         const { user } = renderDrawer({ seeded: true })
 
         await settle()
-        await searchFrom(user, 'default', 'sales')
-        await searchFrom(user, 'acme', 'services')
+        await typeSearch(user, 'default', 'support')
+        await typeSearch(user, 'acme', 'sales')
 
-        // A seeded field keeps its value on blur, so its own search term is never cleared: it
-        // must stop reading the shared results once another field takes over the search.
+        // A field holding a mapping keeps its value on blur, so its search is never cleared for
+        // it: searching elsewhere must neither narrow it to the other field's hit nor hand it
+        // back the unfiltered list.
         expect(lastOptionsFor('default')).toContain('Support (400)')
+        expect(lastOptionsFor('default')).not.toContain('Services (300)')
+        expect(lastOptionsFor('acme')).toContain('Sales (200)')
         expect(lastOptionsFor('acme')).not.toContain('Support (400)')
+      })
+
+      it('THEN should drop the filter when the field is remounted by a tab switch', async () => {
+        const { user } = renderDrawer({ seeded: true })
+
+        await settle()
+        await typeSearch(user, 'acme', 'support')
+
+        expect(lastOptionsFor('acme')).not.toContain('Sales (200)')
+
+        await user.click(screen.getByRole('tab', { name: 'Globex' }))
+        await settle()
+        await user.click(screen.getByRole('tab', { name: 'Acme' }))
+        await settle()
+
+        // Remounting the field drops its search, so the list is whole again.
+        expect(lastOptionsFor('acme')).toContain('Sales (200)')
+        expect(lastOptionsFor('acme')).toContain('Support (400)')
       })
 
       it('THEN should keep its own selection when no result matches', async () => {
