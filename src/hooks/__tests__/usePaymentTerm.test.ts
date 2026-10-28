@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react'
 import { DateTime } from 'luxon'
 
 import {
+  PAYMENT_TERM_DUE_DATE_PREVIEW_KEYS,
   PAYMENT_TERM_INHERIT,
   PAYMENT_TERM_TYPE_LABEL_KEYS,
   PAYMENT_TERM_TYPES,
@@ -108,6 +109,39 @@ describe('usePaymentTerm', () => {
         })
       })
     })
+
+    describe('GIVEN a day-of-month term', () => {
+      describe.each([0, 1, 3])('WHEN its month offset is %s', (monthOffset) => {
+        it('THEN should pick the copy variant with that offset', () => {
+          setup().formatPaymentTerm({
+            termType: PaymentTermTypeEnum.DayOfMonth,
+            dayOfMonth: 15,
+            monthOffset,
+          })
+
+          // "this month" / "the following month" / "N months after" are the three variants.
+          expect(mockTranslate).toHaveBeenCalledWith(
+            PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.DayOfMonth],
+            { dayOfMonth: 15, monthOffset },
+            monthOffset,
+          )
+        })
+      })
+    })
+
+    describe('GIVEN a net term of zero days', () => {
+      describe('WHEN it is formatted', () => {
+        it('THEN should read as due on receipt', () => {
+          setup().formatPaymentTerm({ termType: PaymentTermTypeEnum.Net, days: 0 })
+
+          expect(mockTranslate).toHaveBeenCalledWith(
+            PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.DueOnReceipt],
+            {},
+            0,
+          )
+        })
+      })
+    })
   })
 
   describe('getPaymentTermCopy', () => {
@@ -189,6 +223,21 @@ describe('usePaymentTerm', () => {
           const copy = getDueDatePreviewCopy({ termType: PaymentTermTypeEnum.DueOnReceipt })
 
           expect(copy).toContain('Jul 15, 2026')
+        })
+      })
+    })
+
+    describe('GIVEN a net term of zero days', () => {
+      describe('WHEN it is previewed', () => {
+        it('THEN should use the due on receipt sentence', () => {
+          const copy = setup().getDueDatePreviewCopy({
+            termType: PaymentTermTypeEnum.Net,
+            days: 0,
+          })
+
+          expect(copy).toContain(
+            PAYMENT_TERM_DUE_DATE_PREVIEW_KEYS[PaymentTermTypeEnum.DueOnReceipt],
+          )
         })
       })
     })
