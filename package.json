@@ -25,7 +25,7 @@
     "lint": "prettier --cache --check 'src/**/*.{ts,tsx,svg}' 'index.html' 'cypress/**/*.ts' && eslint --cache --cache-location .eslintcache .",
     "lint:fix": "prettier --write {src,cypress}/** index.html && eslint --fix .",
     "types": "node scripts/check-types.js",
-    "code:style": "run-p lint types translations:inspect translations:ensure-consistency skills:budget",
+    "code:style": "run-p lint test:lint-rules types translations:inspect translations:ensure-consistency skills:budget",
     "skills:budget": "bash scripts/skill-budget.sh",
     "agents:check": "bash scripts/skill-budget.sh && bash scripts/skill-budget.test.sh",
     "codegen": "graphql-codegen --config codegen.yml -r dotenv/config",
@@ -33,6 +33,7 @@
     "test": "jest --config jest.config.ts",
     "test:coverage": "jest --config jest.config.ts --coverage --runInBand",
     "test:e2e": "cypress open --config-file cypress/cypress.config.js",
+    "test:lint-rules": "node --test \"packages/configs/eslint-rules/__tests__/*.test.js\"",
     "translations:add": "node scripts/translations/add",
     "translations:inspect": "node scripts/translations/inspect",
     "translations:ensure-consistency": "node scripts/translations/ensure-translations-consistency",
@@ -76,7 +77,7 @@
     "@vitejs/plugin-react-swc": "4.3.3",
     "autoprefixer": "10.6.1",
     "babel-jest": "30.5.2",
-    "baseline-browser-mapping": "2.11.28",
+    "baseline-browser-mapping": "2.11.29",
     "class-variance-authority": "0.7.1",
     "cssnano": "9.8.0",
     "cypress": "15.21.1",
@@ -124,6 +125,7 @@
     "@mui/x-date-pickers": "6.20.2",
     "@nangohq/frontend": "0.71.13",
     "@radix-ui/react-slot": "1.5.0",
+    "@radix-ui/react-tooltip": "1.4.1",
     "@rails/actioncable": "8.1.400",
     "@sentry/react": "10.76.2",
     "@superset-ui/embedded-sdk": "0.4.0",
@@ -195,7 +197,7 @@
     }
   },
   "engines": {
-    "node": "24.22.0"
+    "node": "24.22.1"
   },
   "browserslist": [
     "> 1%",

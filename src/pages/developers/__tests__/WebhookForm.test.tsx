@@ -13,6 +13,29 @@ import WebhookForm, {
   WEBHOOK_FORM_URL_INPUT_TEST_ID,
 } from '../WebhookForm'
 
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({
+    count,
+    estimateSize,
+  }: {
+    count: number
+    estimateSize: (index: number) => number
+  }) => ({
+    getTotalSize: () => count * 100,
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, index) => ({
+        index,
+        key: index,
+        start: index * 100,
+        size: estimateSize(index),
+      })),
+    measureElement: jest.fn(),
+    measure: jest.fn(),
+  }),
+}))
+
+let mockUseRealEvents = false
+
 // Mock hooks
 const mockGoBack = jest.fn()
 const mockOpenPanel = jest.fn()
@@ -52,6 +75,7 @@ jest.mock('~/hooks/useWebhookEventTypes', () => ({
   useWebhookEventTypes: () => ({
     defaultEventFormValues: {
       customer_created: false,
+      customer_updated: false,
       invoice_created: false,
     },
     groups: [
@@ -60,6 +84,7 @@ jest.mock('~/hooks/useWebhookEventTypes', () => ({
         label: 'Customers',
         items: [
           { id: 'customer_created', label: 'customer.created', sublabel: 'Customer created' },
+          { id: 'customer_updated', label: 'customer.updated', sublabel: 'Customer updated' },
         ],
       },
       {
@@ -108,7 +133,19 @@ jest.mock('~/core/apolloClient', () => ({
 // Mock child component
 jest.mock('../webhookForm/WebhookEventsForm', () => ({
   __esModule: true,
-  default: () => <div data-test="webhook-events-form-mock">Events Form</div>,
+  default: (
+    props: React.ComponentProps<typeof import('../webhookForm/WebhookEventsForm').default>,
+  ) => {
+    const Actual = jest.requireActual<typeof import('../webhookForm/WebhookEventsForm')>(
+      '../webhookForm/WebhookEventsForm',
+    ).default
+
+    return mockUseRealEvents ? (
+      <Actual {...props} />
+    ) : (
+      <div data-test="webhook-events-form-mock">Events Form</div>
+    )
+  },
 }))
 
 // Custom render that passes useParams to AllTheProviders
@@ -121,6 +158,7 @@ const renderWithParams = (ui: React.ReactElement, params: { webhookId?: string }
 describe('WebhookForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockUseRealEvents = false
     mockPanelOpen = false
     mockHasDefinedGQLError.mockReturnValue(false)
   })
@@ -202,6 +240,42 @@ describe('WebhookForm', () => {
         loading: false,
         refetch: jest.fn(),
       })
+    })
+
+    it('searches the event catalog, updates the count, and saves the selection', async () => {
+      mockUseRealEvents = true
+      mockUpdateWebhook.mockResolvedValue({
+        data: { updateWebhookEndpoint: { id: 'webhook-123' } },
+      })
+      const user = userEvent.setup()
+
+      renderWithParams(<WebhookForm />, { webhookId: 'webhook-123' })
+      expect(screen.getByText('0 / 1')).toBeInTheDocument()
+      await user.type(
+        screen.getByPlaceholderText('text_1770822522308u2ptsqw79ns'),
+        'invoice.created',
+      )
+      expect(screen.getByText('Invoice created')).toBeInTheDocument()
+      expect(screen.queryByText('customer.created')).not.toBeInTheDocument()
+      const invoiceCheckbox = document.querySelector(
+        'input[aria-labelledby="webhookEvents.invoice_created"]',
+      )
+
+      expect(invoiceCheckbox).toBeInTheDocument()
+      if (!invoiceCheckbox) throw new Error('Missing invoice checkbox')
+      await user.click(invoiceCheckbox)
+      expect(screen.queryByText('0 / 1')).not.toBeInTheDocument()
+      await user.click(screen.getByTestId(WEBHOOK_FORM_SUBMIT_BUTTON_TEST_ID))
+      await waitFor(() =>
+        expect(mockUpdateWebhook).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              ...mockWebhookEndpointData,
+              eventTypes: [EventTypeEnum.CustomerCreated, EventTypeEnum.InvoiceCreated],
+            },
+          },
+        }),
+      )
     })
 
     describe('WHEN the component renders', () => {

@@ -61,10 +61,12 @@ import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
 import { BorderTest } from './tabs/BorderTest'
+import { shadcnButtonTab } from './tabs/ButtonTest'
 import { ColorTest } from './tabs/ColorTest'
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
 import EditorTest from './tabs/EditorTest'
+import { shadcnTooltipTab } from './tabs/TooltipTest'
 import { TypographyTest } from './tabs/TypographyTest'
 
 const FORM_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'form' })
@@ -2297,6 +2299,8 @@ const DesignSystem = () => {
               </Container>
             ),
           },
+          shadcnButtonTab,
+          shadcnTooltipTab,
           // disabled simple tab
           {
             disabled: true,

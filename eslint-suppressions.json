@@ -1,0 +1,137 @@
+{
+  "src/App.tsx": {
+    "lago/use-design-system": {
+      "count": 3
+    }
+  },
+  "src/components/LogoPicker.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/components/MainHeader/NavigationTabBar.tsx": {
+    "lago/use-design-system": {
+      "count": 3
+    }
+  },
+  "src/components/aiAgent/ChatHistory.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/components/aiAgent/ChatPromptEditor.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/components/aiAgent/FinanceAssistantAnalyticsCta.tsx": {
+    "lago/use-design-system": {
+      "count": 3
+    }
+  },
+  "src/components/creditNote/CreditNoteDetailsOverviewTable.tsx": {
+    "lago/use-design-system": {
+      "count": 2
+    }
+  },
+  "src/components/customerConnections/CustomerConnectionsList.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/components/customers/usage/SubscriptionUsageDetailDrawer.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/components/dialogs/PremiumWarningDialog.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/components/graphs/Invoices.tsx": {
+    "lago/use-design-system": {
+      "count": 2
+    }
+  },
+  "src/components/graphs/Usage.tsx": {
+    "lago/use-design-system": {
+      "count": 2
+    }
+  },
+  "src/components/invoices/AddMetadataDrawer.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/components/invoices/details/InvoiceDetailsTable.tsx": {
+    "lago/use-design-system": {
+      "count": 4
+    }
+  },
+  "src/components/invoices/details/editFeeDrawer/EditFeeFeePreview.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/components/layouts/DetailsPage.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/components/plans/details-v2/PlanDetailsV2LeftSidebar.tsx": {
+    "lago/use-design-system": {
+      "count": 3
+    }
+  },
+  "src/components/settings/dunnings/PreviewCampaignEmailDrawer.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/components/settings/invoices/PreviewCustomSectionDrawer.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/components/subscriptions/realtimeUsage/lanes/Sparkline.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/components/wallets/WalletDetailsDrawer.tsx": {
+    "lago/use-design-system": {
+      "count": 2
+    }
+  },
+  "src/layouts/MainNavLayout/OrganizationSwitcher.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/pages/InvoiceOverview.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/pages/createCustomers/CreateCustomer.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/pages/creditNoteDetails/metadataEditDrawer/MetadataEditDrawer.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/pages/settings/Dunnings/CreateDunning.tsx": {
+    "lago/use-design-system": {
+      "count": 1
+    }
+  },
+  "src/pages/settings/integrations/IntegrationMapItemDrawer/IntegrationMapItemDrawerContent.tsx": {
+    "lago/use-design-system": {
+      "count": 2
+    }
+  }
+}
