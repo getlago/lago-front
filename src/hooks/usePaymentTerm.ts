@@ -12,6 +12,7 @@ import {
 } from '~/core/constants/paymentTerm'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import {
+  displayedPaymentTerm,
   MaybePaymentTerm,
   normalizedMonthOffset,
   paymentTermDueDate,
@@ -24,7 +25,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 /**
  * The count handed to `translate` as the plural selector, and the interpolations the
  * value and preview copy expect. Kept together so a term is described in exactly one way
- * wherever it is rendered.
+ * wherever it is rendered. The day-of-month copy has one variant per month offset
+ * (this month, the following month, N months after), so the offset drives its plural.
  */
 const termCopyData = (
   term: ResolvablePaymentTerm,
@@ -64,9 +66,10 @@ export const usePaymentTerm = () => {
    * How a resolved term reads as a settings-row value, e.g. `Net 30 days`.
    */
   const formatPaymentTerm = (term: ResolvablePaymentTerm): string => {
-    const { data, plural } = termCopyData(term)
+    const shownTerm = displayedPaymentTerm(term)
+    const { data, plural } = termCopyData(shownTerm)
 
-    return translate(PAYMENT_TERM_VALUE_KEYS[term.termType], data, plural)
+    return translate(PAYMENT_TERM_VALUE_KEYS[shownTerm.termType], data, plural)
   }
 
   /**
@@ -97,13 +100,14 @@ export const usePaymentTerm = () => {
     term: ResolvablePaymentTerm,
     issuingDate: DateTime = DateTime.fromISO(PAYMENT_TERM_PREVIEW_ISSUING_DATE, { zone: 'utc' }),
   ): string => {
-    const { data, plural } = termCopyData(term)
+    const shownTerm = displayedPaymentTerm(term)
+    const { data, plural } = termCopyData(shownTerm)
     const issuedOn = asCalendarDate(issuingDate)
     const formatDate = (date: DateTime): string =>
       intlFormatDateTime(date.toISO() ?? '', { formatDate: DateFormat.DATE_MED }).date
 
     return translate(
-      PAYMENT_TERM_DUE_DATE_PREVIEW_KEYS[term.termType],
+      PAYMENT_TERM_DUE_DATE_PREVIEW_KEYS[shownTerm.termType],
       {
         ...data,
         issuingDate: formatDate(issuedOn),
