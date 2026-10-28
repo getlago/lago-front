@@ -4,7 +4,8 @@ import { useMemo } from 'react'
 
 import StackedBarChart from '~/components/designSystem/graphs/StackedBarChart'
 import { Typography } from '~/components/designSystem/Typography'
-import { formatUnits } from '~/components/subscriptions/realtimeUsage/common/utils'
+import { PeriodPoint } from '~/components/realtimeUsage/types'
+import { formatUnits } from '~/components/realtimeUsage/utils'
 import {
   CurrencyEnum,
   RealtimeUsageBarChartReportFragment,
@@ -17,7 +18,6 @@ import {
   REALTIME_USAGE_BAR_CHART_LEGEND_TEST_ID,
   REALTIME_USAGE_BAR_CHART_TEST_ID,
 } from './constants'
-import { PeriodPoint } from './types'
 import { buildDimensionSeries, formatPeriod } from './utils'
 
 gql`

@@ -118,6 +118,7 @@ export const useRealtimeUsage = (subscriptionId: string): RealtimeUsageState => 
   const { now } = useRealtimeUsageClock({
     autoRefreshSeconds,
     resetKey: `${selectedChargeId}-${windowInHours}`,
+    hourlyTimezone: timezone,
   })
 
   const { data, loading, error } = useGetSubscriptionHourlyUsageQuery({

@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 
 import { isValidDateRangeValue } from '~/components/Filters/graphql/utils'
 import { REALTIME_USAGE_MAX_DAYS } from '~/core/constants/realtimeUsage'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { getTimezoneConfig } from '~/core/timezone'
 import { TimezoneEnum } from '~/generated/graphql'
 
@@ -31,3 +32,6 @@ export const isApplicableRange = (value?: string | null): value is string => {
 
   return DateTime.fromISO(to).diff(DateTime.fromISO(from), 'days').days <= REALTIME_USAGE_MAX_DAYS
 }
+
+export const formatUnits = (value: number): string =>
+  intlFormatNumber(value, { style: 'decimal', maximumFractionDigits: 2 })

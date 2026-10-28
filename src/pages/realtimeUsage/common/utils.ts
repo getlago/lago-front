@@ -1,16 +1,13 @@
 import { DateTime } from 'luxon'
 
+import { DEFAULT_SERIES_COLOR, OTHER_SERIES_COLOR } from '~/components/realtimeUsage/constants'
+import { PeriodPoint } from '~/components/realtimeUsage/types'
 import { DateFormat, intlFormatDateTime, TimeFormat } from '~/core/timezone'
 import { RealtimeUsageTimeGranularityEnum, TimezoneEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
-import {
-  DEFAULT_DIMENSION_COLOR,
-  DIMENSION_COLORS,
-  OTHER_DIMENSION_COLOR,
-  SERIES_KEY_PREFIX,
-} from './constants'
-import { PeriodPoint, RealtimeUsageReport, Series } from './types'
+import { DIMENSION_COLORS, SERIES_KEY_PREFIX } from './constants'
+import { DimensionSeries, RealtimeUsageReport } from './types'
 
 export const dimensionLabelOf = (
   dimension: { name?: string | null; other: boolean },
@@ -27,8 +24,8 @@ export const dimensionColorOf = (
   rank: number,
   isAlone = false,
 ): string => {
-  if (dimension.other) return OTHER_DIMENSION_COLOR
-  if (!dimension.name && !isAlone) return DEFAULT_DIMENSION_COLOR
+  if (dimension.other) return OTHER_SERIES_COLOR
+  if (!dimension.name && !isAlone) return DEFAULT_SERIES_COLOR
 
   return DIMENSION_COLORS[rank % DIMENSION_COLORS.length]
 }
@@ -46,12 +43,12 @@ export const buildDimensionSeries = (
   report: RealtimeUsageReport | undefined,
   translate: TranslateFunc,
   now: DateTime,
-): { series: Series[]; points: PeriodPoint[] } => {
+): { series: DimensionSeries[]; points: PeriodPoint[] } => {
   if (!report) return { series: [], points: [] }
 
   let colorRank = 0
 
-  const series: Series[] = report.dimensions.map((dimension, index) => ({
+  const series: DimensionSeries[] = report.dimensions.map((dimension, index) => ({
     key: `${SERIES_KEY_PREFIX}${index}`,
     dimensionKey: dimension.key,
     label: dimensionLabelOf(dimension, translate),

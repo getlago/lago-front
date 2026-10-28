@@ -1,8 +1,9 @@
+import { DEFAULT_SERIES_COLOR } from '~/components/realtimeUsage/constants'
 import { RealtimeUsage } from '~/components/subscriptions/realtimeUsage/common/types'
 import { filterLabelOf, seriesKeyOf } from '~/components/subscriptions/realtimeUsage/common/utils'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
-import { DEFAULT_LANE_COLOR, LANE_COLOR } from './constants'
+import { LANE_COLOR } from './constants'
 import { Lane, SortMode } from './types'
 
 // One lane per filter the window knows about, gap-filled by the API, so a
@@ -24,7 +25,7 @@ export const buildLanes = (
     return {
       key,
       label: filterLabelOf(filter, translate),
-      color: filter.chargeFilterId ? LANE_COLOR : DEFAULT_LANE_COLOR,
+      color: filter.chargeFilterId ? LANE_COLOR : DEFAULT_SERIES_COLOR,
       values,
       sum: values.reduce((total, value) => total + value, 0),
       now: values.at(-1) || 0,

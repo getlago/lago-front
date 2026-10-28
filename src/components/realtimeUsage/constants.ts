@@ -1,3 +1,5 @@
+import { theme } from '~/styles'
+
 export const AUTO_REFRESH_OPTIONS = [0, 1, 5, 10]
 export const DEFAULT_AUTO_REFRESH = 0
 
@@ -32,3 +34,8 @@ export const TIME_RANGE_TRANSLATIONS: Record<TimeRangeEnum, string> = {
 export const CUSTOM_TIME_RANGE_TRANSLATION = 'text_1792500580727y65tsmyciku'
 
 export const DEFAULT_TIME_RANGE = TimeRangeEnum.Last24h
+
+// The default bucket (events matching no filter or dimension) and the folded tail are
+// deliberately grey: they are the absence of a series, not another one.
+export const DEFAULT_SERIES_COLOR = theme.palette.grey[500]
+export const OTHER_SERIES_COLOR = theme.palette.grey[400]

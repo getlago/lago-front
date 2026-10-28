@@ -58,7 +58,12 @@ export const RealtimeUsageEventsSection = ({
     data: servedData,
     loading,
     error,
-  } = useGetRealtimeUsageEventsQuery({ variables: filters, skip, fetchPolicy: 'no-cache' })
+  } = useGetRealtimeUsageEventsQuery({
+    variables: filters,
+    skip,
+    fetchPolicy: 'no-cache',
+    context: { silentError: true },
+  })
   const { data } = useHeldData(servedData, heldKeyOf(filters), !!error)
 
   const events = data?.realtimeUsageEvents

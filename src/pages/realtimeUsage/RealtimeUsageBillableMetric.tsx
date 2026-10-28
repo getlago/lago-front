@@ -11,8 +11,8 @@ import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
 import { useHeldData } from '~/components/realtimeUsage/useHeldData'
+import { formatUnits } from '~/components/realtimeUsage/utils'
 import { REALTIME_USAGE_FILTER_PREFIX } from '~/core/constants/filters'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { REALTIME_USAGE_ROUTE, useNavigate } from '~/core/router'
 import {
   RealtimeUsageBarChartReportFragmentDoc,
@@ -73,6 +73,7 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
     variables: queryVariables,
     skip: !billableMetricCode || !isEnabled,
     fetchPolicy: 'no-cache',
+    context: { silentError: true },
   })
   const { data } = useHeldData(servedData, heldKeyOf(queryVariables), !!error)
 
@@ -111,7 +112,7 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
             color="grey700"
             data-test={REALTIME_USAGE_BILLABLE_METRIC_TOTAL_TEST_ID}
           >
-            {`${intlFormatNumber(units, { style: 'decimal', maximumFractionDigits: 2 })} ${translate(
+            {`${formatUnits(units)} ${translate(
               'text_17476657511358tgyvof5x1u',
               undefined,
               units,

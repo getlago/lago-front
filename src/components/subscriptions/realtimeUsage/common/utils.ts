@@ -1,5 +1,4 @@
 import { composeChargeFilterDisplayName } from '~/core/formats/formatInvoiceItemsMap'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 import {
@@ -38,9 +37,6 @@ export const filterLabelOf = (filter: RealtimeUsageFilter, translate: TranslateF
     }) || filter.chargeFilterId
   )
 }
-
-export const formatUnits = (value: number): string =>
-  intlFormatNumber(value, { style: 'decimal', maximumFractionDigits: 2 })
 
 export const prefersReducedMotion = (): boolean =>
   typeof window !== 'undefined' &&
