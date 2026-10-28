@@ -160,7 +160,7 @@
     "@tiptap/react": "3.32.0",
     "@tiptap/starter-kit": "3.32.0",
     "@tiptap/suggestion": "3.32.0",
-    "ace-builds": "1.44.0",
+    "ace-builds": "1.45.2",
     "apollo-link-timeout": "4.0.0",
     "apollo-upload-client": "17.0.0",
     "apollo3-cache-persist": "0.15.0",
