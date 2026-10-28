@@ -41,7 +41,7 @@ export const useDeleteX402IntegrationDialog = (): {
     connection,
     callback,
   }: TDeleteX402IntegrationDialogProps): void => {
-    centralizedDialog.open({
+    void centralizedDialog.open({
       title: translate('text_658461066530343fe1808cd7', { name: connection?.name }),
       description: translate('text_1793132394870zqu6a6vy2ps'),
       colorVariant: 'danger',

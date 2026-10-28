@@ -267,7 +267,7 @@ export const useAddX402Dialog = (): {
       keepDefaultValues: true,
     })
 
-    formDialog
+    void formDialog
       .open({
         title: translate('text_1793132394868hpkrqknydw1'),
         description: translate('text_17931323948682jmdiz5751d'),
