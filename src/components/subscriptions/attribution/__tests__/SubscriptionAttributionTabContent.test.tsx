@@ -1,10 +1,9 @@
-import { ApolloError, NetworkStatus } from '@apollo/client'
-import { screen, waitFor } from '@testing-library/react'
+import { ApolloError } from '@apollo/client'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GraphQLError } from 'graphql'
 
 import { FILTERS_PANEL_OPENER_TEST_ID } from '~/components/Filters/presentation/FiltersPanelPopper'
-import { addToast } from '~/core/apolloClient'
 import {
   AttributedUsageBasisEnum,
   AttributionChargeUsageFragment,
@@ -21,13 +20,15 @@ import {
 } from '../attributionFilters'
 import {
   ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID,
+  ATTRIBUTION_SHOW_LESS_TEST_ID,
+  ATTRIBUTION_SHOW_MORE_TEST_ID,
   ATTRIBUTION_TABLE_ROW_TEST_ID,
   ATTRIBUTION_TABLE_TEST_ID,
 } from '../AttributionFlatTable'
 import { getAttributionToolbarOptionTestId } from '../AttributionToolbarSelect'
 import { AttributionHierarchyType, getAttributionNodeKey } from '../attributionTree'
 import { ATTRIBUTION_TREE_TABLE_TEST_ID } from '../AttributionTreeTable'
-import { AttributionGroupByEnum } from '../buildAttributionColumns'
+import { AttributionGroupByEnum, SPLIT_FILTERS_PER_PAGE } from '../buildAttributionColumns'
 import {
   ATTRIBUTION_CHARGES_TEST_ID,
   ATTRIBUTION_GROUP_ROWS_BY_TEST_ID,
@@ -59,6 +60,9 @@ jest.mock('~/components/designSystem/GenericPlaceholder', () => ({
 
 const mockUseAttributionTree = jest.fn()
 const mockRefreshTree = jest.fn()
+const mockLoadMoreTreeRows = jest.fn()
+const mockLoadMoreFilterPage = jest.fn()
+const mockCollapseFilterPages = jest.fn()
 
 jest.mock('../useAttributionTree', () => ({
   ...jest.requireActual('../useAttributionTree'),
@@ -67,13 +71,11 @@ jest.mock('../useAttributionTree', () => ({
 
 const mockSetupQuery = jest.fn()
 const mockChargesQuery = jest.fn()
-const mockUsageQuery = jest.fn()
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useGetSubscriptionAttributionSetupQuery: (options: unknown) => mockSetupQuery(options),
   useGetSubscriptionAttributionChargesQuery: (options: unknown) => mockChargesQuery(options),
-  useGetSubscriptionAttributedUsageQuery: (options: unknown) => mockUsageQuery(options),
 }))
 
 type AttributionCharge = AttributionChargeUsageFragment['charge']
@@ -116,13 +118,15 @@ const filteredUsageOf = (
 
 const rootBlockOf = (code: string, chargesUsage: AttributionChargeUsageFragment[]) => ({
   level: { code, name: code, isLeaf: false },
-  usage: {
-    currency: CurrencyEnum.Usd,
-    metadata: { currentPage: 1, totalPages: 1 },
-    rows: [],
-    unattributed: { amountCents: null, chargesUsage: [] },
-    totals: { amountCents: null, chargesUsage },
-  },
+  usages: [
+    {
+      currency: CurrencyEnum.Usd,
+      metadata: { currentPage: 1, totalPages: 1 },
+      rows: [],
+      unattributed: { amountCents: null, chargesUsage: [] },
+      totals: { amountCents: null, chargesUsage },
+    },
+  ],
   isLoadingMore: false,
 })
 
@@ -133,7 +137,6 @@ const flatTypes = [
 
 const mockRefetchSetup = jest.fn()
 const mockRefetchCharges = jest.fn()
-const mockRefetchUsage = jest.fn()
 
 const toFlatHierarchy = (
   types: AttributionHierarchyType[],
@@ -166,10 +169,9 @@ const mockSetup = ({
   })
 }
 
-const mockFetchMoreUsage = jest.fn()
-
 const firstPageUsage = {
   currency: CurrencyEnum.Usd,
+  splitFiltersCount: null,
   rows: [
     { value: 'k_live_ab12', amountCents: null, chargesUsage: [usageOf(tokensCharge, 4)] },
     { value: 'k_live_c7e0', amountCents: null, chargesUsage: [usageOf(tokensCharge, 2)] },
@@ -178,29 +180,54 @@ const firstPageUsage = {
   totals: { amountCents: null, chargesUsage: [usageOf(tokensCharge, 7)] },
 }
 
-const mockUsage = ({
-  currentPage = 1,
-  totalPages = 1,
-  loading = false,
-  networkStatus = NetworkStatus.ready,
-}: {
-  currentPage?: number
-  totalPages?: number
-  loading?: boolean
-  networkStatus?: NetworkStatus
-} = {}): void => {
-  mockUsageQuery.mockReturnValue({
-    data: { attributedUsage: { ...firstPageUsage, metadata: { currentPage, totalPages } } },
-    loading,
-    networkStatus,
-    error: undefined,
-    refetch: mockRefetchUsage,
-    fetchMore: mockFetchMoreUsage,
+const mockTree = (overrides: Record<string, unknown> = {}): void => {
+  mockUseAttributionTree.mockReturnValue({
+    nodes: {},
+    isLoadingFilterPage: false,
+    toggleNode: jest.fn(),
+    loadMore: mockLoadMoreTreeRows,
+    loadMoreFilterPage: mockLoadMoreFilterPage,
+    collapseFilterPages: mockCollapseFilterPages,
+    refresh: mockRefreshTree,
+    ...overrides,
   })
 }
 
-const getLastUsageVariables = (): Record<string, unknown> =>
-  mockUsageQuery.mock.calls.at(-1)?.[0].variables
+const loadedRootOf = (blocks: unknown[]) => ({
+  [getAttributionNodeKey([])]: { status: 'loaded', isExpanded: true, blocks },
+})
+
+const mockUsage = ({
+  currentPage = 1,
+  totalPages = 1,
+  isLoadingMore = false,
+}: {
+  currentPage?: number
+  totalPages?: number
+  isLoadingMore?: boolean
+} = {}): void => {
+  mockTree({
+    nodes: loadedRootOf([
+      {
+        level: { code: 'api_key', name: 'API Key', isLeaf: true },
+        usages: [{ ...firstPageUsage, metadata: { currentPage, totalPages } }],
+        isLoadingMore,
+      },
+    ]),
+  })
+}
+
+const mockRootError = (error: unknown): void => {
+  mockTree({ nodes: { [getAttributionNodeKey([])]: { status: 'error', error } } })
+}
+
+const getLastTreeParams = () => mockUseAttributionTree.mock.calls.at(-1)?.[0]
+
+const getLastUsageVariables = (): Record<string, unknown> => {
+  const params = getLastTreeParams()
+
+  return { ...params.variables, groupBy: params.getChildLevels(null)[0]?.code }
+}
 
 const selectOptionByValue = async (
   user: ReturnType<typeof userEvent.setup>,
@@ -214,7 +241,6 @@ const selectOptionByValue = async (
 describe('SubscriptionAttributionTabContent', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockFetchMoreUsage.mockResolvedValue({})
 
     const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
@@ -230,12 +256,6 @@ describe('SubscriptionAttributionTabContent', () => {
       refetch: mockRefetchCharges,
     })
     mockUsage()
-    mockUseAttributionTree.mockReturnValue({
-      nodes: {},
-      toggleNode: jest.fn(),
-      loadMore: jest.fn(),
-      refresh: mockRefreshTree,
-    })
   })
 
   describe('GIVEN no flat key is listed', () => {
@@ -299,12 +319,8 @@ describe('SubscriptionAttributionTabContent', () => {
           AttributionGroupByEnum.flat,
         )
 
-        expect(mockUsageQuery.mock.calls.at(-1)?.[0]).toEqual(
-          expect.objectContaining({
-            skip: false,
-            variables: expect.objectContaining({ groupBy: 'department' }),
-          }),
-        )
+        expect(getLastTreeParams().skip).toBe(false)
+        expect(getLastUsageVariables()).toEqual(expect.objectContaining({ groupBy: 'department' }))
       })
     })
   })
@@ -318,7 +334,7 @@ describe('SubscriptionAttributionTabContent', () => {
 
         expect(screen.getByTestId(PLACEHOLDER_TEST_ID)).toBeInTheDocument()
         expect(screen.queryByTestId(ATTRIBUTION_TABLE_TEST_ID)).not.toBeInTheDocument()
-        expect(mockUsageQuery.mock.calls.at(-1)?.[0].skip).toBe(true)
+        expect(getLastTreeParams().skip).toBe(true)
       })
     })
   })
@@ -342,7 +358,7 @@ describe('SubscriptionAttributionTabContent', () => {
     })
 
     describe('WHEN clicking show more', () => {
-      it('THEN should fetch the next page and append its rows after the current ones', async () => {
+      it('THEN should load the next rows of the root block', async () => {
         const user = userEvent.setup()
 
         mockUsage({ totalPages: 2 })
@@ -351,94 +367,7 @@ describe('SubscriptionAttributionTabContent', () => {
         await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
         await user.click(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID))
 
-        expect(mockFetchMoreUsage).toHaveBeenCalledTimes(1)
-
-        const { variables, updateQuery } = mockFetchMoreUsage.mock.calls[0][0]
-        const nextPage = {
-          ...firstPageUsage,
-          metadata: { currentPage: 2, totalPages: 2 },
-          rows: [{ value: 'k_live_41aa', amountCents: null, chargesUsage: [] }],
-          unattributed: { amountCents: null, chargesUsage: [usageOf(tokensCharge, 99)] },
-        }
-        const merged = updateQuery(
-          { attributedUsage: { ...firstPageUsage, metadata: { currentPage: 1, totalPages: 2 } } },
-          { fetchMoreResult: { attributedUsage: nextPage } },
-        )
-
-        expect(variables).toEqual({ page: 2 })
-        expect(merged.attributedUsage.rows.map((row: { value: string }) => row.value)).toEqual([
-          'k_live_ab12',
-          'k_live_c7e0',
-          'k_live_41aa',
-        ])
-        expect(merged.attributedUsage.metadata).toEqual({ currentPage: 2, totalPages: 2 })
-        expect(merged.attributedUsage.unattributed).toBe(firstPageUsage.unattributed)
-        expect(merged.attributedUsage.totals).toBe(firstPageUsage.totals)
-      })
-    })
-
-    describe('WHEN the selection changes before the next page arrives', () => {
-      it('THEN should drop the late page instead of appending it to the new selection', async () => {
-        const user = userEvent.setup()
-
-        mockUsage({ totalPages: 2 })
-        render(<SubscriptionAttributionTabContent />)
-
-        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
-        await user.click(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID))
-        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'agent_id')
-
-        const { updateQuery } = mockFetchMoreUsage.mock.calls[0][0]
-        const current = {
-          attributedUsage: { ...firstPageUsage, metadata: { currentPage: 1, totalPages: 2 } },
-        }
-        const latePage = {
-          ...firstPageUsage,
-          metadata: { currentPage: 2, totalPages: 2 },
-          rows: [{ value: 'k_live_41aa', amountCents: null, chargesUsage: [] }],
-        }
-
-        expect(updateQuery(current, { fetchMoreResult: { attributedUsage: latePage } })).toBe(
-          current,
-        )
-      })
-    })
-
-    describe('WHEN the next page comes back without data', () => {
-      it('THEN should keep the loaded rows', async () => {
-        const user = userEvent.setup()
-
-        mockUsage({ totalPages: 2 })
-        render(<SubscriptionAttributionTabContent />)
-
-        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
-        await user.click(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID))
-
-        const { updateQuery } = mockFetchMoreUsage.mock.calls[0][0]
-        const current = {
-          attributedUsage: { ...firstPageUsage, metadata: { currentPage: 1, totalPages: 2 } },
-        }
-
-        expect(updateQuery(current, { fetchMoreResult: null })).toBe(current)
-      })
-    })
-
-    describe('WHEN the next page request fails', () => {
-      it('THEN should show an error toast and keep show more available for a retry', async () => {
-        const user = userEvent.setup()
-
-        mockFetchMoreUsage.mockRejectedValue(new Error('network'))
-        mockUsage({ totalPages: 2 })
-        render(<SubscriptionAttributionTabContent />)
-
-        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
-        await user.click(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID))
-
-        await waitFor(() => {
-          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
-        })
-        expect(screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)).toHaveLength(3)
-        expect(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID)).toBeEnabled()
+        expect(mockLoadMoreTreeRows).toHaveBeenCalledWith([], 0)
       })
     })
 
@@ -446,7 +375,7 @@ describe('SubscriptionAttributionTabContent', () => {
       it('THEN should keep the loaded rows and disable show more', async () => {
         const user = userEvent.setup()
 
-        mockUsage({ totalPages: 2, loading: true, networkStatus: NetworkStatus.fetchMore })
+        mockUsage({ totalPages: 2, isLoadingMore: true })
         render(<SubscriptionAttributionTabContent />)
 
         await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
@@ -458,7 +387,7 @@ describe('SubscriptionAttributionTabContent', () => {
 
     describe('WHEN show more is loading the next page', () => {
       it('THEN should disable refresh so it cannot reset the list under the pending page', () => {
-        mockUsage({ totalPages: 3, loading: true, networkStatus: NetworkStatus.fetchMore })
+        mockUsage({ totalPages: 3, isLoadingMore: true })
         render(<SubscriptionAttributionTabContent />)
 
         expect(screen.getByTestId(ATTRIBUTION_REFRESH_BUTTON_TEST_ID)).toBeDisabled()
@@ -648,19 +577,14 @@ describe('SubscriptionAttributionTabContent', () => {
       it('THEN should refetch the queries', async () => {
         const user = userEvent.setup()
 
-        mockUsageQuery.mockReturnValue({
-          data: undefined,
-          loading: false,
-          error: new Error('boom'),
-          refetch: mockRefetchUsage,
-        })
+        mockRootError(new Error('boom'))
 
         render(<SubscriptionAttributionTabContent />)
 
         await user.click(screen.getByTestId(PLACEHOLDER_TEST_ID))
 
         expect(mockRefetchSetup).toHaveBeenCalled()
-        expect(mockRefetchUsage).toHaveBeenCalled()
+        expect(mockRefreshTree).toHaveBeenCalled()
       })
     })
 
@@ -668,12 +592,7 @@ describe('SubscriptionAttributionTabContent', () => {
       it('THEN should keep the toolbar so the selection can be changed', async () => {
         const user = userEvent.setup()
 
-        mockUsageQuery.mockReturnValue({
-          data: undefined,
-          loading: false,
-          error: new Error('too_many_filters'),
-          refetch: mockRefetchUsage,
-        })
+        mockRootError(new Error('too_many_filters'))
 
         render(<SubscriptionAttributionTabContent />)
 
@@ -698,7 +617,7 @@ describe('SubscriptionAttributionTabContent', () => {
         await user.click(screen.getByTestId(ATTRIBUTION_REFRESH_BUTTON_TEST_ID))
 
         expect(mockRefetchCharges).toHaveBeenCalled()
-        expect(mockRefetchUsage).toHaveBeenCalled()
+        expect(mockRefreshTree).toHaveBeenCalled()
       })
     })
   })
@@ -718,8 +637,6 @@ describe('SubscriptionAttributionTabContent', () => {
       children: [teamType],
     }
 
-    const getLastTreeParams = () => mockUseAttributionTree.mock.calls.at(-1)?.[0]
-
     beforeEach(() => {
       mockSetup({ roots: [departmentType] })
     })
@@ -733,14 +650,11 @@ describe('SubscriptionAttributionTabContent', () => {
         )
       })
 
-      it('THEN should render the tree and skip the flat usage query', () => {
+      it('THEN should render the tree instead of the flat table', () => {
         render(<SubscriptionAttributionTabContent />)
 
         expect(screen.getByTestId(ATTRIBUTION_TREE_TABLE_TEST_ID)).toBeInTheDocument()
         expect(screen.queryByTestId(ATTRIBUTION_TABLE_TEST_ID)).not.toBeInTheDocument()
-        expect(mockUsageQuery.mock.calls.at(-1)?.[0]).toEqual(
-          expect.objectContaining({ skip: true }),
-        )
         expect(getLastTreeParams()).toEqual(
           expect.objectContaining({
             skip: false,
@@ -769,7 +683,7 @@ describe('SubscriptionAttributionTabContent', () => {
     })
 
     describe('WHEN rows are grouped flat', () => {
-      it('THEN should skip the tree and render the flat table', async () => {
+      it('THEN should load a single leaf level and render the flat table', async () => {
         const user = userEvent.setup()
 
         render(<SubscriptionAttributionTabContent />)
@@ -779,8 +693,26 @@ describe('SubscriptionAttributionTabContent', () => {
           AttributionGroupByEnum.flat,
         )
 
-        expect(getLastTreeParams()).toEqual(expect.objectContaining({ skip: true }))
+        const { getChildLevels } = getLastTreeParams()
+
+        expect(getChildLevels(null)).toEqual([{ code: 'api_key', name: 'api_key', isLeaf: true }])
+        expect(getChildLevels('department')).toEqual([])
         expect(screen.getByTestId(ATTRIBUTION_TABLE_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should change the reset key so the tree reloads in flat mode', async () => {
+        const user = userEvent.setup()
+
+        render(<SubscriptionAttributionTabContent />)
+        const treeResetKey = getLastTreeParams().resetKey
+
+        await selectOptionByValue(
+          user,
+          ATTRIBUTION_GROUP_ROWS_BY_TEST_ID,
+          AttributionGroupByEnum.flat,
+        )
+
+        expect(getLastTreeParams().resetKey).not.toBe(treeResetKey)
       })
     })
 
@@ -871,20 +803,11 @@ describe('SubscriptionAttributionTabContent', () => {
         }
 
         mockSetup({ roots: [departmentType, regionType] })
-        mockUseAttributionTree.mockReturnValue({
-          nodes: {
-            [getAttributionNodeKey([])]: {
-              status: 'loaded',
-              isExpanded: true,
-              blocks: [
-                rootBlockOf('department', [filteredUsageOf('filter-opus', 'Opus', 4)]),
-                rootBlockOf('region', [filteredUsageOf('filter-sonnet', 'Sonnet', 2)]),
-              ],
-            },
-          },
-          toggleNode: jest.fn(),
-          loadMore: jest.fn(),
-          refresh: mockRefreshTree,
+        mockTree({
+          nodes: loadedRootOf([
+            rootBlockOf('department', [filteredUsageOf('filter-opus', 'Opus', 4)]),
+            rootBlockOf('region', [filteredUsageOf('filter-sonnet', 'Sonnet', 2)]),
+          ]),
         })
 
         render(<SubscriptionAttributionTabContent />)
@@ -896,38 +819,21 @@ describe('SubscriptionAttributionTabContent', () => {
     })
 
     describe('WHEN refresh is clicked', () => {
-      it('THEN should refresh the tree instead of refetching the flat usage', async () => {
+      it('THEN should refresh the tree', async () => {
         const user = userEvent.setup()
 
-        mockUseAttributionTree.mockReturnValue({
-          nodes: {
-            [getAttributionNodeKey([])]: {
-              status: 'loaded',
-              isExpanded: true,
-              blocks: [],
-            },
-          },
-          toggleNode: jest.fn(),
-          loadMore: jest.fn(),
-          refresh: mockRefreshTree,
-        })
+        mockTree({ nodes: loadedRootOf([]) })
 
         render(<SubscriptionAttributionTabContent />)
         await user.click(screen.getByTestId(ATTRIBUTION_REFRESH_BUTTON_TEST_ID))
 
         expect(mockRefreshTree).toHaveBeenCalled()
-        expect(mockRefetchUsage).not.toHaveBeenCalled()
       })
     })
 
     describe('WHEN the root level failed to load', () => {
       it('THEN should display the error placeholder', () => {
-        mockUseAttributionTree.mockReturnValue({
-          nodes: { [getAttributionNodeKey([])]: { status: 'error' } },
-          toggleNode: jest.fn(),
-          loadMore: jest.fn(),
-          refresh: mockRefreshTree,
-        })
+        mockRootError(undefined)
 
         render(<SubscriptionAttributionTabContent />)
 
@@ -1037,20 +943,11 @@ describe('SubscriptionAttributionTabContent', () => {
       ],
     })
 
-    const mockUsageError = (error: Error): void => {
-      mockUsageQuery.mockReturnValue({
-        data: undefined,
-        loading: false,
-        error,
-        refetch: mockRefetchUsage,
-      })
-    }
-
     const getPlaceholderTitle = (): string | null =>
       screen.getByTestId(PLACEHOLDER_TEST_ID).getAttribute('data-title')
 
     const getGenericErrorTitle = (): string | null => {
-      mockUsageError(new Error('boom'))
+      mockRootError(new Error('boom'))
 
       const { unmount } = render(<SubscriptionAttributionTabContent />)
       const title = getPlaceholderTitle()
@@ -1064,7 +961,7 @@ describe('SubscriptionAttributionTabContent', () => {
       it('THEN should display the narrow your view placeholder instead of the generic one', () => {
         const genericTitle = getGenericErrorTitle()
 
-        mockUsageError(guardError)
+        mockRootError(guardError)
         render(<SubscriptionAttributionTabContent />)
 
         expect(getPlaceholderTitle()).toEqual(expect.any(String))
@@ -1079,12 +976,7 @@ describe('SubscriptionAttributionTabContent', () => {
         mockSetup({
           roots: [{ id: 'type-department', code: 'department', name: 'Department' }],
         })
-        mockUseAttributionTree.mockReturnValue({
-          nodes: { [getAttributionNodeKey([])]: { status: 'error', error: guardError } },
-          toggleNode: jest.fn(),
-          loadMore: jest.fn(),
-          refresh: mockRefreshTree,
-        })
+        mockRootError(guardError)
 
         render(<SubscriptionAttributionTabContent />)
 
@@ -1099,16 +991,178 @@ describe('SubscriptionAttributionTabContent', () => {
         mockSetup({
           roots: [{ id: 'type-department', code: 'department', name: 'Department' }],
         })
-        mockUseAttributionTree.mockReturnValue({
-          nodes: { [getAttributionNodeKey([])]: { status: 'error', error: new Error('boom') } },
-          toggleNode: jest.fn(),
-          loadMore: jest.fn(),
-          refresh: mockRefreshTree,
-        })
+        mockRootError(new Error('boom'))
 
         render(<SubscriptionAttributionTabContent />)
 
         expect(getPlaceholderTitle()).toBe(genericTitle)
+      })
+    })
+  })
+  describe('GIVEN a split charge with more filters than one filter page', () => {
+    const filterUsages = (models: string[]): AttributionChargeUsageFragment[] =>
+      models.map((model) => filteredUsageOf(`filter-${model}`, model, 1))
+    const defaultTokensUsage = usageOf(tokensCharge, 1)
+
+    const splitBlock = (pages: string[][], splitFiltersCount = 11) => ({
+      level: { code: 'api_key', name: 'API Key', isLeaf: true },
+      usages: pages.map((models) => ({
+        ...firstPageUsage,
+        splitFiltersCount,
+        metadata: { currentPage: 1, totalPages: 1 },
+        totals: {
+          amountCents: null,
+          chargesUsage: [...filterUsages(models), defaultTokensUsage],
+        },
+      })),
+      isLoadingMore: false,
+    })
+
+    const firstPageModels = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9', 'm10']
+
+    const renderSplit = async (
+      treeOverrides: Record<string, unknown> = {},
+      pages: string[][] = [firstPageModels],
+      splitFiltersCount = 11,
+    ) => {
+      const user = userEvent.setup()
+
+      mockTree({
+        nodes: loadedRootOf([splitBlock(pages, splitFiltersCount)]),
+        ...treeOverrides,
+      })
+      render(<SubscriptionAttributionTabContent />)
+      await selectOptionByValue(user, ATTRIBUTION_CHARGES_TEST_ID, tokensCharge.id)
+
+      return user
+    }
+
+    const getHeaderLabels = (): string[] =>
+      Array.from(
+        screen.getByTestId(ATTRIBUTION_TABLE_TEST_ID).querySelectorAll('thead tr:nth-child(2) th'),
+      ).map((th) => th.textContent ?? '')
+
+    describe('WHEN the columns are collapsed', () => {
+      it('THEN should expand the first page without fetching another filter page', async () => {
+        const user = await renderSplit()
+
+        expect(screen.queryByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).not.toBeInTheDocument()
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+
+        expect(mockLoadMoreFilterPage).not.toHaveBeenCalled()
+        expect(screen.getByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the first page is expanded and more filters remain', () => {
+      it('THEN should fetch the next filter page on show more', async () => {
+        const user = await renderSplit()
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+
+        expect(mockLoadMoreFilterPage).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should show show more in loading state while the filter page loads', async () => {
+        const user = await renderSplit({ isLoadingFilterPage: true })
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+
+        expect(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).toBeDisabled()
+        expect(screen.getByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).toBeDisabled()
+        expect(screen.getByTestId(ATTRIBUTION_REFRESH_BUTTON_TEST_ID)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN a second filter page is loaded', () => {
+      it('THEN should append its columns and keep the default column last', async () => {
+        const user = await renderSplit({}, [firstPageModels, ['m11']])
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+
+        const labels = getHeaderLabels()
+
+        expect(labels.slice(1, -1)).toEqual([...firstPageModels, 'm11', expect.any(String)])
+        expect(labels.filter((label) => label === 'm11')).toHaveLength(1)
+      })
+
+      it('THEN should hide show more once every filter is loaded', async () => {
+        const user = await renderSplit({}, [firstPageModels, ['m11']])
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+
+        expect(screen.queryByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should keep the total of each row from the first filter page', async () => {
+        const user = await renderSplit({}, [firstPageModels, ['m11']])
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+
+        const customerCells = screen
+          .getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)[0]
+          .querySelectorAll('td')
+
+        expect(customerCells[customerCells.length - 1]).toHaveTextContent(
+          String(firstPageModels.length + 1),
+        )
+      })
+    })
+
+    describe('WHEN show less is clicked', () => {
+      it('THEN should collapse the columns and drop the extra filter pages', async () => {
+        const user = await renderSplit({}, [firstPageModels, ['m11']])
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID))
+
+        expect(mockCollapseFilterPages).toHaveBeenCalledTimes(1)
+        expect(screen.queryByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a toolbar value changes while the columns are expanded', () => {
+      it('THEN should collapse the columns back to the first page view', async () => {
+        const user = await renderSplit({}, [firstPageModels, ['m11']])
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+        expect(screen.getByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).toBeInTheDocument()
+
+        await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
+
+        expect(screen.queryByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).toBeEnabled()
+        expect(getHeaderLabels().slice(1, -1)).toEqual(['m1', 'm2', 'm3', expect.any(String)])
+      })
+    })
+
+    describe('WHEN a tree node is loading while the columns are expanded', () => {
+      it('THEN should disable show less', async () => {
+        const user = await renderSplit({
+          nodes: {
+            ...loadedRootOf([splitBlock([firstPageModels, ['m11']])]),
+            [getAttributionNodeKey([{ code: 'api_key', value: 'k_live_ab12' }])]: {
+              status: 'loading',
+            },
+          },
+        })
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+
+        expect(screen.getByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN the charge has no more filters than one page', () => {
+      it('THEN should only offer show less once expanded', async () => {
+        const user = await renderSplit({}, [firstPageModels], SPLIT_FILTERS_PER_PAGE)
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+
+        expect(screen.queryByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

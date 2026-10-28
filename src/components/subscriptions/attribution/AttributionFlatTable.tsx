@@ -25,6 +25,8 @@ export const ATTRIBUTION_TABLE_TEST_ID = 'attribution-flat-table'
 export const ATTRIBUTION_TABLE_ROW_TEST_ID = 'attribution-flat-table-row'
 export const ATTRIBUTION_TABLE_FOOTER_TEST_ID = 'attribution-flat-table-footer'
 export const ATTRIBUTION_SHOW_MORE_TEST_ID = 'attribution-show-more'
+export const ATTRIBUTION_SHOW_LESS_TEST_ID = 'attribution-show-less'
+export const ATTRIBUTION_LOADING_CELL_TEST_ID = 'attribution-loading-cell'
 export const ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID = 'attribution-load-more-rows'
 
 const LOADING_ROWS_COUNT = 3
@@ -35,19 +37,22 @@ export type AttributionTableRow = {
   label: string
   isUnattributed: boolean
   amountCents?: string | null
-  chargesUsage: AttributionChargeUsageFragment[]
+  chargesUsageByFilterPage: AttributionChargeUsageFragment[][]
+}
+
+export type AttributionColumnsToggle = {
+  showMore?: { isLoading: boolean; isDisabled?: boolean; onClick: () => void }
+  showLess?: { isDisabled: boolean; onClick: () => void }
 }
 
 export type AttributionTableSharedProps = {
-  totals: Pick<AttributionTableRow, 'amountCents' | 'chargesUsage'>
+  totals: Pick<AttributionTableRow, 'amountCents' | 'chargesUsageByFilterPage'>
   columns: AttributionColumn[]
   chargeLabel: string | null
-  hiddenColumnsCount: number
-  isExpanded: boolean
+  columnsToggle: AttributionColumnsToggle
   basis: AttributedUsageBasisEnum
   currency: CurrencyEnum
   isLoading: boolean
-  onToggleExpanded: () => void
 }
 
 type AttributionFlatTableProps = AttributionTableSharedProps & {
@@ -79,7 +84,7 @@ type AttributionValueCellsProps = Pick<
   AttributionTableSharedProps,
   'columns' | 'basis' | 'currency'
 > & {
-  usage: Pick<AttributionTableRow, 'amountCents' | 'chargesUsage'>
+  usage: Pick<AttributionTableRow, 'amountCents' | 'chargesUsageByFilterPage'>
   cellClassName?: string
 }
 
@@ -102,24 +107,48 @@ export const AttributionValueCells = ({
     return `${intlFormatNumber(value, { style: 'decimal' })} ${translate('text_6282085b4f283b0102655884')}`
   }
 
+  const renderCellValue = (column: AttributionColumn): ReactNode => {
+    const chargesUsage = usage.chargesUsageByFilterPage[column.filterPage]
+
+    if (!chargesUsage) return <Skeleton variant="text" className="ml-auto w-16" />
+
+    return (
+      <Typography variant="body" color="grey700" noWrap>
+        {formatValue(
+          getAttributionDisplayedValue({
+            basis,
+            usage: getAttributionCellUsage(chargesUsage, column),
+          }),
+        )}
+      </Typography>
+    )
+  }
+
   return (
     <>
       {columns.map((column) => (
-        <td key={column.key} className={tw(ATTRIBUTION_CELL_CLASSNAME, cellClassName)}>
-          <Typography variant="body" color="grey700" noWrap>
-            {formatValue(
-              getAttributionDisplayedValue({
-                basis,
-                usage: getAttributionCellUsage(usage.chargesUsage, column),
-              }),
-            )}
-          </Typography>
+        <td
+          key={column.key}
+          className={tw(ATTRIBUTION_CELL_CLASSNAME, cellClassName)}
+          data-test={
+            usage.chargesUsageByFilterPage[column.filterPage]
+              ? undefined
+              : ATTRIBUTION_LOADING_CELL_TEST_ID
+          }
+        >
+          {renderCellValue(column)}
         </td>
       ))}
       <td className={ATTRIBUTION_TOTAL_CELL_CLASSNAME}>
         <Typography variant="body" color="grey700" noWrap>
           {formatValue(
-            getAttributionDisplayedValue({ basis, usage: getAttributionTotalUsage(usage) }),
+            getAttributionDisplayedValue({
+              basis,
+              usage: getAttributionTotalUsage({
+                amountCents: usage.amountCents,
+                chargesUsage: usage.chargesUsageByFilterPage[0] ?? [],
+              }),
+            }),
           )}
         </Typography>
       </td>
@@ -214,18 +243,16 @@ export const AttributionTableLayout = ({
   totals,
   columns,
   chargeLabel,
-  hiddenColumnsCount,
-  isExpanded,
+  columnsToggle,
   basis,
   currency,
   isLoading,
-  onToggleExpanded,
   children,
   'data-test': dataTest,
 }: AttributionTableSharedProps & { children: ReactNode; 'data-test': string }): JSX.Element => {
   const { translate } = useInternationalization()
   const hasChargeColumns = columns.length > 0
-  const canToggleColumns = isExpanded || hiddenColumnsCount > 0
+  const { showMore, showLess } = columnsToggle
 
   const renderBody = (): ReactNode => {
     if (!isLoading) return children
@@ -264,20 +291,31 @@ export const AttributionTableLayout = ({
                   <Typography variant="captionHl" color="grey600" noWrap>
                     {chargeLabel}
                   </Typography>
-                  {canToggleColumns && (
-                    <Button
-                      variant="inline"
-                      size="small"
-                      onClick={onToggleExpanded}
-                      data-test={ATTRIBUTION_SHOW_MORE_TEST_ID}
-                    >
-                      {translate(
-                        isExpanded
-                          ? 'text_1792668632007s3b89z21nto'
-                          : 'text_1792668632007fulz8omi190',
-                      )}
-                    </Button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {showMore && (
+                      <Button
+                        variant="inline"
+                        size="small"
+                        loading={showMore.isLoading}
+                        disabled={showMore.isLoading || showMore.isDisabled}
+                        onClick={showMore.onClick}
+                        data-test={ATTRIBUTION_SHOW_MORE_TEST_ID}
+                      >
+                        {translate('text_1792668632007fulz8omi190')}
+                      </Button>
+                    )}
+                    {showLess && (
+                      <Button
+                        variant="inline"
+                        size="small"
+                        disabled={showLess.isDisabled}
+                        onClick={showLess.onClick}
+                        data-test={ATTRIBUTION_SHOW_LESS_TEST_ID}
+                      >
+                        {translate('text_1792668632007s3b89z21nto')}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </th>
             )}

@@ -1,10 +1,18 @@
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { AttributedUsageBasisEnum, CurrencyEnum } from '~/generated/graphql'
+import {
+  AttributedUsageBasisEnum,
+  AttributionChargeUsageFragment,
+  ChargeModelEnum,
+  CurrencyEnum,
+} from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { ATTRIBUTION_TABLE_FOOTER_TEST_ID } from '../AttributionFlatTable'
+import {
+  ATTRIBUTION_LOADING_CELL_TEST_ID,
+  ATTRIBUTION_TABLE_FOOTER_TEST_ID,
+} from '../AttributionFlatTable'
 import { AttributionLevel, getAttributionNodeKey } from '../attributionTree'
 import {
   ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID,
@@ -12,6 +20,7 @@ import {
   ATTRIBUTION_TREE_TOGGLE_TEST_ID,
   AttributionTreeTable,
 } from '../AttributionTreeTable'
+import { AttributionColumn } from '../buildAttributionColumns'
 import { AttributionTreeNodes, AttributionTreeUsage } from '../useAttributionTree'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -43,28 +52,34 @@ const rootNodes = (usage = buildUsage(['rnd', 'gtm'])): AttributionTreeNodes => 
   [ROOT_KEY]: {
     status: 'loaded',
     isExpanded: true,
-    blocks: [{ level: departmentLevel, usage, isLoadingMore: false }],
+    blocks: [{ level: departmentLevel, usages: [usage], isLoadingMore: false }],
   },
 })
 
 const onToggleNode = jest.fn()
 const onLoadMore = jest.fn()
 
-const renderTree = (nodes: AttributionTreeNodes, isLoading = false) =>
+const renderTree = (
+  nodes: AttributionTreeNodes,
+  isLoading = false,
+  {
+    columns = [],
+    isLoadingFilterPage = false,
+  }: { columns?: AttributionColumn[]; isLoadingFilterPage?: boolean } = {},
+) =>
   render(
     <AttributionTreeTable
       nodes={nodes}
+      isLoadingFilterPage={isLoadingFilterPage}
       onToggleNode={onToggleNode}
       onLoadMore={onLoadMore}
-      totals={{ amountCents: null, chargesUsage: [] }}
-      columns={[]}
-      chargeLabel={null}
-      hiddenColumnsCount={0}
-      isExpanded={false}
+      totals={{ amountCents: null, chargesUsageByFilterPage: [[], []] }}
+      columns={columns}
+      chargeLabel={columns.length ? 'Tokens' : null}
+      columnsToggle={{}}
       basis={AttributedUsageBasisEnum.Units}
       currency={CurrencyEnum.Usd}
       isLoading={isLoading}
-      onToggleExpanded={jest.fn()}
     />,
   )
 
@@ -119,7 +134,7 @@ describe('AttributionTreeTable', () => {
         [RND_KEY]: {
           status: 'loaded',
           isExpanded,
-          blocks: [{ level: apiKeyLevel, usage: buildUsage([]), isLoadingMore: false }],
+          blocks: [{ level: apiKeyLevel, usages: [buildUsage([])], isLoadingMore: false }],
         },
       })
 
@@ -178,7 +193,7 @@ describe('AttributionTreeTable', () => {
         blocks: [
           {
             level: apiKeyLevel,
-            usage: buildUsage(['k_live_ab12'], { totalPages: 2 }),
+            usages: [buildUsage(['k_live_ab12'], { totalPages: 2 })],
             isLoadingMore: false,
           },
         ],
@@ -238,7 +253,7 @@ describe('AttributionTreeTable', () => {
             blocks: [
               {
                 level: levelOf(index),
-                usage: buildUsage([`value_${index}`]),
+                usages: [buildUsage([`value_${index}`])],
                 isLoadingMore: false,
               },
             ],
@@ -265,7 +280,7 @@ describe('AttributionTreeTable', () => {
           status: 'loaded',
           isExpanded: false,
           blocks: [
-            { level: apiKeyLevel, usage: buildUsage(['k_live_ab12']), isLoadingMore: false },
+            { level: apiKeyLevel, usages: [buildUsage(['k_live_ab12'])], isLoadingMore: false },
           ],
         },
       })
@@ -283,7 +298,7 @@ describe('AttributionTreeTable', () => {
           blocks: [
             {
               level: departmentLevel,
-              usage: buildUsage(['rnd'], { totalPages: 2 }),
+              usages: [buildUsage(['rnd'], { totalPages: 2 })],
               isLoadingMore: true,
             },
           ],
@@ -303,6 +318,95 @@ describe('AttributionTreeTable', () => {
           ATTRIBUTION_TREE_TOGGLE_TEST_ID,
         ),
       ).toBeDisabled()
+    })
+  })
+  describe('GIVEN a split charge with a second filter page', () => {
+    const charge: AttributionChargeUsageFragment['charge'] = {
+      id: 'charge-tokens',
+      code: 'tokens',
+      invoiceDisplayName: null,
+      chargeModel: ChargeModelEnum.Standard,
+      billableMetric: { id: 'bm-tokens', name: 'Tokens' },
+      filters: [{ id: 'filter-opus' }, { id: 'filter-gpt' }],
+    }
+
+    const usageOf = (filterId: string, units: number): AttributionChargeUsageFragment => ({
+      charge,
+      chargeFilter: { id: filterId, invoiceDisplayName: null, values: {} },
+      units,
+      amountCents: null,
+    })
+
+    const columns: AttributionColumn[] = [
+      {
+        key: 'opus',
+        chargeId: charge.id,
+        chargeFilterId: 'filter-opus',
+        label: 'opus',
+        filterPage: 0,
+      },
+      {
+        key: 'gpt',
+        chargeId: charge.id,
+        chargeFilterId: 'filter-gpt',
+        label: 'gpt',
+        filterPage: 1,
+      },
+    ]
+
+    const usageWithRow = (filterId: string, units: number): AttributionTreeUsage => ({
+      ...buildUsage([]),
+      rows: [{ value: 'rnd', amountCents: null, chargesUsage: [usageOf(filterId, units)] }],
+    })
+
+    const nodesWith = (usages: AttributionTreeUsage[]): AttributionTreeNodes => ({
+      [ROOT_KEY]: {
+        status: 'loaded',
+        isExpanded: true,
+        blocks: [{ level: departmentLevel, usages, isLoadingMore: false }],
+      },
+    })
+
+    describe('WHEN the block has received both filter pages', () => {
+      it('THEN should fill the second page column from the matching row', () => {
+        renderTree(
+          nodesWith([usageWithRow('filter-opus', 4), usageWithRow('filter-gpt', 9)]),
+          false,
+          {
+            columns,
+          },
+        )
+
+        const cells = screen.getAllByTestId(ATTRIBUTION_TREE_ROW_TEST_ID)[0].querySelectorAll('td')
+
+        expect(cells[1]).toHaveTextContent('4')
+        expect(cells[2]).toHaveTextContent('9')
+        expect(cells[3]).toHaveTextContent('4')
+      })
+    })
+
+    describe('WHEN the block has not received the second filter page yet', () => {
+      it('THEN should render loading cells in that column for its rows', () => {
+        renderTree(nodesWith([usageWithRow('filter-opus', 4)]), false, { columns })
+
+        const rowCells = screen
+          .getAllByTestId(ATTRIBUTION_TREE_ROW_TEST_ID)
+          .map((row) => row.querySelectorAll('td')[2])
+
+        rowCells.forEach((cell) =>
+          expect(cell).toHaveAttribute('data-test', ATTRIBUTION_LOADING_CELL_TEST_ID),
+        )
+      })
+    })
+  })
+
+  describe('GIVEN a filter page is loading', () => {
+    it('THEN should disable the show more rows button', () => {
+      renderTree(rootNodes(buildUsage(['rnd'], { totalPages: 2 })), false, {
+        isLoadingFilterPage: true,
+      })
+
+      expect(screen.getByTestId(ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID)).toBeDisabled()
     })
   })
 })

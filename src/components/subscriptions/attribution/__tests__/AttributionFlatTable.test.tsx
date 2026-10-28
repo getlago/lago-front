@@ -11,6 +11,8 @@ import { render } from '~/test-utils'
 
 import {
   ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID,
+  ATTRIBUTION_LOADING_CELL_TEST_ID,
+  ATTRIBUTION_SHOW_LESS_TEST_ID,
   ATTRIBUTION_SHOW_MORE_TEST_ID,
   ATTRIBUTION_TABLE_FOOTER_TEST_ID,
   ATTRIBUTION_TABLE_ROW_TEST_ID,
@@ -49,9 +51,24 @@ const defaultUsage = (units: number): AttributionChargeUsageFragment => ({
 })
 
 const splitColumns: AttributionColumn[] = [
-  { key: 'opus', chargeId: charge.id, chargeFilterId: 'filter-opus', label: 'opus' },
-  { key: 'default', chargeId: charge.id, chargeFilterId: null, label: null },
+  { key: 'opus', chargeId: charge.id, chargeFilterId: 'filter-opus', label: 'opus', filterPage: 0 },
+  { key: 'default', chargeId: charge.id, chargeFilterId: null, label: null, filterPage: 0 },
 ]
+
+const sonnetUsage = (units: number): AttributionChargeUsageFragment => ({
+  charge,
+  chargeFilter: { id: 'filter-sonnet', invoiceDisplayName: null, values: { model: ['sonnet'] } },
+  units,
+  amountCents: null,
+})
+
+const secondPageColumn: AttributionColumn = {
+  key: 'sonnet',
+  chargeId: charge.id,
+  chargeFilterId: 'filter-sonnet',
+  label: 'sonnet',
+  filterPage: 1,
+}
 
 const rows: AttributionTableRow[] = [
   {
@@ -60,7 +77,7 @@ const rows: AttributionTableRow[] = [
     label: 'k_live_ab12',
     isUnattributed: false,
     amountCents: '1500',
-    chargesUsage: [opusUsage(12, '1500'), defaultUsage(0)],
+    chargesUsageByFilterPage: [[opusUsage(12, '1500'), defaultUsage(0)]],
   },
   {
     id: 'unattributed',
@@ -68,7 +85,7 @@ const rows: AttributionTableRow[] = [
     label: 'No API Key',
     isUnattributed: true,
     amountCents: null,
-    chargesUsage: [],
+    chargesUsageByFilterPage: [[]],
   },
 ]
 
@@ -78,15 +95,16 @@ const renderTable = (overrides: Partial<TableProps> = {}): ReturnType<typeof ren
   render(
     <AttributionFlatTable
       rows={rows}
-      totals={{ amountCents: '2500', chargesUsage: [opusUsage(20, '2500'), defaultUsage(3)] }}
+      totals={{
+        amountCents: '2500',
+        chargesUsageByFilterPage: [[opusUsage(20, '2500'), defaultUsage(3)]],
+      }}
       columns={[]}
       chargeLabel={null}
-      hiddenColumnsCount={0}
-      isExpanded={false}
+      columnsToggle={{}}
       basis={AttributedUsageBasisEnum.Units}
       currency={CurrencyEnum.Usd}
       isLoading={false}
-      onToggleExpanded={jest.fn()}
       {...overrides}
     />,
   )
@@ -164,37 +182,120 @@ describe('AttributionFlatTable', () => {
       })
     })
 
-    describe('WHEN no sub-column is hidden and the table is collapsed', () => {
-      it('THEN should not display the show more button', () => {
+    describe('WHEN there is no columns toggle', () => {
+      it('THEN should display neither show more nor show less', () => {
         renderTable({ columns: splitColumns, chargeLabel: 'Tokens' })
 
         expect(screen.queryByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID)).not.toBeInTheDocument()
       })
     })
 
-    describe('WHEN some sub-columns are hidden', () => {
-      it('THEN should toggle the expansion when clicking show more', async () => {
+    describe('WHEN show more is available', () => {
+      it('THEN should call it when clicked', async () => {
         const user = userEvent.setup()
-        const onToggleExpanded = jest.fn()
+        const onClick = jest.fn()
 
         renderTable({
           columns: splitColumns,
           chargeLabel: 'Tokens',
-          hiddenColumnsCount: 2,
-          onToggleExpanded,
+          columnsToggle: { showMore: { isLoading: false, onClick } },
         })
 
         await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
 
-        expect(onToggleExpanded).toHaveBeenCalledTimes(1)
+        expect(onClick).toHaveBeenCalledTimes(1)
+      })
+
+      it.each([
+        ['loading', { isLoading: true }],
+        ['disabled', { isLoading: false, isDisabled: true }],
+      ])('THEN should disable it while %s', (_, state) => {
+        renderTable({
+          columns: splitColumns,
+          chargeLabel: 'Tokens',
+          columnsToggle: { showMore: { ...state, onClick: jest.fn() } },
+        })
+
+        expect(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).toBeDisabled()
       })
     })
 
-    describe('WHEN the table is expanded', () => {
-      it('THEN should still display the toggle to collapse it', () => {
-        renderTable({ columns: splitColumns, chargeLabel: 'Tokens', isExpanded: true })
+    describe('WHEN show more and show less are both available', () => {
+      it('THEN should display both and call show less when clicked', async () => {
+        const user = userEvent.setup()
+        const onShowLess = jest.fn()
+
+        renderTable({
+          columns: splitColumns,
+          chargeLabel: 'Tokens',
+          columnsToggle: {
+            showMore: { isLoading: false, onClick: jest.fn() },
+            showLess: { isDisabled: false, onClick: onShowLess },
+          },
+        })
 
         expect(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).toBeInTheDocument()
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_LESS_TEST_ID))
+
+        expect(onShowLess).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN a column belongs to a filter page a row has not received yet', () => {
+      const columns = [splitColumns[0], secondPageColumn, splitColumns[1]]
+
+      it('THEN should render a loading cell for that column only', () => {
+        renderTable({ columns, chargeLabel: 'Tokens' })
+
+        const [firstRow] = screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)
+        const cells = firstRow.querySelectorAll('td')
+
+        expect(cells[2]).toHaveAttribute('data-test', ATTRIBUTION_LOADING_CELL_TEST_ID)
+        expect(cells[2]).not.toHaveTextContent('—')
+        expect(cells[1]).toHaveTextContent('12')
+      })
+
+      it('THEN should render the value once the row has the filter page', () => {
+        renderTable({
+          columns,
+          chargeLabel: 'Tokens',
+          rows: [
+            {
+              ...rows[0],
+              chargesUsageByFilterPage: [
+                [opusUsage(12, '1500'), defaultUsage(0)],
+                [sonnetUsage(5), defaultUsage(0)],
+              ],
+            },
+          ],
+        })
+
+        const cells = screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)[0].querySelectorAll('td')
+
+        expect(cells[2]).not.toHaveAttribute('data-test', ATTRIBUTION_LOADING_CELL_TEST_ID)
+        expect(cells[2]).toHaveTextContent('5')
+      })
+
+      it('THEN should compute the total from the first filter page only', () => {
+        renderTable({
+          columns,
+          chargeLabel: 'Tokens',
+          rows: [
+            {
+              ...rows[0],
+              chargesUsageByFilterPage: [
+                [opusUsage(12, '1500'), defaultUsage(1)],
+                [sonnetUsage(5), defaultUsage(1)],
+              ],
+            },
+          ],
+        })
+
+        const cells = screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)[0].querySelectorAll('td')
+
+        expect(cells[cells.length - 1]).toHaveTextContent('13')
       })
     })
   })

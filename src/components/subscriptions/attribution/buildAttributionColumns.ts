@@ -6,6 +6,7 @@ import {
 } from '~/generated/graphql'
 
 export const COLLAPSED_FILTER_COLUMNS = 3
+export const SPLIT_FILTERS_PER_PAGE = 10
 
 export enum AttributionGroupByEnum {
   hierarchical = 'hierarchical',
@@ -17,6 +18,7 @@ export type AttributionColumn = {
   chargeId: string
   chargeFilterId: string | null
   label: string | null
+  filterPage: number
 }
 
 type AttributionColumnsResult = {
@@ -55,36 +57,46 @@ export const mergeAttributionChargesUsage = (
 }
 
 export const buildAttributionColumns = ({
-  chargesUsage,
+  chargesUsageByFilterPage,
   selectedChargeId,
   isExpanded,
 }: {
-  chargesUsage: AttributionChargeUsageFragment[]
+  chargesUsageByFilterPage: AttributionChargeUsageFragment[][]
   selectedChargeId: string | null
   isExpanded: boolean
 }): AttributionColumnsResult => {
   if (!selectedChargeId) return { columns: [], hiddenColumnsCount: 0 }
 
-  const columns = chargesUsage
-    .filter(({ charge }) => charge.id === selectedChargeId)
-    .map((usage) => ({
-      key: getAttributionUsageKey(usage),
-      chargeId: usage.charge.id,
-      chargeFilterId: usage.chargeFilter?.id ?? null,
-      label: usage.chargeFilter ? composeChargeFilterDisplayName(usage.chargeFilter) : null,
-    }))
+  const [firstPageColumns = [], ...nextPagesColumns] = chargesUsageByFilterPage.map(
+    (chargesUsage, filterPage) =>
+      chargesUsage
+        .filter(({ charge }) => charge.id === selectedChargeId)
+        .map((usage) => ({
+          key: getAttributionUsageKey(usage),
+          chargeId: usage.charge.id,
+          chargeFilterId: usage.chargeFilter?.id ?? null,
+          label: usage.chargeFilter ? composeChargeFilterDisplayName(usage.chargeFilter) : null,
+          filterPage,
+        })),
+  )
 
-  const filterColumns = columns.filter(({ chargeFilterId }) => !!chargeFilterId)
+  const firstPageFilterColumns = firstPageColumns.filter(({ chargeFilterId }) => !!chargeFilterId)
+  const defaultColumns = firstPageColumns.filter(({ chargeFilterId }) => !chargeFilterId)
 
-  if (isExpanded || filterColumns.length <= COLLAPSED_FILTER_COLUMNS) {
-    return { columns, hiddenColumnsCount: 0 }
+  if (!isExpanded && firstPageFilterColumns.length > COLLAPSED_FILTER_COLUMNS) {
+    return {
+      columns: [...firstPageFilterColumns.slice(0, COLLAPSED_FILTER_COLUMNS), ...defaultColumns],
+      hiddenColumnsCount: firstPageFilterColumns.length - COLLAPSED_FILTER_COLUMNS,
+    }
   }
 
-  const defaultColumns = columns.filter(({ chargeFilterId }) => !chargeFilterId)
+  const nextPagesFilterColumns = nextPagesColumns
+    .flat()
+    .filter(({ chargeFilterId }) => !!chargeFilterId)
 
   return {
-    columns: [...filterColumns.slice(0, COLLAPSED_FILTER_COLUMNS), ...defaultColumns],
-    hiddenColumnsCount: filterColumns.length - COLLAPSED_FILTER_COLUMNS,
+    columns: [...firstPageFilterColumns, ...nextPagesFilterColumns, ...defaultColumns],
+    hiddenColumnsCount: 0,
   }
 }
 

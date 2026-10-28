@@ -17,12 +17,13 @@ import {
   mergeAttributionFilters,
   parseAttributionNodeKey,
 } from './attributionTree'
+import { SPLIT_FILTERS_PER_PAGE } from './buildAttributionColumns'
 
 export type AttributionTreeUsage = GetSubscriptionAttributedUsageQuery['attributedUsage']
 
 export type AttributionTreeBlock = {
   level: AttributionLevel
-  usage: AttributionTreeUsage
+  usages: AttributionTreeUsage[]
   isLoadingMore: boolean
 }
 
@@ -35,7 +36,7 @@ export type AttributionTreeNodes = Record<string, AttributionTreeNode>
 
 type AttributionTreeVariables = Omit<
   GetSubscriptionAttributedUsageQueryVariables,
-  'groupBy' | 'filters' | 'page'
+  'groupBy' | 'filters' | 'page' | 'splitFiltersOffset'
 > & { filters?: AttributedUsageFilterInput[] }
 
 type UseAttributionTreeParams = {
@@ -47,8 +48,11 @@ type UseAttributionTreeParams = {
 
 type UseAttributionTreeReturn = {
   nodes: AttributionTreeNodes
+  isLoadingFilterPage: boolean
   toggleNode: (path: AttributionPathStep[], levelCode: string) => void
   loadMore: (path: AttributionPathStep[], blockIndex: number) => void
+  loadMoreFilterPage: () => void
+  collapseFilterPages: () => void
   refresh: () => void
 }
 
@@ -64,6 +68,13 @@ export const notifyAttributionError = (error: unknown): void => {
   addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
 }
 
+const isAttributionNodeBusy = (node: AttributionTreeNode): boolean =>
+  node.status === 'loading' ||
+  (node.status === 'loaded' && node.blocks.some(({ isLoadingMore }) => isLoadingMore))
+
+export const isAttributionTreeBusy = (nodes: AttributionTreeNodes): boolean =>
+  Object.values(nodes).some(isAttributionNodeBusy)
+
 export const useAttributionTree = ({
   variables,
   getChildLevels,
@@ -74,6 +85,9 @@ export const useAttributionTree = ({
   const [nodes, setNodes] = useState<AttributionTreeNodes>({})
   const nodesRef = useRef<AttributionTreeNodes>({})
   const generationRef = useRef(0)
+  const filterPagesCountRef = useRef(1)
+  const isLoadingFilterPageRef = useRef(false)
+  const [isLoadingFilterPage, setIsLoadingFilterPage] = useState(false)
   const latestParamsRef = useRef({ variables, getChildLevels, skip })
 
   useEffect(() => {
@@ -87,6 +101,11 @@ export const useAttributionTree = ({
     },
     [],
   )
+
+  const updateIsLoadingFilterPage = useCallback((isLoading: boolean): void => {
+    isLoadingFilterPageRef.current = isLoading
+    setIsLoadingFilterPage(isLoading)
+  }, [])
 
   const updateBlock = useCallback(
     (
@@ -118,6 +137,7 @@ export const useAttributionTree = ({
       level: AttributionLevel,
       path: AttributionPathStep[],
       page: number,
+      filterPage: number,
     ): Promise<AttributionTreeUsage> => {
       const latestVariables = latestParamsRef.current.variables
       const filters = mergeAttributionFilters(
@@ -135,6 +155,7 @@ export const useAttributionTree = ({
           groupBy: level.code,
           filters: filters.length ? filters : undefined,
           page,
+          splitFiltersOffset: filterPage ? filterPage * SPLIT_FILTERS_PER_PAGE : undefined,
         },
         fetchPolicy: 'no-cache',
       })
@@ -149,14 +170,31 @@ export const useAttributionTree = ({
       level: AttributionLevel,
       path: AttributionPathStep[],
       pageCount: number,
+      filterPage: number,
     ): Promise<AttributionTreeUsage> => {
       const pages = await Promise.all(
-        Array.from({ length: pageCount }, (_, index) => fetchUsage(level, path, index + 1)),
+        Array.from({ length: pageCount }, (_, index) =>
+          fetchUsage(level, path, index + 1, filterPage),
+        ),
       )
 
       return { ...pages[pages.length - 1], rows: pages.flatMap(({ rows }) => rows) }
     },
     [fetchUsage],
+  )
+
+  const fetchUsageFilterPages = useCallback(
+    (
+      level: AttributionLevel,
+      path: AttributionPathStep[],
+      pageCount: number,
+    ): Promise<AttributionTreeUsage[]> =>
+      Promise.all(
+        Array.from({ length: filterPagesCountRef.current }, (_, filterPage) =>
+          fetchUsagePages(level, path, pageCount, filterPage),
+        ),
+      ),
+    [fetchUsagePages],
   )
 
   const loadNode = useCallback(
@@ -174,7 +212,7 @@ export const useAttributionTree = ({
       try {
         const usages = await Promise.all(
           levels.map((level) =>
-            fetchUsagePages(level, path, pageCountByLevelCode?.[level.code] ?? 1),
+            fetchUsageFilterPages(level, path, pageCountByLevelCode?.[level.code] ?? 1),
           ),
         )
 
@@ -187,7 +225,7 @@ export const useAttributionTree = ({
             isExpanded,
             blocks: levels.map((level, index) => ({
               level,
-              usage: usages[index],
+              usages: usages[index],
               isLoadingMore: false,
             })),
           },
@@ -199,7 +237,7 @@ export const useAttributionTree = ({
         notifyAttributionError(error)
       }
     },
-    [fetchUsagePages, updateNodes],
+    [fetchUsageFilterPages, updateNodes],
   )
 
   const toggleNode = useCallback(
@@ -229,25 +267,28 @@ export const useAttributionTree = ({
       const node = nodesRef.current[key]
       const block = node?.status === 'loaded' ? node.blocks[blockIndex] : undefined
 
-      if (!block || block.isLoadingMore) return
+      if (!block || block.isLoadingMore || isLoadingFilterPageRef.current) return
 
       const generation = generationRef.current
+      const nextPage = block.usages[0].metadata.currentPage + 1
 
       updateBlock(key, blockIndex, (previous) => ({ ...previous, isLoadingMore: true }))
 
       try {
-        const usage = await fetchUsage(block.level, path, block.usage.metadata.currentPage + 1)
+        const usages = await Promise.all(
+          block.usages.map((_, filterPage) => fetchUsage(block.level, path, nextPage, filterPage)),
+        )
 
         if (generation !== generationRef.current) return
 
         updateBlock(key, blockIndex, (previous) => ({
           ...previous,
           isLoadingMore: false,
-          usage: {
-            ...previous.usage,
-            metadata: usage.metadata,
-            rows: [...previous.usage.rows, ...usage.rows],
-          },
+          usages: previous.usages.map((previousUsage, filterPage) => ({
+            ...previousUsage,
+            metadata: usages[filterPage].metadata,
+            rows: [...previousUsage.rows, ...usages[filterPage].rows],
+          })),
         }))
       } catch (error) {
         if (generation !== generationRef.current) return
@@ -259,20 +300,105 @@ export const useAttributionTree = ({
     [fetchUsage, updateBlock],
   )
 
+  const dropFilterPages = useCallback(
+    (count: number): void => {
+      filterPagesCountRef.current = count
+      updateNodes((previous) =>
+        Object.fromEntries(
+          Object.entries(previous).map(([key, node]) => [
+            key,
+            node.status === 'loaded'
+              ? {
+                  ...node,
+                  blocks: node.blocks.map((block) => ({
+                    ...block,
+                    usages: block.usages.slice(0, count),
+                  })),
+                }
+              : node,
+          ]),
+        ),
+      )
+    },
+    [updateNodes],
+  )
+
+  const loadMoreFilterPage = useCallback(async (): Promise<void> => {
+    const previousNodes = nodesRef.current
+
+    if (isLoadingFilterPageRef.current || isAttributionTreeBusy(previousNodes)) return
+
+    const generation = generationRef.current
+    const filterPage = filterPagesCountRef.current
+
+    updateIsLoadingFilterPage(true)
+    filterPagesCountRef.current = filterPage + 1
+
+    try {
+      await Promise.all(
+        Object.entries(previousNodes).flatMap(([key, node]) => {
+          const path = parseAttributionNodeKey(key)
+
+          if (node.status !== 'loaded') return []
+
+          return node.blocks.map(async (block, blockIndex) => {
+            const usage = await fetchUsagePages(
+              block.level,
+              path,
+              block.usages[0].metadata.currentPage,
+              filterPage,
+            )
+
+            if (generation !== generationRef.current) return
+
+            updateBlock(key, blockIndex, (previous) => {
+              if (
+                previous.usages.length !== filterPage ||
+                filterPagesCountRef.current <= filterPage
+              ) {
+                return previous
+              }
+
+              return { ...previous, usages: [...previous.usages, usage] }
+            })
+          })
+        }),
+      )
+    } catch (error) {
+      if (generation !== generationRef.current) return
+
+      dropFilterPages(filterPage)
+      notifyAttributionError(error)
+    }
+
+    if (generation !== generationRef.current) return
+
+    updateIsLoadingFilterPage(false)
+  }, [dropFilterPages, fetchUsagePages, updateBlock, updateIsLoadingFilterPage])
+
+  const collapseFilterPages = useCallback((): void => {
+    if (isLoadingFilterPageRef.current || isAttributionTreeBusy(nodesRef.current)) return
+
+    dropFilterPages(1)
+  }, [dropFilterPages])
+
   const reset = useCallback((): void => {
     generationRef.current += 1
+    updateIsLoadingFilterPage(false)
+    filterPagesCountRef.current = 1
     updateNodes(() => ({}))
 
     if (latestParamsRef.current.skip) return
 
     loadNode([], null)
-  }, [loadNode, updateNodes])
+  }, [loadNode, updateIsLoadingFilterPage, updateNodes])
 
   const refresh = useCallback((): void => {
     const previousNodes = nodesRef.current
     const rootKey = getAttributionNodeKey([])
 
     generationRef.current += 1
+    updateIsLoadingFilterPage(false)
     updateNodes(() => ({}))
 
     if (latestParamsRef.current.skip) return
@@ -291,7 +417,7 @@ export const useAttributionTree = ({
       loadNode(path, parentCode, {
         isExpanded: node.isExpanded,
         pageCountByLevelCode: Object.fromEntries(
-          node.blocks.map(({ level, usage }) => [level.code, usage.metadata.currentPage]),
+          node.blocks.map(({ level, usages }) => [level.code, usages[0].metadata.currentPage]),
         ),
       })
     }
@@ -301,11 +427,19 @@ export const useAttributionTree = ({
     Object.entries(previousNodes)
       .filter(([key, node]) => key !== rootKey && node.status === 'loaded' && node.isExpanded)
       .forEach(([key]) => reloadNode(key))
-  }, [loadNode, updateNodes])
+  }, [loadNode, updateIsLoadingFilterPage, updateNodes])
 
   useEffect(() => {
     reset()
   }, [resetKey, skip, reset])
 
-  return { nodes, toggleNode, loadMore, refresh }
+  return {
+    nodes,
+    isLoadingFilterPage,
+    toggleNode,
+    loadMore,
+    loadMoreFilterPage,
+    collapseFilterPages,
+    refresh,
+  }
 }

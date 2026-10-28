@@ -68,9 +68,8 @@ describe('buildAttributionColumns', () => {
     describe('WHEN the columns are built', () => {
       it('THEN should return no charge column so only the total is displayed', () => {
         const result = buildAttributionColumns({
-          chargesUsage: [
-            createChargeUsage(),
-            createChargeUsage({ charge: createCharge({ id: 'other' }) }),
+          chargesUsageByFilterPage: [
+            [createChargeUsage(), createChargeUsage({ charge: createCharge({ id: 'other' }) })],
           ],
           selectedChargeId: null,
           isExpanded: false,
@@ -85,7 +84,7 @@ describe('buildAttributionColumns', () => {
     describe('WHEN it has up to the collapsed number of filters', () => {
       it('THEN should list the filters in response order with the default column last', () => {
         const result = buildAttributionColumns({
-          chargesUsage: buildSplitChargesUsage(['opus', 'sonnet', 'haiku']),
+          chargesUsageByFilterPage: [buildSplitChargesUsage(['opus', 'sonnet', 'haiku'])],
           selectedChargeId: splitCharge.id,
           isExpanded: false,
         })
@@ -105,7 +104,7 @@ describe('buildAttributionColumns', () => {
       it('THEN should show the first filters plus the default and count the hidden ones', () => {
         const models = ['opus', 'sonnet', 'haiku', 'gpt', 'gemini']
         const result = buildAttributionColumns({
-          chargesUsage: buildSplitChargesUsage(models),
+          chargesUsageByFilterPage: [buildSplitChargesUsage(models)],
           selectedChargeId: splitCharge.id,
           isExpanded: false,
         })
@@ -123,7 +122,9 @@ describe('buildAttributionColumns', () => {
     describe('WHEN it has more filters than the collapsed limit and is expanded', () => {
       it('THEN should show every filter column and the default', () => {
         const result = buildAttributionColumns({
-          chargesUsage: buildSplitChargesUsage(['opus', 'sonnet', 'haiku', 'gpt', 'gemini']),
+          chargesUsageByFilterPage: [
+            buildSplitChargesUsage(['opus', 'sonnet', 'haiku', 'gpt', 'gemini']),
+          ],
           selectedChargeId: splitCharge.id,
           isExpanded: true,
         })
@@ -133,12 +134,80 @@ describe('buildAttributionColumns', () => {
       })
     })
 
+    describe('WHEN several filter pages are loaded and expanded', () => {
+      it('THEN should append each page filters in order and keep a single default column last', () => {
+        const result = buildAttributionColumns({
+          chargesUsageByFilterPage: [
+            buildSplitChargesUsage(['opus', 'sonnet', 'haiku', 'gpt']),
+            buildSplitChargesUsage(['gemini', 'mistral']),
+            buildSplitChargesUsage(['llama']),
+          ],
+          selectedChargeId: splitCharge.id,
+          isExpanded: true,
+        })
+
+        expect(result.columns.map(({ chargeFilterId }) => chargeFilterId)).toEqual([
+          'filter-opus',
+          'filter-sonnet',
+          'filter-haiku',
+          'filter-gpt',
+          'filter-gemini',
+          'filter-mistral',
+          'filter-llama',
+          null,
+        ])
+        expect(result.columns.map(({ filterPage }) => filterPage)).toEqual([0, 0, 0, 0, 1, 1, 2, 0])
+        expect(result.hiddenColumnsCount).toBe(0)
+      })
+    })
+
+    describe('WHEN several filter pages are loaded but the columns are collapsed', () => {
+      it('THEN should only show the first page collapsed view', () => {
+        const result = buildAttributionColumns({
+          chargesUsageByFilterPage: [
+            buildSplitChargesUsage(['opus', 'sonnet', 'haiku', 'gpt']),
+            buildSplitChargesUsage(['gemini']),
+          ],
+          selectedChargeId: splitCharge.id,
+          isExpanded: false,
+        })
+
+        expect(result.columns.map(({ chargeFilterId }) => chargeFilterId)).toEqual([
+          'filter-opus',
+          'filter-sonnet',
+          'filter-haiku',
+          null,
+        ])
+        expect(result.hiddenColumnsCount).toBe(1)
+      })
+    })
+
+    describe('WHEN the first page lists the default cell before its filters', () => {
+      it('THEN should still put the default column last', () => {
+        const [defaultUsage] = buildSplitChargesUsage([])
+        const result = buildAttributionColumns({
+          chargesUsageByFilterPage: [
+            [defaultUsage, ...buildSplitChargesUsage(['opus']).slice(0, 1)],
+          ],
+          selectedChargeId: splitCharge.id,
+          isExpanded: true,
+        })
+
+        expect(result.columns.map(({ chargeFilterId }) => chargeFilterId)).toEqual([
+          'filter-opus',
+          null,
+        ])
+      })
+    })
+
     describe('WHEN the response also holds usage of another charge', () => {
       it('THEN should only build columns for the selected charge', () => {
         const result = buildAttributionColumns({
-          chargesUsage: [
-            ...buildSplitChargesUsage(['opus']),
-            createChargeUsage({ charge: createCharge({ id: 'other' }) }),
+          chargesUsageByFilterPage: [
+            [
+              ...buildSplitChargesUsage(['opus']),
+              createChargeUsage({ charge: createCharge({ id: 'other' }) }),
+            ],
           ],
           selectedChargeId: splitCharge.id,
           isExpanded: false,
@@ -151,11 +220,13 @@ describe('buildAttributionColumns', () => {
     describe('WHEN a filter has an invoice display name', () => {
       it('THEN should use it as the column label', () => {
         const result = buildAttributionColumns({
-          chargesUsage: [
-            createChargeUsage({
-              charge: splitCharge,
-              chargeFilter: createFilter('filter-opus', 'opus', 'Claude Opus'),
-            }),
+          chargesUsageByFilterPage: [
+            [
+              createChargeUsage({
+                charge: splitCharge,
+                chargeFilter: createFilter('filter-opus', 'opus', 'Claude Opus'),
+              }),
+            ],
           ],
           selectedChargeId: splitCharge.id,
           isExpanded: false,
@@ -168,15 +239,17 @@ describe('buildAttributionColumns', () => {
     describe('WHEN a filter matches all the values of its key', () => {
       it('THEN should label the column with the key instead of the internal value', () => {
         const result = buildAttributionColumns({
-          chargesUsage: [
-            createChargeUsage({
-              charge: splitCharge,
-              chargeFilter: {
-                id: 'filter-all-models',
-                invoiceDisplayName: null,
-                values: { model: [ALL_FILTER_VALUES] },
-              },
-            }),
+          chargesUsageByFilterPage: [
+            [
+              createChargeUsage({
+                charge: splitCharge,
+                chargeFilter: {
+                  id: 'filter-all-models',
+                  invoiceDisplayName: null,
+                  values: { model: [ALL_FILTER_VALUES] },
+                },
+              }),
+            ],
           ],
           selectedChargeId: splitCharge.id,
           isExpanded: false,
@@ -207,6 +280,7 @@ describe('getAttributionCellUsage', () => {
           chargeId: splitCharge.id,
           chargeFilterId: 'filter-opus',
           label: 'opus',
+          filterPage: 0,
         }),
       ).toEqual({ units: 12, amountCents: '300' })
     })
@@ -220,6 +294,7 @@ describe('getAttributionCellUsage', () => {
           chargeId: splitCharge.id,
           chargeFilterId: null,
           label: null,
+          filterPage: 0,
         }),
       ).toEqual({ units: 4, amountCents: null })
     })
@@ -233,6 +308,7 @@ describe('getAttributionCellUsage', () => {
           chargeId: 'unknown',
           chargeFilterId: null,
           label: null,
+          filterPage: 0,
         }),
       ).toBeNull()
     })
