@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 import { Button } from '~/components/designSystem/Button'
 import { BasicComboBoxData, ComboBoxProps } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -12,8 +10,10 @@ type XeroIntegrationMapItemFormWrapperProps = {
   billingEntityKey: string
   items: BasicComboBoxData[]
   searchResults: BasicComboBoxData[]
+  isSearching: boolean
   isLoading: boolean
   search: ComboBoxProps['searchQuery']
+  onSearch: (billingEntityKey: string, searchTerm: string | undefined) => void
   onRefresh: () => void
 }
 
@@ -21,8 +21,10 @@ const defaultProps: XeroIntegrationMapItemFormWrapperProps = {
   billingEntityKey: '',
   items: [],
   searchResults: [],
+  isSearching: false,
   isLoading: false,
   search: undefined,
+  onSearch: () => {},
   onRefresh: () => {},
 }
 
@@ -56,24 +58,25 @@ export const XeroIntegrationMapItemFormWrapper = withForm({
     billingEntityKey,
     items,
     searchResults,
+    isSearching,
     isLoading,
     search,
+    onSearch,
     onRefresh,
   }) {
     const { translate } = useInternationalization()
-    const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined)
 
-    // The search query is shared by every billing entity, so each wrapper reads its results only
-    // while it is the one searching; the others keep showing the unfiltered list.
+    // The search query is shared by every billing entity, so the drawer tracks which field is
+    // searching; the others keep showing the unfiltered list.
     const searchQuery = search
       ? (((...args: Parameters<NonNullable<ComboBoxProps['searchQuery']>>) => {
-          setSearchTerm(args[0]?.variables?.searchTerm ?? undefined)
+          onSearch(billingEntityKey, args[0]?.variables?.searchTerm ?? undefined)
 
           return search(...args)
         }) as ComboBoxProps['searchQuery'])
       : undefined
 
-    const comboboxData = searchTerm ? searchResults : items
+    const comboboxData = isSearching ? searchResults : items
 
     const helperText =
       !isLoading && !comboboxData.length ? translate('text_6630ec823adac97d3bf0fb4b') : undefined

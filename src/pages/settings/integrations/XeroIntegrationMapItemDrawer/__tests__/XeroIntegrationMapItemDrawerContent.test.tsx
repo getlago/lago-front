@@ -240,6 +240,19 @@ describe('XeroIntegrationMapItemDrawerContent', () => {
         expect(lastOptionsFor('default')).not.toContain('Support (400)')
       })
 
+      it('THEN should hand the results to the field searched last only', async () => {
+        const { user } = renderDrawer({ seeded: true })
+
+        await settle()
+        await searchFrom(user, 'default', 'sales')
+        await searchFrom(user, 'acme', 'services')
+
+        // A seeded field keeps its value on blur, so its own search term is never cleared: it
+        // must stop reading the shared results once another field takes over the search.
+        expect(lastOptionsFor('default')).toContain('Support (400)')
+        expect(lastOptionsFor('acme')).not.toContain('Support (400)')
+      })
+
       it('THEN should keep its own selection when no result matches', async () => {
         const { user } = renderDrawer({ seeded: true })
 

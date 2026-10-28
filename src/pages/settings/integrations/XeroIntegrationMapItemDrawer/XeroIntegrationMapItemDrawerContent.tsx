@@ -1,4 +1,4 @@
-import { ComponentProps } from 'react'
+import { ComponentProps, useState } from 'react'
 
 import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import {
@@ -30,6 +30,13 @@ export const XeroIntegrationMapItemDrawerContent = ({
     formType,
     integrationId,
   )
+  const [searchingKey, setSearchingKey] = useState<string | undefined>(undefined)
+
+  // A field that keeps its value on blur never clears its own search term, so the last field to
+  // search owns the shared results and the others fall back to the unfiltered list.
+  const handleSearch = (billingEntityKey: string, searchTerm: string | undefined): void => {
+    setSearchingKey(searchTerm ? billingEntityKey : undefined)
+  }
 
   return (
     <IntegrationMapItemDrawerContent
@@ -41,8 +48,10 @@ export const XeroIntegrationMapItemDrawerContent = ({
           billingEntityKey={billingEntityKey}
           items={items}
           searchResults={searchResults}
+          isSearching={searchingKey === billingEntityKey}
           isLoading={isLoading}
           search={search}
+          onSearch={handleSearch}
           onRefresh={refresh}
         />
       )}
