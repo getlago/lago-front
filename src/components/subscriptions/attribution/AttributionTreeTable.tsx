@@ -21,6 +21,8 @@ export const ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID = 'attribution-tree-load-mo
 
 const ROOT_NODE_KEY = getAttributionNodeKey([])
 
+const AttributionToggleSpacer = (): JSX.Element => <span className="size-4 shrink-0" />
+
 type AttributionTreeTableProps = AttributionTableSharedProps & {
   nodes: AttributionTreeNodes
   onToggleNode: (path: AttributionPathStep[], levelCode: string) => void
@@ -47,7 +49,7 @@ export const AttributionTreeTable = ({
   const { columns, basis, currency } = tableProps
 
   const renderToggle = (row: AttributionTreeRow): ReactNode => {
-    if (row.level.isLeaf) return <span className="size-4 shrink-0" />
+    if (row.level.isLeaf) return <AttributionToggleSpacer />
 
     const node = nodes[row.nodeKey]
     const isOpen = node?.status === 'loaded' && node.isExpanded
@@ -102,6 +104,7 @@ export const AttributionTreeTable = ({
         isLoading={block.isLoadingMore}
         onLoadMore={() => onLoadMore(path, blockIndex)}
         depth={depth}
+        toggle={<AttributionToggleSpacer />}
         data-test={ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID}
       />
     )

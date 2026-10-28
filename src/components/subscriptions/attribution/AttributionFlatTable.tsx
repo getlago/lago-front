@@ -174,6 +174,7 @@ type AttributionLoadMoreRowProps = Pick<AttributionTableSharedProps, 'columns'> 
   isLoading: boolean
   onLoadMore: () => void
   depth?: number
+  toggle?: ReactNode
   'data-test': string
 }
 
@@ -182,6 +183,7 @@ export const AttributionLoadMoreRow = ({
   isLoading,
   onLoadMore,
   depth = 0,
+  toggle,
   'data-test': dataTest,
 }: AttributionLoadMoreRowProps): JSX.Element => {
   const { translate } = useInternationalization()
@@ -189,7 +191,8 @@ export const AttributionLoadMoreRow = ({
   return (
     <tr>
       <td className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
-        <div className="flex items-center" style={getAttributionIndentStyle(depth)}>
+        <div className="flex items-center gap-2" style={getAttributionIndentStyle(depth)}>
+          {toggle}
           <Button
             variant="inline"
             size="small"
