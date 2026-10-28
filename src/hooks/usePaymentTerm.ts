@@ -1,7 +1,11 @@
 import { DateTime } from 'luxon'
 
 import { BasicComboBoxData } from '~/components/form/ComboBox/types'
-import { getInheritedFromCustomer } from '~/components/paymentTerms/utils'
+import { PaymentTermFormValues, PaymentTermInheritedFrom } from '~/components/paymentTerms/types'
+import {
+  getInheritedFromCustomer,
+  paymentTermFromFormValues,
+} from '~/components/paymentTerms/utils'
 import {
   PAYMENT_TERM_DUE_DATE_PREVIEW_KEYS,
   PAYMENT_TERM_INHERIT,
@@ -147,6 +151,9 @@ export const usePaymentTerm = () => {
     ]
   }
 
+  const formatInheritedPaymentTerm = (inheritedFrom: PaymentTermInheritedFrom): string =>
+    translate(inheritedFrom.labelKey, { value: formatPaymentTerm(inheritedFrom.term) })
+
   /**
    * The value shown for a billing object (subscription, wallet): its own term, else the
    * customer's resolved term marked as inherited.
@@ -160,9 +167,17 @@ export const usePaymentTerm = () => {
   }): string => {
     if (ownTerm) return formatPaymentTerm(ownTerm)
 
-    const inheritedFrom = getInheritedFromCustomer(customer)
+    return formatInheritedPaymentTerm(getInheritedFromCustomer(customer))
+  }
 
-    return translate(inheritedFrom.labelKey, { value: formatPaymentTerm(inheritedFrom.term) })
+  /** How the editor's current values read in a summary, before they are saved. */
+  const getPaymentTermFormValuesCopy = (
+    values: PaymentTermFormValues,
+    inheritedFrom: PaymentTermInheritedFrom,
+  ): string => {
+    const term = paymentTermFromFormValues(values)
+
+    return term ? formatPaymentTerm(term) : formatInheritedPaymentTerm(inheritedFrom)
   }
 
   return {
@@ -170,6 +185,7 @@ export const usePaymentTerm = () => {
     getBillingObjectPaymentTermCopy,
     getDueDatePreviewCopy,
     getPaymentTermCopy,
+    getPaymentTermFormValuesCopy,
     getTermTypeComboboxData,
   }
 }

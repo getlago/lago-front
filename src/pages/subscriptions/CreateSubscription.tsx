@@ -602,7 +602,6 @@ const CreateSubscription = () => {
                         setShouldDisplaySubscriptionName={setShouldDisplaySubscriptionName}
                         selectedPlanInterval={selectedPlan?.interval ?? undefined}
                         customerExternalId={customer?.externalId}
-                        paymentTermInheritedFrom={getInheritedFromCustomer(customer)}
                       />
 
                       {/* Section: Invoicing */}
@@ -612,10 +611,11 @@ const CreateSubscription = () => {
                           description={translate('text_1782738644346p066xtwa8yj')}
                         />
 
-                        {/* Invoice consolidation + custom sections live in a drawer */}
+                        {/* Invoice consolidation, custom sections and payment term live in a drawer */}
                         <InvoicingSettingsSection
                           form={subscriptionForm}
                           customerId={customer?.id}
+                          paymentTermInheritedFrom={getInheritedFromCustomer(customer)}
                         />
                       </CenteredPage.PageSection>
 

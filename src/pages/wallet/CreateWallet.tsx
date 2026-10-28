@@ -7,6 +7,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { getInheritedFromCustomer } from '~/components/paymentTerms/utils'
 import {
   CLOSE_CREATE_WALLET_BUTTON_DATA_TEST,
   SUBMIT_WALLET_DATA_TEST,
@@ -420,6 +421,7 @@ const CreateWallet = () => {
               autoOpenAdditionalIntegrationDrawer={
                 autoOpenAdditionalIntegrationDrawer && !isLoading
               }
+              paymentTermInheritedFrom={getInheritedFromCustomer(customerData?.customer)}
             />
           </CenteredPage.Container>
         )}

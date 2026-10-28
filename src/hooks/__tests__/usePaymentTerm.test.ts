@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react'
 import { DateTime } from 'luxon'
 
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
 import {
   PAYMENT_TERM_DUE_DATE_PREVIEW_KEYS,
   PAYMENT_TERM_INHERIT,
@@ -173,6 +174,34 @@ describe('usePaymentTerm', () => {
           expect(copy).toContain('text_1728374331992d2alok9y3kr')
           expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.DueOnReceipt])
         })
+      })
+    })
+  })
+
+  describe('getPaymentTermFormValuesCopy', () => {
+    const inheritedFrom = { term: END_OF_MONTH, labelKey: 'inherit_key' }
+
+    describe('GIVEN the editor sits on the inherit choice', () => {
+      it('THEN should read as the inherited term marked with its level', () => {
+        const copy = setup().getPaymentTermFormValuesCopy(
+          paymentTermFormValuesFromTerm(null, true),
+          inheritedFrom,
+        )
+
+        expect(copy).toContain('inherit_key')
+        expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.EndOfMonth])
+      })
+    })
+
+    describe('GIVEN the editor holds a term', () => {
+      it('THEN should read as that term', () => {
+        const copy = setup().getPaymentTermFormValuesCopy(
+          paymentTermFormValuesFromTerm(NET_30, true),
+          inheritedFrom,
+        )
+
+        expect(copy).not.toContain('inherit_key')
+        expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net])
       })
     })
   })

@@ -1,8 +1,10 @@
 import { renderHook } from '@testing-library/react'
 
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
 import {
   ConnectionBehaviorEnum,
   PaymentMethodTypeEnum,
+  PaymentTermTypeEnum,
   useUpdateSubscriptionMutation,
 } from '~/generated/graphql'
 
@@ -12,6 +14,14 @@ jest.mock('~/generated/graphql', () => ({
   LagoApiError: { UnprocessableEntity: 'unprocessable_entity' },
   ConnectionBehaviorEnum: { Inherit: 'inherit', Skip: 'skip' },
   PaymentMethodTypeEnum: { Provider: 'provider', Manual: 'manual' },
+  PaymentTermTypeEnum: {
+    DueOnReceipt: 'due_on_receipt',
+    Net: 'net',
+    EndOfMonth: 'end_of_month',
+    NetEndOfMonth: 'net_end_of_month',
+    DaysEndOfMonth: 'days_end_of_month',
+    DayOfMonth: 'day_of_month',
+  },
   useUpdateSubscriptionMutation: jest.fn(),
 }))
 
@@ -31,6 +41,7 @@ describe('useUpdateSubscriptionSettings', () => {
 
   it('saves additional routing without changing payment and resets inherited overrides explicitly', async () => {
     const { result } = renderHook(() => useUpdateSubscriptionSettings('sub_1'))
+
     await result.current.saveAdditionalIntegrations({
       accounting: { code: 'netsuite_eu' },
       crm: undefined,
@@ -50,9 +61,52 @@ describe('useUpdateSubscriptionSettings', () => {
     })
   })
 
+  describe('GIVEN the invoicing settings from the overview drawer', () => {
+    const invoicing = {
+      consolidateInvoice: false,
+      invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: true },
+    }
+
+    it('THEN should persist the chosen payment term with the other settings', async () => {
+      const { result } = renderHook(() => useUpdateSubscriptionSettings('sub_1'))
+
+      await result.current.saveInvoicing({
+        ...invoicing,
+        paymentTerm: paymentTermFormValuesFromTerm(
+          { termType: PaymentTermTypeEnum.Net, days: 60 },
+          true,
+        ),
+      })
+
+      expect(mockUpdate).toHaveBeenCalledWith({
+        variables: {
+          input: expect.objectContaining({
+            id: 'sub_1',
+            consolidateInvoice: false,
+            paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 60 },
+          }),
+        },
+      })
+    })
+
+    it('THEN should clear the override when the inherit choice is saved', async () => {
+      const { result } = renderHook(() => useUpdateSubscriptionSettings('sub_1'))
+
+      await result.current.saveInvoicing({
+        ...invoicing,
+        paymentTerm: paymentTermFormValuesFromTerm(null, true),
+      })
+
+      expect(mockUpdate).toHaveBeenCalledWith({
+        variables: { input: expect.objectContaining({ paymentTerm: null }) },
+      })
+    })
+  })
+
   it('rejects a failed additional integration save', async () => {
     mockUpdate.mockResolvedValueOnce({ data: { updateSubscription: null } })
     const { result } = renderHook(() => useUpdateSubscriptionSettings('sub_1'))
+
     await expect(
       result.current.saveAdditionalIntegrations({
         accounting: undefined,
@@ -156,6 +210,7 @@ describe('useUpdateSubscriptionSettings', () => {
         invoiceCustomSections: [{ id: 'cs_1', name: 'Bank details' }],
         skipInvoiceCustomSections: false,
       },
+      paymentTerm: paymentTermFormValuesFromTerm(null, true),
     })
 
     expect(mockUpdate).toHaveBeenCalledWith(
