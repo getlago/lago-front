@@ -1,3 +1,7 @@
+import { PaymentTermInheritedFrom } from '~/components/paymentTerms/types'
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
+import { PAYMENT_TERM_VALUE_KEYS } from '~/core/constants/paymentTerm'
+import { PaymentTermTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { InvoicingSettingsSection } from '../InvoicingSettingsSection'
@@ -54,16 +58,27 @@ jest.mock('~/hooks/forms/useAppform', () => ({
   ),
 }))
 
+const INHERIT_LABEL_KEY = 'inherit_key'
+const INHERITED_FROM: PaymentTermInheritedFrom = {
+  term: { termType: PaymentTermTypeEnum.EndOfMonth },
+  labelKey: INHERIT_LABEL_KEY,
+}
+
 const renderSection = (
-  values: { consolidateInvoice?: boolean; invoiceCustomSection?: unknown },
+  values: { consolidateInvoice?: boolean; invoiceCustomSection?: unknown; paymentTerm?: unknown },
   customerId?: string,
+  paymentTermInheritedFrom?: PaymentTermInheritedFrom,
 ) => {
   const state = { values }
   const form = { setFieldValue: jest.fn(), state, store: { state } }
 
   render(
-    // @ts-expect-error - mock form shape
-    <InvoicingSettingsSection form={form} customerId={customerId} />,
+    <InvoicingSettingsSection
+      // @ts-expect-error - mock form shape
+      form={form}
+      customerId={customerId}
+      paymentTermInheritedFrom={paymentTermInheritedFrom}
+    />,
   )
 
   return { form }
@@ -127,21 +142,35 @@ describe('InvoicingSettingsSection', () => {
     const { form } = renderSection({ consolidateInvoice: true }, 'cust-1')
 
     const { onSave } = mockDrawer.mock.calls.at(-1)?.[0] as {
-      onSave: (v: { consolidateInvoice: boolean; invoiceCustomSection: unknown }) => void
+      onSave: (v: {
+        consolidateInvoice: boolean
+        invoiceCustomSection: unknown
+        paymentTerm: unknown
+      }) => void
     }
 
     const nextIcs = { invoiceCustomSections: [], skipInvoiceCustomSections: true }
+    const nextPaymentTerm = paymentTermFormValuesFromTerm(
+      { termType: PaymentTermTypeEnum.Net, days: 60 },
+      true,
+    )
 
-    onSave({ consolidateInvoice: false, invoiceCustomSection: nextIcs })
+    onSave({
+      consolidateInvoice: false,
+      invoiceCustomSection: nextIcs,
+      paymentTerm: nextPaymentTerm,
+    })
 
     expect(form.setFieldValue).toHaveBeenCalledWith('consolidateInvoice', false)
     expect(form.setFieldValue).toHaveBeenCalledWith('invoiceCustomSection', nextIcs)
+    expect(form.setFieldValue).toHaveBeenCalledWith('paymentTerm', nextPaymentTerm)
   })
 
   it('seeds the drawer with the current form values on click', () => {
     const invoiceCustomSection = { invoiceCustomSections: [], skipInvoiceCustomSections: true }
+    const paymentTerm = paymentTermFormValuesFromTerm(null, true)
 
-    renderSection({ consolidateInvoice: false, invoiceCustomSection }, 'cust-1')
+    renderSection({ consolidateInvoice: false, invoiceCustomSection, paymentTerm }, 'cust-1')
 
     const { onClick } = mockSelector.mock.calls.at(-1)?.[0] as { onClick: () => void }
 
@@ -150,6 +179,45 @@ describe('InvoicingSettingsSection', () => {
     expect(mockOpenDrawer).toHaveBeenCalledWith({
       consolidateInvoice: false,
       invoiceCustomSection,
+      paymentTerm,
+    })
+  })
+
+  describe('GIVEN the subscription can inherit a payment term', () => {
+    it('passes the inherited term on to the drawer', () => {
+      renderSection({ consolidateInvoice: true }, 'cust-1', INHERITED_FROM)
+
+      expect(mockDrawer).toHaveBeenCalledWith(
+        expect.objectContaining({ paymentTermInheritedFrom: INHERITED_FROM }),
+      )
+    })
+
+    it('summarises the inherited term marked with its level', () => {
+      renderSection(
+        { consolidateInvoice: true, paymentTerm: paymentTermFormValuesFromTerm(null, true) },
+        undefined,
+        INHERITED_FROM,
+      )
+
+      expect(lastSubtitle()).toBe(`text_1778745351091h7z5baw0ta6 • ${INHERIT_LABEL_KEY}`)
+    })
+
+    it('summarises the chosen term', () => {
+      renderSection(
+        {
+          consolidateInvoice: true,
+          paymentTerm: paymentTermFormValuesFromTerm(
+            { termType: PaymentTermTypeEnum.Net, days: 60 },
+            true,
+          ),
+        },
+        undefined,
+        INHERITED_FROM,
+      )
+
+      expect(lastSubtitle()).toBe(
+        `text_1778745351091h7z5baw0ta6 • ${PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net]}`,
+      )
     })
   })
 

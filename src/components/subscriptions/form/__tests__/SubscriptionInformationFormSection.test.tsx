@@ -16,10 +16,6 @@ jest.mock('~/hooks/forms/formContext', () => ({
   useFieldContext: jest.fn(),
 }))
 
-jest.mock('~/components/paymentTerms/PaymentTermFormContent', () => ({
-  PaymentTermFormContent: () => null,
-}))
-
 const mockSetFieldValue = jest.fn()
 
 jest.mock('@tanstack/react-form', () => ({
