@@ -6,8 +6,8 @@ const widths = [
   ['border-2', '2px'],
 ] as const
 const borders = [
-  ['border-subtle', 'border-border-subtle'],
-  ['border-default', 'border-border-default'],
+  ['border-divider', 'border-border-divider'],
+  ['border-control', 'border-border-control'],
   ['border-strong', 'border-border-strong'],
   ['focus-border', 'border-focus-border'],
   ['disabled-border', 'border-disabled-border'],
@@ -49,30 +49,30 @@ export const BorderTest = (): JSX.Element => (
           <div className="space-y-3">
             <h4 className="v2-text-label">Width</h4>
             {widths.map(([utility, value]) => (
-              <div key={utility} className={`${utility} rounded-md border-border-default p-3`}>
+              <div key={utility} className={`${utility} rounded-md border-border-control p-3`}>
                 {utility} · {value}
               </div>
             ))}
           </div>
           <div className="space-y-3">
             <h4 className="v2-text-label">Style</h4>
-            <div className="rounded-md border border-solid border-border-default p-3">Solid</div>
-            <div className="rounded-md border-2 border-dashed border-border-default p-3">
+            <div className="rounded-md border border-solid border-border-control p-3">Solid</div>
+            <div className="rounded-md border-2 border-dashed border-border-control p-3">
               Dashed · Drop zone specimen
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <h4 className="v2-text-label col-span-2">Placement</h4>
             {placements.map(([label, utility]) => (
-              <div key={utility} className={`${utility} border-border-default p-3`}>
+              <div key={utility} className={`${utility} border-border-control p-3`}>
                 {label} · {utility}
               </div>
             ))}
-            <div className="divide-y divide-border-subtle">
+            <div className="divide-y divide-border-divider">
               <div className="p-3">Row one</div>
               <div className="p-3">Row two · divide-y</div>
             </div>
-            <div className="flex divide-x divide-border-subtle">
+            <div className="flex divide-x divide-border-divider">
               <div className="p-3">One</div>
               <div className="p-3">Two · divide-x</div>
             </div>
