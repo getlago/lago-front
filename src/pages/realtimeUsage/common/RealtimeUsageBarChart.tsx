@@ -4,7 +4,6 @@ import { useMemo } from 'react'
 
 import StackedBarChart from '~/components/designSystem/graphs/StackedBarChart'
 import { Typography } from '~/components/designSystem/Typography'
-import { PeriodPoint } from '~/components/realtimeUsage/types'
 import { formatUnits } from '~/components/realtimeUsage/utils'
 import {
   CurrencyEnum,
@@ -65,7 +64,7 @@ export const RealtimeUsageBarChart = ({
 
   return (
     <div className="flex flex-col gap-4" data-test={REALTIME_USAGE_BAR_CHART_TEST_ID}>
-      <StackedBarChart<PeriodPoint>
+      <StackedBarChart
         // The units formatter ignores it; the chart only needs one to lay out its axis.
         currency={organization?.defaultCurrency || CurrencyEnum.Usd}
         customFormatter={(value) => formatUnits(Number(value))}
