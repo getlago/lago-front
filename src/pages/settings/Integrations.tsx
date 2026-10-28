@@ -186,6 +186,7 @@ const Integrations = () => {
     skip: !isX402Enabled,
   })
   const hasX402Integration = !!x402Data?.x402Connections?.collection.length
+  const isLagoTabLoading = (loading && !data) || (x402Loading && !x402Data)
 
   const { data: billingEntitiesData } = useGetBillingEntitiesQuery()
 
@@ -303,11 +304,11 @@ const Integrations = () => {
                 integrationGroup: IntegrationsTabsOptionsEnum.Lago,
               }),
             ],
-            snapshotKey: JSON.stringify([isX402Enabled, x402Loading, hasX402Integration]),
+            snapshotKey: JSON.stringify([isX402Enabled, isLagoTabLoading, hasX402Integration]),
             content: (
               <SettingsPaddedContainer className="gap-8">
                 <SettingsListWrapper>
-                  {loading || x402Loading ? (
+                  {isLagoTabLoading ? (
                     <SettingsListItemLoadingSkeleton count={2} />
                   ) : (
                     <SettingsListItem>

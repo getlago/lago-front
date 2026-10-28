@@ -18,6 +18,7 @@ import {
   FeatureFlagEnum,
   GetBillingEntitiesDocument,
   GetX402ConnectionsPresenceDocument,
+  GetX402ConnectionsPresenceQuery,
   IntegrationsSettingDocument,
   PremiumIntegrationTypeEnum,
 } from '~/generated/graphql'
@@ -107,6 +108,21 @@ let mockOrganizationData: {
 }
 
 const mockHasFeatureFlag = jest.fn()
+
+let mockX402Presence: { data: GetX402ConnectionsPresenceQuery; loading: boolean } | undefined
+
+jest.mock('~/generated/graphql', () => {
+  const actual = jest.requireActual('~/generated/graphql')
+
+  return {
+    ...actual,
+    useGetX402ConnectionsPresenceQuery: (...args: unknown[]) => {
+      const result = actual.useGetX402ConnectionsPresenceQuery(...args)
+
+      return mockX402Presence ?? result
+    },
+  }
+})
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
@@ -232,18 +248,6 @@ function x402ConnectionsMock(count: number, delay = 0): TestMocksType[number] {
           collection: Array.from({ length: count }, (_, index) => ({
             __typename: 'X402ConnectionObject',
             id: `x402-${index}`,
-            name: 'Coinbase Devnet',
-            code: 'coinbase_devnet',
-            cdpApiKeyId: '••••••••…abc',
-            cdpApiKeySecret: '••••••••…xyz',
-            networks: ['eip155:84532'],
-            allowedOrigins: ['https://example.com'],
-            autoCreateCustomers: true,
-            payoutAddresses: {
-              __typename: 'X402PayoutAddresses',
-              evm: '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
-              svm: null,
-            },
           })),
         },
       },
@@ -272,6 +276,7 @@ describe('Integrations', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockX402Presence = undefined
     mockIsPremium = true
     mockHasFeatureFlag.mockReturnValue(false)
     mockOrganizationData = {
@@ -564,6 +569,26 @@ describe('Integrations', () => {
       await waitFor(() => {
         expect(screen.getByTestId(INTEGRATIONS_X402_TEST_ID)).toHaveTextContent('Connected')
       })
+    })
+
+    it('keeps the integrations visible while a cached connection refreshes', async () => {
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.X402Payments)
+      mockX402Presence = {
+        loading: true,
+        data: {
+          x402Connections: {
+            __typename: 'X402ConnectionObjectCollection',
+            collection: [{ __typename: 'X402ConnectionObject', id: 'x402-0' }],
+          },
+        },
+      }
+
+      await prepare({ mocks: [...emptyIntegrationsMock(), x402ConnectionsMock(1)] })
+
+      await waitFor(() => {
+        expect(screen.getByTestId(INTEGRATIONS_X402_TEST_ID)).toHaveTextContent('Connected')
+      })
+      expect(screen.getByTestId(INTEGRATIONS_STRIPE_TEST_ID)).toBeInTheDocument()
     })
 
     it('navigates to its connections when one is connected', async () => {

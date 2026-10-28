@@ -579,7 +579,7 @@ const PaymentDetails = () => {
           )}
         </div>
 
-        {!loading && !!settlement && (
+        {!!settlement && (
           <div className="pb-12 shadow-b" data-test={X402_SETTLEMENT_SECTION_TEST_ID}>
             <Typography variant="subhead1" className="mb-4">
               {translate('text_17931371785650xkiprm0w5l')}

@@ -292,6 +292,14 @@ describe('PaymentDetails', () => {
       )
     })
 
+    it('WHEN the cached payment refreshes THEN keeps the settlement section', () => {
+      mockUseGetPaymentDetailsQuery.mockReturnValue({ ...x402Payment({}), loading: true })
+
+      render(<PaymentDetails />)
+
+      expect(screen.getByTestId(X402_SETTLEMENT_SECTION_TEST_ID)).toBeInTheDocument()
+    })
+
     it('WHEN the payment has no settlement THEN shows no settlement section', () => {
       render(<PaymentDetails />)
 
