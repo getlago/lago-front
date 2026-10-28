@@ -185,8 +185,9 @@ export const initializeApolloClient = async () => {
       silentErrorDetails = [],
     } = operation.getContext()
 
-    // Silent auth and permissions related errors by default
-    silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden)
+    // Silent auth and permissions related errors by default.
+    // token_expired ends a stream whose socket token expired: not a logout, and the chat shows it.
+    silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden, LagoApiError.TokenExpired)
 
     // Get operation type (query/mutation/subscription) for better grouping in Sentry
     const definition = getMainDefinition(operation.query)
