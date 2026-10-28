@@ -1,7 +1,11 @@
 import { renderHook } from '@testing-library/react'
 import { DateTime } from 'luxon'
 
-import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
+import {
+  INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
+  INHERIT_FROM_CUSTOMER_LABEL_KEY,
+  paymentTermFormValuesFromTerm,
+} from '~/components/paymentTerms/utils'
 import {
   PAYMENT_TERM_DUE_DATE_PREVIEW_KEYS,
   PAYMENT_TERM_INHERIT,
@@ -174,6 +178,33 @@ describe('usePaymentTerm', () => {
           expect(copy).toContain('text_1728374331992d2alok9y3kr')
           expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.DueOnReceipt])
         })
+      })
+    })
+  })
+
+  describe('getBillingObjectPaymentTermCopy', () => {
+    describe('GIVEN the object has no term and the customer has one', () => {
+      it('THEN should mark the value as inherited from the customer', () => {
+        const copy = setup().getBillingObjectPaymentTermCopy({
+          ownTerm: null,
+          customer: { paymentTerm: NET_30, billingEntity: { paymentTerm: END_OF_MONTH } },
+        })
+
+        expect(copy).toContain(INHERIT_FROM_CUSTOMER_LABEL_KEY)
+        expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net])
+      })
+    })
+
+    describe('GIVEN neither the object nor the customer has a term', () => {
+      it('THEN should mark the entity value as inherited from the billing entity', () => {
+        // The hint named the customer even when the term came from the entity.
+        const copy = setup().getBillingObjectPaymentTermCopy({
+          ownTerm: null,
+          customer: { paymentTerm: null, billingEntity: { paymentTerm: END_OF_MONTH } },
+        })
+
+        expect(copy).toContain(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)
+        expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.EndOfMonth])
       })
     })
   })

@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 
+import { MaybePaymentTerm } from '~/core/utils/paymentTerm'
 import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -14,6 +15,8 @@ export type BillingEntityOption = {
   isDefault: boolean
   /** Whether the entity uses Lago EU Tax Management — drives the billing-entity tax alerts. */
   euTaxManagement: boolean
+  /** The entity's own payment term, for the inherit chain of the objects bound to it. */
+  paymentTerm?: MaybePaymentTerm
 }
 
 export const BILLING_ENTITY_INHERIT_CODE = '__lago_inherit_billing_entity__'
@@ -83,6 +86,7 @@ export const useBillingEntitiesOptions = ({
             name: entity.name,
             isDefault: !!entity.isDefault,
             euTaxManagement: !!entity.euTaxManagement,
+            paymentTerm: entity.paymentTerm,
           }
         })
         .sort((a, b) => Number(b.isDefault) - Number(a.isDefault)) ?? []
@@ -106,4 +110,18 @@ export const useBillingEntitiesOptions = ({
       hasMultipleEntities: (collection?.length ?? 0) > 1,
     }
   }, [collection, loading, translate, includeInheritOption, inheritLabel])
+}
+
+/**
+ * The entity a billing object is bound to through its `billingEntityId`, resolved from
+ * the org's collection. Undefined while unbound, or until the collection has loaded.
+ */
+export const useBillingEntityById = (
+  billingEntityId: string | null | undefined,
+): BillingEntityOption | undefined => {
+  const { options } = useBillingEntitiesOptions({ skip: !billingEntityId })
+
+  if (!billingEntityId) return undefined
+
+  return options.find((option) => option.id === billingEntityId)
 }
