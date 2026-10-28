@@ -117,6 +117,8 @@
   "dependencies": {
     "@apollo/client": "3.14.1",
     "@ebay/nice-modal-react": "1.2.13",
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "@fontsource/inter": "5.3.0",
     "@fragaria/address-formatter": "7.1.2",
     "@llm-ui/code": "0.13.3",
     "@llm-ui/markdown": "0.13.3",

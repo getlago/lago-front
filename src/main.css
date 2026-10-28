@@ -3,6 +3,11 @@
 @import './styles/v2/typography.css';
 @import './styles/v2/colors.css';
 @import './styles/v2/shadows.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
 
 /* Useful for components that are styled with tailwind in the app */
 @tailwind base;
