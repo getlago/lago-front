@@ -1,5 +1,8 @@
 import { PaymentTermFormValues, PaymentTermInheritedFrom } from '~/components/paymentTerms/types'
-import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
+import {
+  INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
+  paymentTermFormValuesFromTerm,
+} from '~/components/paymentTerms/utils'
 import { DEFAULT_PAYMENT_TERM } from '~/core/constants/paymentTerm'
 import { EditCustomerPaymentTermForDialogFragment } from '~/generated/graphql'
 
@@ -17,7 +20,7 @@ export const getInheritedFrom = (model: ModelData | null): PaymentTermInheritedF
 
   return {
     term: model.billingEntity?.paymentTerm ?? DEFAULT_PAYMENT_TERM,
-    labelKey: 'text_1728374331992d2alok9y3kr',
+    labelKey: INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
   }
 }
 

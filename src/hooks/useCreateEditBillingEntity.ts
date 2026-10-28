@@ -55,6 +55,12 @@ gql`
       code
     }
     einvoicing
+    paymentTerm {
+      termType
+      days
+      dayOfMonth
+      monthOffset
+    }
   }
 
   query getBillingEntities {

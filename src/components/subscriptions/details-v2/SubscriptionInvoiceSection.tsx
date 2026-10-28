@@ -3,7 +3,7 @@ import { gql } from '@apollo/client'
 import { useInvoicingSettingsDrawer } from '~/components/invoicingSettings/useInvoicingSettingsDrawer'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
-  getInheritedFromCustomer,
+  getInheritedPaymentTerm,
   paymentTermFormValuesFromTerm,
 } from '~/components/paymentTerms/utils'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
@@ -12,6 +12,7 @@ import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { SubscriptionInvoiceSectionFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdateSubscriptionSettings } from '~/hooks/customer/useUpdateSubscriptionSettings'
+import { useBillingEntityById } from '~/hooks/useBillingEntitiesOptions'
 import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 import { usePermissions } from '~/hooks/usePermissions'
 
@@ -24,6 +25,7 @@ gql`
       id
       name
     }
+    billingEntityId
     paymentTerm {
       termType
       days
@@ -61,15 +63,17 @@ export const SubscriptionInvoiceSection = ({ subscription }: SubscriptionInvoice
   const { hasPermissions } = usePermissions()
   const { saveInvoicing } = useUpdateSubscriptionSettings(subscription.id)
   const { getBillingObjectPaymentTermCopy } = usePaymentTerm()
+  const issuingBillingEntity = useBillingEntityById(subscription.billingEntityId)
 
   const showCustomSection = !!subscription.customer?.id
+  const paymentTermLevels = { customer: subscription.customer, issuingBillingEntity }
 
   const { openDrawer } = useInvoicingSettingsDrawer({
     viewType: ViewTypeEnum.Subscription,
     customerId: subscription.customer?.id,
     showCustomSection,
     withInvoiceConsolidation: true,
-    paymentTermInheritedFrom: getInheritedFromCustomer(subscription.customer),
+    paymentTermInheritedFrom: getInheritedPaymentTerm(paymentTermLevels),
     onSave: saveInvoicing,
   })
 
@@ -109,7 +113,7 @@ export const SubscriptionInvoiceSection = ({ subscription }: SubscriptionInvoice
         label={translate('text_1778660219891rv2r5gjmklq')}
         value={getBillingObjectPaymentTermCopy({
           ownTerm: subscription.paymentTerm,
-          customer: subscription.customer,
+          ...paymentTermLevels,
         })}
       />
 

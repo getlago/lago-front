@@ -1,4 +1,5 @@
 import {
+  DEFAULT_PAYMENT_TERM,
   PAYMENT_TERM_DEFAULT_MONTH_OFFSET,
   PAYMENT_TERM_INHERIT,
 } from '~/core/constants/paymentTerm'
@@ -6,7 +7,6 @@ import {
   buildPaymentTermInput,
   MaybePaymentTerm,
   ResolvablePaymentTerm,
-  resolvePaymentTerm,
 } from '~/core/utils/paymentTerm'
 import { PaymentTermInput, PaymentTermTypeEnum } from '~/generated/graphql'
 
@@ -71,21 +71,37 @@ export const paymentTermInputFromFormValues = (
   return term ? buildPaymentTermInput(term) : null
 }
 
-type CustomerWithPaymentTerm = {
-  paymentTerm?: MaybePaymentTerm
-  billingEntity?: { paymentTerm?: MaybePaymentTerm } | null
+type BillingEntityWithPaymentTerm = { paymentTerm?: MaybePaymentTerm } | null | undefined
+
+/** The levels above a billing object (subscription, wallet, one-off invoice). */
+export type PaymentTermLevels = {
+  customer:
+    | { paymentTerm?: MaybePaymentTerm; billingEntity?: BillingEntityWithPaymentTerm }
+    | null
+    | undefined
+  /** The entity the object is bound to when it has one of its own; the customer's otherwise. */
+  issuingBillingEntity?: BillingEntityWithPaymentTerm
 }
 
+export const INHERIT_FROM_CUSTOMER_LABEL_KEY = 'text_17912021395686w9xadhesc3'
+export const INHERIT_FROM_BILLING_ENTITY_LABEL_KEY = 'text_1728374331992d2alok9y3kr'
+
 /**
- * The inherit choice for a billing object (wallet, one-off invoice): the customer's own
- * term, else its billing entity's, else due on receipt.
+ * The term a billing object falls back to and the level it comes from: the customer's
+ * own term, else the issuing billing entity's, else due on receipt.
  */
-export const getInheritedFromCustomer = (
-  customer: CustomerWithPaymentTerm | null | undefined,
-): PaymentTermInheritedFrom => ({
-  term: resolvePaymentTerm({
-    ownTerm: customer?.paymentTerm,
-    parentTerm: customer?.billingEntity?.paymentTerm,
-  }).term,
-  labelKey: 'text_17912021395686w9xadhesc3',
-})
+export const getInheritedPaymentTerm = ({
+  customer,
+  issuingBillingEntity,
+}: PaymentTermLevels): PaymentTermInheritedFrom => {
+  if (customer?.paymentTerm) {
+    return { term: customer.paymentTerm, labelKey: INHERIT_FROM_CUSTOMER_LABEL_KEY }
+  }
+
+  const billingEntity = issuingBillingEntity ?? customer?.billingEntity
+
+  return {
+    term: billingEntity?.paymentTerm ?? DEFAULT_PAYMENT_TERM,
+    labelKey: INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
+  }
+}

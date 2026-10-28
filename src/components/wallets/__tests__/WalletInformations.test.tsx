@@ -1,6 +1,9 @@
 import { screen, within } from '@testing-library/react'
 
-import { getInheritedFromCustomer } from '~/components/paymentTerms/utils'
+import {
+  INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
+  INHERIT_FROM_CUSTOMER_LABEL_KEY,
+} from '~/components/paymentTerms/utils'
 import { PAYMENT_TERM_VALUE_KEYS } from '~/core/constants/paymentTerm'
 import {
   PaymentMethodTypeEnum,
@@ -302,12 +305,33 @@ describe('WalletInformations', () => {
       })
     })
 
-    describe('WHEN the wallet has no term', () => {
-      it('THEN shows the customer term marked as inherited', () => {
+    describe('WHEN the wallet has no term and the customer has one', () => {
+      it('THEN shows the customer term marked as inherited from the customer', () => {
+        render(
+          <WalletInformations
+            wallet={createMockWallet({
+              customer: {
+                id: 'cust-1',
+                externalId: 'ext-1',
+                paymentTerm: { termType: PaymentTermTypeEnum.EndOfMonth },
+              },
+            })}
+          />,
+        )
+
+        expect(
+          getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(INHERIT_FROM_CUSTOMER_LABEL_KEY),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN neither the wallet nor the customer has a term', () => {
+      it('THEN shows the term marked as inherited from the billing entity', () => {
+        // The hint used to name the customer even when the term came from the entity.
         render(<WalletInformations wallet={createMockWallet()} />)
 
         expect(
-          getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(getInheritedFromCustomer(null).labelKey),
+          getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY),
         ).toBeInTheDocument()
       })
     })

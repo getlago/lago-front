@@ -16,7 +16,7 @@ import { BasicComboBoxData, ComboboxItem } from '~/components/form'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
-  getInheritedFromCustomer,
+  getInheritedPaymentTerm,
   paymentTermInputFromFormValues,
 } from '~/components/paymentTerms/utils'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
@@ -66,6 +66,7 @@ import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { buildDefaultValues, usePlanForm } from '~/hooks/plans/usePlanForm'
+import { useBillingEntityById } from '~/hooks/useBillingEntitiesOptions'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -267,6 +268,8 @@ const CreateSubscription = () => {
     subscriptionBillingEntityId,
     subscriptionForm,
   ])
+
+  const issuingBillingEntity = useBillingEntityById(subscriptionBillingEntityId)
 
   const { form: planForm, plan } = usePlanForm({
     planIdToFetch: subscriptionPlanId,
@@ -615,7 +618,10 @@ const CreateSubscription = () => {
                         <InvoicingSettingsSection
                           form={subscriptionForm}
                           customerId={customer?.id}
-                          paymentTermInheritedFrom={getInheritedFromCustomer(customer)}
+                          paymentTermInheritedFrom={getInheritedPaymentTerm({
+                            customer,
+                            issuingBillingEntity,
+                          })}
                         />
                       </CenteredPage.PageSection>
 
