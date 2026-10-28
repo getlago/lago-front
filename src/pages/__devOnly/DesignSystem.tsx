@@ -60,6 +60,7 @@ import Stripe from '~/public/images/stripe.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
+import { shadcnBadgeTab } from './tabs/BadgeTest'
 import { BorderTest } from './tabs/BorderTest'
 import { shadcnButtonTab } from './tabs/ButtonTest'
 import { ColorTest } from './tabs/ColorTest'
@@ -2300,6 +2301,7 @@ const DesignSystem = () => {
             ),
           },
           shadcnButtonTab,
+          shadcnBadgeTab,
           shadcnTooltipTab,
           // disabled simple tab
           {
