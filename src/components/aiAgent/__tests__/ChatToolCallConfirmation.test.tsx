@@ -78,8 +78,12 @@ const buildState = (toolCalls: AiConversationToolCallItemFragment[]): ChatState 
   toolCalls,
 })
 
-const decidedResult = (field: string, status: AiConversationToolCallStatusEnum) => ({
-  data: { [field]: { ...buildToolCall(), status } },
+const decidedResult = (
+  field: string,
+  status: AiConversationToolCallStatusEnum,
+  batchAnswered = true,
+) => ({
+  data: { [field]: { ...buildToolCall(), status, batchAnswered } },
 })
 
 describe('ChatToolCallConfirmation', () => {
@@ -246,6 +250,7 @@ describe('ChatToolCallConfirmation', () => {
           decidedResult(
             'confirmAiConversationToolCall',
             AiConversationToolCallStatusEnum.Confirmed,
+            false,
           ),
         )
 
@@ -263,6 +268,51 @@ describe('ChatToolCallConfirmation', () => {
         })
         expect(mockResumeConversation).not.toHaveBeenCalled()
         expect(onResume).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN another tab already answered the other write', () => {
+      it('THEN should resume on the server answer rather than the local list', async () => {
+        mockState = buildState([buildToolCall(), buildToolCall({ id: 'tool-call-2' })])
+        mockConfirmToolCall.mockResolvedValue(
+          decidedResult(
+            'confirmAiConversationToolCall',
+            AiConversationToolCallStatusEnum.Confirmed,
+          ),
+        )
+
+        render(<ChatToolCallConfirmation onResume={onResume} />)
+
+        await userEvent.click(screen.getAllByTestId(CHAT_TOOL_CALL_CONFIRM_BUTTON_TEST_ID)[0])
+
+        await waitFor(() => {
+          expect(onResume).toHaveBeenCalledTimes(1)
+        })
+        expect(mockResumeConversation).toHaveBeenCalledTimes(1)
+        expect(mockDecideToolCall).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the member answers a write another tab already answered', () => {
+      it('THEN should follow the agent if the server says it is carrying on', async () => {
+        mockState = buildState([buildToolCall(), buildToolCall({ id: 'tool-call-2' })])
+        mockConfirmToolCall.mockResolvedValue({
+          data: null,
+          errors: [new Error('already decided')],
+        })
+        mockGetAiConversation.mockResolvedValue({
+          data: { aiConversation: { id: 'conv-1', pendingToolCalls: [], resuming: true } },
+        })
+
+        render(<ChatToolCallConfirmation onResume={onResume} />)
+
+        await userEvent.click(screen.getAllByTestId(CHAT_TOOL_CALL_CONFIRM_BUTTON_TEST_ID)[0])
+
+        await waitFor(() => {
+          expect(onResume).toHaveBeenCalledTimes(1)
+        })
+        expect(mockResumeConversation).toHaveBeenCalledTimes(1)
+        expect(mockSetPendingToolCalls).not.toHaveBeenCalled()
       })
     })
 

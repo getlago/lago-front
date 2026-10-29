@@ -557,6 +557,8 @@ export type AiConversationStream = {
 export type AiConversationToolCall = {
   __typename?: 'AiConversationToolCall';
   arguments: Scalars['JSON']['output'];
+  /** Whether every write of this call's batch has an answer, so the agent carries on */
+  batchAnswered: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   status: AiConversationToolCallStatusEnum;
@@ -581,6 +583,8 @@ export type AiConversationWithMessages = {
   organization: Organization;
   /** Writes the AI agent asked for that wait for the member's confirmation */
   pendingToolCalls: Array<AiConversationToolCall>;
+  /** Whether the agent is carrying on after the member answered its writes */
+  resuming: Scalars['Boolean']['output'];
   updatedAt: Scalars['ISO8601DateTime']['output'];
 };
 
@@ -13180,7 +13184,7 @@ export type GetAiConversationQueryVariables = Exact<{
 }>;
 
 
-export type GetAiConversationQuery = { __typename?: 'Query', aiConversation?: { __typename?: 'AiConversationWithMessages', id: string, name: string, messages: Array<{ __typename?: 'AiConversationMessage', content: string, type: string }>, pendingToolCalls: Array<{ __typename?: 'AiConversationToolCall', id: string, name: string, arguments: any, status: AiConversationToolCallStatusEnum }> } | null };
+export type GetAiConversationQuery = { __typename?: 'Query', aiConversation?: { __typename?: 'AiConversationWithMessages', id: string, name: string, resuming: boolean, messages: Array<{ __typename?: 'AiConversationMessage', content: string, type: string }>, pendingToolCalls: Array<{ __typename?: 'AiConversationToolCall', id: string, name: string, arguments: any, status: AiConversationToolCallStatusEnum }> } | null };
 
 export type ListAiConversationsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -13208,14 +13212,14 @@ export type ConfirmAiConversationToolCallMutationVariables = Exact<{
 }>;
 
 
-export type ConfirmAiConversationToolCallMutation = { __typename?: 'Mutation', confirmAiConversationToolCall?: { __typename?: 'AiConversationToolCall', id: string, name: string, arguments: any, status: AiConversationToolCallStatusEnum } | null };
+export type ConfirmAiConversationToolCallMutation = { __typename?: 'Mutation', confirmAiConversationToolCall?: { __typename?: 'AiConversationToolCall', batchAnswered: boolean, id: string, name: string, arguments: any, status: AiConversationToolCallStatusEnum } | null };
 
 export type CancelAiConversationToolCallMutationVariables = Exact<{
   input: CancelAiConversationToolCallInput;
 }>;
 
 
-export type CancelAiConversationToolCallMutation = { __typename?: 'Mutation', cancelAiConversationToolCall?: { __typename?: 'AiConversationToolCall', id: string, name: string, arguments: any, status: AiConversationToolCallStatusEnum } | null };
+export type CancelAiConversationToolCallMutation = { __typename?: 'Mutation', cancelAiConversationToolCall?: { __typename?: 'AiConversationToolCall', batchAnswered: boolean, id: string, name: string, arguments: any, status: AiConversationToolCallStatusEnum } | null };
 
 export type ExportFinanceAssistantResultMutationVariables = Exact<{
   input: ExportFinanceAssistantResultInput;
@@ -27222,6 +27226,7 @@ export const GetAiConversationDocument = gql`
     pendingToolCalls {
       ...AiConversationToolCallItem
     }
+    resuming
   }
 }
     ${AiConversationToolCallItemFragmentDoc}`;
@@ -27384,6 +27389,7 @@ export const ConfirmAiConversationToolCallDocument = gql`
     mutation confirmAiConversationToolCall($input: ConfirmAiConversationToolCallInput!) {
   confirmAiConversationToolCall(input: $input) {
     ...AiConversationToolCallItem
+    batchAnswered
   }
 }
     ${AiConversationToolCallItemFragmentDoc}`;
@@ -27417,6 +27423,7 @@ export const CancelAiConversationToolCallDocument = gql`
     mutation cancelAiConversationToolCall($input: CancelAiConversationToolCallInput!) {
   cancelAiConversationToolCall(input: $input) {
     ...AiConversationToolCallItem
+    batchAnswered
   }
 }
     ${AiConversationToolCallItemFragmentDoc}`;

@@ -14,6 +14,7 @@ gql`
       pendingToolCalls {
         ...AiConversationToolCallItem
       }
+      resuming
     }
   }
 `

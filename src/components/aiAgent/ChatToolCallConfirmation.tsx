@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 
 import { useGetAiConversation } from '~/components/aiAgent/hooks/getAiConversation'
 import { useDecideAiToolCall } from '~/components/aiAgent/hooks/useDecideAiToolCall'
@@ -43,11 +42,6 @@ export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationP
   const { getAiConversation } = useGetAiConversation()
   const { translate } = useInternationalization()
 
-  // Read after the mutation resolves, when the closure's state may be stale
-  const toolCallsRef = useRef(state.toolCalls)
-
-  toolCallsRef.current = state.toolCalls
-
   if (!state.toolCalls.length) {
     return null
   }
@@ -61,9 +55,15 @@ export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationP
       fetchPolicy: 'network-only',
     })
 
-    if (data?.aiConversation) {
-      setPendingToolCalls(data.aiConversation.pendingToolCalls)
+    if (!data?.aiConversation) return
+
+    if (data.aiConversation.resuming) {
+      resumeConversation()
+
+      return onResume()
     }
+
+    setPendingToolCalls(data.aiConversation.pendingToolCalls)
   }
 
   const handleDecision = async (toolCall: AiConversationToolCallItemFragment, confirm: boolean) => {
@@ -79,11 +79,7 @@ export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationP
       return syncPendingToolCalls()
     }
 
-    const isLastPendingToolCall = !toolCallsRef.current.some(
-      (item) => item.id !== toolCall.id && item.status === AiConversationToolCallStatusEnum.Pending,
-    )
-
-    if (isLastPendingToolCall) {
+    if (decidedToolCall.batchAnswered) {
       resumeConversation()
 
       return onResume()

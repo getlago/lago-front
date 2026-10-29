@@ -17,7 +17,7 @@ type ChatHistoryProps = {
 }
 
 export const ChatHistory = ({ hideHistory, isFullscreen }: ChatHistoryProps) => {
-  const { setPreviousChatMessages } = useAiAgent()
+  const { resumeConversation, setPreviousChatMessages } = useAiAgent()
 
   const { getAiConversation } = useGetAiConversation()
 
@@ -49,6 +49,10 @@ export const ChatHistory = ({ hideHistory, isFullscreen }: ChatHistoryProps) => 
         messages: formattedMessages ?? [],
         toolCalls: singleConversationData.aiConversation.pendingToolCalls,
       })
+
+      if (singleConversationData.aiConversation.resuming) {
+        resumeConversation()
+      }
     }
   }
 
