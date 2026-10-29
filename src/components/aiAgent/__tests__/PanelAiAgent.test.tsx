@@ -51,7 +51,6 @@ jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
     addNewMessage: mockAddNewMessage,
     agentType: mockAgentType,
     conversationId: mockConversationId,
-    conversationVersion: mockConversationVersion,
     getConversationVersion: () => mockConversationVersion,
     startNewConversation: mockStartNewConversation,
     setAgentType: jest.fn(),
@@ -279,26 +278,6 @@ describe('PanelAiAgent', () => {
 
         expect(pendingBlock).toHaveTextContent('hello')
         expect(screen.queryByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).not.toBeInTheDocument()
-      })
-
-      it('THEN should drop the pending prompt when the user switches agent', async () => {
-        mockCreateLoading = true
-
-        const { rerender } = render(<PanelAiAgent hasAccessToAiAgent />)
-
-        await submitPrompt('hello')
-
-        expect(await screen.findByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).toBeInTheDocument()
-
-        mockAgentType = AiAgentTypeEnum.finance
-        mockConversationVersion += 1
-        rerender(<PanelAiAgent hasAccessToAiAgent />)
-
-        await waitFor(() => {
-          expect(
-            screen.queryByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID),
-          ).not.toBeInTheDocument()
-        })
       })
 
       it('THEN should hand the pending prompt over to the error block on failure', async () => {

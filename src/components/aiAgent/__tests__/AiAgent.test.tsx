@@ -8,12 +8,11 @@ import {
   CHAT_PROMPT_EDITOR_INPUT_TEST_ID,
   CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID,
 } from '~/components/aiAgent/ChatPromptEditor'
-import { PANEL_AI_AGENT_WELCOME_TEST_ID } from '~/components/aiAgent/PanelAiAgent'
 import {
-  CreateAiConversationDocument,
-  GetAiConversationDocument,
-  ListAiConversationsDocument,
-} from '~/generated/graphql'
+  PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID,
+  PANEL_AI_AGENT_WELCOME_TEST_ID,
+} from '~/components/aiAgent/PanelAiAgent'
+import { ListAiConversationsDocument } from '~/generated/graphql'
 import { AiAgentProvider, AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { render, TestMocksType } from '~/test-utils'
 
@@ -66,13 +65,53 @@ jest.mock('~/hooks/usePermissions', () => ({
   }),
 }))
 
+const mockCreateAiConversation = jest.fn()
+const mockGetAiConversation = jest.fn()
+
+let mockCreateLoading = false
+
+jest.mock('~/components/aiAgent/hooks/useCreateAiConversation', () => ({
+  useCreateAiConversation: () => ({
+    createAiConversation: mockCreateAiConversation,
+    loading: mockCreateLoading,
+    error: undefined,
+  }),
+}))
+
+jest.mock('~/components/aiAgent/hooks/getAiConversation', () => ({
+  useGetAiConversation: () => ({
+    getAiConversation: mockGetAiConversation,
+  }),
+}))
+
+const STORED_CONVERSATION = {
+  data: {
+    aiConversation: {
+      id: 'conv-1',
+      name: 'Unpaid invoices question',
+      messages: [
+        { content: 'Give me the 3 last unpaid invoices', type: 'message.input' },
+        { content: 'Here are your unpaid invoices...', type: 'message.output' },
+      ],
+    },
+  },
+}
+
 const OpenPanelProbe = ({ agentType }: { agentType: AiAgentTypeEnum }) => {
   const { openPanelWithAgent } = useAiAgent()
 
   return (
-    <button data-test="open-ai-panel" onClick={() => openPanelWithAgent(agentType)}>
-      open
-    </button>
+    <>
+      <button data-test="open-ai-panel" onClick={() => openPanelWithAgent(agentType)}>
+        open
+      </button>
+      <button
+        data-test="switch-to-finance-agent"
+        onClick={() => openPanelWithAgent(AiAgentTypeEnum.finance)}
+      >
+        switch
+      </button>
+    </>
   )
 }
 
@@ -94,50 +133,6 @@ const mocks: TestMocksType = [
               updatedAt: '2026-07-13T10:00:00Z',
             },
           ],
-        },
-      },
-    },
-  },
-  {
-    request: {
-      query: GetAiConversationDocument,
-      variables: { id: 'conv-1' },
-    },
-    delay: 50,
-    result: {
-      data: {
-        aiConversation: {
-          __typename: 'AiConversationWithMessages',
-          id: 'conv-1',
-          name: 'Unpaid invoices question',
-          messages: [
-            {
-              __typename: 'AiConversationMessage',
-              content: 'Give me the 3 last unpaid invoices',
-              type: 'message.input',
-            },
-            {
-              __typename: 'AiConversationMessage',
-              content: 'Here are your unpaid invoices...',
-              type: 'message.output',
-            },
-          ],
-        },
-      },
-    },
-  },
-  {
-    request: {
-      query: CreateAiConversationDocument,
-      variables: { input: { message: 'hello', conversationId: undefined } },
-    },
-    delay: 50,
-    result: {
-      data: {
-        createAiConversation: {
-          __typename: 'AiConversation',
-          id: 'conv-from-first-org',
-          name: 'hello',
         },
       },
     },
@@ -191,6 +186,8 @@ const navigateTo = async (path: string) => {
 describe('AiAgent', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockGetAiConversation.mockResolvedValue(STORED_CONVERSATION)
+    mockCreateLoading = false
     localStorage.clear()
     mockPanelShouldThrow = false
     window.history.pushState({}, '', '/test-org/analytics')
@@ -358,17 +355,31 @@ describe('AiAgent', () => {
   })
 
   describe('GIVEN a conversation creation still in flight', () => {
+    const submitAndCaptureCompletion = async () => {
+      let capturedOnCompleted: ((data: unknown) => void) | undefined
+
+      mockCreateAiConversation.mockImplementation(({ onCompleted }) => {
+        capturedOnCompleted = onCompleted
+      })
+
+      await openPanel()
+      await submitPrompt('hello')
+
+      return async () => {
+        await act(async () => {
+          capturedOnCompleted?.({ createAiConversation: { id: 'conv-from-first-org' } })
+        })
+      }
+    }
+
     describe('WHEN it completes after the user switched organization', () => {
       it('THEN should ignore the stale answer', async () => {
         await renderAiAgent()
-        await openPanel()
-        await submitPrompt('hello')
+
+        const completeCreation = await submitAndCaptureCompletion()
 
         await navigateTo('/second-org/analytics')
-
-        await act(async () => {
-          await new Promise((resolve) => setTimeout(resolve, 100))
-        })
+        await completeCreation()
 
         expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
         expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
@@ -378,23 +389,89 @@ describe('AiAgent', () => {
     describe('WHEN it completes after the panel was unmounted and the organization changed', () => {
       it('THEN should ignore the stale answer', async () => {
         await renderAiAgent()
-        await openPanel()
-        await submitPrompt('hello')
+
+        const completeCreation = await submitAndCaptureCompletion()
 
         await navigateTo('/test-org/create/plans')
         await navigateTo('/second-org/analytics')
-
-        await act(async () => {
-          await new Promise((resolve) => setTimeout(resolve, 100))
-        })
+        await completeCreation()
 
         expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
         expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
       })
     })
 
-    describe('WHEN a history conversation resolves after the organization changed', () => {
+    describe('WHEN the organization switch lands on a page hiding the panel', () => {
+      it('THEN should ignore the stale answer', async () => {
+        await renderAiAgent()
+
+        const completeCreation = await submitAndCaptureCompletion()
+
+        await navigateTo('/second-org/create/plans')
+        await completeCreation()
+        await navigateTo('/second-org/analytics')
+
+        expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user switches organization while it is pending', () => {
+      it('THEN should drop the prompt echoed under the previous organization', async () => {
+        mockCreateLoading = true
+
+        await renderAiAgent()
+        await submitAndCaptureCompletion()
+
+        expect(screen.getByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).toBeInTheDocument()
+
+        await navigateTo('/second-org/analytics')
+
+        expect(screen.queryByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user switches agent while it is pending', () => {
+      it('THEN should drop the prompt echoed by the previous agent', async () => {
+        mockCreateLoading = true
+
+        await renderAiAgent()
+        await submitAndCaptureCompletion()
+
+        expect(screen.getByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).toBeInTheDocument()
+
+        await userEvent.click(screen.getByTestId('switch-to-finance-agent'))
+
+        expect(screen.queryByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN it completes while the user stayed in the same organization', () => {
+      it('THEN should start the conversation', async () => {
+        await renderAiAgent()
+
+        const completeCreation = await submitAndCaptureCompletion()
+
+        await navigateTo('/test-org/customers')
+        await completeCreation()
+
+        expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a history restore still in flight', () => {
+    describe('WHEN it resolves after the user switched organization', () => {
       it('THEN should ignore the restored conversation', async () => {
+        let resolveRestore: ((value: unknown) => void) | undefined
+
+        mockGetAiConversation.mockImplementation(
+          () =>
+            new Promise((resolve) => {
+              resolveRestore = resolve
+            }),
+        )
+
         await renderAiAgent()
         await openPanel()
         await userEvent.click(getHistoryButton() as HTMLButtonElement)
@@ -405,29 +482,10 @@ describe('AiAgent', () => {
         await navigateTo('/second-org/analytics')
 
         await act(async () => {
-          await new Promise((resolve) => setTimeout(resolve, 150))
+          resolveRestore?.(STORED_CONVERSATION)
         })
 
         expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
-      })
-    })
-
-    describe('WHEN the organization switch lands on a page hiding the panel', () => {
-      it('THEN should ignore the stale answer', async () => {
-        await renderAiAgent()
-        await openPanel()
-        await submitPrompt('hello')
-
-        await navigateTo('/second-org/create/plans')
-
-        await act(async () => {
-          await new Promise((resolve) => setTimeout(resolve, 100))
-        })
-
-        await navigateTo('/second-org/analytics')
-
-        expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
-        expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
       })
     })
   })

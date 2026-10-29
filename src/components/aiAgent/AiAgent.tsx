@@ -27,8 +27,15 @@ export const AI_AGENT_NAV_TEST_ID = 'ai-agent-nav'
 export const AI_AGENT_ERROR_TEST_ID = 'ai-agent-error'
 
 export const AiAgent = () => {
-  const { agentType, panelRef, currentPanelOpened, panelOpen, state, resetConversation } =
-    useAiAgent()
+  const {
+    agentType,
+    panelRef,
+    currentPanelOpened,
+    panelOpen,
+    state,
+    conversationVersion,
+    resetConversation,
+  } = useAiAgent()
   const { isPremium, currentUser } = useCurrentUser()
   const { translate } = useInternationalization()
   const [showHistory, setShowHistory] = useState(false)
@@ -46,23 +53,24 @@ export const AiAgent = () => {
     (m) => m.organization.slug === slugFromPath,
   )
 
-  const lastOrgSlugRef = useRef<string | null>(null)
+  // The user is part of the scope: logging in as someone else on the same slug
+  // is a different conversation owner, not the same session.
+  const conversationScope = `${currentUser?.id ?? ''}:${slugFromPath}`
+  const lastConversationScopeRef = useRef<string | null>(null)
 
-  // Only membership slugs count as a switch: the legacy-path bounce
-  // (`/customers` → `/acme/customers`) must not drop the conversation.
-  // Layout, not passive: a passive effect lets the panel paint one frame of the
-  // previous organization's conversation under the new slug.
+  // Layout, not passive: a passive effect paints one frame of the previous
+  // scope's conversation. A scope outside a membership is not a switch.
   useLayoutEffect(() => {
     if (!isInsideValidOrgContext) return
 
-    const previousOrgSlug = lastOrgSlugRef.current
+    const previousScope = lastConversationScopeRef.current
 
-    lastOrgSlugRef.current = slugFromPath
+    lastConversationScopeRef.current = conversationScope
 
-    if (previousOrgSlug && previousOrgSlug !== slugFromPath) {
+    if (previousScope && previousScope !== conversationScope) {
       resetConversation()
     }
-  }, [isInsideValidOrgContext, slugFromPath, resetConversation])
+  }, [isInsideValidOrgContext, conversationScope, resetConversation])
 
   if (!currentUser) {
     return null
@@ -181,7 +189,10 @@ export const AiAgent = () => {
                 )}
 
                 {!showHistory && (
+                  // Remount on every conversation identity change: it drops the
+                  // pending prompt and the mutation's loading/error with it.
                   <PanelAiAgent
+                    key={conversationVersion}
                     isFullscreen={isFullscreen}
                     hasAccessToAiAgent={hasAccessToAiAgent}
                   />

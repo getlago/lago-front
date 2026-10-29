@@ -98,10 +98,8 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
   })
 
   const [conversationId, setConversationId] = useState('')
-  // Bumped on every change of conversation identity, so a request still in
-  // flight can tell on completion that the conversation it answers is gone.
-  // The ref, not the state, is what late callbacks read: a request outlives the
-  // panel that started it, and an unmounted panel stops seeing state updates.
+  // Bumped when the conversation is dropped or replaced, never when the user's
+  // own request completes. Late callbacks read the ref, which outlives panels.
   const conversationVersionRef = useRef(0)
   const [conversationVersion, setConversationVersion] = useState(0)
   const [agentType, setAgentTypeState] = useState<AiAgentTypeEnum>(getStoredAgentType)
@@ -156,7 +154,6 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
 
   const startNewConversation = ({ convId, message }: { convId: string; message: string }) => {
     setConversationId(convId)
-    bumpConversationVersion()
 
     dispatch({
       type: ChatActionType.START_CONVERSATION,

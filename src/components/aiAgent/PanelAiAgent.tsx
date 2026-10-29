@@ -1,5 +1,5 @@
 import { tw } from 'lago-design-system'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { ChatConversation } from '~/components/aiAgent/ChatConversation'
 import { ChatMessages } from '~/components/aiAgent/ChatMessages'
@@ -30,7 +30,6 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
     addNewMessage,
     agentType,
     conversationId,
-    conversationVersion,
     getConversationVersion,
     startNewConversation,
     state,
@@ -44,10 +43,6 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
   const subscription = useOnConversation({
     conversationId: isFinanceAssistant ? undefined : conversationId,
   })
-
-  useEffect(() => {
-    setInitialPrompt('')
-  }, [conversationVersion])
 
   const handleSubmit = async (values: CreateAiConversationInput) => {
     if (isFinanceAssistant) {
@@ -68,7 +63,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
 
       onCompleted: (data) => {
         // The conversation was dropped or replaced while the request was in
-        // flight — organization switch, agent switch, restored history
+        // flight: organization switch, agent switch, restored history
         if (getConversationVersion() !== versionAtSubmit) {
           return
         }
