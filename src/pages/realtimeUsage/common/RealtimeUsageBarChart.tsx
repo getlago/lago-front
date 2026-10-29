@@ -5,13 +5,8 @@ import { useMemo } from 'react'
 import StackedBarChart from '~/components/designSystem/graphs/StackedBarChart'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatUnits } from '~/components/realtimeUsage/utils'
-import {
-  CurrencyEnum,
-  RealtimeUsageBarChartReportFragment,
-  TimezoneEnum,
-} from '~/generated/graphql'
+import { RealtimeUsageBarChartReportFragment, TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import {
   REALTIME_USAGE_BAR_CHART_LEGEND_TEST_ID,
@@ -52,8 +47,6 @@ export const RealtimeUsageBarChart = ({
   height,
 }: RealtimeUsageBarChartProps): JSX.Element => {
   const { translate } = useInternationalization()
-  const { organization } = useOrganizationInfos()
-
   const { series, points } = useMemo(
     () => buildDimensionSeries(report, translate, now),
     [report, translate, now],
@@ -65,9 +58,7 @@ export const RealtimeUsageBarChart = ({
   return (
     <div className="flex flex-col gap-4" data-test={REALTIME_USAGE_BAR_CHART_TEST_ID}>
       <StackedBarChart
-        // The units formatter ignores it; the chart only needs one to lay out its axis.
-        currency={organization?.defaultCurrency || CurrencyEnum.Usd}
-        customFormatter={(value) => formatUnits(Number(value))}
+        customFormatter={(value: string | number) => formatUnits(Number(value))}
         periodFormatter={(time) => (granularity ? formatPeriod(time, granularity, timezone) : time)}
         data={points}
         loading={loading}

@@ -70,7 +70,8 @@ export type StackedBarChartBar<T> =
 
 type StackedBarChartProps<T> = {
   blur?: boolean
-  currency: CurrencyEnum
+  // Only formats values when there is no `customFormatter`.
+  currency?: CurrencyEnum
   data?: T[]
   bars: Array<StackedBarChartBar<T>>
   loading: boolean
@@ -78,14 +79,10 @@ type StackedBarChartProps<T> = {
   xAxisTickAttributes?: [DotNestedKeys<T>, DotNestedKeys<T>]
   timeGranularity?: TimeGranularityEnum
   customFormatter?: (value: string | number, currency: CurrencyEnum) => string
-  // Labels the axis ends and the tooltip from the x-axis value instead of `timeGranularity`.
   periodFormatter?: (value: string) => string
-  // Items where this key is truthy are drawn lighter, e.g. a period still filling.
   fadedDataKey?: DotNestedKeys<T>
-  // Fades the other columns instead of drawing a cursor line on the hovered one.
   fadeOnHover?: boolean
   tooltipFormatter?: (value: number) => string
-  // Adds a row summing the bars to the tooltip.
   tooltipTotalLabel?: string
   height?: number
   margin?: {
@@ -203,7 +200,7 @@ const CustomTooltip = <T,>({
 
 const StackedBarChart = <T extends DataItem>({
   blur,
-  currency,
+  currency = CurrencyEnum.Usd,
   data,
   bars,
   loading,

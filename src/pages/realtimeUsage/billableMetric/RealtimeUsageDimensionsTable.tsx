@@ -5,6 +5,7 @@ import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/
 import { HorizontalDataTable } from '~/components/designSystem/Table/HorizontalDataTable'
 import { Typography } from '~/components/designSystem/Typography'
 import { DEFAULT_SERIES_COLOR, OTHER_SERIES_COLOR } from '~/components/realtimeUsage/constants'
+import { useReportFetching } from '~/components/realtimeUsage/RealtimeUsageFetchingContext'
 import { useHeldData } from '~/components/realtimeUsage/useHeldData'
 import { formatUnits } from '~/components/realtimeUsage/utils'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
@@ -104,6 +105,8 @@ export const RealtimeUsageDimensionsTable = ({
     context: { silentError: true },
   })
   const { data, isHeld } = useHeldData(servedData, heldKeyOf(variables), !!error)
+
+  useReportFetching(loading)
   const isLoading = loading && !isHeld
 
   const dimensions = data?.realtimeUsageDimensions.collection

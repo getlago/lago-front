@@ -4,11 +4,11 @@ import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateCon
 import AreaChart from '~/components/designSystem/graphs/AreaChart'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
+import { useReportFetching } from '~/components/realtimeUsage/RealtimeUsageFetchingContext'
 import { useHeldData } from '~/components/realtimeUsage/useHeldData'
 import { bigNumberShortenNotation, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, useGetRealtimeUsageEventsQuery } from '~/generated/graphql'
+import { useGetRealtimeUsageEventsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { RealtimeUsageError } from '~/pages/realtimeUsage/common/RealtimeUsageError'
 import { RealtimeUsageQueryFilters } from '~/pages/realtimeUsage/common/types'
 import { formatPeriod, heldKeyOf } from '~/pages/realtimeUsage/common/utils'
@@ -52,7 +52,6 @@ export const RealtimeUsageEventsSection = ({
   skip,
 }: RealtimeUsageEventsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
-  const { organization } = useOrganizationInfos()
 
   const {
     data: servedData,
@@ -65,6 +64,8 @@ export const RealtimeUsageEventsSection = ({
     context: { silentError: true },
   })
   const { data } = useHeldData(servedData, heldKeyOf(filters), !!error)
+
+  useReportFetching(loading)
 
   const events = data?.realtimeUsageEvents
   const isLoading = loading && !events
@@ -101,7 +102,6 @@ export const RealtimeUsageEventsSection = ({
           data={chartData}
           height={CHART_HEIGHT}
           hasOnlyZeroValues={chartData.every((point) => point.value === 0)}
-          currency={organization?.defaultCurrency || CurrencyEnum.Usd}
           valueFormatter={bigNumberShortenNotation}
         />
       </AnalyticsStateProvider>

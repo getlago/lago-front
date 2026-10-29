@@ -2,6 +2,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { RealtimeUsageAvailableFilters } from '~/components/Filters'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
+import { RealtimeUsageFetchingContext } from '~/components/realtimeUsage/RealtimeUsageFetchingContext'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { RealtimeUsageFilters } from '~/pages/realtimeUsage/common/RealtimeUsageFilters'
 import { useRealtimeUsageFilters } from '~/pages/realtimeUsage/common/useRealtimeUsageFilters'
@@ -10,7 +11,7 @@ import { RealtimeUsageEventsSection } from '~/pages/realtimeUsage/overview/Realt
 
 const RealtimeUsageOverview = (): JSX.Element => {
   const { translate } = useInternationalization()
-  const { filters, now, refresh, isEnabled } = useRealtimeUsageFilters()
+  const { filters, now, refresh, reportFetching, isEnabled } = useRealtimeUsageFilters()
 
   return (
     <>
@@ -33,8 +34,10 @@ const RealtimeUsageOverview = (): JSX.Element => {
             />
           </div>
 
-          <RealtimeUsageEventsSection filters={filters} skip={!isEnabled} />
-          <RealtimeUsageBillableMetricsSection filters={filters} now={now} skip={!isEnabled} />
+          <RealtimeUsageFetchingContext.Provider value={reportFetching}>
+            <RealtimeUsageEventsSection filters={filters} skip={!isEnabled} />
+            <RealtimeUsageBillableMetricsSection filters={filters} now={now} skip={!isEnabled} />
+          </RealtimeUsageFetchingContext.Provider>
         </div>
       </FullscreenPage.Wrapper>
     </>

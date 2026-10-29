@@ -3,14 +3,15 @@ import { useMemo } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 import { useFilters } from '~/components/Filters/graphql/useFilters'
-import { escapeFilterLabel } from '~/components/Filters/graphql/utils'
+import { escapeFilterLabel, unescapeFilterLabel } from '~/components/Filters/graphql/utils'
 import {
   filterDataInlineSeparator,
   FiltersFormValues,
 } from '~/components/Filters/presentation/types'
-import { ComboBox, ComboboxItem } from '~/components/form'
+import { ComboBox, ComboboxItem, TextInput } from '~/components/form'
 import { useGetSubscriptionsForFilterItemSubscriptionLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
   query getSubscriptionsForFilterItemSubscription($page: Int, $limit: Int, $searchTerm: String) {
@@ -36,7 +37,40 @@ type FiltersItemSubscriptionProps = {
   setFilterValue: (value: string) => void
 }
 
+const buildOption = (externalId: string, label: string) => ({
+  label,
+  labelNode: (
+    <ComboboxItem>
+      <Typography variant="body" color="grey700" noWrap>
+        {label}
+      </Typography>
+    </ComboboxItem>
+  ),
+  value: `${externalId}${filterDataInlineSeparator}${escapeFilterLabel(label)}`,
+})
+
 export const FiltersItemSubscription = ({
+  value,
+  setFilterValue,
+}: FiltersItemSubscriptionProps): JSX.Element => {
+  const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
+
+  // The search reads `subscriptions`, which members without this permission cannot query.
+  if (!hasPermissions(['subscriptionsView'])) {
+    return (
+      <TextInput
+        placeholder={translate('text_1741014096283pwl7a5oa69a')}
+        value={value?.split(filterDataInlineSeparator)[0]}
+        onChange={setFilterValue}
+      />
+    )
+  }
+
+  return <FiltersItemSubscriptionComboBox value={value} setFilterValue={setFilterValue} />
+}
+
+const FiltersItemSubscriptionComboBox = ({
   value,
   setFilterValue,
 }: FiltersItemSubscriptionProps): JSX.Element => {
@@ -49,12 +83,12 @@ export const FiltersItemSubscription = ({
     })
 
   const comboboxData = useMemo(() => {
-    if (!data?.subscriptions?.collection) return []
+    const [selectedExternalId, selectedLabel] = value?.split(filterDataInlineSeparator) || []
 
     // One external id can name several subscriptions over time, and the filter reads them all.
-    const seen = new Set<string>()
+    const seen = new Set<string>(selectedExternalId ? [selectedExternalId] : [])
 
-    return data.subscriptions.collection.flatMap((subscription) => {
+    const options = (data?.subscriptions?.collection || []).flatMap((subscription) => {
       if (seen.has(subscription.externalId)) return []
       seen.add(subscription.externalId)
 
@@ -62,21 +96,19 @@ export const FiltersItemSubscription = ({
         .filter(Boolean)
         .join(' - ')
 
-      return [
-        {
-          label,
-          labelNode: (
-            <ComboboxItem>
-              <Typography variant="body" color="grey700" noWrap>
-                {label}
-              </Typography>
-            </ComboboxItem>
-          ),
-          value: `${subscription.externalId}${filterDataInlineSeparator}${escapeFilterLabel(label)}`,
-        },
-      ]
+      return [buildOption(subscription.externalId, label)]
     })
-  }, [data?.subscriptions?.collection])
+
+    if (!value || !selectedExternalId) return options
+
+    // Also covers a raw id, stored while this filter was a text input.
+    const selectedOption = buildOption(
+      selectedExternalId,
+      unescapeFilterLabel(selectedLabel || selectedExternalId),
+    )
+
+    return [{ ...selectedOption, value }, ...options]
+  }, [data?.subscriptions?.collection, value])
 
   return (
     <ComboBox
