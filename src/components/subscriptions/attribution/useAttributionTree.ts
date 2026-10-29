@@ -138,6 +138,7 @@ export const useAttributionTree = ({
       path: AttributionPathStep[],
       page: number,
       filterPage: number,
+      silentError = false,
     ): Promise<AttributionTreeUsage> => {
       const latestVariables = latestParamsRef.current.variables
       const filters = mergeAttributionFilters(
@@ -158,6 +159,7 @@ export const useAttributionTree = ({
           splitFiltersOffset: filterPage ? filterPage * SPLIT_FILTERS_PER_PAGE : undefined,
         },
         fetchPolicy: 'no-cache',
+        context: { silentError },
       })
 
       return data.attributedUsage
@@ -171,10 +173,11 @@ export const useAttributionTree = ({
       path: AttributionPathStep[],
       pageCount: number,
       filterPage: number,
+      silentError = false,
     ): Promise<AttributionTreeUsage> => {
       const pages = await Promise.all(
         Array.from({ length: pageCount }, (_, index) =>
-          fetchUsage(level, path, index + 1, filterPage),
+          fetchUsage(level, path, index + 1, filterPage, silentError),
         ),
       )
 
@@ -188,10 +191,11 @@ export const useAttributionTree = ({
       level: AttributionLevel,
       path: AttributionPathStep[],
       pageCount: number,
+      silentError: boolean,
     ): Promise<AttributionTreeUsage[]> =>
       Promise.all(
         Array.from({ length: filterPagesCountRef.current }, (_, filterPage) =>
-          fetchUsagePages(level, path, pageCount, filterPage),
+          fetchUsagePages(level, path, pageCount, filterPage, silentError),
         ),
       ),
     [fetchUsagePages],
@@ -206,13 +210,15 @@ export const useAttributionTree = ({
       const key = getAttributionNodeKey(path)
       const generation = generationRef.current
       const levels = latestParamsRef.current.getChildLevels(parentCode)
+      // A failed root renders the tab's error placeholder, so only nested levels toast.
+      const isRoot = !path.length
 
       updateNodes((previous) => ({ ...previous, [key]: { status: 'loading' } }))
 
       try {
         const usages = await Promise.all(
           levels.map((level) =>
-            fetchUsageFilterPages(level, path, pageCountByLevelCode?.[level.code] ?? 1),
+            fetchUsageFilterPages(level, path, pageCountByLevelCode?.[level.code] ?? 1, isRoot),
           ),
         )
 
@@ -234,7 +240,8 @@ export const useAttributionTree = ({
         if (generation !== generationRef.current) return
 
         updateNodes((previous) => ({ ...previous, [key]: { status: 'error', error } }))
-        notifyAttributionError(error)
+
+        if (!isRoot) notifyAttributionError(error)
       }
     },
     [fetchUsageFilterPages, updateNodes],

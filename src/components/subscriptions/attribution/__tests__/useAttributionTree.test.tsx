@@ -280,6 +280,40 @@ describe('useAttributionTree', () => {
     })
   })
 
+  describe('GIVEN the root levels fail to load', () => {
+    describe('WHEN the error is a network error', () => {
+      it('THEN should silence the request and mark the root as errored without a toast', async () => {
+        mockQuery.mockRejectedValueOnce(new Error('network'))
+
+        const { result } = renderTree()
+
+        await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('error'))
+
+        expect(mockQuery).toHaveBeenCalledWith(
+          expect.objectContaining({ context: { silentError: true } }),
+        )
+        expect(addToast).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a nested level loads', () => {
+    describe('WHEN a node is expanded or the root loads more rows', () => {
+      it('THEN should leave the requests to the global error toast', async () => {
+        const { result } = await renderLoadedTree()
+
+        mockQuery.mockReturnValue(resolveUsage(buildUsage(['cc-1'])))
+
+        await act(async () => result.current.toggleNode(rndPath, 'department'))
+        await act(async () => result.current.loadMore([], 0))
+
+        mockQuery.mock.calls.slice(1).forEach(([options]) => {
+          expect(options.context).toEqual({ silentError: false })
+        })
+      })
+    })
+  })
+
   describe('GIVEN expanding a node fails', () => {
     describe('WHEN the error is a GraphQL error', () => {
       it('THEN should mark the node as errored without a second toast', async () => {

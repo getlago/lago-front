@@ -47,14 +47,14 @@ export const ColorTest = (): JSX.Element => {
     <tr
       key={variable}
       data-color-primitive={variable.slice(2)}
-      className="border-b border-border-subtle"
+      className="border-b border-border-divider"
     >
       <th scope="row" className="v2-text-code whitespace-nowrap p-3 text-left font-medium">
         {variable.slice(2)}
       </th>
       <td className="p-3">
         <div
-          className="h-8 w-16 rounded border border-border-subtle"
+          className="h-8 w-16 rounded border border-border-divider"
           style={{ backgroundColor: `var(${variable})` }}
         />
       </td>
@@ -66,14 +66,14 @@ export const ColorTest = (): JSX.Element => {
     <tr
       key={variable}
       data-color-semantic={variable.slice('--color-'.length)}
-      className="border-b border-border-subtle"
+      className="border-b border-border-divider"
     >
       <th scope="row" className="p-3 text-left font-medium">
         {variable.slice('--color-'.length)}
       </th>
       <td className="p-3">
         <div
-          className="h-8 w-16 rounded border border-border-subtle"
+          className="h-8 w-16 rounded border border-border-divider"
           style={{ backgroundColor: `var(${variable})` }}
         />
       </td>
@@ -87,24 +87,24 @@ export const ColorTest = (): JSX.Element => {
       <section
         ref={previewRef}
         aria-label="Color foundation"
-        className="v2-text-body mb-12 space-y-8 rounded-lg border border-border-subtle bg-canvas p-6 text-text-default"
+        className="v2-text-body mb-12 space-y-8 rounded-lg border border-border-divider bg-canvas p-6 text-text-default"
       >
         <div className="grid gap-8 md:grid-cols-2" aria-label="Surface and elevation examples">
-          <div className="rounded-lg border border-border-subtle bg-surface p-6">
+          <div className="rounded-lg border border-border-divider bg-surface p-6">
             <h3 className="v2-text-label">Surface</h3>
             <p className="text-text-muted">Follows canvas; no elevation.</p>
           </div>
-          <div className="rounded-lg border border-border-subtle bg-surface p-6 shadow-v2-interactive">
+          <div className="rounded-lg border border-border-divider bg-surface p-6 shadow-v2-interactive">
             <h3 className="v2-text-label">Interactive</h3>
             <p className="text-text-muted">
               Secondary button and clickable card elevation; preview only.
             </p>
           </div>
-          <div className="rounded-lg border border-border-subtle bg-surface-floating p-6 shadow-v2-floating">
+          <div className="rounded-lg border border-border-divider bg-surface-floating p-6 shadow-v2-floating">
             <h3 className="v2-text-label">Floating</h3>
             <p className="text-text-muted">Toast and popover elevation.</p>
           </div>
-          <div className="rounded-lg border border-border-subtle bg-surface-floating p-6 shadow-v2-dialog">
+          <div className="rounded-lg border border-border-divider bg-surface-floating p-6 shadow-v2-dialog">
             <h3 className="v2-text-label">Dialog</h3>
             <p className="text-text-muted">Dialog elevation; preview only.</p>
           </div>

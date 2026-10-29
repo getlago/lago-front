@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router'
 import { ERROR_FALLBACK_TEST_ID } from '~/components/ErrorFallback'
 import { RouteWrapper } from '~/components/RouteWrapper'
 import type { CustomRouteObject } from '~/core/router'
-import { FeatureFlagEnum } from '~/generated/graphql'
+import { EventsStoreEnum, FeatureFlagEnum } from '~/generated/graphql'
 
 configure({ testIdAttribute: 'data-test' })
 
@@ -41,11 +41,13 @@ jest.mock('~/hooks/useDeveloperTool', () => ({
 
 const mockHasFeatureFlag = jest.fn()
 let mockIsOrganizationLoading = false
+let mockOrganization: { eventsStore: EventsStoreEnum } | undefined = undefined
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     hasFeatureFlag: mockHasFeatureFlag,
     loading: mockIsOrganizationLoading,
+    organization: mockOrganization,
   }),
 }))
 
@@ -97,6 +99,7 @@ describe('RouteWrapper', () => {
     mockRoutes = []
     mockHasFeatureFlag.mockReturnValue(false)
     mockIsOrganizationLoading = false
+    mockOrganization = undefined
   })
 
   describe('mainRouterUrl navigation effect', () => {
@@ -340,6 +343,63 @@ describe('RouteWrapper', () => {
         )
 
         expect(screen.getByTestId(PAGE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('routes requiring usage governance', () => {
+    const governanceRoute = (): CustomRouteObject => ({
+      path: '*',
+      element: <div data-test={PAGE_TEST_ID}>governance page</div>,
+      featureFlag: FeatureFlagEnum.AccountTree,
+      requiresUsageGovernance: true,
+    })
+
+    describe('GIVEN the account tree flag is active', () => {
+      // The redirect runs from an effect, so without the pre-render guard the page
+      // mounts and fires governance queries the store cannot answer.
+      it('THEN it should not mount the page on a postgres events store', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+        mockOrganization = { eventsStore: EventsStoreEnum.Postgres }
+        mockRoutes = [governanceRoute()]
+
+        render(
+          <MemoryRouter>
+            <RouteWrapper />
+          </MemoryRouter>,
+        )
+
+        expect(screen.queryByTestId(PAGE_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN it should mount the page on a clickhouse events store', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+        mockOrganization = { eventsStore: EventsStoreEnum.Clickhouse }
+        mockRoutes = [governanceRoute()]
+
+        render(
+          <MemoryRouter>
+            <RouteWrapper />
+          </MemoryRouter>,
+        )
+
+        expect(screen.getByTestId(PAGE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('GIVEN the organization is still loading', () => {
+      it('THEN it should not mount the page', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+        mockIsOrganizationLoading = true
+        mockRoutes = [governanceRoute()]
+
+        render(
+          <MemoryRouter>
+            <RouteWrapper />
+          </MemoryRouter>,
+        )
+
+        expect(screen.queryByTestId(PAGE_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

@@ -691,6 +691,20 @@ describe('SubscriptionDetails', () => {
       })
     })
 
+    describe('WHEN the attribution URL is opened while the current user is loading', () => {
+      beforeEach(() => {
+        mockUseCurrentUser.mockReturnValue({ isPremium: true, loading: true })
+        mockHasPermissions.mockReturnValue(false)
+        setAttributionUrl()
+      })
+
+      it('THEN should not redirect', () => {
+        render(<SubscriptionDetails />)
+
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+
     describe('WHEN the attribution URL is opened with the flag and the permission', () => {
       beforeEach(() => {
         setAttributionUrl()

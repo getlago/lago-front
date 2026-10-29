@@ -12,6 +12,7 @@ export const typeDefs = gql`
     # Authentication & authentication errors
     token_encoding_error
     expired_jwt_token
+    token_expired
     incorrect_login_or_password
     not_organization_member
     login_method_not_authorized

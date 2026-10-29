@@ -283,6 +283,42 @@ describe('SubscriptionAttributionTabContent', () => {
     })
   })
 
+  describe('GIVEN only flat attribution types exist', () => {
+    describe('WHEN the tab renders', () => {
+      it('THEN should show the flat grouping and disable the hierarchical one', async () => {
+        const user = userEvent.setup()
+
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(screen.getByTestId(ATTRIBUTION_GROUP_ROWS_BY_TEST_ID)).toHaveTextContent(
+          'text_17902308125635bb6aqr2wbe',
+        )
+
+        await user.click(screen.getByTestId(ATTRIBUTION_GROUP_ROWS_BY_TEST_ID))
+
+        expect(
+          screen.getByTestId(
+            getAttributionToolbarOptionTestId(
+              ATTRIBUTION_GROUP_ROWS_BY_TEST_ID,
+              AttributionGroupByEnum.hierarchical,
+            ),
+          ),
+        ).toBeDisabled()
+        expect(screen.getByTestId(ATTRIBUTION_TABLE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the setup query whose failure has an error placeholder', () => {
+    describe('WHEN the tab renders', () => {
+      it('THEN should silence it to avoid a second toast', () => {
+        render(<SubscriptionAttributionTabContent />)
+
+        expect(mockSetupQuery.mock.calls.at(-1)?.[0].context).toEqual({ silentError: true })
+      })
+    })
+  })
+
   describe('GIVEN a flat type whose code matches the no flat key option', () => {
     describe('WHEN it is selected in the list by selector', () => {
       it('THEN should group by that type', async () => {

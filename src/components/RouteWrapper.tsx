@@ -8,7 +8,7 @@ import { ErrorBoundary } from '~/components/ErrorBoundary'
 import { ErrorFallback } from '~/components/ErrorFallback'
 import { CustomRouteObject, routes, useLocation, useNavigate } from '~/core/router'
 import { NEVER_SLUG_PREFIXES } from '~/core/router/slugPrefixes'
-import { isRouteAvailable, isRouteGatedByFeatureFlag } from '~/core/router/utils/isRouteAvailable'
+import { isRouteGated, isRouteUnlocked } from '~/core/router/utils/isRouteAvailable'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { DEVTOOL_TAB_PARAMS, useDeveloperTool, useDevtoolTabParam } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -47,8 +47,9 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
   }
 
   if (
-    isRouteGatedByFeatureFlag(routeConfig) &&
-    (isWaitingForOrganization || !isRouteAvailable(routeConfig, hasFeatureFlag))
+    isRouteGated(routeConfig) &&
+    (isWaitingForOrganization ||
+      !isRouteUnlocked({ route: routeConfig, hasFeatureFlag, organization }))
   ) {
     return <Spinner />
   }
