@@ -22,14 +22,9 @@ export const CHAT_TOOL_CALL_CANCEL_BUTTON_TEST_ID = 'chat-tool-call-cancel-butto
 export const CHAT_TOOL_CALL_STATUS_TEST_ID = 'chat-tool-call-status'
 
 type ChatToolCallConfirmationProps = {
-  // Called once every write is answered, so the panel listens for the agent carrying on
   onResume: () => void
 }
 
-/**
- * The writes the agent asked for. Each one only runs once the member confirms it,
- * and the conversation carries on once every one of them is confirmed or cancelled.
- */
 export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationProps) => {
   const { conversationId, state, decideToolCall, resumeConversation, setPendingToolCalls } =
     useAiAgent()
