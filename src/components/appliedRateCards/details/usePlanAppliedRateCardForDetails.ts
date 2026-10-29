@@ -62,9 +62,7 @@ gql`
   ${RatePhaseForDrawerFragmentDoc}
 `
 
-// Shared by the card details page and the phase details page: both need the
-// full sibling-phase list (the phase page's not-found check) from one cache entry
-// (an edit on either page must update both).
+// Shared by the card and phase details pages so they stay on one cache entry.
 export const usePlanAppliedRateCardForDetails = (
   appliedRateCardId: string,
 ): GetPlanAppliedRateCardForDetailsQueryResult =>
