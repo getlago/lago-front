@@ -46,15 +46,19 @@ jest.mock('~/components/aiAgent/PanelWrapper', () => {
   }
 })
 
+const DEFAULT_MEMBERSHIPS = [
+  { id: 'membership-1', organization: { id: 'org-1', slug: 'test-org' } },
+  { id: 'membership-2', organization: { id: 'org-2', slug: 'second-org' } },
+]
+
+let mockMemberships = DEFAULT_MEMBERSHIPS
+
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({
     isPremium: true,
     currentUser: {
       id: 'user-1',
-      memberships: [
-        { id: 'membership-1', organization: { id: 'org-1', slug: 'test-org' } },
-        { id: 'membership-2', organization: { id: 'org-2', slug: 'second-org' } },
-      ],
+      memberships: mockMemberships,
     },
   }),
 }))
@@ -188,6 +192,7 @@ describe('AiAgent', () => {
     jest.clearAllMocks()
     mockGetAiConversation.mockResolvedValue(STORED_CONVERSATION)
     mockCreateLoading = false
+    mockMemberships = DEFAULT_MEMBERSHIPS
     localStorage.clear()
     mockPanelShouldThrow = false
     window.history.pushState({}, '', '/test-org/analytics')
@@ -336,6 +341,22 @@ describe('AiAgent', () => {
         await openStoredConversation()
 
         await navigateTo('/test-org/customers')
+
+        expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the current organization is renamed', () => {
+      it('THEN should keep the conversation', async () => {
+        await renderAiAgent()
+        await openStoredConversation()
+
+        mockMemberships = [
+          { id: 'membership-1', organization: { id: 'org-1', slug: 'renamed-org' } },
+          DEFAULT_MEMBERSHIPS[1],
+        ]
+
+        await navigateTo('/renamed-org/settings')
 
         expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toBeInTheDocument()
       })

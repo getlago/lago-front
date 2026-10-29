@@ -49,13 +49,14 @@ export const AiAgent = () => {
   // matched-route context to read the slug from, so the wrapper's strip is a
   // no-op in this component.
   const slugFromPath = location.pathname.split('/')[1] ?? ''
-  const isInsideValidOrgContext = !!currentUser?.memberships?.some(
-    (m) => m.organization.slug === slugFromPath,
-  )
+  const currentOrgId = currentUser?.memberships?.find((m) => m.organization.slug === slugFromPath)
+    ?.organization.id
+  const isInsideValidOrgContext = !!currentOrgId
 
-  // The user is part of the scope: logging in as someone else on the same slug
-  // is a different conversation owner, not the same session.
-  const conversationScope = `${currentUser?.id ?? ''}:${slugFromPath}`
+  // Keyed on the organization id, not the slug, so renaming the current
+  // organization is not a switch. The user is part of it: another user on the
+  // same organization is a different conversation owner.
+  const conversationScope = `${currentUser?.id ?? ''}:${currentOrgId ?? ''}`
   const lastConversationScopeRef = useRef<string | null>(null)
 
   // Layout, not passive: a passive effect paints one frame of the previous
