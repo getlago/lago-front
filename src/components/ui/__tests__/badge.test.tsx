@@ -12,9 +12,9 @@ describe('Badge', () => {
         Active
       </Badge>,
     )
-    const badge = screen.getByText('Active')
+    const badge = screen.getByText('Active').parentElement
     expect(ref.current).toBe(badge)
-    expect(badge.tagName).toBe('SPAN')
+    expect(badge?.tagName).toBe('SPAN')
     expect(badge).toHaveAttribute('title', 'Payment state')
     expect(badge).not.toHaveAttribute('tabindex')
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
@@ -36,8 +36,8 @@ describe('Badge', () => {
 
   it('does not treat the disabled tone as an inactive control', () => {
     render(<Badge variant="disabled">Archived</Badge>)
-    expect(screen.getByText('Archived')).not.toHaveAttribute('disabled')
-    expect(screen.getByText('Archived')).not.toHaveAttribute('aria-disabled')
+    expect(screen.getByText('Archived').parentElement).not.toHaveAttribute('disabled')
+    expect(screen.getByText('Archived').parentElement).not.toHaveAttribute('aria-disabled')
   })
 
   it('allows caller utility overrides without conflicting defaults', () => {
@@ -46,7 +46,7 @@ describe('Badge', () => {
         Custom
       </Badge>,
     )
-    const badge = screen.getByText('Custom')
+    const badge = screen.getByText('Custom').parentElement
     expect(badge).toHaveClass('h-8', 'bg-surface', 'text-text-default')
     expect(badge).not.toHaveClass('h-5', 'bg-info', 'text-info-foreground')
   })

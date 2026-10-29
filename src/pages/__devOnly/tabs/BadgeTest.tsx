@@ -19,8 +19,10 @@ export const BadgeTest = () => (
   <section aria-label="Shadcn badge showcase" className="space-y-8">
     <h2 className="v2-text-page-title">Badges</h2>
     <p className="v2-text-body">
-      Static labels: small 20px, default 24px. Caption typography, 8px horizontal inset, 4px icon
-      gap, 6px radius, 1px border, no shadow. Icons are 14px with strokeWidth=2.
+      Static labels: small 20px high with a 20px minimum width and 4px horizontal padding; default
+      24px high with a 24px minimum width and 8px horizontal padding. Centered caption typography
+      with medium weight (500), 4px icon gap, 6px radius, 1px border, no shadow. Icons are 14px with
+      strokeWidth=2.
     </p>
     {(['light', 'dark'] as const).map((mode) => (
       <ColorTheme

@@ -12,17 +12,17 @@ import { Badge } from '~/components/ui/badge'
 </Badge>
 ```
 
-`variant` defaults to `neutral`; `size` is `sm` (20px) or `default` (24px). Uses caption typography, 6px radius, 4px gap and 14px icons. The 1px CSS border plus 7px horizontal padding match Figma's 8px inset with an inside stroke. No shadow or interaction states.
+`variant` defaults to `neutral`; `size` is `sm` (20px) or `default` (24px). Uses caption typography (12px/16px) with medium weight (500), 6px radius, 4px gap and 14px icons. Small uses a 20px minimum width and 4px horizontal padding; Default uses a 24px minimum width and 8px horizontal padding. The 1px border is additional to that padding. Text labels fill the remaining space and are center-aligned. No shadow or interaction states.
 
 | Variant | Background | Text / icon | Border |
 | --- | --- | --- | --- |
-| neutral | surface-inset | text-default | border-subtle |
+| neutral | surface-subtle | text-default | border-divider |
 | info | info | info-foreground | info-border |
 | success | success | success-foreground | success-border |
 | warning | warning | warning-foreground | warning-border |
 | danger | danger | danger-foreground | danger-border |
-| disabled | surface-inset | disabled-foreground | border-subtle |
-| outline | surface-inset | text-subtle | border-subtle |
+| disabled | surface-subtle | disabled-foreground | border-divider |
+| outline | surface-subtle | text-subtle | border-divider |
 
 Theme colors inherit existing semantic tokens. Use `ColorTheme` for a locally selected light/dark theme. See `/design-system/shadcn-badge` in the development app for every variant and size.
 
