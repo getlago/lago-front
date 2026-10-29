@@ -98,7 +98,7 @@
     "jest-environment-jsdom": "30.5.2",
     "jest-junit": "17.0.0",
     "jscodeshift": "17.4.0",
-    "npm-run-all2": "9.0.3",
+    "npm-run-all2": "9.0.4",
     "postcss": "8.5.30",
     "postcss-preset-env": "11.6.1",
     "prettier": "3.9.10",
