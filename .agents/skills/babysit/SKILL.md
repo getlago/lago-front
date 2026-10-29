@@ -98,7 +98,7 @@ the user already triaged it; re-running would re-litigate settled decisions.
 
 ## Phase 1 - Review, report, triage
 
-First run only. The review runs three passes, then merges them into one triage list:
+First run only. Read `.agents/skills/loop-review/references/review-evidence.md` and keep its revision and flow/evidence record in the session review record. The review runs three passes, then merges them into one triage list:
 
 | Pass                   | Question                                         | How                                      |
 | ---------------------- | ------------------------------------------------ | ---------------------------------------- |
@@ -109,7 +109,7 @@ First run only. The review runs three passes, then merges them into one triage l
 Start B and C first, as two `Agent` calls in one message, then run A inline while they
 work. Subagents inherit none of this session, so each prompt carries: the PR number,
 the base and head sha, the absolute path of `references/system-review.md` with the pass
-to run, and the instruction to return the output contract that file defines. Pass C
+to run, the absolute path of `.agents/skills/loop-review/references/review-evidence.md`, and the instruction to return the output contract that file defines. Pass C
 decides for itself whether the diff is large enough to run; a skip comes back as one
 line and is reported as such.
 
@@ -166,12 +166,14 @@ Merge the three passes into one list:
 
 1. Drop anything CI already covers (formatting, type errors, failing tests, lint). Those
    are the loop's job, not a decision for the user.
-2. Drop findings on lines the PR did not touch. A pre-existing problem the PR reveals is
-   a follow-up, not a finding.
+2. Drop pre-existing problems from this PR’s findings; keep them as follow-ups. A changed
+   caller can introduce a failure in unchanged shared code: anchor it to the changed caller.
 3. Merge duplicates across passes. Keep the one with the stronger evidence.
 4. Sort into four buckets: **Blocking**, **Should fix**, **Follow-ups**, **Notes**.
    Pass A severities map high -> Blocking, med and low -> Should fix.
-5. Number the survivors across buckets and present them.
+5. Number the survivors across buckets and present them. Mark bounded non-blocking
+   suggestions as P3; do not discard them merely because they are not runtime bugs.
+   Include the checked flows and material gaps, even when the findings list is empty.
 
 Write every finding in plain language with a single recommendation, as
 `references/system-review.md` describes. Anyone can run babysit, and whoever runs it
@@ -264,6 +266,10 @@ Round 4 | 14:22
 ```
 
 ### Fixing rules
+
+- When a new commit addresses review findings, apply the follow-up mapping in
+  `.agents/skills/loop-review/references/review-evidence.md` before treating those findings as fixed. This also
+  applies in follow-up mode; it does not require rerunning all of Phase 1.
 
 - Read the code before changing it.
 - Keep fixes scoped to the blocker. Preserve unrelated worktree changes.

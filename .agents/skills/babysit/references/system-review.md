@@ -8,12 +8,17 @@ Both read the diff as a change to a whole application, not as a set of edited li
 PR that draws a chart with raw SVG passes every convention check, because no rule says
 "use recharts". It still fails here, because the app already draws charts with recharts.
 
+Read `.agents/skills/loop-review/references/review-evidence.md`. Pass B supplies the pattern/consumer evidence;
+Pass C supplies the state-transition evidence when it runs. The coordinating reviewer
+closes material gaps even when Pass C is skipped. Return evidence as well as findings.
+
 ## Ground rules for both passes
 
 - **Evidence or drop it.** Every finding names either the `file:line` of what already
   exists, or the concrete scenario that breaks. "This could be cleaner" is not a finding.
 - **The question is the fit, not the taste.** Prefer the approach the codebase already
-  uses, even when another one is arguably nicer. Consistency is the default; breaking it
+  documents and uses in current implementations; legacy siblings do not override the
+  documented pattern. Consistency is the default; breaking it
   needs a reason the PR states.
 - **Nothing CI catches, nothing pass A already reported.** No formatting, typing, lint,
   test failures, or documented-rule violations.
@@ -107,5 +112,9 @@ Both passes return a list. Each item carries:
 - `evidence`: the `file:line` of the existing solution, or the failure scenario.
 - `finding`: the plain-language text, as in the examples above.
 - `recommendation`: the single thing to do.
+- `priority`: P0–P3; bounded optional improvements are normally P3, not blockers.
+
+Also return the flows/consumers inspected and material verification gaps, so an empty
+finding list cannot be mistaken for untested flows having passed.
 
 Empty is a valid answer. A pass that finds nothing says so in one line.
