@@ -29,11 +29,16 @@ import {
   RATE_PHASE_POSITION_REFERENCE_TEST_ID,
 } from '../RatePhaseFormFields'
 import { RatePhaseReference } from '../ratePhaseFormSchema'
+import { scrollToFirstRatePhaseError } from '../scrollToFirstRatePhaseError'
 import { RateCardForRatePhaseFields, RatePhaseDrawerProps } from '../types'
 import { useRatePhaseDrawer } from '../useRatePhaseDrawer'
 
 const mockOpen = jest.fn()
 const mockClose = jest.fn()
+
+jest.mock('../scrollToFirstRatePhaseError', () => ({
+  scrollToFirstRatePhaseError: jest.fn(),
+}))
 
 jest.mock('~/components/drawers/useDrawer', () => ({
   useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
@@ -241,6 +246,34 @@ describe('useRatePhaseDrawer', () => {
       expect(isMutationSent).toBe(false)
       expect(mockClose).not.toHaveBeenCalled()
     })
+  })
+
+  it('GIVEN a missing code WHEN submitted THEN scrolls to the first error and sends no mutation', async () => {
+    let isMutationSent = false
+    const mock: MockedResponse = {
+      request: { query: CreateRatePhaseDocument },
+      variableMatcher: () => {
+        isMutationSent = true
+        return true
+      },
+      result: { data: { createRatePhase: { id: 'rp-1', code: 'phase-1' } } },
+    }
+
+    const { opened } = await openAndRender([mock], {
+      context: 'plan',
+      mode: 'create',
+      planAppliedRateCardId: 'plan-rc-1',
+      otherPhases: [],
+      rateCard,
+    })
+
+    await opened.form.submit()
+
+    expect(scrollToFirstRatePhaseError).toHaveBeenCalledWith(
+      opened.form.id,
+      expect.objectContaining({ code: expect.anything() }),
+    )
+    expect(isMutationSent).toBe(false)
   })
 
   it('GIVEN context plan mode create THEN submitting calls createRatePhase with planAppliedRateCardId', async () => {

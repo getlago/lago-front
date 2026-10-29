@@ -5273,6 +5273,10 @@
   "text_1791824479971k53nxu9rd1p": "Go to product catalog",
   "text_1791824479972csd47bqgz26": "Map {{productName}} with a {{integrationType}} item",
   "text_179182447997277lnl7262dw": "To link this product with {{integrationType}}, define the corresponding item in your {{integrationType}} account.",
+  "text_1792439710542ctc2yq2zptb": "Notify when resolved",
+  "text_1792439710542tbnwvrxl0g7": "Add a threshold code to notify when this threshold is resolved",
+  "text_17924397105421fihqq5j6ns": "This code is used by another threshold. Use a unique code to notify when resolved",
+  "text_1792525787885ii787mch1rx": "Endpoints must subscribe to alert.resolved (or to all events) to receive resolution notifications.",
   "text_1792507896669q4dn36fbi4y": "Contract",
   "text_1792503533806fhiu57zr6an": "Phase {{position}}",
   "text_1792504558237fi9a27bn0p2": "Delete {{name}}?",
@@ -5296,5 +5300,7 @@
   "text_1792713576576juq3qxeh6z9": "Customer portal fields successfully updated",
   "text_17927135765776z05d5xcetc": "Customers cannot edit any field",
   "text_1792713576579ugzq1jl0rrj": "Save portal fields",
-  "text_1792713576578hbdtwgcoy2a": "Some details can only be changed by your provider. Contact them if they need to be updated."
+  "text_1792713576578hbdtwgcoy2a": "Some details can only be changed by your provider. Contact them if they need to be updated.",
+  "text_1792683486646v7np3oh22jc": "Already priced on this plan",
+  "text_1792683486646r8re8d0scxh": "Already priced on this contract"
 }

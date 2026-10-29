@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
-import { AlertTypeEnum, ThresholdInput } from '~/generated/graphql'
+import { refineThresholdsNotifyOn } from '~/components/alerts/utils'
+import { AlertTypeEnum, NotifyOnEnum, ThresholdInput } from '~/generated/graphql'
 
 /**
  * Zod re-map of the legacy Yup schema that lived inline in `AlertForm.tsx`.
@@ -44,6 +45,7 @@ const thresholdSchema = z.object({
   value: z.string().refine((value) => value !== '' && !Number.isNaN(Number(value)), {
     message: REQUIRED_ERROR,
   }),
+  notifyOn: z.array(z.enum(NotifyOnEnum)).nullish(),
 })
 
 export const subscriptionAlertValidationSchema = z.object({
@@ -55,7 +57,7 @@ export const subscriptionAlertValidationSchema = z.object({
     .optional()
     .refine((value) => !!value, { message: REQUIRED_ERROR }),
   billableMetricId: z.string(),
-  thresholds: z.array(thresholdSchema),
+  thresholds: z.array(thresholdSchema).superRefine(refineThresholdsNotifyOn),
 })
 
 /**
@@ -83,4 +85,5 @@ export const EMPTY_SUBSCRIPTION_ALERT_THRESHOLD: ThresholdInput = {
   code: '',
   recurring: false,
   value: '',
+  notifyOn: [NotifyOnEnum.Triggered],
 }

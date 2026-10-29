@@ -829,6 +829,7 @@ export type AttributedUsage = {
   groupBy: Scalars['String']['output'];
   metadata: CollectionMetadata;
   rows: Array<AttributedUsageRow>;
+  splitFiltersCount?: Maybe<Scalars['Int']['output']>;
   subscriptionId: Scalars['ID']['output'];
   toDatetime: Scalars['ISO8601DateTime']['output'];
   totals: AttributedUsageAggregate;
@@ -843,6 +844,8 @@ export type AttributedUsageAggregate = {
   eventsCount: Scalars['Int']['output'];
   /** Null with the units basis */
   preciseAmountCents?: Maybe<Scalars['Float']['output']>;
+  /** Units of the split charge over all its filters. Null without a split charge */
+  splitChargeUnits?: Maybe<Scalars['Float']['output']>;
 };
 
 export enum AttributedUsageBasisEnum {
@@ -879,6 +882,8 @@ export type AttributedUsageRow = {
   preciseAmountCents?: Maybe<Scalars['Float']['output']>;
   /** Position of the value in the whole level */
   rank: Scalars['Int']['output'];
+  /** Units of the split charge over all its filters. Null without a split charge */
+  splitChargeUnits?: Maybe<Scalars['Float']['output']>;
   value: Scalars['String']['output'];
 };
 
@@ -4668,6 +4673,7 @@ export enum EventCategoryEnum {
   AddOns = 'ADD_ONS',
   Alerts = 'ALERTS',
   BillableMetrics = 'BILLABLE_METRICS',
+  Contracts = 'CONTRACTS',
   Coupons = 'COUPONS',
   CreditNotes = 'CREDIT_NOTES',
   Customers = 'CUSTOMERS',
@@ -4848,6 +4854,7 @@ export enum FeatureFlagEnum {
   UsagePrefilterIncremental = 'usage_prefilter_incremental',
   UsagePrefilterShortCache = 'usage_prefilter_short_cache',
   WalletTraceability = 'wallet_traceability',
+  X402Mainnet = 'x402_mainnet',
   X402Payments = 'x402_payments',
   X402ReservationCounterDisabled = 'x402_reservation_counter_disabled'
 }
@@ -5856,7 +5863,10 @@ export enum LagoApiError {
   PlanNotFound = 'plan_not_found',
   PlanOverlapping = 'plan_overlapping',
   ProductExternalIdUnknown = 'productExternalIdUnknown',
+  ProductAlreadyPriced = 'product_already_priced',
+  ProductFilterAlreadyPriced = 'product_filter_already_priced',
   TokenEncodingError = 'token_encoding_error',
+  TokenExpired = 'token_expired',
   Unauthorized = 'unauthorized',
   UnprocessableEntity = 'unprocessable_entity',
   UrlIsInvalid = 'url_is_invalid',
@@ -9429,6 +9439,7 @@ export type QueryAttributedUsageArgs = {
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   splitChargeId?: InputMaybe<Scalars['ID']['input']>;
+  splitFiltersOffset?: InputMaybe<Scalars['Int']['input']>;
   subscriptionId: Scalars['ID']['input'];
   toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
 };
@@ -10192,6 +10203,8 @@ export type QueryRateCardRatesArgs = {
 export type QueryRateCardsArgs = {
   code?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
+  excludePricedOnContractId?: InputMaybe<Scalars['ID']['input']>;
+  excludePricedOnPlanId?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -13398,6 +13411,8 @@ export type GetRateCardsForAppliedRateCardDrawerQueryVariables = Exact<{
   code?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  excludePricedOnPlanId?: InputMaybe<Scalars['ID']['input']>;
+  excludePricedOnContractId?: InputMaybe<Scalars['ID']['input']>;
 }>;
 
 
@@ -15913,7 +15928,7 @@ export type GetWalletAlertsQueryVariables = Exact<{
 }>;
 
 
-export type GetWalletAlertsQuery = { __typename?: 'Query', walletAlerts: { __typename?: 'AlertCollection', collection: Array<{ __typename?: 'Alert', id: string, alertType: AlertTypeEnum, walletId?: string | null, code: string, name?: string | null, thresholds?: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string }> | null }> } };
+export type GetWalletAlertsQuery = { __typename?: 'Query', walletAlerts: { __typename?: 'AlertCollection', collection: Array<{ __typename?: 'Alert', id: string, alertType: AlertTypeEnum, walletId?: string | null, code: string, name?: string | null, thresholds?: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string, notifyOn: Array<NotifyOnEnum> }> | null }> } };
 
 export type WalletTransactionDetailsFragment = { __typename?: 'WalletTransaction', id: string, name?: string | null, amount: string, createdAt: any, transactionType: WalletTransactionTransactionTypeEnum, creditAmount: string, settledAt?: any | null, failedAt?: any | null, status: WalletTransactionStatusEnum, transactionStatus: WalletTransactionTransactionStatusEnum, source: WalletTransactionSourceEnum, invoiceRequiresSuccessfulPayment: boolean, priority: number, purchaseOrderNumber?: string | null, remainingAmountCents?: any | null, remainingCreditAmount?: string | null, metadata?: Array<{ __typename?: 'WalletTransactionMetadataObject', key: string, value: string }> | null, invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, customer: { __typename?: 'Customer', id: string }, payments?: Array<{ __typename?: 'Payment', id: string, providerPaymentId?: string | null, paymentProviderType?: ProviderTypeEnum | null, payablePaymentStatus?: PayablePaymentStatusEnum | null }> | null } | null };
 
@@ -16546,7 +16561,7 @@ export type GetSubscriptionAlertToEditQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionAlertToEditQuery = { __typename?: 'Query', subscriptionAlert?: { __typename?: 'Alert', id: string, alertType: AlertTypeEnum, code: string, name?: string | null, billableMetric?: { __typename?: 'BillableMetric', id: string, code: string, name: string } | null, thresholds?: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string }> | null } | null };
+export type GetSubscriptionAlertToEditQuery = { __typename?: 'Query', subscriptionAlert?: { __typename?: 'Alert', id: string, alertType: AlertTypeEnum, code: string, name?: string | null, billableMetric?: { __typename?: 'BillableMetric', id: string, code: string, name: string } | null, thresholds?: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string, notifyOn: Array<NotifyOnEnum> }> | null } | null };
 
 export type GetExistingAlertsOfSubscriptionQueryVariables = Exact<{
   subscriptionExternalId: Scalars['String']['input'];
@@ -19663,7 +19678,7 @@ export type GetWalletAlertToEditQueryVariables = Exact<{
 }>;
 
 
-export type GetWalletAlertToEditQuery = { __typename?: 'Query', walletAlert?: { __typename?: 'Alert', id: string, alertType: AlertTypeEnum, walletId?: string | null, code: string, name?: string | null, thresholds?: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string }> | null } | null };
+export type GetWalletAlertToEditQuery = { __typename?: 'Query', walletAlert?: { __typename?: 'Alert', id: string, alertType: AlertTypeEnum, walletId?: string | null, code: string, name?: string | null, thresholds?: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string, notifyOn: Array<NotifyOnEnum> }> | null } | null };
 
 export type CreateWalletAlertMutationVariables = Exact<{
   input: CreateCustomerWalletAlertInput;
@@ -28372,7 +28387,7 @@ export type GetProductFiltersForAppliedRateCardDrawerLazyQueryHookResult = Retur
 export type GetProductFiltersForAppliedRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetProductFiltersForAppliedRateCardDrawerSuspenseQuery>;
 export type GetProductFiltersForAppliedRateCardDrawerQueryResult = Apollo.QueryResult<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>;
 export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
-    query getRateCardsForAppliedRateCardDrawer($productIds: [ID!], $productFilterIds: [ID!], $searchTerm: String, $code: String, $currency: CurrencyEnum, $limit: Int) {
+    query getRateCardsForAppliedRateCardDrawer($productIds: [ID!], $productFilterIds: [ID!], $searchTerm: String, $code: String, $currency: CurrencyEnum, $limit: Int, $excludePricedOnPlanId: ID, $excludePricedOnContractId: ID) {
   rateCards(
     productIds: $productIds
     productFilterIds: $productFilterIds
@@ -28380,6 +28395,8 @@ export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
     code: $code
     currency: $currency
     limit: $limit
+    excludePricedOnPlanId: $excludePricedOnPlanId
+    excludePricedOnContractId: $excludePricedOnContractId
   ) {
     collection {
       id
@@ -28409,6 +28426,8 @@ export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
  *      code: // value for 'code'
  *      currency: // value for 'currency'
  *      limit: // value for 'limit'
+ *      excludePricedOnPlanId: // value for 'excludePricedOnPlanId'
+ *      excludePricedOnContractId: // value for 'excludePricedOnContractId'
  *   },
  * });
  */
@@ -39122,6 +39141,7 @@ export const GetWalletAlertsDocument = gql`
         code
         recurring
         value
+        notifyOn
       }
     }
   }
@@ -42227,6 +42247,7 @@ export const GetSubscriptionAlertToEditDocument = gql`
       code
       recurring
       value
+      notifyOn
     }
   }
 }
@@ -55911,6 +55932,7 @@ export const GetWalletAlertToEditDocument = gql`
       code
       recurring
       value
+      notifyOn
     }
   }
 }

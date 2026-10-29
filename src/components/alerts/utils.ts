@@ -1,10 +1,75 @@
-import { AnyFormApi } from '@tanstack/react-form'
+import { AnyFormApi, StandardSchemaV1Issue } from '@tanstack/react-form'
+import { z } from 'zod'
 
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { AlertThreshold, CurrencyEnum, ThresholdInput } from '~/generated/graphql'
+import { AlertThreshold, CurrencyEnum, NotifyOnEnum, ThresholdInput } from '~/generated/graphql'
 
-export type SortableThreshold = Pick<AlertThreshold, 'recurring' | 'value'>
+export type SortableThreshold = Pick<AlertThreshold, 'recurring' | 'value'> &
+  Partial<Pick<AlertThreshold, 'notifyOn'>>
+
+const REQUIRED_ERROR = 'text_1771342994699klxu2paz7g8'
+const CODE_REQUIRED_FOR_RESOLUTION_ERROR = 'text_1792439710542tbnwvrxl0g7'
+const CODE_NOT_UNIQUE_FOR_RESOLUTION_ERROR = 'text_17924397105421fihqq5j6ns'
+
+export const setResolved = (
+  notifyOn: NotifyOnEnum[] | null | undefined,
+  enabled: boolean,
+): NotifyOnEnum[] => {
+  const values = notifyOn ?? [NotifyOnEnum.Triggered]
+
+  if (!enabled) return values.filter((value) => value !== NotifyOnEnum.Resolved)
+
+  return values.includes(NotifyOnEnum.Resolved) ? values : [...values, NotifyOnEnum.Resolved]
+}
+
+export const withTriggered = (notifyOn: NotifyOnEnum[] | null | undefined): NotifyOnEnum[] => {
+  const values = notifyOn ?? []
+
+  return values.includes(NotifyOnEnum.Triggered) ? values : [NotifyOnEnum.Triggered, ...values]
+}
+
+export const getThresholdCodeErrorsFromForm = (
+  errors: Record<string, readonly StandardSchemaV1Issue[]> | undefined,
+): Record<number, string> => {
+  const codeErrors: Record<number, string> = {}
+
+  Object.entries(errors ?? {}).forEach(([path, issues]) => {
+    const match = /^thresholds\[(\d+)\]\.code$/.exec(path)
+    const message = issues[0]?.message
+
+    if (match && message) codeErrors[Number(match[1])] = message
+  })
+
+  return codeErrors
+}
+
+export const getThresholdCodeErrors = (
+  thresholds?: ThresholdInput[] | null,
+): Record<number, string> => {
+  const errors: Record<number, string> = {}
+
+  if (!Array.isArray(thresholds)) return errors
+
+  thresholds.forEach((threshold, index) => {
+    if (threshold?.recurring || !threshold?.notifyOn?.includes(NotifyOnEnum.Resolved)) return
+
+    if (!threshold.code?.trim()) {
+      errors[index] = CODE_REQUIRED_FOR_RESOLUTION_ERROR
+
+      return
+    }
+
+    thresholds.forEach((other, otherIndex) => {
+      if (otherIndex === index || other?.code !== threshold.code) return
+
+      errors[index] = CODE_NOT_UNIQUE_FOR_RESOLUTION_ERROR
+      errors[otherIndex] = CODE_NOT_UNIQUE_FOR_RESOLUTION_ERROR
+    })
+  })
+
+  return errors
+}
 
 /**
  * Turns the API thresholds of an alert into the shape the thresholds table
@@ -38,6 +103,25 @@ export const sortAndFormatThresholds = <T extends SortableThreshold>(
   return [...sortedNonRecurringThresholds, ...(!!recurringThreshold ? [recurringThreshold] : [])]
 }
 
+export const refineThresholdsNotifyOn = (
+  thresholds: ThresholdInput[] | null | undefined,
+  ctx: z.RefinementCtx,
+): void => {
+  if (!Array.isArray(thresholds)) return
+
+  thresholds.forEach((threshold, index) => {
+    const notifyOn = threshold?.notifyOn
+
+    if (Array.isArray(notifyOn) && !notifyOn.includes(NotifyOnEnum.Triggered)) {
+      ctx.addIssue({ code: 'custom', path: [index, 'notifyOn'], message: REQUIRED_ERROR })
+    }
+  })
+
+  Object.entries(getThresholdCodeErrors(thresholds)).forEach(([index, message]) => {
+    ctx.addIssue({ code: 'custom', path: [Number(index), 'code'], message })
+  })
+}
+
 /**
  * The thresholds table is form-library agnostic: it patches a single cell with
  * an untyped value. This is the one boundary where that value is turned back
@@ -56,6 +140,8 @@ export const patchThreshold = (
 
   if (key === 'code') return { ...threshold, code: asString }
   if (key === 'recurring') return { ...threshold, recurring: !!newValue }
+  if (key === 'notifyOn')
+    return { ...threshold, notifyOn: setResolved(threshold.notifyOn, !!newValue) }
 
   return { ...threshold, value: asString ?? '' }
 }

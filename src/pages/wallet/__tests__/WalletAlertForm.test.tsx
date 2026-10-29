@@ -1,6 +1,13 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { RESOLVED_WEBHOOK_NOTICE_TEST_ID } from '~/components/alerts/ResolvedWebhookNotice'
+import {
+  AlertThresholdsProps,
+  THRESHOLDS_CODE_ERROR_TEST_ID,
+  THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID,
+} from '~/components/alerts/Thresholds'
+import { ComboBoxProps } from '~/components/form/ComboBox'
 import {
   CLOSE_WALLET_ALERT_BUTTON_DATA_TEST,
   SUBMIT_WALLET_ALERT_DATA_TEST,
@@ -9,7 +16,7 @@ import {
 } from '~/components/wallets/utils/dataTestConstants'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
-import { AlertTypeEnum, LagoApiError } from '~/generated/graphql'
+import { AlertTypeEnum, LagoApiError, NotifyOnEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import WalletAlertForm, { WALLET_ALERT_FORM_ID } from '../WalletAlertForm'
@@ -74,6 +81,24 @@ jest.mock('~/components/form/ComboBox/ComboBoxFieldForTanstack', () => {
   }
 })
 
+jest.mock('~/components/form/ComboBox/ComboBox', () => ({
+  ComboBox: ({ data = [], value, disabled, onChange, 'data-test': dataTest }: ComboBoxProps) => (
+    <select
+      data-test={dataTest}
+      disabled={disabled}
+      value={value ?? ''}
+      onChange={(event) => onChange(event.target.value)}
+    >
+      <option value="" />
+      {data.map(({ value: optionValue, label, disabled: optionDisabled }) => (
+        <option key={optionValue} value={optionValue} disabled={optionDisabled}>
+          {label}
+        </option>
+      ))}
+    </select>
+  ),
+}))
+
 const mockDialogOpen = jest.fn()
 
 jest.mock('~/components/dialogs/CentralizedDialog', () => ({
@@ -84,31 +109,53 @@ jest.mock('~/components/dialogs/CentralizedDialog', () => ({
 // the two callbacks the form adapter has to honour
 const SET_THRESHOLDS_BUTTON = 'mock-set-thresholds'
 const SET_THRESHOLD_VALUE_BUTTON = 'mock-set-threshold-value'
+const NOTIFY_WHEN_RESOLVED_BUTTON = 'mock-notify-when-resolved'
+const CLEAR_THRESHOLD_CODE_BUTTON = 'mock-clear-threshold-code'
 
-jest.mock('~/components/alerts/Thresholds', () => ({
-  __esModule: true,
-  default: ({
-    setThresholds,
-    setThresholdValue,
-  }: {
-    setThresholds: (thresholds: unknown[]) => void
-    setThresholdValue: (params: { index: number; key: string; newValue: unknown }) => void
-  }) => (
-    <div data-test="mock-alert-thresholds">
-      <button
-        type="button"
-        data-test={SET_THRESHOLDS_BUTTON}
-        onClick={() => setThresholds([{ code: 'first', recurring: false, value: '10' }])}
-      />
-      <button
-        type="button"
-        data-test={SET_THRESHOLD_VALUE_BUTTON}
-        onClick={() => setThresholdValue({ index: 0, key: 'value', newValue: '25' })}
-      />
-    </div>
-  ),
-  isThresholdValueValid: () => false,
-}))
+let mockUseRealThresholds = false
+
+jest.mock('~/components/alerts/Thresholds', () => {
+  const actual = jest.requireActual<typeof import('~/components/alerts/Thresholds')>(
+    '~/components/alerts/Thresholds',
+  )
+
+  return {
+    __esModule: true,
+    ...actual,
+    default: (props: AlertThresholdsProps): JSX.Element => {
+      if (mockUseRealThresholds) return <actual.default {...props} />
+
+      const { setThresholds, setThresholdValue } = props
+
+      return (
+        <div data-test="mock-alert-thresholds">
+          <button
+            type="button"
+            data-test={SET_THRESHOLDS_BUTTON}
+            onClick={() => setThresholds([{ code: 'first', recurring: false, value: '10' }])}
+          />
+          <button
+            type="button"
+            data-test={SET_THRESHOLD_VALUE_BUTTON}
+            onClick={() => setThresholdValue({ index: 0, key: 'value', newValue: '25' })}
+          />
+          <button
+            type="button"
+            data-test={NOTIFY_WHEN_RESOLVED_BUTTON}
+            onClick={() => setThresholdValue({ index: 0, key: 'notifyOn', newValue: true })}
+          />
+          <button
+            type="button"
+            data-test={CLEAR_THRESHOLD_CODE_BUTTON}
+            onClick={() => setThresholdValue({ index: 0, key: 'code', newValue: undefined })}
+          />
+        </div>
+      )
+    },
+    isThresholdValueValid: (...args: Parameters<typeof actual.isThresholdValueValid>): boolean =>
+      mockUseRealThresholds ? actual.isThresholdValueValid(...args) : false,
+  }
+})
 
 jest.mock('~/styles/mainObjectsForm', () => ({
   FormLoadingSkeleton: ({ id }: { id: string }) => (
@@ -121,6 +168,12 @@ const mockUseGetWalletAlertsQuery = jest.fn()
 const mockUseGetWalletAlertToEditQuery = jest.fn()
 const mockCreateWalletAlert = jest.fn()
 const mockUpdateWalletAlert = jest.fn()
+
+let mockCanManageWebhooks = true
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: () => mockCanManageWebhooks }),
+}))
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
@@ -143,7 +196,9 @@ const existingAlert = {
   alertType: AlertTypeEnum.WalletBalanceAmount,
   code: 'my-alert',
   name: 'My alert',
-  thresholds: [{ code: 'first', recurring: false, value: '1000' }],
+  thresholds: [
+    { code: 'first', recurring: false, value: '1000', notifyOn: [NotifyOnEnum.Triggered] },
+  ],
 }
 
 const mockLoadedQueries = ({
@@ -192,6 +247,8 @@ const pickAlertType = async (
 describe('WalletAlertForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockUseRealThresholds = false
+    mockCanManageWebhooks = true
     mockCreateWalletAlert.mockResolvedValue({
       data: { createCustomerWalletAlert: { id: 'alert-1' } },
       errors: undefined,
@@ -356,7 +413,14 @@ describe('WalletAlertForm', () => {
                 name: '',
                 code: 'my-alert',
                 alertType: AlertTypeEnum.WalletBalanceAmount,
-                thresholds: [{ code: 'first', recurring: false, value: '1000' }],
+                thresholds: [
+                  {
+                    code: 'first',
+                    recurring: false,
+                    value: '1000',
+                    notifyOn: [NotifyOnEnum.Triggered],
+                  },
+                ],
               },
             },
           })
@@ -395,7 +459,14 @@ describe('WalletAlertForm', () => {
             expect.objectContaining({
               variables: {
                 input: expect.objectContaining({
-                  thresholds: [{ code: 'first', recurring: false, value: '2500' }],
+                  thresholds: [
+                    {
+                      code: 'first',
+                      recurring: false,
+                      value: '2500',
+                      notifyOn: [NotifyOnEnum.Triggered],
+                    },
+                  ],
                 }),
               },
             }),
@@ -551,7 +622,14 @@ describe('WalletAlertForm', () => {
                 id: 'alert-1',
                 name: 'My alert',
                 code: 'renamed-alert',
-                thresholds: [{ code: 'first', recurring: false, value: '1000' }],
+                thresholds: [
+                  {
+                    code: 'first',
+                    recurring: false,
+                    value: '1000',
+                    notifyOn: [NotifyOnEnum.Triggered],
+                  },
+                ],
               },
             },
           })
@@ -612,6 +690,239 @@ describe('WalletAlertForm', () => {
 
         expect(mockDialogOpen).not.toHaveBeenCalled()
         expect(testMockNavigateFn).toHaveBeenCalled()
+      })
+    })
+  })
+
+  it('shows code errors after submit and clears them as the real cells change', async () => {
+    mockUseRealThresholds = true
+    setParams({ walletId: 'wallet-1', customerId: 'customer-1', alertId: 'alert-1' })
+    mockLoadedQueries({
+      alert: {
+        ...existingAlert,
+        thresholds: [
+          { code: 'warn', value: '10000', recurring: false, notifyOn: [NotifyOnEnum.Triggered] },
+          {
+            code: '',
+            value: '8000',
+            recurring: false,
+            notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+          },
+        ],
+      },
+    })
+    const user = userEvent.setup()
+
+    render(<WalletAlertForm />)
+
+    const codeCells = screen.getAllByPlaceholderText('text_1747921154885jqsl0c9xhro')
+    const submit = screen.getByTestId(SUBMIT_WALLET_ALERT_DATA_TEST)
+
+    expect(screen.queryByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).not.toBeInTheDocument()
+    await user.click(submit)
+    expect(screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toHaveLength(1)
+    expect(codeCells[1]).toHaveAttribute('aria-invalid', 'true')
+    expect(mockUpdateWalletAlert).not.toHaveBeenCalled()
+
+    await user.type(codeCells[1], 'warn')
+    expect(screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toHaveLength(2)
+    expect(codeCells[0]).toHaveAttribute('aria-invalid', 'true')
+    expect(submit).toBeDisabled()
+
+    await user.clear(codeCells[1])
+    await user.type(codeCells[1], 'hard')
+    expect(screen.queryByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).not.toBeInTheDocument()
+    expect(submit).toBeEnabled()
+    const resolutionCells = screen.getAllByTestId(THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID)
+
+    await user.selectOptions(resolutionCells[1], 'false')
+    expect(screen.queryByTestId(RESOLVED_WEBHOOK_NOTICE_TEST_ID)).not.toBeInTheDocument()
+    await user.clear(codeCells[1])
+    expect(submit).toBeEnabled()
+    await user.selectOptions(resolutionCells[1], 'true')
+    expect(codeCells[1]).toHaveAttribute('aria-invalid', 'true')
+    await user.type(codeCells[1], 'hard')
+    await user.click(submit)
+    await waitFor(() =>
+      expect(mockUpdateWalletAlert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variables: {
+            input: expect.objectContaining({
+              thresholds: [
+                expect.objectContaining({ notifyOn: [NotifyOnEnum.Triggered] }),
+                expect.objectContaining({
+                  notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+                }),
+              ],
+            }),
+          },
+        }),
+      ),
+    )
+  })
+
+  describe('GIVEN the "Notify when resolved" setting', () => {
+    const fillCreateForm = async (user: ReturnType<typeof userEvent.setup>): Promise<void> => {
+      await user.type(getInput('code'), 'my-alert')
+      await pickAlertType(user, AlertTypeEnum.WalletBalanceAmount)
+      await user.click(screen.getByTestId(SET_THRESHOLDS_BUTTON))
+    }
+
+    beforeEach(() => {
+      mockLoadedQueries()
+    })
+
+    describe('WHEN a new threshold is left untouched', () => {
+      it('THEN should send notifyOn [triggered]', async () => {
+        const user = userEvent.setup()
+
+        render(<WalletAlertForm />)
+
+        await fillCreateForm(user)
+        await user.click(screen.getByTestId(SUBMIT_WALLET_ALERT_DATA_TEST))
+
+        await waitFor(() => {
+          expect(mockCreateWalletAlert).toHaveBeenCalledWith(
+            expect.objectContaining({
+              variables: {
+                input: expect.objectContaining({
+                  thresholds: [
+                    expect.objectContaining({ code: 'first', notifyOn: [NotifyOnEnum.Triggered] }),
+                  ],
+                }),
+              },
+            }),
+          )
+        })
+      })
+
+      it('THEN should hide the resolution notice', async () => {
+        const user = userEvent.setup()
+
+        render(<WalletAlertForm />)
+        await fillCreateForm(user)
+
+        expect(screen.queryByTestId(RESOLVED_WEBHOOK_NOTICE_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a threshold is switched to True', () => {
+      it('THEN should send notifyOn [triggered, resolved]', async () => {
+        const user = userEvent.setup()
+
+        render(<WalletAlertForm />)
+
+        await fillCreateForm(user)
+        await user.click(screen.getByTestId(NOTIFY_WHEN_RESOLVED_BUTTON))
+        await user.click(screen.getByTestId(SUBMIT_WALLET_ALERT_DATA_TEST))
+
+        await waitFor(() => {
+          expect(mockCreateWalletAlert).toHaveBeenCalledWith(
+            expect.objectContaining({
+              variables: {
+                input: expect.objectContaining({
+                  thresholds: [
+                    expect.objectContaining({
+                      code: 'first',
+                      notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+                    }),
+                  ],
+                }),
+              },
+            }),
+          )
+        })
+      })
+
+      it('THEN should block the submit while that threshold has no code', async () => {
+        const user = userEvent.setup()
+
+        render(<WalletAlertForm />)
+
+        await fillCreateForm(user)
+        await user.click(screen.getByTestId(NOTIFY_WHEN_RESOLVED_BUTTON))
+        await user.click(screen.getByTestId(CLEAR_THRESHOLD_CODE_BUTTON))
+        await user.click(screen.getByTestId(SUBMIT_WALLET_ALERT_DATA_TEST))
+
+        await waitFor(() => {
+          expect(screen.getByTestId(SUBMIT_WALLET_ALERT_DATA_TEST)).toBeDisabled()
+        })
+        expect(mockCreateWalletAlert).not.toHaveBeenCalled()
+      })
+    })
+
+    it.each([true, false])('shows the notice with developersManage=%s', async (canManage) => {
+      mockCanManageWebhooks = canManage
+      const user = userEvent.setup()
+
+      render(<WalletAlertForm />)
+      await fillCreateForm(user)
+      await user.click(screen.getByTestId(NOTIFY_WHEN_RESOLVED_BUTTON))
+
+      const notice = screen.getByTestId(RESOLVED_WEBHOOK_NOTICE_TEST_ID)
+
+      expect(notice).toHaveTextContent('text_1792525787885ii787mch1rx')
+      if (canManage) {
+        const link = within(notice).getByRole('link')
+        const destination = new URL(link.getAttribute('href') || '')
+
+        expect(destination.pathname).toBe(window.location.pathname)
+        expect(destination.searchParams.get('devtool-tab')).toBe('/devtool/webhooks')
+        expect(link).toHaveAttribute('target', '_blank')
+        expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+        await user.click(link)
+      } else {
+        expect(within(notice).queryByRole('link')).not.toBeInTheDocument()
+      }
+      expect(testMockNavigateFn).not.toHaveBeenCalled()
+      expect(mockCreateWalletAlert).not.toHaveBeenCalled()
+      expect(screen.getByTestId(SUBMIT_WALLET_ALERT_DATA_TEST)).toBeInTheDocument()
+    })
+
+    describe('WHEN editing an alert whose threshold notifies when resolved', () => {
+      it('THEN should keep notifyOn [triggered, resolved] on an untouched save', async () => {
+        setParams({ walletId: 'wallet-1', customerId: 'customer-1', alertId: 'alert-1' })
+        mockLoadedQueries({
+          alert: {
+            ...existingAlert,
+            thresholds: [
+              {
+                code: 'first',
+                recurring: false,
+                value: '1000',
+                notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+              },
+            ],
+          },
+        })
+        const user = userEvent.setup()
+
+        render(<WalletAlertForm />)
+
+        await waitFor(() => {
+          expect(getInput('code')).toHaveValue('my-alert')
+        })
+
+        await user.click(screen.getByTestId(SUBMIT_WALLET_ALERT_DATA_TEST))
+
+        await waitFor(() => {
+          expect(mockUpdateWalletAlert).toHaveBeenCalledWith(
+            expect.objectContaining({
+              variables: {
+                input: expect.objectContaining({
+                  thresholds: [
+                    {
+                      code: 'first',
+                      recurring: false,
+                      value: '1000',
+                      notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+                    },
+                  ],
+                }),
+              },
+            }),
+          )
+        })
       })
     })
   })
