@@ -98,9 +98,8 @@ export const useXeroIntegrationItemSearch = (
 
   const [rawSearchItems, { loading }] = useGetXeroIntegrationItemsLazyQuery()
 
-  // useDebouncedSearch memoises the first `search` it is given, so everything that identifies the
-  // query is read from the ref at call time: a value captured here would never be refreshed, and
-  // a `search` that starts out undefined would stay undefined for the life of the field.
+  // useDebouncedSearch memoises the first `search` it is given: the query params are read from the
+  // ref at call time, since a value captured here would never be refreshed.
   const queryParamsRef = useRef({ integrationId, itemType: getItemType(formType) })
 
   queryParamsRef.current = { integrationId, itemType: getItemType(formType) }

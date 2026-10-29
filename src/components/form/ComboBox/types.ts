@@ -15,7 +15,6 @@ export interface BasicComboBoxData {
   labelNode?: ReactNode
   description?: string
   disabled?: boolean
-  /** Still a valid value, but left out of the options list */
   hidden?: boolean
   customValue?: boolean
   group?: never
@@ -61,7 +60,6 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'search
       searchTerm?: InputMaybe<string> | undefined
     }>
   >
-  /** Off when the options are already fetched by the caller: `searchQuery` then only runs on typing */
   fetchOnMount?: boolean
   containerClassName?: string
   'data-test'?: string

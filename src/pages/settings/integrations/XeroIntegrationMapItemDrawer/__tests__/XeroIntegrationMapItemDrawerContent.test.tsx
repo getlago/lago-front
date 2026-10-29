@@ -13,9 +13,8 @@ import { XeroIntegrationMapItemDrawerContent } from '../XeroIntegrationMapItemDr
 
 const mockRenderedOptions = jest.fn()
 
-// The real ComboBox renders its options through a virtualized list, which measures 0px in jsdom.
-// The spy records what each field is given, which is how the per-field option set is asserted:
-// probing the open dropdown is not deterministic when two comboboxes are on screen.
+// The real ComboBox virtualizes its options (0px in jsdom) and two open dropdowns probe flakily,
+// so the spy records the `data` each field is given instead.
 jest.mock('~/components/form/ComboBox/ComboBox', () => {
   const actual = jest.requireActual('~/components/form/ComboBox/ComboBox')
 
@@ -212,15 +211,11 @@ describe('XeroIntegrationMapItemDrawerContent', () => {
       })
     })
 
-    // Regression: the search used to replace the list every combobox read, so it both narrowed
-    // the other combobox's options and — `ComboBox` clearing a field whose selected option leaves
-    // `data` — wiped the mapping the user was not searching in.
+    // Regression: a search replaced the list every combobox read, narrowing the other field and
+    // wiping its mapping (`ComboBox` clears a field whose selected option leaves `data`).
     describe('WHEN one combobox searches', () => {
-      // Appending to the input rather than clearing it: emptying it is MUI's own gesture for
-      // clearing the selection, which would make these assertions test the wrong thing.
-      // Selecting the text before typing replaces it in one input event, so the term reaching the
-      // query is exactly what is typed. Deleting it first would instead be MUI's own gesture for
-      // clearing the selection, and a field with no selection drops its search on blur.
+      // Select-then-type, not delete-then-type: emptying the input is MUI's clear-selection gesture,
+      // and a field with no selection drops its search on blur.
       const typeSearch = async (
         user: ReturnType<typeof renderDrawer>['user'],
         billingEntityKey: string,
@@ -271,9 +266,8 @@ describe('XeroIntegrationMapItemDrawerContent', () => {
         await typeSearch(user, 'default', 'support')
         await typeSearch(user, 'acme', 'sales')
 
-        // A field holding a mapping keeps its value on blur, so its search is never cleared for
-        // it: searching elsewhere must neither narrow it to the other field's hit nor hand it
-        // back the unfiltered list.
+        // A mapped field keeps its value on blur, so its search is never cleared: another field's
+        // search must neither narrow it nor hand it back the unfiltered list.
         expect(lastOptionsFor('default')).toContain('Support (400)')
         expect(lastOptionsFor('default')).not.toContain('Services (300)')
         expect(lastOptionsFor('acme')).toContain('Sales (200)')
