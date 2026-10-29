@@ -1,3 +1,6 @@
+import { useStore } from '@tanstack/react-form'
+import { useMemo } from 'react'
+
 import { Button } from '~/components/designSystem/Button'
 import { BasicComboBoxData } from '~/components/form'
 import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
@@ -5,6 +8,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
 import { extractOptionValue } from './extractOptionValue'
+import { toXeroOption } from './toXeroOption'
 import { useXeroIntegrationItemSearch } from './useXeroIntegrationItems'
 import { xeroMappingDefaultValues } from './validationSchema'
 
@@ -40,11 +44,7 @@ const withSelectedOption = (
 
   return [
     ...comboboxData,
-    {
-      label: `${externalName} (${externalAccountCode})`,
-      description: externalId,
-      value: selectedValue,
-    },
+    toXeroOption({ externalId: externalId ?? '', externalName, externalAccountCode }),
   ]
 }
 
@@ -68,8 +68,16 @@ export const XeroIntegrationMapItemFormWrapper = withForm({
       search,
     } = useXeroIntegrationItemSearch(formType, integrationId)
 
-    const comboboxData = isSearching ? searchResults : items
+    const selectedValue = useStore(
+      form.store,
+      (state) => state.values[billingEntityKey]?.selectedElementValue,
+    )
+
     const isBusy = isLoading || isSearchLoading
+    const comboboxData = useMemo(
+      () => withSelectedOption(isSearching ? searchResults : items, selectedValue),
+      [isSearching, searchResults, items, selectedValue],
+    )
 
     const helperText =
       !isBusy && !comboboxData.length ? translate('text_6630ec823adac97d3bf0fb4b') : undefined
@@ -80,7 +88,7 @@ export const XeroIntegrationMapItemFormWrapper = withForm({
           <form.AppField name={`${billingEntityKey}.selectedElementValue`}>
             {(field) => (
               <field.ComboBoxField
-                data={withSelectedOption(comboboxData, field.state.value as string | undefined)}
+                data={comboboxData}
                 loading={isBusy}
                 label={translate('text_6672ebb8b1b50be550eccb73')}
                 placeholder={translate('text_6630e51df0a194013daea622')}

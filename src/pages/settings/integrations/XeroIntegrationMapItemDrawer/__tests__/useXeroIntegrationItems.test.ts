@@ -94,14 +94,44 @@ describe('useXeroIntegrationItems', () => {
         expect(result.current.items).toEqual([])
       })
 
-      it('THEN should expose no search', () => {
+      // `search` stays defined whatever the integrationId: useDebouncedSearch memoises the first
+      // one it is handed, so a field that mounted before the id arrived would never search again.
+      it('THEN should still expose a search, running no query', async () => {
         const { result } = renderHook(
           () => useXeroIntegrationItemSearch(MappableTypeEnum.BillableMetric, undefined),
           { wrapper: createWrapper([]) },
         )
 
-        expect(result.current.search).toBeUndefined()
+        expect(result.current.search).toBeDefined()
+
+        await act(async () => {
+          await result.current.search?.({ variables: { searchTerm: 'another' } })
+        })
+
         expect(result.current.searchResults).toEqual([])
+      })
+
+      it('THEN should run the query once the integrationId arrives', async () => {
+        const { result, rerender } = renderHook(
+          ({ id }: { id: string | undefined }) =>
+            useXeroIntegrationItemSearch(MappableTypeEnum.BillableMetric, id),
+          {
+            initialProps: { id: undefined as string | undefined },
+            wrapper: createWrapper([
+              buildGetItemsMock({ searchTerm: 'another' }, [
+                buildItem('2', 'Another Item', 'ACC002'),
+              ]),
+            ]),
+          },
+        )
+
+        rerender({ id: INTEGRATION_ID })
+
+        await act(async () => {
+          await result.current.search?.({ variables: { searchTerm: 'another' } })
+        })
+
+        await waitFor(() => expect(result.current.searchResults).toHaveLength(1))
       })
     })
   })
@@ -164,7 +194,9 @@ describe('useXeroIntegrationItems', () => {
         expect(result.current.isSearching).toBe(true)
       })
 
-      it('THEN should stop flagging the field once the term is cleared', async () => {
+      // Clearing falls back to the catalog the drawer holds, so no query is run for it: the mock
+      // list carries the search only, and a second request would fail the test.
+      it('THEN should stop flagging the field once the term is cleared, running no query', async () => {
         const { result } = renderHook(
           () => useXeroIntegrationItemSearch(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
           {
@@ -172,7 +204,6 @@ describe('useXeroIntegrationItems', () => {
               buildGetItemsMock({ searchTerm: 'another' }, [
                 buildItem('2', 'Another Item', 'ACC002'),
               ]),
-              buildGetItemsMock({}, [buildItem('1', 'External Item', 'ACC001')]),
             ]),
           },
         )

@@ -12,7 +12,7 @@ import {
   useTriggerXeroIntegrationItemsRefetchMutation,
 } from '~/generated/graphql'
 
-import { stringifyOptionValue } from './stringifyOptionValue'
+import { toXeroOption } from './toXeroOption'
 
 const ITEMS_LIMIT = 1000
 
@@ -37,17 +37,7 @@ const getItemType = (formType: XeroFormType): IntegrationItemTypeEnum =>
     : IntegrationItemTypeEnum.Standard
 
 const toComboboxData = (data: GetXeroIntegrationItemsQuery | undefined): BasicComboBoxData[] =>
-  (data?.integrationItems?.collection || []).map(
-    ({ externalId, externalName, externalAccountCode }) => ({
-      label: `${externalName} (${externalAccountCode})`,
-      description: externalId,
-      value: stringifyOptionValue({
-        externalId,
-        externalName: externalName || '',
-        externalAccountCode: externalAccountCode || '',
-      }),
-    }),
-  )
+  (data?.integrationItems?.collection || []).map(toXeroOption)
 
 // Owned by the drawer and fetched once: the form wrappers mount and unmount with the billing
 // entity tabs, so a query of theirs would re-run on every switch.
@@ -102,24 +92,27 @@ export const useXeroIntegrationItemSearch = (
   formType: XeroFormType,
   integrationId: string | undefined,
 ): UseXeroIntegrationItemSearchReturn => {
-  const itemType = getItemType(formType)
   const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined)
 
   const [rawSearchItems, { data, loading }] = useGetXeroIntegrationItemsLazyQuery()
 
-  // useDebouncedSearch memoises the first `search` it is given and calls it with no args, so the
-  // identifying variables are injected at call time rather than left to defaults.
-  const integrationIdRef = useRef(integrationId)
+  // useDebouncedSearch memoises the first `search` it is given, so everything that identifies the
+  // query is read from the ref at call time: a value captured here would never be refreshed, and
+  // a `search` that starts out undefined would stay undefined for the life of the field.
+  const queryParamsRef = useRef({ integrationId, itemType: getItemType(formType) })
 
-  integrationIdRef.current = integrationId
+  queryParamsRef.current = { integrationId, itemType: getItemType(formType) }
 
   const search = useCallback(
-    (...args: Parameters<typeof rawSearchItems>) => {
-      const currentIntegrationId = integrationIdRef.current
+    (...args: Parameters<typeof rawSearchItems>): ReturnType<typeof rawSearchItems> | undefined => {
+      const { integrationId: currentIntegrationId, itemType } = queryParamsRef.current
+      const currentSearchTerm = args[0]?.variables?.searchTerm ?? undefined
 
-      setSearchTerm(args[0]?.variables?.searchTerm ?? undefined)
+      setSearchTerm(currentSearchTerm)
 
-      if (!currentIntegrationId) return
+      // Clearing the search falls back to the catalog the drawer already holds, so the 1000-item
+      // query would only be run to throw its result away.
+      if (!currentIntegrationId || !currentSearchTerm) return undefined
 
       return rawSearchItems({
         ...args[0],
@@ -131,13 +124,13 @@ export const useXeroIntegrationItemSearch = (
         },
       })
     },
-    [itemType, rawSearchItems],
+    [rawSearchItems],
   )
 
   return {
     searchResults: useMemo(() => toComboboxData(data), [data]),
     isSearching: !!searchTerm,
     isLoading: loading,
-    search: integrationId ? (search as unknown as ComboBoxProps['searchQuery']) : undefined,
+    search: search as unknown as ComboBoxProps['searchQuery'],
   }
 }

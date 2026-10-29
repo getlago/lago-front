@@ -292,6 +292,21 @@ describe('XeroIntegrationMapItemDrawerContent', () => {
         expect(lastOptionsFor('acme')).toContain('Support (400)')
       })
 
+      it('THEN should run no query when the term is cleared', async () => {
+        const { user, executedOperations } = renderDrawer({ seeded: true })
+
+        await settle()
+        await typeSearch(user, 'default', 'support')
+
+        expect(executedOperations).toHaveBeenCalledTimes(2)
+
+        // Under three characters useDebouncedSearch sends the search back to "no term": the
+        // catalog is already held by the drawer, so re-fetching it would only be thrown away.
+        await typeSearch(user, 'default', 'su')
+
+        expect(executedOperations).toHaveBeenCalledTimes(2)
+      })
+
       it('THEN should keep its own selection when no result matches', async () => {
         const { user } = renderDrawer({ seeded: true })
 
