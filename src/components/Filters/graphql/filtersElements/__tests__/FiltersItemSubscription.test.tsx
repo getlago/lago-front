@@ -1,11 +1,20 @@
 import { render, screen, waitFor } from '@testing-library/react'
 
 import { FiltersItemSubscription } from '~/components/Filters/graphql/filtersElements/FiltersItemSubscription'
+import { filterDataInlineSeparator } from '~/components/Filters/presentation/types'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 jest.mock('~/components/Filters/graphql/useFilters', () => ({
   useFilters: () => ({
     displayInDialog: false,
+  }),
+}))
+
+let mockHasSubscriptionsView = true
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: () => mockHasSubscriptionsView,
   }),
 }))
 
@@ -19,6 +28,7 @@ const renderComponent = (value?: string, mocks: TestMocksType = []) =>
 describe('FiltersItemSubscription', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasSubscriptionsView = true
   })
 
   describe('GIVEN no initial value', () => {
@@ -32,12 +42,35 @@ describe('FiltersItemSubscription', () => {
   })
 
   describe('GIVEN a value stored before the filter was a combobox', () => {
-    it('THEN renders the combobox without crashing', async () => {
+    it('THEN shows the raw id as the selection', async () => {
       renderComponent('sub_ext_1')
 
       await waitFor(() => {
-        expect(screen.getByRole('combobox')).toBeInTheDocument()
+        expect(screen.getByRole('combobox')).toHaveValue('sub_ext_1')
       })
+    })
+  })
+
+  describe('GIVEN a value picked from the combobox', () => {
+    it('THEN shows its label before any search runs', async () => {
+      renderComponent(`sub_ext_1${filterDataInlineSeparator}sub_ext_1 - Acme`)
+
+      await waitFor(() => {
+        expect(screen.getByRole('combobox')).toHaveValue('sub_ext_1 - Acme')
+      })
+    })
+  })
+
+  describe('GIVEN a member without the subscriptions view permission', () => {
+    it('THEN falls back to a text input holding the external id', async () => {
+      mockHasSubscriptionsView = false
+
+      renderComponent(`sub_ext_1${filterDataInlineSeparator}sub_ext_1 - Acme`)
+
+      await waitFor(() => {
+        expect(screen.getByRole('textbox')).toHaveValue('sub_ext_1')
+      })
+      expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
     })
   })
 })

@@ -57,7 +57,8 @@ type AreaChartProps = {
   data: AreaChartDataType[]
   loading?: boolean
   hasOnlyZeroValues?: boolean
-  currency: CurrencyEnum
+  // Only formats values when there is no `valueFormatter`.
+  currency?: CurrencyEnum
   valueFormatter?: (value: number) => string
   height?: number
   tickFontSize?: number
@@ -66,7 +67,7 @@ type AreaChartProps = {
 const AreaChart = memo(
   ({
     blur,
-    currency,
+    currency = CurrencyEnum.Usd,
     valueFormatter,
     data,
     hasOnlyZeroValues,

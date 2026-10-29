@@ -10,6 +10,10 @@ import { keyWithPrefix, RealtimeUsageBillableMetricAvailableFilters } from '~/co
 import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
+import {
+  RealtimeUsageFetchingContext,
+  useReportFetching,
+} from '~/components/realtimeUsage/RealtimeUsageFetchingContext'
 import { useHeldData } from '~/components/realtimeUsage/useHeldData'
 import { formatUnits } from '~/components/realtimeUsage/utils'
 import { REALTIME_USAGE_FILTER_PREFIX } from '~/core/constants/filters'
@@ -61,7 +65,8 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { billableMetricCode = '' } = useParams()
-  const { filters, dimensionKeys, now, refresh, isEnabled } = useRealtimeUsageFilters()
+  const { filters, dimensionKeys, now, refresh, reportFetching, isEnabled } =
+    useRealtimeUsageFilters()
 
   const queryVariables = { ...filters, billableMetricCode, dimensionKeys }
 
@@ -76,6 +81,8 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
     context: { silentError: true },
   })
   const { data } = useHeldData(servedData, heldKeyOf(queryVariables), !!error)
+
+  useReportFetching(loading, reportFetching)
 
   const report = data?.realtimeUsageBillableMetric
   const title = report?.billableMetricName || billableMetricCode
@@ -166,7 +173,9 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
             />
           </div>
 
-          {renderContent()}
+          <RealtimeUsageFetchingContext.Provider value={reportFetching}>
+            {renderContent()}
+          </RealtimeUsageFetchingContext.Provider>
         </div>
       </FullscreenPage.Wrapper>
     </>

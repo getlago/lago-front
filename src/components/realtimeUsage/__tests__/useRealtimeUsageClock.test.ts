@@ -114,6 +114,39 @@ describe('useRealtimeUsageClock', () => {
       expect(result.current.now.toMillis()).toBe(START + 60_000)
     })
 
+    describe('WHEN a read is still in flight', () => {
+      it('THEN waits for it to settle before the next interval starts', () => {
+        const { result } = renderHook(() => useRealtimeUsageClock({ autoRefreshSeconds: 5 }))
+
+        act(() => result.current.reportFetching('events', true))
+        advance(60_000)
+        expect(result.current.now.toMillis()).toBe(START)
+
+        act(() => result.current.reportFetching('events', false))
+        advance(4999)
+        expect(result.current.now.toMillis()).toBe(START)
+
+        advance(1)
+        expect(result.current.now.toMillis()).toBe(START + 65_000)
+      })
+
+      it('THEN waits for every reported read', () => {
+        const { result } = renderHook(() => useRealtimeUsageClock({ autoRefreshSeconds: 5 }))
+
+        act(() => {
+          result.current.reportFetching('events', true)
+          result.current.reportFetching('metrics', true)
+        })
+        act(() => result.current.reportFetching('events', false))
+        advance(10_000)
+        expect(result.current.now.toMillis()).toBe(START)
+
+        act(() => result.current.reportFetching('metrics', false))
+        advance(5000)
+        expect(result.current.now.toMillis()).toBe(START + 15_000)
+      })
+    })
+
     it('THEN stops ticking once turned off', () => {
       const { result, rerender } = renderHook(
         ({ autoRefreshSeconds }) => useRealtimeUsageClock({ autoRefreshSeconds }),

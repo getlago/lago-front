@@ -10,6 +10,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { keyWithPrefix } from '~/components/Filters/graphql/utils'
 import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
+import { useReportFetching } from '~/components/realtimeUsage/RealtimeUsageFetchingContext'
 import { useHeldData } from '~/components/realtimeUsage/useHeldData'
 import { formatUnits } from '~/components/realtimeUsage/utils'
 import { REALTIME_USAGE_FILTER_PREFIX } from '~/core/constants/filters'
@@ -93,6 +94,8 @@ export const RealtimeUsageBillableMetricsSection = ({
     context: { silentError: true },
   })
   const { data, isHeld } = useHeldData(servedData, heldKeyOf(variables), !!error)
+
+  useReportFetching(loading)
 
   const reports = data?.realtimeUsageBillableMetrics.collection || []
   const metadata = data?.realtimeUsageBillableMetrics.metadata

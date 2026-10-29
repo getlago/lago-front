@@ -2,8 +2,6 @@ import { useState } from 'react'
 
 type HeldData<T> = { key: string; data: T }
 
-// A refresh changes the window, which clears `data` until it is served: keep showing the last
-// data served for the same `key` meanwhile, but never past a failed request.
 export const useHeldData = <T>(
   data: T | undefined,
   key: string,

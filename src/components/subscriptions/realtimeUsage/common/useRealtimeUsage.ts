@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { useMemo, useState } from 'react'
 
+import { useReportFetching } from '~/components/realtimeUsage/RealtimeUsageFetchingContext'
 import { useHeldData } from '~/components/realtimeUsage/useHeldData'
 import { useRealtimeUsageClock } from '~/components/realtimeUsage/useRealtimeUsageClock'
 import { windowStartOf } from '~/components/realtimeUsage/utils'
@@ -115,7 +116,7 @@ export const useRealtimeUsage = (subscriptionId: string): RealtimeUsageState => 
   const selectedChargeId = selectedCharge?.id || ''
   const timezone = subscriptionData?.subscription?.customer.applicableTimezone || TimezoneEnum.TzUtc
 
-  const { now } = useRealtimeUsageClock({
+  const { now, reportFetching } = useRealtimeUsageClock({
     autoRefreshSeconds,
     resetKey: `${selectedChargeId}-${windowInHours}`,
     hourlyTimezone: timezone,
@@ -135,6 +136,8 @@ export const useRealtimeUsage = (subscriptionId: string): RealtimeUsageState => 
   const servedData = data?.subscriptionHourlyUsage
   // Held across a window change too, so the columns rescale from the hours on screen.
   const { data: usage, isHeld } = useHeldData(servedData, selectedChargeId, !!error)
+
+  useReportFetching(loading, reportFetching)
 
   return {
     charges,

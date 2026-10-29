@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router'
 import { formatFiltersForQuery } from '~/components/Filters/graphql/utils'
 import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
 import { TIME_RANGE_HOURS } from '~/components/realtimeUsage/constants'
+import { ReportFetching } from '~/components/realtimeUsage/RealtimeUsageFetchingContext'
 import { useRealtimeUsageClock } from '~/components/realtimeUsage/useRealtimeUsageClock'
 import { isTimeRangePreset, windowStartOf } from '~/components/realtimeUsage/utils'
 import { REALTIME_USAGE_FILTER_PREFIX } from '~/core/constants/filters'
@@ -17,6 +18,7 @@ type UseRealtimeUsageFilters = () => {
   dimensionKeys?: string[]
   now: DateTime
   refresh: () => void
+  reportFetching: ReportFetching
   isEnabled: boolean
 }
 
@@ -29,7 +31,7 @@ export const useRealtimeUsageFilters: UseRealtimeUsageFilters = () => {
 
   resetParams.delete('page')
 
-  const { now, tick } = useRealtimeUsageClock({
+  const { now, tick, reportFetching } = useRealtimeUsageClock({
     autoRefreshSeconds,
     resetKey: resetParams.toString(),
   })
@@ -77,6 +79,7 @@ export const useRealtimeUsageFilters: UseRealtimeUsageFilters = () => {
     dimensionKeys: dimensionKeys?.length ? dimensionKeys : undefined,
     now,
     refresh: tick,
+    reportFetching,
     isEnabled: !!organization?.realtimeUsageEnabled,
   }
 }
