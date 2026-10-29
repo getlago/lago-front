@@ -14,6 +14,7 @@ import { ComboboxItem } from '~/components/form'
 import { ComboBox } from '~/components/form/ComboBox/ComboBox'
 import { MUI_INPUT_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
 import {
   type AddOnForPricingSectionFragment,
@@ -427,9 +428,12 @@ const AddOnSelectionContent = withForm({
                         {addOn.name}
                       </Typography>
                       <Typography variant="caption" color="grey600" noWrap>
-                        {intlFormatNumber(addOn.amountCents / 100, {
-                          currency: addOn.amountCurrency,
-                        })}
+                        {intlFormatNumber(
+                          deserializeAmount(addOn.amountCents, addOn.amountCurrency),
+                          {
+                            currency: addOn.amountCurrency,
+                          },
+                        )}
                       </Typography>
                     </ComboboxItem>
                   ),
@@ -476,7 +480,9 @@ const AddOnSelectionContent = withForm({
                   )
                   form.setFieldValue(
                     `addOnItems[${index}].unitAmountCents`,
-                    addOn.amountCents ? String(Number.parseFloat(addOn.amountCents) / 100) : '',
+                    addOn.amountCents
+                      ? String(deserializeAmount(addOn.amountCents, addOn.amountCurrency))
+                      : '',
                   )
                   form.setFieldValue(`addOnItems[${index}].code`, addOn.code)
                   form.setFieldValue(`addOnItems[${index}].description`, addOn.description ?? '')

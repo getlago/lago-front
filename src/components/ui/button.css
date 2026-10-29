@@ -31,7 +31,7 @@
 .v2-button[data-variant='secondary']:focus-visible,
 .v2-button[data-variant='secondary'][data-loading='true'],
 .v2-button[data-variant='secondary']:not([aria-disabled='true']):hover {
-  --v2-button-background: var(--color-surface-inset);
+  --v2-button-background: var(--color-surface-subtle);
 }
 .v2-button[data-variant='outline'] {
   --v2-button-background: var(--color-surface);

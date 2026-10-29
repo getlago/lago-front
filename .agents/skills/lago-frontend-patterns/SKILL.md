@@ -23,6 +23,7 @@ than one PR.
 | Forms (new TanStack forms) | `references/forms.md` |
 | Dialogs | `references/dialogs.md` |
 | Drawers | `references/drawers.md` |
+| MainHeader actions & tabs (`MainHeader.Configure`, `snapshotKey`) | `references/main-header.md` |
 | Icons, logos & brand assets | `references/icons-and-logos.md` |
 | ComboBox width & focus/open behavior | `references/combobox-width-and-focus.md` |
 | Filters framework internals | `references/filters-framework-internals.md` |

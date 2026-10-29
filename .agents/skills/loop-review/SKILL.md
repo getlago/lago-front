@@ -28,9 +28,10 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    pnpm lint && pnpm types && pnpm translations:inspect && pnpm translations:ensure-consistency
    <front>/scripts/diff-hygiene.sh <base> <worktree> <state dir>/plan.md   # every added comment declared, none in a refused position
    <front>/scripts/loop-plan-check.sh <worktree> <state dir>/plan.md <base>   # new files / exports outside plan.md, exports nothing imports
+   <front>/scripts/pattern-preflight.sh <base> <worktree>   # documented patterns the diff touches, with their reference
    ```
 
-   `loop-plan-check.sh` exit 3 means new files/exports exist and plan.md declares them: each declared item is a question for check 2 below, and loop-run runs the adversarial pass on the same signal. Exit 1 (undeclared, or `unused-export:`) should not survive the build gate; if it does, it is a FAIL issue tagged `[gate:plan]`.
+   `loop-plan-check.sh` exit 3 means new files/exports exist and plan.md declares them: each declared item is a question for check 2 below, and loop-run runs the adversarial pass on the same signal. Exit 1 (undeclared, or `unused-export:`) should not survive the build gate; if it does, it is a FAIL issue tagged `[gate:plan]`. `pattern-preflight.sh` exit 3 is input to check 3: each listed item the code does not follow, with no plan.md `## Deviations` line, is a FAIL issue tagged `[gate:patterns]`.
 
 3. **The whole diff first**: read spec.md `## Ticket` and `## Acceptance criteria`, then the diff end to end, and answer before any check: does this diff, as a whole, make sense for the ticket's objective, and is it the smallest change that meets the criteria? A diff can pass every check below and still miss the point, or solve around a premise spec.md marked `unverified` — both are FAIL issues.
 
@@ -43,6 +44,7 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    4. **Conventions and translations**: neighboring code style, `.agents/docs/frontend-coding-styleguide.md`, codegen output consistent; new keys in `translations/base.json` only where no existing label fit (search for one), no dead keys.
    5. **Tests exist and test the branch**: make-tests output is in the diff; no fixture default switches off the branch a test claims to cover (`.agents/docs/testing-practices.md` → "Fixture Defaults"); with more than one navigating path, assertions pin the destination with `toHaveBeenCalledWith` and assert the routes NOT taken; every callback the component passes to a mocked hook (`onCompleted`, `onError`, ...) is captured and invoked.
    6. **Follow the calls out of the diff**: when the diff passes an existing hook/util an argument that used to be constant, open that implementation and verify it honours it; when it reuses a form component on a new surface, walk every optional callback prop the new caller omits and name the user action that omission disables; when it redirects to a route constant, confirm the tab it resolves to; for each persisted field, state what the read path puts back and what the next save sends.
+   - Each existing shared file the diff modifies (design system, `src/components/Filters`, `src/hooks`, `src/core`, layouts): list its callers on `<base>` (`git grep -lwF -e '<export>' <base> -- src`) and name the behaviour each relies on that the diff changes. A changed caller the spec does not cover is a FAIL issue.
    7. **Declared comments earn their category, and nothing is left behind**: `diff-hygiene.sh` already refused undeclared and mis-positioned comments; read only plan.md `## Comments kept` and FAIL any line whose comment does not do what its category claims — a `constraint` with no identifier a reader could grep, a `why-not` where the alternative was never viable, a `trap` nothing actually trips — or that justifies the diff or answers a review round. No dead code (unused exports are `loop-plan-check.sh`'s).
    <!-- checks:end -->
 
@@ -77,5 +79,6 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
 
 - Review is read-only on the code: never fix issues yourself, only report them.
 - Uncertain whether something is a real problem → it is not an issue; note it as a remark below the Issues list instead.
+- Before writing `review.md`, re-open every issue's `file:line` in the worktree and confirm it still holds. Drop the ones that do not, each with a one-line reason under the remarks.
 - Never fetch Linear or Notion. Never run the full jest suite.
 - **Two communication registers**: messages to humans (chat report, notifications) = short, direct, plain language, no deep-tech jargon. Internal state files (spec.md, review.md, histories, working notes) = written for the AI of a later iteration: dense, precise, full paths/symbols/error strings — optimize for machine effectiveness, not human readability.
