@@ -30,6 +30,12 @@
       "dependencyDashboardApproval": true
     },
     {
+      "description": "The production build image (ghcr.io/getlago/lago-front-build, Dockerfile BUILD_IMAGE) is pinned to the nodejs-24 line in getlago/lago-packages. A Node major must move that image, engines.node, Dockerfile.dev and @types/node together, so park it on the dependency dashboard until lago-packages ships the matching build image.",
+      "matchPackageNames": ["node", "@types/node"],
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    },
+    {
       "matchDepTypes": ["overrides", "pnpm.overrides"],
       "enabled": false,
       "description": "Disable updates for pnpm overrides used to pin transitive security patches"
