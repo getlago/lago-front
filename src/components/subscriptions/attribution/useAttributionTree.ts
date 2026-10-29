@@ -118,6 +118,7 @@ export const useAttributionTree = ({
       level: AttributionLevel,
       path: AttributionPathStep[],
       page: number,
+      silentError = false,
     ): Promise<AttributionTreeUsage> => {
       const latestVariables = latestParamsRef.current.variables
       const filters = mergeAttributionFilters(
@@ -137,6 +138,7 @@ export const useAttributionTree = ({
           page,
         },
         fetchPolicy: 'no-cache',
+        context: { silentError },
       })
 
       return data.attributedUsage
@@ -149,9 +151,12 @@ export const useAttributionTree = ({
       level: AttributionLevel,
       path: AttributionPathStep[],
       pageCount: number,
+      silentError: boolean,
     ): Promise<AttributionTreeUsage> => {
       const pages = await Promise.all(
-        Array.from({ length: pageCount }, (_, index) => fetchUsage(level, path, index + 1)),
+        Array.from({ length: pageCount }, (_, index) =>
+          fetchUsage(level, path, index + 1, silentError),
+        ),
       )
 
       return { ...pages[pages.length - 1], rows: pages.flatMap(({ rows }) => rows) }
@@ -168,13 +173,15 @@ export const useAttributionTree = ({
       const key = getAttributionNodeKey(path)
       const generation = generationRef.current
       const levels = latestParamsRef.current.getChildLevels(parentCode)
+      // A failed root renders the tab's error placeholder, so only nested levels toast.
+      const isRoot = !path.length
 
       updateNodes((previous) => ({ ...previous, [key]: { status: 'loading' } }))
 
       try {
         const usages = await Promise.all(
           levels.map((level) =>
-            fetchUsagePages(level, path, pageCountByLevelCode?.[level.code] ?? 1),
+            fetchUsagePages(level, path, pageCountByLevelCode?.[level.code] ?? 1, isRoot),
           ),
         )
 
@@ -196,7 +203,8 @@ export const useAttributionTree = ({
         if (generation !== generationRef.current) return
 
         updateNodes((previous) => ({ ...previous, [key]: { status: 'error', error } }))
-        notifyAttributionError(error)
+
+        if (!isRoot) notifyAttributionError(error)
       }
     },
     [fetchUsagePages, updateNodes],

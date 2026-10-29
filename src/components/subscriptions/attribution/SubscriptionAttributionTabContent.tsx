@@ -202,6 +202,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     variables: { subscriptionId, limit: ATTRIBUTION_TYPES_LIMIT },
     skip: !subscriptionId,
     fetchPolicy: 'network-only',
+    context: { silentError: true },
   })
 
   const flatTypes = setupData?.flatAttributionTypes.collection ?? []
@@ -252,7 +253,9 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   const listByType = flatTypes.find((type) => type.code === listByCode)
   const fallbackGroupBy = flatTypes[0]?.code ?? rootTypes[0]?.code ?? ''
   const groupBy = listByType?.code ?? fallbackGroupBy
-  const isTreeMode = groupRowsBy === AttributionGroupByEnum.hierarchical && !!rootTypes.length
+  const hasHierarchy = !!rootTypes.length
+  const displayedGroupRowsBy = hasHierarchy ? groupRowsBy : AttributionGroupByEnum.flat
+  const isTreeMode = displayedGroupRowsBy === AttributionGroupByEnum.hierarchical
   const underType = hierarchy.types.find((type) => type.code === underCode) ?? hierarchy.deepestType
   const treeListBy =
     listByType && underType ? { flatType: listByType, underCode: underType.code } : null
@@ -299,6 +302,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     variables: usageVariables,
     skip: !groupBy || isTreeMode,
     notifyOnNetworkStatusChange: true,
+    context: { silentError: true },
   })
 
   const {
@@ -369,6 +373,8 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
 
     fetchMoreUsage({
       variables: { page: attributedUsage.metadata.currentPage + 1 },
+      // The query is silenced for its error placeholder, a failed next page has none.
+      context: { silentError: false },
       updateQuery: (previous, { fetchMoreResult }) => {
         // `fetchMore` merges into the query's variables at response time, not at request time.
         if (requestKey !== latestUsageRequestKeyRef.current || !fetchMoreResult?.attributedUsage) {
@@ -535,11 +541,12 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
         <div className="flex flex-wrap items-center gap-3">
           <AttributionToolbarSelect
             label={translate('text_1792668632005n1819nx39mn')}
-            value={groupRowsBy}
+            value={displayedGroupRowsBy}
             options={[
               {
                 value: AttributionGroupByEnum.hierarchical,
                 label: translate('text_1790230812563cibrddwcit4'),
+                disabled: !hasHierarchy,
               },
               {
                 value: AttributionGroupByEnum.flat,

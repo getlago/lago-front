@@ -84,7 +84,7 @@ export const SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID = 'subscription-details-term
 
 const SubscriptionDetails = () => {
   const navigate = useNavigate()
-  const { isPremium } = useCurrentUser()
+  const { isPremium, loading: isCurrentUserLoading } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const { canEditSubscription, canTerminateSubscription, isStatusEditable } =
     useSubscriptionPermissionsActions()
@@ -126,6 +126,7 @@ const SubscriptionDetails = () => {
   const shouldRedirectFromAttribution =
     currentTab === CustomerSubscriptionDetailsTabsOptionsEnum.attribution &&
     !isOrganizationInfosLoading &&
+    !isCurrentUserLoading &&
     !!subscription &&
     !canViewAttribution
 
