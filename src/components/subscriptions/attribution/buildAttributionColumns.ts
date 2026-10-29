@@ -21,6 +21,10 @@ export type AttributionColumn = {
   filterPage: number
 }
 
+export type AttributionChargesUsageByFilterPage = Array<
+  AttributionChargeUsageFragment[] | undefined
+>
+
 type AttributionColumnsResult = {
   columns: AttributionColumn[]
   hiddenColumnsCount: number
@@ -98,6 +102,16 @@ export const buildAttributionColumns = ({
     columns: [...firstPageFilterColumns, ...nextPagesFilterColumns, ...defaultColumns],
     hiddenColumnsCount: 0,
   }
+}
+
+export const getAttributionRowsChargesUsage = (
+  usages: { rows: { value: string; chargesUsage: AttributionChargeUsageFragment[] }[] }[],
+): ((value: string) => AttributionChargesUsageByFilterPage) => {
+  const chargesUsageByValue = usages.map(
+    ({ rows }) => new Map(rows.map(({ value, chargesUsage }) => [value, chargesUsage])),
+  )
+
+  return (value) => chargesUsageByValue.map((byValue) => byValue.get(value))
 }
 
 export const getAttributionCellUsage = (

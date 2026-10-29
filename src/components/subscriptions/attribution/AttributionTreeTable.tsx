@@ -12,6 +12,7 @@ import {
   AttributionValueCells,
 } from './AttributionFlatTable'
 import { AttributionLevel, AttributionPathStep, getAttributionNodeKey } from './attributionTree'
+import { getAttributionRowsChargesUsage } from './buildAttributionColumns'
 import { AttributionTreeBlock, AttributionTreeNodes } from './useAttributionTree'
 
 export const ATTRIBUTION_TREE_TABLE_TEST_ID = 'attribution-tree-table'
@@ -126,6 +127,7 @@ export const AttributionTreeTable = ({
   ): ReactNode => {
     const { level, usages } = block
     const [usage] = usages
+    const getRowChargesUsage = getAttributionRowsChargesUsage(usages)
 
     const toRow = (value: string | null): Pick<AttributionTreeRow, 'path' | 'nodeKey'> => {
       const rowPath = [...path, { code: level.code, value }]
@@ -145,9 +147,7 @@ export const AttributionTreeTable = ({
             isUnattributed: false,
             amountCents: row.amountCents,
             splitChargeUnits: row.splitChargeUnits,
-            chargesUsageByFilterPage: usages.map(
-              ({ rows }) => rows.find(({ value }) => value === row.value)?.chargesUsage ?? [],
-            ),
+            chargesUsageByFilterPage: getRowChargesUsage(row.value),
           }),
         )}
         {renderLoadMoreRow(block, path, blockIndex, depth, nodeKey)}

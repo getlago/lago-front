@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -45,6 +45,7 @@ import {
   AttributionGroupByEnum,
   buildAttributionColumns,
   getAttributionChargeLabel,
+  getAttributionRowsChargesUsage,
   isAttributionAmountAvailable,
   mergeAttributionChargesUsage,
   SPLIT_FILTERS_PER_PAGE,
@@ -303,6 +304,10 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   })
   const isExpanded = expandedResetKey === treeResetKey
 
+  useEffect(() => {
+    setExpandedResetKey(null)
+  }, [treeResetKey])
+
   const {
     nodes: treeNodes,
     isLoadingFilterPage,
@@ -394,6 +399,8 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
       ]
     }
 
+    const getRowChargesUsage = getAttributionRowsChargesUsage(rootBlock.usages)
+
     return [
       ...rootUsage.rows.map((row) => ({
         id: `value-${row.value}`,
@@ -402,9 +409,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
         isUnattributed: false,
         amountCents: row.amountCents,
         splitChargeUnits: row.splitChargeUnits,
-        chargesUsageByFilterPage: rootBlock.usages.map(
-          ({ rows }) => rows.find(({ value }) => value === row.value)?.chargesUsage ?? [],
-        ),
+        chargesUsageByFilterPage: getRowChargesUsage(row.value),
       })),
       {
         id: 'unattributed',
@@ -426,12 +431,17 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     if (!isExpanded) {
       if (!hiddenColumnsCount) return undefined
 
-      return { isLoading: false, onClick: () => setExpandedResetKey(treeResetKey) }
+      return { isExpanded: false, onClick: () => setExpandedResetKey(treeResetKey) }
     }
 
     if (!hasMoreFilterPages) return undefined
 
-    return { isLoading: isLoadingFilterPage, isDisabled: isTreeBusy, onClick: loadMoreFilterPage }
+    return {
+      isExpanded: true,
+      isLoading: isLoadingFilterPage,
+      isDisabled: isTreeBusy,
+      onClick: loadMoreFilterPage,
+    }
   }
 
   const renderErrorPlaceholder = (error?: unknown): JSX.Element => {

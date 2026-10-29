@@ -6,15 +6,12 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import {
-  AttributedUsageBasisEnum,
-  AttributionChargeUsageFragment,
-  CurrencyEnum,
-} from '~/generated/graphql'
+import { AttributedUsageBasisEnum, CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
 import {
+  AttributionChargesUsageByFilterPage,
   AttributionColumn,
   getAttributionCellUsage,
   getAttributionDisplayedValue,
@@ -37,14 +34,12 @@ export type AttributionTableRow = {
   isUnattributed: boolean
   amountCents?: string | null
   splitChargeUnits?: number | null
-  chargesUsageByFilterPage: AttributionChargeUsageFragment[][]
+  chargesUsageByFilterPage: AttributionChargesUsageByFilterPage
 }
 
-export type AttributionShowMoreColumns = {
-  isLoading: boolean
-  isDisabled?: boolean
-  onClick: () => void
-}
+export type AttributionShowMoreColumns = { onClick: () => void } & (
+  { isExpanded: false } | { isExpanded: true; isLoading: boolean; isDisabled: boolean }
+)
 
 export type AttributionTableSharedProps = {
   totals: Pick<AttributionTableRow, 'amountCents' | 'splitChargeUnits' | 'chargesUsageByFilterPage'>
@@ -296,8 +291,11 @@ export const AttributionTableLayout = ({
                     <Button
                       variant="inline"
                       size="small"
-                      loading={showMoreColumns.isLoading}
-                      disabled={showMoreColumns.isLoading || showMoreColumns.isDisabled}
+                      loading={showMoreColumns.isExpanded && showMoreColumns.isLoading}
+                      disabled={
+                        showMoreColumns.isExpanded &&
+                        (showMoreColumns.isLoading || showMoreColumns.isDisabled)
+                      }
                       onClick={showMoreColumns.onClick}
                       data-test={ATTRIBUTION_SHOW_MORE_TEST_ID}
                     >

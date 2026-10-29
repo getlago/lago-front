@@ -126,6 +126,7 @@ const rootBlockOf = (code: string, chargesUsage: AttributionChargeUsageFragment[
     },
   ],
   isLoadingMore: false,
+  isLoadingFilterPages: false,
 })
 
 const flatTypes = [
@@ -1050,6 +1051,7 @@ describe('SubscriptionAttributionTabContent', () => {
         },
       })),
       isLoadingMore: false,
+      isLoadingFilterPages: false,
     })
 
     const firstPageModels = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9', 'm10']
@@ -1084,6 +1086,19 @@ describe('SubscriptionAttributionTabContent', () => {
 
         expect(mockLoadMoreFilterPage).not.toHaveBeenCalled()
         expect(getHeaderLabels().slice(1, -1)).toEqual([...firstPageModels, expect.any(String)])
+      })
+    })
+
+    describe('WHEN the toolbar changes and comes back after expanding the columns', () => {
+      it('THEN should collapse the columns again', async () => {
+        const user = await renderSplit()
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+        await selectOptionByValue(user, ATTRIBUTION_SHOW_TEST_ID, AttributedUsageBasisEnum.Amount)
+        await selectOptionByValue(user, ATTRIBUTION_SHOW_TEST_ID, AttributedUsageBasisEnum.Units)
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+
+        expect(mockLoadMoreFilterPage).not.toHaveBeenCalled()
       })
     })
 

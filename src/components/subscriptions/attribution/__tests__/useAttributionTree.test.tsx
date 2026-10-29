@@ -92,13 +92,13 @@ describe('useAttributionTree', () => {
   })
 
   describe('GIVEN the tree mounts', () => {
-    it('THEN should load the root levels without filters', async () => {
+    it('THEN should load the root levels without filters, reading the cache first', async () => {
       const { result } = await renderLoadedTree()
 
       expect(mockQuery).toHaveBeenCalledTimes(1)
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
-          fetchPolicy: 'no-cache',
+          fetchPolicy: 'cache-first',
           variables: { ...variables, groupBy: 'department', filters: undefined, page: 1 },
         }),
       )
@@ -372,6 +372,34 @@ describe('useAttributionTree', () => {
 
       expect(result.current.nodes[RND_KEY]).toEqual(expect.objectContaining({ isExpanded: true }))
       expect(mockQuery).toHaveBeenCalledTimes(3)
+      expect(mockQuery.mock.calls.map(([options]) => options.fetchPolicy)).toEqual([
+        'network-only',
+        'network-only',
+        'network-only',
+      ])
+    })
+
+    it('THEN should not reload an expanded node hidden under a collapsed one', async () => {
+      const ENG_KEY = getAttributionNodeKey([...rndPath, { code: 'team', value: 'eng' }])
+      const { result } = await renderLoadedTree()
+
+      mockQuery
+        .mockReturnValueOnce(resolveUsage(buildUsage(['eng'])))
+        .mockReturnValueOnce(resolveUsage(buildUsage(['cc-1'])))
+      act(() => result.current.toggleNode(rndPath, 'department'))
+      await waitFor(() => expect(result.current.nodes[RND_KEY]?.status).toBe('loaded'))
+
+      mockQuery.mockReturnValue(resolveUsage(buildUsage(['x'])))
+      act(() => result.current.toggleNode([...rndPath, { code: 'team', value: 'eng' }], 'team'))
+      await waitFor(() => expect(result.current.nodes[ENG_KEY]?.status).toBe('loaded'))
+      act(() => result.current.toggleNode(rndPath, 'department'))
+      mockQuery.mockClear()
+
+      await act(async () => result.current.refresh())
+      await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+
+      expect(mockQuery).toHaveBeenCalledTimes(1)
+      expect(result.current.nodes[ENG_KEY]).toBeUndefined()
     })
 
     it('THEN should refetch every page a level had loaded', async () => {
@@ -532,7 +560,7 @@ describe('useAttributionTree', () => {
         ])
       })
 
-      it('THEN should also fetch it for a collapsed node and keep that node loaded', async () => {
+      it('THEN should skip a collapsed node and fetch its missing page once it is expanded', async () => {
         const { result } = await renderExpandedTree()
 
         act(() => result.current.toggleNode(rndPath, 'department'))
@@ -540,11 +568,20 @@ describe('useAttributionTree', () => {
 
         await act(async () => result.current.loadMoreFilterPage())
 
-        expect(mockQuery).toHaveBeenCalledTimes(3)
-        expect(result.current.nodes[RND_KEY]).toEqual(
-          expect.objectContaining({ status: 'loaded', isExpanded: false }),
+        expect(mockQuery).toHaveBeenCalledTimes(1)
+        expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([1, 1])
+
+        mockQuery.mockClear()
+
+        act(() => result.current.toggleNode(rndPath, 'department'))
+        await waitFor(() =>
+          expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([2, 2]),
         )
-        expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([2, 2])
+
+        expect(getCalls()).toEqual([
+          expect.objectContaining({ groupBy: 'team', splitFiltersOffset: OFFSET_PAGE_2 }),
+          expect.objectContaining({ groupBy: 'cost_center', splitFiltersOffset: OFFSET_PAGE_2 }),
+        ])
       })
 
       it('THEN should keep the loaded filter pages while a block has not received the new one', async () => {
@@ -578,6 +615,7 @@ describe('useAttributionTree', () => {
 
         mockQuery.mockReturnValue(new Promise(() => undefined))
         act(() => result.current.toggleNode(rndPath, 'department'))
+        await waitFor(() => expect(mockQuery).toHaveBeenCalledTimes(3))
         mockQuery.mockClear()
 
         await act(async () => result.current.loadMoreFilterPage())
@@ -601,34 +639,83 @@ describe('useAttributionTree', () => {
         expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([1, 1])
       })
 
-      it('THEN should ignore the late responses of the failed attempt on retry', async () => {
+      it('THEN should drop the late page of the failed attempt and load a fresh one on retry', async () => {
         const { result } = await renderExpandedTree()
 
         let resolveStale: (value: unknown) => void = () => undefined
-        let resolveFresh: (value: unknown) => void = () => undefined
 
         mockQuery
           .mockRejectedValueOnce(new Error('network'))
           .mockReturnValueOnce(new Promise((resolve) => (resolveStale = resolve)))
           .mockReturnValueOnce(resolveUsage(buildUsage(['cc-1'])))
 
-        await act(async () => result.current.loadMoreFilterPage())
-
-        mockQuery
-          .mockReturnValueOnce(resolveUsage(buildUsage(['rnd'])))
-          .mockReturnValueOnce(new Promise((resolve) => (resolveFresh = resolve)))
-          .mockReturnValueOnce(resolveUsage(buildUsage(['cc-1'])))
-
         act(() => {
           result.current.loadMoreFilterPage()
         })
-
+        await waitFor(() =>
+          expect(getBlockFilterPagesCounts(result.current.nodes, ROOT_KEY)).toEqual([1]),
+        )
         await act(async () => resolveStale({ data: { attributedUsage: buildUsage(['stale']) } }))
-        await act(async () => resolveFresh({ data: { attributedUsage: buildUsage(['fresh']) } }))
+
+        expect(result.current.isLoadingFilterPage).toBe(false)
+        expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([1, 1])
+
+        mockQuery
+          .mockReturnValueOnce(resolveUsage(buildUsage(['rnd'])))
+          .mockReturnValueOnce(resolveUsage(buildUsage(['fresh'])))
+          .mockReturnValueOnce(resolveUsage(buildUsage(['cc-1'])))
+
+        await act(async () => result.current.loadMoreFilterPage())
 
         const rnd = result.current.nodes[RND_KEY]
 
         expect(rnd?.status === 'loaded' && rnd.blocks[0].usages[1].rows[0].value).toBe('fresh')
+      })
+
+      it('THEN should keep a node expanded during the failed attempt on the rolled back count', async () => {
+        const { result } = await renderLoadedTree()
+
+        let rejectRootPage: (reason: unknown) => void = () => undefined
+
+        mockQuery.mockReturnValueOnce(new Promise((_, reject) => (rejectRootPage = reject)))
+        act(() => {
+          result.current.loadMoreFilterPage()
+        })
+        await waitFor(() => expect(mockQuery).toHaveBeenCalledTimes(2))
+
+        mockQuery.mockReturnValue(resolveUsage(buildUsage(['eng'])))
+        act(() => result.current.toggleNode(rndPath, 'department'))
+        await waitFor(() => expect(result.current.nodes[RND_KEY]?.status).toBe('loaded'))
+        await act(async () => rejectRootPage(new Error('network')))
+
+        expect(getBlockFilterPagesCounts(result.current.nodes, ROOT_KEY)).toEqual([1])
+        expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([1, 1])
+      })
+    })
+
+    describe('WHEN many requests start at once', () => {
+      it('THEN should run at most six of them in parallel', async () => {
+        const manyLevels = Array.from({ length: 8 }, (_, index) => ({
+          code: `level_${index}`,
+          name: `Level ${index}`,
+          isLeaf: true,
+        }))
+        const resolvers: Array<(value: unknown) => void> = []
+
+        manyLevels.forEach(() =>
+          mockQuery.mockReturnValueOnce(new Promise((resolve) => resolvers.push(resolve))),
+        )
+        renderTree({ getChildLevels: () => manyLevels })
+
+        await waitFor(() => expect(mockQuery).toHaveBeenCalledTimes(6))
+        await act(async () => resolvers[0]({ data: { attributedUsage: buildUsage([]) } }))
+
+        expect(mockQuery).toHaveBeenCalledTimes(7)
+
+        await act(async () =>
+          resolvers.forEach((resolve) => resolve({ data: { attributedUsage: buildUsage([]) } })),
+        )
+        await waitFor(() => expect(mockQuery).toHaveBeenCalledTimes(8))
       })
     })
 

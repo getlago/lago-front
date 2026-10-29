@@ -196,7 +196,7 @@ describe('AttributionFlatTable', () => {
         renderTable({
           columns: splitColumns,
           chargeLabel: 'Tokens',
-          showMoreColumns: { isLoading: false, onClick },
+          showMoreColumns: { isExpanded: false, onClick },
         })
 
         await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
@@ -205,8 +205,8 @@ describe('AttributionFlatTable', () => {
       })
 
       it.each([
-        ['loading', { isLoading: true }],
-        ['disabled', { isLoading: false, isDisabled: true }],
+        ['loading', { isExpanded: true as const, isLoading: true, isDisabled: false }],
+        ['disabled', { isExpanded: true as const, isLoading: false, isDisabled: true }],
       ])('THEN should disable it while %s', (_, state) => {
         renderTable({
           columns: splitColumns,

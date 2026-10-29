@@ -11,6 +11,7 @@ import {
   getAttributionCellUsage,
   getAttributionChargeLabel,
   getAttributionDisplayedValue,
+  getAttributionRowsChargesUsage,
   getAttributionTotalUsage,
   isAttributionAmountAvailable,
 } from '../buildAttributionColumns'
@@ -393,6 +394,33 @@ describe('isAttributionAmountAvailable', () => {
   describe('GIVEN no charge', () => {
     it('THEN should not allow the amount basis', () => {
       expect(isAttributionAmountAvailable([])).toBe(false)
+    })
+  })
+})
+
+describe('getAttributionRowsChargesUsage', () => {
+  const opusUsage = [createChargeUsage({ units: 3 })]
+  const sonnetUsage = [createChargeUsage({ units: 5 })]
+
+  describe('GIVEN a row present on every filter page', () => {
+    it('THEN should return its charges usage page by page', () => {
+      const getRowChargesUsage = getAttributionRowsChargesUsage([
+        { rows: [{ value: 'rnd', chargesUsage: opusUsage }] },
+        { rows: [{ value: 'rnd', chargesUsage: sonnetUsage }] },
+      ])
+
+      expect(getRowChargesUsage('rnd')).toEqual([opusUsage, sonnetUsage])
+    })
+  })
+
+  describe('GIVEN a row missing from a filter page', () => {
+    it('THEN should leave that page undefined', () => {
+      const getRowChargesUsage = getAttributionRowsChargesUsage([
+        { rows: [{ value: 'rnd', chargesUsage: opusUsage }] },
+        { rows: [{ value: 'gtm', chargesUsage: sonnetUsage }] },
+      ])
+
+      expect(getRowChargesUsage('rnd')).toEqual([opusUsage, undefined])
     })
   })
 })

@@ -52,7 +52,14 @@ const rootNodes = (usage = buildUsage(['rnd', 'gtm'])): AttributionTreeNodes => 
   [ROOT_KEY]: {
     status: 'loaded',
     isExpanded: true,
-    blocks: [{ level: departmentLevel, usages: [usage], isLoadingMore: false }],
+    blocks: [
+      {
+        level: departmentLevel,
+        usages: [usage],
+        isLoadingMore: false,
+        isLoadingFilterPages: false,
+      },
+    ],
   },
 })
 
@@ -133,7 +140,14 @@ describe('AttributionTreeTable', () => {
         [RND_KEY]: {
           status: 'loaded',
           isExpanded,
-          blocks: [{ level: apiKeyLevel, usages: [buildUsage([])], isLoadingMore: false }],
+          blocks: [
+            {
+              level: apiKeyLevel,
+              usages: [buildUsage([])],
+              isLoadingMore: false,
+              isLoadingFilterPages: false,
+            },
+          ],
         },
       })
 
@@ -194,6 +208,7 @@ describe('AttributionTreeTable', () => {
             level: apiKeyLevel,
             usages: [buildUsage(['k_live_ab12'], { totalPages: 2 })],
             isLoadingMore: false,
+            isLoadingFilterPages: false,
           },
         ],
       },
@@ -254,6 +269,7 @@ describe('AttributionTreeTable', () => {
                 level: levelOf(index),
                 usages: [buildUsage([`value_${index}`])],
                 isLoadingMore: false,
+                isLoadingFilterPages: false,
               },
             ],
           },
@@ -279,7 +295,12 @@ describe('AttributionTreeTable', () => {
           status: 'loaded',
           isExpanded: false,
           blocks: [
-            { level: apiKeyLevel, usages: [buildUsage(['k_live_ab12'])], isLoadingMore: false },
+            {
+              level: apiKeyLevel,
+              usages: [buildUsage(['k_live_ab12'])],
+              isLoadingMore: false,
+              isLoadingFilterPages: false,
+            },
           ],
         },
       })
@@ -299,6 +320,7 @@ describe('AttributionTreeTable', () => {
               level: departmentLevel,
               usages: [buildUsage(['rnd'], { totalPages: 2 })],
               isLoadingMore: true,
+              isLoadingFilterPages: false,
             },
           ],
         },
@@ -362,7 +384,9 @@ describe('AttributionTreeTable', () => {
       [ROOT_KEY]: {
         status: 'loaded',
         isExpanded: true,
-        blocks: [{ level: departmentLevel, usages, isLoadingMore: false }],
+        blocks: [
+          { level: departmentLevel, usages, isLoadingMore: false, isLoadingFilterPages: false },
+        ],
       },
     })
 
