@@ -162,8 +162,8 @@ describe('formatSpendingMinimum', () => {
     minAmountCents,
   })
 
-  it('GIVEN no minimum THEN returns a dash', () => {
-    expect(formatSpendingMinimum(rateWithMinimum('0'), CurrencyEnum.Usd, undefined)).toBe('-')
+  it('GIVEN no minimum THEN formats zero in the currency', () => {
+    expect(formatSpendingMinimum(rateWithMinimum('0'), CurrencyEnum.Usd, undefined)).toBe('$0.00')
   })
 
   it('GIVEN a minimum in cents THEN formats it in the currency', () => {

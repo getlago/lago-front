@@ -231,12 +231,14 @@ describe('RatePhaseTable', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('GIVEN no spending minimum THEN the panel shows a dash, not a zero amount', async () => {
+  it('GIVEN no spending minimum THEN the panel shows a zero amount', async () => {
     renderTable([foreverPhase])
 
     await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
 
-    expect(screen.getByTestId(RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID).textContent).toBe('-')
+    expect(screen.getByTestId(RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID).textContent).toBe(
+      '$0.00',
+    )
   })
 
   it('GIVEN an overridden phase WHEN its actions open THEN edit, revert and delete call back with its index', async () => {

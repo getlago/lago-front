@@ -78,10 +78,7 @@ export const formatSpendingMinimum = (
   currency: CurrencyEnum,
   pricingUnitShortName: string | undefined,
 ): string => {
-  // A rate saved without one stores 0, which would read as a configured zero floor.
   const minAmountCents = Number(rate.minAmountCents ?? 0)
-
-  if (minAmountCents <= 0) return '-'
 
   return intlFormatNumber(deserializeAmount(minAmountCents, currency), {
     currencyDisplay: 'symbol',

@@ -183,7 +183,7 @@ describe('RatePhaseDetailsOverview', () => {
       screen.queryByTestId(RATE_PHASE_OVERVIEW_SEE_ACTIVE_RATE_TEST_ID),
     ).not.toBeInTheDocument()
     expect(screen.queryByTestId(RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID)).not.toBeInTheDocument()
-    expect(screen.getByTestId(RATE_PHASE_OVERVIEW_MIN_SPENDING_TEST_ID)).toHaveTextContent(/^-$/)
+    expect(screen.getByTestId(RATE_PHASE_OVERVIEW_MIN_SPENDING_TEST_ID)).toHaveTextContent('$0.00')
   })
 
   it('GIVEN no override and no active rate THEN the rate section is absent', async () => {
