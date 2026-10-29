@@ -15,6 +15,7 @@ import {
 import { toXeroOption } from './toXeroOption'
 
 const ITEMS_LIMIT = 1000
+const NO_SEARCH_RESULTS: BasicComboBoxData[] = []
 
 type XeroFormType = MappableTypeEnum | MappingTypeEnum | undefined
 
@@ -92,9 +93,10 @@ export const useXeroIntegrationItemSearch = (
   formType: XeroFormType,
   integrationId: string | undefined,
 ): UseXeroIntegrationItemSearchReturn => {
-  const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined)
+  const [searchResults, setSearchResults] = useState<BasicComboBoxData[] | undefined>(undefined)
+  const latestSearchTermRef = useRef<string | undefined>(undefined)
 
-  const [rawSearchItems, { data, loading }] = useGetXeroIntegrationItemsLazyQuery()
+  const [rawSearchItems, { loading }] = useGetXeroIntegrationItemsLazyQuery()
 
   // useDebouncedSearch memoises the first `search` it is given, so everything that identifies the
   // query is read from the ref at call time: a value captured here would never be refreshed, and
@@ -106,13 +108,18 @@ export const useXeroIntegrationItemSearch = (
   const search = useCallback(
     (...args: Parameters<typeof rawSearchItems>): ReturnType<typeof rawSearchItems> | undefined => {
       const { integrationId: currentIntegrationId, itemType } = queryParamsRef.current
-      const currentSearchTerm = args[0]?.variables?.searchTerm ?? undefined
+      const searchTerm = args[0]?.variables?.searchTerm ?? undefined
 
-      setSearchTerm(currentSearchTerm)
+      latestSearchTermRef.current = searchTerm
 
       // Clearing the search falls back to the catalog the drawer already holds, so the 1000-item
       // query would only be run to throw its result away.
-      if (!currentIntegrationId || !currentSearchTerm) return undefined
+      if (!searchTerm) {
+        setSearchResults(undefined)
+        return undefined
+      }
+
+      if (!currentIntegrationId) return undefined
 
       return rawSearchItems({
         ...args[0],
@@ -122,14 +129,20 @@ export const useXeroIntegrationItemSearch = (
           integrationId: currentIntegrationId,
           itemType,
         },
+      }).then((result) => {
+        if (latestSearchTermRef.current === searchTerm) {
+          setSearchResults(toComboboxData(result.data))
+        }
+
+        return result
       })
     },
     [rawSearchItems],
   )
 
   return {
-    searchResults: useMemo(() => toComboboxData(data), [data]),
-    isSearching: !!searchTerm,
+    searchResults: searchResults ?? NO_SEARCH_RESULTS,
+    isSearching: !!searchResults,
     isLoading: loading,
     search: search as unknown as ComboBoxProps['searchQuery'],
   }

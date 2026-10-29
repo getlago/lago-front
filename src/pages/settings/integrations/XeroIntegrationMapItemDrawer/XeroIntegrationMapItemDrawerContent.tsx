@@ -18,8 +18,6 @@ type XeroIntegrationMapItemDrawerContentProps = Omit<
   integrationId: string | undefined
 }
 
-// `IntegrationMapItemDrawerContent` unmounts the non-selected billing entity tabs, so an items
-// query owned by the form wrapper re-runs on every tab switch.
 export const XeroIntegrationMapItemDrawerContent = ({
   formType,
   integrationId,

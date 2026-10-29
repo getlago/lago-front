@@ -237,4 +237,30 @@ describe('ComboBox', () => {
       expect(onChange).toHaveBeenCalledWith('custom')
     })
   })
+
+  describe('GIVEN a hidden option', () => {
+    it('WHEN the list opens THEN it is left out while still holding the value', async () => {
+      render(
+        <ComboBox
+          name="item"
+          data={[
+            { value: 'sales', label: 'Sales' },
+            { value: 'support', label: 'Support', hidden: true },
+          ]}
+          value="support"
+          onChange={jest.fn()}
+          virtualized={false}
+        />,
+      )
+
+      const input = screen.getByRole('combobox')
+
+      await userEvent.click(input)
+      await userEvent.keyboard('{ArrowDown}')
+
+      expect(input).toHaveValue('Support')
+      expect(await screen.findByRole('option', { name: /Sales/ })).toBeInTheDocument()
+      expect(screen.queryByRole('option', { name: /Support/ })).not.toBeInTheDocument()
+    })
+  })
 })

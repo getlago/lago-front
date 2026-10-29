@@ -23,7 +23,7 @@ jest.mock('~/components/form/ComboBox/ComboBox', () => {
     ComboBox: (props: ComboBoxProps) => {
       mockRenderedOptions(
         props.name,
-        (props.data || []).map((option) => option.label),
+        (props.data || []).filter(({ hidden }) => !hidden).map((option) => option.label),
       )
 
       return <actual.ComboBox {...props} virtualized={false} />
@@ -89,7 +89,10 @@ const settle = async (ms = 50): Promise<void> => {
   })
 }
 
-const renderDrawer = ({ seeded = false }: { seeded?: boolean } = {}) => {
+const renderDrawer = ({
+  seeded = false,
+  searchDelayMs = 0,
+}: { seeded?: boolean; searchDelayMs?: number } = {}) => {
   mockRenderedOptions.mockClear()
 
   const executedOperations = jest.fn()
@@ -107,12 +110,15 @@ const renderDrawer = ({ seeded = false }: { seeded?: boolean } = {}) => {
       )
 
       return new Observable((observer) => {
-        setTimeout(() => {
-          observer.next({
-            data: buildResponse(matching.map(toApiItem)),
-          })
-          observer.complete()
-        }, 0)
+        setTimeout(
+          () => {
+            observer.next({
+              data: buildResponse(matching.map(toApiItem)),
+            })
+            observer.complete()
+          },
+          searchTerm ? searchDelayMs : 0,
+        )
       })
     }),
     cache: new InMemoryCache(),
@@ -305,6 +311,36 @@ describe('XeroIntegrationMapItemDrawerContent', () => {
         await typeSearch(user, 'default', 'su')
 
         expect(executedOperations).toHaveBeenCalledTimes(2)
+      })
+
+      it('THEN should keep the list it shows until its own results arrive', async () => {
+        const { user } = renderDrawer({ seeded: true, searchDelayMs: 1000 })
+
+        await settle()
+        await typeSearch(user, 'default', 'support')
+
+        expect(lastOptionsFor('default')).toEqual([
+          'Sales (200)',
+          'Services (300)',
+          'Support (400)',
+        ])
+
+        await settle(1000)
+
+        expect(lastOptionsFor('default')).toEqual(['Support (400)'])
+      })
+
+      it('THEN should not list its stored mapping among the results of an unrelated term', async () => {
+        const { user } = renderDrawer({ seeded: true })
+
+        await settle()
+        await typeSearch(user, 'default', 'support')
+
+        expect(lastOptionsFor('default')).toEqual(['Support (400)'])
+
+        await user.tab()
+
+        expect(getInput('default')).toHaveValue('Sales (200)')
       })
 
       it('THEN should keep its own selection when no result matches', async () => {

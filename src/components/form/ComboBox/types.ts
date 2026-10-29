@@ -15,6 +15,8 @@ export interface BasicComboBoxData {
   labelNode?: ReactNode
   description?: string
   disabled?: boolean
+  /** Still a valid value, but left out of the options list */
+  hidden?: boolean
   customValue?: boolean
   group?: never
   addValueOnClick?: () => void

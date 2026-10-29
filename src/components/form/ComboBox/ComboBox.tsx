@@ -197,10 +197,11 @@ export const ComboBox = ({
         )
       }}
       filterOptions={(options, params) => {
+        const listedOptions = options.filter(({ hidden }) => !hidden)
         const filtered = searchQuery
-          ? options
+          ? listedOptions
           : filter(
-              options,
+              listedOptions,
               params.inputValue !== value
                 ? params
                 : { getOptionLabel: params.getOptionLabel, inputValue: '' },

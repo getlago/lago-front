@@ -35,6 +35,7 @@ const defaultProps: XeroIntegrationMapItemFormWrapperProps = {
 const withSelectedOption = (
   comboboxData: BasicComboBoxData[],
   selectedValue: string | undefined,
+  isSearching: boolean,
 ): BasicComboBoxData[] => {
   if (!selectedValue || comboboxData.some(({ value }) => value === selectedValue)) {
     return comboboxData
@@ -44,7 +45,10 @@ const withSelectedOption = (
 
   return [
     ...comboboxData,
-    toXeroOption({ externalId: externalId ?? '', externalName, externalAccountCode }),
+    {
+      ...toXeroOption({ externalId: externalId ?? '', externalName, externalAccountCode }),
+      hidden: isSearching,
+    },
   ]
 }
 
@@ -75,12 +79,13 @@ export const XeroIntegrationMapItemFormWrapper = withForm({
 
     const isBusy = isLoading || isSearchLoading
     const comboboxData = useMemo(
-      () => withSelectedOption(isSearching ? searchResults : items, selectedValue),
+      () => withSelectedOption(isSearching ? searchResults : items, selectedValue, isSearching),
       [isSearching, searchResults, items, selectedValue],
     )
 
+    const hasListedOption = comboboxData.some(({ hidden }) => !hidden)
     const helperText =
-      !isBusy && !comboboxData.length ? translate('text_6630ec823adac97d3bf0fb4b') : undefined
+      !isBusy && !hasListedOption ? translate('text_6630ec823adac97d3bf0fb4b') : undefined
 
     return (
       <div className="mb-8 flex flex-row gap-3">
