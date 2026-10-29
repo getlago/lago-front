@@ -50,7 +50,7 @@ export const ChatHistory = ({ hideHistory, isFullscreen }: ChatHistoryProps) => 
         toolCalls: singleConversationData.aiConversation.pendingToolCalls,
       })
 
-      if (singleConversationData.aiConversation.resuming) {
+      if (singleConversationData.aiConversation.busy) {
         resumeConversation()
       }
     }

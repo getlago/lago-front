@@ -301,7 +301,7 @@ describe('ChatToolCallConfirmation', () => {
           errors: [new Error('already decided')],
         })
         mockGetAiConversation.mockResolvedValue({
-          data: { aiConversation: { id: 'conv-1', pendingToolCalls: [], resuming: true } },
+          data: { aiConversation: { id: 'conv-1', pendingToolCalls: [], busy: true } },
         })
 
         render(<ChatToolCallConfirmation onResume={onResume} />)

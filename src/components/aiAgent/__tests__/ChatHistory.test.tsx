@@ -57,7 +57,7 @@ const conversationsListMock = {
 const conversationMock = (
   messages: Array<{ content: string; type: string }>,
   pendingToolCalls: AiConversationToolCallItemFragment[] = [],
-  resuming = false,
+  busy = false,
 ) => ({
   request: {
     query: GetAiConversationDocument,
@@ -77,7 +77,7 @@ const conversationMock = (
           __typename: 'AiConversationToolCall',
           ...toolCall,
         })),
-        resuming,
+        busy,
       },
     },
   },

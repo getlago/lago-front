@@ -57,7 +57,7 @@ export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationP
 
     if (!data?.aiConversation) return
 
-    if (data.aiConversation.resuming) {
+    if (data.aiConversation.busy) {
       resumeConversation()
 
       return onResume()

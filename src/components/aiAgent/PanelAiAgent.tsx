@@ -10,7 +10,8 @@ import { useCreateAiConversation } from '~/components/aiAgent/hooks/useCreateAiC
 import { useOnConversation } from '~/components/aiAgent/hooks/useOnConversation'
 import { Typography } from '~/components/designSystem/Typography'
 import PremiumFeature from '~/components/premium/PremiumFeature'
-import { CreateAiConversationInput } from '~/generated/graphql'
+import { hasDefinedGQLError } from '~/core/apolloClient'
+import { CreateAiConversationInput, LagoApiError } from '~/generated/graphql'
 import { hasPendingToolCalls } from '~/hooks/aiAgent/aiAgentReducer'
 import { AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -27,7 +28,14 @@ type PanelAiAgentProps = {
 }
 
 export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentProps) => {
-  const { addNewMessage, agentType, conversationId, startNewConversation, state } = useAiAgent()
+  const {
+    addNewMessage,
+    agentType,
+    conversationId,
+    resumeConversation,
+    startNewConversation,
+    state,
+  } = useAiAgent()
   const { createAiConversation, loading, error } = useCreateAiConversation()
   const { submitFinanceQuestion } = useAskFinanceAssistant()
   const [initialPrompt, setInitialPrompt] = useState<string>('')
@@ -55,17 +63,23 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
 
     setInitialPrompt(values.message)
 
-    await createAiConversation({
+    const { errors } = await createAiConversation({
       variables: {
         input: {
           message: values.message,
           conversationId: conversationId || undefined,
         },
       },
+      context: { silentErrorCodes: [LagoApiError.AiConversationBusy] },
 
       onCompleted: (data) => {
         // The user switched agents while the request was in flight
         if (agentTypeRef.current !== AiAgentTypeEnum.billing) {
+          return
+        }
+
+        // A refused message was never sent
+        if (!data.createAiConversation?.id) {
           return
         }
 
@@ -75,16 +89,19 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
           return subscription.restart()
         }
 
-        if (!data.createAiConversation?.id) {
-          return
-        }
-
         return startNewConversation({
           convId: data.createAiConversation.id,
           message: values.message,
         })
       },
     })
+
+    // The agent is still answering, e.g. it started again after giving up: wait for it
+    if (hasDefinedGQLError('AiConversationBusy', errors)) {
+      setInitialPrompt('')
+      resumeConversation()
+      subscription.restart()
+    }
   }
 
   const shouldDisplayWelcomeMessage = !state.messages.length && !loading && !error

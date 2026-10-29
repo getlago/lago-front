@@ -574,6 +574,8 @@ export enum AiConversationToolCallStatusEnum {
 
 export type AiConversationWithMessages = {
   __typename?: 'AiConversationWithMessages';
+  /** Whether the agent is still answering, so the conversation takes no new message yet */
+  busy: Scalars['Boolean']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   id: Scalars['ID']['output'];
   /** Messages belonging to this conversation */
@@ -583,8 +585,6 @@ export type AiConversationWithMessages = {
   organization: Organization;
   /** Writes the AI agent asked for that wait for the member's confirmation */
   pendingToolCalls: Array<AiConversationToolCall>;
-  /** Whether the agent is carrying on after the member answered its writes */
-  resuming: Scalars['Boolean']['output'];
   updatedAt: Scalars['ISO8601DateTime']['output'];
 };
 
@@ -5828,6 +5828,7 @@ export enum LagoApiError {
   MissingAddress = 'MissingAddress',
   NotEnoughAddressesInfo = 'NotEnoughAddressesInfo',
   TaxCodeAssociatedWithItemCodeNotFound = 'TaxCodeAssociatedWithItemCodeNotFound',
+  AiConversationBusy = 'ai_conversation_busy',
   CouponIsNotReusable = 'coupon_is_not_reusable',
   CurrenciesDoesNotMatch = 'currencies_does_not_match',
   CurrencyCodeNotSupported = 'currencyCodeNotSupported',
@@ -13184,7 +13185,7 @@ export type GetAiConversationQueryVariables = Exact<{
 }>;
 
 
-export type GetAiConversationQuery = { __typename?: 'Query', aiConversation?: { __typename?: 'AiConversationWithMessages', id: string, name: string, resuming: boolean, messages: Array<{ __typename?: 'AiConversationMessage', content: string, type: string }>, pendingToolCalls: Array<{ __typename?: 'AiConversationToolCall', id: string, name: string, arguments: any, status: AiConversationToolCallStatusEnum }> } | null };
+export type GetAiConversationQuery = { __typename?: 'Query', aiConversation?: { __typename?: 'AiConversationWithMessages', id: string, name: string, busy: boolean, messages: Array<{ __typename?: 'AiConversationMessage', content: string, type: string }>, pendingToolCalls: Array<{ __typename?: 'AiConversationToolCall', id: string, name: string, arguments: any, status: AiConversationToolCallStatusEnum }> } | null };
 
 export type ListAiConversationsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -27226,7 +27227,7 @@ export const GetAiConversationDocument = gql`
     pendingToolCalls {
       ...AiConversationToolCallItem
     }
-    resuming
+    busy
   }
 }
     ${AiConversationToolCallItemFragmentDoc}`;
