@@ -35,6 +35,8 @@ export const typeDefs = gql`
     not_voidable
     payment_processor_is_currently_handling_payment
     plan_overlapping
+    product_already_priced
+    product_filter_already_priced
     url_is_invalid
     user_already_exists
     user_does_not_exist

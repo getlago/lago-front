@@ -5832,6 +5832,8 @@ export enum LagoApiError {
   PlanNotFound = 'plan_not_found',
   PlanOverlapping = 'plan_overlapping',
   ProductExternalIdUnknown = 'productExternalIdUnknown',
+  ProductAlreadyPriced = 'product_already_priced',
+  ProductFilterAlreadyPriced = 'product_filter_already_priced',
   TokenEncodingError = 'token_encoding_error',
   TokenExpired = 'token_expired',
   Unauthorized = 'unauthorized',
@@ -10170,6 +10172,8 @@ export type QueryRateCardRatesArgs = {
 export type QueryRateCardsArgs = {
   code?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
+  excludePricedOnContractId?: InputMaybe<Scalars['ID']['input']>;
+  excludePricedOnPlanId?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -13361,6 +13365,8 @@ export type GetRateCardsForAppliedRateCardDrawerQueryVariables = Exact<{
   code?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  excludePricedOnPlanId?: InputMaybe<Scalars['ID']['input']>;
+  excludePricedOnContractId?: InputMaybe<Scalars['ID']['input']>;
 }>;
 
 
@@ -28235,7 +28241,7 @@ export type GetProductFiltersForAppliedRateCardDrawerLazyQueryHookResult = Retur
 export type GetProductFiltersForAppliedRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetProductFiltersForAppliedRateCardDrawerSuspenseQuery>;
 export type GetProductFiltersForAppliedRateCardDrawerQueryResult = Apollo.QueryResult<GetProductFiltersForAppliedRateCardDrawerQuery, GetProductFiltersForAppliedRateCardDrawerQueryVariables>;
 export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
-    query getRateCardsForAppliedRateCardDrawer($productIds: [ID!], $productFilterIds: [ID!], $searchTerm: String, $code: String, $currency: CurrencyEnum, $limit: Int) {
+    query getRateCardsForAppliedRateCardDrawer($productIds: [ID!], $productFilterIds: [ID!], $searchTerm: String, $code: String, $currency: CurrencyEnum, $limit: Int, $excludePricedOnPlanId: ID, $excludePricedOnContractId: ID) {
   rateCards(
     productIds: $productIds
     productFilterIds: $productFilterIds
@@ -28243,6 +28249,8 @@ export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
     code: $code
     currency: $currency
     limit: $limit
+    excludePricedOnPlanId: $excludePricedOnPlanId
+    excludePricedOnContractId: $excludePricedOnContractId
   ) {
     collection {
       id
@@ -28272,6 +28280,8 @@ export const GetRateCardsForAppliedRateCardDrawerDocument = gql`
  *      code: // value for 'code'
  *      currency: // value for 'currency'
  *      limit: // value for 'limit'
+ *      excludePricedOnPlanId: // value for 'excludePricedOnPlanId'
+ *      excludePricedOnContractId: // value for 'excludePricedOnContractId'
  *   },
  * });
  */

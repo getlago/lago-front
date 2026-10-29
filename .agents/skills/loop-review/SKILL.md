@@ -28,9 +28,10 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    pnpm lint && pnpm types && pnpm translations:inspect && pnpm translations:ensure-consistency
    <front>/scripts/diff-hygiene.sh <base> <worktree> <state dir>/plan.md   # every added comment declared, none in a refused position
    <front>/scripts/loop-plan-check.sh <worktree> <state dir>/plan.md <base>   # new files / exports outside plan.md, exports nothing imports
+   <front>/scripts/pattern-preflight.sh <base> <worktree>   # documented patterns the diff touches, with their reference
    ```
 
-   `loop-plan-check.sh` exit 3 means new files/exports exist and plan.md declares them: each declared item is a question for check 2 below, and loop-run runs the adversarial pass on the same signal. Exit 1 (undeclared, or `unused-export:`) should not survive the build gate; if it does, it is a FAIL issue tagged `[gate:plan]`.
+   `loop-plan-check.sh` exit 3 means new files/exports exist and plan.md declares them: each declared item is a question for check 2 below, and loop-run runs the adversarial pass on the same signal. Exit 1 (undeclared, or `unused-export:`) should not survive the build gate; if it does, it is a FAIL issue tagged `[gate:plan]`. `pattern-preflight.sh` exit 3 is input to check 3: each listed item the code does not follow, with no plan.md `## Deviations` line, is a FAIL issue tagged `[gate:patterns]`.
 
 3. **The whole diff first**: read spec.md `## Ticket` and `## Acceptance criteria`, then the diff end to end, and answer before any check: does this diff, as a whole, make sense for the ticket's objective, and is it the smallest change that meets the criteria? A diff can pass every check below and still miss the point, or solve around a premise spec.md marked `unverified` — both are FAIL issues.
 
