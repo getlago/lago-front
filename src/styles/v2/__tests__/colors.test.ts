@@ -31,7 +31,7 @@ describe('CSS color foundation', () => {
     const semantics = declarationsFor(`[data-color-theme='${mode}']`)
     const values = { ...primitives, ...semantics }
 
-    expect(Object.keys(primitives)).toHaveLength(76)
+    expect(Object.keys(primitives)).toHaveLength(79)
     expect(Object.keys(semantics)).toHaveLength(49)
     expect(Object.keys(v2TailwindColors).sort()).toEqual(
       Object.keys(values)
@@ -53,6 +53,8 @@ describe('CSS color foundation', () => {
       expect(primitives).toHaveProperty(current)
     }
     expect(semantics['--color-icon-premium']).toBe('var(--v2-amber-400)')
+    expect(semantics['--color-icon-muted']).toBe('var(--color-text-muted)')
+    expect(semantics['--color-icon-subtle']).toBe('var(--color-text-subtle)')
     expect(semantics['--color-selected']).toBe('var(--color-interactive-pressed)')
     expect(semantics['--color-surface']).toBe('var(--color-canvas)')
     expect(semantics['--color-action-primary']).toBe('var(--v2-brand-600)')

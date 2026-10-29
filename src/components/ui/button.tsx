@@ -13,8 +13,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: '',
-        secondary: 'border border-border-subtle shadow-v2-interactive',
-        outline: 'border border-border-default',
+        secondary: 'border border-border-divider shadow-v2-interactive',
+        outline: 'border border-border-control',
         ghost: '',
         link: '',
         destructive: '',

@@ -5832,6 +5832,7 @@ export enum LagoApiError {
   PlanOverlapping = 'plan_overlapping',
   ProductExternalIdUnknown = 'productExternalIdUnknown',
   TokenEncodingError = 'token_encoding_error',
+  TokenExpired = 'token_expired',
   Unauthorized = 'unauthorized',
   UnprocessableEntity = 'unprocessable_entity',
   UrlIsInvalid = 'url_is_invalid',

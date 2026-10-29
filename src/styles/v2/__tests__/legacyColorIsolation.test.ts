@@ -69,14 +69,16 @@ describe('legacy color isolation', () => {
   it('generates distinct primitive and semantic utilities without flattening alpha', async () => {
     const css = await compile(
       config.theme,
-      'bg-v2-green-600 bg-green-600 bg-selected text-text-default text-icon-premium border-border-default',
+      'bg-v2-green-600 bg-green-600 bg-selected bg-surface-subtle text-text-default text-icon-premium border-border-control border-border-divider',
     )
 
     expect(css).toContain('background-color: var(--v2-green-600)')
     expect(css).toContain('background-color: var(--color-selected)')
+    expect(css).toContain('background-color: var(--color-surface-subtle)')
     expect(css).toContain('color: var(--color-text-default)')
     expect(css).toContain('color: var(--color-icon-premium)')
-    expect(css).toContain('border-color: var(--color-border-default)')
+    expect(css).toContain('border-color: var(--color-border-control)')
+    expect(css).toContain('border-color: var(--color-border-divider)')
   })
 
   it('generates opt-in surface and shadow utilities without replacing focus rings', async () => {
@@ -98,7 +100,7 @@ describe('legacy color isolation', () => {
     ['bg-interactive-hover/50', 'background-color', '--color-interactive-hover', '0.5'],
     ['bg-selected/50', 'background-color', '--color-selected', '0.5'],
     ['text-text-default/50', 'color', '--color-text-default', '0.5'],
-    ['border-border-subtle/50', 'border-color', '--color-border-subtle', '0.5'],
+    ['border-border-divider/50', 'border-color', '--color-border-divider', '0.5'],
     ['bg-interactive-hover/0', 'background-color', '--color-interactive-hover', '0'],
     ['bg-interactive-hover/100', 'background-color', '--color-interactive-hover', '1'],
     ['bg-interactive-hover/[0.25]', 'background-color', '--color-interactive-hover', '0.25'],

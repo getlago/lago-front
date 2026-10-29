@@ -60,12 +60,15 @@ import Stripe from '~/public/images/stripe.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
+import { shadcnBadgeTab } from './tabs/BadgeTest'
 import { BorderTest } from './tabs/BorderTest'
 import { shadcnButtonTab } from './tabs/ButtonTest'
 import { ColorTest } from './tabs/ColorTest'
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
+import { shadcnDropdownMenuTab } from './tabs/DropdownMenuTest'
 import EditorTest from './tabs/EditorTest'
+import { shadcnSeparatorTab } from './tabs/SeparatorTest'
 import { shadcnTooltipTab } from './tabs/TooltipTest'
 import { TypographyTest } from './tabs/TypographyTest'
 
@@ -2300,7 +2303,10 @@ const DesignSystem = () => {
             ),
           },
           shadcnButtonTab,
+          shadcnBadgeTab,
           shadcnTooltipTab,
+          shadcnDropdownMenuTab,
+          shadcnSeparatorTab,
           // disabled simple tab
           {
             disabled: true,
