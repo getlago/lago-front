@@ -1,11 +1,12 @@
+import { FieldApi, FormApi } from '@tanstack/react-form'
 import { GraphQLFormattedError } from 'graphql'
 
 import {
+  clearCustomerServerError,
   computeCustomerInitials,
-  CUSTOMER_ADDRESS_LINE_MAX_LENGTH,
-  CUSTOMER_TEXT_MAX_LENGTH,
   getCustomerFieldErrors,
   getInitials,
+  setCustomerServerErrors,
 } from '~/components/customers/utils'
 import { LagoApiError } from '~/generated/graphql'
 
@@ -13,9 +14,9 @@ const buildErrors = (details: Record<string, unknown>): GraphQLFormattedError[] 
   { message: 'Unprocessable Entity', extensions: { code: 'unprocessable_entity', details } },
 ]
 
-const translate = jest.fn((key: string, data?: Record<string, unknown>) =>
-  data?.max ? `too-long-${data.max}` : 'invalid-characters',
-)
+const TOO_LONG_255_KEY = 'text_1793265036704cnkqwk0atap'
+const TOO_LONG_500_KEY = 'text_17932959847757c9xwcz2ltv'
+const INVALID_CHARACTERS_KEY = 'text_1793265036704k3gcjfhp5lo'
 
 describe('customerUtils', () => {
   describe('getInitials', () => {
@@ -85,17 +86,16 @@ describe('customerUtils', () => {
   describe('getCustomerFieldErrors', () => {
     describe('GIVEN a value_is_too_long error', () => {
       it.each([
-        ['shippingAddressLine2', 'shippingAddress.addressLine2', CUSTOMER_ADDRESS_LINE_MAX_LENGTH],
-        ['shippingZipcode', 'shippingAddress.zipcode', CUSTOMER_TEXT_MAX_LENGTH],
-        ['addressLine1', 'addressLine1', CUSTOMER_ADDRESS_LINE_MAX_LENGTH],
-        ['legalName', 'legalName', CUSTOMER_TEXT_MAX_LENGTH],
-      ])('THEN should map %s to %s with a %s limit', (key, path, max) => {
+        ['shippingAddressLine2', 'shippingAddress.addressLine2', TOO_LONG_500_KEY],
+        ['shippingZipcode', 'shippingAddress.zipcode', TOO_LONG_255_KEY],
+        ['addressLine1', 'addressLine1', TOO_LONG_500_KEY],
+        ['legalName', 'legalName', TOO_LONG_255_KEY],
+      ])('THEN should map %s to %s with the %s message', (key, path, message) => {
         const { fields } = getCustomerFieldErrors({
           errors: buildErrors({ [key]: [LagoApiError.ValueIsTooLong] }),
-          translate,
         })
 
-        expect(fields).toEqual({ [path]: { message: `too-long-${max}`, path: path.split('.') } })
+        expect(fields).toEqual({ [path]: { message } })
       })
     })
 
@@ -107,7 +107,6 @@ describe('customerUtils', () => {
       ])('THEN should map %s to %s', (key, path) => {
         const { fields } = getCustomerFieldErrors({
           errors: buildErrors({ [key]: [LagoApiError.ValueIsTooLong] }),
-          translate,
           billingAddressPath: 'billingAddress',
         })
 
@@ -119,10 +118,9 @@ describe('customerUtils', () => {
       it('THEN should use the invalid characters message', () => {
         const { fields } = getCustomerFieldErrors({
           errors: buildErrors({ name: [LagoApiError.InvalidCharacters] }),
-          translate,
         })
 
-        expect(fields.name.message).toBe('invalid-characters')
+        expect(fields.name.message).toBe(INVALID_CHARACTERS_KEY)
       })
     })
 
@@ -130,7 +128,6 @@ describe('customerUtils', () => {
       it('THEN hasOnlyFieldErrors should be true', () => {
         const { hasOnlyFieldErrors } = getCustomerFieldErrors({
           errors: buildErrors({ city: [LagoApiError.ValueIsTooLong] }),
-          translate,
         })
 
         expect(hasOnlyFieldErrors).toBe(true)
@@ -159,7 +156,7 @@ describe('customerUtils', () => {
         ],
         ['no errors', undefined],
       ])('THEN hasOnlyFieldErrors should be false for %s', (_, errors) => {
-        const { hasOnlyFieldErrors } = getCustomerFieldErrors({ errors, translate })
+        const { hasOnlyFieldErrors } = getCustomerFieldErrors({ errors })
 
         expect(hasOnlyFieldErrors).toBe(false)
       })
@@ -170,10 +167,60 @@ describe('customerUtils', () => {
             externalId: ['value_already_exist'],
             error: 'Stripe: resource_missing',
           }),
-          translate,
         })
 
         expect(fields).toEqual({})
+      })
+    })
+  })
+
+  describe('setCustomerServerErrors', () => {
+    const setup = () => {
+      const form = new FormApi({
+        defaultValues: { name: '', city: '' },
+        listeners: { onChange: clearCustomerServerError },
+      })
+      const nameField = new FieldApi({ form, name: 'name' })
+      const cityField = new FieldApi({ form, name: 'city' })
+
+      form.mount()
+      nameField.mount()
+      cityField.mount()
+
+      setCustomerServerErrors(form, {
+        name: { message: TOO_LONG_255_KEY },
+        unknownField: { message: TOO_LONG_255_KEY },
+      })
+
+      return { form, nameField, cityField }
+    }
+
+    describe('GIVEN a server error on a field', () => {
+      it('THEN should show it on that field only', () => {
+        const { form } = setup()
+
+        expect(form.getFieldMeta('name')?.errors).toEqual([{ message: TOO_LONG_255_KEY }])
+        expect(form.getFieldMeta('city')?.errors).toEqual([])
+      })
+    })
+
+    describe('WHEN another field changes', () => {
+      it('THEN should keep the server error', () => {
+        const { form, cityField } = setup()
+
+        cityField.handleChange('Paris')
+
+        expect(form.getFieldMeta('name')?.errors).toEqual([{ message: TOO_LONG_255_KEY }])
+      })
+    })
+
+    describe('WHEN the field itself changes', () => {
+      it('THEN should clear the server error', () => {
+        const { form, nameField } = setup()
+
+        nameField.handleChange('Acme')
+
+        expect(form.getFieldMeta('name')?.errors).toEqual([])
       })
     })
   })

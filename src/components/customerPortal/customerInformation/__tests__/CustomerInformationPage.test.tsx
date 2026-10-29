@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { act, screen } from '@testing-library/react'
 import { GraphQLFormattedError } from 'graphql'
 
 import { CountryCode, CustomerTypeEnum } from '~/generated/graphql'
@@ -335,12 +335,28 @@ describe('CustomerInformationPage', () => {
       graphQLErrors: buildGraphQLErrors(details),
     })
 
+    const submitWithErrors = async (details: Record<string, string[]>): Promise<void> => {
+      mockUpdatePortalCustomerError = buildUpdateError(details)
+      mockUpdatePortalCustomer.mockResolvedValue({ errors: buildGraphQLErrors(details) })
+
+      const { rerender } = render(<CustomerInformationPage />)
+
+      await act(() =>
+        mockOnSubmit({
+          value: { name: 'Acme Inc' },
+          formApi: { getFieldMeta: jest.fn(), setFieldMeta: jest.fn() },
+        }),
+      )
+
+      rerender(<CustomerInformationPage />)
+    }
+
     afterEach(() => {
       mockUpdatePortalCustomerError = undefined
     })
 
     it('THEN should set the error under the matching field on submit', async () => {
-      const setErrorMap = jest.fn()
+      const setFieldMeta = jest.fn()
 
       mockUpdatePortalCustomer.mockResolvedValue({
         errors: buildGraphQLErrors({ shippingAddressLine2: ['value_is_too_long'] }),
@@ -350,17 +366,16 @@ describe('CustomerInformationPage', () => {
 
       await mockOnSubmit({
         value: { name: 'Acme Inc', shippingAddress: { addressLine2: 'a' } },
-        formApi: { setErrorMap },
+        formApi: { getFieldMeta: () => ({ errorMap: {}, errorSourceMap: {} }), setFieldMeta },
       })
 
-      expect(setErrorMap).toHaveBeenCalledWith({
-        onDynamic: {
-          fields: {
-            'shippingAddress.addressLine2': expect.objectContaining({
-              path: ['shippingAddress', 'addressLine2'],
-            }),
-          },
-        },
+      expect(setFieldMeta).toHaveBeenCalledWith(
+        'shippingAddress.addressLine2',
+        expect.any(Function),
+      )
+      expect(setFieldMeta.mock.calls[0][1]({ errorMap: {}, errorSourceMap: {} })).toEqual({
+        errorMap: { onServer: { message: 'text_17932959847757c9xwcz2ltv' } },
+        errorSourceMap: { onServer: 'field' },
       })
     })
 
@@ -380,18 +395,14 @@ describe('CustomerInformationPage', () => {
       expect(mockGoHome).toHaveBeenCalled()
     })
 
-    it('THEN should hide the generic alert when every error is shown under a field', () => {
-      mockUpdatePortalCustomerError = buildUpdateError({ legalName: ['invalid_characters'] })
-
-      render(<CustomerInformationPage />)
+    it('THEN should hide the generic alert when every error is shown under a field', async () => {
+      await submitWithErrors({ legalName: ['invalid_characters'] })
 
       expect(screen.queryByTestId('error-alert')).not.toBeInTheDocument()
     })
 
-    it('THEN should show the generic alert when an error is not tied to a field', () => {
-      mockUpdatePortalCustomerError = buildUpdateError({ email: ['invalid_email_format'] })
-
-      render(<CustomerInformationPage />)
+    it('THEN should show the generic alert when an error is not tied to a field', async () => {
+      await submitWithErrors({ email: ['invalid_email_format'] })
 
       expect(screen.getByTestId('error-alert')).toBeInTheDocument()
     })

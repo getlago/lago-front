@@ -634,6 +634,49 @@ describe('CreateCustomer Integration Tests', () => {
       })
 
       expect(externalIdInput).toHaveValue('test-customer')
+
+      await user.type(externalIdInput, '-2')
+
+      expect(nameInput).toHaveAttribute('aria-invalid', 'true')
+
+      await user.type(nameInput, 'Acme')
+
+      await waitFor(() => {
+        expect(nameInput).toHaveAttribute('aria-invalid', 'false')
+      })
+    })
+
+    it('THEN should show a field error and the duplicated externalId error together', async () => {
+      const user = userEvent.setup()
+
+      Element.prototype.scrollIntoView = jest.fn()
+
+      mockOnSave.mockResolvedValue({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              status: 422,
+              code: 'unprocessable_entity',
+              details: { name: ['value_is_too_long'], externalId: ['value_already_exist'] },
+            },
+          },
+        ],
+      })
+
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+
+      const externalIdInput = screen.getByLabelText(/customer external id/i)
+      const nameInput = screen.getByLabelText(/customer name/i)
+
+      await user.type(externalIdInput, 'test-customer')
+      await user.click(screen.getByTestId('submit-customer'))
+
+      await waitFor(() => {
+        expect(nameInput).toHaveAttribute('aria-invalid', 'true')
+        expect(externalIdInput).toHaveAttribute('aria-invalid', 'true')
+      })
     })
 
     it('THEN should reset form when non-Stripe third-party error is returned', async () => {

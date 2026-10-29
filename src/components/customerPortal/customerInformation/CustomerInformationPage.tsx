@@ -9,9 +9,11 @@ import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderCustomerInformationPage } from '~/components/customerPortal/common/SectionLoading'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import {
+  clearCustomerServerError,
   CUSTOMER_ADDRESS_LINE_MAX_LENGTH,
   CUSTOMER_TEXT_MAX_LENGTH,
   getCustomerFieldErrors,
+  setCustomerServerErrors,
   TRANSLATIONS_MAP_CUSTOMER_TYPE,
 } from '~/components/customers/utils'
 import { Alert } from '~/components/designSystem/Alert'
@@ -74,16 +76,16 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
     },
   })
 
-  const { hasOnlyFieldErrors } = getCustomerFieldErrors({
-    errors: updatePortalCustomerError?.graphQLErrors,
-    translate,
-  })
+  const [hasOnlyFieldErrors, setHasOnlyFieldErrors] = useState(false)
 
   const form = useAppForm({
     defaultValues: initialValues,
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: editCustomerBillingValidationSchema,
+    },
+    listeners: {
+      onChange: clearCustomerServerError,
     },
     onSubmit: async ({ value, formApi }) => {
       const { shippingAddress, ...rest } = value
@@ -106,11 +108,10 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         },
       })
 
-      const { fields } = getCustomerFieldErrors({ errors, translate })
+      const customerFieldErrors = getCustomerFieldErrors({ errors })
 
-      if (Object.keys(fields).length) {
-        formApi.setErrorMap({ onDynamic: { fields } })
-      }
+      setHasOnlyFieldErrors(customerFieldErrors.hasOnlyFieldErrors)
+      setCustomerServerErrors(formApi, customerFieldErrors.fields)
     },
   })
 
