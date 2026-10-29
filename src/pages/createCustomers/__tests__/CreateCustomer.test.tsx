@@ -602,6 +602,40 @@ describe('CreateCustomer Integration Tests', () => {
       })
     })
 
+    it('THEN should show value_is_too_long under the field and keep the form values', async () => {
+      const user = userEvent.setup()
+
+      Element.prototype.scrollIntoView = jest.fn()
+
+      mockOnSave.mockResolvedValue({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              status: 422,
+              code: 'unprocessable_entity',
+              details: { name: ['value_is_too_long'] },
+            },
+          },
+        ],
+      })
+
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+
+      const externalIdInput = screen.getByLabelText(/customer external id/i)
+      const nameInput = screen.getByLabelText(/customer name/i)
+
+      await user.type(externalIdInput, 'test-customer')
+      await user.click(screen.getByTestId('submit-customer'))
+
+      await waitFor(() => {
+        expect(nameInput).toHaveAttribute('aria-invalid', 'true')
+      })
+
+      expect(externalIdInput).toHaveValue('test-customer')
+    })
+
     it('THEN should reset form when non-Stripe third-party error is returned', async () => {
       const user = userEvent.setup()
 

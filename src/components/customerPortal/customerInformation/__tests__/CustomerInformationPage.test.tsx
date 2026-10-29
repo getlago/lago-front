@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react'
+import { GraphQLFormattedError } from 'graphql'
 
 import { CountryCode, CustomerTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -9,6 +10,8 @@ const mockUseCustomerPortalData = jest.fn()
 const mockUseCustomerPortalNavigation = jest.fn()
 const mockUseCustomerPortalTranslate = jest.fn()
 const mockUpdatePortalCustomer = jest.fn()
+let mockUpdatePortalCustomerError: unknown = undefined
+let mockOnCompleted: (res: unknown) => void
 
 jest.mock('~/components/customerPortal/common/hooks/useCustomerPortalData', () => ({
   useCustomerPortalData: () => mockUseCustomerPortalData(),
@@ -26,10 +29,11 @@ jest.mock('~/components/customerPortal/common/useCustomerPortalTranslate', () =>
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useUpdatePortalCustomerMutation: () => [
-    mockUpdatePortalCustomer,
-    { loading: false, error: undefined },
-  ],
+  useUpdatePortalCustomerMutation: ({ onCompleted }: { onCompleted: (res: unknown) => void }) => {
+    mockOnCompleted = onCompleted
+
+    return [mockUpdatePortalCustomer, { loading: false, error: mockUpdatePortalCustomerError }]
+  },
 }))
 
 jest.mock('~/components/customerPortal/common/PageTitle', () => ({
@@ -47,68 +51,85 @@ jest.mock('~/components/customerPortal/common/SectionLoading', () => ({
 }))
 
 const mockHandleSubmit = jest.fn()
+let mockOnSubmit: (args: unknown) => Promise<void>
 
 jest.mock('~/hooks/forms/useAppform', () => ({
-  useAppForm: ({ defaultValues }: { defaultValues: Record<string, unknown> }) => ({
-    store: {
-      subscribe: jest.fn(() => jest.fn()),
-      state: { values: defaultValues },
-      getState: () => ({
-        values: defaultValues,
-        canSubmit: true,
-      }),
-    },
-    handleSubmit: mockHandleSubmit,
-    setFieldValue: jest.fn(),
-    AppField: ({
-      name,
-      children,
-    }: {
-      name: string
-      children: (field: unknown) => React.ReactNode
-    }) => {
-      const fieldProps = {
-        TextInputField: ({
-          label,
-          placeholder,
-          disabled,
-        }: {
-          label?: string
-          placeholder?: string
-          disabled?: boolean
-        }) => (
-          <div data-test={`field-${name}`}>
-            {label && <label>{label}</label>}
-            <input placeholder={placeholder} disabled={disabled} data-test={`input-${name}`} />
-          </div>
-        ),
-        ComboBoxField: ({
-          label,
-          placeholder,
-          disabled,
-        }: {
-          label?: string
-          placeholder?: string
-          disabled?: boolean
-        }) => (
-          <div data-test={`field-${name}`}>
-            {label && <label>{label}</label>}
-            <select disabled={disabled} data-test={`input-${name}`}>
-              <option>{placeholder}</option>
-            </select>
-          </div>
-        ),
-      }
+  useAppForm: ({
+    defaultValues,
+    onSubmit,
+  }: {
+    defaultValues: Record<string, unknown>
+    onSubmit: (args: unknown) => Promise<void>
+  }) => {
+    mockOnSubmit = onSubmit
 
-      return <>{children(fieldProps)}</>
-    },
-    AppForm: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-    SubmitButton: ({ children, ...props }: { children: React.ReactNode; 'data-test'?: string }) => (
-      <button type="submit" data-test={props['data-test']}>
-        {children}
-      </button>
-    ),
-  }),
+    return {
+      store: {
+        subscribe: jest.fn(() => jest.fn()),
+        state: { values: defaultValues },
+        getState: () => ({
+          values: defaultValues,
+          canSubmit: true,
+        }),
+      },
+      handleSubmit: mockHandleSubmit,
+      setFieldValue: jest.fn(),
+      AppField: ({
+        name,
+        children,
+      }: {
+        name: string
+        children: (field: unknown) => React.ReactNode
+      }) => {
+        const fieldProps = {
+          TextInputField: ({
+            label,
+            placeholder,
+            disabled,
+          }: {
+            label?: string
+            placeholder?: string
+            disabled?: boolean
+          }) => (
+            <div data-test={`field-${name}`}>
+              {label && <label>{label}</label>}
+              <input placeholder={placeholder} disabled={disabled} data-test={`input-${name}`} />
+            </div>
+          ),
+          ComboBoxField: ({
+            label,
+            placeholder,
+            disabled,
+          }: {
+            label?: string
+            placeholder?: string
+            disabled?: boolean
+          }) => (
+            <div data-test={`field-${name}`}>
+              {label && <label>{label}</label>}
+              <select disabled={disabled} data-test={`input-${name}`}>
+                <option>{placeholder}</option>
+              </select>
+            </div>
+          ),
+        }
+
+        return <>{children(fieldProps)}</>
+      },
+      AppForm: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+      SubmitButton: ({
+        children,
+        ...props
+      }: {
+        children: React.ReactNode
+        'data-test'?: string
+      }) => (
+        <button type="submit" data-test={props['data-test']}>
+          {children}
+        </button>
+      ),
+    }
+  },
 }))
 
 jest.mock('@tanstack/react-form', () => ({
@@ -301,6 +322,78 @@ describe('CustomerInformationPage', () => {
       expect(screen.getByTestId('input-shippingAddress.addressLine1')).not.toBeDisabled()
       expect(screen.getByTestId('input-shippingAddress.city')).not.toBeDisabled()
       expect(screen.getByTestId('input-shippingAddress.state')).not.toBeDisabled()
+    })
+  })
+
+  describe('GIVEN the update failed', () => {
+    const buildGraphQLErrors = (details: Record<string, string[]>): GraphQLFormattedError[] => [
+      { message: 'Unprocessable Entity', extensions: { code: 'unprocessable_entity', details } },
+    ]
+    const buildUpdateError = (
+      details: Record<string, string[]>,
+    ): { graphQLErrors: GraphQLFormattedError[] } => ({
+      graphQLErrors: buildGraphQLErrors(details),
+    })
+
+    afterEach(() => {
+      mockUpdatePortalCustomerError = undefined
+    })
+
+    it('THEN should set the error under the matching field on submit', async () => {
+      const setErrorMap = jest.fn()
+
+      mockUpdatePortalCustomer.mockResolvedValue({
+        errors: buildGraphQLErrors({ shippingAddressLine2: ['value_is_too_long'] }),
+      })
+
+      render(<CustomerInformationPage />)
+
+      await mockOnSubmit({
+        value: { name: 'Acme Inc', shippingAddress: { addressLine2: 'a' } },
+        formApi: { setErrorMap },
+      })
+
+      expect(setErrorMap).toHaveBeenCalledWith({
+        onDynamic: {
+          fields: {
+            'shippingAddress.addressLine2': expect.objectContaining({
+              path: ['shippingAddress', 'addressLine2'],
+            }),
+          },
+        },
+      })
+    })
+
+    it('THEN should not leave the page when the mutation returns no customer', () => {
+      render(<CustomerInformationPage />)
+
+      mockOnCompleted({ updateCustomerPortalCustomer: null })
+
+      expect(mockGoHome).not.toHaveBeenCalled()
+    })
+
+    it('THEN should leave the page when the mutation returns the customer', () => {
+      render(<CustomerInformationPage />)
+
+      mockOnCompleted({ updateCustomerPortalCustomer: { id: 'customer-1' } })
+
+      expect(mockGoHome).toHaveBeenCalled()
+    })
+
+    it('THEN should hide the generic alert when every error is shown under a field', () => {
+      mockUpdatePortalCustomerError = buildUpdateError({ legalName: ['invalid_characters'] })
+
+      render(<CustomerInformationPage />)
+
+      expect(screen.queryByTestId('error-alert')).not.toBeInTheDocument()
+    })
+
+    it('THEN should show the generic alert when an error is not tied to a field', () => {
+      mockUpdatePortalCustomerError = buildUpdateError({ email: ['invalid_email_format'] })
+
+      render(<CustomerInformationPage />)
+
+      expect(screen.getByTestId('error-alert')).toBeInTheDocument()
     })
   })
 })

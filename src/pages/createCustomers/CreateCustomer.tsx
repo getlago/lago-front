@@ -3,6 +3,7 @@ import { Icon } from 'lago-design-system'
 import { ReactNode, useCallback } from 'react'
 
 import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
+import { getCustomerFieldErrors } from '~/components/customers/utils'
 import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
@@ -69,6 +70,18 @@ const CreateCustomer = () => {
       const answer = await onSave(formattedValues)
 
       const { errors } = answer
+
+      const { fields } = getCustomerFieldErrors({
+        errors,
+        translate,
+        billingAddressPath: 'billingAddress',
+      })
+
+      if (Object.keys(fields).length) {
+        formApi.setErrorMap({ onDynamic: { fields } })
+        scrollToFirstInputError('create-customer', fields)
+        return
+      }
 
       if (hasDefinedGQLError('ValueAlreadyExist', errors, 'externalId')) {
         formApi.setErrorMap({

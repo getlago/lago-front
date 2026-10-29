@@ -1,8 +1,85 @@
+import { GraphQLFormattedError } from 'graphql'
+
+import { LagoGQLError } from '~/core/apolloClient/errorUtils'
 import {
   Customer,
   CustomerTypeEnum,
   IntegrationsListForCustomerMainInfosQuery,
+  LagoApiError,
 } from '~/generated/graphql'
+import { TranslateFunc } from '~/hooks/core/useInternationalization'
+
+export const CUSTOMER_TEXT_MAX_LENGTH = 255
+export const CUSTOMER_ADDRESS_LINE_MAX_LENGTH = 500
+
+const CUSTOMER_FIELD_ERROR_CODES: string[] = [
+  LagoApiError.InvalidCharacters,
+  LagoApiError.ValueIsTooLong,
+]
+const BILLING_ADDRESS_KEYS = ['addressLine1', 'addressLine2', 'zipcode', 'city', 'state']
+const SHIPPING_KEY_PREFIX = 'shipping'
+
+const getCustomerFieldPath = (key: string, billingAddressPath?: string): string => {
+  if (key.startsWith(SHIPPING_KEY_PREFIX)) {
+    const addressKey = key.slice(SHIPPING_KEY_PREFIX.length)
+
+    return `shippingAddress.${addressKey.charAt(0).toLowerCase()}${addressKey.slice(1)}`
+  }
+
+  if (billingAddressPath && BILLING_ADDRESS_KEYS.includes(key)) {
+    return `${billingAddressPath}.${key}`
+  }
+
+  return key
+}
+
+type CustomerFieldErrors = {
+  fields: Record<string, { message: string; path: string[] }>
+  hasOnlyFieldErrors: boolean
+}
+
+export const getCustomerFieldErrors = ({
+  errors,
+  translate,
+  billingAddressPath,
+}: {
+  errors?: readonly GraphQLFormattedError[]
+  translate: TranslateFunc
+  billingAddressPath?: string
+}): CustomerFieldErrors => {
+  const details = (errors?.[0]?.extensions as LagoGQLError['extensions'] | undefined)?.details
+  const detailEntries = Object.entries(details || {})
+  const fields: CustomerFieldErrors['fields'] = {}
+
+  detailEntries.forEach(([key, codes]) => {
+    const code =
+      Array.isArray(codes) &&
+      codes.find((detailCode) => CUSTOMER_FIELD_ERROR_CODES.includes(detailCode))
+
+    if (!code) return
+
+    const path = getCustomerFieldPath(key, billingAddressPath)
+    const max = /addressLine/i.test(key)
+      ? CUSTOMER_ADDRESS_LINE_MAX_LENGTH
+      : CUSTOMER_TEXT_MAX_LENGTH
+
+    fields[path] = {
+      message:
+        code === LagoApiError.InvalidCharacters
+          ? translate('text_1793265036704k3gcjfhp5lo')
+          : translate('text_1793265036704cnkqwk0atap', { max }),
+      path: path.split('.'),
+    }
+  })
+
+  const fieldCount = Object.keys(fields).length
+
+  return {
+    fields,
+    hasOnlyFieldErrors:
+      errors?.length === 1 && fieldCount > 0 && fieldCount === detailEntries.length,
+  }
+}
 
 type RawIntegration = NonNullable<
   NonNullable<IntegrationsListForCustomerMainInfosQuery['integrations']>['collection']
