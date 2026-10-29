@@ -11,8 +11,8 @@
 # reproducible. Renovate (getlago/lago-packages renovate/lago-bases) moves tag
 # and digest together when a newer base is published; the base refresh
 # rebuilds deployed tags with a newer RUNTIME_IMAGE in between.
-ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:20261023-r69@sha256:3f8672c63441ebe5f8492b2b52e4ec97d33d0d2a5dca00e9ae803c30c7c4e062
-ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:20261023-r68@sha256:6e8d3121119ba0377ad7ba4ad2a243e7f1e473fee7fd79007b47e44863cb6f5a
+ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:20261029-r76@sha256:207ecf39be47b0b9bb6538c0c00bd9103f885b6c7b60f9d0071b17ea96c5f887
+ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:20261029-r76@sha256:d755c9a7f6523134daf148c8bbd48e3fac07374cd221cd58f8d971887c3b9fe5
 
 # --- deps stage --------------------------------------------------------------
 FROM ${BUILD_IMAGE} AS deps
