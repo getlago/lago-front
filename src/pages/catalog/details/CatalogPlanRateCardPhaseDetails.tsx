@@ -7,20 +7,16 @@ import {
 } from '~/components/appliedRateCards/details/appliedRateCardDetailsConfig'
 import { RatePhaseDetailsView } from '~/components/appliedRateCards/details/RatePhaseDetailsView'
 import { toPlanAppliedRateCardDetailsData } from '~/components/appliedRateCards/details/toAppliedRateCardDetailsData'
+import { usePlanAppliedRateCardForDetails } from '~/components/appliedRateCards/details/usePlanAppliedRateCardForDetails'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { AppliedRateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { LagoApiError, useGetPlanAppliedRateCardForDetailsQuery } from '~/generated/graphql'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 
 const CatalogPlanRateCardPhaseDetails = (): JSX.Element => {
   const { catalogPlanId = '', appliedRateCardId = '', phaseId = '' } = useParams()
   const config = APPLIED_RATE_CARD_DETAILS_CONFIG.plan
 
-  const { data, loading, error } = useGetPlanAppliedRateCardForDetailsQuery({
-    variables: { appliedRateCardId },
-    skip: !appliedRateCardId,
-    context: { silentErrorCodes: [LagoApiError.NotFound] },
-  })
+  const { data, loading, error } = usePlanAppliedRateCardForDetails(appliedRateCardId)
 
   const detailsData = toPlanAppliedRateCardDetailsData(data?.planAppliedRateCard, catalogPlanId)
 

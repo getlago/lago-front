@@ -7,20 +7,16 @@ import {
 } from '~/components/appliedRateCards/details/appliedRateCardDetailsConfig'
 import { RatePhaseDetailsView } from '~/components/appliedRateCards/details/RatePhaseDetailsView'
 import { toContractAppliedRateCardDetailsData } from '~/components/appliedRateCards/details/toAppliedRateCardDetailsData'
+import { useContractAppliedRateCardForDetails } from '~/components/appliedRateCards/details/useContractAppliedRateCardForDetails'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { AppliedRateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { LagoApiError, useGetContractAppliedRateCardForDetailsQuery } from '~/generated/graphql'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 
 const ContractRateCardPhaseDetails = (): JSX.Element => {
   const { id = '', appliedRateCardId = '', phaseId = '' } = useParams()
   const config = APPLIED_RATE_CARD_DETAILS_CONFIG.contract
 
-  const { data, loading, error } = useGetContractAppliedRateCardForDetailsQuery({
-    variables: { appliedRateCardId },
-    skip: !appliedRateCardId,
-    context: { silentErrorCodes: [LagoApiError.NotFound] },
-  })
+  const { data, loading, error } = useContractAppliedRateCardForDetails(appliedRateCardId)
 
   const detailsData = toContractAppliedRateCardDetailsData(data?.contractAppliedRateCard, id)
 
