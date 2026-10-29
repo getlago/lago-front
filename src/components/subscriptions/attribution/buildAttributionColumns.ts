@@ -117,11 +117,13 @@ export const getAttributionCellUsage = (
 export const getAttributionTotalUsage = ({
   chargesUsage,
   amountCents,
+  splitChargeUnits,
 }: {
   chargesUsage: AttributionChargeUsageFragment[]
   amountCents?: string | null
+  splitChargeUnits?: number | null
 }): AttributionUsageValue => ({
-  units: chargesUsage.reduce((total, usage) => total + usage.units, 0),
+  units: splitChargeUnits ?? chargesUsage.reduce((total, usage) => total + usage.units, 0),
   amountCents: amountCents ?? null,
 })
 

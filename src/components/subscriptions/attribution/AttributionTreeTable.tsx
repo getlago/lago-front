@@ -32,7 +32,12 @@ type AttributionTreeTableProps = AttributionTableSharedProps & {
 
 type AttributionTreeRow = Pick<
   AttributionTableRow,
-  'typeLabel' | 'label' | 'isUnattributed' | 'amountCents' | 'chargesUsageByFilterPage'
+  | 'typeLabel'
+  | 'label'
+  | 'isUnattributed'
+  | 'amountCents'
+  | 'splitChargeUnits'
+  | 'chargesUsageByFilterPage'
 > & {
   path: AttributionPathStep[]
   nodeKey: string
@@ -139,6 +144,7 @@ export const AttributionTreeTable = ({
             label: row.value,
             isUnattributed: false,
             amountCents: row.amountCents,
+            splitChargeUnits: row.splitChargeUnits,
             chargesUsageByFilterPage: usages.map(
               ({ rows }) => rows.find(({ value }) => value === row.value)?.chargesUsage ?? [],
             ),
@@ -153,6 +159,7 @@ export const AttributionTreeTable = ({
           label: translate('text_1792668632007qgsxnaul7fn', { typeName: level.name }),
           isUnattributed: true,
           amountCents: usage.unattributed.amountCents,
+          splitChargeUnits: usage.unattributed.splitChargeUnits,
           chargesUsageByFilterPage: usages.map(({ unattributed }) => unattributed.chargesUsage),
         })}
       </Fragment>

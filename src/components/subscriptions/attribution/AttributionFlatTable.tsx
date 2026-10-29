@@ -36,6 +36,7 @@ export type AttributionTableRow = {
   label: string
   isUnattributed: boolean
   amountCents?: string | null
+  splitChargeUnits?: number | null
   chargesUsageByFilterPage: AttributionChargeUsageFragment[][]
 }
 
@@ -46,7 +47,7 @@ export type AttributionShowMoreColumns = {
 }
 
 export type AttributionTableSharedProps = {
-  totals: Pick<AttributionTableRow, 'amountCents' | 'chargesUsageByFilterPage'>
+  totals: Pick<AttributionTableRow, 'amountCents' | 'splitChargeUnits' | 'chargesUsageByFilterPage'>
   columns: AttributionColumn[]
   chargeLabel: string | null
   showMoreColumns?: AttributionShowMoreColumns
@@ -84,7 +85,7 @@ type AttributionValueCellsProps = Pick<
   AttributionTableSharedProps,
   'columns' | 'basis' | 'currency'
 > & {
-  usage: Pick<AttributionTableRow, 'amountCents' | 'chargesUsageByFilterPage'>
+  usage: Pick<AttributionTableRow, 'amountCents' | 'splitChargeUnits' | 'chargesUsageByFilterPage'>
   cellClassName?: string
 }
 
@@ -146,6 +147,7 @@ export const AttributionValueCells = ({
               basis,
               usage: getAttributionTotalUsage({
                 amountCents: usage.amountCents,
+                splitChargeUnits: usage.splitChargeUnits,
                 chargesUsage: usage.chargesUsageByFilterPage[0] ?? [],
               }),
             }),

@@ -253,13 +253,14 @@ describe('AttributionFlatTable', () => {
         expect(cells[2]).toHaveTextContent('5')
       })
 
-      it('THEN should compute the total from the first filter page only', () => {
+      it('THEN should show the split charge units of the API as the total', () => {
         renderTable({
           columns,
           chargeLabel: 'Tokens',
           rows: [
             {
               ...rows[0],
+              splitChargeUnits: 40,
               chargesUsageByFilterPage: [
                 [opusUsage(12, '1500'), defaultUsage(1)],
                 [sonnetUsage(5), defaultUsage(1)],
@@ -270,7 +271,7 @@ describe('AttributionFlatTable', () => {
 
         const cells = screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)[0].querySelectorAll('td')
 
-        expect(cells[cells.length - 1]).toHaveTextContent('13')
+        expect(cells[cells.length - 1]).toHaveTextContent('40')
       })
     })
   })

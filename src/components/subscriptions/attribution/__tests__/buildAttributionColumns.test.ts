@@ -327,6 +327,17 @@ describe('getAttributionTotalUsage', () => {
     })
   })
 
+  describe('GIVEN the split charge units of the API', () => {
+    it('THEN should use them instead of summing the loaded cells', () => {
+      expect(
+        getAttributionTotalUsage({
+          chargesUsage: [createChargeUsage({ units: 2 }), createChargeUsage({ units: 3.5 })],
+          splitChargeUnits: 25,
+        }),
+      ).toEqual({ units: 25, amountCents: null })
+    })
+  })
+
   describe('GIVEN no aggregate amount', () => {
     it('THEN should return a null amount', () => {
       expect(getAttributionTotalUsage({ chargesUsage: [] })).toEqual({

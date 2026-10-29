@@ -1009,6 +1009,7 @@ describe('SubscriptionAttributionTabContent', () => {
         metadata: { currentPage: 1, totalPages: 1 },
         totals: {
           amountCents: null,
+          splitChargeUnits: 42,
           chargesUsage: [...filterUsages(models), defaultTokensUsage],
         },
       })),
@@ -1090,7 +1091,7 @@ describe('SubscriptionAttributionTabContent', () => {
         expect(screen.queryByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).not.toBeInTheDocument()
       })
 
-      it('THEN should keep the total of each row from the first filter page', async () => {
+      it('THEN should show the split charge units of the API as the row total', async () => {
         const user = await renderSplit({}, [firstPageModels, ['m11']])
 
         await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
@@ -1099,9 +1100,7 @@ describe('SubscriptionAttributionTabContent', () => {
           .getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)[0]
           .querySelectorAll('td')
 
-        expect(customerCells[customerCells.length - 1]).toHaveTextContent(
-          String(firstPageModels.length + 1),
-        )
+        expect(customerCells[customerCells.length - 1]).toHaveTextContent('42')
       })
     })
 

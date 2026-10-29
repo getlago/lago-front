@@ -165,18 +165,21 @@ gql`
       rows {
         value
         amountCents
+        splitChargeUnits
         chargesUsage {
           ...AttributionChargeUsage
         }
       }
       unattributed {
         amountCents
+        splitChargeUnits
         chargesUsage {
           ...AttributionChargeUsage
         }
       }
       totals {
         amountCents
+        splitChargeUnits
         chargesUsage {
           ...AttributionChargeUsage
         }
@@ -382,6 +385,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
           label: customer?.displayName ?? '',
           isUnattributed: false,
           amountCents: rootUsage.totals.amountCents,
+          splitChargeUnits: rootUsage.totals.splitChargeUnits,
           chargesUsageByFilterPage: rootBlock.usages.map(({ totals }) => totals.chargesUsage),
         },
       ]
@@ -394,6 +398,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
         label: row.value,
         isUnattributed: false,
         amountCents: row.amountCents,
+        splitChargeUnits: row.splitChargeUnits,
         chargesUsageByFilterPage: rootBlock.usages.map(
           ({ rows }) => rows.find(({ value }) => value === row.value)?.chargesUsage ?? [],
         ),
@@ -406,6 +411,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
         }),
         isUnattributed: true,
         amountCents: rootUsage.unattributed.amountCents,
+        splitChargeUnits: rootUsage.unattributed.splitChargeUnits,
         chargesUsageByFilterPage: rootBlock.usages.map(
           ({ unattributed }) => unattributed.chargesUsage,
         ),
@@ -445,7 +451,11 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   }
 
   const tableProps = {
-    totals: { amountCents: rootUsage?.totals.amountCents, chargesUsageByFilterPage },
+    totals: {
+      amountCents: rootUsage?.totals.amountCents,
+      splitChargeUnits: rootUsage?.totals.splitChargeUnits,
+      chargesUsageByFilterPage,
+    },
     columns,
     chargeLabel: selectedCharge ? getAttributionChargeLabel(selectedCharge) : null,
     showMoreColumns: getShowMoreColumns(),
