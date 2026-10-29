@@ -233,23 +233,25 @@ describe('RatePhaseDetailsView', () => {
   })
 
   describe('GIVEN a locked parent', () => {
-    it('THEN the menu lists copy only and the inline edit is disabled', async () => {
+    it('THEN the menu lists every action disabled except copy, and the inline edit is disabled', async () => {
       renderView(withLockedParent(CONTRACT_DATA))
 
       expect(await screen.findByTestId(RATE_PHASE_OVERVIEW_EDIT_TEST_ID)).toBeDisabled()
 
       await openActions()
 
-      expect(screen.getByTestId(RATE_PHASE_ACTION_COPY_TEST_ID)).toBeInTheDocument()
-      expect(screen.queryByTestId(RATE_PHASE_ACTION_EDIT_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.getByTestId(RATE_PHASE_ACTION_COPY_TEST_ID)).not.toBeDisabled()
+      expect(screen.getByTestId(RATE_PHASE_ACTION_EDIT_TEST_ID)).toBeDisabled()
       expect(screen.queryByTestId(RATE_PHASE_ACTION_RESET_TEST_ID)).not.toBeInTheDocument()
-      expect(screen.queryByTestId(RATE_PHASE_ACTION_DELETE_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.getByTestId(RATE_PHASE_ACTION_DELETE_TEST_ID)).toBeDisabled()
     })
   })
 
   describe('GIVEN a phase deleted from the page', () => {
-    it('THEN navigates to the card overview', async () => {
-      renderView(PLAN_DATA)
+    it('THEN navigates to the card overview and notifies the page before navigating', async () => {
+      const onPhaseDeleted = jest.fn()
+
+      renderWithHeader({ ...getLoadedViewProps(PLAN_DATA), onPhaseDeleted })
 
       await openActions()
       await userEvent.click(screen.getByTestId(RATE_PHASE_ACTION_DELETE_TEST_ID))
@@ -260,6 +262,11 @@ describe('RatePhaseDetailsView', () => {
 
       mockOpenDeleteDialog.mock.calls[0][0].onDeleted()
 
+      // The page needs this to suppress its own not-found redirect while the
+      // refetch triggered by the delete is still in flight.
+      expect(onPhaseDeleted.mock.invocationCallOrder[0]).toBeLessThan(
+        testMockNavigateFn.mock.invocationCallOrder[0],
+      )
       expect(testMockNavigateFn).toHaveBeenCalledWith(
         APPLIED_RATE_CARD_DETAILS_CONFIG.plan.buildCardPath({
           parentId: CATALOG_PLAN_ID,

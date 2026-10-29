@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useParams } from 'react-router'
 
 import {
@@ -19,6 +20,7 @@ const CatalogPlanRateCardPhaseDetails = (): JSX.Element => {
   const { data, loading, error } = usePlanAppliedRateCardForDetails(appliedRateCardId)
 
   const detailsData = toPlanAppliedRateCardDetailsData(data?.planAppliedRateCard, catalogPlanId)
+  const deletedPhaseIdRef = useRef<string | null>(null)
 
   useNotFoundRedirect({
     error,
@@ -33,6 +35,7 @@ const CatalogPlanRateCardPhaseDetails = (): JSX.Element => {
     loading,
     notFound:
       !!detailsData &&
+      deletedPhaseIdRef.current !== phaseId &&
       !detailsData.appliedRateCard.ratePhases.some((phase) => phase.id === phaseId),
     redirectTo: config.buildCardPath({
       parentId: catalogPlanId,
@@ -49,6 +52,9 @@ const CatalogPlanRateCardPhaseDetails = (): JSX.Element => {
       phaseId={phaseId}
       loading={loading}
       hasError={!!error && !hasDefinedGQLError('NotFound', error)}
+      onPhaseDeleted={() => {
+        deletedPhaseIdRef.current = phaseId
+      }}
     />
   )
 }

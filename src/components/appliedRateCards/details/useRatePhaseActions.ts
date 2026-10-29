@@ -127,13 +127,13 @@ export const useRatePhaseActions = ({
       onAction: () => copyPhaseCode(phase),
     }
 
-    if (!canUpdate || isLocked) return [copyAction]
+    if (!canUpdate) return [copyAction]
 
     const editAction: RatePhaseAction = {
       key: 'edit',
       label: translate('text_1791485670326gf0h0n6l1w7'),
       startIcon: 'pen',
-      disabled: !rateCard,
+      disabled: isDrawerDisabled,
       dataTest: RATE_PHASE_ACTION_EDIT_TEST_ID,
       onAction: () => openEditDrawer(phase),
     }
@@ -142,7 +142,7 @@ export const useRatePhaseActions = ({
       key: 'reset',
       label: translate('text_1792505051513lwg9cymf8wg'),
       startIcon: 'reset',
-      disabled: false,
+      disabled: isLocked,
       dataTest: RATE_PHASE_ACTION_RESET_TEST_ID,
       onAction: () =>
         openResetRatePhaseOverrideDialog({
@@ -156,7 +156,7 @@ export const useRatePhaseActions = ({
       key: 'delete',
       label: translate('text_1791838459984x6zh06klebn'),
       startIcon: 'trash',
-      disabled: phases.length <= 1 || phase.billingIntervalCycleCount === null,
+      disabled: isLocked || phases.length <= 1 || phase.billingIntervalCycleCount === null,
       dataTest: RATE_PHASE_ACTION_DELETE_TEST_ID,
       onAction: () =>
         openDeleteRatePhaseDialog({

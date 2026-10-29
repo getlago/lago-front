@@ -39,14 +39,20 @@ type RatePhaseDetailsViewProps = {
   phaseId: string
   loading: boolean
   hasError: boolean
+  onPhaseDeleted?: () => void
 }
 
 type RatePhaseDetailsContentProps = {
   data: AppliedRateCardDetailsData
   phase: RatePhaseForDrawerFragment
+  onPhaseDeleted?: () => void
 }
 
-const RatePhaseDetailsContent = ({ data, phase }: RatePhaseDetailsContentProps): JSX.Element => {
+const RatePhaseDetailsContent = ({
+  data,
+  phase,
+  onPhaseDeleted,
+}: RatePhaseDetailsContentProps): JSX.Element => {
   const navigate = useNavigate()
   const { organizationSlug } = useParams()
   const { translate } = useInternationalization()
@@ -73,13 +79,15 @@ const RatePhaseDetailsContent = ({ data, phase }: RatePhaseDetailsContentProps):
     rateCard,
     phases: appliedRateCard.ratePhases,
     isLocked: parent.isLocked,
-    onPhaseDeleted: () =>
+    onPhaseDeleted: () => {
+      onPhaseDeleted?.()
       navigate(
         config.buildCardPath({
           ...cardPathParams,
           tab: AppliedRateCardDetailsTabsOptionsEnum.overview,
         }),
-      ),
+      )
+    },
   })
 
   const actions: MainHeaderAction[] = [
@@ -168,6 +176,7 @@ export const RatePhaseDetailsView = ({
   phaseId,
   loading,
   hasError,
+  onPhaseDeleted,
 }: RatePhaseDetailsViewProps): JSX.Element => {
   const phase = data?.appliedRateCard.ratePhases.find(({ id }) => id === phaseId)
 
@@ -182,5 +191,5 @@ export const RatePhaseDetailsView = ({
     )
   }
 
-  return <RatePhaseDetailsContent data={data} phase={phase} />
+  return <RatePhaseDetailsContent data={data} phase={phase} onPhaseDeleted={onPhaseDeleted} />
 }

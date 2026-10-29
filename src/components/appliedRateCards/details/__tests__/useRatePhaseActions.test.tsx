@@ -221,7 +221,12 @@ describe('useRatePhaseActions', () => {
     {
       condition: 'a locked parent',
       params: { isLocked: true },
-      expectedActions: [{ key: 'copy', disabled: false }],
+      expectedActions: [
+        { key: 'copy', disabled: false },
+        { key: 'edit', disabled: true },
+        { key: 'reset', disabled: true },
+        { key: 'delete', disabled: true },
+      ],
     },
     {
       condition: 'a rate card that is not loaded',
@@ -234,7 +239,7 @@ describe('useRatePhaseActions', () => {
       ],
     },
   ])('GIVEN $condition', ({ params, expectedActions }) => {
-    it('THEN only the actions it allows are returned, each in its own state', () => {
+    it('THEN only the actions it blocks are disabled', () => {
       const { getPhaseActions } = renderActions(params)
       const actions = getPhaseActions(MIDDLE_PHASE)
 

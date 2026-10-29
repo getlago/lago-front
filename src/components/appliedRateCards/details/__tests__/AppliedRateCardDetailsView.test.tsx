@@ -282,17 +282,17 @@ describe('AppliedRateCardDetailsView', () => {
       expect(screen.getByTestId(APPLIED_RATE_CARD_DETAILS_REMOVE_TEST_ID)).toBeDisabled()
     })
 
-    it('THEN the phase row menu only offers copy', async () => {
+    it('THEN the phase row menu disables edit and delete, and leaves copy enabled', async () => {
       renderView(withLockedParent(PLAN_DATA))
 
       const row = await screen.findByTestId(getAppliedRateCardPhaseRowTestId(1))
 
       await userEvent.click(within(row).getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
 
-      expect(screen.getByTestId(RATE_PHASE_ACTION_COPY_TEST_ID)).toBeInTheDocument()
-      expect(screen.queryByTestId(RATE_PHASE_ACTION_EDIT_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.getByTestId(RATE_PHASE_ACTION_COPY_TEST_ID)).not.toBeDisabled()
+      expect(screen.getByTestId(RATE_PHASE_ACTION_EDIT_TEST_ID)).toBeDisabled()
       expect(screen.queryByTestId(RATE_PHASE_ACTION_RESET_TEST_ID)).not.toBeInTheDocument()
-      expect(screen.queryByTestId(RATE_PHASE_ACTION_DELETE_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.getByTestId(RATE_PHASE_ACTION_DELETE_TEST_ID)).toBeDisabled()
     })
   })
 

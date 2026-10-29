@@ -117,7 +117,7 @@ describe('RatePhaseDetailsOverview', () => {
     const overview = screen.getByTestId(RATE_PHASE_OVERVIEW_TEST_ID)
 
     expect(await within(overview).findByText(TIMELINE_14_DAYS)).toBeInTheDocument()
-    expect(within(overview).getByText('Rate phases overview')).toBeInTheDocument()
+    expect(within(overview).getByText('Rate phase overview')).toBeInTheDocument()
     expect(within(overview).getByText('Ramp up')).toBeInTheDocument()
     expect(within(overview).getByText('ramp_up')).toBeInTheDocument()
     expect(within(overview).getByText('1')).toBeInTheDocument()
@@ -315,7 +315,7 @@ describe('RatePhaseDetailsOverview', () => {
   it('GIVEN the inline edit is hidden THEN no button', async () => {
     renderOverview({ editPhase: buildEditPhase({ hidden: true }) })
 
-    expect(await screen.findByText('Rate phases overview')).toBeInTheDocument()
+    expect(await screen.findByText('Rate phase overview')).toBeInTheDocument()
     expect(screen.queryByTestId(RATE_PHASE_OVERVIEW_EDIT_TEST_ID)).not.toBeInTheDocument()
   })
 
