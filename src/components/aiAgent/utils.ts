@@ -36,18 +36,30 @@ export const humanizeToolCallName = (name: string): string => {
   return words.charAt(0).toUpperCase() + words.slice(1)
 }
 
-// Nested values are shown as indented JSON so the member sees exactly what will be sent
+// Blank strings are quoted so a write that empties a field shows it
+const formatToolCallValue = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value.trim() ? value : JSON.stringify(value)
+  }
+
+  return String(value)
+}
+
 export const formatToolCallArguments = (
   toolArguments: unknown,
-): Array<{ key: string; label: string; value: string }> => {
+): Array<{ key: string; label: string; value: string; isJson: boolean }> => {
   if (!toolArguments || typeof toolArguments !== 'object' || Array.isArray(toolArguments)) {
     return []
   }
 
-  return Object.entries(toolArguments as Record<string, unknown>).map(([key, value]) => ({
-    key,
-    label: humanizeToolCallName(key),
-    value:
-      value !== null && typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value),
-  }))
+  return Object.entries(toolArguments as Record<string, unknown>).map(([key, value]) => {
+    const isJson = value !== null && typeof value === 'object'
+
+    return {
+      key,
+      label: humanizeToolCallName(key),
+      value: isJson ? JSON.stringify(value, null, 2) : formatToolCallValue(value),
+      isJson,
+    }
+  })
 }

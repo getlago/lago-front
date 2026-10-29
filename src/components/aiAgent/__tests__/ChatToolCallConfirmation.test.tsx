@@ -129,6 +129,19 @@ describe('ChatToolCallConfirmation', () => {
       })
     })
 
+    describe('WHEN a parameter holds nested values', () => {
+      it('THEN should show them as a JSON code snippet', () => {
+        mockState = buildState([buildToolCall({ arguments: { coupon: { code: 'WELCOME' } } })])
+
+        render(<ChatToolCallConfirmation onResume={onResume} />)
+
+        const argument = screen.getByTestId(CHAT_TOOL_CALL_ARGUMENT_TEST_ID)
+
+        expect(argument.querySelector('code.language-json')).toBeInTheDocument()
+        expect(argument).toHaveTextContent('"code": "WELCOME"')
+      })
+    })
+
     describe('WHEN an answer is in flight', () => {
       it('THEN should disable the buttons', () => {
         mockDecideLoading = true
@@ -203,6 +216,23 @@ describe('ChatToolCallConfirmation', () => {
           fetchPolicy: 'network-only',
         })
         expect(mockResumeConversation).not.toHaveBeenCalled()
+        expect(onResume).not.toHaveBeenCalled()
+      })
+    })
+    describe('WHEN the answer does not reach the server', () => {
+      it('THEN should sync the writes from the server instead of failing', async () => {
+        mockConfirmToolCall.mockRejectedValue(new Error('Network error'))
+        mockGetAiConversation.mockResolvedValue({
+          data: { aiConversation: { id: 'conv-1', pendingToolCalls: [buildToolCall()] } },
+        })
+
+        render(<ChatToolCallConfirmation onResume={onResume} />)
+
+        await userEvent.click(screen.getByTestId(CHAT_TOOL_CALL_CONFIRM_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockSetPendingToolCalls).toHaveBeenCalledWith([buildToolCall()])
+        })
         expect(onResume).not.toHaveBeenCalled()
       })
     })

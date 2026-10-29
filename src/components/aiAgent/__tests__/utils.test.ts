@@ -200,15 +200,27 @@ describe('formatToolCallArguments', () => {
     expect(
       formatToolCallArguments({ external_customer_id: 'cus_1', amount_cents: 1000, draft: false }),
     ).toEqual([
-      { key: 'external_customer_id', label: 'External customer id', value: 'cus_1' },
-      { key: 'amount_cents', label: 'Amount cents', value: '1000' },
-      { key: 'draft', label: 'Draft', value: 'false' },
+      {
+        key: 'external_customer_id',
+        label: 'External customer id',
+        value: 'cus_1',
+        isJson: false,
+      },
+      { key: 'amount_cents', label: 'Amount cents', value: '1000', isJson: false },
+      { key: 'draft', label: 'Draft', value: 'false', isJson: false },
     ])
   })
 
   it('shows nested values as indented JSON', () => {
     expect(formatToolCallArguments({ coupon: { code: 'WELCOME' } })).toEqual([
-      { key: 'coupon', label: 'Coupon', value: '{\n  "code": "WELCOME"\n}' },
+      { key: 'coupon', label: 'Coupon', value: '{\n  "code": "WELCOME"\n}', isJson: true },
+    ])
+  })
+
+  it('quotes blank strings so an emptied field is visible', () => {
+    expect(formatToolCallArguments({ email: '', name: '  ' })).toEqual([
+      { key: 'email', label: 'Email', value: '""', isJson: false },
+      { key: 'name', label: 'Name', value: '"  "', isJson: false },
     ])
   })
 

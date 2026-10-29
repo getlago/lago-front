@@ -13173,6 +13173,8 @@ export type DeleteAddOnMutationVariables = Exact<{
 
 export type DeleteAddOnMutation = { __typename?: 'Mutation', destroyAddOn?: { __typename?: 'DestroyAddOnPayload', id?: string | null } | null };
 
+export type AiConversationToolCallItemFragment = { __typename?: 'AiConversationToolCall', id: string, name: string, arguments: any, status: AiConversationToolCallStatusEnum };
+
 export type GetAiConversationQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -13200,8 +13202,6 @@ export type CreateAiConversationMutationVariables = Exact<{
 
 
 export type CreateAiConversationMutation = { __typename?: 'Mutation', createAiConversation?: { __typename?: 'AiConversation', id: string, name: string } | null };
-
-export type AiConversationToolCallItemFragment = { __typename?: 'AiConversationToolCall', id: string, name: string, arguments: any, status: AiConversationToolCallStatusEnum };
 
 export type ConfirmAiConversationToolCallMutationVariables = Exact<{
   input: ConfirmAiConversationToolCallInput;

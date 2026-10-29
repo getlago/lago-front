@@ -6,13 +6,6 @@ import {
 } from '~/generated/graphql'
 
 gql`
-  fragment AiConversationToolCallItem on AiConversationToolCall {
-    id
-    name
-    arguments
-    status
-  }
-
   mutation confirmAiConversationToolCall($input: ConfirmAiConversationToolCallInput!) {
     confirmAiConversationToolCall(input: $input) {
       ...AiConversationToolCallItem

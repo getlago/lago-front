@@ -1,5 +1,16 @@
-import { createContext, ReactNode, useContext, useMemo, useReducer, useState } from 'react'
+import { useReactiveVar } from '@apollo/client'
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react'
 
+import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars/currentOrganizationVar'
 import { getItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import {
   AiConversationToolCallItemFragment,
@@ -112,6 +123,21 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     financeSessionId: undefined,
     toolCalls: [],
   })
+
+  const currentOrganizationId = useReactiveVar(currentOrganizationVar)
+  const previousOrganizationIdRef = useRef(currentOrganizationId)
+
+  // A conversation and its pending writes belong to one organization
+  useEffect(() => {
+    const previousOrganizationId = previousOrganizationIdRef.current
+
+    previousOrganizationIdRef.current = currentOrganizationId
+
+    if (previousOrganizationId && previousOrganizationId !== currentOrganizationId) {
+      setConversationId('')
+      dispatch({ type: ChatActionType.RESET_CONVERSATION })
+    }
+  }, [currentOrganizationId])
 
   const lastAssistantMessage = useMemo(() => {
     return state.messages.filter((message) => message.role === ChatRole.assistant).pop()

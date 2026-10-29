@@ -1,9 +1,11 @@
+import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 
 import { useGetAiConversation } from '~/components/aiAgent/hooks/getAiConversation'
 import { useDecideAiToolCall } from '~/components/aiAgent/hooks/useDecideAiToolCall'
 import { formatToolCallArguments, humanizeToolCallName } from '~/components/aiAgent/utils'
+import { CodeSnippet } from '~/components/CodeSnippet'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import {
@@ -12,6 +14,15 @@ import {
 } from '~/generated/graphql'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+gql`
+  fragment AiConversationToolCallItem on AiConversationToolCall {
+    id
+    name
+    arguments
+    status
+  }
+`
 
 export const CHAT_TOOL_CALL_CONFIRMATION_TEST_ID = 'chat-tool-call-confirmation'
 export const CHAT_TOOL_CALL_ITEM_TEST_ID = 'chat-tool-call-item'
@@ -57,9 +68,12 @@ export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationP
 
   const handleDecision = async (toolCall: AiConversationToolCallItemFragment, confirm: boolean) => {
     const variables = { input: { id: toolCall.id } }
-    const decidedToolCall = confirm
-      ? (await confirmToolCall({ variables })).data?.confirmAiConversationToolCall
-      : (await cancelToolCall({ variables })).data?.cancelAiConversationToolCall
+    // A network failure leaves the answer unknown, so it goes through the server sync below
+    const decidedToolCall = await (
+      confirm
+        ? confirmToolCall({ variables }).then(({ data }) => data?.confirmAiConversationToolCall)
+        : cancelToolCall({ variables }).then(({ data }) => data?.cancelAiConversationToolCall)
+    ).catch(() => undefined)
 
     if (!decidedToolCall) {
       return syncPendingToolCalls()
@@ -112,14 +126,26 @@ export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationP
                     <Typography component="dt" variant="caption" color="grey600">
                       {argument.label}
                     </Typography>
-                    <Typography
-                      component="dd"
-                      variant="captionCode"
-                      color="grey700"
-                      className="whitespace-pre-wrap break-words"
-                    >
-                      {argument.value}
-                    </Typography>
+                    {argument.isJson ? (
+                      <dd>
+                        <CodeSnippet
+                          variant="minimal"
+                          language="json"
+                          code={argument.value}
+                          displayHead={false}
+                          canCopy
+                        />
+                      </dd>
+                    ) : (
+                      <Typography
+                        component="dd"
+                        variant="captionCode"
+                        color="grey700"
+                        className="whitespace-pre-wrap break-words"
+                      >
+                        {argument.value}
+                      </Typography>
+                    )}
                   </div>
                 ))}
               </dl>
