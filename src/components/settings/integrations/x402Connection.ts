@@ -67,13 +67,18 @@ export const getX402Network = (id: string): X402Network | undefined =>
 export const getX402Environment = (networks: string[]): X402EnvironmentEnum | undefined =>
   networks.map(getX402Network).find((network) => !!network)?.environment
 
+// A network missing from `X402_NETWORKS` still carries its family in its CAIP-2 namespace.
+const CAIP_NAMESPACE_FAMILIES: Record<string, X402FamilyEnum> = {
+  eip155: X402FamilyEnum.Evm,
+  solana: X402FamilyEnum.Svm,
+}
+
+export const getX402Family = (id: string): X402FamilyEnum | undefined =>
+  getX402Network(id)?.family ?? CAIP_NAMESPACE_FAMILIES[id.split(':')[0]]
+
 export const getX402Families = (networks: string[]): X402FamilyEnum[] =>
   Array.from(
-    new Set(
-      networks
-        .map((id) => getX402Network(id)?.family)
-        .filter((family): family is X402FamilyEnum => !!family),
-    ),
+    new Set(networks.map(getX402Family).filter((family): family is X402FamilyEnum => !!family)),
   )
 
 export const parseAllowedOrigins = (value: string): string[] =>

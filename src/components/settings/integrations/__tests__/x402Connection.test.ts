@@ -1,6 +1,7 @@
 import {
   getX402Environment,
   getX402Families,
+  getX402Family,
   isValidAllowedOrigin,
   parseAllowedOrigins,
   X402EnvironmentEnum,
@@ -69,6 +70,17 @@ describe('x402Connection', () => {
       expect(
         getX402Families(['eip155:8453', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'eip155:8453']),
       ).toEqual([X402FamilyEnum.Evm, X402FamilyEnum.Svm])
+    })
+  })
+
+  describe('getX402Family', () => {
+    it.each([
+      ['eip155:84532', X402FamilyEnum.Evm],
+      ['eip155:10', X402FamilyEnum.Evm],
+      ['solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z', X402FamilyEnum.Svm],
+      ['cosmos:cosmoshub-4', undefined],
+    ])('GIVEN %s THEN returns %s', (network, family) => {
+      expect(getX402Family(network)).toBe(family)
     })
   })
 })

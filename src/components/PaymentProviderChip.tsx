@@ -28,20 +28,48 @@ export const providerLabels: Record<ProviderTypeEnum, string> = {
   [ProviderTypeEnum.Moneyhash]: 'text_1733427981129n3wxjui0bex',
 }
 
+type PaymentProviderChipType = NonNullable<PaymentProviderChipProps['paymentProvider']>
+
+type PaymentMethodInput = {
+  paymentType?: PaymentTypeEnum | null
+  paymentProviderType?: ProviderTypeEnum | null
+  manualVariant?: 'manual' | 'manual_long'
+}
+
+const MANUAL_LABEL_KEYS: Record<'manual' | 'manual_long', string> = {
+  manual: 'text_1737110192586abtitcui0xt',
+  manual_long: 'text_173799550683709p2rqkoqd5',
+}
+
+const X402_LABEL_KEY = 'text_1793137178564a1ls2ponepm'
+
+const isManualChip = (
+  paymentProvider: PaymentProviderChipType,
+): paymentProvider is 'manual' | 'manual_long' =>
+  paymentProvider === 'manual' || paymentProvider === 'manual_long'
+
+const chipLabelKey = (paymentProvider: PaymentProviderChipType): string => {
+  if (isManualChip(paymentProvider)) return MANUAL_LABEL_KEYS[paymentProvider]
+  if (paymentProvider === 'x402') return X402_LABEL_KEY
+
+  return providerLabels[paymentProvider]
+}
+
 export const getPaymentProviderChipType = ({
   paymentType,
   paymentProviderType,
   manualVariant = 'manual',
-}: {
-  paymentType?: PaymentTypeEnum | null
-  paymentProviderType?: ProviderTypeEnum | null
-  manualVariant?: 'manual' | 'manual_long'
-}): PaymentProviderChipProps['paymentProvider'] => {
-  if (paymentProviderType) return paymentProviderType
+}: PaymentMethodInput): PaymentProviderChipProps['paymentProvider'] => {
   if (paymentType === PaymentTypeEnum.Manual) return manualVariant
   if (paymentType === PaymentTypeEnum.X402) return 'x402'
 
-  return undefined
+  return paymentProviderType ?? undefined
+}
+
+export const getPaymentMethodLabelKey = (input: PaymentMethodInput): string | undefined => {
+  const paymentProvider = getPaymentProviderChipType(input)
+
+  return paymentProvider ? chipLabelKey(paymentProvider) : undefined
 }
 
 export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
@@ -58,15 +86,12 @@ export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
     return null
   }
 
-  const isManual = paymentProvider === 'manual' || paymentProvider === 'manual_long'
-  const manualLabel =
-    paymentProvider === 'manual' ? 'text_1737110192586abtitcui0xt' : 'text_173799550683709p2rqkoqd5'
+  const isManual = isManualChip(paymentProvider)
 
   const getDisplayLabel = (): string => {
-    if (isManual) return translate(manualLabel)
-    if (paymentProvider === 'x402') return translate('text_1793137178564a1ls2ponepm')
+    if (!isManual && paymentProvider !== 'x402' && label) return label
 
-    return label || translate(providerLabels[paymentProvider])
+    return translate(chipLabelKey(paymentProvider))
   }
 
   const renderAvatar = (): ReactNode => {

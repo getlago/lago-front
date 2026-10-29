@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react'
 
 import { MainHeaderConfig } from '~/components/MainHeader/types'
-import { addToast } from '~/core/apolloClient'
+import { addToast, initializeTranslations } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   CurrencyEnum,
@@ -221,7 +221,28 @@ describe('PaymentDetails', () => {
     })
   })
 
+  describe('GIVEN a manual payment for a customer linked to a provider', () => {
+    it('THEN shows the manual payment method, not the provider', () => {
+      mockUseGetPaymentDetailsQuery.mockReturnValue({
+        data: {
+          payment: { ...mockPaymentData.payment, paymentProviderType: ProviderTypeEnum.Stripe },
+        },
+        loading: false,
+      })
+
+      render(<PaymentDetails />)
+
+      expect(screen.getByTestId(PAYMENT_METHOD_TEST_ID)).toHaveTextContent(
+        'text_173799550683709p2rqkoqd5',
+      )
+    })
+  })
+
   describe('GIVEN an x402 payment', () => {
+    beforeAll(async () => {
+      await initializeTranslations()
+    })
+
     const x402Payment = (settlement: Record<string, unknown>) => ({
       data: {
         payment: {
@@ -266,9 +287,7 @@ describe('PaymentDetails', () => {
       ).toBeInTheDocument()
       expect(within(section).getByText('Solana')).toBeInTheDocument()
       expect(within(section).getByText('USDC')).toBeInTheDocument()
-      expect(screen.getByTestId(X402_SETTLEMENT_STATUS_TEST_ID)).toHaveTextContent(
-        'text_17419455271371fw602t6rhg',
-      )
+      expect(screen.getByTestId(X402_SETTLEMENT_STATUS_TEST_ID)).toHaveTextContent('Succeeded')
       expect(screen.getByTestId(X402_SETTLEMENT_CREDIT_GRANTED_TEST_ID)).toHaveTextContent('10')
     })
 
@@ -287,9 +306,7 @@ describe('PaymentDetails', () => {
         'text_1793137178565lnwwik8dvve',
       )
       expect(screen.getByTestId(X402_SETTLEMENT_CREDIT_GRANTED_TEST_ID)).toHaveTextContent('-')
-      expect(screen.getByTestId(X402_SETTLEMENT_STATUS_TEST_ID)).not.toHaveTextContent(
-        'text_17419455271371fw602t6rhg',
-      )
+      expect(screen.getByTestId(X402_SETTLEMENT_STATUS_TEST_ID)).toHaveTextContent('Pending')
     })
 
     it('WHEN the cached payment refreshes THEN keeps the settlement section', () => {

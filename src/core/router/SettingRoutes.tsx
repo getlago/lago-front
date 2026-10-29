@@ -384,6 +384,7 @@ export const settingRoutes: CustomRouteObject[] = [
         element: <X402Integrations />,
         permissions: ['organizationIntegrationsView'],
         featureFlag: FeatureFlagEnum.X402Payments,
+        premium: true,
       },
       {
         path: X402_INTEGRATION_DETAILS_ROUTE,
@@ -391,6 +392,7 @@ export const settingRoutes: CustomRouteObject[] = [
         element: <X402IntegrationDetails />,
         permissions: ['organizationIntegrationsView'],
         featureFlag: FeatureFlagEnum.X402Payments,
+        premium: true,
       },
       {
         path: GOCARDLESS_INTEGRATION_OAUTH_CALLBACK_ROUTE,

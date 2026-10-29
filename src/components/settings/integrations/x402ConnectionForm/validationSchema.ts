@@ -19,7 +19,7 @@ export const x402ValidationSchema = z
     code: z.string().min(1, { message: REQUIRED_ERROR }),
     cdpApiKeyId: z.string(),
     cdpApiKeySecret: z.string(),
-    environment: z.string().min(1, { message: REQUIRED_ERROR }),
+    environment: z.string(),
     networks: z
       .array(z.object({ value: z.string(), label: z.string().optional() }))
       .min(1, { message: REQUIRED_ERROR }),
@@ -31,6 +31,11 @@ export const x402ValidationSchema = z
   .superRefine((values, ctx) => {
     const families = getX402Families(values.networks.map(({ value }) => value))
     const origins = parseAllowedOrigins(values.allowedOrigins)
+
+    // A saved network the catalog does not know yet leaves no environment to select.
+    if (!values.environment && !values.networks.length) {
+      ctx.addIssue({ code: 'custom', message: REQUIRED_ERROR, path: ['environment'] })
+    }
 
     if (!values.isEdition && !values.cdpApiKeyId) {
       ctx.addIssue({ code: 'custom', message: REQUIRED_ERROR, path: ['cdpApiKeyId'] })

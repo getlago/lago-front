@@ -25,7 +25,12 @@ import { CableSubscriptionError, createCableLink, refreshCableConsumer } from '.
 import { cache } from './cache'
 import { setupCachePersistor } from './cachePersistor'
 import { omitDeep } from './cacheUtils'
-import { buildGraphQLErrorFingerprint, getGraphQLErrorCode, isSilencedGQLError } from './errorUtils'
+import {
+  buildGraphQLErrorFingerprint,
+  getGraphQLErrorCode,
+  isSilencedGQLError,
+  redactSensitiveVariables,
+} from './errorUtils'
 import { resolvers, typeDefs } from './graphqlResolvers'
 
 const AUTH_ERRORS = [
@@ -132,7 +137,7 @@ export const initializeApolloClient = async () => {
             extra: {
               durationMs: Math.round(durationMs),
               thresholdMs: SLOW_QUERY_THRESHOLD_MS,
-              variables: operation.variables,
+              variables: redactSensitiveVariables(operation.variables),
             },
             fingerprint: ['slow-graphql', operation.operationName || 'unknown'],
           },
@@ -252,7 +257,7 @@ export const initializeApolloClient = async () => {
                 return str.length > MAX_LENGTH ? `${str.slice(0, MAX_LENGTH)}...[truncated]` : str
               })(),
               value,
-              variables: operation.variables,
+              variables: redactSensitiveVariables(operation.variables),
               operationQuery: operation.query?.loc?.source?.body || 'unknown',
             },
           })

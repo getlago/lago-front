@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useEffect } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -20,7 +19,6 @@ import {
   useGetX402IntegrationDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import Coinbase from '~/public/images/coinbase.svg'
 
@@ -69,11 +67,9 @@ const X402IntegrationDetails = (): JSX.Element | null => {
   const { openAddX402Dialog } = useAddX402Dialog()
   const { openDeleteX402IntegrationDialog } = useDeleteX402IntegrationDialog()
   const { translate } = useInternationalization()
-  const { isPremium, loading: currentUserLoading } = useCurrentUser()
-  const isUnavailable = !currentUserLoading && !isPremium
   const { data, loading } = useGetX402IntegrationDetailsQuery({
     variables: { id: integrationId ?? '', limit: CONNECTION_LIMIT },
-    skip: !integrationId || !isPremium,
+    skip: !integrationId,
   })
   const connection = data?.x402Connection
   const initialLoading = loading && !data
@@ -91,16 +87,6 @@ const X402IntegrationDetails = (): JSX.Element | null => {
 
   const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
   const canDeleteIntegration = hasPermissions(['organizationIntegrationsDelete'])
-
-  useEffect(() => {
-    if (isUnavailable) {
-      navigate(
-        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
-      )
-    }
-  }, [isUnavailable, navigate])
-
-  if (isUnavailable) return null
 
   return (
     <>

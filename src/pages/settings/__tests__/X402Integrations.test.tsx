@@ -25,11 +25,6 @@ jest.mock('~/components/settings/integrations/DeleteX402IntegrationDialog', () =
     openDeleteX402IntegrationDialog: mockOpenDeleteDialog,
   }),
 }))
-let mockIsPremium = true
-
-jest.mock('~/hooks/useCurrentUser', () => ({
-  useCurrentUser: () => ({ isPremium: mockIsPremium, loading: false }),
-}))
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
     hasPermissions: () => true,
@@ -67,7 +62,6 @@ describe('X402Integrations', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    mockIsPremium = true
     mockQueryResult.mockReturnValue({
       data: {
         x402Connections: {
@@ -113,20 +107,6 @@ describe('X402Integrations', () => {
       expect(testMockNavigateFn).toHaveBeenCalledWith(
         generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
       )
-    })
-  })
-
-  describe('GIVEN the license is not premium', () => {
-    it('THEN sends the user back to the integrations without loading connections', async () => {
-      mockIsPremium = false
-
-      await renderIntegrationPage(X402Integrations)
-
-      expect(testMockNavigateFn).toHaveBeenCalledWith(
-        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
-      )
-      expect(mockQueryResult).toHaveBeenCalledWith(expect.objectContaining({ skip: true }))
-      expect(screen.queryByText('Coinbase Devnet')).not.toBeInTheDocument()
     })
   })
 

@@ -17,9 +17,8 @@ import { X402_INTEGRATION_ROUTE } from '~/core/router'
 import {
   FeatureFlagEnum,
   GetBillingEntitiesDocument,
-  GetX402ConnectionsPresenceDocument,
-  GetX402ConnectionsPresenceQuery,
   IntegrationsSettingDocument,
+  IntegrationsSettingQuery,
   PremiumIntegrationTypeEnum,
 } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn, TestMocksType } from '~/test-utils'
@@ -109,17 +108,17 @@ let mockOrganizationData: {
 
 const mockHasFeatureFlag = jest.fn()
 
-let mockX402Presence: { data: GetX402ConnectionsPresenceQuery; loading: boolean } | undefined
+let mockIntegrationsSetting: { data: IntegrationsSettingQuery; loading: boolean } | undefined
 
 jest.mock('~/generated/graphql', () => {
   const actual = jest.requireActual('~/generated/graphql')
 
   return {
     ...actual,
-    useGetX402ConnectionsPresenceQuery: (...args: unknown[]) => {
-      const result = actual.useGetX402ConnectionsPresenceQuery(...args)
+    useIntegrationsSettingQuery: (...args: unknown[]) => {
+      const result = actual.useIntegrationsSettingQuery(...args)
 
-      return mockX402Presence ?? result
+      return mockIntegrationsSetting ?? result
     },
   }
 })
@@ -160,7 +159,7 @@ function emptyIntegrationsMock(): TestMocksType {
     {
       request: {
         query: IntegrationsSettingDocument,
-        variables: { limit: 1000 },
+        variables: { limit: 1000, withX402: false },
       },
       result: {
         data: {
@@ -184,7 +183,7 @@ function stripeConnectedMock(): TestMocksType {
     {
       request: {
         query: IntegrationsSettingDocument,
-        variables: { limit: 1000 },
+        variables: { limit: 1000, withX402: false },
       },
       result: {
         data: {
@@ -213,7 +212,7 @@ function netsuiteConnectedMock(): TestMocksType {
     {
       request: {
         query: IntegrationsSettingDocument,
-        variables: { limit: 1000 },
+        variables: { limit: 1000, withX402: false },
       },
       result: {
         data: {
@@ -237,22 +236,29 @@ function netsuiteConnectedMock(): TestMocksType {
   ]
 }
 
-function x402ConnectionsMock(count: number, delay = 0): TestMocksType[number] {
-  return {
-    delay,
-    request: { query: GetX402ConnectionsPresenceDocument },
-    result: {
-      data: {
-        x402Connections: {
-          __typename: 'X402ConnectionObjectCollection',
-          collection: Array.from({ length: count }, (_, index) => ({
-            __typename: 'X402ConnectionObject',
-            id: `x402-${index}`,
-          })),
+function x402IntegrationsMock(count: number): TestMocksType {
+  return [
+    {
+      request: {
+        query: IntegrationsSettingDocument,
+        variables: { limit: 1000, withX402: true },
+      },
+      result: {
+        data: {
+          x402Connections: {
+            __typename: 'X402ConnectionObjectCollection',
+            collection: Array.from({ length: count }, (_, index) => ({
+              __typename: 'X402ConnectionObject',
+              id: `x402-${index}`,
+            })),
+          },
+          paymentProviders: { __typename: 'PaymentProviderCollection', collection: [] },
+          integrations: { __typename: 'IntegrationCollection', collection: [] },
         },
       },
     },
-  }
+    emptyBillingEntitiesMock(),
+  ]
 }
 
 const customRender = (
@@ -276,7 +282,7 @@ describe('Integrations', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    mockX402Presence = undefined
+    mockIntegrationsSetting = undefined
     mockIsPremium = true
     mockHasFeatureFlag.mockReturnValue(false)
     mockOrganizationData = {
@@ -554,36 +560,31 @@ describe('Integrations', () => {
 
       mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.X402Payments)
 
-      await prepare({ mocks: [...emptyIntegrationsMock(), x402ConnectionsMock(0)] })
+      await prepare({ mocks: x402IntegrationsMock(0) })
       await user.click(await screen.findByTestId(INTEGRATIONS_X402_TEST_ID))
 
       expect(mockOpenAddX402Dialog).toHaveBeenCalledTimes(1)
       expect(testMockNavigateFn).not.toHaveBeenCalled()
     })
 
-    it('shows the connection once it loads after the other integrations', async () => {
-      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.X402Payments)
-
-      await prepare({ mocks: [...emptyIntegrationsMock(), x402ConnectionsMock(1, 50)] })
-
-      await waitFor(() => {
-        expect(screen.getByTestId(INTEGRATIONS_X402_TEST_ID)).toHaveTextContent('Connected')
-      })
-    })
-
     it('keeps the integrations visible while a cached connection refreshes', async () => {
       mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.X402Payments)
-      mockX402Presence = {
+      mockIntegrationsSetting = {
         loading: true,
         data: {
           x402Connections: {
             __typename: 'X402ConnectionObjectCollection',
             collection: [{ __typename: 'X402ConnectionObject', id: 'x402-0' }],
           },
+          paymentProviders: {
+            __typename: 'PaymentProviderCollection',
+            collection: [{ __typename: 'StripeProvider', id: 'stripe-123' }],
+          },
+          integrations: { __typename: 'IntegrationCollection', collection: [] },
         },
       }
 
-      await prepare({ mocks: [...emptyIntegrationsMock(), x402ConnectionsMock(1)] })
+      await prepare({ mocks: x402IntegrationsMock(1) })
 
       await waitFor(() => {
         expect(screen.getByTestId(INTEGRATIONS_X402_TEST_ID)).toHaveTextContent('Connected')
@@ -596,7 +597,7 @@ describe('Integrations', () => {
 
       mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.X402Payments)
 
-      await prepare({ mocks: [...emptyIntegrationsMock(), x402ConnectionsMock(1)] })
+      await prepare({ mocks: x402IntegrationsMock(1) })
 
       const selector = await screen.findByTestId(INTEGRATIONS_X402_TEST_ID)
 

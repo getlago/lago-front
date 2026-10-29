@@ -12,6 +12,7 @@ import {
   AddX402ConnectionDialogFragment,
   CreateX402ConnectionMutation,
   CreateX402ConnectionMutationOptions,
+  LagoApiError,
   UpdateX402ConnectionMutation,
   UpdateX402ConnectionMutationOptions,
   X402AssetEnum,
@@ -165,16 +166,14 @@ describe('useAddX402Dialog', () => {
   })
 
   describe('GIVEN the dialog is opened in creation mode', () => {
-    it('THEN keeps both mutations away from the links that report variables to Sentry', async () => {
+    it('THEN silences only the validation errors it shows inline', async () => {
       await openDialog()
 
       expect(mockCreateOptions?.context).toEqual({
-        silentError: true,
-        disableSlowQueryTracking: true,
+        silentErrorCodes: [LagoApiError.UnprocessableEntity],
       })
       expect(mockUpdateOptions?.context).toEqual({
-        silentError: true,
-        disableSlowQueryTracking: true,
+        silentErrorCodes: [LagoApiError.UnprocessableEntity],
       })
     })
 
@@ -366,6 +365,18 @@ describe('useAddX402Dialog', () => {
           message: 'Something went wrong',
           severity: 'danger',
         })
+      })
+    })
+
+    describe('WHEN the API fails with a code the error link reports', () => {
+      it('THEN leaves the toast to the error link', async () => {
+        mockUpdateConnection.mockResolvedValueOnce({
+          errors: [{ message: 'Internal Error', extensions: { code: 'internal_error' } }],
+        })
+        const dialogProps = await openDialog({ connection })
+
+        expect(await submit(dialogProps)).toBe('failure')
+        expect(addToast).not.toHaveBeenCalled()
       })
     })
   })

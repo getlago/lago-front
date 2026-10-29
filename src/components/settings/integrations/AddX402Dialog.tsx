@@ -23,6 +23,7 @@ import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { useNavigate, X402_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   AddX402ConnectionDialogFragment,
+  LagoApiError,
   useCreateX402ConnectionMutation,
   useUpdateX402ConnectionMutation,
   X402IntegrationDetailsFragmentDoc,
@@ -65,6 +66,12 @@ gql`
 
 const ADD_X402_FORM_ID = 'form-add-x402-integration'
 
+// The error link toasts and reports every code these mutations do not silence.
+const isSilencedByErrorLink = (errors: readonly GraphQLFormattedError[]): boolean =>
+  errors.every(
+    ({ extensions }) => !extensions?.code || extensions.code === LagoApiError.UnprocessableEntity,
+  )
+
 type OpenAddX402DialogData = {
   connection?: AddX402ConnectionDialogFragment
 }
@@ -78,9 +85,8 @@ export const useAddX402Dialog = (): {
 
   const dataRef = useRef<OpenAddX402DialogData | null>(null)
 
-  // The error and slow-query links send `operation.variables` to Sentry: these carry the CDP secret.
   const [createConnection] = useCreateX402ConnectionMutation({
-    context: { silentError: true, disableSlowQueryTracking: true },
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ createX402Connection }) {
       if (createX402Connection?.id) {
         navigate(
@@ -99,7 +105,7 @@ export const useAddX402Dialog = (): {
   })
 
   const [updateConnection] = useUpdateX402ConnectionMutation({
-    context: { silentError: true, disableSlowQueryTracking: true },
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ updateX402Connection }) {
       if (updateX402Connection?.id) {
         addToast({
@@ -118,7 +124,7 @@ export const useAddX402Dialog = (): {
 
     if (Object.keys(fields).length) {
       formApi.setErrorMap({ onDynamic: { fields } })
-    } else if (errors?.length) {
+    } else if (errors?.length && isSilencedByErrorLink(errors)) {
       addToast({ message: translate('text_62d7ffcb1c57d7e6d15bdce3'), severity: 'danger' })
     }
   }

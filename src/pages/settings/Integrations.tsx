@@ -58,7 +58,6 @@ import {
   FeatureFlagEnum,
   PremiumIntegrationTypeEnum,
   useGetBillingEntitiesQuery,
-  useGetX402ConnectionsPresenceQuery,
   useIntegrationsSettingQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -91,15 +90,13 @@ export const INTEGRATIONS_SALESFORCE_TEST_ID = 'integrations-salesforce'
 export const INTEGRATIONS_SEGMENT_TEST_ID = 'integrations-segment'
 
 gql`
-  query getX402ConnectionsPresence {
-    x402Connections(limit: 1) {
+  query integrationsSetting($limit: Int, $withX402: Boolean!) {
+    x402Connections(limit: 1) @include(if: $withX402) {
       collection {
         id
       }
     }
-  }
 
-  query integrationsSetting($limit: Int) {
     paymentProviders(limit: $limit) {
       collection {
         ... on MoneyhashProvider {
@@ -178,15 +175,11 @@ const Integrations = () => {
   const { openAddX402Dialog } = useAddX402Dialog()
 
   const { data, loading } = useIntegrationsSettingQuery({
-    variables: { limit: 1000 },
+    variables: { limit: 1000, withX402: isX402Enabled },
     nextFetchPolicy: 'cache-and-network',
   })
-
-  const { data: x402Data, loading: x402Loading } = useGetX402ConnectionsPresenceQuery({
-    skip: !isX402Enabled,
-  })
-  const hasX402Integration = !!x402Data?.x402Connections?.collection.length
-  const isLagoTabLoading = (loading && !data) || (x402Loading && !x402Data)
+  const hasX402Integration = !!data?.x402Connections?.collection.length
+  const isLagoTabLoading = loading && !data
 
   const { data: billingEntitiesData } = useGetBillingEntitiesQuery()
 
@@ -304,7 +297,7 @@ const Integrations = () => {
                 integrationGroup: IntegrationsTabsOptionsEnum.Lago,
               }),
             ],
-            snapshotKey: JSON.stringify([isX402Enabled, isLagoTabLoading, hasX402Integration]),
+            snapshotKey: JSON.stringify([isX402Enabled, data]),
             content: (
               <SettingsPaddedContainer className="gap-8">
                 <SettingsListWrapper>

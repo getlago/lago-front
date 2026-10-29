@@ -18839,17 +18839,13 @@ export type GetHubspotIntegrationsListQuery = { __typename?: 'Query', integratio
       | { __typename?: 'XeroIntegration' }
     > } | null };
 
-export type GetX402ConnectionsPresenceQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetX402ConnectionsPresenceQuery = { __typename?: 'Query', x402Connections: { __typename?: 'X402ConnectionObjectCollection', collection: Array<{ __typename?: 'X402ConnectionObject', id: string }> } };
-
 export type IntegrationsSettingQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
+  withX402: Scalars['Boolean']['input'];
 }>;
 
 
-export type IntegrationsSettingQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+export type IntegrationsSettingQuery = { __typename?: 'Query', x402Connections?: { __typename?: 'X402ConnectionObjectCollection', collection: Array<{ __typename?: 'X402ConnectionObject', id: string }> }, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider', id: string }
       | { __typename?: 'CashfreeProvider', id: string }
       | { __typename?: 'FlutterwaveProvider', id: string }
@@ -52142,52 +52138,13 @@ export type GetHubspotIntegrationsListQueryHookResult = ReturnType<typeof useGet
 export type GetHubspotIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetHubspotIntegrationsListLazyQuery>;
 export type GetHubspotIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetHubspotIntegrationsListSuspenseQuery>;
 export type GetHubspotIntegrationsListQueryResult = Apollo.QueryResult<GetHubspotIntegrationsListQuery, GetHubspotIntegrationsListQueryVariables>;
-export const GetX402ConnectionsPresenceDocument = gql`
-    query getX402ConnectionsPresence {
-  x402Connections(limit: 1) {
+export const IntegrationsSettingDocument = gql`
+    query integrationsSetting($limit: Int, $withX402: Boolean!) {
+  x402Connections(limit: 1) @include(if: $withX402) {
     collection {
       id
     }
   }
-}
-    `;
-
-/**
- * __useGetX402ConnectionsPresenceQuery__
- *
- * To run a query within a React component, call `useGetX402ConnectionsPresenceQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetX402ConnectionsPresenceQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetX402ConnectionsPresenceQuery({
- *   variables: {
- *   },
- * });
- */
-export function useGetX402ConnectionsPresenceQuery(baseOptions?: Apollo.QueryHookOptions<GetX402ConnectionsPresenceQuery, GetX402ConnectionsPresenceQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetX402ConnectionsPresenceQuery, GetX402ConnectionsPresenceQueryVariables>(GetX402ConnectionsPresenceDocument, options);
-      }
-export function useGetX402ConnectionsPresenceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetX402ConnectionsPresenceQuery, GetX402ConnectionsPresenceQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetX402ConnectionsPresenceQuery, GetX402ConnectionsPresenceQueryVariables>(GetX402ConnectionsPresenceDocument, options);
-        }
-// @ts-ignore
-export function useGetX402ConnectionsPresenceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetX402ConnectionsPresenceQuery, GetX402ConnectionsPresenceQueryVariables>): Apollo.UseSuspenseQueryResult<GetX402ConnectionsPresenceQuery, GetX402ConnectionsPresenceQueryVariables>;
-export function useGetX402ConnectionsPresenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetX402ConnectionsPresenceQuery, GetX402ConnectionsPresenceQueryVariables>): Apollo.UseSuspenseQueryResult<GetX402ConnectionsPresenceQuery | undefined, GetX402ConnectionsPresenceQueryVariables>;
-export function useGetX402ConnectionsPresenceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetX402ConnectionsPresenceQuery, GetX402ConnectionsPresenceQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetX402ConnectionsPresenceQuery, GetX402ConnectionsPresenceQueryVariables>(GetX402ConnectionsPresenceDocument, options);
-        }
-export type GetX402ConnectionsPresenceQueryHookResult = ReturnType<typeof useGetX402ConnectionsPresenceQuery>;
-export type GetX402ConnectionsPresenceLazyQueryHookResult = ReturnType<typeof useGetX402ConnectionsPresenceLazyQuery>;
-export type GetX402ConnectionsPresenceSuspenseQueryHookResult = ReturnType<typeof useGetX402ConnectionsPresenceSuspenseQuery>;
-export type GetX402ConnectionsPresenceQueryResult = Apollo.QueryResult<GetX402ConnectionsPresenceQuery, GetX402ConnectionsPresenceQueryVariables>;
-export const IntegrationsSettingDocument = gql`
-    query integrationsSetting($limit: Int) {
   paymentProviders(limit: $limit) {
     collection {
       ... on MoneyhashProvider {
@@ -52248,10 +52205,11 @@ export const IntegrationsSettingDocument = gql`
  * const { data, loading, error } = useIntegrationsSettingQuery({
  *   variables: {
  *      limit: // value for 'limit'
+ *      withX402: // value for 'withX402'
  *   },
  * });
  */
-export function useIntegrationsSettingQuery(baseOptions?: Apollo.QueryHookOptions<IntegrationsSettingQuery, IntegrationsSettingQueryVariables>) {
+export function useIntegrationsSettingQuery(baseOptions: Apollo.QueryHookOptions<IntegrationsSettingQuery, IntegrationsSettingQueryVariables> & ({ variables: IntegrationsSettingQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<IntegrationsSettingQuery, IntegrationsSettingQueryVariables>(IntegrationsSettingDocument, options);
       }

@@ -226,6 +226,18 @@ describe('buildDocumentData', () => {
           expect(result.paymentMethod).toBe('text_173799550683709p2rqkoqd5')
         })
       })
+
+      describe('WHEN the customer is also linked to a provider', () => {
+        it('THEN should still use the manual payment label key', () => {
+          const result = buildPaymentDocumentData({
+            ...basePaymentInput,
+            paymentType: PaymentTypeEnum.Manual,
+            paymentProviderType: ProviderTypeEnum.Stripe,
+          })
+
+          expect(result.paymentMethod).toBe('text_173799550683709p2rqkoqd5')
+        })
+      })
     })
 
     describe('GIVEN an x402 payment', () => {

@@ -7,7 +7,7 @@ import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Status, StatusType } from '~/components/designSystem/Status'
+import { Status, StatusLabel, StatusType } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
@@ -50,7 +50,7 @@ import {
   useGetPaymentDetailsQuery,
   X402SettlementStatusEnum,
 } from '~/generated/graphql'
-import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -198,13 +198,13 @@ const InfoLine = ({
 
 const settlementStatus = (
   status: X402SettlementStatusEnum,
-  translate: TranslateFunc,
-): { type: StatusType; label: string } => {
+): { type: StatusType; label: StatusLabel } => {
   if (status === X402SettlementStatusEnum.Settled) {
-    return { type: StatusType.success, label: translate('text_17419455271371fw602t6rhg') }
+    return { type: StatusType.success, label: 'succeeded' }
   }
-  if (status === X402SettlementStatusEnum.Failed)
+  if (status === X402SettlementStatusEnum.Failed) {
     return { type: StatusType.danger, label: 'failed' }
+  }
 
   return { type: StatusType.default, label: 'pending' }
 }
@@ -632,7 +632,7 @@ const PaymentDetails = () => {
                 <InfoLine
                   dataTest={X402_SETTLEMENT_STATUS_TEST_ID}
                   label={translate('text_1793137178565bz1u82lwd96')}
-                  value={<Status {...settlementStatus(settlement.status, translate)} />}
+                  value={<Status {...settlementStatus(settlement.status)} />}
                 />
                 <InfoLine
                   dataTest={X402_SETTLEMENT_CREDIT_GRANTED_TEST_ID}
