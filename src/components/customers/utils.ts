@@ -72,12 +72,15 @@ export const getCustomerFieldErrors = ({
     }
   })
 
-  const fieldCount = Object.keys(fields).length
-
   return {
     fields,
     hasOnlyFieldErrors:
-      errors?.length === 1 && fieldCount > 0 && fieldCount === detailEntries.length,
+      errors?.length === 1 &&
+      detailEntries.length > 0 &&
+      detailEntries.every(
+        ([, codes]) =>
+          Array.isArray(codes) && codes.every((code) => CUSTOMER_FIELD_ERROR_CODES.includes(code)),
+      ),
   }
 }
 

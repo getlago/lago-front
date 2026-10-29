@@ -144,6 +144,10 @@ describe('customerUtils', () => {
           'a mix of mapped and unrelated codes',
           buildErrors({ city: [LagoApiError.ValueIsTooLong], email: ['invalid_email_format'] }),
         ],
+        [
+          'a handled and an unhandled code on the same field',
+          buildErrors({ city: [LagoApiError.ValueIsTooLong, 'value_is_invalid'] }),
+        ],
         ['a non-array detail', buildErrors({ error: 'Stripe: resource_missing' })],
         ['no details', [{ message: 'Internal error', extensions: { code: 'internal_error' } }]],
         [
