@@ -1,3 +1,5 @@
+import { generatePath } from 'react-router'
+
 import {
   CUSTOMER_PORTAL_CUSTOMER_EDIT_INFORMATION_ROUTE,
   CUSTOMER_PORTAL_ROUTE,
@@ -10,7 +12,7 @@ import { isCustomerPortalPath } from '../isCustomerPortalPath'
 const TOKEN = 'a-portal-token'
 
 const toPathname = (route: string): string =>
-  route.replace(':token', TOKEN).replace(':itemId', 'item-id').replace(':walletId', 'wallet-id')
+  generatePath(route, { token: TOKEN, itemId: 'item-id', walletId: 'wallet-id' })
 
 describe('isCustomerPortalPath', () => {
   describe('GIVEN a customer portal pathname', () => {
