@@ -1,5 +1,3 @@
-import { ApolloClient } from '@apollo/client'
-
 const mockCtor = jest.fn()
 const mockRestore = jest.fn()
 const mockPurge = jest.fn()
@@ -85,30 +83,6 @@ describe('cachePersistor', () => {
         expect(result).not.toBeNull()
         expect(mockRestore).toHaveBeenCalledTimes(1)
       })
-    })
-  })
-
-  describe('resetPersistedCache', () => {
-    it('THEN should clear the in-memory store BEFORE purging the persisted blob', async () => {
-      const { setupCachePersistor, resetPersistedCache } = await loadModule()
-
-      await setupCachePersistor('1.0.0')
-
-      const callOrder: string[] = []
-
-      mockPurge.mockImplementation(async () => {
-        callOrder.push('purge')
-      })
-
-      const client = {
-        clearStore: jest.fn().mockImplementation(async () => {
-          callOrder.push('clearStore')
-        }),
-      } as unknown as ApolloClient<object>
-
-      await resetPersistedCache(client)
-
-      expect(callOrder).toEqual(['clearStore', 'purge'])
     })
   })
 

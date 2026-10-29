@@ -1,4 +1,4 @@
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
+import { NormalizedCacheObject } from '@apollo/client'
 import { CachePersistor, LocalForageWrapper } from 'apollo3-cache-persist'
 import localForage from 'localforage'
 import { matchPath } from 'react-router'
@@ -60,13 +60,6 @@ export const setupCachePersistor = async (appVersion: string) => {
 // Wipe the persisted blob from IndexedDB. No-op if setup was skipped (portal).
 export const purgePersistedCache = async () => {
   await persistor?.purge()
-}
-
-// Full teardown for authenticated contexts (logout, org switch): empty the
-// in-memory cache, then wipe the at-rest blob — in that order.
-export const resetPersistedCache = async (client: ApolloClient<object>) => {
-  await client.clearStore()
-  await purgePersistedCache()
 }
 
 // Stop persisting without deleting the blob. Used when a portal is entered via

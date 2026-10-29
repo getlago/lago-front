@@ -9,11 +9,12 @@ import {
 import { DEVTOOL_AUTO_SAVE_KEY, resetDevtoolsNavigation } from '~/hooks/useDeveloperTool'
 
 import { disconnectCableConsumer } from './cableConsumer'
-import { purgePersistedCache, resetPersistedCache } from './cachePersistor'
+import { purgePersistedCache } from './cachePersistor'
 import {
   addToast,
   AUTH_TOKEN_LS_KEY,
   authTokenVar,
+  getStoredAuthToken,
   resetLocationHistoryVar,
   setCurrentOrganizationId,
   TMP_AUTH_TOKEN_LS_KEY,
@@ -34,33 +35,35 @@ gql`
 `
 
 // --------------------- Auth utils ---------------------
-const tearDownSession = async (client: ApolloClient<object>) => {
+// Clears only this tab's memory: the stored token and the persisted blob are
+// shared by every tab and may already hold the next session.
+export const clearLocalSession = async (client: ApolloClient<object>): Promise<void> => {
   // Reset devtools navigation to prevent stale queries with old transactionIds
   resetDevtoolsNavigation()
   // Cancels active operations
   client.stop()
   disconnectCableConsumer()
-  // Removes cached data (in-memory + IndexedDB-persisted blob) and prevents
-  // active queries re-fetch
-  await resetPersistedCache(client)
+  await client.clearStore()
 }
 
-export const logOut = async (client: ApolloClient<object>, resetLocationHistory?: boolean) => {
-  await tearDownSession(client)
-  updateAuthTokenVar()
+export const logOut = async (
+  client: ApolloClient<object>,
+  resetLocationHistory?: boolean,
+): Promise<void> => {
+  const sessionToken = authTokenVar() || undefined
+
+  await clearLocalSession(client)
+
+  // Compare-and-delete: a stale caller must not remove a session another tab
+  // stored in the meantime, since that removal logs every tab out.
+  if (getStoredAuthToken() === sessionToken) {
+    removeItemFromLS(AUTH_TOKEN_LS_KEY)
+    await purgePersistedCache()
+  }
+
+  authTokenVar(getStoredAuthToken())
 
   resetLocationHistory && resetLocationHistoryVar()
-}
-
-// The tab that logged out already removed the shared token, so this one clears
-// only its own memory. Writing to localStorage here would delete a session
-// opened while `tearDownSession` was awaited, and that removal would in turn
-// cascade a logout back to every tab.
-export const logOutFromOtherTab = async (client: ApolloClient<object>) => {
-  await tearDownSession(client)
-  authTokenVar(undefined)
-
-  resetLocationHistoryVar()
 }
 
 const getCurrentUserOrganization = async (client: ApolloClient<object>, token: string) => {
@@ -115,9 +118,6 @@ export const onLogIn = async (client: ApolloClient<object>, token: string) => {
       severity: 'danger',
       translateKey: 'text_622f7a3dc32ce100c46a5154',
     })
-
-    // Remove all local storage items related to the auth
-    removeItemFromLS(AUTH_TOKEN_LS_KEY)
 
     // In case of error, we want to log out the user
     await logOut(client, true)
