@@ -23,7 +23,7 @@ export const NumericBadge = React.forwardRef<HTMLSpanElement, NumericBadgeProps>
         ref={ref}
         size="sm"
         className={cn(
-          'v2-text-number-small rounded-full border-0 bg-selected font-normal shadow-none',
+          'v2-text-number-small rounded-full border-0 bg-selected font-medium shadow-none',
           foreground,
           className,
         )}
