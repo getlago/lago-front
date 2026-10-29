@@ -1,5 +1,5 @@
-import { gql, NetworkStatus } from '@apollo/client'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { gql } from '@apollo/client'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -9,9 +9,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { Filters } from '~/components/Filters'
 import {
   AttributedUsageBasisEnum,
-  AttributionChargeUsageFragment,
   CurrencyEnum,
-  useGetSubscriptionAttributedUsageQuery,
   useGetSubscriptionAttributionChargesQuery,
   useGetSubscriptionAttributionSetupQuery,
 } from '~/generated/graphql'
@@ -29,7 +27,11 @@ import {
   getAttributionTimeRangeValue,
   isAttributionGuardError,
 } from './attributionFilters'
-import { AttributionFlatTable, AttributionTableRow } from './AttributionFlatTable'
+import {
+  AttributionFlatTable,
+  AttributionShowMoreColumns,
+  AttributionTableRow,
+} from './AttributionFlatTable'
 import { AttributionToolbarSelect } from './AttributionToolbarSelect'
 import {
   buildAttributionHierarchy,
@@ -43,10 +45,12 @@ import {
   AttributionGroupByEnum,
   buildAttributionColumns,
   getAttributionChargeLabel,
+  getAttributionRowsChargesUsage,
   isAttributionAmountAvailable,
   mergeAttributionChargesUsage,
+  SPLIT_FILTERS_PER_PAGE,
 } from './buildAttributionColumns'
-import { notifyAttributionError, useAttributionTree } from './useAttributionTree'
+import { isAttributionTreeBusy, useAttributionTree } from './useAttributionTree'
 
 export const ATTRIBUTION_REFRESH_BUTTON_TEST_ID = 'attribution-refresh-button'
 export const ATTRIBUTION_GROUP_ROWS_BY_TEST_ID = 'attribution-group-rows-by'
@@ -138,6 +142,7 @@ gql`
     $toDatetime: ISO8601DateTime
     $page: Int
     $limit: Int
+    $splitFiltersOffset: Int
   ) {
     attributedUsage(
       subscriptionId: $subscriptionId
@@ -150,8 +155,10 @@ gql`
       toDatetime: $toDatetime
       page: $page
       limit: $limit
+      splitFiltersOffset: $splitFiltersOffset
     ) {
       currency
+      splitFiltersCount
       metadata {
         currentPage
         totalPages
@@ -159,18 +166,21 @@ gql`
       rows {
         value
         amountCents
+        splitChargeUnits
         chargesUsage {
           ...AttributionChargeUsage
         }
       }
       unattributed {
         amountCents
+        splitChargeUnits
         chargesUsage {
           ...AttributionChargeUsage
         }
       }
       totals {
         amountCents
+        splitChargeUnits
         chargesUsage {
           ...AttributionChargeUsage
         }
@@ -191,7 +201,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   const [underCode, setUnderCode] = useState<string | null>(null)
   const [selectedChargeId, setSelectedChargeId] = useState<string | null>(null)
   const [basis, setBasis] = useState<AttributedUsageBasisEnum>(AttributedUsageBasisEnum.Units)
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [expandedResetKey, setExpandedResetKey] = useState<string | null>(null)
 
   const {
     data: setupData,
@@ -283,51 +293,48 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
     ...timeRangeArgs,
     limit: ATTRIBUTION_ROWS_LIMIT,
   }
-  const usageVariables = { ...treeVariables, groupBy, page: 1 }
-  const usageRequestKey = JSON.stringify(usageVariables)
-  const latestUsageRequestKeyRef = useRef(usageRequestKey)
+
+  const treeResetKey = JSON.stringify({
+    ...treeVariables,
+    isTreeMode,
+    groupBy,
+    listByCode: listByType?.code,
+    listBy: treeListBy,
+    hierarchy: hierarchy.signature,
+  })
+  const isExpanded = expandedResetKey === treeResetKey
 
   useEffect(() => {
-    latestUsageRequestKeyRef.current = usageRequestKey
-  }, [usageRequestKey])
-
-  const {
-    data: usageData,
-    loading: isUsageQueryLoading,
-    networkStatus: usageNetworkStatus,
-    error: usageError,
-    refetch: refetchUsage,
-    fetchMore: fetchMoreUsage,
-  } = useGetSubscriptionAttributedUsageQuery({
-    variables: usageVariables,
-    skip: !groupBy || isTreeMode,
-    notifyOnNetworkStatusChange: true,
-    context: { silentError: true },
-  })
+    setExpandedResetKey(null)
+  }, [treeResetKey])
 
   const {
     nodes: treeNodes,
+    isLoadingFilterPage,
     toggleNode,
     loadMore: loadMoreTreeRows,
+    loadMoreFilterPage,
     refresh: refreshTree,
   } = useAttributionTree({
     variables: treeVariables,
-    getChildLevels: (parentCode) =>
-      getAttributionChildLevels({ roots: rootTypes, parentCode, listBy: treeListBy }),
-    resetKey: JSON.stringify({
-      ...treeVariables,
-      listBy: treeListBy,
-      hierarchy: hierarchy.signature,
-    }),
-    skip: !isTreeMode,
+    getChildLevels: (parentCode) => {
+      if (isTreeMode) {
+        return getAttributionChildLevels({ roots: rootTypes, parentCode, listBy: treeListBy })
+      }
+
+      if (parentCode) return []
+
+      return [{ code: groupBy, name: listByType?.name || groupBy, isLeaf: true }]
+    },
+    resetKey: treeResetKey,
+    skip: !groupBy,
   })
   const treeRootNode = treeNodes[getAttributionNodeKey([])]
   const treeRootBlocks = treeRootNode?.status === 'loaded' ? treeRootNode.blocks : []
-  const isTreeLoading = isTreeMode && (!treeRootNode || treeRootNode.status === 'loading')
-  const treeRootUsage = treeRootBlocks[0]?.usage
-
-  const isFetchingMoreRows = usageNetworkStatus === NetworkStatus.fetchMore
-  const isUsageLoading = isUsageQueryLoading && !isFetchingMoreRows
+  const isTreeLoading = !!groupBy && (!treeRootNode || treeRootNode.status === 'loading')
+  const rootBlock = treeRootBlocks[0]
+  const rootUsage = rootBlock?.usages[0]
+  const isTreeBusy = isAttributionTreeBusy(treeNodes)
 
   const isAmountAvailable = isAttributionAmountAvailable(
     selectedCharge ? [selectedCharge] : charges,
@@ -340,78 +347,41 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
 
     refetchCharges()
 
-    if (isTreeMode) {
-      refreshTree()
-
-      return
-    }
-
-    refetchUsage()
+    refreshTree()
   }
 
   const onChargeChange = (value: string): void => {
     const nextCharge = charges.find((charge) => charge.id === value)
 
     setSelectedChargeId(nextCharge?.id ?? null)
-    setIsExpanded(false)
 
     if (!isAttributionAmountAvailable(nextCharge ? [nextCharge] : charges)) {
       setBasis(AttributedUsageBasisEnum.Units)
     }
   }
 
-  const attributedUsage = usageData?.attributedUsage
   const hasMoreRows =
-    !!listByType &&
-    !!attributedUsage &&
-    attributedUsage.metadata.currentPage < attributedUsage.metadata.totalPages
-
-  const loadMoreRows = (): void => {
-    if (!attributedUsage) return
-
-    const requestKey = usageRequestKey
-
-    fetchMoreUsage({
-      variables: { page: attributedUsage.metadata.currentPage + 1 },
-      // The query is silenced for its error placeholder, a failed next page has none.
-      context: { silentError: false },
-      updateQuery: (previous, { fetchMoreResult }) => {
-        // `fetchMore` merges into the query's variables at response time, not at request time.
-        if (requestKey !== latestUsageRequestKeyRef.current || !fetchMoreResult?.attributedUsage) {
-          return previous
-        }
-
-        return {
-          attributedUsage: {
-            ...previous.attributedUsage,
-            metadata: fetchMoreResult.attributedUsage.metadata,
-            rows: [...previous.attributedUsage.rows, ...fetchMoreResult.attributedUsage.rows],
-          },
-        }
-      },
-    }).catch(notifyAttributionError)
-  }
+    !!listByType && !!rootUsage && rootUsage.metadata.currentPage < rootUsage.metadata.totalPages
 
   // Not `treeRootBlocks[0]` alone: every root block totals the same usage under a different
   // groupBy, so a charge missing from one of them would drop its column.
-  const getChargesUsage = (): AttributionChargeUsageFragment[] => {
-    if (!isTreeMode) return attributedUsage?.totals.chargesUsage ?? []
-
-    return mergeAttributionChargesUsage(
-      treeRootBlocks.map(({ usage }) => usage.totals.chargesUsage),
-    )
-  }
-
-  const displayedUsage = isTreeMode ? treeRootUsage : attributedUsage
-  const chargesUsage = getChargesUsage()
+  const loadedFilterPagesCount = Math.max(1, ...treeRootBlocks.map(({ usages }) => usages.length))
+  const chargesUsageByFilterPage = Array.from({ length: loadedFilterPagesCount }, (_, filterPage) =>
+    mergeAttributionChargesUsage(
+      treeRootBlocks.map(({ usages }) => usages[filterPage]?.totals.chargesUsage ?? []),
+    ),
+  )
   const { columns, hiddenColumnsCount } = buildAttributionColumns({
-    chargesUsage,
+    chargesUsageByFilterPage,
     selectedChargeId: selectedCharge?.id ?? null,
     isExpanded,
   })
+  const hasMoreFilterPages =
+    isExpanded &&
+    (rootUsage?.splitFiltersCount ?? 0) > chargesUsageByFilterPage.length * SPLIT_FILTERS_PER_PAGE
 
   const getTableRows = (): AttributionTableRow[] => {
-    if (!attributedUsage) return []
+    if (!rootBlock || !rootUsage) return []
 
     if (!listByType) {
       const customer = setupData?.subscription?.customer
@@ -422,20 +392,24 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
           typeLabel: translate('text_65201c5a175a4b0238abf29a'),
           label: customer?.displayName ?? '',
           isUnattributed: false,
-          amountCents: attributedUsage.totals.amountCents,
-          chargesUsage: attributedUsage.totals.chargesUsage,
+          amountCents: rootUsage.totals.amountCents,
+          splitChargeUnits: rootUsage.totals.splitChargeUnits,
+          chargesUsageByFilterPage: rootBlock.usages.map(({ totals }) => totals.chargesUsage),
         },
       ]
     }
 
+    const getRowChargesUsage = getAttributionRowsChargesUsage(rootBlock.usages)
+
     return [
-      ...attributedUsage.rows.map((row) => ({
+      ...rootUsage.rows.map((row) => ({
         id: `value-${row.value}`,
         typeLabel: listByType.name || listByType.code,
         label: row.value,
         isUnattributed: false,
         amountCents: row.amountCents,
-        chargesUsage: row.chargesUsage,
+        splitChargeUnits: row.splitChargeUnits,
+        chargesUsageByFilterPage: getRowChargesUsage(row.value),
       })),
       {
         id: 'unattributed',
@@ -444,10 +418,30 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
           typeName: listByType.name || listByType.code,
         }),
         isUnattributed: true,
-        amountCents: attributedUsage.unattributed.amountCents,
-        chargesUsage: attributedUsage.unattributed.chargesUsage,
+        amountCents: rootUsage.unattributed.amountCents,
+        splitChargeUnits: rootUsage.unattributed.splitChargeUnits,
+        chargesUsageByFilterPage: rootBlock.usages.map(
+          ({ unattributed }) => unattributed.chargesUsage,
+        ),
       },
     ]
+  }
+
+  const getShowMoreColumns = (): AttributionShowMoreColumns | undefined => {
+    if (!isExpanded) {
+      if (!hiddenColumnsCount) return undefined
+
+      return { isExpanded: false, onClick: () => setExpandedResetKey(treeResetKey) }
+    }
+
+    if (!hasMoreFilterPages) return undefined
+
+    return {
+      isExpanded: true,
+      isLoading: isLoadingFilterPage,
+      isDisabled: isTreeBusy,
+      onClick: loadMoreFilterPage,
+    }
   }
 
   const renderErrorPlaceholder = (error?: unknown): JSX.Element => {
@@ -470,40 +464,46 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   }
 
   const tableProps = {
-    totals: { amountCents: displayedUsage?.totals.amountCents, chargesUsage },
+    totals: {
+      amountCents: rootUsage?.totals.amountCents,
+      splitChargeUnits: rootUsage?.totals.splitChargeUnits,
+      chargesUsageByFilterPage,
+    },
     columns,
     chargeLabel: selectedCharge ? getAttributionChargeLabel(selectedCharge) : null,
-    hiddenColumnsCount,
-    isExpanded,
+    showMoreColumns: getShowMoreColumns(),
     basis,
-    currency: displayedUsage?.currency ?? CurrencyEnum.Usd,
-    onToggleExpanded: () => setIsExpanded((previous) => !previous),
+    currency: rootUsage?.currency ?? CurrencyEnum.Usd,
   }
 
   const renderTable = (): JSX.Element => {
-    if (isTreeMode) {
-      if (treeRootNode?.status === 'error') return renderErrorPlaceholder(treeRootNode.error)
+    if (treeRootNode?.status === 'error') return renderErrorPlaceholder(treeRootNode.error)
 
+    if (isTreeMode) {
       return (
         <AttributionTreeTable
           {...tableProps}
           nodes={treeNodes}
           isLoading={isTreeLoading}
+          isLoadingFilterPage={isLoadingFilterPage}
           onToggleNode={toggleNode}
           onLoadMore={loadMoreTreeRows}
         />
       )
     }
 
-    if (usageError) return renderErrorPlaceholder(usageError)
-
     return (
       <AttributionFlatTable
         {...tableProps}
         rows={getTableRows()}
-        isLoading={isUsageLoading}
+        isLoading={isTreeLoading}
         loadMore={
-          hasMoreRows ? { isLoading: isFetchingMoreRows, onLoadMore: loadMoreRows } : undefined
+          hasMoreRows
+            ? {
+                isLoading: !!rootBlock?.isLoadingMore || isLoadingFilterPage,
+                onLoadMore: () => loadMoreTreeRows([], 0),
+              }
+            : undefined
         }
       />
     )
@@ -652,7 +652,7 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
         <Button
           variant="inline"
           size="small"
-          disabled={isSetupLoading || isUsageQueryLoading || isTreeLoading}
+          disabled={isSetupLoading || isTreeBusy || isLoadingFilterPage}
           onClick={refetch}
           data-test={ATTRIBUTION_REFRESH_BUTTON_TEST_ID}
         >

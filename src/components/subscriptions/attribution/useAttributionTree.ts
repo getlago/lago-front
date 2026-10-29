@@ -1,4 +1,4 @@
-import { ApolloError, useApolloClient } from '@apollo/client'
+import { ApolloError, FetchPolicy, useApolloClient } from '@apollo/client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { addToast } from '~/core/apolloClient'
@@ -17,13 +17,15 @@ import {
   mergeAttributionFilters,
   parseAttributionNodeKey,
 } from './attributionTree'
+import { SPLIT_FILTERS_PER_PAGE } from './buildAttributionColumns'
 
 export type AttributionTreeUsage = GetSubscriptionAttributedUsageQuery['attributedUsage']
 
 export type AttributionTreeBlock = {
   level: AttributionLevel
-  usage: AttributionTreeUsage
+  usages: AttributionTreeUsage[]
   isLoadingMore: boolean
+  isLoadingFilterPages: boolean
 }
 
 type AttributionTreeNode =
@@ -35,7 +37,7 @@ export type AttributionTreeNodes = Record<string, AttributionTreeNode>
 
 type AttributionTreeVariables = Omit<
   GetSubscriptionAttributedUsageQueryVariables,
-  'groupBy' | 'filters' | 'page'
+  'groupBy' | 'filters' | 'page' | 'splitFiltersOffset'
 > & { filters?: AttributedUsageFilterInput[] }
 
 type UseAttributionTreeParams = {
@@ -47,10 +49,16 @@ type UseAttributionTreeParams = {
 
 type UseAttributionTreeReturn = {
   nodes: AttributionTreeNodes
+  isLoadingFilterPage: boolean
   toggleNode: (path: AttributionPathStep[], levelCode: string) => void
   loadMore: (path: AttributionPathStep[], blockIndex: number) => void
+  loadMoreFilterPage: () => void
   refresh: () => void
 }
+
+const MAX_CONCURRENT_REQUESTS = 6
+
+type RequestQueue = <T>(task: () => Promise<T>) => Promise<T>
 
 type LoadNodeOptions = {
   isExpanded?: boolean
@@ -64,6 +72,60 @@ export const notifyAttributionError = (error: unknown): void => {
   addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
 }
 
+const createRequestQueue = (limit: number): RequestQueue => {
+  let activeCount = 0
+  const waiting: Array<() => void> = []
+
+  const acquire = (): Promise<void> => {
+    if (activeCount < limit) {
+      activeCount += 1
+
+      return Promise.resolve()
+    }
+
+    return new Promise((resolve) => waiting.push(resolve))
+  }
+
+  const release = (): void => {
+    const next = waiting.shift()
+
+    if (next) {
+      next()
+    } else {
+      activeCount -= 1
+    }
+  }
+
+  return async (task) => {
+    await acquire()
+
+    try {
+      return await task()
+    } finally {
+      release()
+    }
+  }
+}
+
+const isAttributionNodeBusy = (node: AttributionTreeNode): boolean =>
+  node.status === 'loading' ||
+  (node.status === 'loaded' &&
+    node.blocks.some(
+      ({ isLoadingMore, isLoadingFilterPages }) => isLoadingMore || isLoadingFilterPages,
+    ))
+
+const isAttributionNodeVisible = (
+  nodes: AttributionTreeNodes,
+  path: AttributionPathStep[],
+): boolean =>
+  Array.from(
+    { length: path.length + 1 },
+    (_, depth) => nodes[getAttributionNodeKey(path.slice(0, depth))],
+  ).every((node) => node?.status === 'loaded' && node.isExpanded)
+
+export const isAttributionTreeBusy = (nodes: AttributionTreeNodes): boolean =>
+  Object.values(nodes).some(isAttributionNodeBusy)
+
 export const useAttributionTree = ({
   variables,
   getChildLevels,
@@ -74,6 +136,11 @@ export const useAttributionTree = ({
   const [nodes, setNodes] = useState<AttributionTreeNodes>({})
   const nodesRef = useRef<AttributionTreeNodes>({})
   const generationRef = useRef(0)
+  const filterPagesCountRef = useRef(1)
+  const fetchPolicyRef = useRef<FetchPolicy>('cache-first')
+  const [enqueueRequest] = useState(() => createRequestQueue(MAX_CONCURRENT_REQUESTS))
+  const isLoadingFilterPageRef = useRef(false)
+  const [isLoadingFilterPage, setIsLoadingFilterPage] = useState(false)
   const latestParamsRef = useRef({ variables, getChildLevels, skip })
 
   useEffect(() => {
@@ -87,6 +154,11 @@ export const useAttributionTree = ({
     },
     [],
   )
+
+  const updateIsLoadingFilterPage = useCallback((isLoading: boolean): void => {
+    isLoadingFilterPageRef.current = isLoading
+    setIsLoadingFilterPage(isLoading)
+  }, [])
 
   const updateBlock = useCallback(
     (
@@ -118,6 +190,7 @@ export const useAttributionTree = ({
       level: AttributionLevel,
       path: AttributionPathStep[],
       page: number,
+      filterPage: number,
       silentError = false,
     ): Promise<AttributionTreeUsage> => {
       const latestVariables = latestParamsRef.current.variables
@@ -126,24 +199,27 @@ export const useAttributionTree = ({
         buildAttributionFilters(path),
       )
 
-      const { data } = await client.query<
-        GetSubscriptionAttributedUsageQuery,
-        GetSubscriptionAttributedUsageQueryVariables
-      >({
-        query: GetSubscriptionAttributedUsageDocument,
-        variables: {
-          ...latestVariables,
-          groupBy: level.code,
-          filters: filters.length ? filters : undefined,
-          page,
-        },
-        fetchPolicy: 'no-cache',
-        context: { silentError },
-      })
+      const { data } = await enqueueRequest(() =>
+        client.query<
+          GetSubscriptionAttributedUsageQuery,
+          GetSubscriptionAttributedUsageQueryVariables
+        >({
+          query: GetSubscriptionAttributedUsageDocument,
+          variables: {
+            ...latestVariables,
+            groupBy: level.code,
+            filters: filters.length ? filters : undefined,
+            page,
+            splitFiltersOffset: filterPage ? filterPage * SPLIT_FILTERS_PER_PAGE : undefined,
+          },
+          fetchPolicy: fetchPolicyRef.current,
+          context: { silentError },
+        }),
+      )
 
       return data.attributedUsage
     },
-    [client],
+    [client, enqueueRequest],
   )
 
   const fetchUsagePages = useCallback(
@@ -151,11 +227,12 @@ export const useAttributionTree = ({
       level: AttributionLevel,
       path: AttributionPathStep[],
       pageCount: number,
-      silentError: boolean,
+      filterPage: number,
+      silentError = false,
     ): Promise<AttributionTreeUsage> => {
       const pages = await Promise.all(
         Array.from({ length: pageCount }, (_, index) =>
-          fetchUsage(level, path, index + 1, silentError),
+          fetchUsage(level, path, index + 1, filterPage, silentError),
         ),
       )
 
@@ -163,6 +240,109 @@ export const useAttributionTree = ({
     },
     [fetchUsage],
   )
+
+  const fetchUsageFilterPages = useCallback(
+    (
+      level: AttributionLevel,
+      path: AttributionPathStep[],
+      pageCount: number,
+      silentError: boolean,
+    ): Promise<AttributionTreeUsage[]> =>
+      Promise.all(
+        Array.from({ length: filterPagesCountRef.current }, (_, filterPage) =>
+          fetchUsagePages(level, path, pageCount, filterPage, silentError),
+        ),
+      ),
+    [fetchUsagePages],
+  )
+
+  const dropFilterPages = useCallback(
+    (count: number): void => {
+      filterPagesCountRef.current = Math.min(filterPagesCountRef.current, count)
+      updateNodes((previous) =>
+        Object.fromEntries(
+          Object.entries(previous).map(([key, node]) => [
+            key,
+            node.status === 'loaded'
+              ? {
+                  ...node,
+                  blocks: node.blocks.map((block) => ({
+                    ...block,
+                    usages: block.usages.slice(0, filterPagesCountRef.current),
+                  })),
+                }
+              : node,
+          ]),
+        ),
+      )
+    },
+    [updateNodes],
+  )
+
+  const fillFilterPages = useCallback(
+    async (key: string): Promise<void> => {
+      const node = nodesRef.current[key]
+      const path = parseAttributionNodeKey(key)
+
+      if (node?.status !== 'loaded' || !isAttributionNodeVisible(nodesRef.current, path)) return
+
+      const generation = generationRef.current
+
+      await Promise.all(
+        node.blocks.map(async (block, blockIndex) => {
+          const loadedCount = block.usages.length
+          const targetCount = filterPagesCountRef.current
+
+          if (block.isLoadingMore || block.isLoadingFilterPages || loadedCount >= targetCount) {
+            return
+          }
+
+          updateBlock(key, blockIndex, (previous) => ({ ...previous, isLoadingFilterPages: true }))
+
+          try {
+            const usages = await Promise.all(
+              Array.from({ length: targetCount - loadedCount }, (_, index) =>
+                fetchUsagePages(
+                  block.level,
+                  path,
+                  block.usages[0].metadata.currentPage,
+                  loadedCount + index,
+                ),
+              ),
+            )
+
+            if (generation !== generationRef.current) return
+
+            updateBlock(key, blockIndex, (previous) => ({
+              ...previous,
+              isLoadingFilterPages: false,
+              usages:
+                previous.usages.length === loadedCount
+                  ? [...previous.usages, ...usages].slice(0, filterPagesCountRef.current)
+                  : previous.usages,
+            }))
+          } catch (error) {
+            if (generation !== generationRef.current) return
+
+            updateBlock(key, blockIndex, (previous) => ({
+              ...previous,
+              isLoadingFilterPages: false,
+            }))
+
+            if (loadedCount >= filterPagesCountRef.current) return
+
+            dropFilterPages(loadedCount)
+            notifyAttributionError(error)
+          }
+        }),
+      )
+    },
+    [dropFilterPages, fetchUsagePages, updateBlock],
+  )
+
+  const fillVisibleFilterPages = useCallback(async (): Promise<void> => {
+    await Promise.all(Object.keys(nodesRef.current).map((key) => fillFilterPages(key)))
+  }, [fillFilterPages])
 
   const loadNode = useCallback(
     async (
@@ -181,7 +361,7 @@ export const useAttributionTree = ({
       try {
         const usages = await Promise.all(
           levels.map((level) =>
-            fetchUsagePages(level, path, pageCountByLevelCode?.[level.code] ?? 1, isRoot),
+            fetchUsageFilterPages(level, path, pageCountByLevelCode?.[level.code] ?? 1, isRoot),
           ),
         )
 
@@ -194,11 +374,14 @@ export const useAttributionTree = ({
             isExpanded,
             blocks: levels.map((level, index) => ({
               level,
-              usage: usages[index],
+              usages: usages[index].slice(0, filterPagesCountRef.current),
               isLoadingMore: false,
+              isLoadingFilterPages: false,
             })),
           },
         }))
+
+        fillFilterPages(key)
       } catch (error) {
         if (generation !== generationRef.current) return
 
@@ -207,7 +390,7 @@ export const useAttributionTree = ({
         if (!isRoot) notifyAttributionError(error)
       }
     },
-    [fetchUsagePages, updateNodes],
+    [fetchUsageFilterPages, fillFilterPages, updateNodes],
   )
 
   const toggleNode = useCallback(
@@ -223,12 +406,14 @@ export const useAttributionTree = ({
           [key]: { ...node, isExpanded: !node.isExpanded },
         }))
 
+        if (!node.isExpanded) fillVisibleFilterPages()
+
         return
       }
 
       loadNode(path, levelCode)
     },
-    [loadNode, updateNodes],
+    [fillVisibleFilterPages, loadNode, updateNodes],
   )
 
   const loadMore = useCallback(
@@ -237,25 +422,28 @@ export const useAttributionTree = ({
       const node = nodesRef.current[key]
       const block = node?.status === 'loaded' ? node.blocks[blockIndex] : undefined
 
-      if (!block || block.isLoadingMore) return
+      if (!block || block.isLoadingMore || block.isLoadingFilterPages) return
 
       const generation = generationRef.current
+      const nextPage = block.usages[0].metadata.currentPage + 1
 
       updateBlock(key, blockIndex, (previous) => ({ ...previous, isLoadingMore: true }))
 
       try {
-        const usage = await fetchUsage(block.level, path, block.usage.metadata.currentPage + 1)
+        const usages = await Promise.all(
+          block.usages.map((_, filterPage) => fetchUsage(block.level, path, nextPage, filterPage)),
+        )
 
         if (generation !== generationRef.current) return
 
         updateBlock(key, blockIndex, (previous) => ({
           ...previous,
           isLoadingMore: false,
-          usage: {
-            ...previous.usage,
-            metadata: usage.metadata,
-            rows: [...previous.usage.rows, ...usage.rows],
-          },
+          usages: previous.usages.map((previousUsage, filterPage) => ({
+            ...previousUsage,
+            metadata: usages[filterPage].metadata,
+            rows: [...previousUsage.rows, ...usages[filterPage].rows],
+          })),
         }))
       } catch (error) {
         if (generation !== generationRef.current) return
@@ -267,20 +455,40 @@ export const useAttributionTree = ({
     [fetchUsage, updateBlock],
   )
 
+  const loadMoreFilterPage = useCallback(async (): Promise<void> => {
+    if (isLoadingFilterPageRef.current || isAttributionTreeBusy(nodesRef.current)) return
+
+    const generation = generationRef.current
+
+    updateIsLoadingFilterPage(true)
+    filterPagesCountRef.current += 1
+
+    await fillVisibleFilterPages()
+
+    if (generation !== generationRef.current) return
+
+    updateIsLoadingFilterPage(false)
+  }, [fillVisibleFilterPages, updateIsLoadingFilterPage])
+
   const reset = useCallback((): void => {
     generationRef.current += 1
+    fetchPolicyRef.current = 'cache-first'
+    updateIsLoadingFilterPage(false)
+    filterPagesCountRef.current = 1
     updateNodes(() => ({}))
 
     if (latestParamsRef.current.skip) return
 
     loadNode([], null)
-  }, [loadNode, updateNodes])
+  }, [loadNode, updateIsLoadingFilterPage, updateNodes])
 
   const refresh = useCallback((): void => {
     const previousNodes = nodesRef.current
     const rootKey = getAttributionNodeKey([])
 
     generationRef.current += 1
+    fetchPolicyRef.current = 'network-only'
+    updateIsLoadingFilterPage(false)
     updateNodes(() => ({}))
 
     if (latestParamsRef.current.skip) return
@@ -299,7 +507,7 @@ export const useAttributionTree = ({
       loadNode(path, parentCode, {
         isExpanded: node.isExpanded,
         pageCountByLevelCode: Object.fromEntries(
-          node.blocks.map(({ level, usage }) => [level.code, usage.metadata.currentPage]),
+          node.blocks.map(({ level, usages }) => [level.code, usages[0].metadata.currentPage]),
         ),
       })
     }
@@ -307,13 +515,23 @@ export const useAttributionTree = ({
     reloadNode(rootKey)
 
     Object.entries(previousNodes)
-      .filter(([key, node]) => key !== rootKey && node.status === 'loaded' && node.isExpanded)
+      .filter(
+        ([key]) =>
+          key !== rootKey && isAttributionNodeVisible(previousNodes, parseAttributionNodeKey(key)),
+      )
       .forEach(([key]) => reloadNode(key))
-  }, [loadNode, updateNodes])
+  }, [loadNode, updateIsLoadingFilterPage, updateNodes])
 
   useEffect(() => {
     reset()
   }, [resetKey, skip, reset])
 
-  return { nodes, toggleNode, loadMore, refresh }
+  return {
+    nodes,
+    isLoadingFilterPage,
+    toggleNode,
+    loadMore,
+    loadMoreFilterPage,
+    refresh,
+  }
 }

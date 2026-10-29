@@ -12,6 +12,7 @@ import {
   AttributionValueCells,
 } from './AttributionFlatTable'
 import { AttributionLevel, AttributionPathStep, getAttributionNodeKey } from './attributionTree'
+import { getAttributionRowsChargesUsage } from './buildAttributionColumns'
 import { AttributionTreeBlock, AttributionTreeNodes } from './useAttributionTree'
 
 export const ATTRIBUTION_TREE_TABLE_TEST_ID = 'attribution-tree-table'
@@ -25,13 +26,19 @@ const AttributionToggleSpacer = (): JSX.Element => <span className="size-4 shrin
 
 type AttributionTreeTableProps = AttributionTableSharedProps & {
   nodes: AttributionTreeNodes
+  isLoadingFilterPage: boolean
   onToggleNode: (path: AttributionPathStep[], levelCode: string) => void
   onLoadMore: (path: AttributionPathStep[], blockIndex: number) => void
 }
 
 type AttributionTreeRow = Pick<
   AttributionTableRow,
-  'typeLabel' | 'label' | 'isUnattributed' | 'amountCents' | 'chargesUsage'
+  | 'typeLabel'
+  | 'label'
+  | 'isUnattributed'
+  | 'amountCents'
+  | 'splitChargeUnits'
+  | 'chargesUsageByFilterPage'
 > & {
   path: AttributionPathStep[]
   nodeKey: string
@@ -41,6 +48,7 @@ type AttributionTreeRow = Pick<
 
 export const AttributionTreeTable = ({
   nodes,
+  isLoadingFilterPage,
   onToggleNode,
   onLoadMore,
   ...tableProps
@@ -93,7 +101,7 @@ export const AttributionTreeTable = ({
     depth: number,
     nodeKey: string,
   ): ReactNode => {
-    const { currentPage, totalPages } = block.usage.metadata
+    const { currentPage, totalPages } = block.usages[0].metadata
 
     if (currentPage >= totalPages) return null
 
@@ -101,7 +109,7 @@ export const AttributionTreeTable = ({
       <AttributionLoadMoreRow
         key={`${nodeKey}-load-more-${block.level.code}`}
         columns={columns}
-        isLoading={block.isLoadingMore}
+        isLoading={block.isLoadingMore || isLoadingFilterPage}
         onLoadMore={() => onLoadMore(path, blockIndex)}
         depth={depth}
         toggle={<AttributionToggleSpacer />}
@@ -117,7 +125,9 @@ export const AttributionTreeTable = ({
     depth: number,
     nodeKey: string,
   ): ReactNode => {
-    const { level, usage } = block
+    const { level, usages } = block
+    const [usage] = usages
+    const getRowChargesUsage = getAttributionRowsChargesUsage(usages)
 
     const toRow = (value: string | null): Pick<AttributionTreeRow, 'path' | 'nodeKey'> => {
       const rowPath = [...path, { code: level.code, value }]
@@ -136,7 +146,8 @@ export const AttributionTreeTable = ({
             label: row.value,
             isUnattributed: false,
             amountCents: row.amountCents,
-            chargesUsage: row.chargesUsage,
+            splitChargeUnits: row.splitChargeUnits,
+            chargesUsageByFilterPage: getRowChargesUsage(row.value),
           }),
         )}
         {renderLoadMoreRow(block, path, blockIndex, depth, nodeKey)}
@@ -148,7 +159,8 @@ export const AttributionTreeTable = ({
           label: translate('text_1792668632007qgsxnaul7fn', { typeName: level.name }),
           isUnattributed: true,
           amountCents: usage.unattributed.amountCents,
-          chargesUsage: usage.unattributed.chargesUsage,
+          splitChargeUnits: usage.unattributed.splitChargeUnits,
+          chargesUsageByFilterPage: usages.map(({ unattributed }) => unattributed.chargesUsage),
         })}
       </Fragment>
     )

@@ -6,6 +6,7 @@ import {
 } from '~/generated/graphql'
 
 export const COLLAPSED_FILTER_COLUMNS = 3
+export const SPLIT_FILTERS_PER_PAGE = 10
 
 export enum AttributionGroupByEnum {
   hierarchical = 'hierarchical',
@@ -17,7 +18,12 @@ export type AttributionColumn = {
   chargeId: string
   chargeFilterId: string | null
   label: string | null
+  filterPage: number
 }
+
+export type AttributionChargesUsageByFilterPage = Array<
+  AttributionChargeUsageFragment[] | undefined
+>
 
 type AttributionColumnsResult = {
   columns: AttributionColumn[]
@@ -55,37 +61,57 @@ export const mergeAttributionChargesUsage = (
 }
 
 export const buildAttributionColumns = ({
-  chargesUsage,
+  chargesUsageByFilterPage,
   selectedChargeId,
   isExpanded,
 }: {
-  chargesUsage: AttributionChargeUsageFragment[]
+  chargesUsageByFilterPage: AttributionChargeUsageFragment[][]
   selectedChargeId: string | null
   isExpanded: boolean
 }): AttributionColumnsResult => {
   if (!selectedChargeId) return { columns: [], hiddenColumnsCount: 0 }
 
-  const columns = chargesUsage
-    .filter(({ charge }) => charge.id === selectedChargeId)
-    .map((usage) => ({
-      key: getAttributionUsageKey(usage),
-      chargeId: usage.charge.id,
-      chargeFilterId: usage.chargeFilter?.id ?? null,
-      label: usage.chargeFilter ? composeChargeFilterDisplayName(usage.chargeFilter) : null,
-    }))
+  const [firstPageColumns = [], ...nextPagesColumns] = chargesUsageByFilterPage.map(
+    (chargesUsage, filterPage) =>
+      chargesUsage
+        .filter(({ charge }) => charge.id === selectedChargeId)
+        .map((usage) => ({
+          key: getAttributionUsageKey(usage),
+          chargeId: usage.charge.id,
+          chargeFilterId: usage.chargeFilter?.id ?? null,
+          label: usage.chargeFilter ? composeChargeFilterDisplayName(usage.chargeFilter) : null,
+          filterPage,
+        })),
+  )
 
-  const filterColumns = columns.filter(({ chargeFilterId }) => !!chargeFilterId)
+  const firstPageFilterColumns = firstPageColumns.filter(({ chargeFilterId }) => !!chargeFilterId)
+  const defaultColumns = firstPageColumns.filter(({ chargeFilterId }) => !chargeFilterId)
 
-  if (isExpanded || filterColumns.length <= COLLAPSED_FILTER_COLUMNS) {
-    return { columns, hiddenColumnsCount: 0 }
+  if (!isExpanded && firstPageFilterColumns.length > COLLAPSED_FILTER_COLUMNS) {
+    return {
+      columns: [...firstPageFilterColumns.slice(0, COLLAPSED_FILTER_COLUMNS), ...defaultColumns],
+      hiddenColumnsCount: firstPageFilterColumns.length - COLLAPSED_FILTER_COLUMNS,
+    }
   }
 
-  const defaultColumns = columns.filter(({ chargeFilterId }) => !chargeFilterId)
+  const nextPagesFilterColumns = nextPagesColumns
+    .flat()
+    .filter(({ chargeFilterId }) => !!chargeFilterId)
 
   return {
-    columns: [...filterColumns.slice(0, COLLAPSED_FILTER_COLUMNS), ...defaultColumns],
-    hiddenColumnsCount: filterColumns.length - COLLAPSED_FILTER_COLUMNS,
+    columns: [...firstPageFilterColumns, ...nextPagesFilterColumns, ...defaultColumns],
+    hiddenColumnsCount: 0,
   }
+}
+
+export const getAttributionRowsChargesUsage = (
+  usages: { rows: { value: string; chargesUsage: AttributionChargeUsageFragment[] }[] }[],
+): ((value: string) => AttributionChargesUsageByFilterPage) => {
+  const chargesUsageByValue = usages.map(
+    ({ rows }) => new Map(rows.map(({ value, chargesUsage }) => [value, chargesUsage])),
+  )
+
+  return (value) => chargesUsageByValue.map((byValue) => byValue.get(value))
 }
 
 export const getAttributionCellUsage = (
@@ -105,11 +131,13 @@ export const getAttributionCellUsage = (
 export const getAttributionTotalUsage = ({
   chargesUsage,
   amountCents,
+  splitChargeUnits,
 }: {
   chargesUsage: AttributionChargeUsageFragment[]
   amountCents?: string | null
+  splitChargeUnits?: number | null
 }): AttributionUsageValue => ({
-  units: chargesUsage.reduce((total, usage) => total + usage.units, 0),
+  units: splitChargeUnits ?? chargesUsage.reduce((total, usage) => total + usage.units, 0),
   amountCents: amountCents ?? null,
 })
 

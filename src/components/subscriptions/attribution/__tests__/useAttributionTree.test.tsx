@@ -5,6 +5,7 @@ import { addToast } from '~/core/apolloClient'
 import { AttributedUsageBasisEnum, CurrencyEnum } from '~/generated/graphql'
 
 import { AttributionLevel, AttributionPathStep, getAttributionNodeKey } from '../attributionTree'
+import { SPLIT_FILTERS_PER_PAGE } from '../buildAttributionColumns'
 import { AttributionTreeUsage, useAttributionTree } from '../useAttributionTree'
 
 const mockQuery = jest.fn()
@@ -91,13 +92,13 @@ describe('useAttributionTree', () => {
   })
 
   describe('GIVEN the tree mounts', () => {
-    it('THEN should load the root levels without filters', async () => {
+    it('THEN should load the root levels without filters, reading the cache first', async () => {
       const { result } = await renderLoadedTree()
 
       expect(mockQuery).toHaveBeenCalledTimes(1)
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
-          fetchPolicy: 'no-cache',
+          fetchPolicy: 'cache-first',
           variables: { ...variables, groupBy: 'department', filters: undefined, page: 1 },
         }),
       )
@@ -255,11 +256,11 @@ describe('useAttributionTree', () => {
         const root = result.current.nodes[ROOT_KEY]
 
         expect(
-          node?.status === 'loaded' && node.blocks[0].usage.rows.map(({ value }) => value),
+          node?.status === 'loaded' && node.blocks[0].usages[0].rows.map(({ value }) => value),
         ).toEqual(['eng', 'data'])
-        expect(node?.status === 'loaded' && node.blocks[0].usage.metadata.currentPage).toBe(2)
-        expect(node?.status === 'loaded' && node.blocks[1].usage.rows).toHaveLength(1)
-        expect(root?.status === 'loaded' && root.blocks[0].usage.rows).toHaveLength(2)
+        expect(node?.status === 'loaded' && node.blocks[0].usages[0].metadata.currentPage).toBe(2)
+        expect(node?.status === 'loaded' && node.blocks[1].usages[0].rows).toHaveLength(1)
+        expect(root?.status === 'loaded' && root.blocks[0].usages[0].rows).toHaveLength(2)
       })
     })
 
@@ -371,6 +372,34 @@ describe('useAttributionTree', () => {
 
       expect(result.current.nodes[RND_KEY]).toEqual(expect.objectContaining({ isExpanded: true }))
       expect(mockQuery).toHaveBeenCalledTimes(3)
+      expect(mockQuery.mock.calls.map(([options]) => options.fetchPolicy)).toEqual([
+        'network-only',
+        'network-only',
+        'network-only',
+      ])
+    })
+
+    it('THEN should not reload an expanded node hidden under a collapsed one', async () => {
+      const ENG_KEY = getAttributionNodeKey([...rndPath, { code: 'team', value: 'eng' }])
+      const { result } = await renderLoadedTree()
+
+      mockQuery
+        .mockReturnValueOnce(resolveUsage(buildUsage(['eng'])))
+        .mockReturnValueOnce(resolveUsage(buildUsage(['cc-1'])))
+      act(() => result.current.toggleNode(rndPath, 'department'))
+      await waitFor(() => expect(result.current.nodes[RND_KEY]?.status).toBe('loaded'))
+
+      mockQuery.mockReturnValue(resolveUsage(buildUsage(['x'])))
+      act(() => result.current.toggleNode([...rndPath, { code: 'team', value: 'eng' }], 'team'))
+      await waitFor(() => expect(result.current.nodes[ENG_KEY]?.status).toBe('loaded'))
+      act(() => result.current.toggleNode(rndPath, 'department'))
+      mockQuery.mockClear()
+
+      await act(async () => result.current.refresh())
+      await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+
+      expect(mockQuery).toHaveBeenCalledTimes(1)
+      expect(result.current.nodes[ENG_KEY]).toBeUndefined()
     })
 
     it('THEN should refetch every page a level had loaded', async () => {
@@ -395,9 +424,9 @@ describe('useAttributionTree', () => {
       const root = result.current.nodes[ROOT_KEY]
 
       expect(
-        root?.status === 'loaded' && root.blocks[0].usage.rows.map(({ value }) => value),
+        root?.status === 'loaded' && root.blocks[0].usages[0].rows.map(({ value }) => value),
       ).toEqual(['rnd', 'gtm', 'data'])
-      expect(root?.status === 'loaded' && root.blocks[0].usage.metadata.currentPage).toBe(2)
+      expect(root?.status === 'loaded' && root.blocks[0].usages[0].metadata.currentPage).toBe(2)
     })
 
     it('THEN should reload the root after it failed to load', async () => {
@@ -444,6 +473,340 @@ describe('useAttributionTree', () => {
       await act(async () => resolveStale({ data: { attributedUsage: buildUsage(['eng']) } }))
 
       expect(result.current.nodes[RND_KEY]).toBeUndefined()
+    })
+  })
+  describe('GIVEN a split charge with more filters than one page', () => {
+    const OFFSET_PAGE_2 = SPLIT_FILTERS_PER_PAGE
+
+    const getBlockFilterPagesCounts = (
+      nodes: ReturnType<typeof useAttributionTree>['nodes'],
+      key: string,
+    ): number[] => {
+      const node = nodes[key]
+
+      return node?.status === 'loaded' ? node.blocks.map(({ usages }) => usages.length) : []
+    }
+
+    const getCalls = (): Array<Record<string, unknown>> =>
+      mockQuery.mock.calls.map(([options]) => options.variables)
+
+    const renderExpandedTree = async () => {
+      const hook = await renderLoadedTree()
+
+      mockQuery
+        .mockReturnValueOnce(resolveUsage(buildUsage(['eng'])))
+        .mockReturnValueOnce(resolveUsage(buildUsage(['cc-1'])))
+      act(() => hook.result.current.toggleNode(rndPath, 'department'))
+      await waitFor(() => expect(hook.result.current.nodes[RND_KEY]?.status).toBe('loaded'))
+
+      mockQuery.mockClear()
+
+      return hook
+    }
+
+    const renderTreeWithTwoFilterPages = async () => {
+      const hook = await renderExpandedTree()
+
+      mockQuery.mockReturnValue(resolveUsage(buildUsage(['rnd'])))
+      await act(async () => hook.result.current.loadMoreFilterPage())
+      mockQuery.mockClear()
+
+      return hook
+    }
+
+    describe('WHEN the next filter page is loaded', () => {
+      it('THEN should request it with the next offset for every visible block', async () => {
+        const { result } = await renderExpandedTree()
+
+        mockQuery.mockReturnValue(resolveUsage(buildUsage(['rnd'])))
+
+        await act(async () => result.current.loadMoreFilterPage())
+
+        expect(getCalls()).toEqual([
+          expect.objectContaining({
+            groupBy: 'department',
+            page: 1,
+            splitFiltersOffset: OFFSET_PAGE_2,
+          }),
+          expect.objectContaining({ groupBy: 'team', page: 1, splitFiltersOffset: OFFSET_PAGE_2 }),
+          expect.objectContaining({
+            groupBy: 'cost_center',
+            page: 1,
+            splitFiltersOffset: OFFSET_PAGE_2,
+          }),
+        ])
+        expect(result.current.isLoadingFilterPage).toBe(false)
+        expect(getBlockFilterPagesCounts(result.current.nodes, ROOT_KEY)).toEqual([2])
+        expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([2, 2])
+      })
+
+      it('THEN should request it for every row page a block had loaded', async () => {
+        const { result } = await renderLoadedTree()
+
+        mockQuery.mockReturnValueOnce(
+          resolveUsage(buildUsage(['data'], { currentPage: 2, totalPages: 2 })),
+        )
+        await act(async () => result.current.loadMore([], 0))
+        mockQuery.mockClear()
+        mockQuery.mockReturnValue(
+          resolveUsage(buildUsage(['rnd'], { currentPage: 2, totalPages: 2 })),
+        )
+
+        await act(async () => result.current.loadMoreFilterPage())
+
+        expect(getCalls()).toEqual([
+          expect.objectContaining({ page: 1, splitFiltersOffset: OFFSET_PAGE_2 }),
+          expect.objectContaining({ page: 2, splitFiltersOffset: OFFSET_PAGE_2 }),
+        ])
+      })
+
+      it('THEN should skip a collapsed node and fetch its missing page once it is expanded', async () => {
+        const { result } = await renderExpandedTree()
+
+        act(() => result.current.toggleNode(rndPath, 'department'))
+        mockQuery.mockReturnValue(resolveUsage(buildUsage(['rnd'])))
+
+        await act(async () => result.current.loadMoreFilterPage())
+
+        expect(mockQuery).toHaveBeenCalledTimes(1)
+        expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([1, 1])
+
+        mockQuery.mockClear()
+
+        act(() => result.current.toggleNode(rndPath, 'department'))
+        await waitFor(() =>
+          expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([2, 2]),
+        )
+
+        expect(getCalls()).toEqual([
+          expect.objectContaining({ groupBy: 'team', splitFiltersOffset: OFFSET_PAGE_2 }),
+          expect.objectContaining({ groupBy: 'cost_center', splitFiltersOffset: OFFSET_PAGE_2 }),
+        ])
+      })
+
+      it('THEN should keep the loaded filter pages while a block has not received the new one', async () => {
+        const { result } = await renderExpandedTree()
+
+        let resolveTeam: (value: unknown) => void = () => undefined
+
+        mockQuery
+          .mockReturnValueOnce(resolveUsage(buildUsage(['rnd'])))
+          .mockReturnValueOnce(new Promise((resolve) => (resolveTeam = resolve)))
+          .mockReturnValueOnce(resolveUsage(buildUsage(['cc-1'])))
+
+        act(() => {
+          result.current.loadMoreFilterPage()
+        })
+
+        await waitFor(() =>
+          expect(getBlockFilterPagesCounts(result.current.nodes, ROOT_KEY)).toEqual([2]),
+        )
+        expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([1, 2])
+        expect(result.current.isLoadingFilterPage).toBe(true)
+
+        await act(async () => resolveTeam({ data: { attributedUsage: buildUsage(['eng']) } }))
+
+        expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([2, 2])
+        expect(result.current.isLoadingFilterPage).toBe(false)
+      })
+
+      it('THEN should not request anything while a node is still loading', async () => {
+        const { result } = await renderLoadedTree()
+
+        mockQuery.mockReturnValue(new Promise(() => undefined))
+        act(() => result.current.toggleNode(rndPath, 'department'))
+        await waitFor(() => expect(mockQuery).toHaveBeenCalledTimes(3))
+        mockQuery.mockClear()
+
+        await act(async () => result.current.loadMoreFilterPage())
+
+        expect(mockQuery).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN loading the next filter page fails', () => {
+      it('THEN should toast, roll the filter page back and stay retryable', async () => {
+        const { result } = await renderExpandedTree()
+
+        mockQuery.mockReturnValue(resolveUsage(buildUsage(['eng'])))
+        mockQuery.mockRejectedValueOnce(new Error('network'))
+
+        await act(async () => result.current.loadMoreFilterPage())
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+        expect(result.current.isLoadingFilterPage).toBe(false)
+        expect(getBlockFilterPagesCounts(result.current.nodes, ROOT_KEY)).toEqual([1])
+        expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([1, 1])
+      })
+
+      it('THEN should drop the late page of the failed attempt and load a fresh one on retry', async () => {
+        const { result } = await renderExpandedTree()
+
+        let resolveStale: (value: unknown) => void = () => undefined
+
+        mockQuery
+          .mockRejectedValueOnce(new Error('network'))
+          .mockReturnValueOnce(new Promise((resolve) => (resolveStale = resolve)))
+          .mockReturnValueOnce(resolveUsage(buildUsage(['cc-1'])))
+
+        act(() => {
+          result.current.loadMoreFilterPage()
+        })
+        await waitFor(() =>
+          expect(getBlockFilterPagesCounts(result.current.nodes, ROOT_KEY)).toEqual([1]),
+        )
+        await act(async () => resolveStale({ data: { attributedUsage: buildUsage(['stale']) } }))
+
+        expect(result.current.isLoadingFilterPage).toBe(false)
+        expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([1, 1])
+
+        mockQuery
+          .mockReturnValueOnce(resolveUsage(buildUsage(['rnd'])))
+          .mockReturnValueOnce(resolveUsage(buildUsage(['fresh'])))
+          .mockReturnValueOnce(resolveUsage(buildUsage(['cc-1'])))
+
+        await act(async () => result.current.loadMoreFilterPage())
+
+        const rnd = result.current.nodes[RND_KEY]
+
+        expect(rnd?.status === 'loaded' && rnd.blocks[0].usages[1].rows[0].value).toBe('fresh')
+      })
+
+      it('THEN should keep a node expanded during the failed attempt on the rolled back count', async () => {
+        const { result } = await renderLoadedTree()
+
+        let rejectRootPage: (reason: unknown) => void = () => undefined
+
+        mockQuery.mockReturnValueOnce(new Promise((_, reject) => (rejectRootPage = reject)))
+        act(() => {
+          result.current.loadMoreFilterPage()
+        })
+        await waitFor(() => expect(mockQuery).toHaveBeenCalledTimes(2))
+
+        mockQuery.mockReturnValue(resolveUsage(buildUsage(['eng'])))
+        act(() => result.current.toggleNode(rndPath, 'department'))
+        await waitFor(() => expect(result.current.nodes[RND_KEY]?.status).toBe('loaded'))
+        await act(async () => rejectRootPage(new Error('network')))
+
+        expect(getBlockFilterPagesCounts(result.current.nodes, ROOT_KEY)).toEqual([1])
+        expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([1, 1])
+      })
+    })
+
+    describe('WHEN many requests start at once', () => {
+      it('THEN should run at most six of them in parallel', async () => {
+        const manyLevels = Array.from({ length: 8 }, (_, index) => ({
+          code: `level_${index}`,
+          name: `Level ${index}`,
+          isLeaf: true,
+        }))
+        const resolvers: Array<(value: unknown) => void> = []
+
+        manyLevels.forEach(() =>
+          mockQuery.mockReturnValueOnce(new Promise((resolve) => resolvers.push(resolve))),
+        )
+        renderTree({ getChildLevels: () => manyLevels })
+
+        await waitFor(() => expect(mockQuery).toHaveBeenCalledTimes(6))
+        await act(async () => resolvers[0]({ data: { attributedUsage: buildUsage([]) } }))
+
+        expect(mockQuery).toHaveBeenCalledTimes(7)
+
+        await act(async () =>
+          resolvers.forEach((resolve) => resolve({ data: { attributedUsage: buildUsage([]) } })),
+        )
+        await waitFor(() => expect(mockQuery).toHaveBeenCalledTimes(8))
+      })
+    })
+
+    describe('WHEN a node is expanded with two filter pages open', () => {
+      it('THEN should fire one request per filter page for each level and commit them together', async () => {
+        const { result } = await renderLoadedTree()
+
+        mockQuery.mockReturnValue(resolveUsage(buildUsage(['rnd'])))
+        await act(async () => result.current.loadMoreFilterPage())
+        mockQuery.mockClear()
+
+        let resolveLastPage: (value: unknown) => void = () => undefined
+
+        mockQuery
+          .mockReturnValueOnce(resolveUsage(buildUsage(['eng'])))
+          .mockReturnValueOnce(resolveUsage(buildUsage(['eng'])))
+          .mockReturnValueOnce(resolveUsage(buildUsage(['cc-1'])))
+          .mockReturnValueOnce(new Promise((resolve) => (resolveLastPage = resolve)))
+
+        act(() => result.current.toggleNode(rndPath, 'department'))
+
+        await waitFor(() => expect(mockQuery).toHaveBeenCalledTimes(4))
+        expect(result.current.nodes[RND_KEY]).toEqual({ status: 'loading' })
+        expect(getCalls()).toEqual([
+          expect.objectContaining({ groupBy: 'team', splitFiltersOffset: undefined }),
+          expect.objectContaining({ groupBy: 'team', splitFiltersOffset: OFFSET_PAGE_2 }),
+          expect.objectContaining({ groupBy: 'cost_center', splitFiltersOffset: undefined }),
+          expect.objectContaining({ groupBy: 'cost_center', splitFiltersOffset: OFFSET_PAGE_2 }),
+        ])
+
+        await act(async () => resolveLastPage({ data: { attributedUsage: buildUsage(['cc-1']) } }))
+
+        expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([2, 2])
+      })
+    })
+
+    describe('WHEN more rows are loaded with two filter pages open', () => {
+      it('THEN should fetch the next row page for each filter page and append it to both', async () => {
+        const { result } = await renderLoadedTree()
+
+        mockQuery.mockReturnValue(resolveUsage(buildUsage(['rnd'], { totalPages: 2 })))
+        await act(async () => result.current.loadMoreFilterPage())
+        mockQuery.mockClear()
+        mockQuery.mockReturnValue(
+          resolveUsage(buildUsage(['data'], { currentPage: 2, totalPages: 2 })),
+        )
+
+        await act(async () => result.current.loadMore([], 0))
+
+        expect(getCalls()).toEqual([
+          expect.objectContaining({ page: 2, splitFiltersOffset: undefined }),
+          expect.objectContaining({ page: 2, splitFiltersOffset: OFFSET_PAGE_2 }),
+        ])
+
+        const root = result.current.nodes[ROOT_KEY]
+
+        expect(
+          root?.status === 'loaded' &&
+            root.blocks[0].usages.map(({ rows }) => rows.map(({ value }) => value)),
+        ).toEqual([
+          ['rnd', 'gtm', 'data'],
+          ['rnd', 'data'],
+        ])
+      })
+    })
+
+    describe('WHEN the tree is refreshed with two filter pages open', () => {
+      it('THEN should keep both filter pages for every reloaded block', async () => {
+        const { result } = await renderTreeWithTwoFilterPages()
+
+        mockQuery.mockReturnValue(resolveUsage(buildUsage(['rnd'])))
+
+        await act(async () => result.current.refresh())
+        await waitFor(() => expect(result.current.nodes[RND_KEY]?.status).toBe('loaded'))
+
+        expect(mockQuery).toHaveBeenCalledTimes(6)
+        expect(getBlockFilterPagesCounts(result.current.nodes, ROOT_KEY)).toEqual([2])
+        expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([2, 2])
+      })
+    })
+
+    describe('WHEN the reset key changes with two filter pages open', () => {
+      it('THEN should go back to the first filter page', async () => {
+        const { result, rerender } = await renderTreeWithTwoFilterPages()
+
+        mockQuery.mockReturnValue(resolveUsage(buildUsage(['rnd'])))
+        rerender({ variables, getChildLevels, resetKey: 'key-2', skip: false })
+        await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+
+        expect(mockQuery).toHaveBeenCalledTimes(1)
+      })
     })
   })
 })

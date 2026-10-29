@@ -6,15 +6,12 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import {
-  AttributedUsageBasisEnum,
-  AttributionChargeUsageFragment,
-  CurrencyEnum,
-} from '~/generated/graphql'
+import { AttributedUsageBasisEnum, CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
 import {
+  AttributionChargesUsageByFilterPage,
   AttributionColumn,
   getAttributionCellUsage,
   getAttributionDisplayedValue,
@@ -25,6 +22,7 @@ export const ATTRIBUTION_TABLE_TEST_ID = 'attribution-flat-table'
 export const ATTRIBUTION_TABLE_ROW_TEST_ID = 'attribution-flat-table-row'
 export const ATTRIBUTION_TABLE_FOOTER_TEST_ID = 'attribution-flat-table-footer'
 export const ATTRIBUTION_SHOW_MORE_TEST_ID = 'attribution-show-more'
+export const ATTRIBUTION_LOADING_CELL_TEST_ID = 'attribution-loading-cell'
 export const ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID = 'attribution-load-more-rows'
 
 const LOADING_ROWS_COUNT = 3
@@ -35,19 +33,22 @@ export type AttributionTableRow = {
   label: string
   isUnattributed: boolean
   amountCents?: string | null
-  chargesUsage: AttributionChargeUsageFragment[]
+  splitChargeUnits?: number | null
+  chargesUsageByFilterPage: AttributionChargesUsageByFilterPage
 }
 
+export type AttributionShowMoreColumns = { onClick: () => void } & (
+  { isExpanded: false } | { isExpanded: true; isLoading: boolean; isDisabled: boolean }
+)
+
 export type AttributionTableSharedProps = {
-  totals: Pick<AttributionTableRow, 'amountCents' | 'chargesUsage'>
+  totals: Pick<AttributionTableRow, 'amountCents' | 'splitChargeUnits' | 'chargesUsageByFilterPage'>
   columns: AttributionColumn[]
   chargeLabel: string | null
-  hiddenColumnsCount: number
-  isExpanded: boolean
+  showMoreColumns?: AttributionShowMoreColumns
   basis: AttributedUsageBasisEnum
   currency: CurrencyEnum
   isLoading: boolean
-  onToggleExpanded: () => void
 }
 
 type AttributionFlatTableProps = AttributionTableSharedProps & {
@@ -79,7 +80,7 @@ type AttributionValueCellsProps = Pick<
   AttributionTableSharedProps,
   'columns' | 'basis' | 'currency'
 > & {
-  usage: Pick<AttributionTableRow, 'amountCents' | 'chargesUsage'>
+  usage: Pick<AttributionTableRow, 'amountCents' | 'splitChargeUnits' | 'chargesUsageByFilterPage'>
   cellClassName?: string
 }
 
@@ -102,24 +103,49 @@ export const AttributionValueCells = ({
     return `${intlFormatNumber(value, { style: 'decimal' })} ${translate('text_6282085b4f283b0102655884')}`
   }
 
+  const renderCellValue = (column: AttributionColumn): ReactNode => {
+    const chargesUsage = usage.chargesUsageByFilterPage[column.filterPage]
+
+    if (!chargesUsage) return <Skeleton variant="text" className="ml-auto w-16" />
+
+    return (
+      <Typography variant="body" color="grey700" noWrap>
+        {formatValue(
+          getAttributionDisplayedValue({
+            basis,
+            usage: getAttributionCellUsage(chargesUsage, column),
+          }),
+        )}
+      </Typography>
+    )
+  }
+
   return (
     <>
       {columns.map((column) => (
-        <td key={column.key} className={tw(ATTRIBUTION_CELL_CLASSNAME, cellClassName)}>
-          <Typography variant="body" color="grey700" noWrap>
-            {formatValue(
-              getAttributionDisplayedValue({
-                basis,
-                usage: getAttributionCellUsage(usage.chargesUsage, column),
-              }),
-            )}
-          </Typography>
+        <td
+          key={column.key}
+          className={tw(ATTRIBUTION_CELL_CLASSNAME, cellClassName)}
+          data-test={
+            usage.chargesUsageByFilterPage[column.filterPage]
+              ? undefined
+              : ATTRIBUTION_LOADING_CELL_TEST_ID
+          }
+        >
+          {renderCellValue(column)}
         </td>
       ))}
       <td className={ATTRIBUTION_TOTAL_CELL_CLASSNAME}>
         <Typography variant="body" color="grey700" noWrap>
           {formatValue(
-            getAttributionDisplayedValue({ basis, usage: getAttributionTotalUsage(usage) }),
+            getAttributionDisplayedValue({
+              basis,
+              usage: getAttributionTotalUsage({
+                amountCents: usage.amountCents,
+                splitChargeUnits: usage.splitChargeUnits,
+                chargesUsage: usage.chargesUsageByFilterPage[0] ?? [],
+              }),
+            }),
           )}
         </Typography>
       </td>
@@ -214,18 +240,15 @@ export const AttributionTableLayout = ({
   totals,
   columns,
   chargeLabel,
-  hiddenColumnsCount,
-  isExpanded,
+  showMoreColumns,
   basis,
   currency,
   isLoading,
-  onToggleExpanded,
   children,
   'data-test': dataTest,
 }: AttributionTableSharedProps & { children: ReactNode; 'data-test': string }): JSX.Element => {
   const { translate } = useInternationalization()
   const hasChargeColumns = columns.length > 0
-  const canToggleColumns = isExpanded || hiddenColumnsCount > 0
 
   const renderBody = (): ReactNode => {
     if (!isLoading) return children
@@ -264,18 +287,19 @@ export const AttributionTableLayout = ({
                   <Typography variant="captionHl" color="grey600" noWrap>
                     {chargeLabel}
                   </Typography>
-                  {canToggleColumns && (
+                  {showMoreColumns && (
                     <Button
                       variant="inline"
                       size="small"
-                      onClick={onToggleExpanded}
+                      loading={showMoreColumns.isExpanded && showMoreColumns.isLoading}
+                      disabled={
+                        showMoreColumns.isExpanded &&
+                        (showMoreColumns.isLoading || showMoreColumns.isDisabled)
+                      }
+                      onClick={showMoreColumns.onClick}
                       data-test={ATTRIBUTION_SHOW_MORE_TEST_ID}
                     >
-                      {translate(
-                        isExpanded
-                          ? 'text_1792668632007s3b89z21nto'
-                          : 'text_1792668632007fulz8omi190',
-                      )}
+                      {translate('text_1792668632007fulz8omi190')}
                     </Button>
                   )}
                 </div>
