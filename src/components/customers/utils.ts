@@ -1,6 +1,5 @@
 import { GraphQLFormattedError } from 'graphql'
 
-import { LagoGQLError } from '~/core/apolloClient/errorUtils'
 import {
   Customer,
   CustomerTypeEnum,
@@ -16,6 +15,9 @@ const CUSTOMER_FIELD_ERROR_CODES: string[] = [
   LagoApiError.InvalidCharacters,
   LagoApiError.ValueIsTooLong,
 ]
+const isCustomerFieldErrorCode = (code: unknown): code is string =>
+  typeof code === 'string' && CUSTOMER_FIELD_ERROR_CODES.includes(code)
+
 const BILLING_ADDRESS_KEYS = ['addressLine1', 'addressLine2', 'zipcode', 'city', 'state']
 const SHIPPING_KEY_PREFIX = 'shipping'
 
@@ -47,14 +49,13 @@ export const getCustomerFieldErrors = ({
   translate: TranslateFunc
   billingAddressPath?: string
 }): CustomerFieldErrors => {
-  const details = (errors?.[0]?.extensions as LagoGQLError['extensions'] | undefined)?.details
-  const detailEntries = Object.entries(details || {})
+  const details = errors?.[0]?.extensions?.details
+  const detailEntries: [string, unknown][] =
+    details && typeof details === 'object' ? Object.entries(details) : []
   const fields: CustomerFieldErrors['fields'] = {}
 
   detailEntries.forEach(([key, codes]) => {
-    const code =
-      Array.isArray(codes) &&
-      codes.find((detailCode) => CUSTOMER_FIELD_ERROR_CODES.includes(detailCode))
+    const code = Array.isArray(codes) ? codes.find(isCustomerFieldErrorCode) : undefined
 
     if (!code) return
 
@@ -78,8 +79,7 @@ export const getCustomerFieldErrors = ({
       errors?.length === 1 &&
       detailEntries.length > 0 &&
       detailEntries.every(
-        ([, codes]) =>
-          Array.isArray(codes) && codes.every((code) => CUSTOMER_FIELD_ERROR_CODES.includes(code)),
+        ([, codes]) => Array.isArray(codes) && codes.every(isCustomerFieldErrorCode),
       ),
   }
 }
