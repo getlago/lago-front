@@ -341,7 +341,7 @@ export const useAttributionTree = ({
   )
 
   const fillVisibleFilterPages = useCallback(async (): Promise<void> => {
-    await Promise.all(Object.keys(nodesRef.current).map(fillFilterPages))
+    await Promise.all(Object.keys(nodesRef.current).map((key) => fillFilterPages(key)))
   }, [fillFilterPages])
 
   const loadNode = useCallback(
