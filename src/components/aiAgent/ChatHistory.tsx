@@ -47,6 +47,7 @@ export const ChatHistory = ({ hideHistory, isFullscreen }: ChatHistoryProps) => 
       setPreviousChatMessages({
         convId: singleConversationData?.aiConversation.id,
         messages: formattedMessages ?? [],
+        toolCalls: singleConversationData.aiConversation.pendingToolCalls,
       })
     }
   }

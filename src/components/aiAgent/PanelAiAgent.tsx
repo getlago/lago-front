@@ -11,6 +11,7 @@ import { useOnConversation } from '~/components/aiAgent/hooks/useOnConversation'
 import { Typography } from '~/components/designSystem/Typography'
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import { CreateAiConversationInput } from '~/generated/graphql'
+import { hasPendingToolCalls } from '~/hooks/aiAgent/aiAgentReducer'
 import { AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -146,7 +147,11 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
 
       {!!state.messages.length && <ChatConversation subscription={subscription} />}
 
-      <ChatPromptEditor disabled={!hasAccessToAiAgent} onSubmit={handleSubmit} />
+      {/* The agent takes no new message until the member answers every write it asked for */}
+      <ChatPromptEditor
+        disabled={!hasAccessToAiAgent || hasPendingToolCalls(state)}
+        onSubmit={handleSubmit}
+      />
     </div>
   )
 }

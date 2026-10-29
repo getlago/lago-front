@@ -29,3 +29,25 @@ export const getHiddenAiAgentPaths = (): Array<{ path: string }> => {
 
   return [...routePaths, { path: ERROR_404_ROUTE }, { path: FORBIDDEN_ROUTE }]
 }
+
+export const humanizeToolCallName = (name: string): string => {
+  const words = name.split('_').filter(Boolean).join(' ')
+
+  return words.charAt(0).toUpperCase() + words.slice(1)
+}
+
+// Nested values are shown as indented JSON so the member sees exactly what will be sent
+export const formatToolCallArguments = (
+  toolArguments: unknown,
+): Array<{ key: string; label: string; value: string }> => {
+  if (!toolArguments || typeof toolArguments !== 'object' || Array.isArray(toolArguments)) {
+    return []
+  }
+
+  return Object.entries(toolArguments as Record<string, unknown>).map(([key, value]) => ({
+    key,
+    label: humanizeToolCallName(key),
+    value:
+      value !== null && typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value),
+  }))
+}

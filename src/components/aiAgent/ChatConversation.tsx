@@ -1,6 +1,7 @@
 import { FC, useEffect } from 'react'
 
 import { ChatMessages } from '~/components/aiAgent/ChatMessages'
+import { ChatToolCallConfirmation } from '~/components/aiAgent/ChatToolCallConfirmation'
 import { Message } from '~/components/aiAgent/llmOutputs'
 import { OnConversationSubscriptionHookResult } from '~/generated/graphql'
 import { ChatRole } from '~/hooks/aiAgent/aiAgentReducer'
@@ -14,7 +15,8 @@ interface ChatConversationProps {
 }
 
 export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) => {
-  const { agentType, lastAssistantMessage, state, setChatDone, streamChunk } = useAiAgent()
+  const { agentType, lastAssistantMessage, state, setChatDone, setPendingToolCalls, streamChunk } =
+    useAiAgent()
   const { translate } = useInternationalization()
 
   useEffect(() => {
@@ -35,6 +37,16 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscription.data?.aiConversationStreamed.done])
+
+  // The agent stopped on writes the member has to confirm before they run
+  useEffect(() => {
+    const pendingToolCalls = subscription.data?.aiConversationStreamed.pendingToolCalls
+
+    if (pendingToolCalls?.length) {
+      setPendingToolCalls(pendingToolCalls)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subscription.data?.aiConversationStreamed.pendingToolCalls])
 
   return (
     <div
@@ -64,6 +76,8 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
           </ChatMessages.Received>
         )
       })}
+
+      <ChatToolCallConfirmation onResume={() => subscription.restart()} />
 
       {state.isLoading && <ChatMessages.Loading agentType={agentType} />}
 

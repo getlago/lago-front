@@ -7,6 +7,9 @@ gql`
     aiConversationStreamed(id: $id) {
       chunk
       done
+      pendingToolCalls {
+        ...AiConversationToolCallItem
+      }
     }
   }
 `

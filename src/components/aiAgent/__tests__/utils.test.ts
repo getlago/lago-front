@@ -1,6 +1,6 @@
 import { CustomRouteObject } from '~/core/router/types'
 
-import { getHiddenAiAgentPaths } from '../utils'
+import { formatToolCallArguments, getHiddenAiAgentPaths, humanizeToolCallName } from '../utils'
 
 jest.mock('~/core/router/ObjectsRoutes', () => ({
   objectCreationRoutes: [
@@ -182,5 +182,39 @@ describe('getHiddenAiAgentPaths', () => {
 
     expect(result.some((p) => p.path === '/404')).toBe(true)
     expect(result.some((p) => p.path === '/forbidden')).toBe(true)
+  })
+})
+
+describe('humanizeToolCallName', () => {
+  it('turns a snake_case tool name into readable words', () => {
+    expect(humanizeToolCallName('retry_invoice_payment')).toBe('Retry invoice payment')
+  })
+
+  it('keeps a single word name capitalized', () => {
+    expect(humanizeToolCallName('refresh')).toBe('Refresh')
+  })
+})
+
+describe('formatToolCallArguments', () => {
+  it('lists each parameter with a readable label and its value as text', () => {
+    expect(
+      formatToolCallArguments({ external_customer_id: 'cus_1', amount_cents: 1000, draft: false }),
+    ).toEqual([
+      { key: 'external_customer_id', label: 'External customer id', value: 'cus_1' },
+      { key: 'amount_cents', label: 'Amount cents', value: '1000' },
+      { key: 'draft', label: 'Draft', value: 'false' },
+    ])
+  })
+
+  it('shows nested values as indented JSON', () => {
+    expect(formatToolCallArguments({ coupon: { code: 'WELCOME' } })).toEqual([
+      { key: 'coupon', label: 'Coupon', value: '{\n  "code": "WELCOME"\n}' },
+    ])
+  })
+
+  it('returns no parameter when the arguments are not an object', () => {
+    expect(formatToolCallArguments(null)).toEqual([])
+    expect(formatToolCallArguments(['a'])).toEqual([])
+    expect(formatToolCallArguments('void_invoice')).toEqual([])
   })
 })

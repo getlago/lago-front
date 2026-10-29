@@ -1,3 +1,8 @@
+import {
+  AiConversationToolCallItemFragment,
+  AiConversationToolCallStatusEnum,
+} from '~/generated/graphql'
+
 export enum ChatRole {
   user = 'user',
   assistant = 'assistant',
@@ -35,6 +40,12 @@ export enum ChatActionType {
    * Drop the pending assistant message of a failed exchange and flag the error
    */
   FAIL_EXCHANGE = 'FAIL_EXCHANGE',
+  /** Store the writes the agent stopped on, waiting for the member's confirmation */
+  SET_PENDING_TOOL_CALLS = 'SET_PENDING_TOOL_CALLS',
+  /** Record the member's answer to one of the pending writes */
+  DECIDE_TOOL_CALL = 'DECIDE_TOOL_CALL',
+  /** Every pending write is answered: wait for the agent to carry on */
+  RESUME_CONVERSATION = 'RESUME_CONVERSATION',
   /**
    * Reset the conversation
    */
@@ -67,6 +78,7 @@ export type ChatState = {
   isStreaming: boolean
   hasError: boolean
   financeSessionId?: string
+  toolCalls: AiConversationToolCallItemFragment[]
 }
 
 type ChatAction =
@@ -82,8 +94,22 @@ type ChatAction =
       financeAssistantResult?: FinanceAssistantResult
     }
   | { type: ChatActionType.FAIL_EXCHANGE; exchangeId: string }
+  | { type: ChatActionType.SET_PENDING_TOOL_CALLS; toolCalls: AiConversationToolCallItemFragment[] }
+  | {
+      type: ChatActionType.DECIDE_TOOL_CALL
+      toolCallId: string
+      status: AiConversationToolCallStatusEnum
+    }
+  | { type: ChatActionType.RESUME_CONVERSATION }
   | { type: ChatActionType.RESET_CONVERSATION }
-  | { type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES; messages: ChatMessage[] }
+  | {
+      type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES
+      messages: ChatMessage[]
+      toolCalls?: AiConversationToolCallItemFragment[]
+    }
+
+export const hasPendingToolCalls = (state: ChatState): boolean =>
+  state.toolCalls.some((toolCall) => toolCall.status === AiConversationToolCallStatusEnum.Pending)
 
 export const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
   switch (action.type) {
@@ -108,6 +134,7 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
         isStreaming: false,
         isLoading: true,
         hasError: false,
+        toolCalls: [],
       }
     }
 
@@ -215,6 +242,41 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
       }
     }
 
+    case ChatActionType.SET_PENDING_TOOL_CALLS: {
+      return {
+        ...state,
+        toolCalls: action.toolCalls,
+      }
+    }
+
+    case ChatActionType.DECIDE_TOOL_CALL: {
+      return {
+        ...state,
+        toolCalls: state.toolCalls.map((toolCall) =>
+          toolCall.id === action.toolCallId ? { ...toolCall, status: action.status } : toolCall,
+        ),
+      }
+    }
+
+    case ChatActionType.RESUME_CONVERSATION: {
+      // The agent answers the confirmed writes in a new assistant message
+      const assistantMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: ChatRole.assistant,
+        message: '',
+        status: ChatStatus.pending,
+      }
+
+      return {
+        ...state,
+        messages: [...state.messages, assistantMsg],
+        toolCalls: [],
+        isLoading: true,
+        isStreaming: false,
+        hasError: false,
+      }
+    }
+
     case ChatActionType.RESET_CONVERSATION: {
       return {
         ...state,
@@ -223,6 +285,7 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
         isStreaming: false,
         hasError: false,
         financeSessionId: undefined,
+        toolCalls: [],
       }
     }
 
@@ -233,6 +296,7 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
         isLoading: false,
         isStreaming: false,
         hasError: false,
+        toolCalls: action.toolCalls ?? [],
       }
     }
 

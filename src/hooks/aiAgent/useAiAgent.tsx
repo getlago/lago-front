@@ -2,6 +2,10 @@ import { createContext, ReactNode, useContext, useMemo, useReducer, useState } f
 
 import { getItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import {
+  AiConversationToolCallItemFragment,
+  AiConversationToolCallStatusEnum,
+} from '~/generated/graphql'
+import {
   ChatActionType,
   ChatMessage,
   chatReducer,
@@ -51,10 +55,21 @@ interface AiAgentContextType extends UsePanelReturn<AIPanelEnum> {
   setPreviousChatMessages: ({
     convId,
     messages,
+    toolCalls,
   }: {
     convId: string
     messages: ChatMessage[]
+    toolCalls?: AiConversationToolCallItemFragment[]
   }) => void
+  setPendingToolCalls: (toolCalls: AiConversationToolCallItemFragment[]) => void
+  decideToolCall: ({
+    toolCallId,
+    status,
+  }: {
+    toolCallId: string
+    status: AiConversationToolCallStatusEnum
+  }) => void
+  resumeConversation: () => void
   streamChunk: ({ messageId, chunk }: { messageId: string; chunk: string }) => void
   setChatDone: (messageId: string) => void
   addNewMessage: (message: string, exchangeId?: string) => void
@@ -95,6 +110,7 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     isStreaming: false,
     hasError: false,
     financeSessionId: undefined,
+    toolCalls: [],
   })
 
   const lastAssistantMessage = useMemo(() => {
@@ -104,14 +120,16 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
   const setPreviousChatMessages = ({
     convId,
     messages,
+    toolCalls,
   }: {
     convId: string
     messages: ChatMessage[]
+    toolCalls?: AiConversationToolCallItemFragment[]
   }) => {
     // History only stores billing conversations; replies must route to the billing flow
     setAgentTypeState(AiAgentTypeEnum.billing)
     setConversationId(convId)
-    dispatch({ type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES, messages })
+    dispatch({ type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES, messages, toolCalls })
   }
 
   const setAgentType = (newAgentType: AiAgentTypeEnum) => {
@@ -197,6 +215,26 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     dispatch({ type: ChatActionType.FAIL_EXCHANGE, exchangeId })
   }
 
+  const setPendingToolCalls = (toolCalls: AiConversationToolCallItemFragment[]) => {
+    dispatch({ type: ChatActionType.SET_PENDING_TOOL_CALLS, toolCalls })
+    scrollConversationToBottom()
+  }
+
+  const decideToolCall = ({
+    toolCallId,
+    status,
+  }: {
+    toolCallId: string
+    status: AiConversationToolCallStatusEnum
+  }) => {
+    dispatch({ type: ChatActionType.DECIDE_TOOL_CALL, toolCallId, status })
+  }
+
+  const resumeConversation = () => {
+    dispatch({ type: ChatActionType.RESUME_CONVERSATION })
+    scrollConversationToBottom()
+  }
+
   return (
     <AiAgentContext.Provider
       value={{
@@ -209,6 +247,9 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
         openPanelWithAgent,
         startNewConversation,
         setPreviousChatMessages,
+        setPendingToolCalls,
+        decideToolCall,
+        resumeConversation,
         resetConversation,
         streamChunk,
         setChatDone,

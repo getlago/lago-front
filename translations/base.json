@@ -5293,5 +5293,11 @@
   "text_1792507128247tj6ezglktl8": "Rate card not found",
   "text_1792516745021oj4du8sg5mm": "A new phase must be placed before the phase that runs forever",
   "text_1792683486646v7np3oh22jc": "Already priced on this plan",
-  "text_1792683486646r8re8d0scxh": "Already priced on this contract"
+  "text_1792683486646r8re8d0scxh": "Already priced on this contract",
+  "text_17927142915928y0tvo3je6b": "The assistant needs your confirmation",
+  "text_17927142915926iy26bnmnb7": "Confirm",
+  "text_1792714291592qergcei21hx": "Cancel",
+  "text_179271429159249m3twmho35": "Confirmed",
+  "text_17927142915924dhjygav01h": "Cancelled",
+  "text_1792714291592znrvz6kenr1": "Confirm or cancel each action to continue the conversation."
 }

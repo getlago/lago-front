@@ -6,6 +6,7 @@ import {
   CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID,
 } from '~/components/aiAgent/ChatPromptEditor'
 import { CHAT_SHORTCUTS_TEST_ID } from '~/components/aiAgent/ChatShortcuts'
+import { CHAT_TOOL_CALL_CONFIRMATION_TEST_ID } from '~/components/aiAgent/ChatToolCallConfirmation'
 import {
   PANEL_AI_AGENT_ERROR_TEST_ID,
   PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID,
@@ -13,7 +14,8 @@ import {
   PANEL_AI_AGENT_WELCOME_TEST_ID,
   PanelAiAgent,
 } from '~/components/aiAgent/PanelAiAgent'
-import { ChatState } from '~/hooks/aiAgent/aiAgentReducer'
+import { AiConversationToolCallStatusEnum } from '~/generated/graphql'
+import { ChatRole, ChatState, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { render } from '~/test-utils'
 
@@ -84,6 +86,7 @@ const buildState = (overrides: Partial<ChatState> = {}): ChatState => ({
   isStreaming: false,
   hasError: false,
   financeSessionId: undefined,
+  toolCalls: [],
   ...overrides,
 })
 
@@ -309,6 +312,50 @@ describe('PanelAiAgent', () => {
 
         expect(screen.queryByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).not.toBeInTheDocument()
         expect(screen.getByTestId(PANEL_AI_AGENT_ERROR_TEST_ID)).toHaveTextContent('hello')
+      })
+    })
+  })
+
+  describe('GIVEN the agent waits for the member to confirm a write', () => {
+    const conversationMessages = [
+      { id: 'user-1', role: ChatRole.user, message: 'void it', status: ChatStatus.done },
+      { id: 'assistant-1', role: ChatRole.assistant, message: '', status: ChatStatus.done },
+    ]
+
+    const buildToolCall = (status: AiConversationToolCallStatusEnum) => ({
+      id: 'tool-call-1',
+      name: 'void_invoice',
+      arguments: { lago_id: 'invoice-1' },
+      status,
+    })
+
+    describe('WHEN the write is still pending', () => {
+      it('THEN should show the confirmation and disable the message input', () => {
+        mockConversationId = 'conv-1'
+        mockState = buildState({
+          messages: conversationMessages,
+          toolCalls: [buildToolCall(AiConversationToolCallStatusEnum.Pending)],
+        })
+
+        render(<PanelAiAgent hasAccessToAiAgent />)
+
+        expect(screen.getByTestId(CHAT_TOOL_CALL_CONFIRMATION_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(CHAT_PROMPT_EDITOR_INPUT_TEST_ID)).toBeDisabled()
+        expect(screen.getByTestId(CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN every write is answered', () => {
+      it('THEN should enable the message input again', () => {
+        mockConversationId = 'conv-1'
+        mockState = buildState({
+          messages: conversationMessages,
+          toolCalls: [buildToolCall(AiConversationToolCallStatusEnum.Confirmed)],
+        })
+
+        render(<PanelAiAgent hasAccessToAiAgent />)
+
+        expect(screen.getByTestId(CHAT_PROMPT_EDITOR_INPUT_TEST_ID)).toBeEnabled()
       })
     })
   })
