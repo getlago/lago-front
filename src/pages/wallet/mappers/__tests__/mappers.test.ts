@@ -161,9 +161,11 @@ describe('mapFormToCreateInput', () => {
     expect(input.customerId).toBe('customer-id')
     expect(input.currency).toBe(CurrencyEnum.Usd)
     expect(input.rateAmount).toBe('1.00')
-    // '' credits become '0'
-    expect(input.grantedCredits).toBe('0')
-    expect(input.paidCredits).toBe('0')
+    // the initial-transaction fields are deprecated by the API and never sent
+    expect(input).not.toHaveProperty('grantedCredits')
+    expect(input).not.toHaveProperty('paidCredits')
+    expect(input).not.toHaveProperty('transactionName')
+    expect(input).not.toHaveProperty('ignorePaidTopUpLimitsOnCreation')
     // billingEntityId: null (not undefined) = inherit from customer
     expect(input.billingEntityId).toBeNull()
     expect(input.priority).toBe(WALLET_DEFAULT_PRIORITY)
