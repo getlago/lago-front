@@ -131,6 +131,8 @@ export const AiAgent = () => {
     </div>
   )
 
+  // The panel is keyed on the conversation version: remounting it on every
+  // identity change drops the pending prompt and the mutation's loading/error.
   return (
     <>
       <div className="relative" data-test={AI_AGENT_NAV_TEST_ID}>
@@ -188,8 +190,6 @@ export const AiAgent = () => {
                 )}
 
                 {!showHistory && (
-                  // Remount on every conversation identity change: it drops the
-                  // pending prompt and the mutation's loading/error with it.
                   <PanelAiAgent
                     key={conversationVersion}
                     isFullscreen={isFullscreen}
