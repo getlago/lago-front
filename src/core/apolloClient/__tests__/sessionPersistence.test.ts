@@ -1,4 +1,5 @@
-import { ApolloClient, ApolloLink, gql, InMemoryCache } from '@apollo/client'
+import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client'
+import { parse } from 'graphql'
 import localForage from 'localforage'
 
 import { cache } from '../cache'
@@ -34,11 +35,12 @@ jest.mock('../reactiveVars', () => ({
 }))
 
 const CACHE_KEY = 'apollo-cache-persist-lago-session-test'
-const MARKER_QUERY = gql`
+// Parsed from a string so codegen does not pick it up as an app operation.
+const MARKER_QUERY = parse(`
   query PersistenceMarker {
     marker
   }
-`
+`)
 
 const writeMarker = (target: InMemoryCache, marker: string): void => {
   target.writeQuery({ query: MARKER_QUERY, data: { marker } })
