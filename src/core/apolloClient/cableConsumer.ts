@@ -3,8 +3,6 @@ import { Consumer, createConsumer, Subscription } from '@rails/actioncable'
 import { captureException } from '@sentry/react'
 import { print } from 'graphql'
 
-import { AUTH_TOKEN_LS_KEY } from '~/core/apolloClient/reactiveVars'
-
 import { buildCableConnectionParams, buildCableSubprotocols } from './authHeaders'
 
 // @rails/actioncable's types omit these internals.
@@ -152,16 +150,6 @@ export class CableSubscriptionError extends Error {
 
 export const createCableLink = (url: string): ApolloLink => {
   cableUrl = url
-
-  // A logout in another tab removes the shared token: sockets opened with it must close too.
-  window.addEventListener('storage', (event: StorageEvent): void => {
-    if (event.storageArea !== localStorage) return
-
-    const isTokenRemoved =
-      event.key === null || (event.key === AUTH_TOKEN_LS_KEY && !event.newValue)
-
-    if (isTokenRemoved) disconnectCableConsumer()
-  })
 
   return new ApolloLink(
     (operation: Operation): Observable<FetchResult> =>

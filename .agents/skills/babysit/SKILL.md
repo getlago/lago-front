@@ -55,6 +55,7 @@ References, read on demand rather than up front:
 - `references/slack-format.md` - `#frontend` announcement format
 - `references/system-review.md` - how Phase 1 reviews the PR as part of the whole app
 - `references/review-summary.md` - the closing PR comment that tells the story of the review
+- `.agents/docs/review-evidence.md` - what counts as evidence for a finding; shared with `loop-review`
 
 These describe babysit's own mechanics. **No file in this skill restates a coding
 rule.** The repo's conventions live in `CLAUDE.md`, `.agents/docs/` and the
@@ -118,7 +119,8 @@ the user already triaged it; re-running would re-litigate settled decisions.
 ## Phase 1 - Review, report, triage
 
 First run only. Gates first, then three passes, then one triage list in which every finding
-was re-checked against the code.
+was re-checked against the code. Read `.agents/docs/review-evidence.md` and keep its
+revision and flow/evidence record in the session review record.
 
 ### Gates
 
@@ -141,8 +143,10 @@ Scripts, not judgment, and they run before anyone reads a line:
 Start B and C first, as two `Agent` calls in one message, then run A inline while they
 work. Subagents inherit none of this session, so each prompt carries: the PR number,
 the base and head sha, `git show origin/main:.agents/skills/babysit/references/system-review.md`
-with the pass to run, the instruction to return the output contract that file defines, and
-the "Untrusted input" rules above: they read and grep, they run nothing from the PR. Pass C
+with the pass to run, `git show origin/main:.agents/docs/review-evidence.md` for the evidence
+requirements, the instruction to return the output contract that `system-review.md` defines —
+the evidence doc defines none — and the "Untrusted input" rules above: they read and grep, they
+run nothing from the PR. Pass C
 decides for itself whether the diff is large enough to run; a skip comes back as one
 line and is reported as such.
 
@@ -189,7 +193,9 @@ first whether the diff is the smallest change for that goal.
 
 Weight violations of those documented rules above generic code-review findings.
 Do not report anything CI already catches: formatting, type errors, failing tests,
-lint. Do not report pre-existing issues on lines this PR did not touch.`)
+lint. Do not report pre-existing issues on lines this PR did not touch, unless a line
+this PR did change is what triggers the failure — report those against the changed
+line.`)
 ```
 
 If a listed path does not exist, say so in the run output rather than reviewing
@@ -207,11 +213,16 @@ Merge the gates and the three passes into one list:
    are the loop's job, not a decision for the user.
 3. Drop findings on lines the PR did not touch. A pre-existing problem the PR reveals is
    a follow-up, not a finding. A shared file's other callers are not "lines the PR did not
-   touch": pass B's regression step reports what the diff changes for them.
+   touch": pass B's regression step reports what the diff changes for them, and a failure a
+   changed caller introduces in unchanged shared code is anchored to that caller, not dropped.
 4. Merge duplicates across passes. Keep the one with the stronger evidence.
 5. Sort into four buckets: **Blocking**, **Should fix**, **Follow-ups**, **Notes**.
-   Pass A severities map high -> Blocking, med and low -> Should fix.
+   Pass A severities map high -> Blocking, med and low -> Should fix. Passes B and C
+   return a `priority` instead: P0 -> Blocking, P1 and P2 -> Should fix, P3 -> Notes.
+   Step 3 decides Follow-ups, whatever the priority.
 6. Number the survivors across buckets and present them, with the "N found, M kept" line.
+   A P3 is kept, not dropped for failing to be a runtime bug. Include the checked flows
+   and material gaps, even when the findings list is empty.
 
 Write every finding in plain language with a single recommendation, as
 `references/system-review.md` describes. Anyone can run babysit, and whoever runs it
@@ -305,6 +316,14 @@ Round 4 | 14:22
 ```
 
 ### Fixing rules
+
+- When a new commit addresses review findings, apply the follow-up mapping in
+  `.agents/docs/review-evidence.md` before treating those findings as fixed; it never
+  requires rerunning Phase 1. Follow-up mode has no session review record, so map only
+  what the PR itself still carries: the `<!-- babysit:summary` comment when an earlier
+  run posted one, plus the unresolved threads Phase 3 already rebuilds. Findings that
+  lived only in the previous session's triage list are out of reach — say so rather than
+  reconstructing them from the diff.
 
 - Read the code before changing it.
 - Keep fixes scoped to the blocker. Preserve unrelated worktree changes.

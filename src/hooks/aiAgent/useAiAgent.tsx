@@ -1,4 +1,13 @@
-import { createContext, ReactNode, useContext, useMemo, useReducer, useState } from 'react'
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react'
 
 import { getItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import {
@@ -43,6 +52,8 @@ const getStoredAgentType = (): AiAgentTypeEnum => {
 interface AiAgentContextType extends UsePanelReturn<AIPanelEnum> {
   state: ChatState
   conversationId?: string
+  conversationVersion: number
+  getConversationVersion: () => number
   agentType: AiAgentTypeEnum
   lastAssistantMessage?: ChatMessage
   setAgentType: (agentType: AiAgentTypeEnum) => void
@@ -87,7 +98,18 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
   })
 
   const [conversationId, setConversationId] = useState('')
+  // Bumped when the conversation is dropped or replaced, never when the user's
+  // own request completes. Late callbacks read the ref, which outlives panels.
+  const conversationVersionRef = useRef(0)
+  const [conversationVersion, setConversationVersion] = useState(0)
   const [agentType, setAgentTypeState] = useState<AiAgentTypeEnum>(getStoredAgentType)
+
+  const bumpConversationVersion = useCallback(() => {
+    conversationVersionRef.current += 1
+    setConversationVersion(conversationVersionRef.current)
+  }, [])
+
+  const getConversationVersion = useCallback(() => conversationVersionRef.current, [])
 
   const [state, dispatch] = useReducer(chatReducer, {
     messages: [],
@@ -111,6 +133,7 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     // History only stores billing conversations; replies must route to the billing flow
     setAgentTypeState(AiAgentTypeEnum.billing)
     setConversationId(convId)
+    bumpConversationVersion()
     dispatch({ type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES, messages })
   }
 
@@ -120,6 +143,7 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     setConversationId('')
     setAgentTypeState(newAgentType)
     setItemFromLS(AI_AGENT_TYPE_LS_KEY, newAgentType)
+    bumpConversationVersion()
     dispatch({ type: ChatActionType.RESET_CONVERSATION })
   }
 
@@ -137,10 +161,11 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     })
   }
 
-  const resetConversation = () => {
+  const resetConversation = useCallback(() => {
     setConversationId('')
+    bumpConversationVersion()
     dispatch({ type: ChatActionType.RESET_CONVERSATION })
-  }
+  }, [bumpConversationVersion])
 
   const streamChunk = ({ messageId, chunk }: { messageId: string; chunk: string }) => {
     dispatch({
@@ -203,6 +228,8 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
         ...panel,
         state,
         conversationId,
+        conversationVersion,
+        getConversationVersion,
         agentType,
         lastAssistantMessage,
         setAgentType,

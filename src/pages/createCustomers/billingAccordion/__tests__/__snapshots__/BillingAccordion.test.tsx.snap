@@ -264,6 +264,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                           aria-invalid="false"
                           class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                           id="legalName"
+                          maxlength="255"
                           name="legalName"
                           placeholder="Type a legal name"
                           type="text"
@@ -364,6 +365,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                           aria-invalid="false"
                           class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                           id="taxIdentificationNumber"
+                          maxlength="255"
                           name="taxIdentificationNumber"
                           placeholder="Type a tax identification number"
                           type="text"
@@ -583,6 +585,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="billingAddress.addressLine1"
+                            maxlength="500"
                             name="billingAddress.addressLine1"
                             placeholder="Type an address line 1"
                             type="text"
@@ -633,6 +636,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="billingAddress.addressLine2"
+                            maxlength="500"
                             name="billingAddress.addressLine2"
                             placeholder="Type an address line 2"
                             type="text"
@@ -683,6 +687,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="billingAddress.zipcode"
+                            maxlength="255"
                             name="billingAddress.zipcode"
                             placeholder="Type a zip code"
                             type="text"
@@ -733,6 +738,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="billingAddress.city"
+                            maxlength="255"
                             name="billingAddress.city"
                             placeholder="Type a city"
                             type="text"
@@ -783,6 +789,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="billingAddress.state"
+                            maxlength="255"
                             name="billingAddress.state"
                             placeholder="Type a state"
                             type="text"
@@ -1000,6 +1007,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="shippingAddress.addressLine1"
+                            maxlength="500"
                             name="shippingAddress.addressLine1"
                             placeholder="Type an address line 1"
                             type="text"
@@ -1050,6 +1058,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="shippingAddress.addressLine2"
+                            maxlength="500"
                             name="shippingAddress.addressLine2"
                             placeholder="Type an address line 2"
                             type="text"
@@ -1100,6 +1109,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="shippingAddress.zipcode"
+                            maxlength="255"
                             name="shippingAddress.zipcode"
                             placeholder="Type a zip code"
                             type="text"
@@ -1150,6 +1160,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="shippingAddress.city"
+                            maxlength="255"
                             name="shippingAddress.city"
                             placeholder="Type a city"
                             type="text"
@@ -1200,6 +1211,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="shippingAddress.state"
+                            maxlength="255"
                             name="shippingAddress.state"
                             placeholder="Type a state"
                             type="text"
@@ -1536,6 +1548,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                           aria-invalid="false"
                           class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                           id="legalName"
+                          maxlength="255"
                           name="legalName"
                           placeholder="Type a legal name"
                           type="text"
@@ -1636,6 +1649,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                           aria-invalid="false"
                           class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                           id="taxIdentificationNumber"
+                          maxlength="255"
                           name="taxIdentificationNumber"
                           placeholder="Type a tax identification number"
                           type="text"
@@ -1855,6 +1869,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="billingAddress.addressLine1"
+                            maxlength="500"
                             name="billingAddress.addressLine1"
                             placeholder="Type an address line 1"
                             type="text"
@@ -1905,6 +1920,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="billingAddress.addressLine2"
+                            maxlength="500"
                             name="billingAddress.addressLine2"
                             placeholder="Type an address line 2"
                             type="text"
@@ -1955,6 +1971,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="billingAddress.zipcode"
+                            maxlength="255"
                             name="billingAddress.zipcode"
                             placeholder="Type a zip code"
                             type="text"
@@ -2005,6 +2022,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="billingAddress.city"
+                            maxlength="255"
                             name="billingAddress.city"
                             placeholder="Type a city"
                             type="text"
@@ -2055,6 +2073,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="billingAddress.state"
+                            maxlength="255"
                             name="billingAddress.state"
                             placeholder="Type a state"
                             type="text"
@@ -2272,6 +2291,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="shippingAddress.addressLine1"
+                            maxlength="500"
                             name="shippingAddress.addressLine1"
                             placeholder="Type an address line 1"
                             type="text"
@@ -2322,6 +2342,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="shippingAddress.addressLine2"
+                            maxlength="500"
                             name="shippingAddress.addressLine2"
                             placeholder="Type an address line 2"
                             type="text"
@@ -2372,6 +2393,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="shippingAddress.zipcode"
+                            maxlength="255"
                             name="shippingAddress.zipcode"
                             placeholder="Type a zip code"
                             type="text"
@@ -2422,6 +2444,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="shippingAddress.city"
+                            maxlength="255"
                             name="shippingAddress.city"
                             placeholder="Type a city"
                             type="text"
@@ -2472,6 +2495,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             aria-invalid="false"
                             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
                             id="shippingAddress.state"
+                            maxlength="255"
                             name="shippingAddress.state"
                             placeholder="Type a state"
                             type="text"
