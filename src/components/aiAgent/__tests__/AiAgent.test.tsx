@@ -439,10 +439,10 @@ describe('AiAgent', () => {
 
     describe('WHEN the user switches organization while it is pending', () => {
       it('THEN should drop the prompt echoed under the previous organization', async () => {
-        mockCreateLoading = true
-
         await renderAiAgent()
         await submitAndCaptureCompletion()
+        mockCreateLoading = true
+        await navigateTo('/test-org/customers')
 
         expect(screen.getByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).toBeInTheDocument()
 
@@ -454,10 +454,10 @@ describe('AiAgent', () => {
 
     describe('WHEN the user switches agent while it is pending', () => {
       it('THEN should drop the prompt echoed by the previous agent', async () => {
-        mockCreateLoading = true
-
         await renderAiAgent()
         await submitAndCaptureCompletion()
+        mockCreateLoading = true
+        await navigateTo('/test-org/customers')
 
         expect(screen.getByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).toBeInTheDocument()
 

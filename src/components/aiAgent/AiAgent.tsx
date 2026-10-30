@@ -53,9 +53,7 @@ export const AiAgent = () => {
     ?.organization.id
   const isInsideValidOrgContext = !!currentOrgId
 
-  // Keyed on the organization id, not the slug, so renaming the current
-  // organization is not a switch. The user is part of it: another user on the
-  // same organization is a different conversation owner.
+  // Renaming the slug keeps the conversation; switching users or organizations resets it.
   const conversationScope = `${currentUser?.id ?? ''}:${currentOrgId ?? ''}`
   const lastConversationScopeRef = useRef<string | null>(null)
 

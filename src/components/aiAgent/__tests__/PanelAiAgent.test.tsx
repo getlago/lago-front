@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
@@ -268,11 +268,11 @@ describe('PanelAiAgent', () => {
   describe('GIVEN the conversation creation is in flight', () => {
     describe('WHEN the message has been submitted', () => {
       it('THEN should echo the pending prompt with the loading indicator', async () => {
-        mockCreateLoading = true
-
-        render(<PanelAiAgent hasAccessToAiAgent />)
+        const { rerender } = render(<PanelAiAgent hasAccessToAiAgent />)
 
         await submitPrompt('hello')
+        mockCreateLoading = true
+        rerender(<PanelAiAgent hasAccessToAiAgent />)
 
         const pendingBlock = await screen.findByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)
 
@@ -281,11 +281,11 @@ describe('PanelAiAgent', () => {
       })
 
       it('THEN should hand the pending prompt over to the error block on failure', async () => {
-        mockCreateLoading = true
-
         const { rerender } = render(<PanelAiAgent hasAccessToAiAgent />)
 
         await submitPrompt('hello')
+        mockCreateLoading = true
+        rerender(<PanelAiAgent hasAccessToAiAgent />)
 
         expect(await screen.findByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).toBeInTheDocument()
 
@@ -295,6 +295,48 @@ describe('PanelAiAgent', () => {
         expect(screen.queryByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).not.toBeInTheDocument()
         expect(screen.getByTestId(PANEL_AI_AGENT_ERROR_TEST_ID)).toHaveTextContent('hello')
       })
+    })
+  })
+  describe('GIVEN a billing request still in flight', () => {
+    it('THEN should disable the editor and hide shortcuts while the mutation is loading', () => {
+      mockCreateLoading = true
+      render(<PanelAiAgent hasAccessToAiAgent />)
+      expect(screen.getByTestId(CHAT_PROMPT_EDITOR_INPUT_TEST_ID)).toBeDisabled()
+      expect(screen.getByTestId(CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID)).toBeDisabled()
+      expect(screen.queryByTestId(CHAT_SHORTCUTS_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('THEN should ignore repeated editor and shortcut submissions until the request settles', async () => {
+      let finishCreation: () => void = () => undefined
+
+      mockCreateAiConversation.mockImplementation(
+        ({ onCompleted }) =>
+          new Promise<void>((resolve) => {
+            finishCreation = () => {
+              onCompleted({ createAiConversation: { id: 'conv-1' } })
+              resolve()
+            }
+          }),
+      )
+
+      render(<PanelAiAgent hasAccessToAiAgent />)
+      await submitPrompt('first prompt')
+      await submitPrompt('second prompt')
+      await userEvent.click(
+        within(screen.getByTestId(CHAT_SHORTCUTS_TEST_ID)).getAllByRole('button')[0],
+      )
+
+      expect(mockCreateAiConversation).toHaveBeenCalledTimes(1)
+      await act(async () => finishCreation())
+      expect(mockStartNewConversation).toHaveBeenCalledTimes(1)
+      expect(mockStartNewConversation).toHaveBeenCalledWith({
+        convId: 'conv-1',
+        message: 'first prompt',
+      })
+
+      await submitPrompt('next prompt')
+      expect(mockCreateAiConversation).toHaveBeenCalledTimes(2)
+      await act(async () => finishCreation())
     })
   })
 })
