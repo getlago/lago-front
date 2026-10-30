@@ -1,13 +1,10 @@
-import { Fragment, useRef } from 'react'
+import { Fragment } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { type GetCreditNoteForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  MetadataEditDrawer,
-  MetadataEditDrawerRef,
-} from '~/pages/creditNoteDetails/metadataEditDrawer/MetadataEditDrawer'
+import { useMetadataEditDrawer } from '~/pages/creditNoteDetails/metadataEditDrawer/useMetadataEditDrawer'
 import { SectionHeader } from '~/styles/customer'
 
 type CreditNotesDetailsMetadataProps = {
@@ -19,17 +16,13 @@ const GRID =
 
 const CreditNoteDetailsMetadata = ({ creditNote }: CreditNotesDetailsMetadataProps) => {
   const { translate } = useInternationalization()
-  const metadataEditDrawerRef = useRef<MetadataEditDrawerRef>(null)
-
-  const handleOpenMetadataEditDrawer = () => {
-    metadataEditDrawerRef.current?.openDrawer({ creditNote })
-  }
+  const { openDrawer } = useMetadataEditDrawer({ creditNote })
 
   return (
     <div>
       <SectionHeader variant="subhead1">
         {translate('text_63fcc3218d35b9377840f59b')}
-        <Button variant="inline" onClick={handleOpenMetadataEditDrawer}>
+        <Button variant="inline" onClick={openDrawer}>
           {translate('text_63e51ef4985f0ebd75c212fc')}
         </Button>
       </SectionHeader>
@@ -54,8 +47,6 @@ const CreditNoteDetailsMetadata = ({ creditNote }: CreditNotesDetailsMetadataPro
           ))}
         </div>
       </div>
-
-      <MetadataEditDrawer ref={metadataEditDrawerRef} />
     </div>
   )
 }
