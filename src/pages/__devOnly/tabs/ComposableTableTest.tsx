@@ -5,7 +5,6 @@ import { generatePath } from 'react-router'
 import { Button } from '~/components/designSystem/Button'
 import {
   ComposableTableExpandToggle,
-  ComposableTableFooterRow,
   ComposableTableGroupHeader,
   ComposableTableInlineError,
   ComposableTableLoadMore,
@@ -141,29 +140,35 @@ const GroupedExample = (): JSX.Element => {
 
 /* Table states */
 
-type TableState = 'data' | 'loading' | 'empty' | 'error'
+type TableState = 'loading' | 'empty' | 'error'
 
-const TABLE_STATES: TableState[] = ['data', 'loading', 'empty', 'error']
+const TABLE_STATES: TableState[] = ['loading', 'empty', 'error']
+
+const stateColumns = usageColumnHelper.columns([
+  usageColumnHelper.accessor('team', { header: 'Team' }),
+  usageColumnHelper.group({
+    id: 'metrics',
+    header: 'Billable metrics',
+    columns: METRICS.slice(0, METRICS_PER_PAGE).map(({ key, label }) =>
+      usageColumnHelper.display({
+        id: key,
+        header: label,
+        meta: VALUE_META,
+        cell: ({ row }) => row.original.metrics[key],
+      }),
+    ),
+  }),
+  usageColumnHelper.display({ id: 'total', header: 'Total', meta: { align: 'right' } }),
+])
 
 const StatesExample = (): JSX.Element => {
-  const [state, setState] = useState<TableState>('data')
+  const [state, setState] = useState<TableState>('loading')
 
   const table = useComposableTable({
-    data: state === 'data' ? USAGES : [],
-    columns: useMemo(
-      () =>
-        usageColumnHelper.columns([
-          usageColumnHelper.accessor('team', { header: 'Team' }),
-          usageColumnHelper.display({
-            id: 'tokens',
-            header: 'Tokens',
-            meta: VALUE_META,
-            cell: ({ row }) => row.original.metrics.tokens,
-          }),
-        ]),
-      [],
-    ),
+    data: [],
+    columns: stateColumns,
     getRowId: (row) => row.id,
+    initialState: { columnPinning: { start: ['team'], end: ['total'] } },
   })
 
   return (
@@ -186,7 +191,7 @@ const StatesExample = (): JSX.Element => {
         hasError={state === 'error'}
         placeholder={{
           emptyState: { title: 'No usage yet', subtitle: 'Usage appears once events arrive.' },
-          errorState: { buttonTitle: 'Retry', buttonAction: () => setState('data') },
+          errorState: { buttonTitle: 'Retry', buttonAction: () => setState('loading') },
         }}
       />
     </div>
@@ -399,7 +404,7 @@ const TreeExample = (): JSX.Element => {
   return <ComposableTableView table={table} isLoading={children[ROOT_ID]?.status !== 'loaded'} />
 }
 
-/* Group rows and multi-row footer */
+/* Group rows */
 
 type InvoiceRow =
   | { kind: 'group'; id: string; label: string }
@@ -413,8 +418,6 @@ const INVOICE_ROWS: InvoiceRow[] = [
   { kind: 'fee', id: 'ai-tokens', item: 'LLM tokens (per 1k)', units: 1_200, unitPrice: 0.4 },
   { kind: 'fee', id: 'ai-agents', item: 'Agent calls', units: 950, unitPrice: 0.05 },
 ]
-
-const TAX_RATE = 0.2
 
 const formatAmount = (value: number): string =>
   intlFormatNumber(value, { currency: CurrencyEnum.Eur })
@@ -459,14 +462,6 @@ const invoiceColumns = invoiceColumnHelper.columns([
   }),
 ])
 
-const subtotal = INVOICE_ROWS.reduce((total, row) => total + getFeeAmount(row), 0)
-
-const INVOICE_FOOTER_ROWS: ComposableTableFooterRow[] = [
-  { id: 'subtotal', cells: { unitPrice: 'Subtotal excl. tax', amount: formatAmount(subtotal) } },
-  { id: 'tax', cells: { unitPrice: 'Tax (20%)', amount: formatAmount(subtotal * TAX_RATE) } },
-  { id: 'total', cells: { unitPrice: 'Total', amount: formatAmount(subtotal * (1 + TAX_RATE)) } },
-]
-
 const GroupRowsExample = (): JSX.Element => {
   const table = useComposableTable({
     data: INVOICE_ROWS,
@@ -477,7 +472,6 @@ const GroupRowsExample = (): JSX.Element => {
   return (
     <ComposableTableView
       table={table}
-      footerRows={INVOICE_FOOTER_ROWS}
       getRowTone={(row) => (row.original.kind === 'group' ? 'muted' : 'default')}
     />
   )
@@ -493,7 +487,7 @@ const EXAMPLES = [
   {
     title: 'Table states',
     description:
-      'Loading, empty and error placeholders with the same defaults and overrides as the DS `Table`.',
+      'Loading, empty and error on a table with a column group and pinned Team and Total columns. Placeholders keep the defaults and overrides of the DS `Table`.',
     component: <StatesExample />,
   },
   {
@@ -503,9 +497,9 @@ const EXAMPLES = [
     component: <TreeExample />,
   },
   {
-    title: 'Group rows and multi-row footer',
+    title: 'Group rows',
     description:
-      'Invoice-like layout: full-width group rows with `spanColumns`, then subtotal, tax and total footer rows.',
+      'Invoice-like layout: full-width group rows with `spanColumns` and a muted row tone.',
     component: <GroupRowsExample />,
   },
 ]
@@ -527,7 +521,7 @@ export const ComposableTableTest = (): JSX.Element => (
 )
 
 export const composableTableTab = {
-  title: 'Composable table',
+  title: 'Composable Table',
   link: generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'composable-table' }),
   component: (
     <div className="px-12 pb-20 pt-8">

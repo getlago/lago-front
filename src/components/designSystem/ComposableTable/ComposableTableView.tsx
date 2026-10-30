@@ -47,9 +47,13 @@ const getColumnVariants = <TData extends RowData>(
   className: column.columnDef.meta?.className,
 })
 
-export type ComposableTableFooterRow = {
-  id: string
-  cells: Partial<Record<string, ReactNode>>
+const getSkeletonClassName = <TData extends RowData>(
+  column: ComposableTableColumn<TData>,
+): string => {
+  if (column.getIsPinned() === 'start') return 'w-40'
+  if (column.columnDef.meta?.align === 'right') return 'ml-auto w-16'
+
+  return 'w-24'
 }
 
 type ComposableTableViewProps<TData extends RowData> = {
@@ -59,7 +63,6 @@ type ComposableTableViewProps<TData extends RowData> = {
   hasError?: boolean
   placeholder?: TablePlaceholder
   hasFooter?: boolean
-  footerRows?: ComposableTableFooterRow[]
   getRowTone?: (row: ComposableTableRow<TData>) => ComposableTableTone
   getRowDataTest?: (row: ComposableTableRow<TData>) => string | undefined
   footerDataTest?: string
@@ -73,7 +76,6 @@ export const ComposableTableView = <TData extends RowData>({
   hasError = false,
   placeholder,
   hasFooter = false,
-  footerRows,
   getRowTone,
   getRowDataTest,
   footerDataTest,
@@ -112,7 +114,8 @@ export const ComposableTableView = <TData extends RowData>({
             <ComposableTableTd key={column.id} {...getColumnVariants(column)}>
               <Skeleton
                 variant="text"
-                className={column.getIsPinned() === 'start' ? 'w-40' : 'ml-auto w-16'}
+                color={column.getIsPinned() === 'end' ? 'dark' : undefined}
+                className={getSkeletonClassName(column)}
               />
             </ComposableTableTd>
           ))}
@@ -147,25 +150,7 @@ export const ComposableTableView = <TData extends RowData>({
   }
 
   const renderFooter = (): ReactNode => {
-    if (isLoading || hasError || !rows.length) return null
-
-    if (footerRows) {
-      return (
-        <tfoot data-test={footerDataTest}>
-          {footerRows.map(({ id, cells }) => (
-            <tr key={id}>
-              {leafColumns.map((column) => (
-                <ComposableTableTd key={column.id} tone="muted" {...getColumnVariants(column)}>
-                  {renderText(cells[column.id], 'body', 'grey700')}
-                </ComposableTableTd>
-              ))}
-            </tr>
-          ))}
-        </tfoot>
-      )
-    }
-
-    if (!hasFooter) return null
+    if (!hasFooter || isLoading || hasError || !rows.length) return null
 
     const [leafFooterGroup] = table.getFooterGroups()
 
