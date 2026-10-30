@@ -1,12 +1,22 @@
-import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client'
+import { ApolloClient, ApolloLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
+import { act, renderHook } from '@testing-library/react'
 import { parse } from 'graphql'
 import localForage from 'localforage'
 
+import { useCrossTabSession } from '~/hooks/auth/useCrossTabSession'
+import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
+
+import { disconnectCableConsumer } from '../cableConsumer'
 import { cache } from '../cache'
 import { pausePersistence, resumePersistence, setupCachePersistor } from '../cachePersistor'
 import { onLogIn } from '../cacheUtils'
 import { reconcileSession } from '../crossTabAuth'
 import { authTokenVar } from '../reactiveVars'
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('../crossTabAuth'),
+  ...jest.requireMock('../reactiveVars'),
+}))
 
 jest.mock('../cache', () => ({
   cache: new (jest.requireActual('@apollo/client').InMemoryCache)(),
@@ -28,6 +38,7 @@ jest.mock('../reactiveVars', () => ({
   AUTH_TOKEN_LS_KEY: 'authToken',
   TMP_AUTH_TOKEN_LS_KEY: 'tmpAuthToken',
   authTokenVar: jest.requireActual('@apollo/client').makeVar(undefined),
+  customerPortalTokenVar: jest.requireActual('@apollo/client').makeVar(undefined),
   getStoredAuthToken: (): string | undefined =>
     globalThis.localStorage.getItem('authToken') || undefined,
   updateAuthTokenVar: jest.fn(),
@@ -47,7 +58,7 @@ const writeMarker = (target: InMemoryCache, marker: string): void => {
 }
 
 describe('session persistence', () => {
-  let client: ApolloClient<object>
+  let client: ApolloClient<NormalizedCacheObject>
 
   beforeEach(async () => {
     jest.useFakeTimers()
@@ -65,6 +76,40 @@ describe('session persistence', () => {
     client.stop()
     jest.clearAllTimers()
     jest.useRealTimers()
+  })
+
+  it('signs out the UI and clears local data and sockets on a remote logout without a request', async () => {
+    localStorage.setItem('authToken', 'old-token')
+    writeMarker(cache, 'old session')
+    const stop = jest.spyOn(client, 'stop')
+    const { result, unmount } = renderHook(() => {
+      useCrossTabSession(client)
+
+      return useIsAuthenticated()
+    })
+
+    expect(result.current.isAuthenticated).toBe(true)
+
+    await act(async () => {
+      localStorage.removeItem('authToken')
+      const event = new Event('storage')
+
+      Object.defineProperties(event, {
+        key: { value: 'authToken' },
+        storageArea: { value: localStorage },
+      })
+      window.dispatchEvent(event)
+      await reconcileSession(client)
+    })
+
+    expect(result.current.isAuthenticated).toBe(false)
+    expect(cache.extract()).toEqual({})
+    expect(stop).toHaveBeenCalledTimes(1)
+    expect(disconnectCableConsumer).toHaveBeenCalledTimes(1)
+    await jest.advanceTimersByTimeAsync(1000)
+    expect(localForage.setItem).not.toHaveBeenCalled()
+    expect(localForage.removeItem).not.toHaveBeenCalled()
+    unmount()
   })
 
   it.each([undefined, 'new-token'])(
