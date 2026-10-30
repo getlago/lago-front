@@ -1,18 +1,14 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { CachePersistor, LocalForageWrapper } from 'apollo3-cache-persist'
 import localForage from 'localforage'
-import { matchPath } from 'react-router'
 
-import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
+import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
 
 import { cache } from './cache'
 
 const KEY_PREFIX = 'apollo-cache-persist-lago-'
 
 let persistor: CachePersistor<NormalizedCacheObject> | null = null
-
-const isCustomerPortalContext = () =>
-  !!matchPath(`${CUSTOMER_PORTAL_ROUTE}/*`, window.location.pathname)
 
 // storage.purge() only removes the current key. Blobs left by previous app
 // versions (different version suffix) must be cleaned manually so old deploys
@@ -36,7 +32,7 @@ const purgeStaleVersionedCaches = async (currentKey: string) => {
 // never restore the shared admin blob into memory nor write into it. The
 // in-memory cache still works normally for the portal session.
 export const setupCachePersistor = async (appVersion: string) => {
-  if (isCustomerPortalContext()) {
+  if (isCustomerPortalPath(window.location.pathname)) {
     return null
   }
 

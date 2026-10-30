@@ -27,9 +27,8 @@ import { TWalletDataForm } from '~/pages/wallet/types'
  * - `paidTopUpMin/MaxAmountCents` asymmetry: create OMITS the keys when
  *   falsy, update sends an explicit `null` (clears the stored value).
  * - `rateAmount` is `String()`-converted only — NO serializeAmount.
- * - create-only fields (`currency`, `rateAmount`, `grantedCredits`,
- *   `paidCredits`, `transactionName`, `ignorePaidTopUpLimitsOnCreation`)
- *   never reach the update input.
+ * - create-only fields (`currency`, `rateAmount`) never reach the update input.
+ * - the initial-transaction fields are never sent: the API deprecated them.
  */
 
 const formatRecurringTransactionRules = (
@@ -120,9 +119,12 @@ export const mapFormToCreateInput = (
   customerId: string,
   isMultiConnectionEnabled: boolean,
 ): CreateCustomerWalletInput => {
+  /* eslint-disable @typescript-eslint/no-unused-vars -- object-rest omit: the initial-transaction fields are no longer sent */
   const {
     grantedCredits,
     paidCredits,
+    transactionName,
+    ignorePaidTopUpLimitsOnCreation,
     rateAmount,
     currency,
     recurringTransactionRules,
@@ -137,6 +139,7 @@ export const mapFormToCreateInput = (
     billingEntityId,
     ...values
   } = formValues
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   return {
     ...values,
@@ -147,8 +150,6 @@ export const mapFormToCreateInput = (
     billingEntityId: billingEntityId || null,
     currency,
     rateAmount: String(rateAmount),
-    grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
-    paidCredits: paidCredits === '' ? '0' : String(paidCredits),
     recurringTransactionRules: formatRecurringTransactionRules(
       recurringTransactionRules,
       FORM_TYPE_ENUM.creation,

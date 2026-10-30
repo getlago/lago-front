@@ -5,9 +5,8 @@ import { getMainDefinition } from '@apollo/client/utilities'
 import { captureException, captureMessage } from '@sentry/react'
 import ApolloLinkTimeout from 'apollo-link-timeout'
 import { createUploadLink } from 'apollo-upload-client'
-// IMPORTANT: Keep reactiveVars import before cacheUtils
-import { matchPath } from 'react-router'
 
+// IMPORTANT: Keep reactiveVars import before cacheUtils
 import {
   addToast,
   AUTH_TOKEN_LS_KEY,
@@ -16,7 +15,7 @@ import {
   updateAuthTokenVar,
 } from '~/core/apolloClient/reactiveVars'
 import { buildWebSocketUrl } from '~/core/apolloClient/websocketUrl'
-import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
+import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { LagoApiError } from '~/generated/graphql'
 
@@ -202,10 +201,7 @@ export const initializeApolloClient = async () => {
         if (isUnauthorized) {
           // Skip logout in customer portal context — the portal handles auth errors
           // via query data (isUnauthenticated flag) and doesn't use the onAuthError callback
-          const isCustomerPortal = !!matchPath(
-            `${CUSTOMER_PORTAL_ROUTE}/*`,
-            window.location.pathname,
-          )
+          const isCustomerPortal = isCustomerPortalPath(window.location.pathname)
 
           if (!isCustomerPortal && onAuthError) {
             onAuthError()
