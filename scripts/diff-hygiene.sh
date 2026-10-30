@@ -21,14 +21,22 @@
 #   - <path> — constraint|why-not|trap — "<first words of the comment>"
 #
 # Usage: diff-hygiene.sh [<base-ref>] [<worktree>] [<plan.md>]
-#   base-ref  default origin/main;  worktree default cwd;  plan.md optional
+#   base-ref  default: where the branch left origin/main (skipped when there is no origin/main)
+#   worktree  default cwd;  plan.md optional
+# Without plan.md, only the refused positions fail: that is how code:style runs it on every push.
 # Exit 0 = nothing flagged; 1 = at least one flag. Stdout lists every added
 # comment run with its flag or `declared`, for the reviewer.
 set -euo pipefail
 
-BASE="${1:-origin/main}"
 WT="${2:-$(pwd)}"
 PLAN="${3:-}"
+# Diffing against origin/main itself would count main's newer lines as this branch's.
+if [ -n "${1:-}" ]; then
+  BASE="$1"
+elif ! BASE="$(git -C "$WT" merge-base HEAD origin/main 2>/dev/null)"; then
+  echo "diff-hygiene: no origin/main to diff against, skipped"
+  exit 0
+fi
 
 # Added lines with their line number in the new file, source files only.
 added="$(git -C "$WT" diff -U0 "$BASE" -- 'src/**/*.ts' 'src/**/*.tsx' 'cypress/**/*.ts' ':!src/generated/**' \

@@ -1,4 +1,5 @@
-import { fireEvent, screen } from '@testing-library/react'
+import { act, fireEvent, screen } from '@testing-library/react'
+import { GraphQLFormattedError } from 'graphql'
 
 import { getCustomerPortalLockedFields } from '~/core/constants/customerPortalEditableFields'
 import { CountryCode, CustomerPortalFieldEnum, CustomerTypeEnum } from '~/generated/graphql'
@@ -10,6 +11,8 @@ const mockUseCustomerPortalData = jest.fn()
 const mockUseCustomerPortalNavigation = jest.fn()
 const mockUseCustomerPortalTranslate = jest.fn()
 const mockUpdatePortalCustomer = jest.fn()
+let mockUpdatePortalCustomerError: unknown = undefined
+let mockOnCompleted: (res: unknown) => void
 
 jest.mock('~/components/customerPortal/common/hooks/useCustomerPortalData', () => ({
   useCustomerPortalData: () => mockUseCustomerPortalData(),
@@ -27,10 +30,11 @@ jest.mock('~/components/customerPortal/common/useCustomerPortalTranslate', () =>
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useUpdatePortalCustomerMutation: () => [
-    mockUpdatePortalCustomer,
-    { loading: false, error: undefined },
-  ],
+  useUpdatePortalCustomerMutation: ({ onCompleted }: { onCompleted: (res: unknown) => void }) => {
+    mockOnCompleted = onCompleted
+
+    return [mockUpdatePortalCustomer, { loading: false, error: mockUpdatePortalCustomerError }]
+  },
 }))
 
 jest.mock('~/components/customerPortal/common/PageTitle', () => ({
@@ -49,7 +53,7 @@ jest.mock('~/components/customerPortal/common/SectionLoading', () => ({
 
 const mockHandleSubmit = jest.fn()
 const mockSetFieldValue = jest.fn()
-let mockOnSubmit: (args: { value: Record<string, unknown> }) => Promise<void>
+let mockOnSubmit: (args: unknown) => Promise<void>
 
 jest.mock('~/hooks/forms/useAppform', () => ({
   useAppForm: ({
@@ -57,7 +61,7 @@ jest.mock('~/hooks/forms/useAppform', () => ({
     onSubmit,
   }: {
     defaultValues: Record<string, unknown>
-    onSubmit: (args: { value: Record<string, unknown> }) => Promise<void>
+    onSubmit: (args: unknown) => Promise<void>
   }) => {
     mockOnSubmit = onSubmit
 
@@ -72,6 +76,8 @@ jest.mock('~/hooks/forms/useAppform', () => ({
       },
       handleSubmit: mockHandleSubmit,
       setFieldValue: mockSetFieldValue,
+      getFieldValue: jest.fn(),
+      getFieldMeta: jest.fn(),
       AppField: ({
         name,
         children,
@@ -396,18 +402,23 @@ describe('CustomerInformationPage', () => {
     })
 
     it('THEN should only send the editable fields on submit', async () => {
+      mockUpdatePortalCustomer.mockResolvedValue({})
+
       render(<CustomerInformationPage />)
 
-      await mockOnSubmit({
-        value: {
-          name: 'Acme Inc',
-          city: 'Springfield',
-          country: CountryCode.Lu,
-          zipcode: '1111',
-          taxIdentificationNumber: 'LU123',
-          shippingAddress: { city: 'Shelbyville' },
-        },
-      })
+      await act(() =>
+        mockOnSubmit({
+          value: {
+            name: 'Acme Inc',
+            city: 'Springfield',
+            country: CountryCode.Lu,
+            zipcode: '1111',
+            taxIdentificationNumber: 'LU123',
+            shippingAddress: { city: 'Shelbyville' },
+          },
+          formApi: { getFieldMeta: jest.fn(), setFieldMeta: jest.fn() },
+        }),
+      )
 
       expect(mockUpdatePortalCustomer).toHaveBeenCalledWith({
         variables: {
@@ -515,6 +526,107 @@ describe('CustomerInformationPage', () => {
       render(<CustomerInformationPage />)
 
       expect(screen.getByText(SAME_AS_BILLING_ADDRESS_LABEL)).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the update failed', () => {
+    const buildGraphQLErrors = (details: Record<string, string[]>): GraphQLFormattedError[] => [
+      { message: 'Unprocessable Entity', extensions: { code: 'unprocessable_entity', details } },
+    ]
+    const buildUpdateError = (
+      details: Record<string, string[]>,
+    ): { graphQLErrors: GraphQLFormattedError[] } => ({
+      graphQLErrors: buildGraphQLErrors(details),
+    })
+
+    const submitWithErrors = async (details: Record<string, string[]>): Promise<void> => {
+      mockUpdatePortalCustomerError = buildUpdateError(details)
+      mockUpdatePortalCustomer.mockResolvedValue({ errors: buildGraphQLErrors(details) })
+
+      const { rerender } = render(<CustomerInformationPage />)
+
+      await act(() =>
+        mockOnSubmit({
+          value: { name: 'Acme Inc' },
+          formApi: { getFieldMeta: jest.fn(), setFieldMeta: jest.fn() },
+        }),
+      )
+
+      rerender(<CustomerInformationPage />)
+    }
+
+    afterEach(() => {
+      mockUpdatePortalCustomerError = undefined
+    })
+
+    it('THEN should set the error under the matching field on submit', async () => {
+      const setFieldMeta = jest.fn()
+
+      mockUpdatePortalCustomer.mockResolvedValue({
+        errors: buildGraphQLErrors({ shippingAddressLine2: ['value_is_too_long'] }),
+      })
+
+      render(<CustomerInformationPage />)
+
+      await mockOnSubmit({
+        value: { name: 'Acme Inc', shippingAddress: { addressLine2: 'a' } },
+        formApi: { getFieldMeta: () => ({ errorMap: {}, errorSourceMap: {} }), setFieldMeta },
+      })
+
+      expect(setFieldMeta).toHaveBeenCalledWith(
+        'shippingAddress.addressLine2',
+        expect.any(Function),
+      )
+      expect(setFieldMeta.mock.calls[0][1]({ errorMap: {}, errorSourceMap: {} })).toMatchObject({
+        errorMap: { onServer: { message: 'text_17932959847757c9xwcz2ltv' } },
+        errorSourceMap: { onServer: 'field' },
+      })
+    })
+
+    it('THEN should not leave the page when the mutation returns no customer', () => {
+      render(<CustomerInformationPage />)
+
+      mockOnCompleted({ updateCustomerPortalCustomer: null })
+
+      expect(mockGoHome).not.toHaveBeenCalled()
+    })
+
+    it('THEN should leave the page when the mutation returns the customer', () => {
+      render(<CustomerInformationPage />)
+
+      mockOnCompleted({ updateCustomerPortalCustomer: { id: 'customer-1' } })
+
+      expect(mockGoHome).toHaveBeenCalled()
+    })
+
+    it('THEN should hide the generic alert when every error is shown under a field', async () => {
+      await submitWithErrors({ legalName: ['invalid_characters'] })
+
+      expect(screen.queryByTestId('error-alert')).not.toBeInTheDocument()
+    })
+
+    it('THEN should show the generic alert when an error is not tied to a field', async () => {
+      await submitWithErrors({ email: ['invalid_email_format'] })
+
+      expect(screen.getByTestId('error-alert')).toBeInTheDocument()
+    })
+
+    it('THEN should show the generic alert when a network error follows a field-only error', async () => {
+      await submitWithErrors({ legalName: ['invalid_characters'] })
+
+      const networkError = new Error('Failed to fetch')
+
+      mockUpdatePortalCustomerError = networkError
+      mockUpdatePortalCustomer.mockRejectedValue(networkError)
+
+      await act(() =>
+        mockOnSubmit({
+          value: { name: 'Acme Inc' },
+          formApi: { getFieldMeta: jest.fn(), setFieldMeta: jest.fn() },
+        }).catch(() => undefined),
+      )
+
+      expect(screen.getByTestId('error-alert')).toBeInTheDocument()
     })
   })
 })
