@@ -38,6 +38,8 @@ export const CATALOG_PLAN_RATE_CARD_DETAILS_TAB_ROUTE =
   '/plan-pricing/:catalogPlanId/rate-cards/:appliedRateCardId/:tab'
 export const CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_ROUTE =
   '/plan-pricing/:catalogPlanId/rate-cards/:appliedRateCardId/phases/:phaseId'
+export const CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_TAB_ROUTE =
+  '/plan-pricing/:catalogPlanId/rate-cards/:appliedRateCardId/phases/:phaseId/:tab'
 
 export const catalogRoutes: CustomRouteObject[] = [
   {
@@ -77,7 +79,10 @@ export const catalogRoutes: CustomRouteObject[] = [
     permissionsOr: ['productCategoriesView', 'productsView', 'productFiltersView', 'rateCardsView'],
   },
   {
-    path: [CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_ROUTE],
+    path: [
+      CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_ROUTE,
+      CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_TAB_ROUTE,
+    ],
     private: true,
     element: <CatalogPlanRateCardPhaseDetails />,
     permissions: ['plansView'],

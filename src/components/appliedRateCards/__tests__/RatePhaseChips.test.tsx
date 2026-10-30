@@ -24,6 +24,30 @@ describe('RatePhaseRateChip', () => {
     expect(await screen.findByTestId(RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID)).toBeInTheDocument()
     expect(screen.queryByTestId(RATE_PHASE_OVERRIDDEN_RATE_CHIP_TEST_ID)).not.toBeInTheDocument()
   })
+
+  it('GIVEN an overridden phase and the short label THEN reads "Overridden"', async () => {
+    render(<RatePhaseRateChip isOverridden />)
+
+    expect(await screen.findByTestId(RATE_PHASE_OVERRIDDEN_RATE_CHIP_TEST_ID)).toHaveTextContent(
+      /^Overridden$/,
+    )
+  })
+
+  it('GIVEN an overridden phase and the long label THEN reads "Overridden rate"', async () => {
+    render(<RatePhaseRateChip isOverridden labelLength="long" />)
+
+    expect(await screen.findByTestId(RATE_PHASE_OVERRIDDEN_RATE_CHIP_TEST_ID)).toHaveTextContent(
+      'Overridden rate',
+    )
+  })
+
+  it('GIVEN a phase on the active rate and the long label THEN reads "Active rate"', async () => {
+    render(<RatePhaseRateChip isOverridden={false} labelLength="long" />)
+
+    expect(await screen.findByTestId(RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID)).toHaveTextContent(
+      'Active rate',
+    )
+  })
 })
 
 describe('RatePhaseDurationChip', () => {

@@ -3,6 +3,11 @@ export enum AppliedRateCardDetailsTabsOptionsEnum {
   activityLogs = 'activity-logs',
 }
 
+export enum RatePhaseDetailsTabsOptionsEnum {
+  overview = 'overview',
+  activityLogs = 'activity-logs',
+}
+
 export enum BillableMetricDetailsTabsOptionsEnum {
   activityLogs = 'activity-logs',
   overview = 'overview',

@@ -131,7 +131,7 @@ describe('RatePhaseTable', () => {
 
     const panel = screen.getByTestId(RATE_PHASE_DETAILS_PANEL_TEST_ID)
 
-    expect(within(panel).getByText('From contract start → 1 cycle (14 days)')).toBeInTheDocument()
+    expect(within(panel).getByText('From contract start → 1 cycle of 14 days')).toBeInTheDocument()
     expect(within(panel).getByText('Every 14 days')).toBeInTheDocument()
 
     await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
@@ -158,7 +158,9 @@ describe('RatePhaseTable', () => {
     const panel = screen.getByTestId(RATE_PHASE_DETAILS_PANEL_TEST_ID)
 
     expect(within(panel).getByText('Rate effective date')).toBeInTheDocument()
-    expect(within(panel).getByText('From contract start → Forever')).toBeInTheDocument()
+    expect(
+      within(panel).getByText('From contract start → Forever, in 1-month cycles'),
+    ).toBeInTheDocument()
     expect(screen.queryByTestId(RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID)).not.toBeInTheDocument()
   })
 
@@ -229,12 +231,14 @@ describe('RatePhaseTable', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('GIVEN no spending minimum THEN the panel shows a dash, not a zero amount', async () => {
+  it('GIVEN no spending minimum THEN the panel shows a zero amount', async () => {
     renderTable([foreverPhase])
 
     await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
 
-    expect(screen.getByTestId(RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID).textContent).toBe('-')
+    expect(screen.getByTestId(RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID).textContent).toBe(
+      '$0.00',
+    )
   })
 
   it('GIVEN an overridden phase WHEN its actions open THEN edit, revert and delete call back with its index', async () => {

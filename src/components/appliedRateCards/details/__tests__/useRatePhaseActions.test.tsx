@@ -219,7 +219,7 @@ describe('useRatePhaseActions', () => {
 
   describe.each([
     {
-      condition: 'a locked card',
+      condition: 'a locked parent',
       params: { isLocked: true },
       expectedActions: [
         { key: 'copy', disabled: false },
@@ -251,6 +251,36 @@ describe('useRatePhaseActions', () => {
 
       expect(createPhase).toMatchObject({ hidden: false, disabled: true })
     })
+  })
+
+  it('GIVEN a locked parent THEN the inline edit is visible but disabled', () => {
+    const { getEditPhase } = renderActions({ isLocked: true })
+
+    expect(getEditPhase(MIDDLE_PHASE)).toMatchObject({ hidden: false, disabled: true })
+  })
+
+  it('GIVEN no update permission THEN the inline edit is hidden', () => {
+    mockHasPermissions.mockReturnValue(false)
+
+    const { getEditPhase } = renderActions()
+
+    expect(getEditPhase(MIDDLE_PHASE)).toMatchObject({ hidden: true })
+  })
+
+  it('GIVEN an unlocked card THEN the inline edit is visible and enabled', () => {
+    const { getEditPhase } = renderActions()
+
+    expect(getEditPhase(MIDDLE_PHASE)).toMatchObject({ hidden: false, disabled: false })
+  })
+
+  it('GIVEN an unlocked card WHEN the inline edit is opened THEN the drawer opens in edit mode for that phase', () => {
+    const { getEditPhase } = renderActions()
+
+    getEditPhase(MIDDLE_PHASE).open()
+
+    expect(mockOpenDrawer).toHaveBeenCalledWith(
+      expect.objectContaining({ mode: 'edit', phase: MIDDLE_PHASE }),
+    )
   })
 
   it('GIVEN an unlocked card THEN create is enabled', () => {

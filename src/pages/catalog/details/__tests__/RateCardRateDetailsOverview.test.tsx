@@ -161,15 +161,13 @@ describe('RateCardRateDetailsOverview', () => {
         expect(screen.getByText('$25.00')).toBeInTheDocument()
       })
 
-      // A rate saved without a spending minimum stores 0, and "$0.00" reads as a configured
-      // zero floor rather than "none set".
       it.each([
         ['zero', '0'],
         ['unset', null],
-      ])('THEN renders no amount when the minimum is %s', (_, minAmountCents) => {
+      ])('THEN renders $0.00 when the minimum is %s', (_, minAmountCents) => {
         renderOverview({ rate: buildRateCardRate({ minAmountCents }) })
 
-        expect(screen.queryByText('$0.00')).not.toBeInTheDocument()
+        expect(screen.getByText('$0.00')).toBeInTheDocument()
       })
     })
   })

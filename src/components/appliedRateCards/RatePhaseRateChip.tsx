@@ -6,9 +6,13 @@ export const RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID = 'rate-phase-active-rate-chip'
 
 type RatePhaseRateChipProps = {
   isOverridden: boolean
+  labelLength?: 'short' | 'long'
 }
 
-export const RatePhaseRateChip = ({ isOverridden }: RatePhaseRateChipProps): JSX.Element => {
+export const RatePhaseRateChip = ({
+  isOverridden,
+  labelLength = 'short',
+}: RatePhaseRateChipProps): JSX.Element => {
   const { translate } = useInternationalization()
 
   if (isOverridden) {
@@ -16,7 +20,11 @@ export const RatePhaseRateChip = ({ isOverridden }: RatePhaseRateChipProps): JSX
       <Chip
         className="border border-purple-200 bg-purple-100"
         color="infoMain"
-        label={translate('text_65281f686a80b400c8e2f6dd')}
+        label={translate(
+          labelLength === 'long'
+            ? 'text_1792806558676tta49m00yij'
+            : 'text_65281f686a80b400c8e2f6dd',
+        )}
         data-test={RATE_PHASE_OVERRIDDEN_RATE_CHIP_TEST_ID}
       />
     )
