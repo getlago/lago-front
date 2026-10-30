@@ -113,14 +113,14 @@ showing anything. Pass the filter to the invoices query, which already accepts i
 
 Both passes return a list. Each item carries:
 
-- `bucket`: `blocking` (breaks behaviour or clearly contradicts how the app works),
-  `should-fix` (works, but diverges from the app or will hurt soon), `follow-up` (real,
-  but outside this PR), or `note`.
+- `priority`: P0 (breaks behaviour or clearly contradicts how the app works), P1–P2
+  (works, but diverges from the app or will hurt soon), or P3 (bounded optional
+  improvement, or a note). babysit's triage maps it to a bucket; a problem outside this
+  PR becomes a follow-up whatever its priority.
 - `where`: `file:line` in the diff.
 - `evidence`: the `file:line` of the existing solution, or the failure scenario.
 - `finding`: the plain-language text, as in the examples above.
 - `recommendation`: the single thing to do.
-- `priority`: P0–P3; bounded optional improvements are normally P3, not blockers.
 
 Also return the flows/consumers inspected and material verification gaps, so an empty
 finding list cannot be mistaken for untested flows having passed.

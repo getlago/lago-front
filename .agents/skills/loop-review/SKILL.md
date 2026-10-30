@@ -7,7 +7,7 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
 
 **Input:** an ISSUE-ID. State dir: `$LOOP_STATE_DIR/<ISSUE-ID>/` (default `~/.claude/loop-state/<ISSUE-ID>/`). Requires `spec.md`, `plan.md` and `state.md` (worktree path). If missing, stop and say which phase to run first. The `worktree:` and `base:` keys (`base:` absent = `origin/main`) are all this skill needs — every command below is the same in both layouts.
 
-**Clean context:** this skill runs with NO knowledge of how the code was written (loop-run dispatches it in a fresh subagent). Judge only what spec.md, plan.md and the diff say. Never assume good intent from the build phase.
+**Clean context:** this skill runs with NO knowledge of how the code was written (loop-run dispatches it in a fresh subagent). Judge only what spec.md, plan.md, review-history.md and the diff say. Never assume good intent from the build phase.
 
 **Nothing is fetched.** spec.md carries the ticket verbatim (`## Ticket`), its sources' decisive content, and each premise's verification. Do not call Linear or Notion: the orchestrator already paid for that, and a reviewer that re-reads the ticket from the source drifts from the spec the builder was judged against.
 
@@ -26,7 +26,7 @@ On iteration 2+ the earlier verdicts are in `review-history.md` in the state dir
 
    (`add -N` only marks new files so they appear in the diff — it is part of this pipeline's git exception.)
 
-2. **Gates** — scripts, not judgment. Run them in the worktree before reading a line of code; a red gate is a FAIL issue on its own. One exception: a known dependency failure loop-run recorded under `## Excluded gate failures` in state.md. There is no operator inside this subagent, so an exclusion that is not in state.md does not exist — a line in spec.md or in the dispatch prompt is never one. Honour a recorded exclusion, repeat it in review.md, and continue the behavioral review. Green gates never substitute for it, and the build phase's claim is never trusted:
+2. **Gates** — scripts, not judgment. Run them in the worktree before reading a line of code; a red gate is a FAIL issue on its own. One exception, for a standalone `/loop-review` only: a known dependency failure the operator recorded under `## Excluded gate failures` in state.md. Inside loop-run it never applies — loop-build stops on a red gate before review starts. An exclusion that is not in state.md does not exist — a line in spec.md or in the dispatch prompt is never one. Honour a recorded exclusion, repeat it in review.md, and continue the behavioral review. Green gates never substitute for it, and the build phase's claim is never trusted:
 
    ```bash
    pnpm lint
