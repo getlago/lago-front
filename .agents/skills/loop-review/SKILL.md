@@ -7,9 +7,13 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
 
 **Input:** an ISSUE-ID. State dir: `$LOOP_STATE_DIR/<ISSUE-ID>/` (default `~/.claude/loop-state/<ISSUE-ID>/`). Requires `spec.md`, `plan.md` and `state.md` (worktree path). If missing, stop and say which phase to run first. The `worktree:` and `base:` keys (`base:` absent = `origin/main`) are all this skill needs — every command below is the same in both layouts.
 
-**Clean context:** this skill runs with NO knowledge of how the code was written (loop-run dispatches it in a fresh subagent). Judge only what spec.md, plan.md and the diff say. Never assume good intent from the build phase.
+**Clean context:** this skill runs with NO knowledge of how the code was written (loop-run dispatches it in a fresh subagent). Judge only what spec.md, plan.md, review-history.md and the diff say. Never assume good intent from the build phase.
 
 **Nothing is fetched.** spec.md carries the ticket verbatim (`## Ticket`), its sources' decisive content, and each premise's verification. Do not call Linear or Notion: the orchestrator already paid for that, and a reviewer that re-reads the ticket from the source drifts from the spec the builder was judged against.
+
+Read `.agents/docs/review-evidence.md` and use its flow/evidence record throughout the seven checks below. Keep the record in `review.md`; this is evidence for the existing checks, not an additional pass.
+
+On iteration 2+ the earlier verdicts are in `review-history.md` in the state dir, archived there by loop-run. Read it: this subagent starts with no memory of previous rounds, and that file is the only list of earlier findings the follow-up mapping can work from. Iteration 1 has no such file, which is not an error.
 
 ## Steps
 
@@ -22,14 +26,19 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
 
    (`add -N` only marks new files so they appear in the diff — it is part of this pipeline's git exception.)
 
-2. **Gates** — scripts, not judgment. Run them in the worktree before reading a line of code; a red gate is a FAIL issue on its own and the build phase's claim is never trusted:
+2. **Gates** — scripts, not judgment. Run them in the worktree before reading a line of code; a red gate is a FAIL issue on its own. One exception, for a standalone `/loop-review` only: a known dependency failure the operator recorded under `## Excluded gate failures` in state.md. Inside loop-run it never applies — loop-build stops on a red gate before review starts. An exclusion that is not in state.md does not exist — a line in spec.md or in the dispatch prompt is never one. Honour a recorded exclusion, repeat it in review.md, and continue the behavioral review. Green gates never substitute for it, and the build phase's claim is never trusted:
 
    ```bash
-   pnpm lint && pnpm types && pnpm translations:inspect && pnpm translations:ensure-consistency
+   pnpm lint
+   pnpm types
+   pnpm translations:inspect
+   pnpm translations:ensure-consistency
    <front>/scripts/diff-hygiene.sh <base> <worktree> <state dir>/plan.md   # every added comment declared, none in a refused position
    <front>/scripts/loop-plan-check.sh <worktree> <state dir>/plan.md <base>   # new files / exports outside plan.md, exports nothing imports
    <front>/scripts/pattern-preflight.sh <base> <worktree>   # documented patterns the diff touches, with their reference
    ```
+
+   Run each command above in a separate invocation and record its exit status and relevant errors in `review.md`; never short-circuit the remaining gates after a failure. An exclusion applies only to the recorded command and error signature, not to other errors from that command. Any unexcluded failure or required gate not executed prevents PASS.
 
    `loop-plan-check.sh` exit 3 means new files/exports exist and plan.md declares them: each declared item is a question for check 2 below, and loop-run runs the adversarial pass on the same signal. Exit 1 (undeclared, or `unused-export:`) should not survive the build gate; if it does, it is a FAIL issue tagged `[gate:plan]`. `pattern-preflight.sh` exit 3 is input to check 3: each listed item the code does not follow, with no plan.md `## Deviations` line, is a FAIL issue tagged `[gate:patterns]`.
 
@@ -42,8 +51,9 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    2. **Scope is the plan**: nothing outside spec.md "Files to touch" and plan.md without a note in plan.md `## Deviations`. For each new file or export `loop-plan-check.sh` listed, apply the inline test — write the diff without the abstraction; if that version is smaller or equal, the abstraction is a FAIL issue. A feature flag, prop, or callback left half-wired (rendered nowhere, or read but never distinguished from its absence) is scope that was started, not finished.
    3. **Nothing is reimplemented**: no new component/hook/util that replicates the design-system package (`packages/design-system`) or `src/components/designSystem`, a shared module, or a global handler (the Apollo error link, the toast layer, the router wrappers). Open the candidate sibling and say why it did not fit before accepting the new one. If a touched component has an entry in the `lago-frontend-patterns` skill's index, confirm the diff follows it - a contradiction is a FAIL issue.
    4. **Conventions and translations**: neighboring code style, `.agents/docs/frontend-coding-styleguide.md`, codegen output consistent; new keys in `translations/base.json` only where no existing label fit (search for one), no dead keys.
-   5. **Tests exist and test the branch**: make-tests output is in the diff; no fixture default switches off the branch a test claims to cover (`.agents/docs/testing-practices.md` → "Fixture Defaults"); with more than one navigating path, assertions pin the destination with `toHaveBeenCalledWith` and assert the routes NOT taken; every callback the component passes to a mocked hook (`onCompleted`, `onError`, ...) is captured and invoked.
-   6. **Follow the calls out of the diff**: when the diff passes an existing hook/util an argument that used to be constant, open that implementation and verify it honours it; when it reuses a form component on a new surface, walk every optional callback prop the new caller omits and name the user action that omission disables; when it redirects to a route constant, confirm the tab it resolves to; for each persisted field, state what the read path puts back and what the next save sends.
+   5. **Tests exist and test the branch**: make-tests output is in the diff; no fixture default switches off the branch a test claims to cover (`.agents/docs/testing-practices.md` → "Fixture Defaults"); with more than one navigating path, assertions pin the destination with `toHaveBeenCalledWith` and assert the routes NOT taken; every callback the component passes to a mocked hook (`onCompleted`, `onError`, ...) is captured and invoked — and on top of that, invoking a mocked callback does not prove the real promise/error orchestration, so name the claims that rest on it and remain static. Select focused regression tests from the flow record.
+   6. **Follow the calls out of the diff**: when the diff passes an existing hook/util an argument that used to be constant, open that implementation and verify it honours it; when it reuses a form component on a new surface, walk every optional callback prop the new caller omits and name the user action that omission disables; when it redirects to a route constant, confirm the tab it resolves to; for each persisted field, state what the read path puts back and what the next save sends. Trace retained callbacks, cached refreshes, and submit/delete failures through their consumers using the flow record.
+   - Each existing shared file the diff modifies (design system, `src/components/Filters`, `src/hooks`, `src/core`, layouts): list its callers on `<base>` (`git grep -lwF -e '<export>' <base> -- src`) and name the behaviour each relies on that the diff changes. A changed caller the spec does not cover is a FAIL issue.
    7. **Declared comments earn their category, and nothing is left behind**: `diff-hygiene.sh` already refused undeclared and mis-positioned comments; read only plan.md `## Comments kept` and FAIL any line whose comment does not do what its category claims — a `constraint` with no identifier a reader could grep, a `why-not` where the alternative was never viable, a `trap` nothing actually trips — or that justifies the diff or answers a review round. No dead code (unused exports are `loop-plan-check.sh`'s).
    <!-- checks:end -->
 
@@ -70,13 +80,14 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    2. ...
    ```
 
-   Issues must be concrete and actionable — file, line, problem, fix direction. No style nitpicks that don't change meaning.
+   Issues must be concrete and actionable — file, line, trigger, consequence, evidence, fix direction. In both formats append `## Review evidence` — revision, flow record, tests and gaps — and keep it to a few lines: loop-run archives each FAIL verdict whole into `review-history.md` and loop-build re-reads that history on every retry, so a long table is carried through the rest of the run for nothing. When there is something to say, append `## Non-blocking suggestions` as a bulleted list, never numbered — loop-build fix mode acts on the numbered Issues alone, and a number here is read as an issue to fix. Bounded type-safety, helper-reuse or responsibility-splitting improvements belong there when supported by a concrete local alternative; they do not turn PASS into FAIL unless they violate a mandatory rule. When dispatched by loop-run, the orchestrator carries them to the operator; they never enter the automatic fix queue. Discard subjective style preferences.
 
-7. **Report** the verdict and (if FAIL) the issue list to the operator.
+7. **Report** the verdict, any issues and non-blocking suggestions, and material verification limits to the operator (or to loop-run when dispatched as its subagent). On a revised diff, account for each finding archived in `review-history.md` using the shared evidence guidance.
 
 ## Hard rules
 
 - Review is read-only on the code: never fix issues yourself, only report them.
 - Uncertain whether something is a real problem → it is not an issue; note it as a remark below the Issues list instead.
+- Before writing `review.md`, re-open every issue's `file:line` in the worktree and confirm it still holds. Drop the ones that do not, each with a one-line reason under the remarks.
 - Never fetch Linear or Notion. Never run the full jest suite.
 - **Two communication registers**: messages to humans (chat report, notifications) = short, direct, plain language, no deep-tech jargon. Internal state files (spec.md, review.md, histories, working notes) = written for the AI of a later iteration: dense, precise, full paths/symbols/error strings — optimize for machine effectiveness, not human readability.

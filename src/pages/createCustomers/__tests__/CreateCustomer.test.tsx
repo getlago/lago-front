@@ -602,6 +602,114 @@ describe('CreateCustomer Integration Tests', () => {
       })
     })
 
+    it('THEN should show value_is_too_long under the field and keep the form values', async () => {
+      const user = userEvent.setup()
+
+      Element.prototype.scrollIntoView = jest.fn()
+
+      mockOnSave.mockResolvedValue({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              status: 422,
+              code: 'unprocessable_entity',
+              details: { name: ['value_is_too_long'] },
+            },
+          },
+        ],
+      })
+
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+
+      const externalIdInput = screen.getByLabelText(/customer external id/i)
+      const nameInput = screen.getByLabelText(/customer name/i)
+
+      await user.type(externalIdInput, 'test-customer')
+      await user.click(screen.getByTestId('submit-customer'))
+
+      await waitFor(() => {
+        expect(nameInput).toHaveAttribute('aria-invalid', 'true')
+      })
+
+      expect(externalIdInput).toHaveValue('test-customer')
+
+      await user.type(externalIdInput, '-2')
+
+      expect(nameInput).toHaveAttribute('aria-invalid', 'true')
+
+      await user.type(nameInput, 'Acme')
+
+      await waitFor(() => {
+        expect(nameInput).toHaveAttribute('aria-invalid', 'false')
+      })
+    })
+
+    it('opens billing for an unmounted server error and allows a corrected retry', async () => {
+      const user = userEvent.setup()
+
+      Element.prototype.scrollIntoView = jest.fn()
+      mockOnSave
+        .mockResolvedValueOnce({
+          errors: [
+            {
+              message: 'Unprocessable Entity',
+              extensions: {
+                details: { legalName: ['value_is_too_long'] },
+              },
+            },
+          ],
+        })
+        .mockResolvedValue({})
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+      expect(screen.queryByLabelText(/legal name/i)).not.toBeInTheDocument()
+      await user.type(screen.getByLabelText(/customer external id/i), 'retry-customer')
+      await user.click(screen.getByTestId('submit-customer'))
+      const legalName = await screen.findByLabelText(/legal name/i)
+
+      await waitFor(() => expect(legalName).toHaveAttribute('aria-invalid', 'true'))
+      await waitFor(() => expect(Element.prototype.scrollIntoView).toHaveBeenCalled())
+      await waitFor(() => expect(legalName).toHaveFocus())
+      await user.type(legalName, 'Acme')
+      await user.click(screen.getByTestId('submit-customer'))
+      await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(2))
+    })
+
+    it('THEN should show a field error and the duplicated externalId error together', async () => {
+      const user = userEvent.setup()
+
+      Element.prototype.scrollIntoView = jest.fn()
+
+      mockOnSave.mockResolvedValue({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              status: 422,
+              code: 'unprocessable_entity',
+              details: { name: ['value_is_too_long'], externalId: ['value_already_exist'] },
+            },
+          },
+        ],
+      })
+
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+
+      const externalIdInput = screen.getByLabelText(/customer external id/i)
+      const nameInput = screen.getByLabelText(/customer name/i)
+
+      await user.type(externalIdInput, 'test-customer')
+      await user.click(screen.getByTestId('submit-customer'))
+
+      await waitFor(() => {
+        expect(nameInput).toHaveAttribute('aria-invalid', 'true')
+        expect(externalIdInput).toHaveAttribute('aria-invalid', 'true')
+      })
+    })
+
     it('THEN should reset form when non-Stripe third-party error is returned', async () => {
       const user = userEvent.setup()
 

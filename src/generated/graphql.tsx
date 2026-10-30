@@ -2341,13 +2341,16 @@ export type CreateCustomerWalletInput = {
   currency: CurrencyEnum;
   customerId: Scalars['ID']['input'];
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
-  grantedCredits: Scalars['String']['input'];
+  /** @deprecated The app no longer creates a transaction on wallet creation. Use createCustomerWalletTransaction. */
+  grantedCredits?: InputMaybe<Scalars['String']['input']>;
+  /** @deprecated The app no longer creates a transaction on wallet creation. Use createCustomerWalletTransaction. */
   ignorePaidTopUpLimitsOnCreation?: InputMaybe<Scalars['Boolean']['input']>;
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   invoiceRequiresSuccessfulPayment?: InputMaybe<Scalars['Boolean']['input']>;
   metadata?: InputMaybe<Array<MetadataInput>>;
   name?: InputMaybe<Scalars['String']['input']>;
-  paidCredits: Scalars['String']['input'];
+  /** @deprecated The app no longer creates a transaction on wallet creation. Use createCustomerWalletTransaction. */
+  paidCredits?: InputMaybe<Scalars['String']['input']>;
   paidTopUpMaxAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   paidTopUpMinAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
@@ -2355,6 +2358,7 @@ export type CreateCustomerWalletInput = {
   purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   rateAmount: Scalars['String']['input'];
   recurringTransactionRules?: InputMaybe<Array<CreateRecurringTransactionRuleInput>>;
+  /** @deprecated The app no longer creates a transaction on wallet creation. Use createCustomerWalletTransaction. */
   transactionName?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -5814,6 +5818,7 @@ export enum LagoApiError {
   GoogleLoginMethodNotAuthorized = 'google_login_method_not_authorized',
   IncorrectLoginOrPassword = 'incorrect_login_or_password',
   InternalError = 'internal_error',
+  InvalidCharacters = 'invalid_characters',
   InvalidGoogleCode = 'invalid_google_code',
   InvalidGoogleToken = 'invalid_google_token',
   InvalidStatus = 'invalid_status',
@@ -5850,7 +5855,8 @@ export enum LagoApiError {
   ValueAlreadyExist = 'value_already_exist',
   ValueIsDuplicated = 'value_is_duplicated',
   ValueIsInvalid = 'value_is_invalid',
-  ValueIsOutOfRange = 'value_is_out_of_range'
+  ValueIsOutOfRange = 'value_is_out_of_range',
+  ValueIsTooLong = 'value_is_too_long'
 }
 
 export type LimitationInput = {

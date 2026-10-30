@@ -1,3 +1,7 @@
+import {
+  CUSTOMER_ADDRESS_LINE_MAX_LENGTH,
+  CUSTOMER_TEXT_MAX_LENGTH,
+} from '~/components/customers/utils'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withFieldGroup } from '~/hooks/forms/useAppform'
@@ -23,6 +27,7 @@ const BillingFields = withFieldGroup({
         <group.AppField name="addressLine1">
           {(field) => (
             <field.TextInputField
+              inputProps={{ maxLength: CUSTOMER_ADDRESS_LINE_MAX_LENGTH }}
               className="col-span-2"
               disabled={isDisabled}
               label={translate('text_626c0c09812bbc00e4c59e1d')}
@@ -33,6 +38,7 @@ const BillingFields = withFieldGroup({
         <group.AppField name="addressLine2">
           {(field) => (
             <field.TextInputField
+              inputProps={{ maxLength: CUSTOMER_ADDRESS_LINE_MAX_LENGTH }}
               className="col-span-2"
               disabled={isDisabled}
               label={translate('text_626c0c09812bbc00e4c59e1f')}
@@ -43,6 +49,7 @@ const BillingFields = withFieldGroup({
         <group.AppField name="zipcode">
           {(field) => (
             <field.TextInputField
+              inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
               disabled={isDisabled}
               label={translate('text_626c0c09812bbc00e4c59e21')}
               placeholder={translate('text_1735654189136h4rgi3zdwaa')}
@@ -52,6 +59,7 @@ const BillingFields = withFieldGroup({
         <group.AppField name="city">
           {(field) => (
             <field.TextInputField
+              inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
               disabled={isDisabled}
               label={translate('text_626c0c09812bbc00e4c59e23')}
               placeholder={translate('text_1735654189136vn4mbzp4jhs')}
@@ -61,6 +69,7 @@ const BillingFields = withFieldGroup({
         <group.AppField name="state">
           {(field) => (
             <field.TextInputField
+              inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
               className="col-span-2"
               disabled={isDisabled}
               label={translate('text_626c0c09812bbc00e4c59e25')}
