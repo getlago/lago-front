@@ -184,16 +184,9 @@ export const AuditLogTable = ({
           title: 'Actions',
           minWidth: 100,
           content: (entry) => {
-            // Rollback only applies to feature toggles. Hide it for rollback entries themselves,
-            // org-creation entries (not reversible), and changes already rolled back.
-            if (
-              entry.action === 'rollback' ||
-              entry.action === 'org_created' ||
-              entry.action === 'org_renamed' ||
-              entry.rolledBack
-            ) {
-              return null
-            }
+            const isToggle = entry.action === 'toggle_on' || entry.action === 'toggle_off'
+
+            if (!isToggle || entry.rolledBack) return null
 
             return (
               <Button
