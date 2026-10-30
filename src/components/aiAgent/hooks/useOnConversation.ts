@@ -35,7 +35,7 @@ export const useOnConversation = ({
     },
     fetchPolicy: 'no-cache',
     context: { silentErrorCodes: [LagoApiError.TokenExpired] },
-    // Read on every event: `data` only keeps the latest one, and missing it would hide writes to confirm
+    // onData, not an effect on data: data only keeps the latest event
     onData: ({ data }) => {
       const pendingToolCalls = data.data?.aiConversationStreamed.pendingToolCalls
 

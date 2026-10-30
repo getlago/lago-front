@@ -260,7 +260,7 @@ describe('PanelAiAgent', () => {
         await waitFor(() => {
           expect(mockAddToast).toHaveBeenCalledWith({
             severity: 'info',
-            translateKey: 'text_1792714291592znrvz6kenr1',
+            translateKey: 'text_1793387391883qfvsaxynu03',
           })
         })
         expect(mockAddNewMessage).not.toHaveBeenCalled()

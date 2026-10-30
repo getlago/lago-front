@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
@@ -33,7 +33,6 @@ const mockGetAiConversation = jest.fn()
 const mockAddToast = jest.fn()
 
 let mockState: ChatState
-let mockDecideLoading: boolean
 
 jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
   ...jest.requireActual('~/hooks/aiAgent/useAiAgent'),
@@ -50,7 +49,7 @@ jest.mock('~/components/aiAgent/hooks/useDecideAiToolCall', () => ({
   useDecideAiToolCall: () => ({
     confirmToolCall: mockConfirmToolCall,
     cancelToolCall: mockCancelToolCall,
-    loading: mockDecideLoading,
+    loading: false,
   }),
 }))
 
@@ -101,7 +100,6 @@ describe('ChatToolCallConfirmation', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    mockDecideLoading = false
     mockState = buildState([buildToolCall()])
     mockGetAiConversation.mockResolvedValue(serverPending([]))
   })
@@ -158,13 +156,41 @@ describe('ChatToolCallConfirmation', () => {
     })
 
     describe('WHEN an answer is in flight', () => {
-      it('THEN should disable the buttons', () => {
-        mockDecideLoading = true
+      it('THEN should keep every button disabled until the server says where things stand', async () => {
+        let finishRefetch: () => void = () => undefined
+
+        mockState = buildState([buildToolCall(), buildToolCall({ id: 'tool-call-2' })])
+        mockConfirmToolCall.mockResolvedValue(
+          decidedResult(
+            'confirmAiConversationToolCall',
+            AiConversationToolCallStatusEnum.Confirmed,
+          ),
+        )
+        mockGetAiConversation.mockReturnValue(
+          new Promise((resolve) => {
+            finishRefetch = () => resolve(serverPending([buildToolCall({ id: 'tool-call-2' })]))
+          }),
+        )
 
         render(<ChatToolCallConfirmation onResume={onResume} />)
 
-        expect(screen.getByTestId(CHAT_TOOL_CALL_CONFIRM_BUTTON_TEST_ID)).toBeDisabled()
-        expect(screen.getByTestId(CHAT_TOOL_CALL_CANCEL_BUTTON_TEST_ID)).toBeDisabled()
+        await userEvent.click(screen.getAllByTestId(CHAT_TOOL_CALL_CONFIRM_BUTTON_TEST_ID)[0])
+
+        await waitFor(() => {
+          expect(mockGetAiConversation).toHaveBeenCalled()
+        })
+        screen
+          .getAllByTestId(CHAT_TOOL_CALL_CONFIRM_BUTTON_TEST_ID)
+          .forEach((button) => expect(button).toBeDisabled())
+        screen
+          .getAllByTestId(CHAT_TOOL_CALL_CANCEL_BUTTON_TEST_ID)
+          .forEach((button) => expect(button).toBeDisabled())
+
+        await act(async () => finishRefetch())
+
+        await waitFor(() => {
+          expect(screen.getAllByTestId(CHAT_TOOL_CALL_CONFIRM_BUTTON_TEST_ID)[1]).toBeEnabled()
+        })
       })
     })
 

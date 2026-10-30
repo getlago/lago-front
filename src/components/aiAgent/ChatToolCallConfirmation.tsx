@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
+import { useState } from 'react'
 
 import { useGetAiConversation } from '~/components/aiAgent/hooks/getAiConversation'
 import { useDecideAiToolCall } from '~/components/aiAgent/hooks/useDecideAiToolCall'
@@ -35,6 +36,7 @@ export const CHAT_TOOL_CALL_STATUS_TEST_ID = 'chat-tool-call-status'
 const getStatusTranslationKey = (status: AiConversationToolCallStatusEnum): string => {
   switch (status) {
     case AiConversationToolCallStatusEnum.Pending:
+      return 'text_179338739188335yvhn4v35h'
     case AiConversationToolCallStatusEnum.Confirmed:
       return 'text_179271429159249m3twmho35'
     case AiConversationToolCallStatusEnum.Executing:
@@ -58,9 +60,10 @@ type ChatToolCallConfirmationProps = {
 export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationProps) => {
   const { conversationId, state, decideToolCall, resumeConversation, setPendingToolCalls } =
     useAiAgent()
-  const { confirmToolCall, cancelToolCall, loading } = useDecideAiToolCall()
+  const { confirmToolCall, cancelToolCall } = useDecideAiToolCall()
   const { getAiConversation } = useGetAiConversation()
   const { translate } = useInternationalization()
+  const [isDeciding, setIsDeciding] = useState(false)
 
   if (!state.toolCalls.length) {
     return null
@@ -97,6 +100,19 @@ export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationP
   }
 
   const handleDecision = async (
+    toolCall: AiConversationToolCallItemFragment,
+    confirm: boolean,
+  ): Promise<void> => {
+    setIsDeciding(true)
+
+    try {
+      await decide(toolCall, confirm)
+    } finally {
+      setIsDeciding(false)
+    }
+  }
+
+  const decide = async (
     toolCall: AiConversationToolCallItemFragment,
     confirm: boolean,
   ): Promise<void> => {
@@ -137,7 +153,10 @@ export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationP
       </div>
 
       {state.toolCalls.map((toolCall) => {
-        const toolArguments = formatToolCallArguments(toolCall.arguments)
+        const toolArguments = formatToolCallArguments(
+          toolCall.arguments,
+          translate('text_1793387391883yijoo5gsppw'),
+        )
         const isPending = toolCall.status === AiConversationToolCallStatusEnum.Pending
 
         return (
@@ -191,7 +210,7 @@ export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationP
                 <Button
                   size="small"
                   variant="quaternary"
-                  disabled={loading}
+                  disabled={isDeciding}
                   onClick={() => handleDecision(toolCall, false)}
                   data-test={CHAT_TOOL_CALL_CANCEL_BUTTON_TEST_ID}
                 >
@@ -199,7 +218,7 @@ export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationP
                 </Button>
                 <Button
                   size="small"
-                  disabled={loading}
+                  disabled={isDeciding}
                   onClick={() => handleDecision(toolCall, true)}
                   data-test={CHAT_TOOL_CALL_CONFIRM_BUTTON_TEST_ID}
                 >

@@ -47,17 +47,17 @@ const formatToolCallValue = (value: unknown): string => {
 
 export const formatToolCallArguments = (
   toolArguments: unknown,
+  rawArgumentsLabel: string,
 ): Array<{ key: string; label: string; value: string; isJson: boolean }> => {
   if (toolArguments === null || toolArguments === undefined) {
     return []
   }
 
-  // A confirmation never hides what it confirms, whatever the shape of the arguments
   if (typeof toolArguments !== 'object' || Array.isArray(toolArguments)) {
     return [
       {
         key: 'arguments',
-        label: 'Arguments',
+        label: rawArgumentsLabel,
         value: JSON.stringify(toolArguments, null, 2),
         isJson: true,
       },

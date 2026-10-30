@@ -198,7 +198,10 @@ describe('humanizeToolCallName', () => {
 describe('formatToolCallArguments', () => {
   it('lists each parameter with a readable label and its value as text', () => {
     expect(
-      formatToolCallArguments({ external_customer_id: 'cus_1', amount_cents: 1000, draft: false }),
+      formatToolCallArguments(
+        { external_customer_id: 'cus_1', amount_cents: 1000, draft: false },
+        'Arguments',
+      ),
     ).toEqual([
       {
         key: 'external_customer_id',
@@ -212,28 +215,28 @@ describe('formatToolCallArguments', () => {
   })
 
   it('shows nested values as indented JSON', () => {
-    expect(formatToolCallArguments({ coupon: { code: 'WELCOME' } })).toEqual([
+    expect(formatToolCallArguments({ coupon: { code: 'WELCOME' } }, 'Arguments')).toEqual([
       { key: 'coupon', label: 'Coupon', value: '{\n  "code": "WELCOME"\n}', isJson: true },
     ])
   })
 
   it('quotes blank strings so an emptied field is visible', () => {
-    expect(formatToolCallArguments({ email: '', name: '  ' })).toEqual([
+    expect(formatToolCallArguments({ email: '', name: '  ' }, 'Arguments')).toEqual([
       { key: 'email', label: 'Email', value: '""', isJson: false },
       { key: 'name', label: 'Name', value: '"  "', isJson: false },
     ])
   })
 
   it('returns no parameter when there are no arguments', () => {
-    expect(formatToolCallArguments(null)).toEqual([])
-    expect(formatToolCallArguments(undefined)).toEqual([])
+    expect(formatToolCallArguments(null, 'Arguments')).toEqual([])
+    expect(formatToolCallArguments(undefined, 'Arguments')).toEqual([])
   })
 
   it('shows arguments that are not an object as raw JSON rather than hiding them', () => {
-    expect(formatToolCallArguments(['a'])).toEqual([
+    expect(formatToolCallArguments(['a'], 'Arguments')).toEqual([
       { key: 'arguments', label: 'Arguments', value: '[\n  "a"\n]', isJson: true },
     ])
-    expect(formatToolCallArguments('void_invoice')).toEqual([
+    expect(formatToolCallArguments('void_invoice', 'Arguments')).toEqual([
       { key: 'arguments', label: 'Arguments', value: '"void_invoice"', isJson: true },
     ])
   })

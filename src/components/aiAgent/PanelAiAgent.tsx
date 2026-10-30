@@ -98,7 +98,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
 
       if (hasDefinedGQLError('AiConversationToolCallsPending', errors)) {
         setInitialPrompt('')
-        addToast({ severity: 'info', translateKey: 'text_1792714291592znrvz6kenr1' })
+        addToast({ severity: 'info', translateKey: 'text_1793387391883qfvsaxynu03' })
       }
     } finally {
       isSubmittingRef.current = false
