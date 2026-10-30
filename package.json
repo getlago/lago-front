@@ -69,7 +69,7 @@
     "@types/jest": "30.0.0",
     "@types/lodash": "4.17.26",
     "@types/luxon": "3.7.6",
-    "@types/node": "24.19.2",
+    "@types/node": "26.6.5",
     "@types/prismjs": "1.26.6",
     "@types/rails__actioncable": "8.0.3",
     "@types/react": "18.3.31",
