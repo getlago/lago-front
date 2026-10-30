@@ -9,6 +9,7 @@ import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { RateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { RATE_CARD_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
 import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
@@ -155,6 +156,9 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: rateCardDrawerSchema,
+    },
+    onSubmitInvalid: ({ formApi }) => {
+      scrollToFirstInputError(RATE_CARD_FORM_ID, formApi.state.errorMap.onDynamic || {})
     },
     onSubmit: async ({ value, formApi }) => {
       const editedRateCard = editedRateCardRef.current
