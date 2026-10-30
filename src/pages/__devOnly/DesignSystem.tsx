@@ -1270,6 +1270,7 @@ const DesignSystem = () => {
               </Container>
             ),
           },
+          dataTableTab,
           {
             title: 'Avatar',
             link: AVATAR_TAB_URL,
@@ -2308,7 +2309,6 @@ const DesignSystem = () => {
           shadcnTooltipTab,
           shadcnDropdownMenuTab,
           shadcnSeparatorTab,
-          dataTableTab,
           // disabled simple tab
           {
             disabled: true,
