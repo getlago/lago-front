@@ -50,9 +50,11 @@ type CustomerFieldErrors = {
 export const getCustomerFieldErrors = ({
   errors,
   billingAddressPath,
+  isShippingEqualBillingAddress = false,
 }: {
   errors?: readonly GraphQLFormattedError[]
   billingAddressPath?: string
+  isShippingEqualBillingAddress?: boolean
 }): CustomerFieldErrors => {
   const details = errors?.[0]?.extensions?.details
   const detailEntries: [string, unknown][] =
@@ -64,7 +66,15 @@ export const getCustomerFieldErrors = ({
 
     if (!code) return
 
-    fields[getCustomerFieldPath(key, billingAddressPath)] = {
+    let path = getCustomerFieldPath(key, billingAddressPath)
+
+    if (isShippingEqualBillingAddress && path.startsWith('shippingAddress.')) {
+      const addressKey = path.slice('shippingAddress.'.length)
+
+      path = billingAddressPath ? `${billingAddressPath}.${addressKey}` : addressKey
+    }
+
+    fields[path] = {
       message: getCustomerFieldErrorKey(key, code),
     }
   })
@@ -85,14 +95,36 @@ export const setCustomerServerErrors = (
   fields: CustomerFieldErrors['fields'],
 ): void => {
   Object.entries(fields).forEach(([name, error]) => {
-    if (!formApi.getFieldMeta(name)) return
-
     formApi.setFieldMeta(name, (prev) => ({
       ...prev,
-      errorMap: { ...prev.errorMap, onServer: error },
-      errorSourceMap: { ...prev.errorSourceMap, onServer: 'field' },
+      isTouched: prev?.isTouched ?? true,
+      isBlurred: prev?.isBlurred ?? false,
+      isDirty: prev?.isDirty ?? false,
+      isValidating: prev?.isValidating ?? false,
+      errorMap: { ...prev?.errorMap, onServer: error },
+      errorSourceMap: { ...prev?.errorSourceMap, onServer: 'field' },
     }))
   })
+}
+
+export const syncCustomerShippingAddress = (
+  formApi: Pick<AnyFormApi, 'getFieldValue' | 'setFieldValue' | 'getFieldMeta' | 'setFieldMeta'>,
+  address: Record<string, unknown> | undefined,
+): void => {
+  BILLING_ADDRESS_KEYS.forEach((key) => {
+    const name = `shippingAddress.${key}`
+
+    if (
+      formApi.getFieldValue(name) !== address?.[key] &&
+      formApi.getFieldMeta(name)?.errorMap.onServer
+    ) {
+      formApi.setFieldMeta(name, (prev) => ({
+        ...prev,
+        errorMap: { ...prev.errorMap, onServer: undefined },
+      }))
+    }
+  })
+  formApi.setFieldValue('shippingAddress', address)
 }
 
 type ServerErrorFieldApi = {

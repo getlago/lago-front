@@ -646,6 +646,35 @@ describe('CreateCustomer Integration Tests', () => {
       })
     })
 
+    it('opens billing for an unmounted server error and allows a corrected retry', async () => {
+      const user = userEvent.setup()
+
+      Element.prototype.scrollIntoView = jest.fn()
+      mockOnSave
+        .mockResolvedValueOnce({
+          errors: [
+            {
+              message: 'Unprocessable Entity',
+              extensions: {
+                details: { legalName: ['value_is_too_long'] },
+              },
+            },
+          ],
+        })
+        .mockResolvedValue({})
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+      expect(screen.queryByLabelText(/legal name/i)).not.toBeInTheDocument()
+      await user.type(screen.getByLabelText(/customer external id/i), 'retry-customer')
+      await user.click(screen.getByTestId('submit-customer'))
+      const legalName = await screen.findByLabelText(/legal name/i)
+
+      await waitFor(() => expect(legalName).toHaveAttribute('aria-invalid', 'true'))
+      await user.type(legalName, 'Acme')
+      await user.click(screen.getByTestId('submit-customer'))
+      await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(2))
+    })
+
     it('THEN should show a field error and the duplicated externalId error together', async () => {
       const user = userEvent.setup()
 

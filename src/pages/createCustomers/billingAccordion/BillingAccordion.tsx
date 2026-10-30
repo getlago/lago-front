@@ -1,7 +1,7 @@
 import { useStore } from '@tanstack/react-form'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
-import { CUSTOMER_TEXT_MAX_LENGTH } from '~/components/customers/utils'
+import { CUSTOMER_TEXT_MAX_LENGTH, syncCustomerShippingAddress } from '~/components/customers/utils'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Typography } from '~/components/designSystem/Typography'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -15,6 +15,20 @@ const BillingAccordion = withForm({
   defaultValues: emptyCreateCustomerDefaultValues,
   render: function Render({ form }) {
     const { translate } = useInternationalization()
+    const [isOpen, setIsOpen] = useState(false)
+    const hasServerErrors = useStore(form.store, (state) =>
+      Object.entries(state.fieldMeta).some(
+        ([name, meta]) =>
+          (['legalName', 'taxIdentificationNumber'].includes(name) ||
+            name.startsWith('billingAddress.') ||
+            name.startsWith('shippingAddress.')) &&
+          !!meta?.errorMap.onServer,
+      ),
+    )
+
+    useEffect(() => {
+      if (hasServerErrors) setIsOpen(true)
+    }, [hasServerErrors])
 
     const billingAddress = useStore(form.store, (state) => state.values.billingAddress)
     const isShippingEqualBillingAddress = useStore(
@@ -24,7 +38,7 @@ const BillingAccordion = withForm({
 
     useEffect(() => {
       if (isShippingEqualBillingAddress) {
-        form.setFieldValue('shippingAddress', billingAddress ? { ...billingAddress } : undefined)
+        syncCustomerShippingAddress(form, billingAddress ? { ...billingAddress } : undefined)
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [billingAddress, isShippingEqualBillingAddress])
@@ -36,6 +50,8 @@ const BillingAccordion = withForm({
     return (
       <Accordion
         variant="borderless"
+        isOpen={isOpen}
+        onToggle={setIsOpen}
         summary={
           <div className="flex flex-col gap-2">
             <Typography variant="subhead1">{translate('text_632b49e2620ea4c6d96c9662')}</Typography>

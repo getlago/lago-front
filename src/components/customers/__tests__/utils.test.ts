@@ -7,6 +7,7 @@ import {
   getCustomerFieldErrors,
   getInitials,
   setCustomerServerErrors,
+  syncCustomerShippingAddress,
 } from '~/components/customers/utils'
 import { LagoApiError } from '~/generated/graphql'
 
@@ -223,5 +224,74 @@ describe('customerUtils', () => {
         expect(form.getFieldMeta('name')?.errors).toEqual([])
       })
     })
+  })
+})
+
+describe('synchronized shipping validation', () => {
+  it.each([undefined, 'billingAddress'])(
+    'maps shipping errors to editable billing (%s)',
+    (billingAddressPath) => {
+      const { fields } = getCustomerFieldErrors({
+        errors: buildErrors({ shippingAddressLine1: ['value_is_too_long'] }),
+        billingAddressPath,
+        isShippingEqualBillingAddress: true,
+      })
+
+      expect(fields).toEqual({
+        [billingAddressPath ? 'billingAddress.addressLine1' : 'addressLine1']: {
+          message: TOO_LONG_500_KEY,
+        },
+      })
+    },
+  )
+
+  it('allows a second submission after correcting synchronized billing', async () => {
+    const onSubmit = jest.fn()
+    const form = new FormApi({
+      defaultValues: {
+        addressLine1: 'a'.repeat(501),
+        shippingAddress: { addressLine1: 'a'.repeat(501) },
+      },
+      listeners: { onChange: clearCustomerServerError },
+      onSubmit,
+    })
+    const billing = new FieldApi({
+      form,
+      name: 'addressLine1',
+      listeners: {
+        onChange: () => {
+          syncCustomerShippingAddress(form, { addressLine1: form.state.values.addressLine1 })
+        },
+      },
+    })
+    const shipping = new FieldApi({ form, name: 'shippingAddress.addressLine1' })
+
+    form.mount()
+    billing.mount()
+    shipping.mount()
+    await form.handleSubmit()
+    const { fields } = getCustomerFieldErrors({
+      errors: buildErrors({ shippingAddressLine1: ['value_is_too_long'] }),
+      isShippingEqualBillingAddress: true,
+    })
+
+    setCustomerServerErrors(form, fields)
+    expect(billing.state.meta.errors).toHaveLength(1)
+    billing.handleChange('valid address')
+    expect(shipping.state.value).toBe('valid address')
+    await form.handleSubmit()
+    expect(onSubmit).toHaveBeenCalledTimes(2)
+  })
+
+  it('clears a shipping error when synchronization replaces the invalid value', () => {
+    const form = new FormApi({ defaultValues: { shippingAddress: { city: 'old city' } } })
+    const field = new FieldApi({ form, name: 'shippingAddress.city' })
+
+    form.mount()
+    field.mount()
+    setCustomerServerErrors(form, { 'shippingAddress.city': { message: TOO_LONG_255_KEY } })
+    syncCustomerShippingAddress(form, { city: 'Paris' })
+    expect(field.state.meta.errors).toEqual([])
+    expect(field.state.value).toBe('Paris')
   })
 })

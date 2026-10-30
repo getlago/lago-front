@@ -373,7 +373,7 @@ describe('CustomerInformationPage', () => {
         'shippingAddress.addressLine2',
         expect.any(Function),
       )
-      expect(setFieldMeta.mock.calls[0][1]({ errorMap: {}, errorSourceMap: {} })).toEqual({
+      expect(setFieldMeta.mock.calls[0][1]({ errorMap: {}, errorSourceMap: {} })).toMatchObject({
         errorMap: { onServer: { message: 'text_17932959847757c9xwcz2ltv' } },
         errorSourceMap: { onServer: 'field' },
       })

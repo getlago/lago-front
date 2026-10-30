@@ -78,7 +78,11 @@ const CreateCustomer = () => {
 
       const { errors } = answer
 
-      const { fields } = getCustomerFieldErrors({ errors, billingAddressPath: 'billingAddress' })
+      const { fields } = getCustomerFieldErrors({
+        errors,
+        billingAddressPath: 'billingAddress',
+        isShippingEqualBillingAddress: value.isShippingEqualBillingAddress,
+      })
       const hasFieldErrors = Object.keys(fields).length > 0
 
       setCustomerServerErrors(formApi, fields)
