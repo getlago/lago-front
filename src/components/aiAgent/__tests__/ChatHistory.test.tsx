@@ -16,13 +16,11 @@ import { ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { render, TestMocksType } from '~/test-utils'
 
 const mockSetPreviousChatMessages = jest.fn()
-const mockResumeConversation = jest.fn()
 
 jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
   ...jest.requireActual('~/hooks/aiAgent/useAiAgent'),
   useAiAgent: () => ({
     setPreviousChatMessages: mockSetPreviousChatMessages,
-    resumeConversation: mockResumeConversation,
   }),
 }))
 
@@ -57,7 +55,6 @@ const conversationsListMock = {
 const conversationMock = (
   messages: Array<{ content: string; type: string }>,
   pendingToolCalls: AiConversationToolCallItemFragment[] = [],
-  busy = false,
 ) => ({
   request: {
     query: GetAiConversationDocument,
@@ -77,7 +74,6 @@ const conversationMock = (
           __typename: 'AiConversationToolCall',
           ...toolCall,
         })),
-        busy,
       },
     },
   },
@@ -214,36 +210,6 @@ describe('ChatHistory', () => {
             }),
           )
         })
-      })
-    })
-  })
-
-  describe('GIVEN a conversation whose agent is carrying on after the member answered', () => {
-    describe('WHEN clicking its history item', () => {
-      it('THEN should restore the messages and wait for the agent', async () => {
-        await act(() =>
-          render(<ChatHistory />, {
-            mocks: [
-              conversationsListMock,
-              conversationMock(
-                [{ content: 'Void invoice INV-1', type: 'message.input' }],
-                [],
-                true,
-              ),
-            ] as TestMocksType,
-          }),
-        )
-
-        const [firstItem] = await screen.findAllByTestId(CHAT_HISTORY_ITEM_TEST_ID)
-
-        await userEvent.click(firstItem)
-
-        await waitFor(() => {
-          expect(mockResumeConversation).toHaveBeenCalledTimes(1)
-        })
-        expect(mockSetPreviousChatMessages).toHaveBeenCalledWith(
-          expect.objectContaining({ convId: 'conv-1', toolCalls: [] }),
-        )
       })
     })
   })

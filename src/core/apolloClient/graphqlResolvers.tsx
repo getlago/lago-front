@@ -46,9 +46,6 @@ export const typeDefs = gql`
     value_is_out_of_range
     last_admin
 
-    # AI agent errors
-    ai_conversation_busy
-
     # Object not found
     missing_payment_provider_customer
     plan_not_found

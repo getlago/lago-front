@@ -14,7 +14,7 @@ import {
   PANEL_AI_AGENT_WELCOME_TEST_ID,
   PanelAiAgent,
 } from '~/components/aiAgent/PanelAiAgent'
-import { AiConversationToolCallStatusEnum, LagoApiError } from '~/generated/graphql'
+import { AiConversationToolCallStatusEnum } from '~/generated/graphql'
 import { ChatRole, ChatState, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { render } from '~/test-utils'
@@ -39,7 +39,6 @@ const mockStartNewConversation = jest.fn()
 const mockSubmitFinanceQuestion = jest.fn()
 const mockCreateAiConversation = jest.fn()
 const mockSubscriptionRestart = jest.fn()
-const mockResumeConversation = jest.fn()
 
 let mockState: ChatState
 let mockAgentType: AiAgentTypeEnum
@@ -53,7 +52,6 @@ jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
     addNewMessage: mockAddNewMessage,
     agentType: mockAgentType,
     conversationId: mockConversationId,
-    resumeConversation: mockResumeConversation,
     startNewConversation: mockStartNewConversation,
     setAgentType: jest.fn(),
     state: mockState,
@@ -105,7 +103,6 @@ describe('PanelAiAgent', () => {
     mockConversationId = ''
     mockCreateLoading = false
     mockCreateError = undefined
-    mockCreateAiConversation.mockResolvedValue({})
   })
 
   describe('GIVEN the conversation is empty', () => {
@@ -146,11 +143,9 @@ describe('PanelAiAgent', () => {
       })
 
       it('THEN should start the conversation once the mutation completes', async () => {
-        mockCreateAiConversation.mockImplementation(async ({ onCompleted }) => {
-          onCompleted({ createAiConversation: { id: 'conv-1' } })
-
-          return {}
-        })
+        mockCreateAiConversation.mockImplementation(({ onCompleted }) =>
+          onCompleted({ createAiConversation: { id: 'conv-1' } }),
+        )
 
         render(<PanelAiAgent hasAccessToAiAgent />)
 
@@ -165,11 +160,9 @@ describe('PanelAiAgent', () => {
       })
 
       it('THEN should not start the conversation when the mutation returns no id', async () => {
-        mockCreateAiConversation.mockImplementation(async ({ onCompleted }) => {
-          onCompleted({ createAiConversation: null })
-
-          return {}
-        })
+        mockCreateAiConversation.mockImplementation(({ onCompleted }) =>
+          onCompleted({ createAiConversation: null }),
+        )
 
         render(<PanelAiAgent hasAccessToAiAgent />)
 
@@ -198,11 +191,9 @@ describe('PanelAiAgent', () => {
             },
           ],
         })
-        mockCreateAiConversation.mockImplementation(async ({ onCompleted }) => {
-          onCompleted({ createAiConversation: { id: 'conv-1' } })
-
-          return {}
-        })
+        mockCreateAiConversation.mockImplementation(({ onCompleted }) =>
+          onCompleted({ createAiConversation: { id: 'conv-1' } }),
+        )
 
         render(<PanelAiAgent hasAccessToAiAgent />)
 
@@ -220,42 +211,6 @@ describe('PanelAiAgent', () => {
         })
         expect(mockSubscriptionRestart).toHaveBeenCalledTimes(1)
         expect(mockStartNewConversation).not.toHaveBeenCalled()
-      })
-    })
-
-    describe('WHEN the message is refused because the agent is still answering', () => {
-      it('THEN should wait for the agent instead of sending the message', async () => {
-        mockConversationId = 'conv-1'
-        mockState = buildState({
-          messages: [
-            { id: 'user-1', role: 'user' as never, message: 'previous', status: 'done' as never },
-          ],
-        })
-        mockCreateAiConversation.mockImplementation(async ({ onCompleted }) => {
-          onCompleted({ createAiConversation: null })
-
-          return {
-            data: { createAiConversation: null },
-            errors: [
-              { message: 'Method Not Allowed', extensions: { code: 'ai_conversation_busy' } },
-            ],
-          }
-        })
-
-        render(<PanelAiAgent hasAccessToAiAgent />)
-
-        await submitPrompt('follow up')
-
-        await waitFor(() => {
-          expect(mockResumeConversation).toHaveBeenCalledTimes(1)
-        })
-        expect(mockSubscriptionRestart).toHaveBeenCalledTimes(1)
-        expect(mockAddNewMessage).not.toHaveBeenCalled()
-        expect(mockCreateAiConversation).toHaveBeenCalledWith(
-          expect.objectContaining({
-            context: { silentErrorCodes: [LagoApiError.AiConversationBusy] },
-          }),
-        )
       })
     })
 
@@ -290,10 +245,8 @@ describe('PanelAiAgent', () => {
       it('THEN should ignore the stale completion', async () => {
         let capturedOnCompleted: ((data: unknown) => void) | undefined
 
-        mockCreateAiConversation.mockImplementation(async ({ onCompleted }) => {
+        mockCreateAiConversation.mockImplementation(({ onCompleted }) => {
           capturedOnCompleted = onCompleted
-
-          return {}
         })
 
         const { rerender } = render(<PanelAiAgent hasAccessToAiAgent />)

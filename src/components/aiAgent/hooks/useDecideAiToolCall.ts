@@ -9,14 +9,12 @@ gql`
   mutation confirmAiConversationToolCall($input: ConfirmAiConversationToolCallInput!) {
     confirmAiConversationToolCall(input: $input) {
       ...AiConversationToolCallItem
-      batchAnswered
     }
   }
 
   mutation cancelAiConversationToolCall($input: CancelAiConversationToolCallInput!) {
     cancelAiConversationToolCall(input: $input) {
       ...AiConversationToolCallItem
-      batchAnswered
     }
   }
 `

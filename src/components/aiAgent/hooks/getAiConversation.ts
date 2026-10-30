@@ -14,7 +14,6 @@ gql`
       pendingToolCalls {
         ...AiConversationToolCallItem
       }
-      busy
     }
   }
 `
