@@ -3,6 +3,7 @@ import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { BrowserRouter } from 'react-router'
 
+import { COMBOBOX_LOADING_TEST_ID } from '~/components/form/ComboBox/ComboBoxInput'
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import { MappableTypeEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -195,17 +196,25 @@ describe('XeroIntegrationMapItemDrawerContent', () => {
     // Regression: the wrappers used to own the query, and `useDebouncedSearch` fetches on mount,
     // so every tab switch re-ran it and blanked the combobox until it resolved.
     describe('WHEN switching billing entity tabs', () => {
-      it('THEN should not fetch the integration items again', async () => {
-        const { executedOperations, user } = renderDrawer()
+      it('THEN should preserve selections without fetching or showing a loading spinner', async () => {
+        const { executedOperations, user } = renderDrawer({ seeded: true })
 
-        await settle()
+        await settle(DEBOUNCE_MS)
         expect(executedOperations).toHaveBeenCalledTimes(1)
 
         await user.click(screen.getByRole('tab', { name: 'Globex' }))
-        await settle()
+        expect(
+          document.querySelector(`[data-test="${COMBOBOX_LOADING_TEST_ID}"]`),
+        ).not.toBeInTheDocument()
+        await settle(DEBOUNCE_MS)
 
         await user.click(screen.getByRole('tab', { name: 'Acme' }))
-        await settle()
+        expect(
+          document.querySelector(`[data-test="${COMBOBOX_LOADING_TEST_ID}"]`),
+        ).not.toBeInTheDocument()
+        expect(getInput('default')).toHaveValue('Sales (200)')
+        expect(getInput('acme')).toHaveValue('Services (300)')
+        await settle(DEBOUNCE_MS)
 
         expect(executedOperations).toHaveBeenCalledTimes(1)
       })
