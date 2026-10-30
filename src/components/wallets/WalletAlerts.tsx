@@ -19,6 +19,8 @@ import {
   Alert,
   AlertTypeEnum,
   CurrencyEnum,
+  GetWalletAlertsQuery,
+  NotifyOnEnum,
   useGetWalletAlertsQuery,
   WalletDetailsFragment,
   WalletStatusEnum,
@@ -43,6 +45,7 @@ gql`
           code
           recurring
           value
+          notifyOn
         }
       }
     }
@@ -60,6 +63,7 @@ export const WALLET_ALERTS_LOADING_TEST_ID = 'wallet-alerts-loading'
 export const WALLET_ALERTS_EMPTY_TEST_ID = 'wallet-alerts-empty'
 export const WALLET_ALERTS_LIST_TEST_ID = 'wallet-alerts-list'
 export const WALLET_ALERT_RECURRING_ROW_LABEL_TEST_ID = 'wallet-alert-recurring-row-label'
+export const WALLET_ALERT_NOTIFY_WHEN_RESOLVED_TEST_ID = 'wallet-alert-notify-when-resolved'
 
 const WALLET_ALERT_TYPE_TRANSLATION_MAP: Record<string, string> = {
   [AlertTypeEnum.WalletBalanceAmount]: 'text_17730515932099j2rzezwwf0',
@@ -98,6 +102,25 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
   // actions menu goes away rather than opening on an empty list (same shape as WalletActions).
   const canEditAlerts =
     hasPermissions(['walletsUpdate']) && wallet?.status === WalletStatusEnum.Active
+
+  const renderNotifyWhenResolvedCell = (
+    row: NonNullable<
+      GetWalletAlertsQuery['walletAlerts']['collection'][number]['thresholds']
+    >[number],
+  ): JSX.Element => (
+    <Typography
+      className="px-4 py-2.5"
+      variant="body"
+      color="grey700"
+      data-test={WALLET_ALERT_NOTIFY_WHEN_RESOLVED_TEST_ID}
+    >
+      {translate(
+        row.notifyOn?.includes(NotifyOnEnum.Resolved)
+          ? 'text_65251f46339c650084ce0d57'
+          : 'text_65251f4cd55aeb004e5aa5ef',
+      )}
+    </Typography>
+  )
 
   const formatAlertThresholdValue = ({
     value,
@@ -261,7 +284,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
               }
             >
               {() => (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 overflow-x-auto">
                   <DetailsPage.InfoGrid
                     grid={[
                       {
@@ -290,7 +313,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                     headerCellClassName="rounded-xl bg-grey-100"
                     columns={[
                       {
-                        size: 228,
+                        size: 170,
                         content: (_, i) => (
                           <Typography className="px-4 py-2.5" variant="body" color="grey700">
                             {translate(
@@ -302,7 +325,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                         ),
                       },
                       {
-                        size: 158,
+                        size: 210,
                         title: (
                           <Typography className="px-4 py-2.5" variant="captionHl" color="grey600">
                             {translate('text_1724179887723eh12a0kqbdw')}
@@ -318,17 +341,35 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                         ),
                       },
                       {
-                        size: 158,
+                        size: 150,
                         title: (
                           <Typography className="px-4 py-2.5" variant="captionHl" color="grey600">
                             {translate('text_17241798877234jhvoho4ci9')}
                           </Typography>
                         ),
                         content: (row) => (
-                          <Typography className="px-4 py-2.5" variant="body" color="grey700">
+                          <Typography
+                            className="break-all px-4 py-2.5"
+                            variant="body"
+                            color="grey700"
+                          >
                             {row.code}
                           </Typography>
                         ),
+                      },
+                      {
+                        size: 180,
+                        title: (
+                          <Typography
+                            className="px-4 py-2.5"
+                            variant="captionHl"
+                            color="grey600"
+                            noWrap
+                          >
+                            {translate('text_1792439710542ctc2yq2zptb')}
+                          </Typography>
+                        ),
+                        content: renderNotifyWhenResolvedCell,
                       },
                     ]}
                   />
@@ -341,7 +382,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                     }
                     columns={[
                       {
-                        size: 228,
+                        size: 170,
                         content: () => (
                           <Typography
                             className="px-4 py-2.5"
@@ -354,7 +395,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                         ),
                       },
                       {
-                        size: 158,
+                        size: 210,
                         content: (row) => (
                           <Typography className="px-4 py-2.5" variant="body" color="grey700">
                             {formatAlertThresholdValue({
@@ -365,12 +406,20 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                         ),
                       },
                       {
-                        size: 158,
+                        size: 150,
                         content: (row) => (
-                          <Typography className="px-4 py-2.5" variant="body" color="grey700">
+                          <Typography
+                            className="break-all px-4 py-2.5"
+                            variant="body"
+                            color="grey700"
+                          >
                             {row.code}
                           </Typography>
                         ),
+                      },
+                      {
+                        size: 180,
+                        content: renderNotifyWhenResolvedCell,
                       },
                     ]}
                   />

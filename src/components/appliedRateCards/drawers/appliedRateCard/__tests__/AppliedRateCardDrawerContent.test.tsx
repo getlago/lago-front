@@ -2,6 +2,8 @@ import { MockedResponse } from '@apollo/client/testing'
 import { render as rtlRender, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { COMBOBOX_LOADING_TEST_ID } from '~/components/form/ComboBox/ComboBoxInput'
+import { COMBOBOX_ADD_VALUE_ITEM_TEST_ID } from '~/components/form/ComboBox/ComboBoxItemWrapper'
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import {
   AggregationTypeEnum,
@@ -33,6 +35,7 @@ import {
   APPLIED_RATE_CARD_DRAWER_REMOVE_FILTER_TEST_ID,
   APPLIED_RATE_CARD_DRAWER_SHOW_FILTER_TEST_ID,
   AppliedRateCardDrawerContent,
+  AppliedRateCardParent,
 } from '../AppliedRateCardDrawerContent'
 import { APPLIED_RATE_CARD_FORM_DEFAULTS } from '../validationSchema'
 
@@ -157,6 +160,10 @@ const productFiltersMock = (): MockedResponse => ({
   result: { data: { productFilters: { collection: [PRODUCT_FILTER] } } },
 })
 
+// An instant response can land in the same render as `loading`, so the add row appears and is
+// re-rendered under the click; a network-like delay keeps the search's loading state observable.
+const SEARCH_RESPONSE_DELAY_MS = 100
+
 const rateCardsMock = (
   captureVars: (vars: Record<string, unknown>) => void,
   collection: RateCardFixture[] = [RATE_CARD],
@@ -171,12 +178,15 @@ const rateCardsMock = (
   result: { data: { rateCards: { collection } } },
 })
 
+const PLAN_PARENT: AppliedRateCardParent = { context: 'plan', planId: 'plan-1' }
+const CONTRACT_PARENT: AppliedRateCardParent = { context: 'contract', contractId: 'contract-1' }
+
 const RATE_CARD_ID_PROBE_TEST_ID = 'rate-card-id-probe'
 const PRODUCT_FILTER_ID_PROBE_TEST_ID = 'product-filter-id-probe'
 const RATE_PHASES_LENGTH_PROBE_TEST_ID = 'rate-phases-length-probe'
 const RATE_PHASE_CODES_PROBE_TEST_ID = 'rate-phase-codes-probe'
 
-const Host = (): JSX.Element => {
+const Host = ({ parent }: { parent: AppliedRateCardParent }): JSX.Element => {
   const form = useAppForm({ defaultValues: APPLIED_RATE_CARD_FORM_DEFAULTS })
 
   return (
@@ -202,6 +212,7 @@ const Host = (): JSX.Element => {
       </form.Subscribe>
       <AppliedRateCardDrawerContent
         form={form}
+        parent={parent}
         currency={CurrencyEnum.Usd}
         openRateCardDrawer={mockOpenRateCardDrawer}
         organizationSlug="acme"
@@ -223,8 +234,11 @@ const selectRateCard = async (): Promise<void> => {
 // `PropertiesForRateCardRate`); Apollo's cache needs real `__typename`s to resolve a fragment's
 // type condition when reading a mocked response back out - `~/test-utils`'s own `render` always
 // passes `addTypename={false}`, so this file renders directly like RateCardDrawerContent.test.tsx.
-const renderContent = (mocks: TestMocksType = []): ReturnType<typeof rtlRender> =>
-  rtlRender(<Host />, {
+const renderContent = (
+  mocks: TestMocksType = [],
+  parent: AppliedRateCardParent = PLAN_PARENT,
+): ReturnType<typeof rtlRender> =>
+  rtlRender(<Host parent={parent} />, {
     wrapper: ({ children }) => (
       <AllTheProviders forceTypenames mocks={mocks}>
         {children}
@@ -387,7 +401,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
 
     await userEvent.click(rateCardInput)
 
-    const addValueItem = await screen.findByTestId('combobox-item-Create rate card')
+    const addValueItem = await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)
 
     await userEvent.click(within(addValueItem).getByRole('option'))
 
@@ -400,7 +414,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
     )
   })
 
-  it('GIVEN rate cards are listed THEN the "Create rate card" row still shows', async () => {
+  it('GIVEN rate cards are listed THEN the "Create rate card" row is absent', async () => {
     renderContent([productsMock(), rateCardsMock(() => undefined)])
 
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
@@ -412,7 +426,68 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
     await userEvent.click(rateCardInput)
 
     expect(await screen.findByText(RATE_CARD.name)).toBeInTheDocument()
-    expect(screen.getByTestId('combobox-item-Create rate card')).toBeInTheDocument()
+    expect(screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).not.toBeInTheDocument()
+  })
+
+  it('GIVEN a rate card search matches nothing THEN "Create rate card" shows once the search resolves, as the only option', async () => {
+    let lastVars: Record<string, unknown> = {}
+
+    renderContent([
+      productsMock(),
+      {
+        ...rateCardsMock(() => undefined),
+        variableMatcher: (vars) => !vars?.searchTerm,
+      },
+      {
+        ...rateCardsMock(() => undefined, []),
+        variableMatcher: (vars) => {
+          lastVars = vars ?? {}
+          return !!vars?.searchTerm
+        },
+        delay: 2000,
+      },
+    ])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+
+    const rateCardField = await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
+    const rateCardInput = rateCardField.querySelector('input') as HTMLInputElement
+
+    await userEvent.click(rateCardInput)
+    await userEvent.type(rateCardInput, 'unknown-card')
+    await waitFor(() => expect(lastVars.searchTerm).toBe('unknown-card'), { timeout: 3000 })
+
+    expect(within(rateCardField).getByTestId(COMBOBOX_LOADING_TEST_ID)).toBeInTheDocument()
+    expect(screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).not.toBeInTheDocument()
+
+    const addValueOption = within(
+      await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID, undefined, { timeout: 4000 }),
+    ).getByRole('option')
+
+    expect(screen.getAllByRole('option')).toEqual([addValueOption])
+  })
+
+  it('GIVEN the rate cards query fails THEN "Create rate card" stays hidden', async () => {
+    renderContent([
+      productsMock(),
+      {
+        request: { query: GetRateCardsForAppliedRateCardDrawerDocument },
+        variableMatcher: () => true,
+        maxUsageCount: Number.POSITIVE_INFINITY,
+        error: new Error('Network error'),
+      },
+    ])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+
+    const rateCardField = await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
+
+    await userEvent.click(rateCardField.querySelector('input') as HTMLInputElement)
+    await waitFor(() =>
+      expect(within(rateCardField).queryByTestId(COMBOBOX_LOADING_TEST_ID)).not.toBeInTheDocument(),
+    )
+
+    expect(screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).not.toBeInTheDocument()
   })
 
   it('GIVEN the stacked drawer calls onCreated THEN this drawer sets its rateCardId field to the new code, and the stacked drawer is already closed', async () => {
@@ -426,7 +501,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
 
     await userEvent.click(rateCardInput)
 
-    const addValueItem = await screen.findByTestId('combobox-item-Create rate card')
+    const addValueItem = await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)
 
     await userEvent.click(within(addValueItem).getByRole('option'))
 
@@ -769,7 +844,12 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
   })
 
   it('GIVEN "Create rate card" is clicked on an unknown search THEN the typed text is never selected', async () => {
-    renderContent([productsMock(), rateCardsMock(() => undefined, [])])
+    let lastVars: Record<string, unknown> = {}
+
+    renderContent([
+      productsMock(),
+      { ...rateCardsMock((vars) => (lastVars = vars), []), delay: SEARCH_RESPONSE_DELAY_MS },
+    ])
 
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
 
@@ -779,8 +859,9 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
 
     await userEvent.click(rateCardInput)
     await userEvent.type(rateCardInput, 'unknown-card')
+    await waitFor(() => expect(lastVars.searchTerm).toBe('unknown-card'), { timeout: 3000 })
 
-    const addValueItem = await screen.findByTestId('combobox-item-Create rate card', undefined, {
+    const addValueItem = await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID, undefined, {
       timeout: 3000,
     })
 
@@ -812,7 +893,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
 
     await userEvent.click(rateCardInput)
 
-    const addValueItem = await screen.findByTestId('combobox-item-Create rate card')
+    const addValueItem = await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)
 
     await userEvent.click(within(addValueItem).getByRole('option'))
 
@@ -838,6 +919,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
       productsMock(),
       {
         ...rateCardsMock((vars) => (lastVars = vars)),
+        delay: SEARCH_RESPONSE_DELAY_MS,
         result: (vars: Record<string, unknown>) => {
           if (vars.code === newRateCard.code) {
             return { data: { rateCards: { collection: [newRateCard] } } }
@@ -859,7 +941,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     await waitFor(() => expect(lastVars.searchTerm).toBe('premium'), { timeout: 3000 })
 
     await userEvent.click(
-      within(await screen.findByTestId('combobox-item-Create rate card')).getByRole('option'),
+      within(await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).getByRole('option'),
     )
 
     mockOpenRateCardDrawer.mock.calls
@@ -887,5 +969,80 @@ describe('AppliedRateCardDrawerContent, contract lifecycle dates', () => {
 
     expect(screen.queryByText('Billing anchor date')).not.toBeInTheDocument()
     expect(screen.queryByText(/effective date/i)).not.toBeInTheDocument()
+  })
+})
+
+describe('AppliedRateCardDrawerContent, already priced rate cards', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  const openRateCards = async (): Promise<void> => {
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+    await userEvent.click(
+      (await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)).querySelector(
+        'input',
+      ) as HTMLInputElement,
+    )
+  }
+
+  it.each([
+    {
+      parent: PLAN_PARENT,
+      scenario: 'plan',
+      excluded: { excludePricedOnPlanId: 'plan-1' },
+      leftOut: 'excludePricedOnContractId',
+    },
+    {
+      parent: CONTRACT_PARENT,
+      scenario: 'contract',
+      excluded: { excludePricedOnContractId: 'contract-1' },
+      leftOut: 'excludePricedOnPlanId',
+    },
+  ])(
+    'GIVEN the $scenario THEN the rate cards it already prices are excluded, and only for it',
+    async ({ parent, excluded, leftOut }) => {
+      const requests: Array<Record<string, unknown>> = []
+
+      renderContent([productsMock(), rateCardsMock((vars) => requests.push(vars))], parent)
+
+      await openRateCards()
+
+      await waitFor(() => expect(requests.at(-1)).toMatchObject(excluded))
+      requests.forEach((vars) => expect(vars).not.toHaveProperty(leftOut))
+    },
+  )
+
+  it('GIVEN every rate card of the product is already priced THEN "Create rate card" shows', async () => {
+    renderContent([productsMock(), rateCardsMock(() => {}, [])])
+
+    await openRateCards()
+
+    expect(
+      await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID, undefined, { timeout: 3000 }),
+    ).toBeInTheDocument()
+  })
+
+  it('GIVEN a rate card search THEN the plan exclusion is kept', async () => {
+    let capturedVars: Record<string, unknown> = {}
+
+    renderContent([productsMock(), rateCardsMock((vars) => (capturedVars = vars))])
+
+    await openRateCards()
+    await userEvent.type(
+      screen
+        .getByTestId(APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID)
+        .querySelector('input') as HTMLInputElement,
+      'premium',
+    )
+
+    await waitFor(
+      () =>
+        expect(capturedVars).toMatchObject({
+          searchTerm: 'premium',
+          excludePricedOnPlanId: 'plan-1',
+        }),
+      { timeout: 3000 },
+    )
   })
 })
