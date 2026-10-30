@@ -13,31 +13,6 @@ import {
 import { Typography } from '~/components/designSystem/Typography'
 import { ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 
-type Invoice = { id: string; customer: string; status: string; amount: string }
-
-const INVOICES: Invoice[] = [
-  { id: '1', customer: 'Acme Corp', status: 'Paid', amount: '€1,200.00' },
-  { id: '2', customer: 'Globex', status: 'Pending', amount: '€340.50' },
-  { id: '3', customer: 'Initech', status: 'Overdue', amount: '€89.99' },
-]
-
-const invoiceColumnHelper = createDataTableColumnHelper<Invoice>()
-
-const invoiceColumns = invoiceColumnHelper.columns([
-  invoiceColumnHelper.accessor('customer', { header: 'Customer' }),
-  invoiceColumnHelper.accessor('status', { header: 'Status' }),
-  invoiceColumnHelper.accessor('amount', {
-    header: 'Amount',
-    meta: { align: 'right', shrink: true },
-  }),
-])
-
-const FlatExample = (): JSX.Element => {
-  const table = useDataTable({ data: INVOICES, columns: invoiceColumns, getRowId: (row) => row.id })
-
-  return <DataTableView table={table} />
-}
-
 type Usage = { id: string; team: string; tokens: number; seats: number; storage: number }
 
 const USAGES: Usage[] = [
@@ -270,11 +245,6 @@ const TreeExample = (): JSX.Element => {
 }
 
 const EXAMPLES = [
-  {
-    title: 'Flat list',
-    description: 'Columns from accessors, no extra feature. Lists should keep using `Table`.',
-    component: <FlatExample />,
-  },
   {
     title: 'Column groups, sticky columns and footer',
     description:

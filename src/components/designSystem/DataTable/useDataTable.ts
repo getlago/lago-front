@@ -30,4 +30,8 @@ export type DataTableInstance<TData extends RowData> = Table<DataTableFeatures, 
 export type DataTableRow<TData extends RowData> = Row<DataTableFeatures, TData>
 
 export const { useAppTable: useDataTable, createAppColumnHelper: createDataTableColumnHelper } =
-  createTableHook({ features: dataTableFeatures })
+  createTableHook({
+    features: dataTableFeatures,
+    // TanStack resets `expanded` on every data change; lazy children are a data change.
+    autoResetExpanded: false,
+  })
