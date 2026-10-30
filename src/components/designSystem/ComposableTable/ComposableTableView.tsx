@@ -14,7 +14,6 @@ import {
   ComposableTableRoot,
   ComposableTableTd,
   ComposableTableTh,
-  ComposableTableTone,
 } from './ComposableTablePrimitives'
 import {
   ComposableTableColumn,
@@ -63,7 +62,6 @@ type ComposableTableViewProps<TData extends RowData> = {
   hasError?: boolean
   placeholder?: TablePlaceholder
   hasFooter?: boolean
-  getRowTone?: (row: ComposableTableRow<TData>) => ComposableTableTone
   getRowDataTest?: (row: ComposableTableRow<TData>) => string | undefined
   footerDataTest?: string
   'data-test'?: string
@@ -76,7 +74,6 @@ export const ComposableTableView = <TData extends RowData>({
   hasError = false,
   placeholder,
   hasFooter = false,
-  getRowTone,
   getRowDataTest,
   footerDataTest,
   'data-test': dataTest,
@@ -128,15 +125,8 @@ export const ComposableTableView = <TData extends RowData>({
     return rows.map((row) => (
       <tr key={row.id} data-test={getRowDataTest?.(row)}>
         {row.getAllCells().map((cell) => {
-          if (cell.getIsCovered()) return null
-
           return (
-            <ComposableTableTd
-              key={cell.id}
-              colSpan={cell.getColSpan()}
-              tone={getRowTone?.(row)}
-              {...getColumnVariants(cell.column)}
-            >
+            <ComposableTableTd key={cell.id} {...getColumnVariants(cell.column)}>
               {renderText(
                 flexRender(cell.column.columnDef.cell, cell.getContext()),
                 'body',

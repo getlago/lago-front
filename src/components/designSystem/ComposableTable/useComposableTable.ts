@@ -1,5 +1,4 @@
 import {
-  cellSpanningFeature,
   Column,
   columnPinningFeature,
   createExpandedRowModel,
@@ -22,7 +21,6 @@ export type ComposableTableColumnMeta = {
 export const composableTableFeatures = tableFeatures({
   rowExpandingFeature,
   columnPinningFeature,
-  cellSpanningFeature,
   expandedRowModel: createExpandedRowModel(),
   columnMeta: {} as ComposableTableColumnMeta,
 })

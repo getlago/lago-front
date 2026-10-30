@@ -15,9 +15,7 @@ import {
   useComposableTable,
 } from '~/components/designSystem/ComposableTable'
 import { Typography } from '~/components/designSystem/Typography'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
-import { CurrencyEnum } from '~/generated/graphql'
 
 const MOCK_DELAY_MS = 600
 
@@ -329,7 +327,6 @@ const TreeExample = (): JSX.Element => {
       treeColumnHelper.display({
         id: 'name',
         header: 'Entity',
-        spanColumns: ({ row }) => (row.original.kind === 'error' ? Infinity : 1),
         cell: ({ row }) => {
           const { original } = row
 
@@ -404,79 +401,6 @@ const TreeExample = (): JSX.Element => {
   return <ComposableTableView table={table} isLoading={children[ROOT_ID]?.status !== 'loaded'} />
 }
 
-/* Group rows */
-
-type InvoiceRow =
-  | { kind: 'group'; id: string; label: string }
-  | { kind: 'fee'; id: string; item: string; units: number; unitPrice: number }
-
-const INVOICE_ROWS: InvoiceRow[] = [
-  { kind: 'group', id: 'pro', label: 'Pro plan · Oct 1 – Oct 31, 2026' },
-  { kind: 'fee', id: 'pro-sub', item: 'Subscription fee', units: 1, unitPrice: 499 },
-  { kind: 'fee', id: 'pro-seats', item: 'Seats', units: 42, unitPrice: 12 },
-  { kind: 'group', id: 'ai', label: 'AI add-on · Oct 1 – Oct 31, 2026' },
-  { kind: 'fee', id: 'ai-tokens', item: 'LLM tokens (per 1k)', units: 1_200, unitPrice: 0.4 },
-  { kind: 'fee', id: 'ai-agents', item: 'Agent calls', units: 950, unitPrice: 0.05 },
-]
-
-const formatAmount = (value: number): string =>
-  intlFormatNumber(value, { currency: CurrencyEnum.Eur })
-
-const getFeeAmount = (row: InvoiceRow): number =>
-  row.kind === 'fee' ? row.units * row.unitPrice : 0
-
-const invoiceColumnHelper = createComposableTableColumnHelper<InvoiceRow>()
-
-const invoiceColumns = invoiceColumnHelper.columns([
-  invoiceColumnHelper.display({
-    id: 'item',
-    header: 'Item',
-    spanColumns: ({ row }) => (row.original.kind === 'group' ? Infinity : 1),
-    cell: ({ row }) =>
-      row.original.kind === 'group' ? (
-        <Typography variant="captionHl" color="grey700" noWrap>
-          {row.original.label}
-        </Typography>
-      ) : (
-        row.original.item
-      ),
-  }),
-  invoiceColumnHelper.display({
-    id: 'units',
-    header: 'Units',
-    meta: VALUE_META,
-    cell: ({ row }) => (row.original.kind === 'fee' ? row.original.units : null),
-  }),
-  invoiceColumnHelper.display({
-    id: 'unitPrice',
-    header: 'Unit price',
-    meta: VALUE_META,
-    cell: ({ row }) => (row.original.kind === 'fee' ? formatAmount(row.original.unitPrice) : null),
-  }),
-  invoiceColumnHelper.display({
-    id: 'amount',
-    header: 'Amount',
-    meta: VALUE_META,
-    cell: ({ row }) =>
-      row.original.kind === 'fee' ? formatAmount(getFeeAmount(row.original)) : null,
-  }),
-])
-
-const GroupRowsExample = (): JSX.Element => {
-  const table = useComposableTable({
-    data: INVOICE_ROWS,
-    columns: invoiceColumns,
-    getRowId: (row) => row.id,
-  })
-
-  return (
-    <ComposableTableView
-      table={table}
-      getRowTone={(row) => (row.original.kind === 'group' ? 'muted' : 'default')}
-    />
-  )
-}
-
 const EXAMPLES = [
   {
     title: 'Column groups, sticky columns and show more columns',
@@ -493,14 +417,8 @@ const EXAMPLES = [
   {
     title: 'Tree with lazy children, show more and errors',
     description:
-      'Children load on expand and page per level. "Department 3" fails on its first load: an error row under it retries that node only. Spans stop at the pinned column boundary, so the error stays in the Entity column.',
+      'Children load on expand and page per level. "Department 3" fails on its first load: an error row under it retries that node only.',
     component: <TreeExample />,
-  },
-  {
-    title: 'Group rows',
-    description:
-      'Invoice-like layout: full-width group rows with `spanColumns` and a muted row tone.',
-    component: <GroupRowsExample />,
   },
 ]
 
