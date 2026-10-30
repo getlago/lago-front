@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { CUSTOMER_TEXT_MAX_LENGTH, syncCustomerShippingAddress } from '~/components/customers/utils'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Typography } from '~/components/designSystem/Typography'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
@@ -52,6 +53,17 @@ const BillingAccordion = withForm({
         variant="borderless"
         isOpen={isOpen}
         onToggle={setIsOpen}
+        transitionProps={{
+          onEntered: () => {
+            const errors = Object.fromEntries(
+              Object.entries(form.state.fieldMeta)
+                .filter(([, meta]) => !!meta?.errorMap.onServer)
+                .map(([name, meta]) => [name, meta?.errorMap.onServer]),
+            )
+
+            scrollToFirstInputError('create-customer', errors)
+          },
+        }}
         summary={
           <div className="flex flex-col gap-2">
             <Typography variant="subhead1">{translate('text_632b49e2620ea4c6d96c9662')}</Typography>

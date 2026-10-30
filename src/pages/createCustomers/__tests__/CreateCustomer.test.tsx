@@ -670,6 +670,8 @@ describe('CreateCustomer Integration Tests', () => {
       const legalName = await screen.findByLabelText(/legal name/i)
 
       await waitFor(() => expect(legalName).toHaveAttribute('aria-invalid', 'true'))
+      await waitFor(() => expect(Element.prototype.scrollIntoView).toHaveBeenCalled())
+      await waitFor(() => expect(legalName).toHaveFocus())
       await user.type(legalName, 'Acme')
       await user.click(screen.getByTestId('submit-customer'))
       await waitFor(() => expect(mockOnSave).toHaveBeenCalledTimes(2))
