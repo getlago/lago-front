@@ -18,8 +18,8 @@ Use this guide for new shadcn components. It does not migrate existing productio
 | --- | --- | --- | --- |
 | `canvas` | `#FFFFFF` | `#1A1A1A` | Application background |
 | `surface` | `#FFFFFF` | `#1A1A1A` | Content that blends into the page |
-| `surface-subtle` | `#F5F5F5` | `#212121` | Navigation, inputs and grouped content |
-| `surface-raised` | `#FFFFFF` | `#232323` | A distinct block within the page |
+| `surface-subtle` | `#F5F5F5` | `#232323` | Navigation, inputs and grouped content |
+| `surface-raised` | `#FFFFFF` | `#313131` | A distinct block within the page |
 | `surface-floating` | `#FFFFFF` | `#2C2C2C` | Dialogs, menus, popovers and toasts |
 | `inverse` | `#1A1A1A` | `#2C2C2C` | Tooltip background |
 | `inverse-foreground` | `#FFFFFF` | `#FFFFFF` | Text and icons on the inverse surface |

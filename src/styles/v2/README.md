@@ -67,8 +67,8 @@ New semantic roles should represent an agreed design purpose, rather than a one-
 Use `shadow-v2-interactive` for subtle elevation on secondary buttons and clickable cards. It combines a 0.5px black 12.5% edge with `0 1px 1px` and `0 2px 4px` black 4% shadows, identically in light and dark. Figma: `v2 / Shadows / Interactive`. Adoption is explicit per shadcn component; it does not replace focus indication or apply to production automatically.
 
 - `bg-surface` follows canvas; use for flat page content.
-- `bg-surface-subtle` provides subtle grouping areas: light #F5F5F5, dark #212121.
-- `bg-surface-raised` is white in light mode and #232323 in dark mode.
+- `bg-surface-subtle` provides subtle grouping areas: light #F5F5F5, dark #232323.
+- `bg-surface-raised` is white in light mode and #313131 in dark mode.
 - `bg-surface-floating` is white in light mode and #2C2C2C in dark mode.
 - Pair floating surfaces with `shadow-v2-floating` for toasts/popovers or `shadow-v2-dialog` for dialogs. These opt-in utilities preserve Tailwind ring composition. Existing shadow utilities are unchanged.
 
