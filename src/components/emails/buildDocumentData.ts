@@ -1,20 +1,10 @@
+import { getPaymentMethodLabelKey } from '~/components/PaymentProviderChip'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { CurrencyEnum, PaymentTypeEnum, ProviderTypeEnum, TimezoneEnum } from '~/generated/graphql'
 
 import { DocumentData } from './EmailPreview'
-
-const PROVIDER_LABEL_KEYS: Record<ProviderTypeEnum, string> = {
-  [ProviderTypeEnum.Stripe]: 'text_62b1edddbf5f461ab971277d',
-  [ProviderTypeEnum.Adyen]: 'text_645d071272418a14c1c76a6d',
-  [ProviderTypeEnum.Gocardless]: 'text_634ea0ecc6147de10ddb6625',
-  [ProviderTypeEnum.Cashfree]: 'text_17367626793434wkg1rk0114',
-  [ProviderTypeEnum.Flutterwave]: 'text_1749724395108m0swrna0zt4',
-  [ProviderTypeEnum.Moneyhash]: 'text_1733427981129n3wxjui0bex',
-}
-
-const MANUAL_PAYMENT_LABEL_KEY = 'text_173799550683709p2rqkoqd5'
 
 type FormatAmountInput = {
   amountCents: number | string | null | undefined
@@ -107,13 +97,12 @@ export const buildPaymentDocumentData = ({
 }: PaymentInput): DocumentData => {
   const formattedAmount = formatAmount({ amountCents, currency: amountCurrency })
 
-  let paymentMethod: string | undefined
-
-  if (paymentType === PaymentTypeEnum.Manual) {
-    paymentMethod = translate(MANUAL_PAYMENT_LABEL_KEY)
-  } else if (paymentProviderType) {
-    paymentMethod = translate(PROVIDER_LABEL_KEYS[paymentProviderType])
-  }
+  const paymentMethodKey = getPaymentMethodLabelKey({
+    paymentType,
+    paymentProviderType,
+    manualVariant: 'manual_long',
+  })
+  const paymentMethod = paymentMethodKey ? translate(paymentMethodKey) : undefined
 
   return {
     amount: formattedAmount,

@@ -49,6 +49,13 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   }),
 }))
 
+let mockIsPremium = true
+let mockIsCurrentUserLoading = false
+
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => ({ isPremium: mockIsPremium, loading: mockIsCurrentUserLoading }),
+}))
+
 const mockOnRouteEnter = jest.fn()
 
 jest.mock('~/hooks/core/useLocationHistory', () => ({
@@ -97,6 +104,8 @@ describe('RouteWrapper', () => {
     mockRoutes = []
     mockHasFeatureFlag.mockReturnValue(false)
     mockIsOrganizationLoading = false
+    mockIsPremium = true
+    mockIsCurrentUserLoading = false
   })
 
   describe('mainRouterUrl navigation effect', () => {
@@ -260,6 +269,63 @@ describe('RouteWrapper', () => {
           expect(screen.getByTestId(PAGE_TEST_ID)).toBeInTheDocument()
           expect(screen.queryByTestId(ERROR_FALLBACK_TEST_ID)).not.toBeInTheDocument()
         })
+      })
+    })
+  })
+
+  describe('routes requiring a premium license', () => {
+    const premiumRoute = (): CustomRouteObject => ({
+      path: '*',
+      element: <div data-test={PAGE_TEST_ID}>premium page</div>,
+      premium: true,
+    })
+
+    const renderWrapper = (): ReturnType<typeof render> =>
+      render(
+        <MemoryRouter>
+          <RouteWrapper />
+        </MemoryRouter>,
+      )
+
+    describe('GIVEN the license is premium', () => {
+      it('THEN it should mount the page', () => {
+        mockRoutes = [premiumRoute()]
+
+        renderWrapper()
+
+        expect(screen.getByTestId(PAGE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('GIVEN the license is not premium', () => {
+      it('THEN it should not mount the page', () => {
+        mockIsPremium = false
+        mockRoutes = [premiumRoute()]
+
+        renderWrapper()
+
+        expect(screen.queryByTestId(PAGE_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('GIVEN the current user finishes loading', () => {
+      it('THEN it should run the route guard again', () => {
+        mockIsPremium = false
+        mockIsCurrentUserLoading = true
+        mockRoutes = [premiumRoute()]
+
+        const { rerender } = renderWrapper()
+        const callsWhileLoading = mockOnRouteEnter.mock.calls.length
+
+        mockIsCurrentUserLoading = false
+        rerender(
+          <MemoryRouter>
+            <RouteWrapper />
+          </MemoryRouter>,
+        )
+
+        expect(mockOnRouteEnter).toHaveBeenCalledTimes(callsWhileLoading + 1)
+        expect(screen.queryByTestId(PAGE_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

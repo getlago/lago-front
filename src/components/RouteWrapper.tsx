@@ -10,6 +10,7 @@ import { CustomRouteObject, routes, useLocation, useNavigate } from '~/core/rout
 import { NEVER_SLUG_PREFIXES } from '~/core/router/slugPrefixes'
 import { isRouteAvailable, isRouteGatedByFeatureFlag } from '~/core/router/utils/isRouteAvailable'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { DEVTOOL_TAB_PARAMS, useDeveloperTool, useDevtoolTabParam } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
@@ -23,10 +24,11 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
   const { onRouteEnter } = useLocationHistory()
   const { hasFeatureFlag, organization, loading: isOrganizationLoading } = useOrganizationInfos()
   const isWaitingForOrganization = isOrganizationLoading && !organization
+  const { isPremium, loading: isCurrentUserLoading } = useCurrentUser()
 
   useEffect(() => {
     onRouteEnter(routeConfig, location)
-  }, [location, routeConfig, onRouteEnter, isWaitingForOrganization])
+  }, [location, routeConfig, onRouteEnter, isWaitingForOrganization, isCurrentUserLoading])
 
   // Redirect to '/' and open devtools if path starts with DEVTOOL_ROUTE
   useEffect(() => {
@@ -52,6 +54,8 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
   ) {
     return <Spinner />
   }
+
+  if (routeConfig.premium && !isPremium) return <Spinner />
 
   return <>{children}</>
 }

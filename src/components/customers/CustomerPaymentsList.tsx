@@ -7,7 +7,7 @@ import { Table, TableProps } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { buildPaymentDocumentData } from '~/components/emails/buildDocumentData'
-import { PaymentProviderChip } from '~/components/PaymentProviderChip'
+import { getPaymentProviderChipType, PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { addToast } from '~/core/apolloClient'
 import { payablePaymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -22,7 +22,6 @@ import {
   GetPaymentsListQuery,
   GetPaymentsListQueryHookResult,
   PaymentForPaymentsListFragment,
-  PaymentTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
@@ -207,10 +206,7 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
             content: ({ paymentType, paymentProviderType, paymentProvider }) => (
               <PaymentProviderChip
                 label={paymentProvider?.name}
-                paymentProvider={
-                  paymentProviderType ??
-                  (paymentType === PaymentTypeEnum.Manual ? 'manual' : undefined)
-                }
+                paymentProvider={getPaymentProviderChipType({ paymentType, paymentProviderType })}
               />
             ),
           },

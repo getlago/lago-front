@@ -70,6 +70,8 @@ const SalesforceIntegrationDetails = lazyLoad(
 )
 const StripeIntegrations = lazyLoad(() => import('~/pages/settings/StripeIntegrations'))
 const StripeIntegrationDetails = lazyLoad(() => import('~/pages/settings/StripeIntegrationDetails'))
+const X402Integrations = lazyLoad(() => import('~/pages/settings/X402Integrations'))
+const X402IntegrationDetails = lazyLoad(() => import('~/pages/settings/X402IntegrationDetails'))
 const CashfreeIntegrations = lazyLoad(() => import('~/pages/settings/CashfreeIntegrations'))
 const CashfreeIntegrationDetails = lazyLoad(
   () => import('~/pages/settings/CashfreeIntegrationDetails'),
@@ -141,6 +143,8 @@ export const SALESFORCE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/salesforce`
 export const SALESFORCE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/salesforce/:integrationId`
 export const STRIPE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/stripe`
 export const STRIPE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/stripe/:integrationId`
+export const X402_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/coinbase`
+export const X402_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/coinbase/:integrationId`
 export const CASHFREE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/cashfree`
 export const CASHFREE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/cashfree/:integrationId`
 export const MONEYHASH_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/moneyhash`
@@ -373,6 +377,22 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <StripeIntegrationDetails />,
         permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: X402_INTEGRATION_ROUTE,
+        private: true,
+        element: <X402Integrations />,
+        permissions: ['organizationIntegrationsView'],
+        featureFlag: FeatureFlagEnum.X402Payments,
+        premium: true,
+      },
+      {
+        path: X402_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <X402IntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+        featureFlag: FeatureFlagEnum.X402Payments,
+        premium: true,
       },
       {
         path: GOCARDLESS_INTEGRATION_OAUTH_CALLBACK_ROUTE,

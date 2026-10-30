@@ -73,9 +73,11 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   }),
 }))
 
+let mockIsPremium = true
+
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({
-    isPremium: true,
+    isPremium: mockIsPremium,
     loading: false,
     currentUser: {
       id: '1',
@@ -93,6 +95,7 @@ describe('useLocationHistory()', () => {
     mockUseParams.mockReturnValue({})
     mockHasFeatureFlag.mockClear()
     mockIsOrganizationLoading = false
+    mockIsPremium = true
     authTokenVar(undefined)
 
     // Default to true for backwards compatibility with existing tests
@@ -747,6 +750,34 @@ describe('useLocationHistory()', () => {
         // Should redirect to forbidden (permission check), not home (feature flag check)
         expect(mockNavigate).toHaveBeenCalledWith('/forbidden')
         expect(mockNavigate).not.toHaveBeenCalledWith('/', { replace: true })
+      })
+    })
+
+    describe('premium license gating', () => {
+      beforeEach(() => {
+        authTokenVar('test-token')
+      })
+
+      it('should redirect to home when the license is not premium', () => {
+        mockIsPremium = false
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter({ private: true, premium: true }, mockLocation)
+        })
+
+        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+      })
+
+      it('should allow access when the license is premium', () => {
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter({ private: true, premium: true }, mockLocation)
+        })
+
+        expect(mockNavigate).not.toHaveBeenCalled()
       })
     })
 
