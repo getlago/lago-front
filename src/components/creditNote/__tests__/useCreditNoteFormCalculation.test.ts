@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react'
-import { FormikProps } from 'formik'
 import React from 'react'
 
-import { createMockFormikProps } from '~/components/creditNote/__tests__/formikProps.factory'
 import {
   CurrencyEnum,
   InvoiceForCreditNoteFormCalculationFragment,
@@ -11,7 +9,6 @@ import {
 } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
-import { CreditNoteForm, CreditTypeEnum } from '../types'
 import { useCreditNoteFormCalculation } from '../useCreditNoteFormCalculation'
 
 const createMockInvoice = (
@@ -38,18 +35,11 @@ const mockFeeForEstimate = [{ amountCents: 10000, feeId: 'fee-1' }]
 
 type SetupOptions = {
   invoice?: InvoiceForCreditNoteFormCalculationFragment
-  formikProps?: FormikProps<Partial<CreditNoteForm>>
   feeForEstimate?: typeof mockFeeForEstimate
 }
 
 function setup(options: SetupOptions = {}) {
-  const {
-    invoice = createMockInvoice(),
-    formikProps = createMockFormikProps<CreditNoteForm>(),
-    feeForEstimate = mockFeeForEstimate,
-  } = options
-
-  const setPayBackValidation = jest.fn()
+  const { invoice = createMockInvoice(), feeForEstimate = mockFeeForEstimate } = options
 
   const wrapper = ({ children }: { children: React.ReactNode }) =>
     AllTheProviders({
@@ -58,17 +48,11 @@ function setup(options: SetupOptions = {}) {
     })
 
   const { result, rerender } = renderHook(
-    () =>
-      useCreditNoteFormCalculation({
-        invoice,
-        formikProps,
-        feeForEstimate,
-        setPayBackValidation,
-      }),
+    () => useCreditNoteFormCalculation({ invoice, feeForEstimate }),
     { wrapper },
   )
 
-  return { result, rerender, setPayBackValidation, formikProps }
+  return { result, rerender }
 }
 
 describe('useCreditNoteFormCalculation', () => {
@@ -144,50 +128,6 @@ describe('useCreditNoteFormCalculation', () => {
       const { result } = setup()
 
       expect(result.current.taxes).toBeInstanceOf(Map)
-    })
-  })
-
-  describe('GIVEN prepaid credits invoice', () => {
-    it('THEN should skip payBack initialization', () => {
-      const invoice = createMockInvoice({ invoiceType: InvoiceTypeEnum.Credit })
-      const formikProps = createMockFormikProps<CreditNoteForm>()
-
-      setup({ invoice, formikProps })
-
-      // For prepaid credits, setFieldValue should NOT be called for payBack initialization
-      const setFieldValueCalls = (formikProps.setFieldValue as jest.Mock).mock.calls
-      const payBackInitCalls = setFieldValueCalls.filter(
-        (call: string[]) => call[0] === 'payBack.0.type' || call[0] === 'payBack.1.type',
-      )
-
-      expect(payBackInitCalls.length).toBe(0)
-    })
-
-    it('THEN should set empty validation', () => {
-      const invoice = createMockInvoice({ invoiceType: InvoiceTypeEnum.Credit })
-      const { setPayBackValidation } = setup({ invoice })
-
-      expect(setPayBackValidation).toHaveBeenCalled()
-    })
-  })
-
-  describe('GIVEN non-prepaid credits invoice', () => {
-    it('THEN should NOT automatically prefill payBack credit value', () => {
-      const invoice = createMockInvoice({ invoiceType: InvoiceTypeEnum.Subscription })
-      const formikProps = createMockFormikProps<CreditNoteForm>({
-        values: {
-          payBack: [{ type: CreditTypeEnum.credit, value: 0 }],
-        },
-      })
-
-      setup({ invoice, formikProps })
-
-      const setFieldValueCalls = (formikProps.setFieldValue as jest.Mock).mock.calls
-      const payBackInitCalls = setFieldValueCalls.filter((call: string[]) =>
-        call[0]?.startsWith('payBack.'),
-      )
-
-      expect(payBackInitCalls.length).toBe(0)
     })
   })
 })

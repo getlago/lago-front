@@ -1,5 +1,5 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { act, screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
@@ -11,10 +11,10 @@ import { CREDIT_ONLY_AMOUNT_LINE_TEST_ID } from '~/components/creditNote/CreditN
 import { getSubscriptionCheckboxTestId } from '~/components/creditNote/CreditNoteItemsForm'
 import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import { CENTRALIZED_DIALOG_NAME } from '~/components/dialogs/const'
+import { ComboBoxProps } from '~/components/form/ComboBox'
 import {
   CreditNoteEstimateDocument,
   CreditNoteEstimateQuery,
-  CreditNoteReasonEnum,
   CurrencyEnum,
   InvoicePaymentStatusTypeEnum,
   LagoApiError,
@@ -25,13 +25,41 @@ import CreateCreditNote, {
   CLOSE_BUTTON_TEST_ID,
   DESCRIPTION_INPUT_TEST_ID,
   PREPAID_CREDITS_REFUND_ALERT_TEST_ID,
+  REASON_COMBOBOX_TEST_ID,
   SUBMIT_BUTTON_TEST_ID,
 } from '../CreateCreditNote'
 
 NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
+// jsdom does not implement scrollIntoView, used when a submit is rejected
+Element.prototype.scrollIntoView = jest.fn()
+
+// `react-window` virtualization never renders rows in jsdom (no real layout) - force it
+// off so the reason options can be picked.
+jest.mock('~/components/form/ComboBox/ComboBox', () => {
+  const { ComboBox } = jest.requireActual('~/components/form/ComboBox/ComboBox')
+
+  return {
+    ComboBox: (props: ComboBoxProps) => <ComboBox {...props} virtualized={false} />,
+  }
+})
+
 const mockOnCreate = jest.fn()
 const mockUseCreateCreditNote = jest.fn()
+
+// Validation is submit-first, so an invalid form is proven by a submit that never reaches
+// the mutation rather than by a disabled button. The rendered message is what tells us
+// validation has finished: a bare `not.toHaveBeenCalled` would resolve on the first tick,
+// before the submit settles, and so would pass on a form that does submit.
+const expectSubmitRejected = async (
+  user: ReturnType<typeof userEvent.setup>,
+  expectedError: string,
+) => {
+  await user.click(screen.getByTestId(SUBMIT_BUTTON_TEST_ID))
+
+  expect(await screen.findByText(expectedError)).toBeInTheDocument()
+  expect(mockOnCreate).not.toHaveBeenCalled()
+}
 
 jest.mock('../common/useCreateCreditNote', () => ({
   useCreateCreditNote: () => mockUseCreateCreditNote(),
@@ -140,13 +168,12 @@ describe('CreateCreditNote', () => {
   })
 
   describe('Form Validation - Basic Requirements', () => {
-    it('should require reason field to be selected before enabling submit', async () => {
+    it('should require reason field to be selected before submitting', async () => {
+      const user = userEvent.setup()
+
       await act(() => render(<CreateCreditNote />))
 
-      const submitButton = screen.getByTestId(SUBMIT_BUTTON_TEST_ID)
-
-      // Button should be disabled when form is invalid (no reason selected)
-      expect(submitButton).toBeDisabled()
+      await expectSubmitRejected(user, 'This value is not valid')
     })
 
     it('should render description field as optional', async () => {
@@ -353,16 +380,7 @@ describe('CreateCreditNote', () => {
       await user.clear(refundInput)
       await user.type(refundInput, '30')
 
-      // Wait for validation to run (debounced)
-      await waitFor(
-        () => {
-          const submitButton = screen.getByTestId(SUBMIT_BUTTON_TEST_ID)
-
-          // Submit should be disabled due to sum mismatch
-          expect(submitButton).toBeDisabled()
-        },
-        { timeout: 3000 },
-      )
+      await expectSubmitRejected(user, 'Allocation do not match credit note amount')
     })
 
     it('should validate refund does not exceed max refundable amount', async () => {
@@ -391,15 +409,7 @@ describe('CreateCreditNote', () => {
       await user.clear(refundInput)
       await user.type(refundInput, '150')
 
-      // Wait for validation (debounced)
-      await waitFor(
-        () => {
-          const submitButton = screen.getByTestId(SUBMIT_BUTTON_TEST_ID)
-
-          expect(submitButton).toBeDisabled()
-        },
-        { timeout: 3000 },
-      )
+      await expectSubmitRejected(user, 'Refund amount cannot exceed $100.00')
     })
 
     it('should validate credit does not exceed max creditable amount', async () => {
@@ -428,15 +438,7 @@ describe('CreateCreditNote', () => {
       await user.clear(refundInput)
       await user.type(refundInput, '0')
 
-      // Wait for validation (debounced)
-      await waitFor(
-        () => {
-          const submitButton = screen.getByTestId(SUBMIT_BUTTON_TEST_ID)
-
-          expect(submitButton).toBeDisabled()
-        },
-        { timeout: 3000 },
-      )
+      await expectSubmitRejected(user, 'Credit amount cannot exceed $100.00')
     })
 
     it('should accept valid split between credit and refund', async () => {
@@ -606,7 +608,7 @@ describe('CreateCreditNote', () => {
 
   describe('PayBack Scenarios - API Error Handling', () => {
     it('should handle DoesNotMatchItemAmounts error from API', async () => {
-      // Mock onCreate to return DoesNotMatchItemAmounts error
+      const user = userEvent.setup()
       const mockOnCreateWithError = jest.fn().mockResolvedValue({
         errors: {
           graphQLErrors: [
@@ -621,27 +623,51 @@ describe('CreateCreditNote', () => {
 
       mockUseCreateCreditNote.mockReturnValue({
         loading: false,
-        invoice: {
-          ...defaultMockInvoice,
-          // Set initial values that would trigger validation
-          reason: CreditNoteReasonEnum.Other,
-        },
+        invoice: defaultMockInvoice,
         feesPerInvoice: defaultMockFeesPerInvoice,
         feeForAddOn: undefined,
         feeForCredit: undefined,
         onCreate: mockOnCreateWithError,
       })
 
-      await act(() => render(<CreateCreditNote />))
+      await act(() => render(<CreateCreditNote />, { mocks: [createCreditNoteEstimateMock()] }))
 
-      // The form should be rendered
-      expect(screen.getByTestId(SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
+      // The estimate is debounced; its maxima only reach the allocation captions once it
+      // lands, and the sum rule needs the total it carries.
+      await waitFor(
+        () => {
+          expect(screen.getByText('Refund the customer (max: $100.00)')).toBeInTheDocument()
+        },
+        { timeout: 3000 },
+      )
 
-      // Note: To fully test error handling, we'd need to:
-      // 1. Fill in the reason field
-      // 2. Click submit
-      // 3. Verify error message appears
-      // This requires proper combobox interaction which is complex in tests
+      const reasonCombobox = screen
+        .getByTestId(REASON_COMBOBOX_TEST_ID)
+        .querySelector('[role="combobox"]') as HTMLElement
+
+      await user.click(reasonCombobox)
+
+      const otherReasonItem = await screen.findByTestId('combobox-item-Other')
+
+      await user.click(within(otherReasonItem).getByRole('option'))
+
+      const creditInput = screen
+        .getByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)
+        .querySelector('input') as HTMLInputElement
+
+      await user.clear(creditInput)
+      await user.type(creditInput, '100')
+
+      await user.click(screen.getByTestId(SUBMIT_BUTTON_TEST_ID))
+
+      await waitFor(() => {
+        expect(mockOnCreateWithError).toHaveBeenCalled()
+      })
+
+      // The API error lands on the allocation rows, which is what turns them red
+      await waitFor(() => {
+        expect(creditInput).toHaveAttribute('aria-invalid', 'true')
+      })
     })
   })
 
@@ -831,15 +857,7 @@ describe('CreateCreditNote', () => {
       await user.click(keyInput)
       await user.paste(longKey)
 
-      // Validation should prevent submission
-      await waitFor(
-        () => {
-          const submitButton = screen.getByTestId(SUBMIT_BUTTON_TEST_ID)
-
-          expect(submitButton).toBeDisabled()
-        },
-        { timeout: 3000 },
-      )
+      await expectSubmitRejected(user, 'Key must be a string under 40 characters')
     }, 10000)
 
     it('should enforce metadata value max length of 255 characters', async () => {
@@ -865,15 +883,7 @@ describe('CreateCreditNote', () => {
       await user.click(valueInput)
       await user.paste(longValue)
 
-      // Validation should prevent submission
-      await waitFor(
-        () => {
-          const submitButton = screen.getByTestId(SUBMIT_BUTTON_TEST_ID)
-
-          expect(submitButton).toBeDisabled()
-        },
-        { timeout: 3000 },
-      )
+      await expectSubmitRejected(user, 'Value must be a string of 255 characters maximum')
     }, 10000)
   })
 })
