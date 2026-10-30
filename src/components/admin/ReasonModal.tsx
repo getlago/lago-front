@@ -9,6 +9,9 @@ import { Checkbox } from '~/components/form/Checkbox/Checkbox'
 import { TextInput } from '~/components/form/TextInput/TextInput'
 import { addToast } from '~/core/apolloClient'
 
+/** Throw from `onConfirm` to replace the generic failure toast; an empty message shows none. */
+export class ReasonModalError extends Error {}
+
 export type ReasonModalProps = {
   title: string
   description: string
@@ -39,8 +42,13 @@ export const ReasonModal = create(
         await onConfirm(reason.trim(), notifyOrgAdmin)
         modal.resolve({ reason: 'success' })
         modal.hide()
-      } catch {
-        addToast({ severity: 'danger', message: 'Failed to save the change. Please try again.' })
+      } catch (error) {
+        const message =
+          error instanceof ReasonModalError
+            ? error.message
+            : 'Failed to save the change. Please try again.'
+
+        if (message) addToast({ severity: 'danger', message })
       } finally {
         setLoading(false)
       }

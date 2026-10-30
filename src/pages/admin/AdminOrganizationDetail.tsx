@@ -1,22 +1,26 @@
 import { gql } from '@apollo/client'
 import NiceModal from '@ebay/nice-modal-react'
+import { GraphQLFormattedError } from 'graphql'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router'
 
 import { REASON_MODAL_NAME } from '~/components/admin/const'
-import { ReasonModalProps } from '~/components/admin/ReasonModal'
+import { ReasonModalError, ReasonModalProps } from '~/components/admin/ReasonModal'
 import { Button } from '~/components/designSystem/Button'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
 import { Switch } from '~/components/form/Switch/Switch'
+import { TextInput } from '~/components/form/TextInput/TextInput'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { addToast } from '~/core/apolloClient'
+import { addToast, isSilencedGQLError, LagoGQLError } from '~/core/apolloClient'
 import { ADMIN_ORGANIZATIONS_ROUTE } from '~/core/router'
 import {
   AdminFeatureTypeEnum,
   FeatureFlagEnum,
+  LagoApiError,
   PremiumIntegrationTypeEnum,
   useAdminOrganizationQuery,
+  useAdminRenameOrganizationMutation,
   useAdminToggleFeatureMutation,
 } from '~/generated/graphql'
 
@@ -37,10 +41,47 @@ gql`
       id
     }
   }
+  mutation AdminRenameOrganization($input: AdminRenameOrganizationInput!) {
+    adminRenameOrganization(input: $input) {
+      id
+    }
+  }
 `
 
 const KNOWN_PREMIUM_INTEGRATIONS = Object.values(PremiumIntegrationTypeEnum)
 const KNOWN_FEATURE_FLAGS = Object.values(FeatureFlagEnum)
+
+const RENAME_ERROR_MESSAGES: Record<string, string> = {
+  value_is_unchanged: 'The new name is the same as the current name.',
+  value_is_mandatory: 'The organization name cannot be blank.',
+  value_is_too_short: 'The reason must be at least 10 characters.',
+  value_is_too_long: 'The reason is too long once the rename details are added. Please shorten it.',
+}
+
+const RENAME_SILENT_ERROR_CODES = [LagoApiError.UnprocessableEntity, LagoApiError.NotFound]
+
+const getRenameErrorMessage = (errors?: readonly GraphQLFormattedError[]): string => {
+  const extensions = errors?.[0]?.extensions as LagoGQLError['extensions'] | undefined
+
+  if (extensions?.code === LagoApiError.NotFound) return 'Organization not found.'
+
+  // The global error link has already toasted every code this mutation does not silence
+  if (
+    extensions &&
+    !isSilencedGQLError({
+      extensions,
+      silentErrorCodes: RENAME_SILENT_ERROR_CODES,
+      silentErrorDetails: [],
+    })
+  ) {
+    return ''
+  }
+
+  const detailCode = Object.values(extensions?.details ?? {}).flat()[0]
+  const message = detailCode ? RENAME_ERROR_MESSAGES[detailCode] : undefined
+
+  return message ?? 'Failed to rename the organization. Please try again.'
+}
 
 const AdminOrganizationDetail = () => {
   const { organizationId } = useParams<{ organizationId: string }>()
@@ -52,6 +93,11 @@ const AdminOrganizationDetail = () => {
 
   const [toggleFeature] = useAdminToggleFeatureMutation()
   const [isSaving, setIsSaving] = useState(false)
+  const [renameOrganization] = useAdminRenameOrganizationMutation({
+    context: { silentErrorCodes: RENAME_SILENT_ERROR_CODES },
+    refetchQueries: ['AdminOrganization'],
+  })
+  const [nameInput, setNameInput] = useState('')
 
   const org = data?.adminOrganization
   const serverIntegrations: string[] = useMemo(
@@ -70,6 +116,14 @@ const AdminOrganizationDetail = () => {
     setLocalIntegrations(new Set(serverIntegrations))
     setLocalFeatureFlags(new Set(serverFeatureFlags))
   }, [serverIntegrations, serverFeatureFlags])
+
+  useEffect(() => {
+    setNameInput(org?.name ?? '')
+  }, [org?.name])
+
+  const isNameDirty = nameInput !== (org?.name ?? '')
+  const trimmedName = nameInput.trim()
+  const canRename = !!org && trimmedName.length > 0 && trimmedName !== org.name
 
   const isDirty = useMemo(() => {
     const integrationsDirty =
@@ -148,16 +202,37 @@ const AdminOrganizationDetail = () => {
       })),
     ]
 
-    if (changes.length === 0) return
+    if (changes.length === 0 && !canRename) return
+
+    const featuresLabel = `${changes.length} feature${changes.length > 1 ? 's' : ''}`
+    const renameTitle =
+      changes.length > 0 ? `Rename organization and update ${featuresLabel}` : 'Rename organization'
 
     NiceModal.show<void, ReasonModalProps>(REASON_MODAL_NAME, {
-      title: `Update ${changes.length} feature${changes.length > 1 ? 's' : ''}`,
-      description: `Please provide a reason for updating features.`,
+      title: canRename ? renameTitle : `Update ${featuresLabel}`,
+      description: canRename
+        ? `Rename "${org?.name}" to "${trimmedName}". Please provide a reason.`
+        : `Please provide a reason for updating features.`,
+      showNotifyCheckbox: changes.length > 0,
       onConfirm: async (reason: string, notifyOrgAdmin: boolean) => {
         setIsSaving(true)
         let failedCount = 0
 
         try {
+          if (canRename) {
+            const result = await renameOrganization({
+              variables: {
+                input: { organizationId: organizationId ?? '', name: trimmedName, reason },
+              },
+            })
+
+            if (!result.data?.adminRenameOrganization) {
+              throw new ReasonModalError(getRenameErrorMessage(result.errors))
+            }
+          }
+
+          if (changes.length === 0) return
+
           for (const change of changes) {
             try {
               await toggleFeature({
@@ -192,9 +267,10 @@ const AdminOrganizationDetail = () => {
     })
   }
 
-  const handleReset = () => {
+  const handleReset = (): void => {
     setLocalIntegrations(new Set(serverIntegrations))
     setLocalFeatureFlags(new Set(serverFeatureFlags))
+    setNameInput(org?.name ?? '')
   }
 
   if (loading) {
@@ -239,6 +315,17 @@ const AdminOrganizationDetail = () => {
       />
 
       <div className="max-w-200 mx-auto w-full p-4 md:p-12">
+        <div className="mb-8">
+          <Typography variant="subhead1" className="mb-4">
+            General
+          </Typography>
+          <TextInput
+            name="organizationName"
+            label="Organization name"
+            value={nameInput}
+            onChange={setNameInput}
+          />
+        </div>
         <div>
           <Typography variant="subhead1" className="mb-4">
             Premium Integrations
@@ -280,10 +367,10 @@ const AdminOrganizationDetail = () => {
 
       <footer className="sticky bottom-0 z-navBar w-full bg-white shadow-t">
         <div className="max-w-200 mx-auto flex min-h-footer w-full flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-12">
-          <Button variant="quaternary" disabled={!isDirty} onClick={handleReset}>
+          <Button variant="quaternary" disabled={!isDirty && !isNameDirty} onClick={handleReset}>
             Reset
           </Button>
-          <Button disabled={!isDirty || isSaving} onClick={handleSave}>
+          <Button disabled={(!isDirty && !canRename) || isSaving} onClick={handleSave}>
             Save changes
           </Button>
         </div>
