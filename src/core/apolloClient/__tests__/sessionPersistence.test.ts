@@ -112,9 +112,32 @@ describe('session persistence', () => {
     unmount()
   })
 
-  it.each([undefined, 'new-token'])(
-    'preserves the shared blob with a pending write when adopting %s',
-    async (storedToken) => {
+  it.each([
+    {
+      title: 'signs out on a remote logout',
+      sessionToken: 'old-token',
+      storedToken: undefined,
+      expectedToken: undefined,
+      resumes: false,
+    },
+    {
+      title: 'adopts a login from another tab while signed out',
+      sessionToken: undefined,
+      storedToken: 'new-token',
+      expectedToken: 'new-token',
+      resumes: true,
+    },
+    {
+      title: 'reloads when another account replaces the session',
+      sessionToken: 'old-token',
+      storedToken: 'new-token',
+      expectedToken: 'old-token',
+      resumes: false,
+    },
+  ])(
+    'preserves the shared blob with a pending write when this tab $title',
+    async ({ sessionToken, storedToken, expectedToken, resumes }) => {
+      authTokenVar(sessionToken)
       writeMarker(cache, 'old session')
       if (storedToken) localStorage.setItem('authToken', storedToken)
 
@@ -128,13 +151,13 @@ describe('session persistence', () => {
       expect(localForage.setItem).toHaveBeenCalledTimes(1)
       expect(localForage.setItem).toHaveBeenLastCalledWith(CACHE_KEY, sharedBlob)
       expect(localForage.removeItem).not.toHaveBeenCalled()
-      expect(authTokenVar()).toBe(storedToken)
+      expect(authTokenVar()).toBe(expectedToken)
 
       writeMarker(cache, 'new session')
       await jest.advanceTimersByTimeAsync(1000)
 
-      expect(localForage.setItem).toHaveBeenCalledTimes(storedToken ? 2 : 1)
-      if (storedToken) {
+      expect(localForage.setItem).toHaveBeenCalledTimes(resumes ? 2 : 1)
+      if (resumes) {
         expect(localForage.setItem).toHaveBeenLastCalledWith(
           CACHE_KEY,
           JSON.stringify(cache.extract()),
