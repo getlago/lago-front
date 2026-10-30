@@ -29,11 +29,16 @@ On iteration 2+ the earlier verdicts are in `review-history.md` in the state dir
 2. **Gates** — scripts, not judgment. Run them in the worktree before reading a line of code; a red gate is a FAIL issue on its own. One exception: a known dependency failure loop-run recorded under `## Excluded gate failures` in state.md. There is no operator inside this subagent, so an exclusion that is not in state.md does not exist — a line in spec.md or in the dispatch prompt is never one. Honour a recorded exclusion, repeat it in review.md, and continue the behavioral review. Green gates never substitute for it, and the build phase's claim is never trusted:
 
    ```bash
-   pnpm lint && pnpm types && pnpm translations:inspect && pnpm translations:ensure-consistency
+   pnpm lint
+   pnpm types
+   pnpm translations:inspect
+   pnpm translations:ensure-consistency
    <front>/scripts/diff-hygiene.sh <base> <worktree> <state dir>/plan.md   # every added comment declared, none in a refused position
    <front>/scripts/loop-plan-check.sh <worktree> <state dir>/plan.md <base>   # new files / exports outside plan.md, exports nothing imports
    <front>/scripts/pattern-preflight.sh <base> <worktree>   # documented patterns the diff touches, with their reference
    ```
+
+   Run each command above in a separate invocation and record its exit status and relevant errors in `review.md`; never short-circuit the remaining gates after a failure. An exclusion applies only to the recorded command and error signature, not to other errors from that command. Any unexcluded failure or required gate not executed prevents PASS.
 
    `loop-plan-check.sh` exit 3 means new files/exports exist and plan.md declares them: each declared item is a question for check 2 below, and loop-run runs the adversarial pass on the same signal. Exit 1 (undeclared, or `unused-export:`) should not survive the build gate; if it does, it is a FAIL issue tagged `[gate:plan]`. `pattern-preflight.sh` exit 3 is input to check 3: each listed item the code does not follow, with no plan.md `## Deviations` line, is a FAIL issue tagged `[gate:patterns]`.
 
@@ -75,9 +80,9 @@ On iteration 2+ the earlier verdicts are in `review-history.md` in the state dir
    2. ...
    ```
 
-   Issues must be concrete and actionable — file, line, trigger, consequence, evidence, fix direction. In both formats append `## Review evidence` — revision, flow record, tests and gaps — and keep it to a few lines: loop-run archives each FAIL verdict whole into `review-history.md` and loop-build re-reads that history on every retry, so a long table is carried through the rest of the run for nothing. When there is something to say, append `## Non-blocking suggestions` as a bulleted list, never numbered — loop-build fix mode acts on the numbered Issues alone, and a number here is read as an issue to fix. Bounded type-safety, helper-reuse or responsibility-splitting improvements belong there when supported by a concrete local alternative; they do not turn PASS into FAIL unless they violate a mandatory rule. Step 7 is what carries them to the operator; nothing else consumes them. Discard subjective style preferences.
+   Issues must be concrete and actionable — file, line, trigger, consequence, evidence, fix direction. In both formats append `## Review evidence` — revision, flow record, tests and gaps — and keep it to a few lines: loop-run archives each FAIL verdict whole into `review-history.md` and loop-build re-reads that history on every retry, so a long table is carried through the rest of the run for nothing. When there is something to say, append `## Non-blocking suggestions` as a bulleted list, never numbered — loop-build fix mode acts on the numbered Issues alone, and a number here is read as an issue to fix. Bounded type-safety, helper-reuse or responsibility-splitting improvements belong there when supported by a concrete local alternative; they do not turn PASS into FAIL unless they violate a mandatory rule. When dispatched by loop-run, the orchestrator carries them to the operator; they never enter the automatic fix queue. Discard subjective style preferences.
 
-7. **Report** the verdict, any issues and non-blocking suggestions, and material verification limits to the operator. On a revised diff, account for each finding archived in `review-history.md` using the shared evidence guidance.
+7. **Report** the verdict, any issues and non-blocking suggestions, and material verification limits to the operator (or to loop-run when dispatched as its subagent). On a revised diff, account for each finding archived in `review-history.md` using the shared evidence guidance.
 
 ## Hard rules
 
