@@ -7,7 +7,7 @@ Use this guide for new shadcn components. It does not migrate existing productio
 - Use semantic colors, not primitive colors or hardcoded hex values.
 - Pick the background by the component's purpose. Nesting does not automatically increase elevation.
 - Use a **1px solid border** unless specified otherwise.
-- Use `border-subtle` for separators and containers; `border-default` for input/control boundaries. Reserve `border-strong` for deliberate high-emphasis boundaries.
+- Use `border-divider` for separators and containers; `border-control` for input/control boundaries. Reserve `border-strong` for deliberate high-emphasis boundaries.
 - Use shadows for floating content and explicitly elevated interactive controls, not every page block.
 - Keep floating backgrounds opaque. Only interaction layers and overlays use alpha.
 - Use the same classes in light and dark mode. The theme changes their values.
@@ -18,7 +18,7 @@ Use this guide for new shadcn components. It does not migrate existing productio
 | --- | --- | --- | --- |
 | `canvas` | `#FFFFFF` | `#1A1A1A` | Application background |
 | `surface` | `#FFFFFF` | `#1A1A1A` | Content that blends into the page |
-| `surface-inset` | `#FBFBFB` | `#212121` | Navigation, inputs and grouped content |
+| `surface-subtle` | `#FBFBFB` | `#212121` | Navigation, inputs and grouped content |
 | `surface-raised` | `#FFFFFF` | `#232323` | A distinct block within the page |
 | `surface-floating` | `#FFFFFF` | `#2C2C2C` | Dialogs, menus, popovers and toasts |
 | `inverse` | `#1A1A1A` | `#2C2C2C` | Tooltip background |
@@ -32,28 +32,28 @@ Names in the background and border columns are semantic roles. “None” means 
 | --- | --- | --- | --- |
 | App background | `canvas` | None | None |
 | Main content / flat section | `surface` | None | None |
-| Navigation background / sidebar | `surface-inset` | `border-subtle` on the edge next to content | None |
+| Navigation background / sidebar | `surface-subtle` | `border-divider` on the edge next to content | None |
 | Navigation item | Transparent; `selected` when selected | None | None |
-| Raised content block | `surface-raised` | `border-subtle` | None |
-| Dialog | `surface-floating` | `border-subtle` | `shadow-v2-dialog` |
+| Raised content block | `surface-raised` | `border-divider` | None |
+| Dialog | `surface-floating` | `border-divider` | `shadow-v2-dialog` |
 | Dialog backdrop | `overlay` | None | None |
-| Toast | `surface-floating` | `border-subtle` | `shadow-v2-floating` |
+| Toast | `surface-floating` | `border-divider` | `shadow-v2-floating` |
 | Tooltip | `inverse` | None | `shadow-v2-floating` |
-| Search bar | `surface-inset` | `border-default` | None |
-| Text input / textarea | `surface-inset` | `border-default` | None |
-| Combo-box trigger / input | `surface-inset` | `border-default` | None |
-| Combo-box dropdown | `surface-floating` | `border-subtle` | `shadow-v2-floating` |
-| Popover / dropdown menu | `surface-floating` | `border-subtle` | `shadow-v2-floating` |
+| Search bar | `surface-subtle` | `border-control` | None |
+| Text input / textarea | `surface-subtle` | `border-control` | None |
+| Combo-box trigger / input | `surface-subtle` | `border-control` | None |
+| Combo-box dropdown | `surface-floating` | `border-divider` | `shadow-v2-floating` |
+| Popover / dropdown menu | `surface-floating` | `border-divider` | `shadow-v2-floating` |
 | Primary button | `action-primary` | None | None |
-| Secondary button | `surface` | `border-subtle` | `shadow-v2-interactive` |
-| Clickable card (when elevation is appropriate) | `surface-raised` | `border-subtle` | `shadow-v2-interactive` |
+| Secondary button | `surface` | `border-divider` | `shadow-v2-interactive` |
+| Clickable card (when elevation is appropriate) | `surface-raised` | `border-divider` | `shadow-v2-interactive` |
 | Ghost button | Transparent | None | None |
 | Destructive button | `destructive` | None | None |
-| Table header | `surface` | Bottom `border-subtle` | None |
-| Table sticky header | **Opaque** `surface` | Bottom `border-subtle` | None |
-| Table row / line | Transparent over the table's `surface` | Bottom `border-subtle` | None |
+| Table header | `surface` | Bottom `border-divider` | None |
+| Table sticky header | **Opaque** `surface` | Bottom `border-divider` | None |
+| Table row / line | Transparent over the table's `surface` | Bottom `border-divider` | None |
 | Table cell | Transparent; inherit the row appearance | None; let the row own the separator | None |
-| Table group header | `surface-inset` | Bottom `border-subtle` | None |
+| Table group header | `surface-subtle` | Bottom `border-divider` | None |
 
 Sticky headers need an opaque fill and appropriate stacking order so scrolling rows do not show through. Being sticky does not make them a floating surface.
 
@@ -94,13 +94,13 @@ Alpha interaction fills must retain the correct background beneath them. For a f
 
 ```tsx
 // Text input: default appearance only; add its states in the component.
-className="border border-border-default bg-surface-inset text-text-default"
+className="border border-border-control bg-surface-subtle text-text-default"
 
 // Popover or toast.
-className="border border-border-subtle bg-surface-floating text-text-default shadow-v2-floating"
+className="border border-border-divider bg-surface-floating text-text-default shadow-v2-floating"
 
 // Dialog.
-className="border border-border-subtle bg-surface-floating text-text-default shadow-v2-dialog"
+className="border border-border-divider bg-surface-floating text-text-default shadow-v2-dialog"
 
 // Tooltip.
 className="bg-inverse text-inverse-foreground shadow-v2-floating"
@@ -109,7 +109,7 @@ className="bg-inverse text-inverse-foreground shadow-v2-floating"
 className="text-text-subtle"
 ```
 
-`border-border-default` is intentional: the first `border-` selects the Tailwind property; `border-default` is the semantic color name.
+`border-border-control` is intentional: the first `border-` selects the Tailwind property; `border-control` is the semantic color name.
 
 ## Shadows and themes
 

@@ -5292,6 +5292,8 @@
   "text_1792507128247xgs5eskh1bu": "Create a rate phase",
   "text_1792507128247tj6ezglktl8": "Rate card not found",
   "text_1792516745021oj4du8sg5mm": "A new phase must be placed before the phase that runs forever",
+  "text_1792683486646v7np3oh22jc": "Already priced on this plan",
+  "text_1792683486646r8re8d0scxh": "Already priced on this contract",
   "text_1792580016209ml8r6ycj2vu": "Plan rate cards",
   "text_17925800162109zo2h16ap37": "Contract rate cards"
 }

@@ -45,7 +45,7 @@ export const ComboBox = ({
 }: ComboBoxProps) => {
   const { translate } = useInternationalization()
 
-  const { debouncedSearch, isLoading } = useDebouncedSearch(searchQuery, loading)
+  const { debouncedSearch, isLoading, isSearchPending } = useDebouncedSearch(searchQuery, loading)
 
   // By default, we want to sort `options` alphabetically (by value)
   const data = useMemo(() => {
@@ -205,9 +205,11 @@ export const ComboBox = ({
                 : { getOptionLabel: params.getOptionLabel, inputValue: '' },
             )
 
-        // Suggest the creation of a new value
+        // Suggest the creation of a new value, once the search for the typed term resolved empty
         if (
-          (filtered.length === 0 || addValueProps?.alwaysVisible) &&
+          filtered.length === 0 &&
+          !isLoading &&
+          !isSearchPending &&
           !emptyText &&
           allowAddValue &&
           addValueProps
