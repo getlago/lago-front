@@ -6,6 +6,7 @@ import {
   CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID,
 } from '~/components/aiAgent/ChatPromptEditor'
 import { CHAT_SHORTCUTS_TEST_ID } from '~/components/aiAgent/ChatShortcuts'
+import { CHAT_TOOL_CALL_CONFIRMATION_TEST_ID } from '~/components/aiAgent/ChatToolCallConfirmation'
 import {
   PANEL_AI_AGENT_ERROR_TEST_ID,
   PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID,
@@ -13,7 +14,8 @@ import {
   PANEL_AI_AGENT_WELCOME_TEST_ID,
   PanelAiAgent,
 } from '~/components/aiAgent/PanelAiAgent'
-import { ChatState } from '~/hooks/aiAgent/aiAgentReducer'
+import { AiConversationToolCallStatusEnum, LagoApiError } from '~/generated/graphql'
+import { ChatRole, ChatState, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { render } from '~/test-utils'
 
@@ -37,6 +39,7 @@ const mockStartNewConversation = jest.fn()
 const mockSubmitFinanceQuestion = jest.fn()
 const mockCreateAiConversation = jest.fn()
 const mockSubscriptionRestart = jest.fn()
+const mockAddToast = jest.fn()
 
 let mockState: ChatState
 let mockAgentType: AiAgentTypeEnum
@@ -44,6 +47,11 @@ let mockConversationId: string
 let mockConversationVersion: number
 let mockCreateLoading: boolean
 let mockCreateError: Error | undefined
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: (...args: unknown[]) => mockAddToast(...args),
+}))
 
 jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
   ...jest.requireActual('~/hooks/aiAgent/useAiAgent'),
@@ -54,6 +62,7 @@ jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
     getConversationVersion: () => mockConversationVersion,
     startNewConversation: mockStartNewConversation,
     setAgentType: jest.fn(),
+    setPendingToolCalls: jest.fn(),
     state: mockState,
   }),
 }))
@@ -86,6 +95,7 @@ const buildState = (overrides: Partial<ChatState> = {}): ChatState => ({
   isStreaming: false,
   hasError: false,
   financeSessionId: undefined,
+  toolCalls: [],
   ...overrides,
 })
 
@@ -103,6 +113,7 @@ describe('PanelAiAgent', () => {
     mockConversationVersion = 0
     mockCreateLoading = false
     mockCreateError = undefined
+    mockCreateAiConversation.mockResolvedValue({})
   })
 
   describe('GIVEN the conversation is empty', () => {
@@ -143,9 +154,11 @@ describe('PanelAiAgent', () => {
       })
 
       it('THEN should start the conversation once the mutation completes', async () => {
-        mockCreateAiConversation.mockImplementation(({ onCompleted }) =>
-          onCompleted({ createAiConversation: { id: 'conv-1' } }),
-        )
+        mockCreateAiConversation.mockImplementation(async ({ onCompleted }) => {
+          onCompleted({ createAiConversation: { id: 'conv-1' } })
+
+          return {}
+        })
 
         render(<PanelAiAgent hasAccessToAiAgent />)
 
@@ -160,9 +173,11 @@ describe('PanelAiAgent', () => {
       })
 
       it('THEN should not start the conversation when the mutation returns no id', async () => {
-        mockCreateAiConversation.mockImplementation(({ onCompleted }) =>
-          onCompleted({ createAiConversation: null }),
-        )
+        mockCreateAiConversation.mockImplementation(async ({ onCompleted }) => {
+          onCompleted({ createAiConversation: null })
+
+          return {}
+        })
 
         render(<PanelAiAgent hasAccessToAiAgent />)
 
@@ -191,9 +206,11 @@ describe('PanelAiAgent', () => {
             },
           ],
         })
-        mockCreateAiConversation.mockImplementation(({ onCompleted }) =>
-          onCompleted({ createAiConversation: { id: 'conv-1' } }),
-        )
+        mockCreateAiConversation.mockImplementation(async ({ onCompleted }) => {
+          onCompleted({ createAiConversation: { id: 'conv-1' } })
+
+          return {}
+        })
 
         render(<PanelAiAgent hasAccessToAiAgent />)
 
@@ -211,6 +228,48 @@ describe('PanelAiAgent', () => {
         })
         expect(mockSubscriptionRestart).toHaveBeenCalledTimes(1)
         expect(mockStartNewConversation).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the message is refused because writes still wait for an answer', () => {
+      it('THEN should ask the member to answer them instead of showing a generic error', async () => {
+        mockConversationId = 'conv-1'
+        mockState = buildState({
+          messages: [
+            { id: 'user-1', role: 'user' as never, message: 'previous', status: 'done' as never },
+          ],
+        })
+        mockCreateAiConversation.mockImplementation(async ({ onCompleted }) => {
+          onCompleted({ createAiConversation: null })
+
+          return {
+            data: { createAiConversation: null },
+            errors: [
+              {
+                message: 'Method Not Allowed',
+                extensions: { code: 'ai_conversation_tool_calls_pending' },
+              },
+            ],
+          }
+        })
+
+        render(<PanelAiAgent hasAccessToAiAgent />)
+
+        await submitPrompt('follow up')
+
+        await waitFor(() => {
+          expect(mockAddToast).toHaveBeenCalledWith({
+            severity: 'info',
+            translateKey: 'text_1793387391883qfvsaxynu03',
+          })
+        })
+        expect(mockAddNewMessage).not.toHaveBeenCalled()
+        expect(mockSubscriptionRestart).not.toHaveBeenCalled()
+        expect(mockCreateAiConversation).toHaveBeenCalledWith(
+          expect.objectContaining({
+            context: { silentErrorCodes: [LagoApiError.AiConversationToolCallsPending] },
+          }),
+        )
       })
     })
 
@@ -245,8 +304,10 @@ describe('PanelAiAgent', () => {
       it('THEN should ignore the stale completion', async () => {
         let capturedOnCompleted: ((data: unknown) => void) | undefined
 
-        mockCreateAiConversation.mockImplementation(({ onCompleted }) => {
+        mockCreateAiConversation.mockImplementation(async ({ onCompleted }) => {
           capturedOnCompleted = onCompleted
+
+          return {}
         })
 
         const { rerender } = render(<PanelAiAgent hasAccessToAiAgent />)
@@ -297,6 +358,51 @@ describe('PanelAiAgent', () => {
       })
     })
   })
+
+  describe('GIVEN the agent waits for the member to confirm a write', () => {
+    const conversationMessages = [
+      { id: 'user-1', role: ChatRole.user, message: 'void it', status: ChatStatus.done },
+      { id: 'assistant-1', role: ChatRole.assistant, message: '', status: ChatStatus.done },
+    ]
+
+    const buildToolCall = (status: AiConversationToolCallStatusEnum) => ({
+      id: 'tool-call-1',
+      name: 'void_invoice',
+      arguments: { lago_id: 'invoice-1' },
+      status,
+    })
+
+    describe('WHEN the write is still pending', () => {
+      it('THEN should show the confirmation and disable the message input', () => {
+        mockConversationId = 'conv-1'
+        mockState = buildState({
+          messages: conversationMessages,
+          toolCalls: [buildToolCall(AiConversationToolCallStatusEnum.Pending)],
+        })
+
+        render(<PanelAiAgent hasAccessToAiAgent />)
+
+        expect(screen.getByTestId(CHAT_TOOL_CALL_CONFIRMATION_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(CHAT_PROMPT_EDITOR_INPUT_TEST_ID)).toBeDisabled()
+        expect(screen.getByTestId(CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN every write is answered', () => {
+      it('THEN should enable the message input again', () => {
+        mockConversationId = 'conv-1'
+        mockState = buildState({
+          messages: conversationMessages,
+          toolCalls: [buildToolCall(AiConversationToolCallStatusEnum.Confirmed)],
+        })
+
+        render(<PanelAiAgent hasAccessToAiAgent />)
+
+        expect(screen.getByTestId(CHAT_PROMPT_EDITOR_INPUT_TEST_ID)).toBeEnabled()
+      })
+    })
+  })
+
   describe('GIVEN a billing request still in flight', () => {
     it('THEN should disable the editor and hide shortcuts while the mutation is loading', () => {
       mockCreateLoading = true
@@ -311,10 +417,10 @@ describe('PanelAiAgent', () => {
 
       mockCreateAiConversation.mockImplementation(
         ({ onCompleted }) =>
-          new Promise<void>((resolve) => {
+          new Promise<object>((resolve) => {
             finishCreation = () => {
               onCompleted({ createAiConversation: { id: 'conv-1' } })
-              resolve()
+              resolve({})
             }
           }),
       )
