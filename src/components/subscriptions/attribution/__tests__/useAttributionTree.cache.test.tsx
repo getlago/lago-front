@@ -29,13 +29,15 @@ const variables = {
   limit: 50,
 }
 
+const DAY_MS = 86_400_000
+
 const buildAttributedUsage = (amountCents: string) => ({
   __typename: 'AttributedUsage',
   currency: CurrencyEnum.Usd,
   splitFiltersCount: null,
   splitFiltersLimit: null,
-  fromDatetime: '2026-10-01T00:00:00.000Z',
-  toDatetime: '2026-11-01T00:00:00.000Z',
+  fromDatetime: new Date(Date.now() - DAY_MS).toISOString(),
+  toDatetime: new Date(Date.now() + DAY_MS).toISOString(),
   metadata: { __typename: 'CollectionMetadata', currentPage: 1, totalPages: 1 },
   rows: [
     {

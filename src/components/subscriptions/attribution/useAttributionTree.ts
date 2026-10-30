@@ -93,6 +93,13 @@ const getAttributionGenerationWindow = (
   return { fromDatetime: from.toISO() ?? anchor.fromDatetime, toDatetime: snapshotAt }
 }
 
+const isAttributionWindowStartMoved = (
+  { fromDatetime }: AttributionTreeWindow,
+  anchor: AttributionTreeUsage,
+): boolean =>
+  !!fromDatetime &&
+  DateTime.fromISO(fromDatetime).toMillis() !== DateTime.fromISO(anchor.fromDatetime).toMillis()
+
 // `errorLink` in `init.ts` already toasts GraphQL errors, only the rest is ours to report.
 export const notifyAttributionError = (error: unknown): void => {
   if (error instanceof ApolloError && error.graphQLErrors.length) return
@@ -228,29 +235,38 @@ export const useAttributionTree = ({
         buildAttributionFilters(path),
       )
 
-      const request = enqueueRequest(() =>
-        client.query<
-          GetSubscriptionAttributedUsageQuery,
-          GetSubscriptionAttributedUsageQueryVariables
-        >({
-          query: GetSubscriptionAttributedUsageDocument,
-          variables: {
-            ...latestVariables,
-            ...getAttributionGenerationWindow(generation, anchor),
-            groupBy: level.code,
-            filters: filters.length ? filters : undefined,
-            page,
-            splitFiltersOffset:
-              filterPage && anchor?.splitFiltersLimit
-                ? filterPage * anchor.splitFiltersLimit
-                : undefined,
-          },
-          fetchPolicy: 'network-only',
-          context: { silentError },
-        }),
-      ).then(({ data }) => data.attributedUsage)
+      const query = (window: AttributionTreeWindow): Promise<AttributionTreeUsage> =>
+        enqueueRequest(() =>
+          client.query<
+            GetSubscriptionAttributedUsageQuery,
+            GetSubscriptionAttributedUsageQueryVariables
+          >({
+            query: GetSubscriptionAttributedUsageDocument,
+            variables: {
+              ...latestVariables,
+              ...window,
+              groupBy: level.code,
+              filters: filters.length ? filters : undefined,
+              page,
+              splitFiltersOffset:
+                filterPage && anchor?.splitFiltersLimit
+                  ? filterPage * anchor.splitFiltersLimit
+                  : undefined,
+            },
+            fetchPolicy: 'network-only',
+            context: { silentError },
+          }),
+        ).then(({ data }) => data.attributedUsage)
 
-      if (!generation.anchor) generation.anchor = request
+      if (anchor) return query(getAttributionGenerationWindow(generation, anchor))
+
+      const request = query({}).then((usage) => {
+        const window = getAttributionGenerationWindow(generation, usage)
+
+        return isAttributionWindowStartMoved(window, usage) ? query(window) : usage
+      })
+
+      generation.anchor = request
 
       return request
     },

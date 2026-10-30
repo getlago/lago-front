@@ -41,6 +41,7 @@ const ROOT_KEY = getAttributionNodeKey([])
 const rndPath: AttributionPathStep[] = [{ code: 'department', value: 'rnd' }]
 const RND_KEY = getAttributionNodeKey(rndPath)
 const SPLIT_FILTERS_LIMIT = 4
+const DAY_MS = 86_400_000
 const ROOT_FROM = '2026-10-01T00:00:00.000Z'
 const ROOT_TO = '2026-11-01T00:00:00.000Z'
 
@@ -50,7 +51,7 @@ const buildUsage = (
     currentPage = 1,
     totalPages = 1,
     splitFiltersLimit = SPLIT_FILTERS_LIMIT,
-    fromDatetime = ROOT_FROM,
+    fromDatetime = new Date(Date.now() - DAY_MS).toISOString(),
   }: {
     currentPage?: number
     totalPages?: number
@@ -540,7 +541,9 @@ describe('useAttributionTree', () => {
 
     describe('WHEN a node is expanded after the root loaded', () => {
       it('THEN should pin its requests to the root window start and the reset time', async () => {
-        const { result } = await renderLoadedTree()
+        const { result } = await renderLoadedTree(
+          buildUsage(['rnd', 'gtm'], { fromDatetime: ROOT_FROM }),
+        )
 
         await expandRnd(result)
 
@@ -590,19 +593,93 @@ describe('useAttributionTree', () => {
     })
 
     describe('WHEN the root window starts more than 31 days before the snapshot', () => {
-      it('THEN should clamp the pinned window to 31 days', async () => {
+      const DEFAULT_ROOT_FROM = '2026-09-29T00:00:00.000Z'
+      const CLAMPED_ROOT_FROM = '2026-09-29T10:00:00.000Z'
+      const clampedWindow = { fromDatetime: CLAMPED_ROOT_FROM, toDatetime: SNAPSHOT_1 }
+
+      it('THEN should reload the first page on the clamped window before pinning the others to it', async () => {
+        mockQuery.mockReturnValue(
+          resolveUsage(buildUsage(['gtm', 'rnd'], { fromDatetime: CLAMPED_ROOT_FROM })),
+        )
+
         const { result } = await renderLoadedTree(
-          buildUsage(['rnd', 'gtm'], { fromDatetime: '2026-09-29T00:00:00.000Z' }),
+          buildUsage(['rnd', 'gtm'], { fromDatetime: DEFAULT_ROOT_FROM }),
         )
 
         await expandRnd(result)
 
+        const root = result.current.nodes[ROOT_KEY]
+
+        expect(getQueryVariables(0)).not.toHaveProperty('toDatetime')
         expect(getQueryVariables(1)).toEqual(
-          expect.objectContaining({
-            fromDatetime: '2026-09-29T10:00:00.000Z',
-            toDatetime: SNAPSHOT_1,
-          }),
+          expect.objectContaining({ groupBy: 'department', page: 1, ...clampedWindow }),
         )
+        expect(getQueryVariables(2)).toEqual(expect.objectContaining(clampedWindow))
+        expect(getQueryVariables(3)).toEqual(expect.objectContaining(clampedWindow))
+        expect(
+          root?.status === 'loaded' && root.blocks[0].usages[0].rows.map(({ value }) => value),
+        ).toEqual(['gtm', 'rnd'])
+      })
+
+      it('THEN should page rows on the same window as the first page', async () => {
+        const rowsByWindow = (fromDatetime?: string): string[] =>
+          fromDatetime ? ['B', 'A'] : ['A', 'B']
+
+        mockQuery.mockImplementation(({ variables: { fromDatetime, page } }) =>
+          resolveUsage(
+            buildUsage([rowsByWindow(fromDatetime)[page - 1]], {
+              currentPage: page,
+              totalPages: 2,
+              fromDatetime: fromDatetime ?? DEFAULT_ROOT_FROM,
+            }),
+          ),
+        )
+
+        const { result } = renderTree()
+
+        await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+        await act(async () => result.current.loadMore([], 0))
+
+        const root = result.current.nodes[ROOT_KEY]
+
+        expect(
+          root?.status === 'loaded' && root.blocks[0].usages[0].rows.map(({ value }) => value),
+        ).toEqual(['B', 'A'])
+        expect(mockQuery.mock.calls.slice(1).map(([options]) => options.variables)).toEqual([
+          expect.objectContaining({ page: 1, ...clampedWindow }),
+          expect.objectContaining({ page: 2, ...clampedWindow }),
+        ])
+      })
+
+      it('THEN should reload every page on one new window after a refresh', async () => {
+        mockQuery.mockImplementation(({ variables: { fromDatetime, page } }) =>
+          resolveUsage(
+            buildUsage(['rnd'], {
+              currentPage: page,
+              totalPages: 2,
+              fromDatetime: fromDatetime ?? DEFAULT_ROOT_FROM,
+            }),
+          ),
+        )
+
+        const { result } = renderTree()
+
+        await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+        await act(async () => result.current.loadMore([], 0))
+
+        jest.setSystemTime(new Date(SNAPSHOT_2))
+        mockQuery.mockClear()
+
+        await act(async () => result.current.refresh())
+        await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+
+        const refreshedWindow = { fromDatetime: '2026-09-29T10:05:00.000Z', toDatetime: SNAPSHOT_2 }
+
+        expect(getQueryVariables(0)).not.toHaveProperty('toDatetime')
+        expect(mockQuery.mock.calls.slice(1).map(([options]) => options.variables)).toEqual([
+          expect.objectContaining({ page: 1, ...refreshedWindow }),
+          expect.objectContaining({ page: 2, ...refreshedWindow }),
+        ])
       })
     })
   })
