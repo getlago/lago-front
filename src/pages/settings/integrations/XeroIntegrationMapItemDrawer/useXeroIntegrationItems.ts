@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { BasicComboBoxData, ComboBoxProps } from '~/components/form'
 import {
@@ -94,9 +94,11 @@ export const useXeroIntegrationItemSearch = (
   integrationId: string | undefined,
 ): UseXeroIntegrationItemSearchReturn => {
   const [searchResults, setSearchResults] = useState<BasicComboBoxData[] | undefined>(undefined)
-  const latestSearchTermRef = useRef<string | undefined>(undefined)
+  const [latestSearchTerm, setLatestSearchTerm] = useState<string | undefined>(undefined)
 
-  const [rawSearchItems, { loading }] = useGetXeroIntegrationItemsLazyQuery()
+  const [rawSearchItems, { data, loading, variables }] = useGetXeroIntegrationItemsLazyQuery({
+    notifyOnNetworkStatusChange: true,
+  })
 
   // useDebouncedSearch memoises the first `search` it is given: the query params are read from the
   // ref at call time, since a value captured here would never be refreshed.
@@ -104,12 +106,27 @@ export const useXeroIntegrationItemSearch = (
 
   queryParamsRef.current = { integrationId, itemType: getItemType(formType) }
 
+  useEffect(() => {
+    if (
+      loading ||
+      !data ||
+      !latestSearchTerm ||
+      variables?.searchTerm !== latestSearchTerm ||
+      variables.integrationId !== queryParamsRef.current.integrationId ||
+      variables.itemType !== queryParamsRef.current.itemType
+    ) {
+      return
+    }
+
+    setSearchResults(toComboboxData(data))
+  }, [data, loading, variables, latestSearchTerm])
+
   const search = useCallback(
     (...args: Parameters<typeof rawSearchItems>): ReturnType<typeof rawSearchItems> | undefined => {
       const { integrationId: currentIntegrationId, itemType } = queryParamsRef.current
       const searchTerm = args[0]?.variables?.searchTerm ?? undefined
 
-      latestSearchTermRef.current = searchTerm
+      setLatestSearchTerm(searchTerm)
 
       // Clearing the search falls back to the catalog the drawer already holds, so the 1000-item
       // query would only be run to throw its result away.
@@ -128,12 +145,6 @@ export const useXeroIntegrationItemSearch = (
           integrationId: currentIntegrationId,
           itemType,
         },
-      }).then((result) => {
-        if (latestSearchTermRef.current === searchTerm) {
-          setSearchResults(toComboboxData(result.data))
-        }
-
-        return result
       })
     },
     [rawSearchItems],

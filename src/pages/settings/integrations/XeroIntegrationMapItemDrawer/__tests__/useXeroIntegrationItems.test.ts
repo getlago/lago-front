@@ -172,6 +172,51 @@ describe('useXeroIntegrationItems', () => {
     })
 
     describe('WHEN a search runs', () => {
+      it.each([true, false])(
+        'THEN should ignore a late response after the search is cleared: %s',
+        async (clearSearch) => {
+          const { result } = renderHook(
+            () => useXeroIntegrationItemSearch(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
+            {
+              wrapper: createWrapper([
+                {
+                  ...buildGetItemsMock({ searchTerm: 'another' }, [
+                    buildItem('2', 'Another Item', 'ACC002'),
+                  ]),
+                  delay: 100,
+                },
+                ...(!clearSearch
+                  ? [
+                      buildGetItemsMock({ searchTerm: 'support' }, [
+                        buildItem('3', 'Support', 'ACC003'),
+                      ]),
+                    ]
+                  : []),
+              ]),
+            },
+          )
+
+          let pendingSearch: ReturnType<NonNullable<typeof result.current.search>> | undefined
+
+          act(() => {
+            pendingSearch = result.current.search?.({ variables: { searchTerm: 'another' } })
+          })
+          await act(async () => {
+            await result.current.search?.({
+              variables: { searchTerm: clearSearch ? undefined : 'support' },
+            })
+          })
+          await act(async () => {
+            await pendingSearch
+          })
+
+          expect(result.current.isSearching).toBe(!clearSearch)
+          expect(result.current.searchResults.map(({ label }) => label)).toEqual(
+            clearSearch ? [] : ['Support (ACC003)'],
+          )
+        },
+      )
+
       it('THEN should expose the results and flag the field as searching', async () => {
         const { result } = renderHook(
           () => useXeroIntegrationItemSearch(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
@@ -222,6 +267,51 @@ describe('useXeroIntegrationItems', () => {
     })
 
     describe('WHEN refresh is called', () => {
+      it.each([
+        [MappableTypeEnum.BillableMetric, 'standard', buildItemsRefetchMock],
+        [MappingTypeEnum.Account, 'account', buildAccountsRefetchMock],
+      ] as const)(
+        'THEN should update an active search after refreshing %s',
+        async (formType, itemType, buildRefreshMock) => {
+          const oldItem = buildItem('2', 'Another Item', 'ACC002')
+          const updatedItem = buildItem('2', 'Another Updated Item', 'ACC002')
+          const addedItem = buildItem('3', 'Another Added Item', 'ACC003')
+          const { result } = renderHook(
+            () => ({
+              catalog: useXeroIntegrationItems(formType, INTEGRATION_ID),
+              field: useXeroIntegrationItemSearch(formType, INTEGRATION_ID),
+            }),
+            {
+              wrapper: createWrapper([
+                buildGetItemsMock({ itemType }, [oldItem]),
+                buildGetItemsMock({ itemType, searchTerm: 'another' }, [oldItem]),
+                buildRefreshMock(),
+                buildGetItemsMock({ itemType }, [updatedItem, addedItem]),
+                buildGetItemsMock({ itemType, searchTerm: 'another' }, [updatedItem, addedItem]),
+              ]),
+            },
+          )
+
+          await waitFor(() => expect(result.current.catalog.items).toHaveLength(1))
+          await act(async () => {
+            await result.current.field.search?.({ variables: { searchTerm: 'another' } })
+          })
+          expect(result.current.field.searchResults.map(({ label }) => label)).toEqual([
+            'Another Item (ACC002)',
+          ])
+
+          act(() => result.current.catalog.refresh())
+
+          await waitFor(() => expect(result.current.catalog.items).toHaveLength(2))
+          await waitFor(() =>
+            expect(result.current.field.searchResults.map(({ label }) => label)).toEqual([
+              'Another Updated Item (ACC002)',
+              'Another Added Item (ACC003)',
+            ]),
+          )
+        },
+      )
+
       it('THEN should trigger the item refetch outside of an account context', async () => {
         const { result } = renderHook(
           () => useXeroIntegrationItems(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
