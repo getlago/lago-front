@@ -5220,7 +5220,7 @@
   "text_1791485670326bz5dr6tcop3": "Create rate card",
   "text_1791485670326kzyf0uhsn23": "Rate phases",
   "text_1791485670326hf9c29bdje6": "Add a phase",
-  "text_1791485670326e1zbmola1n3": "The last phase must run forever. Add another phase or remove its end date to continue.",
+  "text_1791485670326e1zbmola1n3": "Only the last phase can run forever. Make sure all previous phases have a defined duration before continuing.",
   "text_1791485670326zpgh4ogfe6t": "Applied rate card <a data-text=\"{{rateCardName}}\" href=\"{{rateCardUrl}}\">-</a> successfully created",
   "text_1791485670327tovqupaf61o": "Applied rate card successfully created",
   "text_1791833366840i00h4qnyjbw": "Apply a rate card",
