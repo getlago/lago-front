@@ -93,13 +93,6 @@ const getAttributionGenerationWindow = (
   return { fromDatetime: from.toISO() ?? anchor.fromDatetime, toDatetime: snapshotAt }
 }
 
-const isAttributionWindowStartMoved = (
-  { fromDatetime }: AttributionTreeWindow,
-  anchor: AttributionTreeUsage,
-): boolean =>
-  !!fromDatetime &&
-  DateTime.fromISO(fromDatetime).toMillis() !== DateTime.fromISO(anchor.fromDatetime).toMillis()
-
 // `errorLink` in `init.ts` already toasts GraphQL errors, only the rest is ours to report.
 export const notifyAttributionError = (error: unknown): void => {
   if (error instanceof ApolloError && error.graphQLErrors.length) return
@@ -263,7 +256,7 @@ export const useAttributionTree = ({
       const request = query({}).then((usage) => {
         const window = getAttributionGenerationWindow(generation, usage)
 
-        return isAttributionWindowStartMoved(window, usage) ? query(window) : usage
+        return window.toDatetime ? query(window) : usage
       })
 
       generation.anchor = request

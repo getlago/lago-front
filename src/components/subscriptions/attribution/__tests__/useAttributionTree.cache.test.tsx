@@ -27,6 +27,8 @@ const variables = {
   subscriptionId: 'subscription-1',
   basis: AttributedUsageBasisEnum.Units,
   limit: 50,
+  fromDatetime: '2026-09-01T00:00:00.000Z',
+  toDatetime: '2026-09-30T23:59:59.000Z',
 }
 
 const DAY_MS = 86_400_000

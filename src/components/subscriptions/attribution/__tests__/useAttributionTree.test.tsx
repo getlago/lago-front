@@ -31,11 +31,18 @@ const getChildLevels = (parentCode: string | null): AttributionLevel[] => {
   return []
 }
 
-const variables = {
+const currentPeriodVariables = {
   subscriptionId: 'subscription-1',
   basis: AttributedUsageBasisEnum.Units,
   limit: 50,
 }
+
+const userWindow = {
+  fromDatetime: '2026-09-01T00:00:00.000Z',
+  toDatetime: '2026-09-30T23:59:59.000Z',
+}
+
+const variables = { ...currentPeriodVariables, ...userWindow }
 
 const ROOT_KEY = getAttributionNodeKey([])
 const rndPath: AttributionPathStep[] = [{ code: 'department', value: 'rnd' }]
@@ -515,6 +522,27 @@ describe('useAttributionTree', () => {
     const SNAPSHOT_1 = '2026-10-30T10:00:00.000Z'
     const SNAPSHOT_2 = '2026-10-30T10:05:00.000Z'
     const REFRESHED_ROOT_FROM = '2026-10-02T00:00:00.000Z'
+    const pinnedWindow = { fromDatetime: ROOT_FROM, toDatetime: SNAPSHOT_1 }
+
+    const getCallVariables = (): Array<Record<string, unknown>> =>
+      mockQuery.mock.calls.map(([options]) => options.variables)
+
+    const renderCurrentPeriodTree = () => renderTree({ variables: currentPeriodVariables })
+
+    const renderLoadedCurrentPeriodTree = async (
+      defaultWindowUsage = buildUsage(['rnd', 'gtm'], { fromDatetime: ROOT_FROM }),
+      pinnedWindowUsage = defaultWindowUsage,
+    ) => {
+      mockQuery
+        .mockReturnValueOnce(resolveUsage(defaultWindowUsage))
+        .mockReturnValueOnce(resolveUsage(pinnedWindowUsage))
+
+      const hook = renderCurrentPeriodTree()
+
+      await waitFor(() => expect(hook.result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+
+      return hook
+    }
 
     const expandRnd = async (result: ReturnType<typeof renderTree>['result']) => {
       mockQuery.mockReturnValue(resolveUsage(buildUsage(['eng'])))
@@ -531,42 +559,51 @@ describe('useAttributionTree', () => {
     })
 
     describe('WHEN the root loads', () => {
-      it('THEN should send the root request without a window', async () => {
-        await renderLoadedTree()
+      it('THEN should probe the default window, then reload the first page on the pinned window', async () => {
+        const { result } = await renderLoadedCurrentPeriodTree(
+          buildUsage(['rnd', 'gtm'], { fromDatetime: ROOT_FROM }),
+          buildUsage(['gtm', 'rnd'], { fromDatetime: ROOT_FROM }),
+        )
 
+        const root = result.current.nodes[ROOT_KEY]
+
+        expect(mockQuery).toHaveBeenCalledTimes(2)
         expect(getQueryVariables(0)).not.toHaveProperty('fromDatetime')
         expect(getQueryVariables(0)).not.toHaveProperty('toDatetime')
+        expect(getQueryVariables(1)).toEqual(
+          expect.objectContaining({ groupBy: 'department', page: 1, ...pinnedWindow }),
+        )
+        expect(
+          root?.status === 'loaded' && root.blocks[0].usages[0].rows.map(({ value }) => value),
+        ).toEqual(['gtm', 'rnd'])
       })
     })
 
     describe('WHEN a node is expanded after the root loaded', () => {
       it('THEN should pin its requests to the root window start and the reset time', async () => {
-        const { result } = await renderLoadedTree(
-          buildUsage(['rnd', 'gtm'], { fromDatetime: ROOT_FROM }),
-        )
+        const { result } = await renderLoadedCurrentPeriodTree()
 
         await expandRnd(result)
 
-        expect(getQueryVariables(1)).toEqual(
-          expect.objectContaining({ fromDatetime: ROOT_FROM, toDatetime: SNAPSHOT_1 }),
-        )
-        expect(getQueryVariables(2)).toEqual(
-          expect.objectContaining({ fromDatetime: ROOT_FROM, toDatetime: SNAPSHOT_1 }),
-        )
+        expect(getQueryVariables(2)).toEqual(expect.objectContaining(pinnedWindow))
+        expect(getQueryVariables(3)).toEqual(expect.objectContaining(pinnedWindow))
       })
     })
 
     describe('WHEN the tree is refreshed later', () => {
-      it('THEN should hold the node reloads until the root answers, then pin them to the new snapshot', async () => {
-        const { result } = await renderLoadedTree()
+      it('THEN should hold the node reloads until the root answers, then pin every request to the new snapshot', async () => {
+        const { result } = await renderLoadedCurrentPeriodTree()
 
         await expandRnd(result)
 
-        let resolveRoot: (value: unknown) => void = () => undefined
+        let resolveProbe: (value: unknown) => void = () => undefined
 
         jest.setSystemTime(new Date(SNAPSHOT_2))
         mockQuery.mockClear()
-        mockQuery.mockReturnValueOnce(new Promise((resolve) => (resolveRoot = resolve)))
+        mockQuery.mockReturnValue(
+          resolveUsage(buildUsage(['rnd', 'gtm'], { fromDatetime: REFRESHED_ROOT_FROM })),
+        )
+        mockQuery.mockReturnValueOnce(new Promise((resolve) => (resolveProbe = resolve)))
 
         await act(async () => result.current.refresh())
 
@@ -574,7 +611,7 @@ describe('useAttributionTree', () => {
         expect(getQueryVariables(0)).not.toHaveProperty('toDatetime')
 
         await act(async () =>
-          resolveRoot({
+          resolveProbe({
             data: {
               attributedUsage: buildUsage(['rnd', 'gtm'], { fromDatetime: REFRESHED_ROOT_FROM }),
             },
@@ -582,13 +619,13 @@ describe('useAttributionTree', () => {
         )
         await waitFor(() => expect(result.current.nodes[RND_KEY]?.status).toBe('loaded'))
 
-        expect(mockQuery).toHaveBeenCalledTimes(3)
-        expect(getQueryVariables(1)).toEqual(
-          expect.objectContaining({ fromDatetime: REFRESHED_ROOT_FROM, toDatetime: SNAPSHOT_2 }),
-        )
-        expect(getQueryVariables(2)).toEqual(
-          expect.objectContaining({ fromDatetime: REFRESHED_ROOT_FROM, toDatetime: SNAPSHOT_2 }),
-        )
+        const refreshedWindow = { fromDatetime: REFRESHED_ROOT_FROM, toDatetime: SNAPSHOT_2 }
+
+        expect(getCallVariables().slice(1)).toEqual([
+          expect.objectContaining({ groupBy: 'department', page: 1, ...refreshedWindow }),
+          expect.objectContaining({ groupBy: 'team', ...refreshedWindow }),
+          expect.objectContaining({ groupBy: 'cost_center', ...refreshedWindow }),
+        ])
       })
     })
 
@@ -598,12 +635,9 @@ describe('useAttributionTree', () => {
       const clampedWindow = { fromDatetime: CLAMPED_ROOT_FROM, toDatetime: SNAPSHOT_1 }
 
       it('THEN should reload the first page on the clamped window before pinning the others to it', async () => {
-        mockQuery.mockReturnValue(
-          resolveUsage(buildUsage(['gtm', 'rnd'], { fromDatetime: CLAMPED_ROOT_FROM })),
-        )
-
-        const { result } = await renderLoadedTree(
+        const { result } = await renderLoadedCurrentPeriodTree(
           buildUsage(['rnd', 'gtm'], { fromDatetime: DEFAULT_ROOT_FROM }),
+          buildUsage(['gtm', 'rnd'], { fromDatetime: CLAMPED_ROOT_FROM }),
         )
 
         await expandRnd(result)
@@ -635,7 +669,7 @@ describe('useAttributionTree', () => {
           ),
         )
 
-        const { result } = renderTree()
+        const { result } = renderCurrentPeriodTree()
 
         await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
         await act(async () => result.current.loadMore([], 0))
@@ -645,7 +679,7 @@ describe('useAttributionTree', () => {
         expect(
           root?.status === 'loaded' && root.blocks[0].usages[0].rows.map(({ value }) => value),
         ).toEqual(['B', 'A'])
-        expect(mockQuery.mock.calls.slice(1).map(([options]) => options.variables)).toEqual([
+        expect(getCallVariables().slice(1)).toEqual([
           expect.objectContaining({ page: 1, ...clampedWindow }),
           expect.objectContaining({ page: 2, ...clampedWindow }),
         ])
@@ -662,7 +696,7 @@ describe('useAttributionTree', () => {
           ),
         )
 
-        const { result } = renderTree()
+        const { result } = renderCurrentPeriodTree()
 
         await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
         await act(async () => result.current.loadMore([], 0))
@@ -676,7 +710,7 @@ describe('useAttributionTree', () => {
         const refreshedWindow = { fromDatetime: '2026-09-29T10:05:00.000Z', toDatetime: SNAPSHOT_2 }
 
         expect(getQueryVariables(0)).not.toHaveProperty('toDatetime')
-        expect(mockQuery.mock.calls.slice(1).map(([options]) => options.variables)).toEqual([
+        expect(getCallVariables().slice(1)).toEqual([
           expect.objectContaining({ page: 1, ...refreshedWindow }),
           expect.objectContaining({ page: 2, ...refreshedWindow }),
         ])
@@ -685,16 +719,11 @@ describe('useAttributionTree', () => {
   })
 
   describe('GIVEN an explicit window in the variables', () => {
-    const userWindow = {
-      fromDatetime: '2026-09-01T00:00:00.000Z',
-      toDatetime: '2026-09-30T23:59:59.000Z',
-    }
-
     describe('WHEN the root and a node load', () => {
-      it('THEN should send the window unchanged on every request', async () => {
+      it('THEN should send the window unchanged on every request, without a probe', async () => {
         mockQuery.mockReturnValueOnce(resolveUsage(buildUsage(['rnd'])))
 
-        const { result } = renderTree({ variables: { ...variables, ...userWindow } })
+        const { result } = renderTree()
 
         await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
 
