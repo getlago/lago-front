@@ -147,6 +147,23 @@ describe('usePaymentTerm', () => {
         })
       })
     })
+
+    describe('GIVEN an end-of-month term of zero days', () => {
+      describe('WHEN it is formatted', () => {
+        it.each([PaymentTermTypeEnum.NetEndOfMonth, PaymentTermTypeEnum.DaysEndOfMonth])(
+          'THEN should read %s as end of month',
+          (termType) => {
+            setup().formatPaymentTerm({ termType, days: 0 })
+
+            expect(mockTranslate).toHaveBeenCalledWith(
+              PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.EndOfMonth],
+              {},
+              0,
+            )
+          },
+        )
+      })
+    })
   })
 
   describe('getPaymentTermCopy', () => {
