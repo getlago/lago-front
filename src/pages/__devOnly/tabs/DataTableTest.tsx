@@ -29,35 +29,41 @@ const VALUE_META = { align: 'right', shrink: true, className: 'min-w-24' } as co
 /* Column groups, sticky columns, footer and show more columns */
 
 const METRICS = [
-  { key: 'tokens', label: 'Tokens' },
-  { key: 'seats', label: 'Seats' },
-  { key: 'storage', label: 'Storage (GB)' },
-  { key: 'requests', label: 'API requests' },
-  { key: 'agents', label: 'Agent calls' },
+  { key: 'tokens', label: 'Tokens', base: 120_000 },
+  { key: 'seats', label: 'Seats', base: 42 },
+  { key: 'storage', label: 'Storage (GB)', base: 310 },
+  { key: 'requests', label: 'API requests', base: 8_400 },
+  { key: 'agents', label: 'Agent calls', base: 950 },
+  { key: 'images', label: 'Images', base: 1_800 },
+  { key: 'audio', label: 'Audio minutes', base: 640 },
+  { key: 'embeddings', label: 'Embeddings', base: 52_000 },
+  { key: 'searches', label: 'Searches', base: 7_300 },
+  { key: 'webhooks', label: 'Webhooks', base: 2_100 },
+  { key: 'exports', label: 'Exports', base: 85 },
+  { key: 'bandwidth', label: 'Bandwidth (GB)', base: 1_250 },
+  { key: 'compute', label: 'Compute hours', base: 430 },
+  { key: 'emails', label: 'Emails', base: 9_800 },
+  { key: 'sms', label: 'SMS', base: 1_150 },
 ] as const
 
 type MetricKey = (typeof METRICS)[number]['key']
 type Usage = { id: string; team: string; metrics: Record<MetricKey, number> }
 
-const USAGES: Usage[] = [
-  {
-    id: 'rnd',
-    team: 'R&D',
-    metrics: { tokens: 120_000, seats: 42, storage: 310, requests: 8_400, agents: 950 },
-  },
-  {
-    id: 'sales',
-    team: 'Sales',
-    metrics: { tokens: 18_500, seats: 12, storage: 25, requests: 1_200, agents: 40 },
-  },
-  {
-    id: 'ops',
-    team: 'Operations',
-    metrics: { tokens: 4_200, seats: 8, storage: 90, requests: 600, agents: 15 },
-  },
+const TEAMS = [
+  { id: 'rnd', team: 'R&D', share: 1 },
+  { id: 'sales', team: 'Sales', share: 0.15 },
+  { id: 'ops', team: 'Operations', share: 0.04 },
 ]
 
-const METRICS_PER_PAGE = 2
+const USAGES: Usage[] = TEAMS.map(({ id, team, share }) => ({
+  id,
+  team,
+  metrics: Object.fromEntries(
+    METRICS.map(({ key, base }) => [key, Math.max(1, Math.round(base * share))]),
+  ) as Record<MetricKey, number>,
+}))
+
+const METRICS_PER_PAGE = 5
 
 const usageColumnHelper = createDataTableColumnHelper<Usage>()
 
