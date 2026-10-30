@@ -2,14 +2,14 @@ import { ReactNode, TdHTMLAttributes, ThHTMLAttributes } from 'react'
 
 import { tw } from '~/styles/utils'
 
-export type DataTablePinned = false | 'start' | 'end'
-export type DataTableAlign = 'left' | 'right'
-export type DataTableTone = 'default' | 'muted'
+export type ComposableTablePinned = false | 'start' | 'end'
+export type ComposableTableAlign = 'left' | 'right'
+export type ComposableTableTone = 'default' | 'muted'
 
-export type DataTableCellVariants = {
-  pinned?: DataTablePinned
-  align?: DataTableAlign
-  tone?: DataTableTone
+export type ComposableTableCellVariants = {
+  pinned?: ComposableTablePinned
+  align?: ComposableTableAlign
+  tone?: ComposableTableTone
   shrink?: boolean
 }
 
@@ -18,7 +18,7 @@ const getCellClassName = ({
   align = 'left',
   tone = 'default',
   shrink = false,
-}: DataTableCellVariants): string =>
+}: ComposableTableCellVariants): string =>
   tw(
     'h-12 whitespace-nowrap border-b border-grey-300 px-1 py-0',
     align === 'right' ? 'text-right' : 'text-left',
@@ -29,9 +29,9 @@ const getCellClassName = ({
     tone === 'default' && pinned !== 'end' && 'bg-white',
   )
 
-type ThProps = ThHTMLAttributes<HTMLTableCellElement> & DataTableCellVariants
+type ThProps = ThHTMLAttributes<HTMLTableCellElement> & ComposableTableCellVariants
 
-export const DataTableTh = ({
+export const ComposableTableTh = ({
   pinned,
   align,
   tone,
@@ -42,9 +42,9 @@ export const DataTableTh = ({
   <th className={tw(getCellClassName({ pinned, align, tone, shrink }), className)} {...props} />
 )
 
-type TdProps = TdHTMLAttributes<HTMLTableCellElement> & DataTableCellVariants
+type TdProps = TdHTMLAttributes<HTMLTableCellElement> & ComposableTableCellVariants
 
-export const DataTableTd = ({
+export const ComposableTableTd = ({
   pinned,
   align,
   tone,
@@ -55,7 +55,7 @@ export const DataTableTd = ({
   <td className={tw(getCellClassName({ pinned, align, tone, shrink }), className)} {...props} />
 )
 
-export const DataTableRoot = ({
+export const ComposableTableRoot = ({
   children,
   'data-test': dataTest,
 }: {

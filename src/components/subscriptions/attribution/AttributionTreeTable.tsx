@@ -4,13 +4,13 @@ import { ReactNode, useMemo } from 'react'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import {
-  createDataTableColumnHelper,
-  DataTableExpandToggle,
-  DataTableLoadMore,
-  DataTableTreeCell,
-  DataTableView,
-  useDataTable,
-} from '~/components/designSystem/DataTable'
+  ComposableTableExpandToggle,
+  ComposableTableLoadMore,
+  ComposableTableTreeCell,
+  ComposableTableView,
+  createComposableTableColumnHelper,
+  useComposableTable,
+} from '~/components/designSystem/ComposableTable'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -71,7 +71,7 @@ type AttributionTreeRow =
       isLoading: boolean
     }
 
-const columnHelper = createDataTableColumnHelper<AttributionTreeRow>()
+const columnHelper = createComposableTableColumnHelper<AttributionTreeRow>()
 
 const VALUE_COLUMN_META = { align: 'right', shrink: true, className: 'min-w-24' } as const
 
@@ -257,19 +257,19 @@ export const AttributionTreeTable = ({
 
         if (original.kind === 'loadMore') {
           return (
-            <DataTableTreeCell depth={row.depth}>
-              <DataTableLoadMore
+            <ComposableTableTreeCell depth={row.depth}>
+              <ComposableTableLoadMore
                 label={translate('text_1792668632007fulz8omi190')}
                 isLoading={original.isLoading}
                 onLoadMore={() => onLoadMore(original.path, original.blockIndex)}
                 data-test={ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID}
               />
-            </DataTableTreeCell>
+            </ComposableTableTreeCell>
           )
         }
 
         const toggle = row.getCanExpand() ? (
-          <DataTableExpandToggle
+          <ComposableTableExpandToggle
             label={original.label}
             isExpanded={row.getIsExpanded()}
             isLoading={nodes[original.id]?.status === 'loading'}
@@ -279,7 +279,7 @@ export const AttributionTreeTable = ({
         ) : undefined
 
         return (
-          <DataTableTreeCell depth={row.depth} toggle={toggle}>
+          <ComposableTableTreeCell depth={row.depth} toggle={toggle}>
             <Chip label={original.typeLabel} variant="captionCode" size="small" />
             <Typography
               variant="body"
@@ -288,7 +288,7 @@ export const AttributionTreeTable = ({
             >
               {original.label}
             </Typography>
-          </DataTableTreeCell>
+          </ComposableTableTreeCell>
         )
       },
     })
@@ -340,7 +340,7 @@ export const AttributionTreeTable = ({
     return columns.length ? [entityColumn, chargesColumn, totalColumn] : [entityColumn, totalColumn]
   }, [basis, chargeLabel, columns, currency, nodes, onLoadMore, showMoreColumns, totals, translate])
 
-  const table = useDataTable({
+  const table = useComposableTable({
     data: rows,
     columns: tableColumns,
     getRowId: (row) => row.id,
@@ -352,7 +352,7 @@ export const AttributionTreeTable = ({
   })
 
   return (
-    <DataTableView
+    <ComposableTableView
       table={table}
       isLoading={isLoading}
       hasFooter

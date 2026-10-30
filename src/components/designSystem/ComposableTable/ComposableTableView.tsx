@@ -10,13 +10,17 @@ import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 import {
-  DataTableCellVariants,
-  DataTableRoot,
-  DataTableTd,
-  DataTableTh,
-  DataTableTone,
-} from './DataTablePrimitives'
-import { DataTableColumn, DataTableInstance, DataTableRow } from './useDataTable'
+  ComposableTableCellVariants,
+  ComposableTableRoot,
+  ComposableTableTd,
+  ComposableTableTh,
+  ComposableTableTone,
+} from './ComposableTablePrimitives'
+import {
+  ComposableTableColumn,
+  ComposableTableInstance,
+  ComposableTableRow,
+} from './useComposableTable'
 
 const DEFAULT_LOADING_ROW_COUNT = 3
 
@@ -35,34 +39,34 @@ const renderText = (
 }
 
 const getColumnVariants = <TData extends RowData>(
-  column: DataTableColumn<TData>,
-): DataTableCellVariants & { className?: string } => ({
+  column: ComposableTableColumn<TData>,
+): ComposableTableCellVariants & { className?: string } => ({
   pinned: column.getIsPinned(),
   align: column.columnDef.meta?.align,
   shrink: column.columnDef.meta?.shrink,
   className: column.columnDef.meta?.className,
 })
 
-export type DataTableFooterRow = {
+export type ComposableTableFooterRow = {
   id: string
   cells: Partial<Record<string, ReactNode>>
 }
 
-type DataTableViewProps<TData extends RowData> = {
-  table: DataTableInstance<TData>
+type ComposableTableViewProps<TData extends RowData> = {
+  table: ComposableTableInstance<TData>
   isLoading?: boolean
   loadingRowCount?: number
   hasError?: boolean
   placeholder?: TablePlaceholder
   hasFooter?: boolean
-  footerRows?: DataTableFooterRow[]
-  getRowTone?: (row: DataTableRow<TData>) => DataTableTone
-  getRowDataTest?: (row: DataTableRow<TData>) => string | undefined
+  footerRows?: ComposableTableFooterRow[]
+  getRowTone?: (row: ComposableTableRow<TData>) => ComposableTableTone
+  getRowDataTest?: (row: ComposableTableRow<TData>) => string | undefined
   footerDataTest?: string
   'data-test'?: string
 }
 
-export const DataTableView = <TData extends RowData>({
+export const ComposableTableView = <TData extends RowData>({
   table,
   isLoading = false,
   loadingRowCount = DEFAULT_LOADING_ROW_COUNT,
@@ -74,7 +78,7 @@ export const DataTableView = <TData extends RowData>({
   getRowDataTest,
   footerDataTest,
   'data-test': dataTest,
-}: DataTableViewProps<TData>): JSX.Element => {
+}: ComposableTableViewProps<TData>): JSX.Element => {
   const { translate } = useInternationalization()
   const leafColumns = table.getAllLeafColumns()
   const rows = table.getRowModel().rows
@@ -105,12 +109,12 @@ export const DataTableView = <TData extends RowData>({
       return Array.from({ length: loadingRowCount }, (_, index) => (
         <tr key={`loading-${index}`}>
           {leafColumns.map((column) => (
-            <DataTableTd key={column.id} {...getColumnVariants(column)}>
+            <ComposableTableTd key={column.id} {...getColumnVariants(column)}>
               <Skeleton
                 variant="text"
                 className={column.getIsPinned() === 'start' ? 'w-40' : 'ml-auto w-16'}
               />
-            </DataTableTd>
+            </ComposableTableTd>
           ))}
         </tr>
       ))
@@ -124,7 +128,7 @@ export const DataTableView = <TData extends RowData>({
           if (cell.getIsCovered()) return null
 
           return (
-            <DataTableTd
+            <ComposableTableTd
               key={cell.id}
               colSpan={cell.getColSpan()}
               tone={getRowTone?.(row)}
@@ -135,7 +139,7 @@ export const DataTableView = <TData extends RowData>({
                 'body',
                 'grey700',
               )}
-            </DataTableTd>
+            </ComposableTableTd>
           )
         })}
       </tr>
@@ -151,9 +155,9 @@ export const DataTableView = <TData extends RowData>({
           {footerRows.map(({ id, cells }) => (
             <tr key={id}>
               {leafColumns.map((column) => (
-                <DataTableTd key={column.id} tone="muted" {...getColumnVariants(column)}>
+                <ComposableTableTd key={column.id} tone="muted" {...getColumnVariants(column)}>
                   {renderText(cells[column.id], 'body', 'grey700')}
-                </DataTableTd>
+                </ComposableTableTd>
               ))}
             </tr>
           ))}
@@ -169,13 +173,13 @@ export const DataTableView = <TData extends RowData>({
       <tfoot>
         <tr data-test={footerDataTest}>
           {leafFooterGroup.headers.map((footer) => (
-            <DataTableTd key={footer.id} tone="muted" {...getColumnVariants(footer.column)}>
+            <ComposableTableTd key={footer.id} tone="muted" {...getColumnVariants(footer.column)}>
               {renderText(
                 flexRender(footer.column.columnDef.footer, footer.getContext()),
                 'body',
                 'grey700',
               )}
-            </DataTableTd>
+            </ComposableTableTd>
           ))}
         </tr>
       </tfoot>
@@ -183,7 +187,7 @@ export const DataTableView = <TData extends RowData>({
   }
 
   return (
-    <DataTableRoot data-test={dataTest}>
+    <ComposableTableRoot data-test={dataTest}>
       <thead>
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
@@ -194,7 +198,7 @@ export const DataTableView = <TData extends RowData>({
               const variants = getColumnVariants(header.column)
 
               return (
-                <DataTableTh
+                <ComposableTableTh
                   key={header.id}
                   colSpan={header.colSpan}
                   rowSpan={header.rowSpan}
@@ -208,7 +212,7 @@ export const DataTableView = <TData extends RowData>({
                     'captionHl',
                     'grey600',
                   )}
-                </DataTableTh>
+                </ComposableTableTh>
               )
             })}
           </tr>
@@ -216,6 +220,6 @@ export const DataTableView = <TData extends RowData>({
       </thead>
       <tbody>{renderBody()}</tbody>
       {renderFooter()}
-    </DataTableRoot>
+    </ComposableTableRoot>
   )
 }

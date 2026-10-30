@@ -4,17 +4,17 @@ import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import {
-  createDataTableColumnHelper,
-  DataTableExpandToggle,
-  DataTableFooterRow,
-  DataTableGroupHeader,
-  DataTableInlineError,
-  DataTableLoadMore,
-  DataTableSkeletonCell,
-  DataTableTreeCell,
-  DataTableView,
-  useDataTable,
-} from '~/components/designSystem/DataTable'
+  ComposableTableExpandToggle,
+  ComposableTableFooterRow,
+  ComposableTableGroupHeader,
+  ComposableTableInlineError,
+  ComposableTableLoadMore,
+  ComposableTableSkeletonCell,
+  ComposableTableTreeCell,
+  ComposableTableView,
+  createComposableTableColumnHelper,
+  useComposableTable,
+} from '~/components/designSystem/ComposableTable'
 import { Typography } from '~/components/designSystem/Typography'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
@@ -65,7 +65,7 @@ const USAGES: Usage[] = TEAMS.map(({ id, team, share }) => ({
 
 const METRICS_PER_PAGE = 5
 
-const usageColumnHelper = createDataTableColumnHelper<Usage>()
+const usageColumnHelper = createComposableTableColumnHelper<Usage>()
 
 const GroupedExample = (): JSX.Element => {
   const [visibleCount, setVisibleCount] = useState(METRICS_PER_PAGE)
@@ -87,18 +87,18 @@ const GroupedExample = (): JSX.Element => {
       USAGES.reduce((total, usage) => total + usage.metrics[key], 0)
 
     const renderValue = (index: number, value: number): ReactNode =>
-      index < loadedCount ? value : <DataTableSkeletonCell />
+      index < loadedCount ? value : <ComposableTableSkeletonCell />
 
     return usageColumnHelper.columns([
       usageColumnHelper.accessor('team', { header: 'Team', footer: 'Total' }),
       usageColumnHelper.group({
         id: 'metrics',
         header: () => (
-          <DataTableGroupHeader
+          <ComposableTableGroupHeader
             label="Billable metrics"
             action={
               visibleCount < METRICS.length && (
-                <DataTableLoadMore
+                <ComposableTableLoadMore
                   label="Show more"
                   isLoading={isLoadingColumns}
                   onLoadMore={showMoreColumns}
@@ -129,14 +129,14 @@ const GroupedExample = (): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleCount, loadedCount])
 
-  const table = useDataTable({
+  const table = useComposableTable({
     data: USAGES,
     columns,
     getRowId: (row) => row.id,
     initialState: { columnPinning: { start: ['team'], end: ['total'] } },
   })
 
-  return <DataTableView table={table} hasFooter />
+  return <ComposableTableView table={table} hasFooter />
 }
 
 /* Table states */
@@ -148,7 +148,7 @@ const TABLE_STATES: TableState[] = ['data', 'loading', 'empty', 'error']
 const StatesExample = (): JSX.Element => {
   const [state, setState] = useState<TableState>('data')
 
-  const table = useDataTable({
+  const table = useComposableTable({
     data: state === 'data' ? USAGES : [],
     columns: useMemo(
       () =>
@@ -180,7 +180,7 @@ const StatesExample = (): JSX.Element => {
           </Button>
         ))}
       </div>
-      <DataTableView
+      <ComposableTableView
         table={table}
         isLoading={state === 'loading'}
         hasError={state === 'error'}
@@ -238,7 +238,7 @@ const fetchChildren = async (
   })
 }
 
-const treeColumnHelper = createDataTableColumnHelper<TreeRow>()
+const treeColumnHelper = createComposableTableColumnHelper<TreeRow>()
 
 const TreeExample = (): JSX.Element => {
   const [children, setChildren] = useState<Record<string, Children>>({})
@@ -330,13 +330,13 @@ const TreeExample = (): JSX.Element => {
 
           if (original.kind === 'error') {
             return (
-              <DataTableTreeCell depth={row.depth}>
-                <DataTableInlineError
+              <ComposableTableTreeCell depth={row.depth}>
+                <ComposableTableInlineError
                   label="Could not load this level."
                   retryLabel="Retry"
                   onRetry={() => loadPage(original.parentId, 1)}
                 />
-              </DataTableTreeCell>
+              </ComposableTableTreeCell>
             )
           }
 
@@ -344,20 +344,20 @@ const TreeExample = (): JSX.Element => {
             const parent = children[original.parentId]
 
             return (
-              <DataTableTreeCell depth={row.depth}>
-                <DataTableLoadMore
+              <ComposableTableTreeCell depth={row.depth}>
+                <ComposableTableLoadMore
                   label="Show more"
                   isLoading={parent?.status === 'loaded' && parent.isLoadingMore}
                   onLoadMore={() =>
                     parent?.status === 'loaded' && loadPage(original.parentId, parent.page + 1)
                   }
                 />
-              </DataTableTreeCell>
+              </ComposableTableTreeCell>
             )
           }
 
           const toggle = row.getCanExpand() ? (
-            <DataTableExpandToggle
+            <ComposableTableExpandToggle
               label={original.name}
               isExpanded={row.getIsExpanded()}
               isLoading={children[original.id]?.status === 'loading'}
@@ -366,11 +366,11 @@ const TreeExample = (): JSX.Element => {
           ) : undefined
 
           return (
-            <DataTableTreeCell depth={row.depth} toggle={toggle}>
+            <ComposableTableTreeCell depth={row.depth} toggle={toggle}>
               <Typography variant="body" color="grey700" noWrap>
                 {original.name}
               </Typography>
-            </DataTableTreeCell>
+            </ComposableTableTreeCell>
           )
         },
       }),
@@ -385,7 +385,7 @@ const TreeExample = (): JSX.Element => {
     [children],
   )
 
-  const table = useDataTable({
+  const table = useComposableTable({
     data: rows,
     columns,
     getRowId: (row) => row.id,
@@ -396,7 +396,7 @@ const TreeExample = (): JSX.Element => {
     onExpandedChange: handleExpandedChange,
   })
 
-  return <DataTableView table={table} isLoading={children[ROOT_ID]?.status !== 'loaded'} />
+  return <ComposableTableView table={table} isLoading={children[ROOT_ID]?.status !== 'loaded'} />
 }
 
 /* Group rows and multi-row footer */
@@ -422,7 +422,7 @@ const formatAmount = (value: number): string =>
 const getFeeAmount = (row: InvoiceRow): number =>
   row.kind === 'fee' ? row.units * row.unitPrice : 0
 
-const invoiceColumnHelper = createDataTableColumnHelper<InvoiceRow>()
+const invoiceColumnHelper = createComposableTableColumnHelper<InvoiceRow>()
 
 const invoiceColumns = invoiceColumnHelper.columns([
   invoiceColumnHelper.display({
@@ -461,21 +461,21 @@ const invoiceColumns = invoiceColumnHelper.columns([
 
 const subtotal = INVOICE_ROWS.reduce((total, row) => total + getFeeAmount(row), 0)
 
-const INVOICE_FOOTER_ROWS: DataTableFooterRow[] = [
+const INVOICE_FOOTER_ROWS: ComposableTableFooterRow[] = [
   { id: 'subtotal', cells: { unitPrice: 'Subtotal excl. tax', amount: formatAmount(subtotal) } },
   { id: 'tax', cells: { unitPrice: 'Tax (20%)', amount: formatAmount(subtotal * TAX_RATE) } },
   { id: 'total', cells: { unitPrice: 'Total', amount: formatAmount(subtotal * (1 + TAX_RATE)) } },
 ]
 
 const GroupRowsExample = (): JSX.Element => {
-  const table = useDataTable({
+  const table = useComposableTable({
     data: INVOICE_ROWS,
     columns: invoiceColumns,
     getRowId: (row) => row.id,
   })
 
   return (
-    <DataTableView
+    <ComposableTableView
       table={table}
       footerRows={INVOICE_FOOTER_ROWS}
       getRowTone={(row) => (row.original.kind === 'group' ? 'muted' : 'default')}
@@ -510,7 +510,7 @@ const EXAMPLES = [
   },
 ]
 
-export const DataTableTest = (): JSX.Element => (
+export const ComposableTableTest = (): JSX.Element => (
   <div className="flex flex-col gap-12">
     {EXAMPLES.map(({ title, description, component }) => (
       <section key={title} className="flex flex-col gap-4">
@@ -526,12 +526,12 @@ export const DataTableTest = (): JSX.Element => (
   </div>
 )
 
-export const dataTableTab = {
-  title: 'Data table',
-  link: generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'data-table' }),
+export const composableTableTab = {
+  title: 'Composable table',
+  link: generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'composable-table' }),
   component: (
     <div className="px-12 pb-20 pt-8">
-      <DataTableTest />
+      <ComposableTableTest />
     </div>
   ),
 }

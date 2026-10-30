@@ -6,9 +6,9 @@ import { Typography } from '~/components/designSystem/Typography'
 
 const INDENT_STEP_PX = 16
 
-export const DataTableToggleSpacer = (): JSX.Element => <span className="size-4 shrink-0" />
+export const ComposableTableToggleSpacer = (): JSX.Element => <span className="size-4 shrink-0" />
 
-type DataTableExpandToggleProps = {
+type ComposableTableExpandToggleProps = {
   label: string
   isExpanded: boolean
   isLoading?: boolean
@@ -16,13 +16,13 @@ type DataTableExpandToggleProps = {
   'data-test'?: string
 }
 
-export const DataTableExpandToggle = ({
+export const ComposableTableExpandToggle = ({
   label,
   isExpanded,
   isLoading = false,
   onToggle,
   'data-test': dataTest,
-}: DataTableExpandToggleProps): JSX.Element => (
+}: ComposableTableExpandToggleProps): JSX.Element => (
   <Button
     className="-m-1"
     variant="quaternary"
@@ -37,36 +37,36 @@ export const DataTableExpandToggle = ({
   />
 )
 
-type DataTableTreeCellProps = {
+type ComposableTableTreeCellProps = {
   depth: number
   toggle?: ReactNode
   children: ReactNode
 }
 
-export const DataTableTreeCell = ({
+export const ComposableTableTreeCell = ({
   depth,
-  toggle = <DataTableToggleSpacer />,
+  toggle = <ComposableTableToggleSpacer />,
   children,
-}: DataTableTreeCellProps): JSX.Element => (
+}: ComposableTableTreeCellProps): JSX.Element => (
   <div className="flex items-center gap-2" style={{ paddingLeft: depth * INDENT_STEP_PX }}>
     {toggle}
     {children}
   </div>
 )
 
-type DataTableLoadMoreProps = {
+type ComposableTableLoadMoreProps = {
   label: string
   isLoading: boolean
   onLoadMore: () => void
   'data-test'?: string
 }
 
-export const DataTableLoadMore = ({
+export const ComposableTableLoadMore = ({
   label,
   isLoading,
   onLoadMore,
   'data-test': dataTest,
-}: DataTableLoadMoreProps): JSX.Element => (
+}: ComposableTableLoadMoreProps): JSX.Element => (
   <Button
     variant="inline"
     size="small"
@@ -79,19 +79,19 @@ export const DataTableLoadMore = ({
   </Button>
 )
 
-type DataTableInlineErrorProps = {
+type ComposableTableInlineErrorProps = {
   label: string
   retryLabel: string
   onRetry: () => void
   'data-test'?: string
 }
 
-export const DataTableInlineError = ({
+export const ComposableTableInlineError = ({
   label,
   retryLabel,
   onRetry,
   'data-test': dataTest,
-}: DataTableInlineErrorProps): JSX.Element => (
+}: ComposableTableInlineErrorProps): JSX.Element => (
   <div className="flex items-center gap-2" data-test={dataTest}>
     <Typography variant="caption" color="danger600" noWrap>
       {label}
@@ -102,12 +102,15 @@ export const DataTableInlineError = ({
   </div>
 )
 
-type DataTableGroupHeaderProps = {
+type ComposableTableGroupHeaderProps = {
   label: ReactNode
   action?: ReactNode
 }
 
-export const DataTableGroupHeader = ({ label, action }: DataTableGroupHeaderProps): JSX.Element => (
+export const ComposableTableGroupHeader = ({
+  label,
+  action,
+}: ComposableTableGroupHeaderProps): JSX.Element => (
   <div className="flex items-center justify-between gap-4">
     <Typography variant="captionHl" color="grey600" noWrap>
       {label}
@@ -116,7 +119,7 @@ export const DataTableGroupHeader = ({ label, action }: DataTableGroupHeaderProp
   </div>
 )
 
-export const DataTableSkeletonCell = ({
+export const ComposableTableSkeletonCell = ({
   'data-test': dataTest,
 }: {
   'data-test'?: string
