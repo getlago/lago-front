@@ -2,6 +2,7 @@ import { act, cleanup, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { generatePath } from 'react-router'
 
+import { X402_TEST_CATALOG } from '~/components/settings/integrations/__tests__/x402NetworksFixture'
 import { initializeTranslations } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE } from '~/core/router'
@@ -16,6 +17,14 @@ const DELETE_ACTION = 'Delete connection'
 
 const mockOpenAddDialog = jest.fn()
 const mockOpenDeleteDialog = jest.fn()
+
+jest.mock('~/hooks/useX402Networks', () => ({
+  useX402Networks: () => ({
+    networks: jest.requireActual('~/components/settings/integrations/__tests__/x402NetworksFixture')
+      .X402_TEST_CATALOG,
+    loading: false,
+  }),
+}))
 
 jest.mock('~/components/settings/integrations/AddX402Dialog', () => ({
   useAddX402Dialog: () => ({ openAddX402Dialog: mockOpenAddDialog }),
@@ -88,7 +97,7 @@ describe('X402Integrations', () => {
       await user.click(rowActionsButton())
       await user.click(screen.getByText(EDIT_ACTION))
 
-      expect(mockOpenAddDialog).toHaveBeenCalledWith({ connection })
+      expect(mockOpenAddDialog).toHaveBeenCalledWith({ connection, catalog: X402_TEST_CATALOG })
       expect(mockOpenDeleteDialog).not.toHaveBeenCalled()
     })
 

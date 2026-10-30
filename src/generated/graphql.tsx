@@ -9327,6 +9327,8 @@ export type Query = {
   x402Connection?: Maybe<X402ConnectionObject>;
   /** Query the x402 connections of an organization */
   x402Connections: X402ConnectionObjectCollection;
+  /** Query the networks an x402 connection can accept payments on */
+  x402Networks: Array<X402Network>;
 };
 
 
@@ -13112,6 +13114,24 @@ export enum X402FacilitatorEnum {
   CoinbaseCdp = 'coinbase_cdp'
 }
 
+export type X402Network = {
+  __typename?: 'X402Network';
+  environment: X402NetworkEnvironmentEnum;
+  family: X402NetworkFamilyEnum;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
+export enum X402NetworkEnvironmentEnum {
+  Mainnet = 'mainnet',
+  Testnet = 'testnet'
+}
+
+export enum X402NetworkFamilyEnum {
+  Evm = 'evm',
+  Svm = 'svm'
+}
+
 export type X402PayoutAddresses = {
   __typename?: 'X402PayoutAddresses';
   evm?: Maybe<Scalars['String']['output']>;
@@ -16653,6 +16673,13 @@ export type EventTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type EventTypesQuery = { __typename?: 'Query', eventTypes: Array<{ __typename?: 'WebhookEventType', key: EventTypeEnum, name: string, description: string, category: EventCategoryEnum, deprecated: boolean }> };
+
+export type X402NetworkFragment = { __typename?: 'X402Network', id: string, name: string, family: X402NetworkFamilyEnum, environment: X402NetworkEnvironmentEnum };
+
+export type GetX402NetworksQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetX402NetworksQuery = { __typename?: 'Query', x402Networks: Array<{ __typename?: 'X402Network', id: string, name: string, family: X402NetworkFamilyEnum, environment: X402NetworkEnvironmentEnum }> };
 
 export type SideNavInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -23444,6 +23471,14 @@ export const MainOrganizationInfosFragmentDoc = gql`
   canCreateBillingEntity
   authenticationMethods
   authenticatedMethod
+}
+    `;
+export const X402NetworkFragmentDoc = gql`
+    fragment X402Network on X402Network {
+  id
+  name
+  family
+  environment
 }
     `;
 export const AddOnItemFragmentDoc = gql`
@@ -42222,6 +42257,48 @@ export type EventTypesQueryHookResult = ReturnType<typeof useEventTypesQuery>;
 export type EventTypesLazyQueryHookResult = ReturnType<typeof useEventTypesLazyQuery>;
 export type EventTypesSuspenseQueryHookResult = ReturnType<typeof useEventTypesSuspenseQuery>;
 export type EventTypesQueryResult = Apollo.QueryResult<EventTypesQuery, EventTypesQueryVariables>;
+export const GetX402NetworksDocument = gql`
+    query getX402Networks {
+  x402Networks {
+    ...X402Network
+  }
+}
+    ${X402NetworkFragmentDoc}`;
+
+/**
+ * __useGetX402NetworksQuery__
+ *
+ * To run a query within a React component, call `useGetX402NetworksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetX402NetworksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetX402NetworksQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetX402NetworksQuery(baseOptions?: Apollo.QueryHookOptions<GetX402NetworksQuery, GetX402NetworksQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetX402NetworksQuery, GetX402NetworksQueryVariables>(GetX402NetworksDocument, options);
+      }
+export function useGetX402NetworksLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetX402NetworksQuery, GetX402NetworksQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetX402NetworksQuery, GetX402NetworksQueryVariables>(GetX402NetworksDocument, options);
+        }
+// @ts-ignore
+export function useGetX402NetworksSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetX402NetworksQuery, GetX402NetworksQueryVariables>): Apollo.UseSuspenseQueryResult<GetX402NetworksQuery, GetX402NetworksQueryVariables>;
+export function useGetX402NetworksSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetX402NetworksQuery, GetX402NetworksQueryVariables>): Apollo.UseSuspenseQueryResult<GetX402NetworksQuery | undefined, GetX402NetworksQueryVariables>;
+export function useGetX402NetworksSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetX402NetworksQuery, GetX402NetworksQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetX402NetworksQuery, GetX402NetworksQueryVariables>(GetX402NetworksDocument, options);
+        }
+export type GetX402NetworksQueryHookResult = ReturnType<typeof useGetX402NetworksQuery>;
+export type GetX402NetworksLazyQueryHookResult = ReturnType<typeof useGetX402NetworksLazyQuery>;
+export type GetX402NetworksSuspenseQueryHookResult = ReturnType<typeof useGetX402NetworksSuspenseQuery>;
+export type GetX402NetworksQueryResult = Apollo.QueryResult<GetX402NetworksQuery, GetX402NetworksQueryVariables>;
 export const SideNavInfosDocument = gql`
     query SideNavInfos {
   currentVersion {

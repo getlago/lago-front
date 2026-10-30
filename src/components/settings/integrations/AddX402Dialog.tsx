@@ -27,6 +27,7 @@ import {
   useCreateX402ConnectionMutation,
   useUpdateX402ConnectionMutation,
   X402IntegrationDetailsFragmentDoc,
+  X402NetworkFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -73,7 +74,8 @@ const isSilencedByErrorLink = (errors: readonly GraphQLFormattedError[]): boolea
   )
 
 type OpenAddX402DialogData = {
-  connection?: AddX402ConnectionDialogFragment
+  connection: AddX402ConnectionDialogFragment
+  catalog: X402NetworkFragment[]
 }
 
 export const useAddX402Dialog = (): {
@@ -176,7 +178,7 @@ export const useAddX402Dialog = (): {
     const connection = data?.connection
     const isEdition = !!connection
 
-    form.reset(connection ? mapFromApiToForm(connection) : x402DefaultValues, {
+    form.reset(data ? mapFromApiToForm(data.connection, data.catalog) : x402DefaultValues, {
       keepDefaultValues: true,
     })
 
