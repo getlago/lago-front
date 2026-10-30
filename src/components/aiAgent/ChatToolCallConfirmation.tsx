@@ -4,7 +4,11 @@ import { useState } from 'react'
 
 import { useGetAiConversation } from '~/components/aiAgent/hooks/getAiConversation'
 import { useDecideAiToolCall } from '~/components/aiAgent/hooks/useDecideAiToolCall'
-import { formatToolCallArguments, humanizeToolCallName } from '~/components/aiAgent/utils'
+import {
+  formatToolCallArguments,
+  humanizeToolCallName,
+  toChatMessages,
+} from '~/components/aiAgent/utils'
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
@@ -12,6 +16,7 @@ import { addToast } from '~/core/apolloClient'
 import {
   AiConversationToolCallItemFragment,
   AiConversationToolCallStatusEnum,
+  GetAiConversationQuery,
 } from '~/generated/graphql'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -58,8 +63,14 @@ type ChatToolCallConfirmationProps = {
 }
 
 export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationProps) => {
-  const { conversationId, state, decideToolCall, resumeConversation, setPendingToolCalls } =
-    useAiAgent()
+  const {
+    conversationId,
+    state,
+    decideToolCall,
+    resumeConversation,
+    setPendingToolCalls,
+    setPreviousChatMessages,
+  } = useAiAgent()
   const { confirmToolCall, cancelToolCall } = useDecideAiToolCall()
   const { getAiConversation } = useGetAiConversation()
   const { translate } = useInternationalization()
@@ -69,9 +80,7 @@ export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationP
     return null
   }
 
-  const fetchPendingToolCalls = async (): Promise<
-    AiConversationToolCallItemFragment[] | undefined
-  > => {
+  const fetchConversation = async (): Promise<GetAiConversationQuery['aiConversation']> => {
     if (!conversationId) return undefined
 
     const { data } = await getAiConversation({
@@ -79,7 +88,7 @@ export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationP
       fetchPolicy: 'network-only',
     })
 
-    return data?.aiConversation?.pendingToolCalls
+    return data?.aiConversation
   }
 
   // Keeps the answers given here, and drops writes another tab answered meanwhile
@@ -130,14 +139,28 @@ export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationP
     }
 
     // Only the server knows whether the agent carries on: another tab may have answered the rest
-    const pendingToolCalls = await fetchPendingToolCalls()
+    const conversation = await fetchConversation()
 
-    if (!pendingToolCalls) return
+    if (!conversation) return
+
+    const { pendingToolCalls } = conversation
 
     if (!pendingToolCalls.length) {
       resumeConversation()
 
       return onResume()
+    }
+
+    // A write we never saw means the agent already finished its turn on a new batch: the
+    // events are past, so show the conversation as the server has it
+    const knownIds = new Set(state.toolCalls.map((item) => item.id))
+
+    if (pendingToolCalls.some((item) => !knownIds.has(item.id))) {
+      return setPreviousChatMessages({
+        convId: conversation.id,
+        messages: toChatMessages(conversation.messages),
+        toolCalls: pendingToolCalls,
+      })
     }
 
     syncToolCalls(pendingToolCalls, decidedToolCall ?? undefined)

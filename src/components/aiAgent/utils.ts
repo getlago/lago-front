@@ -7,6 +7,7 @@ import { ERROR_404_ROUTE, FORBIDDEN_ROUTE } from '~/core/router/index'
 import { objectCreationRoutes } from '~/core/router/ObjectsRoutes'
 import { quotesModificationRoutes } from '~/core/router/QuotesRoutes'
 import { settingsObjectCreationRoutes } from '~/core/router/SettingRoutes'
+import { ChatMessage, ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 
 /**
  * Transforms route definitions into an array of path objects for route matching.
@@ -75,3 +76,11 @@ export const formatToolCallArguments = (
     }
   })
 }
+
+export const toChatMessages = (messages: Array<{ content: string; type: string }>): ChatMessage[] =>
+  messages.map((message) => ({
+    id: `${message.type}-${crypto.randomUUID()}`,
+    role: message.type === 'message.input' ? ChatRole.user : ChatRole.assistant,
+    message: message.content,
+    status: ChatStatus.done,
+  }))

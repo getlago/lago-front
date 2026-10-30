@@ -2,9 +2,9 @@ import { DateTime } from 'luxon'
 
 import { useGetAiConversation } from '~/components/aiAgent/hooks/getAiConversation'
 import { useListAiConversations } from '~/components/aiAgent/hooks/listAiConversations'
+import { toChatMessages } from '~/components/aiAgent/utils'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
-import { ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { tw } from '~/styles/utils'
 
@@ -39,22 +39,11 @@ export const ChatHistory = ({ hideHistory, isFullscreen }: ChatHistoryProps) => 
     }
 
     if (singleConversationData?.aiConversation?.id) {
-      const formattedMessages = singleConversationData?.aiConversation?.messages?.map((message) => {
-        const randomKey = crypto.randomUUID()
-
-        return {
-          id: `${message.type}-${randomKey}`,
-          role: message.type === 'message.input' ? ChatRole.user : ChatRole.assistant,
-          message: message.content,
-          status: ChatStatus.done,
-        }
-      })
-
       hideHistory?.()
 
       setPreviousChatMessages({
         convId: singleConversationData?.aiConversation.id,
-        messages: formattedMessages ?? [],
+        messages: toChatMessages(singleConversationData.aiConversation.messages),
         toolCalls: singleConversationData.aiConversation.pendingToolCalls,
       })
     }

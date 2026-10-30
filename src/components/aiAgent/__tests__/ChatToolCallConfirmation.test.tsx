@@ -27,6 +27,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 const mockDecideToolCall = jest.fn()
 const mockResumeConversation = jest.fn()
 const mockSetPendingToolCalls = jest.fn()
+const mockSetPreviousChatMessages = jest.fn()
 const mockConfirmToolCall = jest.fn()
 const mockCancelToolCall = jest.fn()
 const mockGetAiConversation = jest.fn()
@@ -42,6 +43,7 @@ jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
     decideToolCall: mockDecideToolCall,
     resumeConversation: mockResumeConversation,
     setPendingToolCalls: mockSetPendingToolCalls,
+    setPreviousChatMessages: mockSetPreviousChatMessages,
   }),
 }))
 
@@ -91,8 +93,11 @@ const decidedResult = (
   data: { [field]: { ...buildToolCall({ id }), status } },
 })
 
-const serverPending = (pendingToolCalls: AiConversationToolCallItemFragment[]) => ({
-  data: { aiConversation: { id: 'conv-1', pendingToolCalls } },
+const serverPending = (
+  pendingToolCalls: AiConversationToolCallItemFragment[],
+  messages: Array<{ content: string; type: string }> = [],
+) => ({
+  data: { aiConversation: { id: 'conv-1', messages, pendingToolCalls } },
 })
 
 describe('ChatToolCallConfirmation', () => {
@@ -326,6 +331,49 @@ describe('ChatToolCallConfirmation', () => {
         })
         expect(mockResumeConversation).not.toHaveBeenCalled()
         expect(onResume).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the agent already finished its turn on a new write', () => {
+      it('THEN should show the conversation as the server has it', async () => {
+        const newToolCall = buildToolCall({ id: 'tool-call-3', name: 'create_coupon' })
+
+        mockConfirmToolCall.mockResolvedValue(
+          decidedResult(
+            'confirmAiConversationToolCall',
+            AiConversationToolCallStatusEnum.Confirmed,
+          ),
+        )
+        mockGetAiConversation.mockResolvedValue(
+          serverPending(
+            [newToolCall],
+            [
+              { content: 'Void invoice INV-1', type: 'message.input' },
+              { content: 'Voided. Shall I create a coupon?', type: 'message.output' },
+            ],
+          ),
+        )
+
+        render(<ChatToolCallConfirmation onResume={onResume} />)
+
+        await userEvent.click(screen.getByTestId(CHAT_TOOL_CALL_CONFIRM_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockSetPreviousChatMessages).toHaveBeenCalledWith({
+            convId: 'conv-1',
+            messages: [
+              expect.objectContaining({ role: 'user', message: 'Void invoice INV-1' }),
+              expect.objectContaining({
+                role: 'assistant',
+                message: 'Voided. Shall I create a coupon?',
+              }),
+            ],
+            toolCalls: [newToolCall],
+          })
+        })
+        expect(mockResumeConversation).not.toHaveBeenCalled()
+        expect(onResume).not.toHaveBeenCalled()
+        expect(mockSetPendingToolCalls).not.toHaveBeenCalled()
       })
     })
 
