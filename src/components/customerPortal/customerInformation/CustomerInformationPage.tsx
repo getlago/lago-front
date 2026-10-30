@@ -100,6 +100,8 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
           )
         : shippingAddress
 
+      setHasOnlyFieldErrors(false)
+
       const { errors } = await updatePortalCustomer({
         variables: {
           input: {

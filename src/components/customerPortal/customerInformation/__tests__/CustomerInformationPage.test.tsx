@@ -406,5 +406,23 @@ describe('CustomerInformationPage', () => {
 
       expect(screen.getByTestId('error-alert')).toBeInTheDocument()
     })
+
+    it('THEN should show the generic alert when a network error follows a field-only error', async () => {
+      await submitWithErrors({ legalName: ['invalid_characters'] })
+
+      const networkError = new Error('Failed to fetch')
+
+      mockUpdatePortalCustomerError = networkError
+      mockUpdatePortalCustomer.mockRejectedValue(networkError)
+
+      await act(() =>
+        mockOnSubmit({
+          value: { name: 'Acme Inc' },
+          formApi: { getFieldMeta: jest.fn(), setFieldMeta: jest.fn() },
+        }).catch(() => undefined),
+      )
+
+      expect(screen.getByTestId('error-alert')).toBeInTheDocument()
+    })
   })
 })
