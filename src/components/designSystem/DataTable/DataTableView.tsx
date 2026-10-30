@@ -1,11 +1,22 @@
 import { flexRender, RowData } from '@tanstack/react-table'
 import { ReactNode } from 'react'
 
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Skeleton } from '~/components/designSystem/Skeleton'
+import { TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { Typography, TypographyProps } from '~/components/designSystem/Typography'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import EmptyImage from '~/public/images/maneki/empty.svg'
+import ErrorImage from '~/public/images/maneki/error.svg'
 
-import { DataTableRoot, DataTableTd, DataTableTh } from './DataTablePrimitives'
-import { DataTableInstance, DataTableRow } from './useDataTable'
+import {
+  DataTableCellVariants,
+  DataTableRoot,
+  DataTableTd,
+  DataTableTh,
+  DataTableTone,
+} from './DataTablePrimitives'
+import { DataTableColumn, DataTableInstance, DataTableRow } from './useDataTable'
 
 const DEFAULT_LOADING_ROW_COUNT = 3
 
@@ -23,11 +34,29 @@ const renderText = (
   )
 }
 
+const getColumnVariants = <TData extends RowData>(
+  column: DataTableColumn<TData>,
+): DataTableCellVariants & { className?: string } => ({
+  pinned: column.getIsPinned(),
+  align: column.columnDef.meta?.align,
+  shrink: column.columnDef.meta?.shrink,
+  className: column.columnDef.meta?.className,
+})
+
+export type DataTableFooterRow = {
+  id: string
+  cells: Partial<Record<string, ReactNode>>
+}
+
 type DataTableViewProps<TData extends RowData> = {
   table: DataTableInstance<TData>
   isLoading?: boolean
   loadingRowCount?: number
+  hasError?: boolean
+  placeholder?: TablePlaceholder
   hasFooter?: boolean
+  footerRows?: DataTableFooterRow[]
+  getRowTone?: (row: DataTableRow<TData>) => DataTableTone
   getRowDataTest?: (row: DataTableRow<TData>) => string | undefined
   footerDataTest?: string
   'data-test'?: string
@@ -37,25 +66,46 @@ export const DataTableView = <TData extends RowData>({
   table,
   isLoading = false,
   loadingRowCount = DEFAULT_LOADING_ROW_COUNT,
+  hasError = false,
+  placeholder,
   hasFooter = false,
+  footerRows,
+  getRowTone,
   getRowDataTest,
   footerDataTest,
   'data-test': dataTest,
 }: DataTableViewProps<TData>): JSX.Element => {
+  const { translate } = useInternationalization()
   const leafColumns = table.getAllLeafColumns()
+  const rows = table.getRowModel().rows
+
+  const renderPlaceholder = (): ReactNode => {
+    const state = hasError ? placeholder?.errorState : placeholder?.emptyState
+
+    return (
+      <tr>
+        <td colSpan={leafColumns.length}>
+          <GenericPlaceholder
+            noMargins
+            className="mx-auto py-12 [&>svg]:w-[136px]"
+            title={state?.title || translate('text_62b31e1f6a5b8b1b745ece48')}
+            subtitle={state?.subtitle || translate('text_62bb102b66ff57dbfe7905c2')}
+            image={state?.image || (hasError ? <ErrorImage /> : <EmptyImage />)}
+            buttonAction={state?.buttonAction}
+            buttonTitle={state?.buttonTitle}
+            buttonVariant={state?.buttonVariant}
+          />
+        </td>
+      </tr>
+    )
+  }
 
   const renderBody = (): ReactNode => {
     if (isLoading) {
       return Array.from({ length: loadingRowCount }, (_, index) => (
         <tr key={`loading-${index}`}>
           {leafColumns.map((column) => (
-            <DataTableTd
-              key={column.id}
-              pinned={column.getIsPinned()}
-              align={column.columnDef.meta?.align}
-              shrink={column.columnDef.meta?.shrink}
-              className={column.columnDef.meta?.className}
-            >
+            <DataTableTd key={column.id} {...getColumnVariants(column)}>
               <Skeleton
                 variant="text"
                 className={column.getIsPinned() === 'start' ? 'w-40' : 'ml-auto w-16'}
@@ -66,29 +116,52 @@ export const DataTableView = <TData extends RowData>({
       ))
     }
 
-    return table.getRowModel().rows.map((row) => (
+    if (hasError || !rows.length) return renderPlaceholder()
+
+    return rows.map((row) => (
       <tr key={row.id} data-test={getRowDataTest?.(row)}>
-        {row.getAllCells().map((cell) => (
-          <DataTableTd
-            key={cell.id}
-            pinned={cell.column.getIsPinned()}
-            align={cell.column.columnDef.meta?.align}
-            shrink={cell.column.columnDef.meta?.shrink}
-            className={cell.column.columnDef.meta?.className}
-          >
-            {renderText(
-              flexRender(cell.column.columnDef.cell, cell.getContext()),
-              'body',
-              'grey700',
-            )}
-          </DataTableTd>
-        ))}
+        {row.getAllCells().map((cell) => {
+          if (cell.getIsCovered()) return null
+
+          return (
+            <DataTableTd
+              key={cell.id}
+              colSpan={cell.getColSpan()}
+              tone={getRowTone?.(row)}
+              {...getColumnVariants(cell.column)}
+            >
+              {renderText(
+                flexRender(cell.column.columnDef.cell, cell.getContext()),
+                'body',
+                'grey700',
+              )}
+            </DataTableTd>
+          )
+        })}
       </tr>
     ))
   }
 
   const renderFooter = (): ReactNode => {
-    if (!hasFooter || isLoading) return null
+    if (isLoading || hasError || !rows.length) return null
+
+    if (footerRows) {
+      return (
+        <tfoot data-test={footerDataTest}>
+          {footerRows.map(({ id, cells }) => (
+            <tr key={id}>
+              {leafColumns.map((column) => (
+                <DataTableTd key={column.id} tone="muted" {...getColumnVariants(column)}>
+                  {renderText(cells[column.id], 'body', 'grey700')}
+                </DataTableTd>
+              ))}
+            </tr>
+          ))}
+        </tfoot>
+      )
+    }
+
+    if (!hasFooter) return null
 
     const [leafFooterGroup] = table.getFooterGroups()
 
@@ -96,14 +169,7 @@ export const DataTableView = <TData extends RowData>({
       <tfoot>
         <tr data-test={footerDataTest}>
           {leafFooterGroup.headers.map((footer) => (
-            <DataTableTd
-              key={footer.id}
-              tone="muted"
-              pinned={footer.column.getIsPinned()}
-              align={footer.column.columnDef.meta?.align}
-              shrink={footer.column.columnDef.meta?.shrink}
-              className={footer.column.columnDef.meta?.className}
-            >
+            <DataTableTd key={footer.id} tone="muted" {...getColumnVariants(footer.column)}>
               {renderText(
                 flexRender(footer.column.columnDef.footer, footer.getContext()),
                 'body',
@@ -125,16 +191,17 @@ export const DataTableView = <TData extends RowData>({
               if (header.rowSpan === 0) return null
 
               const isGroup = header.subHeaders.length > 0
+              const variants = getColumnVariants(header.column)
 
               return (
                 <DataTableTh
                   key={header.id}
                   colSpan={header.colSpan}
                   rowSpan={header.rowSpan}
-                  pinned={header.column.getIsPinned()}
-                  align={isGroup ? 'left' : header.column.columnDef.meta?.align}
-                  shrink={!isGroup && header.column.columnDef.meta?.shrink}
-                  className={isGroup ? undefined : header.column.columnDef.meta?.className}
+                  pinned={variants.pinned}
+                  align={isGroup ? 'left' : variants.align}
+                  shrink={!isGroup && variants.shrink}
+                  className={isGroup ? undefined : variants.className}
                 >
                   {renderText(
                     flexRender(header.column.columnDef.header, header.getContext()),

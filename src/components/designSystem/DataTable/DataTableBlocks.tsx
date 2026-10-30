@@ -1,6 +1,8 @@
 import { ReactNode } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
 
 const INDENT_STEP_PX = 16
 
@@ -75,4 +77,51 @@ export const DataTableLoadMore = ({
   >
     {label}
   </Button>
+)
+
+type DataTableInlineErrorProps = {
+  label: string
+  retryLabel: string
+  onRetry: () => void
+  'data-test'?: string
+}
+
+export const DataTableInlineError = ({
+  label,
+  retryLabel,
+  onRetry,
+  'data-test': dataTest,
+}: DataTableInlineErrorProps): JSX.Element => (
+  <div className="flex items-center gap-2" data-test={dataTest}>
+    <Typography variant="caption" color="danger600" noWrap>
+      {label}
+    </Typography>
+    <Button variant="inline" size="small" onClick={onRetry}>
+      {retryLabel}
+    </Button>
+  </div>
+)
+
+type DataTableGroupHeaderProps = {
+  label: ReactNode
+  action?: ReactNode
+}
+
+export const DataTableGroupHeader = ({ label, action }: DataTableGroupHeaderProps): JSX.Element => (
+  <div className="flex items-center justify-between gap-4">
+    <Typography variant="captionHl" color="grey600" noWrap>
+      {label}
+    </Typography>
+    {action}
+  </div>
+)
+
+export const DataTableSkeletonCell = ({
+  'data-test': dataTest,
+}: {
+  'data-test'?: string
+}): JSX.Element => (
+  <span data-test={dataTest}>
+    <Skeleton variant="text" className="ml-auto w-16" />
+  </span>
 )
