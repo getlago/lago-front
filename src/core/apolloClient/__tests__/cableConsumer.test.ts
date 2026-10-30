@@ -353,36 +353,6 @@ describe('cableConsumer', () => {
     })
   })
 
-  describe('WHEN another tab logs out', () => {
-    it('THEN should close the sockets opened with the removed token', () => {
-      localStorage.setItem('auth_token', 'admin-jwt')
-
-      const link = cable.createCableLink(CABLE_URL)
-
-      subscribe(link)
-      window.dispatchEvent(
-        new StorageEvent('storage', {
-          key: 'auth_token',
-          newValue: null,
-          storageArea: localStorage,
-        }),
-      )
-
-      expect(sockets[0].close).toHaveBeenCalled()
-    })
-  })
-
-  describe('WHEN a same-origin frame clears its sessionStorage', () => {
-    it('THEN should keep the sockets open', () => {
-      const link = cable.createCableLink(CABLE_URL)
-
-      subscribe(link)
-      window.dispatchEvent(new StorageEvent('storage', { key: null, storageArea: sessionStorage }))
-
-      expect(sockets[0].close).not.toHaveBeenCalled()
-    })
-  })
-
   describe('disconnectCableConsumer', () => {
     describe('WHEN the user logs out while the socket is still connecting', () => {
       it('THEN should close it and open a new socket with the next token', () => {

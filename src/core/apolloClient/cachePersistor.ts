@@ -1,4 +1,4 @@
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
+import { NormalizedCacheObject } from '@apollo/client'
 import { CachePersistor, LocalForageWrapper } from 'apollo3-cache-persist'
 import localForage from 'localforage'
 
@@ -9,6 +9,11 @@ import { cache } from './cache'
 const KEY_PREFIX = 'apollo-cache-persist-lago-'
 
 let persistor: CachePersistor<NormalizedCacheObject> | null = null
+let persistenceKey: string | undefined
+let persistencePaused = false
+
+const createPersistor = (key: string): CachePersistor<NormalizedCacheObject> =>
+  new CachePersistor({ cache, storage: new LocalForageWrapper(localForage), key })
 
 // storage.purge() only removes the current key. Blobs left by previous app
 // versions (different version suffix) must be cleaned manually so old deploys
@@ -40,11 +45,9 @@ export const setupCachePersistor = async (appVersion: string) => {
 
   await purgeStaleVersionedCaches(currentKey)
 
-  persistor = new CachePersistor({
-    cache,
-    storage: new LocalForageWrapper(localForage),
-    key: currentKey,
-  })
+  persistenceKey = currentKey
+  persistencePaused = false
+  persistor = createPersistor(currentKey)
 
   // The constructor does not restore (unlike the persistCache helper), so we
   // restore explicitly.
@@ -58,17 +61,20 @@ export const purgePersistedCache = async () => {
   await persistor?.purge()
 }
 
-// Full teardown for authenticated contexts (logout, org switch): empty the
-// in-memory cache, then wipe the at-rest blob — in that order.
-export const resetPersistedCache = async (client: ApolloClient<object>) => {
-  await client.clearStore()
-  await purgePersistedCache()
-}
-
 // Stop persisting without deleting the blob. Used when a portal is entered via
 // same-tab client-side navigation (persistor already live with the admin key):
 // prevents portal data from leaking into the admin blob while leaving that blob
 // intact.
-export const pausePersistence = () => {
-  persistor?.pause()
+export const pausePersistence = (): void => {
+  // remove() keeps the old trigger's pending debounce paused even after persistence resumes.
+  persistor?.remove()
+  persistencePaused = true
+}
+
+export const resumePersistence = (): void => {
+  if (!persistencePaused || !persistenceKey || isCustomerPortalPath(window.location.pathname))
+    return
+
+  persistor = createPersistor(persistenceKey)
+  persistencePaused = false
 }
