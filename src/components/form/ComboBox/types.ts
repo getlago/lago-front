@@ -15,6 +15,7 @@ export interface BasicComboBoxData {
   labelNode?: ReactNode
   description?: string
   disabled?: boolean
+  hidden?: boolean
   customValue?: boolean
   group?: never
   addValueOnClick?: () => void
@@ -59,6 +60,7 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'search
       searchTerm?: InputMaybe<string> | undefined
     }>
   >
+  fetchOnMount?: boolean
   containerClassName?: string
   'data-test'?: string
 }
