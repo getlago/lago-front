@@ -1,4 +1,5 @@
-import { ApolloError, FetchPolicy, useApolloClient } from '@apollo/client'
+import { ApolloError, useApolloClient } from '@apollo/client'
+import { DateTime } from 'luxon'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { addToast } from '~/core/apolloClient'
@@ -9,6 +10,7 @@ import {
   GetSubscriptionAttributedUsageQueryVariables,
 } from '~/generated/graphql'
 
+import { MAX_TIME_RANGE_DAYS } from './attributionFilters'
 import {
   AttributionLevel,
   AttributionPathStep,
@@ -17,7 +19,6 @@ import {
   mergeAttributionFilters,
   parseAttributionNodeKey,
 } from './attributionTree'
-import { SPLIT_FILTERS_PER_PAGE } from './buildAttributionColumns'
 
 export type AttributionTreeUsage = GetSubscriptionAttributedUsageQuery['attributedUsage']
 
@@ -63,6 +64,33 @@ type RequestQueue = <T>(task: () => Promise<T>) => Promise<T>
 type LoadNodeOptions = {
   isExpanded?: boolean
   pageCountByLevelCode?: Record<string, number>
+}
+
+type AttributionTreeGeneration = {
+  snapshotAt: string | null
+  anchor: Promise<AttributionTreeUsage> | null
+}
+
+type AttributionTreeWindow = Pick<
+  GetSubscriptionAttributedUsageQueryVariables,
+  'fromDatetime' | 'toDatetime'
+>
+
+// `UsageAttributions::QueryService#window_errors` rejects a window over MAX_TIME_RANGE_DAYS, and the
+// default window of a long plan already starts that many days before today's midnight.
+const getAttributionGenerationWindow = (
+  { snapshotAt }: AttributionTreeGeneration,
+  anchor: AttributionTreeUsage | null,
+): AttributionTreeWindow => {
+  if (!anchor || !snapshotAt) return {}
+
+  const to = DateTime.fromISO(snapshotAt, { zone: 'utc' })
+  const from = DateTime.max(
+    DateTime.fromISO(anchor.fromDatetime, { zone: 'utc' }),
+    to.minus({ days: MAX_TIME_RANGE_DAYS }),
+  )
+
+  return { fromDatetime: from.toISO() ?? anchor.fromDatetime, toDatetime: snapshotAt }
 }
 
 // `errorLink` in `init.ts` already toasts GraphQL errors, only the rest is ours to report.
@@ -135,9 +163,8 @@ export const useAttributionTree = ({
   const client = useApolloClient()
   const [nodes, setNodes] = useState<AttributionTreeNodes>({})
   const nodesRef = useRef<AttributionTreeNodes>({})
-  const generationRef = useRef(0)
+  const generationRef = useRef<AttributionTreeGeneration>({ snapshotAt: null, anchor: null })
   const filterPagesCountRef = useRef(1)
-  const fetchPolicyRef = useRef<FetchPolicy>('cache-first')
   const [enqueueRequest] = useState(() => createRequestQueue(MAX_CONCURRENT_REQUESTS))
   const isLoadingFilterPageRef = useRef(false)
   const [isLoadingFilterPage, setIsLoadingFilterPage] = useState(false)
@@ -193,13 +220,15 @@ export const useAttributionTree = ({
       filterPage: number,
       silentError = false,
     ): Promise<AttributionTreeUsage> => {
+      const generation = generationRef.current
+      const anchor = generation.anchor ? await generation.anchor : null
       const latestVariables = latestParamsRef.current.variables
       const filters = mergeAttributionFilters(
         latestVariables.filters ?? [],
         buildAttributionFilters(path),
       )
 
-      const { data } = await enqueueRequest(() =>
+      const request = enqueueRequest(() =>
         client.query<
           GetSubscriptionAttributedUsageQuery,
           GetSubscriptionAttributedUsageQueryVariables
@@ -207,17 +236,23 @@ export const useAttributionTree = ({
           query: GetSubscriptionAttributedUsageDocument,
           variables: {
             ...latestVariables,
+            ...getAttributionGenerationWindow(generation, anchor),
             groupBy: level.code,
             filters: filters.length ? filters : undefined,
             page,
-            splitFiltersOffset: filterPage ? filterPage * SPLIT_FILTERS_PER_PAGE : undefined,
+            splitFiltersOffset:
+              filterPage && anchor?.splitFiltersLimit
+                ? filterPage * anchor.splitFiltersLimit
+                : undefined,
           },
-          fetchPolicy: fetchPolicyRef.current,
+          fetchPolicy: 'network-only',
           context: { silentError },
         }),
-      )
+      ).then(({ data }) => data.attributedUsage)
 
-      return data.attributedUsage
+      if (!generation.anchor) generation.anchor = request
+
+      return request
     },
     [client, enqueueRequest],
   )
@@ -470,9 +505,15 @@ export const useAttributionTree = ({
     updateIsLoadingFilterPage(false)
   }, [fillVisibleFilterPages, updateIsLoadingFilterPage])
 
+  const startGeneration = useCallback((): void => {
+    const { fromDatetime, toDatetime } = latestParamsRef.current.variables
+    const snapshotAt = fromDatetime || toDatetime ? null : new Date().toISOString()
+
+    generationRef.current = { snapshotAt, anchor: null }
+  }, [])
+
   const reset = useCallback((): void => {
-    generationRef.current += 1
-    fetchPolicyRef.current = 'cache-first'
+    startGeneration()
     updateIsLoadingFilterPage(false)
     filterPagesCountRef.current = 1
     updateNodes(() => ({}))
@@ -480,14 +521,13 @@ export const useAttributionTree = ({
     if (latestParamsRef.current.skip) return
 
     loadNode([], null)
-  }, [loadNode, updateIsLoadingFilterPage, updateNodes])
+  }, [loadNode, startGeneration, updateIsLoadingFilterPage, updateNodes])
 
   const refresh = useCallback((): void => {
     const previousNodes = nodesRef.current
     const rootKey = getAttributionNodeKey([])
 
-    generationRef.current += 1
-    fetchPolicyRef.current = 'network-only'
+    startGeneration()
     updateIsLoadingFilterPage(false)
     updateNodes(() => ({}))
 
@@ -520,7 +560,7 @@ export const useAttributionTree = ({
           key !== rootKey && isAttributionNodeVisible(previousNodes, parseAttributionNodeKey(key)),
       )
       .forEach(([key]) => reloadNode(key))
-  }, [loadNode, updateIsLoadingFilterPage, updateNodes])
+  }, [loadNode, startGeneration, updateIsLoadingFilterPage, updateNodes])
 
   useEffect(() => {
     reset()

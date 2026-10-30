@@ -6,7 +6,6 @@ import {
 } from '~/generated/graphql'
 
 export const COLLAPSED_FILTER_COLUMNS = 3
-export const SPLIT_FILTERS_PER_PAGE = 10
 
 export enum AttributionGroupByEnum {
   hierarchical = 'hierarchical',

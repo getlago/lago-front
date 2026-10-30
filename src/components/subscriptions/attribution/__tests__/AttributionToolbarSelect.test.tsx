@@ -67,6 +67,53 @@ describe('AttributionToolbarSelect', () => {
         expect(screen.getByRole('button', { name: 'Storage' })).toBeDisabled()
       })
     })
+
+    describe('WHEN a disabled option carries a reason and is hovered', () => {
+      it('THEN should show the reason in a tooltip', async () => {
+        const user = userEvent.setup()
+
+        renderSelect({
+          options: [
+            ...options,
+            {
+              value: 'seats',
+              label: 'Seats',
+              disabled: true,
+              disabledTooltip: 'Seats need a standard price model',
+            },
+          ],
+        })
+
+        await user.click(screen.getByTestId(OPENER_TEST_ID))
+        await user.hover(screen.getByRole('button', { name: 'Seats' }).parentElement as HTMLElement)
+
+        await waitFor(() => {
+          expect(screen.getByText('Seats need a standard price model')).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN an enabled option carries a reason and is hovered', () => {
+      it('THEN should not show a tooltip', async () => {
+        const user = userEvent.setup()
+
+        renderSelect({
+          options: [
+            ...options,
+            {
+              value: 'seats',
+              label: 'Seats',
+              disabledTooltip: 'Seats need a standard price model',
+            },
+          ],
+        })
+
+        await user.click(screen.getByTestId(OPENER_TEST_ID))
+        await user.hover(screen.getByRole('button', { name: 'Seats' }))
+
+        expect(screen.queryByText('Seats need a standard price model')).not.toBeInTheDocument()
+      })
+    })
   })
 
   describe('GIVEN a searchable select', () => {

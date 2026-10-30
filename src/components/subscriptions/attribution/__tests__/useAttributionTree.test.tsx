@@ -5,7 +5,6 @@ import { addToast } from '~/core/apolloClient'
 import { AttributedUsageBasisEnum, CurrencyEnum } from '~/generated/graphql'
 
 import { AttributionLevel, AttributionPathStep, getAttributionNodeKey } from '../attributionTree'
-import { SPLIT_FILTERS_PER_PAGE } from '../buildAttributionColumns'
 import { AttributionTreeUsage, useAttributionTree } from '../useAttributionTree'
 
 const mockQuery = jest.fn()
@@ -41,12 +40,28 @@ const variables = {
 const ROOT_KEY = getAttributionNodeKey([])
 const rndPath: AttributionPathStep[] = [{ code: 'department', value: 'rnd' }]
 const RND_KEY = getAttributionNodeKey(rndPath)
+const SPLIT_FILTERS_LIMIT = 4
+const ROOT_FROM = '2026-10-01T00:00:00.000Z'
+const ROOT_TO = '2026-11-01T00:00:00.000Z'
 
 const buildUsage = (
   values: string[],
-  { currentPage = 1, totalPages = 1 }: { currentPage?: number; totalPages?: number } = {},
+  {
+    currentPage = 1,
+    totalPages = 1,
+    splitFiltersLimit = SPLIT_FILTERS_LIMIT,
+    fromDatetime = ROOT_FROM,
+  }: {
+    currentPage?: number
+    totalPages?: number
+    splitFiltersLimit?: number | null
+    fromDatetime?: string
+  } = {},
 ): AttributionTreeUsage => ({
   currency: CurrencyEnum.Usd,
+  splitFiltersLimit,
+  fromDatetime,
+  toDatetime: ROOT_TO,
   metadata: { currentPage, totalPages },
   rows: values.map((value) => ({ value, amountCents: null, chargesUsage: [] })),
   unattributed: { amountCents: null, chargesUsage: [] },
@@ -67,8 +82,8 @@ const renderTree = (props: Partial<Parameters<typeof useAttributionTree>[0]> = {
     },
   )
 
-const renderLoadedTree = async () => {
-  mockQuery.mockReturnValueOnce(resolveUsage(buildUsage(['rnd', 'gtm'])))
+const renderLoadedTree = async (rootUsage = buildUsage(['rnd', 'gtm'])) => {
+  mockQuery.mockReturnValueOnce(resolveUsage(rootUsage))
 
   const hook = renderTree()
 
@@ -92,13 +107,13 @@ describe('useAttributionTree', () => {
   })
 
   describe('GIVEN the tree mounts', () => {
-    it('THEN should load the root levels without filters, reading the cache first', async () => {
+    it('THEN should load the root levels without filters from the network', async () => {
       const { result } = await renderLoadedTree()
 
       expect(mockQuery).toHaveBeenCalledTimes(1)
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
-          fetchPolicy: 'cache-first',
+          fetchPolicy: 'network-only',
           variables: { ...variables, groupBy: 'department', filters: undefined, page: 1 },
         }),
       )
@@ -466,6 +481,7 @@ describe('useAttributionTree', () => {
       mockQuery.mockReturnValue(resolveUsage(buildUsage(['rnd'])))
       mockQuery.mockReturnValueOnce(new Promise((resolve) => (resolveStale = resolve)))
       act(() => result.current.toggleNode(rndPath, 'department'))
+      await waitFor(() => expect(mockQuery).toHaveBeenCalledTimes(3))
 
       rerender({ variables, getChildLevels, resetKey: 'key-2', skip: false })
       await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
@@ -474,9 +490,152 @@ describe('useAttributionTree', () => {
 
       expect(result.current.nodes[RND_KEY]).toBeUndefined()
     })
+
+    it('THEN should read the network again when a previous key comes back', async () => {
+      const { result, rerender } = await renderLoadedTree()
+
+      mockQuery.mockReturnValue(resolveUsage(buildUsage(['rnd'])))
+
+      rerender({ variables, getChildLevels, resetKey: 'key-2', skip: false })
+      await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+      rerender({ variables, getChildLevels, resetKey: 'key-1', skip: false })
+      await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+
+      expect(mockQuery).toHaveBeenCalledTimes(3)
+      expect(mockQuery.mock.calls.map(([options]) => options.fetchPolicy)).toEqual([
+        'network-only',
+        'network-only',
+        'network-only',
+      ])
+    })
   })
+
+  describe('GIVEN the current period', () => {
+    const SNAPSHOT_1 = '2026-10-30T10:00:00.000Z'
+    const SNAPSHOT_2 = '2026-10-30T10:05:00.000Z'
+    const REFRESHED_ROOT_FROM = '2026-10-02T00:00:00.000Z'
+
+    const expandRnd = async (result: ReturnType<typeof renderTree>['result']) => {
+      mockQuery.mockReturnValue(resolveUsage(buildUsage(['eng'])))
+      act(() => result.current.toggleNode(rndPath, 'department'))
+      await waitFor(() => expect(result.current.nodes[RND_KEY]?.status).toBe('loaded'))
+    }
+
+    beforeEach(() => {
+      jest.useFakeTimers({ now: new Date(SNAPSHOT_1) })
+    })
+
+    afterEach(() => {
+      jest.useRealTimers()
+    })
+
+    describe('WHEN the root loads', () => {
+      it('THEN should send the root request without a window', async () => {
+        await renderLoadedTree()
+
+        expect(getQueryVariables(0)).not.toHaveProperty('fromDatetime')
+        expect(getQueryVariables(0)).not.toHaveProperty('toDatetime')
+      })
+    })
+
+    describe('WHEN a node is expanded after the root loaded', () => {
+      it('THEN should pin its requests to the root window start and the reset time', async () => {
+        const { result } = await renderLoadedTree()
+
+        await expandRnd(result)
+
+        expect(getQueryVariables(1)).toEqual(
+          expect.objectContaining({ fromDatetime: ROOT_FROM, toDatetime: SNAPSHOT_1 }),
+        )
+        expect(getQueryVariables(2)).toEqual(
+          expect.objectContaining({ fromDatetime: ROOT_FROM, toDatetime: SNAPSHOT_1 }),
+        )
+      })
+    })
+
+    describe('WHEN the tree is refreshed later', () => {
+      it('THEN should hold the node reloads until the root answers, then pin them to the new snapshot', async () => {
+        const { result } = await renderLoadedTree()
+
+        await expandRnd(result)
+
+        let resolveRoot: (value: unknown) => void = () => undefined
+
+        jest.setSystemTime(new Date(SNAPSHOT_2))
+        mockQuery.mockClear()
+        mockQuery.mockReturnValueOnce(new Promise((resolve) => (resolveRoot = resolve)))
+
+        await act(async () => result.current.refresh())
+
+        expect(mockQuery).toHaveBeenCalledTimes(1)
+        expect(getQueryVariables(0)).not.toHaveProperty('toDatetime')
+
+        await act(async () =>
+          resolveRoot({
+            data: {
+              attributedUsage: buildUsage(['rnd', 'gtm'], { fromDatetime: REFRESHED_ROOT_FROM }),
+            },
+          }),
+        )
+        await waitFor(() => expect(result.current.nodes[RND_KEY]?.status).toBe('loaded'))
+
+        expect(mockQuery).toHaveBeenCalledTimes(3)
+        expect(getQueryVariables(1)).toEqual(
+          expect.objectContaining({ fromDatetime: REFRESHED_ROOT_FROM, toDatetime: SNAPSHOT_2 }),
+        )
+        expect(getQueryVariables(2)).toEqual(
+          expect.objectContaining({ fromDatetime: REFRESHED_ROOT_FROM, toDatetime: SNAPSHOT_2 }),
+        )
+      })
+    })
+
+    describe('WHEN the root window starts more than 31 days before the snapshot', () => {
+      it('THEN should clamp the pinned window to 31 days', async () => {
+        const { result } = await renderLoadedTree(
+          buildUsage(['rnd', 'gtm'], { fromDatetime: '2026-09-29T00:00:00.000Z' }),
+        )
+
+        await expandRnd(result)
+
+        expect(getQueryVariables(1)).toEqual(
+          expect.objectContaining({
+            fromDatetime: '2026-09-29T10:00:00.000Z',
+            toDatetime: SNAPSHOT_1,
+          }),
+        )
+      })
+    })
+  })
+
+  describe('GIVEN an explicit window in the variables', () => {
+    const userWindow = {
+      fromDatetime: '2026-09-01T00:00:00.000Z',
+      toDatetime: '2026-09-30T23:59:59.000Z',
+    }
+
+    describe('WHEN the root and a node load', () => {
+      it('THEN should send the window unchanged on every request', async () => {
+        mockQuery.mockReturnValueOnce(resolveUsage(buildUsage(['rnd'])))
+
+        const { result } = renderTree({ variables: { ...variables, ...userWindow } })
+
+        await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+
+        mockQuery.mockReturnValue(resolveUsage(buildUsage(['eng'])))
+        act(() => result.current.toggleNode(rndPath, 'department'))
+        await waitFor(() => expect(result.current.nodes[RND_KEY]?.status).toBe('loaded'))
+
+        expect(mockQuery.mock.calls.map(([options]) => options.variables)).toEqual([
+          expect.objectContaining(userWindow),
+          expect.objectContaining(userWindow),
+          expect.objectContaining(userWindow),
+        ])
+      })
+    })
+  })
+
   describe('GIVEN a split charge with more filters than one page', () => {
-    const OFFSET_PAGE_2 = SPLIT_FILTERS_PER_PAGE
+    const OFFSET_PAGE_2 = SPLIT_FILTERS_LIMIT
 
     const getBlockFilterPagesCounts = (
       nodes: ReturnType<typeof useAttributionTree>['nodes'],
@@ -538,6 +697,19 @@ describe('useAttributionTree', () => {
         expect(result.current.isLoadingFilterPage).toBe(false)
         expect(getBlockFilterPagesCounts(result.current.nodes, ROOT_KEY)).toEqual([2])
         expect(getBlockFilterPagesCounts(result.current.nodes, RND_KEY)).toEqual([2, 2])
+      })
+
+      it('THEN should offset it by the page size the root response returned', async () => {
+        const { result } = await renderLoadedTree(
+          buildUsage(['rnd', 'gtm'], { splitFiltersLimit: 7 }),
+        )
+
+        mockQuery.mockClear()
+        mockQuery.mockReturnValue(resolveUsage(buildUsage(['rnd'])))
+
+        await act(async () => result.current.loadMoreFilterPage())
+
+        expect(getCalls()).toEqual([expect.objectContaining({ page: 1, splitFiltersOffset: 7 })])
       })
 
       it('THEN should request it for every row page a block had loaded', async () => {
@@ -694,7 +866,7 @@ describe('useAttributionTree', () => {
     })
 
     describe('WHEN many requests start at once', () => {
-      it('THEN should run at most six of them in parallel', async () => {
+      it('THEN should send the first one alone, then at most six in parallel', async () => {
         const manyLevels = Array.from({ length: 8 }, (_, index) => ({
           code: `level_${index}`,
           name: `Level ${index}`,
@@ -707,7 +879,7 @@ describe('useAttributionTree', () => {
         )
         renderTree({ getChildLevels: () => manyLevels })
 
-        await waitFor(() => expect(mockQuery).toHaveBeenCalledTimes(6))
+        await waitFor(() => expect(mockQuery).toHaveBeenCalledTimes(1))
         await act(async () => resolvers[0]({ data: { attributedUsage: buildUsage([]) } }))
 
         expect(mockQuery).toHaveBeenCalledTimes(7)

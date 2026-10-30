@@ -827,6 +827,8 @@ export type AttributedUsage = {
   groupBy: Scalars['String']['output'];
   metadata: CollectionMetadata;
   rows: Array<AttributedUsageRow>;
+  splitFiltersCount?: Maybe<Scalars['Int']['output']>;
+  splitFiltersLimit?: Maybe<Scalars['Int']['output']>;
   subscriptionId: Scalars['ID']['output'];
   toDatetime: Scalars['ISO8601DateTime']['output'];
   totals: AttributedUsageAggregate;
@@ -15829,7 +15831,7 @@ export type GetSubscriptionAttributedUsageQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionAttributedUsageQuery = { __typename?: 'Query', attributedUsage: { __typename?: 'AttributedUsage', currency: CurrencyEnum, splitFiltersCount?: number | null, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, rows: Array<{ __typename?: 'AttributedUsageRow', value: string, amountCents?: any | null, splitChargeUnits?: number | null, chargesUsage: Array<{ __typename?: 'AttributedUsageChargeUsage', units: number, amountCents?: any | null, charge: { __typename?: 'Charge', id: string, code?: string | null, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilter', id: string }> | null }, chargeFilter?: { __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any } | null }> }>, unattributed: { __typename?: 'AttributedUsageAggregate', amountCents?: any | null, splitChargeUnits?: number | null, chargesUsage: Array<{ __typename?: 'AttributedUsageChargeUsage', units: number, amountCents?: any | null, charge: { __typename?: 'Charge', id: string, code?: string | null, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilter', id: string }> | null }, chargeFilter?: { __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any } | null }> }, totals: { __typename?: 'AttributedUsageAggregate', amountCents?: any | null, splitChargeUnits?: number | null, chargesUsage: Array<{ __typename?: 'AttributedUsageChargeUsage', units: number, amountCents?: any | null, charge: { __typename?: 'Charge', id: string, code?: string | null, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilter', id: string }> | null }, chargeFilter?: { __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any } | null }> } } };
+export type GetSubscriptionAttributedUsageQuery = { __typename?: 'Query', attributedUsage: { __typename?: 'AttributedUsage', currency: CurrencyEnum, splitFiltersCount?: number | null, splitFiltersLimit?: number | null, fromDatetime: any, toDatetime: any, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, rows: Array<{ __typename?: 'AttributedUsageRow', value: string, amountCents?: any | null, splitChargeUnits?: number | null, chargesUsage: Array<{ __typename?: 'AttributedUsageChargeUsage', units: number, amountCents?: any | null, charge: { __typename?: 'Charge', id: string, code?: string | null, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilter', id: string }> | null }, chargeFilter?: { __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any } | null }> }>, unattributed: { __typename?: 'AttributedUsageAggregate', amountCents?: any | null, splitChargeUnits?: number | null, chargesUsage: Array<{ __typename?: 'AttributedUsageChargeUsage', units: number, amountCents?: any | null, charge: { __typename?: 'Charge', id: string, code?: string | null, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilter', id: string }> | null }, chargeFilter?: { __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any } | null }> }, totals: { __typename?: 'AttributedUsageAggregate', amountCents?: any | null, splitChargeUnits?: number | null, chargesUsage: Array<{ __typename?: 'AttributedUsageChargeUsage', units: number, amountCents?: any | null, charge: { __typename?: 'Charge', id: string, code?: string | null, invoiceDisplayName?: string | null, chargeModel: ChargeModelEnum, billableMetric: { __typename?: 'BillableMetric', id: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilter', id: string }> | null }, chargeFilter?: { __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any } | null }> } } };
 
 export type SubscriptionAdditionalIntegrationSectionFragment = { __typename?: 'Subscription', id: string, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, customer: { __typename?: 'Customer', id: string } };
 
@@ -38758,6 +38760,9 @@ export const GetSubscriptionAttributedUsageDocument = gql`
   ) {
     currency
     splitFiltersCount
+    splitFiltersLimit
+    fromDatetime
+    toDatetime
     metadata {
       currentPage
       totalPages

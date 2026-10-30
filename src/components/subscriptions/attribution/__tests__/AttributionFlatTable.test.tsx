@@ -124,7 +124,7 @@ describe('AttributionFlatTable', () => {
       it('THEN should display a dash for an entity without usage', () => {
         renderTable()
 
-        expect(screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)[1]).toHaveTextContent('—')
+        expect(screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)[1]).toHaveTextContent('-')
       })
 
       it('THEN should render the footer from the totals', () => {
@@ -228,7 +228,7 @@ describe('AttributionFlatTable', () => {
         const cells = firstRow.querySelectorAll('td')
 
         expect(cells[2]).toHaveAttribute('data-test', ATTRIBUTION_LOADING_CELL_TEST_ID)
-        expect(cells[2]).not.toHaveTextContent('—')
+        expect(cells[2]).not.toHaveTextContent('-')
         expect(cells[1]).toHaveTextContent('12')
       })
 

@@ -38,6 +38,8 @@ const buildUsage = (
   { currentPage = 1, totalPages = 1 }: { currentPage?: number; totalPages?: number } = {},
 ): AttributionTreeUsage => ({
   currency: CurrencyEnum.Usd,
+  fromDatetime: '2026-10-01T00:00:00.000Z',
+  toDatetime: '2026-11-01T00:00:00.000Z',
   metadata: { currentPage, totalPages },
   rows: values.map((value) => ({ value, amountCents: null, chargesUsage: [] })),
   unattributed: { amountCents: null, chargesUsage: [] },

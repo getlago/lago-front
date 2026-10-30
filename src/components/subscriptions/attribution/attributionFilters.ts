@@ -31,7 +31,7 @@ export type AttributionSubscriptionPeriod = {
   customer?: { applicableTimezone?: TimezoneEnum | null } | null
 }
 
-const MAX_TIME_RANGE_DAYS = 31
+export const MAX_TIME_RANGE_DAYS = 31
 
 const ATTRIBUTION_GUARD_ERROR_CODES = ['too_many_groups', 'query_timeout', 'memory_limit_exceeded']
 

@@ -59,7 +59,7 @@ type AttributionFlatTableProps = AttributionTableSharedProps & {
   }
 }
 
-const ATTRIBUTION_CELL_PADDING_CLASSNAME = 'px-1 py-0'
+const ATTRIBUTION_CELL_PADDING_CLASSNAME = 'px-3 py-0'
 
 const ATTRIBUTION_CELL_CLASSNAME = tw(
   'h-12 w-px min-w-24 whitespace-nowrap border-b border-grey-300 text-right',
@@ -94,7 +94,7 @@ export const AttributionValueCells = ({
   const { translate } = useInternationalization()
 
   const formatValue = (value: number | null): string => {
-    if (value === null) return '—'
+    if (value === null) return '-'
 
     if (basis === AttributedUsageBasisEnum.Amount) {
       return intlFormatNumber(deserializeAmount(value, currency), { currency })
