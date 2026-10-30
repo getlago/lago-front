@@ -1,12 +1,12 @@
 import { ReactNode } from 'react'
 
 import { ButtonSelector } from '~/components/form'
+import { AutoRefreshSelector } from '~/components/realtimeUsage/AutoRefreshSelector'
+import { REALTIME_USAGE_CONTROL_CLASSNAME } from '~/components/realtimeUsage/constants'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { AUTO_REFRESH_OPTIONS, WINDOWS } from './constants'
+import { WINDOWS } from './constants'
 import { RealtimeUsageState } from './types'
-
-export const REALTIME_USAGE_CONTROL_CLASSNAME = 'flex-row items-center gap-2'
 
 type RealtimeUsageControlsProps = {
   state: RealtimeUsageState
@@ -50,16 +50,10 @@ export const RealtimeUsageControls = ({
           onChange={(value) => state.changeWindow(Number(value))}
         />
 
-        <ButtonSelector
+        <AutoRefreshSelector
           data-test={`${testIdPrefix}-auto-refresh`}
-          className={REALTIME_USAGE_CONTROL_CLASSNAME}
-          label={translate('text_17876098439600jp8nt3z0hk')}
-          options={AUTO_REFRESH_OPTIONS.map((value) => ({
-            value,
-            label: value === 0 ? translate('text_1787609843960bopfeje8bho') : `${value}s`,
-          }))}
           value={state.autoRefreshSeconds}
-          onChange={(value) => state.setAutoRefreshSeconds(Number(value))}
+          onChange={state.setAutoRefreshSeconds}
         />
       </div>
     </div>

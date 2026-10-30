@@ -44,6 +44,10 @@ const Analytic = lazyLoad(() => import('~/pages/Analytics'))
 const AnalyticsV2 = lazyLoad(() => import('~/pages/AnalyticsV2'))
 const UsageBillableMetric = lazyLoad(() => import('~/pages/analytics/UsageBillableMetric'))
 const RevenueRecognitionDashboard = lazyLoad(() => import('~/pages/dashboards/RevenueRecognition'))
+const RealtimeUsageOverview = lazyLoad(() => import('~/pages/realtimeUsage/RealtimeUsageOverview'))
+const RealtimeUsageBillableMetric = lazyLoad(
+  () => import('~/pages/realtimeUsage/RealtimeUsageBillableMetric'),
+)
 
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
@@ -64,6 +68,8 @@ export const ANALYTIC_TABS_ROUTE = '/analytics/:tab'
 export const ANALYTICS_V2_TABS_ROUTE = '/analytics-v2/:tab'
 export const ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE = '/analytics/usage/:billableMetricCode'
 export const REVENUE_RECOGNITION_ROUTE = '/revenue-recognition'
+export const REALTIME_USAGE_ROUTE = '/usage'
+export const REALTIME_USAGE_BILLABLE_METRIC_ROUTE = '/usage/:billableMetricCode'
 export const ERROR_404_ROUTE = '/404'
 
 // Route Available only on dev mode
@@ -105,6 +111,20 @@ const analyticsInlineRoutes: CustomRouteObject[] = [
     private: true,
     element: <RevenueRecognitionDashboard />,
     permissions: ['analyticsView', 'dataApiView'],
+  },
+  {
+    path: REALTIME_USAGE_ROUTE,
+    private: true,
+    element: <RealtimeUsageOverview />,
+    permissions: ['analyticsView'],
+    organizationCapability: 'realtimeUsageEnabled',
+  },
+  {
+    path: REALTIME_USAGE_BILLABLE_METRIC_ROUTE,
+    private: true,
+    element: <RealtimeUsageBillableMetric />,
+    permissions: ['analyticsView'],
+    organizationCapability: 'realtimeUsageEnabled',
   },
 ]
 

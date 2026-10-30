@@ -1,4 +1,5 @@
-import { HourPoint } from './types'
+import { PeriodPoint } from '~/components/realtimeUsage/types'
+
 import { seriesValue } from './utils'
 
 type StackedSegmentProps = {
@@ -7,7 +8,7 @@ type StackedSegmentProps = {
   width?: number
   height?: number
   fill?: string
-  payload?: HourPoint
+  payload?: PeriodPoint
   seriesKey?: string
   seriesKeys?: string[]
 }

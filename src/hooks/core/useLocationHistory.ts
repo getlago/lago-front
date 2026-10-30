@@ -130,11 +130,21 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
       return
     }
 
-    if (isRouteGatedByFeatureFlag(routeConfig) && isWaitingForOrganization) return
+    const isGatedByCapability = !!routeConfig.organizationCapability
 
-    if (!isRouteAvailable(routeConfig, hasFeatureFlag)) {
+    if (
+      (isRouteGatedByFeatureFlag(routeConfig) || isGatedByCapability) &&
+      isWaitingForOrganization
+    ) {
+      return
+    }
+
+    if (
+      !isRouteAvailable(routeConfig, hasFeatureFlag) ||
+      (routeConfig.organizationCapability && !organization?.[routeConfig.organizationCapability])
+    ) {
       /**
-       * In case of navigation to a route its feature flags make unavailable
+       * In case of navigation to a route its feature flags or a missing capability make unavailable
        * Redirect to home page
        */
       navigate(HOME_ROUTE, { replace: true })
