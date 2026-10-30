@@ -57,6 +57,25 @@ describe('useDebouncedSearch', () => {
     expect(callback).toHaveBeenCalledTimes(1)
   })
 
+  it('flags a new term as pending until its search fires', async () => {
+    const callback = jest.fn()
+    const { result } = renderHook(() =>
+      useDebouncedSearch(callback, false, { fetchOnMount: false }),
+    )
+
+    act(() => result.current.debouncedSearch?.('compute'))
+
+    expect(result.current.isSearchPending).toBe(true)
+
+    await act(() => jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS))
+
+    expect(result.current.isSearchPending).toBe(false)
+
+    act(() => result.current.debouncedSearch?.('compute'))
+
+    expect(result.current.isSearchPending).toBe(false)
+  })
+
   it('instantiate the hook with the correct initial state', async () => {
     const { result, callback } = await prepare({ initialLoadingState: false })
 

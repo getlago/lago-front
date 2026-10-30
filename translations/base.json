@@ -5313,5 +5313,7 @@
   "text_1792683187186qacr0y860nr": "Search a hierarchical key",
   "text_1792764705907ayn0xi2qmjf": "Previous billing period",
   "text_1792764705907n0lq6q75y89": "This view is too large to compute",
-  "text_17927647059078e1835hd0k1": "Narrow the time range or add filters, then try again."
+  "text_17927647059078e1835hd0k1": "Narrow the time range or add filters, then try again.",
+  "text_1792683486646v7np3oh22jc": "Already priced on this plan",
+  "text_1792683486646r8re8d0scxh": "Already priced on this contract"
 }

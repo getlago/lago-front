@@ -91,6 +91,9 @@ scoping), reactive component/layout implementation gotchas, and data-layer gotch
 that work - read it before writing code in that area, never reconstruct these
 rules from memory or from the nearest existing file.
 
+Before opening any PR, loop or not, run `scripts/pattern-preflight.sh` and
+`scripts/diff-hygiene.sh`, then fix each item or say in the PR why it does not apply.
+
 ## Cypress e2e tests
 
 - Authenticated navigation goes through `cy.visitApp(path)`, not `cy.visit(path)`.
