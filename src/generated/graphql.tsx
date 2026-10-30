@@ -33,6 +33,8 @@ export type Scalars = {
 export type AcceptInviteInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** @deprecated The email is resolved from the invitation token. */
+  email?: InputMaybe<Scalars['String']['input']>;
   password: Scalars['String']['input'];
   /** Uniq token of the Invite */
   token: Scalars['String']['input'];
@@ -827,6 +829,7 @@ export type AttributedUsage = {
   groupBy: Scalars['String']['output'];
   metadata: CollectionMetadata;
   rows: Array<AttributedUsageRow>;
+  splitFiltersCount?: Maybe<Scalars['Int']['output']>;
   subscriptionId: Scalars['ID']['output'];
   toDatetime: Scalars['ISO8601DateTime']['output'];
   totals: AttributedUsageAggregate;
@@ -841,6 +844,8 @@ export type AttributedUsageAggregate = {
   eventsCount: Scalars['Int']['output'];
   /** Null with the units basis */
   preciseAmountCents?: Maybe<Scalars['Float']['output']>;
+  /** Units of the split charge over all its filters. Null without a split charge */
+  splitChargeUnits?: Maybe<Scalars['Float']['output']>;
 };
 
 export enum AttributedUsageBasisEnum {
@@ -877,6 +882,8 @@ export type AttributedUsageRow = {
   preciseAmountCents?: Maybe<Scalars['Float']['output']>;
   /** Position of the value in the whole level */
   rank: Scalars['Int']['output'];
+  /** Units of the split charge over all its filters. Null without a split charge */
+  splitChargeUnits?: Maybe<Scalars['Float']['output']>;
   value: Scalars['String']['output'];
 };
 
@@ -3311,6 +3318,7 @@ export type CurrentOrganization = {
   city?: Maybe<Scalars['String']['output']>;
   country?: Maybe<CountryCode>;
   createdAt: Scalars['ISO8601DateTime']['output'];
+  customerPortalLockedFields: Array<CustomerPortalFieldEnum>;
   defaultCurrency: CurrencyEnum;
   documentNumberPrefix: Scalars['String']['output'];
   documentNumbering: DocumentNumberingEnum;
@@ -3572,10 +3580,30 @@ export type CustomerPortalCustomer = {
   zipcode?: Maybe<Scalars['String']['output']>;
 };
 
+/** Customer fields that can be sent from the customer portal */
+export enum CustomerPortalFieldEnum {
+  AddressLine1 = 'address_line1',
+  AddressLine2 = 'address_line2',
+  City = 'city',
+  Country = 'country',
+  CustomerType = 'customer_type',
+  DocumentLocale = 'document_locale',
+  Email = 'email',
+  Firstname = 'firstname',
+  Lastname = 'lastname',
+  LegalName = 'legal_name',
+  Name = 'name',
+  ShippingAddress = 'shipping_address',
+  State = 'state',
+  TaxIdentificationNumber = 'tax_identification_number',
+  Zipcode = 'zipcode'
+}
+
 /** CustomerPortalOrganization */
 export type CustomerPortalOrganization = {
   __typename?: 'CustomerPortalOrganization';
   billingConfiguration?: Maybe<OrganizationBillingConfiguration>;
+  customerPortalLockedFields: Array<CustomerPortalFieldEnum>;
   defaultCurrency: CurrencyEnum;
   id: Scalars['ID']['output'];
   logoUrl?: Maybe<Scalars['String']['output']>;
@@ -4649,6 +4677,7 @@ export enum EventCategoryEnum {
   AddOns = 'ADD_ONS',
   Alerts = 'ALERTS',
   BillableMetrics = 'BILLABLE_METRICS',
+  Contracts = 'CONTRACTS',
   Coupons = 'COUPONS',
   CreditNotes = 'CREDIT_NOTES',
   Customers = 'CUSTOMERS',
@@ -4818,15 +4847,18 @@ export enum FeatureFlagEnum {
   IncrementalChargeCache = 'incremental_charge_cache',
   MultiConnection = 'multi_connection',
   OrderForms = 'order_forms',
+  PersistedRecurringValues = 'persisted_recurring_values',
   PostgresEnrichedEvents = 'postgres_enriched_events',
   ProductCatalog = 'product_catalog',
   RealtimeUsage = 'realtime_usage',
+  RecurringAggregationSnapshots = 'recurring_aggregation_snapshots',
   SkipCreditInvoiceAutoPaymentDelay = 'skip_credit_invoice_auto_payment_delay',
   SsoCrossOrganizationSessions = 'sso_cross_organization_sessions',
   StripeSharedPaymentToken = 'stripe_shared_payment_token',
   UsagePrefilterIncremental = 'usage_prefilter_incremental',
   UsagePrefilterShortCache = 'usage_prefilter_short_cache',
   WalletTraceability = 'wallet_traceability',
+  X402Mainnet = 'x402_mainnet',
   X402Payments = 'x402_payments',
   X402ReservationCounterDisabled = 'x402_reservation_counter_disabled'
 }
@@ -9413,6 +9445,7 @@ export type QueryAttributedUsageArgs = {
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   splitChargeId?: InputMaybe<Scalars['ID']['input']>;
+  splitFiltersOffset?: InputMaybe<Scalars['Int']['input']>;
   subscriptionId: Scalars['ID']['input'];
   toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
 };
@@ -12266,6 +12299,7 @@ export type UpdateOrganizationInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<CountryCode>;
+  customerPortalLockedFields?: InputMaybe<Array<CustomerPortalFieldEnum>>;
   defaultCurrency?: InputMaybe<CurrencyEnum>;
   documentNumberPrefix?: InputMaybe<Scalars['String']['input']>;
   documentNumbering?: InputMaybe<DocumentNumberingEnum>;
@@ -13314,6 +13348,20 @@ export type AppliedRateCardActivityLogsQueryVariables = Exact<{
 
 export type AppliedRateCardActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
+export type CachedPlanAppliedRateCardDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CachedPlanAppliedRateCardDetailsQuery = { __typename?: 'Query', planAppliedRateCard?: { __typename: 'PlanAppliedRateCard', id: string } | null };
+
+export type CachedContractAppliedRateCardDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CachedContractAppliedRateCardDetailsQuery = { __typename?: 'Query', contractAppliedRateCard?: { __typename: 'ContractAppliedRateCard', id: string } | null };
+
 export type DestroyRatePhaseMutationVariables = Exact<{
   input: DestroyRatePhaseInput;
 }>;
@@ -13749,7 +13797,7 @@ export type GetCustomerPortalOverdueBalancesQuery = { __typename?: 'Query', cust
 export type GetCustomerPortalDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCustomerPortalDataQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, applicableTimezone: TimezoneEnum, premium: boolean, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null, billingEntityBillingConfiguration: { __typename?: 'BillingEntityBillingConfiguration', id: string, documentLocale?: string | null }, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null } | null, customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, name: string, logoUrl?: string | null, premiumIntegrations: Array<PremiumIntegrationTypeEnum> } | null };
+export type GetCustomerPortalDataQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, applicableTimezone: TimezoneEnum, premium: boolean, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null, billingEntityBillingConfiguration: { __typename?: 'BillingEntityBillingConfiguration', id: string, documentLocale?: string | null }, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null } | null, customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, name: string, logoUrl?: string | null, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, customerPortalLockedFields: Array<CustomerPortalFieldEnum> } | null };
 
 export type UpdatePortalCustomerMutationVariables = Exact<{
   input: UpdateCustomerPortalCustomerInput;
@@ -18832,6 +18880,18 @@ export type GetNetsuiteIntegrationsListQuery = { __typename?: 'Query', integrati
       | { __typename?: 'SalesforceIntegration' }
       | { __typename?: 'XeroIntegration' }
     > } | null };
+
+export type GetOrganizationCustomerPortalSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetOrganizationCustomerPortalSettingsQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, customerPortalLockedFields: Array<CustomerPortalFieldEnum> } | null };
+
+export type UpdateOrganizationCustomerPortalEditableFieldsMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+
+export type UpdateOrganizationCustomerPortalEditableFieldsMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, customerPortalLockedFields: Array<CustomerPortalFieldEnum> } | null };
 
 export type UpdateOrganizationSlugMutationVariables = Exact<{
   input: UpdateOrganizationInput;
@@ -28012,6 +28072,94 @@ export type AppliedRateCardActivityLogsQueryHookResult = ReturnType<typeof useAp
 export type AppliedRateCardActivityLogsLazyQueryHookResult = ReturnType<typeof useAppliedRateCardActivityLogsLazyQuery>;
 export type AppliedRateCardActivityLogsSuspenseQueryHookResult = ReturnType<typeof useAppliedRateCardActivityLogsSuspenseQuery>;
 export type AppliedRateCardActivityLogsQueryResult = Apollo.QueryResult<AppliedRateCardActivityLogsQuery, AppliedRateCardActivityLogsQueryVariables>;
+export const CachedPlanAppliedRateCardDetailsDocument = gql`
+    query cachedPlanAppliedRateCardDetails($id: ID!) {
+  planAppliedRateCard(id: $id) {
+    __typename
+    id
+  }
+}
+    `;
+
+/**
+ * __useCachedPlanAppliedRateCardDetailsQuery__
+ *
+ * To run a query within a React component, call `useCachedPlanAppliedRateCardDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCachedPlanAppliedRateCardDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCachedPlanAppliedRateCardDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCachedPlanAppliedRateCardDetailsQuery(baseOptions: Apollo.QueryHookOptions<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables> & ({ variables: CachedPlanAppliedRateCardDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>(CachedPlanAppliedRateCardDetailsDocument, options);
+      }
+export function useCachedPlanAppliedRateCardDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>(CachedPlanAppliedRateCardDetailsDocument, options);
+        }
+// @ts-ignore
+export function useCachedPlanAppliedRateCardDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>;
+export function useCachedPlanAppliedRateCardDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<CachedPlanAppliedRateCardDetailsQuery | undefined, CachedPlanAppliedRateCardDetailsQueryVariables>;
+export function useCachedPlanAppliedRateCardDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>(CachedPlanAppliedRateCardDetailsDocument, options);
+        }
+export type CachedPlanAppliedRateCardDetailsQueryHookResult = ReturnType<typeof useCachedPlanAppliedRateCardDetailsQuery>;
+export type CachedPlanAppliedRateCardDetailsLazyQueryHookResult = ReturnType<typeof useCachedPlanAppliedRateCardDetailsLazyQuery>;
+export type CachedPlanAppliedRateCardDetailsSuspenseQueryHookResult = ReturnType<typeof useCachedPlanAppliedRateCardDetailsSuspenseQuery>;
+export type CachedPlanAppliedRateCardDetailsQueryResult = Apollo.QueryResult<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>;
+export const CachedContractAppliedRateCardDetailsDocument = gql`
+    query cachedContractAppliedRateCardDetails($id: ID!) {
+  contractAppliedRateCard(id: $id) {
+    __typename
+    id
+  }
+}
+    `;
+
+/**
+ * __useCachedContractAppliedRateCardDetailsQuery__
+ *
+ * To run a query within a React component, call `useCachedContractAppliedRateCardDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCachedContractAppliedRateCardDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCachedContractAppliedRateCardDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCachedContractAppliedRateCardDetailsQuery(baseOptions: Apollo.QueryHookOptions<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables> & ({ variables: CachedContractAppliedRateCardDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>(CachedContractAppliedRateCardDetailsDocument, options);
+      }
+export function useCachedContractAppliedRateCardDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>(CachedContractAppliedRateCardDetailsDocument, options);
+        }
+// @ts-ignore
+export function useCachedContractAppliedRateCardDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>;
+export function useCachedContractAppliedRateCardDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<CachedContractAppliedRateCardDetailsQuery | undefined, CachedContractAppliedRateCardDetailsQueryVariables>;
+export function useCachedContractAppliedRateCardDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>(CachedContractAppliedRateCardDetailsDocument, options);
+        }
+export type CachedContractAppliedRateCardDetailsQueryHookResult = ReturnType<typeof useCachedContractAppliedRateCardDetailsQuery>;
+export type CachedContractAppliedRateCardDetailsLazyQueryHookResult = ReturnType<typeof useCachedContractAppliedRateCardDetailsLazyQuery>;
+export type CachedContractAppliedRateCardDetailsSuspenseQueryHookResult = ReturnType<typeof useCachedContractAppliedRateCardDetailsSuspenseQuery>;
+export type CachedContractAppliedRateCardDetailsQueryResult = Apollo.QueryResult<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>;
 export const DestroyRatePhaseDocument = gql`
     mutation destroyRatePhase($input: DestroyRatePhaseInput!) {
   destroyRatePhase(input: $input) {
@@ -30131,6 +30279,7 @@ export const GetCustomerPortalDataDocument = gql`
     name
     logoUrl
     premiumIntegrations
+    customerPortalLockedFields
   }
 }
     `;
@@ -52379,6 +52528,83 @@ export type GetNetsuiteIntegrationsListQueryHookResult = ReturnType<typeof useGe
 export type GetNetsuiteIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsListLazyQuery>;
 export type GetNetsuiteIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsListSuspenseQuery>;
 export type GetNetsuiteIntegrationsListQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>;
+export const GetOrganizationCustomerPortalSettingsDocument = gql`
+    query getOrganizationCustomerPortalSettings {
+  organization {
+    id
+    customerPortalLockedFields
+  }
+}
+    `;
+
+/**
+ * __useGetOrganizationCustomerPortalSettingsQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationCustomerPortalSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationCustomerPortalSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationCustomerPortalSettingsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetOrganizationCustomerPortalSettingsQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>(GetOrganizationCustomerPortalSettingsDocument, options);
+      }
+export function useGetOrganizationCustomerPortalSettingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>(GetOrganizationCustomerPortalSettingsDocument, options);
+        }
+// @ts-ignore
+export function useGetOrganizationCustomerPortalSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>;
+export function useGetOrganizationCustomerPortalSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationCustomerPortalSettingsQuery | undefined, GetOrganizationCustomerPortalSettingsQueryVariables>;
+export function useGetOrganizationCustomerPortalSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>(GetOrganizationCustomerPortalSettingsDocument, options);
+        }
+export type GetOrganizationCustomerPortalSettingsQueryHookResult = ReturnType<typeof useGetOrganizationCustomerPortalSettingsQuery>;
+export type GetOrganizationCustomerPortalSettingsLazyQueryHookResult = ReturnType<typeof useGetOrganizationCustomerPortalSettingsLazyQuery>;
+export type GetOrganizationCustomerPortalSettingsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationCustomerPortalSettingsSuspenseQuery>;
+export type GetOrganizationCustomerPortalSettingsQueryResult = Apollo.QueryResult<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>;
+export const UpdateOrganizationCustomerPortalEditableFieldsDocument = gql`
+    mutation updateOrganizationCustomerPortalEditableFields($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    id
+    customerPortalLockedFields
+  }
+}
+    `;
+export type UpdateOrganizationCustomerPortalEditableFieldsMutationFn = Apollo.MutationFunction<UpdateOrganizationCustomerPortalEditableFieldsMutation, UpdateOrganizationCustomerPortalEditableFieldsMutationVariables>;
+
+/**
+ * __useUpdateOrganizationCustomerPortalEditableFieldsMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrganizationCustomerPortalEditableFieldsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrganizationCustomerPortalEditableFieldsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrganizationCustomerPortalEditableFieldsMutation, { data, loading, error }] = useUpdateOrganizationCustomerPortalEditableFieldsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOrganizationCustomerPortalEditableFieldsMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationCustomerPortalEditableFieldsMutation, UpdateOrganizationCustomerPortalEditableFieldsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOrganizationCustomerPortalEditableFieldsMutation, UpdateOrganizationCustomerPortalEditableFieldsMutationVariables>(UpdateOrganizationCustomerPortalEditableFieldsDocument, options);
+      }
+export type UpdateOrganizationCustomerPortalEditableFieldsMutationHookResult = ReturnType<typeof useUpdateOrganizationCustomerPortalEditableFieldsMutation>;
+export type UpdateOrganizationCustomerPortalEditableFieldsMutationResult = Apollo.MutationResult<UpdateOrganizationCustomerPortalEditableFieldsMutation>;
+export type UpdateOrganizationCustomerPortalEditableFieldsMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationCustomerPortalEditableFieldsMutation, UpdateOrganizationCustomerPortalEditableFieldsMutationVariables>;
 export const UpdateOrganizationSlugDocument = gql`
     mutation updateOrganizationSlug($input: UpdateOrganizationInput!) {
   updateOrganization(input: $input) {
