@@ -44,6 +44,8 @@ export const typeDefs = gql`
     value_is_duplicated
     value_is_invalid
     value_is_out_of_range
+    value_is_too_long
+    invalid_characters
     last_admin
 
     # AI agent errors

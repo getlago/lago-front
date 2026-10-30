@@ -1,7 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 
-import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars/currentOrganizationVar'
 import { AiConversationToolCallStatusEnum } from '~/generated/graphql'
 import { ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import {
@@ -20,7 +19,6 @@ const renderAiAgent = () => renderHook(() => useAiAgent(), { wrapper })
 describe('useAiAgent', () => {
   beforeEach(() => {
     localStorage.clear()
-    currentOrganizationVar(null)
   })
 
   describe('GIVEN the hook is used outside the provider', () => {
@@ -102,52 +100,6 @@ describe('useAiAgent', () => {
 
         expect(result.current.conversationId).toBe('')
         expect(result.current.state.messages).toHaveLength(0)
-      })
-    })
-  })
-
-  describe('GIVEN the member switches organization', () => {
-    describe('WHEN a conversation with pending writes is open', () => {
-      it('THEN should reset the conversation', () => {
-        act(() => {
-          currentOrganizationVar('org-1')
-        })
-
-        const { result } = renderAiAgent()
-
-        act(() => {
-          result.current.startNewConversation({ convId: 'conv-1', message: 'hello' })
-          result.current.setPendingToolCalls([
-            {
-              id: 'tool-call-1',
-              name: 'void_invoice',
-              arguments: {},
-              status: AiConversationToolCallStatusEnum.Pending,
-            },
-          ])
-        })
-        act(() => {
-          currentOrganizationVar('org-2')
-        })
-
-        expect(result.current.conversationId).toBe('')
-        expect(result.current.state.messages).toHaveLength(0)
-        expect(result.current.state.toolCalls).toHaveLength(0)
-      })
-    })
-
-    describe('WHEN the organization is set for the first time', () => {
-      it('THEN should keep the conversation', () => {
-        const { result } = renderAiAgent()
-
-        act(() => {
-          result.current.startNewConversation({ convId: 'conv-1', message: 'hello' })
-        })
-        act(() => {
-          currentOrganizationVar('org-1')
-        })
-
-        expect(result.current.conversationId).toBe('conv-1')
       })
     })
   })

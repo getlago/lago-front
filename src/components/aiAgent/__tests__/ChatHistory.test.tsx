@@ -20,6 +20,7 @@ const mockSetPreviousChatMessages = jest.fn()
 jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
   ...jest.requireActual('~/hooks/aiAgent/useAiAgent'),
   useAiAgent: () => ({
+    getConversationVersion: () => 0,
     setPreviousChatMessages: mockSetPreviousChatMessages,
   }),
 }))

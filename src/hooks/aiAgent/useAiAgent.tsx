@@ -1,16 +1,14 @@
-import { useReactiveVar } from '@apollo/client'
 import {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
-  useEffect,
   useMemo,
   useReducer,
   useRef,
   useState,
 } from 'react'
 
-import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars/currentOrganizationVar'
 import { getItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import {
   AiConversationToolCallItemFragment,
@@ -58,6 +56,8 @@ const getStoredAgentType = (): AiAgentTypeEnum => {
 interface AiAgentContextType extends UsePanelReturn<AIPanelEnum> {
   state: ChatState
   conversationId?: string
+  conversationVersion: number
+  getConversationVersion: () => number
   agentType: AiAgentTypeEnum
   lastAssistantMessage?: ChatMessage
   setAgentType: (agentType: AiAgentTypeEnum) => void
@@ -113,7 +113,18 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
   })
 
   const [conversationId, setConversationId] = useState('')
+  // Bumped when the conversation is dropped or replaced, never when the user's
+  // own request completes. Late callbacks read the ref, which outlives panels.
+  const conversationVersionRef = useRef(0)
+  const [conversationVersion, setConversationVersion] = useState(0)
   const [agentType, setAgentTypeState] = useState<AiAgentTypeEnum>(getStoredAgentType)
+
+  const bumpConversationVersion = useCallback(() => {
+    conversationVersionRef.current += 1
+    setConversationVersion(conversationVersionRef.current)
+  }, [])
+
+  const getConversationVersion = useCallback(() => conversationVersionRef.current, [])
 
   const [state, dispatch] = useReducer(chatReducer, {
     messages: [],
@@ -123,21 +134,6 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     financeSessionId: undefined,
     toolCalls: [],
   })
-
-  const currentOrganizationId = useReactiveVar(currentOrganizationVar)
-  const previousOrganizationIdRef = useRef(currentOrganizationId)
-
-  // A conversation and its pending writes belong to one organization
-  useEffect(() => {
-    const previousOrganizationId = previousOrganizationIdRef.current
-
-    previousOrganizationIdRef.current = currentOrganizationId
-
-    if (previousOrganizationId && previousOrganizationId !== currentOrganizationId) {
-      setConversationId('')
-      dispatch({ type: ChatActionType.RESET_CONVERSATION })
-    }
-  }, [currentOrganizationId])
 
   const lastAssistantMessage = useMemo(() => {
     return state.messages.filter((message) => message.role === ChatRole.assistant).pop()
@@ -155,6 +151,7 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     // History only stores billing conversations; replies must route to the billing flow
     setAgentTypeState(AiAgentTypeEnum.billing)
     setConversationId(convId)
+    bumpConversationVersion()
     dispatch({ type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES, messages, toolCalls })
   }
 
@@ -164,6 +161,7 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     setConversationId('')
     setAgentTypeState(newAgentType)
     setItemFromLS(AI_AGENT_TYPE_LS_KEY, newAgentType)
+    bumpConversationVersion()
     dispatch({ type: ChatActionType.RESET_CONVERSATION })
   }
 
@@ -181,10 +179,11 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     })
   }
 
-  const resetConversation = () => {
+  const resetConversation = useCallback(() => {
     setConversationId('')
+    bumpConversationVersion()
     dispatch({ type: ChatActionType.RESET_CONVERSATION })
-  }
+  }, [bumpConversationVersion])
 
   const streamChunk = ({ messageId, chunk }: { messageId: string; chunk: string }) => {
     dispatch({
@@ -267,6 +266,8 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
         ...panel,
         state,
         conversationId,
+        conversationVersion,
+        getConversationVersion,
         agentType,
         lastAssistantMessage,
         setAgentType,

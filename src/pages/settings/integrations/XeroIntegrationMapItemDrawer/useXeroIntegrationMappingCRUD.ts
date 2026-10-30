@@ -1,17 +1,12 @@
 import { gql, Reference } from '@apollo/client'
-import { useCallback, useRef } from 'react'
 
 import {
-  IntegrationItemTypeEnum,
   MappableTypeEnum,
   MappingTypeEnum,
   useCreateXeroIntegrationCollectionMappingMutation,
   useCreateXeroIntegrationMappingMutation,
   useDeleteXeroIntegrationCollectionMappingMutation,
   useDeleteXeroIntegrationMappingMutation,
-  useGetXeroIntegrationItemsLazyQuery,
-  useTriggerXeroIntegrationAccountsRefetchMutation,
-  useTriggerXeroIntegrationItemsRefetchMutation,
   useUpdateXeroIntegrationCollectionMappingMutation,
   useUpdateXeroIntegrationMappingMutation,
 } from '~/generated/graphql'
@@ -30,62 +25,11 @@ const MAPPING_CACHE_FRAGMENT = gql`
 
 export const useXeroIntegrationMappingCRUD = (
   formType: MappableTypeEnum | MappingTypeEnum | undefined,
-  integrationId?: string,
 ) => {
-  const isAccountContext = formType === MappingTypeEnum.Account
   const isPaginated =
     formType === MappableTypeEnum.AddOn || formType === MappableTypeEnum.BillableMetric
 
   const parentTypename = formType === MappableTypeEnum.AddOn ? 'AddOn' : 'BillableMetric'
-
-  // Item fetch — wrap the lazy query to always inject the current integrationId at call time.
-  // The Drawer always mounts children (even when closed), and useDebouncedSearch fires
-  // searchQuery() on mount with no args, so default variables alone are not reliable.
-  const integrationIdRef = useRef(integrationId)
-
-  integrationIdRef.current = integrationId
-
-  const [
-    rawGetXeroIntegrationItems,
-    { loading: initialItemFetchLoading, data: initialItemFetchData },
-  ] = useGetXeroIntegrationItemsLazyQuery()
-
-  const getXeroIntegrationItems = useCallback(
-    (...args: Parameters<typeof rawGetXeroIntegrationItems>) => {
-      const currentIntegrationId = integrationIdRef.current
-
-      if (!currentIntegrationId) return
-
-      return rawGetXeroIntegrationItems({
-        ...args[0],
-        variables: {
-          ...args[0]?.variables,
-          limit: 1000,
-          integrationId: currentIntegrationId,
-          itemType: isAccountContext
-            ? IntegrationItemTypeEnum.Account
-            : IntegrationItemTypeEnum.Standard,
-        },
-      })
-    },
-    [isAccountContext, rawGetXeroIntegrationItems],
-  )
-
-  const [triggerAccountItemRefetch, { loading: accountItemsLoading }] =
-    useTriggerXeroIntegrationAccountsRefetchMutation({
-      ...(integrationId && {
-        variables: { input: { integrationId } },
-      }),
-      refetchQueries: ['getXeroIntegrationItems'],
-    })
-
-  const [triggerItemRefetch, { loading: itemsLoading }] =
-    useTriggerXeroIntegrationItemsRefetchMutation({
-      ...(integrationId && {
-        variables: { input: { integrationId } },
-      }),
-      refetchQueries: ['getXeroIntegrationItems'],
-    })
 
   // Mapping Creation
   const [createCollectionMapping] = useCreateXeroIntegrationCollectionMappingMutation({
@@ -200,13 +144,6 @@ export const useXeroIntegrationMappingCRUD = (
   )
 
   return {
-    getXeroIntegrationItems,
-    initialItemFetchLoading,
-    initialItemFetchData,
-    accountItemsLoading,
-    itemsLoading,
-    triggerAccountItemRefetch,
-    triggerItemRefetch,
     createCollectionMapping,
     createMapping,
     deleteCollectionMapping,

@@ -6,7 +6,6 @@ import React from 'react'
 import {
   CreateXeroIntegrationMappingDocument,
   DeleteXeroIntegrationMappingDocument,
-  GetXeroIntegrationItemsDocument,
   MappableTypeEnum,
   MappingTypeEnum,
   UpdateXeroIntegrationMappingDocument,
@@ -44,40 +43,6 @@ const createCacheWrapper = (mocks: TestMocksType, cache: InMemoryCache) => {
   Wrapper.displayName = 'CacheWrapper'
   return Wrapper
 }
-
-const buildGetItemsMock = () => ({
-  request: {
-    query: GetXeroIntegrationItemsDocument,
-    variables: {
-      limit: 1000,
-      integrationId: INTEGRATION_ID,
-      itemType: 'standard',
-    },
-  },
-  result: {
-    data: {
-      integrationItems: {
-        __typename: 'IntegrationItemCollection',
-        collection: [
-          {
-            __typename: 'IntegrationItem',
-            id: 'item-1',
-            externalId: 'ext-1',
-            externalName: 'External Item',
-            externalAccountCode: 'ACC001',
-            itemType: 'standard',
-          },
-        ],
-        metadata: {
-          __typename: 'CollectionMetadata',
-          currentPage: 1,
-          totalPages: 1,
-          totalCount: 1,
-        },
-      },
-    },
-  },
-})
 
 const buildCreateMappingMock = () => ({
   request: {
@@ -167,148 +132,6 @@ describe('useXeroIntegrationMappingCRUD', () => {
   })
 
   // -------------------------------------------------------------------------
-  // Hook API shape
-  // -------------------------------------------------------------------------
-  describe('hook return value', () => {
-    it('returns all expected functions and state', () => {
-      const { result } = renderHook(
-        () => useXeroIntegrationMappingCRUD(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
-        { wrapper: createWrapper([]) },
-      )
-
-      expect(typeof result.current.getXeroIntegrationItems).toBe('function')
-      expect(typeof result.current.createMapping).toBe('function')
-      expect(typeof result.current.updateMapping).toBe('function')
-      expect(typeof result.current.deleteMapping).toBe('function')
-      expect(typeof result.current.createCollectionMapping).toBe('function')
-      expect(typeof result.current.updateCollectionMapping).toBe('function')
-      expect(typeof result.current.deleteCollectionMapping).toBe('function')
-      expect(typeof result.current.triggerAccountItemRefetch).toBe('function')
-      expect(typeof result.current.triggerItemRefetch).toBe('function')
-      expect(result.current.initialItemFetchLoading).toBe(false)
-      expect(result.current.initialItemFetchData).toBeUndefined()
-      expect(result.current.accountItemsLoading).toBe(false)
-      expect(result.current.itemsLoading).toBe(false)
-    })
-  })
-
-  // -------------------------------------------------------------------------
-  // getXeroIntegrationItems wrapper — guard against undefined integrationId
-  // -------------------------------------------------------------------------
-  describe('getXeroIntegrationItems wrapper', () => {
-    it('does not execute the query when integrationId is undefined', async () => {
-      const { result } = renderHook(
-        () => useXeroIntegrationMappingCRUD(MappableTypeEnum.BillableMetric, undefined),
-        { wrapper: createWrapper([buildGetItemsMock()]) },
-      )
-
-      // Call the wrapped function — should return undefined (no-op)
-      let returnValue: unknown
-
-      await act(async () => {
-        returnValue = result.current.getXeroIntegrationItems()
-      })
-
-      expect(returnValue).toBeUndefined()
-      expect(result.current.initialItemFetchData).toBeUndefined()
-    })
-
-    it('executes the query when integrationId is provided', async () => {
-      const { result } = renderHook(
-        () => useXeroIntegrationMappingCRUD(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
-        { wrapper: createWrapper([buildGetItemsMock()]) },
-      )
-
-      await act(async () => {
-        await result.current.getXeroIntegrationItems()
-      })
-
-      await waitFor(() => {
-        expect(result.current.initialItemFetchData?.integrationItems?.collection).toHaveLength(1)
-      })
-    })
-
-    it('merges caller-provided variables (e.g. searchTerm) with injected variables', async () => {
-      const searchMock = {
-        request: {
-          query: GetXeroIntegrationItemsDocument,
-          variables: {
-            limit: 1000,
-            integrationId: INTEGRATION_ID,
-            itemType: 'standard',
-            searchTerm: 'test',
-          },
-        },
-        result: {
-          data: {
-            integrationItems: {
-              __typename: 'IntegrationItemCollection',
-              collection: [],
-              metadata: {
-                __typename: 'CollectionMetadata',
-                currentPage: 1,
-                totalPages: 1,
-                totalCount: 0,
-              },
-            },
-          },
-        },
-      }
-
-      const { result } = renderHook(
-        () => useXeroIntegrationMappingCRUD(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
-        { wrapper: createWrapper([searchMock]) },
-      )
-
-      await act(async () => {
-        await result.current.getXeroIntegrationItems({
-          variables: {
-            searchTerm: 'test',
-            integrationId: '',
-          },
-        })
-      })
-
-      await waitFor(() => {
-        expect(result.current.initialItemFetchData?.integrationItems?.collection).toHaveLength(0)
-      })
-    })
-
-    it('reads the latest integrationId from the ref when called after rerender', async () => {
-      // Start with undefined integrationId
-      const { result, rerender } = renderHook(
-        ({ id }: { id: string | undefined }) =>
-          useXeroIntegrationMappingCRUD(MappableTypeEnum.BillableMetric, id),
-        {
-          initialProps: { id: undefined as string | undefined },
-          wrapper: createWrapper([buildGetItemsMock()]),
-        },
-      )
-
-      // Query should be a no-op when integrationId is undefined
-      let returnValue: unknown
-
-      await act(async () => {
-        returnValue = result.current.getXeroIntegrationItems()
-      })
-
-      expect(returnValue).toBeUndefined()
-
-      // Re-render with a valid integrationId
-      rerender({ id: INTEGRATION_ID })
-
-      // Now the same wrapper should use the updated integrationId from ref
-      await act(async () => {
-        await result.current.getXeroIntegrationItems()
-      })
-
-      await waitFor(() => {
-        expect(result.current.initialItemFetchData?.integrationItems?.collection).toHaveLength(1)
-      })
-    })
-  })
-
-  // -------------------------------------------------------------------------
   // Cache update: createMapping for paginated types
   // -------------------------------------------------------------------------
   describe('createMapping cache update (paginated)', () => {
@@ -334,7 +157,7 @@ describe('useXeroIntegrationMappingCRUD', () => {
       })
 
       const { result } = renderHook(
-        () => useXeroIntegrationMappingCRUD(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
+        () => useXeroIntegrationMappingCRUD(MappableTypeEnum.BillableMetric),
         { wrapper: createCacheWrapper([buildCreateMappingMock()], cache) },
       )
 
@@ -392,7 +215,7 @@ describe('useXeroIntegrationMappingCRUD', () => {
       })
 
       const { result } = renderHook(
-        () => useXeroIntegrationMappingCRUD(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
+        () => useXeroIntegrationMappingCRUD(MappableTypeEnum.BillableMetric),
         { wrapper: createCacheWrapper([buildUpdateMappingMock()], cache) },
       )
 
@@ -455,7 +278,7 @@ describe('useXeroIntegrationMappingCRUD', () => {
       })
 
       const { result } = renderHook(
-        () => useXeroIntegrationMappingCRUD(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
+        () => useXeroIntegrationMappingCRUD(MappableTypeEnum.BillableMetric),
         { wrapper: createCacheWrapper([buildDeleteMappingMock()], cache) },
       )
 
@@ -486,10 +309,9 @@ describe('useXeroIntegrationMappingCRUD', () => {
   // -------------------------------------------------------------------------
   describe('non-paginated types (MappingTypeEnum)', () => {
     it('returns mutation functions without error', () => {
-      const { result } = renderHook(
-        () => useXeroIntegrationMappingCRUD(MappingTypeEnum.Coupon, INTEGRATION_ID),
-        { wrapper: createWrapper([]) },
-      )
+      const { result } = renderHook(() => useXeroIntegrationMappingCRUD(MappingTypeEnum.Coupon), {
+        wrapper: createWrapper([]),
+      })
 
       expect(typeof result.current.createMapping).toBe('function')
       expect(typeof result.current.updateMapping).toBe('function')

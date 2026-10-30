@@ -17,19 +17,26 @@ type ChatHistoryProps = {
 }
 
 export const ChatHistory = ({ hideHistory, isFullscreen }: ChatHistoryProps) => {
-  const { setPreviousChatMessages } = useAiAgent()
+  const { getConversationVersion, setPreviousChatMessages } = useAiAgent()
 
   const { getAiConversation } = useGetAiConversation()
 
   const { data, loading, error } = useListAiConversations()
 
   const handleGetAiConversation = async (id: string) => {
+    const versionAtRequest = getConversationVersion()
+
     const { data: singleConversationData } = await getAiConversation({
       variables: {
         id,
       },
       fetchPolicy: 'network-only',
     })
+
+    // The conversation was dropped or replaced while the request was in flight
+    if (getConversationVersion() !== versionAtRequest) {
+      return
+    }
 
     if (singleConversationData?.aiConversation?.id) {
       const formattedMessages = singleConversationData?.aiConversation?.messages?.map((message) => {

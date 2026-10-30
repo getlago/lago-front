@@ -4,8 +4,15 @@ import userEvent from '@testing-library/user-event'
 import { AI_AGENT_ERROR_TEST_ID, AI_AGENT_NAV_TEST_ID, AiAgent } from '~/components/aiAgent/AiAgent'
 import { CHAT_CONVERSATION_TEST_ID } from '~/components/aiAgent/ChatConversation'
 import { CHAT_HISTORY_ITEM_TEST_ID, CHAT_HISTORY_TEST_ID } from '~/components/aiAgent/ChatHistory'
-import { PANEL_AI_AGENT_WELCOME_TEST_ID } from '~/components/aiAgent/PanelAiAgent'
-import { GetAiConversationDocument, ListAiConversationsDocument } from '~/generated/graphql'
+import {
+  CHAT_PROMPT_EDITOR_INPUT_TEST_ID,
+  CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID,
+} from '~/components/aiAgent/ChatPromptEditor'
+import {
+  PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID,
+  PANEL_AI_AGENT_WELCOME_TEST_ID,
+} from '~/components/aiAgent/PanelAiAgent'
+import { ListAiConversationsDocument } from '~/generated/graphql'
 import { AiAgentProvider, AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { render, TestMocksType } from '~/test-utils'
 
@@ -39,12 +46,19 @@ jest.mock('~/components/aiAgent/PanelWrapper', () => {
   }
 })
 
+const DEFAULT_MEMBERSHIPS = [
+  { id: 'membership-1', organization: { id: 'org-1', slug: 'test-org' } },
+  { id: 'membership-2', organization: { id: 'org-2', slug: 'second-org' } },
+]
+
+let mockMemberships = DEFAULT_MEMBERSHIPS
+
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({
     isPremium: true,
     currentUser: {
       id: 'user-1',
-      memberships: [{ id: 'membership-1', organization: { id: 'org-1', slug: 'test-org' } }],
+      memberships: mockMemberships,
     },
   }),
 }))
@@ -55,13 +69,53 @@ jest.mock('~/hooks/usePermissions', () => ({
   }),
 }))
 
+const mockCreateAiConversation = jest.fn()
+const mockGetAiConversation = jest.fn()
+
+let mockCreateLoading = false
+
+jest.mock('~/components/aiAgent/hooks/useCreateAiConversation', () => ({
+  useCreateAiConversation: () => ({
+    createAiConversation: mockCreateAiConversation,
+    loading: mockCreateLoading,
+    error: undefined,
+  }),
+}))
+
+jest.mock('~/components/aiAgent/hooks/getAiConversation', () => ({
+  useGetAiConversation: () => ({
+    getAiConversation: mockGetAiConversation,
+  }),
+}))
+
+const STORED_CONVERSATION = {
+  data: {
+    aiConversation: {
+      id: 'conv-1',
+      name: 'Unpaid invoices question',
+      messages: [
+        { content: 'Give me the 3 last unpaid invoices', type: 'message.input' },
+        { content: 'Here are your unpaid invoices...', type: 'message.output' },
+      ],
+    },
+  },
+}
+
 const OpenPanelProbe = ({ agentType }: { agentType: AiAgentTypeEnum }) => {
   const { openPanelWithAgent } = useAiAgent()
 
   return (
-    <button data-test="open-ai-panel" onClick={() => openPanelWithAgent(agentType)}>
-      open
-    </button>
+    <>
+      <button data-test="open-ai-panel" onClick={() => openPanelWithAgent(agentType)}>
+        open
+      </button>
+      <button
+        data-test="switch-to-finance-agent"
+        onClick={() => openPanelWithAgent(AiAgentTypeEnum.finance)}
+      >
+        switch
+      </button>
+    </>
   )
 }
 
@@ -81,33 +135,6 @@ const mocks: TestMocksType = [
               id: 'conv-1',
               name: 'Unpaid invoices question',
               updatedAt: '2026-07-13T10:00:00Z',
-            },
-          ],
-        },
-      },
-    },
-  },
-  {
-    request: {
-      query: GetAiConversationDocument,
-      variables: { id: 'conv-1' },
-    },
-    result: {
-      data: {
-        aiConversation: {
-          __typename: 'AiConversationWithMessages',
-          id: 'conv-1',
-          name: 'Unpaid invoices question',
-          messages: [
-            {
-              __typename: 'AiConversationMessage',
-              content: 'Give me the 3 last unpaid invoices',
-              type: 'message.input',
-            },
-            {
-              __typename: 'AiConversationMessage',
-              content: 'Here are your unpaid invoices...',
-              type: 'message.output',
             },
           ],
         },
@@ -135,9 +162,37 @@ const openPanel = async () => {
 const getHistoryButton = () =>
   screen.queryByTestId('history/medium')?.closest('button') as HTMLButtonElement | undefined
 
+const openStoredConversation = async () => {
+  await openPanel()
+  await userEvent.click(getHistoryButton() as HTMLButtonElement)
+
+  const [item] = await screen.findAllByTestId(CHAT_HISTORY_ITEM_TEST_ID)
+
+  await userEvent.click(item)
+
+  await waitFor(() => {
+    expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toBeInTheDocument()
+  })
+}
+
+const submitPrompt = async (message: string) => {
+  await userEvent.type(screen.getByTestId(CHAT_PROMPT_EDITOR_INPUT_TEST_ID), message)
+  await userEvent.click(screen.getByTestId(CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID))
+}
+
+const navigateTo = async (path: string) => {
+  await act(async () => {
+    window.history.pushState({}, '', path)
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  })
+}
+
 describe('AiAgent', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockGetAiConversation.mockResolvedValue(STORED_CONVERSATION)
+    mockCreateLoading = false
+    mockMemberships = DEFAULT_MEMBERSHIPS
     localStorage.clear()
     mockPanelShouldThrow = false
     window.history.pushState({}, '', '/test-org/analytics')
@@ -263,6 +318,197 @@ describe('AiAgent', () => {
 
         expect(screen.queryByTestId(CHAT_HISTORY_TEST_ID)).not.toBeInTheDocument()
         expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a conversation opened under an organization', () => {
+    describe('WHEN the user switches to another organization', () => {
+      it('THEN should drop the conversation and return to the welcome view', async () => {
+        await renderAiAgent()
+        await openStoredConversation()
+
+        await navigateTo('/second-org/analytics')
+
+        expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user navigates inside the same organization', () => {
+      it('THEN should keep the conversation', async () => {
+        await renderAiAgent()
+        await openStoredConversation()
+
+        await navigateTo('/test-org/customers')
+
+        expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the current organization is renamed', () => {
+      it('THEN should keep the conversation', async () => {
+        await renderAiAgent()
+        await openStoredConversation()
+
+        mockMemberships = [
+          { id: 'membership-1', organization: { id: 'org-1', slug: 'renamed-org' } },
+          DEFAULT_MEMBERSHIPS[1],
+        ]
+
+        await navigateTo('/renamed-org/settings')
+
+        expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a legacy slug-less path redirects back to the same organization', () => {
+      it('THEN should keep the conversation', async () => {
+        await renderAiAgent()
+        await openStoredConversation()
+
+        await navigateTo('/customers')
+        await navigateTo('/test-org/customers')
+
+        expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a conversation creation still in flight', () => {
+    const submitAndCaptureCompletion = async () => {
+      let capturedOnCompleted: ((data: unknown) => void) | undefined
+
+      mockCreateAiConversation.mockImplementation(async ({ onCompleted }) => {
+        capturedOnCompleted = onCompleted
+
+        return {}
+      })
+
+      await openPanel()
+      await submitPrompt('hello')
+
+      return async () => {
+        await act(async () => {
+          capturedOnCompleted?.({ createAiConversation: { id: 'conv-from-first-org' } })
+        })
+      }
+    }
+
+    describe('WHEN it completes after the user switched organization', () => {
+      it('THEN should ignore the stale answer', async () => {
+        await renderAiAgent()
+
+        const completeCreation = await submitAndCaptureCompletion()
+
+        await navigateTo('/second-org/analytics')
+        await completeCreation()
+
+        expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN it completes after the panel was unmounted and the organization changed', () => {
+      it('THEN should ignore the stale answer', async () => {
+        await renderAiAgent()
+
+        const completeCreation = await submitAndCaptureCompletion()
+
+        await navigateTo('/test-org/create/plans')
+        await navigateTo('/second-org/analytics')
+        await completeCreation()
+
+        expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization switch lands on a page hiding the panel', () => {
+      it('THEN should ignore the stale answer', async () => {
+        await renderAiAgent()
+
+        const completeCreation = await submitAndCaptureCompletion()
+
+        await navigateTo('/second-org/create/plans')
+        await completeCreation()
+        await navigateTo('/second-org/analytics')
+
+        expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user switches organization while it is pending', () => {
+      it('THEN should drop the prompt echoed under the previous organization', async () => {
+        await renderAiAgent()
+        await submitAndCaptureCompletion()
+        mockCreateLoading = true
+        await navigateTo('/test-org/customers')
+
+        expect(screen.getByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).toBeInTheDocument()
+
+        await navigateTo('/second-org/analytics')
+
+        expect(screen.queryByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user switches agent while it is pending', () => {
+      it('THEN should drop the prompt echoed by the previous agent', async () => {
+        await renderAiAgent()
+        await submitAndCaptureCompletion()
+        mockCreateLoading = true
+        await navigateTo('/test-org/customers')
+
+        expect(screen.getByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).toBeInTheDocument()
+
+        await userEvent.click(screen.getByTestId('switch-to-finance-agent'))
+
+        expect(screen.queryByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN it completes while the user stayed in the same organization', () => {
+      it('THEN should start the conversation', async () => {
+        await renderAiAgent()
+
+        const completeCreation = await submitAndCaptureCompletion()
+
+        await navigateTo('/test-org/customers')
+        await completeCreation()
+
+        expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a history restore still in flight', () => {
+    describe('WHEN it resolves after the user switched organization', () => {
+      it('THEN should ignore the restored conversation', async () => {
+        let resolveRestore: ((value: unknown) => void) | undefined
+
+        mockGetAiConversation.mockImplementation(
+          () =>
+            new Promise((resolve) => {
+              resolveRestore = resolve
+            }),
+        )
+
+        await renderAiAgent()
+        await openPanel()
+        await userEvent.click(getHistoryButton() as HTMLButtonElement)
+
+        const [item] = await screen.findAllByTestId(CHAT_HISTORY_ITEM_TEST_ID)
+
+        await userEvent.click(item)
+        await navigateTo('/second-org/analytics')
+
+        await act(async () => {
+          resolveRestore?.(STORED_CONVERSATION)
+        })
+
+        expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
