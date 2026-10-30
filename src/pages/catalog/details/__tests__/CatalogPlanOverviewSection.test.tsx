@@ -11,21 +11,10 @@ import {
 } from '../CatalogPlanOverviewSection'
 
 const mockOpenEditCatalogPlanDrawer = jest.fn()
-const mockOpenAppliedRateCardDrawer = jest.fn()
-const mockNavigate = jest.fn()
 const mockHasPermissions = jest.fn()
 
 jest.mock('../../drawers/catalogPlan/useCatalogPlanDrawer', () => ({
   useCatalogPlanDrawer: () => ({ openDrawer: mockOpenEditCatalogPlanDrawer }),
-}))
-
-jest.mock('~/components/appliedRateCards/drawers/appliedRateCard/useAppliedRateCardDrawer', () => ({
-  useAppliedRateCardDrawer: () => ({ openDrawer: mockOpenAppliedRateCardDrawer }),
-}))
-
-jest.mock('~/core/router', () => ({
-  ...jest.requireActual('~/core/router'),
-  useNavigate: () => mockNavigate,
 }))
 
 jest.mock('~/hooks/usePermissions', () => ({
@@ -45,14 +34,12 @@ type PlanOverrides = {
   appliedRateCardsCount?: number
   description?: string | null
   invoiceDisplayName?: string | null
-  attachedToContracts?: boolean
 }
 
 const buildMock = ({
   appliedRateCardsCount = 0,
   description = 'A description',
   invoiceDisplayName = 'Cards',
-  attachedToContracts = false,
 }: PlanOverrides) => ({
   request: {
     query: GetCatalogPlanForDetailsOverviewDocument,
@@ -69,14 +56,13 @@ const buildMock = ({
         description,
         invoiceDisplayName,
         appliedRateCardsCount,
-        attachedToContracts,
       },
     },
   },
 })
 
-const renderSection = (overrides: PlanOverrides = {}): void => {
-  render(<CatalogPlanOverviewSection />, {
+const renderSection = (overrides: PlanOverrides = {}, onAssignRateCard?: () => void): void => {
+  render(<CatalogPlanOverviewSection onAssignRateCard={onAssignRateCard} />, {
     wrapper: ({ children }) => (
       <AllTheProviders forceTypenames mocks={[buildMock(overrides)]}>
         {children}
@@ -153,32 +139,30 @@ describe('CatalogPlanOverviewSection', () => {
     expect(screen.getByText('text_17890300495307orirxcvgn8')).toBeInTheDocument()
   })
 
-  it('GIVEN a click on the quick action THEN navigates to the rate cards tab and opens the drawer', async () => {
+  it('GIVEN a click on the quick action THEN calls the onAssignRateCard callback', async () => {
+    const mockOnAssignRateCard = jest.fn()
+
+    renderSection({ appliedRateCardsCount: 0 }, mockOnAssignRateCard)
+
+    await waitFor(() =>
+      expect(screen.getByTestId(CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID)).toBeInTheDocument(),
+    )
+    await userEvent.click(screen.getByTestId(CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID))
+
+    expect(mockOnAssignRateCard).toHaveBeenCalledTimes(1)
+  })
+
+  it('GIVEN no onAssignRateCard callback THEN disables the quick action', async () => {
     renderSection({ appliedRateCardsCount: 0 })
 
     await waitFor(() =>
       expect(screen.getByTestId(CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID)).toBeInTheDocument(),
     )
-    await userEvent.click(screen.getByTestId(CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID))
 
-    expect(mockNavigate).toHaveBeenCalledWith('/plan-pricing/plan-1/overview/rate-cards')
-    expect(mockOpenAppliedRateCardDrawer).toHaveBeenCalledWith({
-      context: 'plan',
-      planId: 'plan-1',
-      currency: 'USD',
-    })
-  })
-
-  it('GIVEN the plan attached to contracts THEN disables the quick action', async () => {
-    renderSection({ appliedRateCardsCount: 0, attachedToContracts: true })
-
-    await waitFor(() =>
-      expect(screen.getByTestId(CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID)).toBeInTheDocument(),
+    expect(screen.getByTestId(CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID)).toHaveAttribute(
+      'tabIndex',
+      '-1',
     )
-    await userEvent.click(screen.getByTestId(CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID))
-
-    expect(mockNavigate).not.toHaveBeenCalled()
-    expect(mockOpenAppliedRateCardDrawer).not.toHaveBeenCalled()
   })
 
   it('GIVEN existing rate cards THEN hides the quick action', async () => {

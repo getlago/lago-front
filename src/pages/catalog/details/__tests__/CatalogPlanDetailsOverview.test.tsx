@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { CatalogPlanOverviewSectionsEnum } from '~/core/constants/tabsOptions'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -7,18 +8,44 @@ import { AllTheProviders } from '~/test-utils'
 import { CatalogPlanDetailsOverview } from '../CatalogPlanDetailsOverview'
 
 const mockParams = { catalogPlanId: 'plan-1', section: undefined as string | undefined }
+const mockNavigate = jest.fn()
+const mockOpenAppliedRateCardDrawer = jest.fn()
+const mockHasPermissions = jest.fn()
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
   useParams: () => mockParams,
 }))
 
+jest.mock('~/core/router', () => ({
+  ...jest.requireActual('~/core/router'),
+  useNavigate: () => mockNavigate,
+}))
+
+jest.mock('~/components/appliedRateCards/drawers/appliedRateCard/useAppliedRateCardDrawer', () => ({
+  useAppliedRateCardDrawer: () => ({ openDrawer: mockOpenAppliedRateCardDrawer }),
+}))
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
+// Captures the prop passed down instead of rendering the real section, so the
+// test can trigger it directly rather than reaching through its own markup.
 jest.mock('../CatalogPlanOverviewSection', () => ({
-  CatalogPlanOverviewSection: () => <div data-test="plan-overview-section" />,
+  CatalogPlanOverviewSection: ({ onAssignRateCard }: { onAssignRateCard?: () => void }) => (
+    <div data-test="plan-overview-section">
+      {onAssignRateCard && (
+        <button data-test="assign-rate-card" onClick={onAssignRateCard}>
+          assign
+        </button>
+      )}
+    </div>
+  ),
 }))
 
 // The section makes a real GraphQL query; its own data/empty/error behavior is
@@ -47,11 +74,20 @@ jest.mock('../CatalogPlanOverviewNav', () => ({
   ),
 }))
 
-const renderOverview = (): void => {
+type OverviewOverrides = {
+  currency?: CurrencyEnum | null
+  isRateCardsLocked?: boolean
+}
+
+const renderOverview = ({
+  currency = CurrencyEnum.Usd,
+  isRateCardsLocked = false,
+}: OverviewOverrides = {}): void => {
   render(
     <CatalogPlanDetailsOverview
-      currency={CurrencyEnum.Usd}
-      isRateCardsLocked={false}
+      // `null` (not a plain optional default) models "no currency yet" explicitly.
+      currency={currency ?? undefined}
+      isRateCardsLocked={isRateCardsLocked}
       rateCardsCount={0}
     />,
     {
@@ -61,6 +97,11 @@ const renderOverview = (): void => {
 }
 
 describe('CatalogPlanDetailsOverview', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockHasPermissions.mockReturnValue(true)
+  })
+
   it('GIVEN no section param THEN renders the plan overview section', () => {
     mockParams.section = undefined
     renderOverview()
@@ -109,5 +150,41 @@ describe('CatalogPlanDetailsOverview', () => {
 
     expect(screen.getByTestId('nav')).toHaveAttribute('data-rate-cards-count', '4')
     expect(screen.getByTestId('nav')).toHaveAttribute('data-loading', 'true')
+  })
+
+  it('GIVEN permission, unlocked plan and a currency THEN a click on assign rate card navigates and opens the drawer', async () => {
+    mockParams.section = undefined
+    renderOverview()
+
+    await userEvent.click(screen.getByTestId('assign-rate-card'))
+
+    expect(mockNavigate).toHaveBeenCalledWith('/plan-pricing/plan-1/overview/rate-cards')
+    expect(mockOpenAppliedRateCardDrawer).toHaveBeenCalledWith({
+      context: 'plan',
+      planId: 'plan-1',
+      currency: CurrencyEnum.Usd,
+    })
+  })
+
+  it('GIVEN no update permission THEN does not offer the assign rate card callback', () => {
+    mockHasPermissions.mockReturnValue(false)
+    mockParams.section = undefined
+    renderOverview()
+
+    expect(screen.queryByTestId('assign-rate-card')).not.toBeInTheDocument()
+  })
+
+  it('GIVEN the plan locked (attached to contracts) THEN does not offer the assign rate card callback', () => {
+    mockParams.section = undefined
+    renderOverview({ isRateCardsLocked: true })
+
+    expect(screen.queryByTestId('assign-rate-card')).not.toBeInTheDocument()
+  })
+
+  it('GIVEN no currency yet THEN does not offer the assign rate card callback', () => {
+    mockParams.section = undefined
+    renderOverview({ currency: null })
+
+    expect(screen.queryByTestId('assign-rate-card')).not.toBeInTheDocument()
   })
 })

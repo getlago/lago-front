@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
-import { generatePath, useParams } from 'react-router'
+import { useParams } from 'react-router'
 
-import { useAppliedRateCardDrawer } from '~/components/appliedRateCards/drawers/appliedRateCard/useAppliedRateCardDrawer'
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
 import {
@@ -11,11 +10,6 @@ import {
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import {
-  CatalogPlanDetailsTabsOptionsEnum,
-  CatalogPlanOverviewSectionsEnum,
-} from '~/core/constants/tabsOptions'
-import { CATALOG_PLAN_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   CatalogPlanForCatalogPlanDrawerFragmentDoc,
   LagoApiError,
@@ -51,12 +45,16 @@ gql`
   ${CatalogPlanForCatalogPlanDrawerFragmentDoc}
 `
 
-export const CatalogPlanOverviewSection = (): JSX.Element => {
+type CatalogPlanOverviewSectionProps = {
+  onAssignRateCard?: () => void
+}
+
+export const CatalogPlanOverviewSection = ({
+  onAssignRateCard,
+}: CatalogPlanOverviewSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const navigate = useNavigate()
   const { openDrawer: openEditCatalogPlanDrawer } = useCatalogPlanDrawer()
-  const { openDrawer: openAppliedRateCardDrawer } = useAppliedRateCardDrawer()
   const { catalogPlanId = '' } = useParams()
 
   const { data, loading } = useGetCatalogPlanForDetailsOverviewQuery({
@@ -71,25 +69,6 @@ export const CatalogPlanOverviewSection = (): JSX.Element => {
   }
 
   const hasNoRateCard = catalogPlan?.appliedRateCardsCount === 0
-  const isRateCardsLocked = catalogPlan?.attachedToContracts !== false
-  const canAssignRateCard =
-    hasPermissions(['plansUpdate']) && !isRateCardsLocked && !!catalogPlan?.currency
-
-  const handleAssignRateCard = (): void => {
-    if (!canAssignRateCard || !catalogPlan) return
-
-    navigate(
-      `${generatePath(CATALOG_PLAN_DETAILS_ROUTE, {
-        catalogPlanId,
-        tab: CatalogPlanDetailsTabsOptionsEnum.overview,
-      })}/${CatalogPlanOverviewSectionsEnum.rateCards}`,
-    )
-    openAppliedRateCardDrawer({
-      context: 'plan',
-      planId: catalogPlanId,
-      currency: catalogPlan.currency,
-    })
-  }
 
   return (
     <div className="flex flex-col gap-12">
@@ -164,8 +143,8 @@ export const CatalogPlanOverviewSection = (): JSX.Element => {
             icon="book"
             title={translate('text_1789030049530umr4s4zqygs')}
             data-test={CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID}
-            disabled={!canAssignRateCard}
-            onClick={handleAssignRateCard}
+            disabled={!onAssignRateCard}
+            onClick={onAssignRateCard}
             endContent={<Button icon="plus" variant="quaternary" tabIndex={-1} />}
           />
         </section>
