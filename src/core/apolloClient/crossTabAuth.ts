@@ -55,6 +55,14 @@ export const reconcileSession = (client: ApolloClient<object>): Promise<void> =>
     .then(() => {
       const latestToken = getStoredAuthToken()
 
+      // Not adopted in place: `client.stop()` left this tab's mounted queries
+      // dead, and its current organization belongs to the previous account.
+      if (sessionToken && latestToken) {
+        window.location.assign('/')
+
+        return
+      }
+
       if (latestToken) resumePersistence()
       authTokenVar(latestToken)
       resetLocationHistoryVar()

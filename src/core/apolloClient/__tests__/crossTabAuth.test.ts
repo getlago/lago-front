@@ -151,7 +151,19 @@ describe('reconcileSession', () => {
   })
 
   describe('GIVEN another tab signed in with a different account', () => {
-    it('THEN should clear this tab and adopt the new session', async () => {
+    it('THEN should clear this tab and reload it instead of adopting the session in place', async () => {
+      localStorage.setItem('authToken', USER_B_TOKEN)
+
+      await reconcileSession(client)
+
+      expect(mockClearLocalSession).toHaveBeenCalledTimes(1)
+      expect(authTokenVar()).toBe(USER_A_TOKEN)
+    })
+  })
+
+  describe('GIVEN this tab is signed out and another tab signs in', () => {
+    it('THEN should adopt the new session', async () => {
+      authTokenVar(undefined)
       localStorage.setItem('authToken', USER_B_TOKEN)
 
       await reconcileSession(client)
@@ -196,7 +208,7 @@ describe('reconcileSession', () => {
   })
 
   describe('GIVEN another tab stores a session while this one is clearing', () => {
-    it('THEN should adopt the latest stored session', async () => {
+    it('THEN should reload instead of adopting the latest stored session in place', async () => {
       localStorage.removeItem('authToken')
       mockClearLocalSession.mockImplementation(async () => {
         localStorage.setItem('authToken', USER_B_TOKEN)
@@ -204,7 +216,7 @@ describe('reconcileSession', () => {
 
       await reconcileSession(client)
 
-      expect(authTokenVar()).toBe(USER_B_TOKEN)
+      expect(authTokenVar()).toBe(USER_A_TOKEN)
     })
   })
 })
