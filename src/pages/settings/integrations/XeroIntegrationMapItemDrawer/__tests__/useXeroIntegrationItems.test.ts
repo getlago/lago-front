@@ -1,3 +1,5 @@
+import { InMemoryCache } from '@apollo/client'
+import { MockedProvider } from '@apollo/client/testing'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import React from 'react'
 
@@ -157,6 +159,44 @@ describe('useXeroIntegrationItems', () => {
             },
           ])
         })
+      })
+
+      // A reopened drawer finds the catalog cached and cache-and-network revalidates it, so
+      // `loading` alone would spin over the list the field is already showing.
+      it('THEN should not report loading while a cached catalog is revalidating', async () => {
+        const cache = new InMemoryCache()
+
+        cache.writeQuery({
+          query: GetXeroIntegrationItemsDocument,
+          variables: { integrationId: INTEGRATION_ID, itemType: 'standard', limit: 1000 },
+          data: buildGetItemsMock().result.data,
+        })
+
+        const { result } = renderHook(
+          () => useXeroIntegrationItems(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
+          {
+            wrapper: ({ children }: { children: React.ReactNode }) =>
+              React.createElement(
+                MockedProvider,
+                {
+                  mocks: [buildGetItemsMock()],
+                  addTypename: true,
+                  cache,
+                  defaultOptions: {
+                    watchQuery: {
+                      fetchPolicy: 'cache-and-network',
+                      nextFetchPolicy: 'cache-first',
+                      errorPolicy: 'all',
+                    },
+                  },
+                },
+                children,
+              ),
+          },
+        )
+
+        expect(result.current.items).toHaveLength(1)
+        expect(result.current.isLoading).toBe(false)
       })
 
       it('THEN should request the account item type in an account context', async () => {

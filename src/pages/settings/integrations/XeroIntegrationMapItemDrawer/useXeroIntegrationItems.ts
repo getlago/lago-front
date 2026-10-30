@@ -82,7 +82,9 @@ export const useXeroIntegrationItems = (
 
   return {
     items,
-    isLoading: itemsFetchLoading || refetchItemsLoading || accountItemsLoading,
+    // Gated on the first load: under cache-and-network a reopened drawer revalidates a cached
+    // catalog, and `loading` alone would spin over the list the field is already showing.
+    isLoading: (itemsFetchLoading && !data) || refetchItemsLoading || accountItemsLoading,
     refresh,
   }
 }
