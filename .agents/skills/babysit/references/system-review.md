@@ -8,7 +8,7 @@ Both read the diff as a change to a whole application, not as a set of edited li
 PR that draws a chart with raw SVG passes every convention check, because no rule says
 "use recharts". It still fails here, because the app already draws charts with recharts.
 
-Read `.agents/skills/loop-review/references/review-evidence.md`. Pass B supplies the pattern/consumer evidence;
+Read `.agents/docs/review-evidence.md`. Pass B supplies the pattern/consumer evidence;
 Pass C supplies the state-transition evidence when it runs. The coordinating reviewer
 closes material gaps even when Pass C is skipped. Return evidence as well as findings.
 

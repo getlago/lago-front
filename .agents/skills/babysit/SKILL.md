@@ -36,6 +36,7 @@ References, read on demand rather than up front:
 - `references/slack-format.md` - `#frontend` announcement format
 - `references/system-review.md` - how Phase 1 reviews the PR as part of the whole app
 - `references/review-summary.md` - the closing PR comment that tells the story of the review
+- `.agents/docs/review-evidence.md` - what counts as evidence for a finding; shared with `loop-review`
 
 These describe babysit's own mechanics. **No file in this skill restates a coding
 rule.** The repo's conventions live in `CLAUDE.md`, `.agents/docs/` and the
@@ -98,7 +99,9 @@ the user already triaged it; re-running would re-litigate settled decisions.
 
 ## Phase 1 - Review, report, triage
 
-First run only. Read `.agents/skills/loop-review/references/review-evidence.md` and keep its revision and flow/evidence record in the session review record. The review runs three passes, then merges them into one triage list:
+First run only. Read `.agents/docs/review-evidence.md` and keep its revision and
+flow/evidence record in the session review record. The review runs three passes, then
+merges them into one triage list:
 
 | Pass                   | Question                                         | How                                      |
 | ---------------------- | ------------------------------------------------ | ---------------------------------------- |
@@ -109,7 +112,11 @@ First run only. Read `.agents/skills/loop-review/references/review-evidence.md` 
 Start B and C first, as two `Agent` calls in one message, then run A inline while they
 work. Subagents inherit none of this session, so each prompt carries: the PR number,
 the base and head sha, the absolute path of `references/system-review.md` with the pass
-to run, the absolute path of `.agents/skills/loop-review/references/review-evidence.md`, and the instruction to return the output contract that file defines. Pass C
+to run, the absolute path of `.agents/docs/review-evidence.md` for the evidence
+requirements, and the instruction to return the output contract that
+`references/system-review.md` defines. Resolve both to absolute paths before
+dispatching: a subagent started from another cwd cannot open a repo-relative one, and a
+path that does not resolve fails the run the same way a missing Pass A doc does. Pass C
 decides for itself whether the diff is large enough to run; a skip comes back as one
 line and is reported as such.
 
@@ -154,7 +161,9 @@ authority, in this order:
 
 Weight violations of those documented rules above generic code-review findings.
 Do not report anything CI already catches: formatting, type errors, failing tests,
-lint. Do not report pre-existing issues on lines this PR did not touch.`)
+lint. Do not report pre-existing issues on lines this PR did not touch, unless a line
+this PR did change is what triggers the failure — report those against the changed
+line.`)
 ```
 
 If a listed path does not exist, say so in the run output rather than reviewing
@@ -170,10 +179,12 @@ Merge the three passes into one list:
    caller can introduce a failure in unchanged shared code: anchor it to the changed caller.
 3. Merge duplicates across passes. Keep the one with the stronger evidence.
 4. Sort into four buckets: **Blocking**, **Should fix**, **Follow-ups**, **Notes**.
-   Pass A severities map high -> Blocking, med and low -> Should fix.
-5. Number the survivors across buckets and present them. Mark bounded non-blocking
-   suggestions as P3; do not discard them merely because they are not runtime bugs.
-   Include the checked flows and material gaps, even when the findings list is empty.
+   Pass A severities map high -> Blocking, med and low -> Should fix. Passes B and C
+   return a `priority` instead: P0 -> Blocking, P1 and P2 -> Should fix, P3 -> Notes.
+   Step 2 decides Follow-ups, whatever the priority.
+5. Number the survivors across buckets and present them. A P3 is kept, not dropped for
+   failing to be a runtime bug. Include the checked flows and material gaps, even when
+   the findings list is empty.
 
 Write every finding in plain language with a single recommendation, as
 `references/system-review.md` describes. Anyone can run babysit, and whoever runs it
@@ -268,8 +279,12 @@ Round 4 | 14:22
 ### Fixing rules
 
 - When a new commit addresses review findings, apply the follow-up mapping in
-  `.agents/skills/loop-review/references/review-evidence.md` before treating those findings as fixed. This also
-  applies in follow-up mode; it does not require rerunning all of Phase 1.
+  `.agents/docs/review-evidence.md` before treating those findings as fixed; it never
+  requires rerunning Phase 1. Follow-up mode has no session review record, so map only
+  what the PR itself still carries: the `<!-- babysit:summary` comment when an earlier
+  run posted one, plus the unresolved threads Phase 3 already rebuilds. Findings that
+  lived only in the previous session's triage list are out of reach — say so rather than
+  reconstructing them from the diff.
 
 - Read the code before changing it.
 - Keep fixes scoped to the blocker. Preserve unrelated worktree changes.

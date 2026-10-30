@@ -55,10 +55,12 @@ current; if it moved, review the increment or state exactly which revision was c
 ## Close the review with an auditable result
 
 For each retained finding record location, trigger, consequence, evidence, priority and
-a scoped remedy. Distinguish confirmed defects, mandatory convention violations,
-non-blocking suggestions and unverified questions. Do not manufacture findings to fill
-a bucket. Report checked flows and material gaps even when no issue is confirmed;
-never replace that with an unconditional “no regressions” claim.
+a scoped remedy. Distinguish confirmed defects, mandatory convention violations and
+non-blocking suggestions. Anything still uncertain is neither: it goes wherever the host
+skill already puts uncertainty — in loop-review, a remark below the Issues list. Do not
+manufacture findings to fill a bucket. Report checked flows and material gaps even
+when no issue is confirmed; never replace that with an unconditional “no regressions”
+claim.
 
 On a follow-up commit, map every earlier finding to resolved, partially resolved,
 unresolved, or no longer applicable, with evidence at the new head. Recheck the original
