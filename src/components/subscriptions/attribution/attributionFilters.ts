@@ -7,7 +7,8 @@ import {
   unescapeFilterLabel,
 } from '~/components/Filters/graphql/utils'
 import { DynamicFilterKey } from '~/components/Filters/presentation/types'
-import { AttributedUsageFilterInput, PlanInterval } from '~/generated/graphql'
+import { getTimezoneConfig } from '~/core/timezone'
+import { AttributedUsageFilterInput, PlanInterval, TimezoneEnum } from '~/generated/graphql'
 
 export const ATTRIBUTION_FILTERS_PREFIX = 'attribution'
 export const ATTRIBUTION_TIME_RANGE_FILTER_KEY: DynamicFilterKey = 'dynamic.timeRange'
@@ -27,6 +28,7 @@ export type AttributionSubscriptionPeriod = {
   startedAt?: string | null
   currentBillingPeriodStartedAt?: string | null
   plan: { interval?: PlanInterval | null }
+  customer?: { applicableTimezone?: TimezoneEnum | null } | null
 }
 
 const MAX_TIME_RANGE_DAYS = 31
@@ -70,9 +72,12 @@ const getPastPeriodArgs = (
 
   if (!subscription?.currentBillingPeriodStartedAt || !interval) return null
 
-  const periodStart = DateTime.fromISO(subscription.currentBillingPeriodStartedAt, { zone: 'utc' })
+  // The backend anchors billing periods to the customer's applicable timezone, so subtracting
+  // an interval in UTC lands an hour off across a DST transition.
+  const zone = getTimezoneConfig(subscription.customer?.applicableTimezone).name
+  const periodStart = DateTime.fromISO(subscription.currentBillingPeriodStartedAt, { zone })
   const startedAt = subscription.startedAt
-    ? DateTime.fromISO(subscription.startedAt, { zone: 'utc' })
+    ? DateTime.fromISO(subscription.startedAt, { zone })
     : null
 
   if (!periodStart.isValid || (startedAt && periodStart <= startedAt)) return null
@@ -83,7 +88,10 @@ const getPastPeriodArgs = (
     ? periodFrom
     : to.minus({ days: MAX_TIME_RANGE_DAYS })
 
-  return { fromDatetime: from.toISO() ?? undefined, toDatetime: to.toISO() ?? undefined }
+  return {
+    fromDatetime: from.toUTC().toISO() ?? undefined,
+    toDatetime: to.toUTC().toISO() ?? undefined,
+  }
 }
 
 export const hasAttributionPastPeriod = (

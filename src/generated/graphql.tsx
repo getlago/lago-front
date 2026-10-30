@@ -15792,7 +15792,7 @@ export type GetSubscriptionAttributionSetupQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionAttributionSetupQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, startedAt?: any | null, currentBillingPeriodStartedAt?: any | null, plan: { __typename?: 'Plan', id: string, interval?: PlanInterval | null }, customer: { __typename?: 'Customer', id: string, displayName: string } } | null, flatAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null }> }, hierarchicalAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null, parent?: { __typename?: 'UsageAttributionType', id: string } | null }> } };
+export type GetSubscriptionAttributionSetupQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, startedAt?: any | null, currentBillingPeriodStartedAt?: any | null, plan: { __typename?: 'Plan', id: string, interval?: PlanInterval | null }, customer: { __typename?: 'Customer', id: string, displayName: string, applicableTimezone: TimezoneEnum } } | null, flatAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null }> }, hierarchicalAttributionTypes: { __typename?: 'UsageAttributionTypeCollection', collection: Array<{ __typename?: 'UsageAttributionType', id: string, code: string, name?: string | null, parent?: { __typename?: 'UsageAttributionType', id: string } | null }> } };
 
 export type GetSubscriptionAttributionChargesQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -38615,6 +38615,7 @@ export const GetSubscriptionAttributionSetupDocument = gql`
     customer {
       id
       displayName
+      applicableTimezone
     }
   }
   flatAttributionTypes: usageAttributionTypes(role: flat, limit: $limit) {

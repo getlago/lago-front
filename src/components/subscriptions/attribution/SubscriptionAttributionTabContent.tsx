@@ -100,6 +100,7 @@ gql`
       customer {
         id
         displayName
+        applicableTimezone
       }
     }
     flatAttributionTypes: usageAttributionTypes(role: flat, limit: $limit) {

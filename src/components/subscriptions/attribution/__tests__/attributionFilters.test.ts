@@ -1,7 +1,7 @@
 import { ApolloError } from '@apollo/client'
 import { GraphQLError } from 'graphql'
 
-import { PlanInterval } from '~/generated/graphql'
+import { PlanInterval, TimezoneEnum } from '~/generated/graphql'
 
 import {
   ATTRIBUTION_FILTERS_PREFIX,
@@ -119,6 +119,23 @@ describe('attributionFilters', () => {
         })
       },
     )
+
+    describe('WHEN the customer timezone crosses a DST transition', () => {
+      const subscription = subscriptionOf(PlanInterval.Monthly, {
+        // 2026-04-01T00:00 in New York, already on EDT
+        currentBillingPeriodStartedAt: '2026-04-01T04:00:00Z',
+        customer: { applicableTimezone: TimezoneEnum.TzAmericaNewYork },
+      })
+
+      it('THEN should anchor the previous period to local midnight, not to the UTC offset', () => {
+        // Regression: subtracting the interval in UTC returned 2026-03-01T04:00:00Z, an hour
+        // before the period actually started in EST, pulling in an extra hour of usage.
+        expect(getAttributionTimeRangeArgs({ value: 'past', subscription })).toEqual({
+          fromDatetime: '2026-03-01T05:00:00.000Z',
+          toDatetime: '2026-04-01T03:59:59.000Z',
+        })
+      })
+    })
 
     describe('WHEN the subscription started in the current period', () => {
       const subscription = subscriptionOf(PlanInterval.Monthly, {
