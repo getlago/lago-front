@@ -64,6 +64,7 @@ import { shadcnBadgeTab } from './tabs/BadgeTest'
 import { BorderTest } from './tabs/BorderTest'
 import { shadcnButtonTab } from './tabs/ButtonTest'
 import { ColorTest } from './tabs/ColorTest'
+import { composableTableTab } from './tabs/ComposableTableTest'
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
 import { shadcnDropdownMenuTab } from './tabs/DropdownMenuTest'
@@ -1269,6 +1270,7 @@ const DesignSystem = () => {
               </Container>
             ),
           },
+          composableTableTab,
           {
             title: 'Avatar',
             link: AVATAR_TAB_URL,

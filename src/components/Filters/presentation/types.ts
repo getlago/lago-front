@@ -1,3 +1,5 @@
+import { ReactNode } from 'react'
+
 // By convention, we use value then metadata (usually display value) on each side of the separator.
 export const filterDataInlineSeparator = '|-_-|'
 
@@ -515,12 +517,35 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.adminAuditDate]: 'text_1785749891671rk4ofmy881a',
 }
 
+export const DYNAMIC_FILTER_KEY_PREFIX = 'dynamic.'
+
+export type DynamicFilterKey = `${typeof DYNAMIC_FILTER_KEY_PREFIX}${string}`
+
+export type FilterKey = AvailableFiltersEnum | DynamicFilterKey
+
+export const isDynamicFilterKey = (key: string): key is DynamicFilterKey =>
+  key.startsWith(DYNAMIC_FILTER_KEY_PREFIX)
+
 export type FiltersFormValues = {
   filters: Array<{
-    filterType?: AvailableFiltersEnum
+    filterType?: FilterKey
     value?: string
     disabled?: boolean
   }>
+}
+
+export type FilterValueInputProps = {
+  value: FiltersFormValues['filters'][0]['value']
+  setFilterValue: (value: string) => void
+}
+
+export type DynamicFilter = {
+  key: DynamicFilterKey
+  label: string
+  renderValueInput: (props: FilterValueInputProps) => ReactNode
+  formatValue: (value: string) => string
+  isValueValid?: (value: string) => boolean
+  isRangeValue?: (value?: string) => boolean
 }
 
 // Inside the panel the list context already names the resource, so the category dimension

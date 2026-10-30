@@ -3,8 +3,9 @@ import { useSearchParams } from 'react-router'
 import { keyWithPrefix } from '~/components/Filters/graphql/utils'
 import { useFilterContext } from '~/components/Filters/presentation/context'
 import {
-  AvailableFiltersEnum,
   AvailableQuickFilters,
+  DynamicFilter,
+  FilterKey,
   FiltersFormValues,
 } from '~/components/Filters/presentation/types'
 import { useNavigate } from '~/core/router'
@@ -22,15 +23,23 @@ export const useFilters = () => {
   const keyWithoutPrefix = (key: string) => (prefix ? key.replace(`${prefix}_`, '') : key)
   const localKeyWithPrefix = (key: string) => keyWithPrefix(key, prefix)
 
+  const getDynamicFilter = (key: string): DynamicFilter | undefined =>
+    context.dynamicFilters?.find((filter) => filter.key === key)
+
+  const availableFilterKeys: readonly string[] = context.availableFilters
+
+  const isFilterKeyAvailable = (key: string): boolean =>
+    availableFilterKeys.includes(key) || !!getDynamicFilter(key)
+
   const removeExistingFilters = () => {
     // Only remove the filters from the URL that are currently applied and are removable (availableFilters)
     for (const search in searchParamsObject) {
-      const key = keyWithoutPrefix(search) as AvailableFiltersEnum
+      const key = keyWithoutPrefix(search) as FilterKey
 
       // if value is part of the static filters, reset to default static value
       if (context.staticFilters?.[key]) {
         searchParams.set(search, context.staticFilters[key])
-      } else if (context.availableFilters.includes(key)) {
+      } else if (isFilterKeyAvailable(key)) {
         // otherwise, remove the filter from the URL
         searchParams.delete(search)
       }
@@ -57,13 +66,10 @@ export const useFilters = () => {
         return
       }
 
-      const withPrefix = localKeyWithPrefix(filter.filterType) as AvailableFiltersEnum
-      const withoutPrefix = keyWithoutPrefix(filter.filterType) as AvailableFiltersEnum
+      const withPrefix = localKeyWithPrefix(filter.filterType)
+      const withoutPrefix = keyWithoutPrefix(filter.filterType) as FilterKey
 
-      if (
-        context.staticFilters?.[withoutPrefix] ||
-        context.availableFilters.includes(withoutPrefix)
-      ) {
+      if (context.staticFilters?.[withoutPrefix] || isFilterKeyAvailable(withoutPrefix)) {
         searchParams.delete(withPrefix)
       }
 
@@ -81,11 +87,11 @@ export const useFilters = () => {
         : Object.entries(searchParamsObject)
 
     return source.reduce<FiltersFormValues['filters']>((acc, cur) => {
-      const [_key, value] = cur as [AvailableFiltersEnum, FiltersFormValues['filters'][0]['value']]
+      const [_key, value] = cur as [FilterKey, FiltersFormValues['filters'][0]['value']]
 
-      const key = keyWithoutPrefix(_key) as AvailableFiltersEnum
+      const key = keyWithoutPrefix(_key) as FilterKey
 
-      if (!context.availableFilters.includes(key) && !context.staticFilters?.[key]) {
+      if (!isFilterKeyAvailable(key) && !context.staticFilters?.[key]) {
         return acc
       }
 
@@ -103,7 +109,7 @@ export const useFilters = () => {
   const hasAppliedFilters = () => {
     if (searchParamsObject) {
       return Object.keys(searchParamsObject).some((key) =>
-        context.availableFilters.includes(keyWithoutPrefix(key) as AvailableFiltersEnum),
+        isFilterKeyAvailable(keyWithoutPrefix(key)),
       )
     }
 
@@ -132,7 +138,7 @@ export const useFilters = () => {
         return
       }
 
-      if (!context.availableFilters.includes(keyWithoutPrefix(key) as AvailableFiltersEnum)) {
+      if (!isFilterKeyAvailable(keyWithoutPrefix(key))) {
         newFilters = newFilters.concat(`${key}=${encodeURIComponent(searchParamsObject[key])}`)
       }
     })
@@ -176,6 +182,8 @@ export const useFilters = () => {
     staticFiltersFormValues: getInitialFiltersFormValues('default'),
     applyFilters,
     buildQuickFilterUrlParams,
+    getDynamicFilter,
+    isFilterKeyAvailable,
     isQuickFilterActive,
     keyWithoutPrefix,
     localKeyWithPrefix,
