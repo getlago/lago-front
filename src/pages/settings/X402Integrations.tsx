@@ -17,6 +17,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
+import { useX402Networks } from '~/hooks/useX402Networks'
 import Coinbase from '~/public/images/coinbase.svg'
 import { MenuPopper, PopperOpener } from '~/styles'
 
@@ -43,6 +44,7 @@ const X402Integrations = (): JSX.Element | null => {
   const { openAddX402Dialog } = useAddX402Dialog()
   const { openDeleteX402IntegrationDialog } = useDeleteX402IntegrationDialog()
   const { translate } = useInternationalization()
+  const { networks: catalog } = useX402Networks()
   const { data, loading } = useGetX402IntegrationsListQuery({
     variables: { limit: 1000 },
   })
@@ -138,7 +140,7 @@ const X402Integrations = (): JSX.Element | null => {
                             variant="quaternary"
                             align="left"
                             onClick={() => {
-                              openAddX402Dialog({ connection })
+                              openAddX402Dialog({ connection, catalog })
                               closePopper()
                             }}
                           >

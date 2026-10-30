@@ -6,11 +6,20 @@ import { AddX402ConnectionDialogFragment } from '~/generated/graphql'
 import { AllTheProviders, render } from '~/test-utils'
 
 import { describeDuplicateRejectionRouting, rejectedUnder } from './duplicateRejectionHelpers'
+import { X402_TEST_CATALOG } from './x402NetworksFixture'
 
 import { useAddX402Dialog } from '../AddX402Dialog'
 
 const mockDialogOpen = jest.fn()
 const mockUpdateConnection = jest.fn()
+
+jest.mock('~/hooks/useX402Networks', () => ({
+  useX402Networks: () => ({
+    networks: jest.requireActual('~/components/settings/integrations/__tests__/x402NetworksFixture')
+      .X402_TEST_CATALOG,
+    loading: false,
+  }),
+}))
 
 jest.mock('~/components/dialogs/FormDialog', () => ({
   useFormDialog: () => ({ open: mockDialogOpen, close: jest.fn() }),
@@ -70,7 +79,7 @@ describe('useAddX402Dialog duplicate code', () => {
       const { result } = renderHook(() => useAddX402Dialog(), { wrapper })
 
       act(() => {
-        result.current.openAddX402Dialog({ connection })
+        result.current.openAddX402Dialog({ connection, catalog: X402_TEST_CATALOG })
       })
 
       const dialogProps = mockDialogOpen.mock.calls[0][0]

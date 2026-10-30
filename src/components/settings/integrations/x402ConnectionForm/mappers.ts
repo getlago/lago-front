@@ -1,27 +1,34 @@
 import {
   getX402Environment,
   getX402Families,
-  getX402Network,
+  getX402NetworkName,
   parseAllowedOrigins,
-  X402FamilyEnum,
 } from '~/components/settings/integrations/x402Connection'
-import { AddX402ConnectionDialogFragment, CreateX402ConnectionInput } from '~/generated/graphql'
+import {
+  AddX402ConnectionDialogFragment,
+  CreateX402ConnectionInput,
+  X402NetworkFamilyEnum,
+  X402NetworkFragment,
+} from '~/generated/graphql'
 
 import { X402FormValues } from './validationSchema'
 
 type X402ConnectionInput = Omit<CreateX402ConnectionInput, 'cdpApiKeyId' | 'cdpApiKeySecret'> &
   Partial<Pick<CreateX402ConnectionInput, 'cdpApiKeyId' | 'cdpApiKeySecret'>>
 
-export const mapFromApiToForm = (connection: AddX402ConnectionDialogFragment): X402FormValues => ({
+export const mapFromApiToForm = (
+  connection: AddX402ConnectionDialogFragment,
+  catalog: X402NetworkFragment[],
+): X402FormValues => ({
   isEdition: true,
   name: connection.name,
   code: connection.code,
   cdpApiKeyId: '',
   cdpApiKeySecret: '',
-  environment: getX402Environment(connection.networks) || '',
+  environment: getX402Environment(connection.networks, catalog) || '',
   networks: connection.networks.map((network) => ({
     value: network,
-    label: getX402Network(network)?.name || network,
+    label: getX402NetworkName(network, catalog),
   })),
   evmPayoutAddress: connection.payoutAddresses.evm || '',
   svmPayoutAddress: connection.payoutAddresses.svm || '',
@@ -38,8 +45,8 @@ export const mapFromFormToApi = (values: X402FormValues): X402ConnectionInput =>
     code: values.code,
     networks,
     payoutAddresses: {
-      evm: (families.includes(X402FamilyEnum.Evm) && values.evmPayoutAddress) || null,
-      svm: (families.includes(X402FamilyEnum.Svm) && values.svmPayoutAddress) || null,
+      evm: (families.includes(X402NetworkFamilyEnum.Evm) && values.evmPayoutAddress) || null,
+      svm: (families.includes(X402NetworkFamilyEnum.Svm) && values.svmPayoutAddress) || null,
     },
     allowedOrigins: parseAllowedOrigins(values.allowedOrigins),
     autoCreateCustomers: values.autoCreateCustomers,

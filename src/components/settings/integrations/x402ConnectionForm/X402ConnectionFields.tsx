@@ -5,11 +5,11 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 import {
   getX402Environment,
   X402_ENVIRONMENT_TRANSLATIONS,
-  X402_NETWORKS,
-  X402EnvironmentEnum,
 } from '~/components/settings/integrations/x402Connection'
+import { X402NetworkEnvironmentEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
+import { useX402Networks } from '~/hooks/useX402Networks'
 
 import { x402DefaultValues } from './validationSchema'
 
@@ -18,17 +18,20 @@ const X402ConnectionFields = withForm({
   props: { isEdition: false },
   render: function Render({ form, isEdition }) {
     const { translate } = useInternationalization()
+    const { networks: catalog } = useX402Networks()
 
     const networkOptions = (environment: string): BasicMultipleComboBoxData[] =>
-      X402_NETWORKS.filter((network) => network.environment === environment).map((network) => ({
-        value: network.id,
-        label: network.name,
-        description: `${network.family.toUpperCase()} ${translate(
-          network.environment === X402EnvironmentEnum.Mainnet
-            ? 'text_1793132394869qwdol6ok2cm'
-            : 'text_179313239486902oyq8t2y3u',
-        )} - ${network.id}`,
-      }))
+      catalog
+        .filter((network) => network.environment === environment)
+        .map((network) => ({
+          value: network.id,
+          label: network.name,
+          description: `${network.family.toUpperCase()} ${translate(
+            network.environment === X402NetworkEnvironmentEnum.Mainnet
+              ? 'text_1793132394869qwdol6ok2cm'
+              : 'text_179313239486902oyq8t2y3u',
+          )} - ${network.id}`,
+        }))
 
     return (
       <div className="flex flex-col gap-6 p-8">
@@ -82,7 +85,7 @@ const X402ConnectionFields = withForm({
               form.setFieldValue(
                 'networks',
                 form.state.values.networks.filter(
-                  ({ value: network }) => getX402Environment([network]) === environment,
+                  ({ value: network }) => getX402Environment([network], catalog) === environment,
                 ),
               )
             },
@@ -98,13 +101,17 @@ const X402ConnectionFields = withForm({
               placeholder={translate('text_179313239486959hb2v39qfq')}
               data={[
                 {
-                  value: X402EnvironmentEnum.Testnet,
-                  label: translate(X402_ENVIRONMENT_TRANSLATIONS[X402EnvironmentEnum.Testnet]),
+                  value: X402NetworkEnvironmentEnum.Testnet,
+                  label: translate(
+                    X402_ENVIRONMENT_TRANSLATIONS[X402NetworkEnvironmentEnum.Testnet],
+                  ),
                   description: translate('text_1793132394869g990pgm13dz'),
                 },
                 {
-                  value: X402EnvironmentEnum.Mainnet,
-                  label: translate(X402_ENVIRONMENT_TRANSLATIONS[X402EnvironmentEnum.Mainnet]),
+                  value: X402NetworkEnvironmentEnum.Mainnet,
+                  label: translate(
+                    X402_ENVIRONMENT_TRANSLATIONS[X402NetworkEnvironmentEnum.Mainnet],
+                  ),
                   description: translate('text_1793132394869g0lp95omsra'),
                 },
               ]}
