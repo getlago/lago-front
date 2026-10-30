@@ -15,6 +15,10 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { BasicComboBoxData, ComboboxItem } from '~/components/form'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import {
+  getInheritedPaymentTerm,
+  paymentTermInputFromFormValues,
+} from '~/components/paymentTerms/utils'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
@@ -62,6 +66,7 @@ import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { buildDefaultValues, usePlanForm } from '~/hooks/plans/usePlanForm'
+import { useBillingEntityById } from '~/hooks/useBillingEntitiesOptions'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -94,8 +99,20 @@ gql`
       name
       displayName
       externalId
+      paymentTerm {
+        termType
+        days
+        dayOfMonth
+        monthOffset
+      }
       billingEntity {
         id
+        paymentTerm {
+          termType
+          days
+          dayOfMonth
+          monthOffset
+        }
       }
       paymentProvider
     }
@@ -163,6 +180,7 @@ const CreateSubscription = () => {
         accountingConnection,
         crmConnection,
         taxConnection,
+        paymentTerm,
         ...restValues
       } = value
 
@@ -178,6 +196,7 @@ const CreateSubscription = () => {
         }),
         invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
         purchaseOrderNumber: normalizePurchaseOrderNumber(value.purchaseOrderNumber),
+        paymentTerm: paymentTermInputFromFormValues(paymentTerm),
       }
       const rootElement = document.getElementById('root')
       const errorsString = await onSave(
@@ -249,6 +268,8 @@ const CreateSubscription = () => {
     subscriptionBillingEntityId,
     subscriptionForm,
   ])
+
+  const issuingBillingEntity = useBillingEntityById(subscriptionBillingEntityId)
 
   const { form: planForm, plan } = usePlanForm({
     planIdToFetch: subscriptionPlanId,
@@ -593,10 +614,14 @@ const CreateSubscription = () => {
                           description={translate('text_1782738644346p066xtwa8yj')}
                         />
 
-                        {/* Invoice consolidation + custom sections live in a drawer */}
+                        {/* Invoice consolidation, custom sections and payment term live in a drawer */}
                         <InvoicingSettingsSection
                           form={subscriptionForm}
                           customerId={customer?.id}
+                          paymentTermInheritedFrom={getInheritedPaymentTerm({
+                            customer,
+                            issuingBillingEntity,
+                          })}
                         />
                       </CenteredPage.PageSection>
 

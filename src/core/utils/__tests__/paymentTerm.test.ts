@@ -14,18 +14,25 @@ const dueDate = (issuingDate: string, term: ResolvablePaymentTerm): string =>
 
 describe('paymentTerm', () => {
   describe('displayedPaymentTerm', () => {
-    it('reads a zero-day net term as due on receipt, as the PDF does', () => {
-      expect(displayedPaymentTerm({ termType: PaymentTermTypeEnum.Net, days: 0 })).toEqual({
-        termType: PaymentTermTypeEnum.DueOnReceipt,
-      })
-    })
+    it.each`
+      termType                              | shownTermType
+      ${PaymentTermTypeEnum.Net}            | ${PaymentTermTypeEnum.DueOnReceipt}
+      ${PaymentTermTypeEnum.NetEndOfMonth}  | ${PaymentTermTypeEnum.EndOfMonth}
+      ${PaymentTermTypeEnum.DaysEndOfMonth} | ${PaymentTermTypeEnum.EndOfMonth}
+    `(
+      'reads a zero-day $termType term as $shownTermType, as the PDF does',
+      ({ termType, shownTermType }) => {
+        expect(displayedPaymentTerm({ termType, days: 0 })).toEqual({ termType: shownTermType })
+      },
+    )
 
     it.each`
       term
       ${{ termType: PaymentTermTypeEnum.Net, days: 30 }}
-      ${{ termType: PaymentTermTypeEnum.NetEndOfMonth, days: 0 }}
-      ${{ termType: PaymentTermTypeEnum.DaysEndOfMonth, days: 0 }}
+      ${{ termType: PaymentTermTypeEnum.NetEndOfMonth, days: 15 }}
+      ${{ termType: PaymentTermTypeEnum.DaysEndOfMonth, days: 10 }}
       ${{ termType: PaymentTermTypeEnum.EndOfMonth }}
+      ${{ termType: PaymentTermTypeEnum.DayOfMonth, dayOfMonth: 15, monthOffset: 0 }}
     `('leaves $term.termType with $term.days days as is', ({ term }) => {
       expect(displayedPaymentTerm(term)).toBe(term)
     })

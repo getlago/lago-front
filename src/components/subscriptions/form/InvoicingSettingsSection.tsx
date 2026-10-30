@@ -4,10 +4,12 @@ import { useMemo } from 'react'
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
 import { useInvoicingSettingsDrawer } from '~/components/invoicingSettings/useInvoicingSettingsDrawer'
+import { PaymentTermInheritedFrom } from '~/components/paymentTerms/types'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
+import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 
 import { buildSubscriptionDefaultValues } from './buildSubscriptionDefaultValues'
 
@@ -15,10 +17,12 @@ const TYPING_PLACEHOLDER_DATE = '2026-01-01'
 
 interface InvoicingSettingsSectionExtraProps {
   customerId?: string
+  paymentTermInheritedFrom?: PaymentTermInheritedFrom
 }
 
 const invoicingSettingsSectionDefaultProps: InvoicingSettingsSectionExtraProps = {
   customerId: undefined,
+  paymentTermInheritedFrom: undefined,
 }
 
 // Entry point for the subscription invoicing settings: a Selector card that
@@ -32,12 +36,14 @@ export const InvoicingSettingsSection = withForm({
     TYPING_PLACEHOLDER_DATE,
   ),
   props: invoicingSettingsSectionDefaultProps,
-  render: function InvoicingSettingsSectionRender({ form, customerId }) {
+  render: function InvoicingSettingsSectionRender({ form, customerId, paymentTermInheritedFrom }) {
     const { translate } = useInternationalization()
+    const { getPaymentTermFormValuesCopy } = usePaymentTerm()
 
     // Reactive slices so the card preview re-renders when the drawer saves.
     const consolidateInvoice = useStore(form.store, (s) => s.values.consolidateInvoice)
     const invoiceCustomSection = useStore(form.store, (s) => s.values.invoiceCustomSection)
+    const paymentTerm = useStore(form.store, (s) => s.values.paymentTerm)
 
     const showCustomSection = !!customerId
 
@@ -46,9 +52,15 @@ export const InvoicingSettingsSection = withForm({
       customerId,
       showCustomSection,
       withInvoiceConsolidation: true,
-      onSave: ({ consolidateInvoice: nextConsolidateInvoice, invoiceCustomSection: nextIcs }) => {
+      paymentTermInheritedFrom,
+      onSave: ({
+        consolidateInvoice: nextConsolidateInvoice,
+        invoiceCustomSection: nextIcs,
+        paymentTerm: nextPaymentTerm,
+      }) => {
         form.setFieldValue('consolidateInvoice', nextConsolidateInvoice)
         form.setFieldValue('invoiceCustomSection', nextIcs)
+        form.setFieldValue('paymentTerm', nextPaymentTerm)
       },
     })
 
@@ -72,8 +84,20 @@ export const InvoicingSettingsSection = withForm({
         parts.push(translate(icsKey))
       }
 
+      if (paymentTermInheritedFrom && paymentTerm) {
+        parts.push(getPaymentTermFormValuesCopy(paymentTerm, paymentTermInheritedFrom))
+      }
+
       return parts.join(' • ')
-    }, [consolidateInvoice, invoiceCustomSection, showCustomSection, translate])
+    }, [
+      consolidateInvoice,
+      invoiceCustomSection,
+      showCustomSection,
+      paymentTerm,
+      paymentTermInheritedFrom,
+      translate,
+      getPaymentTermFormValuesCopy,
+    ])
 
     return (
       <Selector
@@ -85,6 +109,7 @@ export const InvoicingSettingsSection = withForm({
           openDrawer({
             consolidateInvoice: consolidateInvoice ?? true,
             invoiceCustomSection,
+            paymentTerm,
           })
         }
         data-test="invoicing-settings-selector"

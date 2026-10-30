@@ -7,6 +7,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { getInheritedPaymentTerm } from '~/components/paymentTerms/utils'
 import {
   CLOSE_CREATE_WALLET_BUTTON_DATA_TEST,
   SUBMIT_WALLET_DATA_TEST,
@@ -38,6 +39,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { useBillingEntityById } from '~/hooks/useBillingEntitiesOptions'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { ScopeSection } from '~/pages/wallet/components/ScopeSection'
 import { SettingsSection } from '~/pages/wallet/components/SettingsSection'
@@ -71,6 +73,12 @@ gql`
       category
       behavior
       code
+    }
+    paymentTerm {
+      termType
+      days
+      dayOfMonth
+      monthOffset
     }
     skipInvoiceCustomSections
     selectedInvoiceCustomSections {
@@ -128,8 +136,20 @@ gql`
       externalId
       currency
       timezone
+      paymentTerm {
+        termType
+        days
+        dayOfMonth
+        monthOffset
+      }
       billingEntity {
         id
+        paymentTerm {
+          termType
+          days
+          dayOfMonth
+          monthOffset
+        }
       }
     }
   }
@@ -316,6 +336,8 @@ const CreateWallet = () => {
   })
 
   const isDirty = useStore(form.store, (state) => state.isDirty)
+  const walletBillingEntityId = useStore(form.store, (state) => state.values.billingEntityId)
+  const issuingBillingEntity = useBillingEntityById(walletBillingEntityId)
 
   const openDirtyAttributesWarning = useCallback(() => {
     centralizedDialog.open({
@@ -402,6 +424,10 @@ const CreateWallet = () => {
               autoOpenAdditionalIntegrationDrawer={
                 autoOpenAdditionalIntegrationDrawer && !isLoading
               }
+              paymentTermInheritedFrom={getInheritedPaymentTerm({
+                customer: customerData?.customer,
+                issuingBillingEntity,
+              })}
             />
           </CenteredPage.Container>
         )}

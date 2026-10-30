@@ -1,6 +1,15 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 
-import { PaymentMethodTypeEnum, WalletDetailsFragment } from '~/generated/graphql'
+import {
+  INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
+  INHERIT_FROM_CUSTOMER_LABEL_KEY,
+} from '~/components/paymentTerms/utils'
+import { PAYMENT_TERM_VALUE_KEYS } from '~/core/constants/paymentTerm'
+import {
+  PaymentMethodTypeEnum,
+  PaymentTermTypeEnum,
+  WalletDetailsFragment,
+} from '~/generated/graphql'
 import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
 import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 import { render } from '~/test-utils'
@@ -268,6 +277,62 @@ describe('WalletInformations', () => {
 
         expect(paymentSection).toHaveTextContent('Footer A')
         expect(paymentSection).not.toHaveTextContent('4242')
+      })
+    })
+  })
+
+  describe('GIVEN a payment term', () => {
+    const PAYMENT_TERM_LABEL = 'text_1778660219891rv2r5gjmklq'
+
+    const getValueUnderLabel = (labelKey: string) =>
+      within(screen.getByText(labelKey).parentElement as HTMLElement)
+
+    describe('WHEN the wallet has its own term', () => {
+      it('THEN shows that term', () => {
+        render(
+          <WalletInformations
+            wallet={createMockWallet({
+              paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 15 },
+            })}
+          />,
+        )
+
+        expect(
+          getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(
+            PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net],
+          ),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the wallet has no term and the customer has one', () => {
+      it('THEN shows the customer term marked as inherited from the customer', () => {
+        render(
+          <WalletInformations
+            wallet={createMockWallet({
+              customer: {
+                id: 'cust-1',
+                externalId: 'ext-1',
+                paymentTerm: { termType: PaymentTermTypeEnum.EndOfMonth },
+              },
+            })}
+          />,
+        )
+
+        expect(
+          getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(INHERIT_FROM_CUSTOMER_LABEL_KEY),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN neither the wallet nor the customer has a term', () => {
+      it('THEN shows the term marked as inherited from the billing entity', () => {
+        // The hint used to name the customer even when the term came from the entity.
+        render(<WalletInformations wallet={createMockWallet()} />)
+
+        expect(
+          getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY),
+        ).toBeInTheDocument()
       })
     })
   })

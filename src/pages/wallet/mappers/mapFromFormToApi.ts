@@ -1,6 +1,7 @@
 import { formatConnections } from '~/components/connectionSelection/formatConnections'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
+import { paymentTermInputFromFormValues } from '~/components/paymentTerms/utils'
 import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
@@ -133,6 +134,7 @@ export const mapFormToCreateInput = (
     accountingConnection,
     crmConnection,
     taxConnection,
+    paymentTerm,
     invoiceCustomSection,
     billingEntityId,
     ...values
@@ -156,6 +158,7 @@ export const mapFormToCreateInput = (
     ),
     appliesTo: formatAppliesTo(appliesTo),
     paymentMethod,
+    paymentTerm: paymentTermInputFromFormValues(paymentTerm),
     invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
     ...(values.paidTopUpMinAmountCents
       ? { paidTopUpMinAmountCents: serializeAmount(values.paidTopUpMinAmountCents, currency) }
@@ -190,6 +193,7 @@ export const mapFormToUpdateInput = (
     accountingConnection,
     crmConnection,
     taxConnection,
+    paymentTerm,
     invoiceCustomSection,
     billingEntityId,
     transactionName,
@@ -213,6 +217,7 @@ export const mapFormToUpdateInput = (
     billingEntityId: billingEntityId || null,
     appliesTo: formatAppliesTo(appliesTo),
     paymentMethod,
+    paymentTerm: paymentTermInputFromFormValues(paymentTerm),
     invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
     // Unlike creation, clearing min/max on update must send an explicit
     // `null` so the BE erases the stored value (omitting would keep it).

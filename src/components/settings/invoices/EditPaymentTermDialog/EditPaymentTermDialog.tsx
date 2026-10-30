@@ -6,12 +6,14 @@ import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID } from '~/components/paymentTerms/dataTestConstants'
 import { PaymentTermFormContent } from '~/components/paymentTerms/PaymentTermFormContent'
-import { PAYMENT_TERM_FORM_DEFAULT_VALUES } from '~/components/paymentTerms/types'
-import { isConcreteTermType } from '~/components/paymentTerms/utils'
+import {
+  PAYMENT_TERM_FORM_DEFAULT_VALUES,
+  PAYMENT_TERM_FORM_TOP_LEVEL_FIELDS,
+} from '~/components/paymentTerms/types'
+import { paymentTermInputFromFormValues } from '~/components/paymentTerms/utils'
 import { paymentTermFormSchema } from '~/components/paymentTerms/validationSchema'
 import { addToast } from '~/core/apolloClient'
 import { MUI_INPUT_BASE_ROOT_CLASSNAME, PAYMENT_TERM_INPUT_CLASSNAME } from '~/core/constants/form'
-import { buildPaymentTermInput } from '~/core/utils/paymentTerm'
 import {
   useUpdateBillingEntityPaymentTermMutation,
   useUpdateCustomerPaymentTermMutation,
@@ -120,14 +122,7 @@ export const useEditPaymentTermDialog = () => {
       //
       // Otherwise only the chosen type's own fields are sent — the API rejects the others.
       // Never send `netPaymentTerm` alongside: the API mirrors the legacy alias itself.
-      const paymentTerm = isConcreteTermType(value.termType)
-        ? buildPaymentTermInput({
-            termType: value.termType,
-            days: value.days === '' ? 0 : Number(value.days),
-            dayOfMonth: value.dayOfMonth === '' ? null : Number(value.dayOfMonth),
-            monthOffset: value.monthOffset === '' ? null : Number(value.monthOffset),
-          })
-        : null
+      const paymentTerm = paymentTermInputFromFormValues(value)
 
       // Inheriting a level that carries no term of its own changes nothing. Closing here
       // keeps the Add flow from clearing an absent term and reporting a deletion.
@@ -198,7 +193,12 @@ export const useEditPaymentTermDialog = () => {
         },
         children: (
           <div className="p-8">
-            <PaymentTermFormContent form={form} displayInDialog inheritedFrom={inheritedFrom} />
+            <PaymentTermFormContent
+              form={form}
+              fields={PAYMENT_TERM_FORM_TOP_LEVEL_FIELDS}
+              displayInDialog
+              inheritedFrom={inheritedFrom}
+            />
           </div>
         ),
         mainAction: (

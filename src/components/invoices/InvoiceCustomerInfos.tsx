@@ -18,6 +18,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
+import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 
 import { DetailsPage } from '../layouts/DetailsPage'
 
@@ -28,6 +29,12 @@ gql`
     purchaseOrderNumber
     issuingDate
     paymentDueDate
+    paymentTerm {
+      termType
+      days
+      dayOfMonth
+      monthOffset
+    }
     paymentOverdue
     status
     totalPaidAmountCents
@@ -74,6 +81,7 @@ const InvoiceCustomerInfosComponent = ({
   const { customer } = invoice || {}
   const { formattedDateWithTimezone } = useFormatterDateHelper()
   const { translate } = useInternationalization()
+  const { formatPaymentTerm } = usePaymentTerm()
 
   const customerName = customer?.displayName
   const customerIsPartner = customer?.accountType === CustomerAccountTypeEnum.Partner
@@ -211,6 +219,12 @@ const InvoiceCustomerInfosComponent = ({
                   {invoice?.paymentOverdue && <Status type={StatusType.danger} label="overdue" />}
                 </div>
               }
+            />
+          )}
+          {!!invoice?.paymentTerm && (
+            <DetailsPage.OverviewLine
+              title={translate('text_1778660219891rv2r5gjmklq')}
+              value={formatPaymentTerm(invoice.paymentTerm)}
             />
           )}
           {!!invoice?.status && (

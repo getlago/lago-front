@@ -1,8 +1,9 @@
 import { Settings } from 'luxon'
 
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
 import { UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
 import { ActivationRuleFormTypeEnum } from '~/core/constants/subscriptionActivationRules'
-import { BillingTimeEnum } from '~/generated/graphql'
+import { BillingTimeEnum, PaymentTermTypeEnum } from '~/generated/graphql'
 
 import { subscriptionFormSchema, SubscriptionFormValues } from '../subscriptionFormSchema'
 
@@ -20,6 +21,7 @@ const buildValidValues = (
   paymentMethod: undefined,
   invoiceCustomSection: undefined,
   consolidateInvoice: true,
+  paymentTerm: paymentTermFormValuesFromTerm(null, true),
   activationRuleType: ActivationRuleFormTypeEnum.Immediately,
   activationRuleTimeoutHours: '24',
   ...overrides,
@@ -42,6 +44,26 @@ describe('subscriptionFormSchema', () => {
         const result = subscriptionFormSchema.safeParse(buildValidValues())
 
         expect(result.success).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN a payment term missing its required days', () => {
+    describe('WHEN validating', () => {
+      it('THEN should fail on paymentTerm.days', () => {
+        const result = subscriptionFormSchema.safeParse(
+          buildValidValues({
+            paymentTerm: {
+              ...paymentTermFormValuesFromTerm(null, true),
+              termType: PaymentTermTypeEnum.Net,
+              days: '',
+            },
+          }),
+        )
+
+        expect(result.error?.issues.map((issue) => issue.path.join('.'))).toEqual([
+          'paymentTerm.days',
+        ])
       })
     })
   })

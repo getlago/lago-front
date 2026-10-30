@@ -11,6 +11,7 @@ import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDial
 import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { ConnectionPaymentSettingsSelector } from '~/components/paymentSettings/connectionFirst/ConnectionPaymentSettingsSelector'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
+import { PaymentTermInheritedFrom } from '~/components/paymentTerms/types'
 import { ADD_RECURRING_RULE_BUTTON_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import {
   VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS,
@@ -44,6 +45,8 @@ interface TopUpSectionExtraProps {
   autoOpenRuleDrawer?: boolean
   autoOpenPaymentConnectionDrawer?: boolean
   autoOpenAdditionalIntegrationDrawer?: boolean
+  /** The term the wallet inherits, shown as the default of its payment term override. */
+  paymentTermInheritedFrom?: PaymentTermInheritedFrom
 }
 
 const topUpSectionDefaultProps: TopUpSectionExtraProps = {
@@ -55,6 +58,7 @@ const topUpSectionDefaultProps: TopUpSectionExtraProps = {
   autoOpenRuleDrawer: false,
   autoOpenPaymentConnectionDrawer: false,
   autoOpenAdditionalIntegrationDrawer: false,
+  paymentTermInheritedFrom: undefined,
 }
 
 export const TopUpSection = withForm({
@@ -69,6 +73,7 @@ export const TopUpSection = withForm({
     autoOpenRuleDrawer,
     autoOpenPaymentConnectionDrawer,
     autoOpenAdditionalIntegrationDrawer,
+    paymentTermInheritedFrom,
   }) {
     const { isPremium } = useCurrentUser()
     const { translate } = useInternationalization()
@@ -275,6 +280,13 @@ export const TopUpSection = withForm({
               customerId={customerData.customer.id}
               value={walletValues.invoiceCustomSection}
               onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
+              paymentTerm={
+                paymentTermInheritedFrom && {
+                  value: walletValues.paymentTerm,
+                  onChange: (value) => form.setFieldValue('paymentTerm', value),
+                  inheritedFrom: paymentTermInheritedFrom,
+                }
+              }
             />
           </section>
         )}
