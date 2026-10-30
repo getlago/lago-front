@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 
 import { useGetAiConversation } from '~/components/aiAgent/hooks/getAiConversation'
 import { useDecideAiToolCall } from '~/components/aiAgent/hooks/useDecideAiToolCall'
@@ -8,6 +7,7 @@ import { formatToolCallArguments, humanizeToolCallName } from '~/components/aiAg
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
+import { addToast } from '~/core/apolloClient'
 import {
   AiConversationToolCallItemFragment,
   AiConversationToolCallStatusEnum,
@@ -32,6 +32,25 @@ export const CHAT_TOOL_CALL_CONFIRM_BUTTON_TEST_ID = 'chat-tool-call-confirm-but
 export const CHAT_TOOL_CALL_CANCEL_BUTTON_TEST_ID = 'chat-tool-call-cancel-button'
 export const CHAT_TOOL_CALL_STATUS_TEST_ID = 'chat-tool-call-status'
 
+const getStatusTranslationKey = (status: AiConversationToolCallStatusEnum): string => {
+  switch (status) {
+    case AiConversationToolCallStatusEnum.Pending:
+    case AiConversationToolCallStatusEnum.Confirmed:
+      return 'text_179271429159249m3twmho35'
+    case AiConversationToolCallStatusEnum.Executing:
+      return 'text_1793366573261bsyp1vy7eft'
+    case AiConversationToolCallStatusEnum.Completed:
+      return 'text_179336657326199iv6imrf7f'
+    case AiConversationToolCallStatusEnum.Cancelled:
+      return 'text_17927142915924dhjygav01h'
+    default: {
+      const unknownStatus: never = status
+
+      return unknownStatus
+    }
+  }
+}
+
 type ChatToolCallConfirmationProps = {
   onResume: () => void
 }
@@ -43,53 +62,69 @@ export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationP
   const { getAiConversation } = useGetAiConversation()
   const { translate } = useInternationalization()
 
-  // Read after the mutation resolves, when the closure's state may be stale
-  const toolCallsRef = useRef(state.toolCalls)
-
-  toolCallsRef.current = state.toolCalls
-
   if (!state.toolCalls.length) {
     return null
   }
 
-  // The server is the source of truth when an answer fails, e.g. it was given in another tab
-  const syncPendingToolCalls = async () => {
-    if (!conversationId) return
+  const fetchPendingToolCalls = async (): Promise<
+    AiConversationToolCallItemFragment[] | undefined
+  > => {
+    if (!conversationId) return undefined
 
     const { data } = await getAiConversation({
       variables: { id: conversationId },
       fetchPolicy: 'network-only',
     })
 
-    if (data?.aiConversation) {
-      setPendingToolCalls(data.aiConversation.pendingToolCalls)
-    }
+    return data?.aiConversation?.pendingToolCalls
   }
 
-  const handleDecision = async (toolCall: AiConversationToolCallItemFragment, confirm: boolean) => {
+  // Keeps the answers given here, and drops writes another tab answered meanwhile
+  const syncToolCalls = (
+    pendingToolCalls: AiConversationToolCallItemFragment[],
+    decidedToolCall?: AiConversationToolCallItemFragment,
+  ): void => {
+    const pendingIds = new Set(pendingToolCalls.map((toolCall) => toolCall.id))
+    const answered = state.toolCalls
+      .map((toolCall) => (toolCall.id === decidedToolCall?.id ? decidedToolCall : toolCall))
+      .filter(
+        (toolCall) =>
+          toolCall.status !== AiConversationToolCallStatusEnum.Pending &&
+          !pendingIds.has(toolCall.id),
+      )
+
+    setPendingToolCalls([...answered, ...pendingToolCalls])
+  }
+
+  const handleDecision = async (
+    toolCall: AiConversationToolCallItemFragment,
+    confirm: boolean,
+  ): Promise<void> => {
     const variables = { input: { id: toolCall.id } }
-    // A network failure leaves the answer unknown, so it goes through the server sync below
     const decidedToolCall = await (
       confirm
         ? confirmToolCall({ variables }).then(({ data }) => data?.confirmAiConversationToolCall)
         : cancelToolCall({ variables }).then(({ data }) => data?.cancelAiConversationToolCall)
     ).catch(() => undefined)
 
-    if (!decidedToolCall) {
-      return syncPendingToolCalls()
+    if (decidedToolCall) {
+      decideToolCall({ toolCallId: toolCall.id, status: decidedToolCall.status })
+    } else {
+      addToast({ severity: 'danger', translateKey: 'text_1793366573261luhavy8p9zm' })
     }
 
-    const isLastPendingToolCall = !toolCallsRef.current.some(
-      (item) => item.id !== toolCall.id && item.status === AiConversationToolCallStatusEnum.Pending,
-    )
+    // Only the server knows whether the agent carries on: another tab may have answered the rest
+    const pendingToolCalls = await fetchPendingToolCalls()
 
-    if (isLastPendingToolCall) {
+    if (!pendingToolCalls) return
+
+    if (!pendingToolCalls.length) {
       resumeConversation()
 
       return onResume()
     }
 
-    decideToolCall({ toolCallId: toolCall.id, status: decidedToolCall.status })
+    syncToolCalls(pendingToolCalls, decidedToolCall ?? undefined)
   }
 
   return (
@@ -178,9 +213,7 @@ export const ChatToolCallConfirmation = ({ onResume }: ChatToolCallConfirmationP
                 className="self-end"
                 data-test={CHAT_TOOL_CALL_STATUS_TEST_ID}
               >
-                {toolCall.status === AiConversationToolCallStatusEnum.Cancelled
-                  ? translate('text_17927142915924dhjygav01h')
-                  : translate('text_179271429159249m3twmho35')}
+                {translate(getStatusTranslationKey(toolCall.status))}
               </Typography>
             )}
           </div>

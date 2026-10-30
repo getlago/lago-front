@@ -8,10 +8,7 @@ import {
   CHAT_MESSAGE_RECEIVED_TEST_ID,
   CHAT_MESSAGE_SENT_TEST_ID,
 } from '~/components/aiAgent/ChatMessages'
-import {
-  AiConversationToolCallStatusEnum,
-  OnConversationSubscriptionHookResult,
-} from '~/generated/graphql'
+import { OnConversationSubscriptionHookResult } from '~/generated/graphql'
 import { ChatMessage, ChatRole, ChatState, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { render } from '~/test-utils'
@@ -28,7 +25,6 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 const mockStreamChunk = jest.fn()
 const mockSetChatDone = jest.fn()
-const mockSetPendingToolCalls = jest.fn()
 
 let mockState: ChatState
 let mockAgentType: AiAgentTypeEnum
@@ -43,7 +39,6 @@ jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
       .pop(),
     streamChunk: mockStreamChunk,
     setChatDone: mockSetChatDone,
-    setPendingToolCalls: mockSetPendingToolCalls,
   }),
 }))
 
@@ -197,52 +192,6 @@ describe('ChatConversation', () => {
 
         expect(mockSetChatDone).toHaveBeenCalledWith('assistant-1')
         expect(mockStreamChunk).not.toHaveBeenCalled()
-      })
-    })
-
-    describe('WHEN the stream completes on writes to confirm', () => {
-      it('THEN should store the pending writes', () => {
-        const pendingToolCalls = [
-          {
-            id: 'tool-call-1',
-            name: 'void_invoice',
-            arguments: { lago_id: 'invoice-1' },
-            status: AiConversationToolCallStatusEnum.Pending,
-          },
-        ]
-
-        render(
-          <ChatConversation
-            subscription={
-              {
-                data: { aiConversationStreamed: { chunk: null, done: true, pendingToolCalls } },
-                error: undefined,
-              } as unknown as OnConversationSubscriptionHookResult
-            }
-          />,
-        )
-
-        expect(mockSetChatDone).toHaveBeenCalledWith('assistant-1')
-        expect(mockSetPendingToolCalls).toHaveBeenCalledWith(pendingToolCalls)
-      })
-    })
-
-    describe('WHEN the stream completes without writes to confirm', () => {
-      it('THEN should not touch the pending writes', () => {
-        render(
-          <ChatConversation
-            subscription={
-              {
-                data: {
-                  aiConversationStreamed: { chunk: null, done: true, pendingToolCalls: null },
-                },
-                error: undefined,
-              } as unknown as OnConversationSubscriptionHookResult
-            }
-          />,
-        )
-
-        expect(mockSetPendingToolCalls).not.toHaveBeenCalled()
       })
     })
   })

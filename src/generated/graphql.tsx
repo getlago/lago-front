@@ -5824,6 +5824,7 @@ export enum LagoApiError {
   MissingAddress = 'MissingAddress',
   NotEnoughAddressesInfo = 'NotEnoughAddressesInfo',
   TaxCodeAssociatedWithItemCodeNotFound = 'TaxCodeAssociatedWithItemCodeNotFound',
+  AiConversationToolCallsPending = 'ai_conversation_tool_calls_pending',
   CouponIsNotReusable = 'coupon_is_not_reusable',
   CurrenciesDoesNotMatch = 'currencies_does_not_match',
   CurrencyCodeNotSupported = 'currencyCodeNotSupported',

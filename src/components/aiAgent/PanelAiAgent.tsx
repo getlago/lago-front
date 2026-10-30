@@ -10,7 +10,8 @@ import { useCreateAiConversation } from '~/components/aiAgent/hooks/useCreateAiC
 import { useOnConversation } from '~/components/aiAgent/hooks/useOnConversation'
 import { Typography } from '~/components/designSystem/Typography'
 import PremiumFeature from '~/components/premium/PremiumFeature'
-import { CreateAiConversationInput } from '~/generated/graphql'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { CreateAiConversationInput, LagoApiError } from '~/generated/graphql'
 import { hasPendingToolCalls } from '~/hooks/aiAgent/aiAgentReducer'
 import { AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -27,7 +28,14 @@ type PanelAiAgentProps = {
 }
 
 export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentProps) => {
-  const { addNewMessage, agentType, conversationId, startNewConversation, state } = useAiAgent()
+  const {
+    addNewMessage,
+    agentType,
+    conversationId,
+    setPendingToolCalls,
+    startNewConversation,
+    state,
+  } = useAiAgent()
   const { createAiConversation, loading, error } = useCreateAiConversation()
   const { submitFinanceQuestion } = useAskFinanceAssistant()
   const [initialPrompt, setInitialPrompt] = useState<string>('')
@@ -42,6 +50,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
 
   const subscription = useOnConversation({
     conversationId: isFinanceAssistant ? undefined : conversationId,
+    onPendingToolCalls: setPendingToolCalls,
   })
 
   useEffect(() => {
@@ -55,17 +64,23 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
 
     setInitialPrompt(values.message)
 
-    await createAiConversation({
+    const { errors } = await createAiConversation({
       variables: {
         input: {
           message: values.message,
           conversationId: conversationId || undefined,
         },
       },
+      context: { silentErrorCodes: [LagoApiError.AiConversationToolCallsPending] },
 
       onCompleted: (data) => {
         // The user switched agents while the request was in flight
         if (agentTypeRef.current !== AiAgentTypeEnum.billing) {
+          return
+        }
+
+        // A refused message was never sent
+        if (!data.createAiConversation?.id) {
           return
         }
 
@@ -75,16 +90,17 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
           return subscription.restart()
         }
 
-        if (!data.createAiConversation?.id) {
-          return
-        }
-
         return startNewConversation({
           convId: data.createAiConversation.id,
           message: values.message,
         })
       },
     })
+
+    if (hasDefinedGQLError('AiConversationToolCallsPending', errors)) {
+      setInitialPrompt('')
+      addToast({ severity: 'info', translateKey: 'text_1792714291592znrvz6kenr1' })
+    }
   }
 
   const shouldDisplayWelcomeMessage = !state.messages.length && !loading && !error
@@ -147,7 +163,6 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
 
       {!!state.messages.length && <ChatConversation subscription={subscription} />}
 
-      {/* The agent takes no new message until the member answers every write it asked for */}
       <ChatPromptEditor
         disabled={!hasAccessToAiAgent || hasPendingToolCalls(state)}
         onSubmit={handleSubmit}

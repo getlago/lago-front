@@ -224,9 +224,17 @@ describe('formatToolCallArguments', () => {
     ])
   })
 
-  it('returns no parameter when the arguments are not an object', () => {
+  it('returns no parameter when there are no arguments', () => {
     expect(formatToolCallArguments(null)).toEqual([])
-    expect(formatToolCallArguments(['a'])).toEqual([])
-    expect(formatToolCallArguments('void_invoice')).toEqual([])
+    expect(formatToolCallArguments(undefined)).toEqual([])
+  })
+
+  it('shows arguments that are not an object as raw JSON rather than hiding them', () => {
+    expect(formatToolCallArguments(['a'])).toEqual([
+      { key: 'arguments', label: 'Arguments', value: '[\n  "a"\n]', isJson: true },
+    ])
+    expect(formatToolCallArguments('void_invoice')).toEqual([
+      { key: 'arguments', label: 'Arguments', value: '"void_invoice"', isJson: true },
+    ])
   })
 })

@@ -28,6 +28,7 @@ export const ChatHistory = ({ hideHistory, isFullscreen }: ChatHistoryProps) => 
       variables: {
         id,
       },
+      fetchPolicy: 'network-only',
     })
 
     if (singleConversationData?.aiConversation?.id) {

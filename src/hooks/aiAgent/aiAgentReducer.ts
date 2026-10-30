@@ -259,7 +259,6 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
     }
 
     case ChatActionType.RESUME_CONVERSATION: {
-      // The agent answers the confirmed writes in a new assistant message
       const assistantMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: ChatRole.assistant,

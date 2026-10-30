@@ -15,8 +15,7 @@ interface ChatConversationProps {
 }
 
 export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) => {
-  const { agentType, lastAssistantMessage, state, setChatDone, setPendingToolCalls, streamChunk } =
-    useAiAgent()
+  const { agentType, lastAssistantMessage, state, setChatDone, streamChunk } = useAiAgent()
   const { translate } = useInternationalization()
 
   useEffect(() => {
@@ -37,16 +36,6 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscription.data?.aiConversationStreamed.done])
-
-  // The agent stopped on writes the member has to confirm before they run
-  useEffect(() => {
-    const pendingToolCalls = subscription.data?.aiConversationStreamed.pendingToolCalls
-
-    if (pendingToolCalls?.length) {
-      setPendingToolCalls(pendingToolCalls)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscription.data?.aiConversationStreamed.pendingToolCalls])
 
   return (
     <div
