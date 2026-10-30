@@ -6,13 +6,13 @@ For explicitly requested v2 work, follow this guide without additional confirmat
 
 ## Choosing colors during the transition
 
-- Within explicitly scoped v2 work, use semantic tokens for new shadcn components. Choose a role such as `action-primary`, `text-default`, or `border-default` instead of a raw color.
+- Within explicitly scoped v2 work, use semantic tokens for new shadcn components. Choose a role such as `action-primary`, `text-default`, or `border-control` instead of a raw color.
 - Keep the existing palette when maintaining legacy components or extending views built with the legacy design system.
 - A new view is not automatically a palette migration. Adoption outside shadcn and migrations of existing components require explicit design/code review.
 - Primitives (`v2-brand-600`, for example) define the palette behind the semantic roles. They are available for foundation tooling and previews; avoid consuming them directly in application components.
 
 ```tsx
-<section className="border border-border-default bg-surface text-text-default">Content</section>
+<section className="border border-border-control bg-surface text-text-default">Content</section>
 ```
 
 Prefer existing component variants and semantic state tokens such as `action-primary-hover` and `disabled` over creating new color variations.
@@ -67,11 +67,31 @@ New semantic roles should represent an agreed design purpose, rather than a one-
 Use `shadow-v2-interactive` for subtle elevation on secondary buttons and clickable cards. It combines a 0.5px black 12.5% edge with `0 1px 1px` and `0 2px 4px` black 4% shadows, identically in light and dark. Figma: `v2 / Shadows / Interactive`. Adoption is explicit per shadcn component; it does not replace focus indication or apply to production automatically.
 
 - `bg-surface` follows canvas; use for flat page content.
-- `bg-surface-inset` provides recessed/grouping areas: light #FBFBFB, dark #212121.
+- `bg-surface-subtle` provides subtle grouping areas: light #FBFBFB, dark #212121.
 - `bg-surface-raised` is white in light mode and #232323 in dark mode.
 - `bg-surface-floating` is white in light mode and #2C2C2C in dark mode.
 - Pair floating surfaces with `shadow-v2-floating` for toasts/popovers or `shadow-v2-dialog` for dialogs. These opt-in utilities preserve Tailwind ring composition. Existing shadow utilities are unchanged.
 
-`shadows.css` defines light/dark values using the same local theme boundary as colors. Portal consumers must use `ColorThemePortal`. Elevation is chosen explicitly per component; it does not increment automatically with nesting. New components should use `border-border-default` for control boundaries, `text-link` for links/text actions and active tab text, `text-text-subtle` for the current breadcrumb, `text-text-default` for unselected navigation text, and icon semantic roles for icons. Active tab indicators retain `action-primary`. Do not add opacity modifiers to selected backgrounds or decorative borders by default.
+`shadows.css` defines light/dark values using the same local theme boundary as colors. Portal consumers must use `ColorThemePortal`. Elevation is chosen explicitly per component; it does not increment automatically with nesting. New components should use `border-border-control` for control boundaries, `text-link` for links/text actions and active tab text, `text-text-subtle` for the current breadcrumb, `text-text-default` for unselected navigation text, and icon semantic roles for icons. Active tab indicators retain `action-primary`. Do not add opacity modifiers to selected backgrounds or decorative borders by default.
 
 These rules guide future shadcn implementation; this foundation does not migrate production components.
+
+## Approved semantic color update
+
+[Figma color definitions](https://www.figma.com/design/LpzAy6Jka2kl1G8wk4WZAs?node-id=16-4)
+
+The v2 utilities are now `bg-surface-subtle`, `border-border-control`, and
+`border-border-divider`. Their former names were `bg-surface-inset`,
+`border-border-default`, and `border-border-subtle`; migrate all consumers together.
+Surface and divider colors stay unchanged. Control boundaries use neutral-400 in
+light mode and neutral-525 in dark mode.
+
+Dark muted text uses neutral-250; muted icons continue to alias muted text.
+Information messages use neutral-75 / neutral-600 / neutral-200 in light mode and
+neutral-800 / neutral-200 / neutral-700 in dark mode (background / foreground / border).
+The new neutral-75, neutral-250, and neutral-525 primitives are authored in OKLCH;
+their Figma sRGB references are #F5F5F5, #BDBDBD, and #777777 respectively.
+
+Subtle text/icons, premium icons, focus, inverse, selection, and elevation retain
+their existing definitions. This update applies to the opt-in v2 foundation and
+development showcases; it does not migrate legacy production components.

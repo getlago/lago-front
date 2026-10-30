@@ -1,13 +1,13 @@
-import { matchPath } from 'react-router'
-
 import {
   AUTH_TOKEN_LS_KEY,
   CUSTOMER_PORTAL_TOKEN_LS_KEY,
   getCurrentOrganizationId,
   TMP_AUTH_TOKEN_LS_KEY,
 } from '~/core/apolloClient/reactiveVars'
-import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
+import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
 import { getItemFromLS } from '~/core/utils/localStorage'
+
+type AdminCredentials = { token: string | undefined; organizationId: string | undefined }
 
 // Credentials are scoped by route: a logged-in admin previewing a customer
 // portal keeps both tokens in localStorage, and only the URL tells which
@@ -15,11 +15,6 @@ import { getItemFromLS } from '~/core/utils/localStorage'
 // breaks the portal when that token is expired (the API rejects it before
 // reading customer-portal-token), and sending the portal token on admin
 // routes leaks it on every request after visiting any portal link.
-export const isCustomerPortalPath = (pathname: string): boolean =>
-  !!matchPath(`${CUSTOMER_PORTAL_ROUTE}/*`, pathname)
-
-type AdminCredentials = { token: string | undefined; organizationId: string | undefined }
-
 const resolveAdminCredentials = (pathname: string): AdminCredentials | null => {
   if (isCustomerPortalPath(pathname)) return null
 

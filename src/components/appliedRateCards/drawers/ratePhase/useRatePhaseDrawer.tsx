@@ -37,6 +37,7 @@ import {
   getLiveSequenceLock,
   insertPhaseReference,
 } from './ratePhaseSeeds'
+import { scrollToFirstRatePhaseError } from './scrollToFirstRatePhaseError'
 import { RatePhaseDrawerProps } from './types'
 
 gql`
@@ -176,6 +177,9 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
     defaultValues: RATE_PHASE_FORM_DEFAULTS,
     validationLogic: revalidateLogic(),
     validators: { onDynamic: buildRatePhaseFormSchema(() => schemaContext.current) },
+    onSubmitInvalid: ({ formApi }) => {
+      scrollToFirstRatePhaseError(RATE_PHASE_FORM_ID, formApi.state.errorMap.onDynamic || {})
+    },
     onSubmit: async ({ value }) => {
       const params = currentParams.current
 

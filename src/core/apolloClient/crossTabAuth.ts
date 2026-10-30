@@ -1,6 +1,7 @@
 import { ApolloClient } from '@apollo/client'
 
-import { isCustomerPortalPath } from './authHeaders'
+import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
+
 import { resumePersistence } from './cachePersistor'
 import { clearLocalSession } from './cacheUtils'
 import {

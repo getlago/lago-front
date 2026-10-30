@@ -40,6 +40,9 @@ import { APPLIED_RATE_CARD_FORM_DEFAULTS } from './validationSchema'
 
 type OpenRateCardDrawer = ReturnType<typeof useRateCardDrawer>['openDrawer']
 
+export type AppliedRateCardParent =
+  { context: 'plan'; planId: string } | { context: 'contract'; contractId: string }
+
 export const APPLIED_RATE_CARD_DRAWER_PRODUCT_TEST_ID = 'applied-rate-card-drawer-product'
 export const APPLIED_RATE_CARD_DRAWER_SHOW_FILTER_TEST_ID = 'applied-rate-card-drawer-show-filter'
 export const APPLIED_RATE_CARD_DRAWER_PRODUCT_FILTER_TEST_ID =
@@ -111,6 +114,8 @@ gql`
     $code: String
     $currency: CurrencyEnum
     $limit: Int
+    $excludePricedOnPlanId: ID
+    $excludePricedOnContractId: ID
   ) {
     rateCards(
       productIds: $productIds
@@ -119,6 +124,8 @@ gql`
       code: $code
       currency: $currency
       limit: $limit
+      excludePricedOnPlanId: $excludePricedOnPlanId
+      excludePricedOnContractId: $excludePricedOnContractId
     ) {
       collection {
         id
@@ -198,6 +205,7 @@ const useOptionsWithSelection = <T,>(
 }
 
 type AppliedRateCardDrawerContentProps = {
+  parent: AppliedRateCardParent
   // The backend rejects a rate card in another currency (`currency_does_not_match`).
   currency: CurrencyEnum
   openRateCardDrawer: OpenRateCardDrawer
@@ -205,6 +213,7 @@ type AppliedRateCardDrawerContentProps = {
 }
 
 const appliedRateCardDrawerContentDefaultProps: AppliedRateCardDrawerContentProps = {
+  parent: { context: 'plan', planId: '' },
   currency: CurrencyEnum.Usd,
   openRateCardDrawer: () => {},
   organizationSlug: undefined,
@@ -215,6 +224,7 @@ export const AppliedRateCardDrawerContent = withForm({
   props: appliedRateCardDrawerContentDefaultProps,
   render: function AppliedRateCardDrawerContentRender({
     form,
+    parent,
     currency,
     openRateCardDrawer,
     organizationSlug,
@@ -243,6 +253,9 @@ export const AppliedRateCardDrawerContent = withForm({
         productFilterIds: productFilterId ? [productFilterId] : undefined,
         currency,
         limit: 50,
+        ...(parent.context === 'plan'
+          ? { excludePricedOnPlanId: parent.planId }
+          : { excludePricedOnContractId: parent.contractId }),
       },
     })
 
@@ -345,6 +358,11 @@ export const AppliedRateCardDrawerContent = withForm({
         },
       })
     }
+
+    // A failed query lists nothing too, which must not read as "no match".
+    const createRateCardValueProps = rateCardsData
+      ? { label: translate('text_1791485670326bz5dr6tcop3'), onClick: handleCreateRateCard }
+      : undefined
 
     const resetFields = (
       fields: Array<
@@ -483,11 +501,7 @@ export const AppliedRateCardDrawerContent = withForm({
                     placeholder={translate('text_1791833366840z1t3fsw26hp')}
                     loading={rateCardsLoading}
                     allowAddValue
-                    addValueProps={{
-                      label: translate('text_1791485670326bz5dr6tcop3'),
-                      onClick: handleCreateRateCard,
-                      alwaysVisible: true,
-                    }}
+                    addValueProps={createRateCardValueProps}
                     searchQuery={getRateCards}
                     data={rateCards.map((rateCard) => ({
                       value: rateCard.code,

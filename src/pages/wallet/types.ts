@@ -22,7 +22,16 @@ type TWalletRecurringRuleInput = NonNullable<
 
 export type TWalletDataForm = Omit<
   CreateCustomerWalletInput,
-  'customerId' | 'name' | 'code' | 'priority' | 'recurringTransactionRules' | 'connections'
+  | 'customerId'
+  | 'name'
+  | 'code'
+  | 'priority'
+  | 'recurringTransactionRules'
+  | 'connections'
+  | 'grantedCredits'
+  | 'paidCredits'
+  | 'transactionName'
+  | 'ignorePaidTopUpLimitsOnCreation'
 > &
   Omit<
     UpdateCustomerWalletInput,
@@ -33,6 +42,10 @@ export type TWalletDataForm = Omit<
     name: string
     code: string
     priority: string
+    grantedCredits: string
+    paidCredits: string
+    transactionName?: string | null
+    ignorePaidTopUpLimitsOnCreation?: boolean | null
     appliesTo?: Omit<NonNullable<WalletForScopeSectionFragment['appliesTo']>, 'billableMetrics'> & {
       billableMetrics?: WalletScopeBillableMetric[] | null
     }
