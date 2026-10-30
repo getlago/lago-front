@@ -42,6 +42,14 @@ solves it. Search before judging:
 | Error, toast, navigation, permissions | the Apollo error link, the toast layer, `~/core/router`, permission hooks |
 | New dependency                     | `package.json`: is there already one that covers the need?               |
 
+**Shared files.** For every existing file the diff modifies outside the feature's own folder
+(the design system, `src/components/Filters`, `src/hooks`, `src/core`, layouts), list its
+callers on main (`git grep -lwF -e '<export>' origin/main -- src`), name what each one relies on, and
+say whether the diff changes it: a new required prop, a changed default or value format, a
+component swapped for another, an effect that now runs at different times. A caller whose
+behaviour changes without the PR saying so is a finding. Report a shared file checked with no
+change for its callers in one line, so the reader sees it was looked at.
+
 Then look at the two or three features closest to this one (same section of the app,
 same kind of screen). If the PR solves the same problem a different way, that is a
 finding, unless the PR explains why.
