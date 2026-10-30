@@ -10,6 +10,11 @@ import { cache } from './cache'
 const KEY_PREFIX = 'apollo-cache-persist-lago-'
 
 let persistor: CachePersistor<NormalizedCacheObject> | null = null
+let persistenceKey: string | undefined
+let persistencePaused = false
+
+const createPersistor = (key: string): CachePersistor<NormalizedCacheObject> =>
+  new CachePersistor({ cache, storage: new LocalForageWrapper(localForage), key })
 
 const isCustomerPortalContext = () =>
   !!matchPath(`${CUSTOMER_PORTAL_ROUTE}/*`, window.location.pathname)
@@ -44,11 +49,9 @@ export const setupCachePersistor = async (appVersion: string) => {
 
   await purgeStaleVersionedCaches(currentKey)
 
-  persistor = new CachePersistor({
-    cache,
-    storage: new LocalForageWrapper(localForage),
-    key: currentKey,
-  })
+  persistenceKey = currentKey
+  persistencePaused = false
+  persistor = createPersistor(currentKey)
 
   // The constructor does not restore (unlike the persistCache helper), so we
   // restore explicitly.
@@ -66,6 +69,15 @@ export const purgePersistedCache = async () => {
 // same-tab client-side navigation (persistor already live with the admin key):
 // prevents portal data from leaking into the admin blob while leaving that blob
 // intact.
-export const pausePersistence = () => {
-  persistor?.pause()
+export const pausePersistence = (): void => {
+  // remove() keeps the old trigger's pending debounce paused even after persistence resumes.
+  persistor?.remove()
+  persistencePaused = true
+}
+
+export const resumePersistence = (): void => {
+  if (!persistencePaused || !persistenceKey || isCustomerPortalContext()) return
+
+  persistor = createPersistor(persistenceKey)
+  persistencePaused = false
 }

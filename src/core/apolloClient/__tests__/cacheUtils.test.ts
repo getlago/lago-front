@@ -17,6 +17,8 @@ jest.mock('../cableConsumer', () => ({
 }))
 
 jest.mock('../cachePersistor', () => ({
+  pausePersistence: jest.fn(),
+  resumePersistence: jest.fn(),
   purgePersistedCache: (...args: unknown[]) => mockPurgePersistedCache(...args),
 }))
 

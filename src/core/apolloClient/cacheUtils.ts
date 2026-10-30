@@ -9,7 +9,7 @@ import {
 import { DEVTOOL_AUTO_SAVE_KEY, resetDevtoolsNavigation } from '~/hooks/useDeveloperTool'
 
 import { disconnectCableConsumer } from './cableConsumer'
-import { purgePersistedCache } from './cachePersistor'
+import { pausePersistence, purgePersistedCache, resumePersistence } from './cachePersistor'
 import {
   addToast,
   AUTH_TOKEN_LS_KEY,
@@ -38,6 +38,7 @@ gql`
 // Clears only this tab's memory: the stored token and the persisted blob are
 // shared by every tab and may already hold the next session.
 export const clearLocalSession = async (client: ApolloClient<object>): Promise<void> => {
+  pausePersistence()
   // Reset devtools navigation to prevent stale queries with old transactionIds
   resetDevtoolsNavigation()
   // Cancels active operations
@@ -61,7 +62,10 @@ export const logOut = async (
     await purgePersistedCache()
   }
 
-  authTokenVar(getStoredAuthToken())
+  const storedToken = getStoredAuthToken()
+
+  if (storedToken) resumePersistence()
+  authTokenVar(storedToken)
 
   resetLocationHistory && resetLocationHistoryVar()
 }
@@ -111,6 +115,7 @@ export const onLogIn = async (client: ApolloClient<object>, token: string) => {
     // Set the auth token. The landing organization is resolved from the URL by
     // `RootRedirect` (saved/SSO path → last-used slug → first accessible
     // membership), so login no longer selects or sets a current org id.
+    resumePersistence()
     updateAuthTokenVar(token)
   } catch {
     // If an error occurs, display a toast to inform the user that the login failed

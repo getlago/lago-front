@@ -1,7 +1,7 @@
 const mockCtor = jest.fn()
 const mockRestore = jest.fn()
 const mockPurge = jest.fn()
-const mockPause = jest.fn()
+const mockRemove = jest.fn()
 const mockKeys = jest.fn()
 const mockRemoveItem = jest.fn()
 
@@ -9,7 +9,7 @@ jest.mock('apollo3-cache-persist', () => ({
   CachePersistor: function CachePersistorMock(options: unknown) {
     mockCtor(options)
 
-    return { restore: mockRestore, purge: mockPurge, pause: mockPause }
+    return { restore: mockRestore, purge: mockPurge, remove: mockRemove }
   },
   LocalForageWrapper: function LocalForageWrapperMock(storage: unknown) {
     return { storage }
@@ -106,7 +106,7 @@ describe('cachePersistor', () => {
       await setupCachePersistor('1.0.0')
       pausePersistence()
 
-      expect(mockPause).toHaveBeenCalledTimes(1)
+      expect(mockRemove).toHaveBeenCalledTimes(1)
     })
   })
 })
