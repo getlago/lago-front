@@ -121,7 +121,7 @@ describe('useAttributionTree', () => {
       expect(mockQuery).toHaveBeenCalledTimes(1)
       expect(mockQuery).toHaveBeenCalledWith(
         expect.objectContaining({
-          fetchPolicy: 'network-only',
+          fetchPolicy: 'no-cache',
           variables: { ...variables, groupBy: 'department', filters: undefined, page: 1 },
         }),
       )
@@ -396,9 +396,9 @@ describe('useAttributionTree', () => {
       expect(result.current.nodes[RND_KEY]).toEqual(expect.objectContaining({ isExpanded: true }))
       expect(mockQuery).toHaveBeenCalledTimes(3)
       expect(mockQuery.mock.calls.map(([options]) => options.fetchPolicy)).toEqual([
-        'network-only',
-        'network-only',
-        'network-only',
+        'no-cache',
+        'no-cache',
+        'no-cache',
       ])
     })
 
@@ -511,10 +511,41 @@ describe('useAttributionTree', () => {
 
       expect(mockQuery).toHaveBeenCalledTimes(3)
       expect(mockQuery.mock.calls.map(([options]) => options.fetchPolicy)).toEqual([
-        'network-only',
-        'network-only',
-        'network-only',
+        'no-cache',
+        'no-cache',
+        'no-cache',
       ])
+    })
+  })
+
+  describe('GIVEN a superseded selection with a request still waiting for a queue slot', () => {
+    describe('WHEN a slot frees up', () => {
+      it('THEN should drop the superseded request and give the slot to the new selection', async () => {
+        const manyLevels = Array.from({ length: 8 }, (_, index) => ({
+          code: `level_${index}`,
+          name: `Level ${index}`,
+          isLeaf: true,
+        }))
+        const resolvers: Array<(value: unknown) => void> = []
+
+        mockQuery.mockImplementation(() => new Promise((resolve) => resolvers.push(resolve)))
+
+        const { result, rerender } = renderTree({ getChildLevels: () => manyLevels })
+
+        await waitFor(() => expect(mockQuery).toHaveBeenCalledTimes(1))
+        await act(async () => resolvers[0]({ data: { attributedUsage: buildUsage([]) } }))
+        expect(mockQuery).toHaveBeenCalledTimes(7)
+
+        rerender({ variables, getChildLevels: () => manyLevels, resetKey: 'key-2', skip: false })
+        await act(async () => resolvers[1]({ data: { attributedUsage: buildUsage([]) } }))
+
+        expect(mockQuery).toHaveBeenCalledTimes(8)
+        expect(getQueryVariables(7)).toEqual(
+          expect.objectContaining({ groupBy: 'level_0', page: 1 }),
+        )
+        expect(result.current.nodes[ROOT_KEY]).toEqual({ status: 'loading' })
+        expect(addToast).not.toHaveBeenCalled()
+      })
     })
   })
 
@@ -626,6 +657,67 @@ describe('useAttributionTree', () => {
           expect.objectContaining({ groupBy: 'team', ...refreshedWindow }),
           expect.objectContaining({ groupBy: 'cost_center', ...refreshedWindow }),
         ])
+      })
+    })
+
+    describe('WHEN the selection changes while the probe is pending', () => {
+      it('THEN should not refetch the superseded first page once the probe answers', async () => {
+        let resolveProbe: (value: unknown) => void = () => undefined
+
+        mockQuery.mockReturnValue(resolveUsage(buildUsage(['rnd'])))
+        mockQuery.mockReturnValueOnce(new Promise((resolve) => (resolveProbe = resolve)))
+
+        const { result, rerender } = renderCurrentPeriodTree()
+
+        await waitFor(() => expect(mockQuery).toHaveBeenCalledTimes(1))
+
+        rerender({
+          variables: currentPeriodVariables,
+          getChildLevels,
+          resetKey: 'key-2',
+          skip: false,
+        })
+        await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+        expect(mockQuery).toHaveBeenCalledTimes(3)
+
+        await act(async () => resolveProbe({ data: { attributedUsage: buildUsage(['rnd']) } }))
+
+        expect(mockQuery).toHaveBeenCalledTimes(3)
+        expect(addToast).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the selection changes while a refresh waits for its probe', () => {
+      it('THEN should not send the superseded node reloads once the probe answers', async () => {
+        const { result, rerender } = await renderLoadedCurrentPeriodTree()
+
+        await expandRnd(result)
+
+        let resolveProbe: (value: unknown) => void = () => undefined
+
+        mockQuery.mockReturnValue(resolveUsage(buildUsage(['rnd'])))
+        mockQuery.mockReturnValueOnce(new Promise((resolve) => (resolveProbe = resolve)))
+
+        await act(async () => result.current.refresh())
+        expect(mockQuery).toHaveBeenCalledTimes(5)
+
+        rerender({
+          variables: currentPeriodVariables,
+          getChildLevels,
+          resetKey: 'key-2',
+          skip: false,
+        })
+        await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+
+        const callsAfterReset = mockQuery.mock.calls.length
+
+        await act(async () =>
+          resolveProbe({ data: { attributedUsage: buildUsage(['rnd', 'gtm']) } }),
+        )
+
+        expect(mockQuery).toHaveBeenCalledTimes(callsAfterReset)
+        expect(result.current.nodes[RND_KEY]).toBeUndefined()
+        expect(addToast).not.toHaveBeenCalled()
       })
     })
 

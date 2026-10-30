@@ -221,7 +221,13 @@ export const useAttributionTree = ({
       silentError = false,
     ): Promise<AttributionTreeUsage> => {
       const generation = generationRef.current
+      const assertCurrentGeneration = (): void => {
+        if (generation !== generationRef.current) throw new Error('superseded attribution request')
+      }
       const anchor = generation.anchor ? await generation.anchor : null
+
+      assertCurrentGeneration()
+
       const latestVariables = latestParamsRef.current.variables
       const filters = mergeAttributionFilters(
         latestVariables.filters ?? [],
@@ -229,8 +235,10 @@ export const useAttributionTree = ({
       )
 
       const query = (window: AttributionTreeWindow): Promise<AttributionTreeUsage> =>
-        enqueueRequest(() =>
-          client.query<
+        enqueueRequest(() => {
+          assertCurrentGeneration()
+
+          return client.query<
             GetSubscriptionAttributedUsageQuery,
             GetSubscriptionAttributedUsageQueryVariables
           >({
@@ -246,14 +254,16 @@ export const useAttributionTree = ({
                   ? filterPage * anchor.splitFiltersLimit
                   : undefined,
             },
-            fetchPolicy: 'network-only',
+            fetchPolicy: 'no-cache',
             context: { silentError },
-          }),
-        ).then(({ data }) => data.attributedUsage)
+          })
+        }).then(({ data }) => data.attributedUsage)
 
       if (anchor) return query(getAttributionGenerationWindow(generation, anchor))
 
       const request = query({}).then((usage) => {
+        assertCurrentGeneration()
+
         const window = getAttributionGenerationWindow(generation, usage)
 
         return window.toDatetime ? query(window) : usage
