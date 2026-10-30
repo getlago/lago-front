@@ -21,9 +21,18 @@ export type ResolvablePaymentTerm = {
 /** A term as read off a query result: absent means "inherit from the level above". */
 export type MaybePaymentTerm = ResolvablePaymentTerm | null | undefined
 
-/** Net 0 reads as due on receipt, the way the PDF labels it. The stored term is untouched. */
+const ZERO_DAY_EQUIVALENTS: Partial<Record<PaymentTermTypeEnum, ResolvablePaymentTerm>> = {
+  [PaymentTermTypeEnum.Net]: DEFAULT_PAYMENT_TERM,
+  [PaymentTermTypeEnum.NetEndOfMonth]: { termType: PaymentTermTypeEnum.EndOfMonth },
+  [PaymentTermTypeEnum.DaysEndOfMonth]: { termType: PaymentTermTypeEnum.EndOfMonth },
+}
+
+/**
+ * A zero-day term reads as the term it equals, the way the PDF labels it. The stored term is
+ * untouched.
+ */
 export const displayedPaymentTerm = (term: ResolvablePaymentTerm): ResolvablePaymentTerm =>
-  term.termType === PaymentTermTypeEnum.Net && !term.days ? DEFAULT_PAYMENT_TERM : term
+  (!term.days && ZERO_DAY_EQUIVALENTS[term.termType]) || term
 
 /**
  * `monthOffset` is optional on the API, which fills in the default server-side. Mirror
