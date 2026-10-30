@@ -3,6 +3,11 @@ import { Icon } from 'lago-design-system'
 import { ReactNode, useCallback } from 'react'
 
 import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
+import {
+  clearCustomerServerError,
+  getCustomerFieldErrors,
+  setCustomerServerErrors,
+} from '~/components/customers/utils'
 import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
@@ -63,12 +68,26 @@ const CreateCustomer = () => {
     validators: {
       onDynamic: validationSchema,
     },
+    listeners: {
+      onChange: clearCustomerServerError,
+    },
     onSubmit: async ({ value, formApi }) => {
       const formattedValues = mapFromFormToApi(value)
 
       const answer = await onSave(formattedValues)
 
       const { errors } = answer
+
+      const { fields } = getCustomerFieldErrors({
+        errors,
+        billingAddressPath: 'billingAddress',
+        isShippingEqualBillingAddress: value.isShippingEqualBillingAddress,
+      })
+      const hasFieldErrors = Object.keys(fields).length > 0
+
+      setCustomerServerErrors(formApi, fields)
+
+      if (hasFieldErrors) scrollToFirstInputError('create-customer', fields)
 
       if (hasDefinedGQLError('ValueAlreadyExist', errors, 'externalId')) {
         formApi.setErrorMap({
@@ -122,7 +141,7 @@ const CreateCustomer = () => {
         return
       }
 
-      !isEdition && formApi.reset()
+      !isEdition && !hasFieldErrors && formApi.reset()
     },
     onSubmitInvalid({ formApi }) {
       scrollToFirstInputError('create-customer', formApi.state.errorMap.onDynamic || {})
