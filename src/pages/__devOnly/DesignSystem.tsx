@@ -64,6 +64,7 @@ import { shadcnBadgeTab } from './tabs/BadgeTest'
 import { BorderTest } from './tabs/BorderTest'
 import { shadcnButtonTab } from './tabs/ButtonTest'
 import { ColorTest } from './tabs/ColorTest'
+import { dataTableTab } from './tabs/DataTableTest'
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
 import { shadcnDropdownMenuTab } from './tabs/DropdownMenuTest'
@@ -2307,6 +2308,7 @@ const DesignSystem = () => {
           shadcnTooltipTab,
           shadcnDropdownMenuTab,
           shadcnSeparatorTab,
+          dataTableTab,
           // disabled simple tab
           {
             disabled: true,

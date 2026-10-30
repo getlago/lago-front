@@ -21,7 +21,7 @@ export default {
     //   works). Jest's CJS registry has no require(ESM), so these must go through babel.
     // The optional `.pnpm/` branch covers pnpm's virtual store layout
     // (node_modules/.pnpm/<pkg>@<version>/node_modules/<pkg>).
-    '/node_modules[\\\\/](?!(\\.pnpm[\\\\/])?(lago-design-system|htmlparser2|domelementtype|domhandler|domutils|dom-serializer|entities)[@\\\\/])',
+    '/node_modules[\\\\/](?!(\\.pnpm[\\\\/])?(lago-design-system|htmlparser2|domelementtype|domhandler|domutils|dom-serializer|entities|@tanstack(\\+|[\\\\/])(react-table|table-core|react-store|store))[@\\\\/])',
     '^.+\\.module\\.(css|sass|scss)$',
   ],
 

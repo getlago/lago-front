@@ -417,7 +417,9 @@ describe('AttributionTreeTable', () => {
           .map((row) => row.querySelectorAll('td')[2])
 
         rowCells.forEach((cell) =>
-          expect(cell).toHaveAttribute('data-test', ATTRIBUTION_LOADING_CELL_TEST_ID),
+          expect(
+            cell.querySelector(`[data-test="${ATTRIBUTION_LOADING_CELL_TEST_ID}"]`),
+          ).toBeInTheDocument(),
         )
       })
     })

@@ -135,6 +135,7 @@
     "@sentry/react": "10.76.2",
     "@superset-ui/embedded-sdk": "0.4.0",
     "@tanstack/react-form": "1.33.0",
+    "@tanstack/react-table": "9.3.1",
     "@tanstack/react-virtual": "3.14.21",
     "@tiptap/core": "3.32.0",
     "@tiptap/extension-blockquote": "3.32.0",
