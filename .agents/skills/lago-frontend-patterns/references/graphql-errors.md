@@ -19,6 +19,10 @@ GraphQL error that is not silenced. Only auth errors and `Forbidden` are silence
 default. When the caller shows its own error UI, or the request runs in the background,
 pass `context: { silentError: true }` or `context: { silentErrorCodes: [...] }`, or the
 user gets two messages. Reference: `src/components/customers/CustomerActivityLogs.tsx`.
+On a mutation, silence only the codes the form shows itself, usually
+`silentErrorCodes: [LagoApiError.UnprocessableEntity]`. `silentError: true` also drops the
+Sentry report of every outage and server error, so it is for background requests only,
+never a way to keep a payload out of Sentry: fix that in the link (`one-owner-per-rule.md`).
 
 **Gate a query on the permission its resolver needs.** `Forbidden` is silenced, so a
 query the current role cannot run fails with no toast: the section renders empty, or
