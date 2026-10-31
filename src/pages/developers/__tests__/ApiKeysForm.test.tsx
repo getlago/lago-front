@@ -6,6 +6,7 @@ import { addToast } from '~/core/apolloClient'
 import {
   ApiKeysPermissionsEnum,
   CreateApiKeyDocument,
+  FeatureFlagEnum,
   GetApiKeyToEditDocument,
   PremiumIntegrationTypeEnum,
   UpdateApiKeyDocument,
@@ -20,6 +21,7 @@ import ApiKeysForm, {
   API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID,
   API_KEYS_FORM_PREMIUM_BANNER_TEST_ID,
   API_KEYS_FORM_PREMIUM_BUTTON_TEST_ID,
+  getApiKeysFormPermissionRowTestId,
 } from '../ApiKeysForm'
 
 // Mock dependencies
@@ -45,6 +47,7 @@ jest.mock('~/hooks/useDeveloperTool', () => ({
 }))
 
 const mockUseOrganizationInfos = jest.fn()
+const mockHasFeatureFlag = jest.fn()
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => mockUseOrganizationInfos(),
@@ -115,10 +118,12 @@ const updateApiKeyMock: MockedResponse = {
 describe('ApiKeysForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasFeatureFlag.mockReturnValue(false)
     mockUseOrganizationInfos.mockReturnValue({
       organization: {
         premiumIntegrations: [],
       },
+      hasFeatureFlag: mockHasFeatureFlag,
     })
     // Reset useParams mock for each test
     const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
@@ -212,6 +217,7 @@ describe('ApiKeysForm', () => {
           organization: {
             premiumIntegrations: [PremiumIntegrationTypeEnum.ApiPermissions],
           },
+          hasFeatureFlag: mockHasFeatureFlag,
         })
       })
 
@@ -362,6 +368,7 @@ describe('ApiKeysForm', () => {
         organization: {
           premiumIntegrations: [PremiumIntegrationTypeEnum.ApiPermissions],
         },
+        hasFeatureFlag: mockHasFeatureFlag,
       })
     })
 
@@ -465,6 +472,161 @@ describe('ApiKeysForm', () => {
 
         // Second row should remain unchanged
         expect(secondRowReadCheckbox.checked).toBe(secondRowInitialValue)
+      })
+    })
+
+    describe('WHEN the organization has no product catalog feature flag', () => {
+      beforeEach(() => {
+        mockHasFeatureFlag.mockReturnValue(false)
+      })
+
+      it('THEN should display only the resources available without the product catalog', async () => {
+        render(<ApiKeysForm />)
+
+        await waitFor(() => {
+          expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+        })
+
+        ;[
+          ApiKeysPermissionsEnum.ApiLog,
+          ApiKeysPermissionsEnum.Coupon,
+          ApiKeysPermissionsEnum.PaymentReceipt,
+          ApiKeysPermissionsEnum.Plan,
+        ].forEach((permission) => {
+          expect(
+            screen.getByTestId(getApiKeysFormPermissionRowTestId(permission)),
+          ).toBeInTheDocument()
+        })
+        ;[
+          ApiKeysPermissionsEnum.Contract,
+          ApiKeysPermissionsEnum.Product,
+          ApiKeysPermissionsEnum.RateCard,
+        ].forEach((permission) => {
+          expect(
+            screen.queryByTestId(getApiKeysFormPermissionRowTestId(permission)),
+          ).not.toBeInTheDocument()
+        })
+      })
+
+      it('THEN should submit only the displayed resources', async () => {
+        const user = userEvent.setup()
+        let submittedPermissions: Record<string, string[]> = {}
+
+        const createApiKeyWithPermissionsMock: MockedResponse = {
+          request: { query: CreateApiKeyDocument },
+          variableMatcher: (variables) => {
+            submittedPermissions = variables.input.permissions
+
+            return true
+          },
+          result: { data: { createApiKey: { id: 'new-api-key-456' } } },
+        }
+
+        render(<ApiKeysForm />, { mocks: [createApiKeyWithPermissionsMock] })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+        })
+
+        await user.type(screen.getByRole('textbox'), 'New API Key')
+        await user.click(screen.getByRole('button', { name: /add api key/i }))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        })
+
+        expect(submittedPermissions[ApiKeysPermissionsEnum.Plan]).toEqual(['read', 'write'])
+        expect(submittedPermissions[ApiKeysPermissionsEnum.ApiLog]).toEqual(['read'])
+        expect(submittedPermissions).not.toHaveProperty(ApiKeysPermissionsEnum.Product)
+        expect(submittedPermissions).not.toHaveProperty(ApiKeysPermissionsEnum.Contract)
+      })
+    })
+
+    describe('WHEN the organization has the product catalog feature flag', () => {
+      beforeEach(() => {
+        mockHasFeatureFlag.mockImplementation(
+          (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.ProductCatalog,
+        )
+      })
+
+      it('THEN should display only the v2 resources', async () => {
+        render(<ApiKeysForm />)
+
+        await waitFor(() => {
+          expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+        })
+
+        ;[
+          ApiKeysPermissionsEnum.Contract,
+          ApiKeysPermissionsEnum.ContractRateCard,
+          ApiKeysPermissionsEnum.Customer,
+          ApiKeysPermissionsEnum.Invoice,
+          ApiKeysPermissionsEnum.Plan,
+          ApiKeysPermissionsEnum.PlanRateCard,
+          ApiKeysPermissionsEnum.Product,
+          ApiKeysPermissionsEnum.ProductCategory,
+          ApiKeysPermissionsEnum.RateCard,
+        ].forEach((permission) => {
+          expect(
+            screen.getByTestId(getApiKeysFormPermissionRowTestId(permission)),
+          ).toBeInTheDocument()
+        })
+        ;[
+          ApiKeysPermissionsEnum.Coupon,
+          ApiKeysPermissionsEnum.Feature,
+          ApiKeysPermissionsEnum.InvoiceCustomSection,
+          ApiKeysPermissionsEnum.PaymentReceipt,
+          ApiKeysPermissionsEnum.Subscription,
+          ApiKeysPermissionsEnum.Wallet,
+        ].forEach((permission) => {
+          expect(
+            screen.queryByTestId(getApiKeysFormPermissionRowTestId(permission)),
+          ).not.toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN the organization is not loaded yet', () => {
+      beforeEach(() => {
+        // Guards the skipped organization query: `loading: false` with no organization used to
+        // build the table from an unset product catalog flag.
+        mockUseOrganizationInfos.mockReturnValue({
+          organization: undefined,
+          hasFeatureFlag: mockHasFeatureFlag,
+          loading: false,
+        })
+      })
+
+      it('THEN should not display the form and should disable the submit button', async () => {
+        render(<ApiKeysForm />)
+
+        await waitFor(() => {
+          expect(screen.getByRole('button', { name: /add api key/i })).toBeDisabled()
+        })
+
+        expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization infos are refetched', () => {
+      beforeEach(() => {
+        mockUseOrganizationInfos.mockReturnValue({
+          organization: {
+            premiumIntegrations: [PremiumIntegrationTypeEnum.ApiPermissions],
+          },
+          hasFeatureFlag: mockHasFeatureFlag,
+          loading: true,
+        })
+      })
+
+      it('THEN should keep the permissions table displayed', async () => {
+        render(<ApiKeysForm />)
+
+        await waitFor(() => {
+          expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+        })
+
+        expect(screen.getByRole('button', { name: /add api key/i })).toBeEnabled()
       })
     })
   })
