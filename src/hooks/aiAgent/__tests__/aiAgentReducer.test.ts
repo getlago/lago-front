@@ -1,10 +1,15 @@
 import {
+  AiConversationToolCallItemFragment,
+  AiConversationToolCallStatusEnum,
+} from '~/generated/graphql'
+import {
   ChatActionType,
   ChatMessage,
   chatReducer,
   ChatRole,
   ChatState,
   ChatStatus,
+  hasPendingToolCalls,
 } from '~/hooks/aiAgent/aiAgentReducer'
 
 beforeAll(() => {
@@ -22,7 +27,18 @@ const emptyState: ChatState = {
   isStreaming: false,
   hasError: false,
   financeSessionId: undefined,
+  toolCalls: [],
 }
+
+const buildToolCall = (
+  overrides: Partial<AiConversationToolCallItemFragment> = {},
+): AiConversationToolCallItemFragment => ({
+  id: 'tool-call-1',
+  name: 'void_invoice',
+  arguments: { lago_id: 'invoice-1' },
+  status: AiConversationToolCallStatusEnum.Pending,
+  ...overrides,
+})
 
 const pendingExchangeState = (exchangeId: string): ChatState => ({
   ...emptyState,
@@ -219,5 +235,128 @@ describe('chatReducer', () => {
       expect(state.messages).toEqual(messages)
       expect(state.hasError).toBe(false)
     })
+  })
+
+  describe('SET_PREVIOUS_CHAT_MESSAGES with pending writes', () => {
+    it('restores the writes waiting for a confirmation', () => {
+      const toolCalls = [buildToolCall()]
+
+      const state = chatReducer(emptyState, {
+        type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES,
+        messages: [],
+        toolCalls,
+      })
+
+      expect(state.toolCalls).toEqual(toolCalls)
+    })
+
+    it('drops the writes of the previous conversation when none are given', () => {
+      const state = chatReducer(
+        { ...emptyState, toolCalls: [buildToolCall()] },
+        { type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES, messages: [] },
+      )
+
+      expect(state.toolCalls).toEqual([])
+    })
+  })
+
+  describe('SET_PENDING_TOOL_CALLS', () => {
+    it('stores the writes the agent stopped on', () => {
+      const toolCalls = [buildToolCall(), buildToolCall({ id: 'tool-call-2' })]
+
+      const state = chatReducer(emptyState, {
+        type: ChatActionType.SET_PENDING_TOOL_CALLS,
+        toolCalls,
+      })
+
+      expect(state.toolCalls).toEqual(toolCalls)
+    })
+  })
+
+  describe('DECIDE_TOOL_CALL', () => {
+    it('only updates the status of the matching write', () => {
+      const state = chatReducer(
+        {
+          ...emptyState,
+          toolCalls: [buildToolCall(), buildToolCall({ id: 'tool-call-2' })],
+        },
+        {
+          type: ChatActionType.DECIDE_TOOL_CALL,
+          toolCallId: 'tool-call-1',
+          status: AiConversationToolCallStatusEnum.Cancelled,
+        },
+      )
+
+      expect(state.toolCalls.map((toolCall) => toolCall.status)).toEqual([
+        AiConversationToolCallStatusEnum.Cancelled,
+        AiConversationToolCallStatusEnum.Pending,
+      ])
+    })
+  })
+
+  describe('RESUME_CONVERSATION', () => {
+    it('clears the writes and waits for a new assistant message', () => {
+      const state = chatReducer(
+        {
+          ...emptyState,
+          hasError: true,
+          messages: [
+            { id: 'user-1', role: ChatRole.user, message: 'void it', status: ChatStatus.done },
+          ],
+          toolCalls: [buildToolCall({ status: AiConversationToolCallStatusEnum.Confirmed })],
+        },
+        { type: ChatActionType.RESUME_CONVERSATION },
+      )
+
+      expect(state.toolCalls).toEqual([])
+      expect(state.messages).toHaveLength(2)
+      expect(state.messages[1]).toEqual(
+        expect.objectContaining({
+          role: ChatRole.assistant,
+          message: '',
+          status: ChatStatus.pending,
+        }),
+      )
+      expect(state.isLoading).toBe(true)
+      expect(state.hasError).toBe(false)
+    })
+  })
+
+  describe('RESET_CONVERSATION with pending writes', () => {
+    it('clears the writes', () => {
+      const state = chatReducer(
+        { ...emptyState, toolCalls: [buildToolCall()] },
+        { type: ChatActionType.RESET_CONVERSATION },
+      )
+
+      expect(state.toolCalls).toEqual([])
+    })
+  })
+})
+
+describe('hasPendingToolCalls', () => {
+  it('is true while a write waits for an answer', () => {
+    expect(
+      hasPendingToolCalls({
+        ...emptyState,
+        toolCalls: [
+          buildToolCall({ status: AiConversationToolCallStatusEnum.Confirmed }),
+          buildToolCall({ id: 'tool-call-2' }),
+        ],
+      }),
+    ).toBe(true)
+  })
+
+  it('is false once every write is answered', () => {
+    expect(
+      hasPendingToolCalls({
+        ...emptyState,
+        toolCalls: [buildToolCall({ status: AiConversationToolCallStatusEnum.Cancelled })],
+      }),
+    ).toBe(false)
+  })
+
+  it('is false without any write', () => {
+    expect(hasPendingToolCalls(emptyState)).toBe(false)
   })
 })

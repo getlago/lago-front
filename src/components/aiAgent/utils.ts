@@ -7,6 +7,7 @@ import { ERROR_404_ROUTE, FORBIDDEN_ROUTE } from '~/core/router/index'
 import { objectCreationRoutes } from '~/core/router/ObjectsRoutes'
 import { quotesModificationRoutes } from '~/core/router/QuotesRoutes'
 import { settingsObjectCreationRoutes } from '~/core/router/SettingRoutes'
+import { ChatMessage, ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 
 /**
  * Transforms route definitions into an array of path objects for route matching.
@@ -29,3 +30,57 @@ export const getHiddenAiAgentPaths = (): Array<{ path: string }> => {
 
   return [...routePaths, { path: ERROR_404_ROUTE }, { path: FORBIDDEN_ROUTE }]
 }
+
+export const humanizeToolCallName = (name: string): string => {
+  const words = name.split('_').filter(Boolean).join(' ')
+
+  return words.charAt(0).toUpperCase() + words.slice(1)
+}
+
+// Blank strings are quoted so a write that empties a field shows it
+const formatToolCallValue = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value.trim() ? value : JSON.stringify(value)
+  }
+
+  return String(value)
+}
+
+export const formatToolCallArguments = (
+  toolArguments: unknown,
+  rawArgumentsLabel: string,
+): Array<{ key: string; label: string; value: string; isJson: boolean }> => {
+  if (toolArguments === null || toolArguments === undefined) {
+    return []
+  }
+
+  if (typeof toolArguments !== 'object' || Array.isArray(toolArguments)) {
+    return [
+      {
+        key: 'arguments',
+        label: rawArgumentsLabel,
+        value: JSON.stringify(toolArguments, null, 2),
+        isJson: true,
+      },
+    ]
+  }
+
+  return Object.entries(toolArguments as Record<string, unknown>).map(([key, value]) => {
+    const isJson = value !== null && typeof value === 'object'
+
+    return {
+      key,
+      label: humanizeToolCallName(key),
+      value: isJson ? JSON.stringify(value, null, 2) : formatToolCallValue(value),
+      isJson,
+    }
+  })
+}
+
+export const toChatMessages = (messages: Array<{ content: string; type: string }>): ChatMessage[] =>
+  messages.map((message) => ({
+    id: `${message.type}-${crypto.randomUUID()}`,
+    role: message.type === 'message.input' ? ChatRole.user : ChatRole.assistant,
+    message: message.content,
+    status: ChatStatus.done,
+  }))

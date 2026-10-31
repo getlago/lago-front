@@ -379,8 +379,10 @@ describe('AiAgent', () => {
     const submitAndCaptureCompletion = async () => {
       let capturedOnCompleted: ((data: unknown) => void) | undefined
 
-      mockCreateAiConversation.mockImplementation(({ onCompleted }) => {
+      mockCreateAiConversation.mockImplementation(async ({ onCompleted }) => {
         capturedOnCompleted = onCompleted
+
+        return {}
       })
 
       await openPanel()

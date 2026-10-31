@@ -6,7 +6,12 @@ import {
   CHAT_HISTORY_TEST_ID,
   ChatHistory,
 } from '~/components/aiAgent/ChatHistory'
-import { GetAiConversationDocument, ListAiConversationsDocument } from '~/generated/graphql'
+import {
+  AiConversationToolCallItemFragment,
+  AiConversationToolCallStatusEnum,
+  GetAiConversationDocument,
+  ListAiConversationsDocument,
+} from '~/generated/graphql'
 import { ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { render, TestMocksType } from '~/test-utils'
 
@@ -48,7 +53,10 @@ const conversationsListMock = {
   },
 }
 
-const conversationMock = (messages: Array<{ content: string; type: string }>) => ({
+const conversationMock = (
+  messages: Array<{ content: string; type: string }>,
+  pendingToolCalls: AiConversationToolCallItemFragment[] = [],
+) => ({
   request: {
     query: GetAiConversationDocument,
     variables: { id: 'conv-1' },
@@ -62,6 +70,10 @@ const conversationMock = (messages: Array<{ content: string; type: string }>) =>
         messages: messages.map((message) => ({
           __typename: 'AiConversationMessage',
           ...message,
+        })),
+        pendingToolCalls: pendingToolCalls.map((toolCall) => ({
+          __typename: 'AiConversationToolCall',
+          ...toolCall,
         })),
       },
     },
@@ -152,6 +164,52 @@ describe('ChatHistory', () => {
               status: ChatStatus.done,
             }),
           ],
+          toolCalls: [],
+        })
+      })
+    })
+  })
+
+  describe('GIVEN a conversation waiting for the member to confirm a write', () => {
+    describe('WHEN clicking its history item', () => {
+      it('THEN should restore the pending writes with the messages', async () => {
+        await act(() =>
+          render(<ChatHistory />, {
+            mocks: [
+              conversationsListMock,
+              conversationMock(
+                [{ content: 'Void invoice INV-1', type: 'message.input' }],
+                [
+                  {
+                    id: 'tool-call-1',
+                    name: 'void_invoice',
+                    arguments: { lago_id: 'invoice-1' },
+                    status: AiConversationToolCallStatusEnum.Pending,
+                  },
+                ],
+              ),
+            ] as TestMocksType,
+          }),
+        )
+
+        const [firstItem] = await screen.findAllByTestId(CHAT_HISTORY_ITEM_TEST_ID)
+
+        await userEvent.click(firstItem)
+
+        await waitFor(() => {
+          expect(mockSetPreviousChatMessages).toHaveBeenCalledWith(
+            expect.objectContaining({
+              convId: 'conv-1',
+              toolCalls: [
+                expect.objectContaining({
+                  id: 'tool-call-1',
+                  name: 'void_invoice',
+                  arguments: { lago_id: 'invoice-1' },
+                  status: AiConversationToolCallStatusEnum.Pending,
+                }),
+              ],
+            }),
+          )
         })
       })
     })
