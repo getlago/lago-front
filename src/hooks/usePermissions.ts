@@ -15,6 +15,7 @@ gql`
       addonsUpdate
       addonsView
       analyticsView
+      attributedUsageView
       auditLogsView
       authenticationMethodsView
       authenticationMethodsUpdate

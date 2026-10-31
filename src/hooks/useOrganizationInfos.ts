@@ -26,6 +26,7 @@ gql`
     logoUrl
     timezone
     defaultCurrency
+    eventsStore
     featureFlags
     premiumIntegrations
     canCreateBillingEntity

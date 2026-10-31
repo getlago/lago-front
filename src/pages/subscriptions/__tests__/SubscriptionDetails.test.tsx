@@ -2,13 +2,14 @@ import { screen } from '@testing-library/react'
 
 import { MainHeaderConfig } from '~/components/MainHeader/types'
 import { addToast } from '~/core/apolloClient'
+import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CUSTOMER_DETAILS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { StatusTypeEnum } from '~/generated/graphql'
+import { EventsStoreEnum, FeatureFlagEnum, StatusTypeEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import SubscriptionDetails, {
@@ -38,6 +39,13 @@ jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
     hasPermissions: mockHasPermissions,
   }),
+}))
+
+const mockFeatureFlags = new Set<FeatureFlagEnum>()
+const mockUseOrganizationInfos = jest.fn()
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => mockUseOrganizationInfos(),
 }))
 
 const mockUseCurrentUser = jest.fn().mockReturnValue({ isPremium: true })
@@ -128,6 +136,13 @@ describe('SubscriptionDetails', () => {
     mockCanTerminateSubscription.mockReturnValue(true)
     mockIsStatusEditable.mockReturnValue(true)
     mockUseCurrentUser.mockReturnValue({ isPremium: true })
+    mockFeatureFlags.clear()
+    mockFeatureFlags.add(FeatureFlagEnum.AccountTree)
+    mockUseOrganizationInfos.mockReturnValue({
+      loading: false,
+      organization: { eventsStore: EventsStoreEnum.Clickhouse },
+      hasFeatureFlag: (flag: FeatureFlagEnum) => mockFeatureFlags.has(flag),
+    })
 
     const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
@@ -435,10 +450,10 @@ describe('SubscriptionDetails', () => {
 
   describe('GIVEN tab configuration', () => {
     describe('WHEN all conditions are met (premium, permissions, active status)', () => {
-      it('THEN should configure 7 tabs', () => {
+      it('THEN should configure 8 tabs', () => {
         render(<SubscriptionDetails />)
 
-        expect(capturedConfig?.tabs).toHaveLength(7)
+        expect(capturedConfig?.tabs).toHaveLength(8)
       })
     })
 
@@ -465,8 +480,7 @@ describe('SubscriptionDetails', () => {
       it('THEN should hide the activity logs tab', () => {
         render(<SubscriptionDetails />)
 
-        // Activity logs tab is at index 6
-        const activityLogsTab = capturedConfig?.tabs?.[6]
+        const activityLogsTab = capturedConfig?.tabs?.[7]
 
         expect(activityLogsTab?.hidden).toBe(true)
       })
@@ -480,7 +494,7 @@ describe('SubscriptionDetails', () => {
       it('THEN should hide the activity logs tab', () => {
         render(<SubscriptionDetails />)
 
-        const activityLogsTab = capturedConfig?.tabs?.[6]
+        const activityLogsTab = capturedConfig?.tabs?.[7]
 
         expect(activityLogsTab?.hidden).toBe(true)
       })
@@ -500,9 +514,206 @@ describe('SubscriptionDetails', () => {
       it('THEN should hide the activity logs tab', () => {
         render(<SubscriptionDetails />)
 
-        const activityLogsTab = capturedConfig?.tabs?.[6]
+        const activityLogsTab = capturedConfig?.tabs?.[7]
 
         expect(activityLogsTab?.hidden).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN the attribution tab', () => {
+    const ATTRIBUTION_TAB_INDEX = 5
+    const overviewRoute = `/customer/customer-1/subscription/subscription-1/${CustomerSubscriptionDetailsTabsOptionsEnum.overview}`
+
+    const setAttributionUrl = (): void => {
+      const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
+
+      useParamsMock.mockReturnValue({
+        customerId: 'customer-1',
+        subscriptionId: 'subscription-1',
+        tab: CustomerSubscriptionDetailsTabsOptionsEnum.attribution,
+      })
+    }
+
+    describe('WHEN the account_tree flag and the attributedUsageView permission are granted', () => {
+      it('THEN should show the attribution tab right after the usage tab', () => {
+        render(<SubscriptionDetails />)
+
+        const attributionTab = capturedConfig?.tabs?.[ATTRIBUTION_TAB_INDEX]
+
+        expect(attributionTab?.hidden).toBe(false)
+        expect(attributionTab?.link).toContain(
+          CustomerSubscriptionDetailsTabsOptionsEnum.attribution,
+        )
+      })
+    })
+
+    describe('WHEN the account_tree flag is missing', () => {
+      beforeEach(() => {
+        mockFeatureFlags.clear()
+      })
+
+      it('THEN should hide the attribution tab', () => {
+        render(<SubscriptionDetails />)
+
+        expect(capturedConfig?.tabs?.[ATTRIBUTION_TAB_INDEX]?.hidden).toBe(true)
+      })
+    })
+
+    describe('WHEN the organization events are stored in Postgres', () => {
+      beforeEach(() => {
+        mockUseOrganizationInfos.mockReturnValue({
+          loading: false,
+          organization: { eventsStore: EventsStoreEnum.Postgres },
+          hasFeatureFlag: (flag: FeatureFlagEnum) => mockFeatureFlags.has(flag),
+        })
+      })
+
+      it('THEN should hide the attribution tab', () => {
+        render(<SubscriptionDetails />)
+
+        expect(capturedConfig?.tabs?.[ATTRIBUTION_TAB_INDEX]?.hidden).toBe(true)
+      })
+    })
+
+    describe('WHEN the usageAttributionTypesView permission is missing', () => {
+      beforeEach(() => {
+        mockHasPermissions.mockImplementation(
+          (permissions: string[]) => !permissions.includes('usageAttributionTypesView'),
+        )
+      })
+
+      it('THEN should hide the attribution tab', () => {
+        render(<SubscriptionDetails />)
+
+        expect(capturedConfig?.tabs?.[ATTRIBUTION_TAB_INDEX]?.hidden).toBe(true)
+      })
+    })
+
+    describe.each([StatusTypeEnum.Pending, StatusTypeEnum.Terminated, StatusTypeEnum.Canceled])(
+      'WHEN the subscription is %s',
+      (status) => {
+        beforeEach(() => {
+          mockUseGetSubscriptionForDetailsQuery.mockReturnValue({
+            data: { subscription: { ...mockSubscription, status } },
+            loading: false,
+            error: null,
+          })
+        })
+
+        it('THEN should hide the attribution tab', () => {
+          render(<SubscriptionDetails />)
+
+          expect(capturedConfig?.tabs?.[ATTRIBUTION_TAB_INDEX]?.hidden).toBe(true)
+        })
+
+        it('THEN should redirect the attribution URL to the overview tab', () => {
+          setAttributionUrl()
+
+          render(<SubscriptionDetails />)
+
+          expect(testMockNavigateFn).toHaveBeenCalledWith(
+            expect.stringContaining(overviewRoute),
+            expect.objectContaining({ replace: true }),
+          )
+        })
+      },
+    )
+
+    describe('WHEN the attribution URL is opened while the subscription is loading', () => {
+      beforeEach(() => {
+        mockUseGetSubscriptionForDetailsQuery.mockReturnValue({
+          data: null,
+          loading: true,
+          error: null,
+        })
+        setAttributionUrl()
+      })
+
+      it('THEN should not redirect', () => {
+        render(<SubscriptionDetails />)
+
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the attributedUsageView permission is missing', () => {
+      beforeEach(() => {
+        mockHasPermissions.mockImplementation(
+          (permissions: string[]) => !permissions.includes('attributedUsageView'),
+        )
+      })
+
+      it('THEN should hide the attribution tab', () => {
+        render(<SubscriptionDetails />)
+
+        expect(capturedConfig?.tabs?.[ATTRIBUTION_TAB_INDEX]?.hidden).toBe(true)
+      })
+    })
+
+    describe('WHEN the attribution URL is opened without the flag', () => {
+      beforeEach(() => {
+        mockFeatureFlags.clear()
+        setAttributionUrl()
+      })
+
+      it('THEN should redirect to the overview tab of the same subscription', () => {
+        render(<SubscriptionDetails />)
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith(
+          expect.stringContaining(overviewRoute),
+          expect.objectContaining({ replace: true }),
+        )
+      })
+
+      it('THEN should render nothing', () => {
+        const { container } = render(<SubscriptionDetails />)
+
+        expect(container.firstChild).toBeNull()
+        expect(capturedConfig).toBeNull()
+      })
+    })
+
+    describe('WHEN the attribution URL is opened while organization infos are loading', () => {
+      beforeEach(() => {
+        mockFeatureFlags.clear()
+        mockUseOrganizationInfos.mockReturnValue({
+          loading: true,
+          hasFeatureFlag: () => false,
+        })
+        setAttributionUrl()
+      })
+
+      it('THEN should not redirect', () => {
+        render(<SubscriptionDetails />)
+
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the attribution URL is opened while the current user is loading', () => {
+      beforeEach(() => {
+        mockUseCurrentUser.mockReturnValue({ isPremium: true, loading: true })
+        mockHasPermissions.mockReturnValue(false)
+        setAttributionUrl()
+      })
+
+      it('THEN should not redirect', () => {
+        render(<SubscriptionDetails />)
+
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the attribution URL is opened with the flag and the permission', () => {
+      beforeEach(() => {
+        setAttributionUrl()
+      })
+
+      it('THEN should not redirect', () => {
+        render(<SubscriptionDetails />)
+
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
       })
     })
   })
@@ -571,7 +782,7 @@ describe('SubscriptionDetails', () => {
       it('THEN should still configure tabs', () => {
         render(<SubscriptionDetails />)
 
-        expect(capturedConfig?.tabs).toHaveLength(7)
+        expect(capturedConfig?.tabs).toHaveLength(8)
       })
 
       it('THEN should still display the active tab content', () => {

@@ -13,4 +13,5 @@ export interface CustomRouteObject extends Omit<RouteObject, 'children' | 'path'
   permissionsOr?: Array<keyof TMembershipPermissions> // OR logic (at least one must be true)
   featureFlag?: FeatureFlagEnum
   hiddenWithFeatureFlag?: FeatureFlagEnum
+  requiresUsageGovernance?: boolean
 }
