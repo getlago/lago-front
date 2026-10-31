@@ -48,7 +48,6 @@ import {
   getAttributionRowsChargesUsage,
   isAttributionAmountAvailable,
   mergeAttributionChargesUsage,
-  SPLIT_FILTERS_PER_PAGE,
 } from './buildAttributionColumns'
 import { isAttributionTreeBusy, useAttributionTree } from './useAttributionTree'
 
@@ -160,6 +159,9 @@ gql`
     ) {
       currency
       splitFiltersCount
+      splitFiltersLimit
+      fromDatetime
+      toDatetime
       metadata {
         currentPage
         totalPages
@@ -379,7 +381,9 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
   })
   const hasMoreFilterPages =
     isExpanded &&
-    (rootUsage?.splitFiltersCount ?? 0) > chargesUsageByFilterPage.length * SPLIT_FILTERS_PER_PAGE
+    !!rootUsage?.splitFiltersLimit &&
+    (rootUsage.splitFiltersCount ?? 0) >
+      chargesUsageByFilterPage.length * rootUsage.splitFiltersLimit
 
   const getTableRows = (): AttributionTableRow[] => {
     if (!rootBlock || !rootUsage) return []
@@ -612,6 +616,9 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
                 value: AttributedUsageBasisEnum.Amount,
                 label: translate('text_17926686320060zkco8pmwgt'),
                 disabled: !isAmountAvailable,
+                disabledTooltip: charges.length
+                  ? translate('text_1793371221446t84wbq0uve7')
+                  : undefined,
               },
               {
                 value: AttributedUsageBasisEnum.Units,

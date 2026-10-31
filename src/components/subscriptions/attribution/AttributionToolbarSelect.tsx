@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { Fragment, ReactNode, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { SearchInput } from '~/components/SearchInput'
 import { MenuPopper } from '~/styles'
@@ -13,6 +14,7 @@ type AttributionToolbarSelectOption = {
   value: string
   label: string
   disabled?: boolean
+  disabledTooltip?: string
 }
 
 type AttributionToolbarSelectProps = {
@@ -42,6 +44,32 @@ const AttributionToolbarSelectMenu = ({
     ? options.filter((option) => option.label.toLowerCase().includes(normalizedSearchTerm))
     : options
 
+  const renderOption = (option: AttributionToolbarSelectOption): ReactNode => {
+    const button = (
+      <Button
+        fullWidth
+        align="left"
+        variant={option.value === value ? 'secondary' : 'quaternary'}
+        disabled={option.disabled}
+        data-test={dataTest && getAttributionToolbarOptionTestId(dataTest, option.value)}
+        onClick={() => {
+          onChange(option.value)
+          onClose()
+        }}
+      >
+        {option.label}
+      </Button>
+    )
+
+    if (!option.disabled || !option.disabledTooltip) return button
+
+    return (
+      <Tooltip title={option.disabledTooltip} placement="top-start">
+        {button}
+      </Tooltip>
+    )
+  }
+
   return (
     <MenuPopper>
       {!!searchPlaceholder && (
@@ -52,19 +80,7 @@ const AttributionToolbarSelectMenu = ({
         />
       )}
       {visibleOptions.map((option) => (
-        <Button
-          key={option.value}
-          align="left"
-          variant={option.value === value ? 'secondary' : 'quaternary'}
-          disabled={option.disabled}
-          data-test={dataTest && getAttributionToolbarOptionTestId(dataTest, option.value)}
-          onClick={() => {
-            onChange(option.value)
-            onClose()
-          }}
-        >
-          {option.label}
-        </Button>
+        <Fragment key={option.value}>{renderOption(option)}</Fragment>
       ))}
     </MenuPopper>
   )

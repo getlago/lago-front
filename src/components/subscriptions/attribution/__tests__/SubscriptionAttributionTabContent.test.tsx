@@ -1,5 +1,5 @@
 import { ApolloError } from '@apollo/client'
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GraphQLError } from 'graphql'
 
@@ -27,7 +27,7 @@ import {
 import { getAttributionToolbarOptionTestId } from '../AttributionToolbarSelect'
 import { AttributionHierarchyType, getAttributionNodeKey } from '../attributionTree'
 import { ATTRIBUTION_TREE_TABLE_TEST_ID } from '../AttributionTreeTable'
-import { AttributionGroupByEnum, SPLIT_FILTERS_PER_PAGE } from '../buildAttributionColumns'
+import { AttributionGroupByEnum } from '../buildAttributionColumns'
 import {
   ATTRIBUTION_CHARGES_TEST_ID,
   ATTRIBUTION_GROUP_ROWS_BY_TEST_ID,
@@ -171,6 +171,9 @@ const mockSetup = ({
 const firstPageUsage = {
   currency: CurrencyEnum.Usd,
   splitFiltersCount: null,
+  splitFiltersLimit: null,
+  fromDatetime: '2026-10-01T00:00:00.000Z',
+  toDatetime: '2026-11-01T00:00:00.000Z',
   rows: [
     { value: 'k_live_ab12', amountCents: null, chargesUsage: [usageOf(tokensCharge, 4)] },
     { value: 'k_live_c7e0', amountCents: null, chargesUsage: [usageOf(tokensCharge, 2)] },
@@ -235,6 +238,9 @@ const selectOptionByValue = async (
   await user.click(screen.getByTestId(openerTestId))
   await user.click(screen.getByTestId(getAttributionToolbarOptionTestId(openerTestId, value)))
 }
+
+const getReasonTooltips = (option: HTMLElement): HTMLElement[] =>
+  screen.queryAllByRole('tooltip').filter((tooltip) => !tooltip.contains(option))
 
 describe('SubscriptionAttributionTabContent', () => {
   beforeEach(() => {
@@ -602,6 +608,78 @@ describe('SubscriptionAttributionTabContent', () => {
             ),
           ),
         ).toBeDisabled()
+      })
+
+      it('THEN should explain the disabled amounts option on hover', async () => {
+        const user = userEvent.setup()
+
+        render(<SubscriptionAttributionTabContent />)
+
+        await selectOptionByValue(user, ATTRIBUTION_CHARGES_TEST_ID, storageCharge.id)
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_TEST_ID))
+
+        const amountOption = screen.getByTestId(
+          getAttributionToolbarOptionTestId(
+            ATTRIBUTION_SHOW_TEST_ID,
+            AttributedUsageBasisEnum.Amount,
+          ),
+        )
+
+        await user.hover(amountOption.parentElement as HTMLElement)
+
+        await waitFor(() => {
+          expect(getReasonTooltips(amountOption)).toHaveLength(1)
+        })
+      })
+    })
+
+    describe('WHEN the charges are still loading', () => {
+      it('THEN should not explain the disabled amounts option on hover', async () => {
+        mockChargesQuery.mockReturnValue({
+          data: undefined,
+          loading: true,
+          refetch: mockRefetchCharges,
+        })
+
+        const user = userEvent.setup()
+
+        render(<SubscriptionAttributionTabContent />)
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_TEST_ID))
+
+        const amountOption = screen.getByTestId(
+          getAttributionToolbarOptionTestId(
+            ATTRIBUTION_SHOW_TEST_ID,
+            AttributedUsageBasisEnum.Amount,
+          ),
+        )
+
+        await user.hover(amountOption.parentElement as HTMLElement)
+
+        expect(amountOption).toBeDisabled()
+        expect(getReasonTooltips(amountOption)).toHaveLength(0)
+      })
+    })
+
+    describe('WHEN a priced charge is selected', () => {
+      it('THEN should not explain the enabled amounts option on hover', async () => {
+        const user = userEvent.setup()
+
+        render(<SubscriptionAttributionTabContent />)
+
+        await selectOptionByValue(user, ATTRIBUTION_CHARGES_TEST_ID, tokensCharge.id)
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_TEST_ID))
+
+        const amountOption = screen.getByTestId(
+          getAttributionToolbarOptionTestId(
+            ATTRIBUTION_SHOW_TEST_ID,
+            AttributedUsageBasisEnum.Amount,
+          ),
+        )
+
+        await user.hover(amountOption)
+
+        expect(getReasonTooltips(amountOption)).toHaveLength(0)
       })
     })
   })
@@ -1038,11 +1116,18 @@ describe('SubscriptionAttributionTabContent', () => {
       models.map((model) => filteredUsageOf(`filter-${model}`, model, 1))
     const defaultTokensUsage = usageOf(tokensCharge, 1)
 
-    const splitBlock = (pages: string[][], splitFiltersCount = 11) => ({
+    const SPLIT_FILTERS_LIMIT = 10
+
+    const splitBlock = (
+      pages: string[][],
+      splitFiltersCount = 11,
+      splitFiltersLimit: number | null = SPLIT_FILTERS_LIMIT,
+    ) => ({
       level: { code: 'api_key', name: 'API Key', isLeaf: true },
       usages: pages.map((models) => ({
         ...firstPageUsage,
         splitFiltersCount,
+        splitFiltersLimit,
         metadata: { currentPage: 1, totalPages: 1 },
         totals: {
           amountCents: null,
@@ -1060,11 +1145,12 @@ describe('SubscriptionAttributionTabContent', () => {
       treeOverrides: Record<string, unknown> = {},
       pages: string[][] = [firstPageModels],
       splitFiltersCount = 11,
+      splitFiltersLimit: number | null = SPLIT_FILTERS_LIMIT,
     ) => {
       const user = userEvent.setup()
 
       mockTree({
-        nodes: loadedRootOf([splitBlock(pages, splitFiltersCount)]),
+        nodes: loadedRootOf([splitBlock(pages, splitFiltersCount, splitFiltersLimit)]),
         ...treeOverrides,
       })
       render(<SubscriptionAttributionTabContent />)
@@ -1188,7 +1274,37 @@ describe('SubscriptionAttributionTabContent', () => {
 
     describe('WHEN the charge has no more filters than one page', () => {
       it('THEN should not offer show more once expanded', async () => {
-        const user = await renderSplit({}, [firstPageModels], SPLIT_FILTERS_PER_PAGE)
+        const user = await renderSplit({}, [firstPageModels], SPLIT_FILTERS_LIMIT)
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+
+        expect(screen.queryByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the API page size covers every filter of the charge', () => {
+      it('THEN should not offer show more once expanded', async () => {
+        const user = await renderSplit({}, [firstPageModels], 11, 12)
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+
+        expect(screen.queryByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the API page size is smaller than the loaded page', () => {
+      it('THEN should offer show more from the API page size', async () => {
+        const user = await renderSplit({}, [firstPageModels, ['m11']], 9, 4)
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+
+        expect(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).toBeEnabled()
+      })
+    })
+
+    describe('WHEN the response carries no page size', () => {
+      it('THEN should not offer show more once expanded', async () => {
+        const user = await renderSplit({}, [firstPageModels], 11, null)
 
         await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
 
