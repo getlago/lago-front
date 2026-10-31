@@ -36,6 +36,7 @@ const ACTION_STATUS_MAP: Record<string, ActionStatusConfig> = {
   toggle_off: { label: 'Toggle Off', type: StatusType.danger },
   org_created: { label: 'Org Created', type: StatusType.default },
   rollback: { label: 'Rollback', type: StatusType.warning },
+  org_renamed: { label: 'Org Renamed', type: StatusType.default },
 }
 
 // A feature toggle carries its key in exactly one of the two feature-type columns; every other
@@ -183,11 +184,9 @@ export const AuditLogTable = ({
           title: 'Actions',
           minWidth: 100,
           content: (entry) => {
-            // Rollback only applies to feature toggles. Hide it for rollback entries themselves,
-            // org-creation entries (not reversible), and changes already rolled back.
-            if (entry.action === 'rollback' || entry.action === 'org_created' || entry.rolledBack) {
-              return null
-            }
+            const isToggle = entry.action === 'toggle_on' || entry.action === 'toggle_off'
+
+            if (!isToggle || entry.rolledBack) return null
 
             return (
               <Button
