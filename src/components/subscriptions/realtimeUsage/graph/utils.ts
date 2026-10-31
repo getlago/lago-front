@@ -1,3 +1,5 @@
+import { DEFAULT_SERIES_COLOR, OTHER_SERIES_COLOR } from '~/components/realtimeUsage/constants'
+import { PeriodPoint, Series } from '~/components/realtimeUsage/types'
 import {
   DEFAULT_SERIES_KEY,
   OTHER_SERIES_KEY,
@@ -6,26 +8,20 @@ import { RealtimeUsage } from '~/components/subscriptions/realtimeUsage/common/t
 import { filterLabelOf, seriesKeyOf } from '~/components/subscriptions/realtimeUsage/common/utils'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
-import {
-  DEFAULT_FILTER_COLOR,
-  FILTER_COLORS,
-  MAX_VISIBLE_FILTERS,
-  OTHER_FILTER_COLOR,
-} from './constants'
-import { HourPoint, Series } from './types'
+import { FILTER_COLORS, MAX_VISIBLE_FILTERS } from './constants'
 
-export const seriesValue = (point: HourPoint | undefined, key: string): number => {
+export const seriesValue = (point: PeriodPoint | undefined, key: string): number => {
   const value = point?.[key]
 
   return typeof value === 'number' ? value : 0
 }
 
 export const findPoint = (
-  points: HourPoint[],
-  point: HourPoint | undefined,
-): HourPoint | undefined => points.find((candidate) => candidate.time === point?.time) ?? point
+  points: PeriodPoint[],
+  point: PeriodPoint | undefined,
+): PeriodPoint | undefined => points.find((candidate) => candidate.time === point?.time) ?? point
 
-export const totalOf = (point: HourPoint, series: Series[]): number =>
+export const totalOf = (point: PeriodPoint, series: Series[]): number =>
   series.reduce((sum, serie) => sum + seriesValue(point, serie.key), 0)
 
 // Top filters keep one color each; everything past the cap, including the
@@ -35,7 +31,7 @@ export const buildSeriesAndPoints = (
   filters: RealtimeUsage['filters'] | undefined,
   hours: RealtimeUsage['hours'] | undefined,
   translate: TranslateFunc,
-): { series: Series[]; points: HourPoint[] } => {
+): { series: Series[]; points: PeriodPoint[] } => {
   if (!filters?.length || !hours?.length) {
     return { series: [], points: [] }
   }
@@ -52,7 +48,7 @@ export const buildSeriesAndPoints = (
       label: filterLabelOf(filter, translate),
       color:
         key === DEFAULT_SERIES_KEY
-          ? DEFAULT_FILTER_COLOR
+          ? DEFAULT_SERIES_COLOR
           : FILTER_COLORS[colorIndex++ % FILTER_COLORS.length],
     }
   })
@@ -61,14 +57,14 @@ export const buildSeriesAndPoints = (
     series.push({
       key: OTHER_SERIES_KEY,
       label: translate('text_1787607502687pyo0kxh1flz'),
-      color: OTHER_FILTER_COLOR,
+      color: OTHER_SERIES_COLOR,
     })
   }
 
   const lastIndex = hours.length - 1
 
-  const points: HourPoint[] = hours.map((hour, index) => {
-    const point: HourPoint = { time: hour.time, isPartial: index === lastIndex }
+  const points: PeriodPoint[] = hours.map((hour, index) => {
+    const point: PeriodPoint = { time: hour.time, isPartial: index === lastIndex }
 
     series.forEach((serie) => {
       point[serie.key] = 0

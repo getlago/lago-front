@@ -7,7 +7,6 @@ import {
   SUBSCRIPTION_ID,
   US_FILTER_ID,
 } from '~/components/subscriptions/realtimeUsage/common/__tests__/fixtures'
-import { FeatureFlagEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
@@ -19,10 +18,12 @@ import {
 } from '../constants'
 import { SubscriptionRealtimeUsageLanes } from '../SubscriptionRealtimeUsageLanes'
 
-const mockHasFeatureFlag = jest.fn()
+const mockRealtimeUsageEnabled = jest.fn()
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
+  useOrganizationInfos: () => ({
+    organization: { realtimeUsageEnabled: mockRealtimeUsageEnabled() },
+  }),
 }))
 
 // Europe leads by volume, "Alpha" wins alphabetically, and the charge default
@@ -56,7 +57,7 @@ const populatedMock = buildHourlyUsageMock({
 })
 
 beforeEach(() => {
-  mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.RealtimeUsage)
+  mockRealtimeUsageEnabled.mockReturnValue(true)
 })
 
 describe('SubscriptionRealtimeUsageLanes', () => {

@@ -48,6 +48,8 @@ import {
   QUOTES_LIST_ROUTE,
   QUOTES_TAB_ROUTE,
   RATE_CARD_DETAILS_ROUTE,
+  REALTIME_USAGE_BILLABLE_METRIC_ROUTE,
+  REALTIME_USAGE_ROUTE,
   REVENUE_RECOGNITION_ROUTE,
   SUBSCRIPTIONS_ROUTE,
   WALLET_DETAILS_ROUTE,
@@ -78,7 +80,7 @@ interface MainNavMenuSectionsProps {
 export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSectionsProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions, hasPermissionsOr } = usePermissions()
-  const { hasFeatureFlag } = useOrganizationInfos()
+  const { hasFeatureFlag, organization } = useOrganizationInfos()
   const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const { isPremium } = useCurrentUser()
   const { currentUser } = useCurrentUser()
@@ -90,6 +92,13 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: ANALYTIC_ROUTE,
       match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
       hidden: !hasPermissions(['analyticsView']) || isProductCatalogEnabled,
+    },
+    {
+      title: translate('text_17465414264635ktqocy7leo'),
+      icon: 'table',
+      link: REALTIME_USAGE_ROUTE,
+      match: [REALTIME_USAGE_ROUTE, REALTIME_USAGE_BILLABLE_METRIC_ROUTE],
+      hidden: !hasPermissions(['analyticsView']) || !organization?.realtimeUsageEnabled,
     },
     {
       title: translate('text_1780667013874s6wl9cmxe7q'),

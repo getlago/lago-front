@@ -1,13 +1,13 @@
 import { Typography } from '~/components/designSystem/Typography'
-import { formatUnits } from '~/components/subscriptions/realtimeUsage/common/utils'
+import { PeriodPoint, Series } from '~/components/realtimeUsage/types'
+import { formatUnits } from '~/components/realtimeUsage/utils'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { HourPoint, Series } from './types'
 import { seriesValue, totalOf } from './utils'
 
 type UsageTooltipProps = {
   active: boolean
-  point?: HourPoint
+  point?: PeriodPoint
   series: Series[]
   unitLabel: string
   formatHour: (time: string) => string

@@ -13,7 +13,7 @@ import {
   NOW,
   SUBSCRIPTION_ID,
 } from '~/components/subscriptions/realtimeUsage/common/__tests__/fixtures'
-import { AggregationTypeEnum, ChargeModelEnum, FeatureFlagEnum } from '~/generated/graphql'
+import { AggregationTypeEnum, ChargeModelEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
@@ -24,10 +24,12 @@ import {
 } from '../constants'
 import { SubscriptionRealtimeUsageGraph } from '../SubscriptionRealtimeUsageGraph'
 
-const mockHasFeatureFlag = jest.fn()
+const mockRealtimeUsageEnabled = jest.fn()
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
+  useOrganizationInfos: () => ({
+    organization: { realtimeUsageEnabled: mockRealtimeUsageEnabled() },
+  }),
 }))
 
 const SECOND_CHARGE_ID = 'second-charge-id'
@@ -51,7 +53,7 @@ const originalNow = Settings.now
 
 beforeEach(() => {
   Settings.now = () => Date.parse(NOW)
-  mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.RealtimeUsage)
+  mockRealtimeUsageEnabled.mockReturnValue(true)
 })
 
 afterEach(() => {
@@ -321,7 +323,7 @@ describe('SubscriptionRealtimeUsageGraph', () => {
   })
 
   it('renders nothing when the organization is not on the realtime usage flag', async () => {
-    mockHasFeatureFlag.mockReturnValue(false)
+    mockRealtimeUsageEnabled.mockReturnValue(false)
 
     const { container } = render(
       <SubscriptionRealtimeUsageGraph subscriptionId={SUBSCRIPTION_ID} />,
