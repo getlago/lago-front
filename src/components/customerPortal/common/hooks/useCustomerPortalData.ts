@@ -47,6 +47,7 @@ gql`
       name
       logoUrl
       premiumIntegrations
+      customerPortalLockedFields
     }
   }
 `
