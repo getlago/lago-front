@@ -76,21 +76,23 @@ type AttributionTreeWindow = Pick<
   'fromDatetime' | 'toDatetime'
 >
 
-// `UsageAttributions::QueryService#window_errors` rejects a window over MAX_TIME_RANGE_DAYS, and the
-// default window of a long plan already starts that many days before today's midnight.
+// `UsageAttributions::QueryService#window_errors` rejects from >= to and a window over
+// MAX_TIME_RANGE_DAYS, which the default window of a long plan already spans before today's midnight.
 const getAttributionGenerationWindow = (
   { snapshotAt }: AttributionTreeGeneration,
-  anchor: AttributionTreeUsage | null,
+  fromDatetime: string,
 ): AttributionTreeWindow => {
-  if (!anchor || !snapshotAt) return {}
+  if (!snapshotAt) return {}
 
   const to = DateTime.fromISO(snapshotAt, { zone: 'utc' })
   const from = DateTime.max(
-    DateTime.fromISO(anchor.fromDatetime, { zone: 'utc' }),
+    DateTime.fromISO(fromDatetime, { zone: 'utc' }),
     to.minus({ days: MAX_TIME_RANGE_DAYS }),
   )
 
-  return { fromDatetime: from.toISO() ?? anchor.fromDatetime, toDatetime: snapshotAt }
+  if (from >= to) return {}
+
+  return { fromDatetime: from.toISO() ?? fromDatetime, toDatetime: snapshotAt }
 }
 
 // `errorLink` in `init.ts` already toasts GraphQL errors, only the rest is ours to report.
@@ -259,17 +261,18 @@ export const useAttributionTree = ({
           })
         }).then(({ data }) => data.attributedUsage)
 
-      if (anchor) return query(getAttributionGenerationWindow(generation, anchor))
+      const windowFrom = latestVariables.fromDatetime ?? anchor?.fromDatetime
+      const request = windowFrom
+        ? query(getAttributionGenerationWindow(generation, windowFrom))
+        : query({}).then((usage) => {
+            assertCurrentGeneration()
 
-      const request = query({}).then((usage) => {
-        assertCurrentGeneration()
+            const window = getAttributionGenerationWindow(generation, usage.fromDatetime)
 
-        const window = getAttributionGenerationWindow(generation, usage)
+            return window.toDatetime ? query(window) : usage
+          })
 
-        return window.toDatetime ? query(window) : usage
-      })
-
-      generation.anchor = request
+      if (!anchor) generation.anchor = request
 
       return request
     },
@@ -525,8 +528,9 @@ export const useAttributionTree = ({
   }, [fillVisibleFilterPages, updateIsLoadingFilterPage])
 
   const startGeneration = useCallback((): void => {
-    const { fromDatetime, toDatetime } = latestParamsRef.current.variables
-    const snapshotAt = fromDatetime || toDatetime ? null : new Date().toISOString()
+    const { toDatetime } = latestParamsRef.current.variables
+    const now = new Date()
+    const snapshotAt = toDatetime && new Date(toDatetime) <= now ? null : now.toISOString()
 
     generationRef.current = { snapshotAt, anchor: null }
   }, [])

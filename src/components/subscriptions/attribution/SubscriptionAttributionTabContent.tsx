@@ -616,7 +616,9 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
                 value: AttributedUsageBasisEnum.Amount,
                 label: translate('text_17926686320060zkco8pmwgt'),
                 disabled: !isAmountAvailable,
-                disabledTooltip: translate('text_1793371221446t84wbq0uve7'),
+                disabledTooltip: charges.length
+                  ? translate('text_1793371221446t84wbq0uve7')
+                  : undefined,
               },
               {
                 value: AttributedUsageBasisEnum.Units,

@@ -633,6 +633,34 @@ describe('SubscriptionAttributionTabContent', () => {
       })
     })
 
+    describe('WHEN the charges are still loading', () => {
+      it('THEN should not explain the disabled amounts option on hover', async () => {
+        mockChargesQuery.mockReturnValue({
+          data: undefined,
+          loading: true,
+          refetch: mockRefetchCharges,
+        })
+
+        const user = userEvent.setup()
+
+        render(<SubscriptionAttributionTabContent />)
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_TEST_ID))
+
+        const amountOption = screen.getByTestId(
+          getAttributionToolbarOptionTestId(
+            ATTRIBUTION_SHOW_TEST_ID,
+            AttributedUsageBasisEnum.Amount,
+          ),
+        )
+
+        await user.hover(amountOption.parentElement as HTMLElement)
+
+        expect(amountOption).toBeDisabled()
+        expect(getReasonTooltips(amountOption)).toHaveLength(0)
+      })
+    })
+
     describe('WHEN a priced charge is selected', () => {
       it('THEN should not explain the enabled amounts option on hover', async () => {
         const user = userEvent.setup()

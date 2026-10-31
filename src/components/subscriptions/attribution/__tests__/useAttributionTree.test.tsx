@@ -721,6 +721,23 @@ describe('useAttributionTree', () => {
       })
     })
 
+    describe('WHEN the browser clock is behind the start of the root window', () => {
+      it('THEN should keep the default window on every request instead of sending from after to', async () => {
+        const futureRootFrom = '2026-10-30T10:03:00.000Z'
+        const { result } = await renderLoadedCurrentPeriodTree(
+          buildUsage(['rnd', 'gtm'], { fromDatetime: futureRootFrom }),
+        )
+
+        await expandRnd(result)
+
+        expect(mockQuery).toHaveBeenCalledTimes(3)
+        getCallVariables().forEach((callVariables) => {
+          expect(callVariables).not.toHaveProperty('fromDatetime')
+          expect(callVariables).not.toHaveProperty('toDatetime')
+        })
+      })
+    })
+
     describe('WHEN the root window starts more than 31 days before the snapshot', () => {
       const DEFAULT_ROOT_FROM = '2026-09-29T00:00:00.000Z'
       const CLAMPED_ROOT_FROM = '2026-09-29T10:00:00.000Z'
@@ -827,6 +844,46 @@ describe('useAttributionTree', () => {
           expect.objectContaining(userWindow),
           expect.objectContaining(userWindow),
           expect.objectContaining(userWindow),
+        ])
+      })
+    })
+  })
+
+  describe('GIVEN an explicit window ending after the reset time', () => {
+    const SNAPSHOT = '2026-10-30T10:00:00.000Z'
+    const ongoingWindow = {
+      fromDatetime: '2026-10-15T00:00:00.000Z',
+      toDatetime: '2026-10-31T23:59:59.000Z',
+    }
+
+    beforeEach(() => {
+      jest.useFakeTimers({ now: new Date(SNAPSHOT) })
+    })
+
+    afterEach(() => {
+      jest.useRealTimers()
+    })
+
+    describe('WHEN the root and a node load', () => {
+      it('THEN should pin every request to the reset time, without a probe', async () => {
+        mockQuery.mockReturnValueOnce(resolveUsage(buildUsage(['rnd'])))
+
+        const { result } = renderTree({
+          variables: { ...currentPeriodVariables, ...ongoingWindow },
+        })
+
+        await waitFor(() => expect(result.current.nodes[ROOT_KEY]?.status).toBe('loaded'))
+
+        mockQuery.mockReturnValue(resolveUsage(buildUsage(['eng'])))
+        act(() => result.current.toggleNode(rndPath, 'department'))
+        await waitFor(() => expect(result.current.nodes[RND_KEY]?.status).toBe('loaded'))
+
+        const pinnedWindow = { fromDatetime: ongoingWindow.fromDatetime, toDatetime: SNAPSHOT }
+
+        expect(mockQuery.mock.calls.map(([options]) => options.variables)).toEqual([
+          expect.objectContaining(pinnedWindow),
+          expect.objectContaining(pinnedWindow),
+          expect.objectContaining(pinnedWindow),
         ])
       })
     })
