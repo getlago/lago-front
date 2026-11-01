@@ -159,14 +159,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
         PRODUCT_FILTER_DETAILS_ROUTE,
         RATE_CARD_DETAILS_ROUTE,
       ],
-      hidden:
-        !isProductCatalogEnabled ||
-        !hasPermissionsOr([
-          'productCategoriesView',
-          'productsView',
-          'productFiltersView',
-          'rateCardsView',
-        ]),
+      hidden: !isProductCatalogEnabled || !hasPermissionsOr(['productsView', 'rateCardsView']),
     },
     {
       title: translate('text_62442e40cea25600b0b6d85a'),

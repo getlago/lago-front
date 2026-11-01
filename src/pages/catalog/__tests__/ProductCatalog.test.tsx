@@ -87,24 +87,28 @@ describe('ProductCatalog', () => {
     expect(screen.getByText('productCategories-list-stub')).toBeInTheDocument()
   })
 
-  it('hides a tab when its view permission is missing', () => {
+  it('hides the product, item and filter tabs without the productsView permission', () => {
     mockHasPermissions.mockImplementation(
-      (permissions: string[]) => !permissions.includes('productFiltersView'),
+      (permissions: string[]) => !permissions.includes('productsView'),
     )
 
     renderPage()
 
+    expect(screen.queryByText(PRODUCTS_TAB)).not.toBeInTheDocument()
+    expect(screen.queryByText(PRODUCT_ITEMS_TAB)).not.toBeInTheDocument()
     expect(screen.queryByText(PRODUCT_ITEM_FILTERS_TAB)).not.toBeInTheDocument()
-    expect(screen.getByText(PRODUCT_ITEMS_TAB)).toBeInTheDocument()
+    expect(screen.getByText(RATE_CARDS_TAB)).toBeInTheDocument()
   })
 
-  it('gates each tab on its own view permission', () => {
+  it('hides the rate cards tab without the rateCardsView permission', () => {
+    mockHasPermissions.mockImplementation(
+      (permissions: string[]) => !permissions.includes('rateCardsView'),
+    )
+
     renderPage()
 
-    expect(mockHasPermissions).toHaveBeenCalledWith(['productCategoriesView'])
-    expect(mockHasPermissions).toHaveBeenCalledWith(['productsView'])
-    expect(mockHasPermissions).toHaveBeenCalledWith(['productFiltersView'])
-    expect(mockHasPermissions).toHaveBeenCalledWith(['rateCardsView'])
+    expect(screen.queryByText(RATE_CARDS_TAB)).not.toBeInTheDocument()
+    expect(screen.getByText(PRODUCTS_TAB)).toBeInTheDocument()
   })
 
   describe('create dropdown', () => {
@@ -137,7 +141,7 @@ describe('ProductCatalog', () => {
       expect(getOpenDrawerMock()).toHaveBeenCalledTimes(1)
     })
 
-    it('hides an entry when its create permission is missing', async () => {
+    it('hides the product, item and filter entries without the productsCreate permission', async () => {
       mockHasPermissions.mockImplementation(
         (permissions: string[]) => !permissions.includes('productsCreate'),
       )
@@ -147,9 +151,9 @@ describe('ProductCatalog', () => {
 
       await user.click(screen.getByTestId(PRODUCT_CATALOG_CREATE_TEST_ID))
 
+      expect(screen.queryByTestId(CREATE_PRODUCT_TEST_ID)).not.toBeInTheDocument()
       expect(screen.queryByTestId(CREATE_PRODUCT_ITEM_TEST_ID)).not.toBeInTheDocument()
-      expect(screen.getByTestId(CREATE_PRODUCT_TEST_ID)).toBeInTheDocument()
-      expect(screen.getByTestId(CREATE_PRODUCT_ITEM_FILTER_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(CREATE_PRODUCT_ITEM_FILTER_TEST_ID)).not.toBeInTheDocument()
       expect(screen.getByTestId(CREATE_RATE_CARD_TEST_ID)).toBeInTheDocument()
     })
 
@@ -170,12 +174,7 @@ describe('ProductCatalog', () => {
     })
 
     it('hides the whole dropdown when no create permission is granted', () => {
-      const createPermissions = [
-        'productCategoriesCreate',
-        'productsCreate',
-        'productFiltersCreate',
-        'rateCardsCreate',
-      ]
+      const createPermissions = ['productsCreate', 'rateCardsCreate']
 
       mockHasPermissions.mockImplementation(
         (permissions: string[]) =>

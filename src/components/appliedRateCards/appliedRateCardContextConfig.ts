@@ -4,11 +4,13 @@ export const APPLIED_RATE_CARD_CONTEXT_CONFIG = {
   plan: {
     parentTypename: 'CatalogPlan',
     updatePermission: 'plansUpdate',
+    addPermissions: ['plansUpdate', 'productsView', 'rateCardsView'],
     alreadyPricedTranslationKey: 'text_1792683486646v7np3oh22jc',
   },
   contract: {
     parentTypename: 'Contract',
     updatePermission: 'contractsUpdate',
+    addPermissions: ['contractsUpdate', 'productsView', 'rateCardsView'],
     alreadyPricedTranslationKey: 'text_1792683486646r8re8d0scxh',
   },
 } as const

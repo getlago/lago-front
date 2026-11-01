@@ -3,15 +3,23 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { useGetPermissionGrouping } from './useGetPermissionGrouping'
 
-import { allPermissions, featureFlagGatedPermissions } from '../common/permissionsConst'
+import {
+  allPermissions,
+  featureFlagGatedPermissions,
+  featureFlagHiddenPermissions,
+} from '../common/permissionsConst'
 
 export const useRolePermissionsGroups = (): { groups: CheckboxGroup[] } => {
   const { hasFeatureFlag } = useOrganizationInfos()
 
   const availablePermissions = allPermissions.filter((permission) => {
     const requiredFeatureFlag = featureFlagGatedPermissions[permission]
+    const hidingFeatureFlag = featureFlagHiddenPermissions[permission]
 
-    return !requiredFeatureFlag || hasFeatureFlag(requiredFeatureFlag)
+    if (requiredFeatureFlag && !hasFeatureFlag(requiredFeatureFlag)) return false
+    if (hidingFeatureFlag && hasFeatureFlag(hidingFeatureFlag)) return false
+
+    return true
   })
 
   const { permissionGrouping } = useGetPermissionGrouping(availablePermissions)

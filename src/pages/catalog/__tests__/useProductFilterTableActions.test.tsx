@@ -95,7 +95,7 @@ describe('useProductFilterTableActions', () => {
     describe('WHEN the user lacks the update permission', () => {
       it('THEN drops the edit action but keeps delete', () => {
         mockHasPermissions.mockImplementation(
-          (permissions: string[]) => !permissions.includes('productFiltersUpdate'),
+          (permissions: string[]) => !permissions.includes('productsUpdate'),
         )
 
         const { result } = renderHook(() => useProductFilterTableActions())
@@ -109,7 +109,7 @@ describe('useProductFilterTableActions', () => {
     describe('WHEN the user lacks the delete permission', () => {
       it('THEN drops the delete action but keeps edit', () => {
         mockHasPermissions.mockImplementation(
-          (permissions: string[]) => !permissions.includes('productFiltersDelete'),
+          (permissions: string[]) => !permissions.includes('productsDelete'),
         )
 
         const { result } = renderHook(() => useProductFilterTableActions())
