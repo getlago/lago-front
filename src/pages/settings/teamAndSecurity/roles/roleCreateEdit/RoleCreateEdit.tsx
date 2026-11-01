@@ -20,8 +20,9 @@ import { useRoleCreateEdit } from './useRoleCreateEdit'
 import { teamAndSecurityGroupOptions } from '../../common/teamAndSecurityConst'
 import { mapFromFormToApi } from '../common/rolePermissionsForm/mappers/mapFromFormToApi'
 import RolePermissionsForm from '../common/rolePermissionsForm/RolePermissionsForm'
-import { validationSchema } from '../common/rolePermissionsForm/validationSchema'
+import { buildValidationSchema } from '../common/rolePermissionsForm/validationSchema'
 import { useRoleDetails } from '../hooks/useRoleDetails'
+import { useRolePermissionsGroups } from '../hooks/useRolePermissionsGroups'
 
 export const SUBMIT_ROLE_DATA_TEST = 'submit-role-button'
 export const ROLE_CREATE_EDIT_FORM_ID = 'role-create-edit-form'
@@ -36,6 +37,8 @@ const RoleCreateEdit = () => {
   const { roleId, isEdition, handleSave } = useRoleCreateEdit()
 
   const { role, isLoadingRole } = useRoleDetails({ roleId })
+
+  const { displayedPermissions } = useRolePermissionsGroups()
 
   const getRoleToMapFrom = (): RoleItem | undefined => {
     if (!role) return undefined
@@ -66,7 +69,7 @@ const RoleCreateEdit = () => {
     defaultValues: mapFromApiToForm(roleToMapFrom),
     validationLogic: revalidateLogic(),
     validators: {
-      onDynamic: validationSchema,
+      onDynamic: buildValidationSchema(displayedPermissions),
     },
     onSubmit: async ({ value, formApi }) => {
       const formattedValues = mapFromFormToApi(value)

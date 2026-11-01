@@ -238,7 +238,7 @@ describe('ProductFiltersList', () => {
     expect(mockOpenProductFilterDrawer).toHaveBeenCalledTimes(1)
   })
 
-  it('hides the create CTA without the productFiltersCreate permission', () => {
+  it('hides the create CTA without the productsCreate permission', () => {
     mockHasPermissions.mockReturnValue(false)
 
     render(<ProductFiltersList />)

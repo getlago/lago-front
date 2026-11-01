@@ -59,7 +59,7 @@ export const ProductCategoryDetailsOverview = () => {
 
   return (
     <section>
-      {hasPermissions(['productCategoriesUpdate']) && (
+      {hasPermissions(['productsUpdate']) && (
         <PageSectionTitle
           title={translate('text_17836270312826gyudi4ayy2')}
           subtitle={translate('text_1783627031283826817cnqcb')}

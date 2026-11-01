@@ -11,6 +11,18 @@ export const featureFlagGatedPermissions: Partial<Record<PermissionName, Feature
   UsageAttributionTypesCreate: FeatureFlagEnum.AccountTree,
   UsageAttributionTypesUpdate: FeatureFlagEnum.AccountTree,
   UsageAttributionTypesDelete: FeatureFlagEnum.AccountTree,
+  ContractsView: FeatureFlagEnum.ProductCatalog,
+  ContractsCreate: FeatureFlagEnum.ProductCatalog,
+  ContractsUpdate: FeatureFlagEnum.ProductCatalog,
+  ContractsTerminate: FeatureFlagEnum.ProductCatalog,
+  ProductsView: FeatureFlagEnum.ProductCatalog,
+  ProductsCreate: FeatureFlagEnum.ProductCatalog,
+  ProductsUpdate: FeatureFlagEnum.ProductCatalog,
+  ProductsDelete: FeatureFlagEnum.ProductCatalog,
+  RateCardsView: FeatureFlagEnum.ProductCatalog,
+  RateCardsCreate: FeatureFlagEnum.ProductCatalog,
+  RateCardsUpdate: FeatureFlagEnum.ProductCatalog,
+  RateCardsDelete: FeatureFlagEnum.ProductCatalog,
 }
 
 export const permissionGroupMapping: PermissionGroupMapping = {
@@ -32,6 +44,7 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'BillingEntitiesDelete',
   ],
   charges: ['ChargesCreate', 'ChargesUpdate', 'ChargesDelete'],
+  contracts: ['ContractsCreate', 'ContractsTerminate', 'ContractsUpdate', 'ContractsView'],
   coupons: [
     'CouponsAttach',
     'CouponsCreate',
@@ -109,6 +122,7 @@ export const permissionGroupMapping: PermissionGroupMapping = {
   ],
   plans: ['PlansCreate', 'PlansDelete', 'PlansUpdate', 'PlansView'],
   pricingUnits: ['PricingUnitsCreate', 'PricingUnitsUpdate', 'PricingUnitsView'],
+  products: ['ProductsCreate', 'ProductsDelete', 'ProductsUpdate', 'ProductsView'],
   quotes: [
     'QuotesApprove',
     'QuotesClone',
@@ -123,11 +137,34 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'OrdersUpdate',
     'OrdersView',
   ],
+  rateCards: ['RateCardsCreate', 'RateCardsDelete', 'RateCardsUpdate', 'RateCardsView'],
   roles: ['RolesCreate', 'RolesDelete', 'RolesUpdate', 'RolesView'],
   securityLogs: ['SecurityLogsView'],
   subscriptions: ['SubscriptionsCreate', 'SubscriptionsUpdate', 'SubscriptionsView'],
   wallets: ['WalletsCreate', 'WalletsTerminate', 'WalletsTopUp', 'WalletsUpdate'],
 }
+
+const productCatalogHiddenGroups = [
+  'addons',
+  'aiAgent',
+  'charges',
+  'coupons',
+  'dunningCampaigns',
+  'features',
+  'quotes',
+  'subscriptions',
+  'wallets',
+]
+
+export const featureFlagHiddenPermissions: Partial<Record<PermissionName, FeatureFlagEnum>> =
+  Object.fromEntries(
+    productCatalogHiddenGroups.flatMap((group) =>
+      permissionGroupMapping[group].map((permission) => [
+        permission,
+        FeatureFlagEnum.ProductCatalog,
+      ]),
+    ),
+  )
 
 export const groupNameMapping: Record<string, string> = {
   addons: 'text_629728388c4d2300e2d3801a',
@@ -138,6 +175,7 @@ export const groupNameMapping: Record<string, string> = {
   billableMetrics: 'text_623b497ad05b960101be3438',
   billingEntities: 'text_1743077296189ms0shds6g53',
   charges: 'text_1768572142436xubwd6sei3b',
+  contracts: 'text_17894894166553ysarr965xr',
   coupons: 'text_637ccf8133d2c9a7d11ce705',
   creditNotes: 'text_637ccf8133d2c9a7d11ce708',
   customerSettings: 'text_1765882497985wd35gnobdvl',
@@ -154,7 +192,9 @@ export const groupNameMapping: Record<string, string> = {
   payments: 'text_6672ebb8b1b50be550eccbed',
   plans: 'text_62442e40cea25600b0b6d85a',
   pricingUnits: 'text_17502505476284yyq70yy6mx',
+  products: 'text_17831042398250iwa2xp8pba',
   quotes: 'text_1776154937966msav6jde4hm',
+  rateCards: 'text_1783104239825nxqno33u945',
   roles: 'text_1765448879791epmkg4xijkn',
   securityLogs: 'text_17730476805600nudrokzkk5',
   subscriptions: 'text_6250304370f0f700a8fdc28d',
@@ -198,6 +238,12 @@ export const permissionDescriptionMapping: Partial<Record<PermissionName, string
   ChargesCreate: 'text_1768572142437iellff897qo',
   ChargesUpdate: 'text_1768572142437tyh61d8ed6t',
   ChargesDelete: 'text_1768572142437ch7vfimm1ts',
+
+  // Contracts
+  ContractsCreate: 'text_1793531722713owtrklttrec',
+  ContractsTerminate: 'text_1793531722713an4iov21glm',
+  ContractsUpdate: 'text_17935317227131azt7xz03sz',
+  ContractsView: 'text_1793531722713rwpuxnqsceo',
 
   // Coupons
   CouponsAttach: 'text_17660475818481lrad2tzefh',
@@ -304,6 +350,12 @@ export const permissionDescriptionMapping: Partial<Record<PermissionName, string
   PricingUnitsUpdate: 'text_1766047581851z3d9is40izc',
   PricingUnitsView: 'text_17660476446747j5vtzpcqea',
 
+  // Products
+  ProductsCreate: 'text_1793531722712z1kulj0vg9l',
+  ProductsDelete: 'text_1793531722712qffdcs9npmq',
+  ProductsUpdate: 'text_1793531722712h4jwckvut7b',
+  ProductsView: 'text_1793531722712oxmat6ujexu',
+
   // Quotes
   QuotesApprove: 'text_1778232548237lowm64qljfp',
   QuotesClone: 'text_177823254823718y2tah0jcx',
@@ -311,6 +363,12 @@ export const permissionDescriptionMapping: Partial<Record<PermissionName, string
   QuotesUpdate: 'text_1778232548237f1f1pja8esj',
   QuotesView: 'text_1778232548237p4cirr96hwe',
   QuotesVoid: 'text_177823254823762hkchuyv10',
+
+  // Rate cards
+  RateCardsCreate: 'text_1793531722713iasaavpoxt7',
+  RateCardsDelete: 'text_1793531722713aq466zh510d',
+  RateCardsUpdate: 'text_1793531722713d5267bwh776',
+  RateCardsView: 'text_1793531722713my1dvrgxbtj',
 
   // Roles
   RolesCreate: 'text_1766999821840apnk9dhpeud',

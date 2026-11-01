@@ -243,7 +243,7 @@ describe('ProductCategoriesList', () => {
     expect(mockOpenProductCategoryDrawer).toHaveBeenCalledTimes(1)
   })
 
-  it('hides the create CTA without the productCategoriesCreate permission', () => {
+  it('hides the create CTA without the productsCreate permission', () => {
     mockHasPermissions.mockReturnValue(false)
 
     render(<ProductCategoriesList />)

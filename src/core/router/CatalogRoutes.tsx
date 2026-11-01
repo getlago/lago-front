@@ -44,7 +44,7 @@ export const catalogRoutes: CustomRouteObject[] = [
     path: [PRODUCT_CATEGORY_DETAILS_ROUTE],
     private: true,
     element: <ProductCategoryDetails />,
-    permissions: ['productCategoriesView'],
+    permissions: ['productsView'],
   },
   {
     path: [PRODUCT_DETAILS_ROUTE],
@@ -56,7 +56,7 @@ export const catalogRoutes: CustomRouteObject[] = [
     path: [PRODUCT_FILTER_DETAILS_ROUTE],
     private: true,
     element: <ProductFilterDetails />,
-    permissions: ['productFiltersView'],
+    permissions: ['productsView'],
   },
   {
     path: RATE_CARD_RATE_DETAILS_ROUTE,
@@ -74,7 +74,7 @@ export const catalogRoutes: CustomRouteObject[] = [
     path: [PRODUCT_CATALOG_ROUTE, PRODUCT_CATALOG_TAB_ROUTE],
     private: true,
     element: <ProductCatalog />,
-    permissionsOr: ['productCategoriesView', 'productsView', 'productFiltersView', 'rateCardsView'],
+    permissionsOr: ['productsView', 'rateCardsView'],
   },
   {
     path: [CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_ROUTE],
