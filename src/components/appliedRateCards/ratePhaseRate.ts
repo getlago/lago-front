@@ -4,7 +4,7 @@ import { mapFromApiToForm, mapRateOverrideFromFormToApi } from './drawers/ratePh
 import { RatePhaseFormValues } from './drawers/ratePhase/ratePhaseFormSchema'
 import { RateCardForRatePhaseFields } from './drawers/ratePhase/types'
 import { activeRateToOverrideInput, getOverriddenFields } from './overrideDiff'
-import { RatePhaseForDetails, RatePhaseRate } from './ratePhaseDisplay'
+import { RatePhaseRate } from './ratePhaseDisplay'
 
 export const getFormPhaseRate = (
   phase: RatePhaseFormValues,
@@ -50,12 +50,3 @@ export const getServerPhaseRate = (
     },
   }
 }
-
-export const toServerPhaseForDetails = (
-  phase: RatePhaseForDrawerFragment,
-): RatePhaseForDetails => ({
-  name: phase.name ?? '',
-  code: phase.code,
-  position: phase.position,
-  billingIntervalCycleCount: phase.billingIntervalCycleCount ?? null,
-})
