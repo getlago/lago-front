@@ -8,8 +8,12 @@ import {
   featureFlagGatedPermissions,
   featureFlagHiddenPermissions,
 } from '../common/permissionsConst'
+import { PermissionName } from '../common/permissionsTypes'
 
-export const useRolePermissionsGroups = (): { groups: CheckboxGroup[] } => {
+export const useRolePermissionsGroups = (): {
+  groups: CheckboxGroup[]
+  displayedPermissions: PermissionName[]
+} => {
   const { hasFeatureFlag } = useOrganizationInfos()
 
   const availablePermissions = allPermissions.filter((permission) => {
@@ -34,5 +38,9 @@ export const useRolePermissionsGroups = (): { groups: CheckboxGroup[] } => {
     })),
   }))
 
-  return { groups }
+  const displayedPermissions = groups.flatMap((group) =>
+    group.items.map((item) => item.id as PermissionName),
+  )
+
+  return { groups, displayedPermissions }
 }
