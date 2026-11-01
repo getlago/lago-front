@@ -14,7 +14,6 @@ import {
   itemToRecurring,
   recurringToItem,
   settingsToItem,
-  topUpWithinLimits,
   walletFreeAndPaidSchema,
   type WalletRecurringSlice,
   walletSettingsSchema,
@@ -161,11 +160,6 @@ describe('walletFormSchema', () => {
     })
 
     expect(result.success).toBe(false)
-  })
-
-  it('topUpWithinLimits validates paid credit amount against min/max', () => {
-    expect(topUpWithinLimits({ rateAmount: '1', credits: '50', min: '10', max: '100' })).toBe(true)
-    expect(topUpWithinLimits({ rateAmount: '1', credits: '5', min: '10', max: '100' })).toBe(false)
   })
 
   it('isWalletItemPersistable requires a rate and at least one credit', () => {

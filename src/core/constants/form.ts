@@ -157,11 +157,6 @@ export const getHubspotTargetedObjectTranslationKey: Record<HubspotTargetedObjec
   [HubspotTargetedObjectsEnum.Contacts]: 'text_1727190044775keiwznwv16s',
 }
 
-export const getTargetedObjectTranslationKey: Record<HubspotTargetedObjectsEnum, string> = {
-  [HubspotTargetedObjectsEnum.Companies]: 'text_1727281892403pmg1yza7x1e',
-  [HubspotTargetedObjectsEnum.Contacts]: 'text_1729003289241opvevwwhr7n',
-}
-
 export const getPrivilegeValueTypeTranslationKey: Record<PrivilegeValueTypeEnum, string> = {
   [PrivilegeValueTypeEnum.Boolean]: 'text_1752846323920oit5ijknakw',
   [PrivilegeValueTypeEnum.Integer]: 'text_1752846323920cemx0vj1r16',

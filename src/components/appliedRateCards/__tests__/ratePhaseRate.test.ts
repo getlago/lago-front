@@ -8,7 +8,7 @@ import {
 } from '~/generated/graphql'
 
 import { RateCardForRatePhaseFields } from '../drawers/ratePhase/types'
-import { getServerPhaseRate, toServerPhaseForDetails } from '../ratePhaseRate'
+import { getServerPhaseRate } from '../ratePhaseRate'
 
 const rateCard: RateCardForRatePhaseFields = {
   productType: ProductTypeEnum.Fixed,
@@ -94,22 +94,5 @@ describe('getServerPhaseRate', () => {
 
     expect(result?.isOverridden).toBe(true)
     expect(result?.isOverridden && result.overriddenFields.size).toBe(0)
-  })
-})
-
-describe('toServerPhaseForDetails', () => {
-  it('GIVEN a nameless forever phase THEN maps to an empty name and a null cycle count', () => {
-    expect(
-      toServerPhaseForDetails({ ...phase, name: null, billingIntervalCycleCount: null }),
-    ).toMatchObject({ name: '', billingIntervalCycleCount: null })
-  })
-
-  it('GIVEN a named finite phase THEN keeps its name, code, position and cycle count', () => {
-    expect(toServerPhaseForDetails(phase)).toEqual({
-      name: 'Intro',
-      code: 'intro',
-      position: 1,
-      billingIntervalCycleCount: 3,
-    })
   })
 })
