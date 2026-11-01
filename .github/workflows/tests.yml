@@ -119,7 +119,7 @@ jobs:
             lcov_args="$lcov_args --add-tracefile $f"
           done
           mkdir -p coverage
-          lcov $lcov_args --output-file coverage/lcov.info
+          lcov $lcov_args --ignore-errors inconsistent --output-file coverage/lcov.info
 
       - name: Set up Node.js
         uses: actions/setup-node@v6.5.0
