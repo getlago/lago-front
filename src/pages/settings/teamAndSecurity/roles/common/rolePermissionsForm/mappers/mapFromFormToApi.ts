@@ -1,16 +1,15 @@
 import { CreateRoleInput, PermissionEnum } from '~/generated/graphql'
 
+import { PermissionName } from '../../permissionsTypes'
 import { RoleCreateEditFormValues } from '../validationSchema'
 
-export const mapFromFormToApi = (formValues: RoleCreateEditFormValues): CreateRoleInput => {
-  const permissions =
-    Object.entries(formValues.permissions).reduce<PermissionEnum[]>((acc, [key, value]) => {
-      if (value) {
-        acc.push(PermissionEnum[key as keyof typeof PermissionEnum])
-      }
-
-      return acc
-    }, []) || []
+export const mapFromFormToApi = (
+  formValues: RoleCreateEditFormValues,
+  displayedPermissions: Array<PermissionName>,
+): CreateRoleInput => {
+  const permissions = displayedPermissions
+    .filter((permission) => formValues.permissions[permission])
+    .map((permission) => PermissionEnum[permission])
 
   return {
     name: formValues.name,

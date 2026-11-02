@@ -1,4 +1,5 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { useMemo } from 'react'
 import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -38,7 +39,16 @@ const RoleCreateEdit = () => {
 
   const { role, isLoadingRole } = useRoleDetails({ roleId })
 
-  const { displayedPermissions } = useRolePermissionsGroups()
+  const {
+    groups: permissionGroups,
+    displayedPermissions,
+    isLoading: isLoadingPermissionGroups,
+  } = useRolePermissionsGroups()
+
+  const validationSchema = useMemo(
+    () => buildValidationSchema(displayedPermissions),
+    [displayedPermissions],
+  )
 
   const getRoleToMapFrom = (): RoleItem | undefined => {
     if (!role) return undefined
@@ -53,7 +63,7 @@ const RoleCreateEdit = () => {
 
   const roleToMapFrom: RoleItem | undefined = getRoleToMapFrom()
 
-  const isFormReady = !isLoadingRole
+  const isFormReady = !isLoadingRole && !isLoadingPermissionGroups
 
   const submitButtonText = isEdition
     ? translate('text_1765528921745ibx4b56q1mt')
@@ -69,10 +79,10 @@ const RoleCreateEdit = () => {
     defaultValues: mapFromApiToForm(roleToMapFrom),
     validationLogic: revalidateLogic(),
     validators: {
-      onDynamic: buildValidationSchema(displayedPermissions),
+      onDynamic: validationSchema,
     },
     onSubmit: async ({ value, formApi }) => {
-      const formattedValues = mapFromFormToApi(value)
+      const formattedValues = mapFromFormToApi(value, displayedPermissions)
 
       const answer = await handleSave(formattedValues)
 
@@ -214,6 +224,7 @@ const RoleCreateEdit = () => {
             <RolePermissionsForm
               form={form}
               fields="permissions"
+              groups={permissionGroups}
               isEditable={true}
               isLoading={isLoadingRole}
               errors={permissionsErrors}

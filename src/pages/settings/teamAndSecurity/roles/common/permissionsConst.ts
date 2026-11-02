@@ -146,12 +146,10 @@ export const permissionGroupMapping: PermissionGroupMapping = {
 
 const productCatalogHiddenGroups = [
   'addons',
-  'aiAgent',
   'charges',
   'coupons',
   'dunningCampaigns',
   'features',
-  'quotes',
   'subscriptions',
   'wallets',
 ]

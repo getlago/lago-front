@@ -25,6 +25,7 @@ import RolePermissionsForm from '../common/rolePermissionsForm/RolePermissionsFo
 import RoleTypeChip from '../common/RoleTypeChip'
 import { useRoleActions } from '../hooks/useRoleActions'
 import { useRoleDetails } from '../hooks/useRoleDetails'
+import { useRolePermissionsGroups } from '../hooks/useRolePermissionsGroups'
 
 export const ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID = 'role-details-actions-dropdown'
 export const ROLE_DETAILS_DUPLICATE_ACTION_TEST_ID = 'role-details-duplicate-action'
@@ -39,6 +40,8 @@ const RoleDetails = () => {
   const { getDisplayName, getDisplayDescription } = useRoleDisplayInformation()
   const { navigateToDuplicate, navigateToEdit } = useRoleActions()
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { groups: permissionGroups, isLoading: isLoadingPermissionGroups } =
+    useRolePermissionsGroups()
   const hasPremiumAddon = hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.CustomRoles)
 
   const premiumWarningDialog = usePremiumWarningDialog()
@@ -182,8 +185,9 @@ const RoleDetails = () => {
               <RolePermissionsForm
                 form={form}
                 fields="permissions"
+                groups={permissionGroups}
                 isEditable={false}
-                isLoading={isLoadingRole}
+                isLoading={isLoadingRole || isLoadingPermissionGroups}
               />
             </>
           )}

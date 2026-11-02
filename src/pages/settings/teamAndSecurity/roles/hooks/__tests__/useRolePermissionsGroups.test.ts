@@ -5,22 +5,24 @@ import { FeatureFlagEnum } from '~/generated/graphql'
 import { useRolePermissionsGroups } from '../useRolePermissionsGroups'
 
 const mockFeatureFlags = new Set<FeatureFlagEnum>()
+let mockOrganizationLoading = false
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
-    hasFeatureFlag: (flag: FeatureFlagEnum) => mockFeatureFlags.has(flag),
+    loading: mockOrganizationLoading,
+    organization: mockOrganizationLoading
+      ? undefined
+      : { featureFlags: Array.from(mockFeatureFlags) },
   }),
 }))
 
 const GOVERNANCE_GROUP_ID = 'usageAttributionTypes'
 const PRODUCT_CATALOG_HIDDEN_GROUP_IDS = [
   'addons',
-  'aiAgent',
   'charges',
   'coupons',
   'dunningCampaigns',
   'features',
-  'quotes',
   'subscriptions',
   'wallets',
 ]
@@ -28,6 +30,17 @@ const PRODUCT_CATALOG_HIDDEN_GROUP_IDS = [
 describe('useRolePermissionsGroups', () => {
   beforeEach(() => {
     mockFeatureFlags.clear()
+    mockOrganizationLoading = false
+  })
+
+  describe('GIVEN the organization is still loading', () => {
+    it('THEN it reports loading so callers do not render the flag-less permission set', () => {
+      mockOrganizationLoading = true
+
+      const { result } = renderHook(() => useRolePermissionsGroups())
+
+      expect(result.current.isLoading).toBe(true)
+    })
   })
 
   describe('GIVEN the account tree feature flag is disabled', () => {
@@ -99,6 +112,13 @@ describe('useRolePermissionsGroups', () => {
       )
       expect(groups.find((group) => group.id === 'rateCards')).toBeDefined()
       expect(groups.find((group) => group.id === 'contracts')).toBeDefined()
+    })
+
+    it('THEN it keeps the AI agent and quotes groups, whose features stay live', () => {
+      const { result } = renderHook(() => useRolePermissionsGroups())
+      const groupIds = result.current.groups.map((group) => group.id)
+
+      expect(groupIds).toEqual(expect.arrayContaining(['aiAgent', 'quotes']))
     })
 
     it('THEN it hides the groups the product catalog replaces', () => {
