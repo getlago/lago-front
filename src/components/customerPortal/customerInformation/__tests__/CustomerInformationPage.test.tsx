@@ -1,14 +1,18 @@
-import { screen } from '@testing-library/react'
+import { act, fireEvent, screen } from '@testing-library/react'
+import { GraphQLFormattedError } from 'graphql'
 
-import { CountryCode, CustomerTypeEnum } from '~/generated/graphql'
+import { getCustomerPortalLockedFields } from '~/core/constants/customerPortalEditableFields'
+import { CountryCode, CustomerPortalFieldEnum, CustomerTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import CustomerInformationPage from '../CustomerInformationPage'
+import CustomerInformationPage, { READ_ONLY_FIELDS_ALERT_TEST_ID } from '../CustomerInformationPage'
 
 const mockUseCustomerPortalData = jest.fn()
 const mockUseCustomerPortalNavigation = jest.fn()
 const mockUseCustomerPortalTranslate = jest.fn()
 const mockUpdatePortalCustomer = jest.fn()
+let mockUpdatePortalCustomerError: unknown = undefined
+let mockOnCompleted: (res: unknown) => void
 
 jest.mock('~/components/customerPortal/common/hooks/useCustomerPortalData', () => ({
   useCustomerPortalData: () => mockUseCustomerPortalData(),
@@ -26,10 +30,11 @@ jest.mock('~/components/customerPortal/common/useCustomerPortalTranslate', () =>
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useUpdatePortalCustomerMutation: () => [
-    mockUpdatePortalCustomer,
-    { loading: false, error: undefined },
-  ],
+  useUpdatePortalCustomerMutation: ({ onCompleted }: { onCompleted: (res: unknown) => void }) => {
+    mockOnCompleted = onCompleted
+
+    return [mockUpdatePortalCustomer, { loading: false, error: mockUpdatePortalCustomerError }]
+  },
 }))
 
 jest.mock('~/components/customerPortal/common/PageTitle', () => ({
@@ -47,68 +52,95 @@ jest.mock('~/components/customerPortal/common/SectionLoading', () => ({
 }))
 
 const mockHandleSubmit = jest.fn()
+const mockSetFieldValue = jest.fn()
+let mockOnSubmit: (args: unknown) => Promise<void>
 
 jest.mock('~/hooks/forms/useAppform', () => ({
-  useAppForm: ({ defaultValues }: { defaultValues: Record<string, unknown> }) => ({
-    store: {
-      subscribe: jest.fn(() => jest.fn()),
-      state: { values: defaultValues },
-      getState: () => ({
-        values: defaultValues,
-        canSubmit: true,
-      }),
-    },
-    handleSubmit: mockHandleSubmit,
-    setFieldValue: jest.fn(),
-    AppField: ({
-      name,
-      children,
-    }: {
-      name: string
-      children: (field: unknown) => React.ReactNode
-    }) => {
-      const fieldProps = {
-        TextInputField: ({
-          label,
-          placeholder,
-          disabled,
-        }: {
-          label?: string
-          placeholder?: string
-          disabled?: boolean
-        }) => (
-          <div data-test={`field-${name}`}>
-            {label && <label>{label}</label>}
-            <input placeholder={placeholder} disabled={disabled} data-test={`input-${name}`} />
-          </div>
-        ),
-        ComboBoxField: ({
-          label,
-          placeholder,
-          disabled,
-        }: {
-          label?: string
-          placeholder?: string
-          disabled?: boolean
-        }) => (
-          <div data-test={`field-${name}`}>
-            {label && <label>{label}</label>}
-            <select disabled={disabled} data-test={`input-${name}`}>
-              <option>{placeholder}</option>
-            </select>
-          </div>
-        ),
-      }
+  useAppForm: ({
+    defaultValues,
+    onSubmit,
+  }: {
+    defaultValues: Record<string, unknown>
+    onSubmit: (args: unknown) => Promise<void>
+  }) => {
+    mockOnSubmit = onSubmit
 
-      return <>{children(fieldProps)}</>
-    },
-    AppForm: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-    SubmitButton: ({ children, ...props }: { children: React.ReactNode; 'data-test'?: string }) => (
-      <button type="submit" data-test={props['data-test']}>
-        {children}
-      </button>
-    ),
-  }),
+    return {
+      store: {
+        subscribe: jest.fn(() => jest.fn()),
+        state: { values: defaultValues },
+        getState: () => ({
+          values: defaultValues,
+          canSubmit: true,
+        }),
+      },
+      handleSubmit: mockHandleSubmit,
+      setFieldValue: mockSetFieldValue,
+      getFieldValue: jest.fn(),
+      getFieldMeta: jest.fn(),
+      AppField: ({
+        name,
+        children,
+        listeners,
+      }: {
+        name: string
+        children: (field: unknown) => React.ReactNode
+        listeners?: { onChange?: (args: { value: unknown }) => void }
+      }) => {
+        const fieldProps = {
+          TextInputField: ({
+            label,
+            placeholder,
+            disabled,
+          }: {
+            label?: string
+            placeholder?: string
+            disabled?: boolean
+          }) => (
+            <div data-test={`field-${name}`}>
+              {label && <label>{label}</label>}
+              <input
+                placeholder={placeholder}
+                disabled={disabled}
+                data-test={`input-${name}`}
+                onChange={(event) => listeners?.onChange?.({ value: event.target.value })}
+              />
+            </div>
+          ),
+          ComboBoxField: ({
+            label,
+            placeholder,
+            disabled,
+          }: {
+            label?: string
+            placeholder?: string
+            disabled?: boolean
+          }) => (
+            <div data-test={`field-${name}`}>
+              {label && <label>{label}</label>}
+              <select disabled={disabled} data-test={`input-${name}`}>
+                <option>{placeholder}</option>
+              </select>
+            </div>
+          ),
+        }
+
+        return <>{children(fieldProps)}</>
+      },
+      AppForm: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+      SubmitButton: ({
+        children,
+        ...props
+      }: {
+        children: React.ReactNode
+        'data-test'?: string
+      }) => (
+        <button type="submit" data-test={props['data-test']}>
+          {children}
+        </button>
+      ),
+    }
+  },
 }))
 
 jest.mock('@tanstack/react-form', () => ({
@@ -117,6 +149,18 @@ jest.mock('@tanstack/react-form', () => ({
 }))
 
 const mockGoHome = jest.fn()
+
+const ALL_FIELDS = Object.values(CustomerPortalFieldEnum)
+const SAME_AS_BILLING_ADDRESS_LABEL = 'text_667d708c1359b49f5a5a8234'
+
+const DEFAULT_EDITABLE_FIELDS = ALL_FIELDS.filter(
+  (field) =>
+    ![
+      CustomerPortalFieldEnum.Country,
+      CustomerPortalFieldEnum.Zipcode,
+      CustomerPortalFieldEnum.TaxIdentificationNumber,
+    ].includes(field),
+)
 
 const setupDefaultMocks = () => {
   mockUseCustomerPortalTranslate.mockReturnValue({
@@ -151,10 +195,27 @@ const setupDefaultMocks = () => {
           country: CountryCode.Us,
         },
       },
+      customerPortalOrganization: {
+        customerPortalLockedFields: [],
+      },
     },
     loading: false,
     error: undefined,
     refetch: jest.fn(),
+  })
+}
+
+const mockEditableFields = (customerPortalEditableFields: CustomerPortalFieldEnum[]) => {
+  const { data, ...rest } = mockUseCustomerPortalData()
+
+  mockUseCustomerPortalData.mockReturnValue({
+    ...rest,
+    data: {
+      ...data,
+      customerPortalOrganization: {
+        customerPortalLockedFields: getCustomerPortalLockedFields(customerPortalEditableFields),
+      },
+    },
   })
 }
 
@@ -301,6 +362,271 @@ describe('CustomerInformationPage', () => {
       expect(screen.getByTestId('input-shippingAddress.addressLine1')).not.toBeDisabled()
       expect(screen.getByTestId('input-shippingAddress.city')).not.toBeDisabled()
       expect(screen.getByTestId('input-shippingAddress.state')).not.toBeDisabled()
+    })
+  })
+
+  describe('GIVEN every field is editable', () => {
+    it('THEN should not render the read-only alert', () => {
+      render(<CustomerInformationPage />)
+
+      expect(screen.queryByTestId(READ_ONLY_FIELDS_ALERT_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.getByTestId('input-country')).not.toBeDisabled()
+    })
+  })
+
+  describe('GIVEN the organization keeps the default editable fields', () => {
+    beforeEach(() => {
+      mockEditableFields(DEFAULT_EDITABLE_FIELDS)
+    })
+
+    it('THEN should disable the tax determining fields', () => {
+      render(<CustomerInformationPage />)
+
+      expect(screen.getByTestId('input-country')).toBeDisabled()
+      expect(screen.getByTestId('input-zipcode')).toBeDisabled()
+      expect(screen.getByTestId('input-taxIdentificationNumber')).toBeDisabled()
+    })
+
+    it('THEN should keep the other fields editable', () => {
+      render(<CustomerInformationPage />)
+
+      expect(screen.getByTestId('input-name')).not.toBeDisabled()
+      expect(screen.getByTestId('input-city')).not.toBeDisabled()
+      expect(screen.getByTestId('input-shippingAddress.addressLine1')).not.toBeDisabled()
+    })
+
+    it('THEN should render the read-only alert', () => {
+      render(<CustomerInformationPage />)
+
+      expect(screen.getByTestId(READ_ONLY_FIELDS_ALERT_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('THEN should only send the editable fields on submit', async () => {
+      mockUpdatePortalCustomer.mockResolvedValue({})
+
+      render(<CustomerInformationPage />)
+
+      await act(() =>
+        mockOnSubmit({
+          value: {
+            name: 'Acme Inc',
+            city: 'Springfield',
+            country: CountryCode.Lu,
+            zipcode: '1111',
+            taxIdentificationNumber: 'LU123',
+            shippingAddress: { city: 'Shelbyville' },
+          },
+          formApi: { getFieldMeta: jest.fn(), setFieldMeta: jest.fn() },
+        }),
+      )
+
+      expect(mockUpdatePortalCustomer).toHaveBeenCalledWith({
+        variables: {
+          input: {
+            name: 'Acme Inc',
+            city: 'Springfield',
+            shippingAddress: { city: 'Shelbyville' },
+          },
+        },
+      })
+    })
+  })
+
+  describe('GIVEN the shipping address is not editable', () => {
+    it('THEN should not copy billing edits into the identical shipping address', () => {
+      const address = {
+        addressLine1: '123 Main St',
+        addressLine2: null,
+        city: 'Springfield',
+        state: 'IL',
+        zipcode: '12345',
+        country: CountryCode.Us,
+      }
+
+      mockUseCustomerPortalData.mockReturnValue({
+        data: {
+          customerPortalUser: { name: 'Test', ...address, shippingAddress: address },
+          customerPortalOrganization: {
+            customerPortalLockedFields: getCustomerPortalLockedFields(
+              DEFAULT_EDITABLE_FIELDS.filter(
+                (field) => field !== CustomerPortalFieldEnum.ShippingAddress,
+              ),
+            ),
+          },
+        },
+        loading: false,
+        error: undefined,
+        refetch: jest.fn(),
+      })
+
+      render(<CustomerInformationPage />)
+
+      fireEvent.change(screen.getByTestId('input-city'), { target: { value: 'Shelbyville' } })
+
+      expect(mockSetFieldValue).not.toHaveBeenCalledWith('shippingAddress', expect.anything())
+    })
+
+    it('THEN should keep copying billing edits when the shipping address is editable', () => {
+      const address = {
+        addressLine1: '123 Main St',
+        addressLine2: null,
+        city: 'Springfield',
+        state: 'IL',
+        zipcode: '12345',
+        country: CountryCode.Us,
+      }
+
+      mockUseCustomerPortalData.mockReturnValue({
+        data: {
+          customerPortalUser: { name: 'Test', ...address, shippingAddress: address },
+          customerPortalOrganization: {
+            customerPortalLockedFields: getCustomerPortalLockedFields(DEFAULT_EDITABLE_FIELDS),
+          },
+        },
+        loading: false,
+        error: undefined,
+        refetch: jest.fn(),
+      })
+
+      render(<CustomerInformationPage />)
+
+      fireEvent.change(screen.getByTestId('input-city'), { target: { value: 'Shelbyville' } })
+
+      expect(mockSetFieldValue).toHaveBeenCalledWith('shippingAddress', expect.anything())
+    })
+
+    it('THEN should disable the shipping fields', () => {
+      mockEditableFields(
+        DEFAULT_EDITABLE_FIELDS.filter(
+          (field) => field !== CustomerPortalFieldEnum.ShippingAddress,
+        ),
+      )
+
+      render(<CustomerInformationPage />)
+
+      expect(screen.getByTestId('input-shippingAddress.addressLine1')).toBeDisabled()
+      expect(screen.getByTestId('input-shippingAddress.country')).toBeDisabled()
+    })
+
+    it('THEN should not offer the same as billing address checkbox', () => {
+      mockEditableFields(
+        DEFAULT_EDITABLE_FIELDS.filter(
+          (field) => field !== CustomerPortalFieldEnum.ShippingAddress,
+        ),
+      )
+
+      render(<CustomerInformationPage />)
+
+      expect(screen.queryByText(SAME_AS_BILLING_ADDRESS_LABEL)).not.toBeInTheDocument()
+    })
+
+    it('THEN should offer the same as billing address checkbox when the shipping address is editable', () => {
+      mockEditableFields(DEFAULT_EDITABLE_FIELDS)
+
+      render(<CustomerInformationPage />)
+
+      expect(screen.getByText(SAME_AS_BILLING_ADDRESS_LABEL)).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the update failed', () => {
+    const buildGraphQLErrors = (details: Record<string, string[]>): GraphQLFormattedError[] => [
+      { message: 'Unprocessable Entity', extensions: { code: 'unprocessable_entity', details } },
+    ]
+    const buildUpdateError = (
+      details: Record<string, string[]>,
+    ): { graphQLErrors: GraphQLFormattedError[] } => ({
+      graphQLErrors: buildGraphQLErrors(details),
+    })
+
+    const submitWithErrors = async (details: Record<string, string[]>): Promise<void> => {
+      mockUpdatePortalCustomerError = buildUpdateError(details)
+      mockUpdatePortalCustomer.mockResolvedValue({ errors: buildGraphQLErrors(details) })
+
+      const { rerender } = render(<CustomerInformationPage />)
+
+      await act(() =>
+        mockOnSubmit({
+          value: { name: 'Acme Inc' },
+          formApi: { getFieldMeta: jest.fn(), setFieldMeta: jest.fn() },
+        }),
+      )
+
+      rerender(<CustomerInformationPage />)
+    }
+
+    afterEach(() => {
+      mockUpdatePortalCustomerError = undefined
+    })
+
+    it('THEN should set the error under the matching field on submit', async () => {
+      const setFieldMeta = jest.fn()
+
+      mockUpdatePortalCustomer.mockResolvedValue({
+        errors: buildGraphQLErrors({ shippingAddressLine2: ['value_is_too_long'] }),
+      })
+
+      render(<CustomerInformationPage />)
+
+      await mockOnSubmit({
+        value: { name: 'Acme Inc', shippingAddress: { addressLine2: 'a' } },
+        formApi: { getFieldMeta: () => ({ errorMap: {}, errorSourceMap: {} }), setFieldMeta },
+      })
+
+      expect(setFieldMeta).toHaveBeenCalledWith(
+        'shippingAddress.addressLine2',
+        expect.any(Function),
+      )
+      expect(setFieldMeta.mock.calls[0][1]({ errorMap: {}, errorSourceMap: {} })).toMatchObject({
+        errorMap: { onServer: { message: 'text_17932959847757c9xwcz2ltv' } },
+        errorSourceMap: { onServer: 'field' },
+      })
+    })
+
+    it('THEN should not leave the page when the mutation returns no customer', () => {
+      render(<CustomerInformationPage />)
+
+      mockOnCompleted({ updateCustomerPortalCustomer: null })
+
+      expect(mockGoHome).not.toHaveBeenCalled()
+    })
+
+    it('THEN should leave the page when the mutation returns the customer', () => {
+      render(<CustomerInformationPage />)
+
+      mockOnCompleted({ updateCustomerPortalCustomer: { id: 'customer-1' } })
+
+      expect(mockGoHome).toHaveBeenCalled()
+    })
+
+    it('THEN should hide the generic alert when every error is shown under a field', async () => {
+      await submitWithErrors({ legalName: ['invalid_characters'] })
+
+      expect(screen.queryByTestId('error-alert')).not.toBeInTheDocument()
+    })
+
+    it('THEN should show the generic alert when an error is not tied to a field', async () => {
+      await submitWithErrors({ email: ['invalid_email_format'] })
+
+      expect(screen.getByTestId('error-alert')).toBeInTheDocument()
+    })
+
+    it('THEN should show the generic alert when a network error follows a field-only error', async () => {
+      await submitWithErrors({ legalName: ['invalid_characters'] })
+
+      const networkError = new Error('Failed to fetch')
+
+      mockUpdatePortalCustomerError = networkError
+      mockUpdatePortalCustomer.mockRejectedValue(networkError)
+
+      await act(() =>
+        mockOnSubmit({
+          value: { name: 'Acme Inc' },
+          formApi: { getFieldMeta: jest.fn(), setFieldMeta: jest.fn() },
+        }).catch(() => undefined),
+      )
+
+      expect(screen.getByTestId('error-alert')).toBeInTheDocument()
     })
   })
 })

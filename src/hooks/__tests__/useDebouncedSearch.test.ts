@@ -26,6 +26,39 @@ async function prepare({ initialLoadingState = false }: { initialLoadingState: b
 }
 
 describe('useDebouncedSearch', () => {
+  it('does not start loading when the caller supplies ready data without a mount fetch', () => {
+    const { result } = renderHook(() =>
+      useDebouncedSearch(jest.fn(), false, { fetchOnMount: false }),
+    )
+
+    expect(result.current.isLoading).toBe(false)
+  })
+
+  it.each([false, true])(
+    'preserves real loading and its minimum duration without a mount fetch (initial loading: %s)',
+    async (initialLoading) => {
+      const callback = jest.fn()
+      const { result, rerender } = renderHook(
+        ({ loading }) => useDebouncedSearch(callback, loading, { fetchOnMount: false }),
+        { initialProps: { loading: initialLoading } },
+      )
+
+      expect(result.current.isLoading).toBe(initialLoading)
+      rerender({ loading: true })
+      expect(result.current.isLoading).toBe(true)
+
+      await act(() => jest.advanceTimersByTime(100))
+      rerender({ loading: false })
+      expect(result.current.isLoading).toBe(true)
+
+      await act(() => jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS - 101))
+      expect(result.current.isLoading).toBe(true)
+      await act(() => jest.advanceTimersByTime(1))
+      expect(result.current.isLoading).toBe(false)
+      expect(callback).not.toHaveBeenCalled()
+    },
+  )
+
   it('can skip the initial fetch while keeping debounced search enabled', async () => {
     const callback = jest.fn()
     const { result } = renderHook(() =>

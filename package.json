@@ -25,8 +25,9 @@
     "lint": "prettier --cache --check 'src/**/*.{ts,tsx,svg}' 'index.html' 'cypress/**/*.ts' && eslint --cache --cache-location .eslintcache .",
     "lint:fix": "prettier --write {src,cypress}/** index.html && eslint --fix .",
     "types": "node scripts/check-types.js",
-    "code:style": "run-p lint test:lint-rules types translations:inspect translations:ensure-consistency skills:budget",
+    "code:style": "run-p lint test:lint-rules types translations:inspect translations:ensure-consistency skills:budget comments:check",
     "skills:budget": "bash scripts/skill-budget.sh",
+    "comments:check": "bash scripts/diff-hygiene.sh",
     "agents:check": "bash scripts/skill-budget.sh && bash scripts/skill-budget.test.sh",
     "codegen": "graphql-codegen --config codegen.yml -r dotenv/config",
     "codegen:watch": "graphql-codegen --config codegen.yml -r dotenv/config --watch",
@@ -52,7 +53,7 @@
     "@emotion/styled": "11.14.1",
     "@eslint/compat": "1.4.1",
     "@eslint/js": "9.39.5",
-    "@graphql-codegen/cli": "6.3.1",
+    "@graphql-codegen/cli": "7.4.6",
     "@graphql-codegen/typescript": "5.0.10",
     "@graphql-codegen/typescript-operations": "5.1.0",
     "@graphql-codegen/typescript-react-apollo": "4.4.2",
@@ -77,12 +78,12 @@
     "@vitejs/plugin-react-swc": "4.3.3",
     "autoprefixer": "10.6.1",
     "babel-jest": "30.5.2",
-    "baseline-browser-mapping": "2.11.30",
+    "baseline-browser-mapping": "2.11.32",
     "class-variance-authority": "0.7.1",
     "cssnano": "9.9.0",
     "cypress": "16.2.0",
     "cypress-vite": "1.10.2",
-    "dotenv": "18.0.8",
+    "dotenv": "18.0.9",
     "eslint": "9.39.5",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
@@ -134,7 +135,7 @@
     "@sentry/react": "10.76.2",
     "@superset-ui/embedded-sdk": "0.4.0",
     "@tanstack/react-form": "1.33.0",
-    "@tanstack/react-virtual": "3.14.21",
+    "@tanstack/react-virtual": "3.14.22",
     "@tiptap/core": "3.32.0",
     "@tiptap/extension-blockquote": "3.32.0",
     "@tiptap/extension-bullet-list": "3.32.0",
@@ -197,7 +198,8 @@
   "pnpm": {
     "overrides": {
       "uuid": ">=14.0.0",
-      "tmp": ">=0.2.6"
+      "tmp": ">=0.2.6",
+      "@graphql-tools/utils": "^12.1.0"
     }
   },
   "engines": {

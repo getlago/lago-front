@@ -33,6 +33,8 @@ export type Scalars = {
 export type AcceptInviteInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** @deprecated The email is resolved from the invitation token. */
+  email?: InputMaybe<Scalars['String']['input']>;
   password: Scalars['String']['input'];
   /** Uniq token of the Invite */
   token: Scalars['String']['input'];
@@ -827,6 +829,7 @@ export type AttributedUsage = {
   groupBy: Scalars['String']['output'];
   metadata: CollectionMetadata;
   rows: Array<AttributedUsageRow>;
+  splitFiltersCount?: Maybe<Scalars['Int']['output']>;
   subscriptionId: Scalars['ID']['output'];
   toDatetime: Scalars['ISO8601DateTime']['output'];
   totals: AttributedUsageAggregate;
@@ -841,6 +844,8 @@ export type AttributedUsageAggregate = {
   eventsCount: Scalars['Int']['output'];
   /** Null with the units basis */
   preciseAmountCents?: Maybe<Scalars['Float']['output']>;
+  /** Units of the split charge over all its filters. Null without a split charge */
+  splitChargeUnits?: Maybe<Scalars['Float']['output']>;
 };
 
 export enum AttributedUsageBasisEnum {
@@ -877,6 +882,8 @@ export type AttributedUsageRow = {
   preciseAmountCents?: Maybe<Scalars['Float']['output']>;
   /** Position of the value in the whole level */
   rank: Scalars['Int']['output'];
+  /** Units of the split charge over all its filters. Null without a split charge */
+  splitChargeUnits?: Maybe<Scalars['Float']['output']>;
   value: Scalars['String']['output'];
 };
 
@@ -2334,13 +2341,16 @@ export type CreateCustomerWalletInput = {
   currency: CurrencyEnum;
   customerId: Scalars['ID']['input'];
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
-  grantedCredits: Scalars['String']['input'];
+  /** @deprecated The app no longer creates a transaction on wallet creation. Use createCustomerWalletTransaction. */
+  grantedCredits?: InputMaybe<Scalars['String']['input']>;
+  /** @deprecated The app no longer creates a transaction on wallet creation. Use createCustomerWalletTransaction. */
   ignorePaidTopUpLimitsOnCreation?: InputMaybe<Scalars['Boolean']['input']>;
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   invoiceRequiresSuccessfulPayment?: InputMaybe<Scalars['Boolean']['input']>;
   metadata?: InputMaybe<Array<MetadataInput>>;
   name?: InputMaybe<Scalars['String']['input']>;
-  paidCredits: Scalars['String']['input'];
+  /** @deprecated The app no longer creates a transaction on wallet creation. Use createCustomerWalletTransaction. */
+  paidCredits?: InputMaybe<Scalars['String']['input']>;
   paidTopUpMaxAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   paidTopUpMinAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
@@ -2348,6 +2358,7 @@ export type CreateCustomerWalletInput = {
   purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   rateAmount: Scalars['String']['input'];
   recurringTransactionRules?: InputMaybe<Array<CreateRecurringTransactionRuleInput>>;
+  /** @deprecated The app no longer creates a transaction on wallet creation. Use createCustomerWalletTransaction. */
   transactionName?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -3321,6 +3332,7 @@ export type CurrentOrganization = {
   city?: Maybe<Scalars['String']['output']>;
   country?: Maybe<CountryCode>;
   createdAt: Scalars['ISO8601DateTime']['output'];
+  customerPortalLockedFields: Array<CustomerPortalFieldEnum>;
   defaultCurrency: CurrencyEnum;
   documentNumberPrefix: Scalars['String']['output'];
   documentNumbering: DocumentNumberingEnum;
@@ -3339,6 +3351,8 @@ export type CurrentOrganization = {
   name: Scalars['String']['output'];
   netPaymentTerm: Scalars['Int']['output'];
   premiumIntegrations: Array<PremiumIntegrationTypeEnum>;
+  /** True when usage reports can be served from the real-time usage buckets */
+  realtimeUsageEnabled: Scalars['Boolean']['output'];
   slug: Scalars['String']['output'];
   state?: Maybe<Scalars['String']['output']>;
   stripePaymentProviders?: Maybe<Array<StripeProvider>>;
@@ -3583,10 +3597,30 @@ export type CustomerPortalCustomer = {
   zipcode?: Maybe<Scalars['String']['output']>;
 };
 
+/** Customer fields that can be sent from the customer portal */
+export enum CustomerPortalFieldEnum {
+  AddressLine1 = 'address_line1',
+  AddressLine2 = 'address_line2',
+  City = 'city',
+  Country = 'country',
+  CustomerType = 'customer_type',
+  DocumentLocale = 'document_locale',
+  Email = 'email',
+  Firstname = 'firstname',
+  Lastname = 'lastname',
+  LegalName = 'legal_name',
+  Name = 'name',
+  ShippingAddress = 'shipping_address',
+  State = 'state',
+  TaxIdentificationNumber = 'tax_identification_number',
+  Zipcode = 'zipcode'
+}
+
 /** CustomerPortalOrganization */
 export type CustomerPortalOrganization = {
   __typename?: 'CustomerPortalOrganization';
   billingConfiguration?: Maybe<OrganizationBillingConfiguration>;
+  customerPortalLockedFields: Array<CustomerPortalFieldEnum>;
   defaultCurrency: CurrencyEnum;
   id: Scalars['ID']['output'];
   logoUrl?: Maybe<Scalars['String']['output']>;
@@ -4675,6 +4709,7 @@ export enum EventCategoryEnum {
   AddOns = 'ADD_ONS',
   Alerts = 'ALERTS',
   BillableMetrics = 'BILLABLE_METRICS',
+  Contracts = 'CONTRACTS',
   Coupons = 'COUPONS',
   CreditNotes = 'CREDIT_NOTES',
   Customers = 'CUSTOMERS',
@@ -4844,15 +4879,18 @@ export enum FeatureFlagEnum {
   IncrementalChargeCache = 'incremental_charge_cache',
   MultiConnection = 'multi_connection',
   OrderForms = 'order_forms',
+  PersistedRecurringValues = 'persisted_recurring_values',
   PostgresEnrichedEvents = 'postgres_enriched_events',
   ProductCatalog = 'product_catalog',
   RealtimeUsage = 'realtime_usage',
+  RecurringAggregationSnapshots = 'recurring_aggregation_snapshots',
   SkipCreditInvoiceAutoPaymentDelay = 'skip_credit_invoice_auto_payment_delay',
   SsoCrossOrganizationSessions = 'sso_cross_organization_sessions',
   StripeSharedPaymentToken = 'stripe_shared_payment_token',
   UsagePrefilterIncremental = 'usage_prefilter_incremental',
   UsagePrefilterShortCache = 'usage_prefilter_short_cache',
   WalletTraceability = 'wallet_traceability',
+  X402Mainnet = 'x402_mainnet',
   X402Payments = 'x402_payments',
   X402ReservationCounterDisabled = 'x402_reservation_counter_disabled'
 }
@@ -5837,6 +5875,7 @@ export enum LagoApiError {
   GoogleLoginMethodNotAuthorized = 'google_login_method_not_authorized',
   IncorrectLoginOrPassword = 'incorrect_login_or_password',
   InternalError = 'internal_error',
+  InvalidCharacters = 'invalid_characters',
   InvalidGoogleCode = 'invalid_google_code',
   InvalidGoogleToken = 'invalid_google_token',
   InvalidStatus = 'invalid_status',
@@ -5873,7 +5912,8 @@ export enum LagoApiError {
   ValueAlreadyExist = 'value_already_exist',
   ValueIsDuplicated = 'value_is_duplicated',
   ValueIsInvalid = 'value_is_invalid',
-  ValueIsOutOfRange = 'value_is_out_of_range'
+  ValueIsOutOfRange = 'value_is_out_of_range',
+  ValueIsTooLong = 'value_is_too_long'
 }
 
 export type LimitationInput = {
@@ -9263,6 +9303,16 @@ export type Query = {
   rateCardRates: RateCardRateCollection;
   /** Query rate cards of an organization */
   rateCards: RateCardCollection;
+  /** Query the real-time usage of a billable metric, per period and per dimension */
+  realtimeUsageBillableMetric: RealtimeUsageBillableMetric;
+  /** Query the real-time usage of the billable metrics of the organization, per period and per dimension */
+  realtimeUsageBillableMetrics: RealtimeUsageBillableMetricCollection;
+  /** Query the dimensions of a billable metric, biggest first, over the longest window by default */
+  realtimeUsageDimensionNames: Array<RealtimeUsageDimensionName>;
+  /** Query every dimension of a billable metric, with its real-time usage per period */
+  realtimeUsageDimensions: RealtimeUsageDimensionRowCollection;
+  /** Query the events counted on the usage-based charges of the organization, per period */
+  realtimeUsageEvents: RealtimeUsageEvents;
   /** Query a single role */
   role?: Maybe<Role>;
   /** Query roles available for the organization */
@@ -9463,6 +9513,7 @@ export type QueryAttributedUsageArgs = {
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   splitChargeId?: InputMaybe<Scalars['ID']['input']>;
+  splitFiltersOffset?: InputMaybe<Scalars['Int']['input']>;
   subscriptionId: Scalars['ID']['input'];
   toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
 };
@@ -10240,6 +10291,56 @@ export type QueryRateCardsArgs = {
 };
 
 
+export type QueryRealtimeUsageBillableMetricArgs = {
+  billableMetricCode: Scalars['String']['input'];
+  dimensionKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+};
+
+
+export type QueryRealtimeUsageBillableMetricsArgs = {
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+};
+
+
+export type QueryRealtimeUsageDimensionNamesArgs = {
+  billableMetricCode: Scalars['String']['input'];
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+};
+
+
+export type QueryRealtimeUsageDimensionsArgs = {
+  billableMetricCode: Scalars['String']['input'];
+  dimensionKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+};
+
+
+export type QueryRealtimeUsageEventsArgs = {
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+};
+
+
 export type QueryRoleArgs = {
   id: Scalars['ID']['input'];
 };
@@ -10706,6 +10807,120 @@ export type RateTierInput = {
   /** Upper bound of the tier; null on the last tier */
   toValue?: InputMaybe<Scalars['String']['input']>;
 };
+
+/** Units of a billable metric over the window, per period and per dimension */
+export type RealtimeUsageBillableMetric = {
+  __typename?: 'RealtimeUsageBillableMetric';
+  aggregationType: AggregationTypeEnum;
+  billableMetricCode: Scalars['String']['output'];
+  billableMetricId: Scalars['ID']['output'];
+  billableMetricName: Scalars['String']['output'];
+  dimensions: Array<RealtimeUsageDimension>;
+  fromDatetime: Scalars['ISO8601DateTime']['output'];
+  points: Array<RealtimeUsagePoint>;
+  timeGranularity: RealtimeUsageTimeGranularityEnum;
+  timezone: TimezoneEnum;
+  toDatetime: Scalars['ISO8601DateTime']['output'];
+  units: Scalars['Float']['output'];
+};
+
+/** RealtimeUsageBillableMetricCollection type */
+export type RealtimeUsageBillableMetricCollection = {
+  __typename?: 'RealtimeUsageBillableMetricCollection';
+  /** A collection of paginated RealtimeUsageBillableMetricCollection */
+  collection: Array<RealtimeUsageBillableMetric>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+/** A charge filter or pricing group value a usage is split on, and its window total */
+export type RealtimeUsageDimension = {
+  __typename?: 'RealtimeUsageDimension';
+  /** Opaque key, to pass back as a dimension filter */
+  key: Scalars['String']['output'];
+  /** Null for the usage of no charge filter or pricing group */
+  name?: Maybe<Scalars['String']['output']>;
+  /** True for the series folding every dimension past the biggest ones */
+  other: Scalars['Boolean']['output'];
+  units: Scalars['Float']['output'];
+  values: Scalars['JSON']['output'];
+};
+
+/** A dimension of a billable metric, without its usage */
+export type RealtimeUsageDimensionName = {
+  __typename?: 'RealtimeUsageDimensionName';
+  /** Opaque key, to pass back as a dimension filter */
+  key: Scalars['String']['output'];
+  /** Null for the usage of no charge filter or pricing group */
+  name?: Maybe<Scalars['String']['output']>;
+};
+
+/** Units of a dimension within one period */
+export type RealtimeUsageDimensionPoint = {
+  __typename?: 'RealtimeUsageDimensionPoint';
+  time: Scalars['ISO8601DateTime']['output'];
+  units: Scalars['Float']['output'];
+};
+
+/** A dimension of a billable metric, with its units per period */
+export type RealtimeUsageDimensionRow = {
+  __typename?: 'RealtimeUsageDimensionRow';
+  /** Opaque key, to pass back as a dimension filter */
+  key: Scalars['String']['output'];
+  /** Null for the usage of no charge filter or pricing group */
+  name?: Maybe<Scalars['String']['output']>;
+  points: Array<RealtimeUsageDimensionPoint>;
+  units: Scalars['Float']['output'];
+  values: Scalars['JSON']['output'];
+};
+
+/** RealtimeUsageDimensionRowCollection type */
+export type RealtimeUsageDimensionRowCollection = {
+  __typename?: 'RealtimeUsageDimensionRowCollection';
+  /** A collection of paginated RealtimeUsageDimensionRowCollection */
+  collection: Array<RealtimeUsageDimensionRow>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+/** Events counted on the usage-based charges of the organization, per period */
+export type RealtimeUsageEvents = {
+  __typename?: 'RealtimeUsageEvents';
+  eventsCount: Scalars['BigInt']['output'];
+  fromDatetime: Scalars['ISO8601DateTime']['output'];
+  lastIngestedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  points: Array<RealtimeUsageEventsPoint>;
+  timeGranularity: RealtimeUsageTimeGranularityEnum;
+  timezone: TimezoneEnum;
+  toDatetime: Scalars['ISO8601DateTime']['output'];
+};
+
+/** Events counted in one period of the window */
+export type RealtimeUsageEventsPoint = {
+  __typename?: 'RealtimeUsageEventsPoint';
+  eventsCount: Scalars['BigInt']['output'];
+  time: Scalars['ISO8601DateTime']['output'];
+};
+
+/** One period of the window, broken down by dimension */
+export type RealtimeUsagePoint = {
+  __typename?: 'RealtimeUsagePoint';
+  breakdown: Array<RealtimeUsagePointBreakdown>;
+  time: Scalars['ISO8601DateTime']['output'];
+  units: Scalars['Float']['output'];
+};
+
+/** Units of a single dimension within one period */
+export type RealtimeUsagePointBreakdown = {
+  __typename?: 'RealtimeUsagePointBreakdown';
+  dimensionKey: Scalars['String']['output'];
+  units: Scalars['Float']['output'];
+};
+
+export enum RealtimeUsageTimeGranularityEnum {
+  Day = 'day',
+  Hour = 'hour'
+}
 
 export enum RecurringTransactionIntervalEnum {
   Monthly = 'monthly',
@@ -12327,6 +12542,7 @@ export type UpdateOrganizationInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<CountryCode>;
+  customerPortalLockedFields?: InputMaybe<Array<CustomerPortalFieldEnum>>;
   defaultCurrency?: InputMaybe<CurrencyEnum>;
   documentNumberPrefix?: InputMaybe<Scalars['String']['input']>;
   documentNumbering?: InputMaybe<DocumentNumberingEnum>;
@@ -13260,10 +13476,26 @@ export type GetProductFiltersForFilterItemRateCardProductFilterQueryVariables = 
 
 export type GetProductFiltersForFilterItemRateCardProductFilterQuery = { __typename?: 'Query', productFilters: { __typename?: 'ProductFilterCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null }> } };
 
+export type GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables = Exact<{
+  billableMetricCode: Scalars['String']['input'];
+}>;
+
+
+export type GetDimensionNamesForFilterItemRealtimeDimensionsQuery = { __typename?: 'Query', realtimeUsageDimensionNames: Array<{ __typename?: 'RealtimeUsageDimensionName', key: string, name?: string | null }> };
+
+export type GetSubscriptionsForFilterItemSubscriptionQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetSubscriptionsForFilterItemSubscriptionQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Subscription', id: string, externalId: string, customer: { __typename?: 'Customer', id: string, displayName: string } }> } };
+
 export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, csAdmin: boolean, memberships: Array<{ __typename?: 'Membership', roles: Array<string>, id: string, organization: { __typename?: 'Organization', name: string, logoUrl?: string | null, accessibleByCurrentSession: boolean, id: string, slug: string }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, contractsCreate: boolean, contractsTerminate: boolean, contractsUpdate: boolean, contractsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesDelete: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, productCategoriesView: boolean, productCategoriesCreate: boolean, productCategoriesUpdate: boolean, productCategoriesDelete: boolean, productsView: boolean, productsCreate: boolean, productsUpdate: boolean, productsDelete: boolean, productFiltersView: boolean, productFiltersCreate: boolean, productFiltersUpdate: boolean, productFiltersDelete: boolean, rateCardsView: boolean, rateCardsCreate: boolean, rateCardsUpdate: boolean, rateCardsDelete: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, usageAttributionTypesView: boolean, usageAttributionTypesCreate: boolean, usageAttributionTypesUpdate: boolean, usageAttributionTypesDelete: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> }, organization?: { __typename?: 'CurrentOrganization', id: string, name: string, slug: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, featureFlags: Array<FeatureFlagEnum>, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum } | null };
+export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, csAdmin: boolean, memberships: Array<{ __typename?: 'Membership', roles: Array<string>, id: string, organization: { __typename?: 'Organization', name: string, logoUrl?: string | null, accessibleByCurrentSession: boolean, id: string, slug: string }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, contractsCreate: boolean, contractsTerminate: boolean, contractsUpdate: boolean, contractsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesDelete: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, productCategoriesView: boolean, productCategoriesCreate: boolean, productCategoriesUpdate: boolean, productCategoriesDelete: boolean, productsView: boolean, productsCreate: boolean, productsUpdate: boolean, productsDelete: boolean, productFiltersView: boolean, productFiltersCreate: boolean, productFiltersUpdate: boolean, productFiltersDelete: boolean, rateCardsView: boolean, rateCardsCreate: boolean, rateCardsUpdate: boolean, rateCardsDelete: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, usageAttributionTypesView: boolean, usageAttributionTypesCreate: boolean, usageAttributionTypesUpdate: boolean, usageAttributionTypesDelete: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> }, organization?: { __typename?: 'CurrentOrganization', id: string, name: string, slug: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, featureFlags: Array<FeatureFlagEnum>, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, realtimeUsageEnabled: boolean, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum } | null };
 
 export type ActivityLogsTableDataFragment = { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null };
 
@@ -13458,6 +13690,20 @@ export type AppliedRateCardActivityLogsQueryVariables = Exact<{
 
 
 export type AppliedRateCardActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
+
+export type CachedPlanAppliedRateCardDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CachedPlanAppliedRateCardDetailsQuery = { __typename?: 'Query', planAppliedRateCard?: { __typename: 'PlanAppliedRateCard', id: string } | null };
+
+export type CachedContractAppliedRateCardDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CachedContractAppliedRateCardDetailsQuery = { __typename?: 'Query', contractAppliedRateCard?: { __typename: 'ContractAppliedRateCard', id: string } | null };
 
 export type DestroyRatePhaseMutationVariables = Exact<{
   input: DestroyRatePhaseInput;
@@ -13894,7 +14140,7 @@ export type GetCustomerPortalOverdueBalancesQuery = { __typename?: 'Query', cust
 export type GetCustomerPortalDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCustomerPortalDataQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, applicableTimezone: TimezoneEnum, premium: boolean, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null, billingEntityBillingConfiguration: { __typename?: 'BillingEntityBillingConfiguration', id: string, documentLocale?: string | null }, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null } | null, customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, name: string, logoUrl?: string | null, premiumIntegrations: Array<PremiumIntegrationTypeEnum> } | null };
+export type GetCustomerPortalDataQuery = { __typename?: 'Query', customerPortalUser?: { __typename?: 'CustomerPortalCustomer', id: string, applicableTimezone: TimezoneEnum, premium: boolean, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null, billingEntityBillingConfiguration: { __typename?: 'BillingEntityBillingConfiguration', id: string, documentLocale?: string | null }, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null } | null, customerPortalOrganization?: { __typename?: 'CustomerPortalOrganization', id: string, name: string, logoUrl?: string | null, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, customerPortalLockedFields: Array<CustomerPortalFieldEnum> } | null };
 
 export type UpdatePortalCustomerMutationVariables = Exact<{
   input: UpdateCustomerPortalCustomerInput;
@@ -15995,6 +16241,7 @@ export type GetSubscriptionHourlyUsageQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
   chargeId: Scalars['ID']['input'];
   fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
 }>;
 
 
@@ -16600,12 +16847,12 @@ export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables = 
 
 export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, readyForPaymentProcessing: boolean }> } };
 
-export type MainOrganizationInfosFragment = { __typename?: 'CurrentOrganization', id: string, name: string, slug: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, featureFlags: Array<FeatureFlagEnum>, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum };
+export type MainOrganizationInfosFragment = { __typename?: 'CurrentOrganization', id: string, name: string, slug: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, featureFlags: Array<FeatureFlagEnum>, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, realtimeUsageEnabled: boolean, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum };
 
 export type GetOrganizationInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetOrganizationInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, name: string, slug: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, featureFlags: Array<FeatureFlagEnum>, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum } | null };
+export type GetOrganizationInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, name: string, slug: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, featureFlags: Array<FeatureFlagEnum>, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, realtimeUsageEnabled: boolean, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum } | null };
 
 export type MembershipPermissionsFragment = { __typename?: 'Membership', id: string, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, contractsCreate: boolean, contractsTerminate: boolean, contractsUpdate: boolean, contractsView: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesDelete: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, productCategoriesView: boolean, productCategoriesCreate: boolean, productCategoriesUpdate: boolean, productCategoriesDelete: boolean, productsView: boolean, productsCreate: boolean, productsUpdate: boolean, productsDelete: boolean, productFiltersView: boolean, productFiltersCreate: boolean, productFiltersUpdate: boolean, productFiltersDelete: boolean, rateCardsView: boolean, rateCardsCreate: boolean, rateCardsUpdate: boolean, rateCardsDelete: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, usageAttributionTypesView: boolean, usageAttributionTypesCreate: boolean, usageAttributionTypesUpdate: boolean, usageAttributionTypesDelete: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
 
@@ -18424,6 +18671,56 @@ export type UpdateQuoteMutationVariables = Exact<{
 
 export type UpdateQuoteMutation = { __typename?: 'Mutation', updateQuote?: { __typename?: 'Quote', id: string, currentVersion: { __typename?: 'QuoteVersion', id: string, version: number, status: StatusEnum } } | null };
 
+export type GetRealtimeUsageBillableMetricQueryVariables = Exact<{
+  billableMetricCode: Scalars['String']['input'];
+  dimensionKeys?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+}>;
+
+
+export type GetRealtimeUsageBillableMetricQuery = { __typename?: 'Query', realtimeUsageBillableMetric: { __typename?: 'RealtimeUsageBillableMetric', billableMetricCode: string, billableMetricName: string, units: number, aggregationType: AggregationTypeEnum, timeGranularity: RealtimeUsageTimeGranularityEnum, timezone: TimezoneEnum, dimensions: Array<{ __typename?: 'RealtimeUsageDimension', key: string, name?: string | null, other: boolean }>, points: Array<{ __typename?: 'RealtimeUsagePoint', time: any, breakdown: Array<{ __typename?: 'RealtimeUsagePointBreakdown', dimensionKey: string, units: number }> }> } };
+
+export type GetRealtimeUsageDimensionsQueryVariables = Exact<{
+  billableMetricCode: Scalars['String']['input'];
+  dimensionKeys?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+}>;
+
+
+export type GetRealtimeUsageDimensionsQuery = { __typename?: 'Query', realtimeUsageDimensions: { __typename?: 'RealtimeUsageDimensionRowCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'RealtimeUsageDimensionRow', key: string, name?: string | null, points: Array<{ __typename?: 'RealtimeUsageDimensionPoint', time: any, units: number }> }> } };
+
+export type RealtimeUsageBarChartReportFragment = { __typename?: 'RealtimeUsageBillableMetric', aggregationType: AggregationTypeEnum, timeGranularity: RealtimeUsageTimeGranularityEnum, timezone: TimezoneEnum, dimensions: Array<{ __typename?: 'RealtimeUsageDimension', key: string, name?: string | null, other: boolean }>, points: Array<{ __typename?: 'RealtimeUsagePoint', time: any, breakdown: Array<{ __typename?: 'RealtimeUsagePointBreakdown', dimensionKey: string, units: number }> }> };
+
+export type GetRealtimeUsageBillableMetricsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+}>;
+
+
+export type GetRealtimeUsageBillableMetricsQuery = { __typename?: 'Query', realtimeUsageBillableMetrics: { __typename?: 'RealtimeUsageBillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'RealtimeUsageBillableMetric', billableMetricId: string, billableMetricCode: string, billableMetricName: string, units: number, aggregationType: AggregationTypeEnum, timeGranularity: RealtimeUsageTimeGranularityEnum, timezone: TimezoneEnum, dimensions: Array<{ __typename?: 'RealtimeUsageDimension', key: string, name?: string | null, other: boolean }>, points: Array<{ __typename?: 'RealtimeUsagePoint', time: any, breakdown: Array<{ __typename?: 'RealtimeUsagePointBreakdown', dimensionKey: string, units: number }> }> }> } };
+
+export type GetRealtimeUsageEventsQueryVariables = Exact<{
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['String']['input']>;
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+}>;
+
+
+export type GetRealtimeUsageEventsQuery = { __typename?: 'Query', realtimeUsageEvents: { __typename?: 'RealtimeUsageEvents', eventsCount: any, timeGranularity: RealtimeUsageTimeGranularityEnum, timezone: TimezoneEnum, points: Array<{ __typename?: 'RealtimeUsageEventsPoint', time: any, eventsCount: any }> } };
+
 export type AdyenIntegrationDetailsFragment = { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string };
 
 export type GetAdyenIntegrationsDetailsQueryVariables = Exact<{
@@ -19003,6 +19300,18 @@ export type GetNetsuiteIntegrationsListQuery = { __typename?: 'Query', integrati
       | { __typename?: 'SalesforceIntegration' }
       | { __typename?: 'XeroIntegration' }
     > } | null };
+
+export type GetOrganizationCustomerPortalSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetOrganizationCustomerPortalSettingsQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, customerPortalLockedFields: Array<CustomerPortalFieldEnum> } | null };
+
+export type UpdateOrganizationCustomerPortalEditableFieldsMutationVariables = Exact<{
+  input: UpdateOrganizationInput;
+}>;
+
+
+export type UpdateOrganizationCustomerPortalEditableFieldsMutation = { __typename?: 'Mutation', updateOrganization?: { __typename?: 'CurrentOrganization', id: string, customerPortalLockedFields: Array<CustomerPortalFieldEnum> } | null };
 
 export type UpdateOrganizationSlugMutationVariables = Exact<{
   input: UpdateOrganizationInput;
@@ -23441,6 +23750,7 @@ export const MainOrganizationInfosFragmentDoc = gql`
   defaultCurrency
   featureFlags
   premiumIntegrations
+  realtimeUsageEnabled
   canCreateBillingEntity
   authenticationMethods
   authenticatedMethod
@@ -25884,6 +26194,25 @@ export const QuoteListItemFragmentDoc = gql`
   }
 }
     `;
+export const RealtimeUsageBarChartReportFragmentDoc = gql`
+    fragment RealtimeUsageBarChartReport on RealtimeUsageBillableMetric {
+  aggregationType
+  timeGranularity
+  timezone
+  dimensions {
+    key
+    name
+    other
+  }
+  points {
+    time
+    breakdown {
+      dimensionKey
+      units
+    }
+  }
+}
+    `;
 export const AdyenIntegrationDetailsFragmentDoc = gql`
     fragment AdyenIntegrationDetails on AdyenProvider {
   id
@@ -27289,6 +27618,106 @@ export type GetProductFiltersForFilterItemRateCardProductFilterQueryHookResult =
 export type GetProductFiltersForFilterItemRateCardProductFilterLazyQueryHookResult = ReturnType<typeof useGetProductFiltersForFilterItemRateCardProductFilterLazyQuery>;
 export type GetProductFiltersForFilterItemRateCardProductFilterSuspenseQueryHookResult = ReturnType<typeof useGetProductFiltersForFilterItemRateCardProductFilterSuspenseQuery>;
 export type GetProductFiltersForFilterItemRateCardProductFilterQueryResult = Apollo.QueryResult<GetProductFiltersForFilterItemRateCardProductFilterQuery, GetProductFiltersForFilterItemRateCardProductFilterQueryVariables>;
+export const GetDimensionNamesForFilterItemRealtimeDimensionsDocument = gql`
+    query getDimensionNamesForFilterItemRealtimeDimensions($billableMetricCode: String!) {
+  realtimeUsageDimensionNames(billableMetricCode: $billableMetricCode) {
+    key
+    name
+  }
+}
+    `;
+
+/**
+ * __useGetDimensionNamesForFilterItemRealtimeDimensionsQuery__
+ *
+ * To run a query within a React component, call `useGetDimensionNamesForFilterItemRealtimeDimensionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDimensionNamesForFilterItemRealtimeDimensionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDimensionNamesForFilterItemRealtimeDimensionsQuery({
+ *   variables: {
+ *      billableMetricCode: // value for 'billableMetricCode'
+ *   },
+ * });
+ */
+export function useGetDimensionNamesForFilterItemRealtimeDimensionsQuery(baseOptions: Apollo.QueryHookOptions<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables> & ({ variables: GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>(GetDimensionNamesForFilterItemRealtimeDimensionsDocument, options);
+      }
+export function useGetDimensionNamesForFilterItemRealtimeDimensionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>(GetDimensionNamesForFilterItemRealtimeDimensionsDocument, options);
+        }
+// @ts-ignore
+export function useGetDimensionNamesForFilterItemRealtimeDimensionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>;
+export function useGetDimensionNamesForFilterItemRealtimeDimensionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetDimensionNamesForFilterItemRealtimeDimensionsQuery | undefined, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>;
+export function useGetDimensionNamesForFilterItemRealtimeDimensionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>(GetDimensionNamesForFilterItemRealtimeDimensionsDocument, options);
+        }
+export type GetDimensionNamesForFilterItemRealtimeDimensionsQueryHookResult = ReturnType<typeof useGetDimensionNamesForFilterItemRealtimeDimensionsQuery>;
+export type GetDimensionNamesForFilterItemRealtimeDimensionsLazyQueryHookResult = ReturnType<typeof useGetDimensionNamesForFilterItemRealtimeDimensionsLazyQuery>;
+export type GetDimensionNamesForFilterItemRealtimeDimensionsSuspenseQueryHookResult = ReturnType<typeof useGetDimensionNamesForFilterItemRealtimeDimensionsSuspenseQuery>;
+export type GetDimensionNamesForFilterItemRealtimeDimensionsQueryResult = Apollo.QueryResult<GetDimensionNamesForFilterItemRealtimeDimensionsQuery, GetDimensionNamesForFilterItemRealtimeDimensionsQueryVariables>;
+export const GetSubscriptionsForFilterItemSubscriptionDocument = gql`
+    query getSubscriptionsForFilterItemSubscription($page: Int, $limit: Int, $searchTerm: String) {
+  subscriptions(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      externalId
+      customer {
+        id
+        displayName
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetSubscriptionsForFilterItemSubscriptionQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionsForFilterItemSubscriptionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionsForFilterItemSubscriptionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionsForFilterItemSubscriptionQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetSubscriptionsForFilterItemSubscriptionQuery(baseOptions?: Apollo.QueryHookOptions<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>(GetSubscriptionsForFilterItemSubscriptionDocument, options);
+      }
+export function useGetSubscriptionsForFilterItemSubscriptionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>(GetSubscriptionsForFilterItemSubscriptionDocument, options);
+        }
+// @ts-ignore
+export function useGetSubscriptionsForFilterItemSubscriptionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>;
+export function useGetSubscriptionsForFilterItemSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionsForFilterItemSubscriptionQuery | undefined, GetSubscriptionsForFilterItemSubscriptionQueryVariables>;
+export function useGetSubscriptionsForFilterItemSubscriptionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>(GetSubscriptionsForFilterItemSubscriptionDocument, options);
+        }
+export type GetSubscriptionsForFilterItemSubscriptionQueryHookResult = ReturnType<typeof useGetSubscriptionsForFilterItemSubscriptionQuery>;
+export type GetSubscriptionsForFilterItemSubscriptionLazyQueryHookResult = ReturnType<typeof useGetSubscriptionsForFilterItemSubscriptionLazyQuery>;
+export type GetSubscriptionsForFilterItemSubscriptionSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionsForFilterItemSubscriptionSuspenseQuery>;
+export type GetSubscriptionsForFilterItemSubscriptionQueryResult = Apollo.QueryResult<GetSubscriptionsForFilterItemSubscriptionQuery, GetSubscriptionsForFilterItemSubscriptionQueryVariables>;
 export const UserIdentifierDocument = gql`
     query UserIdentifier {
   me: currentUser {
@@ -28238,6 +28667,94 @@ export type AppliedRateCardActivityLogsQueryHookResult = ReturnType<typeof useAp
 export type AppliedRateCardActivityLogsLazyQueryHookResult = ReturnType<typeof useAppliedRateCardActivityLogsLazyQuery>;
 export type AppliedRateCardActivityLogsSuspenseQueryHookResult = ReturnType<typeof useAppliedRateCardActivityLogsSuspenseQuery>;
 export type AppliedRateCardActivityLogsQueryResult = Apollo.QueryResult<AppliedRateCardActivityLogsQuery, AppliedRateCardActivityLogsQueryVariables>;
+export const CachedPlanAppliedRateCardDetailsDocument = gql`
+    query cachedPlanAppliedRateCardDetails($id: ID!) {
+  planAppliedRateCard(id: $id) {
+    __typename
+    id
+  }
+}
+    `;
+
+/**
+ * __useCachedPlanAppliedRateCardDetailsQuery__
+ *
+ * To run a query within a React component, call `useCachedPlanAppliedRateCardDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCachedPlanAppliedRateCardDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCachedPlanAppliedRateCardDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCachedPlanAppliedRateCardDetailsQuery(baseOptions: Apollo.QueryHookOptions<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables> & ({ variables: CachedPlanAppliedRateCardDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>(CachedPlanAppliedRateCardDetailsDocument, options);
+      }
+export function useCachedPlanAppliedRateCardDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>(CachedPlanAppliedRateCardDetailsDocument, options);
+        }
+// @ts-ignore
+export function useCachedPlanAppliedRateCardDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>;
+export function useCachedPlanAppliedRateCardDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<CachedPlanAppliedRateCardDetailsQuery | undefined, CachedPlanAppliedRateCardDetailsQueryVariables>;
+export function useCachedPlanAppliedRateCardDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>(CachedPlanAppliedRateCardDetailsDocument, options);
+        }
+export type CachedPlanAppliedRateCardDetailsQueryHookResult = ReturnType<typeof useCachedPlanAppliedRateCardDetailsQuery>;
+export type CachedPlanAppliedRateCardDetailsLazyQueryHookResult = ReturnType<typeof useCachedPlanAppliedRateCardDetailsLazyQuery>;
+export type CachedPlanAppliedRateCardDetailsSuspenseQueryHookResult = ReturnType<typeof useCachedPlanAppliedRateCardDetailsSuspenseQuery>;
+export type CachedPlanAppliedRateCardDetailsQueryResult = Apollo.QueryResult<CachedPlanAppliedRateCardDetailsQuery, CachedPlanAppliedRateCardDetailsQueryVariables>;
+export const CachedContractAppliedRateCardDetailsDocument = gql`
+    query cachedContractAppliedRateCardDetails($id: ID!) {
+  contractAppliedRateCard(id: $id) {
+    __typename
+    id
+  }
+}
+    `;
+
+/**
+ * __useCachedContractAppliedRateCardDetailsQuery__
+ *
+ * To run a query within a React component, call `useCachedContractAppliedRateCardDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCachedContractAppliedRateCardDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCachedContractAppliedRateCardDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCachedContractAppliedRateCardDetailsQuery(baseOptions: Apollo.QueryHookOptions<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables> & ({ variables: CachedContractAppliedRateCardDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>(CachedContractAppliedRateCardDetailsDocument, options);
+      }
+export function useCachedContractAppliedRateCardDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>(CachedContractAppliedRateCardDetailsDocument, options);
+        }
+// @ts-ignore
+export function useCachedContractAppliedRateCardDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>;
+export function useCachedContractAppliedRateCardDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<CachedContractAppliedRateCardDetailsQuery | undefined, CachedContractAppliedRateCardDetailsQueryVariables>;
+export function useCachedContractAppliedRateCardDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>(CachedContractAppliedRateCardDetailsDocument, options);
+        }
+export type CachedContractAppliedRateCardDetailsQueryHookResult = ReturnType<typeof useCachedContractAppliedRateCardDetailsQuery>;
+export type CachedContractAppliedRateCardDetailsLazyQueryHookResult = ReturnType<typeof useCachedContractAppliedRateCardDetailsLazyQuery>;
+export type CachedContractAppliedRateCardDetailsSuspenseQueryHookResult = ReturnType<typeof useCachedContractAppliedRateCardDetailsSuspenseQuery>;
+export type CachedContractAppliedRateCardDetailsQueryResult = Apollo.QueryResult<CachedContractAppliedRateCardDetailsQuery, CachedContractAppliedRateCardDetailsQueryVariables>;
 export const DestroyRatePhaseDocument = gql`
     mutation destroyRatePhase($input: DestroyRatePhaseInput!) {
   destroyRatePhase(input: $input) {
@@ -30357,6 +30874,7 @@ export const GetCustomerPortalDataDocument = gql`
     name
     logoUrl
     premiumIntegrations
+    customerPortalLockedFields
   }
 }
     `;
@@ -39037,11 +39555,12 @@ export type GetSubscriptionChargesForRealtimeUsageLazyQueryHookResult = ReturnTy
 export type GetSubscriptionChargesForRealtimeUsageSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionChargesForRealtimeUsageSuspenseQuery>;
 export type GetSubscriptionChargesForRealtimeUsageQueryResult = Apollo.QueryResult<GetSubscriptionChargesForRealtimeUsageQuery, GetSubscriptionChargesForRealtimeUsageQueryVariables>;
 export const GetSubscriptionHourlyUsageDocument = gql`
-    query getSubscriptionHourlyUsage($subscriptionId: ID!, $chargeId: ID!, $fromDatetime: ISO8601DateTime) {
+    query getSubscriptionHourlyUsage($subscriptionId: ID!, $chargeId: ID!, $fromDatetime: ISO8601DateTime, $toDatetime: ISO8601DateTime) {
   subscriptionHourlyUsage(
     subscriptionId: $subscriptionId
     chargeId: $chargeId
     fromDatetime: $fromDatetime
+    toDatetime: $toDatetime
   ) {
     fromDatetime
     toDatetime
@@ -39084,6 +39603,7 @@ export const GetSubscriptionHourlyUsageDocument = gql`
  *      subscriptionId: // value for 'subscriptionId'
  *      chargeId: // value for 'chargeId'
  *      fromDatetime: // value for 'fromDatetime'
+ *      toDatetime: // value for 'toDatetime'
  *   },
  * });
  */
@@ -50813,6 +51333,258 @@ export function useUpdateQuoteMutation(baseOptions?: Apollo.MutationHookOptions<
 export type UpdateQuoteMutationHookResult = ReturnType<typeof useUpdateQuoteMutation>;
 export type UpdateQuoteMutationResult = Apollo.MutationResult<UpdateQuoteMutation>;
 export type UpdateQuoteMutationOptions = Apollo.BaseMutationOptions<UpdateQuoteMutation, UpdateQuoteMutationVariables>;
+export const GetRealtimeUsageBillableMetricDocument = gql`
+    query getRealtimeUsageBillableMetric($billableMetricCode: String!, $dimensionKeys: [String!], $externalCustomerId: String, $externalSubscriptionId: String, $fromDatetime: ISO8601DateTime, $toDatetime: ISO8601DateTime) {
+  realtimeUsageBillableMetric(
+    billableMetricCode: $billableMetricCode
+    dimensionKeys: $dimensionKeys
+    externalCustomerId: $externalCustomerId
+    externalSubscriptionId: $externalSubscriptionId
+    fromDatetime: $fromDatetime
+    toDatetime: $toDatetime
+  ) {
+    billableMetricCode
+    billableMetricName
+    units
+    ...RealtimeUsageBarChartReport
+  }
+}
+    ${RealtimeUsageBarChartReportFragmentDoc}`;
+
+/**
+ * __useGetRealtimeUsageBillableMetricQuery__
+ *
+ * To run a query within a React component, call `useGetRealtimeUsageBillableMetricQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRealtimeUsageBillableMetricQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRealtimeUsageBillableMetricQuery({
+ *   variables: {
+ *      billableMetricCode: // value for 'billableMetricCode'
+ *      dimensionKeys: // value for 'dimensionKeys'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      externalSubscriptionId: // value for 'externalSubscriptionId'
+ *      fromDatetime: // value for 'fromDatetime'
+ *      toDatetime: // value for 'toDatetime'
+ *   },
+ * });
+ */
+export function useGetRealtimeUsageBillableMetricQuery(baseOptions: Apollo.QueryHookOptions<GetRealtimeUsageBillableMetricQuery, GetRealtimeUsageBillableMetricQueryVariables> & ({ variables: GetRealtimeUsageBillableMetricQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRealtimeUsageBillableMetricQuery, GetRealtimeUsageBillableMetricQueryVariables>(GetRealtimeUsageBillableMetricDocument, options);
+      }
+export function useGetRealtimeUsageBillableMetricLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRealtimeUsageBillableMetricQuery, GetRealtimeUsageBillableMetricQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRealtimeUsageBillableMetricQuery, GetRealtimeUsageBillableMetricQueryVariables>(GetRealtimeUsageBillableMetricDocument, options);
+        }
+// @ts-ignore
+export function useGetRealtimeUsageBillableMetricSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRealtimeUsageBillableMetricQuery, GetRealtimeUsageBillableMetricQueryVariables>): Apollo.UseSuspenseQueryResult<GetRealtimeUsageBillableMetricQuery, GetRealtimeUsageBillableMetricQueryVariables>;
+export function useGetRealtimeUsageBillableMetricSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRealtimeUsageBillableMetricQuery, GetRealtimeUsageBillableMetricQueryVariables>): Apollo.UseSuspenseQueryResult<GetRealtimeUsageBillableMetricQuery | undefined, GetRealtimeUsageBillableMetricQueryVariables>;
+export function useGetRealtimeUsageBillableMetricSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRealtimeUsageBillableMetricQuery, GetRealtimeUsageBillableMetricQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRealtimeUsageBillableMetricQuery, GetRealtimeUsageBillableMetricQueryVariables>(GetRealtimeUsageBillableMetricDocument, options);
+        }
+export type GetRealtimeUsageBillableMetricQueryHookResult = ReturnType<typeof useGetRealtimeUsageBillableMetricQuery>;
+export type GetRealtimeUsageBillableMetricLazyQueryHookResult = ReturnType<typeof useGetRealtimeUsageBillableMetricLazyQuery>;
+export type GetRealtimeUsageBillableMetricSuspenseQueryHookResult = ReturnType<typeof useGetRealtimeUsageBillableMetricSuspenseQuery>;
+export type GetRealtimeUsageBillableMetricQueryResult = Apollo.QueryResult<GetRealtimeUsageBillableMetricQuery, GetRealtimeUsageBillableMetricQueryVariables>;
+export const GetRealtimeUsageDimensionsDocument = gql`
+    query getRealtimeUsageDimensions($billableMetricCode: String!, $dimensionKeys: [String!], $page: Int, $limit: Int, $externalCustomerId: String, $externalSubscriptionId: String, $fromDatetime: ISO8601DateTime, $toDatetime: ISO8601DateTime) {
+  realtimeUsageDimensions(
+    billableMetricCode: $billableMetricCode
+    dimensionKeys: $dimensionKeys
+    page: $page
+    limit: $limit
+    externalCustomerId: $externalCustomerId
+    externalSubscriptionId: $externalSubscriptionId
+    fromDatetime: $fromDatetime
+    toDatetime: $toDatetime
+  ) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      key
+      name
+      points {
+        time
+        units
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetRealtimeUsageDimensionsQuery__
+ *
+ * To run a query within a React component, call `useGetRealtimeUsageDimensionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRealtimeUsageDimensionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRealtimeUsageDimensionsQuery({
+ *   variables: {
+ *      billableMetricCode: // value for 'billableMetricCode'
+ *      dimensionKeys: // value for 'dimensionKeys'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      externalSubscriptionId: // value for 'externalSubscriptionId'
+ *      fromDatetime: // value for 'fromDatetime'
+ *      toDatetime: // value for 'toDatetime'
+ *   },
+ * });
+ */
+export function useGetRealtimeUsageDimensionsQuery(baseOptions: Apollo.QueryHookOptions<GetRealtimeUsageDimensionsQuery, GetRealtimeUsageDimensionsQueryVariables> & ({ variables: GetRealtimeUsageDimensionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRealtimeUsageDimensionsQuery, GetRealtimeUsageDimensionsQueryVariables>(GetRealtimeUsageDimensionsDocument, options);
+      }
+export function useGetRealtimeUsageDimensionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRealtimeUsageDimensionsQuery, GetRealtimeUsageDimensionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRealtimeUsageDimensionsQuery, GetRealtimeUsageDimensionsQueryVariables>(GetRealtimeUsageDimensionsDocument, options);
+        }
+// @ts-ignore
+export function useGetRealtimeUsageDimensionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRealtimeUsageDimensionsQuery, GetRealtimeUsageDimensionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRealtimeUsageDimensionsQuery, GetRealtimeUsageDimensionsQueryVariables>;
+export function useGetRealtimeUsageDimensionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRealtimeUsageDimensionsQuery, GetRealtimeUsageDimensionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRealtimeUsageDimensionsQuery | undefined, GetRealtimeUsageDimensionsQueryVariables>;
+export function useGetRealtimeUsageDimensionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRealtimeUsageDimensionsQuery, GetRealtimeUsageDimensionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRealtimeUsageDimensionsQuery, GetRealtimeUsageDimensionsQueryVariables>(GetRealtimeUsageDimensionsDocument, options);
+        }
+export type GetRealtimeUsageDimensionsQueryHookResult = ReturnType<typeof useGetRealtimeUsageDimensionsQuery>;
+export type GetRealtimeUsageDimensionsLazyQueryHookResult = ReturnType<typeof useGetRealtimeUsageDimensionsLazyQuery>;
+export type GetRealtimeUsageDimensionsSuspenseQueryHookResult = ReturnType<typeof useGetRealtimeUsageDimensionsSuspenseQuery>;
+export type GetRealtimeUsageDimensionsQueryResult = Apollo.QueryResult<GetRealtimeUsageDimensionsQuery, GetRealtimeUsageDimensionsQueryVariables>;
+export const GetRealtimeUsageBillableMetricsDocument = gql`
+    query getRealtimeUsageBillableMetrics($page: Int, $limit: Int, $externalCustomerId: String, $externalSubscriptionId: String, $fromDatetime: ISO8601DateTime, $toDatetime: ISO8601DateTime) {
+  realtimeUsageBillableMetrics(
+    page: $page
+    limit: $limit
+    externalCustomerId: $externalCustomerId
+    externalSubscriptionId: $externalSubscriptionId
+    fromDatetime: $fromDatetime
+    toDatetime: $toDatetime
+  ) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      billableMetricId
+      billableMetricCode
+      billableMetricName
+      units
+      ...RealtimeUsageBarChartReport
+    }
+  }
+}
+    ${RealtimeUsageBarChartReportFragmentDoc}`;
+
+/**
+ * __useGetRealtimeUsageBillableMetricsQuery__
+ *
+ * To run a query within a React component, call `useGetRealtimeUsageBillableMetricsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRealtimeUsageBillableMetricsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRealtimeUsageBillableMetricsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      externalSubscriptionId: // value for 'externalSubscriptionId'
+ *      fromDatetime: // value for 'fromDatetime'
+ *      toDatetime: // value for 'toDatetime'
+ *   },
+ * });
+ */
+export function useGetRealtimeUsageBillableMetricsQuery(baseOptions?: Apollo.QueryHookOptions<GetRealtimeUsageBillableMetricsQuery, GetRealtimeUsageBillableMetricsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRealtimeUsageBillableMetricsQuery, GetRealtimeUsageBillableMetricsQueryVariables>(GetRealtimeUsageBillableMetricsDocument, options);
+      }
+export function useGetRealtimeUsageBillableMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRealtimeUsageBillableMetricsQuery, GetRealtimeUsageBillableMetricsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRealtimeUsageBillableMetricsQuery, GetRealtimeUsageBillableMetricsQueryVariables>(GetRealtimeUsageBillableMetricsDocument, options);
+        }
+// @ts-ignore
+export function useGetRealtimeUsageBillableMetricsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRealtimeUsageBillableMetricsQuery, GetRealtimeUsageBillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRealtimeUsageBillableMetricsQuery, GetRealtimeUsageBillableMetricsQueryVariables>;
+export function useGetRealtimeUsageBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRealtimeUsageBillableMetricsQuery, GetRealtimeUsageBillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRealtimeUsageBillableMetricsQuery | undefined, GetRealtimeUsageBillableMetricsQueryVariables>;
+export function useGetRealtimeUsageBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRealtimeUsageBillableMetricsQuery, GetRealtimeUsageBillableMetricsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRealtimeUsageBillableMetricsQuery, GetRealtimeUsageBillableMetricsQueryVariables>(GetRealtimeUsageBillableMetricsDocument, options);
+        }
+export type GetRealtimeUsageBillableMetricsQueryHookResult = ReturnType<typeof useGetRealtimeUsageBillableMetricsQuery>;
+export type GetRealtimeUsageBillableMetricsLazyQueryHookResult = ReturnType<typeof useGetRealtimeUsageBillableMetricsLazyQuery>;
+export type GetRealtimeUsageBillableMetricsSuspenseQueryHookResult = ReturnType<typeof useGetRealtimeUsageBillableMetricsSuspenseQuery>;
+export type GetRealtimeUsageBillableMetricsQueryResult = Apollo.QueryResult<GetRealtimeUsageBillableMetricsQuery, GetRealtimeUsageBillableMetricsQueryVariables>;
+export const GetRealtimeUsageEventsDocument = gql`
+    query getRealtimeUsageEvents($externalCustomerId: String, $externalSubscriptionId: String, $fromDatetime: ISO8601DateTime, $toDatetime: ISO8601DateTime) {
+  realtimeUsageEvents(
+    externalCustomerId: $externalCustomerId
+    externalSubscriptionId: $externalSubscriptionId
+    fromDatetime: $fromDatetime
+    toDatetime: $toDatetime
+  ) {
+    eventsCount
+    timeGranularity
+    timezone
+    points {
+      time
+      eventsCount
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetRealtimeUsageEventsQuery__
+ *
+ * To run a query within a React component, call `useGetRealtimeUsageEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRealtimeUsageEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRealtimeUsageEventsQuery({
+ *   variables: {
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      externalSubscriptionId: // value for 'externalSubscriptionId'
+ *      fromDatetime: // value for 'fromDatetime'
+ *      toDatetime: // value for 'toDatetime'
+ *   },
+ * });
+ */
+export function useGetRealtimeUsageEventsQuery(baseOptions?: Apollo.QueryHookOptions<GetRealtimeUsageEventsQuery, GetRealtimeUsageEventsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRealtimeUsageEventsQuery, GetRealtimeUsageEventsQueryVariables>(GetRealtimeUsageEventsDocument, options);
+      }
+export function useGetRealtimeUsageEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRealtimeUsageEventsQuery, GetRealtimeUsageEventsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRealtimeUsageEventsQuery, GetRealtimeUsageEventsQueryVariables>(GetRealtimeUsageEventsDocument, options);
+        }
+// @ts-ignore
+export function useGetRealtimeUsageEventsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRealtimeUsageEventsQuery, GetRealtimeUsageEventsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRealtimeUsageEventsQuery, GetRealtimeUsageEventsQueryVariables>;
+export function useGetRealtimeUsageEventsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRealtimeUsageEventsQuery, GetRealtimeUsageEventsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRealtimeUsageEventsQuery | undefined, GetRealtimeUsageEventsQueryVariables>;
+export function useGetRealtimeUsageEventsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRealtimeUsageEventsQuery, GetRealtimeUsageEventsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRealtimeUsageEventsQuery, GetRealtimeUsageEventsQueryVariables>(GetRealtimeUsageEventsDocument, options);
+        }
+export type GetRealtimeUsageEventsQueryHookResult = ReturnType<typeof useGetRealtimeUsageEventsQuery>;
+export type GetRealtimeUsageEventsLazyQueryHookResult = ReturnType<typeof useGetRealtimeUsageEventsLazyQuery>;
+export type GetRealtimeUsageEventsSuspenseQueryHookResult = ReturnType<typeof useGetRealtimeUsageEventsSuspenseQuery>;
+export type GetRealtimeUsageEventsQueryResult = Apollo.QueryResult<GetRealtimeUsageEventsQuery, GetRealtimeUsageEventsQueryVariables>;
 export const GetAdyenIntegrationsDetailsDocument = gql`
     query getAdyenIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
   paymentProvider(id: $id) {
@@ -52727,6 +53499,83 @@ export type GetNetsuiteIntegrationsListQueryHookResult = ReturnType<typeof useGe
 export type GetNetsuiteIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsListLazyQuery>;
 export type GetNetsuiteIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsListSuspenseQuery>;
 export type GetNetsuiteIntegrationsListQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationsListQuery, GetNetsuiteIntegrationsListQueryVariables>;
+export const GetOrganizationCustomerPortalSettingsDocument = gql`
+    query getOrganizationCustomerPortalSettings {
+  organization {
+    id
+    customerPortalLockedFields
+  }
+}
+    `;
+
+/**
+ * __useGetOrganizationCustomerPortalSettingsQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationCustomerPortalSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationCustomerPortalSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationCustomerPortalSettingsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetOrganizationCustomerPortalSettingsQuery(baseOptions?: Apollo.QueryHookOptions<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>(GetOrganizationCustomerPortalSettingsDocument, options);
+      }
+export function useGetOrganizationCustomerPortalSettingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>(GetOrganizationCustomerPortalSettingsDocument, options);
+        }
+// @ts-ignore
+export function useGetOrganizationCustomerPortalSettingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>;
+export function useGetOrganizationCustomerPortalSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrganizationCustomerPortalSettingsQuery | undefined, GetOrganizationCustomerPortalSettingsQueryVariables>;
+export function useGetOrganizationCustomerPortalSettingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>(GetOrganizationCustomerPortalSettingsDocument, options);
+        }
+export type GetOrganizationCustomerPortalSettingsQueryHookResult = ReturnType<typeof useGetOrganizationCustomerPortalSettingsQuery>;
+export type GetOrganizationCustomerPortalSettingsLazyQueryHookResult = ReturnType<typeof useGetOrganizationCustomerPortalSettingsLazyQuery>;
+export type GetOrganizationCustomerPortalSettingsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationCustomerPortalSettingsSuspenseQuery>;
+export type GetOrganizationCustomerPortalSettingsQueryResult = Apollo.QueryResult<GetOrganizationCustomerPortalSettingsQuery, GetOrganizationCustomerPortalSettingsQueryVariables>;
+export const UpdateOrganizationCustomerPortalEditableFieldsDocument = gql`
+    mutation updateOrganizationCustomerPortalEditableFields($input: UpdateOrganizationInput!) {
+  updateOrganization(input: $input) {
+    id
+    customerPortalLockedFields
+  }
+}
+    `;
+export type UpdateOrganizationCustomerPortalEditableFieldsMutationFn = Apollo.MutationFunction<UpdateOrganizationCustomerPortalEditableFieldsMutation, UpdateOrganizationCustomerPortalEditableFieldsMutationVariables>;
+
+/**
+ * __useUpdateOrganizationCustomerPortalEditableFieldsMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrganizationCustomerPortalEditableFieldsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrganizationCustomerPortalEditableFieldsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrganizationCustomerPortalEditableFieldsMutation, { data, loading, error }] = useUpdateOrganizationCustomerPortalEditableFieldsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOrganizationCustomerPortalEditableFieldsMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrganizationCustomerPortalEditableFieldsMutation, UpdateOrganizationCustomerPortalEditableFieldsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOrganizationCustomerPortalEditableFieldsMutation, UpdateOrganizationCustomerPortalEditableFieldsMutationVariables>(UpdateOrganizationCustomerPortalEditableFieldsDocument, options);
+      }
+export type UpdateOrganizationCustomerPortalEditableFieldsMutationHookResult = ReturnType<typeof useUpdateOrganizationCustomerPortalEditableFieldsMutation>;
+export type UpdateOrganizationCustomerPortalEditableFieldsMutationResult = Apollo.MutationResult<UpdateOrganizationCustomerPortalEditableFieldsMutation>;
+export type UpdateOrganizationCustomerPortalEditableFieldsMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationCustomerPortalEditableFieldsMutation, UpdateOrganizationCustomerPortalEditableFieldsMutationVariables>;
 export const UpdateOrganizationSlugDocument = gql`
     mutation updateOrganizationSlug($input: UpdateOrganizationInput!) {
   updateOrganization(input: $input) {

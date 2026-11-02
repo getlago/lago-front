@@ -189,7 +189,6 @@ describe('CreateWallet', () => {
           expect(mockCreateWallet).toHaveBeenCalledWith({
             variables: {
               input: expect.objectContaining({
-                grantedCredits: '0',
                 recurringTransactionRules: [],
               }),
             },
@@ -217,8 +216,6 @@ describe('CreateWallet', () => {
                 code: 'my_wallet',
                 currency: CurrencyEnum.Usd,
                 rateAmount: '1.00',
-                paidCredits: '0',
-                grantedCredits: '0',
                 priority: 50,
                 billingEntityId: 'be-1',
                 appliesTo: { feeTypes: [], billableMetricIds: [] },
