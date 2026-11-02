@@ -64,15 +64,26 @@ describe('AdminOrganizationDetail', () => {
     expect(screen.getByText('Save changes')).toBeDisabled()
   })
 
-  it('explains why a rename was rejected', async () => {
+  it.each([
+    [
+      'a reason that is too long',
+      { code: 'unprocessable_entity', details: { reason: ['value_is_too_long'] } },
+      'The reason is too long',
+    ],
+    [
+      'an unchanged name',
+      { code: 'unprocessable_entity', details: { name: ['value_is_unchanged'] } },
+      'The new name is the same as the current name.',
+    ],
+    [
+      'a forbidden rename',
+      { code: 'forbidden' },
+      "You don't have the permission to perform this action",
+    ],
+  ])('explains %s', async (_, extensions, message) => {
     mockRename.mockResolvedValue({
       data: { adminRenameOrganization: null },
-      errors: [
-        {
-          message: 'unprocessable_entity',
-          extensions: { code: 'unprocessable_entity', details: { reason: ['value_is_too_long'] } },
-        },
-      ],
+      errors: [{ message: extensions.code, extensions }],
     })
     render(<AdminOrganizationDetail />, {
       useParams: { organizationId: 'org' },
@@ -83,9 +94,11 @@ describe('AdminOrganizationDetail', () => {
 
     const props = jest.mocked(NiceModal.show).mock.calls[0][1] as ReasonModalProps
 
-    await expect(props.onConfirm('Customer rebranded their company', false)).rejects.toThrow(
-      'The reason is too long',
-    )
+    await act(async () => {
+      await expect(props.onConfirm('Customer rebranded their company', false)).rejects.toThrow(
+        message,
+      )
+    })
   })
 
   it('adds no message for errors the global error link already reported', async () => {
@@ -103,11 +116,14 @@ describe('AdminOrganizationDetail', () => {
 
     const props = jest.mocked(NiceModal.show).mock.calls[0][1] as ReasonModalProps
 
-    const confirmation = props.onConfirm('Customer rebranded their company', false)
+    await act(async () => {
+      const confirmation = props.onConfirm('Customer rebranded their company', false)
 
-    await expect(confirmation).rejects.toBeInstanceOf(ReasonModalError)
-    await expect(confirmation).rejects.toHaveProperty('message', '')
+      await expect(confirmation).rejects.toBeInstanceOf(ReasonModalError)
+      await expect(confirmation).rejects.toHaveProperty('message', '')
+    })
     expect(mockToggle).not.toHaveBeenCalled()
+    expect(mockRefetch).not.toHaveBeenCalled()
   })
 
   it('keeps Save disabled until the name actually changes', () => {
@@ -145,6 +161,7 @@ describe('AdminOrganizationDetail', () => {
       },
     })
     expect(mockToggle).not.toHaveBeenCalled()
+    expect(mockRefetch).toHaveBeenCalledTimes(1)
   })
 
   it('saves a rename and feature changes with one reason', async () => {
@@ -160,6 +177,9 @@ describe('AdminOrganizationDetail', () => {
     const props = jest.mocked(NiceModal.show).mock.calls[0][1] as ReasonModalProps
 
     expect(props.title).toBe('Rename organization and update 1 feature')
+    expect(props.description).toBe(
+      'Rename "Acme" to "Acme Inc" and update 1 feature. Please provide a reason.',
+    )
     expect(props.showNotifyCheckbox).toBe(true)
     await act(() => props.onConfirm('Customer rebranded their company', true))
 

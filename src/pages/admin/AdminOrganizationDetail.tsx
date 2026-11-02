@@ -12,10 +12,11 @@ import { Typography } from '~/components/designSystem/Typography'
 import { Switch } from '~/components/form/Switch/Switch'
 import { TextInput } from '~/components/form/TextInput/TextInput'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { addToast, isSilencedGQLError, LagoGQLError } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { ADMIN_ORGANIZATIONS_ROUTE } from '~/core/router'
 import {
   AdminFeatureTypeEnum,
+  AdminOrganizationQuery,
   FeatureFlagEnum,
   LagoApiError,
   PremiumIntegrationTypeEnum,
@@ -23,6 +24,7 @@ import {
   useAdminRenameOrganizationMutation,
   useAdminToggleFeatureMutation,
 } from '~/generated/graphql'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   query AdminOrganization($organizationId: ID!) {
@@ -51,61 +53,72 @@ gql`
 const KNOWN_PREMIUM_INTEGRATIONS = Object.values(PremiumIntegrationTypeEnum)
 const KNOWN_FEATURE_FLAGS = Object.values(FeatureFlagEnum)
 
-const RENAME_ERROR_MESSAGES: Record<string, string> = {
-  value_is_unchanged: 'The new name is the same as the current name.',
-  value_is_mandatory: 'The organization name cannot be blank.',
-  value_is_too_short: 'The reason must be at least 10 characters.',
-  value_is_too_long: 'The reason is too long once the rename details are added. Please shorten it.',
+const RENAME_SILENT_ERROR_CODES = [LagoApiError.UnprocessableEntity, LagoApiError.NotFound]
+const RENAME_LOCALLY_HANDLED_ERROR_CODES: unknown[] = [
+  ...RENAME_SILENT_ERROR_CODES,
+  LagoApiError.Forbidden,
+]
+
+const PERMISSION_ERROR_KEY = 'text_17865407897429mqm1fco12j'
+const ORGANIZATION_NOT_FOUND_KEY = 'text_1793385900490p103wpd5yop'
+const RENAME_FAILED_KEY = 'text_1793385900490tqocadsfotq'
+
+const RENAME_DETAIL_ERROR_KEYS: Record<string, string> = {
+  'name.value_is_mandatory': 'text_1793385900490m5usn5dcibi',
+  'name.value_is_unchanged': 'text_1793385900490zvrwdl6qmnj',
+  'reason.value_is_too_short': 'text_1793385900490pjhemm9d0up',
+  'reason.value_is_too_long': 'text_17933859004900n1m0901kmv',
 }
 
-const RENAME_SILENT_ERROR_CODES = [LagoApiError.UnprocessableEntity, LagoApiError.NotFound]
+const getDetailErrorKey = (
+  errors: readonly GraphQLFormattedError[] | undefined,
+): string | undefined => {
+  const details = errors?.[0]?.extensions?.details
 
-const getRenameErrorMessage = (errors?: readonly GraphQLFormattedError[]): string => {
-  const extensions = errors?.[0]?.extensions as LagoGQLError['extensions'] | undefined
+  if (!details || typeof details !== 'object') return undefined
 
-  if (extensions?.code === LagoApiError.NotFound) return 'Organization not found.'
+  for (const [field, codes] of Object.entries(details)) {
+    const key = Array.isArray(codes) ? RENAME_DETAIL_ERROR_KEYS[`${field}.${codes[0]}`] : undefined
 
-  // The global error link has already toasted every code this mutation does not silence
-  if (
-    extensions &&
-    !isSilencedGQLError({
-      extensions,
-      silentErrorCodes: RENAME_SILENT_ERROR_CODES,
-      silentErrorDetails: [],
-    })
-  ) {
-    return ''
+    if (key) return key
   }
 
-  const detailCode = Object.values(extensions?.details ?? {}).flat()[0]
-  const message = detailCode ? RENAME_ERROR_MESSAGES[detailCode] : undefined
-
-  return message ?? 'Failed to rename the organization. Please try again.'
+  return undefined
 }
 
-const AdminOrganizationDetail = () => {
-  const { organizationId } = useParams<{ organizationId: string }>()
+const getRenameErrorMessage = (
+  errors: readonly GraphQLFormattedError[] | undefined,
+  translate: TranslateFunc,
+): string => {
+  const code = errors?.[0]?.extensions?.code
 
-  const { data, loading, refetch } = useAdminOrganizationQuery({
-    variables: { organizationId: organizationId ?? '' },
-    skip: !organizationId,
-  })
+  if (hasDefinedGQLError('NotFound', errors)) return translate(ORGANIZATION_NOT_FOUND_KEY)
+  if (code === LagoApiError.Forbidden) return translate(PERMISSION_ERROR_KEY)
+  // The global error link already toasted every code this page does not handle itself
+  if (code && !RENAME_LOCALLY_HANDLED_ERROR_CODES.includes(code)) return ''
 
+  return translate(getDetailErrorKey(errors) ?? RENAME_FAILED_KEY)
+}
+
+type AdminOrganizationSettingsProps = {
+  org: NonNullable<AdminOrganizationQuery['adminOrganization']>
+  refetch: () => unknown
+}
+
+const AdminOrganizationSettings = ({
+  org,
+  refetch,
+}: AdminOrganizationSettingsProps): JSX.Element => {
+  const { translate } = useInternationalization()
   const [toggleFeature] = useAdminToggleFeatureMutation()
   const [isSaving, setIsSaving] = useState(false)
   const [renameOrganization] = useAdminRenameOrganizationMutation({
     context: { silentErrorCodes: RENAME_SILENT_ERROR_CODES },
-    refetchQueries: ['AdminOrganization'],
   })
-  const [nameInput, setNameInput] = useState('')
+  const [nameInput, setNameInput] = useState(org.name)
 
-  const org = data?.adminOrganization
-  const serverIntegrations: string[] = useMemo(
-    () => org?.premiumIntegrations ?? [],
-    [org?.premiumIntegrations],
-  )
-
-  const serverFeatureFlags: string[] = useMemo(() => org?.featureFlags ?? [], [org?.featureFlags])
+  const serverIntegrations: string[] = org.premiumIntegrations
+  const serverFeatureFlags: string[] = org.featureFlags
 
   // Local state for batch editing
   const [localIntegrations, setLocalIntegrations] = useState<Set<string>>(new Set())
@@ -117,13 +130,9 @@ const AdminOrganizationDetail = () => {
     setLocalFeatureFlags(new Set(serverFeatureFlags))
   }, [serverIntegrations, serverFeatureFlags])
 
-  useEffect(() => {
-    setNameInput(org?.name ?? '')
-  }, [org?.name])
-
-  const isNameDirty = nameInput !== (org?.name ?? '')
+  const isNameDirty = nameInput !== org.name
   const trimmedName = nameInput.trim()
-  const canRename = !!org && trimmedName.length > 0 && trimmedName !== org.name
+  const canRename = trimmedName.length > 0 && trimmedName !== org.name
 
   const isDirty = useMemo(() => {
     const integrationsDirty =
@@ -165,6 +174,31 @@ const AdminOrganizationDetail = () => {
     })
   }
 
+  const getSaveDialogCopy = (
+    featureCount: number,
+  ): Pick<ReasonModalProps, 'title' | 'description'> => {
+    const rename = { currentName: org.name, newName: trimmedName, count: featureCount }
+
+    if (!canRename) {
+      return {
+        title: translate('text_1793385900490kmw0vlhvt9j', { count: featureCount }, featureCount),
+        description: translate('text_1793385900490y0phuye4hqy'),
+      }
+    }
+
+    if (featureCount === 0) {
+      return {
+        title: translate('text_1793385900490rmoco4403qu'),
+        description: translate('text_1793385900490b9c05vdreem', rename),
+      }
+    }
+
+    return {
+      title: translate('text_1793385900490ocp2hwktkxf', { count: featureCount }, featureCount),
+      description: translate('text_17933859004908vcp3ktwd68', rename, featureCount),
+    }
+  }
+
   const handleSave = () => {
     const toEnableIntegrations = KNOWN_PREMIUM_INTEGRATIONS.filter(
       (key) => localIntegrations.has(key) && !serverIntegrations.includes(key),
@@ -204,15 +238,8 @@ const AdminOrganizationDetail = () => {
 
     if (changes.length === 0 && !canRename) return
 
-    const featuresLabel = `${changes.length} feature${changes.length > 1 ? 's' : ''}`
-    const renameTitle =
-      changes.length > 0 ? `Rename organization and update ${featuresLabel}` : 'Rename organization'
-
     NiceModal.show<void, ReasonModalProps>(REASON_MODAL_NAME, {
-      title: canRename ? renameTitle : `Update ${featuresLabel}`,
-      description: canRename
-        ? `Rename "${org?.name}" to "${trimmedName}". Please provide a reason.`
-        : `Please provide a reason for updating features.`,
+      ...getSaveDialogCopy(changes.length),
       showNotifyCheckbox: changes.length > 0,
       onConfirm: async (reason: string, notifyOrgAdmin: boolean) => {
         setIsSaving(true)
@@ -221,24 +248,20 @@ const AdminOrganizationDetail = () => {
         try {
           if (canRename) {
             const result = await renameOrganization({
-              variables: {
-                input: { organizationId: organizationId ?? '', name: trimmedName, reason },
-              },
+              variables: { input: { organizationId: org.id, name: trimmedName, reason } },
             })
 
             if (!result.data?.adminRenameOrganization) {
-              throw new ReasonModalError(getRenameErrorMessage(result.errors))
+              throw new ReasonModalError(getRenameErrorMessage(result.errors, translate))
             }
           }
-
-          if (changes.length === 0) return
 
           for (const change of changes) {
             try {
               await toggleFeature({
                 variables: {
                   input: {
-                    organizationId: organizationId ?? '',
+                    organizationId: org.id,
                     featureKey: change.featureKey,
                     featureType: change.featureType,
                     enabled: change.enabled,
@@ -259,7 +282,7 @@ const AdminOrganizationDetail = () => {
             })
           }
 
-          await refetch()
+          refetch()
         } finally {
           setIsSaving(false)
         }
@@ -270,25 +293,7 @@ const AdminOrganizationDetail = () => {
   const handleReset = (): void => {
     setLocalIntegrations(new Set(serverIntegrations))
     setLocalFeatureFlags(new Set(serverFeatureFlags))
-    setNameInput(org?.name ?? '')
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-12">
-        <Spinner />
-      </div>
-    )
-  }
-
-  if (!org) {
-    return (
-      <div className="p-4 md:p-12">
-        <Typography variant="body" color="grey600">
-          Organization not found.
-        </Typography>
-      </div>
-    )
+    setNameInput(org.name)
   }
 
   const getEntityMetadata = () => {
@@ -317,11 +322,11 @@ const AdminOrganizationDetail = () => {
       <div className="max-w-200 mx-auto w-full p-4 md:p-12">
         <div className="mb-8">
           <Typography variant="subhead1" className="mb-4">
-            General
+            {translate('text_1742230191029o8hfgeebxl5')}
           </Typography>
           <TextInput
             name="organizationName"
-            label="Organization name"
+            label={translate('text_62a99ba2af7535cefacab49c')}
             value={nameInput}
             onChange={setNameInput}
           />
@@ -377,6 +382,37 @@ const AdminOrganizationDetail = () => {
       </footer>
     </>
   )
+}
+
+const AdminOrganizationDetail = () => {
+  const { organizationId } = useParams<{ organizationId: string }>()
+
+  const { data, loading, refetch } = useAdminOrganizationQuery({
+    variables: { organizationId: organizationId ?? '' },
+    skip: !organizationId,
+  })
+
+  const org = data?.adminOrganization
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <Spinner />
+      </div>
+    )
+  }
+
+  if (!org) {
+    return (
+      <div className="p-4 md:p-12">
+        <Typography variant="body" color="grey600">
+          Organization not found.
+        </Typography>
+      </div>
+    )
+  }
+
+  return <AdminOrganizationSettings key={org.name} org={org} refetch={refetch} />
 }
 
 export default AdminOrganizationDetail
