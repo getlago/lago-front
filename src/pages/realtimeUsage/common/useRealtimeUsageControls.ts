@@ -37,7 +37,6 @@ const autoRefreshOf = (value: string | null): number => {
 type UseRealtimeUsageControls = () => {
   autoRefreshSeconds: number
   setAutoRefreshSeconds: (seconds: number) => void
-  // A preset, or the `from,to` ISO bounds of a custom range.
   timeRange: string
 }
 

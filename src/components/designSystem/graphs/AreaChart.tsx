@@ -57,7 +57,6 @@ type AreaChartProps = {
   data: AreaChartDataType[]
   loading?: boolean
   hasOnlyZeroValues?: boolean
-  // Only formats values when there is no `valueFormatter`.
   currency?: CurrencyEnum
   valueFormatter?: (value: number) => string
   height?: number

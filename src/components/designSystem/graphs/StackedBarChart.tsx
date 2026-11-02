@@ -70,7 +70,6 @@ export type StackedBarChartBar<T> =
 
 type StackedBarChartProps<T> = {
   blur?: boolean
-  // Only formats values when there is no `customFormatter`.
   currency?: CurrencyEnum
   data?: T[]
   bars: Array<StackedBarChartBar<T>>

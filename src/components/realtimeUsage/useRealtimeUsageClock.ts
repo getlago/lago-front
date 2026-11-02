@@ -8,9 +8,7 @@ import { ReportFetching } from './RealtimeUsageFetchingContext'
 
 type UseRealtimeUsageClockParams = {
   autoRefreshSeconds: number
-  // Changes when the view reads something else, so its window ends now again.
   resetKey?: string
-  // With auto-refresh Off, still ticks on each hour wall of this timezone.
   hourlyTimezone?: TimezoneEnum
 }
 

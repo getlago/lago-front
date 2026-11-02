@@ -67,7 +67,6 @@ type PeriodColumn = { time: string } & Record<string, number | string>
 type RealtimeUsageDimensionsTableProps = {
   queryVariables: Omit<GetRealtimeUsageDimensionsQueryVariables, 'page' | 'limit'>
   skip: boolean
-  // The chart's series, so a dimension keeps its color in the table.
   series: DimensionSeries[]
   timeGranularity?: RealtimeUsageTimeGranularityEnum
   timezone?: TimezoneEnum
