@@ -1,8 +1,9 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 
+import { addToast } from '~/core/apolloClient'
 import { render } from '~/test-utils'
 
-import { ReasonModal } from '../ReasonModal'
+import { ReasonModal, ReasonModalError } from '../ReasonModal'
 
 const mockModal = {
   visible: true,
@@ -16,6 +17,10 @@ jest.mock('@ebay/nice-modal-react', () => ({
   ...jest.requireActual('@ebay/nice-modal-react'),
   create: (component: unknown) => component,
   useModal: () => mockModal,
+}))
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
 }))
 
 const reason = 'Customer requested upgrade'
@@ -103,6 +108,38 @@ describe('ReasonModal', () => {
     fireEvent.click(confirm)
     await waitFor(() => expect(mockModal.hide).toHaveBeenCalledTimes(1))
     expect(onConfirm).toHaveBeenCalledTimes(2)
+  })
+
+  it('toasts a ReasonModalError message, and nothing when the message is empty', async () => {
+    const onConfirm = jest
+      .fn()
+      .mockRejectedValueOnce(new ReasonModalError('Organization not found.'))
+      .mockRejectedValueOnce(new ReasonModalError(''))
+
+    render(
+      <ReasonModal
+        id="reason-modal-test"
+        title="Rename organization"
+        description="Explain"
+        onConfirm={onConfirm}
+      />,
+    )
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: reason } })
+    const confirm = screen.getByRole('button', { name: 'Confirm' })
+
+    fireEvent.click(confirm)
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith({
+        severity: 'danger',
+        message: 'Organization not found.',
+      }),
+    )
+    await waitFor(() => expect(confirm).toBeEnabled())
+    fireEvent.click(confirm)
+    await waitFor(() => expect(onConfirm).toHaveBeenCalledTimes(2))
+    await waitFor(() => expect(confirm).toBeEnabled())
+    expect(addToast).toHaveBeenCalledTimes(1)
+    expect(mockModal.hide).not.toHaveBeenCalled()
   })
 
   it('cancels without submitting', () => {

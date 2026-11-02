@@ -5319,5 +5319,17 @@
   "text_17925005807279qrubxiwlys": "Breakout",
   "text_1792500580727qzy8yr8g3po": "Select a subscription",
   "text_1792500580727siznh9n5vxx": "Select dimensions",
-  "text_17936131674161z4bfd6cpig": "events|event|events"
+  "text_17936131674161z4bfd6cpig": "events|event|events",
+  "text_1793385900490m5usn5dcibi": "The organization name cannot be blank.",
+  "text_1793385900490zvrwdl6qmnj": "The new name is the same as the current name.",
+  "text_1793385900490pjhemm9d0up": "The reason must be at least 10 characters.",
+  "text_17933859004900n1m0901kmv": "The reason is too long once the rename details are added. Please shorten it.",
+  "text_1793385900490p103wpd5yop": "Organization not found.",
+  "text_1793385900490tqocadsfotq": "Failed to rename the organization. Please try again.",
+  "text_1793385900490rmoco4403qu": "Rename organization",
+  "text_1793385900490ocp2hwktkxf": "Rename organization and update {{count}} feature|Rename organization and update {{count}} features",
+  "text_1793385900490kmw0vlhvt9j": "Update {{count}} feature|Update {{count}} features",
+  "text_1793385900490b9c05vdreem": "Rename \"{{currentName}}\" to \"{{newName}}\". Please provide a reason.",
+  "text_17933859004908vcp3ktwd68": "Rename \"{{currentName}}\" to \"{{newName}}\" and update {{count}} feature. Please provide a reason.|Rename \"{{currentName}}\" to \"{{newName}}\" and update {{count}} features. Please provide a reason.",
+  "text_1793385900490y0phuye4hqy": "Please provide a reason for updating features."
 }
