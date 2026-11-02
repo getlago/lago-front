@@ -27,11 +27,7 @@ import {
   getAttributionTimeRangeValue,
   isAttributionGuardError,
 } from './attributionFilters'
-import {
-  AttributionFlatTable,
-  AttributionShowMoreColumns,
-  AttributionTableRow,
-} from './AttributionFlatTable'
+import { AttributionFlatTable } from './AttributionFlatTable'
 import { AttributionToolbarSelect } from './AttributionToolbarSelect'
 import {
   buildAttributionHierarchy,
@@ -49,6 +45,7 @@ import {
   isAttributionAmountAvailable,
   mergeAttributionChargesUsage,
 } from './buildAttributionColumns'
+import { AttributionShowMoreColumns, AttributionTableRow } from './useAttributionTableColumns'
 import { isAttributionTreeBusy, useAttributionTree } from './useAttributionTree'
 
 export const ATTRIBUTION_REFRESH_BUTTON_TEST_ID = 'attribution-refresh-button'
@@ -505,7 +502,8 @@ export const SubscriptionAttributionTabContent = (): JSX.Element => {
         loadMore={
           hasMoreRows
             ? {
-                isLoading: !!rootBlock?.isLoadingMore || isLoadingFilterPage,
+                isLoading: !!rootBlock?.isLoadingMore,
+                isDisabled: isLoadingFilterPage,
                 onLoadMore: () => loadMoreTreeRows([], 0),
               }
             : undefined

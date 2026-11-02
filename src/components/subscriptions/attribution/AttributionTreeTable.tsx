@@ -1,18 +1,18 @@
-import { ExpandedState, Updater } from '@tanstack/react-table'
 import { useMemo } from 'react'
 
 import { useComposableTable } from '~/components/designSystem/ComposableTable'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import {
-  ATTRIBUTION_COLUMN_PINNING,
-  AttributionTableRowModel,
-  AttributionTableSharedProps,
-  AttributionTableView,
-  useAttributionTableColumns,
-} from './AttributionFlatTable'
+import { AttributionTableView } from './AttributionTableView'
 import { AttributionPathStep, getAttributionNodeKey } from './attributionTree'
 import { getAttributionRowsChargesUsage } from './buildAttributionColumns'
+import {
+  ATTRIBUTION_COLUMN_PINNING,
+  AttributionTableRow,
+  AttributionTableRowModel,
+  AttributionTableSharedProps,
+  useAttributionTableColumns,
+} from './useAttributionTableColumns'
 import { AttributionTreeNodes } from './useAttributionTree'
 
 export const ATTRIBUTION_TREE_TABLE_TEST_ID = 'attribution-tree-table'
@@ -29,15 +29,12 @@ type AttributionTreeTableProps = AttributionTableSharedProps & {
   onLoadMore: (path: AttributionPathStep[], blockIndex: number) => void
 }
 
-type AttributionTreeNodeTarget = { path: AttributionPathStep[]; levelCode: string }
-
 export const AttributionTreeTable = ({
   nodes,
   isLoadingFilterPage,
   onToggleNode,
   onLoadMore,
   isLoading,
-  showMoreColumns,
   ...columnsProps
 }: AttributionTreeTableProps): JSX.Element => {
   const { translate } = useInternationalization()
@@ -48,9 +45,7 @@ export const AttributionTreeTable = ({
     toggleDataTest: ATTRIBUTION_TREE_TOGGLE_TEST_ID,
   })
 
-  const { rows, targetsById } = useMemo(() => {
-    const targets = new Map<string, AttributionTreeNodeTarget>()
-
+  const rows = useMemo(() => {
     const buildRows = (
       path: AttributionPathStep[],
       nodeKey: string,
@@ -66,28 +61,22 @@ export const AttributionTreeTable = ({
 
         const toDataRow = (
           value: string | null,
-          fields: Pick<
-            Extract<AttributionTableRowModel, { kind: 'data' }>,
-            | 'typeLabel'
-            | 'label'
-            | 'isUnattributed'
-            | 'amountCents'
-            | 'splitChargeUnits'
-            | 'chargesUsageByFilterPage'
-          >,
+          fields: Omit<AttributionTableRow, 'id'>,
         ): AttributionTableRowModel => {
           const rowPath = [...path, { code: level.code, value }]
           const id = getAttributionNodeKey(rowPath)
-
-          targets.set(id, { path: rowPath, levelCode: level.code })
 
           return {
             ...fields,
             kind: 'data',
             id,
-            toggle: level.isLeaf
-              ? { kind: 'spacer' }
-              : { kind: 'expand', isLoading: nodes[id]?.status === 'loading' },
+            expansion: level.isLeaf
+              ? { canExpand: false }
+              : {
+                  canExpand: true,
+                  isLoading: nodes[id]?.status === 'loading',
+                  onToggle: () => onToggleNode(rowPath, level.code),
+                },
             subRows: buildRows(rowPath, id),
           }
         }
@@ -99,8 +88,8 @@ export const AttributionTreeTable = ({
                 {
                   kind: 'loadMore',
                   id: `${nodeKey}-load-more-${level.code}`,
-                  toggle: { kind: 'spacer' },
-                  isLoading: block.isLoadingMore || isLoadingFilterPage,
+                  isLoading: block.isLoadingMore,
+                  isDisabled: isLoadingFilterPage,
                   onLoadMore: () => onLoadMore(path, blockIndex),
                 },
               ]
@@ -130,8 +119,8 @@ export const AttributionTreeTable = ({
       })
     }
 
-    return { rows: buildRows([], ROOT_NODE_KEY), targetsById: targets }
-  }, [nodes, isLoadingFilterPage, onLoadMore, translate])
+    return buildRows([], ROOT_NODE_KEY)
+  }, [nodes, isLoadingFilterPage, onToggleNode, onLoadMore, translate])
 
   const expanded = useMemo(
     () =>
@@ -143,35 +132,20 @@ export const AttributionTreeTable = ({
     [nodes],
   )
 
-  const handleExpandedChange = (updater: Updater<ExpandedState>): void => {
-    const next = typeof updater === 'function' ? updater(expanded) : updater
-
-    if (next === true) return
-
-    const changedId = [...new Set([...Object.keys(expanded), ...Object.keys(next)])].find(
-      (id) => !!expanded[id] !== !!next[id],
-    )
-    const target = changedId ? targetsById.get(changedId) : undefined
-
-    if (target) onToggleNode(target.path, target.levelCode)
-  }
-
   const table = useComposableTable({
     data: rows,
     columns: tableColumns,
     getRowId: (row) => row.id,
     getSubRows: (row) => (row.kind === 'data' ? row.subRows : undefined),
-    getRowCanExpand: (row) => row.original.kind === 'data' && row.original.toggle.kind === 'expand',
+    getRowCanExpand: (row) => row.original.kind === 'data' && row.original.expansion.canExpand,
     initialState: { columnPinning: ATTRIBUTION_COLUMN_PINNING },
     state: { expanded },
-    onExpandedChange: handleExpandedChange,
   })
 
   return (
     <AttributionTableView
       table={table}
       isLoading={isLoading}
-      showMoreColumns={showMoreColumns}
       rowDataTest={ATTRIBUTION_TREE_ROW_TEST_ID}
       data-test={ATTRIBUTION_TREE_TABLE_TEST_ID}
     />

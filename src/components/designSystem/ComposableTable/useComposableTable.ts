@@ -12,11 +12,8 @@ import {
 
 import { ComposableTableAlign } from './ComposableTablePrimitives'
 
-export type ComposableTableColumnMeta = {
-  align?: ComposableTableAlign
-  shrink?: boolean
-  className?: string
-}
+export type ComposableTableColumnMeta =
+  { variant: 'numeric' } | { variant?: never; align?: ComposableTableAlign; shrink?: boolean }
 
 export const composableTableFeatures = tableFeatures({
   rowExpandingFeature,

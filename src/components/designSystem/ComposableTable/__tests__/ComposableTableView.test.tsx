@@ -1,5 +1,7 @@
 import { screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
+import { Button } from '~/components/designSystem/Button'
 import { render } from '~/test-utils'
 
 import { ComposableTableView, ComposableTableViewProps } from '../ComposableTableView'
@@ -30,7 +32,7 @@ const COLUMNS = columnHelper.columns([
       columnHelper.accessor('tokens', {
         header: 'Tokens',
         footer: '150',
-        meta: { align: 'right', shrink: true, className: 'min-w-24' },
+        meta: { variant: 'numeric' },
       }),
       columnHelper.accessor('seats', {
         header: 'Seats',
@@ -56,6 +58,22 @@ const TestTable = ({ data = USAGES, ...props }: TestTableProps): JSX.Element => 
   })
 
   return <ComposableTableView table={table} data-test={TABLE_TEST_ID} {...props} />
+}
+
+const FocusTable = ({ header }: { header: string }): JSX.Element => {
+  const table = useComposableTable({
+    data: USAGES,
+    columns: [
+      columnHelper.display({
+        id: 'action',
+        header,
+        cell: ({ row }) => <Button variant="inline">{`Open ${row.original.team}`}</Button>,
+      }),
+    ],
+    getRowId: (row) => row.id,
+  })
+
+  return <ComposableTableView table={table} />
 }
 
 const getBodyRows = (): HTMLElement[] =>
@@ -107,6 +125,16 @@ describe('ComposableTableView', () => {
         expect(screen.getByTestId('usage-row-rnd')).toHaveTextContent('R&D')
         expect(screen.getByTestId('usage-row-rnd')).toHaveTextContent('120')
         expect(screen.getByText('4 seats')).toBeInTheDocument()
+      })
+
+      // Guards the plain values that `flexRender` would mount as a component, past the text styling.
+      it('THEN renders the plain values of function cells as body text', () => {
+        render(<TestTable getRowDataTest={(row) => `usage-row-${row.id}`} />)
+
+        const cells = within(screen.getByTestId('usage-row-rnd')).getAllByRole('cell')
+
+        expect(cells[0].querySelector('[data-test="body"]')).toHaveTextContent('R&D')
+        expect(cells[3].querySelector('[data-test="body"]')).toHaveTextContent('n/a')
       })
 
       it('THEN renders no footer unless asked', () => {
@@ -173,6 +201,22 @@ describe('ComposableTableView', () => {
 
         expect(screen.getByText('No usage')).toBeInTheDocument()
         expect(screen.getByText('Nothing billed yet')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a focused control inside a cell', () => {
+    describe('WHEN the table rerenders with new column definitions', () => {
+      // Guards the remount `flexRender` does on every new renderer identity.
+      it('THEN keeps the focus on the control', async () => {
+        const user = userEvent.setup()
+        const { rerender } = render(<FocusTable header="Actions" />)
+
+        await user.click(screen.getByRole('button', { name: 'Open R&D' }))
+
+        rerender(<FocusTable header="Row actions" />)
+
+        expect(screen.getByRole('button', { name: 'Open R&D' })).toHaveFocus()
       })
     })
   })

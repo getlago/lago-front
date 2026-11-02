@@ -11,14 +11,16 @@ import { render } from '~/test-utils'
 
 import {
   ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID,
-  ATTRIBUTION_LOADING_CELL_TEST_ID,
-  ATTRIBUTION_SHOW_MORE_TEST_ID,
-  ATTRIBUTION_TABLE_FOOTER_TEST_ID,
   ATTRIBUTION_TABLE_ROW_TEST_ID,
   AttributionFlatTable,
-  AttributionTableRow,
 } from '../AttributionFlatTable'
+import { ATTRIBUTION_TABLE_FOOTER_TEST_ID } from '../AttributionTableView'
 import { AttributionColumn } from '../buildAttributionColumns'
+import {
+  ATTRIBUTION_LOADING_CELL_TEST_ID,
+  ATTRIBUTION_SHOW_MORE_TEST_ID,
+  AttributionTableRow,
+} from '../useAttributionTableColumns'
 
 const mockTranslate = (key: string): string => key
 
@@ -187,7 +189,7 @@ describe('AttributionFlatTable', () => {
         expect(footerCells[3]).toHaveTextContent('23')
       })
 
-      // Guards the function cells whose plain string the kit's text wrapper never styles.
+      // Guards the value cells falling back to unstyled text.
       it.each([
         ['row value', () => screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)[0], 1, '12'],
         ['row total', () => screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)[0], 3, '12'],
@@ -347,7 +349,7 @@ describe('AttributionFlatTable', () => {
   describe('GIVEN more rows can be loaded', () => {
     describe('WHEN the table renders', () => {
       it('THEN should place the show more row right before the unattributed row', () => {
-        renderTable({ loadMore: { isLoading: false, onLoadMore: jest.fn() } })
+        renderTable({ loadMore: { isLoading: false, isDisabled: false, onLoadMore: jest.fn() } })
 
         const loadMoreRow = screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID).closest('tr')
         const [valueRow, unattributedRow] = screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)
@@ -362,17 +364,17 @@ describe('AttributionFlatTable', () => {
         const user = userEvent.setup()
         const onLoadMore = jest.fn()
 
-        renderTable({ loadMore: { isLoading: false, onLoadMore } })
+        renderTable({ loadMore: { isLoading: false, isDisabled: false, onLoadMore } })
 
         await user.click(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID))
 
         expect(onLoadMore).toHaveBeenCalledTimes(1)
       })
 
-      // Guards the entity cell remount that drops the focused show more button on rerender.
+      // Guards the cell remount that drops the focused show more button on rerender.
       it('THEN should keep the focus on show more once more rows are loaded', async () => {
         const user = userEvent.setup()
-        const loadMore = { isLoading: false, onLoadMore: jest.fn() }
+        const loadMore = { isLoading: false, isDisabled: false, onLoadMore: jest.fn() }
 
         const { rerender } = renderTable({ loadMore })
 
@@ -392,9 +394,20 @@ describe('AttributionFlatTable', () => {
 
     describe('WHEN the next rows are loading', () => {
       it('THEN should disable show more', () => {
-        renderTable({ loadMore: { isLoading: true, onLoadMore: jest.fn() } })
+        renderTable({ loadMore: { isLoading: true, isDisabled: false, onLoadMore: jest.fn() } })
 
         expect(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN a filter page is loading', () => {
+      it('THEN should disable show more without a loading spinner', () => {
+        renderTable({ loadMore: { isLoading: false, isDisabled: true, onLoadMore: jest.fn() } })
+
+        const loadMore = screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID)
+
+        expect(loadMore).toBeDisabled()
+        expect(loadMore.querySelector('[data-test^="processing/"]')).not.toBeInTheDocument()
       })
     })
   })

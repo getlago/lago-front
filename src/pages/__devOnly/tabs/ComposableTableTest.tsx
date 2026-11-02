@@ -4,12 +4,11 @@ import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import {
-  ComposableTableExpandToggle,
   ComposableTableGroupHeader,
   ComposableTableInlineError,
   ComposableTableLoadMore,
+  ComposableTableRowTreeCell,
   ComposableTableSkeletonCell,
-  ComposableTableTreeCell,
   ComposableTableView,
   createComposableTableColumnHelper,
   useComposableTable,
@@ -21,7 +20,7 @@ const MOCK_DELAY_MS = 600
 
 const wait = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, MOCK_DELAY_MS))
 
-const VALUE_META = { align: 'right', shrink: true, className: 'min-w-24' } as const
+const VALUE_META = { variant: 'numeric' } as const
 
 const METRICS = [
   { key: 'tokens', label: 'Tokens', base: 120_000 },
@@ -326,13 +325,13 @@ const TreeExample = (): JSX.Element => {
 
           if (original.kind === 'error') {
             return (
-              <ComposableTableTreeCell depth={row.depth}>
+              <ComposableTableRowTreeCell row={row}>
                 <ComposableTableInlineError
                   label="Could not load this level."
                   retryLabel="Retry"
                   onRetry={() => loadPage(original.parentId, 1)}
                 />
-              </ComposableTableTreeCell>
+              </ComposableTableRowTreeCell>
             )
           }
 
@@ -340,7 +339,7 @@ const TreeExample = (): JSX.Element => {
             const parent = children[original.parentId]
 
             return (
-              <ComposableTableTreeCell depth={row.depth}>
+              <ComposableTableRowTreeCell row={row}>
                 <ComposableTableLoadMore
                   label="Show more"
                   isLoading={parent?.status === 'loaded' && parent.isLoadingMore}
@@ -348,25 +347,22 @@ const TreeExample = (): JSX.Element => {
                     parent?.status === 'loaded' && loadPage(original.parentId, parent.page + 1)
                   }
                 />
-              </ComposableTableTreeCell>
+              </ComposableTableRowTreeCell>
             )
           }
 
-          const toggle = row.getCanExpand() ? (
-            <ComposableTableExpandToggle
-              label={original.name}
-              isExpanded={row.getIsExpanded()}
-              isLoading={children[original.id]?.status === 'loading'}
-              onToggle={row.getToggleExpandedHandler()}
-            />
-          ) : undefined
-
           return (
-            <ComposableTableTreeCell depth={row.depth} toggle={toggle}>
+            <ComposableTableRowTreeCell
+              row={row}
+              toggle={{
+                label: original.name,
+                isLoading: children[original.id]?.status === 'loading',
+              }}
+            >
               <Typography variant="body" color="grey700" noWrap>
                 {original.name}
               </Typography>
-            </ComposableTableTreeCell>
+            </ComposableTableRowTreeCell>
           )
         },
       }),

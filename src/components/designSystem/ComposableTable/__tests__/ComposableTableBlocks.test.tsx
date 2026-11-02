@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { render } from '~/test-utils'
@@ -8,11 +8,54 @@ import {
   ComposableTableGroupHeader,
   ComposableTableInlineError,
   ComposableTableLoadMore,
+  ComposableTableRowTreeCell,
   ComposableTableSkeletonCell,
   ComposableTableTreeCell,
 } from '../ComposableTableBlocks'
+import { ComposableTableView } from '../ComposableTableView'
+import { createComposableTableColumnHelper, useComposableTable } from '../useComposableTable'
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({ translate: (key: string) => key }),
+}))
 
 const SKELETON_TEST_ID = 'skeleton-cell'
+
+type TreeNode = { id: string; name: string; subRows?: TreeNode[] }
+
+const TREE: TreeNode[] = [
+  { id: 'rnd', name: 'R&D', subRows: [{ id: 'ml', name: 'ML' }] },
+  { id: 'sales', name: 'Sales' },
+]
+
+const treeColumnHelper = createComposableTableColumnHelper<TreeNode>()
+
+const TreeTable = ({
+  data,
+  onToggle,
+}: {
+  data: TreeNode[]
+  onToggle?: () => void
+}): JSX.Element => {
+  const table = useComposableTable({
+    data,
+    columns: [
+      treeColumnHelper.display({
+        id: 'name',
+        header: 'Name',
+        cell: ({ row }) => (
+          <ComposableTableRowTreeCell row={row} toggle={{ label: row.original.name, onToggle }}>
+            {row.original.name}
+          </ComposableTableRowTreeCell>
+        ),
+      }),
+    ],
+    getRowId: (row) => row.id,
+    getSubRows: (row) => row.subRows,
+  })
+
+  return <ComposableTableView table={table} />
+}
 
 describe('ComposableTableBlocks', () => {
   describe('GIVEN an expand toggle', () => {
@@ -74,6 +117,53 @@ describe('ComposableTableBlocks', () => {
         )
 
         expect(screen.getByRole('button', { name: 'Expand' })).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a row tree cell', () => {
+    describe('WHEN its row can expand', () => {
+      it('THEN renders a toggle bound to the row expansion', async () => {
+        render(<TreeTable data={TREE} />)
+
+        const toggle = screen.getByRole('button', { name: 'R&D' })
+
+        expect(toggle).toHaveAttribute('aria-expanded', 'false')
+
+        await userEvent.click(toggle)
+
+        expect(screen.getByRole('button', { name: 'R&D' })).toHaveAttribute('aria-expanded', 'true')
+        expect(screen.getByText('ML')).toHaveStyle({ paddingLeft: '16px' })
+      })
+
+      it('THEN calls the given onToggle instead of expanding the row', async () => {
+        const onToggle = jest.fn()
+
+        render(<TreeTable data={TREE} onToggle={onToggle} />)
+
+        await userEvent.click(screen.getByRole('button', { name: 'R&D' }))
+
+        expect(onToggle).toHaveBeenCalledTimes(1)
+        expect(screen.queryByText('ML')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN its row cannot expand but another row can', () => {
+      it('THEN keeps a spacer in place of the toggle', () => {
+        render(<TreeTable data={TREE} />)
+
+        const cell = screen.getByText('Sales')
+
+        expect(within(cell).queryByRole('button')).not.toBeInTheDocument()
+        expect(cell.firstElementChild).toHaveClass('size-4')
+      })
+    })
+
+    describe('WHEN no row of the table can expand', () => {
+      it('THEN renders neither a toggle nor a spacer', () => {
+        render(<TreeTable data={[{ id: 'sales', name: 'Sales' }]} />)
+
+        expect(screen.getByText('Sales').firstElementChild).toBeNull()
       })
     })
   })

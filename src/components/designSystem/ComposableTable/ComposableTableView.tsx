@@ -1,4 +1,4 @@
-import { flexRender, RowData } from '@tanstack/react-table'
+import { ColumnDefTemplate, RowData } from '@tanstack/react-table'
 import { ReactNode } from 'react'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
@@ -23,6 +23,15 @@ import {
 
 const DEFAULT_LOADING_ROW_COUNT = 3
 
+const NUMERIC_COLUMN_VARIANTS = { align: 'right', shrink: true, className: 'min-w-24' } as const
+
+// Called, not mounted like `flexRender` does: a new renderer identity would remount the cell
+// and drop its focus. Renderers needing hooks must render a child component.
+const renderTemplate = <TProps extends object>(
+  template: ColumnDefTemplate<TProps> | undefined,
+  props: TProps,
+): ReactNode => (typeof template === 'function' ? template(props) : template)
+
 const renderText = (
   content: ReactNode,
   variant: TypographyProps['variant'],
@@ -39,18 +48,22 @@ const renderText = (
 
 const getColumnVariants = <TData extends RowData>(
   column: ComposableTableColumn<TData>,
-): ComposableTableCellVariants & { className?: string } => ({
-  pinned: column.getIsPinned(),
-  align: column.columnDef.meta?.align,
-  shrink: column.columnDef.meta?.shrink,
-  className: column.columnDef.meta?.className,
-})
+): ComposableTableCellVariants & { className?: string } => {
+  const pinned = column.getIsPinned()
+  const meta = column.columnDef.meta
+
+  if (meta?.variant === 'numeric') return { pinned, ...NUMERIC_COLUMN_VARIANTS }
+
+  return { pinned, align: meta?.align, shrink: meta?.shrink }
+}
 
 const getSkeletonClassName = <TData extends RowData>(
   column: ComposableTableColumn<TData>,
 ): string => {
-  if (column.getIsPinned() === 'start') return 'w-40'
-  if (column.columnDef.meta?.align === 'right') return 'ml-auto w-16'
+  const { pinned, align } = getColumnVariants(column)
+
+  if (pinned === 'start') return 'w-40'
+  if (align === 'right') return 'ml-auto w-16'
 
   return 'w-24'
 }
@@ -128,7 +141,7 @@ export const ComposableTableView = <TData extends RowData>({
           return (
             <ComposableTableTd key={cell.id} {...getColumnVariants(cell.column)}>
               {renderText(
-                flexRender(cell.column.columnDef.cell, cell.getContext()),
+                renderTemplate(cell.column.columnDef.cell, cell.getContext()),
                 'body',
                 'grey700',
               )}
@@ -150,7 +163,7 @@ export const ComposableTableView = <TData extends RowData>({
           {leafFooterGroup.headers.map((footer) => (
             <ComposableTableTd key={footer.id} tone="muted" {...getColumnVariants(footer.column)}>
               {renderText(
-                flexRender(footer.column.columnDef.footer, footer.getContext()),
+                renderTemplate(footer.column.columnDef.footer, footer.getContext()),
                 'body',
                 'grey700',
               )}
@@ -183,7 +196,7 @@ export const ComposableTableView = <TData extends RowData>({
                   className={isGroup ? undefined : variants.className}
                 >
                   {renderText(
-                    flexRender(header.column.columnDef.header, header.getContext()),
+                    renderTemplate(header.column.columnDef.header, header.getContext()),
                     'captionHl',
                     'grey600',
                   )}

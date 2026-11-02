@@ -1,8 +1,11 @@
+import { RowData } from '@tanstack/react-table'
 import { ReactNode } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
+
+import { ComposableTableRow } from './useComposableTable'
 
 const INDENT_STEP_PX = 16
 
@@ -53,6 +56,44 @@ export const ComposableTableTreeCell = ({
     {children}
   </div>
 )
+
+type ComposableTableRowTreeCellProps<TData extends RowData> = {
+  row: ComposableTableRow<TData>
+  toggle?: Omit<ComposableTableExpandToggleProps, 'isExpanded' | 'onToggle'> & {
+    onToggle?: () => void
+  }
+  children: ReactNode
+}
+
+export const ComposableTableRowTreeCell = <TData extends RowData>({
+  row,
+  toggle,
+  children,
+}: ComposableTableRowTreeCellProps<TData>): JSX.Element => {
+  const renderToggle = (): ReactNode => {
+    if (toggle && row.getCanExpand()) {
+      const { onToggle = row.getToggleExpandedHandler(), ...toggleProps } = toggle
+
+      return (
+        <ComposableTableExpandToggle
+          {...toggleProps}
+          isExpanded={row.getIsExpanded()}
+          onToggle={onToggle}
+        />
+      )
+    }
+
+    if (row.table.getCanSomeRowsExpand()) return <ComposableTableToggleSpacer />
+
+    return null
+  }
+
+  return (
+    <ComposableTableTreeCell depth={row.depth} toggle={renderToggle()}>
+      {children}
+    </ComposableTableTreeCell>
+  )
+}
 
 type ComposableTableLoadMoreProps = {
   label: string

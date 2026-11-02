@@ -9,10 +9,7 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import {
-  ATTRIBUTION_LOADING_CELL_TEST_ID,
-  ATTRIBUTION_TABLE_FOOTER_TEST_ID,
-} from '../AttributionFlatTable'
+import { ATTRIBUTION_TABLE_FOOTER_TEST_ID } from '../AttributionTableView'
 import { AttributionLevel, getAttributionNodeKey } from '../attributionTree'
 import {
   ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID,
@@ -21,6 +18,7 @@ import {
   AttributionTreeTable,
 } from '../AttributionTreeTable'
 import { AttributionColumn } from '../buildAttributionColumns'
+import { ATTRIBUTION_LOADING_CELL_TEST_ID } from '../useAttributionTableColumns'
 import { AttributionTreeNodes, AttributionTreeUsage } from '../useAttributionTree'
 
 const mockTranslate = (key: string, data?: Record<string, string>): string =>
@@ -184,7 +182,7 @@ describe('AttributionTreeTable', () => {
         expect(onToggleNode).toHaveBeenCalledWith(RND_PATH, 'department')
       })
 
-      // Guards the entity cell remount that drops the focused toggle on rerender.
+      // Guards the cell remount that drops the focused toggle on rerender.
       it.each([
         ['collapsed', true, false],
         ['expanded', false, true],
@@ -287,7 +285,7 @@ describe('AttributionTreeTable', () => {
       expect(onLoadMore).toHaveBeenCalledWith(RND_PATH, 0)
     })
 
-    // Guards the entity cell remount that drops the focused show more button on rerender.
+    // Guards the cell remount that drops the focused show more button on rerender.
     it('THEN should keep the focus on show more once more rows are loaded', async () => {
       const user = userEvent.setup()
       const nodesWithPage = (values: string[], currentPage: number): AttributionTreeNodes => ({
@@ -499,12 +497,15 @@ describe('AttributionTreeTable', () => {
   })
 
   describe('GIVEN a filter page is loading', () => {
-    it('THEN should disable the show more rows button', () => {
+    it('THEN should disable the show more rows button without a loading spinner', () => {
       renderTree(rootNodes(buildUsage(['rnd'], { totalPages: 2 })), false, {
         isLoadingFilterPage: true,
       })
 
-      expect(screen.getByTestId(ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID)).toBeDisabled()
+      const loadMore = screen.getByTestId(ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID)
+
+      expect(loadMore).toBeDisabled()
+      expect(loadMore.querySelector('[data-test^="processing/"]')).not.toBeInTheDocument()
     })
   })
 })
