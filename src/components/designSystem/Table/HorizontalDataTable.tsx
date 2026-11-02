@@ -88,16 +88,21 @@ export const HorizontalDataTable = <T extends DataItem>({
     [columnIdPrefix],
   )
 
+  const hasData = !!data?.length
+  const lastIndexRef = useRef(0)
+
+  lastIndexRef.current = Math.max((data?.length || 1) - 1, 0)
+
+  // Only on load: a refresh that appends a column must not move the user's scroll.
   useEffect(() => {
-    if (!loading && !!data?.length) {
-      // On init, scroll to the last element
+    if (!loading && hasData) {
       if (initScrollTo === InitScrollTo.END) {
-        return columnVirtualizer.scrollToIndex((data?.length || 1) - 1)
+        return columnVirtualizer.scrollToIndex(lastIndexRef.current)
       }
 
       return columnVirtualizer.scrollToIndex(0)
     }
-  }, [columnVirtualizer, data?.length, loading, initScrollTo])
+  }, [columnVirtualizer, hasData, loading, initScrollTo])
 
   useEffect(() => {
     if (typeof clickedDataIndex === 'number') {

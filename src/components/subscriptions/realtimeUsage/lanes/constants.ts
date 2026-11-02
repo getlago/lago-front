@@ -12,10 +12,7 @@ export const REALTIME_LANES_LANE_NAME_TEST_ID = 'realtime-usage-lane-name'
 
 // Small multiples, not a stack: every lane carries the same single hue and
 // identity comes from the row label, so a twentieth filter costs no palette.
-// The charge default (events matching no filter) and the tail the API folds
-// into "Other" are grey because they are not a filter of their own.
 export const LANE_COLOR = theme.palette.primary.main
-export const DEFAULT_LANE_COLOR = theme.palette.grey[500]
 
 export const SPARK_VIEWBOX_WIDTH = 240
 export const LANE_SPARK_HEIGHT = 34

@@ -5317,5 +5317,21 @@
   "text_1793531722713rwpuxnqsceo": "View contracts",
   "text_1793531722713owtrklttrec": "Create a new contract",
   "text_17935317227131azt7xz03sz": "Update a contract",
-  "text_1793531722713an4iov21glm": "Terminate a contract"
+  "text_1793531722713an4iov21glm": "Terminate a contract",
+  "text_1792500580726g0dhn1qrvbs": "Event ingested",
+  "text_1792500580726ie6zfx1t4sd": "Usage consumption",
+  "text_1792500580727rat9rs1dr3a": "Time range",
+  "text_17925005807270liw8mldaip": "Dimensions",
+  "text_179250058072776nv1z2ag7y": "Last 6h",
+  "text_1792500580727en2xypmfp98": "Last 12h",
+  "text_1792500580727gdsaipakh25": "Last 24h",
+  "text_1792500580727y65tsmyciku": "Custom range",
+  "text_1792500580727x6sctmgm8ms": "There are no usage consumption",
+  "text_1792500580727ht5j5l54cxz": "Please create usage-based charges at customer level to populate this data.",
+  "text_17925005807279qrubxiwlys": "Breakout",
+  "text_1792500580727qzy8yr8g3po": "Select a subscription",
+  "text_1792500580727siznh9n5vxx": "Select dimensions",
+  "text_17936131674161z4bfd6cpig": "events|event|events",
+  "text_1792580016209ml8r6ycj2vu": "Plan rate cards",
+  "text_17925800162109zo2h16ap37": "Contract rate cards"
 }

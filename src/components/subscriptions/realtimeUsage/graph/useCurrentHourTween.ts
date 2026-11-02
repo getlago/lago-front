@@ -1,19 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { PeriodPoint } from '~/components/realtimeUsage/types'
 import { prefersReducedMotion } from '~/components/subscriptions/realtimeUsage/common/utils'
 
 import { CURRENT_HOUR_TWEEN_DURATION } from './constants'
-import { HourPoint } from './types'
 import { seriesValue } from './utils'
 
 // Only the current hour can still move: every closed hour is a settled bucket
 // sum. So the chart tweens that one column and leaves the rest alone —
 // animating the whole chart on each poll would imply motion in data that is
 // final. A new hour (or a shrinking value, meaning a corrected bucket) snaps.
-export const useCurrentHourTween = (points: HourPoint[]): HourPoint[] => {
-  const [displayPoints, setDisplayPoints] = useState<HourPoint[]>(points)
+export const useCurrentHourTween = (points: PeriodPoint[]): PeriodPoint[] => {
+  const [displayPoints, setDisplayPoints] = useState<PeriodPoint[]>(points)
   const frameRef = useRef<number>()
-  const fromRef = useRef<HourPoint | undefined>(undefined)
+  const fromRef = useRef<PeriodPoint | undefined>(undefined)
 
   useEffect(() => {
     const target = points.at(-1)
@@ -44,7 +44,7 @@ export const useCurrentHourTween = (points: HourPoint[]): HourPoint[] => {
     const step = (timestamp: number): void => {
       const progress = Math.min(1, (timestamp - start) / CURRENT_HOUR_TWEEN_DURATION)
       const eased = 1 - Math.pow(1 - progress, 3)
-      const tweened: HourPoint = { ...target }
+      const tweened: PeriodPoint = { ...target }
 
       numericKeys.forEach((key) => {
         const origin = seriesValue(from, key)
