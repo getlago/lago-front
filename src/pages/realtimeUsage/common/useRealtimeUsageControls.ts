@@ -29,6 +29,9 @@ const timeRangeOf = (value: string | null): string => {
 }
 
 const autoRefreshOf = (value: string | null): number => {
+  // `Number(null)` is 0, which would read a missing param as Off rather than the default.
+  if (value === null) return DEFAULT_AUTO_REFRESH
+
   const seconds = Number(value)
 
   return AUTO_REFRESH_OPTIONS.includes(seconds) ? seconds : DEFAULT_AUTO_REFRESH

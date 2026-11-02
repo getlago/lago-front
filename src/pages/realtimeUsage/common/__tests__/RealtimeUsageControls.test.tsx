@@ -18,10 +18,10 @@ const renderControls = (search = '') => {
 }
 
 describe('useRealtimeUsageControls', () => {
-  it('does not auto-refresh and reads the last 24 hours by default', () => {
+  it('auto-refreshes every second and reads the last 24 hours by default', () => {
     const { result } = renderControls()
 
-    expect(result.current.autoRefreshSeconds).toBe(0)
+    expect(result.current.autoRefreshSeconds).toBe(1)
     expect(result.current.timeRange).toBe(DEFAULT_TIME_RANGE)
   })
 
@@ -52,20 +52,20 @@ describe('useRealtimeUsageControls', () => {
   it('ignores an unknown auto-refresh value', () => {
     const { result } = renderControls(`?${AUTO_REFRESH_SEARCH_PARAM}=3`)
 
-    expect(result.current.autoRefreshSeconds).toBe(0)
+    expect(result.current.autoRefreshSeconds).toBe(1)
   })
 
-  it('keeps auto-refresh in the URL, and drops it when back to Off', () => {
+  it('keeps auto-refresh in the URL, and drops it when back to the default', () => {
     const { result } = renderControls()
-
-    act(() => result.current.setAutoRefreshSeconds(5))
-
-    expect(result.current.autoRefreshSeconds).toBe(5)
-    expect(new URLSearchParams(window.location.search).get(AUTO_REFRESH_SEARCH_PARAM)).toBe('5')
 
     act(() => result.current.setAutoRefreshSeconds(0))
 
     expect(result.current.autoRefreshSeconds).toBe(0)
+    expect(new URLSearchParams(window.location.search).get(AUTO_REFRESH_SEARCH_PARAM)).toBe('0')
+
+    act(() => result.current.setAutoRefreshSeconds(1))
+
+    expect(result.current.autoRefreshSeconds).toBe(1)
     expect(new URLSearchParams(window.location.search).has(AUTO_REFRESH_SEARCH_PARAM)).toBe(false)
   })
 })
