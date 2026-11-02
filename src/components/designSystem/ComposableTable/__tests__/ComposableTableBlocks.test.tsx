@@ -4,13 +4,11 @@ import userEvent from '@testing-library/user-event'
 import { render } from '~/test-utils'
 
 import {
-  ComposableTableExpandToggle,
   ComposableTableGroupHeader,
   ComposableTableInlineError,
   ComposableTableLoadMore,
   ComposableTableRowTreeCell,
   ComposableTableSkeletonCell,
-  ComposableTableTreeCell,
 } from '../ComposableTableBlocks'
 import { ComposableTableView } from '../ComposableTableView'
 import { createComposableTableColumnHelper, useComposableTable } from '../useComposableTable'
@@ -32,9 +30,11 @@ const treeColumnHelper = createComposableTableColumnHelper<TreeNode>()
 
 const TreeTable = ({
   data,
+  isLoading,
   onToggle,
 }: {
   data: TreeNode[]
+  isLoading?: boolean
   onToggle?: () => void
 }): JSX.Element => {
   const table = useComposableTable({
@@ -44,7 +44,10 @@ const TreeTable = ({
         id: 'name',
         header: 'Name',
         cell: ({ row }) => (
-          <ComposableTableRowTreeCell row={row} toggle={{ label: row.original.name, onToggle }}>
+          <ComposableTableRowTreeCell
+            row={row}
+            toggle={{ label: row.original.name, isLoading, onToggle }}
+          >
             {row.original.name}
           </ComposableTableRowTreeCell>
         ),
@@ -58,69 +61,6 @@ const TreeTable = ({
 }
 
 describe('ComposableTableBlocks', () => {
-  describe('GIVEN an expand toggle', () => {
-    describe('WHEN it is collapsed and clicked', () => {
-      it('THEN exposes its state and calls onToggle', async () => {
-        const onToggle = jest.fn()
-
-        render(
-          <ComposableTableExpandToggle label="Expand R&D" isExpanded={false} onToggle={onToggle} />,
-        )
-
-        const toggle = screen.getByRole('button', { name: 'Expand R&D' })
-
-        expect(toggle).toHaveAttribute('aria-expanded', 'false')
-
-        await userEvent.click(toggle)
-
-        expect(onToggle).toHaveBeenCalledTimes(1)
-      })
-    })
-
-    describe('WHEN it is expanded and loading', () => {
-      it('THEN exposes the expanded state and is disabled', () => {
-        render(
-          <ComposableTableExpandToggle
-            label="Collapse R&D"
-            isExpanded
-            isLoading
-            onToggle={jest.fn()}
-          />,
-        )
-
-        const toggle = screen.getByRole('button', { name: 'Collapse R&D' })
-
-        expect(toggle).toHaveAttribute('aria-expanded', 'true')
-        expect(toggle).toBeDisabled()
-      })
-    })
-  })
-
-  describe('GIVEN a tree cell', () => {
-    describe('WHEN it renders at a depth', () => {
-      it('THEN indents its content by depth', () => {
-        render(<ComposableTableTreeCell depth={2}>Child</ComposableTableTreeCell>)
-
-        expect(screen.getByText('Child')).toHaveStyle({ paddingLeft: '32px' })
-      })
-
-      it('THEN renders the given toggle', () => {
-        render(
-          <ComposableTableTreeCell
-            depth={0}
-            toggle={
-              <ComposableTableExpandToggle label="Expand" isExpanded={false} onToggle={jest.fn()} />
-            }
-          >
-            Root
-          </ComposableTableTreeCell>,
-        )
-
-        expect(screen.getByRole('button', { name: 'Expand' })).toBeInTheDocument()
-      })
-    })
-  })
-
   describe('GIVEN a row tree cell', () => {
     describe('WHEN its row can expand', () => {
       it('THEN renders a toggle bound to the row expansion', async () => {
@@ -145,6 +85,14 @@ describe('ComposableTableBlocks', () => {
 
         expect(onToggle).toHaveBeenCalledTimes(1)
         expect(screen.queryByText('ML')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN its toggle is loading', () => {
+      it('THEN disables the toggle', () => {
+        render(<TreeTable data={TREE} isLoading />)
+
+        expect(screen.getByRole('button', { name: 'R&D' })).toBeDisabled()
       })
     })
 

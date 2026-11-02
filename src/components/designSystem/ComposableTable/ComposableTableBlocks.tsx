@@ -9,7 +9,7 @@ import { ComposableTableRow } from './useComposableTable'
 
 const INDENT_STEP_PX = 16
 
-export const ComposableTableToggleSpacer = (): JSX.Element => <span className="size-4 shrink-0" />
+const ComposableTableToggleSpacer = (): JSX.Element => <span className="size-4 shrink-0" />
 
 type ComposableTableExpandToggleProps = {
   label: string
@@ -19,7 +19,7 @@ type ComposableTableExpandToggleProps = {
   'data-test'?: string
 }
 
-export const ComposableTableExpandToggle = ({
+const ComposableTableExpandToggle = ({
   label,
   isExpanded,
   isLoading = false,
@@ -38,23 +38,6 @@ export const ComposableTableExpandToggle = ({
     onClick={onToggle}
     data-test={dataTest}
   />
-)
-
-type ComposableTableTreeCellProps = {
-  depth: number
-  toggle?: ReactNode
-  children: ReactNode
-}
-
-export const ComposableTableTreeCell = ({
-  depth,
-  toggle = <ComposableTableToggleSpacer />,
-  children,
-}: ComposableTableTreeCellProps): JSX.Element => (
-  <div className="flex items-center gap-2" style={{ paddingLeft: depth * INDENT_STEP_PX }}>
-    {toggle}
-    {children}
-  </div>
 )
 
 type ComposableTableRowTreeCellProps<TData extends RowData> = {
@@ -89,9 +72,10 @@ export const ComposableTableRowTreeCell = <TData extends RowData>({
   }
 
   return (
-    <ComposableTableTreeCell depth={row.depth} toggle={renderToggle()}>
+    <div className="flex items-center gap-2" style={{ paddingLeft: row.depth * INDENT_STEP_PX }}>
+      {renderToggle()}
       {children}
-    </ComposableTableTreeCell>
+    </div>
   )
 }
 

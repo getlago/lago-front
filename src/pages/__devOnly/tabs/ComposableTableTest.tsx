@@ -1,4 +1,3 @@
-import { ExpandedState, Updater } from '@tanstack/react-table'
 import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { generatePath } from 'react-router'
 
@@ -114,7 +113,7 @@ const GroupedExample = (): JSX.Element => {
       usageColumnHelper.display({
         id: 'total',
         header: 'Total',
-        meta: { align: 'right' },
+        meta: VALUE_META,
         cell: ({ row }) =>
           loadedMetrics.reduce((total, { key }) => total + row.original.metrics[key], 0),
         footer: () => loadedMetrics.reduce((total, { key }) => total + sum(key), 0),
@@ -151,7 +150,7 @@ const stateColumns = usageColumnHelper.columns([
       }),
     ),
   }),
-  usageColumnHelper.display({ id: 'total', header: 'Total', meta: { align: 'right' } }),
+  usageColumnHelper.display({ id: 'total', header: 'Total', meta: VALUE_META }),
 ])
 
 const StatesExample = (): JSX.Element => {
@@ -199,8 +198,14 @@ type TreeRow =
 
 type Children =
   | { status: 'loading' }
-  | { status: 'error' }
-  | { status: 'loaded'; nodes: TreeNode[]; page: number; isLoadingMore: boolean }
+  | { status: 'error'; isExpanded: boolean }
+  | {
+      status: 'loaded'
+      nodes: TreeNode[]
+      page: number
+      isLoadingMore: boolean
+      isExpanded: boolean
+    }
 
 const MAX_DEPTH = 2
 const PAGE_SIZE = 3
@@ -238,7 +243,6 @@ const treeColumnHelper = createComposableTableColumnHelper<TreeRow>()
 
 const TreeExample = (): JSX.Element => {
   const [children, setChildren] = useState<Record<string, Children>>({})
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
   const [failedOnce, setFailedOnce] = useState(false)
 
   const loadPage = async (parentId: string, page: number): Promise<void> => {
@@ -268,12 +272,16 @@ const TreeExample = (): JSX.Element => {
             nodes: [...loaded, ...nodes],
             page,
             isLoadingMore: false,
+            isExpanded: true,
           },
         }
       })
     } catch {
       setFailedOnce(true)
-      setChildren((previous) => ({ ...previous, [parentId]: { status: 'error' } }))
+      setChildren((previous) => ({
+        ...previous,
+        [parentId]: { status: 'error', isExpanded: true },
+      }))
     }
   }
 
@@ -303,16 +311,28 @@ const TreeExample = (): JSX.Element => {
     return buildRows(ROOT_ID)
   }, [children])
 
-  const handleExpandedChange = (updater: Updater<ExpandedState>): void => {
-    const next = typeof updater === 'function' ? updater(expanded) : updater
+  const expanded = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(children)
+          .filter(([, entry]) => entry.status !== 'loading' && entry.isExpanded)
+          .map(([id]) => [id, true]),
+      ),
+    [children],
+  )
 
-    if (next === true) return
+  const toggleNode = (id: string): void => {
+    const entry = children[id]
 
-    Object.keys(next)
-      .filter((id) => next[id] && !expanded[id] && !children[id])
-      .forEach((id) => loadPage(id, 1))
+    if (!entry) {
+      loadPage(id, 1)
 
-    setExpanded(next)
+      return
+    }
+
+    if (entry.status === 'loading') return
+
+    setChildren((previous) => ({ ...previous, [id]: { ...entry, isExpanded: !entry.isExpanded } }))
   }
 
   const columns = useMemo(
@@ -357,6 +377,7 @@ const TreeExample = (): JSX.Element => {
               toggle={{
                 label: original.name,
                 isLoading: children[original.id]?.status === 'loading',
+                onToggle: () => toggleNode(original.id),
               }}
             >
               <Typography variant="body" color="grey700" noWrap>
@@ -385,7 +406,6 @@ const TreeExample = (): JSX.Element => {
     getRowCanExpand: (row) => row.original.kind === 'data' && row.original.depth < MAX_DEPTH,
     initialState: { columnPinning: { start: ['name'], end: [] } },
     state: { expanded },
-    onExpandedChange: handleExpandedChange,
   })
 
   return <ComposableTableView table={table} isLoading={children[ROOT_ID]?.status !== 'loaded'} />
@@ -407,7 +427,7 @@ const EXAMPLES = [
   {
     title: 'Tree with lazy children, show more and errors',
     description:
-      'Children load on expand and page per level. "Department 3" fails on its first load: an error row under it retries that node only.',
+      'Children load on expand and page per level. The expansion lives in the children cache and each toggle updates it through `onToggle`. "Department 3" fails on its first load: an error row under it retries that node only.',
     component: <TreeExample />,
   },
 ]

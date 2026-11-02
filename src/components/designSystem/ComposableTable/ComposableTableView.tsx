@@ -50,11 +50,10 @@ const getColumnVariants = <TData extends RowData>(
   column: ComposableTableColumn<TData>,
 ): ComposableTableCellVariants & { className?: string } => {
   const pinned = column.getIsPinned()
-  const meta = column.columnDef.meta
 
-  if (meta?.variant === 'numeric') return { pinned, ...NUMERIC_COLUMN_VARIANTS }
+  if (column.columnDef.meta?.variant === 'numeric') return { pinned, ...NUMERIC_COLUMN_VARIANTS }
 
-  return { pinned, align: meta?.align, shrink: meta?.shrink }
+  return { pinned }
 }
 
 const getSkeletonClassName = <TData extends RowData>(

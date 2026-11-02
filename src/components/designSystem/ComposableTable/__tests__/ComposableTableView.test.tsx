@@ -37,7 +37,7 @@ const COLUMNS = columnHelper.columns([
       columnHelper.accessor('seats', {
         header: 'Seats',
         footer: () => <span>6 seats</span>,
-        meta: { align: 'right' },
+        meta: { variant: 'numeric' },
         cell: ({ getValue }) => <span>{getValue()} seats</span>,
       }),
     ]),

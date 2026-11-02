@@ -215,7 +215,7 @@ export const useAttributionTableColumns = ({
 
   const totalColumn = columnHelper.display({
     id: 'total',
-    meta: { align: 'right' },
+    meta: { variant: 'numeric' },
     header: translate('text_1738063764295zomiafl8b4s'),
     footer: () => renderTotal(totals),
     cell: ({ row }) => (row.original.kind === 'data' ? renderTotal(row.original) : null),

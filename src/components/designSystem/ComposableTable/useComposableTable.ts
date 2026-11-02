@@ -10,10 +10,9 @@ import {
   tableFeatures,
 } from '@tanstack/react-table'
 
-import { ComposableTableAlign } from './ComposableTablePrimitives'
-
-export type ComposableTableColumnMeta =
-  { variant: 'numeric' } | { variant?: never; align?: ComposableTableAlign; shrink?: boolean }
+export type ComposableTableColumnMeta = {
+  variant?: 'numeric'
+}
 
 export const composableTableFeatures = tableFeatures({
   rowExpandingFeature,
