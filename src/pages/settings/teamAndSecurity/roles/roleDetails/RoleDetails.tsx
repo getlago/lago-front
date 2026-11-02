@@ -187,7 +187,7 @@ const RoleDetails = () => {
                 fields="permissions"
                 groups={permissionGroups}
                 isEditable={false}
-                isLoading={isLoadingRole || isLoadingPermissionGroups}
+                isLoading={isLoadingPermissionGroups}
               />
             </>
           )}
