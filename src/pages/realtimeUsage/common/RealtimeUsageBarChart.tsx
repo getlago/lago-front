@@ -12,10 +12,11 @@ import {
   REALTIME_USAGE_BAR_CHART_LEGEND_TEST_ID,
   REALTIME_USAGE_BAR_CHART_TEST_ID,
 } from './constants'
-import { buildDimensionSeries, formatPeriod } from './utils'
+import { buildDimensionSeries, formatPeriod, formatUsageUnits } from './utils'
 
 gql`
   fragment RealtimeUsageBarChartReport on RealtimeUsageBillableMetric {
+    aggregationType
     timeGranularity
     timezone
     dimensions {
@@ -67,9 +68,7 @@ export const RealtimeUsageBarChart = ({
         xAxisTickAttributes={['time', 'time']}
         fadedDataKey="isPartial"
         fadeOnHover
-        tooltipFormatter={(units) =>
-          `${formatUnits(units)} ${translate('text_17476657511358tgyvof5x1u', undefined, units)}`
-        }
+        tooltipFormatter={(units) => formatUsageUnits(units, report?.aggregationType, translate)}
         tooltipTotalLabel={
           series.length > 1 ? translate('text_1787607502687fbugu4gz6xl') : undefined
         }

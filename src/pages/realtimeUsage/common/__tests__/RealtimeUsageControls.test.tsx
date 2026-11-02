@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 
 import { DEFAULT_TIME_RANGE, TimeRangeEnum } from '~/components/realtimeUsage/constants'
 import { AllTheProviders } from '~/test-utils'
@@ -25,7 +25,7 @@ describe('useRealtimeUsageControls', () => {
     expect(result.current.timeRange).toBe(DEFAULT_TIME_RANGE)
   })
 
-  it('reads the controls the filters put in the URL', () => {
+  it('reads the controls from the URL', () => {
     const { result } = renderControls(
       `?${AUTO_REFRESH_SEARCH_PARAM}=5&${TIME_RANGE_SEARCH_PARAM}=${TimeRangeEnum.Last6h}`,
     )
@@ -53,5 +53,19 @@ describe('useRealtimeUsageControls', () => {
     const { result } = renderControls(`?${AUTO_REFRESH_SEARCH_PARAM}=3`)
 
     expect(result.current.autoRefreshSeconds).toBe(0)
+  })
+
+  it('keeps auto-refresh in the URL, and drops it when back to Off', () => {
+    const { result } = renderControls()
+
+    act(() => result.current.setAutoRefreshSeconds(5))
+
+    expect(result.current.autoRefreshSeconds).toBe(5)
+    expect(new URLSearchParams(window.location.search).get(AUTO_REFRESH_SEARCH_PARAM)).toBe('5')
+
+    act(() => result.current.setAutoRefreshSeconds(0))
+
+    expect(result.current.autoRefreshSeconds).toBe(0)
+    expect(new URLSearchParams(window.location.search).has(AUTO_REFRESH_SEARCH_PARAM)).toBe(false)
   })
 })

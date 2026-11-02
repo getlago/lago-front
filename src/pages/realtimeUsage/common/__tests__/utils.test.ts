@@ -1,11 +1,21 @@
 import { DateTime } from 'luxon'
 
 import { DEFAULT_SERIES_COLOR, OTHER_SERIES_COLOR } from '~/components/realtimeUsage/constants'
-import { RealtimeUsageTimeGranularityEnum, TimezoneEnum } from '~/generated/graphql'
+import {
+  AggregationTypeEnum,
+  RealtimeUsageTimeGranularityEnum,
+  TimezoneEnum,
+} from '~/generated/graphql'
 
 import { DIMENSION_COLORS, SERIES_KEY_PREFIX } from '../constants'
 import { RealtimeUsageReport } from '../types'
-import { buildDimensionSeries, formatPeriod, heldKeyOf, isPartialPeriod } from '../utils'
+import {
+  buildDimensionSeries,
+  formatPeriod,
+  formatUsageUnits,
+  heldKeyOf,
+  isPartialPeriod,
+} from '../utils'
 
 const translate = (key: string): string => key
 
@@ -133,6 +143,18 @@ describe('formatPeriod', () => {
         TimezoneEnum.TzUtc,
       ),
     ).toBe('Aug 24, 2026')
+  })
+})
+
+describe('formatUsageUnits', () => {
+  it('counts events for a count metric, units otherwise', () => {
+    expect(formatUsageUnits(12, AggregationTypeEnum.CountAgg, translate)).toBe(
+      '12 text_17936131674161z4bfd6cpig',
+    )
+    expect(formatUsageUnits(12, AggregationTypeEnum.SumAgg, translate)).toBe(
+      '12 text_17476657511358tgyvof5x1u',
+    )
+    expect(formatUsageUnits(12, undefined, translate)).toBe('12 text_17476657511358tgyvof5x1u')
   })
 })
 

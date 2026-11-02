@@ -152,7 +152,6 @@ export enum AvailableFiltersEnum {
   adminOrganizations = 'adminOrganizations',
   adminAuditDate = 'adminAuditDate',
   realtimeDimensions = 'realtimeDimensions',
-  autoRefresh = 'autoRefresh',
   timeRange = 'timeRange',
 }
 
@@ -291,7 +290,6 @@ export const UsageBreakdownRecurringAvailableFilters = [
 ]
 
 export const RealtimeUsageAvailableFilters = [
-  AvailableFiltersEnum.autoRefresh,
   AvailableFiltersEnum.customerExternalId,
   AvailableFiltersEnum.subscriptionExternalId,
   AvailableFiltersEnum.timeRange,
@@ -529,7 +527,6 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.adminOrganizations]: 'text_1785749891671s8vuun26gew',
   [AvailableFiltersEnum.adminAuditDate]: 'text_1785749891671rk4ofmy881a',
   [AvailableFiltersEnum.realtimeDimensions]: 'text_17925005807270liw8mldaip',
-  [AvailableFiltersEnum.autoRefresh]: 'text_17876098439600jp8nt3z0hk',
   [AvailableFiltersEnum.timeRange]: 'text_1792500580727rat9rs1dr3a',
 }
 

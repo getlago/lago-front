@@ -48,11 +48,7 @@ import {
   PeriodScopeTranslationLookup,
   TPeriodScopeTranslationLookupValue,
 } from '~/components/graphs/MonthSelectorDropdown'
-import {
-  AUTO_REFRESH_TRANSLATIONS,
-  TIME_RANGE_TRANSLATIONS,
-  TimeRangeEnum,
-} from '~/components/realtimeUsage/constants'
+import { TIME_RANGE_TRANSLATIONS, TimeRangeEnum } from '~/components/realtimeUsage/constants'
 import {
   ACTIVITY_LOG_FILTER_PREFIX,
   ADMIN_AUDIT_LOG_FILTER_PREFIX,
@@ -476,7 +472,6 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.realtimeDimensions]: (value: string) =>
     value.split(',').filter(Boolean).map(decodeRealtimeDimensionKey),
-  [AvailableFiltersEnum.autoRefresh]: (value: string) => value,
   [AvailableFiltersEnum.timeRange]: (value: string) => value,
   [AvailableFiltersEnum.adminAuditDate]: (value: string) => {
     // The date-range element stores full ISO datetimes; the query args are ISO8601Date (day only)
@@ -1306,8 +1301,6 @@ export const formatActiveFilterValueDisplay = (
           }).date
         })
         .join(' - ')
-    case AvailableFiltersEnum.autoRefresh:
-      return value === '0' ? translate?.(AUTO_REFRESH_TRANSLATIONS[0]) || value : `${value}s`
     case AvailableFiltersEnum.timeRange:
       if (value in TIME_RANGE_TRANSLATIONS) {
         return translate?.(TIME_RANGE_TRANSLATIONS[value as TimeRangeEnum]) || value

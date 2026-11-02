@@ -11,7 +11,15 @@ import { RealtimeUsageEventsSection } from '~/pages/realtimeUsage/overview/Realt
 
 const RealtimeUsageOverview = (): JSX.Element => {
   const { translate } = useInternationalization()
-  const { filters, now, refresh, reportFetching, isEnabled } = useRealtimeUsageFilters()
+  const {
+    filters,
+    now,
+    refresh,
+    autoRefreshSeconds,
+    setAutoRefreshSeconds,
+    reportFetching,
+    isEnabled,
+  } = useRealtimeUsageFilters()
 
   return (
     <>
@@ -31,6 +39,8 @@ const RealtimeUsageOverview = (): JSX.Element => {
             <RealtimeUsageFilters
               availableFilters={RealtimeUsageAvailableFilters}
               onRefresh={refresh}
+              autoRefreshSeconds={autoRefreshSeconds}
+              onAutoRefreshChange={setAutoRefreshSeconds}
             />
           </div>
 

@@ -1,6 +1,7 @@
 import { theme } from '~/styles'
 
 export const REALTIME_USAGE_FILTERS_TEST_ID = 'realtime-usage-filters'
+export const REALTIME_USAGE_AUTO_REFRESH_TEST_ID = 'realtime-usage-auto-refresh'
 export const REALTIME_USAGE_REFRESH_BUTTON_TEST_ID = 'realtime-usage-refresh-button'
 export const REALTIME_USAGE_BAR_CHART_TEST_ID = 'realtime-usage-bar-chart'
 export const REALTIME_USAGE_BAR_CHART_LEGEND_TEST_ID = 'realtime-usage-bar-chart-legend'

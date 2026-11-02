@@ -10,10 +10,8 @@ import {
 import { isApplicableRange, isTimeRangePreset } from '~/components/realtimeUsage/utils'
 import { REALTIME_USAGE_FILTER_PREFIX } from '~/core/constants/filters'
 
-export const AUTO_REFRESH_SEARCH_PARAM = keyWithPrefix(
-  AvailableFiltersEnum.autoRefresh,
-  REALTIME_USAGE_FILTER_PREFIX,
-)
+// A page setting rather than a filter: Reset and Apply leave it alone.
+export const AUTO_REFRESH_SEARCH_PARAM = keyWithPrefix('autoRefresh', REALTIME_USAGE_FILTER_PREFIX)
 export const TIME_RANGE_SEARCH_PARAM = keyWithPrefix(
   AvailableFiltersEnum.timeRange,
   REALTIME_USAGE_FILTER_PREFIX,
@@ -21,7 +19,6 @@ export const TIME_RANGE_SEARCH_PARAM = keyWithPrefix(
 
 // What the filters panel puts in the URL before the user picks anything.
 export const REALTIME_USAGE_STATIC_FILTERS = {
-  [AvailableFiltersEnum.autoRefresh]: String(DEFAULT_AUTO_REFRESH),
   [AvailableFiltersEnum.timeRange]: DEFAULT_TIME_RANGE,
 }
 
@@ -39,15 +36,29 @@ const autoRefreshOf = (value: string | null): number => {
 
 type UseRealtimeUsageControls = () => {
   autoRefreshSeconds: number
+  setAutoRefreshSeconds: (seconds: number) => void
   // A preset, or the `from,to` ISO bounds of a custom range.
   timeRange: string
 }
 
 export const useRealtimeUsageControls: UseRealtimeUsageControls = () => {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const setAutoRefreshSeconds = (seconds: number): void => {
+    setSearchParams(
+      (params) => {
+        if (seconds === DEFAULT_AUTO_REFRESH) params.delete(AUTO_REFRESH_SEARCH_PARAM)
+        else params.set(AUTO_REFRESH_SEARCH_PARAM, String(seconds))
+
+        return params
+      },
+      { replace: true },
+    )
+  }
 
   return {
     autoRefreshSeconds: autoRefreshOf(searchParams.get(AUTO_REFRESH_SEARCH_PARAM)),
+    setAutoRefreshSeconds,
     timeRange: timeRangeOf(searchParams.get(TIME_RANGE_SEARCH_PARAM)),
   }
 }

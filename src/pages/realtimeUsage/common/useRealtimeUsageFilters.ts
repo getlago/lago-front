@@ -11,13 +11,15 @@ import { REALTIME_USAGE_FILTER_PREFIX } from '~/core/constants/filters'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { RealtimeUsageQueryFilters } from './types'
-import { useRealtimeUsageControls } from './useRealtimeUsageControls'
+import { AUTO_REFRESH_SEARCH_PARAM, useRealtimeUsageControls } from './useRealtimeUsageControls'
 
 type UseRealtimeUsageFilters = () => {
   filters: RealtimeUsageQueryFilters
   dimensionKeys?: string[]
   now: DateTime
   refresh: () => void
+  autoRefreshSeconds: number
+  setAutoRefreshSeconds: (seconds: number) => void
   reportFetching: ReportFetching
   isEnabled: boolean
 }
@@ -25,11 +27,12 @@ type UseRealtimeUsageFilters = () => {
 export const useRealtimeUsageFilters: UseRealtimeUsageFilters = () => {
   const [searchParams] = useSearchParams()
   const { organization, timezone } = useOrganizationInfos()
-  const { autoRefreshSeconds, timeRange } = useRealtimeUsageControls()
+  const { autoRefreshSeconds, setAutoRefreshSeconds, timeRange } = useRealtimeUsageControls()
 
   const resetParams = new URLSearchParams(searchParams)
 
   resetParams.delete('page')
+  resetParams.delete(AUTO_REFRESH_SEARCH_PARAM)
 
   const { now, tick, reportFetching } = useRealtimeUsageClock({
     autoRefreshSeconds,
@@ -79,6 +82,8 @@ export const useRealtimeUsageFilters: UseRealtimeUsageFilters = () => {
     dimensionKeys: dimensionKeys?.length ? dimensionKeys : undefined,
     now,
     refresh: tick,
+    autoRefreshSeconds,
+    setAutoRefreshSeconds,
     reportFetching,
     isEnabled: !!organization?.realtimeUsageEnabled,
   }

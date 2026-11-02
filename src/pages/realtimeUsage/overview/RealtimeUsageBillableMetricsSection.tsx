@@ -12,7 +12,6 @@ import { keyWithPrefix } from '~/components/Filters/graphql/utils'
 import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
 import { useReportFetching } from '~/components/realtimeUsage/RealtimeUsageFetchingContext'
 import { useHeldData } from '~/components/realtimeUsage/useHeldData'
-import { formatUnits } from '~/components/realtimeUsage/utils'
 import { REALTIME_USAGE_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { Link, REALTIME_USAGE_BILLABLE_METRIC_ROUTE } from '~/core/router'
@@ -24,7 +23,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { RealtimeUsageBarChart } from '~/pages/realtimeUsage/common/RealtimeUsageBarChart'
 import { RealtimeUsageError } from '~/pages/realtimeUsage/common/RealtimeUsageError'
 import { RealtimeUsageQueryFilters } from '~/pages/realtimeUsage/common/types'
-import { heldKeyOf } from '~/pages/realtimeUsage/common/utils'
+import { formatUsageUnits, heldKeyOf } from '~/pages/realtimeUsage/common/utils'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 
 gql`
@@ -172,11 +171,7 @@ export const RealtimeUsageBillableMetricsSection = ({
                   <Icon name="chevron-right-filled" color="dark" />
                 </Link>
                 <Typography variant="caption" color="grey600">
-                  {`${formatUnits(report.units)} ${translate(
-                    'text_17476657511358tgyvof5x1u',
-                    undefined,
-                    report.units,
-                  )}`}
+                  {formatUsageUnits(report.units, report.aggregationType, translate)}
                 </Typography>
               </div>
 

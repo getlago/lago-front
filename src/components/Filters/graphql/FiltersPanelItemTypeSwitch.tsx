@@ -8,7 +8,6 @@ import { FiltersItemAdminOrganizations } from '~/components/Filters/graphql/filt
 import { FiltersItemAmount } from '~/components/Filters/graphql/filtersElements/FiltersItemAmount'
 import { FiltersItemApiKeyIds } from '~/components/Filters/graphql/filtersElements/FiltersItemApiKeyIds'
 import { FiltersItemAppliedRateCardProductFilter } from '~/components/Filters/graphql/filtersElements/FiltersItemAppliedRateCardProductFilter'
-import { FiltersItemAutoRefresh } from '~/components/Filters/graphql/filtersElements/FiltersItemAutoRefresh'
 import { FiltersItemBillableMetricCode } from '~/components/Filters/graphql/filtersElements/FiltersItemBillableMetricCode'
 import { FiltersItemBillingEntity } from '~/components/Filters/graphql/filtersElements/FiltersItemBillingEntity'
 import { FiltersItemBillingEntityCode } from '~/components/Filters/graphql/filtersElements/FiltersItemBillingEntityCode'
@@ -215,7 +214,6 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.adminOrganizations]: <FiltersItemAdminOrganizations {...props} />,
     [AvailableFiltersEnum.adminAuditDate]: <FiltersItemDate {...props} />,
     [AvailableFiltersEnum.realtimeDimensions]: <FiltersItemRealtimeDimensions {...props} />,
-    [AvailableFiltersEnum.autoRefresh]: <FiltersItemAutoRefresh {...props} />,
     [AvailableFiltersEnum.timeRange]: <FiltersItemTimeRange {...props} />,
   }
 

@@ -10744,6 +10744,7 @@ export type RateTierInput = {
 /** Units of a billable metric over the window, per period and per dimension */
 export type RealtimeUsageBillableMetric = {
   __typename?: 'RealtimeUsageBillableMetric';
+  aggregationType: AggregationTypeEnum;
   billableMetricCode: Scalars['String']['output'];
   billableMetricId: Scalars['ID']['output'];
   billableMetricName: Scalars['String']['output'];
@@ -18504,7 +18505,7 @@ export type GetRealtimeUsageBillableMetricQueryVariables = Exact<{
 }>;
 
 
-export type GetRealtimeUsageBillableMetricQuery = { __typename?: 'Query', realtimeUsageBillableMetric: { __typename?: 'RealtimeUsageBillableMetric', billableMetricCode: string, billableMetricName: string, units: number, timeGranularity: RealtimeUsageTimeGranularityEnum, timezone: TimezoneEnum, dimensions: Array<{ __typename?: 'RealtimeUsageDimension', key: string, name?: string | null, other: boolean }>, points: Array<{ __typename?: 'RealtimeUsagePoint', time: any, breakdown: Array<{ __typename?: 'RealtimeUsagePointBreakdown', dimensionKey: string, units: number }> }> } };
+export type GetRealtimeUsageBillableMetricQuery = { __typename?: 'Query', realtimeUsageBillableMetric: { __typename?: 'RealtimeUsageBillableMetric', billableMetricCode: string, billableMetricName: string, units: number, aggregationType: AggregationTypeEnum, timeGranularity: RealtimeUsageTimeGranularityEnum, timezone: TimezoneEnum, dimensions: Array<{ __typename?: 'RealtimeUsageDimension', key: string, name?: string | null, other: boolean }>, points: Array<{ __typename?: 'RealtimeUsagePoint', time: any, breakdown: Array<{ __typename?: 'RealtimeUsagePointBreakdown', dimensionKey: string, units: number }> }> } };
 
 export type GetRealtimeUsageDimensionsQueryVariables = Exact<{
   billableMetricCode: Scalars['String']['input'];
@@ -18520,7 +18521,7 @@ export type GetRealtimeUsageDimensionsQueryVariables = Exact<{
 
 export type GetRealtimeUsageDimensionsQuery = { __typename?: 'Query', realtimeUsageDimensions: { __typename?: 'RealtimeUsageDimensionRowCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'RealtimeUsageDimensionRow', key: string, name?: string | null, points: Array<{ __typename?: 'RealtimeUsageDimensionPoint', time: any, units: number }> }> } };
 
-export type RealtimeUsageBarChartReportFragment = { __typename?: 'RealtimeUsageBillableMetric', timeGranularity: RealtimeUsageTimeGranularityEnum, timezone: TimezoneEnum, dimensions: Array<{ __typename?: 'RealtimeUsageDimension', key: string, name?: string | null, other: boolean }>, points: Array<{ __typename?: 'RealtimeUsagePoint', time: any, breakdown: Array<{ __typename?: 'RealtimeUsagePointBreakdown', dimensionKey: string, units: number }> }> };
+export type RealtimeUsageBarChartReportFragment = { __typename?: 'RealtimeUsageBillableMetric', aggregationType: AggregationTypeEnum, timeGranularity: RealtimeUsageTimeGranularityEnum, timezone: TimezoneEnum, dimensions: Array<{ __typename?: 'RealtimeUsageDimension', key: string, name?: string | null, other: boolean }>, points: Array<{ __typename?: 'RealtimeUsagePoint', time: any, breakdown: Array<{ __typename?: 'RealtimeUsagePointBreakdown', dimensionKey: string, units: number }> }> };
 
 export type GetRealtimeUsageBillableMetricsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -18532,7 +18533,7 @@ export type GetRealtimeUsageBillableMetricsQueryVariables = Exact<{
 }>;
 
 
-export type GetRealtimeUsageBillableMetricsQuery = { __typename?: 'Query', realtimeUsageBillableMetrics: { __typename?: 'RealtimeUsageBillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'RealtimeUsageBillableMetric', billableMetricId: string, billableMetricCode: string, billableMetricName: string, units: number, timeGranularity: RealtimeUsageTimeGranularityEnum, timezone: TimezoneEnum, dimensions: Array<{ __typename?: 'RealtimeUsageDimension', key: string, name?: string | null, other: boolean }>, points: Array<{ __typename?: 'RealtimeUsagePoint', time: any, breakdown: Array<{ __typename?: 'RealtimeUsagePointBreakdown', dimensionKey: string, units: number }> }> }> } };
+export type GetRealtimeUsageBillableMetricsQuery = { __typename?: 'Query', realtimeUsageBillableMetrics: { __typename?: 'RealtimeUsageBillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'RealtimeUsageBillableMetric', billableMetricId: string, billableMetricCode: string, billableMetricName: string, units: number, aggregationType: AggregationTypeEnum, timeGranularity: RealtimeUsageTimeGranularityEnum, timezone: TimezoneEnum, dimensions: Array<{ __typename?: 'RealtimeUsageDimension', key: string, name?: string | null, other: boolean }>, points: Array<{ __typename?: 'RealtimeUsagePoint', time: any, breakdown: Array<{ __typename?: 'RealtimeUsagePointBreakdown', dimensionKey: string, units: number }> }> }> } };
 
 export type GetRealtimeUsageEventsQueryVariables = Exact<{
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
@@ -25980,6 +25981,7 @@ export const QuoteListItemFragmentDoc = gql`
     `;
 export const RealtimeUsageBarChartReportFragmentDoc = gql`
     fragment RealtimeUsageBarChartReport on RealtimeUsageBillableMetric {
+  aggregationType
   timeGranularity
   timezone
   dimensions {

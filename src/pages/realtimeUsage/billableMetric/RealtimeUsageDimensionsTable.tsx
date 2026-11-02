@@ -7,9 +7,9 @@ import { Typography } from '~/components/designSystem/Typography'
 import { DEFAULT_SERIES_COLOR, OTHER_SERIES_COLOR } from '~/components/realtimeUsage/constants'
 import { useReportFetching } from '~/components/realtimeUsage/RealtimeUsageFetchingContext'
 import { useHeldData } from '~/components/realtimeUsage/useHeldData'
-import { formatUnits } from '~/components/realtimeUsage/utils'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
+  AggregationTypeEnum,
   GetRealtimeUsageDimensionsQueryVariables,
   RealtimeUsageTimeGranularityEnum,
   TimezoneEnum,
@@ -18,7 +18,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { RealtimeUsageError } from '~/pages/realtimeUsage/common/RealtimeUsageError'
 import { DimensionSeries } from '~/pages/realtimeUsage/common/types'
-import { formatPeriod, heldKeyOf } from '~/pages/realtimeUsage/common/utils'
+import { formatPeriod, formatUsageUnits, heldKeyOf } from '~/pages/realtimeUsage/common/utils'
 
 gql`
   query getRealtimeUsageDimensions(
@@ -71,14 +71,21 @@ type RealtimeUsageDimensionsTableProps = {
   series: DimensionSeries[]
   timeGranularity?: RealtimeUsageTimeGranularityEnum
   timezone?: TimezoneEnum
+  aggregationType?: AggregationTypeEnum
 }
 
-const UnitsCell = ({ units }: { units: number }): JSX.Element => {
+const UnitsCell = ({
+  units,
+  aggregationType,
+}: {
+  units: number
+  aggregationType?: AggregationTypeEnum
+}): JSX.Element => {
   const { translate } = useInternationalization()
 
   return (
     <Typography variant="body" color={units > 0 ? 'grey700' : 'grey500'}>
-      {`${formatUnits(units)} ${translate('text_17476657511358tgyvof5x1u', undefined, units)}`}
+      {formatUsageUnits(units, aggregationType, translate)}
     </Typography>
   )
 }
@@ -89,6 +96,7 @@ export const RealtimeUsageDimensionsTable = ({
   series,
   timeGranularity = RealtimeUsageTimeGranularityEnum.Hour,
   timezone = TimezoneEnum.TzUtc,
+  aggregationType,
 }: RealtimeUsageDimensionsTableProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { page, goToPage } = usePageSearchParam()
@@ -174,7 +182,10 @@ export const RealtimeUsageDimensionsTable = ({
                 </div>
               ),
               content: (column: PeriodColumn) => (
-                <UnitsCell units={Number(column[`${ROW_KEY_PREFIX}${rowIndex}`]) || 0} />
+                <UnitsCell
+                  units={Number(column[`${ROW_KEY_PREFIX}${rowIndex}`]) || 0}
+                  aggregationType={aggregationType}
+                />
               ),
             })),
           ]}

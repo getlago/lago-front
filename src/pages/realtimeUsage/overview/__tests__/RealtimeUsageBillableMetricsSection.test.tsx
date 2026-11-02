@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
+  AggregationTypeEnum,
   GetRealtimeUsageBillableMetricsDocument,
   RealtimeUsageTimeGranularityEnum,
   TimezoneEnum,
@@ -52,6 +53,7 @@ const report = {
   billableMetricCode: 'api_calls',
   billableMetricName: 'API calls',
   units: 12,
+  aggregationType: AggregationTypeEnum.CountAgg,
   timeGranularity: RealtimeUsageTimeGranularityEnum.Hour,
   timezone: TimezoneEnum.TzUtc,
   dimensions: [{ __typename: 'RealtimeUsageDimension', key: '\u001f', name: null, other: false }],

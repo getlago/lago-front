@@ -49,20 +49,6 @@ describe('real-time usage filters', () => {
     })
   })
 
-  describe('auto-refresh', () => {
-    it('shows the interval, or Off', () => {
-      const translate = (key: string): string =>
-        key === 'text_1787609843960bopfeje8bho' ? 'Off' : key
-
-      expect(formatActiveFilterValueDisplay(AvailableFiltersEnum.autoRefresh, '5', translate)).toBe(
-        '5s',
-      )
-      expect(formatActiveFilterValueDisplay(AvailableFiltersEnum.autoRefresh, '0', translate)).toBe(
-        'Off',
-      )
-    })
-  })
-
   describe('time range', () => {
     it('shows the preset label, or the bounds of a custom range', () => {
       const translate = (key: string): string =>

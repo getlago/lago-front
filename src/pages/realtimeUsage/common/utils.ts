@@ -2,8 +2,13 @@ import { DateTime } from 'luxon'
 
 import { DEFAULT_SERIES_COLOR, OTHER_SERIES_COLOR } from '~/components/realtimeUsage/constants'
 import { PeriodPoint } from '~/components/realtimeUsage/types'
+import { formatUnits } from '~/components/realtimeUsage/utils'
 import { DateFormat, intlFormatDateTime, TimeFormat } from '~/core/timezone'
-import { RealtimeUsageTimeGranularityEnum, TimezoneEnum } from '~/generated/graphql'
+import {
+  AggregationTypeEnum,
+  RealtimeUsageTimeGranularityEnum,
+  TimezoneEnum,
+} from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 import { DIMENSION_COLORS, SERIES_KEY_PREFIX } from './constants'
@@ -95,6 +100,20 @@ export const formatPeriod = (
   })
 
   return granularity === RealtimeUsageTimeGranularityEnum.Day ? date : `${date}, ${hour}`
+}
+
+// A count metric counts events, so its units read as events like in the subscription view.
+export const formatUsageUnits = (
+  units: number,
+  aggregationType: AggregationTypeEnum | undefined,
+  translate: TranslateFunc,
+): string => {
+  const label =
+    aggregationType === AggregationTypeEnum.CountAgg
+      ? 'text_17936131674161z4bfd6cpig'
+      : 'text_17476657511358tgyvof5x1u'
+
+  return `${formatUnits(units)} ${translate(label, undefined, units)}`
 }
 
 export const heldKeyOf = (variables: Record<string, unknown>): string =>

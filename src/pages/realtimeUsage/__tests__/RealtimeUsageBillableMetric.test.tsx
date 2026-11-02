@@ -3,6 +3,7 @@ import { GraphQLError } from 'graphql'
 import { Settings } from 'luxon'
 
 import {
+  AggregationTypeEnum,
   GetRealtimeUsageBillableMetricDocument,
   RealtimeUsageTimeGranularityEnum,
   TimezoneEnum,
@@ -54,6 +55,7 @@ const reportMock = {
         billableMetricCode: 'api_calls',
         billableMetricName: 'API calls',
         units: 1234.5,
+        aggregationType: AggregationTypeEnum.SumAgg,
         timeGranularity: RealtimeUsageTimeGranularityEnum.Hour,
         timezone: TimezoneEnum.TzUtc,
         dimensions: [

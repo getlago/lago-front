@@ -15,7 +15,6 @@ import {
   useReportFetching,
 } from '~/components/realtimeUsage/RealtimeUsageFetchingContext'
 import { useHeldData } from '~/components/realtimeUsage/useHeldData'
-import { formatUnits } from '~/components/realtimeUsage/utils'
 import { REALTIME_USAGE_FILTER_PREFIX } from '~/core/constants/filters'
 import { REALTIME_USAGE_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -28,7 +27,11 @@ import { RealtimeUsageBarChart } from '~/pages/realtimeUsage/common/RealtimeUsag
 import { RealtimeUsageError } from '~/pages/realtimeUsage/common/RealtimeUsageError'
 import { RealtimeUsageFilters } from '~/pages/realtimeUsage/common/RealtimeUsageFilters'
 import { useRealtimeUsageFilters } from '~/pages/realtimeUsage/common/useRealtimeUsageFilters'
-import { buildDimensionSeries, heldKeyOf } from '~/pages/realtimeUsage/common/utils'
+import {
+  buildDimensionSeries,
+  formatUsageUnits,
+  heldKeyOf,
+} from '~/pages/realtimeUsage/common/utils'
 
 gql`
   query getRealtimeUsageBillableMetric(
@@ -65,8 +68,16 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { billableMetricCode = '' } = useParams()
-  const { filters, dimensionKeys, now, refresh, reportFetching, isEnabled } =
-    useRealtimeUsageFilters()
+  const {
+    filters,
+    dimensionKeys,
+    now,
+    refresh,
+    autoRefreshSeconds,
+    setAutoRefreshSeconds,
+    reportFetching,
+    isEnabled,
+  } = useRealtimeUsageFilters()
 
   const queryVariables = { ...filters, billableMetricCode, dimensionKeys }
 
@@ -119,11 +130,7 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
             color="grey700"
             data-test={REALTIME_USAGE_BILLABLE_METRIC_TOTAL_TEST_ID}
           >
-            {`${formatUnits(units)} ${translate(
-              'text_17476657511358tgyvof5x1u',
-              undefined,
-              units,
-            )}`}
+            {formatUsageUnits(units, report?.aggregationType, translate)}
           </Typography>
         )}
 
@@ -137,6 +144,7 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
               series={series}
               timeGranularity={report?.timeGranularity}
               timezone={report?.timezone}
+              aggregationType={report?.aggregationType}
             />
           </div>
         </AnalyticsStateProvider>
@@ -170,6 +178,8 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
             <RealtimeUsageFilters
               availableFilters={RealtimeUsageBillableMetricAvailableFilters}
               onRefresh={refresh}
+              autoRefreshSeconds={autoRefreshSeconds}
+              onAutoRefreshChange={setAutoRefreshSeconds}
             />
           </div>
 
