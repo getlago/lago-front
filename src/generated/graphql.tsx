@@ -9419,6 +9419,7 @@ export type QueryAttributedUsageArgs = {
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   splitChargeId?: InputMaybe<Scalars['ID']['input']>;
+  splitFiltersOffset?: InputMaybe<Scalars['Int']['input']>;
   subscriptionId: Scalars['ID']['input'];
   toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
 };

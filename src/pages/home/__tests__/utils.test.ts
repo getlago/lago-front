@@ -1,6 +1,8 @@
-import { FeatureFlagEnum } from '~/generated/graphql'
+import { EventsStoreEnum, FeatureFlagEnum } from '~/generated/graphql'
 
 import { resolveRedirectTarget } from '../utils'
+
+const mockGetRouteForPermission = jest.fn()
 
 jest.mock('~/core/router/utils/permissionRouteMap', () => {
   const { ProductCatalog } = jest.requireActual('~/generated/graphql').FeatureFlagEnum
@@ -9,7 +11,10 @@ jest.mock('~/core/router/utils/permissionRouteMap', () => {
     getRouteForPermission: (
       permission: string | null,
       hasFeatureFlag: (flag: string) => boolean,
+      organization?: { eventsStore?: string },
     ): string | null => {
+      mockGetRouteForPermission(permission, hasFeatureFlag, organization)
+
       const isProductCatalogEnabled = hasFeatureFlag(ProductCatalog)
 
       if (permission === 'plansView') return isProductCatalogEnabled ? '/plan-pricing' : '/plans'
@@ -457,6 +462,22 @@ describe('resolveRedirectTarget()', () => {
 
         expect(result).toEqual({ to: '/forbidden', consumesSsoLs: false })
       })
+    })
+
+    // Guards the Home <-> governance redirect loop: the lookup can only skip a route gated on
+    // the events store when the organization reaches it.
+    it('THEN passes the organization to the permission route lookup', () => {
+      const organization = { eventsStore: EventsStoreEnum.Postgres }
+
+      mockHasPermissions.mockReturnValue(false)
+      mockFindViewPermissions.mockReturnValue(['plansView'])
+      resolveRedirectTarget(baseInput({ organization }))
+
+      expect(mockGetRouteForPermission).toHaveBeenCalledWith(
+        'plansView',
+        expect.any(Function),
+        organization,
+      )
     })
   })
 })

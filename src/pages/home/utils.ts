@@ -9,6 +9,7 @@ import {
 } from '~/core/router'
 import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
 import { getFirstPathSegment } from '~/core/router/utils/getFirstPathSegment'
+import { RouteGateOrganization } from '~/core/router/utils/isRouteAvailable'
 import { isSafeInAppPath } from '~/core/router/utils/isSafeInAppPath'
 import {
   ensureSlugPrefix,
@@ -44,6 +45,7 @@ export type ResolveRedirectInput = {
   findViewPermissions: () => Array<keyof TMembershipPermissions>
   hasAccessToAnalyticsDashboardsFeature: boolean
   hasFeatureFlag: (flag: FeatureFlagEnum) => boolean
+  organization?: RouteGateOrganization
 }
 
 export type ResolveRedirectResult = {
@@ -90,6 +92,7 @@ export const resolveRedirectTarget = (
     findViewPermissions,
     hasAccessToAnalyticsDashboardsFeature,
     hasFeatureFlag,
+    organization,
   } = input
 
   const slug = resolveOrgSlug(currentUser)
@@ -160,20 +163,20 @@ export const resolveRedirectTarget = (
 
   if (
     hasPermissions(['analyticsView', 'dataApiView']) &&
-    isOrganizationPathAvailable(analyticsPath, hasFeatureFlag)
+    isOrganizationPathAvailable(analyticsPath, hasFeatureFlag, organization)
   ) {
     return { to: `/${slug}${analyticsPath}`, consumesSsoLs: discardsSsoPath }
   }
 
   if (
     hasPermissions(['customersView']) &&
-    isOrganizationPathAvailable(CUSTOMERS_LIST_ROUTE, hasFeatureFlag)
+    isOrganizationPathAvailable(CUSTOMERS_LIST_ROUTE, hasFeatureFlag, organization)
   ) {
     return { to: `/${slug}${CUSTOMERS_LIST_ROUTE}`, consumesSsoLs: discardsSsoPath }
   }
 
   const routeForPermission = findViewPermissions()
-    .map((permission) => getRouteForPermission(permission, hasFeatureFlag))
+    .map((permission) => getRouteForPermission(permission, hasFeatureFlag, organization))
     .find((route): route is string => !!route)
 
   if (routeForPermission) {

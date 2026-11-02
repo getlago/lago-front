@@ -1,5 +1,5 @@
 import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
-import { FeatureFlagEnum } from '~/generated/graphql'
+import { EventsStoreEnum, FeatureFlagEnum } from '~/generated/graphql'
 
 import {
   findOrganizationRoute,
@@ -12,6 +12,7 @@ import {
 const noFeatureFlag = (): boolean => false
 const withProductCatalog = (flag: FeatureFlagEnum): boolean =>
   flag === FeatureFlagEnum.ProductCatalog
+const withAccountTree = (flag: FeatureFlagEnum): boolean => flag === FeatureFlagEnum.AccountTree
 
 describe('routeRegistry', () => {
   describe('getOrganizationRouteRegistry', () => {
@@ -111,6 +112,22 @@ describe('routeRegistry', () => {
 
       expect(isRouteEntryAvailable(entry, withProductCatalog)).toBe(false)
       expect(isRouteEntryAvailable(entry, noFeatureFlag)).toBe(true)
+    })
+
+    describe('GIVEN a route requiring usage governance', () => {
+      const entry = { path: 'child', route: { requiresUsageGovernance: true }, ancestors: [] }
+
+      it('THEN is available only on a ClickHouse organization holding the flag', () => {
+        expect(
+          isRouteEntryAvailable(entry, withAccountTree, {
+            eventsStore: EventsStoreEnum.Clickhouse,
+          }),
+        ).toBe(true)
+        expect(
+          isRouteEntryAvailable(entry, withAccountTree, { eventsStore: EventsStoreEnum.Postgres }),
+        ).toBe(false)
+        expect(isRouteEntryAvailable(entry, withAccountTree)).toBe(false)
+      })
     })
   })
 })

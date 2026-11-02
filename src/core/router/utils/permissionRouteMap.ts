@@ -1,6 +1,7 @@
 import { FeatureFlagEnum } from '~/generated/graphql'
 import { TMembershipPermissions } from '~/hooks/usePermissions'
 
+import { RouteGateOrganization } from './isRouteAvailable'
 import { getOrganizationRouteRegistry, isRouteEntryAvailable } from './routeRegistry'
 
 import { CustomRouteObject } from '../types'
@@ -18,6 +19,7 @@ const isGrantedByPermission = (
 export const getRouteForPermission = (
   permission: keyof TMembershipPermissions | null,
   hasFeatureFlag: (flag: FeatureFlagEnum) => boolean,
+  organization?: RouteGateOrganization,
 ): string | null => {
   if (!permission || !isViewPermission(permission)) return null
 
@@ -25,7 +27,7 @@ export const getRouteForPermission = (
     (candidate) =>
       !candidate.path.includes(':') &&
       isGrantedByPermission(candidate.route, permission) &&
-      isRouteEntryAvailable(candidate, hasFeatureFlag),
+      isRouteEntryAvailable(candidate, hasFeatureFlag, organization),
   )
 
   return entry?.path ?? null

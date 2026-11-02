@@ -1,10 +1,11 @@
-import { FeatureFlagEnum } from '~/generated/graphql'
+import { EventsStoreEnum, FeatureFlagEnum } from '~/generated/graphql'
 
 import { getRouteForPermission } from '../permissionRouteMap'
 
 const noFeatureFlag = (): boolean => false
 const withProductCatalog = (flag: FeatureFlagEnum): boolean =>
   flag === FeatureFlagEnum.ProductCatalog
+const withAccountTree = (flag: FeatureFlagEnum): boolean => flag === FeatureFlagEnum.AccountTree
 
 describe('permissionRouteMap', () => {
   describe('getRouteForPermission', () => {
@@ -65,6 +66,29 @@ describe('permissionRouteMap', () => {
     describe('GIVEN the product catalog flag is not active', () => {
       it('THEN skips routes requiring the flag', () => {
         expect(getRouteForPermission('contractsView', noFeatureFlag)).toBeNull()
+      })
+    })
+
+    describe('GIVEN the account tree flag is active', () => {
+      it('THEN returns the governance route on a ClickHouse organization', () => {
+        expect(
+          getRouteForPermission('usageAttributionTypesView', withAccountTree, {
+            eventsStore: EventsStoreEnum.Clickhouse,
+          }),
+        ).toBe('settings/governance')
+      })
+
+      // Home would otherwise send a Postgres organization to a route that redirects back to Home.
+      it('THEN skips the governance route on a Postgres organization', () => {
+        expect(
+          getRouteForPermission('usageAttributionTypesView', withAccountTree, {
+            eventsStore: EventsStoreEnum.Postgres,
+          }),
+        ).toBeNull()
+      })
+
+      it('THEN skips the governance route when no organization is known', () => {
+        expect(getRouteForPermission('usageAttributionTypesView', withAccountTree)).toBeNull()
       })
     })
   })

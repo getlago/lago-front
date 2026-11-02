@@ -24,6 +24,8 @@ export const isRouteGated = (
   >,
 ): boolean => isRouteGatedByFeatureFlag(route) || !!route.requiresUsageGovernance
 
+export type RouteGateOrganization = Pick<MainOrganizationInfosFragment, 'eventsStore'>
+
 export const isRouteUnlocked = ({
   route,
   hasFeatureFlag,
@@ -34,7 +36,7 @@ export const isRouteUnlocked = ({
     'featureFlag' | 'hiddenWithFeatureFlag' | 'requiresUsageGovernance'
   >
   hasFeatureFlag: (flag: FeatureFlagEnum) => boolean
-  organization?: Pick<MainOrganizationInfosFragment, 'eventsStore'>
+  organization?: RouteGateOrganization
 }): boolean => {
   if (!isRouteAvailable(route, hasFeatureFlag)) return false
   if (!route.requiresUsageGovernance) return true
