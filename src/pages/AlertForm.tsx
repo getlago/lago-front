@@ -5,9 +5,14 @@ import { useCallback, useMemo } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { AlertNameAndCodeSection } from '~/components/alerts/AlertNameAndCodeSection'
+import { ResolvedWebhookNotice } from '~/components/alerts/ResolvedWebhookNotice'
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
 import { useAlertFormLeaveGuards } from '~/components/alerts/useAlertFormLeaveGuards'
-import { createThresholdSetters, setCodeAlreadyExistsError } from '~/components/alerts/utils'
+import {
+  createThresholdSetters,
+  getThresholdCodeErrorsFromForm,
+  setCodeAlreadyExistsError,
+} from '~/components/alerts/utils'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
@@ -25,6 +30,7 @@ import {
   AlertTypeEnum,
   CurrencyEnum,
   LagoApiError,
+  NotifyOnEnum,
   useCreateSubscriptionAlertMutation,
   useGetExistingAlertsOfSubscriptionQuery,
   useGetSubscriptionAlertToEditQuery,
@@ -84,6 +90,7 @@ gql`
         code
         recurring
         value
+        notifyOn
       }
     }
   }
@@ -285,10 +292,17 @@ const AlertForm = () => {
     },
   })
 
+  const dynamicErrors = useStore(form.store, (state) => state.errorMap.onDynamic)
+  const codeErrors = getThresholdCodeErrorsFromForm(dynamicErrors)
   const isDirty = useStore(form.store, (state) => state.isDirty)
   const alertType = useStore(form.store, (state) => state.values.alertType)
   const billableMetricId = useStore(form.store, (state) => state.values.billableMetricId)
   const thresholds = useStore(form.store, (state) => state.values.thresholds)
+  const notifiesWhenResolved = useStore(form.store, (state) =>
+    state.values.thresholds.some((threshold) =>
+      threshold.notifyOn?.includes(NotifyOnEnum.Resolved),
+    ),
+  )
 
   const showThresholdTable = useMemo(
     () =>
@@ -519,6 +533,7 @@ const AlertForm = () => {
 
                     {showThresholdTable && (
                       <AlertThresholds
+                        codeErrors={codeErrors}
                         thresholds={thresholds}
                         setThresholds={setThresholds}
                         setThresholdValue={setThresholdValue}
@@ -526,6 +541,8 @@ const AlertForm = () => {
                         shouldHandleUnits={isUnitsAlertType(alertType)}
                       />
                     )}
+
+                    {showThresholdTable && notifiesWhenResolved && <ResolvedWebhookNotice />}
                   </div>
                 </section>
               </div>

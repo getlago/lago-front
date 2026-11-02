@@ -12,6 +12,7 @@ export const typeDefs = gql`
     # Authentication & authentication errors
     token_encoding_error
     expired_jwt_token
+    token_expired
     incorrect_login_or_password
     not_organization_member
     login_method_not_authorized
@@ -34,6 +35,8 @@ export const typeDefs = gql`
     not_voidable
     payment_processor_is_currently_handling_payment
     plan_overlapping
+    product_already_priced
+    product_filter_already_priced
     url_is_invalid
     user_already_exists
     user_does_not_exist
@@ -41,6 +44,8 @@ export const typeDefs = gql`
     value_is_duplicated
     value_is_invalid
     value_is_out_of_range
+    value_is_too_long
+    invalid_characters
     last_admin
 
     # Object not found

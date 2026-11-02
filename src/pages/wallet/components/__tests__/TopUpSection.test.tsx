@@ -27,6 +27,7 @@ import { TWalletDataForm, TWalletRecurringRule } from '~/pages/wallet/types'
 import { render } from '~/test-utils'
 
 const mockIsPremium = jest.fn(() => true)
+const mockHasPermissions = jest.fn(() => true)
 
 // The drawer stack relies on import.meta (unsupported in jest)
 jest.mock('~/components/drawers/useDrawer', () => ({
@@ -37,6 +38,12 @@ jest.mock('~/components/drawers/useDrawer', () => ({
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({
     isPremium: mockIsPremium(),
+  }),
+}))
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: mockHasPermissions,
   }),
 }))
 
@@ -228,9 +235,23 @@ describe('TopUpSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockIsPremium.mockReturnValue(true)
+    mockHasPermissions.mockReturnValue(true)
     mockHasFeatureFlag.mockReturnValue(false)
     capturedDrawerProps.current = null
     formValuesProbe.current = null
+  })
+
+  describe('GIVEN a user without the walletsUpdate permission', () => {
+    describe('WHEN the section renders', () => {
+      it('THEN should not display the recurring top-up rule section', () => {
+        mockHasPermissions.mockReturnValue(false)
+
+        render(<TestWrapper />)
+
+        expect(screen.queryByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST)).not.toBeInTheDocument()
+        expect(mockHasPermissions).toHaveBeenCalledWith(['walletsUpdate'])
+      })
+    })
   })
 
   describe('GIVEN a non-premium user', () => {

@@ -66,7 +66,7 @@ async function addNewTranslationsKey({ count, isIntl }) {
     const updatedTranslations = { ...allTranslationsFromFile, ...newKeys }
 
     // Write the updated translations back to the file
-    fs.writeFileSync(filePath, JSON.stringify(updatedTranslations, null, 2), 'utf-8')
+    fs.writeFileSync(filePath, `${JSON.stringify(updatedTranslations, null, 2)}\n`, 'utf-8')
   })
 }
 

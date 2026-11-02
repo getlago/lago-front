@@ -53,6 +53,7 @@ import {
   XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
 import {
+  FeatureFlagEnum,
   PremiumIntegrationTypeEnum,
   useGetBillingEntitiesQuery,
   useIntegrationsSettingQuery,
@@ -77,6 +78,12 @@ import Salesforce from '~/public/images/salesforce.svg'
 import Segment from '~/public/images/segment.svg'
 import Stripe from '~/public/images/stripe.svg'
 import Xero from '~/public/images/xero.svg'
+
+export const INTEGRATIONS_STRIPE_TEST_ID = 'integrations-stripe'
+export const INTEGRATIONS_HUBSPOT_TEST_ID = 'integrations-hubspot'
+export const INTEGRATIONS_NETSUITE_TEST_ID = 'integrations-netsuite'
+export const INTEGRATIONS_SALESFORCE_TEST_ID = 'integrations-salesforce'
+export const INTEGRATIONS_SEGMENT_TEST_ID = 'integrations-segment'
 
 gql`
   query integrationsSetting($limit: Int) {
@@ -137,7 +144,8 @@ const Integrations = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
-  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+  const { organization: { premiumIntegrations } = {}, hasFeatureFlag } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
 
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { openAddAnrokDialog } = useAddAnrokDialog()
@@ -391,20 +399,22 @@ const Integrations = () => {
                           }
                         }}
                       />
-                      <Selector
-                        title={translate('text_63e26d8308d03687188221a5')}
-                        subtitle={translate('text_63e26d8308d03687188221a6')}
-                        icon={
-                          <Avatar size="big" variant="connector-full">
-                            {<Oso />}
-                          </Avatar>
-                        }
-                        endContent={<Button icon="outside" variant="quaternary" />}
-                        onClick={() => {
-                          window.open(DOCUMENTATION_OSO, '_blank')
-                        }}
-                        fullWidth
-                      />
+                      {!isProductCatalogEnabled && (
+                        <Selector
+                          title={translate('text_63e26d8308d03687188221a5')}
+                          subtitle={translate('text_63e26d8308d03687188221a6')}
+                          icon={
+                            <Avatar size="big" variant="connector-full">
+                              {<Oso />}
+                            </Avatar>
+                          }
+                          endContent={<Button icon="outside" variant="quaternary" />}
+                          onClick={() => {
+                            window.open(DOCUMENTATION_OSO, '_blank')
+                          }}
+                          fullWidth
+                        />
+                      )}
                       <Selector
                         title={translate('text_634ea0ecc6147de10ddb6625')}
                         subtitle={translate('text_634ea0ecc6147de10ddb6631')}
@@ -435,149 +445,164 @@ const Integrations = () => {
                         }}
                         fullWidth
                       />
-                      <Selector
-                        title={translate('text_641b41f3cec373009a265e9e')}
-                        subtitle={translate('text_641b41fa604ef10070cab5ea')}
-                        icon={
-                          <Avatar size="big" variant="connector-full">
-                            {<HightTouch />}
-                          </Avatar>
-                        }
-                        endContent={<Button icon="outside" variant="quaternary" />}
-                        onClick={() => {
-                          window.open(DOCUMENTATION_HIGHTTOUCH, '_blank')
-                        }}
-                        fullWidth
-                      />
-                      <Selector
-                        title={translate('text_1727189568053s79ks5q07tr')}
-                        subtitle={translate('text_1727189568053q2gpkjzpmxr')}
-                        icon={
-                          <Avatar size="big" variant="connector-full">
-                            {<Hubspot />}
-                          </Avatar>
-                        }
-                        endContent={getEndContent({
-                          showSparkles: !hasAccessToHubspotPremiumIntegration,
-                          showConnectedBadge: hasHubspotIntegration,
-                        })}
-                        hoverActions={getHoverActions(
-                          hasAccessToHubspotPremiumIntegration && hasHubspotIntegration,
-                          generatePath(HUBSPOT_INTEGRATION_ROUTE, {
-                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                          }),
-                        )}
-                        onClick={() => {
-                          if (!hasAccessToHubspotPremiumIntegration) {
-                            openPremiumWarningDialog({
-                              title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                              description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                              mailtoSubject: translate('text_172718956805392syzumhdlm'),
-                              mailtoBody: translate('text_1727189568053f91r4b3f4rl'),
-                            })
-                          } else if (hasHubspotIntegration) {
-                            navigate(
-                              generatePath(HUBSPOT_INTEGRATION_ROUTE, {
-                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                              }),
-                            )
-                          } else {
-                            openAddHubspotDialog()
+                      {!isProductCatalogEnabled && (
+                        <Selector
+                          title={translate('text_641b41f3cec373009a265e9e')}
+                          subtitle={translate('text_641b41fa604ef10070cab5ea')}
+                          icon={
+                            <Avatar size="big" variant="connector-full">
+                              {<HightTouch />}
+                            </Avatar>
                           }
-                        }}
-                        fullWidth
-                      />
-                      <Selector
-                        fullWidth
-                        title={translate('text_661ff6e56ef7e1b7c542b239')}
-                        subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
-                        endContent={getEndContent({
-                          showSparkles: !hasAccessToNetsuitePremiumIntegration,
-                          showConnectedBadge: hasNetsuiteIntegration,
-                        })}
-                        hoverActions={getHoverActions(
-                          hasAccessToNetsuitePremiumIntegration && hasNetsuiteIntegration,
-                          generatePath(NETSUITE_INTEGRATION_ROUTE, {
-                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                          }),
-                        )}
-                        icon={
-                          <Avatar size="big" variant="connector-full">
-                            {<Netsuite />}
-                          </Avatar>
-                        }
-                        onClick={() => {
-                          if (!hasAccessToNetsuitePremiumIntegration) {
-                            openPremiumWarningDialog({
-                              title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                              description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                              mailtoSubject: translate('text_661ff6e56ef7e1b7c542b220'),
-                              mailtoBody: translate('text_661ff6e56ef7e1b7c542b238'),
-                            })
-                          } else if (hasNetsuiteIntegration) {
-                            navigate(
-                              generatePath(NETSUITE_INTEGRATION_ROUTE, {
-                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                              }),
-                            )
-                          } else {
-                            openAddNetsuiteDialog()
+                          endContent={<Button icon="outside" variant="quaternary" />}
+                          onClick={() => {
+                            window.open(DOCUMENTATION_HIGHTTOUCH, '_blank')
+                          }}
+                          fullWidth
+                        />
+                      )}
+                      {!isProductCatalogEnabled && (
+                        <Selector
+                          data-test={INTEGRATIONS_HUBSPOT_TEST_ID}
+                          title={translate('text_1727189568053s79ks5q07tr')}
+                          subtitle={translate('text_1727189568053q2gpkjzpmxr')}
+                          icon={
+                            <Avatar size="big" variant="connector-full">
+                              {<Hubspot />}
+                            </Avatar>
                           }
-                        }}
-                      />
-                      <Selector
-                        fullWidth
-                        title={translate('text_1731507195246vu9kt6xnhv6')}
-                        subtitle={translate('text_1731507195246zr2p61vihmw')}
-                        icon={
-                          <Avatar size="big" variant="connector-full">
-                            {<Salesforce />}
-                          </Avatar>
-                        }
-                        endContent={getEndContent({
-                          showConnectedBadge: hasSalesforceIntegration,
-                          showSparkles: !hasAccessToSalesforcePremiumIntegration,
-                        })}
-                        hoverActions={getHoverActions(
-                          hasAccessToSalesforcePremiumIntegration && hasSalesforceIntegration,
-                          generatePath(SALESFORCE_INTEGRATION_ROUTE, {
-                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                          }),
-                        )}
-                        onClick={() => {
-                          if (!hasAccessToSalesforcePremiumIntegration) {
-                            openPremiumWarningDialog({
-                              title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                              description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                              mailtoSubject: translate('text_173150719524652xb2nd3f7r'),
-                              mailtoBody: translate('text_1731507195246xxr17pdnb7s'),
-                            })
-                          } else if (hasSalesforceIntegration) {
-                            navigate(
-                              generatePath(SALESFORCE_INTEGRATION_ROUTE, {
-                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                              }),
-                            )
-                          } else {
-                            openAddSalesforceDialog()
+                          endContent={getEndContent({
+                            showSparkles: !hasAccessToHubspotPremiumIntegration,
+                            showConnectedBadge: hasHubspotIntegration,
+                          })}
+                          hoverActions={getHoverActions(
+                            hasAccessToHubspotPremiumIntegration && hasHubspotIntegration,
+                            generatePath(HUBSPOT_INTEGRATION_ROUTE, {
+                              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                            }),
+                          )}
+                          onClick={() => {
+                            if (!hasAccessToHubspotPremiumIntegration) {
+                              openPremiumWarningDialog({
+                                title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                                description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                                mailtoSubject: translate('text_172718956805392syzumhdlm'),
+                                mailtoBody: translate('text_1727189568053f91r4b3f4rl'),
+                              })
+                            } else if (hasHubspotIntegration) {
+                              navigate(
+                                generatePath(HUBSPOT_INTEGRATION_ROUTE, {
+                                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                                }),
+                              )
+                            } else {
+                              openAddHubspotDialog()
+                            }
+                          }}
+                          fullWidth
+                        />
+                      )}
+                      {!isProductCatalogEnabled && (
+                        <Selector
+                          data-test={INTEGRATIONS_NETSUITE_TEST_ID}
+                          fullWidth
+                          title={translate('text_661ff6e56ef7e1b7c542b239')}
+                          subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
+                          endContent={getEndContent({
+                            showSparkles: !hasAccessToNetsuitePremiumIntegration,
+                            showConnectedBadge: hasNetsuiteIntegration,
+                          })}
+                          hoverActions={getHoverActions(
+                            hasAccessToNetsuitePremiumIntegration && hasNetsuiteIntegration,
+                            generatePath(NETSUITE_INTEGRATION_ROUTE, {
+                              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                            }),
+                          )}
+                          icon={
+                            <Avatar size="big" variant="connector-full">
+                              {<Netsuite />}
+                            </Avatar>
                           }
-                        }}
-                      />
+                          onClick={() => {
+                            if (!hasAccessToNetsuitePremiumIntegration) {
+                              openPremiumWarningDialog({
+                                title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                                description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                                mailtoSubject: translate('text_661ff6e56ef7e1b7c542b220'),
+                                mailtoBody: translate('text_661ff6e56ef7e1b7c542b238'),
+                              })
+                            } else if (hasNetsuiteIntegration) {
+                              navigate(
+                                generatePath(NETSUITE_INTEGRATION_ROUTE, {
+                                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                                }),
+                              )
+                            } else {
+                              openAddNetsuiteDialog()
+                            }
+                          }}
+                        />
+                      )}
+                      {!isProductCatalogEnabled && (
+                        <Selector
+                          data-test={INTEGRATIONS_SALESFORCE_TEST_ID}
+                          fullWidth
+                          title={translate('text_1731507195246vu9kt6xnhv6')}
+                          subtitle={translate('text_1731507195246zr2p61vihmw')}
+                          icon={
+                            <Avatar size="big" variant="connector-full">
+                              {<Salesforce />}
+                            </Avatar>
+                          }
+                          endContent={getEndContent({
+                            showConnectedBadge: hasSalesforceIntegration,
+                            showSparkles: !hasAccessToSalesforcePremiumIntegration,
+                          })}
+                          hoverActions={getHoverActions(
+                            hasAccessToSalesforcePremiumIntegration && hasSalesforceIntegration,
+                            generatePath(SALESFORCE_INTEGRATION_ROUTE, {
+                              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                            }),
+                          )}
+                          onClick={() => {
+                            if (!hasAccessToSalesforcePremiumIntegration) {
+                              openPremiumWarningDialog({
+                                title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                                description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                                mailtoSubject: translate('text_173150719524652xb2nd3f7r'),
+                                mailtoBody: translate('text_1731507195246xxr17pdnb7s'),
+                              })
+                            } else if (hasSalesforceIntegration) {
+                              navigate(
+                                generatePath(SALESFORCE_INTEGRATION_ROUTE, {
+                                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                                }),
+                              )
+                            } else {
+                              openAddSalesforceDialog()
+                            }
+                          }}
+                        />
+                      )}
+                      {!isProductCatalogEnabled && (
+                        <Selector
+                          data-test={INTEGRATIONS_SEGMENT_TEST_ID}
+                          title={translate('text_641b42035d62fd004e07cdde')}
+                          subtitle={translate('text_641b420ccd75240062f2386e')}
+                          icon={
+                            <Avatar size="big" variant="connector-full">
+                              {<Segment />}
+                            </Avatar>
+                          }
+                          endContent={<Button icon="outside" variant="quaternary" />}
+                          onClick={() => {
+                            window.open(DOCUMENTATION_SEGMENT, '_blank')
+                          }}
+                          fullWidth
+                        />
+                      )}
                       <Selector
-                        title={translate('text_641b42035d62fd004e07cdde')}
-                        subtitle={translate('text_641b420ccd75240062f2386e')}
-                        icon={
-                          <Avatar size="big" variant="connector-full">
-                            {<Segment />}
-                          </Avatar>
-                        }
-                        endContent={<Button icon="outside" variant="quaternary" />}
-                        onClick={() => {
-                          window.open(DOCUMENTATION_SEGMENT, '_blank')
-                        }}
-                        fullWidth
-                      />
-                      <Selector
+                        data-test={INTEGRATIONS_STRIPE_TEST_ID}
                         title={translate('text_62b1edddbf5f461ab971277d')}
                         subtitle={translate('text_62b1edddbf5f461ab9712795')}
                         icon={
@@ -610,44 +635,46 @@ const Integrations = () => {
                         }}
                         fullWidth
                       />
-                      <Selector
-                        fullWidth
-                        title={translate('text_6672ebb8b1b50be550eccaf8')}
-                        subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
-                        endContent={getEndContent({
-                          showSparkles: !hasAccessToXeroPremiumIntegration,
-                          showConnectedBadge: hasXeroIntegration,
-                        })}
-                        hoverActions={getHoverActions(
-                          hasAccessToXeroPremiumIntegration && hasXeroIntegration,
-                          generatePath(XERO_INTEGRATION_ROUTE, {
-                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                          }),
-                        )}
-                        icon={
-                          <Avatar size="big" variant="connector-full">
-                            {<Xero />}
-                          </Avatar>
-                        }
-                        onClick={() => {
-                          if (!hasAccessToXeroPremiumIntegration) {
-                            openPremiumWarningDialog({
-                              title: translate('text_661ff6e56ef7e1b7c542b1ea'),
-                              description: translate('text_661ff6e56ef7e1b7c542b1f6'),
-                              mailtoSubject: translate('text_6672ebb8b1b50be550ecca09'),
-                              mailtoBody: translate('text_6672ebb8b1b50be550ecca13'),
-                            })
-                          } else if (hasXeroIntegration) {
-                            navigate(
-                              generatePath(XERO_INTEGRATION_ROUTE, {
-                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                              }),
-                            )
-                          } else {
-                            openAddXeroDialog()
+                      {!isProductCatalogEnabled && (
+                        <Selector
+                          fullWidth
+                          title={translate('text_6672ebb8b1b50be550eccaf8')}
+                          subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
+                          endContent={getEndContent({
+                            showSparkles: !hasAccessToXeroPremiumIntegration,
+                            showConnectedBadge: hasXeroIntegration,
+                          })}
+                          hoverActions={getHoverActions(
+                            hasAccessToXeroPremiumIntegration && hasXeroIntegration,
+                            generatePath(XERO_INTEGRATION_ROUTE, {
+                              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                            }),
+                          )}
+                          icon={
+                            <Avatar size="big" variant="connector-full">
+                              {<Xero />}
+                            </Avatar>
                           }
-                        }}
-                      />
+                          onClick={() => {
+                            if (!hasAccessToXeroPremiumIntegration) {
+                              openPremiumWarningDialog({
+                                title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                                description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                                mailtoSubject: translate('text_6672ebb8b1b50be550ecca09'),
+                                mailtoBody: translate('text_6672ebb8b1b50be550ecca13'),
+                              })
+                            } else if (hasXeroIntegration) {
+                              navigate(
+                                generatePath(XERO_INTEGRATION_ROUTE, {
+                                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                                }),
+                              )
+                            } else {
+                              openAddXeroDialog()
+                            }
+                          }}
+                        />
+                      )}
                     </SettingsListItem>
                   )}
                 </SettingsListWrapper>
@@ -672,20 +699,22 @@ const Integrations = () => {
                     <SettingsListItemLoadingSkeleton count={2} />
                   ) : (
                     <SettingsListItem>
-                      <Selector
-                        fullWidth
-                        title={translate('text_639c334c3fa0e9c6ca3512b2')}
-                        subtitle={translate('text_639c334c3fa0e9c6ca3512b4')}
-                        icon={
-                          <Avatar size="big" variant="connector-full">
-                            <Airbyte />
-                          </Avatar>
-                        }
-                        endContent={<Button icon="outside" variant="quaternary" />}
-                        onClick={() => {
-                          window.open(DOCUMENTATION_AIRBYTE, '_blank')
-                        }}
-                      />
+                      {!isProductCatalogEnabled && (
+                        <Selector
+                          fullWidth
+                          title={translate('text_639c334c3fa0e9c6ca3512b2')}
+                          subtitle={translate('text_639c334c3fa0e9c6ca3512b4')}
+                          icon={
+                            <Avatar size="big" variant="connector-full">
+                              <Airbyte />
+                            </Avatar>
+                          }
+                          endContent={<Button icon="outside" variant="quaternary" />}
+                          onClick={() => {
+                            window.open(DOCUMENTATION_AIRBYTE, '_blank')
+                          }}
+                        />
+                      )}
                       <Selector
                         fullWidth
                         title={translate('text_1727619878796wmgcntkfycn')}

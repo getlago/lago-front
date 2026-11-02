@@ -53,5 +53,12 @@ services:
     environment:
       API_URL: http://localhost:3000
       NODE_ENV: staging
+    # The image runs nginx as uid 65532 on 8080 with a read-only root
+    # filesystem in production. Mirror that here, so E2E exercises the same
+    # shape: /tmp is the only writable path (pid, temp paths, env-config.js,
+    # csp.conf).
+    read_only: true
+    tmpfs:
+      - /tmp
     ports:
-      - 80:80
+      - 80:8080

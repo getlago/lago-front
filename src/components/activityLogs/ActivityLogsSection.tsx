@@ -9,6 +9,8 @@ import { ActivityLogsTableDataFragment, CollectionMetadata } from '~/generated/g
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 
+export const ACTIVITY_LOGS_SECTION_SUBTITLE_TEST_ID = 'activity-logs-section-subtitle'
+
 /** The two pagination strategies activity-log lists use today: the resource detail tabs page
  *  through `fetchMore`, while the customer tab drives the page from the URL
  *  (`usePageSearchParam`), which `lago-frontend-patterns` (`references/pagination.md`) prescribes for the customer-detail tabs. */
@@ -89,7 +91,11 @@ export const ActivityLogsSection: FC<ActivityLogsSectionProps> = ({
 
   return (
     <>
-      <PageSectionTitle title={translate('text_1747314141347qq6rasuxisl')} subtitle={subtitle} />
+      <PageSectionTitle
+        title={translate('text_1747314141347qq6rasuxisl')}
+        subtitle={subtitle}
+        subtitleDataTest={ACTIVITY_LOGS_SECTION_SUBTITLE_TEST_ID}
+      />
 
       <PaginatedContent
         metadata={activityLogs?.metadata}

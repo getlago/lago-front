@@ -36,15 +36,32 @@ import {
   AMOUNT_INTERVALS_TRANSLATION_MAP,
   AmountFilterInterval,
   AvailableFiltersEnum,
+  CustomerFiltersHiddenForProductCatalog,
   filterDataInlineSeparator,
   filterWithoutProductCategoryValue,
   filterWithoutProductFilterValue,
   filterWithoutProductValue,
+  InvoiceFiltersHiddenForProductCatalog,
 } from '~/components/Filters/presentation/types'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 describe('Filters utils', () => {
   describe('formatFiltersForInvoiceQuery', () => {
+    it('drops hidden filters even when they are set in the URL', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('invoiceType', 'one_off')
+      searchParams.set('status', 'finalized')
+
+      const result = formatFiltersForInvoiceQuery(
+        searchParams,
+        InvoiceFiltersHiddenForProductCatalog,
+      )
+
+      expect(result).not.toHaveProperty('invoiceType')
+      expect(result).toHaveProperty('status')
+    })
+
     it('should format filters for invoice query', () => {
       const searchParams = new URLSearchParams()
 
@@ -185,6 +202,21 @@ describe('Filters utils', () => {
   })
 
   describe('formatFiltersForCustomerQuery', () => {
+    it('drops hidden filters even when they are set in the URL', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('cu_accountType', 'partner')
+      searchParams.set('cu_activeSubscriptions', '1,5')
+      searchParams.set('cu_countries', 'US')
+
+      const result = formatFiltersForCustomerQuery(
+        searchParams,
+        CustomerFiltersHiddenForProductCatalog,
+      )
+
+      expect(result).toEqual({ countries: ['US'] })
+    })
+
     it('should format filters for customer query', () => {
       const searchParams = new URLSearchParams()
 

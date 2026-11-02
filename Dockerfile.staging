@@ -6,8 +6,13 @@
 # stays untouched and continues to serve production builds; only the staging
 # pipeline (lago-deploy's build-front-staging-image.yml) points here.
 
-ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:latest
-ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:latest
+# BASE PIN: `:<YYYYMMDD>-r<run>@sha256:<index digest>`, an immutable
+# lago-packages publish. Docker builds from the digest, so a build is
+# reproducible. Renovate (getlago/lago-packages renovate/lago-bases) moves tag
+# and digest together when a newer base is published; the base refresh
+# rebuilds deployed tags with a newer RUNTIME_IMAGE in between.
+ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:20261029-r76@sha256:207ecf39be47b0b9bb6538c0c00bd9103f885b6c7b60f9d0071b17ea96c5f887
+ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:20261029-r76@sha256:d755c9a7f6523134daf148c8bbd48e3fac07374cd221cd58f8d971887c3b9fe5
 
 # --- deps stage --------------------------------------------------------------
 FROM ${BUILD_IMAGE} AS deps
@@ -46,17 +51,18 @@ FROM ${RUNTIME_IMAGE}
 
 WORKDIR /usr/share/nginx/html
 
-COPY --from=build --chown=nonroot:nonroot /app/dist .
-COPY --chown=nonroot:nonroot ./nginx/nginx.main.staging.conf /etc/nginx/nginx.conf
-COPY --chown=nonroot:nonroot ./nginx/nginx.staging.conf /etc/nginx/conf.d/default.conf
-COPY --chown=nonroot:nonroot ./nginx/gzip.conf /etc/nginx/conf.d/gzip.conf
-COPY --chown=nonroot:nonroot ./nginx/csp.conf.template /etc/nginx/csp.conf.template
-COPY --chown=nonroot:nonroot ./.env.sh ./.env.sh
+COPY --from=build /app/dist .
+COPY ./nginx/nginx.main.staging.conf /etc/nginx/nginx.conf
+COPY ./nginx/nginx.staging.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx/gzip.conf /etc/nginx/conf.d/gzip.conf
+COPY ./nginx/csp.conf.template /etc/nginx/csp.conf.template
+COPY ./.env.sh ./.env.sh
 
 # Everything nginx writes goes to the /tmp emptyDir the pod mounts: the pid
 # file, the temp paths (both in nginx.main.staging.conf) and env-config.js,
 # which .env.sh emits into its cwd. The dist stays read-only and unmounted —
 # an emptyDir over it would mask the built assets.
+# Files stay root-owned so nginx cannot rewrite them.
 USER 65532
 
 EXPOSE 8080

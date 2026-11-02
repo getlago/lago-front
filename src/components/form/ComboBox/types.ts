@@ -15,6 +15,7 @@ export interface BasicComboBoxData {
   labelNode?: ReactNode
   description?: string
   disabled?: boolean
+  hidden?: boolean
   customValue?: boolean
   group?: never
   addValueOnClick?: () => void
@@ -44,8 +45,6 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'search
   addValueProps?: {
     label: string
     onClick?: () => void
-    // Off: the add row only shows once the search matches nothing.
-    alwaysVisible?: boolean
   }
   renderGroupHeader?: never
   onChange: (value: string) => unknown
@@ -61,6 +60,7 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'search
       searchTerm?: InputMaybe<string> | undefined
     }>
   >
+  fetchOnMount?: boolean
   containerClassName?: string
   'data-test'?: string
 }

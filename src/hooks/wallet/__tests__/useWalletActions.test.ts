@@ -130,7 +130,7 @@ describe('useWalletActions', () => {
 
   describe('GIVEN specific permissions are missing', () => {
     describe('WHEN user lacks walletsUpdate permission', () => {
-      it('THEN should hide the edit action', () => {
+      it('THEN should hide the edit and void credits actions', () => {
         mockHasPermissions.mockImplementation(((perms: string[]) => {
           if (perms.includes('walletsUpdate')) return false
 
@@ -141,11 +141,15 @@ describe('useWalletActions', () => {
 
         // Edit action is at index 2
         expect(result.current.actions[2].hidden).toBe(true)
+        // Void credits action is at index 3
+        expect(result.current.actions[3].hidden).toBe(true)
+        // Top up action is at index 0
+        expect(result.current.actions[0].hidden).toBe(false)
       })
     })
 
     describe('WHEN user lacks walletsTerminate permission', () => {
-      it('THEN should hide the void credits and terminate actions', () => {
+      it('THEN should hide the terminate action only', () => {
         mockHasPermissions.mockImplementation(((perms: string[]) => {
           if (perms.includes('walletsTerminate')) return false
 
@@ -155,9 +159,26 @@ describe('useWalletActions', () => {
         const { result } = renderHook(() => useWalletActions(defaultParams))
 
         // Void credits action is at index 3
-        expect(result.current.actions[3].hidden).toBe(true)
+        expect(result.current.actions[3].hidden).toBe(false)
         // Terminate action is at index 6
         expect(result.current.actions[6].hidden).toBe(true)
+      })
+    })
+
+    describe('WHEN user lacks walletsTopUp permission', () => {
+      it('THEN should hide the top up and void credits actions', () => {
+        mockHasPermissions.mockImplementation(((perms: string[]) => {
+          if (perms.includes('walletsTopUp')) return false
+
+          return true
+        }) as unknown as () => boolean)
+
+        const { result } = renderHook(() => useWalletActions(defaultParams))
+
+        // Top up action is at index 0
+        expect(result.current.actions[0].hidden).toBe(true)
+        // Void credits action is at index 3
+        expect(result.current.actions[3].hidden).toBe(true)
       })
     })
 

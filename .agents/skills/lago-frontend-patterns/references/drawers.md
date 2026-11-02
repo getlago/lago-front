@@ -105,6 +105,9 @@ jest.mock('~/components/drawers/useDrawer', () => ({
 }))
 ```
 
+- **A consumer that starts calling a drawer hook** breaks its page's existing suites, which never
+  needed the mock before (`Must use import to load ES Module: …/drawerStack.ts`, CI only): grep
+  `__tests__` for every suite importing the converted consumer and add the mock there.
 - **Testing a consumer** → mock the `use<Feature>Drawer` hook itself and assert
   `openDrawer` was called with the right seed:
   ```typescript

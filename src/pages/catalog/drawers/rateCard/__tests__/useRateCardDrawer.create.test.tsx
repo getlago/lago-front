@@ -6,6 +6,7 @@ import { ReactElement, ReactNode } from 'react'
 
 import { CREATE_MORE_SWITCH_TEST_ID } from '~/components/drawers/createMore/CreateMoreControl'
 import { addToast } from '~/core/apolloClient'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import {
   AggregationTypeEnum,
   CreateRateCardDocument,
@@ -42,6 +43,10 @@ let mockContentProps: { isCurrencyLocked?: boolean } = {}
 // Mock the NiceModal-backed drawer hook so Jest never loads the drawer stack
 // (drawerStack.ts uses import.meta and crashes Jest) and we can capture the
 // args the hook passes to `open`.
+jest.mock('~/core/form/scrollToFirstInputError', () => ({
+  scrollToFirstInputError: jest.fn(),
+}))
+
 jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
 }))
@@ -231,6 +236,19 @@ describe('useRateCardDrawer create flow', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     lastDrawerArgs = null
+  })
+
+  it('GIVEN nothing filled WHEN submitted THEN scrolls to the first error', async () => {
+    const { result } = renderDrawerHook()
+
+    act(() => result.current.openDrawer())
+    renderDrawerBody()
+    await submit()
+
+    expect(scrollToFirstInputError).toHaveBeenCalledWith(
+      lastDrawerArgs?.form?.id,
+      expect.objectContaining({ currency: expect.anything() }),
+    )
   })
 
   it('opens create mode with the create-more control and submit button', () => {

@@ -14,7 +14,10 @@ import {
 } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
-import InvoicesList from '../InvoicesList'
+import InvoicesList, {
+  INVOICE_LIST_REGENERATE_ACTION_TEST_ID,
+  INVOICE_LIST_VOID_ACTION_TEST_ID,
+} from '../InvoicesList'
 
 // Mock IntersectionObserver
 const mockIntersectionObserver = jest.fn()
@@ -293,6 +296,7 @@ describe('InvoicesList', () => {
     mockCanIssueCreditNote.mockReturnValue(true)
     mockCanRecordPayment.mockReturnValue(true)
     mockCanResendEmail.mockReturnValue(false)
+    mockHasFeatureFlag.mockReturnValue(false)
     mockHasDefinedGQLError.mockReturnValue(false)
     mockExtractThirdPartyErrorMessage.mockReturnValue(undefined)
     mockRetryInvoicePayment.mockResolvedValue({ errors: null })
@@ -1180,6 +1184,29 @@ describe('InvoicesList', () => {
         'href',
         '/customer/customer-1/invoice/regenerate/invoice-1',
       )
+    })
+
+    it('hides the regenerate action but keeps void when the product catalog flag is on', async () => {
+      const user = userEvent.setup()
+
+      mockHasFeatureFlag.mockReturnValue(true)
+      mockCanRegenerate.mockReturnValue(true)
+
+      await renderInvoicesList({
+        invoices: [
+          createMockInvoice({
+            status: InvoiceStatusTypeEnum.Finalized,
+            regeneratedInvoiceId: null,
+          }),
+        ],
+      })
+
+      const actionButton = screen.getByTestId('open-action-button')
+
+      await waitFor(() => user.click(actionButton))
+
+      expect(screen.getByTestId(INVOICE_LIST_VOID_ACTION_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(INVOICE_LIST_REGENERATE_ACTION_TEST_ID)).not.toBeInTheDocument()
     })
   })
 

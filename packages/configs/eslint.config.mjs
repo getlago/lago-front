@@ -14,6 +14,7 @@ import pluginTypescriptEslint from 'typescript-eslint'
 
 import noDirectRrdNavImport from './eslint-rules/no-direct-rrd-nav-import.js'
 import noFormikPropsInEffect from './eslint-rules/no-formik-props-in-effect.js'
+import useDesignSystem from './eslint-rules/use-design-system.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -78,6 +79,7 @@ export default [
         rules: {
           'no-direct-rrd-nav-import': noDirectRrdNavImport,
           'no-formik-props-in-effect': noFormikPropsInEffect,
+          'use-design-system': useDesignSystem,
         },
       },
     },
@@ -158,7 +160,7 @@ export default [
     },
   },
   {
-    files: ['vite.config.ts', 'scripts/**/*.js'],
+    files: ['vite.config.ts', 'scripts/**/*.js', '**/eslint-rules/__tests__/*.js'],
     rules: {
       'import/order': 'off',
     },

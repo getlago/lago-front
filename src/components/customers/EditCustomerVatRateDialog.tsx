@@ -63,6 +63,8 @@ gql`
 
 const EDIT_CUSTOMER_VAT_RATE_FORM_ID = 'edit-customer-vat-rate-form'
 
+export const EDIT_CUSTOMER_VAT_RATE_SUBMIT_BUTTON_TEST_ID = 'edit-customer-vat-rate-submit-button'
+
 interface EditCustomerVatRateContentProps {
   appliedTaxRatesTaxesIds?: string[]
   onSelect: (taxCode: string) => void
@@ -108,13 +110,15 @@ const EditCustomerVatRateContent = ({
     })
   }, [appliedTaxRatesTaxesIds, data])
 
+  const canCreateTax = hasPermissions(['organizationTaxesUpdate'])
+
   return (
     <div className="p-6">
       <ComboBox
-        allowAddValue
+        allowAddValue={canCreateTax}
         className={SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME}
         addValueProps={
-          hasPermissions(['organizationTaxesUpdate'])
+          canCreateTax
             ? {
                 label: translate('text_64639c4d172d7a006ef30516'),
                 onClick: onCreateTaxClick,
@@ -137,7 +141,7 @@ const EditCustomerVatRateContent = ({
   )
 }
 
-interface OpenEditCustomerVatRateDialogParams {
+export interface OpenEditCustomerVatRateDialogParams {
   customer: EditCustomerVatRateFragment
   appliedTaxRatesTaxesIds?: string[]
 }
@@ -198,6 +202,7 @@ export const useEditCustomerVatRateDialog = () => {
         <DialogActionButton
           label={translate('text_64639f5e63a5cc0076779d57')}
           setDisabledRef={setDisabledRef}
+          data-test={EDIT_CUSTOMER_VAT_RATE_SUBMIT_BUTTON_TEST_ID}
         />
       ),
       form: {

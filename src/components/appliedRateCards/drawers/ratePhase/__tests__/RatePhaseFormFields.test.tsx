@@ -29,6 +29,7 @@ import {
   RATE_PHASE_FORM_DEFAULTS,
   RatePhaseFormValues,
   RatePhaseReference,
+  RatePhaseSequenceLock,
 } from '../ratePhaseFormSchema'
 import { buildCreatePhaseSeed } from '../ratePhaseSeeds'
 import { RateCardForRatePhaseFields } from '../types'
@@ -73,10 +74,12 @@ const Host = ({
   otherPhases = [],
   rateCard = rateCardForFields,
   defaultValues = buildCreatePhaseSeed(otherPhases, rateCard),
+  sequenceLock = 'none',
 }: {
   otherPhases?: RatePhaseReference[]
   rateCard?: RateCardForRatePhaseFields
   defaultValues?: RatePhaseFormValues
+  sequenceLock?: RatePhaseSequenceLock
 }) => {
   const form = useAppForm({ defaultValues })
 
@@ -90,6 +93,7 @@ const Host = ({
         title="Create a phase"
         isEdition={false}
         getOtherPhases={() => otherPhases}
+        getSequenceLock={() => sequenceLock}
         rateCard={rateCard}
       />
     </>
@@ -220,5 +224,51 @@ describe('RatePhaseFormFields', () => {
       expect(screen.getByTestId(DURATION_TYPE_PROBE_TEST_ID)).toHaveTextContent('finite'),
     )
     expect(getForeverCheckbox()).toBeDisabled()
+  })
+
+  it('GIVEN a live phase placed before the tail WHEN the position mode opens THEN after is not selectable', async () => {
+    render(
+      <Host
+        otherPhases={OTHER_PHASES}
+        sequenceLock="beforeTail"
+        defaultValues={{
+          ...RATE_PHASE_FORM_DEFAULTS,
+          positionMode: 'before',
+          positionReferenceCode: 'standard',
+          durationType: 'finite',
+        }}
+      />,
+    )
+
+    await userEvent.click(
+      screen.getByTestId(RATE_PHASE_POSITION_MODE_TEST_ID).querySelector('input') as HTMLElement,
+    )
+
+    expect(await screen.findByTestId('after')).toHaveAttribute('aria-disabled', 'true')
+    expect(screen.getByTestId('before')).toHaveAttribute('aria-disabled', 'false')
+  })
+
+  it('GIVEN a live phase placed after another one WHEN the reference opens THEN the tail is not selectable', async () => {
+    render(
+      <Host
+        otherPhases={OTHER_PHASES}
+        sequenceLock="beforeTail"
+        defaultValues={{
+          ...RATE_PHASE_FORM_DEFAULTS,
+          positionMode: 'after',
+          positionReferenceCode: 'trial',
+          durationType: 'finite',
+        }}
+      />,
+    )
+
+    await userEvent.click(
+      screen
+        .getByTestId(RATE_PHASE_POSITION_REFERENCE_TEST_ID)
+        .querySelector('input') as HTMLElement,
+    )
+
+    expect(await screen.findByTestId('standard')).toHaveAttribute('aria-disabled', 'true')
+    expect(screen.getByTestId('trial')).toHaveAttribute('aria-disabled', 'false')
   })
 })

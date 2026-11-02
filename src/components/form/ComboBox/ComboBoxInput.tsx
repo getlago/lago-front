@@ -10,6 +10,8 @@ import { ComboBoxInputProps } from './types'
 
 import { TextInput } from '../TextInput'
 
+export const COMBOBOX_LOADING_TEST_ID = 'combobox-loading'
+
 export const ComboBoxInput = ({
   className,
   error,
@@ -80,7 +82,10 @@ export const ComboBoxInput = ({
               />
             )}
             {loading ? (
-              <span className="flex size-6 items-center justify-center">
+              <span
+                className="flex size-6 items-center justify-center"
+                data-test={COMBOBOX_LOADING_TEST_ID}
+              >
                 <Icon name="processing" animation="spin" size="small" />
               </span>
             ) : (

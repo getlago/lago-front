@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
 
+import { RATE_PHASE_REFETCH_QUERIES } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { hasRateOverride } from '~/components/appliedRateCards/overrideDiff'
 import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
@@ -33,8 +34,10 @@ import {
 import {
   buildCreatePhaseSeed,
   buildRatePhaseSchemaContext,
+  getLiveSequenceLock,
   insertPhaseReference,
 } from './ratePhaseSeeds'
+import { scrollToFirstRatePhaseError } from './scrollToFirstRatePhaseError'
 import { RatePhaseDrawerProps } from './types'
 
 gql`
@@ -94,10 +97,18 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
   const drawer = useFormDrawer()
   const { createMoreControl, isCreateMoreEnabled, resetCreateMore, resetSignal, notifyReset } =
     useCreateMore()
-  const [createRatePhase] = useCreateRatePhaseMutation()
-  const [updateRatePhase] = useUpdateRatePhaseMutation()
-  const [createContractRatePhase] = useCreateContractRatePhaseMutation()
-  const [updateContractRatePhase] = useUpdateContractRatePhaseMutation()
+  const [createRatePhase] = useCreateRatePhaseMutation({
+    refetchQueries: RATE_PHASE_REFETCH_QUERIES.plan,
+  })
+  const [updateRatePhase] = useUpdateRatePhaseMutation({
+    refetchQueries: RATE_PHASE_REFETCH_QUERIES.plan,
+  })
+  const [createContractRatePhase] = useCreateContractRatePhaseMutation({
+    refetchQueries: RATE_PHASE_REFETCH_QUERIES.contract,
+  })
+  const [updateContractRatePhase] = useUpdateContractRatePhaseMutation({
+    refetchQueries: RATE_PHASE_REFETCH_QUERIES.contract,
+  })
   const currentParams = useRef<RatePhaseDrawerProps | null>(null)
   const otherPhases = useRef<RatePhaseReference[]>([])
   const schemaContext = useRef<RatePhaseFormSchemaContext>({
@@ -105,6 +116,7 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
     billingTiming: RateCardBillingTimingEnum.Arrears,
     hasPricingUnit: false,
     rateModelConfiguration: undefined,
+    sequenceLock: 'none',
   })
 
   // `errorPolicy: 'all'` resolves a rejected mutation instead of throwing: check the payload.
@@ -165,6 +177,9 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
     defaultValues: RATE_PHASE_FORM_DEFAULTS,
     validationLogic: revalidateLogic(),
     validators: { onDynamic: buildRatePhaseFormSchema(() => schemaContext.current) },
+    onSubmitInvalid: ({ formApi }) => {
+      scrollToFirstRatePhaseError(RATE_PHASE_FORM_ID, formApi.state.errorMap.onDynamic || {})
+    },
     onSubmit: async ({ value }) => {
       const params = currentParams.current
 
@@ -183,7 +198,11 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
       }
 
       otherPhases.current = insertPhaseReference(otherPhases.current, value)
-      schemaContext.current = buildRatePhaseSchemaContext(otherPhases.current, params.rateCard)
+      schemaContext.current = buildRatePhaseSchemaContext(
+        otherPhases.current,
+        params.rateCard,
+        getLiveSequenceLock(otherPhases.current),
+      )
       form.reset(buildCreatePhaseSeed(otherPhases.current, params.rateCard), {
         keepDefaultValues: true,
       })
@@ -194,7 +213,6 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
   const openDrawer = (params: RatePhaseDrawerProps): void => {
     currentParams.current = params
     otherPhases.current = params.otherPhases
-    schemaContext.current = buildRatePhaseSchemaContext(params.otherPhases, params.rateCard)
     resetCreateMore()
 
     const seed: RatePhaseFormValues =
@@ -205,6 +223,11 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
           }
         : buildCreatePhaseSeed(params.otherPhases, params.rateCard)
 
+    schemaContext.current = buildRatePhaseSchemaContext(
+      params.otherPhases,
+      params.rateCard,
+      getLiveSequenceLock(params.otherPhases, params.mode === 'edit' ? seed : undefined),
+    )
     form.reset(seed, { keepDefaultValues: true })
 
     const title = translate(
@@ -226,6 +249,7 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
             title={title}
             isEdition={params.mode === 'edit'}
             getOtherPhases={() => otherPhases.current}
+            getSequenceLock={() => schemaContext.current.sequenceLock}
             rateCard={params.rateCard}
           />
         </CreateMoreResetBoundary>

@@ -69,7 +69,7 @@ export const useWalletActions = ({
     {
       label: translate('text_1741253143637fb7iatyka9w'),
       startIcon: 'plus',
-      hidden: !isWalletActive,
+      hidden: !isWalletActive || !hasPermissions(['walletsTopUp']),
       dataTest: 'wallet-topup-button',
       onAction: (closePopper) => {
         navigate(
@@ -111,7 +111,8 @@ export const useWalletActions = ({
     {
       label: translate('text_63720bd734e1344aea75b7e9'),
       startIcon: 'minus',
-      hidden: !isWalletActive || !hasPermissions(['walletsTerminate']),
+      // Voiding goes through the top-up mutation and the API also requires walletsUpdate for it
+      hidden: !isWalletActive || !hasPermissions(['walletsTopUp', 'walletsUpdate']),
       disabled: !!(creditsBalance && creditsBalance <= 0),
       onAction: (closePopper) => {
         openVoidWalletDialog({

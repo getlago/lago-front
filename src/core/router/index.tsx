@@ -2,6 +2,7 @@ import { Navigate } from 'react-router'
 
 import { envGlobalVar } from '~/core/apolloClient'
 import { isDevOrQaAppEnv } from '~/core/utils/appEnv'
+import { FeatureFlagEnum } from '~/generated/graphql'
 
 import { authRoutes } from './AuthRoutes'
 import { catalogRoutes } from './CatalogRoutes'
@@ -79,6 +80,7 @@ const analyticsInlineRoutes: CustomRouteObject[] = [
     // To preserve cached last visited route and prevent broken redirection I prefer to keepboth in the same place and not fix this now.
     // Maybe analyticsView will be removed in the future
     permissions: ['analyticsView', 'dataApiView'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [ANALYTICS_V2_ROUTE, ANALYTICS_V2_TABS_ROUTE],
@@ -89,12 +91,14 @@ const analyticsInlineRoutes: CustomRouteObject[] = [
     // To preserve cached last visited route and prevent broken redirection I prefer to keepboth in the same place and not fix this now.
     // Maybe analyticsView will be removed in the future
     permissions: ['analyticsView', 'dataApiView'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE,
     private: true,
     element: <UsageBillableMetric />,
     permissions: ['analyticsView', 'dataApiView'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: REVENUE_RECOGNITION_ROUTE,

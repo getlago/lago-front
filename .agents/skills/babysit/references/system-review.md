@@ -8,12 +8,17 @@ Both read the diff as a change to a whole application, not as a set of edited li
 PR that draws a chart with raw SVG passes every convention check, because no rule says
 "use recharts". It still fails here, because the app already draws charts with recharts.
 
+Read `.agents/docs/review-evidence.md`. Pass B supplies the pattern/consumer evidence;
+Pass C supplies the state-transition evidence when it runs. The coordinating reviewer
+closes material gaps even when Pass C is skipped. Return evidence as well as findings.
+
 ## Ground rules for both passes
 
 - **Evidence or drop it.** Every finding names either the `file:line` of what already
   exists, or the concrete scenario that breaks. "This could be cleaner" is not a finding.
 - **The question is the fit, not the taste.** Prefer the approach the codebase already
-  uses, even when another one is arguably nicer. Consistency is the default; breaking it
+  documents and uses in current implementations; legacy siblings do not override the
+  documented pattern. Consistency is the default; breaking it
   needs a reason the PR states.
 - **Nothing CI catches, nothing pass A already reported.** No formatting, typing, lint,
   test failures, or documented-rule violations.
@@ -41,6 +46,14 @@ solves it. Search before judging:
 | Data fetching, cache, refetch      | `src/core/apolloClient` (links, `queryFieldPolicies`), sibling queries    |
 | Error, toast, navigation, permissions | the Apollo error link, the toast layer, `~/core/router`, permission hooks |
 | New dependency                     | `package.json`: is there already one that covers the need?               |
+
+**Shared files.** For every existing file the diff modifies outside the feature's own folder
+(the design system, `src/components/Filters`, `src/hooks`, `src/core`, layouts), list its
+callers on main (`git grep -lwF -e '<export>' origin/main -- src`), name what each one relies on, and
+say whether the diff changes it: a new required prop, a changed default or value format, a
+component swapped for another, an effect that now runs at different times. A caller whose
+behaviour changes without the PR saying so is a finding. Report a shared file checked with no
+change for its callers in one line, so the reader sees it was looked at.
 
 Then look at the two or three features closest to this one (same section of the app,
 same kind of screen). If the PR solves the same problem a different way, that is a
@@ -100,12 +113,16 @@ showing anything. Pass the filter to the invoices query, which already accepts i
 
 Both passes return a list. Each item carries:
 
-- `bucket`: `blocking` (breaks behaviour or clearly contradicts how the app works),
-  `should-fix` (works, but diverges from the app or will hurt soon), `follow-up` (real,
-  but outside this PR), or `note`.
+- `priority`: P0 (breaks behaviour or clearly contradicts how the app works), P1–P2
+  (works, but diverges from the app or will hurt soon), or P3 (bounded optional
+  improvement, or a note). babysit's triage maps it to a bucket; a problem outside this
+  PR becomes a follow-up whatever its priority.
 - `where`: `file:line` in the diff.
 - `evidence`: the `file:line` of the existing solution, or the failure scenario.
 - `finding`: the plain-language text, as in the examples above.
 - `recommendation`: the single thing to do.
+
+Also return the flows/consumers inspected and material verification gaps, so an empty
+finding list cannot be mistaken for untested flows having passed.
 
 Empty is a valid answer. A pass that finds nothing says so in one line.

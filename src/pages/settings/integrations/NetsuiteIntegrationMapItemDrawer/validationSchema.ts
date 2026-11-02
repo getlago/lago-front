@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { refineIntegrationMapItemEntries } from '~/pages/settings/integrations/IntegrationMapItemDrawer/validationSchema'
+import { refineRequiredIntegrationMapItemFields } from '~/pages/settings/integrations/IntegrationMapItemDrawer/validationSchema'
 
 const netsuiteMappingRecordSchema = z.record(
   z.string(),
@@ -15,17 +15,11 @@ const netsuiteMappingRecordSchema = z.record(
 )
 
 export const netsuiteTaxMappingValidationSchema = netsuiteMappingRecordSchema.superRefine(
-  refineIntegrationMapItemEntries((entry) =>
-    (['taxCode', 'taxNexus', 'taxType'] as const).filter((field) => !entry[field]),
-  ),
+  refineRequiredIntegrationMapItemFields(['taxCode', 'taxNexus', 'taxType']),
 )
 
 export const netsuiteNonTaxMappingValidationSchema = netsuiteMappingRecordSchema.superRefine(
-  refineIntegrationMapItemEntries((entry) =>
-    (['externalId', 'externalName', 'externalAccountCode'] as const).filter(
-      (field) => !entry[field],
-    ),
-  ),
+  refineRequiredIntegrationMapItemFields(['externalId', 'externalName', 'externalAccountCode']),
 )
 
 export type NetsuiteMappingFormValues = z.infer<typeof netsuiteMappingRecordSchema>

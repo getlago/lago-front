@@ -1,5 +1,7 @@
 import { screen } from '@testing-library/react'
+import { isValidElement } from 'react'
 
+import { AvailableFiltersEnum } from '~/components/Filters'
 import { MainHeaderConfig } from '~/components/MainHeader/types'
 import { GetInvoicesListDocument, GetInvoicesListQueryVariables } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
@@ -46,10 +48,13 @@ jest.mock('~/hooks/useDebouncedSearch', () => ({
   }),
 }))
 
+let mockIsProductCatalogEnabled = false
+
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: { defaultCurrency: 'USD' },
     hasOrganizationPremiumAddon: jest.fn().mockReturnValue(false),
+    hasFeatureFlag: () => mockIsProductCatalogEnabled,
   }),
 }))
 
@@ -140,9 +145,18 @@ const openExportDialogFromHeader = (): void => {
   }
 }
 
+const getAvailableFilters = (): AvailableFiltersEnum[] => {
+  const section = capturedConfig?.filtersSection
+
+  if (!isValidElement<{ availableFilters: AvailableFiltersEnum[] }>(section)) return []
+
+  return section.props.availableFilters
+}
+
 describe('InvoicesPage', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockIsProductCatalogEnabled = false
     capturedConfig = null
     capturedListVariables = null
     mockInvoicesMetadata = UNCAPPED_METADATA
@@ -275,6 +289,75 @@ describe('InvoicesPage', () => {
         const exportAction = capturedConfig?.actions?.items[0]
 
         expect(exportAction?.type === 'action' && exportAction.disabled).toBeFalsy()
+      })
+    })
+  })
+
+  describe('GIVEN the product catalog feature flag is off', () => {
+    describe('WHEN the page is rendered', () => {
+      it('THEN should show the export action', () => {
+        render(<InvoicesPage />)
+
+        const exportAction = capturedConfig?.actions?.items[0]
+
+        expect(exportAction?.type === 'action' && exportAction.hidden).toBeFalsy()
+      })
+
+      it('THEN should offer the invoice type filter', () => {
+        render(<InvoicesPage />)
+
+        expect(getAvailableFilters()).toContain(AvailableFiltersEnum.invoiceType)
+      })
+    })
+
+    describe('WHEN the URL carries an invoice type filter', () => {
+      it('THEN should send the invoice type to the list query', () => {
+        window.history.pushState({}, '', '/invoices?in_invoiceType=subscription,one_off')
+
+        try {
+          render(<InvoicesPage />)
+
+          expect(capturedListVariables?.invoiceType).toEqual(['subscription', 'one_off'])
+        } finally {
+          window.history.pushState({}, '', '/')
+        }
+      })
+    })
+  })
+
+  describe('GIVEN the product catalog feature flag is on', () => {
+    beforeEach(() => {
+      mockIsProductCatalogEnabled = true
+    })
+
+    describe('WHEN the page is rendered', () => {
+      it('THEN should hide the export action', () => {
+        render(<InvoicesPage />)
+
+        const exportAction = capturedConfig?.actions?.items[0]
+
+        expect(exportAction?.type === 'action' && exportAction.hidden).toBe(true)
+      })
+
+      it('THEN should not offer the invoice type filter', () => {
+        render(<InvoicesPage />)
+
+        expect(getAvailableFilters()).not.toContain(AvailableFiltersEnum.invoiceType)
+        expect(getAvailableFilters()).toContain(AvailableFiltersEnum.status)
+      })
+    })
+
+    describe('WHEN the URL carries a stale invoice type filter', () => {
+      it('THEN should not send the invoice type to the list query', () => {
+        window.history.pushState({}, '', '/invoices?in_invoiceType=subscription,one_off')
+
+        try {
+          render(<InvoicesPage />)
+
+          expect(capturedListVariables?.invoiceType).toBeUndefined()
+        } finally {
+          window.history.pushState({}, '', '/')
+        }
       })
     })
   })

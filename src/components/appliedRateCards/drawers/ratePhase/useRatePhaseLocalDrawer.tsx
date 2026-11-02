@@ -24,6 +24,7 @@ import {
   buildRatePhaseSchemaContext,
   insertPhaseReference,
 } from './ratePhaseSeeds'
+import { scrollToFirstRatePhaseError } from './scrollToFirstRatePhaseError'
 import { RateCardForRatePhaseFields } from './types'
 
 const RATE_PHASE_LOCAL_FORM_ID = 'rate-phase-local-drawer-form'
@@ -50,12 +51,16 @@ export const useRatePhaseLocalDrawer = (): {
     billingTiming: RateCardBillingTimingEnum.Arrears,
     hasPricingUnit: false,
     rateModelConfiguration: undefined,
+    sequenceLock: 'none',
   })
 
   const form = useAppForm({
     defaultValues: RATE_PHASE_FORM_DEFAULTS,
     validationLogic: revalidateLogic(),
     validators: { onDynamic: buildRatePhaseFormSchema(() => schemaContext.current) },
+    onSubmitInvalid: ({ formApi }) => {
+      scrollToFirstRatePhaseError(RATE_PHASE_LOCAL_FORM_ID, formApi.state.errorMap.onDynamic || {})
+    },
     onSubmit: ({ value }) => {
       const args = currentArgs.current
 
@@ -72,7 +77,11 @@ export const useRatePhaseLocalDrawer = (): {
       }
 
       otherPhases.current = insertPhaseReference(otherPhases.current, value)
-      schemaContext.current = buildRatePhaseSchemaContext(otherPhases.current, args.rateCard)
+      schemaContext.current = buildRatePhaseSchemaContext(
+        otherPhases.current,
+        args.rateCard,
+        'none',
+      )
       form.reset(buildCreatePhaseSeed(otherPhases.current, args.rateCard), {
         keepDefaultValues: true,
       })
@@ -83,7 +92,7 @@ export const useRatePhaseLocalDrawer = (): {
   const openDrawer = (args: OpenRatePhaseLocalDrawerArgs): void => {
     currentArgs.current = args
     otherPhases.current = args.otherPhases
-    schemaContext.current = buildRatePhaseSchemaContext(args.otherPhases, args.rateCard)
+    schemaContext.current = buildRatePhaseSchemaContext(args.otherPhases, args.rateCard, 'none')
     resetCreateMore()
 
     const seed: RatePhaseFormValues = args.phase
@@ -115,6 +124,7 @@ export const useRatePhaseLocalDrawer = (): {
             title={title}
             isEdition={!!args.phase}
             getOtherPhases={() => otherPhases.current}
+            getSequenceLock={() => 'none'}
             rateCard={args.rateCard}
           />
         </CreateMoreResetBoundary>

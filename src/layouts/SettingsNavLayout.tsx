@@ -109,7 +109,8 @@ const generateTabs = ({
     title: translate('text_17285747264958mqbtws3em8'),
     link: DUNNINGS_SETTINGS_ROUTE,
     match: [DUNNINGS_SETTINGS_ROUTE],
-    hidden: !hasPermissions(['dunningCampaignsView']),
+    hidden:
+      hasFeatureFlag(FeatureFlagEnum.ProductCatalog) || !hasPermissions(['dunningCampaignsView']),
   },
   {
     title: translate('text_645bb193927b375079d28a8f'),

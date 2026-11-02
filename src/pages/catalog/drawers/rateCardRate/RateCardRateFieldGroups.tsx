@@ -247,7 +247,7 @@ export const RatePricingSettingsSection = withFieldGroup({
     })
 
     const handleRateModelUpdate = (name: string, value: unknown): void => {
-      if (name !== 'chargeModel') return
+      if (name !== 'rateModel') return
 
       const nextRateModel = availableRateModels?.find((model) => model === value)
 
@@ -322,6 +322,7 @@ export const RatePricingSettingsSection = withFieldGroup({
         <group.AppField name="rateModel">
           {() => (
             <ChargeModelSelector
+              name="rateModel"
               label={translate('text_65201b8216455901fe273dd5')}
               disabled={!isRateModelEditable || availableRateModels === undefined}
               localCharge={{ chargeModel: toChargeModel(rateModel) }}

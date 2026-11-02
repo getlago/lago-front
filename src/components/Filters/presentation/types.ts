@@ -185,6 +185,8 @@ export const InvoiceAvailableFilters = [
   AvailableFiltersEnum.purchaseOrderNumber,
 ]
 
+export const InvoiceFiltersHiddenForProductCatalog = [AvailableFiltersEnum.invoiceType]
+
 export const RevenueStreamsAvailablePopperFilters = [
   AvailableFiltersEnum.date,
   AvailableFiltersEnum.country,
@@ -210,6 +212,11 @@ export const CustomerAvailableFilters = [
   AvailableFiltersEnum.isCustomerTinEmpty,
   AvailableFiltersEnum.hasCustomerType,
   AvailableFiltersEnum.metadata,
+]
+
+export const CustomerFiltersHiddenForProductCatalog = [
+  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.activeSubscriptions,
 ]
 
 export const RevenueStreamsPlansAvailableFilters = [AvailableFiltersEnum.currency]

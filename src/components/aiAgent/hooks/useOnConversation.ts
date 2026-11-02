@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 
-import { useOnConversationSubscription } from '~/generated/graphql'
+import { LagoApiError, useOnConversationSubscription } from '~/generated/graphql'
 
 gql`
   subscription onConversation($id: ID!) {
@@ -22,6 +22,7 @@ export const useOnConversation = ({ conversationId }: UseOnConversationProps) =>
       id: conversationId ?? '',
     },
     fetchPolicy: 'no-cache',
+    context: { silentErrorCodes: [LagoApiError.TokenExpired] },
   })
 
   return subscription

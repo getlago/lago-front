@@ -79,6 +79,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
   const { translate } = useInternationalization()
   const { hasPermissions, hasPermissionsOr } = usePermissions()
   const { hasFeatureFlag } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const { isPremium } = useCurrentUser()
   const { currentUser } = useCurrentUser()
 
@@ -88,7 +89,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       icon: 'chart-bar',
       link: ANALYTIC_ROUTE,
       match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
-      hidden: !hasPermissions(['analyticsView']),
+      hidden: !hasPermissions(['analyticsView']) || isProductCatalogEnabled,
     },
     {
       title: translate('text_1780667013874s6wl9cmxe7q'),
@@ -116,7 +117,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: PLANS_ROUTE,
       canBeClickedOnActive: true,
       match: [PLANS_ROUTE, PLAN_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS],
-      hidden: !hasPermissions(['plansView']),
+      hidden: !hasPermissions(['plansView']) || isProductCatalogEnabled,
     },
     {
       title: translate('text_1752692673070k7z0mmf0494'),
@@ -124,7 +125,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: FEATURES_ROUTE,
       canBeClickedOnActive: true,
       match: [FEATURES_ROUTE, FEATURE_DETAILS_ROUTE],
-      hidden: !hasPermissions(['featuresView']),
+      hidden: !hasPermissions(['featuresView']) || isProductCatalogEnabled,
     },
     {
       title: translate('text_629728388c4d2300e2d3801a'),
@@ -132,7 +133,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: ADD_ONS_ROUTE,
       canBeClickedOnActive: true,
       match: [ADD_ONS_ROUTE, ADD_ON_DETAILS_ROUTE],
-      hidden: !hasPermissions(['addonsView']),
+      hidden: !hasPermissions(['addonsView']) || isProductCatalogEnabled,
     },
     {
       title: translate('text_62865498824cc10126ab2940'),
@@ -140,7 +141,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: COUPONS_ROUTE,
       canBeClickedOnActive: true,
       match: [COUPONS_ROUTE, COUPON_DETAILS_ROUTE],
-      hidden: !hasPermissions(['couponsView']),
+      hidden: !hasPermissions(['couponsView']) || isProductCatalogEnabled,
     },
   ]
 
@@ -159,7 +160,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
         RATE_CARD_DETAILS_ROUTE,
       ],
       hidden:
-        !hasFeatureFlag(FeatureFlagEnum.ProductCatalog) ||
+        !isProductCatalogEnabled ||
         !hasPermissionsOr([
           'productCategoriesView',
           'productsView',
@@ -173,7 +174,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: PLAN_PRICING_ROUTE,
       canBeClickedOnActive: true,
       match: [PLAN_PRICING_ROUTE, CATALOG_PLAN_DETAILS_ROUTE, CATALOG_PLAN_DETAILS_SECTION_ROUTE],
-      hidden: !hasFeatureFlag(FeatureFlagEnum.ProductCatalog) || !hasPermissions(['plansView']),
+      hidden: !isProductCatalogEnabled || !hasPermissions(['plansView']),
     },
   ]
 
@@ -216,7 +217,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
         CONTRACT_DETAILS_TAB_ROUTE,
         CONTRACT_DETAILS_SECTION_ROUTE,
       ],
-      hidden: !hasPermissions(['contractsView']) || !hasFeatureFlag(FeatureFlagEnum.ProductCatalog),
+      hidden: !hasPermissions(['contractsView']) || !isProductCatalogEnabled,
     },
     {
       title: translate('text_6250304370f0f700a8fdc28d'),
@@ -228,8 +229,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
         PLAN_SUBSCRIPTION_DETAILS_ROUTE,
       ],
       canBeClickedOnActive: true,
-      hidden:
-        !hasPermissions(['subscriptionsView']) || hasFeatureFlag(FeatureFlagEnum.ProductCatalog),
+      hidden: !hasPermissions(['subscriptionsView']) || isProductCatalogEnabled,
     },
     {
       title: translate('text_63ac86d797f728a87b2f9f85'),

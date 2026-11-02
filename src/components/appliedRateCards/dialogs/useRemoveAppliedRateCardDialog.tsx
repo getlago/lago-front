@@ -1,8 +1,12 @@
-import { gql } from '@apollo/client'
+import { DocumentNode, gql, useApolloClient } from '@apollo/client'
 
+import { AppliedRateCardContext } from '~/components/appliedRateCards/types'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
+  GetContractAppliedRateCardsForRateCardsSectionDocument,
+  GetPlanAppliedRateCardsForRateCardsSectionDocument,
   useDestroyContractAppliedRateCardMutation,
   useDestroyPlanAppliedRateCardMutation,
 } from '~/generated/graphql'
@@ -22,6 +26,22 @@ gql`
   }
 `
 
+const REMOVED_CARD_CACHE: Record<
+  AppliedRateCardContext,
+  { __typename: string; listFieldName: string; listQueryDocument: DocumentNode }
+> = {
+  plan: {
+    __typename: 'PlanAppliedRateCard',
+    listFieldName: 'planAppliedRateCards',
+    listQueryDocument: GetPlanAppliedRateCardsForRateCardsSectionDocument,
+  },
+  contract: {
+    __typename: 'ContractAppliedRateCard',
+    listFieldName: 'contractAppliedRateCards',
+    listQueryDocument: GetContractAppliedRateCardsForRateCardsSectionDocument,
+  },
+}
+
 type RemoveAppliedRateCardDialogProps = {
   context: 'plan' | 'contract'
   id: string
@@ -34,13 +54,15 @@ export const useRemoveAppliedRateCardDialog = (): {
 } => {
   const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
+  const client = useApolloClient()
   const [destroyPlanAppliedRateCard] = useDestroyPlanAppliedRateCardMutation()
   const [destroyContractAppliedRateCard] = useDestroyContractAppliedRateCardMutation()
 
   const openRemoveAppliedRateCardDialog = (props: RemoveAppliedRateCardDialogProps): void => {
     const { context, id, rateCardName, onRemoved } = props
 
-    const handleSuccess = (): void => {
+    const handleSuccess = (removedId: string): void => {
+      evictFromCache(client, { id: removedId, ...REMOVED_CARD_CACHE[context] })
       onRemoved?.()
       addToast({
         message: translate('text_1790283913718436odi8om57'),
@@ -57,13 +79,17 @@ export const useRemoveAppliedRateCardDialog = (): {
         if (context === 'plan') {
           const { data } = await destroyPlanAppliedRateCard({ variables: { input: { id } } })
 
-          if (data?.destroyPlanAppliedRateCard?.id) handleSuccess()
+          const removedId = data?.destroyPlanAppliedRateCard?.id
+
+          if (removedId) handleSuccess(removedId)
           return
         }
 
         const { data } = await destroyContractAppliedRateCard({ variables: { input: { id } } })
 
-        if (data?.destroyContractAppliedRateCard?.id) handleSuccess()
+        const removedId = data?.destroyContractAppliedRateCard?.id
+
+        if (removedId) handleSuccess(removedId)
       },
     })
   }

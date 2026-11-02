@@ -9,7 +9,10 @@ import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
-import { formatFiltersForCustomerQuery } from '~/components/Filters'
+import {
+  CustomerFiltersHiddenForProductCatalog,
+  formatFiltersForCustomerQuery,
+} from '~/components/Filters'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
@@ -24,6 +27,7 @@ import {
   AddCustomerDrawerFragmentDoc,
   CustomerAccountTypeEnum,
   CustomerItemFragmentDoc,
+  FeatureFlagEnum,
   useCustomersLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -100,13 +104,25 @@ gql`
 const CustomersList = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const {
+    intlFormatDateTimeOrgaTZ,
+    hasFeatureFlag,
+    loading: isOrganizationLoading,
+  } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
-  const filtersForCustomerQuery = useMemo(() => {
-    return formatFiltersForCustomerQuery(searchParams)
-  }, [searchParams])
+  const filtersForCustomerQuery = useMemo(
+    () =>
+      formatFiltersForCustomerQuery(
+        searchParams,
+        isProductCatalogEnabled ? CustomerFiltersHiddenForProductCatalog : undefined,
+      ),
+    [searchParams, isProductCatalogEnabled],
+  )
+
+  const { accountType, ...otherFiltersForCustomerQuery } = filtersForCustomerQuery
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { page, goToPage } = usePageSearchParam()
@@ -115,11 +131,10 @@ const CustomersList = () => {
     variables: {
       limit: pageSize,
       page,
-      ...filtersForCustomerQuery,
-      accountType: [
-        (filtersForCustomerQuery.accountType as CustomerAccountTypeEnum) ??
-          CustomerAccountTypeEnum.Customer,
-      ],
+      ...otherFiltersForCustomerQuery,
+      ...(!isProductCatalogEnabled && {
+        accountType: [accountType ?? CustomerAccountTypeEnum.Customer],
+      }),
     },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
@@ -128,7 +143,9 @@ const CustomersList = () => {
 
   const { openDeleteCustomerDialog } = useDeleteCustomerDialog()
 
-  const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading)
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading, {
+    fetchOnMount: !isOrganizationLoading,
+  })
 
   const searchAndResetPage = (value: string) => {
     goToPage(1)

@@ -25,7 +25,7 @@ it('merges semantic colors independently from typography and focus ring widths',
     'v2-text-body text-text-muted',
   )
   expect(cn('bg-action-primary', 'bg-surface')).toBe('bg-surface')
-  expect(cn('border border-border-default', 'border-danger-border')).toBe(
+  expect(cn('border border-border-control', 'border-danger-border')).toBe(
     'border border-danger-border',
   )
   expect(cn('ring-1 ring-focus-ring')).toBe('ring-1 ring-focus-ring')

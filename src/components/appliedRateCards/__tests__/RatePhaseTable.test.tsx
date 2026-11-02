@@ -16,12 +16,14 @@ import {
   RatePhaseFormValues,
 } from '../drawers/ratePhase/ratePhaseFormSchema'
 import { RateCardForRatePhaseFields } from '../drawers/ratePhase/types'
+import { RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID } from '../RatePhaseDetailItem'
 import {
-  RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID,
+  RATE_PHASE_DETAILS_CONVERSION_RATE_TEST_ID,
   RATE_PHASE_DETAILS_PANEL_TEST_ID,
-  RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID,
   RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID,
 } from '../RatePhaseDetailsPanel'
+import { RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID } from '../RatePhaseRateEffectiveDate'
+import { RATE_PHASE_RATE_PROPERTIES_TEST_ID } from '../RatePhaseRateProperties'
 import {
   getRatePhaseActionsTestId,
   getRatePhaseToggleTestId,
@@ -80,6 +82,8 @@ const foreverPhase: RatePhaseFormValues = {
   durationType: 'forever',
 }
 
+const RATE_HISTORY_PATH = '/acme/product-catalog/rate-cards/rc-1/rates'
+
 const callbacks = {
   onEdit: jest.fn(),
   onRevert: jest.fn(),
@@ -87,7 +91,14 @@ const callbacks = {
 }
 
 const renderTable = (phases: RatePhaseFormValues[] = [overriddenPhase, foreverPhase]) =>
-  render(<RatePhaseTable phases={phases} rateCardId="rc-1" rateCard={rateCard} {...callbacks} />)
+  render(
+    <RatePhaseTable
+      phases={phases}
+      rateHistoryPath={RATE_HISTORY_PATH}
+      rateCard={rateCard}
+      {...callbacks}
+    />,
+  )
 
 const openActions = async (index: number): Promise<void> => {
   await userEvent.click(screen.getByTestId(getRatePhaseActionsTestId(index)))
@@ -152,7 +163,6 @@ describe('RatePhaseTable', () => {
   })
 
   it('GIVEN a phase on the active rate THEN "See rate history" opens the rate card rates tab in a new tab', async () => {
-    window.history.pushState({}, '', '/acme/plan-pricing/plan-1/overview/rate-cards')
     renderTable([foreverPhase])
 
     await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
@@ -161,16 +171,15 @@ describe('RatePhaseTable', () => {
       .getAllByTestId(RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID)
       .find((element) => element.tagName === 'A')
 
-    expect(link).toHaveAttribute('href', '/acme/product-catalog/rate-cards/rc-1/rates')
+    expect(link).toHaveAttribute('href', RATE_HISTORY_PATH)
     expect(link).toHaveAttribute('target', '_blank')
-    window.history.pushState({}, '', '/')
   })
 
   it('GIVEN a rate card with a pricing unit THEN the spending minimum reads in that unit', async () => {
     render(
       <RatePhaseTable
         phases={[{ ...overriddenPhase, minAmountCents: '5', conversionRate: '1' }]}
-        rateCardId="rc-1"
+        rateHistoryPath={RATE_HISTORY_PATH}
         rateCard={{ ...rateCard, appliedPricingUnitCode: 'CR' }}
         {...callbacks}
       />,
@@ -179,6 +188,45 @@ describe('RatePhaseTable', () => {
     await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
 
     expect(screen.getByTestId(RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID).textContent).toBe('5 CR')
+  })
+
+  it('GIVEN a pricing unit code unknown to the organization THEN the conversion rate falls back to the code', async () => {
+    render(
+      <RatePhaseTable
+        phases={[{ ...overriddenPhase, conversionRate: '1' }]}
+        rateHistoryPath={RATE_HISTORY_PATH}
+        rateCard={{ ...rateCard, appliedPricingUnitCode: 'CR' }}
+        {...callbacks}
+      />,
+    )
+
+    await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
+
+    expect(
+      (await screen.findByTestId(RATE_PHASE_DETAILS_CONVERSION_RATE_TEST_ID)).textContent,
+    ).toBe('CR • 1 CR = $1.00')
+  })
+
+  it('GIVEN a rate card billed in advance THEN the panel shows no spending minimum', async () => {
+    render(
+      <RatePhaseTable
+        phases={[overriddenPhase]}
+        rateHistoryPath={RATE_HISTORY_PATH}
+        rateCard={{ ...rateCard, billingTiming: RateCardBillingTimingEnum.Advance }}
+        {...callbacks}
+      />,
+    )
+
+    await userEvent.click(screen.getByTestId(getRatePhaseToggleTestId(0)))
+
+    expect(
+      await within(screen.getByTestId(RATE_PHASE_DETAILS_PANEL_TEST_ID)).findByTestId(
+        RATE_PHASE_RATE_PROPERTIES_TEST_ID,
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByTestId(RATE_PHASE_DETAILS_SPENDING_MINIMUM_TEST_ID),
+    ).not.toBeInTheDocument()
   })
 
   it('GIVEN no spending minimum THEN the panel shows a dash, not a zero amount', async () => {

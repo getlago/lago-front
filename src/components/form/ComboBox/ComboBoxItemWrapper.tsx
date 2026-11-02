@@ -8,6 +8,8 @@ import { ComboBoxData } from './types'
 
 import { Radio } from '../Radio'
 
+export const COMBOBOX_ADD_VALUE_ITEM_TEST_ID = 'combobox-add-value-item'
+
 interface ComboBoxItemWrapperProps {
   id: string
   option: ComboBoxData
@@ -28,7 +30,7 @@ export const ComboBoxItemWrapper = ({
   return (
     <div
       className="remove-child-link-style flex min-h-14 items-center"
-      data-test={`combobox-item-${label}`}
+      data-test={customValue ? COMBOBOX_ADD_VALUE_ITEM_TEST_ID : `combobox-item-${label}`}
     >
       <ComboboxItem
         id={id}

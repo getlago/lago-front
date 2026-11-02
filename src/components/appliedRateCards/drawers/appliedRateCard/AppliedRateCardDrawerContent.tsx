@@ -2,14 +2,15 @@ import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
 import { ReactNode, useEffect, useState } from 'react'
 
+import { buildRateCardForRatePhaseFields } from '~/components/appliedRateCards/buildRateCardForRatePhaseFields'
 import {
   getInsertIndex,
   RatePhaseFormValues,
   RatePhaseReference,
 } from '~/components/appliedRateCards/drawers/ratePhase/ratePhaseFormSchema'
 import { getActiveRateFieldValues } from '~/components/appliedRateCards/drawers/ratePhase/ratePhaseSeeds'
-import { RateCardForRatePhaseFields } from '~/components/appliedRateCards/drawers/ratePhase/types'
 import { useRatePhaseLocalDrawer } from '~/components/appliedRateCards/drawers/ratePhase/useRatePhaseLocalDrawer'
+import { getRateHistoryPath } from '~/components/appliedRateCards/ratePhaseDisplay'
 import { RatePhaseTable } from '~/components/appliedRateCards/RatePhaseTable'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -38,6 +39,9 @@ import type { useRateCardDrawer } from '~/pages/catalog/drawers/rateCard/useRate
 import { APPLIED_RATE_CARD_FORM_DEFAULTS } from './validationSchema'
 
 type OpenRateCardDrawer = ReturnType<typeof useRateCardDrawer>['openDrawer']
+
+export type AppliedRateCardParent =
+  { context: 'plan'; planId: string } | { context: 'contract'; contractId: string }
 
 export const APPLIED_RATE_CARD_DRAWER_PRODUCT_TEST_ID = 'applied-rate-card-drawer-product'
 export const APPLIED_RATE_CARD_DRAWER_SHOW_FILTER_TEST_ID = 'applied-rate-card-drawer-show-filter'
@@ -110,6 +114,8 @@ gql`
     $code: String
     $currency: CurrencyEnum
     $limit: Int
+    $excludePricedOnPlanId: ID
+    $excludePricedOnContractId: ID
   ) {
     rateCards(
       productIds: $productIds
@@ -118,6 +124,8 @@ gql`
       code: $code
       currency: $currency
       limit: $limit
+      excludePricedOnPlanId: $excludePricedOnPlanId
+      excludePricedOnContractId: $excludePricedOnContractId
     ) {
       collection {
         id
@@ -197,20 +205,30 @@ const useOptionsWithSelection = <T,>(
 }
 
 type AppliedRateCardDrawerContentProps = {
+  parent: AppliedRateCardParent
   // The backend rejects a rate card in another currency (`currency_does_not_match`).
   currency: CurrencyEnum
   openRateCardDrawer: OpenRateCardDrawer
+  organizationSlug: string | undefined
 }
 
 const appliedRateCardDrawerContentDefaultProps: AppliedRateCardDrawerContentProps = {
+  parent: { context: 'plan', planId: '' },
   currency: CurrencyEnum.Usd,
   openRateCardDrawer: () => {},
+  organizationSlug: undefined,
 }
 
 export const AppliedRateCardDrawerContent = withForm({
   defaultValues: APPLIED_RATE_CARD_FORM_DEFAULTS,
   props: appliedRateCardDrawerContentDefaultProps,
-  render: function AppliedRateCardDrawerContentRender({ form, currency, openRateCardDrawer }) {
+  render: function AppliedRateCardDrawerContentRender({
+    form,
+    parent,
+    currency,
+    openRateCardDrawer,
+    organizationSlug,
+  }) {
     const { translate } = useInternationalization()
     const { openDrawer: openRatePhaseDrawer } = useRatePhaseLocalDrawer()
     const [shouldDisplayFilter, setShouldDisplayFilter] = useState(false)
@@ -235,6 +253,9 @@ export const AppliedRateCardDrawerContent = withForm({
         productFilterIds: productFilterId ? [productFilterId] : undefined,
         currency,
         limit: 50,
+        ...(parent.context === 'plan'
+          ? { excludePricedOnPlanId: parent.planId }
+          : { excludePricedOnContractId: parent.contractId }),
       },
     })
 
@@ -260,18 +281,9 @@ export const AppliedRateCardDrawerContent = withForm({
       (rateCard) => rateCard.code === rateCardId,
     )
 
-    const rateCardForPhaseFields: RateCardForRatePhaseFields | undefined =
-      selectedRateCard && selectedProduct?.productType
-        ? {
-            productType: selectedProduct.productType,
-            aggregationType: selectedProduct.billableMetric?.aggregationType,
-            recurring: selectedProduct.billableMetric?.recurring,
-            currency: selectedRateCard.currency,
-            billingTiming: selectedRateCard.billingTiming,
-            proration: selectedRateCard.proration,
-            appliedPricingUnitCode: selectedRateCard.appliedPricingUnitCode,
-            activeRate: selectedRateCard.activeRate,
-          }
+    const rateCardForPhaseFields =
+      selectedProduct && selectedRateCard
+        ? buildRateCardForRatePhaseFields(selectedProduct, selectedRateCard)
         : undefined
 
     const lastPhaseIsFinite = ratePhases.length > 0 && ratePhases.at(-1)?.durationType !== 'forever'
@@ -346,6 +358,11 @@ export const AppliedRateCardDrawerContent = withForm({
         },
       })
     }
+
+    // A failed query lists nothing too, which must not read as "no match".
+    const createRateCardValueProps = rateCardsData
+      ? { label: translate('text_1791485670326bz5dr6tcop3'), onClick: handleCreateRateCard }
+      : undefined
 
     const resetFields = (
       fields: Array<
@@ -484,11 +501,7 @@ export const AppliedRateCardDrawerContent = withForm({
                     placeholder={translate('text_1791833366840z1t3fsw26hp')}
                     loading={rateCardsLoading}
                     allowAddValue
-                    addValueProps={{
-                      label: translate('text_1791485670326bz5dr6tcop3'),
-                      onClick: handleCreateRateCard,
-                      alwaysVisible: true,
-                    }}
+                    addValueProps={createRateCardValueProps}
                     searchQuery={getRateCards}
                     data={rateCards.map((rateCard) => ({
                       value: rateCard.code,
@@ -516,7 +529,7 @@ export const AppliedRateCardDrawerContent = withForm({
               {ratePhases.length > 0 && !!rateCardForPhaseFields && (
                 <RatePhaseTable
                   phases={ratePhases}
-                  rateCardId={selectedRateCard.id}
+                  rateHistoryPath={getRateHistoryPath(selectedRateCard.id, organizationSlug)}
                   rateCard={rateCardForPhaseFields}
                   onEdit={handleEditPhase}
                   onRevert={handleRevertPhase}

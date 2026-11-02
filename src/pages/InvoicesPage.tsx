@@ -10,6 +10,7 @@ import {
   AvailableQuickFilters,
   Filters,
   formatFiltersForInvoiceQuery,
+  InvoiceFiltersHiddenForProductCatalog,
   isOutstandingUrlParams,
 } from '~/components/Filters'
 import InvoicesList from '~/components/invoices/InvoicesList'
@@ -24,6 +25,7 @@ import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
   type DataExportInvoiceFiltersInput,
+  FeatureFlagEnum,
   InvoiceExportTypeEnum,
   InvoiceListItemFragmentDoc,
   InvoiceStatusTypeEnum,
@@ -139,7 +141,13 @@ const formatAmountCurrency = <T extends { amountFrom?: unknown; amountTo?: unkno
 const InvoicesPage = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const {
+    organization,
+    hasOrganizationPremiumAddon,
+    hasFeatureFlag,
+    loading: isOrganizationLoading,
+  } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const [searchParams] = useSearchParams()
   const amountCurrency = organization?.defaultCurrency
 
@@ -152,9 +160,31 @@ const InvoicesPage = () => {
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { page, goToPage } = usePageSearchParam()
 
-  const filtersForInvoiceQuery = useMemo(() => {
-    return formatFiltersForInvoiceQuery(searchParams)
-  }, [searchParams])
+  const hiddenFilters = useMemo(
+    () => (isProductCatalogEnabled ? InvoiceFiltersHiddenForProductCatalog : []),
+    [isProductCatalogEnabled],
+  )
+
+  const filtersForInvoiceQuery = useMemo(
+    () => formatFiltersForInvoiceQuery(searchParams, hiddenFilters),
+    [searchParams, hiddenFilters],
+  )
+
+  const availableFilters = [
+    AvailableFiltersEnum.amount,
+    AvailableFiltersEnum.billingEntityIds,
+    AvailableFiltersEnum.status,
+    AvailableFiltersEnum.invoiceType,
+    AvailableFiltersEnum.paymentStatus,
+    AvailableFiltersEnum.currency,
+    AvailableFiltersEnum.issuingDate,
+    AvailableFiltersEnum.customerExternalId,
+    AvailableFiltersEnum.paymentDisputeLost,
+    AvailableFiltersEnum.paymentOverdue,
+    AvailableFiltersEnum.settlementType,
+    AvailableFiltersEnum.purchaseOrderNumber,
+    ...(hasAccessToRevenueShare ? [AvailableFiltersEnum.selfBilled] : []),
+  ].filter((filter) => !hiddenFilters.includes(filter))
 
   const [getInvoices, { data, loading, error, fetchMore, variables }] = useGetInvoicesListLazyQuery(
     {
@@ -177,7 +207,7 @@ const InvoicesPage = () => {
   )
 
   const { debouncedSearch: invoiceDebounceSearch, isLoading: invoiceIsLoading } =
-    useDebouncedSearch(getInvoices, loading)
+    useDebouncedSearch(getInvoices, loading, { fetchOnMount: !isOrganizationLoading })
 
   const [retryAll] = useRetryAllInvoicePaymentsMutation({
     context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
@@ -193,7 +223,7 @@ const InvoicesPage = () => {
 
   const onInvoicesExport = async (values: ExportValues<InvoiceExportTypeEnum>) => {
     const filters = {
-      ...formatAmountCurrency(formatFiltersForInvoiceQuery(searchParams), amountCurrency),
+      ...formatAmountCurrency(filtersForInvoiceQuery, amountCurrency),
       searchTerm: variables?.searchTerm,
     } as DataExportInvoiceFiltersInput
 
@@ -254,6 +284,7 @@ const InvoicesPage = () => {
               type: 'action',
               label: translate('text_66b21236c939426d07ff98ca'),
               variant: 'secondary',
+              hidden: isProductCatalogEnabled,
               disabled: !invoicesTotalCount,
               onClick: () => {
                 openExportDialog({
@@ -300,21 +331,7 @@ const InvoicesPage = () => {
           <Filters.Provider
             filtersNamePrefix={INVOICE_LIST_FILTER_PREFIX}
             quickFiltersType={AvailableQuickFilters.invoiceStatus}
-            availableFilters={[
-              AvailableFiltersEnum.amount,
-              AvailableFiltersEnum.billingEntityIds,
-              AvailableFiltersEnum.status,
-              AvailableFiltersEnum.invoiceType,
-              AvailableFiltersEnum.paymentStatus,
-              AvailableFiltersEnum.currency,
-              AvailableFiltersEnum.issuingDate,
-              AvailableFiltersEnum.customerExternalId,
-              AvailableFiltersEnum.paymentDisputeLost,
-              AvailableFiltersEnum.paymentOverdue,
-              AvailableFiltersEnum.settlementType,
-              AvailableFiltersEnum.purchaseOrderNumber,
-              ...(hasAccessToRevenueShare ? [AvailableFiltersEnum.selfBilled] : []),
-            ]}
+            availableFilters={availableFilters}
           >
             <div className="flex flex-col gap-4">
               <Filters.QuickFilters />

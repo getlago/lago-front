@@ -5,6 +5,8 @@ import { getChargeModelHelpTextTranslationKey } from '~/core/constants/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type ChargeModelSelectorProps = {
+  // The rate forms store the model under `rateModel`; `scrollToFirstInputError` matches by name.
+  name?: string
   label: string
   disabled: boolean | undefined
   // Narrowed to what is read, so a caller owning no charge need not fake one.
@@ -16,6 +18,7 @@ type ChargeModelSelectorProps = {
 }
 
 export const ChargeModelSelector = ({
+  name = 'chargeModel',
   label,
   disabled,
   localCharge,
@@ -35,13 +38,13 @@ export const ChargeModelSelector = ({
       )}
       <ComboBox
         disableClearable
-        name="chargeModel"
+        name={name}
         disabled={isInSubscriptionForm || disabled}
         label={label}
         data={chargeModelComboboxData}
         value={localCharge.chargeModel}
         helperText={translate(getChargeModelHelpTextTranslationKey[localCharge.chargeModel])}
-        onChange={(value) => handleUpdate('chargeModel', value)}
+        onChange={(value) => handleUpdate(name, value)}
       />
     </div>
   )

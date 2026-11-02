@@ -17,11 +17,16 @@ import {
   RATE_PHASE_OVERRIDE_TOGGLE_TEST_ID,
 } from '../RatePhaseFormFields'
 import { RATE_PHASE_FORM_DEFAULTS, RatePhaseFormValues } from '../ratePhaseFormSchema'
+import { scrollToFirstRatePhaseError } from '../scrollToFirstRatePhaseError'
 import { RateCardForRatePhaseFields } from '../types'
 import { useRatePhaseLocalDrawer } from '../useRatePhaseLocalDrawer'
 
 const mockOpen = jest.fn()
 const mockClose = jest.fn()
+
+jest.mock('../scrollToFirstRatePhaseError', () => ({
+  scrollToFirstRatePhaseError: jest.fn(),
+}))
 
 jest.mock('~/components/drawers/useDrawer', () => ({
   useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
@@ -49,7 +54,7 @@ const rateCard: RateCardForRatePhaseFields = {
 type OpenedDrawerArgs = {
   children: ReactNode
   secondaryAction?: ReactNode
-  form: { submit: () => void | Promise<void> }
+  form: { id: string; submit: () => void | Promise<void> }
 }
 
 const Host = ({ onSave }: { onSave: jest.Mock }) => {
@@ -68,6 +73,20 @@ const openDrawer = async (onSave: jest.Mock): Promise<OpenedDrawerArgs> => {
 describe('useRatePhaseLocalDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+  })
+
+  it('GIVEN a missing code WHEN submitted THEN scrolls to the first error and saves nothing', async () => {
+    const onSave = jest.fn()
+    const opened = await openDrawer(onSave)
+
+    render(<>{opened.children}</>)
+    await opened.form.submit()
+
+    expect(scrollToFirstRatePhaseError).toHaveBeenCalledWith(
+      opened.form.id,
+      expect.objectContaining({ code: expect.anything() }),
+    )
+    expect(onSave).not.toHaveBeenCalled()
   })
 
   it('GIVEN the form is filled and submitted THEN onSave receives the values with no API call', async () => {

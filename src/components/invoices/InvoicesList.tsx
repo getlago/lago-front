@@ -41,6 +41,7 @@ import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
+  FeatureFlagEnum,
   GetInvoicesListQuery,
   GetInvoicesListQueryResult,
   Invoice,
@@ -51,8 +52,12 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useGeneratePaymentUrl } from '~/hooks/useGeneratePaymentUrl'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
+
+export const INVOICE_LIST_VOID_ACTION_TEST_ID = 'invoice-list-void-action'
+export const INVOICE_LIST_REGENERATE_ACTION_TEST_ID = 'invoice-list-regenerate-action'
 
 type TInvoiceListProps = {
   error: ApolloError | undefined
@@ -81,6 +86,8 @@ const InvoicesList = ({
 }: TInvoiceListProps) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const [searchParams] = useSearchParams()
   const actions = usePermissionsInvoiceActions()
   const { showResendEmailDialog } = useResendEmailDialog()
@@ -298,9 +305,11 @@ const InvoicesList = ({
     const voidInvoiceAction: ActionItem<InvoiceItem> | null = actions.canVoid(invoice)
       ? {
           startIcon: 'stop',
-          title: invoice?.customer?.deletedAt
-            ? translate('text_65269b43d4d2b15dd929a259')
-            : translate('text_1750678506388d4fr5etxbhh'),
+          title:
+            invoice?.customer?.deletedAt || isProductCatalogEnabled
+              ? translate('text_65269b43d4d2b15dd929a259')
+              : translate('text_1750678506388d4fr5etxbhh'),
+          dataTest: INVOICE_LIST_VOID_ACTION_TEST_ID,
           link: () =>
             generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
               customerId: invoice?.customer?.id,
@@ -319,16 +328,15 @@ const InvoicesList = ({
         }
       : null
 
-    const regenerateAction: ActionItem<InvoiceItem> | null = actions.canRegenerate(
-      invoice,
-      hasActiveWallet,
-    )
-      ? {
-          startIcon: 'stop',
-          title: translate('text_1750678506388oynw9hd01l9'),
-          link: () => regeneratePath(invoice as Invoice),
-        }
-      : null
+    const regenerateAction: ActionItem<InvoiceItem> | null =
+      !isProductCatalogEnabled && actions.canRegenerate(invoice, hasActiveWallet)
+        ? {
+            startIcon: 'stop',
+            title: translate('text_1750678506388oynw9hd01l9'),
+            dataTest: INVOICE_LIST_REGENERATE_ACTION_TEST_ID,
+            link: () => regeneratePath(invoice as Invoice),
+          }
+        : null
 
     return [
       duplicateAction,

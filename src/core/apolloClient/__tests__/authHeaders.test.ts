@@ -1,4 +1,8 @@
-import { buildAuthHeaders } from '../authHeaders'
+import {
+  buildAuthHeaders,
+  buildCableConnectionParams,
+  buildCableSubprotocols,
+} from '../authHeaders'
 
 const mockGetCurrentOrganizationId = jest.fn()
 
@@ -108,6 +112,77 @@ describe('buildAuthHeaders', () => {
       it('THEN should send no headers', () => {
         expect(buildAuthHeaders(ADMIN_PATH)).toEqual({})
       })
+    })
+  })
+})
+
+describe('buildCableSubprotocols', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    localStorage.clear()
+  })
+
+  describe('WHEN an auth token exists', () => {
+    it('THEN should send it as a lago-token subprotocol', () => {
+      localStorage.setItem('auth_token', 'admin-jwt')
+      localStorage.setItem('tmp_auth_token', 'tmp-jwt')
+
+      expect(buildCableSubprotocols(ADMIN_PATH)).toEqual(['lago-token.admin-jwt'])
+    })
+  })
+
+  describe('WHEN only the temporary token exists', () => {
+    it('THEN should send the temporary token', () => {
+      localStorage.setItem('tmp_auth_token', 'tmp-jwt')
+
+      expect(buildCableSubprotocols(ADMIN_PATH)).toEqual(['lago-token.tmp-jwt'])
+    })
+  })
+
+  describe('WHEN on a customer portal route', () => {
+    it('THEN should not send the admin token', () => {
+      localStorage.setItem('auth_token', 'admin-jwt')
+
+      expect(buildCableSubprotocols(PORTAL_PATH)).toEqual([])
+    })
+  })
+
+  describe('WHEN no token exists at all', () => {
+    it('THEN should send no subprotocol', () => {
+      expect(buildCableSubprotocols(ADMIN_PATH)).toEqual([])
+    })
+  })
+})
+
+describe('buildCableConnectionParams', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    localStorage.clear()
+    mockGetCurrentOrganizationId.mockReturnValue(null)
+  })
+
+  describe('WHEN an organization id exists', () => {
+    it('THEN should send only the organization id, never the token', () => {
+      localStorage.setItem('auth_token', 'admin-jwt')
+      mockGetCurrentOrganizationId.mockReturnValue('org-123')
+
+      expect(buildCableConnectionParams(ADMIN_PATH)).toEqual({ organization_id: 'org-123' })
+    })
+  })
+
+  describe('WHEN no organization id is resolved', () => {
+    it('THEN should send no params', () => {
+      localStorage.setItem('auth_token', 'admin-jwt')
+
+      expect(buildCableConnectionParams(ADMIN_PATH)).toEqual({})
+    })
+  })
+
+  describe('WHEN on a customer portal route', () => {
+    it('THEN should not send the admin organization id', () => {
+      mockGetCurrentOrganizationId.mockReturnValue('org-123')
+
+      expect(buildCableConnectionParams(PORTAL_PATH)).toEqual({})
     })
   })
 })

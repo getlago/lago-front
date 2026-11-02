@@ -192,7 +192,7 @@ const Host = ({
       </button>
       <button
         data-test={CHANGE_MODEL_BUTTON_TEST_ID}
-        onClick={() => mockHandleChargeModelUpdate?.('chargeModel', RateCardRateModelEnum.Package)}
+        onClick={() => mockHandleChargeModelUpdate?.('rateModel', RateCardRateModelEnum.Package)}
       >
         change model
       </button>
@@ -349,7 +349,7 @@ describe('RateCardRateDrawerContent', () => {
         render(<Host />)
 
         await userEvent.click(screen.getByTestId(CHANGE_MODEL_BUTTON_TEST_ID))
-        mockHandleChargeModelUpdate?.('chargeModel', RateCardRateModelEnum.GraduatedPercentage)
+        mockHandleChargeModelUpdate?.('rateModel', RateCardRateModelEnum.GraduatedPercentage)
 
         expect(mockOpenPremiumWarningDialog).toHaveBeenCalledTimes(1)
         expect(mockRateWrapperSwitchProps.rateModel).toBe(RateCardRateModelEnum.Package)
@@ -588,7 +588,7 @@ describe('rate editor compatibility', () => {
     billingTiming: RateCardBillingTimingEnum.Advance,
   }
   const modelInput = (): HTMLInputElement =>
-    document.querySelector('input[name="chargeModel"]') as HTMLInputElement
+    document.querySelector('input[name="rateModel"]') as HTMLInputElement
 
   it('offers the same single model as a prorated advance card', async () => {
     render(<Host rateCard={{ ...advanceCard, recurring: true, proration: true }} />)
@@ -669,7 +669,7 @@ describe('rate editor compatibility', () => {
     render(<Host rateCard={advanceCard} initialValues={{ properties: { amount: '42' } }} />)
 
     await act(async () => {
-      mockHandleChargeModelUpdate?.('chargeModel', RateCardRateModelEnum.Volume)
+      mockHandleChargeModelUpdate?.('rateModel', RateCardRateModelEnum.Volume)
     })
 
     expect(screen.getByTestId(RATE_MODEL_PROBE_TEST_ID)).toHaveTextContent('standard')
@@ -708,7 +708,7 @@ describe('rate editor compatibility', () => {
     expect(mockChargeModelSelectorProps.alreadyUsedChargeAlertMessage).toBeUndefined()
 
     await act(async () => {
-      mockHandleChargeModelUpdate?.('chargeModel', RateCardRateModelEnum.Standard)
+      mockHandleChargeModelUpdate?.('rateModel', RateCardRateModelEnum.Standard)
     })
 
     expect(screen.getByTestId(RATE_MODEL_PROBE_TEST_ID)).toHaveTextContent('volume')
@@ -770,7 +770,7 @@ describe('correcting an incompatible rate', () => {
     await waitFor(() => expect(submitButton).toBeEnabled())
     expect(onSubmit).not.toHaveBeenCalled()
 
-    await userEvent.click(document.querySelector('input[name="chargeModel"]') as HTMLElement)
+    await userEvent.click(document.querySelector('input[name="rateModel"]') as HTMLElement)
     await userEvent.keyboard('{ArrowDown}')
     await userEvent.click(screen.getByRole('option', { name: /text_624aa732d6af4e0103d40e6f/ }))
     await waitFor(() =>

@@ -6,6 +6,7 @@ import { ReactNode } from 'react'
 
 import { CREATE_MORE_SWITCH_TEST_ID } from '~/components/drawers/createMore/CreateMoreControl'
 import { addToast } from '~/core/apolloClient'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import {
   AggregationTypeEnum,
   CreateRateCardRateDocument,
@@ -43,6 +44,10 @@ const mockNavigate = jest.fn()
 
 // drawerStack.ts uses `import.meta`, which jest cannot parse; mocking also lets us capture
 // the args passed to `open`.
+jest.mock('~/core/form/scrollToFirstInputError', () => ({
+  scrollToFirstInputError: jest.fn(),
+}))
+
 jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
 }))
@@ -176,6 +181,21 @@ describe('useRateCardRateDrawer create flow', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     lastDrawerArgs = null
+  })
+
+  it('GIVEN nothing filled WHEN submitted THEN scrolls to the first error and sends nothing', async () => {
+    let isMutationSent = false
+    const { result } = renderDrawerHook([createMock(() => (isMutationSent = true))])
+
+    act(() => result.current.openDrawer({ rateCard: buildRateCardForRateDrawer() }))
+    renderDrawerBody()
+    await submit()
+
+    expect(scrollToFirstInputError).toHaveBeenCalledWith(
+      lastDrawerArgs?.form?.id,
+      expect.objectContaining({ code: expect.anything() }),
+    )
+    expect(isMutationSent).toBe(false)
   })
 
   describe('GIVEN a rate card with no rate yet', () => {

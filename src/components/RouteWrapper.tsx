@@ -8,8 +8,10 @@ import { ErrorBoundary } from '~/components/ErrorBoundary'
 import { ErrorFallback } from '~/components/ErrorFallback'
 import { CustomRouteObject, routes, useLocation, useNavigate } from '~/core/router'
 import { NEVER_SLUG_PREFIXES } from '~/core/router/slugPrefixes'
+import { isRouteAvailable, isRouteGatedByFeatureFlag } from '~/core/router/utils/isRouteAvailable'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { DEVTOOL_TAB_PARAMS, useDeveloperTool, useDevtoolTabParam } from '~/hooks/useDeveloperTool'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 interface PageWrapperProps {
   routeConfig: CustomRouteObject
@@ -19,10 +21,12 @@ interface PageWrapperProps {
 const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
   const location = useLocation()
   const { onRouteEnter } = useLocationHistory()
+  const { hasFeatureFlag, organization, loading: isOrganizationLoading } = useOrganizationInfos()
+  const isWaitingForOrganization = isOrganizationLoading && !organization
 
   useEffect(() => {
     onRouteEnter(routeConfig, location)
-  }, [location, routeConfig, onRouteEnter])
+  }, [location, routeConfig, onRouteEnter, isWaitingForOrganization])
 
   // Redirect to '/' and open devtools if path starts with DEVTOOL_ROUTE
   useEffect(() => {
@@ -40,6 +44,13 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
   if (location.pathname.startsWith(DEVTOOL_ROUTE)) {
     // Prevent rendering anything while redirecting
     return null
+  }
+
+  if (
+    isRouteGatedByFeatureFlag(routeConfig) &&
+    (isWaitingForOrganization || !isRouteAvailable(routeConfig, hasFeatureFlag))
+  ) {
+    return <Spinner />
   }
 
   return <>{children}</>

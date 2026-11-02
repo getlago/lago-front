@@ -32,6 +32,7 @@ export const ComboBox = ({
   className,
   containerClassName = '',
   searchQuery,
+  fetchOnMount = true,
   emptyText,
   disableClearable = false,
   renderGroupHeader,
@@ -45,7 +46,9 @@ export const ComboBox = ({
 }: ComboBoxProps) => {
   const { translate } = useInternationalization()
 
-  const { debouncedSearch, isLoading } = useDebouncedSearch(searchQuery, loading)
+  const { debouncedSearch, isLoading, isSearchPending } = useDebouncedSearch(searchQuery, loading, {
+    fetchOnMount,
+  })
 
   // By default, we want to sort `options` alphabetically (by value)
   const data = useMemo(() => {
@@ -138,7 +141,16 @@ export const ComboBox = ({
       }}
       onChange={(_event, newValue) => {
         if (typeof newValue === 'string') {
-          onChange(newValue)
+          // MUI `freeSolo` hands typed text + Enter over as a raw string, past `getOptionDisabled`.
+          // A rejected Enter leaves the option label in the input, so labels must match too.
+          const typedOption =
+            data.find((option) => option.value === newValue) ??
+            data.find((option) => option.label === newValue)
+
+          if (typedOption?.disabled) return
+          if (!typedOption && addValueProps?.onClick) return
+
+          onChange(typedOption?.value ?? newValue)
         } else if (newValue?.addValueOnClick) {
           // The add row runs its creation flow (click or Enter): its value is the typed search.
           newValue.addValueOnClick()
@@ -187,18 +199,21 @@ export const ComboBox = ({
         )
       }}
       filterOptions={(options, params) => {
+        const listedOptions = options.filter(({ hidden }) => !hidden)
         const filtered = searchQuery
-          ? options
+          ? listedOptions
           : filter(
-              options,
+              listedOptions,
               params.inputValue !== value
                 ? params
                 : { getOptionLabel: params.getOptionLabel, inputValue: '' },
             )
 
-        // Suggest the creation of a new value
+        // Suggest the creation of a new value, once the search for the typed term resolved empty
         if (
-          (filtered.length === 0 || addValueProps?.alwaysVisible) &&
+          filtered.length === 0 &&
+          !isLoading &&
+          !isSearchPending &&
           !emptyText &&
           allowAddValue &&
           addValueProps

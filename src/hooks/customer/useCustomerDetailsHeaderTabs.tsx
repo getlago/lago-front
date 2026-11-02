@@ -55,6 +55,7 @@ export function useCustomerDetailsHeaderTabs({
   } = customer || {}
 
   const isPartner = customer?.accountType === CustomerAccountTypeEnum.Partner
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
 
   if (!customer) return undefined
 
@@ -72,7 +73,7 @@ export function useCustomerDetailsHeaderTabs({
         }),
         generatePath(CUSTOMER_DETAILS_ROUTE, { customerId }),
       ],
-      content: hasFeatureFlag(FeatureFlagEnum.ProductCatalog) ? (
+      content: isProductCatalogEnabled ? (
         <CustomerContractsList customer={customer} />
       ) : (
         <CustomerSubscriptionsList
@@ -94,6 +95,7 @@ export function useCustomerDetailsHeaderTabs({
           customerDisplayName={customer?.displayName || ''}
         />
       ),
+      hidden: isProductCatalogEnabled,
       dataTest: 'coupons-tab',
     },
     {
@@ -103,6 +105,7 @@ export function useCustomerDetailsHeaderTabs({
         tab: CustomerDetailsTabsOptions.wallet,
       }),
       content: <CustomerWalletsList customerId={customerId} />,
+      hidden: isProductCatalogEnabled,
       dataTest: 'wallet-tab',
     },
     {
@@ -111,7 +114,7 @@ export function useCustomerDetailsHeaderTabs({
         customerId,
         tab: CustomerDetailsTabsOptions.usage,
       }),
-      hidden: !hasPermissions(['analyticsView']),
+      hidden: !hasPermissions(['analyticsView']) || isProductCatalogEnabled,
       content: <CustomerUsage />,
     },
     {

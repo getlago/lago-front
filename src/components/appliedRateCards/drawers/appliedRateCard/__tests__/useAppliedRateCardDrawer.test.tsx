@@ -1,10 +1,13 @@
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { act, renderHook, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { ReactNode } from 'react'
+import { GraphQLError } from 'graphql'
+import { ComponentProps, ReactNode } from 'react'
 
+import { APPLIED_RATE_CARD_CONTEXT_CONFIG } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { CREATE_MORE_SWITCH_TEST_ID } from '~/components/drawers/createMore/CreateMoreControl'
 import { addToast } from '~/core/apolloClient'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import {
   CreateContractAppliedRateCardDocument,
   CreatePlanAppliedRateCardDocument,
@@ -12,6 +15,7 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import type { AppliedRateCardDrawerContent } from '../AppliedRateCardDrawerContent'
 import { useAppliedRateCardDrawer } from '../useAppliedRateCardDrawer'
 
 type CapturedDrawerArgs = {
@@ -33,6 +37,10 @@ const mockNavigate = jest.fn()
 // Mock the NiceModal-backed drawer hook so Jest never loads the drawer stack
 // (drawerStack.ts uses import.meta and crashes Jest) and we can capture the
 // args the hook passes to `open`.
+jest.mock('~/core/form/scrollToFirstInputError', () => ({
+  scrollToFirstInputError: jest.fn(),
+}))
+
 jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
 }))
@@ -62,13 +70,16 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 // Replace the drawer body (drives the real product/rate-card cascade query, out of scope for
 // this hook's own submit/create-more/navigate behavior) with a control that seeds the fields
 // directly, mirroring useRateCardDrawer.create.test.tsx's own established pattern.
+const mockRateCardErrorsProbeTestId = 'rate-card-errors-probe'
+
 jest.mock('../AppliedRateCardDrawerContent', () => ({
-  AppliedRateCardDrawerContent: ({
-    form,
-  }: {
-    form: { setFieldValue: (name: string, value: unknown) => void }
-  }) => (
+  AppliedRateCardDrawerContent: ({ form }: ComponentProps<typeof AppliedRateCardDrawerContent>) => (
     <>
+      <form.Subscribe
+        selector={(state) => JSON.stringify(state.fieldMeta.rateCardId?.errors ?? [])}
+      >
+        {(errors) => <output data-test={mockRateCardErrorsProbeTestId}>{errors}</output>}
+      </form.Subscribe>
       <button
         type="button"
         onClick={() => {
@@ -118,6 +129,25 @@ const createContractAppliedRateCardMock = (
   },
 })
 
+const alreadyPricedMock = (
+  query: typeof CreatePlanAppliedRateCardDocument,
+  detailCode: string,
+): MockedResponse => ({
+  request: { query },
+  variableMatcher: () => true,
+  result: {
+    errors: [
+      new GraphQLError('Unprocessable Entity', {
+        extensions: {
+          code: 'unprocessable_entity',
+          status: 422,
+          details: { rateCard: [detailCode] },
+        },
+      }),
+    ],
+  },
+})
+
 const renderDrawerHook = (mocks: MockedResponse[] = []) =>
   renderHook(() => useAppliedRateCardDrawer(), {
     wrapper: ({ children }: { children: ReactNode }) => (
@@ -148,6 +178,66 @@ describe('useAppliedRateCardDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     lastDrawerArgs = null
+  })
+
+  it.each([
+    {
+      scenario: 'plan',
+      detailCode: 'product_already_priced',
+      mock: alreadyPricedMock(CreatePlanAppliedRateCardDocument, 'product_already_priced'),
+      props: { context: 'plan' as const, planId: 'plan-1', currency: CurrencyEnum.Usd },
+    },
+    {
+      scenario: 'contract',
+      detailCode: 'product_filter_already_priced',
+      mock: alreadyPricedMock(
+        CreateContractAppliedRateCardDocument,
+        'product_filter_already_priced',
+      ),
+      props: {
+        context: 'contract' as const,
+        contractId: 'contract-1',
+        contractExternalId: 'contract-ext-1',
+        currency: CurrencyEnum.Usd,
+      },
+    },
+  ])(
+    'GIVEN the $scenario rejects the slice with $detailCode THEN the error lands on the rate card field and the drawer stays open',
+    async ({ mock, props }) => {
+      const { result } = renderDrawerHook([mock])
+
+      act(() => result.current.openDrawer(props))
+      renderDrawerBody()
+      await userEvent.click(screen.getByRole('button', { name: 'seed required fields' }))
+      await submit()
+
+      await waitFor(() =>
+        expect(screen.getByTestId(mockRateCardErrorsProbeTestId)).toHaveTextContent(
+          APPLIED_RATE_CARD_CONTEXT_CONFIG[props.context].alreadyPricedTranslationKey,
+        ),
+      )
+      expect(scrollToFirstInputError).toHaveBeenCalledWith(
+        lastDrawerArgs?.form?.id,
+        expect.objectContaining({ rateCardId: expect.anything() }),
+      )
+      expect(mockClose).not.toHaveBeenCalled()
+      expect(addToast).not.toHaveBeenCalled()
+    },
+  )
+
+  it('GIVEN nothing filled WHEN submitted THEN scrolls to the first error', async () => {
+    const { result } = renderDrawerHook()
+
+    act(() =>
+      result.current.openDrawer({ context: 'plan', planId: 'plan-1', currency: CurrencyEnum.Usd }),
+    )
+    renderDrawerBody()
+    await submit()
+
+    expect(scrollToFirstInputError).toHaveBeenCalledWith(
+      lastDrawerArgs?.form?.id,
+      expect.objectContaining({ productId: expect.anything() }),
+    )
   })
 
   it('GIVEN context plan THEN submitting with an empty local phases array calls createPlanAppliedRateCard with no ratePhases key', async () => {

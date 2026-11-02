@@ -15,8 +15,12 @@ const Home = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { loading: isUserLoading, currentUser, currentMembership } = useCurrentUser()
-  const { hasPermissions, findFirstViewPermission } = usePermissions()
-  const { hasOrganizationPremiumAddon, loading: isOrganizationLoading } = useOrganizationInfos()
+  const { hasPermissions, findViewPermissions } = usePermissions()
+  const {
+    hasFeatureFlag,
+    hasOrganizationPremiumAddon,
+    loading: isOrganizationLoading,
+  } = useOrganizationInfos()
   const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
     PremiumIntegrationTypeEnum.AnalyticsDashboards,
   )
@@ -42,8 +46,9 @@ const Home = () => {
       ssoRedirectPath: getItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY) || undefined,
       savedLocation: routerState?.from,
       hasPermissions,
-      findFirstViewPermission,
+      findViewPermissions,
       hasAccessToAnalyticsDashboardsFeature,
+      hasFeatureFlag,
     })
 
     if (!target) return
@@ -60,8 +65,9 @@ const Home = () => {
     currentMembership,
     isOrganizationLoading,
     hasPermissions,
-    findFirstViewPermission,
+    findViewPermissions,
     hasAccessToAnalyticsDashboardsFeature,
+    hasFeatureFlag,
     navigate,
     location.state,
   ])

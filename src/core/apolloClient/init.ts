@@ -3,13 +3,10 @@ import { onError } from '@apollo/client/link/error'
 import { RetryLink } from '@apollo/client/link/retry'
 import { getMainDefinition } from '@apollo/client/utilities'
 import { captureException, captureMessage } from '@sentry/react'
-import ActionCable from 'actioncable'
 import ApolloLinkTimeout from 'apollo-link-timeout'
 import { createUploadLink } from 'apollo-upload-client'
-import ActionCableLink from 'graphql-ruby-client/subscriptions/ActionCableLink'
-// IMPORTANT: Keep reactiveVars import before cacheUtils
-import { matchPath } from 'react-router'
 
+// IMPORTANT: Keep reactiveVars import before cacheUtils
 import {
   addToast,
   AUTH_TOKEN_LS_KEY,
@@ -18,11 +15,12 @@ import {
   updateAuthTokenVar,
 } from '~/core/apolloClient/reactiveVars'
 import { buildWebSocketUrl } from '~/core/apolloClient/websocketUrl'
-import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
+import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { LagoApiError } from '~/generated/graphql'
 
 import { buildAuthHeaders } from './authHeaders'
+import { CableSubscriptionError, createCableLink, refreshCableConsumer } from './cableConsumer'
 import { cache } from './cache'
 import { setupCachePersistor } from './cachePersistor'
 import { omitDeep } from './cacheUtils'
@@ -41,11 +39,7 @@ const SLOW_QUERY_THRESHOLD_MS = 8000 // threshold for considering a query as "sl
 const { apiUrl, appVersion } = envGlobalVar()
 
 const { cableUrl } = buildWebSocketUrl(apiUrl)
-const subscriptionLink = new ActionCableLink({
-  cable: ActionCable.createConsumer(cableUrl),
-  channelName: 'GraphqlChannel',
-  actionName: 'execute',
-})
+const subscriptionLink = createCableLink(cableUrl)
 
 const hasSubscriptionOperation = ({ query }: Operation) => {
   const definition = getMainDefinition(query)
@@ -87,6 +81,7 @@ export const initializeApolloClient = async () => {
 
           if (newToken && newToken !== currentToken) {
             updateAuthTokenVar(newToken)
+            refreshCableConsumer()
           }
         }
       }
@@ -172,6 +167,9 @@ export const initializeApolloClient = async () => {
 
         if (isAbortError) return false
 
+        // The API refused the subscription, or the socket was closed on purpose (logout)
+        if (error instanceof CableSubscriptionError) return false
+
         // Retry network errors (connection failures, timeouts, DNS failures)
         // Don't retry GraphQL errors (which have a result)
         return isNetworkError
@@ -203,10 +201,7 @@ export const initializeApolloClient = async () => {
         if (isUnauthorized) {
           // Skip logout in customer portal context — the portal handles auth errors
           // via query data (isUnauthenticated flag) and doesn't use the onAuthError callback
-          const isCustomerPortal = !!matchPath(
-            `${CUSTOMER_PORTAL_ROUTE}/*`,
-            window.location.pathname,
-          )
+          const isCustomerPortal = isCustomerPortalPath(window.location.pathname)
 
           if (!isCustomerPortal && onAuthError) {
             onAuthError()

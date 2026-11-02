@@ -1,3 +1,5 @@
+import { FeatureFlagEnum } from '~/generated/graphql'
+
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
@@ -75,6 +77,7 @@ export const customerVoidRoutes: CustomRouteObject[] = [
     private: true,
     element: <CustomerInvoiceRegenerate />,
     permissions: ['invoicesVoid'],
+    hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
   },
 ]
 

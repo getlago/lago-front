@@ -10,6 +10,7 @@ import {
   RatePhaseFormSchemaContext,
   RatePhaseFormValues,
   RatePhaseReference,
+  RatePhaseSequenceLock,
 } from './ratePhaseFormSchema'
 import { RateCardForRatePhaseFields } from './types'
 
@@ -55,12 +56,23 @@ export const insertPhaseReference = (
     name: values.name,
   })
 
+export const getLiveSequenceLock = (
+  otherPhases: RatePhaseReference[],
+  editedPhase?: Pick<RatePhaseFormValues, 'durationType'>,
+): RatePhaseSequenceLock => {
+  if (editedPhase?.durationType === 'forever' || otherPhases.length === 0) return 'tail'
+
+  return 'beforeTail'
+}
+
 export const buildRatePhaseSchemaContext = (
   otherPhases: RatePhaseReference[],
   rateCard: RateCardForRatePhaseFields,
+  sequenceLock: RatePhaseSequenceLock,
 ): RatePhaseFormSchemaContext => ({
   otherPhases,
   billingTiming: rateCard.billingTiming,
   hasPricingUnit: !!rateCard.appliedPricingUnitCode,
   rateModelConfiguration: rateCard,
+  sequenceLock,
 })

@@ -55,11 +55,16 @@ export const RATE_PHASE_FORM_DEFAULTS: RatePhaseFormValues = {
   conversionRate: '',
 }
 
+// `RatePhases::CreateService` / `UpdateService` check the whole sequence on each live save:
+// the forever tail stays last, every other phase stays finite and before it.
+export type RatePhaseSequenceLock = 'none' | 'tail' | 'beforeTail'
+
 export interface RatePhaseFormSchemaContext {
   otherPhases: RatePhaseReference[]
   billingTiming: RateCardBillingTimingEnum
   hasPricingUnit: boolean
   rateModelConfiguration: RateModelConfiguration | undefined
+  sequenceLock: RatePhaseSequenceLock
 }
 
 type PositionValues = Pick<RatePhaseFormValues, 'positionMode' | 'positionReferenceCode'>
@@ -129,11 +134,40 @@ export const buildRatePhaseFormSchema = (getContext: () => RatePhaseFormSchemaCo
       }
     }
 
-    if (values.durationType === 'forever' && !isPlacedLast(values, context.otherPhases)) {
+    const isLast = isPlacedLast(values, context.otherPhases)
+    const isForever = values.durationType === 'forever'
+
+    if (isForever && (!isLast || context.sequenceLock === 'beforeTail')) {
       ctx.addIssue({
         code: 'custom',
         path: ['durationType'],
         message: 'text_17918352599305ihwwvq7fyq',
+      })
+    }
+
+    if (context.sequenceLock === 'tail') {
+      if (!isForever) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['durationType'],
+          message: 'text_1791485670326e1zbmola1n3',
+        })
+      }
+
+      if (!isLast) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['positionReferenceCode'],
+          message: 'text_17918352599305ihwwvq7fyq',
+        })
+      }
+    }
+
+    if (context.sequenceLock === 'beforeTail' && isLast) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['positionReferenceCode'],
+        message: 'text_1792516745021oj4du8sg5mm',
       })
     }
 

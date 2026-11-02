@@ -717,6 +717,7 @@ type InvoiceQueryFilters = Partial<
 
 export const formatFiltersForInvoiceQuery = (
   searchParams: URLSearchParams,
+  hiddenFilters: AvailableFiltersEnum[] = [],
 ): InvoiceQueryFilters => {
   const keyMap: Partial<Record<AvailableFiltersEnum, keyof InvoiceQueryFilters & string>> = {
     [AvailableFiltersEnum.settlementType]: 'settlements',
@@ -725,7 +726,7 @@ export const formatFiltersForInvoiceQuery = (
   return formatFiltersForQuery<InvoiceQueryFilters>({
     searchParams,
     keyMap,
-    availableFilters: InvoiceAvailableFilters,
+    availableFilters: InvoiceAvailableFilters.filter((filter) => !hiddenFilters.includes(filter)),
     filtersNamePrefix: INVOICE_LIST_FILTER_PREFIX,
   })
 }
@@ -750,6 +751,7 @@ type CustomerQueryFilters = Partial<
 
 export const formatFiltersForCustomerQuery = (
   searchParams: URLSearchParams,
+  hiddenFilters: AvailableFiltersEnum[] = [],
 ): CustomerQueryFilters => {
   const formatted = formatFiltersForQuery<
     CustomerQueryFilters & {
@@ -759,7 +761,7 @@ export const formatFiltersForCustomerQuery = (
     }
   >({
     searchParams,
-    availableFilters: CustomerAvailableFilters,
+    availableFilters: CustomerAvailableFilters.filter((filter) => !hiddenFilters.includes(filter)),
     filtersNamePrefix: CUSTOMER_LIST_FILTER_PREFIX,
   })
 
