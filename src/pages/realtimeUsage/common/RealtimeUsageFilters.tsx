@@ -55,6 +55,7 @@ export const RealtimeUsageFilters = ({
         <Button
           data-test={REALTIME_USAGE_REFRESH_BUTTON_TEST_ID}
           variant="inline"
+          size="small"
           onClick={onRefresh}
         >
           {translate('text_1738748043939zqoqzz350yj')}
