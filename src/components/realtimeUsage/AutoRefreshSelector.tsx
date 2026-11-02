@@ -10,7 +10,6 @@ import { AUTO_REFRESH_OPTIONS, REALTIME_USAGE_CONTROL_CLASSNAME } from './consta
 type AutoRefreshSelectorProps = {
   value: number
   onChange: (seconds: number) => void
-  // `buttons` lists every interval inline, `menu` shows the current one and opens a list.
   variant?: 'buttons' | 'menu'
   'data-test'?: string
 }
