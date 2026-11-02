@@ -248,10 +248,8 @@ describe('RatePhaseDetailsView', () => {
   })
 
   describe('GIVEN a phase deleted from the page', () => {
-    it('THEN navigates to the card overview and notifies the page before navigating', async () => {
-      const onPhaseDeleted = jest.fn()
-
-      renderWithHeader({ ...getLoadedViewProps(PLAN_DATA), onPhaseDeleted })
+    it('THEN navigates to the card overview', async () => {
+      renderWithHeader(getLoadedViewProps(PLAN_DATA))
 
       await openActions()
       await userEvent.click(screen.getByTestId(RATE_PHASE_ACTION_DELETE_TEST_ID))
@@ -262,11 +260,6 @@ describe('RatePhaseDetailsView', () => {
 
       mockOpenDeleteDialog.mock.calls[0][0].onDeleted()
 
-      // The page needs this to suppress its own not-found redirect while the
-      // refetch triggered by the delete is still in flight.
-      expect(onPhaseDeleted.mock.invocationCallOrder[0]).toBeLessThan(
-        testMockNavigateFn.mock.invocationCallOrder[0],
-      )
       expect(testMockNavigateFn).toHaveBeenCalledWith(
         APPLIED_RATE_CARD_DETAILS_CONFIG.plan.buildCardPath({
           parentId: CATALOG_PLAN_ID,
