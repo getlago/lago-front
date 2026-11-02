@@ -63,6 +63,7 @@ import { FiltersItemQuoteStatus } from '~/components/Filters/graphql/filtersElem
 import { FiltersItemRateCardProduct } from '~/components/Filters/graphql/filtersElements/FiltersItemRateCardProduct'
 import { FiltersItemRateCardProductCategory } from '~/components/Filters/graphql/filtersElements/FiltersItemRateCardProductCategory'
 import { FiltersItemRateCardProductFilter } from '~/components/Filters/graphql/filtersElements/FiltersItemRateCardProductFilter'
+import { FiltersItemRealtimeDimensions } from '~/components/Filters/graphql/filtersElements/FiltersItemRealtimeDimensions'
 import { FiltersItemRequestPath } from '~/components/Filters/graphql/filtersElements/FiltersItemRequestPath'
 import { FiltersItemResourceIds } from '~/components/Filters/graphql/filtersElements/FiltersItemResourceIds'
 import { FiltersItemResourceTypes } from '~/components/Filters/graphql/filtersElements/FiltersItemResourceTypes'
@@ -72,6 +73,7 @@ import { FiltersItemStates } from '~/components/Filters/graphql/filtersElements/
 import { FiltersItemStatus } from '~/components/Filters/graphql/filtersElements/FiltersItemStatus'
 import { FiltersItemSubscription } from '~/components/Filters/graphql/filtersElements/FiltersItemSubscription'
 import { FiltersItemSubscriptionStatus } from '~/components/Filters/graphql/filtersElements/FiltersItemSubscriptionStatus'
+import { FiltersItemTimeRange } from '~/components/Filters/graphql/filtersElements/FiltersItemTimeRange'
 import { FiltersItemUserEmails } from '~/components/Filters/graphql/filtersElements/FiltersItemUserEmails'
 import { FiltersItemUserIds } from '~/components/Filters/graphql/filtersElements/FiltersItemUserIds'
 import { FiltersItemWebhookDate } from '~/components/Filters/graphql/filtersElements/FiltersItemWebhookDate'
@@ -238,6 +240,8 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.adminActions]: <FiltersItemAdminActions {...props} />,
     [AvailableFiltersEnum.adminOrganizations]: <FiltersItemAdminOrganizations {...props} />,
     [AvailableFiltersEnum.adminAuditDate]: <FiltersItemDate {...props} />,
+    [AvailableFiltersEnum.realtimeDimensions]: <FiltersItemRealtimeDimensions {...props} />,
+    [AvailableFiltersEnum.timeRange]: <FiltersItemTimeRange {...props} />,
   }
 
   return (

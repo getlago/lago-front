@@ -64,7 +64,7 @@ jest.mock('~/hooks/usePermissions', () => ({
   }),
 }))
 
-let mockOrganization: { eventsStore: EventsStoreEnum } | undefined
+let mockOrganization: { eventsStore?: EventsStoreEnum; realtimeUsageEnabled?: boolean } | undefined
 let mockIsOrganizationLoading = false
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
@@ -783,6 +783,55 @@ describe('useLocationHistory()', () => {
 
         // Should redirect to forbidden (permission check), not home (feature flag check)
         expect(mockNavigate).toHaveBeenCalledWith('/forbidden')
+        expect(mockNavigate).not.toHaveBeenCalledWith('/', { replace: true })
+      })
+    })
+
+    describe('organization capability gating', () => {
+      beforeEach(() => {
+        authTokenVar('test-token')
+        mockHasPermissions.mockReturnValue(true)
+      })
+
+      afterEach(() => {
+        mockOrganization = undefined
+      })
+
+      it('should redirect to home when the organization lacks the capability', () => {
+        mockOrganization = { realtimeUsageEnabled: false }
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['analyticsView'],
+              organizationCapability: 'realtimeUsageEnabled',
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+      })
+
+      it('should allow access when the organization has the capability', () => {
+        mockOrganization = { realtimeUsageEnabled: true }
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['analyticsView'],
+              organizationCapability: 'realtimeUsageEnabled',
+            },
+            mockLocation,
+          )
+        })
+
         expect(mockNavigate).not.toHaveBeenCalledWith('/', { replace: true })
       })
     })

@@ -29,6 +29,7 @@ gql`
     eventsStore
     featureFlags
     premiumIntegrations
+    realtimeUsageEnabled
     canCreateBillingEntity
     authenticationMethods
     authenticatedMethod

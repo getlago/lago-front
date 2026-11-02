@@ -16,6 +16,7 @@ describe('isRouteGated', () => {
       ['a feature flag', { featureFlag: FeatureFlagEnum.AccountTree }],
       ['a hiding feature flag', { hiddenWithFeatureFlag: FeatureFlagEnum.AccountTree }],
       ['a usage governance requirement', { requiresUsageGovernance: true }],
+      ['an organization capability', { organizationCapability: 'realtimeUsageEnabled' as const }],
     ])('THEN should report a route gated by %s as gated', (_, route) => {
       expect(isRouteGated(route)).toBe(true)
     })
@@ -54,6 +55,27 @@ describe('isRouteUnlocked', () => {
 
     it('THEN should stay locked without an organization', () => {
       expect(isRouteUnlocked({ route, hasFeatureFlag: hasAccountTree })).toBe(false)
+    })
+  })
+
+  describe('GIVEN a route requiring an organization capability', () => {
+    const route = { organizationCapability: 'realtimeUsageEnabled' as const }
+
+    it.each([
+      ['unlocked', 'the organization has it', true, true],
+      ['locked', 'the organization lacks it', false, false],
+    ])('THEN should be %s when %s', (_, __, realtimeUsageEnabled, expected) => {
+      expect(
+        isRouteUnlocked({
+          route,
+          hasFeatureFlag: () => false,
+          organization: { eventsStore: EventsStoreEnum.Clickhouse, realtimeUsageEnabled },
+        }),
+      ).toBe(expected)
+    })
+
+    it('THEN should stay locked without an organization', () => {
+      expect(isRouteUnlocked({ route, hasFeatureFlag: () => false })).toBe(false)
     })
   })
 })

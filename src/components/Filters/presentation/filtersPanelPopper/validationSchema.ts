@@ -11,6 +11,7 @@ import {
   DynamicFilterKey,
   isDynamicFilterKey,
 } from '~/components/Filters/presentation/types'
+import { isApplicableRange, isTimeRangePreset } from '~/components/realtimeUsage/utils'
 
 // The panel renders no field-level error: these messages are never displayed, the schema only
 // gates the Apply button — exactly what the Yup schema it replaces did with `required('')`.
@@ -94,6 +95,14 @@ export const buildFiltersPanelValidationSchema = (
         const isMetadataFilter = filter.filterType === AvailableFiltersEnum.metadata
 
         if (isDateFilter && !isValidDateRangeValue(filter.value)) {
+          ctx.addIssue({ code: 'custom', message: INVALID_FILTER_MESSAGE, path: [index, 'value'] })
+        }
+
+        if (
+          filter.filterType === AvailableFiltersEnum.timeRange &&
+          !isTimeRangePreset(filter.value) &&
+          !isApplicableRange(filter.value)
+        ) {
           ctx.addIssue({ code: 'custom', message: INVALID_FILTER_MESSAGE, path: [index, 'value'] })
         }
 

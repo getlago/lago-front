@@ -134,7 +134,7 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
 
     if (!isRouteUnlocked({ route: routeConfig, hasFeatureFlag, organization })) {
       /**
-       * In case of navigation to a route its feature flags make unavailable
+       * In case of navigation to a route its feature flags or capabilities make unavailable
        * Redirect to home page
        */
       navigate(HOME_ROUTE, { replace: true })

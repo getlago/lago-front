@@ -1,7 +1,7 @@
 import { isUsageGovernanceEnabled } from '~/core/utils/usageGovernance'
 import { FeatureFlagEnum, MainOrganizationInfosFragment } from '~/generated/graphql'
 
-import { CustomRouteObject } from '../types'
+import { CustomRouteObject, OrganizationCapability } from '../types'
 
 export const isRouteAvailable = (
   route: Pick<CustomRouteObject, 'featureFlag' | 'hiddenWithFeatureFlag'>,
@@ -20,11 +20,15 @@ const isRouteGatedByFeatureFlag = (
 export const isRouteGated = (
   route: Pick<
     CustomRouteObject,
-    'featureFlag' | 'hiddenWithFeatureFlag' | 'requiresUsageGovernance'
+    'featureFlag' | 'hiddenWithFeatureFlag' | 'requiresUsageGovernance' | 'organizationCapability'
   >,
-): boolean => isRouteGatedByFeatureFlag(route) || !!route.requiresUsageGovernance
+): boolean =>
+  isRouteGatedByFeatureFlag(route) ||
+  !!route.requiresUsageGovernance ||
+  !!route.organizationCapability
 
-export type RouteGateOrganization = Pick<MainOrganizationInfosFragment, 'eventsStore'>
+export type RouteGateOrganization = Pick<MainOrganizationInfosFragment, 'eventsStore'> &
+  Partial<Pick<MainOrganizationInfosFragment, OrganizationCapability>>
 
 export const isRouteUnlocked = ({
   route,
@@ -33,12 +37,13 @@ export const isRouteUnlocked = ({
 }: {
   route: Pick<
     CustomRouteObject,
-    'featureFlag' | 'hiddenWithFeatureFlag' | 'requiresUsageGovernance'
+    'featureFlag' | 'hiddenWithFeatureFlag' | 'requiresUsageGovernance' | 'organizationCapability'
   >
   hasFeatureFlag: (flag: FeatureFlagEnum) => boolean
   organization?: RouteGateOrganization
 }): boolean => {
   if (!isRouteAvailable(route, hasFeatureFlag)) return false
+  if (route.organizationCapability && !organization?.[route.organizationCapability]) return false
   if (!route.requiresUsageGovernance) return true
 
   return isUsageGovernanceEnabled({ organization, hasFeatureFlag })

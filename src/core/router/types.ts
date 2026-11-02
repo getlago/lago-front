@@ -1,7 +1,13 @@
 import type { RouteObject } from 'react-router'
 
-import { FeatureFlagEnum } from '~/generated/graphql'
+import { FeatureFlagEnum, MainOrganizationInfosFragment } from '~/generated/graphql'
 import { TMembershipPermissions } from '~/hooks/usePermissions'
+
+// What the API serves to an organization, beyond its feature flags.
+export type OrganizationCapability = keyof Pick<
+  MainOrganizationInfosFragment,
+  'realtimeUsageEnabled'
+>
 
 export interface CustomRouteObject extends Omit<RouteObject, 'children' | 'path'> {
   path?: string | string[]
@@ -14,4 +20,5 @@ export interface CustomRouteObject extends Omit<RouteObject, 'children' | 'path'
   featureFlag?: FeatureFlagEnum
   hiddenWithFeatureFlag?: FeatureFlagEnum
   requiresUsageGovernance?: boolean
+  organizationCapability?: OrganizationCapability
 }
