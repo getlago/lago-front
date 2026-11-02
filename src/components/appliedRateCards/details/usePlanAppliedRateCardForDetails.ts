@@ -62,7 +62,6 @@ gql`
   ${RatePhaseForDrawerFragmentDoc}
 `
 
-// Shared by the card and phase details pages so they stay on one cache entry.
 export const usePlanAppliedRateCardForDetails = (
   appliedRateCardId: string,
 ): GetPlanAppliedRateCardForDetailsQueryResult =>
