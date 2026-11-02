@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 
+import { AiConversationToolCallStatusEnum } from '~/generated/graphql'
 import { ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import {
   AI_AGENT_TYPE_LS_KEY,
@@ -232,6 +233,71 @@ describe('useAiAgent', () => {
           status: ChatStatus.done,
         })
         expect(result.current.state.isStreaming).toBe(false)
+      })
+    })
+  })
+
+  describe('GIVEN the billing agent stopped on writes to confirm', () => {
+    const toolCalls = [
+      {
+        id: 'tool-call-1',
+        name: 'void_invoice',
+        arguments: { lago_id: 'invoice-1' },
+        status: AiConversationToolCallStatusEnum.Pending,
+      },
+      {
+        id: 'tool-call-2',
+        name: 'create_coupon',
+        arguments: { code: 'WELCOME' },
+        status: AiConversationToolCallStatusEnum.Pending,
+      },
+    ]
+
+    describe('WHEN the member answers one write and then the last one', () => {
+      it('THEN should record the first answer and resume with a new pending assistant message', () => {
+        const { result } = renderAiAgent()
+
+        act(() => {
+          result.current.startNewConversation({ convId: 'conv-1', message: 'void and create' })
+        })
+        act(() => {
+          result.current.setPendingToolCalls(toolCalls)
+        })
+        act(() => {
+          result.current.decideToolCall({
+            toolCallId: 'tool-call-1',
+            status: AiConversationToolCallStatusEnum.Confirmed,
+          })
+        })
+
+        expect(result.current.state.toolCalls.map((toolCall) => toolCall.status)).toEqual([
+          AiConversationToolCallStatusEnum.Confirmed,
+          AiConversationToolCallStatusEnum.Pending,
+        ])
+
+        const lastAssistantMessageId = result.current.lastAssistantMessage?.id
+
+        act(() => {
+          result.current.resumeConversation()
+        })
+
+        expect(result.current.state.toolCalls).toEqual([])
+        expect(result.current.state.isLoading).toBe(true)
+        expect(result.current.lastAssistantMessage?.id).not.toBe(lastAssistantMessageId)
+        expect(result.current.lastAssistantMessage?.status).toBe(ChatStatus.pending)
+      })
+    })
+
+    describe('WHEN the conversation is restored from history with pending writes', () => {
+      it('THEN should expose the pending writes', () => {
+        const { result } = renderAiAgent()
+
+        act(() => {
+          result.current.setPreviousChatMessages({ convId: 'conv-1', messages: [], toolCalls })
+        })
+
+        expect(result.current.conversationId).toBe('conv-1')
+        expect(result.current.state.toolCalls).toEqual(toolCalls)
       })
     })
   })

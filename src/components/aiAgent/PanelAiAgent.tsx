@@ -10,7 +10,9 @@ import { useCreateAiConversation } from '~/components/aiAgent/hooks/useCreateAiC
 import { useOnConversation } from '~/components/aiAgent/hooks/useOnConversation'
 import { Typography } from '~/components/designSystem/Typography'
 import PremiumFeature from '~/components/premium/PremiumFeature'
-import { CreateAiConversationInput } from '~/generated/graphql'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { CreateAiConversationInput, LagoApiError } from '~/generated/graphql'
+import { hasPendingToolCalls } from '~/hooks/aiAgent/aiAgentReducer'
 import { AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -31,6 +33,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
     agentType,
     conversationId,
     getConversationVersion,
+    setPendingToolCalls,
     startNewConversation,
     state,
   } = useAiAgent()
@@ -43,6 +46,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
 
   const subscription = useOnConversation({
     conversationId: isFinanceAssistant ? undefined : conversationId,
+    onPendingToolCalls: setPendingToolCalls,
   })
 
   const handleSubmit = async (values: CreateAiConversationInput): Promise<void> => {
@@ -58,18 +62,24 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
     const versionAtSubmit = getConversationVersion()
 
     try {
-      await createAiConversation({
+      const { errors } = await createAiConversation({
         variables: {
           input: {
             message: values.message,
             conversationId: conversationId || undefined,
           },
         },
+        context: { silentErrorCodes: [LagoApiError.AiConversationToolCallsPending] },
 
         onCompleted: (data) => {
           // The conversation was dropped or replaced while the request was in
           // flight: organization switch, agent switch, restored history
           if (getConversationVersion() !== versionAtSubmit) {
+            return
+          }
+
+          // A refused message was never sent
+          if (!data.createAiConversation?.id) {
             return
           }
 
@@ -79,16 +89,17 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
             return subscription.restart()
           }
 
-          if (!data.createAiConversation?.id) {
-            return
-          }
-
           return startNewConversation({
             convId: data.createAiConversation.id,
             message: values.message,
           })
         },
       })
+
+      if (hasDefinedGQLError('AiConversationToolCallsPending', errors)) {
+        setInitialPrompt('')
+        addToast({ severity: 'info', translateKey: 'text_1793387391883qfvsaxynu03' })
+      }
     } finally {
       isSubmittingRef.current = false
     }
@@ -154,7 +165,10 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
 
       {!!state.messages.length && <ChatConversation subscription={subscription} />}
 
-      <ChatPromptEditor disabled={!hasAccessToAiAgent || loading} onSubmit={handleSubmit} />
+      <ChatPromptEditor
+        disabled={!hasAccessToAiAgent || loading || hasPendingToolCalls(state)}
+        onSubmit={handleSubmit}
+      />
     </div>
   )
 }

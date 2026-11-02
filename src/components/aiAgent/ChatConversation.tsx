@@ -1,6 +1,7 @@
 import { FC, useEffect } from 'react'
 
 import { ChatMessages } from '~/components/aiAgent/ChatMessages'
+import { ChatToolCallConfirmation } from '~/components/aiAgent/ChatToolCallConfirmation'
 import { Message } from '~/components/aiAgent/llmOutputs'
 import { OnConversationSubscriptionHookResult } from '~/generated/graphql'
 import { ChatRole } from '~/hooks/aiAgent/aiAgentReducer'
@@ -64,6 +65,8 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
           </ChatMessages.Received>
         )
       })}
+
+      <ChatToolCallConfirmation onResume={() => subscription.restart()} />
 
       {state.isLoading && <ChatMessages.Loading agentType={agentType} />}
 

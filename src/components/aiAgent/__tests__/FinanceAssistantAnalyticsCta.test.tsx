@@ -57,6 +57,7 @@ const buildState = (overrides: Partial<ChatState> = {}): ChatState => ({
   isStreaming: false,
   hasError: false,
   financeSessionId: undefined,
+  toolCalls: [],
   ...overrides,
 })
 

@@ -1,6 +1,6 @@
 import { CustomRouteObject } from '~/core/router/types'
 
-import { getHiddenAiAgentPaths } from '../utils'
+import { formatToolCallArguments, getHiddenAiAgentPaths, humanizeToolCallName } from '../utils'
 
 jest.mock('~/core/router/ObjectsRoutes', () => ({
   objectCreationRoutes: [
@@ -182,5 +182,62 @@ describe('getHiddenAiAgentPaths', () => {
 
     expect(result.some((p) => p.path === '/404')).toBe(true)
     expect(result.some((p) => p.path === '/forbidden')).toBe(true)
+  })
+})
+
+describe('humanizeToolCallName', () => {
+  it('turns a snake_case tool name into readable words', () => {
+    expect(humanizeToolCallName('retry_invoice_payment')).toBe('Retry invoice payment')
+  })
+
+  it('keeps a single word name capitalized', () => {
+    expect(humanizeToolCallName('refresh')).toBe('Refresh')
+  })
+})
+
+describe('formatToolCallArguments', () => {
+  it('lists each parameter with a readable label and its value as text', () => {
+    expect(
+      formatToolCallArguments(
+        { external_customer_id: 'cus_1', amount_cents: 1000, draft: false },
+        'Arguments',
+      ),
+    ).toEqual([
+      {
+        key: 'external_customer_id',
+        label: 'External customer id',
+        value: 'cus_1',
+        isJson: false,
+      },
+      { key: 'amount_cents', label: 'Amount cents', value: '1000', isJson: false },
+      { key: 'draft', label: 'Draft', value: 'false', isJson: false },
+    ])
+  })
+
+  it('shows nested values as indented JSON', () => {
+    expect(formatToolCallArguments({ coupon: { code: 'WELCOME' } }, 'Arguments')).toEqual([
+      { key: 'coupon', label: 'Coupon', value: '{\n  "code": "WELCOME"\n}', isJson: true },
+    ])
+  })
+
+  it('quotes blank strings so an emptied field is visible', () => {
+    expect(formatToolCallArguments({ email: '', name: '  ' }, 'Arguments')).toEqual([
+      { key: 'email', label: 'Email', value: '""', isJson: false },
+      { key: 'name', label: 'Name', value: '"  "', isJson: false },
+    ])
+  })
+
+  it('returns no parameter when there are no arguments', () => {
+    expect(formatToolCallArguments(null, 'Arguments')).toEqual([])
+    expect(formatToolCallArguments(undefined, 'Arguments')).toEqual([])
+  })
+
+  it('shows arguments that are not an object as raw JSON rather than hiding them', () => {
+    expect(formatToolCallArguments(['a'], 'Arguments')).toEqual([
+      { key: 'arguments', label: 'Arguments', value: '[\n  "a"\n]', isJson: true },
+    ])
+    expect(formatToolCallArguments('void_invoice', 'Arguments')).toEqual([
+      { key: 'arguments', label: 'Arguments', value: '"void_invoice"', isJson: true },
+    ])
   })
 })

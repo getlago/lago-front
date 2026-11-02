@@ -1,21 +1,33 @@
 import { gql } from '@apollo/client'
 
-import { LagoApiError, useOnConversationSubscription } from '~/generated/graphql'
+import {
+  AiConversationToolCallItemFragment,
+  LagoApiError,
+  OnConversationSubscriptionHookResult,
+  useOnConversationSubscription,
+} from '~/generated/graphql'
 
 gql`
   subscription onConversation($id: ID!) {
     aiConversationStreamed(id: $id) {
       chunk
       done
+      pendingToolCalls {
+        ...AiConversationToolCallItem
+      }
     }
   }
 `
 
 type UseOnConversationProps = {
   conversationId: string | undefined
+  onPendingToolCalls: (toolCalls: AiConversationToolCallItemFragment[]) => void
 }
 
-export const useOnConversation = ({ conversationId }: UseOnConversationProps) => {
+export const useOnConversation = ({
+  conversationId,
+  onPendingToolCalls,
+}: UseOnConversationProps): OnConversationSubscriptionHookResult => {
   const subscription = useOnConversationSubscription({
     skip: !conversationId,
     variables: {
@@ -23,6 +35,12 @@ export const useOnConversation = ({ conversationId }: UseOnConversationProps) =>
     },
     fetchPolicy: 'no-cache',
     context: { silentErrorCodes: [LagoApiError.TokenExpired] },
+    // onData, not an effect on data: data only keeps the latest event
+    onData: ({ data }) => {
+      const pendingToolCalls = data.data?.aiConversationStreamed.pendingToolCalls
+
+      if (pendingToolCalls?.length) onPendingToolCalls(pendingToolCalls)
+    },
   })
 
   return subscription

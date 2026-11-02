@@ -48,6 +48,9 @@ export const typeDefs = gql`
     invalid_characters
     last_admin
 
+    # AI agent errors
+    ai_conversation_tool_calls_pending
+
     # Object not found
     missing_payment_provider_customer
     plan_not_found

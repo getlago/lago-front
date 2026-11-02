@@ -61,6 +61,7 @@ describe('useAskFinanceAssistant', () => {
       isStreaming: false,
       hasError: false,
       financeSessionId: undefined,
+      toolCalls: [],
     }
   })
 

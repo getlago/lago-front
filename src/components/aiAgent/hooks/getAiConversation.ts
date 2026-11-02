@@ -11,6 +11,9 @@ gql`
         content
         type
       }
+      pendingToolCalls {
+        ...AiConversationToolCallItem
+      }
     }
   }
 `
