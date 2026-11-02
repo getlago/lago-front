@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 
 import { CurrencyEnum, FeeTypesEnum, InvoiceTypeEnum } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
@@ -30,6 +30,7 @@ const mockFee = {
       invoiceDisplayName: null,
     },
   },
+  contractRateCard: null,
 }
 
 const baseCreditNote = {
@@ -81,6 +82,16 @@ describe('CreditNoteDetailsOverviewTable', () => {
   })
 
   describe('GIVEN a standard subscription invoice', () => {
+    it('THEN should keep the subscription as the section heading', () => {
+      renderComponent()
+
+      expect(
+        within(screen.getAllByRole('table')[0]).getByRole('columnheader', {
+          name: 'Test Subscription',
+        }),
+      ).toBeInTheDocument()
+    })
+
     it('THEN should render tax rate column', () => {
       renderComponent()
 
@@ -105,6 +116,152 @@ describe('CreditNoteDetailsOverviewTable', () => {
       renderComponent()
 
       expect(screen.getByTestId(CREDIT_NOTE_DETAILS_TABLE_TEST_IDS.totalRow)).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN a contract product fee', () => {
+    const buildProductItem = ({
+      feeId,
+      rateCardId,
+      invoiceName,
+      product,
+    }: {
+      feeId: string
+      rateCardId: string
+      invoiceName: string
+      product: { name: string; invoiceDisplayName: string | null }
+    }) => ({
+      ...baseCreditNote.items[0],
+      fee: {
+        ...mockFee,
+        id: feeId,
+        subscription: null,
+        contractRateCard: { id: rateCardId, product: { id: `product-${rateCardId}`, ...product } },
+        invoiceName,
+      },
+    })
+
+    it('THEN should title the group with the product name instead of the generic one-off heading', () => {
+      renderComponent({
+        creditNote: {
+          ...baseCreditNote,
+          items: [
+            buildProductItem({
+              feeId: 'fee-1',
+              rateCardId: 'rate-card-1',
+              invoiceName: 'Analytics API - seats',
+              product: { name: 'Analytics API', invoiceDisplayName: null },
+            }),
+          ],
+        },
+      })
+
+      const table = screen.getAllByRole('table')[0]
+
+      expect(within(table).getByRole('columnheader', { name: 'Analytics API' })).toBeInTheDocument()
+      expect(
+        within(table).queryByRole('columnheader', { name: 'Description' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('THEN should prefer the product invoice display name', () => {
+      renderComponent({
+        creditNote: {
+          ...baseCreditNote,
+          items: [
+            buildProductItem({
+              feeId: 'fee-1',
+              rateCardId: 'rate-card-1',
+              invoiceName: 'Analytics API - seats',
+              product: { name: 'Analytics API', invoiceDisplayName: 'Analytics' },
+            }),
+          ],
+        },
+      })
+
+      expect(
+        within(screen.getAllByRole('table')[0]).getByRole('columnheader', { name: 'Analytics' }),
+      ).toBeInTheDocument()
+    })
+
+    it('THEN should keep the product name as heading when one rate card has several fees', () => {
+      const product = { name: 'Analytics API', invoiceDisplayName: null }
+
+      renderComponent({
+        creditNote: {
+          ...baseCreditNote,
+          items: [
+            buildProductItem({
+              feeId: 'fee-1',
+              rateCardId: 'rate-card-1',
+              invoiceName: 'Analytics API - seats',
+              product,
+            }),
+            buildProductItem({
+              feeId: 'fee-2',
+              rateCardId: 'rate-card-1',
+              invoiceName: 'Analytics API - overage',
+              product,
+            }),
+          ],
+        },
+      })
+
+      const tables = screen.getAllByRole('table')
+
+      expect(
+        within(tables[0]).getByRole('columnheader', { name: 'Analytics API' }),
+      ).toBeInTheDocument()
+      expect(
+        within(tables[0]).queryByRole('columnheader', { name: 'Analytics API - seats' }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('THEN should render each distinct contract product group', () => {
+      renderComponent({
+        creditNote: {
+          ...baseCreditNote,
+          items: [
+            buildProductItem({
+              feeId: 'fee-1',
+              rateCardId: 'rate-card-1',
+              invoiceName: 'Analytics API - seats',
+              product: { name: 'Analytics API', invoiceDisplayName: null },
+            }),
+            buildProductItem({
+              feeId: 'fee-2',
+              rateCardId: 'rate-card-2',
+              invoiceName: 'Storage - GB',
+              product: { name: 'Storage', invoiceDisplayName: null },
+            }),
+          ],
+        },
+      })
+
+      const tables = screen.getAllByRole('table')
+
+      expect(
+        within(tables[0]).getByRole('columnheader', { name: 'Analytics API' }),
+      ).toBeInTheDocument()
+      expect(within(tables[1]).getByRole('columnheader', { name: 'Storage' })).toBeInTheDocument()
+    })
+
+    it('THEN should preserve the generic heading for legacy unsubscribed items', () => {
+      const legacyCreditNote = {
+        ...baseCreditNote,
+        items: [
+          {
+            ...baseCreditNote.items[0],
+            fee: { ...mockFee, subscription: null },
+          },
+        ],
+      }
+
+      renderComponent({ creditNote: legacyCreditNote })
+
+      expect(
+        within(screen.getAllByRole('table')[0]).getByRole('columnheader', { name: 'Description' }),
+      ).toBeInTheDocument()
     })
   })
 
