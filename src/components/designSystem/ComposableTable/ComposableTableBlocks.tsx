@@ -57,6 +57,7 @@ export const ComposableTableTreeCell = ({
 type ComposableTableLoadMoreProps = {
   label: string
   isLoading: boolean
+  disabled?: boolean
   onLoadMore: () => void
   'data-test'?: string
 }
@@ -64,6 +65,7 @@ type ComposableTableLoadMoreProps = {
 export const ComposableTableLoadMore = ({
   label,
   isLoading,
+  disabled = false,
   onLoadMore,
   'data-test': dataTest,
 }: ComposableTableLoadMoreProps): JSX.Element => (
@@ -71,7 +73,7 @@ export const ComposableTableLoadMore = ({
     variant="inline"
     size="small"
     loading={isLoading}
-    disabled={isLoading}
+    disabled={disabled || isLoading}
     onClick={onLoadMore}
     data-test={dataTest}
   >

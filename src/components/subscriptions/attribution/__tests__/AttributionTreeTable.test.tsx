@@ -23,10 +23,12 @@ import {
 import { AttributionColumn } from '../buildAttributionColumns'
 import { AttributionTreeNodes, AttributionTreeUsage } from '../useAttributionTree'
 
+const mockTranslate = (key: string, data?: Record<string, string>): string =>
+  data?.typeName ? `${key}:${data.typeName}` : key
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
-    translate: (key: string, data?: Record<string, string>) =>
-      data?.typeName ? `${key}:${data.typeName}` : key,
+    translate: mockTranslate,
   }),
 }))
 
@@ -68,28 +70,32 @@ const rootNodes = (usage = buildUsage(['rnd', 'gtm'])): AttributionTreeNodes => 
 const onToggleNode = jest.fn()
 const onLoadMore = jest.fn()
 
+type TreeOptions = { columns?: AttributionColumn[]; isLoadingFilterPage?: boolean }
+
+const buildTree = (
+  nodes: AttributionTreeNodes,
+  isLoading = false,
+  { columns = [], isLoadingFilterPage = false }: TreeOptions = {},
+): JSX.Element => (
+  <AttributionTreeTable
+    nodes={nodes}
+    isLoadingFilterPage={isLoadingFilterPage}
+    onToggleNode={onToggleNode}
+    onLoadMore={onLoadMore}
+    totals={{ amountCents: null, chargesUsageByFilterPage: [[], []] }}
+    columns={columns}
+    chargeLabel={columns.length ? 'Tokens' : null}
+    basis={AttributedUsageBasisEnum.Units}
+    currency={CurrencyEnum.Usd}
+    isLoading={isLoading}
+  />
+)
+
 const renderTree = (
   nodes: AttributionTreeNodes,
   isLoading = false,
-  {
-    columns = [],
-    isLoadingFilterPage = false,
-  }: { columns?: AttributionColumn[]; isLoadingFilterPage?: boolean } = {},
-) =>
-  render(
-    <AttributionTreeTable
-      nodes={nodes}
-      isLoadingFilterPage={isLoadingFilterPage}
-      onToggleNode={onToggleNode}
-      onLoadMore={onLoadMore}
-      totals={{ amountCents: null, chargesUsageByFilterPage: [[], []] }}
-      columns={columns}
-      chargeLabel={columns.length ? 'Tokens' : null}
-      basis={AttributedUsageBasisEnum.Units}
-      currency={CurrencyEnum.Usd}
-      isLoading={isLoading}
-    />,
-  )
+  options: TreeOptions = {},
+): ReturnType<typeof render> => render(buildTree(nodes, isLoading, options))
 
 const getRowTexts = (): string[] =>
   screen.getAllByTestId(ATTRIBUTION_TREE_ROW_TEST_ID).map((row) => row.textContent ?? '')
@@ -177,6 +183,42 @@ describe('AttributionTreeTable', () => {
 
         expect(onToggleNode).toHaveBeenCalledWith(RND_PATH, 'department')
       })
+
+      // Guards the entity cell remount that drops the focused toggle on rerender.
+      it.each([
+        ['collapsed', true, false],
+        ['expanded', false, true],
+      ])('THEN should keep the focus on the toggle once the node is %s', async (_, from, to) => {
+        const user = userEvent.setup()
+        const nodeWith = (isExpanded: boolean): AttributionTreeNodes => ({
+          ...rootNodes(),
+          [RND_KEY]: {
+            status: 'loaded',
+            isExpanded,
+            blocks: [
+              {
+                level: apiKeyLevel,
+                usages: [buildUsage(['k_live_ab12'])],
+                isLoadingMore: false,
+                isLoadingFilterPages: false,
+              },
+            ],
+          },
+        })
+        const getToggle = (): HTMLElement =>
+          within(screen.getAllByTestId(ATTRIBUTION_TREE_ROW_TEST_ID)[0]).getByTestId(
+            ATTRIBUTION_TREE_TOGGLE_TEST_ID,
+          )
+
+        const { rerender } = renderTree(nodeWith(from))
+
+        await user.click(getToggle())
+
+        rerender(buildTree(nodeWith(to)))
+
+        expect(getToggle()).toHaveAttribute('aria-expanded', String(to))
+        expect(getToggle()).toHaveFocus()
+      })
     })
 
     describe('WHEN the unattributed toggle is clicked', () => {
@@ -243,6 +285,35 @@ describe('AttributionTreeTable', () => {
       await user.click(screen.getByTestId(ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID))
 
       expect(onLoadMore).toHaveBeenCalledWith(RND_PATH, 0)
+    })
+
+    // Guards the entity cell remount that drops the focused show more button on rerender.
+    it('THEN should keep the focus on show more once more rows are loaded', async () => {
+      const user = userEvent.setup()
+      const nodesWithPage = (values: string[], currentPage: number): AttributionTreeNodes => ({
+        ...rootNodes(),
+        [RND_KEY]: {
+          status: 'loaded',
+          isExpanded: true,
+          blocks: [
+            {
+              level: apiKeyLevel,
+              usages: [buildUsage(values, { currentPage, totalPages: 3 })],
+              isLoadingMore: false,
+              isLoadingFilterPages: false,
+            },
+          ],
+        },
+      })
+
+      const { rerender } = renderTree(nodesWithPage(['k_live_ab12'], 1))
+
+      await user.click(screen.getByTestId(ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID))
+
+      rerender(buildTree(nodesWithPage(['k_live_ab12', 'k_live_cd34'], 2)))
+
+      expect(getRowTexts().some((row) => row.includes('k_live_cd34'))).toBe(true)
+      expect(screen.getByTestId(ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID)).toHaveFocus()
     })
   })
 
@@ -419,7 +490,9 @@ describe('AttributionTreeTable', () => {
           .map((row) => row.querySelectorAll('td')[2])
 
         rowCells.forEach((cell) =>
-          expect(cell).toHaveAttribute('data-test', ATTRIBUTION_LOADING_CELL_TEST_ID),
+          expect(
+            cell.querySelector(`[data-test="${ATTRIBUTION_LOADING_CELL_TEST_ID}"]`),
+          ).toBeInTheDocument(),
         )
       })
     })

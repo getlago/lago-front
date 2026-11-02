@@ -20,7 +20,7 @@ const getCellClassName = ({
   shrink = false,
 }: ComposableTableCellVariants): string =>
   tw(
-    'h-12 whitespace-nowrap border-b border-grey-300 px-1 py-0',
+    'h-12 whitespace-nowrap border-b border-grey-300 px-3 py-0',
     align === 'right' ? 'text-right' : 'text-left',
     shrink && 'w-px',
     pinned === 'start' && 'sticky left-0 z-10 border-r',

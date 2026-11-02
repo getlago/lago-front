@@ -1171,7 +1171,7 @@ describe('SubscriptionAttributionTabContent', () => {
         await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
 
         expect(mockLoadMoreFilterPage).not.toHaveBeenCalled()
-        expect(getHeaderLabels().slice(1, -1)).toEqual([...firstPageModels, expect.any(String)])
+        expect(getHeaderLabels()).toEqual([...firstPageModels, expect.any(String)])
       })
     })
 
@@ -1216,7 +1216,7 @@ describe('SubscriptionAttributionTabContent', () => {
 
         const labels = getHeaderLabels()
 
-        expect(labels.slice(1, -1)).toEqual([...firstPageModels, 'm11', expect.any(String)])
+        expect(labels).toEqual([...firstPageModels, 'm11', expect.any(String)])
         expect(labels.filter((label) => label === 'm11')).toHaveLength(1)
       })
 
@@ -1251,7 +1251,7 @@ describe('SubscriptionAttributionTabContent', () => {
         await selectOptionByValue(user, ATTRIBUTION_LIST_BY_TEST_ID, 'api_key')
 
         expect(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).toBeEnabled()
-        expect(getHeaderLabels().slice(1, -1)).toEqual(['m1', 'm2', 'm3', expect.any(String)])
+        expect(getHeaderLabels()).toEqual(['m1', 'm2', 'm3', expect.any(String)])
       })
     })
 

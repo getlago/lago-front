@@ -100,6 +100,24 @@ describe('ComposableTableBlocks', () => {
         expect(screen.getByRole('button')).toBeDisabled()
       })
     })
+
+    describe('WHEN it is disabled without loading', () => {
+      it('THEN is disabled without a loading spinner', () => {
+        render(
+          <ComposableTableLoadMore
+            label="Show more"
+            isLoading={false}
+            disabled
+            onLoadMore={jest.fn()}
+          />,
+        )
+
+        const button = screen.getByRole('button', { name: 'Show more' })
+
+        expect(button).toBeDisabled()
+        expect(button.querySelector('[data-test^="processing/"]')).not.toBeInTheDocument()
+      })
+    })
   })
 
   describe('GIVEN an inline error', () => {

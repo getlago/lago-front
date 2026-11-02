@@ -20,9 +20,11 @@ import {
 } from '../AttributionFlatTable'
 import { AttributionColumn } from '../buildAttributionColumns'
 
+const mockTranslate = (key: string): string => key
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
-    translate: (key: string) => key,
+    translate: mockTranslate,
   }),
 }))
 
@@ -90,22 +92,24 @@ const rows: AttributionTableRow[] = [
 
 type TableProps = Parameters<typeof AttributionFlatTable>[0]
 
+const buildTable = (overrides: Partial<TableProps> = {}): JSX.Element => (
+  <AttributionFlatTable
+    rows={rows}
+    totals={{
+      amountCents: '2500',
+      chargesUsageByFilterPage: [[opusUsage(20, '2500'), defaultUsage(3)]],
+    }}
+    columns={[]}
+    chargeLabel={null}
+    basis={AttributedUsageBasisEnum.Units}
+    currency={CurrencyEnum.Usd}
+    isLoading={false}
+    {...overrides}
+  />
+)
+
 const renderTable = (overrides: Partial<TableProps> = {}): ReturnType<typeof render> =>
-  render(
-    <AttributionFlatTable
-      rows={rows}
-      totals={{
-        amountCents: '2500',
-        chargesUsageByFilterPage: [[opusUsage(20, '2500'), defaultUsage(3)]],
-      }}
-      columns={[]}
-      chargeLabel={null}
-      basis={AttributedUsageBasisEnum.Units}
-      currency={CurrencyEnum.Usd}
-      isLoading={false}
-      {...overrides}
-    />,
-  )
+  render(buildTable(overrides))
 
 describe('AttributionFlatTable', () => {
   describe('GIVEN all charges are displayed', () => {
@@ -156,15 +160,19 @@ describe('AttributionFlatTable', () => {
         expect(screen.getByText('opus')).toBeInTheDocument()
       })
 
-      it('THEN should keep the entities and total headers on the first header row', () => {
+      it('THEN should span the entities and total headers over both header rows', () => {
         const { container } = renderTable({ columns: splitColumns, chargeLabel: 'Tokens' })
 
         const [chargeRow, subColumnRow] = Array.from(container.querySelectorAll('thead tr'))
+        const chargeRowHeaders = Array.from(chargeRow.querySelectorAll('th'))
+        const entitiesHeader = chargeRowHeaders[0]
+        const totalHeader = chargeRowHeaders[chargeRowHeaders.length - 1]
 
-        expect(container.querySelectorAll('thead th[rowspan]')).toHaveLength(0)
-        expect(chargeRow.querySelectorAll('th')[0]).toHaveTextContent(/\S/)
-        expect(subColumnRow.querySelectorAll('th')).toHaveLength(splitColumns.length + 2)
-        expect(subColumnRow.querySelectorAll('th')[0]).toBeEmptyDOMElement()
+        expect(entitiesHeader).toHaveAttribute('rowspan', '2')
+        expect(entitiesHeader).toHaveTextContent(/\S/)
+        expect(totalHeader).toHaveAttribute('rowspan', '2')
+        expect(totalHeader).toHaveTextContent(/\S/)
+        expect(subColumnRow.querySelectorAll('th')).toHaveLength(splitColumns.length)
       })
 
       it('THEN should render the footer sub-column totals from the totals', () => {
@@ -177,6 +185,20 @@ describe('AttributionFlatTable', () => {
         expect(footerCells[1]).toHaveTextContent('20')
         expect(footerCells[2]).toHaveTextContent('3')
         expect(footerCells[3]).toHaveTextContent('23')
+      })
+
+      // Guards the function cells whose plain string the kit's text wrapper never styles.
+      it.each([
+        ['row value', () => screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)[0], 1, '12'],
+        ['row total', () => screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)[0], 3, '12'],
+        ['footer value', () => screen.getByTestId(ATTRIBUTION_TABLE_FOOTER_TEST_ID), 2, '3'],
+        ['footer total', () => screen.getByTestId(ATTRIBUTION_TABLE_FOOTER_TEST_ID), 3, '23'],
+      ])('THEN should render the %s as body text', (_, getRow, cellIndex, value) => {
+        renderTable({ columns: splitColumns, chargeLabel: 'Tokens' })
+
+        const cell = getRow().querySelectorAll('td')[cellIndex]
+
+        expect(cell.querySelector('[data-test="body"]')).toHaveTextContent(value)
       })
     })
 
@@ -216,6 +238,48 @@ describe('AttributionFlatTable', () => {
 
         expect(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).toBeDisabled()
       })
+
+      it('THEN should not show a loading spinner while the tree is busy', () => {
+        renderTable({
+          columns: splitColumns,
+          chargeLabel: 'Tokens',
+          showMoreColumns: {
+            isExpanded: true,
+            isLoading: false,
+            isDisabled: true,
+            onClick: jest.fn(),
+          },
+        })
+
+        expect(
+          screen
+            .getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)
+            .querySelector('[data-test^="processing/"]'),
+        ).not.toBeInTheDocument()
+      })
+
+      // Guards the header remount that drops the focused show more button on rerender.
+      it('THEN should keep the focus on show more once the columns are expanded', async () => {
+        const user = userEvent.setup()
+        const onClick = jest.fn()
+        const tableProps = { columns: splitColumns, chargeLabel: 'Tokens' }
+
+        const { rerender } = renderTable({
+          ...tableProps,
+          showMoreColumns: { isExpanded: false, onClick },
+        })
+
+        await user.click(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID))
+
+        rerender(
+          buildTable({
+            ...tableProps,
+            showMoreColumns: { isExpanded: true, isLoading: false, isDisabled: false, onClick },
+          }),
+        )
+
+        expect(screen.getByTestId(ATTRIBUTION_SHOW_MORE_TEST_ID)).toHaveFocus()
+      })
     })
 
     describe('WHEN a column belongs to a filter page a row has not received yet', () => {
@@ -227,7 +291,9 @@ describe('AttributionFlatTable', () => {
         const [firstRow] = screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)
         const cells = firstRow.querySelectorAll('td')
 
-        expect(cells[2]).toHaveAttribute('data-test', ATTRIBUTION_LOADING_CELL_TEST_ID)
+        expect(
+          cells[2].querySelector(`[data-test="${ATTRIBUTION_LOADING_CELL_TEST_ID}"]`),
+        ).toBeInTheDocument()
         expect(cells[2]).not.toHaveTextContent('-')
         expect(cells[1]).toHaveTextContent('12')
       })
@@ -249,7 +315,9 @@ describe('AttributionFlatTable', () => {
 
         const cells = screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)[0].querySelectorAll('td')
 
-        expect(cells[2]).not.toHaveAttribute('data-test', ATTRIBUTION_LOADING_CELL_TEST_ID)
+        expect(
+          cells[2].querySelector(`[data-test="${ATTRIBUTION_LOADING_CELL_TEST_ID}"]`),
+        ).not.toBeInTheDocument()
         expect(cells[2]).toHaveTextContent('5')
       })
 
@@ -299,6 +367,26 @@ describe('AttributionFlatTable', () => {
         await user.click(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID))
 
         expect(onLoadMore).toHaveBeenCalledTimes(1)
+      })
+
+      // Guards the entity cell remount that drops the focused show more button on rerender.
+      it('THEN should keep the focus on show more once more rows are loaded', async () => {
+        const user = userEvent.setup()
+        const loadMore = { isLoading: false, onLoadMore: jest.fn() }
+
+        const { rerender } = renderTable({ loadMore })
+
+        await user.click(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID))
+
+        rerender(
+          buildTable({
+            loadMore,
+            rows: [{ ...rows[0], id: 'value-k_live_cd34', label: 'k_live_cd34' }, ...rows],
+          }),
+        )
+
+        expect(screen.getAllByTestId(ATTRIBUTION_TABLE_ROW_TEST_ID)).toHaveLength(3)
+        expect(screen.getByTestId(ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID)).toHaveFocus()
       })
     })
 

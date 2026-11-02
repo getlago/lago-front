@@ -1,14 +1,25 @@
-import { CSSProperties, ReactNode } from 'react'
+import { CellContext, ColumnDef } from '@tanstack/react-table'
+import { createContext, ReactNode, useCallback, useContext } from 'react'
 
-import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
-import { Skeleton } from '~/components/designSystem/Skeleton'
+import {
+  ComposableTableExpandToggle,
+  composableTableFeatures,
+  ComposableTableGroupHeader,
+  ComposableTableInstance,
+  ComposableTableLoadMore,
+  ComposableTableSkeletonCell,
+  ComposableTableToggleSpacer,
+  ComposableTableTreeCell,
+  ComposableTableView,
+  createComposableTableColumnHelper,
+  useComposableTable,
+} from '~/components/designSystem/ComposableTable'
 import { Typography } from '~/components/designSystem/Typography'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { AttributedUsageBasisEnum, CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { tw } from '~/styles/utils'
 
 import {
   AttributionChargesUsageByFilterPage,
@@ -24,8 +35,6 @@ export const ATTRIBUTION_TABLE_FOOTER_TEST_ID = 'attribution-flat-table-footer'
 export const ATTRIBUTION_SHOW_MORE_TEST_ID = 'attribution-show-more'
 export const ATTRIBUTION_LOADING_CELL_TEST_ID = 'attribution-loading-cell'
 export const ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID = 'attribution-load-more-rows'
-
-const LOADING_ROWS_COUNT = 3
 
 export type AttributionTableRow = {
   id: string
@@ -59,39 +68,132 @@ type AttributionFlatTableProps = AttributionTableSharedProps & {
   }
 }
 
-const ATTRIBUTION_CELL_PADDING_CLASSNAME = 'px-3 py-0'
+type AttributionTableUsage = AttributionTableSharedProps['totals']
 
-const ATTRIBUTION_CELL_CLASSNAME = tw(
-  'h-12 w-px min-w-24 whitespace-nowrap border-b border-grey-300 text-right',
-  ATTRIBUTION_CELL_PADDING_CLASSNAME,
-)
+type AttributionTableToggle =
+  { kind: 'none' } | { kind: 'spacer' } | { kind: 'expand'; isLoading: boolean }
 
-export const ATTRIBUTION_ENTITY_CELL_CLASSNAME = tw(
-  'sticky left-0 z-10 h-12 whitespace-nowrap border-b border-r border-grey-300 bg-white text-left',
-  ATTRIBUTION_CELL_PADDING_CLASSNAME,
-)
-const ATTRIBUTION_TOTAL_CELL_CLASSNAME = tw(
-  'sticky right-0 z-10 h-12 w-px whitespace-nowrap border-b border-l border-grey-300 bg-grey-100 text-right',
-  ATTRIBUTION_CELL_PADDING_CLASSNAME,
-  'pl-6',
-)
+export type AttributionTableRowModel =
+  | (AttributionTableRow & {
+      kind: 'data'
+      toggle: AttributionTableToggle
+      subRows: AttributionTableRowModel[]
+    })
+  | {
+      kind: 'loadMore'
+      id: string
+      toggle: Exclude<AttributionTableToggle, { kind: 'expand' }>
+      isLoading: boolean
+      onLoadMore: () => void
+    }
 
-type AttributionValueCellsProps = Pick<
+type AttributionTableColumnDef = ColumnDef<
+  typeof composableTableFeatures,
+  AttributionTableRowModel,
+  unknown
+>
+
+type AttributionTableCellContext = CellContext<
+  typeof composableTableFeatures,
+  AttributionTableRowModel,
+  unknown
+>
+
+type UseAttributionTableColumnsParams = Pick<
   AttributionTableSharedProps,
-  'columns' | 'basis' | 'currency'
+  'totals' | 'columns' | 'chargeLabel' | 'basis' | 'currency'
 > & {
-  usage: Pick<AttributionTableRow, 'amountCents' | 'splitChargeUnits' | 'chargesUsageByFilterPage'>
-  cellClassName?: string
+  loadMoreDataTest: string
+  toggleDataTest?: string
 }
 
-export const AttributionValueCells = ({
-  usage,
+const columnHelper = createComposableTableColumnHelper<AttributionTableRowModel>()
+
+const VALUE_COLUMN_META = { align: 'right', shrink: true, className: 'min-w-24' } as const
+
+export const ATTRIBUTION_COLUMN_PINNING = { start: ['entity'], end: ['total'] }
+
+// Read from context, not captured by the header: a new header function would remount this
+// button and drop its focus.
+const AttributionShowMoreColumnsContext = createContext<AttributionShowMoreColumns | undefined>(
+  undefined,
+)
+
+const AttributionShowMoreColumnsButton = (): JSX.Element | null => {
+  const { translate } = useInternationalization()
+  const showMoreColumns = useContext(AttributionShowMoreColumnsContext)
+
+  if (!showMoreColumns) return null
+
+  return (
+    <ComposableTableLoadMore
+      label={translate('text_1792668632007fulz8omi190')}
+      isLoading={showMoreColumns.isExpanded && showMoreColumns.isLoading}
+      disabled={showMoreColumns.isExpanded && showMoreColumns.isDisabled}
+      onLoadMore={showMoreColumns.onClick}
+      data-test={ATTRIBUTION_SHOW_MORE_TEST_ID}
+    />
+  )
+}
+
+export const useAttributionTableColumns = ({
+  totals,
   columns,
+  chargeLabel,
   basis,
   currency,
-  cellClassName,
-}: AttributionValueCellsProps): JSX.Element => {
+  loadMoreDataTest,
+  toggleDataTest,
+}: UseAttributionTableColumnsParams): AttributionTableColumnDef[] => {
   const { translate } = useInternationalization()
+
+  // `flexRender` mounts a function cell as a component: a new identity remounts every entity
+  // cell, and the focused toggle or load-more button with it.
+  const renderEntityCell = useCallback(
+    ({ row }: AttributionTableCellContext): ReactNode => {
+      const { original } = row
+
+      const renderToggle = (): ReactNode => {
+        if (original.toggle.kind === 'none') return null
+        if (original.toggle.kind === 'spacer' || original.kind === 'loadMore') {
+          return <ComposableTableToggleSpacer />
+        }
+
+        return (
+          <ComposableTableExpandToggle
+            label={original.label}
+            isExpanded={row.getIsExpanded()}
+            isLoading={original.toggle.isLoading}
+            onToggle={row.getToggleExpandedHandler()}
+            data-test={toggleDataTest}
+          />
+        )
+      }
+
+      if (original.kind === 'loadMore') {
+        return (
+          <ComposableTableTreeCell depth={row.depth} toggle={renderToggle()}>
+            <ComposableTableLoadMore
+              label={translate('text_1792668632007fulz8omi190')}
+              isLoading={original.isLoading}
+              onLoadMore={original.onLoadMore}
+              data-test={loadMoreDataTest}
+            />
+          </ComposableTableTreeCell>
+        )
+      }
+
+      return (
+        <ComposableTableTreeCell depth={row.depth} toggle={renderToggle()}>
+          <Chip label={original.typeLabel} variant="captionCode" size="small" />
+          <Typography variant="body" color={original.isUnattributed ? 'grey600' : 'grey700'} noWrap>
+            {original.label}
+          </Typography>
+        </ComposableTableTreeCell>
+      )
+    },
+    [loadMoreDataTest, toggleDataTest, translate],
+  )
 
   const formatValue = (value: number | null): string => {
     if (value === null) return '-'
@@ -103,289 +205,153 @@ export const AttributionValueCells = ({
     return `${intlFormatNumber(value, { style: 'decimal' })} ${translate('text_6282085b4f283b0102655884')}`
   }
 
-  const renderCellValue = (column: AttributionColumn): ReactNode => {
+  const renderFormattedValue = (value: number | null): JSX.Element => (
+    <Typography variant="body" color="grey700" noWrap>
+      {formatValue(value)}
+    </Typography>
+  )
+
+  const renderValue = (usage: AttributionTableUsage, column: AttributionColumn): ReactNode => {
     const chargesUsage = usage.chargesUsageByFilterPage[column.filterPage]
 
-    if (!chargesUsage) return <Skeleton variant="text" className="ml-auto w-16" />
+    if (!chargesUsage)
+      return <ComposableTableSkeletonCell data-test={ATTRIBUTION_LOADING_CELL_TEST_ID} />
 
-    return (
-      <Typography variant="body" color="grey700" noWrap>
-        {formatValue(
-          getAttributionDisplayedValue({
-            basis,
-            usage: getAttributionCellUsage(chargesUsage, column),
-          }),
-        )}
-      </Typography>
+    return renderFormattedValue(
+      getAttributionDisplayedValue({ basis, usage: getAttributionCellUsage(chargesUsage, column) }),
     )
   }
 
-  return (
-    <>
-      {columns.map((column) => (
-        <td
-          key={column.key}
-          className={tw(ATTRIBUTION_CELL_CLASSNAME, cellClassName)}
-          data-test={
-            usage.chargesUsageByFilterPage[column.filterPage]
-              ? undefined
-              : ATTRIBUTION_LOADING_CELL_TEST_ID
-          }
-        >
-          {renderCellValue(column)}
-        </td>
-      ))}
-      <td className={ATTRIBUTION_TOTAL_CELL_CLASSNAME}>
-        <Typography variant="body" color="grey700" noWrap>
-          {formatValue(
-            getAttributionDisplayedValue({
-              basis,
-              usage: getAttributionTotalUsage({
-                amountCents: usage.amountCents,
-                splitChargeUnits: usage.splitChargeUnits,
-                chargesUsage: usage.chargesUsageByFilterPage[0] ?? [],
-              }),
-            }),
-          )}
-        </Typography>
-      </td>
-    </>
+  const renderTotal = (usage: AttributionTableUsage): JSX.Element =>
+    renderFormattedValue(
+      getAttributionDisplayedValue({
+        basis,
+        usage: getAttributionTotalUsage({
+          amountCents: usage.amountCents,
+          splitChargeUnits: usage.splitChargeUnits,
+          chargesUsage: usage.chargesUsageByFilterPage[0] ?? [],
+        }),
+      }),
+    )
+
+  const renderChargeHeader = useCallback(
+    (): ReactNode => (
+      <ComposableTableGroupHeader
+        label={chargeLabel}
+        action={<AttributionShowMoreColumnsButton />}
+      />
+    ),
+    [chargeLabel],
   )
-}
 
-export const AttributionEmptyCells = ({
-  columns,
-}: Pick<AttributionTableSharedProps, 'columns'>): JSX.Element => (
-  <>
-    {columns.map((column) => (
-      <td key={column.key} className={ATTRIBUTION_CELL_CLASSNAME} />
-    ))}
-    <td className={ATTRIBUTION_TOTAL_CELL_CLASSNAME} />
-  </>
-)
-
-const ATTRIBUTION_INDENT_STEP_PX = 16
-
-const getAttributionIndentStyle = (depth: number): CSSProperties => ({
-  paddingLeft: depth * ATTRIBUTION_INDENT_STEP_PX,
-})
-
-type AttributionEntityCellProps = Pick<
-  AttributionTableRow,
-  'typeLabel' | 'label' | 'isUnattributed'
-> & {
-  depth?: number
-  toggle?: ReactNode
-}
-
-export const AttributionEntityCell = ({
-  typeLabel,
-  label,
-  isUnattributed,
-  depth = 0,
-  toggle,
-}: AttributionEntityCellProps): JSX.Element => (
-  <td className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
-    <div className="flex items-center gap-2" style={getAttributionIndentStyle(depth)}>
-      {toggle}
-      <Chip label={typeLabel} variant="captionCode" size="small" />
-      <Typography variant="body" color={isUnattributed ? 'grey600' : 'grey700'} noWrap>
-        {label}
+  const entityColumn = columnHelper.display({
+    id: 'entity',
+    header: translate('text_1792668632006w5a1kxhzpz2'),
+    footer: () => (
+      <Typography variant="body" color="grey600">
+        {translate('text_1738063764295zomiafl8b4s')}
       </Typography>
-    </div>
-  </td>
-)
+    ),
+    cell: renderEntityCell,
+  })
 
-type AttributionLoadMoreRowProps = Pick<AttributionTableSharedProps, 'columns'> & {
-  isLoading: boolean
-  onLoadMore: () => void
-  depth?: number
-  toggle?: ReactNode
+  const chargeColumn = columnHelper.group({
+    id: 'charge',
+    header: renderChargeHeader,
+    columns: columns.map((column) =>
+      columnHelper.display({
+        id: column.key,
+        meta: VALUE_COLUMN_META,
+        header: column.label ?? translate('text_65281f686a80b400c8e2f6d1'),
+        footer: () => renderValue(totals, column),
+        cell: ({ row }) =>
+          row.original.kind === 'data' ? renderValue(row.original, column) : null,
+      }),
+    ),
+  })
+
+  const totalColumn = columnHelper.display({
+    id: 'total',
+    meta: { align: 'right' },
+    header: translate('text_1738063764295zomiafl8b4s'),
+    footer: () => renderTotal(totals),
+    cell: ({ row }) => (row.original.kind === 'data' ? renderTotal(row.original) : null),
+  })
+
+  if (!columns.length) return [entityColumn, totalColumn]
+
+  return [entityColumn, chargeColumn, totalColumn]
+}
+
+type AttributionTableViewProps = Pick<
+  AttributionTableSharedProps,
+  'showMoreColumns' | 'isLoading'
+> & {
+  table: ComposableTableInstance<AttributionTableRowModel>
+  rowDataTest: string
   'data-test': string
 }
 
-export const AttributionLoadMoreRow = ({
-  columns,
-  isLoading,
-  onLoadMore,
-  depth = 0,
-  toggle,
-  'data-test': dataTest,
-}: AttributionLoadMoreRowProps): JSX.Element => {
-  const { translate } = useInternationalization()
-
-  return (
-    <tr>
-      <td className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
-        <div className="flex items-center gap-2" style={getAttributionIndentStyle(depth)}>
-          {toggle}
-          <Button
-            variant="inline"
-            size="small"
-            loading={isLoading}
-            disabled={isLoading}
-            onClick={onLoadMore}
-            data-test={dataTest}
-          >
-            {translate('text_1792668632007fulz8omi190')}
-          </Button>
-        </div>
-      </td>
-      <AttributionEmptyCells columns={columns} />
-    </tr>
-  )
-}
-
-export const AttributionTableLayout = ({
-  totals,
-  columns,
-  chargeLabel,
+export const AttributionTableView = ({
+  table,
   showMoreColumns,
-  basis,
-  currency,
   isLoading,
-  children,
+  rowDataTest,
   'data-test': dataTest,
-}: AttributionTableSharedProps & { children: ReactNode; 'data-test': string }): JSX.Element => {
-  const { translate } = useInternationalization()
-  const hasChargeColumns = columns.length > 0
-
-  const renderBody = (): ReactNode => {
-    if (!isLoading) return children
-
-    return Array.from({ length: LOADING_ROWS_COUNT }, (_, index) => (
-      <tr key={`loading-${index}`}>
-        <td className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
-          <Skeleton variant="text" className="w-40" />
-        </td>
-        {columns.map((column) => (
-          <td key={column.key} className={ATTRIBUTION_CELL_CLASSNAME}>
-            <Skeleton variant="text" className="ml-auto w-16" />
-          </td>
-        ))}
-        <td className={ATTRIBUTION_TOTAL_CELL_CLASSNAME}>
-          <Skeleton variant="text" color="dark" className="ml-auto w-16" />
-        </td>
-      </tr>
-    ))
-  }
-
-  return (
-    <div className="w-full overflow-x-auto" data-test={dataTest}>
-      {/* eslint-disable-next-line lago/use-design-system -- DS `Table` lacks lazy tree rows, two-row headers and sticky columns; a TanStack Table base for the DS is under evaluation */}
-      <table className="w-full border-separate border-spacing-0">
-        <thead>
-          <tr>
-            <th className={ATTRIBUTION_ENTITY_CELL_CLASSNAME}>
-              <Typography variant="captionHl" color="grey600">
-                {translate('text_1792668632006w5a1kxhzpz2')}
-              </Typography>
-            </th>
-            {hasChargeColumns && (
-              <th className={tw(ATTRIBUTION_CELL_CLASSNAME, 'text-left')} colSpan={columns.length}>
-                <div className="flex items-center justify-between gap-4">
-                  <Typography variant="captionHl" color="grey600" noWrap>
-                    {chargeLabel}
-                  </Typography>
-                  {showMoreColumns && (
-                    <Button
-                      variant="inline"
-                      size="small"
-                      loading={showMoreColumns.isExpanded && showMoreColumns.isLoading}
-                      disabled={
-                        showMoreColumns.isExpanded &&
-                        (showMoreColumns.isLoading || showMoreColumns.isDisabled)
-                      }
-                      onClick={showMoreColumns.onClick}
-                      data-test={ATTRIBUTION_SHOW_MORE_TEST_ID}
-                    >
-                      {translate('text_1792668632007fulz8omi190')}
-                    </Button>
-                  )}
-                </div>
-              </th>
-            )}
-            <th className={ATTRIBUTION_TOTAL_CELL_CLASSNAME}>
-              <Typography variant="captionHl" color="grey600">
-                {translate('text_1738063764295zomiafl8b4s')}
-              </Typography>
-            </th>
-          </tr>
-          {hasChargeColumns && (
-            <tr>
-              <th className={ATTRIBUTION_ENTITY_CELL_CLASSNAME} />
-              {columns.map((column) => (
-                <th key={column.key} className={ATTRIBUTION_CELL_CLASSNAME}>
-                  <Typography variant="captionHl" color="grey600" noWrap>
-                    {column.label ?? translate('text_65281f686a80b400c8e2f6d1')}
-                  </Typography>
-                </th>
-              ))}
-              <th className={ATTRIBUTION_TOTAL_CELL_CLASSNAME} />
-            </tr>
-          )}
-        </thead>
-        <tbody>{renderBody()}</tbody>
-        {!isLoading && (
-          <tfoot>
-            <tr data-test={ATTRIBUTION_TABLE_FOOTER_TEST_ID}>
-              <td className={tw(ATTRIBUTION_ENTITY_CELL_CLASSNAME, 'bg-grey-100')}>
-                <Typography variant="body" color="grey600">
-                  {translate('text_1738063764295zomiafl8b4s')}
-                </Typography>
-              </td>
-              <AttributionValueCells
-                usage={totals}
-                columns={columns}
-                basis={basis}
-                currency={currency}
-                cellClassName="bg-grey-100"
-              />
-            </tr>
-          </tfoot>
-        )}
-      </table>
-    </div>
-  )
-}
+}: AttributionTableViewProps): JSX.Element => (
+  <AttributionShowMoreColumnsContext.Provider value={showMoreColumns}>
+    <ComposableTableView
+      table={table}
+      isLoading={isLoading}
+      hasFooter
+      footerDataTest={ATTRIBUTION_TABLE_FOOTER_TEST_ID}
+      getRowDataTest={(row) => (row.original.kind === 'data' ? rowDataTest : undefined)}
+      data-test={dataTest}
+    />
+  </AttributionShowMoreColumnsContext.Provider>
+)
 
 export const AttributionFlatTable = ({
   rows,
   loadMore,
-  ...tableProps
+  isLoading,
+  showMoreColumns,
+  ...columnsProps
 }: AttributionFlatTableProps): JSX.Element => {
-  const { columns, basis, currency } = tableProps
+  const tableColumns = useAttributionTableColumns({
+    ...columnsProps,
+    loadMoreDataTest: ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID,
+  })
 
-  const renderRow = (row: AttributionTableRow): ReactNode => (
-    <tr key={row.id} data-test={ATTRIBUTION_TABLE_ROW_TEST_ID}>
-      <AttributionEntityCell
-        typeLabel={row.typeLabel}
-        label={row.label}
-        isUnattributed={row.isUnattributed}
-      />
-      <AttributionValueCells usage={row} columns={columns} basis={basis} currency={currency} />
-    </tr>
-  )
+  const toDataRow = (row: AttributionTableRow): AttributionTableRowModel => ({
+    ...row,
+    kind: 'data',
+    toggle: { kind: 'none' },
+    subRows: [],
+  })
 
-  const renderLoadMoreRow = (): ReactNode => {
-    if (!loadMore) return null
+  const loadMoreRows: AttributionTableRowModel[] = loadMore
+    ? [{ kind: 'loadMore', id: 'load-more', toggle: { kind: 'none' }, ...loadMore }]
+    : []
 
-    return (
-      <AttributionLoadMoreRow
-        key="load-more"
-        columns={columns}
-        isLoading={loadMore.isLoading}
-        onLoadMore={loadMore.onLoadMore}
-        data-test={ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID}
-      />
-    )
-  }
+  const table = useComposableTable({
+    data: [
+      ...rows.filter((row) => !row.isUnattributed).map(toDataRow),
+      ...loadMoreRows,
+      ...rows.filter((row) => row.isUnattributed).map(toDataRow),
+    ],
+    columns: tableColumns,
+    getRowId: (row) => row.id,
+    initialState: { columnPinning: ATTRIBUTION_COLUMN_PINNING },
+  })
 
   return (
-    <AttributionTableLayout {...tableProps} data-test={ATTRIBUTION_TABLE_TEST_ID}>
-      {rows.filter((row) => !row.isUnattributed).map(renderRow)}
-      {renderLoadMoreRow()}
-      {rows.filter((row) => row.isUnattributed).map(renderRow)}
-    </AttributionTableLayout>
+    <AttributionTableView
+      table={table}
+      isLoading={isLoading}
+      showMoreColumns={showMoreColumns}
+      rowDataTest={ATTRIBUTION_TABLE_ROW_TEST_ID}
+      data-test={ATTRIBUTION_TABLE_TEST_ID}
+    />
   )
 }
