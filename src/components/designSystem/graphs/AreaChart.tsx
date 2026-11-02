@@ -57,7 +57,8 @@ type AreaChartProps = {
   data: AreaChartDataType[]
   loading?: boolean
   hasOnlyZeroValues?: boolean
-  currency: CurrencyEnum
+  currency?: CurrencyEnum
+  valueFormatter?: (value: number) => string
   height?: number
   tickFontSize?: number
 }
@@ -65,7 +66,8 @@ type AreaChartProps = {
 const AreaChart = memo(
   ({
     blur,
-    currency,
+    currency = CurrencyEnum.Usd,
+    valueFormatter,
     data,
     hasOnlyZeroValues,
     loading,
@@ -74,6 +76,12 @@ const AreaChart = memo(
   }: AreaChartProps) => {
     const { hoverDataIndex, setHoverDataIndex, setClickedDataIndex, handleMouseLeave } =
       useAnalyticsState()
+
+    const formatValue = (value: number): string => {
+      if (valueFormatter) return valueFormatter(value)
+
+      return bigNumberShortenNotationFormater(deserializeAmount(value, currency), { currency })
+    }
 
     return (
       <ChartWrapper blur={blur}>
@@ -195,14 +203,7 @@ const AreaChart = memo(
                             letterSpacing: '-0.16px',
                           }}
                         >
-                          {index !== 0 && hasOnlyZeroValues
-                            ? '-'
-                            : bigNumberShortenNotationFormater(
-                                deserializeAmount(payload.value, currency),
-                                {
-                                  currency,
-                                },
-                              )}
+                          {index !== 0 && hasOnlyZeroValues ? '-' : formatValue(payload.value)}
                         </text>
                       </g>
                     ) : (

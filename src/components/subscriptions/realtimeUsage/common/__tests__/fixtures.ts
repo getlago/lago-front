@@ -118,7 +118,7 @@ export const buildHourlyUsageMock = ({
     return {
       request: {
         query: GetSubscriptionHourlyUsageDocument,
-        variables: { subscriptionId: SUBSCRIPTION_ID, chargeId, fromDatetime },
+        variables: { subscriptionId: SUBSCRIPTION_ID, chargeId, fromDatetime, toDatetime: NOW },
       },
       maxUsageCount: Number.POSITIVE_INFINITY,
       result,
