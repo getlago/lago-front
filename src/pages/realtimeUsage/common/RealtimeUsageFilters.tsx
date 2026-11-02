@@ -47,6 +47,7 @@ export const RealtimeUsageFilters = ({
       <div className="flex shrink-0 items-center gap-4">
         <AutoRefreshSelector
           data-test={REALTIME_USAGE_AUTO_REFRESH_TEST_ID}
+          variant="menu"
           value={autoRefreshSeconds}
           onChange={onAutoRefreshChange}
         />
