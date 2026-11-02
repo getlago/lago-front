@@ -199,8 +199,7 @@
     "overrides": {
       "uuid": ">=14.0.0",
       "tmp": ">=0.2.6",
-      "@graphql-tools/utils": "^12.1.0",
-      "@fastify/busboy": "^3.2.2"
+      "@graphql-tools/utils": "^12.1.0"
     }
   },
   "engines": {
