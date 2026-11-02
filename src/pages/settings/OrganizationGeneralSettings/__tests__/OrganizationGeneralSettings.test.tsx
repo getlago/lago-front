@@ -1,13 +1,25 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import {
+  CUSTOMER_PORTAL_FORM_FIELDS,
+  getCustomerPortalLockedFields,
+} from '~/core/constants/customerPortalEditableFields'
+import { CustomerPortalFieldEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import OrganizationGeneralSettings from '../OrganizationGeneralSettings'
+import OrganizationGeneralSettings, {
+  CUSTOMER_PORTAL_FIELDS_TEST_ID,
+  CUSTOMER_PORTAL_NO_EDITABLE_FIELDS_TEST_ID,
+  CUSTOMER_PORTAL_SETTINGS_ERROR_TEST_ID,
+  EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID,
+} from '../OrganizationGeneralSettings'
 
 const mockMainHeaderConfigure = jest.fn()
 const mockHasPermissions = jest.fn()
 const mockOpenEditOrganizationSlugDialog = jest.fn()
+const mockOpenEditCustomerPortalFieldsDialog = jest.fn()
+const mockUseGetOrganizationCustomerPortalSettingsQuery = jest.fn()
 
 jest.mock('~/components/MainHeader/MainHeader', () => ({
   MainHeader: {
@@ -26,6 +38,18 @@ jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
 
+jest.mock('~/generated/graphql', () => ({
+  ...jest.requireActual('~/generated/graphql'),
+  useGetOrganizationCustomerPortalSettingsQuery: () =>
+    mockUseGetOrganizationCustomerPortalSettingsQuery(),
+}))
+
+jest.mock('../dialogs/useEditCustomerPortalFieldsDialog', () => ({
+  useEditCustomerPortalFieldsDialog: () => ({
+    openEditCustomerPortalFieldsDialog: mockOpenEditCustomerPortalFieldsDialog,
+  }),
+}))
+
 jest.mock('../dialogs/useEditOrganizationSlugDialog', () => ({
   useEditOrganizationSlugDialog: () => ({
     openEditOrganizationSlugDialog: mockOpenEditOrganizationSlugDialog,
@@ -41,6 +65,18 @@ describe('OrganizationGeneralSettings', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    mockUseGetOrganizationCustomerPortalSettingsQuery.mockReturnValue({
+      loading: false,
+      data: {
+        organization: {
+          id: 'org-1',
+          customerPortalLockedFields: getCustomerPortalLockedFields([
+            CustomerPortalFieldEnum.Name,
+            CustomerPortalFieldEnum.City,
+          ]),
+        },
+      },
+    })
   })
 
   describe('GIVEN the URL has no organizationSlug yet', () => {
@@ -106,6 +142,111 @@ describe('OrganizationGeneralSettings', () => {
         renderWithSlug('acme')
 
         expect(screen.getByTestId('current-organization-slug')).toHaveTextContent('/acme')
+      })
+    })
+  })
+
+  describe('GIVEN the customer portal section', () => {
+    const labelOf = (field: CustomerPortalFieldEnum) =>
+      CUSTOMER_PORTAL_FORM_FIELDS.find((entry) => entry.field === field)?.labelKey
+
+    describe('WHEN the settings are loaded', () => {
+      it('THEN should list the editable fields in the portal form order', () => {
+        renderWithSlug('acme')
+
+        expect(screen.getByTestId(CUSTOMER_PORTAL_FIELDS_TEST_ID)).toHaveTextContent(
+          [labelOf(CustomerPortalFieldEnum.Name), labelOf(CustomerPortalFieldEnum.City)].join(', '),
+        )
+      })
+
+      it('THEN should not list the document locale, which customers cannot edit in the portal', () => {
+        mockUseGetOrganizationCustomerPortalSettingsQuery.mockReturnValue({
+          loading: false,
+          data: {
+            organization: {
+              id: 'org-1',
+              customerPortalLockedFields: getCustomerPortalLockedFields([
+                CustomerPortalFieldEnum.DocumentLocale,
+              ]),
+            },
+          },
+        })
+
+        renderWithSlug('acme')
+
+        expect(screen.getByTestId(CUSTOMER_PORTAL_NO_EDITABLE_FIELDS_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(CUSTOMER_PORTAL_FIELDS_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN no field is editable', () => {
+      it('THEN should display the empty state', () => {
+        mockUseGetOrganizationCustomerPortalSettingsQuery.mockReturnValue({
+          loading: false,
+          data: {
+            organization: {
+              id: 'org-1',
+              customerPortalLockedFields: getCustomerPortalLockedFields([]),
+            },
+          },
+        })
+
+        renderWithSlug('acme')
+
+        expect(screen.getByTestId(CUSTOMER_PORTAL_NO_EDITABLE_FIELDS_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the settings fail to load', () => {
+      it.each([
+        ['the query errors', { loading: false, error: new Error('boom'), data: undefined }],
+        ['the organization is missing', { loading: false, data: { organization: null } }],
+      ])('THEN should show the error state and no edit action when %s', (_, queryResult) => {
+        mockUseGetOrganizationCustomerPortalSettingsQuery.mockReturnValue(queryResult)
+
+        renderWithSlug('acme')
+
+        expect(screen.getByTestId(CUSTOMER_PORTAL_SETTINGS_ERROR_TEST_ID)).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(CUSTOMER_PORTAL_NO_EDITABLE_FIELDS_TEST_ID),
+        ).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user clicks the edit button', () => {
+      it('THEN should open the dialog with the loaded locked fields', async () => {
+        const user = userEvent.setup()
+
+        renderWithSlug('acme')
+
+        await user.click(screen.getByTestId(EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID))
+
+        expect(mockOpenEditCustomerPortalFieldsDialog).toHaveBeenCalledWith({
+          lockedFields: getCustomerPortalLockedFields([
+            CustomerPortalFieldEnum.Name,
+            CustomerPortalFieldEnum.City,
+          ]),
+        })
+      })
+    })
+
+    describe.each([
+      ['organizationTaxesUpdate', 'organizationUpdate'],
+      ['organizationUpdate', 'organizationTaxesUpdate'],
+    ])('WHEN the user has %s but not %s', (granted) => {
+      it('THEN should not display the edit button', () => {
+        mockHasPermissions.mockImplementation((permissions: string[]) =>
+          permissions.every((permission) => permission === granted),
+        )
+
+        renderWithSlug('acme')
+
+        expect(
+          screen.queryByTestId(EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
   })

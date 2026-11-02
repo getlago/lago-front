@@ -37,6 +37,26 @@ describe('buildFiltersPanelValidationSchema', () => {
     })
   })
 
+  describe('GIVEN a real-time usage time range filter', () => {
+    it.each([
+      ['a preset', 'last_6h'],
+      ['a custom range within 31 days', '2024-01-01T00:00:00.000Z,2024-01-31T23:59:59.000Z'],
+    ])('THEN it accepts %s', (_, value) => {
+      expect(isValid([{ filterType: AvailableFiltersEnum.timeRange, value }])).toBe(true)
+    })
+
+    it('THEN it rejects a custom range the API would refuse', () => {
+      expect(
+        isValid([
+          {
+            filterType: AvailableFiltersEnum.timeRange,
+            value: '2024-01-01T00:00:00.000Z,2024-03-01T00:00:00.000Z',
+          },
+        ]),
+      ).toBe(false)
+    })
+  })
+
   describe('GIVEN a date range filter', () => {
     it.each([
       ['an ordered range', `${FROM},${TO}`, true],
