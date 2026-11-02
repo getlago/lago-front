@@ -55,7 +55,7 @@ const getSkeletonClassName = <TData extends RowData>(
   return 'w-24'
 }
 
-type ComposableTableViewProps<TData extends RowData> = {
+export type ComposableTableViewProps<TData extends RowData> = {
   table: ComposableTableInstance<TData>
   isLoading?: boolean
   loadingRowCount?: number
