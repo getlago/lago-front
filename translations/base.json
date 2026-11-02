@@ -5304,5 +5304,11 @@
   "text_1792806558676u8zmm1cjcpk": "See active rate",
   "text_1792807216284omzlpv8edip": "Position: {{position}}",
   "text_1792807216284fcthmczmbad": "Activity logs for this phase are not available yet.",
-  "text_1792808039945mpa3wdnz30t": "Rate phase not found"
+  "text_1792808039945mpa3wdnz30t": "Rate phase not found",
+  "text_1793644325522dqe8jr97x7g": "No rates exist on the selected rate card.",
+  "text_1793644325523uoopxvqfabt": "Override the rate to price this phase.",
+  "text_1793644325523lgwtnurckmk": "Override rate",
+  "text_179364432552375olu7n6lbx": "No active rate on the selected rate card yet.",
+  "text_1793644325523elkf1drglgo": "The rate will become active on its effective date: {{effectiveDate}}.",
+  "text_1793644325523i8agdlzgjil": "No rate"
 }

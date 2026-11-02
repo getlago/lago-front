@@ -10,7 +10,7 @@ export const getFormPhaseRate = (
   phase: RatePhaseFormValues,
   rateCard: RateCardForRatePhaseFields,
 ): RatePhaseRate | null => {
-  const { activeRate } = rateCard
+  const { activeRate, nextPendingRate } = rateCard
 
   if (phase.overrideEnabled) {
     const rate = mapRateOverrideFromFormToApi(phase, rateCard.currency)
@@ -22,13 +22,25 @@ export const getFormPhaseRate = (
     }
   }
 
-  if (!activeRate) return null
-
-  return {
-    isOverridden: false,
-    rate: activeRateToOverrideInput(activeRate),
-    effectiveFrom: activeRate.effectiveFrom,
+  if (activeRate) {
+    return {
+      isOverridden: false,
+      isPending: false,
+      rate: activeRateToOverrideInput(activeRate),
+      effectiveFrom: activeRate.effectiveFrom,
+    }
   }
+
+  if (nextPendingRate) {
+    return {
+      isOverridden: false,
+      isPending: true,
+      rate: activeRateToOverrideInput(nextPendingRate),
+      effectiveFrom: nextPendingRate.effectiveFrom,
+    }
+  }
+
+  return null
 }
 
 // Not the form round trip alone: it fills an unset override interval with the form default, while

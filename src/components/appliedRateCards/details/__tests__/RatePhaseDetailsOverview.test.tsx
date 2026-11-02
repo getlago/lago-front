@@ -67,7 +67,9 @@ const RATE_CARD: RateCardForRatePhaseFields = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   appliedPricingUnitCode: null,
   proration: false,
+  ratesCount: 1,
   activeRate: ACTIVE_RATE,
+  nextPendingRate: null,
 }
 
 const RATE_OVERRIDE: NonNullable<RatePhaseForDrawerFragment['rateOverride']> = {
@@ -186,12 +188,36 @@ describe('RatePhaseDetailsOverview', () => {
     expect(screen.getByTestId(RATE_PHASE_OVERVIEW_MIN_SPENDING_TEST_ID)).toHaveTextContent('$0.00')
   })
 
-  it('GIVEN no override and no active rate THEN the rate section is absent', async () => {
-    renderOverview({ phase: FINITE_PHASE, rateCard: { ...RATE_CARD, activeRate: null } })
+  it('GIVEN no override and no active rate THEN shows the no-rate alert instead of the rate section', async () => {
+    renderOverview({
+      phase: FINITE_PHASE,
+      rateCard: { ...RATE_CARD, activeRate: null, nextPendingRate: null },
+    })
 
     expect(await screen.findByText('From contract start → 3 cycles')).toBeInTheDocument()
     expect(screen.queryByTestId(RATE_PHASE_OVERVIEW_RATE_SECTION_TEST_ID)).not.toBeInTheDocument()
-    expect(screen.queryByText('Rate')).not.toBeInTheDocument()
+    expect(screen.getByText('No rates exist on the selected rate card.')).toBeInTheDocument()
+  })
+
+  it('GIVEN no override, no active rate but a pending rate THEN previews it with the pending alert', async () => {
+    const pendingRate = {
+      ...ACTIVE_RATE,
+      id: 'pending-rate',
+      effectiveFrom: '2027-01-01T00:00:00.000Z',
+    }
+
+    renderOverview({
+      phase: FINITE_PHASE,
+      rateCard: { ...RATE_CARD, activeRate: null, nextPendingRate: pendingRate },
+    })
+
+    expect(
+      await screen.findByText('No active rate on the selected rate card yet.'),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/will become active on its effective date/)).toHaveTextContent(
+      'Jan 1, 2027',
+    )
+    expect(screen.getByTestId(RATE_PHASE_OVERVIEW_RATE_SECTION_TEST_ID)).toBeInTheDocument()
   })
 
   it('GIVEN a card with a pricing unit THEN shows "Credits" and "1 CR = $1.00"', async () => {

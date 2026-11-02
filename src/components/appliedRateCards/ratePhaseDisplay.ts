@@ -14,10 +14,12 @@ import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 import { OverrideDiffField } from './overrideDiff'
 
-// The rate a phase bills with: its override, or the rate card's active rate.
+// The rate a phase bills with: its override, the rate card's active rate, or (when there's
+// no active rate yet) a read-only preview of its next pending rate.
 export type RatePhaseRate =
   | { isOverridden: true; rate: RateOverrideInput; overriddenFields: Set<OverrideDiffField> }
-  | { isOverridden: false; rate: RateOverrideInput; effectiveFrom: string }
+  | { isOverridden: false; isPending: false; rate: RateOverrideInput; effectiveFrom: string }
+  | { isOverridden: false; isPending: true; rate: RateOverrideInput; effectiveFrom: string }
 
 export type RatePhaseForDetails = {
   name: string

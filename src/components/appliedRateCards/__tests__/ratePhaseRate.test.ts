@@ -16,6 +16,7 @@ const rateCard: RateCardForRatePhaseFields = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   appliedPricingUnitCode: null,
   proration: false,
+  ratesCount: 1,
   activeRate: {
     __typename: 'RateCardRate',
     id: 'active-rate',
@@ -27,6 +28,19 @@ const rateCard: RateCardForRatePhaseFields = {
     appliedPricingUnitConversionRate: null,
     rateProperties: { __typename: 'RateProperties', amount: '10' },
   },
+  nextPendingRate: null,
+}
+
+const pendingRate: NonNullable<RateCardForRatePhaseFields['nextPendingRate']> = {
+  __typename: 'RateCardRate',
+  id: 'pending-rate',
+  effectiveFrom: '2027-01-01T00:00:00.000Z',
+  rateModel: RateCardRateModelEnum.Standard,
+  billingIntervalCount: 1,
+  billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Week,
+  minAmountCents: '0',
+  appliedPricingUnitConversionRate: null,
+  rateProperties: { __typename: 'RateProperties', amount: '20' },
 }
 
 const override: NonNullable<RatePhaseForDrawerFragment['rateOverride']> = {
@@ -74,6 +88,19 @@ describe('getServerPhaseRate', () => {
     expect(
       getServerPhaseRate({ ...phase, rateOverride: null }, { ...rateCard, activeRate: null }),
     ).toBeNull()
+  })
+
+  it('GIVEN no override, no active rate but a pending rate THEN previews it as pending', () => {
+    expect(
+      getServerPhaseRate(
+        { ...phase, rateOverride: null },
+        { ...rateCard, activeRate: null, nextPendingRate: pendingRate },
+      ),
+    ).toMatchObject({
+      isOverridden: false,
+      isPending: true,
+      effectiveFrom: pendingRate.effectiveFrom,
+    })
   })
 
   it('GIVEN an override without billing interval and no active rate THEN the interval stays unset', () => {

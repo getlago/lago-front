@@ -12,6 +12,7 @@ import {
   getServerPhaseRate,
   toServerPhaseForDetails,
 } from '~/components/appliedRateCards/ratePhaseRate'
+import { RatePhaseRateAlert } from '~/components/appliedRateCards/RatePhaseRateAlert'
 import { RatePhaseRateChip } from '~/components/appliedRateCards/RatePhaseRateChip'
 import { RatePhaseRateEffectiveDate } from '~/components/appliedRateCards/RatePhaseRateEffectiveDate'
 import { RatePhaseRateProperties } from '~/components/appliedRateCards/RatePhaseRateProperties'
@@ -67,7 +68,10 @@ const RatePhaseOverviewRate = ({
         label={translate('text_64de472463e2da6b31737de0')}
         value={
           <div className="flex items-center gap-3">
-            <RatePhaseRateChip isOverridden={phaseRate.isOverridden} labelLength="long" />
+            <RatePhaseRateChip
+              status={phaseRate.isOverridden ? 'overridden' : 'active'}
+              labelLength="long"
+            />
             {phaseRate.isOverridden && !!rateCard.activeRate && (
               <ButtonLink
                 type="button"
@@ -93,6 +97,10 @@ const RatePhaseOverviewRate = ({
             />
           }
         />
+      )}
+
+      {!phaseRate.isOverridden && phaseRate.isPending && (
+        <RatePhaseRateAlert variant="pending" effectiveFrom={phaseRate.effectiveFrom} />
       )}
 
       <RatePhaseDetailItem
@@ -205,13 +213,16 @@ export const RatePhaseDetailsOverview = ({
         value={formatPhaseTimeline(toServerPhaseForDetails(phase), phaseRate?.rate, translate)}
       />
 
-      {!!rateCard && !!phaseRate && (
-        <RatePhaseOverviewRate
-          phaseRate={phaseRate}
-          rateCard={rateCard}
-          rateHistoryPath={rateHistoryPath}
-        />
-      )}
+      {!!rateCard &&
+        (phaseRate ? (
+          <RatePhaseOverviewRate
+            phaseRate={phaseRate}
+            rateCard={rateCard}
+            rateHistoryPath={rateHistoryPath}
+          />
+        ) : (
+          <RatePhaseRateAlert variant="none" onOverride={editPhase.open} />
+        ))}
     </section>
   )
 }

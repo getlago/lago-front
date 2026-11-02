@@ -69,7 +69,9 @@ const RATE_CARD: RateCardForRatePhaseFields = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   appliedPricingUnitCode: null,
   proration: false,
+  ratesCount: 0,
   activeRate: null,
+  nextPendingRate: null,
 }
 
 const RATE_OVERRIDE: NonNullable<RatePhaseForDrawerFragment['rateOverride']> = {

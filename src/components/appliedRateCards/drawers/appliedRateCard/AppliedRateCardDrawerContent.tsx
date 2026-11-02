@@ -5,6 +5,7 @@ import { ReactNode, useEffect, useState } from 'react'
 import { buildRateCardForRatePhaseFields } from '~/components/appliedRateCards/buildRateCardForRatePhaseFields'
 import {
   getInsertIndex,
+  RATE_PHASE_FORM_DEFAULTS,
   RatePhaseFormValues,
   RatePhaseReference,
 } from '~/components/appliedRateCards/drawers/ratePhase/ratePhaseFormSchema'
@@ -101,7 +102,12 @@ gql`
     billingTiming
     appliedPricingUnitCode
     proration
+    ratesCount
     activeRate {
+      id
+      ...ActiveRateForRatePhase
+    }
+    nextPendingRate {
       id
       ...ActiveRateForRatePhase
     }
@@ -266,6 +272,14 @@ export const AppliedRateCardDrawerContent = withForm({
     useEffect(() => {
       if (productId) getRateCards()
     }, [productId, productFilterId, getRateCards])
+
+    // Mirrors the backend default (`RatePhases::CreateService.call!(params: {code: "default",
+    // position: 1})`) explicitly on the frontend, so the drawer isn't empty before that save.
+    useEffect(() => {
+      if (!rateCardId || ratePhases.length > 0) return
+
+      form.setFieldValue('ratePhases', [{ ...RATE_PHASE_FORM_DEFAULTS, code: 'default' }])
+    }, [rateCardId, ratePhases.length, form])
 
     const { options: products, selected: selectedProduct } = useOptionsWithSelection(
       productsData?.products.collection ?? [],

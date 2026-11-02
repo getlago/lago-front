@@ -40,6 +40,7 @@ const rateCard: RateCardForRatePhaseFields = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   appliedPricingUnitCode: null,
   proration: false,
+  ratesCount: 1,
   activeRate: {
     __typename: 'RateCardRate',
     id: 'active-rate',
@@ -51,6 +52,7 @@ const rateCard: RateCardForRatePhaseFields = {
     appliedPricingUnitConversionRate: null,
     rateProperties: { __typename: 'RateProperties', amount: '10' },
   },
+  nextPendingRate: null,
 }
 
 const activeRateValues = {
