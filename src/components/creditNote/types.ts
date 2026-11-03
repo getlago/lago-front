@@ -38,6 +38,7 @@ export interface CreditNoteForm {
   description?: string
   fees?: FeesPerInvoice
   addOnFee?: FromFee[]
+  productFee?: FromFee[]
   creditFee?: FromFee[]
   metadata: Array<{
     key: string

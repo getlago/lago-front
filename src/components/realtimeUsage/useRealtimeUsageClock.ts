@@ -1,15 +1,11 @@
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useState } from 'react'
 
-import { getTimezoneConfig } from '~/core/timezone'
-import { TimezoneEnum } from '~/generated/graphql'
-
 import { ReportFetching } from './RealtimeUsageFetchingContext'
 
 type UseRealtimeUsageClockParams = {
   autoRefreshSeconds: number
   resetKey?: string
-  hourlyTimezone?: TimezoneEnum
 }
 
 type UseRealtimeUsageClock = (params: UseRealtimeUsageClockParams) => {
@@ -18,11 +14,7 @@ type UseRealtimeUsageClock = (params: UseRealtimeUsageClockParams) => {
   reportFetching: ReportFetching
 }
 
-export const useRealtimeUsageClock: UseRealtimeUsageClock = ({
-  autoRefreshSeconds,
-  resetKey,
-  hourlyTimezone,
-}) => {
+export const useRealtimeUsageClock: UseRealtimeUsageClock = ({ autoRefreshSeconds, resetKey }) => {
   const [now, setNow] = useState<DateTime>(() => DateTime.now())
   const [clockResetKey, setClockResetKey] = useState(resetKey)
 
@@ -67,26 +59,6 @@ export const useRealtimeUsageClock: UseRealtimeUsageClock = ({
       document.removeEventListener('visibilitychange', tickWhenVisible)
     }
   }, [autoRefreshSeconds, isFetching, now, tick])
-
-  useEffect(() => {
-    if (autoRefreshSeconds || !hourlyTimezone) return
-
-    const zone = getTimezoneConfig(hourlyTimezone).name
-    let timeout: ReturnType<typeof setTimeout>
-
-    const scheduleNextHour = (): void => {
-      const nextHour = DateTime.now().setZone(zone).plus({ hours: 1 }).startOf('hour')
-
-      timeout = setTimeout(() => {
-        tick()
-        scheduleNextHour()
-      }, nextHour.diffNow().toMillis())
-    }
-
-    scheduleNextHour()
-
-    return () => clearTimeout(timeout)
-  }, [autoRefreshSeconds, hourlyTimezone, tick])
 
   return { now, tick, reportFetching }
 }
