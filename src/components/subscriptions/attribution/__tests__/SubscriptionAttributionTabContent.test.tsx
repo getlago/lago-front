@@ -20,7 +20,6 @@ import {
 } from '../attributionFilters'
 import {
   ATTRIBUTION_LOAD_MORE_ROWS_TEST_ID,
-  ATTRIBUTION_SHOW_MORE_TEST_ID,
   ATTRIBUTION_TABLE_ROW_TEST_ID,
   ATTRIBUTION_TABLE_TEST_ID,
 } from '../AttributionFlatTable'
@@ -37,6 +36,7 @@ import {
   ATTRIBUTION_UNDER_TEST_ID,
   SubscriptionAttributionTabContent,
 } from '../SubscriptionAttributionTabContent'
+import { ATTRIBUTION_SHOW_MORE_TEST_ID } from '../useAttributionTableColumns'
 
 const PLACEHOLDER_TEST_ID = 'generic-placeholder'
 

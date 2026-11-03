@@ -1,5 +1,7 @@
 import { screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
+import { Button } from '~/components/designSystem/Button'
 import { render } from '~/test-utils'
 
 import { ComposableTableView, ComposableTableViewProps } from '../ComposableTableView'
@@ -30,17 +32,23 @@ const COLUMNS = columnHelper.columns([
       columnHelper.accessor('tokens', {
         header: 'Tokens',
         footer: '150',
-        meta: { align: 'right', shrink: true, className: 'min-w-24' },
+        meta: { variant: 'numeric' },
       }),
       columnHelper.accessor('seats', {
         header: 'Seats',
         footer: () => <span>6 seats</span>,
-        meta: { align: 'right' },
+        meta: { variant: 'numeric' },
         cell: ({ getValue }) => <span>{getValue()} seats</span>,
       }),
     ]),
   }),
-  columnHelper.display({ id: 'total', header: 'Total', cell: () => 'n/a', footer: 'n/a' }),
+  columnHelper.display({
+    id: 'total',
+    header: 'Total',
+    cell: () => 'n/a',
+    footer: 'n/a',
+    meta: { variant: 'numeric' },
+  }),
 ])
 
 type TestTableProps = Omit<ComposableTableViewProps<Usage>, 'table'> & {
@@ -58,22 +66,45 @@ const TestTable = ({ data = USAGES, ...props }: TestTableProps): JSX.Element => 
   return <ComposableTableView table={table} data-test={TABLE_TEST_ID} {...props} />
 }
 
+const FocusTable = ({ header }: { header: string }): JSX.Element => {
+  const table = useComposableTable({
+    data: USAGES,
+    columns: [
+      columnHelper.display({
+        id: 'action',
+        header,
+        cell: ({ row }) => <Button variant="inline">{`Open ${row.original.team}`}</Button>,
+      }),
+    ],
+    getRowId: (row) => row.id,
+  })
+
+  return <ComposableTableView table={table} />
+}
+
 const getBodyRows = (): HTMLElement[] =>
   within(screen.getAllByRole('rowgroup')[1]).queryAllByRole('row')
 
 describe('ComposableTableView', () => {
   describe('GIVEN a table with a column group', () => {
     describe('WHEN it renders', () => {
-      it('THEN spans the group over its columns and merges the other headers over both header rows', () => {
+      it('THEN spans the group over its columns and keeps the other headers on the first header row', () => {
         render(<TestTable />)
+
+        const [groupRow, leafRow] = within(screen.getAllByRole('rowgroup')[0]).getAllByRole('row')
+        const leafHeaders = within(leafRow).getAllByRole('columnheader')
 
         expect(screen.getByRole('columnheader', { name: 'Billable metrics' })).toHaveAttribute(
           'colspan',
           '2',
         )
-        expect(screen.getByRole('columnheader', { name: 'Team' })).toHaveAttribute('rowspan', '2')
-        expect(screen.getByRole('columnheader', { name: 'Total' })).toHaveAttribute('rowspan', '2')
-        expect(screen.getAllByRole('columnheader')).toHaveLength(5)
+        expect(within(groupRow).getByRole('columnheader', { name: 'Team' })).toBeInTheDocument()
+        expect(within(groupRow).getByRole('columnheader', { name: 'Total' })).toBeInTheDocument()
+        expect(screen.queryAllByRole('columnheader', { name: '' })).toHaveLength(2)
+        expect(leafHeaders).toHaveLength(4)
+        expect(leafHeaders[0]).toBeEmptyDOMElement()
+        expect(leafHeaders[3]).toBeEmptyDOMElement()
+        expect(document.querySelectorAll('thead th[rowspan]')).toHaveLength(0)
       })
 
       it('THEN aligns the group header left and leaf headers from their column meta', () => {
@@ -83,6 +114,16 @@ describe('ComposableTableView', () => {
           'text-left',
         )
         expect(screen.getByRole('columnheader', { name: 'Tokens' })).toHaveClass(
+          'text-right',
+          'w-px',
+          'min-w-24',
+        )
+      })
+
+      it('THEN keeps the column meta on the header of a column beside the group', () => {
+        render(<TestTable />)
+
+        expect(screen.getByRole('columnheader', { name: 'Total' })).toHaveClass(
           'text-right',
           'w-px',
           'min-w-24',
@@ -107,6 +148,16 @@ describe('ComposableTableView', () => {
         expect(screen.getByTestId('usage-row-rnd')).toHaveTextContent('R&D')
         expect(screen.getByTestId('usage-row-rnd')).toHaveTextContent('120')
         expect(screen.getByText('4 seats')).toBeInTheDocument()
+      })
+
+      // Guards the plain values that `flexRender` would mount as a component, past the text styling.
+      it('THEN renders the plain values of function cells as body text', () => {
+        render(<TestTable getRowDataTest={(row) => `usage-row-${row.id}`} />)
+
+        const cells = within(screen.getByTestId('usage-row-rnd')).getAllByRole('cell')
+
+        expect(cells[0].querySelector('[data-test="body"]')).toHaveTextContent('R&D')
+        expect(cells[3].querySelector('[data-test="body"]')).toHaveTextContent('n/a')
       })
 
       it('THEN renders no footer unless asked', () => {
@@ -173,6 +224,22 @@ describe('ComposableTableView', () => {
 
         expect(screen.getByText('No usage')).toBeInTheDocument()
         expect(screen.getByText('Nothing billed yet')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a focused control inside a cell', () => {
+    describe('WHEN the table rerenders with new column definitions', () => {
+      // Guards the remount `flexRender` does on every new renderer identity.
+      it('THEN keeps the focus on the control', async () => {
+        const user = userEvent.setup()
+        const { rerender } = render(<FocusTable header="Actions" />)
+
+        await user.click(screen.getByRole('button', { name: 'Open R&D' }))
+
+        rerender(<FocusTable header="Row actions" />)
+
+        expect(screen.getByRole('button', { name: 'Open R&D' })).toHaveFocus()
       })
     })
   })
