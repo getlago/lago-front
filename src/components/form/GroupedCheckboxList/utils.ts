@@ -15,10 +15,6 @@ export const createGroupingMap = (groups: CheckboxGroup[]): GroupingMap => {
 }
 
 /**
- * Creates empty boolean values (all false) from a list of checkbox groups.
- * Useful for initializing form default values.
- */
-/**
  * Transforms checkbox groups into flat row configuration for TableWithGroups.
  */
 export const getDataRows = (groups: CheckboxGroup[]): RowConfigWithSublabel[] => {
