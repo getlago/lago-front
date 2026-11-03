@@ -5381,7 +5381,7 @@ packages:
     engines: {node: '>=12'}
 
   d3set@file:vendor/d3set-0.1.0.tgz:
-    resolution: {integrity: sha512-f+pSSPFPgaiYMheAj4yH+lDW0q7o1FuG1etcCu+UmFhIYHBDhQmTjI/MWi2ETtt+wYOYJ/QGZN41EVcoHFbJOQ==, tarball: file:vendor/d3set-0.1.0.tgz}
+    resolution: {integrity: sha512-q9PYlQYj+n9NOIjtbPx6n1L7hqE1pjgjnEsvHpmwTl1CPaYxOjVmKW/LE0zKTJ3KMqFpBI73+tJszyrODRLDyQ==, tarball: file:vendor/d3set-0.1.0.tgz}
     version: 0.1.0
 
   damerau-levenshtein@1.0.8:

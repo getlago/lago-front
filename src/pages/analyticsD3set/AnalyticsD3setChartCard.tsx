@@ -1,7 +1,7 @@
 import { Chart } from '@d3set/react'
 import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Pagination } from '~/components/designSystem/Pagination'
 import { Typography } from '~/components/designSystem/Typography'
@@ -13,8 +13,11 @@ import { tw } from '~/styles/utils'
 import { buildChartParams } from './common/api'
 import {
   buildChartSpec,
+  CATEGORY_PAGE_SIZE,
+  categoryPage,
   CHART_HEIGHT,
   computeHeadline,
+  hasCategoryPages,
   Headline,
   humanizeField,
   SpecContext,
@@ -97,7 +100,17 @@ export const AnalyticsD3setChartCard = ({
     [chart.viz, granularity],
   )
   const chartRows = useMemo(() => toChartRows(chart, rows, context), [chart, rows, context])
-  const spec = useMemo(() => buildChartSpec(chart, chartRows, context), [chart, chartRows, context])
+  // A bar chart of many categories shows them a page at a time, so every label stays readable.
+  const [categoryPageNumber, setCategoryPageNumber] = useState(1)
+  const paramsKey = JSON.stringify(params)
+
+  useEffect(() => setCategoryPageNumber(1), [paramsKey])
+  const categories = useMemo(
+    () => (hasCategoryPages(chart) ? categoryPage(chart, chartRows, categoryPageNumber) : null),
+    [chart, chartRows, categoryPageNumber],
+  )
+  const shownRows = categories ? categories.rows : chartRows
+  const spec = useMemo(() => buildChartSpec(chart, shownRows, context), [chart, shownRows, context])
   const headline = useMemo(() => computeHeadline(chart, rows), [chart, rows])
   const isTable = chart.viz === 'table' || chart.viz === 'pivot'
   const pageSize = chart.viz === 'table' ? (chart.pageSize ?? 0) : 0
@@ -141,7 +154,7 @@ export const AnalyticsD3setChartCard = ({
       <Chart
         className={tw('transition-opacity', { 'opacity-50': status === 'loading' })}
         spec={spec}
-        rows={chartRows}
+        rows={shownRows}
         theme={lagoAnalyticsTheme}
       />
     )
@@ -203,6 +216,15 @@ export const AnalyticsD3setChartCard = ({
       </div>
       {renderHeadline()}
       {renderBody()}
+      {categories && categories.totalPages > 1 && (
+        <Pagination
+          currentPage={Math.min(categoryPageNumber, categories.totalPages)}
+          totalPages={categories.totalPages}
+          totalCount={categories.totalCount}
+          pageSize={CATEGORY_PAGE_SIZE}
+          onPageChange={setCategoryPageNumber}
+        />
+      )}
       {chart.viz === 'table' && pageSize > 0 && total !== null && total > pageSize && (
         <Pagination
           currentPage={page}

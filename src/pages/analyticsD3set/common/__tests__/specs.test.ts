@@ -2,7 +2,11 @@ import { areaChart, categoryBarChart, pivotChart, stackedBarChart, tableChart } 
 
 import {
   buildChartSpec,
+  CATEGORY_PAGE_SIZE,
+  categoryPage,
   computeHeadline,
+  hasCategoryPages,
+  HORIZONTAL_LABEL_WIDTH,
   PIVOT_COLUMN_FIELD,
   PIVOT_ROW_FIELD,
   PIVOT_SUBROW_FIELD,
@@ -114,6 +118,48 @@ describe('analytics d3set specs', () => {
       horizontal: true,
       stacked: true,
       options: {},
+    })
+  })
+
+  it('GIVEN horizontal bars WHEN building the spec THEN the labels get a wide column', () => {
+    const chart = { ...categoryBarChart, horizontal: true }
+
+    expect(buildChartSpec(chart, [], context).options).toMatchObject({
+      labelWidth: HORIZONTAL_LABEL_WIDTH,
+    })
+  })
+
+  describe('category pages', () => {
+    const chart = { ...categoryBarChart, x: { key: 'plan', label: 'Plan', temporal: false } }
+    // 25 plans, plan i with total i; plan 7 in two series.
+    const rows = Array.from({ length: 25 }, (_, i) => ({
+      plan: `plan ${i}`,
+      [SERIES_FIELD]: 'USD',
+      [VALUE_FIELD]: i,
+    })).concat({ plan: 'plan 7', [SERIES_FIELD]: 'EUR', [VALUE_FIELD]: 100 })
+
+    it('GIVEN a bar chart of categories WHEN deciding THEN it pages; bars over time do not', () => {
+      expect(hasCategoryPages(chart)).toBe(true)
+      expect(hasCategoryPages(stackedBarChart)).toBe(false)
+      expect(hasCategoryPages(areaChart)).toBe(false)
+    })
+
+    it('GIVEN many categories WHEN paging THEN the largest totals come first, a page at a time', () => {
+      const first = categoryPage(chart, rows, 1)
+
+      expect(first.totalPages).toBe(3)
+      expect(first.totalCount).toBe(25)
+      const plans = Array.from(new Set(first.rows.map((row) => row.plan)))
+
+      expect(plans).toHaveLength(CATEGORY_PAGE_SIZE)
+      expect(plans.slice(0, 3)).toEqual(['plan 7', 'plan 24', 'plan 23'])
+      // Both series of a category stay on its page.
+      expect(first.rows.filter((row) => row.plan === 'plan 7')).toHaveLength(2)
+      expect(new Set(categoryPage(chart, rows, 3).rows.map((row) => row.plan)).size).toBe(5)
+    })
+
+    it('GIVEN a page past the end WHEN paging THEN it shows the last one', () => {
+      expect(categoryPage(chart, rows, 9).rows).toEqual(categoryPage(chart, rows, 3).rows)
     })
   })
 

@@ -16,6 +16,10 @@ export const PIVOT_SUBROW_FIELD = '__subrow'
 export const PIVOT_COLUMN_FIELD = '__column'
 
 export const CHART_HEIGHT = 232
+/** Categories a bar chart shows at once: more would not leave room to read their labels. */
+export const CATEGORY_PAGE_SIZE = 10
+/** The label column of a horizontal bar chart: room for a plan or customer name. */
+export const HORIZONTAL_LABEL_WIDTH = 200
 const LABEL_SEPARATOR = ' · '
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}/
 
@@ -158,6 +162,43 @@ export const toChartRows = (
 
 const distinct = (values: unknown[]): string[] => Array.from(new Set(values.map(String)))
 
+/** A bar chart of categories (not of dates): its categories can be too many to read at once. */
+export const hasCategoryPages = (chart: AnalyticsChart): chart is AnalyticsXyChart =>
+  chart.viz === 'bar' && !!chart.x && !(chart.x.temporal && !chart.horizontal)
+
+/**
+ * One page of a category bar chart: its categories sorted by total, largest first (as Superset
+ * sorts them), `CATEGORY_PAGE_SIZE` per page, and the rows of those categories only.
+ */
+export const categoryPage = (
+  chart: AnalyticsXyChart,
+  rows: AnalyticsRow[],
+  page: number,
+): { rows: AnalyticsRow[]; totalPages: number; totalCount: number } => {
+  const totals = new Map<string, number>()
+
+  for (const row of rows) {
+    const key = String(row[chart.x.key])
+
+    totals.set(key, (totals.get(key) ?? 0) + (Number(row[VALUE_FIELD]) || 0))
+  }
+  const ordered = [...totals.entries()].sort((a, b) => b[1] - a[1]).map(([key]) => key)
+  const totalPages = Math.max(1, Math.ceil(ordered.length / CATEGORY_PAGE_SIZE))
+  const current = Math.min(Math.max(page, 1), totalPages)
+  const shown = new Set(
+    ordered.slice((current - 1) * CATEGORY_PAGE_SIZE, current * CATEGORY_PAGE_SIZE),
+  )
+  // In the page's order: the chart keeps the order of the categories it receives.
+  const index = new Map(ordered.map((key, i) => [key, i]))
+  const pageRows = rows
+    .filter((row) => shown.has(String(row[chart.x.key])))
+    .sort(
+      (a, b) => (index.get(String(a[chart.x.key])) ?? 0) - (index.get(String(b[chart.x.key])) ?? 0),
+    )
+
+  return { rows: pageRows, totalPages, totalCount: ordered.length }
+}
+
 const xySpec = (chart: AnalyticsXyChart, rows: AnalyticsRow[]): ChartSpec => {
   const base = {
     x: chart.x.key,
@@ -190,7 +231,7 @@ const xySpec = (chart: AnalyticsXyChart, rows: AnalyticsRow[]): ChartSpec => {
     stacked: chart.stacked,
     horizontal: chart.horizontal,
     options: {
-      ...(chart.horizontal ? {} : { valueAxis: 'right' }),
+      ...(chart.horizontal ? { labelWidth: HORIZONTAL_LABEL_WIDTH } : { valueAxis: 'right' }),
       ...(overTime ? { ticks: 'edges' } : {}),
       ...(keepOrder && chart.viz === 'bar' ? { categories: categories.join('|') } : {}),
     },
