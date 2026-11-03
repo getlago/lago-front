@@ -157,35 +157,36 @@ const RateCardRateDetailsOverview = ({
         ]}
       />
 
-      <div className="grid grid-cols-2 gap-x-8">
-        <DetailsPage.InfoGridItem
-          className={!rateCard.appliedPricingUnitCode ? 'col-span-2' : undefined}
-          label={translate('text_1787737220227tqziocrcywv')}
-          value={translate(RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY, {
-            count: rate.billingIntervalCount,
-            unit: translate(
-              BILLING_INTERVAL_UNIT_TRANSLATION_KEY[rate.billingIntervalUnit],
-            ).toLocaleLowerCase(),
-          })}
-        />
-
-        {!!rateCard.appliedPricingUnitCode && (
-          <DetailsPage.InfoGridItem
-            label={translate('text_1750411499858su5b7bbp5t9')}
-            value={
+      <DetailsPage.InfoGrid
+        grid={[
+          {
+            label: translate('text_1787737220227tqziocrcywv'),
+            value: translate(RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY, {
+              count: rate.billingIntervalCount,
+              unit: translate(
+                BILLING_INTERVAL_UNIT_TRANSLATION_KEY[rate.billingIntervalUnit],
+              ).toLocaleLowerCase(),
+            }),
+          },
+          !!rateCard.appliedPricingUnitCode && {
+            label: translate('text_1750411499858su5b7bbp5t9'),
+            value: (
               <span data-test={RATE_CARD_RATE_DETAILS_OVERVIEW_CONVERSION_RATE_TEST_ID}>
-                {translate('text_1750424999815sw5whlu1xj0', {
-                  shortName: pricingUnitShortName,
-                  conversionRateAmount: formatConversionRateAmount(
-                    Number(rate.appliedPricingUnitConversionRate ?? 0),
-                    rateCard.currency,
-                  ),
-                })}
+                {!!rate.appliedPricingUnitConversionRate &&
+                rate.appliedPricingUnitConversionRate > 0
+                  ? translate('text_1750424999815sw5whlu1xj0', {
+                      shortName: pricingUnitShortName ?? rateCard.appliedPricingUnitCode,
+                      conversionRateAmount: formatConversionRateAmount(
+                        rate.appliedPricingUnitConversionRate,
+                        rateCard.currency,
+                      ),
+                    })
+                  : '-'}
               </span>
-            }
-          />
-        )}
-      </div>
+            ),
+          },
+        ]}
+      />
 
       <DetailsPage.InfoGridItem
         className="col-span-2"

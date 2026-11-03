@@ -200,6 +200,38 @@ describe('RateCardRateDetailsOverview', () => {
         ).toHaveTextContent('text_1750424999815sw5whlu1xj0|tok|$2.50')
       })
     })
+
+    describe('WHEN the pricing unit has not resolved yet', () => {
+      it('THEN falls back to the applied pricing unit code instead of "undefined"', () => {
+        renderOverview({
+          rate: buildRateCardRate({ appliedPricingUnitConversionRate: 2.5 }),
+          rateCard: buildRateCardForRateDetails({ appliedPricingUnitCode: 'unresolved_code' }),
+        })
+
+        expect(
+          screen.getByTestId(RATE_CARD_RATE_DETAILS_OVERVIEW_CONVERSION_RATE_TEST_ID),
+        ).toHaveTextContent('text_1750424999815sw5whlu1xj0|unresolved_code|$2.50')
+      })
+    })
+
+    describe('WHEN the rate has no conversion rate configured', () => {
+      it.each([
+        ['zero', 0],
+        ['unset', null],
+      ])(
+        'THEN renders a placeholder when the conversion rate is %s',
+        (_, appliedPricingUnitConversionRate) => {
+          renderOverview({
+            rate: buildRateCardRate({ appliedPricingUnitConversionRate }),
+            rateCard: buildRateCardForRateDetails({ appliedPricingUnitCode: 'tokens' }),
+          })
+
+          expect(
+            screen.getByTestId(RATE_CARD_RATE_DETAILS_OVERVIEW_CONVERSION_RATE_TEST_ID),
+          ).toHaveTextContent('-')
+        },
+      )
+    })
   })
 
   describe('GIVEN a rate on a pay-in-advance card', () => {
