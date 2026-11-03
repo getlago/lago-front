@@ -20,6 +20,18 @@ describe('analytics d3set filters', () => {
     expect(filtersOfView(dashboard.filters, tab, view)).toEqual([timeFilter, currencyFilter])
   })
 
+  it("GIVEN two filters on one column, one per view WHEN listing a view's filters THEN it keeps the one that reaches its charts", () => {
+    const [tab] = dashboard.tabs
+    const [first, second] = tab.views
+    const views = [first, { ...second, rows: [[{ chart: 'chart-other', width: 12 }]] }]
+    const ofFirst = { ...currencyFilter, id: 'F-first', tab: tab.id, charts: ['chart-area'] }
+    const ofSecond = { ...currencyFilter, id: 'F-second', tab: tab.id, charts: ['chart-other'] }
+    const filters = [ofFirst, ofSecond]
+
+    expect(filtersOfView(filters, tab, views[0]).map((f) => f.id)).toEqual(['F-first'])
+    expect(filtersOfView(filters, tab, views[1]).map((f) => f.id)).toEqual(['F-second'])
+  })
+
   it('GIVEN no URL value WHEN reading THEN the default applies; an empty value means none', () => {
     const filters = [granularityFilter, currencyFilter]
 

@@ -16,9 +16,13 @@ export const filtersOfView = (
   view: AnalyticsView,
 ): AnalyticsFilter[] => {
   const seen = new Set<string>()
+  const charts = new Set(view.rows.flat().map((cell) => cell.chart))
 
   return filters.filter((filter) => {
     if (filter.tab !== tab.id && filter.tab !== view.id) return false
+    // Only a filter that reaches a chart of this view, as Superset scopes them: a tab can hold one
+    // filter per view under the same name (Revenue's two Breakdown and two Currency filters).
+    if (!filter.charts.some((chart) => charts.has(chart))) return false
     if (seen.has(filter.param)) return false
     seen.add(filter.param)
 
