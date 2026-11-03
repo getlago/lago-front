@@ -42,6 +42,7 @@ const Error404InApp = lazyLoad(() => import('~/pages/Error404InApp'))
 const Forbidden = lazyLoad(() => import('~/pages/Forbidden'))
 const Analytic = lazyLoad(() => import('~/pages/Analytics'))
 const AnalyticsV2 = lazyLoad(() => import('~/pages/AnalyticsV2'))
+const AnalyticsD3set = lazyLoad(() => import('~/pages/analyticsD3set/AnalyticsD3set'))
 const UsageBillableMetric = lazyLoad(() => import('~/pages/analytics/UsageBillableMetric'))
 const RevenueRecognitionDashboard = lazyLoad(() => import('~/pages/dashboards/RevenueRecognition'))
 const RealtimeUsageOverview = lazyLoad(() => import('~/pages/realtimeUsage/RealtimeUsageOverview'))
@@ -51,6 +52,7 @@ const RealtimeUsageBillableMetric = lazyLoad(
 
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
+const AnalyticsD3setPreview = lazyLoad(() => import('~/pages/__devOnly/AnalyticsD3setPreview'))
 
 const ADMIN_ROUTE = '/admin'
 
@@ -66,6 +68,8 @@ export const ANALYTIC_ROUTE = '/analytics'
 export const ANALYTICS_V2_ROUTE = '/analytics-v2'
 export const ANALYTIC_TABS_ROUTE = '/analytics/:tab'
 export const ANALYTICS_V2_TABS_ROUTE = '/analytics-v2/:tab'
+export const ANALYTICS_D3SET_ROUTE = '/analytics-d3set'
+export const ANALYTICS_D3SET_TAB_ROUTE = '/analytics-d3set/:tab'
 export const ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE = '/analytics/usage/:billableMetricCode'
 export const REVENUE_RECOGNITION_ROUTE = '/revenue-recognition'
 export const REALTIME_USAGE_ROUTE = '/usage'
@@ -75,6 +79,8 @@ export const ERROR_404_ROUTE = '/404'
 // Route Available only on dev mode
 export const ONLY_DEV_DESIGN_SYSTEM_ROUTE = `/design-system`
 export const ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE = `${ONLY_DEV_DESIGN_SYSTEM_ROUTE}/:tab`
+export const ONLY_DEV_ANALYTICS_D3SET_PREVIEW_ROUTE = '/__dev/analytics-d3set'
+export const ONLY_DEV_ANALYTICS_D3SET_PREVIEW_TAB_ROUTE = `${ONLY_DEV_ANALYTICS_D3SET_PREVIEW_ROUTE}/:tab`
 
 const analyticsInlineRoutes: CustomRouteObject[] = [
   {
@@ -98,6 +104,12 @@ const analyticsInlineRoutes: CustomRouteObject[] = [
     // Maybe analyticsView will be removed in the future
     permissions: ['analyticsView', 'dataApiView'],
     hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
+  },
+  {
+    path: [ANALYTICS_D3SET_ROUTE, ANALYTICS_D3SET_TAB_ROUTE],
+    private: true,
+    element: <AnalyticsD3set />,
+    permissions: ['analyticsView'],
   },
   {
     path: ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE,
@@ -133,6 +145,16 @@ const devOnlyInlineRoutes: CustomRouteObject[] = isDevOrQaAppEnv(appEnv)
       {
         path: [ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE],
         element: <DesignSystem />,
+      },
+    ]
+  : []
+
+// Outside the login, so the page can be checked against the mock server with no account.
+const devOnlyPublicRoutes: CustomRouteObject[] = isDevOrQaAppEnv(appEnv)
+  ? [
+      {
+        path: [ONLY_DEV_ANALYTICS_D3SET_PREVIEW_ROUTE, ONLY_DEV_ANALYTICS_D3SET_PREVIEW_TAB_ROUTE],
+        element: <AnalyticsD3setPreview />,
       },
     ]
   : []
@@ -240,6 +262,7 @@ export const routes: CustomRouteObject[] = [
   },
   ...authRoutes,
   ...customerPortalRoutes,
+  ...devOnlyPublicRoutes,
 ]
 
 export * from './AuthRoutes'

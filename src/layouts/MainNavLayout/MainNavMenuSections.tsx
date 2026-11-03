@@ -1,6 +1,7 @@
 import { Icon } from 'lago-design-system'
 
 import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu'
+import { envGlobalVar } from '~/core/apolloClient'
 import {
   ADD_ON_DETAILS_ROUTE,
   ADD_ONS_ROUTE,
@@ -11,6 +12,8 @@ import {
   ADMIN_ORGANIZATIONS_ROUTE,
   ANALYTIC_ROUTE,
   ANALYTIC_TABS_ROUTE,
+  ANALYTICS_D3SET_ROUTE,
+  ANALYTICS_D3SET_TAB_ROUTE,
   BILLABLE_METRIC_DETAILS_ROUTE,
   BILLABLE_METRICS_ROUTE,
   CATALOG_PLAN_DETAILS_ROUTE,
@@ -92,6 +95,13 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: ANALYTIC_ROUTE,
       match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
       hidden: !hasPermissions(['analyticsView']) || isProductCatalogEnabled,
+    },
+    {
+      title: translate('text_1793702953940ljir22k3tj4'),
+      icon: 'chart-bar',
+      link: ANALYTICS_D3SET_ROUTE,
+      match: [ANALYTICS_D3SET_ROUTE, ANALYTICS_D3SET_TAB_ROUTE],
+      hidden: !hasPermissions(['analyticsView']) || !envGlobalVar().lagoAnalyticsUrl,
     },
     {
       title: translate('text_17465414264635ktqocy7leo'),

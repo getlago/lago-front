@@ -1,0 +1,119 @@
+/* d3set charts in the look of lago-front's native charts (src/components/designSystem/graphs):
+   no grid lines, a 1px grey-200 x axis line, grey-600 14px ticks, a dashed grey-500 hover rule,
+   a dark rounded tooltip, round legend dots, and lago-front's Table colors for tables. */
+
+.analytics-d3set-card .d3s-chart {
+  font-family: var(--d3s-font);
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: -0.16px;
+}
+
+.analytics-d3set-card .d3s-gridlines line,
+.analytics-d3set-card .d3s-chart .d3s-axis-y .domain,
+.analytics-d3set-card .d3s-chart .tick line {
+  stroke: transparent;
+}
+
+.analytics-d3set-card .d3s-chart .d3s-axis-x .domain {
+  stroke: #e7eaee;
+  stroke-width: 1px;
+}
+
+.analytics-d3set-card .d3s-chart .tick text {
+  fill: #66758f;
+  font-size: 14px;
+  letter-spacing: -0.16px;
+}
+
+.analytics-d3set-card .d3s-chart .d3s-rule {
+  stroke: #8c95a6;
+  stroke-dasharray: 2 2;
+}
+
+.analytics-d3set-card .d3s-area-line {
+  stroke-width: 2px;
+}
+
+/* One series: lago-front's AreaChart fills it with primary-200, under a primary-600 line. */
+.analytics-d3set-card--single .d3s-plot stop {
+  stop-color: #b3d4ff !important;
+}
+
+.analytics-d3set-card .d3s-tooltip {
+  background: #19212e;
+  color: #ffffff;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: var(--d3s-font);
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.16px;
+  box-shadow: none;
+}
+
+.analytics-d3set-card .d3s-tooltip-title {
+  font-weight: 500;
+}
+
+.analytics-d3set-card .d3s-legend,
+.analytics-d3set-card .d3s-legend-item {
+  color: #66758f;
+  font-size: 14px;
+}
+
+.analytics-d3set-card .d3s-legend-item:hover {
+  color: #19212e;
+  background: #f3f4f6;
+}
+
+.analytics-d3set-card .d3s-legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  vertical-align: -2px;
+}
+
+/* Tables grow with their rows; wide pivots scroll sideways. */
+.analytics-d3set-card--table .d3s-chart {
+  height: auto !important;
+}
+
+.analytics-d3set-card--table .d3s-table-wrap {
+  height: auto;
+  overflow-x: auto;
+}
+
+.analytics-d3set-card .d3s-table {
+  font-size: 14px;
+  letter-spacing: -0.16px;
+}
+
+.analytics-d3set-card .d3s-table th {
+  height: 40px;
+  padding: 0 12px;
+  background: #ffffff;
+  color: #66758f;
+  font-weight: 500;
+  border-bottom: 1px solid #d9dee7;
+}
+
+.analytics-d3set-card .d3s-table td {
+  height: 48px;
+  padding: 0 12px;
+  color: #19212e;
+  border-bottom: 1px solid #d9dee7;
+  white-space: nowrap;
+}
+
+.analytics-d3set-card .d3s-table tbody tr:hover {
+  background: #f3f4f6;
+}
+
+.analytics-d3set-card .d3s-cell-link {
+  color: inherit;
+}
+
+.analytics-d3set-card .d3s-swatch {
+  border-radius: 50%;
+}
