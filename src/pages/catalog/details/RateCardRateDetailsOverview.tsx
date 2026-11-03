@@ -1,7 +1,10 @@
 import { gql } from '@apollo/client'
 import { generatePath } from 'react-router'
 
-import { formatSpendingMinimum } from '~/components/appliedRateCards/ratePhaseDisplay'
+import {
+  formatConversionRateAmount,
+  formatSpendingMinimum,
+} from '~/components/appliedRateCards/ratePhaseDisplay'
 import { Status } from '~/components/designSystem/Status'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -62,6 +65,8 @@ gql`
 export const RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID = 'rate-card-rate-details-overview-edit'
 export const RATE_CARD_RATE_DETAILS_OVERVIEW_STATUS_TEST_ID =
   'rate-card-rate-details-overview-status'
+export const RATE_CARD_RATE_DETAILS_OVERVIEW_CONVERSION_RATE_TEST_ID =
+  'rate-card-rate-details-overview-conversion-rate'
 
 export const RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY = 'text_17877372202287udsa3vj1ul'
 
@@ -152,16 +157,35 @@ const RateCardRateDetailsOverview = ({
         ]}
       />
 
-      <DetailsPage.InfoGridItem
-        className="col-span-2"
-        label={translate('text_1787737220227tqziocrcywv')}
-        value={translate(RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY, {
-          count: rate.billingIntervalCount,
-          unit: translate(
-            BILLING_INTERVAL_UNIT_TRANSLATION_KEY[rate.billingIntervalUnit],
-          ).toLocaleLowerCase(),
-        })}
-      />
+      <div className="grid grid-cols-2 gap-x-8">
+        <DetailsPage.InfoGridItem
+          className={!rateCard.appliedPricingUnitCode ? 'col-span-2' : undefined}
+          label={translate('text_1787737220227tqziocrcywv')}
+          value={translate(RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY, {
+            count: rate.billingIntervalCount,
+            unit: translate(
+              BILLING_INTERVAL_UNIT_TRANSLATION_KEY[rate.billingIntervalUnit],
+            ).toLocaleLowerCase(),
+          })}
+        />
+
+        {!!rateCard.appliedPricingUnitCode && (
+          <DetailsPage.InfoGridItem
+            label={translate('text_1750411499858su5b7bbp5t9')}
+            value={
+              <span data-test={RATE_CARD_RATE_DETAILS_OVERVIEW_CONVERSION_RATE_TEST_ID}>
+                {translate('text_1750424999815sw5whlu1xj0', {
+                  shortName: pricingUnitShortName,
+                  conversionRateAmount: formatConversionRateAmount(
+                    Number(rate.appliedPricingUnitConversionRate ?? 0),
+                    rateCard.currency,
+                  ),
+                })}
+              </span>
+            }
+          />
+        )}
+      </div>
 
       <DetailsPage.InfoGridItem
         className="col-span-2"

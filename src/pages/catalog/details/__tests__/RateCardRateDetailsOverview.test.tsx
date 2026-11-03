@@ -18,6 +18,7 @@ import {
 import { CATALOG_RELATIONS_NO_PRODUCT_CATEGORY_TEST_ID } from '../CatalogRelationsInfoGrid'
 import RateCardRateDetailsOverview, {
   RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY,
+  RATE_CARD_RATE_DETAILS_OVERVIEW_CONVERSION_RATE_TEST_ID,
   RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID,
   RATE_CARD_RATE_DETAILS_OVERVIEW_STATUS_TEST_ID,
 } from '../RateCardRateDetailsOverview'
@@ -170,6 +171,33 @@ describe('RateCardRateDetailsOverview', () => {
         renderOverview({ rate: buildRateCardRate({ minAmountCents }) })
 
         expect(screen.queryByText('$0.00')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a rate card with no pricing unit', () => {
+    describe('WHEN the overview renders', () => {
+      it('THEN hides the conversion rate row', () => {
+        renderOverview()
+
+        expect(
+          screen.queryByTestId(RATE_CARD_RATE_DETAILS_OVERVIEW_CONVERSION_RATE_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a rate card using a pricing unit', () => {
+    describe('WHEN the rate has a conversion rate configured', () => {
+      it('THEN shows the pricing unit short name and the converted amount', () => {
+        renderOverview({
+          rate: buildRateCardRate({ appliedPricingUnitConversionRate: 2.5 }),
+          rateCard: buildRateCardForRateDetails({ appliedPricingUnitCode: 'tokens' }),
+        })
+
+        expect(
+          screen.getByTestId(RATE_CARD_RATE_DETAILS_OVERVIEW_CONVERSION_RATE_TEST_ID),
+        ).toHaveTextContent('text_1750424999815sw5whlu1xj0|tok|$2.50')
       })
     })
   })
