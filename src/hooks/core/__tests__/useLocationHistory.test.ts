@@ -2,14 +2,13 @@ import { act, renderHook } from '@testing-library/react'
 import type { Location } from 'react-router'
 
 import { authTokenVar, locationHistoryVar } from '~/core/apolloClient'
-import { FeatureFlagEnum } from '~/generated/graphql'
+import { EventsStoreEnum, FeatureFlagEnum } from '~/generated/graphql'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 
 const mockNavigate = jest.fn()
 const mockHasPermissions = jest.fn()
 const mockHasPermissionsOr = jest.fn()
 const mockHasFeatureFlag = jest.fn()
-const mockOrganization = jest.fn()
 
 const FALLBACK_URL = '/fallback'
 const MOCK_HISTORY_VAR = [
@@ -65,13 +64,14 @@ jest.mock('~/hooks/usePermissions', () => ({
   }),
 }))
 
+let mockOrganization: { eventsStore?: EventsStoreEnum; realtimeUsageEnabled?: boolean } | undefined
 let mockIsOrganizationLoading = false
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
+    organization: mockOrganization,
     hasFeatureFlag: mockHasFeatureFlag,
     loading: mockIsOrganizationLoading,
-    organization: mockOrganization(),
   }),
 }))
 
@@ -729,6 +729,41 @@ describe('useLocationHistory()', () => {
         expect(locationHistoryVar()).toEqual([])
       })
 
+      it.each([
+        ['allow access', EventsStoreEnum.Clickhouse, false],
+        ['redirect to home', EventsStoreEnum.Postgres, true],
+      ])(
+        'should %s on a usage governance route with the account tree flag and a %s store',
+        (_, eventsStore, isRedirected) => {
+          mockHasFeatureFlag.mockImplementation(
+            (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.AccountTree,
+          )
+          mockOrganization = { eventsStore }
+
+          const { result } = renderHook(() => useLocationHistory())
+
+          act(() => {
+            result.current.onRouteEnter(
+              {
+                private: true,
+                permissions: ['usageAttributionTypesView'],
+                featureFlag: FeatureFlagEnum.AccountTree,
+                requiresUsageGovernance: true,
+              },
+              mockLocation,
+            )
+          })
+
+          if (isRedirected) {
+            expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+          } else {
+            expect(mockNavigate).not.toHaveBeenCalledWith('/', { replace: true })
+          }
+
+          mockOrganization = undefined
+        },
+      )
+
       it('should check permissions before feature flag', () => {
         mockHasPermissions.mockReturnValue(false)
         mockHasFeatureFlag.mockReturnValue(false)
@@ -758,8 +793,12 @@ describe('useLocationHistory()', () => {
         mockHasPermissions.mockReturnValue(true)
       })
 
+      afterEach(() => {
+        mockOrganization = undefined
+      })
+
       it('should redirect to home when the organization lacks the capability', () => {
-        mockOrganization.mockReturnValue({ realtimeUsageEnabled: false })
+        mockOrganization = { realtimeUsageEnabled: false }
 
         const { result } = renderHook(() => useLocationHistory())
 
@@ -778,7 +817,7 @@ describe('useLocationHistory()', () => {
       })
 
       it('should allow access when the organization has the capability', () => {
-        mockOrganization.mockReturnValue({ realtimeUsageEnabled: true })
+        mockOrganization = { realtimeUsageEnabled: true }
 
         const { result } = renderHook(() => useLocationHistory())
 
