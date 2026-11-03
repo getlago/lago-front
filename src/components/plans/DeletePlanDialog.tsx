@@ -5,11 +5,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
-import {
-  LagoApiError,
-  useDeletePlanDialogCountsQuery,
-  useDeletePlanMutation,
-} from '~/generated/graphql'
+import { useDeletePlanDialogCountsQuery, useDeletePlanMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -48,7 +44,7 @@ const DeletePlanDialogDescription = ({ planId, readyRef }: DeletePlanDialogDescr
   const { translate } = useInternationalization()
   const { data, loading, error } = useDeletePlanDialogCountsQuery({
     variables: { id: planId },
-    context: { silentErrorCodes: [LagoApiError.NotFound] },
+    context: { silentError: true },
   })
 
   useEffect(() => {

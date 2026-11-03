@@ -201,5 +201,43 @@ describe('DeletePlanDialog', () => {
         expect(mockCallback).toHaveBeenCalled()
       })
     })
+
+    it('THEN a rejected mutation keeps the dialog open, skips the callback and shows a danger toast', async () => {
+      const mockCallback = jest.fn()
+
+      mockDeletePlan.mockRejectedValue(new Error('network error'))
+
+      await act(() =>
+        render(
+          <NiceModalWrapper>
+            <TestWrapper callback={mockCallback} />
+          </NiceModalWrapper>,
+        ),
+      )
+
+      await act(async () => {
+        await userEvent.click(screen.getByTestId('open-dialog-btn'))
+      })
+
+      await waitFor(() => {
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      await act(async () => {
+        await userEvent.click(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
+      })
+
+      await waitFor(() => {
+        expect(addToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            severity: 'danger',
+            translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+          }),
+        )
+      })
+
+      expect(mockCallback).not.toHaveBeenCalled()
+      expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+    })
   })
 })
