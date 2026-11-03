@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 
 import { CheckboxGroup } from '~/components/form/GroupedCheckboxList'
+import { isUsageGovernanceEnabled } from '~/core/utils/usageGovernance'
 import { FeatureFlagEnum } from '~/generated/graphql'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
@@ -10,16 +11,22 @@ import {
   allPermissions,
   featureFlagGatedPermissions,
   featureFlagHiddenPermissions,
+  usageGovernancePermissions,
 } from '../common/permissionsConst'
 import { PermissionName } from '../common/permissionsTypes'
 
-const getAvailablePermissions = (
-  featureFlags: ReadonlyArray<FeatureFlagEnum>,
-): Array<PermissionName> =>
+const getAvailablePermissions = ({
+  featureFlags,
+  isUsageGovernanceAvailable,
+}: {
+  featureFlags: ReadonlyArray<FeatureFlagEnum>
+  isUsageGovernanceAvailable: boolean
+}): Array<PermissionName> =>
   allPermissions.filter((permission) => {
     const requiredFeatureFlag = featureFlagGatedPermissions[permission]
     const hidingFeatureFlag = featureFlagHiddenPermissions[permission]
 
+    if (!isUsageGovernanceAvailable && usageGovernancePermissions.includes(permission)) return false
     if (requiredFeatureFlag && !featureFlags.includes(requiredFeatureFlag)) return false
     if (hidingFeatureFlag && featureFlags.includes(hidingFeatureFlag)) return false
 
@@ -31,12 +38,13 @@ export const useRolePermissionsGroups = (): {
   displayedPermissions: PermissionName[]
   isLoading: boolean
 } => {
-  const { organization, loading } = useOrganizationInfos()
+  const { organization, loading, hasFeatureFlag } = useOrganizationInfos()
   const featureFlags = organization?.featureFlags
+  const isUsageGovernanceAvailable = isUsageGovernanceEnabled({ organization, hasFeatureFlag })
 
   const availablePermissions = useMemo(
-    () => getAvailablePermissions(featureFlags ?? []),
-    [featureFlags],
+    () => getAvailablePermissions({ featureFlags: featureFlags ?? [], isUsageGovernanceAvailable }),
+    [featureFlags, isUsageGovernanceAvailable],
   )
 
   const { permissionGrouping } = useGetPermissionGrouping(availablePermissions)

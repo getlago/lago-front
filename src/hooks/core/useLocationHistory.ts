@@ -8,7 +8,7 @@ import {
   LOGIN_ROUTE,
   useNavigate,
 } from '~/core/router'
-import { isRouteAvailable, isRouteGatedByFeatureFlag } from '~/core/router/utils/isRouteAvailable'
+import { isRouteGated, isRouteUnlocked } from '~/core/router/utils/isRouteAvailable'
 import { stripOrgSlug } from '~/core/router/utils/stripOrgSlug'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { hasIframeParams } from '~/hooks/useIframeConfig'
@@ -130,15 +130,9 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
       return
     }
 
-    const isGatedByOrganization =
-      isRouteGatedByFeatureFlag(routeConfig) || !!routeConfig.organizationCapability
+    if (isRouteGated(routeConfig) && isWaitingForOrganization) return
 
-    if (isGatedByOrganization && isWaitingForOrganization) return
-
-    if (
-      !isRouteAvailable(routeConfig, hasFeatureFlag) ||
-      (routeConfig.organizationCapability && !organization?.[routeConfig.organizationCapability])
-    ) {
+    if (!isRouteUnlocked({ route: routeConfig, hasFeatureFlag, organization })) {
       /**
        * In case of navigation to a route its feature flags or capabilities make unavailable
        * Redirect to home page
