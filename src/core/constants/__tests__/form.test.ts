@@ -21,7 +21,6 @@ import {
   getHubspotTargetedObjectTranslationKey,
   getIntervalTranslationKey,
   getPrivilegeValueTypeTranslationKey,
-  getTargetedObjectTranslationKey,
   LocalTaxProviderErrorsEnum,
   MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR,
 } from '../form'
@@ -218,24 +217,6 @@ describe('form constants', () => {
       })
     })
 
-    describe('getTargetedObjectTranslationKey', () => {
-      it('has translation keys for all targeted objects', () => {
-        expect(getTargetedObjectTranslationKey[HubspotTargetedObjectsEnum.Companies]).toMatch(
-          /^text_/,
-        )
-        expect(getTargetedObjectTranslationKey[HubspotTargetedObjectsEnum.Contacts]).toMatch(
-          /^text_/,
-        )
-      })
-
-      it('covers all HubspotTargetedObjectsEnum values', () => {
-        const hubspotKeys = Object.keys(HubspotTargetedObjectsEnum)
-        const translationKeys = Object.keys(getTargetedObjectTranslationKey)
-
-        expect(translationKeys.length).toBe(hubspotKeys.length)
-      })
-    })
-
     describe('getPrivilegeValueTypeTranslationKey', () => {
       it('has translation keys for all privilege value types', () => {
         expect(getPrivilegeValueTypeTranslationKey[PrivilegeValueTypeEnum.Boolean]).toMatch(
@@ -271,7 +252,6 @@ describe('form constants', () => {
         getChargeModelHelpTextTranslationKey,
         appliedTaxEnumedTaxCodeTranslationKey,
         getHubspotTargetedObjectTranslationKey,
-        getTargetedObjectTranslationKey,
         getPrivilegeValueTypeTranslationKey,
       }).toMatchSnapshot()
     })
