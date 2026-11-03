@@ -194,7 +194,7 @@ export const AnalyticsD3setChartCard = ({
   return (
     <section
       className={tw(
-        'analytics-d3set-card flex min-w-0 flex-col gap-4 rounded-xl border border-grey-300 p-6',
+        'analytics-d3set-card flex h-full min-w-0 flex-col gap-4 rounded-xl border border-grey-300 p-6',
         {
           'analytics-d3set-card--table': isTable,
           'analytics-d3set-card--single':

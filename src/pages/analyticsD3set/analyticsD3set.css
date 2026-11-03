@@ -117,3 +117,35 @@
 .analytics-d3set-card .d3s-swatch {
   border-radius: 50%;
 }
+
+/* Cards side by side need room: when the dashboard is narrower than two readable cards (the
+   sidebar takes part of the viewport, so this measures the dashboard, not the screen), every card
+   takes the whole row. */
+.analytics-d3set-dashboard {
+  container-type: inline-size;
+}
+
+@container (max-width: 899px) {
+  .analytics-d3set-cell {
+    grid-column: span 12 !important;
+  }
+}
+
+/* The legend always shows (d3set hides a legend of one series), on one line that scrolls sideways
+   when it is too long, so its height never changes. With the pager after it, it sits at the bottom
+   of the card: cards of a row share one height, and changing pages moves nothing. */
+.analytics-d3set-card .d3s-legend,
+.analytics-d3set-card .d3s-legend[hidden] {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-height: 28px;
+  margin-top: auto;
+  white-space: nowrap;
+  scrollbar-width: thin;
+}
+
+.analytics-d3set-card .d3s-legend-item {
+  flex: none;
+}

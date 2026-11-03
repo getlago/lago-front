@@ -63,7 +63,10 @@ const DashboardView = ({ baseUrl, dashboard, routes }: DashboardViewProps) => {
   }))
 
   return (
-    <div className="flex flex-col gap-6" data-test={ANALYTICS_D3SET_DASHBOARD_TEST_ID}>
+    <div
+      className="analytics-d3set-dashboard flex flex-col gap-6"
+      data-test={ANALYTICS_D3SET_DASHBOARD_TEST_ID}
+    >
       <div className="flex flex-col">
         <NavigationTab name="analytics-tabs" tabs={tabs} />
         <NavigationTab name="analytics-views" tabs={viewTabs} />
@@ -86,7 +89,7 @@ const DashboardView = ({ baseUrl, dashboard, routes }: DashboardViewProps) => {
             return (
               <div
                 key={cell.chart}
-                className="min-w-0"
+                className="analytics-d3set-cell min-w-0"
                 style={{ gridColumn: `span ${Math.min(12, Math.max(1, cell.width))}` }}
               >
                 <AnalyticsD3setChartCard
