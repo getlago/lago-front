@@ -44,6 +44,7 @@ nango_public_key=$(echo $NANGO_PUBLIC_KEY)
 sentry_dsn_value=$(echo $SENTRY_DSN)
 lago_disable_pdf_generation=$(echo $LAGO_DISABLE_PDF_GENERATION)
 lago_superset_url=$(echo $LAGO_SUPERSET_URL)
+lago_analytics_url=$(echo $LAGO_ANALYTICS_URL)
 
 echo "window.API_URL = \"$api_url_value\"" >> ./env-config.js
 echo "window.LAGO_DOMAIN = \"$domain_value\"" >> ./env-config.js
@@ -54,3 +55,4 @@ echo "window.NANGO_PUBLIC_KEY = \"$nango_public_key\"" >> ./env-config.js
 echo "window.SENTRY_DSN = \"$sentry_dsn_value\"" >> ./env-config.js
 echo "window.LAGO_DISABLE_PDF_GENERATION = \"$lago_disable_pdf_generation\"" >> ./env-config.js
 echo "window.LAGO_SUPERSET_URL = \"$lago_superset_url\"" >> ./env-config.js
+echo "window.LAGO_ANALYTICS_URL = \"$lago_analytics_url\"" >> ./env-config.js

@@ -125,6 +125,7 @@ export default defineConfig(({ mode }) => {
       SENTRY_DSN: JSON.stringify(env.SENTRY_DSN),
       LAGO_DISABLE_PDF_GENERATION: JSON.stringify(env.LAGO_DISABLE_PDF_GENERATION),
       LAGO_SUPERSET_URL: JSON.stringify(env.LAGO_SUPERSET_URL),
+      LAGO_ANALYTICS_URL: JSON.stringify(env.LAGO_ANALYTICS_URL),
     },
     resolve: {
       alias: {

@@ -12,6 +12,7 @@ interface EnvGlobal {
   sentryDsn: string
   disablePdfGeneration: boolean
   lagoSupersetUrl: string
+  lagoAnalyticsUrl: string
 }
 
 const getApiUrl = () => {
@@ -31,4 +32,5 @@ export const envGlobalVar = makeVar<EnvGlobal>({
   disablePdfGeneration:
     (window.LAGO_DISABLE_PDF_GENERATION || LAGO_DISABLE_PDF_GENERATION) === 'true',
   lagoSupersetUrl: window.LAGO_SUPERSET_URL || LAGO_SUPERSET_URL,
+  lagoAnalyticsUrl: window.LAGO_ANALYTICS_URL || LAGO_ANALYTICS_URL,
 })

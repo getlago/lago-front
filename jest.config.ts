@@ -93,5 +93,6 @@ export default {
     SENTRY_DSN: 'https://sentry.io/',
     LAGO_DISABLE_PDF_GENERATION: 'false',
     LAGO_SUPERSET_URL: 'https://localhost:8089',
+    LAGO_ANALYTICS_URL: 'http://localhost:3300',
   },
 } satisfies Config
