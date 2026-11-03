@@ -1,0 +1,2711 @@
+{
+  "tabs": [
+    {
+      "id": "TAB-Subscriptions",
+      "title": "Subscriptions",
+      "views": [
+        {
+          "id": "TAB-SubscriptionsActive",
+          "title": "Active subscriptions",
+          "rows": [
+            [
+              {
+                "chart": "19125ddf-df36-4f94-a037-bf9a5d095850",
+                "width": 12
+              }
+            ],
+            [
+              {
+                "chart": "83812e95-42b9-4d73-86f3-5d9f17fd672d",
+                "width": 6
+              },
+              {
+                "chart": "6dbbe31d-ff87-4a85-b3c7-551dc618d0db",
+                "width": 6
+              }
+            ],
+            [
+              {
+                "chart": "f419252a-29ad-4575-af4d-9d31afeb635a",
+                "width": 12
+              }
+            ]
+          ]
+        },
+        {
+          "id": "TAB-SubscriptionsNew",
+          "title": "New subscriptions",
+          "rows": [
+            [
+              {
+                "chart": "e24224ba-becc-498a-8d85-a76a27bc88b3",
+                "width": 12
+              }
+            ],
+            [
+              {
+                "chart": "7e9f6b18-c229-409c-8e6a-e7d630f36aff",
+                "width": 6
+              },
+              {
+                "chart": "ebe81ac5-0a27-4812-89c0-52dda51e0e23",
+                "width": 6
+              }
+            ],
+            [
+              {
+                "chart": "c322552b-7899-4110-9dea-cd408e033a4f",
+                "width": 12
+              }
+            ]
+          ]
+        },
+        {
+          "id": "TAB-SubscriptionsChurn",
+          "title": "Churn",
+          "rows": [
+            [
+              {
+                "chart": "ae1fb831-85e2-47dc-9922-50eb40157271",
+                "width": 12
+              }
+            ],
+            [
+              {
+                "chart": "d3689109-1a71-4324-a62f-4220b1d97a46",
+                "width": 6
+              },
+              {
+                "chart": "cbf709c1-b897-4d1d-9a99-5a6b63ecbf6a",
+                "width": 6
+              }
+            ],
+            [
+              {
+                "chart": "8eb96a5f-fa2c-4cae-8137-156891720783",
+                "width": 12
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TAB-Revenue",
+      "title": "Revenue",
+      "views": [
+        {
+          "id": "TAB-RevenueStreams",
+          "title": "Revenue streams",
+          "rows": [
+            [
+              {
+                "chart": "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+                "width": 12
+              }
+            ],
+            [
+              {
+                "chart": "5f010c86-5115-4faf-9af4-96d6fe1c4da0",
+                "width": 12
+              }
+            ]
+          ]
+        },
+        {
+          "id": "TAB-RevenueMrr",
+          "title": "MRR",
+          "rows": [
+            [
+              {
+                "chart": "4894777a-67cb-477a-b3e1-db7ee6f33966",
+                "width": 12
+              }
+            ],
+            [
+              {
+                "chart": "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce",
+                "width": 12
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TAB-Credits",
+      "title": "Credit ledgers",
+      "views": [
+        {
+          "id": "TAB-Credits",
+          "title": "Credit ledgers",
+          "rows": [
+            [
+              {
+                "chart": "01a40574-f302-4ef7-8e58-640d8e92d404",
+                "width": 12
+              }
+            ],
+            [
+              {
+                "chart": "a97818ee-b9a1-44ee-b606-bb172bc78aa0",
+                "width": 12
+              }
+            ],
+            [
+              {
+                "chart": "4144bb9f-aa05-4056-8364-85405144ea87",
+                "width": 6
+              },
+              {
+                "chart": "5114ef57-8d35-4072-9344-9a648be373b1",
+                "width": 6
+              }
+            ],
+            [
+              {
+                "chart": "7446a5a9-9450-45a1-9eea-be5a9561a366",
+                "width": 12
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TAB-6wNG-DM1byQBwaYg1ODvO",
+      "title": "Usage",
+      "views": [
+        {
+          "id": "TAB-6wNG-DM1byQBwaYg1ODvO",
+          "title": "Usage",
+          "rows": [
+            [
+              {
+                "chart": "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+                "width": 12
+              }
+            ],
+            [
+              {
+                "chart": "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+                "width": 12
+              }
+            ],
+            [
+              {
+                "chart": "844412dd-7b87-443a-81cf-faf9a0ed34f4",
+                "width": 12
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TAB-CashCollection",
+      "title": "Cash collection",
+      "views": [
+        {
+          "id": "TAB-CashPayments",
+          "title": "Payments",
+          "rows": [
+            [
+              {
+                "chart": "5dbbe3f2-7885-45ef-b129-f994e963ff7a",
+                "width": 12
+              }
+            ],
+            [
+              {
+                "chart": "75762a59-17a2-41a5-b027-9696fc45e839",
+                "width": 6
+              },
+              {
+                "chart": "e3d232c7-52ff-47f7-86cb-70a5ac6a3010",
+                "width": 6
+              }
+            ],
+            [
+              {
+                "chart": "04f1db3a-1c35-4981-bccd-cc73ba114af1",
+                "width": 12
+              }
+            ]
+          ]
+        },
+        {
+          "id": "TAB-CashDunnings",
+          "title": "Dunnings",
+          "rows": [
+            [
+              {
+                "chart": "46a60326-cc3c-409d-997b-996634503297",
+                "width": 12
+              }
+            ],
+            [
+              {
+                "chart": "d1db3cf4-9e77-40ff-beb8-f77c3a166198",
+                "width": 6
+              },
+              {
+                "chart": "88a72a0b-91b8-45cd-9494-1decaf7bf507",
+                "width": 6
+              }
+            ],
+            [
+              {
+                "chart": "9574954f-e033-4063-9dae-5b9897ae58fc",
+                "width": 12
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TAB-fQmgrJ_KqXg7ZFrOsOiCP",
+      "title": "Invoices",
+      "views": [
+        {
+          "id": "TAB-fQmgrJ_KqXg7ZFrOsOiCP",
+          "title": "Invoices",
+          "rows": [
+            [
+              {
+                "chart": "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+                "width": 12
+              }
+            ],
+            [
+              {
+                "chart": "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+                "width": 6
+              },
+              {
+                "chart": "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+                "width": 6
+              }
+            ],
+            [
+              {
+                "chart": "523ef973-4582-4cdb-9b58-a00228edee97",
+                "width": 6
+              },
+              {
+                "chart": "9a749f46-4342-4092-aab4-e49c414c365e",
+                "width": 6
+              }
+            ],
+            [
+              {
+                "chart": "8c930de7-8daa-4eae-8e49-19eff7277f03",
+                "width": 12
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "charts": {
+    "19125ddf-df36-4f94-a037-bf9a5d095850": {
+      "id": "19125ddf-df36-4f94-a037-bf9a5d095850",
+      "title": "Active subscriptions over time",
+      "description": "Monthly active subscriptions over time.",
+      "viz": "area",
+      "x": {
+        "key": "month",
+        "label": "Month",
+        "temporal": true
+      },
+      "series": [],
+      "metrics": [
+        {
+          "key": "active_subscriptions",
+          "label": "Active subscriptions",
+          "format": ",d"
+        }
+      ],
+      "stacked": false,
+      "horizontal": false
+    },
+    "83812e95-42b9-4d73-86f3-5d9f17fd672d": {
+      "id": "83812e95-42b9-4d73-86f3-5d9f17fd672d",
+      "title": "Active subscriptions by plan",
+      "description": "Active subscriptions and distinct active customers by parent plan and currency.",
+      "viz": "bar",
+      "x": {
+        "key": "plan_name",
+        "label": "Plan name",
+        "temporal": false
+      },
+      "series": [
+        "currency"
+      ],
+      "metrics": [
+        {
+          "key": "active_subscriptions",
+          "label": "Active subscriptions",
+          "format": ",d"
+        }
+      ],
+      "stacked": true,
+      "horizontal": true
+    },
+    "6dbbe31d-ff87-4a85-b3c7-551dc618d0db": {
+      "id": "6dbbe31d-ff87-4a85-b3c7-551dc618d0db",
+      "title": "Active subscriptions by currency",
+      "description": "Active subscriptions by plan currency.",
+      "viz": "bar",
+      "x": {
+        "key": "currency",
+        "label": "Currency",
+        "temporal": false
+      },
+      "series": [],
+      "metrics": [
+        {
+          "key": "active_subscriptions",
+          "label": "Active subscriptions",
+          "format": ",d"
+        }
+      ],
+      "stacked": true,
+      "horizontal": true
+    },
+    "f419252a-29ad-4575-af4d-9d31afeb635a": {
+      "id": "f419252a-29ad-4575-af4d-9d31afeb635a",
+      "title": "Active subscriptions details",
+      "description": "Subscription-level details for currently active subscriptions.",
+      "viz": "table",
+      "series": [],
+      "metrics": [],
+      "columns": [
+        {
+          "key": "activated_on",
+          "label": "Activated on",
+          "format": null
+        },
+        {
+          "key": "subscription_id",
+          "label": "Subscription id",
+          "format": null
+        },
+        {
+          "key": "subscription_external_id",
+          "label": "Subscription external id",
+          "format": null
+        },
+        {
+          "key": "plan_code",
+          "label": "Plan code",
+          "format": null
+        },
+        {
+          "key": "plan_name",
+          "label": "Plan name",
+          "format": null
+        },
+        {
+          "key": "is_override",
+          "label": "Is override",
+          "format": null
+        },
+        {
+          "key": "currency",
+          "label": "Currency",
+          "format": null
+        },
+        {
+          "key": "billing_interval",
+          "label": "Billing interval",
+          "format": null
+        },
+        {
+          "key": "customer_external_id",
+          "label": "Customer external id",
+          "format": null
+        },
+        {
+          "key": "customer_name",
+          "label": "Customer name",
+          "format": null
+        },
+        {
+          "key": "days_active",
+          "label": "Days active",
+          "format": ",d"
+        },
+        {
+          "key": "scheduled_end",
+          "label": "Scheduled end",
+          "format": null
+        },
+        {
+          "key": "is_plan_change",
+          "label": "Is plan change",
+          "format": null
+        }
+      ],
+      "pageSize": 10
+    },
+    "e24224ba-becc-498a-8d85-a76a27bc88b3": {
+      "id": "e24224ba-becc-498a-8d85-a76a27bc88b3",
+      "title": "New subscriptions",
+      "description": "Monthly subscription starts split between fresh subscriptions and plan changes.",
+      "viz": "bar",
+      "x": {
+        "key": "month",
+        "label": "Month",
+        "temporal": true
+      },
+      "series": [],
+      "metrics": [
+        {
+          "key": "fresh_subscriptions",
+          "label": "Fresh subscriptions",
+          "format": ",d"
+        },
+        {
+          "key": "plan_changes",
+          "label": "Plan changes",
+          "format": ",d"
+        }
+      ],
+      "stacked": true,
+      "horizontal": false
+    },
+    "7e9f6b18-c229-409c-8e6a-e7d630f36aff": {
+      "id": "7e9f6b18-c229-409c-8e6a-e7d630f36aff",
+      "title": "Day of new subscriptions",
+      "description": "Subscription starts by weekday across all available history.",
+      "viz": "bar",
+      "x": {
+        "key": "weekday",
+        "label": "Weekday",
+        "temporal": false
+      },
+      "series": [],
+      "metrics": [
+        {
+          "key": "new_subscriptions",
+          "label": "New subscriptions",
+          "format": ",d"
+        }
+      ],
+      "stacked": false,
+      "horizontal": false
+    },
+    "ebe81ac5-0a27-4812-89c0-52dda51e0e23": {
+      "id": "ebe81ac5-0a27-4812-89c0-52dda51e0e23",
+      "title": "New subscriptions by plan",
+      "description": "Subscription starts and distinct new customers by parent plan and currency.",
+      "viz": "bar",
+      "x": {
+        "key": "plan_name",
+        "label": "Plan name",
+        "temporal": false
+      },
+      "series": [
+        "currency"
+      ],
+      "metrics": [
+        {
+          "key": "new_subscriptions",
+          "label": "New subscriptions",
+          "format": ",d"
+        }
+      ],
+      "stacked": true,
+      "horizontal": true
+    },
+    "c322552b-7899-4110-9dea-cd408e033a4f": {
+      "id": "c322552b-7899-4110-9dea-cd408e033a4f",
+      "title": "New subscriptions details",
+      "description": "Subscription-level start details with plan-change lineage.",
+      "viz": "table",
+      "series": [],
+      "metrics": [],
+      "columns": [
+        {
+          "key": "subscription_id",
+          "label": "Subscription id",
+          "format": null
+        },
+        {
+          "key": "subscription_external_id",
+          "label": "Subscription external id",
+          "format": null
+        },
+        {
+          "key": "activated_on",
+          "label": "Activated on",
+          "format": null
+        },
+        {
+          "key": "customer_name",
+          "label": "Customer name",
+          "format": null
+        },
+        {
+          "key": "customer_external_id",
+          "label": "Customer external id",
+          "format": null
+        },
+        {
+          "key": "plan_name",
+          "label": "Plan name",
+          "format": null
+        },
+        {
+          "key": "plan_code",
+          "label": "Plan code",
+          "format": null
+        },
+        {
+          "key": "is_override",
+          "label": "Is override",
+          "format": null
+        },
+        {
+          "key": "currency",
+          "label": "Currency",
+          "format": null
+        },
+        {
+          "key": "billing_interval",
+          "label": "Billing interval",
+          "format": null
+        },
+        {
+          "key": "current_status",
+          "label": "Current status",
+          "format": null
+        },
+        {
+          "key": "subscription_type",
+          "label": "Subscription type",
+          "format": null
+        },
+        {
+          "key": "previous_plan_name",
+          "label": "Previous plan name",
+          "format": null
+        },
+        {
+          "key": "previous_plan_code",
+          "label": "Previous plan code",
+          "format": null
+        },
+        {
+          "key": "previous_plan_started_on",
+          "label": "Previous plan started on",
+          "format": null
+        }
+      ],
+      "pageSize": 10
+    },
+    "ae1fb831-85e2-47dc-9922-50eb40157271": {
+      "id": "ae1fb831-85e2-47dc-9922-50eb40157271",
+      "title": "Subscription terminations",
+      "description": "Monthly terminated subscriptions split between churn and plan changes.",
+      "viz": "bar",
+      "x": {
+        "key": "termination_month",
+        "label": "Termination month",
+        "temporal": true
+      },
+      "series": [],
+      "metrics": [
+        {
+          "key": "terminations",
+          "label": "Terminations",
+          "format": ",d"
+        },
+        {
+          "key": "plan_changes",
+          "label": "Plan changes",
+          "format": ",d"
+        }
+      ],
+      "stacked": true,
+      "horizontal": false
+    },
+    "d3689109-1a71-4324-a62f-4220b1d97a46": {
+      "id": "d3689109-1a71-4324-a62f-4220b1d97a46",
+      "title": "Day of terminations",
+      "description": "Terminated subscriptions by weekday, split between churn and plan changes across all available history.",
+      "viz": "bar",
+      "x": {
+        "key": "weekday",
+        "label": "Weekday",
+        "temporal": false
+      },
+      "series": [],
+      "metrics": [
+        {
+          "key": "terminations",
+          "label": "Terminations",
+          "format": ",d"
+        },
+        {
+          "key": "plan_changes",
+          "label": "Plan changes",
+          "format": ",d"
+        }
+      ],
+      "stacked": false,
+      "horizontal": false
+    },
+    "cbf709c1-b897-4d1d-9a99-5a6b63ecbf6a": {
+      "id": "cbf709c1-b897-4d1d-9a99-5a6b63ecbf6a",
+      "title": "Churn subscriptions by plan",
+      "description": "Churned subscriptions and distinct churned customers by parent plan and currency, excluding plan changes.",
+      "viz": "bar",
+      "x": {
+        "key": "plan_name",
+        "label": "Plan name",
+        "temporal": false
+      },
+      "series": [
+        "currency"
+      ],
+      "metrics": [
+        {
+          "key": "churned_subscriptions",
+          "label": "Churned subscriptions",
+          "format": ",d"
+        }
+      ],
+      "stacked": true,
+      "horizontal": true
+    },
+    "8eb96a5f-fa2c-4cae-8137-156891720783": {
+      "id": "8eb96a5f-fa2c-4cae-8137-156891720783",
+      "title": "Churn details",
+      "description": "Terminated-subscription details with churn context and successor-plan lineage.",
+      "viz": "table",
+      "series": [],
+      "metrics": [],
+      "columns": [
+        {
+          "key": "terminated_on",
+          "label": "Terminated on",
+          "format": null
+        },
+        {
+          "key": "customer_name",
+          "label": "Customer name",
+          "format": null
+        },
+        {
+          "key": "customer_external_id",
+          "label": "Customer external id",
+          "format": null
+        },
+        {
+          "key": "plan_name",
+          "label": "Plan name",
+          "format": null
+        },
+        {
+          "key": "plan_code",
+          "label": "Plan code",
+          "format": null
+        },
+        {
+          "key": "is_override",
+          "label": "Is override",
+          "format": null
+        },
+        {
+          "key": "plan_amount",
+          "label": "Plan amount",
+          "format": ",.2f"
+        },
+        {
+          "key": "currency",
+          "label": "Currency",
+          "format": null
+        },
+        {
+          "key": "billing_interval",
+          "label": "Billing interval",
+          "format": null
+        },
+        {
+          "key": "activated_on",
+          "label": "Activated on",
+          "format": null
+        },
+        {
+          "key": "days_alive",
+          "label": "Days alive",
+          "format": ",d"
+        },
+        {
+          "key": "termination_category",
+          "label": "Termination category",
+          "format": null
+        },
+        {
+          "key": "churn_type",
+          "label": "Churn type",
+          "format": null
+        },
+        {
+          "key": "customer_still_active",
+          "label": "Customer still active",
+          "format": null
+        },
+        {
+          "key": "next_plan_name",
+          "label": "Next plan name",
+          "format": null
+        },
+        {
+          "key": "next_plan_code",
+          "label": "Next plan code",
+          "format": null
+        },
+        {
+          "key": "next_plan_started_on",
+          "label": "Next plan started on",
+          "format": null
+        },
+        {
+          "key": "subscription_id",
+          "label": "Subscription id",
+          "format": null
+        },
+        {
+          "key": "subscription_external_id",
+          "label": "Subscription external id",
+          "format": null
+        }
+      ],
+      "pageSize": 10
+    },
+    "6580b62e-0ea8-4c4d-a227-aa478bd27ec5": {
+      "id": "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+      "title": "Revenue streams overview",
+      "description": "Net revenue per period, stacked by the tab's Breakdown selection. Gross streams stack up and contra streams stack down, so the bar's balance is the net. Each revenue stream keeps one colour whatever else it is split by.",
+      "viz": "bar",
+      "x": {
+        "key": "datetime",
+        "label": "Datetime",
+        "temporal": true
+      },
+      "series": [
+        "series"
+      ],
+      "metrics": [
+        {
+          "key": "revenue_amount",
+          "label": "Revenue amount",
+          "format": "SMART_NUMBER"
+        }
+      ],
+      "stacked": true,
+      "horizontal": false
+    },
+    "5f010c86-5115-4faf-9af4-96d6fe1c4da0": {
+      "id": "5f010c86-5115-4faf-9af4-96d6fe1c4da0",
+      "title": "Revenue streams details",
+      "description": "Gross revenue, then contra, then net as the closing section, each listing only its own rows, with the tab's Breakdown selection cutting inside them. Columns are the periods, newest first; row labels stay pinned while the cells scroll.",
+      "viz": "pivot",
+      "series": [],
+      "metrics": [
+        {
+          "key": "revenue_amount",
+          "label": "Revenue amount",
+          "format": "SMART_NUMBER"
+        }
+      ],
+      "pivot": {
+        "rows": [
+          "revenue_section_ranked",
+          "breakdown"
+        ],
+        "columns": [
+          "datetime"
+        ],
+        "columnsDescending": true
+      }
+    },
+    "4894777a-67cb-477a-b3e1-db7ee6f33966": {
+      "id": "4894777a-67cb-477a-b3e1-db7ee6f33966",
+      "title": "MRR overview",
+      "description": "MRR movements per period, stacked by the tab's Breakdown selection. New and expansion stack up, contraction and churn down, so the bar's balance is the change. Each movement type keeps one colour whatever it is split by.",
+      "viz": "bar",
+      "x": {
+        "key": "datetime",
+        "label": "Datetime",
+        "temporal": true
+      },
+      "series": [
+        "series"
+      ],
+      "metrics": [
+        {
+          "key": "mrr_amount",
+          "label": "Mrr amount",
+          "format": "SMART_NUMBER"
+        }
+      ],
+      "stacked": true,
+      "horizontal": false
+    },
+    "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce": {
+      "id": "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce",
+      "title": "MRR details",
+      "description": "The MRR waterfall per period. Summary first (starting MRR, change, ending MRR), then the movements (new, expansion, contraction, churn), with the tab's Breakdown selection cutting inside them. Periods run across the top, newest first; the section and line columns stay pinned while the values scroll.",
+      "viz": "pivot",
+      "series": [],
+      "metrics": [
+        {
+          "key": "mrr_amount",
+          "label": "Mrr amount",
+          "format": "SMART_NUMBER"
+        }
+      ],
+      "pivot": {
+        "rows": [
+          "mrr_section",
+          "breakdown"
+        ],
+        "columns": [
+          "datetime"
+        ],
+        "columnsDescending": true
+      }
+    },
+    "01a40574-f302-4ef7-8e58-640d8e92d404": {
+      "id": "01a40574-f302-4ef7-8e58-640d8e92d404",
+      "title": "Credit ledger movements",
+      "description": "Credit movements per type and currency, with purchases and grants stacking up and consumption and voids stacking down. Each credit type keeps one color across currencies, pinned in the dashboard label_colors.",
+      "viz": "bar",
+      "x": {
+        "key": "month",
+        "label": "Month",
+        "temporal": true
+      },
+      "series": [
+        "credit_type",
+        "amount_currency"
+      ],
+      "metrics": [
+        {
+          "key": "metric_value",
+          "label": "Metric value",
+          "format": "SMART_NUMBER"
+        }
+      ],
+      "stacked": true,
+      "horizontal": false
+    },
+    "a97818ee-b9a1-44ee-b606-bb172bc78aa0": {
+      "id": "a97818ee-b9a1-44ee-b606-bb172bc78aa0",
+      "title": "Prepaid credits details",
+      "description": "Credit movements pivoted by currency and credit type, newest period first, with empty cells densified to 0. The Credits metric selector switches between credits volume and monetary value.",
+      "viz": "pivot",
+      "series": [],
+      "metrics": [
+        {
+          "key": "metric_value",
+          "label": "Metric value",
+          "format": "SMART_NUMBER"
+        }
+      ],
+      "pivot": {
+        "rows": [
+          "amount_currency",
+          "credit_type"
+        ],
+        "columns": [
+          "month"
+        ],
+        "columnsDescending": true
+      }
+    },
+    "4144bb9f-aa05-4056-8364-85405144ea87": {
+      "id": "4144bb9f-aa05-4056-8364-85405144ea87",
+      "title": "Purchased credits",
+      "description": "Purchased credits per currency as overlapping areas. The Credits metric selector switches between credits volume and monetary value.",
+      "viz": "area",
+      "x": {
+        "key": "month",
+        "label": "Month",
+        "temporal": true
+      },
+      "series": [
+        "amount_currency"
+      ],
+      "metrics": [
+        {
+          "key": "metric_value",
+          "label": "Metric value",
+          "format": "SMART_NUMBER"
+        }
+      ],
+      "stacked": false,
+      "horizontal": false
+    },
+    "5114ef57-8d35-4072-9344-9a648be373b1": {
+      "id": "5114ef57-8d35-4072-9344-9a648be373b1",
+      "title": "Offered credits",
+      "description": "Offered credits per currency as overlapping areas. The Credits metric selector switches between credits volume and monetary value.",
+      "viz": "area",
+      "x": {
+        "key": "month",
+        "label": "Month",
+        "temporal": true
+      },
+      "series": [
+        "amount_currency"
+      ],
+      "metrics": [
+        {
+          "key": "metric_value",
+          "label": "Metric value",
+          "format": "SMART_NUMBER"
+        }
+      ],
+      "stacked": false,
+      "horizontal": false
+    },
+    "7446a5a9-9450-45a1-9eea-be5a9561a366": {
+      "id": "7446a5a9-9450-45a1-9eea-be5a9561a366",
+      "title": "Credit balances",
+      "description": "End-of-month prepaid wallet balance per customer and currency.",
+      "viz": "table",
+      "series": [],
+      "metrics": [],
+      "columns": [
+        {
+          "key": "month",
+          "label": "Month",
+          "format": null
+        },
+        {
+          "key": "customer_external_id",
+          "label": "Customer external id",
+          "format": null
+        },
+        {
+          "key": "customer_name",
+          "label": "Customer name",
+          "format": null
+        },
+        {
+          "key": "customer_country",
+          "label": "Customer country",
+          "format": ",d"
+        },
+        {
+          "key": "tax_identification_number",
+          "label": "Tax identification number",
+          "format": null
+        },
+        {
+          "key": "amount_currency",
+          "label": "Amount currency",
+          "format": ",.2f"
+        },
+        {
+          "key": "start_of_month_balance",
+          "label": "Start of month balance",
+          "format": ",.2f"
+        },
+        {
+          "key": "monthly_balance_change",
+          "label": "Monthly balance change",
+          "format": ",.2f"
+        },
+        {
+          "key": "end_of_month_balance",
+          "label": "End of month balance",
+          "format": ",.2f"
+        }
+      ],
+      "pageSize": 10
+    },
+    "c28e51b4-76c9-4e22-a4dd-060806f18d59": {
+      "id": "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+      "title": "Total usage cost",
+      "description": "Metered cost gathered by date, split by currency and billable metric. Legend on the right, zoom bar at the bottom.",
+      "viz": "bar",
+      "x": {
+        "key": "datetime",
+        "label": "Datetime",
+        "temporal": true
+      },
+      "series": [
+        "breakdown"
+      ],
+      "metrics": [
+        {
+          "key": "usage_amount",
+          "label": "Usage amount",
+          "format": "SMART_NUMBER"
+        }
+      ],
+      "stacked": true,
+      "horizontal": false
+    },
+    "fcdcf2d2-6e39-4ad6-812a-278618a06892": {
+      "id": "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+      "title": "Total units consumed",
+      "description": "Metered units gathered by date, split by currency and billable metric. Legend on the right, zoom bar at the bottom.",
+      "viz": "bar",
+      "x": {
+        "key": "datetime",
+        "label": "Datetime",
+        "temporal": true
+      },
+      "series": [
+        "breakdown"
+      ],
+      "metrics": [
+        {
+          "key": "units_consumed",
+          "label": "Units consumed",
+          "format": "SMART_NUMBER"
+        }
+      ],
+      "stacked": true,
+      "horizontal": false
+    },
+    "844412dd-7b87-443a-81cf-faf9a0ed34f4": {
+      "id": "844412dd-7b87-443a-81cf-faf9a0ed34f4",
+      "title": "Usage breakdown",
+      "description": "Cost and units per usage period, with the rows following the tab's Breakdown selection and each row split into Usage cost and Units consumed. Columns are the periods, newest first; row labels stay pinned while the cells scroll.",
+      "viz": "pivot",
+      "series": [],
+      "metrics": [
+        {
+          "key": "usage_amount",
+          "label": "Usage amount",
+          "format": "SMART_NUMBER"
+        },
+        {
+          "key": "units_consumed",
+          "label": "Units consumed",
+          "format": "SMART_NUMBER"
+        }
+      ],
+      "pivot": {
+        "rows": [
+          "breakdown"
+        ],
+        "columns": [
+          "datetime"
+        ],
+        "columnsDescending": true
+      }
+    },
+    "5dbbe3f2-7885-45ef-b129-f994e963ff7a": {
+      "id": "5dbbe3f2-7885-45ef-b129-f994e963ff7a",
+      "title": "Payment intents by status",
+      "description": "Payment intents per period as overlapping areas, Succeeded in blue and Failed in light red, pinned in the dashboard label_colors.",
+      "viz": "area",
+      "x": {
+        "key": "datetime",
+        "label": "Datetime",
+        "temporal": true
+      },
+      "series": [
+        "status"
+      ],
+      "metrics": [
+        {
+          "key": "payment_count",
+          "label": "Payment count",
+          "format": ",d"
+        }
+      ],
+      "stacked": false,
+      "horizontal": false
+    },
+    "75762a59-17a2-41a5-b027-9696fc45e839": {
+      "id": "75762a59-17a2-41a5-b027-9696fc45e839",
+      "title": "Failed payment reasons",
+      "description": "Failed payment intents per period, stacked by error code.",
+      "viz": "bar",
+      "x": {
+        "key": "datetime",
+        "label": "Datetime",
+        "temporal": true
+      },
+      "series": [
+        "error_code"
+      ],
+      "metrics": [
+        {
+          "key": "failed_count",
+          "label": "Failed count",
+          "format": ",d"
+        }
+      ],
+      "stacked": true,
+      "horizontal": false
+    },
+    "e3d232c7-52ff-47f7-86cb-70a5ac6a3010": {
+      "id": "e3d232c7-52ff-47f7-86cb-70a5ac6a3010",
+      "title": "Successful payments by method",
+      "description": "Successful payments per period, stacked by payment method type.",
+      "viz": "bar",
+      "x": {
+        "key": "datetime",
+        "label": "Datetime",
+        "temporal": true
+      },
+      "series": [
+        "payment_method_type"
+      ],
+      "metrics": [
+        {
+          "key": "payment_count",
+          "label": "Payment count",
+          "format": ",d"
+        }
+      ],
+      "stacked": true,
+      "horizontal": false
+    },
+    "04f1db3a-1c35-4981-bccd-cc73ba114af1": {
+      "id": "04f1db3a-1c35-4981-bccd-cc73ba114af1",
+      "title": "Payment list",
+      "description": "One row per payment intent with customer, invoice, method and error context, newest first.",
+      "viz": "table",
+      "series": [],
+      "metrics": [],
+      "columns": [
+        {
+          "key": "payment_date",
+          "label": "Payment date",
+          "format": null
+        },
+        {
+          "key": "payment_id",
+          "label": "Payment id",
+          "format": null
+        },
+        {
+          "key": "customer_external_id",
+          "label": "Customer external id",
+          "format": null
+        },
+        {
+          "key": "email",
+          "label": "Email",
+          "format": null
+        },
+        {
+          "key": "invoice_number",
+          "label": "Invoice number",
+          "format": null
+        },
+        {
+          "key": "payment_amount",
+          "label": "Payment amount",
+          "format": ",.2f"
+        },
+        {
+          "key": "payment_currency",
+          "label": "Payment currency",
+          "format": null
+        },
+        {
+          "key": "payment_status",
+          "label": "Payment status",
+          "format": null
+        },
+        {
+          "key": "payment_method_type",
+          "label": "Payment method type",
+          "format": null
+        },
+        {
+          "key": "card_brand",
+          "label": "Card brand",
+          "format": null
+        },
+        {
+          "key": "provider_payment_method_id",
+          "label": "Provider payment method id",
+          "format": null
+        },
+        {
+          "key": "error_code",
+          "label": "Error code",
+          "format": null
+        }
+      ],
+      "pageSize": 10
+    },
+    "46a60326-cc3c-409d-997b-996634503297": {
+      "id": "46a60326-cc3c-409d-997b-996634503297",
+      "title": "Dunning outcome",
+      "description": "Dunned invoices per period, stacked by outcome. Paid in blue and Unpaid in light red, pinned in the dashboard label_colors.",
+      "viz": "bar",
+      "x": {
+        "key": "datetime",
+        "label": "Datetime",
+        "temporal": true
+      },
+      "series": [
+        "status"
+      ],
+      "metrics": [
+        {
+          "key": "invoice_count",
+          "label": "Invoice count",
+          "format": ",d"
+        }
+      ],
+      "stacked": true,
+      "horizontal": false
+    },
+    "d1db3cf4-9e77-40ff-beb8-f77c3a166198": {
+      "id": "d1db3cf4-9e77-40ff-beb8-f77c3a166198",
+      "title": "Dunning revenue recovered by currency",
+      "description": "",
+      "viz": "table",
+      "series": [],
+      "metrics": [],
+      "columns": [
+        {
+          "key": "Currency",
+          "label": "Currency",
+          "format": null
+        },
+        {
+          "key": "Invoices recovered",
+          "label": "Invoices recovered",
+          "format": ",.2f"
+        },
+        {
+          "key": "Revenue recovered",
+          "label": "Revenue recovered",
+          "format": ",.2f"
+        }
+      ],
+      "pageSize": 10
+    },
+    "88a72a0b-91b8-45cd-9494-1decaf7bf507": {
+      "id": "88a72a0b-91b8-45cd-9494-1decaf7bf507",
+      "title": "Dunning recovery time",
+      "description": "Recovered dunned invoices bucketed by days from the first dunning attempt to the first successful payment.",
+      "viz": "bar",
+      "x": {
+        "key": "payment_timeframe",
+        "label": "Payment timeframe",
+        "temporal": false
+      },
+      "series": [],
+      "metrics": [
+        {
+          "key": "invoice_count",
+          "label": "Invoice count",
+          "format": "SMART_NUMBER"
+        }
+      ],
+      "stacked": true,
+      "horizontal": true
+    },
+    "9574954f-e033-4063-9dae-5b9897ae58fc": {
+      "id": "9574954f-e033-4063-9dae-5b9897ae58fc",
+      "title": "Dunning attempt summary per invoice",
+      "description": "",
+      "viz": "table",
+      "series": [],
+      "metrics": [],
+      "columns": [
+        {
+          "key": "invoice_id",
+          "label": "Invoice id",
+          "format": null
+        },
+        {
+          "key": "invoice_number",
+          "label": "Invoice number",
+          "format": null
+        },
+        {
+          "key": "customer_id",
+          "label": "Customer id",
+          "format": null
+        },
+        {
+          "key": "currency",
+          "label": "Currency",
+          "format": null
+        },
+        {
+          "key": "invoice_amount",
+          "label": "Invoice amount",
+          "format": ",.2f"
+        },
+        {
+          "key": "total_dunning_attempts",
+          "label": "Total dunning attempts",
+          "format": ",d"
+        },
+        {
+          "key": "invoice_is_paid",
+          "label": "Invoice is paid",
+          "format": ",.2f"
+        },
+        {
+          "key": "is_paid_with_dunning_request",
+          "label": "Is paid with dunning request",
+          "format": ",.2f"
+        },
+        {
+          "key": "first_attempt_date",
+          "label": "First attempt date",
+          "format": null
+        },
+        {
+          "key": "first_successful_payment_date",
+          "label": "First successful payment date",
+          "format": null
+        },
+        {
+          "key": "days_to_payment",
+          "label": "Days to payment",
+          "format": ",d"
+        }
+      ],
+      "pageSize": 10
+    },
+    "b623e7c7-b940-4cb6-bc77-e379d932df7e": {
+      "id": "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+      "title": "Invoiced amount by type",
+      "description": "Finalized invoice totals per period, stacked by invoice type and currency. Each invoice type keeps one color across currencies, pinned in the dashboard label_colors.",
+      "viz": "bar",
+      "x": {
+        "key": "month",
+        "label": "Month",
+        "temporal": true
+      },
+      "series": [
+        "invoice_type",
+        "currency"
+      ],
+      "metrics": [
+        {
+          "key": "total_amount",
+          "label": "Total amount",
+          "format": "SMART_NUMBER"
+        }
+      ],
+      "stacked": true,
+      "horizontal": false
+    },
+    "1f350de4-f6e4-4402-93f0-950fcc245ea6": {
+      "id": "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+      "title": "Invoice status",
+      "description": "Invoices per period, stacked by lifecycle status. Status colors are pinned in the dashboard label_colors.",
+      "viz": "bar",
+      "x": {
+        "key": "period",
+        "label": "Period",
+        "temporal": true
+      },
+      "series": [
+        "invoice_status"
+      ],
+      "metrics": [
+        {
+          "key": "invoice_count",
+          "label": "Invoice count",
+          "format": ",d"
+        }
+      ],
+      "stacked": true,
+      "horizontal": false
+    },
+    "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3": {
+      "id": "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+      "title": "Finalized invoice payment status",
+      "description": "Finalized invoices per period, stacked by payment status. Status colors are pinned in the dashboard label_colors.",
+      "viz": "bar",
+      "x": {
+        "key": "period",
+        "label": "Period",
+        "temporal": true
+      },
+      "series": [
+        "payment_status"
+      ],
+      "metrics": [
+        {
+          "key": "invoice_count",
+          "label": "Invoice count",
+          "format": ",d"
+        }
+      ],
+      "stacked": true,
+      "horizontal": false
+    },
+    "523ef973-4582-4cdb-9b58-a00228edee97": {
+      "id": "523ef973-4582-4cdb-9b58-a00228edee97",
+      "title": "AR aging",
+      "description": "Outstanding subscription-invoice balance by days past due, stacked by currency, as of today. Buckets sort chronologically via the dataset's bucket_order.",
+      "viz": "bar",
+      "x": {
+        "key": "invoice_age",
+        "label": "Invoice age",
+        "temporal": false
+      },
+      "series": [
+        "currency"
+      ],
+      "metrics": [
+        {
+          "key": "outstanding_amount",
+          "label": "Outstanding amount",
+          "format": "SMART_NUMBER"
+        }
+      ],
+      "stacked": true,
+      "horizontal": true
+    },
+    "9a749f46-4342-4092-aab4-e49c414c365e": {
+      "id": "9a749f46-4342-4092-aab4-e49c414c365e",
+      "title": "Outstanding revenue exposure",
+      "description": "Unpaid subscription-invoice balance and invoice count per currency, as of today, largest exposure first. Log axis keeps counts readable next to amounts.",
+      "viz": "bar",
+      "x": {
+        "key": "currency",
+        "label": "Currency",
+        "temporal": false
+      },
+      "series": [],
+      "metrics": [
+        {
+          "key": "outstanding_amount",
+          "label": "Outstanding amount",
+          "format": "SMART_NUMBER"
+        },
+        {
+          "key": "invoice_count",
+          "label": "Invoice count",
+          "format": "SMART_NUMBER"
+        }
+      ],
+      "stacked": true,
+      "horizontal": true
+    },
+    "8c930de7-8daa-4eae-8e49-19eff7277f03": {
+      "id": "8c930de7-8daa-4eae-8e49-19eff7277f03",
+      "title": "Invoice list",
+      "description": "One row per invoice with customer, lifecycle, service period and the full amount breakdown, newest first.",
+      "viz": "table",
+      "series": [],
+      "metrics": [],
+      "columns": [
+        {
+          "key": "issuing_date",
+          "label": "Issuing date",
+          "format": null
+        },
+        {
+          "key": "invoice_number",
+          "label": "Invoice number",
+          "format": null
+        },
+        {
+          "key": "customer_external_id",
+          "label": "Customer external id",
+          "format": null
+        },
+        {
+          "key": "customer_name",
+          "label": "Customer name",
+          "format": null
+        },
+        {
+          "key": "customer_email",
+          "label": "Customer email",
+          "format": null
+        },
+        {
+          "key": "customer_type",
+          "label": "Customer type",
+          "format": null
+        },
+        {
+          "key": "account_type",
+          "label": "Account type",
+          "format": ",d"
+        },
+        {
+          "key": "customer_country",
+          "label": "Customer country",
+          "format": ",d"
+        },
+        {
+          "key": "customer_city",
+          "label": "Customer city",
+          "format": null
+        },
+        {
+          "key": "customer_tax_id",
+          "label": "Customer tax id",
+          "format": null
+        },
+        {
+          "key": "payment_provider",
+          "label": "Payment provider",
+          "format": null
+        },
+        {
+          "key": "customer_net_payment_term",
+          "label": "Customer net payment term",
+          "format": null
+        },
+        {
+          "key": "customer_since",
+          "label": "Customer since",
+          "format": null
+        },
+        {
+          "key": "invoice_type",
+          "label": "Invoice type",
+          "format": null
+        },
+        {
+          "key": "invoice_status",
+          "label": "Invoice status",
+          "format": null
+        },
+        {
+          "key": "payment_status",
+          "label": "Payment status",
+          "format": null
+        },
+        {
+          "key": "is_overdue_flag",
+          "label": "Is overdue flag",
+          "format": null
+        },
+        {
+          "key": "service_period_from",
+          "label": "Service period from",
+          "format": null
+        },
+        {
+          "key": "service_period_to",
+          "label": "Service period to",
+          "format": null
+        },
+        {
+          "key": "currency",
+          "label": "Currency",
+          "format": null
+        },
+        {
+          "key": "subtotal",
+          "label": "Subtotal",
+          "format": null
+        },
+        {
+          "key": "coupons_discount",
+          "label": "Coupons discount",
+          "format": ",d"
+        },
+        {
+          "key": "progressive_billing_credit",
+          "label": "Progressive billing credit",
+          "format": null
+        },
+        {
+          "key": "subtotal_excl_tax",
+          "label": "Subtotal excl tax",
+          "format": null
+        },
+        {
+          "key": "taxes",
+          "label": "Taxes",
+          "format": null
+        },
+        {
+          "key": "subtotal_incl_tax",
+          "label": "Subtotal incl tax",
+          "format": null
+        },
+        {
+          "key": "credit_notes_applied",
+          "label": "Credit notes applied",
+          "format": null
+        },
+        {
+          "key": "prepaid_credit_used",
+          "label": "Prepaid credit used",
+          "format": ",.2f"
+        },
+        {
+          "key": "total_due",
+          "label": "Total due",
+          "format": null
+        },
+        {
+          "key": "total_paid",
+          "label": "Total paid",
+          "format": ",.2f"
+        },
+        {
+          "key": "outstanding_amount",
+          "label": "Outstanding amount",
+          "format": ",.2f"
+        },
+        {
+          "key": "is_outstanding",
+          "label": "Is outstanding",
+          "format": null
+        },
+        {
+          "key": "is_overdue",
+          "label": "Is overdue",
+          "format": null
+        },
+        {
+          "key": "payment_due_date",
+          "label": "Payment due date",
+          "format": null
+        },
+        {
+          "key": "net_payment_term",
+          "label": "Net payment term",
+          "format": null
+        },
+        {
+          "key": "payment_attempts",
+          "label": "Payment attempts",
+          "format": ",d"
+        },
+        {
+          "key": "finalized_at",
+          "label": "Finalized at",
+          "format": null
+        },
+        {
+          "key": "voided_at",
+          "label": "Voided at",
+          "format": null
+        },
+        {
+          "key": "invoice_id",
+          "label": "Invoice id",
+          "format": null
+        }
+      ],
+      "pageSize": 10
+    }
+  },
+  "filters": [
+    {
+      "id": "NATIVE_FILTER--oFKcx8PxGN0bMEs0162b",
+      "name": "Date range",
+      "kind": "time",
+      "param": "time",
+      "multiple": false,
+      "default": null,
+      "tab": "TAB-6wNG-DM1byQBwaYg1ODvO",
+      "charts": [
+        "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+        "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+        "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+        "8c930de7-8daa-4eae-8e49-19eff7277f03",
+        "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+        "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+        "844412dd-7b87-443a-81cf-faf9a0ed34f4",
+        "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+        "5f010c86-5115-4faf-9af4-96d6fe1c4da0",
+        "4894777a-67cb-477a-b3e1-db7ee6f33966",
+        "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER--oFKcx8PxGN0bMEs0162b",
+      "name": "Date range",
+      "kind": "time",
+      "param": "time",
+      "multiple": false,
+      "default": null,
+      "tab": "TAB-Revenue",
+      "charts": [
+        "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+        "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+        "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+        "8c930de7-8daa-4eae-8e49-19eff7277f03",
+        "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+        "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+        "844412dd-7b87-443a-81cf-faf9a0ed34f4",
+        "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+        "5f010c86-5115-4faf-9af4-96d6fe1c4da0",
+        "4894777a-67cb-477a-b3e1-db7ee6f33966",
+        "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER--oFKcx8PxGN0bMEs0162b",
+      "name": "Date range",
+      "kind": "time",
+      "param": "time",
+      "multiple": false,
+      "default": null,
+      "tab": "TAB-fQmgrJ_KqXg7ZFrOsOiCP",
+      "charts": [
+        "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+        "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+        "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+        "8c930de7-8daa-4eae-8e49-19eff7277f03",
+        "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+        "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+        "844412dd-7b87-443a-81cf-faf9a0ed34f4",
+        "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+        "5f010c86-5115-4faf-9af4-96d6fe1c4da0",
+        "4894777a-67cb-477a-b3e1-db7ee6f33966",
+        "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-usage-breakdown",
+      "name": "Breakdown",
+      "kind": "select",
+      "param": "usage_breakdown",
+      "multiple": true,
+      "default": [
+        "Billable metric",
+        "Currency"
+      ],
+      "tab": "TAB-6wNG-DM1byQBwaYg1ODvO",
+      "charts": [
+        "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+        "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+        "844412dd-7b87-443a-81cf-faf9a0ed34f4"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-revenue-breakdown",
+      "name": "Breakdown",
+      "kind": "select",
+      "param": "revenue_breakdown",
+      "multiple": true,
+      "default": [
+        "Revenue type",
+        "Currency"
+      ],
+      "tab": "TAB-RevenueStreams",
+      "charts": [
+        "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+        "5f010c86-5115-4faf-9af4-96d6fe1c4da0"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-mrr-breakdown",
+      "name": "Breakdown",
+      "kind": "select",
+      "param": "mrr_breakdown",
+      "multiple": true,
+      "default": [
+        "Type",
+        "Currency"
+      ],
+      "tab": "TAB-RevenueMrr",
+      "charts": [
+        "4894777a-67cb-477a-b3e1-db7ee6f33966",
+        "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-LpcELl6XgrQh7egzwsGY5",
+      "name": "Granularity",
+      "kind": "select",
+      "param": "granularity",
+      "multiple": false,
+      "default": "month",
+      "tab": "TAB-6wNG-DM1byQBwaYg1ODvO",
+      "charts": [
+        "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+        "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+        "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+        "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+        "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+        "844412dd-7b87-443a-81cf-faf9a0ed34f4",
+        "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+        "5f010c86-5115-4faf-9af4-96d6fe1c4da0",
+        "4894777a-67cb-477a-b3e1-db7ee6f33966",
+        "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-LpcELl6XgrQh7egzwsGY5",
+      "name": "Granularity",
+      "kind": "select",
+      "param": "granularity",
+      "multiple": false,
+      "default": "month",
+      "tab": "TAB-Revenue",
+      "charts": [
+        "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+        "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+        "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+        "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+        "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+        "844412dd-7b87-443a-81cf-faf9a0ed34f4",
+        "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+        "5f010c86-5115-4faf-9af4-96d6fe1c4da0",
+        "4894777a-67cb-477a-b3e1-db7ee6f33966",
+        "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-LpcELl6XgrQh7egzwsGY5",
+      "name": "Granularity",
+      "kind": "select",
+      "param": "granularity",
+      "multiple": false,
+      "default": "month",
+      "tab": "TAB-fQmgrJ_KqXg7ZFrOsOiCP",
+      "charts": [
+        "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+        "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+        "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+        "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+        "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+        "844412dd-7b87-443a-81cf-faf9a0ed34f4",
+        "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+        "5f010c86-5115-4faf-9af4-96d6fe1c4da0",
+        "4894777a-67cb-477a-b3e1-db7ee6f33966",
+        "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-uJEhWFl7ppLjFa0tI5OQ1",
+      "name": "Currency",
+      "kind": "select",
+      "param": "amount_currency",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-RevenueStreams",
+      "charts": [
+        "d1db3cf4-9e77-40ff-beb8-f77c3a166198",
+        "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+        "5f010c86-5115-4faf-9af4-96d6fe1c4da0"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-mrr-currency",
+      "name": "Currency",
+      "kind": "select",
+      "param": "amount_currency",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-RevenueMrr",
+      "charts": [
+        "4894777a-67cb-477a-b3e1-db7ee6f33966",
+        "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-usage-currency",
+      "name": "Currency",
+      "kind": "select",
+      "param": "amount_currency",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-6wNG-DM1byQBwaYg1ODvO",
+      "charts": [
+        "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+        "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+        "844412dd-7b87-443a-81cf-faf9a0ed34f4"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-rdgK-V4P-sxI-Txp1YLKC",
+      "name": "Billable metric",
+      "kind": "select",
+      "param": "billable_metric_code",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-6wNG-DM1byQBwaYg1ODvO",
+      "charts": [
+        "d1db3cf4-9e77-40ff-beb8-f77c3a166198",
+        "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+        "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+        "844412dd-7b87-443a-81cf-faf9a0ed34f4"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-AjR2IYc68UjIE7EGp-BAg",
+      "name": "Country",
+      "kind": "select",
+      "param": "customer_country",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-RevenueStreams",
+      "charts": [
+        "d1db3cf4-9e77-40ff-beb8-f77c3a166198",
+        "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+        "5f010c86-5115-4faf-9af4-96d6fe1c4da0"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-mrr-country",
+      "name": "Country",
+      "kind": "select",
+      "param": "customer_country",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-RevenueMrr",
+      "charts": [
+        "4894777a-67cb-477a-b3e1-db7ee6f33966",
+        "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-usage-country",
+      "name": "Country",
+      "kind": "select",
+      "param": "customer_country",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-6wNG-DM1byQBwaYg1ODvO",
+      "charts": [
+        "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+        "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+        "844412dd-7b87-443a-81cf-faf9a0ed34f4"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-pfNroXhdKsYwXK0e0MuSZ",
+      "name": "Customers",
+      "kind": "select",
+      "param": "customer_name",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-RevenueStreams",
+      "charts": [
+        "d1db3cf4-9e77-40ff-beb8-f77c3a166198",
+        "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+        "5f010c86-5115-4faf-9af4-96d6fe1c4da0"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-mrr-customers",
+      "name": "Customers",
+      "kind": "select",
+      "param": "customer_name",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-RevenueMrr",
+      "charts": [
+        "4894777a-67cb-477a-b3e1-db7ee6f33966",
+        "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-usage-customers",
+      "name": "Customers",
+      "kind": "select",
+      "param": "customer_name",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-6wNG-DM1byQBwaYg1ODvO",
+      "charts": [
+        "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+        "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+        "844412dd-7b87-443a-81cf-faf9a0ed34f4"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-QertNEFDT6OhgcdX4SOLH",
+      "name": "Customer type",
+      "kind": "select",
+      "param": "customer_type",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-RevenueStreams",
+      "charts": [
+        "d1db3cf4-9e77-40ff-beb8-f77c3a166198",
+        "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+        "5f010c86-5115-4faf-9af4-96d6fe1c4da0"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-mrr-customer-type",
+      "name": "Customer type",
+      "kind": "select",
+      "param": "customer_type",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-RevenueMrr",
+      "charts": [
+        "4894777a-67cb-477a-b3e1-db7ee6f33966",
+        "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-usage-customer-type",
+      "name": "Customer type",
+      "kind": "select",
+      "param": "customer_type",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-6wNG-DM1byQBwaYg1ODvO",
+      "charts": [
+        "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+        "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+        "844412dd-7b87-443a-81cf-faf9a0ed34f4"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-Qu85hGe0oqrP5KBCfl9ak",
+      "name": "Plan code",
+      "kind": "select",
+      "param": "plan_code",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-RevenueStreams",
+      "charts": [
+        "d1db3cf4-9e77-40ff-beb8-f77c3a166198",
+        "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+        "5f010c86-5115-4faf-9af4-96d6fe1c4da0"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-mrr-plan-code",
+      "name": "Plan code",
+      "kind": "select",
+      "param": "plan_code",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-RevenueMrr",
+      "charts": [
+        "4894777a-67cb-477a-b3e1-db7ee6f33966",
+        "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-usage-plan-code",
+      "name": "Plan code",
+      "kind": "select",
+      "param": "plan_code",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-6wNG-DM1byQBwaYg1ODvO",
+      "charts": [
+        "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+        "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+        "844412dd-7b87-443a-81cf-faf9a0ed34f4"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-F31KkR5Of_PsJZe3wFFyV",
+      "name": "Subscription ext. ID",
+      "kind": "select",
+      "param": "external_subscription_id",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-RevenueStreams",
+      "charts": [
+        "d1db3cf4-9e77-40ff-beb8-f77c3a166198",
+        "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+        "5f010c86-5115-4faf-9af4-96d6fe1c4da0"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-mrr-subscription-ext-id",
+      "name": "Subscription ext. ID",
+      "kind": "select",
+      "param": "external_subscription_id",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-RevenueMrr",
+      "charts": [
+        "4894777a-67cb-477a-b3e1-db7ee6f33966",
+        "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-usage-subscription-ext-id",
+      "name": "Subscription ext. ID",
+      "kind": "select",
+      "param": "external_subscription_id",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-6wNG-DM1byQBwaYg1ODvO",
+      "charts": [
+        "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+        "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+        "844412dd-7b87-443a-81cf-faf9a0ed34f4"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-SUYJjUDy_bOwAw5KuMpaS",
+      "name": "Customer has tax ID",
+      "kind": "select",
+      "param": "customer_has_tax_id",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-RevenueStreams",
+      "charts": [
+        "d1db3cf4-9e77-40ff-beb8-f77c3a166198",
+        "6580b62e-0ea8-4c4d-a227-aa478bd27ec5",
+        "5f010c86-5115-4faf-9af4-96d6fe1c4da0"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-mrr-customer-has-tax-id",
+      "name": "Customer has tax ID",
+      "kind": "select",
+      "param": "customer_has_tax_id",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-RevenueMrr",
+      "charts": [
+        "4894777a-67cb-477a-b3e1-db7ee6f33966",
+        "fc43dd0e-7d77-4eb5-a2fc-a4bc11e017ce"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-usage-customer-has-tax-id",
+      "name": "Customer has tax ID",
+      "kind": "select",
+      "param": "customer_has_tax_id",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-6wNG-DM1byQBwaYg1ODvO",
+      "charts": [
+        "c28e51b4-76c9-4e22-a4dd-060806f18d59",
+        "fcdcf2d2-6e39-4ad6-812a-278618a06892",
+        "844412dd-7b87-443a-81cf-faf9a0ed34f4"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-Kxr7oZIv2l4hLIFKNlEak",
+      "name": "Invoice number",
+      "kind": "select",
+      "param": "invoice_number",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-CashCollection",
+      "charts": [
+        "9574954f-e033-4063-9dae-5b9897ae58fc",
+        "d1db3cf4-9e77-40ff-beb8-f77c3a166198",
+        "04f1db3a-1c35-4981-bccd-cc73ba114af1"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-7oDGX3TtNMS",
+      "name": "Invoice number",
+      "kind": "select",
+      "param": "invoice_number",
+      "multiple": false,
+      "default": null,
+      "tab": "TAB-fQmgrJ_KqXg7ZFrOsOiCP",
+      "charts": [
+        "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+        "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+        "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+        "523ef973-4582-4cdb-9b58-a00228edee97",
+        "9a749f46-4342-4092-aab4-e49c414c365e",
+        "8c930de7-8daa-4eae-8e49-19eff7277f03"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-invoices-currency",
+      "name": "Currency",
+      "kind": "select",
+      "param": "currency",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-fQmgrJ_KqXg7ZFrOsOiCP",
+      "charts": [
+        "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+        "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+        "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+        "523ef973-4582-4cdb-9b58-a00228edee97",
+        "9a749f46-4342-4092-aab4-e49c414c365e",
+        "8c930de7-8daa-4eae-8e49-19eff7277f03"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-invoices-country",
+      "name": "Country",
+      "kind": "select",
+      "param": "customer_country",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-fQmgrJ_KqXg7ZFrOsOiCP",
+      "charts": [
+        "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+        "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+        "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+        "523ef973-4582-4cdb-9b58-a00228edee97",
+        "9a749f46-4342-4092-aab4-e49c414c365e",
+        "8c930de7-8daa-4eae-8e49-19eff7277f03"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-invoices-customers",
+      "name": "Customers",
+      "kind": "select",
+      "param": "customer_name",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-fQmgrJ_KqXg7ZFrOsOiCP",
+      "charts": [
+        "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+        "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+        "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+        "523ef973-4582-4cdb-9b58-a00228edee97",
+        "9a749f46-4342-4092-aab4-e49c414c365e",
+        "8c930de7-8daa-4eae-8e49-19eff7277f03"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-invoices-customer-type",
+      "name": "Customer type",
+      "kind": "select",
+      "param": "customer_type",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-fQmgrJ_KqXg7ZFrOsOiCP",
+      "charts": [
+        "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+        "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+        "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+        "523ef973-4582-4cdb-9b58-a00228edee97",
+        "9a749f46-4342-4092-aab4-e49c414c365e",
+        "8c930de7-8daa-4eae-8e49-19eff7277f03"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-invoices-tax-id",
+      "name": "Customer has tax ID",
+      "kind": "select",
+      "param": "customer_has_tax_id",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-fQmgrJ_KqXg7ZFrOsOiCP",
+      "charts": [
+        "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+        "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+        "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+        "523ef973-4582-4cdb-9b58-a00228edee97",
+        "9a749f46-4342-4092-aab4-e49c414c365e",
+        "8c930de7-8daa-4eae-8e49-19eff7277f03"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-invoices-plan-code",
+      "name": "Plan code",
+      "kind": "select",
+      "param": "plan_code",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-fQmgrJ_KqXg7ZFrOsOiCP",
+      "charts": [
+        "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+        "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+        "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+        "523ef973-4582-4cdb-9b58-a00228edee97",
+        "9a749f46-4342-4092-aab4-e49c414c365e",
+        "8c930de7-8daa-4eae-8e49-19eff7277f03"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-invoices-subscription-ext-id",
+      "name": "Subscription ext. ID",
+      "kind": "select",
+      "param": "external_subscription_id",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-fQmgrJ_KqXg7ZFrOsOiCP",
+      "charts": [
+        "b623e7c7-b940-4cb6-bc77-e379d932df7e",
+        "1f350de4-f6e4-4402-93f0-950fcc245ea6",
+        "0e8d0bd4-4ccb-46b4-addf-370b81f3b4a3",
+        "523ef973-4582-4cdb-9b58-a00228edee97",
+        "9a749f46-4342-4092-aab4-e49c414c365e",
+        "8c930de7-8daa-4eae-8e49-19eff7277f03"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-credits-date-range",
+      "name": "Date range",
+      "kind": "time",
+      "param": "time",
+      "multiple": false,
+      "default": null,
+      "tab": "TAB-Credits",
+      "charts": [
+        "01a40574-f302-4ef7-8e58-640d8e92d404",
+        "a97818ee-b9a1-44ee-b606-bb172bc78aa0",
+        "4144bb9f-aa05-4056-8364-85405144ea87",
+        "5114ef57-8d35-4072-9344-9a648be373b1",
+        "7446a5a9-9450-45a1-9eea-be5a9561a366"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-credits-granularity",
+      "name": "Granularity",
+      "kind": "select",
+      "param": "granularity",
+      "multiple": false,
+      "default": "month",
+      "tab": "TAB-Credits",
+      "charts": [
+        "01a40574-f302-4ef7-8e58-640d8e92d404",
+        "a97818ee-b9a1-44ee-b606-bb172bc78aa0",
+        "4144bb9f-aa05-4056-8364-85405144ea87",
+        "5114ef57-8d35-4072-9344-9a648be373b1"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-credits-metric",
+      "name": "Credits metric",
+      "kind": "select",
+      "param": "credits_metric",
+      "multiple": false,
+      "default": "Amount",
+      "tab": "TAB-Credits",
+      "charts": [
+        "01a40574-f302-4ef7-8e58-640d8e92d404",
+        "a97818ee-b9a1-44ee-b606-bb172bc78aa0",
+        "4144bb9f-aa05-4056-8364-85405144ea87",
+        "5114ef57-8d35-4072-9344-9a648be373b1"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-credits-currency",
+      "name": "Currency",
+      "kind": "select",
+      "param": "amount_currency",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-Credits",
+      "charts": [
+        "01a40574-f302-4ef7-8e58-640d8e92d404",
+        "a97818ee-b9a1-44ee-b606-bb172bc78aa0",
+        "4144bb9f-aa05-4056-8364-85405144ea87",
+        "5114ef57-8d35-4072-9344-9a648be373b1",
+        "7446a5a9-9450-45a1-9eea-be5a9561a366"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-credits-country",
+      "name": "Country",
+      "kind": "select",
+      "param": "customer_country",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-Credits",
+      "charts": [
+        "01a40574-f302-4ef7-8e58-640d8e92d404",
+        "4144bb9f-aa05-4056-8364-85405144ea87",
+        "5114ef57-8d35-4072-9344-9a648be373b1",
+        "7446a5a9-9450-45a1-9eea-be5a9561a366"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-credits-customers",
+      "name": "Customers",
+      "kind": "select",
+      "param": "customer_name",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-Credits",
+      "charts": [
+        "01a40574-f302-4ef7-8e58-640d8e92d404",
+        "4144bb9f-aa05-4056-8364-85405144ea87",
+        "5114ef57-8d35-4072-9344-9a648be373b1",
+        "7446a5a9-9450-45a1-9eea-be5a9561a366"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-credits-customer-type",
+      "name": "Customer type",
+      "kind": "select",
+      "param": "customer_type",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-Credits",
+      "charts": [
+        "01a40574-f302-4ef7-8e58-640d8e92d404",
+        "4144bb9f-aa05-4056-8364-85405144ea87",
+        "5114ef57-8d35-4072-9344-9a648be373b1",
+        "7446a5a9-9450-45a1-9eea-be5a9561a366"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-credits-plan-code",
+      "name": "Plan code",
+      "kind": "select",
+      "param": "plan_code",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-Credits",
+      "charts": [
+        "01a40574-f302-4ef7-8e58-640d8e92d404",
+        "4144bb9f-aa05-4056-8364-85405144ea87",
+        "5114ef57-8d35-4072-9344-9a648be373b1"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-credits-subscription-ext-id",
+      "name": "Subscription ext. ID",
+      "kind": "select",
+      "param": "external_subscription_id",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-Credits",
+      "charts": [
+        "01a40574-f302-4ef7-8e58-640d8e92d404",
+        "4144bb9f-aa05-4056-8364-85405144ea87",
+        "5114ef57-8d35-4072-9344-9a648be373b1"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-credits-customer-has-tax-id",
+      "name": "Customer has tax ID",
+      "kind": "select",
+      "param": "customer_has_tax_id",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-Credits",
+      "charts": [
+        "01a40574-f302-4ef7-8e58-640d8e92d404",
+        "4144bb9f-aa05-4056-8364-85405144ea87",
+        "5114ef57-8d35-4072-9344-9a648be373b1",
+        "7446a5a9-9450-45a1-9eea-be5a9561a366"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-cash-collection-date-range",
+      "name": "Date range",
+      "kind": "time",
+      "param": "time",
+      "multiple": false,
+      "default": null,
+      "tab": "TAB-CashCollection",
+      "charts": [
+        "9574954f-e033-4063-9dae-5b9897ae58fc",
+        "d1db3cf4-9e77-40ff-beb8-f77c3a166198",
+        "5dbbe3f2-7885-45ef-b129-f994e963ff7a",
+        "75762a59-17a2-41a5-b027-9696fc45e839",
+        "e3d232c7-52ff-47f7-86cb-70a5ac6a3010",
+        "04f1db3a-1c35-4981-bccd-cc73ba114af1",
+        "88a72a0b-91b8-45cd-9494-1decaf7bf507",
+        "46a60326-cc3c-409d-997b-996634503297"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-cash-collection-granularity",
+      "name": "Granularity",
+      "kind": "select",
+      "param": "granularity",
+      "multiple": false,
+      "default": "month",
+      "tab": "TAB-CashCollection",
+      "charts": [
+        "5dbbe3f2-7885-45ef-b129-f994e963ff7a",
+        "75762a59-17a2-41a5-b027-9696fc45e839",
+        "e3d232c7-52ff-47f7-86cb-70a5ac6a3010",
+        "46a60326-cc3c-409d-997b-996634503297"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-subscriptions-date-range",
+      "name": "Date range",
+      "kind": "time",
+      "param": "time",
+      "multiple": false,
+      "default": null,
+      "tab": "TAB-Subscriptions",
+      "charts": [
+        "19125ddf-df36-4f94-a037-bf9a5d095850",
+        "83812e95-42b9-4d73-86f3-5d9f17fd672d",
+        "6dbbe31d-ff87-4a85-b3c7-551dc618d0db",
+        "f419252a-29ad-4575-af4d-9d31afeb635a",
+        "e24224ba-becc-498a-8d85-a76a27bc88b3",
+        "7e9f6b18-c229-409c-8e6a-e7d630f36aff",
+        "c322552b-7899-4110-9dea-cd408e033a4f",
+        "ae1fb831-85e2-47dc-9922-50eb40157271",
+        "d3689109-1a71-4324-a62f-4220b1d97a46",
+        "8eb96a5f-fa2c-4cae-8137-156891720783",
+        "ebe81ac5-0a27-4812-89c0-52dda51e0e23",
+        "cbf709c1-b897-4d1d-9a99-5a6b63ecbf6a"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-subscriptions-currency",
+      "name": "Currency",
+      "kind": "select",
+      "param": "amount_currency",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-Subscriptions",
+      "charts": [
+        "19125ddf-df36-4f94-a037-bf9a5d095850",
+        "83812e95-42b9-4d73-86f3-5d9f17fd672d",
+        "6dbbe31d-ff87-4a85-b3c7-551dc618d0db",
+        "f419252a-29ad-4575-af4d-9d31afeb635a",
+        "e24224ba-becc-498a-8d85-a76a27bc88b3",
+        "7e9f6b18-c229-409c-8e6a-e7d630f36aff",
+        "c322552b-7899-4110-9dea-cd408e033a4f",
+        "ae1fb831-85e2-47dc-9922-50eb40157271",
+        "d3689109-1a71-4324-a62f-4220b1d97a46",
+        "8eb96a5f-fa2c-4cae-8137-156891720783",
+        "ebe81ac5-0a27-4812-89c0-52dda51e0e23",
+        "cbf709c1-b897-4d1d-9a99-5a6b63ecbf6a"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-subscriptions-country",
+      "name": "Country",
+      "kind": "select",
+      "param": "customer_country",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-Subscriptions",
+      "charts": [
+        "19125ddf-df36-4f94-a037-bf9a5d095850",
+        "83812e95-42b9-4d73-86f3-5d9f17fd672d",
+        "6dbbe31d-ff87-4a85-b3c7-551dc618d0db",
+        "f419252a-29ad-4575-af4d-9d31afeb635a",
+        "e24224ba-becc-498a-8d85-a76a27bc88b3",
+        "7e9f6b18-c229-409c-8e6a-e7d630f36aff",
+        "c322552b-7899-4110-9dea-cd408e033a4f",
+        "ae1fb831-85e2-47dc-9922-50eb40157271",
+        "d3689109-1a71-4324-a62f-4220b1d97a46",
+        "8eb96a5f-fa2c-4cae-8137-156891720783",
+        "ebe81ac5-0a27-4812-89c0-52dda51e0e23",
+        "cbf709c1-b897-4d1d-9a99-5a6b63ecbf6a"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-subscriptions-customers",
+      "name": "Customers",
+      "kind": "select",
+      "param": "customer_name",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-Subscriptions",
+      "charts": [
+        "19125ddf-df36-4f94-a037-bf9a5d095850",
+        "83812e95-42b9-4d73-86f3-5d9f17fd672d",
+        "6dbbe31d-ff87-4a85-b3c7-551dc618d0db",
+        "f419252a-29ad-4575-af4d-9d31afeb635a",
+        "e24224ba-becc-498a-8d85-a76a27bc88b3",
+        "7e9f6b18-c229-409c-8e6a-e7d630f36aff",
+        "c322552b-7899-4110-9dea-cd408e033a4f",
+        "ae1fb831-85e2-47dc-9922-50eb40157271",
+        "d3689109-1a71-4324-a62f-4220b1d97a46",
+        "8eb96a5f-fa2c-4cae-8137-156891720783",
+        "ebe81ac5-0a27-4812-89c0-52dda51e0e23",
+        "cbf709c1-b897-4d1d-9a99-5a6b63ecbf6a"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-subscriptions-customer-type",
+      "name": "Customer type",
+      "kind": "select",
+      "param": "customer_type",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-Subscriptions",
+      "charts": [
+        "19125ddf-df36-4f94-a037-bf9a5d095850",
+        "83812e95-42b9-4d73-86f3-5d9f17fd672d",
+        "6dbbe31d-ff87-4a85-b3c7-551dc618d0db",
+        "f419252a-29ad-4575-af4d-9d31afeb635a",
+        "e24224ba-becc-498a-8d85-a76a27bc88b3",
+        "7e9f6b18-c229-409c-8e6a-e7d630f36aff",
+        "c322552b-7899-4110-9dea-cd408e033a4f",
+        "ae1fb831-85e2-47dc-9922-50eb40157271",
+        "d3689109-1a71-4324-a62f-4220b1d97a46",
+        "8eb96a5f-fa2c-4cae-8137-156891720783",
+        "ebe81ac5-0a27-4812-89c0-52dda51e0e23",
+        "cbf709c1-b897-4d1d-9a99-5a6b63ecbf6a"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-subscriptions-plan-code",
+      "name": "Plan code",
+      "kind": "select",
+      "param": "plan_code",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-Subscriptions",
+      "charts": [
+        "19125ddf-df36-4f94-a037-bf9a5d095850",
+        "83812e95-42b9-4d73-86f3-5d9f17fd672d",
+        "6dbbe31d-ff87-4a85-b3c7-551dc618d0db",
+        "f419252a-29ad-4575-af4d-9d31afeb635a",
+        "e24224ba-becc-498a-8d85-a76a27bc88b3",
+        "7e9f6b18-c229-409c-8e6a-e7d630f36aff",
+        "c322552b-7899-4110-9dea-cd408e033a4f",
+        "ae1fb831-85e2-47dc-9922-50eb40157271",
+        "d3689109-1a71-4324-a62f-4220b1d97a46",
+        "8eb96a5f-fa2c-4cae-8137-156891720783",
+        "ebe81ac5-0a27-4812-89c0-52dda51e0e23",
+        "cbf709c1-b897-4d1d-9a99-5a6b63ecbf6a"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-subscriptions-external-id",
+      "name": "Subscription ext. ID",
+      "kind": "select",
+      "param": "external_subscription_id",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-Subscriptions",
+      "charts": [
+        "19125ddf-df36-4f94-a037-bf9a5d095850",
+        "83812e95-42b9-4d73-86f3-5d9f17fd672d",
+        "6dbbe31d-ff87-4a85-b3c7-551dc618d0db",
+        "f419252a-29ad-4575-af4d-9d31afeb635a",
+        "e24224ba-becc-498a-8d85-a76a27bc88b3",
+        "7e9f6b18-c229-409c-8e6a-e7d630f36aff",
+        "c322552b-7899-4110-9dea-cd408e033a4f",
+        "ae1fb831-85e2-47dc-9922-50eb40157271",
+        "d3689109-1a71-4324-a62f-4220b1d97a46",
+        "8eb96a5f-fa2c-4cae-8137-156891720783",
+        "ebe81ac5-0a27-4812-89c0-52dda51e0e23",
+        "cbf709c1-b897-4d1d-9a99-5a6b63ecbf6a"
+      ]
+    },
+    {
+      "id": "NATIVE_FILTER-subscriptions-tax-id",
+      "name": "Customer has tax ID",
+      "kind": "select",
+      "param": "customer_has_tax_id",
+      "multiple": true,
+      "default": null,
+      "tab": "TAB-Subscriptions",
+      "charts": [
+        "19125ddf-df36-4f94-a037-bf9a5d095850",
+        "83812e95-42b9-4d73-86f3-5d9f17fd672d",
+        "6dbbe31d-ff87-4a85-b3c7-551dc618d0db",
+        "f419252a-29ad-4575-af4d-9d31afeb635a",
+        "e24224ba-becc-498a-8d85-a76a27bc88b3",
+        "7e9f6b18-c229-409c-8e6a-e7d630f36aff",
+        "c322552b-7899-4110-9dea-cd408e033a4f",
+        "ae1fb831-85e2-47dc-9922-50eb40157271",
+        "d3689109-1a71-4324-a62f-4220b1d97a46",
+        "8eb96a5f-fa2c-4cae-8137-156891720783",
+        "ebe81ac5-0a27-4812-89c0-52dda51e0e23",
+        "cbf709c1-b897-4d1d-9a99-5a6b63ecbf6a"
+      ]
+    }
+  ]
+}
