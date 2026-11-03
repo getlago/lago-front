@@ -2,7 +2,7 @@ import { act, cleanup, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
-import { AddX402ConnectionDialogFragment } from '~/generated/graphql'
+import { AddX402ConnectionDialogFragment, LagoApiError } from '~/generated/graphql'
 import { AllTheProviders, render } from '~/test-utils'
 
 import { describeDuplicateRejectionRouting, rejectedUnder } from './duplicateRejectionHelpers'
@@ -65,7 +65,13 @@ describe('useAddX402Dialog duplicate code', () => {
   describeDuplicateRejectionRouting(
     'connection',
     async (detailsKey) => {
-      mockUpdateConnection.mockResolvedValue(rejectedUnder(detailsKey))
+      const [error] = rejectedUnder(detailsKey).errors
+
+      mockUpdateConnection.mockResolvedValue({
+        errors: [
+          { ...error, extensions: { ...error.extensions, code: LagoApiError.UnprocessableEntity } },
+        ],
+      })
 
       const { result } = renderHook(() => useAddX402Dialog(), { wrapper })
 

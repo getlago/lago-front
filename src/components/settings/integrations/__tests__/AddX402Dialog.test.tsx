@@ -368,6 +368,31 @@ describe('useAddX402Dialog', () => {
       })
     })
 
+    describe('WHEN the API refuses with a code the error link silences on every operation', () => {
+      it('THEN shows a toast', async () => {
+        mockUpdateConnection.mockResolvedValueOnce({
+          errors: [{ message: 'Forbidden', extensions: { code: 'forbidden' } }],
+        })
+        const dialogProps = await openDialog({ connection })
+
+        expect(await submit(dialogProps)).toBe('failure')
+        expect(addToast).toHaveBeenCalledWith({
+          message: 'Something went wrong',
+          severity: 'danger',
+        })
+      })
+    })
+
+    describe('WHEN the API fails without a code', () => {
+      it('THEN leaves the toast to the error link', async () => {
+        mockUpdateConnection.mockResolvedValueOnce({ errors: [{ message: 'Internal Error' }] })
+        const dialogProps = await openDialog({ connection })
+
+        expect(await submit(dialogProps)).toBe('failure')
+        expect(addToast).not.toHaveBeenCalled()
+      })
+    })
+
     describe('WHEN the API fails with a code the error link reports', () => {
       it('THEN leaves the toast to the error link', async () => {
         mockUpdateConnection.mockResolvedValueOnce({

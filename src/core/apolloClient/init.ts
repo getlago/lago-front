@@ -200,6 +200,8 @@ export const initializeApolloClient = async () => {
     if (graphQLErrors) {
       graphQLErrors.forEach((value) => {
         const { message, path, locations, extensions } = value
+        // graphql-ruby copies a refused `$input` into `extensions.value`, credentials included.
+        const redactedExtensions = redactSensitiveVariables(extensions) as typeof extensions
 
         const isUnauthorized = extensions && AUTH_ERRORS.includes(extensions?.code as LagoApiError)
 
@@ -239,20 +241,20 @@ export const initializeApolloClient = async () => {
             extra: {
               path,
               locations,
-              extensions,
+              extensions: redactedExtensions,
               // Stringify and truncate to avoid Sentry size limits (default maxValueLength is 250)
               errorDetails: (() => {
-                if (!extensions?.details) return undefined
+                if (!redactedExtensions?.details) return undefined
                 const MAX_LENGTH = 2000
 
                 const str =
-                  typeof extensions.details === 'object'
-                    ? JSON.stringify(extensions.details)
-                    : String(extensions.details)
+                  typeof redactedExtensions.details === 'object'
+                    ? JSON.stringify(redactedExtensions.details)
+                    : String(redactedExtensions.details)
 
                 return str.length > MAX_LENGTH ? `${str.slice(0, MAX_LENGTH)}...[truncated]` : str
               })(),
-              value,
+              value: redactSensitiveVariables(value),
               variables: redactSensitiveVariables(operation.variables),
               operationQuery: operation.query?.loc?.source?.body || 'unknown',
             },
@@ -268,7 +270,7 @@ export const initializeApolloClient = async () => {
         console.warn(
           `[GraphQL error]: Message: ${message}, Path: ${path}, Location: ${JSON.stringify(
             locations,
-          )}, Extensions: ${JSON.stringify(extensions)}`,
+          )}, Extensions: ${JSON.stringify(redactedExtensions)}`,
         )
       })
     }

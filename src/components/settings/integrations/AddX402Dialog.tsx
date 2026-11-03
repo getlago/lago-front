@@ -66,11 +66,14 @@ gql`
 
 const ADD_X402_FORM_ID = 'form-add-x402-integration'
 
-// The error link toasts and reports every code these mutations do not silence.
+// The error link silences `forbidden` on every operation, and these mutations add `unprocessable_entity`.
+const ERROR_LINK_SILENCED_CODES: unknown[] = [
+  LagoApiError.UnprocessableEntity,
+  LagoApiError.Forbidden,
+]
+
 const isSilencedByErrorLink = (errors: readonly GraphQLFormattedError[]): boolean =>
-  errors.every(
-    ({ extensions }) => !extensions?.code || extensions.code === LagoApiError.UnprocessableEntity,
-  )
+  errors.every(({ extensions }) => ERROR_LINK_SILENCED_CODES.includes(extensions?.code))
 
 type OpenAddX402DialogData = {
   connection?: AddX402ConnectionDialogFragment

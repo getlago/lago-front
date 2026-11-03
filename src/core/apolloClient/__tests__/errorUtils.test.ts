@@ -349,4 +349,24 @@ describe('redactSensitiveVariables', () => {
       expect(variables.input.apiKey).toBe('value')
     })
   })
+
+  describe('GIVEN a variable validation error that echoes the refused input', () => {
+    it('THEN masks the credentials inside its extensions', () => {
+      const error = {
+        message: 'Variable $input of type UpdateX402ConnectionInput! was provided invalid value',
+        extensions: {
+          value: { id: 'conn-id', cdpApiKeySecret: 'secret' },
+          problems: [{ path: ['networks'], explanation: 'Expected value to not be null' }],
+        },
+      }
+
+      expect(redactSensitiveVariables(error)).toEqual({
+        message: error.message,
+        extensions: {
+          value: { id: 'conn-id', cdpApiKeySecret: '[Filtered]' },
+          problems: error.extensions.problems,
+        },
+      })
+    })
+  })
 })
