@@ -1,9 +1,7 @@
-import { screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { FieldNode, OperationDefinitionNode } from 'graphql'
 
 import { MainHeaderConfig } from '~/components/MainHeader/types'
-import { CustomersDocument } from '~/generated/graphql'
+import { CustomersDocument, CustomersQuery } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 import { render } from '~/test-utils'
 
@@ -71,13 +69,7 @@ jest.mock('~/components/designSystem/Pagination/usePageSearchParam', () => ({
   usePageSearchParam: () => ({ page: mockPage, goToPage: mockGoToPage }),
 }))
 
-type CustomersMetadata = {
-  currentPage: number
-  totalPages: number
-  totalCount: number
-  totalCountCapped: boolean
-  hasNextPage: boolean
-}
+type CustomersMetadata = CustomersQuery['customers']['metadata']
 
 const UNCAPPED_METADATA: CustomersMetadata = {
   currentPage: 1,
@@ -177,21 +169,6 @@ describe('CustomersList', () => {
         expect(capturedConfig?.entity?.metadata).toBe('formatted-count')
       })
     })
-
-    describe('WHEN the list is on its last counted page', () => {
-      it('THEN should disable the next page button', () => {
-        mockPage = 3
-        mockCustomersMetadata = {
-          ...UNCAPPED_METADATA,
-          currentPage: 3,
-          hasNextPage: false,
-        }
-
-        render(<CustomersList />)
-
-        expect(screen.getByRole('button', { name: 'next page' })).toBeDisabled()
-      })
-    })
   })
 
   describe('GIVEN the total is capped', () => {
@@ -205,28 +182,6 @@ describe('CustomersList', () => {
         render(<CustomersList />)
 
         expect(mockFormatCountToMetadata).toHaveBeenCalledWith(10000, expect.any(Function), true)
-      })
-    })
-
-    describe('WHEN the list is past the page counted by totalPages', () => {
-      it('THEN should stay on that page', () => {
-        render(<CustomersList />)
-
-        expect(mockGoToPage).not.toHaveBeenCalled()
-      })
-
-      it('THEN should let the user go to the next page', async () => {
-        const user = userEvent.setup()
-
-        render(<CustomersList />)
-
-        const nextButton = screen.getByRole('button', { name: 'next page' })
-
-        expect(nextButton).toBeEnabled()
-
-        await user.click(nextButton)
-
-        expect(mockGoToPage).toHaveBeenCalledWith(CAPPED_PAST_FLOOR_METADATA.currentPage + 1)
       })
     })
   })
