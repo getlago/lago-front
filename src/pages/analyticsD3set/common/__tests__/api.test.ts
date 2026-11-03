@@ -74,7 +74,7 @@ describe('analytics d3set api', () => {
       'http://localhost:3300/api/dashboard',
     )
     expect(buildChartEventsUrl('http://a.test', 'id/1')).toBe(
-      'http://a.test/api/charts/id%2F1/events',
+      'http://a.test/api/charts/id%2F1/stream',
     )
   })
 

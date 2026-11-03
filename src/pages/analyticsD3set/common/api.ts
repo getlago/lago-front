@@ -25,8 +25,9 @@ export const getAnalyticsHeaders = (
 export const buildAnalyticsUrl = (baseUrl: string, path: string): string =>
   `${baseUrl.replace(/\/+$/, '')}/api${path}`
 
+// `stream`, not `events`: ad blockers block `/event` URLs on an `analytics.` host (EasyPrivacy).
 export const buildChartEventsUrl = (baseUrl: string, chartId: string): string =>
-  buildAnalyticsUrl(baseUrl, `/charts/${encodeURIComponent(chartId)}/events`)
+  buildAnalyticsUrl(baseUrl, `/charts/${encodeURIComponent(chartId)}/stream`)
 
 const appendParams = (url: string, params: AnalyticsParams): string => {
   const search = new URLSearchParams()

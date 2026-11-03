@@ -53,7 +53,7 @@ describe('useChartRows', () => {
 
     expect(sseSource).toHaveBeenCalledWith(
       expect.objectContaining({
-        url: 'http://a.test/api/charts/chart-1/events',
+        url: 'http://a.test/api/charts/chart-1/stream',
         headers: { authorization: 'Bearer token-1', 'x-lago-organization': 'org-1' },
         params: { amount_currency: ['EUR'], page: '0' },
         mode: 'replace',

@@ -255,7 +255,7 @@ const server = createServer((req, res) => {
     return json(res, 200, { values: VALUES[filter.param] || [] })
   }
 
-  const chartRoute = /^\/api\/charts\/([^/]+)\/(rows|events)$/.exec(url.pathname)
+  const chartRoute = /^\/api\/charts\/([^/]+)\/(rows|events|stream)$/.exec(url.pathname)
   const chart = chartRoute && dashboard.charts[decodeURIComponent(chartRoute[1])]
 
   if (!chart) return json(res, 404, { error: 'No such chart.' })
