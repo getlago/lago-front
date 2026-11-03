@@ -181,7 +181,8 @@ export const ComposableTableView = <TData extends RowData>({
             {headerGroup.headers.map((header) => {
               if (header.rowSpan === 0) return null
 
-              const isGroup = header.subHeaders.length > 0
+              // Not `header.subHeaders`: a header spanning both rows lists its own leaf there.
+              const isGroup = header.column.columns.length > 0
               const variants = getColumnVariants(header.column)
 
               return (

@@ -42,7 +42,13 @@ const COLUMNS = columnHelper.columns([
       }),
     ]),
   }),
-  columnHelper.display({ id: 'total', header: 'Total', cell: () => 'n/a', footer: 'n/a' }),
+  columnHelper.display({
+    id: 'total',
+    header: 'Total',
+    cell: () => 'n/a',
+    footer: 'n/a',
+    meta: { variant: 'numeric' },
+  }),
 ])
 
 type TestTableProps = Omit<ComposableTableViewProps<Usage>, 'table'> & {
@@ -105,6 +111,23 @@ describe('ComposableTableView', () => {
           'w-px',
           'min-w-24',
         )
+      })
+
+      it('THEN keeps the column meta on a header merged over both header rows', () => {
+        render(<TestTable />)
+
+        expect(screen.getByRole('columnheader', { name: 'Total' })).toHaveClass(
+          'text-right',
+          'w-px',
+          'min-w-24',
+        )
+      })
+
+      it('THEN aligns the headers merged over both header rows with the leaf headers', () => {
+        render(<TestTable />)
+
+        expect(screen.getByRole('columnheader', { name: 'Team' })).toHaveClass('align-bottom')
+        expect(screen.getByRole('columnheader', { name: 'Total' })).toHaveClass('align-bottom')
       })
 
       it('THEN makes pinned columns sticky on their side', () => {
