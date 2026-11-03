@@ -65,7 +65,7 @@ export const buildChartParams = (
     values,
   )
 
-  if (chart.viz === 'table') return { ...params, page: String(page ?? 0) }
+  if (chart.viz === 'table' && chart.pageSize) return { ...params, page: String(page ?? 0) }
 
   return params
 }

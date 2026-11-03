@@ -100,7 +100,7 @@ export const AnalyticsD3setChartCard = ({
   const spec = useMemo(() => buildChartSpec(chart, chartRows, context), [chart, chartRows, context])
   const headline = useMemo(() => computeHeadline(chart, rows), [chart, rows])
   const isTable = chart.viz === 'table' || chart.viz === 'pivot'
-  const pageSize = chart.viz === 'table' ? chart.pageSize : 0
+  const pageSize = chart.viz === 'table' ? (chart.pageSize ?? 0) : 0
 
   const renderBody = () => {
     if (status === 'error' && !rows.length) {
@@ -203,7 +203,7 @@ export const AnalyticsD3setChartCard = ({
       </div>
       {renderHeadline()}
       {renderBody()}
-      {chart.viz === 'table' && total !== null && total > pageSize && (
+      {chart.viz === 'table' && pageSize > 0 && total !== null && total > pageSize && (
         <Pagination
           currentPage={page}
           totalPages={Math.ceil(total / pageSize)}

@@ -58,6 +58,12 @@ describe('analytics d3set api', () => {
       })
       expect(buildChartParams(tableChart, filters, {})).toEqual({ page: '0' })
     })
+
+    it('GIVEN a table without server pages WHEN building the params THEN it sends no page', () => {
+      const unpaged = { ...tableChart, pageSize: undefined }
+
+      expect(buildChartParams(unpaged, filters, {}, 2)).toEqual({})
+    })
   })
 
   it('GIVEN a select filter WHEN building its options params THEN it sends the other filters', () => {

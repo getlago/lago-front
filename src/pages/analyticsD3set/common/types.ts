@@ -48,7 +48,8 @@ export type AnalyticsPivotChart = AnalyticsChartBase & {
 export type AnalyticsTableChart = AnalyticsChartBase & {
   viz: 'table'
   columns: AnalyticsColumn[]
-  pageSize: number
+  // Only for a table paged on the server; without it the rows are all the table's rows.
+  pageSize?: number
 }
 
 export type AnalyticsChart = AnalyticsXyChart | AnalyticsPivotChart | AnalyticsTableChart
