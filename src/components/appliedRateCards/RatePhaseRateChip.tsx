@@ -2,7 +2,7 @@ import { Chip } from '~/components/designSystem/Chip'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export const RATE_PHASE_OVERRIDDEN_RATE_CHIP_TEST_ID = 'rate-phase-overridden-rate-chip'
-export const RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID = 'rate-phase-active-rate-chip'
+export const RATE_PHASE_DEFAULT_RATE_CHIP_TEST_ID = 'rate-phase-default-rate-chip'
 export const RATE_PHASE_NO_RATE_CHIP_TEST_ID = 'rate-phase-no-rate-chip'
 
 export type RatePhaseRateChipStatus = 'active' | 'overridden' | 'none'
@@ -48,8 +48,8 @@ export const RatePhaseRateChip = ({
     <Chip
       className="border border-green-200 bg-green-100"
       color="success600"
-      label={translate('text_1784926682600lyzk75bbx48')}
-      data-test={RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID}
+      label={translate('text_1793722839481qfcw8vdwga2')}
+      data-test={RATE_PHASE_DEFAULT_RATE_CHIP_TEST_ID}
     />
   )
 }

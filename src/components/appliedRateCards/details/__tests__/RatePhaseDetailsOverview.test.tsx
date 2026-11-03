@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { RateCardForRatePhaseFields } from '~/components/appliedRateCards/drawers/ratePhase/types'
 import { RATE_PHASE_DETAILS_OVERRIDDEN_TEST_ID } from '~/components/appliedRateCards/RatePhaseDetailItem'
 import {
-  RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID,
+  RATE_PHASE_DEFAULT_RATE_CHIP_TEST_ID,
   RATE_PHASE_OVERRIDDEN_RATE_CHIP_TEST_ID,
 } from '~/components/appliedRateCards/RatePhaseRateChip'
 import {
@@ -167,11 +167,11 @@ describe('RatePhaseDetailsOverview', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('GIVEN a phase on the active rate THEN shows "Active rate", the effective date with "See rate history", and no highlight', async () => {
+  it('GIVEN a phase on the active rate THEN shows "Default rate", the effective date with "See rate history", and no highlight', async () => {
     renderOverview({ phase: FINITE_PHASE })
 
-    expect(await screen.findByTestId(RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID)).toHaveTextContent(
-      'Active rate',
+    expect(await screen.findByTestId(RATE_PHASE_DEFAULT_RATE_CHIP_TEST_ID)).toHaveTextContent(
+      'Default rate',
     )
     expect(screen.getByText('Rate effective date')).toBeInTheDocument()
     expect(screen.getByTestId(RATE_PHASE_RATE_EFFECTIVE_DATE_TEST_ID)).toHaveTextContent(

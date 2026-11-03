@@ -620,7 +620,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     await userEvent.click(screen.getByTestId(RATE_PHASE_REVERT_ACTION_TEST_ID))
 
     // Both the reverted phase and the seeded default phase now run on the active rate.
-    await waitFor(() => expect(screen.getAllByText('Active rate')).toHaveLength(2))
+    await waitFor(() => expect(screen.getAllByText('Default rate')).toHaveLength(2))
     expect(screen.queryByText('Overridden')).not.toBeInTheDocument()
   })
 

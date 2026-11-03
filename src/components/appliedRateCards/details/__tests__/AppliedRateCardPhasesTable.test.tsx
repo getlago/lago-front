@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { RateCardForRatePhaseFields } from '~/components/appliedRateCards/drawers/ratePhase/types'
 import { RATE_PHASE_DURATION_CHIP_TEST_ID } from '~/components/appliedRateCards/RatePhaseDurationChip'
 import {
-  RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID,
+  RATE_PHASE_DEFAULT_RATE_CHIP_TEST_ID,
   RATE_PHASE_NO_RATE_CHIP_TEST_ID,
   RATE_PHASE_OVERRIDDEN_RATE_CHIP_TEST_ID,
 } from '~/components/appliedRateCards/RatePhaseRateChip'
@@ -158,7 +158,7 @@ describe('AppliedRateCardPhasesTable', () => {
     expect(within(foreverRow).getByTestId(RATE_PHASE_DURATION_CHIP_TEST_ID)).toHaveTextContent(
       /^Forever$/,
     )
-    expect(within(foreverRow).getByTestId(RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID)).toBeInTheDocument()
+    expect(within(foreverRow).getByTestId(RATE_PHASE_DEFAULT_RATE_CHIP_TEST_ID)).toBeInTheDocument()
   })
 
   it('GIVEN a card without active rate and a phase without override THEN the rate cell shows the no-rate chip', async () => {
@@ -170,7 +170,7 @@ describe('AppliedRateCardPhasesTable', () => {
     const rateCell = await screen.findByTestId(APPLIED_RATE_CARD_PHASE_RATE_EMPTY_TEST_ID)
 
     expect(within(rateCell).getByTestId(RATE_PHASE_NO_RATE_CHIP_TEST_ID)).toBeInTheDocument()
-    expect(screen.queryByTestId(RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID)).not.toBeInTheDocument()
+    expect(screen.queryByTestId(RATE_PHASE_DEFAULT_RATE_CHIP_TEST_ID)).not.toBeInTheDocument()
     expect(screen.queryByTestId(RATE_PHASE_OVERRIDDEN_RATE_CHIP_TEST_ID)).not.toBeInTheDocument()
   })
 

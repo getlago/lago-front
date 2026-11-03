@@ -121,7 +121,7 @@ describe('RatePhaseTable', () => {
     expect(within(table).getByText('evergreen')).toBeInTheDocument()
     expect(within(table).getByText('Forever')).toBeInTheDocument()
     expect(within(table).getByText('Overridden')).toBeInTheDocument()
-    expect(within(table).getByText('Active rate')).toBeInTheDocument()
+    expect(within(table).getByText('Default rate')).toBeInTheDocument()
   })
 
   it('GIVEN a collapsed row WHEN its caret is clicked THEN its details panel toggles', async () => {

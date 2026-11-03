@@ -5,7 +5,7 @@ import { render } from '~/test-utils'
 
 import { RATE_PHASE_DURATION_CHIP_TEST_ID, RatePhaseDurationChip } from '../RatePhaseDurationChip'
 import {
-  RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID,
+  RATE_PHASE_DEFAULT_RATE_CHIP_TEST_ID,
   RATE_PHASE_NO_RATE_CHIP_TEST_ID,
   RATE_PHASE_OVERRIDDEN_RATE_CHIP_TEST_ID,
   RatePhaseRateChip,
@@ -16,13 +16,13 @@ describe('RatePhaseRateChip', () => {
     render(<RatePhaseRateChip status="overridden" />)
 
     expect(await screen.findByTestId(RATE_PHASE_OVERRIDDEN_RATE_CHIP_TEST_ID)).toBeInTheDocument()
-    expect(screen.queryByTestId(RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID)).not.toBeInTheDocument()
+    expect(screen.queryByTestId(RATE_PHASE_DEFAULT_RATE_CHIP_TEST_ID)).not.toBeInTheDocument()
   })
 
   it('GIVEN a phase on the active rate THEN renders the active rate chip only', async () => {
     render(<RatePhaseRateChip status="active" />)
 
-    expect(await screen.findByTestId(RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID)).toBeInTheDocument()
+    expect(await screen.findByTestId(RATE_PHASE_DEFAULT_RATE_CHIP_TEST_ID)).toBeInTheDocument()
     expect(screen.queryByTestId(RATE_PHASE_OVERRIDDEN_RATE_CHIP_TEST_ID)).not.toBeInTheDocument()
   })
 
@@ -30,7 +30,7 @@ describe('RatePhaseRateChip', () => {
     render(<RatePhaseRateChip status="none" />)
 
     expect(await screen.findByTestId(RATE_PHASE_NO_RATE_CHIP_TEST_ID)).toHaveTextContent('No rate')
-    expect(screen.queryByTestId(RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID)).not.toBeInTheDocument()
+    expect(screen.queryByTestId(RATE_PHASE_DEFAULT_RATE_CHIP_TEST_ID)).not.toBeInTheDocument()
     expect(screen.queryByTestId(RATE_PHASE_OVERRIDDEN_RATE_CHIP_TEST_ID)).not.toBeInTheDocument()
   })
 
@@ -50,11 +50,11 @@ describe('RatePhaseRateChip', () => {
     )
   })
 
-  it('GIVEN a phase on the active rate and the long label THEN reads "Active rate"', async () => {
+  it('GIVEN a phase on the active rate and the long label THEN reads "Default rate"', async () => {
     render(<RatePhaseRateChip status="active" labelLength="long" />)
 
-    expect(await screen.findByTestId(RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID)).toHaveTextContent(
-      'Active rate',
+    expect(await screen.findByTestId(RATE_PHASE_DEFAULT_RATE_CHIP_TEST_ID)).toHaveTextContent(
+      'Default rate',
     )
   })
 })
