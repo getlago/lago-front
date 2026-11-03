@@ -18,7 +18,7 @@ import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplica
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CREATE_PLAN_ROUTE, PLAN_DETAILS_ROUTE, useNavigate } from '~/core/router'
-import { DeletePlanDialogFragmentDoc, usePlansLazyQuery } from '~/generated/graphql'
+import { usePlansLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -32,7 +32,6 @@ gql`
     chargesCount
     activeSubscriptionsCount
     createdAt
-    ...DeletePlanDialog
   }
 
   query plans($page: Int, $limit: Int, $searchTerm: String) {
@@ -47,8 +46,6 @@ gql`
       }
     }
   }
-
-  ${DeletePlanDialogFragmentDoc}
 `
 
 const PlansList = () => {

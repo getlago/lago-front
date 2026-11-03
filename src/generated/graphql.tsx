@@ -14908,7 +14908,14 @@ export type CustomChargeFragment = { __typename?: 'Properties', customProperties
 
 export type CustomChargeForRateFragment = { __typename?: 'RateProperties', customProperties?: any | null };
 
-export type DeletePlanDialogFragment = { __typename?: 'Plan', id: string, name: string, draftInvoicesCount: number, activeSubscriptionsCount: number };
+export type DeletePlanDialogFragment = { __typename?: 'Plan', id: string, draftInvoicesCount: number, activeSubscriptionsCount: number };
+
+export type DeletePlanDialogCountsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeletePlanDialogCountsQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, draftInvoicesCount: number, activeSubscriptionsCount: number } | null };
 
 export type DeletePlanMutationVariables = Exact<{
   input: DestroyPlanInput;
@@ -16327,7 +16334,7 @@ export type UpdatePlanMutationVariables = Exact<{
 }>;
 
 
-export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan?: { __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, activeSubscriptionsCount: number, createdAt: any, draftInvoicesCount: number, description?: string | null, interval?: PlanInterval | null, payInAdvance?: boolean | null, invoiceDisplayName?: string | null, amountCents?: any | null, amountCurrency: CurrencyEnum, trialPeriod?: number | null, subscriptionsCount: number, billChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, billFixedChargesMonthly?: boolean | null, minimumCommitment?: { __typename?: 'Commitment', amountCents: any, commitmentType: CommitmentTypeEnum, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, code?: string | null, chargeModel: ChargeModelEnum, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, prorated: boolean, regroupPaidFees?: RegroupPaidFeesEnum | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, presentationGroupKeys?: Array<{ __typename?: 'PresentationGroupKey', value: string, options?: { __typename?: 'PresentationGroupKeyOptions', displayInInvoice?: boolean | null } | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', conversionRate: number, pricingUnit: { __typename?: 'PricingUnit', id: string, name: string, code: string, shortName: string } } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> | null, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, code?: string | null, chargeModel: FixedChargeChargeModelEnum, units: string, payInAdvance: boolean, prorated: boolean, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null }> | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null, metadata?: Array<{ __typename?: 'ItemMetadata', key: string, value?: string | null }> | null } | null };
+export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan?: { __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, activeSubscriptionsCount: number, createdAt: any, description?: string | null, interval?: PlanInterval | null, payInAdvance?: boolean | null, invoiceDisplayName?: string | null, amountCents?: any | null, amountCurrency: CurrencyEnum, trialPeriod?: number | null, subscriptionsCount: number, billChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, billFixedChargesMonthly?: boolean | null, minimumCommitment?: { __typename?: 'Commitment', amountCents: any, commitmentType: CommitmentTypeEnum, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, code?: string | null, chargeModel: ChargeModelEnum, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, prorated: boolean, regroupPaidFees?: RegroupPaidFeesEnum | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, presentationGroupKeys?: Array<{ __typename?: 'PresentationGroupKey', value: string, options?: { __typename?: 'PresentationGroupKeyOptions', displayInInvoice?: boolean | null } | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', conversionRate: number, pricingUnit: { __typename?: 'PricingUnit', id: string, name: string, code: string, shortName: string } } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> | null, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, code?: string | null, chargeModel: FixedChargeChargeModelEnum, units: string, payInAdvance: boolean, prorated: boolean, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null }> | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null, metadata?: Array<{ __typename?: 'ItemMetadata', key: string, value?: string | null }> | null } | null };
 
 export type GetSubscriptionForQuotePricingQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -17265,9 +17272,9 @@ export type GetPlanForDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetPlanForDetailsQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, draftInvoicesCount: number, activeSubscriptionsCount: number, parent?: { __typename?: 'Plan', id: string } | null } | null };
+export type GetPlanForDetailsQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, parent?: { __typename?: 'Plan', id: string } | null } | null };
 
-export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, activeSubscriptionsCount: number, createdAt: any, draftInvoicesCount: number };
+export type PlanItemFragment = { __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, activeSubscriptionsCount: number, createdAt: any };
 
 export type PlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -17276,7 +17283,7 @@ export type PlansQueryVariables = Exact<{
 }>;
 
 
-export type PlansQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, activeSubscriptionsCount: number, createdAt: any, draftInvoicesCount: number }> } };
+export type PlansQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, activeSubscriptionsCount: number, createdAt: any }> } };
 
 export type SubscriptionForSubscriptionsListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingEntityId?: string | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, payInAdvance?: boolean | null, amountCurrency: CurrencyEnum, name: string, interval?: PlanInterval | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null };
 
@@ -21684,6 +21691,13 @@ export const FeeForCreateFeeDrawerFragmentDoc = gql`
   }
 }
     `;
+export const DeletePlanDialogFragmentDoc = gql`
+    fragment DeletePlanDialog on Plan {
+  id
+  draftInvoicesCount
+  activeSubscriptionsCount
+}
+    `;
 export const FixedChargeForPlanDetailsSidebarFragmentDoc = gql`
     fragment FixedChargeForPlanDetailsSidebar on FixedCharge {
   id
@@ -24510,14 +24524,6 @@ export const InvoiceForPaymentDetailsFragmentDoc = gql`
   paymentDisputeLostAt
 }
     `;
-export const DeletePlanDialogFragmentDoc = gql`
-    fragment DeletePlanDialog on Plan {
-  id
-  name
-  draftInvoicesCount
-  activeSubscriptionsCount
-}
-    `;
 export const PlanItemFragmentDoc = gql`
     fragment PlanItem on Plan {
   id
@@ -24526,9 +24532,8 @@ export const PlanItemFragmentDoc = gql`
   chargesCount
   activeSubscriptionsCount
   createdAt
-  ...DeletePlanDialog
 }
-    ${DeletePlanDialogFragmentDoc}`;
+    `;
 export const SubscriptionForSubscriptionsListFragmentDoc = gql`
     fragment SubscriptionForSubscriptionsList on Subscription {
   id
@@ -34836,6 +34841,49 @@ export function useDestroyPaymentMethodMutation(baseOptions?: Apollo.MutationHoo
 export type DestroyPaymentMethodMutationHookResult = ReturnType<typeof useDestroyPaymentMethodMutation>;
 export type DestroyPaymentMethodMutationResult = Apollo.MutationResult<DestroyPaymentMethodMutation>;
 export type DestroyPaymentMethodMutationOptions = Apollo.BaseMutationOptions<DestroyPaymentMethodMutation, DestroyPaymentMethodMutationVariables>;
+export const DeletePlanDialogCountsDocument = gql`
+    query deletePlanDialogCounts($id: ID!) {
+  plan(id: $id) {
+    ...DeletePlanDialog
+  }
+}
+    ${DeletePlanDialogFragmentDoc}`;
+
+/**
+ * __useDeletePlanDialogCountsQuery__
+ *
+ * To run a query within a React component, call `useDeletePlanDialogCountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDeletePlanDialogCountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDeletePlanDialogCountsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeletePlanDialogCountsQuery(baseOptions: Apollo.QueryHookOptions<DeletePlanDialogCountsQuery, DeletePlanDialogCountsQueryVariables> & ({ variables: DeletePlanDialogCountsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<DeletePlanDialogCountsQuery, DeletePlanDialogCountsQueryVariables>(DeletePlanDialogCountsDocument, options);
+      }
+export function useDeletePlanDialogCountsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<DeletePlanDialogCountsQuery, DeletePlanDialogCountsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<DeletePlanDialogCountsQuery, DeletePlanDialogCountsQueryVariables>(DeletePlanDialogCountsDocument, options);
+        }
+// @ts-ignore
+export function useDeletePlanDialogCountsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<DeletePlanDialogCountsQuery, DeletePlanDialogCountsQueryVariables>): Apollo.UseSuspenseQueryResult<DeletePlanDialogCountsQuery, DeletePlanDialogCountsQueryVariables>;
+export function useDeletePlanDialogCountsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<DeletePlanDialogCountsQuery, DeletePlanDialogCountsQueryVariables>): Apollo.UseSuspenseQueryResult<DeletePlanDialogCountsQuery | undefined, DeletePlanDialogCountsQueryVariables>;
+export function useDeletePlanDialogCountsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<DeletePlanDialogCountsQuery, DeletePlanDialogCountsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<DeletePlanDialogCountsQuery, DeletePlanDialogCountsQueryVariables>(DeletePlanDialogCountsDocument, options);
+        }
+export type DeletePlanDialogCountsQueryHookResult = ReturnType<typeof useDeletePlanDialogCountsQuery>;
+export type DeletePlanDialogCountsLazyQueryHookResult = ReturnType<typeof useDeletePlanDialogCountsLazyQuery>;
+export type DeletePlanDialogCountsSuspenseQueryHookResult = ReturnType<typeof useDeletePlanDialogCountsSuspenseQuery>;
+export type DeletePlanDialogCountsQueryResult = Apollo.QueryResult<DeletePlanDialogCountsQuery, DeletePlanDialogCountsQueryVariables>;
 export const DeletePlanDocument = gql`
     mutation deletePlan($input: DestroyPlanInput!) {
   destroyPlan(input: $input) {
@@ -40808,13 +40856,11 @@ export const UpdatePlanDocument = gql`
     mutation updatePlan($input: UpdatePlanInput!) {
   updatePlan(input: $input) {
     ...PlanItem
-    ...DeletePlanDialog
     ...EditPlan
     ...PlanDetailsV2
   }
 }
     ${PlanItemFragmentDoc}
-${DeletePlanDialogFragmentDoc}
 ${EditPlanFragmentDoc}
 ${PlanDetailsV2FragmentDoc}`;
 export type UpdatePlanMutationFn = Apollo.MutationFunction<UpdatePlanMutation, UpdatePlanMutationVariables>;
@@ -45127,10 +45173,9 @@ export const GetPlanForDetailsDocument = gql`
     parent {
       id
     }
-    ...DeletePlanDialog
   }
 }
-    ${DeletePlanDialogFragmentDoc}`;
+    `;
 
 /**
  * __useGetPlanForDetailsQuery__
