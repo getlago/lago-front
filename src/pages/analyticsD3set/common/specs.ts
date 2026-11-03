@@ -16,6 +16,8 @@ export const PIVOT_SUBROW_FIELD = '__subrow'
 export const PIVOT_COLUMN_FIELD = '__column'
 
 export const CHART_HEIGHT = 232
+/** Value axes: d3set's compact notation (370k, 1.23M, 4.5B), whatever the metric's format. */
+export const AXIS_FORMAT = 'short'
 /** Categories a bar chart shows at once: more would not leave room to read their labels. */
 export const CATEGORY_PAGE_SIZE = 10
 /** The label column of a horizontal bar chart: room for a plan or customer name. */
@@ -204,7 +206,9 @@ const xySpec = (chart: AnalyticsXyChart, rows: AnalyticsRow[]): ChartSpec => {
     x: chart.x.key,
     y: VALUE_FIELD,
     series: SERIES_FIELD,
-    format: axisFormat(chart.metrics[0]?.format),
+    // Tooltips: the exact value. The value axis: d3set's short notation (370k, 1.23M), as
+    // lago-front's native charts shorten theirs, so its labels fit the axis column.
+    format: cellFormat(chart.metrics[0]?.format) ?? axisFormat(chart.metrics[0]?.format),
     height: CHART_HEIGHT,
   }
 
@@ -214,7 +218,13 @@ const xySpec = (chart: AnalyticsXyChart, rows: AnalyticsRow[]): ChartSpec => {
       type: 'area',
       aggregate: 'sum',
       stacked: chart.stacked,
-      options: { ticks: 'edges', valueAxis: 'right', curve: 'linear', gradient: true },
+      options: {
+        ticks: 'edges',
+        valueAxis: 'right',
+        curve: 'linear',
+        gradient: true,
+        axisFormat: AXIS_FORMAT,
+      },
     }
   }
 
@@ -231,6 +241,7 @@ const xySpec = (chart: AnalyticsXyChart, rows: AnalyticsRow[]): ChartSpec => {
     stacked: chart.stacked,
     horizontal: chart.horizontal,
     options: {
+      axisFormat: AXIS_FORMAT,
       ...(chart.horizontal ? { labelWidth: HORIZONTAL_LABEL_WIDTH } : { valueAxis: 'right' }),
       ...(overTime ? { ticks: 'edges' } : {}),
       ...(keepOrder && chart.viz === 'bar' ? { categories: categories.join('|') } : {}),

@@ -46,7 +46,13 @@ describe('analytics d3set specs', () => {
         height: 232,
         aggregate: 'sum',
         stacked: false,
-        options: { ticks: 'edges', valueAxis: 'right', curve: 'linear', gradient: true },
+        options: {
+          ticks: 'edges',
+          valueAxis: 'right',
+          curve: 'linear',
+          gradient: true,
+          axisFormat: 'short',
+        },
       })
     })
 
@@ -76,8 +82,14 @@ describe('analytics d3set specs', () => {
         type: 'bar',
         stacked: true,
         horizontal: false,
-        format: '.3~s',
-        options: { valueAxis: 'right', ticks: 'edges', categories: 'd:2026-01|d:2026-02' },
+        // Tooltips exact; the value axis short.
+        format: ',.2~f',
+        options: {
+          axisFormat: 'short',
+          valueAxis: 'right',
+          ticks: 'edges',
+          categories: 'd:2026-01|d:2026-02',
+        },
       })
     })
 
@@ -105,6 +117,7 @@ describe('analytics d3set specs', () => {
       'Plan changes',
     ])
     expect(buildChartSpec(categoryBarChart, chartRows, context).options).toEqual({
+      axisFormat: 'short',
       valueAxis: 'right',
       categories: 'Mon|Tue',
     })
