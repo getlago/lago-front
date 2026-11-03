@@ -228,7 +228,7 @@ describe('RateCardRateDetailsOverview', () => {
 
           expect(
             screen.getByTestId(RATE_CARD_RATE_DETAILS_OVERVIEW_CONVERSION_RATE_TEST_ID),
-          ).toHaveTextContent('-')
+          ).toHaveTextContent(/^-$/)
         },
       )
     })

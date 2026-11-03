@@ -105,6 +105,7 @@ const RateCardRateDetailsOverview = ({
   const hasSpendingMinimum = rateCard.billingTiming === RateCardBillingTimingEnum.Arrears
 
   const spendingMinimum = formatSpendingMinimum(rate, rateCard.currency, pricingUnitShortName)
+  const conversionRate = rate.appliedPricingUnitConversionRate ?? 0
 
   return (
     <section className="flex flex-col gap-4">
@@ -172,12 +173,11 @@ const RateCardRateDetailsOverview = ({
             label: translate('text_1750411499858su5b7bbp5t9'),
             value: (
               <span data-test={RATE_CARD_RATE_DETAILS_OVERVIEW_CONVERSION_RATE_TEST_ID}>
-                {!!rate.appliedPricingUnitConversionRate &&
-                rate.appliedPricingUnitConversionRate > 0
+                {conversionRate > 0
                   ? translate('text_1750424999815sw5whlu1xj0', {
                       shortName: pricingUnitShortName ?? rateCard.appliedPricingUnitCode,
                       conversionRateAmount: formatConversionRateAmount(
-                        rate.appliedPricingUnitConversionRate,
+                        conversionRate,
                         rateCard.currency,
                       ),
                     })
