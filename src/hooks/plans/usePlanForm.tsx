@@ -34,7 +34,6 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { scrollToTop } from '~/core/utils/domUtils'
 import {
   CurrencyEnum,
-  DeletePlanDialogFragmentDoc,
   EditPlanFragment,
   EditPlanFragmentDoc,
   LagoApiError,
@@ -71,14 +70,12 @@ gql`
   mutation updatePlan($input: UpdatePlanInput!) {
     updatePlan(input: $input) {
       ...PlanItem
-      ...DeletePlanDialog
       ...EditPlan
       ...PlanDetailsV2
     }
   }
 
   ${PlanItemFragmentDoc}
-  ${DeletePlanDialogFragmentDoc}
   ${EditPlanFragmentDoc}
   ${PlanDetailsV2FragmentDoc}
 `
