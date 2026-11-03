@@ -20,8 +20,9 @@ export const CHART_HEIGHT = 232
 export const AXIS_FORMAT = 'short'
 /** Categories a bar chart shows at once: more would not leave room to read their labels. */
 export const CATEGORY_PAGE_SIZE = 10
-/** The label column of a horizontal bar chart: room for a plan or customer name. */
-export const HORIZONTAL_LABEL_WIDTH = 200
+/** The label column of a horizontal bar chart: room for a plan or customer name (the datasets cut
+ * them at 30 characters: about 220px of Inter 14px at most). */
+export const HORIZONTAL_LABEL_WIDTH = 224
 const LABEL_SEPARATOR = ' · '
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}/
 

@@ -131,12 +131,13 @@
   }
 }
 
-/* The legend always shows (d3set hides a legend of one series), on one line that scrolls sideways
+/* The legend always shows (d3set hides a legend of one series, with `display: none !important`
+   on `[hidden]`: this rule is more specific and important too), on one line that scrolls sideways
    when it is too long, so its height never changes. With the pager after it, it sits at the bottom
    of the card: cards of a row share one height, and changing pages moves nothing. */
 .analytics-d3set-card .d3s-legend,
 .analytics-d3set-card .d3s-legend[hidden] {
-  display: flex;
+  display: flex !important;
   flex-wrap: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
