@@ -37,15 +37,9 @@ export const ComposableTableTh = ({
   tone,
   shrink,
   className,
-  children,
   ...props
 }: ThProps): JSX.Element => (
-  <th
-    className={tw(getCellClassName({ pinned, align, tone, shrink }), 'align-bottom', className)}
-    {...props}
-  >
-    <div className="flex h-12 flex-col justify-center">{children}</div>
-  </th>
+  <th className={tw(getCellClassName({ pinned, align, tone, shrink }), className)} {...props} />
 )
 
 type TdProps = TdHTMLAttributes<HTMLTableCellElement> & ComposableTableCellVariants

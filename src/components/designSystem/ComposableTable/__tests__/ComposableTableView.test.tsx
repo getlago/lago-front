@@ -88,16 +88,23 @@ const getBodyRows = (): HTMLElement[] =>
 describe('ComposableTableView', () => {
   describe('GIVEN a table with a column group', () => {
     describe('WHEN it renders', () => {
-      it('THEN spans the group over its columns and merges the other headers over both header rows', () => {
+      it('THEN spans the group over its columns and keeps the other headers on the first header row', () => {
         render(<TestTable />)
+
+        const [groupRow, leafRow] = within(screen.getAllByRole('rowgroup')[0]).getAllByRole('row')
+        const leafHeaders = within(leafRow).getAllByRole('columnheader')
 
         expect(screen.getByRole('columnheader', { name: 'Billable metrics' })).toHaveAttribute(
           'colspan',
           '2',
         )
-        expect(screen.getByRole('columnheader', { name: 'Team' })).toHaveAttribute('rowspan', '2')
-        expect(screen.getByRole('columnheader', { name: 'Total' })).toHaveAttribute('rowspan', '2')
-        expect(screen.getAllByRole('columnheader')).toHaveLength(5)
+        expect(within(groupRow).getByRole('columnheader', { name: 'Team' })).toBeInTheDocument()
+        expect(within(groupRow).getByRole('columnheader', { name: 'Total' })).toBeInTheDocument()
+        expect(screen.queryAllByRole('columnheader', { name: '' })).toHaveLength(2)
+        expect(leafHeaders).toHaveLength(4)
+        expect(leafHeaders[0]).toBeEmptyDOMElement()
+        expect(leafHeaders[3]).toBeEmptyDOMElement()
+        expect(document.querySelectorAll('thead th[rowspan]')).toHaveLength(0)
       })
 
       it('THEN aligns the group header left and leaf headers from their column meta', () => {
@@ -113,7 +120,7 @@ describe('ComposableTableView', () => {
         )
       })
 
-      it('THEN keeps the column meta on a header merged over both header rows', () => {
+      it('THEN keeps the column meta on the header of a column beside the group', () => {
         render(<TestTable />)
 
         expect(screen.getByRole('columnheader', { name: 'Total' })).toHaveClass(
@@ -121,13 +128,6 @@ describe('ComposableTableView', () => {
           'w-px',
           'min-w-24',
         )
-      })
-
-      it('THEN aligns the headers merged over both header rows with the leaf headers', () => {
-        render(<TestTable />)
-
-        expect(screen.getByRole('columnheader', { name: 'Team' })).toHaveClass('align-bottom')
-        expect(screen.getByRole('columnheader', { name: 'Total' })).toHaveClass('align-bottom')
       })
 
       it('THEN makes pinned columns sticky on their side', () => {

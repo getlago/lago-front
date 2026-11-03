@@ -179,27 +179,26 @@ export const ComposableTableView = <TData extends RowData>({
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
-              if (header.rowSpan === 0) return null
-
-              // Not `header.subHeaders`: a header spanning both rows lists its own leaf there.
+              // Not `header.subHeaders`: a placeholder lists its own leaf there.
               const isGroup = header.column.columns.length > 0
+              const isLabelledByPlaceholder = header.rowSpan === 0
               const variants = getColumnVariants(header.column)
 
               return (
                 <ComposableTableTh
                   key={header.id}
                   colSpan={header.colSpan}
-                  rowSpan={header.rowSpan}
                   pinned={variants.pinned}
                   align={isGroup ? 'left' : variants.align}
                   shrink={!isGroup && variants.shrink}
                   className={isGroup ? undefined : variants.className}
                 >
-                  {renderText(
-                    renderTemplate(header.column.columnDef.header, header.getContext()),
-                    'captionHl',
-                    'grey600',
-                  )}
+                  {!isLabelledByPlaceholder &&
+                    renderText(
+                      renderTemplate(header.column.columnDef.header, header.getContext()),
+                      'captionHl',
+                      'grey600',
+                    )}
                 </ComposableTableTh>
               )
             })}
