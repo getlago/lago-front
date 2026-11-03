@@ -2,7 +2,7 @@ import { matchRoutes, RouteObject } from 'react-router'
 
 import { FeatureFlagEnum } from '~/generated/graphql'
 
-import { isRouteAvailable } from './isRouteAvailable'
+import { isRouteUnlocked, RouteGateOrganization } from './isRouteAvailable'
 import { stripLeadingSlash } from './makeRelative'
 
 import { routes } from '../index'
@@ -118,25 +118,30 @@ export const findOrganizationRoute = (path: string): RouteRegistryEntry | undefi
 export const isRouteEntryAvailable = (
   entry: RouteRegistryEntry,
   hasFeatureFlag: (flag: FeatureFlagEnum) => boolean,
+  organization?: RouteGateOrganization,
 ): boolean =>
-  [...entry.ancestors, entry.route].every((route) => isRouteAvailable(route, hasFeatureFlag))
+  [...entry.ancestors, entry.route].every((route) =>
+    isRouteUnlocked({ route, hasFeatureFlag, organization }),
+  )
 
 export const isOrganizationPathAvailable = (
   path: string,
   hasFeatureFlag: (flag: FeatureFlagEnum) => boolean,
+  organization?: RouteGateOrganization,
 ): boolean => {
   const entry = findOrganizationRoute(path)
 
-  return !!entry && isRouteEntryAvailable(entry, hasFeatureFlag)
+  return !!entry && isRouteEntryAvailable(entry, hasFeatureFlag, organization)
 }
 
 export const isOrganizationRouteAvailable = (
   pattern: string,
   hasFeatureFlag: (flag: FeatureFlagEnum) => boolean,
+  organization?: RouteGateOrganization,
 ): boolean => {
   const entry = getOrganizationRouteRegistry().find(
     ({ path }) => path === stripLeadingSlash(pattern),
   )
 
-  return !!entry && isRouteEntryAvailable(entry, hasFeatureFlag)
+  return !!entry && isRouteEntryAvailable(entry, hasFeatureFlag, organization)
 }

@@ -20,5 +20,6 @@ export interface CustomRouteObject extends Omit<RouteObject, 'children' | 'path'
   featureFlag?: FeatureFlagEnum
   premium?: boolean // requires a premium license
   hiddenWithFeatureFlag?: FeatureFlagEnum
+  requiresUsageGovernance?: boolean
   organizationCapability?: OrganizationCapability
 }

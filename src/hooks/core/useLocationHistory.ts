@@ -8,7 +8,7 @@ import {
   LOGIN_ROUTE,
   useNavigate,
 } from '~/core/router'
-import { isRouteAvailable, isRouteGatedByFeatureFlag } from '~/core/router/utils/isRouteAvailable'
+import { isRouteGated, isRouteUnlocked } from '~/core/router/utils/isRouteAvailable'
 import { stripOrgSlug } from '~/core/router/utils/stripOrgSlug'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { hasIframeParams } from '~/hooks/useIframeConfig'
@@ -130,15 +130,11 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
       return
     }
 
-    const isGatedByOrganization =
-      isRouteGatedByFeatureFlag(routeConfig) || !!routeConfig.organizationCapability
-
-    if (isGatedByOrganization && isWaitingForOrganization) return
+    if (isRouteGated(routeConfig) && isWaitingForOrganization) return
 
     if (
-      !isRouteAvailable(routeConfig, hasFeatureFlag) ||
-      (routeConfig.premium && !isPremium) ||
-      (routeConfig.organizationCapability && !organization?.[routeConfig.organizationCapability])
+      !isRouteUnlocked({ route: routeConfig, hasFeatureFlag, organization }) ||
+      (routeConfig.premium && !isPremium)
     ) {
       /**
        * In case of navigation to a route its feature flags, license or capabilities make unavailable

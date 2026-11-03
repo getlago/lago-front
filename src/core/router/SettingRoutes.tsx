@@ -262,6 +262,7 @@ export const settingRoutes: CustomRouteObject[] = [
         element: <GovernanceSettings />,
         permissions: ['usageAttributionTypesView'],
         featureFlag: FeatureFlagEnum.AccountTree,
+        requiresUsageGovernance: true,
       },
       {
         path: [GENERAL_SETTINGS_ROUTE],

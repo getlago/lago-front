@@ -19,6 +19,7 @@ const Home = () => {
   const {
     hasFeatureFlag,
     hasOrganizationPremiumAddon,
+    organization,
     loading: isOrganizationLoading,
   } = useOrganizationInfos()
   const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
@@ -49,6 +50,7 @@ const Home = () => {
       findViewPermissions,
       hasAccessToAnalyticsDashboardsFeature,
       hasFeatureFlag,
+      organization,
     })
 
     if (!target) return
@@ -68,6 +70,7 @@ const Home = () => {
     findViewPermissions,
     hasAccessToAnalyticsDashboardsFeature,
     hasFeatureFlag,
+    organization,
     navigate,
     location.state,
   ])

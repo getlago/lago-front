@@ -11,7 +11,7 @@ import { FiltersPanelItemTypeSwitch } from '~/components/Filters/graphql/Filters
 import { useFilters } from '~/components/Filters/graphql/useFilters'
 import { buildFiltersPanelValidationSchema } from '~/components/Filters/presentation/filtersPanelPopper/validationSchema'
 import {
-  AvailableFiltersEnum,
+  FilterKey,
   FiltersFormValues,
   mapFilterToPanelTranslationKey,
 } from '~/components/Filters/presentation/types'
@@ -37,11 +37,14 @@ export const FiltersPanelPopper = () => {
   const { translate } = useInternationalization()
   const {
     availableFilters,
+    dynamicFilters,
     initialFiltersFormValues,
     staticFiltersFormValues,
     applyFilters,
     buttonOpener,
     displayInDialog,
+    getDynamicFilter,
+    showStaticFiltersRemoveButton,
   } = useFilters()
 
   const listContainerElementRef = useRef<HTMLDivElement>(null)
@@ -50,8 +53,19 @@ export const FiltersPanelPopper = () => {
   const hasInitialFilters = initialFiltersFormValues.length > 0
 
   const validationSchema = useMemo(
-    () => buildFiltersPanelValidationSchema(hasInitialFilters),
-    [hasInitialFilters],
+    () => buildFiltersPanelValidationSchema(hasInitialFilters, dynamicFilters),
+    [hasInitialFilters, dynamicFilters],
+  )
+
+  const filterTypeOptions = useMemo<Array<{ label: string; value: FilterKey }>>(
+    () => [
+      ...availableFilters.map((filter) => ({
+        label: translate(mapFilterToPanelTranslationKey(filter)),
+        value: filter,
+      })),
+      ...(dynamicFilters ?? []).map(({ key, label }) => ({ label, value: key })),
+    ],
+    [availableFilters, dynamicFilters, translate],
   )
 
   const form = useAppForm({
@@ -129,14 +143,38 @@ export const FiltersPanelPopper = () => {
                 )
               }
 
+              // A static row cannot be removed: its trash resets it to its static value instead.
+              const getStaticValue = (
+                filter: FiltersFormValues['filters'][0],
+              ): string | undefined =>
+                staticFiltersFormValues.find(({ filterType }) => filterType === filter.filterType)
+                  ?.value
+
+              const isRemoveDisabled = (filter: FiltersFormValues['filters'][0]): boolean =>
+                filter.disabled ? filter.value === getStaticValue(filter) : filters.length === 1
+
+              const removeFilter = (
+                filter: FiltersFormValues['filters'][0],
+                filterIndex: number,
+              ): void => {
+                if (!filter.disabled) {
+                  filtersField.removeValue(filterIndex)
+                  return
+                }
+
+                updateFilter(filterIndex, (currentFilter) => ({
+                  ...currentFilter,
+                  value: getStaticValue(currentFilter),
+                }))
+              }
+
               // `canSubmit` only turns false once a validator has run, so an untouched panel would
               // offer Apply on an incomplete filter. Gate it on the schema instead.
               const isFilterSetApplicable = validationSchema.safeParse({ filters }).success
 
-              const comboboxFiltersData = availableFilters.map((filter) => ({
-                label: translate(mapFilterToPanelTranslationKey(filter)),
-                value: filter,
-                disabled: filters.some(({ filterType }) => filterType === filter),
+              const comboboxFiltersData = filterTypeOptions.map((option) => ({
+                ...option,
+                disabled: filters.some(({ filterType }) => filterType === option.value),
               }))
 
               return (
@@ -213,7 +251,9 @@ export const FiltersPanelPopper = () => {
                             onChange={(value) => {
                               updateFilter(filterIndex, (currentFilter) => ({
                                 ...currentFilter,
-                                filterType: value as AvailableFiltersEnum,
+                                filterType: filterTypeOptions.find(
+                                  (option) => option.value === value,
+                                )?.value,
                                 // Value needs to be reset when changing type
                                 value: undefined,
                               }))
@@ -222,6 +262,9 @@ export const FiltersPanelPopper = () => {
 
                           <FiltersPanelItemTypeSwitch
                             filterType={filter.filterType}
+                            dynamicFilter={
+                              filter.filterType ? getDynamicFilter(filter.filterType) : undefined
+                            }
                             value={filter.value}
                             setFilterValue={(value: string) => {
                               updateFilter(filterIndex, (currentFilter) => ({
@@ -233,7 +276,7 @@ export const FiltersPanelPopper = () => {
                         </div>
 
                         {/* Actions */}
-                        {!filter.disabled && (
+                        {(!filter.disabled || showStaticFiltersRemoveButton) && (
                           <>
                             <div className="block lg:hidden">
                               <Button
@@ -242,8 +285,8 @@ export const FiltersPanelPopper = () => {
                                 size="small"
                                 startIcon="trash"
                                 variant="quaternary"
-                                disabled={filters.length === 1}
-                                onClick={() => filtersField.removeValue(filterIndex)}
+                                disabled={isRemoveDisabled(filter)}
+                                onClick={() => removeFilter(filter, filterIndex)}
                               >
                                 {translate('text_66ab4ad87fc8510054f237c2')}
                               </Button>
@@ -252,14 +295,14 @@ export const FiltersPanelPopper = () => {
                               <Tooltip
                                 title={translate('text_63ea0f84f400488553caa786')}
                                 placement="top-end"
-                                disableHoverListener={filters.length === 1}
+                                disableHoverListener={isRemoveDisabled(filter)}
                               >
                                 <Button
                                   data-test={FILTERS_PANEL_REMOVE_FILTER_TEST_ID}
                                   icon="trash"
                                   variant="quaternary"
-                                  disabled={filters.length === 1}
-                                  onClick={() => filtersField.removeValue(filterIndex)}
+                                  disabled={isRemoveDisabled(filter)}
+                                  onClick={() => removeFilter(filter, filterIndex)}
                                 />
                               </Tooltip>
                             </div>
@@ -272,7 +315,7 @@ export const FiltersPanelPopper = () => {
                     <Button
                       data-test={FILTERS_PANEL_ADD_FILTER_TEST_ID}
                       startIcon="plus"
-                      disabled={filters.length === availableFilters.length}
+                      disabled={filters.length === filterTypeOptions.length}
                       onClick={() => {
                         filtersField.pushValue({})
 

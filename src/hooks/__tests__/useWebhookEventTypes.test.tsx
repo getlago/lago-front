@@ -1,7 +1,12 @@
 import { renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 
-import { EventCategoryEnum, EventTypeEnum, useEventTypesQuery } from '~/generated/graphql'
+import {
+  EventCategoryEnum,
+  EventTypeEnum,
+  EventTypesQuery,
+  useEventTypesQuery,
+} from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
 import { useWebhookEventTypes } from '../useWebhookEventTypes'
@@ -68,9 +73,39 @@ const TestWrapper = ({ children }: { children: ReactNode }) => (
 
 TestWrapper.displayName = 'TestWrapper'
 
+const productCatalogEventKeys = [
+  EventTypeEnum.ProductCategoryCreated,
+  EventTypeEnum.ProductCreated,
+  EventTypeEnum.RateCardRateDeleted,
+]
+
+const planEventKeys = [EventTypeEnum.PlanCreated, EventTypeEnum.PlanRateCardUpdated]
+
+const contractEventKeys = [
+  EventTypeEnum.ContractRateCardCreated,
+  EventTypeEnum.ContractStarted,
+  EventTypeEnum.ContractTerminated,
+]
+
+const toEventTypes = (
+  keys: EventTypeEnum[],
+  category: EventCategoryEnum,
+): EventTypesQuery['eventTypes'] =>
+  keys.map((key) => ({
+    key,
+    name: key,
+    description: `${key} event`,
+    category,
+    deprecated: false,
+  }))
+
 describe('useWebhookEventTypes', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.mocked(useEventTypesQuery).mockReturnValue({
+      data: mockEventTypesData,
+      loading: false,
+    } as ReturnType<typeof useEventTypesQuery>)
   })
 
   describe('hook return values', () => {
@@ -222,6 +257,47 @@ describe('useWebhookEventTypes', () => {
   })
 
   describe('groups structure', () => {
+    describe('GIVEN product catalog, plan and contract events', () => {
+      beforeEach(() => {
+        jest.mocked(useEventTypesQuery).mockReturnValue({
+          data: {
+            eventTypes: [
+              ...toEventTypes(productCatalogEventKeys, EventCategoryEnum.ProductCatalog),
+              ...toEventTypes(planEventKeys, EventCategoryEnum.Plans),
+              ...toEventTypes(contractEventKeys, EventCategoryEnum.Contracts),
+            ],
+          },
+          loading: false,
+        } as ReturnType<typeof useEventTypesQuery>)
+      })
+
+      describe('WHEN groups are generated', () => {
+        it('THEN should keep each event in its own category group', () => {
+          const { result } = renderHook(() => useWebhookEventTypes(), { wrapper: TestWrapper })
+
+          expect(
+            result.current.groups.map((group) => ({
+              id: group.id,
+              label: group.label,
+              keys: group.items.map((item) => item.id),
+            })),
+          ).toEqual([
+            {
+              id: EventCategoryEnum.Contracts,
+              label: 'Contracts',
+              keys: contractEventKeys,
+            },
+            { id: EventCategoryEnum.Plans, label: 'Plans', keys: planEventKeys },
+            {
+              id: EventCategoryEnum.ProductCatalog,
+              label: 'Product catalog',
+              keys: productCatalogEventKeys,
+            },
+          ])
+        })
+      })
+    })
+
     describe('GIVEN events from different categories', () => {
       describe('WHEN groups are generated', () => {
         it('THEN should sort groups alphabetically by category enum value', () => {

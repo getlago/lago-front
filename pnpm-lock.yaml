@@ -70,6 +70,9 @@ importers:
       '@tanstack/react-form':
         specifier: 1.33.0
         version: 1.33.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tanstack/react-table':
+        specifier: 9.3.1
+        version: 9.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-virtual':
         specifier: 3.14.22
         version: 3.14.22(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -345,8 +348,8 @@ importers:
         specifier: 30.5.2
         version: 30.5.2(@babel/core@7.29.7)
       baseline-browser-mapping:
-        specifier: 2.11.32
-        version: 2.11.32
+        specifier: 2.11.33
+        version: 2.11.33
       class-variance-authority:
         specifier: 0.7.1
         version: 0.7.1
@@ -3803,6 +3806,18 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  '@tanstack/react-store@0.11.2':
+    resolution: {integrity: sha512-oj5O5DmiMWE+ih+SioX2ayC1kbK7d3fpLx0B75fPJr9nY3zU+hoW010yr64qXsY/9fyiLVE2bn5mGNV3owm8RQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  '@tanstack/react-table@9.3.1':
+    resolution: {integrity: sha512-E6Ya5TnY6EaGyZYIUqig/29Lr/gJSAubQkLJFqiWkUl5nRCr0Xr9hvJot+NiRTtG+TzGxHTiqUW3bnLtQxlHug==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      react: '>=18'
+
   '@tanstack/react-virtual@3.14.22':
     resolution: {integrity: sha512-zNiB9IF3prySTfAUrj9tPHjD/lonBYkfxrPP4v4ITUx+qwHajJR5cY/xirjvwc+KWkur10GX3TpsbKh7JkD8Lw==}
     peerDependencies:
@@ -3811,6 +3826,13 @@ packages:
 
   '@tanstack/store@0.11.0':
     resolution: {integrity: sha512-WlzzCt3xi0G6pCAJu1U+2jiECwabETDpQDi3hfkFZvJii9AuZqEKbOiVarX1/bWhTNjU486yQtJCCasi/0q+Cw==}
+
+  '@tanstack/store@0.11.2':
+    resolution: {integrity: sha512-sJ4mjol8uQsHV0gOJzzjwXfh2Fwm+Sz0+8deqiTm4jGbMdjzNSW+xZCFm0kUa870uhd8yi+DpKnZb5Kc4apa0Q==}
+
+  '@tanstack/table-core@9.3.1':
+    resolution: {integrity: sha512-zQvlxSNi2qGM3L4jh85Z6hqMfdIR5qOfD9KHOU32nuKFJGN0RlJ7UvV1lsPb1fPVhpFYI0VP3jJGxLdLDpTKjQ==}
+    engines: {node: '>=20'}
 
   '@tanstack/virtual-core@3.19.7':
     resolution: {integrity: sha512-gxy5SvH0mFRJ0YujtrflB/1HAu9Wn1KGvL0bjZfQkYVVMsIpQiwcf1mR06/ViN4NjllUb4HNCjqE9FGwgTvMCQ==}
@@ -4806,8 +4828,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  baseline-browser-mapping@2.11.32:
-    resolution: {integrity: sha512-UvuxFU9P3hM29LrQdwu0cD6w6/+SFr+UlB9s/knI7+O2rK9xFxKUwSDWxGdbbqQ9/V7BJ5s0NI5nQAE4uJp3gQ==}
+  baseline-browser-mapping@2.11.33:
+    resolution: {integrity: sha512-yiVKDX+qCMRKBE084lXvq9EcwFUhKZ2nU8TK1EQQuOgPNR/lmbGxXOeDdlGUqC2Zz11Cs9rk1d/8NfgBmlkt0w==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -5832,8 +5854,8 @@ packages:
     resolution: {integrity: sha512-Y8CrO98EcXVCiYE4s5z0LTMbeYjKyd3MAEUJqxA7B8yGRlmdrG5UDqq4pVrUAfAu2tMFgpQESvBhBu9Xg1tpow==}
     engines: {node: '>=0.4.0'}
 
-  follow-redirects@1.16.1:
-    resolution: {integrity: sha512-FNvFGzoMLWmE6Yj9spb/zjd7yiNCHiAW9/Tg9CXrQ8wuu32HtlJOwWO11OJafl5FfY3DxTdQ0vj42zU1kvv5jg==}
+  follow-redirects@1.16.2:
+    resolution: {integrity: sha512-/kVP2U8z596Ia0gwFrwyIeo74ta5aVmSeU1FfAUMAmcEP5EP7zydmag3SLiN64NaRKef3lxsq7i/g7ltJQDGow==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -6955,8 +6977,8 @@ packages:
   markdown-it-task-lists@2.1.1:
     resolution: {integrity: sha512-TxFAc76Jnhb2OUu+n3yz9RMu4CwGfaT788br6HhEDlvWfdeJcLUsxk1Hgw2yJio0OXsxv7pyIPmvECY7bMbluA==}
 
-  markdown-it@14.3.1:
-    resolution: {integrity: sha512-4Ej49aYTDFIQ+uBkfX8GBvJGccoARxxPep+7aWTs55ozbjQJpW9M26Fe53vnGgvLeVzva/amzjQQaQu9w0vMhA==}
+  markdown-it@14.3.3:
+    resolution: {integrity: sha512-L//tDAkjTjJCU6pBUSBTgs3Kg4InVaZuUZog/b6V12UKhcDQ7S78877ibbCanRExwPuYP1CZD7Gd2dxSy1GXRg==}
     hasBin: true
 
   markdown-table@3.0.4:
@@ -12624,6 +12646,21 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       use-sync-external-store: 1.6.0(react@18.3.1)
 
+  '@tanstack/react-store@0.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@tanstack/store': 0.11.2
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      use-sync-external-store: 1.6.0(react@18.3.1)
+
+  '@tanstack/react-table@9.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@tanstack/react-store': 0.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tanstack/table-core': 9.3.1
+      react: 18.3.1
+    transitivePeerDependencies:
+      - react-dom
+
   '@tanstack/react-virtual@3.14.22(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@tanstack/virtual-core': 3.19.7
@@ -12631,6 +12668,12 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
 
   '@tanstack/store@0.11.0': {}
+
+  '@tanstack/store@0.11.2': {}
+
+  '@tanstack/table-core@9.3.1':
+    dependencies:
+      '@tanstack/store': 0.11.2
 
   '@tanstack/virtual-core@3.19.7': {}
 
@@ -13573,7 +13616,7 @@ snapshots:
 
   axios@1.20.0(debug@4.4.3):
     dependencies:
-      follow-redirects: 1.16.1(debug@4.4.3)
+      follow-redirects: 1.16.2(debug@4.4.3)
       form-data: 4.0.6
       https-proxy-agent: 5.0.1
       proxy-from-env: 2.1.0
@@ -13673,7 +13716,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  baseline-browser-mapping@2.11.32: {}
+  baseline-browser-mapping@2.11.33: {}
 
   bcrypt-pbkdf@1.0.2:
     dependencies:
@@ -13706,7 +13749,7 @@ snapshots:
 
   browserslist@4.29.1:
     dependencies:
-      baseline-browser-mapping: 2.11.32
+      baseline-browser-mapping: 2.11.33
       caniuse-lite: 1.0.30001812
       electron-to-chromium: 1.5.439
       node-releases: 2.0.57
@@ -13714,7 +13757,7 @@ snapshots:
 
   browserslist@4.29.3:
     dependencies:
-      baseline-browser-mapping: 2.11.32
+      baseline-browser-mapping: 2.11.33
       caniuse-lite: 1.0.30001814
       electron-to-chromium: 1.5.439
       node-releases: 2.0.57
@@ -14857,7 +14900,7 @@ snapshots:
 
   flow-parser@0.258.1: {}
 
-  follow-redirects@1.16.1(debug@4.4.3):
+  follow-redirects@1.16.2(debug@4.4.3):
     optionalDependencies:
       debug: 4.4.3(supports-color@8.1.1)
 
@@ -16233,7 +16276,7 @@ snapshots:
 
   markdown-it-task-lists@2.1.1: {}
 
-  markdown-it@14.3.1:
+  markdown-it@14.3.3:
     dependencies:
       argparse: 2.0.1
       entities: 4.5.0
@@ -17347,7 +17390,7 @@ snapshots:
   prosemirror-markdown@1.13.4:
     dependencies:
       '@types/markdown-it': 14.1.2
-      markdown-it: 14.3.1
+      markdown-it: 14.3.3
       prosemirror-model: 1.25.12
 
   prosemirror-model@1.25.12:
@@ -18211,7 +18254,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.32.0(@tiptap/pm@3.32.0)
       '@types/markdown-it': 13.0.9
-      markdown-it: 14.3.1
+      markdown-it: 14.3.3
       markdown-it-task-lists: 2.1.1
       prosemirror-markdown: 1.13.4
 
