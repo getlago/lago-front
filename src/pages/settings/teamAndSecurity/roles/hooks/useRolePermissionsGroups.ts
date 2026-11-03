@@ -1,18 +1,18 @@
 import { CheckboxGroup } from '~/components/form/GroupedCheckboxList'
+import { isUsageGovernanceEnabled } from '~/core/utils/usageGovernance'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { useGetPermissionGrouping } from './useGetPermissionGrouping'
 
-import { allPermissions, featureFlagGatedPermissions } from '../common/permissionsConst'
+import { allPermissions, usageGovernancePermissions } from '../common/permissionsConst'
 
 export const useRolePermissionsGroups = (): { groups: CheckboxGroup[] } => {
-  const { hasFeatureFlag } = useOrganizationInfos()
+  const { organization, hasFeatureFlag } = useOrganizationInfos()
+  const isUsageGovernanceAvailable = isUsageGovernanceEnabled({ organization, hasFeatureFlag })
 
-  const availablePermissions = allPermissions.filter((permission) => {
-    const requiredFeatureFlag = featureFlagGatedPermissions[permission]
-
-    return !requiredFeatureFlag || hasFeatureFlag(requiredFeatureFlag)
-  })
+  const availablePermissions = allPermissions.filter(
+    (permission) => isUsageGovernanceAvailable || !usageGovernancePermissions.includes(permission),
+  )
 
   const { permissionGrouping } = useGetPermissionGrouping(availablePermissions)
 

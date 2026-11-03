@@ -1,5 +1,9 @@
 import { buildFiltersPanelValidationSchema } from '~/components/Filters/presentation/filtersPanelPopper/validationSchema'
-import { AvailableFiltersEnum, FiltersFormValues } from '~/components/Filters/presentation/types'
+import {
+  AvailableFiltersEnum,
+  DynamicFilter,
+  FiltersFormValues,
+} from '~/components/Filters/presentation/types'
 
 const FROM = '2024-01-01T00:00:00.000Z'
 const TO = '2024-01-31T23:59:59.999Z'
@@ -34,6 +38,26 @@ describe('buildFiltersPanelValidationSchema', () => {
           isValid([{ filterType: AvailableFiltersEnum.externalId, value: 'cust-1' }, {}]),
         ).toBe(false)
       })
+    })
+  })
+
+  describe('GIVEN a real-time usage time range filter', () => {
+    it.each([
+      ['a preset', 'last_6h'],
+      ['a custom range within 31 days', '2024-01-01T00:00:00.000Z,2024-01-31T23:59:59.000Z'],
+    ])('THEN it accepts %s', (_, value) => {
+      expect(isValid([{ filterType: AvailableFiltersEnum.timeRange, value }])).toBe(true)
+    })
+
+    it('THEN it rejects a custom range the API would refuse', () => {
+      expect(
+        isValid([
+          {
+            filterType: AvailableFiltersEnum.timeRange,
+            value: '2024-01-01T00:00:00.000Z,2024-03-01T00:00:00.000Z',
+          },
+        ]),
+      ).toBe(false)
     })
   })
 
@@ -103,6 +127,43 @@ describe('buildFiltersPanelValidationSchema', () => {
             true,
           ),
         ).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN a dynamic filter row', () => {
+    const dynamicFilter: DynamicFilter = {
+      key: 'dynamic.team',
+      label: 'Team',
+      renderValueInput: () => null,
+      formatValue: (value) => value,
+      isValueValid: (value) => value !== 'invalid',
+    }
+
+    const isDynamicValid = (filters: FiltersFormValues['filters']): boolean =>
+      buildFiltersPanelValidationSchema(false, [dynamicFilter]).safeParse({ filters }).success
+
+    describe('WHEN its value passes its validator', () => {
+      it('THEN it accepts the row', () => {
+        expect(isDynamicValid([{ filterType: 'dynamic.team', value: 'eng' }])).toBe(true)
+      })
+    })
+
+    describe('WHEN its value fails its validator', () => {
+      it('THEN it rejects the row', () => {
+        expect(isDynamicValid([{ filterType: 'dynamic.team', value: 'invalid' }])).toBe(false)
+      })
+    })
+
+    describe('WHEN it has no value', () => {
+      it('THEN it rejects the row', () => {
+        expect(isDynamicValid([{ filterType: 'dynamic.team' }])).toBe(false)
+      })
+    })
+
+    describe('WHEN no definition matches the dynamic key', () => {
+      it('THEN it accepts any non empty value', () => {
+        expect(isValid([{ filterType: 'dynamic.unknown', value: 'invalid' }])).toBe(true)
       })
     })
   })

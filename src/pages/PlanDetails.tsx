@@ -20,12 +20,7 @@ import {
   PLANS_ROUTE,
   useNavigate,
 } from '~/core/router'
-import {
-  DeletePlanDialogFragment,
-  DeletePlanDialogFragmentDoc,
-  LagoApiError,
-  useGetPlanForDetailsQuery,
-} from '~/generated/graphql'
+import { LagoApiError, useGetPlanForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
@@ -40,11 +35,8 @@ gql`
       parent {
         id
       }
-      ...DeletePlanDialog
     }
   }
-
-  ${DeletePlanDialogFragmentDoc}
 `
 
 const PlanDetails = () => {
@@ -104,7 +96,7 @@ const PlanDetails = () => {
           hidden: !hasPermissions(['plansDelete']),
           onClick: (closePopper) => {
             openDeletePlanDialog({
-              plan: plan as DeletePlanDialogFragment,
+              plan: { id: plan?.id ?? '', name: plan?.name ?? '' },
               callback: () => {
                 navigate(PLANS_ROUTE)
               },

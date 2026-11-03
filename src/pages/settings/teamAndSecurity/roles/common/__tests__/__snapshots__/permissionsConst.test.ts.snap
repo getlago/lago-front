@@ -341,6 +341,7 @@ exports[`permissionsConst snapshot tests permissionGroupMapping structure matche
     "SubscriptionsView",
   ],
   "usageAttributionTypes": [
+    "AttributedUsageView",
     "UsageAttributionTypesCreate",
     "UsageAttributionTypesDelete",
     "UsageAttributionTypesUpdate",

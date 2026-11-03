@@ -54,3 +54,5 @@ export const CUSTOMER_INVOICES_FILTER_PREFIX = 'cin'
 export const CUSTOMER_PAYMENTS_FILTER_PREFIX = 'cpa'
 
 export const CUSTOMER_CREDIT_NOTES_FILTER_PREFIX = 'ccn'
+
+export const REALTIME_USAGE_FILTER_PREFIX = 'rtu'

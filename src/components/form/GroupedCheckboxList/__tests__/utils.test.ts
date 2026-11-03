@@ -1,7 +1,6 @@
 import { CheckboxGroup } from '../types'
 import {
   countEnabledItemsInGroup,
-  createEmptyValuesFromGroups,
   createGroupingMap,
   filterRowsBySearchTerm,
   getDataRows,
@@ -31,34 +30,6 @@ const mockGroups: CheckboxGroup[] = [
 ]
 
 describe('GroupedCheckboxList utils', () => {
-  describe('createEmptyValuesFromGroups', () => {
-    describe('GIVEN a list of checkbox groups', () => {
-      describe('WHEN creating empty values', () => {
-        it('THEN returns all items set to false', () => {
-          const result = createEmptyValuesFromGroups(mockGroups)
-
-          expect(result).toEqual({
-            'customer.create': false,
-            'customer.update': false,
-            'customer.delete': false,
-            'invoice.create': false,
-            'invoice.view': false,
-          })
-        })
-      })
-    })
-
-    describe('GIVEN an empty groups array', () => {
-      describe('WHEN creating empty values', () => {
-        it('THEN returns empty object', () => {
-          const result = createEmptyValuesFromGroups([])
-
-          expect(result).toEqual({})
-        })
-      })
-    })
-  })
-
   describe('createGroupingMap', () => {
     describe('GIVEN a list of checkbox groups', () => {
       describe('WHEN creating a grouping map', () => {

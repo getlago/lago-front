@@ -6,7 +6,7 @@ import {
   FILTERS_ACTIVE_FILTER_ITEM_TEST_ID,
 } from '~/components/Filters/presentation/ActiveFiltersList'
 import { FiltersProvider } from '~/components/Filters/presentation/context'
-import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
+import { AvailableFiltersEnum, DynamicFilter } from '~/components/Filters/presentation/types'
 import { AllTheProviders } from '~/test-utils'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -30,9 +30,16 @@ jest.mock('react-router', () => {
   }
 })
 
-const renderActiveFiltersList = (availableFilters: AvailableFiltersEnum[]): void => {
+const renderActiveFiltersList = (
+  availableFilters: AvailableFiltersEnum[],
+  dynamicFilters?: DynamicFilter[],
+): void => {
   render(
-    <FiltersProvider filtersNamePrefix="f" availableFilters={availableFilters}>
+    <FiltersProvider
+      filtersNamePrefix="f"
+      availableFilters={availableFilters}
+      dynamicFilters={dynamicFilters}
+    >
       <ActiveFiltersList />
     </FiltersProvider>,
     {
@@ -112,6 +119,38 @@ describe('ActiveFiltersList', () => {
         renderActiveFiltersList([AvailableFiltersEnum.externalId])
 
         expect(screen.getAllByTestId(FILTERS_ACTIVE_FILTER_ITEM_TEST_ID)).toHaveLength(1)
+      })
+    })
+  })
+
+  describe('GIVEN a dynamic filter in the URL', () => {
+    const dynamicFilter: DynamicFilter = {
+      key: 'dynamic.team',
+      label: 'Team',
+      renderValueInput: () => null,
+      formatValue: (value) => value.split(',').join(' & '),
+    }
+
+    describe('WHEN its definition is provided', () => {
+      it('THEN it renders a chip with its label and formatted value', () => {
+        mockSearchParams = new URLSearchParams({ 'f_dynamic.team': 'eng,data' })
+
+        renderActiveFiltersList([], [dynamicFilter])
+
+        const chips = screen.getAllByTestId(FILTERS_ACTIVE_FILTER_ITEM_TEST_ID)
+
+        expect(chips).toHaveLength(1)
+        expect(chips[0]).toHaveTextContent('Team: eng & data')
+      })
+    })
+
+    describe('WHEN its definition is not provided', () => {
+      it('THEN it renders no chip', () => {
+        mockSearchParams = new URLSearchParams({ 'f_dynamic.team': 'eng' })
+
+        renderActiveFiltersList([])
+
+        expect(screen.queryAllByTestId(FILTERS_ACTIVE_FILTER_ITEM_TEST_ID)).toHaveLength(0)
       })
     })
   })

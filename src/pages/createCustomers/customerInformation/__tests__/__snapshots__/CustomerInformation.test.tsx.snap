@@ -288,6 +288,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             aria-invalid="false"
             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="name"
+            maxlength="255"
             name="name"
             placeholder="Type a name"
             type="text"
@@ -341,6 +342,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               aria-invalid="false"
               class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
               id="firstname"
+              maxlength="255"
               name="firstname"
               placeholder="Type a first name"
               type="text"
@@ -391,6 +393,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               aria-invalid="false"
               class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
               id="lastname"
+              maxlength="255"
               name="lastname"
               placeholder="Type a last name"
               type="text"
@@ -889,6 +892,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             aria-invalid="false"
             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="name"
+            maxlength="255"
             name="name"
             placeholder="Type a name"
             type="text"
@@ -942,6 +946,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               aria-invalid="false"
               class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
               id="firstname"
+              maxlength="255"
               name="firstname"
               placeholder="Type a first name"
               type="text"
@@ -992,6 +997,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               aria-invalid="false"
               class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
               id="lastname"
+              maxlength="255"
               name="lastname"
               placeholder="Type a last name"
               type="text"
@@ -1491,6 +1497,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             aria-invalid="false"
             class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
             id="name"
+            maxlength="255"
             name="name"
             placeholder="Type a name"
             type="text"
@@ -1544,6 +1551,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               aria-invalid="false"
               class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
               id="firstname"
+              maxlength="255"
               name="firstname"
               placeholder="Type a first name"
               type="text"
@@ -1594,6 +1602,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               aria-invalid="false"
               class=MuiInputBase-input MuiOutlinedInput-input css-hash-MuiInputBase-input-MuiOutlinedInput-input
               id="lastname"
+              maxlength="255"
               name="lastname"
               placeholder="Type a last name"
               type="text"

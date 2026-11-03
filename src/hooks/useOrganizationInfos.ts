@@ -26,8 +26,10 @@ gql`
     logoUrl
     timezone
     defaultCurrency
+    eventsStore
     featureFlags
     premiumIntegrations
+    realtimeUsageEnabled
     canCreateBillingEntity
     authenticationMethods
     authenticatedMethod

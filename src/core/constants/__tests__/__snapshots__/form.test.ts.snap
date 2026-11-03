@@ -70,9 +70,5 @@ exports[`form constants snapshot tests translation mappings match snapshot 1`] =
     "select": "text_1752846323920ry5qxxvzrg7",
     "string": "text_1752846323920ueyo3sru7na",
   },
-  "getTargetedObjectTranslationKey": {
-    "companies": "text_1727281892403pmg1yza7x1e",
-    "contacts": "text_1729003289241opvevwwhr7n",
-  },
 }
 `;

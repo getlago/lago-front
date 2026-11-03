@@ -1,0 +1,459 @@
+import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { generatePath } from 'react-router'
+
+import { Button } from '~/components/designSystem/Button'
+import {
+  ComposableTableGroupHeader,
+  ComposableTableInlineError,
+  ComposableTableLoadMore,
+  ComposableTableRowTreeCell,
+  ComposableTableSkeletonCell,
+  ComposableTableView,
+  createComposableTableColumnHelper,
+  useComposableTable,
+} from '~/components/designSystem/ComposableTable'
+import { Typography } from '~/components/designSystem/Typography'
+import { ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
+
+const MOCK_DELAY_MS = 600
+
+const wait = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, MOCK_DELAY_MS))
+
+const VALUE_META = { variant: 'numeric' } as const
+
+const METRICS = [
+  { key: 'tokens', label: 'Tokens', base: 120_000 },
+  { key: 'seats', label: 'Seats', base: 42 },
+  { key: 'storage', label: 'Storage (GB)', base: 310 },
+  { key: 'requests', label: 'API requests', base: 8_400 },
+  { key: 'agents', label: 'Agent calls', base: 950 },
+  { key: 'images', label: 'Images', base: 1_800 },
+  { key: 'audio', label: 'Audio minutes', base: 640 },
+  { key: 'embeddings', label: 'Embeddings', base: 52_000 },
+  { key: 'searches', label: 'Searches', base: 7_300 },
+  { key: 'webhooks', label: 'Webhooks', base: 2_100 },
+  { key: 'exports', label: 'Exports', base: 85 },
+  { key: 'bandwidth', label: 'Bandwidth (GB)', base: 1_250 },
+  { key: 'compute', label: 'Compute hours', base: 430 },
+  { key: 'emails', label: 'Emails', base: 9_800 },
+  { key: 'sms', label: 'SMS', base: 1_150 },
+] as const
+
+type MetricKey = (typeof METRICS)[number]['key']
+type Usage = { id: string; team: string; metrics: Record<MetricKey, number> }
+
+const TEAMS = [
+  { id: 'rnd', team: 'R&D', share: 1 },
+  { id: 'sales', team: 'Sales', share: 0.15 },
+  { id: 'ops', team: 'Operations', share: 0.04 },
+]
+
+const USAGES: Usage[] = TEAMS.map(({ id, team, share }) => ({
+  id,
+  team,
+  metrics: Object.fromEntries(
+    METRICS.map(({ key, base }) => [key, Math.max(1, Math.round(base * share))]),
+  ) as Record<MetricKey, number>,
+}))
+
+const METRICS_PER_PAGE = 5
+
+const usageColumnHelper = createComposableTableColumnHelper<Usage>()
+
+const GroupedExample = (): JSX.Element => {
+  const [visibleCount, setVisibleCount] = useState(METRICS_PER_PAGE)
+  const [loadedCount, setLoadedCount] = useState(METRICS_PER_PAGE)
+  const isLoadingColumns = loadedCount < visibleCount
+  const visibleMetrics = METRICS.slice(0, visibleCount)
+  const loadedMetrics = METRICS.slice(0, loadedCount)
+
+  const showMoreColumns = async (): Promise<void> => {
+    const next = visibleCount + METRICS_PER_PAGE
+
+    setVisibleCount(next)
+    await wait()
+    setLoadedCount(next)
+  }
+
+  const columns = useMemo(() => {
+    const sum = (key: MetricKey): number =>
+      USAGES.reduce((total, usage) => total + usage.metrics[key], 0)
+
+    const renderValue = (index: number, value: number): ReactNode =>
+      index < loadedCount ? value : <ComposableTableSkeletonCell />
+
+    return usageColumnHelper.columns([
+      usageColumnHelper.accessor('team', { header: 'Team', footer: 'Total' }),
+      usageColumnHelper.group({
+        id: 'metrics',
+        header: () => (
+          <ComposableTableGroupHeader
+            label="Billable metrics"
+            action={
+              visibleCount < METRICS.length && (
+                <ComposableTableLoadMore
+                  label="Show more"
+                  isLoading={isLoadingColumns}
+                  onLoadMore={showMoreColumns}
+                />
+              )
+            }
+          />
+        ),
+        columns: visibleMetrics.map(({ key, label }, index) =>
+          usageColumnHelper.display({
+            id: key,
+            header: label,
+            meta: VALUE_META,
+            cell: ({ row }) => renderValue(index, row.original.metrics[key]),
+            footer: () => renderValue(index, sum(key)),
+          }),
+        ),
+      }),
+      usageColumnHelper.display({
+        id: 'total',
+        header: 'Total',
+        meta: VALUE_META,
+        cell: ({ row }) =>
+          loadedMetrics.reduce((total, { key }) => total + row.original.metrics[key], 0),
+        footer: () => loadedMetrics.reduce((total, { key }) => total + sum(key), 0),
+      }),
+    ])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visibleCount, loadedCount])
+
+  const table = useComposableTable({
+    data: USAGES,
+    columns,
+    getRowId: (row) => row.id,
+    initialState: { columnPinning: { start: ['team'], end: ['total'] } },
+  })
+
+  return <ComposableTableView table={table} hasFooter />
+}
+
+type TableState = 'loading' | 'empty' | 'error'
+
+const TABLE_STATES: TableState[] = ['loading', 'empty', 'error']
+
+const stateColumns = usageColumnHelper.columns([
+  usageColumnHelper.accessor('team', { header: 'Team' }),
+  usageColumnHelper.group({
+    id: 'metrics',
+    header: 'Billable metrics',
+    columns: METRICS.slice(0, METRICS_PER_PAGE).map(({ key, label }) =>
+      usageColumnHelper.display({
+        id: key,
+        header: label,
+        meta: VALUE_META,
+        cell: ({ row }) => row.original.metrics[key],
+      }),
+    ),
+  }),
+  usageColumnHelper.display({ id: 'total', header: 'Total', meta: VALUE_META }),
+])
+
+const StatesExample = (): JSX.Element => {
+  const [state, setState] = useState<TableState>('loading')
+
+  const table = useComposableTable({
+    data: [],
+    columns: stateColumns,
+    getRowId: (row) => row.id,
+    initialState: { columnPinning: { start: ['team'], end: ['total'] } },
+  })
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex gap-2">
+        {TABLE_STATES.map((tableState) => (
+          <Button
+            key={tableState}
+            size="small"
+            variant={state === tableState ? 'primary' : 'tertiary'}
+            onClick={() => setState(tableState)}
+          >
+            {tableState}
+          </Button>
+        ))}
+      </div>
+      <ComposableTableView
+        table={table}
+        isLoading={state === 'loading'}
+        hasError={state === 'error'}
+        placeholder={{
+          emptyState: { title: 'No usage yet', subtitle: 'Usage appears once events arrive.' },
+          errorState: { buttonTitle: 'Retry', buttonAction: () => setState('loading') },
+        }}
+      />
+    </div>
+  )
+}
+
+type TreeNode = { id: string; name: string; depth: number; units: number }
+type TreeRow =
+  | (TreeNode & { kind: 'data'; subRows: TreeRow[] })
+  | { kind: 'loadMore'; id: string; parentId: string }
+  | { kind: 'error'; id: string; parentId: string }
+
+type Children =
+  | { status: 'loading' }
+  | { status: 'error'; isExpanded: boolean }
+  | {
+      status: 'loaded'
+      nodes: TreeNode[]
+      page: number
+      isLoadingMore: boolean
+      isExpanded: boolean
+    }
+
+const MAX_DEPTH = 2
+const PAGE_SIZE = 3
+const TOTAL_PAGES = 2
+const LEVEL_NAMES = ['Department', 'Team', 'User']
+const ROOT_ID = 'root'
+const FAILING_NODE_ID = `${ROOT_ID}/3`
+
+const getDepth = (parentId: string): number => parentId.split('/').length - 1
+
+const fetchChildren = async (
+  parentId: string,
+  page: number,
+  shouldFail: boolean,
+): Promise<TreeNode[]> => {
+  await wait()
+
+  if (shouldFail) throw new Error('Mock failure')
+
+  const depth = getDepth(parentId)
+
+  return Array.from({ length: PAGE_SIZE }, (_, index) => {
+    const position = (page - 1) * PAGE_SIZE + index + 1
+
+    return {
+      id: `${parentId}/${position}`,
+      name: `${LEVEL_NAMES[depth]} ${position}`,
+      depth,
+      units: Math.round(1000 / (depth + 1) / position),
+    }
+  })
+}
+
+const treeColumnHelper = createComposableTableColumnHelper<TreeRow>()
+
+const TreeExample = (): JSX.Element => {
+  const [children, setChildren] = useState<Record<string, Children>>({})
+  const [failedOnce, setFailedOnce] = useState(false)
+
+  const loadPage = async (parentId: string, page: number): Promise<void> => {
+    const shouldFail = parentId === FAILING_NODE_ID && !failedOnce
+
+    setChildren((previous) => {
+      const current = previous[parentId]
+
+      if (page === 1 || current?.status !== 'loaded') {
+        return { ...previous, [parentId]: { status: 'loading' } }
+      }
+
+      return { ...previous, [parentId]: { ...current, isLoadingMore: true } }
+    })
+
+    try {
+      const nodes = await fetchChildren(parentId, page, shouldFail)
+
+      setChildren((previous) => {
+        const current = previous[parentId]
+        const loaded = page > 1 && current?.status === 'loaded' ? current.nodes : []
+
+        return {
+          ...previous,
+          [parentId]: {
+            status: 'loaded',
+            nodes: [...loaded, ...nodes],
+            page,
+            isLoadingMore: false,
+            isExpanded: true,
+          },
+        }
+      })
+    } catch {
+      setFailedOnce(true)
+      setChildren((previous) => ({
+        ...previous,
+        [parentId]: { status: 'error', isExpanded: true },
+      }))
+    }
+  }
+
+  useEffect(() => {
+    loadPage(ROOT_ID, 1)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const rows = useMemo(() => {
+    const buildRows = (parentId: string): TreeRow[] => {
+      const entry = children[parentId]
+
+      if (entry?.status === 'error') return [{ kind: 'error', id: `${parentId}-error`, parentId }]
+      if (entry?.status !== 'loaded') return []
+
+      const dataRows: TreeRow[] = entry.nodes.map((node) => ({
+        ...node,
+        kind: 'data',
+        subRows: buildRows(node.id),
+      }))
+
+      return entry.page < TOTAL_PAGES
+        ? [...dataRows, { kind: 'loadMore', id: `${parentId}-more`, parentId }]
+        : dataRows
+    }
+
+    return buildRows(ROOT_ID)
+  }, [children])
+
+  const expanded = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(children)
+          .filter(([, entry]) => entry.status !== 'loading' && entry.isExpanded)
+          .map(([id]) => [id, true]),
+      ),
+    [children],
+  )
+
+  const toggleNode = (id: string): void => {
+    const entry = children[id]
+
+    if (!entry) {
+      loadPage(id, 1)
+
+      return
+    }
+
+    if (entry.status === 'loading') return
+
+    setChildren((previous) => ({ ...previous, [id]: { ...entry, isExpanded: !entry.isExpanded } }))
+  }
+
+  const columns = useMemo(
+    () => [
+      treeColumnHelper.display({
+        id: 'name',
+        header: 'Entity',
+        cell: ({ row }) => {
+          const { original } = row
+
+          if (original.kind === 'error') {
+            return (
+              <ComposableTableRowTreeCell row={row}>
+                <ComposableTableInlineError
+                  label="Could not load this level."
+                  retryLabel="Retry"
+                  onRetry={() => loadPage(original.parentId, 1)}
+                />
+              </ComposableTableRowTreeCell>
+            )
+          }
+
+          if (original.kind === 'loadMore') {
+            const parent = children[original.parentId]
+
+            return (
+              <ComposableTableRowTreeCell row={row}>
+                <ComposableTableLoadMore
+                  label="Show more"
+                  isLoading={parent?.status === 'loaded' && parent.isLoadingMore}
+                  onLoadMore={() =>
+                    parent?.status === 'loaded' && loadPage(original.parentId, parent.page + 1)
+                  }
+                />
+              </ComposableTableRowTreeCell>
+            )
+          }
+
+          return (
+            <ComposableTableRowTreeCell
+              row={row}
+              toggle={{
+                label: original.name,
+                isLoading: children[original.id]?.status === 'loading',
+                onToggle: () => toggleNode(original.id),
+              }}
+            >
+              <Typography variant="body" color="grey700" noWrap>
+                {original.name}
+              </Typography>
+            </ComposableTableRowTreeCell>
+          )
+        },
+      }),
+      treeColumnHelper.display({
+        id: 'units',
+        header: 'Units',
+        meta: VALUE_META,
+        cell: ({ row }) => (row.original.kind === 'data' ? row.original.units : null),
+      }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [children],
+  )
+
+  const table = useComposableTable({
+    data: rows,
+    columns,
+    getRowId: (row) => row.id,
+    getSubRows: (row) => (row.kind === 'data' ? row.subRows : undefined),
+    getRowCanExpand: (row) => row.original.kind === 'data' && row.original.depth < MAX_DEPTH,
+    initialState: { columnPinning: { start: ['name'], end: [] } },
+    state: { expanded },
+  })
+
+  return <ComposableTableView table={table} isLoading={children[ROOT_ID]?.status !== 'loaded'} />
+}
+
+const EXAMPLES = [
+  {
+    title: 'Column groups, sticky columns and show more columns',
+    description:
+      'A group column renders a two-row header with an action. "Show more" adds columns whose cells show a skeleton until their data arrives.',
+    component: <GroupedExample />,
+  },
+  {
+    title: 'Table states',
+    description:
+      'Loading, empty and error on a table with a column group and pinned Team and Total columns. Placeholders keep the defaults and overrides of the DS `Table`.',
+    component: <StatesExample />,
+  },
+  {
+    title: 'Tree with lazy children, show more and errors',
+    description:
+      'Children load on expand and page per level. The expansion lives in the children cache and each toggle updates it through `onToggle`. "Department 3" fails on its first load: an error row under it retries that node only.',
+    component: <TreeExample />,
+  },
+]
+
+export const ComposableTableTest = (): JSX.Element => (
+  <div className="flex flex-col gap-12">
+    {EXAMPLES.map(({ title, description, component }) => (
+      <section key={title} className="flex flex-col gap-4">
+        <div>
+          <Typography variant="headline">{title}</Typography>
+          <Typography variant="caption" color="grey600">
+            {description}
+          </Typography>
+        </div>
+        {component}
+      </section>
+    ))}
+  </div>
+)
+
+export const composableTableTab = {
+  title: 'Composable Table',
+  link: generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'composable-table' }),
+  component: (
+    <div className="px-12 pb-20 pt-8">
+      <ComposableTableTest />
+    </div>
+  ),
+}

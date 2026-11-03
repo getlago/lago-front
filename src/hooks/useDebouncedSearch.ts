@@ -31,7 +31,7 @@ export const useDebouncedSearch: UseDebouncedSearch = (
   loading,
   { fetchOnMount = true } = {},
 ) => {
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(fetchOnMount || !!loading)
   const startLoading = useRef<DateTime | null>(null)
   const lastSearchTerm = useRef<string | undefined>(undefined)
   const [isSearchPending, setIsSearchPending] = useState(false)

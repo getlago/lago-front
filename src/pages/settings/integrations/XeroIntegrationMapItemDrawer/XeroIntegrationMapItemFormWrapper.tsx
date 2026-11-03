@@ -1,25 +1,55 @@
+import { useStore } from '@tanstack/react-form'
 import { useMemo } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { ComboBoxProps } from '~/components/form'
+import { BasicComboBoxData } from '~/components/form'
 import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
-import { stringifyOptionValue } from './stringifyOptionValue'
-import { useXeroIntegrationMappingCRUD } from './useXeroIntegrationMappingCRUD'
+import { extractOptionValue } from './extractOptionValue'
+import { toXeroOption } from './toXeroOption'
+import { useXeroIntegrationItemSearch } from './useXeroIntegrationItems'
 import { xeroMappingDefaultValues } from './validationSchema'
 
 type XeroIntegrationMapItemFormWrapperProps = {
   billingEntityKey: string
+  items: BasicComboBoxData[]
+  isLoading: boolean
   formType: MappingTypeEnum | MappableTypeEnum | undefined
   integrationId: string | undefined
+  onRefresh: () => void
 }
 
 const defaultProps: XeroIntegrationMapItemFormWrapperProps = {
   billingEntityKey: '',
+  items: [],
+  isLoading: false,
   formType: undefined,
   integrationId: undefined,
+  onRefresh: () => {},
+}
+
+// `ComboBox` clears its field when the selected option leaves `data`, so the mapping already
+// stored stays in the list even when a search, or the 1000-item cap, does not return it.
+const withSelectedOption = (
+  comboboxData: BasicComboBoxData[],
+  selectedValue: string | undefined,
+  isSearching: boolean,
+): BasicComboBoxData[] => {
+  if (!selectedValue || comboboxData.some(({ value }) => value === selectedValue)) {
+    return comboboxData
+  }
+
+  const { externalId, externalName, externalAccountCode } = extractOptionValue(selectedValue)
+
+  return [
+    ...comboboxData,
+    {
+      ...toXeroOption({ externalId: externalId ?? '', externalName, externalAccountCode }),
+      hidden: isSearching,
+    },
+  ]
 }
 
 export const XeroIntegrationMapItemFormWrapper = withForm({
@@ -28,56 +58,34 @@ export const XeroIntegrationMapItemFormWrapper = withForm({
   render: function XeroIntegrationMapItemFormWrapperRender({
     form,
     billingEntityKey,
+    items,
+    isLoading,
     formType,
     integrationId,
+    onRefresh,
   }) {
     const { translate } = useInternationalization()
-
     const {
-      getXeroIntegrationItems,
-      initialItemFetchLoading,
-      initialItemFetchData,
-      accountItemsLoading,
-      itemsLoading,
-      triggerAccountItemRefetch,
-      triggerItemRefetch,
-    } = useXeroIntegrationMappingCRUD(formType, integrationId)
+      searchResults,
+      isSearching,
+      isLoading: isSearchLoading,
+      search,
+    } = useXeroIntegrationItemSearch(formType, integrationId)
 
-    const isLoading = initialItemFetchLoading || itemsLoading || accountItemsLoading
+    const selectedValue = useStore(
+      form.store,
+      (state) => state.values[billingEntityKey]?.selectedElementValue,
+    )
 
-    const comboboxData = useMemo(() => {
-      return (initialItemFetchData?.integrationItems?.collection || []).map((item) => {
-        const { externalId, externalName, externalAccountCode } = item
+    const isBusy = isLoading || isSearchLoading
+    const comboboxData = useMemo(
+      () => withSelectedOption(isSearching ? searchResults : items, selectedValue, isSearching),
+      [isSearching, searchResults, items, selectedValue],
+    )
 
-        return {
-          label: `${externalName} (${externalAccountCode})`,
-          description: externalId,
-          value: stringifyOptionValue({
-            externalId,
-            externalName: externalName || '',
-            externalAccountCode: externalAccountCode || '',
-          }),
-        }
-      })
-    }, [initialItemFetchData?.integrationItems?.collection])
-
-    const isAccountContext = formType === MappingTypeEnum.Account
-
-    const searchQuery = !!integrationId
-      ? (getXeroIntegrationItems as unknown as ComboBoxProps['searchQuery'])
-      : undefined
-
+    const hasListedOption = comboboxData.some(({ hidden }) => !hidden)
     const helperText =
-      !isLoading && !comboboxData.length ? translate('text_6630ec823adac97d3bf0fb4b') : undefined
-
-    const handleRefresh = () => {
-      if (isAccountContext) {
-        triggerAccountItemRefetch()
-        return
-      }
-
-      triggerItemRefetch()
-    }
+      !isBusy && !hasListedOption ? translate('text_6630ec823adac97d3bf0fb4b') : undefined
 
     return (
       <div className="mb-8 flex flex-row gap-3">
@@ -86,11 +94,12 @@ export const XeroIntegrationMapItemFormWrapper = withForm({
             {(field) => (
               <field.ComboBoxField
                 data={comboboxData}
-                loading={isLoading}
+                loading={isBusy}
                 label={translate('text_6672ebb8b1b50be550eccb73')}
                 placeholder={translate('text_6630e51df0a194013daea622')}
                 helperText={helperText}
-                searchQuery={searchQuery}
+                searchQuery={search}
+                fetchOnMount={false}
                 PopperProps={{ displayInDialog: true }}
               />
             )}
@@ -100,9 +109,9 @@ export const XeroIntegrationMapItemFormWrapper = withForm({
           className="mt-8"
           icon="reload"
           variant="quaternary"
-          disabled={isLoading}
-          loading={isLoading}
-          onClick={handleRefresh}
+          disabled={isBusy}
+          loading={isBusy}
+          onClick={onRefresh}
         />
       </div>
     )

@@ -126,7 +126,7 @@ Per-developer, outside the repo, in `$LOOP_STATE_DIR/<ISSUE-ID>/`:
 |---|---|---|
 | `spec.md` | loop-spec | the operational spec the whole run is judged against, ticket included verbatim, every premise verified or marked |
 | `plan.md` | loop-build | the declared minimal diff: files, new files, new exports, comments kept (with category), deviations |
-| `state.md` | loop-build | layout, worktree path, branch, dev port, workspace + container when there is one |
+| `state.md` | loop-build | layout, worktree path, branch, dev port, workspace + container when there is one; before a standalone `/loop-review` the operator may add `## Excluded gate failures`, the only exclusion form it honours |
 | `review.md` | loop-review | current PASS/FAIL verdict, every issue tagged with the check that produced it |
 | `adversarial.md` | adversarial pass | verdict of the smallest-diff comparison, when the pass was triggered |
 | `review-history.md` | loop-run | every previous FAIL verdict — fuel for the escalating retry |
