@@ -117,6 +117,7 @@
   },
   "dependencies": {
     "@apollo/client": "3.14.1",
+    "@d3set/react": "file:vendor/d3set-react-0.1.0.tgz",
     "@ebay/nice-modal-react": "1.2.13",
     "@fontsource/ibm-plex-mono": "5.3.0",
     "@fontsource/inter": "5.3.0",
@@ -168,6 +169,7 @@
     "apollo-link-timeout": "4.0.0",
     "apollo-upload-client": "17.0.0",
     "apollo3-cache-persist": "0.15.0",
+    "d3set": "file:vendor/d3set-0.1.0.tgz",
     "decimal.js": "10.6.0",
     "formik": "2.4.9",
     "graphql": "16.14.2",

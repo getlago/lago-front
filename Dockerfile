@@ -34,6 +34,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/configs/package.json        ./packages/configs/
 COPY packages/design-system/package.json  ./packages/design-system/
+COPY vendor                               ./vendor/
 
 # --ignore-scripts: postinstall builds workspace sources not copied yet;
 # `pnpm build` (prebuild) does it in the next stage.
