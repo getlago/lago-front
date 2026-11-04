@@ -93,7 +93,7 @@ const RealtimeUsageBillableMetric = (): JSX.Element => {
   })
   const { data } = useHeldData(servedData, heldKeyOf(queryVariables), !!error)
 
-  useReportFetching(loading, reportFetching)
+  useReportFetching(loading, !!error, reportFetching)
 
   const report = data?.realtimeUsageBillableMetric
   const title = report?.billableMetricName || billableMetricCode

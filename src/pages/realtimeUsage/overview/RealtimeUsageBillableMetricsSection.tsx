@@ -94,7 +94,7 @@ export const RealtimeUsageBillableMetricsSection = ({
   })
   const { data, isHeld } = useHeldData(servedData, heldKeyOf(variables), !!error)
 
-  useReportFetching(loading)
+  useReportFetching(loading, !!error)
 
   const reports = data?.realtimeUsageBillableMetrics.collection || []
   const metadata = data?.realtimeUsageBillableMetrics.metadata
