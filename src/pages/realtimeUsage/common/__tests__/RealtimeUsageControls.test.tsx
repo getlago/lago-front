@@ -55,6 +55,12 @@ describe('useRealtimeUsageControls', () => {
     expect(result.current.autoRefreshSeconds).toBe(1)
   })
 
+  it.each(['', '%20'])('reads a blank auto-refresh value (%p) as the default', (value) => {
+    const { result } = renderControls(`?${AUTO_REFRESH_SEARCH_PARAM}=${value}`)
+
+    expect(result.current.autoRefreshSeconds).toBe(1)
+  })
+
   it('keeps auto-refresh in the URL, and drops it when back to the default', () => {
     const { result } = renderControls()
 
