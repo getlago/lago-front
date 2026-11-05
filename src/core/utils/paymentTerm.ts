@@ -7,10 +7,6 @@ import {
 } from '~/core/constants/paymentTerm'
 import { PaymentTermInput, PaymentTermTypeEnum } from '~/generated/graphql'
 
-/**
- * The shape shared by the API object and the API input — enough to compute a due date
- * and to render a label, without caring which of the two we were handed.
- */
 export type ResolvablePaymentTerm = {
   termType: PaymentTermTypeEnum
   days?: number | null
@@ -25,17 +21,11 @@ export type MaybePaymentTerm = ResolvablePaymentTerm | null | undefined
 export const displayedPaymentTerm = (term: ResolvablePaymentTerm): ResolvablePaymentTerm =>
   term.termType === PaymentTermTypeEnum.Net && !term.days ? DEFAULT_PAYMENT_TERM : term
 
-/**
- * `monthOffset` is optional on the API, which fills in the default server-side. Mirror
- * that here so a term read back before it was ever saved previews the same date.
- */
+// Mirrors the API's server-side default for an absent `monthOffset`.
 export const normalizedMonthOffset = (term: ResolvablePaymentTerm): number =>
   term.monthOffset ?? PAYMENT_TERM_DEFAULT_MONTH_OFFSET
 
-/**
- * Clamp the configured day to the target month so a day-31 term never spills into the
- * next month: day 31 in September is Sep 30, in February 2026 it is Feb 28.
- */
+// Clamps the day to the target month so a day-31 term never spills into the next one.
 const anchoredToDayOfMonth = (date: DateTime, dayOfMonth: number): DateTime =>
   date.set({ day: Math.min(dayOfMonth, date.daysInMonth ?? dayOfMonth) })
 
@@ -58,13 +48,8 @@ const dayOfMonthDueDate = (issuingDate: DateTime, term: ResolvablePaymentTerm): 
   return dueDate
 }
 
-/**
- * Mirrors `PaymentTerm#due_date_for` on the API. Plain calendar arithmetic: the timezone
- * is applied once upstream to derive the issuing date, never again here.
- *
- * Note that `netEndOfMonth` (US) and `daysEndOfMonth` (EU) take the same `days` and give
- * different dates — the order of operations is what distinguishes them.
- */
+// Mirrors `PaymentTerm#due_date_for` on the API; the timezone is applied upstream, not here.
+// `netEndOfMonth` (US) and `daysEndOfMonth` (EU) share `days` but differ in operation order.
 export const paymentTermDueDate = (
   issuingDate: DateTime,
   term: ResolvablePaymentTerm,
@@ -89,11 +74,7 @@ export const paymentTermDueDate = (
   }
 }
 
-/**
- * Build the mutation payload carrying only the fields the chosen type accepts. Sending
- * a field that doesn't belong to the type is a validation error on the API, so this is
- * the only place a `PaymentTermInput` should be assembled.
- */
+// The API rejects fields that don't belong to the type, so only the chosen type's are sent.
 export const buildPaymentTermInput = (term: ResolvablePaymentTerm): PaymentTermInput => {
   const fields = PAYMENT_TERM_FIELDS_BY_TYPE[term.termType] ?? []
   const input: PaymentTermInput = { termType: term.termType }
@@ -113,10 +94,7 @@ export const buildPaymentTermInput = (term: ResolvablePaymentTerm): PaymentTermI
   return input
 }
 
-/**
- * First level of the chain that carries a term wins — no merging. Returns whether the
- * term came from the level asked about or was inherited, so callers can say so.
- */
+// First level of the chain that carries a term wins, with no merging.
 export const resolvePaymentTerm = ({
   ownTerm,
   parentTerm,

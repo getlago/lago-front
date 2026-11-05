@@ -23,10 +23,7 @@ export const isMonthOffsetValid = (value: string): boolean =>
   value === '' ||
   isPositiveIntegerWithin(value, PAYMENT_TERM_MONTH_OFFSET_MIN, PAYMENT_TERM_MONTH_OFFSET_MAX)
 
-/**
- * Mirrors the API's discriminated-union validation: a type's own fields are required and
- * bounded, and nothing else is looked at.
- */
+// Mirrors the API's discriminated-union validation: only the chosen type's fields are checked.
 export const paymentTermFormSchema = z
   .object({
     termType: z.union([z.enum(PaymentTermTypeEnum), z.literal(PAYMENT_TERM_INHERIT)], {
