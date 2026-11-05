@@ -1,6 +1,6 @@
 import { FetchResult, gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -15,6 +15,7 @@ import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { setItemFromLS } from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
+import { getRecaptchaToken, loadRecaptcha } from '~/core/utils/recaptcha'
 import { PASSWORD_VALIDATION_ERRORS } from '~/formValidation/zodCustoms'
 import {
   LagoApiError,
@@ -81,6 +82,7 @@ const PASSWORD_ERRORS: Record<string, string> = {
 }
 
 const BANNER_ERRORS: Record<string, string> = {
+  [LagoApiError.CaptchaFailed]: 'text_1793903925179h1k5w55ih95',
   [LagoApiError.SelfServeDisabled]: 'text_1793898059309an560s3nkan',
   [LagoApiError.SignupDisabled]: 'text_1793898059309an560s3nkan',
   [LagoApiError.TooManyRequests]: 'text_1793898059309ltbe60gt6pd',
@@ -133,10 +135,14 @@ const SelfServeSignUp = (): JSX.Element => {
     onSubmit: async ({ value, formApi }) => {
       setBannerError(undefined)
 
-      const send = (): Promise<FetchResult<SelfServeSignUpMutation>> =>
+      const send = async (): Promise<FetchResult<SelfServeSignUpMutation>> =>
         signUp({
           variables: {
-            input: { email: value.email.trim(), password: value.password, captchaToken: null },
+            input: {
+              email: value.email.trim(),
+              password: value.password,
+              captchaToken: await getRecaptchaToken('signup'),
+            },
           },
         })
 
@@ -180,6 +186,10 @@ const SelfServeSignUp = (): JSX.Element => {
       }
     },
   })
+
+  useEffect(() => {
+    loadRecaptcha()
+  }, [])
 
   const password = useStore(form.store, (state) => state.values.password)
   const hasPasswordRuleError = useStore(form.store, (state) =>
