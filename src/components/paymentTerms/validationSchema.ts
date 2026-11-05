@@ -71,7 +71,7 @@ export const addPaymentTermIssues = (
   ctx: z.RefinementCtx,
   values: unknown,
   path: (string | number)[],
-) => {
+): void => {
   const parsed = paymentTermFormSchema.safeParse(values)
 
   if (parsed.success) return
