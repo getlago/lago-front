@@ -78,6 +78,9 @@ const mockedGetRecaptchaToken = jest.mocked(getRecaptchaToken)
 
 const TERMS_OF_SERVICE_URL = 'https://www.getlago.com/company/terms-of-service'
 const PRIVACY_POLICY_URL = 'https://www.getlago.com/company/privacy-policy'
+const GOOGLE_PRIVACY_POLICY_URL = 'https://policies.google.com/privacy'
+const GOOGLE_TERMS_URL = 'https://policies.google.com/terms'
+const RECAPTCHA_SITE_KEY = 'recaptcha-site-key'
 
 const PAGE_ORIGIN = window.location.origin
 const US_FRONT_URL = 'https://app.getlago.com/'
@@ -104,6 +107,9 @@ const TOO_MANY_ATTEMPTS_COPY = 'Too many attempts. Please wait a few minutes and
 const SIGN_UP_UNAVAILABLE_COPY = 'Sign-up is unavailable right now. Please reload the page.'
 const CAPTCHA_FAILED_COPY = "We couldn't confirm you're human. Please try again."
 const GENERIC_ERROR_COPY = 'Something went wrong on our side. Please try again.'
+const RECAPTCHA_NOTICE_COPY =
+  'This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.'
+const RECAPTCHA_NOTICE_START = /^This site is protected by reCAPTCHA/
 
 const SIGN_UP_SUCCESS = { data: { signUp: { signupSecret: SIGNUP_SECRET } } }
 const EMAIL_CHECK_VALID = { data: { signupEmailCheck: { code: null } } }
@@ -120,15 +126,23 @@ const buildSignUpError = (
 
 const LOCK_ERROR = buildSignUpError({ status: 422, code: LagoApiError.LockAcquisitionFailed })
 
+const getRealEnv = (): EnvGlobal =>
+  jest.requireActual<typeof import('~/core/apolloClient')>('~/core/apolloClient').envGlobalVar()
+
 const mockRegionFrontUrls = ({
   usFrontUrl,
   euFrontUrl,
 }: Pick<EnvGlobal, 'usFrontUrl' | 'euFrontUrl'>): void => {
-  const realEnv = jest
-    .requireActual<typeof import('~/core/apolloClient')>('~/core/apolloClient')
-    .envGlobalVar()
+  mockedEnvGlobalVar.mockReturnValue({ ...getRealEnv(), usFrontUrl, euFrontUrl })
+}
 
-  mockedEnvGlobalVar.mockReturnValue({ ...realEnv, usFrontUrl, euFrontUrl })
+const mockRecaptchaSiteKey = (recaptchaSiteKey: EnvGlobal['recaptchaSiteKey']): void => {
+  mockedEnvGlobalVar.mockReturnValue({
+    ...getRealEnv(),
+    usFrontUrl: '',
+    euFrontUrl: '',
+    recaptchaSiteKey,
+  })
 }
 
 // jsdom makes window.location.assign read-only, so the spy goes on the object it delegates to
@@ -816,6 +830,49 @@ describe('SelfServeSignUp', () => {
           GENERIC_ERROR_COPY,
         )
         expect(mockSignUp).toHaveBeenCalledTimes(2)
+      })
+    })
+  })
+
+  describe('GIVEN a reCAPTCHA site key is configured', () => {
+    beforeEach(() => {
+      mockRecaptchaSiteKey(RECAPTCHA_SITE_KEY)
+    })
+
+    describe('WHEN the form is shown', () => {
+      it('THEN should display the reCAPTCHA notice', () => {
+        render(<SelfServeSignUp />)
+
+        expect(screen.getByText(RECAPTCHA_NOTICE_START)).toHaveTextContent(RECAPTCHA_NOTICE_COPY)
+      })
+
+      it.each([
+        ['privacy policy', GOOGLE_PRIVACY_POLICY_URL],
+        ['terms of service', GOOGLE_TERMS_URL],
+      ])('THEN should link the notice to the Google %s in a new tab', (_, url) => {
+        render(<SelfServeSignUp />)
+
+        const links = getLinksTo(url)
+
+        expect(links).toHaveLength(1)
+        expect(links[0]).toHaveAttribute('target', '_blank')
+        expect(screen.getByText(RECAPTCHA_NOTICE_START)).toContainElement(links[0])
+      })
+    })
+  })
+
+  describe('GIVEN no reCAPTCHA site key is configured', () => {
+    beforeEach(() => {
+      mockRecaptchaSiteKey('')
+    })
+
+    describe('WHEN the form is shown', () => {
+      it('THEN should not display the reCAPTCHA notice nor its links', () => {
+        render(<SelfServeSignUp />)
+
+        expect(screen.queryByText(RECAPTCHA_NOTICE_START)).not.toBeInTheDocument()
+        expect(getLinksTo(GOOGLE_PRIVACY_POLICY_URL)).toHaveLength(0)
+        expect(getLinksTo(GOOGLE_TERMS_URL)).toHaveLength(0)
       })
     })
   })

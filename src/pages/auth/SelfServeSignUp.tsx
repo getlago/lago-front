@@ -114,7 +114,7 @@ const toOrigin = (url: string): string | undefined => {
 
 const SelfServeSignUp = (): JSX.Element => {
   const { translate } = useInternationalization()
-  const { usFrontUrl, euFrontUrl } = envGlobalVar()
+  const { usFrontUrl, euFrontUrl, recaptchaSiteKey } = envGlobalVar()
   const [sentToEmail, setSentToEmail] = useState<string>()
   const [bannerError, setBannerError] = useState<string>()
   const [emailCheckError, setEmailCheckError] = useState<string>()
@@ -357,6 +357,15 @@ const SelfServeSignUp = (): JSX.Element => {
               {translate('text_620bc4d4269a55014d493fb5')}
             </form.SubmitButton>
           </form.AppForm>
+
+          {!!recaptchaSiteKey && (
+            <Typography
+              className="text-center"
+              variant="caption"
+              color="grey600"
+              html={translate('text_179390753309316odlsgqxbw')}
+            />
+          )}
 
           <Typography
             className="text-center"
