@@ -1,4 +1,5 @@
 import * as Menu from '@radix-ui/react-dropdown-menu'
+import { Slottable } from '@radix-ui/react-slot'
 import { Check, ChevronRight, Minus } from 'lucide-react'
 import * as React from 'react'
 
@@ -31,6 +32,7 @@ const truncateItemText = (children: React.ReactNode): React.ReactNode => {
   }
 
   React.Children.forEach(children, (child) => {
+    if (child === null || child === undefined || typeof child === 'boolean') return
     if (typeof child === 'string' || typeof child === 'number') {
       text += child
       return
@@ -102,9 +104,9 @@ DropdownMenuItem.displayName = 'DropdownMenuItem'
 export const DropdownMenuSubTrigger = React.forwardRef<
   React.ElementRef<typeof Menu.SubTrigger>,
   React.ComponentPropsWithoutRef<typeof Menu.SubTrigger>
->(({ className, children, ...props }, ref) => (
-  <Menu.SubTrigger {...props} ref={ref} className={cn(itemClasses, className)}>
-    {truncateItemText(children)}
+>(({ className, children, asChild, ...props }, ref) => (
+  <Menu.SubTrigger {...props} asChild={asChild} ref={ref} className={cn(itemClasses, className)}>
+    {asChild ? <Slottable>{children}</Slottable> : truncateItemText(children)}
     <ChevronRight aria-hidden="true" className="ml-auto" />
   </Menu.SubTrigger>
 ))
@@ -113,9 +115,10 @@ DropdownMenuSubTrigger.displayName = 'DropdownMenuSubTrigger'
 export const DropdownMenuCheckboxItem = React.forwardRef<
   React.ElementRef<typeof Menu.CheckboxItem>,
   React.ComponentPropsWithoutRef<typeof Menu.CheckboxItem> & { closeOnSelect?: boolean }
->(({ className, children, checked, onSelect, closeOnSelect = false, ...props }, ref) => (
+>(({ className, children, asChild, checked, onSelect, closeOnSelect = false, ...props }, ref) => (
   <Menu.CheckboxItem
     {...props}
+    asChild={asChild}
     ref={ref}
     checked={checked}
     onSelect={(event) => {
@@ -124,7 +127,7 @@ export const DropdownMenuCheckboxItem = React.forwardRef<
     }}
     className={cn(itemClasses, className)}
   >
-    {truncateItemText(children)}
+    {asChild ? <Slottable>{children}</Slottable> : truncateItemText(children)}
     <span aria-hidden="true" className="ml-auto flex size-3.5 shrink-0 items-center justify-center">
       <Menu.ItemIndicator>{checked === 'indeterminate' ? <Minus /> : <Check />}</Menu.ItemIndicator>
     </span>
@@ -135,9 +138,10 @@ DropdownMenuCheckboxItem.displayName = 'DropdownMenuCheckboxItem'
 export const DropdownMenuRadioItem = React.forwardRef<
   React.ElementRef<typeof Menu.RadioItem>,
   React.ComponentPropsWithoutRef<typeof Menu.RadioItem> & { closeOnSelect?: boolean }
->(({ className, children, onSelect, closeOnSelect = false, ...props }, ref) => (
+>(({ className, children, asChild, onSelect, closeOnSelect = false, ...props }, ref) => (
   <Menu.RadioItem
     {...props}
+    asChild={asChild}
     ref={ref}
     onSelect={(event) => {
       onSelect?.(event)
@@ -145,7 +149,7 @@ export const DropdownMenuRadioItem = React.forwardRef<
     }}
     className={cn(itemClasses, className)}
   >
-    {truncateItemText(children)}
+    {asChild ? <Slottable>{children}</Slottable> : truncateItemText(children)}
     <span aria-hidden="true" className="ml-auto flex size-3.5 shrink-0 items-center justify-center">
       <Menu.ItemIndicator>
         <Check />

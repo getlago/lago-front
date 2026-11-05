@@ -86,7 +86,7 @@ export const TabsCounter = (
 ): JSX.Element => {
   const state = React.useContext(TabsTriggerContext)
 
-  return <NumericBadge {...props} {...state} />
+  return <NumericBadge {...props} {...state} data-slot="tabs-counter" />
 }
 
 export const TabsContent = React.forwardRef<

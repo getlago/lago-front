@@ -86,6 +86,74 @@ describe('Shadcn DropdownMenu', () => {
     await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument())
   })
 
+  it('keeps conditional text together and preserves zero', () => {
+    render(
+      <DropdownMenu defaultOpen>
+        <DropdownMenuTrigger>Actions</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem>
+            {'Items '}
+            {false}
+            {null}
+            {0}
+            {' remaining'}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>,
+    )
+    const item = screen.getByRole('menuitem', { name: 'Items 0 remaining' })
+
+    expect(item.children).toHaveLength(1)
+    expect(item.firstElementChild).toHaveTextContent('Items 0 remaining')
+  })
+
+  it('supports slotted selection items and submenu triggers with indicators', async () => {
+    const onCheckedChange = jest.fn()
+    const onValueChange = jest.fn()
+
+    render(
+      <DropdownMenu>
+        <DropdownMenuTrigger>Actions</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuCheckboxItem asChild checked onCheckedChange={onCheckedChange}>
+            <button>Archived</button>
+          </DropdownMenuCheckboxItem>
+          <DropdownMenuRadioGroup value="new" onValueChange={onValueChange}>
+            <DropdownMenuRadioItem asChild value="new">
+              <button>Newest</button>
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem asChild value="old">
+              <button>Oldest</button>
+            </DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger asChild>
+              <button>Folders</button>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem>Finance</DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        </DropdownMenuContent>
+      </DropdownMenu>,
+    )
+    const user = await openKeyboard()
+    const checkbox = screen.getByRole('menuitemcheckbox', { name: 'Archived' })
+    const radio = screen.getByRole('menuitemradio', { name: 'Newest' })
+    const trigger = screen.getByRole('menuitem', { name: 'Folders' })
+
+    for (const item of [checkbox, radio, trigger]) {
+      expect(item.tagName).toBe('BUTTON')
+      expect(item.querySelector('svg')).toBeInTheDocument()
+    }
+    await user.keyboard('{Enter}')
+    expect(onCheckedChange).toHaveBeenCalledWith(false)
+    await user.keyboard('{ArrowDown}{ArrowDown}{Enter}')
+    expect(onValueChange).toHaveBeenCalledWith('old')
+    await user.keyboard('{End}{ArrowRight}')
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Finance' })).toHaveFocus())
+  })
+
   it('opens from the keyboard, skips disabled items and restores focus on Escape', async () => {
     render(<Example />)
     const user = await openKeyboard()

@@ -1,3 +1,4 @@
+import _omit from 'lodash/omit'
 import { ChevronDown } from 'lucide-react'
 import * as React from 'react'
 
@@ -32,8 +33,8 @@ type OverflowTriggerProps = React.ComponentPropsWithoutRef<typeof TabsTrigger> &
 export const OverflowTabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsTrigger>,
   OverflowTriggerProps
->(({ textValue, children, ...props }, ref) => (
-  <TabsTrigger {...props} ref={ref} aria-label={props['aria-label'] ?? textValue}>
+>(({ children, ...props }, ref) => (
+  <TabsTrigger {..._omit(props, 'textValue')} ref={ref}>
     {children}
   </TabsTrigger>
 ))
@@ -197,9 +198,10 @@ export const OverflowTabsList = React.forwardRef<HTMLDivElement, OverflowTabsLis
                 {hidden.map((item) => (
                   <DropdownMenuItem
                     key={item.props.value}
+                    className="[&>[data-slot=tabs-counter]]:ml-auto [&>span:not([data-slot=tabs-counter])]:min-w-0 [&>span:not([data-slot=tabs-counter])]:flex-1 [&>span:not([data-slot=tabs-counter])]:text-left"
                     disabled={item.props.disabled}
                     textValue={item.props.textValue}
-                    aria-label={item.props.textValue}
+                    aria-label={item.props['aria-label']}
                     onSelect={() => choose(item.props.value)}
                   >
                     <TabsTriggerContext.Provider
@@ -223,7 +225,7 @@ export const OverflowTabsList = React.forwardRef<HTMLDivElement, OverflowTabsLis
             className="pointer-events-none invisible absolute left-0 top-0 flex w-max gap-1"
           >
             {items.map((item) => (
-              <span key={item.props.value} className={tabsTriggerClasses}>
+              <span key={item.props.value} className={cn(tabsTriggerClasses, item.props.className)}>
                 {item.props.children}
               </span>
             ))}

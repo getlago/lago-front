@@ -14,4 +14,4 @@ The badge uses `v2-text-number-small font-medium` (Inter Medium, 12px/16px, tabu
 
 It renders a span and forwards refs, HTML attributes and className. Selected and disabled are visual states, not independent interactions. The parent owns focus, disabled behavior and any live announcements. Use a meaningful accessible label when the surrounding text does not explain the count.
 
-No tone/color prop. Tabs will reuse this badge once Tabs implementation resumes. Preview all states in light and dark at `/design-system/shadcn-badge`.
+No tone/color prop. Tabs reuse this badge through TabsCounter. Preview all states in light and dark at `/design-system/shadcn-badge`.
