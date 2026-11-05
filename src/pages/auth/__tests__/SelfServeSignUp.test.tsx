@@ -157,6 +157,7 @@ describe('SelfServeSignUp', () => {
       ['the EU front URL is missing', US_FRONT_URL, ''],
       ['both front URLs are missing', '', ''],
       ['the US front URL has no scheme', 'app.getlago.com', EU_FRONT_URL],
+      ['the EU front URL is a host and port without scheme', US_FRONT_URL, 'localhost:3004'],
       ['the EU front URL is not a URL', US_FRONT_URL, 'not a url'],
     ])('THEN should not render the data region select when %s', (_, usFrontUrl, euFrontUrl) => {
       mockRegionFrontUrls({ usFrontUrl, euFrontUrl })

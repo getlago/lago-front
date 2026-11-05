@@ -9,7 +9,9 @@ import { SELF_SERVE_SIGNUP_DATA_REGION_TEST_ID } from './signUpTestIds'
 
 const toOrigin = (url: string): string | undefined => {
   try {
-    return new URL(url).origin
+    const { protocol, origin } = new URL(url)
+
+    return protocol === 'http:' || protocol === 'https:' ? origin : undefined
   } catch {
     return undefined
   }
