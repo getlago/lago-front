@@ -80,7 +80,6 @@ interface InvoicingSettingsDrawerContentExtraProps {
   showCustomSection: boolean
   /** Enabled for billing objects whose mutation payload supports invoice consolidation. */
   withInvoiceConsolidation: boolean
-  /** Enables the payment term section, labelled with the term the object would inherit. */
   paymentTermInheritedFrom?: PaymentTermInheritedFrom
 }
 

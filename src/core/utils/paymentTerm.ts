@@ -27,10 +27,7 @@ const ZERO_DAY_EQUIVALENTS: Partial<Record<PaymentTermTypeEnum, ResolvablePaymen
   [PaymentTermTypeEnum.DaysEndOfMonth]: { termType: PaymentTermTypeEnum.EndOfMonth },
 }
 
-/**
- * A zero-day term reads as the term it equals, the way the PDF labels it. The stored term is
- * untouched.
- */
+// Mirrors how the PDF labels a zero-day term; the stored term is untouched.
 export const displayedPaymentTerm = (term: ResolvablePaymentTerm): ResolvablePaymentTerm =>
   (!term.days && ZERO_DAY_EQUIVALENTS[term.termType]) || term
 

@@ -15,7 +15,6 @@ export type BillingEntityOption = {
   isDefault: boolean
   /** Whether the entity uses Lago EU Tax Management — drives the billing-entity tax alerts. */
   euTaxManagement: boolean
-  /** The entity's own payment term, for the inherit chain of the objects bound to it. */
   paymentTerm?: MaybePaymentTerm
 }
 
@@ -112,10 +111,7 @@ export const useBillingEntitiesOptions = ({
   }, [collection, loading, translate, includeInheritOption, inheritLabel])
 }
 
-/**
- * The entity a billing object is bound to through its `billingEntityId`, resolved from
- * the org's collection. Undefined while unbound, or until the collection has loaded.
- */
+// Undefined until the org's collection has loaded.
 export const useBillingEntityById = (
   billingEntityId: string | null | undefined,
 ): BillingEntityOption | undefined => {
