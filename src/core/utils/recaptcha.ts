@@ -11,7 +11,7 @@ declare global {
   }
 }
 
-type RecaptchaAction = 'signup'
+type RecaptchaAction = 'signup' | 'signup_resend'
 
 const RECAPTCHA_SCRIPT_URL = 'https://www.google.com/recaptcha/api.js'
 const RECAPTCHA_TIMEOUT_MS = 10_000
