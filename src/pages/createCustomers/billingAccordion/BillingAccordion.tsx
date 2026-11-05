@@ -68,14 +68,17 @@ const BillingAccordion = withForm({
         onToggle={setIsOpen}
         transitionProps={{
           onEntered: () => {
-            const erroredFields = Object.fromEntries([
-              ...Object.keys(form.state.errorMap.onDynamic ?? {}).map((name) => [name, true]),
+            const erroredFieldNames = [
+              ...Object.keys(form.state.errorMap.onDynamic ?? {}),
               ...Object.entries(form.state.fieldMeta)
                 .filter(([, meta]) => !!meta?.errorMap.onServer)
-                .map(([name]) => [name, true]),
-            ])
+                .map(([name]) => name),
+            ].filter(isBillingSectionField)
 
-            scrollToFirstInputError('create-customer', erroredFields)
+            scrollToFirstInputError(
+              'create-customer',
+              Object.fromEntries(erroredFieldNames.map((name) => [name, true])),
+            )
           },
         }}
         summary={

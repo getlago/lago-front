@@ -3,6 +3,7 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { Button } from '~/components/designSystem/Button'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import BillingAccordion from '~/pages/createCustomers/billingAccordion/BillingAccordion'
 import {
@@ -11,6 +12,10 @@ import {
   emptyCreateCustomerDefaultValues,
 } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
+
+jest.mock('~/core/form/scrollToFirstInputError', () => ({
+  scrollToFirstInputError: jest.fn(),
+}))
 
 // Create a test wrapper component that properly initializes the form
 const TestBillingAccordionWrapper = () => {
@@ -167,6 +172,67 @@ describe('BillingAccordion collapsed errors', () => {
       await submit()
 
       expect(screen.queryAllByLabelText(/address line 1/i)).toHaveLength(0)
+    })
+  })
+})
+
+describe('BillingAccordion scroll on open', () => {
+  beforeEach(() => {
+    jest.mocked(scrollToFirstInputError).mockClear()
+  })
+
+  describe('GIVEN a submit that failed only outside the billing section', () => {
+    describe('WHEN the user opens the accordion', () => {
+      it('THEN should not scroll to the field outside the section', async () => {
+        const user = userEvent.setup()
+
+        render(
+          <TestBillingAccordionWithSchema
+            values={{ ...emptyCreateCustomerDefaultValues, externalId: '' }}
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: /submit/i }))
+        await user.click(screen.getByText('Billing information'))
+
+        await waitFor(() => {
+          expect(scrollToFirstInputError).toHaveBeenCalled()
+        })
+        expect(scrollToFirstInputError).toHaveBeenLastCalledWith('create-customer', {})
+      })
+    })
+  })
+
+  describe('GIVEN a submit that failed inside and outside the billing section', () => {
+    describe('WHEN the accordion opens on the error', () => {
+      it('THEN should scroll to the billing field only', async () => {
+        const user = userEvent.setup()
+
+        render(
+          <TestBillingAccordionWithSchema
+            values={{
+              ...emptyCreateCustomerDefaultValues,
+              externalId: '',
+              billingAddress: {
+                addressLine1: 'a'.repeat(501),
+                addressLine2: '',
+                city: '',
+                state: '',
+                zipcode: '',
+              },
+            }}
+          />,
+        )
+
+        await user.click(screen.getByRole('button', { name: /submit/i }))
+
+        await waitFor(() => {
+          expect(scrollToFirstInputError).toHaveBeenCalled()
+        })
+        expect(scrollToFirstInputError).toHaveBeenLastCalledWith('create-customer', {
+          'billingAddress.addressLine1': true,
+        })
+      })
     })
   })
 })
