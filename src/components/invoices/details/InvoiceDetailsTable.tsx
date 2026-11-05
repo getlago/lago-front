@@ -25,6 +25,7 @@ import {
   InvoiceForDetailsTableFragment,
   InvoiceForFormatInvoiceItemMapFragmentDoc,
   InvoiceStatusTypeEnum,
+  InvoiceSubscriptionsForFormatInvoiceItemMapFragmentDoc,
   InvoiceTypeEnum,
 } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
@@ -108,6 +109,11 @@ gql`
   }
 
   fragment InvoiceForDetailsTable on Invoice {
+    ...InvoiceForDetailsTableWithoutFees
+    ...InvoiceForFormatInvoiceItemMap
+  }
+
+  fragment InvoiceForDetailsTableWithoutFees on Invoice {
     id
     invoiceType
     subTotalExcludingTaxesAmountCents
@@ -135,11 +141,12 @@ gql`
     }
 
     ...InvoiceForDetailsTableFooter
-    ...InvoiceForFormatInvoiceItemMap
+    ...InvoiceSubscriptionsForFormatInvoiceItemMap
   }
 
   ${InvoiceForDetailsTableFooterFragmentDoc}
   ${InvoiceForFormatInvoiceItemMapFragmentDoc}
+  ${InvoiceSubscriptionsForFormatInvoiceItemMapFragmentDoc}
   ${FeeForInvoiceDetailsTableBodyLineFragmentDoc}
 `
 

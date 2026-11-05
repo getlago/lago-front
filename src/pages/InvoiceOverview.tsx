@@ -13,10 +13,12 @@ import {
   InvoiceDetailsTable,
   InvoiceTableSection,
 } from '~/components/invoices/details/InvoiceDetailsTable'
+import { InvoiceDetailsTableFooter } from '~/components/invoices/details/InvoiceDetailsTableFooter'
 import { ViewFeeDetailsDrawerProvider } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import { InvoiceCustomerInfos } from '~/components/invoices/InvoiceCustomerInfos'
 import { InvoiceOverviewHeaderButtons } from '~/components/invoices/InvoiceOverviewHeaderButtons'
 import { Metadatas } from '~/components/invoices/Metadatas'
+import { InvoiceProductCatalogSection } from '~/components/invoices/productCatalog/InvoiceProductCatalogSection'
 import { envGlobalVar } from '~/core/apolloClient'
 import {
   buildAnrokInvoiceUrl,
@@ -41,6 +43,7 @@ import {
   FeeForInvoiceDetailsTableFooterFragmentDoc,
   FeeForViewFeeDetailsDrawerFragmentDoc,
   HubspotIntegrationInfosForInvoiceOverviewFragment,
+  InvoiceProductCatalogContractFragment,
   InvoiceStatusTypeEnum,
   LagoApiError,
   NetsuiteIntegrationInfosForInvoiceOverviewFragment,
@@ -199,6 +202,7 @@ gql`
 `
 
 interface InvoiceOverviewProps {
+  productCatalogContracts?: InvoiceProductCatalogContractFragment[] | null
   customer?: CustomerForInvoiceOverviewFragment | null
   downloadInvoice: DownloadInvoiceItemMutationFn
   downloadInvoiceXml: DownloadInvoiceItemMutationFn
@@ -394,6 +398,7 @@ const InvoiceOverview = memo(
     loadingSyncSalesforceIntegrationInvoice,
     customer,
     fees,
+    productCatalogContracts = null,
   }: InvoiceOverviewProps) => {
     const { formattedDateWithTimezone } = useFormatterDateHelper()
     const { translate } = useInternationalization()
@@ -431,8 +436,16 @@ const InvoiceOverview = memo(
     const showAnrokReSyncButton = !!showTaxProviderReSyncButton && !!customer?.anrokCustomer
     const showAvalaraReSyncButton = !!showTaxProviderReSyncButton && !!customer?.avalaraCustomer
 
+    const hasFees =
+      productCatalogContracts === null
+        ? !!fees?.length
+        : productCatalogContracts.some(({ productCatalogSections }) =>
+            productCatalogSections.some(({ products }) =>
+              products.some(({ feesCount }) => feesCount > 0),
+            ),
+          )
     const showAnrokLink = isInvoiceFinalizedOrVoided && !!customer?.anrokCustomer?.externalAccountId
-    const showAnrokSection = (showAnrokReSyncButton || showAnrokLink) && !!fees?.length
+    const showAnrokSection = (showAnrokReSyncButton || showAnrokLink) && hasFees
 
     const showAvalaraLink =
       isInvoiceFinalizedOrVoided &&
@@ -441,7 +454,7 @@ const InvoiceOverview = memo(
       !!connectedAvalaraIntegration?.accountId &&
       !!invoice?.taxProviderId
 
-    const showAvalaraSection = (showAvalaraLink || showAvalaraReSyncButton) && !!fees?.length
+    const showAvalaraSection = (showAvalaraLink || showAvalaraReSyncButton) && hasFees
 
     const showHubspotReSyncButton = invoice?.integrationHubspotSyncable
     const showHubspotLink =
@@ -469,6 +482,40 @@ const InvoiceOverview = memo(
       showSalesforceSection
 
     const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
+
+    const renderFeesSection = (): JSX.Element => {
+      if (productCatalogContracts !== null && invoice) {
+        return (
+          <>
+            <InvoiceTableSection>
+              {/* eslint-disable-next-line lago/use-design-system -- InvoiceDetailsTableFooter requires tfoot; Table has no footer slot. */}
+              <table>
+                <InvoiceDetailsTableFooter
+                  invoice={invoice}
+                  canHaveUnitPrice={
+                    invoice.versionNumber >= 4 || invoice.status === InvoiceStatusTypeEnum.Draft
+                  }
+                  hasTaxProviderError={hasTaxProviderError}
+                />
+              </table>
+            </InvoiceTableSection>
+            <InvoiceProductCatalogSection
+              invoiceId={invoice.id}
+              contracts={productCatalogContracts}
+            />
+          </>
+        )
+      }
+
+      return (
+        <InvoiceDetailsTable
+          customer={customer}
+          invoice={invoice}
+          openEditFeeDrawer={openEditFeeDrawer}
+          fees={fees}
+        />
+      )
+    }
 
     return (
       <ViewFeeDetailsDrawerProvider>
@@ -572,12 +619,7 @@ const InvoiceOverview = memo(
                 invoice={invoice}
                 billingEntity={billingEntity}
               />
-              <InvoiceDetailsTable
-                customer={customer}
-                invoice={invoice}
-                openEditFeeDrawer={openEditFeeDrawer}
-                fees={fees}
-              />
+              {renderFeesSection()}
               {showExternalAppsSection && (
                 <Stack marginTop={8} gap={6}>
                   <SectionHeader variant="subhead1">
@@ -835,7 +877,8 @@ const InvoiceOverview = memo(
                   )}
                 </Stack>
               )}
-              {invoice?.status !== InvoiceStatusTypeEnum.Draft && <Metadatas />}
+              {productCatalogContracts === null &&
+                invoice?.status !== InvoiceStatusTypeEnum.Draft && <Metadatas />}
             </>
           )}
         </>

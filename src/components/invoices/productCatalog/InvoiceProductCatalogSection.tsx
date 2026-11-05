@@ -1,0 +1,100 @@
+import { useSearchParams } from 'react-router'
+
+import { Alert } from '~/components/designSystem/Alert'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
+import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Typography } from '~/components/designSystem/Typography'
+import { InvoiceProductCatalogContractFragment } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+import {
+  buildInvoiceProductCatalogSections,
+  INVOICE_PRODUCT_CATALOG_SECTION_SEARCH_PARAM,
+  INVOICE_PRODUCT_FEES_PAGE_SIZE,
+  InvoiceProductCatalogSectionItem,
+  resolveActiveSectionKey,
+  useInvoiceProductFees,
+} from './useInvoiceProductFees'
+
+export const INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID = 'invoice-product-catalog-section'
+export const INVOICE_PRODUCT_CATALOG_EMPTY_TEST_ID = 'invoice-product-catalog-empty'
+
+const InvoiceProductCatalogSectionContent = ({
+  invoiceId,
+  section,
+}: {
+  invoiceId: string
+  section: InvoiceProductCatalogSectionItem
+}): JSX.Element => {
+  const { translate } = useInternationalization()
+  const { data, loading, error, goToPage } = useInvoiceProductFees({ invoiceId, section })
+  const fees = data?.invoiceProductFees.collection ?? []
+
+  const renderFees = (): JSX.Element => {
+    if (error) {
+      return <Alert type="danger">{translate('text_634812d6f16b31ce5cbf4126')}</Alert>
+    }
+
+    if (loading) return <Skeleton variant="text" className="h-12 w-full" />
+
+    return (
+      <ul>
+        {fees.map((fee) => (
+          <li key={fee.id} className="py-3 shadow-b">
+            <Typography>
+              {fee.product?.invoiceDisplayName || fee.product?.name || fee.itemName}
+            </Typography>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  return (
+    <>
+      <div className="flex items-center gap-3" />
+      <PaginatedContent
+        metadata={data?.invoiceProductFees.metadata}
+        loading={loading}
+        pageSize={INVOICE_PRODUCT_FEES_PAGE_SIZE}
+        onPageChange={goToPage}
+        sticky={false}
+      >
+        {renderFees()}
+      </PaginatedContent>
+    </>
+  )
+}
+
+export const InvoiceProductCatalogSection = ({
+  invoiceId,
+  contracts,
+}: {
+  invoiceId: string
+  contracts: InvoiceProductCatalogContractFragment[]
+}): JSX.Element => {
+  const [searchParams] = useSearchParams()
+  const sections = buildInvoiceProductCatalogSections(contracts)
+  const activeSectionKey = resolveActiveSectionKey(
+    sections,
+    searchParams.get(INVOICE_PRODUCT_CATALOG_SECTION_SEARCH_PARAM),
+  )
+  const section = sections.find(({ key }) => key === activeSectionKey)
+
+  return (
+    <section
+      data-test={INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID}
+      className="flex flex-col gap-4 py-6"
+    >
+      {section ? (
+        <InvoiceProductCatalogSectionContent
+          key={`${invoiceId}:${activeSectionKey}`}
+          invoiceId={invoiceId}
+          section={section}
+        />
+      ) : (
+        <div data-test={INVOICE_PRODUCT_CATALOG_EMPTY_TEST_ID} />
+      )}
+    </section>
+  )
+}
