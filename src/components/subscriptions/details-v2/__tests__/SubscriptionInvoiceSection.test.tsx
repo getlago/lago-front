@@ -58,7 +58,10 @@ jest.mock('~/hooks/customer/useUpdateSubscriptionSettings', () => ({
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
-  useInternationalization: () => ({ translate: (key: string) => key }),
+  useInternationalization: () => ({
+    translate: (key: string, data?: Record<string, unknown>) =>
+      data ? `${key} ${Object.values(data).join(' ')}` : key,
+  }),
 }))
 
 jest.mock('~/hooks/usePermissions', () => ({
