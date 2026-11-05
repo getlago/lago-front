@@ -10,10 +10,7 @@ import {
 } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
-import {
-  CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID,
-  CustomerSettings,
-} from '../CustomerSettings'
+import { CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID, CustomerSettings } from '../CustomerSettings'
 
 const CUSTOMER_ID = 'customer-123'
 
@@ -732,9 +729,7 @@ describe('CustomerSettings', () => {
           expect(screen.getAllByRole('button').length).toBeGreaterThanOrEqual(5)
         })
 
-        expect(
-          screen.queryByTestId(PAYMENT_TERM_SETTINGS_ROW_TEST_ID),
-        ).not.toBeInTheDocument()
+        expect(screen.queryByTestId(PAYMENT_TERM_SETTINGS_ROW_TEST_ID)).not.toBeInTheDocument()
         expect(
           screen.queryByTestId(CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID),
         ).not.toBeInTheDocument()

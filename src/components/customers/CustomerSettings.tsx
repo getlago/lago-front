@@ -370,11 +370,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                   <Popper
                     PopperProps={{ placement: 'bottom-end' }}
                     opener={
-                      <Button
-                        disabled={loading}
-                        icon="dots-horizontal"
-                        variant="quaternary"
-                      />
+                      <Button disabled={loading} icon="dots-horizontal" variant="quaternary" />
                     }
                   >
                     {({ closePopper }) => (
