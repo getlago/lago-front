@@ -9,8 +9,7 @@ const TOO_LONG_ADDRESS_LINE_ERROR_KEY = 'text_17932959847757c9xwcz2ltv'
 type CustomerFieldGroup = 'root' | 'billingAddress' | 'shippingAddress'
 
 type CustomerConstrainedField = {
-  // Key the API reports the field under in `extensions.details`
-  apiKey: string
+  apiErrorKey: string
   name: string
   group: CustomerFieldGroup
   maxLength: number
@@ -34,27 +33,29 @@ const IDENTITY_FIELD_NAMES = [
 
 export const CUSTOMER_CONSTRAINED_FIELDS: ReadonlyArray<CustomerConstrainedField> = [
   ...IDENTITY_FIELD_NAMES.map((name) => ({
-    apiKey: name,
+    apiErrorKey: name,
     name,
     group: 'root' as const,
     maxLength: CUSTOMER_TEXT_MAX_LENGTH,
   })),
   ...ADDRESS_FIELDS.map(({ name, maxLength }) => ({
-    apiKey: name,
+    apiErrorKey: name,
     name,
     group: 'billingAddress' as const,
     maxLength,
   })),
   ...ADDRESS_FIELDS.map(({ name, maxLength }) => ({
-    apiKey: `shipping${name.charAt(0).toUpperCase()}${name.slice(1)}`,
+    apiErrorKey: `shipping${name.charAt(0).toUpperCase()}${name.slice(1)}`,
     name,
     group: 'shippingAddress' as const,
     maxLength,
   })),
 ]
 
-export const getCustomerConstrainedField = (apiKey: string): CustomerConstrainedField | undefined =>
-  CUSTOMER_CONSTRAINED_FIELDS.find((field) => field.apiKey === apiKey)
+export const getCustomerConstrainedField = (
+  apiErrorKey: string,
+): CustomerConstrainedField | undefined =>
+  CUSTOMER_CONSTRAINED_FIELDS.find((field) => field.apiErrorKey === apiErrorKey)
 
 export const getCustomerFieldFormPath = (
   field: CustomerConstrainedField,

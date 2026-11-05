@@ -38,8 +38,8 @@ describe('customerFieldConstraints', () => {
         ['shippingCity', undefined, 'shippingAddress.city'],
         ['shippingCity', 'billingAddress', 'shippingAddress.city'],
         ['shippingAddressLine2', undefined, 'shippingAddress.addressLine2'],
-      ])('THEN should resolve %s to %s', (apiKey, billingAddressPath, expected) => {
-        const field = getCustomerConstrainedField(apiKey)
+      ])('THEN should resolve %s to %s', (apiErrorKey, billingAddressPath, expected) => {
+        const field = getCustomerConstrainedField(apiErrorKey)
 
         expect(field).toBeDefined()
         expect(field && getCustomerFieldFormPath(field, billingAddressPath)).toBe(expected)
