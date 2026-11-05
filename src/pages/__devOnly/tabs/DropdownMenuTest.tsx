@@ -61,9 +61,9 @@ const Example = ({ icon = false }: { icon?: boolean }): JSX.Element => {
               textValue="Export customer"
             >
               <Download aria-hidden="true" />
-              <span>
+              <span className="min-w-0">
                 Export customer
-                <span id={descriptionId} className="v2-text-caption block">
+                <span id={descriptionId} className="v2-text-caption block truncate">
                   Available with export permission
                 </span>
               </span>
@@ -94,7 +94,12 @@ const Example = ({ icon = false }: { icon?: boolean }): JSX.Element => {
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
               <DropdownMenuLabel>Move to folder</DropdownMenuLabel>
-              {['Finance', 'Operations', 'Archive'].map((label) => (
+              {[
+                'Finance',
+                'Operations',
+                'Archive',
+                'International customer billing and financial reporting',
+              ].map((label) => (
                 <DropdownMenuItem key={label} onSelect={() => setAction(label)}>
                   <Folder aria-hidden="true" />
                   {label}
@@ -130,13 +135,47 @@ export const DropdownMenuTest = (): JSX.Element => (
             <Example />
             <Example icon />
           </div>
+          <div className="space-y-3">
+            <h4 className="v2-text-group-title">Content width · 132px minimum</h4>
+            <div className="flex flex-wrap gap-6">
+              {(['short', '240'] as const).map((width) => (
+                <DropdownMenu key={width}>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="secondary">
+                      {width === 'short' ? 'Short labels' : `Maximum ${width}px`}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem>
+                      <Copy aria-hidden="true" />
+                      {width === 'short' ? 'Copy ID' : 'Copy customer identification number'}
+                      {width !== 'short' && <DropdownMenuShortcut>⌘ C</DropdownMenuShortcut>}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Pencil aria-hidden="true" />
+                      {width === 'short' ? 'Edit' : 'Edit customer billing preferences'}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem variant="destructive">
+                      <Trash aria-hidden="true" />
+                      {width === 'short' ? 'Delete' : 'Delete customer and billing history'}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ))}
+            </div>
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">Long menu</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               {Array.from({ length: 40 }, (_, i) => (
-                <DropdownMenuItem key={i}>Customer {i + 1}</DropdownMenuItem>
+                <DropdownMenuItem key={i}>
+                  <Folder aria-hidden="true" />
+                  Customer {i + 1} — international billing and financial reporting
+                  <DropdownMenuShortcut>⌘ E</DropdownMenuShortcut>
+                </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
