@@ -145,6 +145,7 @@ describe('useInvoicingSettingsDrawer', () => {
         invoiceCustomSections: [{ id: 'cs_1', name: 'Bank details' }],
         skipInvoiceCustomSections: false,
       },
+      paymentTerm: undefined,
     }
 
     act(() => {
@@ -239,7 +240,16 @@ describe('useInvoicingSettingsDrawer', () => {
   })
 
   it('leaves the payment term section out when the object cannot carry a term', () => {
-    renderDrawer()
+    render(
+      <DrawerHost
+        viewType={ViewTypeEnum.Subscription}
+        customerId="cust_1"
+        showCustomSection
+        withInvoiceConsolidation
+        paymentTermInheritedFrom={undefined}
+        onSave={jest.fn()}
+      />,
+    )
 
     act(() => captured.current?.({ consolidateInvoice: true }))
 
