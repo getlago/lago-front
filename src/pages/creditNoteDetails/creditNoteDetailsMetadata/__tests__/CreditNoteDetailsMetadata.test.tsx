@@ -1,15 +1,16 @@
 import { act, cleanup, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { CurrencyEnum, GetCreditNoteForDetailsQuery } from '~/generated/graphql'
+import { useMetadataEditDrawer } from '~/pages/creditNoteDetails/metadataEditDrawer/useMetadataEditDrawer'
 import { render } from '~/test-utils'
 
 import CreditNoteDetailsMetadata from '../CreditNoteDetailsMetadata'
 
-// Mock the MetadataEditDrawer component
-jest.mock('~/pages/creditNoteDetails/metadataEditDrawer/MetadataEditDrawer', () => ({
-  MetadataEditDrawer: jest.fn().mockImplementation(() => {
-    return <div data-test="metadata-edit-drawer" />
-  }),
+const mockOpenDrawer = jest.fn()
+
+jest.mock('~/pages/creditNoteDetails/metadataEditDrawer/useMetadataEditDrawer', () => ({
+  useMetadataEditDrawer: jest.fn(() => ({ openDrawer: mockOpenDrawer })),
 }))
 
 type CreditNoteType = GetCreditNoteForDetailsQuery['creditNote']
@@ -83,12 +84,23 @@ describe('CreditNoteDetailsMetadata', () => {
       expect(screen.getByText(/No metadata/i)).toBeInTheDocument()
     })
 
-    it('renders the MetadataEditDrawer component', async () => {
+    it('opens the metadata edit drawer when clicking the edit button', async () => {
+      const user = userEvent.setup()
       const creditNote = createMockCreditNote()
 
       await act(() => render(<CreditNoteDetailsMetadata creditNote={creditNote} />))
 
-      expect(screen.getByTestId('metadata-edit-drawer')).toBeInTheDocument()
+      await user.click(screen.getByText('Edit'))
+
+      expect(mockOpenDrawer).toHaveBeenCalledTimes(1)
+    })
+
+    it('seeds the metadata edit drawer with the credit note', async () => {
+      const creditNote = createMockCreditNote([{ key: 'order_id', value: 'ORD-1' }])
+
+      await act(() => render(<CreditNoteDetailsMetadata creditNote={creditNote} />))
+
+      expect(useMetadataEditDrawer).toHaveBeenCalledWith({ creditNote })
     })
   })
 
