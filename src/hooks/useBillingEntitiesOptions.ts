@@ -111,13 +111,19 @@ export const useBillingEntitiesOptions = ({
   }, [collection, loading, translate, includeInheritOption, inheritLabel])
 }
 
-// Undefined until the org's collection has loaded.
+type UseBillingEntityByIdResult = {
+  billingEntity: BillingEntityOption | undefined
+  isLoading: boolean
+}
+
 export const useBillingEntityById = (
   billingEntityId: string | null | undefined,
-): BillingEntityOption | undefined => {
-  const { options } = useBillingEntitiesOptions({ skip: !billingEntityId })
+): UseBillingEntityByIdResult => {
+  const { options, isLoading } = useBillingEntitiesOptions({ skip: !billingEntityId })
 
-  if (!billingEntityId) return undefined
+  if (!billingEntityId) return { billingEntity: undefined, isLoading: false }
 
-  return options.find((option) => option.id === billingEntityId)
+  const billingEntity = options.find((option) => option.id === billingEntityId)
+
+  return { billingEntity, isLoading: isLoading && !billingEntity }
 }

@@ -10,6 +10,7 @@ import { AllTheProviders, TestMocksType } from '~/test-utils'
 import {
   BILLING_ENTITY_INHERIT_CODE,
   useBillingEntitiesOptions,
+  useBillingEntityById,
 } from '../useBillingEntitiesOptions'
 
 const buildEntity = (overrides: Record<string, unknown>) => ({
@@ -159,6 +160,53 @@ describe('useBillingEntitiesOptions', () => {
       expect(result.current.options).toEqual([])
       expect(result.current.defaultEntityCode).toBeUndefined()
       expect(result.current.hasMultipleEntities).toBe(false)
+    })
+  })
+})
+
+describe('useBillingEntityById', () => {
+  const mocks = billingEntitiesMock([
+    buildEntity({ id: '1', code: 'us', name: 'Acme US', isDefault: true }),
+    buildEntity({ id: '2', code: 'eu', name: 'Acme EU' }),
+  ])
+
+  describe('GIVEN an id the collection is still loading', () => {
+    it('THEN reports loading with no entity, then resolves the entity', async () => {
+      const { result } = renderHook(() => useBillingEntityById('2'), {
+        wrapper: createWrapper(mocks),
+      })
+
+      expect(result.current).toEqual({ billingEntity: undefined, isLoading: true })
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.billingEntity?.value).toBe('eu')
+    })
+  })
+
+  describe('GIVEN an id missing from the loaded collection', () => {
+    it('THEN stops loading without an entity', async () => {
+      const { result } = renderHook(() => useBillingEntityById('unknown'), {
+        wrapper: createWrapper(mocks),
+      })
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(result.current.billingEntity).toBeUndefined()
+    })
+  })
+
+  describe.each([null, undefined, ''])('GIVEN the empty id %p', (billingEntityId) => {
+    it('THEN is not loading and has no entity', () => {
+      const { result } = renderHook(() => useBillingEntityById(billingEntityId), {
+        wrapper: createWrapper([]),
+      })
+
+      expect(result.current).toEqual({ billingEntity: undefined, isLoading: false })
     })
   })
 })

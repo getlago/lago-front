@@ -337,7 +337,11 @@ const CreateWallet = () => {
 
   const isDirty = useStore(form.store, (state) => state.isDirty)
   const walletBillingEntityId = useStore(form.store, (state) => state.values.billingEntityId)
-  const issuingBillingEntity = useBillingEntityById(walletBillingEntityId)
+  const { billingEntity: issuingBillingEntity, isLoading: isBillingEntityLoading } =
+    useBillingEntityById(walletBillingEntityId)
+  const paymentTermInheritedFrom = isBillingEntityLoading
+    ? undefined
+    : getInheritedPaymentTerm({ customer: customerData?.customer, issuingBillingEntity })
 
   const openDirtyAttributesWarning = useCallback(() => {
     centralizedDialog.open({
@@ -424,10 +428,7 @@ const CreateWallet = () => {
               autoOpenAdditionalIntegrationDrawer={
                 autoOpenAdditionalIntegrationDrawer && !isLoading
               }
-              paymentTermInheritedFrom={getInheritedPaymentTerm({
-                customer: customerData?.customer,
-                issuingBillingEntity,
-              })}
+              paymentTermInheritedFrom={paymentTermInheritedFrom}
             />
           </CenteredPage.Container>
         )}

@@ -56,6 +56,16 @@ jest.mock('~/hooks/useCustomerInvoiceCustomSections', () => ({
   }),
 }))
 
+let mockIsBillingEntityLoading = false
+
+jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
+  ...jest.requireActual('~/hooks/useBillingEntitiesOptions'),
+  useBillingEntityById: () => ({
+    billingEntity: undefined,
+    isLoading: mockIsBillingEntityLoading,
+  }),
+}))
+
 // Translation keys reused for assertions (same literals the component renders)
 const MANUAL_PAYMENT_TRANSLATION_KEY = 'text_173799550683709p2rqkoqd5'
 const INHERITED_BADGE_TRANSLATION_KEY = 'text_1764327933607jgtpungo2pp'
@@ -102,6 +112,7 @@ describe('WalletInformations', () => {
     mockHasFeatureFlag = false
     mockPaymentMethodsList = []
     mockCustomerIcsData = null
+    mockIsBillingEntityLoading = false
   })
 
   describe('GIVEN no wallet', () => {
@@ -332,6 +343,38 @@ describe('WalletInformations', () => {
 
         expect(
           getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the wallet billing entity is still loading', () => {
+      beforeEach(() => {
+        mockIsBillingEntityLoading = true
+      })
+
+      it('THEN shows a dash instead of a possibly wrong inherited term', () => {
+        render(<WalletInformations wallet={createMockWallet({ billingEntityId: 'be-2' })} />)
+
+        const value = getValueUnderLabel(PAYMENT_TERM_LABEL)
+
+        expect(value.getByText('-')).toBeInTheDocument()
+        expect(value.queryByText(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)).not.toBeInTheDocument()
+      })
+
+      it('THEN still shows the wallet own term', () => {
+        render(
+          <WalletInformations
+            wallet={createMockWallet({
+              billingEntityId: 'be-2',
+              paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 15 },
+            })}
+          />,
+        )
+
+        expect(
+          getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(
+            PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net],
+          ),
         ).toBeInTheDocument()
       })
     })

@@ -66,9 +66,13 @@ jest.mock('~/hooks/usePermissions', () => ({
 }))
 
 let mockBoundBillingEntity: { paymentTerm: { termType: PaymentTermTypeEnum } } | undefined
+let mockIsBillingEntityLoading = false
 
 jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
-  useBillingEntityById: () => mockBoundBillingEntity,
+  useBillingEntityById: () => ({
+    billingEntity: mockBoundBillingEntity,
+    isLoading: mockIsBillingEntityLoading,
+  }),
 }))
 
 const PAYMENT_TERM_LABEL_KEY = 'text_1778660219891rv2r5gjmklq'
@@ -100,6 +104,7 @@ describe('SubscriptionInvoiceSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockBoundBillingEntity = undefined
+    mockIsBillingEntityLoading = false
   })
 
   it('renders the invoicing header, consolidation, the custom-section display and the drawer', () => {
@@ -204,6 +209,30 @@ describe('SubscriptionInvoiceSection', () => {
       expect(paymentTermItem().value).toContain(
         PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.DueOnReceipt],
       )
+    })
+
+    describe('WHEN the bound billing entity is still loading', () => {
+      beforeEach(() => {
+        mockIsBillingEntityLoading = true
+      })
+
+      it('THEN shows a dash and gives the drawer no inherited term', () => {
+        renderSection({ billingEntityId: 'be_2' })
+
+        expect(paymentTermItem().value).toBe('-')
+        expect(mockDrawer).toHaveBeenCalledWith(
+          expect.objectContaining({ paymentTermInheritedFrom: undefined }),
+        )
+      })
+
+      it('THEN still shows the subscription own term', () => {
+        renderSection({
+          billingEntityId: 'be_2',
+          paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 60 },
+        })
+
+        expect(paymentTermItem().value).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net])
+      })
     })
   })
 })

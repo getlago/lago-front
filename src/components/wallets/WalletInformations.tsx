@@ -40,7 +40,8 @@ const SectionTitle = ({ title, subtitle }: { title: string; subtitle: string }) 
 const WalletInformations = ({ wallet }: WalletInformationsProps) => {
   const { translate } = useInternationalization()
   const { getBillingObjectPaymentTermCopy } = usePaymentTerm()
-  const issuingBillingEntity = useBillingEntityById(wallet?.billingEntityId)
+  const { billingEntity: issuingBillingEntity, isLoading: isBillingEntityLoading } =
+    useBillingEntityById(wallet?.billingEntityId)
   const {
     intlFormatDateTimeOrgaTZ,
     hasFeatureFlag,
@@ -91,6 +92,15 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
     selectedInvoiceCustomSections: wallet?.selectedInvoiceCustomSections,
     customerIcsData,
   })
+
+  const paymentTermValue =
+    isBillingEntityLoading && !wallet.paymentTerm
+      ? '-'
+      : getBillingObjectPaymentTermCopy({
+          ownTerm: wallet.paymentTerm,
+          customer: wallet.customer,
+          issuingBillingEntity,
+        })
 
   const showAppliesToSection =
     !!wallet?.appliesTo?.feeTypes?.length || !!wallet?.appliesTo?.billableMetrics?.length
@@ -168,11 +178,7 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
             },
             {
               label: translate('text_1778660219891rv2r5gjmklq'),
-              value: getBillingObjectPaymentTermCopy({
-                ownTerm: wallet?.paymentTerm,
-                customer: wallet?.customer,
-                issuingBillingEntity,
-              }),
+              value: paymentTermValue,
             },
           ]}
         />
