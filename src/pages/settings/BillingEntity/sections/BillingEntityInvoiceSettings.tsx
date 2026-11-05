@@ -143,6 +143,7 @@ const BillingEntityInvoiceSettings = () => {
   })
 
   const billingEntity = data?.billingEntity
+  const netPaymentTerm = billingEntity?.netPaymentTerm ?? 0
 
   const invoiceFooter = billingEntity?.billingConfiguration?.invoiceFooter || ''
   const invoiceGracePeriod = billingEntity?.billingConfiguration?.invoiceGracePeriod || 0
@@ -382,9 +383,9 @@ const BillingEntityInvoiceSettings = () => {
       content: translate(
         'text_64c7a89b6c67eb6c9889815f',
         {
-          days: billingEntity?.netPaymentTerm,
+          days: netPaymentTerm,
         },
-        billingEntity?.netPaymentTerm,
+        netPaymentTerm,
       ),
     },
   ].filter((item) => !(isProductCatalogEnabled && item.id === NET_PAYMENT_TERM_ITEM_ID))
