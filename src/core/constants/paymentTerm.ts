@@ -1,9 +1,6 @@
 import { PaymentTermTypeEnum } from '~/generated/graphql'
 
-/**
- * Display order of the term types. The combo box renders with `sortValues={false}`,
- * so this array is the order the user sees.
- */
+// The combo box renders with `sortValues={false}`, so this is the display order.
 export const PAYMENT_TERM_TYPES = [
   PaymentTermTypeEnum.DueOnReceipt,
   PaymentTermTypeEnum.Net,
@@ -15,24 +12,12 @@ export const PAYMENT_TERM_TYPES = [
 
 export type PaymentTermField = 'days' | 'dayOfMonth' | 'monthOffset'
 
-/**
- * The inherit choice's option value. Not the empty string: `ComboBoxField` normalises `''`
- * to `undefined` and `ComboBox` renders `value={value || null}`, so an empty value can
- * never show as the selected option.
- */
+// Not `''`: `ComboBoxField` normalises it to `undefined`, so it could never show as selected.
 export const PAYMENT_TERM_INHERIT = 'inherit'
 
-/**
- * Fixed issuing date behind the dialog's due-date preview. A preview built from the reader's
- * clock changes meaning between two people looking at the same term.
- */
 export const PAYMENT_TERM_PREVIEW_ISSUING_DATE = '2026-07-15'
 
-/**
- * The API validates the term as a discriminated union: each type accepts only its own
- * fields, anything extra is rejected. This map is the single source of that truth — it
- * drives both which inputs are rendered and which fields are sent, so the two can't drift.
- */
+// The API validates terms as a discriminated union: each type accepts only its own fields.
 export const PAYMENT_TERM_FIELDS_BY_TYPE: Record<PaymentTermTypeEnum, readonly PaymentTermField[]> =
   {
     [PaymentTermTypeEnum.DueOnReceipt]: [],
@@ -72,10 +57,6 @@ export const PAYMENT_TERM_TYPE_DESCRIPTION_KEYS: Record<PaymentTermTypeEnum, str
   [PaymentTermTypeEnum.DayOfMonth]: 'text_1787603382162h7k3eb21qar',
 }
 
-/**
- * How a resolved term reads as a settings-row value. The two types that carry no
- * numeric field reuse their option label — the string is identical.
- */
 export const PAYMENT_TERM_VALUE_KEYS: Record<PaymentTermTypeEnum, string> = {
   [PaymentTermTypeEnum.DueOnReceipt]: 'text_1787603382161xaxwe5zqq8v',
   [PaymentTermTypeEnum.Net]: 'text_1787603382162gxbjpls4kad',
@@ -85,11 +66,7 @@ export const PAYMENT_TERM_VALUE_KEYS: Record<PaymentTermTypeEnum, string> = {
   [PaymentTermTypeEnum.DayOfMonth]: 'text_1787603382162bnh3dfktlyn',
 }
 
-/**
- * One self-contained sentence per type rather than a shared sentence with the term name
- * interpolated — article agreement ("a Net 30" vs "an End of month") doesn't survive
- * interpolation across locales.
- */
+// One full sentence per type: article agreement ("a Net 30" vs "an End of month") breaks across locales.
 export const PAYMENT_TERM_DUE_DATE_PREVIEW_KEYS: Record<PaymentTermTypeEnum, string> = {
   [PaymentTermTypeEnum.DueOnReceipt]: 'text_1787603382162jezn6k1k4y1',
   [PaymentTermTypeEnum.Net]: 'text_17876033821620tl738mv7ss',

@@ -12,10 +12,6 @@ import { customerName } from '../../support/reusableConstants'
 
 type TermFields = { days?: string; dayOfMonth?: string; monthOffset?: string }
 
-/**
- * One row per term type. A new term option is a new row here, never a new spec: the
- * billing-entity and customer flows below are both driven off this table.
- */
 const TERM_CASES: Array<{ termType: PaymentTermTypeEnum; fields: TermFields; label: string }> = [
   { termType: PaymentTermTypeEnum.DueOnReceipt, fields: {}, label: 'Due on receipt' },
   { termType: PaymentTermTypeEnum.Net, fields: { days: '30' }, label: 'Net 30 days' },

@@ -166,10 +166,7 @@ const resolveBillingEntityMutation = () =>
     return { data: { updateBillingEntity: { id: BILLING_ENTITY_ID } } }
   })
 
-/**
- * `combobox-item-<label>` is only the wrapper; MUI's own click handler is spread onto the
- * inner row, which `ComboBoxItemWrapper` tags with the option's value.
- */
+// `combobox-item-<label>` is only the wrapper; the click handler sits on the inner row.
 const selectTermTypeOption = async (label: string, value: string): Promise<void> => {
   const input = screen
     .getByTestId(FORM_DIALOG_TEST_ID)
@@ -213,8 +210,6 @@ describe('EditPaymentTermDialog', () => {
   })
 
   describe('GIVEN a term type is set', () => {
-    // The API validates the term as a discriminated union: each type accepts only its own
-    // fields. Anything extra is a validation error, so the payload has to be exact.
     describe.each([
       [PaymentTermTypeEnum.DueOnReceipt, {}, { termType: PaymentTermTypeEnum.DueOnReceipt }],
       [PaymentTermTypeEnum.Net, { days: 30 }, { termType: PaymentTermTypeEnum.Net, days: 30 }],

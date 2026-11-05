@@ -5,11 +5,7 @@ import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 
 export const QUOTE_PAYMENT_TERM_LINE_TEST_ID = 'quote-payment-term-line'
 
-/**
- * Quotes carry no term of their own — they display the term resolved from the customer,
- * then the billing entity, then the default. Resolution happens once in `EditQuote`, so
- * this only has to render what it is handed.
- */
+// Quotes carry no term of their own; `EditQuote` resolves it, this only renders it.
 export const QuotePaymentTermLine = ({
   paymentTerm,
 }: {
