@@ -1,3 +1,5 @@
+import { screen } from '@testing-library/react'
+
 import { useAppForm } from '~/hooks/forms/useAppform'
 import BillingFields from '~/pages/createCustomers/billingAccordion/BillingFields'
 import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
@@ -25,6 +27,16 @@ describe('BillingFields Integration Tests', () => {
       const rendered = render(<TestBillingFieldsWrapper />)
 
       expect(rendered.container).toMatchSnapshot()
+    })
+
+    // Native truncation silently dropped the tail of a pasted value instead of reporting it
+    it.each([
+      ['address line 1', /address line 1/i],
+      ['city', /city/i],
+    ])('THEN should not cap the %s input length natively', (_, label) => {
+      render(<TestBillingFieldsWrapper />)
+
+      expect(screen.getByLabelText(label)).not.toHaveAttribute('maxlength')
     })
   })
 })

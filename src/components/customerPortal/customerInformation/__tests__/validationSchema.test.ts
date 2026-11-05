@@ -1,7 +1,9 @@
 import { CountryCode, CustomerTypeEnum } from '~/generated/graphql'
 
 import {
+  buildEditCustomerBillingValidationSchema,
   editCustomerBillingDefaultValues,
+  EditCustomerBillingFormValues,
   editCustomerBillingValidationSchema,
   mapCustomerToFormValues,
 } from '../validationSchema'
@@ -204,6 +206,81 @@ describe('validationSchema', () => {
 
         expect(result.success).toBe(false)
       })
+    })
+  })
+})
+
+describe('buildEditCustomerBillingValidationSchema', () => {
+  const TOO_LONG_255_KEY = 'text_1793265036704cnkqwk0atap'
+  const TOO_LONG_500_KEY = 'text_17932959847757c9xwcz2ltv'
+
+  const parse = (
+    values: Partial<EditCustomerBillingFormValues>,
+    initialValues: EditCustomerBillingFormValues = editCustomerBillingDefaultValues,
+  ) =>
+    buildEditCustomerBillingValidationSchema(initialValues).safeParse({
+      ...editCustomerBillingDefaultValues,
+      ...values,
+    })
+
+  describe('GIVEN over-limit portal values', () => {
+    it('THEN should report them on the flat portal paths', () => {
+      const result = parse({ legalName: 'a'.repeat(256), addressLine2: 'a'.repeat(501) })
+
+      expect(result.success).toBe(false)
+      expect(result.error?.issues).toEqual([
+        expect.objectContaining({ message: TOO_LONG_255_KEY, path: ['legalName'] }),
+        expect.objectContaining({ message: TOO_LONG_500_KEY, path: ['addressLine2'] }),
+      ])
+    })
+
+    it('THEN should report shipping values under shippingAddress', () => {
+      const result = parse({
+        shippingAddress: {
+          ...editCustomerBillingDefaultValues.shippingAddress,
+          zipcode: 'a'.repeat(256),
+        },
+      })
+
+      expect(result.error?.issues).toEqual([
+        expect.objectContaining({
+          message: TOO_LONG_255_KEY,
+          path: ['shippingAddress', 'zipcode'],
+        }),
+      ])
+    })
+  })
+
+  describe('GIVEN 255 supplementary characters', () => {
+    it('THEN should accept them', () => {
+      expect(parse({ name: '\u{1F44D}'.repeat(255) }).success).toBe(true)
+    })
+  })
+
+  describe('GIVEN a stored city longer than the limit', () => {
+    const storedCity = 'a'.repeat(300)
+    const initialValues: EditCustomerBillingFormValues = {
+      ...editCustomerBillingDefaultValues,
+      city: storedCity,
+    }
+
+    it('THEN should save it unchanged', () => {
+      expect(parse({ city: storedCity }, initialValues).success).toBe(true)
+    })
+
+    it('THEN should reject it once edited', () => {
+      expect(parse({ city: `${storedCity}b` }, initialValues).success).toBe(false)
+    })
+  })
+
+  describe('GIVEN an invalid email and an over-limit name', () => {
+    it('THEN should report both at once', () => {
+      const result = parse({ email: 'not-an-email', name: 'a'.repeat(256) })
+
+      expect(result.error?.issues).toEqual([
+        expect.objectContaining({ path: ['email'] }),
+        expect.objectContaining({ message: TOO_LONG_255_KEY, path: ['name'] }),
+      ])
     })
   })
 })

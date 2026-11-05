@@ -1,7 +1,7 @@
 import { useStore } from '@tanstack/react-form'
 import { useEffect, useState } from 'react'
 
-import { CUSTOMER_TEXT_MAX_LENGTH, syncCustomerShippingAddress } from '~/components/customers/utils'
+import { syncCustomerShippingAddress } from '~/components/customers/utils'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Typography } from '~/components/designSystem/Typography'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
@@ -12,24 +12,33 @@ import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formIn
 
 import BillingFields from './BillingFields'
 
+const BILLING_SECTION_FIELDS = ['legalName', 'taxIdentificationNumber']
+
+const isBillingSectionField = (name: string): boolean =>
+  BILLING_SECTION_FIELDS.includes(name) ||
+  name.startsWith('billingAddress.') ||
+  name.startsWith('shippingAddress.')
+
 const BillingAccordion = withForm({
   defaultValues: emptyCreateCustomerDefaultValues,
   render: function Render({ form }) {
     const { translate } = useInternationalization()
     const [isOpen, setIsOpen] = useState(false)
-    const hasServerErrors = useStore(form.store, (state) =>
-      Object.entries(state.fieldMeta).some(
-        ([name, meta]) =>
-          (['legalName', 'taxIdentificationNumber'].includes(name) ||
-            name.startsWith('billingAddress.') ||
-            name.startsWith('shippingAddress.')) &&
-          !!meta?.errorMap.onServer,
-      ),
-    )
+    const hasErrors = useStore(form.store, (state) => {
+      const hasServerErrors = Object.entries(state.fieldMeta).some(
+        ([name, meta]) => isBillingSectionField(name) && !!meta?.errorMap.onServer,
+      )
+
+      // The accordion unmounts its fields when closed, so a schema error on a collapsed field
+      // only exists on the form error map
+      return (
+        hasServerErrors || Object.keys(state.errorMap.onDynamic ?? {}).some(isBillingSectionField)
+      )
+    })
 
     useEffect(() => {
-      if (hasServerErrors) setIsOpen(true)
-    }, [hasServerErrors])
+      if (hasErrors) setIsOpen(true)
+    }, [hasErrors])
 
     const billingAddress = useStore(form.store, (state) => state.values.billingAddress)
     const isShippingEqualBillingAddress = useStore(
@@ -55,13 +64,14 @@ const BillingAccordion = withForm({
         onToggle={setIsOpen}
         transitionProps={{
           onEntered: () => {
-            const errors = Object.fromEntries(
-              Object.entries(form.state.fieldMeta)
+            const erroredFields = Object.fromEntries([
+              ...Object.keys(form.state.errorMap.onDynamic ?? {}).map((name) => [name, true]),
+              ...Object.entries(form.state.fieldMeta)
                 .filter(([, meta]) => !!meta?.errorMap.onServer)
-                .map(([name, meta]) => [name, meta?.errorMap.onServer]),
-            )
+                .map(([name]) => [name, true]),
+            ])
 
-            scrollToFirstInputError('create-customer', errors)
+            scrollToFirstInputError('create-customer', erroredFields)
           },
         }}
         summary={
@@ -86,7 +96,6 @@ const BillingAccordion = withForm({
             <form.AppField name="legalName">
               {(field) => (
                 <field.TextInputField
-                  inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
                   label={translate('text_626c0c09812bbc00e4c59e01')}
                   placeholder={translate('text_626c0c09812bbc00e4c59e03')}
                 />
@@ -103,7 +112,6 @@ const BillingAccordion = withForm({
             <form.AppField name="taxIdentificationNumber">
               {(field) => (
                 <field.TextInputField
-                  inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
                   label={translate('text_648053ee819b60364c675d05')}
                   placeholder={translate('text_648053ee819b60364c675d0b')}
                 />

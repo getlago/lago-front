@@ -1,9 +1,15 @@
+import { revalidateLogic } from '@tanstack/react-form'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { Button } from '~/components/designSystem/Button'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import BillingAccordion from '~/pages/createCustomers/billingAccordion/BillingAccordion'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
+import {
+  buildCustomerValidationSchema,
+  CreateCustomerDefaultValues,
+  emptyCreateCustomerDefaultValues,
+} from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
 // Create a test wrapper component that properly initializes the form
@@ -58,6 +64,71 @@ describe('BillingAccordion Integration Tests', () => {
       await waitFor(() => {
         expect(rendered.container).toMatchSnapshot()
       })
+    })
+  })
+})
+
+const TestBillingAccordionWithSchema = ({ values }: { values: CreateCustomerDefaultValues }) => {
+  const form = useAppForm({
+    defaultValues: values,
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: buildCustomerValidationSchema(emptyCreateCustomerDefaultValues) },
+  })
+
+  return (
+    <>
+      <Button onClick={() => form.handleSubmit()}>Submit</Button>
+      <BillingAccordion form={form} />
+    </>
+  )
+}
+
+describe('BillingAccordion collapsed errors', () => {
+  const submit = async () => {
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('button', { name: /submit/i }))
+  }
+
+  describe('GIVEN a collapsed accordion holding an over-limit address', () => {
+    it('THEN should open on submit so the error is reachable', async () => {
+      render(
+        <TestBillingAccordionWithSchema
+          values={{
+            ...emptyCreateCustomerDefaultValues,
+            externalId: 'customer-123',
+            billingAddress: {
+              addressLine1: 'a'.repeat(501),
+              addressLine2: '',
+              city: '',
+              state: '',
+              zipcode: '',
+            },
+          }}
+        />,
+      )
+
+      expect(screen.queryAllByLabelText(/address line 1/i)).toHaveLength(0)
+
+      await submit()
+
+      await waitFor(() => {
+        expect(screen.getAllByLabelText(/address line 1/i)).toHaveLength(2)
+      })
+    })
+  })
+
+  describe('GIVEN a collapsed accordion with valid values', () => {
+    it('THEN should stay closed on submit', async () => {
+      render(
+        <TestBillingAccordionWithSchema
+          values={{ ...emptyCreateCustomerDefaultValues, externalId: 'customer-123' }}
+        />,
+      )
+
+      await submit()
+
+      expect(screen.queryAllByLabelText(/address line 1/i)).toHaveLength(0)
     })
   })
 })

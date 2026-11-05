@@ -115,6 +115,17 @@ describe('customerUtils', () => {
       })
     })
 
+    describe('GIVEN a field the forms do not length-constrain', () => {
+      it('THEN should keep its own path and the default message', () => {
+        const { fields } = getCustomerFieldErrors({
+          errors: buildErrors({ legalNumber: [LagoApiError.ValueIsTooLong] }),
+          billingAddressPath: 'billingAddress',
+        })
+
+        expect(fields).toEqual({ legalNumber: { message: TOO_LONG_255_KEY } })
+      })
+    })
+
     describe('GIVEN an invalid_characters error', () => {
       it('THEN should use the invalid characters message', () => {
         const { fields } = getCustomerFieldErrors({
