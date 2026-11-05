@@ -85,6 +85,8 @@ export default {
     LAGO_OAUTH_PROXY_URL: 'https://proxy.lago.dev',
     LAGO_DISABLE_SIGNUP: 'false',
     LAGO_SELF_SERVE_ENABLED: 'false',
+    LAGO_US_FRONT_URL: '',
+    LAGO_EU_FRONT_URL: '',
     NANGO_PUBLIC_KEY: '',
     SENTRY_DSN: 'https://sentry.io/',
     LAGO_DISABLE_PDF_GENERATION: 'false',

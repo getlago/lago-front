@@ -5321,5 +5321,12 @@
   "text_1792500580727siznh9n5vxx": "Select dimensions",
   "text_17936131674161z4bfd6cpig": "events|event|events",
   "text_1792580016209ml8r6ycj2vu": "Plan rate cards",
-  "text_17925800162109zo2h16ap37": "Contract rate cards"
+  "text_17925800162109zo2h16ap37": "Contract rate cards",
+  "text_17938957879289meoplynt8w": "Welcome to Lago",
+  "text_1793895787929sip26kglyfp": "Hey there, create a new Lago account. By creating an account, you agree to our <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/company/terms-of-service\">Terms of Service</a> and <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/company/privacy-policy\">Privacy Policy</a>.",
+  "text_1793895787929z6qmg4nhys2": "You already have an account? <a href=\"{{link}}\">Log in</a>",
+  "text_1793895787929v97fwznv57v": "Data region",
+  "text_1793895787929iv5tx54sh92": "United States",
+  "text_1793895787929a6fnl607ebf": "European Union",
+  "text_1793895787929wmv3w9xecm9": "Your data is stored in this region. It can't be changed later."
 }
