@@ -65,30 +65,28 @@ export const InvoicingSettingsSection = withForm({
       },
     })
 
-    const summary = useMemo(() => {
-      const parts = [
+    const summary = useMemo(
+      () =>
         buildInvoicingSettingsSummary({
           consolidateInvoice: consolidateInvoice ?? true,
           invoiceCustomSection,
           showCustomSection,
+          paymentTermCopy:
+            paymentTermInheritedFrom && paymentTerm
+              ? getPaymentTermFormValuesCopy(paymentTerm, paymentTermInheritedFrom)
+              : undefined,
           translate,
         }),
-      ]
-
-      if (paymentTermInheritedFrom && paymentTerm) {
-        parts.push(getPaymentTermFormValuesCopy(paymentTerm, paymentTermInheritedFrom))
-      }
-
-      return parts.join(' • ')
-    }, [
-      consolidateInvoice,
-      invoiceCustomSection,
-      showCustomSection,
-      paymentTerm,
-      paymentTermInheritedFrom,
-      translate,
-      getPaymentTermFormValuesCopy,
-    ])
+      [
+        consolidateInvoice,
+        invoiceCustomSection,
+        showCustomSection,
+        paymentTerm,
+        paymentTermInheritedFrom,
+        translate,
+        getPaymentTermFormValuesCopy,
+      ],
+    )
 
     return (
       <Selector
