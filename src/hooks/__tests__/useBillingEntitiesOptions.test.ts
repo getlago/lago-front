@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 
 import {
   BillingEntityDocumentNumberingEnum,
@@ -170,16 +170,16 @@ describe('useBillingEntityById', () => {
     buildEntity({ id: '2', code: 'eu', name: 'Acme EU' }),
   ])
 
-  describe('GIVEN an id the collection is still loading', () => {
-    it('THEN reports loading with no entity, then resolves the entity', async () => {
+  describe('GIVEN an id while the collection is still loading', () => {
+    it('THEN is unresolved, then resolves the entity', async () => {
       const { result } = renderHook(() => useBillingEntityById('2'), {
         wrapper: createWrapper(mocks),
       })
 
-      expect(result.current).toEqual({ billingEntity: undefined, isLoading: true })
+      expect(result.current).toEqual({ billingEntity: undefined, isUnresolved: true })
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false)
+        expect(result.current.isUnresolved).toBe(false)
       })
 
       expect(result.current.billingEntity?.value).toBe('eu')
@@ -187,26 +187,50 @@ describe('useBillingEntityById', () => {
   })
 
   describe('GIVEN an id missing from the loaded collection', () => {
-    it('THEN stops loading without an entity', async () => {
-      const { result } = renderHook(() => useBillingEntityById('unknown'), {
-        wrapper: createWrapper(mocks),
-      })
+    it('THEN stays unresolved once the collection has loaded', async () => {
+      const { result } = renderHook(
+        () => ({
+          collection: useBillingEntitiesOptions(),
+          byId: useBillingEntityById('unknown'),
+        }),
+        { wrapper: createWrapper(mocks) },
+      )
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false)
+        expect(result.current.collection.isLoading).toBe(false)
       })
 
-      expect(result.current.billingEntity).toBeUndefined()
+      expect(result.current.byId).toEqual({ billingEntity: undefined, isUnresolved: true })
+    })
+  })
+
+  describe('GIVEN the billing entities query errors', () => {
+    it('THEN is unresolved', async () => {
+      const errorMocks = [
+        {
+          request: { query: GetBillingEntitiesDocument },
+          error: new Error('network error'),
+        },
+      ]
+      const { result } = renderHook(() => useBillingEntityById('2'), {
+        wrapper: createWrapper(errorMocks),
+      })
+
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 0))
+      })
+
+      expect(result.current).toEqual({ billingEntity: undefined, isUnresolved: true })
     })
   })
 
   describe.each([null, undefined, ''])('GIVEN the empty id %p', (billingEntityId) => {
-    it('THEN is not loading and has no entity', () => {
+    it('THEN is not unresolved and has no entity', () => {
       const { result } = renderHook(() => useBillingEntityById(billingEntityId), {
         wrapper: createWrapper([]),
       })
 
-      expect(result.current).toEqual({ billingEntity: undefined, isLoading: false })
+      expect(result.current).toEqual({ billingEntity: undefined, isUnresolved: false })
     })
   })
 })

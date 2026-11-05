@@ -113,17 +113,17 @@ export const useBillingEntitiesOptions = ({
 
 type UseBillingEntityByIdResult = {
   billingEntity: BillingEntityOption | undefined
-  isLoading: boolean
+  isUnresolved: boolean
 }
 
 export const useBillingEntityById = (
   billingEntityId: string | null | undefined,
 ): UseBillingEntityByIdResult => {
-  const { options, isLoading } = useBillingEntitiesOptions({ skip: !billingEntityId })
+  const { options } = useBillingEntitiesOptions({ skip: !billingEntityId })
 
-  if (!billingEntityId) return { billingEntity: undefined, isLoading: false }
+  if (!billingEntityId) return { billingEntity: undefined, isUnresolved: false }
 
   const billingEntity = options.find((option) => option.id === billingEntityId)
 
-  return { billingEntity, isLoading: isLoading && !billingEntity }
+  return { billingEntity, isUnresolved: !billingEntity }
 }

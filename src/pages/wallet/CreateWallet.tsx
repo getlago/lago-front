@@ -337,9 +337,9 @@ const CreateWallet = () => {
 
   const isDirty = useStore(form.store, (state) => state.isDirty)
   const walletBillingEntityId = useStore(form.store, (state) => state.values.billingEntityId)
-  const { billingEntity: issuingBillingEntity, isLoading: isBillingEntityLoading } =
+  const { billingEntity: issuingBillingEntity, isUnresolved: isBillingEntityUnresolved } =
     useBillingEntityById(walletBillingEntityId)
-  const paymentTermInheritedFrom = isBillingEntityLoading
+  const paymentTermInheritedFrom = isBillingEntityUnresolved
     ? undefined
     : getInheritedPaymentTerm({ customer: customerData?.customer, issuingBillingEntity })
 
