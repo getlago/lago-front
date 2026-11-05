@@ -62,7 +62,7 @@ const Example = ({ icon = false }: { icon?: boolean }): JSX.Element => {
             >
               <Download aria-hidden="true" />
               <span className="min-w-0">
-                Export customer
+                <span className="block truncate">Export customer</span>
                 <span id={descriptionId} className="v2-text-caption block truncate">
                   Available with export permission
                 </span>
