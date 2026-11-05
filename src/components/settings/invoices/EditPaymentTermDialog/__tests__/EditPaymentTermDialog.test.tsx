@@ -288,8 +288,10 @@ describe('EditPaymentTermDialog', () => {
         await retype(numericInput('dayOfMonth'), '32')
         await retype(numericInput('dayOfMonth'), '20')
 
-        expect(screen.queryByText(DAY_OF_MONTH_ERROR_KEY)).not.toBeInTheDocument()
-        expect(screen.getByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID)).toBeInTheDocument()
+        await waitFor(() => {
+          expect(screen.queryByText(DAY_OF_MONTH_ERROR_KEY)).not.toBeInTheDocument()
+          expect(screen.getByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID)).toBeInTheDocument()
+        })
       })
     })
   })
