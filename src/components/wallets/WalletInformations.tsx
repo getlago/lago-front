@@ -40,7 +40,7 @@ const SectionTitle = ({ title, subtitle }: { title: string; subtitle: string }) 
 const WalletInformations = ({ wallet }: WalletInformationsProps) => {
   const { translate } = useInternationalization()
   const { getBillingObjectPaymentTermCopy } = usePaymentTerm()
-  const { billingEntity: issuingBillingEntity, isLoading: isBillingEntityLoading } =
+  const { billingEntity: issuingBillingEntity, isUnresolved: isBillingEntityUnresolved } =
     useBillingEntityById(wallet?.billingEntityId)
   const {
     intlFormatDateTimeOrgaTZ,
@@ -94,7 +94,7 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
   })
 
   const paymentTermValue =
-    isBillingEntityLoading && !wallet.paymentTerm
+    isBillingEntityUnresolved && !wallet.paymentTerm
       ? '-'
       : getBillingObjectPaymentTermCopy({
           ownTerm: wallet.paymentTerm,

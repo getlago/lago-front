@@ -269,9 +269,9 @@ const CreateSubscription = () => {
     subscriptionForm,
   ])
 
-  const { billingEntity: issuingBillingEntity, isLoading: isBillingEntityLoading } =
+  const { billingEntity: issuingBillingEntity, isUnresolved: isBillingEntityUnresolved } =
     useBillingEntityById(subscriptionBillingEntityId)
-  const paymentTermInheritedFrom = isBillingEntityLoading
+  const paymentTermInheritedFrom = isBillingEntityUnresolved
     ? undefined
     : getInheritedPaymentTerm({ customer, issuingBillingEntity })
 

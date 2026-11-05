@@ -69,12 +69,12 @@ jest.mock('~/hooks/usePermissions', () => ({
 }))
 
 let mockBoundBillingEntity: { paymentTerm: { termType: PaymentTermTypeEnum } } | undefined
-let mockIsBillingEntityLoading = false
+let mockIsBillingEntityUnresolved = false
 
 jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
   useBillingEntityById: () => ({
     billingEntity: mockBoundBillingEntity,
-    isLoading: mockIsBillingEntityLoading,
+    isUnresolved: mockIsBillingEntityUnresolved,
   }),
 }))
 
@@ -107,7 +107,7 @@ describe('SubscriptionInvoiceSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockBoundBillingEntity = undefined
-    mockIsBillingEntityLoading = false
+    mockIsBillingEntityUnresolved = false
   })
 
   it('renders the invoicing header, consolidation, the custom-section display and the drawer', () => {
@@ -222,7 +222,7 @@ describe('SubscriptionInvoiceSection', () => {
 
     describe('WHEN the bound billing entity is still loading', () => {
       beforeEach(() => {
-        mockIsBillingEntityLoading = true
+        mockIsBillingEntityUnresolved = true
       })
 
       it('THEN shows a dash and gives the drawer no inherited term', () => {

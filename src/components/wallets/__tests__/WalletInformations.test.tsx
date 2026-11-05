@@ -56,13 +56,13 @@ jest.mock('~/hooks/useCustomerInvoiceCustomSections', () => ({
   }),
 }))
 
-let mockIsBillingEntityLoading = false
+let mockIsBillingEntityUnresolved = false
 
 jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
   ...jest.requireActual('~/hooks/useBillingEntitiesOptions'),
   useBillingEntityById: () => ({
     billingEntity: undefined,
-    isLoading: mockIsBillingEntityLoading,
+    isUnresolved: mockIsBillingEntityUnresolved,
   }),
 }))
 
@@ -112,7 +112,7 @@ describe('WalletInformations', () => {
     mockHasFeatureFlag = false
     mockPaymentMethodsList = []
     mockCustomerIcsData = null
-    mockIsBillingEntityLoading = false
+    mockIsBillingEntityUnresolved = false
   })
 
   describe('GIVEN no wallet', () => {
@@ -356,7 +356,7 @@ describe('WalletInformations', () => {
 
     describe('WHEN the wallet billing entity is still loading', () => {
       beforeEach(() => {
-        mockIsBillingEntityLoading = true
+        mockIsBillingEntityUnresolved = true
       })
 
       it('THEN shows a dash instead of a possibly wrong inherited term', () => {
