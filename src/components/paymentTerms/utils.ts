@@ -1,5 +1,4 @@
 import {
-  DEFAULT_PAYMENT_TERM,
   PAYMENT_TERM_DEFAULT_MONTH_OFFSET,
   PAYMENT_TERM_INHERIT,
 } from '~/core/constants/paymentTerm'
@@ -7,6 +6,7 @@ import {
   buildPaymentTermInput,
   MaybePaymentTerm,
   ResolvablePaymentTerm,
+  resolvePaymentTerm,
 } from '~/core/utils/paymentTerm'
 import { PaymentTermInput, PaymentTermTypeEnum } from '~/generated/graphql'
 
@@ -83,14 +83,15 @@ export const getInheritedPaymentTerm = ({
   customer,
   issuingBillingEntity,
 }: PaymentTermLevels): PaymentTermInheritedFrom => {
-  if (customer?.paymentTerm) {
-    return { term: customer.paymentTerm, labelKey: INHERIT_FROM_CUSTOMER_LABEL_KEY }
-  }
-
-  const billingEntity = issuingBillingEntity ?? customer?.billingEntity
+  const { term } = resolvePaymentTerm({
+    ownTerm: customer?.paymentTerm,
+    parentTerm: (issuingBillingEntity ?? customer?.billingEntity)?.paymentTerm,
+  })
 
   return {
-    term: billingEntity?.paymentTerm ?? DEFAULT_PAYMENT_TERM,
-    labelKey: INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
+    term,
+    labelKey: customer?.paymentTerm
+      ? INHERIT_FROM_CUSTOMER_LABEL_KEY
+      : INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
   }
 }
