@@ -14,6 +14,7 @@ declare var LAGO_DISABLE_SIGNUP: string
 declare var LAGO_SELF_SERVE_ENABLED: string
 declare var LAGO_US_FRONT_URL: string
 declare var LAGO_EU_FRONT_URL: string
+declare var LAGO_RECAPTCHA_SITE_KEY: string
 declare var NANGO_PUBLIC_KEY: string
 declare var SENTRY_DSN: string
 declare var LAGO_DISABLE_PDF_GENERATION: string

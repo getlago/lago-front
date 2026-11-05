@@ -8,6 +8,7 @@ import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { LOGIN_ROUTE } from '~/core/router'
 import * as localStorageUtils from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
+import { getRecaptchaToken, loadRecaptcha } from '~/core/utils/recaptcha'
 import {
   PASSWORD_VALIDATION_ERRORS,
   PASSWORD_VALIDATION_TEST_IDS,
@@ -44,6 +45,11 @@ jest.mock('~/core/form/scrollToFirstInputError', () => ({
   scrollToFirstInputError: jest.fn(),
 }))
 
+jest.mock('~/core/utils/recaptcha', () => ({
+  loadRecaptcha: jest.fn(),
+  getRecaptchaToken: jest.fn(),
+}))
+
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useSelfServeSignUpMutation: (...args: unknown[]) => mockUseSelfServeSignUpMutation(...args),
@@ -67,6 +73,8 @@ jest.mock('@tanstack/react-virtual', () => ({
 }))
 
 const mockedEnvGlobalVar = jest.mocked(envGlobalVar)
+const mockedLoadRecaptcha = jest.mocked(loadRecaptcha)
+const mockedGetRecaptchaToken = jest.mocked(getRecaptchaToken)
 
 const TERMS_OF_SERVICE_URL = 'https://www.getlago.com/company/terms-of-service'
 const PRIVACY_POLICY_URL = 'https://www.getlago.com/company/privacy-policy'
@@ -84,6 +92,8 @@ const VALID_EMAIL = 'jane@hooli.com'
 const PERSONAL_EMAIL = 'jane@gmail.com'
 const VALID_PASSWORD = 'Abcdefg1!'
 const SIGNUP_SECRET = 'signup-secret-1'
+const RECAPTCHA_TOKEN = 'recaptcha-token-1'
+const RETRY_RECAPTCHA_TOKEN = 'recaptcha-token-2'
 
 const EMAIL_REQUIRED_COPY = 'Please fill this input to move forward'
 const EMAIL_INVALID_COPY = 'This value is not an email address, please enter a valid email.'
@@ -92,6 +102,7 @@ const PASSWORD_REQUIRED_COPY = 'Password is required'
 const PASSWORD_TOO_LONG_COPY = 'Use a shorter password (72 characters at most).'
 const TOO_MANY_ATTEMPTS_COPY = 'Too many attempts. Please wait a few minutes and try again.'
 const SIGN_UP_UNAVAILABLE_COPY = 'Sign-up is unavailable right now. Please reload the page.'
+const CAPTCHA_FAILED_COPY = "We couldn't confirm you're human. Please try again."
 const GENERIC_ERROR_COPY = 'Something went wrong on our side. Please try again.'
 
 const SIGN_UP_SUCCESS = { data: { signUp: { signupSecret: SIGNUP_SECRET } } }
@@ -190,6 +201,8 @@ describe('SelfServeSignUp', () => {
     mockUseSignupEmailCheckLazyQuery.mockReturnValue([mockCheckSignupEmail])
     mockSignUp.mockResolvedValue(SIGN_UP_SUCCESS)
     mockCheckSignupEmail.mockResolvedValue(EMAIL_CHECK_VALID)
+    mockedLoadRecaptcha.mockResolvedValue(undefined)
+    mockedGetRecaptchaToken.mockResolvedValue(RECAPTCHA_TOKEN)
   })
 
   afterEach(() => {
@@ -267,6 +280,13 @@ describe('SelfServeSignUp', () => {
           fetchPolicy: 'no-cache',
           context: { silentError: true },
         })
+      })
+
+      it('THEN should start loading the reCAPTCHA script without asking for a token', () => {
+        render(<SelfServeSignUp />)
+
+        expect(mockedLoadRecaptcha).toHaveBeenCalledTimes(1)
+        expect(mockedGetRecaptchaToken).not.toHaveBeenCalled()
       })
     })
   })
@@ -535,7 +555,7 @@ describe('SelfServeSignUp', () => {
     })
 
     describe('WHEN both fields are valid', () => {
-      it('THEN should sign up with the trimmed email, the password and no captcha token', async () => {
+      it('THEN should sign up with the trimmed email, the password and the signup captcha token', async () => {
         const user = userEvent.setup()
 
         render(<SelfServeSignUp />)
@@ -546,10 +566,35 @@ describe('SelfServeSignUp', () => {
         await waitFor(() => {
           expect(mockSignUp).toHaveBeenCalledTimes(1)
         })
+        expect(mockedGetRecaptchaToken).toHaveBeenCalledTimes(1)
+        expect(mockedGetRecaptchaToken).toHaveBeenCalledWith('signup')
         expect(mockSignUp).toHaveBeenCalledWith({
           variables: {
-            input: { email: VALID_EMAIL, password: VALID_PASSWORD, captchaToken: null },
+            input: { email: VALID_EMAIL, password: VALID_PASSWORD, captchaToken: RECAPTCHA_TOKEN },
           },
+        })
+      })
+    })
+
+    describe('WHEN no captcha token can be obtained', () => {
+      beforeEach(() => {
+        mockedGetRecaptchaToken.mockResolvedValue(null)
+      })
+
+      it('THEN should still sign up with a null captcha token', async () => {
+        const user = userEvent.setup()
+
+        render(<SelfServeSignUp />)
+
+        await fillForm(user)
+        await submitForm(user)
+
+        await waitFor(() => {
+          expect(mockSignUp).toHaveBeenCalledWith({
+            variables: {
+              input: { email: VALID_EMAIL, password: VALID_PASSWORD, captchaToken: null },
+            },
+          })
         })
       })
     })
@@ -684,7 +729,8 @@ describe('SelfServeSignUp', () => {
         [LagoApiError.TooManyRequests, 429, TOO_MANY_ATTEMPTS_COPY],
         [LagoApiError.SelfServeDisabled, 403, SIGN_UP_UNAVAILABLE_COPY],
         [LagoApiError.SignupDisabled, 403, SIGN_UP_UNAVAILABLE_COPY],
-        ['captcha_failed', 403, GENERIC_ERROR_COPY],
+        [LagoApiError.CaptchaFailed, 403, CAPTCHA_FAILED_COPY],
+        [LagoApiError.CaptchaUnavailable, 500, GENERIC_ERROR_COPY],
       ])('THEN should show the %s message', async (code, status, expectedCopy) => {
         mockSignUp.mockResolvedValue(buildSignUpError({ status, code }))
 
@@ -710,14 +756,53 @@ describe('SelfServeSignUp', () => {
     })
 
     describe('WHEN the lock is busy once', () => {
-      it('THEN should retry silently and show the check email step', async () => {
+      beforeEach(() => {
         mockSignUp.mockResolvedValueOnce(LOCK_ERROR).mockResolvedValueOnce(SIGN_UP_SUCCESS)
+        mockedGetRecaptchaToken
+          .mockResolvedValueOnce(RECAPTCHA_TOKEN)
+          .mockResolvedValueOnce(RETRY_RECAPTCHA_TOKEN)
+      })
 
+      it('THEN should retry silently and show the check email step', async () => {
         await submitValidForm()
 
         expect(await screen.findByTestId(SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID)).toBeInTheDocument()
         expect(mockSignUp).toHaveBeenCalledTimes(2)
-        expect(mockSignUp.mock.calls[1]).toEqual(mockSignUp.mock.calls[0])
+      })
+
+      it('THEN should ask for a fresh signup captcha token after the first answer and send it', async () => {
+        await submitValidForm()
+
+        await screen.findByTestId(SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID)
+
+        expect(mockedGetRecaptchaToken.mock.calls).toEqual([['signup'], ['signup']])
+        expect(mockedGetRecaptchaToken.mock.invocationCallOrder[1]).toBeGreaterThan(
+          mockSignUp.mock.invocationCallOrder[0],
+        )
+        expect(mockSignUp.mock.calls).toEqual([
+          [
+            {
+              variables: {
+                input: {
+                  email: VALID_EMAIL,
+                  password: VALID_PASSWORD,
+                  captchaToken: RECAPTCHA_TOKEN,
+                },
+              },
+            },
+          ],
+          [
+            {
+              variables: {
+                input: {
+                  email: VALID_EMAIL,
+                  password: VALID_PASSWORD,
+                  captchaToken: RETRY_RECAPTCHA_TOKEN,
+                },
+              },
+            },
+          ],
+        ])
       })
     })
 

@@ -10,6 +10,7 @@ interface EnvGlobal {
   selfServeEnabled: boolean
   usFrontUrl: string
   euFrontUrl: string
+  recaptchaSiteKey: string
   appVersion: string
   nangoPublicKey: string
   sentryDsn: string
@@ -34,6 +35,7 @@ export const envGlobalVar = makeVar<EnvGlobal>({
     'true',
   usFrontUrl: (window.LAGO_US_FRONT_URL || LAGO_US_FRONT_URL || '').trim(),
   euFrontUrl: (window.LAGO_EU_FRONT_URL || LAGO_EU_FRONT_URL || '').trim(),
+  recaptchaSiteKey: (window.LAGO_RECAPTCHA_SITE_KEY || LAGO_RECAPTCHA_SITE_KEY || '').trim(),
   appVersion: APP_VERSION,
   nangoPublicKey: window.NANGO_PUBLIC_KEY || NANGO_PUBLIC_KEY,
   sentryDsn: window.SENTRY_DSN || SENTRY_DSN,

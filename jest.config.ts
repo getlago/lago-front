@@ -87,6 +87,7 @@ export default {
     LAGO_SELF_SERVE_ENABLED: 'false',
     LAGO_US_FRONT_URL: '',
     LAGO_EU_FRONT_URL: '',
+    LAGO_RECAPTCHA_SITE_KEY: '',
     NANGO_PUBLIC_KEY: '',
     SENTRY_DSN: 'https://sentry.io/',
     LAGO_DISABLE_PDF_GENERATION: 'false',
