@@ -1,7 +1,11 @@
 import { act, screen } from '@testing-library/react'
 
 import { PAYMENT_TERM_SETTINGS_ROW_TEST_ID } from '~/components/paymentTerms/dataTestConstants'
-import { FeatureFlagEnum, GetBillingEntitySettingsQuery } from '~/generated/graphql'
+import {
+  FeatureFlagEnum,
+  GetBillingEntitySettingsQuery,
+  PaymentTermTypeEnum,
+} from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import BillingEntityInvoiceSettings, {
@@ -66,13 +70,11 @@ const billingEntity = {
 } as unknown as NonNullable<GetBillingEntitySettingsQuery['billingEntity']>
 
 const renderSettings = async (
-  netPaymentTerm: NonNullable<
-    GetBillingEntitySettingsQuery['billingEntity']
-  >['netPaymentTerm'] = 30,
+  paymentTerm: NonNullable<GetBillingEntitySettingsQuery['billingEntity']>['paymentTerm'] = null,
 ): Promise<void> => {
   mockUseGetBillingEntitySettingsQuery.mockReturnValue({
     data: {
-      billingEntity: { ...billingEntity, netPaymentTerm },
+      billingEntity: { ...billingEntity, paymentTerm },
       taxes: { collection: [] },
       invoiceCustomSections: { collection: [] },
     },
@@ -91,14 +93,14 @@ describe('BillingEntityInvoiceSettings', () => {
   })
 
   it.each([
-    [null, '0 day'],
-    [0, '0 day'],
-    [1, '1 day'],
-    [30, '30 days'],
-  ])('GIVEN a net payment term of %s WHEN rendered THEN it shows %s', async (term, copy) => {
+    [null, 'Due on receipt'],
+    [{ termType: PaymentTermTypeEnum.Net, days: 1 }, 'Net 1 day'],
+    [{ termType: PaymentTermTypeEnum.Net, days: 30 }, 'Net 30 days'],
+    [{ termType: PaymentTermTypeEnum.EndOfMonth }, 'End of month'],
+  ])('GIVEN a payment term of %o WHEN rendered THEN it shows %s', async (term, copy) => {
     await renderSettings(term)
 
-    expect(screen.getByTestId(BILLING_ENTITY_NET_PAYMENT_TERM_TEST_ID)).toHaveTextContent(copy)
+    expect(screen.getByTestId(PAYMENT_TERM_SETTINGS_ROW_TEST_ID)).toHaveTextContent(copy)
   })
 
   it('GIVEN the product catalog flag is off WHEN rendered THEN the net payment term item is shown', async () => {
