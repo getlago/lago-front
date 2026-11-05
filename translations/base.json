@@ -5328,5 +5328,15 @@
   "text_1793895787929v97fwznv57v": "Data region",
   "text_1793895787929iv5tx54sh92": "United States",
   "text_1793895787929a6fnl607ebf": "European Union",
-  "text_1793895787929wmv3w9xecm9": "Your data is stored in this region. It can't be changed later."
+  "text_1793895787929wmv3w9xecm9": "Your data is stored in this region. It can't be changed later.",
+  "text_1793898059308qc1jmsri8vx": "Please use your company email address.",
+  "text_1793898059308o6phnqecxsw": "Use a shorter password (72 characters at most).",
+  "text_1793898059309ltbe60gt6pd": "Too many attempts. Please wait a few minutes and try again.",
+  "text_1793898059309an560s3nkan": "Sign-up is unavailable right now. Please reload the page.",
+  "text_1793898059309m0mmb7g8tw4": "Something went wrong on our side. Please try again.",
+  "text_1793898059309bceac2ri5mc": "Check your email",
+  "text_1793898059309lqujtjacaho": "We sent a verification link to <b>{{email}}</b>. Click the link in the email to finish creating your account.",
+  "text_1793898059309bhkfbbq9q2z": "Can't find it? Check your spam or promotions folder. The link expires in 24 hours.",
+  "text_17938980593099x6m52ys6t2": "Wrong email?",
+  "text_1793898059309vz0niu6emp8": "Go back"
 }
