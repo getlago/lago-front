@@ -98,8 +98,12 @@ describe('selfServeSignUpValidationSchema', () => {
   })
 
   describe('GIVEN an empty password', () => {
-    it('THEN should report the required message on the password field', () => {
-      expect(getMessages({ email: VALID_EMAIL, password: '' }, 'password')).toContain(REQUIRED)
+    it('THEN should report only the required message on the password field', () => {
+      const result = selfServeSignUpValidationSchema.safeParse({ email: VALID_EMAIL, password: '' })
+
+      expect(result.error?.issues.map(({ path, message }) => ({ path, message }))).toEqual([
+        { path: ['password'], message: REQUIRED },
+      ])
     })
   })
 

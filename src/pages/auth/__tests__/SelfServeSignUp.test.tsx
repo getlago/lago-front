@@ -656,6 +656,29 @@ describe('SelfServeSignUp', () => {
       })
     })
 
+    describe('WHEN the API refuses a password that meets the client rules', () => {
+      beforeEach(() => {
+        mockSignUp.mockResolvedValue(
+          buildSignUpError({
+            status: 422,
+            code: LagoApiError.UnprocessableEntity,
+            details: { password: ['password_missing_number'] },
+          }),
+        )
+      })
+
+      it('THEN should put the password field in error and stay on the form', async () => {
+        await submitValidForm()
+
+        await waitFor(() => {
+          expect(getPasswordInput()).toHaveAttribute('aria-invalid', 'true')
+        })
+        expect(getPasswordInput()).toHaveValue(VALID_PASSWORD)
+        expect(screen.queryByTestId(SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
     describe('WHEN the error is shown in the banner', () => {
       it.each([
         [LagoApiError.TooManyRequests, 429, TOO_MANY_ATTEMPTS_COPY],

@@ -6,7 +6,10 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox } from '~/components/form'
-import { PasswordValidationHints } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
+import {
+  PASSWORD_VALIDATION_KEYS,
+  PasswordValidationHints,
+} from '~/components/form/PasswordValidationHints/PasswordValidationHints'
 import { envGlobalVar } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
@@ -179,7 +182,11 @@ const SelfServeSignUp = (): JSX.Element => {
   })
 
   const password = useStore(form.store, (state) => state.values.password)
-  const hasSubmitted = useStore(form.store, (state) => state.submissionAttempts > 0)
+  const hasPasswordRuleError = useStore(form.store, (state) =>
+    (state.fieldMeta.password?.errors ?? []).some((error) =>
+      PASSWORD_VALIDATION_KEYS.some((ruleKey) => ruleKey === error?.message),
+    ),
+  )
   const passwordRuleErrors = getSelfServePasswordErrors(password)
 
   const onEmailBlur = async ({ value }: { value: string }): Promise<void> => {
@@ -315,10 +322,7 @@ const SelfServeSignUp = (): JSX.Element => {
                       SELF_SERVE_PASSWORD_TOO_LONG_ERROR,
                     ]}
                     errorOverride={
-                      hasSubmitted &&
-                      !!password &&
-                      passwordRuleErrors.length > 0 &&
-                      !isSelfServePasswordTooLong(password)
+                      hasPasswordRuleError && !isSelfServePasswordTooLong(password)
                         ? true
                         : undefined
                     }

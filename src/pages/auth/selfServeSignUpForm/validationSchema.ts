@@ -35,7 +35,7 @@ export const selfServeSignUpValidationSchema = z.object({
   email: selfServeSignUpEmailSchema,
   password: z
     .string()
-    .min(1, { message: PASSWORD_VALIDATION_ERRORS.REQUIRED })
+    .min(1, { message: PASSWORD_VALIDATION_ERRORS.REQUIRED, abort: true })
     .superRefine((value, ctx) => {
       getSelfServePasswordErrors(value).forEach((message) => {
         ctx.addIssue({ code: 'custom', message })
