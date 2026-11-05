@@ -232,6 +232,9 @@ export interface SubscriptionPricingState {
 
 const normalizeOptional = (value: string): string | null => (value === '' ? null : value)
 
+const isZeroAmount = (value: PlanFormInput['amountCents']): boolean =>
+  value !== '' && value !== null && value !== undefined && Number(value) === 0
+
 const serializeTaxes = (
   taxes: Array<{ id: string; code: string; name: string; rate: number }> | null | undefined,
 ): SerializedTax[] => {
@@ -435,6 +438,12 @@ export const buildPlanOverrides = (
       if (comparable(overrides[key]) === comparable(base[key])) {
         delete overrides[key]
       }
+    }
+
+    // `buildRawPlanOverrides` skips a zero fee, so a fee waived down from the catalog
+    // price never reaches the diff above.
+    if (isZeroAmount(formValues.amountCents) && Number(basePlanFormValues.amountCents) > 0) {
+      overrides.amountCents = 0
     }
 
     if (
