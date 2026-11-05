@@ -110,6 +110,7 @@ export const buildCustomerValidationSchema = (
     addCustomerTooLongIssues(values, ctx, {
       billingAddressPath: 'billingAddress',
       initialValues,
+      isShippingEqualBillingAddress: values.isShippingEqualBillingAddress,
     }),
   )
 

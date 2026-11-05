@@ -217,11 +217,12 @@ describe('buildEditCustomerBillingValidationSchema', () => {
   const parse = (
     values: Partial<EditCustomerBillingFormValues>,
     initialValues: EditCustomerBillingFormValues = editCustomerBillingDefaultValues,
+    isShippingEqualBillingAddress = false,
   ) =>
-    buildEditCustomerBillingValidationSchema(initialValues).safeParse({
-      ...editCustomerBillingDefaultValues,
-      ...values,
-    })
+    buildEditCustomerBillingValidationSchema(
+      initialValues,
+      isShippingEqualBillingAddress,
+    ).safeParse({ ...editCustomerBillingDefaultValues, ...values })
 
   describe('GIVEN over-limit portal values', () => {
     it('THEN should report them on the flat portal paths', () => {
@@ -270,6 +271,29 @@ describe('buildEditCustomerBillingValidationSchema', () => {
 
     it('THEN should reject it once edited', () => {
       expect(parse({ city: `${storedCity}b` }, initialValues).success).toBe(false)
+    })
+  })
+
+  describe('GIVEN the shipping address is synced with billing', () => {
+    // A synced shipping input is disabled, so an error on it would block submit with nothing
+    // the user can correct
+    it('THEN should report the over-limit value on the editable billing field', () => {
+      const tooLong = 'a'.repeat(501)
+      const result = parse(
+        {
+          addressLine1: tooLong,
+          shippingAddress: {
+            ...editCustomerBillingDefaultValues.shippingAddress,
+            addressLine1: tooLong,
+          },
+        },
+        editCustomerBillingDefaultValues,
+        true,
+      )
+
+      expect(result.error?.issues).toEqual([
+        expect.objectContaining({ message: TOO_LONG_500_KEY, path: ['addressLine1'] }),
+      ])
     })
   })
 

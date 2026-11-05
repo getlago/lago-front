@@ -90,13 +90,20 @@ const readFormPath = (values: unknown, path: string): unknown =>
 type CustomerLengthValidationOptions = {
   billingAddressPath?: string
   initialValues?: unknown
+  isShippingEqualBillingAddress?: boolean
 }
 
 export const addCustomerTooLongIssues = (
   values: unknown,
   ctx: z.RefinementCtx,
-  { billingAddressPath, initialValues }: CustomerLengthValidationOptions = {},
+  {
+    billingAddressPath,
+    initialValues,
+    isShippingEqualBillingAddress,
+  }: CustomerLengthValidationOptions = {},
 ): void => {
+  const reportedPaths = new Set<string>()
+
   CUSTOMER_CONSTRAINED_FIELDS.forEach((field) => {
     const path = getCustomerFieldFormPath(field, billingAddressPath)
     const value = readFormPath(values, path)
@@ -106,10 +113,20 @@ export const addCustomerTooLongIssues = (
     // A stored value longer than the limit stays saveable until it is edited
     if (value === readFormPath(initialValues, path)) return
 
+    // A synced shipping input is disabled, so its error goes to the billing field the user can
+    // still edit, where `getCustomerFieldErrors` also puts the server's
+    const issuePath =
+      isShippingEqualBillingAddress && field.group === 'shippingAddress'
+        ? getCustomerFieldFormPath({ ...field, group: 'billingAddress' }, billingAddressPath)
+        : path
+
+    if (reportedPaths.has(issuePath)) return
+    reportedPaths.add(issuePath)
+
     ctx.addIssue({
       code: 'custom',
       message: getCustomerTooLongErrorKey(field.maxLength),
-      path: path.split('.'),
+      path: issuePath.split('.'),
     })
   })
 }

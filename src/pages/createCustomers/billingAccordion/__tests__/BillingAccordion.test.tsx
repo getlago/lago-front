@@ -118,6 +118,44 @@ describe('BillingAccordion collapsed errors', () => {
     })
   })
 
+  describe('GIVEN the user collapses the accordion without fixing the field', () => {
+    it('THEN should reopen it on the next submit', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <TestBillingAccordionWithSchema
+          values={{
+            ...emptyCreateCustomerDefaultValues,
+            externalId: 'customer-123',
+            billingAddress: {
+              addressLine1: 'a'.repeat(501),
+              addressLine2: '',
+              city: '',
+              state: '',
+              zipcode: '',
+            },
+          }}
+        />,
+      )
+
+      await submit()
+      await waitFor(() => {
+        expect(screen.getAllByLabelText(/address line 1/i)).toHaveLength(2)
+      })
+
+      await user.click(screen.getAllByRole('button', { name: /billing information/i })[0])
+      await waitFor(() => {
+        expect(screen.queryAllByLabelText(/address line 1/i)).toHaveLength(0)
+      })
+
+      await submit()
+
+      await waitFor(() => {
+        expect(screen.getAllByLabelText(/address line 1/i)).toHaveLength(2)
+      })
+    })
+  })
+
   describe('GIVEN a collapsed accordion with valid values', () => {
     it('THEN should stay closed on submit', async () => {
       render(

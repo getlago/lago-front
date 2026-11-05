@@ -104,7 +104,10 @@ const EditCustomerBillingForm = ({
     defaultValues: initialValues,
     validationLogic: revalidateLogic(),
     validators: {
-      onDynamic: buildEditCustomerBillingValidationSchema(initialValues),
+      onDynamic: buildEditCustomerBillingValidationSchema(
+        initialValues,
+        isShippingEqualBillingAddress,
+      ),
     },
     listeners: {
       onChange: clearCustomerServerError,

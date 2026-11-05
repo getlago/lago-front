@@ -41,9 +41,10 @@ export type EditCustomerBillingFormValues = z.infer<typeof editCustomerBillingVa
 
 export const buildEditCustomerBillingValidationSchema = (
   initialValues: EditCustomerBillingFormValues,
+  isShippingEqualBillingAddress: boolean,
 ): typeof editCustomerBillingValidationSchema =>
   editCustomerBillingValidationSchema.superRefine((values, ctx) =>
-    addCustomerTooLongIssues(values, ctx, { initialValues }),
+    addCustomerTooLongIssues(values, ctx, { initialValues, isShippingEqualBillingAddress }),
   )
 
 export const editCustomerBillingDefaultValues: EditCustomerBillingFormValues = {

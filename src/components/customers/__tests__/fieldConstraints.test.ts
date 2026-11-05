@@ -15,7 +15,11 @@ const TOO_LONG_500_KEY = 'text_17932959847757c9xwcz2ltv'
 const EMOJI = '\u{1F44D}'
 const COMBINING_E = 'é'
 
-type ValidationOptions = { billingAddressPath?: string; initialValues?: unknown }
+type ValidationOptions = {
+  billingAddressPath?: string
+  initialValues?: unknown
+  isShippingEqualBillingAddress?: boolean
+}
 
 const parse = (values: unknown, options: ValidationOptions = {}): z.ZodIssue[] => {
   const result = z
@@ -126,6 +130,40 @@ describe('customerFieldConstraints', () => {
             message: TOO_LONG_500_KEY,
             path: ['shippingAddress', 'addressLine1'],
           }),
+        ])
+      })
+    })
+
+    describe('GIVEN the shipping address is synced with billing', () => {
+      const tooLong = 'a'.repeat(CUSTOMER_TEXT_MAX_LENGTH + 1)
+
+      it('THEN should report a shipping-only error on the billing field', () => {
+        const values = { shippingAddress: { city: tooLong } }
+
+        expect(
+          parse(values, {
+            billingAddressPath: 'billingAddress',
+            isShippingEqualBillingAddress: true,
+          }),
+        ).toEqual([expect.objectContaining({ path: ['billingAddress', 'city'] })])
+      })
+
+      it('THEN should report the pair once', () => {
+        const values = { billingAddress: { city: tooLong }, shippingAddress: { city: tooLong } }
+
+        expect(
+          parse(values, {
+            billingAddressPath: 'billingAddress',
+            isShippingEqualBillingAddress: true,
+          }),
+        ).toEqual([expect.objectContaining({ path: ['billingAddress', 'city'] })])
+      })
+
+      it('THEN should keep the shipping path when the addresses are independent', () => {
+        const values = { shippingAddress: { city: tooLong } }
+
+        expect(parse(values, { billingAddressPath: 'billingAddress' })).toEqual([
+          expect.objectContaining({ path: ['shippingAddress', 'city'] }),
         ])
       })
     })

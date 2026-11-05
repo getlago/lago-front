@@ -36,9 +36,13 @@ const BillingAccordion = withForm({
       )
     })
 
+    // Keyed on the attempt too: a user who collapses the accordion without fixing the field
+    // leaves `hasErrors` true, and the next submit would otherwise do nothing visible
+    const submissionAttempts = useStore(form.store, (state) => state.submissionAttempts)
+
     useEffect(() => {
       if (hasErrors) setIsOpen(true)
-    }, [hasErrors])
+    }, [hasErrors, submissionAttempts])
 
     const billingAddress = useStore(form.store, (state) => state.values.billingAddress)
     const isShippingEqualBillingAddress = useStore(
