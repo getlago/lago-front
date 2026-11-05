@@ -2,14 +2,18 @@ import { AnyFormApi } from '@tanstack/react-form'
 import { GraphQLFormattedError } from 'graphql'
 
 import {
+  CUSTOMER_CONSTRAINED_FIELDS,
+  CUSTOMER_TEXT_MAX_LENGTH,
+  getCustomerConstrainedField,
+  getCustomerFieldFormPath,
+  getCustomerTooLongErrorKey,
+} from '~/components/customers/fieldConstraints'
+import {
   Customer,
   CustomerTypeEnum,
   IntegrationsListForCustomerMainInfosQuery,
   LagoApiError,
 } from '~/generated/graphql'
-
-export const CUSTOMER_TEXT_MAX_LENGTH = 255
-export const CUSTOMER_ADDRESS_LINE_MAX_LENGTH = 500
 
 const CUSTOMER_FIELD_ERROR_CODES: string[] = [
   LagoApiError.InvalidCharacters,
@@ -18,18 +22,22 @@ const CUSTOMER_FIELD_ERROR_CODES: string[] = [
 const isCustomerFieldErrorCode = (code: unknown): code is string =>
   typeof code === 'string' && CUSTOMER_FIELD_ERROR_CODES.includes(code)
 
-const BILLING_ADDRESS_KEYS = ['addressLine1', 'addressLine2', 'zipcode', 'city', 'state']
+const BILLING_ADDRESS_KEYS = CUSTOMER_CONSTRAINED_FIELDS.filter(
+  ({ group }) => group === 'billingAddress',
+).map(({ name }) => name)
 const SHIPPING_KEY_PREFIX = 'shipping'
 
 const getCustomerFieldPath = (key: string, billingAddressPath?: string): string => {
+  const constrainedField = getCustomerConstrainedField(key)
+
+  if (constrainedField) return getCustomerFieldFormPath(constrainedField, billingAddressPath)
+
+  // A field the API constrains but the forms do not: keep it addressable so its error still
+  // lands on the matching input
   if (key.startsWith(SHIPPING_KEY_PREFIX)) {
     const addressKey = key.slice(SHIPPING_KEY_PREFIX.length)
 
     return `shippingAddress.${addressKey.charAt(0).toLowerCase()}${addressKey.slice(1)}`
-  }
-
-  if (billingAddressPath && BILLING_ADDRESS_KEYS.includes(key)) {
-    return `${billingAddressPath}.${key}`
   }
 
   return key
@@ -37,9 +45,10 @@ const getCustomerFieldPath = (key: string, billingAddressPath?: string): string 
 
 const getCustomerFieldErrorKey = (key: string, code: string): string => {
   if (code === LagoApiError.InvalidCharacters) return 'text_1793265036704k3gcjfhp5lo'
-  if (/addressLine/i.test(key)) return 'text_17932959847757c9xwcz2ltv'
 
-  return 'text_1793265036704cnkqwk0atap'
+  return getCustomerTooLongErrorKey(
+    getCustomerConstrainedField(key)?.maxLength ?? CUSTOMER_TEXT_MAX_LENGTH,
+  )
 }
 
 type CustomerFieldErrors = {

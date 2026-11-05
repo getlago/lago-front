@@ -27,7 +27,7 @@ import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 import BillingAccordion from './billingAccordion/BillingAccordion'
 import CustomerInformation from './customerInformation/CustomerInformation'
 import ExternalAppsAccordion from './externalAppsAccordion/ExternalAppsAccordion'
-import { validationSchema } from './formInitialization/validationSchema'
+import { buildCustomerValidationSchema } from './formInitialization/validationSchema'
 import { mapFromApiToForm } from './mappers/mapFromApiToForm'
 import { mapFromFormToApi } from './mappers/mapFromFormToApi'
 import MetadataAccordion from './metadataAccordion/MetadataAccordion'
@@ -62,11 +62,13 @@ const CreateCustomer = () => {
   const canEditAccountType =
     hasAccessToRevenueShare && (isEdition ? customer?.canEditAttributes : true)
 
+  const initialValues = mapFromApiToForm(customer, defaultBillingEntity)
+
   const form = useAppForm({
-    defaultValues: mapFromApiToForm(customer, defaultBillingEntity),
+    defaultValues: initialValues,
     validationLogic: revalidateLogic(),
     validators: {
-      onDynamic: validationSchema,
+      onDynamic: buildCustomerValidationSchema(initialValues),
     },
     listeners: {
       onChange: clearCustomerServerError,

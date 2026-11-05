@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { ConnectionCategory } from '~/components/customerConnections/types'
+import { addCustomerTooLongIssues } from '~/components/customers/fieldConstraints'
 import { zodMetadataSchema } from '~/formValidation/metadataSchema'
 import { zodMultipleEmails, zodOptionalUrl } from '~/formValidation/zodCustoms'
 import {
@@ -101,6 +102,17 @@ export const validationSchema = z.object({
 })
 
 export type CreateCustomerDefaultValues = z.infer<typeof validationSchema>
+
+export const buildCustomerValidationSchema = (
+  initialValues: CreateCustomerDefaultValues,
+): typeof validationSchema =>
+  validationSchema.superRefine((values, ctx) =>
+    addCustomerTooLongIssues(values, ctx, {
+      billingAddressPath: 'billingAddress',
+      initialValues,
+      isShippingEqualBillingAddress: values.isShippingEqualBillingAddress,
+    }),
+  )
 
 // Only used to have proper typing for default values on subforms. Those values will never be used
 export const emptyCreateCustomerDefaultValues: CreateCustomerDefaultValues = {
