@@ -8,7 +8,7 @@ import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 
-import { getInvoiceCustomSectionSummaryKey } from './invoicingSettingsSummary'
+import { buildCustomSectionSummary } from './invoicingSettingsSummary'
 import { useInvoicingSettingsDrawer } from './useInvoicingSettingsDrawer'
 
 export { INVOICING_SUMMARY_KEYS } from './invoicingSettingsSummary'
@@ -57,15 +57,17 @@ export const InvoicingSettingsSelector = ({
     },
   })
 
-  const summary = useMemo(() => {
-    const parts = [translate(getInvoiceCustomSectionSummaryKey(value))]
-
-    if (paymentTerm) {
-      parts.push(getPaymentTermFormValuesCopy(paymentTerm.value, paymentTerm.inheritedFrom))
-    }
-
-    return parts.join(' • ')
-  }, [value, paymentTerm, translate, getPaymentTermFormValuesCopy])
+  const summary = useMemo(
+    () =>
+      buildCustomSectionSummary({
+        invoiceCustomSection: value,
+        paymentTermCopy: paymentTerm
+          ? getPaymentTermFormValuesCopy(paymentTerm.value, paymentTerm.inheritedFrom)
+          : undefined,
+        translate,
+      }),
+    [value, paymentTerm, translate, getPaymentTermFormValuesCopy],
+  )
 
   return (
     <Selector
