@@ -84,6 +84,7 @@ export default {
     IS_REACT_ACT_ENVIRONMENT: true,
     LAGO_OAUTH_PROXY_URL: 'https://proxy.lago.dev',
     LAGO_DISABLE_SIGNUP: 'false',
+    LAGO_SELF_SERVE_ENABLED: 'false',
     NANGO_PUBLIC_KEY: '',
     SENTRY_DSN: 'https://sentry.io/',
     LAGO_DISABLE_PDF_GENERATION: 'false',

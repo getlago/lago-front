@@ -3,11 +3,12 @@ import { envGlobalVar } from '~/core/apolloClient'
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
-const { disableSignUp } = envGlobalVar()
+const { disableSignUp, selfServeEnabled } = envGlobalVar()
 
 // ----------- Pages -----------
 const Login = lazyLoad(() => import('~/pages/auth/Login'))
 const SignUp = lazyLoad(() => import('~/pages/auth/SignUp'))
+const SelfServeSignUp = lazyLoad(() => import('~/pages/auth/SelfServeSignUp'))
 const ForgotPassword = lazyLoad(() => import('~/pages/auth/ForgotPassword'))
 const ResetPassword = lazyLoad(() => import('~/pages/auth/ResetPassword'))
 
@@ -38,7 +39,7 @@ export const authRoutes: CustomRouteObject[] = [
     ? [
         {
           path: SIGN_UP_ROUTE,
-          element: <SignUp />,
+          element: selfServeEnabled ? <SelfServeSignUp /> : <SignUp />,
           onlyPublic: true,
         },
       ]
