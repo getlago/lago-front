@@ -14,7 +14,10 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { InvoiceTaxesDisplay, TaxMapType } from '~/components/invoices/InvoiceTaxesDisplay'
-import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
+import {
+  InvoicingSettingsPaymentTermProps,
+  InvoicingSettingsSelector,
+} from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
 import { getInheritedPaymentTerm } from '~/components/paymentTerms/utils'
 import { PurchaseOrder } from '~/components/purchaseOrder/PO'
@@ -556,6 +559,19 @@ const CreateInvoice = () => {
     currency,
   )
 
+  // A regenerated invoice keeps the term of the one it replaces.
+  const invoicingSettingsPaymentTerm: InvoicingSettingsPaymentTermProps | undefined =
+    voidedInvoiceId || isBillingEntityLoading
+      ? undefined
+      : {
+          value: formValues.paymentTerm,
+          onChange: (value) => form.setFieldValue('paymentTerm', value),
+          inheritedFrom: getInheritedPaymentTerm({
+            customer,
+            issuingBillingEntity: billingEntity,
+          }),
+        }
+
   return (
     <>
       <PageHeader.Wrapper>
@@ -868,19 +884,7 @@ const CreateInvoice = () => {
                     customerId={customer.id}
                     value={formValues.invoiceCustomSection}
                     onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
-                    // A regenerated invoice keeps the term of the one it replaces.
-                    paymentTerm={
-                      voidedInvoiceId || isBillingEntityLoading
-                        ? undefined
-                        : {
-                            value: formValues.paymentTerm,
-                            onChange: (value) => form.setFieldValue('paymentTerm', value),
-                            inheritedFrom: getInheritedPaymentTerm({
-                              customer,
-                              issuingBillingEntity: billingEntity,
-                            }),
-                          }
-                    }
+                    paymentTerm={invoicingSettingsPaymentTerm}
                   />
                 </section>
               )}

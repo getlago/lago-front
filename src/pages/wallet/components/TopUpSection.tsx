@@ -8,7 +8,10 @@ import { Button } from '~/components/designSystem/Button'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
-import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
+import {
+  InvoicingSettingsPaymentTermProps,
+  InvoicingSettingsSelector,
+} from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { ConnectionPaymentSettingsSelector } from '~/components/paymentSettings/connectionFirst/ConnectionPaymentSettingsSelector'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
 import { PaymentTermInheritedFrom } from '~/components/paymentTerms/types'
@@ -272,6 +275,15 @@ export const TopUpSection = withForm({
       )
     }
 
+    const invoicingSettingsPaymentTerm: InvoicingSettingsPaymentTermProps | undefined =
+      paymentTermInheritedFrom
+        ? {
+            value: walletValues.paymentTerm,
+            onChange: (value) => form.setFieldValue('paymentTerm', value),
+            inheritedFrom: paymentTermInheritedFrom,
+          }
+        : undefined
+
     return (
       <>
         {renderRecurringRuleSection()}
@@ -297,13 +309,7 @@ export const TopUpSection = withForm({
               customerId={customerData.customer.id}
               value={walletValues.invoiceCustomSection}
               onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
-              paymentTerm={
-                paymentTermInheritedFrom && {
-                  value: walletValues.paymentTerm,
-                  onChange: (value) => form.setFieldValue('paymentTerm', value),
-                  inheritedFrom: paymentTermInheritedFrom,
-                }
-              }
+              paymentTerm={invoicingSettingsPaymentTerm}
             />
           </section>
         )}
