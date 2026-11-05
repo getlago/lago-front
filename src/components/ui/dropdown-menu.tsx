@@ -83,9 +83,10 @@ DropdownMenuSubContent.displayName = 'DropdownMenuSubContent'
 export const DropdownMenuItem = React.forwardRef<
   React.ElementRef<typeof Menu.Item>,
   React.ComponentPropsWithoutRef<typeof Menu.Item> & { variant?: 'default' | 'destructive' }
->(({ className, variant = 'default', children, ...props }, ref) => (
+>(({ className, variant = 'default', children, asChild, ...props }, ref) => (
   <Menu.Item
     {...props}
+    asChild={asChild}
     ref={ref}
     className={cn(
       itemClasses,
@@ -93,7 +94,7 @@ export const DropdownMenuItem = React.forwardRef<
       className,
     )}
   >
-    {truncateItemText(children)}
+    {asChild ? children : truncateItemText(children)}
   </Menu.Item>
 ))
 DropdownMenuItem.displayName = 'DropdownMenuItem'

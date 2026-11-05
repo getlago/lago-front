@@ -62,6 +62,30 @@ const openKeyboard = async (): Promise<ReturnType<typeof userEvent.setup>> => {
 }
 
 describe('Shadcn DropdownMenu', () => {
+  it('preserves link items rendered with asChild', async () => {
+    const onSelect = jest.fn()
+
+    render(
+      <DropdownMenu>
+        <DropdownMenuTrigger>Actions</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem asChild onSelect={onSelect}>
+            <a href="#details">View details</a>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>,
+    )
+    const user = await openKeyboard()
+    const item = screen.getByRole('menuitem', { name: 'View details' })
+
+    expect(item.tagName).toBe('A')
+    expect(item).toHaveAttribute('href', '#details')
+    await waitFor(() => expect(item).toHaveFocus())
+    await user.keyboard('{Enter}')
+    expect(onSelect).toHaveBeenCalledTimes(1)
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument())
+  })
+
   it('opens from the keyboard, skips disabled items and restores focus on Escape', async () => {
     render(<Example />)
     const user = await openKeyboard()
