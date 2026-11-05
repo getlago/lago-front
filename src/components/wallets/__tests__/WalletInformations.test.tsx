@@ -339,7 +339,14 @@ describe('WalletInformations', () => {
     describe('WHEN neither the wallet nor the customer has a term', () => {
       it('THEN shows the term marked as inherited from the billing entity', () => {
         // The hint used to name the customer even when the term came from the entity.
-        render(<WalletInformations wallet={createMockWallet()} />)
+        render(
+          <WalletInformations
+            wallet={createMockWallet({
+              paymentTerm: null,
+              customer: { id: 'cust-1', externalId: 'ext-1', paymentTerm: null },
+            })}
+          />,
+        )
 
         expect(
           getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY),

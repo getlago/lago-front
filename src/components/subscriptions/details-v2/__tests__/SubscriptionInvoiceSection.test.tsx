@@ -193,7 +193,13 @@ describe('SubscriptionInvoiceSection', () => {
     })
 
     it('shows the billing entity term marked as inherited from the entity otherwise', () => {
-      renderSection()
+      mockBoundBillingEntity = undefined
+
+      renderSection({
+        paymentTerm: null,
+        billingEntityId: null,
+        customer: { ...subscription.customer, paymentTerm: null },
+      })
 
       expect(paymentTermItem().value).toContain(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)
       expect(paymentTermItem().value).toContain(

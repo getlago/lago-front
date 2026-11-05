@@ -237,7 +237,7 @@ describe('InvoicingSettingsSelector', () => {
 
   describe('GIVEN the object carries no payment term override', () => {
     it('THEN should leave the drawer payment term section off', () => {
-      renderSelector()
+      renderSelector({ paymentTerm: undefined })
 
       expect(lastDrawerProps().paymentTermInheritedFrom).toBeUndefined()
       expect(lastSelectorProps().subtitle).toBe(INVOICING_SUMMARY_KEYS.fallback)
