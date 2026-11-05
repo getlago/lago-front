@@ -240,7 +240,7 @@ const CreateInvoice = () => {
     billingEntityOptions.find((o) => o.id === pickedBillingEntityId)?.value ??
     customer?.billingEntity?.code
 
-  const { data: billingEntityData } = useGetBillingEntityQuery({
+  const { data: billingEntityData, loading: isBillingEntityLoading } = useGetBillingEntityQuery({
     variables: {
       code: activeBillingEntityCode as string,
     },
@@ -870,7 +870,7 @@ const CreateInvoice = () => {
                     onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
                     // A regenerated invoice keeps the term of the one it replaces.
                     paymentTerm={
-                      voidedInvoiceId
+                      voidedInvoiceId || isBillingEntityLoading
                         ? undefined
                         : {
                             value: formValues.paymentTerm,

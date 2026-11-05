@@ -63,17 +63,21 @@ export const SubscriptionInvoiceSection = ({ subscription }: SubscriptionInvoice
   const { hasPermissions } = usePermissions()
   const { saveInvoicing } = useUpdateSubscriptionSettings(subscription.id)
   const { getBillingObjectPaymentTermCopy } = usePaymentTerm()
-  const issuingBillingEntity = useBillingEntityById(subscription.billingEntityId)
+  const { billingEntity: issuingBillingEntity, isLoading: isBillingEntityLoading } =
+    useBillingEntityById(subscription.billingEntityId)
 
   const showCustomSection = !!subscription.customer?.id
   const paymentTermLevels = { customer: subscription.customer, issuingBillingEntity }
+  const isInheritedTermPending = isBillingEntityLoading && !subscription.paymentTerm
 
   const { openDrawer } = useInvoicingSettingsDrawer({
     viewType: ViewTypeEnum.Subscription,
     customerId: subscription.customer?.id,
     showCustomSection,
     withInvoiceConsolidation: true,
-    paymentTermInheritedFrom: getInheritedPaymentTerm(paymentTermLevels),
+    paymentTermInheritedFrom: isBillingEntityLoading
+      ? undefined
+      : getInheritedPaymentTerm(paymentTermLevels),
     onSave: saveInvoicing,
   })
 
@@ -111,10 +115,14 @@ export const SubscriptionInvoiceSection = ({ subscription }: SubscriptionInvoice
       {/* Payment term */}
       <DetailsPage.InfoGridItem
         label={translate('text_1778660219891rv2r5gjmklq')}
-        value={getBillingObjectPaymentTermCopy({
-          ownTerm: subscription.paymentTerm,
-          ...paymentTermLevels,
-        })}
+        value={
+          isInheritedTermPending
+            ? '-'
+            : getBillingObjectPaymentTermCopy({
+                ownTerm: subscription.paymentTerm,
+                ...paymentTermLevels,
+              })
+        }
       />
 
       {/* Invoice custom sections */}

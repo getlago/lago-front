@@ -269,7 +269,11 @@ const CreateSubscription = () => {
     subscriptionForm,
   ])
 
-  const issuingBillingEntity = useBillingEntityById(subscriptionBillingEntityId)
+  const { billingEntity: issuingBillingEntity, isLoading: isBillingEntityLoading } =
+    useBillingEntityById(subscriptionBillingEntityId)
+  const paymentTermInheritedFrom = isBillingEntityLoading
+    ? undefined
+    : getInheritedPaymentTerm({ customer, issuingBillingEntity })
 
   const { form: planForm, plan } = usePlanForm({
     planIdToFetch: subscriptionPlanId,
@@ -618,10 +622,7 @@ const CreateSubscription = () => {
                         <InvoicingSettingsSection
                           form={subscriptionForm}
                           customerId={customer?.id}
-                          paymentTermInheritedFrom={getInheritedPaymentTerm({
-                            customer,
-                            issuingBillingEntity,
-                          })}
+                          paymentTermInheritedFrom={paymentTermInheritedFrom}
                         />
                       </CenteredPage.PageSection>
 
