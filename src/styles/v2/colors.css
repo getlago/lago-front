@@ -142,7 +142,7 @@
   --color-text-default: var(--v2-neutral-100);
   --color-text-muted: var(--v2-neutral-250);
   --color-text-subtle: var(--v2-neutral-300);
-  --color-border-divider: var(--v2-neutral-800);
+  --color-border-divider: var(--v2-neutral-700);
   --color-border-control: var(--v2-neutral-525);
   --color-border-strong: var(--v2-neutral-300);
   --color-action-primary: var(--v2-brand-600);
@@ -159,7 +159,7 @@
   --color-focus-border: var(--v2-brand-300);
   --color-disabled: var(--v2-neutral-850);
   --color-disabled-foreground: var(--v2-neutral-500);
-  --color-disabled-border: var(--v2-neutral-700);
+  --color-disabled-border: var(--v2-neutral-800);
   --color-info: var(--v2-neutral-800);
   --color-info-foreground: var(--v2-neutral-200);
   --color-info-border: var(--v2-neutral-700);
