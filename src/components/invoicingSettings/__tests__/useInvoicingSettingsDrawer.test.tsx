@@ -260,6 +260,31 @@ describe('useInvoicingSettingsDrawer', () => {
     expect(screen.queryByTestId('payment-term-fields')).not.toBeInTheDocument()
   })
 
+  it('shows the payment term section once the inherited term resolves after the drawer opened', () => {
+    const hostProps: UseInvoicingSettingsDrawerProps = {
+      viewType: ViewTypeEnum.Subscription,
+      customerId: 'cust_1',
+      showCustomSection: true,
+      withInvoiceConsolidation: true,
+      paymentTermInheritedFrom: undefined,
+      onSave: jest.fn(),
+    }
+    const { rerender } = render(<DrawerHost {...hostProps} />)
+
+    act(() => captured.current?.({ consolidateInvoice: true }))
+
+    const opened = mockOpen.mock.calls[0][0] as { children: ReactNode }
+
+    render(<>{opened.children}</>)
+
+    expect(screen.queryByTestId('payment-term-fields')).not.toBeInTheDocument()
+
+    rerender(<DrawerHost {...hostProps} paymentTermInheritedFrom={{ ...INHERITED_FROM }} />)
+
+    expect(screen.getByTestId('payment-term-fields')).toBeInTheDocument()
+    expect(mockOpen).toHaveBeenCalledTimes(1)
+  })
+
   it('blocks submit and surfaces the error when "apply" is picked with no section', async () => {
     const { onSave } = renderDrawer()
 
