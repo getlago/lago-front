@@ -20,12 +20,7 @@ const DAY_OF_MONTH_ERROR_KEY = 'text_1789042962229ojqymcu3289'
 const MONTH_OFFSET_ERROR_KEY = 'text_1789042962229esmw981wwyt'
 
 type PaymentTermFormContentExtraProps = {
-  /**
-   * Prepends an inherit choice to the term type list, labelled with the value that would
-   * be inherited. Omit it on a level that has no parent to fall back to.
-   */
   inheritedFrom?: PaymentTermInheritedFrom
-  /** Set when the form is rendered inside a dialog, so the popper escapes it. */
   displayInDialog?: boolean
 }
 
@@ -34,12 +29,6 @@ const paymentTermFormContentDefaultProps: PaymentTermFormContentExtraProps = {
   displayInDialog: false,
 }
 
-/**
- * The payment term editor. Every surface that can carry a term renders this same block:
- * the term type, the numeric fields that type accepts, and a preview of the due date it
- * would produce. A field group, so it binds to the top level of a dialog form as well as
- * to a nested `paymentTerm` object inside a larger form.
- */
 export const PaymentTermFormContent = withFieldGroup({
   defaultValues: PAYMENT_TERM_FORM_DEFAULT_VALUES,
   props: paymentTermFormContentDefaultProps,

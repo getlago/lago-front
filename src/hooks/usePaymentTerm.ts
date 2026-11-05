@@ -28,12 +28,7 @@ import {
 import { PaymentTermTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-/**
- * The count handed to `translate` as the plural selector, and the interpolations the
- * value and preview copy expect. Kept together so a term is described in exactly one way
- * wherever it is rendered. The day-of-month copy has one variant per month offset
- * (this month, the following month, N months after), so the offset drives its plural.
- */
+// The day-of-month copy has one variant per month offset, so the offset drives its plural.
 const termCopyData = (
   term: ResolvablePaymentTerm,
 ): { data: Record<string, number>; plural: number } => {
@@ -58,19 +53,12 @@ const termCopyData = (
   }
 }
 
-/**
- * A due date is a calendar date, not an instant. Anchoring it to UTC keeps `endOf('month')`
- * on the last day of the month: read in the browser zone it is 23:59:59.999, which
- * `intlFormatDateTime` then renders as the 1st anywhere west of Greenwich.
- */
+// Anchored to UTC so `endOf('month')` does not render as the 1st in zones west of Greenwich.
 const asCalendarDate = (date: DateTime): DateTime => date.setZone('utc', { keepLocalTime: true })
 
 export const usePaymentTerm = () => {
   const { translate } = useInternationalization()
 
-  /**
-   * How a resolved term reads as a settings-row value, e.g. `Net 30 days`.
-   */
   const formatPaymentTerm = (term: ResolvablePaymentTerm): string => {
     const shownTerm = displayedPaymentTerm(term)
     const { data, plural } = termCopyData(shownTerm)
@@ -78,10 +66,6 @@ export const usePaymentTerm = () => {
     return translate(PAYMENT_TERM_VALUE_KEYS[shownTerm.termType], data, plural)
   }
 
-  /**
-   * The value shown on a settings row that can inherit from its parent level: the
-   * effective term, marked as inherited when it did not come from this level.
-   */
   const getPaymentTermCopy = ({
     ownTerm,
     parentTerm,
@@ -97,11 +81,7 @@ export const usePaymentTerm = () => {
     return translate('text_1728374331992d2alok9y3kr', { value })
   }
 
-  /**
-   * Previews the due date the term would produce, so the two end-of-month conventions
-   * can be told apart before saving. The API has no preview endpoint — the date is
-   * computed with the same calendar rules the API applies at finalization.
-   */
+  // The API has no preview endpoint: the date is computed with its finalization rules.
   const getDueDatePreviewCopy = (
     term: ResolvablePaymentTerm,
     issuingDate: DateTime = DateTime.fromISO(PAYMENT_TERM_PREVIEW_ISSUING_DATE, { zone: 'utc' }),
@@ -123,13 +103,7 @@ export const usePaymentTerm = () => {
     )
   }
 
-  /**
-   * The six term types, in the spec's order. Rendered with `sortValues={false}` so this
-   * order is what the user sees.
-   *
-   * `inheritedFrom` prepends the inherit choice for a level that can fall back to its
-   * parent, labelled with the value it would inherit — selecting it clears the override.
-   */
+  // Rendered with `sortValues={false}`, so this order is what the user sees.
   const getTermTypeComboboxData = (options?: {
     inheritedFrom?: { term: ResolvablePaymentTerm; labelKey: string }
   }): BasicComboBoxData[] => {

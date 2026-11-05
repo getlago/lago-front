@@ -18,15 +18,6 @@ export type PaymentTermFormValues = {
   monthOffset: string
 }
 
-/**
- * `termType` starts out unset, so a level with no term of its own and nothing to inherit
- * from reports a required-field error instead of submitting an empty term. A level that
- * can inherit is seeded with `PAYMENT_TERM_INHERIT` by its caller.
- *
- * The numeric fields are seeded rather than left blank so that switching term type
- * reveals a usable value straight away. Values belonging to a type the user moved away
- * from are simply not sent: `buildPaymentTermInput` emits only the chosen type's fields.
- */
 /** Binds `PaymentTermFormContent` to a form whose values are the term itself. */
 export const PAYMENT_TERM_FORM_TOP_LEVEL_FIELDS = {
   termType: 'termType',
@@ -35,6 +26,7 @@ export const PAYMENT_TERM_FORM_TOP_LEVEL_FIELDS = {
   monthOffset: 'monthOffset',
 } as const
 
+// `termType` is unset so a level with nothing to inherit reports a required-field error.
 export const PAYMENT_TERM_FORM_DEFAULT_VALUES: PaymentTermFormValues = {
   termType: undefined,
   days: '0',

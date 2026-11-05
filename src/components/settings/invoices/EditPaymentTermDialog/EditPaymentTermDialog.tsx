@@ -117,11 +117,8 @@ export const useEditPaymentTermDialog = () => {
 
       if (!model) return
 
-      // The inherit choice sends `null`, which clears the override so the level above wins
-      // again — the same payload the delete dialog sends.
-      //
-      // Otherwise only the chosen type's own fields are sent — the API rejects the others.
-      // Never send `netPaymentTerm` alongside: the API mirrors the legacy alias itself.
+      // Inherit sends `null` to clear the override; otherwise only the chosen type's fields go,
+      // as the API rejects the rest. Never send `netPaymentTerm`: the API mirrors the alias.
       const paymentTerm = paymentTermInputFromFormValues(value)
 
       // Inheriting a level that carries no term of its own changes nothing. Closing here
