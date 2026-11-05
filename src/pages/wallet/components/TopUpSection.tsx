@@ -46,7 +46,6 @@ interface TopUpSectionExtraProps {
   autoOpenRuleDrawer?: boolean
   autoOpenPaymentConnectionDrawer?: boolean
   autoOpenAdditionalIntegrationDrawer?: boolean
-  /** The term the wallet inherits, shown as the default of its payment term override. */
   paymentTermInheritedFrom?: PaymentTermInheritedFrom
 }
 

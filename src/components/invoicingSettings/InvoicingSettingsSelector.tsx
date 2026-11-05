@@ -31,14 +31,8 @@ interface InvoicingSettingsSelectorProps {
   'data-test'?: string
 }
 
-/**
- * Controlled (value/onChange) entry point for the per-object invoicing
- * settings on NON-subscription billing objects (wallet, recurring rule,
- * top-up, one-off invoice): invoice custom sections, plus the payment term
- * on the objects that carry one — these payloads have no invoice
- * consolidation. The subscription form keeps its own withForm-bound
- * InvoicingSettingsSection (with consolidation).
- */
+// Not for subscriptions: their form keeps its own withForm-bound
+// InvoicingSettingsSection, which also carries invoice consolidation.
 export const InvoicingSettingsSelector = ({
   viewType,
   customerId,

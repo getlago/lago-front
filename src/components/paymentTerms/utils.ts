@@ -36,10 +36,7 @@ export const paymentTermFromFormValues = (
   }
 }
 
-/**
- * Seeds the editor from a stored term. A level without a term of its own starts on the
- * inherit choice when it has a parent to fall back to, and unset otherwise.
- */
+// Without a term of its own, a level starts on inherit if it has a parent, else unset.
 export const paymentTermFormValuesFromTerm = (
   paymentTerm: MaybePaymentTerm,
   canInherit: boolean,
@@ -59,10 +56,7 @@ export const paymentTermFormValuesFromTerm = (
   }
 }
 
-/**
- * The mutation payload for the editor's values: only the chosen type's own fields, or
- * `null` for the inherit choice, which clears the override so the level above wins.
- */
+// `null` (the inherit choice) clears the override so the level above wins.
 export const paymentTermInputFromFormValues = (
   values: PaymentTermFormValues,
 ): PaymentTermInput | null => {
@@ -79,17 +73,12 @@ export type PaymentTermLevels = {
     | { paymentTerm?: MaybePaymentTerm; billingEntity?: BillingEntityWithPaymentTerm }
     | null
     | undefined
-  /** The entity the object is bound to when it has one of its own; the customer's otherwise. */
   issuingBillingEntity?: BillingEntityWithPaymentTerm
 }
 
 export const INHERIT_FROM_CUSTOMER_LABEL_KEY = 'text_17912021395686w9xadhesc3'
 export const INHERIT_FROM_BILLING_ENTITY_LABEL_KEY = 'text_1728374331992d2alok9y3kr'
 
-/**
- * The term a billing object falls back to and the level it comes from: the customer's
- * own term, else the issuing billing entity's, else due on receipt.
- */
 export const getInheritedPaymentTerm = ({
   customer,
   issuingBillingEntity,

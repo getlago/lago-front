@@ -129,10 +129,6 @@ export const usePaymentTerm = () => {
   const formatInheritedPaymentTerm = (inheritedFrom: PaymentTermInheritedFrom): string =>
     translate(inheritedFrom.labelKey, { value: formatPaymentTerm(inheritedFrom.term) })
 
-  /**
-   * The value shown for a billing object (subscription, wallet): its own term, else the
-   * term it inherits, marked with the level it comes from.
-   */
   const getBillingObjectPaymentTermCopy = ({
     ownTerm,
     ...levels
