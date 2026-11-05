@@ -117,8 +117,6 @@ export const useEditPaymentTermDialog = () => {
 
       if (!model) return
 
-      // Inherit sends `null` to clear the override; otherwise only the chosen type's fields go,
-      // as the API rejects the rest. Never send `netPaymentTerm`: the API mirrors the alias.
       const paymentTerm = paymentTermInputFromFormValues(value)
 
       // Inheriting a level that carries no term of its own changes nothing. Closing here
