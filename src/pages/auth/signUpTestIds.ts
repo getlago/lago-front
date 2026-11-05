@@ -24,3 +24,14 @@ export const SELF_SERVE_SIGNUP_LOGIN_BUTTON_TEST_ID = 'self-serve-signup-login-b
 export const SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID = 'password-validation--visible'
 export const SIGNUP_PASSWORD_VALIDATION_HIDDEN_TEST_ID = 'password-validation--hidden'
 export const SIGNUP_SUCCESS_ALERT_TEST_ID = 'password-validation--success'
+export const SELF_SERVE_VERIFY_EMAIL_CONFIRM_BUTTON_TEST_ID =
+  'self-serve-verify-email-confirm-button'
+export const SELF_SERVE_VERIFY_EMAIL_PASSWORD_FIELD_TEST_ID =
+  'self-serve-verify-email-password-field'
+export const SELF_SERVE_VERIFY_EMAIL_SEND_NEW_LINK_BUTTON_TEST_ID =
+  'self-serve-verify-email-send-new-link-button'
+export const SELF_SERVE_VERIFY_EMAIL_RESEND_ALERT_TEST_ID = 'self-serve-verify-email-resend-alert'
+export const SELF_SERVE_VERIFY_EMAIL_CONTINUE_BUTTON_TEST_ID =
+  'self-serve-verify-email-continue-button'
+export const SELF_SERVE_VERIFY_EMAIL_BACK_TO_SIGN_UP_BUTTON_TEST_ID =
+  'self-serve-verify-email-back-to-sign-up-button'
