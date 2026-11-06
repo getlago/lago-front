@@ -100,6 +100,16 @@ const planMock = {
 }
 
 describe('PlanDetailsV2', () => {
+  it('renders a provided plan without querying the root plan', () => {
+    render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        <PlanDetailsV2 planId={PLAN_DETAILS_V2_FIXTURE_ID} plan={planDetailsV2Fixture} />
+      </MockedProvider>,
+    )
+
+    expect(screen.getByRole('navigation', { name: /plan sections/i })).toBeInTheDocument()
+  })
+
   it('renders the sidebar and every plan section anchor once the query resolves', async () => {
     render(
       <MockedProvider mocks={[planMock]} addTypename={false}>
