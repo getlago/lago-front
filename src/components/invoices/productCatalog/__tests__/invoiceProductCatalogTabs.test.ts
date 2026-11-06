@@ -30,7 +30,7 @@ describe('buildInvoiceProductCatalogTabs', () => {
       it('THEN should label the category by display name and the standalone tab last', () => {
         const tabs = buildTabs([
           {
-            contract: { id: 'c1', name: 'Acme' },
+            contract: { id: 'c1', externalId: 'c1-external', name: 'Acme' },
             productCatalogSections: [
               { productCategory: category('catA', 'Category A', 'A'), products: [] },
               { productCategory: null, products: [] },
@@ -49,7 +49,7 @@ describe('buildInvoiceProductCatalogTabs', () => {
       it('THEN should fall back to the category name', () => {
         const tabs = buildTabs([
           {
-            contract: { id: 'c1', name: 'Acme' },
+            contract: { id: 'c1', externalId: 'c1-external', name: 'Acme' },
             productCatalogSections: [
               { productCategory: category('catA', 'Category A', null), products: [] },
             ],
@@ -64,7 +64,7 @@ describe('buildInvoiceProductCatalogTabs', () => {
       it('THEN should return a single tab', () => {
         const tabs = buildTabs([
           {
-            contract: { id: 'c1', name: 'Acme' },
+            contract: { id: 'c1', externalId: 'c1-external', name: 'Acme' },
             productCatalogSections: [{ productCategory: null, products: [] }],
           },
         ])
@@ -76,27 +76,42 @@ describe('buildInvoiceProductCatalogTabs', () => {
 
   describe('GIVEN several contracts', () => {
     describe('WHEN no section has a category', () => {
-      it('THEN should label each tab with the contract name and its plan fallbacks', () => {
+      it('THEN should label each tab with the contract name, its plan, then its external id', () => {
         const tabs = buildTabs([
           {
             contract: {
               id: 'c1',
+              externalId: 'c1-external',
               name: null,
               plan: { id: 'p1', name: 'Plan', invoiceDisplayName: 'Gold' },
             },
             productCatalogSections: [{ productCategory: null, products: [] }],
           },
           {
-            contract: { id: 'c2', name: null, plan: { id: 'p2', name: 'Silver' } },
+            contract: {
+              id: 'c2',
+              externalId: 'c2-external',
+              name: null,
+              plan: { id: 'p2', name: 'Silver' },
+            },
             productCatalogSections: [{ productCategory: null, products: [] }],
           },
           {
-            contract: { id: 'c3', name: 'Acme' },
+            contract: { id: 'c3', externalId: 'c3-external', name: 'Acme' },
+            productCatalogSections: [{ productCategory: null, products: [] }],
+          },
+          {
+            contract: { id: 'c4', externalId: 'contract-without-name', name: null, plan: null },
             productCatalogSections: [{ productCategory: null, products: [] }],
           },
         ])
 
-        expect(tabs.map(({ label }) => label)).toEqual(['Gold', 'Silver', 'Acme'])
+        expect(tabs.map(({ label }) => label)).toEqual([
+          'Gold',
+          'Silver',
+          'Acme',
+          'contract-without-name',
+        ])
       })
     })
 
@@ -104,14 +119,14 @@ describe('buildInvoiceProductCatalogTabs', () => {
       it('THEN should label every tab with the contract and the category', () => {
         const tabs = buildTabs([
           {
-            contract: { id: 'c1', name: 'Acme' },
+            contract: { id: 'c1', externalId: 'c1-external', name: 'Acme' },
             productCatalogSections: [
               { productCategory: category('catA', 'Category A', 'A'), products: [] },
               { productCategory: null, products: [] },
             ],
           },
           {
-            contract: { id: 'c2', name: 'Globex' },
+            contract: { id: 'c2', externalId: 'c2-external', name: 'Globex' },
             productCatalogSections: [{ productCategory: null, products: [] }],
           },
         ])

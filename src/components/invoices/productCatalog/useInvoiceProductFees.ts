@@ -48,6 +48,7 @@ gql`
     contract {
       id
       name
+      externalId
       plan {
         id
         name

@@ -8,7 +8,7 @@ export type InvoiceProductCatalogTab = {
 }
 
 const getContractLabel = ({ contract }: InvoiceProductCatalogSectionItem): string =>
-  contract.name || contract.plan?.invoiceDisplayName || contract.plan?.name || ''
+  contract.name || contract.plan?.invoiceDisplayName || contract.plan?.name || contract.externalId
 
 const getCategoryLabel = (
   { productCategory }: InvoiceProductCatalogSectionItem,

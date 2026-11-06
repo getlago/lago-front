@@ -19,7 +19,7 @@ import {
 } from '../useInvoiceProductFees'
 
 const contracts: InvoiceProductCatalogContractFragment[] = ['c1', 'c2'].map((id) => ({
-  contract: { id, name: id },
+  contract: { id, externalId: `${id}-external`, name: id },
   productCatalogSections: [
     { productCategory: { id: 'catA', name: 'Category A', code: 'a' }, products: [] },
     { productCategory: null, products: [] },

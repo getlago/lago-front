@@ -47,7 +47,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 const contracts: InvoiceProductCatalogContractFragment[] = [
   {
-    contract: { id: 'contract-1' },
+    contract: { id: 'contract-1', externalId: 'contract-1-external' },
     productCatalogSections: [
       { productCategory: { id: 'category-1', name: 'Food', code: 'food' }, products: [] },
       { productCategory: null, products: [] },

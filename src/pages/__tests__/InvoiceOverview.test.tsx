@@ -225,9 +225,12 @@ describe('InvoiceOverview', () => {
   })
   describe('GIVEN a catalog invoice', () => {
     const contracts: InvoiceProductCatalogContractFragment[] = [
-      { contract: { id: 'empty-contract' }, productCatalogSections: [] },
       {
-        contract: { id: 'billed-contract' },
+        contract: { id: 'empty-contract', externalId: 'empty-contract-external' },
+        productCatalogSections: [],
+      },
+      {
+        contract: { id: 'billed-contract', externalId: 'billed-contract-external' },
         productCatalogSections: [
           {
             productCategory: null,
