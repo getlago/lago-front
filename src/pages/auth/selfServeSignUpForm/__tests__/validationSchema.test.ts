@@ -5,7 +5,7 @@ import {
   isSelfServePasswordTooLong,
   SELF_SERVE_EMAIL_INVALID_ERROR,
   SELF_SERVE_EMAIL_REQUIRED_ERROR,
-  SELF_SERVE_PASSWORD_TOO_LONG_ERROR,
+  SELF_SERVE_PASSWORD_ERRORS,
   selfServeSignUpEmailSchema,
   selfServeSignUpValidationSchema,
 } from '../validationSchema'
@@ -130,7 +130,7 @@ describe('selfServeSignUpValidationSchema', () => {
       ['74 characters weighing 144 bytes', `aB1!${'é'.repeat(70)}`],
     ])('THEN should report the too long message for %s', (_, password) => {
       expect(getMessages({ email: VALID_EMAIL, password }, 'password')).toEqual([
-        SELF_SERVE_PASSWORD_TOO_LONG_ERROR,
+        SELF_SERVE_PASSWORD_ERRORS.TOO_LONG,
       ])
     })
   })
