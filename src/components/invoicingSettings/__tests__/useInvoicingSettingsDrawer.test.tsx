@@ -12,13 +12,14 @@ import { useInvoicingSettingsDrawer } from '../useInvoicingSettingsDrawer'
 
 const mockOpen = jest.fn()
 const mockClose = jest.fn()
+const mockUpdate = jest.fn()
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key, locale: 'en' }),
 }))
 
 jest.mock('~/components/drawers/useDrawer', () => ({
-  useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
+  useFormDrawer: () => ({ open: mockOpen, close: mockClose, update: mockUpdate }),
 }))
 
 jest.mock('~/components/drawers/useFocusTrap', () => ({
@@ -298,7 +299,7 @@ describe('useInvoicingSettingsDrawer', () => {
     expect(screen.queryByTestId('payment-term-fields')).not.toBeInTheDocument()
   })
 
-  it('relabels the inherit choice once the inherited term resolves after the drawer opened', () => {
+  describe('GIVEN the drawer is open', () => {
     const hostProps: UseInvoicingSettingsDrawerProps = {
       viewType: ViewTypeEnum.Subscription,
       customerId: 'cust_1',
@@ -308,25 +309,37 @@ describe('useInvoicingSettingsDrawer', () => {
       paymentTermInheritedFrom: undefined,
       onSave: jest.fn(),
     }
-    const { rerender } = render(<DrawerHost {...hostProps} />)
 
-    act(() => captured.current?.({ consolidateInvoice: true }))
+    it('relabels the inherit choice once the inherited term resolves', () => {
+      const { rerender } = render(<DrawerHost {...hostProps} />)
 
-    const opened = mockOpen.mock.calls[0][0] as { children: ReactNode }
+      act(() => captured.current?.({ consolidateInvoice: true }))
+      mockUpdate.mockClear()
 
-    render(<>{opened.children}</>)
+      rerender(<DrawerHost {...hostProps} paymentTermInheritedFrom={{ ...INHERITED_FROM }} />)
 
-    expect(screen.getByTestId('payment-term-fields')).toBeInTheDocument()
-    expect(mockPaymentTermFormContent).toHaveBeenLastCalledWith(
-      expect.objectContaining({ inheritedFrom: undefined }),
-    )
+      const updated = mockUpdate.mock.lastCall?.[0] as { children: ReactNode }
 
-    rerender(<DrawerHost {...hostProps} paymentTermInheritedFrom={{ ...INHERITED_FROM }} />)
+      render(<>{updated.children}</>)
 
-    expect(mockPaymentTermFormContent).toHaveBeenLastCalledWith(
-      expect.objectContaining({ inheritedFrom: INHERITED_FROM }),
-    )
-    expect(mockOpen).toHaveBeenCalledTimes(1)
+      expect(mockPaymentTermFormContent).toHaveBeenLastCalledWith(
+        expect.objectContaining({ inheritedFrom: INHERITED_FROM }),
+      )
+      expect(mockOpen).toHaveBeenCalledTimes(1)
+    })
+
+    it('pushes no update when the host re-renders with the same inherited term', () => {
+      const { rerender } = render(
+        <DrawerHost {...hostProps} paymentTermInheritedFrom={{ ...INHERITED_FROM }} />,
+      )
+
+      act(() => captured.current?.({ consolidateInvoice: true }))
+      mockUpdate.mockClear()
+
+      rerender(<DrawerHost {...hostProps} paymentTermInheritedFrom={{ ...INHERITED_FROM }} />)
+
+      expect(mockUpdate).not.toHaveBeenCalled()
+    })
   })
 
   it('blocks submit and surfaces the error when "apply" is picked with no section', async () => {
