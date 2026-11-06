@@ -17,7 +17,7 @@ import {
 import { LagoApiError } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import type { SelfServeCheckEmail } from '../components/SelfServeCheckEmail'
+import type { SelfServeCheckEmail } from '../components/selfServeCheckEmail/SelfServeCheckEmail'
 import SelfServeSignUp from '../SelfServeSignUp'
 import {
   SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID,
@@ -50,7 +50,7 @@ function mockRenderCheckEmail({
   )
 }
 
-jest.mock('../components/SelfServeCheckEmail', () => ({
+jest.mock('../components/selfServeCheckEmail/SelfServeCheckEmail', () => ({
   SelfServeCheckEmail: (props: SelfServeCheckEmailProps) => mockRenderCheckEmail(props),
 }))
 

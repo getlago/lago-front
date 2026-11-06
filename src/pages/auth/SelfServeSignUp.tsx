@@ -27,7 +27,7 @@ import { Card, Page, StyledLogo, Title } from '~/styles/auth'
 
 import { RecaptchaNotice } from './common/RecaptchaNotice'
 import { useRecaptcha } from './common/useRecaptcha'
-import { SelfServeCheckEmail } from './components/SelfServeCheckEmail'
+import { SelfServeCheckEmail } from './components/selfServeCheckEmail/SelfServeCheckEmail'
 import {
   getSelfServePasswordErrors,
   isSelfServePasswordTooLong,
