@@ -6,7 +6,10 @@ import { AllTheProviders, TestMocksType } from '~/test-utils'
 import { CONTRACT_USAGE_ROW_NAME_TEST_ID, ContractUsageTable } from '../ContractUsageTable'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
-  useInternationalization: () => ({ translate: (key: string) => key }),
+  useInternationalization: () => ({
+    translate: (key: string, data?: Record<string, string>) =>
+      data ? `${key}:${JSON.stringify(data)}` : key,
+  }),
 }))
 
 const rowFixture = {
@@ -17,6 +20,8 @@ const rowFixture = {
   productCode: 'support',
   productName: 'Support plan',
   productFilterCode: null as string | null,
+  fromDatetime: '2027-02-01T00:00:00.000Z',
+  toDatetime: '2027-03-01T00:00:00.000Z',
   __typename: 'RateCardUsage',
 }
 
@@ -54,6 +59,20 @@ describe('ContractUsageTable', () => {
     )
 
     expect(await screen.findByText('Support plan')).toBeInTheDocument()
+  })
+
+  it("shows each row's billing period under its name", async () => {
+    render(
+      <AllTheProviders forceTypenames mocks={[buildMock([rowFixture])]}>
+        <ContractUsageTable contractId="contract-1" />
+      </AllTheProviders>,
+    )
+
+    expect(
+      await screen.findByText(
+        'text_633dae57ca9a923dd53c2097:{"fromDate":"Feb 1, 2027","toDate":"Mar 1, 2027"}',
+      ),
+    ).toBeInTheDocument()
   })
 
   it('groups filter rows under their product, indenting them, and skips the header when the product has its own unfiltered row', async () => {
@@ -104,7 +123,7 @@ describe('ContractUsageTable', () => {
 
     const nameCells = screen.getAllByTestId(CONTRACT_USAGE_ROW_NAME_TEST_ID)
     const indentedByName = new Map(
-      nameCells.map((cell) => [cell.textContent, cell.dataset.indented]),
+      nameCells.map((cell) => [cell.firstElementChild?.textContent, cell.dataset.indented]),
     )
 
     // Groups land in first-appearance order (prod-b's filter rows appear before prod-a's).

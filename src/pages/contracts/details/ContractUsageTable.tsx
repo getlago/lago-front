@@ -17,6 +17,7 @@ import { CONTRACT_USAGE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   CurrencyEnum,
   GetContractUsagesQuery,
@@ -58,6 +59,8 @@ gql`
         productCode
         productName
         productFilterCode
+        fromDatetime
+        toDatetime
       }
       metadata {
         currentPage
@@ -118,8 +121,10 @@ export const ContractUsageTable = ({
     [searchParams],
   )
 
-  // network-only: refresh (see ContractUsageSection) re-fetches this same hook in place, so a
-  // cache-first read would flash the previous result instead of the fresh one.
+  // No fetchPolicy override: the app default (cache-and-network, then cache-first) lets
+  // revisiting an already-fetched category/page serve instantly from cache. Refresh (see
+  // ContractUsageSection) still gets guaranteed-fresh data through its own refetch() call below,
+  // which always hits the network regardless of fetchPolicy.
   const [getContractUsages, { data, error, loading, variables, refetch }] =
     useGetContractUsagesLazyQuery({
       variables: {
@@ -131,8 +136,6 @@ export const ContractUsageTable = ({
         ...filtersForQuery,
       },
       notifyOnNetworkStatusChange: true,
-      fetchPolicy: 'network-only',
-      nextFetchPolicy: 'network-only',
     })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getContractUsages, loading)
 
@@ -180,6 +183,12 @@ export const ContractUsageTable = ({
         >
           <Typography variant="bodyHl" color="grey700" noWrap>
             {row.invoiceDisplayName}
+          </Typography>
+          <Typography variant="caption" color="grey600">
+            {translate('text_633dae57ca9a923dd53c2097', {
+              fromDate: intlFormatDateTime(row.fromDatetime).date,
+              toDate: intlFormatDateTime(row.toDatetime).date,
+            })}
           </Typography>
         </div>
       ),
@@ -233,6 +242,7 @@ export const ContractUsageTable = ({
           name="contract-usages"
           data={rows}
           columns={columns}
+          rowSize={72}
           isLoading={isLoading}
           loadingRowCount={pageSize}
           hasError={!!error}
