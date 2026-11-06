@@ -75,41 +75,14 @@ describe('ContractUsageTable', () => {
     ).toBeInTheDocument()
   })
 
-  it('groups filter rows under their product, indenting them, and skips the header when the product has its own unfiltered row', async () => {
-    // Backend order is by billing window then rate card code, not by product - interleaved on
-    // purpose so the test proves the frontend regroups rather than trusting row order.
+  it("indents a filter row under its data-indented attribute, and leaves a product's own row flush", async () => {
     const collection = [
-      {
-        ...rowFixture,
-        id: 'rc-filter-2',
-        invoiceDisplayName: 'Filter 2',
-        productCode: 'prod-b',
-        productName: 'Product B',
-        productFilterCode: 'filt-2',
-      },
+      { ...rowFixture, id: 'rc-product-a', invoiceDisplayName: 'Product A' },
       {
         ...rowFixture,
         id: 'rc-filter-1',
         invoiceDisplayName: 'Filter 1',
-        productCode: 'prod-a',
-        productName: 'Product A',
         productFilterCode: 'filt-1',
-      },
-      {
-        ...rowFixture,
-        id: 'rc-product-a',
-        invoiceDisplayName: 'Product A',
-        productCode: 'prod-a',
-        productName: 'Product A',
-        productFilterCode: null,
-      },
-      {
-        ...rowFixture,
-        id: 'rc-filter-3',
-        invoiceDisplayName: 'Filter 3',
-        productCode: 'prod-b',
-        productName: 'Product B',
-        productFilterCode: 'filt-3',
       },
     ]
 
@@ -125,18 +98,6 @@ describe('ContractUsageTable', () => {
     const indentedByName = new Map(
       nameCells.map((cell) => [cell.firstElementChild?.textContent, cell.dataset.indented]),
     )
-
-    // Groups land in first-appearance order (prod-b's filter rows appear before prod-a's).
-    // Product A has its own unfiltered row, so it anchors the group - no synthetic header,
-    // and its filter row follows indented. Product B has only filter rows, so it gets one.
-    expect(screen.getAllByText('Product A')).toHaveLength(1)
-    expect(screen.getByText('Product B')).toBeInTheDocument()
-    expect(Array.from(indentedByName.keys())).toEqual([
-      'Filter 2',
-      'Filter 3',
-      'Product A',
-      'Filter 1',
-    ])
 
     expect(indentedByName.get('Product A')).toBe('false')
     expect(indentedByName.get('Filter 1')).toBe('true')

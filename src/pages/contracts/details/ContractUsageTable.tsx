@@ -75,24 +75,6 @@ type ContractUsageRow = GetContractUsagesQuery['contractUsages']['collection'][n
 
 export const CONTRACT_USAGE_ROW_NAME_TEST_ID = 'contract-usage-row-name'
 
-// The backend orders rows by billing window, not by product, so a product's filter rows can land
-// anywhere in the page. Regroup them here: each product's rows stay together, in first-appearance
-// order, with its own unfiltered row (if any) first so it anchors the group without a header.
-const groupRowsByProduct = (rows: ContractUsageRow[]): ContractUsageRow[] => {
-  const groups = new Map<string, ContractUsageRow[]>()
-
-  for (const row of rows) {
-    const group = groups.get(row.productCode) ?? []
-
-    group.push(row)
-    groups.set(row.productCode, group)
-  }
-
-  return Array.from(groups.values()).flatMap((group) =>
-    [...group].sort((a, b) => Number(!!a.productFilterCode) - Number(!!b.productFilterCode)),
-  )
-}
-
 // refreshToken: bump to re-fetch in place (not remount) - a remount would also reset this
 // table's own local state (search term, page size). See ContractUsageSection.
 type ContractUsageTableProps = {
@@ -121,10 +103,8 @@ export const ContractUsageTable = ({
     [searchParams],
   )
 
-  // No fetchPolicy override: the app default (cache-and-network, then cache-first) lets
-  // revisiting an already-fetched category/page serve instantly from cache. Refresh (see
-  // ContractUsageSection) still gets guaranteed-fresh data through its own refetch() call below,
-  // which always hits the network regardless of fetchPolicy.
+  // No fetchPolicy override: the app default caches a revisited category/page. Refresh still
+  // forces fresh data via its own refetch() below, which always hits the network.
   const [getContractUsages, { data, error, loading, variables, refetch }] =
     useGetContractUsagesLazyQuery({
       variables: {
@@ -159,7 +139,7 @@ export const ContractUsageTable = ({
     debouncedSearch?.(value)
   }
 
-  const rows = groupRowsByProduct(data?.contractUsages?.collection ?? [])
+  const rows = data?.contractUsages?.collection ?? []
 
   const placeholder = buildSearchAwareTablePlaceholder({
     translate,

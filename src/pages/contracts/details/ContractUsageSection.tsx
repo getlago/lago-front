@@ -67,9 +67,8 @@ export const ContractUsageSection = ({
     )
   }
 
-  // items-start on the rail+table row below: flex's default stretch would match the table
-  // column's height to the rail's, dragging the table's sticky pager down with it - still glued
-  // to the viewport bottom long after the (shorter) table has scrolled out of view under a tall rail.
+  // items-start below: default stretch matches the table's height to the rail's, dragging its
+  // sticky pager down past where the (shorter) table actually scrolled out of view.
   return (
     <section className="flex flex-col gap-6">
       <SectionHeader
