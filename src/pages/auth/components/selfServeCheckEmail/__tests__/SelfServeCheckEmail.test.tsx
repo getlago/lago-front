@@ -89,7 +89,6 @@ const SIGNUP_SECRET = 'signup-secret-1'
 const OTHER_SIGNUP_SECRET = 'signup-secret-2'
 const SESSION_TOKEN = 'session-token-1'
 const RECAPTCHA_TOKEN = 'recaptcha-token-1'
-const RETRY_RECAPTCHA_TOKEN = 'recaptcha-token-2'
 const EMAIL_NOT_VERIFIED = 'email_not_verified'
 const RECAPTCHA_SITE_KEY = 'recaptcha-site-key'
 const GOOGLE_PRIVACY_POLICY_URL = 'https://policies.google.com/privacy'
@@ -1214,60 +1213,28 @@ describe('SelfServeCheckEmail', () => {
       })
     })
 
-    describe('WHEN the lock is busy once', () => {
+    describe('WHEN the lock is busy', () => {
       beforeEach(() => {
-        mockResendSignupEmail
-          .mockResolvedValueOnce(buildError(LagoApiError.LockAcquisitionFailed))
-          .mockResolvedValueOnce(buildResendAnswer())
-        mockedGetRecaptchaToken
-          .mockResolvedValueOnce(RECAPTCHA_TOKEN)
-          .mockResolvedValueOnce(RETRY_RECAPTCHA_TOKEN)
-      })
-
-      it('THEN should retry once with a fresh captcha token', async () => {
-        const user = setupUser()
-
-        await renderCheckEmail()
-        await clickResend(user)
-
-        expect(mockResendSignupEmail.mock.calls).toEqual([
-          [
-            {
-              variables: { input: { signupSecret: SIGNUP_SECRET, captchaToken: RECAPTCHA_TOKEN } },
-            },
-          ],
-          [
-            {
-              variables: {
-                input: { signupSecret: SIGNUP_SECRET, captchaToken: RETRY_RECAPTCHA_TOKEN },
-              },
-            },
-          ],
-        ])
-      })
-
-      it('THEN should show the new link banner', async () => {
-        const user = setupUser()
-
-        await renderCheckEmail()
-        await clickResend(user)
-
-        expect(getResendSuccessAlert()).toHaveTextContent(NEW_LINK_SENT_COPY)
-        expect(queryErrorAlert()).not.toBeInTheDocument()
-      })
-    })
-
-    describe('WHEN the lock is still busy on the retry', () => {
-      it('THEN should stop after one retry and show the generic banner', async () => {
-        const user = setupUser()
-
         mockResendSignupEmail.mockResolvedValue(buildError(LagoApiError.LockAcquisitionFailed))
+      })
+
+      it('THEN should show the generic banner without retrying', async () => {
+        const user = setupUser()
 
         await renderCheckEmail()
         await clickResend(user)
 
-        expect(mockResendSignupEmail).toHaveBeenCalledTimes(2)
+        expect(mockResendSignupEmail).toHaveBeenCalledTimes(1)
         expect(getErrorAlert()).toHaveTextContent(GENERIC_ERROR_COPY)
+      })
+
+      it('THEN should ask Google for a single token', async () => {
+        const user = setupUser()
+
+        await renderCheckEmail()
+        await clickResend(user)
+
+        expect(mockedGetRecaptchaToken).toHaveBeenCalledTimes(1)
       })
     })
 
