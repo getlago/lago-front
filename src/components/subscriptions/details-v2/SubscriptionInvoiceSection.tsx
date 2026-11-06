@@ -77,6 +77,7 @@ export const SubscriptionInvoiceSection = ({ subscription }: SubscriptionInvoice
     customerId: subscription.customer?.id,
     showCustomSection,
     withInvoiceConsolidation: true,
+    withPaymentTerm: true,
     paymentTermInheritedFrom: isInheritedTermKnown
       ? getInheritedPaymentTerm(paymentTermLevels)
       : undefined,

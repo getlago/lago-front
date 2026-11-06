@@ -53,6 +53,7 @@ export const InvoicingSettingsSection = withForm({
       customerId,
       showCustomSection,
       withInvoiceConsolidation: true,
+      withPaymentTerm: true,
       paymentTermInheritedFrom,
       onSave: ({
         consolidateInvoice: nextConsolidateInvoice,
@@ -71,10 +72,9 @@ export const InvoicingSettingsSection = withForm({
           consolidateInvoice: consolidateInvoice ?? true,
           invoiceCustomSection,
           showCustomSection,
-          paymentTermCopy:
-            paymentTermInheritedFrom && paymentTerm
-              ? getPaymentTermFormValuesCopy(paymentTerm, paymentTermInheritedFrom)
-              : undefined,
+          paymentTermCopy: paymentTerm
+            ? getPaymentTermFormValuesCopy(paymentTerm, paymentTermInheritedFrom)
+            : undefined,
           translate,
         }),
       [

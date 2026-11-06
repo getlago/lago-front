@@ -78,6 +78,8 @@ export type PaymentTermLevels = {
 
 export const INHERIT_FROM_CUSTOMER_LABEL_KEY = 'text_17912021395686w9xadhesc3'
 export const INHERIT_FROM_BILLING_ENTITY_LABEL_KEY = 'text_1728374331992d2alok9y3kr'
+/** The inherit choice while the term it would resolve to is not known yet. */
+export const INHERIT_UNRESOLVED_LABEL_KEY = 'text_1793977485591g2xeqr528n7'
 
 export const getInheritedPaymentTerm = ({
   customer,

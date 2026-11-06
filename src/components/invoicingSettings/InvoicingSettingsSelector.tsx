@@ -19,7 +19,7 @@ export const INVOICING_SETTINGS_SELECTOR_TEST_ID = 'invoicing-settings-selector'
 export type InvoicingSettingsPaymentTermProps = {
   value: PaymentTermFormValues
   onChange: (value: PaymentTermFormValues) => void
-  inheritedFrom: PaymentTermInheritedFrom
+  inheritedFrom: PaymentTermInheritedFrom | undefined
 }
 
 interface InvoicingSettingsSelectorProps {
@@ -50,6 +50,7 @@ export const InvoicingSettingsSelector = ({
     viewType,
     customerId,
     showCustomSection,
+    withPaymentTerm: !!paymentTerm,
     paymentTermInheritedFrom: paymentTerm?.inheritedFrom,
     onSave: ({ invoiceCustomSection, paymentTerm: nextPaymentTerm }) => {
       onChange(invoiceCustomSection)

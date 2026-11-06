@@ -275,14 +275,11 @@ export const TopUpSection = withForm({
       )
     }
 
-    const invoicingSettingsPaymentTerm: InvoicingSettingsPaymentTermProps | undefined =
-      paymentTermInheritedFrom
-        ? {
-            value: walletValues.paymentTerm,
-            onChange: (value) => form.setFieldValue('paymentTerm', value),
-            inheritedFrom: paymentTermInheritedFrom,
-          }
-        : undefined
+    const invoicingSettingsPaymentTerm: InvoicingSettingsPaymentTermProps = {
+      value: walletValues.paymentTerm,
+      onChange: (value) => form.setFieldValue('paymentTerm', value),
+      inheritedFrom: paymentTermInheritedFrom,
+    }
 
     return (
       <>

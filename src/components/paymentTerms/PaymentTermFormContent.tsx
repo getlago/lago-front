@@ -20,11 +20,13 @@ const DAY_OF_MONTH_ERROR_KEY = 'text_1789042962229ojqymcu3289'
 const MONTH_OFFSET_ERROR_KEY = 'text_1789042962229esmw981wwyt'
 
 type PaymentTermFormContentExtraProps = {
+  canInherit?: boolean
   inheritedFrom?: PaymentTermInheritedFrom
   displayInDialog?: boolean
 }
 
 const paymentTermFormContentDefaultProps: PaymentTermFormContentExtraProps = {
+  canInherit: false,
   inheritedFrom: undefined,
   displayInDialog: false,
 }
@@ -32,7 +34,12 @@ const paymentTermFormContentDefaultProps: PaymentTermFormContentExtraProps = {
 export const PaymentTermFormContent = withFieldGroup({
   defaultValues: PAYMENT_TERM_FORM_DEFAULT_VALUES,
   props: paymentTermFormContentDefaultProps,
-  render: function PaymentTermFormContentRender({ group, inheritedFrom, displayInDialog }) {
+  render: function PaymentTermFormContentRender({
+    group,
+    canInherit,
+    inheritedFrom,
+    displayInDialog,
+  }) {
     const { translate } = useInternationalization()
     const { getDueDatePreviewCopy, getTermTypeComboboxData } = usePaymentTerm()
 
@@ -57,7 +64,7 @@ export const PaymentTermFormContent = withFieldGroup({
           {(field) => (
             <field.ComboBoxField
               className={PAYMENT_TERM_TYPE_COMBOBOX_TEST_CLASSNAME}
-              data={getTermTypeComboboxData({ inheritedFrom })}
+              data={getTermTypeComboboxData({ canInherit, inheritedFrom })}
               disableClearable
               helperText={translate('text_1787603382163hij5oo9hsov')}
               label={translate('text_17876033821620igdzcdhzxl')}

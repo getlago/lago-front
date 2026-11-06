@@ -126,6 +126,7 @@ interface InvoicingSettingsDrawerContentExtraProps {
   showCustomSection: boolean
   /** Enabled for billing objects whose mutation payload supports invoice consolidation. */
   withInvoiceConsolidation: boolean
+  withPaymentTerm: boolean
   inheritedFromStore: InheritedFromStore
 }
 
@@ -134,6 +135,7 @@ const invoicingSettingsDrawerContentDefaultProps: InvoicingSettingsDrawerContent
   customerId: undefined,
   showCustomSection: false,
   withInvoiceConsolidation: false,
+  withPaymentTerm: false,
   inheritedFromStore: createInheritedFromStore(undefined),
 }
 
@@ -146,6 +148,7 @@ const InvoicingSettingsDrawerContent = withForm({
     customerId,
     showCustomSection,
     withInvoiceConsolidation,
+    withPaymentTerm,
     inheritedFromStore,
   }) {
     const { translate } = useInternationalization()
@@ -205,7 +208,7 @@ const InvoicingSettingsDrawerContent = withForm({
             </CenteredPage.PageSection>
           )}
 
-          {!!paymentTermInheritedFrom && (
+          {withPaymentTerm && (
             <CenteredPage.PageSection>
               <CenteredPage.PageSectionTitle
                 title={translate('text_17876033821633o4yokqvqdl')}
@@ -214,6 +217,7 @@ const InvoicingSettingsDrawerContent = withForm({
               <PaymentTermFormContent
                 form={form}
                 fields="paymentTerm"
+                canInherit
                 inheritedFrom={paymentTermInheritedFrom}
                 displayInDialog
               />
@@ -230,6 +234,7 @@ interface UseInvoicingSettingsDrawerProps {
   customerId?: string
   showCustomSection: boolean
   withInvoiceConsolidation?: boolean
+  withPaymentTerm?: boolean
   paymentTermInheritedFrom?: PaymentTermInheritedFrom
   onSave: (values: InvoicingSettingsValues) => void | Promise<void>
 }
@@ -247,6 +252,7 @@ export const useInvoicingSettingsDrawer = ({
   customerId,
   showCustomSection,
   withInvoiceConsolidation = false,
+  withPaymentTerm = false,
   paymentTermInheritedFrom,
   onSave,
 }: UseInvoicingSettingsDrawerProps): UseInvoicingSettingsDrawerReturn => {
@@ -302,6 +308,7 @@ export const useInvoicingSettingsDrawer = ({
           customerId={customerId}
           showCustomSection={showCustomSection}
           withInvoiceConsolidation={withInvoiceConsolidation}
+          withPaymentTerm={withPaymentTerm}
           inheritedFromStore={inheritedFromStore}
         />
       ),
