@@ -1,0 +1,121 @@
+import { render, screen, waitFor } from '@testing-library/react'
+
+import { GetContractUsageCategoriesDocument } from '~/generated/graphql'
+import { AllTheProviders, TestMocksType } from '~/test-utils'
+
+import { ContractUsageCategoryRail } from '../ContractUsageCategoryRail'
+
+const buildMock = (appliedRateCards: unknown[]): TestMocksType[number] => ({
+  request: { query: GetContractUsageCategoriesDocument, variables: { contractId: 'contract-1' } },
+  result: {
+    data: {
+      contract: { id: 'contract-1', __typename: 'Contract', appliedRateCards },
+    },
+  },
+})
+
+describe('ContractUsageCategoryRail', () => {
+  beforeEach(() => {
+    window.history.pushState({}, '', '/')
+  })
+
+  it('always shows Standalone products first, then the distinct categories, deduped', async () => {
+    const appliedRateCards = [
+      {
+        id: 'a1',
+        __typename: 'ContractAppliedRateCard',
+        product: {
+          id: 'p1',
+          __typename: 'Product',
+          productCategory: { id: 'cat-1', name: 'Support', __typename: 'ProductCategory' },
+        },
+      },
+      {
+        id: 'a2',
+        __typename: 'ContractAppliedRateCard',
+        product: {
+          id: 'p2',
+          __typename: 'Product',
+          productCategory: { id: 'cat-1', name: 'Support', __typename: 'ProductCategory' },
+        },
+      },
+      {
+        id: 'a3',
+        __typename: 'ContractAppliedRateCard',
+        product: { id: 'p3', __typename: 'Product', productCategory: null },
+      },
+    ]
+
+    render(
+      <AllTheProviders forceTypenames mocks={[buildMock(appliedRateCards)]}>
+        <ContractUsageCategoryRail contractId="contract-1" />
+      </AllTheProviders>,
+    )
+
+    await waitFor(() => expect(screen.getAllByRole('link')).toHaveLength(2))
+    const items = screen.getAllByRole('link')
+
+    expect(items[0]).toHaveTextContent(/standalone/i)
+    expect(items[1]).toHaveTextContent('Support')
+  })
+
+  it('shows only Standalone products for a contract with no applied rate cards', async () => {
+    render(
+      <AllTheProviders forceTypenames mocks={[buildMock([])]}>
+        <ContractUsageCategoryRail contractId="contract-1" />
+      </AllTheProviders>,
+    )
+
+    const items = await screen.findAllByRole('link')
+
+    expect(items).toHaveLength(1)
+    expect(items[0]).toHaveTextContent(/standalone/i)
+  })
+
+  it('calls onErrorChange when the categories query fails', async () => {
+    const onErrorChange = jest.fn()
+    const errorMock: TestMocksType[number] = {
+      request: {
+        query: GetContractUsageCategoriesDocument,
+        variables: { contractId: 'contract-1' },
+      },
+      error: new Error('boom'),
+    }
+
+    render(
+      <AllTheProviders mocks={[errorMock]}>
+        <ContractUsageCategoryRail contractId="contract-1" onErrorChange={onErrorChange} />
+      </AllTheProviders>,
+    )
+
+    await waitFor(() => expect(onErrorChange).toHaveBeenCalledWith(true))
+  })
+
+  it('selects Standalone products by default and a real category when categoryId matches the URL', async () => {
+    window.history.pushState({}, '', '/?categoryId=cat-1')
+
+    const appliedRateCards = [
+      {
+        id: 'a1',
+        __typename: 'ContractAppliedRateCard',
+        product: {
+          id: 'p1',
+          __typename: 'Product',
+          productCategory: { id: 'cat-1', name: 'Support', __typename: 'ProductCategory' },
+        },
+      },
+    ]
+
+    render(
+      <AllTheProviders forceTypenames mocks={[buildMock(appliedRateCards)]}>
+        <ContractUsageCategoryRail contractId="contract-1" />
+      </AllTheProviders>,
+    )
+
+    await waitFor(() => expect(screen.getAllByRole('link')).toHaveLength(2))
+    const items = screen.getAllByRole('link')
+
+    expect(items[0]).not.toHaveAttribute('aria-current', 'page')
+    expect(items[1]).toHaveAttribute('aria-current', 'page')
+  })
+})
