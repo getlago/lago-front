@@ -206,6 +206,7 @@ export const useCreateEditCustomer: UseCreateEditCustomer = () => {
   const hasIntegrationsInFormRef = useRef(false)
 
   const { data, loading, error } = useGetSingleCustomerQuery({
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
     variables: {
       id: customerId as string,
     },
