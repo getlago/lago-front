@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
 import { Spinner } from '~/components/designSystem/Spinner'
-import { envGlobalVar, getPersistedOrganizationSlug } from '~/core/apolloClient/reactiveVars'
+import { getPersistedOrganizationSlug } from '~/core/apolloClient/reactiveVars'
 import { FORBIDDEN_ROUTE, useLocation, useNavigate } from '~/core/router'
 import { CREATE_ORGANIZATION_ROUTE } from '~/core/router/paths/createOrganization'
 import { getFirstPathSegment } from '~/core/router/utils/getFirstPathSegment'
@@ -9,6 +9,7 @@ import { getAccessibleMemberships, isAccessibleOrgSlug } from '~/core/router/uti
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useNeedsOrganization } from '~/hooks/useNeedsOrganization'
 
 /**
  * Root redirect hub (`/`), rendered OUTSIDE the `:organizationSlug` scope.
@@ -32,13 +33,14 @@ const RootRedirect = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { loading: isUserLoading, currentUser } = useCurrentUser()
+  const { needsOrganization, loading: isNeedsOrganizationLoading } = useNeedsOrganization()
   const hasNavigatedRef = useRef(false)
 
   useEffect(() => {
-    if (isUserLoading || !currentUser) return
+    if (isUserLoading || isNeedsOrganizationLoading || !currentUser) return
     if (hasNavigatedRef.current) return
 
-    if (envGlobalVar().selfServeEnabled && currentUser.needsOrganization) {
+    if (needsOrganization) {
       hasNavigatedRef.current = true
       navigate(CREATE_ORGANIZATION_ROUTE, { replace: true })
       return
@@ -63,7 +65,14 @@ const RootRedirect = () => {
 
     hasNavigatedRef.current = true
     navigate(`/${targetSlug}`, { replace: true, state: location.state, skipSlugPrepend: true })
-  }, [isUserLoading, currentUser, location.state, navigate])
+  }, [
+    isUserLoading,
+    isNeedsOrganizationLoading,
+    needsOrganization,
+    currentUser,
+    location.state,
+    navigate,
+  ])
 
   return <Spinner />
 }

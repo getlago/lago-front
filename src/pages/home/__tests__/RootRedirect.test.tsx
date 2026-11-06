@@ -1,18 +1,18 @@
 import { renderHook } from '@testing-library/react'
 
-import type { envGlobalVar } from '~/core/apolloClient/reactiveVars/envGlobalVar'
 import { CREATE_ORGANIZATION_ROUTE } from '~/core/router/paths/createOrganization'
+import type { useNeedsOrganization } from '~/hooks/useNeedsOrganization'
 
 import RootRedirect from '../RootRedirect'
 
-type SelfServeFlag = Pick<ReturnType<typeof envGlobalVar>, 'selfServeEnabled'>
+type NeedsOrganizationAnswer = ReturnType<typeof useNeedsOrganization>
 
 const mockNavigate = jest.fn()
 const mockUseLocation = jest.fn()
 const mockUseCurrentUser = jest.fn()
 const mockGetItemFromLS = jest.fn()
 const mockGetPersistedOrganizationSlug = jest.fn()
-const mockEnvGlobalVar = jest.fn<SelfServeFlag, []>()
+const mockUseNeedsOrganization = jest.fn<NeedsOrganizationAnswer, []>()
 
 // Stub the `~/core/router` barrel so the route modules (which pull in
 // `envGlobalVar`) aren't traversed during the test.
@@ -27,12 +27,15 @@ jest.mock('~/core/utils/localStorage', () => ({
 }))
 
 jest.mock('~/core/apolloClient/reactiveVars', () => ({
-  envGlobalVar: () => mockEnvGlobalVar(),
   getPersistedOrganizationSlug: () => mockGetPersistedOrganizationSlug(),
 }))
 
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => mockUseCurrentUser(),
+}))
+
+jest.mock('~/hooks/useNeedsOrganization', () => ({
+  useNeedsOrganization: () => mockUseNeedsOrganization(),
 }))
 
 jest.mock('~/components/designSystem/Spinner', () => ({
@@ -44,13 +47,22 @@ const membership = (slug: string, accessibleByCurrentSession = true) => ({
   organization: { id: `id-${slug}`, slug, accessibleByCurrentSession },
 })
 
+const answerNeedsOrganization = (answer: Partial<NeedsOrganizationAnswer>): void => {
+  mockUseNeedsOrganization.mockReturnValue({
+    needsOrganization: false,
+    loading: false,
+    hasError: false,
+    ...answer,
+  })
+}
+
 describe('RootRedirect', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockUseLocation.mockReturnValue({ state: null })
     mockGetItemFromLS.mockReturnValue(null)
     mockGetPersistedOrganizationSlug.mockReturnValue(null)
-    mockEnvGlobalVar.mockReturnValue({ selfServeEnabled: false })
+    answerNeedsOrganization({ needsOrganization: false })
     mockUseCurrentUser.mockReturnValue({
       loading: false,
       currentUser: { memberships: [membership('acme'), membership('globex')] },
@@ -164,19 +176,42 @@ describe('RootRedirect', () => {
     )
   })
 
+  describe('GIVEN the needs-organization check is still loading', () => {
+    beforeEach(() => {
+      answerNeedsOrganization({ loading: true })
+    })
+
+    describe('WHEN the user is already loaded', () => {
+      it('THEN should wait instead of redirecting to an organization', () => {
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the check then resolves that the user needs an organization', () => {
+      it('THEN should redirect only to the create organization page', () => {
+        const { rerender } = renderHook(() => RootRedirect())
+
+        answerNeedsOrganization({ needsOrganization: true })
+        rerender()
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith(CREATE_ORGANIZATION_ROUTE, { replace: true })
+      })
+    })
+  })
+
   describe('GIVEN a self-serve user who needs an organization', () => {
     beforeEach(() => {
       mockUseCurrentUser.mockReturnValue({
         loading: false,
-        currentUser: { needsOrganization: true, memberships: [] },
+        currentUser: { memberships: [] },
       })
+      answerNeedsOrganization({ needsOrganization: true })
     })
 
-    describe('WHEN the self-serve flag is on', () => {
-      beforeEach(() => {
-        mockEnvGlobalVar.mockReturnValue({ selfServeEnabled: true })
-      })
-
+    describe('WHEN the user is loaded', () => {
       it('THEN should redirect to the create organization page instead of forbidden', () => {
         renderHook(() => RootRedirect())
 
@@ -189,7 +224,7 @@ describe('RootRedirect', () => {
 
         mockUseCurrentUser.mockReturnValue({
           loading: false,
-          currentUser: { needsOrganization: true, memberships: [] },
+          currentUser: { memberships: [] },
         })
         rerender()
 
@@ -197,49 +232,13 @@ describe('RootRedirect', () => {
       })
     })
 
-    describe('WHEN the self-serve flag is off', () => {
-      it('THEN should redirect to forbidden as before', () => {
-        renderHook(() => RootRedirect())
-
-        expect(mockNavigate).toHaveBeenCalledTimes(1)
-        expect(mockNavigate).toHaveBeenCalledWith('/forbidden', { replace: true })
-      })
-    })
-  })
-
-  describe('GIVEN the self-serve flag is on and the user does not need an organization', () => {
-    beforeEach(() => {
-      mockEnvGlobalVar.mockReturnValue({ selfServeEnabled: true })
-    })
-
-    describe('WHEN the user has an accessible membership', () => {
-      it('THEN should redirect to the organization slug', () => {
-        mockUseCurrentUser.mockReturnValue({
-          loading: false,
-          currentUser: { needsOrganization: false, memberships: [membership('acme')] },
-        })
+    describe('WHEN the user is still loading', () => {
+      it('THEN should not redirect yet', () => {
+        mockUseCurrentUser.mockReturnValue({ loading: true, currentUser: undefined })
 
         renderHook(() => RootRedirect())
 
-        expect(mockNavigate).toHaveBeenCalledTimes(1)
-        expect(mockNavigate).toHaveBeenCalledWith(
-          '/acme',
-          expect.objectContaining({ replace: true, skipSlugPrepend: true }),
-        )
-      })
-    })
-
-    describe('WHEN no membership is accessible', () => {
-      it('THEN should redirect to forbidden', () => {
-        mockUseCurrentUser.mockReturnValue({
-          loading: false,
-          currentUser: { needsOrganization: false, memberships: [membership('locked', false)] },
-        })
-
-        renderHook(() => RootRedirect())
-
-        expect(mockNavigate).toHaveBeenCalledTimes(1)
-        expect(mockNavigate).toHaveBeenCalledWith('/forbidden', { replace: true })
+        expect(mockNavigate).not.toHaveBeenCalled()
       })
     })
   })

@@ -3,19 +3,22 @@ import userEvent from '@testing-library/user-event'
 
 import { initializeTranslations } from '~/core/apolloClient'
 import { HOME_ROUTE } from '~/core/router'
-import type { useCurrentUser } from '~/hooks/useCurrentUser'
+import type { useNeedsOrganization } from '~/hooks/useNeedsOrganization'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import CreateOrganization from '../CreateOrganization'
 import { SELF_SERVE_CREATE_ORGANIZATION_LOG_OUT_BUTTON_TEST_ID } from '../signUpTestIds'
 
-type CurrentUserAnswer = Pick<ReturnType<typeof useCurrentUser>, 'currentUser' | 'loading'>
+type NeedsOrganizationAnswer = ReturnType<typeof useNeedsOrganization>
 
 const MOCK_SPINNER_TEST_ID = 'create-organization-spinner'
+const MOCK_ALERT_TEST_ID = 'create-organization-alert'
 const TITLE_COPY = 'Create your organization'
+const LOG_OUT_COPY = 'Log out'
+const GENERIC_ERROR_COPY = 'Something went wrong on our side. Please try again.'
 
 const mockClient = { query: jest.fn(), mutate: jest.fn() }
-const mockUseCurrentUser = jest.fn<CurrentUserAnswer, []>()
+const mockUseNeedsOrganization = jest.fn<NeedsOrganizationAnswer, []>()
 const mockLogOut = jest.fn<Promise<void>, unknown[]>()
 
 jest.mock('@apollo/client', () => ({
@@ -28,25 +31,38 @@ jest.mock('~/core/apolloClient', () => ({
   logOut: (...args: unknown[]) => mockLogOut(...args),
 }))
 
-jest.mock('~/hooks/useCurrentUser', () => ({
-  useCurrentUser: () => mockUseCurrentUser(),
+jest.mock('~/hooks/useNeedsOrganization', () => ({
+  useNeedsOrganization: () => mockUseNeedsOrganization(),
 }))
 
 jest.mock('~/components/designSystem/Spinner', () => ({
   Spinner: () => <div data-test={MOCK_SPINNER_TEST_ID} />,
 }))
 
-const buildUser = (needsOrganization: boolean): CurrentUserAnswer['currentUser'] => ({
-  id: 'user-1',
-  premium: false,
-  csAdmin: false,
-  needsOrganization,
-  memberships: [],
-})
+jest.mock('~/components/designSystem/Alert', () => ({
+  Alert: ({ type, children }: { type: string; children: string }) => (
+    <div data-test={MOCK_ALERT_TEST_ID} data-alert-type={type}>
+      {children}
+    </div>
+  ),
+}))
 
-const expectPlaceholderHidden = (): void => {
+const answerNeedsOrganization = (answer: Partial<NeedsOrganizationAnswer>): void => {
+  mockUseNeedsOrganization.mockReturnValue({
+    needsOrganization: false,
+    loading: false,
+    hasError: false,
+    ...answer,
+  })
+}
+
+const getLogOutButton = (): HTMLElement =>
+  screen.getByTestId(SELF_SERVE_CREATE_ORGANIZATION_LOG_OUT_BUTTON_TEST_ID)
+
+const expectCardHidden = (): void => {
   expect(screen.getByTestId(MOCK_SPINNER_TEST_ID)).toBeInTheDocument()
   expect(screen.queryByText(TITLE_COPY)).not.toBeInTheDocument()
+  expect(screen.queryByTestId(MOCK_ALERT_TEST_ID)).not.toBeInTheDocument()
   expect(
     screen.queryByTestId(SELF_SERVE_CREATE_ORGANIZATION_LOG_OUT_BUTTON_TEST_ID),
   ).not.toBeInTheDocument()
@@ -62,44 +78,20 @@ describe('CreateOrganization', () => {
     mockLogOut.mockResolvedValue(undefined)
   })
 
-  describe('GIVEN the current user is still loading', () => {
-    describe('WHEN no user is cached yet', () => {
-      it('THEN should show the spinner without redirecting', () => {
-        mockUseCurrentUser.mockReturnValue({ loading: true, currentUser: undefined })
-
-        render(<CreateOrganization />)
-
-        expectPlaceholderHidden()
-        expect(testMockNavigateFn).not.toHaveBeenCalled()
-      })
-    })
-
-    describe('WHEN a cached user does not need an organization', () => {
-      it('THEN should wait for the user to load before redirecting', () => {
-        mockUseCurrentUser.mockReturnValue({ loading: true, currentUser: buildUser(false) })
-
-        render(<CreateOrganization />)
-
-        expectPlaceholderHidden()
-        expect(testMockNavigateFn).not.toHaveBeenCalled()
-      })
-    })
-  })
-
-  describe('GIVEN the current user query resolved without a user', () => {
+  describe('GIVEN the needs-organization check is loading', () => {
     it('THEN should show the spinner without redirecting', () => {
-      mockUseCurrentUser.mockReturnValue({ loading: false, currentUser: undefined })
+      answerNeedsOrganization({ loading: true })
 
       render(<CreateOrganization />)
 
-      expectPlaceholderHidden()
+      expectCardHidden()
       expect(testMockNavigateFn).not.toHaveBeenCalled()
     })
   })
 
-  describe('GIVEN a loaded user who does not need an organization', () => {
+  describe('GIVEN a user who does not need an organization', () => {
     beforeEach(() => {
-      mockUseCurrentUser.mockReturnValue({ loading: false, currentUser: buildUser(false) })
+      answerNeedsOrganization({ needsOrganization: false, hasError: false })
     })
 
     it('THEN should send the user home, replacing the history entry', () => {
@@ -109,26 +101,25 @@ describe('CreateOrganization', () => {
       expect(testMockNavigateFn).toHaveBeenCalledWith(HOME_ROUTE, { replace: true })
     })
 
-    it('THEN should not show the create organization placeholder', () => {
+    it('THEN should not show the create organization card', () => {
       render(<CreateOrganization />)
 
-      expectPlaceholderHidden()
+      expectCardHidden()
     })
   })
 
-  describe('GIVEN a loaded user who needs an organization', () => {
+  describe('GIVEN a user who needs an organization', () => {
     beforeEach(() => {
-      mockUseCurrentUser.mockReturnValue({ loading: false, currentUser: buildUser(true) })
+      answerNeedsOrganization({ needsOrganization: true })
     })
 
     describe('WHEN the page renders', () => {
-      it('THEN should show the title and the log out action', () => {
+      it('THEN should show the title and the log out action without an error', () => {
         render(<CreateOrganization />)
 
         expect(screen.getByText(TITLE_COPY)).toBeInTheDocument()
-        expect(
-          screen.getByTestId(SELF_SERVE_CREATE_ORGANIZATION_LOG_OUT_BUTTON_TEST_ID),
-        ).toHaveTextContent('Log out')
+        expect(getLogOutButton()).toHaveTextContent(LOG_OUT_COPY)
+        expect(screen.queryByTestId(MOCK_ALERT_TEST_ID)).not.toBeInTheDocument()
         expect(screen.queryByTestId(MOCK_SPINNER_TEST_ID)).not.toBeInTheDocument()
       })
 
@@ -143,11 +134,46 @@ describe('CreateOrganization', () => {
       it('THEN should log out with the client and reset the location history, without navigating itself', async () => {
         render(<CreateOrganization />)
 
-        await userEvent.click(
-          screen.getByTestId(SELF_SERVE_CREATE_ORGANIZATION_LOG_OUT_BUTTON_TEST_ID),
-        )
+        await userEvent.click(getLogOutButton())
 
         expect(mockLogOut).toHaveBeenCalledTimes(1)
+        expect(mockLogOut).toHaveBeenCalledWith(mockClient, true)
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the needs-organization check failed', () => {
+    beforeEach(() => {
+      answerNeedsOrganization({ needsOrganization: false, hasError: true })
+    })
+
+    describe('WHEN the page renders', () => {
+      it('THEN should show the title, a danger alert and the log out action', () => {
+        render(<CreateOrganization />)
+
+        const alert = screen.getByTestId(MOCK_ALERT_TEST_ID)
+
+        expect(screen.getByText(TITLE_COPY)).toBeInTheDocument()
+        expect(alert).toHaveAttribute('data-alert-type', 'danger')
+        expect(alert).toHaveTextContent(GENERIC_ERROR_COPY)
+        expect(getLogOutButton()).toHaveTextContent(LOG_OUT_COPY)
+        expect(screen.queryByTestId(MOCK_SPINNER_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should not redirect home', () => {
+        render(<CreateOrganization />)
+
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN clicking log out', () => {
+      it('THEN should log out without navigating itself', async () => {
+        render(<CreateOrganization />)
+
+        await userEvent.click(getLogOutButton())
+
         expect(mockLogOut).toHaveBeenCalledWith(mockClient, true)
         expect(testMockNavigateFn).not.toHaveBeenCalled()
       })

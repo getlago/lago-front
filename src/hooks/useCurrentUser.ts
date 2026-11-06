@@ -18,7 +18,6 @@ gql`
     email
     premium
     csAdmin
-    needsOrganization
     ...OrgSlugResolverData
     memberships {
       roles
