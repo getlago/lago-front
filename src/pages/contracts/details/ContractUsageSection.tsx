@@ -37,15 +37,14 @@ export const ContractUsageSection = ({
   })
   const [railHasError, setRailHasError] = useState(false)
   const [tableHasError, setTableHasError] = useState(false)
-  // Bumping this remounts the rail and table (via `key`), which is what makes "Refresh" actually
-  // refresh all 3 of this tab's queries, not just the total line's own `refetch()` - a fresh mount
-  // re-fires `useQuery` under each child's existing `network-only` fetch policy for free.
-  const [refreshKey, setRefreshKey] = useState(0)
+  // Passed to the rail/table as refreshToken - re-fetches both in place, not a remount, so
+  // "Refresh" doesn't reset their own local state (search term, page size).
+  const [refreshToken, setRefreshToken] = useState(0)
 
   const handleRefresh = (): void => {
     setRailHasError(false)
     setTableHasError(false)
-    setRefreshKey((key) => key + 1)
+    setRefreshToken((token) => token + 1)
     refetch()
   }
 
@@ -91,15 +90,15 @@ export const ContractUsageSection = ({
 
       <div className="flex gap-6">
         <ContractUsageCategoryRail
-          key={`rail-${refreshKey}`}
           contractId={contractId}
           onErrorChange={setRailHasError}
+          refreshToken={refreshToken}
         />
         <ContractUsageTable
-          key={`table-${refreshKey}`}
           contractId={contractId}
           currency={currency}
           onErrorChange={setTableHasError}
+          refreshToken={refreshToken}
         />
       </div>
     </section>

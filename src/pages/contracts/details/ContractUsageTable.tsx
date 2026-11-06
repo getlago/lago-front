@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { PaginatedContent } from '~/components/designSystem/Pagination/PaginatedContent'
@@ -66,19 +66,25 @@ gql`
 
 type ContractUsageRow = GetContractUsagesQuery['contractUsages']['collection'][number]
 
+// refreshToken: bump to re-fetch in place (not remount) - a remount would also reset this
+// table's own local state (search term, page size). See ContractUsageSection.
 type ContractUsageTableProps = {
   contractId: string
   currency?: CurrencyEnum
   onErrorChange?: (hasError: boolean) => void
+  refreshToken?: number
 }
 
 export const ContractUsageTable = ({
   contractId,
   currency,
   onErrorChange,
+  refreshToken,
 }: ContractUsageTableProps): JSX.Element => {
   const { translate } = useInternationalization()
-  const { page, goToPage } = usePageSearchParam(CONTRACT_USAGE_LIST_FILTER_PREFIX)
+  // Bare key: must match the rail's own link-building, which drops the bare `page` key on every
+  // category switch - a prefixed key here would silently stop matching that.
+  const { page, goToPage } = usePageSearchParam()
   const [searchParams] = useSearchParams()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
 
@@ -88,26 +94,38 @@ export const ContractUsageTable = ({
     [searchParams],
   )
 
-  // network-only: this table can remount when the tab's error placeholder recovers (see
-  // ContractUsageSection), so a cache-first read would flash a previous page's data.
-  const [getContractUsages, { data, error, loading, variables }] = useGetContractUsagesLazyQuery({
-    variables: {
-      contractId,
-      page,
-      limit: pageSize,
-      productCategoryIds: categoryId ? [categoryId] : undefined,
-      withoutProductCategory: !categoryId,
-      ...filtersForQuery,
-    },
-    notifyOnNetworkStatusChange: true,
-    fetchPolicy: 'network-only',
-    nextFetchPolicy: 'network-only',
-  })
+  // network-only: refresh (see ContractUsageSection) re-fetches this same hook in place, so a
+  // cache-first read would flash the previous result instead of the fresh one.
+  const [getContractUsages, { data, error, loading, variables, refetch }] =
+    useGetContractUsagesLazyQuery({
+      variables: {
+        contractId,
+        page,
+        limit: pageSize,
+        productCategoryIds: categoryId ? [categoryId] : undefined,
+        withoutProductCategory: !categoryId,
+        ...filtersForQuery,
+      },
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'network-only',
+      nextFetchPolicy: 'network-only',
+    })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getContractUsages, loading)
 
   useEffect(() => {
     onErrorChange?.(!!error)
   }, [error, onErrorChange])
+
+  const isFirstRefreshRender = useRef(true)
+
+  useEffect(() => {
+    if (isFirstRefreshRender.current) {
+      isFirstRefreshRender.current = false
+      return
+    }
+    refetch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshToken])
 
   const searchInputOnChange = (value: string): void => {
     goToPage(1)

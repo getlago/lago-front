@@ -63,6 +63,63 @@ describe('ContractUsageTable', () => {
     expect(await screen.findByText('text_62c3f454e5d7f4ec8888c1d5')).toBeInTheDocument()
   })
 
+  it('reads the bare `page` param - the same key the category rail drops on switch', async () => {
+    window.history.pushState({}, '', '/?page=2')
+
+    const mock: TestMocksType[number] = {
+      request: {
+        query: GetContractUsagesDocument,
+        variables: { contractId: 'contract-1', page: 2, limit: 20, withoutProductCategory: true },
+      },
+      result: {
+        data: {
+          contractUsages: {
+            __typename: 'RateCardUsageCollection',
+            collection: [rowFixture],
+            metadata: {
+              __typename: 'CollectionMetadata',
+              currentPage: 2,
+              totalPages: 2,
+              totalCount: 21,
+            },
+          },
+        },
+      },
+    }
+
+    render(
+      <AllTheProviders forceTypenames mocks={[mock]}>
+        <ContractUsageTable contractId="contract-1" />
+      </AllTheProviders>,
+    )
+
+    expect(await screen.findByText('Support plan')).toBeInTheDocument()
+  })
+
+  it('refetches, without remounting, when refreshToken changes', async () => {
+    const otherRowFixture = { ...rowFixture, id: 'rc-2', invoiceDisplayName: 'Other plan' }
+    const mocks = [buildMock([rowFixture]), buildMock([otherRowFixture])]
+
+    const { rerender } = render(
+      <AllTheProviders forceTypenames mocks={mocks}>
+        <ContractUsageTable contractId="contract-1" refreshToken={0} />
+      </AllTheProviders>,
+    )
+
+    expect(await screen.findByText('Support plan')).toBeInTheDocument()
+
+    rerender(
+      <AllTheProviders forceTypenames mocks={mocks}>
+        <ContractUsageTable contractId="contract-1" refreshToken={1} />
+      </AllTheProviders>,
+    )
+
+    // useDebouncedSearch's loading-smoothing makes isLoading flicker on an instant refetch -
+    // settle past that window, then assert against the final render.
+    await new Promise((resolve) => setTimeout(resolve, 800))
+    expect(screen.getByText('Other plan')).toBeInTheDocument()
+  })
+
   it('calls onErrorChange when the usages query fails', async () => {
     const onErrorChange = jest.fn()
     const errorMock: TestMocksType[number] = {

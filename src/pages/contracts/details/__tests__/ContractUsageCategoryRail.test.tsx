@@ -118,4 +118,64 @@ describe('ContractUsageCategoryRail', () => {
     expect(items[0]).not.toHaveAttribute('aria-current', 'page')
     expect(items[1]).toHaveAttribute('aria-current', 'page')
   })
+
+  it('drops the page param (same key the table reads) when switching category', async () => {
+    window.history.pushState({}, '', '/?page=3')
+
+    const appliedRateCards = [
+      {
+        id: 'a1',
+        __typename: 'ContractAppliedRateCard',
+        product: {
+          id: 'p1',
+          __typename: 'Product',
+          productCategory: { id: 'cat-1', name: 'Support', __typename: 'ProductCategory' },
+        },
+      },
+    ]
+
+    render(
+      <AllTheProviders forceTypenames mocks={[buildMock(appliedRateCards)]}>
+        <ContractUsageCategoryRail contractId="contract-1" />
+      </AllTheProviders>,
+    )
+
+    await waitFor(() => expect(screen.getAllByRole('link')).toHaveLength(2))
+    const items = screen.getAllByRole('link')
+
+    expect(items[0]).toHaveAttribute('href', '/')
+    expect(items[1]).toHaveAttribute('href', '/?categoryId=cat-1')
+  })
+
+  it('refetches, without remounting, when refreshToken changes', async () => {
+    const appliedRateCards = [
+      {
+        id: 'a1',
+        __typename: 'ContractAppliedRateCard',
+        product: {
+          id: 'p1',
+          __typename: 'Product',
+          productCategory: { id: 'cat-1', name: 'Support', __typename: 'ProductCategory' },
+        },
+      },
+    ]
+
+    const mocks = [buildMock([]), buildMock(appliedRateCards)]
+
+    const { rerender } = render(
+      <AllTheProviders forceTypenames mocks={mocks}>
+        <ContractUsageCategoryRail contractId="contract-1" refreshToken={0} />
+      </AllTheProviders>,
+    )
+
+    await waitFor(() => expect(screen.getAllByRole('link')).toHaveLength(1))
+
+    rerender(
+      <AllTheProviders forceTypenames mocks={mocks}>
+        <ContractUsageCategoryRail contractId="contract-1" refreshToken={1} />
+      </AllTheProviders>,
+    )
+
+    await waitFor(() => expect(screen.getAllByRole('link')).toHaveLength(2))
+  })
 })

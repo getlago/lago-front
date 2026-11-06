@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { VerticalMenu } from '~/components/designSystem/VerticalMenu'
@@ -25,25 +25,40 @@ gql`
   }
 `
 
+// refreshToken: bump to re-fetch in place (not remount) - a remount would also reset sibling
+// panes' own local state (search term, page size). See ContractUsageSection.
 type ContractUsageCategoryRailProps = {
   contractId: string
   onErrorChange?: (hasError: boolean) => void
+  refreshToken?: number
 }
 
 export const ContractUsageCategoryRail = ({
   contractId,
   onErrorChange,
+  refreshToken,
 }: ContractUsageCategoryRailProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { strippedPathname } = useLocation()
   const [searchParams] = useSearchParams()
   const activeCategoryId = searchParams.get('categoryId')
 
-  const { data, error } = useGetContractUsageCategoriesQuery({ variables: { contractId } })
+  const { data, error, refetch } = useGetContractUsageCategoriesQuery({ variables: { contractId } })
 
   useEffect(() => {
     onErrorChange?.(!!error)
   }, [error, onErrorChange])
+
+  const isFirstRefreshRender = useRef(true)
+
+  useEffect(() => {
+    if (isFirstRefreshRender.current) {
+      isFirstRefreshRender.current = false
+      return
+    }
+    refetch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshToken])
 
   const categories = useMemo(() => {
     const byId = new Map<string, string>()
