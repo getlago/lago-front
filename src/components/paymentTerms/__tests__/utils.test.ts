@@ -3,6 +3,7 @@ import { PaymentTermTypeEnum } from '~/generated/graphql'
 
 import {
   getInheritedPaymentTerm,
+  INHERIT_DEFAULT_LABEL_KEY,
   INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
   INHERIT_FROM_CUSTOMER_LABEL_KEY,
 } from '../utils'
@@ -49,22 +50,32 @@ describe('getInheritedPaymentTerm', () => {
     })
 
     describe('WHEN the bound billing entity has no term either', () => {
-      it('THEN should fall back to due on receipt without consulting the customer entity', () => {
+      it('THEN should fall back to the default without consulting the customer entity', () => {
         expect(
           getInheritedPaymentTerm({
             customer: { paymentTerm: null, billingEntity: { paymentTerm: CUSTOMER_ENTITY_TERM } },
             issuingBillingEntity: { paymentTerm: null },
           }),
-        ).toEqual({ term: DEFAULT_PAYMENT_TERM, labelKey: INHERIT_FROM_BILLING_ENTITY_LABEL_KEY })
+        ).toEqual({ term: DEFAULT_PAYMENT_TERM, labelKey: INHERIT_DEFAULT_LABEL_KEY })
+      })
+    })
+
+    describe('WHEN the customer billing entity has no term either', () => {
+      it('THEN should label the default as such, not as the entity term', () => {
+        expect(
+          getInheritedPaymentTerm({
+            customer: { paymentTerm: null, billingEntity: { paymentTerm: null } },
+          }),
+        ).toEqual({ term: DEFAULT_PAYMENT_TERM, labelKey: INHERIT_DEFAULT_LABEL_KEY })
       })
     })
   })
 
   describe('GIVEN no customer at all', () => {
-    it('THEN should fall back to due on receipt from the billing entity', () => {
+    it('THEN should fall back to the default and label it as such', () => {
       expect(getInheritedPaymentTerm({ customer: null })).toEqual({
         term: DEFAULT_PAYMENT_TERM,
-        labelKey: INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
+        labelKey: INHERIT_DEFAULT_LABEL_KEY,
       })
     })
   })

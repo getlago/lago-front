@@ -78,22 +78,24 @@ export type PaymentTermLevels = {
 
 export const INHERIT_FROM_CUSTOMER_LABEL_KEY = 'text_17912021395686w9xadhesc3'
 export const INHERIT_FROM_BILLING_ENTITY_LABEL_KEY = 'text_1728374331992d2alok9y3kr'
+/** No level carries a term: the inherited value is `DEFAULT_PAYMENT_TERM`. */
+export const INHERIT_DEFAULT_LABEL_KEY = 'text_17939778828709u6rj4vf09s'
 /** The inherit choice while the term it would resolve to is not known yet. */
 export const INHERIT_UNRESOLVED_LABEL_KEY = 'text_1793977485591g2xeqr528n7'
+
+const inheritedLabelKey = (customerTerm: MaybePaymentTerm, parentTerm: MaybePaymentTerm) => {
+  if (customerTerm) return INHERIT_FROM_CUSTOMER_LABEL_KEY
+  if (parentTerm) return INHERIT_FROM_BILLING_ENTITY_LABEL_KEY
+
+  return INHERIT_DEFAULT_LABEL_KEY
+}
 
 export const getInheritedPaymentTerm = ({
   customer,
   issuingBillingEntity,
 }: PaymentTermLevels): PaymentTermInheritedFrom => {
-  const { term } = resolvePaymentTerm({
-    ownTerm: customer?.paymentTerm,
-    parentTerm: (issuingBillingEntity ?? customer?.billingEntity)?.paymentTerm,
-  })
+  const parentTerm = (issuingBillingEntity ?? customer?.billingEntity)?.paymentTerm
+  const { term } = resolvePaymentTerm({ ownTerm: customer?.paymentTerm, parentTerm })
 
-  return {
-    term,
-    labelKey: customer?.paymentTerm
-      ? INHERIT_FROM_CUSTOMER_LABEL_KEY
-      : INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
-  }
+  return { term, labelKey: inheritedLabelKey(customer?.paymentTerm, parentTerm) }
 }

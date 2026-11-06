@@ -1,6 +1,7 @@
 import { screen, within } from '@testing-library/react'
 
 import {
+  INHERIT_DEFAULT_LABEL_KEY,
   INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
   INHERIT_FROM_CUSTOMER_LABEL_KEY,
 } from '~/components/paymentTerms/utils'
@@ -344,13 +345,35 @@ describe('WalletInformations', () => {
           <WalletInformations
             wallet={createMockWallet({
               paymentTerm: null,
-              customer: { id: 'cust-1', externalId: 'ext-1', paymentTerm: null },
+              customer: {
+                id: 'cust-1',
+                externalId: 'ext-1',
+                paymentTerm: null,
+                billingEntity: { paymentTerm: { termType: PaymentTermTypeEnum.EndOfMonth } },
+              },
             })}
           />,
         )
 
         expect(
           getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN no level has a term', () => {
+      it('THEN shows the default marked as such', () => {
+        render(
+          <WalletInformations
+            wallet={createMockWallet({
+              paymentTerm: null,
+              customer: { id: 'cust-1', externalId: 'ext-1', paymentTerm: null },
+            })}
+          />,
+        )
+
+        expect(
+          getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(INHERIT_DEFAULT_LABEL_KEY),
         ).toBeInTheDocument()
       })
     })
