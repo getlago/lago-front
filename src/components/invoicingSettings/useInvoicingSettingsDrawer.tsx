@@ -1,5 +1,5 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useCallback, useEffect } from 'react'
 import { z } from 'zod'
 
 import { useFormDrawer } from '~/components/drawers/useDrawer'
@@ -75,51 +75,6 @@ const invoicingSettingsValidationSchema = z
     addPaymentTermIssues(ctx, values.paymentTerm, ['paymentTerm'])
   })
 
-type InheritedFromStore = {
-  subscribe: (listener: () => void) => () => void
-  getSnapshot: () => PaymentTermInheritedFrom | undefined
-  set: (next: PaymentTermInheritedFrom | undefined) => void
-}
-
-const isSameInheritedFrom = (
-  a: PaymentTermInheritedFrom | undefined,
-  b: PaymentTermInheritedFrom | undefined,
-): boolean => {
-  if (!a || !b) return a === b
-
-  return (
-    a.labelKey === b.labelKey &&
-    a.term.termType === b.term.termType &&
-    a.term.days === b.term.days &&
-    a.term.dayOfMonth === b.term.dayOfMonth &&
-    a.term.monthOffset === b.term.monthOffset
-  )
-}
-
-const createInheritedFromStore = (
-  initial: PaymentTermInheritedFrom | undefined,
-): InheritedFromStore => {
-  let current = initial
-  const listeners = new Set<() => void>()
-
-  return {
-    subscribe: (listener) => {
-      listeners.add(listener)
-
-      return () => {
-        listeners.delete(listener)
-      }
-    },
-    getSnapshot: () => current,
-    set: (next) => {
-      if (isSameInheritedFrom(current, next)) return
-
-      current = next
-      listeners.forEach((listener) => listener())
-    },
-  }
-}
-
 interface InvoicingSettingsDrawerContentExtraProps {
   viewType: ViewTypeEnum
   customerId?: string
@@ -127,7 +82,7 @@ interface InvoicingSettingsDrawerContentExtraProps {
   /** Enabled for billing objects whose mutation payload supports invoice consolidation. */
   withInvoiceConsolidation: boolean
   withPaymentTerm: boolean
-  inheritedFromStore: InheritedFromStore
+  paymentTermInheritedFrom?: PaymentTermInheritedFrom
 }
 
 const invoicingSettingsDrawerContentDefaultProps: InvoicingSettingsDrawerContentExtraProps = {
@@ -136,7 +91,7 @@ const invoicingSettingsDrawerContentDefaultProps: InvoicingSettingsDrawerContent
   showCustomSection: false,
   withInvoiceConsolidation: false,
   withPaymentTerm: false,
-  inheritedFromStore: createInheritedFromStore(undefined),
+  paymentTermInheritedFrom: undefined,
 }
 
 const InvoicingSettingsDrawerContent = withForm({
@@ -149,13 +104,9 @@ const InvoicingSettingsDrawerContent = withForm({
     showCustomSection,
     withInvoiceConsolidation,
     withPaymentTerm,
-    inheritedFromStore,
+    paymentTermInheritedFrom,
   }) {
     const { translate } = useInternationalization()
-    const paymentTermInheritedFrom = useSyncExternalStore(
-      inheritedFromStore.subscribe,
-      inheritedFromStore.getSnapshot,
-    )
     const isContract = viewType === ViewTypeEnum.Contract
     const viewTypeLabel = translate(VIEW_TYPE_TRANSLATION_KEYS[viewType])
     const titleKey = getInvoicingSettingsTitleKey(viewType)
@@ -259,11 +210,10 @@ export const useInvoicingSettingsDrawer = ({
   const { translate } = useInternationalization()
   const titleKey = getInvoicingSettingsTitleKey(viewType)
   const drawer = useFormDrawer()
-  const [inheritedFromStore] = useState(() => createInheritedFromStore(paymentTermInheritedFrom))
-
-  useEffect(() => {
-    inheritedFromStore.set(paymentTermInheritedFrom)
-  }, [inheritedFromStore, paymentTermInheritedFrom])
+  const { update: updateDrawer } = drawer
+  // Callers rebuild the inherited term every render; its term and label keep their identity.
+  const inheritedTerm = paymentTermInheritedFrom?.term
+  const inheritedLabelKey = paymentTermInheritedFrom?.labelKey
 
   const form = useAppForm({
     defaultValues: DEFAULT_VALUES,
@@ -280,6 +230,38 @@ export const useInvoicingSettingsDrawer = ({
       drawer.close()
     },
   })
+
+  const renderContent = useCallback(
+    () => (
+      <InvoicingSettingsDrawerContent
+        form={form}
+        viewType={viewType}
+        customerId={customerId}
+        showCustomSection={showCustomSection}
+        withInvoiceConsolidation={withInvoiceConsolidation}
+        withPaymentTerm={withPaymentTerm}
+        paymentTermInheritedFrom={
+          inheritedTerm && inheritedLabelKey
+            ? { term: inheritedTerm, labelKey: inheritedLabelKey }
+            : undefined
+        }
+      />
+    ),
+    [
+      form,
+      viewType,
+      customerId,
+      showCustomSection,
+      withInvoiceConsolidation,
+      withPaymentTerm,
+      inheritedTerm,
+      inheritedLabelKey,
+    ],
+  )
+
+  useEffect(() => {
+    updateDrawer({ children: renderContent() })
+  }, [updateDrawer, renderContent])
 
   const openDrawer: UseInvoicingSettingsDrawerReturn['openDrawer'] = (values): void => {
     const invoiceCustomSection = values.invoiceCustomSection ?? DEFAULT_VALUES.invoiceCustomSection
@@ -301,17 +283,7 @@ export const useInvoicingSettingsDrawer = ({
       shouldPromptOnClose: () => form.state.isDirty,
       onClose: () => form.reset(),
       onEntered: (container) => focusFirstInput(container),
-      children: (
-        <InvoicingSettingsDrawerContent
-          form={form}
-          viewType={viewType}
-          customerId={customerId}
-          showCustomSection={showCustomSection}
-          withInvoiceConsolidation={withInvoiceConsolidation}
-          withPaymentTerm={withPaymentTerm}
-          inheritedFromStore={inheritedFromStore}
-        />
-      ),
+      children: renderContent(),
       mainAction: (
         <form.AppForm>
           <form.SubmitButton dataTest="invoicing-settings-drawer-save">
