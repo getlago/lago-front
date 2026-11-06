@@ -9,7 +9,7 @@ import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { LOGIN_ROUTE } from '~/core/router'
 import * as localStorageUtils from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
-import { getRecaptchaToken, loadRecaptcha } from '~/core/utils/recaptcha'
+import { getRecaptchaToken, loadRecaptcha, unloadRecaptcha } from '~/core/utils/recaptcha'
 import {
   PASSWORD_VALIDATION_ERRORS,
   PASSWORD_VALIDATION_TEST_IDS,
@@ -17,7 +17,7 @@ import {
 import { LagoApiError } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import type { SelfServeCheckEmail } from '../components/SelfServeCheckEmail'
+import type { SelfServeCheckEmail } from '../components/selfServeCheckEmail/SelfServeCheckEmail'
 import SelfServeSignUp from '../SelfServeSignUp'
 import {
   SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID,
@@ -50,7 +50,7 @@ function mockRenderCheckEmail({
   )
 }
 
-jest.mock('../components/SelfServeCheckEmail', () => ({
+jest.mock('../components/selfServeCheckEmail/SelfServeCheckEmail', () => ({
   SelfServeCheckEmail: (props: SelfServeCheckEmailProps) => mockRenderCheckEmail(props),
 }))
 
@@ -71,6 +71,7 @@ jest.mock('~/core/form/scrollToFirstInputError', () => ({
 
 jest.mock('~/core/utils/recaptcha', () => ({
   loadRecaptcha: jest.fn(),
+  unloadRecaptcha: jest.fn(),
   getRecaptchaToken: jest.fn(),
 }))
 
@@ -98,6 +99,7 @@ jest.mock('@tanstack/react-virtual', () => ({
 
 const mockedEnvGlobalVar = jest.mocked(envGlobalVar)
 const mockedLoadRecaptcha = jest.mocked(loadRecaptcha)
+const mockedUnloadRecaptcha = jest.mocked(unloadRecaptcha)
 const mockedGetRecaptchaToken = jest.mocked(getRecaptchaToken)
 
 const TERMS_OF_SERVICE_URL = 'https://www.getlago.com/company/terms-of-service'
@@ -120,7 +122,6 @@ const PERSONAL_EMAIL = 'jane@gmail.com'
 const VALID_PASSWORD = 'Abcdefg1!'
 const SIGNUP_SECRET = 'signup-secret-1'
 const RECAPTCHA_TOKEN = 'recaptcha-token-1'
-const RETRY_RECAPTCHA_TOKEN = 'recaptcha-token-2'
 
 const EMAIL_REQUIRED_COPY = 'Please fill this input to move forward'
 const EMAIL_INVALID_COPY = 'This value is not an email address, please enter a valid email.'
@@ -329,6 +330,17 @@ describe('SelfServeSignUp', () => {
 
         expect(mockedLoadRecaptcha).toHaveBeenCalledTimes(1)
         expect(mockedGetRecaptchaToken).not.toHaveBeenCalled()
+        expect(mockedUnloadRecaptcha).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the user leaves the page', () => {
+      it('THEN should unload the reCAPTCHA script', () => {
+        const { unmount } = render(<SelfServeSignUp />)
+
+        unmount()
+
+        expect(mockedUnloadRecaptcha).toHaveBeenCalledTimes(1)
       })
     })
   })
@@ -851,67 +863,26 @@ describe('SelfServeSignUp', () => {
       })
     })
 
-    describe('WHEN the lock is busy once', () => {
+    describe('WHEN the lock is busy', () => {
       beforeEach(() => {
-        mockSignUp.mockResolvedValueOnce(LOCK_ERROR).mockResolvedValueOnce(SIGN_UP_SUCCESS)
-        mockedGetRecaptchaToken
-          .mockResolvedValueOnce(RECAPTCHA_TOKEN)
-          .mockResolvedValueOnce(RETRY_RECAPTCHA_TOKEN)
-      })
-
-      it('THEN should retry silently and show the check email step', async () => {
-        await submitValidForm()
-
-        expect(await screen.findByTestId(SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID)).toBeInTheDocument()
-        expect(mockSignUp).toHaveBeenCalledTimes(2)
-      })
-
-      it('THEN should ask for a fresh signup captcha token after the first answer and send it', async () => {
-        await submitValidForm()
-
-        await screen.findByTestId(SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID)
-
-        expect(mockedGetRecaptchaToken.mock.calls).toEqual([['signup'], ['signup']])
-        expect(mockedGetRecaptchaToken.mock.invocationCallOrder[1]).toBeGreaterThan(
-          mockSignUp.mock.invocationCallOrder[0],
-        )
-        expect(mockSignUp.mock.calls).toEqual([
-          [
-            {
-              variables: {
-                input: {
-                  email: VALID_EMAIL,
-                  password: VALID_PASSWORD,
-                  captchaToken: RECAPTCHA_TOKEN,
-                },
-              },
-            },
-          ],
-          [
-            {
-              variables: {
-                input: {
-                  email: VALID_EMAIL,
-                  password: VALID_PASSWORD,
-                  captchaToken: RETRY_RECAPTCHA_TOKEN,
-                },
-              },
-            },
-          ],
-        ])
-      })
-    })
-
-    describe('WHEN the lock is still busy on the retry', () => {
-      it('THEN should stop after one retry and show the generic message', async () => {
         mockSignUp.mockResolvedValue(LOCK_ERROR)
+      })
 
+      it('THEN should show the generic message without retrying', async () => {
         await submitValidForm()
 
         expect(await screen.findByTestId(SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID)).toHaveTextContent(
           GENERIC_ERROR_COPY,
         )
-        expect(mockSignUp).toHaveBeenCalledTimes(2)
+        expect(mockSignUp).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should ask Google for a single token', async () => {
+        await submitValidForm()
+
+        await screen.findByTestId(SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID)
+
+        expect(mockedGetRecaptchaToken).toHaveBeenCalledTimes(1)
       })
     })
   })
