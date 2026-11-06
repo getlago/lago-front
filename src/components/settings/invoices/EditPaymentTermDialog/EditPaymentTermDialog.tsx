@@ -172,7 +172,7 @@ export const useEditPaymentTermDialog = () => {
     form.setFieldValue('dayOfMonth', seeded.dayOfMonth)
     form.setFieldValue('monthOffset', seeded.monthOffset)
 
-    formDialog
+    void formDialog
       .open({
         title: translate(
           isEditRef.current ? 'text_1787603382163c3k425lvr34' : 'text_1787603382163dshrngxccpy',
