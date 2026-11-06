@@ -6,6 +6,7 @@ import { PaginatedContent } from '~/components/designSystem/Pagination/Paginated
 import { usePageSearchParam } from '~/components/designSystem/Pagination/usePageSearchParam'
 import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   ContractUsageAvailableFilters,
   Filters,
@@ -54,6 +55,9 @@ gql`
         invoiceDisplayName
         units
         amountCents
+        productCode
+        productName
+        productFilterCode
       }
       metadata {
         currentPage
@@ -65,6 +69,26 @@ gql`
 `
 
 type ContractUsageRow = GetContractUsagesQuery['contractUsages']['collection'][number]
+
+export const CONTRACT_USAGE_ROW_NAME_TEST_ID = 'contract-usage-row-name'
+
+// The backend orders rows by billing window, not by product, so a product's filter rows can land
+// anywhere in the page. Regroup them here: each product's rows stay together, in first-appearance
+// order, with its own unfiltered row (if any) first so it anchors the group without a header.
+const groupRowsByProduct = (rows: ContractUsageRow[]): ContractUsageRow[] => {
+  const groups = new Map<string, ContractUsageRow[]>()
+
+  for (const row of rows) {
+    const group = groups.get(row.productCode) ?? []
+
+    group.push(row)
+    groups.set(row.productCode, group)
+  }
+
+  return Array.from(groups.values()).flatMap((group) =>
+    [...group].sort((a, b) => Number(!!a.productFilterCode) - Number(!!b.productFilterCode)),
+  )
+}
 
 // refreshToken: bump to re-fetch in place (not remount) - a remount would also reset this
 // table's own local state (search term, page size). See ContractUsageSection.
@@ -132,7 +156,7 @@ export const ContractUsageTable = ({
     debouncedSearch?.(value)
   }
 
-  const rows = data?.contractUsages?.collection ?? []
+  const rows = groupRowsByProduct(data?.contractUsages?.collection ?? [])
 
   const placeholder = buildSearchAwareTablePlaceholder({
     translate,
@@ -148,7 +172,17 @@ export const ContractUsageTable = ({
       title: translate('text_1793970414838gfp6mgqj7pz'),
       minWidth: 240,
       maxSpace: true,
-      content: (row) => row.invoiceDisplayName,
+      content: (row) => (
+        <div
+          data-test={CONTRACT_USAGE_ROW_NAME_TEST_ID}
+          data-indented={row.productFilterCode ? 'true' : 'false'}
+          className={row.productFilterCode ? 'pl-4' : undefined}
+        >
+          <Typography variant="bodyHl" color="grey700" noWrap>
+            {row.invoiceDisplayName}
+          </Typography>
+        </div>
+      ),
     },
     {
       key: 'units',
@@ -203,6 +237,18 @@ export const ContractUsageTable = ({
           loadingRowCount={pageSize}
           hasError={!!error}
           placeholder={placeholder}
+          getRowGroupHeader={(row, index, allRows) => {
+            const previousRow = index > 0 ? allRows[index - 1] : undefined
+            const isFirstOfGroup = previousRow?.productCode !== row.productCode
+
+            if (!isFirstOfGroup || !row.productFilterCode) return undefined
+
+            return (
+              <Typography variant="captionHl" color="grey600">
+                {row.productName}
+              </Typography>
+            )
+          }}
         />
       </PaginatedContent>
     </div>
