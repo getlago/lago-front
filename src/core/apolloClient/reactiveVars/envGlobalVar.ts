@@ -26,7 +26,6 @@ export const envGlobalVar = makeVar<EnvGlobal>({
   appEnv: window.APP_ENV || APP_ENV,
   lagoOauthProxyUrl: window.LAGO_OAUTH_PROXY_URL || LAGO_OAUTH_PROXY_URL,
   disableSignUp: (window.LAGO_DISABLE_SIGNUP || LAGO_DISABLE_SIGNUP) === 'true',
-  // Parsed like the API's LAGO_SELF_SERVE_ENABLED, so front and API agree on any spelling of true
   selfServeEnabled:
     (window.LAGO_SELF_SERVE_ENABLED || LAGO_SELF_SERVE_ENABLED || '').trim().toLowerCase() ===
     'true',
