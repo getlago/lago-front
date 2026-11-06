@@ -43,6 +43,7 @@ const mockUseResendSignupEmailFromLinkMutation = jest.fn()
 const mockConfirmSignupEmail = jest.fn()
 const mockResendSignupEmail = jest.fn()
 const mockOnLogIn = jest.fn()
+const mockAuthTokenVar = jest.fn()
 const mockNavigate = jest.fn()
 
 jest.mock('@apollo/client', () => ({
@@ -59,6 +60,11 @@ jest.mock('~/core/apolloClient', () => {
     onLogIn: (...args: unknown[]) => mockOnLogIn(...args),
   }
 })
+
+jest.mock('~/core/apolloClient/reactiveVars', () => ({
+  ...jest.requireActual('~/core/apolloClient/reactiveVars'),
+  authTokenVar: () => mockAuthTokenVar(),
+}))
 
 jest.mock('~/core/router', () => ({
   ...jest.requireActual('~/core/router'),
@@ -269,6 +275,33 @@ const typePasswordAndConfirm = async (user: UserEvent, password = PASSWORD): Pro
   await clickConfirm(user)
 }
 
+const logInWithSession = (): void => {
+  mockAuthTokenVar.mockReturnValue('')
+  mockOnLogIn.mockImplementation(async (_client: unknown, sessionToken: string) => {
+    mockAuthTokenVar.mockReturnValue(sessionToken)
+  })
+}
+
+const logInWithoutSession = (): void => {
+  mockAuthTokenVar.mockReturnValue('')
+  mockOnLogIn.mockResolvedValue(undefined)
+}
+
+const CONFIRM_PATHS = [
+  {
+    path: 'secret',
+    passwordRequired: false,
+    confirm: clickConfirm,
+    input: { token: TOKEN, signupSecret: SIGNUP_SECRET },
+  },
+  {
+    path: 'password',
+    passwordRequired: true,
+    confirm: typePasswordAndConfirm,
+    input: { token: TOKEN, password: PASSWORD, captchaToken: RECAPTCHA_TOKEN },
+  },
+]
+
 const getRetryButton = (): HTMLElement =>
   screen.getByTestId(SELF_SERVE_VERIFY_EMAIL_RETRY_BUTTON_TEST_ID)
 
@@ -302,6 +335,7 @@ describe('VerifyEmail', () => {
     mockResendSignupEmail.mockResolvedValue(RESEND_SUCCESS)
     mockedGetRecaptchaToken.mockResolvedValue(RECAPTCHA_TOKEN)
     mockOnLogIn.mockResolvedValue(undefined)
+    mockAuthTokenVar.mockReturnValue('')
     mockRecaptchaSiteKey('')
   })
 
@@ -858,6 +892,81 @@ describe('VerifyEmail', () => {
         })
         expect(mockOnLogIn).toHaveBeenCalledWith(mockClient, SESSION_TOKEN)
       })
+    })
+  })
+
+  describe('GIVEN the confirmation returns a session token', () => {
+    beforeEach(() => {
+      setItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY, SIGNUP_SECRET)
+    })
+
+    describe('WHEN the log in sets no session', () => {
+      beforeEach(() => {
+        logInWithoutSession()
+      })
+
+      it.each(CONFIRM_PATHS)(
+        'THEN should show the already verified state instead of the form on the $path path',
+        async ({ passwordRequired, confirm, input }) => {
+          const user = userEvent.setup()
+
+          answerVerification(buildVerification({ passwordRequired }))
+
+          renderVerifyEmail()
+          await confirm(user)
+
+          expect(mockConfirmSignupEmail).toHaveBeenCalledWith({ variables: { input } })
+          expect(mockOnLogIn).toHaveBeenCalledWith(mockClient, SESSION_TOKEN)
+          expect(getPage()).toHaveTextContent(ALREADY_VERIFIED_TITLE_COPY)
+          expect(getPage()).toHaveTextContent(ALREADY_VERIFIED_TEXT_COPY)
+          expect(
+            screen.getByTestId(SELF_SERVE_VERIFY_EMAIL_CONTINUE_BUTTON_TEST_ID),
+          ).toHaveTextContent(CONTINUE_COPY)
+          expect(queryConfirmButton()).not.toBeInTheDocument()
+          expect(queryPasswordField()).not.toBeInTheDocument()
+          expect(queryErrorAlert()).not.toBeInTheDocument()
+          expect(getStoredSecret()).toBeNull()
+        },
+      )
+
+      it('THEN should go to the login page when clicking continue to Lago', async () => {
+        const user = userEvent.setup()
+
+        answerVerification(buildVerification({ passwordRequired: false }))
+
+        renderVerifyEmail()
+        await clickConfirm(user)
+        await user.click(screen.getByTestId(SELF_SERVE_VERIFY_EMAIL_CONTINUE_BUTTON_TEST_ID))
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith(LOGIN_ROUTE)
+      })
+    })
+
+    describe('WHEN the log in sets the session', () => {
+      beforeEach(() => {
+        logInWithSession()
+      })
+
+      it.each(CONFIRM_PATHS)(
+        'THEN should not show the already verified state on the $path path',
+        async ({ passwordRequired, confirm, input }) => {
+          const user = userEvent.setup()
+
+          answerVerification(buildVerification({ passwordRequired }))
+
+          renderVerifyEmail()
+          await confirm(user)
+
+          expect(mockConfirmSignupEmail).toHaveBeenCalledWith({ variables: { input } })
+          expect(mockOnLogIn).toHaveBeenCalledWith(mockClient, SESSION_TOKEN)
+          expect(getPage()).not.toHaveTextContent(ALREADY_VERIFIED_TITLE_COPY)
+          expect(
+            screen.queryByTestId(SELF_SERVE_VERIFY_EMAIL_CONTINUE_BUTTON_TEST_ID),
+          ).not.toBeInTheDocument()
+          expect(mockNavigate).not.toHaveBeenCalled()
+        },
+      )
     })
   })
 
