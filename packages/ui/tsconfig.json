@@ -1,0 +1,8 @@
+{
+  "extends": "lago-configs/tsconfig",
+  "compilerOptions": {
+    "types": ["vite/client", "jest", "@testing-library/jest-dom"]
+  },
+  "include": ["**/*.ts", "**/*.tsx", ".storybook/**/*.ts"],
+  "exclude": ["node_modules", "storybook-static"]
+}

@@ -22,6 +22,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/configs/package.json        ./packages/configs/
 COPY packages/design-system/package.json  ./packages/design-system/
+COPY packages/ui/package.json             ./packages/ui/
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store,sharing=locked \
     pnpm install --frozen-lockfile --ignore-scripts
