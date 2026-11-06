@@ -13,7 +13,9 @@ import { addValuesToUrlState } from '~/core/utils/urlUtils'
 import { LagoApiError, useGetGoogleAuthUrlLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-export type GoogleAuthModeEnum = 'login' | 'signup' | 'invite'
+import { GoogleOauthFlow, storeGoogleOauthFlow } from './googleOauthFlow'
+
+type GoogleAuthModeEnum = GoogleOauthFlow['mode']
 
 const getErrorKey = (errorCode: GoogleErrorCodes): string => {
   // Note: some error code are underscrored as they can come from the google callback page via url parameter
@@ -35,6 +37,7 @@ gql`
   query getGoogleAuthUrl {
     googleAuthUrl {
       url
+      stateSecret
     }
   }
 `
@@ -43,6 +46,7 @@ const GoogleErrorCodes = [
   'GoogleAuthMissingSetup',
   'invalid_google_code',
   'invalid_google_token',
+  'invalid_google_state',
   'user_does_not_exist',
   'google_login_method_not_authorized',
 ] as const
@@ -125,6 +129,18 @@ const GoogleAuthButton = ({
             return setErrorCode('user_does_not_exist')
           } else if (hasDefinedGQLError('LoginMethodNotAuthorized', errors)) {
             return setErrorCode('google_login_method_not_authorized')
+          }
+
+          if (data?.googleAuthUrl?.stateSecret) {
+            storeGoogleOauthFlow({
+              stateSecret: data.googleAuthUrl.stateSecret,
+              mode,
+              invitationToken,
+              redirectPath: previousLocation,
+            })
+            window.location.href = data.googleAuthUrl.url
+
+            return
           }
 
           if (data?.googleAuthUrl?.url) {
