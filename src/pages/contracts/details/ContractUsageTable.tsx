@@ -211,6 +211,7 @@ export const ContractUsageTable = ({
       <PaginatedContent
         metadata={data?.contractUsages?.metadata}
         loading={isLoading}
+        sticky={false}
         onPageChange={goToPage}
         pageSize={pageSize}
         onPageSizeChange={(size) => {
