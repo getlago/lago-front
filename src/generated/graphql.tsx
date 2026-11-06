@@ -13008,6 +13008,8 @@ export type User = {
   email?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   memberships: Array<Membership>;
+  /** True for a self-serve user who must create an organization (signup Step 3) */
+  needsOrganization: Scalars['Boolean']['output'];
   organizations: Array<Organization>;
   premium: Scalars['Boolean']['output'];
   updatedAt: Scalars['ISO8601DateTime']['output'];
@@ -16851,6 +16853,11 @@ export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables = 
 
 
 export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, readyForPaymentProcessing: boolean }> } };
+
+export type GetCurrentUserNeedsOrganizationQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCurrentUserNeedsOrganizationQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, needsOrganization: boolean } };
 
 export type MainOrganizationInfosFragment = { __typename?: 'CurrentOrganization', id: string, name: string, slug: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, eventsStore: EventsStoreEnum, featureFlags: Array<FeatureFlagEnum>, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, realtimeUsageEnabled: boolean, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum };
 
@@ -42537,6 +42544,49 @@ export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryHookResult =
 export type GetCustomerOverdueInvoicesReadyForPaymentProcessingLazyQueryHookResult = ReturnType<typeof useGetCustomerOverdueInvoicesReadyForPaymentProcessingLazyQuery>;
 export type GetCustomerOverdueInvoicesReadyForPaymentProcessingSuspenseQueryHookResult = ReturnType<typeof useGetCustomerOverdueInvoicesReadyForPaymentProcessingSuspenseQuery>;
 export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryResult = Apollo.QueryResult<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables>;
+export const GetCurrentUserNeedsOrganizationDocument = gql`
+    query getCurrentUserNeedsOrganization {
+  currentUser {
+    id
+    needsOrganization
+  }
+}
+    `;
+
+/**
+ * __useGetCurrentUserNeedsOrganizationQuery__
+ *
+ * To run a query within a React component, call `useGetCurrentUserNeedsOrganizationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCurrentUserNeedsOrganizationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCurrentUserNeedsOrganizationQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCurrentUserNeedsOrganizationQuery(baseOptions?: Apollo.QueryHookOptions<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>(GetCurrentUserNeedsOrganizationDocument, options);
+      }
+export function useGetCurrentUserNeedsOrganizationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>(GetCurrentUserNeedsOrganizationDocument, options);
+        }
+// @ts-ignore
+export function useGetCurrentUserNeedsOrganizationSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>): Apollo.UseSuspenseQueryResult<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>;
+export function useGetCurrentUserNeedsOrganizationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>): Apollo.UseSuspenseQueryResult<GetCurrentUserNeedsOrganizationQuery | undefined, GetCurrentUserNeedsOrganizationQueryVariables>;
+export function useGetCurrentUserNeedsOrganizationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>(GetCurrentUserNeedsOrganizationDocument, options);
+        }
+export type GetCurrentUserNeedsOrganizationQueryHookResult = ReturnType<typeof useGetCurrentUserNeedsOrganizationQuery>;
+export type GetCurrentUserNeedsOrganizationLazyQueryHookResult = ReturnType<typeof useGetCurrentUserNeedsOrganizationLazyQuery>;
+export type GetCurrentUserNeedsOrganizationSuspenseQueryHookResult = ReturnType<typeof useGetCurrentUserNeedsOrganizationSuspenseQuery>;
+export type GetCurrentUserNeedsOrganizationQueryResult = Apollo.QueryResult<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>;
 export const GetOrganizationInfosDocument = gql`
     query getOrganizationInfos {
   organization {
