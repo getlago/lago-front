@@ -1,5 +1,5 @@
 import type { BrowserClient, Event } from '@sentry/react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import {
   INVITATION_ROUTE,
@@ -159,13 +159,43 @@ describe('scrubUrlTokens', () => {
     })
   })
 
+  describe('GIVEN a payload holding the same branch twice', () => {
+    it('THEN should redact every occurrence', () => {
+      const breadcrumb = { data: { to: `/reset-password/${SECRET}` } }
+      const urls = [`/invitation/${SECRET}`]
+      const payload = { breadcrumbs: [breadcrumb, breadcrumb], urls, request: { urls } }
+
+      const scrubbed = scrubUrlTokens(payload)
+
+      expect(JSON.stringify(scrubbed)).not.toContain(SECRET)
+      expect(scrubbed.breadcrumbs[1]).toBe(scrubbed.breadcrumbs[0])
+      expect(scrubbed.request.urls).toBe(scrubbed.urls)
+    })
+  })
+
   describe('GIVEN a payload with a circular reference', () => {
     it('THEN should redact it without looping', () => {
       const payload: Record<string, unknown> = { url: `/invitation/${SECRET}` }
 
       payload.self = payload
 
-      expect(scrubUrlTokens(payload).url).toBe('/invitation/[Filtered]')
+      const scrubbed = scrubUrlTokens(payload)
+
+      expect(scrubbed.url).toBe('/invitation/[Filtered]')
+      expect(scrubbed.self).toBe(scrubbed)
+    })
+  })
+
+  describe('GIVEN a payload with a circular reference and no token', () => {
+    it('THEN should keep it readable', () => {
+      const payload: Record<string, unknown> = { url: '/acme/customers' }
+
+      payload.self = payload
+
+      const scrubbed = scrubUrlTokens(payload)
+
+      expect(scrubbed.url).toBe('/acme/customers')
+      expect(scrubbed.self).toBe(scrubbed)
     })
   })
 

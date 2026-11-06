@@ -25,45 +25,35 @@ const scrubString = (value: string): string =>
 
 // Copy-on-write: Sentry still holds some of these objects (e.g. rrweb's node mirror),
 // so they must never be mutated
-const scrubValue = (value: unknown, visited: WeakSet<object>): unknown => {
+const scrubValue = (value: unknown, scrubbedByOriginal: WeakMap<object, unknown>): unknown => {
   if (typeof value === 'string') return scrubString(value)
 
-  if (Array.isArray(value)) {
-    if (visited.has(value)) return value
-    visited.add(value)
+  if (!Array.isArray(value) && !isPlainObject(value)) return value
 
-    let hasChanged = false
-    const scrubbed = value.map((item) => {
-      const scrubbedItem = scrubValue(item, visited)
+  if (scrubbedByOriginal.has(value)) return scrubbedByOriginal.get(value)
 
-      if (scrubbedItem !== item) hasChanged = true
+  const scrubbed: unknown[] | Record<string, unknown> = Array.isArray(value) ? [] : {}
+  let hasChanged = false
 
-      return scrubbedItem
-    })
+  // Registered before it is filled, so shared and circular references resolve to this copy
+  scrubbedByOriginal.set(value, scrubbed)
 
-    return hasChanged ? scrubbed : value
+  for (const [key, item] of Object.entries(value)) {
+    const scrubbedItem = scrubValue(item, scrubbedByOriginal)
+
+    Reflect.set(scrubbed, key, scrubbedItem)
+
+    if (scrubbedItem !== item) hasChanged = true
   }
 
-  if (isPlainObject(value)) {
-    if (visited.has(value)) return value
-    visited.add(value)
+  if (hasChanged) return scrubbed
 
-    let hasChanged = false
-    const scrubbed: Record<string, unknown> = {}
-
-    for (const [key, item] of Object.entries(value)) {
-      scrubbed[key] = scrubValue(item, visited)
-
-      if (scrubbed[key] !== item) hasChanged = true
-    }
-
-    return hasChanged ? scrubbed : value
-  }
+  scrubbedByOriginal.set(value, value)
 
   return value
 }
 
-export const scrubUrlTokens = <T>(value: T): T => scrubValue(value, new WeakSet()) as T
+export const scrubUrlTokens = <T>(value: T): T => scrubValue(value, new WeakMap()) as T
 
 export const hasUrlToken = (url: string): boolean => scrubString(url) !== url
 
