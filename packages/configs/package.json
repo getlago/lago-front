@@ -12,14 +12,20 @@
     "./eslint": "./eslint.config.mjs",
     "./prettier": "./.prettierrc.mjs",
     "./tailwind": "./tailwind.config.ts",
-    "./tsconfig": "./tsconfig.json"
+    "./tsconfig": "./tsconfig.json",
+    "./fonts.css": "./fonts.css"
   },
   "files": [
     ".prettierrc.mjs",
     "eslint.config.mjs",
     "tailwind.config.ts",
-    "tsconfig.json"
+    "tsconfig.json",
+    "fonts.css"
   ],
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "@fontsource/inter": "5.3.0"
+  },
   "peerDependencies": {
     "@eslint/js": "9.39.5",
     "@trivago/prettier-plugin-sort-imports": "6.0.2",

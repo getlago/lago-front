@@ -9,6 +9,9 @@ const tailwindConfigPath = resolve(__dirname, 'tailwind.config.ts')
 
 export default defineConfig([
   {
+    ignores: ['packages/ui/**'],
+  },
+  {
     files: [
       'src/**/*.{js,ts,jsx,tsx}',
       'scripts/**/*.{js,ts,jsx,tsx}',

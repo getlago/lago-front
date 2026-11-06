@@ -1,6 +1,30 @@
 packages:
   - 'packages/configs/'
   - 'packages/design-system/'
+  - 'packages/ui/'
+
+catalog:
+  '@testing-library/dom': 10.4.2
+  '@testing-library/jest-dom': 7.0.1
+  '@testing-library/react': 16.3.3
+  '@trivago/prettier-plugin-sort-imports': 6.0.2
+  '@types/jest': 30.0.0
+  '@types/react': 18.3.31
+  '@types/react-dom': 18.3.7
+  autoprefixer: 10.6.1
+  babel-jest: 30.5.2
+  eslint: 9.39.5
+  jest: 30.5.2
+  jest-environment-jsdom: 30.5.2
+  postcss: 8.5.30
+  postcss-preset-env: 11.6.1
+  prettier: 3.9.10
+  prettier-plugin-tailwindcss: 0.8.1
+  react: 18.3.1
+  react-dom: 18.3.1
+  tailwindcss: 3.4.19
+  typescript: 6.0.3
+  vite: 7.3.7
 
 # Supply-chain quarantine: a published version must be at least 7 days old
 # (10080 minutes) before any resolution installs it. Applied at the package

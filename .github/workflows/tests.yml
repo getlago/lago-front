@@ -36,6 +36,12 @@ jobs:
       - name: Run Typescript
         run: pnpm tsc
 
+      - name: Run Typescript (lago-ui)
+        run: pnpm --filter lago-ui types
+
+      - name: Run tests (lago-ui)
+        run: pnpm --filter lago-ui test
+
   test-shard:
     if: github.event.pull_request.draft == false || github.event_name == 'push'
     name: Tests (shard ${{ matrix.shard }}/4)
