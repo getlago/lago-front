@@ -194,7 +194,7 @@ export const ContractUsageTable = ({
   ]
 
   return (
-    <div className="flex w-full flex-col gap-3">
+    <div className="flex min-h-0 w-full flex-1 flex-col gap-3">
       <Filters.Provider
         filtersNamePrefix={CONTRACT_USAGE_LIST_FILTER_PREFIX}
         availableFilters={ContractUsageAvailableFilters}
@@ -208,40 +208,42 @@ export const ContractUsageTable = ({
         </div>
       </Filters.Provider>
 
-      <PaginatedContent
-        metadata={data?.contractUsages?.metadata}
-        loading={isLoading}
-        sticky={false}
-        onPageChange={goToPage}
-        pageSize={pageSize}
-        onPageSizeChange={(size) => {
-          setPageSize(size)
-          goToPage(1)
-        }}
-      >
-        <Table
-          name="contract-usages"
-          data={rows}
-          columns={columns}
-          rowSize={72}
-          isLoading={isLoading}
-          loadingRowCount={pageSize}
-          hasError={!!error}
-          placeholder={placeholder}
-          getRowGroupHeader={(row, index, allRows) => {
-            const previousRow = index > 0 ? allRows[index - 1] : undefined
-            const isFirstOfGroup = previousRow?.productCode !== row.productCode
-
-            if (!isFirstOfGroup || !row.productFilterCode) return undefined
-
-            return (
-              <Typography variant="captionHl" color="grey600">
-                {row.productName}
-              </Typography>
-            )
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <PaginatedContent
+          metadata={data?.contractUsages?.metadata}
+          loading={isLoading}
+          onPageChange={goToPage}
+          pageSize={pageSize}
+          onPageSizeChange={(size) => {
+            setPageSize(size)
+            goToPage(1)
           }}
-        />
-      </PaginatedContent>
+        >
+          <Table
+            name="contract-usages"
+            data={rows}
+            columns={columns}
+            rowSize={72}
+            isLoading={isLoading}
+            loadingRowCount={pageSize}
+            hasError={!!error}
+            placeholder={placeholder}
+            containerClassName="h-auto shrink-0"
+            getRowGroupHeader={(row, index, allRows) => {
+              const previousRow = index > 0 ? allRows[index - 1] : undefined
+              const isFirstOfGroup = previousRow?.productCode !== row.productCode
+
+              if (!isFirstOfGroup || !row.productFilterCode) return undefined
+
+              return (
+                <Typography variant="captionHl" color="grey600">
+                  {row.productName}
+                </Typography>
+              )
+            }}
+          />
+        </PaginatedContent>
+      </div>
     </div>
   )
 }

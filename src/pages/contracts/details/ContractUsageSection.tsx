@@ -67,10 +67,8 @@ export const ContractUsageSection = ({
     )
   }
 
-  // items-start below: default stretch matches the table's height to the rail's, dragging its
-  // sticky pager down past where the (shorter) table actually scrolled out of view.
   return (
-    <section className="flex flex-col gap-6">
+    <section className="flex min-h-0 flex-1 flex-col gap-6">
       <SectionHeader
         title={translate('text_1725983967306cf8dwr2r4u2')}
         action={{
@@ -114,7 +112,7 @@ export const ContractUsageSection = ({
         </div>
       </div>
 
-      <div className="flex items-start gap-6">
+      <div className="flex min-h-0 flex-1 gap-6">
         <ContractUsageCategoryRail
           contractId={contractId}
           onErrorChange={setRailHasError}
