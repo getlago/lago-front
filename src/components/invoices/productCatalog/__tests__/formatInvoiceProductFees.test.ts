@@ -309,6 +309,48 @@ describe('formatInvoiceProductFees', () => {
         expect(single.labelParams).toBeUndefined()
       })
     })
+
+    describe('WHEN the units stop inside a bounded tier', () => {
+      const createTruncatedFee = (
+        graduatedRanges: Array<{ fromValue: number; toValue: number }>,
+      ): Fee =>
+        createFee({
+          id: 'truncated',
+          rateModel: RateCardRateModelEnum.Graduated,
+          amountDetails: {
+            graduatedRanges: graduatedRanges.map((range) => ({
+              ...range,
+              units: '1',
+              perUnitAmount: '1',
+              perUnitTotalAmount: '1',
+              flatUnitAmount: '2',
+            })),
+          },
+        })
+
+      it('THEN labels a lone first tier as the first tier, not the remaining units', () => {
+        const [first, , , firstFlat] = getDetailRows(fee)
+        const [lone, loneFlat] = getDetailRows(createTruncatedFee([{ fromValue: 0, toValue: 100 }]))
+
+        expect(lone.labelKey).toBe(first.labelKey)
+        expect(lone.labelParams).toEqual({ toValue: 100 })
+        expect(loneFlat.labelKey).toBe(firstFlat.labelKey)
+        expect(loneFlat.labelParams).toEqual({ toValue: 100 })
+      })
+
+      it('THEN labels a bounded last tier as a middle tier with its upper bound', () => {
+        const [, middle] = getDetailRows(fee)
+        const [, bounded] = getDetailRows(
+          createTruncatedFee([
+            { fromValue: 0, toValue: 100 },
+            { fromValue: 100, toValue: 500 },
+          ]),
+        )
+
+        expect(bounded.labelKey).toBe(middle.labelKey)
+        expect(bounded.labelParams).toEqual({ toValue: 500 })
+      })
+    })
   })
 
   describe('GIVEN a graduated percentage fee', () => {

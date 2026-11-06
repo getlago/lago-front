@@ -10,8 +10,8 @@ type Fee = FeeForInvoiceProductCatalogFeesTableFragment
 type AmountDetails = NonNullable<Fee['amountDetails']>
 type GraduatedRange = {
   flatUnitAmount?: string | null
-  toValue?: number | null
-  units?: string | null
+  fromValue?: number | string | null
+  toValue?: number | string | null
 }
 
 type InvoiceProductCatalogDetailUnitPrice =
@@ -56,16 +56,16 @@ const RANGE_LABEL_KEYS = {
 const toNumber = (value: string | number | null | undefined): number => Number(value || 0)
 
 const getRangeLabel = (
-  index: number,
-  total: number,
   range: GraduatedRange,
   isFlat: boolean,
 ): Pick<DetailLine, 'labelKey' | 'labelParams'> => {
   const variant = isFlat ? 'flat' : 'unit'
 
-  if (index === total - 1) return { labelKey: RANGE_LABEL_KEYS.last[variant] }
+  if (range.toValue === null || range.toValue === undefined) {
+    return { labelKey: RANGE_LABEL_KEYS.last[variant] }
+  }
 
-  const position = index === 0 ? 'first' : 'middle'
+  const position = toNumber(range.fromValue) === 0 ? 'first' : 'middle'
 
   return {
     labelKey: RANGE_LABEL_KEYS[position][variant],
@@ -74,14 +74,14 @@ const getRangeLabel = (
 }
 
 const getFlatRangeLines = (ranges: GraduatedRange[]): DetailLine[] =>
-  ranges.flatMap((range, index) => {
+  ranges.flatMap((range) => {
     if (toNumber(range.flatUnitAmount) === 0) return []
 
     const flatUnitAmount = toNumber(range.flatUnitAmount)
 
     return [
       {
-        ...getRangeLabel(index, ranges.length, range, true),
+        ...getRangeLabel(range, true),
         quantity: 1,
         unitPrice: { type: 'amount', value: flatUnitAmount },
         amount: flatUnitAmount,
@@ -93,8 +93,8 @@ const getGraduatedLines = ({ graduatedRanges }: AmountDetails): DetailLine[] => 
   const ranges = graduatedRanges ?? []
 
   return [
-    ...ranges.map((range, index): DetailLine => ({
-      ...getRangeLabel(index, ranges.length, range, false),
+    ...ranges.map((range): DetailLine => ({
+      ...getRangeLabel(range, false),
       quantity: toNumber(range.units),
       unitPrice: { type: 'amount', value: toNumber(range.perUnitAmount) },
       amount: toNumber(range.perUnitTotalAmount),
@@ -109,8 +109,8 @@ const getGraduatedPercentageLines = ({
   const ranges = graduatedPercentageRanges ?? []
 
   return [
-    ...ranges.map((range, index): DetailLine => ({
-      ...getRangeLabel(index, ranges.length, range, false),
+    ...ranges.map((range): DetailLine => ({
+      ...getRangeLabel(range, false),
       quantity: toNumber(range.units),
       unitPrice: { type: 'percent', value: toNumber(range.rate) },
       amount: toNumber(range.perUnitTotalAmount),
