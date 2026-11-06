@@ -1,16 +1,17 @@
 import type { TypographyProps as MuiTypographyProps } from '@mui/material/Typography'
 import { Icon } from 'lago-design-system'
-import { FC } from 'react'
+import { FC, ReactNode } from 'react'
 
 import { paymentAvatarMapping } from '~/components/avatarMappings'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Typography, TypographyColor } from '~/components/designSystem/Typography'
-import { ProviderTypeEnum } from '~/generated/graphql'
+import { PaymentTypeEnum, ProviderTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import Coinbase from '~/public/images/coinbase.svg'
 import { tw } from '~/styles/utils'
 
 interface PaymentProviderChipProps {
-  paymentProvider?: ProviderTypeEnum | 'manual' | 'manual_long'
+  paymentProvider?: ProviderTypeEnum | 'manual' | 'manual_long' | 'x402'
   label?: string | null | undefined
   className?: string
   textVariant?: MuiTypographyProps['variant']
@@ -27,6 +28,50 @@ export const providerLabels: Record<ProviderTypeEnum, string> = {
   [ProviderTypeEnum.Moneyhash]: 'text_1733427981129n3wxjui0bex',
 }
 
+type PaymentProviderChipType = NonNullable<PaymentProviderChipProps['paymentProvider']>
+
+type PaymentMethodInput = {
+  paymentType?: PaymentTypeEnum | null
+  paymentProviderType?: ProviderTypeEnum | null
+  manualVariant?: 'manual' | 'manual_long'
+}
+
+const MANUAL_LABEL_KEYS: Record<'manual' | 'manual_long', string> = {
+  manual: 'text_1737110192586abtitcui0xt',
+  manual_long: 'text_173799550683709p2rqkoqd5',
+}
+
+const X402_LABEL_KEY = 'text_1793137178564a1ls2ponepm'
+
+const isManualChip = (
+  paymentProvider: PaymentProviderChipType,
+): paymentProvider is 'manual' | 'manual_long' =>
+  paymentProvider === 'manual' || paymentProvider === 'manual_long'
+
+const chipLabelKey = (paymentProvider: PaymentProviderChipType): string => {
+  if (isManualChip(paymentProvider)) return MANUAL_LABEL_KEYS[paymentProvider]
+  if (paymentProvider === 'x402') return X402_LABEL_KEY
+
+  return providerLabels[paymentProvider]
+}
+
+export const getPaymentProviderChipType = ({
+  paymentType,
+  paymentProviderType,
+  manualVariant = 'manual',
+}: PaymentMethodInput): PaymentProviderChipProps['paymentProvider'] => {
+  if (paymentType === PaymentTypeEnum.Manual) return manualVariant
+  if (paymentType === PaymentTypeEnum.X402) return 'x402'
+
+  return paymentProviderType ?? undefined
+}
+
+export const getPaymentMethodLabelKey = (input: PaymentMethodInput): string | undefined => {
+  const paymentProvider = getPaymentProviderChipType(input)
+
+  return paymentProvider ? chipLabelKey(paymentProvider) : undefined
+}
+
 export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
   paymentProvider,
   label,
@@ -41,27 +86,30 @@ export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({
     return null
   }
 
-  const isManual = paymentProvider === 'manual' || paymentProvider === 'manual_long'
-  const manualLabel =
-    paymentProvider === 'manual' ? 'text_1737110192586abtitcui0xt' : 'text_173799550683709p2rqkoqd5'
+  const isManual = isManualChip(paymentProvider)
 
-  const displayLabel = isManual
-    ? translate(manualLabel)
-    : label || translate(providerLabels[paymentProvider])
+  const getDisplayLabel = (): string => {
+    if (!isManual && paymentProvider !== 'x402' && label) return label
+
+    return translate(chipLabelKey(paymentProvider))
+  }
+
+  const renderAvatar = (): ReactNode => {
+    if (isManual) return <Icon name="receipt" color="dark" size="small" />
+    if (paymentProvider === 'x402') return <Coinbase />
+
+    return paymentAvatarMapping[paymentProvider]
+  }
 
   return (
     <div className={tw('flex flex-nowrap items-center gap-2', className)}>
       {showAvatar && (
         <Avatar className="bg-white" variant="connector" size="small">
-          {isManual ? (
-            <Icon name="receipt" color="dark" size="small" />
-          ) : (
-            paymentAvatarMapping[paymentProvider]
-          )}
+          {renderAvatar()}
         </Avatar>
       )}
       <Typography variant={textVariant} color={textColor} noWrap>
-        {displayLabel}
+        {getDisplayLabel()}
       </Typography>
     </div>
   )
