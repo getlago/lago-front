@@ -269,11 +269,13 @@ const CreateSubscription = () => {
     subscriptionForm,
   ])
 
-  const { billingEntity: issuingBillingEntity, isUnresolved: isBillingEntityUnresolved } =
-    useBillingEntityById(subscriptionBillingEntityId)
-  const paymentTermInheritedFrom = isBillingEntityUnresolved
-    ? undefined
-    : getInheritedPaymentTerm({ customer, issuingBillingEntity })
+  const { billingEntity: issuingBillingEntity, status: billingEntityStatus } = useBillingEntityById(
+    subscriptionBillingEntityId,
+  )
+  const paymentTermInheritedFrom =
+    billingEntityStatus === 'resolved'
+      ? getInheritedPaymentTerm({ customer, issuingBillingEntity })
+      : undefined
 
   const { form: planForm, plan } = usePlanForm({
     planIdToFetch: subscriptionPlanId,

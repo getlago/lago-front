@@ -171,15 +171,15 @@ describe('useBillingEntityById', () => {
   ])
 
   describe('GIVEN an id while the collection is still loading', () => {
-    it('THEN is unresolved, then resolves the entity', async () => {
+    it('THEN is loading, then resolves the entity', async () => {
       const { result } = renderHook(() => useBillingEntityById('2'), {
         wrapper: createWrapper(mocks),
       })
 
-      expect(result.current).toEqual({ billingEntity: undefined, isUnresolved: true })
+      expect(result.current).toEqual({ billingEntity: undefined, status: 'loading' })
 
       await waitFor(() => {
-        expect(result.current.isUnresolved).toBe(false)
+        expect(result.current.status).toBe('resolved')
       })
 
       expect(result.current.billingEntity?.value).toBe('eu')
@@ -187,7 +187,7 @@ describe('useBillingEntityById', () => {
   })
 
   describe('GIVEN an id missing from the loaded collection', () => {
-    it('THEN stays unresolved once the collection has loaded', async () => {
+    it('THEN is unavailable once the collection has loaded', async () => {
       const { result } = renderHook(
         () => ({
           collection: useBillingEntitiesOptions(),
@@ -200,12 +200,12 @@ describe('useBillingEntityById', () => {
         expect(result.current.collection.isLoading).toBe(false)
       })
 
-      expect(result.current.byId).toEqual({ billingEntity: undefined, isUnresolved: true })
+      expect(result.current.byId).toEqual({ billingEntity: undefined, status: 'unavailable' })
     })
   })
 
   describe('GIVEN the billing entities query errors', () => {
-    it('THEN is unresolved', async () => {
+    it('THEN is unavailable, not loading', async () => {
       const errorMocks = [
         {
           request: { query: GetBillingEntitiesDocument },
@@ -220,17 +220,17 @@ describe('useBillingEntityById', () => {
         await new Promise((resolve) => setTimeout(resolve, 0))
       })
 
-      expect(result.current).toEqual({ billingEntity: undefined, isUnresolved: true })
+      expect(result.current).toEqual({ billingEntity: undefined, status: 'unavailable' })
     })
   })
 
   describe.each([null, undefined, ''])('GIVEN the empty id %p', (billingEntityId) => {
-    it('THEN is not unresolved and has no entity', () => {
+    it('THEN is resolved with no entity', () => {
       const { result } = renderHook(() => useBillingEntityById(billingEntityId), {
         wrapper: createWrapper([]),
       })
 
-      expect(result.current).toEqual({ billingEntity: undefined, isUnresolved: false })
+      expect(result.current).toEqual({ billingEntity: undefined, status: 'resolved' })
     })
   })
 })

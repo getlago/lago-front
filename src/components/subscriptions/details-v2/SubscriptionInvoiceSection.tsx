@@ -63,21 +63,23 @@ export const SubscriptionInvoiceSection = ({ subscription }: SubscriptionInvoice
   const { hasPermissions } = usePermissions()
   const { saveInvoicing } = useUpdateSubscriptionSettings(subscription.id)
   const { getBillingObjectPaymentTermCopy } = usePaymentTerm()
-  const { billingEntity: issuingBillingEntity, isUnresolved: isBillingEntityUnresolved } =
-    useBillingEntityById(subscription.billingEntityId)
+  const { billingEntity: issuingBillingEntity, status: billingEntityStatus } = useBillingEntityById(
+    subscription.billingEntityId,
+  )
 
   const showCustomSection = !!subscription.customer?.id
   const paymentTermLevels = { customer: subscription.customer, issuingBillingEntity }
-  const isInheritedTermPending = isBillingEntityUnresolved && !subscription.paymentTerm
+  const isInheritedTermKnown = billingEntityStatus === 'resolved'
+  const isInheritedTermPending = !isInheritedTermKnown && !subscription.paymentTerm
 
   const { openDrawer } = useInvoicingSettingsDrawer({
     viewType: ViewTypeEnum.Subscription,
     customerId: subscription.customer?.id,
     showCustomSection,
     withInvoiceConsolidation: true,
-    paymentTermInheritedFrom: isBillingEntityUnresolved
-      ? undefined
-      : getInheritedPaymentTerm(paymentTermLevels),
+    paymentTermInheritedFrom: isInheritedTermKnown
+      ? getInheritedPaymentTerm(paymentTermLevels)
+      : undefined,
     onSave: saveInvoicing,
   })
 

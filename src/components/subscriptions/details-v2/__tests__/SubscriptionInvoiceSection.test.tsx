@@ -5,6 +5,7 @@ import {
 } from '~/components/paymentTerms/utils'
 import { PAYMENT_TERM_VALUE_KEYS } from '~/core/constants/paymentTerm'
 import { PaymentTermTypeEnum, SubscriptionInvoiceSectionFragment } from '~/generated/graphql'
+import { BillingEntityByIdStatus } from '~/hooks/useBillingEntitiesOptions'
 import { render } from '~/test-utils'
 
 import { SubscriptionInvoiceSection } from '../SubscriptionInvoiceSection'
@@ -69,12 +70,12 @@ jest.mock('~/hooks/usePermissions', () => ({
 }))
 
 let mockBoundBillingEntity: { paymentTerm: { termType: PaymentTermTypeEnum } } | undefined
-let mockIsBillingEntityUnresolved = false
+let mockBillingEntityStatus: BillingEntityByIdStatus = 'resolved'
 
 jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
   useBillingEntityById: () => ({
     billingEntity: mockBoundBillingEntity,
-    isUnresolved: mockIsBillingEntityUnresolved,
+    status: mockBillingEntityStatus,
   }),
 }))
 
@@ -107,7 +108,7 @@ describe('SubscriptionInvoiceSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockBoundBillingEntity = undefined
-    mockIsBillingEntityUnresolved = false
+    mockBillingEntityStatus = 'resolved'
   })
 
   it('renders the invoicing header, consolidation, the custom-section display and the drawer', () => {
@@ -220,28 +221,33 @@ describe('SubscriptionInvoiceSection', () => {
       )
     })
 
-    describe('WHEN the bound billing entity is still loading', () => {
-      beforeEach(() => {
-        mockIsBillingEntityUnresolved = true
-      })
-
-      it('THEN shows a dash and gives the drawer no inherited term', () => {
-        renderSection({ billingEntityId: 'be_2' })
-
-        expect(paymentTermItem().value).toBe('-')
-        expect(mockDrawer).toHaveBeenCalledWith(
-          expect.objectContaining({ paymentTermInheritedFrom: undefined }),
-        )
-      })
-
-      it('THEN still shows the subscription own term', () => {
-        renderSection({
-          billingEntityId: 'be_2',
-          paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 60 },
+    describe.each<BillingEntityByIdStatus>(['loading', 'unavailable'])(
+      'WHEN the bound billing entity is %s',
+      (status) => {
+        beforeEach(() => {
+          mockBillingEntityStatus = status
         })
 
-        expect(paymentTermItem().value).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net])
-      })
-    })
+        it('THEN shows a dash and gives the drawer no inherited term', () => {
+          renderSection({ billingEntityId: 'be_2' })
+
+          expect(paymentTermItem().value).toBe('-')
+          expect(mockDrawer).toHaveBeenCalledWith(
+            expect.objectContaining({ paymentTermInheritedFrom: undefined }),
+          )
+        })
+
+        it('THEN still shows the subscription own term', () => {
+          renderSection({
+            billingEntityId: 'be_2',
+            paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 60 },
+          })
+
+          expect(paymentTermItem().value).toContain(
+            PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net],
+          )
+        })
+      },
+    )
   })
 })
