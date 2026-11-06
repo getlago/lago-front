@@ -127,7 +127,11 @@ describe('SubscriptionInvoiceSection', () => {
       expect.objectContaining({ customerId: 'cust_1' }),
     )
     expect(mockDrawer).toHaveBeenCalledWith(
-      expect.objectContaining({ onSave: mockSaveInvoicing, showCustomSection: true }),
+      expect.objectContaining({
+        onSave: mockSaveInvoicing,
+        showCustomSection: true,
+        withPaymentTerm: true,
+      }),
     )
   })
 

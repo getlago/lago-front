@@ -167,14 +167,20 @@ describe('useInvoicingSettingsDrawer', () => {
   })
 
   describe('GIVEN the object carries a payment term override', () => {
-    const renderWithPaymentTerm = (onSave = jest.fn()) => {
+    const renderWithPaymentTerm = (
+      onSave = jest.fn(),
+      { paymentTermInheritedFrom }: { paymentTermInheritedFrom?: PaymentTermInheritedFrom } = {
+        paymentTermInheritedFrom: INHERITED_FROM,
+      },
+    ) => {
       render(
         <DrawerHost
           viewType={ViewTypeEnum.Subscription}
           customerId="cust_1"
           showCustomSection
           withInvoiceConsolidation
-          paymentTermInheritedFrom={INHERITED_FROM}
+          withPaymentTerm
+          paymentTermInheritedFrom={paymentTermInheritedFrom}
           onSave={onSave}
         />,
       )
@@ -193,8 +199,40 @@ describe('useInvoicingSettingsDrawer', () => {
 
       expect(screen.getByTestId('payment-term-fields')).toBeInTheDocument()
       expect(mockPaymentTermFormContent).toHaveBeenCalledWith(
-        expect.objectContaining({ fields: 'paymentTerm', inheritedFrom: INHERITED_FROM }),
+        expect.objectContaining({
+          fields: 'paymentTerm',
+          canInherit: true,
+          inheritedFrom: INHERITED_FROM,
+        }),
       )
+    })
+
+    it('keeps the term editable while the inherited term is unknown', async () => {
+      const { onSave } = renderWithPaymentTerm(jest.fn(), {})
+      const paymentTerm = paymentTermFormValuesFromTerm(
+        { termType: PaymentTermTypeEnum.Net, days: 60 },
+        true,
+      )
+
+      act(() => captured.current?.({ consolidateInvoice: true, paymentTerm }))
+
+      const opened = mockOpen.mock.calls[0][0] as {
+        form: { submit: () => Promise<void> }
+        children: ReactNode
+      }
+
+      render(<>{opened.children}</>)
+
+      expect(screen.getByTestId('payment-term-fields')).toBeInTheDocument()
+      expect(mockPaymentTermFormContent).toHaveBeenCalledWith(
+        expect.objectContaining({ canInherit: true, inheritedFrom: undefined }),
+      )
+
+      await act(async () => {
+        await opened.form.submit()
+      })
+
+      expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ paymentTerm }))
     })
 
     it('commits the seeded term through onSave with the other settings', async () => {
@@ -246,7 +284,7 @@ describe('useInvoicingSettingsDrawer', () => {
         customerId="cust_1"
         showCustomSection
         withInvoiceConsolidation
-        paymentTermInheritedFrom={undefined}
+        paymentTermInheritedFrom={INHERITED_FROM}
         onSave={jest.fn()}
       />,
     )
@@ -260,12 +298,13 @@ describe('useInvoicingSettingsDrawer', () => {
     expect(screen.queryByTestId('payment-term-fields')).not.toBeInTheDocument()
   })
 
-  it('shows the payment term section once the inherited term resolves after the drawer opened', () => {
+  it('relabels the inherit choice once the inherited term resolves after the drawer opened', () => {
     const hostProps: UseInvoicingSettingsDrawerProps = {
       viewType: ViewTypeEnum.Subscription,
       customerId: 'cust_1',
       showCustomSection: true,
       withInvoiceConsolidation: true,
+      withPaymentTerm: true,
       paymentTermInheritedFrom: undefined,
       onSave: jest.fn(),
     }
@@ -277,11 +316,16 @@ describe('useInvoicingSettingsDrawer', () => {
 
     render(<>{opened.children}</>)
 
-    expect(screen.queryByTestId('payment-term-fields')).not.toBeInTheDocument()
+    expect(screen.getByTestId('payment-term-fields')).toBeInTheDocument()
+    expect(mockPaymentTermFormContent).toHaveBeenLastCalledWith(
+      expect.objectContaining({ inheritedFrom: undefined }),
+    )
 
     rerender(<DrawerHost {...hostProps} paymentTermInheritedFrom={{ ...INHERITED_FROM }} />)
 
-    expect(screen.getByTestId('payment-term-fields')).toBeInTheDocument()
+    expect(mockPaymentTermFormContent).toHaveBeenLastCalledWith(
+      expect.objectContaining({ inheritedFrom: INHERITED_FROM }),
+    )
     expect(mockOpen).toHaveBeenCalledTimes(1)
   })
 

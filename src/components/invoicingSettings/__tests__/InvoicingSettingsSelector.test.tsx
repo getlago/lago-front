@@ -1,6 +1,9 @@
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { PaymentTermFormValues } from '~/components/paymentTerms/types'
-import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
+import {
+  INHERIT_UNRESOLVED_LABEL_KEY,
+  paymentTermFormValuesFromTerm,
+} from '~/components/paymentTerms/utils'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { PAYMENT_TERM_VALUE_KEYS } from '~/core/constants/paymentTerm'
 import { PaymentTermTypeEnum } from '~/generated/graphql'
@@ -94,6 +97,7 @@ const lastDrawerProps = () =>
     viewType?: ViewTypeEnum
     customerId?: string
     showCustomSection?: boolean
+    withPaymentTerm?: boolean
     paymentTermInheritedFrom?: InvoicingSettingsPaymentTermProps['inheritedFrom']
     onSave?: (v: {
       invoiceCustomSection: InvoiceCustomSectionInput
@@ -205,6 +209,7 @@ describe('InvoicingSettingsSelector', () => {
           paymentTerm: { value: inheritValues, onChange: jest.fn(), inheritedFrom: INHERITED_FROM },
         })
 
+        expect(lastDrawerProps().withPaymentTerm).toBe(true)
         expect(lastDrawerProps().paymentTermInheritedFrom).toEqual(INHERITED_FROM)
       })
 
@@ -235,10 +240,39 @@ describe('InvoicingSettingsSelector', () => {
     })
   })
 
+  describe('GIVEN the inherited term is not known yet', () => {
+    it('THEN should keep the drawer payment term section and summarise the inherit choice as such', () => {
+      renderSelector({
+        paymentTerm: {
+          value: paymentTermFormValuesFromTerm(null, true),
+          onChange: jest.fn(),
+          inheritedFrom: undefined,
+        },
+      })
+
+      expect(lastDrawerProps().withPaymentTerm).toBe(true)
+      expect(lastDrawerProps().paymentTermInheritedFrom).toBeUndefined()
+      expect(lastSelectorProps().subtitle).toBe(
+        `${INVOICING_SUMMARY_KEYS.fallback} • ${INHERIT_UNRESOLVED_LABEL_KEY}`,
+      )
+    })
+
+    it('THEN should still summarise the chosen term', () => {
+      renderSelector({
+        paymentTerm: { value: NET_60_VALUES, onChange: jest.fn(), inheritedFrom: undefined },
+      })
+
+      expect(lastSelectorProps().subtitle).toBe(
+        `${INVOICING_SUMMARY_KEYS.fallback} • ${PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net]}`,
+      )
+    })
+  })
+
   describe('GIVEN the object carries no payment term override', () => {
     it('THEN should leave the drawer payment term section off', () => {
       renderSelector({ paymentTerm: undefined })
 
+      expect(lastDrawerProps().withPaymentTerm).toBe(false)
       expect(lastDrawerProps().paymentTermInheritedFrom).toBeUndefined()
       expect(lastSelectorProps().subtitle).toBe(INVOICING_SUMMARY_KEYS.fallback)
     })

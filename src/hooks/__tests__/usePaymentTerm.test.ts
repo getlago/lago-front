@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 import {
   INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
   INHERIT_FROM_CUSTOMER_LABEL_KEY,
+  INHERIT_UNRESOLVED_LABEL_KEY,
   paymentTermFormValuesFromTerm,
 } from '~/components/paymentTerms/utils'
 import {
@@ -78,6 +79,20 @@ describe('usePaymentTerm', () => {
             value: expect.stringContaining(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net]),
           })
           expect(options[0].label).toContain('inherit_key')
+        })
+      })
+    })
+
+    describe('GIVEN a level that can inherit but whose inherited term is not known yet', () => {
+      describe('WHEN the options are built', () => {
+        it('THEN should keep the inherit choice, labelled without a value', () => {
+          const options = setup().getTermTypeComboboxData({ canInherit: true })
+
+          expect(options).toHaveLength(7)
+          expect(options[0]).toEqual({
+            value: PAYMENT_TERM_INHERIT,
+            label: mockTranslate(INHERIT_UNRESOLVED_LABEL_KEY),
+          })
         })
       })
     })
@@ -250,6 +265,19 @@ describe('usePaymentTerm', () => {
 
         expect(copy).not.toContain('inherit_key')
         expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net])
+      })
+    })
+
+    describe('GIVEN the inherited term is not known yet', () => {
+      it('THEN should read the inherit choice as such and a held term as itself', () => {
+        const { getPaymentTermFormValuesCopy } = setup()
+
+        expect(
+          getPaymentTermFormValuesCopy(paymentTermFormValuesFromTerm(null, true), undefined),
+        ).toBe(mockTranslate(INHERIT_UNRESOLVED_LABEL_KEY))
+        expect(
+          getPaymentTermFormValuesCopy(paymentTermFormValuesFromTerm(NET_30, true), undefined),
+        ).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net])
       })
     })
   })

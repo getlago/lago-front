@@ -1,5 +1,8 @@
 import { PaymentTermInheritedFrom } from '~/components/paymentTerms/types'
-import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
+import {
+  INHERIT_UNRESOLVED_LABEL_KEY,
+  paymentTermFormValuesFromTerm,
+} from '~/components/paymentTerms/utils'
 import { PAYMENT_TERM_VALUE_KEYS } from '~/core/constants/paymentTerm'
 import { PaymentTermTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -188,7 +191,10 @@ describe('InvoicingSettingsSection', () => {
       renderSection({ consolidateInvoice: true }, 'cust-1', INHERITED_FROM)
 
       expect(mockDrawer).toHaveBeenCalledWith(
-        expect.objectContaining({ paymentTermInheritedFrom: INHERITED_FROM }),
+        expect.objectContaining({
+          withPaymentTerm: true,
+          paymentTermInheritedFrom: INHERITED_FROM,
+        }),
       )
     })
 
@@ -213,6 +219,39 @@ describe('InvoicingSettingsSection', () => {
         },
         undefined,
         INHERITED_FROM,
+      )
+
+      expect(lastSubtitle()).toBe(
+        `text_1778745351091h7z5baw0ta6 • ${PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net]}`,
+      )
+    })
+  })
+
+  describe('GIVEN the inherited term is not known yet', () => {
+    it('keeps the drawer payment term section and summarises the inherit choice as such', () => {
+      renderSection(
+        { consolidateInvoice: true, paymentTerm: paymentTermFormValuesFromTerm(null, true) },
+        undefined,
+        undefined,
+      )
+
+      expect(mockDrawer).toHaveBeenCalledWith(
+        expect.objectContaining({ withPaymentTerm: true, paymentTermInheritedFrom: undefined }),
+      )
+      expect(lastSubtitle()).toBe(`text_1778745351091h7z5baw0ta6 • ${INHERIT_UNRESOLVED_LABEL_KEY}`)
+    })
+
+    it('still summarises the chosen term', () => {
+      renderSection(
+        {
+          consolidateInvoice: true,
+          paymentTerm: paymentTermFormValuesFromTerm(
+            { termType: PaymentTermTypeEnum.Net, days: 60 },
+            true,
+          ),
+        },
+        undefined,
+        undefined,
       )
 
       expect(lastSubtitle()).toBe(
