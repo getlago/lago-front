@@ -42,20 +42,18 @@ const toSortedUniqueOptions = (items: Array<{ id: string; label: string }>): Fil
     .map(({ id, label }) => toOption(id, label))
     .sort((a, b) => a.label.localeCompare(b.label))
 
-export const buildInvoiceProductFeesProductOptions = (
-  section: InvoiceProductCatalogSectionFragment,
-): FilterOption[] =>
-  toSortedUniqueOptions(
-    section.products.map(({ product }) => ({ id: product.id, label: product.code })),
-  )
+type SectionProducts = InvoiceProductCatalogSectionFragment['products']
+
+export const buildInvoiceProductFeesProductOptions = (products: SectionProducts): FilterOption[] =>
+  toSortedUniqueOptions(products.map(({ product }) => ({ id: product.id, label: product.code })))
 
 export const buildInvoiceProductFeesProductFilterOptions = (
-  section: InvoiceProductCatalogSectionFragment,
+  products: SectionProducts,
   translate: TranslateFunc,
 ): FilterOption[] => [
   { label: translate(NOT_DEFINED_TRANSLATION_KEY), value: filterWithoutProductFilterValue },
   ...toSortedUniqueOptions(
-    section.products.flatMap(({ filters }) =>
+    products.flatMap(({ filters }) =>
       filters.map(({ productFilter }) => ({
         id: productFilter.id,
         label: productFilter.invoiceDisplayName || productFilter.name,
@@ -98,10 +96,10 @@ const MultiSelectFilterInput = ({
 }
 
 export const buildInvoiceProductFeesDynamicFilters = ({
-  section,
+  products,
   translate,
 }: {
-  section: InvoiceProductCatalogSectionFragment
+  products: SectionProducts
   translate: TranslateFunc
 }): DynamicFilter[] => {
   const formatValue = (value: string): string =>
@@ -116,7 +114,7 @@ export const buildInvoiceProductFeesDynamicFilters = ({
       renderValueInput: (props) => (
         <MultiSelectFilterInput
           {...props}
-          options={buildInvoiceProductFeesProductOptions(section)}
+          options={buildInvoiceProductFeesProductOptions(products)}
           placeholder={translate('text_178458736524240wdfikummz')}
         />
       ),
@@ -128,7 +126,7 @@ export const buildInvoiceProductFeesDynamicFilters = ({
       renderValueInput: (props) => (
         <MultiSelectFilterInput
           {...props}
-          options={buildInvoiceProductFeesProductFilterOptions(section, translate)}
+          options={buildInvoiceProductFeesProductFilterOptions(products, translate)}
           placeholder={translate('text_1784927788140s9l160t42mm')}
         />
       ),

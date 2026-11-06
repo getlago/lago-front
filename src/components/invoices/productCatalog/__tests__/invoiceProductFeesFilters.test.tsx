@@ -106,7 +106,7 @@ describe('formatInvoiceProductFeesFilters', () => {
 describe('buildInvoiceProductFeesProductOptions', () => {
   describe('GIVEN a section with the same product in several groups', () => {
     it('THEN should list each product once, labelled and sorted by code', () => {
-      expect(buildInvoiceProductFeesProductOptions(section)).toEqual([
+      expect(buildInvoiceProductFeesProductOptions(section.products)).toEqual([
         { label: 'alpha', value: 'p-alpha|-_-|alpha' },
         { label: 'zeta', value: 'p-zeta|-_-|zeta' },
       ])
@@ -117,7 +117,7 @@ describe('buildInvoiceProductFeesProductOptions', () => {
 describe('buildInvoiceProductFeesProductFilterOptions', () => {
   describe('GIVEN a section with product filters', () => {
     it('THEN should pin not defined first and list each filter once by display label', () => {
-      expect(buildInvoiceProductFeesProductFilterOptions(section, translate)).toEqual([
+      expect(buildInvoiceProductFeesProductFilterOptions(section.products, translate)).toEqual([
         { label: NOT_DEFINED_LABEL, value: filterWithoutProductFilterValue },
         { label: 'Big', value: 'f-big|-_-|Big' },
         { label: 'Tiny', value: 'f-small|-_-|Tiny' },
@@ -127,15 +127,18 @@ describe('buildInvoiceProductFeesProductFilterOptions', () => {
 
   describe('GIVEN a section without products', () => {
     it('THEN should only offer not defined', () => {
-      expect(
-        buildInvoiceProductFeesProductFilterOptions({ ...section, products: [] }, translate),
-      ).toEqual([{ label: NOT_DEFINED_LABEL, value: filterWithoutProductFilterValue }])
+      expect(buildInvoiceProductFeesProductFilterOptions([], translate)).toEqual([
+        { label: NOT_DEFINED_LABEL, value: filterWithoutProductFilterValue },
+      ])
     })
   })
 })
 
 describe('buildInvoiceProductFeesDynamicFilters', () => {
-  const filters = buildInvoiceProductFeesDynamicFilters({ section, translate })
+  const filters = buildInvoiceProductFeesDynamicFilters({
+    products: section.products,
+    translate,
+  })
   const getFilter = (key: string) => filters.find((filter) => filter.key === key)
 
   it('THEN should expose the product and product filter dynamic keys', () => {

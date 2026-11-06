@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
 import { Filters } from '~/components/Filters'
 import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
@@ -12,6 +14,8 @@ import { InvoiceProductCatalogSectionItem } from './useInvoiceProductFees'
 export const INVOICE_PRODUCT_CATALOG_TABS_TEST_ID = 'invoice-product-catalog-tabs'
 export const INVOICE_PRODUCT_CATALOG_SEARCH_INPUT_TEST_ID = 'invoice-product-catalog-search-input'
 
+const AVAILABLE_FILTERS = [AvailableFiltersEnum.appliedRateCardProductType]
+
 export const InvoiceProductCatalogToolbar = ({
   tabs,
   section,
@@ -24,6 +28,10 @@ export const InvoiceProductCatalogToolbar = ({
   onSearchChange: (value: string) => void
 }): JSX.Element => {
   const { translate } = useInternationalization()
+  const dynamicFilters = useMemo(
+    () => buildInvoiceProductFeesDynamicFilters({ products: section.products, translate }),
+    [section.products, translate],
+  )
 
   return (
     <div className="flex flex-col gap-4">
@@ -43,8 +51,8 @@ export const InvoiceProductCatalogToolbar = ({
 
       <Filters.Provider
         filtersNamePrefix={INVOICE_PRODUCT_FEES_FILTER_PREFIX}
-        availableFilters={[AvailableFiltersEnum.appliedRateCardProductType]}
-        dynamicFilters={buildInvoiceProductFeesDynamicFilters({ section, translate })}
+        availableFilters={AVAILABLE_FILTERS}
+        dynamicFilters={dynamicFilters}
       >
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
           <SearchInput
