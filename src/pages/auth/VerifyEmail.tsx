@@ -33,6 +33,7 @@ import {
   SELF_SERVE_VERIFY_EMAIL_CONTINUE_BUTTON_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_PASSWORD_FIELD_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_RESEND_ALERT_TEST_ID,
+  SELF_SERVE_VERIFY_EMAIL_RETRY_BUTTON_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_SEND_NEW_LINK_BUTTON_TEST_ID,
 } from './signUpTestIds'
 
@@ -150,10 +151,11 @@ const VerifyEmail = (): JSX.Element => {
     return (): void => referrerMeta.remove()
   }, [])
 
-  const { data, loading, error } = useSignupVerificationQuery({
+  const { data, loading, error, refetch } = useSignupVerificationQuery({
     variables: { token, signupSecret: signupSecret || null },
     skip: !token,
     fetchPolicy: 'no-cache',
+    notifyOnNetworkStatusChange: true,
     context: { silentError: true },
   })
 
@@ -167,7 +169,7 @@ const VerifyEmail = (): JSX.Element => {
 
   const getLinkState = (): LinkState | undefined => {
     if (stateOverride) return stateOverride
-    if (!token || error) return 'invalid'
+    if (!token) return 'invalid'
     if (!verification) return undefined
 
     return STATUS_STATES[verification.status]
@@ -381,8 +383,28 @@ const VerifyEmail = (): JSX.Element => {
     form.handleSubmit()
   }
 
+  const renderCheckFailed = (): JSX.Element => (
+    <div className="flex flex-col gap-8">
+      <Alert type="danger" data-test={SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID}>
+        {translate(
+          BANNER_ERRORS[getGraphQLErrorCode(error?.graphQLErrors[0]?.extensions)] || GENERIC_ERROR,
+        )}
+      </Alert>
+      <Button
+        size="large"
+        fullWidth
+        data-test={SELF_SERVE_VERIFY_EMAIL_RETRY_BUTTON_TEST_ID}
+        onClick={() => refetch().catch(() => undefined)}
+      >
+        {translate('text_63e27c56dfe64b846474efa3')}
+      </Button>
+    </div>
+  )
+
   const renderContent = (): JSX.Element => {
-    if (loading || !linkState) return <Spinner />
+    if (loading) return <Spinner />
+    if (!linkState && error) return renderCheckFailed()
+    if (!linkState) return <Spinner />
 
     if (isVerifying) {
       return (

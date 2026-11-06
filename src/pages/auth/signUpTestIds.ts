@@ -35,3 +35,4 @@ export const SELF_SERVE_VERIFY_EMAIL_CONTINUE_BUTTON_TEST_ID =
   'self-serve-verify-email-continue-button'
 export const SELF_SERVE_VERIFY_EMAIL_BACK_TO_SIGN_UP_BUTTON_TEST_ID =
   'self-serve-verify-email-back-to-sign-up-button'
+export const SELF_SERVE_VERIFY_EMAIL_RETRY_BUTTON_TEST_ID = 'self-serve-verify-email-retry-button'

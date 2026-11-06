@@ -1,3 +1,4 @@
+import { ApolloError } from '@apollo/client'
 import { act, screen, within } from '@testing-library/react'
 import userEvent, { UserEvent } from '@testing-library/user-event'
 import { GraphQLFormattedError } from 'graphql'
@@ -24,17 +25,19 @@ import {
   SELF_SERVE_VERIFY_EMAIL_CONTINUE_BUTTON_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_PASSWORD_FIELD_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_RESEND_ALERT_TEST_ID,
+  SELF_SERVE_VERIFY_EMAIL_RETRY_BUTTON_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_SEND_NEW_LINK_BUTTON_TEST_ID,
 } from '../signUpTestIds'
 import VerifyEmail from '../VerifyEmail'
 
 type Verification = SignupVerificationQuery['signupVerification']
-type QueryAnswer = { data?: SignupVerificationQuery; loading: boolean; error?: Error }
+type QueryAnswer = { data?: SignupVerificationQuery; loading: boolean; error?: ApolloError }
 type ErrorAnswer = { data: null; errors: GraphQLFormattedError[] }
 type EnvGlobal = ReturnType<typeof envGlobalVar>
 
 const mockClient = { query: jest.fn(), mutate: jest.fn() }
 const mockUseSignupVerificationQuery = jest.fn()
+const mockRefetch = jest.fn()
 const mockUseConfirmSignupEmailMutation = jest.fn()
 const mockUseResendSignupEmailFromLinkMutation = jest.fn()
 const mockConfirmSignupEmail = jest.fn()
@@ -121,6 +124,7 @@ const TOO_MANY_ATTEMPTS_COPY = 'Too many attempts. Please wait a few minutes and
 const SIGN_UP_UNAVAILABLE_COPY = 'Sign-up is unavailable right now. Please reload the page.'
 const CAPTCHA_FAILED_COPY = "We couldn't confirm you're human. Please try again."
 const GENERIC_ERROR_COPY = 'Something went wrong on our side. Please try again.'
+const RETRY_COPY = 'Retry'
 const RECAPTCHA_NOTICE_COPY =
   'This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.'
 const RECAPTCHA_NOTICE_START = /^This site is protected by reCAPTCHA/
@@ -153,9 +157,10 @@ const buildVerification = (verification: Partial<Verification> = {}): QueryAnswe
 })
 
 const answerVerification = (answer: QueryAnswer): void => {
-  mockUseSignupVerificationQuery.mockImplementation(({ skip }: { skip: boolean }) =>
-    skip ? { loading: false, data: undefined } : answer,
-  )
+  mockUseSignupVerificationQuery.mockImplementation(({ skip }: { skip: boolean }) => ({
+    ...(skip ? { loading: false, data: undefined } : answer),
+    refetch: mockRefetch,
+  }))
 }
 
 const answerStatus = (status: SignupVerificationStatusEnum): void =>
@@ -165,6 +170,11 @@ const buildError = (code: string, details?: Record<string, unknown>): ErrorAnswe
   data: null,
   errors: [{ message: 'error', extensions: { code, ...(details && { details }) } }],
 })
+
+const buildCheckError = (code: string): ApolloError =>
+  new ApolloError({ graphQLErrors: [{ message: 'error', extensions: { code } }] })
+
+const NETWORK_CHECK_ERROR = new ApolloError({ networkError: new Error('Failed to fetch') })
 
 const buildPasswordError = (
   passwordCode: LagoApiError.PasswordRequired | LagoApiError.IncorrectPassword,
@@ -196,12 +206,13 @@ const mockRecaptchaSiteKey = (recaptchaSiteKey: EnvGlobal['recaptchaSiteKey']): 
   mockedEnvGlobalVar.mockReturnValue({ ...getRealEnv(), recaptchaSiteKey })
 }
 
-const renderVerifyEmail = (): ReturnType<typeof render> =>
-  render(
-    <StrictMode>
-      <VerifyEmail />
-    </StrictMode>,
-  )
+const VerifyEmailPage = (): JSX.Element => (
+  <StrictMode>
+    <VerifyEmail />
+  </StrictMode>
+)
+
+const renderVerifyEmail = (): ReturnType<typeof render> => render(<VerifyEmailPage />)
 
 const getPage = (): HTMLElement => document.body
 
@@ -258,6 +269,14 @@ const typePasswordAndConfirm = async (user: UserEvent, password = PASSWORD): Pro
   await clickConfirm(user)
 }
 
+const getRetryButton = (): HTMLElement =>
+  screen.getByTestId(SELF_SERVE_VERIFY_EMAIL_RETRY_BUTTON_TEST_ID)
+
+const clickRetry = async (user: UserEvent): Promise<void> => {
+  await user.click(getRetryButton())
+  await flush()
+}
+
 const clickSendNewLink = async (user: UserEvent): Promise<void> => {
   await user.click(getSendNewLinkButton())
   await flush()
@@ -273,6 +292,7 @@ describe('VerifyEmail', () => {
     openLink(`?token=${TOKEN}`)
     setItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY, SIGNUP_SECRET)
     answerVerification(buildVerification())
+    mockRefetch.mockResolvedValue(buildVerification())
     mockUseConfirmSignupEmailMutation.mockReturnValue([mockConfirmSignupEmail])
     mockUseResendSignupEmailFromLinkMutation.mockReturnValue([
       mockResendSignupEmail,
@@ -317,6 +337,7 @@ describe('VerifyEmail', () => {
           variables: { token: TOKEN, signupSecret: SIGNUP_SECRET },
           skip: false,
           fetchPolicy: 'no-cache',
+          notifyOnNetworkStatusChange: true,
           context: { silentError: true },
         })
       })
@@ -398,14 +419,130 @@ describe('VerifyEmail', () => {
       })
     })
 
-    describe('WHEN the link check fails', () => {
-      it('THEN should show the invalid link state', () => {
-        answerVerification({ loading: false, data: undefined, error: new Error('Failed to fetch') })
+    describe('WHEN the link check fails on the network', () => {
+      beforeEach(() => {
+        setItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY, SIGNUP_SECRET)
+        answerVerification({ loading: false, data: undefined, error: NETWORK_CHECK_ERROR })
+      })
+
+      it('THEN should show the generic banner with a retry button', () => {
+        renderVerifyEmail()
+
+        expect(getErrorAlert()).toHaveTextContent(GENERIC_ERROR_COPY)
+        expect(getRetryButton()).toHaveTextContent(RETRY_COPY)
+      })
+
+      it('THEN should show neither the invalid state nor its actions, even with a stored secret', () => {
+        renderVerifyEmail()
+
+        expect(getPage()).not.toHaveTextContent(INVALID_TITLE_COPY)
+        expect(getPage()).not.toHaveTextContent(INVALID_TEXT_COPY)
+        ACTION_TEST_IDS.forEach((testId) => {
+          expect(screen.queryByTestId(testId)).not.toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN the link check answers an error with its own message', () => {
+      it.each([
+        [LagoApiError.TooManyRequests, TOO_MANY_ATTEMPTS_COPY],
+        [LagoApiError.CaptchaFailed, CAPTCHA_FAILED_COPY],
+        [LagoApiError.SignupDisabled, SIGN_UP_UNAVAILABLE_COPY],
+        [LagoApiError.SelfServeDisabled, SIGN_UP_UNAVAILABLE_COPY],
+        [LagoApiError.InternalError, GENERIC_ERROR_COPY],
+      ])('THEN should show the %s message with a retry button', (code, copy) => {
+        answerVerification({ loading: false, data: undefined, error: buildCheckError(code) })
 
         renderVerifyEmail()
 
-        expect(getPage()).toHaveTextContent(INVALID_TITLE_COPY)
-        expect(queryConfirmButton()).not.toBeInTheDocument()
+        expect(getErrorAlert()).toHaveTextContent(copy)
+        expect(getRetryButton()).toBeInTheDocument()
+        expect(getPage()).not.toHaveTextContent(INVALID_TITLE_COPY)
+      })
+    })
+
+    describe('WHEN clicking retry after a failed link check', () => {
+      beforeEach(() => {
+        answerVerification({ loading: false, data: undefined, error: NETWORK_CHECK_ERROR })
+      })
+
+      it('THEN should check the link again once', async () => {
+        const user = userEvent.setup()
+
+        renderVerifyEmail()
+        await clickRetry(user)
+
+        expect(mockRefetch).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should show only the loading state while the check runs again', async () => {
+        const user = userEvent.setup()
+        const { rerender } = renderVerifyEmail()
+
+        await clickRetry(user)
+        answerVerification({ loading: true, data: undefined, error: NETWORK_CHECK_ERROR })
+        rerender(<VerifyEmailPage />)
+
+        expect(queryErrorAlert()).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(SELF_SERVE_VERIFY_EMAIL_RETRY_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
+        ACTION_TEST_IDS.forEach((testId) => {
+          expect(screen.queryByTestId(testId)).not.toBeInTheDocument()
+        })
+      })
+
+      it.each([
+        [
+          'valid',
+          buildVerification(),
+          CONFIRM_TITLE_COPY,
+          SELF_SERVE_VERIFY_EMAIL_CONFIRM_BUTTON_TEST_ID,
+        ],
+        [
+          'expired',
+          buildVerification({ status: SignupVerificationStatusEnum.Expired, email: null }),
+          EXPIRED_TITLE_COPY,
+          SELF_SERVE_VERIFY_EMAIL_SEND_NEW_LINK_BUTTON_TEST_ID,
+        ],
+      ])(
+        'THEN should show the %s state once the check succeeds',
+        async (_, answer, title, actionTestId) => {
+          const user = userEvent.setup()
+          const { rerender } = renderVerifyEmail()
+
+          await clickRetry(user)
+          answerVerification(answer)
+          rerender(<VerifyEmailPage />)
+
+          expect(getPage()).toHaveTextContent(title)
+          expect(screen.getByTestId(actionTestId)).toBeInTheDocument()
+          expect(queryErrorAlert()).not.toBeInTheDocument()
+          expect(
+            screen.queryByTestId(SELF_SERVE_VERIFY_EMAIL_RETRY_BUTTON_TEST_ID),
+          ).not.toBeInTheDocument()
+        },
+      )
+
+      it('THEN should swallow a rejected check and keep the retry button', async () => {
+        const user = userEvent.setup()
+        const onUnhandledRejection = jest.fn()
+
+        mockRefetch.mockRejectedValue(NETWORK_CHECK_ERROR)
+        process.on('unhandledRejection', onUnhandledRejection)
+
+        try {
+          renderVerifyEmail()
+          await clickRetry(user)
+          await flush()
+        } finally {
+          process.off('unhandledRejection', onUnhandledRejection)
+        }
+
+        expect(mockRefetch).toHaveBeenCalledTimes(1)
+        expect(onUnhandledRejection).not.toHaveBeenCalled()
+        expect(getErrorAlert()).toHaveTextContent(GENERIC_ERROR_COPY)
+        expect(getRetryButton()).toBeInTheDocument()
       })
     })
   })
