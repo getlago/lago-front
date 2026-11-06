@@ -1,10 +1,45 @@
 # Dropdown menu
 
-Use the shadcn-style Radix exports from `lago-ui/dropdown-menu` for v2 menus. Existing production menus and `Popper` are unchanged.
+Menu of actions, toggles or choices opened from a trigger, built on Radix Dropdown Menu.
 
-[Figma template](https://www.figma.com/design/B3QfPQpQfNXlBOu6hjvQUb?node-id=106-1421).
+## When to use
+
+- Use it for a list of actions on an object ("Edit", "Duplicate", "Delete") or for checkbox / radio choices in v2 UI.
+- Compose it from children: groups, labels, items, checkbox and radio items, submenus. There is no data-driven template API.
+- Existing production menus and `Popper` are unchanged and stay on the legacy design system.
+
+## Import
 
 ```tsx
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from 'lago-ui/dropdown-menu'
+```
+
+Also exported: `DropdownMenuGroup`, `DropdownMenuLabel`, `DropdownMenuCheckboxItem`, `DropdownMenuRadioGroup`, `DropdownMenuRadioItem`, `DropdownMenuSub`, `DropdownMenuSubTrigger`, `DropdownMenuSubContent`, `DropdownMenuShortcut`.
+
+## API
+
+| Part / prop | Notes |
+| --- | --- |
+| `DropdownMenuTrigger asChild` | Wrap a [`Button`](./button.md) or an [`IconButton`](./icon-button.md). Never nest another button inside a menu item |
+| `DropdownMenuItem onSelect` | Pointer and keyboard activation. The menu closes after selection |
+| `DropdownMenuItem variant` | `default` or `destructive` (danger text and icon) |
+| `DropdownMenuCheckboxItem` / `DropdownMenuRadioItem` `closeOnSelect` | Default `false`: selection keeps the menu open. Set `true` to close on selection |
+| `onCheckedChange` / `onValueChange` | Update application state from checkbox / radio items |
+| `textValue` | Typeahead text; set it when the item also has a description |
+
+`onSelect` with `event.preventDefault()` controls dismissal only, not the checked state.
+
+## Examples
+
+```tsx
+import { Pencil } from 'lucide-react'
+
 <DropdownMenu>
   <DropdownMenuTrigger asChild>
     <Button variant="secondary">Actions</Button>
@@ -22,15 +57,26 @@ Use the shadcn-style Radix exports from `lago-ui/dropdown-menu` for v2 menus. Ex
 </DropdownMenu>
 ```
 
-- Compose groups, labels, actions, checkbox/radio items and submenus as children. No data-driven template API is required.
-- Checkbox/radio indicators are on the right; optional leading Lucide icons use `icon-muted`, 14px and stroke 2. Decorative icons need `aria-hidden`.
-- Checkbox/radio selection keeps the menu open by default. Set `closeOnSelect` to opt into normal dismissal. Use `onCheckedChange` / `onValueChange` to update application state. `onSelect.preventDefault()` controls dismissal, not the primitive's checked-state update.
-- Actions close after selection. Use `onSelect` for pointer and keyboard activation. Disabled items cannot activate.
-- Set `textValue` and `aria-label` to the action label when adding a description; associate that description with a unique `aria-describedby` ID. Shortcut text is decorative; applications register keyboard shortcuts separately.
-- Trigger supports Button or IconButton through `asChild`. An IconButton needs the existing shared TooltipProvider. Never nest another button inside a menu item.
-- Wrap a region in `ColorTheme`. Main and submenu portals carry that theme through `ColorThemePortal`.
-- Default menu: 280px width, 12px radius, 4px padding, floating surface/shadow and divider border. Rows: minimum 36px, 8px padding/gap/radius. Separators span the inner menu width. Content is constrained to available viewport space and scrolls vertically.
-- Layer 2100 sits above existing dialogs (2000) and below toasts (2200) and tooltips (2400), without changing global stacking tokens.
-- Radix controls focus, typeahead, arrow keys, collision handling and Escape. Highlight uses `interactive-hover`; pointer press uses `interactive-pressed`. The trigger retains its existing focus ring.
+## Accessibility
 
-Preview: `/design-system/shadcn-dropdown-menu`. This is a development-only tab. No production imports are introduced.
+- Radix handles focus, typeahead, arrow keys, collision and Escape.
+- Leading icons are decorative: `aria-hidden="true"`.
+- An item with a description: set `textValue` and `aria-label` to the action label, and link the description with a unique `aria-describedby` id.
+- Shortcut text is decorative: register keyboard shortcuts separately in the application.
+- Disabled items cannot activate.
+- An `IconButton` trigger needs the shared `TooltipProvider` around the region.
+
+## Design
+
+- Content: 280px wide, 12px radius, 4px padding, `surface-floating`, `shadow-v2-floating`, `border-divider`. Constrained to the viewport and scrolls vertically.
+- Rows: minimum 36px high, 8px padding, gap and radius. Hover uses `interactive-hover`, press uses `interactive-pressed`.
+- Checkbox and radio indicators sit on the right. Leading Lucide icons use `icon-muted`, 14px, stroke 2.
+- `DropdownMenuSeparator` spans the inner menu width; do not put the standalone `Separator` inside a menu.
+- Layer 2100: above dialogs (2000), below toasts (2200) and tooltips (2400).
+- Wrap the region in [`ColorTheme`](./color-theme.md); the menu and submenu portals inherit it through `ColorThemePortal`.
+
+## References
+
+- Storybook: Components / DropdownMenu
+- Figma: [Dropdown template](https://www.figma.com/design/B3QfPQpQfNXlBOu6hjvQUb?node-id=106-1421)
+- Tests: `__tests__/dropdown-menu.test.tsx`

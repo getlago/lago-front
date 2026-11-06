@@ -1,18 +1,54 @@
 # Badge
 
-Static, single-line labels based on the [Figma Badge](https://www.figma.com/design/B3QfPQpQfNXlBOu6hjvQUb/v2---Desktop-components?node-id=77-809).
+Static, single-line label for a status or a category.
+
+## When to use
+
+- Use it to show a state or a category next to content: `Active`, `Draft`, `Overdue`.
+- Do not use it for anything interactive. Removal or selection needs a dedicated interactive chip; never nest an icon button inside a Badge.
+- Legacy `Chip`, `Status` and the other production badges stay on the legacy design system. Use this Badge only in v2 UI.
+
+## Import
+
+```tsx
+import { Badge } from 'lago-ui/badge'
+```
+
+## API
+
+| Prop | Values | Default |
+| --- | --- | --- |
+| `variant` | `neutral`, `info`, `success`, `warning`, `danger`, `disabled`, `outline` | `neutral` |
+| `size` | `sm` (20px high), `default` (24px high) | `default` |
+| `className` | extra classes, merged with `cn()` | |
+
+Renders a `span` and forwards its ref and HTML attributes.
+
+## Examples
 
 ```tsx
 import { CircleCheck } from 'lucide-react'
-import { Badge } from 'lago-ui/badge'
 
 <Badge variant="success" size="sm">
-  <CircleCheck size={14} strokeWidth={2} aria-hidden="true" />
+  <CircleCheck aria-hidden="true" />
   Active
 </Badge>
+
+<Badge variant="warning">Pending payment</Badge>
 ```
 
-`variant` defaults to `neutral`; `size` is `sm` (20px) or `default` (24px). Uses caption typography (12px/16px) with medium weight (500), 6px radius, 4px gap and 14px icons. Small uses a 20px minimum width and 4px horizontal padding; Default uses a 24px minimum width and 8px horizontal padding. The 1px border is additional to that padding. Text labels fill the remaining space and are center-aligned. No shadow or interaction states.
+Icons come as children and are sized by the Badge (14px, stroke 2).
+
+## Accessibility
+
+- Badge adds no tab stop, no live region and no disabled semantics: `disabled` is only a visual tone.
+- Keep icons decorative (`aria-hidden="true"`) when the text already carries the meaning.
+- For a status that changes while the user is on the page, put live-region semantics on the containing region, not on the Badge.
+- Contrast: `outline` (light 3.09:1, dark 6.54:1) and `disabled` (light 3.09:1, dark 3.75:1) are below 4.5:1 for normal text in at least one theme. Do not use them for essential information. Every other variant is above 4.5:1 in both themes.
+
+## Design
+
+Caption typography (12px / 16px) with medium weight (500), 6px radius, 4px gap, 1px border, no shadow, no interaction states. `sm` has a 20px minimum width and 4px horizontal padding; `default` has a 24px minimum width and 8px horizontal padding. The border is additional to the padding. Text is centered.
 
 | Variant | Background | Text / icon | Border |
 | --- | --- | --- | --- |
@@ -24,12 +60,10 @@ import { Badge } from 'lago-ui/badge'
 | disabled | surface-subtle | disabled-foreground | border-divider |
 | outline | surface-subtle | text-subtle | border-divider |
 
-Theme colors inherit existing semantic tokens. Use `ColorTheme` for a locally selected light/dark theme. See `/design-system/shadcn-badge` in the development app for every variant and size.
+Colors follow the surrounding theme; use [`ColorTheme`](./color-theme.md) for a local light/dark region.
 
-Badge renders a span and forwards its ref, HTML attributes and className. It adds no tab stop, live region or disabled semantics. Disabled is only a visual tone. Keep icons decorative when text already communicates their meaning. For changing announcements, apply live-region semantics at the appropriate containing region.
+## References
 
-Use a dedicated interactive chip for removal or selection; do not nest icon buttons into this static Badge. Legacy Chip, Status and other production badges are unchanged.
-
-Subdued text is not automatically exempt from contrast requirements. Outline and Disabled preserve the approved Figma mappings; review contrast before using either for essential information.
-
-Measured text contrast against the badge fill: Outline light 3.09:1 / dark 6.54:1; Disabled light 3.09:1 / dark 3.75:1. Outline light and both Disabled themes are below 4.5:1 for normal text. All other variants exceed 4.5:1 in both themes.
+- Storybook: Components / Badge
+- Figma: [Badge](https://www.figma.com/design/B3QfPQpQfNXlBOu6hjvQUb/v2---Desktop-components?node-id=77-809)
+- Screenshots: `docs/badge/light.png`, `docs/badge/dark.png`

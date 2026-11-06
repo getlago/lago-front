@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
+import docs from './typography.md?raw'
+
 import { Button } from '../components/button'
 
 const specimens = [
@@ -87,6 +89,8 @@ const TypographyShowcase = (): JSX.Element => (
 
 const meta = {
   title: 'Foundations/Typography',
+  tags: ['autodocs'],
+  parameters: { docs: { description: { component: docs } } },
 } satisfies Meta
 
 export default meta

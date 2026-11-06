@@ -1,9 +1,31 @@
 # Separator
 
-Import `Separator` from `lago-ui/separator` for v2 components.
+1px line that divides content, horizontally or vertically.
+
+## When to use
+
+- Use it between sections or inline items in v2 UI.
+- Inside a dropdown menu use `DropdownMenuSeparator` from [`dropdown-menu`](./dropdown-menu.md), never this component.
+- Existing production dividers are unchanged.
+
+## Import
+
+```tsx
+import { Separator } from 'lago-ui/separator'
+```
+
+## API
+
+| Prop | Values | Default |
+| --- | --- | --- |
+| `orientation` | `horizontal`, `vertical` | `horizontal` |
+| `decorative` | `true`: hidden from assistive technology; `false`: exposed as a separator | `true` |
+
+## Examples
 
 ```tsx
 <Separator />
+
 <div className="flex h-10 items-center gap-4">
   <span>Details</span>
   <Separator orientation="vertical" />
@@ -11,10 +33,18 @@ Import `Separator` from `lago-ui/separator` for v2 components.
 </div>
 ```
 
-The line is 1px thick and uses `border-divider`, inherited from the surrounding color theme. It has no margin, padding, radius, or shadow. The parent owns spacing and must provide a height for a full-height vertical separator.
+The parent owns spacing, and must give a height for a full-height vertical separator.
 
-Separators are decorative by default. Set `decorative={false}` when the division should be exposed to assistive technology. They are not interactive or focusable.
+## Accessibility
 
-Dropdown menus retain `DropdownMenuSeparator` from the dropdown primitives, with the same color and thickness and menu-specific spacing. Do not nest the standalone Separator inside it.
+- Decorative by default. Set `decorative={false}` only when the division carries meaning for assistive technology.
+- Not interactive and not focusable.
 
-Preview: `/design-system/shadcn-separator`. Existing production dividers are unchanged.
+## Design
+
+1px thick, `border-divider` color from the surrounding theme. No margin, padding, radius or shadow.
+
+## References
+
+- Storybook: Components / Separator
+- Tests: `__tests__/separator.test.tsx`

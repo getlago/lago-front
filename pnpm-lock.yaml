@@ -667,6 +667,9 @@ importers:
       '@storybook/addon-a11y':
         specifier: 10.6.5
         version: 10.6.5(storybook@10.6.5(@types/react@18.3.31)(prettier@3.9.10)(react@18.3.1))
+      '@storybook/addon-docs':
+        specifier: 10.6.5
+        version: 10.6.5(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(storybook@10.6.5(@types/react@18.3.31)(prettier@3.9.10)(react@18.3.1))
       '@storybook/react-vite':
         specifier: 10.6.5
         version: 10.6.5(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@4.59.0)(storybook@10.6.5(@types/react@18.3.31)(prettier@3.9.10)(react@18.3.1))(typescript@6.0.3)(vite@7.3.7(@types/node@24.19.2)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3))
@@ -2817,6 +2820,12 @@ packages:
   '@llm-ui/shared@0.13.3':
     resolution: {integrity: sha512-+vt6uHnYXKqCtA+rNxCRwxdLFft3muMFA0JYMxf1b11gSMriO0Jgvwwx72dn1YWmX4gF1YHGRbMPWBe7V6CQCA==}
 
+  '@mdx-js/react@3.1.1':
+    resolution: {integrity: sha512-f++rKLQgUVYDAtECQ6fn/is15GkEH9+nZPM3MS0RcxVqoTfawHvDlSCH7JbMhAM6uJ32v3eXLvLmLvjGu7PTQw==}
+    peerDependencies:
+      '@types/react': '>=16'
+      react: '>=16'
+
   '@mui/base@5.0.0-beta.68':
     resolution: {integrity: sha512-F1JMNeLS9Qhjj3wN86JUQYBtJoXyQvknxlzwNl6eS0ZABo1MiohMONj3/WQzYPSXIKC2bS/ZbyBzdHhi2GnEpA==}
     engines: {node: '>=14.0.0'}
@@ -3945,6 +3954,15 @@ packages:
     peerDependencies:
       storybook: ^10.6.5
 
+  '@storybook/addon-docs@10.6.5':
+    resolution: {integrity: sha512-Kt0pGLA+nwdu2g80p8jbdoiiKXxwQbhrY6uzMzq/0G1lytxpJUzrOQAM+GDcEbqyvpKr0u5d1q05/LPem/uooQ==}
+    peerDependencies:
+      '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      storybook: ^10.6.5
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
   '@storybook/builder-vite@10.6.5':
     resolution: {integrity: sha512-udrGjg3yt38pz4FxplypXxw1creIGS7N6QS8xfvTFM8MQNtPyojT/gZdd4fhX0dFrQx5MMuJEYJA5gUBiPsLtg==}
     peerDependencies:
@@ -4731,6 +4749,9 @@ packages:
 
   '@types/mdurl@2.0.0':
     resolution: {integrity: sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg==}
+
+  '@types/mdx@2.0.14':
+    resolution: {integrity: sha512-T48PeuJtvLosNTPVhfnIp3i/n3a4g4Bad7YCq5k64D4u7NwDrAotikQ+5+sjtUvBmxCMlbo3dVL+C2dP0rWHzg==}
 
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
@@ -9358,6 +9379,10 @@ packages:
     resolution: {integrity: sha512-6bc58dPYhCMHHuwxldQxO3RRNZ4eCogZ/st++0+fcC1nr0jiGUtAdBJ2qzmLQWSxbtz42pWt4QQMiZ9HvZf5cg==}
     engines: {node: '>=0.10.0'}
 
+  unplugin@2.3.11:
+    resolution: {integrity: sha512-5uKD0nqiYVzlmCRs01Fhs2BdkEgBS3SAVP6ndrBsuK42iC2+JHyxM05Rm9G8+5mkmRtzMZGY8Ct5+mliZxU/Ww==}
+    engines: {node: '>=18.12.0'}
+
   unrs-resolver@1.12.2:
     resolution: {integrity: sha512-dmlRxBJJayXjqTwC+JtF1HhJmgf3ftQ3YejFcZrf4+KKtJv0qDsK1pjqaaVjG7wJ5NJ6UVP1OqRMQ71Z4C3rxQ==}
 
@@ -9512,6 +9537,9 @@ packages:
   webidl-conversions@7.0.0:
     resolution: {integrity: sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==}
     engines: {node: '>=12'}
+
+  webpack-virtual-modules@0.6.2:
+    resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
 
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
@@ -12241,6 +12269,12 @@ snapshots:
     transitivePeerDependencies:
       - react
 
+  '@mdx-js/react@3.1.1(@types/react@18.3.31)(react@18.3.1)':
+    dependencies:
+      '@types/mdx': 2.0.14
+      '@types/react': 18.3.31
+      react: 18.3.1
+
   '@mui/base@5.0.0-beta.68(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.28.6
@@ -13167,6 +13201,21 @@ snapshots:
       axe-core: 4.10.2
       storybook: 10.6.5(@types/react@18.3.31)(prettier@3.9.10)(react@18.3.1)
 
+  '@storybook/addon-docs@10.6.5(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(storybook@10.6.5(@types/react@18.3.31)(prettier@3.9.10)(react@18.3.1))':
+    dependencies:
+      '@mdx-js/react': 3.1.1(@types/react@18.3.31)(react@18.3.1)
+      '@storybook/icons': 2.2.0(react@18.3.1)
+      '@storybook/react-dom-shim': 10.6.5(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.6.5(@types/react@18.3.31)(prettier@3.9.10)(react@18.3.1))
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      storybook: 10.6.5(@types/react@18.3.31)(prettier@3.9.10)(react@18.3.1)
+      ts-dedent: 2.3.0
+      unplugin: 2.3.11
+    optionalDependencies:
+      '@types/react': 18.3.31
+    transitivePeerDependencies:
+      - '@types/react-dom'
+
   '@storybook/builder-vite@10.6.5(storybook@10.6.5(@types/react@18.3.31)(prettier@3.9.10)(react@18.3.1))(vite@7.3.7(@types/node@24.19.2)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3))':
     dependencies:
       storybook: 10.6.5(@types/react@18.3.31)(prettier@3.9.10)(react@18.3.1)
@@ -13926,6 +13975,8 @@ snapshots:
   '@types/mdurl@1.0.5': {}
 
   '@types/mdurl@2.0.0': {}
+
+  '@types/mdx@2.0.14': {}
 
   '@types/ms@2.1.0': {}
 
@@ -19421,6 +19472,13 @@ snapshots:
     dependencies:
       normalize-path: 2.1.1
 
+  unplugin@2.3.11:
+    dependencies:
+      '@jridgewell/remapping': 2.3.5
+      acorn: 8.16.0
+      picomatch: 4.0.4
+      webpack-virtual-modules: 0.6.2
+
   unrs-resolver@1.12.2:
     dependencies:
       napi-postinstall: 0.3.4
@@ -19609,6 +19667,8 @@ snapshots:
   webidl-conversions@3.0.1: {}
 
   webidl-conversions@7.0.0: {}
+
+  webpack-virtual-modules@0.6.2: {}
 
   whatwg-encoding@3.1.1:
     dependencies:

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Copy, Download, Plus } from 'lucide-react'
 
 import { IconButton } from './icon-button'
+import docs from './icon-button.md?raw'
 import { TooltipProvider } from './tooltip'
 
 const actions = [
@@ -12,6 +13,8 @@ const actions = [
 
 const meta = {
   title: 'Components/IconButton',
+  tags: ['autodocs'],
+  parameters: { docs: { description: { component: docs } } },
   component: IconButton,
   args: {
     label: 'Copy invoice number',

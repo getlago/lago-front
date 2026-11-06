@@ -3,6 +3,7 @@ import { ArrowRight, Copy, Plus } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from './button'
+import docs from './button.md?raw'
 
 const variants = ['default', 'secondary', 'outline', 'ghost', 'link', 'destructive'] as const
 const sizes = ['sm', 'default', 'lg'] as const
@@ -10,6 +11,8 @@ const iconSizes = ['icon-sm', 'icon', 'icon-lg'] as const
 
 const meta = {
   title: 'Components/Button',
+  tags: ['autodocs'],
+  parameters: { docs: { description: { component: docs } } },
   component: Button,
   args: { children: 'Button' },
 } satisfies Meta<typeof Button>

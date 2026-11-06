@@ -2,9 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Button } from './button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip'
+import docs from './tooltip.md?raw'
 
 const meta = {
   title: 'Components/Tooltip',
+  tags: ['autodocs'],
+  parameters: { docs: { description: { component: docs } } },
   component: Tooltip,
   decorators: [
     (Story) => (

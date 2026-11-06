@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { CircleCheck } from 'lucide-react'
 
 import { Badge, BadgeProps } from './badge'
+import docs from './badge.md?raw'
 
 const variants: NonNullable<BadgeProps['variant']>[] = [
   'neutral',
@@ -15,6 +16,8 @@ const variants: NonNullable<BadgeProps['variant']>[] = [
 
 const meta = {
   title: 'Components/Badge',
+  tags: ['autodocs'],
+  parameters: { docs: { description: { component: docs } } },
   component: Badge,
   args: { children: 'Badge' },
 } satisfies Meta<typeof Badge>
@@ -28,12 +31,6 @@ export const Default: Story = {}
 export const AllVariants: Story = {
   render: () => (
     <div className="space-y-6">
-      <p className="v2-text-body">
-        Static labels: small 20px high with a 20px minimum width and 4px horizontal padding; default
-        24px high with a 24px minimum width and 8px horizontal padding. Centered caption typography
-        with medium weight (500), 4px icon gap, 6px radius, 1px border, no shadow. Icons are 14px
-        with strokeWidth=2.
-      </p>
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead className="v2-text-caption">

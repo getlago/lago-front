@@ -1,15 +1,36 @@
-# Shadcn Tooltip
+# Tooltip
 
-Import from `lago-ui/tooltip`. This is independent of the legacy
-`components/designSystem/Tooltip`; production consumers are not migrated.
+Short, non-interactive hint shown on hover or keyboard focus, built on Radix Tooltip.
 
-Mount one `TooltipProvider` around the toolbar or shadcn region, not around each
-button. The first pointer hover waits 300ms. After an open tooltip closes, another
-trigger in the same provider opens instantly within 500ms; afterward the initial
-delay returns. Keyboard focus opens immediately. Avoid overriding timings on
-individual tooltips.
+## When to use
+
+- Use it to name or briefly explain a control, typically an icon.
+- For icon-only buttons prefer [`IconButton`](./icon-button.md), which wires the tooltip and the accessible name together.
+- Do not put essential or interactive content in a tooltip: it must stay available without hover.
+- The legacy `components/designSystem/Tooltip` is unchanged and production consumers are not migrated.
+
+## Import
 
 ```tsx
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'lago-ui/tooltip'
+```
+
+## API
+
+| Part | Notes |
+| --- | --- |
+| `TooltipProvider` | Mount one around the toolbar or v2 region, not around each trigger. Sets the timings below |
+| `Tooltip` | Root of one tooltip |
+| `TooltipTrigger asChild` | Wrap the control that shows the tooltip |
+| `TooltipContent` | The text. Accepts Radix `side` / `align`; `sideOffset` defaults to 8, `collisionPadding` to 8 |
+
+Timings: the first hover waits 300ms; after a tooltip closes, another trigger in the same provider opens instantly for 500ms. Keyboard focus opens immediately. Do not override timings per tooltip.
+
+## Examples
+
+```tsx
+import { Copy } from 'lucide-react'
+
 <TooltipProvider>
   <Tooltip>
     <TooltipTrigger asChild>
@@ -22,19 +43,21 @@ individual tooltips.
 </TooltipProvider>
 ```
 
-Keep content brief and non-interactive. The button still needs its own accessible
-name. Escape, blur and activation dismiss the tooltip; pointer travel into the
-content keeps it open. Essential help must remain available without hover.
-Native disabled buttons cannot receive focus: use an explicit focusable wrapper
-when an explanation is needed, rather than altering disabled button behavior.
+## Accessibility
 
-Content uses inverse/inverse-foreground, body (14px / 20px), px-3 py-2, rounded-xl and the
-floating shadow. It hugs short text, wraps at a maximum outer width of 240px,
-shrinks to the available viewport width and stays left aligned. Top/center is
-the default placement with an 8px offset; collisions can flip or shift it.
-Content uses the shared `z-tooltip` layer (2400), above drawers and dialogs.
-No arrow or opening animation is included in v1. ColorThemePortal preserves the
-surrounding theme when content is rendered outside the local DOM subtree.
+- The trigger still needs its own accessible name.
+- Escape, blur and activation dismiss the tooltip; moving the pointer into the content keeps it open.
+- Native disabled buttons cannot receive focus, so their tooltip is not keyboard-reachable. Use an explicit focusable wrapper when an explanation is needed, rather than changing disabled button behavior.
 
-Preview: `/design-system/shadcn-tooltip`. The IconButton wrapper is a separate
-follow-up; this version composes the existing shadcn Button directly.
+## Design
+
+- `inverse` background, `inverse-foreground` text, body typography (14px / 20px), `px-3 py-2`, `rounded-xl`, `shadow-v2-floating`.
+- Hugs short text, wraps at a 240px maximum outer width, shrinks to the viewport, left aligned.
+- Default placement top / center with an 8px offset; collisions can flip or shift it.
+- Layer `z-tooltip` (2400), above drawers and dialogs. No arrow, no opening animation.
+- `ColorThemePortal` keeps the surrounding theme when the content renders in a portal.
+
+## References
+
+- Storybook: Components / Tooltip
+- Tests: `__tests__/tooltip.test.tsx`

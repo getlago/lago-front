@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useEffect, useRef, useState } from 'react'
 
 import colorCss from './colors.css?raw'
+import docs from './colors.md?raw'
 
 import { ColorMode } from '../components/color-theme'
 
@@ -134,6 +135,8 @@ const ColorsShowcase = ({ mode }: { mode: ColorMode }): JSX.Element => {
 
 const meta = {
   title: 'Foundations/Colors',
+  tags: ['autodocs'],
+  parameters: { docs: { description: { component: docs } } },
 } satisfies Meta
 
 export default meta

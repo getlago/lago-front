@@ -21,7 +21,8 @@
     "lint": "prettier --check . && eslint .",
     "types": "tsc --noEmit",
     "test": "jest",
-    "storybook": "storybook dev -p 6006"
+    "storybook": "storybook dev -p 6006",
+    "test:docs": "node --test scripts/docs.test.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dropdown-menu": "catalog:",
@@ -38,6 +39,7 @@
   },
   "devDependencies": {
     "@storybook/addon-a11y": "10.6.5",
+    "@storybook/addon-docs": "10.6.5",
     "@storybook/react-vite": "10.6.5",
     "@testing-library/dom": "catalog:",
     "@testing-library/jest-dom": "catalog:",

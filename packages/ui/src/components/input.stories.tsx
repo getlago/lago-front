@@ -1,9 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import { Input } from './input'
+import docs from './input.md?raw'
 
 const meta = {
   title: 'Components/Input',
+  tags: ['autodocs'],
+  parameters: { docs: { description: { component: docs } } },
   component: Input,
 } satisfies Meta<typeof Input>
 

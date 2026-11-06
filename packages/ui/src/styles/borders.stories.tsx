@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
+import docs from './component-surfaces.md?raw'
+
 const widths = [
   ['border-0', '0px'],
   ['border', '1px'],
@@ -107,6 +109,8 @@ const SurfacesShowcase = (): JSX.Element => (
 
 const meta = {
   title: 'Foundations/Borders & surfaces',
+  tags: ['autodocs'],
+  parameters: { docs: { description: { component: docs } } },
 } satisfies Meta
 
 export default meta

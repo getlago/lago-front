@@ -19,6 +19,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from './dropdown-menu'
+import docs from './dropdown-menu.md?raw'
 import { IconButton } from './icon-button'
 import { TooltipProvider } from './tooltip'
 
@@ -115,6 +116,8 @@ const CustomerActionsMenu = ({ icon = false }: { icon?: boolean }): JSX.Element 
 
 const meta = {
   title: 'Components/DropdownMenu',
+  tags: ['autodocs'],
+  parameters: { docs: { description: { component: docs } } },
   component: DropdownMenu,
   decorators: [
     (Story) => (
