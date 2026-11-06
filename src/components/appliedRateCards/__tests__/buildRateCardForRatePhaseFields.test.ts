@@ -33,6 +33,7 @@ const rateCard: RateCardForAppliedRateCardDrawerFragment = {
   billingTiming: RateCardBillingTimingEnum.Advance,
   appliedPricingUnitCode: 'CR',
   proration: true,
+  ratesCount: 1,
   activeRate: {
     __typename: 'RateCardRate',
     id: 'active-rate',
@@ -44,6 +45,7 @@ const rateCard: RateCardForAppliedRateCardDrawerFragment = {
     appliedPricingUnitConversionRate: null,
     rateProperties: { __typename: 'RateProperties', amount: '10' },
   },
+  nextPendingRate: null,
 }
 
 describe('buildRateCardForRatePhaseFields', () => {
@@ -57,6 +59,8 @@ describe('buildRateCardForRatePhaseFields', () => {
       proration: true,
       appliedPricingUnitCode: 'CR',
       activeRate: rateCard.activeRate,
+      nextPendingRate: rateCard.nextPendingRate,
+      ratesCount: rateCard.ratesCount,
     })
   })
 

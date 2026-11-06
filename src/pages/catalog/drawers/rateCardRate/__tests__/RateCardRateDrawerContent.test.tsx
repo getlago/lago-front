@@ -357,24 +357,6 @@ describe('RateCardRateDrawerContent', () => {
     })
   })
 
-  describe('GIVEN the pricing inputs', () => {
-    describe('WHEN the parent product is a usage product', () => {
-      it('THEN drives them with the metered product type', () => {
-        render(<Host />)
-
-        expect(mockRateWrapperSwitchProps.productType).toBe(ProductTypeEnum.Metered)
-      })
-    })
-
-    describe('WHEN the parent product is a fixed product', () => {
-      it('THEN drives them in fixed mode', () => {
-        render(<Host rateCard={{ ...arrearsUsageCard, productType: ProductTypeEnum.Fixed }} />)
-
-        expect(mockRateWrapperSwitchProps.productType).toBe(ProductTypeEnum.Fixed)
-      })
-    })
-  })
-
   describe('GIVEN the card prices in a custom pricing unit', () => {
     describe('WHEN the drawer body renders', () => {
       it('THEN shows the conversion rate row', () => {

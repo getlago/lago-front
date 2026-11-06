@@ -20,5 +20,7 @@ export const buildRateCardForRatePhaseFields = (
     proration: rateCard.proration,
     appliedPricingUnitCode: rateCard.appliedPricingUnitCode,
     activeRate: rateCard.activeRate,
+    nextPendingRate: rateCard.nextPendingRate,
+    ratesCount: rateCard.ratesCount,
   }
 }

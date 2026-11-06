@@ -29,6 +29,8 @@ gql`
 export type RateCardForRatePhaseFields = RateCardRateDrawerRateCard & {
   // A phase without an override runs on it, so the drawer shows its values read-only.
   activeRate: ActiveRateForRatePhaseFragment | null | undefined
+  nextPendingRate: ActiveRateForRatePhaseFragment | null | undefined
+  ratesCount: number
 }
 
 export type RatePhaseDrawerProps =
