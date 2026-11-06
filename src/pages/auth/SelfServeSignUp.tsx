@@ -117,6 +117,7 @@ const SelfServeSignUp = (): JSX.Element => {
   const [bannerError, setBannerError] = useState<string>()
   const [emailCheckError, setEmailCheckError] = useState<string>()
 
+  const [sentSignupSecret, setSentSignupSecret] = useState('')
   const [signUp] = useSelfServeSignUpMutation({ context: { silentError: true } })
   const [checkSignupEmail] = useSignupEmailCheckLazyQuery({
     fetchPolicy: 'no-cache',
@@ -155,6 +156,7 @@ const SelfServeSignUp = (): JSX.Element => {
 
         if (signupSecret) {
           setItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY, signupSecret)
+          setSentSignupSecret(signupSecret)
           setSentToEmail(value.email.trim())
 
           return
@@ -237,6 +239,7 @@ const SelfServeSignUp = (): JSX.Element => {
           <StyledLogo height={24} />
           <SelfServeCheckEmail
             email={sentToEmail}
+            signupSecret={sentSignupSecret}
             onGoBack={onGoBack}
             onStartAgain={onStartAgain}
           />

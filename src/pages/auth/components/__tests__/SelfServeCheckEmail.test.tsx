@@ -15,6 +15,7 @@ import {
   SignupStatusDocument,
   SignupStatusEnum,
   SignupStatusQuery,
+  SignupStatusQueryVariables,
 } from '~/generated/graphql'
 import {
   SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID,
@@ -31,6 +32,8 @@ import { render } from '~/test-utils'
 import { SelfServeCheckEmail } from '../SelfServeCheckEmail'
 
 type SignupStatus = SignupStatusQuery['signupStatus']
+type ResendState = Pick<SignupStatus, 'resendAvailableInSeconds' | 'resendLimitReached'>
+type StatusCheckOptions = { variables: SignupStatusQueryVariables }
 type ResendAnswer = NonNullable<ResendSignupEmailMutation['resendSignupEmail']>
 type ErrorAnswer = { data: null; errors: GraphQLFormattedError[] }
 type EnvGlobal = ReturnType<typeof envGlobalVar>
@@ -42,6 +45,7 @@ const mockResendSignupEmail = jest.fn()
 const mockUseResendSignupEmailMutation = jest.fn()
 const mockOnLogIn = jest.fn()
 const mockNavigate = jest.fn()
+const mockAuthTokenVar = jest.fn()
 
 jest.mock('@apollo/client', () => ({
   ...jest.requireActual('@apollo/client'),
@@ -57,6 +61,11 @@ jest.mock('~/core/apolloClient', () => {
     onLogIn: (...args: unknown[]) => mockOnLogIn(...args),
   }
 })
+
+jest.mock('~/core/apolloClient/reactiveVars', () => ({
+  ...jest.requireActual('~/core/apolloClient/reactiveVars'),
+  authTokenVar: () => mockAuthTokenVar(),
+}))
 
 jest.mock('~/core/router', () => ({
   ...jest.requireActual('~/core/router'),
@@ -107,15 +116,8 @@ const RECAPTCHA_NOTICE_COPY =
   'This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.'
 const RECAPTCHA_NOTICE_START = /^This site is protected by reCAPTCHA/
 
-const buildStatus = (signupStatus: Partial<SignupStatus>): { data: SignupStatusQuery } => ({
-  data: {
-    signupStatus: {
-      status: SignupStatusEnum.Pending,
-      resendAvailableInSeconds: 0,
-      resendLimitReached: false,
-      ...signupStatus,
-    },
-  },
+const buildStatus = (signupStatus: Partial<SignupStatus> = {}): { data: SignupStatusQuery } => ({
+  data: { signupStatus: { status: SignupStatusEnum.Pending, ...signupStatus } },
 })
 
 const buildError = (code: string, details?: Record<string, unknown>): ErrorAnswer => ({
@@ -138,22 +140,36 @@ const EXCHANGE_SUCCESS: { data: ExchangeSignupSecretMutation } = {
 const answerPendingStatus = ({
   resendAvailableInSeconds = 0,
   resendLimitReached = false,
-}: Partial<Pick<SignupStatus, 'resendAvailableInSeconds' | 'resendLimitReached'>> = {}): void => {
+}: Partial<ResendState> = {}): void => {
   const resendAvailableAt =
     typeof resendAvailableInSeconds === 'number'
       ? Date.now() + resendAvailableInSeconds * 1000
       : null
 
-  mockQuery.mockImplementation(async () =>
-    buildStatus({
-      resendAvailableInSeconds:
-        resendAvailableAt === null
-          ? null
-          : Math.max(0, Math.ceil((resendAvailableAt - Date.now()) / 1000)),
-      resendLimitReached,
-    }),
+  const getResendState = (): ResendState => ({
+    resendAvailableInSeconds:
+      resendAvailableAt === null
+        ? null
+        : Math.max(0, Math.ceil((resendAvailableAt - Date.now()) / 1000)),
+    resendLimitReached,
+  })
+
+  mockQuery.mockImplementation(async ({ variables }: StatusCheckOptions) =>
+    buildStatus(variables.withResendState ? getResendState() : {}),
   )
 }
+
+const logInWithSession = (): void => {
+  mockOnLogIn.mockImplementation(async (_client: unknown, token: string) => {
+    mockAuthTokenVar.mockReturnValue(token)
+  })
+}
+
+const getStatusCheckVariables = (): SignupStatusQueryVariables[] =>
+  mockQuery.mock.calls.map(([options]: [StatusCheckOptions]) => options.variables)
+
+const getWithResendStates = (): boolean[] =>
+  getStatusCheckVariables().map(({ withResendState }) => withResendState)
 
 const answerResendAndUpdateStatus = (answer: Partial<ResendAnswer> = {}): void => {
   mockResendSignupEmail.mockImplementation(async () => {
@@ -187,7 +203,12 @@ const mockOnStartAgain = jest.fn()
 
 const renderCheckEmail = async (): Promise<ReturnType<typeof render>> => {
   const result = render(
-    <SelfServeCheckEmail email={EMAIL} onGoBack={mockOnGoBack} onStartAgain={mockOnStartAgain} />,
+    <SelfServeCheckEmail
+      email={EMAIL}
+      signupSecret={SIGNUP_SECRET}
+      onGoBack={mockOnGoBack}
+      onStartAgain={mockOnStartAgain}
+    />,
   )
 
   await flush()
@@ -209,6 +230,12 @@ const getResendLimitAlert = (): HTMLElement =>
   screen.getByTestId(SELF_SERVE_SIGNUP_RESEND_LIMIT_ALERT_TEST_ID)
 
 const getErrorAlert = (): HTMLElement => screen.getByTestId(SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID)
+
+const queryResendButton = (): HTMLElement | null =>
+  screen.queryByTestId(SELF_SERVE_SIGNUP_RESEND_BUTTON_TEST_ID)
+
+const queryLoginButton = (): HTMLElement | null =>
+  screen.queryByTestId(SELF_SERVE_SIGNUP_LOGIN_BUTTON_TEST_ID)
 
 const queryResendSuccessAlert = (): HTMLElement | null =>
   screen.queryByTestId(SELF_SERVE_SIGNUP_RESEND_SUCCESS_ALERT_TEST_ID)
@@ -253,6 +280,7 @@ describe('SelfServeCheckEmail', () => {
     mockUseResendSignupEmailMutation.mockReturnValue([mockResendSignupEmail, { loading: false }])
     mockedGetRecaptchaToken.mockResolvedValue(RECAPTCHA_TOKEN)
     mockOnLogIn.mockResolvedValue(undefined)
+    mockAuthTokenVar.mockReturnValue('')
     mockRecaptchaSiteKey('')
     answerPendingStatus()
   })
@@ -314,18 +342,87 @@ describe('SelfServeCheckEmail', () => {
 
   describe('GIVEN the sign-up status is polled', () => {
     describe('WHEN the screen is shown', () => {
-      it('THEN should check the status at once with the stored secret, without cache nor toast', async () => {
+      it('THEN should check the status and the resend state at once, without cache nor toast', async () => {
         await renderCheckEmail()
 
         expect(mockQuery).toHaveBeenCalledTimes(1)
         expect(mockQuery).toHaveBeenCalledWith({
           query: SignupStatusDocument,
-          variables: { signupSecret: SIGNUP_SECRET },
+          variables: { signupSecret: SIGNUP_SECRET, withResendState: true },
           fetchPolicy: 'no-cache',
           context: { silentError: true },
           errorPolicy: 'all',
         })
       })
+    })
+
+    describe('WHEN the status is checked again', () => {
+      it('THEN should ask for the status only', async () => {
+        await renderCheckEmail()
+        await advance(POLL_INTERVAL_MS)
+        await advance(POLL_INTERVAL_MS)
+
+        expect(getStatusCheckVariables()).toEqual([
+          { signupSecret: SIGNUP_SECRET, withResendState: true },
+          { signupSecret: SIGNUP_SECRET, withResendState: false },
+          { signupSecret: SIGNUP_SECRET, withResendState: false },
+        ])
+      })
+    })
+
+    describe('WHEN the first status check gets no pending answer', () => {
+      const failures: [string, () => void, number][] = [
+        [
+          'fails on the network',
+          (): void => {
+            mockQuery.mockRejectedValueOnce(new Error('Failed to fetch'))
+          },
+          POLL_INTERVAL_MS,
+        ],
+        [
+          'answers an error',
+          (): void => {
+            mockQuery.mockResolvedValueOnce(buildError(LagoApiError.InternalError))
+          },
+          POLL_INTERVAL_MS,
+        ],
+        [
+          'answers too_many_requests',
+          (): void => {
+            mockQuery.mockResolvedValueOnce(buildError(LagoApiError.TooManyRequests))
+          },
+          RATE_LIMITED_POLL_INTERVAL_MS,
+        ],
+      ]
+
+      it.each(failures)(
+        'THEN should ask for the resend state again on the next check when it %s',
+        async (_, failFirstCheck, retryDelay) => {
+          failFirstCheck()
+
+          await renderCheckEmail()
+          await advance(retryDelay)
+          await advance(POLL_INTERVAL_MS)
+
+          expect(getWithResendStates()).toEqual([true, true, false])
+        },
+      )
+
+      it.each(failures)(
+        'THEN should enable the resend link button from the next answer when it %s',
+        async (_, failFirstCheck, retryDelay) => {
+          failFirstCheck()
+
+          await renderCheckEmail()
+
+          expect(getResendButton()).toBeDisabled()
+
+          await advance(retryDelay)
+
+          expect(getResendButton()).toBeEnabled()
+          expect(getResendButton()).toHaveTextContent(RESEND_LINK_COPY)
+        },
+      )
     })
 
     describe('WHEN the tab stays visible', () => {
@@ -456,12 +553,13 @@ describe('SelfServeCheckEmail', () => {
       mockQuery.mockResolvedValueOnce(buildStatus({ status: SignupStatusEnum.Verified }))
     })
 
-    describe('WHEN the exchange returns a session token', () => {
+    describe('WHEN the exchange returns a session token and the log in sets the session', () => {
       beforeEach(() => {
         mockMutate.mockResolvedValue(EXCHANGE_SUCCESS)
+        logInWithSession()
       })
 
-      it('THEN should exchange the stored secret once, without toast', async () => {
+      it('THEN should exchange the secret once, without toast', async () => {
         await renderCheckEmail()
 
         expect(mockMutate).toHaveBeenCalledTimes(1)
@@ -483,6 +581,14 @@ describe('SelfServeCheckEmail', () => {
         expect(mockNavigate).not.toHaveBeenCalled()
       })
 
+      it('THEN should not ask to log in', async () => {
+        await renderCheckEmail()
+
+        expect(mockOnLogIn).toHaveBeenCalledTimes(1)
+        expect(queryLoginButton()).not.toBeInTheDocument()
+        expect(getCheckEmail()).not.toHaveTextContent(LOGIN_REQUIRED_COPY)
+      })
+
       it('THEN should stop checking the status', async () => {
         await renderCheckEmail()
         await advance(RATE_LIMITED_POLL_INTERVAL_MS)
@@ -492,22 +598,119 @@ describe('SelfServeCheckEmail', () => {
       })
     })
 
-    describe('WHEN the exchange answers email_not_verified', () => {
+    describe('WHEN the exchange returns a session token but the log in sets no session', () => {
       beforeEach(() => {
-        mockMutate.mockResolvedValue(buildError(EMAIL_NOT_VERIFIED))
+        mockMutate.mockResolvedValue(EXCHANGE_SUCCESS)
+        mockAuthTokenVar.mockReturnValue('')
       })
 
-      it('THEN should keep the secret without logging in', async () => {
+      it('THEN should ask to log in with a log in button instead of resend', async () => {
+        await renderCheckEmail()
+
+        expect(mockOnLogIn).toHaveBeenCalledWith(mockClient, SESSION_TOKEN)
+        expect(getCheckEmail()).toHaveTextContent(LOGIN_REQUIRED_COPY)
+        expect(screen.getByTestId(SELF_SERVE_SIGNUP_LOGIN_BUTTON_TEST_ID)).toBeEnabled()
+        expect(queryResendButton()).not.toBeInTheDocument()
+      })
+
+      it('THEN should stop checking the status', async () => {
+        await renderCheckEmail()
+        await advance(RATE_LIMITED_POLL_INTERVAL_MS)
+
+        expect(mockQuery).toHaveBeenCalledTimes(1)
+        expect(mockMutate).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the exchange answers an error the screen cannot recover from', () => {
+      const answers: [string, ErrorAnswer][] = [
+        [EMAIL_NOT_VERIFIED, buildError(EMAIL_NOT_VERIFIED)],
+        [LagoApiError.SelfServeDisabled, buildError(LagoApiError.SelfServeDisabled)],
+        ['an error without code', { data: null, errors: [{ message: 'error' }] }],
+      ]
+
+      it.each(answers)(
+        'THEN should ask to log in with a log in button instead of resend on %s',
+        async (_, answer) => {
+          mockMutate.mockResolvedValue(answer)
+
+          await renderCheckEmail()
+
+          expect(getCheckEmail()).toHaveTextContent(LOGIN_REQUIRED_COPY)
+          expect(screen.getByTestId(SELF_SERVE_SIGNUP_LOGIN_BUTTON_TEST_ID)).toBeEnabled()
+          expect(queryResendButton()).not.toBeInTheDocument()
+        },
+      )
+
+      it.each(answers)('THEN should stop checking the status on %s', async (_, answer) => {
+        mockMutate.mockResolvedValue(answer)
+
+        await renderCheckEmail()
+        await advance(RATE_LIMITED_POLL_INTERVAL_MS)
+
+        expect(mockQuery).toHaveBeenCalledTimes(1)
+        expect(mockMutate).toHaveBeenCalledTimes(1)
+      })
+
+      it.each(answers)(
+        'THEN should keep the secret without logging in nor starting again on %s',
+        async (_, answer) => {
+          mockMutate.mockResolvedValue(answer)
+
+          await renderCheckEmail()
+
+          expect(getStoredSecret()).toBe(SIGNUP_SECRET)
+          expect(mockOnLogIn).not.toHaveBeenCalled()
+          expect(mockOnStartAgain).not.toHaveBeenCalled()
+        },
+      )
+    })
+
+    describe('WHEN the exchange answers lock_acquisition_failed', () => {
+      beforeEach(() => {
+        mockMutate.mockResolvedValue(buildError(LagoApiError.LockAcquisitionFailed))
+      })
+
+      it('THEN should keep waiting without logging in nor asking to log in', async () => {
         await renderCheckEmail()
 
         expect(getStoredSecret()).toBe(SIGNUP_SECRET)
         expect(mockOnLogIn).not.toHaveBeenCalled()
+        expect(queryLoginButton()).not.toBeInTheDocument()
+        expect(getResendButton()).toBeInTheDocument()
       })
 
       it('THEN should check the status again 5 seconds later', async () => {
         await renderCheckEmail()
-        await advance(POLL_INTERVAL_MS)
 
+        await advance(POLL_INTERVAL_MS - 1)
+        expect(mockQuery).toHaveBeenCalledTimes(1)
+
+        await advance(1)
+        expect(mockQuery).toHaveBeenCalledTimes(2)
+      })
+    })
+
+    describe('WHEN the exchange fails on the network', () => {
+      beforeEach(() => {
+        mockMutate.mockRejectedValue(new Error('Failed to fetch'))
+      })
+
+      it('THEN should keep waiting without asking to log in', async () => {
+        await renderCheckEmail()
+
+        expect(mockOnLogIn).not.toHaveBeenCalled()
+        expect(queryLoginButton()).not.toBeInTheDocument()
+        expect(getResendButton()).toBeInTheDocument()
+      })
+
+      it('THEN should check the status again 5 seconds later', async () => {
+        await renderCheckEmail()
+
+        await advance(POLL_INTERVAL_MS - 1)
+        expect(mockQuery).toHaveBeenCalledTimes(1)
+
+        await advance(1)
         expect(mockQuery).toHaveBeenCalledTimes(2)
       })
     })
@@ -734,6 +937,30 @@ describe('SelfServeCheckEmail', () => {
       })
     })
 
+    describe('WHEN later checks answer the status only', () => {
+      it('THEN should keep counting down from the first answer', async () => {
+        answerPendingStatus({ resendAvailableInSeconds: 45 })
+
+        await renderCheckEmail()
+        await advance(POLL_INTERVAL_MS * 2)
+
+        expect(mockQuery).toHaveBeenCalledTimes(3)
+        expect(getResendButton()).toBeDisabled()
+        expect(getResendButton()).toHaveTextContent('Resend in 0:35')
+      })
+
+      it('THEN should keep the limit banner from the first answer', async () => {
+        answerPendingStatus({ resendAvailableInSeconds: 0, resendLimitReached: true })
+
+        await renderCheckEmail()
+        await advance(POLL_INTERVAL_MS)
+
+        expect(mockQuery).toHaveBeenCalledTimes(2)
+        expect(getResendLimitAlert()).toHaveTextContent(RESEND_LIMIT_COPY)
+        expect(getResendButton()).toBeDisabled()
+      })
+    })
+
     describe('WHEN the sign-up cannot send more links', () => {
       beforeEach(() => {
         answerPendingStatus({ resendAvailableInSeconds: null })
@@ -857,40 +1084,60 @@ describe('SelfServeCheckEmail', () => {
     })
   })
 
-  describe('GIVEN the stored secret changes after the screen is shown', () => {
-    const changes: [string, () => void][] = [
-      ['replaced', (): void => setItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY, OTHER_SIGNUP_SECRET)],
-      ['removed', (): void => removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)],
+  describe('GIVEN Step 1 passes the secret', () => {
+    const storedSecrets: [string, () => void][] = [
+      ['is empty', (): void => removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)],
+      [
+        'holds another secret',
+        (): void => setItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY, OTHER_SIGNUP_SECRET),
+      ],
     ]
 
-    describe('WHEN the status is checked again', () => {
-      it.each(changes)(
-        'THEN should keep using the secret read at mount when it is %s',
-        async (_, changeStoredSecret) => {
-          await renderCheckEmail()
+    describe('WHEN the status is checked', () => {
+      it.each(storedSecrets)(
+        'THEN should send the secret from Step 1 when the local storage %s',
+        async (_, setStoredSecret) => {
+          setStoredSecret()
 
-          changeStoredSecret()
+          await renderCheckEmail()
           await advance(POLL_INTERVAL_MS)
 
-          expect(mockQuery).toHaveBeenCalledTimes(2)
-          expect(mockQuery).toHaveBeenLastCalledWith(
-            expect.objectContaining({ variables: { signupSecret: SIGNUP_SECRET } }),
+          expect(getStatusCheckVariables().map(({ signupSecret }) => signupSecret)).toEqual([
+            SIGNUP_SECRET,
+            SIGNUP_SECRET,
+          ])
+        },
+      )
+    })
+
+    describe('WHEN the email is verified', () => {
+      it.each(storedSecrets)(
+        'THEN should exchange the secret from Step 1 when the local storage %s',
+        async (_, setStoredSecret) => {
+          setStoredSecret()
+          mockQuery.mockResolvedValueOnce(buildStatus({ status: SignupStatusEnum.Verified }))
+          mockMutate.mockResolvedValue(EXCHANGE_SUCCESS)
+
+          await renderCheckEmail()
+
+          expect(mockMutate).toHaveBeenCalledTimes(1)
+          expect(mockMutate).toHaveBeenCalledWith(
+            expect.objectContaining({ variables: { input: { signupSecret: SIGNUP_SECRET } } }),
           )
         },
       )
     })
 
     describe('WHEN resending the link', () => {
-      it.each(changes)(
-        'THEN should send the secret read at mount when it is %s',
-        async (_, changeStoredSecret) => {
+      it.each(storedSecrets)(
+        'THEN should send the secret from Step 1 when the local storage %s',
+        async (_, setStoredSecret) => {
           const user = setupUser()
 
+          setStoredSecret()
           answerResendAndUpdateStatus()
 
           await renderCheckEmail()
-
-          changeStoredSecret()
           await clickResend(user)
 
           expect(mockResendSignupEmail).toHaveBeenCalledWith({
@@ -907,7 +1154,7 @@ describe('SelfServeCheckEmail', () => {
         answerResendAndUpdateStatus({ resendAvailableInSeconds: 60, resendLimitReached: false })
       })
 
-      it('THEN should send the stored secret with a fresh signup_resend captcha token', async () => {
+      it('THEN should send the secret with a fresh signup_resend captcha token', async () => {
         const user = setupUser()
 
         await renderCheckEmail()
@@ -1113,6 +1360,17 @@ describe('SelfServeCheckEmail', () => {
         await clickResend(user)
 
         expect(mockQuery).toHaveBeenCalledTimes(2)
+      })
+
+      it('THEN should ask for the resend state again on the restarted check only', async () => {
+        const user = setupUser()
+
+        await renderCheckEmail()
+        await advance(POLL_INTERVAL_MS)
+        await clickResend(user)
+        await advance(POLL_INTERVAL_MS)
+
+        expect(getWithResendStates()).toEqual([true, false, true, false])
       })
 
       it('THEN should exchange the secret when the new check says verified', async () => {

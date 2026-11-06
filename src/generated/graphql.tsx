@@ -17607,10 +17607,11 @@ export type GoogleRegisterMutation = { __typename?: 'Mutation', googleRegisterUs
 
 export type SignupStatusQueryVariables = Exact<{
   signupSecret: Scalars['String']['input'];
+  withResendState: Scalars['Boolean']['input'];
 }>;
 
 
-export type SignupStatusQuery = { __typename?: 'Query', signupStatus: { __typename?: 'SignupStatus', status: SignupStatusEnum, resendAvailableInSeconds?: number | null, resendLimitReached: boolean } };
+export type SignupStatusQuery = { __typename?: 'Query', signupStatus: { __typename?: 'SignupStatus', status: SignupStatusEnum, resendAvailableInSeconds?: number | null, resendLimitReached?: boolean } };
 
 export type ExchangeSignupSecretMutationVariables = Exact<{
   input: ExchangeSignupSecretInput;
@@ -46374,11 +46375,11 @@ export type GoogleRegisterMutationHookResult = ReturnType<typeof useGoogleRegist
 export type GoogleRegisterMutationResult = Apollo.MutationResult<GoogleRegisterMutation>;
 export type GoogleRegisterMutationOptions = Apollo.BaseMutationOptions<GoogleRegisterMutation, GoogleRegisterMutationVariables>;
 export const SignupStatusDocument = gql`
-    query signupStatus($signupSecret: String!) {
+    query signupStatus($signupSecret: String!, $withResendState: Boolean!) {
   signupStatus(signupSecret: $signupSecret) {
     status
-    resendAvailableInSeconds
-    resendLimitReached
+    resendAvailableInSeconds @include(if: $withResendState)
+    resendLimitReached @include(if: $withResendState)
   }
 }
     `;
@@ -46396,6 +46397,7 @@ export const SignupStatusDocument = gql`
  * const { data, loading, error } = useSignupStatusQuery({
  *   variables: {
  *      signupSecret: // value for 'signupSecret'
+ *      withResendState: // value for 'withResendState'
  *   },
  * });
  */

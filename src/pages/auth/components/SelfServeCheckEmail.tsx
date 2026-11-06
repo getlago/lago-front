@@ -6,8 +6,9 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { envGlobalVar, getGraphQLErrorCode, onLogIn } from '~/core/apolloClient'
+import { authTokenVar } from '~/core/apolloClient/reactiveVars'
 import { LOGIN_ROUTE, useNavigate } from '~/core/router'
-import { getItemFromLS, removeItemFromLS } from '~/core/utils/localStorage'
+import { removeItemFromLS } from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
 import { getRecaptchaToken } from '~/core/utils/recaptcha'
 import {
@@ -35,11 +36,11 @@ import {
 import { Title } from '~/styles/auth'
 
 gql`
-  query signupStatus($signupSecret: String!) {
+  query signupStatus($signupSecret: String!, $withResendState: Boolean!) {
     signupStatus(signupSecret: $signupSecret) {
       status
-      resendAvailableInSeconds
-      resendLimitReached
+      resendAvailableInSeconds @include(if: $withResendState)
+      resendLimitReached @include(if: $withResendState)
     }
   }
 
@@ -72,12 +73,6 @@ const RESEND_BANNER_ERRORS: Record<string, string> = {
 
 type CheckEmailScreen = 'waiting' | 'expired' | 'loginRequired'
 
-const getStoredSignupSecret = (): string => {
-  const signupSecret = getItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
-
-  return typeof signupSecret === 'string' ? signupSecret : ''
-}
-
 const getRetryAfterSeconds = (errors: readonly GraphQLFormattedError[] | undefined): number => {
   const details = errors?.[0]?.extensions?.details
 
@@ -95,12 +90,14 @@ const formatCountdown = (seconds: number): string =>
 
 type SelfServeCheckEmailProps = {
   email: string
+  signupSecret: string
   onGoBack: () => void
   onStartAgain: () => void
 }
 
 export const SelfServeCheckEmail = ({
   email,
+  signupSecret,
   onGoBack,
   onStartAgain,
 }: SelfServeCheckEmailProps): JSX.Element => {
@@ -108,7 +105,6 @@ export const SelfServeCheckEmail = ({
   const client = useApolloClient()
   const navigate = useNavigate()
   const { recaptchaSiteKey } = envGlobalVar()
-  const [signupSecret] = useState(getStoredSignupSecret)
   const [screen, setScreen] = useState<CheckEmailScreen>('waiting')
   const [resendAvailableAt, setResendAvailableAt] = useState<number | null>()
   const [resendLimitReached, setResendLimitReached] = useState(false)
@@ -132,6 +128,7 @@ export const SelfServeCheckEmail = ({
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined
     let isActive = true
+    let needsResendState = true
 
     const schedule = (delay: number): void => {
       if (isActive) timer = setTimeout(() => poll().catch(() => schedule(POLL_INTERVAL_MS)), delay)
@@ -156,27 +153,26 @@ export const SelfServeCheckEmail = ({
         removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
         await onLogIn(client, token)
 
+        if (isActive && !authTokenVar()) setScreen('loginRequired')
+
         return
       }
 
       const code = getGraphQLErrorCode(errors?.[0]?.extensions)
 
-      if (code === LagoApiError.SignupSecretExpired) {
-        removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
-        setScreen('loginRequired')
-
-        return
+      switch (code) {
+        case LagoApiError.SignupSecretExpired:
+          removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
+          return setScreen('loginRequired')
+        case LagoApiError.NotFound:
+          return onStartAgain()
+        case LagoApiError.TooManyRequests:
+          return schedule(RATE_LIMITED_POLL_INTERVAL_MS)
+        case LagoApiError.LockAcquisitionFailed:
+          return schedule(POLL_INTERVAL_MS)
+        default:
+          return setScreen('loginRequired')
       }
-
-      if (code === LagoApiError.NotFound) {
-        onStartAgain()
-
-        return
-      }
-
-      schedule(
-        code === LagoApiError.TooManyRequests ? RATE_LIMITED_POLL_INTERVAL_MS : POLL_INTERVAL_MS,
-      )
     }
 
     const poll = async (): Promise<void> => {
@@ -184,7 +180,7 @@ export const SelfServeCheckEmail = ({
 
       const { data, errors } = await client.query<SignupStatusQuery, SignupStatusQueryVariables>({
         query: SignupStatusDocument,
-        variables: { signupSecret },
+        variables: { signupSecret, withResendState: needsResendState },
         fetchPolicy: 'no-cache',
         context: { silentError: true },
         errorPolicy: 'all',
@@ -209,7 +205,13 @@ export const SelfServeCheckEmail = ({
         case SignupStatusEnum.Invalid:
           return onStartAgain()
         default:
-          applyResendState(signupStatus.resendAvailableInSeconds, signupStatus.resendLimitReached)
+          if (needsResendState) {
+            needsResendState = false
+            applyResendState(
+              signupStatus.resendAvailableInSeconds,
+              !!signupStatus.resendLimitReached,
+            )
+          }
 
           return schedule(POLL_INTERVAL_MS)
       }

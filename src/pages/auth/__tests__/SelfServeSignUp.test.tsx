@@ -36,12 +36,14 @@ type SelfServeCheckEmailProps = ComponentProps<typeof SelfServeCheckEmail>
 
 function mockRenderCheckEmail({
   email,
+  signupSecret,
   onGoBack,
   onStartAgain,
 }: SelfServeCheckEmailProps): JSX.Element {
   return (
     <div data-test={SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID}>
       {email}
+      {signupSecret}
       <button data-test={SELF_SERVE_SIGNUP_GO_BACK_BUTTON_TEST_ID} onClick={onGoBack} />
       <button data-test={SELF_SERVE_SIGNUP_START_AGAIN_BUTTON_TEST_ID} onClick={onStartAgain} />
     </div>
@@ -676,6 +678,19 @@ describe('SelfServeSignUp', () => {
         expect(
           screen.queryByTestId(SELF_SERVE_SIGNUP_SUBMIT_BUTTON_TEST_ID),
         ).not.toBeInTheDocument()
+      })
+
+      it('THEN should hand the signup secret of the answer to the check email step', async () => {
+        const user = userEvent.setup()
+
+        render(<SelfServeSignUp />)
+
+        await fillForm(user)
+        await submitForm(user)
+
+        expect(await screen.findByTestId(SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID)).toHaveTextContent(
+          SIGNUP_SECRET,
+        )
       })
     })
 
