@@ -52,6 +52,12 @@ export const typeDefs = gql`
     missing_payment_provider_customer
     plan_not_found
 
+    # Self-serve signup errors
+    self_serve_disabled
+    signup_disabled
+    too_many_requests
+    lock_acquisition_failed
+
     # SSO errors
     invalid_google_code
     invalid_google_token
