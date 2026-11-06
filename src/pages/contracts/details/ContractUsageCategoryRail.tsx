@@ -69,7 +69,9 @@ export const ContractUsageCategoryRail = ({
       if (category) byId.set(category.id, category.name)
     })
 
-    return Array.from(byId, ([id, name]) => ({ id, name }))
+    return Array.from(byId, ([id, name]) => ({ id, name })).toSorted((a, b) =>
+      a.name.localeCompare(b.name, undefined, { numeric: true }),
+    )
   }, [data])
 
   // Switching category must keep the active filters/search term (they live in the same search

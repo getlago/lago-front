@@ -59,6 +59,92 @@ describe('ContractUsageCategoryRail', () => {
     expect(items[1]).toHaveTextContent('Support')
   })
 
+  it('sorts categories alphabetically, regardless of the order rate cards arrive in', async () => {
+    const appliedRateCards = [
+      {
+        id: 'a1',
+        __typename: 'ContractAppliedRateCard',
+        product: {
+          id: 'p1',
+          __typename: 'Product',
+          productCategory: { id: 'cat-z', name: 'Zebra', __typename: 'ProductCategory' },
+        },
+      },
+      {
+        id: 'a2',
+        __typename: 'ContractAppliedRateCard',
+        product: {
+          id: 'p2',
+          __typename: 'Product',
+          productCategory: { id: 'cat-a', name: 'Apple', __typename: 'ProductCategory' },
+        },
+      },
+      {
+        id: 'a3',
+        __typename: 'ContractAppliedRateCard',
+        product: {
+          id: 'p3',
+          __typename: 'Product',
+          productCategory: { id: 'cat-m', name: 'Mango', __typename: 'ProductCategory' },
+        },
+      },
+    ]
+
+    render(
+      <AllTheProviders forceTypenames mocks={[buildMock(appliedRateCards)]}>
+        <ContractUsageCategoryRail contractId="contract-1" />
+      </AllTheProviders>,
+    )
+
+    await waitFor(() => expect(screen.getAllByRole('link')).toHaveLength(4))
+    const items = screen.getAllByRole('link')
+
+    expect(items.map((item) => item.textContent)).toEqual([
+      expect.stringMatching(/standalone/i),
+      'Apple',
+      'Mango',
+      'Zebra',
+    ])
+  })
+
+  it('sorts numeric suffixes numerically, not lexically', async () => {
+    const appliedRateCards = [
+      {
+        id: 'a1',
+        __typename: 'ContractAppliedRateCard',
+        product: {
+          id: 'p1',
+          __typename: 'Product',
+          productCategory: { id: 'cat-19', name: 'Category 19', __typename: 'ProductCategory' },
+        },
+      },
+      {
+        id: 'a2',
+        __typename: 'ContractAppliedRateCard',
+        product: {
+          id: 'p2',
+          __typename: 'Product',
+          productCategory: { id: 'cat-2', name: 'Category 2', __typename: 'ProductCategory' },
+        },
+      },
+    ]
+
+    render(
+      <AllTheProviders forceTypenames mocks={[buildMock(appliedRateCards)]}>
+        <ContractUsageCategoryRail contractId="contract-1" />
+      </AllTheProviders>,
+    )
+
+    await waitFor(() => expect(screen.getAllByRole('link')).toHaveLength(3))
+    const items = screen.getAllByRole('link')
+
+    expect(items.map((item) => item.textContent)).toEqual([
+      expect.stringMatching(/standalone/i),
+      'Category 2',
+      'Category 19',
+    ])
+  })
+
   it('shows only Standalone products for a contract with no applied rate cards', async () => {
     render(
       <AllTheProviders forceTypenames mocks={[buildMock([])]}>
