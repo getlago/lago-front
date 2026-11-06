@@ -1,5 +1,3 @@
-import { useMemo } from 'react'
-
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
@@ -58,17 +56,13 @@ export const InvoicingSettingsSelector = ({
     },
   })
 
-  const summary = useMemo(
-    () =>
-      buildCustomSectionSummary({
-        invoiceCustomSection: value,
-        paymentTermCopy: paymentTerm
-          ? getPaymentTermFormValuesCopy(paymentTerm.value, paymentTerm.inheritedFrom)
-          : undefined,
-        translate,
-      }),
-    [value, paymentTerm, translate, getPaymentTermFormValuesCopy],
-  )
+  const summary = buildCustomSectionSummary({
+    invoiceCustomSection: value,
+    paymentTermCopy: paymentTerm
+      ? getPaymentTermFormValuesCopy(paymentTerm.value, paymentTerm.inheritedFrom)
+      : undefined,
+    translate,
+  })
 
   return (
     <Selector
