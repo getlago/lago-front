@@ -5352,5 +5352,13 @@
   "text_17938980593099x6m52ys6t2": "Wrong email?",
   "text_1793898059309vz0niu6emp8": "Go back",
   "text_1793903925179h1k5w55ih95": "We couldn't confirm you're human. Please try again.",
-  "text_179390753309316odlsgqxbw": "This site is protected by reCAPTCHA and the Google <a rel=\"external\" target=\"_blank\" href=\"https://policies.google.com/privacy\">Privacy Policy</a> and <a rel=\"external\" target=\"_blank\" href=\"https://policies.google.com/terms\">Terms of Service</a> apply."
+  "text_179390753309316odlsgqxbw": "This site is protected by reCAPTCHA and the Google <a rel=\"external\" target=\"_blank\" href=\"https://policies.google.com/privacy\">Privacy Policy</a> and <a rel=\"external\" target=\"_blank\" href=\"https://policies.google.com/terms\">Terms of Service</a> apply.",
+  "text_1793906497618vxgtkot7zga": "Resend link",
+  "text_1793906497618kzry1vugrrb": "Resend in {{time}}",
+  "text_1793906497618bqrpqwr8a94": "New link sent to <b>{{email}}</b>. Only the latest link will work.",
+  "text_17939064976188g9cn8x2cj4": "We've sent several links already. Check your spam folder or try again in an hour.",
+  "text_1793906497618doa3hbp1lmh": "This sign-up has expired",
+  "text_1793906497618wfro49qmvpa": "Start again",
+  "text_1793906497619x73aav0eroa": "Your email is confirmed. Please log in.",
+  "text_1793906497619qiquyn7ou5j": "Log in"
 }

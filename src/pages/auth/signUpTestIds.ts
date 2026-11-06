@@ -13,6 +13,12 @@ export const SELF_SERVE_SIGNUP_SUBMIT_BUTTON_TEST_ID = 'self-serve-signup-submit
 export const SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID = 'self-serve-signup-error-alert'
 export const SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID = 'self-serve-signup-check-email'
 export const SELF_SERVE_SIGNUP_GO_BACK_BUTTON_TEST_ID = 'self-serve-signup-go-back-button'
+export const SELF_SERVE_SIGNUP_RESEND_BUTTON_TEST_ID = 'self-serve-signup-resend-button'
+export const SELF_SERVE_SIGNUP_START_AGAIN_BUTTON_TEST_ID = 'self-serve-signup-start-again-button'
+export const SELF_SERVE_SIGNUP_RESEND_SUCCESS_ALERT_TEST_ID =
+  'self-serve-signup-resend-success-alert'
+export const SELF_SERVE_SIGNUP_RESEND_LIMIT_ALERT_TEST_ID = 'self-serve-signup-resend-limit-alert'
+export const SELF_SERVE_SIGNUP_LOGIN_BUTTON_TEST_ID = 'self-serve-signup-login-button'
 
 // Re-exported for e2e backward compatibility - values match PASSWORD_HINTS_TEST_IDS
 export const SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID = 'password-validation--visible'
