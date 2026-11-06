@@ -4,7 +4,9 @@ import { EMAIL_REGEX, PASSWORD_VALIDATION_ERRORS } from '~/formValidation/zodCus
 
 export const SELF_SERVE_EMAIL_REQUIRED_ERROR = 'text_620bc4d4269a55014d493f98'
 export const SELF_SERVE_EMAIL_INVALID_ERROR = 'text_620bc4d4269a55014d493fc3'
-export const SELF_SERVE_PASSWORD_TOO_LONG_ERROR = 'text_1793898059308o6phnqecxsw'
+export const SELF_SERVE_PASSWORD_ERRORS = {
+  TOO_LONG: 'text_1793898059308o6phnqecxsw',
+} as const
 
 // bcrypt ignores what follows 72 bytes, so the API refuses longer passwords
 const PASSWORD_MAX_BYTES = 72
@@ -42,7 +44,7 @@ export const selfServeSignUpValidationSchema = z.object({
       })
 
       if (isSelfServePasswordTooLong(value)) {
-        ctx.addIssue({ code: 'custom', message: SELF_SERVE_PASSWORD_TOO_LONG_ERROR })
+        ctx.addIssue({ code: 'custom', message: SELF_SERVE_PASSWORD_ERRORS.TOO_LONG })
       }
     }),
 })
