@@ -1,5 +1,4 @@
 import {
-  buildCustomSectionSummary,
   buildInvoicingSettingsSummary,
   getInvoiceCustomSectionSummaryKey,
   INVOICING_SUMMARY_KEYS,
@@ -87,11 +86,12 @@ describe('buildInvoicingSettingsSummary', () => {
   })
 })
 
-describe('buildCustomSectionSummary', () => {
+describe('buildInvoicingSettingsSummary without invoice consolidation', () => {
   it('shows only the custom-section part without a payment term', () => {
     expect(
-      buildCustomSectionSummary({
+      buildInvoicingSettingsSummary({
         invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: true },
+        showCustomSection: true,
         translate,
       }),
     ).toBe(INVOICING_SUMMARY_KEYS.skip)
@@ -99,11 +99,23 @@ describe('buildCustomSectionSummary', () => {
 
   it('appends the payment term copy after the custom-section part', () => {
     expect(
-      buildCustomSectionSummary({
+      buildInvoicingSettingsSummary({
         invoiceCustomSection: undefined,
+        showCustomSection: true,
         paymentTermCopy: 'Net 30',
         translate,
       }),
     ).toBe([INVOICING_SUMMARY_KEYS.fallback, 'Net 30'].join(INVOICING_SUMMARY_SEPARATOR))
+  })
+
+  it('keeps the consolidation part out even when it is explicitly false elsewhere', () => {
+    expect(
+      buildInvoicingSettingsSummary({
+        invoiceCustomSection: undefined,
+        showCustomSection: false,
+        paymentTermCopy: 'Net 30',
+        translate,
+      }),
+    ).toBe('Net 30')
   })
 })
