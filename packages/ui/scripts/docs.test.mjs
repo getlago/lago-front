@@ -43,6 +43,12 @@ test('every component has a guide and a story', () => {
   }
 })
 
+test('every guide opens with its title, which the Docs page shows', () => {
+  for (const file of markdownFiles) {
+    assert.ok(read(file).startsWith('# '), `${file} does not start with a "# " title`)
+  }
+})
+
 test('every component guide has the required sections', () => {
   for (const name of components) {
     const guide = read(join(componentsDir, `${name}.md`))

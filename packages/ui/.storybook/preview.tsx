@@ -1,3 +1,4 @@
+import { Controls, Description, Primary, Stories } from '@storybook/addon-docs/blocks'
 import type { Preview } from '@storybook/react-vite'
 import 'lago-configs/fonts.css'
 
@@ -8,6 +9,16 @@ import { ColorMode, ColorTheme } from '../src/components/color-theme'
 const preview: Preview = {
   parameters: {
     layout: 'fullscreen',
+    docs: {
+      page: () => (
+        <>
+          <Description />
+          <Primary />
+          <Controls />
+          <Stories />
+        </>
+      ),
+    },
   },
   globalTypes: {
     theme: {
