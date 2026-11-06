@@ -1378,6 +1378,17 @@ export enum CommitmentTypeEnum {
   MinimumCommitment = 'minimum_commitment'
 }
 
+/** Confirm a self-serve signup link */
+export type ConfirmSignupEmailInput = {
+  captchaToken?: InputMaybe<Scalars['String']['input']>;
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  /** The Step 1 password, when the signup secret of this link's attempt is not known */
+  password?: InputMaybe<Scalars['String']['input']>;
+  signupSecret?: InputMaybe<Scalars['String']['input']>;
+  token: Scalars['String']['input'];
+};
+
 export enum ConnectionBehaviorEnum {
   Inherit = 'inherit',
   Skip = 'skip'
@@ -5837,6 +5848,7 @@ export enum LagoApiError {
   GoogleAuthMissingSetup = 'google_auth_missing_setup',
   GoogleLoginMethodNotAuthorized = 'google_login_method_not_authorized',
   IncorrectLoginOrPassword = 'incorrect_login_or_password',
+  IncorrectPassword = 'incorrect_password',
   InternalError = 'internal_error',
   InvalidCharacters = 'invalid_characters',
   InvalidGoogleCode = 'invalid_google_code',
@@ -5860,6 +5872,7 @@ export enum LagoApiError {
   NotVoidable = 'not_voidable',
   OktaLoginMethodNotAuthorized = 'okta_login_method_not_authorized',
   OktaUserinfoError = 'okta_userinfo_error',
+  PasswordRequired = 'password_required',
   PaymentProcessorIsCurrentlyHandlingPayment = 'payment_processor_is_currently_handling_payment',
   PlanNotFound = 'plan_not_found',
   PlanOverlapping = 'plan_overlapping',
@@ -5873,6 +5886,9 @@ export enum LagoApiError {
   SignupExpired = 'signup_expired',
   SignupResendExhausted = 'signup_resend_exhausted',
   SignupSecretExpired = 'signup_secret_expired',
+  SignupTokenExpired = 'signup_token_expired',
+  SignupTokenLocked = 'signup_token_locked',
+  SignupTokenReplaced = 'signup_token_replaced',
   TokenEncodingError = 'token_encoding_error',
   TokenExpired = 'token_expired',
   TooManyRequests = 'too_many_requests',
@@ -6133,6 +6149,8 @@ export type Mutation = {
   billingEntityUpdateAppliedDunningCampaign?: Maybe<BillingEntity>;
   /** Clone a quote version */
   cloneQuoteVersion?: Maybe<QuoteVersion>;
+  /** Confirms a self-serve signup link, creates the user and opens a session */
+  confirmSignupEmail?: Maybe<LoginUser>;
   /** Creates a new add-on */
   createAddOn?: Maybe<AddOn>;
   /** Creates Adjusted Fee */
@@ -6678,6 +6696,11 @@ export type MutationBillingEntityUpdateAppliedDunningCampaignArgs = {
 
 export type MutationCloneQuoteVersionArgs = {
   input: CloneQuoteVersionInput;
+};
+
+
+export type MutationConfirmSignupEmailArgs = {
+  input: ConfirmSignupEmailInput;
 };
 
 
@@ -17623,6 +17646,28 @@ export type ExchangeSignupSecretMutationVariables = Exact<{
 
 
 export type ExchangeSignupSecretMutation = { __typename?: 'Mutation', exchangeSignupSecret?: { __typename?: 'LoginUser', token: string } | null };
+
+export type SignupVerificationQueryVariables = Exact<{
+  token: Scalars['String']['input'];
+  signupSecret?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type SignupVerificationQuery = { __typename?: 'Query', signupVerification: { __typename?: 'SignupVerification', status: SignupVerificationStatusEnum, email?: string | null, passwordRequired: boolean } };
+
+export type ConfirmSignupEmailMutationVariables = Exact<{
+  input: ConfirmSignupEmailInput;
+}>;
+
+
+export type ConfirmSignupEmailMutation = { __typename?: 'Mutation', confirmSignupEmail?: { __typename?: 'LoginUser', token: string } | null };
+
+export type ResendSignupEmailFromLinkMutationVariables = Exact<{
+  input: ResendSignupEmailInput;
+}>;
+
+
+export type ResendSignupEmailFromLinkMutation = { __typename?: 'Mutation', resendSignupEmail?: { __typename?: 'ResendSignupEmailPayload', resendAvailableInSeconds?: number | null } | null };
 
 export type CatalogPlanForListFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, appliedRateCardsCount: number, contractsCount: number, currency: CurrencyEnum, description?: string | null, attachedToContracts: boolean };
 
@@ -46476,6 +46521,118 @@ export function useExchangeSignupSecretMutation(baseOptions?: Apollo.MutationHoo
 export type ExchangeSignupSecretMutationHookResult = ReturnType<typeof useExchangeSignupSecretMutation>;
 export type ExchangeSignupSecretMutationResult = Apollo.MutationResult<ExchangeSignupSecretMutation>;
 export type ExchangeSignupSecretMutationOptions = Apollo.BaseMutationOptions<ExchangeSignupSecretMutation, ExchangeSignupSecretMutationVariables>;
+export const SignupVerificationDocument = gql`
+    query signupVerification($token: String!, $signupSecret: String) {
+  signupVerification(token: $token, signupSecret: $signupSecret) {
+    status
+    email
+    passwordRequired
+  }
+}
+    `;
+
+/**
+ * __useSignupVerificationQuery__
+ *
+ * To run a query within a React component, call `useSignupVerificationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSignupVerificationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSignupVerificationQuery({
+ *   variables: {
+ *      token: // value for 'token'
+ *      signupSecret: // value for 'signupSecret'
+ *   },
+ * });
+ */
+export function useSignupVerificationQuery(baseOptions: Apollo.QueryHookOptions<SignupVerificationQuery, SignupVerificationQueryVariables> & ({ variables: SignupVerificationQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SignupVerificationQuery, SignupVerificationQueryVariables>(SignupVerificationDocument, options);
+      }
+export function useSignupVerificationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SignupVerificationQuery, SignupVerificationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SignupVerificationQuery, SignupVerificationQueryVariables>(SignupVerificationDocument, options);
+        }
+// @ts-ignore
+export function useSignupVerificationSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SignupVerificationQuery, SignupVerificationQueryVariables>): Apollo.UseSuspenseQueryResult<SignupVerificationQuery, SignupVerificationQueryVariables>;
+export function useSignupVerificationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SignupVerificationQuery, SignupVerificationQueryVariables>): Apollo.UseSuspenseQueryResult<SignupVerificationQuery | undefined, SignupVerificationQueryVariables>;
+export function useSignupVerificationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SignupVerificationQuery, SignupVerificationQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SignupVerificationQuery, SignupVerificationQueryVariables>(SignupVerificationDocument, options);
+        }
+export type SignupVerificationQueryHookResult = ReturnType<typeof useSignupVerificationQuery>;
+export type SignupVerificationLazyQueryHookResult = ReturnType<typeof useSignupVerificationLazyQuery>;
+export type SignupVerificationSuspenseQueryHookResult = ReturnType<typeof useSignupVerificationSuspenseQuery>;
+export type SignupVerificationQueryResult = Apollo.QueryResult<SignupVerificationQuery, SignupVerificationQueryVariables>;
+export const ConfirmSignupEmailDocument = gql`
+    mutation confirmSignupEmail($input: ConfirmSignupEmailInput!) {
+  confirmSignupEmail(input: $input) {
+    token
+  }
+}
+    `;
+export type ConfirmSignupEmailMutationFn = Apollo.MutationFunction<ConfirmSignupEmailMutation, ConfirmSignupEmailMutationVariables>;
+
+/**
+ * __useConfirmSignupEmailMutation__
+ *
+ * To run a mutation, you first call `useConfirmSignupEmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useConfirmSignupEmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [confirmSignupEmailMutation, { data, loading, error }] = useConfirmSignupEmailMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useConfirmSignupEmailMutation(baseOptions?: Apollo.MutationHookOptions<ConfirmSignupEmailMutation, ConfirmSignupEmailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ConfirmSignupEmailMutation, ConfirmSignupEmailMutationVariables>(ConfirmSignupEmailDocument, options);
+      }
+export type ConfirmSignupEmailMutationHookResult = ReturnType<typeof useConfirmSignupEmailMutation>;
+export type ConfirmSignupEmailMutationResult = Apollo.MutationResult<ConfirmSignupEmailMutation>;
+export type ConfirmSignupEmailMutationOptions = Apollo.BaseMutationOptions<ConfirmSignupEmailMutation, ConfirmSignupEmailMutationVariables>;
+export const ResendSignupEmailFromLinkDocument = gql`
+    mutation resendSignupEmailFromLink($input: ResendSignupEmailInput!) {
+  resendSignupEmail(input: $input) {
+    resendAvailableInSeconds
+  }
+}
+    `;
+export type ResendSignupEmailFromLinkMutationFn = Apollo.MutationFunction<ResendSignupEmailFromLinkMutation, ResendSignupEmailFromLinkMutationVariables>;
+
+/**
+ * __useResendSignupEmailFromLinkMutation__
+ *
+ * To run a mutation, you first call `useResendSignupEmailFromLinkMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useResendSignupEmailFromLinkMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [resendSignupEmailFromLinkMutation, { data, loading, error }] = useResendSignupEmailFromLinkMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useResendSignupEmailFromLinkMutation(baseOptions?: Apollo.MutationHookOptions<ResendSignupEmailFromLinkMutation, ResendSignupEmailFromLinkMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ResendSignupEmailFromLinkMutation, ResendSignupEmailFromLinkMutationVariables>(ResendSignupEmailFromLinkDocument, options);
+      }
+export type ResendSignupEmailFromLinkMutationHookResult = ReturnType<typeof useResendSignupEmailFromLinkMutation>;
+export type ResendSignupEmailFromLinkMutationResult = Apollo.MutationResult<ResendSignupEmailFromLinkMutation>;
+export type ResendSignupEmailFromLinkMutationOptions = Apollo.BaseMutationOptions<ResendSignupEmailFromLinkMutation, ResendSignupEmailFromLinkMutationVariables>;
 export const CatalogPlansDocument = gql`
     query catalogPlans($page: Int, $limit: Int, $searchTerm: String) {
   catalogPlans(page: $page, limit: $limit, searchTerm: $searchTerm) {

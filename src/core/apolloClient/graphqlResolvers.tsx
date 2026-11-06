@@ -65,6 +65,11 @@ export const typeDefs = gql`
     signup_expired
     email_already_verified
     signup_secret_expired
+    signup_token_expired
+    signup_token_replaced
+    signup_token_locked
+    password_required
+    incorrect_password
 
     # SSO errors
     invalid_google_code

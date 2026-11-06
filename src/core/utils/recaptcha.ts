@@ -12,7 +12,7 @@ declare global {
   }
 }
 
-type RecaptchaAction = 'signup' | 'signup_resend'
+type RecaptchaAction = 'signup' | 'signup_resend' | 'signup_confirm'
 
 const RECAPTCHA_SCRIPT_URL = 'https://www.google.com/recaptcha/api.js'
 const RECAPTCHA_LOAD_TIMEOUT_MS = 5_000

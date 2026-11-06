@@ -12,6 +12,8 @@ type SignUpFlags = Pick<ReturnType<typeof envGlobalVar>, 'disableSignUp' | 'self
 
 const MOCK_SIGN_UP_PAGE_TEST_ID = 'legacy-sign-up-page'
 const MOCK_SELF_SERVE_SIGN_UP_PAGE_TEST_ID = 'self-serve-sign-up-page'
+const MOCK_VERIFY_EMAIL_PAGE_TEST_ID = 'verify-email-page'
+const VERIFY_EMAIL_ROUTE = '/verify-email'
 
 const mockEnvGlobalVar = jest.fn<SignUpFlags, []>()
 
@@ -27,6 +29,11 @@ jest.mock('~/pages/auth/SignUp', () => ({
 jest.mock('~/pages/auth/SelfServeSignUp', () => ({
   __esModule: true,
   default: () => <div data-test={MOCK_SELF_SERVE_SIGN_UP_PAGE_TEST_ID} />,
+}))
+
+jest.mock('~/pages/auth/VerifyEmail', () => ({
+  __esModule: true,
+  default: () => <div data-test={MOCK_VERIFY_EMAIL_PAGE_TEST_ID} />,
 }))
 
 const loadAuthRoutes = async (flags: SignUpFlags): Promise<AuthRoutesModule> => {
@@ -108,6 +115,54 @@ describe('authRoutes', () => {
         })
 
         expect(findRoute(authRoutes, LOGIN_ROUTE)).toBeDefined()
+      })
+    })
+  })
+
+  describe('GIVEN the verify email link is opened', () => {
+    describe('WHEN the self-serve flag is on', () => {
+      it('THEN should register the verify email route as public only', async () => {
+        const { authRoutes } = await loadAuthRoutes({
+          disableSignUp: false,
+          selfServeEnabled: true,
+        })
+
+        expect(findRoute(authRoutes, VERIFY_EMAIL_ROUTE)).toMatchObject({ onlyPublic: true })
+      })
+
+      it('THEN should render the verify email page', async () => {
+        const { authRoutes } = await loadAuthRoutes({
+          disableSignUp: false,
+          selfServeEnabled: true,
+        })
+
+        render(
+          <Suspense fallback={null}>{findRoute(authRoutes, VERIFY_EMAIL_ROUTE)?.element}</Suspense>,
+        )
+
+        expect(await screen.findByTestId(MOCK_VERIFY_EMAIL_PAGE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the self-serve flag is off', () => {
+      it('THEN should not register the verify email route', async () => {
+        const { authRoutes } = await loadAuthRoutes({
+          disableSignUp: false,
+          selfServeEnabled: false,
+        })
+
+        expect(findRoute(authRoutes, VERIFY_EMAIL_ROUTE)).toBeUndefined()
+      })
+    })
+
+    describe('WHEN the self-serve flag is on but the sign-up is disabled', () => {
+      it('THEN should not register the verify email route', async () => {
+        const { authRoutes } = await loadAuthRoutes({
+          disableSignUp: true,
+          selfServeEnabled: true,
+        })
+
+        expect(findRoute(authRoutes, VERIFY_EMAIL_ROUTE)).toBeUndefined()
       })
     })
   })
