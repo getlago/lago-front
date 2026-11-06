@@ -64,12 +64,15 @@ export const ContractUsageSection = ({
     )
   }
 
+  // items-start on the rail+table row below: flex's default stretch would match the table
+  // column's height to the rail's, dragging the table's sticky pager down with it - still glued
+  // to the viewport bottom long after the (shorter) table has scrolled out of view under a tall rail.
   return (
     <section className="flex flex-col gap-6">
       <SectionHeader
         title={translate('text_1725983967306cf8dwr2r4u2')}
         action={{
-          label: translate('text_1725983967306qz0npfuhlo1'),
+          label: translate('text_1793992618732gc6gikxy0sb'),
           onClick: handleRefresh,
         }}
       />
@@ -98,7 +101,7 @@ export const ContractUsageSection = ({
         </div>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex items-start gap-6">
         <ContractUsageCategoryRail
           contractId={contractId}
           onErrorChange={setRailHasError}
