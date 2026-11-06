@@ -9,6 +9,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
 import { envGlobalVar, getGraphQLErrorCode, hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
+import { authTokenVar } from '~/core/apolloClient/reactiveVars'
 import { LOGIN_ROUTE, SIGN_UP_ROUTE, useNavigate } from '~/core/router'
 import { getItemFromLS, removeItemFromLS } from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
@@ -213,6 +214,8 @@ const VerifyEmail = (): JSX.Element => {
         if (sessionToken) {
           removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
           await onLogIn(client, sessionToken)
+
+          if (!authTokenVar()) setStateOverride('alreadyVerified')
 
           return
         }
