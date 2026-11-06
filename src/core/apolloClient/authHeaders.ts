@@ -1,13 +1,20 @@
+import { matchPath } from 'react-router'
+
 import {
   AUTH_TOKEN_LS_KEY,
   CUSTOMER_PORTAL_TOKEN_LS_KEY,
+  envGlobalVar,
   getCurrentOrganizationId,
   TMP_AUTH_TOKEN_LS_KEY,
 } from '~/core/apolloClient/reactiveVars'
+import { CREATE_ORGANIZATION_ROUTE } from '~/core/router/paths/createOrganization'
 import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
 import { getItemFromLS } from '~/core/utils/localStorage'
 
 type AdminCredentials = { token: string | undefined; organizationId: string | undefined }
+
+const isCreateOrganizationPath = (pathname: string): boolean =>
+  envGlobalVar().selfServeEnabled && !!matchPath(CREATE_ORGANIZATION_ROUTE, pathname)
 
 // Credentials are scoped by route: a logged-in admin previewing a customer
 // portal keeps both tokens in localStorage, and only the URL tells which
@@ -20,7 +27,9 @@ const resolveAdminCredentials = (pathname: string): AdminCredentials | null => {
 
   return {
     token: getItemFromLS(AUTH_TOKEN_LS_KEY) || getItemFromLS(TMP_AUTH_TOKEN_LS_KEY) || undefined,
-    organizationId: getCurrentOrganizationId() || undefined,
+    organizationId: isCreateOrganizationPath(pathname)
+      ? undefined
+      : getCurrentOrganizationId() || undefined,
   }
 }
 

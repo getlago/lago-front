@@ -22,7 +22,14 @@ describe('AdminGuard', () => {
       loading,
       isPremium: false,
       refetchCurrentUserInfos: jest.fn(),
-      currentUser: { id: 'user', email, csAdmin, premium: false, memberships: [] },
+      currentUser: {
+        id: 'user',
+        email,
+        csAdmin,
+        premium: false,
+        needsOrganization: false,
+        memberships: [],
+      },
     })
     const { container } = render(<AdminGuard />)
 

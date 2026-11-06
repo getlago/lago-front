@@ -1,5 +1,6 @@
 import { envGlobalVar } from '~/core/apolloClient'
 
+import { CREATE_ORGANIZATION_ROUTE } from './paths/createOrganization'
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
@@ -10,6 +11,7 @@ const Login = lazyLoad(() => import('~/pages/auth/Login'))
 const SignUp = lazyLoad(() => import('~/pages/auth/SignUp'))
 const SelfServeSignUp = lazyLoad(() => import('~/pages/auth/SelfServeSignUp'))
 const VerifyEmail = lazyLoad(() => import('~/pages/auth/VerifyEmail'))
+const CreateOrganization = lazyLoad(() => import('~/pages/auth/CreateOrganization'))
 const ForgotPassword = lazyLoad(() => import('~/pages/auth/ForgotPassword'))
 const ResetPassword = lazyLoad(() => import('~/pages/auth/ResetPassword'))
 
@@ -53,6 +55,15 @@ export const authRoutes: CustomRouteObject[] = [
           path: VERIFY_EMAIL_ROUTE,
           element: <VerifyEmail />,
           onlyPublic: true,
+        },
+      ]
+    : []),
+  ...(selfServeEnabled
+    ? [
+        {
+          path: CREATE_ORGANIZATION_ROUTE,
+          element: <CreateOrganization />,
+          private: true,
         },
       ]
     : []),

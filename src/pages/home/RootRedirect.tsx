@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react'
 
 import { Spinner } from '~/components/designSystem/Spinner'
-import { getPersistedOrganizationSlug } from '~/core/apolloClient/reactiveVars'
+import { envGlobalVar, getPersistedOrganizationSlug } from '~/core/apolloClient/reactiveVars'
 import { FORBIDDEN_ROUTE, useLocation, useNavigate } from '~/core/router'
+import { CREATE_ORGANIZATION_ROUTE } from '~/core/router/paths/createOrganization'
 import { getFirstPathSegment } from '~/core/router/utils/getFirstPathSegment'
 import { getAccessibleMemberships, isAccessibleOrgSlug } from '~/core/router/utils/orgSlug'
 import { getItemFromLS } from '~/core/utils/localStorage'
@@ -36,6 +37,12 @@ const RootRedirect = () => {
   useEffect(() => {
     if (isUserLoading || !currentUser) return
     if (hasNavigatedRef.current) return
+
+    if (envGlobalVar().selfServeEnabled && currentUser.needsOrganization) {
+      hasNavigatedRef.current = true
+      navigate(CREATE_ORGANIZATION_ROUTE, { replace: true })
+      return
+    }
 
     const accessibleMemberships = getAccessibleMemberships(currentUser)
 

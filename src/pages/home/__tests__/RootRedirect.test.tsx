@@ -1,12 +1,18 @@
 import { renderHook } from '@testing-library/react'
 
+import type { envGlobalVar } from '~/core/apolloClient/reactiveVars/envGlobalVar'
+import { CREATE_ORGANIZATION_ROUTE } from '~/core/router/paths/createOrganization'
+
 import RootRedirect from '../RootRedirect'
+
+type SelfServeFlag = Pick<ReturnType<typeof envGlobalVar>, 'selfServeEnabled'>
 
 const mockNavigate = jest.fn()
 const mockUseLocation = jest.fn()
 const mockUseCurrentUser = jest.fn()
 const mockGetItemFromLS = jest.fn()
 const mockGetPersistedOrganizationSlug = jest.fn()
+const mockEnvGlobalVar = jest.fn<SelfServeFlag, []>()
 
 // Stub the `~/core/router` barrel so the route modules (which pull in
 // `envGlobalVar`) aren't traversed during the test.
@@ -21,6 +27,7 @@ jest.mock('~/core/utils/localStorage', () => ({
 }))
 
 jest.mock('~/core/apolloClient/reactiveVars', () => ({
+  envGlobalVar: () => mockEnvGlobalVar(),
   getPersistedOrganizationSlug: () => mockGetPersistedOrganizationSlug(),
 }))
 
@@ -43,6 +50,7 @@ describe('RootRedirect', () => {
     mockUseLocation.mockReturnValue({ state: null })
     mockGetItemFromLS.mockReturnValue(null)
     mockGetPersistedOrganizationSlug.mockReturnValue(null)
+    mockEnvGlobalVar.mockReturnValue({ selfServeEnabled: false })
     mockUseCurrentUser.mockReturnValue({
       loading: false,
       currentUser: { memberships: [membership('acme'), membership('globex')] },
@@ -154,5 +162,85 @@ describe('RootRedirect', () => {
       '/acme',
       expect.objectContaining({ state, replace: true }),
     )
+  })
+
+  describe('GIVEN a self-serve user who needs an organization', () => {
+    beforeEach(() => {
+      mockUseCurrentUser.mockReturnValue({
+        loading: false,
+        currentUser: { needsOrganization: true, memberships: [] },
+      })
+    })
+
+    describe('WHEN the self-serve flag is on', () => {
+      beforeEach(() => {
+        mockEnvGlobalVar.mockReturnValue({ selfServeEnabled: true })
+      })
+
+      it('THEN should redirect to the create organization page instead of forbidden', () => {
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledWith(CREATE_ORGANIZATION_ROUTE, { replace: true })
+        expect(mockNavigate).not.toHaveBeenCalledWith('/forbidden', expect.anything())
+      })
+
+      it('THEN should redirect only once when the user is re-delivered', () => {
+        const { rerender } = renderHook(() => RootRedirect())
+
+        mockUseCurrentUser.mockReturnValue({
+          loading: false,
+          currentUser: { needsOrganization: true, memberships: [] },
+        })
+        rerender()
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the self-serve flag is off', () => {
+      it('THEN should redirect to forbidden as before', () => {
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith('/forbidden', { replace: true })
+      })
+    })
+  })
+
+  describe('GIVEN the self-serve flag is on and the user does not need an organization', () => {
+    beforeEach(() => {
+      mockEnvGlobalVar.mockReturnValue({ selfServeEnabled: true })
+    })
+
+    describe('WHEN the user has an accessible membership', () => {
+      it('THEN should redirect to the organization slug', () => {
+        mockUseCurrentUser.mockReturnValue({
+          loading: false,
+          currentUser: { needsOrganization: false, memberships: [membership('acme')] },
+        })
+
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/acme',
+          expect.objectContaining({ replace: true, skipSlugPrepend: true }),
+        )
+      })
+    })
+
+    describe('WHEN no membership is accessible', () => {
+      it('THEN should redirect to forbidden', () => {
+        mockUseCurrentUser.mockReturnValue({
+          loading: false,
+          currentUser: { needsOrganization: false, memberships: [membership('locked', false)] },
+        })
+
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith('/forbidden', { replace: true })
+      })
+    })
   })
 })
