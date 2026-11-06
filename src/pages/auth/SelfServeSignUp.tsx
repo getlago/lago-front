@@ -1,4 +1,4 @@
-import { FetchResult, gql } from '@apollo/client'
+import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useState } from 'react'
 
@@ -15,10 +15,10 @@ import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { setItemFromLS } from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
+import { getRecaptchaToken } from '~/core/utils/recaptcha'
 import { PASSWORD_VALIDATION_ERRORS } from '~/formValidation/zodCustoms'
 import {
   LagoApiError,
-  SelfServeSignUpMutation,
   useSelfServeSignUpMutation,
   useSignupEmailCheckLazyQuery,
 } from '~/generated/graphql'
@@ -26,6 +26,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { Card, Page, StyledLogo, Title } from '~/styles/auth'
 
+import { RecaptchaNotice } from './common/RecaptchaNotice'
+import { useRecaptcha } from './common/useRecaptcha'
 import {
   getSelfServePasswordErrors,
   isSelfServePasswordTooLong,
@@ -81,6 +83,9 @@ const PASSWORD_ERRORS: Record<string, string> = {
 }
 
 const BANNER_ERRORS: Record<string, string> = {
+  [LagoApiError.CaptchaFailed]: 'text_1793903925179h1k5w55ih95',
+  [LagoApiError.CaptchaUnavailable]: SIGN_UP_GENERIC_ERROR,
+  [LagoApiError.LockAcquisitionFailed]: SIGN_UP_GENERIC_ERROR,
   [LagoApiError.SelfServeDisabled]: 'text_1793898059309an560s3nkan',
   [LagoApiError.SignupDisabled]: 'text_1793898059309an560s3nkan',
   [LagoApiError.TooManyRequests]: 'text_1793898059309ltbe60gt6pd',
@@ -133,19 +138,17 @@ const SelfServeSignUp = (): JSX.Element => {
     onSubmit: async ({ value, formApi }) => {
       setBannerError(undefined)
 
-      const send = (): Promise<FetchResult<SelfServeSignUpMutation>> =>
-        signUp({
+      try {
+        // No retry on lock_acquisition_failed: the API spends the single-use token before the lock
+        const result = await signUp({
           variables: {
-            input: { email: value.email.trim(), password: value.password, captchaToken: null },
+            input: {
+              email: value.email.trim(),
+              password: value.password,
+              captchaToken: await getRecaptchaToken('signup'),
+            },
           },
         })
-
-      try {
-        let result = await send()
-
-        if (result.errors?.[0]?.extensions?.code === LagoApiError.LockAcquisitionFailed) {
-          result = await send()
-        }
 
         const signupSecret = result.data?.signUp?.signupSecret
 
@@ -180,6 +183,8 @@ const SelfServeSignUp = (): JSX.Element => {
       }
     },
   })
+
+  useRecaptcha()
 
   const password = useStore(form.store, (state) => state.values.password)
   const hasPasswordRuleError = useStore(form.store, (state) =>
@@ -347,6 +352,8 @@ const SelfServeSignUp = (): JSX.Element => {
               {translate('text_620bc4d4269a55014d493fb5')}
             </form.SubmitButton>
           </form.AppForm>
+
+          <RecaptchaNotice />
 
           <Typography
             className="text-center"

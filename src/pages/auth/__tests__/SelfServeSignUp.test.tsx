@@ -8,6 +8,7 @@ import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { LOGIN_ROUTE } from '~/core/router'
 import * as localStorageUtils from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
+import { getRecaptchaToken, loadRecaptcha, unloadRecaptcha } from '~/core/utils/recaptcha'
 import {
   PASSWORD_VALIDATION_ERRORS,
   PASSWORD_VALIDATION_TEST_IDS,
@@ -44,6 +45,12 @@ jest.mock('~/core/form/scrollToFirstInputError', () => ({
   scrollToFirstInputError: jest.fn(),
 }))
 
+jest.mock('~/core/utils/recaptcha', () => ({
+  loadRecaptcha: jest.fn(),
+  unloadRecaptcha: jest.fn(),
+  getRecaptchaToken: jest.fn(),
+}))
+
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useSelfServeSignUpMutation: (...args: unknown[]) => mockUseSelfServeSignUpMutation(...args),
@@ -67,9 +74,15 @@ jest.mock('@tanstack/react-virtual', () => ({
 }))
 
 const mockedEnvGlobalVar = jest.mocked(envGlobalVar)
+const mockedLoadRecaptcha = jest.mocked(loadRecaptcha)
+const mockedUnloadRecaptcha = jest.mocked(unloadRecaptcha)
+const mockedGetRecaptchaToken = jest.mocked(getRecaptchaToken)
 
 const TERMS_OF_SERVICE_URL = 'https://www.getlago.com/company/terms-of-service'
 const PRIVACY_POLICY_URL = 'https://www.getlago.com/company/privacy-policy'
+const GOOGLE_PRIVACY_POLICY_URL = 'https://policies.google.com/privacy'
+const GOOGLE_TERMS_URL = 'https://policies.google.com/terms'
+const RECAPTCHA_SITE_KEY = 'recaptcha-site-key'
 
 const PAGE_ORIGIN = window.location.origin
 const US_FRONT_URL = 'https://app.getlago.com/'
@@ -84,6 +97,7 @@ const VALID_EMAIL = 'jane@hooli.com'
 const PERSONAL_EMAIL = 'jane@gmail.com'
 const VALID_PASSWORD = 'Abcdefg1!'
 const SIGNUP_SECRET = 'signup-secret-1'
+const RECAPTCHA_TOKEN = 'recaptcha-token-1'
 
 const EMAIL_REQUIRED_COPY = 'Please fill this input to move forward'
 const EMAIL_INVALID_COPY = 'This value is not an email address, please enter a valid email.'
@@ -92,7 +106,11 @@ const PASSWORD_REQUIRED_COPY = 'Password is required'
 const PASSWORD_TOO_LONG_COPY = 'Use a shorter password (72 characters at most).'
 const TOO_MANY_ATTEMPTS_COPY = 'Too many attempts. Please wait a few minutes and try again.'
 const SIGN_UP_UNAVAILABLE_COPY = 'Sign-up is unavailable right now. Please reload the page.'
+const CAPTCHA_FAILED_COPY = "We couldn't confirm you're human. Please try again."
 const GENERIC_ERROR_COPY = 'Something went wrong on our side. Please try again.'
+const RECAPTCHA_NOTICE_COPY =
+  'This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.'
+const RECAPTCHA_NOTICE_START = /^This site is protected by reCAPTCHA/
 
 const SIGN_UP_SUCCESS = { data: { signUp: { signupSecret: SIGNUP_SECRET } } }
 const EMAIL_CHECK_VALID = { data: { signupEmailCheck: { code: null } } }
@@ -109,15 +127,23 @@ const buildSignUpError = (
 
 const LOCK_ERROR = buildSignUpError({ status: 422, code: LagoApiError.LockAcquisitionFailed })
 
+const getRealEnv = (): EnvGlobal =>
+  jest.requireActual<typeof import('~/core/apolloClient')>('~/core/apolloClient').envGlobalVar()
+
 const mockRegionFrontUrls = ({
   usFrontUrl,
   euFrontUrl,
 }: Pick<EnvGlobal, 'usFrontUrl' | 'euFrontUrl'>): void => {
-  const realEnv = jest
-    .requireActual<typeof import('~/core/apolloClient')>('~/core/apolloClient')
-    .envGlobalVar()
+  mockedEnvGlobalVar.mockReturnValue({ ...getRealEnv(), usFrontUrl, euFrontUrl })
+}
 
-  mockedEnvGlobalVar.mockReturnValue({ ...realEnv, usFrontUrl, euFrontUrl })
+const mockRecaptchaSiteKey = (recaptchaSiteKey: EnvGlobal['recaptchaSiteKey']): void => {
+  mockedEnvGlobalVar.mockReturnValue({
+    ...getRealEnv(),
+    usFrontUrl: '',
+    euFrontUrl: '',
+    recaptchaSiteKey,
+  })
 }
 
 // jsdom makes window.location.assign read-only, so the spy goes on the object it delegates to
@@ -190,6 +216,8 @@ describe('SelfServeSignUp', () => {
     mockUseSignupEmailCheckLazyQuery.mockReturnValue([mockCheckSignupEmail])
     mockSignUp.mockResolvedValue(SIGN_UP_SUCCESS)
     mockCheckSignupEmail.mockResolvedValue(EMAIL_CHECK_VALID)
+    mockedLoadRecaptcha.mockResolvedValue(undefined)
+    mockedGetRecaptchaToken.mockResolvedValue(RECAPTCHA_TOKEN)
   })
 
   afterEach(() => {
@@ -267,6 +295,24 @@ describe('SelfServeSignUp', () => {
           fetchPolicy: 'no-cache',
           context: { silentError: true },
         })
+      })
+
+      it('THEN should start loading the reCAPTCHA script without asking for a token', () => {
+        render(<SelfServeSignUp />)
+
+        expect(mockedLoadRecaptcha).toHaveBeenCalledTimes(1)
+        expect(mockedGetRecaptchaToken).not.toHaveBeenCalled()
+        expect(mockedUnloadRecaptcha).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the user leaves the page', () => {
+      it('THEN should unload the reCAPTCHA script', () => {
+        const { unmount } = render(<SelfServeSignUp />)
+
+        unmount()
+
+        expect(mockedUnloadRecaptcha).toHaveBeenCalledTimes(1)
       })
     })
   })
@@ -535,7 +581,7 @@ describe('SelfServeSignUp', () => {
     })
 
     describe('WHEN both fields are valid', () => {
-      it('THEN should sign up with the trimmed email, the password and no captcha token', async () => {
+      it('THEN should sign up with the trimmed email, the password and the signup captcha token', async () => {
         const user = userEvent.setup()
 
         render(<SelfServeSignUp />)
@@ -546,10 +592,35 @@ describe('SelfServeSignUp', () => {
         await waitFor(() => {
           expect(mockSignUp).toHaveBeenCalledTimes(1)
         })
+        expect(mockedGetRecaptchaToken).toHaveBeenCalledTimes(1)
+        expect(mockedGetRecaptchaToken).toHaveBeenCalledWith('signup')
         expect(mockSignUp).toHaveBeenCalledWith({
           variables: {
-            input: { email: VALID_EMAIL, password: VALID_PASSWORD, captchaToken: null },
+            input: { email: VALID_EMAIL, password: VALID_PASSWORD, captchaToken: RECAPTCHA_TOKEN },
           },
+        })
+      })
+    })
+
+    describe('WHEN no captcha token can be obtained', () => {
+      beforeEach(() => {
+        mockedGetRecaptchaToken.mockResolvedValue(null)
+      })
+
+      it('THEN should still sign up with a null captcha token', async () => {
+        const user = userEvent.setup()
+
+        render(<SelfServeSignUp />)
+
+        await fillForm(user)
+        await submitForm(user)
+
+        await waitFor(() => {
+          expect(mockSignUp).toHaveBeenCalledWith({
+            variables: {
+              input: { email: VALID_EMAIL, password: VALID_PASSWORD, captchaToken: null },
+            },
+          })
         })
       })
     })
@@ -684,7 +755,8 @@ describe('SelfServeSignUp', () => {
         [LagoApiError.TooManyRequests, 429, TOO_MANY_ATTEMPTS_COPY],
         [LagoApiError.SelfServeDisabled, 403, SIGN_UP_UNAVAILABLE_COPY],
         [LagoApiError.SignupDisabled, 403, SIGN_UP_UNAVAILABLE_COPY],
-        ['captcha_failed', 403, GENERIC_ERROR_COPY],
+        [LagoApiError.CaptchaFailed, 403, CAPTCHA_FAILED_COPY],
+        [LagoApiError.CaptchaUnavailable, 500, GENERIC_ERROR_COPY],
       ])('THEN should show the %s message', async (code, status, expectedCopy) => {
         mockSignUp.mockResolvedValue(buildSignUpError({ status, code }))
 
@@ -709,28 +781,69 @@ describe('SelfServeSignUp', () => {
       })
     })
 
-    describe('WHEN the lock is busy once', () => {
-      it('THEN should retry silently and show the check email step', async () => {
-        mockSignUp.mockResolvedValueOnce(LOCK_ERROR).mockResolvedValueOnce(SIGN_UP_SUCCESS)
-
-        await submitValidForm()
-
-        expect(await screen.findByTestId(SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID)).toBeInTheDocument()
-        expect(mockSignUp).toHaveBeenCalledTimes(2)
-        expect(mockSignUp.mock.calls[1]).toEqual(mockSignUp.mock.calls[0])
-      })
-    })
-
-    describe('WHEN the lock is still busy on the retry', () => {
-      it('THEN should stop after one retry and show the generic message', async () => {
+    describe('WHEN the lock is busy', () => {
+      beforeEach(() => {
         mockSignUp.mockResolvedValue(LOCK_ERROR)
+      })
 
+      it('THEN should show the generic message without retrying', async () => {
         await submitValidForm()
 
         expect(await screen.findByTestId(SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID)).toHaveTextContent(
           GENERIC_ERROR_COPY,
         )
-        expect(mockSignUp).toHaveBeenCalledTimes(2)
+        expect(mockSignUp).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should ask Google for a single token', async () => {
+        await submitValidForm()
+
+        await screen.findByTestId(SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID)
+
+        expect(mockedGetRecaptchaToken).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
+
+  describe('GIVEN a reCAPTCHA site key is configured', () => {
+    beforeEach(() => {
+      mockRecaptchaSiteKey(RECAPTCHA_SITE_KEY)
+    })
+
+    describe('WHEN the form is shown', () => {
+      it('THEN should display the reCAPTCHA notice', () => {
+        render(<SelfServeSignUp />)
+
+        expect(screen.getByText(RECAPTCHA_NOTICE_START)).toHaveTextContent(RECAPTCHA_NOTICE_COPY)
+      })
+
+      it.each([
+        ['privacy policy', GOOGLE_PRIVACY_POLICY_URL],
+        ['terms of service', GOOGLE_TERMS_URL],
+      ])('THEN should link the notice to the Google %s in a new tab', (_, url) => {
+        render(<SelfServeSignUp />)
+
+        const links = getLinksTo(url)
+
+        expect(links).toHaveLength(1)
+        expect(links[0]).toHaveAttribute('target', '_blank')
+        expect(screen.getByText(RECAPTCHA_NOTICE_START)).toContainElement(links[0])
+      })
+    })
+  })
+
+  describe('GIVEN no reCAPTCHA site key is configured', () => {
+    beforeEach(() => {
+      mockRecaptchaSiteKey('')
+    })
+
+    describe('WHEN the form is shown', () => {
+      it('THEN should not display the reCAPTCHA notice nor its links', () => {
+        render(<SelfServeSignUp />)
+
+        expect(screen.queryByText(RECAPTCHA_NOTICE_START)).not.toBeInTheDocument()
+        expect(getLinksTo(GOOGLE_PRIVACY_POLICY_URL)).toHaveLength(0)
+        expect(getLinksTo(GOOGLE_TERMS_URL)).toHaveLength(0)
       })
     })
   })

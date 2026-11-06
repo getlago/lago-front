@@ -57,6 +57,8 @@ export const typeDefs = gql`
     signup_disabled
     too_many_requests
     lock_acquisition_failed
+    captcha_failed
+    captcha_unavailable
 
     # SSO errors
     invalid_google_code
