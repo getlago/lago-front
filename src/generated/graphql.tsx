@@ -18153,7 +18153,7 @@ export type GetContractCurrentUsageTotalQueryVariables = Exact<{
 }>;
 
 
-export type GetContractCurrentUsageTotalQuery = { __typename?: 'Query', contractCurrentUsageTotal: { __typename?: 'ContractCurrentUsageTotal', totalAmountCents: any } };
+export type GetContractCurrentUsageTotalQuery = { __typename?: 'Query', contractCurrentUsageTotal: { __typename?: 'ContractCurrentUsageTotal', totalAmountCents: any, taxesUnavailable: boolean } };
 
 export type GetContractUsagesQueryVariables = Exact<{
   contractId: Scalars['ID']['input'];
@@ -49063,6 +49063,7 @@ export const GetContractCurrentUsageTotalDocument = gql`
     query getContractCurrentUsageTotal($contractId: ID!) {
   contractCurrentUsageTotal(contractId: $contractId) {
     totalAmountCents
+    taxesUnavailable
   }
 }
     `;

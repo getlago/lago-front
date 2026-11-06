@@ -1,7 +1,9 @@
 import { gql } from '@apollo/client'
+import { Icon } from 'lago-design-system'
 import { useState } from 'react'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -17,6 +19,7 @@ gql`
   query getContractCurrentUsageTotal($contractId: ID!) {
     contractCurrentUsageTotal(contractId: $contractId) {
       totalAmountCents
+      taxesUnavailable
     }
   }
 `
@@ -75,17 +78,24 @@ export const ContractUsageSection = ({
         <Typography variant="body" color="grey600">
           {translate('text_17939706328430e4ck8frime')}
         </Typography>
-        <Typography variant="subhead1" color="grey700">
-          {loading
-            ? '...'
-            : intlFormatNumber(
-                deserializeAmount(
-                  data?.contractCurrentUsageTotal.totalAmountCents ?? 0,
-                  currency ?? CurrencyEnum.Usd,
-                ),
-                { currencyDisplay: 'symbol', currency },
-              )}
-        </Typography>
+        <div className="flex items-center gap-1">
+          {data?.contractCurrentUsageTotal.taxesUnavailable && (
+            <Tooltip placement="top-end" title={translate('text_1793976872470dc2ih3k5q1n')}>
+              <Icon name="info-circle" />
+            </Tooltip>
+          )}
+          <Typography variant="subhead1" color="grey700">
+            {loading
+              ? '...'
+              : intlFormatNumber(
+                  deserializeAmount(
+                    data?.contractCurrentUsageTotal.totalAmountCents ?? 0,
+                    currency ?? CurrencyEnum.Usd,
+                  ),
+                  { currencyDisplay: 'symbol', currency },
+                )}
+          </Typography>
+        </div>
       </div>
 
       <div className="flex gap-6">
