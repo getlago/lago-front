@@ -1,19 +1,20 @@
-import { type FieldGroupApi, GroupedCheckboxList } from '~/components/form'
+import { type CheckboxGroup, type FieldGroupApi, GroupedCheckboxList } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withFieldGroup } from '~/hooks/forms/useAppform'
 
 import { rolePermissionsEmptyValues } from './const'
 
-import { useRolePermissionsGroups } from '../../hooks/useRolePermissionsGroups'
 import { PermissionName } from '../permissionsTypes'
 
 type RolePermissionsFormProps = {
+  groups: CheckboxGroup[]
   isEditable?: boolean
   isLoading?: boolean
   errors?: Array<string>
 }
 
 const defaultProps: RolePermissionsFormProps = {
+  groups: [],
   isEditable: true,
   isLoading: false,
   errors: [],
@@ -24,9 +25,8 @@ type PermissionValues = Record<PermissionName, boolean>
 const RolePermissionsForm = withFieldGroup({
   defaultValues: rolePermissionsEmptyValues,
   props: defaultProps,
-  render: function Render({ group, isEditable, isLoading, errors }) {
+  render: function Render({ group, groups, isEditable, isLoading, errors }) {
     const { translate } = useInternationalization()
-    const { groups } = useRolePermissionsGroups()
 
     // Cast to FieldGroupApi - the TanStack Form group API is structurally compatible
     // but has more complex generic types that don't align directly

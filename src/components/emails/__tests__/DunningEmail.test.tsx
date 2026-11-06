@@ -1,6 +1,10 @@
 import { cleanup, screen } from '@testing-library/react'
 
-import { DunningEmail, DunningEmailSkeleton } from '~/components/emails/DunningEmail'
+import {
+  DunningEmail,
+  DunningEmailProps,
+  DunningEmailSkeleton,
+} from '~/components/emails/DunningEmail'
 import { LocaleEnum } from '~/core/translations'
 import { CurrencyEnum, ProviderTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -41,6 +45,33 @@ const mockOrganization = {
 
 describe('DunningEmail', () => {
   afterEach(cleanup)
+
+  it.each([null, undefined])(
+    'GIVEN an organization term of %s and no customer term THEN payment is due upon generation',
+    async (netPaymentTerm) => {
+      const organization: DunningEmailProps['organization'] = {
+        name: mockOrganization.name,
+        ...(netPaymentTerm === null ? { netPaymentTerm } : {}),
+      }
+
+      render(
+        <DunningEmail
+          locale={LocaleEnum.en}
+          invoices={mockInvoices}
+          customer={{ ...mockCustomer, netPaymentTerm: null }}
+          organization={organization}
+          currency={CurrencyEnum.Usd}
+          overdueAmount={300}
+        />,
+      )
+
+      expect(
+        await screen.findByText(
+          'Our contractually agreed payment terms require payment upon invoice generation.',
+        ),
+      ).toBeInTheDocument()
+    },
+  )
 
   it('renders with customer and organization data', () => {
     const { container } = render(

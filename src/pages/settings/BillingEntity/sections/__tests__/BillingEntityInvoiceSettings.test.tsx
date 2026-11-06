@@ -65,9 +65,17 @@ const billingEntity = {
   },
 } as unknown as NonNullable<GetBillingEntitySettingsQuery['billingEntity']>
 
-const renderSettings = async () => {
+const renderSettings = async (
+  netPaymentTerm: NonNullable<
+    GetBillingEntitySettingsQuery['billingEntity']
+  >['netPaymentTerm'] = 30,
+): Promise<void> => {
   mockUseGetBillingEntitySettingsQuery.mockReturnValue({
-    data: { billingEntity, taxes: { collection: [] }, invoiceCustomSections: { collection: [] } },
+    data: {
+      billingEntity: { ...billingEntity, netPaymentTerm },
+      taxes: { collection: [] },
+      invoiceCustomSections: { collection: [] },
+    },
     loading: false,
     error: undefined,
   })
@@ -80,6 +88,17 @@ const renderSettings = async () => {
 describe('BillingEntityInvoiceSettings', () => {
   beforeEach(() => {
     mockFeatureFlags.clear()
+  })
+
+  it.each([
+    [null, '0 day'],
+    [0, '0 day'],
+    [1, '1 day'],
+    [30, '30 days'],
+  ])('GIVEN a net payment term of %s WHEN rendered THEN it shows %s', async (term, copy) => {
+    await renderSettings(term)
+
+    expect(screen.getByTestId(BILLING_ENTITY_NET_PAYMENT_TERM_TEST_ID)).toHaveTextContent(copy)
   })
 
   it('GIVEN the product catalog flag is off WHEN rendered THEN the net payment term item is shown', async () => {
