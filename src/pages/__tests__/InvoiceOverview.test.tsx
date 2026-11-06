@@ -1,11 +1,16 @@
 import { RenderResult, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { INVOICE_DETAILS_TABLE_SUBSCRIPTION_TEST_ID } from '~/components/invoices/details/InvoiceDetailsTable'
+import { INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID } from '~/components/invoices/productCatalog/InvoiceProductCatalogSection'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
+  CurrencyEnum,
   CustomerForInvoiceOverviewFragment,
   FeeDetailsForInvoiceOverviewFragment,
+  InvoiceProductCatalogContractFragment,
   InvoiceStatusTypeEnum,
+  ProductTypeEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
 import InvoiceOverview, {
@@ -29,7 +34,8 @@ jest.mock('~/components/invoices/details/editFeeDrawer/useEditFeeDrawer', () => 
 }))
 
 jest.mock('~/components/invoices/details/InvoiceDetailsTable', () => ({
-  InvoiceDetailsTable: () => null,
+  INVOICE_DETAILS_TABLE_SUBSCRIPTION_TEST_ID: 'invoice-details-subscription-table',
+  InvoiceDetailsTable: () => <div data-test="invoice-details-subscription-table" />,
   InvoiceTableSection: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }))
 
@@ -43,6 +49,11 @@ jest.mock('~/components/invoices/InvoiceCustomerInfos', () => ({
 
 jest.mock('~/components/invoices/Metadatas', () => ({
   Metadatas: () => null,
+}))
+
+jest.mock('~/components/invoices/productCatalog/InvoiceProductCatalogSection', () => ({
+  INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID: 'invoice-product-catalog-section',
+  InvoiceProductCatalogSection: () => <section data-test="invoice-product-catalog-section" />,
 }))
 
 const ANROK_CUSTOMER = { id: 'anrok-customer-1', externalAccountId: null }
@@ -65,6 +76,11 @@ const buildCustomer = (
 const buildVoidedInvoice = (): AllInvoiceDetailsForCustomerInvoiceDetailsFragment =>
   ({
     id: 'invoice-1',
+    currency: CurrencyEnum.Usd,
+    number: 'INV-001',
+    totalAmountCents: '1000',
+    versionNumber: 4,
+    appliedTaxes: [] as AllInvoiceDetailsForCustomerInvoiceDetailsFragment['appliedTaxes'],
     status: InvoiceStatusTypeEnum.Voided,
     taxProviderVoidable: true,
     taxProviderId: null,
@@ -78,15 +94,20 @@ const noop = jest.fn()
 const renderOverview = ({
   customer,
   retryTaxProviderVoiding = noop,
+  productCatalogContracts = null,
+  fees = FEES,
 }: {
   customer: CustomerForInvoiceOverviewFragment
   retryTaxProviderVoiding?: jest.Mock
+  productCatalogContracts?: InvoiceProductCatalogContractFragment[] | null
+  fees?: FeeDetailsForInvoiceOverviewFragment[]
 }): RenderResult =>
   render(
     <InvoiceOverview
       customer={customer}
       invoice={buildVoidedInvoice()}
-      fees={FEES}
+      fees={fees}
+      productCatalogContracts={productCatalogContracts}
       hasError={false}
       hasTaxProviderError={false}
       canRetryInvoice={false}
@@ -200,6 +221,85 @@ describe('InvoiceOverview', () => {
 
         expect(retryTaxProviderVoiding).toHaveBeenCalledTimes(1)
       })
+    })
+  })
+  describe('GIVEN a catalog invoice', () => {
+    const contracts: InvoiceProductCatalogContractFragment[] = [
+      { contract: { id: 'empty-contract' }, productCatalogSections: [] },
+      {
+        contract: { id: 'billed-contract' },
+        productCatalogSections: [
+          {
+            productCategory: null,
+            products: [
+              {
+                product: {
+                  id: 'product-1',
+                  name: 'Product',
+                  code: 'product',
+                  productType: ProductTypeEnum.Fixed,
+                },
+                amountCents: '1000',
+                feesCount: 1,
+                filters: [],
+              },
+            ],
+          },
+        ],
+      },
+    ]
+
+    it('THEN renders the totals before the catalog section and hides the V1 table', () => {
+      const { container } = renderOverview({
+        customer: buildCustomer({}),
+        productCatalogContracts: contracts,
+        fees: [],
+      })
+      const section = screen.getByTestId(INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID)
+
+      expect(
+        screen.queryByTestId(INVOICE_DETAILS_TABLE_SUBSCRIPTION_TEST_ID),
+      ).not.toBeInTheDocument()
+      const footer = container.querySelector('tfoot')
+
+      expect(footer).toBeInTheDocument()
+      expect(footer?.compareDocumentPosition(section)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    })
+
+    it.each([
+      [ANROK_SECTION_TEST_ID, { anrokCustomer: ANROK_CUSTOMER }],
+      [AVALARA_SECTION_TEST_ID, { avalaraCustomer: AVALARA_CUSTOMER }],
+    ])('THEN preserves %s using fees from any contract', (testId, customer) => {
+      renderOverview({
+        customer: buildCustomer(customer),
+        productCatalogContracts: contracts,
+        fees: [],
+      })
+      expect(screen.getByTestId(testId)).toBeInTheDocument()
+    })
+
+    it('THEN hides both providers for an empty catalog even if stale V1 fees exist', () => {
+      renderOverview({
+        customer: buildCustomer({
+          anrokCustomer: ANROK_CUSTOMER,
+          avalaraCustomer: AVALARA_CUSTOMER,
+        }),
+        productCatalogContracts: [],
+        fees: FEES,
+      })
+      expect(screen.queryByTestId(ANROK_SECTION_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(AVALARA_SECTION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('THEN keeps the V1 table and fee presence check when catalog data is null', () => {
+      renderOverview({
+        customer: buildCustomer({ anrokCustomer: ANROK_CUSTOMER }),
+        productCatalogContracts: null,
+        fees: [],
+      })
+      expect(screen.getByTestId(INVOICE_DETAILS_TABLE_SUBSCRIPTION_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(ANROK_SECTION_TEST_ID)).not.toBeInTheDocument()
     })
   })
 })
