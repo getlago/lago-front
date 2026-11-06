@@ -74,8 +74,8 @@ export const ContractUsageSection = ({
         }}
       />
 
-      <div className="flex items-center justify-between">
-        <Typography variant="body" color="grey600">
+      <div className="flex items-center justify-between pb-6 shadow-b">
+        <Typography variant="bodyHl" color="grey700">
           {translate('text_17939706328430e4ck8frime')}
         </Typography>
         <div className="flex items-center gap-1">
@@ -84,7 +84,7 @@ export const ContractUsageSection = ({
               <Icon name="info-circle" />
             </Tooltip>
           )}
-          <Typography variant="subhead1" color="grey700">
+          <Typography variant="body" color="grey700">
             {loading
               ? '...'
               : intlFormatNumber(
