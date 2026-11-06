@@ -32,7 +32,7 @@ import {
   isSelfServePasswordTooLong,
   SELF_SERVE_EMAIL_INVALID_ERROR,
   SELF_SERVE_EMAIL_REQUIRED_ERROR,
-  SELF_SERVE_PASSWORD_TOO_LONG_ERROR,
+  SELF_SERVE_PASSWORD_ERRORS,
   selfServeSignUpDefaultValues,
   selfServeSignUpEmailSchema,
   selfServeSignUpValidationSchema,
@@ -78,7 +78,7 @@ const PASSWORD_ERRORS: Record<string, string> = {
   password_missing_uppercase: PASSWORD_VALIDATION_ERRORS.UPPERCASE,
   password_missing_number: PASSWORD_VALIDATION_ERRORS.NUMBER,
   password_missing_special_character: PASSWORD_VALIDATION_ERRORS.SPECIAL,
-  password_too_long: SELF_SERVE_PASSWORD_TOO_LONG_ERROR,
+  password_too_long: SELF_SERVE_PASSWORD_ERRORS.TOO_LONG,
 }
 
 const BANNER_ERRORS: Record<string, string> = {
@@ -329,7 +329,7 @@ const SelfServeSignUp = (): JSX.Element => {
                     placeholder={translate('text_620bc4d4269a55014d493f5b')}
                     showOnlyErrors={[
                       PASSWORD_VALIDATION_ERRORS.REQUIRED,
-                      SELF_SERVE_PASSWORD_TOO_LONG_ERROR,
+                      SELF_SERVE_PASSWORD_ERRORS.TOO_LONG,
                     ]}
                     errorOverride={
                       hasPasswordRuleError && !isSelfServePasswordTooLong(password)
