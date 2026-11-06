@@ -1,12 +1,15 @@
 import { useSearchParams } from 'react-router'
 
-import { Alert } from '~/components/designSystem/Alert'
 import { PaginatedContent } from '~/components/designSystem/Pagination'
-import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Typography } from '~/components/designSystem/Typography'
-import { InvoiceProductCatalogContractFragment } from '~/generated/graphql'
+import { useViewFeeDetailsDrawer } from '~/components/invoices/details/ViewFeeDetailsDrawer'
+import {
+  CurrencyEnum,
+  InvoiceProductCatalogContractFragment,
+  TimezoneEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { InvoiceProductCatalogFeesTable } from './InvoiceProductCatalogFeesTable'
 import { buildInvoiceProductCatalogTabs } from './invoiceProductCatalogTabs'
 import { InvoiceProductCatalogToolbar } from './InvoiceProductCatalogToolbar'
 import { formatInvoiceProductFeesFilters } from './invoiceProductFeesFilters'
@@ -22,43 +25,29 @@ import {
 export const INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID = 'invoice-product-catalog-section'
 export const INVOICE_PRODUCT_CATALOG_EMPTY_TEST_ID = 'invoice-product-catalog-empty'
 
+type InvoiceProductCatalogSectionDisplayProps = {
+  currency: CurrencyEnum
+  customerTimezone?: TimezoneEnum | null
+  hasTaxProviderError?: boolean
+}
+
 const InvoiceProductCatalogSectionContent = ({
   invoiceId,
   section,
   sections,
-}: {
+  ...displayProps
+}: InvoiceProductCatalogSectionDisplayProps & {
   invoiceId: string
   section: InvoiceProductCatalogSectionItem
   sections: InvoiceProductCatalogSectionItem[]
 }): JSX.Element => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
-  const { data, loading, error, goToPage, selectSection, onSearchChange } = useInvoiceProductFees({
-    invoiceId,
-    section,
-    filters: formatInvoiceProductFeesFilters(searchParams),
-  })
-  const fees = data?.invoiceProductFees.collection ?? []
-
-  const renderFees = (): JSX.Element => {
-    if (error) {
-      return <Alert type="danger">{translate('text_634812d6f16b31ce5cbf4126')}</Alert>
-    }
-
-    if (loading) return <Skeleton variant="text" className="h-12 w-full" />
-
-    return (
-      <ul>
-        {fees.map((fee) => (
-          <li key={fee.id} className="py-3 shadow-b">
-            <Typography>
-              {fee.product?.invoiceDisplayName || fee.product?.name || fee.itemName}
-            </Typography>
-          </li>
-        ))}
-      </ul>
-    )
-  }
+  const viewFeeDetails = useViewFeeDetailsDrawer()
+  const filters = formatInvoiceProductFeesFilters(searchParams)
+  const { data, loading, error, variables, refetch, goToPage, selectSection, onSearchChange } =
+    useInvoiceProductFees({ invoiceId, section, filters })
+  const hasActiveSearchOrFilters = !!variables?.searchTerm || Object.keys(filters).length > 0
 
   return (
     <>
@@ -75,7 +64,16 @@ const InvoiceProductCatalogSectionContent = ({
         onPageChange={goToPage}
         sticky={false}
       >
-        {renderFees()}
+        <InvoiceProductCatalogFeesTable
+          {...displayProps}
+          fees={data?.invoiceProductFees.collection ?? []}
+          section={section}
+          isLoading={loading}
+          hasError={!!error}
+          hasActiveSearchOrFilters={hasActiveSearchOrFilters}
+          onRetry={() => refetch()}
+          onFeeClick={viewFeeDetails.open}
+        />
       </PaginatedContent>
     </>
   )
@@ -84,7 +82,8 @@ const InvoiceProductCatalogSectionContent = ({
 export const InvoiceProductCatalogSection = ({
   invoiceId,
   contracts,
-}: {
+  ...displayProps
+}: InvoiceProductCatalogSectionDisplayProps & {
   invoiceId: string
   contracts: InvoiceProductCatalogContractFragment[]
 }): JSX.Element => {
@@ -107,6 +106,7 @@ export const InvoiceProductCatalogSection = ({
           invoiceId={invoiceId}
           section={section}
           sections={sections}
+          {...displayProps}
         />
       ) : (
         <div data-test={INVOICE_PRODUCT_CATALOG_EMPTY_TEST_ID} />
