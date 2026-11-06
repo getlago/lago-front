@@ -377,6 +377,12 @@ export const AppliedRateCardsAvailableFilters = [
   AvailableFiltersEnum.appliedRateCardProductType,
 ]
 
+export const ContractUsageAvailableFilters = [
+  AvailableFiltersEnum.rateCardProduct,
+  AvailableFiltersEnum.appliedRateCardProductFilter,
+  AvailableFiltersEnum.appliedRateCardProductType,
+]
+
 export const CustomerAnalyticsAvailableFilters = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.billingEntityId,

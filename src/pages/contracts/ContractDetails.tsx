@@ -28,6 +28,7 @@ import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { ContractDetailsOverview } from './details/ContractDetailsOverview'
+import { ContractUsageSection } from './details/ContractUsageSection'
 
 gql`
   fragment ContractForContractDetails on Contract {
@@ -166,9 +167,9 @@ const ContractDetails = (): JSX.Element => {
           {
             title: translate('text_1725983967306cf8dwr2r4u2'),
             link: buildTabLink(ContractDetailsTabsOptionsEnum.usage),
-            content: (
-              <DetailsPage.Container className="pt-6">
-                <Typography>Todo</Typography>
+            content: contract?.id && (
+              <DetailsPage.Container className="pb-0 pt-6">
+                <ContractUsageSection contractId={contract.id} currency={contract.plan?.currency} />
               </DetailsPage.Container>
             ),
           },
