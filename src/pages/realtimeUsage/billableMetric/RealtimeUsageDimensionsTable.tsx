@@ -113,7 +113,7 @@ export const RealtimeUsageDimensionsTable = ({
   })
   const { data, isHeld } = useHeldData(servedData, heldKeyOf(variables), !!error)
 
-  useReportFetching(loading)
+  useReportFetching(loading, !!error)
   const isLoading = loading && !isHeld
 
   const dimensions = data?.realtimeUsageDimensions.collection

@@ -65,7 +65,7 @@ export const RealtimeUsageEventsSection = ({
   })
   const { data } = useHeldData(servedData, heldKeyOf(filters), !!error)
 
-  useReportFetching(loading)
+  useReportFetching(loading, !!error)
 
   const events = data?.realtimeUsageEvents
   const isLoading = loading && !events

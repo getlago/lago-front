@@ -116,6 +116,71 @@ describe('useRealtimeUsageClock', () => {
       })
     })
 
+    describe('WHEN a read fails', () => {
+      // One refresh cycle: the read starts on the tick and settles, failed or not.
+      const settle = (
+        report: ReturnType<typeof useRealtimeUsageClock>['reportFetching'],
+        hasError: boolean,
+      ): void => {
+        act(() => report('events', true))
+        act(() => report('events', false, hasError))
+      }
+
+      it('THEN backs off exponentially, then stops after the last allowed failure', () => {
+        const { result } = renderHook(() => useRealtimeUsageClock({ autoRefreshSeconds: 1 }))
+
+        settle(result.current.reportFetching, true)
+        advance(1999)
+        expect(result.current.now.toMillis()).toBe(START)
+        advance(1)
+        expect(result.current.now.toMillis()).toBe(START + 2000)
+
+        settle(result.current.reportFetching, true)
+        advance(3999)
+        expect(result.current.now.toMillis()).toBe(START + 2000)
+        advance(1)
+        expect(result.current.now.toMillis()).toBe(START + 6000)
+
+        settle(result.current.reportFetching, true)
+        advance(60_000)
+        expect(result.current.now.toMillis()).toBe(START + 6000)
+      })
+
+      it('THEN returns to the selected interval on the first success', () => {
+        const { result } = renderHook(() => useRealtimeUsageClock({ autoRefreshSeconds: 1 }))
+
+        settle(result.current.reportFetching, true)
+        advance(2000)
+        settle(result.current.reportFetching, true)
+        advance(4000)
+        settle(result.current.reportFetching, false)
+        advance(1000)
+        expect(result.current.now.toMillis()).toBe(START + 7000)
+
+        // The failure count started over: a new failure backs off from the first step.
+        settle(result.current.reportFetching, true)
+        advance(2000)
+        expect(result.current.now.toMillis()).toBe(START + 9000)
+      })
+
+      it('THEN a manual refresh resumes auto-refresh after it stopped', () => {
+        const { result } = renderHook(() => useRealtimeUsageClock({ autoRefreshSeconds: 1 }))
+
+        settle(result.current.reportFetching, true)
+        advance(2000)
+        settle(result.current.reportFetching, true)
+        advance(4000)
+        settle(result.current.reportFetching, true)
+        advance(60_000)
+        expect(result.current.now.toMillis()).toBe(START + 6000)
+
+        act(() => result.current.tick())
+        settle(result.current.reportFetching, true)
+        advance(2000)
+        expect(result.current.now.toMillis()).toBe(START + 68_000)
+      })
+    })
+
     it('THEN stops ticking once turned off', () => {
       const { result, rerender } = renderHook(
         ({ autoRefreshSeconds }) => useRealtimeUsageClock({ autoRefreshSeconds }),

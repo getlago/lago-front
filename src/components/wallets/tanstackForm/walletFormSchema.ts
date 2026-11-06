@@ -52,31 +52,6 @@ export interface WalletRecurringSlice {
   expirationAt: string | null
 }
 
-// --- Pure numeric helpers (ported from src/pages/wallet/form.ts) ---
-export const topUpWithinLimits = ({
-  rateAmount,
-  credits,
-  min,
-  max,
-}: {
-  rateAmount?: string
-  credits?: string
-  min?: string | null
-  max?: string | null
-}): boolean => {
-  if (!rateAmount || credits === undefined || credits === '') return true
-  if (Number(credits) === 0) return true
-
-  const amount = Number(rateAmount) * Number(credits)
-  const hasMin = min !== undefined && min !== null && min !== ''
-  const hasMax = max !== undefined && max !== null && max !== ''
-
-  if (hasMin && amount < Number(min)) return false
-  if (hasMax && amount > Number(max)) return false
-
-  return true
-}
-
 // --- Schemas ---
 export const WALLET_PRIORITY_MIN = 1
 export const WALLET_PRIORITY_MAX = 50

@@ -10,8 +10,6 @@ import { LoaderCustomerInformationPage } from '~/components/customerPortal/commo
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import {
   clearCustomerServerError,
-  CUSTOMER_ADDRESS_LINE_MAX_LENGTH,
-  CUSTOMER_TEXT_MAX_LENGTH,
   getCustomerFieldErrors,
   setCustomerServerErrors,
   syncCustomerShippingAddress,
@@ -25,6 +23,7 @@ import {
   getCustomerPortalEditableFields,
   pickCustomerPortalEditableFields,
 } from '~/core/constants/customerPortalEditableFields'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import {
   CustomerPortalFieldEnum,
@@ -35,7 +34,10 @@ import {
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import { editCustomerBillingValidationSchema, mapCustomerToFormValues } from './validationSchema'
+import {
+  buildEditCustomerBillingValidationSchema,
+  mapCustomerToFormValues,
+} from './validationSchema'
 
 type EditCustomerBillingFormProps = {
   customer?: UpdateCustomerPortalCustomerInput | null
@@ -44,6 +46,8 @@ type EditCustomerBillingFormProps = {
 }
 
 export const READ_ONLY_FIELDS_ALERT_TEST_ID = 'read-only-fields-alert'
+
+const EDIT_CUSTOMER_BILLING_FORM_ID = 'edit-customer-billing-form'
 
 gql`
   mutation updatePortalCustomer($input: UpdateCustomerPortalCustomerInput!) {
@@ -100,7 +104,10 @@ const EditCustomerBillingForm = ({
     defaultValues: initialValues,
     validationLogic: revalidateLogic(),
     validators: {
-      onDynamic: editCustomerBillingValidationSchema,
+      onDynamic: buildEditCustomerBillingValidationSchema(
+        initialValues,
+        isShippingEqualBillingAddress,
+      ),
     },
     listeners: {
       onChange: clearCustomerServerError,
@@ -132,6 +139,13 @@ const EditCustomerBillingForm = ({
 
       setHasOnlyFieldErrors(customerFieldErrors.hasOnlyFieldErrors)
       setCustomerServerErrors(formApi, customerFieldErrors.fields)
+
+      if (Object.keys(customerFieldErrors.fields).length > 0) {
+        scrollToFirstInputError(EDIT_CUSTOMER_BILLING_FORM_ID, customerFieldErrors.fields)
+      }
+    },
+    onSubmitInvalid({ formApi }) {
+      scrollToFirstInputError(EDIT_CUSTOMER_BILLING_FORM_ID, formApi.state.errorMap.onDynamic || {})
     },
   })
 
@@ -167,7 +181,11 @@ const EditCustomerBillingForm = ({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form
+      id={EDIT_CUSTOMER_BILLING_FORM_ID}
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4"
+    >
       <Typography variant="subhead2" color="grey700">
         {translate('text_1728377307159eu0ihwiyrf0')}
       </Typography>
@@ -198,7 +216,6 @@ const EditCustomerBillingForm = ({
           <field.TextInputField
             disabled={!isEditable(CustomerPortalFieldEnum.Name)}
             translateError={translate}
-            inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
             label={translate('text_634687079be251fdb43833cb')}
             placeholder={translate('text_1728654170904707saidat0f')}
           />
@@ -211,7 +228,6 @@ const EditCustomerBillingForm = ({
             <field.TextInputField
               disabled={!isEditable(CustomerPortalFieldEnum.Firstname)}
               translateError={translate}
-              inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
               label={translate('text_1726128938631ggtf2ggqs4b')}
               placeholder={translate('text_1726128938631ntcpbzv7x7s')}
             />
@@ -223,7 +239,6 @@ const EditCustomerBillingForm = ({
             <field.TextInputField
               disabled={!isEditable(CustomerPortalFieldEnum.Lastname)}
               translateError={translate}
-              inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
               label={translate('text_1726128938631ymctg83bygm')}
               placeholder={translate('text_1726128938631xmpsba9ssuo')}
             />
@@ -236,7 +251,6 @@ const EditCustomerBillingForm = ({
           <field.TextInputField
             disabled={!isEditable(CustomerPortalFieldEnum.LegalName)}
             translateError={translate}
-            inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
             label={translate('text_626c0c09812bbc00e4c59e01')}
             placeholder={translate('text_626c0c09812bbc00e4c59e03')}
           />
@@ -247,7 +261,6 @@ const EditCustomerBillingForm = ({
           <field.TextInputField
             disabled={!isEditable(CustomerPortalFieldEnum.TaxIdentificationNumber)}
             translateError={translate}
-            inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
             label={translate('text_648053ee819b60364c675d05')}
             placeholder={translate('text_648053ee819b60364c675d0b')}
           />
@@ -274,7 +287,6 @@ const EditCustomerBillingForm = ({
           <field.TextInputField
             disabled={!isEditable(CustomerPortalFieldEnum.AddressLine1)}
             translateError={translate}
-            inputProps={{ maxLength: CUSTOMER_ADDRESS_LINE_MAX_LENGTH }}
             label={translate('text_626c0c09812bbc00e4c59e1b')}
             placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
           />
@@ -285,7 +297,6 @@ const EditCustomerBillingForm = ({
           <field.TextInputField
             disabled={!isEditable(CustomerPortalFieldEnum.AddressLine2)}
             translateError={translate}
-            inputProps={{ maxLength: CUSTOMER_ADDRESS_LINE_MAX_LENGTH }}
             placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
           />
         )}
@@ -297,7 +308,6 @@ const EditCustomerBillingForm = ({
             <field.TextInputField
               disabled={!isEditable(CustomerPortalFieldEnum.Zipcode)}
               translateError={translate}
-              inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
               placeholder={translate('text_626c0c09812bbc00e4c59e21')}
             />
           )}
@@ -307,7 +317,6 @@ const EditCustomerBillingForm = ({
             <field.TextInputField
               disabled={!isEditable(CustomerPortalFieldEnum.City)}
               translateError={translate}
-              inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
               placeholder={translate('text_626c0c09812bbc00e4c59e23')}
             />
           )}
@@ -319,7 +328,6 @@ const EditCustomerBillingForm = ({
           <field.TextInputField
             disabled={!isEditable(CustomerPortalFieldEnum.State)}
             translateError={translate}
-            inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
             placeholder={translate('text_626c0c09812bbc00e4c59e25')}
           />
         )}
@@ -357,7 +365,6 @@ const EditCustomerBillingForm = ({
         {(field) => (
           <field.TextInputField
             translateError={translate}
-            inputProps={{ maxLength: CUSTOMER_ADDRESS_LINE_MAX_LENGTH }}
             label={translate('text_626c0c09812bbc00e4c59e1b')}
             placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
             disabled={!canEditShippingAddress || isShippingEqualBillingAddress}
@@ -368,7 +375,6 @@ const EditCustomerBillingForm = ({
         {(field) => (
           <field.TextInputField
             translateError={translate}
-            inputProps={{ maxLength: CUSTOMER_ADDRESS_LINE_MAX_LENGTH }}
             placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
             disabled={!canEditShippingAddress || isShippingEqualBillingAddress}
           />
@@ -380,7 +386,6 @@ const EditCustomerBillingForm = ({
           {(field) => (
             <field.TextInputField
               translateError={translate}
-              inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
               placeholder={translate('text_626c0c09812bbc00e4c59e21')}
               disabled={!canEditShippingAddress || isShippingEqualBillingAddress}
             />
@@ -390,7 +395,6 @@ const EditCustomerBillingForm = ({
           {(field) => (
             <field.TextInputField
               translateError={translate}
-              inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
               placeholder={translate('text_626c0c09812bbc00e4c59e23')}
               disabled={!canEditShippingAddress || isShippingEqualBillingAddress}
             />
@@ -402,7 +406,6 @@ const EditCustomerBillingForm = ({
         {(field) => (
           <field.TextInputField
             translateError={translate}
-            inputProps={{ maxLength: CUSTOMER_TEXT_MAX_LENGTH }}
             placeholder={translate('text_626c0c09812bbc00e4c59e25')}
             disabled={!canEditShippingAddress || isShippingEqualBillingAddress}
           />
