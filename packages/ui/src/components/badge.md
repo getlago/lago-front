@@ -4,7 +4,7 @@ Static, single-line labels based on the [Figma Badge](https://www.figma.com/desi
 
 ```tsx
 import { CircleCheck } from 'lucide-react'
-import { Badge } from '~/components/ui/badge'
+import { Badge } from 'lago-ui/badge'
 
 <Badge variant="success" size="sm">
   <CircleCheck size={14} strokeWidth={2} aria-hidden="true" />

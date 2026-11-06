@@ -1,7 +1,7 @@
+import { ColorTheme } from 'lago-ui/color-theme'
+import { Separator } from 'lago-ui/separator'
 import { generatePath } from 'react-router'
 
-import { ColorTheme } from '~/components/ui/color-theme'
-import { Separator } from '~/components/ui/separator'
 import { ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 
 export const SeparatorTest = () => (

@@ -131,6 +131,7 @@ export default defineConfig(({ mode }) => {
         '~': resolve(__dirname, 'src'),
         lodash: 'lodash-es',
       },
+      dedupe: ['react', 'react-dom'],
     },
     server: {
       port,
@@ -184,7 +185,7 @@ export default defineConfig(({ mode }) => {
         'formik',
         'yup',
       ],
-      exclude: ['lago-design-system', 'lago-configs'],
+      exclude: ['lago-design-system', 'lago-configs', 'lago-ui'],
     },
     preview: {
       port,

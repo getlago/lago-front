@@ -41,7 +41,7 @@ Modifiers use `color-mix()` to mix the active token with transparency. This pres
 Semantic tokens default to light mode. Use `ColorTheme` to set a local boundary without changing the document theme:
 
 ```tsx
-import { ColorTheme } from '~/components/ui/color-theme'
+import { ColorTheme } from 'lago-ui/color-theme'
 
 ;<ColorTheme mode="dark" asChild>
   <section className="bg-surface text-text-default">Content</section>
@@ -54,9 +54,9 @@ Inspect the primitive and semantic color tables at `/design-system/shadcn-color`
 
 ## Updating tokens
 
-[`colors.css`](colors.css) is the source of truth. Edit primitive values and semantic aliases directly there; no generation command or generated output is needed. Keep both light and dark semantic declarations, including aliases, so nested theme boundaries resolve locally.
+[`colors.css`](src/styles/colors.css) is the source of truth. Edit primitive values and semantic aliases directly there; no generation command or generated output is needed. Keep both light and dark semantic declarations, including aliases, so nested theme boundaries resolve locally.
 
-When adding or removing a token, update its variable name in [`tailwindColors.ts`](tailwindColors.ts) to expose or remove its Tailwind utilities. That file lists names only; color values and aliases live exclusively in CSS. Changing an existing value requires only a CSS edit.
+When adding or removing a token, update its variable name in [`tailwindColors.ts`](src/styles/tailwindColors.ts) to expose or remove its Tailwind utilities. That file lists names only; color values and aliases live exclusively in CSS. Changing an existing value requires only a CSS edit.
 
 The showcase reads the CSS declarations and lets the browser resolve their values for the selected theme. CSS validation tests check alias references and cycles, while utility tests cover opacity and legacy isolation.
 

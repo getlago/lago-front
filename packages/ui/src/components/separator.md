@@ -1,6 +1,6 @@
 # Separator
 
-Import `Separator` from `~/components/ui/separator` for v2 components.
+Import `Separator` from `lago-ui/separator` for v2 components.
 
 ```tsx
 <Separator />

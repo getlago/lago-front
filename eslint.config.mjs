@@ -31,7 +31,6 @@ export default defineConfig([
     ignores: [
       'src/components/designSystem/**',
       'src/components/form/**',
-      'src/components/ui/**',
       'src/components/dialogs/BaseDialog.tsx',
       'src/pages/__devOnly/**',
       'src/**/__tests__/**',

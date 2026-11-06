@@ -1,9 +1,9 @@
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import * as React from 'react'
 
-import { cn } from '~/lib/utils'
-
 import { ColorThemePortal } from './color-theme'
+
+import { cn } from '../lib/utils'
 
 /** Share one provider across a toolbar or shadcn region, not one per trigger. */
 export const TooltipProvider = ({ children }: { children: React.ReactNode }) => (

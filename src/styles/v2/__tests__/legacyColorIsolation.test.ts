@@ -1,13 +1,24 @@
+import uiPreset from 'lago-ui/tailwind-preset'
 import postcss from 'postcss'
 import tailwindcss from 'tailwindcss'
 import { Config } from 'tailwindcss/types/config'
 
 import config from '../../../../tailwind.config'
-import { v2TailwindColors } from '../tailwindColors'
 
-const compile = async (colors: Config['theme'], content: string): Promise<string> => {
+const v2TailwindColors = uiPreset.theme?.extend?.colors ?? {}
+
+const compile = async (
+  colors: Config['theme'],
+  content: string,
+  presets: Config['presets'] = config.presets,
+): Promise<string> => {
   const result = await postcss([
-    tailwindcss({ ...config, theme: colors, content: [{ raw: content, extension: 'html' }] }),
+    tailwindcss({
+      ...config,
+      presets,
+      theme: colors,
+      content: [{ raw: content, extension: 'html' }],
+    }),
   ]).process('@tailwind base; @tailwind components; @tailwind utilities;', { from: undefined })
 
   return result.css
@@ -58,7 +69,11 @@ describe('legacy color isolation', () => {
       'ring-ring',
       'bg-background',
     ].join(' ')
-    const before = await compile(legacyTheme, candidates)
+    const before = await compile(
+      legacyTheme,
+      candidates,
+      config.presets?.filter((preset) => preset !== uiPreset),
+    )
     const after = await compile(config.theme, candidates)
 
     expect(after).toBe(before)

@@ -1,10 +1,10 @@
+import { Button } from 'lago-ui/button'
+import { ColorTheme } from 'lago-ui/color-theme'
+import { IconButton } from 'lago-ui/icon-button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'lago-ui/tooltip'
 import { Copy, Download, Plus } from 'lucide-react'
 import { generatePath } from 'react-router'
 
-import { Button } from '~/components/ui/button'
-import { ColorTheme } from '~/components/ui/color-theme'
-import { IconButton } from '~/components/ui/icon-button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip'
 import { ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 
 const actions = [

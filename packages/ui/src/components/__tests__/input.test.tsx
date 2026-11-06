@@ -1,7 +1,5 @@
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-
-import { render } from '~/test-utils'
 
 import { Input } from '../input'
 

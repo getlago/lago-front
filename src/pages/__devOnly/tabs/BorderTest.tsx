@@ -1,4 +1,4 @@
-import { ColorTheme } from '~/components/ui/color-theme'
+import { ColorTheme } from 'lago-ui/color-theme'
 
 const widths = [
   ['border-0', '0px'],
