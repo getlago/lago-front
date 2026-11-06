@@ -53,10 +53,10 @@ const RootRedirect = () => {
     const accessibleMemberships = getAccessibleMemberships(currentUser)
 
     if (!accessibleMemberships.length) {
+      const mayNeedOrganization = hasNeedsOrganizationError && !currentUser.memberships?.length
+
       hasNavigatedRef.current = true
-      navigate(hasNeedsOrganizationError ? CREATE_ORGANIZATION_ROUTE : FORBIDDEN_ROUTE, {
-        replace: true,
-      })
+      navigate(mayNeedOrganization ? CREATE_ORGANIZATION_ROUTE : FORBIDDEN_ROUTE, { replace: true })
       return
     }
 

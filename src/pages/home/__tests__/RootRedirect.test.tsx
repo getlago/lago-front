@@ -262,6 +262,20 @@ describe('RootRedirect', () => {
       })
     })
 
+    describe('WHEN the user only has memberships refused for this session', () => {
+      it('THEN should redirect to forbidden instead of the create organization page', () => {
+        mockUseCurrentUser.mockReturnValue({
+          loading: false,
+          currentUser: { memberships: [membership('locked', false)] },
+        })
+
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith('/forbidden', { replace: true })
+      })
+    })
+
     describe('WHEN the user has an accessible membership', () => {
       it('THEN should still land on that organization', () => {
         renderHook(() => RootRedirect())
