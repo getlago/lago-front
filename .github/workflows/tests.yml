@@ -30,9 +30,6 @@ jobs:
       - name: Install Node.js dependencies
         run: pnpm install
 
-      - name: Build packages
-        run: pnpm prebuild
-
       - name: Run Typescript
         run: pnpm tsc
 
