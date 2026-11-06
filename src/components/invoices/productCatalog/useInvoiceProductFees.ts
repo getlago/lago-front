@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { useSearchParams } from 'react-router'
 
 import { usePageSearchParam } from '~/components/designSystem/Pagination'
+import { INVOICE_PRODUCT_FEES_FILTER_PREFIX } from '~/core/constants/filters'
 import { useNavigate } from '~/core/router'
 import {
   FeeForViewFeeDetailsDrawerFragmentDoc,
@@ -171,7 +172,7 @@ export const resolveActiveSectionKey = (
   rawKey: string | null,
 ): string | undefined => sections.find(({ key }) => key === rawKey)?.key ?? sections[0]?.key
 
-type InvoiceProductFeesFilters = Pick<
+export type InvoiceProductFeesFilters = Pick<
   GetInvoiceProductFeesQueryVariables,
   'productIds' | 'productFilterIds' | 'withoutProductFilter' | 'productType'
 >
@@ -218,6 +219,9 @@ export const useInvoiceProductFees = ({
 
     next.set(INVOICE_PRODUCT_CATALOG_SECTION_SEARCH_PARAM, key)
     next.delete('page')
+    Array.from(next.keys())
+      .filter((searchKey) => searchKey.startsWith(`${INVOICE_PRODUCT_FEES_FILTER_PREFIX}_`))
+      .forEach((searchKey) => next.delete(searchKey))
     navigate({ search: next.toString() }, { replace: true })
   }
 

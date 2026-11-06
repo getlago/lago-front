@@ -7,6 +7,9 @@ import { Typography } from '~/components/designSystem/Typography'
 import { InvoiceProductCatalogContractFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { buildInvoiceProductCatalogTabs } from './invoiceProductCatalogTabs'
+import { InvoiceProductCatalogToolbar } from './InvoiceProductCatalogToolbar'
+import { formatInvoiceProductFeesFilters } from './invoiceProductFeesFilters'
 import {
   buildInvoiceProductCatalogSections,
   INVOICE_PRODUCT_CATALOG_SECTION_SEARCH_PARAM,
@@ -22,12 +25,19 @@ export const INVOICE_PRODUCT_CATALOG_EMPTY_TEST_ID = 'invoice-product-catalog-em
 const InvoiceProductCatalogSectionContent = ({
   invoiceId,
   section,
+  sections,
 }: {
   invoiceId: string
   section: InvoiceProductCatalogSectionItem
+  sections: InvoiceProductCatalogSectionItem[]
 }): JSX.Element => {
   const { translate } = useInternationalization()
-  const { data, loading, error, goToPage } = useInvoiceProductFees({ invoiceId, section })
+  const [searchParams] = useSearchParams()
+  const { data, loading, error, goToPage, selectSection, onSearchChange } = useInvoiceProductFees({
+    invoiceId,
+    section,
+    filters: formatInvoiceProductFeesFilters(searchParams),
+  })
   const fees = data?.invoiceProductFees.collection ?? []
 
   const renderFees = (): JSX.Element => {
@@ -52,7 +62,12 @@ const InvoiceProductCatalogSectionContent = ({
 
   return (
     <>
-      <div className="flex items-center gap-3" />
+      <InvoiceProductCatalogToolbar
+        tabs={buildInvoiceProductCatalogTabs(sections, translate)}
+        section={section}
+        onSelectSection={selectSection}
+        onSearchChange={onSearchChange}
+      />
       <PaginatedContent
         metadata={data?.invoiceProductFees.metadata}
         loading={loading}
@@ -91,6 +106,7 @@ export const InvoiceProductCatalogSection = ({
           key={`${invoiceId}:${activeSectionKey}`}
           invoiceId={invoiceId}
           section={section}
+          sections={sections}
         />
       ) : (
         <div data-test={INVOICE_PRODUCT_CATALOG_EMPTY_TEST_ID} />

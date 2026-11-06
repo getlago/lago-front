@@ -132,17 +132,27 @@ describe('GIVEN the paginated fees hook', () => {
     expect(requests[0]).not.toHaveProperty('productCategoryId')
   })
 
-  it('THEN changes section and removes page in one navigation while preserving filters', async () => {
+  it('THEN changes section and removes page and fees filters in one navigation', async () => {
     const { result } = renderHook(
       () => useInvoiceProductFees({ invoiceId: 'invoice-1', section: sections[0] }),
-      { wrapper },
+      {
+        wrapper: ({ children }: { children: ReactNode }): JSX.Element => (
+          <MemoryRouter
+            initialEntries={[
+              '/invoice?section=c1%3AcatA&page=3&ipf_dynamic.product=p1&ipf_appliedRateCardProductType=fixed&in_currency=USD',
+            ]}
+          >
+            <ApolloProvider client={client}>{children}</ApolloProvider>
+          </MemoryRouter>
+        ),
+      },
     )
 
     await waitFor(() => expect(requests).toHaveLength(1))
     act(() => result.current.selectSection('c2:standalone'))
     expect(testMockNavigateFn).toHaveBeenCalledTimes(1)
     expect(testMockNavigateFn).toHaveBeenCalledWith(
-      { search: 'section=c2%3Astandalone&ipf_productIds=product-1' },
+      { search: 'section=c2%3Astandalone&in_currency=USD' },
       { replace: true },
     )
   })

@@ -1,5 +1,6 @@
 import { ApolloError } from '@apollo/client'
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { InvoiceProductCatalogContractFragment } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -9,10 +10,12 @@ import {
   INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID,
   InvoiceProductCatalogSection,
 } from '../InvoiceProductCatalogSection'
+import { INVOICE_PRODUCT_CATALOG_TABS_TEST_ID } from '../InvoiceProductCatalogToolbar'
 
 const mockFees = jest.fn()
 const mockPager = jest.fn()
 const mockMount = jest.fn()
+const mockSelectSection = jest.fn()
 let mockSearchParams = new URLSearchParams()
 
 jest.mock('react-router', () => ({
@@ -67,6 +70,8 @@ describe('GIVEN a catalog invoice section', () => {
       },
       loading: false,
       goToPage: jest.fn(),
+      selectSection: mockSelectSection,
+      onSearchChange: jest.fn(),
     })
   })
 
@@ -101,6 +106,28 @@ describe('GIVEN a catalog invoice section', () => {
       expect(screen.getByTestId(INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID)).toBeInTheDocument()
     },
   )
+
+  it('THEN passes the fees filters of the URL to the hook', () => {
+    mockSearchParams = new URLSearchParams(
+      'ipf_dynamic.product=product-1|-_-|salad&ipf_appliedRateCardProductType=fixed',
+    )
+    render(<InvoiceProductCatalogSection invoiceId="invoice-1" contracts={contracts} />)
+    expect(mockFees).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        filters: { productIds: ['product-1'], productType: 'fixed' },
+      }),
+    )
+  })
+
+  it('THEN selects the section of the clicked tab through the hook', async () => {
+    const user = userEvent.setup()
+
+    render(<InvoiceProductCatalogSection invoiceId="invoice-1" contracts={contracts} />)
+    await user.click(
+      screen.getByTestId(`${INVOICE_PRODUCT_CATALOG_TABS_TEST_ID}-contract-1:standalone`),
+    )
+    expect(mockSelectSection).toHaveBeenCalledWith('contract-1:standalone')
+  })
 
   it('THEN remounts the hook owner only when the resolved section changes', () => {
     mockSearchParams = new URLSearchParams('section=unknown')
