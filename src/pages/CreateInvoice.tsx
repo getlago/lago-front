@@ -243,7 +243,11 @@ const CreateInvoice = () => {
     billingEntityOptions.find((o) => o.id === pickedBillingEntityId)?.value ??
     customer?.billingEntity?.code
 
-  const { data: billingEntityData, loading: isBillingEntityLoading } = useGetBillingEntityQuery({
+  const {
+    data: billingEntityData,
+    loading: isBillingEntityLoading,
+    error: billingEntityError,
+  } = useGetBillingEntityQuery({
     variables: {
       code: activeBillingEntityCode as string,
     },
@@ -251,6 +255,7 @@ const CreateInvoice = () => {
   })
 
   const billingEntity = billingEntityData?.billingEntity
+  const isBillingEntityResolved = !isBillingEntityLoading && !billingEntityError
 
   const { data: billingEntityTaxesData } = useGetBillingEntityTaxesForCreateInvoiceQuery({
     variables: {
@@ -561,15 +566,14 @@ const CreateInvoice = () => {
 
   // A regenerated invoice keeps the term of the one it replaces.
   const invoicingSettingsPaymentTerm: InvoicingSettingsPaymentTermProps | undefined =
-    voidedInvoiceId || isBillingEntityLoading
+    voidedInvoiceId
       ? undefined
       : {
           value: formValues.paymentTerm,
           onChange: (value) => form.setFieldValue('paymentTerm', value),
-          inheritedFrom: getInheritedPaymentTerm({
-            customer,
-            issuingBillingEntity: billingEntity,
-          }),
+          inheritedFrom: isBillingEntityResolved
+            ? getInheritedPaymentTerm({ customer, issuingBillingEntity: billingEntity })
+            : undefined,
         }
 
   return (
