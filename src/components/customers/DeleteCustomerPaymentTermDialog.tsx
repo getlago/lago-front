@@ -55,7 +55,7 @@ export const useDeleteCustomerPaymentTermDialog = (): {
   const openDeleteCustomerPaymentTermDialog = ({
     customer,
   }: DeleteCustomerPaymentTermDialogData): void => {
-    centralizedDialog.open({
+    void centralizedDialog.open({
       title: translate('text_1787603382163xl4mmi1owjh'),
       description: (
         <Typography
