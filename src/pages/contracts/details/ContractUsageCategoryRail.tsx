@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { VerticalMenu } from '~/components/designSystem/VerticalMenu'
+import { findNearestScrollableAncestor } from '~/components/designSystem/VirtualList/findNearestScrollableAncestor'
 import { useLocation } from '~/core/router'
 import { useGetContractUsageCategoriesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -49,6 +50,36 @@ export const ContractUsageCategoryRail = ({
     onErrorChange?.(!!error)
   }, [error, onErrorChange])
 
+  const navRef = useRef<HTMLElement>(null)
+
+  // Viewport-bottom-minus-current-top, not a fixed height: `sticky top-0` sits below the page
+  // header until scrolled there. Mirrors PlanDetailsV2LeftSidebar's own sticky-nav sizing.
+  useLayoutEffect(() => {
+    const element = navRef.current
+
+    if (!element) return
+
+    const pageScrollElement = findNearestScrollableAncestor(element)
+
+    const resizeToViewport = (): void => {
+      element.style.maxHeight = `${window.innerHeight - element.getBoundingClientRect().top}px`
+    }
+
+    resizeToViewport()
+    window.addEventListener('resize', resizeToViewport)
+    pageScrollElement?.addEventListener('scroll', resizeToViewport, { passive: true })
+
+    const bodyObserver = new ResizeObserver(resizeToViewport)
+
+    bodyObserver.observe(document.body)
+
+    return () => {
+      window.removeEventListener('resize', resizeToViewport)
+      pageScrollElement?.removeEventListener('scroll', resizeToViewport)
+      bodyObserver.disconnect()
+    }
+  }, [])
+
   const isFirstRefreshRender = useRef(true)
 
   useEffect(() => {
@@ -92,7 +123,10 @@ export const ContractUsageCategoryRail = ({
   }
 
   return (
-    <nav className="flex max-h-[600px] w-58 flex-shrink-0 flex-col gap-1 overflow-y-auto">
+    <nav
+      ref={navRef}
+      className="sticky top-0 flex min-h-0 w-58 flex-shrink-0 flex-col gap-1 overflow-y-auto"
+    >
       <VerticalMenu
         tabs={[
           {
