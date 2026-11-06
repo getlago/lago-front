@@ -13,14 +13,16 @@
     "./prettier": "./.prettierrc.mjs",
     "./tailwind": "./tailwind.config.ts",
     "./tsconfig": "./tsconfig.json",
-    "./fonts.css": "./fonts.css"
+    "./fonts.css": "./fonts.css",
+    "./brand/*": "./brand/*"
   },
   "files": [
     ".prettierrc.mjs",
     "eslint.config.mjs",
     "tailwind.config.ts",
     "tsconfig.json",
-    "fonts.css"
+    "fonts.css",
+    "brand"
   ],
   "dependencies": {
     "@fontsource/ibm-plex-mono": "5.3.0",

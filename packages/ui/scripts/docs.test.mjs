@@ -89,6 +89,15 @@ test('guides do not point to removed locations', () => {
   }
 })
 
+test('the Storybook theme only uses v2 color tokens', () => {
+  const tokens = read(join(root, 'src/styles/colors.css')).toUpperCase()
+  const colors = read(join(root, '.storybook/theme.ts')).match(/#[0-9A-F]{6}/gi) ?? []
+
+  for (const color of colors) {
+    assert.ok(tokens.includes(`${color.toUpperCase()};`), `${color} is not a v2 token value`)
+  }
+})
+
 test('relative links in guides resolve', () => {
   for (const file of markdownFiles) {
     const links = [...read(file).matchAll(/\]\((?!https?:)([^)#\s]+)/g)].map((match) => match[1])

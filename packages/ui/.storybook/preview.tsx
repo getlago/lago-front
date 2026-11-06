@@ -3,13 +3,18 @@ import type { Preview } from '@storybook/react-vite'
 import 'lago-configs/fonts.css'
 
 import './tailwind.css'
+import { lagoTheme } from './theme'
 
 import { ColorMode, ColorTheme } from '../src/components/color-theme'
 
 const preview: Preview = {
   parameters: {
     layout: 'fullscreen',
+    options: {
+      storySort: { order: ['Foundations', 'Components', '*'] },
+    },
     docs: {
+      theme: lagoTheme,
       page: () => (
         <>
           <Description />

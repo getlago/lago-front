@@ -7,7 +7,7 @@ const Smoke = (): JSX.Element => (
 )
 
 const meta = {
-  title: 'Smoke',
+  title: 'Internal/Smoke',
   component: Smoke,
 } satisfies Meta<typeof Smoke>
 
