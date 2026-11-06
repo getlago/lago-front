@@ -8,6 +8,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { intlFormatDateTime } from '~/core/timezone'
 import { CurrencyEnum, useGetContractCurrentUsageTotalQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -20,6 +21,8 @@ gql`
     contractCurrentUsageTotal(contractId: $contractId) {
       totalAmountCents
       taxesUnavailable
+      fromDatetime
+      toDatetime
     }
   }
 `
@@ -78,9 +81,20 @@ export const ContractUsageSection = ({
       />
 
       <div className="flex items-center justify-between pb-6 shadow-b">
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_17939706328430e4ck8frime')}
-        </Typography>
+        <div className="flex flex-col gap-1">
+          <Typography variant="bodyHl" color="grey700">
+            {translate('text_17939706328430e4ck8frime')}
+          </Typography>
+          {!!data?.contractCurrentUsageTotal.fromDatetime &&
+            !!data?.contractCurrentUsageTotal.toDatetime && (
+              <Typography variant="caption" color="grey600">
+                {translate('text_633dae57ca9a923dd53c2097', {
+                  fromDate: intlFormatDateTime(data.contractCurrentUsageTotal.fromDatetime).date,
+                  toDate: intlFormatDateTime(data.contractCurrentUsageTotal.toDatetime).date,
+                })}
+              </Typography>
+            )}
+        </div>
         <div className="flex items-center gap-1">
           {data?.contractCurrentUsageTotal.taxesUnavailable && (
             <Tooltip placement="top-end" title={translate('text_1793976872470dc2ih3k5q1n')}>

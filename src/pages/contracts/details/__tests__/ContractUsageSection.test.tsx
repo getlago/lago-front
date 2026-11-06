@@ -24,11 +24,19 @@ jest.mock('../ContractUsageTable', () => ({
     mockContractUsageTable(props),
 }))
 
-const buildTotalMock = (totalAmountCents: string): TestMocksType[number] => ({
+const buildTotalMock = (
+  totalAmountCents: string,
+  period?: { fromDatetime: string; toDatetime: string },
+): TestMocksType[number] => ({
   request: { query: GetContractCurrentUsageTotalDocument, variables: { contractId: 'contract-1' } },
   result: {
     data: {
-      contractCurrentUsageTotal: { __typename: 'ContractCurrentUsageTotal', totalAmountCents },
+      contractCurrentUsageTotal: {
+        __typename: 'ContractCurrentUsageTotal',
+        totalAmountCents,
+        fromDatetime: period?.fromDatetime ?? null,
+        toDatetime: period?.toDatetime ?? null,
+      },
     },
   },
 })
@@ -51,6 +59,24 @@ describe('ContractUsageSection', () => {
     expect(await screen.findByTestId('mocked-rail')).toBeInTheDocument()
     expect(screen.getByTestId('mocked-table')).toBeInTheDocument()
     expect(await screen.findByText(/670\.50|67050/)).toBeInTheDocument()
+  })
+
+  it("shows the total's billing period when the backend reports one", async () => {
+    render(
+      <AllTheProviders
+        forceTypenames
+        mocks={[
+          buildTotalMock('67050', {
+            fromDatetime: '2027-02-01T00:00:00.000Z',
+            toDatetime: '2027-02-28T23:59:59.000Z',
+          }),
+        ]}
+      >
+        <ContractUsageSection contractId="contract-1" />
+      </AllTheProviders>,
+    )
+
+    expect(await screen.findByText('From Feb 1, 2027 to Feb 28, 2027')).toBeInTheDocument()
   })
 
   it('shows $0.00 (not hidden) for a contract with no usage', async () => {
