@@ -1,6 +1,13 @@
 import { DateTime } from 'luxon'
 
 import { BasicComboBoxData } from '~/components/form/ComboBox/types'
+import { PaymentTermFormValues, PaymentTermInheritedFrom } from '~/components/paymentTerms/types'
+import {
+  getInheritedPaymentTerm,
+  INHERIT_UNRESOLVED_LABEL_KEY,
+  paymentTermFromFormValues,
+  PaymentTermLevels,
+} from '~/components/paymentTerms/utils'
 import {
   PAYMENT_TERM_DUE_DATE_PREVIEW_KEYS,
   PAYMENT_TERM_INHERIT,
@@ -97,9 +104,17 @@ export const usePaymentTerm = () => {
     )
   }
 
+  const formatInheritedPaymentTerm = (
+    inheritedFrom: PaymentTermInheritedFrom | undefined,
+  ): string =>
+    inheritedFrom
+      ? translate(inheritedFrom.labelKey, { value: formatPaymentTerm(inheritedFrom.term) })
+      : translate(INHERIT_UNRESOLVED_LABEL_KEY)
+
   // Rendered with `sortValues={false}`, so this order is what the user sees.
   const getTermTypeComboboxData = (options?: {
-    inheritedFrom?: { term: ResolvablePaymentTerm; labelKey: string }
+    canInherit?: boolean
+    inheritedFrom?: PaymentTermInheritedFrom
   }): BasicComboBoxData[] => {
     const termTypeOptions = PAYMENT_TERM_TYPES.map((termType) => ({
       value: termType,
@@ -107,23 +122,39 @@ export const usePaymentTerm = () => {
       description: translate(PAYMENT_TERM_TYPE_DESCRIPTION_KEYS[termType]),
     }))
 
-    if (!options?.inheritedFrom) return termTypeOptions
+    if (!options?.canInherit && !options?.inheritedFrom) return termTypeOptions
 
     return [
-      {
-        value: PAYMENT_TERM_INHERIT,
-        label: translate(options.inheritedFrom.labelKey, {
-          value: formatPaymentTerm(options.inheritedFrom.term),
-        }),
-      },
+      { value: PAYMENT_TERM_INHERIT, label: formatInheritedPaymentTerm(options.inheritedFrom) },
       ...termTypeOptions,
     ]
   }
 
+  const getBillingObjectPaymentTermCopy = ({
+    ownTerm,
+    ...levels
+  }: PaymentTermLevels & { ownTerm: MaybePaymentTerm }): string => {
+    if (ownTerm) return formatPaymentTerm(ownTerm)
+
+    return formatInheritedPaymentTerm(getInheritedPaymentTerm(levels))
+  }
+
+  /** How the editor's current values read in a summary, before they are saved. */
+  const getPaymentTermFormValuesCopy = (
+    values: PaymentTermFormValues,
+    inheritedFrom: PaymentTermInheritedFrom | undefined,
+  ): string => {
+    const term = paymentTermFromFormValues(values)
+
+    return term ? formatPaymentTerm(term) : formatInheritedPaymentTerm(inheritedFrom)
+  }
+
   return {
     formatPaymentTerm,
+    getBillingObjectPaymentTermCopy,
     getDueDatePreviewCopy,
     getPaymentTermCopy,
+    getPaymentTermFormValuesCopy,
     getTermTypeComboboxData,
   }
 }

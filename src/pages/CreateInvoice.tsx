@@ -14,8 +14,12 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { InvoiceTaxesDisplay, TaxMapType } from '~/components/invoices/InvoiceTaxesDisplay'
-import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
+import {
+  InvoicingSettingsPaymentTermProps,
+  InvoicingSettingsSelector,
+} from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
+import { getInheritedPaymentTerm } from '~/components/paymentTerms/utils'
 import { PurchaseOrder } from '~/components/purchaseOrder/PO'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
@@ -117,9 +121,21 @@ gql`
       state
       zipcode
       accountType
+      paymentTerm {
+        termType
+        days
+        dayOfMonth
+        monthOffset
+      }
       billingEntity {
         id
         code
+        paymentTerm {
+          termType
+          days
+          dayOfMonth
+          monthOffset
+        }
       }
       taxes {
         id
@@ -227,7 +243,11 @@ const CreateInvoice = () => {
     billingEntityOptions.find((o) => o.id === pickedBillingEntityId)?.value ??
     customer?.billingEntity?.code
 
-  const { data: billingEntityData } = useGetBillingEntityQuery({
+  const {
+    data: billingEntityData,
+    loading: isBillingEntityLoading,
+    error: billingEntityError,
+  } = useGetBillingEntityQuery({
     variables: {
       code: activeBillingEntityCode as string,
     },
@@ -235,6 +255,7 @@ const CreateInvoice = () => {
   })
 
   const billingEntity = billingEntityData?.billingEntity
+  const isBillingEntityResolved = !isBillingEntityLoading && !billingEntityError
 
   const { data: billingEntityTaxesData } = useGetBillingEntityTaxesForCreateInvoiceQuery({
     variables: {
@@ -542,6 +563,18 @@ const CreateInvoice = () => {
     total,
     currency,
   )
+
+  // A regenerated invoice keeps the term of the one it replaces.
+  const invoicingSettingsPaymentTerm: InvoicingSettingsPaymentTermProps | undefined =
+    voidedInvoiceId
+      ? undefined
+      : {
+          value: formValues.paymentTerm,
+          onChange: (value) => form.setFieldValue('paymentTerm', value),
+          inheritedFrom: isBillingEntityResolved
+            ? getInheritedPaymentTerm({ customer, issuingBillingEntity: billingEntity })
+            : undefined,
+        }
 
   return (
     <>
@@ -855,6 +888,7 @@ const CreateInvoice = () => {
                     customerId={customer.id}
                     value={formValues.invoiceCustomSection}
                     onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
+                    paymentTerm={invoicingSettingsPaymentTerm}
                   />
                 </section>
               )}

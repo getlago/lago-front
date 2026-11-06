@@ -37,6 +37,12 @@ gql`
     endingAt
     billingTime
     purchaseOrderNumber
+    paymentTerm {
+      termType
+      days
+      dayOfMonth
+      monthOffset
+    }
     billingEntityId
     periodEndDate
     status

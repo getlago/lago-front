@@ -4,10 +4,16 @@ import userEvent from '@testing-library/user-event'
 import { INVOICING_SETTINGS_SELECTOR_TEST_ID } from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { PAYMENT_SETTINGS_SELECTOR_TEST_ID } from '~/components/paymentSettings/PaymentSettingsSelector'
 import {
+  INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
+  INHERIT_UNRESOLVED_LABEL_KEY,
+} from '~/components/paymentTerms/utils'
+import {
   CurrencyEnum,
   CustomerAccountTypeEnum,
+  PaymentTermTypeEnum,
   TaxInfosForCreateInvoiceFragment,
   useCreateInvoiceMutation,
+  useGetBillingEntityQuery,
   useGetInfosForCreateInvoiceQuery,
 } from '~/generated/graphql'
 import { FEES_SECTION_AT_LEAST_ONE_FEE_ERROR_TEST_ID } from '~/pages/createInvoice/components/FeesSection'
@@ -448,6 +454,51 @@ describe('CreateInvoice - form behavior', () => {
 
         expect(screen.getByTestId(PAYMENT_SETTINGS_SELECTOR_TEST_ID)).toBeInTheDocument()
         expect(screen.queryByTestId(INVOICING_SETTINGS_SELECTOR_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the issuing billing entity query', () => {
+    const invoicingSettingsSubtitle = () =>
+      screen.getByTestId(INVOICING_SETTINGS_SELECTOR_TEST_ID).textContent
+
+    afterEach(() => {
+      ;(useGetBillingEntityQuery as jest.Mock).mockReturnValue({ data: undefined, loading: false })
+    })
+
+    describe('WHEN it has resolved an entity with a term', () => {
+      it('THEN should label the inherit choice with that entity term', () => {
+        ;(useGetBillingEntityQuery as jest.Mock).mockReturnValue({
+          data: {
+            billingEntity: {
+              id: 'be_1',
+              code: 'main',
+              paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 45 },
+            },
+          },
+          loading: false,
+          error: undefined,
+        })
+
+        render(<CreateInvoice />, { useParams: { customerId: 'cus_1' } })
+
+        expect(invoicingSettingsSubtitle()).toContain(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)
+        expect(invoicingSettingsSubtitle()).not.toContain(INHERIT_UNRESOLVED_LABEL_KEY)
+      })
+    })
+
+    describe.each([
+      ['is still loading', { loading: true, error: undefined }],
+      ['has errored', { loading: false, error: new Error('network error') }],
+    ])('WHEN it %s', (_, queryState) => {
+      it('THEN should keep the term editor but not label the inherit choice with the customer entity', () => {
+        ;(useGetBillingEntityQuery as jest.Mock).mockReturnValue({ data: undefined, ...queryState })
+
+        render(<CreateInvoice />, { useParams: { customerId: 'cus_1' } })
+
+        expect(screen.getByTestId(INVOICING_SETTINGS_SELECTOR_TEST_ID)).toBeInTheDocument()
+        expect(invoicingSettingsSubtitle()).toContain(INHERIT_UNRESOLVED_LABEL_KEY)
+        expect(invoicingSettingsSubtitle()).not.toContain(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)
       })
     })
   })
