@@ -55,8 +55,8 @@ jest.mock(
 
 // The drawer stack relies on import.meta (unsupported in jest)
 jest.mock('~/components/drawers/useDrawer', () => ({
-  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
-  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn(), update: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn(), update: jest.fn() }),
 }))
 
 jest.mock('react-router', () => ({
