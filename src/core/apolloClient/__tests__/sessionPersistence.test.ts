@@ -11,7 +11,7 @@ import { cache } from '../cache'
 import { pausePersistence, resumePersistence, setupCachePersistor } from '../cachePersistor'
 import { onLogIn } from '../cacheUtils'
 import { reconcileSession } from '../crossTabAuth'
-import { authTokenVar } from '../reactiveVars'
+import { authTokenVar, currentOrganizationVar } from '../reactiveVars'
 
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('../crossTabAuth'),
@@ -39,6 +39,10 @@ jest.mock('../reactiveVars', () => ({
   TMP_AUTH_TOKEN_LS_KEY: 'tmpAuthToken',
   authTokenVar: jest.requireActual('@apollo/client').makeVar(undefined),
   customerPortalTokenVar: jest.requireActual('@apollo/client').makeVar(undefined),
+  currentOrganizationVar: jest.requireActual('../reactiveVars/currentOrganizationVar')
+    .currentOrganizationVar,
+  setCurrentOrganizationId: jest.requireActual('../reactiveVars/currentOrganizationVar')
+    .setCurrentOrganizationId,
   getStoredAuthToken: (): string | undefined =>
     globalThis.localStorage.getItem('authToken') || undefined,
   updateAuthTokenVar: jest.fn(),
@@ -80,6 +84,7 @@ describe('session persistence', () => {
 
   it('signs out the UI and clears local data and sockets on a remote logout without a request', async () => {
     localStorage.setItem('authToken', 'old-token')
+    currentOrganizationVar('old-session-org')
     writeMarker(cache, 'old session')
     const stop = jest.spyOn(client, 'stop')
     const { result, unmount } = renderHook(() => {
@@ -103,6 +108,7 @@ describe('session persistence', () => {
     })
 
     expect(result.current.isAuthenticated).toBe(false)
+    expect(currentOrganizationVar()).toBeNull()
     expect(cache.extract()).toEqual({})
     expect(stop).toHaveBeenCalledTimes(1)
     expect(disconnectCableConsumer).toHaveBeenCalledTimes(1)

@@ -1,7 +1,7 @@
 import { ApolloClient } from '@apollo/client'
 
 import { listenToSessionChanges, reconcileSession } from '../crossTabAuth'
-import { authTokenVar } from '../reactiveVars'
+import { authTokenVar, currentOrganizationVar } from '../reactiveVars'
 
 const mockClearLocalSession = jest.fn()
 
@@ -128,6 +128,7 @@ describe('reconcileSession', () => {
     mockClearLocalSession.mockResolvedValue(undefined)
     authTokenVar(USER_A_TOKEN)
     localStorage.setItem('authToken', USER_A_TOKEN)
+    currentOrganizationVar('org-of-user-a')
   })
 
   describe('GIVEN the tab is in sync with localStorage', () => {
@@ -136,6 +137,7 @@ describe('reconcileSession', () => {
 
       expect(mockClearLocalSession).not.toHaveBeenCalled()
       expect(authTokenVar()).toBe(USER_A_TOKEN)
+      expect(currentOrganizationVar()).toBe('org-of-user-a')
     })
   })
 
@@ -147,6 +149,14 @@ describe('reconcileSession', () => {
 
       expect(mockClearLocalSession).toHaveBeenCalledWith(client)
       expect(authTokenVar()).toBeUndefined()
+    })
+
+    it('THEN should forget the organization of the session that ended', async () => {
+      localStorage.removeItem('authToken')
+
+      await reconcileSession(client)
+
+      expect(currentOrganizationVar()).toBeNull()
     })
   })
 
@@ -162,7 +172,7 @@ describe('reconcileSession', () => {
   })
 
   describe('GIVEN this tab is signed out and another tab signs in', () => {
-    it('THEN should adopt the new session', async () => {
+    it('THEN should adopt the new session without any organization', async () => {
       authTokenVar(undefined)
       localStorage.setItem('authToken', USER_B_TOKEN)
 
@@ -170,6 +180,7 @@ describe('reconcileSession', () => {
 
       expect(mockClearLocalSession).toHaveBeenCalledTimes(1)
       expect(authTokenVar()).toBe(USER_B_TOKEN)
+      expect(currentOrganizationVar()).toBeNull()
     })
   })
 
@@ -182,6 +193,7 @@ describe('reconcileSession', () => {
 
       expect(mockClearLocalSession).not.toHaveBeenCalled()
       expect(authTokenVar()).toBe(USER_A_RENEWED_TOKEN)
+      expect(currentOrganizationVar()).toBe('org-of-user-a')
     })
   })
 
@@ -194,6 +206,7 @@ describe('reconcileSession', () => {
 
       expect(mockClearLocalSession).not.toHaveBeenCalled()
       expect(authTokenVar()).toBeUndefined()
+      expect(currentOrganizationVar()).toBeNull()
     })
   })
 

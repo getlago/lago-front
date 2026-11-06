@@ -64,6 +64,9 @@ export const logOut = async (
 
   const storedToken = getStoredAuthToken()
 
+  // With the token, not in `clearLocalSession`: while the token is still set, the
+  // org route writes it back from the previous user's data.
+  setCurrentOrganizationId(null)
   if (storedToken) resumePersistence()
   authTokenVar(storedToken)
 
