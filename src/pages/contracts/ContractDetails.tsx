@@ -168,7 +168,7 @@ const ContractDetails = (): JSX.Element => {
             title: translate('text_1725983967306cf8dwr2r4u2'),
             link: buildTabLink(ContractDetailsTabsOptionsEnum.usage),
             content: contract?.id && (
-              <DetailsPage.Container className="min-h-0 flex-1 pb-0 pt-6">
+              <DetailsPage.Container className="pb-0 pt-6">
                 <ContractUsageSection contractId={contract.id} currency={contract.plan?.currency} />
               </DetailsPage.Container>
             ),

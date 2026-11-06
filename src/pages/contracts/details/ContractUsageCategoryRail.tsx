@@ -92,7 +92,7 @@ export const ContractUsageCategoryRail = ({
   }
 
   return (
-    <nav className="flex min-h-0 w-58 flex-shrink-0 flex-col gap-1 overflow-y-auto">
+    <nav className="flex max-h-[600px] w-58 flex-shrink-0 flex-col gap-1 overflow-y-auto">
       <VerticalMenu
         tabs={[
           {

@@ -68,7 +68,7 @@ export const ContractUsageSection = ({
   }
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col gap-6">
+    <section className="flex flex-col gap-6">
       <SectionHeader
         title={translate('text_1725983967306cf8dwr2r4u2')}
         action={{
@@ -112,7 +112,7 @@ export const ContractUsageSection = ({
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 gap-6">
+      <div className="flex gap-6">
         <ContractUsageCategoryRail
           contractId={contractId}
           onErrorChange={setRailHasError}
