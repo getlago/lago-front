@@ -5335,5 +5335,15 @@
   "text_1792580016209ml8r6ycj2vu": "Plan rate cards",
   "text_17925800162109zo2h16ap37": "Contract rate cards",
   "text_179395714258761jqheadwll": "Search a fee",
-  "text_1793957142587cgaevt98s5y": "{{contract}} - {{category}}"
+  "text_1793957142587cgaevt98s5y": "{{contract}} - {{category}}",
+  "text_1793976837126k8ncia8jumj": "Fee for first {{toValue}} units",
+  "text_17939768371273u15rqlfi7v": "Fee for units up to {{toValue}}",
+  "text_1793976837127fht81ak29xk": "Fee for remaining units",
+  "text_1793976837127voxh0bkw837": "Flat fee for first {{toValue}} units",
+  "text_17939768371278cqhh1rqafz": "Flat fee for units up to {{toValue}}",
+  "text_1793976837127aw1xks2iyyi": "Flat fee for remaining units",
+  "text_1793976837127ccgy1oexyvt": "True up from {{fromDate}} to {{toDate}}",
+  "text_1793976837127jdvb083z5d7": "No fees match your search or filters",
+  "text_1793976837128sy21setbesd": "Try another search term or remove some filters.",
+  "text_1793977020700qovkg6g58er": "Quantity"
 }

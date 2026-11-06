@@ -5,6 +5,7 @@ import { usePageSearchParam } from '~/components/designSystem/Pagination'
 import { INVOICE_PRODUCT_FEES_FILTER_PREFIX } from '~/core/constants/filters'
 import { useNavigate } from '~/core/router'
 import {
+  FeeForInvoiceProductCatalogFeesTableFragmentDoc,
   FeeForViewFeeDetailsDrawerFragmentDoc,
   GetInvoiceProductFeesQueryVariables,
   InvoiceProductCatalogContractFragment,
@@ -63,6 +64,7 @@ gql`
   fragment FeeForInvoiceProductCatalogSection on Fee {
     id
     ...FeeForViewFeeDetailsDrawer
+    ...FeeForInvoiceProductCatalogFeesTable
     preciseUnitAmount
     currency
     rateModel
@@ -147,6 +149,7 @@ gql`
   }
 
   ${FeeForViewFeeDetailsDrawerFragmentDoc}
+  ${FeeForInvoiceProductCatalogFeesTableFragmentDoc}
 `
 
 export const INVOICE_PRODUCT_FEES_PAGE_SIZE = 100
