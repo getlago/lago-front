@@ -12,6 +12,7 @@ import {
 } from '~/generated/graphql'
 import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
 import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
+import { BillingEntityByIdStatus } from '~/hooks/useBillingEntitiesOptions'
 import { render } from '~/test-utils'
 
 import WalletInformations, {
@@ -56,13 +57,13 @@ jest.mock('~/hooks/useCustomerInvoiceCustomSections', () => ({
   }),
 }))
 
-let mockIsBillingEntityUnresolved = false
+let mockBillingEntityStatus: BillingEntityByIdStatus = 'resolved'
 
 jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
   ...jest.requireActual('~/hooks/useBillingEntitiesOptions'),
   useBillingEntityById: () => ({
     billingEntity: undefined,
-    isUnresolved: mockIsBillingEntityUnresolved,
+    status: mockBillingEntityStatus,
   }),
 }))
 
@@ -112,7 +113,7 @@ describe('WalletInformations', () => {
     mockHasFeatureFlag = false
     mockPaymentMethodsList = []
     mockCustomerIcsData = null
-    mockIsBillingEntityUnresolved = false
+    mockBillingEntityStatus = 'resolved'
   })
 
   describe('GIVEN no wallet', () => {
@@ -354,36 +355,39 @@ describe('WalletInformations', () => {
       })
     })
 
-    describe('WHEN the wallet billing entity is still loading', () => {
-      beforeEach(() => {
-        mockIsBillingEntityUnresolved = true
-      })
+    describe.each<BillingEntityByIdStatus>(['loading', 'unavailable'])(
+      'WHEN the wallet billing entity is %s',
+      (status) => {
+        beforeEach(() => {
+          mockBillingEntityStatus = status
+        })
 
-      it('THEN shows a dash instead of a possibly wrong inherited term', () => {
-        render(<WalletInformations wallet={createMockWallet({ billingEntityId: 'be-2' })} />)
+        it('THEN shows a dash instead of a possibly wrong inherited term', () => {
+          render(<WalletInformations wallet={createMockWallet({ billingEntityId: 'be-2' })} />)
 
-        const value = getValueUnderLabel(PAYMENT_TERM_LABEL)
+          const value = getValueUnderLabel(PAYMENT_TERM_LABEL)
 
-        expect(value.getByText('-')).toBeInTheDocument()
-        expect(value.queryByText(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)).not.toBeInTheDocument()
-      })
+          expect(value.getByText('-')).toBeInTheDocument()
+          expect(value.queryByText(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)).not.toBeInTheDocument()
+        })
 
-      it('THEN still shows the wallet own term', () => {
-        render(
-          <WalletInformations
-            wallet={createMockWallet({
-              billingEntityId: 'be-2',
-              paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 15 },
-            })}
-          />,
-        )
+        it('THEN still shows the wallet own term', () => {
+          render(
+            <WalletInformations
+              wallet={createMockWallet({
+                billingEntityId: 'be-2',
+                paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 15 },
+              })}
+            />,
+          )
 
-        expect(
-          getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(
-            PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net],
-          ),
-        ).toBeInTheDocument()
-      })
-    })
+          expect(
+            getValueUnderLabel(PAYMENT_TERM_LABEL).getByText(
+              PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net],
+            ),
+          ).toBeInTheDocument()
+        })
+      },
+    )
   })
 })

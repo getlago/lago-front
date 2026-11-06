@@ -337,11 +337,12 @@ const CreateWallet = () => {
 
   const isDirty = useStore(form.store, (state) => state.isDirty)
   const walletBillingEntityId = useStore(form.store, (state) => state.values.billingEntityId)
-  const { billingEntity: issuingBillingEntity, isUnresolved: isBillingEntityUnresolved } =
+  const { billingEntity: issuingBillingEntity, status: billingEntityStatus } =
     useBillingEntityById(walletBillingEntityId)
-  const paymentTermInheritedFrom = isBillingEntityUnresolved
-    ? undefined
-    : getInheritedPaymentTerm({ customer: customerData?.customer, issuingBillingEntity })
+  const paymentTermInheritedFrom =
+    billingEntityStatus === 'resolved'
+      ? getInheritedPaymentTerm({ customer: customerData?.customer, issuingBillingEntity })
+      : undefined
 
   const openDirtyAttributesWarning = useCallback(() => {
     centralizedDialog.open({
