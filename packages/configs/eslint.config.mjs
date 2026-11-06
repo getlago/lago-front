@@ -108,10 +108,8 @@ export default [
       'no-unneeded-ternary': 'warn',
       'no-duplicate-imports': 'error',
 
-      // Prevent barrel imports from large libraries (impacts bundle size and dev performance).
-      // `no-restricted-syntax`, not `no-restricted-imports`: a second `no-restricted-imports`
-      // entry below (formik/dialog deprecations) fully replaces this one in flat config, since
-      // ESLint doesn't merge rule options across config objects matching the same files.
+      // `no-restricted-syntax`, not `no-restricted-imports`: the formik/dialog block below
+      // reuses that rule key at a different severity, and flat config doesn't merge options.
       'no-restricted-syntax': [
         'error',
         {
