@@ -188,7 +188,7 @@ const SelfServeSignUp = (): JSX.Element => {
   })
 
   useEffect(() => {
-    loadRecaptcha()
+    void loadRecaptcha()
   }, [])
 
   const password = useStore(form.store, (state) => state.values.password)

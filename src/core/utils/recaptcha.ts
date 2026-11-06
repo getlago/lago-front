@@ -23,21 +23,19 @@ export const loadRecaptcha = (): Promise<Grecaptcha | undefined> => {
 
   if (!recaptchaSiteKey) return Promise.resolve(undefined)
 
-  if (!recaptchaScript) {
-    recaptchaScript = new Promise((resolve) => {
-      const script = document.createElement('script')
+  recaptchaScript ??= new Promise((resolve) => {
+    const script = document.createElement('script')
 
-      script.src = `${RECAPTCHA_SCRIPT_URL}?render=${encodeURIComponent(recaptchaSiteKey)}`
-      script.async = true
-      script.onload = () => resolve(window.grecaptcha)
-      script.onerror = () => {
-        script.remove()
-        recaptchaScript = undefined
-        resolve(undefined)
-      }
-      document.head.appendChild(script)
-    })
-  }
+    script.src = `${RECAPTCHA_SCRIPT_URL}?render=${encodeURIComponent(recaptchaSiteKey)}`
+    script.async = true
+    script.onload = () => resolve(window.grecaptcha)
+    script.onerror = () => {
+      script.remove()
+      recaptchaScript = undefined
+      resolve(undefined)
+    }
+    document.head.appendChild(script)
+  })
 
   return recaptchaScript
 }
