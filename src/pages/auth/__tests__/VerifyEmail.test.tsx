@@ -8,7 +8,7 @@ import { envGlobalVar, initializeTranslations } from '~/core/apolloClient'
 import { LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { removeItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
-import { getRecaptchaToken } from '~/core/utils/recaptcha'
+import { getRecaptchaToken, unloadRecaptcha } from '~/core/utils/recaptcha'
 import {
   ConfirmSignupEmailMutation,
   LagoApiError,
@@ -73,6 +73,7 @@ jest.mock('~/core/router', () => ({
 
 jest.mock('~/core/utils/recaptcha', () => ({
   getRecaptchaToken: jest.fn(),
+  unloadRecaptcha: jest.fn(),
 }))
 
 jest.mock('~/generated/graphql', () => ({
@@ -84,6 +85,7 @@ jest.mock('~/generated/graphql', () => ({
 }))
 
 const mockedGetRecaptchaToken = jest.mocked(getRecaptchaToken)
+const mockedUnloadRecaptcha = jest.mocked(unloadRecaptcha)
 const mockedEnvGlobalVar = jest.mocked(envGlobalVar)
 
 const VERIFY_EMAIL_PATH = '/verify-email'
@@ -94,7 +96,6 @@ const SIGNUP_SECRET = 'signup-secret-1'
 const OTHER_SIGNUP_SECRET = 'signup-secret-2'
 const SESSION_TOKEN = 'session-token-1'
 const RECAPTCHA_TOKEN = 'recaptcha-token-1'
-const RETRY_RECAPTCHA_TOKEN = 'recaptcha-token-2'
 const RECAPTCHA_SITE_KEY = 'recaptcha-site-key'
 const GOOGLE_PRIVACY_POLICY_URL = 'https://policies.google.com/privacy'
 const GOOGLE_TERMS_URL = 'https://policies.google.com/terms'
@@ -343,6 +344,19 @@ describe('VerifyEmail', () => {
     jest.restoreAllMocks()
     removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
     openLink('')
+  })
+
+  describe('GIVEN the user leaves the page', () => {
+    describe('WHEN it unmounts', () => {
+      it('THEN should unload reCAPTCHA', () => {
+        const { unmount } = renderVerifyEmail()
+
+        mockedUnloadRecaptcha.mockClear()
+        unmount()
+
+        expect(mockedUnloadRecaptcha).toHaveBeenCalledTimes(1)
+      })
+    })
   })
 
   describe('GIVEN the page is opened from the link', () => {
@@ -993,38 +1007,20 @@ describe('VerifyEmail', () => {
       })
     })
 
-    describe('WHEN it is busy once on the password path', () => {
-      it('THEN should retry once with a fresh captcha token', async () => {
+    describe('WHEN it is busy on the password path', () => {
+      it('THEN should show the generic banner without retrying nor asking for a second token', async () => {
         const user = userEvent.setup()
 
         answerVerification(buildVerification({ passwordRequired: true }))
-        mockConfirmSignupEmail
-          .mockResolvedValueOnce(buildError(LagoApiError.LockAcquisitionFailed))
-          .mockResolvedValueOnce(CONFIRM_SUCCESS)
-        mockedGetRecaptchaToken
-          .mockResolvedValueOnce(RECAPTCHA_TOKEN)
-          .mockResolvedValueOnce(RETRY_RECAPTCHA_TOKEN)
+        mockConfirmSignupEmail.mockResolvedValue(buildError(LagoApiError.LockAcquisitionFailed))
 
         renderVerifyEmail()
         await typePasswordAndConfirm(user)
 
-        expect(mockConfirmSignupEmail.mock.calls).toEqual([
-          [
-            {
-              variables: {
-                input: { token: TOKEN, password: PASSWORD, captchaToken: RECAPTCHA_TOKEN },
-              },
-            },
-          ],
-          [
-            {
-              variables: {
-                input: { token: TOKEN, password: PASSWORD, captchaToken: RETRY_RECAPTCHA_TOKEN },
-              },
-            },
-          ],
-        ])
-        expect(mockOnLogIn).toHaveBeenCalledWith(mockClient, SESSION_TOKEN)
+        expect(mockConfirmSignupEmail).toHaveBeenCalledTimes(1)
+        expect(mockedGetRecaptchaToken).toHaveBeenCalledTimes(1)
+        expect(getErrorAlert()).toHaveTextContent(GENERIC_ERROR_COPY)
+        expect(mockOnLogIn).not.toHaveBeenCalled()
       })
     })
 

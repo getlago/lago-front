@@ -1,4 +1,4 @@
-import { FetchResult, gql } from '@apollo/client'
+import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -15,11 +15,10 @@ import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { removeItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
-import { getRecaptchaToken, loadRecaptcha } from '~/core/utils/recaptcha'
+import { getRecaptchaToken } from '~/core/utils/recaptcha'
 import { PASSWORD_VALIDATION_ERRORS } from '~/formValidation/zodCustoms'
 import {
   LagoApiError,
-  SelfServeSignUpMutation,
   useSelfServeSignUpMutation,
   useSignupEmailCheckLazyQuery,
 } from '~/generated/graphql'
@@ -27,7 +26,9 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { Card, Page, StyledLogo, Title } from '~/styles/auth'
 
-import { SelfServeCheckEmail } from './components/SelfServeCheckEmail'
+import { RecaptchaNotice } from './common/RecaptchaNotice'
+import { useRecaptcha } from './common/useRecaptcha'
+import { SelfServeCheckEmail } from './components/selfServeCheckEmail/SelfServeCheckEmail'
 import {
   getSelfServePasswordErrors,
   isSelfServePasswordTooLong,
@@ -84,6 +85,8 @@ const GOOGLE_SIGN_UP_INCOMPLETE_ERROR = 'text_1793952050623c2labd0slvn'
 
 const BANNER_ERRORS: Record<string, string> = {
   [LagoApiError.CaptchaFailed]: 'text_1793903925179h1k5w55ih95',
+  [LagoApiError.CaptchaUnavailable]: SIGN_UP_GENERIC_ERROR,
+  [LagoApiError.LockAcquisitionFailed]: SIGN_UP_GENERIC_ERROR,
   [LagoApiError.SelfServeDisabled]: 'text_1793898059309an560s3nkan',
   [LagoApiError.SignupDisabled]: 'text_1793898059309an560s3nkan',
   [LagoApiError.TooManyRequests]: 'text_1793898059309ltbe60gt6pd',
@@ -127,7 +130,7 @@ const toOrigin = (url: string): string | undefined => {
 
 const SelfServeSignUp = (): JSX.Element => {
   const { translate } = useInternationalization()
-  const { usFrontUrl, euFrontUrl, recaptchaSiteKey } = envGlobalVar()
+  const { usFrontUrl, euFrontUrl } = envGlobalVar()
   const [sentToEmail, setSentToEmail] = useState<string>()
   const [bannerError, setBannerError] = useState<string | undefined>(getGoogleSignUpError)
   const [emailCheckError, setEmailCheckError] = useState<string>()
@@ -149,8 +152,9 @@ const SelfServeSignUp = (): JSX.Element => {
     onSubmit: async ({ value, formApi }) => {
       setBannerError(undefined)
 
-      const send = async (): Promise<FetchResult<SelfServeSignUpMutation>> =>
-        signUp({
+      try {
+        // No retry on lock_acquisition_failed: the API spends the single-use token before the lock
+        const result = await signUp({
           variables: {
             input: {
               email: value.email.trim(),
@@ -159,13 +163,6 @@ const SelfServeSignUp = (): JSX.Element => {
             },
           },
         })
-
-      try {
-        let result = await send()
-
-        if (result.errors?.[0]?.extensions?.code === LagoApiError.LockAcquisitionFailed) {
-          result = await send()
-        }
 
         const signupSecret = result.data?.signUp?.signupSecret
 
@@ -202,9 +199,7 @@ const SelfServeSignUp = (): JSX.Element => {
     },
   })
 
-  useEffect(() => {
-    void loadRecaptcha()
-  }, [])
+  useRecaptcha()
 
   useEffect(() => {
     if (!new URLSearchParams(window.location.search).has('lago_error_code')) return
@@ -378,14 +373,7 @@ const SelfServeSignUp = (): JSX.Element => {
             </form.SubmitButton>
           </form.AppForm>
 
-          {!!recaptchaSiteKey && (
-            <Typography
-              className="text-center"
-              variant="caption"
-              color="grey600"
-              html={translate('text_179390753309316odlsgqxbw')}
-            />
-          )}
+          <RecaptchaNotice />
 
           <Typography
             className="text-center"

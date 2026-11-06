@@ -17672,6 +17672,28 @@ export type GoogleRegisterMutationVariables = Exact<{
 
 export type GoogleRegisterMutation = { __typename?: 'Mutation', googleRegisterUser?: { __typename?: 'RegisterUser', token: string } | null };
 
+export type ResendSignupEmailMutationVariables = Exact<{
+  input: ResendSignupEmailInput;
+}>;
+
+
+export type ResendSignupEmailMutation = { __typename?: 'Mutation', resendSignupEmail?: { __typename?: 'ResendSignupEmailPayload', resendAvailableInSeconds?: number | null, resendLimitReached: boolean } | null };
+
+export type SignupStatusQueryVariables = Exact<{
+  signupSecret: Scalars['String']['input'];
+  withResendState: Scalars['Boolean']['input'];
+}>;
+
+
+export type SignupStatusQuery = { __typename?: 'Query', signupStatus: { __typename?: 'SignupStatus', status: SignupStatusEnum, resendAvailableInSeconds?: number | null, resendLimitReached?: boolean } };
+
+export type ExchangeSignupSecretMutationVariables = Exact<{
+  input: ExchangeSignupSecretInput;
+}>;
+
+
+export type ExchangeSignupSecretMutation = { __typename?: 'Mutation', exchangeSignupSecret?: { __typename?: 'LoginUser', token: string } | null };
+
 export type SignupVerificationQueryVariables = Exact<{
   token: Scalars['String']['input'];
   signupSecret?: InputMaybe<Scalars['String']['input']>;
@@ -17693,28 +17715,6 @@ export type ResendSignupEmailFromLinkMutationVariables = Exact<{
 
 
 export type ResendSignupEmailFromLinkMutation = { __typename?: 'Mutation', resendSignupEmail?: { __typename?: 'ResendSignupEmailPayload', resendAvailableInSeconds?: number | null } | null };
-
-export type SignupStatusQueryVariables = Exact<{
-  signupSecret: Scalars['String']['input'];
-  withResendState: Scalars['Boolean']['input'];
-}>;
-
-
-export type SignupStatusQuery = { __typename?: 'Query', signupStatus: { __typename?: 'SignupStatus', status: SignupStatusEnum, resendAvailableInSeconds?: number | null, resendLimitReached?: boolean } };
-
-export type ExchangeSignupSecretMutationVariables = Exact<{
-  input: ExchangeSignupSecretInput;
-}>;
-
-
-export type ExchangeSignupSecretMutation = { __typename?: 'Mutation', exchangeSignupSecret?: { __typename?: 'LoginUser', token: string } | null };
-
-export type ResendSignupEmailMutationVariables = Exact<{
-  input: ResendSignupEmailInput;
-}>;
-
-
-export type ResendSignupEmailMutation = { __typename?: 'Mutation', resendSignupEmail?: { __typename?: 'ResendSignupEmailPayload', resendAvailableInSeconds?: number | null, resendLimitReached: boolean } | null };
 
 export type CatalogPlanForListFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, appliedRateCardsCount: number, contractsCount: number, currency: CurrencyEnum, description?: string | null, attachedToContracts: boolean };
 
@@ -46540,6 +46540,119 @@ export function useGoogleRegisterMutation(baseOptions?: Apollo.MutationHookOptio
 export type GoogleRegisterMutationHookResult = ReturnType<typeof useGoogleRegisterMutation>;
 export type GoogleRegisterMutationResult = Apollo.MutationResult<GoogleRegisterMutation>;
 export type GoogleRegisterMutationOptions = Apollo.BaseMutationOptions<GoogleRegisterMutation, GoogleRegisterMutationVariables>;
+export const ResendSignupEmailDocument = gql`
+    mutation resendSignupEmail($input: ResendSignupEmailInput!) {
+  resendSignupEmail(input: $input) {
+    resendAvailableInSeconds
+    resendLimitReached
+  }
+}
+    `;
+export type ResendSignupEmailMutationFn = Apollo.MutationFunction<ResendSignupEmailMutation, ResendSignupEmailMutationVariables>;
+
+/**
+ * __useResendSignupEmailMutation__
+ *
+ * To run a mutation, you first call `useResendSignupEmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useResendSignupEmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [resendSignupEmailMutation, { data, loading, error }] = useResendSignupEmailMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useResendSignupEmailMutation(baseOptions?: Apollo.MutationHookOptions<ResendSignupEmailMutation, ResendSignupEmailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ResendSignupEmailMutation, ResendSignupEmailMutationVariables>(ResendSignupEmailDocument, options);
+      }
+export type ResendSignupEmailMutationHookResult = ReturnType<typeof useResendSignupEmailMutation>;
+export type ResendSignupEmailMutationResult = Apollo.MutationResult<ResendSignupEmailMutation>;
+export type ResendSignupEmailMutationOptions = Apollo.BaseMutationOptions<ResendSignupEmailMutation, ResendSignupEmailMutationVariables>;
+export const SignupStatusDocument = gql`
+    query signupStatus($signupSecret: String!, $withResendState: Boolean!) {
+  signupStatus(signupSecret: $signupSecret) {
+    status
+    resendAvailableInSeconds @include(if: $withResendState)
+    resendLimitReached @include(if: $withResendState)
+  }
+}
+    `;
+
+/**
+ * __useSignupStatusQuery__
+ *
+ * To run a query within a React component, call `useSignupStatusQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSignupStatusQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSignupStatusQuery({
+ *   variables: {
+ *      signupSecret: // value for 'signupSecret'
+ *      withResendState: // value for 'withResendState'
+ *   },
+ * });
+ */
+export function useSignupStatusQuery(baseOptions: Apollo.QueryHookOptions<SignupStatusQuery, SignupStatusQueryVariables> & ({ variables: SignupStatusQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SignupStatusQuery, SignupStatusQueryVariables>(SignupStatusDocument, options);
+      }
+export function useSignupStatusLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SignupStatusQuery, SignupStatusQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SignupStatusQuery, SignupStatusQueryVariables>(SignupStatusDocument, options);
+        }
+// @ts-ignore
+export function useSignupStatusSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SignupStatusQuery, SignupStatusQueryVariables>): Apollo.UseSuspenseQueryResult<SignupStatusQuery, SignupStatusQueryVariables>;
+export function useSignupStatusSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SignupStatusQuery, SignupStatusQueryVariables>): Apollo.UseSuspenseQueryResult<SignupStatusQuery | undefined, SignupStatusQueryVariables>;
+export function useSignupStatusSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SignupStatusQuery, SignupStatusQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SignupStatusQuery, SignupStatusQueryVariables>(SignupStatusDocument, options);
+        }
+export type SignupStatusQueryHookResult = ReturnType<typeof useSignupStatusQuery>;
+export type SignupStatusLazyQueryHookResult = ReturnType<typeof useSignupStatusLazyQuery>;
+export type SignupStatusSuspenseQueryHookResult = ReturnType<typeof useSignupStatusSuspenseQuery>;
+export type SignupStatusQueryResult = Apollo.QueryResult<SignupStatusQuery, SignupStatusQueryVariables>;
+export const ExchangeSignupSecretDocument = gql`
+    mutation exchangeSignupSecret($input: ExchangeSignupSecretInput!) {
+  exchangeSignupSecret(input: $input) {
+    token
+  }
+}
+    `;
+export type ExchangeSignupSecretMutationFn = Apollo.MutationFunction<ExchangeSignupSecretMutation, ExchangeSignupSecretMutationVariables>;
+
+/**
+ * __useExchangeSignupSecretMutation__
+ *
+ * To run a mutation, you first call `useExchangeSignupSecretMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useExchangeSignupSecretMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [exchangeSignupSecretMutation, { data, loading, error }] = useExchangeSignupSecretMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useExchangeSignupSecretMutation(baseOptions?: Apollo.MutationHookOptions<ExchangeSignupSecretMutation, ExchangeSignupSecretMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ExchangeSignupSecretMutation, ExchangeSignupSecretMutationVariables>(ExchangeSignupSecretDocument, options);
+      }
+export type ExchangeSignupSecretMutationHookResult = ReturnType<typeof useExchangeSignupSecretMutation>;
+export type ExchangeSignupSecretMutationResult = Apollo.MutationResult<ExchangeSignupSecretMutation>;
+export type ExchangeSignupSecretMutationOptions = Apollo.BaseMutationOptions<ExchangeSignupSecretMutation, ExchangeSignupSecretMutationVariables>;
 export const SignupVerificationDocument = gql`
     query signupVerification($token: String!, $signupSecret: String) {
   signupVerification(token: $token, signupSecret: $signupSecret) {
@@ -46652,119 +46765,6 @@ export function useResendSignupEmailFromLinkMutation(baseOptions?: Apollo.Mutati
 export type ResendSignupEmailFromLinkMutationHookResult = ReturnType<typeof useResendSignupEmailFromLinkMutation>;
 export type ResendSignupEmailFromLinkMutationResult = Apollo.MutationResult<ResendSignupEmailFromLinkMutation>;
 export type ResendSignupEmailFromLinkMutationOptions = Apollo.BaseMutationOptions<ResendSignupEmailFromLinkMutation, ResendSignupEmailFromLinkMutationVariables>;
-export const SignupStatusDocument = gql`
-    query signupStatus($signupSecret: String!, $withResendState: Boolean!) {
-  signupStatus(signupSecret: $signupSecret) {
-    status
-    resendAvailableInSeconds @include(if: $withResendState)
-    resendLimitReached @include(if: $withResendState)
-  }
-}
-    `;
-
-/**
- * __useSignupStatusQuery__
- *
- * To run a query within a React component, call `useSignupStatusQuery` and pass it any options that fit your needs.
- * When your component renders, `useSignupStatusQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useSignupStatusQuery({
- *   variables: {
- *      signupSecret: // value for 'signupSecret'
- *      withResendState: // value for 'withResendState'
- *   },
- * });
- */
-export function useSignupStatusQuery(baseOptions: Apollo.QueryHookOptions<SignupStatusQuery, SignupStatusQueryVariables> & ({ variables: SignupStatusQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<SignupStatusQuery, SignupStatusQueryVariables>(SignupStatusDocument, options);
-      }
-export function useSignupStatusLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SignupStatusQuery, SignupStatusQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<SignupStatusQuery, SignupStatusQueryVariables>(SignupStatusDocument, options);
-        }
-// @ts-ignore
-export function useSignupStatusSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SignupStatusQuery, SignupStatusQueryVariables>): Apollo.UseSuspenseQueryResult<SignupStatusQuery, SignupStatusQueryVariables>;
-export function useSignupStatusSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SignupStatusQuery, SignupStatusQueryVariables>): Apollo.UseSuspenseQueryResult<SignupStatusQuery | undefined, SignupStatusQueryVariables>;
-export function useSignupStatusSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SignupStatusQuery, SignupStatusQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<SignupStatusQuery, SignupStatusQueryVariables>(SignupStatusDocument, options);
-        }
-export type SignupStatusQueryHookResult = ReturnType<typeof useSignupStatusQuery>;
-export type SignupStatusLazyQueryHookResult = ReturnType<typeof useSignupStatusLazyQuery>;
-export type SignupStatusSuspenseQueryHookResult = ReturnType<typeof useSignupStatusSuspenseQuery>;
-export type SignupStatusQueryResult = Apollo.QueryResult<SignupStatusQuery, SignupStatusQueryVariables>;
-export const ExchangeSignupSecretDocument = gql`
-    mutation exchangeSignupSecret($input: ExchangeSignupSecretInput!) {
-  exchangeSignupSecret(input: $input) {
-    token
-  }
-}
-    `;
-export type ExchangeSignupSecretMutationFn = Apollo.MutationFunction<ExchangeSignupSecretMutation, ExchangeSignupSecretMutationVariables>;
-
-/**
- * __useExchangeSignupSecretMutation__
- *
- * To run a mutation, you first call `useExchangeSignupSecretMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useExchangeSignupSecretMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [exchangeSignupSecretMutation, { data, loading, error }] = useExchangeSignupSecretMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useExchangeSignupSecretMutation(baseOptions?: Apollo.MutationHookOptions<ExchangeSignupSecretMutation, ExchangeSignupSecretMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<ExchangeSignupSecretMutation, ExchangeSignupSecretMutationVariables>(ExchangeSignupSecretDocument, options);
-      }
-export type ExchangeSignupSecretMutationHookResult = ReturnType<typeof useExchangeSignupSecretMutation>;
-export type ExchangeSignupSecretMutationResult = Apollo.MutationResult<ExchangeSignupSecretMutation>;
-export type ExchangeSignupSecretMutationOptions = Apollo.BaseMutationOptions<ExchangeSignupSecretMutation, ExchangeSignupSecretMutationVariables>;
-export const ResendSignupEmailDocument = gql`
-    mutation resendSignupEmail($input: ResendSignupEmailInput!) {
-  resendSignupEmail(input: $input) {
-    resendAvailableInSeconds
-    resendLimitReached
-  }
-}
-    `;
-export type ResendSignupEmailMutationFn = Apollo.MutationFunction<ResendSignupEmailMutation, ResendSignupEmailMutationVariables>;
-
-/**
- * __useResendSignupEmailMutation__
- *
- * To run a mutation, you first call `useResendSignupEmailMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useResendSignupEmailMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [resendSignupEmailMutation, { data, loading, error }] = useResendSignupEmailMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useResendSignupEmailMutation(baseOptions?: Apollo.MutationHookOptions<ResendSignupEmailMutation, ResendSignupEmailMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<ResendSignupEmailMutation, ResendSignupEmailMutationVariables>(ResendSignupEmailDocument, options);
-      }
-export type ResendSignupEmailMutationHookResult = ReturnType<typeof useResendSignupEmailMutation>;
-export type ResendSignupEmailMutationResult = Apollo.MutationResult<ResendSignupEmailMutation>;
-export type ResendSignupEmailMutationOptions = Apollo.BaseMutationOptions<ResendSignupEmailMutation, ResendSignupEmailMutationVariables>;
 export const CatalogPlansDocument = gql`
     query catalogPlans($page: Int, $limit: Int, $searchTerm: String) {
   catalogPlans(page: $page, limit: $limit, searchTerm: $searchTerm) {

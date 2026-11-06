@@ -17,7 +17,7 @@ import { INVITATION_ROUTE_FORM, LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router
 import { isSafeInAppPath } from '~/core/router/utils/isSafeInAppPath'
 import { setItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
-import { getRecaptchaToken } from '~/core/utils/recaptcha'
+import { getRecaptchaToken, unloadRecaptcha } from '~/core/utils/recaptcha'
 import {
   LagoApiError,
   useGoogleLoginUserMutation,
@@ -94,6 +94,9 @@ const GoogleAuthCallback = () => {
       showError(SIGN_UP_ROUTE, getSignUpErrorCode(res.errors))
     } catch {
       showError(SIGN_UP_ROUTE, LagoApiError.InternalError)
+    } finally {
+      // Its only token is spent; not on unmount, as StrictMode's remount would cut the load short
+      unloadRecaptcha()
     }
   }
 

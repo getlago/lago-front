@@ -7,7 +7,7 @@ import { envGlobalVar } from '~/core/apolloClient'
 import { LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { removeItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
-import { getRecaptchaToken } from '~/core/utils/recaptcha'
+import { getRecaptchaToken, unloadRecaptcha } from '~/core/utils/recaptcha'
 import { GoogleSignUpMutation, LagoApiError } from '~/generated/graphql'
 
 // Import after mocks
@@ -66,6 +66,7 @@ jest.mock('~/core/utils/localStorage', () => ({
 
 jest.mock('~/core/utils/recaptcha', () => ({
   getRecaptchaToken: jest.fn(),
+  unloadRecaptcha: jest.fn(),
 }))
 
 jest.mock('~/generated/graphql', () => ({
@@ -76,6 +77,7 @@ jest.mock('~/generated/graphql', () => ({
 
 const mockedEnvGlobalVar = jest.mocked(envGlobalVar)
 const mockedGetRecaptchaToken = jest.mocked(getRecaptchaToken)
+const mockedUnloadRecaptcha = jest.mocked(unloadRecaptcha)
 
 const GOOGLE_CODE = 'google-auth-code'
 const SIGNED_STATE = '1793952050.abcdef0123456789'
@@ -547,6 +549,17 @@ describe('GoogleAuthCallback', () => {
         expect(mockNavigate).not.toHaveBeenCalled()
       })
 
+      it('THEN should unload reCAPTCHA once the sign-up has answered', async () => {
+        renderCallback()
+
+        await waitFor(() => {
+          expect(mockedUnloadRecaptcha).toHaveBeenCalledTimes(1)
+        })
+        expect(mockedUnloadRecaptcha.mock.invocationCallOrder[0]).toBeGreaterThan(
+          mockGoogleSignUp.mock.invocationCallOrder[0],
+        )
+      })
+
       it('THEN should sign up only once although StrictMode runs the effect twice', async () => {
         renderCallback()
 
@@ -691,6 +704,7 @@ describe('GoogleAuthCallback', () => {
             REPLACE_NAVIGATION,
           )
         })
+        expect(mockedUnloadRecaptcha).toHaveBeenCalledTimes(1)
       })
     })
   })
