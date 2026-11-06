@@ -265,6 +265,69 @@ describe('recaptcha', () => {
           expect(getScripts()).toEqual([newerScript])
         })
       })
+
+      describe('WHEN its api.js still arrives after the page unloaded reCAPTCHA', () => {
+        it('THEN should clean up what the late script created', async () => {
+          const { loadRecaptcha, unloadRecaptcha } = await importRecaptcha()
+
+          loadRecaptcha()
+
+          const lateScript = getScripts()[0]
+
+          unloadRecaptcha()
+          window.grecaptcha = buildGrecaptcha()
+          addPageLeftovers()
+          lateScript.dispatchEvent(new Event('load'))
+
+          expect(getScripts()).toHaveLength(0)
+          expect(document.querySelector('.grecaptcha-badge')).toBeNull()
+          expect(window.grecaptcha).toBeUndefined()
+          expect(window.___grecaptcha_cfg).toBeUndefined()
+        })
+      })
+
+      describe('WHEN its api.js arrives after the load timeout', () => {
+        it('THEN should clean up what the late script created', async () => {
+          const { loadRecaptcha } = await importRecaptcha()
+
+          loadRecaptcha()
+
+          const lateScript = getScripts()[0]
+
+          await jest.advanceTimersByTimeAsync(RECAPTCHA_LOAD_TIMEOUT_MS)
+          window.grecaptcha = buildGrecaptcha()
+          addPageLeftovers()
+          lateScript.dispatchEvent(new Event('load'))
+
+          expect(document.querySelector('.grecaptcha-badge')).toBeNull()
+          expect(window.grecaptcha).toBeUndefined()
+          expect(window.___grecaptcha_cfg).toBeUndefined()
+        })
+      })
+
+      describe('WHEN its api.js arrives once a newer load owns the page', () => {
+        it('THEN should leave the newer load in place', async () => {
+          const { loadRecaptcha, unloadRecaptcha } = await importRecaptcha()
+
+          loadRecaptcha()
+
+          const lateScript = getScripts()[0]
+
+          unloadRecaptcha()
+
+          const newerLoading = loadRecaptcha()
+          const newerScript = getScripts()[0]
+          const grecaptcha = buildGrecaptcha()
+
+          window.grecaptcha = grecaptcha
+          lateScript.dispatchEvent(new Event('load'))
+          newerScript.dispatchEvent(new Event('load'))
+
+          await expect(newerLoading).resolves.toBe(grecaptcha)
+          expect(getScripts()).toEqual([newerScript])
+          expect(window.grecaptcha).toBe(grecaptcha)
+        })
+      })
     })
   })
 
