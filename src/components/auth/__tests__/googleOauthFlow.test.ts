@@ -1,0 +1,114 @@
+import { GoogleOauthFlow, storeGoogleOauthFlow, takeGoogleOauthFlow } from '../googleOauthFlow'
+
+const GOOGLE_OAUTH_FLOW_KEY = 'googleOauthFlow'
+
+const LOGIN_FLOW: GoogleOauthFlow = {
+  stateSecret: 'state-secret-1',
+  mode: 'login',
+  redirectPath: '/customers/123',
+}
+
+const INVITE_FLOW: GoogleOauthFlow = {
+  stateSecret: 'state-secret-2',
+  mode: 'invite',
+  invitationToken: 'invitation-token-1',
+}
+
+const SIGN_UP_FLOW: GoogleOauthFlow = {
+  stateSecret: 'state-secret-3',
+  mode: 'signup',
+}
+
+const storageError = (): never => {
+  throw new DOMException('The operation is insecure.', 'SecurityError')
+}
+
+describe('googleOauthFlow', () => {
+  beforeEach(() => {
+    sessionStorage.clear()
+  })
+
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
+  describe('GIVEN a flow was stored by the Google button', () => {
+    describe('WHEN the callback takes it', () => {
+      it.each([
+        ['a login flow with a redirect path', LOGIN_FLOW],
+        ['an invite flow with an invitation token', INVITE_FLOW],
+        ['a sign-up flow without optional values', SIGN_UP_FLOW],
+      ])('THEN should return %s', (_, flow) => {
+        storeGoogleOauthFlow(flow)
+
+        expect(takeGoogleOauthFlow()).toEqual(flow)
+      })
+
+      it('THEN should return it only once', () => {
+        storeGoogleOauthFlow(LOGIN_FLOW)
+
+        takeGoogleOauthFlow()
+
+        expect(takeGoogleOauthFlow()).toBeUndefined()
+        expect(sessionStorage.getItem(GOOGLE_OAUTH_FLOW_KEY)).toBeNull()
+      })
+    })
+
+    describe('WHEN another flow is stored afterwards', () => {
+      it('THEN should return the last stored flow', () => {
+        storeGoogleOauthFlow(LOGIN_FLOW)
+        storeGoogleOauthFlow(INVITE_FLOW)
+
+        expect(takeGoogleOauthFlow()).toEqual(INVITE_FLOW)
+      })
+    })
+  })
+
+  describe('GIVEN nothing was stored', () => {
+    describe('WHEN the callback takes the flow', () => {
+      it('THEN should return undefined', () => {
+        expect(takeGoogleOauthFlow()).toBeUndefined()
+      })
+    })
+  })
+
+  describe('GIVEN the stored entry is not a valid flow', () => {
+    describe('WHEN the callback takes the flow', () => {
+      it.each([
+        ['malformed JSON', '{"stateSecret":'],
+        ['a JSON null', 'null'],
+        ['a missing state secret', JSON.stringify({ mode: 'signup' })],
+        ['a state secret that is not a string', JSON.stringify({ stateSecret: 42, mode: 'login' })],
+        ['an unknown mode', JSON.stringify({ stateSecret: 'secret', mode: 'register' })],
+        ['a missing mode', JSON.stringify({ stateSecret: 'secret' })],
+        [
+          'an invitation token that is not a string',
+          JSON.stringify({ stateSecret: 'secret', mode: 'invite', invitationToken: 1 }),
+        ],
+      ])('THEN should return undefined for %s and remove the entry', (_, storedValue) => {
+        sessionStorage.setItem(GOOGLE_OAUTH_FLOW_KEY, storedValue)
+
+        expect(takeGoogleOauthFlow()).toBeUndefined()
+        expect(sessionStorage.getItem(GOOGLE_OAUTH_FLOW_KEY)).toBeNull()
+      })
+    })
+  })
+
+  describe('GIVEN the session storage is unavailable', () => {
+    describe('WHEN storing a flow', () => {
+      it('THEN should not throw', () => {
+        jest.spyOn(Storage.prototype, 'setItem').mockImplementation(storageError)
+
+        expect(() => storeGoogleOauthFlow(LOGIN_FLOW)).not.toThrow()
+      })
+    })
+
+    describe('WHEN taking the flow', () => {
+      it('THEN should return undefined without throwing', () => {
+        jest.spyOn(Storage.prototype, 'getItem').mockImplementation(storageError)
+
+        expect(takeGoogleOauthFlow()).toBeUndefined()
+      })
+    })
+  })
+})

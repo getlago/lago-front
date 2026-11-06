@@ -5381,5 +5381,8 @@
   "text_1793909885494oc59fm4ikcf": "This isn't the password you chose when signing up.",
   "text_1793909885494hs0en0o3hna": "We sent a new link. Check your inbox.",
   "text_1793909885494lhzg2ru6vty": "The password you chose when signing up",
-  "text_17939098854944rljlem8e3i": "Wait {{seconds}} seconds to resend a new email."
+  "text_17939098854944rljlem8e3i": "Wait {{seconds}} seconds to resend a new email.",
+  "text_1793952050623ct9rwfn5e61": "Sign up with Google",
+  "text_1793952050623fbn10vodflm": "Please sign up with your company Google account.",
+  "text_1793952050623c2labd0slvn": "Google sign-up didn't complete. Please try again."
 }
