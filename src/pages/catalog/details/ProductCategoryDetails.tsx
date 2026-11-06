@@ -91,7 +91,7 @@ const ProductCategoryDetails = () => {
         {
           label: translate('text_625fd39a15394c0117e7d792'),
           dataTest: 'product-details-edit',
-          hidden: !hasPermissions(['productCategoriesUpdate']),
+          hidden: !hasPermissions(['productsUpdate']),
           onClick: (closePopper) => {
             if (productCategory) openEditProductCategoryDrawer(productCategory)
             closePopper()
@@ -100,7 +100,7 @@ const ProductCategoryDetails = () => {
         {
           label: translate('text_629728388c4d2300e2d38182'),
           dataTest: 'product-details-delete',
-          hidden: !hasPermissions(['productCategoriesDelete']),
+          hidden: !hasPermissions(['productsDelete']),
           onClick: (closePopper) => {
             if (productCategory) {
               openDeleteProductCategoryDialog({

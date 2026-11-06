@@ -21,8 +21,8 @@ export const useProductFilterTableActions = () => {
   const { openDrawer: openProductFilterDrawer } = useProductFilterDrawer()
   const { openDeleteProductFilterDialog } = useDeleteProductFilterDialog()
 
-  const canUpdateProductFilters = hasPermissions(['productFiltersUpdate'])
-  const canDeleteProductFilters = hasPermissions(['productFiltersDelete'])
+  const canUpdateProductFilters = hasPermissions(['productsUpdate'])
+  const canDeleteProductFilters = hasPermissions(['productsDelete'])
 
   const actionColumnTooltip = useCallback((): string => {
     const label = [

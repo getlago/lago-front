@@ -161,7 +161,7 @@ const ProductFilterPreview = ({ product }: { product: ProductForFilterPreviewFra
   // A product with no billable-metric filters cannot have item filters, so
   // the create action is hidden when there are none to scope against.
   const canCreateProductFilters =
-    hasPermissions(['productFiltersCreate']) && (product.billableMetric?.filters?.length ?? 0) > 0
+    hasPermissions(['productsCreate']) && (product.billableMetric?.filters?.length ?? 0) > 0
 
   return (
     <section>

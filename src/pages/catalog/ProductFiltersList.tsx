@@ -102,7 +102,7 @@ const ProductFiltersList = () => {
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getProductFilters, loading)
 
-  const canCreateProductFilters = hasPermissions(['productFiltersCreate'])
+  const canCreateProductFilters = hasPermissions(['productsCreate'])
 
   const searchInputOnChange = useCallback(
     (value: string) => {
