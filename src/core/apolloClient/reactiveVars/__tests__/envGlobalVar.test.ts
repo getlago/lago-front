@@ -1,9 +1,12 @@
 type EnvGlobal = ReturnType<(typeof import('../envGlobalVar'))['envGlobalVar']>
-type SignUpEnvKey = 'LAGO_SELF_SERVE_ENABLED' | 'LAGO_DISABLE_SIGNUP'
+type SignUpEnvKey =
+  'LAGO_SELF_SERVE_ENABLED' | 'LAGO_DISABLE_SIGNUP' | 'LAGO_US_FRONT_URL' | 'LAGO_EU_FRONT_URL'
 
 const ORIGINAL_SIGN_UP_ENV: Record<SignUpEnvKey, string> = {
   LAGO_SELF_SERVE_ENABLED: window.LAGO_SELF_SERVE_ENABLED,
   LAGO_DISABLE_SIGNUP: window.LAGO_DISABLE_SIGNUP,
+  LAGO_US_FRONT_URL: window.LAGO_US_FRONT_URL,
+  LAGO_EU_FRONT_URL: window.LAGO_EU_FRONT_URL,
 }
 
 const setEnvValue = (key: SignUpEnvKey, value: string | undefined): void => {
@@ -127,6 +130,34 @@ describe('envGlobalVar', () => {
           const env = await loadEnvGlobal()
 
           expect(env).toMatchObject({ selfServeEnabled, disableSignUp: signUpDisabled })
+        },
+      )
+    })
+  })
+
+  describe.each([
+    { envKey: 'LAGO_US_FRONT_URL', field: 'usFrontUrl' },
+    { envKey: 'LAGO_EU_FRONT_URL', field: 'euFrontUrl' },
+  ] as const)('GIVEN $envKey', ({ envKey, field }) => {
+    describe('WHEN it is set with surrounding whitespace', () => {
+      it(`THEN should expose the trimmed URL as ${field}`, async () => {
+        setEnvValue(envKey, '  https://app.getlago.com \n')
+
+        const env = await loadEnvGlobal()
+
+        expect(env[field]).toBe('https://app.getlago.com')
+      })
+    })
+
+    describe('WHEN it is unset or blank', () => {
+      it.each([[undefined], [''], ['   ']])(
+        `THEN should expose ${field} as empty for %p`,
+        async (value) => {
+          setEnvValue(envKey, value)
+
+          const env = await loadEnvGlobal()
+
+          expect(env[field]).toBe('')
         },
       )
     })
