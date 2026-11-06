@@ -40,7 +40,7 @@ caller.
 
 **Do not** read `currentOrganizationVar` from feature components for UI or identifier construction. That is a known bug pattern (logo flashing wrong org cross-tab, webhook URLs baking the wrong UUID, slug page showing the other tab's value, etc.). The fix in every case is migrating off the var and onto `useParams` + memberships.
 
-Legitimate var reads in the codebase (audit anchor, keep this short). Permitted purposes only: (a) constructing the `x-lago-organization` auth header, (b) gating org-scoped queries so they don't fire header-less, (c) bridging URL → var inside `OrganizationLayout`, (d) forgetting it when the tab's session ends. UI/identifier construction is never permitted.
+Legitimate var reads and writes in the codebase (audit anchor, keep this short). Permitted purposes only: (a) constructing the `x-lago-organization` auth header, (b) gating org-scoped queries so they don't fire header-less, (c) bridging URL → var inside `OrganizationLayout`, (d) forgetting it when the tab's session ends. UI/identifier construction is never permitted.
 
 - `src/core/apolloClient/authHeaders.ts` and `src/core/apolloClient/init.ts` — auth-header construction (the canonical reason the var exists).
 - `src/layouts/OrganizationLayout.tsx` — switch detection on the `currentOrgId !== org.id` mismatch (the single sync point that writes the var from the URL slug).
