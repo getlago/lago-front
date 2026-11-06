@@ -33,7 +33,11 @@ const RootRedirect = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { loading: isUserLoading, currentUser } = useCurrentUser()
-  const { needsOrganization, loading: isNeedsOrganizationLoading } = useNeedsOrganization()
+  const {
+    needsOrganization,
+    loading: isNeedsOrganizationLoading,
+    hasError: hasNeedsOrganizationError,
+  } = useNeedsOrganization()
   const hasNavigatedRef = useRef(false)
 
   useEffect(() => {
@@ -50,7 +54,9 @@ const RootRedirect = () => {
 
     if (!accessibleMemberships.length) {
       hasNavigatedRef.current = true
-      navigate(FORBIDDEN_ROUTE, { replace: true })
+      navigate(hasNeedsOrganizationError ? CREATE_ORGANIZATION_ROUTE : FORBIDDEN_ROUTE, {
+        replace: true,
+      })
       return
     }
 
@@ -69,6 +75,7 @@ const RootRedirect = () => {
     isUserLoading,
     isNeedsOrganizationLoading,
     needsOrganization,
+    hasNeedsOrganizationError,
     currentUser,
     location.state,
     navigate,

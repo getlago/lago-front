@@ -242,4 +242,35 @@ describe('RootRedirect', () => {
       })
     })
   })
+
+  describe('GIVEN the needs-organization check failed', () => {
+    beforeEach(() => {
+      answerNeedsOrganization({ hasError: true })
+    })
+
+    describe('WHEN the user has no accessible membership', () => {
+      it('THEN should redirect to the create organization page instead of forbidden', () => {
+        mockUseCurrentUser.mockReturnValue({
+          loading: false,
+          currentUser: { memberships: [] },
+        })
+
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith(CREATE_ORGANIZATION_ROUTE, { replace: true })
+      })
+    })
+
+    describe('WHEN the user has an accessible membership', () => {
+      it('THEN should still land on that organization', () => {
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/acme',
+          expect.objectContaining({ replace: true }),
+        )
+      })
+    })
+  })
 })
