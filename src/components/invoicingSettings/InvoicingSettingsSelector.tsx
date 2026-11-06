@@ -6,7 +6,7 @@ import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 
-import { buildCustomSectionSummary } from './invoicingSettingsSummary'
+import { buildInvoicingSettingsSummary } from './invoicingSettingsSummary'
 import { useInvoicingSettingsDrawer } from './useInvoicingSettingsDrawer'
 
 export { INVOICING_SUMMARY_KEYS } from './invoicingSettingsSummary'
@@ -56,8 +56,9 @@ export const InvoicingSettingsSelector = ({
     },
   })
 
-  const summary = buildCustomSectionSummary({
+  const summary = buildInvoicingSettingsSummary({
     invoiceCustomSection: value,
+    showCustomSection: true,
     paymentTermCopy: paymentTerm
       ? getPaymentTermFormValuesCopy(paymentTerm.value, paymentTerm.inheritedFrom)
       : undefined,
