@@ -42,7 +42,7 @@ export default defineConfig([
   {
     files: ['src/**/*.{ts,tsx}'],
     rules: {
-      // Not core `no-restricted-imports`: it would replace the lago-configs formik/dialog/MUI options.
+      // Not core `no-restricted-imports`: it would replace the lago-configs formik/dialog options.
       '@typescript-eslint/no-restricted-imports': [
         'error',
         {
