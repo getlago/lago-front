@@ -9,6 +9,7 @@ import { ErrorFallback } from '~/components/ErrorFallback'
 import { CustomRouteObject, routes, useLocation, useNavigate } from '~/core/router'
 import { NEVER_SLUG_PREFIXES } from '~/core/router/slugPrefixes'
 import { isRouteGated, isRouteUnlocked } from '~/core/router/utils/isRouteAvailable'
+import { startSessionReplayOnceUrlIsSafe } from '~/core/utils/sessionReplay'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { DEVTOOL_TAB_PARAMS, useDeveloperTool, useDevtoolTabParam } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -110,6 +111,11 @@ export const RouteWrapper = () => {
   // Clear all open drawers on browser navigation (back/forward buttons)
   useEffect(() => {
     drawerStack.clearAll()
+  }, [location])
+
+  // Session Replay is held back on pages whose URL holds an auth token
+  useEffect(() => {
+    startSessionReplayOnceUrlIsSafe()
   }, [location])
 
   // Bridge devtools MemoryRouter → BrowserRouter without a page reload.
