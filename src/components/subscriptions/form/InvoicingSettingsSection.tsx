@@ -1,5 +1,4 @@
 import { useStore } from '@tanstack/react-form'
-import { useMemo } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
@@ -66,27 +65,15 @@ export const InvoicingSettingsSection = withForm({
       },
     })
 
-    const summary = useMemo(
-      () =>
-        buildInvoicingSettingsSummary({
-          consolidateInvoice: consolidateInvoice ?? true,
-          invoiceCustomSection,
-          showCustomSection,
-          paymentTermCopy: paymentTerm
-            ? getPaymentTermFormValuesCopy(paymentTerm, paymentTermInheritedFrom)
-            : undefined,
-          translate,
-        }),
-      [
-        consolidateInvoice,
-        invoiceCustomSection,
-        showCustomSection,
-        paymentTerm,
-        paymentTermInheritedFrom,
-        translate,
-        getPaymentTermFormValuesCopy,
-      ],
-    )
+    const summary = buildInvoicingSettingsSummary({
+      consolidateInvoice: consolidateInvoice ?? true,
+      invoiceCustomSection,
+      showCustomSection,
+      paymentTermCopy: paymentTerm
+        ? getPaymentTermFormValuesCopy(paymentTerm, paymentTermInheritedFrom)
+        : undefined,
+      translate,
+    })
 
     return (
       <Selector
