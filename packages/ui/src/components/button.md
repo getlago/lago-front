@@ -1,6 +1,6 @@
 # Shadcn Button
 
-The v2 Button lives in `src/components/ui/button.tsx`. The legacy production
+The v2 Button lives in `packages/ui/src/components/button.tsx`. The legacy production
 `src/components/designSystem/Button.tsx` is unchanged. Adoption is explicit; this
 change only uses the Button on development design-system pages.
 

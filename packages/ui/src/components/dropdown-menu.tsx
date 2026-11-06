@@ -2,9 +2,9 @@ import * as Menu from '@radix-ui/react-dropdown-menu'
 import { Check, ChevronRight, Minus } from 'lucide-react'
 import * as React from 'react'
 
-import { cn } from '~/lib/utils'
-
 import { ColorThemePortal } from './color-theme'
+
+import { cn } from '../lib/utils'
 
 export const DropdownMenu = Menu.Root
 export const DropdownMenuTrigger = Menu.Trigger

@@ -71,6 +71,8 @@ export default {
     'ace-builds': '<rootDir>/node_modules/ace-builds',
     '\\.(css|less|sass|scss)$': '<rootDir>/__mocks__/styleMock.cjs',
     '^lago-design-system$': '<rootDir>/packages/design-system/dist/index.js',
+    '^lago-ui/tailwind-preset$': '<rootDir>/packages/ui/tailwind-preset.ts',
+    '^lago-ui/(.*)$': '<rootDir>/packages/ui/src/components/$1.tsx',
   },
 
   // Module file extensions for importing

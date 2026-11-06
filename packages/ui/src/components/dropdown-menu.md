@@ -1,6 +1,6 @@
 # Dropdown menu
 
-Use the shadcn-style Radix exports from `~/components/ui/dropdown-menu` for v2 menus. Existing production menus and `Popper` are unchanged.
+Use the shadcn-style Radix exports from `lago-ui/dropdown-menu` for v2 menus. Existing production menus and `Popper` are unchanged.
 
 [Figma template](https://www.figma.com/design/B3QfPQpQfNXlBOu6hjvQUb?node-id=106-1421).
 

@@ -1,6 +1,6 @@
 # Shadcn Tooltip
 
-Import from `~/components/ui/tooltip`. This is independent of the legacy
+Import from `lago-ui/tooltip`. This is independent of the legacy
 `components/designSystem/Tooltip`; production consumers are not migrated.
 
 Mount one `TooltipProvider` around the toolbar or shadcn region, not around each

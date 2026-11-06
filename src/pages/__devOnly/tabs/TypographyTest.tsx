@@ -1,5 +1,6 @@
-import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
+import { Button } from 'lago-ui/button'
+import { Input } from 'lago-ui/input'
+
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 
 const specimens = [

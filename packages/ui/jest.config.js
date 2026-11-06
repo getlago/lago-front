@@ -7,6 +7,9 @@ const config = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['@testing-library/jest-dom'],
   testMatch: ['<rootDir>/src/**/__tests__/**/*.{spec,test}.{ts,tsx}'],
+  moduleNameMapper: {
+    '\\.css$': '<rootDir>/__mocks__/styleMock.cjs',
+  },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 }
 

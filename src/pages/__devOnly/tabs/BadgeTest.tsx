@@ -1,8 +1,8 @@
+import { Badge, BadgeProps } from 'lago-ui/badge'
+import { ColorTheme } from 'lago-ui/color-theme'
 import { CircleCheck } from 'lucide-react'
 import { generatePath } from 'react-router'
 
-import { Badge, BadgeProps } from '~/components/ui/badge'
-import { ColorTheme } from '~/components/ui/color-theme'
 import { ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 
 const variants: NonNullable<BadgeProps['variant']>[] = [

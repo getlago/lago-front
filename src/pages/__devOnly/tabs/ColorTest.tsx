@@ -1,8 +1,7 @@
+import { Button } from 'lago-ui/button'
+import { ColorMode, ColorTheme } from 'lago-ui/color-theme'
+import colorCss from 'lago-ui/styles/colors.css?raw'
 import { useEffect, useRef, useState } from 'react'
-
-import { Button } from '~/components/ui/button'
-import { ColorMode, ColorTheme } from '~/components/ui/color-theme'
-import colorCss from '~/styles/v2/colors.css?raw'
 
 type ColorRow = { variable: string; value: string; resolved: string }
 

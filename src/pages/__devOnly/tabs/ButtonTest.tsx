@@ -1,9 +1,9 @@
+import { Button } from 'lago-ui/button'
+import { ColorTheme } from 'lago-ui/color-theme'
 import { ArrowRight, Copy, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { generatePath } from 'react-router'
 
-import { Button } from '~/components/ui/button'
-import { ColorTheme } from '~/components/ui/color-theme'
 import { ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, useLocation } from '~/core/router'
 
 const variants = ['default', 'secondary', 'outline', 'ghost', 'link', 'destructive'] as const

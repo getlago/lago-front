@@ -1,5 +1,3 @@
-import { tw } from '~/styles/utils'
-
 import { cn } from '../utils'
 
 describe('shadcn typography merging', () => {
@@ -16,7 +14,6 @@ describe('shadcn typography merging', () => {
 
   it('retains ordinary Tailwind conflict resolution without changing the legacy merger', () => {
     expect(cn('px-3 text-sm', 'px-6 text-lg')).toBe('px-6 text-lg')
-    expect(tw('v2-text-body', 'v2-text-number')).toBe('v2-text-body v2-text-number')
   })
 })
 

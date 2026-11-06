@@ -1,7 +1,7 @@
 # IconButton
 
 A small composition of the shadcn Button and Tooltip. Import from
-`~/components/ui/icon-button`. Use one shared TooltipProvider around the region;
+`lago-ui/icon-button`. Use one shared TooltipProvider around the region;
 the wrapper deliberately does not create its own provider.
 
 ```tsx
