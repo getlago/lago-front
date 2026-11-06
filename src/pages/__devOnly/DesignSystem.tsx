@@ -60,18 +60,11 @@ import Stripe from '~/public/images/stripe.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
-import { shadcnBadgeTab } from './tabs/BadgeTest'
-import { BorderTest } from './tabs/BorderTest'
-import { shadcnButtonTab } from './tabs/ButtonTest'
-import { ColorTest } from './tabs/ColorTest'
 import { composableTableTab } from './tabs/ComposableTableTest'
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
-import { shadcnDropdownMenuTab } from './tabs/DropdownMenuTest'
 import EditorTest from './tabs/EditorTest'
-import { shadcnSeparatorTab } from './tabs/SeparatorTest'
-import { shadcnTooltipTab } from './tabs/TooltipTest'
-import { TypographyTest } from './tabs/TypographyTest'
+import { lagoUiIntegrationTab } from './tabs/LagoUiIntegrationTest'
 
 const FORM_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'form' })
 const LINK_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'links' })
@@ -86,14 +79,6 @@ const DRAWER_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'dr
 const RICH_TEXT_EDITOR_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, {
   tab: 'rich-text-editor',
 })
-const SHADCN_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'shadcn' })
-const SHADCN_TYPOGRAPHY_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, {
-  tab: 'shadcn-typography',
-})
-const SHADCN_BORDER_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, {
-  tab: 'shadcn-border',
-})
-const SHADCN_COLOR_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'shadcn-color' })
 
 const Container = ({ children }: { children: React.ReactNode }) => (
   <div className="px-12 pb-20 pt-8">{children}</div>
@@ -2276,39 +2261,7 @@ const DesignSystem = () => {
             link: RICH_TEXT_EDITOR_TAB_URL,
             component: <EditorTest />,
           },
-          {
-            title: 'Shadcn-typography',
-            link: SHADCN_TYPOGRAPHY_TAB_URL,
-            match: [SHADCN_TYPOGRAPHY_TAB_URL, SHADCN_TAB_URL],
-            component: (
-              <Container>
-                <TypographyTest />
-              </Container>
-            ),
-          },
-          {
-            title: 'Shadcn-border',
-            link: SHADCN_BORDER_TAB_URL,
-            component: (
-              <Container>
-                <BorderTest />
-              </Container>
-            ),
-          },
-          {
-            title: 'Shadcn-color',
-            link: SHADCN_COLOR_TAB_URL,
-            component: (
-              <Container>
-                <ColorTest />
-              </Container>
-            ),
-          },
-          shadcnButtonTab,
-          shadcnBadgeTab,
-          shadcnTooltipTab,
-          shadcnDropdownMenuTab,
-          shadcnSeparatorTab,
+          lagoUiIntegrationTab,
           // disabled simple tab
           {
             disabled: true,

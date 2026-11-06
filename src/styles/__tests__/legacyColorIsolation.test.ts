@@ -3,7 +3,7 @@ import postcss from 'postcss'
 import tailwindcss from 'tailwindcss'
 import { Config } from 'tailwindcss/types/config'
 
-import config from '../../../../tailwind.config'
+import config from '../../../tailwind.config'
 
 const v2TailwindColors = uiPreset.theme?.extend?.colors ?? {}
 

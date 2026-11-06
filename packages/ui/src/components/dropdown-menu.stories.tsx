@@ -1,5 +1,8 @@
-import { Button } from 'lago-ui/button'
-import { ColorTheme } from 'lago-ui/color-theme'
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import { Copy, Download, Ellipsis, Folder, Pencil, Trash } from 'lucide-react'
+import { useId, useState } from 'react'
+
+import { Button } from './button'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -15,16 +18,11 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from 'lago-ui/dropdown-menu'
-import { IconButton } from 'lago-ui/icon-button'
-import { TooltipProvider } from 'lago-ui/tooltip'
-import { Copy, Download, Ellipsis, Folder, Pencil, Trash } from 'lucide-react'
-import { useId, useState } from 'react'
-import { generatePath } from 'react-router'
+} from './dropdown-menu'
+import { IconButton } from './icon-button'
+import { TooltipProvider } from './tooltip'
 
-import { ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
-
-const Example = ({ icon = false }: { icon?: boolean }): JSX.Element => {
+const CustomerActionsMenu = ({ icon = false }: { icon?: boolean }): JSX.Element => {
   const descriptionId = useId()
   const [archived, setArchived] = useState(true)
   const [columns, setColumns] = useState<boolean | 'indeterminate'>('indeterminate')
@@ -115,43 +113,41 @@ const Example = ({ icon = false }: { icon?: boolean }): JSX.Element => {
   )
 }
 
-export const DropdownMenuTest = (): JSX.Element => (
-  <TooltipProvider>
-    <section aria-label="Shadcn dropdown menu showcase" className="space-y-8">
-      <h2 className="v2-text-page-title">Dropdown menus</h2>
-      {(['light', 'dark'] as const).map((mode) => (
-        <ColorTheme
-          key={mode}
-          mode={mode}
-          className="space-y-6 rounded-lg bg-canvas p-8 text-text-default"
-        >
-          <h3 className="v2-text-section-title">{mode === 'light' ? 'Light' : 'Dark'} theme</h3>
-          <div className="flex gap-6">
-            <Example />
-            <Example icon />
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">Long menu</Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {Array.from({ length: 40 }, (_, i) => (
-                <DropdownMenuItem key={i}>Customer {i + 1}</DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </ColorTheme>
-      ))}
-    </section>
-  </TooltipProvider>
-)
+const meta = {
+  title: 'Components/DropdownMenu',
+  component: DropdownMenu,
+  decorators: [
+    (Story) => (
+      <TooltipProvider>
+        <Story />
+      </TooltipProvider>
+    ),
+  ],
+} satisfies Meta<typeof DropdownMenu>
 
-export const shadcnDropdownMenuTab = {
-  title: 'Shadcn-dropdown-menu',
-  link: generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'shadcn-dropdown-menu' }),
-  component: (
-    <div className="px-12 pb-20 pt-8">
-      <DropdownMenuTest />
-    </div>
+export default meta
+
+type Story = StoryObj<typeof meta>
+
+export const TextTrigger: Story = {
+  render: () => <CustomerActionsMenu />,
+}
+
+export const IconTrigger: Story = {
+  render: () => <CustomerActionsMenu icon />,
+}
+
+export const LongMenu: Story = {
+  render: () => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">Long menu</Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        {Array.from({ length: 40 }, (_, i) => (
+          <DropdownMenuItem key={i}>Customer {i + 1}</DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   ),
 }

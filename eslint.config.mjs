@@ -39,4 +39,27 @@ export default defineConfig([
       'lago/use-design-system': 'error',
     },
   },
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    rules: {
+      // Not core `no-restricted-imports`: it would replace the lago-configs formik/dialog/MUI options.
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'lucide-react',
+              message: 'Use the icons through lago-ui components, not lucide-react directly.',
+            },
+          ],
+          patterns: [
+            {
+              group: ['@radix-ui/*'],
+              message: 'Use lago-ui components (lago-ui/*), not Radix primitives directly.',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ])
