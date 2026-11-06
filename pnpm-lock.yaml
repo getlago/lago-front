@@ -130,18 +130,6 @@ importers:
       '@nangohq/frontend':
         specifier: 0.71.13
         version: 0.71.13(debug@4.4.3)
-      '@radix-ui/react-dropdown-menu':
-        specifier: 'catalog:'
-        version: 2.2.1(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-separator':
-        specifier: 'catalog:'
-        version: 1.2.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@radix-ui/react-slot':
-        specifier: 'catalog:'
-        version: 1.5.0(@types/react@18.3.31)(react@18.3.1)
-      '@radix-ui/react-tooltip':
-        specifier: 'catalog:'
-        version: 1.4.1(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@rails/actioncable':
         specifier: 8.1.400
         version: 8.1.400
@@ -286,9 +274,6 @@ importers:
       lodash-es:
         specifier: 4.18.1
         version: 4.18.1
-      lucide-react:
-        specifier: 'catalog:'
-        version: 1.57.0(@types/react@18.3.31)(react@18.3.1)
       luxon:
         specifier: 3.7.2
         version: 3.7.2

@@ -1,7 +1,6 @@
-import { Button } from 'lago-ui/button'
-import { Input } from 'lago-ui/input'
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { Button } from '../components/button'
 
 const specimens = [
   ['v2-text-page-title', 'Page title'],
@@ -17,8 +16,13 @@ const specimens = [
   ['v2-text-code', 'api_key_0011_24f8c6'],
 ]
 
-export const TypographyTest = (): JSX.Element => (
-  <section className="mb-12 flex flex-col gap-6" aria-label="V2 typography">
+const amountFormat = new Intl.NumberFormat('en-US', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+})
+
+const TypographyShowcase = (): JSX.Element => (
+  <section className="flex flex-col gap-6" aria-label="V2 typography">
     <h2 className="v2-text-section-title">Typography</h2>
     <div className="flex flex-col gap-4">
       {specimens.map(([className, sample]) => (
@@ -68,25 +72,25 @@ export const TypographyTest = (): JSX.Element => (
         {[1111, 8888, 0].map((amount, index) => (
           <tr key={amount}>
             <td className="v2-text-body">Invoice {index + 1}</td>
-            <td className="v2-text-number text-right">
-              {intlFormatNumber(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </td>
+            <td className="v2-text-number text-right">{amountFormat.format(amount)}</td>
           </tr>
         ))}
       </tbody>
     </table>
-    <div className="flex max-w-sm flex-col gap-4">
-      <label className="v2-text-label" htmlFor="v2-number-input">
-        Numeric override
-      </label>
-      <Input id="v2-number-input" className="v2-text-number" defaultValue="1234.00" />
-      <label className="v2-text-label" htmlFor="v2-file-input">
-        File input
-      </label>
-      <Input id="v2-file-input" type="file" />
+    <div>
       <Button asChild variant="link">
         <a href="#v2-numeric-example">Review amounts</a>
       </Button>
     </div>
   </section>
 )
+
+const meta = {
+  title: 'Foundations/Typography',
+} satisfies Meta
+
+export default meta
+
+export const Typography: StoryObj<typeof meta> = {
+  render: () => <TypographyShowcase />,
+}

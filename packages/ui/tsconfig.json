@@ -3,6 +3,6 @@
   "compilerOptions": {
     "types": ["vite/client", "jest", "@testing-library/jest-dom"]
   },
-  "include": ["**/*.ts", "**/*.tsx", ".storybook/**/*.ts"],
+  "include": ["**/*.ts", "**/*.tsx", ".storybook/**/*.ts", ".storybook/**/*.tsx"],
   "exclude": ["node_modules", "storybook-static"]
 }
