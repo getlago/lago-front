@@ -261,6 +261,15 @@ export const formatInvoiceProductFees = <TFee extends Fee>({
   const rows: InvoiceProductCatalogFeeRow<TFee>[] = []
   let currentProduct: { key: string; row: GroupRow<TFee> } | undefined
   let currentFilter: { id: string; row: GroupRow<TFee> } | undefined
+  const groupIdCounts = new Map<string, number>()
+
+  const getGroupRowId = (baseId: string): string => {
+    const count = groupIdCounts.get(baseId) ?? 0
+
+    groupIdCounts.set(baseId, count + 1)
+
+    return count ? `${baseId}-${count}` : baseId
+  }
 
   fees.forEach((fee) => {
     const productId = fee.product?.id ?? ''
@@ -270,7 +279,7 @@ export const formatInvoiceProductFees = <TFee extends Fee>({
     if (currentProduct?.key !== productKey) {
       const row: InvoiceProductCatalogFeeRow<TFee> = {
         kind: 'product',
-        id: `product-${productId}`,
+        id: getGroupRowId(`product-${productId}`),
         label: getDisplayName(productGroup?.product ?? fee.product),
         amountCents: String(productGroup?.amountCents ?? '0'),
         subRows: [],
@@ -291,7 +300,7 @@ export const formatInvoiceProductFees = <TFee extends Fee>({
         )
         const row: InvoiceProductCatalogFeeRow<TFee> = {
           kind: 'filter',
-          id: `filter-${filterId}`,
+          id: getGroupRowId(`filter-${filterId}`),
           label: getDisplayName(filterGroup?.productFilter ?? fee.productFilter),
           amountCents: String(filterGroup?.amountCents ?? '0'),
           subRows: [],
@@ -302,6 +311,8 @@ export const formatInvoiceProductFees = <TFee extends Fee>({
       }
 
       parentRows = currentFilter.row.subRows
+    } else {
+      currentFilter = undefined
     }
 
     parentRows.push({

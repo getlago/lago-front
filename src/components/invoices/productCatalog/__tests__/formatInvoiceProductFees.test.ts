@@ -166,13 +166,29 @@ describe('formatInvoiceProductFees', () => {
 
   describe('GIVEN fees of different contracts on the same product', () => {
     describe('WHEN they follow each other', () => {
-      it('THEN starts a new product group per contract', () => {
+      it('THEN starts a new product group per contract with a unique row id each', () => {
         const rows = format([
           createFee({ id: 'x' }),
           createFee({ id: 'y', contract: { id: 'contract-2' } }),
         ])
 
-        expect(rows).toHaveLength(2)
+        expect(rows.map(({ id }) => id)).toEqual(['product-p1', 'product-p1-1'])
+      })
+    })
+  })
+
+  describe('GIVEN a filter group interrupted by an unfiltered fee of the same product', () => {
+    describe('WHEN the filter group resumes', () => {
+      it('THEN gives the repeated filter group a unique row id', () => {
+        const [product] = format([
+          createFee({ id: 'b', productFilter: filterFee }),
+          createFee({ id: 'a' }),
+          createFee({ id: 'c', productFilter: filterFee }),
+        ])
+
+        if (product.kind !== 'product') throw new Error('expected a product row')
+
+        expect(product.subRows.map(({ id }) => id)).toEqual(['filter-f1', 'a', 'filter-f1-1'])
       })
     })
   })
