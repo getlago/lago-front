@@ -688,6 +688,46 @@ describe('OrganizationLayout', () => {
     })
   })
 
+  describe('GIVEN the previous session ended and forgot its organization', () => {
+    beforeEach(() => {
+      mockUseParams.mockReturnValue({ organizationSlug: 'other-corp' })
+      mockCurrentOrganizationVar.mockReturnValue(null)
+      mockUseCurrentUser.mockReturnValue({
+        currentUser: { memberships: defaultMemberships },
+        loading: false,
+      })
+    })
+
+    describe('WHEN the next session enters an organization', () => {
+      it('THEN should set the organization without switching from a previous one', () => {
+        render(<OrganizationLayout />)
+
+        expect(mockSetCurrentOrganizationId).toHaveBeenCalledWith(OTHER_ORG_ID)
+        expect(mockSwitchCurrentOrganization).not.toHaveBeenCalled()
+      })
+
+      it('THEN should show a spinner until the organization is set, never the 404', () => {
+        const { container } = render(<OrganizationLayout />)
+
+        expect(container.querySelector('[data-test="spinner"]')).toBeInTheDocument()
+        expect(container.querySelector('[data-test="error-404"]')).not.toBeInTheDocument()
+        expect(container.querySelector('[data-test="outlet"]')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the logout itself re-renders the layout', () => {
+      it('THEN should not restore the organization', () => {
+        mockUseIsAuthenticated.mockReturnValueOnce({ isAuthenticated: false })
+        mockUseCurrentUser.mockReturnValue({ currentUser: undefined, loading: false })
+
+        render(<OrganizationLayout />)
+
+        expect(mockSetCurrentOrganizationId).not.toHaveBeenCalled()
+        expect(mockSwitchCurrentOrganization).not.toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('GIVEN the user is NOT authenticated (e.g. just logged out)', () => {
     it('THEN should render null so the route guard handles the redirect to /login', () => {
       mockUseIsAuthenticated.mockReturnValueOnce({ isAuthenticated: false })
