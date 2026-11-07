@@ -84,6 +84,10 @@ export const OverflowTabsList = React.forwardRef<HTMLDivElement, OverflowTabsLis
     )
     const hidden = items.filter((item) => partition.hidden.includes(item.props.value))
 
+    React.useEffect(() => {
+      if (!hidden.length) setOpen(false)
+    }, [hidden.length])
+
     React.useLayoutEffect(() => {
       const box = container.current
       const measurement = measure.current

@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { OverflowTabs, OverflowTabsList, OverflowTabsTrigger } from '../overflow-tabs'
@@ -56,6 +56,56 @@ describe('OverflowTabs', () => {
     await user.click(screen.getByRole('button', { name: 'More tabs' }))
     await user.click(screen.getByRole('menuitem', { name: 'Payments 5' }))
     expect(screen.getByRole('tab', { name: 'Payments 5' })).toHaveFocus()
+  })
+
+  it('keeps More closed after widening to fit all tabs and narrowing again', async () => {
+    const user = userEvent.setup()
+    const width = jest.spyOn(HTMLElement.prototype, 'clientWidth', 'get')
+    let resize: () => void = () => {}
+
+    jest.spyOn(globalThis, 'ResizeObserver').mockImplementation((callback) => {
+      const observer: ResizeObserver = {
+        observe: (element): void => {
+          if (element.classList.contains('w-full')) resize = (): void => callback([], observer)
+        },
+        unobserve: (element): void => {
+          if (element.classList.contains('w-full')) resize = (): void => callback([], observer)
+        },
+        disconnect: jest.fn(),
+      }
+
+      return observer
+    })
+    render(
+      <OverflowTabs defaultValue="a">
+        <OverflowTabsList>
+          {['a', 'b', 'c'].map((value) => (
+            <OverflowTabsTrigger key={value} value={value} textValue={value}>
+              {value}
+            </OverflowTabsTrigger>
+          ))}
+        </OverflowTabsList>
+      </OverflowTabs>,
+    )
+    await user.click(screen.getByRole('button', { name: 'More tabs' }))
+    expect(screen.getByRole('menu')).toBeInTheDocument()
+
+    width.mockReturnValue(1024)
+    act(resize)
+    expect(screen.queryByRole('button', { name: 'More tabs' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    screen.getByRole('tab', { name: 'a' }).focus()
+
+    width.mockReturnValue(240)
+    act(resize)
+    expect(screen.getByRole('button', { name: 'More tabs' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    )
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'a' })).toHaveFocus()
+    await user.click(screen.getByRole('button', { name: 'More tabs' }))
+    expect(screen.getByRole('menu')).toBeInTheDocument()
   })
 
   it('includes caller sizing classes when deciding which tabs fit', () => {
