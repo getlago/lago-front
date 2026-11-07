@@ -39,4 +39,4 @@ Width follows content, with a 132px minimum and a 240px maximum. Both bounds are
 
 Menu items use the same highlighted background for pointer and keyboard navigation, including `asChild` navigation links. They do not show an individual focus ring. The shared component overrides legacy anchor focus styling; triggers retain their own keyboard-focus indication.
 
-Menu item labels use body typography (14/20px) with medium font weight (500), including navigation links, checkbox items, radio items and submenu triggers.
+Menu item labels inherit the menu typography: body regular (14/20px, 400) by default. Navigation links, checkbox items, radio items and submenu triggers share the same styling; consumers may choose medium weight when their design calls for it.
