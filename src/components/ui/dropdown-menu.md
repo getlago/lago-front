@@ -39,4 +39,4 @@ Width follows content, with a 132px minimum and a 240px maximum. Both bounds are
 
 Menu items use the same highlighted background for pointer and keyboard navigation, including `asChild` navigation links. They do not show an individual focus ring. The shared component overrides legacy anchor focus styling; triggers retain their own keyboard-focus indication.
 
-Menu item labels use v2-text-label (label medium, 14/20px, 500), matching Figma. Navigation links, checkbox items, radio items and submenu triggers share this token.
+Menu item labels use v2-text-label font-normal (label regular, 14/20px, 400), matching Figma. Navigation links, checkbox items, radio items and submenu triggers share this token.
