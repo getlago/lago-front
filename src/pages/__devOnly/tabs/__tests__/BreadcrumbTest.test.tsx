@@ -23,11 +23,12 @@ describe('V2 Breadcrumb', () => {
       'true',
     )
     const trail = screen.getAllByRole('navigation', { name: 'Full breadcrumb' })[0]
+
     expect(within(trail).getByRole('list')).toBeVisible()
     expect(within(trail).getAllByRole('listitem')).toHaveLength(4)
     expect(within(trail).getAllByRole('link')).toHaveLength(3)
-    expect(within(trail).getByText('Invoice 001')).toHaveAttribute('aria-current', 'page')
-    expect(within(trail).queryByRole('link', { name: 'Invoice 001' })).not.toBeInTheDocument()
+    expect(within(trail).getByText('Invoice details')).toHaveAttribute('aria-current', 'page')
+    expect(within(trail).queryByRole('link', { name: 'Invoice details' })).not.toBeInTheDocument()
     expect(within(trail).queryByRole('button')).not.toBeInTheDocument()
     expect(
       screen.getAllByRole('navigation', { name: 'Single breadcrumb' })[0],
@@ -38,14 +39,16 @@ describe('V2 Breadcrumb', () => {
     render(<CollapsedBreadcrumbExample />)
     const user = userEvent.setup()
     const trigger = screen.getByRole('button', { name: 'Show hidden ancestors' })
+
     trigger.focus()
     await user.keyboard('{Enter}')
     const menu = await screen.findByRole('menu')
+
     expect(
       within(menu)
         .getAllByRole('menuitem')
         .map((item) => item.textContent),
-    ).toEqual(['Acme', 'Subscriptions'])
+    ).toEqual(['Acme', 'Billing'])
     await waitFor(() => expect(within(menu).getByRole('menuitem', { name: 'Acme' })).toHaveFocus())
     await user.keyboard('{Escape}')
     await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument())
@@ -55,9 +58,11 @@ describe('V2 Breadcrumb', () => {
   it('navigates a hidden ancestor with the keyboard and closes the shared menu', async () => {
     render(<CollapsedBreadcrumbExample />)
     const user = userEvent.setup()
+
     screen.getByRole('button', { name: 'Show hidden ancestors' }).focus()
     await user.keyboard('{Enter}')
     const ancestor = await screen.findByRole('menuitem', { name: 'Acme' })
+
     expect(ancestor.tagName).toBe('A')
     expect(ancestor).toHaveAttribute('href', `${shadcnBreadcrumbTab.link}#acme`)
     await waitFor(() => expect(ancestor).toHaveFocus())

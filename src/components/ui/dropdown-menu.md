@@ -36,3 +36,7 @@ Use the shadcn-style Radix exports from `~/components/ui/dropdown-menu` for v2 m
 Preview: `/design-system/shadcn-dropdown-menu`. This is a development-only tab. No production imports are introduced.
 
 Width follows content, with a 132px minimum and a 240px maximum. Both bounds are capped to the available viewport width (8px collision padding). Main menus and submenus share these rules; callers can override width with `className`. Plain-text item labels and group headings truncate to one line with an ellipsis; icons, shortcuts and selection indicators retain their space. Full text remains available to assistive technology and Radix typeahead. For custom label/description markup, use a `min-w-0` wrapper and `truncate` on each text line.
+
+Menu items use the same highlighted background for pointer and keyboard navigation, including `asChild` navigation links. They do not show an individual focus ring. The shared component overrides legacy anchor focus styling; triggers retain their own keyboard-focus indication.
+
+Menu item labels use body typography (14/20px) with medium font weight (500), including navigation links, checkbox items, radio items and submenu triggers.

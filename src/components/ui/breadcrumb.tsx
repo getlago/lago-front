@@ -1,8 +1,10 @@
 import { Slot } from '@radix-ui/react-slot'
-import { ChevronRight, MoreHorizontal } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import * as React from 'react'
 
 import { cn } from '~/lib/utils'
+
+import './breadcrumb.css'
 
 export const Breadcrumb = React.forwardRef<HTMLElement, React.ComponentPropsWithoutRef<'nav'>>(
   (props, ref) => <nav ref={ref} aria-label="Breadcrumb" {...props} />,
@@ -15,7 +17,7 @@ export const BreadcrumbList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ol
     ref={ref}
-    className={cn('v2-text-body flex min-w-0 items-center gap-1 font-normal', className)}
+    className={cn('v2-text-body flex min-w-0 items-center gap-1 font-medium', className)}
     {...props}
   />
 ))
@@ -38,7 +40,7 @@ export const BreadcrumbLink = React.forwardRef<
     <Comp
       ref={ref}
       className={cn(
-        'inline-flex min-w-0 items-center rounded-lg p-1 text-text-muted outline-none hover:bg-interactive-hover focus-visible:ring-4 focus-visible:ring-focus-ring focus-visible:ring-offset-0 active:bg-interactive-pressed active:text-text-default',
+        'v2-breadcrumb-link inline-flex min-w-0 items-center rounded-lg p-1 text-text-muted outline-none hover:bg-interactive-hover focus-visible:ring-4 focus-visible:ring-focus-ring focus-visible:ring-offset-0 active:bg-interactive-pressed',
         className,
       )}
       {...props}
@@ -54,7 +56,7 @@ export const BreadcrumbPage = React.forwardRef<
   <span
     ref={ref}
     aria-current="page"
-    className={cn('min-w-0 truncate p-1 text-text-default', className)}
+    className={cn('min-w-0 truncate rounded-lg p-1 text-disabled-foreground', className)}
     {...props}
   />
 ))
@@ -84,6 +86,6 @@ export const BreadcrumbEllipsis = ({
     className={cn('flex size-5 items-center justify-center', className)}
     {...props}
   >
-    <MoreHorizontal size={14} strokeWidth={2} />
+    …
   </span>
 )

@@ -1,0 +1,9 @@
+/* Override legacy anchor styling only for v2 breadcrumb links. */
+a.v2-breadcrumb-link {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+a.v2-breadcrumb-link:hover {
+  text-decoration: none;
+}

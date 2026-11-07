@@ -37,7 +37,7 @@ export const CollapsedBreadcrumbExample = (): JSX.Element => (
             </DropdownMenuTrigger>
           </BreadcrumbLink>
           <DropdownMenuContent>
-            {['Acme', 'Subscriptions'].map((label) => (
+            {['Acme', 'Billing'].map((label) => (
               <DropdownMenuItem key={label} asChild>
                 <Link to={`${previewPath}#${label.toLowerCase()}`}>
                   <span className="min-w-0 truncate">{label}</span>
@@ -55,7 +55,7 @@ export const CollapsedBreadcrumbExample = (): JSX.Element => (
       </BreadcrumbItem>
       <BreadcrumbSeparator />
       <BreadcrumbItem>
-        <BreadcrumbPage>Invoice 001</BreadcrumbPage>
+        <BreadcrumbPage>Invoice details</BreadcrumbPage>
       </BreadcrumbItem>
     </BreadcrumbList>
   </Breadcrumb>
@@ -104,23 +104,29 @@ export const BreadcrumbTest = (): JSX.Element => (
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Invoice 001</BreadcrumbPage>
+              <BreadcrumbPage>Invoice details</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
         <CollapsedBreadcrumbExample />
         <Breadcrumb aria-label="Long labels breadcrumb" className="max-w-sm">
           <BreadcrumbList>
-            <BreadcrumbItem>
+            <BreadcrumbItem className="shrink-0">
               <BreadcrumbLink asChild>
-                <Link to={`${previewPath}#customers`}>
-                  <span className="truncate">Customers with a long organization name</span>
+                <Link to={`${previewPath}#customers`}>Customers</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem className="flex-1">
+              <BreadcrumbLink asChild>
+                <Link to={`${previewPath}#acme`}>
+                  <span className="truncate">Acme International Corporation</span>
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Subscription with a very long descriptive name</BreadcrumbPage>
+            <BreadcrumbItem className="shrink-0">
+              <BreadcrumbPage>Invoice details</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

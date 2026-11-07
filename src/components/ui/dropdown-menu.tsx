@@ -6,6 +6,7 @@ import * as React from 'react'
 import { cn } from '~/lib/utils'
 
 import { ColorThemePortal } from './color-theme'
+import './dropdown-menu.css'
 
 export const DropdownMenu = Menu.Root
 export const DropdownMenuTrigger = Menu.Trigger
@@ -16,7 +17,7 @@ export const DropdownMenuSub = Menu.Sub
 const contentClasses =
   'v2-dropdown-menu v2-text-body z-[2100] w-max min-w-[min(132px,var(--radix-dropdown-menu-content-available-width))] max-w-[min(240px,var(--radix-dropdown-menu-content-available-width))] overflow-y-auto max-h-[var(--radix-dropdown-menu-content-available-height)] rounded-xl border border-border-divider bg-surface-floating p-1 text-text-default shadow-v2-floating outline-none'
 const itemClasses =
-  'group relative flex min-h-9 cursor-default select-none items-center gap-2 rounded-lg p-2 outline-none data-[highlighted]:bg-interactive-hover data-[state=open]:bg-interactive-hover active:bg-interactive-pressed data-[highlighted]:active:bg-interactive-pressed data-[state=open]:active:bg-interactive-pressed data-[disabled]:pointer-events-none data-[disabled]:text-disabled-foreground [&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:stroke-2 [&_svg]:text-icon-muted [&[data-disabled]_svg]:text-disabled-foreground'
+  'v2-dropdown-menu-item group relative flex min-h-9 cursor-default select-none items-center gap-2 rounded-lg p-2 font-medium outline-none data-[highlighted]:bg-interactive-hover data-[state=open]:bg-interactive-hover active:bg-interactive-pressed data-[highlighted]:active:bg-interactive-pressed data-[state=open]:active:bg-interactive-pressed data-[disabled]:pointer-events-none data-[disabled]:text-disabled-foreground [&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:stroke-2 [&_svg]:text-icon-muted [&[data-disabled]_svg]:text-disabled-foreground'
 
 const truncateItemText = (children: React.ReactNode): React.ReactNode => {
   const result: React.ReactNode[] = []
