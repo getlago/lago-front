@@ -22,7 +22,10 @@ describe('V2 Breadcrumb', () => {
       'aria-selected',
       'true',
     )
-    const trail = screen.getAllByRole('navigation', { name: 'Full breadcrumb' })[0]
+    const labels = screen.getAllByRole('navigation').map((nav) => nav.getAttribute('aria-label'))
+
+    expect(new Set(labels).size).toBe(labels.length)
+    const trail = screen.getByRole('navigation', { name: 'Full breadcrumb (light)' })
 
     expect(within(trail).getByRole('list')).toBeVisible()
     expect(within(trail).getAllByRole('listitem')).toHaveLength(4)
@@ -31,12 +34,12 @@ describe('V2 Breadcrumb', () => {
     expect(within(trail).queryByRole('link', { name: 'Invoice details' })).not.toBeInTheDocument()
     expect(within(trail).queryByRole('button')).not.toBeInTheDocument()
     expect(
-      screen.getAllByRole('navigation', { name: 'Single breadcrumb' })[0],
+      screen.getByRole('navigation', { name: 'Single breadcrumb (light)' }),
     ).not.toHaveTextContent('Show hidden ancestors')
   })
 
   it('opens hidden ancestors in order and restores focus on Escape', async () => {
-    render(<CollapsedBreadcrumbExample />)
+    render(<CollapsedBreadcrumbExample landmarkLabel="Collapsed breadcrumb" />)
     const user = userEvent.setup()
     const trigger = screen.getByRole('button', { name: 'Show hidden ancestors' })
 
@@ -56,7 +59,7 @@ describe('V2 Breadcrumb', () => {
   })
 
   it('navigates a hidden ancestor with the keyboard and closes the shared menu', async () => {
-    render(<CollapsedBreadcrumbExample />)
+    render(<CollapsedBreadcrumbExample landmarkLabel="Collapsed breadcrumb" />)
     const user = userEvent.setup()
 
     screen.getByRole('button', { name: 'Show hidden ancestors' }).focus()

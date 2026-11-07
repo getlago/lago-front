@@ -20,8 +20,12 @@ import { Link, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 
 const previewPath = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'shadcn-breadcrumb' })
 
-export const CollapsedBreadcrumbExample = (): JSX.Element => (
-  <Breadcrumb aria-label="Collapsed breadcrumb">
+export const CollapsedBreadcrumbExample = ({
+  landmarkLabel,
+}: {
+  landmarkLabel: string
+}): JSX.Element => (
+  <Breadcrumb aria-label={landmarkLabel}>
     <BreadcrumbList>
       <BreadcrumbItem>
         <BreadcrumbLink asChild>
@@ -76,14 +80,14 @@ export const BreadcrumbTest = (): JSX.Element => (
         className="space-y-6 rounded-lg bg-canvas p-6 text-text-default"
       >
         <h3 className="v2-text-section-title">{mode === 'light' ? 'Light' : 'Dark'}</h3>
-        <Breadcrumb aria-label="Single breadcrumb">
+        <Breadcrumb aria-label={`Single breadcrumb (${mode})`}>
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbPage>Customers</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <Breadcrumb aria-label="Full breadcrumb">
+        <Breadcrumb aria-label={`Full breadcrumb (${mode})`}>
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
@@ -108,8 +112,8 @@ export const BreadcrumbTest = (): JSX.Element => (
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <CollapsedBreadcrumbExample />
-        <Breadcrumb aria-label="Long labels breadcrumb" className="max-w-sm">
+        <CollapsedBreadcrumbExample landmarkLabel={`Collapsed breadcrumb (${mode})`} />
+        <Breadcrumb aria-label={`Long labels breadcrumb (${mode})`} className="max-w-sm">
           <BreadcrumbList>
             <BreadcrumbItem className="shrink-0">
               <BreadcrumbLink asChild>

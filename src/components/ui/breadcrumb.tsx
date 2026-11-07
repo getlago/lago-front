@@ -6,9 +6,10 @@ import { cn } from '~/lib/utils'
 
 import './breadcrumb.css'
 
-export const Breadcrumb = React.forwardRef<HTMLElement, React.ComponentPropsWithoutRef<'nav'>>(
-  (props, ref) => <nav ref={ref} aria-label="Breadcrumb" {...props} />,
-)
+export const Breadcrumb = React.forwardRef<
+  HTMLElement,
+  React.ComponentPropsWithoutRef<'nav'> & { 'aria-label': string }
+>((props, ref) => <nav ref={ref} {...props} />)
 Breadcrumb.displayName = 'Breadcrumb'
 
 export const BreadcrumbList = React.forwardRef<
@@ -56,7 +57,7 @@ export const BreadcrumbPage = React.forwardRef<
   <span
     ref={ref}
     aria-current="page"
-    className={cn('min-w-0 truncate rounded-lg p-1 text-disabled-foreground', className)}
+    className={cn('min-w-0 truncate rounded-lg p-1 text-text-subtle', className)}
     {...props}
   />
 ))

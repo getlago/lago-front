@@ -1,6 +1,6 @@
 # V2 Breadcrumb
 
-Compose Breadcrumb → BreadcrumbList → BreadcrumbItem, using BreadcrumbLink for ancestors and BreadcrumbPage for the current page. Separate items with BreadcrumbSeparator. Use BreadcrumbLink asChild with Link from ~/core/router for application navigation. The current page is plain text with aria-current="page".
+Compose Breadcrumb → BreadcrumbList → BreadcrumbItem, using BreadcrumbLink for ancestors and BreadcrumbPage for the current page. Separate items with BreadcrumbSeparator. Use BreadcrumbLink asChild with Link from ~/core/router for application navigation. The current page is plain text with aria-current="page". Supply a localized aria-label for each Breadcrumb navigation landmark; the primitive requires it and has no English default.
 
 This component is available for v2 adoption only. Existing MainHeader breadcrumbs and production pages are unchanged.
 
@@ -17,8 +17,10 @@ Compose BreadcrumbLink asChild with DropdownMenuTrigger, labelled “Show hidden
 
 ## Styling
 
-Use untrimmed v2-text-label (label medium, 14/20px, 500), p-1, gap-1 and rounded-lg. Ancestors use text-muted, hover uses interactive-hover, pressed uses interactive-pressed while keeping text-muted. Current text uses disabled-foreground. ChevronRight uses icon-subtle, size 14 and strokeWidth 2. Keyboard focus uses the existing 4px focus-ring with no offset. Dropdown styling and keyboard behavior come from the shared menu.
+Use untrimmed v2-text-label (label medium, 14/20px, 500), p-1, gap-1 and rounded-lg. Ancestors use text-muted, hover uses interactive-hover, pressed uses interactive-pressed while keeping text-muted. Current text uses text-subtle. ChevronRight uses icon-subtle, size 14 and strokeWidth 2. Keyboard focus uses the existing 4px focus-ring with no offset. Dropdown styling and keyboard behavior come from the shared menu.
 
 The overflow trigger uses a decorative text ellipsis in a 20px box plus 4px padding (28px total). Menu labels retain the shared Dropdown Menu label medium typography.
 
 Constrain the surrounding layout to truncate long labels. Prefer shrinking middle ancestors before the current page; this is controlled by the composing layout. Keep the full text in the DOM so assistive technology reads it. BreadcrumbPage truncates directly; wrap long link text in a truncate span. Add a tooltip explicitly only where needed.
+
+The current-page text-subtle token is the approved design choice. Its light-mode value (#909090 on white) remains below 4.5:1 contrast for normal text; this typography update does not resolve that accessibility concern.
