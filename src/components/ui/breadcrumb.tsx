@@ -17,7 +17,7 @@ export const BreadcrumbList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ol
     ref={ref}
-    className={cn('v2-text-body flex min-w-0 items-center gap-1 font-medium', className)}
+    className={cn('v2-text-label flex min-w-0 items-center gap-1', className)}
     {...props}
   />
 ))
