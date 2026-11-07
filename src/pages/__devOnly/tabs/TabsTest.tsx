@@ -34,19 +34,19 @@ export const TabsTest = (): JSX.Element => (
         <Tabs defaultValue="Overview">
           <TabsList aria-label={`${mode} basic tabs`}>
             <TabsTrigger value="Overview">
-              <span className="v2-text-label">Overview</span>
+              <span>Overview</span>
               <TabsCounter value={12} />
             </TabsTrigger>
             <TabsTrigger value="Activity">
               <Settings aria-hidden="true" />
-              <span className="v2-text-label">Activity</span>
+              <span>Activity</span>
             </TabsTrigger>
             <TabsTrigger value="Settings">
-              <span className="v2-text-label">Settings</span>
+              <span>Settings</span>
               <TabsCounter value={0} />
             </TabsTrigger>
             <TabsTrigger value="Archived" disabled>
-              <span className="v2-text-label">Archived</span>
+              <span>Archived</span>
             </TabsTrigger>
           </TabsList>
           {['Overview', 'Activity'].map((label) => (
@@ -69,7 +69,7 @@ export const TabsTest = (): JSX.Element => (
                   textValue={label}
                   disabled={label === 'Archived'}
                 >
-                  <span className="v2-text-label truncate">{label}</span>
+                  <span className="truncate">{label}</span>
                   {label === 'Invoices' && <TabsCounter value={12} />}
                 </OverflowTabsTrigger>
               ))}
@@ -94,7 +94,7 @@ export const TabsTest = (): JSX.Element => (
                 {label === 'Invoices' && <Receipt aria-hidden="true" strokeWidth={2} />}
                 {label === 'Settings' && <Settings aria-hidden="true" strokeWidth={2} />}
                 {label === 'Archived' && <Archive aria-hidden="true" strokeWidth={2} />}
-                <span className="v2-text-label min-w-0 flex-1 text-left">{label}</span>
+                <span className="min-w-0 flex-1 text-left">{label}</span>
                 {label === 'Overview' && <TabsCounter value={12} />}
                 {label === 'Invoices' && <TabsCounter value={24} />}
                 {label === 'Archived' && <TabsCounter value={3} />}

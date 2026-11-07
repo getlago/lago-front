@@ -188,7 +188,7 @@ export const OverflowTabsList = React.forwardRef<HTMLDivElement, OverflowTabsLis
                   className={tabsTriggerClasses}
                   aria-label="More tabs"
                 >
-                  <span className="v2-text-label font-normal">More</span>
+                  <span className="v2-text-label">More</span>
                   <ChevronDown aria-hidden="true" />
                 </button>
               </DropdownMenuTrigger>
@@ -234,7 +234,7 @@ export const OverflowTabsList = React.forwardRef<HTMLDivElement, OverflowTabsLis
               </span>
             ))}
             <span className={tabsTriggerClasses}>
-              <span className="v2-text-label font-normal">More</span>
+              <span className="v2-text-label">More</span>
               <ChevronDown aria-hidden="true" />
             </span>
           </div>
