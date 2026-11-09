@@ -39,6 +39,11 @@ const ORGANIZATION_SWITCHER_VERSION_LINK_TEST_ID = 'organization-switcher-versio
 
 type OrganizationFromMembership = CurrentUserInfosFragment['memberships'][0]['organization']
 
+const RESOURCE_PARAM_PATTERN = /^:.*(id|code|token)$/i
+
+const hasResourceParam = (routePath: string): boolean =>
+  routePath.split('/').some((segment) => RESOURCE_PARAM_PATTERN.test(segment))
+
 const compareOrganizations = (
   a: OrganizationFromMembership,
   b: OrganizationFromMembership,
@@ -154,7 +159,9 @@ export const OrganizationSwitcher = ({
       ? findOrganizationRoute(strippedPathname)
       : undefined
 
-    if (!currentRoute || currentRoute.path.includes(':')) return `/${targetOrg.slug}${HOME_ROUTE}`
+    if (!currentRoute || hasResourceParam(currentRoute.path)) {
+      return `/${targetOrg.slug}${HOME_ROUTE}`
+    }
 
     return `/${targetOrg.slug}${strippedPathname}`
   }

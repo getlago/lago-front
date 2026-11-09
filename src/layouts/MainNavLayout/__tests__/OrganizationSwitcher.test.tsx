@@ -348,6 +348,34 @@ describe('OrganizationSwitcher', () => {
           skipSlugPrepend: true,
         })
       })
+
+      it('THEN should keep a settings page selected by a view param', async () => {
+        mockLocation.strippedPathname = '/settings/team-and-security/members'
+
+        const user = await renderMenu([acme, acmeSandbox], 'acme-sandbox')
+
+        await clickItem(user, 'Acme')
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith('/acme/settings/team-and-security/members', {
+          skipSlugPrepend: true,
+        })
+        expect(mockNavigate).not.toHaveBeenCalledWith('/acme/', { skipSlugPrepend: true })
+      })
+
+      it('THEN should keep an analytics tab', async () => {
+        mockLocation.strippedPathname = '/analytics/invoices'
+
+        const user = await renderMenu([acme, acmeSandbox], 'acme-sandbox')
+
+        await clickItem(user, 'Acme')
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith('/acme/analytics/invoices', {
+          skipSlugPrepend: true,
+        })
+        expect(mockNavigate).not.toHaveBeenCalledWith('/acme/', { skipSlugPrepend: true })
+      })
     })
 
     describe('WHEN switching to an organization outside the pair', () => {
