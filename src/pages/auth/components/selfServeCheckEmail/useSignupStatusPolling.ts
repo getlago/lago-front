@@ -1,5 +1,5 @@
 import { gql, useApolloClient } from '@apollo/client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { getGraphQLErrorCode, onLogIn } from '~/core/apolloClient'
 import { authTokenVar } from '~/core/apolloClient/reactiveVars'
@@ -35,6 +35,8 @@ gql`
   }
 `
 
+type ExchangeResult = { type: 'loggedIn' } | { type: 'failed'; errorCode: string }
+
 type UseSignupStatusPollingProps = {
   signupSecret: string
   pollRequest: number
@@ -50,6 +52,8 @@ export const useSignupStatusPolling = ({
 }: UseSignupStatusPollingProps): CheckEmailScreen => {
   const client = useApolloClient()
   const [screen, setScreen] = useState<CheckEmailScreen>('waiting')
+  // Outlives a restart of the check: the secret works once, so a restarted check joins the exchange in flight
+  const exchangeRef = useRef<Promise<ExchangeResult>>()
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined
@@ -60,34 +64,50 @@ export const useSignupStatusPolling = ({
       if (isActive) timer = setTimeout(() => poll().catch(() => schedule(POLL_INTERVAL_MS)), delay)
     }
 
-    const exchangeSecret = async (): Promise<void> => {
-      const { data, errors } = await client.mutate<
-        ExchangeSignupSecretMutation,
-        ExchangeSignupSecretMutationVariables
-      >({
-        mutation: ExchangeSignupSecretDocument,
-        variables: { input: { signupSecret } },
-        context: { silentError: true },
-        errorPolicy: 'all',
-      })
+    const requestExchange = async (): Promise<ExchangeResult> => {
+      let isLoggedIn = false
 
-      const token = data?.exchangeSignupSecret?.token
+      try {
+        const { data, errors } = await client.mutate<
+          ExchangeSignupSecretMutation,
+          ExchangeSignupSecretMutationVariables
+        >({
+          mutation: ExchangeSignupSecretDocument,
+          variables: { input: { signupSecret } },
+          context: { silentError: true },
+          errorPolicy: 'all',
+        })
 
-      // The secret works once and is now spent: log in even if a resend restarted this check meanwhile
-      if (token) {
+        const token = data?.exchangeSignupSecret?.token
+
+        if (!token)
+          return { type: 'failed', errorCode: getGraphQLErrorCode(errors?.[0]?.extensions) }
+
         removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
         await onLogIn(client, token)
+        isLoggedIn = true
 
-        if (isActive && !authTokenVar()) setScreen('loginRequired')
+        return { type: 'loggedIn' }
+      } finally {
+        // Only a login stays shared: after a failure, a later check exchanges the secret again
+        if (!isLoggedIn) exchangeRef.current = undefined
+      }
+    }
+
+    const exchangeSecret = async (): Promise<void> => {
+      exchangeRef.current ??= requestExchange()
+
+      const result = await exchangeRef.current
+
+      if (!isActive) return
+
+      if (result.type === 'loggedIn') {
+        if (!authTokenVar()) setScreen('loginRequired')
 
         return
       }
 
-      if (!isActive) return
-
-      const code = getGraphQLErrorCode(errors?.[0]?.extensions)
-
-      switch (code) {
+      switch (result.errorCode) {
         case LagoApiError.SignupSecretExpired:
           removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
           return setScreen('loginRequired')

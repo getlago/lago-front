@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { useSendSignupLink } from '~/pages/auth/common/useSendSignupLink'
 
@@ -12,8 +12,8 @@ type UseResendSignupEmailProps = {
 
 export type UseResendSignupEmailReturn = {
   resendAvailableAt: number | null | undefined
-  secondsUntilResend: number
-  isCountingDown: boolean
+  countdownEndsAt: number | undefined
+  endCountdown: () => void
   resendLimitReached: boolean
   hasResent: boolean
   bannerError: string | undefined
@@ -43,22 +43,16 @@ export const useResendSignupEmail = ({
     setIsLimitReached(limitReached)
   }, [])
 
-  const secondsUntilResend =
-    typeof resendAvailableAt === 'number'
-      ? Math.max(0, Math.ceil((resendAvailableAt - now) / 1000))
-      : 0
-  const isCountingDown = secondsUntilResend > 0
+  // now moves only when a countdown starts or ends: the countdown label ticks on its own
+  const countdownEndsAt =
+    typeof resendAvailableAt === 'number' && resendAvailableAt > now ? resendAvailableAt : undefined
   // resend_limit_reached is an hourly window that ends with its countdown. Without a countdown
   // (null), the sign-up cannot send more links at all.
-  const resendLimitReached = isLimitReached && (resendAvailableAt === null || isCountingDown)
+  const resendLimitReached =
+    isLimitReached && (resendAvailableAt === null || countdownEndsAt !== undefined)
 
-  useEffect(() => {
-    if (!isCountingDown) return
-
-    const interval = setInterval(() => setNow(Date.now()), 1000)
-
-    return (): void => clearInterval(interval)
-  }, [isCountingDown])
+  // Stable, so the countdown label does not restart its clock on every render
+  const endCountdown = useCallback((): void => setNow(Date.now()), [])
 
   const onResend = async (): Promise<void> => {
     const outcome = await sendSignupLink({ signupSecret })
@@ -89,8 +83,8 @@ export const useResendSignupEmail = ({
 
   return {
     resendAvailableAt,
-    secondsUntilResend,
-    isCountingDown,
+    countdownEndsAt,
+    endCountdown,
     resendLimitReached,
     hasResent,
     bannerError,
