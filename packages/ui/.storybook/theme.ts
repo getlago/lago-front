@@ -4,7 +4,7 @@ import { create } from 'storybook/theming'
 export const lagoTheme = create({
   base: 'light',
   brandTitle: 'Lago UI',
-  brandImage: '/brand/lago-logo.svg',
+  brandImage: 'brand/lago-logo.svg',
   brandTarget: '_self',
 
   colorPrimary: '#0369CC',

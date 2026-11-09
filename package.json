@@ -28,6 +28,7 @@
     "ui:lint": "pnpm --filter lago-ui lint",
     "ui:types": "pnpm --filter lago-ui types",
     "ui:docs": "pnpm --filter lago-ui test:docs",
+    "ui:storybook:build": "pnpm --filter lago-ui build-storybook",
     "code:style": "run-p lint ui:lint ui:types ui:docs test:lint-rules test:tooling types translations:inspect translations:ensure-consistency skills:budget comments:check",
     "skills:budget": "bash scripts/skill-budget.sh",
     "comments:check": "bash scripts/diff-hygiene.sh",

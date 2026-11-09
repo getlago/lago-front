@@ -9,6 +9,7 @@ const config: StorybookConfig = {
   staticDirs: [
     { from: brandDir, to: '/brand' },
     { from: `${brandDir}lago-mark.svg`, to: '/favicon.svg' },
+    { from: `${brandDir}lago-mark.svg`, to: '/lago-mark.svg' },
   ],
   core: { disableWhatsNewNotifications: true },
   features: {

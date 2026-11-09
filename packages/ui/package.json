@@ -22,6 +22,7 @@
     "types": "tsc --noEmit",
     "test": "jest",
     "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build -o storybook-static",
     "test:docs": "node --test scripts/docs.test.mjs"
   },
   "dependencies": {
