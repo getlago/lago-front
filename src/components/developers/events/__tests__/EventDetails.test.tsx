@@ -1,3 +1,5 @@
+import { screen } from '@testing-library/react'
+
 import { render } from '~/test-utils'
 
 import { EventDetails } from '../EventDetails'
@@ -15,10 +17,44 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+jest.mock('~/components/CodeSnippet', () => ({
+  CodeSnippet: ({ code }: { code: string }) => <pre data-test="code-snippet">{code}</pre>,
+}))
+
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useGetSingleEventQuery: (options: unknown) => mockUseGetSingleEventQuery(options),
 }))
+
+const PRECISE_TOTAL_AMOUNT_LABEL = 'text_179424015916583db51tvegd'
+
+const payload = {
+  event: {
+    transaction_id: 'transaction-1',
+    external_subscription_id: 'subscription-1',
+    code: 'api_calls',
+    timestamp: 1740000000,
+    properties: { amount: 12 },
+  },
+}
+
+const buildEvent = (preciseTotalAmountCents: string | null) => ({
+  id: 'event-1',
+  code: 'api_calls',
+  transactionId: 'transaction-1',
+  timestamp: '2025-02-19T21:20:00Z',
+  timestampMs: '1740000000123',
+  receivedAt: '2025-02-19T21:20:01Z',
+  payload,
+  billableMetricName: 'API calls',
+  matchBillableMetric: true,
+  matchCustomField: true,
+  apiClient: null,
+  ipAddress: null,
+  externalSubscriptionId: 'subscription-1',
+  customerTimezone: 'TZ_UTC',
+  preciseTotalAmountCents,
+})
 
 const setUrl = (search = ''): void => {
   window.history.pushState({}, '', `/devtool/events${search}`)
@@ -95,6 +131,51 @@ describe('EventDetails', () => {
 
         expect(mockUseGetSingleEventQuery).toHaveBeenCalledWith(
           expect.objectContaining({ skip: true }),
+        )
+      })
+    })
+  })
+
+  describe('GIVEN an event with a precise total amount', () => {
+    describe('WHEN the details are displayed', () => {
+      it('THEN should show the precise total amount row with the value as returned', () => {
+        mockUseGetSingleEventQuery.mockReturnValue({
+          data: { event: buildEvent('1234.567') },
+          loading: false,
+        })
+
+        render(<EventDetails goBack={jest.fn()} />, { useParams: { '*': 'transaction-1' } })
+
+        expect(screen.getByText(PRECISE_TOTAL_AMOUNT_LABEL)).toBeInTheDocument()
+        expect(screen.getByText('1234.567')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN an event without a precise total amount', () => {
+    describe('WHEN the details are displayed', () => {
+      it('THEN should not show the precise total amount row', () => {
+        mockUseGetSingleEventQuery.mockReturnValue({
+          data: { event: buildEvent(null) },
+          loading: false,
+        })
+
+        render(<EventDetails goBack={jest.fn()} />, { useParams: { '*': 'transaction-1' } })
+
+        expect(screen.queryByText(PRECISE_TOTAL_AMOUNT_LABEL)).not.toBeInTheDocument()
+      })
+
+      it('THEN should render the payload block unchanged', () => {
+        mockUseGetSingleEventQuery.mockReturnValue({
+          data: { event: buildEvent(null) },
+          loading: false,
+        })
+
+        render(<EventDetails goBack={jest.fn()} />, { useParams: { '*': 'transaction-1' } })
+
+        expect(screen.getByTestId('code-snippet')).toHaveTextContent(
+          JSON.stringify(payload, null, 2),
+          { normalizeWhitespace: false },
         )
       })
     })

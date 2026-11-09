@@ -29,6 +29,7 @@ gql`
     ipAddress
     externalSubscriptionId
     customerTimezone
+    preciseTotalAmountCents
   }
 
   query getSingleEvent(
@@ -86,6 +87,7 @@ export const EventDetails = ({ goBack }: { goBack: () => void }) => {
     matchCustomField,
     externalSubscriptionId,
     customerTimezone,
+    preciseTotalAmountCents,
   } = data?.event || {}
 
   return (
@@ -193,6 +195,20 @@ export const EventDetails = ({ goBack }: { goBack: () => void }) => {
               showFullDateTime={true}
               position="top-start"
             />
+
+            {!!preciseTotalAmountCents && (
+              <>
+                <Typography className="pt-1" variant="caption">
+                  {translate('text_179424015916583db51tvegd')}
+                </Typography>
+                <Typography
+                  className="overflow-wrap-anywhere flex min-w-0 max-w-full"
+                  color="grey700"
+                >
+                  {preciseTotalAmountCents}
+                </Typography>
+              </>
+            )}
 
             {!!ipAddress && (
               <>

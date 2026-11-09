@@ -14841,7 +14841,7 @@ export type GetApiLogsQueryVariables = Exact<{
 
 export type GetApiLogsQuery = { __typename?: 'Query', apiLogs?: { __typename?: 'ApiLogCollection', collection: Array<{ __typename?: 'ApiLog', requestId: string, httpMethod: HttpMethodEnum, httpStatus: number, requestPath?: string | null, loggedAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
-export type EventDetailsFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, timestampMs?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
+export type EventDetailsFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, timestampMs?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum, preciseTotalAmountCents?: string | null };
 
 export type GetSingleEventQueryVariables = Exact<{
   transactionId: Scalars['ID']['input'];
@@ -14851,7 +14851,7 @@ export type GetSingleEventQueryVariables = Exact<{
 }>;
 
 
-export type GetSingleEventQuery = { __typename?: 'Query', event?: { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, timestampMs?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum } | null };
+export type GetSingleEventQuery = { __typename?: 'Query', event?: { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, timestampMs?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum, preciseTotalAmountCents?: string | null } | null };
 
 export type EventItemFragment = { __typename?: 'Event', id: string, transactionId?: string | null, externalSubscriptionId?: string | null, timestampMs?: any | null, code: string, receivedAt?: any | null };
 
@@ -21334,6 +21334,7 @@ export const EventDetailsFragmentDoc = gql`
   ipAddress
   externalSubscriptionId
   customerTimezone
+  preciseTotalAmountCents
 }
     `;
 export const EventItemFragmentDoc = gql`
