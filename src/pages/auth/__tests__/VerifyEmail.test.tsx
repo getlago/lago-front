@@ -1465,6 +1465,22 @@ describe('VerifyEmail', () => {
       })
     })
 
+    describe('WHEN the API answers resend_limit_reached without a retry delay', () => {
+      it('THEN should ask to wait in words and keep the button usable', async () => {
+        const user = userEvent.setup()
+
+        answerStatus(SignupVerificationStatusEnum.Expired)
+        mockResendSignupEmail.mockResolvedValue(buildError(LagoApiError.ResendLimitReached))
+
+        renderVerifyEmail()
+        await clickSendNewLink(user)
+
+        expect(getResendAlert()).toHaveTextContent(TOO_MANY_ATTEMPTS_COPY)
+        expect(queryMailboxLimitAlert()).not.toBeInTheDocument()
+        expect(getSendNewLinkButton()).toBeEnabled()
+      })
+    })
+
     describe('WHEN the token resend answers that the sign-up cannot send more links', () => {
       it.each([LagoApiError.SignupExpired, LagoApiError.SignupResendExhausted])(
         'THEN should show the sign-up expired state and keep the stored secret on %s',
