@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 
 import { useSendSignupLink } from '~/pages/auth/common/useSendSignupLink'
 
+import { MINUTE_RULE_MAX_WAIT_SECONDS } from './constants'
 import { ApplyResendState } from './types'
 
 type UseResendSignupEmailProps = {
@@ -15,6 +16,7 @@ export type UseResendSignupEmailReturn = {
   countdownEndsAt: number | undefined
   endCountdown: () => void
   resendLimitReached: boolean
+  isMailboxLimited: boolean
   hasResent: boolean
   bannerError: string | undefined
   isResending: boolean
@@ -29,6 +31,7 @@ export const useResendSignupEmail = ({
 }: UseResendSignupEmailProps): UseResendSignupEmailReturn => {
   const [resendAvailableAt, setResendAvailableAt] = useState<number | null>()
   const [isLimitReached, setIsLimitReached] = useState(false)
+  const [hasLongWait, setHasLongWait] = useState(false)
   const [hasResent, setHasResent] = useState(false)
   const [bannerError, setBannerError] = useState<string>()
   const [now, setNow] = useState(() => Date.now())
@@ -41,15 +44,15 @@ export const useResendSignupEmail = ({
     setNow(currentTime)
     setResendAvailableAt(typeof seconds === 'number' ? currentTime + seconds * 1000 : null)
     setIsLimitReached(limitReached)
+    setHasLongWait(typeof seconds === 'number' && seconds > MINUTE_RULE_MAX_WAIT_SECONDS)
   }, [])
 
   // now moves only when a countdown starts or ends: the countdown label ticks on its own
   const countdownEndsAt =
     typeof resendAvailableAt === 'number' && resendAvailableAt > now ? resendAvailableAt : undefined
-  // resend_limit_reached is an hourly window that ends with its countdown. Without a countdown
-  // (null), the sign-up cannot send more links at all.
-  const resendLimitReached =
-    isLimitReached && (resendAvailableAt === null || countdownEndsAt !== undefined)
+  // This sign-up can send no more links: the API answers it without a countdown (null)
+  const resendLimitReached = isLimitReached && resendAvailableAt === null
+  const isMailboxLimited = hasLongWait && countdownEndsAt !== undefined
 
   // Stable, so the countdown label does not restart its clock on every render
   const endCountdown = useCallback((): void => setNow(Date.now()), [])
@@ -68,7 +71,8 @@ export const useResendSignupEmail = ({
       case 'tooSoon':
         return applyResendState(outcome.retryAfterSeconds, false)
       case 'limitReached':
-        return applyResendState(outcome.retryAfterSeconds, true)
+        // The address's hourly limit, not this sign-up's: its banner comes from the length of the wait
+        return applyResendState(outcome.retryAfterSeconds, false)
       case 'resendExhausted':
       case 'signupExpired':
         return applyResendState(null, resendLimitReached)
@@ -86,6 +90,7 @@ export const useResendSignupEmail = ({
     countdownEndsAt,
     endCountdown,
     resendLimitReached,
+    isMailboxLimited,
     hasResent,
     bannerError,
     isResending: isSending,
