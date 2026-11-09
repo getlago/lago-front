@@ -25,7 +25,7 @@
     "lint": "prettier --cache --check 'src/**/*.{ts,tsx,svg}' 'index.html' 'cypress/**/*.ts' && eslint --cache --cache-location .eslintcache .",
     "lint:fix": "prettier --write {src,cypress}/** index.html && eslint --fix .",
     "types": "node scripts/check-types.js",
-    "lago-ui": "pnpm --filter lago-ui storybook",
+    "ui:dev": "pnpm --filter lago-ui storybook",
     "ui:lint": "pnpm --filter lago-ui lint",
     "ui:types": "pnpm --filter lago-ui types",
     "ui:docs": "pnpm --filter lago-ui test:docs",

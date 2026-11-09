@@ -65,7 +65,7 @@ Also, because Lago is extensible, it's possible that a feature you've become acc
 
 ### Design Decisions
 
-The [v2 design system — work in progress](packages/ui/README.md) is under development. Use the existing design system for ordinary UI work, including new views and components. Follow the v2 guide only when a task explicitly requests building or adopting v2. Browse the components in the [published Storybook](https://getlago.github.io/lago-front/ui/) or run `pnpm lago-ui`; each one has its guide in `packages/ui/src/components/<name>.md`.
+The [v2 design system — work in progress](packages/ui/README.md) is under development. Use the existing design system for ordinary UI work, including new views and components. Follow the v2 guide only when a task explicitly requests building or adopting v2. Browse the components in the [published Storybook](https://getlago.github.io/lago-front/ui/) or run `pnpm ui:dev`; each one has its guide in `packages/ui/src/components/<name>.md`.
 
 If you have a question around how we do things, check to see if it is documented in the wiki of the related repository. If it is _not_ documented there, please open a new topic on [Github Discussions](https://github.com/getlago/lago-front/discussions) and ask your question.
 

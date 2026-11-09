@@ -62,7 +62,7 @@ Storybook renders with JavaScript, so AI agents cannot read it. For them the sam
 To run it locally, from the repository root:
 
 ```bash
-pnpm lago-ui
+pnpm ui:dev
 ```
 
 Every component and foundation has a story; the **Docs** page of each one renders the same guide linked above, so the guide is the single source. Use the toolbar to switch light and dark.
