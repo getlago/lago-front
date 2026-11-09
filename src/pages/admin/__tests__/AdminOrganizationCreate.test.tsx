@@ -2,7 +2,7 @@ import NiceModal from '@ebay/nice-modal-react'
 import { act, fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react'
 import { GraphQLError } from 'graphql'
 
-import { ReasonModalProps } from '~/components/admin/ReasonModal'
+import { ReasonModalError, ReasonModalProps } from '~/components/admin/ReasonModal'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -274,7 +274,7 @@ describe('AdminOrganizationCreate', () => {
     })
 
     describe('WHEN the API rejects the sandbox with self_serve_disabled', () => {
-      it('THEN should show the self-serve danger toast and not open the invite dialog', async () => {
+      it('THEN should keep the reason modal open with the self-serve message and not open the invite dialog', async () => {
         const result = jest.fn(() => ({
           data: { adminCreateOrganization: null },
           errors: [
@@ -289,14 +289,18 @@ describe('AdminOrganizationCreate', () => {
         })
         fillRequiredFields()
         fireEvent.click(screen.getByTestId(ADMIN_ORGANIZATION_CREATE_SELF_SERVE_SWITCH_TEST_ID))
-        await submitAndConfirmReason()
+        fireEvent.click(screen.getByRole('button', { name: 'Create Organization' }))
+        await waitFor(() => expect(NiceModal.show).toHaveBeenCalled())
+        const props = jest.mocked(NiceModal.show).mock.calls[0][1] as ReasonModalProps
+
+        await act(async () => {
+          await expect(props.onConfirm(REASON, false)).rejects.toThrow(
+            new ReasonModalError(SELF_SERVE_DISABLED_MESSAGE),
+          )
+        })
 
         expect(result).toHaveBeenCalledTimes(1)
-        expect(addToast).toHaveBeenCalledTimes(1)
-        expect(addToast).toHaveBeenCalledWith({
-          severity: 'danger',
-          message: SELF_SERVE_DISABLED_MESSAGE,
-        })
+        expect(addToast).not.toHaveBeenCalled()
         expect(mockOpen).not.toHaveBeenCalled()
       })
     })

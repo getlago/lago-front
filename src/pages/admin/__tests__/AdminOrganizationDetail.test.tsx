@@ -2,7 +2,7 @@ import NiceModal from '@ebay/nice-modal-react'
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 
 import { ReasonModalProps } from '~/components/admin/ReasonModal'
-import { addToast } from '~/core/apolloClient'
+import { addToast, envGlobalVar } from '~/core/apolloClient'
 import {
   AdminFeatureTypeEnum,
   AdminOrganizationQuery,
@@ -50,10 +50,21 @@ jest.mock('~/core/router', () => ({
   ...jest.requireActual('~/core/router'),
   useNavigate: () => mockNavigate,
 }))
-jest.mock('~/core/apolloClient', () => ({
-  ...jest.requireActual('~/core/apolloClient'),
-  addToast: jest.fn(),
-}))
+jest.mock('~/core/apolloClient', () => {
+  const actual = jest.requireActual('~/core/apolloClient')
+
+  return {
+    ...actual,
+    envGlobalVar: jest.fn(() => actual.envGlobalVar()),
+    addToast: jest.fn(),
+  }
+})
+
+const setSelfServeEnabled = (selfServeEnabled: boolean): void => {
+  const actualEnv = jest.requireActual('~/core/apolloClient').envGlobalVar()
+
+  jest.mocked(envGlobalVar).mockReturnValue({ ...actualEnv, selfServeEnabled })
+}
 
 const toggle = (name: string): void => {
   fireEvent.click(screen.getByRole('checkbox', { name }))
@@ -76,6 +87,7 @@ describe('AdminOrganizationDetail', () => {
     mockQuery = { data: { adminOrganization: mockOrg }, loading: false, refetch: mockRefetch }
     mockToggle.mockResolvedValue({ data: { adminToggleFeature: { id: 'change' } } })
     jest.spyOn(NiceModal, 'show').mockResolvedValue(undefined)
+    setSelfServeEnabled(true)
   })
   afterEach(() => jest.restoreAllMocks())
 
@@ -143,6 +155,19 @@ describe('AdminOrganizationDetail', () => {
     expect(mockRefetch).toHaveBeenCalledTimes(1)
     expect(screen.getByText('Save changes')).toBeEnabled()
   })
+  describe('GIVEN a deployment that does not run self-serve', () => {
+    describe('WHEN the page renders', () => {
+      it('THEN should not display the environment row', () => {
+        setSelfServeEnabled(false)
+        renderWithOrganization({})
+
+        expect(
+          screen.queryByTestId(ADMIN_ORGANIZATION_DETAIL_ENVIRONMENT_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
   describe('GIVEN a production organization without a sandbox', () => {
     describe('WHEN the page renders', () => {
       beforeEach(() => {
@@ -211,6 +236,16 @@ describe('AdminOrganizationDetail', () => {
         })
       })
     })
+
+    describe('WHEN a switch has an unsaved change', () => {
+      it('THEN should disable the counterpart link', () => {
+        const link = screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_COUNTERPART_LINK_TEST_ID)
+
+        expect(link).toBeEnabled()
+        toggle(integration)
+        expect(link).toBeDisabled()
+      })
+    })
   })
 
   describe('GIVEN a sandbox organization linked to its production', () => {
@@ -255,16 +290,10 @@ describe('AdminOrganizationDetail', () => {
       })
     })
 
-    describe('WHEN clicking the alert button', () => {
-      it('THEN should open the production admin detail without prepending the org slug', () => {
-        const alert = screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_MANAGED_BY_PRODUCTION_TEST_ID)
+    it('THEN should display the alert without its own button', () => {
+      const alert = screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_MANAGED_BY_PRODUCTION_TEST_ID)
 
-        fireEvent.click(within(alert).getByRole('button'))
-
-        expect(mockNavigate).toHaveBeenCalledWith(`/admin/organizations/${PRODUCTION_LINK.id}`, {
-          skipSlugPrepend: true,
-        })
-      })
+      expect(within(alert).queryByRole('button')).not.toBeInTheDocument()
     })
 
     describe('WHEN clicking the counterpart link', () => {

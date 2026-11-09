@@ -11,7 +11,7 @@ import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
 import { Switch } from '~/components/form/Switch/Switch'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { addToast } from '~/core/apolloClient'
+import { addToast, envGlobalVar } from '~/core/apolloClient'
 import {
   ADMIN_ORGANIZATION_DETAIL_ROUTE,
   ADMIN_ORGANIZATIONS_ROUTE,
@@ -67,6 +67,7 @@ export const ADMIN_ORGANIZATION_DETAIL_SAVE_BUTTON_TEST_ID = 'admin-organization
 const AdminOrganizationDetail = () => {
   const { organizationId } = useParams<{ organizationId: string }>()
   const navigate = useNavigate()
+  const { selfServeEnabled } = envGlobalVar()
 
   const { data, loading, refetch } = useAdminOrganizationQuery({
     variables: { organizationId: organizationId ?? '' },
@@ -272,16 +273,18 @@ const AdminOrganizationDetail = () => {
 
       <div className="max-w-200 mx-auto w-full p-4 md:p-12">
         <div className="mb-8 flex flex-col gap-2">
-          <div className="flex items-center justify-between border-b border-grey-300 py-3">
-            <Typography variant="body">Environment</Typography>
-            <Typography
-              variant="body"
-              color="grey700"
-              data-test={ADMIN_ORGANIZATION_DETAIL_ENVIRONMENT_TEST_ID}
-            >
-              {isSandbox ? 'Sandbox' : 'Production'}
-            </Typography>
-          </div>
+          {selfServeEnabled && (
+            <div className="flex items-center justify-between border-b border-grey-300 py-3">
+              <Typography variant="body">Environment</Typography>
+              <Typography
+                variant="body"
+                color="grey700"
+                data-test={ADMIN_ORGANIZATION_DETAIL_ENVIRONMENT_TEST_ID}
+              >
+                {isSandbox ? 'Sandbox' : 'Production'}
+              </Typography>
+            </div>
+          )}
           {!!counterpart && (
             <div className="flex items-center justify-between border-b border-grey-300 py-3">
               <Typography variant="body">
@@ -290,6 +293,7 @@ const AdminOrganizationDetail = () => {
               <Button
                 variant="inline"
                 data-test={ADMIN_ORGANIZATION_DETAIL_COUNTERPART_LINK_TEST_ID}
+                disabled={isDirty}
                 onClick={() => openOrganization(counterpart.id)}
               >
                 {counterpart.name}
@@ -303,14 +307,6 @@ const AdminOrganizationDetail = () => {
             type="info"
             className="mb-8"
             data-test={ADMIN_ORGANIZATION_DETAIL_MANAGED_BY_PRODUCTION_TEST_ID}
-            ButtonProps={
-              org.productionOrganization
-                ? {
-                    label: 'Open production',
-                    onClick: () => openOrganization(org.productionOrganization?.id ?? ''),
-                  }
-                : undefined
-            }
           >
             Features are managed by the production organization and mirrored to this sandbox.
           </Alert>
