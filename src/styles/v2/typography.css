@@ -70,7 +70,6 @@
     font-size: var(--v2-size-14);
     line-height: var(--v2-line-height-20);
     font-weight: var(--v2-weight-medium, 500);
-    text-box: trim-both cap alphabetic;
   }
 
   .v2-text-caption {

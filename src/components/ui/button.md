@@ -8,9 +8,9 @@ change only uses the Button on development design-system pages.
 
 Use `variant="default"` (primary), `secondary`, `outline`, `ghost`, `link`, or
 `destructive`. Text sizes are `sm` (32px), `default` (36px), and `lg` (40px), with
-horizontal padding of 12px, 16px, and 20px respectively. Icon-only sizes are
+horizontal padding of 12px at every size. Icon-only sizes are
 `icon-sm`, `icon`, and `icon-lg`: square 32px, 36px, and 40px controls. All use
-full radius. Text links hug their content and ignore text-size padding/dimensions.
+8px radius (`rounded-lg`). Text links hug their content and ignore text-size padding/dimensions.
 Icon-only links retain their 32/36/40px square dimensions.
 
 ```tsx
@@ -39,8 +39,8 @@ feedback overlays secondary/outline surfaces and fills ghost controls.
 Focus uses a 4px focus-ring with no gap; outline buttons also use focus-border.
 Link uses link/link-hover, stays underlined, and has no padding or surface.
 Place standalone links with sufficient surrounding clickable space; do not
-assume trimmed label height is a suitable touch target. Text trimming falls
-back to the existing line-height when the browser does not support it.
+assume the label height alone is a suitable touch target. Labels use their normal
+line-height; components center their content with flex alignment and padding.
 
 ## Loading and disabled
 
