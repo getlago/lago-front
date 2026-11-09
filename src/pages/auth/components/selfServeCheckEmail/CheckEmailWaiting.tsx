@@ -7,6 +7,7 @@ import {
   SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID,
   SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID,
   SELF_SERVE_SIGNUP_GO_BACK_BUTTON_TEST_ID,
+  SELF_SERVE_SIGNUP_MAILBOX_LIMIT_ALERT_TEST_ID,
   SELF_SERVE_SIGNUP_RESEND_BUTTON_TEST_ID,
   SELF_SERVE_SIGNUP_RESEND_LIMIT_ALERT_TEST_ID,
   SELF_SERVE_SIGNUP_RESEND_SUCCESS_ALERT_TEST_ID,
@@ -36,6 +37,7 @@ export const CheckEmailWaiting = ({
     countdownEndsAt,
     endCountdown,
     resendLimitReached,
+    isMailboxLimited,
     hasResent,
     bannerError,
     isResending,
@@ -86,6 +88,12 @@ export const CheckEmailWaiting = ({
       {resendLimitReached && (
         <Alert type="warning" data-test={SELF_SERVE_SIGNUP_RESEND_LIMIT_ALERT_TEST_ID}>
           {translate('text_17939064976188g9cn8x2cj4')}
+        </Alert>
+      )}
+
+      {isMailboxLimited && (
+        <Alert type="warning" data-test={SELF_SERVE_SIGNUP_MAILBOX_LIMIT_ALERT_TEST_ID}>
+          {translate('text_1794240318710mz7btyuru7b')}
         </Alert>
       )}
 
