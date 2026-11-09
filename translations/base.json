@@ -5350,5 +5350,7 @@
   "text_1793898059309lqujtjacaho": "We sent a verification link to <b>{{email}}</b>. Click the link in the email to finish creating your account.",
   "text_1793898059309bhkfbbq9q2z": "Can't find it? Check your spam or promotions folder. The link expires in 24 hours.",
   "text_17938980593099x6m52ys6t2": "Wrong email?",
-  "text_1793898059309vz0niu6emp8": "Go back"
+  "text_1793898059309vz0niu6emp8": "Go back",
+  "text_1793903925179h1k5w55ih95": "We couldn't confirm you're human. Please try again.",
+  "text_179390753309316odlsgqxbw": "This site is protected by reCAPTCHA and the Google <a rel=\"external\" target=\"_blank\" href=\"https://policies.google.com/privacy\">Privacy Policy</a> and <a rel=\"external\" target=\"_blank\" href=\"https://policies.google.com/terms\">Terms of Service</a> apply."
 }
