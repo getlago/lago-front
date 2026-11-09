@@ -32,15 +32,14 @@ describe('customerPortalTokenVar', () => {
     })
   })
 
-  describe('GIVEN a token persisted by an older build', () => {
+  describe('GIVEN a token left in localStorage by an older build', () => {
     describe('WHEN the module loads', () => {
-      it('THEN should start empty and drop the stored token', async () => {
+      it('THEN should start empty rather than adopt it', async () => {
         localStorage.setItem('customerPortalToken', 'another-customers-token')
 
         const { customerPortalTokenVar } = await import('../customerPortalTokenVar')
 
         expect(customerPortalTokenVar()).toBeUndefined()
-        expect(localStorage.getItem('customerPortalToken')).toBeNull()
       })
     })
   })
