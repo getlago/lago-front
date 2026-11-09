@@ -33,9 +33,6 @@ jobs:
       - name: Run Typescript
         run: pnpm tsc
 
-      - name: Run Typescript (lago-ui)
-        run: pnpm --filter lago-ui types
-
       - name: Run tests (lago-ui)
         run: pnpm --filter lago-ui test
 

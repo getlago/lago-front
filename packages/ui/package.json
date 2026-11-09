@@ -12,6 +12,8 @@
   ],
   "exports": {
     "./*": "./src/components/*.tsx",
+    "./*-variants": "./src/components/*-variants.ts",
+    "./*.stories": null,
     "./utils": "./src/lib/utils.ts",
     "./styles.css": "./src/styles/index.css",
     "./styles/*": "./src/styles/*",

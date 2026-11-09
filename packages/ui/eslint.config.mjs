@@ -14,7 +14,7 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-restricted-imports': [
+      '@typescript-eslint/no-restricted-imports': [
         'error',
         {
           patterns: [
@@ -27,6 +27,12 @@ export default defineConfig([
         },
       ],
       'import/no-relative-packages': 'error',
+    },
+  },
+  {
+    files: ['.storybook/main.ts'],
+    rules: {
+      'import/order': 'off',
     },
   },
 ])

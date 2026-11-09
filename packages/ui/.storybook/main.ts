@@ -1,6 +1,9 @@
 import type { StorybookConfig } from '@storybook/react-vite'
+import { fileURLToPath } from 'node:url'
 
-const brandDir = new URL('.', import.meta.resolve('lago-configs/brand/lago-logo.svg')).pathname
+const brandDir = fileURLToPath(
+  new URL('.', import.meta.resolve('lago-configs/brand/lago-logo.svg')),
+)
 
 const config: StorybookConfig = {
   framework: '@storybook/react-vite',

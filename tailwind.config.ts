@@ -3,7 +3,13 @@ import uiPreset from 'lago-ui/tailwind-preset'
 import { Config } from 'tailwindcss/types/config'
 
 const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme'> = {
-  content: ['src/**/*.{js,ts,jsx,tsx}', 'packages/ui/src/**/*.{ts,tsx}'],
+  content: [
+    'src/**/*.{js,ts,jsx,tsx}',
+    'packages/ui/src/**/*.{ts,tsx}',
+    '!packages/ui/src/**/*.stories.tsx',
+    '!packages/ui/src/**/__tests__/**',
+    '!packages/ui/src/stories/**',
+  ],
   presets: [sharedConfig, uiPreset],
   darkMode: ['class'],
   theme: {

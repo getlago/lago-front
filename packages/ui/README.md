@@ -13,6 +13,7 @@ A new view is not automatically a v2 view, and adopting v2 in an existing view n
 1. **Import from `lago-ui/<name>`**, one subpath per component, never from a barrel:
    ```tsx
    import { Button } from 'lago-ui/button'
+   import { buttonVariants } from 'lago-ui/button-variants'
    import { cn } from 'lago-ui/utils'
    ```
 2. **Never import `@radix-ui/*` or `lucide-react` in the app.** Use the `lago-ui` component; if none fits, add or extend one here. App ESLint enforces this.
