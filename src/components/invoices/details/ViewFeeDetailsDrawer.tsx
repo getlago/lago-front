@@ -52,7 +52,6 @@ gql`
     itemName
     itemType
     invoiceDisplayName
-    invoiceName
     properties {
       fromDatetime
       toDatetime
@@ -167,7 +166,7 @@ const buildFeeTitle = (
   if (fee.feeType === FeeTypesEnum.Product) {
     if (fee.productFilter) return fee.productFilter.invoiceDisplayName || fee.productFilter.name
 
-    return fee.invoiceName || fee.itemName
+    return fee.product?.invoiceDisplayName || fee.product?.name || fee.itemName
   }
 
   return fee.invoiceDisplayName || fee.itemName

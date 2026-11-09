@@ -88,7 +88,6 @@ const buildProductFee = (
     itemName: 'Emails',
     itemType: 'Product',
     invoiceDisplayName: null,
-    invoiceName: 'Email volume',
     subscription: null,
     product: {
       id: 'product-1',
@@ -269,7 +268,7 @@ describe('useViewFeeDetailsDrawer', () => {
     })
 
     describe('WHEN the fee has no product filter', () => {
-      it('THEN should title the drawer with the fee invoice name, not the item name', () => {
+      it('THEN should title the drawer with the product display name, not the item name', () => {
         renderProductFee({ productFilter: null })
 
         const header = screen.getByTestId(VIEW_FEE_DETAILS_HEADER_TEST_ID)
