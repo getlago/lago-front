@@ -23,6 +23,7 @@ import {
   SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID,
   SELF_SERVE_SIGNUP_GO_BACK_BUTTON_TEST_ID,
   SELF_SERVE_SIGNUP_LOGIN_BUTTON_TEST_ID,
+  SELF_SERVE_SIGNUP_MAILBOX_LIMIT_ALERT_TEST_ID,
   SELF_SERVE_SIGNUP_RESEND_BUTTON_TEST_ID,
   SELF_SERVE_SIGNUP_RESEND_LIMIT_ALERT_TEST_ID,
   SELF_SERVE_SIGNUP_RESEND_SUCCESS_ALERT_TEST_ID,
@@ -106,6 +107,8 @@ const RESEND_LINK_COPY = 'Resend link'
 const NEW_LINK_SENT_COPY = `New link sent to ${EMAIL}. Only the latest link will work.`
 const RESEND_LIMIT_COPY =
   "We've sent several links already. Check your spam folder or try again in an hour."
+const MAILBOX_LIMIT_COPY =
+  "We've already sent several emails to this address in the last hour. You can ask for a new link when the countdown ends."
 const EXPIRED_COPY = 'This sign-up has expired'
 const LOGIN_REQUIRED_COPY = 'Your email is confirmed. Please log in.'
 const TOO_MANY_ATTEMPTS_COPY = 'Too many attempts. Please wait a few minutes and try again.'
@@ -242,6 +245,12 @@ const queryResendSuccessAlert = (): HTMLElement | null =>
 
 const queryResendLimitAlert = (): HTMLElement | null =>
   screen.queryByTestId(SELF_SERVE_SIGNUP_RESEND_LIMIT_ALERT_TEST_ID)
+
+const getMailboxLimitAlert = (): HTMLElement =>
+  screen.getByTestId(SELF_SERVE_SIGNUP_MAILBOX_LIMIT_ALERT_TEST_ID)
+
+const queryMailboxLimitAlert = (): HTMLElement | null =>
+  screen.queryByTestId(SELF_SERVE_SIGNUP_MAILBOX_LIMIT_ALERT_TEST_ID)
 
 const queryErrorAlert = (): HTMLElement | null =>
   screen.queryByTestId(SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID)
@@ -1104,12 +1113,41 @@ describe('SelfServeCheckEmail', () => {
       })
     })
 
+    describe('WHEN the wait is longer than the minute rule', () => {
+      it.each([
+        [60, false],
+        [61, true],
+      ])('THEN for %i seconds should show the address limit banner: %s', async (seconds, shown) => {
+        answerPendingStatus({ resendAvailableInSeconds: seconds })
+
+        await renderCheckEmail()
+
+        expect(!!queryMailboxLimitAlert()).toBe(shown)
+        expect(queryResendLimitAlert()).not.toBeInTheDocument()
+        expect(getResendButton()).toBeDisabled()
+      })
+
+      it('THEN should drop the address limit banner when the countdown ends', async () => {
+        answerPendingStatus({ resendAvailableInSeconds: 61 })
+
+        await renderCheckEmail()
+
+        expect(getMailboxLimitAlert()).toHaveTextContent(MAILBOX_LIMIT_COPY)
+
+        await advance(61_000)
+
+        expect(queryMailboxLimitAlert()).not.toBeInTheDocument()
+        expect(getResendButton()).toBeEnabled()
+      })
+    })
+
     describe('WHEN the resend limit is reached', () => {
       it('THEN should show the limit banner and offer to start again instead of resend', async () => {
         answerPendingStatus({ resendAvailableInSeconds: null, resendLimitReached: true })
 
         await renderCheckEmail()
 
+        expect(queryMailboxLimitAlert()).not.toBeInTheDocument()
         expect(getResendLimitAlert()).toHaveTextContent(RESEND_LIMIT_COPY)
         expect(queryResendButton()).not.toBeInTheDocument()
         expect(screen.getByTestId(SELF_SERVE_SIGNUP_START_AGAIN_BUTTON_TEST_ID)).toBeInTheDocument()
@@ -1322,14 +1360,15 @@ describe('SelfServeCheckEmail', () => {
       it('THEN should show both the new link banner and the limit banner', async () => {
         const user = setupUser()
 
-        answerResendAndUpdateStatus({ resendAvailableInSeconds: 60, resendLimitReached: true })
+        answerResendAndUpdateStatus({ resendAvailableInSeconds: null, resendLimitReached: true })
 
         await renderCheckEmail()
         await clickResend(user)
 
         expect(getResendSuccessAlert()).toHaveTextContent(NEW_LINK_SENT_COPY)
         expect(getResendLimitAlert()).toHaveTextContent(RESEND_LIMIT_COPY)
-        expect(getResendButton()).toBeDisabled()
+        expect(queryMailboxLimitAlert()).not.toBeInTheDocument()
+        expect(queryResendButton()).not.toBeInTheDocument()
       })
     })
 
@@ -1396,7 +1435,7 @@ describe('SelfServeCheckEmail', () => {
     })
 
     describe('WHEN the API answers resend_limit_reached', () => {
-      it('THEN should show the limit banner and disable the button for the retry delay', async () => {
+      it('THEN should show the address limit banner and disable the button for the retry delay', async () => {
         const user = setupUser()
 
         mockResendSignupEmail.mockResolvedValue(
@@ -1406,13 +1445,14 @@ describe('SelfServeCheckEmail', () => {
         await renderCheckEmail()
         await clickResend(user)
 
-        expect(getResendLimitAlert()).toHaveTextContent(RESEND_LIMIT_COPY)
+        expect(getMailboxLimitAlert()).toHaveTextContent(MAILBOX_LIMIT_COPY)
+        expect(queryResendLimitAlert()).not.toBeInTheDocument()
         expect(queryErrorAlert()).not.toBeInTheDocument()
         expect(getResendButton()).toBeDisabled()
         expect(getResendButton()).toHaveTextContent('Resend in 60:00')
       })
 
-      it('THEN should hide the limit banner and enable the button once the retry delay ends', async () => {
+      it('THEN should hide the address limit banner and enable the button once the retry delay ends', async () => {
         const user = setupUser()
 
         mockResendSignupEmail.mockResolvedValue(
@@ -1423,7 +1463,7 @@ describe('SelfServeCheckEmail', () => {
         await clickResend(user)
         await advance(90_000)
 
-        expect(queryResendLimitAlert()).not.toBeInTheDocument()
+        expect(queryMailboxLimitAlert()).not.toBeInTheDocument()
         expect(getResendButton()).toBeEnabled()
         expect(getResendButton()).toHaveTextContent(RESEND_LINK_COPY)
       })
