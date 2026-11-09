@@ -264,16 +264,15 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
           type: 'sent',
           canSendMore: !outcome.resendLimitReached && outcome.resendAvailableInSeconds !== null,
         })
+      // A wait over the minute rule shows the address's hourly limit: its message comes from that length
       case 'tooSoon':
+      case 'limitReached':
         startResendCountdown(outcome.retryAfterSeconds)
 
         // Without a delay there is no countdown to show, so the wait is said in words
         if (outcome.retryAfterSeconds <= 0) setResendNotice({ type: 'tooSoon' })
 
         return
-      case 'limitReached':
-        // The address's hourly limit: its message comes from the length of the wait
-        return startResendCountdown(outcome.retryAfterSeconds)
       case 'resendExhausted':
         return setStateOverride('signupExpired')
       case 'signupExpired':
