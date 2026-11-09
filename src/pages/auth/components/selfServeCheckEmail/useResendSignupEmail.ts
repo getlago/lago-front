@@ -74,8 +74,9 @@ export const useResendSignupEmail = ({
         // The address's hourly limit, not this sign-up's: its banner comes from the length of the wait
         return applyResendState(outcome.retryAfterSeconds, false)
       case 'resendExhausted':
+        return applyResendState(null, true)
       case 'signupExpired':
-        return applyResendState(null, resendLimitReached)
+        return applyResendState(null, false)
       case 'alreadyVerified':
         return onAlreadyVerified()
       case 'notFound':
