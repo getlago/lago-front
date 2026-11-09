@@ -54,7 +54,7 @@ const VerifyEmail = (): JSX.Element => {
     }
 
     // Confirming would log in on top of the other account's session and cached data
-    if (verifyEmail.isLoggedIn && linkState !== 'alreadyVerified') {
+    if (verifyEmail.isLoggedIn && linkState === 'valid') {
       return <VerifyEmailLoggedIn onLogOut={verifyEmail.logOutToContinue} />
     }
 
