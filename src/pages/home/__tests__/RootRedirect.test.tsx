@@ -12,7 +12,10 @@ const mockUseLocation = jest.fn()
 const mockUseCurrentUser = jest.fn()
 const mockGetItemFromLS = jest.fn()
 const mockGetPersistedOrganizationSlug = jest.fn()
-const mockUseNeedsOrganization = jest.fn<NeedsOrganizationAnswer, []>()
+const mockUseNeedsOrganization = jest.fn<
+  NeedsOrganizationAnswer,
+  Parameters<typeof useNeedsOrganization>
+>()
 
 // Stub the `~/core/router` barrel so the route modules (which pull in
 // `envGlobalVar`) aren't traversed during the test.
@@ -35,7 +38,8 @@ jest.mock('~/hooks/useCurrentUser', () => ({
 }))
 
 jest.mock('~/hooks/useNeedsOrganization', () => ({
-  useNeedsOrganization: () => mockUseNeedsOrganization(),
+  useNeedsOrganization: (...args: Parameters<typeof useNeedsOrganization>) =>
+    mockUseNeedsOrganization(...args),
 }))
 
 jest.mock('~/components/designSystem/Spinner', () => ({
@@ -175,6 +179,34 @@ describe('RootRedirect', () => {
       '/acme',
       expect.objectContaining({ state, replace: true }),
     )
+  })
+
+  describe('GIVEN who needs the needs-organization check', () => {
+    it('THEN should skip it while the user is loading', () => {
+      mockUseCurrentUser.mockReturnValue({ loading: true, currentUser: undefined })
+
+      renderHook(() => RootRedirect())
+
+      expect(mockUseNeedsOrganization).toHaveBeenLastCalledWith({ skip: true })
+    })
+
+    it('THEN should skip it for a user who already has an organization', () => {
+      renderHook(() => RootRedirect())
+
+      expect(mockUseNeedsOrganization).toHaveBeenCalled()
+      expect(mockUseNeedsOrganization.mock.calls.every(([options]) => options?.skip)).toBe(true)
+    })
+
+    it('THEN should run it for a user without an accessible organization', () => {
+      mockUseCurrentUser.mockReturnValue({
+        loading: false,
+        currentUser: { memberships: [membership('acme', false)] },
+      })
+
+      renderHook(() => RootRedirect())
+
+      expect(mockUseNeedsOrganization).toHaveBeenLastCalledWith({ skip: false })
+    })
   })
 
   describe('GIVEN the needs-organization check is still loading', () => {

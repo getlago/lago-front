@@ -129,6 +129,54 @@ describe('useNeedsOrganization', () => {
       })
     })
 
+    describe('WHEN the caller skips the check', () => {
+      it('THEN should send no request and report nothing to wait for', async () => {
+        const mockResult = jest.fn(() => ({ data: buildData(true) }))
+        const { result } = renderHook(() => useNeedsOrganization({ skip: true }), {
+          wrapper: ({ children }: { children: ReactNode }) => (
+            <MockedProvider mocks={[buildMock({ result: mockResult })]} addTypename={false}>
+              {children}
+            </MockedProvider>
+          ),
+        })
+
+        await flush()
+
+        expect(mockResult).not.toHaveBeenCalled()
+        expect(result.current).toEqual({
+          needsOrganization: false,
+          loading: false,
+          hasError: false,
+          retry: expect.any(Function),
+        })
+      })
+
+      it('THEN should report loading from the render that stops skipping until the answer', async () => {
+        const { result, rerender } = renderHook(
+          ({ skip }: { skip: boolean }) => useNeedsOrganization({ skip }),
+          {
+            initialProps: { skip: true },
+            wrapper: ({ children }: { children: ReactNode }) => (
+              <MockedProvider
+                mocks={[buildMock({ result: { data: buildData(true) } })]}
+                addTypename={false}
+              >
+                {children}
+              </MockedProvider>
+            ),
+          },
+        )
+
+        rerender({ skip: false })
+
+        expect(result.current.loading).toBe(true)
+
+        await waitFor(() => expect(result.current.loading).toBe(false))
+
+        expect(result.current.needsOrganization).toBe(true)
+      })
+    })
+
     describe('WHEN retrying after the query failed', () => {
       it('THEN should report loading while the retry is in flight', async () => {
         const { result } = renderNeedsOrganization([

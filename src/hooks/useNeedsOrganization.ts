@@ -12,6 +12,10 @@ gql`
   }
 `
 
+type UseNeedsOrganizationOptions = {
+  skip?: boolean
+}
+
 type UseNeedsOrganizationReturn = {
   needsOrganization: boolean
   loading: boolean
@@ -19,10 +23,12 @@ type UseNeedsOrganizationReturn = {
   retry: () => Promise<void>
 }
 
-export const useNeedsOrganization = (): UseNeedsOrganizationReturn => {
+export const useNeedsOrganization = ({
+  skip = false,
+}: UseNeedsOrganizationOptions = {}): UseNeedsOrganizationReturn => {
   const { selfServeEnabled } = envGlobalVar()
   const { data, loading, error, refetch } = useGetCurrentUserNeedsOrganizationQuery({
-    skip: !selfServeEnabled,
+    skip: skip || !selfServeEnabled,
     // A retry shows as loading again, then as its answer
     notifyOnNetworkStatusChange: true,
   })

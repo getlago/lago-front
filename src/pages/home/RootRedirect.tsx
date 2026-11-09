@@ -33,11 +33,15 @@ const RootRedirect = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { loading: isUserLoading, currentUser } = useCurrentUser()
+  const hasAccessibleMembership = !!currentUser && getAccessibleMemberships(currentUser).length > 0
   const {
     needsOrganization,
     loading: isNeedsOrganizationLoading,
     hasError: hasNeedsOrganizationError,
-  } = useNeedsOrganization()
+  } = useNeedsOrganization({
+    // Only a user without an organization can need one, so the others never send the check
+    skip: isUserLoading || !currentUser || hasAccessibleMembership,
+  })
   const hasNavigatedRef = useRef(false)
 
   useEffect(() => {
@@ -47,7 +51,6 @@ const RootRedirect = () => {
     const accessibleMemberships = getAccessibleMemberships(currentUser)
 
     if (!accessibleMemberships.length) {
-      // Only a user without an organization can need one, so only they wait for that check
       if (isNeedsOrganizationLoading) return
 
       if (needsOrganization) {
