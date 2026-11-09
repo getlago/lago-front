@@ -5469,5 +5469,9 @@
   "text_1794315160489mogtgg7d90e": "Select a reason",
   "text_17943151604897omblal8362": "Create your first organization to set up your billing environment and start building with Lago.",
   "text_1794896528911d809xmb50qq": "Taxes are being calculated.",
-  "text_1794896528911z9fydq9ftum": "Taxes for this draft invoice are still being calculated. It may take a bit of time. Please refresh or check back later."
+  "text_1794896528911z9fydq9ftum": "Taxes for this draft invoice are still being calculated. It may take a bit of time. Please refresh or check back later.",
+  "text_1794221187063c6xcfwvtt6l": "Sandbox",
+  "text_1794221187063vcta3ox2a0c": "You're in your sandbox. Nothing here is billed or sent to customers.",
+  "text_1794221187063tztk6kvdznf": "Switch to production",
+  "text_17942211870635zfjx3ojmyy": "Managed in production"
 }

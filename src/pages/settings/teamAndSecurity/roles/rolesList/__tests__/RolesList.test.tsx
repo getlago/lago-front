@@ -1,8 +1,15 @@
 import { act, fireEvent, screen, within } from '@testing-library/react'
 
+import { OPEN_ACTION_BUTTON_TEST_ID } from '~/components/designSystem/Table/Table'
+import { MANAGED_IN_PRODUCTION_ALERT_TEST_ID } from '~/components/sandbox/ManagedInProductionAlert'
 import { render } from '~/test-utils'
 
-import RolesList from '../RolesList'
+import RolesList, {
+  ROLES_LIST_CREATE_ROLE_BUTTON_TEST_ID,
+  ROLES_LIST_DELETE_ACTION_TEST_ID,
+  ROLES_LIST_DUPLICATE_ACTION_TEST_ID,
+  ROLES_LIST_EDIT_ACTION_TEST_ID,
+} from '../RolesList'
 
 const mockNavigate = jest.fn()
 const mockDeleteRole = jest.fn()
@@ -14,6 +21,11 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 const mockHasOrganizationPremiumAddon = jest.fn()
+const mockUseSandbox = jest.fn()
+
+jest.mock('~/hooks/useSandbox', () => ({
+  useSandbox: () => mockUseSandbox(),
+}))
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
@@ -72,6 +84,7 @@ describe('RolesList', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasOrganizationPremiumAddon.mockReturnValue(true)
+    mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
   })
 
   it('renders page header', async () => {
@@ -174,6 +187,127 @@ describe('RolesList', () => {
       // Should be a button, not a link
       expect(createButton.closest('button')).toBeInTheDocument()
       expect(createButton.closest('a')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the organization has the custom roles premium addon', () => {
+    const CUSTOM_ROLE_ACTIONS = [
+      ['duplicate', ROLES_LIST_DUPLICATE_ACTION_TEST_ID],
+      ['edit', ROLES_LIST_EDIT_ACTION_TEST_ID],
+      ['delete', ROLES_LIST_DELETE_ACTION_TEST_ID],
+    ]
+
+    beforeEach(() => {
+      mockHasOrganizationPremiumAddon.mockReturnValue(true)
+    })
+
+    describe('WHEN the organization is not a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+      })
+
+      it('THEN should display the create role button', async () => {
+        await act(() => render(<RolesList />))
+
+        expect(screen.getByTestId(ROLES_LIST_CREATE_ROLE_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should not display the managed in production alert', async () => {
+        await act(() => render(<RolesList />))
+
+        expect(screen.queryByTestId(MANAGED_IN_PRODUCTION_ALERT_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it.each(CUSTOM_ROLE_ACTIONS)(
+        'THEN should enable the %s action of a custom role',
+        async (_, testId) => {
+          await act(() => render(<RolesList />))
+
+          fireEvent.click(screen.getAllByTestId(OPEN_ACTION_BUTTON_TEST_ID)[1])
+
+          expect(screen.getByTestId(testId)).toBeEnabled()
+        },
+      )
+    })
+
+    describe('WHEN the organization is a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: '/acme/' })
+      })
+
+      it('THEN should hide the create role button', async () => {
+        await act(() => render(<RolesList />))
+
+        expect(screen.queryByTestId(ROLES_LIST_CREATE_ROLE_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should display the managed in production alert', async () => {
+        await act(() => render(<RolesList />))
+
+        expect(screen.getByTestId(MANAGED_IN_PRODUCTION_ALERT_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should not display any row action menu', async () => {
+        await act(() => render(<RolesList />))
+
+        expect(screen.queryByTestId(OPEN_ACTION_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it.each(CUSTOM_ROLE_ACTIONS)('THEN should not render the %s action', async (_, testId) => {
+        await act(() => render(<RolesList />))
+
+        expect(screen.queryByTestId(testId)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the organization does not have the custom roles premium addon', () => {
+    const SPARKLES_ICON_TEST_ID = 'sparkles/medium'
+
+    beforeEach(() => {
+      mockHasOrganizationPremiumAddon.mockReturnValue(false)
+    })
+
+    describe('WHEN the organization is not a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+      })
+
+      it('THEN should display the premium upsell header button', async () => {
+        await act(() => render(<RolesList />))
+
+        expect(screen.getByTestId(SPARKLES_ICON_TEST_ID).closest('button')).toBeInTheDocument()
+      })
+
+      it('THEN should display a row action menu per role', async () => {
+        await act(() => render(<RolesList />))
+
+        expect(screen.getAllByTestId(OPEN_ACTION_BUTTON_TEST_ID)).toHaveLength(2)
+      })
+    })
+
+    describe('WHEN the organization is a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: '/acme/' })
+      })
+
+      it('THEN should not display the premium upsell header button', async () => {
+        await act(() => render(<RolesList />))
+
+        expect(screen.queryByTestId(SPARKLES_ICON_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should not display the row duplicate action', async () => {
+        await act(() => render(<RolesList />))
+
+        expect(screen.queryByTestId(OPEN_ACTION_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should display the managed in production alert', async () => {
+        await act(() => render(<RolesList />))
+
+        expect(screen.getByTestId(MANAGED_IN_PRODUCTION_ALERT_TEST_ID)).toBeInTheDocument()
+      })
     })
   })
 })

@@ -1,5 +1,9 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 
+import {
+  GENERIC_PLACEHOLDER_BUTTON_TEST_ID,
+  GENERIC_PLACEHOLDER_TEST_ID,
+} from '~/components/designSystem/GenericPlaceholder'
 import { GetMembersDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
@@ -28,6 +32,11 @@ window.IntersectionObserver = mockIntersectionObserver
 
 const mockOpenRevokeMembershipDialog = jest.fn()
 const mockOpenEditMemberRoleDialog = jest.fn()
+const mockUseSandbox = jest.fn()
+
+jest.mock('~/hooks/useSandbox', () => ({
+  useSandbox: () => mockUseSandbox(),
+}))
 
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({
@@ -106,6 +115,10 @@ async function prepare({
 }
 
 describe('MembersList', () => {
+  beforeEach(() => {
+    mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+  })
+
   afterEach(() => {
     cleanup()
     jest.clearAllMocks()
@@ -483,6 +496,72 @@ describe('MembersList', () => {
             isEditingLastAdmin: false,
           }),
         )
+      })
+    })
+  })
+
+  describe('GIVEN the sandbox environment', () => {
+    const emptyMock = {
+      request: {
+        query: GetMembersDocument,
+        variables: DEFAULT_VARIABLES,
+      },
+      result: buildMembershipsResult({ collection: [], adminCount: 0 }),
+    }
+
+    const waitForMembers = async (): Promise<void> => {
+      await waitFor(
+        () => {
+          expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+        },
+        { timeout: SEARCH_TIMEOUT },
+      )
+    }
+
+    describe('WHEN the organization is not a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+      })
+
+      it('THEN should display the row actions', async () => {
+        await prepare()
+        await waitForMembers()
+
+        expect(screen.getAllByTestId('open-action-button').length).toBeGreaterThan(0)
+      })
+
+      it('THEN should display the invite button in the empty state', async () => {
+        await prepare({ mocks: [emptyMock, rolesListMock] })
+
+        expect(
+          await screen.findByTestId(
+            GENERIC_PLACEHOLDER_BUTTON_TEST_ID,
+            {},
+            { timeout: SEARCH_TIMEOUT },
+          ),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization is a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: '/acme/' })
+      })
+
+      it('THEN should hide the row actions', async () => {
+        await prepare()
+        await waitForMembers()
+
+        expect(screen.queryByTestId('open-action-button')).not.toBeInTheDocument()
+      })
+
+      it('THEN should not display the invite button in the empty state', async () => {
+        await prepare({ mocks: [emptyMock, rolesListMock] })
+
+        expect(
+          await screen.findByTestId(GENERIC_PLACEHOLDER_TEST_ID, {}, { timeout: SEARCH_TIMEOUT }),
+        ).toBeInTheDocument()
+        expect(screen.queryByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

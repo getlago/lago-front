@@ -16,6 +16,7 @@ import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { usePermissions } from '~/hooks/usePermissions'
 import { AllowedElements, useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
 import { useRolesList } from '~/hooks/useRolesList'
+import { useSandbox } from '~/hooks/useSandbox'
 
 import MembersFilters from './common/MembersFilters'
 import { useCreateInviteDialog } from './dialogs/CreateInviteDialog'
@@ -58,6 +59,7 @@ const MemberList = () => {
   const { openRevokeMembershipDialog } = useRevokeMembershipDialog()
   const { openEditMemberRoleDialog } = useEditMemberRoleDialog()
   const { openCreateInviteDialog } = useCreateInviteDialog()
+  const { isSandbox } = useSandbox()
 
   const selectedRole = useMemo(() => {
     return searchParams.get(MEMBERS_PAGE_ROLE_FILTER_KEY)
@@ -102,8 +104,9 @@ const MemberList = () => {
 
   const actionColumn: ActionColumn<Membership> = (membership) => {
     if (
-      !hasPermissions(['organizationMembersUpdate']) &&
-      !hasPermissions(['organizationMembersDelete'])
+      isSandbox ||
+      (!hasPermissions(['organizationMembersUpdate']) &&
+        !hasPermissions(['organizationMembersDelete']))
     ) {
       return undefined
     }
@@ -154,8 +157,10 @@ const MemberList = () => {
     emptyState: {
       title: translate('text_176771435162557p8hyixafi'),
       subtitle: translate('text_1767714241102xpwokcuhvki'),
-      buttonTitle: translate('text_63208b630aaf8df6bbfb265b'),
-      buttonAction: openCreateInviteDialog,
+      ...(!isSandbox && {
+        buttonTitle: translate('text_63208b630aaf8df6bbfb265b'),
+        buttonAction: openCreateInviteDialog,
+      }),
     },
     errorState: {
       title: translate('text_6321a076b94bd1b32494e9ee'),

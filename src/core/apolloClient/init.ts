@@ -33,6 +33,8 @@ const AUTH_ERRORS = [
   LagoApiError.Unauthorized,
 ]
 
+const SANDBOX_MANAGED_BY_PRODUCTION_ERROR_CODE = 'sandbox_managed_by_production'
+
 const TIMEOUT = 300000 // 5 minutes timeout
 const SLOW_QUERY_THRESHOLD_MS = 8000 // threshold for considering a query as "slow" and logging it in Sentry
 
@@ -206,6 +208,19 @@ export const initializeApolloClient = async () => {
           if (!isCustomerPortal && onAuthError) {
             onAuthError()
           }
+        }
+
+        if (
+          !silentError &&
+          getGraphQLErrorCode(extensions) === SANDBOX_MANAGED_BY_PRODUCTION_ERROR_CODE &&
+          !isSilencedGQLError({ extensions, silentErrorCodes, silentErrorDetails })
+        ) {
+          addToast({
+            severity: 'danger',
+            translateKey: 'text_17942211870635zfjx3ojmyy',
+          })
+
+          return
         }
 
         // Capture non-silent GraphQL errors with Sentry
