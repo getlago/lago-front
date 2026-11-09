@@ -15,7 +15,11 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { DetailRow, GRID } from '~/components/wallets/WalletDetailsDrawer'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { FeeForViewFeeDetailsDrawerFragment, FeeTypesEnum } from '~/generated/graphql'
+import {
+  FeeForViewFeeDetailsDrawerFragment,
+  FeeTypesEnum,
+  ProductTypeEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import {
@@ -48,6 +52,7 @@ gql`
     itemName
     itemType
     invoiceDisplayName
+    invoiceName
     properties {
       fromDatetime
       toDatetime
@@ -82,6 +87,37 @@ gql`
     presentationBreakdowns {
       presentationBy
       units
+    }
+    product {
+      id
+      name
+      invoiceDisplayName
+      code
+      productType
+      productCategory {
+        id
+        name
+        invoiceDisplayName
+        code
+      }
+    }
+    productFilter {
+      id
+      name
+      invoiceDisplayName
+      code
+    }
+    contractRateCard {
+      id
+      rateCard {
+        id
+        name
+        code
+        displayOnInvoice
+      }
+    }
+    rateOverride {
+      id
     }
   }
 `
@@ -128,6 +164,12 @@ const buildFeeTitle = (
     }
   }
 
+  if (fee.feeType === FeeTypesEnum.Product) {
+    if (fee.productFilter) return fee.productFilter.invoiceDisplayName || fee.productFilter.name
+
+    return fee.invoiceName || fee.itemName
+  }
+
   return fee.invoiceDisplayName || fee.itemName
 }
 
@@ -164,9 +206,82 @@ type OverviewContentProps = {
   showParentIdRow: boolean
 }
 
+const ProductSourceItem = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment }) => {
+  const { translate } = useInternationalization()
+  const productCategory = fee.product?.productCategory
+  const rateCard = fee.contractRateCard?.rateCard
+
+  return (
+    <div className={tw(GRID)}>
+      {!!productCategory && (
+        <>
+          <DetailRow
+            label={translate('text_1786365890846dgl39wcqgik')}
+            value={productCategory.invoiceDisplayName || productCategory.name}
+          />
+          <DetailRow
+            label={translate('text_1778485363574dygtpz792rx')}
+            value={<TypographyWithCopy color="grey700">{productCategory.code}</TypographyWithCopy>}
+          />
+        </>
+      )}
+      <DetailRow
+        label={translate('text_1783020794400si0ioidu0m5')}
+        value={fee.product?.invoiceDisplayName || fee.product?.name}
+      />
+      {!!fee.product && (
+        <DetailRow
+          label={translate('text_1778485363574dygtpz792rx')}
+          value={<TypographyWithCopy color="grey700">{fee.product.code}</TypographyWithCopy>}
+        />
+      )}
+      {!!fee.productFilter && (
+        <>
+          <DetailRow
+            label={translate('text_1783020794400u55s2kj2o4n')}
+            value={fee.productFilter.invoiceDisplayName || fee.productFilter.name}
+          />
+          <DetailRow
+            label={translate('text_1778485363574dygtpz792rx')}
+            value={
+              <TypographyWithCopy color="grey700">{fee.productFilter.code}</TypographyWithCopy>
+            }
+          />
+        </>
+      )}
+      {!!fee.product && (
+        <DetailRow
+          label={translate('text_1778485363574gqoz4lwxrb6')}
+          value={translate(
+            fee.product.productType === ProductTypeEnum.Metered
+              ? 'text_17839807181133l3z83156s6'
+              : 'text_1783980718113ritmy7z94je',
+          )}
+        />
+      )}
+      {!!rateCard && (
+        <>
+          <DetailRow label={translate('text_1783020794400xdy5qokafvy')} value={rateCard.name} />
+          <DetailRow
+            label={translate('text_178493044065618ejwmmneyl')}
+            value={<TypographyWithCopy color="grey700">{rateCard.code}</TypographyWithCopy>}
+          />
+        </>
+      )}
+      <DetailRow
+        label={translate('text_17942215973596kre98zp5n6')}
+        value={translate(
+          fee.rateOverride ? 'text_17440181167432q7jzt9znuh' : 'text_1744018116743ntlygtcnq95',
+        )}
+      />
+    </div>
+  )
+}
+
 const OverviewContent = ({ fee, showParentIdRow }: OverviewContentProps) => {
   const { translate } = useInternationalization()
   const currency = fee.amountCurrency
+  const isProductFee = fee.feeType === FeeTypesEnum.Product
 
   const sourceItemId =
     fee.charge?.billableMetric?.id ??
@@ -181,6 +296,82 @@ const OverviewContent = ({ fee, showParentIdRow }: OverviewContentProps) => {
       currency,
     })
 
+  const getDisplayOnInvoiceValue = (): string | undefined => {
+    if (!fee.contractRateCard) return undefined
+
+    return translate(
+      fee.contractRateCard.rateCard.displayOnInvoice
+        ? 'text_17440181167432q7jzt9znuh'
+        : 'text_1744018116743ntlygtcnq95',
+    )
+  }
+
+  const renderBillingRows = (): JSX.Element => {
+    if (isProductFee) {
+      return (
+        <>
+          <DetailRow
+            label={translate('text_62ea7cd44cd4b14bb9ac1db7')}
+            value={translate(
+              fee.payInAdvance ? 'text_646e2d0cc536351b62ba6faa' : 'text_646e2d0cc536351b62ba6f8c',
+            )}
+          />
+          <DetailRow
+            label={translate('text_17774521952176h65ipy7idk')}
+            value={getDisplayOnInvoiceValue()}
+          />
+        </>
+      )
+    }
+
+    return (
+      <>
+        <DetailRow
+          label={translate('text_1778490892190yz0uiowyheu')}
+          value={translate(
+            fee.payInAdvance ? 'text_17440181167432q7jzt9znuh' : 'text_1744018116743ntlygtcnq95',
+          )}
+        />
+        <DetailRow
+          label={translate('text_1778490892190exazejgkryd')}
+          value={translate(
+            !!fee?.charge?.invoiceable
+              ? 'text_17440181167432q7jzt9znuh'
+              : 'text_1744018116743ntlygtcnq95',
+          )}
+        />
+      </>
+    )
+  }
+
+  const renderSourceItem = (): JSX.Element => {
+    if (isProductFee) return <ProductSourceItem fee={fee} />
+
+    return (
+      <div className={tw(GRID)}>
+        <DetailRow label={translate('text_1778485363574w7zyl8tilba')} value={fee.feeType} />
+        <DetailRow
+          label={translate('text_1778485363574dygtpz792rx')}
+          value={<TypographyWithCopy color="grey700">{fee.itemCode}</TypographyWithCopy>}
+        />
+        <DetailRow label={translate('text_177848536357404anic3s604')} value={fee.itemName} />
+        {!!fee.invoiceDisplayName && (
+          <DetailRow
+            label={translate('text_1778485363574e70wgua8cxw')}
+            value={fee.invoiceDisplayName}
+          />
+        )}
+        <DetailRow label={translate('text_1778485363574gqoz4lwxrb6')} value={fee.itemType} />
+        {sourceItemId !== '-' && (
+          <DetailRow
+            label={translate('text_17784853635746778oyfl0yh')}
+            value={<TypographyWithCopy color="grey700">{sourceItemId}</TypographyWithCopy>}
+          />
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-12">
       <section data-test={VIEW_FEE_DETAILS_OVERVIEW_TEST_ID} className="flex flex-col gap-4">
@@ -192,7 +383,7 @@ const OverviewContent = ({ fee, showParentIdRow }: OverviewContentProps) => {
             label={translate('text_1778485363573m3z3vhkli9m')}
             value={<TypographyWithCopy color="grey700">{fee.id}</TypographyWithCopy>}
           />
-          {showParentIdRow && !!fee.trueUpParentFee?.id && (
+          {(showParentIdRow || isProductFee) && !!fee.trueUpParentFee?.id && (
             <DetailRow
               label={translate('text_1778485363573omt0phjqyjf')}
               value={
@@ -208,20 +399,7 @@ const OverviewContent = ({ fee, showParentIdRow }: OverviewContentProps) => {
             label={translate('text_1778485363573qufhnafv1s7')}
             value={formatFeeDate(fee.properties?.toDatetime)}
           />
-          <DetailRow
-            label={translate('text_1778490892190yz0uiowyheu')}
-            value={translate(
-              fee.payInAdvance ? 'text_17440181167432q7jzt9znuh' : 'text_1744018116743ntlygtcnq95',
-            )}
-          />
-          <DetailRow
-            label={translate('text_1778490892190exazejgkryd')}
-            value={translate(
-              !!fee?.charge?.invoiceable
-                ? 'text_17440181167432q7jzt9znuh'
-                : 'text_1744018116743ntlygtcnq95',
-            )}
-          />
+          {renderBillingRows()}
           <DetailRow label={translate('text_1778485363573rg5koelt3xl')} value={String(fee.units)} />
           <DetailRow
             label={translate('text_1778485363573t3ualwsek49')}
@@ -278,27 +456,7 @@ const OverviewContent = ({ fee, showParentIdRow }: OverviewContentProps) => {
         <Typography variant="subhead1" color="grey700">
           {translate('text_1778485363573o8h8xpr4qyj')}
         </Typography>
-        <div className={tw(GRID)}>
-          <DetailRow label={translate('text_1778485363574w7zyl8tilba')} value={fee.feeType} />
-          <DetailRow
-            label={translate('text_1778485363574dygtpz792rx')}
-            value={<TypographyWithCopy color="grey700">{fee.itemCode}</TypographyWithCopy>}
-          />
-          <DetailRow label={translate('text_177848536357404anic3s604')} value={fee.itemName} />
-          {!!fee.invoiceDisplayName && (
-            <DetailRow
-              label={translate('text_1778485363574e70wgua8cxw')}
-              value={fee.invoiceDisplayName}
-            />
-          )}
-          <DetailRow label={translate('text_1778485363574gqoz4lwxrb6')} value={fee.itemType} />
-          {sourceItemId !== '-' && (
-            <DetailRow
-              label={translate('text_17784853635746778oyfl0yh')}
-              value={<TypographyWithCopy color="grey700">{sourceItemId}</TypographyWithCopy>}
-            />
-          )}
-        </div>
+        {renderSourceItem()}
       </section>
     </div>
   )
