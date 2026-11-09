@@ -245,7 +245,7 @@ const buildDetailRows = <TFee extends Fee>(
   )
 }
 
-const getDisplayName = (
+export const getDisplayName = (
   entity: { name: string; invoiceDisplayName?: string | null } | null | undefined,
 ): string => entity?.invoiceDisplayName || entity?.name || ''
 
