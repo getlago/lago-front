@@ -59,10 +59,10 @@ Published at **https://getlago.github.io/lago-front/ui/** on every merge into `m
 
 Storybook renders with JavaScript, so AI agents cannot read it. For them the same deploy publishes this README and every guide as plain Markdown, at the same paths as in this package, indexed by **https://getlago.github.io/lago-front/ui/llms.txt** (`scripts/build-ai-docs.mjs`). Give an agent that link.
 
-To run it locally:
+To run it locally, from the repository root:
 
 ```bash
-pnpm --filter lago-ui storybook
+pnpm lago-ui
 ```
 
 Every component and foundation has a story; the **Docs** page of each one renders the same guide linked above, so the guide is the single source. Use the toolbar to switch light and dark.
