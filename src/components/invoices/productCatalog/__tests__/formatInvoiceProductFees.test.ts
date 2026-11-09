@@ -136,10 +136,17 @@ describe('formatInvoiceProductFees', () => {
 
   describe('GIVEN a fee whose product and filter are missing from the skeleton', () => {
     describe('WHEN it is formatted', () => {
-      it('THEN still renders it under groups labelled from the fee with a zero total', () => {
+      it('THEN labels the groups from the fee and totals them from their own fees', () => {
         const rows = format([
           createFee({
             id: 'orphan',
+            amountCents: '1500',
+            product: { id: 'p9', name: 'Orphan', invoiceDisplayName: 'Orphan display' },
+            productFilter: { id: 'f9', name: 'Orphan filter' },
+          }),
+          createFee({
+            id: 'orphan-2',
+            amountCents: '500',
             product: { id: 'p9', name: 'Orphan', invoiceDisplayName: 'Orphan display' },
             productFilter: { id: 'f9', name: 'Orphan filter' },
           }),
@@ -149,17 +156,31 @@ describe('formatInvoiceProductFees', () => {
           {
             kind: 'product',
             label: 'Orphan display',
-            amountCents: '0',
+            amountCents: '2000',
             subRows: [
               {
                 kind: 'filter',
                 label: 'Orphan filter',
-                amountCents: '0',
-                subRows: [{ id: 'orphan' }],
+                amountCents: '2000',
+                subRows: [{ id: 'orphan' }, { id: 'orphan-2' }],
               },
             ],
           },
         ])
+      })
+    })
+
+    describe('WHEN only the filter is missing from the skeleton', () => {
+      it('THEN keeps the skeleton total on the product and sums only the filter', () => {
+        const [product] = format([
+          createFee({ id: 'a', amountCents: '700', productFilter: { id: 'f9', name: 'Orphan' } }),
+        ])
+
+        expect(product).toMatchObject({
+          kind: 'product',
+          amountCents: '466050',
+          subRows: [{ kind: 'filter', amountCents: '700' }],
+        })
       })
     })
   })

@@ -154,9 +154,17 @@ describe('InvoiceProductCatalogFeesTable', () => {
         )
 
         expect(quantity).toBe('2')
-        expect(unitPrice).toBe('$500')
+        expect(unitPrice).toBe('$500.00')
         expect(taxes).toBe('10.00%')
         expect(amount).toBe('$1,000.00')
+      })
+
+      it('THEN keeps the full precision of a unit price instead of rounding it', () => {
+        renderTable({ fees: [createFee({ id: 'a', preciseUnitAmount: 0.0000012345678 })] })
+
+        const [, , unitPrice] = getCells(`${INVOICE_PRODUCT_CATALOG_FEE_ROW_TEST_ID}-a`)
+
+        expect(unitPrice).toBe('$0.0000012345678')
       })
 
       it('THEN leaves the value cells empty on a fee with breakdown rows', () => {
@@ -184,7 +192,7 @@ describe('InvoiceProductCatalogFeesTable', () => {
           `${INVOICE_PRODUCT_CATALOG_DETAIL_ROW_TEST_ID}-g-detail-0`,
         )
 
-        expect([quantity, unitPrice, taxes, amount]).toEqual(['2', '$1', '10.00%', '$2.00'])
+        expect([quantity, unitPrice, taxes, amount]).toEqual(['2', '$1.00', '10.00%', '$2.00'])
       })
     })
 

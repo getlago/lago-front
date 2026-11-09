@@ -304,6 +304,40 @@ describe('ComposableTableView', () => {
       })
     })
 
+    describe('WHEN a clickable row is activated from the keyboard', () => {
+      it.each(['{Enter}', ' '])('THEN %s calls onRowClick with that row', async (key) => {
+        const user = userEvent.setup()
+        const onRowClick = jest.fn()
+
+        render(
+          <TestTable
+            getRowDataTest={getRowDataTest}
+            onRowClick={onRowClick}
+            getRowIsClickable={(row) => row.id === 'rnd'}
+          />,
+        )
+
+        screen.getByTestId('usage-row-rnd').focus()
+        await user.keyboard(key)
+
+        expect(onRowClick).toHaveBeenCalledTimes(1)
+        expect(onRowClick).toHaveBeenCalledWith(expect.objectContaining({ id: 'rnd' }))
+      })
+
+      it('THEN only clickable rows are reachable with the keyboard', () => {
+        render(
+          <TestTable
+            getRowDataTest={getRowDataTest}
+            onRowClick={jest.fn()}
+            getRowIsClickable={(row) => row.id === 'rnd'}
+          />,
+        )
+
+        expect(screen.getByTestId('usage-row-rnd')).toHaveAttribute('tabindex', '0')
+        expect(screen.getByTestId('usage-row-sales')).not.toHaveAttribute('tabindex')
+      })
+    })
+
     describe('WHEN getRowIsClickable is omitted', () => {
       it('THEN every row is clickable', async () => {
         const user = userEvent.setup()

@@ -1,9 +1,11 @@
+import { useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { useViewFeeDetailsDrawer } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import {
   CurrencyEnum,
+  FeeForInvoiceProductCatalogSectionFragment,
   InvoiceProductCatalogContractFragment,
   TimezoneEnum,
 } from '~/generated/graphql'
@@ -24,6 +26,8 @@ import {
 
 export const INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID = 'invoice-product-catalog-section'
 export const INVOICE_PRODUCT_CATALOG_EMPTY_TEST_ID = 'invoice-product-catalog-empty'
+
+const EMPTY_FEES: FeeForInvoiceProductCatalogSectionFragment[] = []
 
 type InvoiceProductCatalogSectionDisplayProps = {
   currency: CurrencyEnum
@@ -66,7 +70,7 @@ const InvoiceProductCatalogSectionContent = ({
       >
         <InvoiceProductCatalogFeesTable
           {...displayProps}
-          fees={data?.invoiceProductFees.collection ?? []}
+          fees={data?.invoiceProductFees.collection ?? EMPTY_FEES}
           section={section}
           isLoading={loading}
           hasError={!!error}
@@ -88,7 +92,7 @@ export const InvoiceProductCatalogSection = ({
   contracts: InvoiceProductCatalogContractFragment[]
 }): JSX.Element => {
   const [searchParams] = useSearchParams()
-  const sections = buildInvoiceProductCatalogSections(contracts)
+  const sections = useMemo(() => buildInvoiceProductCatalogSections(contracts), [contracts])
   const activeSectionKey = resolveActiveSectionKey(
     sections,
     searchParams.get(INVOICE_PRODUCT_CATALOG_SECTION_SEARCH_PARAM),

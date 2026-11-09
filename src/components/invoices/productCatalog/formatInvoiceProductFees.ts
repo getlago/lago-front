@@ -259,8 +259,8 @@ export const formatInvoiceProductFees = <TFee extends Fee>({
   currency: CurrencyEnum
 }): InvoiceProductCatalogFeeRow<TFee>[] => {
   const rows: InvoiceProductCatalogFeeRow<TFee>[] = []
-  let currentProduct: { key: string; row: GroupRow<TFee> } | undefined
-  let currentFilter: { id: string; row: GroupRow<TFee> } | undefined
+  let currentProduct: { key: string; row: GroupRow<TFee>; hasTotal: boolean } | undefined
+  let currentFilter: { id: string; row: GroupRow<TFee>; hasTotal: boolean } | undefined
   const groupIdCounts = new Map<string, number>()
 
   const getGroupRowId = (baseId: string): string => {
@@ -269,6 +269,15 @@ export const formatInvoiceProductFees = <TFee extends Fee>({
     groupIdCounts.set(baseId, count + 1)
 
     return count ? `${baseId}-${count}` : baseId
+  }
+
+  const addFallbackTotal = (
+    group: { row: GroupRow<TFee>; hasTotal: boolean } | undefined,
+    amountCents: TFee['amountCents'],
+  ): void => {
+    if (!group || group.hasTotal) return
+
+    group.row.amountCents = String(toNumber(group.row.amountCents) + toNumber(amountCents))
   }
 
   fees.forEach((fee) => {
@@ -286,7 +295,7 @@ export const formatInvoiceProductFees = <TFee extends Fee>({
       }
 
       rows.push(row)
-      currentProduct = { key: productKey, row }
+      currentProduct = { key: productKey, row, hasTotal: !!productGroup }
       currentFilter = undefined
     }
 
@@ -307,7 +316,7 @@ export const formatInvoiceProductFees = <TFee extends Fee>({
         }
 
         parentRows.push(row)
-        currentFilter = { id: filterId, row }
+        currentFilter = { id: filterId, row, hasTotal: !!filterGroup }
       }
 
       parentRows = currentFilter.row.subRows
@@ -322,6 +331,9 @@ export const formatInvoiceProductFees = <TFee extends Fee>({
       isTrueUp: !!fee.trueUpParentFee,
       subRows: buildDetailRows(fee, currency),
     })
+
+    addFallbackTotal(currentProduct, fee.amountCents)
+    addFallbackTotal(currentFilter, fee.amountCents)
   })
 
   return rows

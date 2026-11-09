@@ -177,8 +177,7 @@ export const InvoiceProductCatalogFeesTable = ({
     return intlFormatNumber(unitPrice.value, {
       currencyDisplay: 'symbol',
       currency,
-      minimumFractionDigits: 2,
-      maximumSignificantDigits: 6,
+      maximumFractionDigits: 15,
     })
   }
 
