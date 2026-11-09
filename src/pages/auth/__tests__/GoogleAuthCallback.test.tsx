@@ -446,10 +446,10 @@ describe('GoogleAuthCallback', () => {
     })
   })
 
-  describe('GIVEN self-serve is enabled and this tab kept no flow', () => {
+  describe('GIVEN this tab kept no flow and the state is signed', () => {
     beforeEach(() => {
       mockSelfServeEnabled(true)
-      mockGoogleAnswer({ code: GOOGLE_CODE, state: JSON.stringify({ mode: 'login' }) })
+      mockGoogleAnswer({ code: GOOGLE_CODE, state: SIGNED_STATE })
     })
 
     describe('WHEN the callback processes', () => {
@@ -471,6 +471,27 @@ describe('GoogleAuthCallback', () => {
         })
         expect(mockGoogleLoginUser).not.toHaveBeenCalled()
         expect(mockGoogleSignUp).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN self-serve is on in the front but the API issued a legacy state', () => {
+    beforeEach(() => {
+      mockSelfServeEnabled(true)
+      mockGoogleAnswer({ code: GOOGLE_CODE, state: JSON.stringify({ mode: 'login' }) })
+      mockGoogleLoginUser.mockResolvedValue({ data: { googleLoginUser: { token: SESSION_TOKEN } } })
+    })
+
+    describe('WHEN the callback processes', () => {
+      it('THEN should let the API decide and log in with the code only', async () => {
+        renderCallback()
+
+        await waitFor(() => {
+          expect(mockOnLogIn).toHaveBeenCalledWith(mockApolloClient, SESSION_TOKEN)
+        })
+        expect(mockGoogleLoginUser).toHaveBeenCalledWith({
+          variables: { input: { code: GOOGLE_CODE } },
+        })
       })
     })
   })
