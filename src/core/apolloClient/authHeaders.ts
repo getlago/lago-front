@@ -1,9 +1,9 @@
 import {
   AUTH_TOKEN_LS_KEY,
-  CUSTOMER_PORTAL_TOKEN_LS_KEY,
   getCurrentOrganizationId,
   TMP_AUTH_TOKEN_LS_KEY,
 } from '~/core/apolloClient/reactiveVars'
+import { getCustomerPortalToken } from '~/core/router/utils/getCustomerPortalToken'
 import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
 import { getItemFromLS } from '~/core/utils/localStorage'
 
@@ -28,7 +28,9 @@ export const buildAuthHeaders = (pathname: string): Record<string, string> => {
   const admin = resolveAdminCredentials(pathname)
 
   if (!admin) {
-    const customerPortalToken = getItemFromLS(CUSTOMER_PORTAL_TOKEN_LS_KEY)
+    // Never from storage: two portals open side by side share localStorage, so a
+    // stored token answers for whichever customer was opened last.
+    const customerPortalToken = getCustomerPortalToken(pathname)
 
     return customerPortalToken ? { 'customer-portal-token': customerPortalToken } : {}
   }

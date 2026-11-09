@@ -1,6 +1,4 @@
-import { matchPath } from 'react-router'
-
-import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
+import { getCustomerPortalToken } from '~/core/router/utils/getCustomerPortalToken'
 
 export const isCustomerPortalPath = (pathname: string): boolean =>
-  !!matchPath(`${CUSTOMER_PORTAL_ROUTE}/*`, pathname)
+  !!getCustomerPortalToken(pathname)

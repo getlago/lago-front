@@ -4,7 +4,6 @@ import { parse } from 'graphql'
 jest.mock('../reactiveVars', () => ({
   AUTH_TOKEN_LS_KEY: 'auth_token',
   TMP_AUTH_TOKEN_LS_KEY: 'tmp_auth_token',
-  CUSTOMER_PORTAL_TOKEN_LS_KEY: 'customer_portal_token',
   getCurrentOrganizationId: jest.fn(),
 }))
 
