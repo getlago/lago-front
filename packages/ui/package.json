@@ -28,6 +28,7 @@
     "@radix-ui/react-dropdown-menu": "catalog:",
     "@radix-ui/react-separator": "catalog:",
     "@radix-ui/react-slot": "catalog:",
+    "@radix-ui/react-tabs": "catalog:",
     "@radix-ui/react-tooltip": "catalog:",
     "class-variance-authority": "catalog:",
     "lucide-react": "catalog:",

@@ -60,9 +60,9 @@ const CustomerActionsMenu = ({ icon = false }: { icon?: boolean }): JSX.Element 
               textValue="Export customer"
             >
               <Download aria-hidden="true" />
-              <span>
-                Export customer
-                <span id={descriptionId} className="v2-text-caption block">
+              <span className="min-w-0">
+                <span className="block truncate">Export customer</span>
+                <span id={descriptionId} className="v2-text-caption block truncate">
                   Available with export permission
                 </span>
               </span>
@@ -93,7 +93,12 @@ const CustomerActionsMenu = ({ icon = false }: { icon?: boolean }): JSX.Element 
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
               <DropdownMenuLabel>Move to folder</DropdownMenuLabel>
-              {['Finance', 'Operations', 'Archive'].map((label) => (
+              {[
+                'Finance',
+                'Operations',
+                'Archive',
+                'International customer billing and financial reporting',
+              ].map((label) => (
                 <DropdownMenuItem key={label} onSelect={() => setAction(label)}>
                   <Folder aria-hidden="true" />
                   {label}
@@ -148,9 +153,61 @@ export const LongMenu: Story = {
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {Array.from({ length: 40 }, (_, i) => (
-          <DropdownMenuItem key={i}>Customer {i + 1}</DropdownMenuItem>
+          <DropdownMenuItem key={i}>
+            <Folder aria-hidden="true" />
+            Customer {i + 1} — international billing and financial reporting
+            <DropdownMenuShortcut>⌘ E</DropdownMenuShortcut>
+          </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
+  ),
+}
+
+export const ContentWidth: Story = {
+  render: () => (
+    <div className="flex flex-wrap gap-6">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="secondary">Short labels</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem>
+            <Copy aria-hidden="true" />
+            Copy ID
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Pencil aria-hidden="true" />
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive">
+            <Trash aria-hidden="true" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="secondary">Maximum 240px</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem>
+            <Copy aria-hidden="true" />
+            Copy customer identification number
+            <DropdownMenuShortcut>⌘ C</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Pencil aria-hidden="true" />
+            Edit customer billing preferences
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive">
+            <Trash aria-hidden="true" />
+            Delete customer and billing history
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   ),
 }

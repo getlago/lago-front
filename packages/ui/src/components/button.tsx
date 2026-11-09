@@ -42,10 +42,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <>
         {/* Opacity preserves both geometry and the accessible name during loading. */}
         <span
-          className={cn(
-            'v2-button-content inline-flex items-center justify-center gap-1',
-            loading && 'opacity-0',
-          )}
+          className={cn('inline-flex items-center justify-center gap-1', loading && 'opacity-0')}
         >
           {value}
         </span>

@@ -52,11 +52,12 @@ import { Copy } from 'lucide-react'
 - `loading` sets `aria-busy`, keeps the accessible name and the width, and prevents activation without switching to disabled colors.
 - `disabled` and `loading` both block native buttons and slotted anchors.
 - Focus is a 4px `focus-ring` with no gap; never remove it.
-- Give standalone `link` buttons enough clickable space around them: the trimmed label height is not a touch target.
+- Give standalone `link` buttons enough clickable space around them: the label height alone is not a touch target.
 
 ## Design
 
-- Full radius on every size. Horizontal padding: 12px (`sm`), 16px (`default`), 20px (`lg`). Icon sizes are square with no padding. `link` hugs its content and ignores the text-size padding.
+- 8px radius (`rounded-lg`) on every size. Horizontal padding: 12px at every text size. Icon sizes are square with no padding. `link` hugs its content and ignores the text-size padding.
+- Labels keep their normal line-height (no text trimming); content is centered with flex alignment and padding.
 - Icons are 14px with stroke 2 at every size, with a 4px gap to the label.
 - Primary and destructive use their action state tokens (`action-primary*`, `destructive*`).
 - Secondary: `surface-raised` at rest, `surface-subtle` for focus and loading, `border-divider`, `shadow-v2-interactive`.

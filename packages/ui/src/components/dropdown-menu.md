@@ -68,7 +68,9 @@ import { Pencil } from 'lucide-react'
 
 ## Design
 
-- Content: 280px wide, 12px radius, 4px padding, `surface-floating`, `shadow-v2-floating`, `border-divider`. Constrained to the viewport and scrolls vertically.
+- Content: width follows content, 132px minimum and 240px maximum, both capped to the available viewport width (8px collision padding). Main menus and submenus share these rules; override with `className`. 12px radius, 4px padding, `surface-floating`, `shadow-v2-floating`, `border-divider`. Constrained to the viewport and scrolls vertically.
+- Plain-text item labels and group headings truncate to one line with an ellipsis; icons, shortcuts and indicators keep their space. Full text stays available to assistive technology and typeahead. For custom label/description markup, use a `min-w-0` wrapper and `truncate` on each text line.
+- `DropdownMenuItem asChild` (and the checkbox, radio and sub-trigger items) keeps its single child, so a router link renders and activates.
 - Rows: minimum 36px high, 8px padding, gap and radius. Hover uses `interactive-hover`, press uses `interactive-pressed`.
 - Checkbox and radio indicators sit on the right. Leading Lucide icons use `icon-muted`, 14px, stroke 2.
 - `DropdownMenuSeparator` spans the inner menu width; do not put the standalone `Separator` inside a menu.

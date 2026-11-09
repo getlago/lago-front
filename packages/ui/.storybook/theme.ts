@@ -10,7 +10,7 @@ export const lagoTheme = create({
   colorPrimary: '#0369CC',
   colorSecondary: '#0369CC',
 
-  appBg: '#FBFBFB',
+  appBg: '#F5F5F5',
   appContentBg: '#FFFFFF',
   appPreviewBg: '#FFFFFF',
   appBorderColor: '#ECECEC',

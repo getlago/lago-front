@@ -7,6 +7,9 @@ interface EnvGlobal {
   apiUrl: string
   lagoOauthProxyUrl: string
   disableSignUp: boolean
+  selfServeEnabled: boolean
+  usFrontUrl: string
+  euFrontUrl: string
   appVersion: string
   nangoPublicKey: string
   sentryDsn: string
@@ -25,6 +28,11 @@ export const envGlobalVar = makeVar<EnvGlobal>({
   appEnv: window.APP_ENV || APP_ENV,
   lagoOauthProxyUrl: window.LAGO_OAUTH_PROXY_URL || LAGO_OAUTH_PROXY_URL,
   disableSignUp: (window.LAGO_DISABLE_SIGNUP || LAGO_DISABLE_SIGNUP) === 'true',
+  selfServeEnabled:
+    (window.LAGO_SELF_SERVE_ENABLED || LAGO_SELF_SERVE_ENABLED || '').trim().toLowerCase() ===
+    'true',
+  usFrontUrl: (window.LAGO_US_FRONT_URL || LAGO_US_FRONT_URL || '').trim(),
+  euFrontUrl: (window.LAGO_EU_FRONT_URL || LAGO_EU_FRONT_URL || '').trim(),
   appVersion: APP_VERSION,
   nangoPublicKey: window.NANGO_PUBLIC_KEY || NANGO_PUBLIC_KEY,
   sentryDsn: window.SENTRY_DSN || SENTRY_DSN,
