@@ -7,7 +7,10 @@ import type { useNeedsOrganization } from '~/hooks/useNeedsOrganization'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import CreateOrganization from '../CreateOrganization'
-import { SELF_SERVE_CREATE_ORGANIZATION_LOG_OUT_BUTTON_TEST_ID } from '../signUpTestIds'
+import {
+  SELF_SERVE_CREATE_ORGANIZATION_LOG_OUT_BUTTON_TEST_ID,
+  SELF_SERVE_CREATE_ORGANIZATION_RETRY_BUTTON_TEST_ID,
+} from '../signUpTestIds'
 
 type NeedsOrganizationAnswer = ReturnType<typeof useNeedsOrganization>
 
@@ -15,11 +18,13 @@ const MOCK_SPINNER_TEST_ID = 'create-organization-spinner'
 const MOCK_ALERT_TEST_ID = 'create-organization-alert'
 const TITLE_COPY = 'Create your organization'
 const LOG_OUT_COPY = 'Log out'
+const RETRY_COPY = 'Retry'
 const GENERIC_ERROR_COPY = 'Something went wrong on our side. Please try again.'
 
 const mockClient = { query: jest.fn(), mutate: jest.fn() }
 const mockUseNeedsOrganization = jest.fn<NeedsOrganizationAnswer, []>()
 const mockLogOut = jest.fn<Promise<void>, unknown[]>()
+const mockRetry = jest.fn<Promise<void>, []>()
 
 jest.mock('@apollo/client', () => ({
   ...jest.requireActual('@apollo/client'),
@@ -52,12 +57,19 @@ const answerNeedsOrganization = (answer: Partial<NeedsOrganizationAnswer>): void
     needsOrganization: false,
     loading: false,
     hasError: false,
+    retry: mockRetry,
     ...answer,
   })
 }
 
 const getLogOutButton = (): HTMLElement =>
   screen.getByTestId(SELF_SERVE_CREATE_ORGANIZATION_LOG_OUT_BUTTON_TEST_ID)
+
+const getRetryButton = (): HTMLElement =>
+  screen.getByTestId(SELF_SERVE_CREATE_ORGANIZATION_RETRY_BUTTON_TEST_ID)
+
+const queryRetryButton = (): HTMLElement | null =>
+  screen.queryByTestId(SELF_SERVE_CREATE_ORGANIZATION_RETRY_BUTTON_TEST_ID)
 
 const expectCardHidden = (): void => {
   expect(screen.getByTestId(MOCK_SPINNER_TEST_ID)).toBeInTheDocument()
@@ -76,6 +88,7 @@ describe('CreateOrganization', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockLogOut.mockResolvedValue(undefined)
+    mockRetry.mockResolvedValue(undefined)
   })
 
   describe('GIVEN the needs-organization check is loading', () => {
@@ -120,6 +133,7 @@ describe('CreateOrganization', () => {
         expect(screen.getByText(TITLE_COPY)).toBeInTheDocument()
         expect(getLogOutButton()).toHaveTextContent(LOG_OUT_COPY)
         expect(screen.queryByTestId(MOCK_ALERT_TEST_ID)).not.toBeInTheDocument()
+        expect(queryRetryButton()).not.toBeInTheDocument()
         expect(screen.queryByTestId(MOCK_SPINNER_TEST_ID)).not.toBeInTheDocument()
       })
 
@@ -149,7 +163,7 @@ describe('CreateOrganization', () => {
     })
 
     describe('WHEN the page renders', () => {
-      it('THEN should show the title, a danger alert and the log out action', () => {
+      it('THEN should show the title, a danger alert, a retry and the log out action', () => {
         render(<CreateOrganization />)
 
         const alert = screen.getByTestId(MOCK_ALERT_TEST_ID)
@@ -157,6 +171,7 @@ describe('CreateOrganization', () => {
         expect(screen.getByText(TITLE_COPY)).toBeInTheDocument()
         expect(alert).toHaveAttribute('data-alert-type', 'danger')
         expect(alert).toHaveTextContent(GENERIC_ERROR_COPY)
+        expect(getRetryButton()).toHaveTextContent(RETRY_COPY)
         expect(getLogOutButton()).toHaveTextContent(LOG_OUT_COPY)
         expect(screen.queryByTestId(MOCK_SPINNER_TEST_ID)).not.toBeInTheDocument()
       })
@@ -165,6 +180,17 @@ describe('CreateOrganization', () => {
         render(<CreateOrganization />)
 
         expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN clicking retry', () => {
+      it('THEN should check again without logging out', async () => {
+        render(<CreateOrganization />)
+
+        await userEvent.click(getRetryButton())
+
+        expect(mockRetry).toHaveBeenCalledTimes(1)
+        expect(mockLogOut).not.toHaveBeenCalled()
       })
     })
 

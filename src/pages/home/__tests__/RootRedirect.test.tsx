@@ -52,6 +52,7 @@ const answerNeedsOrganization = (answer: Partial<NeedsOrganizationAnswer>): void
     needsOrganization: false,
     loading: false,
     hasError: false,
+    retry: jest.fn(),
     ...answer,
   })
 }

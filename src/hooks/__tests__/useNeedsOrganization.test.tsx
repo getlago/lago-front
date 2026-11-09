@@ -65,6 +65,7 @@ describe('useNeedsOrganization', () => {
           needsOrganization: false,
           loading: false,
           hasError: false,
+          retry: expect.any(Function),
         })
       })
     })
@@ -81,7 +82,12 @@ describe('useNeedsOrganization', () => {
           buildMock({ result: { data: buildData(true) } }),
         ])
 
-        expect(result.current).toEqual({ needsOrganization: false, loading: true, hasError: false })
+        expect(result.current).toEqual({
+          needsOrganization: false,
+          loading: true,
+          hasError: false,
+          retry: expect.any(Function),
+        })
       })
     })
 
@@ -96,7 +102,12 @@ describe('useNeedsOrganization', () => {
 
         await waitFor(() => expect(result.current.loading).toBe(false))
 
-        expect(result.current).toEqual({ needsOrganization, loading: false, hasError: false })
+        expect(result.current).toEqual({
+          needsOrganization,
+          loading: false,
+          hasError: false,
+          retry: expect.any(Function),
+        })
       })
     })
 
@@ -109,7 +120,43 @@ describe('useNeedsOrganization', () => {
 
         await waitFor(() => expect(result.current.loading).toBe(false))
 
-        expect(result.current).toEqual({ needsOrganization: false, loading: false, hasError: true })
+        expect(result.current).toEqual({
+          needsOrganization: false,
+          loading: false,
+          hasError: true,
+          retry: expect.any(Function),
+        })
+      })
+    })
+
+    describe('WHEN retrying after the query failed', () => {
+      it('THEN should query again and report the new answer', async () => {
+        const { result } = renderNeedsOrganization([
+          buildMock({ error: new Error('Failed to fetch') }),
+          buildMock({ result: { data: buildData(true) } }),
+        ])
+
+        await waitFor(() => expect(result.current.hasError).toBe(true))
+        await act(async () => {
+          await result.current.retry()
+        })
+
+        expect(result.current.hasError).toBe(false)
+        expect(result.current.needsOrganization).toBe(true)
+      })
+
+      it('THEN should keep reporting the error when the retry fails too, without throwing', async () => {
+        const { result } = renderNeedsOrganization([
+          buildMock({ error: new Error('Failed to fetch') }),
+          buildMock({ error: new Error('Failed to fetch') }),
+        ])
+
+        await waitFor(() => expect(result.current.hasError).toBe(true))
+        await act(async () => {
+          await expect(result.current.retry()).resolves.toBeUndefined()
+        })
+
+        expect(result.current.hasError).toBe(true)
       })
     })
   })

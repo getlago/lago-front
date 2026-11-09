@@ -16,11 +16,12 @@ type UseNeedsOrganizationReturn = {
   needsOrganization: boolean
   loading: boolean
   hasError: boolean
+  retry: () => Promise<void>
 }
 
 export const useNeedsOrganization = (): UseNeedsOrganizationReturn => {
   const { selfServeEnabled } = envGlobalVar()
-  const { data, loading, error } = useGetCurrentUserNeedsOrganizationQuery({
+  const { data, loading, error, refetch } = useGetCurrentUserNeedsOrganizationQuery({
     skip: !selfServeEnabled,
   })
 
@@ -28,5 +29,8 @@ export const useNeedsOrganization = (): UseNeedsOrganizationReturn => {
     needsOrganization: !!data?.currentUser.needsOrganization,
     loading,
     hasError: !!error,
+    retry: async () => {
+      await refetch().catch(() => undefined)
+    },
   }
 }
