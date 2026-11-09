@@ -1,16 +1,16 @@
-import { gql, useMutation } from '@apollo/client'
+import { gql } from '@apollo/client'
 import NiceModal from '@ebay/nice-modal-react'
 import { revalidateLogic } from '@tanstack/react-form'
 import { FormEvent } from 'react'
 import { generatePath } from 'react-router'
 
 import { REASON_MODAL_NAME } from '~/components/admin/const'
-import { ReasonModalProps } from '~/components/admin/ReasonModal'
+import { ReasonModalError, ReasonModalProps } from '~/components/admin/ReasonModal'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { addToast, envGlobalVar } from '~/core/apolloClient'
+import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   ADMIN_ORGANIZATION_DETAIL_ROUTE,
   ADMIN_ORGANIZATIONS_ROUTE,
@@ -19,10 +19,12 @@ import {
 import { getTimezoneConfig } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
+  AdminCreateOrganizationMutation,
   FeatureFlagEnum,
   LagoApiError,
   PremiumIntegrationTypeEnum,
   TimezoneEnum,
+  useAdminCreateOrganizationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -32,7 +34,7 @@ import {
   adminOrganizationCreateValidationSchema,
 } from './adminOrganizationCreate/validationSchema'
 
-const ADMIN_CREATE_ORGANIZATION_MUTATION = gql`
+gql`
   mutation AdminCreateOrganization($input: AdminCreateOrganizationInput!) {
     adminCreateOrganization(input: $input) {
       inviteUrl
@@ -51,7 +53,9 @@ const ADMIN_CREATE_ORGANIZATION_MUTATION = gql`
 const KNOWN_PREMIUM_INTEGRATIONS = Object.values(PremiumIntegrationTypeEnum)
 const KNOWN_FEATURE_FLAGS = Object.values(FeatureFlagEnum)
 
-type CreatedOrganization = { id: string; name: string }
+type CreatedOrganizationPayload = NonNullable<
+  AdminCreateOrganizationMutation['adminCreateOrganization']
+>
 
 export const ADMIN_ORGANIZATION_CREATE_SELF_SERVE_SWITCH_TEST_ID =
   'admin-organization-create-self-serve-switch'
@@ -62,15 +66,15 @@ const AdminOrganizationCreate = () => {
 
   const { translate } = useInternationalization()
 
-  const [createOrganization] = useMutation(ADMIN_CREATE_ORGANIZATION_MUTATION)
+  const [createOrganization] = useAdminCreateOrganizationMutation()
   const { selfServeEnabled } = envGlobalVar()
 
   const showInviteLinkDialog = (
-    inviteUrl: string,
-    organization: CreatedOrganization,
+    { inviteUrl, organization, sandboxOrganization }: CreatedOrganizationPayload,
     ownerEmail: string,
-    sandboxOrganization: CreatedOrganization | null | undefined,
-  ) => {
+  ): void => {
+    if (!organization) return
+
     inviteLinkDialog
       .open({
         title: 'Organization Created',
@@ -157,26 +161,16 @@ const AdminOrganizationCreate = () => {
           errorPolicy: 'all',
         })
 
-        if (
-          result.errors?.some((error) => error.extensions?.code === LagoApiError.SelfServeDisabled)
-        ) {
-          addToast({
-            severity: 'danger',
-            message: "Self-serve is not enabled on this deployment, so a sandbox can't be created.",
-          })
-
-          return
+        if (hasDefinedGQLError('SelfServeDisabled', result.errors)) {
+          throw new ReasonModalError(
+            "Self-serve is not enabled on this deployment, so a sandbox can't be created.",
+          )
         }
 
         const payload = result.data?.adminCreateOrganization
 
         if (payload?.organization?.id) {
-          showInviteLinkDialog(
-            payload.inviteUrl,
-            payload.organization,
-            ownerEmail,
-            payload.sandboxOrganization,
-          )
+          showInviteLinkDialog(payload, ownerEmail)
         } else {
           addToast({
             severity: 'danger',
