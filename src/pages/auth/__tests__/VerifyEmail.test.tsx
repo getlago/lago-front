@@ -5,14 +5,14 @@ import { GraphQLFormattedError } from 'graphql'
 import { StrictMode } from 'react'
 
 import { envGlobalVar, initializeTranslations } from '~/core/apolloClient'
-import { LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
+import { HOME_ROUTE, LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { removeItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
 import { getRecaptchaToken, unloadRecaptcha } from '~/core/utils/recaptcha'
 import {
   ConfirmSignupEmailMutation,
   LagoApiError,
-  ResendSignupEmailFromLinkMutation,
+  ResendSignupEmailMutation,
   SignupVerificationQuery,
   SignupVerificationStatusEnum,
 } from '~/generated/graphql'
@@ -20,9 +20,11 @@ import { render } from '~/test-utils'
 
 import {
   SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID,
+  SELF_SERVE_SIGNUP_RESEND_LIMIT_ALERT_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_BACK_TO_SIGN_UP_BUTTON_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_CONFIRM_BUTTON_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_CONTINUE_BUTTON_TEST_ID,
+  SELF_SERVE_VERIFY_EMAIL_LOG_OUT_BUTTON_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_PASSWORD_FIELD_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_RESEND_ALERT_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_RETRY_BUTTON_TEST_ID,
@@ -39,12 +41,14 @@ const mockClient = { query: jest.fn(), mutate: jest.fn() }
 const mockUseSignupVerificationQuery = jest.fn()
 const mockRefetch = jest.fn()
 const mockUseConfirmSignupEmailMutation = jest.fn()
-const mockUseResendSignupEmailFromLinkMutation = jest.fn()
+const mockUseResendSignupEmailMutation = jest.fn()
 const mockConfirmSignupEmail = jest.fn()
 const mockResendSignupEmail = jest.fn()
 const mockOnLogIn = jest.fn()
 const mockAuthTokenVar = jest.fn()
 const mockNavigate = jest.fn()
+const mockLogOut = jest.fn()
+const mockIsAuthenticated = jest.fn()
 
 jest.mock('@apollo/client', () => ({
   ...jest.requireActual('@apollo/client'),
@@ -57,6 +61,7 @@ jest.mock('~/core/apolloClient', () => {
   return {
     ...actual,
     envGlobalVar: jest.fn(actual.envGlobalVar),
+    logOut: (...args: unknown[]) => mockLogOut(...args),
     onLogIn: (...args: unknown[]) => mockOnLogIn(...args),
   }
 })
@@ -71,6 +76,13 @@ jest.mock('~/core/router', () => ({
   useNavigate: () => mockNavigate,
 }))
 
+jest.mock('~/hooks/auth/useIsAuthenticated', () => ({
+  useIsAuthenticated: () => ({
+    isAuthenticated: mockIsAuthenticated(),
+    isPortalAuthenticated: false,
+  }),
+}))
+
 jest.mock('~/core/utils/recaptcha', () => ({
   getRecaptchaToken: jest.fn(),
   unloadRecaptcha: jest.fn(),
@@ -80,8 +92,7 @@ jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useSignupVerificationQuery: (...args: unknown[]) => mockUseSignupVerificationQuery(...args),
   useConfirmSignupEmailMutation: (...args: unknown[]) => mockUseConfirmSignupEmailMutation(...args),
-  useResendSignupEmailFromLinkMutation: (...args: unknown[]) =>
-    mockUseResendSignupEmailFromLinkMutation(...args),
+  useResendSignupEmailMutation: (...args: unknown[]) => mockUseResendSignupEmailMutation(...args),
 }))
 
 const mockedGetRecaptchaToken = jest.mocked(getRecaptchaToken)
@@ -132,6 +143,8 @@ const SIGN_UP_UNAVAILABLE_COPY = 'Sign-up is unavailable right now. Please reloa
 const CAPTCHA_FAILED_COPY = "We couldn't confirm you're human. Please try again."
 const GENERIC_ERROR_COPY = 'Something went wrong on our side. Please try again.'
 const RETRY_COPY = 'Retry'
+const LOGGED_IN_TITLE_COPY = "You're already logged in"
+const LOGGED_IN_TEXT_COPY = 'Log out of your current account to confirm this email address.'
 const RECAPTCHA_NOTICE_COPY =
   'This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.'
 const RECAPTCHA_NOTICE_START = /^This site is protected by reCAPTCHA/
@@ -147,8 +160,8 @@ const CONFIRM_SUCCESS: { data: ConfirmSignupEmailMutation } = {
   data: { confirmSignupEmail: { token: SESSION_TOKEN } },
 }
 
-const RESEND_SUCCESS: { data: ResendSignupEmailFromLinkMutation } = {
-  data: { resendSignupEmail: { resendAvailableInSeconds: 60 } },
+const RESEND_SUCCESS: { data: ResendSignupEmailMutation } = {
+  data: { resendSignupEmail: { resendAvailableInSeconds: 60, resendLimitReached: false } },
 }
 
 const buildVerification = (verification: Partial<Verification> = {}): QueryAnswer => ({
@@ -311,6 +324,9 @@ const clickRetry = async (user: UserEvent): Promise<void> => {
   await flush()
 }
 
+const getRouteNavigations = (): unknown[][] =>
+  mockNavigate.mock.calls.filter(([to]) => typeof to === 'string')
+
 const clickSendNewLink = async (user: UserEvent): Promise<void> => {
   await user.click(getSendNewLinkButton())
   await flush()
@@ -328,15 +344,14 @@ describe('VerifyEmail', () => {
     answerVerification(buildVerification())
     mockRefetch.mockResolvedValue(buildVerification())
     mockUseConfirmSignupEmailMutation.mockReturnValue([mockConfirmSignupEmail])
-    mockUseResendSignupEmailFromLinkMutation.mockReturnValue([
-      mockResendSignupEmail,
-      { loading: false },
-    ])
+    mockUseResendSignupEmailMutation.mockReturnValue([mockResendSignupEmail, { loading: false }])
     mockConfirmSignupEmail.mockResolvedValue(CONFIRM_SUCCESS)
     mockResendSignupEmail.mockResolvedValue(RESEND_SUCCESS)
     mockedGetRecaptchaToken.mockResolvedValue(RECAPTCHA_TOKEN)
     mockOnLogIn.mockResolvedValue(undefined)
     mockAuthTokenVar.mockReturnValue('')
+    mockIsAuthenticated.mockReturnValue(false)
+    mockLogOut.mockResolvedValue(undefined)
     mockRecaptchaSiteKey('')
   })
 
@@ -361,12 +376,29 @@ describe('VerifyEmail', () => {
 
   describe('GIVEN the page is opened from the link', () => {
     describe('WHEN it mounts', () => {
-      it('THEN should remove the token from the URL and keep the path', () => {
+      it('THEN should replace the URL through the router without the token, on the same page', () => {
         renderVerifyEmail()
 
-        expect(window.location.pathname).toBe(VERIFY_EMAIL_PATH)
-        expect(window.location.search).toBe('')
-        expect(window.location.href).not.toContain(TOKEN)
+        expect(mockNavigate).toHaveBeenCalledWith(
+          { search: '', hash: '' },
+          { replace: true, state: null },
+        )
+      })
+
+      it('THEN should keep the other query params, the hash and the router state', () => {
+        openLink(`?ifrm=true&token=${TOKEN}#details`)
+        window.history.replaceState(
+          { usr: { from: '/customers' }, key: 'default', idx: 0 },
+          '',
+          window.location.href,
+        )
+
+        renderVerifyEmail()
+
+        expect(mockNavigate).toHaveBeenCalledWith(
+          { search: '?ifrm=true', hash: '#details' },
+          { replace: true, state: { from: '/customers' } },
+        )
       })
 
       it('THEN should add a single no-referrer meta', () => {
@@ -396,7 +428,7 @@ describe('VerifyEmail', () => {
         expect(mockUseConfirmSignupEmailMutation).toHaveBeenCalledWith({
           context: { silentError: true },
         })
-        expect(mockUseResendSignupEmailFromLinkMutation).toHaveBeenCalledWith({
+        expect(mockUseResendSignupEmailMutation).toHaveBeenCalledWith({
           context: { silentError: true },
         })
       })
@@ -415,12 +447,37 @@ describe('VerifyEmail', () => {
     })
 
     describe('WHEN it unmounts', () => {
-      it('THEN should remove the no-referrer meta', () => {
+      it('THEN should apply the default policy again before removing its meta', () => {
         const { unmount } = renderVerifyEmail()
+        const [meta] = getReferrerMetas()
 
         unmount()
 
+        expect(meta).toHaveAttribute('content', 'strict-origin-when-cross-origin')
+        expect(meta).not.toBeInTheDocument()
         expect(getReferrerMetas()).toHaveLength(0)
+      })
+    })
+
+    describe('WHEN the document already sets a referrer policy', () => {
+      it('THEN should override it while mounted and restore it after', () => {
+        const existingMeta = document.createElement('meta')
+
+        existingMeta.name = 'referrer'
+        existingMeta.content = 'origin'
+        document.head.appendChild(existingMeta)
+
+        const { unmount } = renderVerifyEmail()
+
+        expect(getReferrerMetas()).toEqual([existingMeta])
+        expect(existingMeta).toHaveAttribute('content', 'no-referrer')
+
+        unmount()
+
+        expect(getReferrerMetas()).toEqual([existingMeta])
+        expect(existingMeta).toHaveAttribute('content', 'origin')
+
+        existingMeta.remove()
       })
     })
 
@@ -464,6 +521,28 @@ describe('VerifyEmail', () => {
         ACTION_TEST_IDS.forEach((testId) => {
           expect(screen.queryByTestId(testId)).not.toBeInTheDocument()
         })
+      })
+    })
+
+    describe('WHEN the link check answers no verification', () => {
+      it('THEN should show the invalid link state instead of loading forever', () => {
+        answerVerification({ loading: false, data: undefined })
+
+        renderVerifyEmail()
+
+        expect(getPage()).toHaveTextContent(INVALID_TITLE_COPY)
+      })
+    })
+
+    describe('WHEN the link check answers a status this build does not know', () => {
+      it('THEN should show the invalid link state instead of loading forever', () => {
+        answerVerification(
+          buildVerification({ status: 'archived' as SignupVerificationStatusEnum }),
+        )
+
+        renderVerifyEmail()
+
+        expect(getPage()).toHaveTextContent(INVALID_TITLE_COPY)
       })
     })
 
@@ -690,7 +769,6 @@ describe('VerifyEmail', () => {
         expect(getStoredSecret()).toBeNull()
         expect(mockOnLogIn).toHaveBeenCalledTimes(1)
         expect(mockOnLogIn).toHaveBeenCalledWith(mockClient, SESSION_TOKEN)
-        expect(mockNavigate).not.toHaveBeenCalled()
       })
     })
 
@@ -952,8 +1030,7 @@ describe('VerifyEmail', () => {
         await clickConfirm(user)
         await user.click(screen.getByTestId(SELF_SERVE_VERIFY_EMAIL_CONTINUE_BUTTON_TEST_ID))
 
-        expect(mockNavigate).toHaveBeenCalledTimes(1)
-        expect(mockNavigate).toHaveBeenCalledWith(LOGIN_ROUTE)
+        expect(getRouteNavigations()).toEqual([[LOGIN_ROUTE]])
       })
     })
 
@@ -963,7 +1040,7 @@ describe('VerifyEmail', () => {
       })
 
       it.each(CONFIRM_PATHS)(
-        'THEN should not show the already verified state on the $path path',
+        'THEN should go home instead of the already verified state on the $path path',
         async ({ passwordRequired, confirm, input }) => {
           const user = userEvent.setup()
 
@@ -978,7 +1055,7 @@ describe('VerifyEmail', () => {
           expect(
             screen.queryByTestId(SELF_SERVE_VERIFY_EMAIL_CONTINUE_BUTTON_TEST_ID),
           ).not.toBeInTheDocument()
-          expect(mockNavigate).not.toHaveBeenCalled()
+          expect(getRouteNavigations()).toEqual([[HOME_ROUTE, { replace: true }]])
         },
       )
     })
@@ -1215,8 +1292,7 @@ describe('VerifyEmail', () => {
         renderVerifyEmail()
         await user.click(screen.getByTestId(SELF_SERVE_VERIFY_EMAIL_CONTINUE_BUTTON_TEST_ID))
 
-        expect(mockNavigate).toHaveBeenCalledTimes(1)
-        expect(mockNavigate).toHaveBeenCalledWith(LOGIN_ROUTE)
+        expect(getRouteNavigations()).toEqual([[LOGIN_ROUTE]])
         expect(mockNavigate).not.toHaveBeenCalledWith(SIGN_UP_ROUTE)
       })
     })
@@ -1230,9 +1306,7 @@ describe('VerifyEmail', () => {
         renderVerifyEmail()
         await user.click(screen.getByTestId(SELF_SERVE_VERIFY_EMAIL_BACK_TO_SIGN_UP_BUTTON_TEST_ID))
 
-        expect(mockNavigate).toHaveBeenCalledTimes(1)
-        expect(mockNavigate).toHaveBeenCalledWith(SIGN_UP_ROUTE)
-        expect(mockNavigate).not.toHaveBeenCalledWith(LOGIN_ROUTE)
+        expect(getRouteNavigations()).toEqual([[SIGN_UP_ROUTE]])
       })
     })
   })
@@ -1297,6 +1371,68 @@ describe('VerifyEmail', () => {
         expect(getResendAlert()).toHaveTextContent(NEW_LINK_SENT_COPY)
         expect(queryErrorAlert()).not.toBeInTheDocument()
         expect(getPage()).toHaveTextContent(EXPIRED_TITLE_COPY)
+      })
+    })
+
+    describe('WHEN the resend sends the last link this sign-up allows', () => {
+      it('THEN should show the limit message and stop offering a new link', async () => {
+        const user = userEvent.setup()
+
+        answerStatus(SignupVerificationStatusEnum.Expired)
+        mockResendSignupEmail.mockResolvedValue({
+          data: { resendSignupEmail: { resendAvailableInSeconds: null, resendLimitReached: true } },
+        })
+
+        renderVerifyEmail()
+        await clickSendNewLink(user)
+
+        expect(getResendAlert()).toHaveTextContent(NEW_LINK_SENT_COPY)
+        expect(screen.getByTestId(SELF_SERVE_SIGNUP_RESEND_LIMIT_ALERT_TEST_ID)).toHaveTextContent(
+          RESEND_LIMIT_COPY,
+        )
+        expect(querySendNewLinkButton()).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN clicking send a new link again while the captcha loads', () => {
+      it('THEN should show the button as loading and send a single link', async () => {
+        const user = userEvent.setup()
+        const captcha = deferred<string | null>()
+
+        answerStatus(SignupVerificationStatusEnum.Expired)
+        mockedGetRecaptchaToken.mockReturnValueOnce(captcha.promise)
+
+        renderVerifyEmail()
+        await user.click(getSendNewLinkButton())
+
+        expect(
+          getSendNewLinkButton().querySelector('[data-test^="processing/"]'),
+        ).toBeInTheDocument()
+
+        await user.click(getSendNewLinkButton())
+        await act(async () => {
+          captcha.resolve(RECAPTCHA_TOKEN)
+        })
+        await flush()
+
+        expect(mockedGetRecaptchaToken).toHaveBeenCalledTimes(1)
+        expect(mockResendSignupEmail).toHaveBeenCalledTimes(1)
+        expect(getResendAlert()).toHaveTextContent(NEW_LINK_SENT_COPY)
+      })
+    })
+
+    describe('WHEN the API answers resend_too_soon without a retry delay', () => {
+      it('THEN should ask to wait without a number of seconds', async () => {
+        const user = userEvent.setup()
+
+        answerStatus(SignupVerificationStatusEnum.Expired)
+        mockResendSignupEmail.mockResolvedValue(buildError(LagoApiError.ResendTooSoon))
+
+        renderVerifyEmail()
+        await clickSendNewLink(user)
+
+        expect(getResendAlert()).toHaveTextContent(TOO_MANY_ATTEMPTS_COPY)
+        expect(getResendAlert()).not.toHaveTextContent('0 seconds')
       })
     })
 
@@ -1454,6 +1590,7 @@ describe('VerifyEmail', () => {
         [LagoApiError.SignupDisabled, SIGN_UP_UNAVAILABLE_COPY],
         [LagoApiError.SelfServeDisabled, SIGN_UP_UNAVAILABLE_COPY],
         [LagoApiError.InternalError, GENERIC_ERROR_COPY],
+        [LagoApiError.UnprocessableEntity, GENERIC_ERROR_COPY],
       ])('THEN should show the %s message', async (code, copy) => {
         const user = userEvent.setup()
 
@@ -1601,6 +1738,63 @@ describe('VerifyEmail', () => {
         expect(screen.getByTestId(testId)).toBeInTheDocument()
         expect(screen.queryByText(RECAPTCHA_NOTICE_START)).not.toBeInTheDocument()
         expect(getLinksTo(GOOGLE_PRIVACY_POLICY_URL)).toHaveLength(0)
+      })
+    })
+  })
+
+  describe('GIVEN this browser is already logged in', () => {
+    beforeEach(() => {
+      mockIsAuthenticated.mockReturnValue(true)
+    })
+
+    describe('WHEN the link can still be confirmed', () => {
+      it('THEN should ask to log out instead of confirming', () => {
+        renderVerifyEmail()
+
+        expect(getPage()).toHaveTextContent(LOGGED_IN_TITLE_COPY)
+        expect(getPage()).toHaveTextContent(LOGGED_IN_TEXT_COPY)
+        expect(
+          screen.getByTestId(SELF_SERVE_VERIFY_EMAIL_LOG_OUT_BUTTON_TEST_ID),
+        ).toBeInTheDocument()
+        expect(queryConfirmButton()).not.toBeInTheDocument()
+        expect(querySendNewLinkButton()).not.toBeInTheDocument()
+      })
+
+      it('THEN should not send the browser to another page', () => {
+        renderVerifyEmail()
+
+        expect(getRouteNavigations()).toEqual([])
+      })
+    })
+
+    describe('WHEN the link is already verified', () => {
+      it('THEN should show the already verified state', () => {
+        answerStatus(SignupVerificationStatusEnum.AlreadyVerified)
+
+        renderVerifyEmail()
+
+        expect(getPage()).toHaveTextContent(ALREADY_VERIFIED_TITLE_COPY)
+        expect(
+          screen.queryByTestId(SELF_SERVE_VERIFY_EMAIL_LOG_OUT_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN clicking log out', () => {
+      it('THEN should log out, check the link again and offer to confirm it', async () => {
+        const user = userEvent.setup()
+
+        mockLogOut.mockImplementation(async () => {
+          mockIsAuthenticated.mockReturnValue(false)
+        })
+
+        renderVerifyEmail()
+        await user.click(screen.getByTestId(SELF_SERVE_VERIFY_EMAIL_LOG_OUT_BUTTON_TEST_ID))
+        await flush()
+
+        expect(mockLogOut).toHaveBeenCalledWith(mockClient, true)
+        expect(mockRefetch).toHaveBeenCalledTimes(1)
+        expect(getConfirmButton()).toBeInTheDocument()
       })
     })
   })

@@ -121,13 +121,16 @@ describe('authRoutes', () => {
 
   describe('GIVEN the verify email link is opened', () => {
     describe('WHEN the self-serve flag is on', () => {
-      it('THEN should register the verify email route as public only', async () => {
+      it('THEN should register the verify email route as public, open to a logged in browser', async () => {
         const { authRoutes } = await loadAuthRoutes({
           disableSignUp: false,
           selfServeEnabled: true,
         })
+        const verifyEmailRoute = findRoute(authRoutes, VERIFY_EMAIL_ROUTE)
 
-        expect(findRoute(authRoutes, VERIFY_EMAIL_ROUTE)).toMatchObject({ onlyPublic: true })
+        expect(verifyEmailRoute).toBeDefined()
+        expect(verifyEmailRoute?.onlyPublic).toBeUndefined()
+        expect(verifyEmailRoute?.private).toBeUndefined()
       })
 
       it('THEN should render the verify email page', async () => {

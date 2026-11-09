@@ -6,6 +6,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { RecaptchaNotice } from '~/pages/auth/common/RecaptchaNotice'
 import {
   SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID,
+  SELF_SERVE_SIGNUP_RESEND_LIMIT_ALERT_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_BACK_TO_SIGN_UP_BUTTON_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_CONTINUE_BUTTON_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_RESEND_ALERT_TEST_ID,
@@ -36,41 +37,58 @@ export const VerifyEmailLinkState = ({
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const copy = STATE_COPY[linkState]
+  const canSendNewLink = resendNotice?.type !== 'sent' || resendNotice.canSendMore
+
+  const getWarningCopy = (notice: Exclude<ResendNotice, { type: 'sent' }>): string => {
+    if (notice.type === 'limitReached') return translate('text_17939064976188g9cn8x2cj4')
+    if (notice.seconds <= 0) return translate('text_1793898059309ltbe60gt6pd')
+
+    return translate('text_17939098854944rljlem8e3i', { seconds: notice.seconds })
+  }
 
   const renderResendNotice = (): JSX.Element | null => {
     if (!resendNotice) return null
 
     if (resendNotice.type === 'sent') {
       return (
-        <Alert type="success" data-test={SELF_SERVE_VERIFY_EMAIL_RESEND_ALERT_TEST_ID}>
-          {translate('text_1793909885494hs0en0o3hna')}
-        </Alert>
+        <>
+          <Alert type="success" data-test={SELF_SERVE_VERIFY_EMAIL_RESEND_ALERT_TEST_ID}>
+            {translate('text_1793909885494hs0en0o3hna')}
+          </Alert>
+          {!resendNotice.canSendMore && (
+            <Alert type="warning" data-test={SELF_SERVE_SIGNUP_RESEND_LIMIT_ALERT_TEST_ID}>
+              {translate('text_17939064976188g9cn8x2cj4')}
+            </Alert>
+          )}
+        </>
       )
     }
 
     return (
       <Alert type="warning" data-test={SELF_SERVE_VERIFY_EMAIL_RESEND_ALERT_TEST_ID}>
-        {resendNotice.type === 'tooSoon'
-          ? translate('text_17939098854944rljlem8e3i', { seconds: resendNotice.seconds })
-          : translate('text_17939064976188g9cn8x2cj4')}
+        {getWarningCopy(resendNotice)}
       </Alert>
     )
   }
 
-  const renderSendNewLink = (): JSX.Element => (
-    <>
-      <Button
-        size="large"
-        fullWidth
-        loading={isResending}
-        data-test={SELF_SERVE_VERIFY_EMAIL_SEND_NEW_LINK_BUTTON_TEST_ID}
-        onClick={onSendNewLink}
-      >
-        {translate('text_17939098854936d3uhapsh4f')}
-      </Button>
-      <RecaptchaNotice />
-    </>
-  )
+  const renderSendNewLink = (): JSX.Element | null => {
+    if (!canSendNewLink) return null
+
+    return (
+      <>
+        <Button
+          size="large"
+          fullWidth
+          loading={isResending}
+          data-test={SELF_SERVE_VERIFY_EMAIL_SEND_NEW_LINK_BUTTON_TEST_ID}
+          onClick={onSendNewLink}
+        >
+          {translate('text_17939098854936d3uhapsh4f')}
+        </Button>
+        <RecaptchaNotice />
+      </>
+    )
+  }
 
   const renderBackToSignUp = (): JSX.Element => (
     <Button
@@ -84,7 +102,7 @@ export const VerifyEmailLinkState = ({
     </Button>
   )
 
-  const renderActions = (): JSX.Element => {
+  const renderActions = (): JSX.Element | null => {
     switch (linkState) {
       case 'alreadyVerified':
         return (
