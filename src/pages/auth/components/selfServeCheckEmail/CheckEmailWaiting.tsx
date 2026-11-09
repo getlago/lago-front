@@ -13,9 +13,9 @@ import {
 } from '~/pages/auth/signUpTestIds'
 import { Title } from '~/styles/auth'
 
+import { ResendCountdown } from './ResendCountdown'
 import { StartAgainButton } from './StartAgainButton'
 import { UseResendSignupEmailReturn } from './useResendSignupEmail'
-import { formatCountdown } from './utils'
 
 type CheckEmailWaitingProps = {
   email: string
@@ -33,14 +33,16 @@ export const CheckEmailWaiting = ({
   const { translate } = useInternationalization()
   const {
     resendAvailableAt,
-    secondsUntilResend,
-    isCountingDown,
+    countdownEndsAt,
+    endCountdown,
     resendLimitReached,
     hasResent,
     bannerError,
     isResending,
     onResend,
   } = resend
+
+  const isCountingDown = countdownEndsAt !== undefined
 
   const renderResend = (): JSX.Element => {
     if (resendAvailableAt === null) return <StartAgainButton onStartAgain={onStartAgain} />
@@ -55,11 +57,11 @@ export const CheckEmailWaiting = ({
         data-test={SELF_SERVE_SIGNUP_RESEND_BUTTON_TEST_ID}
         onClick={onResend}
       >
-        {isCountingDown
-          ? translate('text_1793906497618kzry1vugrrb', {
-              time: formatCountdown(secondsUntilResend),
-            })
-          : translate('text_1793906497618vxgtkot7zga')}
+        {isCountingDown ? (
+          <ResendCountdown key={countdownEndsAt} endsAt={countdownEndsAt} onEnd={endCountdown} />
+        ) : (
+          translate('text_1793906497618vxgtkot7zga')
+        )}
       </Button>
     )
   }

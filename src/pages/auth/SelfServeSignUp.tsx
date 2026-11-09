@@ -241,7 +241,7 @@ const SelfServeSignUp = (): JSX.Element => {
     window.location.assign(`${region === 'eu' ? euOrigin : usOrigin}${SIGN_UP_ROUTE}`)
   }
 
-  const onGoBack = useCallback((): void => setSentToEmail(undefined), [])
+  const onGoBack = (): void => setSentToEmail(undefined)
 
   const onStartAgain = useCallback((): void => {
     removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)

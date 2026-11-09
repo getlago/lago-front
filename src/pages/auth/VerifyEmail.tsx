@@ -79,6 +79,7 @@ const VerifyEmail = (): JSX.Element => {
         bannerError={verifyEmail.bannerError}
         isResending={verifyEmail.isResending}
         onSendNewLink={verifyEmail.sendNewLink}
+        onBackToSignUp={verifyEmail.backToSignUp}
       />
     )
   }

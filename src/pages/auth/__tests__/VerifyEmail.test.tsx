@@ -1307,6 +1307,7 @@ describe('VerifyEmail', () => {
         await user.click(screen.getByTestId(SELF_SERVE_VERIFY_EMAIL_BACK_TO_SIGN_UP_BUTTON_TEST_ID))
 
         expect(getRouteNavigations()).toEqual([[SIGN_UP_ROUTE]])
+        expect(mockLogOut).not.toHaveBeenCalled()
       })
     })
   })
@@ -1795,6 +1796,40 @@ describe('VerifyEmail', () => {
         expect(
           screen.queryByTestId(SELF_SERVE_VERIFY_EMAIL_LOG_OUT_BUTTON_TEST_ID),
         ).not.toBeInTheDocument()
+      })
+
+      it.each([
+        [
+          'an invalid link',
+          async (): Promise<void> => {
+            answerStatus(SignupVerificationStatusEnum.Invalid)
+            renderVerifyEmail()
+          },
+        ],
+        [
+          'an expired sign-up',
+          async (user: UserEvent): Promise<void> => {
+            answerStatus(SignupVerificationStatusEnum.Expired)
+            mockResendSignupEmail.mockResolvedValue(buildError(LagoApiError.SignupExpired))
+            renderVerifyEmail()
+            await clickSendNewLink(user)
+          },
+        ],
+      ])('THEN should log out before going back to sign up from %s', async (_, openState) => {
+        const user = userEvent.setup()
+
+        mockLogOut.mockImplementation(async () => {
+          mockIsAuthenticated.mockReturnValue(false)
+        })
+
+        await openState(user)
+        await user.click(screen.getByTestId(SELF_SERVE_VERIFY_EMAIL_BACK_TO_SIGN_UP_BUTTON_TEST_ID))
+
+        expect(mockLogOut).toHaveBeenCalledWith(mockClient, true)
+        expect(mockLogOut.mock.invocationCallOrder[0]).toBeLessThan(
+          mockNavigate.mock.invocationCallOrder.at(-1) ?? 0,
+        )
+        expect(getRouteNavigations()).toEqual([[SIGN_UP_ROUTE]])
       })
 
       it('THEN should still offer a new link, which does not log in', () => {
