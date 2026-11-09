@@ -5,9 +5,14 @@ import { useSandbox } from '~/hooks/useSandbox'
 
 const mockUseOrganizationInfos = jest.fn()
 const mockUseLocation = jest.fn()
+const mockUseCurrentUser = jest.fn()
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => mockUseOrganizationInfos(),
+}))
+
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => mockUseCurrentUser(),
 }))
 
 jest.mock('~/core/router', () => ({
@@ -16,9 +21,22 @@ jest.mock('~/core/router', () => ({
 }))
 
 const PRODUCTION_SLUG = 'acme'
+const PRODUCTION_ID = 'org-prod'
+
+type TestMembership = {
+  organization: { id: string; accessibleByCurrentSession: boolean }
+}
 
 const setOrganization = (organization: Record<string, unknown> | undefined): void => {
   mockUseOrganizationInfos.mockReturnValue({ organization })
+}
+
+const setMemberships = (memberships: TestMembership[]): void => {
+  mockUseCurrentUser.mockReturnValue({ currentUser: { memberships } })
+}
+
+const accessibleProductionMembership: TestMembership = {
+  organization: { id: PRODUCTION_ID, accessibleByCurrentSession: true },
 }
 
 const setStrippedPathname = (strippedPathname: string): void => {
@@ -28,6 +46,7 @@ const setStrippedPathname = (strippedPathname: string): void => {
 describe('useSandbox', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    setMemberships([accessibleProductionMembership])
   })
 
   describe('GIVEN the organization is not loaded yet', () => {
@@ -45,7 +64,7 @@ describe('useSandbox', () => {
     it('THEN should not be a sandbox and have no production path', () => {
       setOrganization({
         environment: OrganizationEnvironmentEnum.Production,
-        productionOrganization: { id: 'org-prod', slug: PRODUCTION_SLUG },
+        productionOrganization: { id: PRODUCTION_ID, slug: PRODUCTION_SLUG },
       })
       setStrippedPathname('/customers')
 
@@ -73,12 +92,39 @@ describe('useSandbox', () => {
       })
     })
 
-    describe('WHEN it has a linked production organization', () => {
+    describe('WHEN the linked production organization is not accessible by the current session', () => {
       beforeEach(() => {
         setOrganization({
           environment: OrganizationEnvironmentEnum.Sandbox,
-          productionOrganization: { id: 'org-prod', slug: PRODUCTION_SLUG },
+          productionOrganization: { id: PRODUCTION_ID, slug: PRODUCTION_SLUG },
         })
+        setStrippedPathname('/customers')
+      })
+
+      it('THEN should have no production path when the production membership is inaccessible', () => {
+        setMemberships([{ organization: { id: PRODUCTION_ID, accessibleByCurrentSession: false } }])
+
+        const { result } = renderHook(() => useSandbox())
+
+        expect(result.current).toEqual({ isSandbox: true, productionPath: null })
+      })
+
+      it('THEN should have no production path when the production organization is not in the memberships', () => {
+        setMemberships([{ organization: { id: 'org-other', accessibleByCurrentSession: true } }])
+
+        const { result } = renderHook(() => useSandbox())
+
+        expect(result.current).toEqual({ isSandbox: true, productionPath: null })
+      })
+    })
+
+    describe('WHEN it has a linked production organization accessible by the current session', () => {
+      beforeEach(() => {
+        setOrganization({
+          environment: OrganizationEnvironmentEnum.Sandbox,
+          productionOrganization: { id: PRODUCTION_ID, slug: PRODUCTION_SLUG },
+        })
+        setMemberships([accessibleProductionMembership])
       })
 
       it.each([

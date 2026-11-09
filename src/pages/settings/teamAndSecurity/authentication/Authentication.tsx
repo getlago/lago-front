@@ -425,6 +425,8 @@ const Authentication = () => {
                   </Avatar>
                 }
                 onClick={() => {
+                  if (isSandbox && !provider.integrationId) return
+
                   if (!provider.shouldSee) {
                     return premiumWarningDialog.open()
                   }
@@ -436,8 +438,6 @@ const Authentication = () => {
                       }),
                     )
                   }
-
-                  if (isSandbox) return
 
                   return provider.openAddDialog((id) =>
                     navigate(generatePath(provider.route, { integrationId: id })),
