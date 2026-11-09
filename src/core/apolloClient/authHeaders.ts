@@ -1,20 +1,16 @@
 import {
   AUTH_TOKEN_LS_KEY,
-  CUSTOMER_PORTAL_TOKEN_LS_KEY,
   getCurrentOrganizationId,
   TMP_AUTH_TOKEN_LS_KEY,
 } from '~/core/apolloClient/reactiveVars'
+import { getCustomerPortalToken } from '~/core/router/utils/getCustomerPortalToken'
 import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
 import { getItemFromLS } from '~/core/utils/localStorage'
 
 type AdminCredentials = { token: string | undefined; organizationId: string | undefined }
 
-// Credentials are scoped by route: a logged-in admin previewing a customer
-// portal keeps both tokens in localStorage, and only the URL tells which
-// context the request belongs to. Sending the admin Bearer on portal routes
-// breaks the portal when that token is expired (the API rejects it before
-// reading customer-portal-token), and sending the portal token on admin
-// routes leaks it on every request after visiting any portal link.
+// Scoped by route: the API rejects an expired admin Bearer before reading
+// customer-portal-token, and a portal token sent on admin routes would leak.
 const resolveAdminCredentials = (pathname: string): AdminCredentials | null => {
   if (isCustomerPortalPath(pathname)) return null
 
@@ -28,7 +24,9 @@ export const buildAuthHeaders = (pathname: string): Record<string, string> => {
   const admin = resolveAdminCredentials(pathname)
 
   if (!admin) {
-    const customerPortalToken = getItemFromLS(CUSTOMER_PORTAL_TOKEN_LS_KEY)
+    // Never from storage: two portals open side by side share localStorage, so a
+    // stored token answers for whichever customer was opened last.
+    const customerPortalToken = getCustomerPortalToken(pathname)
 
     return customerPortalToken ? { 'customer-portal-token': customerPortalToken } : {}
   }
