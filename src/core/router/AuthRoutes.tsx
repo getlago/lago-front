@@ -51,9 +51,11 @@ export const authRoutes: CustomRouteObject[] = [
     : []),
   ...(!disableSignUp && selfServeEnabled
     ? [
-        // Public, not public-only: a browser already logged in must still reach the link
+        // Public, not public-only: a browser already logged in must still reach the link.
+        // Out of the history: the URL it is entered with carries a single-use token.
         {
           path: VERIFY_EMAIL_ROUTE,
+          skipLocationHistory: true,
           element: <VerifyEmail />,
         },
       ]

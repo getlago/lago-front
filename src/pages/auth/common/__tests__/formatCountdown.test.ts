@@ -1,4 +1,4 @@
-import { formatCountdown } from '../utils'
+import { formatCountdown } from '../formatCountdown'
 
 describe('formatCountdown', () => {
   describe('GIVEN a number of seconds', () => {

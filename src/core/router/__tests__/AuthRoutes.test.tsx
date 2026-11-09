@@ -140,6 +140,15 @@ describe('authRoutes', () => {
         expect(verifyEmailRoute?.private).toBeUndefined()
       })
 
+      it('THEN should keep the verify email route, whose URL carries a single-use token, out of the location history', async () => {
+        const { authRoutes } = await loadAuthRoutes({
+          disableSignUp: false,
+          selfServeEnabled: true,
+        })
+
+        expect(findRoute(authRoutes, VERIFY_EMAIL_ROUTE)?.skipLocationHistory).toBe(true)
+      })
+
       it('THEN should render the verify email page', async () => {
         const { authRoutes } = await loadAuthRoutes({
           disableSignUp: false,
