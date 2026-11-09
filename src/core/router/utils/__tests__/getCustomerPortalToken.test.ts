@@ -39,6 +39,20 @@ describe('getCustomerPortalToken', () => {
 
       expect(getCustomerPortalToken(`/customer-portal/${jwt}/wallet/wallet-id`)).toBe(jwt)
     })
+
+    // `matchPath` leaves params encoded, so an encoded link would otherwise send a
+    // different token than the one the router hands `PortalInit`.
+    it.each([
+      ['base64 padding', '/customer-portal/dG9rZW4%3D%3D', 'dG9rZW4=='],
+      ['a plus sign', '/customer-portal/tok%2Bplus/usage/item-id', 'tok+plus'],
+      ['a space', '/customer-portal/tok%20space', 'tok space'],
+    ])('THEN it decodes %s like the router does', (_, pathname, expected) => {
+      expect(getCustomerPortalToken(pathname)).toBe(expected)
+    })
+
+    it('THEN a malformed escape falls back to the raw segment, as the router does', () => {
+      expect(getCustomerPortalToken('/customer-portal/tok%zz')).toBe('tok%zz')
+    })
   })
 
   describe('GIVEN an admin or unknown pathname', () => {
