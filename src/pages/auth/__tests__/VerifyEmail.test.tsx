@@ -1767,16 +1767,42 @@ describe('VerifyEmail', () => {
       })
     })
 
-    describe('WHEN the link is already verified', () => {
-      it('THEN should show the already verified state', () => {
-        answerStatus(SignupVerificationStatusEnum.AlreadyVerified)
+    describe('WHEN the link cannot be confirmed', () => {
+      it.each([
+        [SignupVerificationStatusEnum.AlreadyVerified, ALREADY_VERIFIED_TITLE_COPY],
+        [SignupVerificationStatusEnum.Expired, EXPIRED_TITLE_COPY],
+        [SignupVerificationStatusEnum.Replaced, REPLACED_TITLE_COPY],
+        [SignupVerificationStatusEnum.Locked, LOCKED_TITLE_COPY],
+        [SignupVerificationStatusEnum.Invalid, INVALID_TITLE_COPY],
+      ])('THEN should show the %s state without asking to log out', (status, title) => {
+        answerStatus(status)
 
         renderVerifyEmail()
 
-        expect(getPage()).toHaveTextContent(ALREADY_VERIFIED_TITLE_COPY)
+        expect(getPage()).toHaveTextContent(title)
+        expect(getPage()).not.toHaveTextContent(LOGGED_IN_TITLE_COPY)
         expect(
           screen.queryByTestId(SELF_SERVE_VERIFY_EMAIL_LOG_OUT_BUTTON_TEST_ID),
         ).not.toBeInTheDocument()
+      })
+
+      it('THEN should show the invalid state without asking to log out when the link has no token', () => {
+        openLink('')
+
+        renderVerifyEmail()
+
+        expect(getPage()).toHaveTextContent(INVALID_TITLE_COPY)
+        expect(
+          screen.queryByTestId(SELF_SERVE_VERIFY_EMAIL_LOG_OUT_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+
+      it('THEN should still offer a new link, which does not log in', () => {
+        answerStatus(SignupVerificationStatusEnum.Expired)
+
+        renderVerifyEmail()
+
+        expect(getSendNewLinkButton()).toBeInTheDocument()
       })
     })
 
