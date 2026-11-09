@@ -14,6 +14,7 @@ import {
   useSignupVerificationQuery,
 } from '~/generated/graphql'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
+import { MINUTE_RULE_MAX_WAIT_SECONDS } from '~/pages/auth/common/resendWait'
 import { getSignupBannerError, SIGNUP_GENERIC_ERROR } from '~/pages/auth/common/signupErrors'
 import { useSendSignupLink } from '~/pages/auth/common/useSendSignupLink'
 
@@ -61,6 +62,7 @@ type UseVerifyEmailReturn = {
   clearPasswordError: () => void
   resendNotice: ResendNotice | undefined
   resendAvailableAt: number | undefined
+  isMailboxLimited: boolean
   endResendCountdown: () => void
   isResending: boolean
   confirm: (password: string) => Promise<void>
@@ -82,6 +84,7 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
   const [bannerError, setBannerError] = useState<string>()
   const [resendNotice, setResendNotice] = useState<ResendNotice>()
   const [resendAvailableAt, setResendAvailableAt] = useState<number>()
+  const [hasLongWait, setHasLongWait] = useState(false)
   const [passwordError, setPasswordError] = useState<string>()
 
   useEffect(() => {
@@ -232,14 +235,16 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
   }
 
   const startResendCountdown = (seconds: number | null): void => {
-    setResendAvailableAt(seconds && seconds > 0 ? Date.now() + seconds * 1000 : undefined)
+    const hasCountdown = typeof seconds === 'number' && seconds > 0
+
+    setResendAvailableAt(hasCountdown ? Date.now() + seconds * 1000 : undefined)
+    setHasLongWait(hasCountdown && seconds > MINUTE_RULE_MAX_WAIT_SECONDS)
   }
 
   // Stable, so the countdown label does not restart its clock on every render
   const endResendCountdown = useCallback((): void => {
     setResendAvailableAt(undefined)
-    // resend_limit_reached is an hourly window that ends with its countdown
-    setResendNotice((notice) => (notice?.type === 'limitReached' ? undefined : notice))
+    setHasLongWait(false)
   }, [])
 
   const sendNewLink = async (): Promise<void> => {
@@ -267,9 +272,8 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
 
         return
       case 'limitReached':
-        startResendCountdown(outcome.retryAfterSeconds)
-
-        return setResendNotice({ type: 'limitReached' })
+        // The address's hourly limit: its message comes from the length of the wait
+        return startResendCountdown(outcome.retryAfterSeconds)
       case 'resendExhausted':
         return setStateOverride('signupExpired')
       case 'signupExpired':
@@ -308,6 +312,7 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
     clearPasswordError: () => setPasswordError(undefined),
     resendNotice,
     resendAvailableAt,
+    isMailboxLimited: hasLongWait,
     endResendCountdown,
     isResending: isSending,
     confirm,
