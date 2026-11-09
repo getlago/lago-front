@@ -14944,11 +14944,13 @@ export type CreateAdjustedFeeMutationVariables = Exact<{
 
 export type CreateAdjustedFeeMutation = { __typename?: 'Mutation', createAdjustedFee?: { __typename?: 'Fee', id: string } | null };
 
+export type FeeForInvoiceProductCatalogFeesTableFragment = { __typename?: 'Fee', id: string, amountCents: any, units: number, preciseUnitAmount: number, rateModel?: RateCardRateModelEnum | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, contract?: { __typename?: 'Contract', id: string } | null, product?: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null } | null, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', fixedFeeTotalAmount?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, freeEvents?: number | null, freeUnits?: string | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: number | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, toValue?: number | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, toValue?: any | null, units?: string | null }> | null } | null };
+
 export type InvoiceProductCatalogSectionFragment = { __typename?: 'InvoiceProductCatalogSection', productCategory?: { __typename?: 'ProductCategory', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null, products: Array<{ __typename?: 'InvoiceProductCatalogProductGroup', amountCents: any, feesCount: number, product: { __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum }, filters: Array<{ __typename?: 'InvoiceProductCatalogFilterGroup', amountCents: any, feesCount: number, productFilter: { __typename?: 'ProductFilter', id: string, code: string, name: string, invoiceDisplayName?: string | null } }> }> };
 
 export type InvoiceProductCatalogContractFragment = { __typename?: 'InvoiceProductCatalogContract', contract: { __typename?: 'Contract', id: string, name?: string | null, externalId: string, plan?: { __typename?: 'CatalogPlan', id: string, name: string, invoiceDisplayName?: string | null } | null }, productCatalogSections: Array<{ __typename?: 'InvoiceProductCatalogSection', productCategory?: { __typename?: 'ProductCategory', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null, products: Array<{ __typename?: 'InvoiceProductCatalogProductGroup', amountCents: any, feesCount: number, product: { __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum }, filters: Array<{ __typename?: 'InvoiceProductCatalogFilterGroup', amountCents: any, feesCount: number, productFilter: { __typename?: 'ProductFilter', id: string, code: string, name: string, invoiceDisplayName?: string | null } }> }> }> };
 
-export type FeeForInvoiceProductCatalogSectionFragment = { __typename?: 'Fee', id: string, preciseUnitAmount: number, currency: CurrencyEnum, rateModel?: RateCardRateModelEnum | null, amountCents: any, amountCurrency: CurrencyEnum, preciseAmountCents: number, preciseCouponsAmountCents: number, subTotalExcludingTaxesAmountCents: any, subTotalExcludingTaxesPreciseAmountCents: number, taxesRate?: number | null, taxesAmountCents: any, taxesPreciseAmountCents: number, totalAmountCents: any, preciseTotalAmountCents: number, units: number, eventsCount?: any | null, payInAdvance: boolean, feeType: FeeTypesEnum, itemCode: string, itemName: string, itemType: string, invoiceDisplayName?: string | null, product?: { __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null } | null, productFilter?: { __typename?: 'ProductFilter', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null, contract?: { __typename?: 'Contract', id: string } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, code: string, name: string, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean } } | null, rateOverride?: { __typename?: 'RateOverride', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string, productFilter?: { __typename?: 'ProductFilter', id: string } | null } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } } | null, charge?: { __typename?: 'Charge', id: string, invoiceable: boolean, billableMetric: { __typename?: 'BillableMetric', id: string } } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, addOn: { __typename?: 'AddOn', id: string } } | null, addOn?: { __typename?: 'AddOn', id: string } | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null };
+export type FeeForInvoiceProductCatalogSectionFragment = { __typename?: 'Fee', id: string, preciseUnitAmount: number, currency: CurrencyEnum, rateModel?: RateCardRateModelEnum | null, amountCents: any, amountCurrency: CurrencyEnum, preciseAmountCents: number, preciseCouponsAmountCents: number, subTotalExcludingTaxesAmountCents: any, subTotalExcludingTaxesPreciseAmountCents: number, taxesRate?: number | null, taxesAmountCents: any, taxesPreciseAmountCents: number, totalAmountCents: any, preciseTotalAmountCents: number, units: number, eventsCount?: any | null, payInAdvance: boolean, feeType: FeeTypesEnum, itemCode: string, itemName: string, itemType: string, invoiceDisplayName?: string | null, product?: { __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null } | null, productFilter?: { __typename?: 'ProductFilter', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null, contract?: { __typename?: 'Contract', id: string } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, code: string, name: string, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean } } | null, rateOverride?: { __typename?: 'RateOverride', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string, productFilter?: { __typename?: 'ProductFilter', id: string } | null } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } } | null, charge?: { __typename?: 'Charge', id: string, invoiceable: boolean, billableMetric: { __typename?: 'BillableMetric', id: string } } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, addOn: { __typename?: 'AddOn', id: string } } | null, addOn?: { __typename?: 'AddOn', id: string } | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', fixedFeeTotalAmount?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, freeEvents?: number | null, freeUnits?: string | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: number | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, toValue?: number | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, toValue?: any | null, units?: string | null }> | null } | null };
 
 export type GetInvoiceProductFeesQueryVariables = Exact<{
   invoiceId: Scalars['ID']['input'];
@@ -14965,7 +14967,7 @@ export type GetInvoiceProductFeesQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceProductFeesQuery = { __typename?: 'Query', invoiceProductFees: { __typename?: 'FeeCollection', collection: Array<{ __typename?: 'Fee', id: string, preciseUnitAmount: number, currency: CurrencyEnum, rateModel?: RateCardRateModelEnum | null, amountCents: any, amountCurrency: CurrencyEnum, preciseAmountCents: number, preciseCouponsAmountCents: number, subTotalExcludingTaxesAmountCents: any, subTotalExcludingTaxesPreciseAmountCents: number, taxesRate?: number | null, taxesAmountCents: any, taxesPreciseAmountCents: number, totalAmountCents: any, preciseTotalAmountCents: number, units: number, eventsCount?: any | null, payInAdvance: boolean, feeType: FeeTypesEnum, itemCode: string, itemName: string, itemType: string, invoiceDisplayName?: string | null, product?: { __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null } | null, productFilter?: { __typename?: 'ProductFilter', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null, contract?: { __typename?: 'Contract', id: string } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, code: string, name: string, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean } } | null, rateOverride?: { __typename?: 'RateOverride', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string, productFilter?: { __typename?: 'ProductFilter', id: string } | null } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } } | null, charge?: { __typename?: 'Charge', id: string, invoiceable: boolean, billableMetric: { __typename?: 'BillableMetric', id: string } } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, addOn: { __typename?: 'AddOn', id: string } } | null, addOn?: { __typename?: 'AddOn', id: string } | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type GetInvoiceProductFeesQuery = { __typename?: 'Query', invoiceProductFees: { __typename?: 'FeeCollection', collection: Array<{ __typename?: 'Fee', id: string, preciseUnitAmount: number, currency: CurrencyEnum, rateModel?: RateCardRateModelEnum | null, amountCents: any, amountCurrency: CurrencyEnum, preciseAmountCents: number, preciseCouponsAmountCents: number, subTotalExcludingTaxesAmountCents: any, subTotalExcludingTaxesPreciseAmountCents: number, taxesRate?: number | null, taxesAmountCents: any, taxesPreciseAmountCents: number, totalAmountCents: any, preciseTotalAmountCents: number, units: number, eventsCount?: any | null, payInAdvance: boolean, feeType: FeeTypesEnum, itemCode: string, itemName: string, itemType: string, invoiceDisplayName?: string | null, product?: { __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null } | null, productFilter?: { __typename?: 'ProductFilter', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null, contract?: { __typename?: 'Contract', id: string } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, code: string, name: string, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean } } | null, rateOverride?: { __typename?: 'RateOverride', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string, productFilter?: { __typename?: 'ProductFilter', id: string } | null } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } } | null, charge?: { __typename?: 'Charge', id: string, invoiceable: boolean, billableMetric: { __typename?: 'BillableMetric', id: string } } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, addOn: { __typename?: 'AddOn', id: string } } | null, addOn?: { __typename?: 'AddOn', id: string } | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', fixedFeeTotalAmount?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, freeEvents?: number | null, freeUnits?: string | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: number | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, toValue?: number | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, toValue?: any | null, units?: string | null }> | null } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type SetPaymentMethodAsDefaultMutationVariables = Exact<{
   input: SetAsDefaultInput;
@@ -21834,10 +21836,76 @@ export const InvoiceProductCatalogContractFragmentDoc = gql`
   }
 }
     ${InvoiceProductCatalogSectionFragmentDoc}`;
+export const FeeForInvoiceProductCatalogFeesTableFragmentDoc = gql`
+    fragment FeeForInvoiceProductCatalogFeesTable on Fee {
+  id
+  amountCents
+  units
+  preciseUnitAmount
+  rateModel
+  properties {
+    fromDatetime
+    toDatetime
+  }
+  contract {
+    id
+  }
+  product {
+    id
+    name
+    invoiceDisplayName
+  }
+  productFilter {
+    id
+    name
+    invoiceDisplayName
+  }
+  trueUpParentFee {
+    id
+  }
+  appliedTaxes {
+    id
+    taxRate
+  }
+  amountDetails {
+    fixedFeeTotalAmount
+    fixedFeeUnitAmount
+    flatUnitAmount
+    freeEvents
+    freeUnits
+    minMaxAdjustmentTotalAmount
+    paidEvents
+    paidUnits
+    perPackageSize
+    perPackageUnitAmount
+    perUnitAmount
+    perUnitTotalAmount
+    rate
+    units
+    graduatedRanges {
+      flatUnitAmount
+      fromValue
+      perUnitAmount
+      perUnitTotalAmount
+      toValue
+      units
+    }
+    graduatedPercentageRanges {
+      flatUnitAmount
+      fromValue
+      perUnitTotalAmount
+      rate
+      toValue
+      units
+    }
+  }
+}
+    `;
 export const FeeForInvoiceProductCatalogSectionFragmentDoc = gql`
     fragment FeeForInvoiceProductCatalogSection on Fee {
   id
   ...FeeForViewFeeDetailsDrawer
+  ...FeeForInvoiceProductCatalogFeesTable
   preciseUnitAmount
   currency
   rateModel
@@ -21883,7 +21951,8 @@ export const FeeForInvoiceProductCatalogSectionFragmentDoc = gql`
     }
   }
 }
-    ${FeeForViewFeeDetailsDrawerFragmentDoc}`;
+    ${FeeForViewFeeDetailsDrawerFragmentDoc}
+${FeeForInvoiceProductCatalogFeesTableFragmentDoc}`;
 export const DeletePlanDialogFragmentDoc = gql`
     fragment DeletePlanDialog on Plan {
   id

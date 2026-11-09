@@ -2,7 +2,11 @@ import { ApolloError } from '@apollo/client'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { InvoiceProductCatalogContractFragment } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  InvoiceProductCatalogContractFragment,
+  TimezoneEnum,
+} from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
@@ -16,6 +20,9 @@ const mockFees = jest.fn()
 const mockPager = jest.fn()
 const mockMount = jest.fn()
 const mockSelectSection = jest.fn()
+const mockTable = jest.fn()
+const mockOpenFeeDetails = jest.fn()
+const mockRefetch = jest.fn()
 let mockSearchParams = new URLSearchParams()
 
 jest.mock('react-router', () => ({
@@ -39,6 +46,17 @@ jest.mock('~/components/designSystem/Pagination', () => ({
     mockPager(props)
     return <>{props.children}</>
   },
+}))
+
+jest.mock('../InvoiceProductCatalogFeesTable', () => ({
+  InvoiceProductCatalogFeesTable: (props: Record<string, unknown>) => {
+    mockTable(props)
+    return null
+  },
+}))
+
+jest.mock('~/components/invoices/details/ViewFeeDetailsDrawer', () => ({
+  useViewFeeDetailsDrawer: () => ({ open: mockOpenFeeDetails, close: jest.fn() }),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -69,6 +87,8 @@ describe('GIVEN a catalog invoice section', () => {
         },
       },
       loading: false,
+      variables: {},
+      refetch: mockRefetch,
       goToPage: jest.fn(),
       selectSection: mockSelectSection,
       onSearchChange: jest.fn(),
@@ -77,10 +97,38 @@ describe('GIVEN a catalog invoice section', () => {
 
   afterEach(() => jest.restoreAllMocks())
 
-  it('THEN shows the raw fee list and passes matching metadata and page size to the pager', () => {
-    render(<InvoiceProductCatalogSection invoiceId="invoice-1" contracts={contracts} />)
-    expect(screen.getByTestId(INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID)).toHaveTextContent(
-      'Fresh salad',
+  it('THEN renders the fees table with the page of fees, the active section and display props', () => {
+    render(
+      <InvoiceProductCatalogSection
+        invoiceId="invoice-1"
+        contracts={contracts}
+        currency={CurrencyEnum.Eur}
+        customerTimezone={TimezoneEnum.TzEuropeParis}
+        hasTaxProviderError
+      />,
+    )
+    expect(mockTable).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        fees: [expect.objectContaining({ id: 'fee-1' })],
+        section: expect.objectContaining({ key: 'contract-1:category-1' }),
+        currency: CurrencyEnum.Eur,
+        customerTimezone: TimezoneEnum.TzEuropeParis,
+        hasTaxProviderError: true,
+        isLoading: false,
+        hasError: false,
+        hasActiveSearchOrFilters: false,
+        onFeeClick: mockOpenFeeDetails,
+      }),
+    )
+  })
+
+  it('THEN passes matching metadata and page size to the pager', () => {
+    render(
+      <InvoiceProductCatalogSection
+        invoiceId="invoice-1"
+        contracts={contracts}
+        currency={CurrencyEnum.Usd}
+      />,
     )
     expect(mockPager).toHaveBeenLastCalledWith(
       expect.objectContaining({
@@ -92,26 +140,94 @@ describe('GIVEN a catalog invoice section', () => {
   })
 
   it('THEN does not request fees for an empty catalog', () => {
-    render(<InvoiceProductCatalogSection invoiceId="invoice-1" contracts={[]} />)
+    render(
+      <InvoiceProductCatalogSection
+        invoiceId="invoice-1"
+        contracts={[]}
+        currency={CurrencyEnum.Usd}
+      />,
+    )
     expect(screen.getByTestId(INVOICE_PRODUCT_CATALOG_EMPTY_TEST_ID)).toBeInTheDocument()
     expect(mockFees).not.toHaveBeenCalled()
   })
 
-  it.each([{ loading: true }, { error: new ApolloError({ errorMessage: 'Unavailable' }) }])(
-    'THEN hides stale rows when $loading or $error',
-    (state) => {
-      mockFees.mockReturnValue({ ...mockFees(), ...state })
-      render(<InvoiceProductCatalogSection invoiceId="invoice-1" contracts={contracts} />)
-      expect(screen.queryByRole('listitem')).not.toBeInTheDocument()
-      expect(screen.getByTestId(INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID)).toBeInTheDocument()
-    },
-  )
+  it.each([
+    ['loading', { loading: true }, { isLoading: true, hasError: false }],
+    [
+      'error',
+      { error: new ApolloError({ errorMessage: 'Unavailable' }) },
+      { isLoading: false, hasError: true },
+    ],
+  ])('THEN forwards the %s state to the table', (_, state, expected) => {
+    mockFees.mockReturnValue({ ...mockFees(), ...state })
+    render(
+      <InvoiceProductCatalogSection
+        invoiceId="invoice-1"
+        contracts={contracts}
+        currency={CurrencyEnum.Usd}
+      />,
+    )
+    expect(mockTable).toHaveBeenLastCalledWith(expect.objectContaining(expected))
+    expect(screen.getByTestId(INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID)).toBeInTheDocument()
+  })
+
+  it('THEN refetches the fees when the table asks for a retry', () => {
+    render(
+      <InvoiceProductCatalogSection
+        invoiceId="invoice-1"
+        contracts={contracts}
+        currency={CurrencyEnum.Usd}
+      />,
+    )
+    const { onRetry } = mockTable.mock.lastCall[0] as { onRetry: () => void }
+
+    onRetry()
+    expect(mockRefetch).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([
+    ['a search term', new URLSearchParams(), { searchTerm: 'salad' }],
+    ['a fees filter in the URL', new URLSearchParams('ipf_appliedRateCardProductType=fixed'), {}],
+  ])('THEN flags active search or filters with %s', (_, searchParams, variables) => {
+    mockSearchParams = searchParams
+    mockFees.mockReturnValue({ ...mockFees(), variables })
+    render(
+      <InvoiceProductCatalogSection
+        invoiceId="invoice-1"
+        contracts={contracts}
+        currency={CurrencyEnum.Usd}
+      />,
+    )
+    expect(mockTable).toHaveBeenLastCalledWith(
+      expect.objectContaining({ hasActiveSearchOrFilters: true }),
+    )
+  })
+
+  it('THEN does not flag search or filters for an unrelated URL param', () => {
+    mockSearchParams = new URLSearchParams('page=2')
+    render(
+      <InvoiceProductCatalogSection
+        invoiceId="invoice-1"
+        contracts={contracts}
+        currency={CurrencyEnum.Usd}
+      />,
+    )
+    expect(mockTable).toHaveBeenLastCalledWith(
+      expect.objectContaining({ hasActiveSearchOrFilters: false }),
+    )
+  })
 
   it('THEN passes the fees filters of the URL to the hook', () => {
     mockSearchParams = new URLSearchParams(
       'ipf_dynamic.product=product-1|-_-|salad&ipf_appliedRateCardProductType=fixed',
     )
-    render(<InvoiceProductCatalogSection invoiceId="invoice-1" contracts={contracts} />)
+    render(
+      <InvoiceProductCatalogSection
+        invoiceId="invoice-1"
+        contracts={contracts}
+        currency={CurrencyEnum.Usd}
+      />,
+    )
     expect(mockFees).toHaveBeenLastCalledWith(
       expect.objectContaining({
         filters: { productIds: ['product-1'], productType: 'fixed' },
@@ -122,7 +238,13 @@ describe('GIVEN a catalog invoice section', () => {
   it('THEN selects the section of the clicked tab through the hook', async () => {
     const user = userEvent.setup()
 
-    render(<InvoiceProductCatalogSection invoiceId="invoice-1" contracts={contracts} />)
+    render(
+      <InvoiceProductCatalogSection
+        invoiceId="invoice-1"
+        contracts={contracts}
+        currency={CurrencyEnum.Usd}
+      />,
+    )
     await user.click(
       screen.getByTestId(`${INVOICE_PRODUCT_CATALOG_TABS_TEST_ID}-contract-1:standalone`),
     )
@@ -132,15 +254,31 @@ describe('GIVEN a catalog invoice section', () => {
   it('THEN remounts the hook owner only when the resolved section changes', () => {
     mockSearchParams = new URLSearchParams('section=unknown')
     const { rerender } = render(
-      <InvoiceProductCatalogSection invoiceId="invoice-1" contracts={contracts} />,
+      <InvoiceProductCatalogSection
+        invoiceId="invoice-1"
+        contracts={contracts}
+        currency={CurrencyEnum.Usd}
+      />,
     )
     const mounts = mockMount.mock.calls.length
 
     mockSearchParams = new URLSearchParams('section=contract-1%3Acategory-1&page=2')
-    rerender(<InvoiceProductCatalogSection invoiceId="invoice-1" contracts={contracts} />)
+    rerender(
+      <InvoiceProductCatalogSection
+        invoiceId="invoice-1"
+        contracts={contracts}
+        currency={CurrencyEnum.Usd}
+      />,
+    )
     expect(mockMount).toHaveBeenCalledTimes(mounts)
     mockSearchParams = new URLSearchParams('section=contract-1%3Astandalone')
-    rerender(<InvoiceProductCatalogSection invoiceId="invoice-1" contracts={contracts} />)
+    rerender(
+      <InvoiceProductCatalogSection
+        invoiceId="invoice-1"
+        contracts={contracts}
+        currency={CurrencyEnum.Usd}
+      />,
+    )
     expect(mockMount.mock.calls.length).toBeGreaterThan(mounts)
     expect(mockFees).toHaveBeenLastCalledWith(
       expect.objectContaining({

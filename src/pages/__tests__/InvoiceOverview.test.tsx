@@ -51,9 +51,14 @@ jest.mock('~/components/invoices/Metadatas', () => ({
   Metadatas: () => null,
 }))
 
+const mockCatalogSection = jest.fn()
+
 jest.mock('~/components/invoices/productCatalog/InvoiceProductCatalogSection', () => ({
   INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID: 'invoice-product-catalog-section',
-  InvoiceProductCatalogSection: () => <section data-test="invoice-product-catalog-section" />,
+  InvoiceProductCatalogSection: (props: Record<string, unknown>) => {
+    mockCatalogSection(props)
+    return <section data-test="invoice-product-catalog-section" />
+  },
 }))
 
 const ANROK_CUSTOMER = { id: 'anrok-customer-1', externalAccountId: null }
@@ -267,6 +272,22 @@ describe('InvoiceOverview', () => {
 
       expect(footer).toBeInTheDocument()
       expect(footer?.compareDocumentPosition(section)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    })
+
+    it('THEN passes the invoice currency, customer timezone and tax error flag to the section', () => {
+      renderOverview({
+        customer: buildCustomer({ applicableTimezone: TimezoneEnum.TzEuropeParis }),
+        productCatalogContracts: contracts,
+        fees: [],
+      })
+
+      expect(mockCatalogSection).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          currency: CurrencyEnum.Usd,
+          customerTimezone: TimezoneEnum.TzEuropeParis,
+          hasTaxProviderError: false,
+        }),
+      )
     })
 
     it.each([

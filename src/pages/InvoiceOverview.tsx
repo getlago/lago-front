@@ -35,6 +35,7 @@ import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
   AvalaraIntegrationInfosForInvoiceOverviewFragment,
   BillingEntity,
+  CurrencyEnum,
   CustomerAccountTypeEnum,
   CustomerForInvoiceOverviewFragment,
   DownloadInvoiceItemMutationFn,
@@ -502,6 +503,9 @@ const InvoiceOverview = memo(
             <InvoiceProductCatalogSection
               invoiceId={invoice.id}
               contracts={productCatalogContracts}
+              currency={invoice.currency || CurrencyEnum.Usd}
+              customerTimezone={customer?.applicableTimezone}
+              hasTaxProviderError={hasTaxProviderError}
             />
           </>
         )

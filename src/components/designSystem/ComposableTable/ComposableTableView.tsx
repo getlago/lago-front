@@ -75,6 +75,8 @@ export type ComposableTableViewProps<TData extends RowData> = {
   placeholder?: TablePlaceholder
   hasFooter?: boolean
   getRowDataTest?: (row: ComposableTableRow<TData>) => string | undefined
+  onRowClick?: (row: ComposableTableRow<TData>) => void
+  getRowIsClickable?: (row: ComposableTableRow<TData>) => boolean
   footerDataTest?: string
   'data-test'?: string
 }
@@ -87,6 +89,8 @@ export const ComposableTableView = <TData extends RowData>({
   placeholder,
   hasFooter = false,
   getRowDataTest,
+  onRowClick,
+  getRowIsClickable,
   footerDataTest,
   'data-test': dataTest,
 }: ComposableTableViewProps<TData>): JSX.Element => {
@@ -134,21 +138,41 @@ export const ComposableTableView = <TData extends RowData>({
 
     if (hasError || !rows.length) return renderPlaceholder()
 
-    return rows.map((row) => (
-      <tr key={row.id} data-test={getRowDataTest?.(row)}>
-        {row.getAllCells().map((cell) => {
-          return (
-            <ComposableTableTd key={cell.id} {...getColumnVariants(cell.column)}>
-              {renderText(
-                renderTemplate(cell.column.columnDef.cell, cell.getContext()),
-                'body',
-                'grey700',
-              )}
-            </ComposableTableTd>
-          )
-        })}
-      </tr>
-    ))
+    return rows.map((row) => {
+      const isClickable = !!onRowClick && (getRowIsClickable?.(row) ?? true)
+
+      return (
+        <tr
+          key={row.id}
+          data-test={getRowDataTest?.(row)}
+          className={isClickable ? 'cursor-pointer hover:[&>td]:bg-grey-100' : undefined}
+          tabIndex={isClickable ? 0 : undefined}
+          onClick={isClickable ? () => onRowClick(row) : undefined}
+          onKeyDown={
+            isClickable
+              ? (event) => {
+                  if (event.key !== 'Enter' && event.key !== ' ') return
+
+                  event.preventDefault()
+                  onRowClick(row)
+                }
+              : undefined
+          }
+        >
+          {row.getAllCells().map((cell) => {
+            return (
+              <ComposableTableTd key={cell.id} {...getColumnVariants(cell.column)}>
+                {renderText(
+                  renderTemplate(cell.column.columnDef.cell, cell.getContext()),
+                  'body',
+                  'grey700',
+                )}
+              </ComposableTableTd>
+            )
+          })}
+        </tr>
+      )
+    })
   }
 
   const renderFooter = (): ReactNode => {
