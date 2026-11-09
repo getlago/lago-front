@@ -99,7 +99,6 @@ const buildProductFee = (
         id: 'category-1',
         code: 'comms',
         name: 'Communications',
-        invoiceDisplayName: null,
       },
     },
     productFilter: { id: 'filter-1', code: 'eu', name: 'EU', invoiceDisplayName: null },
@@ -252,10 +251,14 @@ describe('useViewFeeDetailsDrawer', () => {
       within(screen.getByTestId(sectionTestId)).getByText(label).nextElementSibling?.textContent
 
     describe('WHEN the fee has a product filter', () => {
-      it('THEN should title the drawer with the filter name', () => {
+      it('THEN should title the drawer with the product and filter display names', () => {
         renderProductFee()
 
-        expect(screen.getByTestId(VIEW_FEE_DETAILS_HEADER_TEST_ID)).toHaveTextContent('EU')
+        expect(
+          within(screen.getByTestId(VIEW_FEE_DETAILS_HEADER_TEST_ID)).getByText(
+            'Email volume - EU',
+          ),
+        ).toBeInTheDocument()
       })
 
       it('THEN should prefer the filter invoice display name over its name', () => {
@@ -263,7 +266,11 @@ describe('useViewFeeDetailsDrawer', () => {
           productFilter: { id: 'filter-1', code: 'eu', name: 'EU', invoiceDisplayName: 'Europe' },
         })
 
-        expect(screen.getByTestId(VIEW_FEE_DETAILS_HEADER_TEST_ID)).toHaveTextContent('Europe')
+        expect(
+          within(screen.getByTestId(VIEW_FEE_DETAILS_HEADER_TEST_ID)).getByText(
+            'Email volume - Europe',
+          ),
+        ).toBeInTheDocument()
       })
     })
 
@@ -349,7 +356,7 @@ describe('useViewFeeDetailsDrawer', () => {
     describe('WHEN the source item section is rendered', () => {
       it.each([
         ['product category', 'Product category', 'Communications'],
-        ['product', 'Product', 'Email volume'],
+        ['product', 'Product', 'Emails'],
         ['product filter', 'Product filter', 'EU'],
         ['item type', 'Item type', 'Metered'],
         ['rate card', 'Rate card', 'Emails rate card'],
@@ -359,6 +366,23 @@ describe('useViewFeeDetailsDrawer', () => {
         renderProductFee()
 
         expect(getRowValue(VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID, label)).toBe(expected)
+      })
+
+      it('THEN should show the catalog names, not their invoice display names', () => {
+        renderProductFee({
+          product: {
+            id: 'product-1',
+            code: 'emails',
+            name: 'Emails',
+            invoiceDisplayName: 'Email volume',
+            productType: ProductTypeEnum.Metered,
+            productCategory: { id: 'category-1', code: 'comms', name: 'Communications' },
+          },
+          productFilter: { id: 'filter-1', code: 'eu', name: 'EU', invoiceDisplayName: 'Europe' },
+        })
+
+        expect(getRowValue(VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID, 'Product')).toBe('Emails')
+        expect(getRowValue(VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID, 'Product filter')).toBe('EU')
       })
 
       it('THEN should show the category, product and filter codes in design order', () => {
@@ -430,6 +454,17 @@ describe('useViewFeeDetailsDrawer', () => {
   })
 
   describe('GIVEN a subscription fee', () => {
+    describe('WHEN it is a true-up without presentation breakdowns', () => {
+      it('THEN should not show the parent ID row', () => {
+        const { result } = renderHookUnderTest()
+
+        result.current.open(buildFee({ trueUpParentFee: { id: 'parent-fee-1' } }))
+        plainRender(<>{getBodyFromLastOpen()}</>)
+
+        expect(screen.queryByText('parent-fee-1')).not.toBeInTheDocument()
+      })
+    })
+
     describe('WHEN the drawer body is rendered', () => {
       it('THEN should keep the V1 overview and source item rows', () => {
         const { result } = renderHookUnderTest()

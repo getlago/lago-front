@@ -11,6 +11,7 @@ import { Table } from '~/components/designSystem/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { useDrawer } from '~/components/drawers/useDrawer'
+import { getDisplayName } from '~/components/invoices/productCatalog/formatInvoiceProductFees'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { DetailRow, GRID } from '~/components/wallets/WalletDetailsDrawer'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -96,7 +97,6 @@ gql`
       productCategory {
         id
         name
-        invoiceDisplayName
         code
       }
     }
@@ -137,6 +137,14 @@ const formatFeeDate = (iso: string | null | undefined): string => {
   return DateTime.fromISO(iso, { zone: 'utc' }).toFormat("LLLL d, yyyy - HH:mm:ss 'UTC'")
 }
 
+const getBooleanTranslationKey = (value: boolean): string =>
+  value ? 'text_17440181167432q7jzt9znuh' : 'text_1744018116743ntlygtcnq95'
+
+const PRODUCT_TYPE_TRANSLATION_KEYS: Record<ProductTypeEnum, string> = {
+  [ProductTypeEnum.Fixed]: 'text_1783980718113ritmy7z94je',
+  [ProductTypeEnum.Metered]: 'text_17839807181133l3z83156s6',
+}
+
 type ViewFeeDetailsHeaderProps = {
   fee: FeeForViewFeeDetailsDrawerFragment
 }
@@ -164,9 +172,11 @@ const buildFeeTitle = (
   }
 
   if (fee.feeType === FeeTypesEnum.Product) {
-    if (fee.productFilter) return fee.productFilter.invoiceDisplayName || fee.productFilter.name
+    const productName = getDisplayName(fee.product) || fee.itemName
 
-    return fee.product?.invoiceDisplayName || fee.product?.name || fee.itemName
+    if (!fee.productFilter) return productName
+
+    return `${productName} - ${getDisplayName(fee.productFilter)}`
   }
 
   return fee.invoiceDisplayName || fee.itemName
@@ -205,7 +215,7 @@ type OverviewContentProps = {
   showParentIdRow: boolean
 }
 
-const ProductSourceItem = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment }) => {
+const ProductSourceItem = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment }): JSX.Element => {
   const { translate } = useInternationalization()
   const productCategory = fee.product?.productCategory
   const rateCard = fee.contractRateCard?.rateCard
@@ -216,7 +226,7 @@ const ProductSourceItem = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment })
         <>
           <DetailRow
             label={translate('text_1786365890846dgl39wcqgik')}
-            value={productCategory.invoiceDisplayName || productCategory.name}
+            value={productCategory.name}
           />
           <DetailRow
             label={translate('text_1778485363574dygtpz792rx')}
@@ -224,10 +234,7 @@ const ProductSourceItem = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment })
           />
         </>
       )}
-      <DetailRow
-        label={translate('text_1783020794400si0ioidu0m5')}
-        value={fee.product?.invoiceDisplayName || fee.product?.name}
-      />
+      <DetailRow label={translate('text_1783020794400si0ioidu0m5')} value={fee.product?.name} />
       {!!fee.product && (
         <DetailRow
           label={translate('text_1778485363574dygtpz792rx')}
@@ -238,7 +245,7 @@ const ProductSourceItem = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment })
         <>
           <DetailRow
             label={translate('text_1783020794400u55s2kj2o4n')}
-            value={fee.productFilter.invoiceDisplayName || fee.productFilter.name}
+            value={fee.productFilter.name}
           />
           <DetailRow
             label={translate('text_1778485363574dygtpz792rx')}
@@ -251,11 +258,7 @@ const ProductSourceItem = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment })
       {!!fee.product && (
         <DetailRow
           label={translate('text_1778485363574gqoz4lwxrb6')}
-          value={translate(
-            fee.product.productType === ProductTypeEnum.Metered
-              ? 'text_17839807181133l3z83156s6'
-              : 'text_1783980718113ritmy7z94je',
-          )}
+          value={translate(PRODUCT_TYPE_TRANSLATION_KEYS[fee.product.productType])}
         />
       )}
       {!!rateCard && (
@@ -269,9 +272,7 @@ const ProductSourceItem = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment })
       )}
       <DetailRow
         label={translate('text_17942215973596kre98zp5n6')}
-        value={translate(
-          fee.rateOverride ? 'text_17440181167432q7jzt9znuh' : 'text_1744018116743ntlygtcnq95',
-        )}
+        value={translate(getBooleanTranslationKey(!!fee.rateOverride))}
       />
     </div>
   )
@@ -298,11 +299,7 @@ const OverviewContent = ({ fee, showParentIdRow }: OverviewContentProps) => {
   const getDisplayOnInvoiceValue = (): string | undefined => {
     if (!fee.contractRateCard) return undefined
 
-    return translate(
-      fee.contractRateCard.rateCard.displayOnInvoice
-        ? 'text_17440181167432q7jzt9znuh'
-        : 'text_1744018116743ntlygtcnq95',
-    )
+    return translate(getBooleanTranslationKey(fee.contractRateCard.rateCard.displayOnInvoice))
   }
 
   const renderBillingRows = (): JSX.Element => {
@@ -327,17 +324,11 @@ const OverviewContent = ({ fee, showParentIdRow }: OverviewContentProps) => {
       <>
         <DetailRow
           label={translate('text_1778490892190yz0uiowyheu')}
-          value={translate(
-            fee.payInAdvance ? 'text_17440181167432q7jzt9znuh' : 'text_1744018116743ntlygtcnq95',
-          )}
+          value={translate(getBooleanTranslationKey(fee.payInAdvance))}
         />
         <DetailRow
           label={translate('text_1778490892190exazejgkryd')}
-          value={translate(
-            !!fee?.charge?.invoiceable
-              ? 'text_17440181167432q7jzt9znuh'
-              : 'text_1744018116743ntlygtcnq95',
-          )}
+          value={translate(getBooleanTranslationKey(!!fee?.charge?.invoiceable))}
         />
       </>
     )
@@ -382,7 +373,7 @@ const OverviewContent = ({ fee, showParentIdRow }: OverviewContentProps) => {
             label={translate('text_1778485363573m3z3vhkli9m')}
             value={<TypographyWithCopy color="grey700">{fee.id}</TypographyWithCopy>}
           />
-          {(showParentIdRow || isProductFee) && !!fee.trueUpParentFee?.id && (
+          {showParentIdRow && !!fee.trueUpParentFee?.id && (
             <DetailRow
               label={translate('text_1778485363573omt0phjqyjf')}
               value={
@@ -564,6 +555,7 @@ const ViewFeeDetailsBody = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment }
   const { translate } = useInternationalization()
   const [tabIndex, setTabIndex] = useState(0)
   const hasBreakdowns = (fee.presentationBreakdowns?.length ?? 0) > 0
+  const showParentIdRow = hasBreakdowns || fee.feeType === FeeTypesEnum.Product
 
   return (
     <MemoryRouter useTransitions={false}>
@@ -581,7 +573,7 @@ const ViewFeeDetailsBody = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment }
                 tabs={[
                   {
                     title: translate('text_17784853635748xbwslxipeo'),
-                    component: <OverviewContent fee={fee} showParentIdRow={true} />,
+                    component: <OverviewContent fee={fee} showParentIdRow={showParentIdRow} />,
                   },
                   {
                     title: translate('text_1778487825608a08eizdrt7y'),
@@ -592,7 +584,7 @@ const ViewFeeDetailsBody = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment }
             )}
           </div>
 
-          {!hasBreakdowns && <OverviewContent fee={fee} showParentIdRow={false} />}
+          {!hasBreakdowns && <OverviewContent fee={fee} showParentIdRow={showParentIdRow} />}
         </CenteredPage.SectionWrapper>
       </div>
     </MemoryRouter>
