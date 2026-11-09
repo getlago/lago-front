@@ -182,16 +182,18 @@ describe('RootRedirect', () => {
       answerNeedsOrganization({ loading: true })
     })
 
-    describe('WHEN the user is already loaded', () => {
-      it('THEN should wait instead of redirecting to an organization', () => {
+    describe('WHEN the user has no organization', () => {
+      beforeEach(() => {
+        mockUseCurrentUser.mockReturnValue({ loading: false, currentUser: { memberships: [] } })
+      })
+
+      it('THEN should wait for the check instead of redirecting', () => {
         renderHook(() => RootRedirect())
 
         expect(mockNavigate).not.toHaveBeenCalled()
       })
-    })
 
-    describe('WHEN the check then resolves that the user needs an organization', () => {
-      it('THEN should redirect only to the create organization page', () => {
+      it('THEN should redirect only to the create organization page once the check says so', () => {
         const { rerender } = renderHook(() => RootRedirect())
 
         answerNeedsOrganization({ needsOrganization: true })
@@ -199,6 +201,18 @@ describe('RootRedirect', () => {
 
         expect(mockNavigate).toHaveBeenCalledTimes(1)
         expect(mockNavigate).toHaveBeenCalledWith(CREATE_ORGANIZATION_ROUTE, { replace: true })
+      })
+    })
+
+    describe('WHEN the user already has an organization', () => {
+      it('THEN should redirect to it without waiting for the check', () => {
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/acme',
+          expect.objectContaining({ replace: true, skipSlugPrepend: true }),
+        )
       })
     })
   })

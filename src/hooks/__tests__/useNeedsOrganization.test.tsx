@@ -130,6 +130,25 @@ describe('useNeedsOrganization', () => {
     })
 
     describe('WHEN retrying after the query failed', () => {
+      it('THEN should report loading while the retry is in flight', async () => {
+        const { result } = renderNeedsOrganization([
+          buildMock({ error: new Error('Failed to fetch') }),
+          { ...buildMock({ result: { data: buildData(true) } }), delay: 200 },
+        ])
+
+        await waitFor(() => expect(result.current.hasError).toBe(true))
+
+        const retry = result.current.retry()
+
+        await waitFor(() => expect(result.current.loading).toBe(true))
+        await act(async () => {
+          await retry
+        })
+
+        expect(result.current.loading).toBe(false)
+        expect(result.current.needsOrganization).toBe(true)
+      })
+
       it('THEN should query again and report the new answer', async () => {
         const { result } = renderNeedsOrganization([
           buildMock({ error: new Error('Failed to fetch') }),

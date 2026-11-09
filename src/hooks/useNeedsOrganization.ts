@@ -23,6 +23,8 @@ export const useNeedsOrganization = (): UseNeedsOrganizationReturn => {
   const { selfServeEnabled } = envGlobalVar()
   const { data, loading, error, refetch } = useGetCurrentUserNeedsOrganizationQuery({
     skip: !selfServeEnabled,
+    // A retry shows as loading again, then as its answer
+    notifyOnNetworkStatusChange: true,
   })
 
   return {

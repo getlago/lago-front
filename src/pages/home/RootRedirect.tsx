@@ -41,18 +41,21 @@ const RootRedirect = () => {
   const hasNavigatedRef = useRef(false)
 
   useEffect(() => {
-    if (isUserLoading || isNeedsOrganizationLoading || !currentUser) return
+    if (isUserLoading || !currentUser) return
     if (hasNavigatedRef.current) return
-
-    if (needsOrganization) {
-      hasNavigatedRef.current = true
-      navigate(CREATE_ORGANIZATION_ROUTE, { replace: true })
-      return
-    }
 
     const accessibleMemberships = getAccessibleMemberships(currentUser)
 
     if (!accessibleMemberships.length) {
+      // Only a user without an organization can need one, so only they wait for that check
+      if (isNeedsOrganizationLoading) return
+
+      if (needsOrganization) {
+        hasNavigatedRef.current = true
+        navigate(CREATE_ORGANIZATION_ROUTE, { replace: true })
+        return
+      }
+
       const mayNeedOrganization = hasNeedsOrganizationError && !currentUser.memberships?.length
 
       hasNavigatedRef.current = true
