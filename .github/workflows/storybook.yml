@@ -7,7 +7,6 @@ on:
     paths:
       - "packages/ui/**"
       - "packages/configs/**"
-      - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
       - ".github/workflows/storybook.yml"
   workflow_dispatch:
