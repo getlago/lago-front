@@ -83,7 +83,10 @@ export const INHERIT_DEFAULT_LABEL_KEY = 'text_17939778828709u6rj4vf09s'
 /** The inherit choice while the term it would resolve to is not known yet. */
 export const INHERIT_UNRESOLVED_LABEL_KEY = 'text_1793977485591g2xeqr528n7'
 
-const inheritedLabelKey = (customerTerm: MaybePaymentTerm, parentTerm: MaybePaymentTerm) => {
+const inheritedLabelKey = (
+  customerTerm: MaybePaymentTerm,
+  parentTerm: MaybePaymentTerm,
+): string => {
   if (customerTerm) return INHERIT_FROM_CUSTOMER_LABEL_KEY
   if (parentTerm) return INHERIT_FROM_BILLING_ENTITY_LABEL_KEY
 

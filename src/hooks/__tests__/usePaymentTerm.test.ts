@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react'
 import { DateTime } from 'luxon'
 
 import {
+  INHERIT_DEFAULT_LABEL_KEY,
   INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
   INHERIT_FROM_CUSTOMER_LABEL_KEY,
   INHERIT_UNRESOLVED_LABEL_KEY,
@@ -198,16 +199,16 @@ describe('usePaymentTerm', () => {
         it('THEN should show the parent value marked as inherited', () => {
           const copy = setup().getPaymentTermCopy({ ownTerm: null, parentTerm: END_OF_MONTH })
 
-          expect(copy).toContain('text_1728374331992d2alok9y3kr')
+          expect(copy).toContain(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)
           expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.EndOfMonth])
         })
       })
 
       describe('WHEN nothing is set at any level', () => {
-        it('THEN should fall back to due on receipt, marked as inherited', () => {
+        it('THEN should fall back to due on receipt, labelled as the default like the editor', () => {
           const copy = setup().getPaymentTermCopy({ ownTerm: null, parentTerm: null })
 
-          expect(copy).toContain('text_1728374331992d2alok9y3kr')
+          expect(copy).toContain(INHERIT_DEFAULT_LABEL_KEY)
           expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.DueOnReceipt])
         })
       })

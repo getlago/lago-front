@@ -24,7 +24,6 @@ import {
   normalizedMonthOffset,
   paymentTermDueDate,
   ResolvablePaymentTerm,
-  resolvePaymentTerm,
 } from '~/core/utils/paymentTerm'
 import { PaymentTermTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -74,12 +73,11 @@ export const usePaymentTerm = () => {
     ownTerm: MaybePaymentTerm
     parentTerm: MaybePaymentTerm
   }): string => {
-    const { term, isInherited } = resolvePaymentTerm({ ownTerm, parentTerm })
-    const value = formatPaymentTerm(term)
+    if (ownTerm) return formatPaymentTerm(ownTerm)
 
-    if (!isInherited) return value
-
-    return translate('text_1728374331992d2alok9y3kr', { value })
+    return formatInheritedPaymentTerm(
+      getInheritedPaymentTerm({ customer: { billingEntity: { paymentTerm: parentTerm } } }),
+    )
   }
 
   // The API has no preview endpoint: the date is computed with its finalization rules.
