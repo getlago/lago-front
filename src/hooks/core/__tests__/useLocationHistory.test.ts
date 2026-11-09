@@ -252,6 +252,47 @@ describe('useLocationHistory()', () => {
       })
     })
 
+    describe('GIVEN a route kept out of the history', () => {
+      const tokenLocation: Location = {
+        ...mockLocation,
+        pathname: '/verify-email',
+        search: '?token=single-use-token',
+      }
+
+      beforeEach(() => {
+        locationHistoryVar([])
+      })
+
+      describe.each([
+        ['logged out', undefined],
+        ['logged in', 'test-token'],
+      ])('WHEN it is entered %s', (_, token) => {
+        it('THEN should not record its location', () => {
+          authTokenVar(token)
+
+          const { result } = renderHook(() => useLocationHistory())
+
+          act(() => {
+            result.current.onRouteEnter({ skipLocationHistory: true }, tokenLocation)
+          })
+
+          expect(locationHistoryVar()).toEqual([])
+        })
+
+        it('THEN should still record a route that is not kept out', () => {
+          authTokenVar(token)
+
+          const { result } = renderHook(() => useLocationHistory())
+
+          act(() => {
+            result.current.onRouteEnter({}, tokenLocation)
+          })
+
+          expect(locationHistoryVar()).toEqual([tokenLocation])
+        })
+      })
+    })
+
     describe('permission checking with AND logic (permissions field)', () => {
       beforeEach(() => {
         authTokenVar('test-token')
