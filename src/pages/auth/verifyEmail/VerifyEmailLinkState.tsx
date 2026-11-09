@@ -7,6 +7,7 @@ import { RecaptchaNotice } from '~/pages/auth/common/RecaptchaNotice'
 import { ResendCountdown } from '~/pages/auth/common/ResendCountdown'
 import {
   SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID,
+  SELF_SERVE_SIGNUP_MAILBOX_LIMIT_ALERT_TEST_ID,
   SELF_SERVE_SIGNUP_RESEND_LIMIT_ALERT_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_BACK_TO_SIGN_UP_BUTTON_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_CONTINUE_BUTTON_TEST_ID,
@@ -23,6 +24,7 @@ type VerifyEmailLinkStateProps = {
   hasSignupSecret: boolean
   resendNotice: ResendNotice | undefined
   resendAvailableAt: number | undefined
+  isMailboxLimited: boolean
   onResendCountdownEnd: () => void
   bannerError: string | undefined
   isResending: boolean
@@ -35,6 +37,7 @@ export const VerifyEmailLinkState = ({
   hasSignupSecret,
   resendNotice,
   resendAvailableAt,
+  isMailboxLimited,
   onResendCountdownEnd,
   bannerError,
   isResending,
@@ -47,12 +50,6 @@ export const VerifyEmailLinkState = ({
   const canSendNewLink = resendNotice?.type !== 'sent' || resendNotice.canSendMore
 
   const isCountingDown = resendAvailableAt !== undefined
-
-  const getWarningCopy = (notice: Exclude<ResendNotice, { type: 'sent' }>): string => {
-    if (notice.type === 'limitReached') return translate('text_17939064976188g9cn8x2cj4')
-
-    return translate('text_1793898059309ltbe60gt6pd')
-  }
 
   const renderResendNotice = (): JSX.Element | null => {
     if (!resendNotice) return null
@@ -74,7 +71,7 @@ export const VerifyEmailLinkState = ({
 
     return (
       <Alert type="warning" data-test={SELF_SERVE_VERIFY_EMAIL_RESEND_ALERT_TEST_ID}>
-        {getWarningCopy(resendNotice)}
+        {translate('text_1793898059309ltbe60gt6pd')}
       </Alert>
     )
   }
@@ -155,6 +152,12 @@ export const VerifyEmailLinkState = ({
       </div>
 
       {renderResendNotice()}
+
+      {isMailboxLimited && (
+        <Alert type="warning" data-test={SELF_SERVE_SIGNUP_MAILBOX_LIMIT_ALERT_TEST_ID}>
+          {translate('text_1794240318710mz7btyuru7b')}
+        </Alert>
+      )}
 
       {!!bannerError && (
         <Alert type="danger" data-test={SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID}>

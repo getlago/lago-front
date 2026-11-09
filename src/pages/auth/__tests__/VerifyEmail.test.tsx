@@ -20,6 +20,7 @@ import { render } from '~/test-utils'
 
 import {
   SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID,
+  SELF_SERVE_SIGNUP_MAILBOX_LIMIT_ALERT_TEST_ID,
   SELF_SERVE_SIGNUP_RESEND_LIMIT_ALERT_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_BACK_TO_SIGN_UP_BUTTON_TEST_ID,
   SELF_SERVE_VERIFY_EMAIL_CONFIRM_BUTTON_TEST_ID,
@@ -138,6 +139,8 @@ const INCORRECT_PASSWORD_COPY = "This isn't the password you chose when signing 
 const NEW_LINK_SENT_COPY = 'We sent a new link. Check your inbox.'
 const RESEND_LIMIT_COPY =
   "We've sent several links already. Check your spam folder or try again in an hour."
+const MAILBOX_LIMIT_COPY =
+  "We've already sent several emails to this address in the last hour. You can ask for a new link when the countdown ends."
 const TOO_MANY_ATTEMPTS_COPY = 'Too many attempts. Please wait a few minutes and try again.'
 const SIGN_UP_UNAVAILABLE_COPY = 'Sign-up is unavailable right now. Please reload the page.'
 const CAPTCHA_FAILED_COPY = "We couldn't confirm you're human. Please try again."
@@ -264,6 +267,12 @@ const querySendNewLinkButton = (): HTMLElement | null =>
 
 const getResendAlert = (): HTMLElement =>
   screen.getByTestId(SELF_SERVE_VERIFY_EMAIL_RESEND_ALERT_TEST_ID)
+
+const getMailboxLimitAlert = (): HTMLElement =>
+  screen.getByTestId(SELF_SERVE_SIGNUP_MAILBOX_LIMIT_ALERT_TEST_ID)
+
+const queryMailboxLimitAlert = (): HTMLElement | null =>
+  screen.queryByTestId(SELF_SERVE_SIGNUP_MAILBOX_LIMIT_ALERT_TEST_ID)
 
 const queryResendAlert = (): HTMLElement | null =>
   screen.queryByTestId(SELF_SERVE_VERIFY_EMAIL_RESEND_ALERT_TEST_ID)
@@ -1439,7 +1448,7 @@ describe('VerifyEmail', () => {
     })
 
     describe('WHEN the API answers resend_limit_reached', () => {
-      it('THEN should show the limit message', async () => {
+      it('THEN should show the address limit message, as Check your email does', async () => {
         const user = userEvent.setup()
 
         answerStatus(SignupVerificationStatusEnum.Replaced)
@@ -1450,7 +1459,8 @@ describe('VerifyEmail', () => {
         renderVerifyEmail()
         await clickSendNewLink(user)
 
-        expect(getResendAlert()).toHaveTextContent(RESEND_LIMIT_COPY)
+        expect(getMailboxLimitAlert()).toHaveTextContent(MAILBOX_LIMIT_COPY)
+        expect(queryResendAlert()).not.toBeInTheDocument()
         expect(queryErrorAlert()).not.toBeInTheDocument()
       })
     })
@@ -1709,7 +1719,7 @@ describe('VerifyEmail', () => {
         renderVerifyEmail()
         await clickSendNewLinkWithFakeTimers()
 
-        expect(getResendAlert()).toHaveTextContent(RESEND_LIMIT_COPY)
+        expect(getMailboxLimitAlert()).toHaveTextContent(MAILBOX_LIMIT_COPY)
         expect(getSendNewLinkButton()).toBeDisabled()
         expect(getSendNewLinkButton()).toHaveTextContent('Resend in 1:30')
       })
@@ -1719,7 +1729,7 @@ describe('VerifyEmail', () => {
         await clickSendNewLinkWithFakeTimers()
         await advance(90_000)
 
-        expect(queryResendAlert()).not.toBeInTheDocument()
+        expect(queryMailboxLimitAlert()).not.toBeInTheDocument()
         expect(getSendNewLinkButton()).toBeEnabled()
       })
     })
@@ -1738,6 +1748,26 @@ describe('VerifyEmail', () => {
 
         expect(mockResendSignupEmail).toHaveBeenCalledTimes(2)
       })
+
+      it.each([
+        [60, false],
+        [61, true],
+      ])(
+        'THEN for a next send in %i seconds should show the address limit message: %s',
+        async (seconds, shown) => {
+          mockResendSignupEmail.mockResolvedValue({
+            data: {
+              resendSignupEmail: { resendAvailableInSeconds: seconds, resendLimitReached: false },
+            },
+          })
+
+          renderVerifyEmail()
+          await clickSendNewLinkWithFakeTimers()
+
+          expect(getResendAlert()).toHaveTextContent(NEW_LINK_SENT_COPY)
+          expect(!!queryMailboxLimitAlert()).toBe(shown)
+        },
+      )
     })
   })
 
