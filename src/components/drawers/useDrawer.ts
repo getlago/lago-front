@@ -23,25 +23,30 @@ const useRegisteredDrawer = <Props extends Record<string, unknown>>(
   const modal = useModal(id)
   const { visible, show } = modal
 
-  // Stable while the drawer stays open, so callers can drive it from an effect.
+  // The drawer can also close itself (cancel, submit), so hiding forgets the props too.
+  useEffect(() => {
+    if (!visible) openProps.current = null
+  }, [visible])
+
   const update = useCallback(
-    (props: Partial<Props>) => {
-      if (!visible || !openProps.current) return
+    (props: Partial<Props>): void => {
+      if (!openProps.current) return
 
       openProps.current = { ...openProps.current, ...props }
       void show(openProps.current)
     },
-    [visible, show],
+    [show],
   )
 
   return {
-    open: (props: Props) => {
+    open: (props: Props): Promise<DrawerResult> => {
       openProps.current = props
 
       return show(props) as Promise<DrawerResult>
     },
     update,
-    close: () => {
+    close: (): void => {
+      openProps.current = null
       modal.resolve(CLOSE_DRAWER_PARAMS)
       modal.hide()
     },
