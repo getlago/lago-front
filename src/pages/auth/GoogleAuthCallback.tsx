@@ -5,14 +5,12 @@ import { useEffect, useRef } from 'react'
 // eslint-disable-next-line lago/no-direct-rrd-nav-import -- Auth callback renders outside /:organizationSlug; the slug wrapper would be incorrect here.
 import { generatePath, useNavigate, useSearchParams } from 'react-router'
 
-import { GoogleInviteState, takeGoogleOauthFlow } from '~/components/auth/googleOauthFlow'
 import {
-  envGlobalVar,
-  getGraphQLErrorCode,
-  hasDefinedGQLError,
-  LagoGQLError,
-  onLogIn,
-} from '~/core/apolloClient'
+  GoogleInviteState,
+  parseLegacyGoogleState,
+  takeGoogleOauthFlow,
+} from '~/components/auth/googleOauthFlow'
+import { getGraphQLErrorCode, hasDefinedGQLError, LagoGQLError, onLogIn } from '~/core/apolloClient'
 import { INVITATION_ROUTE_FORM, LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { isSafeInAppPath } from '~/core/router/utils/isSafeInAppPath'
 import { setItemFromLS } from '~/core/utils/localStorage'
@@ -52,7 +50,6 @@ const GoogleAuthCallback = () => {
   const navigate = useNavigate()
   const client = useApolloClient()
   const hasRun = useRef(false)
-  const { selfServeEnabled } = envGlobalVar()
   const [googleLoginUser] = useGoogleLoginUserMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
   })
@@ -107,13 +104,16 @@ const GoogleAuthCallback = () => {
     hasRun.current = true
 
     const storedFlow = takeGoogleOauthFlow()
+    // Decided by the state the API issued, not by the front flag, which can differ from the API's
+    const flow = storedFlow ?? parseLegacyGoogleState(googleState)
 
-    if (!storedFlow && selfServeEnabled) {
+    // A signed state without this tab's flow lost its secret: the API would refuse it
+    if (!flow) {
       showError(LOGIN_ROUTE, LagoApiError.InvalidGoogleState)
       return
     }
 
-    const { mode, invitationToken, redirectPath } = storedFlow ?? JSON.parse(googleState || '{}')
+    const { mode, invitationToken, redirectPath } = flow
     const stateSecret = storedFlow?.stateSecret
 
     if (!code && mode === 'signup' && stateSecret) {

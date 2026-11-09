@@ -1,4 +1,9 @@
-import { GoogleOauthFlow, storeGoogleOauthFlow, takeGoogleOauthFlow } from '../googleOauthFlow'
+import {
+  GoogleOauthFlow,
+  parseLegacyGoogleState,
+  storeGoogleOauthFlow,
+  takeGoogleOauthFlow,
+} from '../googleOauthFlow'
 
 const GOOGLE_OAUTH_FLOW_KEY = 'googleOauthFlow'
 
@@ -109,6 +114,33 @@ describe('googleOauthFlow', () => {
 
         expect(takeGoogleOauthFlow()).toBeUndefined()
       })
+    })
+  })
+})
+
+describe('parseLegacyGoogleState', () => {
+  describe('GIVEN the plain JSON state the Google button writes without a state secret', () => {
+    it('THEN should return its mode, invitation token and redirect path', () => {
+      expect(
+        parseLegacyGoogleState(
+          JSON.stringify({ mode: 'invite', invitationToken: 'token-1', redirectPath: '/x' }),
+        ),
+      ).toEqual({ mode: 'invite', invitationToken: 'token-1', redirectPath: '/x' })
+    })
+
+    it('THEN should read an empty state as no mode', () => {
+      expect(parseLegacyGoogleState('')).toEqual({})
+    })
+  })
+
+  describe('GIVEN a state that is not a legacy one', () => {
+    it.each([
+      ['a signed state', '1793952050.abcdef0123456789'],
+      ['a JSON array', '[]'],
+      ['a JSON number', '42'],
+      ['a mode that is not a string', JSON.stringify({ mode: 1 })],
+    ])('THEN should return undefined for %s', (_, state) => {
+      expect(parseLegacyGoogleState(state)).toBeUndefined()
     })
   })
 })
