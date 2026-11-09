@@ -13,6 +13,7 @@ export const adminOrganizationCreateValidationSchema = z.object({
   timezone: z.string().optional(),
   premiumIntegrations: z.array(optionSchema),
   featureFlags: z.array(optionSchema),
+  selfServe: z.boolean(),
 })
 
 export type AdminOrganizationCreateFormValues = z.infer<

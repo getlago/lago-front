@@ -10,7 +10,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { addToast } from '~/core/apolloClient'
+import { addToast, envGlobalVar } from '~/core/apolloClient'
 import {
   ADMIN_ORGANIZATION_DETAIL_ROUTE,
   ADMIN_ORGANIZATIONS_ROUTE,
@@ -18,7 +18,12 @@ import {
 } from '~/core/router'
 import { getTimezoneConfig } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { FeatureFlagEnum, PremiumIntegrationTypeEnum, TimezoneEnum } from '~/generated/graphql'
+import {
+  FeatureFlagEnum,
+  LagoApiError,
+  PremiumIntegrationTypeEnum,
+  TimezoneEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
@@ -35,12 +40,21 @@ const ADMIN_CREATE_ORGANIZATION_MUTATION = gql`
         id
         name
       }
+      sandboxOrganization {
+        id
+        name
+      }
     }
   }
 `
 
 const KNOWN_PREMIUM_INTEGRATIONS = Object.values(PremiumIntegrationTypeEnum)
 const KNOWN_FEATURE_FLAGS = Object.values(FeatureFlagEnum)
+
+type CreatedOrganization = { id: string; name: string }
+
+export const ADMIN_ORGANIZATION_CREATE_SELF_SERVE_SWITCH_TEST_ID =
+  'admin-organization-create-self-serve-switch'
 
 const AdminOrganizationCreate = () => {
   const navigate = useNavigate()
@@ -49,8 +63,14 @@ const AdminOrganizationCreate = () => {
   const { translate } = useInternationalization()
 
   const [createOrganization] = useMutation(ADMIN_CREATE_ORGANIZATION_MUTATION)
+  const { selfServeEnabled } = envGlobalVar()
 
-  const showInviteLinkDialog = (inviteUrl: string, organizationId: string, ownerEmail: string) => {
+  const showInviteLinkDialog = (
+    inviteUrl: string,
+    organization: CreatedOrganization,
+    ownerEmail: string,
+    sandboxOrganization: CreatedOrganization | null | undefined,
+  ) => {
     inviteLinkDialog
       .open({
         title: 'Organization Created',
@@ -66,6 +86,26 @@ const AdminOrganizationCreate = () => {
                 {ownerEmail}
               </Typography>
             </div>
+            {!!sandboxOrganization && (
+              <>
+                <div className="flex items-baseline">
+                  <Typography className="w-35 shrink-0" variant="caption" color="grey600">
+                    Production
+                  </Typography>
+                  <Typography className="line-break-anywhere" variant="body" color="grey700">
+                    {organization.name} ({organization.id})
+                  </Typography>
+                </div>
+                <div className="flex items-baseline">
+                  <Typography className="w-35 shrink-0" variant="caption" color="grey600">
+                    Sandbox
+                  </Typography>
+                  <Typography className="line-break-anywhere" variant="body" color="grey700">
+                    {sandboxOrganization.name} ({sandboxOrganization.id})
+                  </Typography>
+                </div>
+              </>
+            )}
             <div className="flex items-baseline">
               <Typography className="w-35 shrink-0" variant="caption" color="grey600">
                 Invite URL
@@ -85,9 +125,10 @@ const AdminOrganizationCreate = () => {
         },
       })
       .then(() => {
-        navigate(generatePath(ADMIN_ORGANIZATION_DETAIL_ROUTE, { organizationId }), {
-          skipSlugPrepend: true,
-        })
+        navigate(
+          generatePath(ADMIN_ORGANIZATION_DETAIL_ROUTE, { organizationId: organization.id }),
+          { skipSlugPrepend: true },
+        )
       })
   }
 
@@ -108,15 +149,34 @@ const AdminOrganizationCreate = () => {
               ...(value.timezone ? { timezone: value.timezone } : {}),
               premiumIntegrations: value.premiumIntegrations.map((item) => item.value),
               featureFlags: value.featureFlags.map((item) => item.value),
+              ...(value.selfServe ? { selfServe: true } : {}),
               reason,
             },
           },
+          context: { silentErrorCodes: [LagoApiError.SelfServeDisabled] },
+          errorPolicy: 'all',
         })
+
+        if (
+          result.errors?.some((error) => error.extensions?.code === LagoApiError.SelfServeDisabled)
+        ) {
+          addToast({
+            severity: 'danger',
+            message: "Self-serve is not enabled on this deployment, so a sandbox can't be created.",
+          })
+
+          return
+        }
 
         const payload = result.data?.adminCreateOrganization
 
         if (payload?.organization?.id) {
-          showInviteLinkDialog(payload.inviteUrl, payload.organization.id, ownerEmail)
+          showInviteLinkDialog(
+            payload.inviteUrl,
+            payload.organization,
+            ownerEmail,
+            payload.sandboxOrganization,
+          )
         } else {
           addToast({
             severity: 'danger',
@@ -134,6 +194,7 @@ const AdminOrganizationCreate = () => {
       timezone: undefined,
       premiumIntegrations: [],
       featureFlags: [],
+      selfServe: false,
     } as AdminOrganizationCreateFormValues,
     validationLogic: revalidateLogic(),
     validators: {
@@ -214,6 +275,18 @@ const AdminOrganizationCreate = () => {
                 />
               )}
             </form.AppField>
+
+            {selfServeEnabled && (
+              <form.AppField name="selfServe">
+                {(field) => (
+                  <field.SwitchField
+                    dataTest={ADMIN_ORGANIZATION_CREATE_SELF_SERVE_SWITCH_TEST_ID}
+                    label="Self-serve with sandbox"
+                    subLabel="Also creates a linked sandbox organization."
+                  />
+                )}
+              </form.AppField>
+            )}
           </div>
         </CenteredPage.Container>
 
