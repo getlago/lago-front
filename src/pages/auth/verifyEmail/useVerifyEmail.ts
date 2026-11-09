@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 
 import { getGraphQLErrorCode, hasDefinedGQLError, logOut, onLogIn } from '~/core/apolloClient'
 import { authTokenVar } from '~/core/apolloClient/reactiveVars'
-import { HOME_ROUTE, useLocation, useNavigate } from '~/core/router'
+import { HOME_ROUTE, SIGN_UP_ROUTE, useLocation, useNavigate } from '~/core/router'
 import { getItemFromLS, removeItemFromLS } from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
 import { getRecaptchaToken } from '~/core/utils/recaptcha'
@@ -53,6 +53,7 @@ type UseVerifyEmailReturn = {
   retryCheck: () => void
   isLoggedIn: boolean
   logOutToContinue: () => Promise<void>
+  backToSignUp: () => Promise<void>
   isVerifying: boolean
   bannerError: string | undefined
   passwordError: string | undefined
@@ -154,6 +155,13 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
     } finally {
       setIsLoggingOut(false)
     }
+  }
+
+  const backToSignUp = async (): Promise<void> => {
+    // Sign-up is public-only: with a session, the router would send the browser home instead
+    if (isAuthenticated) await logOut(client, true)
+
+    navigate(SIGN_UP_ROUTE)
   }
 
   const confirm = async (password: string): Promise<void> => {
@@ -269,6 +277,7 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
     },
     isLoggedIn: isAuthenticated,
     logOutToContinue,
+    backToSignUp,
     isVerifying,
     bannerError,
     passwordError,

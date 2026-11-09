@@ -1,7 +1,7 @@
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { LOGIN_ROUTE, SIGN_UP_ROUTE, useNavigate } from '~/core/router'
+import { LOGIN_ROUTE, useNavigate } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { RecaptchaNotice } from '~/pages/auth/common/RecaptchaNotice'
 import {
@@ -24,6 +24,7 @@ type VerifyEmailLinkStateProps = {
   bannerError: string | undefined
   isResending: boolean
   onSendNewLink: () => void
+  onBackToSignUp: () => Promise<void>
 }
 
 export const VerifyEmailLinkState = ({
@@ -33,6 +34,7 @@ export const VerifyEmailLinkState = ({
   bannerError,
   isResending,
   onSendNewLink,
+  onBackToSignUp,
 }: VerifyEmailLinkStateProps): JSX.Element => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
@@ -96,7 +98,7 @@ export const VerifyEmailLinkState = ({
       size="large"
       fullWidth
       data-test={SELF_SERVE_VERIFY_EMAIL_BACK_TO_SIGN_UP_BUTTON_TEST_ID}
-      onClick={() => navigate(SIGN_UP_ROUTE)}
+      onClick={onBackToSignUp}
     >
       {translate('text_179390988549342e7k8whdcq')}
     </Button>
