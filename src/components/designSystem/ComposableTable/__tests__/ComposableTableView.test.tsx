@@ -130,6 +130,15 @@ describe('ComposableTableView', () => {
         )
       })
 
+      it('THEN narrows the padding of the edge columns to the table gutter', () => {
+        render(<TestTable />)
+
+        expect(screen.getByRole('table')).toHaveClass(
+          '[&_tr>*:first-child]:pl-1',
+          '[&_tr>*:last-child]:pr-1',
+        )
+      })
+
       it('THEN makes pinned columns sticky on their side', () => {
         render(<TestTable />)
 

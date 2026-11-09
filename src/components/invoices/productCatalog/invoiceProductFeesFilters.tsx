@@ -29,6 +29,7 @@ export const INVOICE_PRODUCT_FEES_PRODUCT_FILTER_FILTER_KEY: DynamicFilterKey =
   'dynamic.productFilter'
 
 const NOT_DEFINED_TRANSLATION_KEY = 'text_1784214117868fh6rndi4m75'
+const PRODUCT_FILTER_IDS_SEPARATOR = '~'
 
 type FilterOption = { label: string; value: string }
 
@@ -47,20 +48,44 @@ type SectionProducts = InvoiceProductCatalogSectionFragment['products']
 export const buildInvoiceProductFeesProductOptions = (products: SectionProducts): FilterOption[] =>
   toSortedUniqueOptions(products.map(({ product }) => ({ id: product.id, label: product.code })))
 
+const groupProductFilterIdsByLabel = (products: SectionProducts): Map<string, Set<string>> => {
+  const idsByLabel = new Map<string, Set<string>>()
+
+  products.forEach(({ filters }) =>
+    filters.forEach(({ productFilter }) => {
+      const label = productFilter.invoiceDisplayName || productFilter.name
+
+      idsByLabel.set(label, (idsByLabel.get(label) ?? new Set()).add(productFilter.id))
+    }),
+  )
+
+  return idsByLabel
+}
+
 export const buildInvoiceProductFeesProductFilterOptions = (
   products: SectionProducts,
   translate: TranslateFunc,
 ): FilterOption[] => [
   { label: translate(NOT_DEFINED_TRANSLATION_KEY), value: filterWithoutProductFilterValue },
-  ...toSortedUniqueOptions(
-    products.flatMap(({ filters }) =>
-      filters.map(({ productFilter }) => ({
-        id: productFilter.id,
-        label: productFilter.invoiceDisplayName || productFilter.name,
-      })),
-    ),
-  ),
+  ...Array.from(groupProductFilterIdsByLabel(products), ([label, ids]) =>
+    toOption(Array.from(ids).sort().join(PRODUCT_FILTER_IDS_SEPARATOR), label),
+  ).sort((a, b) => a.label.localeCompare(b.label)),
 ]
+
+const formatProductFilterFilters = (
+  value: string | null,
+): Pick<InvoiceProductFeesFilters, 'productFilterIds' | 'withoutProductFilter'> => {
+  if (!value) return {}
+
+  const { productFilterIds, ...rest } = mapAppliedRateCardProductFilterValue(value)
+
+  return {
+    ...rest,
+    ...(productFilterIds && {
+      productFilterIds: productFilterIds.flatMap((ids) => ids.split(PRODUCT_FILTER_IDS_SEPARATOR)),
+    }),
+  }
+}
 
 const parseValue = (value: string | undefined, translate: TranslateFunc): FilterOption[] =>
   parseLabeledMultiFilterValue({
@@ -160,6 +185,6 @@ export const formatInvoiceProductFeesFilters = (
       filtersNamePrefix: INVOICE_PRODUCT_FEES_FILTER_PREFIX,
     }),
     ...(productIds.length > 0 && { productIds }),
-    ...(productFilterValue && mapAppliedRateCardProductFilterValue(productFilterValue)),
+    ...formatProductFilterFilters(productFilterValue),
   }
 }

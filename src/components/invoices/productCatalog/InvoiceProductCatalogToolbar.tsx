@@ -34,7 +34,7 @@ export const InvoiceProductCatalogToolbar = ({
   )
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 pb-4">
       {tabs.length > 1 && (
         <div data-test={INVOICE_PRODUCT_CATALOG_TABS_TEST_ID}>
           <NavigationTab

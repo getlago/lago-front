@@ -66,7 +66,6 @@ const InvoiceProductCatalogSectionContent = ({
         loading={loading}
         pageSize={INVOICE_PRODUCT_FEES_PAGE_SIZE}
         onPageChange={goToPage}
-        sticky={false}
       >
         <InvoiceProductCatalogFeesTable
           {...displayProps}
@@ -100,10 +99,7 @@ export const InvoiceProductCatalogSection = ({
   const section = sections.find(({ key }) => key === activeSectionKey)
 
   return (
-    <section
-      data-test={INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID}
-      className="flex flex-col gap-4 py-6"
-    >
+    <section data-test={INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID} className="flex flex-col py-6">
       {section ? (
         <InvoiceProductCatalogSectionContent
           key={`${invoiceId}:${activeSectionKey}`}

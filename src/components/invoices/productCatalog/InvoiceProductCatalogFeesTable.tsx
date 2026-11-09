@@ -3,7 +3,6 @@ import { ReactNode, useMemo } from 'react'
 
 import {
   ComposableTableRow,
-  ComposableTableRowTreeCell,
   ComposableTableView,
   createComposableTableColumnHelper,
   useComposableTable,
@@ -114,6 +113,14 @@ type InvoiceProductCatalogFeesTableProps = {
 
 const columnHelper = createComposableTableColumnHelper<Row>()
 
+const INDENT_STEP_PX = 16
+
+const getIndentLevel = ({ depth, original }: TableRow): number => {
+  if (original.kind === 'product' || original.kind === 'filter') return depth
+
+  return depth - 1
+}
+
 const formatQuantity = (value: number): string =>
   intlFormatNumber(value, { style: 'decimal', maximumFractionDigits: 6 })
 
@@ -210,7 +217,7 @@ export const InvoiceProductCatalogFeesTable = ({
       return renderDetailValue(translate(original.labelKey, original.labelParams, original.plural))
     }
 
-    return <ComposableTableRowTreeCell row={row}>{renderLabel()}</ComposableTableRowTreeCell>
+    return <div style={{ paddingLeft: getIndentLevel(row) * INDENT_STEP_PX }}>{renderLabel()}</div>
   }
 
   const isFeeWithoutDetails = (original: Row): original is Extract<Row, { kind: 'fee' }> =>

@@ -40,13 +40,13 @@ const section: InvoiceProductCatalogSectionFragment = {
       amountCents: '0',
       feesCount: 1,
       product: product('p-alpha', 'alpha'),
-      filters: [filterGroup('f-big', 'Big')],
+      filters: [filterGroup('f-big-alpha', 'Big')],
     },
     {
       amountCents: '0',
       feesCount: 1,
       product: product('p-alpha', 'alpha'),
-      filters: [],
+      filters: [filterGroup('f-big', 'Big')],
     },
   ],
 }
@@ -71,6 +71,14 @@ describe('formatInvoiceProductFeesFilters', () => {
           ),
         ),
       ).toEqual({ productFilterIds: ['f1'], withoutProductFilter: true })
+    })
+
+    it('THEN should send every id of a merged option', () => {
+      expect(
+        formatInvoiceProductFeesFilters(
+          new URLSearchParams('ipf_dynamic.productFilter=f1~f2|-_-|Big,f3|-_-|Tiny'),
+        ),
+      ).toEqual({ productFilterIds: ['f1', 'f2', 'f3'] })
     })
 
     it('THEN should send no productFilterIds when only not defined is selected', () => {
@@ -116,10 +124,10 @@ describe('buildInvoiceProductFeesProductOptions', () => {
 
 describe('buildInvoiceProductFeesProductFilterOptions', () => {
   describe('GIVEN a section with product filters', () => {
-    it('THEN should pin not defined first and list each filter once by display label', () => {
+    it('THEN should pin not defined first and merge the filters sharing a display label', () => {
       expect(buildInvoiceProductFeesProductFilterOptions(section.products, translate)).toEqual([
         { label: NOT_DEFINED_LABEL, value: filterWithoutProductFilterValue },
-        { label: 'Big', value: 'f-big|-_-|Big' },
+        { label: 'Big', value: 'f-big~f-big-alpha|-_-|Big' },
         { label: 'Tiny', value: 'f-small|-_-|Tiny' },
       ])
     })

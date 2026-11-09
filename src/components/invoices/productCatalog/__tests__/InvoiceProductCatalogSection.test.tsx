@@ -134,7 +134,6 @@ describe('GIVEN a catalog invoice section', () => {
       expect.objectContaining({
         pageSize: 100,
         metadata: { currentPage: 2, totalPages: 3, totalCount: 250 },
-        sticky: false,
       }),
     )
   })

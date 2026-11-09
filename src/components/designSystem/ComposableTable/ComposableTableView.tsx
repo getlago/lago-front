@@ -145,7 +145,7 @@ export const ComposableTableView = <TData extends RowData>({
         <tr
           key={row.id}
           data-test={getRowDataTest?.(row)}
-          className={isClickable ? 'cursor-pointer hover:[&>td]:bg-grey-100' : undefined}
+          className={isClickable ? 'cursor-pointer [&:hover>td]:bg-grey-100' : undefined}
           tabIndex={isClickable ? 0 : undefined}
           onClick={isClickable ? () => onRowClick(row) : undefined}
           onKeyDown={
