@@ -245,6 +245,9 @@ const queryResendLimitAlert = (): HTMLElement | null =>
 const queryErrorAlert = (): HTMLElement | null =>
   screen.queryByTestId(SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID)
 
+const isResendLoading = (): boolean =>
+  !!getResendButton().querySelector('[data-test^="processing/"]')
+
 const clickResend = async (user: UserEvent): Promise<void> => {
   await user.click(getResendButton())
   await flush()
@@ -408,16 +411,17 @@ describe('SelfServeCheckEmail', () => {
       )
 
       it.each(failures)(
-        'THEN should enable the resend link button from the next answer when it %s',
+        'THEN should show the resend button as loading until the next answer when it %s',
         async (_, failFirstCheck, retryDelay) => {
           failFirstCheck()
 
           await renderCheckEmail()
 
-          expect(getResendButton()).toBeDisabled()
+          expect(isResendLoading()).toBe(true)
 
           await advance(retryDelay)
 
+          expect(isResendLoading()).toBe(false)
           expect(getResendButton()).toBeEnabled()
           expect(getResendButton()).toHaveTextContent(RESEND_LINK_COPY)
         },
@@ -796,7 +800,7 @@ describe('SelfServeCheckEmail', () => {
     })
 
     describe('WHEN the screen unmounts while the exchange is in flight', () => {
-      it('THEN should neither log in nor remove the stored secret', async () => {
+      it('THEN should still log in with the token, as the secret is spent', async () => {
         const exchange = deferred<typeof EXCHANGE_SUCCESS>()
 
         mockMutate.mockReturnValueOnce(exchange.promise)
@@ -809,8 +813,56 @@ describe('SelfServeCheckEmail', () => {
           exchange.resolve(EXCHANGE_SUCCESS)
         })
 
+        expect(mockOnLogIn).toHaveBeenCalledWith(mockClient, SESSION_TOKEN)
+        expect(getStoredSecret()).toBeNull()
+      })
+    })
+
+    describe('WHEN the screen unmounts while a failing exchange is in flight', () => {
+      it('THEN should keep the stored secret', async () => {
+        const exchange = deferred<ErrorAnswer>()
+
+        mockMutate.mockReturnValueOnce(exchange.promise)
+
+        const { unmount } = await renderCheckEmail()
+
+        unmount()
+
+        await act(async () => {
+          exchange.resolve(buildError(LagoApiError.SignupSecretExpired))
+        })
+
         expect(mockOnLogIn).not.toHaveBeenCalled()
         expect(getStoredSecret()).toBe(SIGNUP_SECRET)
+      })
+    })
+  })
+
+  describe('GIVEN the email gets verified while a resend restarts the check', () => {
+    describe('WHEN the first exchange returns its token after the restart', () => {
+      it('THEN should still log in with that token', async () => {
+        const user = setupUser()
+        const firstExchange = deferred<typeof EXCHANGE_SUCCESS>()
+
+        await renderCheckEmail()
+
+        mockQuery.mockResolvedValue(buildStatus({ status: SignupStatusEnum.Verified }))
+        mockMutate
+          .mockReturnValueOnce(firstExchange.promise)
+          .mockReturnValueOnce(new Promise(() => undefined))
+        await advance(POLL_INTERVAL_MS)
+
+        mockResendSignupEmail.mockResolvedValue(buildError(LagoApiError.EmailAlreadyVerified))
+        await clickResend(user)
+
+        expect(mockMutate).toHaveBeenCalledTimes(2)
+
+        await act(async () => {
+          firstExchange.resolve(EXCHANGE_SUCCESS)
+        })
+
+        expect(mockOnLogIn).toHaveBeenCalledWith(mockClient, SESSION_TOKEN)
+        expect(getStoredSecret()).toBeNull()
       })
     })
   })
@@ -873,12 +925,18 @@ describe('SelfServeCheckEmail', () => {
 
   describe('GIVEN the resend state comes from the status', () => {
     describe('WHEN no status has been received yet', () => {
-      it('THEN should disable the resend button', async () => {
+      it('THEN should show the resend button as loading and ignore clicks', async () => {
+        const user = setupUser()
+
         mockQuery.mockReturnValue(new Promise(() => undefined))
 
         await renderCheckEmail()
 
-        expect(getResendButton()).toBeDisabled()
+        expect(isResendLoading()).toBe(true)
+
+        await clickResend(user)
+
+        expect(mockResendSignupEmail).not.toHaveBeenCalled()
       })
     })
 
@@ -949,14 +1007,14 @@ describe('SelfServeCheckEmail', () => {
       })
 
       it('THEN should keep the limit banner from the first answer', async () => {
-        answerPendingStatus({ resendAvailableInSeconds: 0, resendLimitReached: true })
+        answerPendingStatus({ resendAvailableInSeconds: null, resendLimitReached: true })
 
         await renderCheckEmail()
         await advance(POLL_INTERVAL_MS)
 
         expect(mockQuery).toHaveBeenCalledTimes(2)
         expect(getResendLimitAlert()).toHaveTextContent(RESEND_LIMIT_COPY)
-        expect(getResendButton()).toBeDisabled()
+        expect(screen.getByTestId(SELF_SERVE_SIGNUP_START_AGAIN_BUTTON_TEST_ID)).toBeInTheDocument()
       })
     })
 
@@ -985,14 +1043,14 @@ describe('SelfServeCheckEmail', () => {
     })
 
     describe('WHEN the resend limit is reached', () => {
-      it('THEN should show the limit banner and disable the resend link button', async () => {
-        answerPendingStatus({ resendAvailableInSeconds: 0, resendLimitReached: true })
+      it('THEN should show the limit banner and offer to start again instead of resend', async () => {
+        answerPendingStatus({ resendAvailableInSeconds: null, resendLimitReached: true })
 
         await renderCheckEmail()
 
         expect(getResendLimitAlert()).toHaveTextContent(RESEND_LIMIT_COPY)
-        expect(getResendButton()).toBeDisabled()
-        expect(getResendButton()).toHaveTextContent(RESEND_LINK_COPY)
+        expect(queryResendButton()).not.toBeInTheDocument()
+        expect(screen.getByTestId(SELF_SERVE_SIGNUP_START_AGAIN_BUTTON_TEST_ID)).toBeInTheDocument()
       })
     })
   })
@@ -1291,6 +1349,22 @@ describe('SelfServeCheckEmail', () => {
         expect(getResendButton()).toBeDisabled()
         expect(getResendButton()).toHaveTextContent('Resend in 60:00')
       })
+
+      it('THEN should hide the limit banner and enable the button once the retry delay ends', async () => {
+        const user = setupUser()
+
+        mockResendSignupEmail.mockResolvedValue(
+          buildError(LagoApiError.ResendLimitReached, { retryAfterSeconds: 90 }),
+        )
+
+        await renderCheckEmail()
+        await clickResend(user)
+        await advance(90_000)
+
+        expect(queryResendLimitAlert()).not.toBeInTheDocument()
+        expect(getResendButton()).toBeEnabled()
+        expect(getResendButton()).toHaveTextContent(RESEND_LINK_COPY)
+      })
     })
 
     describe('WHEN the sign-up cannot send more links', () => {
@@ -1356,19 +1430,56 @@ describe('SelfServeCheckEmail', () => {
     })
 
     describe('WHEN the pending sign-up cannot be found', () => {
-      it.each([LagoApiError.NotFound, LagoApiError.UnprocessableEntity])(
-        'THEN should start again on %s',
-        async (code) => {
-          const user = setupUser()
+      it('THEN should start again', async () => {
+        const user = setupUser()
 
-          mockResendSignupEmail.mockResolvedValue(buildError(code))
+        mockResendSignupEmail.mockResolvedValue(buildError(LagoApiError.NotFound))
 
-          await renderCheckEmail()
-          await clickResend(user)
+        await renderCheckEmail()
+        await clickResend(user)
 
-          expect(mockOnStartAgain).toHaveBeenCalledTimes(1)
-        },
-      )
+        expect(mockOnStartAgain).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the API answers unprocessable_entity', () => {
+      it('THEN should show the generic banner and keep the sign-up', async () => {
+        const user = setupUser()
+
+        mockResendSignupEmail.mockResolvedValue(buildError(LagoApiError.UnprocessableEntity))
+
+        await renderCheckEmail()
+        await clickResend(user)
+
+        expect(getErrorAlert()).toHaveTextContent(GENERIC_ERROR_COPY)
+        expect(mockOnStartAgain).not.toHaveBeenCalled()
+        expect(getStoredSecret()).toBe(SIGNUP_SECRET)
+      })
+    })
+
+    describe('WHEN clicking resend again while the captcha loads', () => {
+      it('THEN should show the button as loading and send a single link', async () => {
+        const user = setupUser()
+        const captcha = deferred<string | null>()
+
+        mockedGetRecaptchaToken.mockReturnValueOnce(captcha.promise)
+        answerResendAndUpdateStatus()
+
+        await renderCheckEmail()
+        await user.click(getResendButton())
+
+        expect(isResendLoading()).toBe(true)
+
+        await user.click(getResendButton())
+        await act(async () => {
+          captcha.resolve(RECAPTCHA_TOKEN)
+        })
+        await flush()
+
+        expect(mockedGetRecaptchaToken).toHaveBeenCalledTimes(1)
+        expect(mockResendSignupEmail).toHaveBeenCalledTimes(1)
+        expect(getResendSuccessAlert()).toBeInTheDocument()
+      })
     })
 
     describe('WHEN the error is shown in the banner', () => {

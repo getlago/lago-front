@@ -71,10 +71,9 @@ export const useSignupStatusPolling = ({
         errorPolicy: 'all',
       })
 
-      if (!isActive) return
-
       const token = data?.exchangeSignupSecret?.token
 
+      // The secret works once and is now spent: log in even if a resend restarted this check meanwhile
       if (token) {
         removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
         await onLogIn(client, token)
@@ -83,6 +82,8 @@ export const useSignupStatusPolling = ({
 
         return
       }
+
+      if (!isActive) return
 
       const code = getGraphQLErrorCode(errors?.[0]?.extensions)
 

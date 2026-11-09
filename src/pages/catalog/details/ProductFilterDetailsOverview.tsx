@@ -126,7 +126,7 @@ const ProductFilterDetailsOverview = ({ productFilterId }: { productFilterId: st
 
   return (
     <section>
-      {hasPermissions(['productFiltersUpdate']) && (
+      {hasPermissions(['productsUpdate']) && (
         <PageSectionTitle
           title={translate('text_1784590896872mnuossjldco')}
           subtitle={translate('text_17845908968721vd9etj0npq')}

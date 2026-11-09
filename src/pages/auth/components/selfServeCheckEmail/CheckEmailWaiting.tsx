@@ -47,11 +47,11 @@ export const CheckEmailWaiting = ({
 
     return (
       <Button
-        variant={isCountingDown || resendLimitReached ? 'secondary' : 'primary'}
+        variant={isCountingDown ? 'secondary' : 'primary'}
         size="large"
         fullWidth
-        disabled={resendAvailableAt === undefined || isCountingDown || resendLimitReached}
-        loading={isResending}
+        disabled={isCountingDown}
+        loading={isResending || resendAvailableAt === undefined}
         data-test={SELF_SERVE_SIGNUP_RESEND_BUTTON_TEST_ID}
         onClick={onResend}
       >
