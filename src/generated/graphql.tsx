@@ -467,6 +467,20 @@ export enum AdminFeatureTypeEnum {
   PremiumIntegration = 'premium_integration'
 }
 
+export type AdminLinkSandboxOrganizationInput = {
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  productionOrganizationId: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+  sandboxOrganizationId: Scalars['ID']['input'];
+};
+
+export type AdminLinkSandboxOrganizationPayload = {
+  __typename?: 'AdminLinkSandboxOrganizationPayload';
+  organization: AdminOrganization;
+  sandboxOrganization: AdminOrganization;
+};
+
 export type AdminOrganization = {
   __typename?: 'AdminOrganization';
   createdAt: Scalars['ISO8601DateTime']['output'];
@@ -5873,6 +5887,7 @@ export enum LagoApiError {
   MissingAddress = 'MissingAddress',
   NotEnoughAddressesInfo = 'NotEnoughAddressesInfo',
   TaxCodeAssociatedWithItemCodeNotFound = 'TaxCodeAssociatedWithItemCodeNotFound',
+  CannotLinkOrganizationToItself = 'cannot_link_organization_to_itself',
   CaptchaFailed = 'captcha_failed',
   CaptchaUnavailable = 'captcha_unavailable',
   CompanyGoogleAccountRequired = 'company_google_account_required',
@@ -5925,8 +5940,19 @@ export enum LagoApiError {
   ProductExternalIdUnknown = 'productExternalIdUnknown',
   ProductAlreadyPriced = 'product_already_priced',
   ProductFilterAlreadyPriced = 'product_filter_already_priced',
+  ProductionAlreadyHasSandbox = 'production_already_has_sandbox',
+  ProductionIsASandbox = 'production_is_a_sandbox',
   ResendLimitReached = 'resend_limit_reached',
   ResendTooSoon = 'resend_too_soon',
+  SandboxAlreadyLinked = 'sandbox_already_linked',
+  SandboxHasExtraFeatureFlags = 'sandbox_has_extra_feature_flags',
+  SandboxHasExtraPremiumIntegrations = 'sandbox_has_extra_premium_integrations',
+  SandboxHasOtherMembers = 'sandbox_has_other_members',
+  SandboxHasPendingInvites = 'sandbox_has_pending_invites',
+  SandboxHasSandbox = 'sandbox_has_sandbox',
+  SandboxHasSsoIntegration = 'sandbox_has_sso_integration',
+  SandboxHasStricterAuthentication = 'sandbox_has_stricter_authentication',
+  SandboxIsSelfServe = 'sandbox_is_self_serve',
   SelfServeDisabled = 'self_serve_disabled',
   SignupDisabled = 'signup_disabled',
   SignupExpired = 'signup_expired',
@@ -6714,6 +6740,11 @@ export type MutationAddStripePaymentProviderArgs = {
 
 export type MutationAdminCreateOrganizationArgs = {
   input: AdminCreateOrganizationInput;
+};
+
+
+export type MutationAdminLinkSandboxOrganizationArgs = {
+  input: AdminLinkSandboxOrganizationInput;
 };
 
 
@@ -17660,6 +17691,22 @@ export type AdminOrganizationsQueryVariables = Exact<{
 
 
 export type AdminOrganizationsQuery = { __typename?: 'Query', adminOrganizations: { __typename?: 'AdminOrganizationCollection', collection: Array<{ __typename?: 'AdminOrganization', id: string, name: string, email?: string | null, createdAt: any, premiumIntegrations: Array<string>, featureFlags: Array<string> }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
+
+export type GetAdminOrganizationsForLinkSandboxQueryVariables = Exact<{
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetAdminOrganizationsForLinkSandboxQuery = { __typename?: 'Query', adminOrganizations: { __typename?: 'AdminOrganizationCollection', collection: Array<{ __typename?: 'AdminOrganization', id: string, name: string }> } };
+
+export type AdminLinkSandboxOrganizationMutationVariables = Exact<{
+  input: AdminLinkSandboxOrganizationInput;
+}>;
+
+
+export type AdminLinkSandboxOrganizationMutation = { __typename?: 'Mutation', adminLinkSandboxOrganization?: { __typename?: 'AdminLinkSandboxOrganizationPayload', organization: { __typename?: 'AdminOrganization', id: string, environment: OrganizationEnvironmentEnum, sandboxOrganization?: { __typename?: 'LinkedOrganization', id: string, name: string } | null }, sandboxOrganization: { __typename?: 'AdminOrganization', id: string, environment: OrganizationEnvironmentEnum, productionOrganization?: { __typename?: 'LinkedOrganization', id: string, name: string } | null } } | null };
 
 export type GetInvoiceCollectionsForAnalyticsQueryVariables = Exact<{
   currency: CurrencyEnum;
@@ -46177,6 +46224,102 @@ export type AdminOrganizationsQueryHookResult = ReturnType<typeof useAdminOrgani
 export type AdminOrganizationsLazyQueryHookResult = ReturnType<typeof useAdminOrganizationsLazyQuery>;
 export type AdminOrganizationsSuspenseQueryHookResult = ReturnType<typeof useAdminOrganizationsSuspenseQuery>;
 export type AdminOrganizationsQueryResult = Apollo.QueryResult<AdminOrganizationsQuery, AdminOrganizationsQueryVariables>;
+export const GetAdminOrganizationsForLinkSandboxDocument = gql`
+    query getAdminOrganizationsForLinkSandbox($searchTerm: String, $page: Int, $limit: Int) {
+  adminOrganizations(searchTerm: $searchTerm, page: $page, limit: $limit) {
+    collection {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetAdminOrganizationsForLinkSandboxQuery__
+ *
+ * To run a query within a React component, call `useGetAdminOrganizationsForLinkSandboxQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAdminOrganizationsForLinkSandboxQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAdminOrganizationsForLinkSandboxQuery({
+ *   variables: {
+ *      searchTerm: // value for 'searchTerm'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetAdminOrganizationsForLinkSandboxQuery(baseOptions?: Apollo.QueryHookOptions<GetAdminOrganizationsForLinkSandboxQuery, GetAdminOrganizationsForLinkSandboxQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAdminOrganizationsForLinkSandboxQuery, GetAdminOrganizationsForLinkSandboxQueryVariables>(GetAdminOrganizationsForLinkSandboxDocument, options);
+      }
+export function useGetAdminOrganizationsForLinkSandboxLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAdminOrganizationsForLinkSandboxQuery, GetAdminOrganizationsForLinkSandboxQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAdminOrganizationsForLinkSandboxQuery, GetAdminOrganizationsForLinkSandboxQueryVariables>(GetAdminOrganizationsForLinkSandboxDocument, options);
+        }
+// @ts-ignore
+export function useGetAdminOrganizationsForLinkSandboxSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAdminOrganizationsForLinkSandboxQuery, GetAdminOrganizationsForLinkSandboxQueryVariables>): Apollo.UseSuspenseQueryResult<GetAdminOrganizationsForLinkSandboxQuery, GetAdminOrganizationsForLinkSandboxQueryVariables>;
+export function useGetAdminOrganizationsForLinkSandboxSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAdminOrganizationsForLinkSandboxQuery, GetAdminOrganizationsForLinkSandboxQueryVariables>): Apollo.UseSuspenseQueryResult<GetAdminOrganizationsForLinkSandboxQuery | undefined, GetAdminOrganizationsForLinkSandboxQueryVariables>;
+export function useGetAdminOrganizationsForLinkSandboxSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAdminOrganizationsForLinkSandboxQuery, GetAdminOrganizationsForLinkSandboxQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAdminOrganizationsForLinkSandboxQuery, GetAdminOrganizationsForLinkSandboxQueryVariables>(GetAdminOrganizationsForLinkSandboxDocument, options);
+        }
+export type GetAdminOrganizationsForLinkSandboxQueryHookResult = ReturnType<typeof useGetAdminOrganizationsForLinkSandboxQuery>;
+export type GetAdminOrganizationsForLinkSandboxLazyQueryHookResult = ReturnType<typeof useGetAdminOrganizationsForLinkSandboxLazyQuery>;
+export type GetAdminOrganizationsForLinkSandboxSuspenseQueryHookResult = ReturnType<typeof useGetAdminOrganizationsForLinkSandboxSuspenseQuery>;
+export type GetAdminOrganizationsForLinkSandboxQueryResult = Apollo.QueryResult<GetAdminOrganizationsForLinkSandboxQuery, GetAdminOrganizationsForLinkSandboxQueryVariables>;
+export const AdminLinkSandboxOrganizationDocument = gql`
+    mutation adminLinkSandboxOrganization($input: AdminLinkSandboxOrganizationInput!) {
+  adminLinkSandboxOrganization(input: $input) {
+    organization {
+      id
+      environment
+      sandboxOrganization {
+        id
+        name
+      }
+    }
+    sandboxOrganization {
+      id
+      environment
+      productionOrganization {
+        id
+        name
+      }
+    }
+  }
+}
+    `;
+export type AdminLinkSandboxOrganizationMutationFn = Apollo.MutationFunction<AdminLinkSandboxOrganizationMutation, AdminLinkSandboxOrganizationMutationVariables>;
+
+/**
+ * __useAdminLinkSandboxOrganizationMutation__
+ *
+ * To run a mutation, you first call `useAdminLinkSandboxOrganizationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAdminLinkSandboxOrganizationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [adminLinkSandboxOrganizationMutation, { data, loading, error }] = useAdminLinkSandboxOrganizationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAdminLinkSandboxOrganizationMutation(baseOptions?: Apollo.MutationHookOptions<AdminLinkSandboxOrganizationMutation, AdminLinkSandboxOrganizationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AdminLinkSandboxOrganizationMutation, AdminLinkSandboxOrganizationMutationVariables>(AdminLinkSandboxOrganizationDocument, options);
+      }
+export type AdminLinkSandboxOrganizationMutationHookResult = ReturnType<typeof useAdminLinkSandboxOrganizationMutation>;
+export type AdminLinkSandboxOrganizationMutationResult = Apollo.MutationResult<AdminLinkSandboxOrganizationMutation>;
+export type AdminLinkSandboxOrganizationMutationOptions = Apollo.BaseMutationOptions<AdminLinkSandboxOrganizationMutation, AdminLinkSandboxOrganizationMutationVariables>;
 export const GetInvoiceCollectionsForAnalyticsDocument = gql`
     query getInvoiceCollectionsForAnalytics($currency: CurrencyEnum!, $billingEntityCode: String, $isCustomerTinEmpty: Boolean) {
   invoiceCollections(
