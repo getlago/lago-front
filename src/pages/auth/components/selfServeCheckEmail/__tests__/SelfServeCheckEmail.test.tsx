@@ -17,6 +17,7 @@ import {
   SignupStatusQuery,
   SignupStatusQueryVariables,
 } from '~/generated/graphql'
+import * as RecaptchaNoticeModule from '~/pages/auth/common/RecaptchaNotice'
 import {
   SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID,
   SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID,
@@ -692,6 +693,19 @@ describe('SelfServeCheckEmail', () => {
         await advance(1)
         expect(mockQuery).toHaveBeenCalledTimes(2)
       })
+
+      it('THEN should exchange the secret again when a later check finds it verified', async () => {
+        mockQuery.mockResolvedValueOnce(buildStatus({ status: SignupStatusEnum.Verified }))
+        mockMutate
+          .mockResolvedValueOnce(buildError(LagoApiError.LockAcquisitionFailed))
+          .mockResolvedValueOnce(EXCHANGE_SUCCESS)
+
+        await renderCheckEmail()
+        await advance(POLL_INTERVAL_MS)
+
+        expect(mockMutate).toHaveBeenCalledTimes(2)
+        expect(mockOnLogIn).toHaveBeenCalledWith(mockClient, SESSION_TOKEN)
+      })
     })
 
     describe('WHEN the exchange fails on the network', () => {
@@ -715,6 +729,19 @@ describe('SelfServeCheckEmail', () => {
 
         await advance(1)
         expect(mockQuery).toHaveBeenCalledTimes(2)
+      })
+
+      it('THEN should exchange the secret again when a later check finds it verified', async () => {
+        mockQuery.mockResolvedValueOnce(buildStatus({ status: SignupStatusEnum.Verified }))
+        mockMutate
+          .mockRejectedValueOnce(new Error('Failed to fetch'))
+          .mockResolvedValueOnce(EXCHANGE_SUCCESS)
+
+        await renderCheckEmail()
+        await advance(POLL_INTERVAL_MS)
+
+        expect(mockMutate).toHaveBeenCalledTimes(2)
+        expect(mockOnLogIn).toHaveBeenCalledWith(mockClient, SESSION_TOKEN)
       })
     })
 
@@ -839,30 +866,50 @@ describe('SelfServeCheckEmail', () => {
   })
 
   describe('GIVEN the email gets verified while a resend restarts the check', () => {
+    const restartDuringExchange = async (): Promise<{
+      resolve: (value: typeof EXCHANGE_SUCCESS) => void
+    }> => {
+      const user = setupUser()
+      const firstExchange = deferred<typeof EXCHANGE_SUCCESS>()
+
+      await renderCheckEmail()
+
+      mockQuery.mockResolvedValue(buildStatus({ status: SignupStatusEnum.Verified }))
+      mockMutate
+        .mockReturnValueOnce(firstExchange.promise)
+        .mockResolvedValue(buildError(LagoApiError.SignupSecretExpired))
+      await advance(POLL_INTERVAL_MS)
+
+      mockResendSignupEmail.mockResolvedValue(buildError(LagoApiError.EmailAlreadyVerified))
+      await clickResend(user)
+
+      return firstExchange
+    }
+
+    describe('WHEN the restarted check finds the email verified', () => {
+      it('THEN should join the exchange in flight instead of spending the secret again', async () => {
+        await restartDuringExchange()
+
+        expect(mockQuery).toHaveBeenCalledTimes(3)
+        expect(mockMutate).toHaveBeenCalledTimes(1)
+        expect(getCheckEmail()).not.toHaveTextContent(LOGIN_REQUIRED_COPY)
+      })
+    })
+
     describe('WHEN the first exchange returns its token after the restart', () => {
-      it('THEN should still log in with that token', async () => {
-        const user = setupUser()
-        const firstExchange = deferred<typeof EXCHANGE_SUCCESS>()
+      it('THEN should log in once with that token, without asking to log in', async () => {
+        logInWithSession()
 
-        await renderCheckEmail()
-
-        mockQuery.mockResolvedValue(buildStatus({ status: SignupStatusEnum.Verified }))
-        mockMutate
-          .mockReturnValueOnce(firstExchange.promise)
-          .mockReturnValueOnce(new Promise(() => undefined))
-        await advance(POLL_INTERVAL_MS)
-
-        mockResendSignupEmail.mockResolvedValue(buildError(LagoApiError.EmailAlreadyVerified))
-        await clickResend(user)
-
-        expect(mockMutate).toHaveBeenCalledTimes(2)
+        const firstExchange = await restartDuringExchange()
 
         await act(async () => {
           firstExchange.resolve(EXCHANGE_SUCCESS)
         })
 
+        expect(mockOnLogIn).toHaveBeenCalledTimes(1)
         expect(mockOnLogIn).toHaveBeenCalledWith(mockClient, SESSION_TOKEN)
         expect(getStoredSecret()).toBeNull()
+        expect(queryLoginButton()).not.toBeInTheDocument()
       })
     })
   })
@@ -978,6 +1025,21 @@ describe('SelfServeCheckEmail', () => {
 
         await advance(1_000)
         expect(getResendButton()).toHaveTextContent('Resend in 0:43')
+      })
+
+      it('THEN should re-render only the countdown label every second', async () => {
+        const renderRecaptchaNotice = jest.spyOn(RecaptchaNoticeModule, 'RecaptchaNotice')
+
+        answerPendingStatus({ resendAvailableInSeconds: 45 })
+
+        await renderCheckEmail()
+
+        const rendersBeforeTicks = renderRecaptchaNotice.mock.calls.length
+
+        await advance(10_000)
+
+        expect(getResendButton()).toHaveTextContent('Resend in 0:35')
+        expect(renderRecaptchaNotice).toHaveBeenCalledTimes(rendersBeforeTicks)
       })
 
       it('THEN should enable the resend link button once the countdown ends', async () => {

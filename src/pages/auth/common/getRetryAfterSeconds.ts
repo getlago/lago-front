@@ -7,9 +7,7 @@ export const getRetryAfterSeconds = (
 
   if (typeof details !== 'object' || details === null) return 0
 
-  const retryAfterSeconds = Object.entries(details).find(
-    ([key]) => key === 'retryAfterSeconds',
-  )?.[1]
+  const retryAfterSeconds = 'retryAfterSeconds' in details ? details.retryAfterSeconds : undefined
 
   return typeof retryAfterSeconds === 'number' ? retryAfterSeconds : 0
 }
