@@ -1701,7 +1701,7 @@ describe('VerifyEmail', () => {
     describe('WHEN the API answers resend_limit_reached', () => {
       beforeEach(() => {
         mockResendSignupEmail.mockResolvedValue(
-          buildError(LagoApiError.ResendLimitReached, { retryAfterSeconds: 3600 }),
+          buildError(LagoApiError.ResendLimitReached, { retryAfterSeconds: 90 }),
         )
       })
 
@@ -1711,13 +1711,13 @@ describe('VerifyEmail', () => {
 
         expect(getResendAlert()).toHaveTextContent(RESEND_LIMIT_COPY)
         expect(getSendNewLinkButton()).toBeDisabled()
-        expect(getSendNewLinkButton()).toHaveTextContent('Resend in 60:00')
+        expect(getSendNewLinkButton()).toHaveTextContent('Resend in 1:30')
       })
 
-      it('THEN should drop the limit message and offer a new link once the hour is over', async () => {
+      it('THEN should drop the limit message and offer a new link once the wait is over', async () => {
         renderVerifyEmail()
         await clickSendNewLinkWithFakeTimers()
-        await advance(3_600_000)
+        await advance(90_000)
 
         expect(queryResendAlert()).not.toBeInTheDocument()
         expect(getSendNewLinkButton()).toBeEnabled()
