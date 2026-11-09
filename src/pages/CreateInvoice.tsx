@@ -19,7 +19,6 @@ import {
   InvoicingSettingsSelector,
 } from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
-import { getInheritedPaymentTerm } from '~/components/paymentTerms/utils'
 import { PurchaseOrder } from '~/components/purchaseOrder/PO'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
@@ -57,6 +56,7 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
+import { useInheritedPaymentTerm } from '~/hooks/useInheritedPaymentTerm'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { FeesSection } from '~/pages/createInvoice/components/FeesSection'
 import { invoiceFormValidationSchema } from '~/pages/createInvoice/formInitialization/validationSchema'
@@ -243,11 +243,7 @@ const CreateInvoice = () => {
     billingEntityOptions.find((o) => o.id === pickedBillingEntityId)?.value ??
     customer?.billingEntity?.code
 
-  const {
-    data: billingEntityData,
-    loading: isBillingEntityLoading,
-    error: billingEntityError,
-  } = useGetBillingEntityQuery({
+  const { data: billingEntityData } = useGetBillingEntityQuery({
     variables: {
       code: activeBillingEntityCode as string,
     },
@@ -255,7 +251,10 @@ const CreateInvoice = () => {
   })
 
   const billingEntity = billingEntityData?.billingEntity
-  const isBillingEntityResolved = !isBillingEntityLoading && !billingEntityError
+  const paymentTermInheritedFrom = useInheritedPaymentTerm({
+    customer,
+    billingEntityId: pickedBillingEntityId,
+  })
 
   const { data: billingEntityTaxesData } = useGetBillingEntityTaxesForCreateInvoiceQuery({
     variables: {
@@ -571,9 +570,7 @@ const CreateInvoice = () => {
       : {
           value: formValues.paymentTerm,
           onChange: (value) => form.setFieldValue('paymentTerm', value),
-          inheritedFrom: isBillingEntityResolved
-            ? getInheritedPaymentTerm({ customer, issuingBillingEntity: billingEntity })
-            : undefined,
+          inheritedFrom: paymentTermInheritedFrom,
         }
 
   return (

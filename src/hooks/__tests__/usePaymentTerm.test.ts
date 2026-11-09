@@ -4,7 +4,6 @@ import { DateTime } from 'luxon'
 import {
   INHERIT_DEFAULT_LABEL_KEY,
   INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
-  INHERIT_FROM_CUSTOMER_LABEL_KEY,
   INHERIT_UNRESOLVED_LABEL_KEY,
   paymentTermFormValuesFromTerm,
 } from '~/components/paymentTerms/utils'
@@ -216,28 +215,34 @@ describe('usePaymentTerm', () => {
   })
 
   describe('getBillingObjectPaymentTermCopy', () => {
-    describe('GIVEN the object has no term and the customer has one', () => {
-      it('THEN should mark the value as inherited from the customer', () => {
-        const copy = setup().getBillingObjectPaymentTermCopy({
-          ownTerm: null,
-          customer: { paymentTerm: NET_30, billingEntity: { paymentTerm: END_OF_MONTH } },
-        })
+    const inheritedFrom = { term: END_OF_MONTH, labelKey: INHERIT_FROM_BILLING_ENTITY_LABEL_KEY }
 
-        expect(copy).toContain(INHERIT_FROM_CUSTOMER_LABEL_KEY)
+    describe('GIVEN the object has its own term', () => {
+      it('THEN should show it unmarked, whatever it would inherit', () => {
+        const copy = setup().getBillingObjectPaymentTermCopy({ ownTerm: NET_30, inheritedFrom })
+
         expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net])
+        expect(copy).not.toContain(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)
       })
     })
 
-    describe('GIVEN neither the object nor the customer has a term', () => {
-      it('THEN should mark the entity value as inherited from the billing entity', () => {
-        // The hint named the customer even when the term came from the entity.
-        const copy = setup().getBillingObjectPaymentTermCopy({
-          ownTerm: null,
-          customer: { paymentTerm: null, billingEntity: { paymentTerm: END_OF_MONTH } },
-        })
+    describe('GIVEN the object has no term and the inherited one is known', () => {
+      it('THEN should show the inherited value marked with its level', () => {
+        const copy = setup().getBillingObjectPaymentTermCopy({ ownTerm: null, inheritedFrom })
 
         expect(copy).toContain(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)
         expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.EndOfMonth])
+      })
+    })
+
+    describe('GIVEN the object has no term and the inherited one is unknown', () => {
+      it('THEN should return nothing, so the caller can show a placeholder', () => {
+        const copy = setup().getBillingObjectPaymentTermCopy({
+          ownTerm: null,
+          inheritedFrom: undefined,
+        })
+
+        expect(copy).toBeUndefined()
       })
     })
   })

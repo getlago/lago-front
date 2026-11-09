@@ -12,8 +12,8 @@ import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/seri
 import { CurrencyEnum, FeatureFlagEnum, WalletDetailsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
-import { useBillingEntityById } from '~/hooks/useBillingEntitiesOptions'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
+import { useInheritedPaymentTerm } from '~/hooks/useInheritedPaymentTerm'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 import { tw } from '~/styles/utils'
@@ -40,9 +40,10 @@ const SectionTitle = ({ title, subtitle }: { title: string; subtitle: string }) 
 const WalletInformations = ({ wallet }: WalletInformationsProps) => {
   const { translate } = useInternationalization()
   const { getBillingObjectPaymentTermCopy } = usePaymentTerm()
-  const { billingEntity: issuingBillingEntity, status: billingEntityStatus } = useBillingEntityById(
-    wallet?.billingEntityId,
-  )
+  const paymentTermInheritedFrom = useInheritedPaymentTerm({
+    customer: wallet?.customer,
+    billingEntityId: wallet?.billingEntityId,
+  })
   const {
     intlFormatDateTimeOrgaTZ,
     hasFeatureFlag,
@@ -95,13 +96,10 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
   })
 
   const paymentTermValue =
-    billingEntityStatus !== 'resolved' && !wallet.paymentTerm
-      ? '-'
-      : getBillingObjectPaymentTermCopy({
-          ownTerm: wallet.paymentTerm,
-          customer: wallet.customer,
-          issuingBillingEntity,
-        })
+    getBillingObjectPaymentTermCopy({
+      ownTerm: wallet.paymentTerm,
+      inheritedFrom: paymentTermInheritedFrom,
+    }) ?? '-'
 
   const showAppliesToSection =
     !!wallet?.appliesTo?.feeTypes?.length || !!wallet?.appliesTo?.billableMetrics?.length

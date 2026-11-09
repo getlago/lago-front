@@ -3,16 +3,13 @@ import { gql } from '@apollo/client'
 import { InvoiceCustomSectionDetails } from '~/components/invoceCustomFooter/InvoiceCustomSectionDetails'
 import { useInvoicingSettingsDrawer } from '~/components/invoicingSettings/useInvoicingSettingsDrawer'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import {
-  getInheritedPaymentTerm,
-  paymentTermFormValuesFromTerm,
-} from '~/components/paymentTerms/utils'
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { SubscriptionInvoiceSectionFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdateSubscriptionSettings } from '~/hooks/customer/useUpdateSubscriptionSettings'
-import { useBillingEntityById } from '~/hooks/useBillingEntitiesOptions'
+import { useInheritedPaymentTerm } from '~/hooks/useInheritedPaymentTerm'
 import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 import { usePermissions } from '~/hooks/usePermissions'
 
@@ -63,14 +60,17 @@ export const SubscriptionInvoiceSection = ({ subscription }: SubscriptionInvoice
   const { hasPermissions } = usePermissions()
   const { saveInvoicing } = useUpdateSubscriptionSettings(subscription.id)
   const { getBillingObjectPaymentTermCopy } = usePaymentTerm()
-  const { billingEntity: issuingBillingEntity, status: billingEntityStatus } = useBillingEntityById(
-    subscription.billingEntityId,
-  )
+  const paymentTermInheritedFrom = useInheritedPaymentTerm({
+    customer: subscription.customer,
+    billingEntityId: subscription.billingEntityId,
+  })
 
   const showCustomSection = !!subscription.customer?.id
-  const paymentTermLevels = { customer: subscription.customer, issuingBillingEntity }
-  const isInheritedTermKnown = billingEntityStatus === 'resolved'
-  const isInheritedTermPending = !isInheritedTermKnown && !subscription.paymentTerm
+  const paymentTermValue =
+    getBillingObjectPaymentTermCopy({
+      ownTerm: subscription.paymentTerm,
+      inheritedFrom: paymentTermInheritedFrom,
+    }) ?? '-'
 
   const { openDrawer } = useInvoicingSettingsDrawer({
     viewType: ViewTypeEnum.Subscription,
@@ -78,9 +78,7 @@ export const SubscriptionInvoiceSection = ({ subscription }: SubscriptionInvoice
     showCustomSection,
     withInvoiceConsolidation: true,
     withPaymentTerm: true,
-    paymentTermInheritedFrom: isInheritedTermKnown
-      ? getInheritedPaymentTerm(paymentTermLevels)
-      : undefined,
+    paymentTermInheritedFrom,
     onSave: saveInvoicing,
   })
 
@@ -118,14 +116,7 @@ export const SubscriptionInvoiceSection = ({ subscription }: SubscriptionInvoice
       {/* Payment term */}
       <DetailsPage.InfoGridItem
         label={translate('text_1778660219891rv2r5gjmklq')}
-        value={
-          isInheritedTermPending
-            ? '-'
-            : getBillingObjectPaymentTermCopy({
-                ownTerm: subscription.paymentTerm,
-                ...paymentTermLevels,
-              })
-        }
+        value={paymentTermValue}
       />
 
       {/* Invoice custom sections */}

@@ -62,9 +62,9 @@ let mockBillingEntityStatus: BillingEntityByIdStatus = 'resolved'
 
 jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
   ...jest.requireActual('~/hooks/useBillingEntitiesOptions'),
-  useBillingEntityById: () => ({
+  useBillingEntityById: (id: string | null | undefined) => ({
     billingEntity: undefined,
-    status: mockBillingEntityStatus,
+    status: id ? mockBillingEntityStatus : 'resolved',
   }),
 }))
 
@@ -409,6 +409,27 @@ describe('WalletInformations', () => {
               PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net],
             ),
           ).toBeInTheDocument()
+        })
+
+        it('THEN shows the customer own term, which wins over any entity term', () => {
+          render(
+            <WalletInformations
+              wallet={createMockWallet({
+                billingEntityId: 'be-2',
+                paymentTerm: null,
+                customer: {
+                  id: 'cust-1',
+                  externalId: 'ext-1',
+                  paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 30 },
+                },
+              })}
+            />,
+          )
+
+          const value = getValueUnderLabel(PAYMENT_TERM_LABEL)
+
+          expect(value.getByText(INHERIT_FROM_CUSTOMER_LABEL_KEY)).toBeInTheDocument()
+          expect(value.queryByText('-')).not.toBeInTheDocument()
         })
       },
     )

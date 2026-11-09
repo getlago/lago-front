@@ -73,10 +73,10 @@ let mockBoundBillingEntity: { paymentTerm: { termType: PaymentTermTypeEnum } } |
 let mockBillingEntityStatus: BillingEntityByIdStatus = 'resolved'
 
 jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
-  useBillingEntityById: () => ({
-    billingEntity: mockBoundBillingEntity,
-    status: mockBillingEntityStatus,
-  }),
+  useBillingEntityById: (id: string | null | undefined) =>
+    id
+      ? { billingEntity: mockBoundBillingEntity, status: mockBillingEntityStatus }
+      : { billingEntity: undefined, status: 'resolved' },
 }))
 
 const PAYMENT_TERM_LABEL_KEY = 'text_1778660219891rv2r5gjmklq'

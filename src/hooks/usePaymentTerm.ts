@@ -6,7 +6,6 @@ import {
   getInheritedPaymentTerm,
   INHERIT_UNRESOLVED_LABEL_KEY,
   paymentTermFromFormValues,
-  PaymentTermLevels,
 } from '~/components/paymentTerms/utils'
 import {
   PAYMENT_TERM_DUE_DATE_PREVIEW_KEYS,
@@ -128,13 +127,18 @@ export const usePaymentTerm = () => {
     ]
   }
 
+  /** `undefined` while the object has no term of its own and the inherited one is unknown. */
   const getBillingObjectPaymentTermCopy = ({
     ownTerm,
-    ...levels
-  }: PaymentTermLevels & { ownTerm: MaybePaymentTerm }): string => {
+    inheritedFrom,
+  }: {
+    ownTerm: MaybePaymentTerm
+    inheritedFrom: PaymentTermInheritedFrom | undefined
+  }): string | undefined => {
     if (ownTerm) return formatPaymentTerm(ownTerm)
+    if (!inheritedFrom) return undefined
 
-    return formatInheritedPaymentTerm(getInheritedPaymentTerm(levels))
+    return formatInheritedPaymentTerm(inheritedFrom)
   }
 
   /** How the editor's current values read in a summary, before they are saved. */

@@ -15,10 +15,7 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { BasicComboBoxData, ComboboxItem } from '~/components/form'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import {
-  getInheritedPaymentTerm,
-  paymentTermInputFromFormValues,
-} from '~/components/paymentTerms/utils'
+import { paymentTermInputFromFormValues } from '~/components/paymentTerms/utils'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
@@ -66,9 +63,9 @@ import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { buildDefaultValues, usePlanForm } from '~/hooks/plans/usePlanForm'
-import { useBillingEntityById } from '~/hooks/useBillingEntitiesOptions'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
+import { useInheritedPaymentTerm } from '~/hooks/useInheritedPaymentTerm'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useRedirectIncompleteSubscription } from '~/hooks/useRedirectIncompleteSubscription'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
@@ -269,13 +266,10 @@ const CreateSubscription = () => {
     subscriptionForm,
   ])
 
-  const { billingEntity: issuingBillingEntity, status: billingEntityStatus } = useBillingEntityById(
-    subscriptionBillingEntityId,
-  )
-  const paymentTermInheritedFrom =
-    billingEntityStatus === 'resolved'
-      ? getInheritedPaymentTerm({ customer, issuingBillingEntity })
-      : undefined
+  const paymentTermInheritedFrom = useInheritedPaymentTerm({
+    customer,
+    billingEntityId: subscriptionBillingEntityId,
+  })
 
   const { form: planForm, plan } = usePlanForm({
     planIdToFetch: subscriptionPlanId,
