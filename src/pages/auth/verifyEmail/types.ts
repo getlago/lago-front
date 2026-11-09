@@ -4,4 +4,6 @@ export type LinkState =
 export type ClosedLinkState = Exclude<LinkState, 'valid'>
 
 export type ResendNotice =
-  { type: 'sent' } | { type: 'tooSoon'; seconds: number } | { type: 'limitReached' }
+  | { type: 'sent'; canSendMore: boolean }
+  | { type: 'tooSoon'; seconds: number }
+  | { type: 'limitReached' }

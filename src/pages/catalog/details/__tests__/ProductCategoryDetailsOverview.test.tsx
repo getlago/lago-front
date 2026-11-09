@@ -108,7 +108,7 @@ describe('ProductCategoryDetailsOverview', () => {
     )
   })
 
-  it('hides the edit button without the productCategoriesUpdate permission', async () => {
+  it('hides the edit button without the productsUpdate permission', async () => {
     mockHasPermissions.mockReturnValue(false)
 
     await act(() => renderOverview())

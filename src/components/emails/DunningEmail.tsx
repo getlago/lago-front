@@ -64,7 +64,7 @@ export interface DunningEmailProps {
   >
   // Omit the netPaymentTerm from the organization and add it possible string
   organization?: Pick<OrganizationForDunningEmailFragment, 'name' | 'logoUrl' | 'email'> & {
-    netPaymentTerm: OrganizationForDunningEmailFragment['netPaymentTerm'] | string
+    netPaymentTerm?: OrganizationForDunningEmailFragment['netPaymentTerm'] | string
   }
   currency: CurrencyEnum
   overdueAmount: number
@@ -100,7 +100,7 @@ export const DunningEmail: FC<DunningEmailProps> = ({
     currencyDisplay: 'narrowSymbol',
   })
 
-  const netPaymentTerm = customer?.netPaymentTerm ?? organization?.netPaymentTerm
+  const netPaymentTerm = customer?.netPaymentTerm ?? organization?.netPaymentTerm ?? 0
 
   return (
     <>

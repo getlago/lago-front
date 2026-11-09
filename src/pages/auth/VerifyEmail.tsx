@@ -11,6 +11,7 @@ import { useVerifyEmail } from './verifyEmail/useVerifyEmail'
 import { VerifyEmailCheckFailed } from './verifyEmail/VerifyEmailCheckFailed'
 import { VerifyEmailConfirmForm } from './verifyEmail/VerifyEmailConfirmForm'
 import { VerifyEmailLinkState } from './verifyEmail/VerifyEmailLinkState'
+import { VerifyEmailLoggedIn } from './verifyEmail/VerifyEmailLoggedIn'
 import {
   verifyEmailDefaultValues,
   verifyEmailPasswordSchema,
@@ -50,6 +51,11 @@ const VerifyEmail = (): JSX.Element => {
           <Typography>{translate('text_17939098854934yp8t80140w')}</Typography>
         </div>
       )
+    }
+
+    // Confirming would log in on top of the other account's session and cached data
+    if (verifyEmail.isLoggedIn && linkState !== 'alreadyVerified') {
+      return <VerifyEmailLoggedIn onLogOut={verifyEmail.logOutToContinue} />
     }
 
     if (linkState === 'valid') {

@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -17,81 +19,80 @@ export const useGetPermissionGrouping = (
 ): { permissionGrouping: PermissionGrouping } => {
   const { translate } = useInternationalization()
 
-  const getPermissionDescription = (permissionName: PermissionName): string => {
-    const translationKey = permissionDescriptionMapping[permissionName]
+  const permissionGrouping = useMemo<PermissionGrouping>(() => {
+    const getPermissionDescription = (permissionName: PermissionName): string => {
+      const translationKey = permissionDescriptionMapping[permissionName]
 
-    if (!translationKey) {
-      const { appEnv } = envGlobalVar()
+      if (!translationKey) {
+        const { appEnv } = envGlobalVar()
 
-      if (appEnv === AppEnvEnum.development) {
-        // eslint-disable-next-line no-console
-        console.warn(`Missing permission description mapping for: ${permissionName}`)
+        if (appEnv === AppEnvEnum.development) {
+          // eslint-disable-next-line no-console
+          console.warn(`Missing permission description mapping for: ${permissionName}`)
+        }
+
+        return permissionName
       }
 
-      return permissionName
+      return translate(translationKey) || permissionName
     }
 
-    return translate(translationKey) || permissionName
-  }
+    const getPermissionGroupDisplayName = (groupKey: string): string => {
+      return translate(groupNameMapping[groupKey]) || translate('text_636d86cd9fd41b93c35bf1c7') // 'Other'
+    }
 
-  const getPermissionGroupDisplayName = (groupKey: string): string => {
-    return translate(groupNameMapping[groupKey]) || translate('text_636d86cd9fd41b93c35bf1c7') // 'Other'
-  }
+    const hiddenPermissionsSet = new Set(hiddenPermissions)
+    const filteredPermissions = permissions.filter(
+      (permission) => !hiddenPermissionsSet.has(permission),
+    )
+    const permissionsSet = new Set(filteredPermissions)
+    const allMappedPermissions = new Set(Object.values(permissionGroupMapping).flat())
+    const unmappedPermissions = filteredPermissions.filter(
+      (permission) => !allMappedPermissions.has(permission),
+    )
 
-  const hiddenPermissionsSet = new Set(hiddenPermissions)
-  const filteredPermissions = permissions.filter(
-    (permission) => !hiddenPermissionsSet.has(permission),
-  )
-  const permissionsSet = new Set(filteredPermissions)
-  const allMappedPermissions = new Set(Object.values(permissionGroupMapping).flat())
-  const unmappedPermissions = filteredPermissions.filter(
-    (permission) => !allMappedPermissions.has(permission),
-  )
+    const result = Object.entries(permissionGroupMapping).reduce<PermissionGrouping>(
+      (acc, [groupKey, groupPermissions]) => {
+        const matchingPermissions = groupPermissions.filter((permission) =>
+          permissionsSet.has(permission),
+        )
 
-  const result = Object.entries(permissionGroupMapping).reduce<PermissionGrouping>(
-    (acc, [groupKey, groupPermissions]) => {
-      const matchingPermissions = groupPermissions.filter((permission) =>
-        permissionsSet.has(permission),
-      )
+        const groupName = getPermissionGroupDisplayName(groupKey)
 
-      const groupName = getPermissionGroupDisplayName(groupKey)
+        acc[groupKey] = {
+          name: groupKey,
+          displayName: groupName,
+          permissions: matchingPermissions.map((permission) => ({
+            name: permission,
+            description: getPermissionDescription(permission),
+          })),
+        }
 
-      acc[groupKey] = {
-        name: groupKey,
+        return acc
+      },
+      {},
+    )
+
+    if (unmappedPermissions.length > 0) {
+      const groupName = getPermissionGroupDisplayName('other')
+
+      result.other = {
+        name: 'other',
         displayName: groupName,
-        permissions: matchingPermissions.map((permission) => ({
+        permissions: unmappedPermissions.map((permission) => ({
           name: permission,
           description: getPermissionDescription(permission),
         })),
       }
-
-      return acc
-    },
-    {},
-  )
-
-  if (unmappedPermissions.length > 0) {
-    const groupName = getPermissionGroupDisplayName('other')
-
-    result.other = {
-      name: 'other',
-      displayName: groupName,
-      permissions: unmappedPermissions.map((permission) => ({
-        name: permission,
-        description: getPermissionDescription(permission),
-      })),
     }
-  }
 
-  const permissionGrouping = Object.entries(result).reduce<PermissionGrouping>(
-    (acc, [key, group]) => {
+    return Object.entries(result).reduce<PermissionGrouping>((acc, [key, group]) => {
       if (group.permissions.length > 0) {
         acc[key] = group
       }
       return acc
-    },
-    {},
-  )
+    }, {})
+  }, [permissions, translate])
 
   return {
     permissionGrouping,

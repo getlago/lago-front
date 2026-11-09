@@ -34,6 +34,7 @@ import {
 } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
+import { usePermissions } from '~/hooks/usePermissions'
 import type { useRateCardDrawer } from '~/pages/catalog/drawers/rateCard/useRateCardDrawer'
 
 import { APPLIED_RATE_CARD_FORM_DEFAULTS } from './validationSchema'
@@ -230,6 +231,7 @@ export const AppliedRateCardDrawerContent = withForm({
     organizationSlug,
   }) {
     const { translate } = useInternationalization()
+    const { hasPermissions } = usePermissions()
     const { openDrawer: openRatePhaseDrawer } = useRatePhaseLocalDrawer()
     const [shouldDisplayFilter, setShouldDisplayFilter] = useState(false)
 
@@ -360,9 +362,10 @@ export const AppliedRateCardDrawerContent = withForm({
     }
 
     // A failed query lists nothing too, which must not read as "no match".
-    const createRateCardValueProps = rateCardsData
-      ? { label: translate('text_1791485670326bz5dr6tcop3'), onClick: handleCreateRateCard }
-      : undefined
+    const createRateCardValueProps =
+      rateCardsData && hasPermissions(['rateCardsCreate'])
+        ? { label: translate('text_1791485670326bz5dr6tcop3'), onClick: handleCreateRateCard }
+        : undefined
 
     const resetFields = (
       fields: Array<
