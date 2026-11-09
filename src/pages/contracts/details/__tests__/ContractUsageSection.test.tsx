@@ -1,12 +1,11 @@
 import { render, screen } from '@testing-library/react'
-import { useEffect } from 'react'
 
 import { GetContractCurrentUsageTotalDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import { ContractUsageSection } from '../ContractUsageSection'
 
-type MockedChildProps = { onErrorChange?: (hasError: boolean) => void }
+type MockedChildProps = { refreshToken?: number }
 
 const mockContractUsageCategoryRail = jest.fn<JSX.Element, [MockedChildProps]>(() => (
   <div data-test="mocked-rail" />
@@ -16,12 +15,10 @@ const mockContractUsageTable = jest.fn<JSX.Element, [MockedChildProps]>(() => (
 ))
 
 jest.mock('../ContractUsageCategoryRail', () => ({
-  ContractUsageCategoryRail: (props: { onErrorChange?: (hasError: boolean) => void }) =>
-    mockContractUsageCategoryRail(props),
+  ContractUsageCategoryRail: (props: MockedChildProps) => mockContractUsageCategoryRail(props),
 }))
 jest.mock('../ContractUsageTable', () => ({
-  ContractUsageTable: (props: { onErrorChange?: (hasError: boolean) => void }) =>
-    mockContractUsageTable(props),
+  ContractUsageTable: (props: MockedChildProps) => mockContractUsageTable(props),
 }))
 
 const buildTotalMock = (
@@ -109,45 +106,31 @@ describe('ContractUsageSection', () => {
     expect(screen.queryByTestId('mocked-table')).not.toBeInTheDocument()
   })
 
-  it('also collapses to the error placeholder when only the rail reports an error', async () => {
-    mockContractUsageCategoryRail.mockImplementation(
-      ({ onErrorChange }: { onErrorChange?: (hasError: boolean) => void }) => {
-        useEffect(() => {
-          onErrorChange?.(true)
-        }, [onErrorChange])
-
-        return <div data-test="mocked-rail" />
-      },
-    )
+  it('keeps the total and the table visible when only the rail renders its own error, instead of blanking the section', async () => {
+    mockContractUsageCategoryRail.mockImplementation(() => <div data-test="mocked-rail-error" />)
 
     render(
-      <AllTheProviders forceTypenames mocks={[buildTotalMock('0')]}>
+      <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
         <ContractUsageSection contractId="contract-1" />
       </AllTheProviders>,
     )
 
-    expect(await screen.findByText(/something went wrong/i)).toBeInTheDocument()
-    expect(screen.queryByTestId('mocked-table')).not.toBeInTheDocument()
+    expect(await screen.findByTestId('mocked-rail-error')).toBeInTheDocument()
+    expect(screen.getByTestId('mocked-table')).toBeInTheDocument()
+    expect(await screen.findByText(/670\.50|67050/)).toBeInTheDocument()
   })
 
-  it('also collapses to the error placeholder when only the table reports an error', async () => {
-    mockContractUsageTable.mockImplementation(
-      ({ onErrorChange }: { onErrorChange?: (hasError: boolean) => void }) => {
-        useEffect(() => {
-          onErrorChange?.(true)
-        }, [onErrorChange])
-
-        return <div data-test="mocked-table" />
-      },
-    )
+  it('keeps the total and the rail visible when only the table renders its own error, instead of blanking the section', async () => {
+    mockContractUsageTable.mockImplementation(() => <div data-test="mocked-table-error" />)
 
     render(
-      <AllTheProviders forceTypenames mocks={[buildTotalMock('0')]}>
+      <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
         <ContractUsageSection contractId="contract-1" />
       </AllTheProviders>,
     )
 
-    expect(await screen.findByText(/something went wrong/i)).toBeInTheDocument()
-    expect(screen.queryByTestId('mocked-rail')).not.toBeInTheDocument()
+    expect(await screen.findByTestId('mocked-table-error')).toBeInTheDocument()
+    expect(screen.getByTestId('mocked-rail')).toBeInTheDocument()
+    expect(await screen.findByText(/670\.50|67050/)).toBeInTheDocument()
   })
 })

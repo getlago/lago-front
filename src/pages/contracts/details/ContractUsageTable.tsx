@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { PaginatedContent } from '~/components/designSystem/Pagination/PaginatedContent'
@@ -17,7 +17,6 @@ import { CONTRACT_USAGE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { intlFormatDateTime } from '~/core/timezone'
 import {
   CurrencyEnum,
   GetContractUsagesQuery,
@@ -25,6 +24,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useRefetchOnTokenChange } from '~/hooks/useRefetchOnTokenChange'
 
 gql`
   query getContractUsages(
@@ -75,22 +76,19 @@ type ContractUsageRow = GetContractUsagesQuery['contractUsages']['collection'][n
 
 export const CONTRACT_USAGE_ROW_NAME_TEST_ID = 'contract-usage-row-name'
 
-// refreshToken: bump to re-fetch in place (not remount) - a remount would also reset this
-// table's own local state (search term, page size). See ContractUsageSection.
 type ContractUsageTableProps = {
   contractId: string
   currency?: CurrencyEnum
-  onErrorChange?: (hasError: boolean) => void
   refreshToken?: number
 }
 
 export const ContractUsageTable = ({
   contractId,
   currency,
-  onErrorChange,
   refreshToken,
 }: ContractUsageTableProps): JSX.Element => {
   const { translate } = useInternationalization()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   // Bare key: must match the rail's own link-building, which drops the bare `page` key on every
   // category switch - a prefixed key here would silently stop matching that.
   const { page, goToPage } = usePageSearchParam()
@@ -103,8 +101,8 @@ export const ContractUsageTable = ({
     [searchParams],
   )
 
-  // No fetchPolicy override: the app default caches a revisited category/page. Refresh still
-  // forces fresh data via its own refetch() below, which always hits the network.
+  // This table remounts on every tab switch, so a cache-first read would flash the previously
+  // viewed page - same reasoning as ContractRateCardsSection's identical override.
   const [getContractUsages, { data, error, loading, variables, refetch }] =
     useGetContractUsagesLazyQuery({
       variables: {
@@ -116,23 +114,12 @@ export const ContractUsageTable = ({
         ...filtersForQuery,
       },
       notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'network-only',
+      nextFetchPolicy: 'network-only',
     })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getContractUsages, loading)
 
-  useEffect(() => {
-    onErrorChange?.(!!error)
-  }, [error, onErrorChange])
-
-  const isFirstRefreshRender = useRef(true)
-
-  useEffect(() => {
-    if (isFirstRefreshRender.current) {
-      isFirstRefreshRender.current = false
-      return
-    }
-    refetch()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshToken])
+  useRefetchOnTokenChange(refreshToken, refetch)
 
   const searchInputOnChange = (value: string): void => {
     goToPage(1)
@@ -166,8 +153,8 @@ export const ContractUsageTable = ({
           </Typography>
           <Typography variant="caption" color="grey600">
             {translate('text_633dae57ca9a923dd53c2097', {
-              fromDate: intlFormatDateTime(row.fromDatetime).date,
-              toDate: intlFormatDateTime(row.toDatetime).date,
+              fromDate: intlFormatDateTimeOrgaTZ(row.fromDatetime).date,
+              toDate: intlFormatDateTimeOrgaTZ(row.toDatetime).date,
             })}
           </Typography>
         </div>

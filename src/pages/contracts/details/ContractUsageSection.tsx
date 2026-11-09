@@ -3,14 +3,15 @@ import { Icon } from 'lago-design-system'
 import { useState } from 'react'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { intlFormatDateTime } from '~/core/timezone'
 import { CurrencyEnum, useGetContractCurrentUsageTotalQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 import { ContractUsageCategoryRail } from './ContractUsageCategoryRail'
@@ -37,24 +38,21 @@ export const ContractUsageSection = ({
   currency,
 }: ContractUsageSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { data, error, loading, refetch } = useGetContractCurrentUsageTotalQuery({
     variables: { contractId },
     fetchPolicy: 'network-only',
   })
-  const [railHasError, setRailHasError] = useState(false)
-  const [tableHasError, setTableHasError] = useState(false)
   // Passed to the rail/table as refreshToken - re-fetches both in place, not a remount, so
   // "Refresh" doesn't reset their own local state (search term, page size).
   const [refreshToken, setRefreshToken] = useState(0)
 
   const handleRefresh = (): void => {
-    setRailHasError(false)
-    setTableHasError(false)
     setRefreshToken((token) => token + 1)
     refetch()
   }
 
-  if (error || railHasError || tableHasError) {
+  if (error) {
     return (
       <GenericPlaceholder
         title={translate('text_62c3f3fca8a1625624e83379')}
@@ -86,8 +84,9 @@ export const ContractUsageSection = ({
             !!data?.contractCurrentUsageTotal.toDatetime && (
               <Typography variant="caption" color="grey600">
                 {translate('text_633dae57ca9a923dd53c2097', {
-                  fromDate: intlFormatDateTime(data.contractCurrentUsageTotal.fromDatetime).date,
-                  toDate: intlFormatDateTime(data.contractCurrentUsageTotal.toDatetime).date,
+                  fromDate: intlFormatDateTimeOrgaTZ(data.contractCurrentUsageTotal.fromDatetime)
+                    .date,
+                  toDate: intlFormatDateTimeOrgaTZ(data.contractCurrentUsageTotal.toDatetime).date,
                 })}
               </Typography>
             )}
@@ -99,29 +98,26 @@ export const ContractUsageSection = ({
             </Tooltip>
           )}
           <Typography variant="body" color="grey700">
-            {loading
-              ? '...'
-              : intlFormatNumber(
-                  deserializeAmount(
-                    data?.contractCurrentUsageTotal.totalAmountCents ?? 0,
-                    currency ?? CurrencyEnum.Usd,
-                  ),
-                  { currencyDisplay: 'symbol', currency },
-                )}
+            {loading ? (
+              <Skeleton variant="text" className="w-20" />
+            ) : (
+              intlFormatNumber(
+                deserializeAmount(
+                  data?.contractCurrentUsageTotal.totalAmountCents ?? 0,
+                  currency ?? CurrencyEnum.Usd,
+                ),
+                { currencyDisplay: 'symbol', currency },
+              )
+            )}
           </Typography>
         </div>
       </div>
 
       <div className="flex gap-6">
-        <ContractUsageCategoryRail
-          contractId={contractId}
-          onErrorChange={setRailHasError}
-          refreshToken={refreshToken}
-        />
+        <ContractUsageCategoryRail contractId={contractId} refreshToken={refreshToken} />
         <ContractUsageTable
           contractId={contractId}
           currency={currency}
-          onErrorChange={setTableHasError}
           refreshToken={refreshToken}
         />
       </div>

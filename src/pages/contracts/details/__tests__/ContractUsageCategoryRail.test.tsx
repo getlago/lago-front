@@ -158,8 +158,7 @@ describe('ContractUsageCategoryRail', () => {
     expect(items[0]).toHaveTextContent(/standalone/i)
   })
 
-  it('calls onErrorChange when the categories query fails', async () => {
-    const onErrorChange = jest.fn()
+  it('shows its own error placeholder in place when the categories query fails, without affecting siblings', async () => {
     const errorMock: TestMocksType[number] = {
       request: {
         query: GetContractUsageCategoriesDocument,
@@ -170,11 +169,12 @@ describe('ContractUsageCategoryRail', () => {
 
     render(
       <AllTheProviders mocks={[errorMock]}>
-        <ContractUsageCategoryRail contractId="contract-1" onErrorChange={onErrorChange} />
+        <ContractUsageCategoryRail contractId="contract-1" />
       </AllTheProviders>,
     )
 
-    await waitFor(() => expect(onErrorChange).toHaveBeenCalledWith(true))
+    expect(await screen.findByText('Something went wrong')).toBeInTheDocument()
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
   })
 
   it('selects Standalone products by default and a real category when categoryId matches the URL', async () => {

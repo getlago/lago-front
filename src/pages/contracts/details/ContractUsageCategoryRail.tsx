@@ -1,11 +1,14 @@
 import { gql } from '@apollo/client'
-import { useEffect, useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { VerticalMenu } from '~/components/designSystem/VerticalMenu'
 import { useLocation } from '~/core/router'
 import { useGetContractUsageCategoriesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useRefetchOnTokenChange } from '~/hooks/useRefetchOnTokenChange'
+import ErrorImage from '~/public/images/maneki/error.svg'
 
 gql`
   query getContractUsageCategories($contractId: ID!) {
@@ -25,17 +28,13 @@ gql`
   }
 `
 
-// refreshToken: bump to re-fetch in place (not remount) - a remount would also reset sibling
-// panes' own local state (search term, page size). See ContractUsageSection.
 type ContractUsageCategoryRailProps = {
   contractId: string
-  onErrorChange?: (hasError: boolean) => void
   refreshToken?: number
 }
 
 export const ContractUsageCategoryRail = ({
   contractId,
-  onErrorChange,
   refreshToken,
 }: ContractUsageCategoryRailProps): JSX.Element => {
   const { translate } = useInternationalization()
@@ -45,20 +44,7 @@ export const ContractUsageCategoryRail = ({
 
   const { data, error, refetch } = useGetContractUsageCategoriesQuery({ variables: { contractId } })
 
-  useEffect(() => {
-    onErrorChange?.(!!error)
-  }, [error, onErrorChange])
-
-  const isFirstRefreshRender = useRef(true)
-
-  useEffect(() => {
-    if (isFirstRefreshRender.current) {
-      isFirstRefreshRender.current = false
-      return
-    }
-    refetch()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshToken])
+  useRefetchOnTokenChange(refreshToken, refetch)
 
   const categories = useMemo(() => {
     const byId = new Map<string, string>()
@@ -89,6 +75,21 @@ export const ContractUsageCategoryRail = ({
     const query = next.toString()
 
     return query ? `${strippedPathname}?${query}` : strippedPathname
+  }
+
+  if (error) {
+    return (
+      <nav className="flex w-58 flex-shrink-0 flex-col gap-1">
+        <GenericPlaceholder
+          title={translate('text_62c3f3fca8a1625624e83379')}
+          subtitle={translate('text_1726498444629i1fpjyvh0kg')}
+          buttonTitle={translate('text_1725983967306qz0npfuhlo1')}
+          buttonVariant="primary"
+          buttonAction={refetch}
+          image={<ErrorImage width="136" height="104" />}
+        />
+      </nav>
+    )
   }
 
   return (

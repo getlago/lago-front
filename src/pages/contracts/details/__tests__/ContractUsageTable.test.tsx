@@ -1,5 +1,6 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 
+import { intlFormatDateTime as mockIntlFormatDateTime } from '~/core/timezone'
 import { GetContractUsagesDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
@@ -9,6 +10,14 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string, data?: Record<string, string>) =>
       data ? `${key}:${JSON.stringify(data)}` : key,
+  }),
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    organization: {},
+    timezoneConfig: { name: 'UTC', offset: '+00:00' },
+    intlFormatDateTimeOrgaTZ: (date: string) => mockIntlFormatDateTime(date),
   }),
 }))
 
@@ -170,8 +179,7 @@ describe('ContractUsageTable', () => {
     expect(screen.getByText('Other plan')).toBeInTheDocument()
   })
 
-  it('calls onErrorChange when the usages query fails', async () => {
-    const onErrorChange = jest.fn()
+  it("shows the Table's own error placeholder in place when the usages query fails", async () => {
     const errorMock: TestMocksType[number] = {
       request: {
         query: GetContractUsagesDocument,
@@ -182,10 +190,10 @@ describe('ContractUsageTable', () => {
 
     render(
       <AllTheProviders mocks={[errorMock]}>
-        <ContractUsageTable contractId="contract-1" onErrorChange={onErrorChange} />
+        <ContractUsageTable contractId="contract-1" />
       </AllTheProviders>,
     )
 
-    await waitFor(() => expect(onErrorChange).toHaveBeenCalledWith(true))
+    expect(await screen.findByText('text_629728388c4d2300e2d380d5')).toBeInTheDocument()
   })
 })
