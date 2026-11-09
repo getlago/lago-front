@@ -1,5 +1,5 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { useCallback, useEffect } from 'react'
+import { ReactNode, useCallback, useEffect } from 'react'
 import { z } from 'zod'
 
 import { useFormDrawer } from '~/components/drawers/useDrawer'
@@ -211,7 +211,8 @@ export const useInvoicingSettingsDrawer = ({
   const titleKey = getInvoicingSettingsTitleKey(viewType)
   const drawer = useFormDrawer()
   const { update: updateDrawer } = drawer
-  // Callers rebuild the inherited term every render; its term and label keep their identity.
+  // getInheritedPaymentTerm returns a new wrapper every render around a stable term, so the
+  // drawer content is keyed on the term and label, not the wrapper.
   const inheritedTerm = paymentTermInheritedFrom?.term
   const inheritedLabelKey = paymentTermInheritedFrom?.labelKey
 
@@ -232,7 +233,7 @@ export const useInvoicingSettingsDrawer = ({
   })
 
   const renderContent = useCallback(
-    () => (
+    (): ReactNode => (
       <InvoicingSettingsDrawerContent
         form={form}
         viewType={viewType}
