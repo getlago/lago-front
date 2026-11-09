@@ -55,7 +55,11 @@ Fonts are owned by `lago-configs` (`lago-configs/fonts.css`), not by this packag
 
 ## Storybook
 
-Published at **https://getlago.github.io/lago-front/ui/** on every merge into `main` that touches the design system (`.github/workflows/storybook.yml`). Keep this URL stable: it is shared in docs, Figma and agent instructions. To run it locally:
+Published at **https://getlago.github.io/lago-front/ui/** on every merge into `main` that touches the design system (`.github/workflows/storybook.yml`). Keep this URL stable: it is shared in docs, Figma and agent instructions.
+
+Storybook renders with JavaScript, so AI agents cannot read it. For them the same deploy publishes this README and every guide as plain Markdown, at the same paths as in this package, indexed by **https://getlago.github.io/lago-front/ui/llms.txt** (`scripts/build-ai-docs.mjs`). Give an agent that link.
+
+To run it locally:
 
 ```bash
 pnpm --filter lago-ui storybook

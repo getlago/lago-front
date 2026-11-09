@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict'
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, readdirSync, readFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { test } from 'node:test'
 import { fileURLToPath } from 'node:url'
+
+import { buildAiDocs, guidePaths } from './build-ai-docs.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const componentsDir = join(root, 'src/components')
@@ -22,14 +25,7 @@ const components = readdirSync(componentsDir)
   .filter((file) => file.endsWith('.tsx') && !file.endsWith('.stories.tsx'))
   .map((file) => file.replace(/\.tsx$/, ''))
 
-const markdownFiles = [
-  join(root, 'README.md'),
-  ...['src/components', 'src/styles'].flatMap((dir) =>
-    readdirSync(join(root, dir))
-      .filter((file) => file.endsWith('.md'))
-      .map((file) => join(root, dir, file)),
-  ),
-]
+const markdownFiles = guidePaths().map((guide) => join(root, guide))
 
 const read = (path) => readFileSync(path, 'utf8')
 
@@ -104,6 +100,30 @@ test('relative links in guides resolve', () => {
 
     for (const link of links) {
       assert.ok(existsSync(resolve(dirname(file), link)), `${file} links to missing ${link}`)
+    }
+  }
+})
+
+test('the published AI docs keep every guide, its links and an llms.txt entry', () => {
+  const outDir = mkdtempSync(join(tmpdir(), 'lago-ui-ai-docs-'))
+  const baseUrl = 'https://example.test/ui/'
+
+  buildAiDocs(outDir, baseUrl)
+  const llms = read(join(outDir, 'llms.txt'))
+
+  for (const guide of guidePaths()) {
+    const published = join(outDir, guide)
+    const links = [...read(published).matchAll(/\]\((?!https?:)([^)#\s]+)/g)].map(
+      (match) => match[1],
+    )
+
+    assert.ok(llms.includes(`(${baseUrl}${guide})`), `llms.txt does not list ${guide}`)
+
+    for (const link of links) {
+      assert.ok(
+        existsSync(resolve(dirname(published), link)),
+        `${guide} links to unpublished ${link}`,
+      )
     }
   }
 })

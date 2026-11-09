@@ -45,6 +45,7 @@ jobs:
         run: |
           mkdir -p site/ui
           cp -R packages/ui/storybook-static/. site/ui/
+          node packages/ui/scripts/build-ai-docs.mjs site/ui https://getlago.github.io/lago-front/ui/
           cat > site/index.html <<'HTML'
           <!doctype html>
           <html lang="en">
