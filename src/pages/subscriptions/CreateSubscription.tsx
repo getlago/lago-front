@@ -51,6 +51,7 @@ import { subscriptionFormSchema } from '~/formValidation/subscriptionFormSchema'
 import {
   CurrencyEnum,
   FeatureFlagEnum,
+  PaymentTermFieldsFragmentDoc,
   PlanInterval,
   StatusTypeEnum,
   SubscriptionForSubscriptionEditFormFragmentDoc,
@@ -97,18 +98,12 @@ gql`
       displayName
       externalId
       paymentTerm {
-        termType
-        days
-        dayOfMonth
-        monthOffset
+        ...PaymentTermFields
       }
       billingEntity {
         id
         paymentTerm {
-          termType
-          days
-          dayOfMonth
-          monthOffset
+          ...PaymentTermFields
         }
       }
       paymentProvider
@@ -122,6 +117,8 @@ gql`
   }
 
   ${SubscriptionForSubscriptionEditFormFragmentDoc}
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 const CreateSubscription = () => {

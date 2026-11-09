@@ -15,6 +15,7 @@ import { paymentTermFormSchema } from '~/components/paymentTerms/validationSchem
 import { addToast } from '~/core/apolloClient'
 import { MUI_INPUT_BASE_ROOT_CLASSNAME, PAYMENT_TERM_INPUT_CLASSNAME } from '~/core/constants/form'
 import {
+  PaymentTermFieldsFragmentDoc,
   useUpdateBillingEntityPaymentTermMutation,
   useUpdateCustomerPaymentTermMutation,
 } from '~/generated/graphql'
@@ -32,18 +33,12 @@ gql`
     externalId
     name
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
     billingEntity {
       id
       paymentTerm {
-        termType
-        days
-        dayOfMonth
-        monthOffset
+        ...PaymentTermFields
       }
     }
   }
@@ -51,10 +46,7 @@ gql`
   fragment EditBillingEntityPaymentTermForDialog on BillingEntity {
     id
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
   }
 
@@ -71,6 +63,8 @@ gql`
       ...EditBillingEntityPaymentTermForDialog
     }
   }
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 export const useEditPaymentTermDialog = () => {

@@ -14,6 +14,7 @@ import {
 import {
   CreateBillingEntityInput,
   LagoApiError,
+  PaymentTermFieldsFragmentDoc,
   UpdateBillingEntityInput,
   useCreateBillingEntityMutation,
   useGetBillingEntityQuery,
@@ -56,10 +57,7 @@ gql`
     }
     einvoicing
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
   }
 
@@ -88,6 +86,8 @@ gql`
       ...BillingEntityItem
     }
   }
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 const useCreateEditBillingEntity = () => {

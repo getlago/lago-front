@@ -15,6 +15,7 @@ import {
   CustomerAccountTypeEnum,
   InvoiceForInvoiceInfosFragment,
   InvoiceStatusTypeEnum,
+  PaymentTermFieldsFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
@@ -30,10 +31,7 @@ gql`
     issuingDate
     paymentDueDate
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
     paymentOverdue
     status
@@ -65,6 +63,8 @@ gql`
       accountType
     }
   }
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 interface InvoiceCustomerInfosProps {

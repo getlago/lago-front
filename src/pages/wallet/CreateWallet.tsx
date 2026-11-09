@@ -28,6 +28,7 @@ import {
   FeatureFlagEnum,
   GetWalletInfosForWalletFormQuery,
   LagoApiError,
+  PaymentTermFieldsFragmentDoc,
   useCreateCustomerWalletMutation,
   useGetCustomerInfosForWalletFormQuery,
   useGetWalletInfosForWalletFormQuery,
@@ -74,10 +75,7 @@ gql`
       code
     }
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
     skipInvoiceCustomSections
     selectedInvoiceCustomSections {
@@ -136,18 +134,12 @@ gql`
       currency
       timezone
       paymentTerm {
-        termType
-        days
-        dayOfMonth
-        monthOffset
+        ...PaymentTermFields
       }
       billingEntity {
         id
         paymentTerm {
-          termType
-          days
-          dayOfMonth
-          monthOffset
+          ...PaymentTermFields
         }
       }
     }
@@ -178,6 +170,8 @@ gql`
 
   ${WalletForUpdateFragmentDoc}
   ${WalletForScopeSectionFragmentDoc}
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 function hasWalletRecurringTopUpEnabled(

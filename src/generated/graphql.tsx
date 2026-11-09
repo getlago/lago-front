@@ -15045,6 +15045,8 @@ export type DestroyPaymentMethodMutationVariables = Exact<{
 
 export type DestroyPaymentMethodMutation = { __typename?: 'Mutation', destroyPaymentMethod?: { __typename?: 'DestroyPaymentMethodPayload', id?: string | null } | null };
 
+export type PaymentTermFieldsFragment = { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null };
+
 export type PercentageChargeFragment = { __typename?: 'Properties', fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null };
 
 export type PercentageChargeForRateFragment = { __typename?: 'RateProperties', fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null };
@@ -20657,6 +20659,14 @@ export const DeleteCustomerGracePeriodFragmentDoc = gql`
   displayName
 }
     `;
+export const PaymentTermFieldsFragmentDoc = gql`
+    fragment PaymentTermFields on PaymentTerm {
+  termType
+  days
+  dayOfMonth
+  monthOffset
+}
+    `;
 export const DeleteCustomerPaymentTermFragmentDoc = gql`
     fragment DeleteCustomerPaymentTerm on Customer {
   id
@@ -20664,13 +20674,10 @@ export const DeleteCustomerPaymentTermFragmentDoc = gql`
   name
   displayName
   paymentTerm {
-    termType
-    days
-    dayOfMonth
-    monthOffset
+    ...PaymentTermFields
   }
 }
-    `;
+    ${PaymentTermFieldsFragmentDoc}`;
 export const CustomerForDeleteVatRateDialogFragmentDoc = gql`
     fragment CustomerForDeleteVatRateDialog on Customer {
   id
@@ -22706,33 +22713,24 @@ export const EditCustomerPaymentTermForDialogFragmentDoc = gql`
   externalId
   name
   paymentTerm {
-    termType
-    days
-    dayOfMonth
-    monthOffset
+    ...PaymentTermFields
   }
   billingEntity {
     id
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
   }
 }
-    `;
+    ${PaymentTermFieldsFragmentDoc}`;
 export const EditBillingEntityPaymentTermForDialogFragmentDoc = gql`
     fragment EditBillingEntityPaymentTermForDialog on BillingEntity {
   id
   paymentTerm {
-    termType
-    days
-    dayOfMonth
-    monthOffset
+    ...PaymentTermFields
   }
 }
-    `;
+    ${PaymentTermFieldsFragmentDoc}`;
 export const SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc = gql`
     fragment SubscriptionCurrentUsageTableComponentCustomerUsage on CustomerUsage {
   amountCents
@@ -23059,10 +23057,7 @@ export const SubscriptionForSubscriptionEditFormFragmentDoc = gql`
   billingTime
   purchaseOrderNumber
   paymentTerm {
-    termType
-    days
-    dayOfMonth
-    monthOffset
+    ...PaymentTermFields
   }
   billingEntityId
   periodEndDate
@@ -23099,7 +23094,8 @@ export const SubscriptionForSubscriptionEditFormFragmentDoc = gql`
     ...AddSubscriptionPlan
   }
 }
-    ${AddSubscriptionPlanFragmentDoc}`;
+    ${PaymentTermFieldsFragmentDoc}
+${AddSubscriptionPlanFragmentDoc}`;
 export const SubscriptionInformationSectionFragmentDoc = gql`
     fragment SubscriptionInformationSection on Subscription {
   id
@@ -23123,32 +23119,23 @@ export const SubscriptionInvoiceSectionFragmentDoc = gql`
   }
   billingEntityId
   paymentTerm {
-    termType
-    days
-    dayOfMonth
-    monthOffset
+    ...PaymentTermFields
   }
   customer {
     id
     externalId
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
     billingEntity {
       id
       paymentTerm {
-        termType
-        days
-        dayOfMonth
-        monthOffset
+        ...PaymentTermFields
       }
     }
   }
 }
-    `;
+    ${PaymentTermFieldsFragmentDoc}`;
 export const SubscriptionPaymentSectionFragmentDoc = gql`
     fragment SubscriptionPaymentSection on Subscription {
   id
@@ -23210,10 +23197,7 @@ export const WalletForUpdateFragmentDoc = gql`
     code
   }
   paymentTerm {
-    termType
-    days
-    dayOfMonth
-    monthOffset
+    ...PaymentTermFields
   }
   skipInvoiceCustomSections
   selectedInvoiceCustomSections {
@@ -23263,7 +23247,8 @@ export const WalletForUpdateFragmentDoc = gql`
   }
   ...WalletForScopeSection
 }
-    ${WalletForScopeSectionFragmentDoc}`;
+    ${PaymentTermFieldsFragmentDoc}
+${WalletForScopeSectionFragmentDoc}`;
 export const WalletInfosForTransactionsFragmentDoc = gql`
     fragment WalletInfosForTransactions on Wallet {
   id
@@ -23503,13 +23488,10 @@ export const BillingEntityItemFragmentDoc = gql`
   }
   einvoicing
   paymentTerm {
-    termType
-    days
-    dayOfMonth
-    monthOffset
+    ...PaymentTermFields
   }
 }
-    `;
+    ${PaymentTermFieldsFragmentDoc}`;
 export const PlansForCouponsFragmentDoc = gql`
     fragment PlansForCoupons on Plan {
   id
@@ -24441,10 +24423,7 @@ export const InvoiceForInvoiceInfosFragmentDoc = gql`
   issuingDate
   paymentDueDate
   paymentTerm {
-    termType
-    days
-    dayOfMonth
-    monthOffset
+    ...PaymentTermFields
   }
   paymentOverdue
   status
@@ -24476,7 +24455,7 @@ export const InvoiceForInvoiceInfosFragmentDoc = gql`
     accountType
   }
 }
-    `;
+    ${PaymentTermFieldsFragmentDoc}`;
 export const AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc = gql`
     fragment AllInvoiceDetailsForCustomerInvoiceDetails on Invoice {
   id
@@ -25938,10 +25917,7 @@ export const InvoiceForInvoiceBuildRegenerationPreviewFragmentDoc = gql`
   paymentOverdue
   paymentStatus
   paymentTerm {
-    termType
-    days
-    dayOfMonth
-    monthOffset
+    ...PaymentTermFields
   }
   purchaseOrderNumber
   refundableAmountCents
@@ -26005,7 +25981,8 @@ export const InvoiceForInvoiceBuildRegenerationPreviewFragmentDoc = gql`
   ...InvoiceForDetailsTableFooter
   ...InvoiceForFormatInvoiceItemMap
 }
-    ${InvoiceForDetailsTableFooterFragmentDoc}
+    ${PaymentTermFieldsFragmentDoc}
+${InvoiceForDetailsTableFooterFragmentDoc}
 ${InvoiceForFormatInvoiceItemMapFragmentDoc}`;
 export const FeeForInvoiceBuildRegenerationPreviewFragmentDoc = gql`
     fragment FeeForInvoiceBuildRegenerationPreview on Fee {
@@ -26170,10 +26147,7 @@ export const QuoteDetailItemFragmentDoc = gql`
     displayName
     externalId
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
     ...QuotePreviewCustomer
     billingEntity {
@@ -26181,10 +26155,7 @@ export const QuoteDetailItemFragmentDoc = gql`
       code
       name
       paymentTerm {
-        termType
-        days
-        dayOfMonth
-        monthOffset
+        ...PaymentTermFields
       }
     }
   }
@@ -26212,7 +26183,8 @@ export const QuoteDetailItemFragmentDoc = gql`
     ...QuotePreviewVersion
   }
 }
-    ${QuotePreviewCustomerFragmentDoc}
+    ${PaymentTermFieldsFragmentDoc}
+${QuotePreviewCustomerFragmentDoc}
 ${QuotePreviewVersionFragmentDoc}`;
 export const QuoteListItemFragmentDoc = gql`
     fragment QuoteListItem on Quote {
@@ -26987,10 +26959,7 @@ export const WalletDetailsFragmentDoc = gql`
   priority
   purchaseOrderNumber
   paymentTerm {
-    termType
-    days
-    dayOfMonth
-    monthOffset
+    ...PaymentTermFields
   }
   paidTopUpMinAmountCents
   paidTopUpMinCredits
@@ -27017,20 +26986,14 @@ export const WalletDetailsFragmentDoc = gql`
     lastname
     externalId
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
     billingEntity {
       id
       code
       name
       paymentTerm {
-        termType
-        days
-        dayOfMonth
-        monthOffset
+        ...PaymentTermFields
       }
     }
   }
@@ -27084,7 +27047,8 @@ export const WalletDetailsFragmentDoc = gql`
   }
   ...WalletInfosForTransactions
 }
-    ${WalletInfosForTransactionsFragmentDoc}`;
+    ${PaymentTermFieldsFragmentDoc}
+${WalletInfosForTransactionsFragmentDoc}`;
 export const SelectableBillableMetricForWalletScopeSectionFragmentDoc = gql`
     fragment SelectableBillableMetricForWalletScopeSection on SelectableBillableMetric {
   id
@@ -40263,10 +40227,7 @@ export const CreateSubscriptionDocument = gql`
     name
     purchaseOrderNumber
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
     externalId
     activationRules {
@@ -40304,7 +40265,8 @@ export const CreateSubscriptionDocument = gql`
     }
   }
 }
-    ${CustomerDetailsFragmentDoc}`;
+    ${PaymentTermFieldsFragmentDoc}
+${CustomerDetailsFragmentDoc}`;
 export type CreateSubscriptionMutationFn = Apollo.MutationFunction<CreateSubscriptionMutation, CreateSubscriptionMutationVariables>;
 
 /**
@@ -40343,10 +40305,7 @@ export const UpdateSubscriptionDocument = gql`
     name
     purchaseOrderNumber
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
     externalId
     activationRules {
@@ -40384,7 +40343,8 @@ export const UpdateSubscriptionDocument = gql`
     }
   }
 }
-    ${CustomerDetailsFragmentDoc}`;
+    ${PaymentTermFieldsFragmentDoc}
+${CustomerDetailsFragmentDoc}`;
 export type UpdateSubscriptionMutationFn = Apollo.MutationFunction<UpdateSubscriptionMutation, UpdateSubscriptionMutationVariables>;
 
 /**
@@ -43509,19 +43469,13 @@ export const GetInfosForCreateInvoiceDocument = gql`
     zipcode
     accountType
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
     billingEntity {
       id
       code
       paymentTerm {
-        termType
-        days
-        dayOfMonth
-        monthOffset
+        ...PaymentTermFields
       }
     }
     taxes {
@@ -43542,7 +43496,8 @@ export const GetInfosForCreateInvoiceDocument = gql`
     }
   }
 }
-    ${TaxInfosForCreateInvoiceFragmentDoc}`;
+    ${PaymentTermFieldsFragmentDoc}
+${TaxInfosForCreateInvoiceFragmentDoc}`;
 
 /**
  * __useGetInfosForCreateInvoiceQuery__
@@ -56447,24 +56402,18 @@ export const GetCustomerForCreateSubscriptionDocument = gql`
     displayName
     externalId
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
     billingEntity {
       id
       paymentTerm {
-        termType
-        days
-        dayOfMonth
-        monthOffset
+        ...PaymentTermFields
       }
     }
     paymentProvider
   }
 }
-    `;
+    ${PaymentTermFieldsFragmentDoc}`;
 
 /**
  * __useGetCustomerForCreateSubscriptionQuery__
@@ -56860,23 +56809,17 @@ export const GetCustomerInfosForWalletFormDocument = gql`
     currency
     timezone
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
     billingEntity {
       id
       paymentTerm {
-        termType
-        days
-        dayOfMonth
-        monthOffset
+        ...PaymentTermFields
       }
     }
   }
 }
-    `;
+    ${PaymentTermFieldsFragmentDoc}`;
 
 /**
  * __useGetCustomerInfosForWalletFormQuery__

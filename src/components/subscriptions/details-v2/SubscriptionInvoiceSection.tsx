@@ -6,7 +6,10 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
-import { SubscriptionInvoiceSectionFragment } from '~/generated/graphql'
+import {
+  PaymentTermFieldsFragmentDoc,
+  SubscriptionInvoiceSectionFragment,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdateSubscriptionSettings } from '~/hooks/customer/useUpdateSubscriptionSettings'
 import { useInheritedPaymentTerm } from '~/hooks/useInheritedPaymentTerm'
@@ -24,31 +27,24 @@ gql`
     }
     billingEntityId
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
     customer {
       id
       externalId
       paymentTerm {
-        termType
-        days
-        dayOfMonth
-        monthOffset
+        ...PaymentTermFields
       }
       billingEntity {
         id
         paymentTerm {
-          termType
-          days
-          dayOfMonth
-          monthOffset
+          ...PaymentTermFields
         }
       }
     }
   }
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 type SubscriptionInvoiceSectionProps = {

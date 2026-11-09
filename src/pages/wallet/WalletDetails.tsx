@@ -26,6 +26,7 @@ import {
 import { getCustomerDisplayName } from '~/core/utils/getCustomerDisplayName'
 import {
   FeatureFlagEnum,
+  PaymentTermFieldsFragmentDoc,
   useGetWalletDetailsQuery,
   WalletInfosForTransactionsFragmentDoc,
   WalletStatusEnum,
@@ -59,10 +60,7 @@ gql`
     priority
     purchaseOrderNumber
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
     paidTopUpMinAmountCents
     paidTopUpMinCredits
@@ -89,20 +87,14 @@ gql`
       lastname
       externalId
       paymentTerm {
-        termType
-        days
-        dayOfMonth
-        monthOffset
+        ...PaymentTermFields
       }
       billingEntity {
         id
         code
         name
         paymentTerm {
-          termType
-          days
-          dayOfMonth
-          monthOffset
+          ...PaymentTermFields
         }
       }
     }
@@ -165,6 +157,8 @@ gql`
   }
 
   ${WalletInfosForTransactionsFragmentDoc}
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 export enum WalletDetailsTabsOptionsEnum {
   overview = 'overview',

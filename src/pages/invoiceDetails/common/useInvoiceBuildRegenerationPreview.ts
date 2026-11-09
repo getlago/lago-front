@@ -4,6 +4,7 @@ import {
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
   InvoiceForDetailsTableFooterFragmentDoc,
   InvoiceForFormatInvoiceItemMapFragmentDoc,
+  PaymentTermFieldsFragmentDoc,
   useGetInvoiceBuildRegenerationPreviewQuery,
 } from '~/generated/graphql'
 
@@ -39,10 +40,7 @@ gql`
     paymentOverdue
     paymentStatus
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
     purchaseOrderNumber
     refundableAmountCents
@@ -182,6 +180,8 @@ gql`
   ${InvoiceForDetailsTableFooterFragmentDoc}
   ${InvoiceForFormatInvoiceItemMapFragmentDoc}
   ${FeeForInvoiceDetailsTableBodyLineFragmentDoc}
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 export const useInvoiceBuildRegenerationPreview = (invoiceId?: string) => {

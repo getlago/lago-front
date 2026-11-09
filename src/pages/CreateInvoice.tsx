@@ -43,6 +43,7 @@ import {
   FetchDraftInvoiceTaxesMutation,
   Invoice,
   LagoApiError,
+  PaymentTermFieldsFragmentDoc,
   TaxInfosForCreateInvoiceFragment,
   useCreateInvoiceMutation,
   useFetchDraftInvoiceTaxesMutation,
@@ -122,19 +123,13 @@ gql`
       zipcode
       accountType
       paymentTerm {
-        termType
-        days
-        dayOfMonth
-        monthOffset
+        ...PaymentTermFields
       }
       billingEntity {
         id
         code
         paymentTerm {
-          termType
-          days
-          dayOfMonth
-          monthOffset
+          ...PaymentTermFields
         }
       }
       taxes {
@@ -189,6 +184,8 @@ gql`
   }
 
   ${FeeForInvoiceFeesToFeeInputFragmentDoc}
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 export const CREATE_INVOICE_SUBMIT_BUTTON_TEST_ID = 'create-invoice-button'

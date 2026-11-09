@@ -5,6 +5,7 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   DeleteCustomerPaymentTermFragment,
+  PaymentTermFieldsFragmentDoc,
   useDeleteCustomerPaymentTermMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -16,10 +17,7 @@ gql`
     name
     displayName
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
   }
 
@@ -29,6 +27,8 @@ gql`
       ...DeleteCustomerPaymentTerm
     }
   }
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 type DeleteCustomerPaymentTermDialogData = {

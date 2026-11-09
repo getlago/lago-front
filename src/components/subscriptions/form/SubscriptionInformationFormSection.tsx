@@ -14,6 +14,7 @@ import { getTimezoneConfig } from '~/core/timezone'
 import {
   AddSubscriptionPlanFragmentDoc,
   BillingTimeEnum,
+  PaymentTermFieldsFragmentDoc,
   PlanInterval,
   StatusTypeEnum,
   TimezoneEnum,
@@ -38,10 +39,7 @@ gql`
     billingTime
     purchaseOrderNumber
     paymentTerm {
-      termType
-      days
-      dayOfMonth
-      monthOffset
+      ...PaymentTermFields
     }
     billingEntityId
     periodEndDate
@@ -80,6 +78,8 @@ gql`
   }
 
   ${AddSubscriptionPlanFragmentDoc}
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 const getBillingTimeSelectorTranslationKey = (planInterval?: PlanInterval) => {
