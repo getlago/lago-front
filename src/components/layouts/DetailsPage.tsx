@@ -61,16 +61,18 @@ const DetailsPageOverviewLine: FC<{
 }> = ({ title, value, className }) => {
   return (
     <div className={tw('flex items-start gap-2', className)}>
-      <Typography variant="caption" color="grey600" noWrap className="min-w-35">
+      <Typography variant="caption" color="grey600" noWrap className="min-w-35 shrink-0">
         {title}
       </Typography>
-      {typeof value === 'string' ? (
-        <Typography variant="body" color="grey700">
-          {value}
-        </Typography>
-      ) : (
-        value
-      )}
+      <div className="min-w-0 [overflow-wrap:anywhere]">
+        {typeof value === 'string' ? (
+          <Typography variant="body" color="grey700">
+            {value}
+          </Typography>
+        ) : (
+          value
+        )}
+      </div>
     </div>
   )
 }
@@ -106,9 +108,13 @@ const DetailsPageOverview: FC<
     )
   }
   return (
-    <div className={tw('flex flex-row gap-8 py-6', className)}>
-      <div className={tw('flex flex-1 flex-col gap-2', className)}>{leftColumn}</div>
-      <div className={tw('flex flex-1 flex-col gap-2', className)}>{rightColumn}</div>
+    <div className={tw('flex flex-row flex-wrap gap-x-8 gap-y-2 py-6', className)}>
+      <div className={tw('flex min-w-0 flex-1 basis-80 flex-col gap-2', className)}>
+        {leftColumn}
+      </div>
+      <div className={tw('flex min-w-0 flex-1 basis-80 flex-col gap-2', className)}>
+        {rightColumn}
+      </div>
     </div>
   )
 }

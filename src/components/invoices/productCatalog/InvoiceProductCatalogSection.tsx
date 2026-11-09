@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { PaginatedContent } from '~/components/designSystem/Pagination'
+import { shouldRenderFooter } from '~/components/designSystem/Pagination/utils'
 import { useViewFeeDetailsDrawer } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import {
   CurrencyEnum,
@@ -10,6 +11,7 @@ import {
   TimezoneEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { tw } from '~/styles/utils'
 
 import { InvoiceProductCatalogFeesTable } from './InvoiceProductCatalogFeesTable'
 import { buildInvoiceProductCatalogTabs } from './invoiceProductCatalogTabs'
@@ -52,9 +54,19 @@ const InvoiceProductCatalogSectionContent = ({
   const { data, loading, error, variables, refetch, goToPage, selectSection, onSearchChange } =
     useInvoiceProductFees({ invoiceId, section, filters })
   const hasActiveSearchOrFilters = !!variables?.searchTerm || Object.keys(filters).length > 0
+  const metadata = data?.invoiceProductFees.metadata
+  const hasPager = shouldRenderFooter({
+    hasPageSizeMenu: false,
+    pageSizeOptions: [],
+    totalCount: metadata?.totalCount ?? 0,
+    totalPages: metadata?.totalPages ?? 0,
+  })
 
   return (
-    <>
+    <section
+      data-test={INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID}
+      className={tw('flex flex-col pt-6', hasPager ? 'last:-mb-20' : 'pb-6')}
+    >
       <InvoiceProductCatalogToolbar
         tabs={buildInvoiceProductCatalogTabs(sections, translate)}
         section={section}
@@ -62,10 +74,11 @@ const InvoiceProductCatalogSectionContent = ({
         onSearchChange={onSearchChange}
       />
       <PaginatedContent
-        metadata={data?.invoiceProductFees.metadata}
+        metadata={metadata}
         loading={loading}
         pageSize={INVOICE_PRODUCT_FEES_PAGE_SIZE}
         onPageChange={goToPage}
+        keepListInView
       >
         <InvoiceProductCatalogFeesTable
           {...displayProps}
@@ -78,7 +91,7 @@ const InvoiceProductCatalogSectionContent = ({
           onFeeClick={viewFeeDetails.open}
         />
       </PaginatedContent>
-    </>
+    </section>
   )
 }
 
@@ -98,19 +111,21 @@ export const InvoiceProductCatalogSection = ({
   )
   const section = sections.find(({ key }) => key === activeSectionKey)
 
-  return (
-    <section data-test={INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID} className="flex flex-col py-6">
-      {section ? (
-        <InvoiceProductCatalogSectionContent
-          key={`${invoiceId}:${activeSectionKey}`}
-          invoiceId={invoiceId}
-          section={section}
-          sections={sections}
-          {...displayProps}
-        />
-      ) : (
+  if (!section) {
+    return (
+      <section data-test={INVOICE_PRODUCT_CATALOG_SECTION_TEST_ID} className="flex flex-col py-6">
         <div data-test={INVOICE_PRODUCT_CATALOG_EMPTY_TEST_ID} />
-      )}
-    </section>
+      </section>
+    )
+  }
+
+  return (
+    <InvoiceProductCatalogSectionContent
+      key={`${invoiceId}:${activeSectionKey}`}
+      invoiceId={invoiceId}
+      section={section}
+      sections={sections}
+      {...displayProps}
+    />
   )
 }

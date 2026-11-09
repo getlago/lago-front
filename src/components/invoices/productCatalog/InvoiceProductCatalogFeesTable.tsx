@@ -130,6 +130,12 @@ const formatTaxRates = (taxRates: number[]): string => {
   return taxRates.map((taxRate) => intlFormatNumber(taxRate / 100, { style: 'percent' })).join(', ')
 }
 
+const renderUnitPriceValue = (value: string, color: 'grey600' | 'grey700'): JSX.Element => (
+  <Typography variant="body" color={color} className="whitespace-normal [line-break:anywhere]">
+    {value}
+  </Typography>
+)
+
 const renderDetailValue = (value: string): JSX.Element => (
   <Typography variant="body" color="grey600" noWrap>
     {value}
@@ -200,7 +206,7 @@ export const InvoiceProductCatalogFeesTable = ({
     const renderLabel = (): ReactNode => {
       if (original.kind === 'product' || original.kind === 'filter') {
         return (
-          <Typography variant="bodyHl" color="grey700" noWrap>
+          <Typography variant="bodyHl" color="grey700">
             {original.label}
           </Typography>
         )
@@ -208,16 +214,27 @@ export const InvoiceProductCatalogFeesTable = ({
 
       if (original.kind === 'fee') {
         return (
-          <Typography variant="body" color="grey700" noWrap>
+          <Typography variant="body" color="grey700">
             {getFeeLabel(original)}
           </Typography>
         )
       }
 
-      return renderDetailValue(translate(original.labelKey, original.labelParams, original.plural))
+      return (
+        <Typography variant="body" color="grey600">
+          {translate(original.labelKey, original.labelParams, original.plural)}
+        </Typography>
+      )
     }
 
-    return <div style={{ paddingLeft: getIndentLevel(row) * INDENT_STEP_PX }}>{renderLabel()}</div>
+    return (
+      <div
+        className="whitespace-normal py-3"
+        style={{ paddingLeft: getIndentLevel(row) * INDENT_STEP_PX }}
+      >
+        {renderLabel()}
+      </div>
+    )
   }
 
   const isFeeWithoutDetails = (original: Row): original is Extract<Row, { kind: 'fee' }> =>
@@ -232,11 +249,14 @@ export const InvoiceProductCatalogFeesTable = ({
 
   const renderUnitPrice = ({ row: { original } }: CellContext): ReactNode => {
     if (isFeeWithoutDetails(original)) {
-      return formatUnitPrice({ type: 'amount', value: original.fee.preciseUnitAmount })
+      return renderUnitPriceValue(
+        formatUnitPrice({ type: 'amount', value: original.fee.preciseUnitAmount }),
+        'grey700',
+      )
     }
     if (original.kind !== 'detail' || !original.unitPrice) return null
 
-    return renderDetailValue(formatUnitPrice(original.unitPrice))
+    return renderUnitPriceValue(formatUnitPrice(original.unitPrice), 'grey600')
   }
 
   const renderTaxes = ({ row: { original } }: CellContext): ReactNode => {
