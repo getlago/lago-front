@@ -50,6 +50,8 @@ gql`
   }
 `
 
+export const EVENT_DETAILS_PRECISE_TOTAL_AMOUNT_TEST_ID = 'event-details-precise-total-amount'
+
 const dateFormatOptions = {
   formatTime: TimeFormat.TIME_24_WITH_SECONDS,
   formatDate: DateFormat.DATE_MED,
@@ -204,6 +206,7 @@ export const EventDetails = ({ goBack }: { goBack: () => void }) => {
                 <Typography
                   className="overflow-wrap-anywhere flex min-w-0 max-w-full"
                   color="grey700"
+                  data-test={EVENT_DETAILS_PRECISE_TOTAL_AMOUNT_TEST_ID}
                 >
                   {preciseTotalAmountCents}
                 </Typography>

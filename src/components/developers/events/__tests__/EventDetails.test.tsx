@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react'
 
 import { render } from '~/test-utils'
 
-import { EventDetails } from '../EventDetails'
+import { EVENT_DETAILS_PRECISE_TOTAL_AMOUNT_TEST_ID, EventDetails } from '../EventDetails'
 import {
   EVENT_CODE_PARAM,
   EVENT_EXTERNAL_SUBSCRIPTION_ID_PARAM,
@@ -26,7 +26,7 @@ jest.mock('~/generated/graphql', () => ({
   useGetSingleEventQuery: (options: unknown) => mockUseGetSingleEventQuery(options),
 }))
 
-const PRECISE_TOTAL_AMOUNT_LABEL = 'text_179424015916583db51tvegd'
+const CODE_SNIPPET_TEST_ID = 'code-snippet'
 
 const payload = {
   event: {
@@ -146,8 +146,9 @@ describe('EventDetails', () => {
 
         render(<EventDetails goBack={jest.fn()} />, { useParams: { '*': 'transaction-1' } })
 
-        expect(screen.getByText(PRECISE_TOTAL_AMOUNT_LABEL)).toBeInTheDocument()
-        expect(screen.getByText('1234.567')).toBeInTheDocument()
+        expect(screen.getByTestId(EVENT_DETAILS_PRECISE_TOTAL_AMOUNT_TEST_ID)).toHaveTextContent(
+          '1234.567',
+        )
       })
     })
   })
@@ -162,7 +163,9 @@ describe('EventDetails', () => {
 
         render(<EventDetails goBack={jest.fn()} />, { useParams: { '*': 'transaction-1' } })
 
-        expect(screen.queryByText(PRECISE_TOTAL_AMOUNT_LABEL)).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(EVENT_DETAILS_PRECISE_TOTAL_AMOUNT_TEST_ID),
+        ).not.toBeInTheDocument()
       })
 
       it('THEN should render the payload block unchanged', () => {
@@ -173,7 +176,7 @@ describe('EventDetails', () => {
 
         render(<EventDetails goBack={jest.fn()} />, { useParams: { '*': 'transaction-1' } })
 
-        expect(screen.getByTestId('code-snippet')).toHaveTextContent(
+        expect(screen.getByTestId(CODE_SNIPPET_TEST_ID)).toHaveTextContent(
           JSON.stringify(payload, null, 2),
           { normalizeWhitespace: false },
         )
