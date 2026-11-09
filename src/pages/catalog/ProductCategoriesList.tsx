@@ -77,9 +77,9 @@ const ProductCategoriesList = () => {
   )
   const { debouncedSearch, isLoading } = useDebouncedSearch(getProductCategories, loading)
 
-  const canCreateProductCategories = hasPermissions(['productCategoriesCreate'])
-  const canUpdateProductCategories = hasPermissions(['productCategoriesUpdate'])
-  const canDeleteProductCategories = hasPermissions(['productCategoriesDelete'])
+  const canCreateProductCategories = hasPermissions(['productsCreate'])
+  const canUpdateProductCategories = hasPermissions(['productsUpdate'])
+  const canDeleteProductCategories = hasPermissions(['productsDelete'])
 
   const composeTooltipLabel = useCallback((): string => {
     const editLabel = translate('text_629728388c4d2300e2d3816a')

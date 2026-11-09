@@ -1,8 +1,9 @@
 import { FetchResult, gql, useApolloClient } from '@apollo/client'
 import { useEffect, useState } from 'react'
 
-import { getGraphQLErrorCode, hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
+import { getGraphQLErrorCode, hasDefinedGQLError, logOut, onLogIn } from '~/core/apolloClient'
 import { authTokenVar } from '~/core/apolloClient/reactiveVars'
+import { HOME_ROUTE, useLocation, useNavigate } from '~/core/router'
 import { getItemFromLS, removeItemFromLS } from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
 import { getRecaptchaToken } from '~/core/utils/recaptcha'
@@ -10,10 +11,10 @@ import {
   ConfirmSignupEmailMutation,
   LagoApiError,
   useConfirmSignupEmailMutation,
-  useResendSignupEmailFromLinkMutation,
   useSignupVerificationQuery,
 } from '~/generated/graphql'
-import { getRetryAfterSeconds } from '~/pages/auth/common/getRetryAfterSeconds'
+import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
+import { useSendSignupLink } from '~/pages/auth/common/useSendSignupLink'
 
 import { BANNER_ERRORS, ERROR_STATES, GENERIC_ERROR, STATUS_STATES } from './constants'
 import { LinkState, ResendNotice } from './types'
@@ -32,13 +33,9 @@ gql`
       token
     }
   }
-
-  mutation resendSignupEmailFromLink($input: ResendSignupEmailInput!) {
-    resendSignupEmail(input: $input) {
-      resendAvailableInSeconds
-    }
-  }
 `
+
+const BROWSER_DEFAULT_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 const getStoredSignupSecret = (): string => {
   const signupSecret = getItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
@@ -54,6 +51,8 @@ type UseVerifyEmailReturn = {
   isChecking: boolean
   checkError: string | undefined
   retryCheck: () => void
+  isLoggedIn: boolean
+  logOutToContinue: () => Promise<void>
   isVerifying: boolean
   bannerError: string | undefined
   passwordError: string | undefined
@@ -66,25 +65,51 @@ type UseVerifyEmailReturn = {
 
 export const useVerifyEmail = (): UseVerifyEmailReturn => {
   const client = useApolloClient()
-  const [token] = useState(() => new URLSearchParams(window.location.search).get('token') ?? '')
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { isAuthenticated } = useIsAuthenticated()
+  const { isSending, sendSignupLink } = useSendSignupLink()
+  const [token] = useState(() => new URLSearchParams(location.search).get('token') ?? '')
   const [signupSecret] = useState(getStoredSignupSecret)
   const [stateOverride, setStateOverride] = useState<LinkState>()
   const [passwordRequired, setPasswordRequired] = useState<boolean>()
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
   const [bannerError, setBannerError] = useState<string>()
   const [resendNotice, setResendNotice] = useState<ResendNotice>()
   const [passwordError, setPasswordError] = useState<string>()
 
   useEffect(() => {
-    window.history.replaceState(window.history.state, '', window.location.pathname)
+    const searchParams = new URLSearchParams(location.search)
 
-    const referrerMeta = document.createElement('meta')
+    if (!searchParams.has('token')) return
+
+    searchParams.delete('token')
+
+    const search = searchParams.toString()
+
+    navigate(
+      { search: search ? `?${search}` : '', hash: location.hash },
+      { replace: true, state: location.state },
+    )
+  }, [location, navigate])
+
+  useEffect(() => {
+    const existingMeta = document.head.querySelector<HTMLMetaElement>('meta[name="referrer"]')
+    const referrerMeta = existingMeta ?? document.createElement('meta')
+    const previousPolicy = existingMeta?.content || BROWSER_DEFAULT_REFERRER_POLICY
 
     referrerMeta.name = 'referrer'
     referrerMeta.content = 'no-referrer'
-    document.head.appendChild(referrerMeta)
 
-    return (): void => referrerMeta.remove()
+    if (!existingMeta) document.head.appendChild(referrerMeta)
+
+    return (): void => {
+      // Removing the meta keeps its policy: only a new content applies another one
+      referrerMeta.content = previousPolicy
+
+      if (!existingMeta) referrerMeta.remove()
+    }
   }, [])
 
   const { data, loading, error, refetch } = useSignupVerificationQuery({
@@ -96,9 +121,6 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
   })
 
   const [confirmSignupEmail] = useConfirmSignupEmailMutation({ context: { silentError: true } })
-  const [resendSignupEmail, { loading: isResending }] = useResendSignupEmailFromLinkMutation({
-    context: { silentError: true },
-  })
 
   const verification = data?.signupVerification
   const isPasswordRequired = passwordRequired ?? !!verification?.passwordRequired
@@ -106,9 +128,12 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
   const getLinkState = (): LinkState | undefined => {
     if (stateOverride) return stateOverride
     if (!token) return 'invalid'
-    if (!verification) return undefined
+    if (loading || error) return undefined
 
-    return STATUS_STATES[verification.status]
+    const statusState: LinkState | undefined = verification && STATUS_STATES[verification.status]
+
+    // A missing answer, or a status added to the API before this build, would spin forever
+    return statusState ?? 'invalid'
   }
 
   const linkState = getLinkState()
@@ -117,6 +142,18 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
     if (!error) return undefined
 
     return BANNER_ERRORS[getGraphQLErrorCode(error.graphQLErrors[0]?.extensions)] || GENERIC_ERROR
+  }
+
+  const logOutToContinue = async (): Promise<void> => {
+    setIsLoggingOut(true)
+
+    try {
+      await logOut(client, true)
+      // Logging out clears the Apollo store without refetching the active queries
+      await refetch().catch(() => undefined)
+    } finally {
+      setIsLoggingOut(false)
+    }
   }
 
   const confirm = async (password: string): Promise<void> => {
@@ -150,9 +187,10 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
         removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
         await onLogIn(client, sessionToken)
 
-        if (!authTokenVar()) setStateOverride('alreadyVerified')
+        // This route stays open once logged in, so it leaves on its own
+        if (authTokenVar()) return navigate(HOME_ROUTE, { replace: true })
 
-        return
+        return setStateOverride('alreadyVerified')
       }
 
       const code = getGraphQLErrorCode(result.errors?.[0]?.extensions)
@@ -183,48 +221,39 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
 
   const sendNewLink = async (): Promise<void> => {
     const isSentWithSecret = linkState === 'invalid'
+    const outcome = await sendSignupLink(isSentWithSecret ? { signupSecret } : { token })
+
+    if (!outcome) return
 
     setBannerError(undefined)
     setResendNotice(undefined)
 
-    try {
-      const result = await resendSignupEmail({
-        variables: {
-          input: {
-            ...(isSentWithSecret ? { signupSecret } : { token }),
-            captchaToken: await getRecaptchaToken('signup_resend'),
-          },
-        },
-      })
+    switch (outcome.type) {
+      case 'sent':
+        return setResendNotice({
+          type: 'sent',
+          canSendMore: !outcome.resendLimitReached && outcome.resendAvailableInSeconds !== null,
+        })
+      case 'tooSoon':
+        return setResendNotice({ type: 'tooSoon', seconds: outcome.retryAfterSeconds })
+      case 'limitReached':
+        return setResendNotice({ type: 'limitReached' })
+      case 'resendExhausted':
+        return setStateOverride('signupExpired')
+      case 'signupExpired':
+        if (isSentWithSecret) removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
 
-      if (result.data?.resendSignupEmail) return setResendNotice({ type: 'sent' })
+        return setStateOverride('signupExpired')
+      case 'alreadyVerified':
+        return setStateOverride('alreadyVerified')
+      case 'notFound':
+        if (!isSentWithSecret) return setStateOverride('invalid')
 
-      const code = getGraphQLErrorCode(result.errors?.[0]?.extensions)
+        removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
 
-      switch (code) {
-        case LagoApiError.ResendTooSoon:
-          return setResendNotice({ type: 'tooSoon', seconds: getRetryAfterSeconds(result.errors) })
-        case LagoApiError.ResendLimitReached:
-          return setResendNotice({ type: 'limitReached' })
-        case LagoApiError.SignupResendExhausted:
-          return setStateOverride('signupExpired')
-        case LagoApiError.SignupExpired:
-          if (isSentWithSecret) removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
-
-          return setStateOverride('signupExpired')
-        case LagoApiError.EmailAlreadyVerified:
-          return setStateOverride('alreadyVerified')
-        case LagoApiError.NotFound:
-          if (!isSentWithSecret) return setStateOverride('invalid')
-
-          removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
-
-          return setStateOverride('signupExpired')
-        default:
-          return setBannerError(BANNER_ERRORS[code] || GENERIC_ERROR)
-      }
-    } catch {
-      setBannerError(GENERIC_ERROR)
+        return setStateOverride('signupExpired')
+      case 'failed':
+        return setBannerError(outcome.bannerError)
     }
   }
 
@@ -233,17 +262,19 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
     email: verification?.email ?? undefined,
     hasSignupSecret: !!signupSecret,
     isPasswordRequired,
-    isChecking: loading,
+    isChecking: loading || isLoggingOut,
     checkError: getCheckError(),
     retryCheck: () => {
       refetch().catch(() => undefined)
     },
+    isLoggedIn: isAuthenticated,
+    logOutToContinue,
     isVerifying,
     bannerError,
     passwordError,
     clearPasswordError: () => setPasswordError(undefined),
     resendNotice,
-    isResending,
+    isResending: isSending,
     confirm,
     sendNewLink,
   }

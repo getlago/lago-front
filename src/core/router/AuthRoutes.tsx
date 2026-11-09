@@ -49,10 +49,10 @@ export const authRoutes: CustomRouteObject[] = [
     : []),
   ...(!disableSignUp && selfServeEnabled
     ? [
+        // Public, not public-only: a browser already logged in must still reach the link
         {
           path: VERIFY_EMAIL_ROUTE,
           element: <VerifyEmail />,
-          onlyPublic: true,
         },
       ]
     : []),

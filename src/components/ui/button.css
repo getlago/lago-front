@@ -5,9 +5,6 @@
   text-decoration: none;
   cursor: pointer;
 }
-.v2-button-content {
-  text-box: trim-both cap alphabetic;
-}
 .v2-button[data-variant='default']:not([aria-disabled='true']):hover {
   --v2-button-background: var(--color-action-primary-hover);
 }

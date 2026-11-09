@@ -1,22 +1,8 @@
-import { gql } from '@apollo/client'
 import { useCallback, useEffect, useState } from 'react'
 
-import { getGraphQLErrorCode } from '~/core/apolloClient'
-import { getRecaptchaToken } from '~/core/utils/recaptcha'
-import { LagoApiError, useResendSignupEmailMutation } from '~/generated/graphql'
-import { getRetryAfterSeconds } from '~/pages/auth/common/getRetryAfterSeconds'
+import { useSendSignupLink } from '~/pages/auth/common/useSendSignupLink'
 
-import { RESEND_BANNER_ERRORS, RESEND_GENERIC_ERROR } from './constants'
 import { ApplyResendState } from './types'
-
-gql`
-  mutation resendSignupEmail($input: ResendSignupEmailInput!) {
-    resendSignupEmail(input: $input) {
-      resendAvailableInSeconds
-      resendLimitReached
-    }
-  }
-`
 
 type UseResendSignupEmailProps = {
   signupSecret: string
@@ -42,14 +28,11 @@ export const useResendSignupEmail = ({
   onAlreadyVerified,
 }: UseResendSignupEmailProps): UseResendSignupEmailReturn => {
   const [resendAvailableAt, setResendAvailableAt] = useState<number | null>()
-  const [resendLimitReached, setResendLimitReached] = useState(false)
+  const [isLimitReached, setIsLimitReached] = useState(false)
   const [hasResent, setHasResent] = useState(false)
   const [bannerError, setBannerError] = useState<string>()
   const [now, setNow] = useState(() => Date.now())
-
-  const [resendSignupEmail, { loading: isResending }] = useResendSignupEmailMutation({
-    context: { silentError: true },
-  })
+  const { isSending, sendSignupLink } = useSendSignupLink()
 
   // Stable, so the status polling that seeds it does not restart on every render
   const applyResendState = useCallback<ApplyResendState>((seconds, limitReached) => {
@@ -57,7 +40,7 @@ export const useResendSignupEmail = ({
 
     setNow(currentTime)
     setResendAvailableAt(typeof seconds === 'number' ? currentTime + seconds * 1000 : null)
-    setResendLimitReached(limitReached)
+    setIsLimitReached(limitReached)
   }, [])
 
   const secondsUntilResend =
@@ -65,6 +48,9 @@ export const useResendSignupEmail = ({
       ? Math.max(0, Math.ceil((resendAvailableAt - now) / 1000))
       : 0
   const isCountingDown = secondsUntilResend > 0
+  // resend_limit_reached is an hourly window that ends with its countdown. Without a countdown
+  // (null), the sign-up cannot send more links at all.
+  const resendLimitReached = isLimitReached && (resendAvailableAt === null || isCountingDown)
 
   useEffect(() => {
     if (!isCountingDown) return
@@ -75,46 +61,29 @@ export const useResendSignupEmail = ({
   }, [isCountingDown])
 
   const onResend = async (): Promise<void> => {
+    const outcome = await sendSignupLink({ signupSecret })
+
+    if (!outcome) return
+
     setBannerError(undefined)
-    setHasResent(false)
+    setHasResent(outcome.type === 'sent')
 
-    try {
-      // No retry on lock_acquisition_failed: the API spends the single-use token before the lock
-      const result = await resendSignupEmail({
-        variables: {
-          input: { signupSecret, captchaToken: await getRecaptchaToken('signup_resend') },
-        },
-      })
-
-      const answer = result.data?.resendSignupEmail
-
-      if (answer) {
-        applyResendState(answer.resendAvailableInSeconds, answer.resendLimitReached)
-        setHasResent(true)
-
-        return
-      }
-
-      const code = getGraphQLErrorCode(result.errors?.[0]?.extensions)
-
-      switch (code) {
-        case LagoApiError.ResendTooSoon:
-          return applyResendState(getRetryAfterSeconds(result.errors), resendLimitReached)
-        case LagoApiError.ResendLimitReached:
-          return applyResendState(getRetryAfterSeconds(result.errors), true)
-        case LagoApiError.SignupResendExhausted:
-        case LagoApiError.SignupExpired:
-          return applyResendState(null, resendLimitReached)
-        case LagoApiError.EmailAlreadyVerified:
-          return onAlreadyVerified()
-        case LagoApiError.NotFound:
-        case LagoApiError.UnprocessableEntity:
-          return onStartAgain()
-        default:
-          return setBannerError(RESEND_BANNER_ERRORS[code] || RESEND_GENERIC_ERROR)
-      }
-    } catch {
-      setBannerError(RESEND_GENERIC_ERROR)
+    switch (outcome.type) {
+      case 'sent':
+        return applyResendState(outcome.resendAvailableInSeconds, outcome.resendLimitReached)
+      case 'tooSoon':
+        return applyResendState(outcome.retryAfterSeconds, false)
+      case 'limitReached':
+        return applyResendState(outcome.retryAfterSeconds, true)
+      case 'resendExhausted':
+      case 'signupExpired':
+        return applyResendState(null, resendLimitReached)
+      case 'alreadyVerified':
+        return onAlreadyVerified()
+      case 'notFound':
+        return onStartAgain()
+      case 'failed':
+        return setBannerError(outcome.bannerError)
     }
   }
 
@@ -125,7 +94,7 @@ export const useResendSignupEmail = ({
     resendLimitReached,
     hasResent,
     bannerError,
-    isResending,
+    isResending: isSending,
     applyResendState,
     onResend,
   }

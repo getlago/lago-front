@@ -3,6 +3,7 @@ import { generatePath } from 'react-router'
 
 import { Badge, BadgeProps } from '~/components/ui/badge'
 import { ColorTheme } from '~/components/ui/color-theme'
+import { NumericBadge } from '~/components/ui/numeric-badge'
 import { ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 
 const variants: NonNullable<BadgeProps['variant']>[] = [
@@ -68,6 +69,22 @@ export const BadgeTest = () => (
             </tbody>
           </table>
         </div>
+        <section aria-label={`${mode} numeric badges`} className="space-y-4">
+          <h3 className="v2-text-section-title">Numeric badge</h3>
+          {(['default', 'selected', 'disabled'] as const).map((state) => (
+            <div key={state} className="flex items-center gap-4">
+              <span className="v2-text-caption w-20 text-text-muted">{state}</span>
+              {[0, 1, 12, 999].map((value) => (
+                <NumericBadge
+                  key={value}
+                  value={value}
+                  selected={state === 'selected'}
+                  disabled={state === 'disabled'}
+                />
+              ))}
+            </div>
+          ))}
+        </section>
         <p className="v2-text-caption">
           Disabled and Outline are visual tones, not interactive controls. Their subdued text needs
           contrast review before use for essential information.
