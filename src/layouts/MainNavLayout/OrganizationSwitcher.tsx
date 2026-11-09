@@ -5,6 +5,7 @@ import { useParams } from 'react-router'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -17,6 +18,7 @@ import {
   AuthenticationMethodsEnum,
   CurrentUserInfosFragment,
   MainOrganizationInfosFragment,
+  OrganizationEnvironmentEnum,
   SideNavInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -29,6 +31,7 @@ const POPPER_MIN_WIDTH = 282
 export const ORGANIZATION_SWITCHER_TEST_ID = 'organization-switcher'
 export const ORGANIZATION_SWITCHER_BUTTON_TEST_ID = 'side-nav-user-infos'
 export const ORGANIZATION_SWITCHER_NAME_TEST_ID = 'side-nav-name'
+export const ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID = 'side-nav-sandbox-tag'
 export const ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID = 'organization-switcher-org-item'
 const ORGANIZATION_SWITCHER_LOGOUT_TEST_ID = 'side-nav-logout'
 const ORGANIZATION_SWITCHER_VERSION_LINK_TEST_ID = 'organization-switcher-version-link'
@@ -189,6 +192,14 @@ export const OrganizationSwitcher = ({
                 >
                   {currentOrgFromSlug?.name}
                 </Typography>
+                {organization?.environment === OrganizationEnvironmentEnum.Sandbox && (
+                  <Chip
+                    className="ml-2 shrink-0"
+                    size="small"
+                    data-test={ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID}
+                    label={translate('text_1794221187063c6xcfwvtt6l')}
+                  />
+                )}
               </>
             )}
           </Button>

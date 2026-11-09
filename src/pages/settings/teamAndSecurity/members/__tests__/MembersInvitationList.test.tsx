@@ -1,5 +1,9 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 
+import {
+  GENERIC_PLACEHOLDER_BUTTON_TEST_ID,
+  GENERIC_PLACEHOLDER_TEST_ID,
+} from '~/components/designSystem/GenericPlaceholder'
 import { GetInvitesDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
@@ -10,7 +14,16 @@ import {
   rolesListMock,
 } from './membershipMocks'
 
-import MembersInvitationList from '../MembersInvitationList'
+import MembersInvitationList, {
+  MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID,
+  MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID,
+} from '../MembersInvitationList'
+
+const mockUseSandbox = jest.fn()
+
+jest.mock('~/hooks/useSandbox', () => ({
+  useSandbox: () => mockUseSandbox(),
+}))
 
 // Mock IntersectionObserver for jsdom
 const mockIntersectionObserver = jest.fn()
@@ -96,6 +109,10 @@ async function prepare({
 }
 
 describe('MembersInvitationList', () => {
+  beforeEach(() => {
+    mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+  })
+
   afterEach(() => {
     cleanup()
     jest.clearAllMocks()
@@ -496,6 +513,89 @@ describe('MembersInvitationList', () => {
 
         expect(await screen.findByText('text_63208c701ce25db78140745e')).toBeInTheDocument()
         expect(screen.queryByTestId('copy-invite-link')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the sandbox environment', () => {
+    const emptyMock = {
+      request: {
+        query: GetInvitesDocument,
+        variables: DEFAULT_VARIABLES,
+      },
+      result: buildInvitesResult({ collection: [] }),
+    }
+
+    const openFirstInvitationActions = async (): Promise<void> => {
+      await waitFor(
+        () => {
+          expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+        },
+        { timeout: SEARCH_TIMEOUT },
+      )
+
+      fireEvent.click(screen.getAllByTestId('open-action-button')[0])
+
+      await screen.findByTestId('copy-invite-link')
+    }
+
+    describe('WHEN the organization is not a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+      })
+
+      it.each([
+        ['edit', MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID],
+        ['delete', MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID],
+      ])('THEN should display the %s action', async (_, testId) => {
+        await prepare()
+        await openFirstInvitationActions()
+
+        expect(screen.getByTestId(testId)).toBeInTheDocument()
+      })
+
+      it('THEN should display the invite button in the empty state', async () => {
+        await prepare({ mocks: [emptyMock, rolesListMock] })
+
+        expect(
+          await screen.findByTestId(
+            GENERIC_PLACEHOLDER_BUTTON_TEST_ID,
+            {},
+            { timeout: SEARCH_TIMEOUT },
+          ),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization is a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: '/acme/' })
+      })
+
+      it.each([
+        ['edit', MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID],
+        ['delete', MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID],
+      ])('THEN should hide the %s action', async (_, testId) => {
+        await prepare()
+        await openFirstInvitationActions()
+
+        expect(screen.queryByTestId(testId)).not.toBeInTheDocument()
+      })
+
+      it('THEN should keep the copy invite link action', async () => {
+        await prepare()
+        await openFirstInvitationActions()
+
+        expect(screen.getByTestId('copy-invite-link')).toBeInTheDocument()
+      })
+
+      it('THEN should not display the invite button in the empty state', async () => {
+        await prepare({ mocks: [emptyMock, rolesListMock] })
+
+        expect(
+          await screen.findByTestId(GENERIC_PLACEHOLDER_TEST_ID, {}, { timeout: SEARCH_TIMEOUT }),
+        ).toBeInTheDocument()
+        expect(screen.queryByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
