@@ -53,6 +53,12 @@ jest.mock('~/components/form/ComboBox/ComboBox', () => {
 
 const mockOpenRateCardDrawer = jest.fn()
 
+const mockHasPermissions = jest.fn()
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
 const mockOpenRatePhaseLocalDrawer = jest.fn()
 
 jest.mock('~/components/appliedRateCards/drawers/ratePhase/useRatePhaseLocalDrawer', () => ({
@@ -249,6 +255,7 @@ const renderContent = (
 describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasPermissions.mockImplementation(() => true)
   })
 
   it('GIVEN no product selected THEN only the product combobox renders', () => {
@@ -518,6 +525,7 @@ describe('AppliedRateCardDrawerContent, product/filter/rate-card cascade', () =>
 describe('AppliedRateCardDrawerContent, rate phases section', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasPermissions.mockImplementation(() => true)
   })
 
   it('GIVEN a product but no rate card selected THEN the rate phases section does not render', async () => {
@@ -959,6 +967,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
 describe('AppliedRateCardDrawerContent, contract lifecycle dates', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasPermissions.mockImplementation(() => true)
   })
 
   it('GIVEN a product is picked THEN neither a billing anchor date nor an effective date field renders', async () => {
@@ -975,6 +984,7 @@ describe('AppliedRateCardDrawerContent, contract lifecycle dates', () => {
 describe('AppliedRateCardDrawerContent, already priced rate cards', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasPermissions.mockImplementation(() => true)
   })
 
   const openRateCards = async (): Promise<void> => {
@@ -1021,6 +1031,19 @@ describe('AppliedRateCardDrawerContent, already priced rate cards', () => {
     expect(
       await screen.findByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID, undefined, { timeout: 3000 }),
     ).toBeInTheDocument()
+  })
+
+  it('GIVEN the user lacks rateCardsCreate THEN "Create rate card" stays hidden', async () => {
+    mockHasPermissions.mockImplementation(
+      (permissions: string[]) => !permissions.includes('rateCardsCreate'),
+    )
+
+    renderContent([productsMock(), rateCardsMock(() => {}, [])])
+
+    await openRateCards()
+
+    await waitFor(() => expect(mockHasPermissions).toHaveBeenCalledWith(['rateCardsCreate']))
+    expect(screen.queryByTestId(COMBOBOX_ADD_VALUE_ITEM_TEST_ID)).not.toBeInTheDocument()
   })
 
   it('GIVEN a rate card search THEN the plan exclusion is kept', async () => {

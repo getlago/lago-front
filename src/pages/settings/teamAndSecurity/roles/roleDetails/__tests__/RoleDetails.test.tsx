@@ -53,6 +53,10 @@ const mockMemberships = Array.from({ length: MEMBERS_COUNT_TEST_VALUE }, (_, i) 
   id: `member-${i}`,
 }))
 
+jest.mock('../../hooks/useRolePermissionsGroups', () => ({
+  useRolePermissionsGroups: () => ({ groups: [], displayedPermissions: [], isLoading: false }),
+}))
+
 jest.mock('../../hooks/useRoleDetails', () => ({
   useRoleDetails: () => ({
     role: {

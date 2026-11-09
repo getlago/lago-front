@@ -45,6 +45,16 @@ jest.mock('../../hooks/useRoleDetails', () => ({
   }),
 }))
 
+let mockIsLoadingPermissionGroups = false
+
+jest.mock('../../hooks/useRolePermissionsGroups', () => ({
+  useRolePermissionsGroups: () => ({
+    groups: [],
+    displayedPermissions: ['PlansView', 'PlansCreate'],
+    isLoading: mockIsLoadingPermissionGroups,
+  }),
+}))
+
 jest.mock(
   '~/pages/settings/teamAndSecurity/roles/common/rolePermissionsForm/RolePermissionsForm',
   () => ({
@@ -62,6 +72,7 @@ describe('RoleCreateEdit', () => {
     mockRoleId = undefined
     mockRole = undefined
     mockIsLoadingRole = false
+    mockIsLoadingPermissionGroups = false
   })
 
   afterEach(() => {
@@ -183,6 +194,15 @@ describe('RoleCreateEdit', () => {
 
       // Form should be visible
       expect(screen.getByText('text_629728388c4d2300e2d38091')).toBeInTheDocument()
+    })
+
+    it('keeps the form hidden while the organization feature flags are loading', async () => {
+      mockIsLoadingPermissionGroups = true
+
+      await act(() => render(<RoleCreateEdit />))
+
+      expect(screen.queryByText('text_629728388c4d2300e2d38091')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('role-permissions-form')).not.toBeInTheDocument()
     })
   })
 

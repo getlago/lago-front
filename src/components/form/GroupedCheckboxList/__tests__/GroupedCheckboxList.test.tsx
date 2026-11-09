@@ -4,6 +4,7 @@ import React from 'react'
 
 import GroupedCheckboxList from '../GroupedCheckboxList'
 import { CheckboxGroup, FieldGroupApi } from '../types'
+import { useColumns } from '../useColumns'
 
 // Mock dependencies
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -18,6 +19,23 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
   unobserve: jest.fn(),
   disconnect: jest.fn(),
 }))
+
+const mockUseColumnsArgs = jest.fn()
+
+jest.mock('../useColumns', () => {
+  const actual = jest.requireActual('../useColumns')
+
+  return {
+    useColumns: (args: Parameters<typeof useColumns>[0]) => {
+      mockUseColumnsArgs(args)
+
+      return actual.useColumns(args)
+    },
+  }
+})
+
+const getLastUseColumnsArgs = (): Parameters<typeof useColumns>[0] =>
+  mockUseColumnsArgs.mock.calls[mockUseColumnsArgs.mock.calls.length - 1][0]
 
 // Mock useStore from TanStack
 let mockStoreValues: Record<string, boolean> = {}
@@ -332,6 +350,55 @@ describe('GroupedCheckboxList', () => {
         })
 
         expect(screen.getByText('Test Title')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN form values include items that no group displays', () => {
+    const valuesWithUndisplayedItems = {
+      'customer.create': true,
+      'customer.update': true,
+      'customer.delete': true,
+      'invoice.create': true,
+      'invoice.view': true,
+      'coupon.view': false,
+    }
+
+    describe('WHEN every displayed item is checked', () => {
+      it('THEN the overall checkbox is checked, ignoring the undisplayed item', async () => {
+        mockStoreValues = { ...valuesWithUndisplayedItems }
+
+        await act(async () => {
+          render(<GroupedCheckboxList {...defaultProps} />)
+        })
+
+        expect(getLastUseColumnsArgs().overallCheckboxValue).toBe(true)
+      })
+    })
+
+    describe('WHEN the overall checkbox is unchecked', () => {
+      it('THEN only the displayed items are updated', async () => {
+        const group = createMockGroup()
+
+        mockStoreValues = { ...valuesWithUndisplayedItems, 'coupon.view': true }
+
+        await act(async () => {
+          render(<GroupedCheckboxList {...defaultProps} group={group} />)
+        })
+
+        act(() => {
+          getLastUseColumnsArgs().onOverallCheckboxChange(null, false)
+        })
+
+        const updatedItemIds = (group.setFieldValue as jest.Mock).mock.calls.map(([id]) => id)
+
+        expect(updatedItemIds).toEqual([
+          'customer.create',
+          'customer.update',
+          'customer.delete',
+          'invoice.create',
+          'invoice.view',
+        ])
       })
     })
   })
