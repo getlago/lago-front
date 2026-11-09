@@ -145,6 +145,18 @@ describe('useFormDrawer', () => {
       })
     })
 
+    describe('WHEN the new props are the ones already shown', () => {
+      it('THEN should not show the drawer again', () => {
+        const { result } = renderHook(() => useFormDrawer())
+
+        result.current.open(props)
+        result.current.update({ children: 'new content' })
+        result.current.update({ children: 'new content', title: props.title })
+
+        expect(mockShow).toHaveBeenCalledTimes(2)
+      })
+    })
+
     describe('WHEN the drawer was closed through close', () => {
       it('THEN should leave it closed', () => {
         const { result } = renderHook(() => useFormDrawer())

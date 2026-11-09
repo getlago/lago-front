@@ -30,9 +30,15 @@ const useRegisteredDrawer = <Props extends Record<string, unknown>>(
 
   const update = useCallback(
     (props: Partial<Props>): void => {
-      if (!openProps.current) return
+      const current = openProps.current
 
-      openProps.current = { ...openProps.current, ...props }
+      if (!current) return
+
+      const keys = Object.keys(props) as Array<keyof Props>
+
+      if (keys.every((key) => current[key] === props[key])) return
+
+      openProps.current = { ...current, ...props }
       void show(openProps.current)
     },
     [show],
