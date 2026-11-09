@@ -888,6 +888,21 @@ describe('Authentication', () => {
           expect(document.querySelector('[class*="MuiDialog"]')).toBeInTheDocument()
         })
       })
+
+      it('THEN should open the premium warning dialog when clicking an SSO provider without the premium integration', async () => {
+        const user = userEvent.setup()
+
+        mockOrganizationData = {
+          premiumIntegrations: [],
+          authenticationMethods: [AuthenticationMethodsEnum.EmailPassword],
+        }
+
+        await prepare({ mocks: emptyIntegrationsMock })
+
+        await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.Okta)))
+
+        expect(await screen.findByText('This is a premium feature')).toBeInTheDocument()
+      })
     })
 
     describe('WHEN the organization is a sandbox', () => {
@@ -933,6 +948,23 @@ describe('Authentication', () => {
 
         await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.Okta)))
 
+        expect(document.querySelector('[class*="MuiDialog"]')).not.toBeInTheDocument()
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+
+      it('THEN should open neither the premium warning nor the add dialog when clicking an SSO provider without the premium integration', async () => {
+        const user = userEvent.setup()
+
+        mockOrganizationData = {
+          premiumIntegrations: [],
+          authenticationMethods: [AuthenticationMethodsEnum.EmailPassword],
+        }
+
+        await prepare({ mocks: emptyIntegrationsMock })
+
+        await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.Okta)))
+
+        expect(screen.queryByText('This is a premium feature')).not.toBeInTheDocument()
         expect(document.querySelector('[class*="MuiDialog"]')).not.toBeInTheDocument()
         expect(testMockNavigateFn).not.toHaveBeenCalled()
       })
