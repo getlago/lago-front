@@ -9,6 +9,8 @@ const config: StorybookConfig = {
   staticDirs: [
     { from: brandDir, to: '/brand' },
     { from: `${brandDir}lago-mark.svg`, to: '/favicon.svg' },
+    // `storybook build` links the favicon by its source name (`./lago-mark.svg`), not by `/favicon.svg`.
+    { from: `${brandDir}lago-mark.svg`, to: '/lago-mark.svg' },
   ],
   core: { disableWhatsNewNotifications: true },
   features: {

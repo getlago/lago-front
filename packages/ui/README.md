@@ -54,6 +54,8 @@ Fonts are owned by `lago-configs` (`lago-configs/fonts.css`), not by this packag
 
 ## Storybook
 
+Published at **https://getlago.github.io/lago-front/ui/** on every merge into `main` that touches the design system (`.github/workflows/storybook.yml`). Keep this URL stable: it is shared in docs, Figma and agent instructions. To run it locally:
+
 ```bash
 pnpm --filter lago-ui storybook
 ```
@@ -67,6 +69,8 @@ Every component and foundation has a story; the **Docs** page of each one render
 3. Story in `src/components/<name>.stories.tsx`, with the guide as its Docs description.
 4. Tests in `src/components/__tests__/`.
 5. A row in the table above.
+
+A story's deep link is built from its `title` (`ui/?path=/docs/components-button--docs`). Renaming a `title` breaks every shared link to it: avoid it, or keep the old id with `id` in the story meta.
 
 `pnpm --filter lago-ui test:docs` fails when a component misses its guide or story, when a guide misses a section, or when it links to the removed dev-only pages.
 
