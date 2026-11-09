@@ -127,7 +127,7 @@
     "@llm-ui/react": "0.13.3",
     "@mui/material": "5.18.0",
     "@mui/x-date-pickers": "6.20.2",
-    "@nangohq/frontend": "0.71.13",
+    "@nangohq/frontend": "0.71.14",
     "@radix-ui/react-dropdown-menu": "2.2.1",
     "@radix-ui/react-separator": "1.2.0",
     "@radix-ui/react-slot": "1.5.0",
