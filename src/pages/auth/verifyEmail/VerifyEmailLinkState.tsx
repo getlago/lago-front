@@ -4,6 +4,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { LOGIN_ROUTE, useNavigate } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { RecaptchaNotice } from '~/pages/auth/common/RecaptchaNotice'
+import { ResendCountdown } from '~/pages/auth/common/ResendCountdown'
 import {
   SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID,
   SELF_SERVE_SIGNUP_RESEND_LIMIT_ALERT_TEST_ID,
@@ -21,6 +22,8 @@ type VerifyEmailLinkStateProps = {
   linkState: ClosedLinkState
   hasSignupSecret: boolean
   resendNotice: ResendNotice | undefined
+  resendAvailableAt: number | undefined
+  onResendCountdownEnd: () => void
   bannerError: string | undefined
   isResending: boolean
   onSendNewLink: () => void
@@ -31,6 +34,8 @@ export const VerifyEmailLinkState = ({
   linkState,
   hasSignupSecret,
   resendNotice,
+  resendAvailableAt,
+  onResendCountdownEnd,
   bannerError,
   isResending,
   onSendNewLink,
@@ -41,11 +46,12 @@ export const VerifyEmailLinkState = ({
   const copy = STATE_COPY[linkState]
   const canSendNewLink = resendNotice?.type !== 'sent' || resendNotice.canSendMore
 
+  const isCountingDown = resendAvailableAt !== undefined
+
   const getWarningCopy = (notice: Exclude<ResendNotice, { type: 'sent' }>): string => {
     if (notice.type === 'limitReached') return translate('text_17939064976188g9cn8x2cj4')
-    if (notice.seconds <= 0) return translate('text_1793898059309ltbe60gt6pd')
 
-    return translate('text_17939098854944rljlem8e3i', { seconds: notice.seconds })
+    return translate('text_1793898059309ltbe60gt6pd')
   }
 
   const renderResendNotice = (): JSX.Element | null => {
@@ -79,13 +85,23 @@ export const VerifyEmailLinkState = ({
     return (
       <>
         <Button
+          variant={isCountingDown ? 'secondary' : 'primary'}
           size="large"
           fullWidth
+          disabled={isCountingDown}
           loading={isResending}
           data-test={SELF_SERVE_VERIFY_EMAIL_SEND_NEW_LINK_BUTTON_TEST_ID}
           onClick={onSendNewLink}
         >
-          {translate('text_17939098854936d3uhapsh4f')}
+          {isCountingDown ? (
+            <ResendCountdown
+              key={resendAvailableAt}
+              endsAt={resendAvailableAt}
+              onEnd={onResendCountdownEnd}
+            />
+          ) : (
+            translate('text_17939098854936d3uhapsh4f')
+          )}
         </Button>
         <RecaptchaNotice />
       </>

@@ -76,6 +76,8 @@ const VerifyEmail = (): JSX.Element => {
         linkState={linkState}
         hasSignupSecret={verifyEmail.hasSignupSecret}
         resendNotice={verifyEmail.resendNotice}
+        resendAvailableAt={verifyEmail.resendAvailableAt}
+        onResendCountdownEnd={verifyEmail.endResendCountdown}
         bannerError={verifyEmail.bannerError}
         isResending={verifyEmail.isResending}
         onSendNewLink={verifyEmail.sendNewLink}

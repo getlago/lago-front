@@ -1,5 +1,5 @@
 import { FetchResult, gql, useApolloClient } from '@apollo/client'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { getGraphQLErrorCode, hasDefinedGQLError, logOut, onLogIn } from '~/core/apolloClient'
 import { authTokenVar } from '~/core/apolloClient/reactiveVars'
@@ -14,9 +14,10 @@ import {
   useSignupVerificationQuery,
 } from '~/generated/graphql'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
+import { getSignupBannerError, SIGNUP_GENERIC_ERROR } from '~/pages/auth/common/signupErrors'
 import { useSendSignupLink } from '~/pages/auth/common/useSendSignupLink'
 
-import { BANNER_ERRORS, ERROR_STATES, GENERIC_ERROR, STATUS_STATES } from './constants'
+import { ERROR_STATES, STATUS_STATES } from './constants'
 import { LinkState, ResendNotice } from './types'
 
 gql`
@@ -59,6 +60,8 @@ type UseVerifyEmailReturn = {
   passwordError: string | undefined
   clearPasswordError: () => void
   resendNotice: ResendNotice | undefined
+  resendAvailableAt: number | undefined
+  endResendCountdown: () => void
   isResending: boolean
   confirm: (password: string) => Promise<void>
   sendNewLink: () => Promise<void>
@@ -78,6 +81,7 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
   const [isVerifying, setIsVerifying] = useState(false)
   const [bannerError, setBannerError] = useState<string>()
   const [resendNotice, setResendNotice] = useState<ResendNotice>()
+  const [resendAvailableAt, setResendAvailableAt] = useState<number>()
   const [passwordError, setPasswordError] = useState<string>()
 
   useEffect(() => {
@@ -142,7 +146,7 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
   const getCheckError = (): string | undefined => {
     if (!error) return undefined
 
-    return BANNER_ERRORS[getGraphQLErrorCode(error.graphQLErrors[0]?.extensions)] || GENERIC_ERROR
+    return getSignupBannerError(getGraphQLErrorCode(error.graphQLErrors[0]?.extensions))
   }
 
   const logOutToContinue = async (): Promise<void> => {
@@ -219,13 +223,24 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
 
       if (errorState) return setStateOverride(errorState)
 
-      setBannerError(BANNER_ERRORS[code] || GENERIC_ERROR)
+      setBannerError(getSignupBannerError(code))
     } catch {
-      setBannerError(GENERIC_ERROR)
+      setBannerError(SIGNUP_GENERIC_ERROR)
     } finally {
       setIsVerifying(false)
     }
   }
+
+  const startResendCountdown = (seconds: number | null): void => {
+    setResendAvailableAt(seconds && seconds > 0 ? Date.now() + seconds * 1000 : undefined)
+  }
+
+  // Stable, so the countdown label does not restart its clock on every render
+  const endResendCountdown = useCallback((): void => {
+    setResendAvailableAt(undefined)
+    // resend_limit_reached is an hourly window that ends with its countdown
+    setResendNotice((notice) => (notice?.type === 'limitReached' ? undefined : notice))
+  }, [])
 
   const sendNewLink = async (): Promise<void> => {
     const isSentWithSecret = linkState === 'invalid'
@@ -238,13 +253,22 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
 
     switch (outcome.type) {
       case 'sent':
+        startResendCountdown(outcome.resendAvailableInSeconds)
+
         return setResendNotice({
           type: 'sent',
           canSendMore: !outcome.resendLimitReached && outcome.resendAvailableInSeconds !== null,
         })
       case 'tooSoon':
-        return setResendNotice({ type: 'tooSoon', seconds: outcome.retryAfterSeconds })
+        startResendCountdown(outcome.retryAfterSeconds)
+
+        // Without a delay there is no countdown to show, so the wait is said in words
+        if (outcome.retryAfterSeconds <= 0) setResendNotice({ type: 'tooSoon' })
+
+        return
       case 'limitReached':
+        startResendCountdown(outcome.retryAfterSeconds)
+
         return setResendNotice({ type: 'limitReached' })
       case 'resendExhausted':
         return setStateOverride('signupExpired')
@@ -283,6 +307,8 @@ export const useVerifyEmail = (): UseVerifyEmailReturn => {
     passwordError,
     clearPasswordError: () => setPasswordError(undefined),
     resendNotice,
+    resendAvailableAt,
+    endResendCountdown,
     isResending: isSending,
     confirm,
     sendNewLink,

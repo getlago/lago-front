@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { formatCountdown } from './utils'
+import { formatCountdown } from './formatCountdown'
 
 type ResendCountdownProps = {
   endsAt: number

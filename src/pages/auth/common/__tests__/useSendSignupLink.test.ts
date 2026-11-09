@@ -3,7 +3,8 @@ import { act, renderHook } from '@testing-library/react'
 import { getRecaptchaToken } from '~/core/utils/recaptcha'
 import { LagoApiError } from '~/generated/graphql'
 
-import { SEND_SIGNUP_LINK_GENERIC_ERROR, useSendSignupLink } from '../useSendSignupLink'
+import { SIGNUP_GENERIC_ERROR } from '../signupErrors'
+import { useSendSignupLink } from '../useSendSignupLink'
 
 const mockResendSignupEmail = jest.fn()
 const mockUseResendSignupEmailMutation = jest.fn()
@@ -125,12 +126,12 @@ describe('useSendSignupLink', () => {
         [
           LagoApiError.UnprocessableEntity,
           undefined,
-          { type: 'failed', bannerError: SEND_SIGNUP_LINK_GENERIC_ERROR },
+          { type: 'failed', bannerError: SIGNUP_GENERIC_ERROR },
         ],
         [
           LagoApiError.LockAcquisitionFailed,
           undefined,
-          { type: 'failed', bannerError: SEND_SIGNUP_LINK_GENERIC_ERROR },
+          { type: 'failed', bannerError: SIGNUP_GENERIC_ERROR },
         ],
         [
           LagoApiError.TooManyRequests,
@@ -162,7 +163,7 @@ describe('useSendSignupLink', () => {
           outcome = await result.current.sendSignupLink({ signupSecret: SIGNUP_SECRET })
         })
 
-        expect(outcome).toEqual({ type: 'failed', bannerError: SEND_SIGNUP_LINK_GENERIC_ERROR })
+        expect(outcome).toEqual({ type: 'failed', bannerError: SIGNUP_GENERIC_ERROR })
       })
     })
   })

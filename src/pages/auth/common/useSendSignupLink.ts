@@ -7,6 +7,7 @@ import { getRecaptchaToken } from '~/core/utils/recaptcha'
 import { LagoApiError, useResendSignupEmailMutation } from '~/generated/graphql'
 
 import { getRetryAfterSeconds } from './getRetryAfterSeconds'
+import { getSignupBannerError, SIGNUP_GENERIC_ERROR } from './signupErrors'
 
 gql`
   mutation resendSignupEmail($input: ResendSignupEmailInput!) {
@@ -16,16 +17,6 @@ gql`
     }
   }
 `
-
-export const SEND_SIGNUP_LINK_GENERIC_ERROR = 'text_1793898059309m0mmb7g8tw4'
-
-const SEND_SIGNUP_LINK_BANNER_ERRORS: Record<string, string> = {
-  [LagoApiError.SelfServeDisabled]: 'text_1793898059309an560s3nkan',
-  [LagoApiError.SignupDisabled]: 'text_1793898059309an560s3nkan',
-  [LagoApiError.TooManyRequests]: 'text_1793898059309ltbe60gt6pd',
-  [LagoApiError.CaptchaFailed]: 'text_1793903925179h1k5w55ih95',
-  [LagoApiError.LockAcquisitionFailed]: SEND_SIGNUP_LINK_GENERIC_ERROR,
-}
 
 export type SendSignupLinkOutcome =
   | { type: 'sent'; resendAvailableInSeconds: number | null; resendLimitReached: boolean }
@@ -64,10 +55,7 @@ const getFailureOutcome = (
     case LagoApiError.NotFound:
       return { type: 'notFound' }
     default:
-      return {
-        type: 'failed',
-        bannerError: SEND_SIGNUP_LINK_BANNER_ERRORS[code] || SEND_SIGNUP_LINK_GENERIC_ERROR,
-      }
+      return { type: 'failed', bannerError: getSignupBannerError(code) }
   }
 }
 
@@ -101,7 +89,7 @@ export const useSendSignupLink = (): UseSendSignupLinkReturn => {
         resendLimitReached: answer.resendLimitReached,
       }
     } catch {
-      return { type: 'failed', bannerError: SEND_SIGNUP_LINK_GENERIC_ERROR }
+      return { type: 'failed', bannerError: SIGNUP_GENERIC_ERROR }
     } finally {
       isSendingRef.current = false
       setIsSending(false)

@@ -2,16 +2,6 @@ import { LagoApiError, SignupVerificationStatusEnum } from '~/generated/graphql'
 
 import { ClosedLinkState, LinkState } from './types'
 
-export const GENERIC_ERROR = 'text_1793898059309m0mmb7g8tw4'
-
-export const BANNER_ERRORS: Record<string, string> = {
-  [LagoApiError.SelfServeDisabled]: 'text_1793898059309an560s3nkan',
-  [LagoApiError.SignupDisabled]: 'text_1793898059309an560s3nkan',
-  [LagoApiError.TooManyRequests]: 'text_1793898059309ltbe60gt6pd',
-  [LagoApiError.CaptchaFailed]: 'text_1793903925179h1k5w55ih95',
-  [LagoApiError.LockAcquisitionFailed]: GENERIC_ERROR,
-}
-
 export const STATUS_STATES: Record<SignupVerificationStatusEnum, LinkState> = {
   [SignupVerificationStatusEnum.Valid]: 'valid',
   [SignupVerificationStatusEnum.Expired]: 'expired',

@@ -1434,23 +1434,7 @@ describe('VerifyEmail', () => {
 
         expect(getResendAlert()).toHaveTextContent(TOO_MANY_ATTEMPTS_COPY)
         expect(getResendAlert()).not.toHaveTextContent('0 seconds')
-      })
-    })
-
-    describe('WHEN the API answers resend_too_soon', () => {
-      it('THEN should ask to wait the retry delay', async () => {
-        const user = userEvent.setup()
-
-        answerStatus(SignupVerificationStatusEnum.Expired)
-        mockResendSignupEmail.mockResolvedValue(
-          buildError(LagoApiError.ResendTooSoon, { retryAfterSeconds: 30 }),
-        )
-
-        renderVerifyEmail()
-        await clickSendNewLink(user)
-
-        expect(getResendAlert()).toHaveTextContent('Wait 30 seconds to resend a new email.')
-        expect(queryErrorAlert()).not.toBeInTheDocument()
+        expect(getSendNewLinkButton()).toBeEnabled()
       })
     })
 
@@ -1646,7 +1630,9 @@ describe('VerifyEmail', () => {
 
         answerStatus(SignupVerificationStatusEnum.Expired)
         mockResendSignupEmail
-          .mockResolvedValueOnce(RESEND_SUCCESS)
+          .mockResolvedValueOnce({
+            data: { resendSignupEmail: { resendAvailableInSeconds: 0, resendLimitReached: false } },
+          })
           .mockResolvedValueOnce(buildError(LagoApiError.CaptchaFailed))
 
         renderVerifyEmail()
@@ -1655,6 +1641,102 @@ describe('VerifyEmail', () => {
 
         expect(queryResendAlert()).not.toBeInTheDocument()
         expect(getErrorAlert()).toHaveTextContent(CAPTCHA_FAILED_COPY)
+      })
+    })
+  })
+
+  describe('GIVEN the next link has to wait', () => {
+    const advance = async (ms: number): Promise<void> => {
+      await act(async () => {
+        await jest.advanceTimersByTimeAsync(ms)
+      })
+    }
+
+    const clickSendNewLinkWithFakeTimers = async (): Promise<void> => {
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+
+      await user.click(getSendNewLinkButton())
+      await advance(0)
+    }
+
+    beforeEach(() => {
+      jest.useFakeTimers()
+      answerStatus(SignupVerificationStatusEnum.Expired)
+    })
+
+    afterEach(() => {
+      jest.clearAllTimers()
+      jest.useRealTimers()
+    })
+
+    describe('WHEN the API answers resend_too_soon', () => {
+      beforeEach(() => {
+        mockResendSignupEmail.mockResolvedValue(
+          buildError(LagoApiError.ResendTooSoon, { retryAfterSeconds: 30 }),
+        )
+      })
+
+      it('THEN should count the delay down on the disabled button, without a message', async () => {
+        renderVerifyEmail()
+        await clickSendNewLinkWithFakeTimers()
+
+        expect(getSendNewLinkButton()).toBeDisabled()
+        expect(getSendNewLinkButton()).toHaveTextContent('Resend in 0:30')
+        expect(queryResendAlert()).not.toBeInTheDocument()
+
+        await advance(29_000)
+        expect(getSendNewLinkButton()).toHaveTextContent('Resend in 0:01')
+      })
+
+      it('THEN should offer a new link again once the delay is over', async () => {
+        renderVerifyEmail()
+        await clickSendNewLinkWithFakeTimers()
+        await advance(30_000)
+
+        expect(getSendNewLinkButton()).toBeEnabled()
+        expect(getSendNewLinkButton()).toHaveTextContent(SEND_NEW_LINK_COPY)
+      })
+    })
+
+    describe('WHEN the API answers resend_limit_reached', () => {
+      beforeEach(() => {
+        mockResendSignupEmail.mockResolvedValue(
+          buildError(LagoApiError.ResendLimitReached, { retryAfterSeconds: 3600 }),
+        )
+      })
+
+      it('THEN should show the limit message with the countdown on the disabled button', async () => {
+        renderVerifyEmail()
+        await clickSendNewLinkWithFakeTimers()
+
+        expect(getResendAlert()).toHaveTextContent(RESEND_LIMIT_COPY)
+        expect(getSendNewLinkButton()).toBeDisabled()
+        expect(getSendNewLinkButton()).toHaveTextContent('Resend in 60:00')
+      })
+
+      it('THEN should drop the limit message and offer a new link once the hour is over', async () => {
+        renderVerifyEmail()
+        await clickSendNewLinkWithFakeTimers()
+        await advance(3_600_000)
+
+        expect(queryResendAlert()).not.toBeInTheDocument()
+        expect(getSendNewLinkButton()).toBeEnabled()
+      })
+    })
+
+    describe('WHEN a link is sent', () => {
+      it('THEN should wait for the next send before sending again', async () => {
+        renderVerifyEmail()
+        await clickSendNewLinkWithFakeTimers()
+
+        expect(getResendAlert()).toHaveTextContent(NEW_LINK_SENT_COPY)
+        expect(getSendNewLinkButton()).toBeDisabled()
+        expect(getSendNewLinkButton()).toHaveTextContent('Resend in 1:00')
+
+        await advance(60_000)
+        await clickSendNewLinkWithFakeTimers()
+
+        expect(mockResendSignupEmail).toHaveBeenCalledTimes(2)
       })
     })
   })
