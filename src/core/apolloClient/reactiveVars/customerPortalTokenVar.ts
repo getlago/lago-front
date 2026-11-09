@@ -8,8 +8,6 @@ const CUSTOMER_PORTAL_TOKEN_LS_KEY = 'customerPortalToken'
 removeItemFromLS(CUSTOMER_PORTAL_TOKEN_LS_KEY)
 
 /** ----------------- VAR ----------------- */
-// Memory only: every tab shares localStorage. `PortalInit` seeds this from the
-// URL on each portal mount, and `buildAuthHeaders` reads the URL directly.
 export const customerPortalTokenVar = makeVar<string | undefined>(undefined)
 
 export const updateCustomerPortalTokenVar = (token?: string) => {

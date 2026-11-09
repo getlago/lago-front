@@ -9,12 +9,8 @@ import { getItemFromLS } from '~/core/utils/localStorage'
 
 type AdminCredentials = { token: string | undefined; organizationId: string | undefined }
 
-// Credentials are scoped by route: a logged-in admin previewing a customer
-// portal keeps both tokens in localStorage, and only the URL tells which
-// context the request belongs to. Sending the admin Bearer on portal routes
-// breaks the portal when that token is expired (the API rejects it before
-// reading customer-portal-token), and sending the portal token on admin
-// routes leaks it on every request after visiting any portal link.
+// Scoped by route: the API rejects an expired admin Bearer before reading
+// customer-portal-token, and a portal token sent on admin routes would leak.
 const resolveAdminCredentials = (pathname: string): AdminCredentials | null => {
   if (isCustomerPortalPath(pathname)) return null
 
