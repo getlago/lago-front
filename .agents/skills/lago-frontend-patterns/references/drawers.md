@@ -108,7 +108,7 @@ const mockClose = jest.fn()
 const mockUpdate = jest.fn()
 
 jest.mock('~/components/drawers/useDrawer', () => ({
-  useDrawer: () => ({ open: jest.fn(), close: jest.fn(), update: jest.fn() }),
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn(), update: mockUpdate }),
   useFormDrawer: () => ({ open: mockOpen, close: mockClose, update: mockUpdate }),
 }))
 ```
