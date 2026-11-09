@@ -1489,6 +1489,23 @@ describe('SelfServeCheckEmail', () => {
           expect(mockOnStartAgain).not.toHaveBeenCalled()
         },
       )
+
+      it.each([
+        [LagoApiError.SignupResendExhausted, true],
+        [LagoApiError.SignupExpired, false],
+      ])(
+        'THEN on %s should show the limit banner, as the status does for the same state: %s',
+        async (code, shown) => {
+          const user = setupUser()
+
+          mockResendSignupEmail.mockResolvedValue(buildError(code))
+
+          await renderCheckEmail()
+          await clickResend(user)
+
+          expect(!!queryResendLimitAlert()).toBe(shown)
+        },
+      )
     })
 
     describe('WHEN the API answers email_already_verified', () => {
