@@ -748,11 +748,7 @@ const CustomerInvoiceDetails = () => {
         title: translate('text_63fcc3218d35b9377840f59b'),
         link: metadataPath,
         match: [metadataPath],
-        content: (
-          <div className="pt-5">
-            <Metadatas />
-          </div>
-        ),
+        content: <Metadatas className="mt-0" />,
       })
     }
 
