@@ -251,7 +251,24 @@ describe('ContractRateCardsSection', () => {
 
     renderSection([buildListMock([])])
 
-    expect(mockHasPermissions).toHaveBeenCalledWith(['contractsUpdate'])
+    expect(mockHasPermissions).toHaveBeenCalledWith([
+      'contractsUpdate',
+      'productsView',
+      'rateCardsView',
+    ])
     expect(screen.queryByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID)).not.toBeInTheDocument()
   })
+
+  it.each(['productsView', 'rateCardsView'])(
+    'GIVEN the user lacks %s THEN the Add rate card action is hidden',
+    async (missingPermission) => {
+      mockHasPermissions.mockImplementation(
+        (permissions: string[]) => !permissions.includes(missingPermission),
+      )
+
+      renderSection([buildListMock([])])
+
+      expect(screen.queryByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID)).not.toBeInTheDocument()
+    },
+  )
 })

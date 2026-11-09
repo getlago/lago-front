@@ -6,6 +6,13 @@ export const SIGNUP_EMAIL_FIELD_TEST_ID = 'signup-email-field'
 export const SIGNUP_PASSWORD_FIELD_TEST_ID = 'signup-password-field'
 export const SIGNUP_ERROR_ALERT_TEST_ID = 'signup-error-alert'
 export const SIGNUP_SUBMIT_BUTTON_TEST_ID = 'signup-submit-button'
+export const SELF_SERVE_SIGNUP_DATA_REGION_TEST_ID = 'self-serve-signup-data-region'
+export const SELF_SERVE_SIGNUP_EMAIL_FIELD_TEST_ID = 'self-serve-signup-email-field'
+export const SELF_SERVE_SIGNUP_PASSWORD_FIELD_TEST_ID = 'self-serve-signup-password-field'
+export const SELF_SERVE_SIGNUP_SUBMIT_BUTTON_TEST_ID = 'self-serve-signup-submit-button'
+export const SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID = 'self-serve-signup-error-alert'
+export const SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID = 'self-serve-signup-check-email'
+export const SELF_SERVE_SIGNUP_GO_BACK_BUTTON_TEST_ID = 'self-serve-signup-go-back-button'
 
 // Re-exported for e2e backward compatibility - values match PASSWORD_HINTS_TEST_IDS
 export const SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID = 'password-validation--visible'

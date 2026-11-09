@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router'
 
+import { APPLIED_RATE_CARD_CONTEXT_CONFIG } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { AppliedRateCardsTable } from '~/components/appliedRateCards/AppliedRateCardsTable'
 import { useAppliedRateCardDrawer } from '~/components/appliedRateCards/drawers/appliedRateCard/useAppliedRateCardDrawer'
 import { useAppliedRateCardRowActions } from '~/components/appliedRateCards/useAppliedRateCardRowActions'
@@ -128,7 +129,9 @@ export const ContractRateCardsSection = ({
     emptySubtitleKey: 'text_1789723302114au3ml0nf077',
   })
 
-  const addRateCardAction = hasPermissions(['contractsUpdate'])
+  const addRateCardAction = hasPermissions([
+    ...APPLIED_RATE_CARD_CONTEXT_CONFIG.contract.addPermissions,
+  ])
     ? {
         label: translate('text_1789030049529b0zmy1slfxl'),
         dataTest: CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID,

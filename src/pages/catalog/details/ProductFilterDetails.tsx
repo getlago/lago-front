@@ -92,7 +92,7 @@ const ProductFilterDetails = () => {
         {
           label: translate('text_625fd39a15394c0117e7d792'),
           dataTest: PRODUCT_ITEM_FILTER_DETAILS_EDIT_TEST_ID,
-          hidden: !hasPermissions(['productFiltersUpdate']),
+          hidden: !hasPermissions(['productsUpdate']),
           onClick: (closePopper) => {
             if (productFilter) openEditProductFilterDrawer({ productFilter })
             closePopper()
@@ -101,7 +101,7 @@ const ProductFilterDetails = () => {
         {
           label: translate('text_629728388c4d2300e2d38182'),
           dataTest: PRODUCT_ITEM_FILTER_DETAILS_DELETE_TEST_ID,
-          hidden: !hasPermissions(['productFiltersDelete']),
+          hidden: !hasPermissions(['productsDelete']),
           onClick: (closePopper) => {
             if (productFilter) {
               openDeleteProductFilterDialog({
