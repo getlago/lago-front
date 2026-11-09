@@ -1,19 +1,10 @@
 /* Menu links retain menu semantics instead of legacy blue anchor styling. */
 a.v2-dropdown-menu-item {
-  color: var(--color-text-default);
   text-decoration: none;
 }
 
 a.v2-dropdown-menu-item:hover {
   text-decoration: none;
-}
-
-a.v2-dropdown-menu-item.text-danger-foreground {
-  color: var(--color-danger-foreground);
-}
-
-a.v2-dropdown-menu-item[data-disabled] {
-  color: var(--color-disabled-foreground);
 }
 
 /* Radix highlights focused menu items; legacy anchors must not add a ring. */

@@ -19,7 +19,7 @@ Compose BreadcrumbLink asChild with DropdownMenuTrigger, labelled “Show hidden
 
 Use untrimmed v2-text-label (label medium, 14/20px, 500), p-1, gap-1 and rounded-lg. Ancestors use text-muted, hover uses interactive-hover, pressed uses interactive-pressed while keeping text-muted. Current text uses text-subtle. ChevronRight uses icon-subtle, size 14 and strokeWidth 2. Keyboard focus uses the existing 4px focus-ring with no offset. Dropdown styling and keyboard behavior come from the shared menu.
 
-The overflow trigger uses a decorative text ellipsis in a 20px box plus 4px padding (28px total). Menu labels retain the shared Dropdown Menu v2-text-label font-normal typography (label regular, 14/20px, 400), including links inside breadcrumb menus.
+The overflow trigger uses a decorative text ellipsis in a 20px box plus 4px padding (28px total). Menu labels retain the shared Dropdown Menu inherited v2-text-body typography (14/20px, regular 400), including links inside breadcrumb menus.
 
 Constrain the surrounding layout to truncate long labels. Prefer shrinking middle ancestors before the current page; this is controlled by the composing layout. Keep the full text in the DOM so assistive technology reads it. BreadcrumbPage truncates directly; wrap long link text in a truncate span. Add a tooltip explicitly only where needed.
 
