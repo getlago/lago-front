@@ -9,7 +9,6 @@ const mockGetCurrentOrganizationId = jest.fn()
 jest.mock('../reactiveVars', () => ({
   AUTH_TOKEN_LS_KEY: 'auth_token',
   TMP_AUTH_TOKEN_LS_KEY: 'tmp_auth_token',
-  CUSTOMER_PORTAL_TOKEN_LS_KEY: 'customer_portal_token',
   getCurrentOrganizationId: (...args: unknown[]) => mockGetCurrentOrganizationId(...args),
 }))
 
@@ -18,7 +17,8 @@ jest.mock('~/hooks/useDeveloperTool', () => ({
   resetDevtoolsNavigation: jest.fn(),
 }))
 
-const PORTAL_PATH = '/customer-portal/portal-token-abc'
+const PORTAL_TOKEN = 'portal-token-abc'
+const PORTAL_PATH = `/customer-portal/${PORTAL_TOKEN}`
 const ADMIN_PATH = '/acme/customers'
 
 describe('buildAuthHeaders', () => {
@@ -29,38 +29,54 @@ describe('buildAuthHeaders', () => {
   })
 
   describe('GIVEN a customer portal route', () => {
-    describe('WHEN both an admin token and a portal token exist in localStorage', () => {
-      it('THEN should send only the customer-portal-token header', () => {
+    describe('WHEN an admin session also exists', () => {
+      it('THEN should send only the customer-portal-token carried by the path', () => {
         localStorage.setItem('auth_token', 'expired-admin-jwt')
-        localStorage.setItem('customer_portal_token', 'valid-portal-token')
         mockGetCurrentOrganizationId.mockReturnValue('org-123')
 
         const headers = buildAuthHeaders(PORTAL_PATH)
 
-        expect(headers).toEqual({ 'customer-portal-token': 'valid-portal-token' })
+        expect(headers).toEqual({ 'customer-portal-token': PORTAL_TOKEN })
       })
     })
 
     describe('WHEN the path is a portal sub-route', () => {
       it('THEN should still resolve as a portal route', () => {
         localStorage.setItem('auth_token', 'expired-admin-jwt')
-        localStorage.setItem('customer_portal_token', 'valid-portal-token')
 
         expect(buildAuthHeaders(`${PORTAL_PATH}/usage/item-1`)).toEqual({
-          'customer-portal-token': 'valid-portal-token',
+          'customer-portal-token': PORTAL_TOKEN,
         })
         expect(buildAuthHeaders(`${PORTAL_PATH}/wallet/wallet-1`)).toEqual({
-          'customer-portal-token': 'valid-portal-token',
+          'customer-portal-token': PORTAL_TOKEN,
         })
       })
     })
 
-    describe('WHEN no portal token exists in localStorage', () => {
-      it('THEN should send no headers at all (no admin token fallback)', () => {
-        localStorage.setItem('auth_token', 'expired-admin-jwt')
-        mockGetCurrentOrganizationId.mockReturnValue('org-123')
+    describe('WHEN two portals are open side by side', () => {
+      // Regression: credentials used to come from localStorage, which every tab
+      // shares, so opening customer Y's portal made customer X's tab send Y's token.
+      it.each([
+        ['the portal root', ''],
+        ['a usage sub-route', '/usage/item-1'],
+        ['a wallet sub-route', '/wallet/wallet-1'],
+      ])('THEN each tab keeps its own token on %s', (_, suffix) => {
+        expect(buildAuthHeaders(`/customer-portal/token-x${suffix}`)).toEqual({
+          'customer-portal-token': 'token-x',
+        })
+        expect(buildAuthHeaders(`/customer-portal/token-y${suffix}`)).toEqual({
+          'customer-portal-token': 'token-y',
+        })
+      })
+    })
 
-        expect(buildAuthHeaders(PORTAL_PATH)).toEqual({})
+    describe('WHEN a portal token is left over in localStorage by an older build', () => {
+      it('THEN should ignore it and use the path token', () => {
+        localStorage.setItem('customerPortalToken', 'another-customers-token')
+
+        expect(buildAuthHeaders(PORTAL_PATH)).toEqual({
+          'customer-portal-token': PORTAL_TOKEN,
+        })
       })
     })
   })
