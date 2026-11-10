@@ -41,9 +41,14 @@ jest.mock('@tanstack/react-virtual', () => ({
 
 NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 
+const mockRangeErrorCopy: Record<string, string> = {
+  text_1789042962229ojqymcu3289: 'Enter a day between 1 and 31',
+  text_1789042962229esmw981wwyt: 'Enter an offset between 0 and 12',
+}
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
-    translate: (key: string) => key,
+    translate: (key: string) => mockRangeErrorCopy[key] ?? key,
   }),
 }))
 
@@ -244,8 +249,8 @@ describe('EditPaymentTermDialog', () => {
   })
 
   describe('GIVEN a day of month term', () => {
-    const DAY_OF_MONTH_ERROR_KEY = 'text_1789042962229ojqymcu3289'
-    const MONTH_OFFSET_ERROR_KEY = 'text_1789042962229esmw981wwyt'
+    const DAY_OF_MONTH_ERROR = 'Enter a day between 1 and 31'
+    const MONTH_OFFSET_ERROR = 'Enter an offset between 0 and 12'
 
     const openDayOfMonthDialog = () =>
       renderAndOpenDialog({
@@ -264,7 +269,7 @@ describe('EditPaymentTermDialog', () => {
 
         // The schema only runs on submit, so without the inline check the dialog kept
         // previewing a due date for a day that does not exist.
-        expect(screen.getByText(DAY_OF_MONTH_ERROR_KEY)).toBeInTheDocument()
+        expect(screen.getByText(DAY_OF_MONTH_ERROR)).toBeInTheDocument()
         expect(screen.queryByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID)).not.toBeInTheDocument()
         expect(mockUpdateBillingEntity).not.toHaveBeenCalled()
       })
@@ -276,7 +281,7 @@ describe('EditPaymentTermDialog', () => {
 
         await retype(numericInput('monthOffset'), '13')
 
-        expect(screen.getByText(MONTH_OFFSET_ERROR_KEY)).toBeInTheDocument()
+        expect(screen.getByText(MONTH_OFFSET_ERROR)).toBeInTheDocument()
         expect(screen.queryByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID)).not.toBeInTheDocument()
       })
     })
@@ -289,7 +294,7 @@ describe('EditPaymentTermDialog', () => {
         await retype(numericInput('dayOfMonth'), '20')
 
         await waitFor(() => {
-          expect(screen.queryByText(DAY_OF_MONTH_ERROR_KEY)).not.toBeInTheDocument()
+          expect(screen.queryByText(DAY_OF_MONTH_ERROR)).not.toBeInTheDocument()
           expect(screen.getByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID)).toBeInTheDocument()
         })
       })

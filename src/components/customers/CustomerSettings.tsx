@@ -30,6 +30,7 @@ import {
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
 import {
+  PAYMENT_TERM_ACTIONS_BUTTON_TEST_ID,
   PAYMENT_TERM_ADD_BUTTON_TEST_ID,
   PAYMENT_TERM_DELETE_BUTTON_TEST_ID,
   PAYMENT_TERM_EDIT_BUTTON_TEST_ID,
@@ -370,7 +371,12 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                   <Popper
                     PopperProps={{ placement: 'bottom-end' }}
                     opener={
-                      <Button disabled={loading} icon="dots-horizontal" variant="quaternary" />
+                      <Button
+                        disabled={loading}
+                        icon="dots-horizontal"
+                        variant="quaternary"
+                        data-test={PAYMENT_TERM_ACTIONS_BUTTON_TEST_ID}
+                      />
                     }
                   >
                     {({ closePopper }) => (
