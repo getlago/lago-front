@@ -1,6 +1,7 @@
 import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent, { UserEvent } from '@testing-library/user-event'
 import { GraphQLFormattedError } from 'graphql'
+import { ComponentProps } from 'react'
 
 import { PASSWORD_HINTS_TEST_IDS } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
 import { envGlobalVar, initializeTranslations } from '~/core/apolloClient'
@@ -16,6 +17,7 @@ import {
 import { LagoApiError } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import type { SelfServeCheckEmail } from '../components/selfServeCheckEmail/SelfServeCheckEmail'
 import SelfServeSignUp from '../SelfServeSignUp'
 import {
   SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID,
@@ -24,11 +26,33 @@ import {
   SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID,
   SELF_SERVE_SIGNUP_GO_BACK_BUTTON_TEST_ID,
   SELF_SERVE_SIGNUP_PASSWORD_FIELD_TEST_ID,
+  SELF_SERVE_SIGNUP_START_AGAIN_BUTTON_TEST_ID,
   SELF_SERVE_SIGNUP_SUBMIT_BUTTON_TEST_ID,
   SIGNUP_SUBMIT_BUTTON_TEST_ID,
 } from '../signUpTestIds'
 
 type EnvGlobal = ReturnType<typeof envGlobalVar>
+type SelfServeCheckEmailProps = ComponentProps<typeof SelfServeCheckEmail>
+
+function mockRenderCheckEmail({
+  email,
+  signupSecret,
+  onGoBack,
+  onStartAgain,
+}: SelfServeCheckEmailProps): JSX.Element {
+  return (
+    <div data-test={SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID}>
+      {email}
+      {signupSecret}
+      <button data-test={SELF_SERVE_SIGNUP_GO_BACK_BUTTON_TEST_ID} onClick={onGoBack} />
+      <button data-test={SELF_SERVE_SIGNUP_START_AGAIN_BUTTON_TEST_ID} onClick={onStartAgain} />
+    </div>
+  )
+}
+
+jest.mock('../components/selfServeCheckEmail/SelfServeCheckEmail', () => ({
+  SelfServeCheckEmail: (props: SelfServeCheckEmailProps) => mockRenderCheckEmail(props),
+}))
 
 jest.mock('~/core/apolloClient', () => {
   const actual = jest.requireActual<typeof import('~/core/apolloClient')>('~/core/apolloClient')
@@ -205,12 +229,16 @@ describe('SelfServeSignUp', () => {
   })
 
   let setItemFromLSSpy: jest.SpyInstance
+  let removeItemFromLSSpy: jest.SpyInstance
 
   beforeEach(() => {
     jest.clearAllMocks()
     assignSpy = spyOnLocationAssign()
     setItemFromLSSpy = jest
       .spyOn(localStorageUtils, 'setItemFromLS')
+      .mockImplementation(() => undefined)
+    removeItemFromLSSpy = jest
+      .spyOn(localStorageUtils, 'removeItemFromLS')
       .mockImplementation(() => undefined)
     mockUseSelfServeSignUpMutation.mockReturnValue([mockSignUp])
     mockUseSignupEmailCheckLazyQuery.mockReturnValue([mockCheckSignupEmail])
@@ -663,6 +691,19 @@ describe('SelfServeSignUp', () => {
           screen.queryByTestId(SELF_SERVE_SIGNUP_SUBMIT_BUTTON_TEST_ID),
         ).not.toBeInTheDocument()
       })
+
+      it('THEN should hand the signup secret of the answer to the check email step', async () => {
+        const user = userEvent.setup()
+
+        render(<SelfServeSignUp />)
+
+        await fillForm(user)
+        await submitForm(user)
+
+        expect(await screen.findByTestId(SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID)).toHaveTextContent(
+          SIGNUP_SECRET,
+        )
+      })
     })
 
     describe('WHEN clicking go back on the check email step', () => {
@@ -678,6 +719,47 @@ describe('SelfServeSignUp', () => {
         expect(screen.queryByTestId(SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID)).not.toBeInTheDocument()
         expect(getEmailInput()).toHaveValue(VALID_EMAIL)
         expect(getPasswordInput()).toHaveValue(VALID_PASSWORD)
+      })
+
+      it('THEN should keep the stored signup secret', async () => {
+        const user = userEvent.setup()
+
+        render(<SelfServeSignUp />)
+
+        await fillForm(user)
+        await submitForm(user)
+        await user.click(await screen.findByTestId(SELF_SERVE_SIGNUP_GO_BACK_BUTTON_TEST_ID))
+
+        expect(removeItemFromLSSpy).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN clicking start again on the check email step', () => {
+      it('THEN should show the form again with the typed values', async () => {
+        const user = userEvent.setup()
+
+        render(<SelfServeSignUp />)
+
+        await fillForm(user)
+        await submitForm(user)
+        await user.click(await screen.findByTestId(SELF_SERVE_SIGNUP_START_AGAIN_BUTTON_TEST_ID))
+
+        expect(screen.queryByTestId(SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID)).not.toBeInTheDocument()
+        expect(getEmailInput()).toHaveValue(VALID_EMAIL)
+        expect(getPasswordInput()).toHaveValue(VALID_PASSWORD)
+      })
+
+      it('THEN should remove the stored signup secret', async () => {
+        const user = userEvent.setup()
+
+        render(<SelfServeSignUp />)
+
+        await fillForm(user)
+        await submitForm(user)
+        await user.click(await screen.findByTestId(SELF_SERVE_SIGNUP_START_AGAIN_BUTTON_TEST_ID))
+
+        expect(removeItemFromLSSpy).toHaveBeenCalledTimes(1)
+        expect(removeItemFromLSSpy).toHaveBeenCalledWith(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
       })
     })
   })

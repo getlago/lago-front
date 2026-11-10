@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react'
 
 import { loadRecaptcha, unloadRecaptcha } from '~/core/utils/recaptcha'
 
-import { useRecaptcha } from '../useRecaptcha'
+import { useRecaptcha, useRecaptchaCleanup } from '../useRecaptcha'
 
 jest.mock('~/core/utils/recaptcha', () => ({
   loadRecaptcha: jest.fn(() => Promise.resolve(undefined)),
@@ -40,6 +40,27 @@ describe('useRecaptcha', () => {
     describe('WHEN the page unmounts', () => {
       it('THEN should unload reCAPTCHA', () => {
         const { unmount } = renderHook(() => useRecaptcha())
+
+        unmount()
+
+        expect(mockedUnloadRecaptcha).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
+
+  describe('useRecaptchaCleanup', () => {
+    describe('WHEN the page mounts', () => {
+      it('THEN should not load reCAPTCHA', () => {
+        renderHook(() => useRecaptchaCleanup())
+
+        expect(mockedLoadRecaptcha).not.toHaveBeenCalled()
+        expect(mockedUnloadRecaptcha).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the page unmounts', () => {
+      it('THEN should unload reCAPTCHA', () => {
+        const { unmount } = renderHook(() => useRecaptchaCleanup())
 
         unmount()
 
