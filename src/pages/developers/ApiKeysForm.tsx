@@ -14,6 +14,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
 import { HOME_ROUTE } from '~/core/router'
 import { intlFormatDateTime } from '~/core/timezone'
+import { isUsageGovernanceEnabled } from '~/core/utils/usageGovernance'
 import {
   ApiKeysPermissionsEnum,
   FeatureFlagEnum,
@@ -52,10 +53,12 @@ const canOnlyRead = (permission: ApiKeysPermissionsEnum): boolean =>
   permission === ApiKeysPermissionsEnum.ActivityLog ||
   permission === ApiKeysPermissionsEnum.Analytic ||
   permission === ApiKeysPermissionsEnum.ApiLog ||
+  permission === ApiKeysPermissionsEnum.AttributedUsage ||
   permission === ApiKeysPermissionsEnum.CustomerUsage ||
   permission === ApiKeysPermissionsEnum.SecurityLog
 
-type PermissionAvailability = 'all' | 'withoutProductCatalog' | 'withProductCatalog'
+type PermissionAvailability =
+  'all' | 'withoutProductCatalog' | 'withProductCatalog' | 'withUsageGovernance'
 
 // With the product catalog: the `resource_name` of the v2 controllers, plus the v1 one of each
 // endpoint v2 keeps but does not serve yet; payment receipts authorize with `invoice`.
@@ -195,6 +198,10 @@ const PERMISSION_RESOURCES: Record<
     translationKey: 'text_645bb193927b375079d28a8f',
     availability: 'all',
   },
+  [ApiKeysPermissionsEnum.AttributedUsage]: {
+    translationKey: 'text_17943010994335qi05xrijso',
+    availability: 'withUsageGovernance',
+  },
   [ApiKeysPermissionsEnum.Wallet]: {
     translationKey: 'text_62d175066d2dbf1d50bc937c',
     availability: 'withoutProductCatalog',
@@ -213,13 +220,21 @@ const PERMISSION_RESOURCES: Record<
   },
 }
 
-const getAvailablePermissions = (hasProductCatalog: boolean): ApiKeysPermissionsEnum[] => {
-  const hiddenAvailability: PermissionAvailability = hasProductCatalog
-    ? 'withoutProductCatalog'
-    : 'withProductCatalog'
+const getAvailablePermissions = ({
+  hasProductCatalog,
+  hasUsageGovernance,
+}: {
+  hasProductCatalog: boolean
+  hasUsageGovernance: boolean
+}): ApiKeysPermissionsEnum[] => {
+  const hiddenAvailabilities: PermissionAvailability[] = []
 
-  return Object.values(ApiKeysPermissionsEnum).filter(
-    (permission) => PERMISSION_RESOURCES[permission].availability !== hiddenAvailability,
+  if (hasProductCatalog) hiddenAvailabilities.push('withoutProductCatalog')
+  if (!hasProductCatalog) hiddenAvailabilities.push('withProductCatalog')
+  if (!hasUsageGovernance) hiddenAvailabilities.push('withUsageGovernance')
+
+  return (Object.keys(PERMISSION_RESOURCES) as ApiKeysPermissionsEnum[]).filter(
+    (permission) => !hiddenAvailabilities.includes(PERMISSION_RESOURCES[permission].availability),
   )
 }
 
@@ -368,7 +383,10 @@ const ApiKeysForm = () => {
     defaultValues: {
       name: apiKey?.name || '',
       permissions: transformApiPermissionsForForm(
-        getAvailablePermissions(hasFeatureFlag(FeatureFlagEnum.ProductCatalog)),
+        getAvailablePermissions({
+          hasProductCatalog: hasFeatureFlag(FeatureFlagEnum.ProductCatalog),
+          hasUsageGovernance: isUsageGovernanceEnabled({ organization, hasFeatureFlag }),
+        }),
         apiKey?.permissions || DEFAULT_PERMISSIONS,
       ),
     },
@@ -380,14 +398,14 @@ const ApiKeysForm = () => {
       const { permissions, ...values } = value
 
       const formattedPermissions = hasAccessToApiPermissionsPremiumAddOn
-        ? permissions.reduce(
+        ? permissions.reduce<Record<string, string[]>>(
             (acc, { id, canRead, canWrite }) => ({
               ...acc,
               [id]: [canRead ? READ_PERMISSION : '', canWrite ? WRITE_PERMISSION : ''].filter(
                 Boolean,
               ),
             }),
-            {},
+            { ...apiKey?.permissions },
           )
         : undefined
 
