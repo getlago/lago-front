@@ -106,6 +106,7 @@ export const typeDefs = gql`
     analytic
     api_log
     applied_coupon
+    attributed_usage
     billable_metric
     billing_entity
     contract
