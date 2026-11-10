@@ -109,4 +109,52 @@ describe('cachePersistor', () => {
       expect(mockRemove).toHaveBeenCalledTimes(1)
     })
   })
+
+  describe('resumePersistence', () => {
+    describe('GIVEN the tab booted on a customer-portal URL', () => {
+      // Regression: setup kept no key when it skipped persistence, so a same-tab
+      // return to admin left the tab running without ever persisting again.
+      it('THEN should start persisting on the current version key once back on admin', async () => {
+        window.history.pushState({}, '', '/customer-portal/some-token')
+
+        const { setupCachePersistor, pausePersistence, resumePersistence } = await loadModule()
+
+        await setupCachePersistor('1.0.0')
+        pausePersistence()
+
+        expect(mockCtor).not.toHaveBeenCalled()
+
+        window.history.pushState({}, '', '/acme/customers')
+        resumePersistence()
+
+        expect(mockCtor).toHaveBeenCalledTimes(1)
+        expect(mockCtor).toHaveBeenCalledWith(expect.objectContaining({ key: CURRENT_KEY }))
+        expect(mockRestore).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('GIVEN an admin boot followed by a pause', () => {
+      it('THEN should not recreate the persistor while still on a portal URL', async () => {
+        const { setupCachePersistor, pausePersistence, resumePersistence } = await loadModule()
+
+        await setupCachePersistor('1.0.0')
+        pausePersistence()
+        window.history.pushState({}, '', '/customer-portal/some-token')
+        resumePersistence()
+
+        expect(mockCtor).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should recreate the persistor once back on an admin URL', async () => {
+        const { setupCachePersistor, pausePersistence, resumePersistence } = await loadModule()
+
+        await setupCachePersistor('1.0.0')
+        pausePersistence()
+        resumePersistence()
+
+        expect(mockCtor).toHaveBeenCalledTimes(2)
+        expect(mockCtor).toHaveBeenLastCalledWith(expect.objectContaining({ key: CURRENT_KEY }))
+      })
+    })
+  })
 })

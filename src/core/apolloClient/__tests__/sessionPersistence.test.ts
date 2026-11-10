@@ -192,4 +192,25 @@ describe('session persistence', () => {
 
     expect(localForage.setItem).not.toHaveBeenCalled()
   })
+
+  it('writes no portal data to the admin blob across a same-tab portal round trip', async () => {
+    pausePersistence()
+    window.history.pushState({}, '', '/customer-portal/token')
+    await cache.reset()
+    writeMarker(cache, 'portal session')
+    await jest.advanceTimersByTimeAsync(1000)
+
+    expect(localForage.setItem).not.toHaveBeenCalled()
+
+    // The portal data leaves the shared cache before the admin blob is writable again.
+    await cache.reset()
+    window.history.pushState({}, '', '/acme/customers')
+    resumePersistence()
+    writeMarker(cache, 'admin session')
+    await jest.advanceTimersByTimeAsync(1000)
+
+    expect(localForage.setItem).toHaveBeenCalledTimes(1)
+    expect(localForage.setItem).toHaveBeenCalledWith(CACHE_KEY, JSON.stringify(cache.extract()))
+    expect(JSON.stringify(cache.extract())).not.toContain('portal session')
+  })
 })

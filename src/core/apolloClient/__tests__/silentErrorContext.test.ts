@@ -36,9 +36,21 @@ describe('silent error context', () => {
       })
     })
 
+    describe('WHEN an unknown credential scope is stamped on an operation', () => {
+      it('THEN should not type-check', () => {
+        const wrongScope: DefaultContext = {
+          // @ts-expect-error credentialScope is stamped by authLink: 'admin' | 'customerPortal'
+          credentialScope: 'portal',
+        }
+
+        expect(wrongScope).toBeDefined()
+      })
+    })
+
     describe('WHEN the documented shapes are used', () => {
       it('THEN should type-check', () => {
         const flag: DefaultContext = { silentError: true }
+        const scope: DefaultContext = { credentialScope: 'customerPortal' }
         const codes: DefaultContext = {
           silentErrorCodes: [LagoApiError.UnprocessableEntity, PspErrorCode.ThirdPartyError],
         }
@@ -46,7 +58,7 @@ describe('silent error context', () => {
           silentErrorDetails: [LagoApiError.ValueAlreadyExist],
         }
 
-        expect([flag, codes, details]).toHaveLength(3)
+        expect([flag, scope, codes, details]).toHaveLength(4)
       })
     })
   })

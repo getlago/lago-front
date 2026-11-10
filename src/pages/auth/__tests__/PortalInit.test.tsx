@@ -16,11 +16,13 @@ jest.mock('@apollo/client', () => ({
 
 const mockOnAccessCustomerPortal = jest.fn()
 const mockPausePersistence = jest.fn()
+const mockResumePersistence = jest.fn()
 const mockPurgePersistedCache = jest.fn()
 
 jest.mock('~/core/apolloClient', () => ({
   onAccessCustomerPortal: (...args: unknown[]) => mockOnAccessCustomerPortal(...args),
   pausePersistence: (...args: unknown[]) => mockPausePersistence(...args),
+  resumePersistence: (...args: unknown[]) => mockResumePersistence(...args),
   purgePersistedCache: (...args: unknown[]) => mockPurgePersistedCache(...args),
 }))
 
@@ -117,6 +119,63 @@ describe('PortalInit', () => {
 
         await waitFor(() => {
           expect(mockOnAccessCustomerPortal).toHaveBeenCalledWith('test-token')
+        })
+      })
+    })
+  })
+
+  describe('GIVEN the portal is left in the same tab', () => {
+    describe('WHEN PortalInit unmounts', () => {
+      it('THEN should drop the portal token', async () => {
+        const { unmount } = renderWithToken()
+
+        await waitFor(() => {
+          expect(mockOnAccessCustomerPortal).toHaveBeenCalledWith('test-token')
+        })
+
+        unmount()
+
+        expect(mockOnAccessCustomerPortal).toHaveBeenLastCalledWith(undefined)
+      })
+
+      // Regression: `pausePersistence` on entry had no counterpart, so the admin
+      // session kept running with persistence off after a same-tab return.
+      it('THEN should clear the portal data before persistence resumes', async () => {
+        const { unmount } = renderWithToken()
+
+        await waitFor(() => {
+          expect(mockOnAccessCustomerPortal).toHaveBeenCalledWith('test-token')
+        })
+
+        const callOrder: string[] = []
+
+        mockClearStore.mockClear()
+        mockClearStore.mockImplementation(async () => {
+          callOrder.push('clearStore')
+        })
+        mockResumePersistence.mockImplementation(() => {
+          callOrder.push('resumePersistence')
+        })
+
+        unmount()
+
+        await waitFor(() => {
+          expect(callOrder).toEqual(['clearStore', 'resumePersistence'])
+        })
+      })
+
+      it('THEN should resume persistence even when clearing the store fails', async () => {
+        const { unmount } = renderWithToken()
+
+        await waitFor(() => {
+          expect(mockOnAccessCustomerPortal).toHaveBeenCalledWith('test-token')
+        })
+
+        mockClearStore.mockRejectedValue(new Error('Store clear failed'))
+        unmount()
+
+        await waitFor(() => {
+          expect(mockResumePersistence).toHaveBeenCalledTimes(1)
         })
       })
     })

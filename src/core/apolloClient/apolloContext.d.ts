@@ -1,3 +1,4 @@
+import { CredentialScope } from '~/core/apolloClient/authHeaders'
 import { PspErrorCode } from '~/core/apolloClient/errorUtils'
 import { LagoApiError } from '~/generated/graphql'
 
@@ -17,5 +18,6 @@ declare module '@apollo/client' {
     silentErrorCodes?: Array<LagoApiError | PspErrorCode>
     /** Silences only the errors carrying one of these codes in `extensions.details`. */
     silentErrorDetails?: string[]
+    credentialScope?: CredentialScope
   }
 }

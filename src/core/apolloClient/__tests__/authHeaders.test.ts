@@ -2,6 +2,7 @@ import {
   buildAuthHeaders,
   buildCableConnectionParams,
   buildCableSubprotocols,
+  resolveCredentialScope,
 } from '../authHeaders'
 
 const mockGetCurrentOrganizationId = jest.fn()
@@ -200,5 +201,16 @@ describe('buildCableConnectionParams', () => {
 
       expect(buildCableConnectionParams(PORTAL_PATH)).toEqual({})
     })
+  })
+})
+
+describe('resolveCredentialScope', () => {
+  it.each([
+    [ADMIN_PATH, 'admin'],
+    ['/login', 'admin'],
+    [PORTAL_PATH, 'customerPortal'],
+    [`${PORTAL_PATH}/usage/item-1`, 'customerPortal'],
+  ])('THEN should resolve %s as the %s scope', (pathname, scope) => {
+    expect(resolveCredentialScope(pathname)).toBe(scope)
   })
 })

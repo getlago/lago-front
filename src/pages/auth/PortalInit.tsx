@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 
 import { Spinner } from '~/components/designSystem/Spinner'
-import { onAccessCustomerPortal, pausePersistence } from '~/core/apolloClient'
+import { onAccessCustomerPortal, pausePersistence, resumePersistence } from '~/core/apolloClient'
 import CustomerPortal from '~/pages/customerPortal/CustomerPortal'
 
 const PortalInit = () => {
@@ -35,6 +35,19 @@ const PortalInit = () => {
 
     init()
   }, [client, token])
+
+  // Same-tab exit from the portal, the counterpart of the pause above. The portal's
+  // data leaves the shared cache before persistence may write the admin blob again.
+  useEffect(
+    () => () => {
+      onAccessCustomerPortal(undefined)
+      client
+        .clearStore()
+        .finally(resumePersistence)
+        .catch(() => undefined)
+    },
+    [client],
+  )
 
   if (!token || !isReady) {
     return <Spinner />

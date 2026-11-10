@@ -15,11 +15,10 @@ import {
   updateAuthTokenVar,
 } from '~/core/apolloClient/reactiveVars'
 import { buildWebSocketUrl } from '~/core/apolloClient/websocketUrl'
-import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { LagoApiError } from '~/generated/graphql'
 
-import { buildAuthHeaders } from './authHeaders'
+import { buildAuthHeaders, resolveCredentialScope } from './authHeaders'
 import { CableSubscriptionError, createCableLink, refreshCableConsumer } from './cableConsumer'
 import { cache } from './cache'
 import { setupCachePersistor } from './cachePersistor'
@@ -57,12 +56,14 @@ export const setAuthErrorHandler = (handler: () => void) => {
 export const initializeApolloClient = async () => {
   const authLink = new ApolloLink((operation, forward) => {
     const { headers } = operation.getContext()
+    const { pathname } = window.location
 
     operation.setContext({
       headers: {
         ...headers,
-        ...buildAuthHeaders(window.location.pathname),
+        ...buildAuthHeaders(pathname),
       },
+      credentialScope: resolveCredentialScope(pathname),
     })
 
     return forward(operation)
@@ -182,6 +183,7 @@ export const initializeApolloClient = async () => {
       silentError = false,
       silentErrorCodes = [],
       silentErrorDetails = [],
+      credentialScope,
     } = operation.getContext()
 
     // Silent auth and permissions related errors by default
@@ -199,11 +201,9 @@ export const initializeApolloClient = async () => {
         const isUnauthorized = extensions && AUTH_ERRORS.includes(extensions?.code as LagoApiError)
 
         if (isUnauthorized) {
-          // Skip logout in customer portal context — the portal handles auth errors
-          // via query data (isUnauthenticated flag) and doesn't use the onAuthError callback
-          const isCustomerPortal = isCustomerPortalPath(window.location.pathname)
-
-          if (!isCustomerPortal && onAuthError) {
+          // The portal reports auth errors through its own `isUnauthenticated` query flag.
+          // Read the stamped scope, not the URL now: an in-flight request keeps its own.
+          if (credentialScope !== 'customerPortal' && onAuthError) {
             onAuthError()
           }
         }
