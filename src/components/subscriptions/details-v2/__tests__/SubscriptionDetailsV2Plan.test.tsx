@@ -88,6 +88,7 @@ describe('SubscriptionDetailsV2Plan', () => {
     const props = capturedProps[capturedProps.length - 1]
 
     expect(props.planId).toBe('plan_override_1')
+    expect(props.plan).toEqual(queryMock.result.data.subscription.plan)
     expect(props.isInSubscriptionForm).toBe(true)
     expect(props.subscriptionId).toBe(SUB_ID)
     // Premium users see no upsell: the banner is never the PremiumFeature.
