@@ -90,6 +90,9 @@ const SOURCE_LABELS = [
   'Other',
 ]
 
+const ROLE_PLACEHOLDER_COPY = 'Select a role'
+const SOURCE_PLACEHOLDER_COPY = 'Select a reason'
+
 const NAME_REQUIRED_COPY = 'Organization name is required'
 const NAME_TOO_LONG_COPY = 'Organization name must be 100 characters or fewer'
 const NAME_CONTAINS_LINK_COPY = "Organization name can't contain links"
@@ -224,6 +227,15 @@ describe('CreateOrganizationForm', () => {
         renderForm()
 
         expect(getComboBoxInput(testId)).toHaveValue('')
+      })
+
+      it.each([
+        ['role', SELF_SERVE_CREATE_ORGANIZATION_ROLE_FIELD_TEST_ID, ROLE_PLACEHOLDER_COPY],
+        ['source', SELF_SERVE_CREATE_ORGANIZATION_SOURCE_FIELD_TEST_ID, SOURCE_PLACEHOLDER_COPY],
+      ])('THEN should show the %s placeholder', (_, testId, expectedPlaceholder) => {
+        renderForm()
+
+        expect(getComboBoxInput(testId)).toHaveAttribute('placeholder', expectedPlaceholder)
       })
     })
   })
