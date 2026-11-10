@@ -51,7 +51,7 @@ export const SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME = 'searchTaxForAddOnInput'
 // Invoices
 export const SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME = 'searchTaxForInvoiceAddOnInput'
 export const ADD_ITEM_FOR_INVOICE_INPUT_NAME = 'addItemInput'
-export const NET_PAYMENT_TERM_INPUT_CLASSNAME = 'netPaymentTermInput'
+export const PAYMENT_TERM_INPUT_CLASSNAME = 'paymentTermInput'
 export const RESEND_INVOICE_PAYMENT_METHOD_INPUT_CLASSNAME = 'resendInvoicePaymentMethodInput'
 // Billing entity
 export const SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME = 'searchInvoiceCustomSectionInput'
@@ -155,11 +155,6 @@ export const appliedTaxEnumedTaxCodeTranslationKey: Record<
 export const getHubspotTargetedObjectTranslationKey: Record<HubspotTargetedObjectsEnum, string> = {
   [HubspotTargetedObjectsEnum.Companies]: 'text_1727190044775zgd0l3fpwdj',
   [HubspotTargetedObjectsEnum.Contacts]: 'text_1727190044775keiwznwv16s',
-}
-
-export const getTargetedObjectTranslationKey: Record<HubspotTargetedObjectsEnum, string> = {
-  [HubspotTargetedObjectsEnum.Companies]: 'text_1727281892403pmg1yza7x1e',
-  [HubspotTargetedObjectsEnum.Contacts]: 'text_1729003289241opvevwwhr7n',
 }
 
 export const getPrivilegeValueTypeTranslationKey: Record<PrivilegeValueTypeEnum, string> = {

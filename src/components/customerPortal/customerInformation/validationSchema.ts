@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { addCustomerTooLongIssues } from '~/components/customers/fieldConstraints'
 import {
   CountryCode,
   CustomerTypeEnum,
@@ -37,6 +38,14 @@ export const editCustomerBillingValidationSchema = z.object({
 })
 
 export type EditCustomerBillingFormValues = z.infer<typeof editCustomerBillingValidationSchema>
+
+export const buildEditCustomerBillingValidationSchema = (
+  initialValues: EditCustomerBillingFormValues,
+  isShippingEqualBillingAddress: boolean,
+): typeof editCustomerBillingValidationSchema =>
+  editCustomerBillingValidationSchema.superRefine((values, ctx) =>
+    addCustomerTooLongIssues(values, ctx, { initialValues, isShippingEqualBillingAddress }),
+  )
 
 export const editCustomerBillingDefaultValues: EditCustomerBillingFormValues = {
   customerType: null,

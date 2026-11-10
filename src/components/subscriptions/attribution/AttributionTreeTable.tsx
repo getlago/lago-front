@@ -1,19 +1,19 @@
-import { Fragment, ReactNode } from 'react'
+import { useMemo } from 'react'
 
-import { Button } from '~/components/designSystem/Button'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useComposableTable } from '~/components/designSystem/ComposableTable'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 
-import {
-  AttributionEntityCell,
-  AttributionLoadMoreRow,
-  AttributionTableLayout,
-  AttributionTableRow,
-  AttributionTableSharedProps,
-  AttributionValueCells,
-} from './AttributionFlatTable'
-import { AttributionLevel, AttributionPathStep, getAttributionNodeKey } from './attributionTree'
+import { AttributionTableView } from './AttributionTableView'
+import { AttributionPathStep, getAttributionNodeKey } from './attributionTree'
 import { getAttributionRowsChargesUsage } from './buildAttributionColumns'
-import { AttributionTreeBlock, AttributionTreeNodes } from './useAttributionTree'
+import {
+  ATTRIBUTION_COLUMN_PINNING,
+  AttributionTableRow,
+  AttributionTableRowModel,
+  AttributionTableSharedProps,
+  useAttributionTableColumns,
+} from './useAttributionTableColumns'
+import { AttributionTreeNodes } from './useAttributionTree'
 
 export const ATTRIBUTION_TREE_TABLE_TEST_ID = 'attribution-tree-table'
 export const ATTRIBUTION_TREE_ROW_TEST_ID = 'attribution-tree-table-row'
@@ -22,8 +22,6 @@ export const ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID = 'attribution-tree-load-mo
 
 const ROOT_NODE_KEY = getAttributionNodeKey([])
 
-const AttributionToggleSpacer = (): JSX.Element => <span className="size-4 shrink-0" />
-
 type AttributionTreeTableProps = AttributionTableSharedProps & {
   nodes: AttributionTreeNodes
   isLoadingFilterPage: boolean
@@ -31,19 +29,86 @@ type AttributionTreeTableProps = AttributionTableSharedProps & {
   onLoadMore: (path: AttributionPathStep[], blockIndex: number) => void
 }
 
-type AttributionTreeRow = Pick<
-  AttributionTableRow,
-  | 'typeLabel'
-  | 'label'
-  | 'isUnattributed'
-  | 'amountCents'
-  | 'splitChargeUnits'
-  | 'chargesUsageByFilterPage'
+type BuildTreeRowsParams = Pick<
+  AttributionTreeTableProps,
+  'nodes' | 'isLoadingFilterPage' | 'onToggleNode' | 'onLoadMore'
 > & {
-  path: AttributionPathStep[]
-  nodeKey: string
-  level: AttributionLevel
-  depth: number
+  translate: TranslateFunc
+}
+
+const buildTreeRows = (
+  params: BuildTreeRowsParams,
+  path: AttributionPathStep[],
+  nodeKey: string,
+): AttributionTableRowModel[] => {
+  const { nodes, isLoadingFilterPage, onToggleNode, onLoadMore, translate } = params
+  const node = nodes[nodeKey]
+
+  if (node?.status !== 'loaded') return []
+
+  return node.blocks.flatMap((block, blockIndex) => {
+    const { level, usages } = block
+    const [usage] = usages
+    const getRowChargesUsage = getAttributionRowsChargesUsage(usages)
+
+    const toDataRow = (
+      value: string | null,
+      fields: Omit<AttributionTableRow, 'id'>,
+    ): AttributionTableRowModel => {
+      const rowPath = [...path, { code: level.code, value }]
+      const id = getAttributionNodeKey(rowPath)
+
+      return {
+        ...fields,
+        kind: 'data',
+        id,
+        expansion: level.isLeaf
+          ? { canExpand: false }
+          : {
+              canExpand: true,
+              isLoading: nodes[id]?.status === 'loading',
+              onToggle: () => onToggleNode(rowPath, level.code),
+            },
+        subRows: buildTreeRows(params, rowPath, id),
+      }
+    }
+
+    const { currentPage, totalPages } = usage.metadata
+    const loadMoreRows: AttributionTableRowModel[] =
+      currentPage < totalPages
+        ? [
+            {
+              kind: 'loadMore',
+              id: `${nodeKey}-load-more-${level.code}`,
+              isLoading: block.isLoadingMore,
+              isDisabled: isLoadingFilterPage,
+              onLoadMore: () => onLoadMore(path, blockIndex),
+            },
+          ]
+        : []
+
+    return [
+      ...usage.rows.map((row) =>
+        toDataRow(row.value, {
+          typeLabel: level.name,
+          label: row.value,
+          isUnattributed: false,
+          amountCents: row.amountCents,
+          splitChargeUnits: row.splitChargeUnits,
+          chargesUsageByFilterPage: getRowChargesUsage(row.value),
+        }),
+      ),
+      ...loadMoreRows,
+      toDataRow(null, {
+        typeLabel: translate('text_1792668632007lqi5wcqidcx'),
+        label: translate('text_1792668632007qgsxnaul7fn', { typeName: level.name }),
+        isUnattributed: true,
+        amountCents: usage.unattributed.amountCents,
+        splitChargeUnits: usage.unattributed.splitChargeUnits,
+        chargesUsageByFilterPage: usages.map(({ unattributed }) => unattributed.chargesUsage),
+      }),
+    ]
+  })
 }
 
 export const AttributionTreeTable = ({
@@ -51,138 +116,53 @@ export const AttributionTreeTable = ({
   isLoadingFilterPage,
   onToggleNode,
   onLoadMore,
-  ...tableProps
+  isLoading,
+  ...columnsProps
 }: AttributionTreeTableProps): JSX.Element => {
   const { translate } = useInternationalization()
-  const { columns, basis, currency } = tableProps
 
-  const renderToggle = (row: AttributionTreeRow): ReactNode => {
-    if (row.level.isLeaf) return <AttributionToggleSpacer />
+  const tableColumns = useAttributionTableColumns({
+    ...columnsProps,
+    loadMoreDataTest: ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID,
+    toggleDataTest: ATTRIBUTION_TREE_TOGGLE_TEST_ID,
+  })
 
-    const node = nodes[row.nodeKey]
-    const isOpen = node?.status === 'loaded' && node.isExpanded
-
-    return (
-      <Button
-        className="-m-1"
-        variant="quaternary"
-        size="small"
-        icon={isOpen ? 'chevron-down-filled' : 'chevron-right-filled'}
-        aria-label={row.label}
-        aria-expanded={isOpen}
-        loading={node?.status === 'loading'}
-        disabled={node?.status === 'loading'}
-        onClick={() => onToggleNode(row.path, row.level.code)}
-        data-test={ATTRIBUTION_TREE_TOGGLE_TEST_ID}
-      />
-    )
-  }
-
-  const renderRow = (row: AttributionTreeRow): ReactNode => (
-    <Fragment key={row.nodeKey}>
-      <tr data-test={ATTRIBUTION_TREE_ROW_TEST_ID}>
-        <AttributionEntityCell
-          typeLabel={row.typeLabel}
-          label={row.label}
-          isUnattributed={row.isUnattributed}
-          depth={row.depth}
-          toggle={renderToggle(row)}
-        />
-        <AttributionValueCells usage={row} columns={columns} basis={basis} currency={currency} />
-      </tr>
-      {renderChildren(row.path, row.depth + 1, row.nodeKey)}
-    </Fragment>
+  const rows = useMemo(
+    () =>
+      buildTreeRows(
+        { nodes, isLoadingFilterPage, onToggleNode, onLoadMore, translate },
+        [],
+        ROOT_NODE_KEY,
+      ),
+    [nodes, isLoadingFilterPage, onToggleNode, onLoadMore, translate],
   )
 
-  const renderLoadMoreRow = (
-    block: AttributionTreeBlock,
-    path: AttributionPathStep[],
-    blockIndex: number,
-    depth: number,
-    nodeKey: string,
-  ): ReactNode => {
-    const { currentPage, totalPages } = block.usages[0].metadata
+  const expanded = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(nodes)
+          .filter(([, node]) => node.status === 'loaded' && node.isExpanded)
+          .map(([key]) => [key, true]),
+      ),
+    [nodes],
+  )
 
-    if (currentPage >= totalPages) return null
-
-    return (
-      <AttributionLoadMoreRow
-        key={`${nodeKey}-load-more-${block.level.code}`}
-        columns={columns}
-        isLoading={block.isLoadingMore || isLoadingFilterPage}
-        onLoadMore={() => onLoadMore(path, blockIndex)}
-        depth={depth}
-        toggle={<AttributionToggleSpacer />}
-        data-test={ATTRIBUTION_TREE_LOAD_MORE_ROWS_TEST_ID}
-      />
-    )
-  }
-
-  const renderBlock = (
-    block: AttributionTreeBlock,
-    path: AttributionPathStep[],
-    blockIndex: number,
-    depth: number,
-    nodeKey: string,
-  ): ReactNode => {
-    const { level, usages } = block
-    const [usage] = usages
-    const getRowChargesUsage = getAttributionRowsChargesUsage(usages)
-
-    const toRow = (value: string | null): Pick<AttributionTreeRow, 'path' | 'nodeKey'> => {
-      const rowPath = [...path, { code: level.code, value }]
-
-      return { path: rowPath, nodeKey: getAttributionNodeKey(rowPath) }
-    }
-
-    return (
-      <Fragment key={`${nodeKey}-${level.code}`}>
-        {usage.rows.map((row) =>
-          renderRow({
-            ...toRow(row.value),
-            level,
-            depth,
-            typeLabel: level.name,
-            label: row.value,
-            isUnattributed: false,
-            amountCents: row.amountCents,
-            splitChargeUnits: row.splitChargeUnits,
-            chargesUsageByFilterPage: getRowChargesUsage(row.value),
-          }),
-        )}
-        {renderLoadMoreRow(block, path, blockIndex, depth, nodeKey)}
-        {renderRow({
-          ...toRow(null),
-          level,
-          depth,
-          typeLabel: translate('text_1792668632007lqi5wcqidcx'),
-          label: translate('text_1792668632007qgsxnaul7fn', { typeName: level.name }),
-          isUnattributed: true,
-          amountCents: usage.unattributed.amountCents,
-          splitChargeUnits: usage.unattributed.splitChargeUnits,
-          chargesUsageByFilterPage: usages.map(({ unattributed }) => unattributed.chargesUsage),
-        })}
-      </Fragment>
-    )
-  }
-
-  const renderChildren = (
-    path: AttributionPathStep[],
-    depth: number,
-    nodeKey: string,
-  ): ReactNode => {
-    const node = nodes[nodeKey]
-
-    if (node?.status !== 'loaded' || !node.isExpanded) return null
-
-    return node.blocks.map((block, blockIndex) =>
-      renderBlock(block, path, blockIndex, depth, nodeKey),
-    )
-  }
+  const table = useComposableTable({
+    data: rows,
+    columns: tableColumns,
+    getRowId: (row) => row.id,
+    getSubRows: (row) => (row.kind === 'data' ? row.subRows : undefined),
+    getRowCanExpand: (row) => row.original.kind === 'data' && row.original.expansion.canExpand,
+    initialState: { columnPinning: ATTRIBUTION_COLUMN_PINNING },
+    state: { expanded },
+  })
 
   return (
-    <AttributionTableLayout {...tableProps} data-test={ATTRIBUTION_TREE_TABLE_TEST_ID}>
-      {renderChildren([], 0, ROOT_NODE_KEY)}
-    </AttributionTableLayout>
+    <AttributionTableView
+      table={table}
+      isLoading={isLoading}
+      rowDataTest={ATTRIBUTION_TREE_ROW_TEST_ID}
+      data-test={ATTRIBUTION_TREE_TABLE_TEST_ID}
+    />
   )
 }

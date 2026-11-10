@@ -70,6 +70,7 @@ import DrawerTest from './tabs/DrawerTest'
 import { shadcnDropdownMenuTab } from './tabs/DropdownMenuTest'
 import EditorTest from './tabs/EditorTest'
 import { shadcnSeparatorTab } from './tabs/SeparatorTest'
+import { shadcnTabsTab } from './tabs/TabsTest'
 import { shadcnTooltipTab } from './tabs/TooltipTest'
 import { TypographyTest } from './tabs/TypographyTest'
 
@@ -2308,6 +2309,7 @@ const DesignSystem = () => {
           shadcnBadgeTab,
           shadcnTooltipTab,
           shadcnDropdownMenuTab,
+          shadcnTabsTab,
           shadcnSeparatorTab,
           // disabled simple tab
           {

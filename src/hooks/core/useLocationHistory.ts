@@ -144,11 +144,12 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
       return
     }
 
-    if (!routeConfig?.children && !routeConfig.onlyPublic) {
+    if (!routeConfig?.children && !routeConfig.onlyPublic && !routeConfig.skipLocationHistory) {
       /**
        * We add the current location to the history only if :
        * - Current route has no children (to avoid adding Layout route which will result in duplicates)
        * - Current route is not an only public route
+       * - Current route is not kept out of the history
        */
       addLocationToHistory(location)
     }
@@ -189,11 +190,16 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
         })
       } else if (isAuthenticated && !isCurrentUserLoading) {
         handleAuthenticatedRouteEnter(routeConfig, location)
-      } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
+      } else if (
+        !routeConfig?.children &&
+        !routeConfig.onlyPublic &&
+        !routeConfig.skipLocationHistory
+      ) {
         /**
          * We add the current location to the history only if :
          * - Current route has no children (to avoid adding Layout route which will result in duplicates)
          * - Current route is not an only public route
+         * - Current route is not kept out of the history
          */
         addLocationToHistory(location)
       }

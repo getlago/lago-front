@@ -1,12 +1,15 @@
+import { RowData } from '@tanstack/react-table'
 import { ReactNode } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 
+import { ComposableTableRow } from './useComposableTable'
+
 const INDENT_STEP_PX = 16
 
-export const ComposableTableToggleSpacer = (): JSX.Element => <span className="size-4 shrink-0" />
+const ComposableTableToggleSpacer = (): JSX.Element => <span className="size-4 shrink-0" />
 
 type ComposableTableExpandToggleProps = {
   label: string
@@ -16,7 +19,7 @@ type ComposableTableExpandToggleProps = {
   'data-test'?: string
 }
 
-export const ComposableTableExpandToggle = ({
+const ComposableTableExpandToggle = ({
   label,
   isExpanded,
   isLoading = false,
@@ -37,26 +40,49 @@ export const ComposableTableExpandToggle = ({
   />
 )
 
-type ComposableTableTreeCellProps = {
-  depth: number
-  toggle?: ReactNode
+type ComposableTableRowTreeCellProps<TData extends RowData> = {
+  row: ComposableTableRow<TData>
+  toggle?: Omit<ComposableTableExpandToggleProps, 'isExpanded' | 'onToggle'> & {
+    onToggle?: () => void
+  }
   children: ReactNode
 }
 
-export const ComposableTableTreeCell = ({
-  depth,
-  toggle = <ComposableTableToggleSpacer />,
+export const ComposableTableRowTreeCell = <TData extends RowData>({
+  row,
+  toggle,
   children,
-}: ComposableTableTreeCellProps): JSX.Element => (
-  <div className="flex items-center gap-2" style={{ paddingLeft: depth * INDENT_STEP_PX }}>
-    {toggle}
-    {children}
-  </div>
-)
+}: ComposableTableRowTreeCellProps<TData>): JSX.Element => {
+  const renderToggle = (): ReactNode => {
+    if (toggle && row.getCanExpand()) {
+      const { onToggle = row.getToggleExpandedHandler(), ...toggleProps } = toggle
+
+      return (
+        <ComposableTableExpandToggle
+          {...toggleProps}
+          isExpanded={row.getIsExpanded()}
+          onToggle={onToggle}
+        />
+      )
+    }
+
+    if (row.table.getCanSomeRowsExpand()) return <ComposableTableToggleSpacer />
+
+    return null
+  }
+
+  return (
+    <div className="flex items-center gap-2" style={{ paddingLeft: row.depth * INDENT_STEP_PX }}>
+      {renderToggle()}
+      {children}
+    </div>
+  )
+}
 
 type ComposableTableLoadMoreProps = {
   label: string
   isLoading: boolean
+  disabled?: boolean
   onLoadMore: () => void
   'data-test'?: string
 }
@@ -64,6 +90,7 @@ type ComposableTableLoadMoreProps = {
 export const ComposableTableLoadMore = ({
   label,
   isLoading,
+  disabled = false,
   onLoadMore,
   'data-test': dataTest,
 }: ComposableTableLoadMoreProps): JSX.Element => (
@@ -71,7 +98,7 @@ export const ComposableTableLoadMore = ({
     variant="inline"
     size="small"
     loading={isLoading}
-    disabled={isLoading}
+    disabled={disabled || isLoading}
     onClick={onLoadMore}
     data-test={dataTest}
   >

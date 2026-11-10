@@ -55,7 +55,7 @@ const ProductCatalog = () => {
           }),
         ],
         content: <ProductCategoriesList />,
-        hidden: !hasPermissions(['productCategoriesView']),
+        hidden: !hasPermissions(['productsView']),
       },
       {
         title: translate('text_17831042398250iwa2xp8pba'),
@@ -71,7 +71,7 @@ const ProductCatalog = () => {
           tab: ProductCatalogTabsOptionsEnum.productFilters,
         }),
         content: <ProductFiltersList />,
-        hidden: !hasPermissions(['productFiltersView']),
+        hidden: !hasPermissions(['productsView']),
       },
       {
         title: translate('text_1783104239825nxqno33u945'),
@@ -110,7 +110,7 @@ const ProductCatalog = () => {
               items: [
                 {
                   label: translate('text_1783622030703h5vhmp73muk'),
-                  hidden: !hasPermissions(['productCategoriesCreate']),
+                  hidden: !hasPermissions(['productsCreate']),
                   dataTest: CREATE_PRODUCT_TEST_ID,
                   onClick: (closePopper) => {
                     openCreateProductCategoryDrawer()
@@ -128,7 +128,7 @@ const ProductCatalog = () => {
                 },
                 {
                   label: translate('text_17836220307039rf790f045t'),
-                  hidden: !hasPermissions(['productFiltersCreate']),
+                  hidden: !hasPermissions(['productsCreate']),
                   dataTest: CREATE_PRODUCT_ITEM_FILTER_TEST_ID,
                   onClick: (closePopper) => {
                     openCreateProductFilterDrawer()

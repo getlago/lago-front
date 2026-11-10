@@ -10,6 +10,7 @@ jest.mock('../drawerStack')
 const mockShow = jest.fn().mockResolvedValue({ reason: 'close' })
 const mockHide = jest.fn()
 const mockResolve = jest.fn()
+let mockVisible = false
 
 jest.mock('@ebay/nice-modal-react', () => ({
   __esModule: true,
@@ -24,7 +25,7 @@ jest.mock('@ebay/nice-modal-react', () => ({
     resolve: mockResolve,
     reject: jest.fn(),
     remove: jest.fn(),
-    visible: false,
+    visible: mockVisible,
   })),
 }))
 
@@ -93,6 +94,7 @@ describe('useDrawer', () => {
 describe('useFormDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockVisible = false
   })
 
   describe('GIVEN the hook is initialized', () => {
@@ -121,6 +123,81 @@ describe('useFormDrawer', () => {
 
         expect(mockResolve).toHaveBeenCalledWith(CLOSE_DRAWER_PARAMS)
         expect(mockHide).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN update is called', () => {
+    const props = {
+      title: 'Title',
+      children: 'opened content',
+      form: { id: 'form-id', submit: jest.fn() },
+    }
+
+    describe('WHEN the drawer is open', () => {
+      it('THEN should show it with the new props merged into the opened ones', () => {
+        const { result } = renderHook(() => useFormDrawer())
+
+        result.current.open(props)
+        result.current.update({ children: 'new content' })
+
+        expect(mockShow).toHaveBeenLastCalledWith({ ...props, children: 'new content' })
+      })
+    })
+
+    describe('WHEN the new props are the ones already shown', () => {
+      it('THEN should not show the drawer again', () => {
+        const { result } = renderHook(() => useFormDrawer())
+
+        result.current.open(props)
+        result.current.update({ children: 'new content' })
+        result.current.update({ children: 'new content', title: props.title })
+
+        expect(mockShow).toHaveBeenCalledTimes(2)
+      })
+    })
+
+    describe('WHEN the drawer was closed through close', () => {
+      it('THEN should leave it closed', () => {
+        const { result } = renderHook(() => useFormDrawer())
+
+        result.current.open(props)
+        result.current.close()
+        result.current.update({ children: 'new content' })
+
+        expect(mockShow).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the drawer closed itself', () => {
+      it('THEN should leave it closed', () => {
+        const { result, rerender } = renderHook(() => useFormDrawer())
+
+        result.current.open(props)
+        mockVisible = true
+        rerender()
+        mockVisible = false
+        rerender()
+        result.current.update({ children: 'new content' })
+
+        expect(mockShow).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
+
+  describe('GIVEN the drawer opens and closes', () => {
+    describe('WHEN the host re-renders', () => {
+      it('THEN should keep the same update, so an effect depending on it does not loop', () => {
+        const { result, rerender } = renderHook(() => useFormDrawer())
+        const { update } = result.current
+
+        result.current.open({ title: 'Title', form: { id: 'form-id', submit: jest.fn() } })
+        mockVisible = true
+        rerender()
+        mockVisible = false
+        rerender()
+
+        expect(result.current.update).toBe(update)
       })
     })
   })

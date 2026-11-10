@@ -26,6 +26,7 @@ than one PR.
 | MainHeader actions & tabs (`MainHeader.Configure`, `snapshotKey`) | `references/main-header.md` |
 | Icons, logos & brand assets | `references/icons-and-logos.md` |
 | ComboBox width & focus/open behavior | `references/combobox-width-and-focus.md` |
+| ComposableTable renderers, column meta & lazy trees | `references/composable-table.md` |
 | Filters framework internals | `references/filters-framework-internals.md` |
 | Selector hover actions | `references/selector-hover-actions.md` |
 | Disabled action tooltips | `references/disabled-action-no-tooltip.md` |

@@ -39,8 +39,6 @@ export const featureValidationSchema = z.object({
 
 export type FeatureFormValues = z.infer<typeof featureValidationSchema>
 
-export type FeaturePrivilegeFormValue = FeatureFormValues['privileges'][number]
-
 export const emptyFeatureDefaultValues: FeatureFormValues = {
   name: '',
   code: '',

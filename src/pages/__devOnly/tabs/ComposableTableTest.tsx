@@ -1,15 +1,13 @@
-import { ExpandedState, Updater } from '@tanstack/react-table'
 import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import {
-  ComposableTableExpandToggle,
   ComposableTableGroupHeader,
   ComposableTableInlineError,
   ComposableTableLoadMore,
+  ComposableTableRowTreeCell,
   ComposableTableSkeletonCell,
-  ComposableTableTreeCell,
   ComposableTableView,
   createComposableTableColumnHelper,
   useComposableTable,
@@ -21,7 +19,7 @@ const MOCK_DELAY_MS = 600
 
 const wait = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, MOCK_DELAY_MS))
 
-const VALUE_META = { align: 'right', shrink: true, className: 'min-w-24' } as const
+const VALUE_META = { variant: 'numeric' } as const
 
 const METRICS = [
   { key: 'tokens', label: 'Tokens', base: 120_000 },
@@ -115,7 +113,7 @@ const GroupedExample = (): JSX.Element => {
       usageColumnHelper.display({
         id: 'total',
         header: 'Total',
-        meta: { align: 'right' },
+        meta: VALUE_META,
         cell: ({ row }) =>
           loadedMetrics.reduce((total, { key }) => total + row.original.metrics[key], 0),
         footer: () => loadedMetrics.reduce((total, { key }) => total + sum(key), 0),
@@ -152,7 +150,7 @@ const stateColumns = usageColumnHelper.columns([
       }),
     ),
   }),
-  usageColumnHelper.display({ id: 'total', header: 'Total', meta: { align: 'right' } }),
+  usageColumnHelper.display({ id: 'total', header: 'Total', meta: VALUE_META }),
 ])
 
 const StatesExample = (): JSX.Element => {
@@ -200,8 +198,14 @@ type TreeRow =
 
 type Children =
   | { status: 'loading' }
-  | { status: 'error' }
-  | { status: 'loaded'; nodes: TreeNode[]; page: number; isLoadingMore: boolean }
+  | { status: 'error'; isExpanded: boolean }
+  | {
+      status: 'loaded'
+      nodes: TreeNode[]
+      page: number
+      isLoadingMore: boolean
+      isExpanded: boolean
+    }
 
 const MAX_DEPTH = 2
 const PAGE_SIZE = 3
@@ -239,7 +243,6 @@ const treeColumnHelper = createComposableTableColumnHelper<TreeRow>()
 
 const TreeExample = (): JSX.Element => {
   const [children, setChildren] = useState<Record<string, Children>>({})
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
   const [failedOnce, setFailedOnce] = useState(false)
 
   const loadPage = async (parentId: string, page: number): Promise<void> => {
@@ -269,12 +272,16 @@ const TreeExample = (): JSX.Element => {
             nodes: [...loaded, ...nodes],
             page,
             isLoadingMore: false,
+            isExpanded: true,
           },
         }
       })
     } catch {
       setFailedOnce(true)
-      setChildren((previous) => ({ ...previous, [parentId]: { status: 'error' } }))
+      setChildren((previous) => ({
+        ...previous,
+        [parentId]: { status: 'error', isExpanded: true },
+      }))
     }
   }
 
@@ -304,16 +311,28 @@ const TreeExample = (): JSX.Element => {
     return buildRows(ROOT_ID)
   }, [children])
 
-  const handleExpandedChange = (updater: Updater<ExpandedState>): void => {
-    const next = typeof updater === 'function' ? updater(expanded) : updater
+  const expanded = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(children)
+          .filter(([, entry]) => entry.status !== 'loading' && entry.isExpanded)
+          .map(([id]) => [id, true]),
+      ),
+    [children],
+  )
 
-    if (next === true) return
+  const toggleNode = (id: string): void => {
+    const entry = children[id]
 
-    Object.keys(next)
-      .filter((id) => next[id] && !expanded[id] && !children[id])
-      .forEach((id) => loadPage(id, 1))
+    if (!entry) {
+      loadPage(id, 1)
 
-    setExpanded(next)
+      return
+    }
+
+    if (entry.status === 'loading') return
+
+    setChildren((previous) => ({ ...previous, [id]: { ...entry, isExpanded: !entry.isExpanded } }))
   }
 
   const columns = useMemo(
@@ -326,13 +345,13 @@ const TreeExample = (): JSX.Element => {
 
           if (original.kind === 'error') {
             return (
-              <ComposableTableTreeCell depth={row.depth}>
+              <ComposableTableRowTreeCell row={row}>
                 <ComposableTableInlineError
                   label="Could not load this level."
                   retryLabel="Retry"
                   onRetry={() => loadPage(original.parentId, 1)}
                 />
-              </ComposableTableTreeCell>
+              </ComposableTableRowTreeCell>
             )
           }
 
@@ -340,7 +359,7 @@ const TreeExample = (): JSX.Element => {
             const parent = children[original.parentId]
 
             return (
-              <ComposableTableTreeCell depth={row.depth}>
+              <ComposableTableRowTreeCell row={row}>
                 <ComposableTableLoadMore
                   label="Show more"
                   isLoading={parent?.status === 'loaded' && parent.isLoadingMore}
@@ -348,25 +367,23 @@ const TreeExample = (): JSX.Element => {
                     parent?.status === 'loaded' && loadPage(original.parentId, parent.page + 1)
                   }
                 />
-              </ComposableTableTreeCell>
+              </ComposableTableRowTreeCell>
             )
           }
 
-          const toggle = row.getCanExpand() ? (
-            <ComposableTableExpandToggle
-              label={original.name}
-              isExpanded={row.getIsExpanded()}
-              isLoading={children[original.id]?.status === 'loading'}
-              onToggle={row.getToggleExpandedHandler()}
-            />
-          ) : undefined
-
           return (
-            <ComposableTableTreeCell depth={row.depth} toggle={toggle}>
+            <ComposableTableRowTreeCell
+              row={row}
+              toggle={{
+                label: original.name,
+                isLoading: children[original.id]?.status === 'loading',
+                onToggle: () => toggleNode(original.id),
+              }}
+            >
               <Typography variant="body" color="grey700" noWrap>
                 {original.name}
               </Typography>
-            </ComposableTableTreeCell>
+            </ComposableTableRowTreeCell>
           )
         },
       }),
@@ -389,7 +406,6 @@ const TreeExample = (): JSX.Element => {
     getRowCanExpand: (row) => row.original.kind === 'data' && row.original.depth < MAX_DEPTH,
     initialState: { columnPinning: { start: ['name'], end: [] } },
     state: { expanded },
-    onExpandedChange: handleExpandedChange,
   })
 
   return <ComposableTableView table={table} isLoading={children[ROOT_ID]?.status !== 'loaded'} />
@@ -411,7 +427,7 @@ const EXAMPLES = [
   {
     title: 'Tree with lazy children, show more and errors',
     description:
-      'Children load on expand and page per level. "Department 3" fails on its first load: an error row under it retries that node only.',
+      'Children load on expand and page per level. The expansion lives in the children cache and each toggle updates it through `onToggle`. "Department 3" fails on its first load: an error row under it retries that node only.',
     component: <TreeExample />,
   },
 ]

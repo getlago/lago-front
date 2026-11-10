@@ -90,6 +90,8 @@ gql`
         currentPage
         totalPages
         totalCount
+        totalCountCapped
+        hasNextPage
       }
       collection {
         ...CustomerItem
@@ -156,6 +158,7 @@ const CustomersList = () => {
   const headerFilters = useCustomersListHeaderFilters({ debouncedSearch: searchAndResetPage })
 
   const customersTotalCount = data?.customers?.metadata?.totalCount
+  const customersTotalCountCapped = data?.customers?.metadata?.totalCountCapped
 
   const hasSearchOrFilters = useMemo(() => {
     const hasPopperFilters = Object.keys(filtersForCustomerQuery).some(
@@ -170,7 +173,11 @@ const CustomersList = () => {
       <MainHeader.Configure
         entity={{
           viewName: translate('text_624efab67eb2570101d117a5'),
-          metadata: formatCountToMetadata(customersTotalCount, translate),
+          metadata: formatCountToMetadata(
+            customersTotalCount,
+            translate,
+            customersTotalCountCapped,
+          ),
           metadataLoading: isLoading && customersTotalCount === undefined,
         }}
         actions={{ items: headerActions }}

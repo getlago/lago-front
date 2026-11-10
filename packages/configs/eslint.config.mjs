@@ -108,22 +108,17 @@ export default [
       'no-unneeded-ternary': 'warn',
       'no-duplicate-imports': 'error',
 
-      // Prevent barrel imports from large libraries (impacts bundle size and dev performance)
-      'no-restricted-imports': [
+      // `no-restricted-syntax`, not `no-restricted-imports`: the formik/dialog block below
+      // reuses that rule key at a different severity, and flat config doesn't merge options.
+      'no-restricted-syntax': [
         'error',
         {
-          paths: [
-            {
-              name: '@mui/material',
-              message:
-                'Import from @mui/material/* instead. E.g., import Button from "@mui/material/Button"',
-            },
-          ],
+          selector:
+            ":matches(ImportDeclaration, ExportNamedDeclaration, ExportAllDeclaration)[source.value='@mui/material']",
+          message:
+            'Import from @mui/material/* instead. E.g., import Button from "@mui/material/Button"',
         },
       ],
-      // Enforce slug-aware navigation wrappers (custom rule — error level,
-      // kept separate from `no-restricted-imports` which is also used below
-      // at `warn` severity for formik/dialog deprecations).
       'lago/no-direct-rrd-nav-import': 'error',
 
       // Plugins

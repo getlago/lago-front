@@ -72,3 +72,8 @@ a {
 #superset .ant-tabs-nav-wrap {
   margin-left: 28px;
 }
+
+/* Google allows hiding the reCAPTCHA v3 badge when its notice is shown next to the protected action */
+.grecaptcha-badge {
+  visibility: hidden;
+}

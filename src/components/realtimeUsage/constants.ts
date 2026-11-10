@@ -1,9 +1,7 @@
 import { theme } from '~/styles'
 
 export const AUTO_REFRESH_OPTIONS = [0, 1, 5, 10]
-export const DEFAULT_AUTO_REFRESH = 0
-
-export const REALTIME_USAGE_CONTROL_CLASSNAME = 'flex-row items-center gap-2'
+export const DEFAULT_AUTO_REFRESH = 1
 
 // A custom range is stored as its `from,to` ISO bounds rather than as one of these values.
 export enum TimeRangeEnum {
