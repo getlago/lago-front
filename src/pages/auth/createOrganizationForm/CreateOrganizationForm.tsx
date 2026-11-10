@@ -3,6 +3,7 @@ import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useState } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
+import { getGraphQLErrorCode } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { useNavigate } from '~/core/router'
 import {
@@ -131,7 +132,7 @@ export const CreateOrganizationForm = ({
         }
 
         const extensions = result.errors?.[0]?.extensions
-        const code = typeof extensions?.code === 'string' ? extensions.code : ''
+        const code = getGraphQLErrorCode(extensions)
 
         if (code === LagoApiError.UserNotEligible) {
           await onUserNotEligible()
