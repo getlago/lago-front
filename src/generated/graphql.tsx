@@ -5859,6 +5859,7 @@ export enum LagoApiError {
   TaxCodeAssociatedWithItemCodeNotFound = 'TaxCodeAssociatedWithItemCodeNotFound',
   CaptchaFailed = 'captcha_failed',
   CaptchaUnavailable = 'captcha_unavailable',
+  CompanyGoogleAccountRequired = 'company_google_account_required',
   CouponIsNotReusable = 'coupon_is_not_reusable',
   CurrenciesDoesNotMatch = 'currencies_does_not_match',
   CurrencyCodeNotSupported = 'currencyCodeNotSupported',
@@ -5880,6 +5881,7 @@ export enum LagoApiError {
   InternalError = 'internal_error',
   InvalidCharacters = 'invalid_characters',
   InvalidGoogleCode = 'invalid_google_code',
+  InvalidGoogleState = 'invalid_google_state',
   InvalidGoogleToken = 'invalid_google_token',
   InvalidStatus = 'invalid_status',
   InviteAlreadyExists = 'invite_already_exists',
@@ -13843,7 +13845,7 @@ export type UpdateContractRatePhaseMutation = { __typename?: 'Mutation', updateC
 export type GetGoogleAuthUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetGoogleAuthUrlQuery = { __typename?: 'Query', googleAuthUrl: { __typename?: 'AuthUrl', url: string } };
+export type GetGoogleAuthUrlQuery = { __typename?: 'Query', googleAuthUrl: { __typename?: 'AuthUrl', url: string, stateSecret?: string | null } };
 
 export type BillableMetricActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -17627,6 +17629,13 @@ export type GoogleLoginUserMutationVariables = Exact<{
 
 
 export type GoogleLoginUserMutation = { __typename?: 'Mutation', googleLoginUser?: { __typename?: 'LoginUser', token: string } | null };
+
+export type GoogleSignUpMutationVariables = Exact<{
+  input: GoogleSignUpInput;
+}>;
+
+
+export type GoogleSignUpMutation = { __typename?: 'Mutation', googleSignUp?: { __typename?: 'LoginUser', token: string } | null };
 
 export type LoginUserMutationVariables = Exact<{
   input: LoginUserInput;
@@ -29315,6 +29324,7 @@ export const GetGoogleAuthUrlDocument = gql`
     query getGoogleAuthUrl {
   googleAuthUrl {
     url
+    stateSecret
   }
 }
     `;
@@ -46172,6 +46182,39 @@ export function useGoogleLoginUserMutation(baseOptions?: Apollo.MutationHookOpti
 export type GoogleLoginUserMutationHookResult = ReturnType<typeof useGoogleLoginUserMutation>;
 export type GoogleLoginUserMutationResult = Apollo.MutationResult<GoogleLoginUserMutation>;
 export type GoogleLoginUserMutationOptions = Apollo.BaseMutationOptions<GoogleLoginUserMutation, GoogleLoginUserMutationVariables>;
+export const GoogleSignUpDocument = gql`
+    mutation googleSignUp($input: GoogleSignUpInput!) {
+  googleSignUp(input: $input) {
+    token
+  }
+}
+    `;
+export type GoogleSignUpMutationFn = Apollo.MutationFunction<GoogleSignUpMutation, GoogleSignUpMutationVariables>;
+
+/**
+ * __useGoogleSignUpMutation__
+ *
+ * To run a mutation, you first call `useGoogleSignUpMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGoogleSignUpMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [googleSignUpMutation, { data, loading, error }] = useGoogleSignUpMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useGoogleSignUpMutation(baseOptions?: Apollo.MutationHookOptions<GoogleSignUpMutation, GoogleSignUpMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<GoogleSignUpMutation, GoogleSignUpMutationVariables>(GoogleSignUpDocument, options);
+      }
+export type GoogleSignUpMutationHookResult = ReturnType<typeof useGoogleSignUpMutation>;
+export type GoogleSignUpMutationResult = Apollo.MutationResult<GoogleSignUpMutation>;
+export type GoogleSignUpMutationOptions = Apollo.BaseMutationOptions<GoogleSignUpMutation, GoogleSignUpMutationVariables>;
 export const LoginUserDocument = gql`
     mutation loginUser($input: LoginUserInput!) {
   loginUser(input: $input) {
