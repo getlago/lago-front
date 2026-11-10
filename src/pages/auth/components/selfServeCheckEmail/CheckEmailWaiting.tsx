@@ -3,6 +3,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { RecaptchaNotice } from '~/pages/auth/common/RecaptchaNotice'
+import { ResendCountdown } from '~/pages/auth/common/ResendCountdown'
 import {
   SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID,
   SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID,
@@ -14,7 +15,6 @@ import {
 } from '~/pages/auth/signUpTestIds'
 import { Title } from '~/styles/auth'
 
-import { ResendCountdown } from './ResendCountdown'
 import { StartAgainButton } from './StartAgainButton'
 import { UseResendSignupEmailReturn } from './useResendSignupEmail'
 

@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react'
 
+import { MINUTE_RULE_MAX_WAIT_SECONDS } from '~/pages/auth/common/resendWait'
 import { useSendSignupLink } from '~/pages/auth/common/useSendSignupLink'
 
-import { MINUTE_RULE_MAX_WAIT_SECONDS } from './constants'
 import { ApplyResendState } from './types'
 
 type UseResendSignupEmailProps = {
