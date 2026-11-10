@@ -106,6 +106,7 @@ export const typeDefs = gql`
     analytic
     api_log
     applied_coupon
+    attributed_usage
     billable_metric
     billing_entity
     contract
@@ -120,6 +121,8 @@ export const typeDefs = gql`
     invoice
     invoice_custom_section
     lifetime_usage
+    order
+    order_form
     organization
     payment
     payment_receipt
@@ -129,14 +132,18 @@ export const typeDefs = gql`
     plan_rate_card
     product
     product_category
+    quote
     rate_card
     security_log
     subscription
     tax
+    usage_attribution_type
     wallet
     wallet_transaction
     webhook_endpoint
     webhook_jwt_public_key
+    x402
+    x402_connection
   }
 `
 

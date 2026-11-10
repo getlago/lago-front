@@ -52,6 +52,7 @@ const canOnlyRead = (permission: ApiKeysPermissionsEnum): boolean =>
   permission === ApiKeysPermissionsEnum.ActivityLog ||
   permission === ApiKeysPermissionsEnum.Analytic ||
   permission === ApiKeysPermissionsEnum.ApiLog ||
+  permission === ApiKeysPermissionsEnum.AttributedUsage ||
   permission === ApiKeysPermissionsEnum.CustomerUsage ||
   permission === ApiKeysPermissionsEnum.SecurityLog
 
@@ -86,6 +87,10 @@ const PERMISSION_RESOURCES: Record<
   [ApiKeysPermissionsEnum.AppliedCoupon]: {
     translationKey: 'text_17328948204857eb1ecwe5me',
     availability: 'withoutProductCatalog',
+  },
+  [ApiKeysPermissionsEnum.AttributedUsage]: {
+    translationKey: 'text_17943010994335qi05xrijso',
+    availability: 'all',
   },
   [ApiKeysPermissionsEnum.BillableMetric]: {
     translationKey: 'text_623b497ad05b960101be3438',
@@ -143,6 +148,14 @@ const PERMISSION_RESOURCES: Record<
     translationKey: 'text_1726481163322ntor50xdm8k',
     availability: 'withoutProductCatalog',
   },
+  [ApiKeysPermissionsEnum.Order]: {
+    translationKey: 'text_179430109943347icxpf8u4p',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.OrderForm]: {
+    translationKey: 'text_1794301099433l4y2235vnyy',
+    availability: 'all',
+  },
   [ApiKeysPermissionsEnum.Organization]: {
     translationKey: 'text_173289482048511y9ieyywq5',
     availability: 'all',
@@ -179,6 +192,10 @@ const PERMISSION_RESOURCES: Record<
     translationKey: 'text_17831042398244jk9iv71lra',
     availability: 'withProductCatalog',
   },
+  [ApiKeysPermissionsEnum.Quote]: {
+    translationKey: 'text_17943010994330hgzeuprbjd',
+    availability: 'all',
+  },
   [ApiKeysPermissionsEnum.RateCard]: {
     translationKey: 'text_1783104239825nxqno33u945',
     availability: 'withProductCatalog',
@@ -195,6 +212,10 @@ const PERMISSION_RESOURCES: Record<
     translationKey: 'text_645bb193927b375079d28a8f',
     availability: 'all',
   },
+  [ApiKeysPermissionsEnum.UsageAttributionType]: {
+    translationKey: 'text_1794301099433wmuf4rna54o',
+    availability: 'all',
+  },
   [ApiKeysPermissionsEnum.Wallet]: {
     translationKey: 'text_62d175066d2dbf1d50bc937c',
     availability: 'withoutProductCatalog',
@@ -209,6 +230,14 @@ const PERMISSION_RESOURCES: Record<
   },
   [ApiKeysPermissionsEnum.WebhookJwtPublicKey]: {
     translationKey: 'text_1732894820485vwy7ic1o84g',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.X402]: {
+    translationKey: 'text_1794301099433c0utqlz5gic',
+    availability: 'all',
+  },
+  [ApiKeysPermissionsEnum.X402Connection]: {
+    translationKey: 'text_179430109943384j05ksdfjl',
     availability: 'all',
   },
 }
@@ -380,14 +409,14 @@ const ApiKeysForm = () => {
       const { permissions, ...values } = value
 
       const formattedPermissions = hasAccessToApiPermissionsPremiumAddOn
-        ? permissions.reduce(
+        ? permissions.reduce<Record<string, string[]>>(
             (acc, { id, canRead, canWrite }) => ({
               ...acc,
               [id]: [canRead ? READ_PERMISSION : '', canWrite ? WRITE_PERMISSION : ''].filter(
                 Boolean,
               ),
             }),
-            {},
+            { ...apiKey?.permissions },
           )
         : undefined
 

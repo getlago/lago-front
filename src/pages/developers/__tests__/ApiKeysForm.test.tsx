@@ -629,5 +629,121 @@ describe('ApiKeysForm', () => {
         expect(screen.getByRole('button', { name: /add api key/i })).toBeEnabled()
       })
     })
+
+    describe('WHEN the usage attribution and quote resources are listed', () => {
+      it.each([
+        ['without', false],
+        ['with', true],
+      ])(
+        'THEN should display their rows %s the product catalog feature flag',
+        async (_, hasProductCatalog) => {
+          mockHasFeatureFlag.mockImplementation(
+            (flag: FeatureFlagEnum) => hasProductCatalog && flag === FeatureFlagEnum.ProductCatalog,
+          )
+
+          render(<ApiKeysForm />)
+
+          await waitFor(() => {
+            expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+          })
+          ;[
+            ApiKeysPermissionsEnum.AttributedUsage,
+            ApiKeysPermissionsEnum.Order,
+            ApiKeysPermissionsEnum.OrderForm,
+            ApiKeysPermissionsEnum.Quote,
+            ApiKeysPermissionsEnum.UsageAttributionType,
+            ApiKeysPermissionsEnum.X402,
+            ApiKeysPermissionsEnum.X402Connection,
+          ].forEach((permission) => {
+            expect(
+              screen.getByTestId(getApiKeysFormPermissionRowTestId(permission)),
+            ).toBeInTheDocument()
+          })
+        },
+      )
+
+      it.each([
+        [ApiKeysPermissionsEnum.AttributedUsage, 1],
+        [ApiKeysPermissionsEnum.UsageAttributionType, 2],
+      ])('THEN should render %s with %i permission checkbox(es)', async (permission, count) => {
+        render(<ApiKeysForm />)
+
+        await waitFor(() => {
+          expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+        })
+
+        const row = screen.getByTestId(getApiKeysFormPermissionRowTestId(permission))
+
+        expect(row.querySelectorAll('input[type="checkbox"]')).toHaveLength(count)
+      })
+    })
+
+    describe('WHEN editing a key whose stored permissions include resources the table does not display', () => {
+      beforeEach(() => {
+        const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
+
+        useParamsMock.mockReturnValue({ apiKeyId: 'api-key-123' })
+      })
+
+      it('THEN should submit those stored permissions unchanged alongside the displayed rows', async () => {
+        const user = userEvent.setup({ pointerEventsCheck: 0 })
+        let submittedPermissions: Record<string, string[]> = {}
+
+        const getApiKeyWithHiddenPermissionsMock: MockedResponse = {
+          request: {
+            query: GetApiKeyToEditDocument,
+            variables: { apiKeyId: 'api-key-123' },
+          },
+          result: {
+            data: {
+              apiKey: {
+                ...mockApiKeyData.apiKey,
+                permissions: {
+                  [ApiKeysPermissionsEnum.Customer]: ['read'],
+                  [ApiKeysPermissionsEnum.Product]: ['read'],
+                  unknown_resource: ['read', 'write'],
+                },
+              },
+            },
+          },
+        }
+
+        const updateApiKeyWithPermissionsMock: MockedResponse = {
+          request: { query: UpdateApiKeyDocument },
+          variableMatcher: (variables) => {
+            submittedPermissions = variables.input.permissions
+
+            return true
+          },
+          result: { data: { updateApiKey: { id: 'api-key-123' } } },
+        }
+
+        render(<ApiKeysForm />, {
+          mocks: [getApiKeyWithHiddenPermissionsMock, updateApiKeyWithPermissionsMock],
+        })
+
+        await waitFor(() => {
+          expect(
+            screen.getByTestId(getApiKeysFormPermissionRowTestId(ApiKeysPermissionsEnum.Customer)),
+          ).toBeInTheDocument()
+        })
+
+        const customerWriteCheckbox = screen
+          .getByTestId(getApiKeysFormPermissionRowTestId(ApiKeysPermissionsEnum.Customer))
+          .querySelectorAll('input[type="checkbox"]')[1] as HTMLInputElement
+
+        await user.click(customerWriteCheckbox)
+        await user.click(screen.getByRole('button', { name: /save/i }))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        })
+
+        expect(submittedPermissions[ApiKeysPermissionsEnum.Product]).toEqual(['read'])
+        expect(submittedPermissions.unknown_resource).toEqual(['read', 'write'])
+        expect(submittedPermissions[ApiKeysPermissionsEnum.Customer]).toEqual(['read', 'write'])
+        expect(submittedPermissions[ApiKeysPermissionsEnum.AttributedUsage]).toEqual([])
+      })
+    })
   })
 })
