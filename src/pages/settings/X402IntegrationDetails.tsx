@@ -8,7 +8,7 @@ import { useAddX402Dialog } from '~/components/settings/integrations/AddX402Dial
 import { useDeleteX402IntegrationDialog } from '~/components/settings/integrations/DeleteX402IntegrationDialog'
 import {
   getX402Environment,
-  getX402Network,
+  getX402NetworkName,
   X402_ENVIRONMENT_TRANSLATIONS,
 } from '~/components/settings/integrations/x402Connection'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -20,6 +20,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
+import { useX402Networks } from '~/hooks/useX402Networks'
 import Coinbase from '~/public/images/coinbase.svg'
 
 const CONNECTION_LIMIT = 2
@@ -73,7 +74,8 @@ const X402IntegrationDetails = (): JSX.Element | null => {
   })
   const connection = data?.x402Connection
   const initialLoading = loading && !data
-  const environment = getX402Environment(connection?.networks || [])
+  const { networks: catalog } = useX402Networks()
+  const environment = getX402Environment(connection?.networks || [], catalog)
 
   const deleteDialogCallback = (): void => {
     const hasOtherConnections = (data?.x402Connections?.collection.length || 0) >= CONNECTION_LIMIT
@@ -123,7 +125,7 @@ const X402IntegrationDetails = (): JSX.Element | null => {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   hidden: !canEditIntegration,
                   onClick: (closePopper) => {
-                    if (connection) openAddX402Dialog({ connection })
+                    if (connection) openAddX402Dialog({ connection, catalog })
                     closePopper()
                   },
                 },
@@ -155,7 +157,7 @@ const X402IntegrationDetails = (): JSX.Element | null => {
                 variant="inline"
                 disabled={initialLoading || !connection}
                 onClick={() => {
-                  if (connection) openAddX402Dialog({ connection })
+                  if (connection) openAddX402Dialog({ connection, catalog })
                 }}
               >
                 {translate('text_62b1edddbf5f461ab9712787')}
@@ -201,7 +203,7 @@ const X402IntegrationDetails = (): JSX.Element | null => {
                 icon="plug"
                 label={translate('text_1793132394870ds0ogcm4ono')}
                 value={connection.networks
-                  .map((network) => getX402Network(network)?.name || network)
+                  .map((network) => getX402NetworkName(network, catalog))
                   .join(', ')}
               />
               <IntegrationsPage.DetailsItem

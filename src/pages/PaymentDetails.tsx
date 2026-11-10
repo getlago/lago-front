@@ -18,7 +18,7 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { getPaymentProviderChipType, PaymentProviderChip } from '~/components/PaymentProviderChip'
 import {
-  getX402Network,
+  getX402NetworkName,
   X402_SETTLEMENT_KIND_TRANSLATIONS,
 } from '~/components/settings/integrations/x402Connection'
 import { formatCredits } from '~/components/wallets/utils'
@@ -56,6 +56,7 @@ import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
+import { useX402Networks } from '~/hooks/useX402Networks'
 import { MenuPopper } from '~/styles'
 
 gql`
@@ -239,6 +240,7 @@ const PaymentDetails = () => {
   const payment = data.payment
   const customer = payment?.customer
   const settlement = payment?.x402Settlement
+  const { networks: x402Catalog } = useX402Networks({ skip: !settlement })
   const creditGranted = settlement?.creditAmount
     ? formatCredits({ credits: settlement.creditAmount })
     : '-'
@@ -610,7 +612,7 @@ const PaymentDetails = () => {
                 />
                 <InfoLine
                   label={translate('text_1793132394869jd4bmw58fz1')}
-                  value={getX402Network(settlement.network)?.name || settlement.network}
+                  value={getX402NetworkName(settlement.network, x402Catalog)}
                 />
               </div>
 
