@@ -3,6 +3,7 @@ import { Suspense } from 'react'
 
 import type { envGlobalVar } from '~/core/apolloClient/reactiveVars/envGlobalVar'
 
+import { CREATE_ORGANIZATION_ROUTE } from '../paths/createOrganization'
 import type { CustomRouteObject } from '../types'
 
 configure({ testIdAttribute: 'data-test' })
@@ -13,6 +14,7 @@ type SignUpFlags = Pick<ReturnType<typeof envGlobalVar>, 'disableSignUp' | 'self
 const MOCK_SIGN_UP_PAGE_TEST_ID = 'legacy-sign-up-page'
 const MOCK_SELF_SERVE_SIGN_UP_PAGE_TEST_ID = 'self-serve-sign-up-page'
 const MOCK_VERIFY_EMAIL_PAGE_TEST_ID = 'verify-email-page'
+const MOCK_CREATE_ORGANIZATION_PAGE_TEST_ID = 'create-organization-page'
 const VERIFY_EMAIL_ROUTE = '/verify-email'
 
 const mockEnvGlobalVar = jest.fn<SignUpFlags, []>()
@@ -34,6 +36,11 @@ jest.mock('~/pages/auth/SelfServeSignUp', () => ({
 jest.mock('~/pages/auth/VerifyEmail', () => ({
   __esModule: true,
   default: () => <div data-test={MOCK_VERIFY_EMAIL_PAGE_TEST_ID} />,
+}))
+
+jest.mock('~/pages/auth/CreateOrganization', () => ({
+  __esModule: true,
+  default: () => <div data-test={MOCK_CREATE_ORGANIZATION_PAGE_TEST_ID} />,
 }))
 
 const loadAuthRoutes = async (flags: SignUpFlags): Promise<AuthRoutesModule> => {
@@ -175,6 +182,44 @@ describe('authRoutes', () => {
         })
 
         expect(findRoute(authRoutes, VERIFY_EMAIL_ROUTE)).toBeUndefined()
+      })
+    })
+  })
+
+  describe('GIVEN a user without an organization opens the create organization route', () => {
+    describe.each([
+      ['enabled', false],
+      ['disabled', true],
+    ])('WHEN the self-serve flag is on and the sign-up is %s', (_, disableSignUp) => {
+      it('THEN should register the create organization route as private', async () => {
+        const { authRoutes } = await loadAuthRoutes({ disableSignUp, selfServeEnabled: true })
+        const createOrganizationRoute = findRoute(authRoutes, CREATE_ORGANIZATION_ROUTE)
+
+        expect(createOrganizationRoute).toMatchObject({ private: true })
+        expect(createOrganizationRoute?.onlyPublic).toBeFalsy()
+      })
+
+      it('THEN should render the create organization page', async () => {
+        const { authRoutes } = await loadAuthRoutes({ disableSignUp, selfServeEnabled: true })
+
+        render(
+          <Suspense fallback={null}>
+            {findRoute(authRoutes, CREATE_ORGANIZATION_ROUTE)?.element}
+          </Suspense>,
+        )
+
+        expect(await screen.findByTestId(MOCK_CREATE_ORGANIZATION_PAGE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe.each([
+      ['enabled', false],
+      ['disabled', true],
+    ])('WHEN the self-serve flag is off and the sign-up is %s', (_, disableSignUp) => {
+      it('THEN should not register the create organization route', async () => {
+        const { authRoutes } = await loadAuthRoutes({ disableSignUp, selfServeEnabled: false })
+
+        expect(findRoute(authRoutes, CREATE_ORGANIZATION_ROUTE)).toBeUndefined()
       })
     })
   })
