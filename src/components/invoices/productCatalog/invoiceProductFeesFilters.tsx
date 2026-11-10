@@ -68,7 +68,12 @@ export const buildInvoiceProductFeesProductFilterOptions = (
 ): FilterOption[] => [
   { label: translate(NOT_DEFINED_TRANSLATION_KEY), value: filterWithoutProductFilterValue },
   ...Array.from(groupProductFilterIdsByLabel(products), ([label, ids]) =>
-    toOption(Array.from(ids).sort().join(PRODUCT_FILTER_IDS_SEPARATOR), label),
+    toOption(
+      Array.from(ids)
+        .sort((a, b) => a.localeCompare(b))
+        .join(PRODUCT_FILTER_IDS_SEPARATOR),
+      label,
+    ),
   ).sort((a, b) => a.label.localeCompare(b.label)),
 ]
 
