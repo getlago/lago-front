@@ -12,7 +12,7 @@ const googleOauthFlowSchema = z.object({
 export type GoogleOauthFlow = z.infer<typeof googleOauthFlowSchema>
 
 const legacyGoogleStateSchema = z.object({
-  mode: z.string().optional(),
+  mode: z.enum(['login', 'signup', 'invite']),
   invitationToken: z.string().optional(),
   redirectPath: z.string().optional(),
 })

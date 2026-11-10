@@ -496,6 +496,83 @@ describe('GoogleAuthCallback', () => {
     })
   })
 
+  describe('GIVEN self-serve is on in the front and the API issued a legacy sign-up state', () => {
+    beforeEach(() => {
+      mockSelfServeEnabled(true)
+      mockGoogleAnswer({ code: GOOGLE_CODE, state: JSON.stringify({ mode: 'signup' }) })
+    })
+
+    describe('WHEN the callback processes', () => {
+      it('THEN should go back to Step 1 with the sign-up unavailable error, since Step 1 never reads the code', () => {
+        renderCallback()
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith(
+          navigationTo(SIGN_UP_ROUTE, LagoApiError.SelfServeDisabled),
+          REPLACE_NAVIGATION,
+        )
+        expect(mockGoogleSignUp).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN Google returned a code without any state', () => {
+    beforeEach(() => {
+      mockGoogleAnswer({ code: GOOGLE_CODE })
+    })
+
+    describe('WHEN the callback processes', () => {
+      it('THEN should show the invalid state error instead of waiting forever', () => {
+        renderCallback()
+
+        expect(mockNavigate).toHaveBeenCalledWith(
+          navigationTo(LOGIN_ROUTE, LagoApiError.InvalidGoogleState),
+          REPLACE_NAVIGATION,
+        )
+        expect(mockGoogleLoginUser).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a Google login that the API refuses without details', () => {
+    beforeEach(() => {
+      keepFlow({ mode: 'login' })
+      mockGoogleAnswer({ code: GOOGLE_CODE, state: SIGNED_STATE })
+    })
+
+    describe('WHEN the error only has a code', () => {
+      it('THEN should go to the login page with that code', async () => {
+        mockGoogleLoginUser.mockResolvedValue(
+          buildErrorAnswer({ status: 500, code: LagoApiError.InternalError }),
+        )
+
+        renderCallback()
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith({
+            pathname: LOGIN_ROUTE,
+            search: `?lago_error_code=${LagoApiError.InternalError}`,
+          })
+        })
+      })
+    })
+
+    describe('WHEN the request fails on the network', () => {
+      it('THEN should go to the login page with the internal error instead of waiting forever', async () => {
+        mockGoogleLoginUser.mockRejectedValue(new Error('Failed to fetch'))
+
+        renderCallback()
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(
+            navigationTo(LOGIN_ROUTE, LagoApiError.InternalError),
+            REPLACE_NAVIGATION,
+          )
+        })
+      })
+    })
+  })
+
   describe('GIVEN this tab kept a sign-up flow', () => {
     beforeEach(() => {
       mockSelfServeEnabled(true)
@@ -726,6 +803,23 @@ describe('GoogleAuthCallback', () => {
           )
         })
         expect(mockedUnloadRecaptcha).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the log in after the sign-up fails', () => {
+      it('THEN should send the internal error back to the sign-up page', async () => {
+        mockGoogleAnswer({ code: GOOGLE_CODE, state: SIGNED_STATE })
+        mockGoogleSignUp.mockResolvedValue(SIGN_UP_SUCCESS)
+        mockOnLogIn.mockRejectedValue(new Error('Failed to fetch'))
+
+        renderCallback()
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(
+            navigationTo(SIGN_UP_ROUTE, LagoApiError.InternalError),
+            REPLACE_NAVIGATION,
+          )
+        })
       })
     })
   })

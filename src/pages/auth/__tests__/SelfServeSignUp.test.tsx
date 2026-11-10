@@ -1108,13 +1108,13 @@ describe('SelfServeSignUp', () => {
     })
 
     describe('WHEN the first step is shown', () => {
-      it('THEN should render the Google button in sign-up mode with its own alert hidden', () => {
+      it('THEN should render the Google button in sign-up mode, its errors going to the page', () => {
         render(<SelfServeSignUp />)
 
         expect(mockGoogleAuthButtonProps).toHaveBeenLastCalledWith({
           mode: 'signup',
           label: SIGN_UP_WITH_GOOGLE_COPY,
-          hideAlert: true,
+          onError: expect.any(Function),
         })
       })
 
@@ -1139,6 +1139,26 @@ describe('SelfServeSignUp', () => {
                 ),
             ),
         ).toEqual([true, true, true])
+      })
+    })
+  })
+
+  describe('GIVEN the Google button reports an error on click', () => {
+    beforeEach(() => {
+      mockRegionFrontUrls({ usFrontUrl: '', euFrontUrl: '' })
+    })
+
+    describe('WHEN Google is not set up on the API', () => {
+      it('THEN should show it in the page banner', () => {
+        render(<SelfServeSignUp />)
+
+        const { onError } = mockGoogleAuthButtonProps.mock.lastCall?.[0] ?? {}
+
+        act(() => onError?.(LagoApiError.GoogleAuthMissingSetup))
+
+        expect(screen.getByTestId(SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID)).toHaveTextContent(
+          GENERIC_ERROR_COPY,
+        )
       })
     })
   })
@@ -1187,6 +1207,23 @@ describe('SelfServeSignUp', () => {
 
         expect(window.location.pathname).toBe(SIGN_UP_ROUTE)
         expect(window.location.search).toBe('')
+      })
+    })
+
+    describe('WHEN the router state of the page is set', () => {
+      it('THEN should keep it while removing the error code', () => {
+        const routerState = { usr: { from: { pathname: '/acme/customers' } }, key: 'k1', idx: 0 }
+
+        window.history.replaceState(
+          routerState,
+          '',
+          `${SIGN_UP_ROUTE}?lago_error_code=${LagoApiError.InvalidGoogleState}`,
+        )
+
+        render(<SelfServeSignUp />)
+
+        expect(window.location.search).toBe('')
+        expect(window.history.state?.usr).toEqual(routerState.usr)
       })
     })
 
