@@ -2,16 +2,21 @@ import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { z } from 'zod'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
-import { invoiceGracePeriodSchema } from '~/formValidation/invoiceGracePeriodSchema'
 import { useUpdateBillingEntityGracePeriodMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+
+import {
+  EDIT_BILLING_ENTITY_GRACE_PERIOD_INITIAL_VALUES,
+  EditBillingEntityGracePeriodDialogData,
+} from './types'
+import { getInitialGracePeriod } from './utils'
+import { editBillingEntityGracePeriodValidationSchema } from './validationSchema'
 
 gql`
   mutation updateBillingEntityGracePeriod($input: UpdateBillingEntityInput!) {
@@ -25,16 +30,7 @@ gql`
   }
 `
 
-const editBillingEntityGracePeriodValidationSchema = z.object({
-  invoiceGracePeriod: invoiceGracePeriodSchema,
-})
-
 const EDIT_BILLING_ENTITY_GRACE_PERIOD_FORM_ID = 'edit-billing-entity-grace-period-form'
-
-type EditBillingEntityGracePeriodDialogData = {
-  id: string
-  invoiceGracePeriod: number
-}
 
 export const useEditBillingEntityGracePeriodDialog = () => {
   const formDialog = useFormDialog()
@@ -56,18 +52,20 @@ export const useEditBillingEntityGracePeriodDialog = () => {
   })
 
   const form = useAppForm({
-    defaultValues: {
-      invoiceGracePeriod: '',
-    },
+    defaultValues: EDIT_BILLING_ENTITY_GRACE_PERIOD_INITIAL_VALUES,
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: editBillingEntityGracePeriodValidationSchema,
     },
     onSubmit: async ({ value }) => {
+      const data = dataRef.current
+
+      if (!data) return
+
       await updateBillingEntityGracePeriod({
         variables: {
           input: {
-            id: dataRef.current?.id as string,
+            id: data.id,
             billingConfiguration: {
               invoiceGracePeriod: Number(value.invoiceGracePeriod) || 0,
             },
@@ -91,7 +89,7 @@ export const useEditBillingEntityGracePeriodDialog = () => {
   const openEditBillingEntityGracePeriodDialog = (data: EditBillingEntityGracePeriodDialogData) => {
     dataRef.current = data
     form.reset()
-    form.setFieldValue('invoiceGracePeriod', String(data.invoiceGracePeriod ?? ''))
+    form.setFieldValue('invoiceGracePeriod', getInitialGracePeriod(data))
 
     formDialog
       .open({
