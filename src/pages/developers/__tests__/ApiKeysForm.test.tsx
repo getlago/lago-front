@@ -6,6 +6,7 @@ import { addToast } from '~/core/apolloClient'
 import {
   ApiKeysPermissionsEnum,
   CreateApiKeyDocument,
+  EventsStoreEnum,
   FeatureFlagEnum,
   GetApiKeyToEditDocument,
   PremiumIntegrationTypeEnum,
@@ -630,15 +631,27 @@ describe('ApiKeysForm', () => {
       })
     })
 
-    describe('WHEN the attributed usage resource is listed', () => {
+    describe('WHEN usage governance is available', () => {
+      beforeEach(() => {
+        mockUseOrganizationInfos.mockReturnValue({
+          organization: {
+            premiumIntegrations: [PremiumIntegrationTypeEnum.ApiPermissions],
+            eventsStore: EventsStoreEnum.Clickhouse,
+          },
+          hasFeatureFlag: mockHasFeatureFlag,
+        })
+      })
+
       it.each([
         ['without', false],
         ['with', true],
       ])(
-        'THEN should display its row %s the product catalog feature flag',
+        'THEN should display the attributed usage row %s the product catalog feature flag',
         async (_, hasProductCatalog) => {
           mockHasFeatureFlag.mockImplementation(
-            (flag: FeatureFlagEnum) => hasProductCatalog && flag === FeatureFlagEnum.ProductCatalog,
+            (flag: FeatureFlagEnum) =>
+              flag === FeatureFlagEnum.AccountTree ||
+              (hasProductCatalog && flag === FeatureFlagEnum.ProductCatalog),
           )
 
           render(<ApiKeysForm />)
@@ -655,7 +668,11 @@ describe('ApiKeysForm', () => {
         },
       )
 
-      it('THEN should only offer the read permission', async () => {
+      it('THEN should only offer the read permission on the attributed usage row', async () => {
+        mockHasFeatureFlag.mockImplementation(
+          (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.AccountTree,
+        )
+
         render(<ApiKeysForm />)
 
         await waitFor(() => {
@@ -668,6 +685,39 @@ describe('ApiKeysForm', () => {
 
         expect(row.querySelectorAll('input[type="checkbox"]')).toHaveLength(1)
       })
+    })
+
+    describe('WHEN usage governance is not available', () => {
+      it.each([
+        ['the account tree feature flag is off', false, EventsStoreEnum.Clickhouse],
+        ['the events store is not ClickHouse', true, EventsStoreEnum.Postgres],
+      ])(
+        'THEN should not display the attributed usage row when %s',
+        async (_, hasAccountTree, eventsStore) => {
+          mockHasFeatureFlag.mockImplementation(
+            (flag: FeatureFlagEnum) => hasAccountTree && flag === FeatureFlagEnum.AccountTree,
+          )
+          mockUseOrganizationInfos.mockReturnValue({
+            organization: {
+              premiumIntegrations: [PremiumIntegrationTypeEnum.ApiPermissions],
+              eventsStore,
+            },
+            hasFeatureFlag: mockHasFeatureFlag,
+          })
+
+          render(<ApiKeysForm />)
+
+          await waitFor(() => {
+            expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+          })
+
+          expect(
+            screen.queryByTestId(
+              getApiKeysFormPermissionRowTestId(ApiKeysPermissionsEnum.AttributedUsage),
+            ),
+          ).not.toBeInTheDocument()
+        },
+      )
     })
 
     describe('WHEN editing a key whose stored permissions include resources the table does not display', () => {
@@ -691,6 +741,7 @@ describe('ApiKeysForm', () => {
               apiKey: {
                 ...mockApiKeyData.apiKey,
                 permissions: {
+                  [ApiKeysPermissionsEnum.AttributedUsage]: ['read'],
                   [ApiKeysPermissionsEnum.Customer]: ['read'],
                   [ApiKeysPermissionsEnum.Product]: ['read'],
                   unknown_resource: ['read', 'write'],
@@ -734,7 +785,7 @@ describe('ApiKeysForm', () => {
         expect(submittedPermissions[ApiKeysPermissionsEnum.Product]).toEqual(['read'])
         expect(submittedPermissions.unknown_resource).toEqual(['read', 'write'])
         expect(submittedPermissions[ApiKeysPermissionsEnum.Customer]).toEqual(['read', 'write'])
-        expect(submittedPermissions[ApiKeysPermissionsEnum.AttributedUsage]).toEqual([])
+        expect(submittedPermissions[ApiKeysPermissionsEnum.AttributedUsage]).toEqual(['read'])
       })
     })
   })

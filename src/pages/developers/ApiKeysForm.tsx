@@ -14,6 +14,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
 import { HOME_ROUTE } from '~/core/router'
 import { intlFormatDateTime } from '~/core/timezone'
+import { isUsageGovernanceEnabled } from '~/core/utils/usageGovernance'
 import {
   ApiKeysPermissionsEnum,
   FeatureFlagEnum,
@@ -56,7 +57,8 @@ const canOnlyRead = (permission: ApiKeysPermissionsEnum): boolean =>
   permission === ApiKeysPermissionsEnum.CustomerUsage ||
   permission === ApiKeysPermissionsEnum.SecurityLog
 
-type PermissionAvailability = 'all' | 'withoutProductCatalog' | 'withProductCatalog'
+type PermissionAvailability =
+  'all' | 'withoutProductCatalog' | 'withProductCatalog' | 'withUsageGovernance'
 
 // With the product catalog: the `resource_name` of the v2 controllers, plus the v1 one of each
 // endpoint v2 keeps but does not serve yet; payment receipts authorize with `invoice`.
@@ -90,7 +92,7 @@ const PERMISSION_RESOURCES: Record<
   },
   [ApiKeysPermissionsEnum.AttributedUsage]: {
     translationKey: 'text_17943010994335qi05xrijso',
-    availability: 'all',
+    availability: 'withUsageGovernance',
   },
   [ApiKeysPermissionsEnum.BillableMetric]: {
     translationKey: 'text_623b497ad05b960101be3438',
@@ -218,13 +220,21 @@ const PERMISSION_RESOURCES: Record<
   },
 }
 
-const getAvailablePermissions = (hasProductCatalog: boolean): ApiKeysPermissionsEnum[] => {
-  const hiddenAvailability: PermissionAvailability = hasProductCatalog
-    ? 'withoutProductCatalog'
-    : 'withProductCatalog'
+const getAvailablePermissions = ({
+  hasProductCatalog,
+  hasUsageGovernance,
+}: {
+  hasProductCatalog: boolean
+  hasUsageGovernance: boolean
+}): ApiKeysPermissionsEnum[] => {
+  const hiddenAvailabilities: PermissionAvailability[] = [
+    hasProductCatalog ? 'withoutProductCatalog' : 'withProductCatalog',
+  ]
+
+  if (!hasUsageGovernance) hiddenAvailabilities.push('withUsageGovernance')
 
   return Object.values(ApiKeysPermissionsEnum).filter(
-    (permission) => PERMISSION_RESOURCES[permission].availability !== hiddenAvailability,
+    (permission) => !hiddenAvailabilities.includes(PERMISSION_RESOURCES[permission].availability),
   )
 }
 
@@ -373,7 +383,10 @@ const ApiKeysForm = () => {
     defaultValues: {
       name: apiKey?.name || '',
       permissions: transformApiPermissionsForForm(
-        getAvailablePermissions(hasFeatureFlag(FeatureFlagEnum.ProductCatalog)),
+        getAvailablePermissions({
+          hasProductCatalog: hasFeatureFlag(FeatureFlagEnum.ProductCatalog),
+          hasUsageGovernance: isUsageGovernanceEnabled({ organization, hasFeatureFlag }),
+        }),
         apiKey?.permissions || DEFAULT_PERMISSIONS,
       ),
     },
