@@ -38,6 +38,7 @@ interface PaginatedContentProps {
    *  container (settings, customer detail) — otherwise the gutter is applied twice. Only takes
    *  effect together with `sticky` (a non-sticky pager already sits in a padded wrapper). */
   insetPager?: boolean
+  keepListInView?: boolean
   children: ReactNode
 }
 
@@ -67,6 +68,7 @@ export const PaginatedContent = ({
   loading,
   sticky = true,
   insetPager = false,
+  keepListInView = false,
   children,
 }: PaginatedContentProps) => {
   const pagerRef = useRef<HTMLElement>(null)
@@ -115,7 +117,7 @@ export const PaginatedContent = ({
   const handlePageChange = (page: number) => {
     onPageChange(page)
 
-    if (sticky) {
+    if (sticky && !keepListInView) {
       getScrollableAncestor(pagerRef.current)?.scrollTo({ top: 0 })
       return
     }
@@ -181,7 +183,7 @@ export const PaginatedContent = ({
 
   return (
     <>
-      {children}
+      {keepListInView ? <div ref={contentRef}>{children}</div> : children}
       {pager}
     </>
   )

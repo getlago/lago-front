@@ -17,6 +17,7 @@ import { useFinalizeInvoiceDialog } from '~/components/invoices/FinalizeInvoiceD
 import { InvoiceActivityLogs } from '~/components/invoices/InvoiceActivityLogs'
 import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteList'
 import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
+import { Metadatas } from '~/components/invoices/Metadatas'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
@@ -57,11 +58,12 @@ import {
   Invoice,
   InvoiceDetailsForInvoiceOverviewFragmentDoc,
   InvoiceForDeleteInvoiceFragmentDoc,
-  InvoiceForDetailsTableFragmentDoc,
+  InvoiceForDetailsTableWithoutFeesFragmentDoc,
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForFormatInvoiceItemMapFragmentDoc,
   InvoiceForInvoiceInfosFragmentDoc,
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
+  InvoiceProductCatalogContractFragmentDoc,
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
   LagoApiError,
@@ -72,6 +74,7 @@ import {
   useGetInvoiceCustomerQuery,
   useGetInvoiceDetailsQuery,
   useGetInvoiceFeesQuery,
+  useGetInvoiceProductCatalogContractsQuery,
   useIntegrationsListForCustomerInvoiceDetailsQuery,
   useRefreshInvoiceMutation,
   useRetryInvoiceMutation,
@@ -127,7 +130,7 @@ gql`
     }
 
     ...InvoiceDetailsForInvoiceOverview
-    ...InvoiceForDetailsTable
+    ...InvoiceForDetailsTableWithoutFees
     ...InvoiceForInvoiceInfos
     ...InvoiceForFinalizeInvoice
     ...InvoiceForUpdateInvoicePaymentStatus
@@ -180,9 +183,14 @@ gql`
     invoice(id: $id) {
       id
       ...AllInvoiceDetailsForCustomerInvoiceDetails
-      fees {
-        id
-        ...FeeAppliedTaxesForInvoiceDetails
+    }
+  }
+
+  query getInvoiceProductCatalogContracts($id: ID!) {
+    invoice(id: $id) {
+      id
+      productCatalogContracts {
+        ...InvoiceProductCatalogContract
       }
     }
   }
@@ -255,10 +263,10 @@ gql`
     }
   }
 
-  mutation refreshInvoice($input: RefreshInvoiceInput!) {
+  mutation refreshInvoice($input: RefreshInvoiceInput!, $includeLegacyFees: Boolean! = true) {
     refreshInvoice(input: $input) {
       id
-      fees {
+      fees @include(if: $includeLegacyFees) {
         ...FeeForInvoiceDetailsTable
       }
     }
@@ -294,7 +302,8 @@ gql`
     }
   }
 
-  ${InvoiceForDetailsTableFragmentDoc}
+  ${InvoiceProductCatalogContractFragmentDoc}
+  ${InvoiceForDetailsTableWithoutFeesFragmentDoc}
   ${InvoiceForInvoiceInfosFragmentDoc}
   ${InvoiceDetailsForInvoiceOverviewFragmentDoc}
   ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
@@ -317,7 +326,7 @@ const CustomerInvoiceDetails = () => {
   const navigate = useNavigate()
   const { goBack } = useLocationHistory()
   const { isPremium } = useCurrentUser()
-  const { hasFeatureFlag } = useOrganizationInfos()
+  const { organization, hasFeatureFlag } = useOrganizationInfos()
   const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const { hasPermissions } = usePermissions()
   const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
@@ -343,12 +352,33 @@ const CustomerInvoiceDetails = () => {
     translateKey: 'text_1777995443788zg01psy967w',
   })
   const {
+    data: catalogData,
+    loading: catalogLoading,
+    error: catalogError,
+  } = useGetInvoiceProductCatalogContractsQuery({
+    variables: { id: invoiceId || '' },
+    skip: !invoiceId || !organization || !isProductCatalogEnabled,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+  })
+  const catalogResolved = catalogData?.invoice?.id === invoiceId
+  const productCatalogContracts =
+    isProductCatalogEnabled && catalogResolved
+      ? (catalogData?.invoice?.productCatalogContracts ?? null)
+      : null
+  const isCatalogInvoice = productCatalogContracts !== null
+  const waitingForCatalog =
+    !!organization && isProductCatalogEnabled && !catalogResolved && !catalogError
+
+  const {
     data: feesData,
     loading: feesLoading,
     error: feesError,
   } = useGetInvoiceFeesQuery({
     variables: { id: invoiceId as string },
-    skip: !invoiceId,
+    skip: !invoiceId || !organization || waitingForCatalog || isCatalogInvoice || !!catalogError,
     context: { silentErrorCodes: [LagoApiError.NotFound] },
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
@@ -375,7 +405,10 @@ const CustomerInvoiceDetails = () => {
     useInvoiceAuthorizations({ invoice, customer })
 
   const [refreshInvoice, { loading: loadingRefreshInvoice }] = useRefreshInvoiceMutation({
-    variables: { input: { id: invoiceId || '' } },
+    variables: { input: { id: invoiceId || '' }, includeLegacyFees: !isCatalogInvoice },
+    refetchQueries: isCatalogInvoice
+      ? ['getInvoiceDetails', 'getInvoiceProductCatalogContracts', 'getInvoiceProductFees']
+      : [],
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity, LagoApiError.InternalError],
     },
@@ -394,6 +427,9 @@ const CustomerInvoiceDetails = () => {
   })
   const [retryInvoice, { loading: loadingRetryInvoice }] = useRetryInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
+    refetchQueries: isCatalogInvoice
+      ? ['getInvoiceProductCatalogContracts', 'getInvoiceProductFees']
+      : ['getInvoiceFees'],
     context: {
       silentErrorCodes: [
         LagoApiError.UnprocessableEntity,
@@ -549,8 +585,16 @@ const CustomerInvoiceDetails = () => {
     errorDetails,
   } = (invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
 
-  const isLoading = loading || customerLoading || feesLoading
-  const hasError = (!!error || !!feesError || !data?.invoice) && !isLoading
+  const isLoading =
+    loading ||
+    customerLoading ||
+    (!isCatalogInvoice && feesLoading) ||
+    !organization ||
+    waitingForCatalog ||
+    (catalogLoading && !catalogData)
+  const hasError =
+    (!!error || (!isCatalogInvoice && !!feesError) || !!catalogError || !data?.invoice) &&
+    !isLoading
 
   const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
     createCreditNoteForInvoiceButtonProps({
@@ -604,6 +648,7 @@ const CustomerInvoiceDetails = () => {
             loading={isLoading}
             customer={customer}
             fees={invoiceFees}
+            productCatalogContracts={productCatalogContracts}
             loadingInvoiceDownload={loadingInvoiceDownload}
             loadingInvoiceXmlDownload={loadingInvoiceXmlDownload}
             loadingRefreshInvoice={loadingRefreshInvoice}
@@ -695,6 +740,21 @@ const CustomerInvoiceDetails = () => {
       })
     }
 
+    if (isCatalogInvoice && status !== InvoiceStatusTypeEnum.Draft) {
+      const metadataPath = generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+        customerId: customerId || '',
+        invoiceId: invoiceId || '',
+        tab: CustomerInvoiceDetailsTabsOptionsEnum.metadata,
+      })
+
+      tabs.push({
+        title: translate('text_63fcc3218d35b9377840f59b'),
+        link: metadataPath,
+        match: [metadataPath],
+        content: <Metadatas className="mt-0" />,
+      })
+    }
+
     return tabs
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -709,6 +769,8 @@ const CustomerInvoiceDetails = () => {
     isLoading,
     customer,
     invoiceFees,
+    productCatalogContracts,
+    isCatalogInvoice,
     loadingInvoiceDownload,
     loadingRefreshInvoice,
     loadingRetryInvoice,
@@ -1022,6 +1084,28 @@ const CustomerInvoiceDetails = () => {
         entity={headerEntity}
         actions={{ items: headerActions, loading: isLoading }}
         tabs={tabsOptions}
+        snapshotKey={JSON.stringify([
+          invoice,
+          customer,
+          invoiceFees,
+          productCatalogContracts,
+          isLoading,
+          hasError,
+          loadingRefreshInvoice,
+          loadingRetryInvoice,
+          loadingRetryTaxProviderVoiding,
+          loadingInvoiceDownload,
+          loadingInvoiceXmlDownload,
+          loadingSyncHubspotIntegrationInvoice,
+          loadingSyncSalesforceIntegrationInvoice,
+          connectedNetsuiteIntegration,
+          connectedHubspotIntegration,
+          connectedSalesforceIntegration,
+          connectedAvalaraIntegration,
+          authorizations,
+          hasTaxProviderError,
+          canRecordPayment,
+        ])}
       />
 
       {!!errorMessage && (

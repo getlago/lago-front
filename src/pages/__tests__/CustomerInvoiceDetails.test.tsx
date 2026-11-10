@@ -52,10 +52,12 @@ jest.mock('~/hooks/useCurrentUser', () => ({
 }))
 
 let mockIsProductCatalogEnabled = false
+let mockOrganization: object | undefined = {}
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     hasFeatureFlag: () => mockIsProductCatalogEnabled,
+    organization: mockOrganization,
   }),
 }))
 
@@ -143,6 +145,7 @@ const mockCustomerData = {
 
 const mockUseGetInvoiceDetailsQuery = jest.fn()
 const mockUseGetInvoiceFeesQuery = jest.fn()
+const mockUseGetInvoiceProductCatalogContractsQuery = jest.fn()
 const mockUseGetInvoiceCustomerQuery = jest.fn()
 const mockRefreshInvoice = jest.fn()
 const mockRetryInvoice = jest.fn()
@@ -160,7 +163,9 @@ const mockMutationOptions: Record<string, any> = {}
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useGetInvoiceDetailsQuery: () => mockUseGetInvoiceDetailsQuery(),
-  useGetInvoiceFeesQuery: () => mockUseGetInvoiceFeesQuery(),
+  useGetInvoiceFeesQuery: (options: unknown) => mockUseGetInvoiceFeesQuery(options),
+  useGetInvoiceProductCatalogContractsQuery: (options: unknown) =>
+    mockUseGetInvoiceProductCatalogContractsQuery(options),
   useGetInvoiceCustomerQuery: () => mockUseGetInvoiceCustomerQuery(),
   useIntegrationsListForCustomerInvoiceDetailsQuery: () => mockUseIntegrationsListQuery(),
 
@@ -289,6 +294,11 @@ describe('CustomerInvoiceDetails', () => {
     jest.clearAllMocks()
     capturedConfig = null
     mockIsProductCatalogEnabled = false
+    mockOrganization = {}
+    mockUseGetInvoiceProductCatalogContractsQuery.mockReturnValue({
+      data: { invoice: { id: 'invoice-123', productCatalogContracts: null } },
+      loading: false,
+    })
     mockHasPermissions.mockReturnValue(true)
     mockUseCurrentUser.mockReturnValue({ isPremium: true })
     mockUseInvoiceAuthorizations.mockReturnValue(mockDefaultAuthorizationsReturn)
@@ -1150,6 +1160,133 @@ describe('CustomerInvoiceDetails', () => {
         expect(getVisibleDropdownLabels()).toContain(VOID_LABEL)
         expect(getVisibleDropdownLabels()).not.toContain(VOID_AND_REGENERATE_LABEL)
       })
+    })
+  })
+  describe('GIVEN catalog invoice gating', () => {
+    it.each([
+      { enabled: false, contracts: null, legacy: false, skeleton: true },
+      { enabled: true, contracts: null, legacy: false, skeleton: false },
+      { enabled: true, contracts: [], legacy: true, skeleton: false },
+    ])(
+      'THEN uses legacy skip=$legacy and skeleton skip=$skeleton when enabled=$enabled and contracts=$contracts',
+      ({ enabled, contracts, legacy, skeleton }) => {
+        mockIsProductCatalogEnabled = enabled
+        mockUseGetInvoiceProductCatalogContractsQuery.mockReturnValue({
+          data: { invoice: { id: 'invoice-123', productCatalogContracts: contracts } },
+          loading: false,
+        })
+        render(<CustomerInvoiceDetails />)
+        expect(mockUseGetInvoiceFeesQuery).toHaveBeenLastCalledWith(
+          expect.objectContaining({ skip: legacy }),
+        )
+        expect(mockUseGetInvoiceProductCatalogContractsQuery).toHaveBeenLastCalledWith(
+          expect.objectContaining({ skip: skeleton }),
+        )
+        expect(capturedConfig?.tabs?.some(({ link }) => link?.endsWith('/metadata'))).toBe(
+          enabled && contracts !== null,
+        )
+      },
+    )
+
+    it('THEN skips both queries until the organization is available', () => {
+      mockOrganization = undefined
+      render(<CustomerInvoiceDetails />)
+      expect(mockUseGetInvoiceFeesQuery).toHaveBeenLastCalledWith(
+        expect.objectContaining({ skip: true }),
+      )
+      expect(mockUseGetInvoiceProductCatalogContractsQuery).toHaveBeenLastCalledWith(
+        expect.objectContaining({ skip: true }),
+      )
+    })
+
+    it.each([
+      { data: undefined, loading: true },
+      { data: undefined, loading: false, error: new Error('skeleton failed') },
+    ])(
+      'THEN never falls back to the full fee list while catalog detection is unresolved',
+      (state) => {
+        mockIsProductCatalogEnabled = true
+        mockUseGetInvoiceProductCatalogContractsQuery.mockReturnValue(state)
+        render(<CustomerInvoiceDetails />)
+        expect(mockUseGetInvoiceFeesQuery).toHaveBeenLastCalledWith(
+          expect.objectContaining({ skip: true }),
+        )
+      },
+    )
+
+    it('THEN hides Metadata for draft catalog invoices and refreshes both catalog operations without legacy fees', () => {
+      mockIsProductCatalogEnabled = true
+      mockUseGetInvoiceProductCatalogContractsQuery.mockReturnValue({
+        data: { invoice: { id: 'invoice-123', productCatalogContracts: [] } },
+        loading: false,
+      })
+      mockUseGetInvoiceDetailsQuery.mockReturnValue({
+        data: { invoice: { ...mockInvoiceData.invoice, status: InvoiceStatusTypeEnum.Draft } },
+        loading: false,
+      })
+      render(<CustomerInvoiceDetails />)
+      expect(capturedConfig?.tabs?.some(({ link }) => link?.endsWith('/metadata'))).toBe(false)
+      expect(mockMutationOptions.refreshInvoice.variables.includeLegacyFees).toBe(false)
+      expect(mockMutationOptions.refreshInvoice.refetchQueries).toEqual(
+        expect.arrayContaining(['getInvoiceProductCatalogContracts', 'getInvoiceProductFees']),
+      )
+    })
+
+    it('THEN fails closed on a skeleton error instead of showing the legacy fee list', () => {
+      mockIsProductCatalogEnabled = true
+      mockUseGetInvoiceProductCatalogContractsQuery.mockReturnValue({
+        data: undefined,
+        loading: false,
+        error: new Error('skeleton failed'),
+      })
+
+      render(<CustomerInvoiceDetails />)
+
+      expect(screen.getByText('text_634812d6f16b31ce5cbf4111')).toBeInTheDocument()
+      expect(screen.queryByText('InvoiceOverview')).not.toBeInTheDocument()
+    })
+
+    it.each([
+      { contracts: null, expected: ['getInvoiceFees'] },
+      {
+        contracts: [],
+        expected: ['getInvoiceProductCatalogContracts', 'getInvoiceProductFees'],
+      },
+    ])('THEN refetches $expected on retry when contracts=$contracts', ({ contracts, expected }) => {
+      mockIsProductCatalogEnabled = true
+      mockUseGetInvoiceProductCatalogContractsQuery.mockReturnValue({
+        data: { invoice: { id: 'invoice-123', productCatalogContracts: contracts } },
+        loading: false,
+      })
+
+      render(<CustomerInvoiceDetails />)
+
+      expect(mockMutationOptions.retryInvoice.refetchQueries).toEqual(expected)
+    })
+
+    it('THEN changes the header snapshot when the skeleton changes on the same mounted page', () => {
+      mockIsProductCatalogEnabled = true
+      mockUseGetInvoiceProductCatalogContractsQuery.mockReturnValue({
+        data: { invoice: { id: 'invoice-123', productCatalogContracts: [] } },
+        loading: false,
+      })
+      const { rerender } = render(<CustomerInvoiceDetails />)
+      const initialSnapshot = capturedConfig?.snapshotKey
+
+      mockUseGetInvoiceProductCatalogContractsQuery.mockReturnValue({
+        data: {
+          invoice: {
+            id: 'invoice-123',
+            productCatalogContracts: [
+              { contract: { id: 'contract-1' }, productCatalogSections: [] },
+            ],
+          },
+        },
+        loading: false,
+      })
+      rerender(<CustomerInvoiceDetails />)
+      expect(capturedConfig?.snapshotKey).not.toBe(initialSnapshot)
+      expect(capturedConfig?.tabs?.at(-1)?.link).toMatch(/\/metadata$/)
     })
   })
 })

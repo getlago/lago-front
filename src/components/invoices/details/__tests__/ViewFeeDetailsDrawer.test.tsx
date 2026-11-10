@@ -1,4 +1,4 @@
-import { render as plainRender, renderHook, screen } from '@testing-library/react'
+import { render as plainRender, renderHook, screen, within } from '@testing-library/react'
 import { ReactNode } from 'react'
 
 import {
@@ -16,6 +16,7 @@ import {
   FeeForViewFeeDetailsDrawerFragment,
   FeeTypesEnum,
   PlanInterval,
+  ProductTypeEnum,
 } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
@@ -29,6 +30,12 @@ jest.mock('~/components/drawers/useDrawer', () => ({
   useDrawer: () => ({
     open: mockDrawerOpen,
     close: mockDrawerClose,
+  }),
+}))
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({
+    translate: (key: string) => jest.requireActual('../../../../../translations/base.json')[key],
   }),
 }))
 
@@ -71,6 +78,37 @@ const buildFee = (
     presentationBreakdowns: null,
     ...overrides,
   }) as unknown as FeeForViewFeeDetailsDrawerFragment
+
+const buildProductFee = (
+  overrides: Partial<FeeForViewFeeDetailsDrawerFragment> = {},
+): FeeForViewFeeDetailsDrawerFragment =>
+  buildFee({
+    feeType: FeeTypesEnum.Product,
+    itemCode: 'emails',
+    itemName: 'Emails',
+    itemType: 'Product',
+    invoiceDisplayName: null,
+    subscription: null,
+    product: {
+      id: 'product-1',
+      code: 'emails',
+      name: 'Emails',
+      invoiceDisplayName: 'Email volume',
+      productType: ProductTypeEnum.Metered,
+      productCategory: {
+        id: 'category-1',
+        code: 'comms',
+        name: 'Communications',
+      },
+    },
+    productFilter: { id: 'filter-1', code: 'eu', name: 'EU', invoiceDisplayName: null },
+    contractRateCard: {
+      id: 'crc-1',
+      rateCard: { id: 'rc-1', code: 'rc-emails', name: 'Emails rate card', displayOnInvoice: true },
+    },
+    rateOverride: null,
+    ...overrides,
+  })
 
 // The hook now reads from `ViewFeeDetailsDrawerProvider`, so each test mounts
 // the provider — the same shape that real consumers (e.g. InvoiceOverview) use.
@@ -197,6 +235,252 @@ describe('useViewFeeDetailsDrawer', () => {
         plainRender(<>{getBodyFromLastOpen()}</>)
 
         expect(screen.queryByText('parent-fee-1')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a product catalog fee', () => {
+    const renderProductFee = (overrides: Partial<FeeForViewFeeDetailsDrawerFragment> = {}) => {
+      const { result } = renderHookUnderTest()
+
+      result.current.open(buildProductFee(overrides))
+      plainRender(<>{getBodyFromLastOpen()}</>)
+    }
+
+    const getRowValue = (sectionTestId: string, label: string): string | null | undefined =>
+      within(screen.getByTestId(sectionTestId)).getByText(label).nextElementSibling?.textContent
+
+    describe('WHEN the fee has a product filter', () => {
+      it('THEN should title the drawer with the product and filter display names', () => {
+        renderProductFee()
+
+        expect(
+          within(screen.getByTestId(VIEW_FEE_DETAILS_HEADER_TEST_ID)).getByText(
+            'Email volume - EU',
+          ),
+        ).toBeInTheDocument()
+      })
+
+      it('THEN should prefer the filter invoice display name over its name', () => {
+        renderProductFee({
+          productFilter: { id: 'filter-1', code: 'eu', name: 'EU', invoiceDisplayName: 'Europe' },
+        })
+
+        expect(
+          within(screen.getByTestId(VIEW_FEE_DETAILS_HEADER_TEST_ID)).getByText(
+            'Email volume - Europe',
+          ),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the fee has no product filter', () => {
+      it('THEN should title the drawer with the product display name, not the item name', () => {
+        renderProductFee({ productFilter: null })
+
+        const header = screen.getByTestId(VIEW_FEE_DETAILS_HEADER_TEST_ID)
+
+        expect(within(header).getByText('Email volume')).toBeInTheDocument()
+        expect(within(header).queryByText('Emails')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the overview is rendered', () => {
+      it.each([
+        ['arrears', false, 'Arrears'],
+        ['advance', true, 'Advance'],
+      ])('THEN should show the %s billing time', (_, payInAdvance, expected) => {
+        renderProductFee({ payInAdvance })
+
+        expect(getRowValue(VIEW_FEE_DETAILS_OVERVIEW_TEST_ID, 'Billing time')).toBe(expected)
+      })
+
+      it('THEN should replace the pay in advance and invoiceable rows', () => {
+        renderProductFee()
+
+        const overview = screen.getByTestId(VIEW_FEE_DETAILS_OVERVIEW_TEST_ID)
+
+        expect(within(overview).queryByText('Pay in advance')).not.toBeInTheDocument()
+        expect(within(overview).queryByText('Invoiceable')).not.toBeInTheDocument()
+      })
+
+      it.each([
+        ['displayed on invoice', true, 'True'],
+        ['hidden from invoice', false, 'False'],
+      ])('THEN should show the rate card as %s', (_, displayOnInvoice, expected) => {
+        renderProductFee({
+          contractRateCard: {
+            id: 'crc-1',
+            rateCard: { id: 'rc-1', code: 'rc-emails', name: 'Emails rate card', displayOnInvoice },
+          },
+        })
+
+        expect(getRowValue(VIEW_FEE_DETAILS_OVERVIEW_TEST_ID, 'Display on invoice')).toBe(expected)
+      })
+
+      it('THEN should show a dash for display on invoice without a contract rate card', () => {
+        renderProductFee({ contractRateCard: null })
+
+        expect(getRowValue(VIEW_FEE_DETAILS_OVERVIEW_TEST_ID, 'Display on invoice')).toBe('-')
+      })
+
+      it('THEN should keep the precise amount rows', () => {
+        renderProductFee()
+
+        const overview = screen.getByTestId(VIEW_FEE_DETAILS_OVERVIEW_TEST_ID)
+
+        expect(within(overview).getByText('Precise amount')).toBeInTheDocument()
+        expect(within(overview).getByText('Precise coupon')).toBeInTheDocument()
+        expect(within(overview).getByText('Precise sub total (excl. tax)')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the fee is a true-up without presentation breakdowns', () => {
+      it('THEN should show the parent fee id', () => {
+        renderProductFee({ trueUpParentFee: { id: 'parent-fee-1' } })
+
+        expect(getRowValue(VIEW_FEE_DETAILS_OVERVIEW_TEST_ID, 'Parent ID')).toBe('parent-fee-1')
+      })
+    })
+
+    describe('WHEN the fee is not a true-up', () => {
+      it('THEN should not show the parent ID row', () => {
+        renderProductFee({ trueUpParentFee: null })
+
+        expect(
+          within(screen.getByTestId(VIEW_FEE_DETAILS_OVERVIEW_TEST_ID)).queryByText('Parent ID'),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the source item section is rendered', () => {
+      it.each([
+        ['product category', 'Product category', 'Communications'],
+        ['product', 'Product', 'Emails'],
+        ['product filter', 'Product filter', 'EU'],
+        ['item type', 'Item type', 'Metered'],
+        ['rate card', 'Rate card', 'Emails rate card'],
+        ['rate card code', 'Rate card code', 'rc-emails'],
+        ['rate override flag', 'Rate overridden', 'False'],
+      ])('THEN should show the %s', (_, label, expected) => {
+        renderProductFee()
+
+        expect(getRowValue(VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID, label)).toBe(expected)
+      })
+
+      it('THEN should show the catalog names, not their invoice display names', () => {
+        renderProductFee({
+          product: {
+            id: 'product-1',
+            code: 'emails',
+            name: 'Emails',
+            invoiceDisplayName: 'Email volume',
+            productType: ProductTypeEnum.Metered,
+            productCategory: { id: 'category-1', code: 'comms', name: 'Communications' },
+          },
+          productFilter: { id: 'filter-1', code: 'eu', name: 'EU', invoiceDisplayName: 'Europe' },
+        })
+
+        expect(getRowValue(VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID, 'Product')).toBe('Emails')
+        expect(getRowValue(VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID, 'Product filter')).toBe('EU')
+      })
+
+      it('THEN should show the category, product and filter codes in design order', () => {
+        renderProductFee()
+
+        const codes = within(screen.getByTestId(VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID))
+          .getAllByText('Code')
+          .map((label) => label.nextElementSibling?.textContent)
+
+        expect(codes).toEqual(['comms', 'emails', 'eu'])
+      })
+
+      it('THEN should not show the V1 type and name rows', () => {
+        renderProductFee()
+
+        const sourceItem = screen.getByTestId(VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID)
+
+        expect(within(sourceItem).queryByText('Type')).not.toBeInTheDocument()
+        expect(within(sourceItem).queryByText('Name')).not.toBeInTheDocument()
+      })
+
+      it('THEN should show the fixed item type for a fixed product', () => {
+        renderProductFee({
+          product: {
+            id: 'product-1',
+            code: 'seats',
+            name: 'Seats',
+            invoiceDisplayName: null,
+            productType: ProductTypeEnum.Fixed,
+            productCategory: null,
+          },
+        })
+
+        expect(getRowValue(VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID, 'Item type')).toBe('Fixed')
+      })
+
+      it('THEN should flag an overridden rate', () => {
+        renderProductFee({ rateOverride: { id: 'ro-1' } })
+
+        expect(getRowValue(VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID, 'Rate overridden')).toBe('True')
+      })
+    })
+
+    describe('WHEN the category, filter and contract rate card are missing', () => {
+      it('THEN should omit their rows and keep the product and rate override rows', () => {
+        renderProductFee({
+          product: {
+            id: 'product-1',
+            code: 'emails',
+            name: 'Emails',
+            invoiceDisplayName: null,
+            productType: ProductTypeEnum.Metered,
+            productCategory: null,
+          },
+          productFilter: null,
+          contractRateCard: null,
+        })
+
+        const sourceItem = screen.getByTestId(VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID)
+
+        expect(within(sourceItem).queryByText('Product category')).not.toBeInTheDocument()
+        expect(within(sourceItem).queryByText('Product filter')).not.toBeInTheDocument()
+        expect(within(sourceItem).queryByText('Rate card')).not.toBeInTheDocument()
+        expect(within(sourceItem).queryByText('Rate card code')).not.toBeInTheDocument()
+        expect(getRowValue(VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID, 'Product')).toBe('Emails')
+        expect(within(sourceItem).getByText('Rate overridden')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a subscription fee', () => {
+    describe('WHEN it is a true-up without presentation breakdowns', () => {
+      it('THEN should not show the parent ID row', () => {
+        const { result } = renderHookUnderTest()
+
+        result.current.open(buildFee({ trueUpParentFee: { id: 'parent-fee-1' } }))
+        plainRender(<>{getBodyFromLastOpen()}</>)
+
+        expect(screen.queryByText('parent-fee-1')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the drawer body is rendered', () => {
+      it('THEN should keep the V1 overview and source item rows', () => {
+        const { result } = renderHookUnderTest()
+
+        result.current.open(buildFee())
+        plainRender(<>{getBodyFromLastOpen()}</>)
+
+        const overview = screen.getByTestId(VIEW_FEE_DETAILS_OVERVIEW_TEST_ID)
+        const sourceItem = screen.getByTestId(VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID)
+
+        expect(within(overview).getByText('Pay in advance')).toBeInTheDocument()
+        expect(within(overview).getByText('Invoiceable')).toBeInTheDocument()
+        expect(within(overview).queryByText('Billing time')).not.toBeInTheDocument()
+        expect(within(sourceItem).getByText('Type')).toBeInTheDocument()
+        expect(within(sourceItem).getByText('Name')).toBeInTheDocument()
+        expect(within(sourceItem).queryByText('Rate overridden')).not.toBeInTheDocument()
       })
     })
   })

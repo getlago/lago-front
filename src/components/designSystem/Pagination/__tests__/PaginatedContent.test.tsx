@@ -5,6 +5,12 @@ import { PaginatedContent } from '~/components/designSystem/Pagination/Paginated
 configure({ testIdAttribute: 'data-test' })
 
 const mockPaginationSpy = jest.fn()
+const mockGetScrollableAncestor = jest.fn()
+
+jest.mock('~/components/designSystem/Pagination/utils', () => ({
+  ...jest.requireActual('~/components/designSystem/Pagination/utils'),
+  getScrollableAncestor: (node: HTMLElement | null) => mockGetScrollableAncestor(node),
+}))
 
 jest.mock('~/components/designSystem/Pagination/Pagination', () => ({
   Pagination: (props: Record<string, unknown>) => {
@@ -374,6 +380,74 @@ describe('PaginatedContent', () => {
     expect(wrapper.tagName).toBe('DIV')
     expect(wrapper.children).toHaveLength(2)
     expect(container.children).toHaveLength(1)
+  })
+
+  describe('GIVEN a sticky list that keeps itself in view', () => {
+    const scroller = {
+      scrollTop: 1000,
+      getBoundingClientRect: () => ({ top: 0 }),
+      scrollTo: jest.fn(),
+    }
+
+    beforeEach(() => {
+      scroller.scrollTo.mockClear()
+      mockGetScrollableAncestor.mockReturnValue(scroller)
+      jest
+        .spyOn(HTMLDivElement.prototype, 'getBoundingClientRect')
+        .mockReturnValue({ top: -400 } as DOMRect)
+    })
+
+    afterEach(() => {
+      mockGetScrollableAncestor.mockReset()
+      jest.restoreAllMocks()
+    })
+
+    it('THEN wraps only the children, keeping the sticky pager as their sibling', () => {
+      const { container } = render(
+        <PaginatedContent onPageChange={onPageChange} keepListInView>
+          <span data-test="list-content">rows</span>
+        </PaginatedContent>,
+      )
+
+      expect(container.children).toHaveLength(2)
+      expect(container.firstElementChild?.tagName).toBe('DIV')
+      expect(container.firstElementChild).toContainElement(screen.getByTestId('list-content'))
+      expect(screen.getByTestId('pagination-stub')).toHaveClass('sticky')
+    })
+
+    it('THEN brings the list top back into view on page change instead of the area top', () => {
+      render(
+        <PaginatedContent onPageChange={onPageChange} keepListInView>
+          <div />
+        </PaginatedContent>,
+      )
+
+      const [[{ onPageChange: forwardedOnPageChange }]] = mockPaginationSpy.mock.calls as [
+        [{ onPageChange: (page: number) => void }],
+      ]
+
+      forwardedOnPageChange(2)
+
+      expect(onPageChange).toHaveBeenCalledWith(2)
+      expect(scroller.scrollTo).toHaveBeenCalledWith({ top: 600 })
+      expect(scroller.scrollTo).not.toHaveBeenCalledWith({ top: 0 })
+    })
+
+    it('THEN still resets the scroll area to its top without the flag', () => {
+      render(
+        <PaginatedContent onPageChange={onPageChange}>
+          <div />
+        </PaginatedContent>,
+      )
+
+      const [[{ onPageChange: forwardedOnPageChange }]] = mockPaginationSpy.mock.calls as [
+        [{ onPageChange: (page: number) => void }],
+      ]
+
+      forwardedOnPageChange(2)
+
+      expect(scroller.scrollTo).toHaveBeenCalledWith({ top: 0 })
+    })
   })
 
   it('gives the pager the overlap-margin class (no sticky) when sticky is false', () => {

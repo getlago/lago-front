@@ -11,6 +11,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { SectionHeader } from '~/styles/customer'
+import { tw } from '~/styles/utils'
 
 import { AddMetadataDrawer, AddMetadataDrawerRef } from './AddMetadataDrawer'
 
@@ -60,7 +61,7 @@ const InfoLine = ({
   </div>
 )
 
-export const Metadatas = memo(() => {
+export const Metadatas = memo(({ className }: { className?: string }) => {
   const { translate } = useInternationalization()
   const { invoiceId } = useParams()
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
@@ -84,7 +85,7 @@ export const Metadatas = memo(() => {
 
   return (
     <>
-      <section className="mt-8 flex flex-col gap-6">
+      <section className={tw('mt-8 flex flex-col gap-6', className)}>
         <SectionHeader variant="subhead1">
           {translate('text_6405cac5c833dcf18cad019c')}
           <Button

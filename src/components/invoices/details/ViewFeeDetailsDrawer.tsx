@@ -11,11 +11,16 @@ import { Table } from '~/components/designSystem/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { useDrawer } from '~/components/drawers/useDrawer'
+import { getDisplayName } from '~/components/invoices/productCatalog/formatInvoiceProductFees'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { DetailRow, GRID } from '~/components/wallets/WalletDetailsDrawer'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { FeeForViewFeeDetailsDrawerFragment, FeeTypesEnum } from '~/generated/graphql'
+import {
+  FeeForViewFeeDetailsDrawerFragment,
+  FeeTypesEnum,
+  ProductTypeEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import {
@@ -83,6 +88,36 @@ gql`
       presentationBy
       units
     }
+    product {
+      id
+      name
+      invoiceDisplayName
+      code
+      productType
+      productCategory {
+        id
+        name
+        code
+      }
+    }
+    productFilter {
+      id
+      name
+      invoiceDisplayName
+      code
+    }
+    contractRateCard {
+      id
+      rateCard {
+        id
+        name
+        code
+        displayOnInvoice
+      }
+    }
+    rateOverride {
+      id
+    }
   }
 `
 
@@ -100,6 +135,14 @@ export type UseViewFeeDetailsDrawerReturn = {
 const formatFeeDate = (iso: string | null | undefined): string => {
   if (iso === null || iso === undefined) return '-'
   return DateTime.fromISO(iso, { zone: 'utc' }).toFormat("LLLL d, yyyy - HH:mm:ss 'UTC'")
+}
+
+const getBooleanTranslationKey = (value: boolean): string =>
+  value ? 'text_17440181167432q7jzt9znuh' : 'text_1744018116743ntlygtcnq95'
+
+const PRODUCT_TYPE_TRANSLATION_KEYS: Record<ProductTypeEnum, string> = {
+  [ProductTypeEnum.Fixed]: 'text_1783980718113ritmy7z94je',
+  [ProductTypeEnum.Metered]: 'text_17839807181133l3z83156s6',
 }
 
 type ViewFeeDetailsHeaderProps = {
@@ -126,6 +169,14 @@ const buildFeeTitle = (
     ) {
       return translate('text_1778489273044dawd3fh19ga', { interval: planInterval, name: planName })
     }
+  }
+
+  if (fee.feeType === FeeTypesEnum.Product) {
+    const productName = getDisplayName(fee.product) || fee.itemName
+
+    if (!fee.productFilter) return productName
+
+    return `${productName} - ${getDisplayName(fee.productFilter)}`
   }
 
   return fee.invoiceDisplayName || fee.itemName
@@ -164,9 +215,73 @@ type OverviewContentProps = {
   showParentIdRow: boolean
 }
 
+const ProductSourceItem = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment }): JSX.Element => {
+  const { translate } = useInternationalization()
+  const productCategory = fee.product?.productCategory
+  const rateCard = fee.contractRateCard?.rateCard
+
+  return (
+    <div className={tw(GRID)}>
+      {!!productCategory && (
+        <>
+          <DetailRow
+            label={translate('text_1786365890846dgl39wcqgik')}
+            value={productCategory.name}
+          />
+          <DetailRow
+            label={translate('text_1778485363574dygtpz792rx')}
+            value={<TypographyWithCopy color="grey700">{productCategory.code}</TypographyWithCopy>}
+          />
+        </>
+      )}
+      <DetailRow label={translate('text_1783020794400si0ioidu0m5')} value={fee.product?.name} />
+      {!!fee.product && (
+        <DetailRow
+          label={translate('text_1778485363574dygtpz792rx')}
+          value={<TypographyWithCopy color="grey700">{fee.product.code}</TypographyWithCopy>}
+        />
+      )}
+      {!!fee.productFilter && (
+        <>
+          <DetailRow
+            label={translate('text_1783020794400u55s2kj2o4n')}
+            value={fee.productFilter.name}
+          />
+          <DetailRow
+            label={translate('text_1778485363574dygtpz792rx')}
+            value={
+              <TypographyWithCopy color="grey700">{fee.productFilter.code}</TypographyWithCopy>
+            }
+          />
+        </>
+      )}
+      {!!fee.product && (
+        <DetailRow
+          label={translate('text_1778485363574gqoz4lwxrb6')}
+          value={translate(PRODUCT_TYPE_TRANSLATION_KEYS[fee.product.productType])}
+        />
+      )}
+      {!!rateCard && (
+        <>
+          <DetailRow label={translate('text_1783020794400xdy5qokafvy')} value={rateCard.name} />
+          <DetailRow
+            label={translate('text_178493044065618ejwmmneyl')}
+            value={<TypographyWithCopy color="grey700">{rateCard.code}</TypographyWithCopy>}
+          />
+        </>
+      )}
+      <DetailRow
+        label={translate('text_17942215973596kre98zp5n6')}
+        value={translate(getBooleanTranslationKey(!!fee.rateOverride))}
+      />
+    </div>
+  )
+}
+
 const OverviewContent = ({ fee, showParentIdRow }: OverviewContentProps) => {
   const { translate } = useInternationalization()
   const currency = fee.amountCurrency
+  const isProductFee = fee.feeType === FeeTypesEnum.Product
 
   const sourceItemId =
     fee.charge?.billableMetric?.id ??
@@ -180,6 +295,72 @@ const OverviewContent = ({ fee, showParentIdRow }: OverviewContentProps) => {
       currencyDisplay: 'symbol',
       currency,
     })
+
+  const getDisplayOnInvoiceValue = (): string | undefined => {
+    if (!fee.contractRateCard) return undefined
+
+    return translate(getBooleanTranslationKey(fee.contractRateCard.rateCard.displayOnInvoice))
+  }
+
+  const renderBillingRows = (): JSX.Element => {
+    if (isProductFee) {
+      return (
+        <>
+          <DetailRow
+            label={translate('text_62ea7cd44cd4b14bb9ac1db7')}
+            value={translate(
+              fee.payInAdvance ? 'text_646e2d0cc536351b62ba6faa' : 'text_646e2d0cc536351b62ba6f8c',
+            )}
+          />
+          <DetailRow
+            label={translate('text_17774521952176h65ipy7idk')}
+            value={getDisplayOnInvoiceValue()}
+          />
+        </>
+      )
+    }
+
+    return (
+      <>
+        <DetailRow
+          label={translate('text_1778490892190yz0uiowyheu')}
+          value={translate(getBooleanTranslationKey(fee.payInAdvance))}
+        />
+        <DetailRow
+          label={translate('text_1778490892190exazejgkryd')}
+          value={translate(getBooleanTranslationKey(!!fee?.charge?.invoiceable))}
+        />
+      </>
+    )
+  }
+
+  const renderSourceItem = (): JSX.Element => {
+    if (isProductFee) return <ProductSourceItem fee={fee} />
+
+    return (
+      <div className={tw(GRID)}>
+        <DetailRow label={translate('text_1778485363574w7zyl8tilba')} value={fee.feeType} />
+        <DetailRow
+          label={translate('text_1778485363574dygtpz792rx')}
+          value={<TypographyWithCopy color="grey700">{fee.itemCode}</TypographyWithCopy>}
+        />
+        <DetailRow label={translate('text_177848536357404anic3s604')} value={fee.itemName} />
+        {!!fee.invoiceDisplayName && (
+          <DetailRow
+            label={translate('text_1778485363574e70wgua8cxw')}
+            value={fee.invoiceDisplayName}
+          />
+        )}
+        <DetailRow label={translate('text_1778485363574gqoz4lwxrb6')} value={fee.itemType} />
+        {sourceItemId !== '-' && (
+          <DetailRow
+            label={translate('text_17784853635746778oyfl0yh')}
+            value={<TypographyWithCopy color="grey700">{sourceItemId}</TypographyWithCopy>}
+          />
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-12">
@@ -208,20 +389,7 @@ const OverviewContent = ({ fee, showParentIdRow }: OverviewContentProps) => {
             label={translate('text_1778485363573qufhnafv1s7')}
             value={formatFeeDate(fee.properties?.toDatetime)}
           />
-          <DetailRow
-            label={translate('text_1778490892190yz0uiowyheu')}
-            value={translate(
-              fee.payInAdvance ? 'text_17440181167432q7jzt9znuh' : 'text_1744018116743ntlygtcnq95',
-            )}
-          />
-          <DetailRow
-            label={translate('text_1778490892190exazejgkryd')}
-            value={translate(
-              !!fee?.charge?.invoiceable
-                ? 'text_17440181167432q7jzt9znuh'
-                : 'text_1744018116743ntlygtcnq95',
-            )}
-          />
+          {renderBillingRows()}
           <DetailRow label={translate('text_1778485363573rg5koelt3xl')} value={String(fee.units)} />
           <DetailRow
             label={translate('text_1778485363573t3ualwsek49')}
@@ -278,27 +446,7 @@ const OverviewContent = ({ fee, showParentIdRow }: OverviewContentProps) => {
         <Typography variant="subhead1" color="grey700">
           {translate('text_1778485363573o8h8xpr4qyj')}
         </Typography>
-        <div className={tw(GRID)}>
-          <DetailRow label={translate('text_1778485363574w7zyl8tilba')} value={fee.feeType} />
-          <DetailRow
-            label={translate('text_1778485363574dygtpz792rx')}
-            value={<TypographyWithCopy color="grey700">{fee.itemCode}</TypographyWithCopy>}
-          />
-          <DetailRow label={translate('text_177848536357404anic3s604')} value={fee.itemName} />
-          {!!fee.invoiceDisplayName && (
-            <DetailRow
-              label={translate('text_1778485363574e70wgua8cxw')}
-              value={fee.invoiceDisplayName}
-            />
-          )}
-          <DetailRow label={translate('text_1778485363574gqoz4lwxrb6')} value={fee.itemType} />
-          {sourceItemId !== '-' && (
-            <DetailRow
-              label={translate('text_17784853635746778oyfl0yh')}
-              value={<TypographyWithCopy color="grey700">{sourceItemId}</TypographyWithCopy>}
-            />
-          )}
-        </div>
+        {renderSourceItem()}
       </section>
     </div>
   )
@@ -407,6 +555,7 @@ const ViewFeeDetailsBody = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment }
   const { translate } = useInternationalization()
   const [tabIndex, setTabIndex] = useState(0)
   const hasBreakdowns = (fee.presentationBreakdowns?.length ?? 0) > 0
+  const showParentIdRow = hasBreakdowns || fee.feeType === FeeTypesEnum.Product
 
   return (
     <MemoryRouter useTransitions={false}>
@@ -424,7 +573,7 @@ const ViewFeeDetailsBody = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment }
                 tabs={[
                   {
                     title: translate('text_17784853635748xbwslxipeo'),
-                    component: <OverviewContent fee={fee} showParentIdRow={true} />,
+                    component: <OverviewContent fee={fee} showParentIdRow={showParentIdRow} />,
                   },
                   {
                     title: translate('text_1778487825608a08eizdrt7y'),
@@ -435,7 +584,7 @@ const ViewFeeDetailsBody = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment }
             )}
           </div>
 
-          {!hasBreakdowns && <OverviewContent fee={fee} showParentIdRow={false} />}
+          {!hasBreakdowns && <OverviewContent fee={fee} showParentIdRow={showParentIdRow} />}
         </CenteredPage.SectionWrapper>
       </div>
     </MemoryRouter>

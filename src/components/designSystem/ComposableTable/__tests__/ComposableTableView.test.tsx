@@ -82,6 +82,37 @@ const FocusTable = ({ header }: { header: string }): JSX.Element => {
   return <ComposableTableView table={table} />
 }
 
+const InteractiveCellTable = ({
+  onRowClick,
+  onButtonClick,
+}: {
+  onRowClick: ComposableTableViewProps<Usage>['onRowClick']
+  onButtonClick: () => void
+}): JSX.Element => {
+  const table = useComposableTable({
+    data: USAGES,
+    columns: columnHelper.columns([
+      columnHelper.accessor('team', { header: 'Team' }),
+      columnHelper.display({
+        id: 'action',
+        header: 'Action',
+        cell: ({ row }) => (
+          <Button variant="inline" onClick={onButtonClick}>{`Open ${row.original.team}`}</Button>
+        ),
+      }),
+    ]),
+    getRowId: (row) => row.id,
+  })
+
+  return (
+    <ComposableTableView
+      table={table}
+      getRowDataTest={(row) => `usage-row-${row.id}`}
+      onRowClick={onRowClick}
+    />
+  )
+}
+
 const getBodyRows = (): HTMLElement[] =>
   within(screen.getAllByRole('rowgroup')[1]).queryAllByRole('row')
 
@@ -127,6 +158,15 @@ describe('ComposableTableView', () => {
           'text-right',
           'w-px',
           'min-w-24',
+        )
+      })
+
+      it('THEN narrows the padding of the edge columns to the table gutter', () => {
+        render(<TestTable />)
+
+        expect(screen.getByRole('table')).toHaveClass(
+          '[&_tr>*:first-child]:pl-1',
+          '[&_tr>*:last-child]:pr-1',
         )
       })
 
@@ -256,6 +296,152 @@ describe('ComposableTableView', () => {
 
         expect(screen.getByText('Usage failed')).toBeInTheDocument()
         expect(screen.queryByText('R&D')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a table with a row click handler', () => {
+    const getRowDataTest = (row: { id: string }): string => `usage-row-${row.id}`
+
+    describe('WHEN a clickable row is clicked', () => {
+      it('THEN calls onRowClick with that row', async () => {
+        const user = userEvent.setup()
+        const onRowClick = jest.fn()
+
+        render(
+          <TestTable
+            getRowDataTest={getRowDataTest}
+            onRowClick={onRowClick}
+            getRowIsClickable={(row) => row.id === 'rnd'}
+          />,
+        )
+
+        await user.click(screen.getByTestId('usage-row-rnd'))
+
+        expect(onRowClick).toHaveBeenCalledTimes(1)
+        expect(onRowClick).toHaveBeenCalledWith(expect.objectContaining({ id: 'rnd' }))
+        expect(screen.getByTestId('usage-row-rnd')).toHaveClass('cursor-pointer')
+      })
+    })
+
+    describe('WHEN a row excluded by getRowIsClickable is clicked', () => {
+      it('THEN does not call onRowClick and the row is not styled as clickable', async () => {
+        const user = userEvent.setup()
+        const onRowClick = jest.fn()
+
+        render(
+          <TestTable
+            getRowDataTest={getRowDataTest}
+            onRowClick={onRowClick}
+            getRowIsClickable={(row) => row.id === 'rnd'}
+          />,
+        )
+
+        await user.click(screen.getByTestId('usage-row-sales'))
+
+        expect(onRowClick).not.toHaveBeenCalled()
+        expect(screen.getByTestId('usage-row-sales')).not.toHaveClass('cursor-pointer')
+      })
+    })
+
+    describe('WHEN a clickable row is activated from the keyboard', () => {
+      it.each(['{Enter}', ' '])('THEN %s calls onRowClick with that row', async (key) => {
+        const user = userEvent.setup()
+        const onRowClick = jest.fn()
+
+        render(
+          <TestTable
+            getRowDataTest={getRowDataTest}
+            onRowClick={onRowClick}
+            getRowIsClickable={(row) => row.id === 'rnd'}
+          />,
+        )
+
+        screen.getByTestId('usage-row-rnd').focus()
+        await user.keyboard(key)
+
+        expect(onRowClick).toHaveBeenCalledTimes(1)
+        expect(onRowClick).toHaveBeenCalledWith(expect.objectContaining({ id: 'rnd' }))
+      })
+
+      it('THEN only clickable rows are reachable with the keyboard', () => {
+        render(
+          <TestTable
+            getRowDataTest={getRowDataTest}
+            onRowClick={jest.fn()}
+            getRowIsClickable={(row) => row.id === 'rnd'}
+          />,
+        )
+
+        expect(screen.getByTestId('usage-row-rnd')).toHaveAttribute('tabindex', '0')
+        expect(screen.getByTestId('usage-row-sales')).not.toHaveAttribute('tabindex')
+      })
+    })
+
+    describe('WHEN getRowIsClickable is omitted', () => {
+      it('THEN every row is clickable', async () => {
+        const user = userEvent.setup()
+        const onRowClick = jest.fn()
+
+        render(<TestTable getRowDataTest={getRowDataTest} onRowClick={onRowClick} />)
+
+        await user.click(screen.getByTestId('usage-row-sales'))
+
+        expect(onRowClick).toHaveBeenCalledWith(expect.objectContaining({ id: 'sales' }))
+      })
+    })
+  })
+
+  describe('GIVEN a clickable row holding an interactive cell', () => {
+    describe('WHEN the control inside the cell is activated', () => {
+      it('THEN only the control reacts, not the row', async () => {
+        const user = userEvent.setup()
+        const onRowClick = jest.fn()
+        const onButtonClick = jest.fn()
+
+        render(<InteractiveCellTable onRowClick={onRowClick} onButtonClick={onButtonClick} />)
+
+        await user.click(screen.getByRole('button', { name: 'Open R&D' }))
+
+        expect(onButtonClick).toHaveBeenCalledTimes(1)
+        expect(onRowClick).not.toHaveBeenCalled()
+      })
+
+      it('THEN the keyboard activation stays on the control', async () => {
+        const user = userEvent.setup()
+        const onRowClick = jest.fn()
+        const onButtonClick = jest.fn()
+
+        render(<InteractiveCellTable onRowClick={onRowClick} onButtonClick={onButtonClick} />)
+
+        screen.getByRole('button', { name: 'Open R&D' }).focus()
+        await user.keyboard('{Enter}')
+
+        expect(onButtonClick).toHaveBeenCalledTimes(1)
+        expect(onRowClick).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the row itself is clicked outside the control', () => {
+      it('THEN the row still reacts', async () => {
+        const user = userEvent.setup()
+        const onRowClick = jest.fn()
+
+        render(<InteractiveCellTable onRowClick={onRowClick} onButtonClick={jest.fn()} />)
+
+        await user.click(screen.getByText('R&D'))
+
+        expect(onRowClick).toHaveBeenCalledWith(expect.objectContaining({ id: 'rnd' }))
+      })
+    })
+  })
+
+  describe('GIVEN a table without a row click handler', () => {
+    describe('WHEN it renders', () => {
+      it('THEN no row is styled as clickable', () => {
+        render(<TestTable getRowDataTest={(row) => `usage-row-${row.id}`} />)
+
+        expect(screen.getByTestId('usage-row-rnd')).not.toHaveClass('cursor-pointer')
       })
     })
   })
