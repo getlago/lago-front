@@ -675,8 +675,6 @@ export enum ApiKeysPermissionsEnum {
   Invoice = 'invoice',
   InvoiceCustomSection = 'invoice_custom_section',
   LifetimeUsage = 'lifetime_usage',
-  Order = 'order',
-  OrderForm = 'order_form',
   Organization = 'organization',
   Payment = 'payment',
   PaymentMethod = 'payment_method',
@@ -686,18 +684,14 @@ export enum ApiKeysPermissionsEnum {
   PlanRateCard = 'plan_rate_card',
   Product = 'product',
   ProductCategory = 'product_category',
-  Quote = 'quote',
   RateCard = 'rate_card',
   SecurityLog = 'security_log',
   Subscription = 'subscription',
   Tax = 'tax',
-  UsageAttributionType = 'usage_attribution_type',
   Wallet = 'wallet',
   WalletTransaction = 'wallet_transaction',
   WebhookEndpoint = 'webhook_endpoint',
-  WebhookJwtPublicKey = 'webhook_jwt_public_key',
-  X402 = 'x402',
-  X402Connection = 'x402_connection'
+  WebhookJwtPublicKey = 'webhook_jwt_public_key'
 }
 
 /** Base api log */

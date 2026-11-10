@@ -630,12 +630,12 @@ describe('ApiKeysForm', () => {
       })
     })
 
-    describe('WHEN the usage attribution and quote resources are listed', () => {
+    describe('WHEN the attributed usage resource is listed', () => {
       it.each([
         ['without', false],
         ['with', true],
       ])(
-        'THEN should display their rows %s the product catalog feature flag',
+        'THEN should display its row %s the product catalog feature flag',
         async (_, hasProductCatalog) => {
           mockHasFeatureFlag.mockImplementation(
             (flag: FeatureFlagEnum) => hasProductCatalog && flag === FeatureFlagEnum.ProductCatalog,
@@ -646,35 +646,27 @@ describe('ApiKeysForm', () => {
           await waitFor(() => {
             expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
           })
-          ;[
-            ApiKeysPermissionsEnum.AttributedUsage,
-            ApiKeysPermissionsEnum.Order,
-            ApiKeysPermissionsEnum.OrderForm,
-            ApiKeysPermissionsEnum.Quote,
-            ApiKeysPermissionsEnum.UsageAttributionType,
-            ApiKeysPermissionsEnum.X402,
-            ApiKeysPermissionsEnum.X402Connection,
-          ].forEach((permission) => {
-            expect(
-              screen.getByTestId(getApiKeysFormPermissionRowTestId(permission)),
-            ).toBeInTheDocument()
-          })
+
+          expect(
+            screen.getByTestId(
+              getApiKeysFormPermissionRowTestId(ApiKeysPermissionsEnum.AttributedUsage),
+            ),
+          ).toBeInTheDocument()
         },
       )
 
-      it.each([
-        [ApiKeysPermissionsEnum.AttributedUsage, 1],
-        [ApiKeysPermissionsEnum.UsageAttributionType, 2],
-      ])('THEN should render %s with %i permission checkbox(es)', async (permission, count) => {
+      it('THEN should only offer the read permission', async () => {
         render(<ApiKeysForm />)
 
         await waitFor(() => {
           expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
         })
 
-        const row = screen.getByTestId(getApiKeysFormPermissionRowTestId(permission))
+        const row = screen.getByTestId(
+          getApiKeysFormPermissionRowTestId(ApiKeysPermissionsEnum.AttributedUsage),
+        )
 
-        expect(row.querySelectorAll('input[type="checkbox"]')).toHaveLength(count)
+        expect(row.querySelectorAll('input[type="checkbox"]')).toHaveLength(1)
       })
     })
 
