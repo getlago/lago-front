@@ -227,10 +227,10 @@ const getAvailablePermissions = ({
   hasProductCatalog: boolean
   hasUsageGovernance: boolean
 }): ApiKeysPermissionsEnum[] => {
-  const hiddenAvailabilities: PermissionAvailability[] = [
-    hasProductCatalog ? 'withoutProductCatalog' : 'withProductCatalog',
-  ]
+  const hiddenAvailabilities: PermissionAvailability[] = []
 
+  if (hasProductCatalog) hiddenAvailabilities.push('withoutProductCatalog')
+  if (!hasProductCatalog) hiddenAvailabilities.push('withProductCatalog')
   if (!hasUsageGovernance) hiddenAvailabilities.push('withUsageGovernance')
 
   return Object.values(ApiKeysPermissionsEnum).filter(
