@@ -1,9 +1,8 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
-import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox } from '~/components/form'
 import {
@@ -13,7 +12,7 @@ import {
 import { envGlobalVar } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
-import { setItemFromLS } from '~/core/utils/localStorage'
+import { removeItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
 import { getRecaptchaToken } from '~/core/utils/recaptcha'
 import { PASSWORD_VALIDATION_ERRORS } from '~/formValidation/zodCustoms'
@@ -28,6 +27,7 @@ import { Card, Page, StyledLogo, Title } from '~/styles/auth'
 
 import { RecaptchaNotice } from './common/RecaptchaNotice'
 import { useRecaptcha } from './common/useRecaptcha'
+import { SelfServeCheckEmail } from './components/selfServeCheckEmail/SelfServeCheckEmail'
 import {
   getSelfServePasswordErrors,
   isSelfServePasswordTooLong,
@@ -39,11 +39,9 @@ import {
   selfServeSignUpValidationSchema,
 } from './selfServeSignUpForm/validationSchema'
 import {
-  SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID,
   SELF_SERVE_SIGNUP_DATA_REGION_TEST_ID,
   SELF_SERVE_SIGNUP_EMAIL_FIELD_TEST_ID,
   SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID,
-  SELF_SERVE_SIGNUP_GO_BACK_BUTTON_TEST_ID,
   SELF_SERVE_SIGNUP_PASSWORD_FIELD_TEST_ID,
   SELF_SERVE_SIGNUP_SUBMIT_BUTTON_TEST_ID,
 } from './signUpTestIds'
@@ -122,6 +120,7 @@ const SelfServeSignUp = (): JSX.Element => {
   const [bannerError, setBannerError] = useState<string>()
   const [emailCheckError, setEmailCheckError] = useState<string>()
 
+  const [sentSignupSecret, setSentSignupSecret] = useState('')
   const [signUp] = useSelfServeSignUpMutation({ context: { silentError: true } })
   const [checkSignupEmail] = useSignupEmailCheckLazyQuery({
     fetchPolicy: 'no-cache',
@@ -154,6 +153,7 @@ const SelfServeSignUp = (): JSX.Element => {
 
         if (signupSecret) {
           setItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY, signupSecret)
+          setSentSignupSecret(signupSecret)
           setSentToEmail(value.email.trim())
 
           return
@@ -220,37 +220,24 @@ const SelfServeSignUp = (): JSX.Element => {
     window.location.assign(`${region === 'eu' ? euOrigin : usOrigin}${SIGN_UP_ROUTE}`)
   }
 
+  const onGoBack = (): void => setSentToEmail(undefined)
+
+  const onStartAgain = useCallback((): void => {
+    removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
+    setSentToEmail(undefined)
+  }, [])
+
   if (sentToEmail) {
     return (
       <Page>
         <Card>
           <StyledLogo height={24} />
-
-          <div className="flex flex-col gap-8" data-test={SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID}>
-            <div className="flex flex-col gap-3">
-              <Title>{translate('text_1793898059309bceac2ri5mc')}</Title>
-              <Typography
-                html={translate('text_1793898059309lqujtjacaho', { email: sentToEmail })}
-              />
-              <Typography variant="caption">
-                {translate('text_1793898059309bhkfbbq9q2z')}
-              </Typography>
-            </div>
-
-            <div className="flex items-center justify-center gap-1">
-              <Typography variant="caption">
-                {translate('text_17938980593099x6m52ys6t2')}
-              </Typography>
-              <Button
-                variant="inline"
-                size="small"
-                data-test={SELF_SERVE_SIGNUP_GO_BACK_BUTTON_TEST_ID}
-                onClick={() => setSentToEmail(undefined)}
-              >
-                {translate('text_1793898059309vz0niu6emp8')}
-              </Button>
-            </div>
-          </div>
+          <SelfServeCheckEmail
+            email={sentToEmail}
+            signupSecret={sentSignupSecret}
+            onGoBack={onGoBack}
+            onStartAgain={onStartAgain}
+          />
         </Card>
       </Page>
     )
