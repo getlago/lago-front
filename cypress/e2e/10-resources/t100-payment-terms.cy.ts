@@ -29,7 +29,7 @@ const TERM_CASES: Array<{ termType: PaymentTermTypeEnum; fields: TermFields; lab
   {
     termType: PaymentTermTypeEnum.DayOfMonth,
     fields: { dayOfMonth: '15', monthOffset: '1' },
-    label: '15 MFI, 1 month offset',
+    label: 'Due on the 15 of the following month',
   },
 ]
 
