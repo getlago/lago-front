@@ -90,10 +90,6 @@ const PERMISSION_RESOURCES: Record<
     translationKey: 'text_17328948204857eb1ecwe5me',
     availability: 'withoutProductCatalog',
   },
-  [ApiKeysPermissionsEnum.AttributedUsage]: {
-    translationKey: 'text_17943010994335qi05xrijso',
-    availability: 'withUsageGovernance',
-  },
   [ApiKeysPermissionsEnum.BillableMetric]: {
     translationKey: 'text_623b497ad05b960101be3438',
     availability: 'all',
@@ -202,6 +198,10 @@ const PERMISSION_RESOURCES: Record<
     translationKey: 'text_645bb193927b375079d28a8f',
     availability: 'all',
   },
+  [ApiKeysPermissionsEnum.AttributedUsage]: {
+    translationKey: 'text_17943010994335qi05xrijso',
+    availability: 'withUsageGovernance',
+  },
   [ApiKeysPermissionsEnum.Wallet]: {
     translationKey: 'text_62d175066d2dbf1d50bc937c',
     availability: 'withoutProductCatalog',
@@ -233,7 +233,7 @@ const getAvailablePermissions = ({
   if (!hasProductCatalog) hiddenAvailabilities.push('withProductCatalog')
   if (!hasUsageGovernance) hiddenAvailabilities.push('withUsageGovernance')
 
-  return Object.values(ApiKeysPermissionsEnum).filter(
+  return (Object.keys(PERMISSION_RESOURCES) as ApiKeysPermissionsEnum[]).filter(
     (permission) => !hiddenAvailabilities.includes(PERMISSION_RESOURCES[permission].availability),
   )
 }
