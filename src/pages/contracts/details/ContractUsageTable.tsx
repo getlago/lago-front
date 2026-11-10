@@ -214,6 +214,7 @@ export const ContractUsageTable = ({
           loadingRowCount={pageSize}
           hasError={!!error}
           placeholder={placeholder}
+          containerSize={0}
           getRowGroupHeader={(row, index, allRows) => {
             const previousRow = index > 0 ? allRows[index - 1] : undefined
             const isFirstOfGroup = previousRow?.productCode !== row.productCode
