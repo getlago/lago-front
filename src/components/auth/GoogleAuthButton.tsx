@@ -76,7 +76,12 @@ const GoogleAuthButton = ({
 
   const [getGoogleUrl] = useGetGoogleAuthUrlLazyQuery({
     fetchPolicy: 'network-only',
-    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    context: {
+      // A page that shows the errors would otherwise get the missing setup twice, banner and toast
+      silentErrorCodes: onError
+        ? [LagoApiError.UnprocessableEntity, LagoApiError.GoogleAuthMissingSetup]
+        : [LagoApiError.UnprocessableEntity],
+    },
   })
 
   // With onError, the page shows the errors: the button keeps no alert and leaves the URL alone
