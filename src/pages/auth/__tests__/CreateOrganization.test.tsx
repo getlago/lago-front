@@ -25,6 +25,8 @@ const MOCK_FORM_TEST_ID = 'create-organization-form'
 const MOCK_FORM_NOT_ELIGIBLE_BUTTON_TEST_ID = 'create-organization-form-not-eligible'
 const EMAIL = 'raffi@hooli.com'
 const TITLE_COPY = 'Create your organization'
+const SUBTITLE_COPY =
+  'Create your first organization to set up your billing environment and start building with Lago.'
 const LOG_OUT_COPY = 'Log out'
 const RETRY_COPY = 'Retry'
 const GENERIC_ERROR_COPY = 'Something went wrong on our side. Please try again.'
@@ -128,6 +130,7 @@ const queryRetryButton = (): HTMLElement | null =>
 const expectCardHidden = (): void => {
   expect(screen.getByTestId(MOCK_SPINNER_TEST_ID)).toBeInTheDocument()
   expect(screen.queryByText(TITLE_COPY)).not.toBeInTheDocument()
+  expect(screen.queryByText(SUBTITLE_COPY)).not.toBeInTheDocument()
   expect(screen.queryByTestId(MOCK_ALERT_TEST_ID)).not.toBeInTheDocument()
   expect(screen.queryByTestId(MOCK_FORM_TEST_ID)).not.toBeInTheDocument()
   expect(
@@ -184,10 +187,11 @@ describe('CreateOrganization', () => {
     })
 
     describe('WHEN the page renders', () => {
-      it('THEN should show the title and the log out action without an error', () => {
+      it('THEN should show the title, the subtitle and the log out action without an error', () => {
         render(<CreateOrganization />)
 
         expect(screen.getByText(TITLE_COPY)).toBeInTheDocument()
+        expect(screen.getByText(SUBTITLE_COPY)).toBeInTheDocument()
         expect(getLogOutButton()).toHaveTextContent(LOG_OUT_COPY)
         expect(screen.queryByTestId(MOCK_ALERT_TEST_ID)).not.toBeInTheDocument()
         expect(queryRetryButton()).not.toBeInTheDocument()
@@ -285,12 +289,13 @@ describe('CreateOrganization', () => {
     })
 
     describe('WHEN the page renders', () => {
-      it('THEN should show the title, a danger alert, a retry and the log out action', () => {
+      it('THEN should show the title, the subtitle, a danger alert, a retry and the log out action', () => {
         render(<CreateOrganization />)
 
         const alert = screen.getByTestId(MOCK_ALERT_TEST_ID)
 
         expect(screen.getByText(TITLE_COPY)).toBeInTheDocument()
+        expect(screen.getByText(SUBTITLE_COPY)).toBeInTheDocument()
         expect(alert).toHaveAttribute('data-alert-type', 'danger')
         expect(alert).toHaveTextContent(GENERIC_ERROR_COPY)
         expect(getRetryButton()).toHaveTextContent(RETRY_COPY)

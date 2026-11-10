@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Spinner } from '~/components/designSystem/Spinner'
+import { Typography } from '~/components/designSystem/Typography'
 import { logOut } from '~/core/apolloClient'
 import { HOME_ROUTE, useNavigate } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -41,7 +42,10 @@ const CreateOrganization = (): JSX.Element => {
 
     return (
       <div className="flex flex-col gap-8">
-        <Title>{translate('text_660bf95c75dd928ced0ecb04')}</Title>
+        <div>
+          <Title>{translate('text_660bf95c75dd928ced0ecb04')}</Title>
+          <Typography>{translate('text_17943151604897omblal8362')}</Typography>
+        </div>
         {hasError && (
           <>
             <Alert type="danger">{translate('text_1793898059309m0mmb7g8tw4')}</Alert>

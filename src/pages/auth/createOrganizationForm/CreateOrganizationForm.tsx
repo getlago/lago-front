@@ -194,6 +194,7 @@ export const CreateOrganizationForm = ({
           {(field) => (
             <field.ComboBoxField
               label={translate('text_17943123490262yeovor3alv')}
+              placeholder={translate('text_1794315160489osu1v3u5vuj')}
               data={ROLE_OPTIONS.map(({ value, labelKey }) => ({
                 value,
                 label: translate(labelKey),
@@ -208,6 +209,7 @@ export const CreateOrganizationForm = ({
           {(field) => (
             <field.ComboBoxField
               label={translate('text_1794312349026ei8cybp0gil')}
+              placeholder={translate('text_1794315160489mogtgg7d90e')}
               data={SOURCE_OPTIONS.map(({ value, labelKey }) => ({
                 value,
                 label: translate(labelKey),
