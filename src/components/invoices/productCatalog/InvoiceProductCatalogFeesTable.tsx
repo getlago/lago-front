@@ -131,7 +131,11 @@ const formatTaxRates = (taxRates: number[]): string => {
 }
 
 const renderUnitPriceValue = (value: string, color: 'grey600' | 'grey700'): JSX.Element => (
-  <Typography variant="body" color={color} className="whitespace-normal [line-break:anywhere]">
+  <Typography
+    variant="body"
+    color={color}
+    className="whitespace-normal [line-break:anywhere] lg:whitespace-nowrap"
+  >
     {value}
   </Typography>
 )
