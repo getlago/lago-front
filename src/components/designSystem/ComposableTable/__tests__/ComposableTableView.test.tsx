@@ -82,6 +82,37 @@ const FocusTable = ({ header }: { header: string }): JSX.Element => {
   return <ComposableTableView table={table} />
 }
 
+const InteractiveCellTable = ({
+  onRowClick,
+  onButtonClick,
+}: {
+  onRowClick: ComposableTableViewProps<Usage>['onRowClick']
+  onButtonClick: () => void
+}): JSX.Element => {
+  const table = useComposableTable({
+    data: USAGES,
+    columns: columnHelper.columns([
+      columnHelper.accessor('team', { header: 'Team' }),
+      columnHelper.display({
+        id: 'action',
+        header: 'Action',
+        cell: ({ row }) => (
+          <Button variant="inline" onClick={onButtonClick}>{`Open ${row.original.team}`}</Button>
+        ),
+      }),
+    ]),
+    getRowId: (row) => row.id,
+  })
+
+  return (
+    <ComposableTableView
+      table={table}
+      getRowDataTest={(row) => `usage-row-${row.id}`}
+      onRowClick={onRowClick}
+    />
+  )
+}
+
 const getBodyRows = (): HTMLElement[] =>
   within(screen.getAllByRole('rowgroup')[1]).queryAllByRole('row')
 
@@ -357,6 +388,50 @@ describe('ComposableTableView', () => {
         await user.click(screen.getByTestId('usage-row-sales'))
 
         expect(onRowClick).toHaveBeenCalledWith(expect.objectContaining({ id: 'sales' }))
+      })
+    })
+  })
+
+  describe('GIVEN a clickable row holding an interactive cell', () => {
+    describe('WHEN the control inside the cell is activated', () => {
+      it('THEN only the control reacts, not the row', async () => {
+        const user = userEvent.setup()
+        const onRowClick = jest.fn()
+        const onButtonClick = jest.fn()
+
+        render(<InteractiveCellTable onRowClick={onRowClick} onButtonClick={onButtonClick} />)
+
+        await user.click(screen.getByRole('button', { name: 'Open R&D' }))
+
+        expect(onButtonClick).toHaveBeenCalledTimes(1)
+        expect(onRowClick).not.toHaveBeenCalled()
+      })
+
+      it('THEN the keyboard activation stays on the control', async () => {
+        const user = userEvent.setup()
+        const onRowClick = jest.fn()
+        const onButtonClick = jest.fn()
+
+        render(<InteractiveCellTable onRowClick={onRowClick} onButtonClick={onButtonClick} />)
+
+        screen.getByRole('button', { name: 'Open R&D' }).focus()
+        await user.keyboard('{Enter}')
+
+        expect(onButtonClick).toHaveBeenCalledTimes(1)
+        expect(onRowClick).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the row itself is clicked outside the control', () => {
+      it('THEN the row still reacts', async () => {
+        const user = userEvent.setup()
+        const onRowClick = jest.fn()
+
+        render(<InteractiveCellTable onRowClick={onRowClick} onButtonClick={jest.fn()} />)
+
+        await user.click(screen.getByText('R&D'))
+
+        expect(onRowClick).toHaveBeenCalledWith(expect.objectContaining({ id: 'rnd' }))
       })
     })
   })

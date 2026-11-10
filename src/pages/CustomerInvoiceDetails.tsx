@@ -427,6 +427,9 @@ const CustomerInvoiceDetails = () => {
   })
   const [retryInvoice, { loading: loadingRetryInvoice }] = useRetryInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
+    refetchQueries: isCatalogInvoice
+      ? ['getInvoiceProductCatalogContracts', 'getInvoiceProductFees']
+      : ['getInvoiceFees'],
     context: {
       silentErrorCodes: [
         LagoApiError.UnprocessableEntity,

@@ -1232,6 +1232,38 @@ describe('CustomerInvoiceDetails', () => {
       )
     })
 
+    it('THEN fails closed on a skeleton error instead of showing the legacy fee list', () => {
+      mockIsProductCatalogEnabled = true
+      mockUseGetInvoiceProductCatalogContractsQuery.mockReturnValue({
+        data: undefined,
+        loading: false,
+        error: new Error('skeleton failed'),
+      })
+
+      render(<CustomerInvoiceDetails />)
+
+      expect(screen.getByText('text_634812d6f16b31ce5cbf4111')).toBeInTheDocument()
+      expect(screen.queryByText('InvoiceOverview')).not.toBeInTheDocument()
+    })
+
+    it.each([
+      { contracts: null, expected: ['getInvoiceFees'] },
+      {
+        contracts: [],
+        expected: ['getInvoiceProductCatalogContracts', 'getInvoiceProductFees'],
+      },
+    ])('THEN refetches $expected on retry when contracts=$contracts', ({ contracts, expected }) => {
+      mockIsProductCatalogEnabled = true
+      mockUseGetInvoiceProductCatalogContractsQuery.mockReturnValue({
+        data: { invoice: { id: 'invoice-123', productCatalogContracts: contracts } },
+        loading: false,
+      })
+
+      render(<CustomerInvoiceDetails />)
+
+      expect(mockMutationOptions.retryInvoice.refetchQueries).toEqual(expected)
+    })
+
     it('THEN changes the header snapshot when the skeleton changes on the same mounted page', () => {
       mockIsProductCatalogEnabled = true
       mockUseGetInvoiceProductCatalogContractsQuery.mockReturnValue({

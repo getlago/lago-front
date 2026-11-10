@@ -1,5 +1,9 @@
 import { ColumnDefTemplate, RowData } from '@tanstack/react-table'
-import { ReactNode } from 'react'
+import {
+  KeyboardEvent as ReactKeyboardEvent,
+  MouseEvent as ReactMouseEvent,
+  ReactNode,
+} from 'react'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Skeleton } from '~/components/designSystem/Skeleton'
@@ -24,6 +28,18 @@ import {
 const DEFAULT_LOADING_ROW_COUNT = 3
 
 const NUMERIC_COLUMN_VARIANTS = { align: 'right', shrink: true, className: 'min-w-24' } as const
+
+const INTERACTIVE_CELL_CONTENT_SELECTOR =
+  'a[href], button, input, select, textarea, [role="button"], [role="link"], [tabindex]:not([tabindex="-1"])'
+
+// The row itself is focusable, so `closest` would match it: only a descendant counts.
+const isFromInteractiveCellContent = (
+  event: ReactMouseEvent<HTMLElement> | ReactKeyboardEvent<HTMLElement>,
+): boolean => {
+  const interactive = (event.target as HTMLElement).closest?.(INTERACTIVE_CELL_CONTENT_SELECTOR)
+
+  return !!interactive && interactive !== event.currentTarget
+}
 
 // Called, not mounted like `flexRender` does: a new renderer identity would remount the cell
 // and drop its focus. Renderers needing hooks must render a child component.
@@ -147,10 +163,19 @@ export const ComposableTableView = <TData extends RowData>({
           data-test={getRowDataTest?.(row)}
           className={isClickable ? 'cursor-pointer [&:hover>td]:bg-grey-100' : undefined}
           tabIndex={isClickable ? 0 : undefined}
-          onClick={isClickable ? () => onRowClick(row) : undefined}
+          onClick={
+            isClickable
+              ? (event) => {
+                  if (isFromInteractiveCellContent(event)) return
+
+                  onRowClick(row)
+                }
+              : undefined
+          }
           onKeyDown={
             isClickable
               ? (event) => {
+                  if (isFromInteractiveCellContent(event)) return
                   if (event.key !== 'Enter' && event.key !== ' ') return
 
                   event.preventDefault()

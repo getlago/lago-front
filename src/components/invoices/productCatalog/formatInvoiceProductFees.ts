@@ -259,6 +259,12 @@ export const formatInvoiceProductFees = <TFee extends Fee>({
   currency: CurrencyEnum
 }): InvoiceProductCatalogFeeRow<TFee>[] => {
   const rows: InvoiceProductCatalogFeeRow<TFee>[] = []
+  const productsById = new Map<string, (typeof section.products)[number]>()
+
+  section.products.forEach((group) => {
+    if (!productsById.has(group.product.id)) productsById.set(group.product.id, group)
+  })
+
   let currentProduct: { key: string; row: GroupRow<TFee>; hasTotal: boolean } | undefined
   let currentFilter: { id: string; row: GroupRow<TFee>; hasTotal: boolean } | undefined
   const groupIdCounts = new Map<string, number>()
@@ -283,7 +289,7 @@ export const formatInvoiceProductFees = <TFee extends Fee>({
   fees.forEach((fee) => {
     const productId = fee.product?.id ?? ''
     const productKey = `${fee.contract?.id ?? ''}:${productId}`
-    const productGroup = section.products.find(({ product }) => product.id === productId)
+    const productGroup = productsById.get(productId)
 
     if (currentProduct?.key !== productKey) {
       const row: InvoiceProductCatalogFeeRow<TFee> = {
