@@ -22,6 +22,7 @@ import { INVOICE_PRODUCT_FEES_FILTER_PREFIX } from '~/core/constants/filters'
 import { InvoiceProductCatalogSectionFragment } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { getDisplayName } from './formatInvoiceProductFees'
 import { InvoiceProductFeesFilters } from './useInvoiceProductFees'
 
 export const INVOICE_PRODUCT_FEES_PRODUCT_FILTER_KEY: DynamicFilterKey = 'dynamic.product'
@@ -45,8 +46,29 @@ const toSortedUniqueOptions = (items: Array<{ id: string; label: string }>): Fil
 
 type SectionProducts = InvoiceProductCatalogSectionFragment['products']
 
-export const buildInvoiceProductFeesProductOptions = (products: SectionProducts): FilterOption[] =>
-  toSortedUniqueOptions(products.map(({ product }) => ({ id: product.id, label: product.code })))
+export const buildInvoiceProductFeesProductOptions = (
+  products: SectionProducts,
+): FilterOption[] => {
+  const uniqueProducts = Array.from(
+    new Map(products.map(({ product }) => [product.id, product])).values(),
+  )
+  const nameCounts = new Map<string, number>()
+
+  uniqueProducts.forEach((product) => {
+    const name = getDisplayName(product)
+
+    nameCounts.set(name, (nameCounts.get(name) ?? 0) + 1)
+  })
+
+  return toSortedUniqueOptions(
+    uniqueProducts.map((product) => {
+      const name = getDisplayName(product)
+      const isNameShared = (nameCounts.get(name) ?? 0) > 1
+
+      return { id: product.id, label: isNameShared ? `${name} (${product.code})` : name }
+    }),
+  )
+}
 
 const groupProductFilterIdsByLabel = (products: SectionProducts): Map<string, Set<string>> => {
   const idsByLabel = new Map<string, Set<string>>()

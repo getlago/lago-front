@@ -113,10 +113,33 @@ describe('formatInvoiceProductFeesFilters', () => {
 
 describe('buildInvoiceProductFeesProductOptions', () => {
   describe('GIVEN a section with the same product in several groups', () => {
-    it('THEN should list each product once, labelled and sorted by code', () => {
+    it('THEN should list each product once, labelled and sorted by name', () => {
       expect(buildInvoiceProductFeesProductOptions(section.products)).toEqual([
-        { label: 'alpha', value: 'p-alpha|-_-|alpha' },
-        { label: 'zeta', value: 'p-zeta|-_-|zeta' },
+        { label: 'alpha name', value: 'p-alpha|-_-|alpha name' },
+        { label: 'zeta name', value: 'p-zeta|-_-|zeta name' },
+      ])
+    })
+  })
+
+  describe('GIVEN products with an invoice display name or sharing a name', () => {
+    const productGroup = (id: string, code: string, name: string, invoiceDisplayName?: string) => ({
+      amountCents: '0',
+      feesCount: 1,
+      product: { ...product(id, code), name, invoiceDisplayName },
+      filters: [],
+    })
+
+    it('THEN should prefer the display name and add the code only to the shared names', () => {
+      expect(
+        buildInvoiceProductFeesProductOptions([
+          productGroup('p-cpu', 'cpu_hours', 'CPU hours'),
+          productGroup('p-gpu', 'gpu_hours', 'CPU hours'),
+          productGroup('p-api', 'api_calls', 'API', 'API calls'),
+        ]),
+      ).toEqual([
+        { label: 'API calls', value: 'p-api|-_-|API calls' },
+        { label: 'CPU hours (cpu_hours)', value: 'p-cpu|-_-|CPU hours (cpu_hours)' },
+        { label: 'CPU hours (gpu_hours)', value: 'p-gpu|-_-|CPU hours (gpu_hours)' },
       ])
     })
   })
@@ -157,7 +180,7 @@ describe('buildInvoiceProductFeesDynamicFilters', () => {
   })
 
   describe('WHEN formatting an active product value', () => {
-    it('THEN should show the selected codes', () => {
+    it('THEN should show the selected labels', () => {
       expect(
         getFilter(INVOICE_PRODUCT_FEES_PRODUCT_FILTER_KEY)?.formatValue('p1|-_-|alpha,p2|-_-|zeta'),
       ).toBe('alpha, zeta')
