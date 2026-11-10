@@ -49,6 +49,7 @@ interface TopUpSectionExtraProps {
   autoOpenRuleDrawer?: boolean
   autoOpenPaymentConnectionDrawer?: boolean
   autoOpenAdditionalIntegrationDrawer?: boolean
+  autoOpenInvoicingSettingsDrawer?: boolean
   paymentTermInheritedFrom?: PaymentTermInheritedFrom
 }
 
@@ -61,6 +62,7 @@ const topUpSectionDefaultProps: TopUpSectionExtraProps = {
   autoOpenRuleDrawer: false,
   autoOpenPaymentConnectionDrawer: false,
   autoOpenAdditionalIntegrationDrawer: false,
+  autoOpenInvoicingSettingsDrawer: false,
   paymentTermInheritedFrom: undefined,
 }
 
@@ -76,6 +78,7 @@ export const TopUpSection = withForm({
     autoOpenRuleDrawer,
     autoOpenPaymentConnectionDrawer,
     autoOpenAdditionalIntegrationDrawer,
+    autoOpenInvoicingSettingsDrawer,
     paymentTermInheritedFrom,
   }) {
     const { isPremium } = useCurrentUser()
@@ -307,6 +310,7 @@ export const TopUpSection = withForm({
               value={walletValues.invoiceCustomSection}
               onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
               paymentTerm={invoicingSettingsPaymentTerm}
+              autoOpen={autoOpenInvoicingSettingsDrawer}
             />
           </section>
         )}

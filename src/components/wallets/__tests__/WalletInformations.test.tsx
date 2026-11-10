@@ -1,5 +1,6 @@
 import { screen, within } from '@testing-library/react'
 
+import { ButtonLinkBaseProps } from '~/components/designSystem/ButtonLink'
 import {
   INHERIT_DEFAULT_LABEL_KEY,
   INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
@@ -18,6 +19,7 @@ import { render } from '~/test-utils'
 
 import WalletInformations, {
   WALLET_INFORMATIONS_CONTAINER_TEST_ID,
+  WALLET_INFORMATIONS_EDIT_INVOICING_TEST_ID,
   WALLET_INFORMATIONS_PAYMENT_SECTION_TEST_ID,
 } from '../WalletInformations'
 
@@ -60,6 +62,18 @@ jest.mock('~/hooks/useCustomerInvoiceCustomSections', () => ({
 
 let mockBillingEntityStatus: BillingEntityByIdStatus = 'resolved'
 
+// routerState (the drawer auto-open intent) never reaches the DOM, so the Edit
+// link can only be asserted through the props it receives.
+const mockButtonLink = jest.fn()
+
+jest.mock('~/components/designSystem/ButtonLink', () => ({
+  ButtonLink: (props: ButtonLinkBaseProps & { 'data-test'?: string }) => {
+    mockButtonLink(props)
+
+    return <button data-test={props['data-test']} type="button" />
+  },
+}))
+
 jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
   ...jest.requireActual('~/hooks/useBillingEntitiesOptions'),
   useBillingEntityById: (id: string | null | undefined) => ({
@@ -74,6 +88,7 @@ const INHERITED_BADGE_TRANSLATION_KEY = 'text_1764327933607jgtpungo2pp'
 const NOT_DEFINED_TRANSLATION_KEY = 'text_1772536695408bfc3c38pg36'
 const TOPUP_MIN_LABEL_TRANSLATION_KEY = 'text_1758286730208kztcznofxvr'
 const TOPUP_MAX_LABEL_TRANSLATION_KEY = 'text_1758286730208ey87jz8nzuz'
+const PAYMENT_TERM_LABEL = 'text_1778660219891rv2r5gjmklq'
 
 const createMockWallet = (overrides = {}) =>
   ({
@@ -269,12 +284,13 @@ describe('WalletInformations', () => {
         mockHasFeatureFlag = true
       })
 
-      it('THEN should drop the whole payment section, now owned by the External apps tab', () => {
+      it('THEN should keep the payment section for the payment term, without the payment method', () => {
         render(<WalletInformations wallet={walletWithCard()} />)
 
-        expect(
-          screen.queryByTestId(WALLET_INFORMATIONS_PAYMENT_SECTION_TEST_ID),
-        ).not.toBeInTheDocument()
+        const paymentSection = screen.getByTestId(WALLET_INFORMATIONS_PAYMENT_SECTION_TEST_ID)
+
+        expect(paymentSection).toHaveTextContent(PAYMENT_TERM_LABEL)
+        expect(paymentSection).not.toHaveTextContent('4242')
       })
 
       it('THEN should keep the section for the invoice custom sections row alone', () => {
@@ -295,10 +311,26 @@ describe('WalletInformations', () => {
   })
 
   describe('GIVEN a payment term', () => {
-    const PAYMENT_TERM_LABEL = 'text_1778660219891rv2r5gjmklq'
-
     const getValueUnderLabel = (labelKey: string) =>
       within(screen.getByText(labelKey).parentElement as HTMLElement)
+
+    describe('WHEN rendered', () => {
+      it('THEN shows the term in the payment and invoicing settings section', () => {
+        render(
+          <WalletInformations
+            wallet={createMockWallet({
+              paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 15 },
+            })}
+          />,
+        )
+
+        expect(
+          within(screen.getByTestId(WALLET_INFORMATIONS_PAYMENT_SECTION_TEST_ID)).getByText(
+            PAYMENT_TERM_LABEL,
+          ),
+        ).toBeInTheDocument()
+      })
+    })
 
     describe('WHEN the wallet has its own term', () => {
       it('THEN shows that term', () => {
@@ -433,5 +465,48 @@ describe('WalletInformations', () => {
         })
       },
     )
+  })
+  describe('GIVEN the payment and invoicing settings Edit link', () => {
+    const walletWithCustomer = () =>
+      createMockWallet({ customer: { id: 'cust-1', externalId: 'ext-1' } })
+
+    describe('WHEN the user can edit the wallet', () => {
+      it('THEN should link to the wallet edit page with the invoicing drawer auto-open intent', () => {
+        render(<WalletInformations wallet={walletWithCustomer()} canEditWallet />)
+
+        expect(
+          within(screen.getByTestId(WALLET_INFORMATIONS_PAYMENT_SECTION_TEST_ID)).getByTestId(
+            WALLET_INFORMATIONS_EDIT_INVOICING_TEST_ID,
+          ),
+        ).toBeInTheDocument()
+        expect(mockButtonLink).toHaveBeenCalledWith(
+          expect.objectContaining({
+            'data-test': WALLET_INFORMATIONS_EDIT_INVOICING_TEST_ID,
+            to: '/customer/cust-1/wallet/wallet-1',
+            routerState: { openInvoicingSettingsDrawer: true },
+          }),
+        )
+      })
+    })
+
+    describe('WHEN the user cannot edit the wallet', () => {
+      it('THEN should not show the link', () => {
+        render(<WalletInformations wallet={walletWithCustomer()} />)
+
+        expect(
+          screen.queryByTestId(WALLET_INFORMATIONS_EDIT_INVOICING_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the wallet has no customer', () => {
+      it('THEN should not show the link', () => {
+        render(<WalletInformations wallet={createMockWallet()} canEditWallet />)
+
+        expect(
+          screen.queryByTestId(WALLET_INFORMATIONS_EDIT_INVOICING_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
   })
 })
