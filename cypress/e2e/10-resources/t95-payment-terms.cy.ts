@@ -94,7 +94,7 @@ describe('Payment terms', () => {
       cy.visitApp('/customers')
       cy.contains(customerName).click()
       cy.url().should('include', '/customer/')
-      cy.get('button[role="tab"]').contains('Settings').click()
+      cy.contains('[role="tab"]', 'Settings').click()
     }
 
     it('should override the billing entity term, then delete it to inherit again', () => {
