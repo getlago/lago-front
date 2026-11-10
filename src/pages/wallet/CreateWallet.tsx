@@ -28,6 +28,7 @@ import {
   FeatureFlagEnum,
   GetWalletInfosForWalletFormQuery,
   LagoApiError,
+  PaymentTermFieldsFragmentDoc,
   useCreateCustomerWalletMutation,
   useGetCustomerInfosForWalletFormQuery,
   useGetWalletInfosForWalletFormQuery,
@@ -38,6 +39,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { useInheritedPaymentTerm } from '~/hooks/useInheritedPaymentTerm'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { ScopeSection } from '~/pages/wallet/components/ScopeSection'
 import { SettingsSection } from '~/pages/wallet/components/SettingsSection'
@@ -71,6 +73,9 @@ gql`
       category
       behavior
       code
+    }
+    paymentTerm {
+      ...PaymentTermFields
     }
     skipInvoiceCustomSections
     selectedInvoiceCustomSections {
@@ -128,8 +133,14 @@ gql`
       externalId
       currency
       timezone
+      paymentTerm {
+        ...PaymentTermFields
+      }
       billingEntity {
         id
+        paymentTerm {
+          ...PaymentTermFields
+        }
       }
     }
   }
@@ -159,6 +170,8 @@ gql`
 
   ${WalletForUpdateFragmentDoc}
   ${WalletForScopeSectionFragmentDoc}
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 function hasWalletRecurringTopUpEnabled(
@@ -316,6 +329,11 @@ const CreateWallet = () => {
   })
 
   const isDirty = useStore(form.store, (state) => state.isDirty)
+  const walletBillingEntityId = useStore(form.store, (state) => state.values.billingEntityId)
+  const paymentTermInheritedFrom = useInheritedPaymentTerm({
+    customer: customerData?.customer,
+    billingEntityId: walletBillingEntityId,
+  })
 
   const openDirtyAttributesWarning = useCallback(() => {
     centralizedDialog.open({
@@ -402,6 +420,7 @@ const CreateWallet = () => {
               autoOpenAdditionalIntegrationDrawer={
                 autoOpenAdditionalIntegrationDrawer && !isLoading
               }
+              paymentTermInheritedFrom={paymentTermInheritedFrom}
             />
           </CenteredPage.Container>
         )}

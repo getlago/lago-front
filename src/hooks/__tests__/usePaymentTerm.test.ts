@@ -2,6 +2,12 @@ import { renderHook } from '@testing-library/react'
 import { DateTime } from 'luxon'
 
 import {
+  INHERIT_DEFAULT_LABEL_KEY,
+  INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
+  INHERIT_UNRESOLVED_LABEL_KEY,
+  paymentTermFormValuesFromTerm,
+} from '~/components/paymentTerms/utils'
+import {
   PAYMENT_TERM_DUE_DATE_PREVIEW_KEYS,
   PAYMENT_TERM_INHERIT,
   PAYMENT_TERM_TYPE_LABEL_KEYS,
@@ -76,6 +82,20 @@ describe('usePaymentTerm', () => {
         })
       })
     })
+
+    describe('GIVEN a level that can inherit but whose inherited term is not known yet', () => {
+      describe('WHEN the options are built', () => {
+        it('THEN should keep the inherit choice, labelled without a value', () => {
+          const options = setup().getTermTypeComboboxData({ canInherit: true })
+
+          expect(options).toHaveLength(7)
+          expect(options[0]).toEqual({
+            value: PAYMENT_TERM_INHERIT,
+            label: mockTranslate(INHERIT_UNRESOLVED_LABEL_KEY),
+          })
+        })
+      })
+    })
   })
 
   describe('formatPaymentTerm', () => {
@@ -142,6 +162,23 @@ describe('usePaymentTerm', () => {
         })
       })
     })
+
+    describe('GIVEN an end-of-month term of zero days', () => {
+      describe('WHEN it is formatted', () => {
+        it.each([PaymentTermTypeEnum.NetEndOfMonth, PaymentTermTypeEnum.DaysEndOfMonth])(
+          'THEN should read %s as end of month',
+          (termType) => {
+            setup().formatPaymentTerm({ termType, days: 0 })
+
+            expect(mockTranslate).toHaveBeenCalledWith(
+              PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.EndOfMonth],
+              {},
+              0,
+            )
+          },
+        )
+      })
+    })
   })
 
   describe('getPaymentTermCopy', () => {
@@ -161,18 +198,92 @@ describe('usePaymentTerm', () => {
         it('THEN should show the parent value marked as inherited', () => {
           const copy = setup().getPaymentTermCopy({ ownTerm: null, parentTerm: END_OF_MONTH })
 
-          expect(copy).toContain('text_1728374331992d2alok9y3kr')
+          expect(copy).toContain(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)
           expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.EndOfMonth])
         })
       })
 
       describe('WHEN nothing is set at any level', () => {
-        it('THEN should fall back to due on receipt, marked as inherited', () => {
+        it('THEN should fall back to due on receipt, labelled as the default like the editor', () => {
           const copy = setup().getPaymentTermCopy({ ownTerm: null, parentTerm: null })
 
-          expect(copy).toContain('text_1728374331992d2alok9y3kr')
+          expect(copy).toContain(INHERIT_DEFAULT_LABEL_KEY)
           expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.DueOnReceipt])
         })
+      })
+    })
+  })
+
+  describe('getBillingObjectPaymentTermCopy', () => {
+    const inheritedFrom = { term: END_OF_MONTH, labelKey: INHERIT_FROM_BILLING_ENTITY_LABEL_KEY }
+
+    describe('GIVEN the object has its own term', () => {
+      it('THEN should show it unmarked, whatever it would inherit', () => {
+        const copy = setup().getBillingObjectPaymentTermCopy({ ownTerm: NET_30, inheritedFrom })
+
+        expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net])
+        expect(copy).not.toContain(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)
+      })
+    })
+
+    describe('GIVEN the object has no term and the inherited one is known', () => {
+      it('THEN should show the inherited value marked with its level', () => {
+        const copy = setup().getBillingObjectPaymentTermCopy({ ownTerm: null, inheritedFrom })
+
+        expect(copy).toContain(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)
+        expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.EndOfMonth])
+      })
+    })
+
+    describe('GIVEN the object has no term and the inherited one is unknown', () => {
+      it('THEN should return nothing, so the caller can show a placeholder', () => {
+        const copy = setup().getBillingObjectPaymentTermCopy({
+          ownTerm: null,
+          inheritedFrom: undefined,
+        })
+
+        expect(copy).toBeUndefined()
+      })
+    })
+  })
+
+  describe('getPaymentTermFormValuesCopy', () => {
+    const inheritedFrom = { term: END_OF_MONTH, labelKey: 'inherit_key' }
+
+    describe('GIVEN the editor sits on the inherit choice', () => {
+      it('THEN should read as the inherited term marked with its level', () => {
+        const copy = setup().getPaymentTermFormValuesCopy(
+          paymentTermFormValuesFromTerm(null, true),
+          inheritedFrom,
+        )
+
+        expect(copy).toContain('inherit_key')
+        expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.EndOfMonth])
+      })
+    })
+
+    describe('GIVEN the editor holds a term', () => {
+      it('THEN should read as that term', () => {
+        const copy = setup().getPaymentTermFormValuesCopy(
+          paymentTermFormValuesFromTerm(NET_30, true),
+          inheritedFrom,
+        )
+
+        expect(copy).not.toContain('inherit_key')
+        expect(copy).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net])
+      })
+    })
+
+    describe('GIVEN the inherited term is not known yet', () => {
+      it('THEN should read the inherit choice as such and a held term as itself', () => {
+        const { getPaymentTermFormValuesCopy } = setup()
+
+        expect(
+          getPaymentTermFormValuesCopy(paymentTermFormValuesFromTerm(null, true), undefined),
+        ).toBe(mockTranslate(INHERIT_UNRESOLVED_LABEL_KEY))
+        expect(
+          getPaymentTermFormValuesCopy(paymentTermFormValuesFromTerm(NET_30, true), undefined),
+        ).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net])
       })
     })
   })

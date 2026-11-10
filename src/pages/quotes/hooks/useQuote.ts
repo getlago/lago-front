@@ -1,6 +1,10 @@
 import { gql, WatchQueryFetchPolicy } from '@apollo/client'
 
-import { QuoteDetailItemFragment, useGetQuoteQuery } from '~/generated/graphql'
+import {
+  PaymentTermFieldsFragmentDoc,
+  QuoteDetailItemFragment,
+  useGetQuoteQuery,
+} from '~/generated/graphql'
 
 gql`
   fragment QuotePreviewVersion on QuoteVersion {
@@ -42,10 +46,7 @@ gql`
       displayName
       externalId
       paymentTerm {
-        termType
-        days
-        dayOfMonth
-        monthOffset
+        ...PaymentTermFields
       }
       ...QuotePreviewCustomer
       billingEntity {
@@ -53,10 +54,7 @@ gql`
         code
         name
         paymentTerm {
-          termType
-          days
-          dayOfMonth
-          monthOffset
+          ...PaymentTermFields
         }
       }
     }
@@ -90,6 +88,8 @@ gql`
       ...QuoteDetailItem
     }
   }
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 interface UseQuoteReturn {
