@@ -48,8 +48,12 @@ export const PaymentTermFormContent = withForm({
     const previewTerm = paymentTermFormSchema.safeParse(values).success
       ? paymentTermFromFormValues(values)
       : null
-    const dayOfMonthError = isDayOfMonthValid(dayOfMonth) ? undefined : DAY_OF_MONTH_ERROR_KEY
-    const monthOffsetError = isMonthOffsetValid(monthOffset) ? undefined : MONTH_OFFSET_ERROR_KEY
+    const dayOfMonthError = isDayOfMonthValid(dayOfMonth)
+      ? undefined
+      : translate(DAY_OF_MONTH_ERROR_KEY)
+    const monthOffsetError = isMonthOffsetValid(monthOffset)
+      ? undefined
+      : translate(MONTH_OFFSET_ERROR_KEY)
 
     return (
       <div className="flex flex-col gap-6">
