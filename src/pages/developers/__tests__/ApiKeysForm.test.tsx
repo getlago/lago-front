@@ -1,5 +1,5 @@
 import { MockedResponse } from '@apollo/client/testing'
-import { screen, waitFor, within } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { addToast } from '~/core/apolloClient'
@@ -667,25 +667,6 @@ describe('ApiKeysForm', () => {
           ).toBeInTheDocument()
         },
       )
-
-      it('THEN should list the resources in alphabetical order of their label', async () => {
-        mockHasFeatureFlag.mockImplementation(
-          (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.AccountTree,
-        )
-
-        render(<ApiKeysForm />)
-
-        await waitFor(() => {
-          expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
-        })
-
-        const labels = screen
-          .getAllByTestId(/^api-keys-form-permission-row-/)
-          .map((row) => within(row).getAllByRole('cell')[0].textContent ?? '')
-
-        expect(labels).toContain('Usage attribution')
-        expect(labels).toEqual([...labels].sort((a, b) => a.localeCompare(b)))
-      })
 
       it('THEN should only offer the read permission on the attributed usage row', async () => {
         mockHasFeatureFlag.mockImplementation(

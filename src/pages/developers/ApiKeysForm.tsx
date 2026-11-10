@@ -379,19 +379,14 @@ const ApiKeysForm = () => {
   // current organization yet) and flips on every refetch, which would unmount the form mid-edit.
   const isLoading = apiKeyLoading || !organization
 
-  const getPermissionLabel = (permission: ApiKeysPermissionsEnum): string =>
-    translate(PERMISSION_RESOURCES[permission].translationKey)
-
-  const availablePermissions = getAvailablePermissions({
-    hasProductCatalog: hasFeatureFlag(FeatureFlagEnum.ProductCatalog),
-    hasUsageGovernance: isUsageGovernanceEnabled({ organization, hasFeatureFlag }),
-  }).sort((a, b) => getPermissionLabel(a).localeCompare(getPermissionLabel(b)))
-
   const form = useAppForm({
     defaultValues: {
       name: apiKey?.name || '',
       permissions: transformApiPermissionsForForm(
-        availablePermissions,
+        getAvailablePermissions({
+          hasProductCatalog: hasFeatureFlag(FeatureFlagEnum.ProductCatalog),
+          hasUsageGovernance: isUsageGovernanceEnabled({ organization, hasFeatureFlag }),
+        }),
         apiKey?.permissions || DEFAULT_PERMISSIONS,
       ),
     },
@@ -576,7 +571,7 @@ const ApiKeysForm = () => {
                       ),
                       content: ({ id }) => (
                         <Typography variant="body" color="grey700">
-                          {getPermissionLabel(id)}
+                          {translate(PERMISSION_RESOURCES[id].translationKey)}
                         </Typography>
                       ),
                     },
