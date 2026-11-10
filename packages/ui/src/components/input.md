@@ -4,7 +4,7 @@ Single-line native text input. **Provisional**: not yet aligned with the v2 desi
 
 ## When to use
 
-- Do not adopt it in new UI yet. Its classes come from the shadcn scaffold (`border-input`, `ring-ring`, `text-muted-foreground`, `border-destructive`) and none of them is a v2 token, so border, focus ring, placeholder and invalid colors are not applied.
+- Do not adopt it in new UI yet. Its border, focus ring, placeholder and invalid colors come from the shadcn scaffold (`border-input`, `ring-ring`, `text-muted-foreground`, `border-destructive`) and none of them is a v2 token. The app still defines them, so it renders with the scaffold greys there; the `lago-ui` preset deliberately does not, so Storybook shows it without them until it is aligned.
 - Until it is aligned, keep using the legacy form fields for production forms.
 - The target appearance is already defined in [component surfaces](../styles/component-surfaces.md): `surface-subtle` background, `border-control` border, `danger-border` when invalid.
 
