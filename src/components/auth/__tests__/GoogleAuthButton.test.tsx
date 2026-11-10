@@ -15,9 +15,15 @@ type GoogleAuthUrlAnswer = { data?: GetGoogleAuthUrlQuery; errors?: GraphQLForma
 
 const mockGetGoogleUrl = jest.fn()
 
+const mockUseGetGoogleAuthUrlLazyQuery = jest.fn()
+
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useGetGoogleAuthUrlLazyQuery: () => [mockGetGoogleUrl],
+  useGetGoogleAuthUrlLazyQuery: (...args: unknown[]) => {
+    mockUseGetGoogleAuthUrlLazyQuery(...args)
+
+    return [mockGetGoogleUrl]
+  },
 }))
 
 const BUTTON_LABEL = 'Continue with Google'
@@ -232,6 +238,22 @@ describe('GoogleAuthButton', () => {
         await waitFor(() => expect(onError).toHaveBeenCalledWith('GoogleAuthMissingSetup'))
         expect(screen.queryByText(MISSING_SETUP_COPY)).not.toBeInTheDocument()
       })
+
+      it.each([
+        ['a page that shows its own errors', { onError: jest.fn() }, true],
+        ['the default button', {}, false],
+      ])(
+        'THEN for %s should silence the missing setup toast only when the page shows the errors',
+        (_, props, silenced) => {
+          renderButton({ props })
+
+          const silentErrorCodes =
+            mockUseGetGoogleAuthUrlLazyQuery.mock.lastCall?.[0]?.context?.silentErrorCodes ?? []
+
+          expect(silentErrorCodes.includes(LagoApiError.GoogleAuthMissingSetup)).toBe(silenced)
+          expect(silentErrorCodes).toContain(LagoApiError.UnprocessableEntity)
+        },
+      )
     })
   })
 
