@@ -59,6 +59,17 @@ export const typeDefs = gql`
     lock_acquisition_failed
     captcha_failed
     captcha_unavailable
+    resend_too_soon
+    resend_limit_reached
+    signup_resend_exhausted
+    signup_expired
+    email_already_verified
+    signup_secret_expired
+    signup_token_expired
+    signup_token_replaced
+    signup_token_locked
+    password_required
+    incorrect_password
 
     # SSO errors
     invalid_google_code
