@@ -1,7 +1,9 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router'
 
+import { AuthOrDivider } from '~/components/auth/AuthOrDivider'
 import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
 import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
@@ -12,7 +14,7 @@ import {
 } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
 import { envGlobalVar } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
-import { LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
+import { LOGIN_ROUTE, SIGN_UP_ROUTE, useLocation } from '~/core/router'
 import { removeItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
 import { getRecaptchaToken } from '~/core/utils/recaptcha'
@@ -96,9 +98,7 @@ const BANNER_ERRORS: Record<string, string> = {
   [LagoApiError.InvalidGoogleToken]: GOOGLE_SIGN_UP_INCOMPLETE_ERROR,
 }
 
-const getGoogleSignUpError = (): string | undefined => {
-  const code = new URLSearchParams(window.location.search).get('lago_error_code')
-
+const getGoogleSignUpError = (code: string | null): string | undefined => {
   if (!code) return undefined
 
   return BANNER_ERRORS[code] || SIGN_UP_GENERIC_ERROR
@@ -132,7 +132,11 @@ const SelfServeSignUp = (): JSX.Element => {
   const { translate } = useInternationalization()
   const { usFrontUrl, euFrontUrl } = envGlobalVar()
   const [sentToEmail, setSentToEmail] = useState<string>()
-  const [bannerError, setBannerError] = useState<string | undefined>(getGoogleSignUpError)
+  const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [bannerError, setBannerError] = useState<string | undefined>(() =>
+    getGoogleSignUpError(searchParams.get('lago_error_code')),
+  )
   const [emailCheckError, setEmailCheckError] = useState<string>()
 
   const [sentSignupSecret, setSentSignupSecret] = useState('')
@@ -202,9 +206,10 @@ const SelfServeSignUp = (): JSX.Element => {
   useRecaptcha()
 
   useEffect(() => {
-    if (!new URLSearchParams(window.location.search).has('lago_error_code')) return
+    if (!searchParams.has('lago_error_code')) return
 
-    window.history.replaceState(window.history.state, '', window.location.pathname)
+    setSearchParams({}, { replace: true, state: location.state })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const password = useStore(form.store, (state) => state.values.password)
@@ -310,14 +315,10 @@ const SelfServeSignUp = (): JSX.Element => {
           <GoogleAuthButton
             mode="signup"
             label={translate('text_1793952050623ct9rwfn5e61')}
-            hideAlert
+            onError={(code) => setBannerError(getGoogleSignUpError(code))}
           />
 
-          <div className="flex items-center justify-center gap-4 before:flex-1 before:border before:border-grey-300 before:content-[''] after:flex-1 after:border after:border-grey-300 after:content-['']">
-            <Typography variant="captionHl" color="grey500">
-              {translate('text_6303351deffd2a0d70498675').toUpperCase()}
-            </Typography>
-          </div>
+          <AuthOrDivider />
 
           <div className="flex flex-col gap-4">
             <form.AppField

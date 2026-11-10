@@ -51,13 +51,14 @@ const GoogleErrorCodes = [
   'google_login_method_not_authorized',
 ] as const
 
-type GoogleErrorCodes = (typeof GoogleErrorCodes)[number]
+export type GoogleErrorCodes = (typeof GoogleErrorCodes)[number]
 
 type BasicGoogleAuthButtonProps = {
   mode: GoogleAuthModeEnum
   label: string
   invitationToken?: string
   hideAlert?: boolean
+  onError?: (errorCode: GoogleErrorCodes) => void
 }
 
 const GoogleAuthButton = ({
@@ -65,6 +66,7 @@ const GoogleAuthButton = ({
   hideAlert,
   label,
   mode,
+  onError,
 }: BasicGoogleAuthButtonProps) => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
@@ -77,7 +79,13 @@ const GoogleAuthButton = ({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
   })
 
+  // With onError, the page shows the errors: the button keeps no alert and leaves the URL alone
+  const reportError = (code: GoogleErrorCodes): void =>
+    onError ? onError(code) : setErrorCode(code)
+
   useEffect(() => {
+    if (onError) return
+
     if (lagoErrorCode && GoogleErrorCodes.includes(lagoErrorCode as GoogleErrorCodes)) {
       // Set the error code to be displayed
       setErrorCode(lagoErrorCode as GoogleErrorCodes)
@@ -94,7 +102,7 @@ const GoogleAuthButton = ({
 
   return (
     <Stack spacing={8}>
-      {!!errorCode && !hideAlert && (
+      {!!errorCode && !hideAlert && !onError && (
         <Alert type="danger" data-test="google-auth-button-error-alert">
           <Typography
             color="textSecondary"
@@ -120,15 +128,15 @@ const GoogleAuthButton = ({
 
           // Note: keep underscore notation for some error codes
           if (hasDefinedGQLError('GoogleAuthMissingSetup', errors)) {
-            return setErrorCode('GoogleAuthMissingSetup')
+            return reportError('GoogleAuthMissingSetup')
           } else if (hasDefinedGQLError('InvalidGoogleCode', errors)) {
-            return setErrorCode('invalid_google_code')
+            return reportError('invalid_google_code')
           } else if (hasDefinedGQLError('InvalidGoogleToken', errors)) {
-            return setErrorCode('invalid_google_token')
+            return reportError('invalid_google_token')
           } else if (hasDefinedGQLError('UserDoesNotExist', errors)) {
-            return setErrorCode('user_does_not_exist')
+            return reportError('user_does_not_exist')
           } else if (hasDefinedGQLError('LoginMethodNotAuthorized', errors)) {
-            return setErrorCode('google_login_method_not_authorized')
+            return reportError('google_login_method_not_authorized')
           }
 
           if (data?.googleAuthUrl?.stateSecret) {

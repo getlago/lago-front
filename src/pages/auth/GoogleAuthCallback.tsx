@@ -10,7 +10,7 @@ import {
   parseLegacyGoogleState,
   takeGoogleOauthFlow,
 } from '~/components/auth/googleOauthFlow'
-import { getGraphQLErrorCode, hasDefinedGQLError, LagoGQLError, onLogIn } from '~/core/apolloClient'
+import { envGlobalVar, getGraphQLErrorCode, hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
 import { INVITATION_ROUTE_FORM, LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { isSafeInAppPath } from '~/core/router/utils/isSafeInAppPath'
 import { setItemFromLS } from '~/core/utils/localStorage'
@@ -36,7 +36,7 @@ gql`
   }
 `
 
-const getSignUpErrorCode = (errors: readonly GraphQLFormattedError[] | undefined): string => {
+const getGoogleErrorCode = (errors: readonly GraphQLFormattedError[] | undefined): string => {
   const extensions = errors?.[0]?.extensions
   const details = extensions?.details
   const baseCodes =
@@ -78,7 +78,7 @@ const GoogleAuthCallback = () => {
 
       const token = res.data?.googleSignUp?.token
 
-      if (token) return onLogIn(client, token)
+      if (token) return await onLogIn(client, token)
 
       if (hasDefinedGQLError('UserDoesNotExist', res.errors)) {
         return showError(LOGIN_ROUTE, LagoApiError.UserDoesNotExist)
@@ -88,7 +88,7 @@ const GoogleAuthCallback = () => {
         return showError(LOGIN_ROUTE, LagoApiError.GoogleLoginMethodNotAuthorized)
       }
 
-      showError(SIGN_UP_ROUTE, getSignUpErrorCode(res.errors))
+      showError(SIGN_UP_ROUTE, getGoogleErrorCode(res.errors))
     } catch {
       showError(SIGN_UP_ROUTE, LagoApiError.InternalError)
     } finally {
@@ -130,6 +130,11 @@ const GoogleAuthCallback = () => {
       if (mode === 'signup') {
         if (stateSecret) return signUpWithGoogle(stateSecret)
 
+        // The self-serve Step 1 at /sign-up never reads ?code: without a secret, this API offers no self-serve sign-up
+        if (envGlobalVar().selfServeEnabled) {
+          return showError(SIGN_UP_ROUTE, LagoApiError.SelfServeDisabled)
+        }
+
         return navigate({
           pathname: SIGN_UP_ROUTE,
           search: `?code=${code}`,
@@ -150,10 +155,6 @@ const GoogleAuthCallback = () => {
         )
       }
 
-      if (mode !== 'login') {
-        return
-      }
-
       const res = await googleLoginUser({
         variables: {
           input: { code, ...(!!stateSecret && { state: googleState, stateSecret }) },
@@ -170,9 +171,7 @@ const GoogleAuthCallback = () => {
 
         return navigate({
           pathname: LOGIN_ROUTE,
-          search: `?lago_error_code=${
-            (res.errors[0].extensions as LagoGQLError['extensions'])?.details.base[0]
-          }`,
+          search: `?lago_error_code=${getGoogleErrorCode(res.errors)}`,
         })
       }
 
@@ -194,7 +193,7 @@ const GoogleAuthCallback = () => {
       await onLogIn(client, res.data?.googleLoginUser?.token)
     }
 
-    googleCallback()
+    googleCallback().catch(() => showError(LOGIN_ROUTE, LagoApiError.InternalError))
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

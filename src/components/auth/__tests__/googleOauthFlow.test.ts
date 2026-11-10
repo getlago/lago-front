@@ -127,10 +127,6 @@ describe('parseLegacyGoogleState', () => {
         ),
       ).toEqual({ mode: 'invite', invitationToken: 'token-1', redirectPath: '/x' })
     })
-
-    it('THEN should read an empty state as no mode', () => {
-      expect(parseLegacyGoogleState('')).toEqual({})
-    })
   })
 
   describe('GIVEN a state that is not a legacy one', () => {
@@ -139,6 +135,9 @@ describe('parseLegacyGoogleState', () => {
       ['a JSON array', '[]'],
       ['a JSON number', '42'],
       ['a mode that is not a string', JSON.stringify({ mode: 1 })],
+      ['an empty state', ''],
+      ['a state without a mode', JSON.stringify({ redirectPath: '/x' })],
+      ['a mode the callback does not know', JSON.stringify({ mode: 'other' })],
     ])('THEN should return undefined for %s', (_, state) => {
       expect(parseLegacyGoogleState(state)).toBeUndefined()
     })

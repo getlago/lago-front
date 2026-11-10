@@ -220,6 +220,19 @@ describe('GoogleAuthButton', () => {
         expect(takeGoogleOauthFlow()).toBeUndefined()
       })
     })
+
+    describe('WHEN clicking the button of a page that shows its own errors', () => {
+      it('THEN should hand the error to the page without an alert of its own', async () => {
+        const onError = jest.fn()
+
+        renderButton({ props: { onError } })
+
+        await clickButton()
+
+        await waitFor(() => expect(onError).toHaveBeenCalledWith('GoogleAuthMissingSetup'))
+        expect(screen.queryByText(MISSING_SETUP_COPY)).not.toBeInTheDocument()
+      })
+    })
   })
 
   describe('GIVEN the callback sent back an invalid Google state', () => {
@@ -238,6 +251,21 @@ describe('GoogleAuthButton', () => {
         renderButton({ search, props: { hideAlert: true } })
 
         expect(screen.queryByText(GENERIC_ERROR_COPY)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the page shows its own errors', () => {
+      it('THEN should leave the error code in the URL for the page, without an alert', () => {
+        const onError = jest.fn()
+        const replaceStateSpy = jest.spyOn(window.history, 'replaceState')
+
+        renderButton({ search, props: { onError } })
+
+        expect(screen.queryByText(GENERIC_ERROR_COPY)).not.toBeInTheDocument()
+        expect(replaceStateSpy).not.toHaveBeenCalled()
+        expect(onError).not.toHaveBeenCalled()
+
+        replaceStateSpy.mockRestore()
       })
     })
   })
