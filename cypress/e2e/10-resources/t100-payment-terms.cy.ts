@@ -1,6 +1,7 @@
 import { CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID } from '~/components/dialogs/const'
 import {
   EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID,
+  PAYMENT_TERM_ACTIONS_BUTTON_TEST_ID,
   PAYMENT_TERM_ADD_BUTTON_TEST_ID,
   PAYMENT_TERM_DELETE_BUTTON_TEST_ID,
   PAYMENT_TERM_EDIT_BUTTON_TEST_ID,
@@ -106,7 +107,8 @@ describe('Payment terms', () => {
         .should('contain', CUSTOMER_TERM_CASE.label)
         .and('not.contain', 'inherit from billing entity')
 
-      paymentTermRow().find(`[data-test="${PAYMENT_TERM_DELETE_BUTTON_TEST_ID}"]`).click()
+      paymentTermRow().find(`[data-test="${PAYMENT_TERM_ACTIONS_BUTTON_TEST_ID}"]`).click()
+      cy.get(`[data-test="${PAYMENT_TERM_DELETE_BUTTON_TEST_ID}"]`).click()
       cy.get(`[data-test="${CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID}"]`).click()
 
       paymentTermRow().should('contain', 'inherit from billing entity')
