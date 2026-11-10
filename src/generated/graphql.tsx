@@ -15,7 +15,10 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  /** Represents non-fractional signed whole numeric values. Since the value may exceed the size of a 32-bit integer, it's encoded as a string. */
+  /**
+   * Represents non-fractional signed whole numeric values. Since the value may
+   * exceed the size of a 32-bit integer, it's encoded as a string.
+   */
   BigInt: { input: any; output: any; }
   ChargeFilterValues: { input: any; output: any; }
   /** Api Logs HTTP status */
@@ -660,6 +663,7 @@ export enum ApiKeysPermissionsEnum {
   Analytic = 'analytic',
   ApiLog = 'api_log',
   AppliedCoupon = 'applied_coupon',
+  AttributedUsage = 'attributed_usage',
   BillableMetric = 'billable_metric',
   BillingEntity = 'billing_entity',
   Contract = 'contract',
@@ -873,7 +877,10 @@ export type AttributedUsageChargeUsage = {
   units: Scalars['Float']['output'];
 };
 
-/** Keeps the events whose attribution label of the given type matches one of the values. An empty value matches the events without that label. */
+/**
+ * Keeps the events whose attribution label of the given type matches one of the
+ * values. An empty value matches the events without that label.
+ */
 export type AttributedUsageFilterInput = {
   /** Code of the usage attribution type */
   code: Scalars['String']['input'];
@@ -6006,6 +6013,8 @@ export enum LogTypeEnum {
 
 export type LoginUser = {
   __typename?: 'LoginUser';
+  /** True for a self-serve user who must create an organization (signup Step 3) */
+  needsOrganization: Scalars['Boolean']['output'];
   token: Scalars['String']['output'];
   user: User;
 };
@@ -8541,6 +8550,22 @@ export type Permissions = {
   pricingUnitsCreate: Scalars['Boolean']['output'];
   pricingUnitsUpdate: Scalars['Boolean']['output'];
   pricingUnitsView: Scalars['Boolean']['output'];
+  /** @deprecated Use productsCreate instead. */
+  productCategoriesCreate: Scalars['Boolean']['output'];
+  /** @deprecated Use productsDelete instead. */
+  productCategoriesDelete: Scalars['Boolean']['output'];
+  /** @deprecated Use productsUpdate instead. */
+  productCategoriesUpdate: Scalars['Boolean']['output'];
+  /** @deprecated Use productsView instead. */
+  productCategoriesView: Scalars['Boolean']['output'];
+  /** @deprecated Use productsCreate instead. */
+  productFiltersCreate: Scalars['Boolean']['output'];
+  /** @deprecated Use productsDelete instead. */
+  productFiltersDelete: Scalars['Boolean']['output'];
+  /** @deprecated Use productsUpdate instead. */
+  productFiltersUpdate: Scalars['Boolean']['output'];
+  /** @deprecated Use productsView instead. */
+  productFiltersView: Scalars['Boolean']['output'];
   productsCreate: Scalars['Boolean']['output'];
   productsDelete: Scalars['Boolean']['output'];
   productsUpdate: Scalars['Boolean']['output'];
@@ -11794,7 +11819,11 @@ export type TerminateSubscriptionInput = {
 
 export type ThresholdInput = {
   code?: InputMaybe<Scalars['String']['input']>;
-  /** Transitions this threshold notifies on. Must include triggered. Adding resolved requires a code that is unique within the alert, and is not supported on recurring thresholds. */
+  /**
+   * Transitions this threshold notifies on. Must include triggered. Adding
+   * resolved requires a code that is unique within the alert, and is not supported
+   * on recurring thresholds.
+   */
   notifyOn?: InputMaybe<Array<NotifyOnEnum>>;
   recurring?: InputMaybe<Scalars['Boolean']['input']>;
   value: Scalars['String']['input'];
@@ -13008,6 +13037,8 @@ export type User = {
   email?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   memberships: Array<Membership>;
+  /** True for a self-serve user who must create an organization (signup Step 3) */
+  needsOrganization: Scalars['Boolean']['output'];
   organizations: Array<Organization>;
   premium: Scalars['Boolean']['output'];
   updatedAt: Scalars['ISO8601DateTime']['output'];
