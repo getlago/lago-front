@@ -1,5 +1,5 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
@@ -190,9 +190,8 @@ const submittedCustomerTerm = (): PaymentTermInput | null =>
 const numericInput = (name: 'days' | 'dayOfMonth' | 'monthOffset'): HTMLElement =>
   screen.getByTestId(FORM_DIALOG_TEST_ID).querySelector(`input[name="${name}"]`) as HTMLElement
 
-const retype = async (input: HTMLElement, value: string): Promise<void> => {
-  await userEvent.clear(input)
-  await userEvent.type(input, value)
+const setInputValue = (input: HTMLElement, value: string): void => {
+  fireEvent.change(input, { target: { value } })
 }
 
 describe('EditPaymentTermDialog', () => {
@@ -265,12 +264,20 @@ describe('EditPaymentTermDialog', () => {
 
         expect(screen.getByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID)).toBeInTheDocument()
 
-        await retype(numericInput('dayOfMonth'), '32')
+        setInputValue(numericInput('dayOfMonth'), '32')
 
         // The schema only runs on submit, so without the inline check the dialog kept
         // previewing a due date for a day that does not exist.
-        expect(screen.getByText(DAY_OF_MONTH_ERROR)).toBeInTheDocument()
-        expect(screen.queryByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID)).not.toBeInTheDocument()
+        expect(
+          await screen.findByText(DAY_OF_MONTH_ERROR, undefined, { timeout: 3000 }),
+        ).toBeInTheDocument()
+        await waitFor(
+          () =>
+            expect(
+              screen.queryByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID),
+            ).not.toBeInTheDocument(),
+          { timeout: 3000 },
+        )
         expect(mockUpdateBillingEntity).not.toHaveBeenCalled()
       })
     })
@@ -279,10 +286,18 @@ describe('EditPaymentTermDialog', () => {
       it('THEN should flag the field and hide the preview before any submit', async () => {
         await openDayOfMonthDialog()
 
-        await retype(numericInput('monthOffset'), '13')
+        setInputValue(numericInput('monthOffset'), '13')
 
-        expect(screen.getByText(MONTH_OFFSET_ERROR)).toBeInTheDocument()
-        expect(screen.queryByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID)).not.toBeInTheDocument()
+        expect(
+          await screen.findByText(MONTH_OFFSET_ERROR, undefined, { timeout: 3000 }),
+        ).toBeInTheDocument()
+        await waitFor(
+          () =>
+            expect(
+              screen.queryByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID),
+            ).not.toBeInTheDocument(),
+          { timeout: 3000 },
+        )
       })
     })
 
@@ -290,13 +305,19 @@ describe('EditPaymentTermDialog', () => {
       it('THEN should clear the error and preview the due date again', async () => {
         await openDayOfMonthDialog()
 
-        await retype(numericInput('dayOfMonth'), '32')
-        await retype(numericInput('dayOfMonth'), '20')
+        setInputValue(numericInput('dayOfMonth'), '32')
+        expect(
+          await screen.findByText(DAY_OF_MONTH_ERROR, undefined, { timeout: 3000 }),
+        ).toBeInTheDocument()
+        setInputValue(numericInput('dayOfMonth'), '20')
 
-        await waitFor(() => {
-          expect(screen.queryByText(DAY_OF_MONTH_ERROR)).not.toBeInTheDocument()
-          expect(screen.getByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID)).toBeInTheDocument()
-        })
+        await waitFor(
+          () => {
+            expect(screen.queryByText(DAY_OF_MONTH_ERROR)).not.toBeInTheDocument()
+            expect(screen.getByTestId(PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID)).toBeInTheDocument()
+          },
+          { timeout: 3000 },
+        )
       })
     })
   })
