@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
-import { useFormik } from 'formik'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { GraphQLFormattedError } from 'graphql'
 import { DateTime } from 'luxon'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router'
-import { date, object, string } from 'yup'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -12,17 +12,15 @@ import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { AmountInputField, ComboBox, DatePickerField, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
-import { MIN_SUPPORTED_DATE, UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
 import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { PAYMENT_DETAILS_ROUTE, PAYMENTS_ROUTE, useNavigate } from '~/core/router'
-import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
-  CreatePaymentInput,
   CurrencyEnum,
   InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
@@ -33,9 +31,16 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 import { tw } from '~/styles/utils'
+
+import {
+  buildCreatePaymentInput,
+  buildCreatePaymentValidationSchema,
+  CreatePaymentFormValues,
+} from './createPayment/validationSchema'
 
 gql`
   query GetPayableInvoices($customerExternalId: String, $status: [InvoiceStatusTypeEnum!]) {
@@ -70,6 +75,33 @@ gql`
 
 const today = DateTime.now().toISO()
 
+export const CREATE_PAYMENT_FORM_ID = 'create-payment-form'
+export const CREATE_PAYMENT_CLOSE_BUTTON_TEST_ID = 'create-payment-close-button'
+export const CREATE_PAYMENT_CANCEL_BUTTON_TEST_ID = 'create-payment-cancel-button'
+export const CREATE_PAYMENT_SUBMIT_BUTTON_TEST_ID = 'create-payment-submit-button'
+
+type FieldErrorMap = Record<string, { message: string; path: string[] }>
+
+const buildServerFieldErrors = (
+  errors: readonly GraphQLFormattedError[] | undefined,
+): FieldErrorMap | undefined => {
+  const details = errors?.[0]?.extensions?.details
+
+  if (!details || typeof details !== 'object') return undefined
+
+  const fields = Object.entries(details).reduce<FieldErrorMap>((acc, [field, codes]) => {
+    const code = Array.isArray(codes) ? codes[0] : codes
+
+    if (!code) return acc
+
+    acc[field] = { message: String(code), path: [field] }
+
+    return acc
+  }, {})
+
+  return Object.keys(fields).length ? fields : undefined
+}
+
 const CreatePayment = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
@@ -93,34 +125,9 @@ const CreatePayment = () => {
     [centralizedDialog, translate],
   )
 
-  const formikProps = useFormik<CreatePaymentInput>({
-    initialValues: {
-      invoiceId: params.invoiceId ?? '',
-      amountCents: '',
-      reference: '',
-      createdAt: today,
-    },
-    validationSchema: object().shape({
-      invoiceId: string().required(''),
-      amountCents: string()
-        .required('')
-        .test((value) => maxAmount(value)),
-      reference: string().max(40).required(''),
-      createdAt: date().required('').min(MIN_SUPPORTED_DATE.toJSDate(), UNSUPPORTED_DATE_ERROR),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: async (values) => {
-      await createPayment({
-        variables: {
-          input: {
-            ...values,
-            amountCents: serializeAmount(values.amountCents, currency),
-          },
-        },
-      })
-    },
-  })
+  // Mirrors the form field so the invoice query, whose result feeds the amount bound the
+  // schema is built with, does not have to read a form that does not exist yet.
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState(params.invoiceId ?? '')
 
   const { data: payableInvoices, loading: payableInvoicesLoading } = useGetPayableInvoicesQuery({
     variables: {
@@ -130,26 +137,15 @@ const CreatePayment = () => {
   })
 
   const { data, loading: invoiceLoading } = useGetPayableInvoiceQuery({
-    variables: { id: formikProps.values.invoiceId },
-    skip: !formikProps.values.invoiceId,
+    variables: { id: selectedInvoiceId },
+    skip: !selectedInvoiceId,
   })
 
   const invoice = data?.invoice
-
-  useEffect(() => {
-    if (invoice && invoice.invoiceType === InvoiceTypeEnum.Credit) {
-      formikProps.setFieldValue(
-        'amountCents',
-        deserializeAmount(invoice.totalDueAmountCents, invoice.currency ?? CurrencyEnum.Usd),
-      )
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invoice])
-
   const currency = invoice?.currency ?? CurrencyEnum.Usd
+  const maxAmount = deserializeAmount(invoice?.totalDueAmountCents ?? 0, currency)
 
-  const [createPayment, { error: createError }] = useCreatePaymentMutation({
+  const [createPayment] = useCreatePaymentMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted({ createPayment: createdPayment }) {
       if (!!createdPayment) {
@@ -162,53 +158,93 @@ const CreatePayment = () => {
     },
   })
 
-  useEffect(() => {
-    if (createError) {
-      const errorCode = createError.graphQLErrors[0].extensions?.details
+  const defaultValues = useMemo<CreatePaymentFormValues>(
+    () => ({
+      invoiceId: params.invoiceId ?? '',
+      amountCents: '',
+      reference: '',
+      createdAt: today,
+    }),
+    [params.invoiceId],
+  )
 
-      formikProps.setErrors({
-        ...formikProps.errors,
-        ...(errorCode ?? {}),
+  const form = useAppForm({
+    defaultValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: buildCreatePaymentValidationSchema(maxAmount),
+    },
+    onSubmit: async ({ value, formApi }) => {
+      const { errors } = await createPayment({
+        variables: { input: buildCreatePaymentInput(value, currency) },
       })
+
+      const fields = buildServerFieldErrors(errors)
+
+      if (fields) {
+        formApi.setErrorMap({ onDynamic: { fields } })
+      }
+    },
+    onSubmitInvalid({ formApi }) {
+      scrollToFirstInputError(CREATE_PAYMENT_FORM_ID, formApi.state.errorMap.onDynamic || {})
+    },
+  })
+
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+  const amountCentsValue = useStore(form.store, (state) => state.values.amountCents)
+  const createdAtValue = useStore(form.store, (state) => state.values.createdAt)
+
+  useEffect(() => {
+    if (invoice && invoice.invoiceType === InvoiceTypeEnum.Credit) {
+      form.setFieldValue(
+        'amountCents',
+        deserializeAmount(invoice.totalDueAmountCents, invoice.currency ?? CurrencyEnum.Usd),
+      )
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createError])
-
-  const maxAmount = useCallback(
-    (value: string) => {
-      const amount = Number(value)
-
-      const isExceeding =
-        amount > 0 && amount <= deserializeAmount(invoice?.totalDueAmountCents ?? 0, currency)
-
-      if (!isExceeding) {
-        return false
-      }
-      return true
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [invoice],
-  )
+  }, [invoice])
 
   const remainingAmount = useMemo(() => {
     const totalAmount = deserializeAmount(invoice?.totalDueAmountCents ?? 0, currency)
-    const amount = Number(formikProps.values.amountCents)
+    const amount = Number(amountCentsValue)
 
     return totalAmount - amount
-  }, [formikProps.values.amountCents, invoice, currency])
+  }, [amountCentsValue, invoice, currency])
 
   const onLeave = () => {
     goBack(generatePath(PAYMENTS_ROUTE))
   }
 
-  const dateTime = intlFormatDateTime(formikProps.values.createdAt, {
+  const onAbort = () => (isDirty ? openDirtyAttributesWarning(onLeave) : onLeave())
+
+  const handleSubmit = (event: React.FormEvent): void => {
+    event.preventDefault()
+    form.handleSubmit()
+  }
+
+  const dateTime = intlFormatDateTime(createdAtValue ?? '', {
     timezone,
   })
 
+  const getAmountCentsError = (hasError: boolean): string | false => {
+    if (!hasError || !selectedInvoiceId) return false
+
+    return translate('text_6374e868262bab8719eac11f', {
+      max: intlFormatNumber(
+        deserializeAmount(invoice?.totalDueAmountCents, invoice?.currency ?? CurrencyEnum.Usd),
+        { currency },
+      ),
+    })
+  }
+
   return (
-    <>
-      <CenteredPage.Wrapper>
+    <CenteredPage.Wrapper>
+      <form
+        id={CREATE_PAYMENT_FORM_ID}
+        className="flex min-h-full flex-col"
+        onSubmit={handleSubmit}
+      >
         <CenteredPage.Header>
           <Typography variant="bodyHl" color="textSecondary" noWrap>
             {translate('text_1737473550277wkq2gsbaiab')}
@@ -216,7 +252,8 @@ const CreatePayment = () => {
           <Button
             variant="quaternary"
             icon="close"
-            onClick={() => (formikProps.dirty ? openDirtyAttributesWarning(onLeave) : onLeave())}
+            data-test={CREATE_PAYMENT_CLOSE_BUTTON_TEST_ID}
+            onClick={onAbort}
           />
         </CenteredPage.Header>
 
@@ -242,21 +279,30 @@ const CreatePayment = () => {
                     </Typography>
                   </div>
                   <div className="flex flex-col gap-6 *:flex-1">
-                    <ComboBox
+                    <form.AppField
                       name="invoiceId"
-                      label={translate('text_64188b3d9735d5007d71226c')}
-                      data={(payableInvoices?.invoices.collection ?? []).map(({ id, number }) => ({
-                        value: id,
-                        label: number,
-                      }))}
-                      onChange={(value) => formikProps.setFieldValue('invoiceId', value)}
-                      placeholder={translate('text_17374729448787bzb5yjrbgt')}
-                      emptyText={translate('text_6682c52081acea9052074686')}
-                      value={formikProps.values.invoiceId}
-                      loading={payableInvoicesLoading}
-                      disabled={!!params.invoiceId}
-                      disableClearable={!!params.invoiceId}
-                    />
+                      listeners={{
+                        onChange: ({ value }) => setSelectedInvoiceId(value ?? ''),
+                      }}
+                    >
+                      {(field) => (
+                        <field.ComboBoxField
+                          label={translate('text_64188b3d9735d5007d71226c')}
+                          data={(payableInvoices?.invoices.collection ?? []).map(
+                            ({ id, number }) => ({
+                              value: id,
+                              label: number,
+                            }),
+                          )}
+                          placeholder={translate('text_17374729448787bzb5yjrbgt')}
+                          emptyText={translate('text_6682c52081acea9052074686')}
+                          loading={payableInvoicesLoading}
+                          disabled={!!params.invoiceId}
+                          disableClearable={!!params.invoiceId}
+                          displayErrorText={false}
+                        />
+                      )}
+                    </form.AppField>
 
                     {invoice && (
                       <Table
@@ -315,11 +361,16 @@ const CreatePayment = () => {
                   </div>
                   <div className="flex flex-col gap-6 *:flex-1">
                     <div>
-                      <DatePickerField
-                        name="createdAt"
-                        label={translate('text_1737472944878qfpm9xbrrdn')}
-                        formikProps={formikProps}
-                      />
+                      <form.AppField name="createdAt">
+                        {(field) => (
+                          <field.DatePickerField
+                            label={translate('text_1737472944878qfpm9xbrrdn')}
+                            // Formik rendered no message for an empty date: its yup rule
+                            // carried none, and only the unsupported-date one is displayed.
+                            errorOverride={field.state.value ? undefined : false}
+                          />
+                        )}
+                      </form.AppField>
                       <Typography variant="caption">
                         {translate('text_1737473550277yfvnl60zpiz', {
                           date: dateTime.date,
@@ -328,54 +379,44 @@ const CreatePayment = () => {
                       </Typography>
                     </div>
 
-                    <TextInputField
-                      name="reference"
-                      formikProps={formikProps}
-                      error={!!formikProps.errors.reference}
-                      label={translate('text_1737472944878njss1jk5yik')}
-                      helperText={translate('text_1737472944878ksy1jz0b4m9')}
-                      placeholder={translate('text_1737473550277onyc98womp2')}
-                    />
+                    <form.AppField name="reference">
+                      {(field) => (
+                        <field.TextInputField
+                          label={translate('text_1737472944878njss1jk5yik')}
+                          helperText={translate('text_1737472944878ksy1jz0b4m9')}
+                          placeholder={translate('text_1737473550277onyc98womp2')}
+                          displayErrorText={false}
+                        />
+                      )}
+                    </form.AppField>
 
-                    <AmountInputField
-                      name="amountCents"
-                      formikProps={formikProps}
-                      error={
-                        !!formikProps.errors.amountCents && !!formikProps.values.invoiceId
-                          ? translate('text_6374e868262bab8719eac11f', {
-                              max: intlFormatNumber(
-                                deserializeAmount(
-                                  invoice?.totalDueAmountCents,
-                                  invoice?.currency ?? CurrencyEnum.Usd,
-                                ),
-                                {
-                                  currency,
-                                },
-                              ),
+                    <form.AppField name="amountCents">
+                      {(field) => (
+                        <field.AmountInputField
+                          errorOverride={getAmountCentsError(!!field.state.meta.errors.length)}
+                          label={translate('text_1737472944878ee19ufaaklg')}
+                          currency={currency}
+                          beforeChangeFormatter={['positiveNumber']}
+                          placeholder="0.00"
+                          disabled={invoice?.invoiceType === InvoiceTypeEnum.Credit}
+                          InputProps={{
+                            startAdornment: currency && (
+                              <InputAdornment position="start">
+                                {getCurrencySymbol(currency)}
+                              </InputAdornment>
+                            ),
+                          }}
+                          helperText={
+                            invoice &&
+                            translate('text_1737473550277cncnhv0x6cm', {
+                              amount: intlFormatNumber(remainingAmount, {
+                                currency,
+                              }),
                             })
-                          : ''
-                      }
-                      label={translate('text_1737472944878ee19ufaaklg')}
-                      currency={currency}
-                      beforeChangeFormatter={['positiveNumber']}
-                      placeholder="0.00"
-                      disabled={invoice?.invoiceType === InvoiceTypeEnum.Credit}
-                      InputProps={{
-                        startAdornment: currency && (
-                          <InputAdornment position="start">
-                            {getCurrencySymbol(currency)}
-                          </InputAdornment>
-                        ),
-                      }}
-                      helperText={
-                        invoice &&
-                        translate('text_1737473550277cncnhv0x6cm', {
-                          amount: intlFormatNumber(remainingAmount, {
-                            currency,
-                          }),
-                        })
-                      }
-                    />
+                          }
+                        />
+                      )}
+                    </form.AppField>
 
                     <Alert type="warning">
                       <Typography color="textSecondary">
@@ -392,20 +433,19 @@ const CreatePayment = () => {
         <CenteredPage.StickyFooter>
           <Button
             variant="quaternary"
-            onClick={() => (formikProps.dirty ? openDirtyAttributesWarning(onLeave) : onLeave())}
+            data-test={CREATE_PAYMENT_CANCEL_BUTTON_TEST_ID}
+            onClick={onAbort}
           >
             {translate('text_6411e6b530cb47007488b027')}
           </Button>
-          <Button
-            variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={formikProps.submitForm}
-          >
-            {translate('text_1737473550277wkq2gsbaiab')}
-          </Button>
+          <form.AppForm>
+            <form.SubmitButton variant="primary" dataTest={CREATE_PAYMENT_SUBMIT_BUTTON_TEST_ID}>
+              {translate('text_1737473550277wkq2gsbaiab')}
+            </form.SubmitButton>
+          </form.AppForm>
         </CenteredPage.StickyFooter>
-      </CenteredPage.Wrapper>
-    </>
+      </form>
+    </CenteredPage.Wrapper>
   )
 }
 
