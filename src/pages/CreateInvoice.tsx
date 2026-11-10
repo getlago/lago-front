@@ -14,7 +14,10 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { InvoiceTaxesDisplay, TaxMapType } from '~/components/invoices/InvoiceTaxesDisplay'
-import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
+import {
+  InvoicingSettingsPaymentTermProps,
+  InvoicingSettingsSelector,
+} from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
 import { PurchaseOrder } from '~/components/purchaseOrder/PO'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -40,6 +43,7 @@ import {
   FetchDraftInvoiceTaxesMutation,
   Invoice,
   LagoApiError,
+  PaymentTermFieldsFragmentDoc,
   TaxInfosForCreateInvoiceFragment,
   useCreateInvoiceMutation,
   useFetchDraftInvoiceTaxesMutation,
@@ -53,6 +57,7 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
+import { useInheritedPaymentTerm } from '~/hooks/useInheritedPaymentTerm'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { FeesSection } from '~/pages/createInvoice/components/FeesSection'
 import { invoiceFormValidationSchema } from '~/pages/createInvoice/formInitialization/validationSchema'
@@ -117,9 +122,15 @@ gql`
       state
       zipcode
       accountType
+      paymentTerm {
+        ...PaymentTermFields
+      }
       billingEntity {
         id
         code
+        paymentTerm {
+          ...PaymentTermFields
+        }
       }
       taxes {
         id
@@ -173,6 +184,8 @@ gql`
   }
 
   ${FeeForInvoiceFeesToFeeInputFragmentDoc}
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 export const CREATE_INVOICE_SUBMIT_BUTTON_TEST_ID = 'create-invoice-button'
@@ -235,6 +248,10 @@ const CreateInvoice = () => {
   })
 
   const billingEntity = billingEntityData?.billingEntity
+  const paymentTermInheritedFrom = useInheritedPaymentTerm({
+    customer,
+    billingEntityId: pickedBillingEntityId,
+  })
 
   const { data: billingEntityTaxesData } = useGetBillingEntityTaxesForCreateInvoiceQuery({
     variables: {
@@ -542,6 +559,16 @@ const CreateInvoice = () => {
     total,
     currency,
   )
+
+  // A regenerated invoice keeps the term of the one it replaces.
+  const invoicingSettingsPaymentTerm: InvoicingSettingsPaymentTermProps | undefined =
+    voidedInvoiceId
+      ? undefined
+      : {
+          value: formValues.paymentTerm,
+          onChange: (value) => form.setFieldValue('paymentTerm', value),
+          inheritedFrom: paymentTermInheritedFrom,
+        }
 
   return (
     <>
@@ -855,6 +882,7 @@ const CreateInvoice = () => {
                     customerId={customer.id}
                     value={formValues.invoiceCustomSection}
                     onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
+                    paymentTerm={invoicingSettingsPaymentTerm}
                   />
                 </section>
               )}

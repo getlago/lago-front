@@ -59,10 +59,23 @@ export const typeDefs = gql`
     lock_acquisition_failed
     captcha_failed
     captcha_unavailable
+    resend_too_soon
+    resend_limit_reached
+    signup_resend_exhausted
+    signup_expired
+    email_already_verified
+    signup_secret_expired
+    signup_token_expired
+    signup_token_replaced
+    signup_token_locked
+    password_required
+    incorrect_password
 
     # SSO errors
     invalid_google_code
     invalid_google_token
+    invalid_google_state
+    company_google_account_required
     google_auth_missing_setup
     google_login_method_not_authorized
     domain_not_configured
@@ -95,6 +108,7 @@ export const typeDefs = gql`
     analytic
     api_log
     applied_coupon
+    attributed_usage
     billable_metric
     billing_entity
     contract

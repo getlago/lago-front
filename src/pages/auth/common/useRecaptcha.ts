@@ -10,3 +10,8 @@ export const useRecaptcha = (): void => {
     return unloadRecaptcha
   }, [])
 }
+
+// For pages that load reCAPTCHA with their first token: it still leaves with the page
+export const useRecaptchaCleanup = (): void => {
+  useEffect(() => unloadRecaptcha, [])
+}

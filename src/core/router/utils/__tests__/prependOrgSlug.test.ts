@@ -1,3 +1,4 @@
+import { CREATE_ORGANIZATION_ROUTE } from '../../paths/createOrganization'
 import { prependOrgSlug } from '../prependOrgSlug'
 
 describe('prependOrgSlug', () => {
@@ -81,6 +82,12 @@ describe('prependOrgSlug', () => {
       ['/login/okta', '/login/okta'],
     ])('THEN should return "%s" unchanged', (input, expected) => {
       expect(prependOrgSlug(input, 'acme')).toBe(expected)
+    })
+
+    describe('WHEN navigating to the create organization route from inside an organization', () => {
+      it('THEN should not prepend the organization slug', () => {
+        expect(prependOrgSlug(CREATE_ORGANIZATION_ROUTE, 'acme')).toBe('/create-organization')
+      })
     })
   })
 

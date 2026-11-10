@@ -51,7 +51,6 @@
   "text_66b378e748cda1004ff00db0": "Hallo {{customerName}},",
   "text_66b378e748cda1004ff00db1": "Dies ist eine Erinnerung des Finanzteams von {{organizationName}}, dass einige Rechnungen überfällig sind.",
   "text_66b378e748cda1004ff00db2": "Der insgesamt fällige Betrag beträgt {{amount}}.",
-  "text_66b378e748cda1004ff00db3": "Unsere vertraglich vereinbarten Zahlungsbedingungen erfordern die Zahlung bei Rechnungserstellung.|Unsere vertraglich vereinbarten Zahlungsbedingungen sind {{netPaymentTerm}} Tag.|Unsere vertraglich vereinbarten Zahlungsbedingungen sind {{netPaymentTerm}} Tage.",
   "text_66b378e748cda1004ff00db4": "Wenn Sie die Zahlung bereits vorgenommen haben, ignorieren Sie bitte diese E-Mail.",
   "text_66b378e748cda1004ff00db5": "Danke.",
   "text_66b378e748cda1004ff00db6": "Restbetrag zu zahlen",

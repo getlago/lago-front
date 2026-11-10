@@ -1,5 +1,7 @@
+import { ApolloError } from '@apollo/client'
 import { useMemo } from 'react'
 
+import { MaybePaymentTerm } from '~/core/utils/paymentTerm'
 import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -14,6 +16,7 @@ export type BillingEntityOption = {
   isDefault: boolean
   /** Whether the entity uses Lago EU Tax Management — drives the billing-entity tax alerts. */
   euTaxManagement: boolean
+  paymentTerm?: MaybePaymentTerm
 }
 
 export const BILLING_ENTITY_INHERIT_CODE = '__lago_inherit_billing_entity__'
@@ -38,6 +41,7 @@ type UseBillingEntitiesOptionsResult = {
   /** Combobox-ready list. Default entity is sorted first. */
   options: BillingEntityOption[]
   isLoading: boolean
+  error: ApolloError | undefined
   /** Code of the default billing entity, if known. */
   defaultEntityCode: string | undefined
   /** True when the org has more than one billing entity configured. */
@@ -61,7 +65,7 @@ export const useBillingEntitiesOptions = ({
   skip = false,
 }: UseBillingEntitiesOptionsParams = {}): UseBillingEntitiesOptionsResult => {
   const { translate } = useInternationalization()
-  const { data, loading } = useGetBillingEntitiesQuery({
+  const { data, loading, error } = useGetBillingEntitiesQuery({
     fetchPolicy: 'cache-and-network',
     skip,
   })
@@ -83,6 +87,7 @@ export const useBillingEntitiesOptions = ({
             name: entity.name,
             isDefault: !!entity.isDefault,
             euTaxManagement: !!entity.euTaxManagement,
+            paymentTerm: entity.paymentTerm,
           }
         })
         .sort((a, b) => Number(b.isDefault) - Number(a.isDefault)) ?? []
@@ -102,8 +107,30 @@ export const useBillingEntitiesOptions = ({
     return {
       options: formatted,
       isLoading: loading,
+      error,
       defaultEntityCode: defaultEntity?.value,
       hasMultipleEntities: (collection?.length ?? 0) > 1,
     }
-  }, [collection, loading, translate, includeInheritOption, inheritLabel])
+  }, [collection, loading, error, translate, includeInheritOption, inheritLabel])
+}
+
+export type BillingEntityByIdStatus = 'loading' | 'unavailable' | 'resolved'
+
+type UseBillingEntityByIdResult = {
+  billingEntity: BillingEntityOption | undefined
+  status: BillingEntityByIdStatus
+}
+
+export const useBillingEntityById = (
+  billingEntityId: string | null | undefined,
+): UseBillingEntityByIdResult => {
+  const { options, isLoading, error } = useBillingEntitiesOptions({ skip: !billingEntityId })
+
+  if (!billingEntityId) return { billingEntity: undefined, status: 'resolved' }
+
+  const billingEntity = options.find((option) => option.id === billingEntityId)
+
+  if (billingEntity) return { billingEntity, status: 'resolved' }
+
+  return { billingEntity: undefined, status: isLoading && !error ? 'loading' : 'unavailable' }
 }

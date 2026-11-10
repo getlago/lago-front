@@ -1,9 +1,11 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router'
 
+import { AuthOrDivider } from '~/components/auth/AuthOrDivider'
+import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
 import { Alert } from '~/components/designSystem/Alert'
-import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox } from '~/components/form'
 import {
@@ -12,8 +14,8 @@ import {
 } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
 import { envGlobalVar } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
-import { LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
-import { setItemFromLS } from '~/core/utils/localStorage'
+import { LOGIN_ROUTE, SIGN_UP_ROUTE, useLocation } from '~/core/router'
+import { removeItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
 import { getRecaptchaToken } from '~/core/utils/recaptcha'
 import { PASSWORD_VALIDATION_ERRORS } from '~/formValidation/zodCustoms'
@@ -28,6 +30,7 @@ import { Card, Page, StyledLogo, Title } from '~/styles/auth'
 
 import { RecaptchaNotice } from './common/RecaptchaNotice'
 import { useRecaptcha } from './common/useRecaptcha'
+import { SelfServeCheckEmail } from './components/selfServeCheckEmail/SelfServeCheckEmail'
 import {
   getSelfServePasswordErrors,
   isSelfServePasswordTooLong,
@@ -39,11 +42,9 @@ import {
   selfServeSignUpValidationSchema,
 } from './selfServeSignUpForm/validationSchema'
 import {
-  SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID,
   SELF_SERVE_SIGNUP_DATA_REGION_TEST_ID,
   SELF_SERVE_SIGNUP_EMAIL_FIELD_TEST_ID,
   SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID,
-  SELF_SERVE_SIGNUP_GO_BACK_BUTTON_TEST_ID,
   SELF_SERVE_SIGNUP_PASSWORD_FIELD_TEST_ID,
   SELF_SERVE_SIGNUP_SUBMIT_BUTTON_TEST_ID,
 } from './signUpTestIds'
@@ -82,6 +83,8 @@ const PASSWORD_ERRORS: Record<string, string> = {
   password_too_long: SELF_SERVE_PASSWORD_ERRORS.TOO_LONG,
 }
 
+const GOOGLE_SIGN_UP_INCOMPLETE_ERROR = 'text_1793952050623c2labd0slvn'
+
 const BANNER_ERRORS: Record<string, string> = {
   [LagoApiError.CaptchaFailed]: 'text_1793903925179h1k5w55ih95',
   [LagoApiError.CaptchaUnavailable]: SIGN_UP_GENERIC_ERROR,
@@ -89,6 +92,16 @@ const BANNER_ERRORS: Record<string, string> = {
   [LagoApiError.SelfServeDisabled]: 'text_1793898059309an560s3nkan',
   [LagoApiError.SignupDisabled]: 'text_1793898059309an560s3nkan',
   [LagoApiError.TooManyRequests]: 'text_1793898059309ltbe60gt6pd',
+  [LagoApiError.CompanyGoogleAccountRequired]: 'text_1793952050623fbn10vodflm',
+  [LagoApiError.InvalidGoogleState]: GOOGLE_SIGN_UP_INCOMPLETE_ERROR,
+  [LagoApiError.InvalidGoogleCode]: GOOGLE_SIGN_UP_INCOMPLETE_ERROR,
+  [LagoApiError.InvalidGoogleToken]: GOOGLE_SIGN_UP_INCOMPLETE_ERROR,
+}
+
+const getGoogleSignUpError = (code: string | null): string | undefined => {
+  if (!code) return undefined
+
+  return BANNER_ERRORS[code] || SIGN_UP_GENERIC_ERROR
 }
 
 const getDetailError = (
@@ -119,9 +132,14 @@ const SelfServeSignUp = (): JSX.Element => {
   const { translate } = useInternationalization()
   const { usFrontUrl, euFrontUrl } = envGlobalVar()
   const [sentToEmail, setSentToEmail] = useState<string>()
-  const [bannerError, setBannerError] = useState<string>()
+  const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [bannerError, setBannerError] = useState<string | undefined>(() =>
+    getGoogleSignUpError(searchParams.get('lago_error_code')),
+  )
   const [emailCheckError, setEmailCheckError] = useState<string>()
 
+  const [sentSignupSecret, setSentSignupSecret] = useState('')
   const [signUp] = useSelfServeSignUpMutation({ context: { silentError: true } })
   const [checkSignupEmail] = useSignupEmailCheckLazyQuery({
     fetchPolicy: 'no-cache',
@@ -154,6 +172,7 @@ const SelfServeSignUp = (): JSX.Element => {
 
         if (signupSecret) {
           setItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY, signupSecret)
+          setSentSignupSecret(signupSecret)
           setSentToEmail(value.email.trim())
 
           return
@@ -185,6 +204,13 @@ const SelfServeSignUp = (): JSX.Element => {
   })
 
   useRecaptcha()
+
+  useEffect(() => {
+    if (!searchParams.has('lago_error_code')) return
+
+    setSearchParams({}, { replace: true, state: location.state })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const password = useStore(form.store, (state) => state.values.password)
   const hasPasswordRuleError = useStore(form.store, (state) =>
@@ -220,37 +246,24 @@ const SelfServeSignUp = (): JSX.Element => {
     window.location.assign(`${region === 'eu' ? euOrigin : usOrigin}${SIGN_UP_ROUTE}`)
   }
 
+  const onGoBack = (): void => setSentToEmail(undefined)
+
+  const onStartAgain = useCallback((): void => {
+    removeItemFromLS(SELF_SERVE_SIGNUP_SECRET_LS_KEY)
+    setSentToEmail(undefined)
+  }, [])
+
   if (sentToEmail) {
     return (
       <Page>
         <Card>
           <StyledLogo height={24} />
-
-          <div className="flex flex-col gap-8" data-test={SELF_SERVE_SIGNUP_CHECK_EMAIL_TEST_ID}>
-            <div className="flex flex-col gap-3">
-              <Title>{translate('text_1793898059309bceac2ri5mc')}</Title>
-              <Typography
-                html={translate('text_1793898059309lqujtjacaho', { email: sentToEmail })}
-              />
-              <Typography variant="caption">
-                {translate('text_1793898059309bhkfbbq9q2z')}
-              </Typography>
-            </div>
-
-            <div className="flex items-center justify-center gap-1">
-              <Typography variant="caption">
-                {translate('text_17938980593099x6m52ys6t2')}
-              </Typography>
-              <Button
-                variant="inline"
-                size="small"
-                data-test={SELF_SERVE_SIGNUP_GO_BACK_BUTTON_TEST_ID}
-                onClick={() => setSentToEmail(undefined)}
-              >
-                {translate('text_1793898059309vz0niu6emp8')}
-              </Button>
-            </div>
-          </div>
+          <SelfServeCheckEmail
+            email={sentToEmail}
+            signupSecret={sentSignupSecret}
+            onGoBack={onGoBack}
+            onStartAgain={onStartAgain}
+          />
         </Card>
       </Page>
     )
@@ -298,6 +311,14 @@ const SelfServeSignUp = (): JSX.Element => {
               data-test={SELF_SERVE_SIGNUP_DATA_REGION_TEST_ID}
             />
           )}
+
+          <GoogleAuthButton
+            mode="signup"
+            label={translate('text_1793952050623ct9rwfn5e61')}
+            onError={(code) => setBannerError(getGoogleSignUpError(code))}
+          />
+
+          <AuthOrDivider />
 
           <div className="flex flex-col gap-4">
             <form.AppField
