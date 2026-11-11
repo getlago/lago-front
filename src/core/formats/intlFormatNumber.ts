@@ -104,9 +104,11 @@ export const bigNumberShortenNotationFormater = (
     { value: 1e3, symbol: 'k' },
   ]
   const rx = /\.0+$|(\.[0-9]*[1-9])0+$/
-  const item = bigNumberLookup.find(function (localItem) {
-    return amount >= localItem.value
-  })
+  const index = bigNumberLookup.findIndex((localItem) => amount >= localItem.value)
+  // 999,960 would round to "1000k" in thousands, so move up to the next unit ("1M").
+  const shouldMoveUp =
+    index > 0 && Number((amount / bigNumberLookup[index].value).toFixed(1)) >= 1000
+  const item = bigNumberLookup[shouldMoveUp ? index - 1 : index]
   const formatedAmount = item
     ? (amount / item.value).toFixed(1).replace(rx, '$1') + item.symbol
     : '0'
