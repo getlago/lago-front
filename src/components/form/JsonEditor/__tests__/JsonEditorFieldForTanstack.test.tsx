@@ -1,5 +1,5 @@
 import { revalidateLogic } from '@tanstack/react-form'
-import { fireEvent, screen } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { z } from 'zod'
 
@@ -28,17 +28,20 @@ type TestFormProps = {
   defaultValue?: string
   customInvalidError?: string
   silentError?: boolean
+  onSubmit?: () => void
 }
 
 const TestForm = ({
   defaultValue = VALID_JSON,
   customInvalidError,
   silentError,
+  onSubmit,
 }: TestFormProps) => {
   const form = useAppForm({
     defaultValues: { [FIELD_NAME]: defaultValue },
     validationLogic: revalidateLogic(),
     validators: { onDynamic: schema },
+    onSubmit: () => onSubmit?.(),
   })
 
   return (
@@ -140,14 +143,17 @@ describe('JsonEditorFieldForTanstack', () => {
         expect(screen.getByText(CUSTOM_INVALID_ERROR)).toBeInTheDocument()
       })
 
+      // An error owned by the field would never be cleared by the submit-first cycle and
+      // would keep the form unsubmittable for good.
       it('THEN should not block submission', async () => {
         const user = userEvent.setup({ pointerEventsCheck: 0 })
-        const { container } = render(<TestForm defaultValue={MALFORMED_JSON} />)
+        const onSubmit = jest.fn()
+        const { container } = render(<TestForm defaultValue={MALFORMED_JSON} onSubmit={onSubmit} />)
 
         blurEditor(container)
         await user.click(screen.getByTestId(SUBMIT_BUTTON_TEST_ID))
 
-        expect(screen.queryByText(`translated(${SCHEMA_MESSAGE})`)).not.toBeInTheDocument()
+        await waitFor(() => expect(onSubmit).toHaveBeenCalled())
       })
 
       it('THEN should keep it silent when silentError is set', () => {
