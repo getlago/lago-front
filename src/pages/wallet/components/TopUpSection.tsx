@@ -8,9 +8,13 @@ import { Button } from '~/components/designSystem/Button'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
-import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
+import {
+  InvoicingSettingsPaymentTermProps,
+  InvoicingSettingsSelector,
+} from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { ConnectionPaymentSettingsSelector } from '~/components/paymentSettings/connectionFirst/ConnectionPaymentSettingsSelector'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
+import { PaymentTermInheritedFrom } from '~/components/paymentTerms/types'
 import { ADD_RECURRING_RULE_BUTTON_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import {
   VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS,
@@ -45,6 +49,7 @@ interface TopUpSectionExtraProps {
   autoOpenRuleDrawer?: boolean
   autoOpenPaymentConnectionDrawer?: boolean
   autoOpenAdditionalIntegrationDrawer?: boolean
+  paymentTermInheritedFrom?: PaymentTermInheritedFrom
 }
 
 const topUpSectionDefaultProps: TopUpSectionExtraProps = {
@@ -56,6 +61,7 @@ const topUpSectionDefaultProps: TopUpSectionExtraProps = {
   autoOpenRuleDrawer: false,
   autoOpenPaymentConnectionDrawer: false,
   autoOpenAdditionalIntegrationDrawer: false,
+  paymentTermInheritedFrom: undefined,
 }
 
 export const TopUpSection = withForm({
@@ -70,6 +76,7 @@ export const TopUpSection = withForm({
     autoOpenRuleDrawer,
     autoOpenPaymentConnectionDrawer,
     autoOpenAdditionalIntegrationDrawer,
+    paymentTermInheritedFrom,
   }) {
     const { isPremium } = useCurrentUser()
     const { hasPermissions } = usePermissions()
@@ -268,6 +275,12 @@ export const TopUpSection = withForm({
       )
     }
 
+    const invoicingSettingsPaymentTerm: InvoicingSettingsPaymentTermProps = {
+      value: walletValues.paymentTerm,
+      onChange: (value) => form.setFieldValue('paymentTerm', value),
+      inheritedFrom: paymentTermInheritedFrom,
+    }
+
     return (
       <>
         {renderRecurringRuleSection()}
@@ -293,6 +306,7 @@ export const TopUpSection = withForm({
               customerId={customerData.customer.id}
               value={walletValues.invoiceCustomSection}
               onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
+              paymentTerm={invoicingSettingsPaymentTerm}
             />
           </section>
         )}

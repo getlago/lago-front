@@ -16,4 +16,5 @@ export const NEVER_SLUG_PREFIXES = [
   '/404',
   '/login',
   '/invitation',
+  '/create-organization',
 ]

@@ -2,6 +2,7 @@ import {
   findConnectionRouting,
   toSelectedConnection,
 } from '~/components/connectionSelection/fromConnectionRouting'
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
@@ -84,6 +85,7 @@ export const mapFromApiToForm = ({
     // `undefined` marks an unfinished specific selection and their schemas refuse to submit.
     paymentMethodId: wallet?.paymentMethod?.id ?? null,
   },
+  paymentTerm: paymentTermFormValuesFromTerm(wallet?.paymentTerm, true),
   invoiceCustomSection: {
     invoiceCustomSections: wallet?.selectedInvoiceCustomSections || [],
     skipInvoiceCustomSections: wallet?.skipInvoiceCustomSections || false,

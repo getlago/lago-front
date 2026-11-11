@@ -5,6 +5,7 @@ import { useGetQuoteQuery } from '~/generated/graphql'
 import { useQuote } from '../useQuote'
 
 jest.mock('~/generated/graphql', () => ({
+  ...jest.requireActual('~/generated/graphql'),
   useGetQuoteQuery: jest.fn(),
 }))
 
