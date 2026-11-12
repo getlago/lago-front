@@ -5,10 +5,10 @@ import {
   useContext,
   useMemo,
   useReducer,
-  useRef,
   useState,
 } from 'react'
 
+import { useLocation } from '~/core/router'
 import { getItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import {
   ChatActionType,
@@ -16,9 +16,11 @@ import {
   chatReducer,
   ChatRole,
   ChatState,
+  createChatSession,
   FinanceAssistantResult,
 } from '~/hooks/aiAgent/aiAgentReducer'
 import { usePanel, UsePanelReturn } from '~/hooks/ui/usePanel'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 export enum AIPanelEnum {
   ai = 'ai',
@@ -52,23 +54,30 @@ const getStoredAgentType = (): AiAgentTypeEnum => {
 interface AiAgentContextType extends UsePanelReturn<AIPanelEnum> {
   state: ChatState
   conversationId?: string
-  conversationVersion: number
-  getConversationVersion: () => number
   agentType: AiAgentTypeEnum
   lastAssistantMessage?: ChatMessage
   setAgentType: (agentType: AiAgentTypeEnum) => void
   openPanelWithAgent: (agentType: AiAgentTypeEnum) => void
-  startNewConversation: ({ convId, message }: { convId: string; message: string }) => void
+  startRestore: (restoreId: string) => void
   setPreviousChatMessages: ({
-    convId,
+    restoreId,
+    conversationId,
     messages,
   }: {
-    convId: string
+    restoreId: string
+    conversationId: string
     messages: ChatMessage[]
   }) => void
   streamChunk: ({ messageId, chunk }: { messageId: string; chunk: string }) => void
   setChatDone: (messageId: string) => void
-  addNewMessage: (message: string, exchangeId?: string) => void
+  addNewMessage: (message: string, exchangeId: string) => void
+  confirmExchange: ({
+    exchangeId,
+    conversationId,
+  }: {
+    exchangeId: string
+    conversationId: string
+  }) => void
   completeExchange: ({
     exchangeId,
     response,
@@ -97,53 +106,60 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     },
   })
 
-  const [conversationId, setConversationId] = useState('')
-  // Bumped when the conversation is dropped or replaced, never when the user's
-  // own request completes. Late callbacks read the ref, which outlives panels.
-  const conversationVersionRef = useRef(0)
-  const [conversationVersion, setConversationVersion] = useState(0)
+  const { currentUser } = useCurrentUser()
+  const { pathname } = useLocation()
   const [agentType, setAgentTypeState] = useState<AiAgentTypeEnum>(getStoredAgentType)
+  const [state, dispatch] = useReducer(chatReducer, null, () => createChatSession(null))
 
-  const bumpConversationVersion = useCallback(() => {
-    conversationVersionRef.current += 1
-    setConversationVersion(conversationVersionRef.current)
-  }, [])
+  // Outside `<Routes>`, so `useParams()` carries no slug; never
+  // `currentOrganizationVar`, which answers with another tab's organization.
+  const slugFromPath = pathname.split('/')[1] ?? ''
+  const organizationId = currentUser?.memberships?.find(
+    (membership) => membership.organization.slug === slugFromPath,
+  )?.organization.id
 
-  const getConversationVersion = useCallback(() => conversationVersionRef.current, [])
+  // Renaming the slug keeps the conversation; another user or organization drops
+  // it. `null` off an organization route, where the session must not churn.
+  const scopeKey = organizationId ? `${currentUser?.id ?? ''}:${organizationId}` : null
 
-  const [state, dispatch] = useReducer(chatReducer, {
-    messages: [],
-    isLoading: false,
-    isStreaming: false,
-    hasError: false,
-    financeSessionId: undefined,
-  })
+  // During render, not in an effect: an effect paints one frame of the previous
+  // scope's conversation before clearing it.
+  if (scopeKey !== null && scopeKey !== state.scopeKey) {
+    dispatch({ type: ChatActionType.SET_SCOPE, scopeKey })
+  }
 
   const lastAssistantMessage = useMemo(() => {
     return state.messages.filter((message) => message.role === ChatRole.assistant).pop()
   }, [state.messages])
 
+  const startRestore = useCallback((restoreId: string) => {
+    dispatch({ type: ChatActionType.START_RESTORE, restoreId })
+  }, [])
+
   const setPreviousChatMessages = ({
-    convId,
+    restoreId,
+    conversationId,
     messages,
   }: {
-    convId: string
+    restoreId: string
+    conversationId: string
     messages: ChatMessage[]
   }) => {
     // History only stores billing conversations; replies must route to the billing flow
     setAgentTypeState(AiAgentTypeEnum.billing)
-    setConversationId(convId)
-    bumpConversationVersion()
-    dispatch({ type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES, messages })
+    dispatch({
+      type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES,
+      restoreId,
+      conversationId,
+      messages,
+    })
   }
 
   const setAgentType = (newAgentType: AiAgentTypeEnum) => {
     if (agentType === newAgentType) return
 
-    setConversationId('')
     setAgentTypeState(newAgentType)
     setItemFromLS(AI_AGENT_TYPE_LS_KEY, newAgentType)
-    bumpConversationVersion()
     dispatch({ type: ChatActionType.RESET_CONVERSATION })
   }
 
@@ -152,20 +168,9 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     panel.openPanel(AIPanelEnum.ai)
   }
 
-  const startNewConversation = ({ convId, message }: { convId: string; message: string }) => {
-    setConversationId(convId)
-
-    dispatch({
-      type: ChatActionType.START_CONVERSATION,
-      message: message,
-    })
-  }
-
   const resetConversation = useCallback(() => {
-    setConversationId('')
-    bumpConversationVersion()
     dispatch({ type: ChatActionType.RESET_CONVERSATION })
-  }, [bumpConversationVersion])
+  }, [])
 
   const streamChunk = ({ messageId, chunk }: { messageId: string; chunk: string }) => {
     dispatch({
@@ -192,9 +197,19 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     }, 0)
   }
 
-  const addNewMessage = (message: string, exchangeId?: string) => {
+  const addNewMessage = (message: string, exchangeId: string) => {
     dispatch({ type: ChatActionType.ADD_INPUT, message, exchangeId })
     scrollConversationToBottom()
+  }
+
+  const confirmExchange = ({
+    exchangeId,
+    conversationId,
+  }: {
+    exchangeId: string
+    conversationId: string
+  }) => {
+    dispatch({ type: ChatActionType.CONFIRM_EXCHANGE, exchangeId, conversationId })
   }
 
   const completeExchange = ({
@@ -227,19 +242,18 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
       value={{
         ...panel,
         state,
-        conversationId,
-        conversationVersion,
-        getConversationVersion,
+        conversationId: state.conversationId,
         agentType,
         lastAssistantMessage,
         setAgentType,
         openPanelWithAgent,
-        startNewConversation,
+        startRestore,
         setPreviousChatMessages,
         resetConversation,
         streamChunk,
         setChatDone,
         addNewMessage,
+        confirmExchange,
         completeExchange,
         failExchange,
       }}

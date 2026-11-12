@@ -19,6 +19,13 @@ if (typeof globalThis.ResizeObserver === 'undefined') {
   }
 }
 
+// jsdom implements no scrolling, so `Element.prototype.scrollTo` is missing entirely
+// (unlike `scrollIntoView`, which it stubs). Components that scroll a container after a
+// state change would throw on it.
+if (typeof Element.prototype.scrollTo === 'undefined') {
+  Element.prototype.scrollTo = () => {}
+}
+
 const mockNavigate = jest.fn()
 
 ;(globalThis as unknown as { __testRouterMocks: unknown }).__testRouterMocks = {

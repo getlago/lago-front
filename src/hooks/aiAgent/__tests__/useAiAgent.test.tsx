@@ -1,5 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
+import { Router } from 'react-router'
 
 import { ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import {
@@ -9,8 +10,31 @@ import {
   useAiAgent,
 } from '~/hooks/aiAgent/useAiAgent'
 
+type Membership = { organization: { id: string; slug: string } }
+
+let mockUserId: string | undefined
+let mockMemberships: Membership[]
+let mockPathname: string
+
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => ({
+    currentUser: mockUserId ? { id: mockUserId, memberships: mockMemberships } : undefined,
+  }),
+}))
+
+// A controlled `location` lets a single provider instance observe navigation,
+// which `MemoryRouter`'s own history cannot be driven to do from a test.
+const navigator = {
+  createHref: (to: unknown) => String(to),
+  push: () => undefined,
+  replace: () => undefined,
+  go: () => undefined,
+} as never
+
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <AiAgentProvider>{children}</AiAgentProvider>
+  <Router location={mockPathname} navigator={navigator}>
+    <AiAgentProvider>{children}</AiAgentProvider>
+  </Router>
 )
 
 const renderAiAgent = () => renderHook(() => useAiAgent(), { wrapper })
@@ -18,6 +42,12 @@ const renderAiAgent = () => renderHook(() => useAiAgent(), { wrapper })
 describe('useAiAgent', () => {
   beforeEach(() => {
     localStorage.clear()
+    mockUserId = 'user-1'
+    mockMemberships = [
+      { organization: { id: 'org-1', slug: 'acme' } },
+      { organization: { id: 'org-2', slug: 'globex' } },
+    ]
+    mockPathname = '/acme/customers'
   })
 
   describe('GIVEN the hook is used outside the provider', () => {
@@ -41,8 +71,14 @@ describe('useAiAgent', () => {
         const { result } = renderAiAgent()
 
         expect(result.current.agentType).toBe(AiAgentTypeEnum.finance)
-        expect(result.current.conversationId).toBe('')
+        expect(result.current.conversationId).toBeUndefined()
         expect(result.current.state.messages).toHaveLength(0)
+      })
+
+      it('THEN should adopt the scope of the organization in the URL', () => {
+        const { result } = renderAiAgent()
+
+        expect(result.current.state.scopeKey).toBe('user-1:org-1')
       })
     })
 
@@ -68,12 +104,15 @@ describe('useAiAgent', () => {
   })
 
   describe('GIVEN a conversation is started', () => {
-    describe('WHEN startNewConversation is called', () => {
+    describe('WHEN the exchange is confirmed', () => {
       it('THEN should store the conversation id and seed the exchange', () => {
         const { result } = renderAiAgent()
 
         act(() => {
-          result.current.startNewConversation({ convId: 'conv-1', message: 'hello' })
+          result.current.addNewMessage('hello', 'exchange-1')
+        })
+        act(() => {
+          result.current.confirmExchange({ exchangeId: 'exchange-1', conversationId: 'conv-1' })
         })
 
         expect(result.current.conversationId).toBe('conv-1')
@@ -91,13 +130,16 @@ describe('useAiAgent', () => {
         const { result } = renderAiAgent()
 
         act(() => {
-          result.current.startNewConversation({ convId: 'conv-1', message: 'hello' })
+          result.current.addNewMessage('hello', 'exchange-1')
+        })
+        act(() => {
+          result.current.confirmExchange({ exchangeId: 'exchange-1', conversationId: 'conv-1' })
         })
         act(() => {
           result.current.resetConversation()
         })
 
-        expect(result.current.conversationId).toBe('')
+        expect(result.current.conversationId).toBeUndefined()
         expect(result.current.state.messages).toHaveLength(0)
       })
     })
@@ -109,14 +151,14 @@ describe('useAiAgent', () => {
         const { result } = renderAiAgent()
 
         act(() => {
-          result.current.startNewConversation({ convId: 'conv-1', message: 'hello' })
+          result.current.addNewMessage('hello', 'exchange-1')
         })
         act(() => {
           result.current.setAgentType(AiAgentTypeEnum.billing)
         })
 
         expect(result.current.agentType).toBe(AiAgentTypeEnum.billing)
-        expect(result.current.conversationId).toBe('')
+        expect(result.current.conversationId).toBeUndefined()
         expect(result.current.state.messages).toHaveLength(0)
         expect(localStorage.getItem(AI_AGENT_TYPE_LS_KEY)).toBe(AiAgentTypeEnum.billing)
       })
@@ -127,20 +169,19 @@ describe('useAiAgent', () => {
         const { result } = renderAiAgent()
 
         act(() => {
-          result.current.startNewConversation({ convId: 'conv-1', message: 'hello' })
+          result.current.addNewMessage('hello', 'exchange-1')
         })
         act(() => {
           result.current.setAgentType(AiAgentTypeEnum.finance)
         })
 
-        expect(result.current.conversationId).toBe('conv-1')
         expect(result.current.state.messages).toHaveLength(2)
       })
     })
   })
 
   describe('GIVEN previous chat messages are restored from history', () => {
-    describe('WHEN setPreviousChatMessages is called while on the finance agent', () => {
+    describe('WHEN the restore the session is waiting for lands', () => {
       it('THEN should route back to the billing agent with the restored messages', () => {
         const { result } = renderAiAgent()
 
@@ -148,8 +189,12 @@ describe('useAiAgent', () => {
           result.current.setAgentType(AiAgentTypeEnum.finance)
         })
         act(() => {
+          result.current.startRestore('restore-1')
+        })
+        act(() => {
           result.current.setPreviousChatMessages({
-            convId: 'conv-1',
+            restoreId: 'restore-1',
+            conversationId: 'conv-1',
             messages: [
               { id: 'user-1', role: ChatRole.user, message: 'hello', status: ChatStatus.done },
             ],
@@ -204,6 +249,32 @@ describe('useAiAgent', () => {
         expect(result.current.state.messages).toHaveLength(1)
       })
     })
+
+    describe('WHEN two exchanges are submitted back to back', () => {
+      it('THEN should complete both', () => {
+        const { result } = renderAiAgent()
+
+        act(() => {
+          result.current.addNewMessage('first', 'exchange-1')
+        })
+        act(() => {
+          result.current.addNewMessage('second', 'exchange-2')
+        })
+        act(() => {
+          result.current.completeExchange({ exchangeId: 'exchange-2', response: 'second answer' })
+        })
+        act(() => {
+          result.current.completeExchange({ exchangeId: 'exchange-1', response: 'first answer' })
+        })
+
+        expect(result.current.state.messages.map((message) => message.message)).toEqual([
+          'first',
+          'first answer',
+          'second',
+          'second answer',
+        ])
+      })
+    })
   })
 
   describe('GIVEN a billing streaming lifecycle', () => {
@@ -212,19 +283,16 @@ describe('useAiAgent', () => {
         const { result } = renderAiAgent()
 
         act(() => {
-          result.current.startNewConversation({ convId: 'conv-1', message: 'hello' })
-        })
-
-        const assistantId = result.current.state.messages[1].id
-
-        act(() => {
-          result.current.streamChunk({ messageId: assistantId, chunk: 'par' })
+          result.current.addNewMessage('hello', 'exchange-1')
         })
         act(() => {
-          result.current.streamChunk({ messageId: assistantId, chunk: 'tial' })
+          result.current.streamChunk({ messageId: 'exchange-1', chunk: 'par' })
         })
         act(() => {
-          result.current.setChatDone(assistantId)
+          result.current.streamChunk({ messageId: 'exchange-1', chunk: 'tial' })
+        })
+        act(() => {
+          result.current.setChatDone('exchange-1')
         })
 
         expect(result.current.lastAssistantMessage).toMatchObject({
@@ -232,6 +300,111 @@ describe('useAiAgent', () => {
           status: ChatStatus.done,
         })
         expect(result.current.state.isStreaming).toBe(false)
+      })
+    })
+  })
+
+  describe('GIVEN an ongoing conversation', () => {
+    describe('WHEN the tab moves to another organization', () => {
+      it('THEN should drop the conversation on the same render as the navigation', () => {
+        const { result, rerender } = renderAiAgent()
+
+        act(() => {
+          result.current.addNewMessage('hello', 'exchange-1')
+        })
+        act(() => {
+          result.current.confirmExchange({ exchangeId: 'exchange-1', conversationId: 'conv-1' })
+        })
+
+        mockPathname = '/globex/customers'
+        rerender()
+
+        expect(result.current.state.scopeKey).toBe('user-1:org-2')
+        expect(result.current.state.messages).toHaveLength(0)
+        expect(result.current.conversationId).toBeUndefined()
+      })
+
+      it('THEN should drop what the previous organization had in flight', () => {
+        const { result, rerender } = renderAiAgent()
+
+        act(() => {
+          result.current.addNewMessage('hello', 'exchange-1')
+        })
+
+        mockPathname = '/globex/customers'
+        rerender()
+
+        act(() => {
+          result.current.completeExchange({ exchangeId: 'exchange-1', response: 'late answer' })
+        })
+        act(() => {
+          result.current.setPreviousChatMessages({
+            restoreId: 'restore-1',
+            conversationId: 'conv-1',
+            messages: [
+              { id: 'user-1', role: ChatRole.user, message: 'restored', status: ChatStatus.done },
+            ],
+          })
+        })
+
+        expect(result.current.state.messages).toHaveLength(0)
+      })
+    })
+
+    describe('WHEN another user takes over the session', () => {
+      it('THEN should drop the conversation', () => {
+        const { result, rerender } = renderAiAgent()
+
+        act(() => {
+          result.current.addNewMessage('hello', 'exchange-1')
+        })
+
+        mockUserId = 'user-2'
+        rerender()
+
+        expect(result.current.state.scopeKey).toBe('user-2:org-1')
+        expect(result.current.state.messages).toHaveLength(0)
+      })
+    })
+
+    describe('WHEN the current organization is renamed', () => {
+      it('THEN should keep the conversation', () => {
+        const { result, rerender } = renderAiAgent()
+
+        act(() => {
+          result.current.addNewMessage('hello', 'exchange-1')
+        })
+
+        mockMemberships = [
+          { organization: { id: 'org-1', slug: 'acme-renamed' } },
+          { organization: { id: 'org-2', slug: 'globex' } },
+        ]
+        mockPathname = '/acme-renamed/customers'
+        rerender()
+
+        expect(result.current.state.scopeKey).toBe('user-1:org-1')
+        expect(result.current.state.messages).toHaveLength(2)
+      })
+    })
+
+    describe('WHEN the tab moves to a route carrying no organization slug', () => {
+      it('THEN should keep the conversation rather than churn on an empty scope', () => {
+        const { result, rerender } = renderAiAgent()
+
+        act(() => {
+          result.current.addNewMessage('hello', 'exchange-1')
+        })
+
+        mockPathname = '/login'
+        rerender()
+
+        expect(result.current.state.scopeKey).toBe('user-1:org-1')
+        expect(result.current.state.messages).toHaveLength(2)
+
+        mockPathname = '/acme/customers'
+        rerender()
+
+        expect(result.current.state.messages).toHaveLength(2)
       })
     })
   })

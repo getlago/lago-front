@@ -123,11 +123,13 @@ const App = () => {
         <ThemeProvider theme={theme}>
           <ErrorBoundary>
             <DeveloperToolProvider>
-              <AiAgentProvider>
-                <NiceModalProvider>
-                  <QuotePdfProvider>
-                    <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
-                      <BrowserRouter basename="/" useTransitions={false}>
+              <NiceModalProvider>
+                <QuotePdfProvider>
+                  <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
+                    <BrowserRouter basename="/" useTransitions={false}>
+                      {/* Inside the router: the provider scopes the conversation to the
+                          organization in the URL, so it has to observe navigation. */}
+                      <AiAgentProvider>
                         <Panel id="app-panel-group">
                           <PanelGroup direction="horizontal">
                             <Panel id="app-panel">
@@ -139,16 +141,16 @@ const App = () => {
                           </PanelGroup>
                         </Panel>
                         <ToastContainer />
-                      </BrowserRouter>
-                      <MemoryRouter initialEntries={[DEVTOOL_ROUTE]} useTransitions={false}>
-                        <DevtoolsErrorBoundary>
-                          <DevtoolsView />
-                        </DevtoolsErrorBoundary>
-                      </MemoryRouter>
-                    </PanelGroup>
-                  </QuotePdfProvider>
-                </NiceModalProvider>
-              </AiAgentProvider>
+                      </AiAgentProvider>
+                    </BrowserRouter>
+                    <MemoryRouter initialEntries={[DEVTOOL_ROUTE]} useTransitions={false}>
+                      <DevtoolsErrorBoundary>
+                        <DevtoolsView />
+                      </DevtoolsErrorBoundary>
+                    </MemoryRouter>
+                  </PanelGroup>
+                </QuotePdfProvider>
+              </NiceModalProvider>
             </DeveloperToolProvider>
           </ErrorBoundary>
           <UserIdentifier />

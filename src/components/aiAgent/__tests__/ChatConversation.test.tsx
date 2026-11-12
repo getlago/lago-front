@@ -9,7 +9,13 @@ import {
   CHAT_MESSAGE_SENT_TEST_ID,
 } from '~/components/aiAgent/ChatMessages'
 import { OnConversationSubscriptionHookResult } from '~/generated/graphql'
-import { ChatMessage, ChatRole, ChatState, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
+import {
+  ChatMessage,
+  ChatRole,
+  ChatState,
+  ChatStatus,
+  createChatSession,
+} from '~/hooks/aiAgent/aiAgentReducer'
 import { AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { render } from '~/test-utils'
 
@@ -42,12 +48,10 @@ jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
   }),
 }))
 
+const SCOPE_KEY = 'user-1:org-1'
+
 const buildState = (overrides: Partial<ChatState> = {}): ChatState => ({
-  messages: [],
-  isLoading: false,
-  isStreaming: false,
-  hasError: false,
-  financeSessionId: undefined,
+  ...createChatSession(SCOPE_KEY),
   ...overrides,
 })
 

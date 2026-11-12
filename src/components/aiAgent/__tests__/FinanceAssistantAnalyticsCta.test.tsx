@@ -8,7 +8,7 @@ import {
   FINANCE_ASSISTANT_CTA_TEST_ID,
   FinanceAssistantAnalyticsCta,
 } from '~/components/aiAgent/FinanceAssistantAnalyticsCta'
-import { ChatState } from '~/hooks/aiAgent/aiAgentReducer'
+import { ChatState, createChatSession } from '~/hooks/aiAgent/aiAgentReducer'
 import { AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { render } from '~/test-utils'
 
@@ -51,12 +51,10 @@ jest.mock('~/hooks/usePermissions', () => ({
   }),
 }))
 
+const SCOPE_KEY = 'user-1:org-1'
+
 const buildState = (overrides: Partial<ChatState> = {}): ChatState => ({
-  messages: [],
-  isLoading: false,
-  isStreaming: false,
-  hasError: false,
-  financeSessionId: undefined,
+  ...createChatSession(SCOPE_KEY),
   ...overrides,
 })
 

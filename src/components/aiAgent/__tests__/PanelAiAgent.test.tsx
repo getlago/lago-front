@@ -1,19 +1,18 @@
 import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { CHAT_CONVERSATION_TEST_ID } from '~/components/aiAgent/ChatConversation'
 import {
   CHAT_PROMPT_EDITOR_INPUT_TEST_ID,
   CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID,
 } from '~/components/aiAgent/ChatPromptEditor'
 import { CHAT_SHORTCUTS_TEST_ID } from '~/components/aiAgent/ChatShortcuts'
 import {
-  PANEL_AI_AGENT_ERROR_TEST_ID,
-  PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID,
   PANEL_AI_AGENT_PREMIUM_BLOCK_TEST_ID,
   PANEL_AI_AGENT_WELCOME_TEST_ID,
   PanelAiAgent,
 } from '~/components/aiAgent/PanelAiAgent'
-import { ChatState } from '~/hooks/aiAgent/aiAgentReducer'
+import { ChatRole, ChatState, ChatStatus, createChatSession } from '~/hooks/aiAgent/aiAgentReducer'
 import { AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { render } from '~/test-utils'
 
@@ -33,7 +32,8 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 const mockAddNewMessage = jest.fn()
-const mockStartNewConversation = jest.fn()
+const mockConfirmExchange = jest.fn()
+const mockFailExchange = jest.fn()
 const mockSubmitFinanceQuestion = jest.fn()
 const mockCreateAiConversation = jest.fn()
 const mockSubscriptionRestart = jest.fn()
@@ -41,20 +41,23 @@ const mockSubscriptionRestart = jest.fn()
 let mockState: ChatState
 let mockAgentType: AiAgentTypeEnum
 let mockConversationId: string
-let mockConversationVersion: number
 let mockCreateLoading: boolean
-let mockCreateError: Error | undefined
 
 jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
   ...jest.requireActual('~/hooks/aiAgent/useAiAgent'),
   useAiAgent: () => ({
     addNewMessage: mockAddNewMessage,
     agentType: mockAgentType,
+    confirmExchange: mockConfirmExchange,
     conversationId: mockConversationId,
-    getConversationVersion: () => mockConversationVersion,
-    startNewConversation: mockStartNewConversation,
+    failExchange: mockFailExchange,
     setAgentType: jest.fn(),
+    setChatDone: jest.fn(),
+    streamChunk: jest.fn(),
     state: mockState,
+    lastAssistantMessage: mockState?.messages
+      .filter((message) => message.role === 'assistant')
+      .pop(),
   }),
 }))
 
@@ -62,7 +65,6 @@ jest.mock('~/components/aiAgent/hooks/useCreateAiConversation', () => ({
   useCreateAiConversation: () => ({
     createAiConversation: mockCreateAiConversation,
     loading: mockCreateLoading,
-    error: mockCreateError,
   }),
 }))
 
@@ -80,19 +82,29 @@ jest.mock('~/components/aiAgent/hooks/useOnConversation', () => ({
   }),
 }))
 
+const SCOPE_KEY = 'user-1:org-1'
+
 const buildState = (overrides: Partial<ChatState> = {}): ChatState => ({
-  messages: [],
-  isLoading: false,
-  isStreaming: false,
-  hasError: false,
-  financeSessionId: undefined,
+  ...createChatSession(SCOPE_KEY),
   ...overrides,
 })
+
+const answeredExchange: ChatState['messages'] = [
+  { id: 'user-1', role: ChatRole.user, message: 'previous question', status: ChatStatus.done },
+  {
+    id: 'assistant-1',
+    role: ChatRole.assistant,
+    message: 'previous answer',
+    status: ChatStatus.done,
+  },
+]
 
 const submitPrompt = async (message: string) => {
   await userEvent.type(screen.getByTestId(CHAT_PROMPT_EDITOR_INPUT_TEST_ID), message)
   await userEvent.click(screen.getByTestId(CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID))
 }
+
+const submittedExchangeId = (): string => mockAddNewMessage.mock.calls[0][1]
 
 describe('PanelAiAgent', () => {
   beforeEach(() => {
@@ -100,9 +112,8 @@ describe('PanelAiAgent', () => {
     mockState = buildState()
     mockAgentType = AiAgentTypeEnum.billing
     mockConversationId = ''
-    mockConversationVersion = 0
     mockCreateLoading = false
-    mockCreateError = undefined
+    mockCreateAiConversation.mockResolvedValue({ data: { createAiConversation: { id: 'conv-1' } } })
   })
 
   describe('GIVEN the conversation is empty', () => {
@@ -127,100 +138,140 @@ describe('PanelAiAgent', () => {
 
   describe('GIVEN the billing agent is active', () => {
     describe('WHEN submitting a first message', () => {
+      it('THEN should add the pending exchange before the mutation resolves', async () => {
+        let resolveCreation: () => void = () => undefined
+
+        mockCreateAiConversation.mockImplementation(
+          () =>
+            new Promise((resolve) => {
+              resolveCreation = () => resolve({ data: { createAiConversation: { id: 'conv-1' } } })
+            }),
+        )
+
+        render(<PanelAiAgent hasAccessToAiAgent />)
+
+        await submitPrompt('hello')
+
+        expect(mockAddNewMessage).toHaveBeenCalledWith('hello', expect.any(String))
+        expect(mockConfirmExchange).not.toHaveBeenCalled()
+
+        await act(async () => resolveCreation())
+      })
+
       it('THEN should create a new conversation with the message', async () => {
         render(<PanelAiAgent hasAccessToAiAgent />)
 
         await submitPrompt('hello')
 
-        expect(mockCreateAiConversation).toHaveBeenCalledWith(
-          expect.objectContaining({
-            variables: {
-              input: { message: 'hello', conversationId: undefined },
-            },
-          }),
-        )
+        expect(mockCreateAiConversation).toHaveBeenCalledWith({
+          variables: {
+            input: { message: 'hello', conversationId: undefined },
+          },
+        })
         expect(mockSubmitFinanceQuestion).not.toHaveBeenCalled()
       })
 
-      it('THEN should start the conversation once the mutation completes', async () => {
-        mockCreateAiConversation.mockImplementation(({ onCompleted }) =>
-          onCompleted({ createAiConversation: { id: 'conv-1' } }),
-        )
+      it('THEN should confirm the pending exchange with the accepted conversation', async () => {
+        render(<PanelAiAgent hasAccessToAiAgent />)
+
+        await submitPrompt('hello')
+
+        await waitFor(() => {
+          expect(mockConfirmExchange).toHaveBeenCalledWith({
+            exchangeId: submittedExchangeId(),
+            conversationId: 'conv-1',
+          })
+        })
+        expect(mockSubscriptionRestart).not.toHaveBeenCalled()
+      })
+
+      it('THEN should fail the exchange when the mutation returns no id', async () => {
+        mockCreateAiConversation.mockResolvedValue({ data: { createAiConversation: null } })
 
         render(<PanelAiAgent hasAccessToAiAgent />)
 
         await submitPrompt('hello')
 
         await waitFor(() => {
-          expect(mockStartNewConversation).toHaveBeenCalledWith({
-            convId: 'conv-1',
-            message: 'hello',
-          })
+          expect(mockFailExchange).toHaveBeenCalledWith(submittedExchangeId())
         })
+        expect(mockConfirmExchange).not.toHaveBeenCalled()
       })
 
-      it('THEN should not start the conversation when the mutation returns no id', async () => {
-        mockCreateAiConversation.mockImplementation(({ onCompleted }) =>
-          onCompleted({ createAiConversation: null }),
-        )
+      it('THEN should fail the exchange when the mutation throws', async () => {
+        mockCreateAiConversation.mockRejectedValue(new Error('boom'))
 
         render(<PanelAiAgent hasAccessToAiAgent />)
 
         await submitPrompt('hello')
 
-        expect(mockStartNewConversation).not.toHaveBeenCalled()
+        await waitFor(() => {
+          expect(mockFailExchange).toHaveBeenCalledWith(submittedExchangeId())
+        })
       })
     })
 
     describe('WHEN submitting a follow-up message in an existing conversation', () => {
-      it('THEN should append the message and restart the stream subscription', async () => {
+      it('THEN should confirm the exchange and restart the stream subscription', async () => {
         mockConversationId = 'conv-1'
-        mockState = buildState({
-          messages: [
-            {
-              id: 'user-1',
-              role: 'user' as never,
-              message: 'previous question',
-              status: 'done' as never,
-            },
-            {
-              id: 'assistant-1',
-              role: 'assistant' as never,
-              message: 'previous answer',
-              status: 'done' as never,
-            },
-          ],
-        })
-        mockCreateAiConversation.mockImplementation(({ onCompleted }) =>
-          onCompleted({ createAiConversation: { id: 'conv-1' } }),
-        )
+        mockState = buildState({ conversationId: 'conv-1', messages: answeredExchange })
 
         render(<PanelAiAgent hasAccessToAiAgent />)
 
         await submitPrompt('follow up')
 
-        expect(mockCreateAiConversation).toHaveBeenCalledWith(
-          expect.objectContaining({
-            variables: {
-              input: { message: 'follow up', conversationId: 'conv-1' },
-            },
-          }),
-        )
+        expect(mockCreateAiConversation).toHaveBeenCalledWith({
+          variables: {
+            input: { message: 'follow up', conversationId: 'conv-1' },
+          },
+        })
         await waitFor(() => {
-          expect(mockAddNewMessage).toHaveBeenCalledWith('follow up')
+          expect(mockConfirmExchange).toHaveBeenCalledWith({
+            exchangeId: submittedExchangeId(),
+            conversationId: 'conv-1',
+          })
         })
         expect(mockSubscriptionRestart).toHaveBeenCalledTimes(1)
-        expect(mockStartNewConversation).not.toHaveBeenCalled()
       })
     })
 
-    describe('WHEN the conversation creation fails', () => {
-      it('THEN should display the error message', () => {
-        mockCreateError = new Error('boom')
+    describe('WHEN an exchange is pending', () => {
+      it('THEN should render the conversation instead of the welcome message', () => {
+        mockState = buildState({
+          messages: [
+            { id: 'user-1', role: ChatRole.user, message: 'hello', status: ChatStatus.done },
+            {
+              id: 'exchange-1',
+              role: ChatRole.assistant,
+              message: '',
+              status: ChatStatus.pending,
+            },
+          ],
+          isLoading: true,
+        })
 
         render(<PanelAiAgent hasAccessToAiAgent />)
 
-        expect(screen.getByTestId(PANEL_AI_AGENT_ERROR_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toHaveTextContent('hello')
+        expect(screen.queryByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the exchange failed', () => {
+      it('THEN should keep the sent message and display the error', () => {
+        mockState = buildState({
+          messages: [
+            { id: 'user-1', role: ChatRole.user, message: 'hello', status: ChatStatus.done },
+          ],
+          hasError: true,
+        })
+
+        render(<PanelAiAgent hasAccessToAiAgent />)
+
+        const conversation = screen.getByTestId(CHAT_CONVERSATION_TEST_ID)
+
+        expect(conversation).toHaveTextContent('hello')
+        expect(conversation).toHaveTextContent('text_1757417225851jw88w0yfa0n')
       })
     })
   })
@@ -236,71 +287,24 @@ describe('PanelAiAgent', () => {
 
         expect(mockSubmitFinanceQuestion).toHaveBeenCalledWith('What is my MRR?')
         expect(mockCreateAiConversation).not.toHaveBeenCalled()
-      })
-    })
-  })
-
-  describe('GIVEN a late billing completion after switching to the finance agent', () => {
-    describe('WHEN the mutation completes after the switch', () => {
-      it('THEN should ignore the stale completion', async () => {
-        let capturedOnCompleted: ((data: unknown) => void) | undefined
-
-        mockCreateAiConversation.mockImplementation(({ onCompleted }) => {
-          capturedOnCompleted = onCompleted
-        })
-
-        const { rerender } = render(<PanelAiAgent hasAccessToAiAgent />)
-
-        await submitPrompt('hello')
-
-        mockAgentType = AiAgentTypeEnum.finance
-        mockConversationVersion += 1
-        rerender(<PanelAiAgent hasAccessToAiAgent />)
-
-        capturedOnCompleted?.({ createAiConversation: { id: 'conv-1' } })
-
-        expect(mockStartNewConversation).not.toHaveBeenCalled()
         expect(mockAddNewMessage).not.toHaveBeenCalled()
       })
     })
   })
 
-  describe('GIVEN the conversation creation is in flight', () => {
-    describe('WHEN the message has been submitted', () => {
-      it('THEN should echo the pending prompt with the loading indicator', async () => {
-        const { rerender } = render(<PanelAiAgent hasAccessToAiAgent />)
-
-        await submitPrompt('hello')
-        mockCreateLoading = true
-        rerender(<PanelAiAgent hasAccessToAiAgent />)
-
-        const pendingBlock = await screen.findByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)
-
-        expect(pendingBlock).toHaveTextContent('hello')
-        expect(screen.queryByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).not.toBeInTheDocument()
-      })
-
-      it('THEN should hand the pending prompt over to the error block on failure', async () => {
-        const { rerender } = render(<PanelAiAgent hasAccessToAiAgent />)
-
-        await submitPrompt('hello')
-        mockCreateLoading = true
-        rerender(<PanelAiAgent hasAccessToAiAgent />)
-
-        expect(await screen.findByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).toBeInTheDocument()
-
-        mockCreateError = new Error('boom')
-        rerender(<PanelAiAgent hasAccessToAiAgent />)
-
-        expect(screen.queryByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).not.toBeInTheDocument()
-        expect(screen.getByTestId(PANEL_AI_AGENT_ERROR_TEST_ID)).toHaveTextContent('hello')
-      })
-    })
-  })
   describe('GIVEN a billing request still in flight', () => {
-    it('THEN should disable the editor and hide shortcuts while the mutation is loading', () => {
+    it('THEN should disable the editor and hide the shortcuts', () => {
       mockCreateLoading = true
+      mockState = buildState({
+        messages: [
+          { id: 'user-1', role: ChatRole.user, message: 'hello', status: ChatStatus.done },
+          { id: 'exchange-1', role: ChatRole.assistant, message: '', status: ChatStatus.pending },
+        ],
+        isLoading: true,
+      })
+
       render(<PanelAiAgent hasAccessToAiAgent />)
+
       expect(screen.getByTestId(CHAT_PROMPT_EDITOR_INPUT_TEST_ID)).toBeDisabled()
       expect(screen.getByTestId(CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID)).toBeDisabled()
       expect(screen.queryByTestId(CHAT_SHORTCUTS_TEST_ID)).not.toBeInTheDocument()
@@ -310,12 +314,9 @@ describe('PanelAiAgent', () => {
       let finishCreation: () => void = () => undefined
 
       mockCreateAiConversation.mockImplementation(
-        ({ onCompleted }) =>
-          new Promise<void>((resolve) => {
-            finishCreation = () => {
-              onCompleted({ createAiConversation: { id: 'conv-1' } })
-              resolve()
-            }
+        () =>
+          new Promise((resolve) => {
+            finishCreation = () => resolve({ data: { createAiConversation: { id: 'conv-1' } } })
           }),
       )
 
@@ -327,16 +328,38 @@ describe('PanelAiAgent', () => {
       )
 
       expect(mockCreateAiConversation).toHaveBeenCalledTimes(1)
+      expect(mockAddNewMessage).toHaveBeenCalledTimes(1)
+      expect(mockAddNewMessage).toHaveBeenCalledWith('first prompt', expect.any(String))
+
       await act(async () => finishCreation())
-      expect(mockStartNewConversation).toHaveBeenCalledTimes(1)
-      expect(mockStartNewConversation).toHaveBeenCalledWith({
-        convId: 'conv-1',
-        message: 'first prompt',
-      })
+      expect(mockConfirmExchange).toHaveBeenCalledTimes(1)
 
       await submitPrompt('next prompt')
       expect(mockCreateAiConversation).toHaveBeenCalledTimes(2)
       await act(async () => finishCreation())
+    })
+
+    it('THEN should give each back-to-back exchange its own id', async () => {
+      render(<PanelAiAgent hasAccessToAiAgent />)
+
+      await submitPrompt('first prompt')
+      await submitPrompt('second prompt')
+
+      await waitFor(() => {
+        expect(mockAddNewMessage).toHaveBeenCalledTimes(2)
+      })
+
+      const [[, firstExchangeId], [, secondExchangeId]] = mockAddNewMessage.mock.calls
+
+      expect(firstExchangeId).not.toBe(secondExchangeId)
+      expect(mockConfirmExchange).toHaveBeenCalledWith({
+        exchangeId: firstExchangeId,
+        conversationId: 'conv-1',
+      })
+      expect(mockConfirmExchange).toHaveBeenCalledWith({
+        exchangeId: secondExchangeId,
+        conversationId: 'conv-1',
+      })
     })
   })
 })

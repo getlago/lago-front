@@ -11,12 +11,13 @@ import { ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { render, TestMocksType } from '~/test-utils'
 
 const mockSetPreviousChatMessages = jest.fn()
+const mockStartRestore = jest.fn()
 
 jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
   ...jest.requireActual('~/hooks/aiAgent/useAiAgent'),
   useAiAgent: () => ({
-    getConversationVersion: () => 0,
     setPreviousChatMessages: mockSetPreviousChatMessages,
+    startRestore: mockStartRestore,
   }),
 }))
 
@@ -138,8 +139,10 @@ describe('ChatHistory', () => {
           expect(hideHistory).toHaveBeenCalledTimes(1)
         })
 
+        expect(mockStartRestore).toHaveBeenCalledTimes(1)
         expect(mockSetPreviousChatMessages).toHaveBeenCalledWith({
-          convId: 'conv-1',
+          restoreId: mockStartRestore.mock.calls[0][0],
+          conversationId: 'conv-1',
           messages: [
             expect.objectContaining({
               role: ChatRole.user,
@@ -182,8 +185,9 @@ describe('ChatHistory', () => {
         await userEvent.click(firstItem)
 
         await waitFor(() => {
-          expect(hideHistory).not.toHaveBeenCalled()
+          expect(mockStartRestore).toHaveBeenCalledTimes(1)
         })
+        expect(hideHistory).not.toHaveBeenCalled()
         expect(mockSetPreviousChatMessages).not.toHaveBeenCalled()
       })
     })

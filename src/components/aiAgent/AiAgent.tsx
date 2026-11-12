@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react'
 import { tw } from 'lago-design-system'
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Panel } from 'react-resizable-panels'
 import { matchRoutes } from 'react-router'
 
@@ -27,15 +27,8 @@ export const AI_AGENT_NAV_TEST_ID = 'ai-agent-nav'
 export const AI_AGENT_ERROR_TEST_ID = 'ai-agent-error'
 
 export const AiAgent = () => {
-  const {
-    agentType,
-    panelRef,
-    currentPanelOpened,
-    panelOpen,
-    state,
-    conversationVersion,
-    resetConversation,
-  } = useAiAgent()
+  const { agentType, panelRef, currentPanelOpened, panelOpen, state, resetConversation } =
+    useAiAgent()
   const { isPremium, currentUser } = useCurrentUser()
   const { translate } = useInternationalization()
   const [showHistory, setShowHistory] = useState(false)
@@ -49,27 +42,9 @@ export const AiAgent = () => {
   // matched-route context to read the slug from, so the wrapper's strip is a
   // no-op in this component.
   const slugFromPath = location.pathname.split('/')[1] ?? ''
-  const currentOrgId = currentUser?.memberships?.find((m) => m.organization.slug === slugFromPath)
-    ?.organization.id
-  const isInsideValidOrgContext = !!currentOrgId
-
-  // Renaming the slug keeps the conversation; switching users or organizations resets it.
-  const conversationScope = `${currentUser?.id ?? ''}:${currentOrgId ?? ''}`
-  const lastConversationScopeRef = useRef<string | null>(null)
-
-  // Layout, not passive: a passive effect paints one frame of the previous
-  // scope's conversation. A scope outside a membership is not a switch.
-  useLayoutEffect(() => {
-    if (!isInsideValidOrgContext) return
-
-    const previousScope = lastConversationScopeRef.current
-
-    lastConversationScopeRef.current = conversationScope
-
-    if (previousScope && previousScope !== conversationScope) {
-      resetConversation()
-    }
-  }, [isInsideValidOrgContext, conversationScope, resetConversation])
+  const isInsideValidOrgContext = !!currentUser?.memberships?.some(
+    (m) => m.organization.slug === slugFromPath,
+  )
 
   if (!currentUser) {
     return null
@@ -131,8 +106,6 @@ export const AiAgent = () => {
     </div>
   )
 
-  // The panel is keyed on the conversation version: remounting it on every
-  // identity change drops the pending prompt and the mutation's loading/error.
   return (
     <>
       <div className="relative" data-test={AI_AGENT_NAV_TEST_ID}>
@@ -191,7 +164,6 @@ export const AiAgent = () => {
 
                 {!showHistory && (
                   <PanelAiAgent
-                    key={conversationVersion}
                     isFullscreen={isFullscreen}
                     hasAccessToAiAgent={hasAccessToAiAgent}
                   />

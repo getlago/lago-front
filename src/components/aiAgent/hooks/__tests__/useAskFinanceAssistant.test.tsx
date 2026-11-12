@@ -3,7 +3,7 @@ import { ReactNode } from 'react'
 
 import { useAskFinanceAssistant } from '~/components/aiAgent/hooks/useAskFinanceAssistant'
 import { AskFinanceAssistantDocument } from '~/generated/graphql'
-import { ChatState } from '~/hooks/aiAgent/aiAgentReducer'
+import { ChatState, createChatSession } from '~/hooks/aiAgent/aiAgentReducer'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 const mockAddNewMessage = jest.fn()
@@ -55,13 +55,7 @@ const successMock = (sessionId?: string) => ({
 describe('useAskFinanceAssistant', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockState = {
-      messages: [],
-      isLoading: false,
-      isStreaming: false,
-      hasError: false,
-      financeSessionId: undefined,
-    }
+    mockState = createChatSession('user-1:org-1')
   })
 
   describe('GIVEN a question is submitted', () => {

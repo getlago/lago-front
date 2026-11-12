@@ -17,14 +17,16 @@ type ChatHistoryProps = {
 }
 
 export const ChatHistory = ({ hideHistory, isFullscreen }: ChatHistoryProps) => {
-  const { getConversationVersion, setPreviousChatMessages } = useAiAgent()
+  const { setPreviousChatMessages, startRestore } = useAiAgent()
 
   const { getAiConversation } = useGetAiConversation()
 
   const { data, loading, error } = useListAiConversations()
 
   const handleGetAiConversation = async (id: string) => {
-    const versionAtRequest = getConversationVersion()
+    const restoreId = crypto.randomUUID()
+
+    startRestore(restoreId)
 
     const { data: singleConversationData } = await getAiConversation({
       variables: {
@@ -32,13 +34,10 @@ export const ChatHistory = ({ hideHistory, isFullscreen }: ChatHistoryProps) => 
       },
     })
 
-    // The conversation was dropped or replaced while the request was in flight
-    if (getConversationVersion() !== versionAtRequest) {
-      return
-    }
+    const conversation = singleConversationData?.aiConversation
 
-    if (singleConversationData?.aiConversation?.id) {
-      const formattedMessages = singleConversationData?.aiConversation?.messages?.map((message) => {
+    if (conversation?.id) {
+      const formattedMessages = conversation.messages?.map((message) => {
         const randomKey = crypto.randomUUID()
 
         return {
@@ -51,8 +50,11 @@ export const ChatHistory = ({ hideHistory, isFullscreen }: ChatHistoryProps) => 
 
       hideHistory?.()
 
+      // Dropped when this is no longer the restore the session is waiting for:
+      // the scope changed, the conversation was reset, or the user sent a message.
       setPreviousChatMessages({
-        convId: singleConversationData?.aiConversation.id,
+        restoreId,
+        conversationId: conversation.id,
         messages: formattedMessages ?? [],
       })
     }

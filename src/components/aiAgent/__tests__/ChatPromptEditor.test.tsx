@@ -9,7 +9,7 @@ import {
   ChatPromptEditor,
   GRADIENT_MIN_TEXTAREA_HEIGHT,
 } from '~/components/aiAgent/ChatPromptEditor'
-import { ChatState } from '~/hooks/aiAgent/aiAgentReducer'
+import { ChatState, createChatSession } from '~/hooks/aiAgent/aiAgentReducer'
 import { AGENT_TYPE_LABELS, AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { render } from '~/test-utils'
 
@@ -33,12 +33,10 @@ jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
   }),
 }))
 
+const SCOPE_KEY = 'user-1:org-1'
+
 const buildState = (overrides: Partial<ChatState> = {}): ChatState => ({
-  messages: [],
-  isLoading: false,
-  isStreaming: false,
-  hasError: false,
-  financeSessionId: undefined,
+  ...createChatSession(SCOPE_KEY),
   ...overrides,
 })
 

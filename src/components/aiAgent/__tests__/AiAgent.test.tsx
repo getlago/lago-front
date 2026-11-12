@@ -1,5 +1,6 @@
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { useState } from 'react'
 
 import { AI_AGENT_ERROR_TEST_ID, AI_AGENT_NAV_TEST_ID, AiAgent } from '~/components/aiAgent/AiAgent'
 import { CHAT_CONVERSATION_TEST_ID } from '~/components/aiAgent/ChatConversation'
@@ -8,10 +9,7 @@ import {
   CHAT_PROMPT_EDITOR_INPUT_TEST_ID,
   CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID,
 } from '~/components/aiAgent/ChatPromptEditor'
-import {
-  PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID,
-  PANEL_AI_AGENT_WELCOME_TEST_ID,
-} from '~/components/aiAgent/PanelAiAgent'
+import { PANEL_AI_AGENT_WELCOME_TEST_ID } from '~/components/aiAgent/PanelAiAgent'
 import { ListAiConversationsDocument } from '~/generated/graphql'
 import { AiAgentProvider, AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { render, TestMocksType } from '~/test-utils'
@@ -78,7 +76,6 @@ jest.mock('~/components/aiAgent/hooks/useCreateAiConversation', () => ({
   useCreateAiConversation: () => ({
     createAiConversation: mockCreateAiConversation,
     loading: mockCreateLoading,
-    error: undefined,
   }),
 }))
 
@@ -115,6 +112,20 @@ const OpenPanelProbe = ({ agentType }: { agentType: AiAgentTypeEnum }) => {
       >
         switch
       </button>
+    </>
+  )
+}
+
+// The scope now lives in the provider, so the agent can come and go under it.
+const RemountableAiAgent = () => {
+  const [isMounted, setIsMounted] = useState(true)
+
+  return (
+    <>
+      <button data-test="toggle-ai-agent" onClick={() => setIsMounted((mounted) => !mounted)}>
+        toggle
+      </button>
+      {isMounted && <AiAgent />}
     </>
   )
 }
@@ -375,20 +386,48 @@ describe('AiAgent', () => {
     })
   })
 
+  describe('GIVEN the agent is remounted while the organization changes', () => {
+    describe('WHEN it comes back', () => {
+      it('THEN should not show the previous organization conversation', async () => {
+        await act(() =>
+          render(
+            <AiAgentProvider>
+              <OpenPanelProbe agentType={AiAgentTypeEnum.billing} />
+              <RemountableAiAgent />
+            </AiAgentProvider>,
+            { mocks },
+          ),
+        )
+        await openStoredConversation()
+
+        await userEvent.click(screen.getByTestId('toggle-ai-agent'))
+        await navigateTo('/second-org/analytics')
+        await userEvent.click(screen.getByTestId('toggle-ai-agent'))
+
+        expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
   describe('GIVEN a conversation creation still in flight', () => {
     const submitAndCaptureCompletion = async () => {
-      let capturedOnCompleted: ((data: unknown) => void) | undefined
+      let finishCreation: (() => void) | undefined
 
-      mockCreateAiConversation.mockImplementation(({ onCompleted }) => {
-        capturedOnCompleted = onCompleted
-      })
+      mockCreateAiConversation.mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            finishCreation = () =>
+              resolve({ data: { createAiConversation: { id: 'conv-from-first-org' } } })
+          }),
+      )
 
       await openPanel()
       await submitPrompt('hello')
 
       return async () => {
         await act(async () => {
-          capturedOnCompleted?.({ createAiConversation: { id: 'conv-from-first-org' } })
+          finishCreation?.()
         })
       }
     }
@@ -441,14 +480,14 @@ describe('AiAgent', () => {
       it('THEN should drop the prompt echoed under the previous organization', async () => {
         await renderAiAgent()
         await submitAndCaptureCompletion()
-        mockCreateLoading = true
         await navigateTo('/test-org/customers')
 
-        expect(screen.getByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toHaveTextContent('hello')
 
         await navigateTo('/second-org/analytics')
 
-        expect(screen.queryByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
       })
     })
 
@@ -456,19 +495,18 @@ describe('AiAgent', () => {
       it('THEN should drop the prompt echoed by the previous agent', async () => {
         await renderAiAgent()
         await submitAndCaptureCompletion()
-        mockCreateLoading = true
         await navigateTo('/test-org/customers')
 
-        expect(screen.getByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toHaveTextContent('hello')
 
         await userEvent.click(screen.getByTestId('switch-to-finance-agent'))
 
-        expect(screen.queryByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(CHAT_CONVERSATION_TEST_ID)).not.toBeInTheDocument()
       })
     })
 
     describe('WHEN it completes while the user stayed in the same organization', () => {
-      it('THEN should start the conversation', async () => {
+      it('THEN should keep the conversation', async () => {
         await renderAiAgent()
 
         const completeCreation = await submitAndCaptureCompletion()
@@ -476,7 +514,7 @@ describe('AiAgent', () => {
         await navigateTo('/test-org/customers')
         await completeCreation()
 
-        expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(CHAT_CONVERSATION_TEST_ID)).toHaveTextContent('hello')
       })
     })
   })

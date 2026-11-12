@@ -5,6 +5,7 @@ import {
   ChatRole,
   ChatState,
   ChatStatus,
+  createChatSession,
 } from '~/hooks/aiAgent/aiAgentReducer'
 
 beforeAll(() => {
@@ -16,13 +17,9 @@ beforeAll(() => {
   }
 })
 
-const emptyState: ChatState = {
-  messages: [],
-  isLoading: false,
-  isStreaming: false,
-  hasError: false,
-  financeSessionId: undefined,
-}
+const SCOPE_KEY = 'user-1:org-1'
+
+const emptyState: ChatState = createChatSession(SCOPE_KEY)
 
 const pendingExchangeState = (exchangeId: string): ChatState => ({
   ...emptyState,
@@ -34,26 +31,36 @@ const pendingExchangeState = (exchangeId: string): ChatState => ({
 })
 
 describe('chatReducer', () => {
-  describe('START_CONVERSATION', () => {
-    it('replaces the messages with the new exchange and clears a previous error', () => {
-      const state = chatReducer(
-        { ...emptyState, hasError: true },
-        { type: ChatActionType.START_CONVERSATION, message: 'question' },
-      )
+  describe('SET_SCOPE', () => {
+    it('drops the previous scope session entirely', () => {
+      const populated: ChatState = {
+        ...pendingExchangeState('exchange-1'),
+        conversationId: 'conv-1',
+        pendingRestoreId: 'restore-1',
+        financeSessionId: 'session-1',
+      }
 
-      expect(state.messages).toHaveLength(2)
-      expect(state.messages[0]).toMatchObject({
-        role: ChatRole.user,
-        message: 'question',
-        status: ChatStatus.done,
+      const state = chatReducer(populated, {
+        type: ChatActionType.SET_SCOPE,
+        scopeKey: 'user-1:org-2',
       })
-      expect(state.messages[1]).toMatchObject({
-        role: ChatRole.assistant,
-        message: '',
-        status: ChatStatus.pending,
+
+      expect(state).toEqual(createChatSession('user-1:org-2'))
+    })
+
+    it('drops what the previous scope had in flight', () => {
+      const switched = chatReducer(pendingExchangeState('exchange-1'), {
+        type: ChatActionType.SET_SCOPE,
+        scopeKey: 'user-1:org-2',
       })
-      expect(state.isLoading).toBe(true)
-      expect(state.hasError).toBe(false)
+
+      const state = chatReducer(switched, {
+        type: ChatActionType.COMPLETE_EXCHANGE,
+        exchangeId: 'exchange-1',
+        response: 'answer from the previous organization',
+      })
+
+      expect(state).toEqual(switched)
     })
   })
 
@@ -128,10 +135,32 @@ describe('chatReducer', () => {
     it('clears a previous error', () => {
       const state = chatReducer(
         { ...emptyState, hasError: true },
-        { type: ChatActionType.ADD_INPUT, message: 'question' },
+        { type: ChatActionType.ADD_INPUT, message: 'question', exchangeId: 'exchange-1' },
       )
 
       expect(state.hasError).toBe(false)
+    })
+  })
+
+  describe('CONFIRM_EXCHANGE', () => {
+    it('attaches the accepted conversation to the pending exchange', () => {
+      const state = chatReducer(pendingExchangeState('exchange-1'), {
+        type: ChatActionType.CONFIRM_EXCHANGE,
+        exchangeId: 'exchange-1',
+        conversationId: 'conv-1',
+      })
+
+      expect(state.conversationId).toBe('conv-1')
+    })
+
+    it('no-ops for a stale confirmation (no matching pending message)', () => {
+      const state = chatReducer(emptyState, {
+        type: ChatActionType.CONFIRM_EXCHANGE,
+        exchangeId: 'exchange-1',
+        conversationId: 'conv-1',
+      })
+
+      expect(state).toEqual(emptyState)
     })
   })
 
@@ -199,25 +228,84 @@ describe('chatReducer', () => {
 
       const state = chatReducer(populated, { type: ChatActionType.RESET_CONVERSATION })
 
-      expect(state.messages).toHaveLength(0)
-      expect(state.hasError).toBe(false)
-      expect(state.financeSessionId).toBeUndefined()
+      expect(state).toEqual(createChatSession(SCOPE_KEY))
     })
   })
 
   describe('SET_PREVIOUS_CHAT_MESSAGES', () => {
-    it('replaces messages and clears error state', () => {
-      const messages: ChatMessage[] = [
-        { id: 'a', role: ChatRole.user, message: 'hi', status: ChatStatus.done },
-      ]
+    const restoredMessages: ChatMessage[] = [
+      { id: 'a', role: ChatRole.user, message: 'hi', status: ChatStatus.done },
+    ]
 
-      const state = chatReducer(
+    it('replaces messages, attaches the conversation and clears error state', () => {
+      const awaiting = chatReducer(
         { ...emptyState, hasError: true },
-        { type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES, messages },
+        { type: ChatActionType.START_RESTORE, restoreId: 'restore-1' },
       )
 
-      expect(state.messages).toEqual(messages)
+      const state = chatReducer(awaiting, {
+        type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES,
+        restoreId: 'restore-1',
+        conversationId: 'conv-1',
+        messages: restoredMessages,
+      })
+
+      expect(state.messages).toEqual(restoredMessages)
+      expect(state.conversationId).toBe('conv-1')
+      expect(state.pendingRestoreId).toBeUndefined()
       expect(state.hasError).toBe(false)
+    })
+
+    it('no-ops when the session is not waiting for that restore', () => {
+      const state = chatReducer(emptyState, {
+        type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES,
+        restoreId: 'restore-1',
+        conversationId: 'conv-1',
+        messages: restoredMessages,
+      })
+
+      expect(state).toEqual(emptyState)
+    })
+
+    it('no-ops when a scope change dropped the pending restore', () => {
+      const awaiting = chatReducer(emptyState, {
+        type: ChatActionType.START_RESTORE,
+        restoreId: 'restore-1',
+      })
+      const switched = chatReducer(awaiting, {
+        type: ChatActionType.SET_SCOPE,
+        scopeKey: 'user-1:org-2',
+      })
+
+      const state = chatReducer(switched, {
+        type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES,
+        restoreId: 'restore-1',
+        conversationId: 'conv-1',
+        messages: restoredMessages,
+      })
+
+      expect(state).toEqual(switched)
+    })
+
+    it('no-ops when the user sent a message while the restore was in flight', () => {
+      const awaiting = chatReducer(emptyState, {
+        type: ChatActionType.START_RESTORE,
+        restoreId: 'restore-1',
+      })
+      const sent = chatReducer(awaiting, {
+        type: ChatActionType.ADD_INPUT,
+        message: 'question',
+        exchangeId: 'exchange-1',
+      })
+
+      const state = chatReducer(sent, {
+        type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES,
+        restoreId: 'restore-1',
+        conversationId: 'conv-1',
+        messages: restoredMessages,
+      })
+
+      expect(state).toEqual(sent)
     })
   })
 })

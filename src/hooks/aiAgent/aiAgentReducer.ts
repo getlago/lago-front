@@ -11,10 +11,9 @@ export enum ChatStatus {
 
 export enum ChatActionType {
   /**
-   * Start a new conversation
-   * with a user message and a pending response from assistant
+   * Adopt a new user/organization scope, dropping the previous session
    */
-  START_CONVERSATION = 'START_CONVERSATION',
+  SET_SCOPE = 'SET_SCOPE',
   /**
    * Stream a chunk with the assistant message
    */
@@ -24,9 +23,11 @@ export enum ChatActionType {
    */
   DONE = 'DONE',
   /**
-   * Add a new message to the conversation
+   * Add a user message and the pending assistant message answering it
    */
   ADD_INPUT = 'ADD_INPUT',
+  /** Attach the conversation the backend accepted a pending exchange into */
+  CONFIRM_EXCHANGE = 'CONFIRM_EXCHANGE',
   /**
    * Fill the pending assistant message of a completed exchange
    */
@@ -39,6 +40,8 @@ export enum ChatActionType {
    * Reset the conversation
    */
   RESET_CONVERSATION = 'RESET_CONVERSATION',
+  /** Mark a history restore as the one this session is waiting for */
+  START_RESTORE = 'START_RESTORE',
   /**
    * Set the previous chat messages
    */
@@ -62,6 +65,9 @@ export type ChatMessage = {
 }
 
 export type ChatState = {
+  scopeKey: string | null
+  conversationId?: string
+  pendingRestoreId?: string
   messages: ChatMessage[]
   isLoading: boolean
   isStreaming: boolean
@@ -69,11 +75,23 @@ export type ChatState = {
   financeSessionId?: string
 }
 
+export const createChatSession = (scopeKey: string | null): ChatState => ({
+  scopeKey,
+  conversationId: undefined,
+  pendingRestoreId: undefined,
+  messages: [],
+  isLoading: false,
+  isStreaming: false,
+  hasError: false,
+  financeSessionId: undefined,
+})
+
 type ChatAction =
-  | { type: ChatActionType.START_CONVERSATION; message: string }
+  | { type: ChatActionType.SET_SCOPE; scopeKey: string }
   | { type: ChatActionType.STREAMING; messageId: string; chunk: string }
   | { type: ChatActionType.DONE; messageId: string }
-  | { type: ChatActionType.ADD_INPUT; message: string; exchangeId?: string }
+  | { type: ChatActionType.ADD_INPUT; message: string; exchangeId: string }
+  | { type: ChatActionType.CONFIRM_EXCHANGE; exchangeId: string; conversationId: string }
   | {
       type: ChatActionType.COMPLETE_EXCHANGE
       exchangeId: string
@@ -83,32 +101,23 @@ type ChatAction =
     }
   | { type: ChatActionType.FAIL_EXCHANGE; exchangeId: string }
   | { type: ChatActionType.RESET_CONVERSATION }
-  | { type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES; messages: ChatMessage[] }
+  | { type: ChatActionType.START_RESTORE; restoreId: string }
+  | {
+      type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES
+      restoreId: string
+      conversationId: string
+      messages: ChatMessage[]
+    }
+
+const hasPendingExchange = (state: ChatState, exchangeId: string): boolean =>
+  state.messages.some(
+    (message) => message.id === exchangeId && message.status === ChatStatus.pending,
+  )
 
 export const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
   switch (action.type) {
-    case ChatActionType.START_CONVERSATION: {
-      const userMsg: ChatMessage = {
-        id: crypto.randomUUID(),
-        role: ChatRole.user,
-        message: action.message,
-        status: ChatStatus.done,
-      }
-
-      const assistantMsg: ChatMessage = {
-        id: crypto.randomUUID(),
-        role: ChatRole.assistant,
-        message: '',
-        status: ChatStatus.pending,
-      }
-
-      return {
-        ...state,
-        messages: [userMsg, assistantMsg],
-        isStreaming: false,
-        isLoading: true,
-        hasError: false,
-      }
+    case ChatActionType.SET_SCOPE: {
+      return createChatSession(action.scopeKey)
     }
 
     case ChatActionType.STREAMING: {
@@ -153,7 +162,7 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
       }
 
       const assistantMsg: ChatMessage = {
-        id: action.exchangeId ?? crypto.randomUUID(),
+        id: action.exchangeId,
         role: ChatRole.assistant,
         message: '',
         status: ChatStatus.pending,
@@ -161,6 +170,8 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
 
       return {
         ...state,
+        // A restore that lands after this would replace what the user just sent
+        pendingRestoreId: undefined,
         messages: [...state.messages, userMsg, assistantMsg],
         isLoading: true,
         isStreaming: false,
@@ -168,13 +179,21 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
       }
     }
 
-    case ChatActionType.COMPLETE_EXCHANGE: {
-      const hasPendingExchange = state.messages.some(
-        (message) => message.id === action.exchangeId && message.status === ChatStatus.pending,
-      )
+    case ChatActionType.CONFIRM_EXCHANGE: {
+      // Stale confirmation (session was replaced or reset) — ignore it
+      if (!hasPendingExchange(state, action.exchangeId)) {
+        return state
+      }
 
-      // Stale completion (conversation was reset or replaced) — ignore it
-      if (!hasPendingExchange) {
+      return {
+        ...state,
+        conversationId: action.conversationId,
+      }
+    }
+
+    case ChatActionType.COMPLETE_EXCHANGE: {
+      // Stale completion (session was replaced or reset) — ignore it
+      if (!hasPendingExchange(state, action.exchangeId)) {
         return state
       }
 
@@ -197,12 +216,8 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
     }
 
     case ChatActionType.FAIL_EXCHANGE: {
-      const hasPendingExchange = state.messages.some(
-        (message) => message.id === action.exchangeId && message.status === ChatStatus.pending,
-      )
-
-      // Stale failure (conversation was reset or replaced) — ignore it
-      if (!hasPendingExchange) {
+      // Stale failure (session was replaced or reset) — ignore it
+      if (!hasPendingExchange(state, action.exchangeId)) {
         return state
       }
 
@@ -216,19 +231,26 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
     }
 
     case ChatActionType.RESET_CONVERSATION: {
+      return createChatSession(state.scopeKey)
+    }
+
+    case ChatActionType.START_RESTORE: {
       return {
         ...state,
-        messages: [],
-        isLoading: false,
-        isStreaming: false,
-        hasError: false,
-        financeSessionId: undefined,
+        pendingRestoreId: action.restoreId,
       }
     }
 
     case ChatActionType.SET_PREVIOUS_CHAT_MESSAGES: {
+      // Stale restore (session was replaced, reset, or the user sent a message)
+      if (state.pendingRestoreId !== action.restoreId) {
+        return state
+      }
+
       return {
         ...state,
+        pendingRestoreId: undefined,
+        conversationId: action.conversationId,
         messages: action.messages,
         isLoading: false,
         isStreaming: false,

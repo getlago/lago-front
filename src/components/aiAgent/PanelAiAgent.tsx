@@ -1,8 +1,7 @@
 import { tw } from 'lago-design-system'
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 
 import { ChatConversation } from '~/components/aiAgent/ChatConversation'
-import { ChatMessages } from '~/components/aiAgent/ChatMessages'
 import { ChatPromptEditor } from '~/components/aiAgent/ChatPromptEditor'
 import { ChatShortcuts } from '~/components/aiAgent/ChatShortcuts'
 import { useAskFinanceAssistant } from '~/components/aiAgent/hooks/useAskFinanceAssistant'
@@ -16,28 +15,17 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export const PANEL_AI_AGENT_WELCOME_TEST_ID = 'panel-ai-agent-welcome'
 export const PANEL_AI_AGENT_PREMIUM_BLOCK_TEST_ID = 'panel-ai-agent-premium-block'
-export const PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID = 'panel-ai-agent-initial-prompt'
-
-export const PANEL_AI_AGENT_ERROR_TEST_ID = 'panel-ai-agent-error'
-
 type PanelAiAgentProps = {
   hasAccessToAiAgent: boolean
   isFullscreen?: boolean
 }
 
 export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentProps) => {
-  const {
-    addNewMessage,
-    agentType,
-    conversationId,
-    getConversationVersion,
-    startNewConversation,
-    state,
-  } = useAiAgent()
-  const { createAiConversation, loading, error } = useCreateAiConversation()
+  const { addNewMessage, agentType, confirmExchange, conversationId, failExchange, state } =
+    useAiAgent()
+  const { createAiConversation, loading } = useCreateAiConversation()
   const { submitFinanceQuestion } = useAskFinanceAssistant()
   const isSubmittingRef = useRef(false)
-  const [initialPrompt, setInitialPrompt] = useState<string>('')
   const { translate } = useInternationalization()
   const isFinanceAssistant = agentType === AiAgentTypeEnum.finance
 
@@ -53,48 +41,45 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
     }
 
     isSubmittingRef.current = true
-    setInitialPrompt(values.message)
 
-    const versionAtSubmit = getConversationVersion()
+    const exchangeId = crypto.randomUUID()
+    const conversationIdAtSubmit = conversationId
+
+    addNewMessage(values.message, exchangeId)
 
     try {
-      await createAiConversation({
+      const { data } = await createAiConversation({
         variables: {
           input: {
             message: values.message,
-            conversationId: conversationId || undefined,
+            conversationId: conversationIdAtSubmit || undefined,
           },
         },
-
-        onCompleted: (data) => {
-          // The conversation was dropped or replaced while the request was in
-          // flight: organization switch, agent switch, restored history
-          if (getConversationVersion() !== versionAtSubmit) {
-            return
-          }
-
-          if (conversationId) {
-            addNewMessage(values.message)
-
-            return subscription.restart()
-          }
-
-          if (!data.createAiConversation?.id) {
-            return
-          }
-
-          return startNewConversation({
-            convId: data.createAiConversation.id,
-            message: values.message,
-          })
-        },
       })
+
+      const acceptedConversationId = data?.createAiConversation?.id
+
+      if (!acceptedConversationId) {
+        return failExchange(exchangeId)
+      }
+
+      // Dropped when the exchange is no longer pending: the session was reset,
+      // replaced by a restore, or belongs to a scope the tab has left.
+      confirmExchange({ exchangeId, conversationId: acceptedConversationId })
+
+      // A follow-up reuses a live subscription, which only replays from the
+      // moment it (re)connects.
+      if (conversationIdAtSubmit) {
+        subscription.restart()
+      }
+    } catch {
+      failExchange(exchangeId)
     } finally {
       isSubmittingRef.current = false
     }
   }
 
-  const shouldDisplayWelcomeMessage = !state.messages.length && !loading && !error
+  const shouldDisplayWelcomeMessage = !state.messages.length
 
   return (
     <div className={tw('flex h-full flex-col bg-grey-100', !isFullscreen && 'shadow-l')}>
@@ -127,28 +112,6 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
             className="flex-col border border-grey-300 bg-white"
             buttonClassName="self-end"
           />
-        </div>
-      )}
-
-      {!shouldDisplayWelcomeMessage && !state.messages.length && initialPrompt && !error && (
-        <div
-          className="mt-auto flex h-full flex-col gap-6 p-6"
-          data-test={PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID}
-        >
-          <ChatMessages.Sent>{initialPrompt}</ChatMessages.Sent>
-
-          <ChatMessages.Loading agentType={agentType} />
-        </div>
-      )}
-
-      {!state.messages.length && error && (
-        <div
-          className="mt-auto flex h-full flex-col gap-6 p-6"
-          data-test={PANEL_AI_AGENT_ERROR_TEST_ID}
-        >
-          {!!initialPrompt && <ChatMessages.Sent>{initialPrompt}</ChatMessages.Sent>}
-
-          <ChatMessages.Error>{translate('text_1757417225851jw88w0yfa0n')}</ChatMessages.Error>
         </div>
       )}
 
