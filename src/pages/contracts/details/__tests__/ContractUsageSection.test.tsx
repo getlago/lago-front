@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 
-import { GetContractCurrentUsageTotalDocument } from '~/generated/graphql'
+import { GetContractCurrentUsageTotalDocument, TimezoneEnum } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import { ContractUsageSection } from '../ContractUsageSection'
@@ -74,6 +74,27 @@ describe('ContractUsageSection', () => {
     )
 
     expect(await screen.findByText('From Feb 1, 2027 to Feb 28, 2027')).toBeInTheDocument()
+  })
+
+  it("formats the billing period in the customer's timezone, not UTC", async () => {
+    render(
+      <AllTheProviders
+        forceTypenames
+        mocks={[
+          buildTotalMock('67050', {
+            fromDatetime: '2027-02-01T04:00:00.000Z',
+            toDatetime: '2027-03-01T04:59:59.000Z',
+          }),
+        ]}
+      >
+        <ContractUsageSection
+          contractId="contract-1"
+          customerTimezone={TimezoneEnum.TzAmericaNewYork}
+        />
+      </AllTheProviders>,
+    )
+
+    expect(await screen.findByText('From Jan 31, 2027 to Feb 28, 2027')).toBeInTheDocument()
   })
 
   it('shows $0.00 (not hidden) for a contract with no usage', async () => {

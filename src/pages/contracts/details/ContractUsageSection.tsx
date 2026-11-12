@@ -9,9 +9,13 @@ import { Typography } from '~/components/designSystem/Typography'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { CurrencyEnum, useGetContractCurrentUsageTotalQuery } from '~/generated/graphql'
+import { intlFormatDateTime } from '~/core/timezone'
+import {
+  CurrencyEnum,
+  TimezoneEnum,
+  useGetContractCurrentUsageTotalQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 import { ContractUsageCategoryRail } from './ContractUsageCategoryRail'
@@ -31,14 +35,15 @@ gql`
 type ContractUsageSectionProps = {
   contractId: string
   currency?: CurrencyEnum
+  customerTimezone?: TimezoneEnum
 }
 
 export const ContractUsageSection = ({
   contractId,
   currency,
+  customerTimezone,
 }: ContractUsageSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { data, error, loading, refetch } = useGetContractCurrentUsageTotalQuery({
     variables: { contractId },
     fetchPolicy: 'network-only',
@@ -84,9 +89,12 @@ export const ContractUsageSection = ({
             !!data?.contractCurrentUsageTotal.toDatetime && (
               <Typography variant="caption" color="grey600">
                 {translate('text_633dae57ca9a923dd53c2097', {
-                  fromDate: intlFormatDateTimeOrgaTZ(data.contractCurrentUsageTotal.fromDatetime)
-                    .date,
-                  toDate: intlFormatDateTimeOrgaTZ(data.contractCurrentUsageTotal.toDatetime).date,
+                  fromDate: intlFormatDateTime(data.contractCurrentUsageTotal.fromDatetime, {
+                    timezone: customerTimezone,
+                  }).date,
+                  toDate: intlFormatDateTime(data.contractCurrentUsageTotal.toDatetime, {
+                    timezone: customerTimezone,
+                  }).date,
                 })}
               </Typography>
             )}
@@ -118,6 +126,7 @@ export const ContractUsageSection = ({
         <ContractUsageTable
           contractId={contractId}
           currency={currency}
+          customerTimezone={customerTimezone}
           refreshToken={refreshToken}
         />
       </div>

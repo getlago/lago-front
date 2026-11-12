@@ -17,14 +17,15 @@ import { CONTRACT_USAGE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   CurrencyEnum,
   GetContractUsagesQuery,
+  TimezoneEnum,
   useGetContractUsagesLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useRefetchOnTokenChange } from '~/hooks/useRefetchOnTokenChange'
 
 gql`
@@ -79,16 +80,17 @@ export const CONTRACT_USAGE_ROW_NAME_TEST_ID = 'contract-usage-row-name'
 type ContractUsageTableProps = {
   contractId: string
   currency?: CurrencyEnum
+  customerTimezone?: TimezoneEnum
   refreshToken?: number
 }
 
 export const ContractUsageTable = ({
   contractId,
   currency,
+  customerTimezone,
   refreshToken,
 }: ContractUsageTableProps): JSX.Element => {
   const { translate } = useInternationalization()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   // Bare key: must match the rail's own link-building, which drops the bare `page` key on every
   // category switch - a prefixed key here would silently stop matching that.
   const { page, goToPage } = usePageSearchParam()
@@ -153,8 +155,8 @@ export const ContractUsageTable = ({
           </Typography>
           <Typography variant="caption" color="grey600">
             {translate('text_633dae57ca9a923dd53c2097', {
-              fromDate: intlFormatDateTimeOrgaTZ(row.fromDatetime).date,
-              toDate: intlFormatDateTimeOrgaTZ(row.toDatetime).date,
+              fromDate: intlFormatDateTime(row.fromDatetime, { timezone: customerTimezone }).date,
+              toDate: intlFormatDateTime(row.toDatetime, { timezone: customerTimezone }).date,
             })}
           </Typography>
         </div>

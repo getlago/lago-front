@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react'
 
-import { intlFormatDateTime as mockIntlFormatDateTime } from '~/core/timezone'
-import { GetContractUsagesDocument } from '~/generated/graphql'
+import { GetContractUsagesDocument, TimezoneEnum } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import { CONTRACT_USAGE_ROW_NAME_TEST_ID, ContractUsageTable } from '../ContractUsageTable'
@@ -10,14 +9,6 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string, data?: Record<string, string>) =>
       data ? `${key}:${JSON.stringify(data)}` : key,
-  }),
-}))
-
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({
-    organization: {},
-    timezoneConfig: { name: 'UTC', offset: '+00:00' },
-    intlFormatDateTimeOrgaTZ: (date: string) => mockIntlFormatDateTime(date),
   }),
 }))
 
@@ -80,6 +71,29 @@ describe('ContractUsageTable', () => {
     expect(
       await screen.findByText(
         'text_633dae57ca9a923dd53c2097:{"fromDate":"Feb 1, 2027","toDate":"Mar 1, 2027"}',
+      ),
+    ).toBeInTheDocument()
+  })
+
+  it("formats a row's billing period in the customer's timezone, not UTC", async () => {
+    const row = {
+      ...rowFixture,
+      fromDatetime: '2027-02-01T04:00:00.000Z',
+      toDatetime: '2027-03-01T04:59:59.000Z',
+    }
+
+    render(
+      <AllTheProviders forceTypenames mocks={[buildMock([row])]}>
+        <ContractUsageTable
+          contractId="contract-1"
+          customerTimezone={TimezoneEnum.TzAmericaNewYork}
+        />
+      </AllTheProviders>,
+    )
+
+    expect(
+      await screen.findByText(
+        'text_633dae57ca9a923dd53c2097:{"fromDate":"Jan 31, 2027","toDate":"Feb 28, 2027"}',
       ),
     ).toBeInTheDocument()
   })

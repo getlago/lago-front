@@ -42,6 +42,10 @@ gql`
       name
       currency
     }
+    customer {
+      id
+      applicableTimezone
+    }
     ...ContractForContractDrawer
   }
 
@@ -173,6 +177,7 @@ const ContractDetails = (): JSX.Element => {
                   <ContractUsageSection
                     contractId={contract.id}
                     currency={contract.plan?.currency}
+                    customerTimezone={contract.customer.applicableTimezone}
                   />
                 ) : (
                   <DetailsPage.Skeleton />
