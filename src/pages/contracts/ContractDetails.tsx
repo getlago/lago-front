@@ -37,10 +37,10 @@ gql`
     name
     status
     appliedRateCardsCount
+    currency
     plan {
       id
       name
-      currency
     }
     customer {
       id
@@ -160,7 +160,7 @@ const ContractDetails = (): JSX.Element => {
               <DetailsPage.Container className="pb-0 pt-6">
                 <ContractDetailsOverview
                   contractExternalId={contract?.externalId}
-                  currency={contract?.plan?.currency}
+                  currency={contract?.currency}
                   rateCardsCount={contract?.appliedRateCardsCount}
                   isRateCardsLocked={contract?.status !== ContractStatusEnum.Pending}
                   loading={loading}
@@ -176,7 +176,7 @@ const ContractDetails = (): JSX.Element => {
                 {contract?.id ? (
                   <ContractUsageSection
                     contractId={contract.id}
-                    currency={contract.plan?.currency}
+                    currency={contract.currency}
                     customerTimezone={contract.customer.applicableTimezone}
                   />
                 ) : (

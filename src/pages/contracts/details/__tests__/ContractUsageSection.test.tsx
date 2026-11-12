@@ -1,6 +1,10 @@
 import { render, screen } from '@testing-library/react'
 
-import { GetContractCurrentUsageTotalDocument, TimezoneEnum } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  GetContractCurrentUsageTotalDocument,
+  TimezoneEnum,
+} from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import { ContractUsageSection } from '../ContractUsageSection'
@@ -49,7 +53,11 @@ describe('ContractUsageSection', () => {
   it('renders the total, the rail, and the table together', async () => {
     render(
       <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
-        <ContractUsageSection contractId="contract-1" />
+        <ContractUsageSection
+          contractId="contract-1"
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+        />
       </AllTheProviders>,
     )
 
@@ -69,7 +77,11 @@ describe('ContractUsageSection', () => {
           }),
         ]}
       >
-        <ContractUsageSection contractId="contract-1" />
+        <ContractUsageSection
+          contractId="contract-1"
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+        />
       </AllTheProviders>,
     )
 
@@ -89,6 +101,7 @@ describe('ContractUsageSection', () => {
       >
         <ContractUsageSection
           contractId="contract-1"
+          currency={CurrencyEnum.Usd}
           customerTimezone={TimezoneEnum.TzAmericaNewYork}
         />
       </AllTheProviders>,
@@ -100,7 +113,11 @@ describe('ContractUsageSection', () => {
   it('shows $0.00 (not hidden) for a contract with no usage', async () => {
     render(
       <AllTheProviders forceTypenames mocks={[buildTotalMock('0')]}>
-        <ContractUsageSection contractId="contract-1" />
+        <ContractUsageSection
+          contractId="contract-1"
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+        />
       </AllTheProviders>,
     )
 
@@ -118,7 +135,11 @@ describe('ContractUsageSection', () => {
 
     render(
       <AllTheProviders mocks={[errorMock]}>
-        <ContractUsageSection contractId="contract-1" />
+        <ContractUsageSection
+          contractId="contract-1"
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+        />
       </AllTheProviders>,
     )
 
@@ -132,7 +153,11 @@ describe('ContractUsageSection', () => {
 
     render(
       <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
-        <ContractUsageSection contractId="contract-1" />
+        <ContractUsageSection
+          contractId="contract-1"
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+        />
       </AllTheProviders>,
     )
 
@@ -146,7 +171,11 @@ describe('ContractUsageSection', () => {
 
     render(
       <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
-        <ContractUsageSection contractId="contract-1" />
+        <ContractUsageSection
+          contractId="contract-1"
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+        />
       </AllTheProviders>,
     )
 

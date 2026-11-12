@@ -34,8 +34,8 @@ gql`
 
 type ContractUsageSectionProps = {
   contractId: string
-  currency?: CurrencyEnum
-  customerTimezone?: TimezoneEnum
+  currency: CurrencyEnum
+  customerTimezone: TimezoneEnum
 }
 
 export const ContractUsageSection = ({
@@ -110,10 +110,7 @@ export const ContractUsageSection = ({
               <Skeleton variant="text" className="w-20" />
             ) : (
               intlFormatNumber(
-                deserializeAmount(
-                  data?.contractCurrentUsageTotal.totalAmountCents ?? 0,
-                  currency ?? CurrencyEnum.Usd,
-                ),
+                deserializeAmount(data?.contractCurrentUsageTotal.totalAmountCents ?? 0, currency),
                 { currencyDisplay: 'symbol', currency },
               )
             )}

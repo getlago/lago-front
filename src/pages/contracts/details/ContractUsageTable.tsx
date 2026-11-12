@@ -79,8 +79,8 @@ export const CONTRACT_USAGE_ROW_NAME_TEST_ID = 'contract-usage-row-name'
 
 type ContractUsageTableProps = {
   contractId: string
-  currency?: CurrencyEnum
-  customerTimezone?: TimezoneEnum
+  currency: CurrencyEnum
+  customerTimezone: TimezoneEnum
   refreshToken?: number
 }
 
@@ -175,7 +175,7 @@ export const ContractUsageTable = ({
       textAlign: 'right',
       minWidth: 112,
       content: (row) =>
-        intlFormatNumber(deserializeAmount(row.amountCents, currency ?? CurrencyEnum.Usd) ?? 0, {
+        intlFormatNumber(deserializeAmount(row.amountCents, currency), {
           currencyDisplay: 'symbol',
           currency,
         }),

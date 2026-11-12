@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 
-import { GetContractUsagesDocument, TimezoneEnum } from '~/generated/graphql'
+import { CurrencyEnum, GetContractUsagesDocument, TimezoneEnum } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import { CONTRACT_USAGE_ROW_NAME_TEST_ID, ContractUsageTable } from '../ContractUsageTable'
@@ -54,7 +54,11 @@ describe('ContractUsageTable', () => {
   it('renders a row for each usage item', async () => {
     render(
       <AllTheProviders forceTypenames mocks={[buildMock([rowFixture])]}>
-        <ContractUsageTable contractId="contract-1" />
+        <ContractUsageTable
+          contractId="contract-1"
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+        />
       </AllTheProviders>,
     )
 
@@ -64,7 +68,11 @@ describe('ContractUsageTable', () => {
   it("shows each row's billing period under its name", async () => {
     render(
       <AllTheProviders forceTypenames mocks={[buildMock([rowFixture])]}>
-        <ContractUsageTable contractId="contract-1" />
+        <ContractUsageTable
+          contractId="contract-1"
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+        />
       </AllTheProviders>,
     )
 
@@ -86,6 +94,7 @@ describe('ContractUsageTable', () => {
       <AllTheProviders forceTypenames mocks={[buildMock([row])]}>
         <ContractUsageTable
           contractId="contract-1"
+          currency={CurrencyEnum.Usd}
           customerTimezone={TimezoneEnum.TzAmericaNewYork}
         />
       </AllTheProviders>,
@@ -111,7 +120,11 @@ describe('ContractUsageTable', () => {
 
     render(
       <AllTheProviders forceTypenames mocks={[buildMock(collection)]}>
-        <ContractUsageTable contractId="contract-1" />
+        <ContractUsageTable
+          contractId="contract-1"
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+        />
       </AllTheProviders>,
     )
 
@@ -129,7 +142,11 @@ describe('ContractUsageTable', () => {
   it('shows the empty-state placeholder for a contract with no usage', async () => {
     render(
       <AllTheProviders forceTypenames mocks={[buildMock([])]}>
-        <ContractUsageTable contractId="contract-1" />
+        <ContractUsageTable
+          contractId="contract-1"
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+        />
       </AllTheProviders>,
     )
 
@@ -162,7 +179,11 @@ describe('ContractUsageTable', () => {
 
     render(
       <AllTheProviders forceTypenames mocks={[mock]}>
-        <ContractUsageTable contractId="contract-1" />
+        <ContractUsageTable
+          contractId="contract-1"
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+        />
       </AllTheProviders>,
     )
 
@@ -175,7 +196,12 @@ describe('ContractUsageTable', () => {
 
     const { rerender } = render(
       <AllTheProviders forceTypenames mocks={mocks}>
-        <ContractUsageTable contractId="contract-1" refreshToken={0} />
+        <ContractUsageTable
+          contractId="contract-1"
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+          refreshToken={0}
+        />
       </AllTheProviders>,
     )
 
@@ -183,7 +209,12 @@ describe('ContractUsageTable', () => {
 
     rerender(
       <AllTheProviders forceTypenames mocks={mocks}>
-        <ContractUsageTable contractId="contract-1" refreshToken={1} />
+        <ContractUsageTable
+          contractId="contract-1"
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+          refreshToken={1}
+        />
       </AllTheProviders>,
     )
 
@@ -204,7 +235,11 @@ describe('ContractUsageTable', () => {
 
     render(
       <AllTheProviders mocks={[errorMock]}>
-        <ContractUsageTable contractId="contract-1" />
+        <ContractUsageTable
+          contractId="contract-1"
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+        />
       </AllTheProviders>,
     )
 
