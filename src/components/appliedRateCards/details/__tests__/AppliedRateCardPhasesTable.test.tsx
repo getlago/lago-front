@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event'
 import { RateCardForRatePhaseFields } from '~/components/appliedRateCards/drawers/ratePhase/types'
 import { RATE_PHASE_DURATION_CHIP_TEST_ID } from '~/components/appliedRateCards/RatePhaseDurationChip'
 import {
-  RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID,
+  RATE_PHASE_DEFAULT_RATE_CHIP_TEST_ID,
+  RATE_PHASE_NO_RATE_CHIP_TEST_ID,
   RATE_PHASE_OVERRIDDEN_RATE_CHIP_TEST_ID,
 } from '~/components/appliedRateCards/RatePhaseRateChip'
 import { OPEN_ACTION_BUTTON_TEST_ID } from '~/components/designSystem/Table/Table'
@@ -40,6 +41,7 @@ const RATE_CARD: RateCardForRatePhaseFields = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   appliedPricingUnitCode: null,
   proration: false,
+  ratesCount: 1,
   activeRate: {
     __typename: 'RateCardRate',
     id: 'active-rate',
@@ -51,6 +53,7 @@ const RATE_CARD: RateCardForRatePhaseFields = {
     appliedPricingUnitConversionRate: null,
     rateProperties: { __typename: 'RateProperties', amount: '10' },
   },
+  nextPendingRate: null,
 }
 
 const RATE_OVERRIDE: NonNullable<RatePhaseForDrawerFragment['rateOverride']> = {
@@ -155,10 +158,10 @@ describe('AppliedRateCardPhasesTable', () => {
     expect(within(foreverRow).getByTestId(RATE_PHASE_DURATION_CHIP_TEST_ID)).toHaveTextContent(
       /^Forever$/,
     )
-    expect(within(foreverRow).getByTestId(RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID)).toBeInTheDocument()
+    expect(within(foreverRow).getByTestId(RATE_PHASE_DEFAULT_RATE_CHIP_TEST_ID)).toBeInTheDocument()
   })
 
-  it('GIVEN a card without active rate and a phase without override THEN the rate cell shows a dash and no chip', async () => {
+  it('GIVEN a card without active rate and a phase without override THEN the rate cell shows the no-rate chip', async () => {
     renderTable({
       phases: [FOREVER_PHASE],
       rateCard: { ...RATE_CARD, activeRate: null },
@@ -166,17 +169,17 @@ describe('AppliedRateCardPhasesTable', () => {
 
     const rateCell = await screen.findByTestId(APPLIED_RATE_CARD_PHASE_RATE_EMPTY_TEST_ID)
 
-    expect(rateCell).toHaveTextContent(/^-$/)
-    expect(screen.queryByTestId(RATE_PHASE_ACTIVE_RATE_CHIP_TEST_ID)).not.toBeInTheDocument()
+    expect(within(rateCell).getByTestId(RATE_PHASE_NO_RATE_CHIP_TEST_ID)).toBeInTheDocument()
+    expect(screen.queryByTestId(RATE_PHASE_DEFAULT_RATE_CHIP_TEST_ID)).not.toBeInTheDocument()
     expect(screen.queryByTestId(RATE_PHASE_OVERRIDDEN_RATE_CHIP_TEST_ID)).not.toBeInTheDocument()
   })
 
-  it('GIVEN no rate card THEN the rate cell shows a dash and the duration counts cycles', async () => {
+  it('GIVEN no rate card THEN the rate cell shows the no-rate chip and the duration counts cycles', async () => {
     renderTable({ phases: [OVERRIDDEN_PHASE], rateCard: undefined })
 
-    expect(await screen.findByTestId(APPLIED_RATE_CARD_PHASE_RATE_EMPTY_TEST_ID)).toHaveTextContent(
-      /^-$/,
-    )
+    const rateCell = await screen.findByTestId(APPLIED_RATE_CARD_PHASE_RATE_EMPTY_TEST_ID)
+
+    expect(within(rateCell).getByTestId(RATE_PHASE_NO_RATE_CHIP_TEST_ID)).toBeInTheDocument()
     expect(screen.queryByTestId(RATE_PHASE_OVERRIDDEN_RATE_CHIP_TEST_ID)).not.toBeInTheDocument()
     await waitFor(() =>
       expect(screen.getByTestId(RATE_PHASE_DURATION_CHIP_TEST_ID)).toHaveTextContent('3 cycles'),

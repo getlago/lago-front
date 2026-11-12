@@ -64,7 +64,9 @@ const rateCard: RateCardForRatePhaseFields = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   appliedPricingUnitCode: null,
   proration: false,
+  ratesCount: 0,
   activeRate: null,
+  nextPendingRate: null,
 }
 
 type OpenedDrawerArgs = {

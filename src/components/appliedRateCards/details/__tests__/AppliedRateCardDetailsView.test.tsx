@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { ComponentProps } from 'react'
 
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
+import { OPEN_ACTION_BUTTON_TEST_ID } from '~/components/designSystem/Table/Table'
 import { BREADCRUMB_NAV_TEST_ID } from '~/components/MainHeader/Breadcrumb'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import {
@@ -43,6 +44,12 @@ import {
   getAppliedRateCardPhaseRowTestId,
 } from '../AppliedRateCardPhasesTable'
 import { AppliedRateCardDetailsData } from '../types'
+import {
+  RATE_PHASE_ACTION_COPY_TEST_ID,
+  RATE_PHASE_ACTION_DELETE_TEST_ID,
+  RATE_PHASE_ACTION_EDIT_TEST_ID,
+  RATE_PHASE_ACTION_RESET_TEST_ID,
+} from '../useRatePhaseActions'
 
 // Every test mounts the header and the whole overview, so the default 5s budget is tight.
 jest.setTimeout(15000)
@@ -273,6 +280,19 @@ describe('AppliedRateCardDetailsView', () => {
 
       expect(screen.getByTestId(APPLIED_RATE_CARD_DETAILS_CREATE_PHASE_TEST_ID)).toBeDisabled()
       expect(screen.getByTestId(APPLIED_RATE_CARD_DETAILS_REMOVE_TEST_ID)).toBeDisabled()
+    })
+
+    it('THEN the phase row menu disables edit and delete, and leaves copy enabled', async () => {
+      renderView(withLockedParent(PLAN_DATA))
+
+      const row = await screen.findByTestId(getAppliedRateCardPhaseRowTestId(1))
+
+      await userEvent.click(within(row).getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
+
+      expect(screen.getByTestId(RATE_PHASE_ACTION_COPY_TEST_ID)).not.toBeDisabled()
+      expect(screen.getByTestId(RATE_PHASE_ACTION_EDIT_TEST_ID)).toBeDisabled()
+      expect(screen.queryByTestId(RATE_PHASE_ACTION_RESET_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.getByTestId(RATE_PHASE_ACTION_DELETE_TEST_ID)).toBeDisabled()
     })
   })
 

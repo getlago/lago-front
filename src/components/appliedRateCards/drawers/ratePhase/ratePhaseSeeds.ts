@@ -33,9 +33,11 @@ const DEFAULT_RATE_FIELD_VALUES: RateFieldValues = {
 }
 
 export const getActiveRateFieldValues = (rateCard: RateCardForRatePhaseFields): RateFieldValues => {
-  if (!rateCard.activeRate) return DEFAULT_RATE_FIELD_VALUES
+  const inheritedRate = rateCard.activeRate ?? rateCard.nextPendingRate
 
-  return mapRateToRateFieldValues(rateCard.activeRate, rateCard.currency)
+  if (!inheritedRate) return DEFAULT_RATE_FIELD_VALUES
+
+  return mapRateToRateFieldValues(inheritedRate, rateCard.currency)
 }
 
 export const buildCreatePhaseSeed = (
