@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react'
+
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
@@ -26,6 +28,7 @@ interface InvoicingSettingsSelectorProps {
   value: InvoiceCustomSectionInput | undefined
   onChange: (value: InvoiceCustomSectionInput) => void
   paymentTerm?: InvoicingSettingsPaymentTermProps
+  autoOpen?: boolean
   'data-test'?: string
 }
 
@@ -37,6 +40,7 @@ export const InvoicingSettingsSelector = ({
   value,
   onChange,
   paymentTerm,
+  autoOpen = false,
   'data-test': dataTest = INVOICING_SETTINGS_SELECTOR_TEST_ID,
 }: InvoicingSettingsSelectorProps) => {
   const { translate } = useInternationalization()
@@ -55,6 +59,16 @@ export const InvoicingSettingsSelector = ({
       paymentTerm?.onChange(nextPaymentTerm)
     },
   })
+
+  const hasAutoOpened = useRef(false)
+
+  useEffect(() => {
+    if (!autoOpen || hasAutoOpened.current) return
+
+    hasAutoOpened.current = true
+    openDrawer({ invoiceCustomSection: value, paymentTerm: paymentTerm?.value })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoOpen])
 
   const summary = buildInvoicingSettingsSummary({
     invoiceCustomSection: value,

@@ -278,6 +278,50 @@ describe('InvoicingSettingsSelector', () => {
     })
   })
 
+  describe('GIVEN the autoOpen prop', () => {
+    const renderAutoOpen = (autoOpen: boolean) =>
+      render(
+        <InvoicingSettingsSelector
+          viewType={ViewTypeEnum.WalletTopUp}
+          customerId="cust-1"
+          value={APPLY_VALUE}
+          onChange={jest.fn()}
+          paymentTerm={{ value: NET_60_VALUES, onChange: jest.fn(), inheritedFrom: INHERITED_FROM }}
+          autoOpen={autoOpen}
+        />,
+      )
+
+    describe('WHEN the selector mounts with autoOpen', () => {
+      it('THEN should open the drawer once, seeded with the current values', () => {
+        const { rerender } = renderAutoOpen(true)
+
+        rerender(
+          <InvoicingSettingsSelector
+            viewType={ViewTypeEnum.WalletTopUp}
+            customerId="cust-1"
+            value={APPLY_VALUE}
+            onChange={jest.fn()}
+            autoOpen
+          />,
+        )
+
+        expect(mockOpenDrawer).toHaveBeenCalledTimes(1)
+        expect(mockOpenDrawer).toHaveBeenCalledWith({
+          invoiceCustomSection: APPLY_VALUE,
+          paymentTerm: NET_60_VALUES,
+        })
+      })
+    })
+
+    describe('WHEN the selector mounts without autoOpen', () => {
+      it('THEN should not open the drawer', () => {
+        renderAutoOpen(false)
+
+        expect(mockOpenDrawer).not.toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('GIVEN the data-test prop', () => {
     describe('WHEN not provided', () => {
       it('THEN should fall back to the default test id', () => {
