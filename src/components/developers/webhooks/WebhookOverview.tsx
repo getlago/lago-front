@@ -1,4 +1,8 @@
+import { useState } from 'react'
+
+import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { GetWebhookEndpointQuery } from '~/generated/graphql'
@@ -12,6 +16,9 @@ export const WEBHOOK_OVERVIEW_NAME_VALUE_TEST_ID = 'webhook-overview-name-value'
 export const WEBHOOK_OVERVIEW_SIGNATURE_VALUE_TEST_ID = 'webhook-overview-signature-value'
 export const WEBHOOK_OVERVIEW_URL_VALUE_TEST_ID = 'webhook-overview-url-value'
 export const WEBHOOK_OVERVIEW_EVENTS_LIST_TEST_ID = 'webhook-overview-events-list'
+export const WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID = 'webhook-overview-signing-key-value'
+export const WEBHOOK_OVERVIEW_SIGNING_KEY_REVEAL_BUTTON_TEST_ID =
+  'webhook-overview-signing-key-reveal-button'
 
 type WebhookOverviewProps = {
   webhook: GetWebhookEndpointQuery['webhookEndpoint'] | undefined
@@ -22,8 +29,10 @@ type WebhookOverviewProps = {
 export const WebhookOverview = ({ webhook, loading, signatureLabel }: WebhookOverviewProps) => {
   const { translate } = useInternationalization()
   const { getEventDisplayInfo, loading: eventTypesLoading } = useWebhookEventTypes()
+  const [showSigningKey, setShowSigningKey] = useState(false)
 
   const { displayedEvents, eventCount } = getEventDisplayInfo(webhook?.eventTypes)
+  const signingKey = webhook?.signingKeys?.at(-1)?.secretKey
 
   if (loading || eventTypesLoading) {
     return (
@@ -87,6 +96,39 @@ export const WebhookOverview = ({ webhook, loading, signatureLabel }: WebhookOve
           </Typography>
         </div>
       </div>
+
+      {!!signingKey && (
+        <div className="flex flex-col gap-1">
+          <Typography variant="caption" color="grey600">
+            {translate('text_658567dffff71e31ea5f0d3e')}
+          </Typography>
+          <div className="flex items-center gap-2">
+            <TypographyWithCopy
+              variant="body"
+              color="grey700"
+              masked={!showSigningKey}
+              maskOptions={{ dotsCount: 8, visibleChars: 3 }}
+              data-test={WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID}
+            >
+              {signingKey}
+            </TypographyWithCopy>
+            <Tooltip
+              placement="top-start"
+              title={translate(
+                showSigningKey ? 'text_1731082143943pr83kgzeh86' : 'text_1731082129536sv17ey4g0sk',
+              )}
+            >
+              <Button
+                variant="quaternary"
+                size="small"
+                icon={showSigningKey ? 'eye-hidden' : 'eye'}
+                onClick={() => setShowSigningKey((prev) => !prev)}
+                data-test={WEBHOOK_OVERVIEW_SIGNING_KEY_REVEAL_BUTTON_TEST_ID}
+              />
+            </Tooltip>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col gap-1">
         <Typography variant="caption" color="grey600">
