@@ -166,6 +166,8 @@ export const CONTRACT_RATE_CARD_DETAILS_TAB_ROUTE =
   '/contracts/:id/rate-cards/:appliedRateCardId/:tab'
 export const CONTRACT_RATE_CARD_PHASE_DETAILS_ROUTE =
   '/contracts/:id/rate-cards/:appliedRateCardId/phases/:phaseId'
+export const CONTRACT_RATE_CARD_PHASE_DETAILS_TAB_ROUTE =
+  '/contracts/:id/rate-cards/:appliedRateCardId/phases/:phaseId/:tab'
 
 export const objectListRoutes: CustomRouteObject[] = [
   {
@@ -384,7 +386,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
 
 export const objectDetailsRoutes: CustomRouteObject[] = [
   {
-    path: [CONTRACT_RATE_CARD_PHASE_DETAILS_ROUTE],
+    path: [CONTRACT_RATE_CARD_PHASE_DETAILS_ROUTE, CONTRACT_RATE_CARD_PHASE_DETAILS_TAB_ROUTE],
     private: true,
     element: <ContractRateCardPhaseDetails />,
     permissions: ['contractsView'],

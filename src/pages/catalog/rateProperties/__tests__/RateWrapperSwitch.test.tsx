@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react'
 
-import { CurrencyEnum, ProductTypeEnum, RateCardRateModelEnum } from '~/generated/graphql'
+import { CurrencyEnum, RateCardRateModelEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { RATE_CARD_RATE_FORM_DEFAULTS } from '~/pages/catalog/drawers/rateCardRate/constants'
 import { render } from '~/test-utils'
@@ -12,7 +12,6 @@ const mockPackageChargeTestId = 'package-charge'
 const mockPercentageChargeTestId = 'percentage-charge'
 const mockCustomChargeTestId = 'custom-charge'
 const mockDynamicChargeTestId = 'dynamic-charge'
-const mockPricingGroupKeysTestId = 'pricing-group-keys'
 const mockGraduatedTableTestId = 'graduated-rate-tiers-table'
 const mockGraduatedPercentageTableTestId = 'graduated-percentage-rate-tiers-table'
 const mockVolumeTableTestId = 'volume-rate-tiers-table'
@@ -56,10 +55,6 @@ jest.mock('~/components/plans/CustomCharge', () => ({
 jest.mock('~/components/plans/DynamicCharge', () => ({
   DynamicCharge: () => <div data-test={mockDynamicChargeTestId} />,
 }))
-jest.mock('~/components/plans/PricingGroupKeys', () => ({
-  __esModule: true,
-  default: () => <div data-test={mockPricingGroupKeysTestId} />,
-}))
 jest.mock('../tiers/GraduatedRateTiersTable', () => ({
   GraduatedRateTiersTable: (props: Record<string, unknown>) => {
     mockTierTableProps = props
@@ -86,11 +81,9 @@ const handleExpandCustomCharge = jest.fn()
 
 const Host = ({
   rateModel,
-  productType = ProductTypeEnum.Metered,
   disabled = false,
 }: {
   rateModel: RateCardRateModelEnum
-  productType?: ProductTypeEnum
   disabled?: boolean
 }) => {
   const form = useAppForm({ defaultValues: { ...RATE_CARD_RATE_FORM_DEFAULTS, rateModel } })
@@ -100,7 +93,6 @@ const Host = ({
       form={form}
       fields="properties"
       rateModel={rateModel}
-      productType={productType}
       currency={CurrencyEnum.Eur}
       pricingUnitShortName="tok"
       disabled={disabled}
@@ -177,22 +169,6 @@ describe('RateWrapperSwitch', () => {
 
         expect(mockCustomChargeProps.onExpandCustomCharge).toBeUndefined()
       })
-    })
-  })
-
-  describe('GIVEN the product type', () => {
-    it('WHEN the product is metered THEN shows the pricing group keys', () => {
-      render(<Host rateModel={RateCardRateModelEnum.Standard} />)
-
-      expect(screen.getByTestId(mockPricingGroupKeysTestId)).toBeInTheDocument()
-    })
-
-    it('WHEN the product is fixed THEN hides the pricing group keys', () => {
-      render(
-        <Host rateModel={RateCardRateModelEnum.Standard} productType={ProductTypeEnum.Fixed} />,
-      )
-
-      expect(screen.queryByTestId(mockPricingGroupKeysTestId)).not.toBeInTheDocument()
     })
   })
 })

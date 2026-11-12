@@ -4,13 +4,13 @@ import { mapFromApiToForm, mapRateOverrideFromFormToApi } from './drawers/ratePh
 import { RatePhaseFormValues } from './drawers/ratePhase/ratePhaseFormSchema'
 import { RateCardForRatePhaseFields } from './drawers/ratePhase/types'
 import { activeRateToOverrideInput, getOverriddenFields } from './overrideDiff'
-import { RatePhaseRate } from './ratePhaseDisplay'
+import { RatePhaseForDetails, RatePhaseRate } from './ratePhaseDisplay'
 
 export const getFormPhaseRate = (
   phase: RatePhaseFormValues,
   rateCard: RateCardForRatePhaseFields,
 ): RatePhaseRate | null => {
-  const { activeRate } = rateCard
+  const { activeRate, nextPendingRate } = rateCard
 
   if (phase.overrideEnabled) {
     const rate = mapRateOverrideFromFormToApi(phase, rateCard.currency)
@@ -22,13 +22,25 @@ export const getFormPhaseRate = (
     }
   }
 
-  if (!activeRate) return null
-
-  return {
-    isOverridden: false,
-    rate: activeRateToOverrideInput(activeRate),
-    effectiveFrom: activeRate.effectiveFrom,
+  if (activeRate) {
+    return {
+      isOverridden: false,
+      isPending: false,
+      rate: activeRateToOverrideInput(activeRate),
+      effectiveFrom: activeRate.effectiveFrom,
+    }
   }
+
+  if (nextPendingRate) {
+    return {
+      isOverridden: false,
+      isPending: true,
+      rate: activeRateToOverrideInput(nextPendingRate),
+      effectiveFrom: nextPendingRate.effectiveFrom,
+    }
+  }
+
+  return null
 }
 
 // Not the form round trip alone: it fills an unset override interval with the form default, while
@@ -50,3 +62,12 @@ export const getServerPhaseRate = (
     },
   }
 }
+
+export const toServerPhaseForDetails = (
+  phase: RatePhaseForDrawerFragment,
+): RatePhaseForDetails => ({
+  name: phase.name ?? '',
+  code: phase.code,
+  position: phase.position,
+  billingIntervalCycleCount: phase.billingIntervalCycleCount ?? null,
+})
