@@ -24,6 +24,7 @@ import { RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID } from '../../../RatePhase
 import {
   getRatePhaseActionsTestId,
   getRatePhaseToggleTestId,
+  RATE_PHASE_EDIT_ACTION_TEST_ID,
   RATE_PHASE_REVERT_ACTION_TEST_ID,
 } from '../../../RatePhaseTable'
 import { RATE_PHASE_FORM_DEFAULTS } from '../../ratePhase/ratePhaseFormSchema'
@@ -770,11 +771,17 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
     await selectRateCard()
 
-    await userEvent.click(await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID))
+    // Edits the seeded default phase instead of adding one: appending leaves its own
+    // `forever` duration before the new phase, tripping the sequencing alert instead.
+    await userEvent.click(await screen.findByTestId(getRatePhaseActionsTestId(0)))
+    await userEvent.click(screen.getByTestId(RATE_PHASE_EDIT_ACTION_TEST_ID))
 
     const onSave = mockOpenRatePhaseLocalDrawer.mock.calls.at(-1)?.[0]?.onSave
 
-    onSave({ code: 'phase-1', durationType: 'finite', durationCycleCount: '3' }, {})
+    onSave(
+      { code: 'phase-1', durationType: 'finite', durationCycleCount: '3' },
+      { replaceIndex: 0 },
+    )
 
     expect(
       await screen.findByText(
