@@ -64,7 +64,7 @@ export const useRatePhaseActions = ({
 }: UseRatePhaseActionsParams): RatePhaseActions => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { openDrawer } = useRatePhaseDrawer()
+  const { openDrawer } = useRatePhaseDrawer(rateCard)
   const { openDeleteRatePhaseDialog } = useDeleteRatePhaseDialog()
   const { openResetRatePhaseOverrideDialog } = useResetRatePhaseOverrideDialog()
 
