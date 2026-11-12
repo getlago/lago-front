@@ -76,6 +76,10 @@ jest.mock('../details/ContractDetailsOverview', () => ({
   ContractDetailsOverview: () => <div data-test="contract-overview" />,
 }))
 
+jest.mock('../details/ContractUsageSection', () => ({
+  ContractUsageSection: () => <div data-test="contract-usage-section" />,
+}))
+
 const contractFixture = {
   ...contractForDrawerFixture,
   id: 'contract-1',
@@ -246,6 +250,15 @@ describe('ContractDetails', () => {
 
     expect(await screen.findByText('text_1725983967306cf8dwr2r4u2')).toBeInTheDocument()
     expect(screen.queryByText('text_1747314141347qq6rasuxisl')).not.toBeInTheDocument()
+  })
+
+  it("does not flash the Overview tab's content when deep-linking straight to Usage before the contract query resolves", async () => {
+    renderPage(ContractDetailsTabsOptionsEnum.usage)
+
+    expect(screen.queryByTestId('contract-overview')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('contract-usage-section')).not.toBeInTheDocument()
+
+    expect(await screen.findByTestId('contract-usage-section')).toBeInTheDocument()
   })
 
   it('matches the base overview route and nested overview sections', async () => {
