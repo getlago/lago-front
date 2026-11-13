@@ -83,6 +83,7 @@ export const typeDefs = gql`
     signup_token_locked
     password_required
     incorrect_password
+    user_not_eligible
 
     # SSO errors
     invalid_google_code
