@@ -113,7 +113,6 @@ export const RouteWrapper = () => {
     drawerStack.clearAll()
   }, [location])
 
-  // Session Replay is held back on pages whose URL holds an auth token
   useEffect(() => {
     startSessionReplayOnceUrlIsSafe()
   }, [location])

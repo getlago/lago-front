@@ -7,12 +7,10 @@ import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { reportMissingAppEnv } from '~/core/utils/appEnv'
 import { installLagoWindowApi } from '~/core/utils/featureFlagsConsole'
-import { scrubReplayEventUrlTokensIntegration, scrubUrlTokens } from '~/core/utils/sentryUrlTokens'
+import { sentryEventHooks } from '~/core/utils/sentryEventHooks'
+import { scrubReplayEventUrlTokensIntegration } from '~/core/utils/sentryUrlTokens'
 import { getInitialReplayIntegrations } from '~/core/utils/sessionReplay'
-import {
-  createWorkerLoadErrorHandler,
-  dropRecoverableWorkerLoadEvent,
-} from '~/core/utils/workerLoadRecovery'
+import { createWorkerLoadErrorHandler } from '~/core/utils/workerLoadRecovery'
 
 import './main.css'
 
@@ -41,10 +39,7 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
     release: appVersion,
     // Attach stack traces to all messages
     attachStacktrace: true,
-    // Page URLs can hold auth tokens (reset password, invitation, customer portal, OAuth)
-    beforeSend: (event) => scrubUrlTokens(dropRecoverableWorkerLoadEvent(event)),
-    beforeSendTransaction: scrubUrlTokens,
-    beforeSendSpan: scrubUrlTokens,
+    ...sentryEventHooks,
     // Filter out common browser extension errors and noise
     ignoreErrors: [
       // Chrome extensions

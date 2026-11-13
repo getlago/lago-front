@@ -12,6 +12,10 @@ const TOKEN_PATH_SEGMENT = /(\/(?:reset-password|invitation|customer-portal)\/)[
 const TOKEN_QUERY_PARAM =
   /([?&#](?:token|code|state|oktaCode|oktaState|entraIdCode|entraIdState)=)[^&#\s]+/g
 
+// GraphQL error and slow-query reports attach `operation.variables`, e.g. `resetPassword`'s
+// `{ token, newPassword }`
+const SECRET_KEY = /token$|password/i
+
 const isPlainObject = (value: unknown): value is Record<string, unknown> => {
   if (typeof value !== 'object' || value === null) return false
 
@@ -39,7 +43,10 @@ const scrubValue = (value: unknown, scrubbedByOriginal: WeakMap<object, unknown>
   scrubbedByOriginal.set(value, scrubbed)
 
   for (const [key, item] of Object.entries(value)) {
-    const scrubbedItem = scrubValue(item, scrubbedByOriginal)
+    const scrubbedItem =
+      typeof item === 'string' && SECRET_KEY.test(key)
+        ? FILTERED
+        : scrubValue(item, scrubbedByOriginal)
 
     Reflect.set(scrubbed, key, scrubbedItem)
 

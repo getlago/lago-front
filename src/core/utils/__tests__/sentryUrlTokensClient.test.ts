@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/react'
 
-import { scrubReplayEventUrlTokensIntegration, scrubUrlTokens } from '../sentryUrlTokens'
-import { dropRecoverableWorkerLoadEvent } from '../workerLoadRecovery'
+import { sentryEventHooks } from '../sentryEventHooks'
+import { scrubReplayEventUrlTokensIntegration } from '../sentryUrlTokens'
 
 jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
   addToast: jest.fn(),
@@ -17,14 +17,12 @@ const WORKER_LOAD_MESSAGE =
   "Uncaught NetworkError: Failed to execute 'importScripts' on 'WorkerGlobalScope': The script at 'blob:https://app.test/1' failed to load."
 
 const sentEvents: Sentry.Event[] = []
-// Raw envelopes as they leave the SDK: covers events, transactions and standalone spans alike.
 const sentPayloads: string[] = []
 
 const getSentPayloads = (): string => sentPayloads.join('\n')
 
 describe('URL token scrubbing wired into a real Sentry client', () => {
   beforeAll(() => {
-    // Mirrors the wiring in `main.tsx`.
     Sentry.init({
       dsn: 'https://public@sentry.test/1',
       tracesSampleRate: 1,
@@ -33,9 +31,7 @@ describe('URL token scrubbing wired into a real Sentry client', () => {
         ...defaults.filter((integration) => integration.name !== 'Dedupe'),
         scrubReplayEventUrlTokensIntegration(),
       ],
-      beforeSend: (event) => scrubUrlTokens(dropRecoverableWorkerLoadEvent(event)),
-      beforeSendTransaction: scrubUrlTokens,
-      beforeSendSpan: scrubUrlTokens,
+      ...sentryEventHooks,
       transport: (options) =>
         Sentry.createTransport(options, (request) => {
           sentPayloads.push(String(request.body))
@@ -75,6 +71,22 @@ describe('URL token scrubbing wired into a real Sentry client', () => {
             data: expect.objectContaining({ to: '/reset-password/[Filtered]' }),
           }),
         )
+        expect(getSentPayloads()).not.toContain(SECRET)
+      })
+    })
+  })
+
+  describe('GIVEN the reset password mutation fails', () => {
+    describe('WHEN its GraphQL error is captured with the operation variables', () => {
+      it('THEN should redact the token and the new password', async () => {
+        Sentry.captureException(new Error('GraphQL Error: unprocessable_entity'), {
+          extra: { variables: { input: { token: SECRET, newPassword: SECRET } } },
+        })
+        await Sentry.flush()
+
+        expect(sentEvents[0].extra?.variables).toEqual({
+          input: { token: '[Filtered]', newPassword: '[Filtered]' },
+        })
         expect(getSentPayloads()).not.toContain(SECRET)
       })
     })

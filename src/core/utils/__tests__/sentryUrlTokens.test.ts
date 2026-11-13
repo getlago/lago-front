@@ -151,6 +151,24 @@ describe('scrubUrlTokens', () => {
     })
   })
 
+  describe('GIVEN the variables of a GraphQL error report', () => {
+    it('THEN should redact the token and password fields', () => {
+      const extra = {
+        operationName: 'resetPassword',
+        variables: { input: { token: SECRET, newPassword: SECRET, email: 'jane@acme.com' } },
+        extensions: { code: 'unprocessable_entity', details: { password: ['too_short'] } },
+        usage: { inputTokens: 12 },
+      }
+
+      expect(scrubUrlTokens(extra)).toEqual({
+        ...extra,
+        variables: {
+          input: { token: '[Filtered]', newPassword: '[Filtered]', email: 'jane@acme.com' },
+        },
+      })
+    })
+  })
+
   describe('GIVEN a payload without token', () => {
     it('THEN should return the same reference', () => {
       const payload = { request: { url: 'https://app.test/acme/customers' }, urls: ['/login'] }
