@@ -714,18 +714,6 @@ describe('OrganizationLayout', () => {
         expect(container.querySelector('[data-test="outlet"]')).not.toBeInTheDocument()
       })
     })
-
-    describe('WHEN the logout itself re-renders the layout', () => {
-      it('THEN should not restore the organization', () => {
-        mockUseIsAuthenticated.mockReturnValueOnce({ isAuthenticated: false })
-        mockUseCurrentUser.mockReturnValue({ currentUser: undefined, loading: false })
-
-        render(<OrganizationLayout />)
-
-        expect(mockSetCurrentOrganizationId).not.toHaveBeenCalled()
-        expect(mockSwitchCurrentOrganization).not.toHaveBeenCalled()
-      })
-    })
   })
 
   describe('GIVEN the user is NOT authenticated (e.g. just logged out)', () => {

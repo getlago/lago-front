@@ -2,7 +2,7 @@ import { ApolloClient } from '@apollo/client'
 
 import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
 
-import { resumePersistence } from './cachePersistor'
+import { adoptStoredSession } from './adoptStoredSession'
 import { clearLocalSession } from './cacheUtils'
 import {
   AUTH_TOKEN_LS_KEY,
@@ -71,9 +71,7 @@ export const reconcileSession = (client: ApolloClient<object>): Promise<void> =>
         return
       }
 
-      setCurrentOrganizationId(null)
-      if (latestToken) resumePersistence()
-      authTokenVar(latestToken)
+      adoptStoredSession(latestToken)
       resetLocationHistoryVar()
     })
     .finally(() => {

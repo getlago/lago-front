@@ -158,6 +158,19 @@ describe('reconcileSession', () => {
 
       expect(currentOrganizationVar()).toBeNull()
     })
+
+    it('THEN should keep the organization until the teardown is done', async () => {
+      let organizationDuringTeardown: string | null | undefined
+
+      mockClearLocalSession.mockImplementationOnce(async () => {
+        organizationDuringTeardown = currentOrganizationVar()
+      })
+      localStorage.removeItem('authToken')
+
+      await reconcileSession(client)
+
+      expect(organizationDuringTeardown).toBe('org-of-user-a')
+    })
   })
 
   describe('GIVEN another tab signed in with a different account', () => {

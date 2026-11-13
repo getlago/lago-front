@@ -211,31 +211,18 @@ describe('logOut', () => {
 
     it('THEN should forget it only after the teardown, right before the token changes', async () => {
       const client = createMockClient()
-      const callOrder: string[] = []
-
-      ;(client.clearStore as jest.Mock).mockImplementation(async () => {
-        callOrder.push('clearStore')
-      })
-      mockPurgePersistedCache.mockImplementation(async () => {
-        callOrder.push('purgePersistedCache')
-      })
-      mockSetCurrentOrganizationId.mockImplementation(() => {
-        callOrder.push('setCurrentOrganizationId')
-      })
-      mockAuthTokenVar.mockImplementation((...args: unknown[]) => {
-        if (args.length) callOrder.push('authTokenVar')
-
-        return 'session-jwt'
-      })
 
       await logOut(client)
 
-      expect(callOrder).toEqual([
-        'clearStore',
-        'purgePersistedCache',
-        'setCurrentOrganizationId',
-        'authTokenVar',
-      ])
+      const tokenWrite = mockAuthTokenVar.mock.calls.findIndex((args) => args.length > 0)
+      const clearStoreAt = (client.clearStore as jest.Mock).mock.invocationCallOrder[0]
+      const purgeAt = mockPurgePersistedCache.mock.invocationCallOrder[0]
+      const forgetOrgAt = mockSetCurrentOrganizationId.mock.invocationCallOrder[0]
+      const setTokenAt = mockAuthTokenVar.mock.invocationCallOrder[tokenWrite]
+
+      expect(clearStoreAt).toBeLessThan(purgeAt)
+      expect(purgeAt).toBeLessThan(forgetOrgAt)
+      expect(forgetOrgAt).toBeLessThan(setTokenAt)
     })
   })
 

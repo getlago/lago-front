@@ -8,6 +8,7 @@ import {
 } from '~/generated/graphql'
 import { DEVTOOL_AUTO_SAVE_KEY, resetDevtoolsNavigation } from '~/hooks/useDeveloperTool'
 
+import { adoptStoredSession } from './adoptStoredSession'
 import { disconnectCableConsumer } from './cableConsumer'
 import { pausePersistence, purgePersistedCache, resumePersistence } from './cachePersistor'
 import {
@@ -62,13 +63,7 @@ export const logOut = async (
     await purgePersistedCache()
   }
 
-  const storedToken = getStoredAuthToken()
-
-  // With the token, not in `clearLocalSession`: while the token is still set, the
-  // org route writes it back from the previous user's data.
-  setCurrentOrganizationId(null)
-  if (storedToken) resumePersistence()
-  authTokenVar(storedToken)
+  adoptStoredSession(getStoredAuthToken())
 
   resetLocationHistory && resetLocationHistoryVar()
 }
