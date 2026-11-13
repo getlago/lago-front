@@ -15,10 +15,7 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  /**
-   * Represents non-fractional signed whole numeric values. Since the value may
-   * exceed the size of a 32-bit integer, it's encoded as a string.
-   */
+  /** Represents non-fractional signed whole numeric values. Since the value may exceed the size of a 32-bit integer, it's encoded as a string. */
   BigInt: { input: any; output: any; }
   ChargeFilterValues: { input: any; output: any; }
   /** Api Logs HTTP status */
@@ -875,10 +872,7 @@ export type AttributedUsageChargeUsage = {
   units: Scalars['Float']['output'];
 };
 
-/**
- * Keeps the events whose attribution label of the given type matches one of the
- * values. An empty value matches the events without that label.
- */
+/** Keeps the events whose attribution label of the given type matches one of the values. An empty value matches the events without that label. */
 export type AttributedUsageFilterInput = {
   /** Code of the usage attribution type */
   code: Scalars['String']['input'];
@@ -1451,6 +1445,8 @@ export type Contract = {
   canceledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   consolidateInvoice: Scalars['Boolean']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
+  /** The currency fees bill in: the plan's when there is one, otherwise the customer's, falling back to the organization default */
+  currency: CurrencyEnum;
   customer: Customer;
   /** The anchor billing uses: billing_anchor_date when set, else the start day in the customer's timezone */
   effectiveBillingAnchorDate?: Maybe<Scalars['ISO8601Date']['output']>;
@@ -1508,6 +1504,20 @@ export type ContractCollection = {
   collection: Array<Contract>;
   /** Pagination Metadata for navigating the Pagination */
   metadata: CollectionMetadata;
+};
+
+/** The contract's total computed usage for the current billing period, unfiltered */
+export type ContractCurrentUsageTotal = {
+  __typename?: 'ContractCurrentUsageTotal';
+  amountCents: Scalars['BigInt']['output'];
+  /** Earliest billing window start across the contract's rate cards, null with no usage */
+  fromDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  taxesAmountCents: Scalars['BigInt']['output'];
+  /** True when the tax provider failed and amount/total above are the untaxed fallback */
+  taxesUnavailable: Scalars['Boolean']['output'];
+  /** Latest billing window end across the contract's rate cards, null with no usage */
+  toDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  totalAmountCents: Scalars['BigInt']['output'];
 };
 
 export enum ContractStatusEnum {
@@ -4697,6 +4707,7 @@ export type Event = {
   matchCustomer?: Maybe<Scalars['Boolean']['output']>;
   matchSubscription?: Maybe<Scalars['Boolean']['output']>;
   payload: Scalars['JSON']['output'];
+  preciseTotalAmountCents?: Maybe<Scalars['String']['output']>;
   receivedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   timestamp?: Maybe<Scalars['ISO8601DateTime']['output']>;
   timestampMs?: Maybe<Scalars['BigInt']['output']>;
@@ -4879,6 +4890,7 @@ export type ExportFinanceAssistantResultInput = {
 /** Organization Feature Flag Values */
 export enum FeatureFlagEnum {
   AccountTree = 'account_tree',
+  CatalogWallets = 'catalog_wallets',
   ChargeFiltersSingleScan = 'charge_filters_single_scan',
   FixedChargeUsageDeltaMigration = 'fixed_charge_usage_delta_migration',
   IncrementalChargeCache = 'incremental_charge_cache',
@@ -4888,6 +4900,7 @@ export enum FeatureFlagEnum {
   PostgresEnrichedEvents = 'postgres_enriched_events',
   ProductCatalog = 'product_catalog',
   RealtimeUsage = 'realtime_usage',
+  RealtimeUsageRecurringSum = 'realtime_usage_recurring_sum',
   RecurringAggregationSnapshots = 'recurring_aggregation_snapshots',
   SkipCreditInvoiceAutoPaymentDelay = 'skip_credit_invoice_auto_payment_delay',
   SsoCrossOrganizationSessions = 'sso_cross_organization_sessions',
@@ -9184,6 +9197,10 @@ export type Query = {
   contractAppliedRateCard?: Maybe<ContractAppliedRateCard>;
   /** Query rate cards applied to a contract */
   contractAppliedRateCards: ContractAppliedRateCardCollection;
+  /** Query a contract's total computed usage for the current billing period, unfiltered */
+  contractCurrentUsageTotal: ContractCurrentUsageTotal;
+  /** Query a contract's computed usage for the current billing period, paginated */
+  contractUsages: RateCardUsageCollection;
   /** Query contracts of an organization */
   contracts: ContractCollection;
   /** Query a single coupon of an organization */
@@ -9636,6 +9653,25 @@ export type QueryContractAppliedRateCardArgs = {
 export type QueryContractAppliedRateCardsArgs = {
   contractId?: InputMaybe<Scalars['ID']['input']>;
   hasRateOverrides?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  productFilterIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  productIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  productType?: InputMaybe<ProductTypeEnum>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  withoutProductCategory?: InputMaybe<Scalars['Boolean']['input']>;
+  withoutProductFilter?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type QueryContractCurrentUsageTotalArgs = {
+  contractId: Scalars['ID']['input'];
+};
+
+
+export type QueryContractUsagesArgs = {
+  contractId: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -10771,6 +10807,45 @@ export enum RateCardRegroupPaidFeesEnum {
   Invoice = 'invoice'
 }
 
+/** One rate card's computed usage on a contract's current billing window */
+export type RateCardUsage = {
+  __typename?: 'RateCardUsage';
+  amountCents: Scalars['BigInt']['output'];
+  billableMetricCode?: Maybe<Scalars['String']['output']>;
+  billingTiming: RateCardBillingTimingEnum;
+  eventsCount: Scalars['Int']['output'];
+  fromDatetime: Scalars['ISO8601DateTime']['output'];
+  invoiceDisplayName: Scalars['String']['output'];
+  productCategoryCode?: Maybe<Scalars['String']['output']>;
+  productCategoryName?: Maybe<Scalars['String']['output']>;
+  productCode: Scalars['String']['output'];
+  productFilterCode?: Maybe<Scalars['String']['output']>;
+  productFilterName?: Maybe<Scalars['String']['output']>;
+  productName: Scalars['String']['output'];
+  productType: ProductTypeEnum;
+  rateCardCode: Scalars['String']['output'];
+  rateCardName: Scalars['String']['output'];
+  ratePhaseCode?: Maybe<Scalars['String']['output']>;
+  ratePhaseName?: Maybe<Scalars['String']['output']>;
+  rateSource: RateCardUsageRateSourceEnum;
+  toDatetime: Scalars['ISO8601DateTime']['output'];
+  units: Scalars['Float']['output'];
+};
+
+/** RateCardUsageCollection type */
+export type RateCardUsageCollection = {
+  __typename?: 'RateCardUsageCollection';
+  /** A collection of paginated RateCardUsageCollection */
+  collection: Array<RateCardUsage>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+export enum RateCardUsageRateSourceEnum {
+  PhaseOverride = 'phase_override',
+  Rate = 'rate'
+}
+
 /** Overridden pricing applied by a rate phase in place of the card's active rate */
 export type RateOverride = {
   __typename?: 'RateOverride';
@@ -11847,11 +11922,7 @@ export type TerminateSubscriptionInput = {
 
 export type ThresholdInput = {
   code?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * Transitions this threshold notifies on. Must include triggered. Adding
-   * resolved requires a code that is unique within the alert, and is not supported
-   * on recurring thresholds.
-   */
+  /** Transitions this threshold notifies on. Must include triggered. Adding resolved requires a code that is unique within the alert, and is not supported on recurring thresholds. */
   notifyOn?: InputMaybe<Array<NotifyOnEnum>>;
   recurring?: InputMaybe<Scalars['Boolean']['input']>;
   value: Scalars['String']['input'];
@@ -18341,16 +18412,16 @@ export type RateCardForListFragment = { __typename?: 'RateCard', id: string, nam
 
 export type PropertiesForActiveRateFragment = { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string }> | null };
 
-export type ContractForContractDetailsFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, currency: CurrencyEnum, code: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } } };
+export type ContractForContractDetailsFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, currency: CurrencyEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null };
 
 export type GetContractForDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetContractForDetailsQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, currency: CurrencyEnum, code: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } } } | null };
+export type GetContractForDetailsQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, currency: CurrencyEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null } | null };
 
-export type ContractForContractsListFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null };
+export type ContractForContractsListFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null };
 
 export type GetContractsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -18365,7 +18436,7 @@ export type GetContractsListQueryVariables = Exact<{
 }>;
 
 
-export type GetContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type GetContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type ContractForContractDetailsOverviewFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, canceledAt?: any | null, terminatedAt?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null };
 
@@ -18392,6 +18463,36 @@ export type GetContractAppliedRateCardsForRateCardsSectionQueryVariables = Exact
 
 
 export type GetContractAppliedRateCardsForRateCardsSectionQuery = { __typename?: 'Query', contractAppliedRateCards: { __typename?: 'ContractAppliedRateCardCollection', collection: Array<{ __typename?: 'ContractAppliedRateCard', id: string, ratePhasesCount: number, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+
+export type GetContractUsageCategoriesQueryVariables = Exact<{
+  contractId: Scalars['ID']['input'];
+}>;
+
+
+export type GetContractUsageCategoriesQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, appliedRateCards: Array<{ __typename?: 'ContractAppliedRateCard', id: string, product: { __typename?: 'Product', id: string, productCategory?: { __typename?: 'ProductCategory', id: string, name: string } | null } }> } | null };
+
+export type GetContractCurrentUsageTotalQueryVariables = Exact<{
+  contractId: Scalars['ID']['input'];
+}>;
+
+
+export type GetContractCurrentUsageTotalQuery = { __typename?: 'Query', contractCurrentUsageTotal: { __typename?: 'ContractCurrentUsageTotal', totalAmountCents: any, taxesUnavailable: boolean, fromDatetime?: any | null, toDatetime?: any | null } };
+
+export type GetContractUsagesQueryVariables = Exact<{
+  contractId: Scalars['ID']['input'];
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  withoutProductCategory?: InputMaybe<Scalars['Boolean']['input']>;
+  productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  productFilterIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  withoutProductFilter?: InputMaybe<Scalars['Boolean']['input']>;
+  productType?: InputMaybe<ProductTypeEnum>;
+}>;
+
+
+export type GetContractUsagesQuery = { __typename?: 'Query', contractUsages: { __typename?: 'RateCardUsageCollection', collection: Array<{ __typename?: 'RateCardUsage', invoiceDisplayName: string, units: number, amountCents: any, productCode: string, productName: string, productFilterCode?: string | null, fromDatetime: any, toDatetime: any, id: string }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type SelectableBillableMetricForCouponsFragment = { __typename?: 'SelectableBillableMetric', id: string, name: string, code: string };
 
@@ -25835,10 +25936,14 @@ export const ContractForContractDetailsFragmentDoc = gql`
   name
   status
   appliedRateCardsCount
+  currency
   plan {
     id
     name
-    currency
+  }
+  customer {
+    id
+    applicableTimezone
   }
   ...ContractForContractDrawer
 }
@@ -49695,6 +49800,183 @@ export type GetContractAppliedRateCardsForRateCardsSectionQueryHookResult = Retu
 export type GetContractAppliedRateCardsForRateCardsSectionLazyQueryHookResult = ReturnType<typeof useGetContractAppliedRateCardsForRateCardsSectionLazyQuery>;
 export type GetContractAppliedRateCardsForRateCardsSectionSuspenseQueryHookResult = ReturnType<typeof useGetContractAppliedRateCardsForRateCardsSectionSuspenseQuery>;
 export type GetContractAppliedRateCardsForRateCardsSectionQueryResult = Apollo.QueryResult<GetContractAppliedRateCardsForRateCardsSectionQuery, GetContractAppliedRateCardsForRateCardsSectionQueryVariables>;
+export const GetContractUsageCategoriesDocument = gql`
+    query getContractUsageCategories($contractId: ID!) {
+  contract(id: $contractId) {
+    id
+    appliedRateCards {
+      id
+      product {
+        id
+        productCategory {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetContractUsageCategoriesQuery__
+ *
+ * To run a query within a React component, call `useGetContractUsageCategoriesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractUsageCategoriesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContractUsageCategoriesQuery({
+ *   variables: {
+ *      contractId: // value for 'contractId'
+ *   },
+ * });
+ */
+export function useGetContractUsageCategoriesQuery(baseOptions: Apollo.QueryHookOptions<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables> & ({ variables: GetContractUsageCategoriesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>(GetContractUsageCategoriesDocument, options);
+      }
+export function useGetContractUsageCategoriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>(GetContractUsageCategoriesDocument, options);
+        }
+// @ts-ignore
+export function useGetContractUsageCategoriesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>;
+export function useGetContractUsageCategoriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractUsageCategoriesQuery | undefined, GetContractUsageCategoriesQueryVariables>;
+export function useGetContractUsageCategoriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>(GetContractUsageCategoriesDocument, options);
+        }
+export type GetContractUsageCategoriesQueryHookResult = ReturnType<typeof useGetContractUsageCategoriesQuery>;
+export type GetContractUsageCategoriesLazyQueryHookResult = ReturnType<typeof useGetContractUsageCategoriesLazyQuery>;
+export type GetContractUsageCategoriesSuspenseQueryHookResult = ReturnType<typeof useGetContractUsageCategoriesSuspenseQuery>;
+export type GetContractUsageCategoriesQueryResult = Apollo.QueryResult<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>;
+export const GetContractCurrentUsageTotalDocument = gql`
+    query getContractCurrentUsageTotal($contractId: ID!) {
+  contractCurrentUsageTotal(contractId: $contractId) {
+    totalAmountCents
+    taxesUnavailable
+    fromDatetime
+    toDatetime
+  }
+}
+    `;
+
+/**
+ * __useGetContractCurrentUsageTotalQuery__
+ *
+ * To run a query within a React component, call `useGetContractCurrentUsageTotalQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractCurrentUsageTotalQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContractCurrentUsageTotalQuery({
+ *   variables: {
+ *      contractId: // value for 'contractId'
+ *   },
+ * });
+ */
+export function useGetContractCurrentUsageTotalQuery(baseOptions: Apollo.QueryHookOptions<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables> & ({ variables: GetContractCurrentUsageTotalQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>(GetContractCurrentUsageTotalDocument, options);
+      }
+export function useGetContractCurrentUsageTotalLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>(GetContractCurrentUsageTotalDocument, options);
+        }
+// @ts-ignore
+export function useGetContractCurrentUsageTotalSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>;
+export function useGetContractCurrentUsageTotalSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractCurrentUsageTotalQuery | undefined, GetContractCurrentUsageTotalQueryVariables>;
+export function useGetContractCurrentUsageTotalSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>(GetContractCurrentUsageTotalDocument, options);
+        }
+export type GetContractCurrentUsageTotalQueryHookResult = ReturnType<typeof useGetContractCurrentUsageTotalQuery>;
+export type GetContractCurrentUsageTotalLazyQueryHookResult = ReturnType<typeof useGetContractCurrentUsageTotalLazyQuery>;
+export type GetContractCurrentUsageTotalSuspenseQueryHookResult = ReturnType<typeof useGetContractCurrentUsageTotalSuspenseQuery>;
+export type GetContractCurrentUsageTotalQueryResult = Apollo.QueryResult<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>;
+export const GetContractUsagesDocument = gql`
+    query getContractUsages($contractId: ID!, $page: Int, $limit: Int, $searchTerm: String, $productCategoryIds: [ID!], $withoutProductCategory: Boolean, $productIds: [ID!], $productFilterIds: [ID!], $withoutProductFilter: Boolean, $productType: ProductTypeEnum) {
+  contractUsages(
+    contractId: $contractId
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+    productCategoryIds: $productCategoryIds
+    withoutProductCategory: $withoutProductCategory
+    productIds: $productIds
+    productFilterIds: $productFilterIds
+    withoutProductFilter: $withoutProductFilter
+    productType: $productType
+  ) {
+    collection {
+      id: rateCardCode
+      invoiceDisplayName
+      units
+      amountCents
+      productCode
+      productName
+      productFilterCode
+      fromDatetime
+      toDatetime
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetContractUsagesQuery__
+ *
+ * To run a query within a React component, call `useGetContractUsagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractUsagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContractUsagesQuery({
+ *   variables: {
+ *      contractId: // value for 'contractId'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      productCategoryIds: // value for 'productCategoryIds'
+ *      withoutProductCategory: // value for 'withoutProductCategory'
+ *      productIds: // value for 'productIds'
+ *      productFilterIds: // value for 'productFilterIds'
+ *      withoutProductFilter: // value for 'withoutProductFilter'
+ *      productType: // value for 'productType'
+ *   },
+ * });
+ */
+export function useGetContractUsagesQuery(baseOptions: Apollo.QueryHookOptions<GetContractUsagesQuery, GetContractUsagesQueryVariables> & ({ variables: GetContractUsagesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetContractUsagesQuery, GetContractUsagesQueryVariables>(GetContractUsagesDocument, options);
+      }
+export function useGetContractUsagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetContractUsagesQuery, GetContractUsagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetContractUsagesQuery, GetContractUsagesQueryVariables>(GetContractUsagesDocument, options);
+        }
+// @ts-ignore
+export function useGetContractUsagesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetContractUsagesQuery, GetContractUsagesQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractUsagesQuery, GetContractUsagesQueryVariables>;
+export function useGetContractUsagesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractUsagesQuery, GetContractUsagesQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractUsagesQuery | undefined, GetContractUsagesQueryVariables>;
+export function useGetContractUsagesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractUsagesQuery, GetContractUsagesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetContractUsagesQuery, GetContractUsagesQueryVariables>(GetContractUsagesDocument, options);
+        }
+export type GetContractUsagesQueryHookResult = ReturnType<typeof useGetContractUsagesQuery>;
+export type GetContractUsagesLazyQueryHookResult = ReturnType<typeof useGetContractUsagesLazyQuery>;
+export type GetContractUsagesSuspenseQueryHookResult = ReturnType<typeof useGetContractUsagesSuspenseQuery>;
+export type GetContractUsagesQueryResult = Apollo.QueryResult<GetContractUsagesQuery, GetContractUsagesQueryVariables>;
 export const GetBillableMetricsForCouponsDocument = gql`
     query getBillableMetricsForCoupons($page: Int, $limit: Int, $searchTerm: String) {
   selectableBillableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {

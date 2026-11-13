@@ -72,7 +72,7 @@ describe('submitIntegrationMapItemMappings', () => {
           provider: IntegrationTypeEnum.Anrok,
         })
 
-        expect(result).toBe(true)
+        expect(result.success).toBe(true)
         expect(mockHandleMutation).toHaveBeenCalledTimes(2)
         expect(mockHandleMutation).toHaveBeenNthCalledWith(
           1,
@@ -112,7 +112,7 @@ describe('submitIntegrationMapItemMappings', () => {
           provider: IntegrationTypeEnum.Anrok,
         })
 
-        expect(result).toBe(false)
+        expect(result.success).toBe(false)
       })
     })
   })
@@ -131,7 +131,7 @@ describe('submitIntegrationMapItemMappings', () => {
           provider: IntegrationTypeEnum.Netsuite,
         })
 
-        expect(result).toBe(false)
+        expect(result.success).toBe(false)
         expect(mockHandleMutation).not.toHaveBeenCalled()
       })
     })
@@ -147,7 +147,7 @@ describe('submitIntegrationMapItemMappings', () => {
           provider: IntegrationTypeEnum.Anrok,
         })
 
-        expect(result).toBe(false)
+        expect(result.success).toBe(false)
         expect(mockHandleMutation).not.toHaveBeenCalled()
       })
     })
@@ -163,8 +163,57 @@ describe('submitIntegrationMapItemMappings', () => {
           provider: IntegrationTypeEnum.Anrok,
         })
 
-        expect(result).toBe(true)
+        expect(result.success).toBe(true)
         expect(mockHandleMutation).not.toHaveBeenCalled()
+      })
+    })
+  })
+  describe('GIVEN a partial save', () => {
+    describe('WHEN one billing entity was applied and another failed', () => {
+      it('THEN should fold the applied mapping into the returned snapshot', async () => {
+        const createdMapping = {
+          itemId: 'created-mapping',
+          itemExternalId: 'ext-2',
+          lagoMappableId: 'bm-1',
+          lagoMappableName: 'Metric',
+        }
+
+        mockHandleMutation
+          .mockResolvedValueOnce({ success: false, reasons: ['boom'] })
+          .mockResolvedValueOnce({ success: true, appliedMapping: createdMapping })
+
+        const drawerData = buildDrawerData()
+
+        const result = await submitIntegrationMapItemMappings({
+          values,
+          drawerData,
+          mappingFunctions,
+          provider: IntegrationTypeEnum.Anrok,
+        })
+
+        expect(result).toEqual({
+          success: false,
+          itemMappings: {
+            default: drawerData.itemMappings.default,
+            'be-1': createdMapping,
+          },
+        })
+      })
+    })
+
+    describe('WHEN every billing entity succeeded without touching the backend', () => {
+      it('THEN should return the opening snapshot unchanged', async () => {
+        mockHandleMutation.mockResolvedValue({ success: true })
+        const drawerData = buildDrawerData()
+
+        const result = await submitIntegrationMapItemMappings({
+          values,
+          drawerData,
+          mappingFunctions,
+          provider: IntegrationTypeEnum.Anrok,
+        })
+
+        expect(result.itemMappings).toEqual(drawerData.itemMappings)
       })
     })
   })

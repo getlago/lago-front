@@ -230,3 +230,16 @@ describe('Event typePolicy', () => {
     expect(identified).toEqual(cache.identify({ ...event, id: 'synthesized-id-2' }))
   })
 })
+
+describe('RateCardUsage typePolicy', () => {
+  it('has no stable cache identity, so rows from different contracts sharing a catalog rate card code never collapse', () => {
+    // ContractUsageTable's query aliases `id: rateCardCode` - Apollo's default
+    // keying picks up the response's `id` field, which is what must be defeated here.
+    const identified = cache.identify({
+      __typename: 'RateCardUsage',
+      id: 'shared-catalog-code',
+    })
+
+    expect(identified).toBeUndefined()
+  })
+})

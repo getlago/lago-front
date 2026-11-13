@@ -135,7 +135,11 @@ export type OpenMappableIntegrationMapItemDrawer = (
 ) => void
 
 export type CreateUpdateDeleteSuccessAnswer =
-  | { success: true }
+  | {
+      success: true
+      appliedMapping?:
+        ItemMappingForTaxMapping | ItemMappingForNonTaxMapping | ItemMappingForMappable
+    }
   | { success: false; errors: readonly GraphQLFormattedError[] }
   | { success: false; reasons: readonly string[] }
 
