@@ -14,6 +14,7 @@ import {
   SettingsListWrapper,
   SettingsWithTabsPaddedContainer,
 } from '~/components/layouts/Settings'
+import { ManagedInProductionAlert } from '~/components/sandbox/ManagedInProductionAlert'
 import { isSystemRole, RoleItem } from '~/core/constants/roles'
 import { ROLE_CREATE_ROUTE, ROLE_DETAILS_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
@@ -22,10 +23,16 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
 import { useRolesList } from '~/hooks/useRolesList'
+import { useSandbox } from '~/hooks/useSandbox'
 
 import { useDeleteRoleDialog } from '../common/dialogs/DeleteRoleDialog'
 import RoleTypeChip from '../common/RoleTypeChip'
 import { useRoleActions } from '../hooks/useRoleActions'
+
+export const ROLES_LIST_CREATE_ROLE_BUTTON_TEST_ID = 'roles-list-create-role-button'
+export const ROLES_LIST_DUPLICATE_ACTION_TEST_ID = 'roles-list-duplicate-action'
+export const ROLES_LIST_EDIT_ACTION_TEST_ID = 'roles-list-edit-action'
+export const ROLES_LIST_DELETE_ACTION_TEST_ID = 'roles-list-delete-action'
 
 const RolesList = () => {
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
@@ -36,6 +43,7 @@ const RolesList = () => {
   const { roles, isLoadingRoles } = useRolesList()
   const { getDuplicateRolePath, getEditRolePath } = useRoleActions()
   const { hasPermissions } = usePermissions()
+  const { isSandbox } = useSandbox()
 
   const canCreateRoles = hasPermissions(['rolesCreate'])
   const canEditRoles = hasPermissions(['rolesUpdate'])
@@ -49,6 +57,8 @@ const RolesList = () => {
   }
 
   const getRoleHeaderAction = () => {
+    if (isSandbox) return
+
     if (!hasPremiumAddon) {
       return (
         <Button onClick={openPremiumDialog} variant="inline" endIcon="sparkles">
@@ -60,7 +70,12 @@ const RolesList = () => {
     if (!canCreateRoles) return
 
     return (
-      <ButtonLink type="button" to={ROLE_CREATE_ROUTE} buttonProps={{ variant: 'inline' }}>
+      <ButtonLink
+        type="button"
+        to={ROLE_CREATE_ROUTE}
+        buttonProps={{ variant: 'inline' }}
+        data-test={ROLES_LIST_CREATE_ROLE_BUTTON_TEST_ID}
+      >
         {translate('text_1765530400261k7yl3n4kk8h')}
       </ButtonLink>
     )
@@ -106,6 +121,8 @@ const RolesList = () => {
     const isSystem = isSystemRole(role)
     const canDelete = role.memberships.length === 0 && canDeleteRoles
 
+    if (isSandbox) return []
+
     if (!hasPremiumAddon) {
       return [
         {
@@ -134,15 +151,18 @@ const RolesList = () => {
         title: translate('text_64fa170e02f348164797a6af'),
         disabled: !canCreateRoles,
         link: () => getDuplicateRolePath(role.id),
+        dataTest: ROLES_LIST_DUPLICATE_ACTION_TEST_ID,
       },
       {
         startIcon: 'pen',
         title: translate('text_1765528921745ibx4b56q1mt'),
         disabled: !canEditRoles,
         link: () => getEditRolePath(role.id),
+        dataTest: ROLES_LIST_EDIT_ACTION_TEST_ID,
       },
       {
         startIcon: 'trash',
+        dataTest: ROLES_LIST_DELETE_ACTION_TEST_ID,
         title: translate('text_6261640f28a49700f1290df5'),
         disabled: !canDelete,
         tooltip: translate('text_1767002012431la8gv2iqucp'),
@@ -162,6 +182,7 @@ const RolesList = () => {
   return (
     <SettingsWithTabsPaddedContainer>
       <SettingsListWrapper>
+        <ManagedInProductionAlert />
         {isLoadingRoles && <SettingsListItemLoadingSkeleton />}
         {!isLoadingRoles && (
           <SettingsListItem className="[box-shadow:none]">

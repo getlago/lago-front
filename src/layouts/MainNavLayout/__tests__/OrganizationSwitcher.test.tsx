@@ -7,12 +7,17 @@ import {
   CurrentUserInfosFragment,
   OrganizationEnvironmentEnum,
 } from '~/generated/graphql'
+import { SANDBOX_BANNER_HEIGHT } from '~/layouts/sandboxBannerHeight'
 import { render } from '~/test-utils'
 
 import {
   ORGANIZATION_SWITCHER_BUTTON_TEST_ID,
+  ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID,
+  ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT,
   ORGANIZATION_SWITCHER_NAME_TEST_ID,
   ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID,
+  ORGANIZATION_SWITCHER_ORG_LIST_TEST_ID,
+  ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT,
   ORGANIZATION_SWITCHER_SANDBOX_TAG_TEST_ID,
   ORGANIZATION_SWITCHER_TEST_ID,
   OrganizationSwitcher,
@@ -129,6 +134,60 @@ describe('OrganizationSwitcher', () => {
       expect(screen.getByTestId(ORGANIZATION_SWITCHER_BUTTON_TEST_ID)).toBeDisabled()
     })
   })
+  describe('GIVEN the current organization environment', () => {
+    describe('WHEN the organization is a sandbox', () => {
+      it('THEN should display the sandbox tag in the opener', () => {
+        render(
+          <OrganizationSwitcher
+            {...defaultProps}
+            organization={
+              { ...mockOrganization, environment: OrganizationEnvironmentEnum.Sandbox } as never
+            }
+          />,
+          renderOptions,
+        )
+
+        expect(
+          screen.getByTestId(ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization is a production organization', () => {
+      it('THEN should not display the sandbox tag', () => {
+        render(
+          <OrganizationSwitcher
+            {...defaultProps}
+            organization={
+              { ...mockOrganization, environment: OrganizationEnvironmentEnum.Production } as never
+            }
+          />,
+          renderOptions,
+        )
+
+        expect(
+          screen.queryByTestId(ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the switcher menu is opened', () => {
+    it('THEN should size the menu and its list from the space left under the sandbox banner', async () => {
+      const user = userEvent.setup()
+
+      render(<OrganizationSwitcher {...defaultProps} />, renderOptions)
+
+      await user.click(screen.getByTestId(ORGANIZATION_SWITCHER_BUTTON_TEST_ID))
+
+      expect(ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT).toContain(`- ${SANDBOX_BANNER_HEIGHT})`)
+      expect(ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT).toContain(`- ${SANDBOX_BANNER_HEIGHT})`)
+      expect(screen.getByTestId(ORGANIZATION_SWITCHER_ORG_LIST_TEST_ID)).toHaveStyle({
+        maxHeight: ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT,
+      })
+    })
+  })
+
   describe('GIVEN an organization the current session cannot access', () => {
     const lockedOrgUser = {
       ...mockCurrentUser,

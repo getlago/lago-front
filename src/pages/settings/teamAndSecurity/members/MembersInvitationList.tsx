@@ -18,6 +18,7 @@ import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { usePermissions } from '~/hooks/usePermissions'
 import { AllowedElements, useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
 import { useRolesList } from '~/hooks/useRolesList'
+import { useSandbox } from '~/hooks/useSandbox'
 
 import MembersFilters from './common/MembersFilters'
 import { useCreateInviteDialog } from './dialogs/CreateInviteDialog'
@@ -26,6 +27,9 @@ import { useRevokeInviteDialog } from './dialogs/RevokeInviteDialog'
 import { useGetMembersInvitationList } from './hooks/useGetMembersInvitationsList'
 
 type Invitation = GetInvitesQuery['invites']['collection'][0]
+
+export const MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID = 'members-invitation-list-edit-action'
+export const MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID = 'members-invitation-list-delete-action'
 
 const EmailColumn = ({ email }: { email: string | null }) => (
   <div className="flex flex-1 items-center gap-3">
@@ -59,6 +63,7 @@ const MembersInvitationList = () => {
   const { openCreateInviteDialog } = useCreateInviteDialog()
   const { openEditInviteRoleDialog } = useEditInviteRoleDialog()
   const { openRevokeInviteDialog } = useRevokeInviteDialog()
+  const { isSandbox } = useSandbox()
 
   const [searchParams] = useSearchParams()
 
@@ -111,17 +116,19 @@ const MembersInvitationList = () => {
       return undefined
     }
 
-    const editAction = hasPermissions(['organizationMembersUpdate'])
-      ? [
-          {
-            startIcon: 'pen',
-            title: translate('text_664f035a68227f00e261b7f6'),
-            onAction: () => {
-              openEditInviteRoleDialog(invite)
-            },
-          } as ActionItem<InviteItemForMembersSettingsFragment>,
-        ]
-      : []
+    const editAction =
+      !isSandbox && hasPermissions(['organizationMembersUpdate'])
+        ? [
+            {
+              startIcon: 'pen',
+              title: translate('text_664f035a68227f00e261b7f6'),
+              onAction: () => {
+                openEditInviteRoleDialog(invite)
+              },
+              dataTest: MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID,
+            } as ActionItem<InviteItemForMembersSettingsFragment>,
+          ]
+        : []
 
     // The API only returns the token to members allowed to create this invite
     const inviteToken = invite.token
@@ -147,21 +154,23 @@ const MembersInvitationList = () => {
         ]
       : []
 
-    const deleteAction = hasPermissions(['organizationMembersDelete'])
-      ? [
-          {
-            startIcon: 'trash',
-            title: translate('text_63208c701ce25db78140745e'),
-            onAction: () => {
-              openRevokeInviteDialog({
-                id: invite.id,
-                email: invite.email,
-                organizationName: invite.organization.name,
-              })
-            },
-          } as ActionItem<InviteItemForMembersSettingsFragment>,
-        ]
-      : []
+    const deleteAction =
+      !isSandbox && hasPermissions(['organizationMembersDelete'])
+        ? [
+            {
+              startIcon: 'trash',
+              title: translate('text_63208c701ce25db78140745e'),
+              onAction: () => {
+                openRevokeInviteDialog({
+                  id: invite.id,
+                  email: invite.email,
+                  organizationName: invite.organization.name,
+                })
+              },
+              dataTest: MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID,
+            } as ActionItem<InviteItemForMembersSettingsFragment>,
+          ]
+        : []
 
     return [...editAction, ...duplicateAction, ...deleteAction]
   }
@@ -178,10 +187,12 @@ const MembersInvitationList = () => {
       },
     }
 
-    const sharedEmptyState = {
-      buttonTitle: translate('text_63208b630aaf8df6bbfb265b'),
-      buttonAction: openCreateInviteDialog,
-    }
+    const sharedEmptyState = isSandbox
+      ? {}
+      : {
+          buttonTitle: translate('text_63208b630aaf8df6bbfb265b'),
+          buttonAction: openCreateInviteDialog,
+        }
 
     if (searchQuery || selectedRole) {
       return {
