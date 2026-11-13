@@ -23,10 +23,16 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NavLayout } from '~/layouts/NavLayout'
+import { SANDBOX_BANNER_HEIGHT } from '~/layouts/sandboxBannerHeight'
 import { MenuPopper } from '~/styles/designSystem'
 
 // 280 + 2px for the border
 const POPPER_MIN_WIDTH = 282
+
+// The switcher sits at the top of the nav, right under the sandbox banner when
+// it is shown: subtract the banner so the menu never runs past the viewport.
+export const ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT = `calc(100vh - 64px - 16px - ${SANDBOX_BANNER_HEIGHT})`
+export const ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT = `calc(100vh - 80px - ${SANDBOX_BANNER_HEIGHT})`
 
 export const ORGANIZATION_SWITCHER_TEST_ID = 'organization-switcher'
 export const ORGANIZATION_SWITCHER_BUTTON_TEST_ID = 'side-nav-user-infos'
@@ -152,7 +158,7 @@ export const OrganizationSwitcher = ({
       <Popper
         PopperProps={{ placement: 'bottom-start' }}
         minWidth={POPPER_MIN_WIDTH}
-        maxHeight={`calc(100vh - 64px - 16px)`}
+        maxHeight={ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT}
         enableFlip={false}
         opener={
           <Button
@@ -210,7 +216,7 @@ export const OrganizationSwitcher = ({
             {!!organizationList?.length && (
               <div
                 className="flex flex-col gap-1 overflow-auto p-2"
-                style={{ maxHeight: 'calc(100vh - 80px)' }}
+                style={{ maxHeight: ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT }}
               >
                 <VerticalMenuSectionTitle title={currentUser?.email || ''} loading={isLoading} />
 
