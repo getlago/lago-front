@@ -26,6 +26,8 @@ import {
   useAdminToggleFeatureMutation,
 } from '~/generated/graphql'
 
+import { useLinkSandboxDialog } from './adminOrganizationDetail/useLinkSandboxDialog'
+
 gql`
   query AdminOrganization($organizationId: ID!) {
     adminOrganization(organizationId: $organizationId) {
@@ -62,6 +64,8 @@ export const ADMIN_ORGANIZATION_DETAIL_COUNTERPART_LINK_TEST_ID =
   'admin-organization-detail-counterpart-link'
 export const ADMIN_ORGANIZATION_DETAIL_MANAGED_BY_PRODUCTION_TEST_ID =
   'admin-organization-detail-managed-by-production'
+export const ADMIN_ORGANIZATION_DETAIL_LINK_SANDBOX_BUTTON_TEST_ID =
+  'admin-organization-detail-link-sandbox-button'
 export const ADMIN_ORGANIZATION_DETAIL_SAVE_BUTTON_TEST_ID = 'admin-organization-detail-save-button'
 
 const AdminOrganizationDetail = () => {
@@ -72,6 +76,12 @@ const AdminOrganizationDetail = () => {
   const { data, loading, refetch } = useAdminOrganizationQuery({
     variables: { organizationId: organizationId ?? '' },
     skip: !organizationId,
+  })
+
+  const { openLinkSandboxDialog } = useLinkSandboxDialog({
+    onLinked: () => {
+      void refetch()
+    },
   })
 
   const [toggleFeature] = useAdminToggleFeatureMutation()
@@ -268,6 +278,17 @@ const AdminOrganizationDetail = () => {
         entity={{
           viewName: org.name,
           metadata: getEntityMetadata(),
+        }}
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: 'Link a sandbox',
+              dataTest: ADMIN_ORGANIZATION_DETAIL_LINK_SANDBOX_BUTTON_TEST_ID,
+              hidden: !selfServeEnabled || isSandbox || !!counterpart,
+              onClick: () => openLinkSandboxDialog({ id: org.id, name: org.name }),
+            },
+          ],
         }}
       />
 
