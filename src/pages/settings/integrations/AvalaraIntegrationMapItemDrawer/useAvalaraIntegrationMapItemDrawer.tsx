@@ -82,7 +82,9 @@ export const useAvalaraIntegrationMapItemDrawer = (): UseAvalaraIntegrationMapIt
       })
 
       if (!success) {
-        setLocalData((previous) => previous && { ...previous, itemMappings })
+        setLocalData((previous) =>
+          previous && previous === localData ? { ...previous, itemMappings } : previous,
+        )
 
         return
       }

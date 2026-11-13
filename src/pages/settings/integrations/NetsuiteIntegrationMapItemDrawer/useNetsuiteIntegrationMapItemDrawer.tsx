@@ -95,7 +95,9 @@ export const useNetsuiteIntegrationMapItemDrawer =
         })
 
         if (!success) {
-          setLocalData((previous) => previous && { ...previous, itemMappings })
+          setLocalData((previous) =>
+            previous && previous === localData ? { ...previous, itemMappings } : previous,
+          )
 
           return
         }

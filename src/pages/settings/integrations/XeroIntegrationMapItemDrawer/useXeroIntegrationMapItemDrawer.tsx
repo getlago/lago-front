@@ -94,7 +94,9 @@ export const useXeroIntegrationMapItemDrawer = (): UseXeroIntegrationMapItemDraw
       })
 
       if (!success) {
-        setLocalData((previous) => previous && { ...previous, itemMappings })
+        setLocalData((previous) =>
+          previous && previous === localData ? { ...previous, itemMappings } : previous,
+        )
 
         return
       }

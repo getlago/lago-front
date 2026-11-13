@@ -87,6 +87,27 @@ const MULTI_ENTITY_DRAWER_PROPS: AnrokIntegrationMapItemDrawerProps = {
   },
 }
 
+const OTHER_ITEM_MAPPING_ID = 'mapping-other-item'
+
+const OTHER_ITEM_DRAWER_PROPS: AnrokIntegrationMapItemDrawerProps = {
+  ...DRAWER_PROPS,
+  itemMappings: {
+    default: {
+      itemId: OTHER_ITEM_MAPPING_ID,
+      itemExternalId: 'other-ext-id',
+      itemExternalName: 'Other ext name',
+      lagoMappableId: 'bm-2',
+      lagoMappableName: 'Other metric',
+    },
+    'be-1': {
+      itemId: null,
+      itemExternalId: null,
+      lagoMappableId: 'bm-2',
+      lagoMappableName: 'Other metric',
+    },
+  },
+}
+
 const SAVE_BUTTON_TEST_ID = 'anrok-integration-map-item-drawer-save'
 
 const mockScrollIntoView = jest.fn()
@@ -102,6 +123,27 @@ const DrawerHost = ({ params }: { params: AnrokIntegrationMapItemDrawerProps }) 
     <button data-test={OPEN_BUTTON_TEST_ID} onClick={() => openDrawer(params)}>
       open
     </button>
+  )
+}
+
+const TwoItemsDrawerHost = ({
+  first,
+  second,
+}: {
+  first: AnrokIntegrationMapItemDrawerProps
+  second: AnrokIntegrationMapItemDrawerProps
+}) => {
+  const { openDrawer } = useAnrokIntegrationMapItemDrawer()
+
+  return (
+    <>
+      <button data-test="open-first-item" onClick={() => openDrawer(first)}>
+        open first
+      </button>
+      <button data-test="open-second-item" onClick={() => openDrawer(second)}>
+        open second
+      </button>
+    </>
   )
 }
 
@@ -439,6 +481,65 @@ describe('useAnrokIntegrationMapItemDrawer', () => {
         expect(getInput('default.externalName')).toHaveValue('Renamed')
         expect(getInput('be-1.externalId')).toHaveValue('new-id')
         expect(getInput('be-1.externalName')).toHaveValue('New name')
+      })
+    })
+  })
+
+  describe('GIVEN a save that fails after the drawer was reopened on another item', () => {
+    describe('WHEN that other item is submitted unchanged', () => {
+      it('THEN should not send the mappings of the item the save belonged to', async () => {
+        let resolveUpdate: (answer: unknown) => void = () => {}
+
+        mockUpdateMapping.mockImplementation(
+          () =>
+            new Promise((resolve) => {
+              resolveUpdate = resolve
+            }),
+        )
+
+        const user = userEvent.setup({ pointerEventsCheck: 0 })
+
+        render(<TwoItemsDrawerHost first={DRAWER_PROPS} second={OTHER_ITEM_DRAWER_PROPS} />)
+
+        await user.click(screen.getByTestId('open-first-item'))
+
+        const firstPayload = lastDrawerPayload()
+
+        render(
+          <form id={firstPayload.form.id}>
+            {firstPayload.children}
+            {firstPayload.mainAction}
+          </form>,
+        )
+
+        await user.clear(getInput('default.externalName'))
+        await user.type(getInput('default.externalName'), 'Renamed')
+
+        let pendingSubmit: Promise<unknown> = Promise.resolve()
+
+        await act(async () => {
+          pendingSubmit = Promise.resolve(firstPayload.form.submit())
+        })
+
+        await waitFor(() => expect(mockUpdateMapping).toHaveBeenCalledTimes(1))
+
+        await user.click(screen.getByTestId('open-second-item'))
+
+        const secondPayload = lastDrawerPayload()
+
+        await act(async () => {
+          resolveUpdate({ errors: [{ message: 'failure' }] })
+          await pendingSubmit
+        })
+
+        mockUpdateMapping.mockResolvedValue({})
+
+        await submit(secondPayload)
+
+        await waitFor(() => expect(mockClose).toHaveBeenCalled())
+        expect(mockUpdateMapping).toHaveBeenCalledTimes(1)
+        expect(mockCreateMapping).not.toHaveBeenCalled()
+        expect(mockDeleteMapping).not.toHaveBeenCalled()
       })
     })
   })
