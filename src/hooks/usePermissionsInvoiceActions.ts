@@ -1,4 +1,5 @@
 import { envGlobalVar } from '~/core/apolloClient'
+import { PROVIDERS_WITHOUT_PAYMENT_URL } from '~/core/constants/paymentProviders'
 import { isPrepaidCredit } from '~/core/utils/invoiceUtils'
 import {
   Invoice,
@@ -35,8 +36,11 @@ export const usePermissionsInvoiceActions = () => {
       customer: Pick<Invoice['customer'], 'paymentProvider'>
     },
   ): boolean => {
+    const paymentProvider = invoice.customer?.paymentProvider
+
     return (
-      !!invoice.customer?.paymentProvider &&
+      !!paymentProvider &&
+      !PROVIDERS_WITHOUT_PAYMENT_URL.has(paymentProvider) &&
       invoice.status === InvoiceStatusTypeEnum.Finalized &&
       invoice.paymentStatus !== InvoicePaymentStatusTypeEnum.Succeeded
     )
