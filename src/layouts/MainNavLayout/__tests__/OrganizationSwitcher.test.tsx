@@ -3,13 +3,16 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { AuthenticationMethodsEnum, OrganizationEnvironmentEnum } from '~/generated/graphql'
+import { SANDBOX_BANNER_HEIGHT } from '~/layouts/sandboxBannerHeight'
 import { render } from '~/test-utils'
 
 import {
   ORGANIZATION_SWITCHER_BUTTON_TEST_ID,
   ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID,
+  ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT,
   ORGANIZATION_SWITCHER_NAME_TEST_ID,
   ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID,
+  ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT,
   ORGANIZATION_SWITCHER_TEST_ID,
   OrganizationSwitcher,
 } from '../OrganizationSwitcher'
@@ -151,6 +154,30 @@ describe('OrganizationSwitcher', () => {
           screen.queryByTestId(ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID),
         ).not.toBeInTheDocument()
       })
+    })
+  })
+
+  describe('GIVEN the switcher menu is opened', () => {
+    it('THEN should size the menu and its list from the space left under the sandbox banner', async () => {
+      const user = userEvent.setup()
+
+      render(<OrganizationSwitcher {...defaultProps} />, renderOptions)
+
+      await user.click(screen.getByTestId(ORGANIZATION_SWITCHER_BUTTON_TEST_ID))
+
+      const orgList = screen
+        .getAllByTestId(ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID)[0]
+        .closest('.overflow-auto') as HTMLElement
+      const popperCard = orgList.parentElement?.parentElement as HTMLElement
+
+      expect(ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT).toBe(
+        `calc(100vh - 64px - 16px - ${SANDBOX_BANNER_HEIGHT})`,
+      )
+      expect(ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT).toBe(
+        `calc(100vh - 80px - ${SANDBOX_BANNER_HEIGHT})`,
+      )
+      expect(popperCard.style.maxHeight).toBe(ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT)
+      expect(orgList.style.maxHeight).toBe(ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT)
     })
   })
 
