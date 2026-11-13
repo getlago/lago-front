@@ -87,14 +87,18 @@ export const useNetsuiteIntegrationMapItemDrawer =
           : netsuiteNonTaxMappingValidationSchema,
       },
       onSubmit: async ({ value }) => {
-        const isSuccess = await submitIntegrationMapItemMappings({
+        const { success, itemMappings } = await submitIntegrationMapItemMappings({
           values: value,
           drawerData: localData,
           mappingFunctions,
           provider: IntegrationTypeEnum.Netsuite,
         })
 
-        if (!isSuccess) return
+        if (!success) {
+          setLocalData((previous) => (previous ? { ...previous, itemMappings } : previous))
+
+          return
+        }
 
         addToast({
           message: translate('text_6630e5923500e7015f190643'),

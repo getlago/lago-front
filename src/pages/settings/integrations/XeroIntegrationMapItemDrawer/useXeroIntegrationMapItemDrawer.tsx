@@ -81,7 +81,7 @@ export const useXeroIntegrationMapItemDrawer = (): UseXeroIntegrationMapItemDraw
       onDynamic: xeroMappingValidationSchema,
     },
     onSubmit: async ({ value }) => {
-      const isSuccess = await submitIntegrationMapItemMappings({
+      const { success, itemMappings } = await submitIntegrationMapItemMappings({
         values: Object.fromEntries(
           Object.entries(value).map(([billingEntityKey, { selectedElementValue }]) => [
             billingEntityKey,
@@ -93,7 +93,11 @@ export const useXeroIntegrationMapItemDrawer = (): UseXeroIntegrationMapItemDraw
         provider: IntegrationTypeEnum.Xero,
       })
 
-      if (!isSuccess) return
+      if (!success) {
+        setLocalData((previous) => (previous ? { ...previous, itemMappings } : previous))
+
+        return
+      }
 
       addToast({
         message: translate('text_6630e5923500e7015f190643'),

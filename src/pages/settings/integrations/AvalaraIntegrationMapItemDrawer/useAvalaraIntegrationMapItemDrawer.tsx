@@ -74,14 +74,18 @@ export const useAvalaraIntegrationMapItemDrawer = (): UseAvalaraIntegrationMapIt
       onDynamic: avalaraMappingValidationSchema,
     },
     onSubmit: async ({ value }) => {
-      const isSuccess = await submitIntegrationMapItemMappings({
+      const { success, itemMappings } = await submitIntegrationMapItemMappings({
         values: value,
         drawerData: localData,
         mappingFunctions,
         provider: IntegrationTypeEnum.Avalara,
       })
 
-      if (!isSuccess) return
+      if (!success) {
+        setLocalData((previous) => (previous ? { ...previous, itemMappings } : previous))
+
+        return
+      }
 
       addToast({
         message: translate('text_6630e5923500e7015f190643'),

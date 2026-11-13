@@ -13,6 +13,7 @@ export type {
   ItemMappingForTaxMapping,
   ItemMappingForNonTaxMapping,
   ItemMappingForMappable,
+  MappableItemMapping,
   FetchableIntegrationItemsListData,
   CreateUpdateDeleteFunctions,
   CreateUpdateDeleteSuccessAnswer,

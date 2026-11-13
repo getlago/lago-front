@@ -115,12 +115,12 @@ export type ItemMappingForCurrenciesMapping = {
   currencies: Array<CurrencyMappingItem>
 }
 
+export type MappableItemMapping =
+  ItemMappingForTaxMapping | ItemMappingForNonTaxMapping | ItemMappingForMappable
+
 export type ItemMappingPerBillingEntity = Record<
   'default' | string,
-  | ItemMappingForTaxMapping
-  | ItemMappingForNonTaxMapping
-  | ItemMappingForMappable
-  | ItemMappingForCurrenciesMapping
+  MappableItemMapping | ItemMappingForCurrenciesMapping
 >
 
 export type MappableIntegrationMapItemDrawerData = {
@@ -135,7 +135,7 @@ export type OpenMappableIntegrationMapItemDrawer = (
 ) => void
 
 export type CreateUpdateDeleteSuccessAnswer =
-  | { success: true }
+  | { success: true; appliedMapping?: MappableItemMapping }
   | { success: false; errors: readonly GraphQLFormattedError[] }
   | { success: false; reasons: readonly string[] }
 

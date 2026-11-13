@@ -371,4 +371,73 @@ describe('useAnrokIntegrationMapItemDrawer', () => {
       })
     })
   })
+  describe('GIVEN a save that only partially reached the backend', () => {
+    describe('WHEN the drawer is submitted again without being closed', () => {
+      it('THEN should not create the already created mapping a second time', async () => {
+        mockCreateMapping.mockResolvedValue({
+          data: { createIntegrationMapping: { id: 'created-mapping' } },
+        })
+        mockUpdateMapping.mockResolvedValue({ errors: [{ message: 'failure' }] })
+
+        const { payload, user } = await openDrawerAndRenderBody()
+
+        await user.type(getInput('be-1.externalId'), 'new-id')
+        await user.type(getInput('be-1.externalName'), 'New name')
+        await user.clear(getInput('default.externalName'))
+        await user.type(getInput('default.externalName'), 'Renamed')
+        await submit(payload)
+
+        await waitFor(() => expect(mockCreateMapping).toHaveBeenCalledTimes(1))
+        expect(mockUpdateMapping).toHaveBeenCalledTimes(1)
+        expect(mockClose).not.toHaveBeenCalled()
+
+        await submit(payload)
+
+        await waitFor(() => expect(mockUpdateMapping).toHaveBeenCalledTimes(2))
+        expect(mockCreateMapping).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should not delete the already deleted mapping a second time', async () => {
+        mockDeleteMapping.mockResolvedValue({})
+        mockCreateMapping.mockResolvedValue({ errors: [{ message: 'failure' }] })
+
+        const { payload, user } = await openDrawerAndRenderBody()
+
+        await user.clear(getInput('default.externalId'))
+        await user.clear(getInput('default.externalName'))
+        await user.type(getInput('be-1.externalId'), 'new-id')
+        await user.type(getInput('be-1.externalName'), 'New name')
+        await submit(payload)
+
+        await waitFor(() => expect(mockDeleteMapping).toHaveBeenCalledTimes(1))
+        expect(mockCreateMapping).toHaveBeenCalledTimes(1)
+        expect(mockClose).not.toHaveBeenCalled()
+
+        await submit(payload)
+
+        await waitFor(() => expect(mockCreateMapping).toHaveBeenCalledTimes(2))
+        expect(mockDeleteMapping).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should keep the draft of the entity that still has to be saved', async () => {
+        mockCreateMapping.mockResolvedValue({
+          data: { createIntegrationMapping: { id: 'created-mapping' } },
+        })
+        mockUpdateMapping.mockResolvedValue({ errors: [{ message: 'failure' }] })
+
+        const { payload, user } = await openDrawerAndRenderBody()
+
+        await user.type(getInput('be-1.externalId'), 'new-id')
+        await user.type(getInput('be-1.externalName'), 'New name')
+        await user.clear(getInput('default.externalName'))
+        await user.type(getInput('default.externalName'), 'Renamed')
+        await submit(payload)
+
+        await waitFor(() => expect(mockUpdateMapping).toHaveBeenCalled())
+        expect(getInput('default.externalName')).toHaveValue('Renamed')
+        expect(getInput('be-1.externalId')).toHaveValue('new-id')
+        expect(getInput('be-1.externalName')).toHaveValue('New name')
+      })
+    })
+  })
 })
