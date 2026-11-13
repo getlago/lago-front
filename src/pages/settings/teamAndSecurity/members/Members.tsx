@@ -8,8 +8,10 @@ import {
   SettingsListWrapper,
   SettingsWithTabsPaddedContainer,
 } from '~/components/layouts/Settings'
+import { ManagedInProductionAlert } from '~/components/sandbox/ManagedInProductionAlert'
 import { TEAM_AND_SECURITY_GROUP_ROUTE, TEAM_AND_SECURITY_TAB_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useSandbox } from '~/hooks/useSandbox'
 
 import { useCreateInviteDialog } from './dialogs/CreateInviteDialog'
 import MembersInvitationList from './MembersInvitationList'
@@ -20,25 +22,31 @@ import {
   teamAndSecurityTabOptions,
 } from '../common/teamAndSecurityConst'
 
+export const MEMBERS_CREATE_INVITE_BUTTON_TEST_ID = 'create-invite-button'
+
 const Members = () => {
   const { translate } = useInternationalization()
   const { openCreateInviteDialog } = useCreateInviteDialog()
+  const { isSandbox } = useSandbox()
 
   return (
     <SettingsWithTabsPaddedContainer className="min-h-0 flex-1 pb-0">
       <SettingsListWrapper className="min-h-0 flex-1">
         <SettingsListItem className="min-h-0 flex-1 [box-shadow:none]">
+          <ManagedInProductionAlert />
           <SettingsListItemHeader
             label={translate('text_63208b630aaf8df6bbfb2657')}
             sublabel={translate('text_63208b630aaf8df6bbfb2659')}
             action={
-              <Button
-                variant="inline"
-                onClick={openCreateInviteDialog}
-                data-test="create-invite-button"
-              >
-                {translate('text_63208b630aaf8df6bbfb265b')}
-              </Button>
+              isSandbox ? undefined : (
+                <Button
+                  variant="inline"
+                  onClick={openCreateInviteDialog}
+                  data-test={MEMBERS_CREATE_INVITE_BUTTON_TEST_ID}
+                >
+                  {translate('text_63208b630aaf8df6bbfb265b')}
+                </Button>
+              )
             }
           />
           <NavigationTab

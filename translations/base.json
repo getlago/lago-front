@@ -5449,5 +5449,9 @@
   "text_17943010994335qi05xrijso": "Usage attribution",
   "text_179424015916583db51tvegd": "Precise total amount (cents)",
   "text_1794498394864itvpd4vd78q": "Standard Webhooks signature",
-  "text_1794498394864nqdkakpobja": "Follows the Standard Webhooks specification, verifiable with its open-source libraries"
+  "text_1794498394864nqdkakpobja": "Follows the Standard Webhooks specification, verifiable with its open-source libraries",
+  "text_1794221187063c6xcfwvtt6l": "Sandbox",
+  "text_1794221187063vcta3ox2a0c": "You're in your sandbox. Nothing here is billed or sent to customers.",
+  "text_1794221187063tztk6kvdznf": "Switch to production",
+  "text_17942211870635zfjx3ojmyy": "Managed in production"
 }

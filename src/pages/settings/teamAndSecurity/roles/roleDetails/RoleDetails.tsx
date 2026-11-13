@@ -7,6 +7,7 @@ import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDial
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SettingsListItemLoadingSkeleton } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { ManagedInProductionAlert } from '~/components/sandbox/ManagedInProductionAlert'
 import { MEMBERS_PAGE_ROLE_FILTER_KEY } from '~/core/constants/roles'
 import { TEAM_AND_SECURITY_GROUP_ROUTE, TEAM_AND_SECURITY_TAB_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
@@ -14,6 +15,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
+import { useSandbox } from '~/hooks/useSandbox'
 import {
   teamAndSecurityGroupOptions,
   teamAndSecurityTabOptions,
@@ -40,6 +42,7 @@ const RoleDetails = () => {
   const { getDisplayName, getDisplayDescription } = useRoleDisplayInformation()
   const { navigateToDuplicate, navigateToEdit } = useRoleActions()
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { isSandbox } = useSandbox()
   const { groups: permissionGroups, isLoading: isLoadingPermissionGroups } =
     useRolePermissionsGroups()
   const hasPremiumAddon = hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.CustomRoles)
@@ -110,6 +113,7 @@ const RoleDetails = () => {
                   },
                   disabled: hasPremiumAddon ? !canBeDuplicated : false,
                   endIcon: !hasPremiumAddon ? 'sparkles' : undefined,
+                  hidden: isSandbox,
                 },
                 {
                   label: translate('text_63aa15caab5b16980b21b0b8'),
@@ -119,7 +123,7 @@ const RoleDetails = () => {
                     closePopper()
                   },
                   disabled: !canBeEdited,
-                  hidden: isSystem || !hasPremiumAddon,
+                  hidden: isSandbox || isSystem || !hasPremiumAddon,
                 },
                 {
                   label: translate('text_6261640f28a49700f1290df5'),
@@ -129,7 +133,7 @@ const RoleDetails = () => {
                     closePopper()
                   },
                   disabled: !canBeDeleted,
-                  hidden: isSystem || !hasPremiumAddon,
+                  hidden: isSandbox || isSystem || !hasPremiumAddon,
                   danger: true,
                   tooltip: !canBeDeleted ? translate('text_1767002012431la8gv2iqucp') : undefined,
                 },
@@ -141,6 +145,7 @@ const RoleDetails = () => {
       />
       <DetailsPage.Container className="max-w-192">
         <div className="flex flex-col gap-8">
+          <ManagedInProductionAlert />
           {isLoadingRole && <SettingsListItemLoadingSkeleton count={2} />}
 
           {!isLoadingRole && (

@@ -1,9 +1,11 @@
 import { useApolloClient, useReactiveVar } from '@apollo/client'
 import * as Sentry from '@sentry/react'
-import { lazy, Suspense, useEffect, useRef } from 'react'
+import { lazy, ReactElement, Suspense, useEffect, useRef } from 'react'
 import { Outlet, useParams } from 'react-router'
 
+import { Button } from '~/components/designSystem/Button'
 import { Spinner } from '~/components/designSystem/Spinner'
+import { Typography } from '~/components/designSystem/Typography'
 import { switchCurrentOrganization } from '~/core/apolloClient'
 import {
   currentOrganizationVar,
@@ -16,7 +18,9 @@ import { useLocation, useNavigate } from '~/core/router'
 import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
 import { getAccessibleMemberships, resolveOrgSlug } from '~/core/router/utils/orgSlug'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useSandbox } from '~/hooks/useSandbox'
 
 const Error404 = lazy(() => import('~/pages/Error404'))
 const Forbidden = lazy(() => import('~/pages/Forbidden'))
@@ -33,6 +37,38 @@ class OrganizationLayoutEvent extends Error {
     super(message)
     this.name = name
   }
+}
+
+export const SANDBOX_BANNER_TEST_ID = 'sandbox-banner'
+export const SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID = 'sandbox-banner-switch-button'
+
+const SandboxBanner = (): ReactElement | null => {
+  const { translate } = useInternationalization()
+  const navigate = useNavigate()
+  const { isSandbox, productionPath } = useSandbox()
+
+  if (!isSandbox) return null
+
+  return (
+    <div
+      className="flex shrink-0 flex-wrap items-center justify-center gap-x-2 bg-purple-100 px-4 py-1"
+      data-test={SANDBOX_BANNER_TEST_ID}
+    >
+      <Typography variant="caption" color="grey700">
+        {translate('text_1794221187063vcta3ox2a0c')}
+      </Typography>
+      {!!productionPath && (
+        <Button
+          variant="inline"
+          size="small"
+          data-test={SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID}
+          onClick={() => navigate(productionPath, { skipSlugPrepend: true })}
+        >
+          {translate('text_1794221187063tztk6kvdznf')}
+        </Button>
+      )}
+    </div>
+  )
 }
 
 const OrganizationLayout = () => {
@@ -184,7 +220,14 @@ const OrganizationLayout = () => {
   if (org) {
     if (currentOrgId !== org.id) return <Spinner />
 
-    return <Outlet />
+    return (
+      <div className="flex h-full flex-col">
+        <SandboxBanner />
+        <div className="relative min-h-0 flex-1">
+          <Outlet />
+        </div>
+      </div>
+    )
   }
 
   // Render a spinner while the auto-recover effect navigates — prevents a
