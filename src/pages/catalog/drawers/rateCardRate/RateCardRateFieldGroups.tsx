@@ -337,7 +337,6 @@ export const RatePricingSettingsSection = withFieldGroup({
           form={hostForm}
           fields="properties"
           rateModel={rateModel}
-          productType={rateCard.productType}
           currency={rateCard.currency}
           pricingUnitShortName={pricingUnitShortName}
           disabled={disabled}

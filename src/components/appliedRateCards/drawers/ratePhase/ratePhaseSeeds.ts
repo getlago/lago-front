@@ -32,10 +32,13 @@ const DEFAULT_RATE_FIELD_VALUES: RateFieldValues = {
   minAmountCents,
 }
 
-export const getActiveRateFieldValues = (rateCard: RateCardForRatePhaseFields): RateFieldValues =>
-  rateCard.activeRate
-    ? mapRateToRateFieldValues(rateCard.activeRate, rateCard.currency)
-    : DEFAULT_RATE_FIELD_VALUES
+export const getActiveRateFieldValues = (rateCard: RateCardForRatePhaseFields): RateFieldValues => {
+  const inheritedRate = rateCard.activeRate ?? rateCard.nextPendingRate
+
+  if (!inheritedRate) return DEFAULT_RATE_FIELD_VALUES
+
+  return mapRateToRateFieldValues(inheritedRate, rateCard.currency)
+}
 
 export const buildCreatePhaseSeed = (
   otherPhases: RatePhaseReference[],

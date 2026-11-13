@@ -10,10 +10,10 @@ import { tw } from '~/styles/utils'
 import { RatePhaseFormValues } from './drawers/ratePhase/ratePhaseFormSchema'
 import { RateCardForRatePhaseFields } from './drawers/ratePhase/types'
 import { RatePhaseDetailsPanel } from './RatePhaseDetailsPanel'
-import { RatePhaseForDetails } from './ratePhaseDisplay'
+import { RatePhaseForDetails, RatePhaseRate } from './ratePhaseDisplay'
 import { RatePhaseDurationChip } from './RatePhaseDurationChip'
 import { getFormPhaseRate } from './ratePhaseRate'
-import { RatePhaseRateChip } from './RatePhaseRateChip'
+import { RatePhaseRateChip, RatePhaseRateChipStatus } from './RatePhaseRateChip'
 
 export const RATE_PHASE_TABLE_TEST_ID = 'rate-phase-table'
 export const getRatePhaseToggleTestId = (index: number): string => `rate-phase-toggle-${index}`
@@ -40,6 +40,16 @@ const toPhaseForDetails = (phase: RatePhaseFormValues, index: number): RatePhase
 })
 
 const CELL_CLASSNAME = 'flex items-center border-b border-grey-300 pl-1 pr-6'
+
+const getRateChipStatus = (
+  overrideEnabled: boolean,
+  phaseRate: RatePhaseRate | null,
+): RatePhaseRateChipStatus => {
+  if (overrideEnabled) return 'overridden'
+  if (phaseRate) return 'active'
+
+  return 'none'
+}
 
 export const RatePhaseTable = ({
   phases,
@@ -127,7 +137,7 @@ export const RatePhaseTable = ({
               />
             </div>
             <div className={tw(CELL_CLASSNAME, 'py-2')}>
-              <RatePhaseRateChip isOverridden={phase.overrideEnabled} />
+              <RatePhaseRateChip status={getRateChipStatus(phase.overrideEnabled, phaseRate)} />
             </div>
             <div className="flex items-center border-b border-grey-300 py-1 pl-3 pr-1">
               <Popper
@@ -192,6 +202,7 @@ export const RatePhaseTable = ({
                   phaseRate={phaseRate}
                   rateHistoryPath={rateHistoryPath}
                   rateCard={rateCard}
+                  onOverrideRate={() => onEdit(index)}
                 />
               </div>
             )}

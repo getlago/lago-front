@@ -5,6 +5,7 @@ import { ReactNode, useEffect, useState } from 'react'
 import { buildRateCardForRatePhaseFields } from '~/components/appliedRateCards/buildRateCardForRatePhaseFields'
 import {
   getInsertIndex,
+  RATE_PHASE_FORM_DEFAULTS,
   RatePhaseFormValues,
   RatePhaseReference,
 } from '~/components/appliedRateCards/drawers/ratePhase/ratePhaseFormSchema'
@@ -102,7 +103,12 @@ gql`
     billingTiming
     appliedPricingUnitCode
     proration
+    ratesCount
     activeRate {
+      id
+      ...ActiveRateForRatePhase
+    }
+    nextPendingRate {
       id
       ...ActiveRateForRatePhase
     }
@@ -269,6 +275,14 @@ export const AppliedRateCardDrawerContent = withForm({
       if (productId) getRateCards()
     }, [productId, productFilterId, getRateCards])
 
+    // Mirrors the backend default (`RatePhases::CreateService.call!(params: {code: "default",
+    // position: 1})`) explicitly on the frontend, so the drawer isn't empty before that save.
+    useEffect(() => {
+      if (!rateCardId || ratePhases.length > 0) return
+
+      form.setFieldValue('ratePhases', [{ ...RATE_PHASE_FORM_DEFAULTS, code: 'default' }])
+    }, [rateCardId, ratePhases.length, form])
+
     const { options: products, selected: selectedProduct } = useOptionsWithSelection(
       productsData?.products.collection ?? [],
       (product) => product.id === productId,
@@ -292,6 +306,18 @@ export const AppliedRateCardDrawerContent = withForm({
     const hasForeverPhaseBeforeLast = ratePhases
       .slice(0, -1)
       .some((phase) => phase.durationType === 'forever')
+
+    const renderPhaseSequenceAlert = (): JSX.Element | null => {
+      if (hasForeverPhaseBeforeLast) {
+        return <Alert type="warning">{translate('text_1791835259930jvwajr0xa8s')}</Alert>
+      }
+
+      if (lastPhaseIsFinite) {
+        return <Alert type="warning">{translate('text_1791485670326e1zbmola1n3')}</Alert>
+      }
+
+      return null
+    }
 
     const savePhase = (values: RatePhaseFormValues, replaceIndex?: number): void => {
       const otherPhases = form.state.values.ratePhases.filter((_, index) => index !== replaceIndex)
@@ -540,13 +566,7 @@ export const AppliedRateCardDrawerContent = withForm({
                 />
               )}
 
-              {hasForeverPhaseBeforeLast && (
-                <Alert type="warning">{translate('text_1791835259930jvwajr0xa8s')}</Alert>
-              )}
-
-              {lastPhaseIsFinite && (
-                <Alert type="warning">{translate('text_1791485670326e1zbmola1n3')}</Alert>
-              )}
+              {renderPhaseSequenceAlert()}
             </CenteredPage.PageSection>
           )}
         </CenteredPage.SubsectionWrapper>

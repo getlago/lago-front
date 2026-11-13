@@ -139,12 +139,14 @@ describe('hasRateOverride', () => {
     billingTiming: RateCardBillingTimingEnum.Arrears,
     appliedPricingUnitCode: 'CR',
     proration: false,
+    ratesCount: 1,
     activeRate: {
       ...apolloActiveRate,
       __typename: 'RateCardRate',
       id: 'rate-1',
       effectiveFrom: '2026-01-01T00:00:00.000Z',
     },
+    nextPendingRate: null,
   }
 
   it('GIVEN the override is off THEN there is none', () => {

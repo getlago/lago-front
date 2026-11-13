@@ -24,6 +24,7 @@ import { RATE_PHASE_DETAILS_RATE_HISTORY_LINK_TEST_ID } from '../../../RatePhase
 import {
   getRatePhaseActionsTestId,
   getRatePhaseToggleTestId,
+  RATE_PHASE_EDIT_ACTION_TEST_ID,
   RATE_PHASE_REVERT_ACTION_TEST_ID,
 } from '../../../RatePhaseTable'
 import { RATE_PHASE_FORM_DEFAULTS } from '../../ratePhase/ratePhaseFormSchema'
@@ -562,7 +563,10 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     await userEvent.click(await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID))
 
     expect(mockOpenRatePhaseLocalDrawer).toHaveBeenCalledWith(
-      expect.objectContaining({ otherPhases: [], onSave: expect.any(Function) }),
+      expect.objectContaining({
+        otherPhases: [{ code: 'default', name: '' }],
+        onSave: expect.any(Function),
+      }),
     )
   })
 
@@ -576,10 +580,20 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
 
     const onSave = mockOpenRatePhaseLocalDrawer.mock.calls.at(-1)?.[0]?.onSave
 
-    onSave({ code: 'phase-1', name: 'Phase 1', durationType: 'forever' }, {})
+    onSave(
+      {
+        code: 'phase-1',
+        name: 'Phase 1',
+        durationType: 'finite',
+        durationCycleCount: '1',
+        positionMode: 'before',
+        positionReferenceCode: 'default',
+      },
+      {},
+    )
 
     await waitFor(() =>
-      expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('1'),
+      expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('2'),
     )
     expect(screen.getByText('Phase 1')).toBeInTheDocument()
   })
@@ -598,6 +612,10 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
         ...RATE_PHASE_FORM_DEFAULTS,
         code: 'intro',
         name: 'Intro',
+        durationType: 'finite',
+        durationCycleCount: '1',
+        positionMode: 'before',
+        positionReferenceCode: 'default',
         overrideEnabled: true,
         billingIntervalCount: '14',
         billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Day,
@@ -610,7 +628,8 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     await userEvent.click(screen.getByTestId(getRatePhaseActionsTestId(0)))
     await userEvent.click(screen.getByTestId(RATE_PHASE_REVERT_ACTION_TEST_ID))
 
-    expect(await screen.findByText('Active rate')).toBeInTheDocument()
+    // Both the reverted phase and the seeded default phase now run on the active rate.
+    await waitFor(() => expect(screen.getAllByText('Default rate')).toHaveLength(2))
     expect(screen.queryByText('Overridden')).not.toBeInTheDocument()
   })
 
@@ -653,7 +672,10 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
 
     const { otherPhases, onSave } = mockOpenRatePhaseLocalDrawer.mock.calls.at(-1)?.[0] ?? {}
 
-    expect(otherPhases).toEqual([{ code: 'standard', name: 'Standard' }])
+    expect(otherPhases).toEqual([
+      { code: 'default', name: '' },
+      { code: 'standard', name: 'Standard' },
+    ])
 
     onSave(
       {
@@ -719,11 +741,19 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     await selectRateCard()
 
     await userEvent.click(await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID))
-    mockOpenRatePhaseLocalDrawer.mock.calls
-      .at(-1)?.[0]
-      ?.onSave({ code: 'standard', name: 'Standard', durationType: 'forever' }, {})
+    mockOpenRatePhaseLocalDrawer.mock.calls.at(-1)?.[0]?.onSave(
+      {
+        code: 'standard',
+        name: 'Standard',
+        durationType: 'finite',
+        durationCycleCount: '1',
+        positionMode: 'before',
+        positionReferenceCode: 'default',
+      },
+      {},
+    )
     await waitFor(() =>
-      expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('1'),
+      expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('2'),
     )
 
     await userEvent.click(productInput)
@@ -741,16 +771,26 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
     await selectRateCard()
 
-    await userEvent.click(await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID))
+    // Edits the seeded default phase instead of adding one: appending leaves its own
+    // `forever` duration before the new phase, tripping the sequencing alert instead.
+    await userEvent.click(await screen.findByTestId(getRatePhaseActionsTestId(0)))
+    await userEvent.click(screen.getByTestId(RATE_PHASE_EDIT_ACTION_TEST_ID))
 
     const onSave = mockOpenRatePhaseLocalDrawer.mock.calls.at(-1)?.[0]?.onSave
 
-    onSave({ code: 'phase-1', durationType: 'finite', durationCycleCount: '3' }, {})
+    onSave(
+      { code: 'phase-1', durationType: 'finite', durationCycleCount: '3' },
+      { replaceIndex: 0 },
+    )
 
-    await waitFor(() => expect(screen.getByTestId('alert-type-warning')).toBeInTheDocument())
+    expect(
+      await screen.findByText(
+        'Only the last phase can run forever. Make sure all previous phases have a defined duration before continuing.',
+      ),
+    ).toBeInTheDocument()
   })
 
-  it('GIVEN the local array is empty or its last phase is forever THEN the warning alert does not render', async () => {
+  it('GIVEN only the seeded default phase, or a finite phase placed before it THEN the warning alert does not render', async () => {
     renderContent([productsMock(), rateCardsMock(() => undefined)])
 
     await userEvent.click(screen.getByRole('button', { name: 'select product' }))
@@ -762,10 +802,19 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
 
     const onSave = mockOpenRatePhaseLocalDrawer.mock.calls.at(-1)?.[0]?.onSave
 
-    onSave({ code: 'phase-1', durationType: 'forever' }, {})
+    onSave(
+      {
+        code: 'phase-1',
+        durationType: 'finite',
+        durationCycleCount: '3',
+        positionMode: 'before',
+        positionReferenceCode: 'default',
+      },
+      {},
+    )
 
     await waitFor(() =>
-      expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('1'),
+      expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('2'),
     )
     expect(screen.queryByTestId('alert-type-warning')).not.toBeInTheDocument()
   })
@@ -794,10 +843,21 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
 
     const onSave = mockOpenRatePhaseLocalDrawer.mock.calls.at(-1)?.[0]?.onSave
 
-    onSave({ ...RATE_PHASE_FORM_DEFAULTS, code: 'phase-1', name: 'Phase 1' }, {})
+    onSave(
+      {
+        ...RATE_PHASE_FORM_DEFAULTS,
+        code: 'phase-1',
+        name: 'Phase 1',
+        durationType: 'finite',
+        durationCycleCount: '1',
+        positionMode: 'before',
+        positionReferenceCode: 'default',
+      },
+      {},
+    )
 
     await waitFor(() =>
-      expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('1'),
+      expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('2'),
     )
 
     const rateCardInput = screen
@@ -811,7 +871,7 @@ describe('AppliedRateCardDrawerContent, rate phases section', () => {
     await userEvent.tab()
 
     expect(screen.getByTestId(RATE_CARD_ID_PROBE_TEST_ID)).toHaveTextContent(RATE_CARD.code)
-    expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('1')
+    expect(screen.getByTestId(RATE_PHASES_LENGTH_PROBE_TEST_ID)).toHaveTextContent('2')
   })
 
   it('GIVEN a product picked WHEN a product search misses it THEN the product and the rate card stay', async () => {
