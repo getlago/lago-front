@@ -2,7 +2,11 @@ import { ApolloClient, InMemoryCache } from '@apollo/client'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { AuthenticationMethodsEnum, OrganizationEnvironmentEnum } from '~/generated/graphql'
+import {
+  AuthenticationMethodsEnum,
+  CurrentUserInfosFragment,
+  OrganizationEnvironmentEnum,
+} from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
@@ -187,7 +191,8 @@ describe('OrganizationSwitcher', () => {
     })
   })
   describe('GIVEN a production organization and its linked sandbox', () => {
-    type LinkedId = { id: string } | null
+    type MembershipOrganization = CurrentUserInfosFragment['memberships'][number]['organization']
+    type MembershipFixture = { id: string; organization: MembershipOrganization }
 
     const buildOrganization = ({
       id,
@@ -196,14 +201,16 @@ describe('OrganizationSwitcher', () => {
       productionOrganization = null,
       sandboxOrganization = null,
       accessibleByCurrentSession = true,
-    }: {
-      id: string
-      name: string
-      environment?: OrganizationEnvironmentEnum
-      productionOrganization?: LinkedId
-      sandboxOrganization?: LinkedId
-      accessibleByCurrentSession?: boolean
-    }) => ({
+    }: Pick<MembershipOrganization, 'id' | 'name'> &
+      Partial<
+        Pick<
+          MembershipOrganization,
+          | 'environment'
+          | 'productionOrganization'
+          | 'sandboxOrganization'
+          | 'accessibleByCurrentSession'
+        >
+      >): MembershipFixture => ({
       id: `membership-${id}`,
       organization: {
         id,
@@ -231,9 +238,9 @@ describe('OrganizationSwitcher', () => {
     const beta = buildOrganization({ id: 'beta', name: 'Beta' })
 
     const renderMenu = async (
-      memberships: ReturnType<typeof buildOrganization>[],
+      memberships: MembershipFixture[],
       currentSlug: string,
-    ) => {
+    ): Promise<ReturnType<typeof userEvent.setup>> => {
       const user = userEvent.setup()
 
       render(
@@ -256,7 +263,10 @@ describe('OrganizationSwitcher', () => {
       names.forEach((name, index) => expect(items[index]).toHaveTextContent(name))
     }
 
-    const clickItem = async (user: ReturnType<typeof userEvent.setup>, name: string) => {
+    const clickItem = async (
+      user: ReturnType<typeof userEvent.setup>,
+      name: string,
+    ): Promise<void> => {
       const item = screen
         .getAllByTestId(ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID)
         .find((element) => element.textContent?.endsWith(name))

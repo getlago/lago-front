@@ -52,7 +52,7 @@ const compareOrganizations = (
     return a.accessibleByCurrentSession ? -1 : 1
   }
 
-  return a.name.toLowerCase()?.localeCompare(b.name.toLowerCase() ?? '') ?? 0
+  return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
 }
 
 const getOrderedOrganizations = (
