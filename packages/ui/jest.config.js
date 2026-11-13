@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url'
+
 /** @type {import('jest').Config} */
 const config = {
   roots: ['<rootDir>/src'],
@@ -11,6 +13,17 @@ const config = {
     '\\.css$': '<rootDir>/__mocks__/styleMock.cjs',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx}',
+    '!src/**/*.stories.tsx',
+    '!src/stories/**',
+    '!src/styles/**',
+    '!src/**/__tests__/**',
+  ],
+  coverageReporters: [
+    'text-summary',
+    ['lcovonly', { projectRoot: fileURLToPath(new URL('../..', import.meta.url)) }],
+  ],
 }
 
 export default config
