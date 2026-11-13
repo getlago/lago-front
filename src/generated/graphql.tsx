@@ -404,6 +404,8 @@ export enum AdminActionEnum {
   OrgCreated = 'org_created',
   /** Change was rolled back */
   Rollback = 'rollback',
+  /** Organization was linked as a sandbox */
+  SandboxLinked = 'sandbox_linked',
   /** Feature was disabled */
   ToggleOff = 'toggle_off',
   /** Feature was enabled */
