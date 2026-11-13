@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react'
 
-import { OrganizationEnvironmentEnum } from '~/generated/graphql'
+import { CurrentUserInfosFragment, OrganizationEnvironmentEnum } from '~/generated/graphql'
 import { useSandbox } from '~/hooks/useSandbox'
 
 const mockUseOrganizationInfos = jest.fn()
@@ -23,8 +23,10 @@ jest.mock('~/core/router', () => ({
 const PRODUCTION_SLUG = 'acme'
 const PRODUCTION_ID = 'org-prod'
 
+type MembershipOrganization = CurrentUserInfosFragment['memberships'][number]['organization']
+
 type TestMembership = {
-  organization: { id: string; accessibleByCurrentSession: boolean }
+  organization: Pick<MembershipOrganization, 'id' | 'accessibleByCurrentSession'>
 }
 
 const setOrganization = (organization: Record<string, unknown> | undefined): void => {
@@ -39,8 +41,8 @@ const accessibleProductionMembership: TestMembership = {
   organization: { id: PRODUCTION_ID, accessibleByCurrentSession: true },
 }
 
-const setStrippedPathname = (strippedPathname: string): void => {
-  mockUseLocation.mockReturnValue({ strippedPathname })
+const setStrippedPathname = (strippedPathname: string, search = ''): void => {
+  mockUseLocation.mockReturnValue({ strippedPathname, search })
 }
 
 describe('useSandbox', () => {
@@ -140,6 +142,17 @@ describe('useSandbox', () => {
         expect(result.current).toEqual({
           isSandbox: true,
           productionPath: `/${PRODUCTION_SLUG}${strippedPathname}`,
+        })
+      })
+
+      it('THEN should keep the query string on a kept route', () => {
+        setStrippedPathname('/settings/team-and-security/members', '?role=admin')
+
+        const { result } = renderHook(() => useSandbox())
+
+        expect(result.current).toEqual({
+          isSandbox: true,
+          productionPath: `/${PRODUCTION_SLUG}/settings/team-and-security/members?role=admin`,
         })
       })
 

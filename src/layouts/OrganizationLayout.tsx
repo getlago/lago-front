@@ -215,7 +215,7 @@ const OrganizationLayout = () => {
             )}
           </div>
         )}
-        <div className="min-h-0 flex-1">
+        <div className="relative min-h-0 flex-1">
           <Outlet />
         </div>
       </div>

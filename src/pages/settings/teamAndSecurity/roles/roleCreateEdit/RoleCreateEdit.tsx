@@ -1,5 +1,5 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -13,6 +13,7 @@ import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { ROLE_DETAILS_ROUTE, TEAM_AND_SECURITY_GROUP_ROUTE, useNavigate } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { useSandbox } from '~/hooks/useSandbox'
 import { mapFromApiToForm } from '~/pages/settings/teamAndSecurity/roles/common/rolePermissionsForm/mappers/mapFromApiToForm'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
@@ -36,6 +37,8 @@ const RoleCreateEdit = () => {
   const centralizedDialog = useCentralizedDialog()
 
   const { roleId, isEdition, handleSave } = useRoleCreateEdit()
+
+  const { isSandbox } = useSandbox()
 
   const { role, isLoadingRole } = useRoleDetails({ roleId })
 
@@ -135,17 +138,18 @@ const RoleCreateEdit = () => {
     },
   })
 
-  const handleClose = () => {
-    if (isEdition && roleId) {
-      navigate(generatePath(ROLE_DETAILS_ROUTE, { roleId }))
-    } else {
-      navigate(
-        generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
-          group: teamAndSecurityGroupOptions.roles,
-        }),
-      )
-    }
+  const closePath =
+    isEdition && roleId
+      ? generatePath(ROLE_DETAILS_ROUTE, { roleId })
+      : generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, { group: teamAndSecurityGroupOptions.roles })
+
+  const handleClose = (): void => {
+    navigate(closePath)
   }
+
+  useEffect(() => {
+    if (isSandbox) navigate(closePath, { replace: true })
+  }, [isSandbox, closePath, navigate])
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
     form.handleSubmit()
@@ -169,6 +173,8 @@ const RoleCreateEdit = () => {
     form.store,
     (state) => state.errorMap.onDynamic?.permissions || [],
   ).map((error) => error.message)
+
+  if (isSandbox) return null
 
   return (
     <CenteredPage.Wrapper>
