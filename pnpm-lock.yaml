@@ -62,8 +62,8 @@ importers:
         specifier: 1.4.1
         version: 1.4.1(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@rails/actioncable':
-        specifier: 8.1.400
-        version: 8.1.400
+        specifier: 8.1.401
+        version: 8.1.401
       '@sentry/react':
         specifier: 10.78.0
         version: 10.78.0(react@18.3.1)
@@ -3232,8 +3232,8 @@ packages:
   '@radix-ui/rect@1.1.3':
     resolution: {integrity: sha512-JtyZR+mqgBibTo8xea3B6ZRmzZiM/YeVBtUkas6zMuXjAlfIFIW2FgqeM9eLyvEaYX66vr6DJMK+4U6LV0KhNw==}
 
-  '@rails/actioncable@8.1.400':
-    resolution: {integrity: sha512-Qffc3/I9xcpeaal12hmi9EPRV3hz9FvakUHBR7kL0jpZviWwO9dyaG8F1ltcjkHIdFxQ5QqzRyequAWHMq17xQ==}
+  '@rails/actioncable@8.1.401':
+    resolution: {integrity: sha512-eZdEy9UmnsaeDHr5G5nFhdgsaMo9EZVq2JMAjqtNmVDqnKWHwvTMt0Ah1CWBf7g7BDLR3WCDgHS2aOhbpjqkWw==}
 
   '@repeaterjs/repeater@3.0.6':
     resolution: {integrity: sha512-Javneu5lsuhwNCryN+pXH93VPQ8g0dBX7wItHFgYiwQmzE1sVdg5tWHiOgHywzL2W21XQopa7IwIEnNbmeUJYA==}
@@ -12185,7 +12185,7 @@ snapshots:
 
   '@radix-ui/rect@1.1.3': {}
 
-  '@rails/actioncable@8.1.400': {}
+  '@rails/actioncable@8.1.401': {}
 
   '@repeaterjs/repeater@3.0.6': {}
 
