@@ -1,11 +1,10 @@
 import { gql } from '@apollo/client'
 import { useState } from 'react'
 
-import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
+import { RevealableValue } from '~/components/developers/RevealableValue'
 import {
   GetWebhookEndpointQuery,
   useGetWebhookEndpointSigningKeysQuery,
@@ -128,31 +127,14 @@ export const WebhookOverview = ({ webhook, loading, signatureLabel }: WebhookOve
           <Typography variant="caption" color="grey600">
             {translate('text_658567dffff71e31ea5f0d3e')}
           </Typography>
-          <div className="flex items-center gap-2">
-            <TypographyWithCopy
-              variant="body"
-              color="grey700"
-              masked={!showSigningKey}
-              maskOptions={{ dotsCount: 8, visibleChars: 3 }}
-              data-test={WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID}
-            >
-              {signingKey}
-            </TypographyWithCopy>
-            <Tooltip
-              placement="top-start"
-              title={translate(
-                showSigningKey ? 'text_1731082143943pr83kgzeh86' : 'text_1731082129536sv17ey4g0sk',
-              )}
-            >
-              <Button
-                variant="quaternary"
-                size="small"
-                icon={showSigningKey ? 'eye-hidden' : 'eye'}
-                onClick={() => setShowSigningKey((prev) => !prev)}
-                data-test={WEBHOOK_OVERVIEW_SIGNING_KEY_REVEAL_BUTTON_TEST_ID}
-              />
-            </Tooltip>
-          </div>
+          <RevealableValue
+            variant="body"
+            value={signingKey}
+            isRevealed={showSigningKey}
+            onToggleReveal={() => setShowSigningKey((prev) => !prev)}
+            valueTestId={WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID}
+            revealButtonTestId={WEBHOOK_OVERVIEW_SIGNING_KEY_REVEAL_BUTTON_TEST_ID}
+          />
         </div>
       )}
 

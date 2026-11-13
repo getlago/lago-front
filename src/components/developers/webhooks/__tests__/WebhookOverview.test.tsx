@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID } from '~/components/designSystem/TypographyWithCopy'
@@ -291,15 +291,19 @@ describe('WebhookOverview', () => {
     })
 
     describe('WHEN the user cannot read signing keys', () => {
-      it('THEN shows no key', async () => {
-        renderStandardWebhooks([signingKeysMock(null)])
+      it('THEN shows no key once the query has answered', async () => {
+        const result = jest.fn(() => ({
+          data: { webhookEndpoint: { id: standardWebhooksEndpoint.id, signingKeys: null } },
+        }))
 
-        expect(await screen.findByTestId(WEBHOOK_OVERVIEW_CONTAINER_TEST_ID)).toBeInTheDocument()
-        await waitFor(() =>
-          expect(
-            screen.queryByTestId(WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID),
-          ).not.toBeInTheDocument(),
-        )
+        renderStandardWebhooks([{ ...signingKeysMock(null), result }])
+
+        await waitFor(() => expect(result).toHaveBeenCalled())
+        await act(() => new Promise((resolve) => setTimeout(resolve, 0)))
+
+        expect(
+          screen.queryByTestId(WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID),
+        ).not.toBeInTheDocument()
         expect(
           screen.queryByTestId(WEBHOOK_OVERVIEW_SIGNING_KEY_REVEAL_BUTTON_TEST_ID),
         ).not.toBeInTheDocument()
