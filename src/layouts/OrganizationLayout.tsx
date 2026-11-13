@@ -1,6 +1,6 @@
 import { useApolloClient, useReactiveVar } from '@apollo/client'
 import * as Sentry from '@sentry/react'
-import { lazy, ReactElement, Suspense, useEffect, useRef } from 'react'
+import { lazy, ReactElement, Suspense, useEffect, useRef, useState } from 'react'
 import { Outlet, useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -21,6 +21,7 @@ import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useSandbox } from '~/hooks/useSandbox'
+import { useSandboxBannerHeightCssVar } from '~/layouts/sandboxBannerHeight'
 
 const Error404 = lazy(() => import('~/pages/Error404'))
 const Forbidden = lazy(() => import('~/pages/Forbidden'))
@@ -46,11 +47,15 @@ const SandboxBanner = (): ReactElement | null => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { isSandbox, productionPath } = useSandbox()
+  const [banner, setBanner] = useState<HTMLDivElement | null>(null)
+
+  useSandboxBannerHeightCssVar(banner)
 
   if (!isSandbox) return null
 
   return (
     <div
+      ref={setBanner}
       className="flex shrink-0 flex-wrap items-center justify-center gap-x-2 bg-purple-100 px-4 py-1"
       data-test={SANDBOX_BANNER_TEST_ID}
     >
