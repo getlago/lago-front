@@ -1,6 +1,6 @@
 import { useApolloClient, useReactiveVar } from '@apollo/client'
 import * as Sentry from '@sentry/react'
-import { lazy, Suspense, useEffect, useRef } from 'react'
+import { lazy, ReactElement, Suspense, useEffect, useRef } from 'react'
 import { Outlet, useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -42,6 +42,35 @@ class OrganizationLayoutEvent extends Error {
 export const SANDBOX_BANNER_TEST_ID = 'sandbox-banner'
 export const SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID = 'sandbox-banner-switch-button'
 
+const SandboxBanner = (): ReactElement | null => {
+  const { translate } = useInternationalization()
+  const navigate = useNavigate()
+  const { isSandbox, productionPath } = useSandbox()
+
+  if (!isSandbox) return null
+
+  return (
+    <div
+      className="flex shrink-0 flex-wrap items-center justify-center gap-x-2 bg-purple-100 px-4 py-1"
+      data-test={SANDBOX_BANNER_TEST_ID}
+    >
+      <Typography variant="caption" color="grey700">
+        {translate('text_1794221187063vcta3ox2a0c')}
+      </Typography>
+      {!!productionPath && (
+        <Button
+          variant="inline"
+          size="small"
+          data-test={SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID}
+          onClick={() => navigate(productionPath, { skipSlugPrepend: true })}
+        >
+          {translate('text_1794221187063tztk6kvdznf')}
+        </Button>
+      )}
+    </div>
+  )
+}
+
 const OrganizationLayout = () => {
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
   const { currentUser, loading } = useCurrentUser()
@@ -49,8 +78,6 @@ const OrganizationLayout = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const client = useApolloClient()
-  const { translate } = useInternationalization()
-  const { isSandbox, productionPath } = useSandbox()
 
   const currentOrgId = useReactiveVar(currentOrganizationVar)
 
@@ -195,26 +222,7 @@ const OrganizationLayout = () => {
 
     return (
       <div className="flex h-full flex-col">
-        {isSandbox && (
-          <div
-            className="flex shrink-0 flex-wrap items-center justify-center gap-x-2 bg-purple-100 px-4 py-1"
-            data-test={SANDBOX_BANNER_TEST_ID}
-          >
-            <Typography variant="caption" color="grey700">
-              {translate('text_1794221187063vcta3ox2a0c')}
-            </Typography>
-            {!!productionPath && (
-              <Button
-                variant="inline"
-                size="small"
-                data-test={SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID}
-                onClick={() => navigate(productionPath, { skipSlugPrepend: true })}
-              >
-                {translate('text_1794221187063tztk6kvdznf')}
-              </Button>
-            )}
-          </div>
-        )}
+        <SandboxBanner />
         <div className="relative min-h-0 flex-1">
           <Outlet />
         </div>

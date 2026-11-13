@@ -278,6 +278,27 @@ describe('OrganizationLayout', () => {
         })
       })
 
+      describe('WHEN the user switches organization through the switch spinner', () => {
+        it('THEN should only read the sandbox state once the new organization is resolved', () => {
+          mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+
+          const { rerender } = render(<OrganizationLayout />)
+
+          mockCurrentOrganizationVar.mockReturnValue('previous-org-id')
+          mockUseSandbox.mockClear()
+          rerender(<OrganizationLayout />)
+
+          expect(queryByDataTest('spinner')).toBeInTheDocument()
+          expect(mockUseSandbox).not.toHaveBeenCalled()
+
+          mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
+          mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: PRODUCTION_PATH })
+          rerender(<OrganizationLayout />)
+
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).toBeInTheDocument()
+        })
+      })
+
       describe('WHEN the organization switches from non-sandbox to sandbox on rerender', () => {
         it('THEN should show the banner without remounting the Outlet', () => {
           mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
