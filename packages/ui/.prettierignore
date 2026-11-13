@@ -1,0 +1,4 @@
+coverage
+storybook-static
+*.md
+src/styles/*.css

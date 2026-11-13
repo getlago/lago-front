@@ -3,6 +3,7 @@ dist
 .DS_Store
 .env
 coverage
+storybook-static
 cypress/downloads
 .swc/
 .pnpm-store/

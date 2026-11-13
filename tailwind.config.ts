@@ -1,24 +1,23 @@
 import sharedConfig from 'lago-configs/tailwind'
+import uiPreset from 'lago-ui/tailwind-preset'
 import { Config } from 'tailwindcss/types/config'
 
-import { v2TailwindColors } from './src/styles/v2/tailwindColors'
-
 const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme'> = {
-  content: ['src/**/*.{js,ts,jsx,tsx}'],
-  presets: [sharedConfig],
+  content: [
+    'src/**/*.{js,ts,jsx,tsx}',
+    'packages/ui/src/**/*.{ts,tsx}',
+    '!packages/ui/src/**/*.stories.tsx',
+    '!packages/ui/src/**/__tests__/**',
+    '!packages/ui/src/stories/**',
+  ],
+  presets: [sharedConfig, uiPreset],
   darkMode: ['class'],
   theme: {
     extend: {
-      boxShadow: {
-        'v2-interactive': 'var(--v2-shadow-interactive)',
-        'v2-floating': 'var(--v2-shadow-floating)',
-        'v2-dialog': 'var(--v2-shadow-dialog)',
-      },
       aria: {
         invalid: 'invalid="true"',
       },
       colors: {
-        ...v2TailwindColors,
         background: 'oklch(var(--background) / <alpha-value>)',
         foreground: 'oklch(var(--foreground) / <alpha-value>)',
         card: {
