@@ -1,7 +1,7 @@
-import { DefaultContext, gql, Operation } from '@apollo/client'
+import { DefaultContext, Operation } from '@apollo/client'
 import { ErrorResponse } from '@apollo/client/link/error'
 import { captureException } from '@sentry/react'
-import { GraphQLFormattedError } from 'graphql'
+import { GraphQLFormattedError, parse } from 'graphql'
 
 import { addToast } from '~/core/apolloClient/reactiveVars'
 import { LagoApiError } from '~/generated/graphql'
@@ -50,11 +50,8 @@ jest.mock('@sentry/react', () => ({
 
 const SANDBOX_MANAGED_BY_PRODUCTION_ERROR_CODE = 'sandbox_managed_by_production'
 
-const QUERY = gql`
-  mutation updateSomething {
-    updateSomething
-  }
-`
+// Built with parse, not gql: codegen validates every gql document against the API schema.
+const QUERY = parse('mutation updateSomething { updateSomething }')
 
 const buildOperation = (context: DefaultContext = {}): Operation =>
   ({
