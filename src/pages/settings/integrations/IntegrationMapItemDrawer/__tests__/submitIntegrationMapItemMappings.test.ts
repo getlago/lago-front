@@ -1,3 +1,5 @@
+import { captureException } from '@sentry/react'
+
 import { IntegrationTypeEnum, MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import {
   CreateUpdateDeleteFunctions,
@@ -6,6 +8,8 @@ import {
 } from '~/pages/settings/integrations/common'
 
 import { submitIntegrationMapItemMappings } from '../submitIntegrationMapItemMappings'
+
+jest.mock('@sentry/react', () => ({ captureException: jest.fn() }))
 
 jest.mock('~/pages/settings/integrations/common', () => ({
   ...jest.requireActual('~/pages/settings/integrations/common'),
@@ -223,6 +227,23 @@ describe('submitIntegrationMapItemMappings', () => {
 
         expect(result.success).toBe(false)
         expect(result.itemMappings.default).toEqual(deletedMapping)
+      })
+
+      it('THEN should report the rejection so the failed save stays diagnosable', async () => {
+        const reason = new Error('network down')
+
+        mockHandleMutation.mockResolvedValueOnce({ success: true }).mockRejectedValueOnce(reason)
+
+        await submitIntegrationMapItemMappings({
+          values,
+          drawerData: buildDrawerData(),
+          mappingFunctions,
+          provider: IntegrationTypeEnum.Anrok,
+        })
+
+        expect(captureException).toHaveBeenCalledWith(reason, {
+          tags: { errorType: 'IntegrationMappingSaveError', provider: IntegrationTypeEnum.Anrok },
+        })
       })
     })
 

@@ -1,3 +1,5 @@
+import { captureException } from '@sentry/react'
+
 import {
   CreateUpdateDeleteFunctions,
   CreateUpdateDeleteSuccessAnswer,
@@ -87,7 +89,13 @@ export const submitIntegrationMapItemMappings = async <Entry>({
 
   return settledAnswers.reduce<SubmitIntegrationMapItemMappingsResult>(
     (acc, settled) => {
-      if (settled.status === 'rejected') return { ...acc, success: false }
+      if (settled.status === 'rejected') {
+        captureException(settled.reason, {
+          tags: { errorType: 'IntegrationMappingSaveError', provider },
+        })
+
+        return { ...acc, success: false }
+      }
 
       const { billingEntityKey, answer } = settled.value
 
