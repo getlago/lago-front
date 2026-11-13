@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client'
 import { useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
@@ -5,7 +6,11 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
-import { GetWebhookEndpointQuery } from '~/generated/graphql'
+import {
+  GetWebhookEndpointQuery,
+  useGetWebhookEndpointSigningKeysQuery,
+  WebhookEndpointSignatureAlgoEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useWebhookEventTypes } from '~/hooks/useWebhookEventTypes'
 
@@ -20,6 +25,18 @@ export const WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID = 'webhook-overview-sign
 export const WEBHOOK_OVERVIEW_SIGNING_KEY_REVEAL_BUTTON_TEST_ID =
   'webhook-overview-signing-key-reveal-button'
 
+gql`
+  query getWebhookEndpointSigningKeys($id: ID!) {
+    webhookEndpoint(id: $id) {
+      id
+      signingKeys {
+        id
+        secretKey
+      }
+    }
+  }
+`
+
 type WebhookOverviewProps = {
   webhook: GetWebhookEndpointQuery['webhookEndpoint'] | undefined
   loading: boolean
@@ -32,7 +49,16 @@ export const WebhookOverview = ({ webhook, loading, signatureLabel }: WebhookOve
   const [showSigningKey, setShowSigningKey] = useState(false)
 
   const { displayedEvents, eventCount } = getEventDisplayInfo(webhook?.eventTypes)
-  const signingKey = webhook?.signingKeys?.at(-1)?.secretKey
+  // `no-cache` keeps the plaintext key out of the normalized cache, which `cachePersistor`
+  // writes to IndexedDB. `nextFetchPolicy` too, as the client defaults it to `cache-first`.
+  const { data: signingKeysData } = useGetWebhookEndpointSigningKeysQuery({
+    variables: { id: webhook?.id ?? '' },
+    skip:
+      !webhook?.id || webhook.signatureAlgo !== WebhookEndpointSignatureAlgoEnum.StandardWebhooks,
+    fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'no-cache',
+  })
+  const signingKey = signingKeysData?.webhookEndpoint?.signingKeys?.at(-1)?.secretKey
 
   if (loading || eventTypesLoading) {
     return (

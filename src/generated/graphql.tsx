@@ -14914,6 +14914,13 @@ export type GetWebhookLogQueryVariables = Exact<{
 
 export type GetWebhookLogQuery = { __typename?: 'Query', webhooks: { __typename?: 'WebhookCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Webhook', id: string, status: WebhookStatusEnum, webhookType: string, createdAt: any, updatedAt: any, endpoint: string }> } };
 
+export type GetWebhookEndpointSigningKeysQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetWebhookEndpointSigningKeysQuery = { __typename?: 'Query', webhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, signingKeys?: Array<{ __typename?: 'WebhookEndpointSigningKey', id: string, secretKey: string }> | null } | null };
+
 export type GetOrganizationHmacDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -16997,7 +17004,7 @@ export type GetWebhookEndpointQueryVariables = Exact<{
 }>;
 
 
-export type GetWebhookEndpointQuery = { __typename?: 'Query', webhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null, eventTypes?: Array<EventTypeEnum> | null, signingKeys?: Array<{ __typename?: 'WebhookEndpointSigningKey', id: string, secretKey: string }> | null } | null };
+export type GetWebhookEndpointQuery = { __typename?: 'Query', webhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, name?: string | null, webhookUrl: string, signatureAlgo?: WebhookEndpointSignatureAlgoEnum | null, eventTypes?: Array<EventTypeEnum> | null } | null };
 
 export type EventTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -34182,6 +34189,53 @@ export type GetWebhookLogQueryHookResult = ReturnType<typeof useGetWebhookLogQue
 export type GetWebhookLogLazyQueryHookResult = ReturnType<typeof useGetWebhookLogLazyQuery>;
 export type GetWebhookLogSuspenseQueryHookResult = ReturnType<typeof useGetWebhookLogSuspenseQuery>;
 export type GetWebhookLogQueryResult = Apollo.QueryResult<GetWebhookLogQuery, GetWebhookLogQueryVariables>;
+export const GetWebhookEndpointSigningKeysDocument = gql`
+    query getWebhookEndpointSigningKeys($id: ID!) {
+  webhookEndpoint(id: $id) {
+    id
+    signingKeys {
+      id
+      secretKey
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetWebhookEndpointSigningKeysQuery__
+ *
+ * To run a query within a React component, call `useGetWebhookEndpointSigningKeysQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetWebhookEndpointSigningKeysQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetWebhookEndpointSigningKeysQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetWebhookEndpointSigningKeysQuery(baseOptions: Apollo.QueryHookOptions<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables> & ({ variables: GetWebhookEndpointSigningKeysQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>(GetWebhookEndpointSigningKeysDocument, options);
+      }
+export function useGetWebhookEndpointSigningKeysLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>(GetWebhookEndpointSigningKeysDocument, options);
+        }
+// @ts-ignore
+export function useGetWebhookEndpointSigningKeysSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>;
+export function useGetWebhookEndpointSigningKeysSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookEndpointSigningKeysQuery | undefined, GetWebhookEndpointSigningKeysQueryVariables>;
+export function useGetWebhookEndpointSigningKeysSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>(GetWebhookEndpointSigningKeysDocument, options);
+        }
+export type GetWebhookEndpointSigningKeysQueryHookResult = ReturnType<typeof useGetWebhookEndpointSigningKeysQuery>;
+export type GetWebhookEndpointSigningKeysLazyQueryHookResult = ReturnType<typeof useGetWebhookEndpointSigningKeysLazyQuery>;
+export type GetWebhookEndpointSigningKeysSuspenseQueryHookResult = ReturnType<typeof useGetWebhookEndpointSigningKeysSuspenseQuery>;
+export type GetWebhookEndpointSigningKeysQueryResult = Apollo.QueryResult<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>;
 export const GetOrganizationHmacDataDocument = gql`
     query getOrganizationHmacData {
   organization {
@@ -43041,10 +43095,6 @@ export const GetWebhookEndpointDocument = gql`
     webhookUrl
     signatureAlgo
     eventTypes
-    signingKeys {
-      id
-      secretKey
-    }
   }
 }
     `;

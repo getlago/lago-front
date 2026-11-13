@@ -10,10 +10,6 @@ gql`
       webhookUrl
       signatureAlgo
       eventTypes
-      signingKeys {
-        id
-        secretKey
-      }
     }
   }
 `
