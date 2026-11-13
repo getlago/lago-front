@@ -133,7 +133,7 @@
     "@radix-ui/react-slot": "1.5.0",
     "@radix-ui/react-tabs": "1.2.1",
     "@radix-ui/react-tooltip": "1.4.1",
-    "@rails/actioncable": "8.1.400",
+    "@rails/actioncable": "8.1.401",
     "@sentry/react": "10.78.0",
     "@superset-ui/embedded-sdk": "0.4.0",
     "@tanstack/react-form": "1.33.0",
