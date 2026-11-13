@@ -26,6 +26,13 @@ gql`
         name
         logoUrl
         accessibleByCurrentSession
+        environment
+        productionOrganization {
+          id
+        }
+        sandboxOrganization {
+          id
+        }
       }
     }
   }
