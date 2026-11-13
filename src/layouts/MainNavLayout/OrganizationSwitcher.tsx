@@ -39,6 +39,7 @@ export const ORGANIZATION_SWITCHER_BUTTON_TEST_ID = 'side-nav-user-infos'
 export const ORGANIZATION_SWITCHER_NAME_TEST_ID = 'side-nav-name'
 export const ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID = 'side-nav-sandbox-tag'
 export const ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID = 'organization-switcher-org-item'
+export const ORGANIZATION_SWITCHER_ORG_LIST_TEST_ID = 'organization-switcher-org-list'
 const ORGANIZATION_SWITCHER_LOGOUT_TEST_ID = 'side-nav-logout'
 const ORGANIZATION_SWITCHER_VERSION_LINK_TEST_ID = 'organization-switcher-version-link'
 
@@ -216,6 +217,7 @@ export const OrganizationSwitcher = ({
             {!!organizationList?.length && (
               <div
                 className="flex flex-col gap-1 overflow-auto p-2"
+                data-test={ORGANIZATION_SWITCHER_ORG_LIST_TEST_ID}
                 style={{ maxHeight: ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT }}
               >
                 <VerticalMenuSectionTitle title={currentUser?.email || ''} loading={isLoading} />

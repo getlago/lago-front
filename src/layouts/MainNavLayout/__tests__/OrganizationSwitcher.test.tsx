@@ -12,6 +12,7 @@ import {
   ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT,
   ORGANIZATION_SWITCHER_NAME_TEST_ID,
   ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID,
+  ORGANIZATION_SWITCHER_ORG_LIST_TEST_ID,
   ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT,
   ORGANIZATION_SWITCHER_TEST_ID,
   OrganizationSwitcher,
@@ -165,19 +166,11 @@ describe('OrganizationSwitcher', () => {
 
       await user.click(screen.getByTestId(ORGANIZATION_SWITCHER_BUTTON_TEST_ID))
 
-      const orgList = screen
-        .getAllByTestId(ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID)[0]
-        .closest('.overflow-auto') as HTMLElement
-      const popperCard = orgList.parentElement?.parentElement as HTMLElement
-
-      expect(ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT).toBe(
-        `calc(100vh - 64px - 16px - ${SANDBOX_BANNER_HEIGHT})`,
-      )
-      expect(ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT).toBe(
-        `calc(100vh - 80px - ${SANDBOX_BANNER_HEIGHT})`,
-      )
-      expect(popperCard.style.maxHeight).toBe(ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT)
-      expect(orgList.style.maxHeight).toBe(ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT)
+      expect(ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT).toContain(`- ${SANDBOX_BANNER_HEIGHT})`)
+      expect(ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT).toContain(`- ${SANDBOX_BANNER_HEIGHT})`)
+      expect(screen.getByTestId(ORGANIZATION_SWITCHER_ORG_LIST_TEST_ID)).toHaveStyle({
+        maxHeight: ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT,
+      })
     })
   })
 

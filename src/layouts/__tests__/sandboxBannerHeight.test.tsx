@@ -38,8 +38,10 @@ describe('useSandboxBannerHeightCssVar', () => {
     document.documentElement.style.removeProperty(SANDBOX_BANNER_HEIGHT_CSS_VAR)
   })
 
-  it('falls back to 0px when the variable is not set', () => {
-    expect(SANDBOX_BANNER_HEIGHT).toBe(`var(${SANDBOX_BANNER_HEIGHT_CSS_VAR}, 0px)`)
+  describe('GIVEN the banner height reference used in CSS calculations', () => {
+    it('THEN should read the CSS variable with a 0px fallback', () => {
+      expect(SANDBOX_BANNER_HEIGHT).toBe(`var(${SANDBOX_BANNER_HEIGHT_CSS_VAR}, 0px)`)
+    })
   })
 
   describe('GIVEN no banner is rendered', () => {
