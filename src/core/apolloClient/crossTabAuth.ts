@@ -2,13 +2,14 @@ import { ApolloClient } from '@apollo/client'
 
 import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
 
-import { resumePersistence } from './cachePersistor'
+import { adoptStoredSession } from './adoptStoredSession'
 import { clearLocalSession } from './cacheUtils'
 import {
   AUTH_TOKEN_LS_KEY,
   authTokenVar,
   getStoredAuthToken,
   resetLocationHistoryVar,
+  setCurrentOrganizationId,
 } from './reactiveVars'
 
 const getTokenSubject = (token: string | undefined): string | undefined => {
@@ -43,9 +44,16 @@ export const reconcileSession = (client: ApolloClient<object>): Promise<void> =>
 
   if (storedToken === sessionToken) return Promise.resolve()
 
+  if (isSameUser(sessionToken, storedToken)) {
+    authTokenVar(storedToken)
+
+    return Promise.resolve()
+  }
+
   // The portal is token-scoped and never holds an admin session: sync the
   // variable for the route guard, but never tear its cache down.
-  if (isCustomerPortalPath(window.location.pathname) || isSameUser(sessionToken, storedToken)) {
+  if (isCustomerPortalPath(window.location.pathname)) {
+    setCurrentOrganizationId(null)
     authTokenVar(storedToken)
 
     return Promise.resolve()
@@ -63,8 +71,7 @@ export const reconcileSession = (client: ApolloClient<object>): Promise<void> =>
         return
       }
 
-      if (latestToken) resumePersistence()
-      authTokenVar(latestToken)
+      adoptStoredSession(latestToken)
       resetLocationHistoryVar()
     })
     .finally(() => {
