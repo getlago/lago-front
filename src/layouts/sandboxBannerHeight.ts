@@ -21,7 +21,6 @@ export const useSandboxBannerHeightCssVar = (banner: HTMLElement | null): void =
 
     update()
 
-    // Re-measure when the banner wraps or unwraps (viewport resize, translation length).
     const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update)
 
     observer?.observe(banner)
