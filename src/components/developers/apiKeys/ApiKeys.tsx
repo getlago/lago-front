@@ -6,12 +6,10 @@ import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { PaginatedContent } from '~/components/designSystem/Pagination'
-import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import {
   API_KEY_COPY_ACTION_TEST_ID,
   API_KEY_REVEAL_ACTION_TEST_ID,
@@ -19,6 +17,7 @@ import {
 } from '~/components/developers/apiKeys/dataTestConstants'
 import { useDeleteApiKeyDialog } from '~/components/developers/apiKeys/DeleteApiKeyDialog'
 import { useRotateApiKeyDialog } from '~/components/developers/apiKeys/RotateApiKeyDialog'
+import { RevealableValue } from '~/components/developers/RevealableValue'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   SettingsListItem,
@@ -274,33 +273,13 @@ export const ApiKeys = () => {
                       title: translate('text_1731079786592ksaixhj9ir9'),
                       maxSpace: true,
                       content: ({ id }) => (
-                        <div className="flex items-center gap-2 py-3">
-                          <TypographyWithCopy
-                            className="ml-0 line-break-auto [text-wrap:auto]"
-                            color="grey700"
-                            variant="captionCode"
-                            masked={!showOrganizationId}
-                            maskOptions={{ dotsCount: 8, visibleChars: 3 }}
-                          >
-                            {id}
-                          </TypographyWithCopy>
-
-                          <Tooltip
-                            placement="top-start"
-                            title={
-                              showOrganizationId
-                                ? translate('text_1731082143943pr83kgzeh86')
-                                : translate('text_1731082129536sv17ey4g0sk')
-                            }
-                          >
-                            <Button
-                              variant="quaternary"
-                              size="small"
-                              icon={showOrganizationId ? 'eye-hidden' : 'eye'}
-                              onClick={() => setShowOrganizationId((prev) => !prev)}
-                            />
-                          </Tooltip>
-                        </div>
+                        <RevealableValue
+                          className="py-3"
+                          valueClassName="ml-0 line-break-auto [text-wrap:auto]"
+                          value={id}
+                          isRevealed={showOrganizationId}
+                          onToggleReveal={() => setShowOrganizationId((prev) => !prev)}
+                        />
                       ),
                     },
                     {
@@ -421,44 +400,17 @@ export const ApiKeys = () => {
                           const isRevealing = loadingKeyIds.has(id)
 
                           return (
-                            <div className="flex items-center gap-2 py-3">
-                              {isRevealing ? (
-                                <div className="flex h-8 items-center">
-                                  <Skeleton
-                                    variant="text"
-                                    textVariant="captionCode"
-                                    className="w-40"
-                                  />
-                                </div>
-                              ) : (
-                                <TypographyWithCopy
-                                  className="ml-0 line-break-auto [text-wrap:auto]"
-                                  color="grey700"
-                                  variant="captionCode"
-                                  onCopy={() => copyApiKey(id)}
-                                >
-                                  {apiKeyValue || value}
-                                </TypographyWithCopy>
-                              )}
-
-                              <Tooltip
-                                placement="top-start"
-                                title={
-                                  !!apiKeyValue
-                                    ? translate('text_1731082143943pr83kgzeh86')
-                                    : translate('text_1731082129536sv17ey4g0sk')
-                                }
-                              >
-                                <Button
-                                  variant="quaternary"
-                                  size="small"
-                                  loading={isRevealing}
-                                  icon={!!apiKeyValue ? 'eye-hidden' : 'eye'}
-                                  data-test={API_KEY_REVEAL_BUTTON_TEST_ID}
-                                  onClick={() => toggleApiKeyVisibility(id)}
-                                />
-                              </Tooltip>
-                            </div>
+                            <RevealableValue
+                              className="py-3"
+                              valueClassName="ml-0 line-break-auto [text-wrap:auto]"
+                              value={apiKeyValue || value}
+                              isRevealed={!!apiKeyValue}
+                              onToggleReveal={() => toggleApiKeyVisibility(id)}
+                              maskWhenHidden={false}
+                              isLoading={isRevealing}
+                              onCopy={() => copyApiKey(id)}
+                              revealButtonTestId={API_KEY_REVEAL_BUTTON_TEST_ID}
+                            />
                           )
                         },
                       },

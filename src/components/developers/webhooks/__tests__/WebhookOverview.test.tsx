@@ -1,7 +1,14 @@
-import { screen } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
-import { EventTypeEnum, WebhookEndpointSignatureAlgoEnum } from '~/generated/graphql'
-import { render } from '~/test-utils'
+import { TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID } from '~/components/designSystem/TypographyWithCopy'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import {
+  EventTypeEnum,
+  GetWebhookEndpointSigningKeysDocument,
+  WebhookEndpointSignatureAlgoEnum,
+} from '~/generated/graphql'
+import { render, TestMocksType } from '~/test-utils'
 
 import {
   WEBHOOK_OVERVIEW_CONTAINER_TEST_ID,
@@ -9,9 +16,13 @@ import {
   WEBHOOK_OVERVIEW_LOADING_TEST_ID,
   WEBHOOK_OVERVIEW_NAME_VALUE_TEST_ID,
   WEBHOOK_OVERVIEW_SIGNATURE_VALUE_TEST_ID,
+  WEBHOOK_OVERVIEW_SIGNING_KEY_REVEAL_BUTTON_TEST_ID,
+  WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID,
   WEBHOOK_OVERVIEW_URL_VALUE_TEST_ID,
   WebhookOverview,
 } from '../WebhookOverview'
+
+jest.mock('~/core/utils/copyToClipboard', () => ({ copyToClipboard: jest.fn() }))
 
 // Mock useWebhookEventTypes hook
 const mockGetEventDisplayInfo = jest.fn()
@@ -193,6 +204,120 @@ describe('WebhookOverview', () => {
 
         expect(screen.getByTestId(WEBHOOK_OVERVIEW_LOADING_TEST_ID)).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('GIVEN a Standard Webhooks endpoint', () => {
+    const standardWebhooksEndpoint = {
+      ...mockWebhook,
+      signatureAlgo: WebhookEndpointSignatureAlgoEnum.StandardWebhooks,
+    }
+
+    const signingKeysMock = (
+      signingKeys: Array<{ id: string; secretKey: string }> | null,
+    ): TestMocksType[number] => ({
+      request: {
+        query: GetWebhookEndpointSigningKeysDocument,
+        variables: { id: standardWebhooksEndpoint.id },
+      },
+      result: {
+        data: {
+          webhookEndpoint: { id: standardWebhooksEndpoint.id, signingKeys },
+        },
+      },
+    })
+
+    const renderStandardWebhooks = (mocks: TestMocksType) =>
+      render(
+        <WebhookOverview
+          webhook={standardWebhooksEndpoint}
+          loading={false}
+          signatureLabel="Standard Webhooks"
+        />,
+        { mocks },
+      )
+
+    describe('WHEN the query returns its signing keys', () => {
+      const mocks = [
+        signingKeysMock([
+          { id: 'key-old', secretKey: 'whsec_oldkeyvalue000' },
+          { id: 'key-current', secretKey: 'whsec_currentkeyabc' },
+        ]),
+      ]
+
+      it('THEN shows the current key masked by default', async () => {
+        renderStandardWebhooks(mocks)
+
+        const keyElement = await screen.findByTestId(WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID)
+
+        expect(keyElement).toHaveTextContent('••••••••abc')
+        expect(keyElement).not.toHaveTextContent('whsec_currentkeyabc')
+      })
+
+      it('THEN reveals and hides the key', async () => {
+        const user = userEvent.setup()
+
+        renderStandardWebhooks(mocks)
+
+        await user.click(
+          await screen.findByTestId(WEBHOOK_OVERVIEW_SIGNING_KEY_REVEAL_BUTTON_TEST_ID),
+        )
+
+        expect(screen.getByTestId(WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID)).toHaveTextContent(
+          'whsec_currentkeyabc',
+        )
+
+        await user.click(screen.getByTestId(WEBHOOK_OVERVIEW_SIGNING_KEY_REVEAL_BUTTON_TEST_ID))
+
+        expect(
+          screen.getByTestId(WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID),
+        ).not.toHaveTextContent('whsec_currentkeyabc')
+      })
+
+      it('THEN copies the full key while it is masked', async () => {
+        const user = userEvent.setup()
+
+        renderStandardWebhooks(mocks)
+
+        const keyElement = await screen.findByTestId(WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID)
+        const keyCopyButton = screen
+          .getAllByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID)
+          .find((button) => button.contains(keyElement)) as HTMLElement
+
+        await user.click(keyCopyButton)
+
+        expect(copyToClipboard).toHaveBeenCalledWith('whsec_currentkeyabc')
+      })
+    })
+
+    describe('WHEN the user cannot read signing keys', () => {
+      it('THEN shows no key once the query has answered', async () => {
+        const result = jest.fn(() => ({
+          data: { webhookEndpoint: { id: standardWebhooksEndpoint.id, signingKeys: null } },
+        }))
+
+        renderStandardWebhooks([{ ...signingKeysMock(null), result }])
+
+        await waitFor(() => expect(result).toHaveBeenCalled())
+        await act(() => new Promise((resolve) => setTimeout(resolve, 0)))
+
+        expect(
+          screen.queryByTestId(WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID),
+        ).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(WEBHOOK_OVERVIEW_SIGNING_KEY_REVEAL_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN an HMAC endpoint with no signing key', () => {
+    it('THEN shows no key', () => {
+      render(<WebhookOverview webhook={mockWebhook} loading={false} signatureLabel="HMAC" />)
+
+      expect(
+        screen.queryByTestId(WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID),
+      ).not.toBeInTheDocument()
     })
   })
 })
