@@ -441,6 +441,8 @@ export type AdminCreateOrganizationInput = {
   ownerEmail: Scalars['String']['input'];
   premiumIntegrations?: InputMaybe<Array<Scalars['String']['input']>>;
   reason: Scalars['String']['input'];
+  /** Also create the organization's sandbox */
+  selfServe?: InputMaybe<Scalars['Boolean']['input']>;
   timezone?: InputMaybe<TimezoneEnum>;
 };
 
@@ -448,6 +450,7 @@ export type AdminCreateOrganizationPayload = {
   __typename?: 'AdminCreateOrganizationPayload';
   inviteUrl: Scalars['String']['output'];
   organization: AdminOrganization;
+  sandboxOrganization?: Maybe<AdminOrganization>;
 };
 
 export enum AdminFeatureTypeEnum {
@@ -463,10 +466,14 @@ export type AdminOrganization = {
   __typename?: 'AdminOrganization';
   createdAt: Scalars['ISO8601DateTime']['output'];
   email?: Maybe<Scalars['String']['output']>;
+  environment: OrganizationEnvironmentEnum;
   featureFlags: Array<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   premiumIntegrations: Array<Scalars['String']['output']>;
+  productionOrganization?: Maybe<LinkedOrganization>;
+  sandboxOrganization?: Maybe<LinkedOrganization>;
+  selfServe: Scalars['Boolean']['output'];
 };
 
 /** AdminOrganizationCollection type */
@@ -5951,6 +5958,14 @@ export type LimitationInput = {
   planIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
+/** Production organization of a sandbox, or sandbox of a production organization */
+export type LinkedOrganization = {
+  __typename?: 'LinkedOrganization';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+};
+
 /** Security Log event */
 export enum LogEventEnum {
   /** api_key.created */
@@ -8143,6 +8158,14 @@ export type OrganizationBillingConfigurationInput = {
   invoiceFooter?: InputMaybe<Scalars['String']['input']>;
   invoiceGracePeriod?: InputMaybe<Scalars['Int']['input']>;
 };
+
+/** Whether an organization is a production organization or the sandbox of one */
+export enum OrganizationEnvironmentEnum {
+  /** Production organization */
+  Production = 'production',
+  /** Sandbox organization */
+  Sandbox = 'sandbox'
+}
 
 export type OverdueBalance = {
   __typename?: 'OverdueBalance';
@@ -17692,14 +17715,14 @@ export type AdminCreateOrganizationMutationVariables = Exact<{
 }>;
 
 
-export type AdminCreateOrganizationMutation = { __typename?: 'Mutation', adminCreateOrganization?: { __typename?: 'AdminCreateOrganizationPayload', inviteUrl: string, organization: { __typename?: 'AdminOrganization', id: string, name: string } } | null };
+export type AdminCreateOrganizationMutation = { __typename?: 'Mutation', adminCreateOrganization?: { __typename?: 'AdminCreateOrganizationPayload', inviteUrl: string, organization: { __typename?: 'AdminOrganization', id: string, name: string }, sandboxOrganization?: { __typename?: 'AdminOrganization', id: string, name: string } | null } | null };
 
 export type AdminOrganizationQueryVariables = Exact<{
   organizationId: Scalars['ID']['input'];
 }>;
 
 
-export type AdminOrganizationQuery = { __typename?: 'Query', adminOrganization?: { __typename?: 'AdminOrganization', id: string, name: string, email?: string | null, createdAt: any, premiumIntegrations: Array<string>, featureFlags: Array<string> } | null };
+export type AdminOrganizationQuery = { __typename?: 'Query', adminOrganization?: { __typename?: 'AdminOrganization', id: string, name: string, email?: string | null, createdAt: any, premiumIntegrations: Array<string>, featureFlags: Array<string>, environment: OrganizationEnvironmentEnum, productionOrganization?: { __typename?: 'LinkedOrganization', id: string, name: string } | null, sandboxOrganization?: { __typename?: 'LinkedOrganization', id: string, name: string } | null } | null };
 
 export type AdminToggleFeatureMutationVariables = Exact<{
   input: AdminToggleFeatureInput;
@@ -46161,6 +46184,10 @@ export const AdminCreateOrganizationDocument = gql`
       id
       name
     }
+    sandboxOrganization {
+      id
+      name
+    }
   }
 }
     `;
@@ -46199,6 +46226,15 @@ export const AdminOrganizationDocument = gql`
     createdAt
     premiumIntegrations
     featureFlags
+    environment
+    productionOrganization {
+      id
+      name
+    }
+    sandboxOrganization {
+      id
+      name
+    }
   }
 }
     `;

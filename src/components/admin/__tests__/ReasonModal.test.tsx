@@ -1,8 +1,14 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 
+import { addToast } from '~/core/apolloClient'
 import { render } from '~/test-utils'
 
-import { ReasonModal } from '../ReasonModal'
+import { ReasonModal, ReasonModalError } from '../ReasonModal'
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
+}))
 
 const mockModal = {
   visible: true,
@@ -103,6 +109,50 @@ describe('ReasonModal', () => {
     fireEvent.click(confirm)
     await waitFor(() => expect(mockModal.hide).toHaveBeenCalledTimes(1))
     expect(onConfirm).toHaveBeenCalledTimes(2)
+  })
+
+  it('shows the generic error toast when onConfirm throws an unknown error', async () => {
+    const onConfirm = jest.fn().mockRejectedValueOnce(new Error('Network unavailable'))
+
+    render(
+      <ReasonModal
+        id="reason-modal-test"
+        title="Update feature"
+        description="Explain"
+        onConfirm={onConfirm}
+      />,
+    )
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: reason } })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith({
+        severity: 'danger',
+        message: 'Failed to save the change. Please try again.',
+      }),
+    )
+  })
+
+  it('keeps the modal open and shows the message of a ReasonModalError', async () => {
+    const onConfirm = jest.fn().mockRejectedValueOnce(new ReasonModalError('Specific failure'))
+
+    render(
+      <ReasonModal
+        id="reason-modal-test"
+        title="Update feature"
+        description="Explain"
+        onConfirm={onConfirm}
+      />,
+    )
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: reason } })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith({ severity: 'danger', message: 'Specific failure' }),
+    )
+    expect(addToast).toHaveBeenCalledTimes(1)
+    expect(mockModal.hide).not.toHaveBeenCalled()
+    expect(screen.getByRole('textbox')).toHaveValue(reason)
   })
 
   it('cancels without submitting', () => {
