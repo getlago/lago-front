@@ -7,10 +7,10 @@ import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { reportMissingAppEnv } from '~/core/utils/appEnv'
 import { installLagoWindowApi } from '~/core/utils/featureFlagsConsole'
-import {
-  createWorkerLoadErrorHandler,
-  dropRecoverableWorkerLoadEvent,
-} from '~/core/utils/workerLoadRecovery'
+import { sentryEventHooks } from '~/core/utils/sentryEventHooks'
+import { scrubReplayEventUrlTokensIntegration } from '~/core/utils/sentryUrlTokens'
+import { getInitialReplayIntegrations } from '~/core/utils/sessionReplay'
+import { createWorkerLoadErrorHandler } from '~/core/utils/workerLoadRecovery'
 
 import './main.css'
 
@@ -21,11 +21,8 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
     dsn: sentryDsn,
     integrations: [
       Sentry.browserTracingIntegration(),
-      Sentry.replayIntegration({
-        maskAllText: false,
-        blockAllMedia: false,
-        maskAllInputs: false,
-      }),
+      scrubReplayEventUrlTokensIntegration(),
+      ...getInitialReplayIntegrations(),
     ],
     environment: appEnv,
     // Increase depth for nested objects (default is 3) to capture full GraphQL error details
@@ -42,7 +39,7 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
     release: appVersion,
     // Attach stack traces to all messages
     attachStacktrace: true,
-    beforeSend: dropRecoverableWorkerLoadEvent,
+    ...sentryEventHooks,
     // Filter out common browser extension errors and noise
     ignoreErrors: [
       // Chrome extensions

@@ -387,6 +387,7 @@ describe('CreateInviteDialog', () => {
       )
 
       expect(screen.getByTestId(INVITE_URL_DATA_TEST)).toBeInTheDocument()
+      expect(screen.getByTestId(INVITE_URL_DATA_TEST)).toHaveAttribute('data-sentry-mask')
     })
 
     it('copies invitation URL and shows toast when copy button is clicked', async () => {
