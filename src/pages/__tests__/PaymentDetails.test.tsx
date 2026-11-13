@@ -1,17 +1,26 @@
 import { screen, within } from '@testing-library/react'
 
 import { MainHeaderConfig } from '~/components/MainHeader/types'
-import { addToast } from '~/core/apolloClient'
+import { addToast, initializeTranslations } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   CurrencyEnum,
   PayablePaymentStatusEnum,
   PaymentTypeEnum,
   ProviderTypeEnum,
+  X402AssetEnum,
+  X402SettlementKindEnum,
+  X402SettlementStatusEnum,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import PaymentDetails from '../PaymentDetails'
+import PaymentDetails, {
+  PAYMENT_METHOD_TEST_ID,
+  X402_SETTLEMENT_CREDIT_GRANTED_TEST_ID,
+  X402_SETTLEMENT_KIND_TEST_ID,
+  X402_SETTLEMENT_SECTION_TEST_ID,
+  X402_SETTLEMENT_STATUS_TEST_ID,
+} from '../PaymentDetails'
 
 let capturedConfig: MainHeaderConfig | null = null
 
@@ -209,6 +218,109 @@ describe('PaymentDetails', () => {
         expect(providerPaymentId).toHaveClass('flex', 'items-center', 'gap-1')
         expect(within(providerPaymentId).getByTestId('outside/medium')).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('GIVEN a manual payment for a customer linked to a provider', () => {
+    it('THEN shows the manual payment method, not the provider', () => {
+      mockUseGetPaymentDetailsQuery.mockReturnValue({
+        data: {
+          payment: { ...mockPaymentData.payment, paymentProviderType: ProviderTypeEnum.Stripe },
+        },
+        loading: false,
+      })
+
+      render(<PaymentDetails />)
+
+      expect(screen.getByTestId(PAYMENT_METHOD_TEST_ID)).toHaveTextContent(
+        'text_173799550683709p2rqkoqd5',
+      )
+    })
+  })
+
+  describe('GIVEN an x402 payment', () => {
+    beforeAll(async () => {
+      await initializeTranslations()
+    })
+
+    const x402Payment = (settlement: Record<string, unknown>) => ({
+      data: {
+        payment: {
+          ...mockPaymentData.payment,
+          amountCents: '1000',
+          paymentType: PaymentTypeEnum.X402,
+          x402Settlement: {
+            id: 'settlement-1',
+            kind: X402SettlementKindEnum.CreditPurchase,
+            status: X402SettlementStatusEnum.Settled,
+            network: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
+            asset: X402AssetEnum.Usdc,
+            payerAddress: '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
+            payeeAddress: '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
+            settledAmountCents: '1000',
+            creditAmount: '10.0',
+            ...settlement,
+          },
+        },
+      },
+      loading: false,
+    })
+
+    it('THEN shows the method and the settlement section from the API', () => {
+      mockUseGetPaymentDetailsQuery.mockReturnValue(x402Payment({}))
+
+      render(<PaymentDetails />)
+
+      const section = screen.getByTestId(X402_SETTLEMENT_SECTION_TEST_ID)
+
+      expect(screen.getByTestId(PAYMENT_METHOD_TEST_ID)).toHaveTextContent(
+        'text_1793137178564a1ls2ponepm',
+      )
+      expect(screen.getByTestId(X402_SETTLEMENT_KIND_TEST_ID)).toHaveTextContent(
+        'text_1793137178565p638pj01m11',
+      )
+      expect(
+        within(section).getByText('0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359'),
+      ).toBeInTheDocument()
+      expect(
+        within(section).getByText('0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed'),
+      ).toBeInTheDocument()
+      expect(within(section).getByText('Solana')).toBeInTheDocument()
+      expect(within(section).getByText('USDC')).toBeInTheDocument()
+      expect(screen.getByTestId(X402_SETTLEMENT_STATUS_TEST_ID)).toHaveTextContent('Succeeded')
+      expect(screen.getByTestId(X402_SETTLEMENT_CREDIT_GRANTED_TEST_ID)).toHaveTextContent('10')
+    })
+
+    it('WHEN it paid an invoice THEN shows no credit granted and a pending status', () => {
+      mockUseGetPaymentDetailsQuery.mockReturnValue(
+        x402Payment({
+          kind: X402SettlementKindEnum.InvoicePayment,
+          status: X402SettlementStatusEnum.Pending,
+          creditAmount: null,
+        }),
+      )
+
+      render(<PaymentDetails />)
+
+      expect(screen.getByTestId(X402_SETTLEMENT_KIND_TEST_ID)).toHaveTextContent(
+        'text_1793137178565lnwwik8dvve',
+      )
+      expect(screen.getByTestId(X402_SETTLEMENT_CREDIT_GRANTED_TEST_ID)).toHaveTextContent('-')
+      expect(screen.getByTestId(X402_SETTLEMENT_STATUS_TEST_ID)).toHaveTextContent('Pending')
+    })
+
+    it('WHEN the cached payment refreshes THEN keeps the settlement section', () => {
+      mockUseGetPaymentDetailsQuery.mockReturnValue({ ...x402Payment({}), loading: true })
+
+      render(<PaymentDetails />)
+
+      expect(screen.getByTestId(X402_SETTLEMENT_SECTION_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('WHEN the payment has no settlement THEN shows no settlement section', () => {
+      render(<PaymentDetails />)
+
+      expect(screen.queryByTestId(X402_SETTLEMENT_SECTION_TEST_ID)).not.toBeInTheDocument()
     })
   })
 
