@@ -138,7 +138,7 @@
     "@superset-ui/embedded-sdk": "0.4.0",
     "@tanstack/react-form": "1.33.0",
     "@tanstack/react-table": "9.3.1",
-    "@tanstack/react-virtual": "3.14.25",
+    "@tanstack/react-virtual": "3.14.26",
     "@tiptap/core": "3.32.2",
     "@tiptap/extension-blockquote": "3.32.2",
     "@tiptap/extension-bullet-list": "3.32.2",
