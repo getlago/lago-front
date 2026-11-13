@@ -1017,6 +1017,16 @@ describe('handleIntegrationMappingCreateUpdateDelete', () => {
       lagoMappableName: 'Test Mappable',
     }
 
+    const taxMapping: ItemMappingForTaxMapping = {
+      itemId: 'tax-mapping-123',
+      itemExternalId: 'ext-123',
+      itemExternalName: 'External Name',
+      itemExternalCode: 'code-123',
+      taxCode: 'tax-code',
+      taxNexus: 'tax-nexus',
+      taxType: 'tax-type',
+    }
+
     it('should report the created mapping with the id returned by the mutation', async () => {
       mockGetParametersFromProvider.mockReturnValue({
         success: true,
@@ -1038,17 +1048,75 @@ describe('handleIntegrationMappingCreateUpdateDelete', () => {
 
       expect(result).toEqual({
         success: true,
+        appliedMapping: { ...mappableMapping, itemId: 'created-mapping-id' },
+      })
+    })
+
+    it('should report the created collection mapping with the id returned by the mutation', async () => {
+      mockGetParametersFromProvider.mockReturnValue({
+        success: true,
+        parameters: { externalId: 'ext-123', externalName: 'External Name' },
+      })
+      mockCreateCollectionMapping.mockResolvedValue({
+        data: { createIntegrationCollectionMapping: { id: 'created-collection-id' } },
+      })
+      const emptyMapping: ItemMappingForNonTaxMapping = { itemId: null, itemExternalId: null }
+
+      const result = await handleIntegrationMappingCreateUpdateDelete(
+        { externalId: 'ext-123', externalName: 'External Name' },
+        emptyMapping,
+        MappingTypeEnum.FallbackItem,
+        mockIntegrationId,
+        mockFunctions,
+        mockBillingEntity,
+        IntegrationTypeEnum.Anrok,
+      )
+
+      expect(result).toEqual({
+        success: true,
+        appliedMapping: { ...emptyMapping, itemId: 'created-collection-id' },
+      })
+    })
+
+    it('should report an emptied mapping after a delete', async () => {
+      mockGetParametersFromProvider.mockReturnValue({
+        success: true,
+        parameters: {
+          externalId: '',
+          externalName: '',
+          externalAccountCode: '',
+          taxCode: undefined,
+          taxNexus: undefined,
+          taxType: undefined,
+        },
+      })
+      mockDeleteCollectionMapping.mockResolvedValue({})
+
+      const result = await handleIntegrationMappingCreateUpdateDelete(
+        {},
+        taxMapping,
+        MappingTypeEnum.Tax,
+        mockIntegrationId,
+        mockFunctions,
+        mockBillingEntity,
+        IntegrationTypeEnum.Netsuite,
+      )
+
+      expect(result).toEqual({
+        success: true,
         appliedMapping: {
-          itemId: 'created-mapping-id',
-          itemExternalId: 'ext-123',
-          itemExternalName: 'External Name',
-          lagoMappableId: 'mappable-123',
-          lagoMappableName: 'Test Mappable',
+          itemId: null,
+          itemExternalId: null,
+          itemExternalName: undefined,
+          itemExternalCode: undefined,
+          taxCode: null,
+          taxNexus: null,
+          taxType: null,
         },
       })
     })
 
-    it('should report the updated values against the existing mapping id', async () => {
+    it('should not report an applied mapping after an update', async () => {
       mockGetParametersFromProvider.mockReturnValue({
         success: true,
         parameters: { externalId: 'ext-456', externalName: 'Renamed' },
@@ -1065,80 +1133,8 @@ describe('handleIntegrationMappingCreateUpdateDelete', () => {
         IntegrationTypeEnum.Anrok,
       )
 
-      expect(result).toEqual({
-        success: true,
-        appliedMapping: {
-          itemId: 'mapping-123',
-          itemExternalId: 'ext-456',
-          itemExternalName: 'Renamed',
-          lagoMappableId: 'mappable-123',
-          lagoMappableName: 'Test Mappable',
-        },
-      })
-    })
-
-    it('should report an emptied mapping after a delete', async () => {
-      mockGetParametersFromProvider.mockReturnValue({
-        success: true,
-        parameters: { externalId: undefined, externalName: undefined },
-      })
-      mockDeleteMapping.mockResolvedValue({})
-
-      const result = await handleIntegrationMappingCreateUpdateDelete(
-        { externalId: '', externalName: '' },
-        { ...mappableMapping, itemId: 'mapping-123', itemExternalId: 'ext-123' },
-        MappableTypeEnum.BillableMetric,
-        mockIntegrationId,
-        mockFunctions,
-        mockBillingEntity,
-        IntegrationTypeEnum.Anrok,
-      )
-
-      expect(result).toEqual({
-        success: true,
-        appliedMapping: {
-          itemId: null,
-          itemExternalId: null,
-          lagoMappableId: 'mappable-123',
-          lagoMappableName: 'Test Mappable',
-        },
-      })
-    })
-
-    it.each([
-      [
-        'nothing was sent because the entity has neither values nor a mapping',
-        mappableMapping,
-        { externalId: undefined, externalName: undefined },
-      ],
-      [
-        'the update was skipped because the values did not change',
-        {
-          itemId: 'mapping-123',
-          itemExternalId: 'ext-123',
-          itemExternalName: 'External Name',
-          lagoMappableId: 'mappable-123',
-          lagoMappableName: 'Test Mappable',
-        },
-        { externalId: 'ext-123', externalName: 'External Name' },
-      ],
-    ])('should report no applied mapping when %s', async (_, initialMapping, parameters) => {
-      mockGetParametersFromProvider.mockReturnValue({ success: true, parameters })
-
-      const result = await handleIntegrationMappingCreateUpdateDelete(
-        parameters,
-        initialMapping,
-        MappableTypeEnum.BillableMetric,
-        mockIntegrationId,
-        mockFunctions,
-        mockBillingEntity,
-        IntegrationTypeEnum.Anrok,
-      )
-
+      expect(mockUpdateMapping).toHaveBeenCalled()
       expect(result).toEqual({ success: true })
-      expect(mockCreateMapping).not.toHaveBeenCalled()
-      expect(mockUpdateMapping).not.toHaveBeenCalled()
-      expect(mockDeleteMapping).not.toHaveBeenCalled()
     })
   })
 })

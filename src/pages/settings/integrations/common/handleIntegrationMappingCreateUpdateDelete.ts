@@ -8,8 +8,9 @@ import type {
   CreateUpdateDeleteFunctions,
   CreateUpdateDeleteSuccessAnswer,
   ItemMappingForMappable,
+  ItemMappingForNonTaxMapping,
+  ItemMappingForTaxMapping,
   MappableIntegrationProvider,
-  MappableItemMapping,
   NetsuiteParameters,
   XeroParameters,
 } from './types'
@@ -60,42 +61,10 @@ const getParameterKeyFromInitialMappingKey = (
   }
 }
 
-type MappingParameters = AvalaraAndAnrokParameters | NetsuiteParameters | XeroParameters
-
-// Rebuilds the snapshot entry from what the mutation applied, so a retry derives
-// create/update/delete from the new server state. Null `parameters` means a delete.
-const applyParametersToMapping = (
-  initialMapping: MappableItemMapping,
-  itemId: string | null,
-  parameters: MappingParameters | null,
-): MappableItemMapping => {
-  // Only the keys the snapshot already carries are written: a key added here would be
-  // compared against `parameters` on the next submit and force a pointless update.
-  const applied = { ...initialMapping, itemId, itemExternalId: parameters?.externalId ?? null }
-
-  if ('itemExternalName' in applied) {
-    applied.itemExternalName = parameters?.externalName
-  }
-
-  if ('itemExternalCode' in applied) {
-    applied.itemExternalCode =
-      parameters && 'externalAccountCode' in parameters ? parameters.externalAccountCode : undefined
-  }
-
-  if ('taxCode' in applied) {
-    const taxParameters = parameters && 'taxCode' in parameters ? parameters : null
-
-    applied.taxCode = taxParameters?.taxCode ?? null
-    applied.taxNexus = taxParameters?.taxNexus ?? null
-    applied.taxType = taxParameters?.taxType ?? null
-  }
-
-  return applied
-}
-
 export const handleIntegrationMappingCreateUpdateDelete = async <FormValues>(
   inputValues: FormValues,
-  initialMapping: MappableItemMapping | undefined,
+  initialMapping:
+    ItemMappingForTaxMapping | ItemMappingForNonTaxMapping | ItemMappingForMappable | undefined,
   formType: MappingTypeEnum | MappableTypeEnum,
   integrationId: string,
   {
@@ -164,7 +133,17 @@ export const handleIntegrationMappingCreateUpdateDelete = async <FormValues>(
     const { errors } = answer
 
     if (!errors || errors.length === 0) {
-      return { success: true, appliedMapping: applyParametersToMapping(initialMapping, null, null) }
+      return {
+        success: true,
+        appliedMapping: {
+          ...initialMapping,
+          itemId: null,
+          itemExternalId: null,
+          itemExternalName: undefined,
+          itemExternalCode: undefined,
+          ...('taxCode' in initialMapping && { taxCode: null, taxNexus: null, taxType: null }),
+        },
+      }
     }
 
     return { success: false, errors }
@@ -221,10 +200,7 @@ export const handleIntegrationMappingCreateUpdateDelete = async <FormValues>(
     const { errors } = answer
 
     if (!errors || errors.length === 0) {
-      return {
-        success: true,
-        appliedMapping: applyParametersToMapping(initialMapping, initialMapping.itemId, parameters),
-      }
+      return { success: true }
     }
 
     return { success: false, errors }
@@ -237,7 +213,7 @@ export const handleIntegrationMappingCreateUpdateDelete = async <FormValues>(
   // This allows us to add the id only if needed
   const billingEntityObject = billingEntity.id ? { billingEntityId: billingEntity.id } : {}
 
-  const created = isCollectionContext(formType)
+  const answer = isCollectionContext(formType)
     ? await createCollectionMapping({
         variables: {
           input: {
@@ -247,10 +223,7 @@ export const handleIntegrationMappingCreateUpdateDelete = async <FormValues>(
             ...parameters,
           },
         },
-      }).then((answer) => ({
-        errors: answer.errors,
-        itemId: answer.data?.createIntegrationCollectionMapping?.id ?? null,
-      }))
+      }).then(({ errors, data }) => ({ errors, id: data?.createIntegrationCollectionMapping?.id }))
     : await createMapping({
         variables: {
           input: {
@@ -262,18 +235,12 @@ export const handleIntegrationMappingCreateUpdateDelete = async <FormValues>(
             ...parameters,
           },
         },
-      }).then((answer) => ({
-        errors: answer.errors,
-        itemId: answer.data?.createIntegrationMapping?.id ?? null,
-      }))
+      }).then(({ errors, data }) => ({ errors, id: data?.createIntegrationMapping?.id }))
 
-  const { errors, itemId } = created
+  const { errors, id } = answer
 
   if (!errors || errors.length === 0) {
-    return {
-      success: true,
-      appliedMapping: applyParametersToMapping(initialMapping, itemId, parameters),
-    }
+    return { success: true, appliedMapping: { ...initialMapping, itemId: id ?? null } }
   }
 
   return { success: false, errors }

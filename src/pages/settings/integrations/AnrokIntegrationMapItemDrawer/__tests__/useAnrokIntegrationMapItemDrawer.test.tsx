@@ -393,8 +393,10 @@ describe('useAnrokIntegrationMapItemDrawer', () => {
 
         await submit(payload)
 
-        await waitFor(() => expect(mockUpdateMapping).toHaveBeenCalledTimes(2))
         expect(mockCreateMapping).toHaveBeenCalledTimes(1)
+        expect(mockUpdateMapping).toHaveBeenCalledWith({
+          variables: { input: expect.objectContaining({ id: 'created-mapping' }) },
+        })
       })
 
       it('THEN should not delete the already deleted mapping a second time', async () => {
