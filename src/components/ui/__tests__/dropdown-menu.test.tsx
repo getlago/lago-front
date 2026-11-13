@@ -86,6 +86,24 @@ describe('Shadcn DropdownMenu', () => {
     await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument())
   })
 
+  it.each([false, true])('preserves caller typography and color with asChild=%s', (asChild) => {
+    render(
+      <DropdownMenu defaultOpen>
+        <DropdownMenuTrigger>Actions</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem asChild={asChild} className="v2-text-group-title text-text-muted">
+            {asChild ? <a href="#details">Details</a> : 'Details'}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>,
+    )
+    const item = screen.getByRole('menuitem', { name: 'Details' })
+
+    expect(item).toHaveClass('v2-text-group-title', 'text-text-muted')
+    expect(item).not.toHaveClass('font-normal')
+    expect(item).not.toHaveClass('text-text-default')
+  })
+
   it('keeps conditional text together and preserves zero', () => {
     render(
       <DropdownMenu defaultOpen>

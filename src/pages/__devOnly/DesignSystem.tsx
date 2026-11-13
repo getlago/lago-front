@@ -62,6 +62,7 @@ import { tw } from '~/styles/utils'
 
 import { shadcnBadgeTab } from './tabs/BadgeTest'
 import { BorderTest } from './tabs/BorderTest'
+import { shadcnBreadcrumbTab } from './tabs/BreadcrumbTest'
 import { shadcnButtonTab } from './tabs/ButtonTest'
 import { ColorTest } from './tabs/ColorTest'
 import { composableTableTab } from './tabs/ComposableTableTest'
@@ -2311,6 +2312,7 @@ const DesignSystem = () => {
           shadcnDropdownMenuTab,
           shadcnTabsTab,
           shadcnSeparatorTab,
+          shadcnBreadcrumbTab,
           // disabled simple tab
           {
             disabled: true,

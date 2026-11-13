@@ -1,0 +1,15 @@
+/* Menu links retain menu semantics instead of legacy blue anchor styling. */
+a.v2-dropdown-menu-item {
+  text-decoration: none;
+}
+
+a.v2-dropdown-menu-item:hover {
+  text-decoration: none;
+}
+
+/* Radix highlights focused menu items; legacy anchors must not add a ring. */
+a.v2-dropdown-menu-item:focus {
+  border-radius: theme('borderRadius.lg');
+  box-shadow: none;
+  outline: none;
+}

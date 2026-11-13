@@ -1,0 +1,21 @@
+/* Override legacy anchor styling only for v2 breadcrumb links. */
+a.v2-breadcrumb-link {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+a.v2-breadcrumb-link:hover {
+  text-decoration: none;
+}
+
+a.v2-breadcrumb-link:focus {
+  border-radius: theme('borderRadius.lg');
+}
+
+a.v2-breadcrumb-link:focus-visible {
+  @apply ring-4 ring-focus-ring ring-offset-0;
+}
+
+a.v2-breadcrumb-link:focus:not(:focus-visible) {
+  --tw-ring-shadow: 0 0 #0000;
+}
