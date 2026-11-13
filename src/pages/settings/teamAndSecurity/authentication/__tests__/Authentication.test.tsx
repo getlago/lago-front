@@ -969,6 +969,33 @@ describe('Authentication', () => {
         expect(testMockNavigateFn).not.toHaveBeenCalled()
       })
 
+      it('THEN should not make an SSO provider without integration clickable', async () => {
+        await prepare({ mocks: emptyIntegrationsMock })
+
+        const selector = await screen.findByTestId(
+          getSSOSelectorTestId(AuthenticationMethodsEnum.Okta),
+        )
+
+        expect(selector).not.toHaveClass('cursor-pointer')
+        expect(selector).toHaveAttribute('tabindex', '-1')
+      })
+
+      it('THEN should show the status synced from production on an SSO provider without integration', async () => {
+        mockOrganizationData = {
+          premiumIntegrations: [PremiumIntegrationTypeEnum.Okta],
+          authenticationMethods: [
+            AuthenticationMethodsEnum.EmailPassword,
+            AuthenticationMethodsEnum.Okta,
+          ],
+        }
+
+        await prepare({ mocks: emptyIntegrationsMock })
+
+        await waitFor(() => {
+          expect(screen.getAllByTestId(/validate-filled/).length).toBe(2)
+        })
+      })
+
       it('THEN should still navigate to the details of an existing SSO integration', async () => {
         const user = userEvent.setup()
 

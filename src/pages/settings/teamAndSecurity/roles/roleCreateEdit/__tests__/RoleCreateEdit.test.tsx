@@ -46,6 +46,11 @@ jest.mock('../../hooks/useRoleDetails', () => ({
 }))
 
 let mockIsLoadingPermissionGroups = false
+let mockIsSandbox = false
+
+jest.mock('~/hooks/useSandbox', () => ({
+  useSandbox: () => ({ isSandbox: mockIsSandbox, productionPath: null }),
+}))
 
 jest.mock('../../hooks/useRolePermissionsGroups', () => ({
   useRolePermissionsGroups: () => ({
@@ -73,6 +78,7 @@ describe('RoleCreateEdit', () => {
     mockRole = undefined
     mockIsLoadingRole = false
     mockIsLoadingPermissionGroups = false
+    mockIsSandbox = false
   })
 
   afterEach(() => {
@@ -217,6 +223,40 @@ describe('RoleCreateEdit', () => {
       await act(() => render(<RoleCreateEdit />))
 
       expect(screen.getByText('text_1767013866975h2lgwgojt4s')).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the organization is a sandbox', () => {
+    beforeEach(() => {
+      mockIsSandbox = true
+    })
+
+    describe('WHEN the create route is opened directly', () => {
+      it('THEN should replace it with the roles list and render no form', async () => {
+        await act(() => render(<RoleCreateEdit />))
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/settings/team-and-security/roles', {
+          replace: true,
+        })
+        expect(document.getElementById(ROLE_CREATE_EDIT_FORM_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the edit route is opened directly', () => {
+      it('THEN should replace it with the role details', async () => {
+        mockIsEdition = true
+        mockRoleId = 'role-1'
+
+        await act(() => render(<RoleCreateEdit />))
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith(
+          '/settings/team-and-security/roles/role-1',
+          {
+            replace: true,
+          },
+        )
+        expect(document.getElementById(ROLE_CREATE_EDIT_FORM_ID)).not.toBeInTheDocument()
+      })
     })
   })
 

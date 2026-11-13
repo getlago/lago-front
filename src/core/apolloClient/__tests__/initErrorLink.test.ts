@@ -82,9 +82,11 @@ describe('initializeApolloClient error link', () => {
     await initializeApolloClient()
   })
 
+  let warnSpy: jest.SpyInstance
+
   beforeEach(() => {
     jest.clearAllMocks()
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
   })
 
   afterEach(() => {
@@ -110,6 +112,14 @@ describe('initializeApolloClient error link', () => {
         triggerGraphQLError(SANDBOX_MANAGED_BY_PRODUCTION_ERROR_CODE)
 
         expect(captureException).not.toHaveBeenCalled()
+      })
+
+      it('THEN should still log the error like any other GraphQL error', () => {
+        triggerGraphQLError(SANDBOX_MANAGED_BY_PRODUCTION_ERROR_CODE)
+
+        expect(warnSpy).toHaveBeenCalledWith(
+          expect.stringContaining(SANDBOX_MANAGED_BY_PRODUCTION_ERROR_CODE),
+        )
       })
 
       it('THEN should use a dedicated message instead of the generic error toast', () => {

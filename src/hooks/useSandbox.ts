@@ -16,7 +16,7 @@ type UseSandbox = () => {
 
 export const useSandbox: UseSandbox = () => {
   const { organization } = useOrganizationInfos()
-  const { strippedPathname } = useLocation()
+  const { strippedPathname, search } = useLocation()
   const { currentUser } = useCurrentUser()
 
   const isSandbox = organization?.environment === OrganizationEnvironmentEnum.Sandbox
@@ -37,5 +37,5 @@ export const useSandbox: UseSandbox = () => {
     return { isSandbox, productionPath: `/${productionSlug}${HOME_ROUTE}` }
   }
 
-  return { isSandbox, productionPath: `/${productionSlug}${strippedPathname}` }
+  return { isSandbox, productionPath: `/${productionSlug}${strippedPathname}${search}` }
 }

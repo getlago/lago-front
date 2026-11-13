@@ -179,6 +179,30 @@ const Authentication = () => {
   const getSSOProviderConfig = (method: AuthenticationMethodsEnum) =>
     ssoProviders.find((provider) => provider.method === method)
 
+  const getSSOSelectorClickHandler = (
+    provider: (typeof ssoProviders)[number],
+  ): (() => unknown) | undefined => {
+    if (isSandbox && !provider.integrationId) return undefined
+
+    return () => {
+      if (!provider.shouldSee) {
+        return premiumWarningDialog.open()
+      }
+
+      if (provider.integrationId) {
+        return navigate(
+          generatePath(provider.route, {
+            integrationId: provider.integrationId,
+          }),
+        )
+      }
+
+      return provider.openAddDialog((id) =>
+        navigate(generatePath(provider.route, { integrationId: id })),
+      )
+    }
+  }
+
   const getEndContent = ({
     type,
     method,
@@ -196,7 +220,7 @@ const Authentication = () => {
     if (providerConfig && !providerConfig.shouldSee) {
       isPopperVisible = false
       icon = <Icon name="sparkles" size="medium" />
-    } else if (providerConfig && !providerConfig.integrationId) {
+    } else if (providerConfig && !providerConfig.integrationId && !isSandbox) {
       isPopperVisible = false
       icon = undefined
     } else if (type === 'enabled') {
@@ -424,25 +448,7 @@ const Authentication = () => {
                     {provider.icon}
                   </Avatar>
                 }
-                onClick={() => {
-                  if (isSandbox && !provider.integrationId) return
-
-                  if (!provider.shouldSee) {
-                    return premiumWarningDialog.open()
-                  }
-
-                  if (provider.integrationId) {
-                    return navigate(
-                      generatePath(provider.route, {
-                        integrationId: provider.integrationId,
-                      }),
-                    )
-                  }
-
-                  return provider.openAddDialog((id) =>
-                    navigate(generatePath(provider.route, { integrationId: id })),
-                  )
-                }}
+                onClick={getSSOSelectorClickHandler(provider)}
                 endContent={getEndContent({
                   method: provider.method,
                   type: authenticationMethods?.includes(provider.method) ? 'enabled' : 'disabled',
