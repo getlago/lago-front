@@ -23,8 +23,8 @@
 # Current pins: build lago-packages b24fd68 (20261023-r69, Node 24 since
 # lago-packages#33), runtime e2374ae (20261023-r68). Both ship
 # ca-certificates-bundle 20260909-r3, without the eMudhra/emSign roots.
-ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:20261112-r1772@sha256:f16ee96853d7f937ca5b0b49214c5be5b5baca67fbf721aeb2f0f2548cefc4fc
-ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:20261111-r1727@sha256:40f1134c639ed6a101be50cee6f93191e9504f8f5a4a1f16412c5d32bb0684dc
+ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:20261114-r1864@sha256:bc6b3c0944f0540bd0f81c1c7713d7706543c530af338c64dd94a07bc8db622d
+ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:20261114-r1863@sha256:6275085a2320263a71e7cf95c6584d4b43e3107fa5ded6365948f6877c066fe0
 
 # --- deps stage --------------------------------------------------------------
 FROM ${BUILD_IMAGE} AS deps
