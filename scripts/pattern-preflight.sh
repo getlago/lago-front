@@ -79,6 +79,26 @@ for f in $files; do
       "$STYLE (GraphQL operations are colocated with their consumer)"
   done
 
+  if echo "$added" | grep -qE 'silentError: *true'; then
+    flag "$f" "silentError: true also hides every outage from Sentry: silence only the codes the UI shows" \
+      "$PATTERNS/graphql-errors.md, $PATTERNS/one-owner-per-rule.md"
+  fi
+
+  if [[ "$f" == src/pages/* ]] && echo "$added" | grep -qE 'skip:.*(isPremium|hasFeatureFlag|hasPermissions)' ; then
+    flag "$f" "page gated with a skip on a flag, license or permission: gate the route instead" \
+      "$PATTERNS/one-owner-per-rule.md (Access gates live on the route)"
+  fi
+
+  if grep -q 'StatusType' "$path" && echo "$added" | grep -qE 'label: *translate\('; then
+    flag "$f" "Status label passed as a translated string: return a StatusLabel key" \
+      "$PATTERNS/one-owner-per-rule.md (Pass keys, not translated strings)"
+  fi
+
+  if echo "$added" | grep -qE '^\s*//.*lago-api' && echo "$added" | grep -qE '^export const [A-Z_]+[^=]*= *\['; then
+    flag "$f" "a list mirrored from lago-api: read it from GraphQL" \
+      "$PATTERNS/one-owner-per-rule.md (Lists the API validates come from the API)"
+  fi
+
   casts="$(echo "$added" | grep -vE '^\s*import ' | grep -oE '\bas (unknown|[A-Z][A-Za-z0-9_.<>]*)' \
     | sort -u | tr '\n' ' ' || true)"
   if [ -n "$casts" ]; then

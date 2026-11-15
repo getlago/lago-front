@@ -227,3 +227,10 @@ toast, counts as a success and the dialog closes. Map the server errors onto the
 then throw; toast the network error, then rethrow. Keep the server-error mapping out of
 the dialog hook, in a typed module beside the schema that narrows `extensions.details`
 with type guards instead of asserting its shape.
+
+**A field the form hides is not submitted.** When a selection hides a field (a
+deselected option, a section switched off), the field keeps its value in form state,
+and `mapFromFormToApi` sends it unless it filters by the same condition the UI uses.
+The API then validates a value the user can't see or fix, and the save fails on it.
+Filter in the mapper, from the same helper the render reads, and test the switch:
+fill the field, change the selection, assert the payload.
