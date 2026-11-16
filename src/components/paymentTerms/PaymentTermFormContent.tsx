@@ -1,0 +1,153 @@
+import InputAdornment from '@mui/material/InputAdornment'
+import { useStore } from '@tanstack/react-form'
+
+import { Alert } from '~/components/designSystem/Alert'
+import { Typography } from '~/components/designSystem/Typography'
+import { PAYMENT_TERM_FIELDS_BY_TYPE } from '~/core/constants/paymentTerm'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
+import { usePaymentTerm } from '~/hooks/usePaymentTerm'
+
+import {
+  PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID,
+  PAYMENT_TERM_TYPE_COMBOBOX_TEST_CLASSNAME,
+} from './dataTestConstants'
+import { PAYMENT_TERM_FORM_DEFAULT_VALUES, PaymentTermInheritedFrom } from './types'
+import { isConcreteTermType, paymentTermFromFormValues } from './utils'
+import { isDayOfMonthValid, isMonthOffsetValid, paymentTermFormSchema } from './validationSchema'
+
+const DAY_OF_MONTH_ERROR_KEY = 'text_1789042962229ojqymcu3289'
+const MONTH_OFFSET_ERROR_KEY = 'text_1789042962229esmw981wwyt'
+
+type PaymentTermFormContentExtraProps = {
+  canInherit?: boolean
+  inheritedFrom?: PaymentTermInheritedFrom
+  displayInDialog?: boolean
+}
+
+const paymentTermFormContentDefaultProps: PaymentTermFormContentExtraProps = {
+  canInherit: false,
+  inheritedFrom: undefined,
+  displayInDialog: false,
+}
+
+export const PaymentTermFormContent = withFieldGroup({
+  defaultValues: PAYMENT_TERM_FORM_DEFAULT_VALUES,
+  props: paymentTermFormContentDefaultProps,
+  render: function PaymentTermFormContentRender({
+    group,
+    canInherit,
+    inheritedFrom,
+    displayInDialog,
+  }) {
+    const { translate } = useInternationalization()
+    const { getDueDatePreviewCopy, getTermTypeComboboxData } = usePaymentTerm()
+
+    const termType = useStore(group.store, (state) => state.values.termType)
+    const days = useStore(group.store, (state) => state.values.days)
+    const dayOfMonth = useStore(group.store, (state) => state.values.dayOfMonth)
+    const monthOffset = useStore(group.store, (state) => state.values.monthOffset)
+
+    const fields = isConcreteTermType(termType) ? PAYMENT_TERM_FIELDS_BY_TYPE[termType] : []
+    const values = { termType, days, dayOfMonth, monthOffset }
+    // The range errors show as the user types, ahead of the submit-first form validation,
+    // and the preview goes with them: an out-of-range day has no due date to show.
+    const previewTerm = paymentTermFormSchema.safeParse(values).success
+      ? paymentTermFromFormValues(values)
+      : null
+    const dayOfMonthError = isDayOfMonthValid(dayOfMonth)
+      ? undefined
+      : translate(DAY_OF_MONTH_ERROR_KEY)
+    const monthOffsetError = isMonthOffsetValid(monthOffset)
+      ? undefined
+      : translate(MONTH_OFFSET_ERROR_KEY)
+
+    return (
+      <div className="flex flex-col gap-6">
+        <group.AppField name="termType">
+          {(field) => (
+            <field.ComboBoxField
+              className={PAYMENT_TERM_TYPE_COMBOBOX_TEST_CLASSNAME}
+              data={getTermTypeComboboxData({ canInherit, inheritedFrom })}
+              disableClearable
+              helperText={translate('text_1787603382163hij5oo9hsov')}
+              label={translate('text_17876033821620igdzcdhzxl')}
+              placeholder={translate('text_178760338216360dag3pqr3v')}
+              PopperProps={{ displayInDialog }}
+              sortValues={false}
+            />
+          )}
+        </group.AppField>
+
+        {fields.includes('days') && (
+          <group.AppField name="days">
+            {(field) => (
+              <field.TextInputField
+                beforeChangeFormatter={['positiveNumber', 'int']}
+                label={translate('text_1787603382163iraqb5sxgi1')}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {translate('text_638dc196fb209d551f3d814d')}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
+          </group.AppField>
+        )}
+
+        {fields.includes('dayOfMonth') && (
+          <div className="flex flex-row items-end gap-3">
+            <group.AppField name="dayOfMonth">
+              {(field) => (
+                <field.TextInputField
+                  beforeChangeFormatter={['positiveNumber', 'int']}
+                  className="flex-1"
+                  label={translate('text_1787603382163oqy9psl295a')}
+                  helperText={translate('text_17931224143614x6qy003wuf')}
+                  errorOverride={dayOfMonthError}
+                />
+              )}
+            </group.AppField>
+
+            <Typography className="pb-9" variant="body" color="grey700">
+              -
+            </Typography>
+
+            <group.AppField name="monthOffset">
+              {(field) => (
+                <field.TextInputField
+                  beforeChangeFormatter={['positiveNumber', 'int']}
+                  className="flex-1"
+                  label={translate('text_1787603382163w1trdmfds5q')}
+                  helperText={translate('text_1793122414361w9qm005cw2b')}
+                  errorOverride={monthOffsetError}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        {translate('text_1787603382163u2kxy2qxchd')}
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
+            </group.AppField>
+          </div>
+        )}
+
+        {!!previewTerm && (
+          <Alert type="info">
+            <Typography
+              variant="body"
+              color="grey700"
+              data-test={PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID}
+            >
+              {getDueDatePreviewCopy(previewTerm)}
+            </Typography>
+          </Alert>
+        )}
+      </div>
+    )
+  },
+})

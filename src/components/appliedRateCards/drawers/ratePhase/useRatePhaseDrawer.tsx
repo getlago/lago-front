@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
-import { useRef } from 'react'
+import { ReactNode, useEffect, useRef } from 'react'
 
 import { RATE_PHASE_REFETCH_QUERIES } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { hasRateOverride } from '~/components/appliedRateCards/overrideDiff'
@@ -34,11 +34,12 @@ import {
 import {
   buildCreatePhaseSeed,
   buildRatePhaseSchemaContext,
+  getActiveRateFieldValues,
   getLiveSequenceLock,
   insertPhaseReference,
 } from './ratePhaseSeeds'
 import { scrollToFirstRatePhaseError } from './scrollToFirstRatePhaseError'
-import { RatePhaseDrawerProps } from './types'
+import { RateCardForRatePhaseFields, RatePhaseDrawerProps } from './types'
 
 gql`
   fragment RatePhaseForDrawer on RatePhase {
@@ -92,7 +93,9 @@ gql`
 
 const RATE_PHASE_FORM_ID = 'rate-phase-drawer-form'
 
-export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProps) => void } => {
+export const useRatePhaseDrawer = (
+  rateCard: RateCardForRatePhaseFields | undefined,
+): { openDrawer: (params: RatePhaseDrawerProps) => void } => {
   const { translate } = useInternationalization()
   const drawer = useFormDrawer()
   const { createMoreControl, isCreateMoreEnabled, resetCreateMore, resetSignal, notifyReset } =
@@ -210,6 +213,24 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
     },
   })
 
+  const renderChildren = (
+    rateCardForFields: RateCardForRatePhaseFields,
+    isEdition: boolean,
+  ): ReactNode => (
+    <CreateMoreResetBoundary resetSignal={resetSignal}>
+      <RatePhaseFormFields
+        form={form}
+        title={translate(
+          isEdition ? 'text_1791485670326gf0h0n6l1w7' : 'text_17914856703265og9agmiry1',
+        )}
+        isEdition={isEdition}
+        getOtherPhases={() => otherPhases.current}
+        getSequenceLock={() => schemaContext.current.sequenceLock}
+        rateCard={rateCardForFields}
+      />
+    </CreateMoreResetBoundary>
+  )
+
   const openDrawer = (params: RatePhaseDrawerProps): void => {
     currentParams.current = params
     otherPhases.current = params.otherPhases
@@ -242,18 +263,7 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
       shouldPromptOnClose: () => form.state.isDirty,
       onClose: () => form.reset(),
       secondaryAction: params.mode === 'create' ? createMoreControl : undefined,
-      children: (
-        <CreateMoreResetBoundary resetSignal={resetSignal}>
-          <RatePhaseFormFields
-            form={form}
-            title={title}
-            isEdition={params.mode === 'edit'}
-            getOtherPhases={() => otherPhases.current}
-            getSequenceLock={() => schemaContext.current.sequenceLock}
-            rateCard={params.rateCard}
-          />
-        </CreateMoreResetBoundary>
-      ),
+      children: renderChildren(params.rateCard, params.mode === 'edit'),
       mainAction: (
         <form.AppForm>
           <form.SubmitButton dataTest="rate-phase-drawer-save">
@@ -267,6 +277,28 @@ export const useRatePhaseDrawer = (): { openDrawer: (params: RatePhaseDrawerProp
       ),
     })
   }
+
+  // NiceModal drawers keep the props they opened with; resync here if `rateCard` resolves later.
+  useEffect(() => {
+    const params = currentParams.current
+
+    if (!params || !rateCard || params.rateCard === rateCard) return
+    if (form.state.values.overrideEnabled) return
+
+    currentParams.current = { ...params, rateCard }
+
+    const activeRateValues = getActiveRateFieldValues(rateCard)
+
+    form.setFieldValue('rateModel', activeRateValues.rateModel)
+    form.setFieldValue('properties', activeRateValues.properties)
+    form.setFieldValue('billingIntervalCount', activeRateValues.billingIntervalCount)
+    form.setFieldValue('billingIntervalUnit', activeRateValues.billingIntervalUnit)
+    form.setFieldValue('minAmountCents', activeRateValues.minAmountCents)
+    form.setFieldValue('conversionRate', activeRateValues.conversionRate)
+
+    drawer.update({ children: renderChildren(rateCard, params.mode === 'edit') })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rateCard])
 
   return { openDrawer }
 }

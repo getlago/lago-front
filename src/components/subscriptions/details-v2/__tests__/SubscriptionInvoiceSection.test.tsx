@@ -1,3 +1,11 @@
+import {
+  INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
+  INHERIT_FROM_CUSTOMER_LABEL_KEY,
+  paymentTermFormValuesFromTerm,
+} from '~/components/paymentTerms/utils'
+import { PAYMENT_TERM_VALUE_KEYS } from '~/core/constants/paymentTerm'
+import { PaymentTermTypeEnum, SubscriptionInvoiceSectionFragment } from '~/generated/graphql'
+import { BillingEntityByIdStatus } from '~/hooks/useBillingEntitiesOptions'
 import { render } from '~/test-utils'
 
 import { SubscriptionInvoiceSection } from '../SubscriptionInvoiceSection'
@@ -51,27 +59,56 @@ jest.mock('~/hooks/customer/useUpdateSubscriptionSettings', () => ({
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
-  useInternationalization: () => ({ translate: (key: string) => key }),
+  useInternationalization: () => ({
+    translate: (key: string, data?: Record<string, unknown>) =>
+      data ? `${key} ${Object.values(data).join(' ')}` : key,
+  }),
 }))
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: () => true }),
 }))
 
+let mockBoundBillingEntity: { paymentTerm: { termType: PaymentTermTypeEnum } } | undefined
+let mockBillingEntityStatus: BillingEntityByIdStatus = 'resolved'
+
+jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
+  useBillingEntityById: (id: string | null | undefined) =>
+    id
+      ? { billingEntity: mockBoundBillingEntity, status: mockBillingEntityStatus }
+      : { billingEntity: undefined, status: 'resolved' },
+}))
+
+const PAYMENT_TERM_LABEL_KEY = 'text_1778660219891rv2r5gjmklq'
+
 const subscription = {
   id: 'sub_1',
   consolidateInvoice: true,
   skipInvoiceCustomSections: false,
   selectedInvoiceCustomSections: [{ id: 'cs_1', name: 'Bank details' }],
-  customer: { id: 'cust_1', externalId: 'ext_1' },
-}
+  billingEntityId: null,
+  paymentTerm: null,
+  customer: {
+    id: 'cust_1',
+    externalId: 'ext_1',
+    paymentTerm: null,
+    billingEntity: { id: 'be_1', paymentTerm: { termType: PaymentTermTypeEnum.EndOfMonth } },
+  },
+} as unknown as SubscriptionInvoiceSectionFragment
 
-const renderSection = (overrides: Partial<typeof subscription> = {}) =>
+const renderSection = (overrides: Partial<SubscriptionInvoiceSectionFragment> = {}) =>
   render(<SubscriptionInvoiceSection subscription={{ ...subscription, ...overrides }} />)
+
+const paymentTermItem = () =>
+  mockInfoGridItem.mock.calls.find(([props]) => props.label === PAYMENT_TERM_LABEL_KEY)?.[0] as {
+    value: string
+  }
 
 describe('SubscriptionInvoiceSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockBoundBillingEntity = undefined
+    mockBillingEntityStatus = 'resolved'
   })
 
   it('renders the invoicing header, consolidation, the custom-section display and the drawer', () => {
@@ -90,7 +127,11 @@ describe('SubscriptionInvoiceSection', () => {
       expect.objectContaining({ customerId: 'cust_1' }),
     )
     expect(mockDrawer).toHaveBeenCalledWith(
-      expect.objectContaining({ onSave: mockSaveInvoicing, showCustomSection: true }),
+      expect.objectContaining({
+        onSave: mockSaveInvoicing,
+        showCustomSection: true,
+        withPaymentTerm: true,
+      }),
     )
   })
 
@@ -117,6 +158,100 @@ describe('SubscriptionInvoiceSection', () => {
         invoiceCustomSections: [{ id: 'cs_1', name: 'Bank details' }],
         skipInvoiceCustomSections: false,
       },
+      paymentTerm: paymentTermFormValuesFromTerm(null, true),
     })
+  })
+
+  describe('GIVEN the subscription payment term', () => {
+    it('shows the subscription own term and seeds the drawer with it', () => {
+      const paymentTerm = { termType: PaymentTermTypeEnum.Net, days: 60 }
+
+      renderSection({ paymentTerm })
+
+      // The overview used to leave the term out entirely while the wallet page showed it.
+      expect(paymentTermItem().value).toContain(PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net])
+
+      const { action } = mockSectionHeader.mock.calls.at(-1)?.[0] as {
+        action: { onClick: () => void }
+      }
+
+      action.onClick()
+
+      expect(mockOpenDrawer).toHaveBeenCalledWith(
+        expect.objectContaining({ paymentTerm: paymentTermFormValuesFromTerm(paymentTerm, true) }),
+      )
+    })
+
+    it('shows the customer term marked as inherited from the customer', () => {
+      renderSection({
+        customer: {
+          ...subscription.customer,
+          paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 30 },
+        },
+      })
+
+      expect(paymentTermItem().value).toContain(INHERIT_FROM_CUSTOMER_LABEL_KEY)
+      expect(mockDrawer).toHaveBeenCalledWith(
+        expect.objectContaining({
+          paymentTermInheritedFrom: expect.objectContaining({
+            labelKey: INHERIT_FROM_CUSTOMER_LABEL_KEY,
+          }),
+        }),
+      )
+    })
+
+    it('shows the billing entity term marked as inherited from the entity otherwise', () => {
+      mockBoundBillingEntity = undefined
+
+      renderSection({
+        paymentTerm: null,
+        billingEntityId: null,
+        customer: { ...subscription.customer, paymentTerm: null },
+      })
+
+      expect(paymentTermItem().value).toContain(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)
+      expect(paymentTermItem().value).toContain(
+        PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.EndOfMonth],
+      )
+    })
+
+    it('reads the term off the entity the subscription is bound to', () => {
+      mockBoundBillingEntity = { paymentTerm: { termType: PaymentTermTypeEnum.DueOnReceipt } }
+
+      renderSection({ billingEntityId: 'be_2' })
+
+      expect(paymentTermItem().value).toContain(
+        PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.DueOnReceipt],
+      )
+    })
+
+    describe.each<BillingEntityByIdStatus>(['loading', 'unavailable'])(
+      'WHEN the bound billing entity is %s',
+      (status) => {
+        beforeEach(() => {
+          mockBillingEntityStatus = status
+        })
+
+        it('THEN shows a dash and gives the drawer no inherited term', () => {
+          renderSection({ billingEntityId: 'be_2' })
+
+          expect(paymentTermItem().value).toBe('-')
+          expect(mockDrawer).toHaveBeenCalledWith(
+            expect.objectContaining({ paymentTermInheritedFrom: undefined }),
+          )
+        })
+
+        it('THEN still shows the subscription own term', () => {
+          renderSection({
+            billingEntityId: 'be_2',
+            paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 60 },
+          })
+
+          expect(paymentTermItem().value).toContain(
+            PAYMENT_TERM_VALUE_KEYS[PaymentTermTypeEnum.Net],
+          )
+        })
+      },
+    )
   })
 })

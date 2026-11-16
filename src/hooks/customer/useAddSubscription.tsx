@@ -23,6 +23,7 @@ import {
   CustomerDetailsFragmentDoc,
   GetSubscriptionForCreateSubscriptionQuery,
   LagoApiError,
+  PaymentTermFieldsFragmentDoc,
   PlanOverridesInput,
   useCreateSubscriptionMutation,
   useUpdateSubscriptionMutation,
@@ -41,6 +42,9 @@ gql`
       endingAt
       name
       purchaseOrderNumber
+      paymentTerm {
+        ...PaymentTermFields
+      }
       externalId
       activationRules {
         id
@@ -88,6 +92,9 @@ gql`
       endingAt
       name
       purchaseOrderNumber
+      paymentTerm {
+        ...PaymentTermFields
+      }
       externalId
       activationRules {
         id
@@ -126,6 +133,8 @@ gql`
   }
 
   ${CustomerDetailsFragmentDoc}
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 type UseAddSubscriptionReturn = {

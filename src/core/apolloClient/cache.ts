@@ -23,6 +23,7 @@ export const queryFieldPolicies: Record<string, FieldPolicy> = {
   billableMetrics: createSinglePageFieldPolicy(),
   catalogPlans: createSinglePageFieldPolicy(),
   contractAppliedRateCards: createSinglePageFieldPolicy(),
+  contractUsages: createSinglePageFieldPolicy(),
   contracts: createSinglePageFieldPolicy(),
   coupons: createSinglePageFieldPolicy(),
   creditNotes: createSinglePageFieldPolicy(),
@@ -125,6 +126,11 @@ export const cache = new InMemoryCache({
     },
     Event: {
       keyFields: EVENT_KEY_FIELDS,
+    },
+    // `rateCardCode` (the id alias ContractUsageTable uses) is a catalog code, routinely shared
+    // across contracts - normalizing by it would collapse unrelated rows into one cache entity.
+    RateCardUsage: {
+      keyFields: false,
     },
   },
 })

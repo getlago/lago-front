@@ -17,10 +17,13 @@ export const getInvoiceCustomSectionSummaryKey = (
   return INVOICING_SUMMARY_KEYS.fallback
 }
 
+export const INVOICING_SUMMARY_SEPARATOR = ' • '
+
 interface BuildInvoicingSettingsSummaryArgs {
-  consolidateInvoice: boolean
+  consolidateInvoice?: boolean
   invoiceCustomSection?: InvoiceCustomSectionInput | null
   showCustomSection: boolean
+  paymentTermCopy?: string
   translate: (key: string) => string
 }
 
@@ -31,17 +34,26 @@ export const buildInvoicingSettingsSummary = ({
   consolidateInvoice,
   invoiceCustomSection,
   showCustomSection,
+  paymentTermCopy,
   translate,
 }: BuildInvoicingSettingsSummaryArgs): string => {
-  const parts = [
-    translate(
-      consolidateInvoice ? INVOICING_SUMMARY_KEYS.consolidate : INVOICING_SUMMARY_KEYS.isolate,
-    ),
-  ]
+  const parts: string[] = []
+
+  if (consolidateInvoice !== undefined) {
+    parts.push(
+      translate(
+        consolidateInvoice ? INVOICING_SUMMARY_KEYS.consolidate : INVOICING_SUMMARY_KEYS.isolate,
+      ),
+    )
+  }
 
   if (showCustomSection) {
     parts.push(translate(getInvoiceCustomSectionSummaryKey(invoiceCustomSection)))
   }
 
-  return parts.join(' • ')
+  if (paymentTermCopy) {
+    parts.push(paymentTermCopy)
+  }
+
+  return parts.join(INVOICING_SUMMARY_SEPARATOR)
 }

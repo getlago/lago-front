@@ -90,6 +90,10 @@ Notes:
   rule only flags it in files new to a PR, since older call sites aren't re-scanned. Write
   `void drawer.open({...})` in new code to keep it fire-and-forget without the finding;
   don't retrofit existing call sites just to silence it.
+- **Props that change while the drawer is open** (data that loads after `openDrawer`) go
+  through `drawer.update({ children })`, called from an effect keyed on stable references.
+  `update` is the same function for the hook's lifetime and does nothing once the drawer is
+  closed. Do not build an external store for it. Reference: `useInvoicingSettingsDrawer`.
 - Reference sites: `usePlanSettingsDrawer`, `useSubscriptionInformationDrawer`,
   `useCreditsDrawer`, `useRecurringRuleDrawer`.
 
@@ -99,11 +103,20 @@ The drawer stack uses `import.meta`, unsupported by jest, so **every** test touc
 drawer must mock the module:
 
 ```typescript
+const mockOpen = jest.fn()
+const mockClose = jest.fn()
+const mockUpdate = jest.fn()
+
 jest.mock('~/components/drawers/useDrawer', () => ({
-  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
-  useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn(), update: mockUpdate }),
+  useFormDrawer: () => ({ open: mockOpen, close: mockClose, update: mockUpdate }),
 }))
 ```
+
+- **Return the same `mockUpdate` on every call.** A drawer hook calls `update` from an effect
+  that depends on it, so a fresh `jest.fn()` per render re-runs that effect on every render.
+  A suite that renders such a hook for real and omits `update` throws
+  `updateDrawer is not a function`.
 
 - **A consumer that starts calling a drawer hook** breaks its page's existing suites, which never
   needed the mock before (`Must use import to load ES Module: …/drawerStack.ts`, CI only): grep

@@ -3,10 +3,11 @@ import userEvent, { UserEvent } from '@testing-library/user-event'
 import { GraphQLFormattedError } from 'graphql'
 import { ComponentProps } from 'react'
 
+import type GoogleAuthButton from '~/components/auth/GoogleAuthButton'
 import { PASSWORD_HINTS_TEST_IDS } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
 import { envGlobalVar, initializeTranslations } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
-import { LOGIN_ROUTE } from '~/core/router'
+import { LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import * as localStorageUtils from '~/core/utils/localStorage'
 import { SELF_SERVE_SIGNUP_SECRET_LS_KEY } from '~/core/utils/localStorageKeys'
 import { getRecaptchaToken, loadRecaptcha, unloadRecaptcha } from '~/core/utils/recaptcha'
@@ -33,6 +34,10 @@ import {
 
 type EnvGlobal = ReturnType<typeof envGlobalVar>
 type SelfServeCheckEmailProps = ComponentProps<typeof SelfServeCheckEmail>
+type GoogleAuthButtonProps = ComponentProps<typeof GoogleAuthButton>
+
+const GOOGLE_AUTH_BUTTON_STUB_TEST_ID = 'google-auth-button-stub'
+const mockGoogleAuthButtonProps = jest.fn()
 
 function mockRenderCheckEmail({
   email,
@@ -52,6 +57,17 @@ function mockRenderCheckEmail({
 
 jest.mock('../components/selfServeCheckEmail/SelfServeCheckEmail', () => ({
   SelfServeCheckEmail: (props: SelfServeCheckEmailProps) => mockRenderCheckEmail(props),
+}))
+
+function mockRenderGoogleAuthButton(props: GoogleAuthButtonProps): JSX.Element {
+  mockGoogleAuthButtonProps(props)
+
+  return <div data-test={GOOGLE_AUTH_BUTTON_STUB_TEST_ID}>{props.label}</div>
+}
+
+jest.mock('~/components/auth/GoogleAuthButton', () => ({
+  __esModule: true,
+  default: (props: GoogleAuthButtonProps) => mockRenderGoogleAuthButton(props),
 }))
 
 jest.mock('~/core/apolloClient', () => {
@@ -132,6 +148,10 @@ const TOO_MANY_ATTEMPTS_COPY = 'Too many attempts. Please wait a few minutes and
 const SIGN_UP_UNAVAILABLE_COPY = 'Sign-up is unavailable right now. Please reload the page.'
 const CAPTCHA_FAILED_COPY = "We couldn't confirm you're human. Please try again."
 const GENERIC_ERROR_COPY = 'Something went wrong on our side. Please try again.'
+const COMPANY_GOOGLE_ACCOUNT_COPY = 'Please sign up with your company Google account.'
+const GOOGLE_SIGN_UP_INCOMPLETE_COPY = "Google sign-up didn't complete. Please try again."
+const SIGN_UP_WITH_GOOGLE_COPY = 'Sign up with Google'
+const OR_DIVIDER_COPY = 'OR'
 const RECAPTCHA_NOTICE_COPY =
   'This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.'
 const RECAPTCHA_NOTICE_START = /^This site is protected by reCAPTCHA/
@@ -1078,6 +1098,182 @@ describe('SelfServeSignUp', () => {
         await pickRegion(UNITED_STATES)
 
         expect(assignSpy).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the Google sign-up is offered', () => {
+    beforeEach(() => {
+      mockRegionFrontUrls({ usFrontUrl: US_FRONT_URL, euFrontUrl: EU_FRONT_URL })
+    })
+
+    describe('WHEN the first step is shown', () => {
+      it('THEN should render the Google button in sign-up mode, its errors going to the page', () => {
+        render(<SelfServeSignUp />)
+
+        expect(mockGoogleAuthButtonProps).toHaveBeenLastCalledWith({
+          mode: 'signup',
+          label: SIGN_UP_WITH_GOOGLE_COPY,
+          onError: expect.any(Function),
+        })
+      })
+
+      it('THEN should place the Google button then the OR divider between the data region and the email field', () => {
+        render(<SelfServeSignUp />)
+
+        const orderedElements = [
+          screen.getByTestId(SELF_SERVE_SIGNUP_DATA_REGION_TEST_ID),
+          screen.getByTestId(GOOGLE_AUTH_BUTTON_STUB_TEST_ID),
+          screen.getByText(OR_DIVIDER_COPY),
+          screen.getByTestId(SELF_SERVE_SIGNUP_EMAIL_FIELD_TEST_ID),
+        ]
+
+        expect(
+          orderedElements
+            .slice(1)
+            .map(
+              (element, index) =>
+                !!(
+                  orderedElements[index].compareDocumentPosition(element) &
+                  Node.DOCUMENT_POSITION_FOLLOWING
+                ),
+            ),
+        ).toEqual([true, true, true])
+      })
+    })
+  })
+
+  describe('GIVEN the Google button reports an error on click', () => {
+    beforeEach(() => {
+      mockRegionFrontUrls({ usFrontUrl: '', euFrontUrl: '' })
+    })
+
+    describe('WHEN Google is not set up on the API', () => {
+      it('THEN should show it in the page banner', () => {
+        render(<SelfServeSignUp />)
+
+        const { onError } = mockGoogleAuthButtonProps.mock.lastCall?.[0] ?? {}
+
+        act(() => onError?.(LagoApiError.GoogleAuthMissingSetup))
+
+        expect(screen.getByTestId(SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID)).toHaveTextContent(
+          GENERIC_ERROR_COPY,
+        )
+      })
+    })
+  })
+
+  describe('GIVEN the Google callback sent an error code back', () => {
+    const openSignUpWith = (search: string): void => {
+      window.history.replaceState({}, '', `${SIGN_UP_ROUTE}${search}`)
+    }
+
+    beforeEach(() => {
+      mockRegionFrontUrls({ usFrontUrl: '', euFrontUrl: '' })
+    })
+
+    afterEach(() => {
+      window.history.replaceState({}, '', '/')
+    })
+
+    describe('WHEN the first step is shown', () => {
+      it.each([
+        [LagoApiError.CompanyGoogleAccountRequired, COMPANY_GOOGLE_ACCOUNT_COPY],
+        [LagoApiError.InvalidGoogleState, GOOGLE_SIGN_UP_INCOMPLETE_COPY],
+        [LagoApiError.InvalidGoogleCode, GOOGLE_SIGN_UP_INCOMPLETE_COPY],
+        [LagoApiError.InvalidGoogleToken, GOOGLE_SIGN_UP_INCOMPLETE_COPY],
+        [LagoApiError.CaptchaFailed, CAPTCHA_FAILED_COPY],
+        [LagoApiError.TooManyRequests, TOO_MANY_ATTEMPTS_COPY],
+        [LagoApiError.SelfServeDisabled, SIGN_UP_UNAVAILABLE_COPY],
+        [LagoApiError.SignupDisabled, SIGN_UP_UNAVAILABLE_COPY],
+        [LagoApiError.GoogleAuthMissingSetup, GENERIC_ERROR_COPY],
+        [LagoApiError.LockAcquisitionFailed, GENERIC_ERROR_COPY],
+        [LagoApiError.InternalError, GENERIC_ERROR_COPY],
+        ['unknown', GENERIC_ERROR_COPY],
+      ])('THEN should show the %s message in the banner', (code, expectedCopy) => {
+        openSignUpWith(`?lago_error_code=${code}`)
+
+        render(<SelfServeSignUp />)
+
+        expect(screen.getByTestId(SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID)).toHaveTextContent(
+          expectedCopy,
+        )
+      })
+
+      it('THEN should remove the error code from the URL and keep the path', () => {
+        openSignUpWith(`?lago_error_code=${LagoApiError.CompanyGoogleAccountRequired}`)
+
+        render(<SelfServeSignUp />)
+
+        expect(window.location.pathname).toBe(SIGN_UP_ROUTE)
+        expect(window.location.search).toBe('')
+      })
+    })
+
+    describe('WHEN the router state of the page is set', () => {
+      it('THEN should keep it while removing the error code', () => {
+        const routerState = { usr: { from: { pathname: '/acme/customers' } }, key: 'k1', idx: 0 }
+
+        window.history.replaceState(
+          routerState,
+          '',
+          `${SIGN_UP_ROUTE}?lago_error_code=${LagoApiError.InvalidGoogleState}`,
+        )
+
+        render(<SelfServeSignUp />)
+
+        expect(window.location.search).toBe('')
+        expect(window.history.state?.usr).toEqual(routerState.usr)
+      })
+    })
+
+    describe('WHEN the form is submitted and the API refuses a field', () => {
+      it('THEN should remove the Google banner', async () => {
+        const user = userEvent.setup()
+
+        mockSignUp.mockResolvedValue(
+          buildSignUpError({
+            status: 422,
+            code: LagoApiError.UnprocessableEntity,
+            details: { email: ['email_domain_not_allowed'] },
+          }),
+        )
+        openSignUpWith(`?lago_error_code=${LagoApiError.CompanyGoogleAccountRequired}`)
+
+        render(<SelfServeSignUp />)
+
+        expect(screen.getByTestId(SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID)).toBeInTheDocument()
+
+        await fillForm(user)
+        await submitForm(user)
+
+        expect(await screen.findByText(COMPANY_EMAIL_COPY)).toBeInTheDocument()
+        expect(screen.queryByTestId(SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the page is opened without an error code', () => {
+    beforeEach(() => {
+      mockRegionFrontUrls({ usFrontUrl: '', euFrontUrl: '' })
+      window.history.replaceState({}, '', `${SIGN_UP_ROUTE}?ref=pricing`)
+    })
+
+    afterEach(() => {
+      window.history.replaceState({}, '', '/')
+    })
+
+    describe('WHEN the first step is shown', () => {
+      it('THEN should not show any banner', () => {
+        render(<SelfServeSignUp />)
+
+        expect(screen.queryByTestId(SELF_SERVE_SIGNUP_ERROR_ALERT_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should leave the URL untouched', () => {
+        render(<SelfServeSignUp />)
+
+        expect(window.location.search).toBe('?ref=pricing')
       })
     })
   })

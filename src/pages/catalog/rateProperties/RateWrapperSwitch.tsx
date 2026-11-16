@@ -6,7 +6,6 @@ import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { CustomCharge } from '~/components/plans/CustomCharge'
 import { DynamicCharge } from '~/components/plans/DynamicCharge'
 import { PackageCharge } from '~/components/plans/PackageCharge'
-import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { StandardCharge } from '~/components/plans/StandardCharge'
 import { ChargeFormProvider } from '~/contexts/ChargeFormContext'
 import {
@@ -16,8 +15,6 @@ import {
   GraduatedRateTierFragmentDoc,
   PackageChargeForRateFragmentDoc,
   PercentageChargeForRateFragmentDoc,
-  PricingGroupKeysForRateFragmentDoc,
-  ProductTypeEnum,
   RateCardRateModelEnum,
   StandardChargeForRateFragmentDoc,
   VolumeRateTierFragmentDoc,
@@ -35,7 +32,6 @@ gql`
     ...PackageChargeForRate
     ...PercentageChargeForRate
     ...CustomChargeForRate
-    ...PricingGroupKeysForRate
     graduatedRanges {
       ...GraduatedRateTier
     }
@@ -51,7 +47,6 @@ gql`
   ${PackageChargeForRateFragmentDoc}
   ${PercentageChargeForRateFragmentDoc}
   ${CustomChargeForRateFragmentDoc}
-  ${PricingGroupKeysForRateFragmentDoc}
   ${GraduatedRateTierFragmentDoc}
   ${GraduatedPercentageRateTierFragmentDoc}
   ${VolumeRateTierFragmentDoc}
@@ -97,7 +92,6 @@ const BoundVolumeRateTiersTable =
 
 export type RateWrapperSwitchProps = {
   rateModel: RateCardRateModelEnum
-  productType: ProductTypeEnum
   currency: CurrencyEnum
   pricingUnitShortName: string | undefined
   disabled?: boolean
@@ -106,7 +100,6 @@ export type RateWrapperSwitchProps = {
 
 const rateWrapperSwitchDefaultProps: RateWrapperSwitchProps = {
   rateModel: RateCardRateModelEnum.Standard,
-  productType: ProductTypeEnum.Metered,
   currency: CurrencyEnum.Usd,
   pricingUnitShortName: undefined,
   disabled: false,
@@ -119,7 +112,6 @@ export const RateWrapperSwitch = withFieldGroup({
   render: function RateWrapperSwitchRender({
     group,
     rateModel,
-    productType,
     currency,
     pricingUnitShortName,
     disabled,
@@ -172,10 +164,7 @@ export const RateWrapperSwitch = withFieldGroup({
         disabled={disabled}
         chargePricingUnitShortName={pricingUnitShortName}
       >
-        <div className="flex flex-col gap-6">
-          {contentByRateModel[rateModel]}
-          {productType === ProductTypeEnum.Metered && <PricingGroupKeys />}
-        </div>
+        <div className="flex flex-col gap-6">{contentByRateModel[rateModel]}</div>
       </ChargeFormProvider>
     )
   },

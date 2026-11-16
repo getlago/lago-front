@@ -89,12 +89,12 @@ const mockQuote = {
     displayName: 'Acme Corp',
     externalId: 'ext-acme-001',
     currency: null,
-    netPaymentTerm: null,
+    paymentTerm: null,
     billingEntity: {
       id: 'be-1',
       code: 'default',
       name: 'Default Entity',
-      netPaymentTerm: 0,
+      paymentTerm: null,
     },
   },
 }

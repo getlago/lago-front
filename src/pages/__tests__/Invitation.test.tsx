@@ -5,11 +5,15 @@ import userEvent from '@testing-library/user-event'
 import { GraphQLError } from 'graphql'
 import { MemoryRouter, Route, Routes } from 'react-router'
 
+import type { GoogleInviteState } from '~/components/auth/googleOauthFlow'
 import { PASSWORD_HINTS_TEST_IDS } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
+import { initializeTranslations } from '~/core/apolloClient'
+import { INVITATION_ROUTE_FORM } from '~/core/router'
 import {
   AcceptInviteDocument,
   EntraIdAcceptInviteDocument,
   GetinviteDocument,
+  GoogleAcceptInviteDocument,
   JoinOrganizationDocument,
   LagoApiError,
   OktaAcceptInviteDocument,
@@ -25,11 +29,22 @@ import Invitation, {
 
 const getByDataTest = (testId: string) => document.querySelector(`[data-test="${testId}"]`)
 
-jest.mock('~/hooks/core/useInternationalization', () => ({
-  useInternationalization: () => ({
-    translate: (key: string) => key,
-  }),
-}))
+let mockUseRealTranslations = false
+
+jest.mock('~/hooks/core/useInternationalization', () => {
+  const actual = jest.requireActual<typeof import('~/hooks/core/useInternationalization')>(
+    '~/hooks/core/useInternationalization',
+  )
+
+  return {
+    useInternationalization: () =>
+      mockUseRealTranslations
+        ? actual.useInternationalization()
+        : {
+            translate: (key: string) => key,
+          },
+  }
+})
 
 const mockIsAuthenticated = jest.fn()
 
@@ -335,6 +350,63 @@ const renderInvitation = async (
   })
 
   return result
+}
+
+const GOOGLE_CODE = 'google-code'
+const GOOGLE_STATE = '1793952050.abcdef0123456789'
+const GOOGLE_STATE_SECRET = 'state-secret-1'
+const GOOGLE_INVITE_STATE: GoogleInviteState = {
+  googleState: GOOGLE_STATE,
+  googleStateSecret: GOOGLE_STATE_SECRET,
+}
+const GOOGLE_GENERIC_ERROR_COPY = 'An error occurred, please try again'
+
+const createGoogleAcceptInviteMock = ({
+  input,
+  errorCode,
+}: {
+  input: Record<string, string>
+  errorCode?: LagoApiErrorCode
+}): MockedResponse => ({
+  request: {
+    query: GoogleAcceptInviteDocument,
+    variables: { input: { code: GOOGLE_CODE, inviteToken: 'test-token', ...input } },
+  },
+  result: errorCode
+    ? { errors: [graphQLError(errorCode)] }
+    : {
+        data: {
+          googleAcceptInvite: {
+            token: 'google-user-token',
+            organization: { id: 'org-1', slug: 'test-org' },
+          },
+        },
+      },
+})
+
+const renderGoogleInvitationForm = async (
+  mocks: MockedResponse[],
+  locationState?: GoogleInviteState,
+): Promise<void> => {
+  await act(async () => {
+    render(
+      <MockedProvider mocks={mocks} defaultOptions={{ mutate: { errorPolicy: 'all' } }}>
+        <MemoryRouter
+          initialEntries={[
+            {
+              pathname: '/invitation/test-token/form',
+              search: `?code=${GOOGLE_CODE}`,
+              state: locationState,
+            },
+          ]}
+        >
+          <Routes>
+            <Route path={INVITATION_ROUTE_FORM} element={<Invitation />} />
+          </Routes>
+        </MemoryRouter>
+      </MockedProvider>,
+    )
+  })
 }
 
 describe('Invitation', () => {
@@ -888,6 +960,73 @@ describe('Invitation', () => {
 
       expect(await screen.findByText('text_63246f875e2228ab7b63dcf4')).toBeInTheDocument()
       expect(document.querySelector('.animate-pulse')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the Google callback opened the invitation form with a code', () => {
+    beforeAll(async () => {
+      await initializeTranslations()
+    })
+
+    beforeEach(() => {
+      mockUseRealTranslations = true
+    })
+
+    afterEach(() => {
+      mockUseRealTranslations = false
+    })
+
+    describe('WHEN the callback handed over the signed state and the kept secret', () => {
+      it('THEN should accept the invitation with them and enter the invited organization', async () => {
+        await renderGoogleInvitationForm(
+          [
+            createInviteMock(),
+            createGoogleAcceptInviteMock({
+              input: { state: GOOGLE_STATE, stateSecret: GOOGLE_STATE_SECRET },
+            }),
+          ],
+          GOOGLE_INVITE_STATE,
+        )
+
+        await waitFor(() => {
+          expect(mockOnLogIn).toHaveBeenCalledWith(expect.anything(), 'google-user-token')
+        })
+        expect(mockNavigate).toHaveBeenCalledWith('/test-org', {
+          replace: true,
+          skipSlugPrepend: true,
+        })
+      })
+    })
+
+    describe('WHEN the callback handed over no Google state', () => {
+      it('THEN should accept the invitation with the code only', async () => {
+        await renderGoogleInvitationForm([
+          createInviteMock(),
+          createGoogleAcceptInviteMock({ input: {} }),
+        ])
+
+        await waitFor(() => {
+          expect(mockOnLogIn).toHaveBeenCalledWith(expect.anything(), 'google-user-token')
+        })
+      })
+    })
+
+    describe('WHEN the API refuses the Google state', () => {
+      it('THEN should show the generic Google error', async () => {
+        await renderGoogleInvitationForm(
+          [
+            createInviteMock(),
+            createGoogleAcceptInviteMock({
+              input: { state: GOOGLE_STATE, stateSecret: GOOGLE_STATE_SECRET },
+              errorCode: 'InvalidGoogleState',
+            }),
+          ],
+          GOOGLE_INVITE_STATE,
+        )
+
+        expect(await screen.findByText(GOOGLE_GENERIC_ERROR_COPY)).toBeInTheDocument()
+        expect(mockOnLogIn).not.toHaveBeenCalled()
+      })
     })
   })
 })

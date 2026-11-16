@@ -1,10 +1,6 @@
 import { cleanup, screen } from '@testing-library/react'
 
-import {
-  DunningEmail,
-  DunningEmailProps,
-  DunningEmailSkeleton,
-} from '~/components/emails/DunningEmail'
+import { DunningEmail, DunningEmailSkeleton } from '~/components/emails/DunningEmail'
 import { LocaleEnum } from '~/core/translations'
 import { CurrencyEnum, ProviderTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -27,7 +23,6 @@ const mockInvoices = [
 const mockCustomer = {
   displayName: 'Test Customer',
   paymentProvider: ProviderTypeEnum.Stripe,
-  netPaymentTerm: 30,
   billingConfiguration: {
     documentLocale: LocaleEnum.en,
   },
@@ -37,7 +32,6 @@ const mockOrganization = {
   name: 'Test Organization',
   logoUrl: 'https://example.com/logo.png',
   email: 'billing@example.com',
-  netPaymentTerm: 15,
   billingConfiguration: {
     documentLocale: LocaleEnum.en,
   },
@@ -45,33 +39,6 @@ const mockOrganization = {
 
 describe('DunningEmail', () => {
   afterEach(cleanup)
-
-  it.each([null, undefined])(
-    'GIVEN an organization term of %s and no customer term THEN payment is due upon generation',
-    async (netPaymentTerm) => {
-      const organization: DunningEmailProps['organization'] = {
-        name: mockOrganization.name,
-        ...(netPaymentTerm === null ? { netPaymentTerm } : {}),
-      }
-
-      render(
-        <DunningEmail
-          locale={LocaleEnum.en}
-          invoices={mockInvoices}
-          customer={{ ...mockCustomer, netPaymentTerm: null }}
-          organization={organization}
-          currency={CurrencyEnum.Usd}
-          overdueAmount={300}
-        />,
-      )
-
-      expect(
-        await screen.findByText(
-          'Our contractually agreed payment terms require payment upon invoice generation.',
-        ),
-      ).toBeInTheDocument()
-    },
-  )
 
   it('renders with customer and organization data', () => {
     const { container } = render(
@@ -157,8 +124,10 @@ describe('DunningEmail', () => {
     expect(screen.getByText('billing@example.com')).toBeInTheDocument()
   })
 
-  it('uses customer netPaymentTerm when available', () => {
-    const { container } = render(
+  // Spec #1 §7: with terms set per customer and billing entity, a single generic sentence
+  // can no longer state one truthfully, so the email no longer mentions payment terms.
+  it('does not mention payment terms', () => {
+    render(
       <DunningEmail
         locale={LocaleEnum.en}
         invoices={mockInvoices}
@@ -169,49 +138,7 @@ describe('DunningEmail', () => {
       />,
     )
 
-    // Component renders with customer data
-    expect(container).toBeInTheDocument()
-  })
-
-  it('falls back to organization netPaymentTerm when customer has none', () => {
-    const customerWithoutTerm = {
-      ...mockCustomer,
-      netPaymentTerm: undefined,
-    }
-
-    const { container } = render(
-      <DunningEmail
-        locale={LocaleEnum.en}
-        invoices={mockInvoices}
-        customer={customerWithoutTerm}
-        organization={mockOrganization}
-        currency={CurrencyEnum.Usd}
-        overdueAmount={300}
-      />,
-    )
-
-    // Component renders with organization fallback
-    expect(container).toBeInTheDocument()
-  })
-
-  it('handles string netPaymentTerm for fake data', () => {
-    const organizationWithStringTerm = {
-      ...mockOrganization,
-      netPaymentTerm: '30' as unknown as number,
-    }
-
-    const { container } = render(
-      <DunningEmail
-        locale={LocaleEnum.en}
-        invoices={mockInvoices}
-        organization={organizationWithStringTerm}
-        currency={CurrencyEnum.Usd}
-        overdueAmount={300}
-      />,
-    )
-
-    // Component renders with string netPaymentTerm
-    expect(container).toBeInTheDocument()
+    expect(screen.queryByText(/payment terms/i)).not.toBeInTheDocument()
   })
 
   it('renders without customer data', () => {

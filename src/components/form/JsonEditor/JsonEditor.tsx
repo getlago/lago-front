@@ -18,7 +18,7 @@ import './jsonEditor.css'
 
 ace.config.setModuleUrl('ace/mode/json_worker', jsonWorkerUrl)
 
-enum JSON_EDITOR_ERROR_ENUM {
+export enum JSON_EDITOR_ERROR_ENUM {
   invalid = 'invalid',
   invalidCustomValidate = 'invalidCustomValidate',
 }
@@ -74,6 +74,15 @@ export const JsonEditor = ({
   const [jsonQuery, setJsonQuery] = useState<string | undefined>()
   const [showOverlay, setShowOverlay] = useState(true)
   const [isHover, setHover] = useState(false)
+
+  const renderErrorMessage = (): ReactNode => {
+    if (customInvalidError) return customInvalidError
+    if (error === JSON_EDITOR_ERROR_ENUM.invalid) return translate('text_6638a3538de76801ac2f451b')
+    if (error === JSON_EDITOR_ERROR_ENUM.invalidCustomValidate)
+      return translate('text_1729864971171gfdioq71rvt')
+
+    return error
+  }
 
   useEffect(() => {
     if (typeof value === 'object') {
@@ -215,15 +224,7 @@ export const JsonEditor = ({
 
       {error && (
         <Typography variant="caption" color="danger600">
-          {customInvalidError}
-
-          {!customInvalidError &&
-            error === JSON_EDITOR_ERROR_ENUM.invalid &&
-            translate('text_6638a3538de76801ac2f451b')}
-
-          {!customInvalidError &&
-            error === JSON_EDITOR_ERROR_ENUM.invalidCustomValidate &&
-            translate('text_1729864971171gfdioq71rvt')}
+          {renderErrorMessage()}
         </Typography>
       )}
 

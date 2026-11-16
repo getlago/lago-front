@@ -42,9 +42,12 @@ export type UseRatePhaseActionsParams = {
   onPhaseDeleted?: (phase: RatePhaseForDrawerFragment) => void
 }
 
+export type RatePhaseSectionAction = { hidden: boolean; disabled: boolean; open: () => void }
+
 export type RatePhaseActions = {
   getPhaseActions: (phase: RatePhaseForDrawerFragment) => RatePhaseAction[]
-  createPhase: { hidden: boolean; disabled: boolean; open: () => void }
+  getEditPhase: (phase: RatePhaseForDrawerFragment) => RatePhaseSectionAction
+  createPhase: RatePhaseSectionAction
 }
 
 type AppliedRateCardDrawerKey =
@@ -64,7 +67,7 @@ export const useRatePhaseActions = ({
 }: UseRatePhaseActionsParams): RatePhaseActions => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { openDrawer } = useRatePhaseDrawer()
+  const { openDrawer } = useRatePhaseDrawer(rateCard)
   const { openDeleteRatePhaseDialog } = useDeleteRatePhaseDialog()
   const { openResetRatePhaseOverrideDialog } = useResetRatePhaseOverrideDialog()
 
@@ -169,8 +172,15 @@ export const useRatePhaseActions = ({
     return [copyAction, editAction, resetAction, deleteAction]
   }
 
+  const getEditPhase = (phase: RatePhaseForDrawerFragment): RatePhaseSectionAction => ({
+    hidden: !canUpdate,
+    disabled: isDrawerDisabled,
+    open: () => openEditDrawer(phase),
+  })
+
   return {
     getPhaseActions,
+    getEditPhase,
     createPhase: { hidden: !canUpdate, disabled: isDrawerDisabled, open: openCreateDrawer },
   }
 }

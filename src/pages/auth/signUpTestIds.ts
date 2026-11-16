@@ -39,3 +39,7 @@ export const SELF_SERVE_VERIFY_EMAIL_BACK_TO_SIGN_UP_BUTTON_TEST_ID =
 export const SELF_SERVE_VERIFY_EMAIL_RETRY_BUTTON_TEST_ID = 'self-serve-verify-email-retry-button'
 export const SELF_SERVE_VERIFY_EMAIL_LOG_OUT_BUTTON_TEST_ID =
   'self-serve-verify-email-log-out-button'
+export const SELF_SERVE_CREATE_ORGANIZATION_LOG_OUT_BUTTON_TEST_ID =
+  'self-serve-create-organization-log-out-button'
+export const SELF_SERVE_CREATE_ORGANIZATION_RETRY_BUTTON_TEST_ID =
+  'self-serve-create-organization-retry-button'

@@ -14,6 +14,7 @@ import {
 import {
   CreateBillingEntityInput,
   LagoApiError,
+  PaymentTermFieldsFragmentDoc,
   UpdateBillingEntityInput,
   useCreateBillingEntityMutation,
   useGetBillingEntityQuery,
@@ -55,6 +56,9 @@ gql`
       code
     }
     einvoicing
+    paymentTerm {
+      ...PaymentTermFields
+    }
   }
 
   query getBillingEntities {
@@ -82,6 +86,8 @@ gql`
       ...BillingEntityItem
     }
   }
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 const useCreateEditBillingEntity = () => {

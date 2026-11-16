@@ -1,7 +1,12 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { OrderTypeEnum, QuoteDetailItemFragment, StatusEnum } from '~/generated/graphql'
+import {
+  OrderTypeEnum,
+  PaymentTermTypeEnum,
+  QuoteDetailItemFragment,
+  StatusEnum,
+} from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useQuoteVersionActions } from '../hooks/useQuoteVersionActions'
@@ -66,12 +71,12 @@ const mockQuote: QuoteDetailItemFragment = {
     displayName: 'Acme Corp',
     externalId: 'ext-acme-001',
     currency: null,
-    netPaymentTerm: null,
+    paymentTerm: null,
     billingEntity: {
       id: 'be-1',
       code: 'default',
       name: 'Default Entity',
-      netPaymentTerm: 0,
+      paymentTerm: { termType: PaymentTermTypeEnum.DueOnReceipt },
     },
   },
   owners: [

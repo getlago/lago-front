@@ -15,6 +15,7 @@ import {
   AppliedRateCardsAvailableFilters,
   AvailableFiltersEnum,
   ContractAvailableFilters,
+  ContractUsageAvailableFilters,
   CreditNoteAvailableFilters,
   CustomerAnalyticsAvailableFilters,
   CustomerAvailableFilters,
@@ -58,6 +59,7 @@ import {
   API_LOGS_FILTER_PREFIX,
   APPLIED_RATE_CARD_LIST_FILTER_PREFIX,
   CONTRACT_LIST_FILTER_PREFIX,
+  CONTRACT_USAGE_LIST_FILTER_PREFIX,
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_ANALYTICS_FILTER_PREFIX,
   CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
@@ -700,6 +702,31 @@ export const formatFiltersForAppliedRateCardsQuery = (
     keyMap,
     availableFilters: AppliedRateCardsAvailableFilters,
     filtersNamePrefix: APPLIED_RATE_CARD_LIST_FILTER_PREFIX,
+  })
+}
+
+export type ContractUsagesQueryFilters = {
+  productIds?: string[]
+  productFilterIds?: string[]
+  withoutProductFilter?: boolean
+  productType?: ProductTypeEnum
+}
+
+// appliedRateCardProductFilter is intentionally absent from the keyMap: its FILTER_VALUE_MAP entry
+// (mapAppliedRateCardProductFilterValue) already returns an object keyed productFilterIds/withoutProductFilter.
+export const formatFiltersForContractUsagesQuery = (
+  searchParams: URLSearchParams,
+): ContractUsagesQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof ContractUsagesQueryFilters & string>> = {
+    [AvailableFiltersEnum.rateCardProduct]: 'productIds',
+    [AvailableFiltersEnum.appliedRateCardProductType]: 'productType',
+  }
+
+  return formatFiltersForQuery<ContractUsagesQueryFilters>({
+    searchParams,
+    keyMap,
+    availableFilters: ContractUsageAvailableFilters,
+    filtersNamePrefix: CONTRACT_USAGE_LIST_FILTER_PREFIX,
   })
 }
 

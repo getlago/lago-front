@@ -1031,6 +1031,7 @@ export type BillingEntity = {
   name: Scalars['String']['output'];
   netPaymentTerm?: Maybe<Scalars['Int']['output']>;
   organization: Organization;
+  paymentTerm?: Maybe<PaymentTerm>;
   phone?: Maybe<Scalars['String']['output']>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
   state?: Maybe<Scalars['String']['output']>;
@@ -1452,6 +1453,11 @@ export type Contract = {
   canceledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   consolidateInvoice: Scalars['Boolean']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
+  /**
+   * The currency fees bill in: the plan's when there is one, otherwise the
+   * customer's, falling back to the organization default
+   */
+  currency: CurrencyEnum;
   customer: Customer;
   /** The anchor billing uses: billing_anchor_date when set, else the start day in the customer's timezone */
   effectiveBillingAnchorDate?: Maybe<Scalars['ISO8601Date']['output']>;
@@ -1509,6 +1515,20 @@ export type ContractCollection = {
   collection: Array<Contract>;
   /** Pagination Metadata for navigating the Pagination */
   metadata: CollectionMetadata;
+};
+
+/** The contract's total computed usage for the current billing period, unfiltered */
+export type ContractCurrentUsageTotal = {
+  __typename?: 'ContractCurrentUsageTotal';
+  amountCents: Scalars['BigInt']['output'];
+  /** Earliest billing window start across the contract's rate cards, null with no usage */
+  fromDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  taxesAmountCents: Scalars['BigInt']['output'];
+  /** True when the tax provider failed and amount/total above are the untaxed fallback */
+  taxesUnavailable: Scalars['Boolean']['output'];
+  /** Latest billing window end across the contract's rate cards, null with no usage */
+  toDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  totalAmountCents: Scalars['BigInt']['output'];
 };
 
 export enum ContractStatusEnum {
@@ -2201,6 +2221,7 @@ export type CreateBillingEntityInput = {
   logo?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   phone?: InputMaybe<Scalars['String']['input']>;
   state?: InputMaybe<Scalars['String']['input']>;
   taxIdentificationNumber?: InputMaybe<Scalars['String']['input']>;
@@ -2326,6 +2347,7 @@ export type CreateCustomerInput = {
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
   paymentProviderCustomers?: InputMaybe<Array<PaymentProviderCustomerInput>>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   phone?: InputMaybe<Scalars['String']['input']>;
   providerCustomer?: InputMaybe<ProviderCustomerInput>;
   shippingAddress?: InputMaybe<CustomerAddressInput>;
@@ -2382,6 +2404,7 @@ export type CreateCustomerWalletInput = {
   paidTopUpMaxAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   paidTopUpMinAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   priority: Scalars['Int']['input'];
   purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   rateAmount: Scalars['String']['input'];
@@ -2549,6 +2572,7 @@ export type CreateInvoiceInput = {
   fees: Array<FeeInput>;
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   voidedInvoiceId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -2845,6 +2869,7 @@ export type CreateSubscriptionInput = {
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   name?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   planId: Scalars['ID']['input'];
   planOverrides?: InputMaybe<PlanOverridesInput>;
   progressiveBillingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3475,6 +3500,7 @@ export type Customer = {
   paymentProvider?: Maybe<ProviderTypeEnum>;
   paymentProviderCode?: Maybe<Scalars['String']['output']>;
   paymentProviderCustomers: Array<ProviderCustomer>;
+  paymentTerm?: Maybe<PaymentTerm>;
   phone?: Maybe<Scalars['String']['output']>;
   /** @deprecated Use paymentProviderCustomers instead */
   providerCustomer?: Maybe<ProviderCustomer>;
@@ -4700,6 +4726,7 @@ export type Event = {
   matchCustomer?: Maybe<Scalars['Boolean']['output']>;
   matchSubscription?: Maybe<Scalars['Boolean']['output']>;
   payload: Scalars['JSON']['output'];
+  preciseTotalAmountCents?: Maybe<Scalars['String']['output']>;
   receivedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   timestamp?: Maybe<Scalars['ISO8601DateTime']['output']>;
   timestampMs?: Maybe<Scalars['BigInt']['output']>;
@@ -4882,6 +4909,7 @@ export type ExportFinanceAssistantResultInput = {
 /** Organization Feature Flag Values */
 export enum FeatureFlagEnum {
   AccountTree = 'account_tree',
+  CatalogWallets = 'catalog_wallets',
   ChargeFiltersSingleScan = 'charge_filters_single_scan',
   FixedChargeUsageDeltaMigration = 'fixed_charge_usage_delta_migration',
   IncrementalChargeCache = 'incremental_charge_cache',
@@ -4891,9 +4919,11 @@ export enum FeatureFlagEnum {
   PostgresEnrichedEvents = 'postgres_enriched_events',
   ProductCatalog = 'product_catalog',
   RealtimeUsage = 'realtime_usage',
+  RealtimeUsageRecurringSum = 'realtime_usage_recurring_sum',
   RecurringAggregationSnapshots = 'recurring_aggregation_snapshots',
   SkipCreditInvoiceAutoPaymentDelay = 'skip_credit_invoice_auto_payment_delay',
   SsoCrossOrganizationSessions = 'sso_cross_organization_sessions',
+  StandardWebhooksSignature = 'standard_webhooks_signature',
   StripeSharedPaymentToken = 'stripe_shared_payment_token',
   UsagePrefilterIncremental = 'usage_prefilter_incremental',
   UsagePrefilterShortCache = 'usage_prefilter_short_cache',
@@ -5083,6 +5113,7 @@ export type FetchDraftInvoiceTaxesInput = {
   fees: Array<FeeInput>;
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   voidedInvoiceId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -5630,6 +5661,7 @@ export type Invoice = {
   paymentDueDate: Scalars['ISO8601Date']['output'];
   paymentOverdue: Scalars['Boolean']['output'];
   paymentStatus: InvoicePaymentStatusTypeEnum;
+  paymentTerm: PaymentTerm;
   payments?: Maybe<Array<Payment>>;
   prepaidCreditAmountCents: Scalars['BigInt']['output'];
   prepaidGrantedCreditAmountCents?: Maybe<Scalars['BigInt']['output']>;
@@ -5901,6 +5933,7 @@ export enum LagoApiError {
   TaxCodeAssociatedWithItemCodeNotFound = 'TaxCodeAssociatedWithItemCodeNotFound',
   CaptchaFailed = 'captcha_failed',
   CaptchaUnavailable = 'captcha_unavailable',
+  CompanyGoogleAccountRequired = 'company_google_account_required',
   CouponIsNotReusable = 'coupon_is_not_reusable',
   CurrenciesDoesNotMatch = 'currencies_does_not_match',
   CurrencyCodeNotSupported = 'currencyCodeNotSupported',
@@ -5922,6 +5955,7 @@ export enum LagoApiError {
   InternalError = 'internal_error',
   InvalidCharacters = 'invalid_characters',
   InvalidGoogleCode = 'invalid_google_code',
+  InvalidGoogleState = 'invalid_google_state',
   InvalidGoogleToken = 'invalid_google_token',
   InvalidStatus = 'invalid_status',
   InviteAlreadyExists = 'invite_already_exists',
@@ -8345,6 +8379,33 @@ export type PaymentRequestCreateInput = {
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
 };
 
+/** Structured payment term */
+export type PaymentTerm = {
+  __typename?: 'PaymentTerm';
+  dayOfMonth?: Maybe<Scalars['Int']['output']>;
+  days?: Maybe<Scalars['Int']['output']>;
+  monthOffset?: Maybe<Scalars['Int']['output']>;
+  termType: PaymentTermTypeEnum;
+};
+
+/** Structured payment term input */
+export type PaymentTermInput = {
+  dayOfMonth?: InputMaybe<Scalars['Int']['input']>;
+  days?: InputMaybe<Scalars['Int']['input']>;
+  monthOffset?: InputMaybe<Scalars['Int']['input']>;
+  termType: PaymentTermTypeEnum;
+};
+
+/** Payment term type */
+export enum PaymentTermTypeEnum {
+  DayOfMonth = 'day_of_month',
+  DaysEndOfMonth = 'days_end_of_month',
+  DueOnReceipt = 'due_on_receipt',
+  EndOfMonth = 'end_of_month',
+  Net = 'net',
+  NetEndOfMonth = 'net_end_of_month'
+}
+
 export enum PaymentTypeEnum {
   Manual = 'manual',
   Provider = 'provider',
@@ -9197,6 +9258,10 @@ export type Query = {
   contractAppliedRateCard?: Maybe<ContractAppliedRateCard>;
   /** Query rate cards applied to a contract */
   contractAppliedRateCards: ContractAppliedRateCardCollection;
+  /** Query a contract's total computed usage for the current billing period, unfiltered */
+  contractCurrentUsageTotal: ContractCurrentUsageTotal;
+  /** Query a contract's computed usage for the current billing period, paginated */
+  contractUsages: RateCardUsageCollection;
   /** Query contracts of an organization */
   contracts: ContractCollection;
   /** Query a single coupon of an organization */
@@ -9307,6 +9372,7 @@ export type Query = {
   invoiceCustomSection: InvoiceCustomSection;
   /** Query invoice_custom_sections */
   invoiceCustomSections?: Maybe<InvoiceCustomSectionCollection>;
+  /** Query the product fees of an invoice, in the order of the invoice PDF */
   invoiceProductFees: FeeCollection;
   /** Query invoiced usage of an organization */
   invoicedUsages: InvoicedUsageCollection;
@@ -9650,6 +9716,25 @@ export type QueryContractAppliedRateCardArgs = {
 export type QueryContractAppliedRateCardsArgs = {
   contractId?: InputMaybe<Scalars['ID']['input']>;
   hasRateOverrides?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  productFilterIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  productIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  productType?: InputMaybe<ProductTypeEnum>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  withoutProductCategory?: InputMaybe<Scalars['Boolean']['input']>;
+  withoutProductFilter?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type QueryContractCurrentUsageTotalArgs = {
+  contractId: Scalars['ID']['input'];
+};
+
+
+export type QueryContractUsagesArgs = {
+  contractId: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -10800,6 +10885,45 @@ export enum RateCardRegroupPaidFeesEnum {
   Invoice = 'invoice'
 }
 
+/** One rate card's computed usage on a contract's current billing window */
+export type RateCardUsage = {
+  __typename?: 'RateCardUsage';
+  amountCents: Scalars['BigInt']['output'];
+  billableMetricCode?: Maybe<Scalars['String']['output']>;
+  billingTiming: RateCardBillingTimingEnum;
+  eventsCount: Scalars['Int']['output'];
+  fromDatetime: Scalars['ISO8601DateTime']['output'];
+  invoiceDisplayName: Scalars['String']['output'];
+  productCategoryCode?: Maybe<Scalars['String']['output']>;
+  productCategoryName?: Maybe<Scalars['String']['output']>;
+  productCode: Scalars['String']['output'];
+  productFilterCode?: Maybe<Scalars['String']['output']>;
+  productFilterName?: Maybe<Scalars['String']['output']>;
+  productName: Scalars['String']['output'];
+  productType: ProductTypeEnum;
+  rateCardCode: Scalars['String']['output'];
+  rateCardName: Scalars['String']['output'];
+  ratePhaseCode?: Maybe<Scalars['String']['output']>;
+  ratePhaseName?: Maybe<Scalars['String']['output']>;
+  rateSource: RateCardUsageRateSourceEnum;
+  toDatetime: Scalars['ISO8601DateTime']['output'];
+  units: Scalars['Float']['output'];
+};
+
+/** RateCardUsageCollection type */
+export type RateCardUsageCollection = {
+  __typename?: 'RateCardUsageCollection';
+  /** A collection of paginated RateCardUsageCollection */
+  collection: Array<RateCardUsage>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+export enum RateCardUsageRateSourceEnum {
+  PhaseOverride = 'phase_override',
+  Rate = 'rate'
+}
+
 /** Overridden pricing applied by a rate phase in place of the card's active rate */
 export type RateOverride = {
   __typename?: 'RateOverride';
@@ -11587,6 +11711,7 @@ export type Subscription = {
   onTerminationInvoice: OnTerminationInvoiceEnum;
   paymentMethod?: Maybe<PaymentMethod>;
   paymentMethodType?: Maybe<PaymentMethodTypeEnum>;
+  paymentTerm?: Maybe<PaymentTerm>;
   periodEndDate?: Maybe<Scalars['ISO8601Date']['output']>;
   plan: Plan;
   previousPlan?: Maybe<Plan>;
@@ -12275,6 +12400,7 @@ export type UpdateBillingEntityInput = {
   logo?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   phone?: InputMaybe<Scalars['String']['input']>;
   state?: InputMaybe<Scalars['String']['input']>;
   taxIdentificationNumber?: InputMaybe<Scalars['String']['input']>;
@@ -12412,6 +12538,7 @@ export type UpdateCustomerInput = {
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
   paymentProviderCustomers?: InputMaybe<Array<PaymentProviderCustomerInput>>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   phone?: InputMaybe<Scalars['String']['input']>;
   providerCustomer?: InputMaybe<ProviderCustomerInput>;
   shippingAddress?: InputMaybe<CustomerAddressInput>;
@@ -12481,6 +12608,7 @@ export type UpdateCustomerWalletInput = {
   paidTopUpMaxAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   paidTopUpMinAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   priority: Scalars['Int']['input'];
   purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   recurringTransactionRules?: InputMaybe<Array<UpdateRecurringTransactionRuleInput>>;
@@ -13008,6 +13136,7 @@ export type UpdateSubscriptionInput = {
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   name?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  paymentTerm?: InputMaybe<PaymentTermInput>;
   planOverrides?: InputMaybe<PlanOverridesInput>;
   progressiveBillingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
   purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
@@ -13200,6 +13329,7 @@ export type Wallet = {
   paidTopUpMinCredits?: Maybe<Scalars['BigInt']['output']>;
   paymentMethod?: Maybe<PaymentMethod>;
   paymentMethodType?: Maybe<PaymentMethodTypeEnum>;
+  paymentTerm?: Maybe<PaymentTerm>;
   priority: Scalars['Int']['output'];
   purchaseOrderNumber?: Maybe<Scalars['String']['output']>;
   rateAmount: Scalars['Float']['output'];
@@ -13389,6 +13519,7 @@ export type WebhookEndpoint = {
   name?: Maybe<Scalars['String']['output']>;
   organization?: Maybe<Organization>;
   signatureAlgo?: Maybe<WebhookEndpointSignatureAlgoEnum>;
+  signingKeys?: Maybe<Array<WebhookEndpointSigningKey>>;
   updatedAt: Scalars['ISO8601DateTime']['output'];
   webhookUrl: Scalars['String']['output'];
 };
@@ -13414,8 +13545,16 @@ export type WebhookEndpointCreateInput = {
 
 export enum WebhookEndpointSignatureAlgoEnum {
   Hmac = 'hmac',
-  Jwt = 'jwt'
+  Jwt = 'jwt',
+  StandardWebhooks = 'standard_webhooks'
 }
+
+export type WebhookEndpointSigningKey = {
+  __typename?: 'WebhookEndpointSigningKey';
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  id: Scalars['ID']['output'];
+  secretKey: Scalars['String']['output'];
+};
 
 /** Autogenerated input type of UpdateWebhookEndpoint */
 export type WebhookEndpointUpdateInput = {
@@ -13776,6 +13915,24 @@ export type AppliedRateCardActivityLogsQueryVariables = Exact<{
 
 export type AppliedRateCardActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
+export type ContractAppliedRateCardForDetailsFragment = { __typename?: 'ContractAppliedRateCard', id: string, units?: number | null, effectiveDate: any, ratePhasesCount: number, contract: { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null }, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, ratesCount: number, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null, nextPendingRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }, ratePhases: Array<{ __typename?: 'RatePhase', id: string, code: string, name?: string | null, position: number, billingIntervalCycleCount?: number | null, rateOverride?: { __typename?: 'RateOverride', rateModel: RateCardRateModelEnum, billingIntervalCount?: number | null, billingIntervalUnit?: RateCardRateBillingIntervalUnitEnum | null, minAmountCents: any, pricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> };
+
+export type GetContractAppliedRateCardForDetailsQueryVariables = Exact<{
+  appliedRateCardId: Scalars['ID']['input'];
+}>;
+
+
+export type GetContractAppliedRateCardForDetailsQuery = { __typename?: 'Query', contractAppliedRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, units?: number | null, effectiveDate: any, ratePhasesCount: number, contract: { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null }, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, ratesCount: number, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null, nextPendingRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }, ratePhases: Array<{ __typename?: 'RatePhase', id: string, code: string, name?: string | null, position: number, billingIntervalCycleCount?: number | null, rateOverride?: { __typename?: 'RateOverride', rateModel: RateCardRateModelEnum, billingIntervalCount?: number | null, billingIntervalUnit?: RateCardRateBillingIntervalUnitEnum | null, minAmountCents: any, pricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> } | null };
+
+export type PlanAppliedRateCardForDetailsFragment = { __typename?: 'PlanAppliedRateCard', id: string, units?: number | null, ratePhasesCount: number, catalogPlan: { __typename?: 'CatalogPlan', id: string, name: string, attachedToContracts: boolean }, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, ratesCount: number, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null, nextPendingRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }, ratePhases: Array<{ __typename?: 'RatePhase', id: string, code: string, name?: string | null, position: number, billingIntervalCycleCount?: number | null, rateOverride?: { __typename?: 'RateOverride', rateModel: RateCardRateModelEnum, billingIntervalCount?: number | null, billingIntervalUnit?: RateCardRateBillingIntervalUnitEnum | null, minAmountCents: any, pricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> };
+
+export type GetPlanAppliedRateCardForDetailsQueryVariables = Exact<{
+  appliedRateCardId: Scalars['ID']['input'];
+}>;
+
+
+export type GetPlanAppliedRateCardForDetailsQuery = { __typename?: 'Query', planAppliedRateCard?: { __typename?: 'PlanAppliedRateCard', id: string, units?: number | null, ratePhasesCount: number, catalogPlan: { __typename?: 'CatalogPlan', id: string, name: string, attachedToContracts: boolean }, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, ratesCount: number, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null, nextPendingRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }, ratePhases: Array<{ __typename?: 'RatePhase', id: string, code: string, name?: string | null, position: number, billingIntervalCycleCount?: number | null, rateOverride?: { __typename?: 'RateOverride', rateModel: RateCardRateModelEnum, billingIntervalCount?: number | null, billingIntervalUnit?: RateCardRateBillingIntervalUnitEnum | null, minAmountCents: any, pricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> } | null };
+
 export type CachedPlanAppliedRateCardDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -13836,7 +13993,7 @@ export type GetProductFiltersForAppliedRateCardDrawerQueryVariables = Exact<{
 
 export type GetProductFiltersForAppliedRateCardDrawerQuery = { __typename?: 'Query', productFilters: { __typename?: 'ProductFilterCollection', collection: Array<{ __typename?: 'ProductFilter', id: string, name: string, code: string }> } };
 
-export type RateCardForAppliedRateCardDrawerFragment = { __typename?: 'RateCard', currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null };
+export type RateCardForAppliedRateCardDrawerFragment = { __typename?: 'RateCard', currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, ratesCount: number, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null, nextPendingRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null };
 
 export type GetRateCardsForAppliedRateCardDrawerQueryVariables = Exact<{
   productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
@@ -13850,7 +14007,7 @@ export type GetRateCardsForAppliedRateCardDrawerQueryVariables = Exact<{
 }>;
 
 
-export type GetRateCardsForAppliedRateCardDrawerQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> } };
+export type GetRateCardsForAppliedRateCardDrawerQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, ratesCount: number, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null, nextPendingRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> } };
 
 export type CreatePlanAppliedRateCardMutationVariables = Exact<{
   input: CreatePlanAppliedRateCardInput;
@@ -13901,7 +14058,7 @@ export type UpdateContractRatePhaseMutation = { __typename?: 'Mutation', updateC
 export type GetGoogleAuthUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetGoogleAuthUrlQuery = { __typename?: 'Query', googleAuthUrl: { __typename?: 'AuthUrl', url: string } };
+export type GetGoogleAuthUrlQuery = { __typename?: 'Query', googleAuthUrl: { __typename?: 'AuthUrl', url: string, stateSecret?: string | null } };
 
 export type BillableMetricActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -14398,7 +14555,7 @@ export type GetCustomerSettingsQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerSettingsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null, netPaymentTerm?: number | null, finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | null, currency?: CurrencyEnum | null, excludeFromDunningCampaign: boolean, skipInvoiceCustomSections?: boolean | null, externalId: string, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, name?: string | null, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string, netPaymentTerm?: number | null, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'BillingEntityBillingConfiguration', id: string, invoiceGracePeriod: number, documentLocale?: string | null, subscriptionInvoiceIssuingDateAdjustment: BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum, subscriptionInvoiceIssuingDateAnchor: BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum } | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null, subscriptionInvoiceIssuingDateAdjustment?: CustomerSubscriptionInvoiceIssuingDateAdjustmentEnum | null, subscriptionInvoiceIssuingDateAnchor?: CustomerSubscriptionInvoiceIssuingDateAnchorEnum | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean, code: string, name: string, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null } | null };
+export type GetCustomerSettingsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null, finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | null, currency?: CurrencyEnum | null, excludeFromDunningCampaign: boolean, skipInvoiceCustomSections?: boolean | null, externalId: string, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, name?: string | null, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'BillingEntityBillingConfiguration', id: string, invoiceGracePeriod: number, documentLocale?: string | null, subscriptionInvoiceIssuingDateAdjustment: BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum, subscriptionInvoiceIssuingDateAnchor: BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum } | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null, subscriptionInvoiceIssuingDateAdjustment?: CustomerSubscriptionInvoiceIssuingDateAdjustmentEnum | null, subscriptionInvoiceIssuingDateAnchor?: CustomerSubscriptionInvoiceIssuingDateAnchorEnum | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean, code: string, name: string, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } | null };
 
 export type DeleteCustomerDialogFragment = { __typename?: 'Customer', id: string, name?: string | null, displayName: string };
 
@@ -14436,14 +14593,14 @@ export type DeleteCustomerGracePeriodMutationVariables = Exact<{
 
 export type DeleteCustomerGracePeriodMutation = { __typename?: 'Mutation', updateCustomerInvoiceGracePeriod?: { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null } | null };
 
-export type DeleteCustomerNetPaymentTermFragment = { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, netPaymentTerm?: number | null };
+export type DeleteCustomerPaymentTermFragment = { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null };
 
-export type DeleteCustomerNetPaymentTermMutationVariables = Exact<{
+export type DeleteCustomerPaymentTermMutationVariables = Exact<{
   input: UpdateCustomerInput;
 }>;
 
 
-export type DeleteCustomerNetPaymentTermMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, netPaymentTerm?: number | null } | null };
+export type DeleteCustomerPaymentTermMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } | null };
 
 export type CustomerForDeleteVatRateDialogFragment = { __typename?: 'Customer', id: string, name?: string | null, externalId: string, taxes?: Array<{ __typename?: 'Tax', id: string, code: string }> | null };
 
@@ -14855,7 +15012,7 @@ export type GetApiLogsQueryVariables = Exact<{
 
 export type GetApiLogsQuery = { __typename?: 'Query', apiLogs?: { __typename?: 'ApiLogCollection', collection: Array<{ __typename?: 'ApiLog', requestId: string, httpMethod: HttpMethodEnum, httpStatus: number, requestPath?: string | null, loggedAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
-export type EventDetailsFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, timestampMs?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
+export type EventDetailsFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, timestampMs?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum, preciseTotalAmountCents?: string | null };
 
 export type GetSingleEventQueryVariables = Exact<{
   transactionId: Scalars['ID']['input'];
@@ -14865,7 +15022,7 @@ export type GetSingleEventQueryVariables = Exact<{
 }>;
 
 
-export type GetSingleEventQuery = { __typename?: 'Query', event?: { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, timestampMs?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum } | null };
+export type GetSingleEventQuery = { __typename?: 'Query', event?: { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, timestampMs?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum, preciseTotalAmountCents?: string | null } | null };
 
 export type EventItemFragment = { __typename?: 'Event', id: string, transactionId?: string | null, externalSubscriptionId?: string | null, timestampMs?: any | null, code: string, receivedAt?: any | null };
 
@@ -14910,6 +15067,13 @@ export type GetWebhookLogQueryVariables = Exact<{
 
 export type GetWebhookLogQuery = { __typename?: 'Query', webhooks: { __typename?: 'WebhookCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Webhook', id: string, status: WebhookStatusEnum, webhookType: string, createdAt: any, updatedAt: any, endpoint: string }> } };
 
+export type GetWebhookEndpointSigningKeysQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetWebhookEndpointSigningKeysQuery = { __typename?: 'Query', webhookEndpoint?: { __typename?: 'WebhookEndpoint', id: string, signingKeys?: Array<{ __typename?: 'WebhookEndpointSigningKey', id: string, secretKey: string }> | null } | null };
+
 export type GetOrganizationHmacDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -14927,9 +15091,9 @@ export type DeleteWebhookMutationVariables = Exact<{
 
 export type DeleteWebhookMutation = { __typename?: 'Mutation', destroyWebhookEndpoint?: { __typename?: 'DestroyWebhookEndpointPayload', id?: string | null } | null };
 
-export type CustomerForDunningEmailFragment = { __typename?: 'Customer', id: string, displayName: string, paymentProvider?: ProviderTypeEnum | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null };
+export type CustomerForDunningEmailFragment = { __typename?: 'Customer', id: string, displayName: string, paymentProvider?: ProviderTypeEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null };
 
-export type OrganizationForDunningEmailFragment = { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null };
+export type OrganizationForDunningEmailFragment = { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, email?: string | null, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null };
 
 export type InvoicesForDunningEmailFragment = { __typename?: 'Invoice', id: string, number: string, totalDueAmountCents: any, currency?: CurrencyEnum | null };
 
@@ -15033,7 +15197,7 @@ export type DisputeInvoiceMutationVariables = Exact<{
 }>;
 
 
-export type DisputeInvoiceMutation = { __typename?: 'Mutation', loseInvoiceDispute?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, purchaseOrderNumber?: string | null, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, totalDueAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, email?: string | null, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, logoUrl?: string | null }, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null } | null };
+export type DisputeInvoiceMutation = { __typename?: 'Mutation', loseInvoiceDispute?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, purchaseOrderNumber?: string | null, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, totalDueAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, email?: string | null, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, logoUrl?: string | null }, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } }> | null, paymentTerm: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null }, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null } | null };
 
 export type TaxForInvoiceEditTaxDialogFragment = { __typename?: 'Tax', id: string, name: string, rate: number, code: string };
 
@@ -15054,7 +15218,7 @@ export type UpdateInvoicePaymentStatusMutationVariables = Exact<{
 }>;
 
 
-export type UpdateInvoicePaymentStatusMutation = { __typename?: 'Mutation', updateInvoice?: { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, purchaseOrderNumber?: string | null, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, integrationSyncable: boolean, externalIntegrationId?: string | null, integrationHubspotSyncable: boolean, voidedAt?: any | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, couponsAmountCents: any, creditNotesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, logoUrl?: string | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null } | null };
+export type UpdateInvoicePaymentStatusMutation = { __typename?: 'Mutation', updateInvoice?: { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, purchaseOrderNumber?: string | null, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, integrationSyncable: boolean, externalIntegrationId?: string | null, integrationHubspotSyncable: boolean, voidedAt?: any | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, couponsAmountCents: any, creditNotesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, logoUrl?: string | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } }> | null, paymentTerm: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null }, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null } | null };
 
 export type InvoiceForFinalizeInvoiceFragment = { __typename?: 'Invoice', id: string, issuingDate: any, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum } };
 
@@ -15063,7 +15227,7 @@ export type FinalizeInvoiceMutationVariables = Exact<{
 }>;
 
 
-export type FinalizeInvoiceMutation = { __typename?: 'Mutation', finalizeInvoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, purchaseOrderNumber?: string | null, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, totalDueAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, email?: string | null, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, logoUrl?: string | null }, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null } | null };
+export type FinalizeInvoiceMutation = { __typename?: 'Mutation', finalizeInvoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, purchaseOrderNumber?: string | null, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, totalDueAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, email?: string | null, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, logoUrl?: string | null }, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } }> | null, paymentTerm: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null }, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null } | null };
 
 export type InvoiceActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -15084,7 +15248,7 @@ export type GetInvoiceCreditNotesQueryVariables = Exact<{
 
 export type GetInvoiceCreditNotesQuery = { __typename?: 'Query', invoiceCreditNotes?: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, offsetAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, customer: { __typename?: 'Customer', id: string, email?: string | null } }> } | null, invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, paymentStatus: InvoicePaymentStatusTypeEnum, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, totalPaidAmountCents: any, totalDueAmountCents: any, status: InvoiceStatusTypeEnum, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, displayName: string } } | null };
 
-export type InvoiceForInvoiceInfosFragment = { __typename?: 'Invoice', number: string, invoiceType: InvoiceTypeEnum, purchaseOrderNumber?: string | null, issuingDate: any, paymentDueDate: any, paymentOverdue: boolean, status: InvoiceStatusTypeEnum, totalPaidAmountCents: any, totalDueAmountCents: any, paymentStatus: InvoicePaymentStatusTypeEnum, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum } };
+export type InvoiceForInvoiceInfosFragment = { __typename?: 'Invoice', number: string, invoiceType: InvoiceTypeEnum, purchaseOrderNumber?: string | null, issuingDate: any, paymentDueDate: any, paymentOverdue: boolean, status: InvoiceStatusTypeEnum, totalPaidAmountCents: any, totalDueAmountCents: any, paymentStatus: InvoicePaymentStatusTypeEnum, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, paymentTerm: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum } };
 
 export type CustomerMetadatasForInvoiceOverviewFragment = { __typename?: 'Customer', id: string, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, displayInInvoice: boolean, key: string, value: string }> | null };
 
@@ -15174,7 +15338,7 @@ export type InvoiceProductCatalogSectionFragment = { __typename?: 'InvoiceProduc
 
 export type InvoiceProductCatalogContractFragment = { __typename?: 'InvoiceProductCatalogContract', contract: { __typename?: 'Contract', id: string, name?: string | null, externalId: string, plan?: { __typename?: 'CatalogPlan', id: string, name: string, invoiceDisplayName?: string | null } | null }, productCatalogSections: Array<{ __typename?: 'InvoiceProductCatalogSection', productCategory?: { __typename?: 'ProductCategory', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null, products: Array<{ __typename?: 'InvoiceProductCatalogProductGroup', amountCents: any, feesCount: number, product: { __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum }, filters: Array<{ __typename?: 'InvoiceProductCatalogFilterGroup', amountCents: any, feesCount: number, productFilter: { __typename?: 'ProductFilter', id: string, code: string, name: string, invoiceDisplayName?: string | null } }> }> }> };
 
-export type FeeForInvoiceProductCatalogSectionFragment = { __typename?: 'Fee', id: string, preciseUnitAmount: number, currency: CurrencyEnum, rateModel?: RateCardRateModelEnum | null, amountCents: any, amountCurrency: CurrencyEnum, preciseAmountCents: number, preciseCouponsAmountCents: number, subTotalExcludingTaxesAmountCents: any, subTotalExcludingTaxesPreciseAmountCents: number, taxesRate?: number | null, taxesAmountCents: any, taxesPreciseAmountCents: number, totalAmountCents: any, preciseTotalAmountCents: number, units: number, eventsCount?: any | null, payInAdvance: boolean, feeType: FeeTypesEnum, itemCode: string, itemName: string, itemType: string, invoiceDisplayName?: string | null, product?: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null } | null, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, contract?: { __typename?: 'Contract', id: string } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, code: string, name: string, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean } } | null, rateOverride?: { __typename?: 'RateOverride', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string, productFilter?: { __typename?: 'ProductFilter', id: string } | null } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } } | null, charge?: { __typename?: 'Charge', id: string, invoiceable: boolean, billableMetric: { __typename?: 'BillableMetric', id: string } } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, addOn: { __typename?: 'AddOn', id: string } } | null, addOn?: { __typename?: 'AddOn', id: string } | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', fixedFeeTotalAmount?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, freeEvents?: number | null, freeUnits?: string | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: number | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, toValue?: number | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, toValue?: any | null, units?: string | null }> | null } | null };
+export type FeeForInvoiceProductCatalogSectionFragment = { __typename?: 'Fee', id: string, preciseUnitAmount: number, currency: CurrencyEnum, rateModel?: RateCardRateModelEnum | null, amountCents: any, amountCurrency: CurrencyEnum, preciseAmountCents: number, preciseCouponsAmountCents: number, subTotalExcludingTaxesAmountCents: any, subTotalExcludingTaxesPreciseAmountCents: number, taxesRate?: number | null, taxesAmountCents: any, taxesPreciseAmountCents: number, totalAmountCents: any, preciseTotalAmountCents: number, units: number, eventsCount?: any | null, payInAdvance: boolean, feeType: FeeTypesEnum, itemCode: string, itemName: string, itemType: string, invoiceDisplayName?: string | null, product?: { __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null } | null, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, contract?: { __typename?: 'Contract', id: string } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, code: string, name: string, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean } } | null, rateOverride?: { __typename?: 'RateOverride', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string, productFilter?: { __typename?: 'ProductFilter', id: string } | null } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } } | null, charge?: { __typename?: 'Charge', id: string, invoiceable: boolean, billableMetric: { __typename?: 'BillableMetric', id: string } } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, addOn: { __typename?: 'AddOn', id: string } } | null, addOn?: { __typename?: 'AddOn', id: string } | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', fixedFeeTotalAmount?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, freeEvents?: number | null, freeUnits?: string | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: number | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, toValue?: number | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, toValue?: any | null, units?: string | null }> | null } | null };
 
 export type GetInvoiceProductFeesQueryVariables = Exact<{
   invoiceId: Scalars['ID']['input'];
@@ -15191,7 +15355,7 @@ export type GetInvoiceProductFeesQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceProductFeesQuery = { __typename?: 'Query', invoiceProductFees: { __typename?: 'FeeCollection', collection: Array<{ __typename?: 'Fee', id: string, preciseUnitAmount: number, currency: CurrencyEnum, rateModel?: RateCardRateModelEnum | null, amountCents: any, amountCurrency: CurrencyEnum, preciseAmountCents: number, preciseCouponsAmountCents: number, subTotalExcludingTaxesAmountCents: any, subTotalExcludingTaxesPreciseAmountCents: number, taxesRate?: number | null, taxesAmountCents: any, taxesPreciseAmountCents: number, totalAmountCents: any, preciseTotalAmountCents: number, units: number, eventsCount?: any | null, payInAdvance: boolean, feeType: FeeTypesEnum, itemCode: string, itemName: string, itemType: string, invoiceDisplayName?: string | null, product?: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null } | null, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, contract?: { __typename?: 'Contract', id: string } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, code: string, name: string, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean } } | null, rateOverride?: { __typename?: 'RateOverride', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string, productFilter?: { __typename?: 'ProductFilter', id: string } | null } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } } | null, charge?: { __typename?: 'Charge', id: string, invoiceable: boolean, billableMetric: { __typename?: 'BillableMetric', id: string } } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, addOn: { __typename?: 'AddOn', id: string } } | null, addOn?: { __typename?: 'AddOn', id: string } | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', fixedFeeTotalAmount?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, freeEvents?: number | null, freeUnits?: string | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: number | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, toValue?: number | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, toValue?: any | null, units?: string | null }> | null } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type GetInvoiceProductFeesQuery = { __typename?: 'Query', invoiceProductFees: { __typename?: 'FeeCollection', collection: Array<{ __typename?: 'Fee', id: string, preciseUnitAmount: number, currency: CurrencyEnum, rateModel?: RateCardRateModelEnum | null, amountCents: any, amountCurrency: CurrencyEnum, preciseAmountCents: number, preciseCouponsAmountCents: number, subTotalExcludingTaxesAmountCents: any, subTotalExcludingTaxesPreciseAmountCents: number, taxesRate?: number | null, taxesAmountCents: any, taxesPreciseAmountCents: number, totalAmountCents: any, preciseTotalAmountCents: number, units: number, eventsCount?: any | null, payInAdvance: boolean, feeType: FeeTypesEnum, itemCode: string, itemName: string, itemType: string, invoiceDisplayName?: string | null, product?: { __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null } | null, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, contract?: { __typename?: 'Contract', id: string } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, code: string, name: string, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean } } | null, rateOverride?: { __typename?: 'RateOverride', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string, productFilter?: { __typename?: 'ProductFilter', id: string } | null } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } } | null, charge?: { __typename?: 'Charge', id: string, invoiceable: boolean, billableMetric: { __typename?: 'BillableMetric', id: string } } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, addOn: { __typename?: 'AddOn', id: string } } | null, addOn?: { __typename?: 'AddOn', id: string } | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', fixedFeeTotalAmount?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, freeEvents?: number | null, freeUnits?: string | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: number | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, toValue?: number | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, toValue?: any | null, units?: string | null }> | null } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type SetPaymentMethodAsDefaultMutationVariables = Exact<{
   input: SetAsDefaultInput;
@@ -15206,6 +15370,8 @@ export type DestroyPaymentMethodMutationVariables = Exact<{
 
 
 export type DestroyPaymentMethodMutation = { __typename?: 'Mutation', destroyPaymentMethod?: { __typename?: 'DestroyPaymentMethodPayload', id?: string | null } | null };
+
+export type PaymentTermFieldsFragment = { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null };
 
 export type PercentageChargeFragment = { __typename?: 'Properties', fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null };
 
@@ -16151,23 +16317,23 @@ export type UpdateBillingEntityFinalizeZeroAmountInvoiceMutationVariables = Exac
 
 export type UpdateBillingEntityFinalizeZeroAmountInvoiceMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, finalizeZeroAmountInvoice: boolean } | null };
 
-export type EditCustomerNetPaymentTermForDialogFragment = { __typename?: 'Customer', id: string, externalId: string, name?: string | null, netPaymentTerm?: number | null };
+export type EditCustomerPaymentTermForDialogFragment = { __typename?: 'Customer', id: string, externalId: string, name?: string | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } };
 
-export type EditBillingEntityNetPaymentTermForDialogFragment = { __typename?: 'BillingEntity', id: string, netPaymentTerm?: number | null };
+export type EditBillingEntityPaymentTermForDialogFragment = { __typename?: 'BillingEntity', id: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null };
 
-export type UpdateCustomerNetPaymentTermMutationVariables = Exact<{
+export type UpdateCustomerPaymentTermMutationVariables = Exact<{
   input: UpdateCustomerInput;
 }>;
 
 
-export type UpdateCustomerNetPaymentTermMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, netPaymentTerm?: number | null } | null };
+export type UpdateCustomerPaymentTermMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } } | null };
 
-export type UpdateBillingEntityNetPaymentTermMutationVariables = Exact<{
+export type UpdateBillingEntityPaymentTermMutationVariables = Exact<{
   input: UpdateBillingEntityInput;
 }>;
 
 
-export type UpdateBillingEntityNetPaymentTermMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, netPaymentTerm?: number | null } | null };
+export type UpdateBillingEntityPaymentTermMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } | null };
 
 export type GetOrganizationCustomFooterForInvoiceQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -16342,7 +16508,7 @@ export type GetSubscriptionForDetailsV2OverviewQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionForDetailsV2OverviewQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, externalId: string, name?: string | null, status?: StatusTypeEnum | null, startedAt?: any | null, cancellationReason?: CancellationReasonEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, billingEntityId?: string | null, purchaseOrderNumber?: string | null, periodEndDate?: any | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, name?: string | null, displayName: string, deletedAt?: any | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } }, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null, parent?: { __typename?: 'Plan', id: string, name: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } } | null };
+export type GetSubscriptionForDetailsV2OverviewQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, billingEntityId?: string | null, externalId: string, name?: string | null, status?: StatusTypeEnum | null, startedAt?: any | null, cancellationReason?: CancellationReasonEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, purchaseOrderNumber?: string | null, periodEndDate?: any | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, name?: string | null, displayName: string, deletedAt?: any | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } }, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null, parent?: { __typename?: 'Plan', id: string, name: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } } | null };
 
 export type GetSubscriptionForDetailsV2PlanQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -16358,13 +16524,13 @@ export type GetSubscriptionFixedChargeUnitsOverridesQueryVariables = Exact<{
 
 export type GetSubscriptionFixedChargeUnitsOverridesQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, units: string }> | null } | null };
 
-export type SubscriptionInformationSectionFragment = { __typename?: 'Subscription', id: string, externalId: string, name?: string | null, status?: StatusTypeEnum | null, startedAt?: any | null, cancellationReason?: CancellationReasonEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, billingEntityId?: string | null, purchaseOrderNumber?: string | null, periodEndDate?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, name?: string | null, displayName: string, deletedAt?: any | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } }, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null, parent?: { __typename?: 'Plan', id: string, name: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null }, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null };
+export type SubscriptionInformationSectionFragment = { __typename?: 'Subscription', id: string, externalId: string, name?: string | null, status?: StatusTypeEnum | null, startedAt?: any | null, cancellationReason?: CancellationReasonEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, billingEntityId?: string | null, purchaseOrderNumber?: string | null, periodEndDate?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, name?: string | null, displayName: string, externalId: string, deletedAt?: any | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } }, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null, parent?: { __typename?: 'Plan', id: string, name: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null }, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null };
 
-export type SubscriptionInvoiceSectionFragment = { __typename?: 'Subscription', id: string, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, customer: { __typename?: 'Customer', id: string, externalId: string } };
+export type SubscriptionInvoiceSectionFragment = { __typename?: 'Subscription', id: string, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, billingEntityId?: string | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, customer: { __typename?: 'Customer', id: string, externalId: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } } };
 
 export type SubscriptionPaymentSectionFragment = { __typename?: 'Subscription', id: string, paymentMethodType?: PaymentMethodTypeEnum | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string } };
 
-export type SubscriptionForSubscriptionEditFormFragment = { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, billingTime?: BillingTimeEnum | null, purchaseOrderNumber?: string | null, billingEntityId?: string | null, periodEndDate?: any | null, status?: StatusTypeEnum | null, startedAt?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null, parent?: { __typename?: 'Plan', id: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } };
+export type SubscriptionForSubscriptionEditFormFragment = { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, billingTime?: BillingTimeEnum | null, purchaseOrderNumber?: string | null, billingEntityId?: string | null, periodEndDate?: any | null, status?: StatusTypeEnum | null, startedAt?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null, parent?: { __typename?: 'Plan', id: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } };
 
 export type DeleteTaxFragment = { __typename?: 'Tax', id: string, name: string, customersCount: number };
 
@@ -16388,7 +16554,7 @@ export type GetTaxesForTaxesSelectorSectionQuery = { __typename?: 'Query', taxes
 
 export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean };
 
-export type CustomerWalletFragment = { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, creditsBalance: number, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
+export type CustomerWalletFragment = { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, creditsBalance: number, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
 
 export type GetCustomerWalletListQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
@@ -16397,7 +16563,7 @@ export type GetCustomerWalletListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'WalletCollectionMetadata', currentPage: number, totalPages: number, totalCount: number, customerActiveWalletsCount: number }, collection: Array<{ __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, creditsBalance: number, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null }> } };
+export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'WalletCollectionMetadata', currentPage: number, totalPages: number, totalCount: number, customerActiveWalletsCount: number }, collection: Array<{ __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, creditsBalance: number, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null }> } };
 
 export type DeleteWalletAlertDialogFragment = { __typename?: 'Alert', id: string };
 
@@ -16488,7 +16654,7 @@ export type CreateSubscriptionMutationVariables = Exact<{
 }>;
 
 
-export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, cancellationReason?: CancellationReasonEnum | null, startedAt?: any | null, subscriptionAt?: any | null, endingAt?: any | null, name?: string | null, purchaseOrderNumber?: string | null, externalId: string, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, creditNotesBalances: Array<{ __typename?: 'CustomerCreditNotesBalance', currency: CurrencyEnum, billingEntityId: string, amountCents: any, creditsAvailableCount: number }>, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
+export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, cancellationReason?: CancellationReasonEnum | null, startedAt?: any | null, subscriptionAt?: any | null, endingAt?: any | null, name?: string | null, purchaseOrderNumber?: string | null, externalId: string, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, creditNotesBalances: Array<{ __typename?: 'CustomerCreditNotesBalance', currency: CurrencyEnum, billingEntityId: string, amountCents: any, creditsAvailableCount: number }>, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
         | { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
         | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
         | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
@@ -16502,7 +16668,7 @@ export type UpdateSubscriptionMutationVariables = Exact<{
 }>;
 
 
-export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, cancellationReason?: CancellationReasonEnum | null, startedAt?: any | null, subscriptionAt?: any | null, endingAt?: any | null, name?: string | null, purchaseOrderNumber?: string | null, externalId: string, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, creditNotesBalances: Array<{ __typename?: 'CustomerCreditNotesBalance', currency: CurrencyEnum, billingEntityId: string, amountCents: any, creditsAvailableCount: number }>, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
+export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, cancellationReason?: CancellationReasonEnum | null, startedAt?: any | null, subscriptionAt?: any | null, endingAt?: any | null, name?: string | null, purchaseOrderNumber?: string | null, externalId: string, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, creditNotesBalances: Array<{ __typename?: 'CustomerCreditNotesBalance', currency: CurrencyEnum, billingEntityId: string, amountCents: any, creditsAvailableCount: number }>, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
         | { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
         | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
         | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
@@ -16710,33 +16876,33 @@ export type UpdateBillableMetricMutationVariables = Exact<{
 
 export type UpdateBillableMetricMutation = { __typename?: 'Mutation', updateBillableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any } | null };
 
-export type BillingEntityItemFragment = { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, phone?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, einvoicing: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string } | null };
+export type BillingEntityItemFragment = { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, phone?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, einvoicing: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string } | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null };
 
 export type GetBillingEntitiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetBillingEntitiesQuery = { __typename?: 'Query', billingEntities: { __typename?: 'BillingEntityCollection', collection: Array<{ __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, phone?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, einvoicing: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string } | null }> } };
+export type GetBillingEntitiesQuery = { __typename?: 'Query', billingEntities: { __typename?: 'BillingEntityCollection', collection: Array<{ __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, phone?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, einvoicing: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string } | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null }> } };
 
 export type GetBillingEntityQueryVariables = Exact<{
   code: Scalars['String']['input'];
 }>;
 
 
-export type GetBillingEntityQuery = { __typename?: 'Query', billingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, phone?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, einvoicing: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string } | null } | null };
+export type GetBillingEntityQuery = { __typename?: 'Query', billingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, phone?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, einvoicing: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string } | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } | null };
 
 export type CreateBillingEntityMutationVariables = Exact<{
   input: CreateBillingEntityInput;
 }>;
 
 
-export type CreateBillingEntityMutation = { __typename?: 'Mutation', createBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, phone?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, einvoicing: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string } | null } | null };
+export type CreateBillingEntityMutation = { __typename?: 'Mutation', createBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, phone?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, einvoicing: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string } | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } | null };
 
 export type UpdateBillingEntityMutationVariables = Exact<{
   input: UpdateBillingEntityInput;
 }>;
 
 
-export type UpdateBillingEntityMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, phone?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, einvoicing: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string } | null } | null };
+export type UpdateBillingEntityMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, phone?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, einvoicing: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string } | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } | null };
 
 export type PlansForCouponsFragment = { __typename?: 'Plan', id: string, name: string, code: string };
 
@@ -16968,6 +17134,11 @@ export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables = 
 
 export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, readyForPaymentProcessing: boolean }> } };
 
+export type GetCurrentUserNeedsOrganizationQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCurrentUserNeedsOrganizationQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, needsOrganization: boolean } };
+
 export type MainOrganizationInfosFragment = { __typename?: 'CurrentOrganization', id: string, name: string, slug: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, eventsStore: EventsStoreEnum, featureFlags: Array<FeatureFlagEnum>, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, realtimeUsageEnabled: boolean, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum };
 
 export type GetOrganizationInfosQueryVariables = Exact<{ [key: string]: never; }>;
@@ -17138,7 +17309,7 @@ export type GetInfosForCreateInvoiceQueryVariables = Exact<{
 }>;
 
 
-export type GetInfosForCreateInvoiceQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, externalId: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, displayName: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, state?: string | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, billingEntity: { __typename?: 'BillingEntity', id: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
+export type GetInfosForCreateInvoiceQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, externalId: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, displayName: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, state?: string | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
 
 export type GetBillingEntityTaxesForCreateInvoiceQueryVariables = Exact<{
   billingEntityId: Scalars['ID']['input'];
@@ -17249,7 +17420,7 @@ export type GenerateCustomerPortalUrlMutationVariables = Exact<{
 
 export type GenerateCustomerPortalUrlMutation = { __typename?: 'Mutation', generateCustomerPortalUrl?: { __typename?: 'GenerateCustomerPortalUrlPayload', url: string } | null };
 
-export type AllInvoiceDetailsForCustomerInvoiceDetailsFragment = { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, purchaseOrderNumber?: string | null, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, totalDueAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, email?: string | null, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, logoUrl?: string | null }, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null };
+export type AllInvoiceDetailsForCustomerInvoiceDetailsFragment = { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, purchaseOrderNumber?: string | null, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, totalDueAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, email?: string | null, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, logoUrl?: string | null }, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } }> | null, paymentTerm: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null }, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null };
 
 export type FeeAppliedTaxesForInvoiceDetailsFragment = { __typename?: 'Fee', appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number, tax?: { __typename?: 'Tax', id: string, code: string, name: string, rate: number } | null }> | null };
 
@@ -17260,7 +17431,7 @@ export type GetInvoiceDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, purchaseOrderNumber?: string | null, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, totalDueAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, email?: string | null, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, logoUrl?: string | null }, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null } | null };
+export type GetInvoiceDetailsQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, purchaseOrderNumber?: string | null, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, totalDueAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, email?: string | null, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, logoUrl?: string | null }, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } }> | null, paymentTerm: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null }, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null } | null };
 
 export type GetInvoiceProductCatalogContractsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -17377,7 +17548,7 @@ export type VoidInvoiceMutationVariables = Exact<{
 }>;
 
 
-export type VoidInvoiceMutation = { __typename?: 'Mutation', voidInvoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, purchaseOrderNumber?: string | null, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, integrationSyncable: boolean, externalIntegrationId?: string | null, integrationHubspotSyncable: boolean, voidedAt?: any | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, couponsAmountCents: any, creditNotesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, logoUrl?: string | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null } | null };
+export type VoidInvoiceMutation = { __typename?: 'Mutation', voidInvoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, purchaseOrderNumber?: string | null, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, integrationSyncable: boolean, externalIntegrationId?: string | null, integrationHubspotSyncable: boolean, voidedAt?: any | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, couponsAmountCents: any, creditNotesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, logoUrl?: string | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } }> | null, paymentTerm: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null }, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null } | null };
 
 export type CustomerForRequestOverduePaymentFormFragment = { __typename?: 'Customer', email?: string | null };
 
@@ -17392,7 +17563,7 @@ export type GetRequestOverduePaymentInfosQueryVariables = Exact<{
 }>;
 
 
-export type GetRequestOverduePaymentInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, defaultCurrency: CurrencyEnum, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, externalId: string, currency?: CurrencyEnum | null, email?: string | null, displayName: string, paymentProvider?: ProviderTypeEnum | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> }, invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, totalDueAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any }> } };
+export type GetRequestOverduePaymentInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, defaultCurrency: CurrencyEnum, name: string, logoUrl?: string | null, email?: string | null, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, externalId: string, currency?: CurrencyEnum | null, email?: string | null, displayName: string, paymentProvider?: ProviderTypeEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> }, invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, totalDueAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any }> } };
 
 export type CreatePaymentRequestMutationVariables = Exact<{
   input: PaymentRequestCreateInput;
@@ -17723,6 +17894,13 @@ export type GoogleLoginUserMutationVariables = Exact<{
 
 export type GoogleLoginUserMutation = { __typename?: 'Mutation', googleLoginUser?: { __typename?: 'LoginUser', token: string } | null };
 
+export type GoogleSignUpMutationVariables = Exact<{
+  input: GoogleSignUpInput;
+}>;
+
+
+export type GoogleSignUpMutation = { __typename?: 'Mutation', googleSignUp?: { __typename?: 'LoginUser', token: string } | null };
+
 export type LoginUserMutationVariables = Exact<{
   input: LoginUserInput;
 }>;
@@ -17917,15 +18095,6 @@ export type GetCatalogPlanForDetailsOverviewQueryVariables = Exact<{
 
 export type GetCatalogPlanForDetailsOverviewQuery = { __typename?: 'Query', catalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean } | null };
 
-export type PlanAppliedRateCardForDetailsFragment = { __typename?: 'PlanAppliedRateCard', id: string, units?: number | null, ratePhasesCount: number, catalogPlan: { __typename?: 'CatalogPlan', id: string, name: string, attachedToContracts: boolean }, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }, ratePhases: Array<{ __typename?: 'RatePhase', id: string, code: string, name?: string | null, position: number, billingIntervalCycleCount?: number | null, rateOverride?: { __typename?: 'RateOverride', rateModel: RateCardRateModelEnum, billingIntervalCount?: number | null, billingIntervalUnit?: RateCardRateBillingIntervalUnitEnum | null, minAmountCents: any, pricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> };
-
-export type GetPlanAppliedRateCardForDetailsQueryVariables = Exact<{
-  appliedRateCardId: Scalars['ID']['input'];
-}>;
-
-
-export type GetPlanAppliedRateCardForDetailsQuery = { __typename?: 'Query', planAppliedRateCard?: { __typename?: 'PlanAppliedRateCard', id: string, units?: number | null, ratePhasesCount: number, catalogPlan: { __typename?: 'CatalogPlan', id: string, name: string, attachedToContracts: boolean }, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }, ratePhases: Array<{ __typename?: 'RatePhase', id: string, code: string, name?: string | null, position: number, billingIntervalCycleCount?: number | null, rateOverride?: { __typename?: 'RateOverride', rateModel: RateCardRateModelEnum, billingIntervalCount?: number | null, billingIntervalUnit?: RateCardRateBillingIntervalUnitEnum | null, minAmountCents: any, pricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> } | null };
-
 export type GetPlanAppliedRateCardsForRateCardsSectionQueryVariables = Exact<{
   planId: Scalars['ID']['input'];
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -18087,14 +18256,14 @@ export type GetRateCardForDetailsQueryVariables = Exact<{
 
 export type GetRateCardForDetailsQuery = { __typename?: 'Query', rateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees?: RateCardRegroupPaidFeesEnum | null, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, ratesCount: number, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, taxes: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }>, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any } | null } | null };
 
-export type RateCardForDetailsOverviewFragment = { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees?: RateCardRegroupPaidFeesEnum | null, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, ratesCount: number, product: { __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null, taxes: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> };
+export type RateCardForDetailsOverviewFragment = { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees?: RateCardRegroupPaidFeesEnum | null, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, ratesCount: number, product: { __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, taxes: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> };
 
 export type GetRateCardForDetailsOverviewQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetRateCardForDetailsOverviewQuery = { __typename?: 'Query', rateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees?: RateCardRegroupPaidFeesEnum | null, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, ratesCount: number, product: { __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null, taxes: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> } | null };
+export type GetRateCardForDetailsOverviewQuery = { __typename?: 'Query', rateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees?: RateCardRegroupPaidFeesEnum | null, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, ratesCount: number, product: { __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, taxes: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> } | null };
 
 export type RateCardForPreviewProductFragment = { __typename?: 'Product', id: string, name: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null };
 
@@ -18362,16 +18531,16 @@ export type RateCardForListFragment = { __typename?: 'RateCard', id: string, nam
 
 export type PropertiesForActiveRateFragment = { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string }> | null };
 
-export type ContractForContractDetailsFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, currency: CurrencyEnum, code: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } } };
+export type ContractForContractDetailsFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, currency: CurrencyEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null };
 
 export type GetContractForDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetContractForDetailsQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, currency: CurrencyEnum, code: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } } } | null };
+export type GetContractForDetailsQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, appliedRateCardsCount: number, currency: CurrencyEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null } | null };
 
-export type ContractForContractsListFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null };
+export type ContractForContractsListFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null };
 
 export type GetContractsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -18386,7 +18555,7 @@ export type GetContractsListQueryVariables = Exact<{
 }>;
 
 
-export type GetContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type GetContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type ContractForContractDetailsOverviewFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, canceledAt?: any | null, terminatedAt?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null };
 
@@ -18396,15 +18565,6 @@ export type GetContractForDetailsOverviewQueryVariables = Exact<{
 
 
 export type GetContractForDetailsOverviewQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, canceledAt?: any | null, terminatedAt?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null } | null };
-
-export type ContractAppliedRateCardForDetailsFragment = { __typename?: 'ContractAppliedRateCard', id: string, units?: number | null, effectiveDate: any, ratePhasesCount: number, contract: { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null }, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }, ratePhases: Array<{ __typename?: 'RatePhase', id: string, code: string, name?: string | null, position: number, billingIntervalCycleCount?: number | null, rateOverride?: { __typename?: 'RateOverride', rateModel: RateCardRateModelEnum, billingIntervalCount?: number | null, billingIntervalUnit?: RateCardRateBillingIntervalUnitEnum | null, minAmountCents: any, pricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> };
-
-export type GetContractAppliedRateCardForDetailsQueryVariables = Exact<{
-  appliedRateCardId: Scalars['ID']['input'];
-}>;
-
-
-export type GetContractAppliedRateCardForDetailsQuery = { __typename?: 'Query', contractAppliedRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, units?: number | null, effectiveDate: any, ratePhasesCount: number, contract: { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null }, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, billingTiming: RateCardBillingTimingEnum, appliedPricingUnitCode?: string | null, proration: boolean, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }, ratePhases: Array<{ __typename?: 'RatePhase', id: string, code: string, name?: string | null, position: number, billingIntervalCycleCount?: number | null, rateOverride?: { __typename?: 'RateOverride', rateModel: RateCardRateModelEnum, billingIntervalCount?: number | null, billingIntervalUnit?: RateCardRateBillingIntervalUnitEnum | null, minAmountCents: any, pricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'RateProperties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, volumeRanges?: Array<{ __typename?: 'RateTier', perUnitAmount: string, toValue?: string | null, flatAmount: string }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'RatePercentageTier', rate: string, toValue?: string | null, flatAmount: string }> | null } } | null }> } | null };
 
 export type GetContractAppliedRateCardsForRateCardsSectionQueryVariables = Exact<{
   contractId: Scalars['ID']['input'];
@@ -18422,6 +18582,36 @@ export type GetContractAppliedRateCardsForRateCardsSectionQueryVariables = Exact
 
 
 export type GetContractAppliedRateCardsForRateCardsSectionQuery = { __typename?: 'Query', contractAppliedRateCards: { __typename?: 'ContractAppliedRateCardCollection', collection: Array<{ __typename?: 'ContractAppliedRateCard', id: string, ratePhasesCount: number, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+
+export type GetContractUsageCategoriesQueryVariables = Exact<{
+  contractId: Scalars['ID']['input'];
+}>;
+
+
+export type GetContractUsageCategoriesQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, appliedRateCards: Array<{ __typename?: 'ContractAppliedRateCard', id: string, product: { __typename?: 'Product', id: string, productCategory?: { __typename?: 'ProductCategory', id: string, name: string } | null } }> } | null };
+
+export type GetContractCurrentUsageTotalQueryVariables = Exact<{
+  contractId: Scalars['ID']['input'];
+}>;
+
+
+export type GetContractCurrentUsageTotalQuery = { __typename?: 'Query', contractCurrentUsageTotal: { __typename?: 'ContractCurrentUsageTotal', totalAmountCents: any, taxesUnavailable: boolean, fromDatetime?: any | null, toDatetime?: any | null } };
+
+export type GetContractUsagesQueryVariables = Exact<{
+  contractId: Scalars['ID']['input'];
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  withoutProductCategory?: InputMaybe<Scalars['Boolean']['input']>;
+  productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  productFilterIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  withoutProductFilter?: InputMaybe<Scalars['Boolean']['input']>;
+  productType?: InputMaybe<ProductTypeEnum>;
+}>;
+
+
+export type GetContractUsagesQuery = { __typename?: 'Query', contractUsages: { __typename?: 'RateCardUsageCollection', collection: Array<{ __typename?: 'RateCardUsage', invoiceDisplayName: string, units: number, amountCents: any, productCode: string, productName: string, productFilterCode?: string | null, fromDatetime: any, toDatetime: any, id: string }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type SelectableBillableMetricForCouponsFragment = { __typename?: 'SelectableBillableMetric', id: string, name: string, code: string };
 
@@ -18611,7 +18801,7 @@ export type DownloadInvoiceXmlMutationVariables = Exact<{
 
 export type DownloadInvoiceXmlMutation = { __typename?: 'Mutation', downloadInvoiceXml?: { __typename?: 'Invoice', id: string, xmlUrl?: string | null } | null };
 
-export type InvoiceForInvoiceBuildRegenerationPreviewFragment = { __typename?: 'Invoice', id: string, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, associatedActiveWalletPresent: boolean, creditableAmountCents: any, currency?: CurrencyEnum | null, expectedFinalizationDate: any, externalHubspotIntegrationId?: string | null, externalIntegrationId?: string | null, externalSalesforceIntegrationId?: string | null, integrationHubspotSyncable: boolean, integrationSalesforceSyncable: boolean, integrationSyncable: boolean, invoiceType: InvoiceTypeEnum, issuingDate: any, number: string, offsettableAmountCents: any, paymentDisputeLostAt?: any | null, paymentDueDate: any, paymentOverdue: boolean, paymentStatus: InvoicePaymentStatusTypeEnum, purchaseOrderNumber?: string | null, refundableAmountCents: any, regeneratedInvoiceId?: string | null, status: InvoiceStatusTypeEnum, taxProviderId?: string | null, taxProviderVoidable: boolean, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, versionNumber: number, voidable: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, xmlUrl?: string | null, couponsAmountCents: any, creditNotesAmountCents: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, einvoicing: boolean, email?: string | null, logoUrl?: string | null, name: string }, customer: { __typename?: 'Customer', id: string, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, city?: string | null, country?: CountryCode | null, deletedAt?: any | null, displayName: string, email?: string | null, legalName?: string | null, legalNumber?: string | null, name?: string | null, state?: string | null, taxIdentificationNumber?: string | null, zipcode?: string | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCents?: any | null, amountCurrency: CurrencyEnum, interval?: PlanInterval | null, invoiceDisplayName?: string | null, name: string } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, currency: CurrencyEnum, preciseUnitAmount: number, adjustedFee: boolean, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceDisplayName?: string | null, invoiceName?: string | null, units: number, invoiceId?: string | null, amountCurrency: CurrencyEnum, preciseAmountCents: number, preciseCouponsAmountCents: number, subTotalExcludingTaxesAmountCents: any, subTotalExcludingTaxesPreciseAmountCents: number, taxesRate?: number | null, taxesAmountCents: any, taxesPreciseAmountCents: number, totalAmountCents: any, preciseTotalAmountCents: number, eventsCount?: any | null, payInAdvance: boolean, itemCode: string, itemType: string, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, chargeModel: ChargeModelEnum, prorated: boolean, invoiceable: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean, addOn: { __typename?: 'AddOn', id: string } } | null, addOn?: { __typename?: 'AddOn', id: string } | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, product?: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string } | null } | null, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, displayOnInvoice: boolean } } | null, rateOverride?: { __typename?: 'RateOverride', id: string } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null };
+export type InvoiceForInvoiceBuildRegenerationPreviewFragment = { __typename?: 'Invoice', id: string, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, associatedActiveWalletPresent: boolean, creditableAmountCents: any, currency?: CurrencyEnum | null, expectedFinalizationDate: any, externalHubspotIntegrationId?: string | null, externalIntegrationId?: string | null, externalSalesforceIntegrationId?: string | null, integrationHubspotSyncable: boolean, integrationSalesforceSyncable: boolean, integrationSyncable: boolean, invoiceType: InvoiceTypeEnum, issuingDate: any, number: string, offsettableAmountCents: any, paymentDisputeLostAt?: any | null, paymentDueDate: any, paymentOverdue: boolean, paymentStatus: InvoicePaymentStatusTypeEnum, purchaseOrderNumber?: string | null, refundableAmountCents: any, regeneratedInvoiceId?: string | null, status: InvoiceStatusTypeEnum, taxProviderId?: string | null, taxProviderVoidable: boolean, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, versionNumber: number, voidable: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, xmlUrl?: string | null, couponsAmountCents: any, creditNotesAmountCents: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, paymentTerm: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null }, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, einvoicing: boolean, email?: string | null, logoUrl?: string | null, name: string }, customer: { __typename?: 'Customer', id: string, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, city?: string | null, country?: CountryCode | null, deletedAt?: any | null, displayName: string, email?: string | null, legalName?: string | null, legalNumber?: string | null, name?: string | null, state?: string | null, taxIdentificationNumber?: string | null, zipcode?: string | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCents?: any | null, amountCurrency: CurrencyEnum, interval?: PlanInterval | null, invoiceDisplayName?: string | null, name: string } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, currency: CurrencyEnum, preciseUnitAmount: number, adjustedFee: boolean, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceDisplayName?: string | null, invoiceName?: string | null, units: number, invoiceId?: string | null, amountCurrency: CurrencyEnum, preciseAmountCents: number, preciseCouponsAmountCents: number, subTotalExcludingTaxesAmountCents: any, subTotalExcludingTaxesPreciseAmountCents: number, taxesRate?: number | null, taxesAmountCents: any, taxesPreciseAmountCents: number, totalAmountCents: any, preciseTotalAmountCents: number, eventsCount?: any | null, payInAdvance: boolean, itemCode: string, itemType: string, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, chargeModel: ChargeModelEnum, prorated: boolean, invoiceable: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean, addOn: { __typename?: 'AddOn', id: string } } | null, addOn?: { __typename?: 'AddOn', id: string } | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, product?: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string } | null } | null, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, displayOnInvoice: boolean } } | null, rateOverride?: { __typename?: 'RateOverride', id: string } | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null };
 
 export type FeeForInvoiceBuildRegenerationPreviewFragment = { __typename?: 'Fee', id: string, amountCents: any, currency: CurrencyEnum, description?: string | null, feeType: FeeTypesEnum, groupedBy: any, invoiceDisplayName?: string | null, invoiceName?: string | null, itemName: string, preciseUnitAmount: number, succeededAt?: any | null, units: number, eventsCount?: any | null, adjustedFee: boolean, adjustedFeeType?: AdjustedFeeTypeEnum | null, invoiceId?: string | null, amountCurrency: CurrencyEnum, preciseAmountCents: number, preciseCouponsAmountCents: number, subTotalExcludingTaxesAmountCents: any, subTotalExcludingTaxesPreciseAmountCents: number, taxesRate?: number | null, taxesAmountCents: any, taxesPreciseAmountCents: number, totalAmountCents: any, preciseTotalAmountCents: number, payInAdvance: boolean, itemCode: string, itemType: string, addOn?: { __typename?: 'AddOn', id: string } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number, tax?: { __typename?: 'Tax', id: string, name: string, code: string, rate: number } | null }> | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, invoiceable: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: number | null, flatUnitAmount?: string | null, fromValue?: number | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean, addOn: { __typename?: 'AddOn', id: string } } | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, product?: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string } | null } | null, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, displayOnInvoice: boolean } } | null, rateOverride?: { __typename?: 'RateOverride', id: string } | null };
 
@@ -18620,7 +18810,7 @@ export type GetInvoiceBuildRegenerationPreviewQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceBuildRegenerationPreviewQuery = { __typename?: 'Query', invoiceBuildRegenerationPreview?: { __typename?: 'Invoice', id: string, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, associatedActiveWalletPresent: boolean, creditableAmountCents: any, currency?: CurrencyEnum | null, expectedFinalizationDate: any, externalHubspotIntegrationId?: string | null, externalIntegrationId?: string | null, externalSalesforceIntegrationId?: string | null, integrationHubspotSyncable: boolean, integrationSalesforceSyncable: boolean, integrationSyncable: boolean, invoiceType: InvoiceTypeEnum, issuingDate: any, number: string, offsettableAmountCents: any, paymentDisputeLostAt?: any | null, paymentDueDate: any, paymentOverdue: boolean, paymentStatus: InvoicePaymentStatusTypeEnum, purchaseOrderNumber?: string | null, refundableAmountCents: any, regeneratedInvoiceId?: string | null, status: InvoiceStatusTypeEnum, taxProviderId?: string | null, taxProviderVoidable: boolean, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, versionNumber: number, voidable: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, xmlUrl?: string | null, couponsAmountCents: any, creditNotesAmountCents: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, currency: CurrencyEnum, preciseUnitAmount: number, adjustedFee: boolean, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceDisplayName?: string | null, invoiceName?: string | null, units: number, description?: string | null, succeededAt?: any | null, invoiceId?: string | null, amountCurrency: CurrencyEnum, preciseAmountCents: number, preciseCouponsAmountCents: number, subTotalExcludingTaxesAmountCents: any, subTotalExcludingTaxesPreciseAmountCents: number, taxesRate?: number | null, taxesAmountCents: any, taxesPreciseAmountCents: number, totalAmountCents: any, preciseTotalAmountCents: number, eventsCount?: any | null, payInAdvance: boolean, itemCode: string, itemType: string, adjustedFeeType?: AdjustedFeeTypeEnum | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, invoiceable: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any, id: string } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean, addOn: { __typename?: 'AddOn', id: string } } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, addOn?: { __typename?: 'AddOn', id: string } | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, product?: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string } | null } | null, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, displayOnInvoice: boolean } } | null, rateOverride?: { __typename?: 'RateOverride', id: string } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number, tax?: { __typename?: 'Tax', id: string, name: string, code: string, rate: number } | null }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: number | null, flatUnitAmount?: string | null, fromValue?: number | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, einvoicing: boolean, email?: string | null, logoUrl?: string | null, name: string }, customer: { __typename?: 'Customer', id: string, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, city?: string | null, country?: CountryCode | null, deletedAt?: any | null, displayName: string, email?: string | null, legalName?: string | null, legalNumber?: string | null, name?: string | null, state?: string | null, taxIdentificationNumber?: string | null, zipcode?: string | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCents?: any | null, amountCurrency: CurrencyEnum, interval?: PlanInterval | null, invoiceDisplayName?: string | null, name: string } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null } | null };
+export type GetInvoiceBuildRegenerationPreviewQuery = { __typename?: 'Query', invoiceBuildRegenerationPreview?: { __typename?: 'Invoice', id: string, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, associatedActiveWalletPresent: boolean, creditableAmountCents: any, currency?: CurrencyEnum | null, expectedFinalizationDate: any, externalHubspotIntegrationId?: string | null, externalIntegrationId?: string | null, externalSalesforceIntegrationId?: string | null, integrationHubspotSyncable: boolean, integrationSalesforceSyncable: boolean, integrationSyncable: boolean, invoiceType: InvoiceTypeEnum, issuingDate: any, number: string, offsettableAmountCents: any, paymentDisputeLostAt?: any | null, paymentDueDate: any, paymentOverdue: boolean, paymentStatus: InvoicePaymentStatusTypeEnum, purchaseOrderNumber?: string | null, refundableAmountCents: any, regeneratedInvoiceId?: string | null, status: InvoiceStatusTypeEnum, taxProviderId?: string | null, taxProviderVoidable: boolean, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, versionNumber: number, voidable: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, xmlUrl?: string | null, couponsAmountCents: any, creditNotesAmountCents: any, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, currency: CurrencyEnum, preciseUnitAmount: number, adjustedFee: boolean, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceDisplayName?: string | null, invoiceName?: string | null, units: number, description?: string | null, succeededAt?: any | null, invoiceId?: string | null, amountCurrency: CurrencyEnum, preciseAmountCents: number, preciseCouponsAmountCents: number, subTotalExcludingTaxesAmountCents: any, subTotalExcludingTaxesPreciseAmountCents: number, taxesRate?: number | null, taxesAmountCents: any, taxesPreciseAmountCents: number, totalAmountCents: any, preciseTotalAmountCents: number, eventsCount?: any | null, payInAdvance: boolean, itemCode: string, itemType: string, adjustedFeeType?: AdjustedFeeTypeEnum | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, name: string, interval?: PlanInterval | null } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, invoiceable: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any, id: string } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean, addOn: { __typename?: 'AddOn', id: string } } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, addOn?: { __typename?: 'AddOn', id: string } | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, product?: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string } | null } | null, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null, code: string } | null, contractRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, displayOnInvoice: boolean } } | null, rateOverride?: { __typename?: 'RateOverride', id: string } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number, tax?: { __typename?: 'Tax', id: string, name: string, code: string, rate: number } | null }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: number | null, flatUnitAmount?: string | null, fromValue?: number | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, paymentTerm: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null }, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, einvoicing: boolean, email?: string | null, logoUrl?: string | null, name: string }, customer: { __typename?: 'Customer', id: string, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, city?: string | null, country?: CountryCode | null, deletedAt?: any | null, displayName: string, email?: string | null, legalName?: string | null, legalNumber?: string | null, name?: string | null, state?: string | null, taxIdentificationNumber?: string | null, zipcode?: string | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, amountCents?: any | null, amountCurrency: CurrencyEnum, interval?: PlanInterval | null, invoiceDisplayName?: string | null, name: string } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null } | null };
 
 export type GetCustomersForCreateQuoteQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -18651,7 +18841,7 @@ export type GetOrderForEditQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderForEditQuery = { __typename?: 'Query', order?: { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, orderType: OrderTypeEnum, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm?: number | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } } | null };
+export type GetOrderForEditQuery = { __typename?: 'Query', order?: { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, orderType: OrderTypeEnum, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, currency?: CurrencyEnum | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } } | null };
 
 export type UpdateOrderMutationVariables = Exact<{
   input: UpdateOrderInput;
@@ -18665,7 +18855,7 @@ export type GetOrderForExecuteQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderForExecuteQuery = { __typename?: 'Query', order?: { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, orderType: OrderTypeEnum, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm?: number | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } } | null };
+export type GetOrderForExecuteQuery = { __typename?: 'Query', order?: { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, orderType: OrderTypeEnum, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, currency?: CurrencyEnum | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } } | null };
 
 export type ExecuteOrderMutationVariables = Exact<{
   input: ExecuteOrderInput;
@@ -18688,7 +18878,7 @@ export type GetOrderFormForSignQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderFormForSignQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, expiresAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm?: number | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } | null };
+export type GetOrderFormForSignQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, expiresAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, currency?: CurrencyEnum | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } | null };
 
 export type MarkOrderFormAsSignedMutationVariables = Exact<{
   input: MarkOrderFormAsSignedInput;
@@ -18804,14 +18994,14 @@ export type QuotePreviewVersionFragment = { __typename?: 'QuoteVersion', content
 
 export type QuotePreviewCustomerFragment = { __typename?: 'Customer', currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null };
 
-export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm?: number | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } };
+export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, currency?: CurrencyEnum | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } };
 
 export type GetQuoteQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm?: number | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } | null };
+export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, currency?: CurrencyEnum | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, billingEntityId?: string | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } | null };
 
 export type GetQuotePreviewQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -19045,7 +19235,7 @@ export type GetBillingEntitySettingsQueryVariables = Exact<{
 }>;
 
 
-export type GetBillingEntitySettingsQuery = { __typename?: 'Query', billingEntity?: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm?: number | null, defaultCurrency: CurrencyEnum, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'BillingEntityBillingConfiguration', id: string, invoiceGracePeriod: number, invoiceFooter?: string | null, documentLocale?: string | null, subscriptionInvoiceIssuingDateAdjustment: BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum, subscriptionInvoiceIssuingDateAnchor: BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> }, invoiceCustomSections?: { __typename?: 'InvoiceCustomSectionCollection', collection: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> } | null };
+export type GetBillingEntitySettingsQuery = { __typename?: 'Query', billingEntity?: { __typename?: 'BillingEntity', id: string, code: string, name: string, defaultCurrency: CurrencyEnum, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, finalizeZeroAmountInvoice: boolean, billingConfiguration?: { __typename?: 'BillingEntityBillingConfiguration', id: string, invoiceGracePeriod: number, invoiceFooter?: string | null, documentLocale?: string | null, subscriptionInvoiceIssuingDateAdjustment: BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum, subscriptionInvoiceIssuingDateAnchor: BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum } | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> }, invoiceCustomSections?: { __typename?: 'InvoiceCustomSectionCollection', collection: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> } | null };
 
 export type ApplyBillingEntityDunningCampaignMutationVariables = Exact<{
   input: BillingEntityUpdateAppliedDunningCampaignInput;
@@ -20176,14 +20366,14 @@ export type GetCustomerForCreateSubscriptionQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerForCreateSubscriptionQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, name?: string | null, displayName: string, externalId: string, paymentProvider?: ProviderTypeEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string } } | null };
+export type GetCustomerForCreateSubscriptionQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, name?: string | null, displayName: string, externalId: string, paymentProvider?: ProviderTypeEnum | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } } | null };
 
 export type GetSubscriptionForCreateSubscriptionQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSubscriptionForCreateSubscriptionQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, billingTime?: BillingTimeEnum | null, purchaseOrderNumber?: string | null, billingEntityId?: string | null, periodEndDate?: any | null, status?: StatusTypeEnum | null, startedAt?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null, parent?: { __typename?: 'Plan', id: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } } | null };
+export type GetSubscriptionForCreateSubscriptionQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, billingTime?: BillingTimeEnum | null, purchaseOrderNumber?: string | null, billingEntityId?: string | null, periodEndDate?: any | null, status?: StatusTypeEnum | null, startedAt?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null, parent?: { __typename?: 'Plan', id: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } } | null };
 
 export type GetSubscriptionForDetailsQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -20232,21 +20422,21 @@ export type ThresholdForProgressiveBillingFormFragment = { __typename?: 'UsageTh
 
 export type UseSubscriptionForProgressiveBillingFormFragment = { __typename?: 'Subscription', progressiveBillingDisabled?: boolean | null, usageThresholds: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }>, plan: { __typename?: 'Plan', applicableUsageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null } };
 
-export type WalletForUpdateFragment = { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
+export type WalletForUpdateFragment = { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
 
 export type GetCustomerInfosForWalletFormQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCustomerInfosForWalletFormQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, externalId: string, currency?: CurrencyEnum | null, timezone?: TimezoneEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string } } | null };
+export type GetCustomerInfosForWalletFormQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, externalId: string, currency?: CurrencyEnum | null, timezone?: TimezoneEnum | null, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } } | null };
 
 export type GetWalletInfosForWalletFormQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetWalletInfosForWalletFormQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
+export type GetWalletInfosForWalletFormQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
 
 export type CreateCustomerWalletMutationVariables = Exact<{
   input: CreateCustomerWalletInput;
@@ -20260,7 +20450,7 @@ export type UpdateCustomerWalletMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCustomerWalletMutation = { __typename?: 'Mutation', updateCustomerWallet?: { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
+export type UpdateCustomerWalletMutation = { __typename?: 'Mutation', updateCustomerWallet?: { __typename?: 'Wallet', id: string, billingEntityId?: string | null, code?: string | null, createdAt: any, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, purchaseOrderNumber?: string | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, purchaseOrderNumber?: string | null, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null } | null };
 
 export type GetWalletForTopUpQueryVariables = Exact<{
   walletId: Scalars['ID']['input'];
@@ -20274,7 +20464,7 @@ export type CreateCustomerWalletTransactionMutationVariables = Exact<{
 }>;
 
 
-export type CreateCustomerWalletTransactionMutation = { __typename?: 'Mutation', createCustomerWalletTransaction?: { __typename?: 'WalletTransactionCollection', collection: Array<{ __typename?: 'WalletTransaction', id: string, wallet?: { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, purchaseOrderNumber?: string | null, paidTopUpMinAmountCents?: any | null, paidTopUpMinCredits?: any | null, paidTopUpMaxAmountCents?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, billingEntityId?: string | null, skipInvoiceCustomSections?: boolean | null, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string, details?: { __typename?: 'PaymentMethodDetails', type?: string | null, brand?: string | null, last4?: string | null } | null } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, customer?: { __typename?: 'Customer', id: string, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, transactionName?: string | null, paidCredits: string, grantedCredits: string, grantsTargetTopUp?: boolean | null, targetOngoingBalance?: string | null, trigger: RecurringTransactionTriggerEnum, thresholdCredits?: string | null, expirationAt?: any | null, interval?: RecurringTransactionIntervalEnum | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, purchaseOrderNumber?: string | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null }> | null } | null }> } | null };
+export type CreateCustomerWalletTransactionMutation = { __typename?: 'Mutation', createCustomerWalletTransaction?: { __typename?: 'WalletTransactionCollection', collection: Array<{ __typename?: 'WalletTransaction', id: string, wallet?: { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, purchaseOrderNumber?: string | null, paidTopUpMinAmountCents?: any | null, paidTopUpMinCredits?: any | null, paidTopUpMaxAmountCents?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, billingEntityId?: string | null, skipInvoiceCustomSections?: boolean | null, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string, details?: { __typename?: 'PaymentMethodDetails', type?: string | null, brand?: string | null, last4?: string | null } | null } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, customer?: { __typename?: 'Customer', id: string, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, transactionName?: string | null, paidCredits: string, grantedCredits: string, grantsTargetTopUp?: boolean | null, targetOngoingBalance?: string | null, trigger: RecurringTransactionTriggerEnum, thresholdCredits?: string | null, expirationAt?: any | null, interval?: RecurringTransactionIntervalEnum | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, purchaseOrderNumber?: string | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null }> | null } | null }> } | null };
 
 export type WalletForTopUpFragment = { __typename?: 'Wallet', id: string, name?: string | null, currency: CurrencyEnum, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number };
 
@@ -20299,14 +20489,14 @@ export type UpdateWalletAlertMutationVariables = Exact<{
 
 export type UpdateWalletAlertMutation = { __typename?: 'Mutation', updateCustomerWalletAlert?: { __typename?: 'Alert', id: string } | null };
 
-export type WalletDetailsFragment = { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, purchaseOrderNumber?: string | null, paidTopUpMinAmountCents?: any | null, paidTopUpMinCredits?: any | null, paidTopUpMaxAmountCents?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, billingEntityId?: string | null, skipInvoiceCustomSections?: boolean | null, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string, details?: { __typename?: 'PaymentMethodDetails', type?: string | null, brand?: string | null, last4?: string | null } | null } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, customer?: { __typename?: 'Customer', id: string, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, transactionName?: string | null, paidCredits: string, grantedCredits: string, grantsTargetTopUp?: boolean | null, targetOngoingBalance?: string | null, trigger: RecurringTransactionTriggerEnum, thresholdCredits?: string | null, expirationAt?: any | null, interval?: RecurringTransactionIntervalEnum | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, purchaseOrderNumber?: string | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null }> | null };
+export type WalletDetailsFragment = { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, purchaseOrderNumber?: string | null, paidTopUpMinAmountCents?: any | null, paidTopUpMinCredits?: any | null, paidTopUpMaxAmountCents?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, billingEntityId?: string | null, skipInvoiceCustomSections?: boolean | null, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string, details?: { __typename?: 'PaymentMethodDetails', type?: string | null, brand?: string | null, last4?: string | null } | null } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, customer?: { __typename?: 'Customer', id: string, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, transactionName?: string | null, paidCredits: string, grantedCredits: string, grantsTargetTopUp?: boolean | null, targetOngoingBalance?: string | null, trigger: RecurringTransactionTriggerEnum, thresholdCredits?: string | null, expirationAt?: any | null, interval?: RecurringTransactionIntervalEnum | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, purchaseOrderNumber?: string | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null }> | null };
 
 export type GetWalletDetailsQueryVariables = Exact<{
   walletId: Scalars['ID']['input'];
 }>;
 
 
-export type GetWalletDetailsQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, purchaseOrderNumber?: string | null, paidTopUpMinAmountCents?: any | null, paidTopUpMinCredits?: any | null, paidTopUpMaxAmountCents?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, billingEntityId?: string | null, skipInvoiceCustomSections?: boolean | null, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string, details?: { __typename?: 'PaymentMethodDetails', type?: string | null, brand?: string | null, last4?: string | null } | null } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, customer?: { __typename?: 'Customer', id: string, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, transactionName?: string | null, paidCredits: string, grantedCredits: string, grantsTargetTopUp?: boolean | null, targetOngoingBalance?: string | null, trigger: RecurringTransactionTriggerEnum, thresholdCredits?: string | null, expirationAt?: any | null, interval?: RecurringTransactionIntervalEnum | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, purchaseOrderNumber?: string | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null }> | null } | null };
+export type GetWalletDetailsQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, purchaseOrderNumber?: string | null, paidTopUpMinAmountCents?: any | null, paidTopUpMinCredits?: any | null, paidTopUpMaxAmountCents?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, billingEntityId?: string | null, skipInvoiceCustomSections?: boolean | null, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string, details?: { __typename?: 'PaymentMethodDetails', type?: string | null, brand?: string | null, last4?: string | null } | null } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, customer?: { __typename?: 'Customer', id: string, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, paymentTerm?: { __typename?: 'PaymentTerm', termType: PaymentTermTypeEnum, days?: number | null, dayOfMonth?: number | null, monthOffset?: number | null } | null } } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', lagoId: string, method: RecurringTransactionMethodEnum, transactionName?: string | null, paidCredits: string, grantedCredits: string, grantsTargetTopUp?: boolean | null, targetOngoingBalance?: string | null, trigger: RecurringTransactionTriggerEnum, thresholdCredits?: string | null, expirationAt?: any | null, interval?: RecurringTransactionIntervalEnum | null, startedAt?: any | null, invoiceRequiresSuccessfulPayment: boolean, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, purchaseOrderNumber?: string | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, connections: Array<{ __typename?: 'ConnectionRouting', category: ConnectionCategoryEnum, behavior: ConnectionResolvedBehaviorEnum, code?: string | null }>, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null }> | null } | null };
 
 export type BillableMetricForWalletScopeSectionFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string };
 
@@ -20385,6 +20575,328 @@ export const RevenueStreamDataForOverviewSectionFragmentDoc = gql`
   progressiveBillingCreditAmountCents
 }
     `;
+export const ContractAppliedRateCardForAppliedRateCardsTableFragmentDoc = gql`
+    fragment ContractAppliedRateCardForAppliedRateCardsTable on ContractAppliedRateCard {
+  id
+  ratePhasesCount
+  product {
+    id
+    name
+    invoiceDisplayName
+    productCategory {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+  rateCard {
+    id
+    name
+    code
+    productFilter {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+}
+    `;
+export const ProductForAppliedRateCardDrawerFragmentDoc = gql`
+    fragment ProductForAppliedRateCardDrawer on Product {
+  id
+  name
+  code
+  invoiceDisplayName
+  productType
+  productCategory {
+    id
+    name
+    code
+    invoiceDisplayName
+  }
+  billableMetric {
+    id
+    aggregationType
+    recurring
+  }
+}
+    `;
+export const ProductForCatalogRelationsFragmentDoc = gql`
+    fragment ProductForCatalogRelations on Product {
+  id
+  name
+  invoiceDisplayName
+}
+    `;
+export const ProductCategoryForCatalogRelationsFragmentDoc = gql`
+    fragment ProductCategoryForCatalogRelations on ProductCategory {
+  id
+  name
+  invoiceDisplayName
+}
+    `;
+export const PropertiesForActiveRateFragmentDoc = gql`
+    fragment PropertiesForActiveRate on RateProperties {
+  amount
+  rate
+  packageSize
+  graduatedRanges {
+    perUnitAmount
+  }
+  volumeRanges {
+    perUnitAmount
+  }
+  graduatedPercentageRanges {
+    rate
+  }
+}
+    `;
+export const StandardChargeForRateFragmentDoc = gql`
+    fragment StandardChargeForRate on RateProperties {
+  amount
+  pricingGroupKeys
+}
+    `;
+export const PackageChargeForRateFragmentDoc = gql`
+    fragment PackageChargeForRate on RateProperties {
+  amount
+  packageSize
+  freeUnits
+}
+    `;
+export const PercentageChargeForRateFragmentDoc = gql`
+    fragment PercentageChargeForRate on RateProperties {
+  fixedAmount
+  freeUnitsPerEvents
+  freeUnitsPerTotalAggregation
+  rate
+  perTransactionMinAmount
+  perTransactionMaxAmount
+}
+    `;
+export const CustomChargeForRateFragmentDoc = gql`
+    fragment CustomChargeForRate on RateProperties {
+  customProperties
+}
+    `;
+export const GraduatedRateTierFragmentDoc = gql`
+    fragment GraduatedRateTier on RateTier {
+  toValue
+  perUnitAmount
+  flatAmount
+}
+    `;
+export const GraduatedPercentageRateTierFragmentDoc = gql`
+    fragment GraduatedPercentageRateTier on RatePercentageTier {
+  toValue
+  rate
+  flatAmount
+}
+    `;
+export const VolumeRateTierFragmentDoc = gql`
+    fragment VolumeRateTier on RateTier {
+  toValue
+  perUnitAmount
+  flatAmount
+}
+    `;
+export const RatePropertiesForWrapperSwitchFragmentDoc = gql`
+    fragment RatePropertiesForWrapperSwitch on RateProperties {
+  ...StandardChargeForRate
+  ...PackageChargeForRate
+  ...PercentageChargeForRate
+  ...CustomChargeForRate
+  graduatedRanges {
+    ...GraduatedRateTier
+  }
+  graduatedPercentageRanges {
+    ...GraduatedPercentageRateTier
+  }
+  volumeRanges {
+    ...VolumeRateTier
+  }
+}
+    ${StandardChargeForRateFragmentDoc}
+${PackageChargeForRateFragmentDoc}
+${PercentageChargeForRateFragmentDoc}
+${CustomChargeForRateFragmentDoc}
+${GraduatedRateTierFragmentDoc}
+${GraduatedPercentageRateTierFragmentDoc}
+${VolumeRateTierFragmentDoc}`;
+export const PropertiesForRateCardRateFragmentDoc = gql`
+    fragment PropertiesForRateCardRate on RateProperties {
+  ...PropertiesForActiveRate
+  ...RatePropertiesForWrapperSwitch
+}
+    ${PropertiesForActiveRateFragmentDoc}
+${RatePropertiesForWrapperSwitchFragmentDoc}`;
+export const ActiveRateForRatePhaseFragmentDoc = gql`
+    fragment ActiveRateForRatePhase on RateCardRate {
+  id
+  effectiveFrom
+  rateModel
+  billingIntervalCount
+  billingIntervalUnit
+  minAmountCents
+  appliedPricingUnitConversionRate
+  rateProperties {
+    ...PropertiesForRateCardRate
+  }
+}
+    ${PropertiesForRateCardRateFragmentDoc}`;
+export const RateCardForAppliedRateCardDrawerFragmentDoc = gql`
+    fragment RateCardForAppliedRateCardDrawer on RateCard {
+  currency
+  billingTiming
+  appliedPricingUnitCode
+  proration
+  ratesCount
+  activeRate {
+    id
+    ...ActiveRateForRatePhase
+  }
+  nextPendingRate {
+    id
+    ...ActiveRateForRatePhase
+  }
+}
+    ${ActiveRateForRatePhaseFragmentDoc}`;
+export const ProductFilterForCatalogRelationsFragmentDoc = gql`
+    fragment ProductFilterForCatalogRelations on ProductFilter {
+  id
+  name
+  invoiceDisplayName
+}
+    `;
+export const RatePhaseForDrawerFragmentDoc = gql`
+    fragment RatePhaseForDrawer on RatePhase {
+  id
+  code
+  name
+  position
+  billingIntervalCycleCount
+  rateOverride {
+    rateModel
+    rateProperties {
+      ...PropertiesForRateCardRate
+    }
+    billingIntervalCount
+    billingIntervalUnit
+    minAmountCents
+    pricingUnitConversionRate
+  }
+}
+    ${PropertiesForRateCardRateFragmentDoc}`;
+export const ContractAppliedRateCardForDetailsFragmentDoc = gql`
+    fragment ContractAppliedRateCardForDetails on ContractAppliedRateCard {
+  id
+  units
+  effectiveDate
+  contract {
+    id
+    name
+    externalId
+    status
+    plan {
+      id
+      name
+    }
+  }
+  ...ContractAppliedRateCardForAppliedRateCardsTable
+  product {
+    id
+    ...ProductForAppliedRateCardDrawer
+    ...ProductForCatalogRelations
+    productCategory {
+      id
+      ...ProductCategoryForCatalogRelations
+    }
+  }
+  rateCard {
+    id
+    ...RateCardForAppliedRateCardDrawer
+    productFilter {
+      id
+      ...ProductFilterForCatalogRelations
+    }
+  }
+  ratePhases {
+    id
+    ...RatePhaseForDrawer
+  }
+}
+    ${ContractAppliedRateCardForAppliedRateCardsTableFragmentDoc}
+${ProductForAppliedRateCardDrawerFragmentDoc}
+${ProductForCatalogRelationsFragmentDoc}
+${ProductCategoryForCatalogRelationsFragmentDoc}
+${RateCardForAppliedRateCardDrawerFragmentDoc}
+${ProductFilterForCatalogRelationsFragmentDoc}
+${RatePhaseForDrawerFragmentDoc}`;
+export const PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc = gql`
+    fragment PlanAppliedRateCardForAppliedRateCardsTable on PlanAppliedRateCard {
+  id
+  ratePhasesCount
+  product {
+    id
+    name
+    invoiceDisplayName
+    productCategory {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+  rateCard {
+    id
+    name
+    code
+    productFilter {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+}
+    `;
+export const PlanAppliedRateCardForDetailsFragmentDoc = gql`
+    fragment PlanAppliedRateCardForDetails on PlanAppliedRateCard {
+  id
+  units
+  catalogPlan {
+    id
+    name
+    attachedToContracts
+  }
+  ...PlanAppliedRateCardForAppliedRateCardsTable
+  product {
+    id
+    ...ProductForAppliedRateCardDrawer
+    ...ProductForCatalogRelations
+    productCategory {
+      id
+      ...ProductCategoryForCatalogRelations
+    }
+  }
+  rateCard {
+    id
+    ...RateCardForAppliedRateCardDrawer
+    productFilter {
+      id
+      ...ProductFilterForCatalogRelations
+    }
+  }
+  ratePhases {
+    id
+    ...RatePhaseForDrawer
+  }
+}
+    ${PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc}
+${ProductForAppliedRateCardDrawerFragmentDoc}
+${ProductForCatalogRelationsFragmentDoc}
+${ProductCategoryForCatalogRelationsFragmentDoc}
+${RateCardForAppliedRateCardDrawerFragmentDoc}
+${ProductFilterForCatalogRelationsFragmentDoc}
+${RatePhaseForDrawerFragmentDoc}`;
 export const BillableMetricDetailsFragmentDoc = gql`
     fragment BillableMetricDetails on BillableMetric {
   name
@@ -20866,15 +21378,25 @@ export const DeleteCustomerGracePeriodFragmentDoc = gql`
   displayName
 }
     `;
-export const DeleteCustomerNetPaymentTermFragmentDoc = gql`
-    fragment DeleteCustomerNetPaymentTerm on Customer {
+export const PaymentTermFieldsFragmentDoc = gql`
+    fragment PaymentTermFields on PaymentTerm {
+  termType
+  days
+  dayOfMonth
+  monthOffset
+}
+    `;
+export const DeleteCustomerPaymentTermFragmentDoc = gql`
+    fragment DeleteCustomerPaymentTerm on Customer {
   id
   externalId
   name
   displayName
-  netPaymentTerm
+  paymentTerm {
+    ...PaymentTermFields
+  }
 }
-    `;
+    ${PaymentTermFieldsFragmentDoc}`;
 export const CustomerForDeleteVatRateDialogFragmentDoc = gql`
     fragment CustomerForDeleteVatRateDialog on Customer {
   id
@@ -21361,6 +21883,7 @@ export const EventDetailsFragmentDoc = gql`
   ipAddress
   externalSubscriptionId
   customerTimezone
+  preciseTotalAmountCents
 }
     `;
 export const EventItemFragmentDoc = gql`
@@ -21401,7 +21924,6 @@ export const CustomerForDunningEmailFragmentDoc = gql`
   id
   displayName
   paymentProvider
-  netPaymentTerm
   billingConfiguration {
     id
     documentLocale
@@ -21414,7 +21936,6 @@ export const OrganizationForDunningEmailFragmentDoc = gql`
   name
   logoUrl
   email
-  netPaymentTerm
   billingConfiguration {
     id
     documentLocale
@@ -22012,6 +22533,75 @@ export const InvoiceForInvoiceDetailsTableFragmentDoc = gql`
 }
     ${FeeForInvoiceDetailsTableFragmentDoc}
 ${InvoiceForFormatInvoiceItemMapFragmentDoc}`;
+export const InvoiceForDetailsTableFooterFragmentDoc = gql`
+    fragment InvoiceForDetailsTableFooter on Invoice {
+  couponsAmountCents
+  creditNotesAmountCents
+  subTotalExcludingTaxesAmountCents
+  subTotalIncludingTaxesAmountCents
+  totalAmountCents
+  totalDueAmountCents
+  totalSettledAmountCents
+  currency
+  invoiceType
+  status
+  taxStatus
+  prepaidCreditAmountCents
+  prepaidGrantedCreditAmountCents
+  prepaidPurchasedCreditAmountCents
+  progressiveBillingCreditAmountCents
+  versionNumber
+  appliedTaxes {
+    id
+    amountCents
+    feesAmountCents
+    taxableAmountCents
+    taxRate
+    taxName
+    taxCode
+    enumedTaxCode
+  }
+}
+    `;
+export const InvoiceForDetailsTableWithoutFeesFragmentDoc = gql`
+    fragment InvoiceForDetailsTableWithoutFees on Invoice {
+  id
+  invoiceType
+  subTotalExcludingTaxesAmountCents
+  subTotalIncludingTaxesAmountCents
+  totalAmountCents
+  currency
+  issuingDate
+  allChargesHaveFees
+  allFixedChargesHaveFees
+  versionNumber
+  subscriptions {
+    id
+    name
+    currentBillingPeriodStartedAt
+    currentBillingPeriodEndingAt
+    plan {
+      id
+      name
+      interval
+    }
+  }
+  errorDetails {
+    errorCode
+    errorDetails
+  }
+  ...InvoiceForDetailsTableFooter
+  ...InvoiceSubscriptionsForFormatInvoiceItemMap
+}
+    ${InvoiceForDetailsTableFooterFragmentDoc}
+${InvoiceSubscriptionsForFormatInvoiceItemMapFragmentDoc}`;
+export const InvoiceForDetailsTableFragmentDoc = gql`
+    fragment InvoiceForDetailsTable on Invoice {
+  ...InvoiceForDetailsTableWithoutFees
+  ...InvoiceForFormatInvoiceItemMap
+}
+    ${InvoiceForDetailsTableWithoutFeesFragmentDoc}
+${InvoiceForFormatInvoiceItemMapFragmentDoc}`;
 export const SubscriptionForCreateFeeDrawerFragmentDoc = gql`
     fragment SubscriptionForCreateFeeDrawer on Subscription {
   id
@@ -22263,6 +22853,11 @@ export const DeletePlanDialogFragmentDoc = gql`
   id
   draftInvoicesCount
   activeSubscriptionsCount
+}
+    `;
+export const PricingGroupKeysForRateFragmentDoc = gql`
+    fragment PricingGroupKeysForRate on RateProperties {
+  pricingGroupKeys
 }
     `;
 export const FixedChargeForPlanDetailsSidebarFragmentDoc = gql`
@@ -23107,20 +23702,30 @@ export const EditBillingEntityFinalizeZeroAmountInvoiceForDialogFragmentDoc = gq
   finalizeZeroAmountInvoice
 }
     `;
-export const EditCustomerNetPaymentTermForDialogFragmentDoc = gql`
-    fragment EditCustomerNetPaymentTermForDialog on Customer {
+export const EditCustomerPaymentTermForDialogFragmentDoc = gql`
+    fragment EditCustomerPaymentTermForDialog on Customer {
   id
   externalId
   name
-  netPaymentTerm
+  paymentTerm {
+    ...PaymentTermFields
+  }
+  billingEntity {
+    id
+    paymentTerm {
+      ...PaymentTermFields
+    }
+  }
 }
-    `;
-export const EditBillingEntityNetPaymentTermForDialogFragmentDoc = gql`
-    fragment EditBillingEntityNetPaymentTermForDialog on BillingEntity {
+    ${PaymentTermFieldsFragmentDoc}`;
+export const EditBillingEntityPaymentTermForDialogFragmentDoc = gql`
+    fragment EditBillingEntityPaymentTermForDialog on BillingEntity {
   id
-  netPaymentTerm
+  paymentTerm {
+    ...PaymentTermFields
+  }
 }
-    `;
+    ${PaymentTermFieldsFragmentDoc}`;
 export const SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc = gql`
     fragment SubscriptionCurrentUsageTableComponentCustomerUsage on CustomerUsage {
   amountCents
@@ -23446,6 +24051,9 @@ export const SubscriptionForSubscriptionEditFormFragmentDoc = gql`
   endingAt
   billingTime
   purchaseOrderNumber
+  paymentTerm {
+    ...PaymentTermFields
+  }
   billingEntityId
   periodEndDate
   status
@@ -23481,7 +24089,8 @@ export const SubscriptionForSubscriptionEditFormFragmentDoc = gql`
     ...AddSubscriptionPlan
   }
 }
-    ${AddSubscriptionPlanFragmentDoc}`;
+    ${PaymentTermFieldsFragmentDoc}
+${AddSubscriptionPlanFragmentDoc}`;
 export const SubscriptionInformationSectionFragmentDoc = gql`
     fragment SubscriptionInformationSection on Subscription {
   id
@@ -23503,12 +24112,25 @@ export const SubscriptionInvoiceSectionFragmentDoc = gql`
     id
     name
   }
+  billingEntityId
+  paymentTerm {
+    ...PaymentTermFields
+  }
   customer {
     id
     externalId
+    paymentTerm {
+      ...PaymentTermFields
+    }
+    billingEntity {
+      id
+      paymentTerm {
+        ...PaymentTermFields
+      }
+    }
   }
 }
-    `;
+    ${PaymentTermFieldsFragmentDoc}`;
 export const SubscriptionPaymentSectionFragmentDoc = gql`
     fragment SubscriptionPaymentSection on Subscription {
   id
@@ -23569,6 +24191,9 @@ export const WalletForUpdateFragmentDoc = gql`
     behavior
     code
   }
+  paymentTerm {
+    ...PaymentTermFields
+  }
   skipInvoiceCustomSections
   selectedInvoiceCustomSections {
     id
@@ -23617,7 +24242,8 @@ export const WalletForUpdateFragmentDoc = gql`
   }
   ...WalletForScopeSection
 }
-    ${WalletForScopeSectionFragmentDoc}`;
+    ${PaymentTermFieldsFragmentDoc}
+${WalletForScopeSectionFragmentDoc}`;
 export const WalletInfosForTransactionsFragmentDoc = gql`
     fragment WalletInfosForTransactions on Wallet {
   id
@@ -23856,8 +24482,11 @@ export const BillingEntityItemFragmentDoc = gql`
     code
   }
   einvoicing
+  paymentTerm {
+    ...PaymentTermFields
+  }
 }
-    `;
+    ${PaymentTermFieldsFragmentDoc}`;
 export const PlansForCouponsFragmentDoc = gql`
     fragment PlansForCoupons on Plan {
   id
@@ -24719,75 +25348,6 @@ export const InvoiceDetailsForInvoiceOverviewFragmentDoc = gql`
   }
 }
     `;
-export const InvoiceForDetailsTableFooterFragmentDoc = gql`
-    fragment InvoiceForDetailsTableFooter on Invoice {
-  couponsAmountCents
-  creditNotesAmountCents
-  subTotalExcludingTaxesAmountCents
-  subTotalIncludingTaxesAmountCents
-  totalAmountCents
-  totalDueAmountCents
-  totalSettledAmountCents
-  currency
-  invoiceType
-  status
-  taxStatus
-  prepaidCreditAmountCents
-  prepaidGrantedCreditAmountCents
-  prepaidPurchasedCreditAmountCents
-  progressiveBillingCreditAmountCents
-  versionNumber
-  appliedTaxes {
-    id
-    amountCents
-    feesAmountCents
-    taxableAmountCents
-    taxRate
-    taxName
-    taxCode
-    enumedTaxCode
-  }
-}
-    `;
-export const InvoiceForDetailsTableWithoutFeesFragmentDoc = gql`
-    fragment InvoiceForDetailsTableWithoutFees on Invoice {
-  id
-  invoiceType
-  subTotalExcludingTaxesAmountCents
-  subTotalIncludingTaxesAmountCents
-  totalAmountCents
-  currency
-  issuingDate
-  allChargesHaveFees
-  allFixedChargesHaveFees
-  versionNumber
-  subscriptions {
-    id
-    name
-    currentBillingPeriodStartedAt
-    currentBillingPeriodEndingAt
-    plan {
-      id
-      name
-      interval
-    }
-  }
-  errorDetails {
-    errorCode
-    errorDetails
-  }
-  ...InvoiceForDetailsTableFooter
-  ...InvoiceSubscriptionsForFormatInvoiceItemMap
-}
-    ${InvoiceForDetailsTableFooterFragmentDoc}
-${InvoiceSubscriptionsForFormatInvoiceItemMapFragmentDoc}`;
-export const InvoiceForDetailsTableFragmentDoc = gql`
-    fragment InvoiceForDetailsTable on Invoice {
-  ...InvoiceForDetailsTableWithoutFees
-  ...InvoiceForFormatInvoiceItemMap
-}
-    ${InvoiceForDetailsTableWithoutFeesFragmentDoc}
-${InvoiceForFormatInvoiceItemMapFragmentDoc}`;
 export const InvoiceForInvoiceInfosFragmentDoc = gql`
     fragment InvoiceForInvoiceInfos on Invoice {
   number
@@ -24795,6 +25355,9 @@ export const InvoiceForInvoiceInfosFragmentDoc = gql`
   purchaseOrderNumber
   issuingDate
   paymentDueDate
+  paymentTerm {
+    ...PaymentTermFields
+  }
   paymentOverdue
   status
   totalPaidAmountCents
@@ -24825,7 +25388,7 @@ export const InvoiceForInvoiceInfosFragmentDoc = gql`
     accountType
   }
 }
-    `;
+    ${PaymentTermFieldsFragmentDoc}`;
 export const AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc = gql`
     fragment AllInvoiceDetailsForCustomerInvoiceDetails on Invoice {
   id
@@ -25344,259 +25907,6 @@ export const CatalogPlanForCatalogPlanDetailsOverviewFragmentDoc = gql`
   ...CatalogPlanForCatalogPlanDrawer
 }
     ${CatalogPlanForCatalogPlanDrawerFragmentDoc}`;
-export const PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc = gql`
-    fragment PlanAppliedRateCardForAppliedRateCardsTable on PlanAppliedRateCard {
-  id
-  ratePhasesCount
-  product {
-    id
-    name
-    invoiceDisplayName
-    productCategory {
-      id
-      name
-      invoiceDisplayName
-    }
-  }
-  rateCard {
-    id
-    name
-    code
-    productFilter {
-      id
-      name
-      invoiceDisplayName
-    }
-  }
-}
-    `;
-export const ProductForAppliedRateCardDrawerFragmentDoc = gql`
-    fragment ProductForAppliedRateCardDrawer on Product {
-  id
-  name
-  code
-  invoiceDisplayName
-  productType
-  productCategory {
-    id
-    name
-    code
-    invoiceDisplayName
-  }
-  billableMetric {
-    id
-    aggregationType
-    recurring
-  }
-}
-    `;
-export const ProductForCatalogRelationsFragmentDoc = gql`
-    fragment ProductForCatalogRelations on Product {
-  id
-  name
-  invoiceDisplayName
-}
-    `;
-export const ProductCategoryForCatalogRelationsFragmentDoc = gql`
-    fragment ProductCategoryForCatalogRelations on ProductCategory {
-  id
-  name
-  invoiceDisplayName
-}
-    `;
-export const PropertiesForActiveRateFragmentDoc = gql`
-    fragment PropertiesForActiveRate on RateProperties {
-  amount
-  rate
-  packageSize
-  graduatedRanges {
-    perUnitAmount
-  }
-  volumeRanges {
-    perUnitAmount
-  }
-  graduatedPercentageRanges {
-    rate
-  }
-}
-    `;
-export const StandardChargeForRateFragmentDoc = gql`
-    fragment StandardChargeForRate on RateProperties {
-  amount
-  pricingGroupKeys
-}
-    `;
-export const PackageChargeForRateFragmentDoc = gql`
-    fragment PackageChargeForRate on RateProperties {
-  amount
-  packageSize
-  freeUnits
-}
-    `;
-export const PercentageChargeForRateFragmentDoc = gql`
-    fragment PercentageChargeForRate on RateProperties {
-  fixedAmount
-  freeUnitsPerEvents
-  freeUnitsPerTotalAggregation
-  rate
-  perTransactionMinAmount
-  perTransactionMaxAmount
-}
-    `;
-export const CustomChargeForRateFragmentDoc = gql`
-    fragment CustomChargeForRate on RateProperties {
-  customProperties
-}
-    `;
-export const PricingGroupKeysForRateFragmentDoc = gql`
-    fragment PricingGroupKeysForRate on RateProperties {
-  pricingGroupKeys
-}
-    `;
-export const GraduatedRateTierFragmentDoc = gql`
-    fragment GraduatedRateTier on RateTier {
-  toValue
-  perUnitAmount
-  flatAmount
-}
-    `;
-export const GraduatedPercentageRateTierFragmentDoc = gql`
-    fragment GraduatedPercentageRateTier on RatePercentageTier {
-  toValue
-  rate
-  flatAmount
-}
-    `;
-export const VolumeRateTierFragmentDoc = gql`
-    fragment VolumeRateTier on RateTier {
-  toValue
-  perUnitAmount
-  flatAmount
-}
-    `;
-export const RatePropertiesForWrapperSwitchFragmentDoc = gql`
-    fragment RatePropertiesForWrapperSwitch on RateProperties {
-  ...StandardChargeForRate
-  ...PackageChargeForRate
-  ...PercentageChargeForRate
-  ...CustomChargeForRate
-  ...PricingGroupKeysForRate
-  graduatedRanges {
-    ...GraduatedRateTier
-  }
-  graduatedPercentageRanges {
-    ...GraduatedPercentageRateTier
-  }
-  volumeRanges {
-    ...VolumeRateTier
-  }
-}
-    ${StandardChargeForRateFragmentDoc}
-${PackageChargeForRateFragmentDoc}
-${PercentageChargeForRateFragmentDoc}
-${CustomChargeForRateFragmentDoc}
-${PricingGroupKeysForRateFragmentDoc}
-${GraduatedRateTierFragmentDoc}
-${GraduatedPercentageRateTierFragmentDoc}
-${VolumeRateTierFragmentDoc}`;
-export const PropertiesForRateCardRateFragmentDoc = gql`
-    fragment PropertiesForRateCardRate on RateProperties {
-  ...PropertiesForActiveRate
-  ...RatePropertiesForWrapperSwitch
-}
-    ${PropertiesForActiveRateFragmentDoc}
-${RatePropertiesForWrapperSwitchFragmentDoc}`;
-export const ActiveRateForRatePhaseFragmentDoc = gql`
-    fragment ActiveRateForRatePhase on RateCardRate {
-  id
-  effectiveFrom
-  rateModel
-  billingIntervalCount
-  billingIntervalUnit
-  minAmountCents
-  appliedPricingUnitConversionRate
-  rateProperties {
-    ...PropertiesForRateCardRate
-  }
-}
-    ${PropertiesForRateCardRateFragmentDoc}`;
-export const RateCardForAppliedRateCardDrawerFragmentDoc = gql`
-    fragment RateCardForAppliedRateCardDrawer on RateCard {
-  currency
-  billingTiming
-  appliedPricingUnitCode
-  proration
-  activeRate {
-    id
-    ...ActiveRateForRatePhase
-  }
-}
-    ${ActiveRateForRatePhaseFragmentDoc}`;
-export const ProductFilterForCatalogRelationsFragmentDoc = gql`
-    fragment ProductFilterForCatalogRelations on ProductFilter {
-  id
-  name
-  invoiceDisplayName
-}
-    `;
-export const RatePhaseForDrawerFragmentDoc = gql`
-    fragment RatePhaseForDrawer on RatePhase {
-  id
-  code
-  name
-  position
-  billingIntervalCycleCount
-  rateOverride {
-    rateModel
-    rateProperties {
-      ...PropertiesForRateCardRate
-    }
-    billingIntervalCount
-    billingIntervalUnit
-    minAmountCents
-    pricingUnitConversionRate
-  }
-}
-    ${PropertiesForRateCardRateFragmentDoc}`;
-export const PlanAppliedRateCardForDetailsFragmentDoc = gql`
-    fragment PlanAppliedRateCardForDetails on PlanAppliedRateCard {
-  id
-  units
-  catalogPlan {
-    id
-    name
-    attachedToContracts
-  }
-  ...PlanAppliedRateCardForAppliedRateCardsTable
-  product {
-    id
-    ...ProductForAppliedRateCardDrawer
-    ...ProductForCatalogRelations
-    productCategory {
-      id
-      ...ProductCategoryForCatalogRelations
-    }
-  }
-  rateCard {
-    id
-    ...RateCardForAppliedRateCardDrawer
-    productFilter {
-      id
-      ...ProductFilterForCatalogRelations
-    }
-  }
-  ratePhases {
-    id
-    ...RatePhaseForDrawer
-  }
-}
-    ${PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc}
-${ProductForAppliedRateCardDrawerFragmentDoc}
-${ProductForCatalogRelationsFragmentDoc}
-${ProductCategoryForCatalogRelationsFragmentDoc}
-${RateCardForAppliedRateCardDrawerFragmentDoc}
-${ProductFilterForCatalogRelationsFragmentDoc}
-${RatePhaseForDrawerFragmentDoc}`;
 export const CatalogPlanForCatalogPlansTabListFragmentDoc = gql`
     fragment CatalogPlanForCatalogPlansTabList on CatalogPlan {
   id
@@ -25953,10 +26263,14 @@ export const ContractForContractDetailsFragmentDoc = gql`
   name
   status
   appliedRateCardsCount
+  currency
   plan {
     id
     name
-    currency
+  }
+  customer {
+    id
+    applicableTimezone
   }
   ...ContractForContractDrawer
 }
@@ -26021,77 +26335,6 @@ export const ContractForContractDetailsOverviewFragmentDoc = gql`
   ...ContractForContractDrawer
 }
     ${ContractForContractDrawerFragmentDoc}`;
-export const ContractAppliedRateCardForAppliedRateCardsTableFragmentDoc = gql`
-    fragment ContractAppliedRateCardForAppliedRateCardsTable on ContractAppliedRateCard {
-  id
-  ratePhasesCount
-  product {
-    id
-    name
-    invoiceDisplayName
-    productCategory {
-      id
-      name
-      invoiceDisplayName
-    }
-  }
-  rateCard {
-    id
-    name
-    code
-    productFilter {
-      id
-      name
-      invoiceDisplayName
-    }
-  }
-}
-    `;
-export const ContractAppliedRateCardForDetailsFragmentDoc = gql`
-    fragment ContractAppliedRateCardForDetails on ContractAppliedRateCard {
-  id
-  units
-  effectiveDate
-  contract {
-    id
-    name
-    externalId
-    status
-    plan {
-      id
-      name
-    }
-  }
-  ...ContractAppliedRateCardForAppliedRateCardsTable
-  product {
-    id
-    ...ProductForAppliedRateCardDrawer
-    ...ProductForCatalogRelations
-    productCategory {
-      id
-      ...ProductCategoryForCatalogRelations
-    }
-  }
-  rateCard {
-    id
-    ...RateCardForAppliedRateCardDrawer
-    productFilter {
-      id
-      ...ProductFilterForCatalogRelations
-    }
-  }
-  ratePhases {
-    id
-    ...RatePhaseForDrawer
-  }
-}
-    ${ContractAppliedRateCardForAppliedRateCardsTableFragmentDoc}
-${ProductForAppliedRateCardDrawerFragmentDoc}
-${ProductForCatalogRelationsFragmentDoc}
-${ProductCategoryForCatalogRelationsFragmentDoc}
-${RateCardForAppliedRateCardDrawerFragmentDoc}
-${ProductFilterForCatalogRelationsFragmentDoc}
-${RatePhaseForDrawerFragmentDoc}`;
 export const SelectableBillableMetricForCouponsFragmentDoc = gql`
     fragment SelectableBillableMetricForCoupons on SelectableBillableMetric {
   id
@@ -26286,6 +26529,9 @@ export const InvoiceForInvoiceBuildRegenerationPreviewFragmentDoc = gql`
   paymentDueDate
   paymentOverdue
   paymentStatus
+  paymentTerm {
+    ...PaymentTermFields
+  }
   purchaseOrderNumber
   refundableAmountCents
   regeneratedInvoiceId
@@ -26348,7 +26594,8 @@ export const InvoiceForInvoiceBuildRegenerationPreviewFragmentDoc = gql`
   ...InvoiceForDetailsTableFooter
   ...InvoiceForFormatInvoiceItemMap
 }
-    ${InvoiceForDetailsTableFooterFragmentDoc}
+    ${PaymentTermFieldsFragmentDoc}
+${InvoiceForDetailsTableFooterFragmentDoc}
 ${InvoiceForFormatInvoiceItemMapFragmentDoc}`;
 export const FeeForInvoiceBuildRegenerationPreviewFragmentDoc = gql`
     fragment FeeForInvoiceBuildRegenerationPreview on Fee {
@@ -26512,13 +26759,17 @@ export const QuoteDetailItemFragmentDoc = gql`
     id
     displayName
     externalId
-    netPaymentTerm
+    paymentTerm {
+      ...PaymentTermFields
+    }
     ...QuotePreviewCustomer
     billingEntity {
       id
       code
       name
-      netPaymentTerm
+      paymentTerm {
+        ...PaymentTermFields
+      }
     }
   }
   owners {
@@ -26545,7 +26796,8 @@ export const QuoteDetailItemFragmentDoc = gql`
     ...QuotePreviewVersion
   }
 }
-    ${QuotePreviewCustomerFragmentDoc}
+    ${PaymentTermFieldsFragmentDoc}
+${QuotePreviewCustomerFragmentDoc}
 ${QuotePreviewVersionFragmentDoc}`;
 export const QuoteListItemFragmentDoc = gql`
     fragment QuoteListItem on Quote {
@@ -27319,6 +27571,9 @@ export const WalletDetailsFragmentDoc = gql`
   creditsOngoingBalance
   priority
   purchaseOrderNumber
+  paymentTerm {
+    ...PaymentTermFields
+  }
   paidTopUpMinAmountCents
   paidTopUpMinCredits
   paidTopUpMaxAmountCents
@@ -27343,10 +27598,16 @@ export const WalletDetailsFragmentDoc = gql`
     firstname
     lastname
     externalId
+    paymentTerm {
+      ...PaymentTermFields
+    }
     billingEntity {
       id
       code
       name
+      paymentTerm {
+        ...PaymentTermFields
+      }
     }
   }
   skipInvoiceCustomSections
@@ -27399,7 +27660,8 @@ export const WalletDetailsFragmentDoc = gql`
   }
   ...WalletInfosForTransactions
 }
-    ${WalletInfosForTransactionsFragmentDoc}`;
+    ${PaymentTermFieldsFragmentDoc}
+${WalletInfosForTransactionsFragmentDoc}`;
 export const SelectableBillableMetricForWalletScopeSectionFragmentDoc = gql`
     fragment SelectableBillableMetricForWalletScopeSection on SelectableBillableMetric {
   id
@@ -29020,6 +29282,94 @@ export type AppliedRateCardActivityLogsQueryHookResult = ReturnType<typeof useAp
 export type AppliedRateCardActivityLogsLazyQueryHookResult = ReturnType<typeof useAppliedRateCardActivityLogsLazyQuery>;
 export type AppliedRateCardActivityLogsSuspenseQueryHookResult = ReturnType<typeof useAppliedRateCardActivityLogsSuspenseQuery>;
 export type AppliedRateCardActivityLogsQueryResult = Apollo.QueryResult<AppliedRateCardActivityLogsQuery, AppliedRateCardActivityLogsQueryVariables>;
+export const GetContractAppliedRateCardForDetailsDocument = gql`
+    query getContractAppliedRateCardForDetails($appliedRateCardId: ID!) {
+  contractAppliedRateCard(id: $appliedRateCardId) {
+    id
+    ...ContractAppliedRateCardForDetails
+  }
+}
+    ${ContractAppliedRateCardForDetailsFragmentDoc}`;
+
+/**
+ * __useGetContractAppliedRateCardForDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetContractAppliedRateCardForDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractAppliedRateCardForDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContractAppliedRateCardForDetailsQuery({
+ *   variables: {
+ *      appliedRateCardId: // value for 'appliedRateCardId'
+ *   },
+ * });
+ */
+export function useGetContractAppliedRateCardForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables> & ({ variables: GetContractAppliedRateCardForDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>(GetContractAppliedRateCardForDetailsDocument, options);
+      }
+export function useGetContractAppliedRateCardForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>(GetContractAppliedRateCardForDetailsDocument, options);
+        }
+// @ts-ignore
+export function useGetContractAppliedRateCardForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>;
+export function useGetContractAppliedRateCardForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractAppliedRateCardForDetailsQuery | undefined, GetContractAppliedRateCardForDetailsQueryVariables>;
+export function useGetContractAppliedRateCardForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>(GetContractAppliedRateCardForDetailsDocument, options);
+        }
+export type GetContractAppliedRateCardForDetailsQueryHookResult = ReturnType<typeof useGetContractAppliedRateCardForDetailsQuery>;
+export type GetContractAppliedRateCardForDetailsLazyQueryHookResult = ReturnType<typeof useGetContractAppliedRateCardForDetailsLazyQuery>;
+export type GetContractAppliedRateCardForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetContractAppliedRateCardForDetailsSuspenseQuery>;
+export type GetContractAppliedRateCardForDetailsQueryResult = Apollo.QueryResult<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>;
+export const GetPlanAppliedRateCardForDetailsDocument = gql`
+    query getPlanAppliedRateCardForDetails($appliedRateCardId: ID!) {
+  planAppliedRateCard(id: $appliedRateCardId) {
+    id
+    ...PlanAppliedRateCardForDetails
+  }
+}
+    ${PlanAppliedRateCardForDetailsFragmentDoc}`;
+
+/**
+ * __useGetPlanAppliedRateCardForDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetPlanAppliedRateCardForDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPlanAppliedRateCardForDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPlanAppliedRateCardForDetailsQuery({
+ *   variables: {
+ *      appliedRateCardId: // value for 'appliedRateCardId'
+ *   },
+ * });
+ */
+export function useGetPlanAppliedRateCardForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables> & ({ variables: GetPlanAppliedRateCardForDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>(GetPlanAppliedRateCardForDetailsDocument, options);
+      }
+export function useGetPlanAppliedRateCardForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>(GetPlanAppliedRateCardForDetailsDocument, options);
+        }
+// @ts-ignore
+export function useGetPlanAppliedRateCardForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>;
+export function useGetPlanAppliedRateCardForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanAppliedRateCardForDetailsQuery | undefined, GetPlanAppliedRateCardForDetailsQueryVariables>;
+export function useGetPlanAppliedRateCardForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>(GetPlanAppliedRateCardForDetailsDocument, options);
+        }
+export type GetPlanAppliedRateCardForDetailsQueryHookResult = ReturnType<typeof useGetPlanAppliedRateCardForDetailsQuery>;
+export type GetPlanAppliedRateCardForDetailsLazyQueryHookResult = ReturnType<typeof useGetPlanAppliedRateCardForDetailsLazyQuery>;
+export type GetPlanAppliedRateCardForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetPlanAppliedRateCardForDetailsSuspenseQuery>;
+export type GetPlanAppliedRateCardForDetailsQueryResult = Apollo.QueryResult<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>;
 export const CachedPlanAppliedRateCardDetailsDocument = gql`
     query cachedPlanAppliedRateCardDetails($id: ID!) {
   planAppliedRateCard(id: $id) {
@@ -29618,6 +29968,7 @@ export const GetGoogleAuthUrlDocument = gql`
     query getGoogleAuthUrl {
   googleAuthUrl {
     url
+    stateSecret
   }
 }
     `;
@@ -32056,11 +32407,9 @@ export const GetCustomerSettingsDocument = gql`
   customer(id: $id) {
     id
     invoiceGracePeriod
-    netPaymentTerm
     finalizeZeroAmountInvoice
     billingEntity {
       id
-      netPaymentTerm
       finalizeZeroAmountInvoice
       billingConfiguration {
         id
@@ -32096,7 +32445,8 @@ export const GetCustomerSettingsDocument = gql`
     ...DeleteCustomerGracePeriod
     ...DeleteCustomerDocumentLocale
     ...CustomerForDeleteVatRateDialog
-    ...DeleteCustomerNetPaymentTerm
+    ...DeleteCustomerPaymentTerm
+    ...EditCustomerPaymentTermForDialog
     ...EditCustomerIssuingDatePolicyDialog
   }
 }
@@ -32111,7 +32461,8 @@ ${EditCustomerInvoiceGracePeriodFragmentDoc}
 ${DeleteCustomerGracePeriodFragmentDoc}
 ${DeleteCustomerDocumentLocaleFragmentDoc}
 ${CustomerForDeleteVatRateDialogFragmentDoc}
-${DeleteCustomerNetPaymentTermFragmentDoc}
+${DeleteCustomerPaymentTermFragmentDoc}
+${EditCustomerPaymentTermForDialogFragmentDoc}
 ${EditCustomerIssuingDatePolicyDialogFragmentDoc}`;
 
 /**
@@ -32287,40 +32638,40 @@ export function useDeleteCustomerGracePeriodMutation(baseOptions?: Apollo.Mutati
 export type DeleteCustomerGracePeriodMutationHookResult = ReturnType<typeof useDeleteCustomerGracePeriodMutation>;
 export type DeleteCustomerGracePeriodMutationResult = Apollo.MutationResult<DeleteCustomerGracePeriodMutation>;
 export type DeleteCustomerGracePeriodMutationOptions = Apollo.BaseMutationOptions<DeleteCustomerGracePeriodMutation, DeleteCustomerGracePeriodMutationVariables>;
-export const DeleteCustomerNetPaymentTermDocument = gql`
-    mutation deleteCustomerNetPaymentTerm($input: UpdateCustomerInput!) {
+export const DeleteCustomerPaymentTermDocument = gql`
+    mutation deleteCustomerPaymentTerm($input: UpdateCustomerInput!) {
   updateCustomer(input: $input) {
     id
-    ...DeleteCustomerNetPaymentTerm
+    ...DeleteCustomerPaymentTerm
   }
 }
-    ${DeleteCustomerNetPaymentTermFragmentDoc}`;
-export type DeleteCustomerNetPaymentTermMutationFn = Apollo.MutationFunction<DeleteCustomerNetPaymentTermMutation, DeleteCustomerNetPaymentTermMutationVariables>;
+    ${DeleteCustomerPaymentTermFragmentDoc}`;
+export type DeleteCustomerPaymentTermMutationFn = Apollo.MutationFunction<DeleteCustomerPaymentTermMutation, DeleteCustomerPaymentTermMutationVariables>;
 
 /**
- * __useDeleteCustomerNetPaymentTermMutation__
+ * __useDeleteCustomerPaymentTermMutation__
  *
- * To run a mutation, you first call `useDeleteCustomerNetPaymentTermMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteCustomerNetPaymentTermMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useDeleteCustomerPaymentTermMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCustomerPaymentTermMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [deleteCustomerNetPaymentTermMutation, { data, loading, error }] = useDeleteCustomerNetPaymentTermMutation({
+ * const [deleteCustomerPaymentTermMutation, { data, loading, error }] = useDeleteCustomerPaymentTermMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useDeleteCustomerNetPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCustomerNetPaymentTermMutation, DeleteCustomerNetPaymentTermMutationVariables>) {
+export function useDeleteCustomerPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCustomerPaymentTermMutation, DeleteCustomerPaymentTermMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteCustomerNetPaymentTermMutation, DeleteCustomerNetPaymentTermMutationVariables>(DeleteCustomerNetPaymentTermDocument, options);
+        return Apollo.useMutation<DeleteCustomerPaymentTermMutation, DeleteCustomerPaymentTermMutationVariables>(DeleteCustomerPaymentTermDocument, options);
       }
-export type DeleteCustomerNetPaymentTermMutationHookResult = ReturnType<typeof useDeleteCustomerNetPaymentTermMutation>;
-export type DeleteCustomerNetPaymentTermMutationResult = Apollo.MutationResult<DeleteCustomerNetPaymentTermMutation>;
-export type DeleteCustomerNetPaymentTermMutationOptions = Apollo.BaseMutationOptions<DeleteCustomerNetPaymentTermMutation, DeleteCustomerNetPaymentTermMutationVariables>;
+export type DeleteCustomerPaymentTermMutationHookResult = ReturnType<typeof useDeleteCustomerPaymentTermMutation>;
+export type DeleteCustomerPaymentTermMutationResult = Apollo.MutationResult<DeleteCustomerPaymentTermMutation>;
+export type DeleteCustomerPaymentTermMutationOptions = Apollo.BaseMutationOptions<DeleteCustomerPaymentTermMutation, DeleteCustomerPaymentTermMutationVariables>;
 export const RemoveAppliedTaxRateOnCustomerDocument = gql`
     mutation removeAppliedTaxRateOnCustomer($input: UpdateCustomerInput!) {
   updateCustomer(input: $input) {
@@ -34270,6 +34621,53 @@ export type GetWebhookLogQueryHookResult = ReturnType<typeof useGetWebhookLogQue
 export type GetWebhookLogLazyQueryHookResult = ReturnType<typeof useGetWebhookLogLazyQuery>;
 export type GetWebhookLogSuspenseQueryHookResult = ReturnType<typeof useGetWebhookLogSuspenseQuery>;
 export type GetWebhookLogQueryResult = Apollo.QueryResult<GetWebhookLogQuery, GetWebhookLogQueryVariables>;
+export const GetWebhookEndpointSigningKeysDocument = gql`
+    query getWebhookEndpointSigningKeys($id: ID!) {
+  webhookEndpoint(id: $id) {
+    id
+    signingKeys {
+      id
+      secretKey
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetWebhookEndpointSigningKeysQuery__
+ *
+ * To run a query within a React component, call `useGetWebhookEndpointSigningKeysQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetWebhookEndpointSigningKeysQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetWebhookEndpointSigningKeysQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetWebhookEndpointSigningKeysQuery(baseOptions: Apollo.QueryHookOptions<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables> & ({ variables: GetWebhookEndpointSigningKeysQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>(GetWebhookEndpointSigningKeysDocument, options);
+      }
+export function useGetWebhookEndpointSigningKeysLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>(GetWebhookEndpointSigningKeysDocument, options);
+        }
+// @ts-ignore
+export function useGetWebhookEndpointSigningKeysSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>;
+export function useGetWebhookEndpointSigningKeysSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>): Apollo.UseSuspenseQueryResult<GetWebhookEndpointSigningKeysQuery | undefined, GetWebhookEndpointSigningKeysQueryVariables>;
+export function useGetWebhookEndpointSigningKeysSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>(GetWebhookEndpointSigningKeysDocument, options);
+        }
+export type GetWebhookEndpointSigningKeysQueryHookResult = ReturnType<typeof useGetWebhookEndpointSigningKeysQuery>;
+export type GetWebhookEndpointSigningKeysLazyQueryHookResult = ReturnType<typeof useGetWebhookEndpointSigningKeysLazyQuery>;
+export type GetWebhookEndpointSigningKeysSuspenseQueryHookResult = ReturnType<typeof useGetWebhookEndpointSigningKeysSuspenseQuery>;
+export type GetWebhookEndpointSigningKeysQueryResult = Apollo.QueryResult<GetWebhookEndpointSigningKeysQuery, GetWebhookEndpointSigningKeysQueryVariables>;
 export const GetOrganizationHmacDataDocument = gql`
     query getOrganizationHmacData {
   organization {
@@ -39004,74 +39402,74 @@ export function useUpdateBillingEntityFinalizeZeroAmountInvoiceMutation(baseOpti
 export type UpdateBillingEntityFinalizeZeroAmountInvoiceMutationHookResult = ReturnType<typeof useUpdateBillingEntityFinalizeZeroAmountInvoiceMutation>;
 export type UpdateBillingEntityFinalizeZeroAmountInvoiceMutationResult = Apollo.MutationResult<UpdateBillingEntityFinalizeZeroAmountInvoiceMutation>;
 export type UpdateBillingEntityFinalizeZeroAmountInvoiceMutationOptions = Apollo.BaseMutationOptions<UpdateBillingEntityFinalizeZeroAmountInvoiceMutation, UpdateBillingEntityFinalizeZeroAmountInvoiceMutationVariables>;
-export const UpdateCustomerNetPaymentTermDocument = gql`
-    mutation updateCustomerNetPaymentTerm($input: UpdateCustomerInput!) {
+export const UpdateCustomerPaymentTermDocument = gql`
+    mutation updateCustomerPaymentTerm($input: UpdateCustomerInput!) {
   updateCustomer(input: $input) {
     id
-    ...EditCustomerNetPaymentTermForDialog
+    ...EditCustomerPaymentTermForDialog
   }
 }
-    ${EditCustomerNetPaymentTermForDialogFragmentDoc}`;
-export type UpdateCustomerNetPaymentTermMutationFn = Apollo.MutationFunction<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>;
+    ${EditCustomerPaymentTermForDialogFragmentDoc}`;
+export type UpdateCustomerPaymentTermMutationFn = Apollo.MutationFunction<UpdateCustomerPaymentTermMutation, UpdateCustomerPaymentTermMutationVariables>;
 
 /**
- * __useUpdateCustomerNetPaymentTermMutation__
+ * __useUpdateCustomerPaymentTermMutation__
  *
- * To run a mutation, you first call `useUpdateCustomerNetPaymentTermMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCustomerNetPaymentTermMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdateCustomerPaymentTermMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCustomerPaymentTermMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateCustomerNetPaymentTermMutation, { data, loading, error }] = useUpdateCustomerNetPaymentTermMutation({
+ * const [updateCustomerPaymentTermMutation, { data, loading, error }] = useUpdateCustomerPaymentTermMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useUpdateCustomerNetPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>) {
+export function useUpdateCustomerPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerPaymentTermMutation, UpdateCustomerPaymentTermMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>(UpdateCustomerNetPaymentTermDocument, options);
+        return Apollo.useMutation<UpdateCustomerPaymentTermMutation, UpdateCustomerPaymentTermMutationVariables>(UpdateCustomerPaymentTermDocument, options);
       }
-export type UpdateCustomerNetPaymentTermMutationHookResult = ReturnType<typeof useUpdateCustomerNetPaymentTermMutation>;
-export type UpdateCustomerNetPaymentTermMutationResult = Apollo.MutationResult<UpdateCustomerNetPaymentTermMutation>;
-export type UpdateCustomerNetPaymentTermMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerNetPaymentTermMutation, UpdateCustomerNetPaymentTermMutationVariables>;
-export const UpdateBillingEntityNetPaymentTermDocument = gql`
-    mutation updateBillingEntityNetPaymentTerm($input: UpdateBillingEntityInput!) {
+export type UpdateCustomerPaymentTermMutationHookResult = ReturnType<typeof useUpdateCustomerPaymentTermMutation>;
+export type UpdateCustomerPaymentTermMutationResult = Apollo.MutationResult<UpdateCustomerPaymentTermMutation>;
+export type UpdateCustomerPaymentTermMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerPaymentTermMutation, UpdateCustomerPaymentTermMutationVariables>;
+export const UpdateBillingEntityPaymentTermDocument = gql`
+    mutation updateBillingEntityPaymentTerm($input: UpdateBillingEntityInput!) {
   updateBillingEntity(input: $input) {
     id
-    ...EditBillingEntityNetPaymentTermForDialog
+    ...EditBillingEntityPaymentTermForDialog
   }
 }
-    ${EditBillingEntityNetPaymentTermForDialogFragmentDoc}`;
-export type UpdateBillingEntityNetPaymentTermMutationFn = Apollo.MutationFunction<UpdateBillingEntityNetPaymentTermMutation, UpdateBillingEntityNetPaymentTermMutationVariables>;
+    ${EditBillingEntityPaymentTermForDialogFragmentDoc}`;
+export type UpdateBillingEntityPaymentTermMutationFn = Apollo.MutationFunction<UpdateBillingEntityPaymentTermMutation, UpdateBillingEntityPaymentTermMutationVariables>;
 
 /**
- * __useUpdateBillingEntityNetPaymentTermMutation__
+ * __useUpdateBillingEntityPaymentTermMutation__
  *
- * To run a mutation, you first call `useUpdateBillingEntityNetPaymentTermMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateBillingEntityNetPaymentTermMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdateBillingEntityPaymentTermMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBillingEntityPaymentTermMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateBillingEntityNetPaymentTermMutation, { data, loading, error }] = useUpdateBillingEntityNetPaymentTermMutation({
+ * const [updateBillingEntityPaymentTermMutation, { data, loading, error }] = useUpdateBillingEntityPaymentTermMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useUpdateBillingEntityNetPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<UpdateBillingEntityNetPaymentTermMutation, UpdateBillingEntityNetPaymentTermMutationVariables>) {
+export function useUpdateBillingEntityPaymentTermMutation(baseOptions?: Apollo.MutationHookOptions<UpdateBillingEntityPaymentTermMutation, UpdateBillingEntityPaymentTermMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateBillingEntityNetPaymentTermMutation, UpdateBillingEntityNetPaymentTermMutationVariables>(UpdateBillingEntityNetPaymentTermDocument, options);
+        return Apollo.useMutation<UpdateBillingEntityPaymentTermMutation, UpdateBillingEntityPaymentTermMutationVariables>(UpdateBillingEntityPaymentTermDocument, options);
       }
-export type UpdateBillingEntityNetPaymentTermMutationHookResult = ReturnType<typeof useUpdateBillingEntityNetPaymentTermMutation>;
-export type UpdateBillingEntityNetPaymentTermMutationResult = Apollo.MutationResult<UpdateBillingEntityNetPaymentTermMutation>;
-export type UpdateBillingEntityNetPaymentTermMutationOptions = Apollo.BaseMutationOptions<UpdateBillingEntityNetPaymentTermMutation, UpdateBillingEntityNetPaymentTermMutationVariables>;
+export type UpdateBillingEntityPaymentTermMutationHookResult = ReturnType<typeof useUpdateBillingEntityPaymentTermMutation>;
+export type UpdateBillingEntityPaymentTermMutationResult = Apollo.MutationResult<UpdateBillingEntityPaymentTermMutation>;
+export type UpdateBillingEntityPaymentTermMutationOptions = Apollo.BaseMutationOptions<UpdateBillingEntityPaymentTermMutation, UpdateBillingEntityPaymentTermMutationVariables>;
 export const GetOrganizationCustomFooterForInvoiceDocument = gql`
     query GetOrganizationCustomFooterForInvoice {
   organization {
@@ -40649,6 +41047,9 @@ export const CreateSubscriptionDocument = gql`
     endingAt
     name
     purchaseOrderNumber
+    paymentTerm {
+      ...PaymentTermFields
+    }
     externalId
     activationRules {
       id
@@ -40685,7 +41086,8 @@ export const CreateSubscriptionDocument = gql`
     }
   }
 }
-    ${CustomerDetailsFragmentDoc}`;
+    ${PaymentTermFieldsFragmentDoc}
+${CustomerDetailsFragmentDoc}`;
 export type CreateSubscriptionMutationFn = Apollo.MutationFunction<CreateSubscriptionMutation, CreateSubscriptionMutationVariables>;
 
 /**
@@ -40723,6 +41125,9 @@ export const UpdateSubscriptionDocument = gql`
     endingAt
     name
     purchaseOrderNumber
+    paymentTerm {
+      ...PaymentTermFields
+    }
     externalId
     activationRules {
       id
@@ -40759,7 +41164,8 @@ export const UpdateSubscriptionDocument = gql`
     }
   }
 }
-    ${CustomerDetailsFragmentDoc}`;
+    ${PaymentTermFieldsFragmentDoc}
+${CustomerDetailsFragmentDoc}`;
 export type UpdateSubscriptionMutationFn = Apollo.MutationFunction<UpdateSubscriptionMutation, UpdateSubscriptionMutationVariables>;
 
 /**
@@ -42926,6 +43332,49 @@ export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryHookResult =
 export type GetCustomerOverdueInvoicesReadyForPaymentProcessingLazyQueryHookResult = ReturnType<typeof useGetCustomerOverdueInvoicesReadyForPaymentProcessingLazyQuery>;
 export type GetCustomerOverdueInvoicesReadyForPaymentProcessingSuspenseQueryHookResult = ReturnType<typeof useGetCustomerOverdueInvoicesReadyForPaymentProcessingSuspenseQuery>;
 export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryResult = Apollo.QueryResult<GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery, GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables>;
+export const GetCurrentUserNeedsOrganizationDocument = gql`
+    query getCurrentUserNeedsOrganization {
+  currentUser {
+    id
+    needsOrganization
+  }
+}
+    `;
+
+/**
+ * __useGetCurrentUserNeedsOrganizationQuery__
+ *
+ * To run a query within a React component, call `useGetCurrentUserNeedsOrganizationQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCurrentUserNeedsOrganizationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCurrentUserNeedsOrganizationQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCurrentUserNeedsOrganizationQuery(baseOptions?: Apollo.QueryHookOptions<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>(GetCurrentUserNeedsOrganizationDocument, options);
+      }
+export function useGetCurrentUserNeedsOrganizationLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>(GetCurrentUserNeedsOrganizationDocument, options);
+        }
+// @ts-ignore
+export function useGetCurrentUserNeedsOrganizationSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>): Apollo.UseSuspenseQueryResult<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>;
+export function useGetCurrentUserNeedsOrganizationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>): Apollo.UseSuspenseQueryResult<GetCurrentUserNeedsOrganizationQuery | undefined, GetCurrentUserNeedsOrganizationQueryVariables>;
+export function useGetCurrentUserNeedsOrganizationSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>(GetCurrentUserNeedsOrganizationDocument, options);
+        }
+export type GetCurrentUserNeedsOrganizationQueryHookResult = ReturnType<typeof useGetCurrentUserNeedsOrganizationQuery>;
+export type GetCurrentUserNeedsOrganizationLazyQueryHookResult = ReturnType<typeof useGetCurrentUserNeedsOrganizationLazyQuery>;
+export type GetCurrentUserNeedsOrganizationSuspenseQueryHookResult = ReturnType<typeof useGetCurrentUserNeedsOrganizationSuspenseQuery>;
+export type GetCurrentUserNeedsOrganizationQueryResult = Apollo.QueryResult<GetCurrentUserNeedsOrganizationQuery, GetCurrentUserNeedsOrganizationQueryVariables>;
 export const GetOrganizationInfosDocument = gql`
     query getOrganizationInfos {
   organization {
@@ -43883,9 +44332,15 @@ export const GetInfosForCreateInvoiceDocument = gql`
     state
     zipcode
     accountType
+    paymentTerm {
+      ...PaymentTermFields
+    }
     billingEntity {
       id
       code
+      paymentTerm {
+        ...PaymentTermFields
+      }
     }
     taxes {
       id
@@ -43905,7 +44360,8 @@ export const GetInfosForCreateInvoiceDocument = gql`
     }
   }
 }
-    ${TaxInfosForCreateInvoiceFragmentDoc}`;
+    ${PaymentTermFieldsFragmentDoc}
+${TaxInfosForCreateInvoiceFragmentDoc}`;
 
 /**
  * __useGetInfosForCreateInvoiceQuery__
@@ -44759,6 +45215,7 @@ export type RefreshInvoiceMutationFn = Apollo.MutationFunction<RefreshInvoiceMut
  * const [refreshInvoiceMutation, { data, loading, error }] = useRefreshInvoiceMutation({
  *   variables: {
  *      input: // value for 'input'
+ *      includeLegacyFees: // value for 'includeLegacyFees'
  *   },
  * });
  */
@@ -46588,6 +47045,39 @@ export function useGoogleLoginUserMutation(baseOptions?: Apollo.MutationHookOpti
 export type GoogleLoginUserMutationHookResult = ReturnType<typeof useGoogleLoginUserMutation>;
 export type GoogleLoginUserMutationResult = Apollo.MutationResult<GoogleLoginUserMutation>;
 export type GoogleLoginUserMutationOptions = Apollo.BaseMutationOptions<GoogleLoginUserMutation, GoogleLoginUserMutationVariables>;
+export const GoogleSignUpDocument = gql`
+    mutation googleSignUp($input: GoogleSignUpInput!) {
+  googleSignUp(input: $input) {
+    token
+  }
+}
+    `;
+export type GoogleSignUpMutationFn = Apollo.MutationFunction<GoogleSignUpMutation, GoogleSignUpMutationVariables>;
+
+/**
+ * __useGoogleSignUpMutation__
+ *
+ * To run a mutation, you first call `useGoogleSignUpMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGoogleSignUpMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [googleSignUpMutation, { data, loading, error }] = useGoogleSignUpMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useGoogleSignUpMutation(baseOptions?: Apollo.MutationHookOptions<GoogleSignUpMutation, GoogleSignUpMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<GoogleSignUpMutation, GoogleSignUpMutationVariables>(GoogleSignUpDocument, options);
+      }
+export type GoogleSignUpMutationHookResult = ReturnType<typeof useGoogleSignUpMutation>;
+export type GoogleSignUpMutationResult = Apollo.MutationResult<GoogleSignUpMutation>;
+export type GoogleSignUpMutationOptions = Apollo.BaseMutationOptions<GoogleSignUpMutation, GoogleSignUpMutationVariables>;
 export const LoginUserDocument = gql`
     mutation loginUser($input: LoginUserInput!) {
   loginUser(input: $input) {
@@ -47562,50 +48052,6 @@ export type GetCatalogPlanForDetailsOverviewQueryHookResult = ReturnType<typeof 
 export type GetCatalogPlanForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetCatalogPlanForDetailsOverviewLazyQuery>;
 export type GetCatalogPlanForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetCatalogPlanForDetailsOverviewSuspenseQuery>;
 export type GetCatalogPlanForDetailsOverviewQueryResult = Apollo.QueryResult<GetCatalogPlanForDetailsOverviewQuery, GetCatalogPlanForDetailsOverviewQueryVariables>;
-export const GetPlanAppliedRateCardForDetailsDocument = gql`
-    query getPlanAppliedRateCardForDetails($appliedRateCardId: ID!) {
-  planAppliedRateCard(id: $appliedRateCardId) {
-    id
-    ...PlanAppliedRateCardForDetails
-  }
-}
-    ${PlanAppliedRateCardForDetailsFragmentDoc}`;
-
-/**
- * __useGetPlanAppliedRateCardForDetailsQuery__
- *
- * To run a query within a React component, call `useGetPlanAppliedRateCardForDetailsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPlanAppliedRateCardForDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetPlanAppliedRateCardForDetailsQuery({
- *   variables: {
- *      appliedRateCardId: // value for 'appliedRateCardId'
- *   },
- * });
- */
-export function useGetPlanAppliedRateCardForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables> & ({ variables: GetPlanAppliedRateCardForDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>(GetPlanAppliedRateCardForDetailsDocument, options);
-      }
-export function useGetPlanAppliedRateCardForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>(GetPlanAppliedRateCardForDetailsDocument, options);
-        }
-// @ts-ignore
-export function useGetPlanAppliedRateCardForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>;
-export function useGetPlanAppliedRateCardForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanAppliedRateCardForDetailsQuery | undefined, GetPlanAppliedRateCardForDetailsQueryVariables>;
-export function useGetPlanAppliedRateCardForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>(GetPlanAppliedRateCardForDetailsDocument, options);
-        }
-export type GetPlanAppliedRateCardForDetailsQueryHookResult = ReturnType<typeof useGetPlanAppliedRateCardForDetailsQuery>;
-export type GetPlanAppliedRateCardForDetailsLazyQueryHookResult = ReturnType<typeof useGetPlanAppliedRateCardForDetailsLazyQuery>;
-export type GetPlanAppliedRateCardForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetPlanAppliedRateCardForDetailsSuspenseQuery>;
-export type GetPlanAppliedRateCardForDetailsQueryResult = Apollo.QueryResult<GetPlanAppliedRateCardForDetailsQuery, GetPlanAppliedRateCardForDetailsQueryVariables>;
 export const GetPlanAppliedRateCardsForRateCardsSectionDocument = gql`
     query getPlanAppliedRateCardsForRateCardsSection($planId: ID!, $page: Int, $limit: Int, $searchTerm: String, $productCategoryIds: [ID!], $productIds: [ID!], $productFilterIds: [ID!], $productType: ProductTypeEnum, $hasRateOverrides: Boolean, $withoutProductCategory: Boolean, $withoutProductFilter: Boolean) {
   planAppliedRateCards(
@@ -49722,50 +50168,6 @@ export type GetContractForDetailsOverviewQueryHookResult = ReturnType<typeof use
 export type GetContractForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetContractForDetailsOverviewLazyQuery>;
 export type GetContractForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetContractForDetailsOverviewSuspenseQuery>;
 export type GetContractForDetailsOverviewQueryResult = Apollo.QueryResult<GetContractForDetailsOverviewQuery, GetContractForDetailsOverviewQueryVariables>;
-export const GetContractAppliedRateCardForDetailsDocument = gql`
-    query getContractAppliedRateCardForDetails($appliedRateCardId: ID!) {
-  contractAppliedRateCard(id: $appliedRateCardId) {
-    id
-    ...ContractAppliedRateCardForDetails
-  }
-}
-    ${ContractAppliedRateCardForDetailsFragmentDoc}`;
-
-/**
- * __useGetContractAppliedRateCardForDetailsQuery__
- *
- * To run a query within a React component, call `useGetContractAppliedRateCardForDetailsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetContractAppliedRateCardForDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetContractAppliedRateCardForDetailsQuery({
- *   variables: {
- *      appliedRateCardId: // value for 'appliedRateCardId'
- *   },
- * });
- */
-export function useGetContractAppliedRateCardForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables> & ({ variables: GetContractAppliedRateCardForDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>(GetContractAppliedRateCardForDetailsDocument, options);
-      }
-export function useGetContractAppliedRateCardForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>(GetContractAppliedRateCardForDetailsDocument, options);
-        }
-// @ts-ignore
-export function useGetContractAppliedRateCardForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>;
-export function useGetContractAppliedRateCardForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractAppliedRateCardForDetailsQuery | undefined, GetContractAppliedRateCardForDetailsQueryVariables>;
-export function useGetContractAppliedRateCardForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>(GetContractAppliedRateCardForDetailsDocument, options);
-        }
-export type GetContractAppliedRateCardForDetailsQueryHookResult = ReturnType<typeof useGetContractAppliedRateCardForDetailsQuery>;
-export type GetContractAppliedRateCardForDetailsLazyQueryHookResult = ReturnType<typeof useGetContractAppliedRateCardForDetailsLazyQuery>;
-export type GetContractAppliedRateCardForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetContractAppliedRateCardForDetailsSuspenseQuery>;
-export type GetContractAppliedRateCardForDetailsQueryResult = Apollo.QueryResult<GetContractAppliedRateCardForDetailsQuery, GetContractAppliedRateCardForDetailsQueryVariables>;
 export const GetContractAppliedRateCardsForRateCardsSectionDocument = gql`
     query getContractAppliedRateCardsForRateCardsSection($contractId: ID!, $page: Int, $limit: Int, $searchTerm: String, $productCategoryIds: [ID!], $productIds: [ID!], $productFilterIds: [ID!], $productType: ProductTypeEnum, $hasRateOverrides: Boolean, $withoutProductCategory: Boolean, $withoutProductFilter: Boolean) {
   contractAppliedRateCards(
@@ -49839,6 +50241,183 @@ export type GetContractAppliedRateCardsForRateCardsSectionQueryHookResult = Retu
 export type GetContractAppliedRateCardsForRateCardsSectionLazyQueryHookResult = ReturnType<typeof useGetContractAppliedRateCardsForRateCardsSectionLazyQuery>;
 export type GetContractAppliedRateCardsForRateCardsSectionSuspenseQueryHookResult = ReturnType<typeof useGetContractAppliedRateCardsForRateCardsSectionSuspenseQuery>;
 export type GetContractAppliedRateCardsForRateCardsSectionQueryResult = Apollo.QueryResult<GetContractAppliedRateCardsForRateCardsSectionQuery, GetContractAppliedRateCardsForRateCardsSectionQueryVariables>;
+export const GetContractUsageCategoriesDocument = gql`
+    query getContractUsageCategories($contractId: ID!) {
+  contract(id: $contractId) {
+    id
+    appliedRateCards {
+      id
+      product {
+        id
+        productCategory {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetContractUsageCategoriesQuery__
+ *
+ * To run a query within a React component, call `useGetContractUsageCategoriesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractUsageCategoriesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContractUsageCategoriesQuery({
+ *   variables: {
+ *      contractId: // value for 'contractId'
+ *   },
+ * });
+ */
+export function useGetContractUsageCategoriesQuery(baseOptions: Apollo.QueryHookOptions<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables> & ({ variables: GetContractUsageCategoriesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>(GetContractUsageCategoriesDocument, options);
+      }
+export function useGetContractUsageCategoriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>(GetContractUsageCategoriesDocument, options);
+        }
+// @ts-ignore
+export function useGetContractUsageCategoriesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>;
+export function useGetContractUsageCategoriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractUsageCategoriesQuery | undefined, GetContractUsageCategoriesQueryVariables>;
+export function useGetContractUsageCategoriesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>(GetContractUsageCategoriesDocument, options);
+        }
+export type GetContractUsageCategoriesQueryHookResult = ReturnType<typeof useGetContractUsageCategoriesQuery>;
+export type GetContractUsageCategoriesLazyQueryHookResult = ReturnType<typeof useGetContractUsageCategoriesLazyQuery>;
+export type GetContractUsageCategoriesSuspenseQueryHookResult = ReturnType<typeof useGetContractUsageCategoriesSuspenseQuery>;
+export type GetContractUsageCategoriesQueryResult = Apollo.QueryResult<GetContractUsageCategoriesQuery, GetContractUsageCategoriesQueryVariables>;
+export const GetContractCurrentUsageTotalDocument = gql`
+    query getContractCurrentUsageTotal($contractId: ID!) {
+  contractCurrentUsageTotal(contractId: $contractId) {
+    totalAmountCents
+    taxesUnavailable
+    fromDatetime
+    toDatetime
+  }
+}
+    `;
+
+/**
+ * __useGetContractCurrentUsageTotalQuery__
+ *
+ * To run a query within a React component, call `useGetContractCurrentUsageTotalQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractCurrentUsageTotalQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContractCurrentUsageTotalQuery({
+ *   variables: {
+ *      contractId: // value for 'contractId'
+ *   },
+ * });
+ */
+export function useGetContractCurrentUsageTotalQuery(baseOptions: Apollo.QueryHookOptions<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables> & ({ variables: GetContractCurrentUsageTotalQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>(GetContractCurrentUsageTotalDocument, options);
+      }
+export function useGetContractCurrentUsageTotalLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>(GetContractCurrentUsageTotalDocument, options);
+        }
+// @ts-ignore
+export function useGetContractCurrentUsageTotalSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>;
+export function useGetContractCurrentUsageTotalSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractCurrentUsageTotalQuery | undefined, GetContractCurrentUsageTotalQueryVariables>;
+export function useGetContractCurrentUsageTotalSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>(GetContractCurrentUsageTotalDocument, options);
+        }
+export type GetContractCurrentUsageTotalQueryHookResult = ReturnType<typeof useGetContractCurrentUsageTotalQuery>;
+export type GetContractCurrentUsageTotalLazyQueryHookResult = ReturnType<typeof useGetContractCurrentUsageTotalLazyQuery>;
+export type GetContractCurrentUsageTotalSuspenseQueryHookResult = ReturnType<typeof useGetContractCurrentUsageTotalSuspenseQuery>;
+export type GetContractCurrentUsageTotalQueryResult = Apollo.QueryResult<GetContractCurrentUsageTotalQuery, GetContractCurrentUsageTotalQueryVariables>;
+export const GetContractUsagesDocument = gql`
+    query getContractUsages($contractId: ID!, $page: Int, $limit: Int, $searchTerm: String, $productCategoryIds: [ID!], $withoutProductCategory: Boolean, $productIds: [ID!], $productFilterIds: [ID!], $withoutProductFilter: Boolean, $productType: ProductTypeEnum) {
+  contractUsages(
+    contractId: $contractId
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+    productCategoryIds: $productCategoryIds
+    withoutProductCategory: $withoutProductCategory
+    productIds: $productIds
+    productFilterIds: $productFilterIds
+    withoutProductFilter: $withoutProductFilter
+    productType: $productType
+  ) {
+    collection {
+      id: rateCardCode
+      invoiceDisplayName
+      units
+      amountCents
+      productCode
+      productName
+      productFilterCode
+      fromDatetime
+      toDatetime
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetContractUsagesQuery__
+ *
+ * To run a query within a React component, call `useGetContractUsagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractUsagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContractUsagesQuery({
+ *   variables: {
+ *      contractId: // value for 'contractId'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      productCategoryIds: // value for 'productCategoryIds'
+ *      withoutProductCategory: // value for 'withoutProductCategory'
+ *      productIds: // value for 'productIds'
+ *      productFilterIds: // value for 'productFilterIds'
+ *      withoutProductFilter: // value for 'withoutProductFilter'
+ *      productType: // value for 'productType'
+ *   },
+ * });
+ */
+export function useGetContractUsagesQuery(baseOptions: Apollo.QueryHookOptions<GetContractUsagesQuery, GetContractUsagesQueryVariables> & ({ variables: GetContractUsagesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetContractUsagesQuery, GetContractUsagesQueryVariables>(GetContractUsagesDocument, options);
+      }
+export function useGetContractUsagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetContractUsagesQuery, GetContractUsagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetContractUsagesQuery, GetContractUsagesQueryVariables>(GetContractUsagesDocument, options);
+        }
+// @ts-ignore
+export function useGetContractUsagesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetContractUsagesQuery, GetContractUsagesQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractUsagesQuery, GetContractUsagesQueryVariables>;
+export function useGetContractUsagesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractUsagesQuery, GetContractUsagesQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractUsagesQuery | undefined, GetContractUsagesQueryVariables>;
+export function useGetContractUsagesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractUsagesQuery, GetContractUsagesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetContractUsagesQuery, GetContractUsagesQueryVariables>(GetContractUsagesDocument, options);
+        }
+export type GetContractUsagesQueryHookResult = ReturnType<typeof useGetContractUsagesQuery>;
+export type GetContractUsagesLazyQueryHookResult = ReturnType<typeof useGetContractUsagesLazyQuery>;
+export type GetContractUsagesSuspenseQueryHookResult = ReturnType<typeof useGetContractUsagesSuspenseQuery>;
+export type GetContractUsagesQueryResult = Apollo.QueryResult<GetContractUsagesQuery, GetContractUsagesQueryVariables>;
 export const GetBillableMetricsForCouponsDocument = gql`
     query getBillableMetricsForCoupons($page: Int, $limit: Int, $searchTerm: String) {
   selectableBillableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
@@ -52709,7 +53288,6 @@ export const GetBillingEntitySettingsDocument = gql`
     id
     code
     name
-    netPaymentTerm
     defaultCurrency
     documentNumbering
     documentNumberPrefix
@@ -52723,7 +53301,7 @@ export const GetBillingEntitySettingsDocument = gql`
       subscriptionInvoiceIssuingDateAnchor
     }
     ...EditBillingEntityInvoiceTemplateDialog
-    ...EditBillingEntityNetPaymentTermForDialog
+    ...EditBillingEntityPaymentTermForDialog
     ...EditBillingEntityDefaultCurrencyForDialog
     ...EditBillingEntityInvoiceNumberingDialog
     ...EditBillingEntityInvoiceIssuingDatePolicyDialog
@@ -52746,7 +53324,7 @@ export const GetBillingEntitySettingsDocument = gql`
   }
 }
     ${EditBillingEntityInvoiceTemplateDialogFragmentDoc}
-${EditBillingEntityNetPaymentTermForDialogFragmentDoc}
+${EditBillingEntityPaymentTermForDialogFragmentDoc}
 ${EditBillingEntityDefaultCurrencyForDialogFragmentDoc}
 ${EditBillingEntityInvoiceNumberingDialogFragmentDoc}
 ${EditBillingEntityInvoiceIssuingDatePolicyDialogFragmentDoc}
@@ -57043,13 +57621,19 @@ export const GetCustomerForCreateSubscriptionDocument = gql`
     name
     displayName
     externalId
+    paymentTerm {
+      ...PaymentTermFields
+    }
     billingEntity {
       id
+      paymentTerm {
+        ...PaymentTermFields
+      }
     }
     paymentProvider
   }
 }
-    `;
+    ${PaymentTermFieldsFragmentDoc}`;
 
 /**
  * __useGetCustomerForCreateSubscriptionQuery__
@@ -57444,12 +58028,18 @@ export const GetCustomerInfosForWalletFormDocument = gql`
     externalId
     currency
     timezone
+    paymentTerm {
+      ...PaymentTermFields
+    }
     billingEntity {
       id
+      paymentTerm {
+        ...PaymentTermFields
+      }
     }
   }
 }
-    `;
+    ${PaymentTermFieldsFragmentDoc}`;
 
 /**
  * __useGetCustomerInfosForWalletFormQuery__

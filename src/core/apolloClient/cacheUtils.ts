@@ -8,6 +8,7 @@ import {
 } from '~/generated/graphql'
 import { DEVTOOL_AUTO_SAVE_KEY, resetDevtoolsNavigation } from '~/hooks/useDeveloperTool'
 
+import { adoptStoredSession } from './adoptStoredSession'
 import { disconnectCableConsumer } from './cableConsumer'
 import { pausePersistence, purgePersistedCache, resumePersistence } from './cachePersistor'
 import {
@@ -62,10 +63,7 @@ export const logOut = async (
     await purgePersistedCache()
   }
 
-  const storedToken = getStoredAuthToken()
-
-  if (storedToken) resumePersistence()
-  authTokenVar(storedToken)
+  adoptStoredSession(getStoredAuthToken())
 
   resetLocationHistory && resetLocationHistoryVar()
 }

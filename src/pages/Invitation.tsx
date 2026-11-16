@@ -3,14 +3,16 @@ import Stack from '@mui/material/Stack'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router'
 
+import { AuthOrDivider } from '~/components/auth/AuthOrDivider'
 import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
+import { GoogleInviteState } from '~/components/auth/googleOauthFlow'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { hasDefinedGQLError, logOut, onLogIn } from '~/core/apolloClient'
 import { DOCUMENTATION_ENV_VARS } from '~/core/constants/externalUrls'
-import { LOGIN_ROUTE, useNavigate } from '~/core/router'
+import { LOGIN_ROUTE, useLocation, useNavigate } from '~/core/router'
 import { addValuesToUrlState } from '~/core/utils/urlUtils'
 import {
   CurrentUserFragmentDoc,
@@ -141,6 +143,7 @@ const Invitation = () => {
   const { token } = useParams()
   const client = useApolloClient()
   const navigate = useNavigate()
+  const location = useLocation<GoogleInviteState | null>()
   const [searchParams] = useSearchParams()
 
   const googleCode = searchParams.get('code') || ''
@@ -357,6 +360,8 @@ const Invitation = () => {
           input: {
             code: googleCode,
             inviteToken: token || '',
+            state: location.state?.googleState,
+            stateSecret: location.state?.googleStateSecret,
           },
         },
       })
@@ -429,6 +434,10 @@ const Invitation = () => {
 
     if (hasDefinedGQLError('InviteEmailMistmatch', googleAcceptInviteError)) {
       return translate('text_660bf95c75dd928ced0ecb2b')
+    }
+
+    if (hasDefinedGQLError('InvalidGoogleState', googleAcceptInviteError)) {
+      return translate('text_62b31e1f6a5b8b1b745ece48')
     }
 
     if (hasDefinedGQLError('DomainNotConfigured', oktaAuthorizeUrlError)) {
@@ -657,11 +666,7 @@ const Invitation = () => {
           <>
             {ssoButtons}
 
-            <div className="flex items-center justify-center gap-4 before:flex-1 before:border before:border-grey-300 before:content-[''] after:flex-1 after:border after:border-grey-300 after:content-['']">
-              <Typography variant="captionHl" color="grey500">
-                {translate('text_6303351deffd2a0d70498675').toUpperCase()}
-              </Typography>
-            </div>
+            <AuthOrDivider />
 
             {mode === 'signUp' ? (
               <InvitationSignUpForm

@@ -2,6 +2,8 @@ import { HookOverlayReturnType, OverlayFormProps, OverlayResult } from '~/core/o
 
 export type DrawerResult = OverlayResult
 
-export type HookDrawerReturnType<Props> = HookOverlayReturnType<Props>
+export type HookDrawerReturnType<Props> = HookOverlayReturnType<Props> & {
+  update: (props: Partial<Props>) => void
+}
 
 export type FormDrawerProps = OverlayFormProps

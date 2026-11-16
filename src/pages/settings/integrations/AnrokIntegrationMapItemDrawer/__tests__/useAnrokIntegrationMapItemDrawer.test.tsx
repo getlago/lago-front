@@ -87,6 +87,27 @@ const MULTI_ENTITY_DRAWER_PROPS: AnrokIntegrationMapItemDrawerProps = {
   },
 }
 
+const OTHER_ITEM_MAPPING_ID = 'mapping-other-item'
+
+const OTHER_ITEM_DRAWER_PROPS: AnrokIntegrationMapItemDrawerProps = {
+  ...DRAWER_PROPS,
+  itemMappings: {
+    default: {
+      itemId: OTHER_ITEM_MAPPING_ID,
+      itemExternalId: 'other-ext-id',
+      itemExternalName: 'Other ext name',
+      lagoMappableId: 'bm-2',
+      lagoMappableName: 'Other metric',
+    },
+    'be-1': {
+      itemId: null,
+      itemExternalId: null,
+      lagoMappableId: 'bm-2',
+      lagoMappableName: 'Other metric',
+    },
+  },
+}
+
 const SAVE_BUTTON_TEST_ID = 'anrok-integration-map-item-drawer-save'
 
 const mockScrollIntoView = jest.fn()
@@ -102,6 +123,27 @@ const DrawerHost = ({ params }: { params: AnrokIntegrationMapItemDrawerProps }) 
     <button data-test={OPEN_BUTTON_TEST_ID} onClick={() => openDrawer(params)}>
       open
     </button>
+  )
+}
+
+const TwoItemsDrawerHost = ({
+  first,
+  second,
+}: {
+  first: AnrokIntegrationMapItemDrawerProps
+  second: AnrokIntegrationMapItemDrawerProps
+}) => {
+  const { openDrawer } = useAnrokIntegrationMapItemDrawer()
+
+  return (
+    <>
+      <button data-test="open-first-item" onClick={() => openDrawer(first)}>
+        open first
+      </button>
+      <button data-test="open-second-item" onClick={() => openDrawer(second)}>
+        open second
+      </button>
+    </>
   )
 }
 
@@ -368,6 +410,136 @@ describe('useAnrokIntegrationMapItemDrawer', () => {
         )
         expect(mockScrollIntoView).toHaveBeenCalled()
         expect(mockCreateMapping).not.toHaveBeenCalled()
+      })
+    })
+  })
+  describe('GIVEN a save that only partially reached the backend', () => {
+    describe('WHEN the drawer is submitted again without being closed', () => {
+      it('THEN should not create the already created mapping a second time', async () => {
+        mockCreateMapping.mockResolvedValue({
+          data: { createIntegrationMapping: { id: 'created-mapping' } },
+        })
+        mockUpdateMapping.mockResolvedValue({ errors: [{ message: 'failure' }] })
+
+        const { payload, user } = await openDrawerAndRenderBody()
+
+        await user.type(getInput('be-1.externalId'), 'new-id')
+        await user.type(getInput('be-1.externalName'), 'New name')
+        await user.clear(getInput('default.externalName'))
+        await user.type(getInput('default.externalName'), 'Renamed')
+        await submit(payload)
+
+        await waitFor(() => expect(mockCreateMapping).toHaveBeenCalledTimes(1))
+        expect(mockUpdateMapping).toHaveBeenCalledTimes(1)
+        expect(mockClose).not.toHaveBeenCalled()
+
+        await submit(payload)
+
+        expect(mockCreateMapping).toHaveBeenCalledTimes(1)
+        expect(mockUpdateMapping).toHaveBeenCalledWith({
+          variables: { input: expect.objectContaining({ id: 'created-mapping' }) },
+        })
+      })
+
+      it('THEN should not delete the already deleted mapping a second time', async () => {
+        mockDeleteMapping.mockResolvedValue({})
+        mockCreateMapping.mockResolvedValue({ errors: [{ message: 'failure' }] })
+
+        const { payload, user } = await openDrawerAndRenderBody()
+
+        await user.clear(getInput('default.externalId'))
+        await user.clear(getInput('default.externalName'))
+        await user.type(getInput('be-1.externalId'), 'new-id')
+        await user.type(getInput('be-1.externalName'), 'New name')
+        await submit(payload)
+
+        await waitFor(() => expect(mockDeleteMapping).toHaveBeenCalledTimes(1))
+        expect(mockCreateMapping).toHaveBeenCalledTimes(1)
+        expect(mockClose).not.toHaveBeenCalled()
+
+        await submit(payload)
+
+        await waitFor(() => expect(mockCreateMapping).toHaveBeenCalledTimes(2))
+        expect(mockDeleteMapping).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should keep the draft of the entity that still has to be saved', async () => {
+        mockCreateMapping.mockResolvedValue({
+          data: { createIntegrationMapping: { id: 'created-mapping' } },
+        })
+        mockUpdateMapping.mockResolvedValue({ errors: [{ message: 'failure' }] })
+
+        const { payload, user } = await openDrawerAndRenderBody()
+
+        await user.type(getInput('be-1.externalId'), 'new-id')
+        await user.type(getInput('be-1.externalName'), 'New name')
+        await user.clear(getInput('default.externalName'))
+        await user.type(getInput('default.externalName'), 'Renamed')
+        await submit(payload)
+
+        await waitFor(() => expect(mockUpdateMapping).toHaveBeenCalled())
+        expect(getInput('default.externalName')).toHaveValue('Renamed')
+        expect(getInput('be-1.externalId')).toHaveValue('new-id')
+        expect(getInput('be-1.externalName')).toHaveValue('New name')
+      })
+    })
+  })
+
+  describe('GIVEN a save that fails after the drawer was reopened on another item', () => {
+    describe('WHEN that other item is submitted unchanged', () => {
+      it('THEN should not send the mappings of the item the save belonged to', async () => {
+        let resolveUpdate: (answer: unknown) => void = () => {}
+
+        mockUpdateMapping.mockImplementation(
+          () =>
+            new Promise((resolve) => {
+              resolveUpdate = resolve
+            }),
+        )
+
+        const user = userEvent.setup({ pointerEventsCheck: 0 })
+
+        render(<TwoItemsDrawerHost first={DRAWER_PROPS} second={OTHER_ITEM_DRAWER_PROPS} />)
+
+        await user.click(screen.getByTestId('open-first-item'))
+
+        const firstPayload = lastDrawerPayload()
+
+        render(
+          <form id={firstPayload.form.id}>
+            {firstPayload.children}
+            {firstPayload.mainAction}
+          </form>,
+        )
+
+        await user.clear(getInput('default.externalName'))
+        await user.type(getInput('default.externalName'), 'Renamed')
+
+        let pendingSubmit: Promise<unknown> = Promise.resolve()
+
+        await act(async () => {
+          pendingSubmit = Promise.resolve(firstPayload.form.submit())
+        })
+
+        await waitFor(() => expect(mockUpdateMapping).toHaveBeenCalledTimes(1))
+
+        await user.click(screen.getByTestId('open-second-item'))
+
+        const secondPayload = lastDrawerPayload()
+
+        await act(async () => {
+          resolveUpdate({ errors: [{ message: 'failure' }] })
+          await pendingSubmit
+        })
+
+        mockUpdateMapping.mockResolvedValue({})
+
+        await submit(secondPayload)
+
+        await waitFor(() => expect(mockClose).toHaveBeenCalled())
+        expect(mockUpdateMapping).toHaveBeenCalledTimes(1)
+        expect(mockCreateMapping).not.toHaveBeenCalled()
+        expect(mockDeleteMapping).not.toHaveBeenCalled()
       })
     })
   })

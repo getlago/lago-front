@@ -74,6 +74,8 @@ export const typeDefs = gql`
     # SSO errors
     invalid_google_code
     invalid_google_token
+    invalid_google_state
+    company_google_account_required
     google_auth_missing_setup
     google_login_method_not_authorized
     domain_not_configured

@@ -56,14 +56,13 @@ const buildMock = ({
         description,
         invoiceDisplayName,
         appliedRateCardsCount,
-        attachedToContracts: false,
       },
     },
   },
 })
 
-const renderSection = (overrides: PlanOverrides = {}): void => {
-  render(<CatalogPlanOverviewSection />, {
+const renderSection = (overrides: PlanOverrides = {}, onAssignRateCard?: () => void): void => {
+  render(<CatalogPlanOverviewSection onAssignRateCard={onAssignRateCard} />, {
     wrapper: ({ children }) => (
       <AllTheProviders forceTypenames mocks={[buildMock(overrides)]}>
         {children}
@@ -138,6 +137,32 @@ describe('CatalogPlanOverviewSection', () => {
       expect(screen.getByTestId(CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID)).toBeInTheDocument(),
     )
     expect(screen.getByText('text_17890300495307orirxcvgn8')).toBeInTheDocument()
+  })
+
+  it('GIVEN a click on the quick action THEN calls the onAssignRateCard callback', async () => {
+    const mockOnAssignRateCard = jest.fn()
+
+    renderSection({ appliedRateCardsCount: 0 }, mockOnAssignRateCard)
+
+    await waitFor(() =>
+      expect(screen.getByTestId(CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID)).toBeInTheDocument(),
+    )
+    await userEvent.click(screen.getByTestId(CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID))
+
+    expect(mockOnAssignRateCard).toHaveBeenCalledTimes(1)
+  })
+
+  it('GIVEN no onAssignRateCard callback THEN disables the quick action', async () => {
+    renderSection({ appliedRateCardsCount: 0 })
+
+    await waitFor(() =>
+      expect(screen.getByTestId(CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID)).toBeInTheDocument(),
+    )
+
+    expect(screen.getByTestId(CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID)).toHaveAttribute(
+      'tabIndex',
+      '-1',
+    )
   })
 
   it('GIVEN existing rate cards THEN hides the quick action', async () => {

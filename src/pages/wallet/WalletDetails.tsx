@@ -26,6 +26,7 @@ import {
 import { getCustomerDisplayName } from '~/core/utils/getCustomerDisplayName'
 import {
   FeatureFlagEnum,
+  PaymentTermFieldsFragmentDoc,
   useGetWalletDetailsQuery,
   WalletInfosForTransactionsFragmentDoc,
   WalletStatusEnum,
@@ -58,6 +59,9 @@ gql`
     creditsOngoingBalance
     priority
     purchaseOrderNumber
+    paymentTerm {
+      ...PaymentTermFields
+    }
     paidTopUpMinAmountCents
     paidTopUpMinCredits
     paidTopUpMaxAmountCents
@@ -82,10 +86,16 @@ gql`
       firstname
       lastname
       externalId
+      paymentTerm {
+        ...PaymentTermFields
+      }
       billingEntity {
         id
         code
         name
+        paymentTerm {
+          ...PaymentTermFields
+        }
       }
     }
     skipInvoiceCustomSections
@@ -147,6 +157,8 @@ gql`
   }
 
   ${WalletInfosForTransactionsFragmentDoc}
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 export enum WalletDetailsTabsOptionsEnum {
   overview = 'overview',
