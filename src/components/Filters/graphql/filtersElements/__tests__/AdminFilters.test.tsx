@@ -45,6 +45,15 @@ describe('Admin audit filters', () => {
     expect(setFilterValue).toHaveBeenCalledWith('toggle_on,toggle_off')
   })
 
+  it('offers the sandbox linked action with its label', async () => {
+    const setFilterValue = jest.fn()
+
+    render(<FiltersItemAdminActions value={undefined} setFilterValue={setFilterValue} />)
+    fireEvent.mouseDown(screen.getByRole('combobox'))
+    fireEvent.click(await screen.findByRole('option', { name: 'Sandbox linked' }))
+    expect(setFilterValue).toHaveBeenCalledWith(AdminActionEnum.SandboxLinked)
+  })
+
   it('selects the feature type accepted by the API', async () => {
     const setFilterValue = jest.fn()
 
