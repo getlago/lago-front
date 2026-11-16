@@ -5,6 +5,7 @@ import {
   buildAuthHeaders,
   buildCableConnectionParams,
   buildCableSubprotocols,
+  resolveCredentialScope,
 } from '../authHeaders'
 
 type SelfServeFlag = Pick<ReturnType<typeof envGlobalVar>, 'selfServeEnabled'>
@@ -302,5 +303,16 @@ describe('buildCableConnectionParams', () => {
         })
       })
     })
+  })
+})
+
+describe('resolveCredentialScope', () => {
+  it.each([
+    ['a portal route', PORTAL_PATH, 'customerPortal'],
+    ['a portal sub-route', `${PORTAL_PATH}/usage/item-1`, 'customerPortal'],
+    ['an admin route', ADMIN_PATH, 'admin'],
+    ['the create organization route', CREATE_ORGANIZATION_ROUTE, 'admin'],
+  ])('THEN should resolve %s to %s', (_label, pathname, expected) => {
+    expect(resolveCredentialScope(pathname)).toBe(expected)
   })
 })

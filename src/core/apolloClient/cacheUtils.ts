@@ -182,6 +182,16 @@ export const onAccessCustomerPortal = (token?: string) => {
   updateCustomerPortalTokenVar(token)
 }
 
+// Counterpart of the pause `PortalInit` runs on entry. Not a `finally`: a failed
+// clear leaves persistence off rather than writing portal data into the admin blob.
+export const onLeaveCustomerPortal = async (client: ApolloClient<object>): Promise<void> => {
+  updateCustomerPortalTokenVar(undefined)
+
+  await client.clearStore()
+
+  resumePersistence()
+}
+
 // --------------------- Omit __typename ---------------------
 const omitDeepArrayWalk = (arr: Array<unknown>, key: string): unknown => {
   return arr.map((val) => {

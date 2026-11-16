@@ -15,11 +15,10 @@ import {
   updateAuthTokenVar,
 } from '~/core/apolloClient/reactiveVars'
 import { buildWebSocketUrl } from '~/core/apolloClient/websocketUrl'
-import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { LagoApiError } from '~/generated/graphql'
 
-import { buildAuthHeaders } from './authHeaders'
+import { buildAuthHeaders, resolveCredentialScope } from './authHeaders'
 import { CableSubscriptionError, createCableLink, refreshCableConsumer } from './cableConsumer'
 import { cache } from './cache'
 import { setupCachePersistor } from './cachePersistor'
@@ -57,12 +56,16 @@ export const setAuthErrorHandler = (handler: () => void) => {
 export const initializeApolloClient = async () => {
   const authLink = new ApolloLink((operation, forward) => {
     const { headers } = operation.getContext()
+    const { pathname } = window.location
 
+    // The scope travels with the operation so the response is judged by the
+    // context the request left with, not by wherever the tab has moved since.
     operation.setContext({
       headers: {
         ...headers,
-        ...buildAuthHeaders(window.location.pathname),
+        ...buildAuthHeaders(pathname),
       },
+      credentialScope: resolveCredentialScope(pathname),
     })
 
     return forward(operation)
@@ -182,6 +185,7 @@ export const initializeApolloClient = async () => {
       silentError = false,
       silentErrorCodes = [],
       silentErrorDetails = [],
+      credentialScope = resolveCredentialScope(window.location.pathname),
     } = operation.getContext()
 
     // Silent auth and permissions related errors by default
@@ -201,9 +205,7 @@ export const initializeApolloClient = async () => {
         if (isUnauthorized) {
           // Skip logout in customer portal context — the portal handles auth errors
           // via query data (isUnauthenticated flag) and doesn't use the onAuthError callback
-          const isCustomerPortal = isCustomerPortalPath(window.location.pathname)
-
-          if (!isCustomerPortal && onAuthError) {
+          if (credentialScope !== 'customerPortal' && onAuthError) {
             onAuthError()
           }
         }

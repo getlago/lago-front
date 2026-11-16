@@ -109,4 +109,50 @@ describe('cachePersistor', () => {
       expect(mockRemove).toHaveBeenCalledTimes(1)
     })
   })
+
+  describe('resumePersistence', () => {
+    describe('GIVEN a tab that booted in the portal and navigated to the admin app', () => {
+      it('THEN should build a persistor on the version key setup kept', async () => {
+        window.history.pushState({}, '', '/customer-portal/some-token')
+
+        const { setupCachePersistor, resumePersistence } = await loadModule()
+
+        await setupCachePersistor('1.0.0')
+        expect(mockCtor).not.toHaveBeenCalled()
+
+        window.history.pushState({}, '', '/acme/customers')
+        resumePersistence()
+
+        expect(mockCtor).toHaveBeenCalledWith(expect.objectContaining({ key: CURRENT_KEY }))
+        // The admin blob is never read back in: the cache was emptied on the way out.
+        expect(mockRestore).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('GIVEN an admin boot paused by a same-tab portal visit', () => {
+      it('THEN should build a new persistor on the same key', async () => {
+        const { setupCachePersistor, pausePersistence, resumePersistence } = await loadModule()
+
+        await setupCachePersistor('1.0.0')
+        pausePersistence()
+        resumePersistence()
+
+        expect(mockCtor).toHaveBeenCalledTimes(2)
+        expect(mockCtor).toHaveBeenLastCalledWith(expect.objectContaining({ key: CURRENT_KEY }))
+      })
+    })
+
+    describe('GIVEN the tab is still on a portal URL', () => {
+      it('THEN should stay paused', async () => {
+        const { setupCachePersistor, pausePersistence, resumePersistence } = await loadModule()
+
+        await setupCachePersistor('1.0.0')
+        pausePersistence()
+        window.history.pushState({}, '', '/customer-portal/some-token')
+        resumePersistence()
+
+        expect(mockCtor).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
 })

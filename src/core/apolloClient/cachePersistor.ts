@@ -37,15 +37,21 @@ const purgeStaleVersionedCaches = async (currentKey: string) => {
 // never restore the shared admin blob into memory nor write into it. The
 // in-memory cache still works normally for the portal session.
 export const setupCachePersistor = async (appVersion: string) => {
+  const currentKey = `${KEY_PREFIX}${appVersion}`
+
+  // The key is kept even when persistence is skipped, so a tab that booted in
+  // the portal and later navigates to the admin app has one to resume on.
+  persistenceKey = currentKey
+
   if (isCustomerPortalPath(window.location.pathname)) {
+    persistor = null
+    persistencePaused = true
+
     return null
   }
 
-  const currentKey = `${KEY_PREFIX}${appVersion}`
-
   await purgeStaleVersionedCaches(currentKey)
 
-  persistenceKey = currentKey
   persistencePaused = false
   persistor = createPersistor(currentKey)
 
@@ -71,6 +77,8 @@ export const pausePersistence = (): void => {
   persistencePaused = true
 }
 
+// Counterpart of `pausePersistence`. Callers must empty the cache of portal data
+// first: the recreated persistor writes whatever is in memory into the admin blob.
 export const resumePersistence = (): void => {
   if (!persistencePaused || !persistenceKey || isCustomerPortalPath(window.location.pathname))
     return

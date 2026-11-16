@@ -10,6 +10,7 @@ import { CustomRouteObject, routes, useLocation, useNavigate } from '~/core/rout
 import { NEVER_SLUG_PREFIXES } from '~/core/router/slugPrefixes'
 import { isRouteGated, isRouteUnlocked } from '~/core/router/utils/isRouteAvailable'
 import { startSessionReplayOnceUrlIsSafe } from '~/core/utils/sessionReplay'
+import { useCustomerPortalBoundary } from '~/hooks/auth/useCustomerPortalBoundary'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { DEVTOOL_TAB_PARAMS, useDeveloperTool, useDevtoolTabParam } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -107,6 +108,7 @@ export const RouteWrapper = () => {
   const { mainRouterUrl, setMainRouterUrl } = useDeveloperTool()
 
   useDevtoolTabParam()
+  useCustomerPortalBoundary()
 
   // Clear all open drawers on browser navigation (back/forward buttons)
   useEffect(() => {

@@ -13,13 +13,18 @@ import { getItemFromLS } from '~/core/utils/localStorage'
 
 type AdminCredentials = { token: string | undefined; organizationId: string | undefined }
 
+export type CredentialScope = 'admin' | 'customerPortal'
+
+export const resolveCredentialScope = (pathname: string): CredentialScope =>
+  isCustomerPortalPath(pathname) ? 'customerPortal' : 'admin'
+
 const isCreateOrganizationPath = (pathname: string): boolean =>
   envGlobalVar().selfServeEnabled && !!matchPath(CREATE_ORGANIZATION_ROUTE, pathname)
 
 // Scoped by route: the API rejects an expired admin Bearer before reading
 // customer-portal-token, and a portal token sent on admin routes would leak.
 const resolveAdminCredentials = (pathname: string): AdminCredentials | null => {
-  if (isCustomerPortalPath(pathname)) return null
+  if (resolveCredentialScope(pathname) === 'customerPortal') return null
 
   return {
     token: getItemFromLS(AUTH_TOKEN_LS_KEY) || getItemFromLS(TMP_AUTH_TOKEN_LS_KEY) || undefined,

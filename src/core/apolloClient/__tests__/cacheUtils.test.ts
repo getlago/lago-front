@@ -1,6 +1,6 @@
 import { ApolloClient } from '@apollo/client'
 
-import { logOut, onLogIn, switchCurrentOrganization } from '../cacheUtils'
+import { logOut, onLeaveCustomerPortal, onLogIn, switchCurrentOrganization } from '../cacheUtils'
 import { currentOrganizationVar } from '../reactiveVars/currentOrganizationVar'
 
 const mockSetCurrentOrganizationId = jest.fn()
@@ -12,14 +12,17 @@ const mockAddToast = jest.fn()
 const mockPurgePersistedCache = jest.fn().mockResolvedValue(undefined)
 
 const mockDisconnectCableConsumer = jest.fn()
+const mockUpdateCustomerPortalTokenVar = jest.fn()
 
 jest.mock('../cableConsumer', () => ({
   disconnectCableConsumer: () => mockDisconnectCableConsumer(),
 }))
 
+const mockResumePersistence = jest.fn()
+
 jest.mock('../cachePersistor', () => ({
   pausePersistence: jest.fn(),
-  resumePersistence: jest.fn(),
+  resumePersistence: (...args: unknown[]) => mockResumePersistence(...args),
   purgePersistedCache: (...args: unknown[]) => mockPurgePersistedCache(...args),
 }))
 
@@ -38,7 +41,7 @@ jest.mock('../reactiveVars', () => {
     },
     resetLocationHistoryVar: jest.fn(),
     updateAuthTokenVar: (...args: unknown[]) => mockUpdateAuthTokenVar(...args),
-    updateCustomerPortalTokenVar: jest.fn(),
+    updateCustomerPortalTokenVar: (...args: unknown[]) => mockUpdateCustomerPortalTokenVar(...args),
   }
 })
 
@@ -252,6 +255,43 @@ describe('logOut', () => {
       await logOut(client)
 
       expect(currentOrganizationVar()).toBeNull()
+    })
+  })
+})
+
+describe('onLeaveCustomerPortal', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  describe('GIVEN a same-tab return from the portal to the admin app', () => {
+    it('THEN should drop the portal token and clear the store before resuming persistence', async () => {
+      const client = createMockClient()
+
+      await onLeaveCustomerPortal(client as unknown as ApolloClient<object>)
+
+      expect(mockUpdateCustomerPortalTokenVar).toHaveBeenCalledWith(undefined)
+      expect(client.clearStore).toHaveBeenCalledTimes(1)
+      expect(mockResumePersistence).toHaveBeenCalledTimes(1)
+
+      const clearStoreAt = (client.clearStore as jest.Mock).mock.invocationCallOrder[0]
+      const resumeAt = mockResumePersistence.mock.invocationCallOrder[0]
+
+      expect(clearStoreAt).toBeLessThan(resumeAt)
+    })
+  })
+
+  describe('WHEN the store cannot be cleared', () => {
+    // Resuming here would write the portal customer's data into the shared admin blob.
+    it('THEN should leave persistence paused', async () => {
+      const client = createMockClient()
+
+      ;(client.clearStore as jest.Mock).mockRejectedValue(new Error('clearStore failed'))
+
+      await expect(
+        onLeaveCustomerPortal(client as unknown as ApolloClient<object>),
+      ).rejects.toThrow('clearStore failed')
+      expect(mockResumePersistence).not.toHaveBeenCalled()
     })
   })
 })

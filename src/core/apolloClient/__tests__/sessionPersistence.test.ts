@@ -9,7 +9,7 @@ import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { disconnectCableConsumer } from '../cableConsumer'
 import { cache } from '../cache'
 import { pausePersistence, resumePersistence, setupCachePersistor } from '../cachePersistor'
-import { onLogIn } from '../cacheUtils'
+import { onLeaveCustomerPortal, onLogIn } from '../cacheUtils'
 import { reconcileSession } from '../crossTabAuth'
 import { authTokenVar, currentOrganizationVar } from '../reactiveVars'
 
@@ -46,6 +46,7 @@ jest.mock('../reactiveVars', () => ({
   getStoredAuthToken: (): string | undefined =>
     globalThis.localStorage.getItem('authToken') || undefined,
   updateAuthTokenVar: jest.fn(),
+  updateCustomerPortalTokenVar: jest.fn(),
   resetLocationHistoryVar: jest.fn(),
 }))
 
@@ -186,6 +187,29 @@ describe('session persistence', () => {
     await jest.advanceTimersByTimeAsync(1000)
 
     expect(localForage.setItem).toHaveBeenCalledWith(CACHE_KEY, JSON.stringify(cache.extract()))
+  })
+
+  it('leaves no portal data in the admin blob on a same-tab portal round trip', async () => {
+    writeMarker(cache, 'admin session')
+    await jest.advanceTimersByTimeAsync(1000)
+    expect(localForage.setItem).toHaveBeenCalledTimes(1)
+
+    window.history.pushState({}, '', '/customer-portal/portal-token')
+    pausePersistence()
+    writeMarker(cache, 'portal session')
+    await jest.advanceTimersByTimeAsync(1000)
+    expect(localForage.setItem).toHaveBeenCalledTimes(1)
+
+    window.history.pushState({}, '', '/acme/customers')
+    await onLeaveCustomerPortal(client)
+    writeMarker(cache, 'admin session again')
+    await jest.advanceTimersByTimeAsync(1000)
+
+    const [, persisted] = (localForage.setItem as jest.Mock).mock.lastCall as [string, string]
+
+    expect(localForage.setItem).toHaveBeenCalledTimes(2)
+    expect(persisted).not.toContain('portal session')
+    expect(persisted).toBe(JSON.stringify(cache.extract()))
   })
 
   it('keeps persistence disabled in the customer portal', async () => {

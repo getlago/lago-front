@@ -36,6 +36,17 @@ describe('silent error context', () => {
       })
     })
 
+    describe('WHEN an unknown scope is passed to credentialScope', () => {
+      it('THEN should not type-check', () => {
+        const wrongScope: DefaultContext = {
+          // @ts-expect-error credentialScope is 'admin' | 'customerPortal'
+          credentialScope: 'portal',
+        }
+
+        expect(wrongScope).toBeDefined()
+      })
+    })
+
     describe('WHEN the documented shapes are used', () => {
       it('THEN should type-check', () => {
         const flag: DefaultContext = { silentError: true }
@@ -45,8 +56,9 @@ describe('silent error context', () => {
         const details: DefaultContext = {
           silentErrorDetails: [LagoApiError.ValueAlreadyExist],
         }
+        const scope: DefaultContext = { credentialScope: 'customerPortal' }
 
-        expect([flag, codes, details]).toHaveLength(3)
+        expect([flag, codes, details, scope]).toHaveLength(4)
       })
     })
   })
