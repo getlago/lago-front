@@ -8,6 +8,9 @@ type PlanPermissions = {
   plansCreate: boolean
   plansUpdate: boolean
   plansDelete: boolean
+  chargesCreate: boolean
+  chargesUpdate: boolean
+  chargesDelete: boolean
   subscriptionsUpdate: boolean
 }
 
@@ -15,6 +18,9 @@ const DEFAULT_PERMISSIONS: PlanPermissions = {
   plansCreate: true,
   plansUpdate: true,
   plansDelete: true,
+  chargesCreate: true,
+  chargesUpdate: true,
+  chargesDelete: true,
   subscriptionsUpdate: true,
 }
 
@@ -30,7 +36,11 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => mockCurrentUser,
 }))
 
-const prepare = (permissions: Partial<PlanPermissions> = {}, isInSubscriptionForm = false) => {
+const prepare = (
+  permissions: Partial<PlanPermissions> = {},
+  isInSubscriptionForm = false,
+  domain: 'plan' | 'charges' = 'plan',
+) => {
   const membership = {
     id: '2',
     organization: { id: '3', name: 'Organization', logoUrl: 'https://logo.com' },
@@ -59,7 +69,7 @@ const prepare = (permissions: Partial<PlanPermissions> = {}, isInSubscriptionFor
   const wrapper = ({ children }: { children: React.ReactNode }) =>
     AllTheProviders({ children, mocks, forceTypenames: true })
 
-  return renderHook(() => useAccordionPermissions(isInSubscriptionForm), { wrapper })
+  return renderHook(() => useAccordionPermissions(isInSubscriptionForm, domain), { wrapper })
 }
 
 describe('useAccordionPermissions', () => {
@@ -97,5 +107,31 @@ describe('useAccordionPermissions', () => {
     const { result } = prepare({ plansCreate: false })
 
     expect(result.current).toEqual({ canCreate: false, canUpdate: true, canDelete: true })
+  })
+
+  it('gates the charges domain on charges permissions, not plans permissions', () => {
+    const { result } = prepare(
+      { plansCreate: false, plansUpdate: false, plansDelete: false },
+      false,
+      'charges',
+    )
+
+    expect(result.current).toEqual({ canCreate: true, canUpdate: true, canDelete: true })
+  })
+
+  it('blocks the charges domain when charges permissions are missing', () => {
+    const { result } = prepare(
+      { chargesCreate: false, chargesUpdate: false, chargesDelete: false },
+      false,
+      'charges',
+    )
+
+    expect(result.current).toEqual({ canCreate: false, canUpdate: false, canDelete: false })
+  })
+
+  it('allows charges update via subscriptionsUpdate but blocks create/delete in sub mode', () => {
+    const { result } = prepare({ subscriptionsUpdate: true }, true, 'charges')
+
+    expect(result.current).toEqual({ canCreate: false, canUpdate: true, canDelete: false })
   })
 })

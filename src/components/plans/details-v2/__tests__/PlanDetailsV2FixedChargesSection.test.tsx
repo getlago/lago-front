@@ -338,9 +338,9 @@ describe('PlanDetailsV2FixedChargesSection', () => {
     // 'hides the Add CTA when isInSubscriptionForm is true' test above)
   })
 
-  it('hides Delete when plansDelete permission is missing', async () => {
+  it('hides Delete when chargesDelete permission is missing', async () => {
     mockHasPermissions.mockImplementation(
-      ((perms: string[]) => !perms.includes('plansDelete')) as any,
+      ((perms: string[]) => !perms.includes('chargesDelete')) as any,
     )
     const plan = {
       ...planDetailsV2Fixture,
@@ -362,9 +362,9 @@ describe('PlanDetailsV2FixedChargesSection', () => {
     expect(screen.queryByText('text_63ea0f84f400488553caa786')).not.toBeInTheDocument()
   })
 
-  it('hides Edit when plansUpdate permission is missing', async () => {
+  it('hides Edit when chargesUpdate permission is missing', async () => {
     mockHasPermissions.mockImplementation(
-      ((perms: string[]) => !perms.includes('plansUpdate')) as any,
+      ((perms: string[]) => !perms.includes('chargesUpdate')) as any,
     )
     const plan = {
       ...planDetailsV2Fixture,
