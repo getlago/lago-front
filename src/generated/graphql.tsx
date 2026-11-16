@@ -24343,6 +24343,9 @@ export const MembershipPermissionsFragmentDoc = gql`
     billingEntitiesCreate
     billingEntitiesUpdate
     billingEntitiesDelete
+    chargesCreate
+    chargesDelete
+    chargesUpdate
     contractsCreate
     contractsTerminate
     contractsUpdate
