@@ -6,6 +6,19 @@ export const typeDefs = gql`
     unauthorized
     forbidden
     feature_unavailable
+    production_is_a_sandbox
+    production_already_has_sandbox
+    sandbox_already_linked
+    sandbox_has_sandbox
+    sandbox_is_self_serve
+    sandbox_has_sso_integration
+    sandbox_has_extra_premium_integrations
+    sandbox_has_extra_feature_flags
+    sandbox_has_stricter_authentication
+    sandbox_has_pending_invites
+    sandbox_has_other_members
+    lock_acquisition_failed
+    cannot_link_organization_to_itself
     not_found
     unprocessable_entity
 

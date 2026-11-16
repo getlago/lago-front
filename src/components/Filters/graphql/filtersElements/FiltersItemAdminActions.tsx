@@ -9,6 +9,7 @@ const ACTION_LABELS: Record<AdminActionEnum, string> = {
   [AdminActionEnum.ToggleOff]: 'Toggle off',
   [AdminActionEnum.OrgCreated]: 'Org created',
   [AdminActionEnum.Rollback]: 'Rollback',
+  [AdminActionEnum.SandboxLinked]: 'Sandbox linked',
 }
 
 type FiltersItemAdminActionsProps = {
