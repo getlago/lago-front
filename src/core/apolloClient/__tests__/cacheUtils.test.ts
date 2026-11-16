@@ -265,19 +265,27 @@ describe('onLeaveCustomerPortal', () => {
   })
 
   describe('GIVEN a same-tab return from the portal to the admin app', () => {
-    it('THEN should drop the portal token and clear the store before resuming persistence', async () => {
+    it('THEN should drop the portal token and tear the portal session down in order', async () => {
       const client = createMockClient()
 
       await onLeaveCustomerPortal(client as unknown as ApolloClient<object>)
 
       expect(mockUpdateCustomerPortalTokenVar).toHaveBeenCalledWith(undefined)
+      expect(client.stop).toHaveBeenCalledTimes(1)
       expect(client.clearStore).toHaveBeenCalledTimes(1)
       expect(mockResumePersistence).toHaveBeenCalledTimes(1)
+      expect(client.reFetchObservableQueries).toHaveBeenCalledTimes(1)
 
+      // A portal mutation outliving `clearStore`, or an admin query left rejected by
+      // it, is exactly what the order guards against.
+      const stopAt = (client.stop as jest.Mock).mock.invocationCallOrder[0]
       const clearStoreAt = (client.clearStore as jest.Mock).mock.invocationCallOrder[0]
       const resumeAt = mockResumePersistence.mock.invocationCallOrder[0]
+      const refetchAt = (client.reFetchObservableQueries as jest.Mock).mock.invocationCallOrder[0]
 
+      expect(stopAt).toBeLessThan(clearStoreAt)
       expect(clearStoreAt).toBeLessThan(resumeAt)
+      expect(resumeAt).toBeLessThan(refetchAt)
     })
   })
 
@@ -292,6 +300,7 @@ describe('onLeaveCustomerPortal', () => {
         onLeaveCustomerPortal(client as unknown as ApolloClient<object>),
       ).rejects.toThrow('clearStore failed')
       expect(mockResumePersistence).not.toHaveBeenCalled()
+      expect(client.reFetchObservableQueries).not.toHaveBeenCalled()
     })
   })
 })

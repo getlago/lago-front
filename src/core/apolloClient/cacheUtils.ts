@@ -187,9 +187,17 @@ export const onAccessCustomerPortal = (token?: string) => {
 export const onLeaveCustomerPortal = async (client: ApolloClient<object>): Promise<void> => {
   updateCustomerPortalTokenVar(undefined)
 
+  // `clearStore` cancels queries but not mutations, and a portal mutation resolving
+  // after the resume would write its result into the shared admin blob.
+  client.stop()
+
   await client.clearStore()
 
   resumePersistence()
+
+  // The admin page the tab lands on subscribed before this effect ran, and
+  // `clearStore` rejected its queries without refetching them.
+  client.reFetchObservableQueries()
 }
 
 // --------------------- Omit __typename ---------------------
