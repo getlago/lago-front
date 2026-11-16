@@ -1,5 +1,7 @@
 import { screen } from '@testing-library/react'
 
+import { ResolvablePaymentTerm } from '~/core/utils/paymentTerm'
+import { PaymentTermTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import EditAddOnDrawer, { editAddOnDrawerDefaultValues } from '../EditAddOnDrawer'
@@ -19,7 +21,7 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
 
 const renderWithForm = (
   initialValues?: Partial<typeof editAddOnDrawerDefaultValues>,
-  netPaymentTerm?: number | null,
+  paymentTerm?: ResolvablePaymentTerm | null,
 ) => {
   const { useAppForm: useAppFormHook } = jest.requireActual('~/hooks/forms/useAppform')
 
@@ -31,7 +33,7 @@ const renderWithForm = (
       },
     })
 
-    return <EditAddOnDrawer form={form} netPaymentTerm={netPaymentTerm} />
+    return <EditAddOnDrawer form={form} paymentTerm={paymentTerm} />
   }
 
   return render(<Wrapper />)
@@ -219,10 +221,10 @@ describe('EditAddOnDrawer', () => {
   describe('GIVEN the drawer carries the one-off deal-term dates', () => {
     describe('WHEN a resolved payment term is passed', () => {
       it.each([
-        ['a positive term', 30],
-        ['a zero term', 0],
-      ])('THEN should display the read-only payment term for %s', (_, netPaymentTerm) => {
-        renderWithForm(undefined, netPaymentTerm)
+        ['a term carrying days', { termType: PaymentTermTypeEnum.Net, days: 30 }],
+        ['a term carrying none', { termType: PaymentTermTypeEnum.DueOnReceipt }],
+      ])('THEN should display the read-only payment term for %s', (_, paymentTerm) => {
+        renderWithForm(undefined, paymentTerm)
 
         expect(screen.getByTestId(QUOTE_PAYMENT_TERM_LINE_TEST_ID)).toBeInTheDocument()
       })

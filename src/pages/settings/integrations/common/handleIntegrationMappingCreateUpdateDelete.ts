@@ -133,7 +133,17 @@ export const handleIntegrationMappingCreateUpdateDelete = async <FormValues>(
     const { errors } = answer
 
     if (!errors || errors.length === 0) {
-      return { success: true }
+      return {
+        success: true,
+        appliedMapping: {
+          ...initialMapping,
+          itemId: null,
+          itemExternalId: null,
+          itemExternalName: undefined,
+          itemExternalCode: undefined,
+          ...('taxCode' in initialMapping && { taxCode: null, taxNexus: null, taxType: null }),
+        },
+      }
     }
 
     return { success: false, errors }
@@ -213,7 +223,7 @@ export const handleIntegrationMappingCreateUpdateDelete = async <FormValues>(
             ...parameters,
           },
         },
-      })
+      }).then(({ errors, data }) => ({ errors, id: data?.createIntegrationCollectionMapping?.id }))
     : await createMapping({
         variables: {
           input: {
@@ -225,12 +235,12 @@ export const handleIntegrationMappingCreateUpdateDelete = async <FormValues>(
             ...parameters,
           },
         },
-      })
+      }).then(({ errors, data }) => ({ errors, id: data?.createIntegrationMapping?.id }))
 
-  const { errors } = answer
+  const { errors, id } = answer
 
   if (!errors || errors.length === 0) {
-    return { success: true }
+    return { success: true, appliedMapping: { ...initialMapping, itemId: id ?? null } }
   }
 
   return { success: false, errors }

@@ -4,10 +4,17 @@ import userEvent from '@testing-library/user-event'
 import { INVOICING_SETTINGS_SELECTOR_TEST_ID } from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { PAYMENT_SETTINGS_SELECTOR_TEST_ID } from '~/components/paymentSettings/PaymentSettingsSelector'
 import {
+  INHERIT_FROM_BILLING_ENTITY_LABEL_KEY,
+  INHERIT_FROM_CUSTOMER_LABEL_KEY,
+  INHERIT_UNRESOLVED_LABEL_KEY,
+} from '~/components/paymentTerms/utils'
+import {
   CurrencyEnum,
   CustomerAccountTypeEnum,
+  PaymentTermTypeEnum,
   TaxInfosForCreateInvoiceFragment,
   useCreateInvoiceMutation,
+  useGetBillingEntityQuery,
   useGetInfosForCreateInvoiceQuery,
 } from '~/generated/graphql'
 import { FEES_SECTION_AT_LEAST_ONE_FEE_ERROR_TEST_ID } from '~/pages/createInvoice/components/FeesSection'
@@ -25,9 +32,11 @@ jest.mock('~/pages/invoiceDetails/common/useInvoiceBuildRegenerationPreview', ()
 }))
 
 // drawerStack relies on import.meta, which jest cannot parse
+const mockUpdate = jest.fn()
+
 jest.mock('~/components/drawers/useDrawer', () => ({
-  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
-  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn(), update: mockUpdate }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn(), update: mockUpdate }),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -448,6 +457,67 @@ describe('CreateInvoice - form behavior', () => {
 
         expect(screen.getByTestId(PAYMENT_SETTINGS_SELECTOR_TEST_ID)).toBeInTheDocument()
         expect(screen.queryByTestId(INVOICING_SETTINGS_SELECTOR_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the inherited payment term', () => {
+    const entityWithTerm = {
+      id: 'be_1',
+      code: 'main',
+      paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 45 },
+    }
+    const invoicingSettingsSubtitle = () =>
+      screen.getByTestId(INVOICING_SETTINGS_SELECTOR_TEST_ID).textContent
+    const renderWithCustomerTerms = (customerTerms: Record<string, unknown>) => {
+      ;(useGetInfosForCreateInvoiceQuery as jest.Mock).mockReturnValue({
+        data: {
+          ...customerQueryData,
+          customer: { ...customerQueryData.customer, ...customerTerms },
+        },
+        loading: false,
+        error: undefined,
+      })
+
+      render(<CreateInvoice />, { useParams: { customerId: 'cus_1' } })
+    }
+
+    afterEach(() => {
+      ;(useGetBillingEntityQuery as jest.Mock).mockReturnValue({ data: undefined, loading: false })
+    })
+
+    describe('WHEN only the customer billing entity has a term', () => {
+      it('THEN should label the inherit choice with that entity term', () => {
+        renderWithCustomerTerms({ paymentTerm: null, billingEntity: entityWithTerm })
+
+        expect(invoicingSettingsSubtitle()).toContain(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)
+        expect(invoicingSettingsSubtitle()).not.toContain(INHERIT_UNRESOLVED_LABEL_KEY)
+      })
+    })
+
+    describe('WHEN the customer has its own term', () => {
+      it('THEN should label the inherit choice with the customer term', () => {
+        renderWithCustomerTerms({
+          paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 30 },
+          billingEntity: entityWithTerm,
+        })
+
+        expect(invoicingSettingsSubtitle()).toContain(INHERIT_FROM_CUSTOMER_LABEL_KEY)
+      })
+    })
+
+    describe('WHEN the billing entity query refetches in the background', () => {
+      it('THEN should keep the inherit choice labelled instead of flashing back to inherit', () => {
+        ;(useGetBillingEntityQuery as jest.Mock).mockReturnValue({
+          data: { billingEntity: entityWithTerm },
+          loading: true,
+          error: undefined,
+        })
+
+        renderWithCustomerTerms({ paymentTerm: null, billingEntity: entityWithTerm })
+
+        expect(invoicingSettingsSubtitle()).toContain(INHERIT_FROM_BILLING_ENTITY_LABEL_KEY)
+        expect(invoicingSettingsSubtitle()).not.toContain(INHERIT_UNRESOLVED_LABEL_KEY)
       })
     })
   })

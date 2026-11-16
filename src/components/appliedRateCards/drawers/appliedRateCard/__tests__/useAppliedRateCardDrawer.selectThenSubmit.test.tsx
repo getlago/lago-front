@@ -142,7 +142,7 @@ const pickOption = async (comboboxTestId: string, optionLabel: string): Promise<
 }
 
 describe('useAppliedRateCardDrawer, select then submit', () => {
-  it('GIVEN a product and a rate card picked through their comboboxes THEN the mutation receives the plan id and the rate card code only', async () => {
+  it('GIVEN a product and a rate card picked through their comboboxes THEN the mutation receives the plan id, the rate card code, and the seeded default phase', async () => {
     let capturedInput: Record<string, unknown> | undefined
     const mutationMock: MockedResponse = {
       request: { query: CreatePlanAppliedRateCardDocument },
@@ -187,6 +187,10 @@ describe('useAppliedRateCardDrawer, select then submit', () => {
     })
 
     await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
-    expect(capturedInput).toEqual({ planId: 'plan-1', rateCardCode: RATE_CARD.code })
+    expect(capturedInput).toEqual({
+      planId: 'plan-1',
+      rateCardCode: RATE_CARD.code,
+      ratePhases: [{ code: 'default', name: null, position: 1, billingIntervalCycleCount: null }],
+    })
   })
 })

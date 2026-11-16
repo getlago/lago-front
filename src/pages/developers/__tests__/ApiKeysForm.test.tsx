@@ -6,6 +6,7 @@ import { addToast } from '~/core/apolloClient'
 import {
   ApiKeysPermissionsEnum,
   CreateApiKeyDocument,
+  EventsStoreEnum,
   FeatureFlagEnum,
   GetApiKeyToEditDocument,
   PremiumIntegrationTypeEnum,
@@ -627,6 +628,164 @@ describe('ApiKeysForm', () => {
         })
 
         expect(screen.getByRole('button', { name: /add api key/i })).toBeEnabled()
+      })
+    })
+
+    describe('WHEN usage governance is available', () => {
+      beforeEach(() => {
+        mockUseOrganizationInfos.mockReturnValue({
+          organization: {
+            premiumIntegrations: [PremiumIntegrationTypeEnum.ApiPermissions],
+            eventsStore: EventsStoreEnum.Clickhouse,
+          },
+          hasFeatureFlag: mockHasFeatureFlag,
+        })
+      })
+
+      it.each([
+        ['without', false],
+        ['with', true],
+      ])(
+        'THEN should display the attributed usage row %s the product catalog feature flag',
+        async (_, hasProductCatalog) => {
+          mockHasFeatureFlag.mockImplementation(
+            (flag: FeatureFlagEnum) =>
+              flag === FeatureFlagEnum.AccountTree ||
+              (hasProductCatalog && flag === FeatureFlagEnum.ProductCatalog),
+          )
+
+          render(<ApiKeysForm />)
+
+          await waitFor(() => {
+            expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+          })
+
+          expect(
+            screen.getByTestId(
+              getApiKeysFormPermissionRowTestId(ApiKeysPermissionsEnum.AttributedUsage),
+            ),
+          ).toBeInTheDocument()
+        },
+      )
+
+      it('THEN should only offer the read permission on the attributed usage row', async () => {
+        mockHasFeatureFlag.mockImplementation(
+          (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.AccountTree,
+        )
+
+        render(<ApiKeysForm />)
+
+        await waitFor(() => {
+          expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+        })
+
+        const row = screen.getByTestId(
+          getApiKeysFormPermissionRowTestId(ApiKeysPermissionsEnum.AttributedUsage),
+        )
+
+        expect(row.querySelectorAll('input[type="checkbox"]')).toHaveLength(1)
+      })
+    })
+
+    describe('WHEN usage governance is not available', () => {
+      it.each([
+        ['the account tree feature flag is off', false, EventsStoreEnum.Clickhouse],
+        ['the events store is not ClickHouse', true, EventsStoreEnum.Postgres],
+      ])(
+        'THEN should not display the attributed usage row when %s',
+        async (_, hasAccountTree, eventsStore) => {
+          mockHasFeatureFlag.mockImplementation(
+            (flag: FeatureFlagEnum) => hasAccountTree && flag === FeatureFlagEnum.AccountTree,
+          )
+          mockUseOrganizationInfos.mockReturnValue({
+            organization: {
+              premiumIntegrations: [PremiumIntegrationTypeEnum.ApiPermissions],
+              eventsStore,
+            },
+            hasFeatureFlag: mockHasFeatureFlag,
+          })
+
+          render(<ApiKeysForm />)
+
+          await waitFor(() => {
+            expect(screen.getByTestId(API_KEYS_FORM_PERMISSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+          })
+
+          expect(
+            screen.queryByTestId(
+              getApiKeysFormPermissionRowTestId(ApiKeysPermissionsEnum.AttributedUsage),
+            ),
+          ).not.toBeInTheDocument()
+        },
+      )
+    })
+
+    describe('WHEN editing a key whose stored permissions include resources the table does not display', () => {
+      beforeEach(() => {
+        const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
+
+        useParamsMock.mockReturnValue({ apiKeyId: 'api-key-123' })
+      })
+
+      it('THEN should submit those stored permissions unchanged alongside the displayed rows', async () => {
+        const user = userEvent.setup({ pointerEventsCheck: 0 })
+        let submittedPermissions: Record<string, string[]> = {}
+
+        const getApiKeyWithHiddenPermissionsMock: MockedResponse = {
+          request: {
+            query: GetApiKeyToEditDocument,
+            variables: { apiKeyId: 'api-key-123' },
+          },
+          result: {
+            data: {
+              apiKey: {
+                ...mockApiKeyData.apiKey,
+                permissions: {
+                  [ApiKeysPermissionsEnum.AttributedUsage]: ['read'],
+                  [ApiKeysPermissionsEnum.Customer]: ['read'],
+                  [ApiKeysPermissionsEnum.Product]: ['read'],
+                  unknown_resource: ['read', 'write'],
+                },
+              },
+            },
+          },
+        }
+
+        const updateApiKeyWithPermissionsMock: MockedResponse = {
+          request: { query: UpdateApiKeyDocument },
+          variableMatcher: (variables) => {
+            submittedPermissions = variables.input.permissions
+
+            return true
+          },
+          result: { data: { updateApiKey: { id: 'api-key-123' } } },
+        }
+
+        render(<ApiKeysForm />, {
+          mocks: [getApiKeyWithHiddenPermissionsMock, updateApiKeyWithPermissionsMock],
+        })
+
+        await waitFor(() => {
+          expect(
+            screen.getByTestId(getApiKeysFormPermissionRowTestId(ApiKeysPermissionsEnum.Customer)),
+          ).toBeInTheDocument()
+        })
+
+        const customerWriteCheckbox = screen
+          .getByTestId(getApiKeysFormPermissionRowTestId(ApiKeysPermissionsEnum.Customer))
+          .querySelectorAll('input[type="checkbox"]')[1] as HTMLInputElement
+
+        await user.click(customerWriteCheckbox)
+        await user.click(screen.getByRole('button', { name: /save/i }))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        })
+
+        expect(submittedPermissions[ApiKeysPermissionsEnum.Product]).toEqual(['read'])
+        expect(submittedPermissions.unknown_resource).toEqual(['read', 'write'])
+        expect(submittedPermissions[ApiKeysPermissionsEnum.Customer]).toEqual(['read', 'write'])
+        expect(submittedPermissions[ApiKeysPermissionsEnum.AttributedUsage]).toEqual(['read'])
       })
     })
   })

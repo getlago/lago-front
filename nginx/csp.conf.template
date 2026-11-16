@@ -29,7 +29,9 @@
 # object-src 'none', and base-uri 'self'. That is the XSS mitigation this
 # header buys.
 
-add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https: http: wss: ws: blob: data:; worker-src 'self' blob:; frame-src 'self' https: http:; object-src 'none'; base-uri 'self'; frame-ancestors __LAGO_FRAME_ANCESTORS__;" always;
+# reCAPTCHA v3 (self-serve sign-up) loads its script from these two Google paths only;
+# its invisible iframe and calls are already covered by frame-src and connect-src.
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https: http: wss: ws: blob: data:; worker-src 'self' blob:; frame-src 'self' https: http:; object-src 'none'; base-uri 'self'; frame-ancestors __LAGO_FRAME_ANCESTORS__;" always;
 
 # Stop browsers MIME-sniffing a response into an unexpected (e.g. executable)
 # content type.

@@ -4,6 +4,7 @@ import {
   DEFAULT_MAPPING_KEY,
   handleIntegrationMappingCreateUpdateDelete,
   isItemMappingForKeyNotForCurrenciesMapping,
+  ItemMappingPerBillingEntity,
   MappableIntegrationMapItemDrawerData,
   MappableIntegrationProvider,
 } from '~/pages/settings/integrations/common'
@@ -20,7 +21,12 @@ export const submitIntegrationMapItemMappings = async <Entry>({
   drawerData,
   mappingFunctions,
   provider,
-}: SubmitIntegrationMapItemMappingsArgs<Entry>): Promise<boolean> => {
+}: SubmitIntegrationMapItemMappingsArgs<Entry>): Promise<{
+  success: boolean
+  itemMappings: ItemMappingPerBillingEntity
+}> => {
+  const itemMappingsAfterSave = { ...drawerData?.itemMappings }
+
   const promises = (drawerData?.billingEntities || []).map(
     async (billingEntity): Promise<CreateUpdateDeleteSuccessAnswer> => {
       if (!drawerData?.itemMappings || !drawerData.type || !drawerData.integrationId)
@@ -47,7 +53,7 @@ export const submitIntegrationMapItemMappings = async <Entry>({
         }
       }
 
-      return await handleIntegrationMappingCreateUpdateDelete(
+      const answer = await handleIntegrationMappingCreateUpdateDelete(
         values[billingEntityKey],
         itemMappings[billingEntityKey],
         type,
@@ -56,10 +62,19 @@ export const submitIntegrationMapItemMappings = async <Entry>({
         billingEntity,
         provider,
       )
+
+      if (answer.success && answer.appliedMapping) {
+        itemMappingsAfterSave[billingEntityKey] = answer.appliedMapping
+      }
+
+      return answer
     },
   )
 
   const answers = await Promise.all(promises)
 
-  return answers.every((answer) => answer.success)
+  return {
+    success: answers.every((answer) => answer.success),
+    itemMappings: itemMappingsAfterSave,
+  }
 }

@@ -56,17 +56,13 @@ export const AppliedRateCardPhasesTable = ({
 
     if (!phaseRate) {
       return (
-        <Typography
-          variant="body"
-          color="grey600"
-          data-test={APPLIED_RATE_CARD_PHASE_RATE_EMPTY_TEST_ID}
-        >
-          -
-        </Typography>
+        <span data-test={APPLIED_RATE_CARD_PHASE_RATE_EMPTY_TEST_ID}>
+          <RatePhaseRateChip status="none" />
+        </span>
       )
     }
 
-    return <RatePhaseRateChip isOverridden={phaseRate.isOverridden} />
+    return <RatePhaseRateChip status={phaseRate.isOverridden ? 'overridden' : 'active'} />
   }
 
   const columns: Array<TableColumn<RatePhaseForDrawerFragment>> = [

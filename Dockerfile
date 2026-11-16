@@ -23,8 +23,8 @@
 # Current pins: build lago-packages b24fd68 (20261023-r69, Node 24 since
 # lago-packages#33), runtime e2374ae (20261023-r68). Both ship
 # ca-certificates-bundle 20260909-r3, without the eMudhra/emSign roots.
-ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:20261023-r69@sha256:3f8672c63441ebe5f8492b2b52e4ec97d33d0d2a5dca00e9ae803c30c7c4e062
-ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:20261023-r68@sha256:6e8d3121119ba0377ad7ba4ad2a243e7f1e473fee7fd79007b47e44863cb6f5a
+ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:20261112-r1772@sha256:f16ee96853d7f937ca5b0b49214c5be5b5baca67fbf721aeb2f0f2548cefc4fc
+ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:20261111-r1727@sha256:40f1134c639ed6a101be50cee6f93191e9504f8f5a4a1f16412c5d32bb0684dc
 
 # --- deps stage --------------------------------------------------------------
 FROM ${BUILD_IMAGE} AS deps
@@ -34,6 +34,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/configs/package.json        ./packages/configs/
 COPY packages/design-system/package.json  ./packages/design-system/
+COPY packages/ui/package.json             ./packages/ui/
 
 # --ignore-scripts: postinstall builds workspace sources not copied yet;
 # `pnpm build` (prebuild) does it in the next stage.

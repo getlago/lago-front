@@ -1,4 +1,5 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { ReactNode, useCallback, useEffect } from 'react'
 import { z } from 'zod'
 
 import { useFormDrawer } from '~/components/drawers/useDrawer'
@@ -10,6 +11,10 @@ import {
   InvoiceCustomSectionInput,
 } from '~/components/invoceCustomFooter/types'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { PaymentTermFormContent } from '~/components/paymentTerms/PaymentTermFormContent'
+import { PaymentTermFormValues, PaymentTermInheritedFrom } from '~/components/paymentTerms/types'
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
+import { addPaymentTermIssues } from '~/components/paymentTerms/validationSchema'
 import { SubscriptionInvoiceConsolidationSection } from '~/components/subscriptions/SubscriptionInvoiceConsolidationSection'
 import {
   VIEW_TYPE_INVOICING_CAPTION_KEYS,
@@ -34,6 +39,7 @@ const CONTRACT_CONSOLIDATION_TRANSLATION_KEYS = {
 interface InvoicingSettingsValues {
   consolidateInvoice: boolean
   invoiceCustomSection: InvoiceCustomSectionInput
+  paymentTerm: PaymentTermFormValues
 }
 
 interface InvoicingSettingsFormValues extends InvoicingSettingsValues {
@@ -44,6 +50,7 @@ const DEFAULT_VALUES: InvoicingSettingsFormValues = {
   consolidateInvoice: true,
   invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
   invoiceCustomSectionBehavior: InvoiceCustomSectionBehavior.FALLBACK,
+  paymentTerm: paymentTermFormValuesFromTerm(null, true),
 }
 
 const invoicingSettingsValidationSchema = z
@@ -51,6 +58,7 @@ const invoicingSettingsValidationSchema = z
     consolidateInvoice: z.boolean(),
     invoiceCustomSection: z.custom<InvoiceCustomSectionInput>(),
     invoiceCustomSectionBehavior: z.enum(InvoiceCustomSectionBehavior),
+    paymentTerm: z.custom<PaymentTermFormValues>(),
   })
   .superRefine((values, ctx) => {
     if (
@@ -63,6 +71,8 @@ const invoicingSettingsValidationSchema = z
         message: 'text_624ea7c29103fd010732ab7d',
       })
     }
+
+    addPaymentTermIssues(ctx, values.paymentTerm, ['paymentTerm'])
   })
 
 interface InvoicingSettingsDrawerContentExtraProps {
@@ -71,6 +81,8 @@ interface InvoicingSettingsDrawerContentExtraProps {
   showCustomSection: boolean
   /** Enabled for billing objects whose mutation payload supports invoice consolidation. */
   withInvoiceConsolidation: boolean
+  withPaymentTerm: boolean
+  paymentTermInheritedFrom?: PaymentTermInheritedFrom
 }
 
 const invoicingSettingsDrawerContentDefaultProps: InvoicingSettingsDrawerContentExtraProps = {
@@ -78,6 +90,8 @@ const invoicingSettingsDrawerContentDefaultProps: InvoicingSettingsDrawerContent
   customerId: undefined,
   showCustomSection: false,
   withInvoiceConsolidation: false,
+  withPaymentTerm: false,
+  paymentTermInheritedFrom: undefined,
 }
 
 const InvoicingSettingsDrawerContent = withForm({
@@ -89,6 +103,8 @@ const InvoicingSettingsDrawerContent = withForm({
     customerId,
     showCustomSection,
     withInvoiceConsolidation,
+    withPaymentTerm,
+    paymentTermInheritedFrom,
   }) {
     const { translate } = useInternationalization()
     const isContract = viewType === ViewTypeEnum.Contract
@@ -142,6 +158,22 @@ const InvoicingSettingsDrawerContent = withForm({
               />
             </CenteredPage.PageSection>
           )}
+
+          {withPaymentTerm && (
+            <CenteredPage.PageSection>
+              <CenteredPage.PageSectionTitle
+                title={translate('text_17876033821633o4yokqvqdl')}
+                description={translate('text_17931792049568q3rz3frwrx')}
+              />
+              <PaymentTermFormContent
+                form={form}
+                fields="paymentTerm"
+                canInherit
+                inheritedFrom={paymentTermInheritedFrom}
+                displayInDialog
+              />
+            </CenteredPage.PageSection>
+          )}
         </CenteredPage.SubsectionWrapper>
       </CenteredPage.SectionWrapper>
     )
@@ -153,6 +185,8 @@ interface UseInvoicingSettingsDrawerProps {
   customerId?: string
   showCustomSection: boolean
   withInvoiceConsolidation?: boolean
+  withPaymentTerm?: boolean
+  paymentTermInheritedFrom?: PaymentTermInheritedFrom
   onSave: (values: InvoicingSettingsValues) => void | Promise<void>
 }
 
@@ -160,6 +194,7 @@ interface UseInvoicingSettingsDrawerReturn {
   openDrawer: (values: {
     consolidateInvoice?: boolean
     invoiceCustomSection?: InvoiceCustomSectionInput | null
+    paymentTerm?: PaymentTermFormValues
   }) => void
 }
 
@@ -168,11 +203,18 @@ export const useInvoicingSettingsDrawer = ({
   customerId,
   showCustomSection,
   withInvoiceConsolidation = false,
+  withPaymentTerm = false,
+  paymentTermInheritedFrom,
   onSave,
 }: UseInvoicingSettingsDrawerProps): UseInvoicingSettingsDrawerReturn => {
   const { translate } = useInternationalization()
   const titleKey = getInvoicingSettingsTitleKey(viewType)
   const drawer = useFormDrawer()
+  const { update: updateDrawer } = drawer
+  // getInheritedPaymentTerm returns a new wrapper every render around a stable term, so the
+  // drawer content is keyed on the term and label, not the wrapper.
+  const inheritedTerm = paymentTermInheritedFrom?.term
+  const inheritedLabelKey = paymentTermInheritedFrom?.labelKey
 
   const form = useAppForm({
     defaultValues: DEFAULT_VALUES,
@@ -184,10 +226,43 @@ export const useInvoicingSettingsDrawer = ({
       await onSave({
         consolidateInvoice: value.consolidateInvoice,
         invoiceCustomSection: value.invoiceCustomSection,
+        paymentTerm: value.paymentTerm,
       })
       drawer.close()
     },
   })
+
+  const renderContent = useCallback(
+    (): ReactNode => (
+      <InvoicingSettingsDrawerContent
+        form={form}
+        viewType={viewType}
+        customerId={customerId}
+        showCustomSection={showCustomSection}
+        withInvoiceConsolidation={withInvoiceConsolidation}
+        withPaymentTerm={withPaymentTerm}
+        paymentTermInheritedFrom={
+          inheritedTerm && inheritedLabelKey
+            ? { term: inheritedTerm, labelKey: inheritedLabelKey }
+            : undefined
+        }
+      />
+    ),
+    [
+      form,
+      viewType,
+      customerId,
+      showCustomSection,
+      withInvoiceConsolidation,
+      withPaymentTerm,
+      inheritedTerm,
+      inheritedLabelKey,
+    ],
+  )
+
+  useEffect(() => {
+    updateDrawer({ children: renderContent() })
+  }, [updateDrawer, renderContent])
 
   const openDrawer: UseInvoicingSettingsDrawerReturn['openDrawer'] = (values): void => {
     const invoiceCustomSection = values.invoiceCustomSection ?? DEFAULT_VALUES.invoiceCustomSection
@@ -197,6 +272,7 @@ export const useInvoicingSettingsDrawer = ({
         consolidateInvoice: values.consolidateInvoice ?? DEFAULT_VALUES.consolidateInvoice,
         invoiceCustomSection,
         invoiceCustomSectionBehavior: deriveInvoiceCustomSectionBehavior(invoiceCustomSection),
+        paymentTerm: values.paymentTerm ?? DEFAULT_VALUES.paymentTerm,
       },
       { keepDefaultValues: true },
     )
@@ -208,15 +284,7 @@ export const useInvoicingSettingsDrawer = ({
       shouldPromptOnClose: () => form.state.isDirty,
       onClose: () => form.reset(),
       onEntered: (container) => focusFirstInput(container),
-      children: (
-        <InvoicingSettingsDrawerContent
-          form={form}
-          viewType={viewType}
-          customerId={customerId}
-          showCustomSection={showCustomSection}
-          withInvoiceConsolidation={withInvoiceConsolidation}
-        />
-      ),
+      children: renderContent(),
       mainAction: (
         <form.AppForm>
           <form.SubmitButton dataTest="invoicing-settings-drawer-save">

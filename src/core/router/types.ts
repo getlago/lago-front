@@ -13,6 +13,7 @@ export interface CustomRouteObject extends Omit<RouteObject, 'children' | 'path'
   path?: string | string[]
   private?: boolean
   onlyPublic?: boolean
+  skipLocationHistory?: boolean
   redirect?: string
   children?: CustomRouteObject[]
   permissions?: Array<keyof TMembershipPermissions> // AND logic (all must be true)

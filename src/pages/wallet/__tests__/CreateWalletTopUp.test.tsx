@@ -29,9 +29,11 @@ import CreateWalletTopUp from '../CreateWalletTopUp'
 
 // Mock dependencies
 // The drawer stack relies on import.meta (unsupported in jest)
+const mockUpdate = jest.fn()
+
 jest.mock('~/components/drawers/useDrawer', () => ({
-  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
-  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn(), update: mockUpdate }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn(), update: mockUpdate }),
 }))
 
 jest.mock('~/core/apolloClient', () => ({

@@ -1,4 +1,6 @@
 import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
+import { MaybePaymentTerm } from '~/core/utils/paymentTerm'
 import {
   CurrencyEnum,
   GetBillingEntityQuery,
@@ -22,7 +24,8 @@ export const mapFromApiToForm = ({
   customerId: string | undefined
   customer: GetInfosForCreateInvoiceQuery['customer'] | undefined
   billingEntity: GetBillingEntityQuery['billingEntity'] | undefined
-  prefillInvoice: { purchaseOrderNumber?: string | null } | null | undefined
+  prefillInvoice:
+    { purchaseOrderNumber?: string | null; paymentTerm?: MaybePaymentTerm } | null | undefined
   prefillFees: LocalFeeInput[] | undefined
 }): InvoiceFormInput => ({
   customerId: customerId || '',
@@ -32,6 +35,7 @@ export const mapFromApiToForm = ({
   paymentMethod: undefined,
   invoiceCustomSection: undefined,
   purchaseOrderNumber: prefillInvoice?.purchaseOrderNumber || undefined,
+  paymentTerm: paymentTermFormValuesFromTerm(prefillInvoice?.paymentTerm, true),
 })
 
 // Static empty defaults — for `withForm` section typing only.

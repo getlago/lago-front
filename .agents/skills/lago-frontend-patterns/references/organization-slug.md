@@ -40,7 +40,7 @@ caller.
 
 **Do not** read `currentOrganizationVar` from feature components for UI or identifier construction. That is a known bug pattern (logo flashing wrong org cross-tab, webhook URLs baking the wrong UUID, slug page showing the other tab's value, etc.). The fix in every case is migrating off the var and onto `useParams` + memberships.
 
-Legitimate var reads in the codebase (audit anchor, keep this short). Two permitted purposes only: (a) constructing the `x-lago-organization` auth header, (b) gating org-scoped queries so they don't fire header-less, (c) bridging URL → var inside `OrganizationLayout`. UI/identifier construction is never permitted.
+Legitimate var reads and writes in the codebase (audit anchor, keep this short). Permitted purposes only: (a) constructing the `x-lago-organization` auth header, (b) gating org-scoped queries so they don't fire header-less, (c) bridging URL → var inside `OrganizationLayout`, (d) forgetting it when the tab's session ends. UI/identifier construction is never permitted.
 
 - `src/core/apolloClient/authHeaders.ts` and `src/core/apolloClient/init.ts` — auth-header construction (the canonical reason the var exists).
 - `src/layouts/OrganizationLayout.tsx` — switch detection on the `currentOrgId !== org.id` mismatch (the single sync point that writes the var from the URL slug).
@@ -48,6 +48,7 @@ Legitimate var reads in the codebase (audit anchor, keep this short). Two permit
 - `src/hooks/useOrganizationInfos.ts` — query-gates `getOrganizationInfos` (org-scoped) on `!!currentOrganizationId` for the same reason.
 - `src/components/developers/DevtoolsView.tsx` — query-gates the whole devtools panel (`DevtoolsRouter`) on `!!currentOrganizationId`. The panel lives in a `MemoryRouter` that is a SIBLING of the app's `BrowserRouter`, so it has no access to the URL slug and can mount before `OrganizationLayout` has derived the org — a copied inspector link opens it on first paint. Without the gate every tab fires its org-scoped query header-less and the API answers `Missing organization id`.
 - `src/hooks/useCurrentUser.ts` — slug-first resolution of `currentMembership` with var as a fallback for routes outside `/:organizationSlug` (login, customer portal). The fallback exists so callers in those non-org routes still get a membership; if a future audit shows nobody consumes `currentMembership` from those contexts, the fallback can be dropped.
+- `src/core/apolloClient/adoptStoredSession.ts` (called by `logOut` and `reconcileSession`) and the customer-portal branch of `reconcileSession`: reset the var to `null` when the tab's session ends, so the next login does not send the previous organization's header. The reset runs in the same tick as `authTokenVar`: reset any earlier, the still-authenticated `OrganizationLayout` writes it back from the previous user's data.
 
 Anything else reading the var in a feature component is a regression — fix it.
 

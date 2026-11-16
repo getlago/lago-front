@@ -39,6 +39,7 @@ const rateCard: RateCardForRatePhaseFields = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   appliedPricingUnitCode: null,
   proration: false,
+  ratesCount: 1,
   activeRate: {
     id: 'active-rate',
     effectiveFrom: '2026-01-01T00:00:00.000Z',
@@ -49,6 +50,7 @@ const rateCard: RateCardForRatePhaseFields = {
     appliedPricingUnitConversionRate: null,
     rateProperties: { amount: '10' },
   },
+  nextPendingRate: null,
 }
 
 type OpenedDrawerArgs = {

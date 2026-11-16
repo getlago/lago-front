@@ -64,6 +64,7 @@ const RATE_CARD: PlanAppliedRateCardForDetailsFragment['rateCard'] = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   appliedPricingUnitCode: null,
   proration: false,
+  ratesCount: 0,
   productFilter: {
     __typename: 'ProductFilter',
     id: 'product-filter-1',
@@ -71,6 +72,7 @@ const RATE_CARD: PlanAppliedRateCardForDetailsFragment['rateCard'] = {
     invoiceDisplayName: null,
   },
   activeRate: null,
+  nextPendingRate: null,
 }
 
 export const buildPlanAppliedRateCard = (

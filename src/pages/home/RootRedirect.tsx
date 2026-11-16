@@ -3,11 +3,13 @@ import { useEffect, useRef } from 'react'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { getPersistedOrganizationSlug } from '~/core/apolloClient/reactiveVars'
 import { FORBIDDEN_ROUTE, useLocation, useNavigate } from '~/core/router'
+import { CREATE_ORGANIZATION_ROUTE } from '~/core/router/paths/createOrganization'
 import { getFirstPathSegment } from '~/core/router/utils/getFirstPathSegment'
 import { getAccessibleMemberships, isAccessibleOrgSlug } from '~/core/router/utils/orgSlug'
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useNeedsOrganization } from '~/hooks/useNeedsOrganization'
 
 /**
  * Root redirect hub (`/`), rendered OUTSIDE the `:organizationSlug` scope.
@@ -31,6 +33,15 @@ const RootRedirect = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { loading: isUserLoading, currentUser } = useCurrentUser()
+  const hasAccessibleMembership = !!currentUser && getAccessibleMemberships(currentUser).length > 0
+  const {
+    needsOrganization,
+    loading: isNeedsOrganizationLoading,
+    hasError: hasNeedsOrganizationError,
+  } = useNeedsOrganization({
+    // Only a user without an organization can need one, so the others never send the check
+    skip: isUserLoading || !currentUser || hasAccessibleMembership,
+  })
   const hasNavigatedRef = useRef(false)
 
   useEffect(() => {
@@ -40,8 +51,18 @@ const RootRedirect = () => {
     const accessibleMemberships = getAccessibleMemberships(currentUser)
 
     if (!accessibleMemberships.length) {
+      if (isNeedsOrganizationLoading) return
+
+      if (needsOrganization) {
+        hasNavigatedRef.current = true
+        navigate(CREATE_ORGANIZATION_ROUTE, { replace: true })
+        return
+      }
+
+      const mayNeedOrganization = hasNeedsOrganizationError && !currentUser.memberships?.length
+
       hasNavigatedRef.current = true
-      navigate(FORBIDDEN_ROUTE, { replace: true })
+      navigate(mayNeedOrganization ? CREATE_ORGANIZATION_ROUTE : FORBIDDEN_ROUTE, { replace: true })
       return
     }
 
@@ -56,7 +77,15 @@ const RootRedirect = () => {
 
     hasNavigatedRef.current = true
     navigate(`/${targetSlug}`, { replace: true, state: location.state, skipSlugPrepend: true })
-  }, [isUserLoading, currentUser, location.state, navigate])
+  }, [
+    isUserLoading,
+    isNeedsOrganizationLoading,
+    needsOrganization,
+    hasNeedsOrganizationError,
+    currentUser,
+    location.state,
+    navigate,
+  ])
 
   return <Spinner />
 }

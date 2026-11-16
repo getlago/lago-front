@@ -2,7 +2,7 @@ import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GraphQLError } from 'graphql'
-import { ReactNode } from 'react'
+import { ReactElement, ReactNode } from 'react'
 
 import {
   CreateContractRatePhaseDocument,
@@ -35,6 +35,7 @@ import { useRatePhaseDrawer } from '../useRatePhaseDrawer'
 
 const mockOpen = jest.fn()
 const mockClose = jest.fn()
+const mockUpdate = jest.fn()
 
 jest.mock('../scrollToFirstRatePhaseError', () => ({
   scrollToFirstRatePhaseError: jest.fn(),
@@ -42,7 +43,7 @@ jest.mock('../scrollToFirstRatePhaseError', () => ({
 
 jest.mock('~/components/drawers/useDrawer', () => ({
   useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
-  useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
+  useFormDrawer: () => ({ open: mockOpen, update: mockUpdate, close: mockClose }),
 }))
 
 jest.mock('~/generated/graphql', () => {
@@ -63,7 +64,9 @@ const rateCard: RateCardForRatePhaseFields = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   appliedPricingUnitCode: null,
   proration: false,
+  ratesCount: 0,
   activeRate: null,
+  nextPendingRate: null,
 }
 
 type OpenedDrawerArgs = {
@@ -71,8 +74,14 @@ type OpenedDrawerArgs = {
   form: { id: string; submit: () => void | Promise<void> }
 }
 
-const Host = ({ params }: { params: RatePhaseDrawerProps }) => {
-  const { openDrawer } = useRatePhaseDrawer()
+const Host = ({
+  params,
+  rateCard: hookRateCard,
+}: {
+  params: RatePhaseDrawerProps
+  rateCard?: RateCardForRatePhaseFields
+}) => {
+  const { openDrawer } = useRatePhaseDrawer(hookRateCard ?? params.rateCard)
 
   return <button onClick={() => openDrawer(params)}>open</button>
 }
@@ -377,6 +386,61 @@ describe('useRatePhaseDrawer', () => {
     await opened.form.submit()
 
     expect(captured?.input).toHaveProperty('rateOverride', null)
+  })
+
+  it('GIVEN activeRate resolves after the drawer is already open THEN it resyncs the non-overridden fields', async () => {
+    const phaseWithoutOverride: RatePhaseForDrawerFragment = {
+      id: 'rp-5',
+      code: 'phase-5',
+      name: 'Phase 5',
+      position: 1,
+      billingIntervalCycleCount: null,
+      rateOverride: null,
+    }
+
+    const rateCardWithActiveRate: RateCardForRatePhaseFields = {
+      ...rateCard,
+      activeRate: {
+        id: 'active-rate-2',
+        effectiveFrom: '2026-01-01T00:00:00.000Z',
+        rateModel: RateCardRateModelEnum.Standard,
+        billingIntervalCount: 1,
+        billingIntervalUnit: RateCardRateBillingIntervalUnitEnum.Month,
+        minAmountCents: '0',
+        appliedPricingUnitConversionRate: null,
+        rateProperties: { amount: '42' },
+      },
+    }
+
+    const params: RatePhaseDrawerProps = {
+      context: 'plan',
+      mode: 'edit',
+      planAppliedRateCardId: 'plan-rc-1',
+      phase: phaseWithoutOverride,
+      otherPhases: [],
+      rateCard,
+    }
+
+    const { rerender } = render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        <Host params={params} rateCard={rateCard} />
+      </MockedProvider>,
+    )
+
+    await userEvent.click(screen.getByText('open'))
+
+    expect(mockUpdate).not.toHaveBeenCalled()
+
+    rerender(
+      <MockedProvider mocks={[]} addTypename={false}>
+        <Host params={params} rateCard={rateCardWithActiveRate} />
+      </MockedProvider>,
+    )
+
+    const updateCall = mockUpdate.mock.calls.at(-1)?.[0] as { children: ReactElement }
+    const fields = (updateCall.children as ReactElement<{ children: ReactElement }>).props.children
+
+    expect(fields.props.rateCard).toBe(rateCardWithActiveRate)
   })
 
   it('GIVEN the name is cleared on edit THEN it is sent as null so the backend clears it', async () => {

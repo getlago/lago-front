@@ -18,7 +18,7 @@ export const RatePhaseRateEffectiveDate = ({
   const { translate } = useInternationalization()
 
   return (
-    <span className="flex items-center gap-2" data-test={RATE_PHASE_RATE_EFFECTIVE_DATE_TEST_ID}>
+    <span className="flex items-end gap-2" data-test={RATE_PHASE_RATE_EFFECTIVE_DATE_TEST_ID}>
       {intlFormatDateTime(effectiveFrom, { timezone: TimezoneEnum.TzUtc }).date}
       <ButtonLink
         type="button"
