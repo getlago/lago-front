@@ -246,6 +246,7 @@ export const AppliedRateCardDrawerContent = withForm({
 
     const productId = useStore(form.store, (state) => state.values.productId)
     const productFilterId = useStore(form.store, (state) => state.values.productFilterId)
+    const productType = useStore(form.store, (state) => state.values.productType)
     const rateCardId = useStore(form.store, (state) => state.values.rateCardId)
     const ratePhases = useStore(form.store, (state) => state.values.ratePhases)
 
@@ -551,7 +552,7 @@ export const AppliedRateCardDrawerContent = withForm({
                 )}
               </form.AppField>
 
-              {selectedProduct?.productType === ProductTypeEnum.Fixed && (
+              {productType === ProductTypeEnum.Fixed && (
                 <form.AppField name="units">
                   {(field) => (
                     <field.TextInputField
