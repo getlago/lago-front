@@ -33,6 +33,16 @@ jobs:
       - name: Run Typescript
         run: pnpm tsc
 
+      - name: Run tests (lago-ui)
+        run: pnpm --filter lago-ui test --coverage
+
+      - name: Upload coverage artifact (lago-ui)
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: coverage-shard-lago-ui
+          path: packages/ui/coverage/lcov.info
+          retention-days: 1
+
   test-shard:
     if: github.event.pull_request.draft == false || github.event_name == 'push'
     name: Tests (shard ${{ matrix.shard }}/4)
@@ -82,7 +92,7 @@ jobs:
   merge-coverage:
     if: always() && (github.event.pull_request.draft == false || github.event_name == 'push')
     name: Merge coverage & SonarQube
-    needs: test-shard
+    needs: [typecheck, test-shard]
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
@@ -90,10 +100,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fail if any shard failed
-        if: needs.test-shard.result == 'failure'
+      - name: Fail if any test job failed
+        if: needs.test-shard.result == 'failure' || needs.typecheck.result == 'failure'
         run: |
-          echo "One or more test shards failed"
+          echo "One or more test jobs failed"
           exit 1
 
       - name: Download all coverage artifacts
