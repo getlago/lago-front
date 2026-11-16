@@ -29,6 +29,12 @@ export const WEBHOOK_DETAIL_ACTIONS_BUTTON_TEST_ID = 'webhook-detail-actions-but
 export const WEBHOOK_DETAIL_EDIT_BUTTON_TEST_ID = 'webhook-detail-edit-button'
 export const WEBHOOK_DETAIL_DELETE_BUTTON_TEST_ID = 'webhook-detail-delete-button'
 
+const SIGNATURE_LABELS: Record<WebhookEndpointSignatureAlgoEnum, string> = {
+  [WebhookEndpointSignatureAlgoEnum.Hmac]: 'HMAC',
+  [WebhookEndpointSignatureAlgoEnum.Jwt]: 'JWT',
+  [WebhookEndpointSignatureAlgoEnum.StandardWebhooks]: 'Standard Webhooks',
+}
+
 export const WebhookDetail = () => {
   const { webhookId = '' } = useParams<{ webhookId: string }>()
   const { strippedPathname: pathname } = useLocation()
@@ -39,7 +45,7 @@ export const WebhookDetail = () => {
   const { webhook, loading } = useWebhookEndpoint({ id: webhookId })
 
   const signatureLabel =
-    webhook?.signatureAlgo === WebhookEndpointSignatureAlgoEnum.Jwt ? 'JWT' : 'HMAC'
+    SIGNATURE_LABELS[webhook?.signatureAlgo ?? WebhookEndpointSignatureAlgoEnum.Hmac]
 
   const webhookDetailTabs = [
     {

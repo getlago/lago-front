@@ -74,14 +74,20 @@ export const useAnrokIntegrationMapItemDrawer = (): UseAnrokIntegrationMapItemDr
       onDynamic: anrokMappingValidationSchema,
     },
     onSubmit: async ({ value }) => {
-      const isSuccess = await submitIntegrationMapItemMappings({
+      const { success, itemMappings } = await submitIntegrationMapItemMappings({
         values: value,
         drawerData: localData,
         mappingFunctions,
         provider: IntegrationTypeEnum.Anrok,
       })
 
-      if (!isSuccess) return
+      if (!success) {
+        setLocalData((previous) =>
+          previous && previous === localData ? { ...previous, itemMappings } : previous,
+        )
+
+        return
+      }
 
       addToast({
         message: translate('text_6630e5923500e7015f190643'),

@@ -5447,5 +5447,7 @@
   "text_1793952050623c2labd0slvn": "Google sign-up didn't complete. Please try again.",
   "text_1794240318710mz7btyuru7b": "We've already sent several emails to this address in the last hour. You can ask for a new link when the countdown ends.",
   "text_17943010994335qi05xrijso": "Usage attribution",
-  "text_179424015916583db51tvegd": "Precise total amount (cents)"
+  "text_179424015916583db51tvegd": "Precise total amount (cents)",
+  "text_1794498394864itvpd4vd78q": "Standard Webhooks signature",
+  "text_1794498394864nqdkakpobja": "Follows the Standard Webhooks specification, verifiable with its open-source libraries"
 }

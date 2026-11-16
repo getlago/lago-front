@@ -47,7 +47,12 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 // Mock child components to simplify testing
 jest.mock('../WebhookOverview', () => ({
-  WebhookOverview: () => <div data-test="webhook-overview-mock">Overview</div>,
+  WebhookOverview: ({
+    signatureLabel,
+  }: Pick<
+    React.ComponentProps<typeof import('../WebhookOverview').WebhookOverview>,
+    'signatureLabel'
+  >) => <div data-test="webhook-overview-mock">{signatureLabel}</div>,
 }))
 
 jest.mock('../WebhookLogs', () => ({
@@ -241,21 +246,22 @@ describe('WebhookDetail', () => {
     })
   })
 
-  describe('GIVEN webhook has JWT signature', () => {
-    beforeEach(() => {
+  describe('GIVEN each signature algorithm', () => {
+    it.each([
+      [WebhookEndpointSignatureAlgoEnum.Jwt, 'JWT'],
+      [WebhookEndpointSignatureAlgoEnum.Hmac, 'HMAC'],
+      [WebhookEndpointSignatureAlgoEnum.StandardWebhooks, 'Standard Webhooks'],
+    ])('WHEN the endpoint uses %s THEN the overview shows %s', (signatureAlgo, label) => {
       jest.mocked(useWebhookEndpoint).mockReturnValue({
-        webhook: { ...mockWebhookData, signatureAlgo: WebhookEndpointSignatureAlgoEnum.Jwt },
+        webhook: { ...mockWebhookData, signatureAlgo },
         loading: false,
         refetch: mockRefetch,
       })
-    })
 
-    describe('WHEN component renders', () => {
-      it('THEN should render without error', () => {
-        renderWithParams(<WebhookDetail />)
+      renderWithParams(<WebhookDetail />)
 
-        expect(screen.getByTestId(WEBHOOK_DETAIL_TITLE_TEST_ID)).toBeInTheDocument()
-      })
+      expect(screen.getByTestId(WEBHOOK_DETAIL_TITLE_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId('webhook-overview-mock')).toHaveTextContent(label)
     })
   })
 })
