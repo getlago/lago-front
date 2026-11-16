@@ -1,5 +1,6 @@
 import { MockedProvider } from '@apollo/client/testing'
 import { screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { GetPlanForDetailsV2Document } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -7,6 +8,37 @@ import { render } from '~/test-utils'
 import { PLAN_DETAILS_V2_FIXTURE_ID, planDetailsV2Fixture } from './fixtures'
 
 import { PlanDetailsV2 } from '../PlanDetailsV2'
+
+const mockHasPermissions = jest.fn(() => true)
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+// Fires onAddClick directly, bypassing the real sidebar's own button-visibility
+// gate, to test PlanDetailsV2's handleAddClick guard in isolation.
+jest.mock('~/components/plans/details-v2/PlanDetailsV2LeftSidebar', () => {
+  const React = jest.requireActual('react')
+
+  return {
+    __esModule: true,
+    PlanDetailsV2LeftSidebar: ({ onAddClick }: { onAddClick?: (id: string) => void }) =>
+      React.createElement(
+        'nav',
+        { 'aria-label': 'Plan sections' },
+        React.createElement(
+          'button',
+          { onClick: () => onAddClick?.('fixed-charges') },
+          'add-fixed-charges',
+        ),
+        React.createElement(
+          'button',
+          { onClick: () => onAddClick?.('usage-charges') },
+          'add-usage-charges',
+        ),
+      ),
+  }
+})
 
 // Mock the drawer hook (not a component): the section calls usePlanSettingsDrawer
 // which pulls in the NiceModal drawer stack (drawerStack.ts uses import.meta and
@@ -26,11 +58,17 @@ jest.mock('~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer', ()
   return { __esModule: true, SubscriptionFeeDrawer }
 })
 
+const mockFixedChargeOpenDrawer = jest.fn()
+const mockUsageChargeOpenDrawer = jest.fn()
+
 jest.mock('~/components/plans/drawers/fixedCharge/FixedChargeDrawer', () => {
   const { forwardRef, useImperativeHandle } = jest.requireActual('react')
 
   const FixedChargeDrawer = forwardRef((_props: unknown, ref: unknown) => {
-    useImperativeHandle(ref, () => ({ openDrawer: jest.fn(), closeDrawer: jest.fn() }))
+    useImperativeHandle(ref, () => ({
+      openDrawer: mockFixedChargeOpenDrawer,
+      closeDrawer: jest.fn(),
+    }))
     return null
   })
 
@@ -41,7 +79,10 @@ jest.mock('~/components/plans/drawers/usageCharge/UsageChargeDrawer', () => {
   const { forwardRef, useImperativeHandle } = jest.requireActual('react')
 
   const UsageChargeDrawer = forwardRef((_props: unknown, ref: unknown) => {
-    useImperativeHandle(ref, () => ({ openDrawer: jest.fn(), closeDrawer: jest.fn() }))
+    useImperativeHandle(ref, () => ({
+      openDrawer: mockUsageChargeOpenDrawer,
+      closeDrawer: jest.fn(),
+    }))
     return null
   })
 
@@ -158,5 +199,45 @@ describe('PlanDetailsV2', () => {
     )
 
     expect(screen.queryByRole('navigation', { name: /plan sections/i })).not.toBeInTheDocument()
+  })
+
+  describe('handleAddClick permission guard', () => {
+    beforeEach(() => {
+      mockHasPermissions.mockReset().mockReturnValue(true)
+      mockFixedChargeOpenDrawer.mockReset()
+      mockUsageChargeOpenDrawer.mockReset()
+    })
+
+    it('does not open the create drawer when chargesCreate is missing, even if the add shortcut fires', async () => {
+      mockHasPermissions.mockImplementation(
+        ((perms: string[]) => !perms.includes('chargesCreate')) as never,
+      )
+
+      render(
+        <MockedProvider mocks={[]} addTypename={false}>
+          <PlanDetailsV2 planId={PLAN_DETAILS_V2_FIXTURE_ID} plan={planDetailsV2Fixture} />
+        </MockedProvider>,
+      )
+
+      await userEvent.click(screen.getByRole('button', { name: 'add-fixed-charges' }))
+      await userEvent.click(screen.getByRole('button', { name: 'add-usage-charges' }))
+
+      expect(mockFixedChargeOpenDrawer).not.toHaveBeenCalled()
+      expect(mockUsageChargeOpenDrawer).not.toHaveBeenCalled()
+    })
+
+    it('opens the create drawer via the add shortcut when chargesCreate is granted', async () => {
+      render(
+        <MockedProvider mocks={[]} addTypename={false}>
+          <PlanDetailsV2 planId={PLAN_DETAILS_V2_FIXTURE_ID} plan={planDetailsV2Fixture} />
+        </MockedProvider>,
+      )
+
+      await userEvent.click(screen.getByRole('button', { name: 'add-fixed-charges' }))
+      await userEvent.click(screen.getByRole('button', { name: 'add-usage-charges' }))
+
+      expect(mockFixedChargeOpenDrawer).toHaveBeenCalled()
+      expect(mockUsageChargeOpenDrawer).toHaveBeenCalled()
+    })
   })
 })

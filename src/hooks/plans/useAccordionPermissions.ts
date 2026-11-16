@@ -2,10 +2,16 @@ import { usePermissions } from '~/hooks/usePermissions'
 
 type AccordionPermissionDomain = 'plan' | 'charges'
 
+type AccordionPermissions = {
+  canCreate: boolean
+  canUpdate: boolean
+  canDelete: boolean
+}
+
 export const useAccordionPermissions = (
   isInSubscriptionForm: boolean,
   domain: AccordionPermissionDomain = 'plan',
-) => {
+): AccordionPermissions => {
   const { hasPermissions } = usePermissions()
 
   if (isInSubscriptionForm) {
