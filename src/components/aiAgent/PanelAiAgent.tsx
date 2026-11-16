@@ -31,8 +31,11 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
     agentType,
     conversationId,
     getConversationVersion,
+    lastAssistantMessage,
+    setChatDone,
     startNewConversation,
     state,
+    streamChunk,
   } = useAiAgent()
   const { createAiConversation, loading, error } = useCreateAiConversation()
   const { submitFinanceQuestion } = useAskFinanceAssistant()
@@ -43,6 +46,12 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
 
   const subscription = useOnConversation({
     conversationId: isFinanceAssistant ? undefined : conversationId,
+    onChunk: (chunk) => {
+      if (lastAssistantMessage) streamChunk({ messageId: lastAssistantMessage.id, chunk })
+    },
+    onDone: () => {
+      if (lastAssistantMessage) setChatDone(lastAssistantMessage.id)
+    },
   })
 
   const handleSubmit = async (values: CreateAiConversationInput): Promise<void> => {
