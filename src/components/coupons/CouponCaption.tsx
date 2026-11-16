@@ -70,13 +70,16 @@ const getFixedAmountCaption = (
     frequencyDurationRemaining,
   }: FixedAmountCaptionValues,
 ): string | undefined => {
+  const hasAmountCentsRemaining =
+    amountCentsRemaining !== undefined && amountCentsRemaining !== null
+
   if (frequency === CouponFrequency.Once) {
     return translate(
-      amountCentsRemaining ? 'text_637b4da08cd0118cd0c4486f' : 'text_632d68358f1fedc68eed3e70',
+      hasAmountCentsRemaining ? 'text_637b4da08cd0118cd0c4486f' : 'text_632d68358f1fedc68eed3e70',
       {
         amount: intlFormatNumber(
           deserializeAmount(
-            Number(amountCentsRemaining) || Number(amountCents),
+            hasAmountCentsRemaining ? Number(amountCentsRemaining) : Number(amountCents),
             amountCurrency || CurrencyEnum.Usd,
           ) || 0,
           {
