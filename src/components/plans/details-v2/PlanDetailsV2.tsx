@@ -7,6 +7,7 @@ import {
   EntitlementForPlanDetailsSidebarFragmentDoc,
   FixedChargeForPlanDetailsSidebarFragmentDoc,
   LagoApiError,
+  PlanDetailsV2Fragment,
   PlanForDetailsV2AdvancedSectionFragmentDoc,
   PlanForDetailsV2FixedChargesSectionFragmentDoc,
   PlanForDetailsV2PlanSettingsSectionFragmentDoc,
@@ -74,6 +75,7 @@ const TOP_LEVEL_SECTION_IDS: PlanDetailsV2SectionId[] = [
 
 type PlanDetailsV2Props = {
   planId: string
+  plan?: PlanDetailsV2Fragment
   isInSubscriptionForm?: boolean
   subscriptionId?: string
   // Override units keyed by FixedCharge id. Populated only in subscription
@@ -88,6 +90,7 @@ type PlanDetailsV2Props = {
 
 export const PlanDetailsV2 = ({
   planId,
+  plan: providedPlan,
   isInSubscriptionForm = false,
   subscriptionId,
   subscriptionFixedChargeUnitsById,
@@ -97,16 +100,17 @@ export const PlanDetailsV2 = ({
   const { isGated, openPremiumDialog } = useSubscriptionPremiumGate(isInSubscriptionForm)
   const { data, loading } = useGetPlanForDetailsV2Query({
     variables: { planId },
-    skip: !planId,
+    skip: !planId || !!providedPlan,
     context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
+  const plan = providedPlan ?? data?.plan
 
   const fixedChargesRef = useRef<PlanDetailsV2FixedChargesSectionRef>(null)
   const usageChargesRef = useRef<PlanDetailsV2UsageChargesSectionRef>(null)
   const entitlementRef = useRef<EntitlementAccordionRef>(null)
 
   const { usageChargeMutations, fixedChargeMutations } = useDetailsV2ChargeMutations({
-    plan: data?.plan,
+    plan,
     subscriptionId,
     refetchOverrides,
   })
@@ -116,14 +120,14 @@ export const PlanDetailsV2 = ({
   // scrollToCharge (scrollToIndex + open), and keep the generic open-and-scroll for
   // the always-mounted sections / fixed charges / entitlements.
   const usageChargeIds = useMemo(
-    () => new Set((data?.plan?.charges ?? []).map((charge) => charge.id)),
-    [data?.plan?.charges],
+    () => new Set((plan?.charges ?? []).map((charge) => charge.id)),
+    [plan?.charges],
   )
 
   // When the charge list is virtualized, the scroll path to a section below it crosses the
   // virtualizer, whose mid-scroll re-measure adjustments derail a smooth animation (lands
   // mid-list / snaps to top). Jump instantly in that case; keep smooth on small plans.
-  const chargesVirtualized = shouldVirtualizeList(data?.plan?.charges?.length ?? 0)
+  const chargesVirtualized = shouldVirtualizeList(plan?.charges?.length ?? 0)
 
   // BIL-160: open the target accordion first, then scroll to + focus it.
   const handleItemClick = (id: string) => {
@@ -155,11 +159,9 @@ export const PlanDetailsV2 = ({
     }
   }
 
-  if (loading && !data?.plan) {
+  if (loading && !plan) {
     return <PlanDetailsV2Skeleton />
   }
-
-  const plan = data?.plan
 
   if (!plan) {
     return null
