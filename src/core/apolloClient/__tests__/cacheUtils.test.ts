@@ -271,19 +271,18 @@ describe('onLeaveCustomerPortal', () => {
       await onLeaveCustomerPortal(client as unknown as ApolloClient<object>)
 
       expect(mockUpdateCustomerPortalTokenVar).toHaveBeenCalledWith(undefined)
-      expect(client.stop).toHaveBeenCalledTimes(1)
       expect(client.clearStore).toHaveBeenCalledTimes(1)
       expect(mockResumePersistence).toHaveBeenCalledTimes(1)
       expect(client.reFetchObservableQueries).toHaveBeenCalledTimes(1)
 
-      // A portal mutation outliving `clearStore`, or an admin query left rejected by
-      // it, is exactly what the order guards against.
-      const stopAt = (client.stop as jest.Mock).mock.invocationCallOrder[0]
+      // `client.stop()` would empty `QueryManager.queries` and leave the refetch
+      // below with nothing to revive, stranding the admin page the tab lands on.
+      expect(client.stop).not.toHaveBeenCalled()
+
       const clearStoreAt = (client.clearStore as jest.Mock).mock.invocationCallOrder[0]
       const resumeAt = mockResumePersistence.mock.invocationCallOrder[0]
       const refetchAt = (client.reFetchObservableQueries as jest.Mock).mock.invocationCallOrder[0]
 
-      expect(stopAt).toBeLessThan(clearStoreAt)
       expect(clearStoreAt).toBeLessThan(resumeAt)
       expect(resumeAt).toBeLessThan(refetchAt)
     })
