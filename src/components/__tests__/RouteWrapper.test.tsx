@@ -59,6 +59,10 @@ jest.mock('~/hooks/core/useLocationHistory', () => ({
   }),
 }))
 
+jest.mock('~/hooks/auth/useCustomerPortalBoundary', () => ({
+  useCustomerPortalBoundary: jest.fn(),
+}))
+
 const TEST_SLUG = 'test-slug'
 
 const mockLocation = {
