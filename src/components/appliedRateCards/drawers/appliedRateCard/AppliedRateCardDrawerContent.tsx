@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import InputAdornment from '@mui/material/InputAdornment'
 import { useStore } from '@tanstack/react-form'
 import { ReactNode, useEffect, useState } from 'react'
 
@@ -29,6 +30,7 @@ import {
   ActiveRateForRatePhaseFragmentDoc,
   CurrencyEnum,
   ProductForAppliedRateCardDrawerFragment,
+  ProductTypeEnum,
   useGetProductFiltersForAppliedRateCardDrawerLazyQuery,
   useGetProductsForAppliedRateCardDrawerLazyQuery,
   useGetRateCardsForAppliedRateCardDrawerLazyQuery,
@@ -52,6 +54,7 @@ export const APPLIED_RATE_CARD_DRAWER_PRODUCT_FILTER_TEST_ID =
 export const APPLIED_RATE_CARD_DRAWER_REMOVE_FILTER_TEST_ID =
   'applied-rate-card-drawer-remove-filter'
 export const APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID = 'applied-rate-card-drawer-rate-card'
+export const APPLIED_RATE_CARD_DRAWER_UNITS_TEST_ID = 'applied-rate-card-drawer-units'
 export const APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID = 'applied-rate-card-drawer-add-phase'
 
 gql`
@@ -395,7 +398,10 @@ export const AppliedRateCardDrawerContent = withForm({
 
     const resetFields = (
       fields: Array<
-        keyof Pick<typeof APPLIED_RATE_CARD_FORM_DEFAULTS, 'productFilterId' | 'rateCardId'>
+        keyof Pick<
+          typeof APPLIED_RATE_CARD_FORM_DEFAULTS,
+          'productFilterId' | 'rateCardId' | 'units'
+        >
       >,
     ): void => {
       fields.forEach((field) => {
@@ -409,8 +415,13 @@ export const AppliedRateCardDrawerContent = withForm({
       if (form.state.values.ratePhases.length > 0) form.setFieldValue('ratePhases', [])
     }
 
-    const handleProductChange = (): void => {
-      resetFields(['productFilterId', 'rateCardId'])
+    const handleProductChange = ({ value }: { value: string }): void => {
+      const newProductType = (productsData?.products.collection ?? []).find(
+        (product) => product.id === value,
+      )?.productType
+
+      form.setFieldValue('productType', newProductType ?? undefined)
+      resetFields(['productFilterId', 'rateCardId', 'units'])
       resetRatePhases()
       setShouldDisplayFilter(false)
     }
@@ -539,6 +550,26 @@ export const AppliedRateCardDrawerContent = withForm({
                   />
                 )}
               </form.AppField>
+
+              {selectedProduct?.productType === ProductTypeEnum.Fixed && (
+                <form.AppField name="units">
+                  {(field) => (
+                    <field.TextInputField
+                      data-test={APPLIED_RATE_CARD_DRAWER_UNITS_TEST_ID}
+                      label={translate('text_65771fa3f4ab9a00720726ce')}
+                      placeholder={translate('text_643e592657fc1ba5ce110c80')}
+                      beforeChangeFormatter={['positiveNumber', 'sextDecimal']}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {translate('text_6282085b4f283b0102655884')}
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
+                </form.AppField>
+              )}
             </CenteredPage.PageSection>
           )}
 

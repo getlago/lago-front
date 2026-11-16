@@ -5,7 +5,7 @@ import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { intlFormatDateTime } from '~/core/timezone'
-import { RatePhaseForDrawerFragment, TimezoneEnum } from '~/generated/graphql'
+import { ProductTypeEnum, RatePhaseForDrawerFragment, TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CatalogRelationsInfoGrid } from '~/pages/catalog/details/CatalogRelationsInfoGrid'
 
@@ -55,6 +55,22 @@ export const AppliedRateCardDetailsOverview = ({
     }
   }
 
+  const getUnitsItem = (): InfoGridItem | false => {
+    if (appliedRateCard.product.productType !== ProductTypeEnum.Fixed) return false
+
+    return {
+      label: translate('text_65771fa3f4ab9a00720726ce'),
+      value: (
+        <span data-test={APPLIED_RATE_CARD_OVERVIEW_UNITS_TEST_ID}>
+          {appliedRateCard.units ?? '-'}
+        </span>
+      ),
+    }
+  }
+
+  const unitsItem = getUnitsItem()
+  const effectiveDateItem = getEffectiveDateItem()
+
   return (
     <div className="flex flex-col gap-12" data-test={APPLIED_RATE_CARD_OVERVIEW_TEST_ID}>
       <section className="flex flex-col gap-6 pb-12 shadow-b">
@@ -101,19 +117,9 @@ export const AppliedRateCardDetailsOverview = ({
             ]}
           />
 
-          <DetailsPage.InfoGrid
-            grid={[
-              {
-                label: translate('text_65771fa3f4ab9a00720726ce'),
-                value: (
-                  <span data-test={APPLIED_RATE_CARD_OVERVIEW_UNITS_TEST_ID}>
-                    {appliedRateCard.units ?? '-'}
-                  </span>
-                ),
-              },
-              getEffectiveDateItem(),
-            ]}
-          />
+          {(unitsItem || effectiveDateItem) && (
+            <DetailsPage.InfoGrid grid={[unitsItem, effectiveDateItem]} />
+          )}
         </div>
       </section>
 
