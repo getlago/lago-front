@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
-import { useCallback, useMemo, useRef } from 'react'
+import { ReactNode, useCallback, useMemo, useRef } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
@@ -310,6 +310,9 @@ gql`
   ${FeeDetailsForInvoiceOverviewFragmentDoc}
   ${FeeForInvoiceDetailsTableFooterFragmentDoc}
 `
+
+export const INVOICE_PENDING_FINALIZATION_ALERT_TEST_ID = 'invoice-pending-finalization-alert'
+export const INVOICE_DRAFT_TAXES_PENDING_ALERT_TEST_ID = 'invoice-draft-taxes-pending-alert'
 
 const CustomerInvoiceDetails = () => {
   const { translate } = useInternationalization()
@@ -1015,6 +1018,33 @@ const CustomerInvoiceDetails = () => {
     },
   ]
 
+  const renderTaxStatusPendingAlert = (): ReactNode => {
+    if (!!errorMessage || taxStatus !== InvoiceTaxStatusTypeEnum.Pending) return null
+
+    const isDraft = status === InvoiceStatusTypeEnum.Draft
+
+    return (
+      <Alert fullWidth className="md:px-12" type="info">
+        <div
+          className="flex flex-col"
+          data-test={
+            isDraft
+              ? INVOICE_DRAFT_TAXES_PENDING_ALERT_TEST_ID
+              : INVOICE_PENDING_FINALIZATION_ALERT_TEST_ID
+          }
+        >
+          <Typography variant="body" color="grey700">
+            {translate(isDraft ? 'text_1794896528911d809xmb50qq' : 'text_1735045451930tezr0et3e6l')}
+          </Typography>
+
+          <Typography variant="caption" color="grey600">
+            {translate(isDraft ? 'text_1794896528911z9fydq9ftum' : 'text_1735045451931zfgc6yvvcfm')}
+          </Typography>
+        </div>
+      </Alert>
+    )
+  }
+
   return (
     <>
       <MainHeader.Configure
@@ -1035,19 +1065,7 @@ const CustomerInvoiceDetails = () => {
           </Stack>
         </Alert>
       )}
-      {!errorMessage && taxStatus === InvoiceTaxStatusTypeEnum.Pending && (
-        <Alert fullWidth className="md:px-12" type="info">
-          <div className="flex flex-col">
-            <Typography variant="body" color="grey700">
-              {translate('text_1735045451930tezr0et3e6l')}
-            </Typography>
-
-            <Typography variant="caption" color="grey600">
-              {translate('text_1735045451931zfgc6yvvcfm')}
-            </Typography>
-          </div>
-        </Alert>
-      )}
+      {renderTaxStatusPendingAlert()}
       {status === InvoiceStatusTypeEnum.Draft && (
         <Alert fullWidth className="md:px-12" type="info">
           <div className="flex flex-col">

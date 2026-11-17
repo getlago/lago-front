@@ -5450,5 +5450,7 @@
   "text_179424015916583db51tvegd": "Precise total amount (cents)",
   "text_1794498394864itvpd4vd78q": "Standard Webhooks signature",
   "text_1794498394864nqdkakpobja": "Follows the Standard Webhooks specification, verifiable with its open-source libraries",
-  "text_1794243204868luglbgacedo": "Pick an organization other than the production organization"
+  "text_1794243204868luglbgacedo": "Pick an organization other than the production organization",
+  "text_1794896528911d809xmb50qq": "Taxes are being calculated.",
+  "text_1794896528911z9fydq9ftum": "Taxes for this draft invoice are still being calculated. It may take a bit of time. Please refresh or check back later."
 }
