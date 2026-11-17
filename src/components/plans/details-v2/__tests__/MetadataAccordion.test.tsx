@@ -179,13 +179,25 @@ describe('MetadataAccordion', () => {
     expect(mockSetFieldValue).toHaveBeenCalledWith('metadata', [])
   })
 
-  it('does not render the Add action when plansCreate permission is missing', () => {
-    mockHasPermissions.mockImplementation((perms: string[]) => !perms.includes('plansCreate'))
+  // Adding metadata submits through updatePlan (plans:update) - there is no
+  // plans:create for a plan sub-resource, so plansCreate alone must not hide it.
+  it('does not render the Add action when plansUpdate permission is missing', () => {
+    mockHasPermissions.mockImplementation((perms: string[]) => !perms.includes('plansUpdate'))
 
     render(<MetadataAccordion plan={planWithMetadata} />, { wrapper: Wrapper })
 
     expect(
       screen.queryByRole('button', { name: 'text_6405cac5c833dcf18cad0196' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('keeps the Add action visible when only plansCreate is missing', () => {
+    mockHasPermissions.mockImplementation((perms: string[]) => !perms.includes('plansCreate'))
+
+    render(<MetadataAccordion plan={planWithMetadata} />, { wrapper: Wrapper })
+
+    expect(
+      screen.getByRole('button', { name: 'text_6405cac5c833dcf18cad0196' }),
+    ).toBeInTheDocument()
   })
 })

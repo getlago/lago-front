@@ -36,6 +36,11 @@ jest.mock('~/components/plans/details-v2/PlanDetailsV2LeftSidebar', () => {
           { onClick: () => onAddClick?.('usage-charges') },
           'add-usage-charges',
         ),
+        React.createElement(
+          'button',
+          { onClick: () => onAddClick?.('entitlements') },
+          'add-entitlements',
+        ),
       ),
   }
 })
@@ -108,13 +113,17 @@ jest.mock('~/components/plans/details-v2/accordions/ProgressiveBillingAccordion'
   }
 })
 
-jest.mock('~/components/plans/details-v2/accordions/EntitlementAccordion', () => {
-  const React = jest.requireActual('react')
+const mockEntitlementOpenCreate = jest.fn()
 
-  return {
-    __esModule: true,
-    EntitlementAccordion: () => React.createElement('section', { id: 'entitlements' }),
-  }
+jest.mock('~/components/plans/details-v2/accordions/EntitlementAccordion', () => {
+  const { createElement, forwardRef, useImperativeHandle } = jest.requireActual('react')
+
+  const EntitlementAccordion = forwardRef((_props: unknown, ref: unknown) => {
+    useImperativeHandle(ref, () => ({ openCreate: mockEntitlementOpenCreate }))
+    return createElement('section', { id: 'entitlements' })
+  })
+
+  return { __esModule: true, EntitlementAccordion }
 })
 
 jest.mock('~/components/plans/details-v2/accordions/MetadataAccordion', () => {
@@ -206,6 +215,7 @@ describe('PlanDetailsV2', () => {
       mockHasPermissions.mockReset().mockReturnValue(true)
       mockFixedChargeOpenDrawer.mockReset()
       mockUsageChargeOpenDrawer.mockReset()
+      mockEntitlementOpenCreate.mockReset()
     })
 
     it('does not open the create drawer when chargesCreate is missing, even if the add shortcut fires', async () => {
@@ -238,6 +248,36 @@ describe('PlanDetailsV2', () => {
 
       expect(mockFixedChargeOpenDrawer).toHaveBeenCalled()
       expect(mockUsageChargeOpenDrawer).toHaveBeenCalled()
+    })
+
+    // Entitlements submit through updatePlan (plans:update), unlike charges - so
+    // this checks plansUpdate rather than chargesCreate.
+    it('does not open the entitlement drawer when plansUpdate is missing, even if the add shortcut fires', async () => {
+      mockHasPermissions.mockImplementation(
+        ((perms: string[]) => !perms.includes('plansUpdate')) as never,
+      )
+
+      render(
+        <MockedProvider mocks={[]} addTypename={false}>
+          <PlanDetailsV2 planId={PLAN_DETAILS_V2_FIXTURE_ID} plan={planDetailsV2Fixture} />
+        </MockedProvider>,
+      )
+
+      await userEvent.click(screen.getByRole('button', { name: 'add-entitlements' }))
+
+      expect(mockEntitlementOpenCreate).not.toHaveBeenCalled()
+    })
+
+    it('opens the entitlement drawer via the add shortcut when plansUpdate is granted', async () => {
+      render(
+        <MockedProvider mocks={[]} addTypename={false}>
+          <PlanDetailsV2 planId={PLAN_DETAILS_V2_FIXTURE_ID} plan={planDetailsV2Fixture} />
+        </MockedProvider>,
+      )
+
+      await userEvent.click(screen.getByRole('button', { name: 'add-entitlements' }))
+
+      expect(mockEntitlementOpenCreate).toHaveBeenCalled()
     })
   })
 })

@@ -35,9 +35,13 @@ export const useAccordionPermissions = (
     }
   }
 
+  // Every 'plan' domain accordion submits through the single updatePlan mutation
+  // (plans:update only) - no plans:create/delete exists for a plan sub-resource.
+  const canUpdate = hasPermissions(['plansUpdate'])
+
   return {
-    canCreate: hasPermissions(['plansCreate']),
-    canUpdate: hasPermissions(['plansUpdate']),
-    canDelete: hasPermissions(['plansDelete']),
+    canCreate: canUpdate,
+    canUpdate,
+    canDelete: canUpdate,
   }
 }

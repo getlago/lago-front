@@ -154,6 +154,30 @@ describe('ProgressiveBillingAccordion', () => {
     ).not.toBeInTheDocument()
   })
 
+  // Deleting a threshold submits through updatePlan (plans:update) - there is no
+  // plans:delete for a plan sub-resource, so plansDelete alone must not hide it.
+  it('keeps the Delete action visible when only plansDelete is missing', async () => {
+    mockHasPermissions.mockImplementation((perms) => !perms.includes('plansDelete'))
+
+    render(<ProgressiveBillingAccordion plan={planWithThresholds} />, { wrapper: Wrapper })
+
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    expect(screen.getByText('text_63ea0f84f400488553caa786')).toBeInTheDocument()
+  })
+
+  // Adding a threshold submits through updatePlan (plans:update) - there is no
+  // plans:create for a plan sub-resource, so plansCreate alone must not hide it.
+  it('keeps the Add CTA visible when only plansCreate is missing', () => {
+    mockHasPermissions.mockImplementation((perms) => !perms.includes('plansCreate'))
+
+    render(
+      <ProgressiveBillingAccordion plan={{ ...planDetailsV2Fixture, usageThresholds: [] }} />,
+      { wrapper: Wrapper },
+    )
+
+    expect(screen.getByText('text_1724233213996upb98e8b8xx')).toBeInTheDocument()
+  })
+
   // ── 4. Edit pre-fill deserializes cents → major units (guard for 100× bug) ─
   it('calls openDrawer with the deserialized major-unit amounts when Edit is clicked', async () => {
     render(<ProgressiveBillingAccordion plan={planWithThresholds} />, { wrapper: Wrapper })
