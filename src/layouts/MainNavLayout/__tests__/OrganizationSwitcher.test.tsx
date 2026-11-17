@@ -168,6 +168,8 @@ describe('OrganizationSwitcher', () => {
 
       expect(ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT).toContain(`- ${SANDBOX_BANNER_HEIGHT})`)
       expect(ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT).toContain(`- ${SANDBOX_BANNER_HEIGHT})`)
+      // The list leaves room for the log out row under it, inside the menu's own limit.
+      expect(ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT).toContain(`- 50px - ${SANDBOX_BANNER_HEIGHT})`)
       expect(screen.getByTestId(ORGANIZATION_SWITCHER_ORG_LIST_TEST_ID)).toHaveStyle({
         maxHeight: ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT,
       })
