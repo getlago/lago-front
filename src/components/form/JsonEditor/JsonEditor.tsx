@@ -4,11 +4,11 @@ import 'ace-builds/src-noconflict/mode-json'
 import 'ace-builds/src-noconflict/theme-github'
 // https://github.com/securingsincity/react-ace/issues/725#issuecomment-1086221818
 import jsonWorkerUrl from 'ace-builds/src-noconflict/worker-json?url'
-import { Icon } from 'lago-design-system'
 import { ReactNode, useEffect, useRef, useState } from 'react'
 import AceEditor from 'react-ace'
 
 import { Chip } from '~/components/designSystem/Chip'
+import { Icon } from '~/components/designSystem/Icon'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

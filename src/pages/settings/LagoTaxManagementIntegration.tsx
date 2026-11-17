@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
-import { Icon, tw } from 'lago-design-system'
 import { FC } from 'react'
 import { generatePath } from 'react-router'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
@@ -24,6 +24,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
+import { tw } from '~/styles/utils'
 
 gql`
   query getTaxesForTaxManagementIntegrationDetailsPage {

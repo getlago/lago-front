@@ -1,8 +1,8 @@
-import { Icon, IconName } from 'lago-design-system'
 import { FC } from 'react'
 
 import { Avatar, AvatarBadge } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography, TypographyColor } from '~/components/designSystem/Typography'

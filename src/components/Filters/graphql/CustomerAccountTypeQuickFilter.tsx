@@ -1,6 +1,5 @@
-import { Icon } from 'lago-design-system'
-
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { useFilters } from '~/components/Filters/graphql/useFilters'

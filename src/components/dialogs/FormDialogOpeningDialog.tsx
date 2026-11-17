@@ -1,7 +1,7 @@
 import { create, useModal } from '@ebay/nice-modal-react'
-import { tw } from 'lago-design-system'
 
 import { Button } from '~/components/designSystem/Button'
+import { tw } from '~/styles/utils'
 
 import BaseDialog from './BaseDialog'
 import { CentralizedDialogProps, useCentralizedDialog } from './CentralizedDialog'

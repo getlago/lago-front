@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
-import { Icon, IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Button } from '~/components/designSystem/Button'
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status, StatusType } from '~/components/designSystem/Status'

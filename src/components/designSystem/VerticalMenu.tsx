@@ -1,10 +1,10 @@
-import { Icon, IconName } from 'lago-design-system'
 import _omit from 'lodash/omit'
 import { ReactNode } from 'react'
 import { matchPath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { useLocation } from '~/core/router'

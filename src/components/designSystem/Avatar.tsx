@@ -1,8 +1,8 @@
 import { cva, cx, VariantProps } from 'class-variance-authority'
 import { colors } from 'lago-configs/tailwind'
-import { Icon, IconName, IconProps } from 'lago-design-system'
 import { FC, ReactNode } from 'react'
 
+import { Icon, IconName, IconProps } from '~/components/designSystem/Icon'
 import { tw } from '~/styles/utils'
 
 import { Typography } from './Typography'

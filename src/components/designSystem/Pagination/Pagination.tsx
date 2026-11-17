@@ -1,7 +1,7 @@
-import { Icon } from 'lago-design-system'
 import { forwardRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { getPageRange, shouldRenderFooter } from '~/components/designSystem/Pagination/utils'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'

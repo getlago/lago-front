@@ -1,8 +1,8 @@
-import { Icon } from 'lago-design-system'
 import { Duration } from 'luxon'
 import { ReactNode } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

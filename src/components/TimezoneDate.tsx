@@ -1,6 +1,6 @@
-import { Icon } from 'lago-design-system'
 import { useMemo } from 'react'
 
+import { Icon } from '~/components/designSystem/Icon'
 import { Tooltip, TooltipProps } from '~/components/designSystem/Tooltip'
 import { Typography, TypographyProps } from '~/components/designSystem/Typography'
 import { DateFormat, getTimezoneConfig, intlFormatDateTime, TimeFormat } from '~/core/timezone'

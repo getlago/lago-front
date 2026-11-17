@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/react'
-import { tw } from 'lago-design-system'
 import { useLayoutEffect, useRef, useState } from 'react'
 import { Panel } from 'react-resizable-panels'
 import { matchRoutes } from 'react-router'
@@ -22,6 +21,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
+import { tw } from '~/styles/utils'
 
 export const AI_AGENT_NAV_TEST_ID = 'ai-agent-nav'
 export const AI_AGENT_ERROR_TEST_ID = 'ai-agent-error'

@@ -1,8 +1,8 @@
 import Stack from '@mui/material/Stack'
-import { Icon } from 'lago-design-system'
 import { useMemo } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { BasicComboBoxData } from '~/components/form/ComboBox/types'

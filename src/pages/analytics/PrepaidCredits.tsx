@@ -1,6 +1,5 @@
-import { Icon } from 'lago-design-system'
-
 import { PrepaidCreditsOverviewSection } from '~/components/analytics/prepaidCredits/PrepaidCreditsOverviewSection'
+import { Icon } from '~/components/designSystem/Icon'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'

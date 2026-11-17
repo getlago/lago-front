@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
-import { Icon } from 'lago-design-system'
 import { memo } from 'react'
 import { generatePath, LinkProps, useParams } from 'react-router'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Icon } from '~/components/designSystem/Icon'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { useEditFeeDrawer } from '~/components/invoices/details/editFeeDrawer/useEditFeeDrawer'

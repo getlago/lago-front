@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { ReactNode, useMemo } from 'react'
 
 import { useDeleteCustomerDocumentLocaleDialog } from '~/components/customers/DeleteCustomerDocumentLocaleDialog'
@@ -17,6 +16,7 @@ import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Icon } from '~/components/designSystem/Icon'
 import { Popper } from '~/components/designSystem/Popper'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'

@@ -51,6 +51,11 @@ export default defineConfig([
               name: 'lucide-react',
               message: 'Use the icons through lago-ui components, not lucide-react directly.',
             },
+            {
+              name: 'lago-design-system',
+              message:
+                'Use ~/components/designSystem/Icon, ~/styles/utils or ~/components/ConditionalWrapper.',
+            },
           ],
           patterns: [
             {

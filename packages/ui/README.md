@@ -81,4 +81,4 @@ A story's deep link is built from its `title` (`ui/?path=/docs/components-button
 
 ## Using it in the app
 
-The app is already wired: `lago-ui` dependency, Tailwind preset and content scan, `lago-ui/styles.css` in `src/main.css`. Adopting a component is a single import. The dev-only tab `LagoUiIntegrationTest` is the reference consumer.
+The app is already wired: `lago-ui` dependency, Tailwind preset and content scan, `lago-ui/styles.css` in `src/main.css`. Adopting a component is a single import.

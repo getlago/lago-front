@@ -1,7 +1,7 @@
-import { IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
 
 import { ButtonVariant } from '~/components/designSystem/Button'
+import { IconName } from '~/components/designSystem/Icon'
 import { StatusProps, StatusType } from '~/components/designSystem/Status'
 
 import { NavigationTabBarItem } from './NavigationTabBar'

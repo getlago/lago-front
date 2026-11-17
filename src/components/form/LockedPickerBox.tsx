@@ -1,6 +1,6 @@
 import InputAdornment from '@mui/material/InputAdornment'
-import { Icon, IconName } from 'lago-design-system'
 
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import { tw } from '~/styles/utils'
 
 import { TextInput } from './TextInput'

@@ -1,5 +1,6 @@
-import { IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
+
+import { IconName } from '~/components/designSystem/Icon'
 
 import { TooltipProps } from '../Tooltip'
 
