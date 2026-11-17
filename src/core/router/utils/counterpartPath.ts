@@ -14,10 +14,8 @@ type GetCounterpartPathArgs = {
   search?: string
 }
 
-/**
- * The path that opens the current page in another organization of the pair: the same page and query string when
- * the route exists there and names no resource, otherwise that organization's home.
- */
+// The current page and query string in another organization of the pair, or that organization's home when
+// the route does not exist there or names a resource.
 export const getCounterpartPath = ({
   targetSlug,
   strippedPathname,
