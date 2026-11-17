@@ -2,11 +2,12 @@ import { ApolloClient, InMemoryCache } from '@apollo/client'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { AuthenticationMethodsEnum } from '~/generated/graphql'
+import { AuthenticationMethodsEnum, OrganizationEnvironmentEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
   ORGANIZATION_SWITCHER_BUTTON_TEST_ID,
+  ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID,
   ORGANIZATION_SWITCHER_NAME_TEST_ID,
   ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID,
   ORGANIZATION_SWITCHER_TEST_ID,
@@ -115,6 +116,44 @@ describe('OrganizationSwitcher', () => {
       expect(screen.getByTestId(ORGANIZATION_SWITCHER_BUTTON_TEST_ID)).toBeDisabled()
     })
   })
+  describe('GIVEN the current organization environment', () => {
+    describe('WHEN the organization is a sandbox', () => {
+      it('THEN should display the sandbox tag in the opener', () => {
+        render(
+          <OrganizationSwitcher
+            {...defaultProps}
+            organization={
+              { ...mockOrganization, environment: OrganizationEnvironmentEnum.Sandbox } as never
+            }
+          />,
+          renderOptions,
+        )
+
+        expect(
+          screen.getByTestId(ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization is a production organization', () => {
+      it('THEN should not display the sandbox tag', () => {
+        render(
+          <OrganizationSwitcher
+            {...defaultProps}
+            organization={
+              { ...mockOrganization, environment: OrganizationEnvironmentEnum.Production } as never
+            }
+          />,
+          renderOptions,
+        )
+
+        expect(
+          screen.queryByTestId(ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
   describe('GIVEN an organization the current session cannot access', () => {
     const lockedOrgUser = {
       ...mockCurrentUser,
