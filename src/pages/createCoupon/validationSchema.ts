@@ -14,6 +14,12 @@ import {
 const planSchema = z.custom<PlansForCouponsFragment>()
 const billableMetricSchema = z.custom<BillableMetricsForCouponsFragment>()
 
+export const COUPON_EXPIRATION_REQUIRED_ERROR = 'text_1771402708247nxe22ntllvd'
+export const COUPON_EXPIRATION_PAST_ERROR = 'text_632d68358f1fedc68eed3ef2'
+export const COUPON_LIMIT_REQUIRED_ERROR = 'text_1771402708247jyowmhc424h'
+
+export const getCouponMinExpirationDate = (): DateTime => DateTime.now().minus({ days: 1 })
+
 export const couponValidationSchema = z
   .object({
     name: z.string().min(1, 'text_1771342980565bx64zqq2mjs'),
@@ -106,34 +112,31 @@ export const couponValidationSchema = z
     },
   )
   // Validate expirationAt when expiration is TimeLimit
+  .refine((data) => data.expiration !== CouponExpiration.TimeLimit || !!data.expirationAt, {
+    message: COUPON_EXPIRATION_REQUIRED_ERROR,
+    path: ['expirationAt'],
+  })
   .refine(
     (data) => {
-      if (data.expiration !== CouponExpiration.TimeLimit) {
+      if (data.expiration !== CouponExpiration.TimeLimit || !data.expirationAt) {
         return true
       }
 
-      if (!data.expirationAt) {
-        return false
-      }
-
-      const expirationDate = DateTime.fromISO(data.expirationAt)
-      const minDate = DateTime.now().plus({ days: -1 })
-
-      return expirationDate >= minDate
+      return DateTime.fromISO(data.expirationAt) >= getCouponMinExpirationDate()
     },
     {
-      message: 'text_632d68358f1fedc68eed3ef2',
+      message: COUPON_EXPIRATION_PAST_ERROR,
       path: ['expirationAt'],
     },
   )
   // Validate limitPlansList when hasPlanLimit is true
   .refine((data) => !data.hasPlanLimit || data.limitPlansList.length > 0, {
-    message: 'text_1771344249653qh6ka7v6ot2',
+    message: COUPON_LIMIT_REQUIRED_ERROR,
     path: ['limitPlansList'],
   })
   // Validate limitBillableMetricsList when hasBillableMetricLimit is true
   .refine((data) => !data.hasBillableMetricLimit || data.limitBillableMetricsList.length > 0, {
-    message: 'text_1771344249653wx8dh32y28w',
+    message: COUPON_LIMIT_REQUIRED_ERROR,
     path: ['limitBillableMetricsList'],
   })
 
