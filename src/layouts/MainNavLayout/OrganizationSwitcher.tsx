@@ -33,9 +33,8 @@ const POPPER_MIN_WIDTH = 282
 // The switcher sits at the top of the nav, right under the sandbox banner when
 // it is shown: subtract the banner so the menu never runs past the viewport.
 export const ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT = `calc(100vh - 64px - 16px - ${SANDBOX_BANNER_HEIGHT})`
-// What the menu holds besides the list: the log out row (a small button and its padding, 48px) and the
-// menu's top and bottom borders. The list leaves room for it, so on a short window the list scrolls and log
-// out stays in view.
+// Room for the log out row (a small button and its padding, 48px) and the menu's two 1px borders, so on a
+// short window the list scrolls and log out stays in view.
 const ORGANIZATION_SWITCHER_FOOTER_HEIGHT = '50px'
 
 export const ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT = `calc(100vh - 64px - 16px - ${ORGANIZATION_SWITCHER_FOOTER_HEIGHT} - ${SANDBOX_BANNER_HEIGHT})`
