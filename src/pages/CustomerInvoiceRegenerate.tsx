@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import * as Sentry from '@sentry/react'
 import { useEffect, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router'
 
@@ -279,6 +280,13 @@ const CustomerInvoiceRegenerate = () => {
 
       return setFees((f) => f.map((fee) => (fee.id === id ? resetFee : fee)))
     }
+
+    // Should be unreachable: the backend sets originalFee on every adjusted fee. Surfacing
+    // it means that guarantee broke, and this reset silently deletes the fee like the bug it fixes.
+    Sentry.captureMessage('Reset fee fell back to delete: adjustedFee true with no originalFee', {
+      level: 'warning',
+      extra: { feeId: id },
+    })
 
     return setFees((f) => f.filter((fee) => fee.id !== id))
   }
