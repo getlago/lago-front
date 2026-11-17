@@ -30,6 +30,14 @@ const mockHasOrganizationPremiumAddon = jest.fn()
 const mockUseSandbox = jest.fn()
 // useRoleDetails derives these from the rolesCreate, rolesUpdate and rolesDelete permissions
 let mockRolePermissions = { canBeDuplicated: true, canBeEdited: true, canBeDeleted: true }
+let mockDeniedPermissions: string[] = []
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: (permissions: string[]) =>
+      !permissions.some((permission) => mockDeniedPermissions.includes(permission)),
+  }),
+}))
 
 jest.mock('~/hooks/useSandbox', () => ({
   useSandbox: () => mockUseSandbox(),
@@ -113,6 +121,7 @@ describe('RoleDetails', () => {
     mockHasOrganizationPremiumAddon.mockReturnValue(true)
     mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
     mockRolePermissions = { canBeDuplicated: true, canBeEdited: true, canBeDeleted: true }
+    mockDeniedPermissions = []
   })
 
   describe('GIVEN the role details page is rendered', () => {
@@ -211,12 +220,10 @@ describe('RoleDetails', () => {
         mockRolePermissions = { canBeDuplicated: false, canBeEdited: false, canBeDeleted: false }
       })
 
-      it('THEN should disable the duplicate upsell', async () => {
+      it('THEN should show no actions dropdown, as the duplicate upsell is its only item', async () => {
         await act(() => render(<RoleDetailsWithHeader />))
 
-        await userEvent.click(screen.getAllByTestId(ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID)[0])
-
-        expect(screen.getByTestId(ROLE_DETAILS_DUPLICATE_ACTION_TEST_ID)).toBeDisabled()
+        expect(screen.queryByTestId(ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
@@ -245,14 +252,27 @@ describe('RoleDetails', () => {
     describe('WHEN the member has none of the rolesCreate, rolesUpdate and rolesDelete permissions', () => {
       beforeEach(() => {
         mockRolePermissions = { canBeDuplicated: false, canBeEdited: false, canBeDeleted: false }
+        mockDeniedPermissions = ['rolesCreate', 'rolesUpdate', 'rolesDelete']
       })
 
-      it.each(ROLE_ACTIONS)('THEN should disable the %s action', async (_, testId) => {
+      it('THEN should show no actions dropdown', async () => {
+        await act(() => render(<RoleDetailsWithHeader />))
+
+        expect(screen.queryByTestId(ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the member can delete roles but the role is still assigned', () => {
+      beforeEach(() => {
+        mockRolePermissions = { canBeDuplicated: true, canBeEdited: true, canBeDeleted: false }
+      })
+
+      it('THEN should keep the delete action, disabled', async () => {
         await act(() => render(<RoleDetailsWithHeader />))
 
         await userEvent.click(screen.getAllByTestId(ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID)[0])
 
-        expect(screen.getByTestId(testId)).toBeDisabled()
+        expect(screen.getByTestId(ROLE_DETAILS_DELETE_ACTION_TEST_ID)).toBeDisabled()
       })
     })
   })

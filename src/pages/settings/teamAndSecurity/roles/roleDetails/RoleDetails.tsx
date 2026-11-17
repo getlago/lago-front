@@ -14,6 +14,7 @@ import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import { useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
 import {
   teamAndSecurityGroupOptions,
@@ -41,6 +42,7 @@ const RoleDetails = () => {
   const { getDisplayName, getDisplayDescription } = useRoleDisplayInformation()
   const { navigateToDuplicate, navigateToEdit } = useRoleActions()
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { hasPermissions } = usePermissions()
   const { groups: permissionGroups, isLoading: isLoadingPermissionGroups } =
     useRolePermissionsGroups()
   const hasPremiumAddon = hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.CustomRoles)
@@ -109,7 +111,7 @@ const RoleDetails = () => {
                     }
                     closePopper()
                   },
-                  disabled: !canBeDuplicated,
+                  hidden: !canBeDuplicated,
                   endIcon: !hasPremiumAddon ? 'sparkles' : undefined,
                 },
                 {
@@ -119,8 +121,7 @@ const RoleDetails = () => {
                     navigateToEdit(roleId)
                     closePopper()
                   },
-                  disabled: !canBeEdited,
-                  hidden: isSystem || !hasPremiumAddon,
+                  hidden: isSystem || !hasPremiumAddon || !canBeEdited,
                 },
                 {
                   label: translate('text_6261640f28a49700f1290df5'),
@@ -129,8 +130,9 @@ const RoleDetails = () => {
                     if (role) openDeleteRoleDialog(role)
                     closePopper()
                   },
+                  // Without the permission it is hidden; with it, a role still assigned to members stays disabled.
                   disabled: !canBeDeleted,
-                  hidden: isSystem || !hasPremiumAddon,
+                  hidden: isSystem || !hasPremiumAddon || !hasPermissions(['rolesDelete']),
                   danger: true,
                   tooltip: !canBeDeleted ? translate('text_1767002012431la8gv2iqucp') : undefined,
                 },
