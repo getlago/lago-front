@@ -1,6 +1,5 @@
 packages:
   - 'packages/configs/'
-  - 'packages/design-system/'
   - 'packages/ui/'
 
 catalog:

@@ -12,11 +12,6 @@ three rendering patterns. The choice is driven by the surface, not by the brand.
 | Canvas | usually 16×16, mark fills the box | mostly 40×40, mark centred on a solid rounded plate |
 | Brand logos present | `google`, `okta` | most integrations: stripe, adyen, netsuite, okta, xero, hubspot… |
 
-`packages/design-system/` also carries its own `public/images/`, holding byte-identical
-copies of 18 of those files, served through `publicDir` and exported as
-`lago-design-system/images/*`. Nothing imports it today. Adding a plate to that copy
-will not make it reachable from the app — use the repo-root `src/public/images/`.
-
 ### The three rendering patterns
 
 1. **`<Icon name="…" />`, or a `startIcon` / `endIcon` prop** — 16px glyph, for
