@@ -269,6 +269,37 @@ describe('InvoiceDetailsTableFooter', () => {
         )
       })
     })
+
+    describe('WHEN the original invoice was settled by a now fully-consumed offset credit note', () => {
+      it('THEN the due amount should not subtract the original settlement (BIL-745)', () => {
+        const invoice = createMockInvoice({
+          status: InvoiceStatusTypeEnum.Voided,
+          totalSettledAmountCents: '50598',
+          appliedTaxes: [],
+        })
+
+        const invoiceFees: FeeForInvoiceDetailsTableFooterFragment[] = [
+          { id: 'fee-1', amountCents: '100000' },
+        ]
+
+        render(
+          <table>
+            <InvoiceDetailsTableFooter
+              canHaveUnitPrice={false}
+              invoice={invoice}
+              invoiceFees={invoiceFees}
+              isRegenerateFlow={true}
+            />
+          </table>,
+        )
+
+        // The replacement invoice carries over neither the original's cash payments
+        // nor its credit-note offsets, so due amount is the full recomputed total.
+        expect(screen.getByTestId('invoice-details-table-footer-total-due-value').textContent).toBe(
+          '$1,000.00',
+        )
+      })
+    })
   })
 
   describe('GIVEN the invoice has applied taxes', () => {

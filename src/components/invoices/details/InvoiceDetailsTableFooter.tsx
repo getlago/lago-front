@@ -88,7 +88,10 @@ const computeSubtotal = (
       subTotalExcludingTax,
       subTotalIncludingTaxesAmountCents,
       totalAmountCents,
-      totalDueAmountCents: totalAmountCents - invoice?.totalSettledAmountCents,
+      // RegenerateFromVoidedService: the replacement carries over neither cash paid
+      // nor credit-note offsets from the voided invoice, so nothing to subtract here.
+      settledAmountCents: 0,
+      totalDueAmountCents: totalAmountCents,
     }
   }
 
@@ -96,6 +99,7 @@ const computeSubtotal = (
     subTotalExcludingTax: invoice?.subTotalExcludingTaxesAmountCents,
     subTotalIncludingTaxesAmountCents: invoice?.subTotalIncludingTaxesAmountCents,
     totalAmountCents: invoice?.totalAmountCents,
+    settledAmountCents: invoice?.totalSettledAmountCents,
     totalDueAmountCents: invoice?.totalDueAmountCents,
   }
 }
@@ -169,6 +173,7 @@ export const InvoiceDetailsTableFooter = memo(
       subTotalExcludingTax,
       subTotalIncludingTaxesAmountCents,
       totalAmountCents,
+      settledAmountCents,
       totalDueAmountCents,
     } = computeSubtotal(invoice, invoiceFees)
 
@@ -500,13 +505,10 @@ export const InvoiceDetailsTableFooter = memo(
             >
               {shouldDisplayPlaceholder
                 ? '-'
-                : intlFormatNumber(
-                    deserializeAmount(-invoice?.totalSettledAmountCents || 0, currency),
-                    {
-                      currencyDisplay: 'symbol',
-                      currency,
-                    },
-                  )}
+                : intlFormatNumber(deserializeAmount(-settledAmountCents || 0, currency), {
+                    currencyDisplay: 'symbol',
+                    currency,
+                  })}
             </Typography>
           </td>
         </tr>
