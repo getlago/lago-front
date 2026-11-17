@@ -1,8 +1,8 @@
-import { Icon, IconName } from 'lago-design-system'
 import { generatePath } from 'react-router'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { SettingsPaddedContainer } from '~/components/layouts/Settings'

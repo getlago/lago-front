@@ -1,6 +1,5 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { GraphQLFormattedError } from 'graphql'
-import { Icon } from 'lago-design-system'
 import { useEffect, useRef } from 'react'
 // eslint-disable-next-line lago/no-direct-rrd-nav-import -- Auth callback renders outside /:organizationSlug; the slug wrapper would be incorrect here.
 import { generatePath, useNavigate, useSearchParams } from 'react-router'
@@ -10,6 +9,7 @@ import {
   parseLegacyGoogleState,
   takeGoogleOauthFlow,
 } from '~/components/auth/googleOauthFlow'
+import { Icon } from '~/components/designSystem/Icon'
 import { envGlobalVar, getGraphQLErrorCode, hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
 import { INVITATION_ROUTE_FORM, LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { isSafeInAppPath } from '~/core/router/utils/isSafeInAppPath'

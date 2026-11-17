@@ -1,4 +1,3 @@
-import { Icon } from 'lago-design-system'
 import _groupBy from 'lodash/groupBy'
 import { useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router'
@@ -7,6 +6,7 @@ import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateCon
 import { formatUsageData } from '~/components/analytics/usage/utils'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import StackedBarChart from '~/components/designSystem/graphs/StackedBarChart'
+import { Icon } from '~/components/designSystem/Icon'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'

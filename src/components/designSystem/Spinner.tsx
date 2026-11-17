@@ -1,4 +1,4 @@
-import { Icon } from 'lago-design-system'
+import { Icon } from '~/components/designSystem/Icon'
 
 export const Spinner = ({ 'data-test': dataTestId }: { 'data-test'?: string }) => {
   return (

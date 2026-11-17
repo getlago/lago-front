@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
-import { Icon, IconName } from 'lago-design-system'
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { findNearestScrollableAncestor } from '~/components/designSystem/VirtualList/findNearestScrollableAncestor'

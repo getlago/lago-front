@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { FC, ReactNode, useEffect, useRef } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { Avatar, AvatarBadge } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Icon } from '~/components/designSystem/Icon'
 import { Pagination } from '~/components/designSystem/Pagination'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'

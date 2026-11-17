@@ -1,5 +1,4 @@
-import { Icon } from 'lago-design-system'
-
+import { Icon } from '~/components/designSystem/Icon'
 import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu'
 import {
   ADD_ON_DETAILS_ROUTE,

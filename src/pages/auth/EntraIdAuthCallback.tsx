@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 
+import { Icon } from '~/components/designSystem/Icon'
 import { LOGIN_ENTRA_ID_ROUTE } from '~/core/router'
 import { LagoApiError, useEntraIdLoginUserMutation } from '~/generated/graphql'
 

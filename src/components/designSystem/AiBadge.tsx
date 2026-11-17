@@ -1,4 +1,4 @@
-import { tw } from 'lago-design-system'
+import { tw } from '~/styles/utils'
 
 type AiBadgeProps = {
   className?: string

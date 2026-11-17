@@ -1,5 +1,4 @@
-import { IconName } from 'lago-design-system'
-
+import { IconName } from '~/components/designSystem/Icon'
 import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { DetailsPage } from '~/components/layouts/DetailsPage'

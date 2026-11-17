@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { ReactNode } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
+import { Icon } from '~/components/designSystem/Icon'
 import { PaginatedContent } from '~/components/designSystem/Pagination/PaginatedContent'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'

@@ -1,6 +1,6 @@
-import { Icon } from 'lago-design-system'
 import { ComponentType, ReactNode } from 'react'
 
+import { Icon } from '~/components/designSystem/Icon'
 import { ColumnConfig, ColumnHelpers } from '~/components/designSystem/Table/TableWithGroups'
 import { Typography, TypographyProps } from '~/components/designSystem/Typography'
 import { Checkbox } from '~/components/form'

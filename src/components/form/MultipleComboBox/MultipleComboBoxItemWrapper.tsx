@@ -1,7 +1,7 @@
 import { cx } from 'class-variance-authority'
-import { Icon } from 'lago-design-system'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { Link } from '~/core/router'
 

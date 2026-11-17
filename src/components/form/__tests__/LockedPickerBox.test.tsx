@@ -34,7 +34,7 @@ jest.mock('../TextInput', () => ({
   ),
 }))
 
-jest.mock('lago-design-system', () => ({
+jest.mock('~/components/designSystem/Icon', () => ({
   Icon: ({ name, size }: { name: string; size: string }) => (
     <span data-test="icon" data-icon-name={name} data-icon-size={size} />
   ),

@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { tw } from 'lago-design-system'
 import { useId, useMemo, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
@@ -14,6 +13,7 @@ import {
 } from '~/core/constants/form'
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { tw } from '~/styles/utils'
 
 gql`
   fragment PricingGroupKeys on Properties {

@@ -1,8 +1,8 @@
-import { Icon } from 'lago-design-system'
 import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { Icon } from '~/components/designSystem/Icon'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'

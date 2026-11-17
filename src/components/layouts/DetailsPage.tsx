@@ -1,7 +1,7 @@
-import { Icon, IconName } from 'lago-design-system'
 import { FC, PropsWithChildren, ReactNode } from 'react'
 
 import { Avatar } from '~/components/designSystem/Avatar'
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography, TypographyProps } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'

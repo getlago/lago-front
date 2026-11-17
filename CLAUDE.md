@@ -4,7 +4,7 @@
 
 - The project uses pnpm workspaces with packages in `packages/*`:
   - `packages/configs/` — shared ESLint, TypeScript, Tailwind configs
-  - `packages/design-system/` — shared UI components and icons
+  - `packages/design-system/` — legacy, unused by the app; v1 components and `Icon` live in `src/components/designSystem/`
   - `packages/ui/` (`lago-ui`) — v2 design system, work in progress. Only when a task explicitly
     asks for v2: read `packages/ui/README.md` first (rules, component index, one guide per
     component), import from `lago-ui/<name>`, never `@radix-ui/*` or `lucide-react` directly

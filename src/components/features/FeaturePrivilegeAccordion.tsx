@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
-import { tw } from 'lago-design-system'
 import { useEffect, useId, useMemo, useState } from 'react'
 
 import { Accordion } from '~/components/designSystem/Accordion'
@@ -19,6 +18,7 @@ import { PrivilegeValueTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { emptyFeatureDefaultValues } from '~/pages/features/featureForm/validationSchema'
+import { tw } from '~/styles/utils'
 
 gql`
   fragment FeaturePrivilegeAccordion on PrivilegeObject {

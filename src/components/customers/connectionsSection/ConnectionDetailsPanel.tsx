@@ -1,4 +1,3 @@
-import { Icon } from 'lago-design-system'
 import { ReactNode } from 'react'
 
 import { CustomerConnectionRow } from '~/components/customerConnections/CustomerConnectionsList'
@@ -15,6 +14,7 @@ import {
   getProviderPaymentConnection,
 } from '~/components/customers/connectionsSection/utils'
 import { getConnectedIntegrations } from '~/components/customers/utils'
+import { Icon } from '~/components/designSystem/Icon'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'

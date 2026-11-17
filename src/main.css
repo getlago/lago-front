@@ -1,7 +1,23 @@
-/* Import the design system styles */
-@import 'lago-design-system/style';
 @import 'lago-ui/styles.css';
 @import 'lago-configs/fonts.css';
+
+html,
+body,
+#root {
+  @apply m-0 h-full w-full overflow-hidden p-0;
+}
+
+body {
+  @apply relative font-sans text-base text-grey-600 subpixel-antialiased;
+}
+
+b {
+  @apply text-base font-medium -tracking-[0.01em];
+}
+
+li {
+  @apply m-0 list-none;
+}
 
 /* Useful for components that are styled with tailwind in the app */
 @tailwind base;

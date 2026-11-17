@@ -1,5 +1,4 @@
-import { Icon, IconName } from 'lago-design-system'
-
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
