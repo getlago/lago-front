@@ -158,6 +158,8 @@ const LINK_REFUSAL_CODES = [
   LagoApiError.SandboxHasStricterAuthentication,
   LagoApiError.SandboxHasPendingInvites,
   LagoApiError.SandboxHasOtherMembers,
+  LagoApiError.SandboxHasOtherRoles,
+  LagoApiError.SandboxHasOtherMemberRoles,
   LagoApiError.LockAcquisitionFailed,
 ]
 
@@ -461,6 +463,14 @@ describe('useLinkSandboxDialog', () => {
         [
           LagoApiError.SandboxHasOtherMembers,
           'This organization has members the production organization lacks. Remove them before linking.',
+        ],
+        [
+          LagoApiError.SandboxHasOtherRoles,
+          'This organization has custom roles the production organization lacks or defines differently. Align them first.',
+        ],
+        [
+          LagoApiError.SandboxHasOtherMemberRoles,
+          'Some members hold other roles here than on the production organization. Align their roles first.',
         ],
         [LagoApiError.LockAcquisitionFailed, 'Another link is in progress. Try again in a moment.'],
       ])('THEN should show the %s refusal message', async (code, message) => {
