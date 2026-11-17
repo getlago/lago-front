@@ -43,3 +43,13 @@ export const SELF_SERVE_CREATE_ORGANIZATION_LOG_OUT_BUTTON_TEST_ID =
   'self-serve-create-organization-log-out-button'
 export const SELF_SERVE_CREATE_ORGANIZATION_RETRY_BUTTON_TEST_ID =
   'self-serve-create-organization-retry-button'
+export const SELF_SERVE_CREATE_ORGANIZATION_NAME_FIELD_TEST_ID =
+  'self-serve-create-organization-name-field'
+export const SELF_SERVE_CREATE_ORGANIZATION_ROLE_FIELD_TEST_ID =
+  'self-serve-create-organization-role-field'
+export const SELF_SERVE_CREATE_ORGANIZATION_SOURCE_FIELD_TEST_ID =
+  'self-serve-create-organization-source-field'
+export const SELF_SERVE_CREATE_ORGANIZATION_SUBMIT_BUTTON_TEST_ID =
+  'self-serve-create-organization-submit-button'
+export const SELF_SERVE_CREATE_ORGANIZATION_ERROR_ALERT_TEST_ID =
+  'self-serve-create-organization-error-alert'
