@@ -96,6 +96,17 @@ const couponsDataSet = [
     result: '$0.50 remaining',
   },
   {
+    id: 24,
+    amountCurrency,
+    amountCents: 1000,
+    amountCentsRemaining: 0,
+    percentageRate: undefined,
+    frequency: CouponFrequency.Once,
+    frequencyDuration: undefined,
+    frequencyDurationRemaining: undefined,
+    result: '$0.00 remaining',
+  },
+  {
     id: 8,
     amountCurrency,
     amountCents: 100,
