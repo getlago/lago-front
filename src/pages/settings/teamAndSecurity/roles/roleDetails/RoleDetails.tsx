@@ -109,7 +109,7 @@ const RoleDetails = () => {
                     }
                     closePopper()
                   },
-                  disabled: hasPremiumAddon ? !canBeDuplicated : false,
+                  disabled: !canBeDuplicated,
                   endIcon: !hasPremiumAddon ? 'sparkles' : undefined,
                 },
                 {

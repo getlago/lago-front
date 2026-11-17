@@ -205,6 +205,20 @@ describe('RoleDetails', () => {
         expect(screen.queryByTestId(ROLE_DETAILS_DELETE_ACTION_TEST_ID)).not.toBeInTheDocument()
       })
     })
+
+    describe('WHEN the member does not have the rolesCreate permission', () => {
+      beforeEach(() => {
+        mockRolePermissions = { canBeDuplicated: false, canBeEdited: false, canBeDeleted: false }
+      })
+
+      it('THEN should disable the duplicate upsell', async () => {
+        await act(() => render(<RoleDetailsWithHeader />))
+
+        await userEvent.click(screen.getAllByTestId(ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID)[0])
+
+        expect(screen.getByTestId(ROLE_DETAILS_DUPLICATE_ACTION_TEST_ID)).toBeDisabled()
+      })
+    })
   })
 
   describe('GIVEN the user has premium addon', () => {

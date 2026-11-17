@@ -266,6 +266,19 @@ describe('RolesList', () => {
 
       expect(screen.getAllByTestId(OPEN_ACTION_BUTTON_TEST_ID)).toHaveLength(2)
     })
+
+    describe('WHEN the member does not have the rolesCreate permission', () => {
+      beforeEach(() => {
+        mockDeniedPermissions = ['rolesCreate']
+      })
+
+      it('THEN should display neither the upsell header button nor the row upsell', async () => {
+        await act(() => render(<RolesList />))
+
+        expect(screen.queryByTestId(SPARKLES_ICON_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryAllByTestId(OPEN_ACTION_BUTTON_TEST_ID)).toHaveLength(0)
+      })
+    })
   })
 
   describe('GIVEN the sandbox environment', () => {

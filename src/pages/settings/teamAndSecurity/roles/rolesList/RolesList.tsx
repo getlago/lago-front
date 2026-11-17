@@ -55,6 +55,9 @@ const RolesList = () => {
   }
 
   const getRoleHeaderAction = () => {
+    // No upsell either: a member who cannot create roles has nothing to unlock.
+    if (!canCreateRoles) return
+
     if (!hasPremiumAddon) {
       return (
         <Button onClick={openPremiumDialog} variant="inline" endIcon="sparkles">
@@ -62,8 +65,6 @@ const RolesList = () => {
         </Button>
       )
     }
-
-    if (!canCreateRoles) return
 
     return (
       <ButtonLink
@@ -118,6 +119,8 @@ const RolesList = () => {
     const canDelete = role.memberships.length === 0 && canDeleteRoles
 
     if (!hasPremiumAddon) {
+      if (!canCreateRoles) return []
+
       return [
         {
           startIcon: 'duplicate',
