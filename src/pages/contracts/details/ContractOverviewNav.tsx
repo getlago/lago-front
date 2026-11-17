@@ -1,6 +1,6 @@
-import { IconName } from 'lago-design-system'
 import { generatePath } from 'react-router'
 
+import { IconName } from '~/components/designSystem/Icon'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { VerticalMenu } from '~/components/designSystem/VerticalMenu'

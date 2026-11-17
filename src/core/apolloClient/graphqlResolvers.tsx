@@ -6,6 +6,21 @@ export const typeDefs = gql`
     unauthorized
     forbidden
     feature_unavailable
+    production_is_a_sandbox
+    production_already_has_sandbox
+    sandbox_already_linked
+    sandbox_has_sandbox
+    sandbox_is_self_serve
+    sandbox_has_sso_integration
+    sandbox_has_extra_premium_integrations
+    sandbox_has_extra_feature_flags
+    sandbox_has_stricter_authentication
+    sandbox_has_pending_invites
+    sandbox_has_other_members
+    sandbox_has_other_roles
+    sandbox_has_other_member_roles
+    lock_acquisition_failed
+    cannot_link_organization_to_itself
     not_found
     unprocessable_entity
 
@@ -70,6 +85,7 @@ export const typeDefs = gql`
     signup_token_locked
     password_required
     incorrect_password
+    user_not_eligible
 
     # SSO errors
     invalid_google_code

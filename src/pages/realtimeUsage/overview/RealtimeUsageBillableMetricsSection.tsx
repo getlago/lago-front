@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { generatePath, useSearchParams } from 'react-router'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Icon } from '~/components/designSystem/Icon'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'

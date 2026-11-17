@@ -122,7 +122,9 @@ describe('mapFromApiToForm', () => {
     billingTiming: RateCardBillingTimingEnum.Arrears,
     appliedPricingUnitCode: null,
     proration: false,
+    ratesCount: 0,
     activeRate: null,
+    nextPendingRate: null,
   }
 
   it('GIVEN a phase without override THEN seeds a forever phase with the override off', () => {

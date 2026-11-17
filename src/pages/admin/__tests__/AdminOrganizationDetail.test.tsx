@@ -1,28 +1,52 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { act, fireEvent, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 
 import { ReasonModalProps } from '~/components/admin/ReasonModal'
-import { addToast } from '~/core/apolloClient'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { addToast, envGlobalVar } from '~/core/apolloClient'
 import {
   AdminFeatureTypeEnum,
+  AdminOrganizationQuery,
   FeatureFlagEnum,
+  OrganizationEnvironmentEnum,
   PremiumIntegrationTypeEnum,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import AdminOrganizationDetail from '../AdminOrganizationDetail'
+import AdminOrganizationDetail, {
+  ADMIN_ORGANIZATION_DETAIL_COUNTERPART_LINK_TEST_ID,
+  ADMIN_ORGANIZATION_DETAIL_ENVIRONMENT_TEST_ID,
+  ADMIN_ORGANIZATION_DETAIL_LINK_SANDBOX_BUTTON_TEST_ID,
+  ADMIN_ORGANIZATION_DETAIL_MANAGED_BY_PRODUCTION_TEST_ID,
+  ADMIN_ORGANIZATION_DETAIL_SAVE_BUTTON_TEST_ID,
+} from '../AdminOrganizationDetail'
+import { useLinkSandboxDialog } from '../adminOrganizationDetail/useLinkSandboxDialog'
+
+type AdminOrganization = NonNullable<AdminOrganizationQuery['adminOrganization']>
 
 const mockToggle = jest.fn()
+const mockNavigate = jest.fn()
 const mockRefetch = jest.fn()
+const mockOpenLinkSandboxDialog = jest.fn()
+
+type UseLinkSandboxDialogProps = Parameters<typeof useLinkSandboxDialog>[0]
+
+const mockLinkSandboxDialogProps: Partial<UseLinkSandboxDialogProps> = {}
 const integration = Object.values(PremiumIntegrationTypeEnum)[0]
 const flag = Object.values(FeatureFlagEnum)[0]
-const mockOrg = {
+const mockOrg: AdminOrganization = {
   id: 'org',
   name: 'Acme',
   email: 'owner@example.com',
+  createdAt: '2026-01-01T00:00:00Z',
   premiumIntegrations: [integration],
   featureFlags: [flag],
+  environment: OrganizationEnvironmentEnum.Production,
+  productionOrganization: null,
+  sandboxOrganization: null,
 }
+const PRODUCTION_LINK = { id: 'production-org', name: 'Acme' }
+const SANDBOX_LINK = { id: 'sandbox-org', name: 'Acme Sandbox' }
 let mockQuery = { data: { adminOrganization: mockOrg }, loading: false, refetch: mockRefetch }
 
 jest.mock('~/generated/graphql', () => ({
@@ -30,19 +54,57 @@ jest.mock('~/generated/graphql', () => ({
   useAdminOrganizationQuery: () => mockQuery,
   useAdminToggleFeatureMutation: () => [mockToggle],
 }))
-jest.mock('~/core/apolloClient', () => ({
-  ...jest.requireActual('~/core/apolloClient'),
-  addToast: jest.fn(),
+jest.mock('~/core/router', () => ({
+  ...jest.requireActual('~/core/router'),
+  useNavigate: () => mockNavigate,
 }))
+jest.mock('~/core/apolloClient', () => {
+  const actual = jest.requireActual('~/core/apolloClient')
+
+  return {
+    ...actual,
+    envGlobalVar: jest.fn(() => actual.envGlobalVar()),
+    addToast: jest.fn(),
+  }
+})
+jest.mock('../adminOrganizationDetail/useLinkSandboxDialog', () => ({
+  useLinkSandboxDialog: (props: UseLinkSandboxDialogProps) => {
+    mockLinkSandboxDialogProps.onLinked = props.onLinked
+
+    return { openLinkSandboxDialog: mockOpenLinkSandboxDialog }
+  },
+}))
+
+const setSelfServeEnabled = (selfServeEnabled: boolean): void => {
+  const actualEnv = jest.requireActual('~/core/apolloClient').envGlobalVar()
+
+  jest.mocked(envGlobalVar).mockReturnValue({ ...actualEnv, selfServeEnabled })
+}
 
 const toggle = (name: string): void => {
   fireEvent.click(screen.getByRole('checkbox', { name }))
+}
+
+const renderWithOrganization = (overrides: Partial<AdminOrganization>): void => {
+  mockQuery = {
+    data: { adminOrganization: { ...mockOrg, ...overrides } },
+    loading: false,
+    refetch: mockRefetch,
+  }
+  render(
+    <>
+      <MainHeader />
+      <AdminOrganizationDetail />
+    </>,
+    { useParams: { organizationId: 'org' } },
+  )
 }
 
 describe('AdminOrganizationDetail', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockQuery = { data: { adminOrganization: mockOrg }, loading: false, refetch: mockRefetch }
+    setSelfServeEnabled(true)
     mockToggle.mockResolvedValue({ data: { adminToggleFeature: { id: 'change' } } })
     jest.spyOn(NiceModal, 'show').mockResolvedValue(undefined)
   })
@@ -111,5 +173,257 @@ describe('AdminOrganizationDetail', () => {
     expect(addToast).toHaveBeenCalledWith({ severity: 'danger', message: '1 of 2 updates failed.' })
     expect(mockRefetch).toHaveBeenCalledTimes(1)
     expect(screen.getByText('Save changes')).toBeEnabled()
+  })
+  describe('GIVEN a deployment that does not run self-serve', () => {
+    describe('WHEN the page renders', () => {
+      it('THEN should not display the environment row', () => {
+        setSelfServeEnabled(false)
+        renderWithOrganization({})
+
+        expect(
+          screen.queryByTestId(ADMIN_ORGANIZATION_DETAIL_ENVIRONMENT_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a production organization without a sandbox', () => {
+    describe('WHEN the page renders', () => {
+      beforeEach(() => {
+        renderWithOrganization({
+          environment: OrganizationEnvironmentEnum.Production,
+          productionOrganization: null,
+          sandboxOrganization: null,
+        })
+      })
+
+      it('THEN should display the production environment', () => {
+        expect(screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_ENVIRONMENT_TEST_ID)).toHaveTextContent(
+          'Production',
+        )
+      })
+
+      it.each([
+        ['counterpart link', ADMIN_ORGANIZATION_DETAIL_COUNTERPART_LINK_TEST_ID],
+        ['managed by production alert', ADMIN_ORGANIZATION_DETAIL_MANAGED_BY_PRODUCTION_TEST_ID],
+      ])('THEN should not display the %s', (_, testId) => {
+        expect(screen.queryByTestId(testId)).not.toBeInTheDocument()
+      })
+
+      it('THEN should keep the switches enabled and the save button rendered', () => {
+        for (const checkbox of screen.getAllByRole('checkbox')) expect(checkbox).toBeEnabled()
+        expect(
+          screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_SAVE_BUTTON_TEST_ID),
+        ).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a production organization linked to a sandbox', () => {
+    beforeEach(() => {
+      renderWithOrganization({
+        environment: OrganizationEnvironmentEnum.Production,
+        productionOrganization: null,
+        sandboxOrganization: SANDBOX_LINK,
+      })
+    })
+
+    describe('WHEN the page renders', () => {
+      it('THEN should display the sandbox as the counterpart', () => {
+        expect(
+          screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_COUNTERPART_LINK_TEST_ID),
+        ).toHaveTextContent(SANDBOX_LINK.name)
+      })
+
+      it('THEN should keep the production editing controls', () => {
+        expect(
+          screen.queryByTestId(ADMIN_ORGANIZATION_DETAIL_MANAGED_BY_PRODUCTION_TEST_ID),
+        ).not.toBeInTheDocument()
+        for (const checkbox of screen.getAllByRole('checkbox')) expect(checkbox).toBeEnabled()
+        expect(
+          screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_SAVE_BUTTON_TEST_ID),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN clicking the counterpart link', () => {
+      it('THEN should open the sandbox admin detail without prepending the org slug', () => {
+        fireEvent.click(screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_COUNTERPART_LINK_TEST_ID))
+
+        expect(mockNavigate).toHaveBeenCalledWith(`/admin/organizations/${SANDBOX_LINK.id}`, {
+          skipSlugPrepend: true,
+        })
+      })
+    })
+
+    describe('WHEN a switch has an unsaved change', () => {
+      it('THEN should disable the counterpart link', () => {
+        const link = screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_COUNTERPART_LINK_TEST_ID)
+
+        expect(link).toBeEnabled()
+        toggle(integration)
+        expect(link).toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN a sandbox organization linked to its production', () => {
+    beforeEach(() => {
+      renderWithOrganization({
+        environment: OrganizationEnvironmentEnum.Sandbox,
+        productionOrganization: PRODUCTION_LINK,
+        sandboxOrganization: null,
+      })
+    })
+
+    describe('WHEN the page renders', () => {
+      it('THEN should display the sandbox environment', () => {
+        expect(screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_ENVIRONMENT_TEST_ID)).toHaveTextContent(
+          'Sandbox',
+        )
+      })
+
+      it('THEN should display the production as the counterpart', () => {
+        expect(
+          screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_COUNTERPART_LINK_TEST_ID),
+        ).toHaveTextContent(PRODUCTION_LINK.name)
+      })
+
+      it('THEN should display the managed by production alert', () => {
+        expect(
+          screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_MANAGED_BY_PRODUCTION_TEST_ID),
+        ).toBeInTheDocument()
+      })
+
+      it('THEN should disable every switch', () => {
+        const checkboxes = screen.getAllByRole('checkbox')
+
+        expect(checkboxes).not.toHaveLength(0)
+        for (const checkbox of checkboxes) expect(checkbox).toBeDisabled()
+      })
+
+      it('THEN should not render the save footer', () => {
+        expect(
+          screen.queryByTestId(ADMIN_ORGANIZATION_DETAIL_SAVE_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    it('THEN should display the alert without its own button', () => {
+      const alert = screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_MANAGED_BY_PRODUCTION_TEST_ID)
+
+      expect(within(alert).queryByRole('button')).not.toBeInTheDocument()
+    })
+
+    describe('WHEN clicking the counterpart link', () => {
+      it('THEN should open the production admin detail without prepending the org slug', () => {
+        fireEvent.click(screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_COUNTERPART_LINK_TEST_ID))
+
+        expect(mockNavigate).toHaveBeenCalledWith(`/admin/organizations/${PRODUCTION_LINK.id}`, {
+          skipSlugPrepend: true,
+        })
+      })
+    })
+  })
+
+  describe('GIVEN a sandbox organization without a linked production', () => {
+    describe('WHEN the page renders', () => {
+      it('THEN should display the alert without a button and no counterpart link', () => {
+        renderWithOrganization({
+          environment: OrganizationEnvironmentEnum.Sandbox,
+          productionOrganization: null,
+          sandboxOrganization: null,
+        })
+
+        const alert = screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_MANAGED_BY_PRODUCTION_TEST_ID)
+
+        expect(within(alert).queryByRole('button')).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(ADMIN_ORGANIZATION_DETAIL_COUNTERPART_LINK_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the link a sandbox header action', () => {
+    describe('WHEN self-serve is enabled AND the production organization has no counterpart', () => {
+      beforeEach(() => {
+        setSelfServeEnabled(true)
+        renderWithOrganization({
+          environment: OrganizationEnvironmentEnum.Production,
+          productionOrganization: null,
+          sandboxOrganization: null,
+        })
+      })
+
+      it('THEN should display the action', () => {
+        expect(
+          screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_LINK_SANDBOX_BUTTON_TEST_ID),
+        ).toBeInTheDocument()
+      })
+
+      it('THEN should open the link sandbox dialog for this organization on click', () => {
+        fireEvent.click(screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_LINK_SANDBOX_BUTTON_TEST_ID))
+
+        expect(mockOpenLinkSandboxDialog).toHaveBeenCalledWith({ id: 'org', name: 'Acme' })
+      })
+
+      it('THEN should refetch the organization once the sandbox is linked', () => {
+        act(() => mockLinkSandboxDialogProps.onLinked?.())
+
+        expect(mockRefetch).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN self-serve is disabled', () => {
+      it('THEN should hide the action', () => {
+        setSelfServeEnabled(false)
+        renderWithOrganization({
+          environment: OrganizationEnvironmentEnum.Production,
+          productionOrganization: null,
+          sandboxOrganization: null,
+        })
+
+        expect(
+          screen.queryByTestId(ADMIN_ORGANIZATION_DETAIL_LINK_SANDBOX_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization is already linked', () => {
+      it.each([
+        [
+          'a production organization with a sandbox',
+          {
+            environment: OrganizationEnvironmentEnum.Production,
+            productionOrganization: null,
+            sandboxOrganization: SANDBOX_LINK,
+          },
+        ],
+        [
+          'a sandbox organization with a production',
+          {
+            environment: OrganizationEnvironmentEnum.Sandbox,
+            productionOrganization: PRODUCTION_LINK,
+            sandboxOrganization: null,
+          },
+        ],
+        [
+          'a sandbox organization whose production is not returned',
+          {
+            environment: OrganizationEnvironmentEnum.Sandbox,
+            productionOrganization: null,
+            sandboxOrganization: null,
+          },
+        ],
+      ])('THEN should hide the action for %s', (_, overrides) => {
+        setSelfServeEnabled(true)
+        renderWithOrganization(overrides)
+
+        expect(
+          screen.queryByTestId(ADMIN_ORGANIZATION_DETAIL_LINK_SANDBOX_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
   })
 })

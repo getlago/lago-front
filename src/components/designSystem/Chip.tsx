@@ -1,13 +1,12 @@
 import MuiChip, { type ChipOwnProps } from '@mui/material/Chip'
-import { Icon, IconColor, IconName, IconProps } from 'lago-design-system'
 
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
+import { Icon, IconColor, IconName, IconProps } from '~/components/designSystem/Icon'
 import { tw } from '~/styles/utils'
 
 import { Button } from './Button'
 import { Tooltip } from './Tooltip'
 import { Typography, TypographyColor, TypographyProps } from './Typography'
-
-import { ConditionalWrapper } from '../ConditionalWrapper'
 
 enum ChipTypeEnum {
   primary = 'primary',

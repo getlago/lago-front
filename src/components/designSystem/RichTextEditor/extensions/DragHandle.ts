@@ -2,9 +2,10 @@ import { type Editor, Extension } from '@tiptap/core'
 import type { Node as PmNode } from '@tiptap/pm/model'
 import { type EditorState, NodeSelection, Plugin, PluginKey, TextSelection } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
-import { ALL_ICONS } from 'lago-design-system'
 import { createElement } from 'react'
 import { createRoot } from 'react-dom/client'
+
+import { ALL_ICONS } from '~/components/designSystem/Icon'
 
 const dragHandlePluginKey = new PluginKey('dragHandle')
 

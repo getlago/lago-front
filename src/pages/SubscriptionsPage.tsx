@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import { Icon, tw } from 'lago-design-system'
 import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router'
 
 import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
+import { Icon } from '~/components/designSystem/Icon'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
@@ -25,6 +25,7 @@ import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import { StatusTypeEnum, Subscription, useGetSubscriptionsListLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { tw } from '~/styles/utils'
 
 gql`
   fragment SubscriptionForSubscriptionsList on Subscription {

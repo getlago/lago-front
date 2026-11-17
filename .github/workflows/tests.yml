@@ -33,6 +33,16 @@ jobs:
       - name: Run Typescript
         run: pnpm tsc
 
+      - name: Run tests (lago-ui)
+        run: pnpm --filter lago-ui test --coverage
+
+      - name: Upload coverage artifact (lago-ui)
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: coverage-shard-lago-ui
+          path: packages/ui/coverage/lcov.info
+          retention-days: 1
+
   test-shard:
     if: github.event.pull_request.draft == false || github.event_name == 'push'
     name: Tests (shard ${{ matrix.shard }}/4)
@@ -82,7 +92,7 @@ jobs:
   merge-coverage:
     if: always() && (github.event.pull_request.draft == false || github.event_name == 'push')
     name: Merge coverage & SonarQube
-    needs: test-shard
+    needs: [typecheck, test-shard]
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
@@ -90,10 +100,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fail if any shard failed
-        if: needs.test-shard.result == 'failure'
+      - name: Fail if any test job failed
+        if: needs.test-shard.result == 'failure' || needs.typecheck.result == 'failure'
         run: |
-          echo "One or more test shards failed"
+          echo "One or more test jobs failed"
           exit 1
 
       - name: Download all coverage artifacts
@@ -129,7 +139,7 @@ jobs:
 
       - name: SonarQube Scan (Pull Request)
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        uses: SonarSource/sonarqube-scan-action@4d1dc0c91ee400dcf8a6dddf2f705ac36542e304 # v8.4.0
+        uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 # v8.4.1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
@@ -144,7 +154,7 @@ jobs:
       - name: SonarQube Scan (Main Branch)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         continue-on-error: true
-        uses: SonarSource/sonarqube-scan-action@4d1dc0c91ee400dcf8a6dddf2f705ac36542e304 # v8.4.0
+        uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 # v8.4.1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:

@@ -1,5 +1,4 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { Icon } from 'lago-design-system'
 import {
   forwardRef,
   ReactNode,
@@ -11,6 +10,7 @@ import {
   useState,
 } from 'react'
 
+import { Icon } from '~/components/designSystem/Icon'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { theme } from '~/styles'

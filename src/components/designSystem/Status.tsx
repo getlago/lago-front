@@ -1,6 +1,6 @@
-import { Icon, IconColor, IconName } from 'lago-design-system'
 import { FC } from 'react'
 
+import { Icon, IconColor, IconName } from '~/components/designSystem/Icon'
 import { Locale, TranslateData } from '~/core/translations'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { tw } from '~/styles/utils'

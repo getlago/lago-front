@@ -4,10 +4,9 @@ import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Table } from '~/components/designSystem/Table/Table'
-import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { WEBHOOK_ROUTE } from '~/components/developers/devtoolsRoutes'
+import { RevealableValue } from '~/components/developers/RevealableValue'
 import { useDeleteWebhook } from '~/components/developers/webhooks/useDeleteWebhook'
 import {
   SettingsListItem,
@@ -183,33 +182,13 @@ export const Webhooks = () => {
                       minWidth: 147,
                       maxSpace: true,
                       content: ({ hmacKey }) => (
-                        <div className="flex items-center gap-2 py-3">
-                          <TypographyWithCopy
-                            className="ml-0 line-break-auto [text-wrap:auto]"
-                            color="grey700"
-                            variant="captionCode"
-                            masked={!showOrganizationHmac}
-                            maskOptions={{ dotsCount: 8, visibleChars: 3 }}
-                          >
-                            {hmacKey || ''}
-                          </TypographyWithCopy>
-
-                          <Tooltip
-                            placement="top-start"
-                            title={
-                              showOrganizationHmac
-                                ? translate('text_1731082143943pr83kgzeh86')
-                                : translate('text_1731082129536sv17ey4g0sk')
-                            }
-                          >
-                            <Button
-                              variant="quaternary"
-                              size="small"
-                              icon={showOrganizationHmac ? 'eye-hidden' : 'eye'}
-                              onClick={() => setShowOrganizationHmac((prev) => !prev)}
-                            />
-                          </Tooltip>
-                        </div>
+                        <RevealableValue
+                          className="py-3"
+                          valueClassName="ml-0 line-break-auto [text-wrap:auto]"
+                          value={hmacKey || ''}
+                          isRevealed={showOrganizationHmac}
+                          onToggleReveal={() => setShowOrganizationHmac((prev) => !prev)}
+                        />
                       ),
                     },
                   ]}

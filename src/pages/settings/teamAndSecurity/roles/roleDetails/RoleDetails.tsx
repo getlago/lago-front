@@ -1,7 +1,7 @@
-import { Icon } from 'lago-design-system'
 import { generatePath, useParams } from 'react-router'
 
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { DetailsPage } from '~/components/layouts/DetailsPage'

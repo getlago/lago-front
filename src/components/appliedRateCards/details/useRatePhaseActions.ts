@@ -1,5 +1,3 @@
-import { IconName } from 'lago-design-system'
-
 import { APPLIED_RATE_CARD_CONTEXT_CONFIG } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { useDeleteRatePhaseDialog } from '~/components/appliedRateCards/dialogs/useDeleteRatePhaseDialog'
 import { useResetRatePhaseOverrideDialog } from '~/components/appliedRateCards/dialogs/useResetRatePhaseOverrideDialog'
@@ -11,6 +9,7 @@ import {
 import { useRatePhaseDrawer } from '~/components/appliedRateCards/drawers/ratePhase/useRatePhaseDrawer'
 import { formatRatePhaseName } from '~/components/appliedRateCards/ratePhaseDisplay'
 import { AppliedRateCardContext } from '~/components/appliedRateCards/types'
+import { IconName } from '~/components/designSystem/Icon'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { RatePhaseForDrawerFragment } from '~/generated/graphql'
@@ -42,9 +41,12 @@ export type UseRatePhaseActionsParams = {
   onPhaseDeleted?: (phase: RatePhaseForDrawerFragment) => void
 }
 
+export type RatePhaseSectionAction = { hidden: boolean; disabled: boolean; open: () => void }
+
 export type RatePhaseActions = {
   getPhaseActions: (phase: RatePhaseForDrawerFragment) => RatePhaseAction[]
-  createPhase: { hidden: boolean; disabled: boolean; open: () => void }
+  getEditPhase: (phase: RatePhaseForDrawerFragment) => RatePhaseSectionAction
+  createPhase: RatePhaseSectionAction
 }
 
 type AppliedRateCardDrawerKey =
@@ -64,7 +66,7 @@ export const useRatePhaseActions = ({
 }: UseRatePhaseActionsParams): RatePhaseActions => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { openDrawer } = useRatePhaseDrawer()
+  const { openDrawer } = useRatePhaseDrawer(rateCard)
   const { openDeleteRatePhaseDialog } = useDeleteRatePhaseDialog()
   const { openResetRatePhaseOverrideDialog } = useResetRatePhaseOverrideDialog()
 
@@ -169,8 +171,15 @@ export const useRatePhaseActions = ({
     return [copyAction, editAction, resetAction, deleteAction]
   }
 
+  const getEditPhase = (phase: RatePhaseForDrawerFragment): RatePhaseSectionAction => ({
+    hidden: !canUpdate,
+    disabled: isDrawerDisabled,
+    open: () => openEditDrawer(phase),
+  })
+
   return {
     getPhaseActions,
+    getEditPhase,
     createPhase: { hidden: !canUpdate, disabled: isDrawerDisabled, open: openCreateDrawer },
   }
 }

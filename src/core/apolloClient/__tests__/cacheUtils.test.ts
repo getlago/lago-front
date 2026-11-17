@@ -1,6 +1,7 @@
 import { ApolloClient } from '@apollo/client'
 
 import { logOut, onLogIn, switchCurrentOrganization } from '../cacheUtils'
+import { currentOrganizationVar } from '../reactiveVars/currentOrganizationVar'
 
 const mockSetCurrentOrganizationId = jest.fn()
 const mockUpdateAuthTokenVar = jest.fn()
@@ -22,17 +23,24 @@ jest.mock('../cachePersistor', () => ({
   purgePersistedCache: (...args: unknown[]) => mockPurgePersistedCache(...args),
 }))
 
-jest.mock('../reactiveVars', () => ({
-  addToast: (...args: unknown[]) => mockAddToast(...args),
-  AUTH_TOKEN_LS_KEY: 'auth_token',
-  authTokenVar: (...args: unknown[]) => mockAuthTokenVar(...args),
-  getStoredAuthToken: () => mockGetStoredAuthToken(),
-  TMP_AUTH_TOKEN_LS_KEY: 'tmp_auth_token',
-  setCurrentOrganizationId: (...args: unknown[]) => mockSetCurrentOrganizationId(...args),
-  resetLocationHistoryVar: jest.fn(),
-  updateAuthTokenVar: (...args: unknown[]) => mockUpdateAuthTokenVar(...args),
-  updateCustomerPortalTokenVar: jest.fn(),
-}))
+jest.mock('../reactiveVars', () => {
+  const { setCurrentOrganizationId } = jest.requireActual('../reactiveVars/currentOrganizationVar')
+
+  return {
+    addToast: (...args: unknown[]) => mockAddToast(...args),
+    AUTH_TOKEN_LS_KEY: 'auth_token',
+    authTokenVar: (...args: unknown[]) => mockAuthTokenVar(...args),
+    getStoredAuthToken: () => mockGetStoredAuthToken(),
+    TMP_AUTH_TOKEN_LS_KEY: 'tmp_auth_token',
+    setCurrentOrganizationId: (id: string | null) => {
+      mockSetCurrentOrganizationId(id)
+      setCurrentOrganizationId(id)
+    },
+    resetLocationHistoryVar: jest.fn(),
+    updateAuthTokenVar: (...args: unknown[]) => mockUpdateAuthTokenVar(...args),
+    updateCustomerPortalTokenVar: jest.fn(),
+  }
+})
 
 jest.mock('~/hooks/useDeveloperTool', () => ({
   DEVTOOL_AUTO_SAVE_KEY: 'devtool_auto_save',
@@ -164,6 +172,7 @@ describe('logOut', () => {
     localStorage.clear()
     mockAuthTokenVar.mockReturnValue('session-jwt')
     localStorage.setItem('auth_token', 'session-jwt')
+    currentOrganizationVar('org-of-the-ending-session')
   })
 
   describe('WHEN this tab still owns the stored session', () => {
@@ -193,6 +202,28 @@ describe('logOut', () => {
 
       expect(mockDisconnectCableConsumer).toHaveBeenCalledTimes(1)
     })
+
+    it('THEN should forget the current organization', async () => {
+      await logOut(createMockClient())
+
+      expect(currentOrganizationVar()).toBeNull()
+    })
+
+    it('THEN should forget it only after the teardown, right before the token changes', async () => {
+      const client = createMockClient()
+
+      await logOut(client)
+
+      const tokenWrite = mockAuthTokenVar.mock.calls.findIndex((args) => args.length > 0)
+      const clearStoreAt = (client.clearStore as jest.Mock).mock.invocationCallOrder[0]
+      const purgeAt = mockPurgePersistedCache.mock.invocationCallOrder[0]
+      const forgetOrgAt = mockSetCurrentOrganizationId.mock.invocationCallOrder[0]
+      const setTokenAt = mockAuthTokenVar.mock.invocationCallOrder[tokenWrite]
+
+      expect(clearStoreAt).toBeLessThan(purgeAt)
+      expect(purgeAt).toBeLessThan(forgetOrgAt)
+      expect(forgetOrgAt).toBeLessThan(setTokenAt)
+    })
   })
 
   describe('WHEN another tab stored a newer session during the teardown', () => {
@@ -209,6 +240,18 @@ describe('logOut', () => {
       expect(localStorage.getItem('auth_token')).toBe('newer-session-jwt')
       expect(mockPurgePersistedCache).not.toHaveBeenCalled()
       expect(mockAuthTokenVar).toHaveBeenLastCalledWith('newer-session-jwt')
+    })
+
+    it('THEN should still forget the organization of the session that ended', async () => {
+      const client = createMockClient()
+
+      ;(client.clearStore as jest.Mock).mockImplementation(async () => {
+        localStorage.setItem('auth_token', 'newer-session-jwt')
+      })
+
+      await logOut(client)
+
+      expect(currentOrganizationVar()).toBeNull()
     })
   })
 })

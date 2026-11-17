@@ -2,6 +2,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import { useStore } from '@tanstack/react-form'
 import { useState } from 'react'
 
+import { RatePhaseRateAlert } from '~/components/appliedRateCards/RatePhaseRateAlert'
 import { Typography } from '~/components/designSystem/Typography'
 import { Checkbox } from '~/components/form/Checkbox/Checkbox'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
@@ -53,6 +54,8 @@ const defaultProps: RatePhaseFormFieldsRenderProps = {
     appliedPricingUnitCode: null,
     proration: false,
     activeRate: null,
+    nextPendingRate: null,
+    ratesCount: 0,
   },
 }
 
@@ -107,6 +110,8 @@ export const RatePhaseFormFields = withForm({
       disabled: isBeforeTail && positionMode === 'after' && phase.code === tailCode,
     }))
 
+    const hasNoRate = rateCard.ratesCount === 0
+
     const handleOverrideToggle = ({ value }: { value: boolean }): void => {
       if (value) {
         setMinAmountCentsWhenEnabled(form.state.values.minAmountCents)
@@ -129,6 +134,11 @@ export const RatePhaseFormFields = withForm({
       if (value === 'forever' && form.state.values.durationCycleCount) {
         form.setFieldValue('durationCycleCount', '')
       }
+    }
+
+    const handleOverrideFromAlert = (): void => {
+      handleOverrideToggle({ value: true })
+      form.setFieldValue('overrideEnabled', true)
     }
 
     // `RatePhases::ReplaceService` only accepts the last phase running forever.
@@ -243,32 +253,36 @@ export const RatePhaseFormFields = withForm({
           </div>
         </div>
 
-        <CenteredPage.SubsectionWrapper>
-          <CenteredPage.PageSection>
-            <CenteredPage.PageSectionTitle title={translate('text_17918384599834dc1b83rkki')} />
-            <RateBillingIntervalFields
+        {hasNoRate && !overrideEnabled ? (
+          <RatePhaseRateAlert variant="none" onOverride={handleOverrideFromAlert} />
+        ) : (
+          <CenteredPage.SubsectionWrapper>
+            <CenteredPage.PageSection>
+              <CenteredPage.PageSectionTitle title={translate('text_17918384599834dc1b83rkki')} />
+              <RateBillingIntervalFields
+                form={form}
+                fields={RATE_FIELD_GROUP_FIELDS}
+                disabled={!overrideEnabled}
+              />
+            </CenteredPage.PageSection>
+
+            <RatePricingSettingsSection
               form={form}
               fields={RATE_FIELD_GROUP_FIELDS}
+              rateCard={rateCard}
+              isRateModelLocked={false}
               disabled={!overrideEnabled}
             />
-          </CenteredPage.PageSection>
 
-          <RatePricingSettingsSection
-            form={form}
-            fields={RATE_FIELD_GROUP_FIELDS}
-            rateCard={rateCard}
-            isRateModelLocked={false}
-            disabled={!overrideEnabled}
-          />
-
-          <RateInvoicingSettingsSection
-            form={form}
-            fields={RATE_FIELD_GROUP_FIELDS}
-            rateCard={rateCard}
-            disabled={!overrideEnabled}
-            initialMinAmountCents={overrideEnabled ? minAmountCentsWhenEnabled : minAmountCents}
-          />
-        </CenteredPage.SubsectionWrapper>
+            <RateInvoicingSettingsSection
+              form={form}
+              fields={RATE_FIELD_GROUP_FIELDS}
+              rateCard={rateCard}
+              disabled={!overrideEnabled}
+              initialMinAmountCents={overrideEnabled ? minAmountCentsWhenEnabled : minAmountCents}
+            />
+          </CenteredPage.SubsectionWrapper>
+        )}
       </div>
     )
   },

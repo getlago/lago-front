@@ -1,4 +1,3 @@
-import { tw } from 'lago-design-system'
 import { useMemo } from 'react'
 import {
   Bar,
@@ -26,6 +25,7 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { CurrencyEnum, TimeGranularityEnum, TimezoneEnum } from '~/generated/graphql'
 import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import {
   calculateYAxisDomain,

@@ -1,7 +1,7 @@
-import { Icon } from 'lago-design-system'
 import { FC, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { Radio } from '~/components/form'
 import { LocalUsageChargeInput } from '~/components/plans/types'

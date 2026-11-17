@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { useEffect } from 'react'
 
@@ -9,6 +8,7 @@ import { LoaderInvoicesListTotal } from '~/components/customerPortal/common/Sect
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status, StatusProps, StatusType } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'

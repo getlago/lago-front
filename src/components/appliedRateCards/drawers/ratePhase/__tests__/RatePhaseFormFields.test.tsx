@@ -51,6 +51,7 @@ const rateCardForFields: RateCardForRatePhaseFields = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   appliedPricingUnitCode: null,
   proration: false,
+  ratesCount: 1,
   activeRate: {
     id: 'active-rate',
     effectiveFrom: '2026-01-01T00:00:00.000Z',
@@ -61,6 +62,7 @@ const rateCardForFields: RateCardForRatePhaseFields = {
     appliedPricingUnitConversionRate: null,
     rateProperties: { amount: '10' },
   },
+  nextPendingRate: null,
 }
 
 const OTHER_PHASES: RatePhaseReference[] = [
@@ -160,6 +162,46 @@ describe('RatePhaseFormFields', () => {
     render(<Host rateCard={{ ...rateCardForFields, appliedPricingUnitCode: 'usd-cents' }} />)
 
     expect(screen.getByTestId(RATE_CARD_RATE_DRAWER_CONVERSION_RATE_TEST_ID)).toBeInTheDocument()
+  })
+
+  it('GIVEN a rate card with no rates THEN the rate fields are hidden behind the no-rate alert', () => {
+    render(
+      <Host
+        rateCard={{ ...rateCardForFields, ratesCount: 0, activeRate: null }}
+        defaultValues={buildCreatePhaseSeed([], {
+          ...rateCardForFields,
+          ratesCount: 0,
+          activeRate: null,
+        })}
+      />,
+    )
+
+    expect(screen.getByText('No rates exist on the selected rate card.')).toBeInTheDocument()
+    expect(
+      screen.queryByTestId(RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_COUNT_TEST_ID),
+    ).not.toBeInTheDocument()
+  })
+
+  it('GIVEN a rate card with no rates WHEN the alert override action is clicked THEN the override toggle turns on and the rate fields appear', async () => {
+    render(
+      <Host
+        rateCard={{ ...rateCardForFields, ratesCount: 0, activeRate: null }}
+        defaultValues={buildCreatePhaseSeed([], {
+          ...rateCardForFields,
+          ratesCount: 0,
+          activeRate: null,
+        })}
+      />,
+    )
+
+    await userEvent.click(screen.getByText('Override rate'))
+
+    expect(
+      screen
+        .getByTestId(RATE_PHASE_OVERRIDE_TOGGLE_TEST_ID)
+        .querySelector('input[type="checkbox"]'),
+    ).toBeChecked()
+    await waitFor(() => expect(getBillingIntervalCountInput()).toBeEnabled())
   })
 
   it('GIVEN no other phase THEN the position fields do not render and the phase can run forever', () => {

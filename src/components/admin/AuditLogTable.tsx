@@ -36,6 +36,7 @@ const ACTION_STATUS_MAP: Record<string, ActionStatusConfig> = {
   toggle_off: { label: 'Toggle Off', type: StatusType.danger },
   org_created: { label: 'Org Created', type: StatusType.default },
   rollback: { label: 'Rollback', type: StatusType.warning },
+  sandbox_linked: { label: 'Sandbox Linked', type: StatusType.default },
 }
 
 // A feature toggle carries its key in exactly one of the two feature-type columns; every other
@@ -185,7 +186,12 @@ export const AuditLogTable = ({
           content: (entry) => {
             // Rollback only applies to feature toggles. Hide it for rollback entries themselves,
             // org-creation entries (not reversible), and changes already rolled back.
-            if (entry.action === 'rollback' || entry.action === 'org_created' || entry.rolledBack) {
+            if (
+              entry.action === 'rollback' ||
+              entry.action === 'org_created' ||
+              entry.action === 'sandbox_linked' ||
+              entry.rolledBack
+            ) {
               return null
             }
 

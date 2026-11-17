@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { tw } from 'lago-design-system'
 import { FC, Fragment, memo, ReactNode } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
@@ -29,6 +28,7 @@ import {
 } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
+import { tw } from '~/styles/utils'
 
 // Test ID constants for testing
 export const INVOICE_DETAILS_TABLE_SUBSCRIPTION_TEST_ID = 'invoice-details-subscription-table'

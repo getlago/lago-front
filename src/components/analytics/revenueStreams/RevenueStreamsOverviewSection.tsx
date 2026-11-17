@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { useRevenueAnalyticsOverview } from '~/components/analytics/revenueStreams/useRevenueAnalyticsOverview'
@@ -8,6 +7,7 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { REVENUE_STREAMS_GRAPH_COLORS } from '~/components/designSystem/graphs/const'
 import MultipleLineChart from '~/components/designSystem/graphs/MultipleLineChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
+import { Icon } from '~/components/designSystem/Icon'
 import { HorizontalDataTable, RowType } from '~/components/designSystem/Table/HorizontalDataTable'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'

@@ -1,9 +1,9 @@
 import { useStore } from '@tanstack/react-form'
-import { Icon, IconName } from 'lago-design-system'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import {
   TableWithGroups,
   TableWithGroupsRef,

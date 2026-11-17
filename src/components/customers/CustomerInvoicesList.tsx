@@ -1,9 +1,9 @@
 import { FetchMoreQueryOptions, gql } from '@apollo/client'
-import { IconName } from 'lago-design-system'
 import { FC } from 'react'
 import { generatePath } from 'react-router'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
+import { IconName } from '~/components/designSystem/Icon'
 import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { ActionItem } from '~/components/designSystem/Table'

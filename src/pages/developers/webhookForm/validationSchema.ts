@@ -14,6 +14,6 @@ export type WebhookFormValues = z.infer<typeof webhookValidationSchema>
 export const webhookDefaultValues: WebhookFormValues = {
   name: '',
   webhookUrl: '',
-  signatureAlgo: WebhookEndpointSignatureAlgoEnum.Hmac,
+  signatureAlgo: WebhookEndpointSignatureAlgoEnum.StandardWebhooks,
   webhookEvents: {},
 }

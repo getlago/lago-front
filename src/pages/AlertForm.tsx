@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { Icon } from 'lago-design-system'
 import { useCallback, useMemo } from 'react'
 import { generatePath, useParams } from 'react-router'
 
@@ -15,6 +14,7 @@ import {
 } from '~/components/alerts/utils'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { ComboBox, ComboboxItem } from '~/components/form'

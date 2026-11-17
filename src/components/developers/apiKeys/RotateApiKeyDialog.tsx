@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
-import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { useRef } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID } from '~/components/developers/apiKeys/dataTestConstants'
 import { useFormDialog } from '~/components/dialogs/FormDialog'

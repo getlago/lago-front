@@ -17,6 +17,7 @@ import {
   RatePhaseForDetails,
   RatePhaseRate,
 } from './ratePhaseDisplay'
+import { RatePhaseRateAlert } from './RatePhaseRateAlert'
 import { RatePhaseRateEffectiveDate } from './RatePhaseRateEffectiveDate'
 import { RatePhaseRateProperties } from './RatePhaseRateProperties'
 
@@ -33,6 +34,7 @@ type RatePhaseDetailsPanelProps = {
     billingTiming: RateCardBillingTimingEnum
     appliedPricingUnitCode?: string | null
   }
+  onOverrideRate: () => void
 }
 
 const DetailsSection = ({
@@ -55,6 +57,7 @@ export const RatePhaseDetailsPanel = ({
   phaseRate,
   rateHistoryPath,
   rateCard,
+  onOverrideRate,
 }: RatePhaseDetailsPanelProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { pricingUnits } = useCustomPricingUnits()
@@ -67,7 +70,13 @@ export const RatePhaseDetailsPanel = ({
     : new Set()
 
   const renderRateSection = (): ReactNode => {
-    if (!phaseRate || !rate) return null
+    if (!phaseRate || !rate) {
+      return (
+        <DetailsSection title={translate('text_64de472463e2da6b31737de0')}>
+          <RatePhaseRateAlert variant="none" onOverride={onOverrideRate} />
+        </DetailsSection>
+      )
+    }
 
     return (
       <DetailsSection title={translate('text_64de472463e2da6b31737de0')}>
@@ -81,6 +90,10 @@ export const RatePhaseDetailsPanel = ({
               />
             }
           />
+        )}
+
+        {!phaseRate.isOverridden && phaseRate.isPending && (
+          <RatePhaseRateAlert variant="pending" effectiveFrom={phaseRate.effectiveFrom} />
         )}
 
         <div className="grid grid-cols-2 gap-8">

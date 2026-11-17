@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Icon, IconName } from 'lago-design-system'
 import { forwardRef, MouseEvent, ReactNode, useEffect, useRef, useState } from 'react'
 
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 

@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority'
-import { Icon, IconColor, IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
 
+import { Icon, IconColor, IconName } from '~/components/designSystem/Icon'
 import { tw } from '~/styles/utils'
 
 import { Button, ButtonProps as TButtonProps } from './Button'

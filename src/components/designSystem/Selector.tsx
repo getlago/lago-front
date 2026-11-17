@@ -1,7 +1,8 @@
 import { cva } from 'class-variance-authority'
-import { ConditionalWrapper, Icon, IconName } from 'lago-design-system'
 import { ReactElement, useState } from 'react'
 
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import { tw } from '~/styles/utils'
 
 import { Avatar } from './Avatar'

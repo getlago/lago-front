@@ -1,11 +1,12 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useEffect, useMemo } from 'react'
-import { useParams } from 'react-router'
+import { generatePath, useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
+import { WEBHOOK_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -20,6 +21,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useWebhookEndpoint } from '~/hooks/useWebhookEndpoint'
 import { useWebhookEventTypes } from '~/hooks/useWebhookEventTypes'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
@@ -63,6 +65,7 @@ const WebhookForm = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
   const { defaultEventFormValues, groups, loading: eventTypesLoading } = useWebhookEventTypes()
+  const { organization } = useOrganizationInfos()
 
   const allFormKeys = useMemo(() => Object.keys(defaultEventFormValues), [defaultEventFormValues])
 
@@ -92,6 +95,8 @@ const WebhookForm = () => {
   })
 
   const isEdition = !!webhookId
+  const isSavedAsStandardWebhooks =
+    webhook?.signatureAlgo === WebhookEndpointSignatureAlgoEnum.StandardWebhooks
 
   const form = useAppForm({
     defaultValues: {
@@ -109,6 +114,7 @@ const WebhookForm = () => {
       const eventTypes = formValuesToEventTypes(webhookEvents)
 
       let res
+      let savedWebhookId: string | undefined = webhookId
 
       if (isEdition) {
         res = await updateWebhook({
@@ -129,6 +135,7 @@ const WebhookForm = () => {
             },
           },
         })
+        savedWebhookId = res.data?.createWebhookEndpoint?.id
       }
 
       const { errors } = res
@@ -176,6 +183,14 @@ const WebhookForm = () => {
         severity: 'success',
       })
 
+      const isNewStandardWebhooks =
+        value.signatureAlgo === WebhookEndpointSignatureAlgoEnum.StandardWebhooks &&
+        !isSavedAsStandardWebhooks
+
+      if (isNewStandardWebhooks && savedWebhookId) {
+        devtool.setUrl(generatePath(WEBHOOK_ROUTE, { webhookId: savedWebhookId }))
+      }
+
       onClose()
     },
   })
@@ -216,7 +231,7 @@ const WebhookForm = () => {
       </CenteredPage.Header>
 
       <CenteredPage.Container>
-        {webhookLoading || eventTypesLoading ? (
+        {webhookLoading || eventTypesLoading || !organization ? (
           <FormLoadingSkeleton id="webhook" />
         ) : (
           <>
@@ -288,6 +303,11 @@ const WebhookForm = () => {
                           value={WebhookEndpointSignatureAlgoEnum.Jwt}
                           label={translate('text_64d23a81a7d807f8aa570515')}
                           sublabel={translate('text_64d23a81a7d807f8aa570517')}
+                        />
+                        <field.RadioField
+                          value={WebhookEndpointSignatureAlgoEnum.StandardWebhooks}
+                          label={translate('text_1794498394864itvpd4vd78q')}
+                          sublabel={translate('text_1794498394864nqdkakpobja')}
                         />
                       </>
                     )}
