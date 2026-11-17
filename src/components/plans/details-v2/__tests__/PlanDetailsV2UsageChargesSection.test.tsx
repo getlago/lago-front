@@ -289,6 +289,36 @@ describe('PlanDetailsV2UsageChargesSection', () => {
     expect(screen.getByText('text_1772133285142oouequiz2t2')).toBeInTheDocument()
   })
 
+  // Add charge is gated on charges:create, not plans:create - a custom role with
+  // Plans permissions but no Charges permissions must not see the button.
+  it('hides the Add CTA when chargesCreate permission is missing, even with plansCreate', () => {
+    mockHasPermissions.mockImplementation(
+      ((perms: string[]) => !perms.includes('chargesCreate')) as never,
+    )
+    render(
+      <PlanDetailsV2UsageChargesSection
+        plan={planDetailsV2Fixture}
+        chargeMutations={chargeMutations}
+      />,
+      { wrapper: Wrapper },
+    )
+    expect(screen.queryByText('text_1772133285142oouequiz2t2')).not.toBeInTheDocument()
+  })
+
+  it('keeps the Add CTA visible when only plansCreate is missing', () => {
+    mockHasPermissions.mockImplementation(
+      ((perms: string[]) => !perms.includes('plansCreate')) as never,
+    )
+    render(
+      <PlanDetailsV2UsageChargesSection
+        plan={planDetailsV2Fixture}
+        chargeMutations={chargeMutations}
+      />,
+      { wrapper: Wrapper },
+    )
+    expect(screen.getByText('text_1772133285142oouequiz2t2')).toBeInTheDocument()
+  })
+
   // Drift test: lock in that sub mode hides the Add CTA.
   it('hides the Add CTA when isInSubscriptionForm is true', () => {
     render(
@@ -329,9 +359,9 @@ describe('PlanDetailsV2UsageChargesSection', () => {
     expect(screen.queryByText('text_63ea0f84f400488553caa786')).not.toBeInTheDocument()
   })
 
-  it('hides Delete when plansDelete permission is missing', async () => {
+  it('hides Delete when chargesDelete permission is missing', async () => {
     mockHasPermissions.mockImplementation(
-      ((perms: string[]) => !perms.includes('plansDelete')) as never,
+      ((perms: string[]) => !perms.includes('chargesDelete')) as never,
     )
     const plan = {
       ...planDetailsV2Fixture,
@@ -345,9 +375,9 @@ describe('PlanDetailsV2UsageChargesSection', () => {
     expect(screen.queryByText('text_63ea0f84f400488553caa786')).not.toBeInTheDocument()
   })
 
-  it('hides Edit when plansUpdate permission is missing', async () => {
+  it('hides Edit when chargesUpdate permission is missing', async () => {
     mockHasPermissions.mockImplementation(
-      ((perms: string[]) => !perms.includes('plansUpdate')) as never,
+      ((perms: string[]) => !perms.includes('chargesUpdate')) as never,
     )
     const plan = {
       ...planDetailsV2Fixture,

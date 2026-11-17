@@ -49,7 +49,15 @@ beforeAll(() => {
 
 const renderSidebar = (
   props: Partial<React.ComponentProps<typeof PlanDetailsV2LeftSidebar>> = {},
-) => render(<PlanDetailsV2LeftSidebar onItemClick={jest.fn()} {...props} />)
+) =>
+  render(
+    <PlanDetailsV2LeftSidebar
+      onItemClick={jest.fn()}
+      canCreateCharges
+      canCreateEntitlements
+      {...props}
+    />,
+  )
 
 const buildUsageCharges = (count: number) =>
   Array.from({ length: count }, (_, i) => ({
@@ -154,6 +162,24 @@ describe('PlanDetailsV2LeftSidebar', () => {
 
       expect(screen.queryByTestId('sidebar-add-fixed-charges')).not.toBeInTheDocument()
       expect(screen.queryByTestId('sidebar-add-usage-charges')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('sidebar-add-entitlements')).not.toBeInTheDocument()
+    })
+
+    // This sidebar shortcut must not bypass the same permission gate as
+    // the section body's own Add button.
+    it('hides the charges plus buttons but keeps Entitlements when canCreateCharges is false', () => {
+      renderSidebar({ canCreateCharges: false })
+
+      expect(screen.queryByTestId('sidebar-add-fixed-charges')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('sidebar-add-usage-charges')).not.toBeInTheDocument()
+      expect(screen.getByTestId('sidebar-add-entitlements')).toBeInTheDocument()
+    })
+
+    it('hides the Entitlements plus button but keeps charges when canCreateEntitlements is false', () => {
+      renderSidebar({ canCreateEntitlements: false })
+
+      expect(screen.getByTestId('sidebar-add-fixed-charges')).toBeInTheDocument()
+      expect(screen.getByTestId('sidebar-add-usage-charges')).toBeInTheDocument()
       expect(screen.queryByTestId('sidebar-add-entitlements')).not.toBeInTheDocument()
     })
 

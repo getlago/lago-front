@@ -130,7 +130,10 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
     subscriptionFixedChargeUnitsById,
   } = props
   const { translate } = useInternationalization()
-  const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
+  const { canCreate, canUpdate, canDelete } = useAccordionPermissions(
+    isInSubscriptionForm,
+    'charges',
+  )
   const { gateOnClick, premiumIcon } = useSubscriptionPremiumGate(isInSubscriptionForm)
   const drawerRef = useRef<FixedChargeDrawerRef>(null)
   const { openRemoveChargeWarningDialog } = useRemoveChargeWarningDialog()
