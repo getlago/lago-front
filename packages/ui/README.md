@@ -27,29 +27,30 @@ A new view is not automatically a v2 view, and adopting v2 in an existing view n
 
 ## Components
 
-| Component | Import | Guide |
-| --- | --- | --- |
-| Badge | `lago-ui/badge` | [badge.md](src/components/badge.md) |
-| Button | `lago-ui/button` | [button.md](src/components/button.md) |
-| ColorTheme | `lago-ui/color-theme` | [color-theme.md](src/components/color-theme.md) |
-| DropdownMenu | `lago-ui/dropdown-menu` | [dropdown-menu.md](src/components/dropdown-menu.md) |
-| IconButton | `lago-ui/icon-button` | [icon-button.md](src/components/icon-button.md) |
-| Input (provisional) | `lago-ui/input` | [input.md](src/components/input.md) |
-| NumericBadge | `lago-ui/numeric-badge` | [numeric-badge.md](src/components/numeric-badge.md) |
-| OverflowTabs | `lago-ui/overflow-tabs` | [overflow-tabs.md](src/components/overflow-tabs.md) |
-| Separator | `lago-ui/separator` | [separator.md](src/components/separator.md) |
-| Tabs | `lago-ui/tabs` | [tabs.md](src/components/tabs.md) |
-| Tooltip | `lago-ui/tooltip` | [tooltip.md](src/components/tooltip.md) |
+| Component           | Import                  | Guide                                               |
+| ------------------- | ----------------------- | --------------------------------------------------- |
+| Badge               | `lago-ui/badge`         | [badge.md](src/components/badge.md)                 |
+| Breadcrumb          | `lago-ui/breadcrumb`    | [breadcrumb.md](src/components/breadcrumb.md)       |
+| Button              | `lago-ui/button`        | [button.md](src/components/button.md)               |
+| ColorTheme          | `lago-ui/color-theme`   | [color-theme.md](src/components/color-theme.md)     |
+| DropdownMenu        | `lago-ui/dropdown-menu` | [dropdown-menu.md](src/components/dropdown-menu.md) |
+| IconButton          | `lago-ui/icon-button`   | [icon-button.md](src/components/icon-button.md)     |
+| Input (provisional) | `lago-ui/input`         | [input.md](src/components/input.md)                 |
+| NumericBadge        | `lago-ui/numeric-badge` | [numeric-badge.md](src/components/numeric-badge.md) |
+| OverflowTabs        | `lago-ui/overflow-tabs` | [overflow-tabs.md](src/components/overflow-tabs.md) |
+| Separator           | `lago-ui/separator`     | [separator.md](src/components/separator.md)         |
+| Tabs                | `lago-ui/tabs`          | [tabs.md](src/components/tabs.md)                   |
+| Tooltip             | `lago-ui/tooltip`       | [tooltip.md](src/components/tooltip.md)             |
 
 Each guide follows the same sections: **When to use**, **Import**, **API**, **Examples**, **Accessibility**, **Design**, **References**.
 
 ## Foundations
 
-| Topic | Guide |
-| --- | --- |
-| Colors, opacity, local themes, tokens | [colors.md](src/styles/colors.md) |
+| Topic                                                             | Guide                                                     |
+| ----------------------------------------------------------------- | --------------------------------------------------------- |
+| Colors, opacity, local themes, tokens                             | [colors.md](src/styles/colors.md)                         |
 | Surfaces, borders, shadows, interaction states per component type | [component-surfaces.md](src/styles/component-surfaces.md) |
-| Typography classes | [typography.md](src/styles/typography.md) |
+| Typography classes                                                | [typography.md](src/styles/typography.md)                 |
 
 Fonts are owned by `lago-configs` (`lago-configs/fonts.css`), not by this package.
 
