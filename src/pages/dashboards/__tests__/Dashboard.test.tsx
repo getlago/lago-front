@@ -173,6 +173,7 @@ describe('Dashboard', () => {
       expect(config.id).toBe('embed-1')
       expect(config.supersetDomain).toBe('https://localhost:8089')
       expect(screen.getByTestId(DASHBOARD_MOUNT_TEST_ID)).toContainElement(config.mountPoint)
+      expect(config.dashboardUiConfig.hideChartControls).toBe(true)
       expect(config.dashboardUiConfig.hideTitle).toBe(true)
       await expect(config.fetchGuestToken()).resolves.toBe('token-1')
     })

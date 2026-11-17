@@ -120,6 +120,7 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         mountPoint: instanceMount,
         fetchGuestToken: async () => dashboard?.guestToken,
         dashboardUiConfig: {
+          hideChartControls: true,
           hideTitle: true,
           emitDataMasks: persistFilters,
           filters: {
