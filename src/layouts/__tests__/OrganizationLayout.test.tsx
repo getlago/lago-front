@@ -7,6 +7,7 @@ import OrganizationLayout, {
   SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID,
   SANDBOX_BANNER_TEST_ID,
 } from '../OrganizationLayout'
+import { SANDBOX_BANNER_HEIGHT_CSS_VAR } from '../sandboxBannerHeight'
 
 // ---------- Mock fns ----------
 const mockNavigate = jest.fn()
@@ -315,6 +316,33 @@ describe('OrganizationLayout', () => {
           expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).toBeInTheDocument()
           expect(mockOutletMount).toHaveBeenCalledTimes(1)
           expect(getOutlet()).toBe(outletBefore)
+        })
+      })
+
+      describe('WHEN the sandbox banner is shown then hidden', () => {
+        const readBannerHeightVar = (): string =>
+          document.documentElement.style.getPropertyValue(SANDBOX_BANNER_HEIGHT_CSS_VAR)
+
+        afterEach(() => {
+          jest.restoreAllMocks()
+          document.documentElement.style.removeProperty(SANDBOX_BANNER_HEIGHT_CSS_VAR)
+        })
+
+        it('THEN should expose the banner height as a CSS variable only while it is shown', () => {
+          jest
+            .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+            .mockReturnValue({ height: 28 } as DOMRect)
+          mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: PRODUCTION_PATH })
+
+          const { rerender } = render(<OrganizationLayout />)
+
+          expect(readBannerHeightVar()).toBe('28px')
+
+          mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+          rerender(<OrganizationLayout />)
+
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).not.toBeInTheDocument()
+          expect(readBannerHeightVar()).toBe('')
         })
       })
     })
