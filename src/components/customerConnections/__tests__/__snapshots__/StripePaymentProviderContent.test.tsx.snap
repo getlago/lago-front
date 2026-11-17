@@ -517,6 +517,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         >
           <svg
             class="text-purple-600 size-4 min-w-4"
+            data-filename="info-circle.svg"
             data-test="info-circle/medium"
             title="info-circle/medium"
           />
@@ -1056,6 +1057,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         >
           <svg
             class="text-purple-600 size-4 min-w-4"
+            data-filename="info-circle.svg"
             data-test="info-circle/medium"
             title="info-circle/medium"
           />
@@ -1625,6 +1627,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         >
           <svg
             class="text-purple-600 size-4 min-w-4"
+            data-filename="info-circle.svg"
             data-test="info-circle/medium"
             title="info-circle/medium"
           />
@@ -2266,6 +2269,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
         >
           <svg
             class="text-purple-600 size-4 min-w-4"
+            data-filename="info-circle.svg"
             data-test="info-circle/medium"
             title="info-circle/medium"
           />

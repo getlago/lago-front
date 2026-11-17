@@ -33,6 +33,7 @@ exports[`MetadataFormCard snapshots matches snapshot with empty metadata 1`] = `
         >
           <svg
             class="text-inherit size-4 min-w-4"
+            data-filename="plus.svg"
             data-test="plus/medium"
             title="plus/medium"
           />
@@ -176,6 +177,7 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
               >
                 <svg
                   class="text-inherit size-4 min-w-4"
+                  data-filename="trash.svg"
                   data-test="trash/medium"
                   title="trash/medium"
                 />
@@ -276,6 +278,7 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
               >
                 <svg
                   class="text-inherit size-4 min-w-4"
+                  data-filename="trash.svg"
                   data-test="trash/medium"
                   title="trash/medium"
                 />
@@ -297,6 +300,7 @@ exports[`MetadataFormCard snapshots matches snapshot with metadata items 1`] = `
         >
           <svg
             class="text-inherit size-4 min-w-4"
+            data-filename="plus.svg"
             data-test="plus/medium"
             title="plus/medium"
           />

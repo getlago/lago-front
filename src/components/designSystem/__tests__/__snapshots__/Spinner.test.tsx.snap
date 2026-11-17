@@ -6,6 +6,7 @@ exports[`Spinner Snapshot Tests matches snapshot 1`] = `
 >
   <svg
     class="animate-spin text-purple-600 size-6 min-w-6"
+    data-filename="processing.svg"
     data-test="processing/large"
     title="processing/large"
   />

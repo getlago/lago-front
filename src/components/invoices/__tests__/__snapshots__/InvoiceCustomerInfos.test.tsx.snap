@@ -1066,6 +1066,7 @@ United States of America
         >
           <svg
             class="text-yellow-600 size-4 min-w-4"
+            data-filename="warning-filled.svg"
             data-test="warning-filled/medium"
             title="warning-filled/medium"
           />

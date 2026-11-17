@@ -30,6 +30,7 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="chevron-down-filled.svg"
                 data-test="chevron-down-filled/medium"
                 title="chevron-down-filled/medium"
               />
@@ -247,6 +248,7 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="trash.svg"
                           data-test="trash/medium"
                           title="trash/medium"
                         />
@@ -265,6 +267,7 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
                   >
                     <svg
                       class="text-inherit size-4 min-w-4"
+                      data-filename="plus.svg"
                       data-test="plus/medium"
                       title="plus/medium"
                     />
@@ -311,6 +314,7 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="chevron-right-filled.svg"
                 data-test="chevron-right-filled/medium"
                 title="chevron-right-filled/medium"
               />
@@ -369,6 +373,7 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="chevron-down-filled.svg"
                 data-test="chevron-down-filled/medium"
                 title="chevron-down-filled/medium"
               />
@@ -425,6 +430,7 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
                   >
                     <svg
                       class="text-inherit size-4 min-w-4"
+                      data-filename="plus.svg"
                       data-test="plus/medium"
                       title="plus/medium"
                     />

@@ -20,6 +20,7 @@ exports[`MembersFilters Snapshot Tests matches snapshot with default props 1`] =
         >
           <svg
             class="text-inherit size-4 min-w-4"
+            data-filename="chevron-down.svg"
             data-test="chevron-down/medium"
             title="chevron-down/medium"
           />
@@ -37,6 +38,7 @@ exports[`MembersFilters Snapshot Tests matches snapshot with default props 1`] =
         >
           <svg
             class="text-inherit size-4 min-w-4 ml-4"
+            data-filename="magnifying-glass.svg"
             data-test="magnifying-glass/medium"
             title="magnifying-glass/medium"
           />
@@ -89,6 +91,7 @@ exports[`MembersFilters Snapshot Tests matches snapshot with invitations type 1`
         >
           <svg
             class="text-inherit size-4 min-w-4"
+            data-filename="chevron-down.svg"
             data-test="chevron-down/medium"
             title="chevron-down/medium"
           />
@@ -106,6 +109,7 @@ exports[`MembersFilters Snapshot Tests matches snapshot with invitations type 1`
         >
           <svg
             class="text-inherit size-4 min-w-4 ml-4"
+            data-filename="magnifying-glass.svg"
             data-test="magnifying-glass/medium"
             title="magnifying-glass/medium"
           />
@@ -158,6 +162,7 @@ exports[`MembersFilters Snapshot Tests matches snapshot with members type 1`] = 
         >
           <svg
             class="text-inherit size-4 min-w-4"
+            data-filename="chevron-down.svg"
             data-test="chevron-down/medium"
             title="chevron-down/medium"
           />
@@ -175,6 +180,7 @@ exports[`MembersFilters Snapshot Tests matches snapshot with members type 1`] = 
         >
           <svg
             class="text-inherit size-4 min-w-4 ml-4"
+            data-filename="magnifying-glass.svg"
             data-test="magnifying-glass/medium"
             title="magnifying-glass/medium"
           />
@@ -227,6 +233,7 @@ exports[`MembersFilters Snapshot Tests matches snapshot with search query 1`] = 
         >
           <svg
             class="text-inherit size-4 min-w-4"
+            data-filename="chevron-down.svg"
             data-test="chevron-down/medium"
             title="chevron-down/medium"
           />
@@ -244,6 +251,7 @@ exports[`MembersFilters Snapshot Tests matches snapshot with search query 1`] = 
         >
           <svg
             class="text-inherit size-4 min-w-4 ml-4"
+            data-filename="magnifying-glass.svg"
             data-test="magnifying-glass/medium"
             title="magnifying-glass/medium"
           />
@@ -266,6 +274,7 @@ exports[`MembersFilters Snapshot Tests matches snapshot with search query 1`] = 
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="close-circle-filled.svg"
                 data-test="close-circle-filled/medium"
                 title="close-circle-filled/medium"
               />

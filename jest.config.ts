@@ -12,7 +12,7 @@ export default {
     '^.+\\.(ts|tsx|js|jsx)$': 'babel-jest',
     'designSystem[\\\\/]Icon[\\\\/]icons[\\\\/].+\\.svg$': [
       '<rootDir>/__mocks__/svgMock.cjs',
-      { withFilename: false },
+      { filenameProp: 'data-filename' },
     ],
     '\\.svg$': '<rootDir>/__mocks__/svgMock.cjs',
   },

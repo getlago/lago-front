@@ -28,6 +28,7 @@ exports[`TaxesSelectorSection Snapshots renders with taxes 1`] = `
       >
         <svg
           class="text-grey-600 size-3 min-w-3 MuiChip-icon MuiChip-iconMedium MuiChip-iconColorDark !m-0"
+          data-filename="percentage.svg"
           data-test="percentage/small"
           title="percentage/small"
         />
@@ -57,6 +58,7 @@ exports[`TaxesSelectorSection Snapshots renders with taxes 1`] = `
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="trash.svg"
                 data-test="trash/medium"
                 title="trash/medium"
               />
@@ -72,6 +74,7 @@ exports[`TaxesSelectorSection Snapshots renders with taxes 1`] = `
       >
         <svg
           class="text-grey-600 size-3 min-w-3 MuiChip-icon MuiChip-iconMedium MuiChip-iconColorDark !m-0"
+          data-filename="percentage.svg"
           data-test="percentage/small"
           title="percentage/small"
         />
@@ -101,6 +104,7 @@ exports[`TaxesSelectorSection Snapshots renders with taxes 1`] = `
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="trash.svg"
                 data-test="trash/medium"
                 title="trash/medium"
               />
@@ -120,6 +124,7 @@ exports[`TaxesSelectorSection Snapshots renders with taxes 1`] = `
       >
         <svg
           class="text-inherit size-4 min-w-4"
+          data-filename="plus.svg"
           data-test="plus/medium"
           title="plus/medium"
         />
@@ -163,6 +168,7 @@ exports[`TaxesSelectorSection Snapshots renders with title and description 1`] =
       >
         <svg
           class="text-inherit size-4 min-w-4"
+          data-filename="plus.svg"
           data-test="plus/medium"
           title="plus/medium"
         />
@@ -200,6 +206,7 @@ exports[`TaxesSelectorSection Snapshots renders with title only 1`] = `
       >
         <svg
           class="text-inherit size-4 min-w-4"
+          data-filename="plus.svg"
           data-test="plus/medium"
           title="plus/medium"
         />
@@ -243,6 +250,7 @@ exports[`TaxesSelectorSection Snapshots renders with title, description and taxe
       >
         <svg
           class="text-grey-600 size-3 min-w-3 MuiChip-icon MuiChip-iconMedium MuiChip-iconColorDark !m-0"
+          data-filename="percentage.svg"
           data-test="percentage/small"
           title="percentage/small"
         />
@@ -272,6 +280,7 @@ exports[`TaxesSelectorSection Snapshots renders with title, description and taxe
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="trash.svg"
                 data-test="trash/medium"
                 title="trash/medium"
               />
@@ -287,6 +296,7 @@ exports[`TaxesSelectorSection Snapshots renders with title, description and taxe
       >
         <svg
           class="text-grey-600 size-3 min-w-3 MuiChip-icon MuiChip-iconMedium MuiChip-iconColorDark !m-0"
+          data-filename="percentage.svg"
           data-test="percentage/small"
           title="percentage/small"
         />
@@ -316,6 +326,7 @@ exports[`TaxesSelectorSection Snapshots renders with title, description and taxe
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="trash.svg"
                 data-test="trash/medium"
                 title="trash/medium"
               />
@@ -335,6 +346,7 @@ exports[`TaxesSelectorSection Snapshots renders with title, description and taxe
       >
         <svg
           class="text-inherit size-4 min-w-4"
+          data-filename="plus.svg"
           data-test="plus/medium"
           title="plus/medium"
         />

@@ -4003,6 +4003,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot in loading state 1`] = `
     >
       <svg
         class="text-inherit size-4 min-w-4"
+        data-filename="chevron-left.svg"
         data-test="chevron-left/medium"
         title="chevron-left/medium"
       />
@@ -4015,6 +4016,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot in loading state 1`] = `
     >
       <svg
         class="text-inherit size-4 min-w-4"
+        data-filename="chevron-right.svg"
         data-test="chevron-right/medium"
         title="chevron-right/medium"
       />
@@ -4276,6 +4278,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="duplicate.svg"
                           data-test="duplicate/medium"
                           title="duplicate/medium"
                         />
@@ -4427,6 +4430,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />
@@ -4547,6 +4551,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="duplicate.svg"
                           data-test="duplicate/medium"
                           title="duplicate/medium"
                         />
@@ -4719,6 +4724,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />
@@ -4839,6 +4845,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="duplicate.svg"
                           data-test="duplicate/medium"
                           title="duplicate/medium"
                         />
@@ -4990,6 +4997,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />
@@ -5248,6 +5256,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="duplicate.svg"
                           data-test="duplicate/medium"
                           title="duplicate/medium"
                         />
@@ -5420,6 +5429,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />
@@ -5540,6 +5550,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="duplicate.svg"
                           data-test="duplicate/medium"
                           title="duplicate/medium"
                         />
@@ -5712,6 +5723,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />
@@ -5832,6 +5844,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="duplicate.svg"
                           data-test="duplicate/medium"
                           title="duplicate/medium"
                         />
@@ -6004,6 +6017,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />
@@ -6615,6 +6629,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="duplicate.svg"
                           data-test="duplicate/medium"
                           title="duplicate/medium"
                         />
@@ -6787,6 +6802,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />
@@ -6907,6 +6923,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="duplicate.svg"
                           data-test="duplicate/medium"
                           title="duplicate/medium"
                         />
@@ -7079,6 +7096,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />
@@ -7199,6 +7217,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="duplicate.svg"
                           data-test="duplicate/medium"
                           title="duplicate/medium"
                         />
@@ -7371,6 +7390,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />
@@ -7629,6 +7649,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="duplicate.svg"
                           data-test="duplicate/medium"
                           title="duplicate/medium"
                         />
@@ -7813,6 +7834,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />
@@ -8071,6 +8093,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="duplicate.svg"
                           data-test="duplicate/medium"
                           title="duplicate/medium"
                         />
@@ -8155,6 +8178,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                       </div>
                       <svg
                         class="text-grey-700 size-4 min-w-4"
+                        data-filename="partially-filled.svg"
                         data-test="partially-filled/medium"
                         title="partially-filled/medium"
                       />
@@ -8249,6 +8273,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />

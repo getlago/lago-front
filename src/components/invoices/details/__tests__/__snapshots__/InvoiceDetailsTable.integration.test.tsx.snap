@@ -132,6 +132,7 @@ exports[`InvoiceDetailsTable - Integration Tests Snapshot Tests should match sna
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />
@@ -209,6 +210,7 @@ exports[`InvoiceDetailsTable - Integration Tests Snapshot Tests should match sna
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />
@@ -486,6 +488,7 @@ exports[`InvoiceDetailsTable - Integration Tests Snapshot Tests should match sna
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />
@@ -563,6 +566,7 @@ exports[`InvoiceDetailsTable - Integration Tests Snapshot Tests should match sna
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />
@@ -697,6 +701,7 @@ exports[`InvoiceDetailsTable - Integration Tests Snapshot Tests should match sna
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />
@@ -774,6 +779,7 @@ exports[`InvoiceDetailsTable - Integration Tests Snapshot Tests should match sna
                       >
                         <svg
                           class="text-inherit size-4 min-w-4"
+                          data-filename="dots-horizontal.svg"
                           data-test="dots-horizontal/medium"
                           title="dots-horizontal/medium"
                         />

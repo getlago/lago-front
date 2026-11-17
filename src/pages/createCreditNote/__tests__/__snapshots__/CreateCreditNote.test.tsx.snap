@@ -23,6 +23,7 @@ exports[`CreateCreditNote snapshots matches snapshot in loading state 1`] = `
       >
         <svg
           class="text-inherit size-4 min-w-4"
+          data-filename="close.svg"
           data-test="close/medium"
           title="close/medium"
         />
@@ -151,6 +152,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
       >
         <svg
           class="text-inherit size-4 min-w-4"
+          data-filename="close.svg"
           data-test="close/medium"
           title="close/medium"
         />
@@ -208,6 +210,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                 >
                   <svg
                     class="text-inherit size-4 min-w-4"
+                    data-filename="document.svg"
                     data-test="document/medium"
                     title="document/medium"
                   />
@@ -355,6 +358,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                     >
                       <svg
                         class="text-inherit size-4 min-w-4"
+                        data-filename="close-circle-filled.svg"
                         data-test="close-circle-filled/medium"
                         title="close-circle-filled/medium"
                       />
@@ -367,6 +371,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
                     >
                       <svg
                         class="text-inherit size-4 min-w-4"
+                        data-filename="chevron-up-down.svg"
                         data-test="chevron-up-down/medium"
                         title="chevron-up-down/medium"
                       />
@@ -1015,6 +1020,7 @@ exports[`CreateCreditNote snapshots matches snapshot with invoice data 1`] = `
               >
                 <svg
                   class="text-inherit size-4 min-w-4"
+                  data-filename="plus.svg"
                   data-test="plus/medium"
                   title="plus/medium"
                 />
@@ -1078,6 +1084,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
       >
         <svg
           class="text-inherit size-4 min-w-4"
+          data-filename="close.svg"
           data-test="close/medium"
           title="close/medium"
         />
@@ -1135,6 +1142,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                 >
                   <svg
                     class="text-inherit size-4 min-w-4"
+                    data-filename="document.svg"
                     data-test="document/medium"
                     title="document/medium"
                   />
@@ -1282,6 +1290,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                     >
                       <svg
                         class="text-inherit size-4 min-w-4"
+                        data-filename="close-circle-filled.svg"
                         data-test="close-circle-filled/medium"
                         title="close-circle-filled/medium"
                       />
@@ -1294,6 +1303,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
                     >
                       <svg
                         class="text-inherit size-4 min-w-4"
+                        data-filename="chevron-up-down.svg"
                         data-test="chevron-up-down/medium"
                         title="chevron-up-down/medium"
                       />
@@ -1897,6 +1907,7 @@ exports[`CreateCreditNote snapshots matches snapshot with no payment (credit onl
               >
                 <svg
                   class="text-inherit size-4 min-w-4"
+                  data-filename="plus.svg"
                   data-test="plus/medium"
                   title="plus/medium"
                 />
@@ -1960,6 +1971,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
       >
         <svg
           class="text-inherit size-4 min-w-4"
+          data-filename="close.svg"
           data-test="close/medium"
           title="close/medium"
         />
@@ -2017,6 +2029,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                 >
                   <svg
                     class="text-inherit size-4 min-w-4"
+                    data-filename="document.svg"
                     data-test="document/medium"
                     title="document/medium"
                   />
@@ -2164,6 +2177,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                     >
                       <svg
                         class="text-inherit size-4 min-w-4"
+                        data-filename="close-circle-filled.svg"
                         data-test="close-circle-filled/medium"
                         title="close-circle-filled/medium"
                       />
@@ -2176,6 +2190,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
                     >
                       <svg
                         class="text-inherit size-4 min-w-4"
+                        data-filename="chevron-up-down.svg"
                         data-test="chevron-up-down/medium"
                         title="chevron-up-down/medium"
                       />
@@ -2779,6 +2794,7 @@ exports[`CreateCreditNote snapshots matches snapshot with payment dispute lost 1
               >
                 <svg
                   class="text-inherit size-4 min-w-4"
+                  data-filename="plus.svg"
                   data-test="plus/medium"
                   title="plus/medium"
                 />

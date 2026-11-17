@@ -23,6 +23,7 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
     >
       <svg
         class="text-inherit size-4 min-w-4"
+        data-filename="close.svg"
         data-test="close/medium"
         title="close/medium"
       />
@@ -180,6 +181,7 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
                   >
                     <svg
                       class="text-inherit size-4 min-w-4"
+                      data-filename="trash.svg"
                       data-test="trash/medium"
                       title="trash/medium"
                     />
@@ -280,6 +282,7 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
                   >
                     <svg
                       class="text-inherit size-4 min-w-4"
+                      data-filename="trash.svg"
                       data-test="trash/medium"
                       title="trash/medium"
                     />
@@ -301,6 +304,7 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with metadata 1
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="plus.svg"
                 data-test="plus/medium"
                 title="plus/medium"
               />
@@ -350,6 +354,7 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with no metadat
     >
       <svg
         class="text-inherit size-4 min-w-4"
+        data-filename="close.svg"
         data-test="close/medium"
         title="close/medium"
       />
@@ -408,6 +413,7 @@ exports[`MetadataEditDrawer snapshots matches snapshot when open with no metadat
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="plus.svg"
                 data-test="plus/medium"
                 title="plus/medium"
               />

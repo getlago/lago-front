@@ -12,7 +12,7 @@ body {
 }
 
 b {
-  @apply text-base font-medium -tracking-[0.01em];
+  @apply text-base -tracking-[0.01em];
 }
 
 li {

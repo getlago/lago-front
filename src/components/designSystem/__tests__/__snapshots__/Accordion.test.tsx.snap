@@ -30,6 +30,7 @@ exports[`Accordion Snapshot Tests matches snapshot for borderless variant 1`] = 
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="chevron-down-filled.svg"
                 data-test="chevron-down-filled/medium"
                 title="chevron-down-filled/medium"
               />
@@ -100,6 +101,7 @@ exports[`Accordion Snapshot Tests matches snapshot for closed card accordion 1`]
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="chevron-right-filled.svg"
                 data-test="chevron-right-filled/medium"
                 title="chevron-right-filled/medium"
               />
@@ -145,6 +147,7 @@ exports[`Accordion Snapshot Tests matches snapshot for large size 1`] = `
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="chevron-down-filled.svg"
                 data-test="chevron-down-filled/medium"
                 title="chevron-down-filled/medium"
               />
@@ -215,6 +218,7 @@ exports[`Accordion Snapshot Tests matches snapshot for medium size 1`] = `
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="chevron-down-filled.svg"
                 data-test="chevron-down-filled/medium"
                 title="chevron-down-filled/medium"
               />
@@ -285,6 +289,7 @@ exports[`Accordion Snapshot Tests matches snapshot for open card accordion 1`] =
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="chevron-down-filled.svg"
                 data-test="chevron-down-filled/medium"
                 title="chevron-down-filled/medium"
               />
@@ -355,6 +360,7 @@ exports[`Accordion Snapshot Tests matches snapshot with function children 1`] = 
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="chevron-down-filled.svg"
                 data-test="chevron-down-filled/medium"
                 title="chevron-down-filled/medium"
               />
@@ -426,6 +432,7 @@ exports[`Accordion Snapshot Tests matches snapshot with noContentMargin 1`] = `
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="chevron-down-filled.svg"
                 data-test="chevron-down-filled/medium"
                 title="chevron-down-filled/medium"
               />

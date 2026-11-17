@@ -27,6 +27,7 @@ exports[`RoleCreateEdit Snapshot Tests matches snapshot after dirty form cancel 
         >
           <svg
             class="text-inherit size-4 min-w-4"
+            data-filename="close.svg"
             data-test="close/medium"
             title="close/medium"
           />
@@ -300,6 +301,7 @@ exports[`RoleCreateEdit Snapshot Tests matches snapshot after filling form 1`] =
         >
           <svg
             class="text-inherit size-4 min-w-4"
+            data-filename="close.svg"
             data-test="close/medium"
             title="close/medium"
           />
@@ -575,6 +577,7 @@ exports[`RoleCreateEdit Snapshot Tests matches snapshot in create mode 1`] = `
         >
           <svg
             class="text-inherit size-4 min-w-4"
+            data-filename="close.svg"
             data-test="close/medium"
             title="close/medium"
           />
@@ -848,6 +851,7 @@ exports[`RoleCreateEdit Snapshot Tests matches snapshot in duplicate mode 1`] = 
         >
           <svg
             class="text-inherit size-4 min-w-4"
+            data-filename="close.svg"
             data-test="close/medium"
             title="close/medium"
           />
@@ -1121,6 +1125,7 @@ exports[`RoleCreateEdit Snapshot Tests matches snapshot in edit mode 1`] = `
         >
           <svg
             class="text-inherit size-4 min-w-4"
+            data-filename="close.svg"
             data-test="close/medium"
             title="close/medium"
           />
@@ -1397,6 +1402,7 @@ exports[`RoleCreateEdit Snapshot Tests matches snapshot in loading state 1`] = `
         >
           <svg
             class="text-inherit size-4 min-w-4"
+            data-filename="close.svg"
             data-test="close/medium"
             title="close/medium"
           />

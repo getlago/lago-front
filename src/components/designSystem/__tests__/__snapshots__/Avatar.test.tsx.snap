@@ -11,6 +11,7 @@ exports[`Avatar with AvatarBadge renders avatar with badge overlay 1`] = `
     >
       <svg
         class="text-white size-2 min-w-2"
+        data-filename="checkmark.svg"
         data-test="checkmark/xsmall"
         title="checkmark/xsmall"
       />

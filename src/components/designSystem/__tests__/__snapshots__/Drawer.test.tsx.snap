@@ -19,6 +19,7 @@ exports[`Drawer Snapshot Tests matches snapshot with ReactNode title 1`] = `
     >
       <svg
         class="text-inherit size-4 min-w-4"
+        data-filename="close.svg"
         data-test="close/medium"
         title="close/medium"
       />
@@ -56,6 +57,7 @@ exports[`Drawer Snapshot Tests matches snapshot with children as function 1`] = 
     >
       <svg
         class="text-inherit size-4 min-w-4"
+        data-filename="close.svg"
         data-test="close/medium"
         title="close/medium"
       />
@@ -98,6 +100,7 @@ exports[`Drawer Snapshot Tests matches snapshot with drawer open 1`] = `
     >
       <svg
         class="text-inherit size-4 min-w-4"
+        data-filename="close.svg"
         data-test="close/medium"
         title="close/medium"
       />
@@ -135,6 +138,7 @@ exports[`Drawer Snapshot Tests matches snapshot with fullContentHeight and no pa
     >
       <svg
         class="text-inherit size-4 min-w-4"
+        data-filename="close.svg"
         data-test="close/medium"
         title="close/medium"
       />
@@ -172,6 +176,7 @@ exports[`Drawer Snapshot Tests matches snapshot with sticky bottom bar 1`] = `
     >
       <svg
         class="text-inherit size-4 min-w-4"
+        data-filename="close.svg"
         data-test="close/medium"
         title="close/medium"
       />
@@ -221,6 +226,7 @@ exports[`Drawer Snapshot Tests matches snapshot with stickyBottomBar and custom 
     >
       <svg
         class="text-inherit size-4 min-w-4"
+        data-filename="close.svg"
         data-test="close/medium"
         title="close/medium"
       />

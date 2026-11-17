@@ -308,6 +308,7 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
               >
                 <svg
                   class="text-inherit size-4 min-w-4"
+                  data-filename="close-circle-filled.svg"
                   data-test="close-circle-filled/medium"
                   title="close-circle-filled/medium"
                 />
@@ -320,6 +321,7 @@ exports[`BillingFields Integration Tests WHEN rendering the component THEN shoul
               >
                 <svg
                   class="text-inherit size-4 min-w-4"
+                  data-filename="chevron-up-down.svg"
                   data-test="chevron-up-down/medium"
                   title="chevron-up-down/medium"
                 />

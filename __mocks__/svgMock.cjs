@@ -7,8 +7,10 @@ const camelcase = require('camelcase')
 
 module.exports = {
   process(src, filename, { transformerConfig }) {
-    const children =
-      transformerConfig?.withFilename === false ? {} : { children: path.basename(filename) }
+    const basename = path.basename(filename)
+    const filenameProps = transformerConfig?.filenameProp
+      ? { [transformerConfig.filenameProp]: basename }
+      : { children: basename }
 
     // Based on how SVGR generates a component name:
     // https://github.com/smooth-code/svgr/blob/01b194cf967347d43d4cbe6b434404731b87cf27/packages/core/src/state.js#L6
@@ -23,7 +25,7 @@ module.exports = {
           type: 'svg',
           ref: ref,
           key: null,
-          props: Object.assign({}, props, ${JSON.stringify(children)})
+          props: Object.assign({}, props, ${JSON.stringify(filenameProps)})
         };
       })`
 

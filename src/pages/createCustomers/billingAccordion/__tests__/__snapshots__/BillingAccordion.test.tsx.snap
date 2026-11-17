@@ -30,6 +30,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="chevron-right-filled.svg"
                 data-test="chevron-right-filled/medium"
                 title="chevron-right-filled/medium"
               />
@@ -88,6 +89,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="chevron-down-filled.svg"
                 data-test="chevron-down-filled/medium"
                 title="chevron-down-filled/medium"
               />
@@ -188,6 +190,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             >
                               <svg
                                 class="text-inherit size-4 min-w-4"
+                                data-filename="chevron-up-down.svg"
                                 data-test="chevron-up-down/medium"
                                 title="chevron-up-down/medium"
                               />
@@ -833,6 +836,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                               >
                                 <svg
                                   class="text-inherit size-4 min-w-4"
+                                  data-filename="close-circle-filled.svg"
                                   data-test="close-circle-filled/medium"
                                   title="close-circle-filled/medium"
                                 />
@@ -845,6 +849,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                               >
                                 <svg
                                   class="text-inherit size-4 min-w-4"
+                                  data-filename="chevron-up-down.svg"
                                   data-test="chevron-up-down/medium"
                                   title="chevron-up-down/medium"
                                 />
@@ -1234,6 +1239,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                               >
                                 <svg
                                   class="text-inherit size-4 min-w-4"
+                                  data-filename="close-circle-filled.svg"
                                   data-test="close-circle-filled/medium"
                                   title="close-circle-filled/medium"
                                 />
@@ -1246,6 +1252,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                               >
                                 <svg
                                   class="text-inherit size-4 min-w-4"
+                                  data-filename="chevron-up-down.svg"
                                   data-test="chevron-up-down/medium"
                                   title="chevron-up-down/medium"
                                 />
@@ -1311,6 +1318,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
             >
               <svg
                 class="text-inherit size-4 min-w-4"
+                data-filename="chevron-down-filled.svg"
                 data-test="chevron-down-filled/medium"
                 title="chevron-down-filled/medium"
               />
@@ -1411,6 +1419,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                             >
                               <svg
                                 class="text-inherit size-4 min-w-4"
+                                data-filename="chevron-up-down.svg"
                                 data-test="chevron-up-down/medium"
                                 title="chevron-up-down/medium"
                               />
@@ -2056,6 +2065,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                               >
                                 <svg
                                   class="text-inherit size-4 min-w-4"
+                                  data-filename="close-circle-filled.svg"
                                   data-test="close-circle-filled/medium"
                                   title="close-circle-filled/medium"
                                 />
@@ -2068,6 +2078,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                               >
                                 <svg
                                   class="text-inherit size-4 min-w-4"
+                                  data-filename="chevron-up-down.svg"
                                   data-test="chevron-up-down/medium"
                                   title="chevron-up-down/medium"
                                 />
@@ -2457,6 +2468,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                               >
                                 <svg
                                   class="text-inherit size-4 min-w-4"
+                                  data-filename="close-circle-filled.svg"
                                   data-test="close-circle-filled/medium"
                                   title="close-circle-filled/medium"
                                 />
@@ -2469,6 +2481,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                               >
                                 <svg
                                   class="text-inherit size-4 min-w-4"
+                                  data-filename="chevron-up-down.svg"
                                   data-test="chevron-up-down/medium"
                                   title="chevron-up-down/medium"
                                 />
