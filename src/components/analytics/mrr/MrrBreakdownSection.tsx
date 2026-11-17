@@ -190,7 +190,7 @@ export const MrrBreakdownSection = () => {
               content({ planInterval }) {
                 return (
                   <Typography variant="body">
-                    {translate(getIntervalTranslationKey[planInterval])}
+                    {planInterval ? translate(getIntervalTranslationKey[planInterval]) : '-'}
                   </Typography>
                 )
               },
