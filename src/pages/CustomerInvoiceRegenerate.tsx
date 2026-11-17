@@ -263,10 +263,8 @@ const CustomerInvoiceRegenerate = () => {
       return setFees((f) => f.map((fee) => (fee.id === id ? original : fee)))
     }
 
-    // `original.adjustedFee` can be true even for a fee the user never touched this
-    // session: every fee is re-wrapped as adjusted on each void/regenerate round.
-    // `originalFee` is the Lago-calculated root fee from before any adjustment ever
-    // happened, so reset restores those values instead of dropping the line item.
+    // Every fee is re-wrapped as adjusted on each void/regenerate round, so `originalFee`
+    // (the Lago-calculated root fee) is what reset must restore, not `original` itself.
     if (original.originalFee) {
       const { originalFee, ...rest } = original
       const resetFee = {

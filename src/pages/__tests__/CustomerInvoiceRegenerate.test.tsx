@@ -254,9 +254,7 @@ describe('CustomerInvoiceRegenerate - Fee Management Logic', () => {
     })
 
     it('should restore a fee already adjusted from a prior regenerate round to its calculated values', () => {
-      // Regression: every fee is re-wrapped as adjusted on each void/regenerate
-      // round, even ones never touched this session (BIL-718). Resetting must
-      // restore `originalFee`'s values rather than deleting the line item.
+      // Every fee is re-wrapped as adjusted each regenerate round, even untouched ones.
       const originalFees = [
         {
           id: 'fee-1',
@@ -679,7 +677,7 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
       })
     })
 
-    it('THEN resetting a fee already adjusted from a prior regenerate round restores its calculated values instead of deleting it (BIL-718)', async () => {
+    it('THEN resetting a fee already adjusted from a prior regenerate round restores its calculated values instead of deleting it', async () => {
       mockRegenerateInvoice.mockResolvedValue({})
       mockVoidInvoice.mockResolvedValue({})
 
