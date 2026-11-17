@@ -1,11 +1,14 @@
+import { X402NetworkEnvironmentEnum, X402NetworkFamilyEnum } from '~/generated/graphql'
+
+import { X402_TEST_CATALOG } from './x402NetworksFixture'
+
 import {
   getX402Environment,
   getX402Families,
   getX402Family,
+  getX402NetworkName,
   isValidAllowedOrigin,
   parseAllowedOrigins,
-  X402EnvironmentEnum,
-  X402FamilyEnum,
 } from '../x402Connection'
 
 describe('x402Connection', () => {
@@ -51,17 +54,29 @@ describe('x402Connection', () => {
 
   describe('getX402Environment', () => {
     it('GIVEN testnet networks THEN returns testnet', () => {
-      expect(getX402Environment(['eip155:84532'])).toBe(X402EnvironmentEnum.Testnet)
-    })
-
-    it('GIVEN mainnet networks THEN returns mainnet', () => {
-      expect(getX402Environment(['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'])).toBe(
-        X402EnvironmentEnum.Mainnet,
+      expect(getX402Environment(['eip155:84532'], X402_TEST_CATALOG)).toBe(
+        X402NetworkEnvironmentEnum.Testnet,
       )
     })
 
+    it('GIVEN mainnet networks THEN returns mainnet', () => {
+      expect(
+        getX402Environment(['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'], X402_TEST_CATALOG),
+      ).toBe(X402NetworkEnvironmentEnum.Mainnet)
+    })
+
     it('GIVEN no known network THEN returns undefined', () => {
-      expect(getX402Environment(['eip155:1'])).toBeUndefined()
+      expect(getX402Environment(['eip155:1'], X402_TEST_CATALOG)).toBeUndefined()
+    })
+  })
+
+  describe('getX402NetworkName', () => {
+    it('GIVEN a network of the catalog THEN returns its name', () => {
+      expect(getX402NetworkName('eip155:84532', X402_TEST_CATALOG)).toBe('Base Sepolia')
+    })
+
+    it('GIVEN a network the catalog does not list THEN returns its id', () => {
+      expect(getX402NetworkName('eip155:10', X402_TEST_CATALOG)).toBe('eip155:10')
     })
   })
 
@@ -69,15 +84,15 @@ describe('x402Connection', () => {
     it('GIVEN both chain families THEN returns each family once', () => {
       expect(
         getX402Families(['eip155:8453', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'eip155:8453']),
-      ).toEqual([X402FamilyEnum.Evm, X402FamilyEnum.Svm])
+      ).toEqual([X402NetworkFamilyEnum.Evm, X402NetworkFamilyEnum.Svm])
     })
   })
 
   describe('getX402Family', () => {
     it.each([
-      ['eip155:84532', X402FamilyEnum.Evm],
-      ['eip155:10', X402FamilyEnum.Evm],
-      ['solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z', X402FamilyEnum.Svm],
+      ['eip155:84532', X402NetworkFamilyEnum.Evm],
+      ['eip155:10', X402NetworkFamilyEnum.Evm],
+      ['solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z', X402NetworkFamilyEnum.Svm],
       ['cosmos:cosmoshub-4', undefined],
     ])('GIVEN %s THEN returns %s', (network, family) => {
       expect(getX402Family(network)).toBe(family)
